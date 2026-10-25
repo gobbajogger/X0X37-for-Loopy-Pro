@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "role": "Sole request tracker writer",
+  "outcome": "REVIEWED_TRACKER_PREPARED",
+  "parent_commit": "118d46a14ff7d8840de8e847a219a1c3eec8ace7",
+  "parent_tree": "a9849239d40f433a30f093952b9790fbc8f1f75d",
+  "policy_pin": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "scope": "Documentation/request continuity only; existing queue/history retained unchanged.",
+  "validation": {
+    "command": "python3 coordination/requests/validate_requests.py",
+    "exit_code": 0,
+    "requests": 30,
+    "preserved_branch_heads": 79,
+    "divergent": 45,
+    "ancestral": 34,
+    "negative_cases_passed": [
+      "duplicate request ID",
+      "missing request ID",
+      "missing open owner",
+      "missing open next action",
+      "erased request",
+      "valid supersession accepted",
+      "invalid dependency",
+      "missing test evidence",
+      "erased preserved head",
+      "invalid reference URL"
+    ],
+    "independent_read_only_review": "Public-safety/schema review passed except one SMC scope omission; fixed by retaining user_intent and completion criterion. Full-project export scope also restored.",
+    "reference_check": "All historical PR references are covered by retained 139-row queue except newly observed PR168; PR168 and website PR18 additionally read through GitHub API. URL/repository/head formats validated.",
+    "public_safety": "New files contain role names and technical summaries; no private paths, task/Library IDs, raw captures, transcript excerpts, secrets or binaries."
+  },
+  "not_run": [
+    "Firmware source tests",
+    "Native firmware/controller builds",
+    "Device tests",
+    "Publication endpoint verification"
+  ],
+  "remaining_limits": [
+    "Request evidence is a timestamped handoff, not full current-root acceptance.",
+    "PR168 head advanced to 6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67; metadata-only observation, no new acceptance inferred.",
+    "Remote tracker commit/readback is reported separately after push."
+  ]
+}

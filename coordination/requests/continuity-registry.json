@@ -1,0 +1,354 @@
+{
+  "schema_version": "1.0",
+  "initial_request_ids": [
+    "LX-REQ-001",
+    "LX-REQ-002",
+    "LX-REQ-003",
+    "LX-REQ-004",
+    "LX-REQ-005",
+    "LX-REQ-006",
+    "LX-REQ-007",
+    "LX-REQ-008",
+    "LX-REQ-009",
+    "LX-REQ-010",
+    "LX-REQ-011",
+    "LX-REQ-012",
+    "LX-REQ-013",
+    "LX-REQ-014",
+    "LX-REQ-015",
+    "LX-REQ-016",
+    "LX-REQ-017",
+    "LX-REQ-018",
+    "LX-REQ-019",
+    "LX-REQ-020",
+    "LX-REQ-021",
+    "LX-REQ-022",
+    "LX-REQ-023",
+    "LX-REQ-024",
+    "LX-REQ-025",
+    "LX-REQ-026",
+    "LX-REQ-027",
+    "LX-REQ-028",
+    "LX-REQ-029",
+    "LX-REQ-030"
+  ],
+  "initial_preserved_branch_heads": [
+    {
+      "name": "cursor/f02-loader-bind-stage2-fb90",
+      "sha": "a4f620a1bc0c97899a09fd40dddac98dfe4c476e"
+    },
+    {
+      "name": "cursor/f02-loader-stage1-e755",
+      "sha": "5293bcd8e9a4152c5dcdbd515390ee3a8e60f945"
+    },
+    {
+      "name": "cursor/f02-stage1-fb90",
+      "sha": "f350e9c42633f84cdf68f14456594600ceeed8b2"
+    },
+    {
+      "name": "cursor/f02-stage2-fb90",
+      "sha": "59fa738a03ee43691edfcd3580557a8e5dad1baa"
+    },
+    {
+      "name": "cursor/f02-stage3-fb90",
+      "sha": "80fa103c5d6143122c6c7f1da8dad649cf8ec8cc"
+    },
+    {
+      "name": "cursor/github-pages-installer-2b6f",
+      "sha": "1c65c1394237ada0dcadfcb40c86522cb82a154b"
+    },
+    {
+      "name": "cursor/merge-project-prs-0522",
+      "sha": "50397caa1977d79b05bfb2054ccf366577f5036a"
+    },
+    {
+      "name": "cursor/merge-safe-unmerged-0a14",
+      "sha": "74689a14e1128ee8442bed1db5095a21467996f3"
+    },
+    {
+      "name": "cursor/pillow-user-site-a089",
+      "sha": "0424423c017db76bfe078f056e45873e6c05e199"
+    },
+    {
+      "name": "cursor/smc-control-receive-ec70",
+      "sha": "b31f7ae6bda937db547dd92a236c52792806c3fe"
+    },
+    {
+      "name": "cursor/smc-mixer-ui-popup-stage6-blocked-8e03",
+      "sha": "b53545e9b8cbaad92ac141c42d61bb5a00a4a9c8"
+    },
+    {
+      "name": "cursor/smc-post-integration-bugtest-d011",
+      "sha": "cee47eeddc45e81d46a12be55880f43e33203976"
+    },
+    {
+      "name": "lane/archive-agent-rules-20261022",
+      "sha": "d3800c1beee5ab2e7b76e947c909179bd364173a"
+    },
+    {
+      "name": "lane/btr-feedback-session-audit-20261021",
+      "sha": "e699b7155472654ff74f5e33623bff1f9c8d2ae5"
+    },
+    {
+      "name": "lane/btr-smc-feedback-guide-20261021",
+      "sha": "c75edcfa8a335ff1e65b3cbecdf40a9ec9c97698"
+    },
+    {
+      "name": "lane/btr-subscription-security-recovery-20261021",
+      "sha": "e9cf25d136acfe8e980486846dc6f7213888dcea"
+    },
+    {
+      "name": "lane/bugfinder-bf018-cq-bass-off-20261024",
+      "sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+    },
+    {
+      "name": "lane/bugfinder-bf025-bass-direction-cycles-20261025",
+      "sha": "c9e9c8c16a5e7125490a8d6ec3a4461e8ce4bcad"
+    },
+    {
+      "name": "lane/build-catalog-controller-audit-20261023",
+      "sha": "7978c4ac88e69a2f63ebc4ae7b07fc7f013ab6d2"
+    },
+    {
+      "name": "lane/build-fastmath-boundary-20261023",
+      "sha": "349af1c64c971baa65c5b77baa26b99e79c18ee7"
+    },
+    {
+      "name": "lane/bundled-nightly-packaging-20261025",
+      "sha": "04cb592c47f4b8d5049f5399d7f6f45b50b92c2c"
+    },
+    {
+      "name": "lane/catalog-public-device-proof-gate-20261023",
+      "sha": "d9a4b9e41836936c0b63cffae778b320218e6ea9"
+    },
+    {
+      "name": "lane/controller-tail-admission-20261024-r17",
+      "sha": "bf5b200b2d2c0adbf0ad1c8b94f49b40c34577f5"
+    },
+    {
+      "name": "lane/data-safety-archive-slot-identity-20261023-1919",
+      "sha": "0d2705253882bff6b8554861abfe35504b775bb7"
+    },
+    {
+      "name": "lane/data-safety-backup-atomic-20261023-run4-1215",
+      "sha": "411e510cee1dc3fa63b9e51a1d4bf10803eb3843"
+    },
+    {
+      "name": "lane/data-safety-backup-dir-fsync-20261024-1111",
+      "sha": "4760dec8d176ca9877413817c9cebcb8e7b4a571"
+    },
+    {
+      "name": "lane/data-safety-ctl-atomic-publish-20261023-1728",
+      "sha": "71261795cfd1f71dd36d7396bd658fd09618c41e"
+    },
+    {
+      "name": "lane/data-safety-ctl-read-framing-20261024-1456",
+      "sha": "b5008faa87c2bb897a48f8a37df10b445bb26b77"
+    },
+    {
+      "name": "lane/data-safety-ota-loader-resume-20261024-0614",
+      "sha": "0482ca12a008eb69b278512979e48f1af47d2da9"
+    },
+    {
+      "name": "lane/data-safety-per-slot-readback-20261023-1135",
+      "sha": "15253f7b96e15720d1c243712805df197ab14846"
+    },
+    {
+      "name": "lane/data-safety-prewrite-snapshot-reconcile-20261024-0819",
+      "sha": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f"
+    },
+    {
+      "name": "lane/data-safety-restore-max-matching-20261024-0715",
+      "sha": "a99f4992e5bcbc5d677cae5a750d9684c0c78985"
+    },
+    {
+      "name": "lane/data-safety-slot-write-ack-20261024-1411",
+      "sha": "0ca385b947fb5317319461f15fe9b9a6f0184db2"
+    },
+    {
+      "name": "lane/data-safety-smp-read-bounds-20261024-1211",
+      "sha": "b85758ed84ee56cf116e782e509753923d02c4df"
+    },
+    {
+      "name": "lane/data-safety-unique-slot-targets-20261023",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9"
+    },
+    {
+      "name": "lane/direct-smc-verified-tests-20261022",
+      "sha": "fbb6c0d1886be130d0d374ac20b56981c35ddc5d"
+    },
+    {
+      "name": "lane/docs-bbgen-mit-notice-20261024",
+      "sha": "90ba9b6d19a3570a4282c8158b7bfd010dbd6bd7"
+    },
+    {
+      "name": "lane/editor-ota-dispatch-race-20261025",
+      "sha": "33434f47228e54a8ed949f6ea513902727fa2d18"
+    },
+    {
+      "name": "lane/hourly-build-bf025-c9e9c8c-build-evidence-20261025",
+      "sha": "3a56c1e1e27e7de19b2fd9003ff855fd58ea7369"
+    },
+    {
+      "name": "lane/installer-prod-hardware-evidence-gate-20261023",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9"
+    },
+    {
+      "name": "lane/installer-restore-target-guard-20261023",
+      "sha": "f8edd6e95b7945e7e381443d7636bc3e270c8527"
+    },
+    {
+      "name": "lane/integration-ble-clock-q16-data-20261023-1838",
+      "sha": "93af3b53f19330086e38b99d08ef3d834a75061b"
+    },
+    {
+      "name": "lane/integration-smc-clock-routes-20261023-1736",
+      "sha": "8557b698156f4d5ac6e19d6ad7f58c4d296bcebe"
+    },
+    {
+      "name": "lane/integration-smc-fastmath-clock-20261023-1637",
+      "sha": "233d310b2281ec4ed1acc8e98c3d573ae44fff57"
+    },
+    {
+      "name": "lane/interactive-surface-simulator-20261021",
+      "sha": "1b900a7e9a64227bb1247d2a212ef0babbd26146"
+    },
+    {
+      "name": "lane/mb-audit-integration-20261021",
+      "sha": "f5fd4d8652458b12bde2556e9cc9bdf873ad0a63"
+    },
+    {
+      "name": "lane/mb-cloud-transfer-20261020",
+      "sha": "354d85cb3b237f2dd3ad8f5595feff00fc2e83c1"
+    },
+    {
+      "name": "lane/mb-github-sync-20261021",
+      "sha": "8f1818645e142784cd5fe1a35939eb16ea988e2a"
+    },
+    {
+      "name": "lane/mb-historical-kit-tools-20261021",
+      "sha": "789768a0269549fb86003a6666bab1b38902dbf9"
+    },
+    {
+      "name": "lane/mb-native-dev-candidate-20261021",
+      "sha": "56e88bd134d5afdab315219ea12eb9819e3d2f95"
+    },
+    {
+      "name": "lane/mb-native-transfer-20261021",
+      "sha": "be6936875931a26a63567ea7c8148f45a4826366"
+    },
+    {
+      "name": "lane/mb-reference-smc-checkpoint-20261021",
+      "sha": "5ce17833d7b606625e5b6f492af53157a1ab6179"
+    },
+    {
+      "name": "lane/mb-smc-full-control-ui-20261025",
+      "sha": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe"
+    },
+    {
+      "name": "lane/mb-smc-reach-20261022",
+      "sha": "fa89cf992f088b83b2cfb98da5e77888a813cfb0"
+    },
+    {
+      "name": "lane/nightly-branch-policy-20261023",
+      "sha": "fcebd1240ad7a27919ae1c8d6edf2bed5a23d54f"
+    },
+    {
+      "name": "lane/nightly-installability-fulltree-20261024",
+      "sha": "332975a0c27009c73850110e309fe034264e3e13"
+    },
+    {
+      "name": "lane/opt-preserve-808-shift-20261021",
+      "sha": "3e706703884679139fdb60ccbc30df244a0ba1a6"
+    },
+    {
+      "name": "lane/opt-preserve-909-init-20261021",
+      "sha": "048b0aefeb2cdf3a0d20a9bb999312de05c61d7d"
+    },
+    {
+      "name": "lane/opt-preserve-mono-scratch-20261021",
+      "sha": "b8944a6a6d37b34f0148aa3e949264f60d5db55e"
+    },
+    {
+      "name": "lane/opt-preserve-reference-dev-20261021",
+      "sha": "3200990e0df914494c6311ad2cc8bc0cb71ec8b0"
+    },
+    {
+      "name": "lane/opt-preserve-reviewed-base-20261021",
+      "sha": "dba04be41076f53222da0f6a2b25cd24d27d3f14"
+    },
+    {
+      "name": "lane/opt-preserve-vendor-retirement-20261021",
+      "sha": "cba7e93e970e90366663bc9f4473034890386ccb"
+    },
+    {
+      "name": "lane/perf-gfx-canvas-bench-20261023-run11",
+      "sha": "ead4c3927a2de246153c016f0ebeb07e48437de7"
+    },
+    {
+      "name": "lane/performance-fastmath-hotpath-ubsan-20261023-r11",
+      "sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+    },
+    {
+      "name": "lane/performance-ima-delta-correction-20261024-1226",
+      "sha": "9c5a75d6c5f943892b79d1492ddee4b977459c86"
+    },
+    {
+      "name": "lane/pr103-r10-native-build-evidence-20261024-0404",
+      "sha": "8d50e0d25eb80a73114dd65b49616b932c5111f3"
+    },
+    {
+      "name": "lane/qa-nightly-safety-swing-master-slots-20261023-1120",
+      "sha": "78e161a5120bfeb043228125abfb45990e4cb090"
+    },
+    {
+      "name": "lane/qa-r22-host-harness-20261024",
+      "sha": "e7fbe198156b12ff3fa7b63ce45b4e3019dbe9cb"
+    },
+    {
+      "name": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "sha": "7e89df2b71b2b8e4409cc6a489f4939bbe0b71f7"
+    },
+    {
+      "name": "lane/safe-merge-pages-publisher-20261023",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9"
+    },
+    {
+      "name": "lane/seq-transport-request-order-20261023-1640",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9"
+    },
+    {
+      "name": "lane/smc-ble-data7-guard-20261023-1703",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9"
+    },
+    {
+      "name": "lane/smc-ble-link-epoch-20261023-1210",
+      "sha": "e99dacbb5e7ee8d5e22426f01a226276dc451efd"
+    },
+    {
+      "name": "lane/smc-ble-sysex-length-guard-20261023-1310",
+      "sha": "ca777a056e7de0075aac30927a4f6b158d55c465"
+    },
+    {
+      "name": "lane/smc-central-payload-data7-20261023-run5",
+      "sha": "71761953e149f9f718dceda0f9cac8aaa31b6179"
+    },
+    {
+      "name": "lane/smc-host-trs-source-guard-20261023-1721",
+      "sha": "defb0d8307a143beb6cb05c5acf5d428fa9b0865"
+    },
+    {
+      "name": "lane/smc-mmc-stop-overflow-20261023-1101",
+      "sha": "64d55323192cd40dd269a475e63523164a0e0169"
+    },
+    {
+      "name": "lane/smc-reject-invalid-midi-data-20261023",
+      "sha": "908722735c2040662af3a1263306358eb1eee79e"
+    },
+    {
+      "name": "lane/stage4-test-selector-failclosed-20261023",
+      "sha": "349af1c64c971baa65c5b77baa26b99e79c18ee7"
+    }
+  ],
+  "note": "Append-only continuity registry; changes do not remove the need to compare a previous accepted revision."
+}

@@ -1,0 +1,3441 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-10-25T09:02:53Z",
+  "purpose": "Durable public-safe request continuity. Unknown is not done; source-ready is not delivered.",
+  "snapshot_note": "Compact technical transcription of the reviewed 30-request handoff, with subsequent supplied deltas; observations retain their original times. No fresh firmware qualification asserted.",
+  "scope": {
+    "repositories": [
+      "gobbajogger/X0X37-for-Loopy-Pro",
+      "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+    ],
+    "queue_commit": "118d46a14ff7d8840de8e847a219a1c3eec8ace7",
+    "queue_records": 139,
+    "source_branches_enumerated": 216,
+    "limitations": [
+      "Accessible enumerated records and completed domain reviews, not omniscient account enumeration.",
+      "79 unmatched branches: 34 ancestral, 45 divergent. Divergence does not establish unique, abandoned or accepted work.",
+      "Historical content integration used 93449136; owner-flashed 58e2c520 is a separate evidence identity.",
+      "Supplied execution observations may lag; scheduler repair completion requires readback.",
+      "Historical source-write denials remain binding; tracker records grant no bypass.",
+      "Repository public; role owners and technical summaries only."
+    ]
+  },
+  "baseline": {
+    "firmware_nightly_source": "58e2c5205a02836df678083eaa8db9994b6192e8",
+    "hardware_status": "Elite-only owner flash reported; Pro and multi-controller not established",
+    "public_firmware_reference": "54f2ffbc",
+    "public_installer_reference": "9577aa1b",
+    "delivery_note": "Coordinator-supplied references, not freshly endpoint-verified here."
+  },
+  "policy": {
+    "writer": "Sole designated request tracker writer",
+    "preservation": "Append requests; retain old IDs and history. A removed record needs a tombstone linking it to retained successor requests with a reason. Never delete preserved branches through this ledger.",
+    "evidence": "source, test, build, deployed and hardware are distinct; scoped historical evidence cannot qualify a changed combined candidate.",
+    "authority": "Tracker maintenance grants no source merge, firmware publication, permission change or device authority.",
+    "unassigned": "Explicit unresolved ownership, not an assigned executor. Next action includes assignment or reconciliation.",
+    "update_rule": "For changed scope/status/evidence, append old values and observation time to record history before updating. Keep initial registry entries permanently; use --previous or --base-ref for cross-revision validation."
+  },
+  "records": [
+    {
+      "request_id": "LX-REQ-001",
+      "title": "Reset project without touching imported samples",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "RECONCILIATION_REQUIRED",
+      "priority": "P1",
+      "next_action": "Reconcile current reset and unavailable historical commits; assign lifecycle and sample-preservation QA.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-002",
+        "LX-REQ-003",
+        "LX-REQ-008",
+        "LX-REQ-028"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Reset/cancel safe stopped, playing, recording and external-clock; live/save/reboot agree; sample hashes unchanged.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 101,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/101",
+          "head": "08aef212e064b0db89312a9fd30fcd0d1c6454fc",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 120,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/120",
+          "head": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 130,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/130",
+          "head": "722c795278f3f3c6549b32187e90421a9243aadf",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 131,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/131",
+          "head": "65c4a5612a27425c02442f0f829affaf7b80b0a5",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 135,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/135",
+          "head": "e1ba9d6802c8229c5c96cdaa74c85f3e2c53ff07",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 2,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Issue remains open; absence of completion evidence does not prove absent implementation."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata."
+    },
+    {
+      "request_id": "LX-REQ-002",
+      "title": "Reliable explicit Save Project",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "QA_AND_RECONCILIATION_REQUIRED",
+      "priority": "P1",
+      "next_action": "Assign combined project/NOR/cache/save/power-loss QA for PR127 on current root; resolve collisions.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-028"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Distinct edits persist save/reboot/power interruption; no silent cache collision; samples preserved; exact-root tests and builds.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 127,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/127",
+          "head": "a03ca363e645c9e1d5528625c24494d18462b4fc",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 2,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR127 remains referenced, not accepted; wider RAM hash does not eliminate collisions."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Save all current project changes completely and durably."
+    },
+    {
+      "request_id": "LX-REQ-003",
+      "title": "Explicit Load Project and safe imported-project loading",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "QA_AND_RECONCILIATION_REQUIRED",
+      "priority": "P1",
+      "next_action": "Reconcile existing UI/serialization; assign staged-load, legacy migration, rollback and unsaved-edit tests.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-001",
+        "LX-REQ-002",
+        "LX-REQ-008",
+        "LX-REQ-028"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Reachable explicit load; invalid/truncated/unsupported input preserves current state; legacy PAN/HP, engine/MIDI/motion and samples correct.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 123,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/123",
+          "head": "5c592ec44638194842ae32d09471ac55901cbe19",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 128,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/128",
+          "head": "168869eecaa6a8cc4035c33928293131ada40226",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 3,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/3",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR123/128 referenced, not accepted; issue lacks current completion receipt."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Load saved/imported projects atomically with confirmation and rollback."
+    },
+    {
+      "request_id": "LX-REQ-004",
+      "title": "Portable full-project export and import",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "RECONCILIATION_REQUIRED",
+      "priority": "P1",
+      "next_action": "Locate existing transfer implementation and historical evidence before duplicating; define project-only versus embedded samples.",
+      "dependencies": [
+        "LX-REQ-002",
+        "LX-REQ-003"
+      ],
+      "related_requests": [
+        "LX-REQ-002",
+        "LX-REQ-003",
+        "LX-REQ-011",
+        "LX-REQ-028"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Versioned checksum full-project round trip; corruption/version/interruption rollback; sample identity preserved. Sample backup alone is insufficient.",
+      "known_source_references": [
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 4,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/4",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Historical source leads presently unresolvable; no standalone export completion surfaced."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Portable patterns, sounds, song, motion, settings and sample references with a safe embedded-sample policy."
+    },
+    {
+      "request_id": "LX-REQ-005",
+      "title": "Readable SMC mixer layout and deliberate controls",
+      "owner": "SMC layout and control implementation owner",
+      "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+      "status": "SOURCE_AND_ELITE_BUILD_REPORTED_UI_REFINEMENT_ACTIVE",
+      "priority": "P1",
+      "next_action": "Finish active-lane highlight and actual context-aware button labels, including filter S/R rather than assuming Solo/Record; independent review and exact-root qualification follow.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-006",
+        "LX-REQ-016",
+        "LX-REQ-030"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Eight readable strips, touched values and deliberate controls accepted at preview/device stage; qualified build/delivery; no unsupported physical mapping. Preserve transport/context-lock and deliberate second-press selection behavior; labels reflect actual context.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 150,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/150",
+          "head": "025fba5a777b74012bf0cc1746fda207482423bc",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 161,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/161",
+          "head": "516301da13f1c48f8ce6a17147be00b47937da7c",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 162,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/162",
+          "head": "43ef16e9b6455157c8e0df9e8c7b4a1434b3d5b8",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 168,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/168",
+          "head": "5c3d9f2fbd86030dc2f7e6d6d54a44414465b090",
+          "observed_at": "2026-10-25T09:02:53Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration.",
+          "current_head_metadata_only": "6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67",
+          "current_state": "open",
+          "draft": true,
+          "metadata_note": "Later API read observes an advanced head; original seed head retained. No delta code review, test/build or delivery qualification asserted.",
+          "metadata_observed_at": "2026-10-25T09:11:40Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR168 5c3d9f2fbd86030dc2f7e6d6d54a44414465b090 source and Elite build reported; refinement active. Pro, owner-installed and published outcome not established."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NATIVE_ELITE_ONLY_REPORTED"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Keep eight strips visible, touched values readable, correct context lock/transport and second-press selection."
+    },
+    {
+      "request_id": "LX-REQ-006",
+      "title": "Physical Pause/context-lock mapping and LED feedback",
+      "owner": "Replacement-control capture owner with SMC implementation owner",
+      "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+      "status": "ACTIVE_CAPTURE_MAPPING_UNVERIFIED",
+      "priority": "P1",
+      "next_action": "Obtain live labelled capture to identify actual Pause/control messages; preserve STOP and mapped actions; bind/verify only after identification.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-005"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Actual control identity and end-to-end lock/LED verified; STOP retained. Helper tests do not qualify physical routing.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 150,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/150",
+          "head": "025fba5a777b74012bf0cc1746fda207482423bc",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 18,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+          "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Prepared PR150 helper previously lacked MIDI caller; physical Pause and LED unverified."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Actual physical lock interaction and visible feedback while retaining STOP."
+    },
+    {
+      "request_id": "LX-REQ-007",
+      "title": "Multiple independent SMC controllers",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "IMPLEMENTATION_REQUIRED",
+      "priority": "P1",
+      "next_action": "Assign transport/controller implementer for per-slot queues, generations, Solo release, pickup and feedback on current accepted source.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-006",
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Combined overload/disconnect/reconnect/cross-controller tests; matching controller and Elite/Pro builds; explicit multi-controller hardware proof.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 18,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+          "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR18 shared 32-event queue can lose another controller Solo release and repurposes STOP 0x5D; do not merge wholesale."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Independent per-controller locks, pickup, Solo and feedback."
+    },
+    {
+      "request_id": "LX-REQ-008",
+      "title": "Reset/load/transport motion lifecycle safety",
+      "owner": "Motion/sequencer producer and independent QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "COMBINED_QA_REQUIRED",
+      "priority": "P1",
+      "next_action": "Pin one current combined root; reconcile motion/clip fixes and run boundary negatives.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "No stale queued actions, recording, lane reuse or note ownership across STOP/WAIT/reset/load/clip/pattern transitions.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 101,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/101",
+          "head": "08aef212e064b0db89312a9fd30fcd0d1c6454fc",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 120,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/120",
+          "head": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 130,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/130",
+          "head": "722c795278f3f3c6549b32187e90421a9243aadf",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 131,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/131",
+          "head": "65c4a5612a27425c02442f0f829affaf7b80b0a5",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 132,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/132",
+          "head": "4cfbbf76919c07905bad2632895bb456a2b7b31e",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 135,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/135",
+          "head": "e1ba9d6802c8229c5c96cdaa74c85f3e2c53ff07",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR101/132 heads unchanged in earlier review; owner knob satisfaction does not cover lifecycle boundaries."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Prevent stale REC/HOLD, queued actions, motion and note ownership across lifecycle changes."
+    },
+    {
+      "request_id": "LX-REQ-009",
+      "title": "Preserve probability/TIE and RANDOM behavior",
+      "owner": "Sequencer producer and independent QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "COMBINED_QA_REQUIRED",
+      "priority": "P1",
+      "next_action": "Combine engine/sequencer skipped-MIDI, orphan-TIE and RANDOM tests; adapt bass_on callbacks and swing parity.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Intended probability preserved; skipped notes emit no MIDI; orphan TIE cannot start note; RANDOM preview matches runtime.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 139,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/139",
+          "head": "55acb2fd442bd86f372e72e06727d7f27a4f5474",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 140,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/140",
+          "head": "4b67024e62bfd1b4d5789827334f6bea4f9b4e00",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 152,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/152",
+          "head": "d92f9735eb61eecc6dae30d510c0b56ab587ab00",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 159,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/159",
+          "head": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR159 scoped independent QA exists; scoped acceptance does not qualify full combined root."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Fix probability/MIDI/TIE inconsistency while preserving musical probability semantics."
+    },
+    {
+      "request_id": "LX-REQ-010",
+      "title": "Preserve unique recording/DSP fixes in older WIP",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+      "priority": "P1",
+      "next_action": "Extract unique recording, swing/index, signed-shift and limiter deltas onto current source, including PR65/140 parity.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-009",
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Each delta accepted or explicitly declined with reason; sanitizer/linked/native checks appropriate; no blind old-stack merge/discard.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 61,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/61",
+          "head": "b5ac731b86fed108fa5daa8e34581304fb36b6ba",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 70,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/70",
+          "head": "9564d183eba77c62fbd1af8555499c9c7e73c931",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 71,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/71",
+          "head": "4012987db3f04a2f3b062181fd6dd50a8adb6582",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 55,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/55",
+          "head": "6eb58874a32e8d072631f68136cb89c3e651f6a9",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 65,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/65",
+          "head": "61948df57dd38ee511067b78c3a59ef2f3e89939",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 57,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/57",
+          "head": "02bf5ad80ea451464865a69b3a146eb1e395c5ec",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 28,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/28",
+          "head": "832f8dbb0655cba8b9fd512be34c1e89ace185aa",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 68,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/68",
+          "head": "99543b84c4a785c6bd279721250d99db977b4da7",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Completed reviews identify unique residuals in apparently superseded stacks; rejected SMC ancestry must not return."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Recover useful older recording/DSP fixes without rejected SMC ancestry."
+    },
+    {
+      "request_id": "LX-REQ-011",
+      "title": "Durable sample backup/restore and same-device safety",
+      "owner": "Data Safety and Installer source owners",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "BLOCKED_SOURCE_WRITE_AND_QA",
+      "priority": "P1",
+      "next_action": "Resolve historical source-write denials through authorized route; integrate prepared repairs and run independent combined backup/export/reselect/readback/same-unit/OTA negatives.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Awaited durable reselectable/readable backup; correct unit/model/sample identity; no foreign unlink/orphan output; exact-source combined QA.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 102,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/102",
+          "head": "d058a74bea6a77378cdf5915690996e06f4e1d7c",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 114,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114",
+          "head": "64d7b0a6eaf55b5b603384a3e4801a8367d2a0c4",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 116,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/116",
+          "head": "459f59de67e8a1d5c6f0956c9d332b9da29b90a5",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 9,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/9",
+          "head": "47cc6eaaa43655192c9ee88d9e1217473fe4f2f4",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "R22–R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Prove durable usable sample backup before destructive update/restore."
+    },
+    {
+      "request_id": "LX-REQ-012",
+      "title": "Unified clear installer and sample-management page",
+      "owner": "Installer illustration implementation owner",
+      "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+      "status": "ACTIVE_CORRECTION_NOT_DEPLOYED",
+      "priority": "P1",
+      "next_action": "Complete faithful square 240x240 vector corrections in website PR18; preserve scripts/controls and historical SMC-preview label; review then single publisher.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-013"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Requested corrected page independently checked and served at intended URL with truthful build/preview labels; source-ready alone insufficient.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 14,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/14",
+          "head": "593c0fc3c18200fd887373bff4602bfd322f0d54",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 16,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/16",
+          "head": "cc7e7e8e68717acda8c774d4da8ca7d5cc401ff8",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 17,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/17",
+          "head": "7d920217b32edb7e3c93fae222a1c69a0025696f",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 18,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/18",
+          "head": "c778be046753101e1fab0c7004c479a07f3e00ff",
+          "observed_at": "2026-10-25T08:54:07Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR14/16/17 merged; prior gh-pages 9577aa1b reported. PR18 fidelity correction active; wide-card illustrations rejected; correction not deployed."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "PARTIAL_PREVIOUS_VERSION_CORRECTION_NOT_DEPLOYED"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls."
+    },
+    {
+      "request_id": "LX-REQ-013",
+      "title": "Public BT-inclusive NIGHTLY delivery",
+      "owner": "Controller notice/provenance completion owner",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "THREE_LIBC_NOTICE_MAPPINGS_REMAIN",
+      "priority": "P1",
+      "next_action": "Resolve three optimized-libc notice mappings; verify exact-package corresponding-source/notices; hand off publication under action-specific authority.",
+      "dependencies": [
+        "LX-REQ-016"
+      ],
+      "related_requests": [
+        "LX-REQ-011",
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Both models have qualifying firmware/controller provenance/notices; intended hash-verified catalog bytes and accurate installability; exact publication authority.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 15,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/15",
+          "head": "b26c0838f8d91788fd4c65bddcf66c2df05883b6",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 16,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/16",
+          "head": "cc7e7e8e68717acda8c774d4da8ca7d5cc401ff8",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Compiler-runtime attribution assessment completed and covered source/notices prepared, per handoff. Three optimized-libc mappings unresolved; nothing newly published."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "OLDER_PUBLIC_FIRMWARE_REPORTED"
+        },
+        "hardware": {
+          "state": "ELITE_ONLY_OWNER_FLASH_REPORTED"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Qualified matching BT-inclusive NIGHTLY app/controller delivery, distinct from private flash."
+    },
+    {
+      "request_id": "LX-REQ-014",
+      "title": "Accurate public catalog/history and retained installable builds",
+      "owner": "Catalog producer and website QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "LATEST_QA_SOURCE_PENDING_INTEGRATION",
+      "priority": "P2",
+      "next_action": "Use website PR13 1fe8a5b and latest scoped QA; reconcile publication/history and stale circular prerequisite.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-013"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Accepted history/schema/parity tests; served metadata matches approved packages; source-only rows never selectable by metadata promotion.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 13,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/13",
+          "head": "1fe8a5bf2e628a319de08efeb507a8d8be1d9e12",
+          "observed_at": "2026-10-25T08:54:07Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 12,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/12",
+          "head": "1fc6f9a372b2d326934411a12a18af707c3e7cee",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 5,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/5",
+          "head": "fec0cafbd6848f1ee6982e06c37039bfaded15b3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Latest R44: 139 history records, two DEV generations, zero selectable source packages; 467 assertions/16 mutations reported. PR12 gh-pages is publication."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Retain known-good installable builds and separate source/history from selectable firmware."
+    },
+    {
+      "request_id": "LX-REQ-015",
+      "title": "Recover residual installer UX and publisher safety changes",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+      "priority": "P2",
+      "next_action": "Map unique browser/accessibility/reconnect/catalog/safe-publication semantics onto accepted installer; retain production guards.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-011",
+        "LX-REQ-012"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Every unique behavior has current successor or explicit disposition; combined browser/OTA/accessibility QA; separate production publication gates.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 20,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/20",
+          "head": "96b55a90071745ef1411b1fb24bce15535289792",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 24,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/24",
+          "head": "6d93c9d220406537e63e96ff1c4b87395aef1cf1",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 30,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/30",
+          "head": "a0d738c9ef5f904250ca21292c3adc5031697d50",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 31,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/31",
+          "head": "491a0ddf2306ea94de14299332f0ac32a809583f",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 32,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
+          "head": "33c60ee9d3161de48b11ce890410384429983886",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 52,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/52",
+          "head": "c305b7cec490e0f8fd623784c2b87ef0553cb2c8",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 59,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/59",
+          "head": "38cc39c507f18425943d216393dc75c3a8e82803",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 67,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/67",
+          "head": "69d013956e259cb0faf83a801dfe463c247b0fd3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 83,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/83",
+          "head": "ed3fc80a084a4ab39de3335075e31be505e84750",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 92,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/92",
+          "head": "46299fb0f2a38af5fabc1372790e1b0f84e50dc3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 97,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/97",
+          "head": "8344f586e57512f651965f3ac21545b24a6c6241",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 100,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/100",
+          "head": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 46,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/46",
+          "head": "bf8ada5d4ca534c074e6e5dbfcc2a7f573089610",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR33/34/124 semantics in PR102; do not restore weaker early unlock. PR46 boolean is not authenticated per-model hardware proof."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Recover unique installer browser/accessibility/reconnect/catalog/publisher safety behavior."
+    },
+    {
+      "request_id": "LX-REQ-016",
+      "title": "Exact combined-root build, independent QA and integration",
+      "owner": "Sole firmware integrator with Build and independent QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "COMBINED_CANDIDATE_NOT_ESTABLISHED",
+      "priority": "P1",
+      "next_action": "Select bounded current candidate; consume producer proof; run remaining combined tests/build closure; record source-to-package-to-delivery receipts.",
+      "dependencies": [],
+      "related_requests": [],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Independent exact-root QA; authentic Elite/Pro/matching-controller hashes retained; gates and intended owner-installable bytes verified.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 122,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122",
+          "head": "b037edac22f914bd14c6ca7aaa2988a530abd13d",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 139,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/139",
+          "head": "55acb2fd442bd86f372e72e06727d7f27a4f5474",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 140,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/140",
+          "head": "4b67024e62bfd1b4d5789827334f6bea4f9b4e00",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 159,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/159",
+          "head": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Earlier Build start delayed 55m28s, completion unverified. Ready PR22/25 are docs; isolated PR159 artifacts do not qualify newer combined source."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Move requested source through qualified exact-root tests/builds into owner-installable bytes."
+    },
+    {
+      "request_id": "LX-REQ-017",
+      "title": "Fail-closed host checks and generators",
+      "owner": "Build source owner and independent QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "FIX_AND_QA_REQUIRED",
+      "priority": "P1",
+      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156–158 stack; serial/parallel failure and manifest/compatibility negatives.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Executed failures fail closed; unavailable inputs not-run; cleanup/manifest and supported Python verified at exact root.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 37,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/37",
+          "head": "a67023a19c158fc24ae855ae6b848c870f705a91",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 51,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/51",
+          "head": "367c57e4404cb9d45a35ee92a8bd030301534ff7",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 156,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/156",
+          "head": "7f34acc037327d38b2126a3607d6249b9e3daf11",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 157,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/157",
+          "head": "230b1c366e162d59adce377beb7ed5d9f3d891c7",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 158,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/158",
+          "head": "c41c9b35d4f231eec9e42df22014e1958f404dc9",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR156 head changed; earlier detailed finding needs delta reconciliation."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Executed failures must fail closed and unavailable checks remain not-run."
+    },
+    {
+      "request_id": "LX-REQ-018",
+      "title": "Honest qualified artifact handoff and safe destinations",
+      "owner": "Build and publisher source owners",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "FIX_AND_QA_REQUIRED",
+      "priority": "P1",
+      "next_action": "Remove dev-validator-only qualification implication and arbitrary-remote firmware push; reconcile product identity and cache invalidation.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Separate build/QA/licensing/admission states; allowed destinations enforced; exact-head negatives and cache-input matrix accepted.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 136,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/136",
+          "head": "4afb41165257c2aa4ee97ea5dc039e62d7f62f1d",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 53,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/53",
+          "head": "253b5101a9e3ebcc1e8dcca48764322909820b26",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 64,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/64",
+          "head": "defdbb0291947150f927e43ad779734c5aa0186c",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 151,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/151",
+          "head": "ec3591b6b99e2ad8cfaf5b99850763e379a0f035",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR136 extracted 15/15 is not admission QA. PR64 current static review exists; executed independent 9/9 predates output-guard/compiler edits; producer 12/12 not independent. PR151 matrix missing."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Separate build success from installability and restrict publication destinations."
+    },
+    {
+      "request_id": "LX-REQ-019",
+      "title": "Canonical workflow, plugin and skill coherence",
+      "owner": "Sole workflow integrator",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "TRIAL_ACCEPTED_DEFAULT_ADOPTION_PENDING",
+      "priority": "P2",
+      "next_action": "Reconcile stacked draft PR155 with intended protected target; synchronize authorized adapters/checkpoints and latest authority.",
+      "dependencies": [],
+      "related_requests": [],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Canonical revision/hash and adapters agree; reviewed adoption recorded; no unauthorized waiver policies; accurate default status.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 155,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+          "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "TRIAL_ACCEPTED_NOT_DEFAULT",
+          "summary": "Plugin 0.1.54 trial pins e2482a5039527195e346925c751ac3e3a333ada9; ten tests/30 links reported; not default adoption. No firmware rebuild for unchanged compiled inputs."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority."
+    },
+    {
+      "request_id": "LX-REQ-020",
+      "title": "Productive schedulers and reduced request-to-install lead time",
+      "owner": "Scheduler maintenance coordinator",
+      "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+      "status": "PROMPT_REPAIR_UNDERWAY_READBACK_PENDING",
+      "priority": "P1",
+      "next_action": "Complete authorized scoped prompt repair and verify supported readback; exact-head queue, one integrator, bounded handoffs, obsolete waits removed.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016",
+        "LX-REQ-019",
+        "LX-REQ-027"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Changed definitions read back and next delivery transitions observed; cadence/wording alone is not throughput/billing proof.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Advance independent requested work and reduce stale integration waits.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T09:01:30Z",
+          "status": "READ_ONLY_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+          "next_action": "Assign authorized scoped prompt update and verify readback.",
+          "source_state": "UNKNOWN",
+          "note": "Earlier review performed no scheduler updates; subsequent supplied delta says repair underway, completion needs readback."
+        }
+      ]
+    },
+    {
+      "request_id": "LX-REQ-021",
+      "title": "Preserve unique quickcheck and regression assets",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+      "priority": "P2",
+      "next_action": "Retain PR137 planner/test/docs absent from PR155; reconcile Projects dispatch, PR26 executable regressions and PR95 runner/docs.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-019"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Useful unique assets accepted or explicitly declined; no restored hosted execution or endless unchanged audits.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 137,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/137",
+          "head": "cd6462c012c032cb7f2abd6a2d761e0ba41499e3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 47,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/47",
+          "head": "f1cfcda95c1f9197ea67d2018364c2f2017acf8a",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 26,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/26",
+          "head": "9769aee7c7b0d79c59ffb33bd79f8a0d927f7373",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 29,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/29",
+          "head": "b41c8632a7a5cfeae387c82c952d71f5a37e61ae",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 95,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/95",
+          "head": "60267227cb1578ffb4887e6ee9bd6644ddd2bbb6",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 98,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/98",
+          "head": "ced47ffcdead6d194853cb296215570fd5f91bb6",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR137 three unique quickcheck files; PR95 production matches baseline but linked runner/tests/docs unique; PR98 production and anchor test match."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Retain useful quickcheck/regression assets while retiring superseded policy/hosted execution."
+    },
+    {
+      "request_id": "LX-REQ-022",
+      "title": "Stable clock and transport behavior",
+      "owner": "Clock and transport producers with independent QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "COMBINED_QA_REQUIRED",
+      "priority": "P1",
+      "next_action": "Choose one combined root; consume R39/PR122 evidence; test interleavings, overload and lifecycle cutoffs.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Internal/external clock, STOP order, reconnect/session isolation and overload pass together; native closure verified.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 35,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/35",
+          "head": "64b56a8fc8cc11352b1fdaeb9e283e6cee4baaf2",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 41,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/41",
+          "head": "a716acd9be62f7cd471d397b92767f4c0e7f6c9f",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 48,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/48",
+          "head": "3e75a5690a9dc0a085c2d4221f4d64b7e3d4a4b8",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 80,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/80",
+          "head": "70e10cfa068a1caceb446984459b220f3e110ad5",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 86,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/86",
+          "head": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 90,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/90",
+          "head": "e92755d1b7baa5edf4748f6aecf55a376142d7c1",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 112,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/112",
+          "head": "746181325297f72f0a175bf2c7b1aeea65c77869",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 117,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/117",
+          "head": "b69fb25ac2dcb510895745eff291f3166753f9c3",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 122,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122",
+          "head": "b037edac22f914bd14c6ca7aaa2988a530abd13d",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR122 R20 full-root QA pending in review; R19 builds insufficient and not multi-SMC."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Coherent clock ownership, STOP ordering, link/session filtering and timing."
+    },
+    {
+      "request_id": "LX-REQ-023",
+      "title": "Performance improvements with preserved behavior",
+      "owner": "Performance producer and independent QA",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "SCOPED_EVIDENCE_NOT_FULL_OUTCOME",
+      "priority": "P2",
+      "next_action": "Consume 44 paired comparisons; identify whole-renderer measurement/integration gap; avoid broad speedup claim.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Current-source parity and target-relevant measured benefit without regressions.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "R25 118e985 reports 44 paired comparisons; whole-renderer speedup unproven."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Measured hot-path improvements with sound/render behavior preserved."
+    },
+    {
+      "request_id": "LX-REQ-024",
+      "title": "Production main/picker promotion",
+      "owner": "Sole integrator and production publisher",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "BLOCKED_REVIEW_HARDWARE_AUTHORIZATION",
+      "priority": "P1",
+      "next_action": "Obtain required eligible nonauthor latest-push approval, missing Pro/per-model hardware evidence and production action authority.",
+      "dependencies": [
+        "LX-REQ-016"
+      ],
+      "related_requests": [
+        "LX-REQ-016",
+        "LX-REQ-013"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Required reviews, exact per-model source/package/device proof and explicit production approval; served bytes verified.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 148,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/148",
+          "head": "3862175d5815d2bd505ab04ca1c8e1868761a2e7",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 23,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/23",
+          "head": "90a0843e2d4670d8e982e5107789593d246a555a",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 145,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/145",
+          "head": "b61834c476859de68274a213d039bb9484e2e271",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Elite flash is not Pro/production readiness; connected author cannot supply eligible nonauthor approval."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Hardware-proven qualified production promotion with separate authorization."
+    },
+    {
+      "request_id": "LX-REQ-025",
+      "title": "Historical evidence archives and deliberate cleanup",
+      "owner": "Sole integrator",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "SOURCE_READY_OR_RECONCILE",
+      "priority": "P3",
+      "next_action": "Refresh docs PR22/25 heads/gates; reconcile PR27/62 conflicts/ancestry; retain limitations.",
+      "dependencies": [],
+      "related_requests": [],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Historical docs accurately archived; no implication of new firmware/hardware qualification.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 22,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/22",
+          "head": "3bfcb9932cbafc8c6b4e055f5bc491cc5f5f8977",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 25,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/25",
+          "head": "cfcd78d28c65a3f3ca1b9f2460319657a1df7e32",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 27,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/27",
+          "head": "546e189b130e16283ae58b8f7830c8cef7580462",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 62,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/62",
+          "head": "91797afbbf325237019d6471465e30a6935e6a15",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "PR22/25 open drafts, unchanged heads in supplied review; ready queue entries are docs."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Preserve reviewed useful history with accurate scope."
+    },
+    {
+      "request_id": "LX-REQ-026",
+      "title": "Retain accepted knob and already-integrated fixes",
+      "owner": "Sole integrator",
+      "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+      "status": "REUSE_EVIDENCE_NOT_NEW_IMPLEMENTATION",
+      "priority": "P3",
+      "next_action": "Map baseline successors and retain proof; reopen only changed/invalidated scope.",
+      "dependencies": [],
+      "related_requests": [],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Accepted behavior remains covered; no redundant old-stack merge or invented requalification.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 6,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/6",
+          "head": "fc23ca2a8536f71c3b0c7698ca6bef025270e40c",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 58,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/58",
+          "head": "e0c39288853ae3002caa153ad4a361e6c743755a",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 119,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/119",
+          "head": "4d2b81742675d720cbe53fe3ff013d88ebdf8d10",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 50,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/50",
+          "head": "dabd3f98a7d00e439c2cf1d2b44c799c22fb13c7",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 49,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/49",
+          "head": "1a1efce1df56c5fc48485e430f55d8bf8a03e0bf",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 66,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/66",
+          "head": "618eb189f6e25987d1b99b7e5279931425b480f8",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 75,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/75",
+          "head": "58e48d015dea7bb0fbb18712ac3ae82ef7f58775",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 91,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/91",
+          "head": "981b5829a46c09f1a6382754dbd988173ca6d092",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 96,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96",
+          "head": "74f18fe19a95cb885280a373cb0dd9d53500c193",
+          "observed_at": "2026-10-25T08:17:29Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Owner reports knobs working well; integration comparison baseline 93449136 is not automatic qualification of 58e2c520."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Keep accepted knob/other fixes without restarting when new requests arrive."
+    },
+    {
+      "request_id": "LX-REQ-027",
+      "title": "Durable request/progress tracking and parallel continuity",
+      "owner": "Sole request tracker writer",
+      "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+      "status": "TRACKER_IMPLEMENTATION_ACTIVE",
+      "priority": "P1",
+      "next_action": "Persist reviewed ledger/index and validator; independent public-safety review; verify remote branch delivery; continue evidence updates through designated writer.",
+      "dependencies": [],
+      "related_requests": [],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Stable IDs, owner/state/next action/dependencies/criteria and separated evidence; no history discarded or unknown treated done.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "Initial tracker preparation; durable branch delivery remains pending until independently verified."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "No request silently lost or treated done when source-ready.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T09:01:30Z",
+          "status": "TRACKER_PREPARATION_ACTIVE",
+          "next_action": "Persist reviewed ledger through sole writer.",
+          "source_state": "UNKNOWN"
+        }
+      ]
+    },
+    {
+      "request_id": "LX-REQ-028",
+      "title": "Recover missing historical feature provenance",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "MISSING_SOURCE_PROVENANCE",
+      "priority": "P1",
+      "next_action": "Locate reported 7537a46 and 66fb5c7d5ceec356513bf54b7d7b7ff499526909 via legitimate handoffs; compare current source before reimplementation.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-029"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Reachable commits/recovered reviewed source or documented absence; update feature records with remaining scope.",
+      "known_source_references": [
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 2,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        },
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 3,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/3",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        },
+        {
+          "type": "issue",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 4,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/4",
+          "state": "open",
+          "observed_at": "2026-10-25T08:53:19Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "GitHub lookups returned 422 no commit found at 08:54; not proof absent elsewhere."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Locate reported historical reset/save/load/export work before duplication."
+    },
+    {
+      "request_id": "LX-REQ-029",
+      "title": "Account for preserved branches outside PR queue",
+      "owner": "unassigned",
+      "owner_execution_state": "UNASSIGNED",
+      "status": "UNCLASSIFIED_BRANCH_INVENTORY",
+      "priority": "P2",
+      "next_action": "Reconcile diverged residuals with accepted content/reviews; prioritize project/loader, data safety and performance; retain ancestral evidence.",
+      "dependencies": [],
+      "related_requests": [],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "Each unmatched head has explicit request/successor/archive disposition; no bulk deletion or abandonment assumption.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+          "summary": "216 branches enumerated; 79 queue-unmapped: 34 ancestral, 45 divergent. Divergence is not proof of unique or abandoned work."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Preserve and disposition every branch-only request lead."
+    },
+    {
+      "request_id": "LX-REQ-030",
+      "title": "Explore Up/Down knob banks and eighth-strip mode controls",
+      "owner": "Active SMC UI refinement and design owner",
+      "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+      "status": "DESIGN_ONLY_OWNER_REVIEW_REQUIRED",
+      "priority": "P1",
+      "next_action": "After narrow UI refinement, inventory Up/Down and strip8 mute/Solo/arm/mode use; deliver mapping/conflict preview for owner acceptance before implementation.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-005",
+        "LX-REQ-006",
+        "LX-REQ-007"
+      ],
+      "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+      "completion_criterion": "First stage: concrete mapping preview with preserved behavior/conflicts. Implementation separate after owner acceptance, then independent tests/build/delivery.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 168,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/168",
+          "head": "5c3d9f2fbd86030dc2f7e6d6d54a44414465b090",
+          "observed_at": "2026-10-25T09:02:53Z",
+          "snapshot_note": "Historical handoff reference; refresh before integration.",
+          "current_head_metadata_only": "6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67",
+          "current_state": "open",
+          "draft": true,
+          "metadata_note": "Later API read observes an advanced head; original seed head retained. No delta code review, test/build or delivery qualification asserted.",
+          "metadata_observed_at": "2026-10-25T09:11:40Z"
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "DESIGN_NOT_IMPLEMENTED",
+          "summary": "Design-only. PR168 is existing UI baseline, not bank/mode implementation evidence."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+        },
+        "build": {
+          "state": "NOT_APPLICABLE_TO_UNIMPLEMENTED_DESIGN"
+        },
+        "deployed": {
+          "state": "NOT_IMPLEMENTED"
+        },
+        "hardware": {
+          "state": "CONTROL_USE_INVENTORY_PENDING"
+        }
+      },
+      "updated_at": "2026-10-25T09:02:53Z",
+      "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+      "user_intent": "Explore Up/Down mapping banks and strip8 mode controls through owner-reviewed design first."
+    }
+  ],
+  "unclassified_preserved_branches": [
+    {
+      "name": "cursor/f02-loader-bind-stage2-fb90",
+      "sha": "a4f620a1bc0c97899a09fd40dddac98dfe4c476e",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 17,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/f02-loader-stage1-e755",
+      "sha": "5293bcd8e9a4152c5dcdbd515390ee3a8e60f945",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 7,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/f02-stage1-fb90",
+      "sha": "f350e9c42633f84cdf68f14456594600ceeed8b2",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 15,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/f02-stage2-fb90",
+      "sha": "59fa738a03ee43691edfcd3580557a8e5dad1baa",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 18,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/f02-stage3-fb90",
+      "sha": "80fa103c5d6143122c6c7f1da8dad649cf8ec8cc",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 19,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/github-pages-installer-2b6f",
+      "sha": "1c65c1394237ada0dcadfcb40c86522cb82a154b",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 5,
+        "behind_by": 156,
+        "merge_base": "4a219ff423a5a158434e39d7872772ae7c9df20c"
+      }
+    },
+    {
+      "name": "cursor/merge-project-prs-0522",
+      "sha": "50397caa1977d79b05bfb2054ccf366577f5036a",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 24,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/merge-safe-unmerged-0a14",
+      "sha": "74689a14e1128ee8442bed1db5095a21467996f3",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 6,
+        "behind_by": 158,
+        "merge_base": "e00741e2c1e8a018e7a7229dfd279e26aec34126"
+      }
+    },
+    {
+      "name": "cursor/pillow-user-site-a089",
+      "sha": "0424423c017db76bfe078f056e45873e6c05e199",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 16,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "cursor/smc-control-receive-ec70",
+      "sha": "b31f7ae6bda937db547dd92a236c52792806c3fe",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 1,
+        "behind_by": 159,
+        "merge_base": "5b3804721191a74647f96407669fc925c75282aa"
+      }
+    },
+    {
+      "name": "cursor/smc-mixer-ui-popup-stage6-blocked-8e03",
+      "sha": "b53545e9b8cbaad92ac141c42d61bb5a00a4a9c8",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 24,
+        "behind_by": 156,
+        "merge_base": "4a219ff423a5a158434e39d7872772ae7c9df20c"
+      }
+    },
+    {
+      "name": "cursor/smc-post-integration-bugtest-d011",
+      "sha": "cee47eeddc45e81d46a12be55880f43e33203976",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 5,
+        "behind_by": 157,
+        "merge_base": "73d25b6d431aa5eaabaab54a0d640df2526fead4"
+      }
+    },
+    {
+      "name": "lane/archive-agent-rules-20261022",
+      "sha": "d3800c1beee5ab2e7b76e947c909179bd364173a",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 166,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/btr-feedback-session-audit-20261021",
+      "sha": "e699b7155472654ff74f5e33623bff1f9c8d2ae5",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 165,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/btr-smc-feedback-guide-20261021",
+      "sha": "c75edcfa8a335ff1e65b3cbecdf40a9ec9c97698",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 164,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/btr-subscription-security-recovery-20261021",
+      "sha": "e9cf25d136acfe8e980486846dc6f7213888dcea",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 167,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/bugfinder-bf018-cq-bass-off-20261024",
+      "sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 153,
+        "merge_base": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+      }
+    },
+    {
+      "name": "lane/bugfinder-bf025-bass-direction-cycles-20261025",
+      "sha": "c9e9c8c16a5e7125490a8d6ec3a4461e8ce4bcad",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 4,
+        "behind_by": 24,
+        "merge_base": "54f2ffbc3124f7449a69067dc8215a2d91a2e675"
+      }
+    },
+    {
+      "name": "lane/build-catalog-controller-audit-20261023",
+      "sha": "7978c4ac88e69a2f63ebc4ae7b07fc7f013ab6d2",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 2,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/build-fastmath-boundary-20261023",
+      "sha": "349af1c64c971baa65c5b77baa26b99e79c18ee7",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 29,
+        "behind_by": 156,
+        "merge_base": "4a219ff423a5a158434e39d7872772ae7c9df20c"
+      }
+    },
+    {
+      "name": "lane/bundled-nightly-packaging-20261025",
+      "sha": "04cb592c47f4b8d5049f5399d7f6f45b50b92c2c",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 23,
+        "merge_base": "04cb592c47f4b8d5049f5399d7f6f45b50b92c2c"
+      }
+    },
+    {
+      "name": "lane/catalog-public-device-proof-gate-20261023",
+      "sha": "d9a4b9e41836936c0b63cffae778b320218e6ea9",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 3,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/controller-tail-admission-20261024-r17",
+      "sha": "bf5b200b2d2c0adbf0ad1c8b94f49b40c34577f5",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 35,
+        "merge_base": "bf5b200b2d2c0adbf0ad1c8b94f49b40c34577f5"
+      }
+    },
+    {
+      "name": "lane/data-safety-archive-slot-identity-20261023-1919",
+      "sha": "0d2705253882bff6b8554861abfe35504b775bb7",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 153,
+        "merge_base": "0d2705253882bff6b8554861abfe35504b775bb7"
+      }
+    },
+    {
+      "name": "lane/data-safety-backup-atomic-20261023-run4-1215",
+      "sha": "411e510cee1dc3fa63b9e51a1d4bf10803eb3843",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 148,
+        "merge_base": "411e510cee1dc3fa63b9e51a1d4bf10803eb3843"
+      }
+    },
+    {
+      "name": "lane/data-safety-backup-dir-fsync-20261024-1111",
+      "sha": "4760dec8d176ca9877413817c9cebcb8e7b4a571",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 87,
+        "merge_base": "4760dec8d176ca9877413817c9cebcb8e7b4a571"
+      }
+    },
+    {
+      "name": "lane/data-safety-ctl-atomic-publish-20261023-1728",
+      "sha": "71261795cfd1f71dd36d7396bd658fd09618c41e",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 153,
+        "merge_base": "71261795cfd1f71dd36d7396bd658fd09618c41e"
+      }
+    },
+    {
+      "name": "lane/data-safety-ctl-read-framing-20261024-1456",
+      "sha": "b5008faa87c2bb897a48f8a37df10b445bb26b77",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 40,
+        "merge_base": "b5008faa87c2bb897a48f8a37df10b445bb26b77"
+      }
+    },
+    {
+      "name": "lane/data-safety-ota-loader-resume-20261024-0614",
+      "sha": "0482ca12a008eb69b278512979e48f1af47d2da9",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 124,
+        "merge_base": "0482ca12a008eb69b278512979e48f1af47d2da9"
+      }
+    },
+    {
+      "name": "lane/data-safety-per-slot-readback-20261023-1135",
+      "sha": "15253f7b96e15720d1c243712805df197ab14846",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 152,
+        "merge_base": "15253f7b96e15720d1c243712805df197ab14846"
+      }
+    },
+    {
+      "name": "lane/data-safety-prewrite-snapshot-reconcile-20261024-0819",
+      "sha": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 118,
+        "merge_base": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f"
+      }
+    },
+    {
+      "name": "lane/data-safety-restore-max-matching-20261024-0715",
+      "sha": "a99f4992e5bcbc5d677cae5a750d9684c0c78985",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 121,
+        "merge_base": "a99f4992e5bcbc5d677cae5a750d9684c0c78985"
+      }
+    },
+    {
+      "name": "lane/data-safety-slot-write-ack-20261024-1411",
+      "sha": "0ca385b947fb5317319461f15fe9b9a6f0184db2",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 49,
+        "merge_base": "0ca385b947fb5317319461f15fe9b9a6f0184db2"
+      }
+    },
+    {
+      "name": "lane/data-safety-smp-read-bounds-20261024-1211",
+      "sha": "b85758ed84ee56cf116e782e509753923d02c4df",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 81,
+        "merge_base": "b85758ed84ee56cf116e782e509753923d02c4df"
+      }
+    },
+    {
+      "name": "lane/data-safety-unique-slot-targets-20261023",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/direct-smc-verified-tests-20261022",
+      "sha": "fbb6c0d1886be130d0d374ac20b56981c35ddc5d",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 166,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/docs-bbgen-mit-notice-20261024",
+      "sha": "90ba9b6d19a3570a4282c8158b7bfd010dbd6bd7",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 28,
+        "merge_base": "90ba9b6d19a3570a4282c8158b7bfd010dbd6bd7"
+      }
+    },
+    {
+      "name": "lane/editor-ota-dispatch-race-20261025",
+      "sha": "33434f47228e54a8ed949f6ea513902727fa2d18",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 22,
+        "merge_base": "33434f47228e54a8ed949f6ea513902727fa2d18"
+      }
+    },
+    {
+      "name": "lane/hourly-build-bf025-c9e9c8c-build-evidence-20261025",
+      "sha": "3a56c1e1e27e7de19b2fd9003ff855fd58ea7369",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 1,
+        "behind_by": 24,
+        "merge_base": "54f2ffbc3124f7449a69067dc8215a2d91a2e675"
+      }
+    },
+    {
+      "name": "lane/installer-prod-hardware-evidence-gate-20261023",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/installer-restore-target-guard-20261023",
+      "sha": "f8edd6e95b7945e7e381443d7636bc3e270c8527",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 2,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/integration-ble-clock-q16-data-20261023-1838",
+      "sha": "93af3b53f19330086e38b99d08ef3d834a75061b",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 3,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/integration-smc-clock-routes-20261023-1736",
+      "sha": "8557b698156f4d5ac6e19d6ad7f58c4d296bcebe",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 2,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/integration-smc-fastmath-clock-20261023-1637",
+      "sha": "233d310b2281ec4ed1acc8e98c3d573ae44fff57",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 1,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/interactive-surface-simulator-20261021",
+      "sha": "1b900a7e9a64227bb1247d2a212ef0babbd26146",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 160,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-audit-integration-20261021",
+      "sha": "f5fd4d8652458b12bde2556e9cc9bdf873ad0a63",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 73,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-cloud-transfer-20261020",
+      "sha": "354d85cb3b237f2dd3ad8f5595feff00fc2e83c1",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 224,
+        "merge_base": "354d85cb3b237f2dd3ad8f5595feff00fc2e83c1"
+      }
+    },
+    {
+      "name": "lane/mb-github-sync-20261021",
+      "sha": "8f1818645e142784cd5fe1a35939eb16ea988e2a",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 1,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-historical-kit-tools-20261021",
+      "sha": "789768a0269549fb86003a6666bab1b38902dbf9",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 86,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-native-dev-candidate-20261021",
+      "sha": "56e88bd134d5afdab315219ea12eb9819e3d2f95",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 84,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-native-transfer-20261021",
+      "sha": "be6936875931a26a63567ea7c8148f45a4826366",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 1,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-reference-smc-checkpoint-20261021",
+      "sha": "5ce17833d7b606625e5b6f492af53157a1ab6179",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 105,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/mb-smc-full-control-ui-20261025",
+      "sha": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 21,
+        "merge_base": "784607fcb21ec9a90bcbae7c6b9a0118f4c71dfe"
+      }
+    },
+    {
+      "name": "lane/mb-smc-reach-20261022",
+      "sha": "fa89cf992f088b83b2cfb98da5e77888a813cfb0",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 2,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/nightly-branch-policy-20261023",
+      "sha": "fcebd1240ad7a27919ae1c8d6edf2bed5a23d54f",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 154,
+        "merge_base": "fcebd1240ad7a27919ae1c8d6edf2bed5a23d54f"
+      }
+    },
+    {
+      "name": "lane/nightly-installability-fulltree-20261024",
+      "sha": "332975a0c27009c73850110e309fe034264e3e13",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 33,
+        "merge_base": "332975a0c27009c73850110e309fe034264e3e13"
+      }
+    },
+    {
+      "name": "lane/opt-preserve-808-shift-20261021",
+      "sha": "3e706703884679139fdb60ccbc30df244a0ba1a6",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 131,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/opt-preserve-909-init-20261021",
+      "sha": "048b0aefeb2cdf3a0d20a9bb999312de05c61d7d",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 132,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/opt-preserve-mono-scratch-20261021",
+      "sha": "b8944a6a6d37b34f0148aa3e949264f60d5db55e",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 131,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/opt-preserve-reference-dev-20261021",
+      "sha": "3200990e0df914494c6311ad2cc8bc0cb71ec8b0",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 163,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/opt-preserve-reviewed-base-20261021",
+      "sha": "dba04be41076f53222da0f6a2b25cd24d27d3f14",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 130,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/opt-preserve-vendor-retirement-20261021",
+      "sha": "cba7e93e970e90366663bc9f4473034890386ccb",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 164,
+        "behind_by": 160,
+        "merge_base": "f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97"
+      }
+    },
+    {
+      "name": "lane/perf-gfx-canvas-bench-20261023-run11",
+      "sha": "ead4c3927a2de246153c016f0ebeb07e48437de7",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 3,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/performance-fastmath-hotpath-ubsan-20261023-r11",
+      "sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 153,
+        "merge_base": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+      }
+    },
+    {
+      "name": "lane/performance-ima-delta-correction-20261024-1226",
+      "sha": "9c5a75d6c5f943892b79d1492ddee4b977459c86",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 1,
+        "behind_by": 153,
+        "merge_base": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+      }
+    },
+    {
+      "name": "lane/pr103-r10-native-build-evidence-20261024-0404",
+      "sha": "8d50e0d25eb80a73114dd65b49616b932c5111f3",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 2,
+        "behind_by": 53,
+        "merge_base": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e"
+      }
+    },
+    {
+      "name": "lane/qa-nightly-safety-swing-master-slots-20261023-1120",
+      "sha": "78e161a5120bfeb043228125abfb45990e4cb090",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 16,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/qa-r22-host-harness-20261024",
+      "sha": "e7fbe198156b12ff3fa7b63ce45b4e3019dbe9cb",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 26,
+        "merge_base": "e7fbe198156b12ff3fa7b63ce45b4e3019dbe9cb"
+      }
+    },
+    {
+      "name": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "sha": "7e89df2b71b2b8e4409cc6a489f4939bbe0b71f7",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 25,
+        "merge_base": "7e89df2b71b2b8e4409cc6a489f4939bbe0b71f7"
+      }
+    },
+    {
+      "name": "lane/safe-merge-pages-publisher-20261023",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/seq-transport-request-order-20261023-1640",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/smc-ble-data7-guard-20261023-1703",
+      "sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 155,
+        "merge_base": "c9718ae833eb64a5191c350922593df8a36017c9"
+      }
+    },
+    {
+      "name": "lane/smc-ble-link-epoch-20261023-1210",
+      "sha": "e99dacbb5e7ee8d5e22426f01a226276dc451efd",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 148,
+        "merge_base": "e99dacbb5e7ee8d5e22426f01a226276dc451efd"
+      }
+    },
+    {
+      "name": "lane/smc-ble-sysex-length-guard-20261023-1310",
+      "sha": "ca777a056e7de0075aac30927a4f6b158d55c465",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 152,
+        "merge_base": "ca777a056e7de0075aac30927a4f6b158d55c465"
+      }
+    },
+    {
+      "name": "lane/smc-central-payload-data7-20261023-run5",
+      "sha": "71761953e149f9f718dceda0f9cac8aaa31b6179",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 152,
+        "merge_base": "71761953e149f9f718dceda0f9cac8aaa31b6179"
+      }
+    },
+    {
+      "name": "lane/smc-host-trs-source-guard-20261023-1721",
+      "sha": "defb0d8307a143beb6cb05c5acf5d428fa9b0865",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 150,
+        "merge_base": "defb0d8307a143beb6cb05c5acf5d428fa9b0865"
+      }
+    },
+    {
+      "name": "lane/smc-mmc-stop-overflow-20261023-1101",
+      "sha": "64d55323192cd40dd269a475e63523164a0e0169",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 149,
+        "merge_base": "64d55323192cd40dd269a475e63523164a0e0169"
+      }
+    },
+    {
+      "name": "lane/smc-reject-invalid-midi-data-20261023",
+      "sha": "908722735c2040662af3a1263306358eb1eee79e",
+      "status": "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "behind",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 0,
+        "behind_by": 149,
+        "merge_base": "908722735c2040662af3a1263306358eb1eee79e"
+      }
+    },
+    {
+      "name": "lane/stage4-test-selector-failclosed-20261023",
+      "sha": "349af1c64c971baa65c5b77baa26b99e79c18ee7",
+      "status": "DIVERGED_CONTENT_DISPOSITION_UNKNOWN",
+      "request_id": "LX-REQ-029",
+      "comparison_to_nightly": {
+        "status": "diverged",
+        "baseline": "58e2c5205a02836df678083eaa8db9994b6192e8",
+        "observed_at": "2026-10-25T09:01:04Z",
+        "provenance": "Supplied independently reviewed ancestry snapshot; not rerun by tracker writer.",
+        "ahead_by": 29,
+        "behind_by": 156,
+        "merge_base": "4a219ff423a5a158434e39d7872772ae7c9df20c"
+      }
+    }
+  ],
+  "preserved_branch_classification_counts": {
+    "DIVERGED_CONTENT_DISPOSITION_UNKNOWN": 45,
+    "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED": 34
+  },
+  "tombstones": []
+}
