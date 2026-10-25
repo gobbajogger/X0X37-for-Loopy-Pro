@@ -53,7 +53,7 @@ static void test_wire(void)
     busfx_init(&s);
     for (i = 0; i < 128; i++)
         x[i] = y[i] = ((i * 17) % 50) * 0.01f - 0.25f;
-    busfx_apply(&s, y, 0, 0, 0, 1, 128, 127.0f, 0, BFX_GATE, 128, 128, BPM, T0);
+    busfx_apply(&s, 0, 0, y, 0, 0, 0, 1, 128, 127.0f, 0, BFX_GATE, 128, 128, BPM, T0);
     for (i = 0; i < 128; i++)
         if (y[i] != x[i])
             break;
@@ -76,14 +76,16 @@ static void test_main_throw(void)
 static void test_stutter_stereo(void)
 {
     busfx_t s;
+    busfx_stut_t stut;
     float l[2048], r[2048];
     int i;
     busfx_init(&s);
+    busfx_stut_init(&stut);
     for (i = 0; i < 2048; i++) {
         l[i] = 1.0f;
         r[i] = 0.0f;
     }
-    busfx_apply(&s, l, r, 0, 0, 2, 2048, 127.0f, 1, BFX_STUT, 2048, 2048, BPM, 0u);
+    busfx_apply(&s, &stut, 0, l, r, 0, 0, 2, 2048, 127.0f, 1, BFX_STUT, 2048, 2048, BPM, 0u);
     expect(max_abs(r, 2048) < 0.08f, "stutter right stays dry when left-only input");
     expect(max_abs(l, 2048) > 0.2f, "stutter left still moves");
 }
@@ -94,9 +96,9 @@ static void test_settling(void)
     float x[512];
     busfx_init(&s);
     fill_sine(x, 512, 200.0f, 0.5f);
-    busfx_apply(&s, x, 0, 0, 0, 1, 256, 127.0f, 1, BFX_HP, 256, 256, BPM, T0);
+    busfx_apply(&s, 0, 0, x, 0, 0, 0, 1, 256, 127.0f, 1, BFX_HP, 256, 256, BPM, T0);
     expect(busfx_settling(&s), "HP hold leaves filters settling");
-    busfx_apply(&s, x + 256, 0, 0, 0, 1, 256, 127.0f, 0, BFX_HP, 256, 256, BPM, T0);
+    busfx_apply(&s, 0, 0, x + 256, 0, 0, 0, 1, 256, 127.0f, 0, BFX_HP, 256, 256, BPM, T0);
     expect(busfx_settling(&s), "release keeps HP settling");
 }
 
@@ -108,7 +110,7 @@ static void test_rhythm_gate(void)
     busfx_init(&s);
     fill_sine(x, 16384, 110.0f, 0.5f);
     memcpy(dry, x, sizeof dry);
-    busfx_apply(&s, x, 0, 0, 0, 1, 16384, 127.0f, 1, BFX_GATE16, 16384, 16384, BPM, T0);
+    busfx_apply(&s, 0, 0, x, 0, 0, 0, 1, 16384, 127.0f, 1, BFX_GATE16, 16384, 16384, BPM, T0);
     expect(rms(x + 12000, 4096) < rms(dry + 12000, 4096) * 0.82f, "16th gate thins a held tone");
     expect(busfx_rhythm_target(BFX_GATE16, BPM, 0) == 1.0f, "16th gate opens at phase zero");
     expect(busfx_rhythm_target(BFX_GATE16, BPM, (sp16 * 3u) / 4u) == 0.0f, "16th gate closes late in division");
