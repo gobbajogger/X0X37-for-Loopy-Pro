@@ -41,7 +41,9 @@ uint8_t smk_apc_transport_led_state(uint8_t n) { (void)n; return 0; }
 uint8_t smk_padcal_on(void) { return 0; }
 void smk_padcal_enter(void) {}
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
+#ifndef SMC_UI_SEND_IMPLEMENTED
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
+#endif
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -265,7 +267,10 @@ static void test_actions_and_reset(void)
     fader(0, 0); CHECK(smc_ui_active()); smc_project_reset(); CHECK(!smc_ui_active());
     puts("PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset");
 }
-int main(void)
+#ifndef SMC_UI_MAIN
+#define SMC_UI_MAIN main
+#endif
+int SMC_UI_MAIN(void)
 {
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
     test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();

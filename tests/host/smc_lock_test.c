@@ -1,0 +1,319 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Independent integration checks. Production UI/engine/SMC routing runs through
+ * the same fixture as smc_ui; hardware is replaced by a bounded output recorder.
+ * A direct API call exercises a prepared lock mechanism. It is deliberately not
+ * proof that a physical Pause button or its LED has been identified. */
+#include <stdint.h>
+#include <string.h>
+static unsigned send_count, led_count, led_transport_count;
+static uint8_t sent[256][3];
+int plat_ble_smc_send(const uint8_t *m, uint8_t n)
+{
+    if (send_count < 256 && n == 3) memcpy(sent[send_count], m, 3);
+    send_count++;
+    if (n == 3 && m[0] == 0x90) {
+        led_count++;
+        if (m[1] >= 0x5D && m[1] <= 0x5F) led_transport_count++;
+    }
+    return 1;
+}
+#define SMC_UI_SEND_IMPLEMENTED 1
+#define SMC_UI_MAIN smc_ui_baseline_main
+#include "smc_ui_test.c"
+
+/* Baseline replay alone supplies an absent-operation stub, so it compiles and
+ * reaches the new target assertion. A compiler error never counts as negative. */
+#ifdef SMC_LOCK_BASELINE
+static int smc_lock_toggle(void) { return 1; }
+static int smc_lock_button(int pressed) { (void)pressed; return 0; }
+#endif
+
+static void navigate(int view, int part)
+{
+    ui.part = (uint8_t)part;
+    ui.mixsel = (uint8_t)part;
+    set_view(view);
+    build_pages();
+    smc_ui_cancel();
+}
+static void reset_output(void)
+{
+    send_count = led_count = led_transport_count = 0;
+    memset(sent, 0, sizeof sent);
+}
+static void navigation_unchanged(screen_state_t before)
+{
+    /* Parked navigation may show its intentional locked notification. */
+    screen_state_t after = screen_state();
+    memcpy(before.msg, after.msg, sizeof before.msg);
+    before.msg_until = after.msg_until;
+    unchanged(before);
+}
+static void test_drum_lock(void)
+{
+    for (int kit = 0; kit < 2; kit++) for (int bank = 0; bank < 2; bank++) {
+        pref_t f[8], k[8];
+        setup(V_SEQ, kit); ui.sel[kit] = (uint8_t)(bank * 8); build_pages();
+        for (int i = 0; i < 8; i++) { f[i] = smc_target(i); k[i] = smc_knob_target(i); }
+        CHECK(smc_lock_toggle());
+        navigate(V_PART, kit ? PART_909 : PART_808);
+        ui.sel[kit] = (uint8_t)(bank ? 0 : 8); build_pages();
+        for (int i = 0; i < 8; i++) {
+            CHECK(smc_same(f[i], smc_target(i))); /* original source fails here */
+            CHECK(smc_same(k[i], smc_knob_target(i)));
+            if (bank && i >= 3) CHECK(smc_target(i).kind == R_NONE);
+        }
+        pref_t r = f[0];
+        pref_set(r, 48); int before = pref_get(r);
+        screen_state_t ui_before = screen_state();
+        knob(0, 1); CHECK(pref_get(r) > before); unchanged(ui_before);
+        int muted = track_muted(kit, bank * 8);
+        int foreign = track_muted(!kit, 0);
+        message(0x90, 16, 127);
+        CHECK(track_muted(kit, bank * 8) != muted);
+        CHECK(track_muted(!kit, 0) == foreign);
+        message(0x90, 8, 127);
+        CHECK(smc.drum_solo[kit] & (1u << (bank * 8)));
+        message(0x90, 8, 127); /* repeated held key cannot redirect */
+        CHECK(smc.drum_solo[kit] == (1u << (bank * 8)));
+        message(0x80, 8, 0); CHECK(!smc_project_active());
+        message(0x80, 8, 0); CHECK(!smc_project_active());
+        ui_before = screen_state();
+        const int parked[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
+        for (unsigned i = 0; i < sizeof parked / sizeof *parked; i++) {
+            message(0x90, parked[i], 127); navigation_unchanged(ui_before);
+            CHECK(smc_same(r, smc_target(0)));
+        }
+        CHECK(smc_lock_toggle());
+        CHECK(smc_same(smc_target(0), smc_home_target(0)));
+    }
+    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, parked navigation");
+}
+static void test_engine_lock_and_clip(void)
+{
+    setup(V_PART, PART_303A);
+    pref_t r = smc_knob_target(0);
+    pref_t other = PR(R_ENG, T_303, 1, r.c);
+    pref_set(r, 40); pref_set(other, 85);
+    CHECK(smc_lock_toggle());
+    navigate(V_PART, PART_303B);
+    ui.sel[0] = 10; ui.sel[1] = 9; ui.pbank = ui.spage = 1;
+    screen_state_t ui_before = screen_state();
+    knob(0, 1); CHECK(pref_get(r) > 40); CHECK(pref_get(other) == 85); unchanged(ui_before);
+    clip_grid_mode = 1; ck.pg = 1; clip_dirty = 1;
+    unsigned field = CK_PAGE_FIELDS[0][0]; fields[field] = 0;
+    int v = pref_get(r); knob(0, 1);
+    CHECK(pref_get(r) > v); CHECK(fields[field] == 0);
+    CHECK(smc_lock_toggle()); /* release always works, including from clip context */
+    knob(0, 1); CHECK(fields[field] == 1);
+    CHECK(!smc_lock_toggle()); /* no global clip-stage identity is guessed */
+    clip_grid_mode = 0;
+    puts("PASS engine/clip boundaries: original part target survives navigation; unlocked clip fields resume");
+}
+static void test_pattern_lock(void)
+{
+    /* These refs contain an implicit live pattern in the original UI. Locking
+     * must bind the original slot as well as the visible parameter identity. */
+    setup(V_GEN, PART_303A); seq.ppat[PART_303A] = 2; build_pages();
+    proj.pat[2].bass[0].gen.density = 30;
+    proj.pat[7].bass[0].gen.density = 90;
+    proj.pat[8].bass[1].gen.density = 70;
+    CHECK(smc_lock_toggle());
+    seq.ppat[PART_303A] = 7; seq.ppat[PART_303B] = 8;
+    navigate(V_GEN, PART_303B);
+    screen_state_t ui_before = screen_state();
+    knob(0, 1);
+    CHECK(proj.pat[2].bass[0].gen.density > 30);
+    CHECK(proj.pat[7].bass[0].gen.density == 90);
+    CHECK(proj.pat[8].bass[1].gen.density == 70);
+    unchanged(ui_before);
+    CHECK(smc_lock_toggle());
+    knob(0, 1); CHECK(proj.pat[8].bass[1].gen.density > 70);
+
+    setup(V_SEQ, PART_BRK); seq.ppat[PART_BRK] = 3; build_pages();
+    proj.pat[3].brk.set[BRK_COMPLEX] = 30;
+    proj.pat[5].brk.set[BRK_COMPLEX] = 80;
+    CHECK(smc_lock_toggle()); seq.ppat[PART_BRK] = 5;
+    navigate(V_FX, PART_909); knob(0, 1);
+    CHECK(proj.pat[3].brk.set[BRK_COMPLEX] > 30);
+    CHECK(proj.pat[5].brk.set[BRK_COMPLEX] == 80);
+    CHECK(smc_lock_toggle());
+
+    setup(V_SEQ, PART_303A); seq.ppat[PART_303A] = 1; build_pages();
+    proj.pat[1].bass[0].len = 16; proj.pat[6].bass[0].len = 32;
+    CHECK(smc_lock_toggle()); seq.ppat[PART_303A] = 6;
+    navigate(V_SEQ, PART_303B); knob(0, 1);
+    CHECK(proj.pat[1].bass[0].len > 16); CHECK(proj.pat[6].bass[0].len == 32);
+
+    setup(V_PART, PART_BRK); CHECK(engine_brk_nslots() > 1);
+    seq.ppat[PART_BRK] = 2; build_pages();
+    proj.pat[2].brk.slot_a = 0; proj.pat[7].brk.slot_a = 0;
+    CHECK(smc_lock_toggle()); seq.ppat[PART_BRK] = 7;
+    navigate(V_PART, PART_303A); knob(0, 1);
+    CHECK(proj.pat[2].brk.slot_a == 1); CHECK(proj.pat[7].brk.slot_a == 0);
+    puts("PASS pattern identity: GEN, BRK and bass sequence fields stay on captured pattern slots");
+}
+static void test_song_lock(void)
+{
+    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 2; build_pages();
+    song()->bar[2].pat[0] = 3; song()->bar[5].pat[0] = 9;
+    CHECK(smc_lock_toggle()); ui.song_sel = 5;
+    CHECK(smc_knob_target(0).kind == R_NONE); /* cursor is navigation, never a frozen parameter */
+    screen_state_t ui_before = screen_state();
+    knob(1, 1); CHECK(song()->bar[2].pat[0] == 4); CHECK(song()->bar[5].pat[0] == 9);
+    unchanged(ui_before);
+    song()->len = 2; CHECK(smc_knob_target(1).kind == R_NONE);
+    knob(1, 1); CHECK(song()->len == 2); /* deleted bar cannot silently regrow */
+    CHECK(smc_lock_toggle());
+    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 3; build_pages();
+    CHECK(smc_lock_toggle()); ui.song_sel = 0;
+    run_action(ACT_SONG_INS, 0); run_action(ACT_SONG_DEL, 0);
+    CHECK(song()->len == 7); CHECK(smc_knob_target(1).kind == R_NONE);
+    uint8_t pat_before = song()->bar[3].pat[0];
+    knob(1, 1); CHECK(song()->bar[3].pat[0] == pat_before);
+    CHECK(smc_lock_toggle());
+    setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 3;
+    *page_of(V_SONG) = 1; build_pages(); song()->bar[3].mute = 2u << 5;
+    CHECK(smc_knob_target(3).kind == R_SREP); CHECK(smc_lock_toggle());
+    ui.song_sel = 0; run_action(ACT_SONG_INS, 0);
+    CHECK(smc_knob_target(3).kind == R_NONE);
+    uint8_t mute_before = song()->bar[3].mute;
+    knob(3, 1); CHECK(song()->bar[3].mute == mute_before);
+    CHECK(smc_lock_toggle());
+    ui.song_sel = 3; build_pages(); CHECK(smc_lock_toggle());
+    song_fill(song()->len); CHECK(smc_knob_target(3).kind == R_NONE);
+    CHECK(smc_lock_toggle());
+    ui.song_sel = 3; build_pages(); CHECK(smc_lock_toggle());
+    undo_start(); song()->bar[3].pat[0] ^= 1u; undo_commit(&undo); do_undo(0);
+    CHECK(smc_knob_target(3).kind == R_NONE);
+    puts("PASS song identity: captured bar, parked cursor and trimmed-bar invalidation");
+}
+static void test_solo_lock_boundaries(void)
+{
+    for (int kit = 0; kit < 2; kit++) {
+        setup(V_SEQ, kit); CHECK(smc_lock_toggle()); navigate(V_PART, PART_303A);
+        for (int note = 13; note <= 15; note++) {
+            message(0x90, note, 127);
+            CHECK(smc.drum_solo[kit] == (1u << (note - 8)));
+            message(0x80, note, 0); CHECK(!smc_project_active());
+        }
+        setup(V_SEQ, kit); ui.sel[kit] = 0; build_pages();
+        message(0x90, 8, 127); CHECK(smc.drum_solo[kit] == 1u);
+        ui.sel[kit] = 8; build_pages(); CHECK(smc_lock_toggle());
+        message(0x80, 8, 0); CHECK(!smc_project_active());
+        message(0x90, 8, 127); CHECK(smc.drum_solo[kit] == (1u << 8));
+        message(0x80, 8, 0); CHECK(!smc_project_active());
+    }
+    puts("PASS Solo boundaries: bank-one Solo6–8 remain valid; key-up clears original bank before/after lock");
+}
+static void test_edges_and_global_scope(void)
+{
+    setup(V_SEQ, PART_909); ui.sel[0] = 8; build_pages();
+    pref_t frozen = smc_target(0);
+    CHECK(smc_lock_button(1)); navigate(V_PART, PART_303A);
+    CHECK(smc_same(frozen, smc_target(0)));
+    CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(1));
+    CHECK(smc_same(frozen, smc_target(0)));
+    CHECK(!smc_lock_button(0)); CHECK(!smc_lock_button(0));
+    CHECK(smc_lock_button(1)); CHECK(smc_same(smc_target(0), smc_home_target(0)));
+    CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(0));
+    CHECK(smc_lock_button(1)); /* lock HOME targets while UI is on a sound page */
+    navigate(V_SEQ, PART_808);
+    smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
+    CHECK(smc_same(smc_target(0), smc_home_target(0)));
+    CHECK(smc_lock_button(1)); /* reconnect releases stale physical held edge */
+    CHECK(smc_target(0).a == T_808);
+
+    setup(V_SEQ, PART_909); seq.ppat[PART_909] = 1;
+    CHECK(smc_lock_toggle()); navigate(V_SEQ, PART_303A); seq.ppat[PART_303A] = 4;
+    message(0x90, 0x5C, 127);
+    CHECK(seq_cue_of(&seq, PART_909) == 2); CHECK(seq_cue_of(&seq, PART_303A) == -1);
+    CHECK(seq.ppat[PART_909] == 1); CHECK(seq.ppat[PART_303A] == 4);
+    seq.ppat[PART_909] = 2; /* consume cue as the sequencer does at its boundary */
+    message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, PART_909) == 1);
+    int rec = ui.rec;
+    message(0x90, 0x5F, 127); CHECK(ui.rec != rec); CHECK(smc.rec_part == PART_303A);
+    puts("PASS edge/global scope: held duplicates, release/reconnect, captured-part pattern cues, current-part global REC");
+}
+static void test_pickup_and_display(void)
+{
+    setup(V_SEQ, PART_909); ui.sel[0] = 0; build_pages();
+    pref_t r = smc_target(0); pref_set(r, 80); smc_frame();
+    fader(0, smc_scaled(r)); CHECK(smc.picked & 1u);
+    CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u));
+    navigate(V_SEQ, PART_808); ui.sel[1] = 8; build_pages();
+    pref_t next = find_ref(T_808, 8, "Level"); pref_set(next, 40);
+    int original = pref_get(r), nextval = pref_get(next);
+    screen_state_t ui_before = screen_state();
+    fader(0, 0); CHECK(pref_get(r) == original); CHECK(!(smc.picked & 1u));
+    CHECK(smc_ui_active()); ui_frame(); unchanged(ui_before); shot("locked-context");
+    now_ms += 1199; ui_frame(); CHECK(smc_ui_active());
+    now_ms++; ui_frame(); CHECK(!smc_ui_active()); unchanged(ui_before);
+    fader(0, smc_scaled(r)); CHECK(smc.picked & 1u);
+    fader(0, 127); CHECK(pref_get(r) >= original); CHECK(pref_get(next) == nextval);
+    pref_set(r, 25); smc_frame(); CHECK(!(smc.picked & 1u));
+    CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u)); CHECK(!(smc.seen & 1u));
+    CHECK(smc_same(next, smc_target(0)));
+    fader(0, 127); CHECK(pref_get(next) == nextval); CHECK(!(smc.picked & 1u));
+    fader(0, smc_scaled(next)); CHECK(smc.picked & 1u);
+    CHECK(smc_lock_toggle()); fader(0, 0); CHECK(smc_ui_active());
+    held_btn = 1u << B_FX; input(); CHECK(!smc_ui_active());
+    held_btn = 0; input(); CHECK(ui.view == V_FX);
+    fader(0, 0); CHECK(smc_ui_active());
+    ask(ACT_SONG_CLR, 0, "TEST", "KEEP LOCK"); CHECK(!smc_ui_active());
+    CHECK(smc_target(0).kind == R_NONE); CHECK(smc_knob_target(0).kind == R_NONE);
+    button_tap(B_HOME); CHECK(ui.overlay != O_ASK); CHECK(smc_same(next, smc_target(0)));
+    puts("PASS pickup/display: invalidated transitions, frozen edit, remote edit invalidation, exact 1200ms return");
+}
+static void test_unbound_input_and_output(void)
+{
+    setup(V_SEQ, PART_909); ui.sel[0] = 8; build_pages();
+    pref_t r = smc_target(0); CHECK(smc_lock_toggle());
+    navigate(V_PART, PART_303A);
+    message(0x90, 53, 127); message(0x90, 53, 127);
+    message(0x80, 53, 0); message(0x90, 53, 0); message(0xB0, 53, 127); message(0xB0, 53, 0);
+    CHECK(smc_same(r, smc_target(0)));
+    proj.set.bt |= PROJ_BT_SMC_USER;
+    for (unsigned ch = 0; ch < 16; ch++) {
+        uint32_t pkt = 9u | (uint32_t)(0x90u | ch) << 8 | 53u << 16 | 127u << 24;
+        CHECK(!smc_midi_host(pkt));
+        CHECK(!smc_midi_host(pkt ^ 0x20u << 8)); /* CC53 is not an opted-in host control */
+        message(0x90u | ch, 53, 127); message(0x80u | ch, 53, 0);
+        message(0xB0u | ch, 53, 127); message(0xB0u | ch, 53, 0);
+        CHECK(smc_same(r, smc_target(0)));
+    }
+    proj.set.bt &= (uint8_t)~PROJ_BT_SMC_USER;
+    seq_start(&seq); message(0x90, 0x5D, 127); CHECK(seq.req_stop && !seq.req_start);
+    message(0x90, 0x5E, 127); CHECK(seq.req_start);
+    message(0x80, 0x5E, 0); CHECK(seq.req_start);
+    message(0x90, 0x5D, 127); CHECK(seq.req_stop && !seq.req_start);
+    smc_frame(); reset_output();
+    for (int i = 0; i < 100; i++) { now_ms += 20; smc_frame(); }
+    CHECK(send_count == 0); /* no guessed Pause LED or scheduler traffic */
+    smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
+    CHECK(smc_same(r, smc_target(0)));
+    reset_output(); smc_frame(); CHECK(led_count == 43); CHECK(led_transport_count == 3);
+    reset_output(); smc_frame(); CHECK(send_count == 0);
+    CHECK(smc_lock_toggle());
+    puts("PASS unbound routing/output: no speculative note53/CC53 binding, transport preserved, reconnect/no spam");
+}
+static void test_guard_reset(void)
+{
+    setup(V_HOME, PART_303A); ui.overlay = O_ASK;
+    CHECK(!smc_lock_toggle()); ui.overlay = O_NONE;
+    perf.test = 0; CHECK(!smc_lock_toggle()); perf.test = PT_IDLE;
+    CHECK(ui_project_begin() == 0); CHECK(!smc_lock_toggle()); ui_project_end(0);
+    CHECK(smc_lock_toggle());
+    smc_project_reset(); navigate(V_SEQ, PART_909);
+    CHECK(smc_drum_mix() == PART_909); /* reset removes old home context */
+    CHECK(smc_target(0).a == T_909);
+    puts("PASS guards/reset: confirmation and project ownership reject capture; project reset releases context");
+}
+int main(void)
+{
+    test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
+    test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
+    test_unbound_input_and_output(); test_guard_reset();
+    printf("smc_lock: PASS (%u checks; neutral API only, physical mapping unverified)\n", checks);
+    return 0;
+}
