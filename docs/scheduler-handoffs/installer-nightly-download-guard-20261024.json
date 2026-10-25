@@ -1,0 +1,854 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T15:42:32.943Z",
+  "role": "X0X37 Installer Improvements — sole firmware-repository browser installer UX/safety producer",
+  "outcome": "SOURCE_PRODUCER_CHECKED__INDEPENDENT_QA_PENDING",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "consumed_producer_ref": "nightly",
+    "consumed_producer_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "consumed_producer_full_tree_sha": "71b759dd206d844cceed9e40ae68966142720e9c",
+    "consumed_producer_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "before_installer_blob_sha": "45e9533dcc4e80cd60c4db726a3eda8b32bf977c",
+    "checked_source_commit": "614d66a6ace7ef62d64eca4ac1230eabef8e67e9",
+    "checked_source_tree_sha": "e11b488ec675a396d8f380c612b160d6355a30a2",
+    "checked_source_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "checked_installer_blob_sha": "4a4d56013ef4183e28cec5c4b0c2248a99021afa",
+    "checked_regression_blob_sha": "a67fce5e1c9bd884fdb6734fba40c0322709bf52",
+    "registered_slot_test_blob_sha": "4891a101f38993ec28c0fb141d87cc9db0e9533b",
+    "tested_scope": "GitHub-vetted source excerpts and parser; native full combined checkout unavailable"
+  },
+  "consumed_evidence": [
+    {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 92,
+      "comment_id": 6367240651,
+      "kind": "firmware installer source cross-repo safety finding"
+    },
+    {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "pr": 3,
+      "comment_id": 6366881761,
+      "kind": "sole publisher Chromium conditional future release download hazard"
+    },
+    {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 100,
+      "producer_sha": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "kind": "existing stacked source UX draft, not changed or superseded"
+    }
+  ],
+  "outputs": [
+    {
+      "kind": "source",
+      "path": "web/x0x_installer.html",
+      "blob_sha": "4a4d56013ef4183e28cec5c4b0c2248a99021afa",
+      "role": "explicit compiled approval gate; direct link and auto-install share model eligibility; no Release auto import"
+    },
+    {
+      "kind": "regression",
+      "path": "web/test_install_nightly_download_guard.mjs",
+      "blob_sha": "a67fce5e1c9bd884fdb6734fba40c0322709bf52",
+      "role": "new exact-source Node excerpt tests for approved/unapproved URLs and Releases"
+    },
+    {
+      "kind": "regression",
+      "path": "web/test_install_slots.mjs",
+      "blob_sha": "4891a101f38993ec28c0fb141d87cc9db0e9533b",
+      "role": "register safety test and allow synthetic independently approved integration fixture; real compiled approvals remain empty"
+    },
+    {
+      "kind": "findings",
+      "path": "docs/installer-nightly-download-guard-20261024.md"
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline vulnerability reproduced from exact nightly source functions",
+      "executor": "connected GitHub V8",
+      "command": "new Function(exact baseline versions()/refreshMeta()/mergeGitHubReleases(), mocked synthetic matching Elite Release)",
+      "exit_code": 0,
+      "status": "PASS_EXPECTED_VULNERABILITY_REPRO",
+      "observed": "one unapproved .fwsc inserted and direct #download href visible; Release fetch mocked; auto-flash not tested"
+    },
+    {
+      "name": "publisher approval predicate synthetic positives and negatives",
+      "executor": "connected GitHub V8",
+      "command": "new Function(exact GitHub-source candidate approvedNightlyModels block); 12 case assertions",
+      "exit_code": 0,
+      "status": "PASS",
+      "cases_passed": 12,
+      "coverage": "approved hardware-untested Elite positive and unknown Release/QA/source/subtree/model/controller/hash/host/traversal negative"
+    },
+    {
+      "name": "native Node syntax excerpt",
+      "executor": "native Linux x86_64 Node 22.16.0",
+      "command": "node --check /mnt/data/installer_gate_exact_excerpt.js && node --check /mnt/data/test_excerpt_native.cjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "coverage": "copied exact GitHub source excerpts, not whole HTML checkout"
+    },
+    {
+      "name": "native Node source-excerpt behavior",
+      "executor": "native Linux x86_64 Node 22.16.0",
+      "command": "node /mnt/data/test_excerpt_native.cjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "cases_passed": 14,
+      "coverage": "unapproved release, approved tuple, stale href, wrong model/hash/host/QA/source negative and positive"
+    },
+    {
+      "name": "Chromium 144 real browser DOM excerpts",
+      "executor": "native Linux x86_64 Python 3 Playwright Chromium 144.0.7559.96",
+      "command": "python3 /mnt/data/test_chromium_installer_guard_excerpt.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "contexts_passed": 6,
+      "coverage": "320/390/1280px no approval and synthetic approved; zero Release fetch, links hidden/visible as appropriate, no overflow/errors; not full site EN/JA"
+    },
+    {
+      "name": "remote full inline source script syntax",
+      "executor": "connected GitHub V8",
+      "command": "new Function(extracted inline <script> from exact web/x0x_installer.html Git blob, substitute /*LIB*/ and /*CATALOG*/ only)",
+      "exit_code": 0,
+      "status": "PASS",
+      "coverage": "parse only"
+    },
+    {
+      "name": "remote Node test syntax transform only",
+      "executor": "connected GitHub V8",
+      "command": "new Function(async wrapper, import statements removed and import.meta.url substituted)",
+      "exit_code": 0,
+      "status": "PASS",
+      "coverage": "parse only; no actual test module execution"
+    },
+    {
+      "name": "full branch Node installer, backup, updater, negative and browser suites",
+      "executor": "native local runner",
+      "command": "node web/test_install_nightly_download_guard.mjs; node web/test_install_slots.mjs; affected whole-suite/browser tests",
+      "exit_code": null,
+      "status": "NOT_RUN",
+      "reason": "full GitHub checkout unavailable in native shell; curl raw GitHub failed DNS with exit 6"
+    },
+    {
+      "name": "native firmware builds Elite + Pro",
+      "executor": "native firmware build owner",
+      "command": "not applicable to browser-only source edit",
+      "exit_code": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "name": "independent QA, NIGHTLY website separate PR, immutable HTTP, device",
+      "executor": "respective independent owners",
+      "command": "not yet performed",
+      "exit_code": null,
+      "status": "PENDING"
+    }
+  ],
+  "model_status": {
+    "elite": "NO_INSTALLABLE_YET__synthetic_positive_only",
+    "pro": "NO_INSTALLABLE_YET__no_real_package_or_host_proof",
+    "physical_device": "NOT_TESTED_OR_FLASHED"
+  },
+  "channel": {
+    "branch_only": true,
+    "firmware_nightly_merged": false,
+    "website_main_changed": false,
+    "website_gh_pages_changed": false,
+    "http_published": false,
+    "source_licensing_private_inputs_untouched": true,
+    "production_promotion": false
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Replay exact GH branch Node/combined OTA backup negative/browser EN/JA checks and inspect model/source/publisher guard",
+      "gate": "complete exact-checkouts and independent code review"
+    },
+    {
+      "owner": "sole firmware Safe Merge",
+      "action": "Reconcile QA-approved source-only fix into firmware nightly, preserving separate UX draft stack",
+      "gate": "QA approval, full relevant installer/backup test"
+    },
+    {
+      "owner": "NIGHTLY website source developer and independent QA then NIGHTLY Main Merger",
+      "action": "Create separate reviewed equivalent website source fix, reconcile actual empty-only preview builder gate",
+      "gate": "reviewed tested separate PR, no protected ref direct edit"
+    },
+    {
+      "owner": "sole NIGHTLY Pages publisher",
+      "action": "On first real fully checked/hosted Elite or Pro firmware release, approve explicit byte/model/site gate and publish safe DEV/HARDWARE TEST link",
+      "gate": "native per-model build, package/controller CRC/SHA256, source/licensing, independent QA, backups/rollback, immutable GET/HEAD hosted hash, own gh-pages and HTTP checks"
+    }
+  ],
+  "note": "Ready-for-review transition, if subsequently performed, is not QA acceptance, approved hosted package, source merge, compiled firmware, HTTP PASS or device PASS.",
+  "latest_reconciliation": {
+    "evidence_revision": "installer-reconnect-reconciliation-20261024-r1",
+    "run_local_date": "2026-10-24",
+    "status": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW__NOT_QA_APPROVAL",
+    "producer": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "target_base_branch": "nightly",
+      "consumed_base_full_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "consumed_base_full_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "consumed_base_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "consumed_own_previous_sha": "68415dc2c280cd9b57c8b883f73eba47fff376c6",
+      "consumed_own_previous_installer_blob": "4a4d56013ef4183e28cec5c4b0c2248a99021afa",
+      "consumed_existing_reconnect_pr": 34,
+      "consumed_existing_reconnect_branch": "lane/installer-postflash-reconnect-20261023",
+      "consumed_existing_reconnect_full_sha": "59add18387a2e0809898b215e26d606559ef01c6",
+      "consumed_existing_reconnect_blob": "dcce1ae636a66cd8149bb9db431e6eca48d48d02",
+      "consumed_existing_larger_ux_pr": 100,
+      "consumed_existing_larger_ux_sha": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "consumed_existing_larger_ux_installer_blob": "2085be1b58281241596a408fe5ee3842dfa74ccc",
+      "source_edit_full_commit": "8835f3dfae606df377a1e041016c587b4d62f219",
+      "new_regression_full_commit": "3dfe4920dfefe013bc28d750e4792fb45e638665",
+      "registered_full_source_and_tests_checkpoint": "fc400e2300beac38453fe1d5ad572c333e4a17c8",
+      "report_commit": "1ecf295c357235e59355edb91e1aa107b9e9a9c2",
+      "report_commit_full_root_tree": "6e98d708bd463b272de2d094ffd41106430aeee6",
+      "unchanged_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "head_source_blob": "5752659df12c7d89a328c44687f84c6e2652e73b",
+      "existing_download_test_blob": "a67fce5e1c9bd884fdb6734fba40c0322709bf52",
+      "new_reconnect_test_blob": "94dad4c68cecf39a7b2f69e6e16ad043ba7a56a9",
+      "registered_slots_runner_blob": "9756a9a7c1c0efeecc20dd99573e4254b675c891"
+    },
+    "source_change": [
+      "install run() acquires exclusive writing lock synchronously before Web MIDI permission",
+      "post-completion scan(true) permits exactly internal post-write rediscovery while writing remains true, normal scan() still blocked",
+      "permission denial releases lock and only restores eligible Install buttons",
+      "initial and restored catalog Install button conditions enforce current publisher-approved package eligibility",
+      "new exact-source Web MIDI mock regression added and included in existing slot runner"
+    ],
+    "executed_checks": [
+      {
+        "runner": "connected GitHub V8 (in process)",
+        "command": "new Function(exact GitHub run()+scan() bodies, instrumented fake Updater/find/resume/Web MIDI/DOM); Elite/Pro × five paths",
+        "process_exit_code": null,
+        "inprocess_exception_count": 0,
+        "assertions_passed": 10,
+        "assertions_total": 10,
+        "disposition": "PASS_SCOPED_MOCK"
+      },
+      {
+        "runner": "connected GitHub V8 with node:assert/node:fs/node:vm in-memory shims",
+        "command": "new AsyncFunction(full committed web/test_install_nightly_reconnect.mjs body against exact blob 5752659df...; imports and import.meta adapted only to available V8 API shims)",
+        "process_exit_code": null,
+        "inprocess_exception_count": 0,
+        "assertions_passed": 14,
+        "assertions_total": 14,
+        "disposition": "PASS_SCOPED_MOCK_NOT_NATIVE_NODE"
+      },
+      {
+        "runner": "connected GitHub V8 with node:assert/node:fs/node:vm in-memory shims",
+        "command": "new AsyncFunction(full committed web/test_install_nightly_download_guard.mjs body against exact blob 5752659df...; imports and import.meta adapted only to available V8 API shims)",
+        "process_exit_code": null,
+        "inprocess_exception_count": 0,
+        "assertions_passed": 21,
+        "assertions_total": 21,
+        "disposition": "PASS_SCOPED_MOCK_NOT_NATIVE_NODE"
+      },
+      {
+        "runner": "connected GitHub API",
+        "command": "fetch_file every changed path by immutable commit SHA; compare UTF-8 exact content and Git blob SHA; fetch current Git commit root tree and firmware subtree",
+        "process_exit_code": null,
+        "disposition": "PASS_REMOTE_READBACK"
+      },
+      {
+        "runner": "native Linux Node (NOT RUN)",
+        "command": "node web/test_install_nightly_reconnect.mjs && node web/test_install_nightly_download_guard.mjs && node web/test_install_slots.mjs",
+        "process_exit_code": null,
+        "disposition": "PENDING_EXACT_CHECKOUT",
+        "reason": "native container cannot resolve GitHub network to construct full remote checkout"
+      },
+      {
+        "runner": "native Chromium (NOT RUN)",
+        "command": "full exact combined source at 320/390/1280px EN/JA, positive/negative browser and backup/OTA interruption",
+        "process_exit_code": null,
+        "disposition": "PENDING_INDEPENDENT_QA"
+      },
+      {
+        "runner": "native target Elite/Pro (not stage-required)",
+        "command": "target compilation and controller artifact checks belong to Hourly Build",
+        "process_exit_code": null,
+        "disposition": "NOT_APPLICABLE_BROWSER_ONLY_SOURCE"
+      }
+    ],
+    "website": {
+      "separate_owned_source_repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "consumed_main_full_sha": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "consumed_installer_blob": "b4c31daabeaa0219960ef0628a1fd81bfda4e54d",
+      "source_fix": "NOT_PERFORMED_IN_FIRMWARE_ROLE",
+      "next": "separate NIGHTLY website source owner on independently reviewed source PR; do not edit main or gh-pages"
+    },
+    "disposition": {
+      "producer": "SOURCE_COMPLETE_RECONNECT_RECONCILED",
+      "independent_QA": "PENDING",
+      "firmware_safe_merge": "PENDING",
+      "nightly_website_equivalent_fix_and_main_merge": "PENDING",
+      "nightly_gh_pages_and_http": "PENDING",
+      "elite": "NO_NEW_INSTALLABLE_CANDIDATE",
+      "pro": "NO_NEW_INSTALLABLE_CANDIDATE",
+      "production": "NOT_PROMOTED",
+      "owner_physical_device_test": "UNKNOWN_NOT_RUN",
+      "firmware_binary_or_controller_changed": false
+    },
+    "next": [
+      {
+        "owner": "Independent QA",
+        "action": "clone exact PR #102 current head and run native Node source guard/reconnect/full slot+OTA+backup/interruption, approved/local/foreign negative, responsive Chromium EN/JA 320/390/1280; code review",
+        "gate": "actual complete exact-checkout tests, UI/backup/model negative evidence and QA disposition"
+      },
+      {
+        "owner": "sole firmware Safe Merge",
+        "action": "integrate exact reviewed installer source to firmware nightly; reconcile independent PR #34/duplicate #33 and large UX PR #100 without overwriting producer lanes",
+        "gate": "independent QA and applicable combined safety checks; no direct main/gh-pages write"
+      },
+      {
+        "owner": "separate NIGHTLY website source owner, website QA and Nightly Main Merger",
+        "action": "independently fix direct release download leakage and post-OTA reconnect in reviewed website source lane",
+        "gate": "own tested reviewed PR source generated parity and native browser/security negatives"
+      },
+      {
+        "owner": "sole NIGHTLY Pages publisher",
+        "action": "publish first prehardware-verified matching model package via lawful immutable host only after source integrated and HTTP byte proof",
+        "gate": "real per-model firmware+controller package/CRC/SHA, backup/readback, licensing/source, independent QA and served same-byte HTTP; no prior owner hardware PASS required"
+      }
+    ],
+    "boundary": "PR ready for independent review is neither QA approval, native Node/browser PASS, hardware build, legal immutable HTTP link, installation, nor production approval."
+  },
+  "latest_download_race_reconciliation": {
+    "evidence_revision": "installer-download-race-20261024-r2",
+    "producer": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "consumed_previous_head": "33b1f10afbe1399eb7c3439f7ef1623b0a0ba0e8",
+      "consumed_existing_generation_guard_pr39": "8a5f1a6aa55c659fd92dbc30b9d49f44bb70d28e",
+      "consumed_stacked_ux_pr100": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "original_installer_blob": "5752659df12c7d89a328c44687f84c6e2652e73b",
+      "nightly_base_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "nightly_base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "nightly_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "status": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_INDEPENDENT_QA_PENDING",
+    "checks": [
+      {
+        "command": "node /mnt/data/test_install_nightly_load_race.mjs /mnt/data/x0x_loader_before_excerpt.html",
+        "exit_code": 1,
+        "expected": "RED stale Elite replaced Pro"
+      },
+      {
+        "command": "node /mnt/data/test_install_nightly_load_race.mjs /mnt/data/x0x_loader_after_excerpt.html",
+        "exit_code": 0,
+        "passed": 5
+      },
+      {
+        "command": "python /mnt/data/test_installer_browser_load_race.py /mnt/data/x0x_loader_before_excerpt.html before",
+        "exit_code": 1,
+        "expected": "RED stale Elite replaced Pro"
+      },
+      {
+        "command": "python /mnt/data/test_installer_browser_load_race.py /mnt/data/x0x_loader_after_excerpt.html after",
+        "exit_code": 0,
+        "widths": [
+          320,
+          390,
+          1280
+        ]
+      }
+    ],
+    "scope": "Exact native Node and Chromium mocked source excerpts, not full remote branch, device, or HTTP.",
+    "next_owner": "Independent QA then sole firmware Safe Merge; NIGHTLY website source owner separately",
+    "remaining_gate": "complete exact remote Node/backup/OTA and browser EN/JA independent QA plus website prehardware model/controller/license/immutable-host gate",
+    "full_branch_tests": "NOT_RUN"
+  },
+  "latest_restore_disposition": {
+    "evidence_revision": "installer-restore-disposition-20261024-r1",
+    "consumed_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "consumed_branch": "lane/installer-nightly-download-guard-20261024",
+    "consumed_head_sha": "e28f3939c442f178ebc3229764c113a9604f7b64",
+    "consumed_html_blob_sha": "6c289af54975ca332ff5f6eaa613b24adcafa984",
+    "consumed_test_blob_sha": "e6808d49b05017d47c979d4f2c4aafcfd29c049a",
+    "consumed_firmware_nightly_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "unchanged_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "scope": "firmware repository browser installer caller/status only; does not edit sample/slot helper, firmware or website",
+    "source_producer_status": "SOURCE_COMPLETE_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+    "check_results": [
+      {
+        "command": "Connected JS V8 exact baseline run()/Elite Pro partial/total + controls",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "EXPECTED_RED",
+        "cases_passed": 6,
+        "cases_total": 10
+      },
+      {
+        "command": "Connected JS V8 exact edited run()/Elite Pro partial/total + controls",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "cases_passed": 10,
+        "cases_total": 10
+      },
+      {
+        "command": "Connected JS V8 execute entire original reconnect .mjs using Node-API shims",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "cases_passed": 14,
+        "cases_total": 14
+      },
+      {
+        "command": "Connected JS V8 execute entire updated reconnect .mjs using Node-API shims",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "cases_passed": 24,
+        "cases_total": 24
+      },
+      {
+        "command": "new Function() on exact edited inline installer module, replace only LIB/CATALOG",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "coverage": "syntax only"
+      },
+      {
+        "command": "node web/test_install_nightly_reconnect.mjs && node web/test_install_slots.mjs",
+        "executor": "native Node whole checkout",
+        "exit_code": null,
+        "status": "NOT_RUN"
+      },
+      {
+        "command": "Chromium EN/JA 320/390/1280 and actual hardware",
+        "executor": "independent QA/owner",
+        "exit_code": null,
+        "status": "NOT_RUN"
+      }
+    ],
+    "qa_pending": [
+      "full checked-out native Node/OTA/backup/reconnect/source tests",
+      "complete Chromium EN/JA 320/390/1280",
+      "separate fail-closed malformed SMP_INFO prewrite safety defect in helper",
+      "approved website source equivalent fix",
+      "sole Safe Merge integration",
+      "independent immutable HTTP model/source/controller/license/backup checks"
+    ],
+    "model_status": {
+      "elite": "NOT_NEWLY_INSTALLABLE",
+      "pro": "NOT_NEWLY_INSTALLABLE"
+    },
+    "no_protected_ref_or_website_device_firmware_write": true
+  },
+  "followup_slot_prewrite_20261024": {
+    "evidence_revision": "installer-slot-prewrite-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_source_sha": "9c57637c6d8d4d681d9e46084ea0c5b4e7a2b3f0",
+      "full_root_tree_sha": "0722e6de2397d645474ae63ec51b2b0434085fe8",
+      "helper_blob_sha": "8489f4ca358cf78e3f80181c9d7984bebb4cdeef",
+      "installer_blob_sha": "8f36ca0f4d70f92ed6835443fcb3437bada5fa32",
+      "firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "changed_paths": [
+      "web/x0x_breaks.js",
+      "web/x0x_installer.html",
+      "web/test_install_nightly_slot_prewrite.mjs",
+      "web/test_install_slots.mjs",
+      "docs/installer-slot-prewrite-20261024.md",
+      "docs/scheduler-handoffs/installer-nightly-download-guard-20261024.json"
+    ],
+    "status": "SOURCE_CHECKED_INDEPENDENT_QA_PENDING",
+    "node_command": "node web/test_install_nightly_slot_prewrite.mjs",
+    "node_exit": "NOT_RUN_FULL_REMOTE_CHECKOUT_UNAVAILABLE_IN_NATIVE_CONTAINER",
+    "chromium_exit": "NOT_RUN_FULL_BROWSER_EN_JA_PENDING",
+    "v8_command": "GitHub connector fetch_file exact remote helper -> new AsyncFunction executing committed prewrite test with export/import adaptation",
+    "device": "NOT_TESTED",
+    "firmware_compilation": "NOT_APPLICABLE_BROWSER_ONLY",
+    "next_owner": "Independent QA then sole firmware Safe Merge",
+    "remaining_gates": [
+      "native complete exact Node relevant tests",
+      "browser EN/JA 320/390/1280",
+      "backup/OTA/model/USB negative review",
+      "separate NIGHTLY site equivalent source PR and independent QA",
+      "sole publisher independent HTTP bytes/source/license/model/controller gates"
+    ]
+  },
+  "latest_ota_recovery": {
+    "evidence_revision": "installer-ota-loader-manual-backup-consent-20261024-r1",
+    "consumed": {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_commit": "57fb8f1ae90ec9ce23051c86e5e8bc0224fc68dd",
+      "root_tree": "21d79dbc3b1120667f2935b0c9691a90c1a21412",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "installer_blob": "10d3c3c8565872bfbbc6a2dd4b6cd1c30a0a3776",
+      "reconnect_test_blob": "682c10fe224e76c26c2913d7400a7d99b1d17598",
+      "cli_pr104_source": "0482ca12a008eb69b278512979e48f1af47d2da9"
+    },
+    "deliverables": {
+      "source_path": "web/x0x_installer.html",
+      "test_path": "web/test_install_nightly_reconnect.mjs",
+      "report_path": "docs/installer-nightly-download-guard-20261024.md",
+      "manifest_path": "docs/scheduler-handoffs/installer-nightly-download-guard-20261024.json",
+      "firmware_subtree_unchanged": true
+    },
+    "behavior": {
+      "old": "already-loader OTA resume without prior backup acknowledgement",
+      "new": "explicit owner-backed existing archive/no-samples acknowledgement, cancel before Updater.resume; normal running prewrite unchanged",
+      "archive_provenance": "UNKNOWN_NOT_VERIFIED"
+    },
+    "executed": [
+      {
+        "executor": "connected GitHub V8",
+        "command": "exact source run() mocked old-loader cancellation Elite/Pro",
+        "exit_code": null,
+        "result": "2/2 expected prior unsafe writes"
+      },
+      {
+        "executor": "connected GitHub V8 Node boundary shims",
+        "command": "full edited web/test_install_nightly_reconnect.mjs using full edited web/x0x_installer.html source",
+        "exit_code": null,
+        "result": "16/16 Web MIDI/OTA/reconnect plus 10/10 restoration scenarios PASS"
+      },
+      {
+        "executor": "connected GitHub V8",
+        "command": "new Function(full inline module after generator LIB/catalog placeholder substitution)",
+        "exit_code": null,
+        "result": "PASS syntax, EN/JA keys present"
+      },
+      {
+        "executor": "native Linux x86_64",
+        "command": "node --version",
+        "exit_code": 0,
+        "result": "v22.16.0"
+      },
+      {
+        "executor": "native Linux x86_64",
+        "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+        "exit_code": 128,
+        "result": "DNS could not resolve github.com"
+      },
+      {
+        "executor": "native full checkout",
+        "command": "node web/test_install_nightly_reconnect.mjs && node web/test_install_slots.mjs; OTA/backup full browser EN/JA 320/390/1280",
+        "exit_code": null,
+        "result": "NOT_RUN"
+      }
+    ],
+    "stage": "SOURCE_PRODUCER_CHECKED_V8__INDEPENDENT_NATIVE_QA_PENDING",
+    "next_owner": "Independent QA",
+    "remaining_gate": "whole-branch native Node and real browser/OTA/backup/interrupt regression, independent source review, then sole Safe Merge; separate NIGHTLY website source/QA/merger/publisher; immutable model-controller-license-host check before install",
+    "publication": {
+      "firmware_nightly": false,
+      "website_main": false,
+      "website_gh_pages": false,
+      "download_http_verified": false,
+      "elite_installable": false,
+      "pro_installable": false,
+      "physical_pass": false
+    }
+  },
+  "latest_scan_generation_reconciliation": {
+    "evidence_revision": "installer-scan-generation-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "producer_full_sha": "fc9c4c55eac6c6e358575355d24c5a10bce39122",
+      "producer_full_root_tree": "e8300f6b2ea26800d84ad991b7f3cb67592fbb9d",
+      "installer_blob": "35c0b47180358f15acdfd118c557c6a12222f2e3",
+      "reconnect_test_blob": "24b38e4ff26112417f2f70187c9f67289b91c2b2",
+      "slots_test_blob": "6659f13819f86027fd07df1420f05622158d02f6",
+      "existing_source_scan_pr": 44,
+      "existing_source_scan_pr_full_sha": "3f44e56f3d0dbb59e2f74612e4d62c89e18c1106",
+      "existing_scan_test_blob": "c601cd371834c4640a23c186161ef67505f9ab85",
+      "firmware_nightly_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "firmware_nightly_full_root": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "delivered_blobs": {
+      "web/x0x_installer.html": "db8cdb6dd6fbd1b177c3c121d3fdec2e8306a857",
+      "web/test_install_nightly_reconnect.mjs": "b31efec5caeedcd727f0d5fe7a5f46e1a24425b5",
+      "web/test_install_nightly_scan_order.mjs": "03a8e802fa163d9541e98130a0b335cf65c0eba0",
+      "web/test_install_slots.mjs": "95a237a5d716ed119dcba866fdc2d8a747a2c40c"
+    },
+    "producer_status": "SOURCE_COMPLETE_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+    "checks": [
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute exact old HTML against adapted scan-order suite",
+        "process_exit_code": null,
+        "status": "EXPECTED_RED",
+        "detail": "missing scan generation guard"
+      },
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute complete adapted test_install_nightly_scan_order.mjs on exact candidate HTML",
+        "process_exit_code": null,
+        "status": "PASS",
+        "passed": 7,
+        "total": 7
+      },
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute complete test_install_nightly_reconnect.mjs on candidate HTML",
+        "process_exit_code": null,
+        "status": "PASS",
+        "web_midi_cases": 16,
+        "slot_restore_cases": 10
+      },
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute complete test_install_nightly_download_guard.mjs on candidate HTML",
+        "process_exit_code": null,
+        "status": "PASS",
+        "approval_cases": 21,
+        "download_order_cases": 2
+      },
+      {
+        "executor": "Linux shell",
+        "command": "node --version",
+        "exit_code": 0,
+        "result": "v22.16.0"
+      },
+      {
+        "executor": "Linux shell",
+        "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+        "exit_code": 128,
+        "status": "DNS_FAIL_COULD_NOT_RESOLVE_GITHUB",
+        "not_a_code_failure": true
+      },
+      {
+        "executor": "native Node exact checkout",
+        "command": "node web/test_install_nightly_scan_order.mjs && node web/test_install_nightly_reconnect.mjs && node web/test_install_nightly_download_guard.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "status": "NOT_RUN_PENDING_INDEPENDENT_QA"
+      },
+      {
+        "executor": "actual Chromium",
+        "command": "full source browser EN/JA × 320/390/1280; Web MIDI/OTA/backup/connection negatives",
+        "exit_code": null,
+        "status": "NOT_RUN_PENDING_INDEPENDENT_QA"
+      }
+    ],
+    "next": [
+      {
+        "owner": "Independent QA",
+        "action": "Review and run exact committed full Node+browser source regressions",
+        "gate": "independent full-checkout safety and responsive EN/JA evidence"
+      },
+      {
+        "owner": "sole firmware Safe Merge",
+        "action": "Reconcile #44/#102 into nightly after QA",
+        "gate": "independent QA and integration check"
+      },
+      {
+        "owner": "separate NIGHTLY website source owner / QA / Main Merger",
+        "action": "review equivalent release/download guard and scan ordering in own PR route",
+        "gate": "website source parity and owned integration"
+      },
+      {
+        "owner": "sole NIGHTLY Pages publisher",
+        "action": "publish only verified model/controller, backup, source, immutable same-byte HTTP candidate",
+        "gate": "prehardware independent gates; no prior physical owner PASS required"
+      }
+    ],
+    "model_status": {
+      "elite": "NO_NEW_INSTALLABLE_NIGHTLY_CANDIDATE_FROM_THIS_BROWSER_ONLY_CHANGE",
+      "pro": "NO_NEW_INSTALLABLE_NIGHTLY_CANDIDATE_FROM_THIS_BROWSER_ONLY_CHANGE"
+    },
+    "unchanged_firmware_subtree": true,
+    "source_only": true
+  },
+  "latest_occupied_header_reconciliation": {
+    "evidence_revision": "installer-occupied-header-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_source_sha": "904e6bcd2bebd15ba32d8278d5f8d0ec048929ad",
+      "full_root_tree": "b1eaddb0f4d2f9f95d6bb03713d021875c5d0fa9",
+      "helper_sha": "db8cfc219e63ed25da4302403bd27c9c0b46fd04",
+      "prior_slot_test_sha": "dda19a7367830b8ca882435120675a31cf37f92b",
+      "publisher_website_pr": 1,
+      "publisher_website_comment_id": 6376425041,
+      "publisher_evidence_revision": "publisher-nightly-nonempty-header-archive-failopen-20261024-r1",
+      "base_nightly_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "base_nightly_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "unchanged_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "scope": "firmware repository browser slot helper + exact Node-oriented regression only; website out of scope",
+    "status": "SOURCE_COMPLETE_SCOPED_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+    "checks": [
+      {
+        "executor": "connected V8 exact prior helper + modified test",
+        "command": "AsyncFunction(full test_install_nightly_slot_prewrite.mjs with import shims on original helper blob db8cfc...)",
+        "exit_code": null,
+        "result": "EXPECTED_RED",
+        "detail": "source-occupied bad-magic header wrongly allowed synthetic install"
+      },
+      {
+        "executor": "connected V8 exact patched helper + test",
+        "command": "AsyncFunction(full test_install_nightly_slot_prewrite.mjs with import shims on proposed changed full helper)",
+        "exit_code": null,
+        "result": "PASS_SCOPED_V8_MOCK",
+        "passed": 100,
+        "total": 100,
+        "model_cases": [
+          "Elite",
+          "Pro"
+        ],
+        "header_cases": [
+          "empty",
+          "valid",
+          "invalid-magic",
+          "invalid-version",
+          "zone-mismatch",
+          "oversized-data",
+          "zero-data",
+          "bad-CRC"
+        ],
+        "hardware": false
+      },
+      {
+        "executor": "native Node",
+        "command": "node web/test_install_nightly_slot_prewrite.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "result": "NOT_RUN_PEND_INDEPENDENT_QA"
+      },
+      {
+        "executor": "Chromium",
+        "command": "whole source EN/JA 320/390/1280, OTA/backup/interrupt/wrong-model",
+        "exit_code": null,
+        "result": "NOT_RUN_PEND_INDEPENDENT_QA"
+      }
+    ],
+    "next": [
+      {
+        "owner": "Independent QA",
+        "action": "native exact-source slot+installer/OTA/backup and browser negatives; recorded pass/fail per exact head",
+        "gate": "actual native and browser independent QA"
+      },
+      {
+        "owner": "sole firmware Safe Merge",
+        "action": "reconcile reviewed own PR #102 onto nightly",
+        "gate": "independent QA and combined source validations"
+      },
+      {
+        "owner": "sole NIGHTLY website source owner",
+        "action": "independently implement equivalent occupied-header guard and tests on website PR #1",
+        "gate": "separate reviewed website source and native checks"
+      },
+      {
+        "owner": "website QA / Main Merger / sole Publisher",
+        "action": "review site then publish only immutable bytes after prehardware per-model gates",
+        "gate": "independent source/model/controller/backup/license/HTTP byte checks"
+      }
+    ],
+    "no_firmware_build_claim": true,
+    "no_hardware_claim": true,
+    "website_code_not_modified": true
+  },
+  "followup_stock_model_preflight_20261024": {
+    "evidence_revision": "installer-stock-model-alias-preflight-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_root_commit": "44ef634431ad779beb9da166531657f4c4aaf4b3",
+      "full_root_tree": "091d529662609ec27bb86ea68f6133d3268d23a2",
+      "installer_blob": "db8cdb6dd6fbd1b177c3c121d3fdec2e8306a857",
+      "ota_blob": "014f5fa3490f476554a17b08e941bde04c7eff74",
+      "publisher_finding": "publisher-nightly-stock-model-alias-20261024-r1"
+    },
+    "disposition": "SOURCE_COMPLETE_PRODUCER_V8_SCOPED_CHECKED_PENDING_INDEPENDENT_QA",
+    "scope": "browser-only local .fwsc stock selection; unchanged release authorization, firmware subtree, generated website and publisher",
+    "checks": [
+      {
+        "command": "connected V8 execute permanent test source + Git exact stock handler and fm1ota.js with Node VM/readFileSync shims",
+        "exit_code": 0,
+        "passed": 17,
+        "total": 17
+      },
+      {
+        "command": "same test against original source (expected RED)",
+        "exit_code": 1,
+        "status": "EXPECTED_FAIL"
+      },
+      {
+        "command": "new Function on modified exact inline HTML script (only build-time LIB/CATALOG substitution)",
+        "exit_code": 0,
+        "status": "SYNTAX_PASS"
+      },
+      {
+        "command": "node web/test_install_stock_model_preflight.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "status": "NOT_RUN_NATIVE_EXACT_CHECKOUT"
+      },
+      {
+        "command": "full generated Chromium EN/JA 320/390/1280, backup/OTA interruption",
+        "exit_code": null,
+        "status": "PENDING_INDEPENDENT_QA"
+      }
+    ],
+    "next_owner": "Independent QA then sole firmware Safe Merge; separate NIGHTLY website source owner",
+    "remaining_gate": "full exact-tree native Node, browser EN/JA and backup/OTA negative QA; separate website review; lawful immutable download/source/license/controller/HTTP for public nightly. Model owner physical PASS is NOT nightly prerequisite.",
+    "physical_feedback": "UNKNOWN",
+    "firmware_build": "NOT_APPLICABLE_BROWSER_ONLY",
+    "site_published": false
+  },
+  "latest_eligible_version_picker_20261024": {
+    "evidence_revision": "installer-nightly-eligible-latest-picker-20261024-r1",
+    "consumed_source": {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_commit_sha": "0b77ca70fa420fe4c8cd75edd501abdb0ebe3441",
+      "full_root_tree_sha": "a44021f0a1c661095b3b43ff2117768ffa8af40c",
+      "installer_blob_sha": "42e9565646162319c8e65146552f93180a1291af",
+      "evidence_revision": "installer-nightly-physical-model-prewrite-20261024-r1"
+    },
+    "finding": "catalog.latest can name noninstallable version filtered out by approvedNightlyModels; browser selector blank although fallback package/currentVersion nonblank",
+    "scope": "firmware-repository browser-only chooser plus permanent Node VM regression; no firmware subtree/catalog/website/device mutation",
+    "changes": [
+      "web/x0x_installer.html",
+      "web/test_install_nightly_download_guard.mjs",
+      "docs/installer-nightly-download-guard-20261024.md",
+      "docs/scheduler-handoffs/installer-nightly-download-guard-20261024.json"
+    ],
+    "checks": [
+      {
+        "executor": "connected V8 full inline installer JS, mock DOM/cases with synthetic approved package",
+        "command": "new Function(full Git-exact <script type=module> with only /*CATALOG*/ injection) on prior HTML and corrected HTML",
+        "exit_code": 0,
+        "previous_expected_red": 2,
+        "modified_pass": 5,
+        "scenarios": [
+          "empty",
+          "unapproved release only",
+          "eligible plus newer ineligible",
+          "eligible latest",
+          "missing latest"
+        ],
+        "real_network": false,
+        "real_flash": false
+      },
+      {
+        "executor": "native Node",
+        "command": "node web/test_install_nightly_download_guard.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "result": "PENDING independent QA; no native checkout"
+      },
+      {
+        "executor": "Chromium",
+        "command": "complete generated installer 320/390/1280 EN/JA and keyboard/mobile, approved and unapproved fixtures",
+        "exit_code": null,
+        "result": "PENDING independent QA"
+      }
+    ],
+    "status": "SOURCE_COMPLETED_PRODUCER_SCOPED_V8_CHECKED_READY_FOR_INDEPENDENT_QA",
+    "next_owner": "Independent QA → sole firmware Safe Merge; separate NIGHTLY website source owner → independent Website QA/Main Merger/Publisher",
+    "remaining_gate": "Native Node complete installer/backup/OTA and full-browser QA on exact HEAD; reviewed NIGHTLY website source; model/controller/source/license/immutable HTTP safety for each actual public DEV candidate",
+    "physical_feedback": "UNKNOWN",
+    "native_firmware_build": "NOT_APPLICABLE_BROWSER_ONLY",
+    "public_nightly_installability": "NOT_ESTABLISHED"
+  }
+}

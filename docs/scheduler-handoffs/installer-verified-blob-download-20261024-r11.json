@@ -1,0 +1,110 @@
+{
+  "schema": "x0x37.installer.producer-evidence.v1",
+  "evidence_revision": "installer-pr102-verified-byte-download-20261024-r11",
+  "date_utc": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 102,
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "consumed_head": "f020c069ec4ee46ec1b6fe3b7e13291bd6cc090f",
+  "consumed_root_tree": "e1ea09f62670a82557944f31bb12dce5b2db08fd",
+  "consumed_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "source": {
+    "path": "web/x0x_installer.html",
+    "old_blob": "7b71be676f088ed7d9a07086f97273bee0750783",
+    "new_blob": "91a29addf582d820d85140e6ac075318b7300c4a",
+    "checksum_extracted_windows": {
+      "guard_fnv1a32": "9a9b763b",
+      "refresh_meta_fnv1a32": "69a315ba",
+      "loader_fnv1a32": "43f2a7f3"
+    }
+  },
+  "test": {
+    "path": "web/test_install_nightly_download_guard.mjs",
+    "old_blob": "10f02cd041f7dee238660ac7b0acb9998a8b82e5",
+    "new_blob": "dcbecf3420b3ec12c77a3bceb619f86ff332d915"
+  },
+  "finding": "An approved catalog tuple previously created unchecked remote Download URL before browser fetch/SHA/product; new direct link is local verified Blob only with click-time reauthorization.",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--check",
+        "verified-download-window.js"
+      ],
+      "exit": 0,
+      "scope": "source window syntax"
+    },
+    {
+      "argv": [
+        "node",
+        "--check",
+        "test_verified_download.cjs"
+      ],
+      "exit": 0,
+      "scope": "test syntax"
+    },
+    {
+      "argv": [
+        "node",
+        "test_baseline_unverified_link.cjs"
+      ],
+      "exit": 0,
+      "result": "RED baseline reproduced stale raw href before hash",
+      "scope": "exact previous source window"
+    },
+    {
+      "argv": [
+        "node",
+        "test_verified_download.cjs"
+      ],
+      "exit": 0,
+      "result": "10/10",
+      "scope": "source-exact approval/hash/model/race mock"
+    },
+    {
+      "argv": [
+        "python3",
+        "test_verified_download_browser.py"
+      ],
+      "exit": 0,
+      "result": "30/30",
+      "scope": "real Chromium, source-window DOM, 320/390/1280 EN/JA"
+    },
+    {
+      "argv": [
+        "node",
+        "test-revocation-exact-excerpt.cjs"
+      ],
+      "exit": 0,
+      "result": "14/14",
+      "scope": "prior Release-origin checks"
+    },
+    {
+      "argv": [
+        "python3",
+        "browser_release_approval.py"
+      ],
+      "exit": 0,
+      "result": "24/24",
+      "scope": "prior Chromium Release authorization"
+    }
+  ],
+  "local_evidence_sha256": {
+    "verified-download-window.js": "a98818de2ba5fddb2c67bb7992dadb77a93e4de91e8315c12ee58b6b5a73875e",
+    "test_verified_download.cjs": "82272bcdff37eb400e997de164e415e4eef3d4f29fc879e7ccfdcf25306ab636",
+    "test_verified_download_browser.py": "553518bbb12a04df69fdf0850dd23c619ffda9feb9ee7924e576bb077788a687"
+  },
+  "statuses": {
+    "producer_scoped": "PASS",
+    "complete_node_repo": "NOT_RUN",
+    "complete_chromium_site": "NOT_RUN",
+    "independent_qa": "PENDING",
+    "site_source": "PENDING",
+    "published_immutable_http": "NOT_RUN",
+    "device": "UNKNOWN",
+    "firmware_subtree": "UNCHANGED",
+    "nightly_installable": "NO_CANDIDATE_CONFIRMED"
+  },
+  "next_owner": "Independent Firmware QA",
+  "next_gate": "complete Node and generated-site Chromium/backup/OTA/safety negatives against exact new PR head; independent QA review"
+}

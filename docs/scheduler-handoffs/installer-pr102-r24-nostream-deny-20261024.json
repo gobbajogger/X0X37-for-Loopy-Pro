@@ -1,0 +1,50 @@
+{
+  "schema": "x0x37.installer.source-evidence.v1",
+  "revision": "R24",
+  "utc_date": "2026-10-24",
+  "role": "Installer Improvements",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "exact_parent_sha": "7045bcf3bb1dd45961247de1a7d35468eef0c552",
+  "parent_root_tree_sha": "ac94d5a634b81f5bb2ad3b83e89eaaf3ff1ec612",
+  "files": [
+    "web/x0x_installer.html",
+    "web/test_install_nightly_download_guard.mjs",
+    "web/test_install_slots.mjs"
+  ],
+  "before_blob_sha": {
+    "web/x0x_installer.html": "c6f1724cb4cf6176761b5d68fcb90becec6c8cbb",
+    "web/test_install_nightly_download_guard.mjs": "ccc8f267551177ee9338e3caddabe1b48283881f",
+    "web/test_install_slots.mjs": "04af53784da6f16e79abae3800a5d32e7042a925"
+  },
+  "finding": "Remote firmware fetch with missing getReader() used unbounded response.arrayBuffer() before byte-length validation. The source-window negative baseline called arrayBuffer before failing. Change to fail closed; restore registered VM fixture missing source reader; convert synthetic network mocks to streamed body, preserving distinct guarded local file flow.",
+  "producer_checks": [
+    {
+      "command": "node test_nostream_baseline.cjs (before)",
+      "result": "expected fail: arrayBuffer invoked; count 1"
+    },
+    {
+      "command": "node --check test_stream_r23.cjs && node test_stream_r23.cjs (after)",
+      "exit": 0,
+      "scope": "exact edited source-window helper and loader, native Node 22.16, 10/10 synthetic scenarios"
+    },
+    {
+      "command": "python test_chromium_stream.py (after)",
+      "exit": 0,
+      "scope": "real Chromium source-window, 320/390/1280 EN/JA Elite/Pro six synthetic Fetch responses, 372/372 assertions"
+    },
+    {
+      "command": "Connected GitHub latest browser helper excerpt evaluated in V8",
+      "exit": 0,
+      "scope": "stream positive and missing-stream no-arrayBuffer negative"
+    }
+  ],
+  "pending": [
+    "native full Git checkout test_install_nightly_download_guard.mjs and test_install_slots.mjs",
+    "full browser/live-source/mobile/keyboard/WebMIDI tests",
+    "independent QA acceptance",
+    "actual firmware/controller/HTTP/package/hardware evidence"
+  ],
+  "state": "PRODUCER_SCOPED_CHECKED; EXACT_FULL_REPO_TEST_NOT_RUN; DEVICE_NOT_TESTED; NOT_DEPLOYED",
+  "next_owner": "Independent firmware QA on PR #102; website PR #6 owner independently fixes unchecked HREF negatives"
+}

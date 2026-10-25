@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "evidence_revision": "installer-nightly-physical-model-prewrite-20261024-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_branch": "lane/installer-nightly-download-guard-20261024",
+  "consumed_source_commit": "e8496c1b9beaff018738ce10cfdb5e2433281284",
+  "consumed_root_tree": "26027c2f6a297273dbe4ac3e686ad52cccc0ac0c",
+  "compiled_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "target_base_ref": "nightly",
+  "target_base_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "status": "SOURCE_COMPLETE_PRODUCER_CHECKED_READY_INDEPENDENT_REVIEW",
+  "bug": "family aliases silently admitted across approved DEV model selection",
+  "repair": "fresh prewrite device ID plus physical model confirmation for DEV normal and OTA; fail closed on refusal/absence; local stock unaffected",
+  "checks": [
+    {
+      "environment": "Git source exact connected V8",
+      "name": "original family alias",
+      "result": "expected RED, one simulated writer called without confirming"
+    },
+    {
+      "environment": "connected V8",
+      "name": "patched helper positive/negative",
+      "result": "9/9 PASS synthetic, in process"
+    },
+    {
+      "environment": "connected V8",
+      "name": "browser/helper/test source syntax",
+      "result": "PASS parser"
+    }
+  ],
+  "not_run": [
+    "full checked-out node web/test_install_stock_model_preflight.mjs",
+    "full node web/test_install_slots.mjs",
+    "full Chromium 320/390/1280 EN/JA",
+    "real backup and OTA",
+    "physical Elite/Pro",
+    "firmware compiler (browser-only edit)",
+    "public HTTP immutable hash"
+  ],
+  "next_owner": "Independent Firmware QA",
+  "next_action": "Run full native exact-HEAD Node/OTA/backup/model/Chromium and post exact-SHA Git review, then sole firmware Safe Merge; separate website owner on own PR #1",
+  "public_installability": "NO_GO",
+  "device_feedback": "UNKNOWN"
+}
