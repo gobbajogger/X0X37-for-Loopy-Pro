@@ -45,6 +45,7 @@ static void engine_smc_solo_targets(uint8_t parts,uint16_t a,uint16_t b)
 { output_solo=(int)parts | (int)(a!=0)<<8 | (int)(b!=0)<<9; }
 static void ui_say(const char *a,const char *b){(void)a;(void)b;}
 static void smc_guarded_button(uint8_t note,int mmc,int allow);
+#define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 '''
 stubs=r'''
 static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow)
@@ -60,7 +61,7 @@ static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow)
    const uint8_t press[3]={0x90u,8u,127u};
    smc_ble_midi(press,3);
    if (refill_cross) {
-    for (int i=1;i<SMC_Q;i++) {
+    for (unsigned i=1u;i<SMC_Q;i++) {
      const uint8_t cc[3]={0xB0u,16u,(uint8_t)i};
      smc_ble_midi(cc,3);
     }
