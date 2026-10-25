@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Production integration checks adapted from the reviewed PR150 suite. Routing runs through
  * the same fixture as smc_ui; hardware is replaced by a bounded output recorder.
- * A direct API call exercises a prepared lock mechanism. It is deliberately not
- * proof that a physical Pause button or its LED has been identified. */
+ * Physical Pause bytes are retained-capture evidence for this owner preset.
+ * These host tests establish dispatch/output bytes, never physical LED identity. */
 #include <stdint.h>
 #include <string.h>
 static unsigned send_count, led_count, led_transport_count;
@@ -265,37 +265,62 @@ static void test_pickup_and_display(void)
     button_tap(B_HOME); CHECK(ui.overlay != O_ASK); CHECK(smc_same(next, smc_target(0)));
     puts("PASS pickup/display: invalidated transitions, frozen edit, remote edit invalidation, exact 1200ms return");
 }
-static void test_unbound_input_and_output(void)
+static void test_physical_pause_input_and_output(void)
 {
     setup(V_SEQ, PART_909); ui.sel[0] = 8; build_pages();
-    pref_t r = smc_target(0); CHECK(smc_lock_toggle());
+    pref_t r = smc_target(0);
+    seq_start(&seq);
+    screen_state_t before = screen_state();
+    message(0x90, 0x5D, 127);
+    CHECK(smc.locked); CHECK(smc.lock_down);
+    CHECK(seq.req_start && !seq.req_stop); CHECK(!smc_ui_active());
+    CHECK(ui.view == before.view && ui.overlay == before.overlay && !memcmp(ui.page, before.page, sizeof ui.page));
     navigate(V_PART, PART_303A);
-    message(0x90, 53, 127); message(0x90, 53, 127);
-    message(0x80, 53, 0); message(0x90, 53, 0); message(0xB0, 53, 127); message(0xB0, 53, 0);
-    CHECK(smc_same(r, smc_target(0)));
+    for (int i = 0; i < 7; i++) message(0x90, 0x5D, 127);
+    CHECK(smc.locked); CHECK(smc_same(r, smc_target(0))); CHECK(!seq.req_stop);
+    message(0x90, 0x5D, 0); message(0x80, 0x5D, 0);
+    CHECK(smc.locked && !smc.lock_down); CHECK(!smc_ui_active());
+    message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!seq.req_stop);
+    message(0x80, 0x5D, 0); CHECK(!smc.locked);
+
+    /* Unrelated controls and unselected DAW channels cannot capture a target. */
+    message(0x90, 53, 127); message(0x80, 53, 0);
+    message(0x91, 0x5D, 127); message(0x81, 0x5D, 0);
+    CHECK(!smc.locked);
     proj.set.bt |= PROJ_BT_SMC_USER;
-    for (unsigned ch = 0; ch < 16; ch++) {
-        uint32_t pkt = 9u | (uint32_t)(0x90u | ch) << 8 | 53u << 16 | 127u << 24;
-        CHECK(!smc_midi_host(pkt));
-        CHECK(!smc_midi_host(pkt ^ 0x20u << 8)); /* CC53 is not an opted-in host control */
-        message(0x90u | ch, 53, 127); message(0x80u | ch, 53, 0);
-        message(0xB0u | ch, 53, 127); message(0xB0u | ch, 53, 0);
-        CHECK(smc_same(r, smc_target(0)));
-    }
-    proj.set.bt &= (uint8_t)~PROJ_BT_SMC_USER;
-    seq_start(&seq); message(0x90, 0x5D, 127); CHECK(seq.req_stop && !seq.req_start);
+    CHECK(!smc_midi_host(9u | 0x90u << 8 | 0x5Du << 16 | 127u << 24));
+    CHECK(smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24)); smc_poll();
+    CHECK(smc.locked);
+    CHECK(smc_midi_host(8u | 0x8Fu << 8 | 0x5Du << 16)); smc_poll();
+    CHECK(smc.locked && !smc.lock_down);
+
+    /* The old User-preset MMC command has no captured press/release evidence. */
+    const uint8_t stop[6] = {0xF0, 0x7F, 0x7F, 6, 34, 0xF7};
+    smc_ble_midi(stop, sizeof stop); smc_poll();
+    CHECK(seq.req_stop && !seq.req_start); CHECK(smc.locked);
     message(0x90, 0x5E, 127); CHECK(seq.req_start);
     message(0x80, 0x5E, 0); CHECK(seq.req_start);
-    message(0x90, 0x5D, 127); CHECK(seq.req_stop && !seq.req_start);
+    message(0x90, 0x5E, 127); CHECK(seq.req_stop);
+    message(0x80, 0x5E, 0); CHECK(smc.locked);
+
+    /* Existing output route only: NoteOn 90 5D, solid captured / blink following. */
     smc_frame(); reset_output();
     for (int i = 0; i < 100; i++) { now_ms += 20; smc_frame(); }
-    CHECK(send_count == 0); /* no guessed Pause LED or scheduler traffic */
-    smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
-    CHECK(smc_same(r, smc_target(0)));
+    CHECK(send_count == 0);
+    CHECK(smc_led(0x5D));
+    smc_ble_link(0); smc_poll(); CHECK(smc.locked);
+    smc_ble_link(1); smc_poll(); CHECK(smc.locked);
     reset_output(); smc_frame(); CHECK(led_count == 43); CHECK(led_transport_count == 3);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    CHECK(smc_lock_toggle());
-    puts("PASS unbound routing/output: no speculative note53/CC53 binding, transport preserved, reconnect/no spam");
+    message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!smc_ui_active());
+    message(0x90, 0x5D, 0);
+    now_ms = 1024; smc_frame(); reset_output();
+    now_ms = 1536; smc_frame();
+    CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 127);
+    reset_output(); now_ms = 2048; smc_frame();
+    CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 0);
+    reset_output(); smc_frame(); CHECK(send_count == 0);
+    puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
 }
 static void test_guard_reset(void)
 {
@@ -347,43 +372,66 @@ static void test_select_and_play(void)
     message(0x90, 0x5E, 127); CHECK(!seq.req_start); /* held repeat cannot restart */
     message(0x80, 0x5E, 0); seq.playing = 0;
     press(0x5E); CHECK(seq.req_start);
-    press(0x5D); CHECK(seq.req_stop && !seq.req_start); /* STOP remains STOP */
+    unsigned pending_start = seq.req_start, pending_stop = seq.req_stop;
+    press(0x5D); CHECK(smc.locked && seq.req_start == pending_start && seq.req_stop == pending_stop); /* captured Pause locks, never stops */
     puts("PASS Select/Play: first select, same-part drum mixer, same-sound return, held edges, frozen lock and Play toggle");
 }
 
 
 static void test_lost_edge_release(void)
 {
-    for (int host = 0; host < 2; host++) for (int select = 0; select < 2; select++) {
+    for (int host = 0; host < 2; host++) for (int edge = 0; edge < 3; edge++) for (int noteoff = 0; noteoff < 2; noteoff++) {
         setup(V_HOME, PART_303A);
-        unsigned note = select ? 24u : 0x5Eu;
+        int select = edge == 1, pause = edge == 2;
+        unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
         press(note); /* settle into ordinary selected/playing request state */
         if (select) CHECK(ui.part == PART_909);
-        else { seq.req_start = 0; seq.playing = 1; }
+        else if (!pause) { seq.req_start = 0; seq.playing = 1; }
         message(0x90, note, 127); /* leave held */
-        CHECK(select ? smc.select_down != 0 : smc.play_down != 0);
+        CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
         if (host) {
             proj.set.bt |= PROJ_BT_SMC_USER;
             for (unsigned i = 0; i < SMC_Q; i++) CHECK(smc_midi_host(0x0Bu | 0xBFu << 8 | 16u << 16));
-            CHECK(smc_midi_host(0x08u | 0x8Fu << 8 | note << 16));
+            CHECK(smc_midi_host((noteoff ? 0x08u : 0x09u) | (noteoff ? 0x8Fu : 0x9Fu) << 8 | note << 16));
         } else {
-            uint8_t filler[3] = {0xB0, 16, 0}, release[3] = {0x80, (uint8_t)note, 0};
+            uint8_t filler[3] = {0xB0, 16, 0}, release[3] = {noteoff ? 0x80 : 0x90, (uint8_t)note, 0};
             for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
             smc_ble_midi(release, 3);
         }
         smc_poll();
-        CHECK(select ? smc.select_down == 0 : smc.play_down == 0);
-        if (select) { press(note); CHECK(cur_page() == 0); }
+        CHECK(pause ? smc.lock_down == 0 : select ? smc.select_down == 0 : smc.play_down == 0);
+        if (pause) { int locked = smc.locked; press(note); CHECK(smc.locked != locked); }
+        else if (select) { press(note); CHECK(cur_page() == 0); }
         else { seq.req_stop = 0; seq.playing = 1; press(note); CHECK(seq.req_stop); }
     }
-    puts("PASS dropped release recovery: Play and SELECT rearm after full BLE and host queues");
+    puts("PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues");
+}
+
+static void test_dropped_pause_press(void)
+{
+    for (int host = 0; host < 2; host++) {
+        setup(V_SEQ, PART_808);
+        uint8_t filler[3] = {0xB0, 16, 0}, down[3] = {0x90, 0x5D, 127};
+        if (host) {
+            proj.set.bt |= PROJ_BT_SMC_USER;
+            for (unsigned i = 0; i < SMC_Q; i++) CHECK(smc_midi_host(0x0Bu | 0xBFu << 8 | 16u << 16));
+            CHECK(smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24));
+        } else {
+            for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
+            smc_ble_midi(down, 3);
+        }
+        smc_poll(); CHECK(!smc.locked && !smc.lock_down);
+        message(0x90, 0x5D, 0); CHECK(!smc.locked);
+        press(0x5D); CHECK(smc.locked); CHECK(!smc.lock_down);
+    }
+    puts("PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures");
 }
 
 int main(void)
 {
-    test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
+    test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
     test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
-    test_unbound_input_and_output(); test_guard_reset();
-    printf("smc_lock: PASS (%u checks; neutral API only, physical mapping unverified)\n", checks);
+    test_physical_pause_input_and_output(); test_guard_reset();
+    printf("smc_lock: PASS (%u checks; captured Pause input route; physical LED identity unverified)\n", checks);
     return 0;
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prove the full UI regression detects runtime failures in eleven real paths.
+"""Prove the full UI regression detects runtime failures in fourteen real paths.
 
 Each mutation changes one production operation in a private scratch source;
 compiler failures do not count as an expected negative result. No device I/O.
@@ -13,6 +13,18 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "firmware/src/app/smc_mixer.c"
 text = SOURCE.read_text()
 MUTANTS = {
+    "drum-seq-numbered": (
+        'put_s(name, engine_voice_name(kit ? T_808 : T_909, track));',
+        'put_i(name, track + 1);',
+    ),
+    "drum-seq-wrong-kit": (
+        'put_s(name, engine_voice_name(kit ? T_808 : T_909, track));',
+        'put_s(name, engine_voice_name(T_909, track));',
+    ),
+    "drum-seq-ignores-captured-view": (
+        'else if ((smc.locked ? smc.lock_view : ui.view) == V_SEQ)',
+        'else if (ui.view == V_SEQ)',
+    ),
     "filter-shows-false-solo": (
         'view == V_PART ? "PART"', 'view == V_PART ? "S"',
     ),
@@ -72,4 +84,4 @@ for name, (old, new) in MUTANTS.items():
             raise RuntimeError(f"{name}: expected a runtime assertion failure, exit={result.returncode}\n{result.stdout}")
         failure = next(line for line in result.stdout.splitlines() if line.startswith("FAIL tests/host/smc_ui_test.c:"))
         print(f"PASS negative {name}: {failure}")
-print("smc_ui_negative: PASS (11 runtime failures detected; compile failures excluded)")
+print(f"smc_ui_negative: PASS ({len(MUTANTS)} runtime failures detected; compile failures excluded)")
