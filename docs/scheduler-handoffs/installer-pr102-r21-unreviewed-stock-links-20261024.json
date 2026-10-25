@@ -1,0 +1,104 @@
+{
+  "schema": "x0x37.installer.source-evidence.v1",
+  "date_utc": "2026-10-24",
+  "role": "installer-improvements",
+  "stage": "PRODUCER_SOURCE_SCOPED_CHECKED_INDEPENDENT_QA_PENDING",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "pr": 102,
+  "source_parent_sha": "eeb33c089d599e8e0190a0e59625ed9e7b3b86a0",
+  "source_change_commit": "aeb2dc19d168d26c24b9c5c4345a91380d358d81",
+  "test_change_commit": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
+  "source_file": "web/x0x_installer.html",
+  "source_blob_sha": "2efd53db2686c39c86670fde09cc237843053835",
+  "test_file": "web/test_install_nightly_download_guard.mjs",
+  "test_blob_sha": "abf814aee8e5cce99ccfe699df1893ba7ec8faca",
+  "original_blob_sha": "1eee54110803f2f546795996d2838d578718a02d",
+  "exact_source_windows": {
+    "method": "concatenate refreshModelUi through next function and fillVersions through next function; FNV1a-32 over code units",
+    "before": {
+      "length": 3326,
+      "fnv1a32": "f057c5d4",
+      "unreviewed_external_fwsc_literals": 6
+    },
+    "after": {
+      "length": 2484,
+      "fnv1a32": "1fc648fc",
+      "unreviewed_external_fwsc_literals": 0
+    }
+  },
+  "change": "Remove dynamic and empty-picker direct unreviewed vendor .fwsc download anchors. Preserve official manufacturer navigation and guarded separately confirmed local-file import.",
+  "executable_scoped_checks": [
+    {
+      "test": "node --check stock_ui_git_exact.js; node --check test_stock_ui_native.cjs",
+      "exit": 0
+    },
+    {
+      "test": "node test_stock_ui_native.cjs (before)",
+      "exit": 1,
+      "expected": 1,
+      "finding": "unchecked direct URL"
+    },
+    {
+      "test": "node test_stock_ui_native.cjs (after)",
+      "exit": 0,
+      "positive_negative_assertions": "5/5"
+    },
+    {
+      "test": "python3 test_browser_stock_links.py (before; real Chromium)",
+      "exit": 1,
+      "expected": 1,
+      "finding": "empty-picker three unapproved stock .fwsc anchors"
+    },
+    {
+      "test": "python3 test_browser_stock_links.py (after; real Chromium)",
+      "exit": 0,
+      "assertions": "156/156",
+      "viewports": [
+        320,
+        390,
+        1280
+      ],
+      "languages": [
+        "en",
+        "ja"
+      ],
+      "mobile": true,
+      "keyboard": true
+    }
+  ],
+  "private_source_only_evidence_zip": {
+    "name": "LoopyX0X37-PR102-R21-Unchecked-StockLinks-20261024.zip",
+    "sha256": "f98f37c4d31d309307fd68b5f3d31a24344132aaa22dcd050c9fd7e2d5c7d54d",
+    "bytes": 12067,
+    "contains_compiled_firmware": false,
+    "contains_controller": false
+  },
+  "not_executed": [
+    "whole-current-repo node web/test_install_nightly_download_guard.mjs",
+    "node web/test_install_slots.mjs",
+    "complete generated-page browser",
+    "Web MIDI/hardware/device",
+    "slot backup/readback/restore/OTA",
+    "independent QA",
+    "public HTTP hash validation"
+  ],
+  "owners": {
+    "website_source": "gobbajogger/x0x37-for-Loopy-Pro_nightly PR #6 DRAFT (do not edit another's branch)",
+    "independent_qa": "separate",
+    "integrator": "Safe Merge/sole NIGHTLY main merger",
+    "publisher": "sole NIGHTLY Pages publisher"
+  },
+  "website_observed": {
+    "pr": 6,
+    "head": "ddbd8d89f7c4dfd5afa432dd51e940b6dd428592",
+    "installer_blob": "ecc861643de8f9377dc1cb34f54d3db6a40aad63",
+    "pending": "line 761 direct pkg.pkg href plus unreviewed vendor .fwsc hrefs still present; no verified Blob"
+  },
+  "policy": {
+    "nightly_unverified_device_pass_allowed_only_after_full_prehardware_checks": true,
+    "production_requires_owner_matching_byte_device_pass": true,
+    "installer_offer_new_public_build": false
+  },
+  "notes": "No protected branch or hosted Pages change; no installable package, controller bytes, firmware compilation, hardware or full QA PASS claimed. Empty publisher allowlist remains."
+}

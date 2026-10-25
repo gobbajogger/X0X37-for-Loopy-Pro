@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-24T10:17:11Z",
+  "role": "X0X37 Installer Improvements — firmware-repository browser UX source owner",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "tested_commit": "a5eed65297f7894f9cdb2092a0a70ebe4c642c62",
+    "tested_tree": "0c60ae03a82b26d5b0b8d9747f9a20b3071bb1bb",
+    "pr": 102
+  },
+  "summary": "Fix controller file verification race: Install is blocked while selected ctl.img pending or failed until verified or explicitly removed, preserving validated prior controller on chooser cancel and all model/download safeguards.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "web/x0x_installer.html",
+      "description": "Guarded controller selection and explicit Remove choice, Git blob 7c5d48f005e40711f2a87de919332e3ca19a1919"
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_nightly_controller_selection.mjs",
+      "description": "Five new async local controller state regressions, 22 cases total; blob 05fe716c384bb7ea387dee4c0c824bddc015296b"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/installer-ctl-selection-pending-20261024-r18.md",
+      "description": "Before/after source exact regression, real scoped native and Chromium exits, pending downstream gates"
+    }
+  ],
+  "checks": [
+    {
+      "name": "controller pending Node",
+      "status": "PASS",
+      "command": "node /mnt/data/x0x37_installer_ctl_run18/test_ctl_pending.cjs",
+      "exit_code": 0,
+      "evidence": "main Library private source exact controlled test, node.log",
+      "log_sha256": "6e5af5e77624f4c1c1ebaf0aeb1deb0a40bb6d04af98663878ee6a65227bc73b",
+      "coverage": "before unsafe write reproduced, after six async selection/invalid/read failure/cancel/stale cases"
+    },
+    {
+      "name": "responsive Chromium",
+      "status": "PASS",
+      "command": "python3 /mnt/data/x0x37_installer_ctl_run18/test_browser_ctl_pending.py",
+      "exit_code": 0,
+      "evidence": "controlled source exact Chromium fixture and chromium.log",
+      "log_sha256": "f82c43ea3bbdde73255e6247d64a1b03002437524a24ee9dca3fdeb0e8605d7d",
+      "coverage": "12 EN/JA desktop/mobile/narrow pending/invalid/Remove/keyboard/no overflow"
+    },
+    {
+      "name": "registered regression V8 adapter",
+      "status": "PASS",
+      "command": "Connected V8 source-exact web/test_install_nightly_controller_selection.mjs with Node vm API shim",
+      "exit_code": 0,
+      "evidence": "22/22 cases executed against proposed exact Git HTML and registered test blob",
+      "coverage": "existing 17 plus five new negative/positive cases; not native Node full repo"
+    },
+    {
+      "name": "complete Node aggregate",
+      "status": "NOT_RUN",
+      "command": "node web/test_install_slots.mjs",
+      "evidence": "Complete exact Git checkout/aggregate not executed in this source-only bounded run"
+    },
+    {
+      "name": "physical firmware build",
+      "status": "NOT_RUN",
+      "command": "BOARD=smk37 MODEL=elite/pro bash build.sh --board smk37",
+      "evidence": "Installer HTML/JS-only; compiled firmware inputs unchanged; owned by Hourly Build"
+    }
+  ],
+  "next": {
+    "owner": "Independent Firmware QA",
+    "action": "Reread exact PR #102 head; run native complete web/test_install_slots.mjs and full generated-site Chromium, backup/OTA/controller/Release negative integration; post independent exact-SHA disposition.",
+    "gate": "Independent complete-root QA and sole Safe Merge source integration; website mirror/Pages later"
+  },
+  "dependencies": [
+    "Firmware PR #102 source base nightly",
+    "Website source PR #6 separate owner",
+    "Existing verified Blob SHA and model/revocation approval guards"
+  ],
+  "publication": "SOURCE_ONLY"
+}

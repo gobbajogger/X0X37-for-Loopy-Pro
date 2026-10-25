@@ -305,20 +305,34 @@ export function asciiName(b) {
 // offset (null if unknown) and used KiB come from X0X's extension ('X', 1, then per slot offset and size in
 // 4 KiB sectors and used KiB, 14 bits each); without it every slot has the one size.
 export function parseInfo(r) {
-  if (r.length < 2) throw new Error("short SMP_INFO reply");
+  if (!r || r.length < 2) throw new Error("short SMP_INFO reply");
   const count = r[0], size = r[1] * 1024, slots = [];
+  if (count < 1 || count > 16 || !size || r[1] > 127)
+    throw new Error("invalid SMP_INFO slot count or size");
   let i = 2;
   for (let k = 0; k < count; k++) {
+    if (i >= r.length || r[i] > 16) throw new Error("invalid SMP_INFO slot record");
     const nz = r[i], j = r.indexOf(0, i + 1);
-    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
+    // Device names have at most eight bytes and must end before used-KiB.
+    if (j < 0 || j > i + 9 || j + 1 >= r.length || r[j + 1] > 127)
+      throw new Error("truncated SMP_INFO slot record");
+    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1],
+      size, off: null, used: r[j + 1] });
     i = j + 2;
   }
-  const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
-  if (ext)
+  // Valid legacy X0X layouts can omit the extension altogether. If any
+  // extension bytes exist, they MUST describe all declared slots completely.
+  const ext = i < r.length;
+  if (ext) {
+    if (r[i] !== 0x58 || r[i + 1] !== 1 || r.length !== i + 2 + 6 * count)
+      throw new Error("malformed or truncated SMP_INFO extension");
     slots.forEach((sl, k) => {
       const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
+      if (!v[1] || v[2] > v[1] * 4)
+        throw new Error("invalid SMP_INFO extended slot size");
       Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
     });
+  }
   return { count, size, ext, slots };
 }
 
@@ -345,6 +359,10 @@ export function makeArchive(layout, images, created) {
   images.forEach((img, k) => {
     const sl = layout.slots[k] || {};
     const e = { slot: k + 1, size: sl.size ?? layout.size, empty: img === null };
+    // Source occupancy is authoritative: a CRC-valid archive marked empty
+    // must never conceal a slot that SMP_INFO reported as occupied.
+    if (sl.nz > 0 && img === null)
+      throw new Error(`slot ${k + 1}: occupied source slot is missing from the backup`);
     if (sl.off !== null && sl.off !== undefined) e.flash = sl.off;
     if (img !== null) {
       const h = parseHeader(img);
@@ -510,10 +528,13 @@ async function readSlotBytes(link, k, off, n, onPart) {
 }
 
 // slot k as an image (the 512-byte header area, then the data), or null if it is empty. Reads only.
-export async function readSlotImage(link, k, nz, onPart) {
+export async function readSlotImage(link, k, nz, onPart, slotSize = null) {
   if (!nz) return null;
   const area = await readSlotBytes(link, k, 0, SLOT_HDR_AREA), h = parseHeader(area.subarray(0, SLOT_HDR_LEN));
-  if (!h) return null;
+  if (!h || h.nz !== nz)
+    throw new Error(`slot ${k + 1}: occupied sample header is unreadable, unsupported or mismatches SMP_INFO`);
+  if (h.dataLen === 0 || (slotSize !== null && h.dataLen > slotSize - SLOT_HDR_AREA))
+    throw new Error(`slot ${k + 1}: occupied sample data length exceeds the slot or is empty`);
   const data = await readSlotBytes(link, k, SLOT_HDR_AREA, h.dataLen, onPart);
   if (crc32(data) !== h.crc) throw new Error(`slot ${k + 1}: the data read back does not match its CRC`);
   const img = new Uint8Array(SLOT_HDR_AREA + data.length);
@@ -526,7 +547,8 @@ export async function readSlotImage(link, k, nz, onPart) {
 export async function backupSlots(link, onPart) {
   const layout = await readSlotLayout(link), images = [];
   for (let k = 0; k < layout.count; k++)
-    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n))));
+    images.push(await readSlotImage(link, k, layout.slots[k].nz,
+      onPart && ((d, n) => onPart(k, d, n)), layout.slots[k].size));
   return { layout, images };
 }
 
@@ -553,7 +575,7 @@ export async function restoreMapped(link, todo, images, onPart) {
   for (const { k, j } of todo) await writeSlotImage(link, j, images[k], onPart && ((d, n) => onPart(j, d, n)));
   const after = await readSlotLayout(link);
   for (const { k, j } of todo) {
-    const got = await readSlotImage(link, j, after.slots[j].nz);
+    const got = await readSlotImage(link, j, after.slots[j].nz, undefined, after.slots[j].size);
     if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
       throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
   }
@@ -578,18 +600,24 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
   let move = null;
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
-  if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
-  else if (dev) {
+  // Require a freshly detected device and an informed physical-model decision for published DEV.
+  if (!dev && h.confirmModel) throw fail("notfound", "Verify the keyboard model before DEV installation.");
+  if (dev) {
     try {
-      // Fail closed: a probe timeout / parse error must not skip backup and continue the write.
-      // A successful empty / no-risk layout still installs without a backup.
-      let layout;
-      try {
-        layout = await readSlotLayout(dev.link, 1000, 2);
-      } catch (e) {
-        throw fail("slots", `the running firmware did not provide its slot layout (${e.message})`);
+      if (!h.sameKeyboard(dev.id.model, product.split("_")[0])) throw fail("model", "Device family mismatch.");
+      if (h.confirmModel && !h.confirmModel(dev.id, product)) throw fail("modelcancel", "Physical model not confirmed; nothing written.");
+      let layout = null;
+      try { layout = await readSlotLayout(dev.link, 1000, 2); }
+      catch (e) {
+        // Only the independently exercised stock Pro _016 no-response path
+        // lacks SMP_INFO. Corrupt replies, USB failures, current X0X and
+        // unclassified firmware must NEVER bypass the prewrite backup gate.
+        const knownStockNoReply = dev.id && dev.id.text === "SMK-37 Pro_016" &&
+          e && e.message === "The keyboard did not answer (slot command 15).";
+        if (!knownStockNoReply)
+          throw fail("slotlayout", "Cannot verify the current sample layout before install: " + (e && e.message || e));
       }
-      if (layout.slots.some((sl) => sl.nz)) {
+      if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
         if (risk.length) {
@@ -600,7 +628,16 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
           } catch (e) { throw fail("slotbackup", e.message); }
           const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
           readArchive(file);                                  // what was saved reads back
-          h.save(file, st.name);
+          // Do not start destructive OTA while an asynchronous backup export is
+          // pending or after the owner has rejected/failed that export.
+          // A legacy synchronous callback returning undefined is preserved;
+          // the browser's current download-click fallback is NOT durability proof.
+          try {
+            const savedOut = await h.save(file, st.name);
+            if (savedOut === false) throw new Error("Backup export was not confirmed.");
+          } catch (e) {
+            throw fail("slotbackup", "Backup export failed: " + (e && e.message || e), st.name);
+          }
           move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
         }
       }

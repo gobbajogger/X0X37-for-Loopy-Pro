@@ -247,15 +247,24 @@ export class Updater {
     if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
     step("loader");
     await sleep(3000);
-    const ota = await this.waitFor(IS_OTA, 30000, beforeLoaders);
+    const ota = await this.waitFor((id) =>
+      IS_OTA(id) && sameKeyboard(id.model.replace(/^ota-/i, ""), model), 30000, beforeLoaders);
     if (!ota) throw fail("noloader", "the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.");
+    // Reject a loader from another keyboard family, even if discovery changes.
+    if (!IS_OTA(ota.id) || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), model)) {
+      ota.link.close();
+      throw fail("model", `the loader is ${ota.id.text}, the package is for ${product}`, ota.id.text);
+    }
     const s2 = await this.write(ota, image, step);
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
     const beforeRunning = this._beforeRunning || [];
     step("reboot");
     await sleep(3000);
-    const back = await this.waitFor((id) => !IS_OTA(id), 40000, beforeRunning);
-    if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
+    // A different connected keyboard is not evidence that the target rebooted.
+    // In particular, stock/manual mode must not report false success on mismatch.
+    const back = await this.waitFor((id) => !IS_OTA(id) && sameKeyboard(id.model, model), 40000, beforeRunning);
+    if (!back || !sameKeyboard(back.id.model, model))
+      throw fail("noreturn", "the target keyboard did not come back: power-cycle it");
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
     step("done", back.id.text);

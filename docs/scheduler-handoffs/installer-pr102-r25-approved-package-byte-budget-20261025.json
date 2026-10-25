@@ -1,0 +1,54 @@
+{
+  "schema": "x0x37.installer.source-evidence.v1",
+  "revision": "R25",
+  "utc_date": "2026-10-25",
+  "role": "Installer Improvements",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "parent_commit_sha": "a48d745b59683eaaf2283aed5ec1ec2187799cfc",
+  "parent_root_tree_sha": "bfdbe6ad194285f8ac7312dfeb97b83b2f416949",
+  "before_blob_sha": {
+    "web/x0x_installer.html": "492f5be065fa234b9f0ea28f24b15a8f75a0ff5b",
+    "web/test_install_nightly_download_guard.mjs": "e0be0e6662eedba56307e5df0ca596d891f2c149",
+    "web/test_install_nightly_product_identity.mjs": "f9a57c8104baa8480238de8ae82bee677cdbcd6b",
+    "web/test_install_slots.mjs": "93ffeb0290500e0ab4dcb6929b50055b1afb2618"
+  },
+  "proposed_blob_sha": {
+    "web/x0x_installer.html": "a2db0086aff0fd3eb53387d99d10b8f165f43d1c",
+    "web/test_install_nightly_download_guard.mjs": "f9ad3f9123f8e4cc5ea12d9060027eec788c28ec",
+    "web/test_install_nightly_product_identity.mjs": "6e773b4c484b7e2f0b50ec5f25a95c937699e1dc",
+    "web/test_install_slots.mjs": "1ac81627a67523a7406cc724be655243d29791b5"
+  },
+  "finding": "The approved package SHA/URL/model/controller were publisher-pinned, but catalog pkg.size was not. Before repair the same approved package could present an arbitrary remotely supplied streaming byte budget, up to Number.MAX_SAFE_INTEGER, despite unchanged publisher proof. Binding pkg.size to approval.package_size closes the authorization gap before any fetch or download HREF, while retaining the guarded manual-file flow.",
+  "scope": "Browser source + exact-VM regressions + synthetic package fixtures; firmware/toolchain unchanged; no real package approved",
+  "actual_producer_checks": [
+    {
+      "command": "JavaScript V8 from exact authenticated Git HTML admission slice, before and after",
+      "result": "EXPECTED FAIL 2/2 size-drift negatives before; PASS 8/8 positive/negative after",
+      "exit": 0
+    },
+    {
+      "command": "new Function on exact repaired browser inline script (catalog placeholder substituted)",
+      "result": "PASS syntax",
+      "exit": 0
+    },
+    {
+      "command": "node test_stream_r23.cjs (inherited R24 source-window archive)",
+      "result": "PASS 10/10, streamer only, not R25 admission",
+      "exit": 0
+    },
+    {
+      "command": "python3 test_chromium_stream.py (inherited R24 source-window archive)",
+      "result": "PASS 372/372 scoped streamer only, not R25 admission",
+      "exit": 0
+    }
+  ],
+  "unrun": [
+    "Native complete repository Node web/test_install_nightly_download_guard.mjs + product identity + slots tests",
+    "Current-head full Chromium responsive/mobile/keyboard/WebMIDI/backup/OTA integration",
+    "Independent firmware QA",
+    "Real firmware/controller/OTA/immutable HTTPS/device"
+  ],
+  "next_owner": "Existing Independent firmware QA; website PR #8 existing producer for complementary size tuple, not competing write",
+  "state": "PRODUCER_SOURCE_WINDOW_CHECKED; FULL_ROOT_UNRUN; INDEPENDENT_QA_PENDING; NOT_INSTALLABLE; NO_DEVICE_TEST"
+}
