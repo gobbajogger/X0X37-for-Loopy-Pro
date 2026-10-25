@@ -485,6 +485,47 @@ export function planMigration(images, risk, oldMap, newLayout, newMap) {
   return { todo, skipped };
 }
 
+export const X0X_NBREAKS_BUILTIN = 2;
+const LOOP_MENU_GUARD = "LOOP menu order would change; saved break pattern A/B indices would point at the wrong loops. "
+  + "Restore samples manually from the backup, then re-assign LOOP A/B in each pattern.";
+
+function userLoopMenuIds(layout, images) {
+  const ids = [];
+  layout.slots.forEach((sl, k) => { if (sl.nz && images[k]) ids.push(`u:${crc32(images[k])}`); });
+  return ids;
+}
+
+function loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo) {
+  const imgs = newMap.map(() => null);
+  const slots = newLayout.slots.map((sl) => ({ ...sl }));
+  images.forEach((img, k) => {
+    if (risk.includes(k) || !img) return;
+    const off = oldMap[k].off;
+    const j = newMap.findIndex((m) => m.off === off);
+    if (j < 0) return;
+    imgs[j] = img;
+    if (!slots[j].nz) slots[j] = { ...oldLayout.slots[k] };
+  });
+  todo.forEach(({ k, j }) => { imgs[j] = images[k]; slots[j] = { ...oldLayout.slots[k] }; });
+  return userLoopMenuIds({ ...newLayout, slots }, imgs);
+}
+
+export function migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo) {
+  if (!todo.length) return false;
+  const before = userLoopMenuIds(oldLayout, images);
+  const after = loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo);
+  const survive = before.filter((id) => after.includes(id));
+  const afterSurvive = after.filter((id) => survive.includes(id));
+  return survive.length !== afterSurvive.length || survive.some((v, i) => v !== afterSurvive[i]);
+}
+
+export function guardMigrationLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo, skipped) {
+  if (!migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo)) return { todo, skipped };
+  const extra = [...skipped];
+  for (const { k } of todo) extra.push(`slot ${k + 1}: not restored automatically (${LOOP_MENU_GUARD})`);
+  return { todo: [], skipped: extra };
+}
+
 // ---- the slot commands over a link with send / read / drain (fm1ota.js's Link): SysEx F0 7D 46 4C cmd .. F7 ----
 const ED = [0xF0, 0x7D, 0x46, 0x4C];
 
@@ -638,7 +679,7 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
           } catch (e) {
             throw fail("slotbackup", "Backup export failed: " + (e && e.message || e), st.name);
           }
-          move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
+          move = { risk, oldMap, newMap, layout: saved.layout, images: saved.images, name: st.name, todo: [], skipped: [] };
         }
       }
     } finally { dev.link.close(); }
@@ -651,7 +692,9 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
     const layout = await readSlotLayout(back.link);
-    const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    let plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    plan = guardMigrationLoopMenu(move.layout, move.images, move.risk, move.oldMap, layout,
+      flashMap(layout, board), plan.todo, plan.skipped);
     move.todo = plan.todo;
     move.skipped = plan.skipped;
     const total = plan.todo.length || 1;
