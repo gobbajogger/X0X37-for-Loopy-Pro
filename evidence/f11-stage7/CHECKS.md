@@ -36,11 +36,11 @@ GitHub Actions / Codex-on-GitHub not used as merge gate. Local-env review is the
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| `backup-restore-readback` | PASS | `safety-gates-note.md` — stage-4 CHECKS + unchanged installer fingerprint |
-| `interruption-recovery` | PASS | same |
-| `ota-target-binding` | PASS | stage-3 CHECKS + same installer fingerprint |
+| `backup-restore-readback` | PASS | `safety-gates-note.md` + `check-safety-gates.py` / `safety-gates-candidate.log` — FakeX0X blank+`--ctl` on Elite `4841110a…` / Pro `b35d5875…` join chain; CTL_READ CRC MATCH |
+| `interruption-recovery` | PASS | same runner — mid-restore fail-closed exit 7; backup retained; both models |
+| `ota-target-binding` | PASS | same runner — blank+page product identity Elite_900 / Pro_900 |
 
-F10 byte-identity carry does **not** apply (BF-007 changed package digests). See `safety-gates-note.md`.
+F10 byte-identity carry does **not** apply (BF-007 changed package digests). Nightly synthetic `npm test` is **not** candidate QA for these gates. See `safety-gates-note.md`.
 
 ## Packages (DEV CHECKED blank; page serves bundled)
 

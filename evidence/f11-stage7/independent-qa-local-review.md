@@ -16,4 +16,6 @@ Stage-3 `CHECKS.md` covers required BF-007 host regressions only and is **not** 
 
 **Primary local review (Overall PASS):** Project store `internal/pr-local-reviews/pr-264.md` (reviewer `bc-d2140e52-d624-573a-be0f-d8b2b20c820c`). Stage-7 rebuild also verified both models `DEV CHECKED` at `4f96b0d9…` before bundling (`tools/add_ctl.py`). Helper report: `internal/f11-stage7-package-rebuild.md`.
 
+**Safety gates (Codex P1 / local-review HOLD):** `backup-restore-readback`, `interruption-recovery`, and `ota-target-binding` are substantiated for these exact page digests by `evidence/f11-stage7/safety-gates-note.md` and `safety-gates-candidate.log` (candidate FakeX0X blank+`--ctl` / product identity). Nightly synthetic `npm test` suites are not candidate QA for those gates.
+
 Policy: local-env review only — not GitHub Actions, not Codex-on-GitHub.

@@ -499,15 +499,15 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/1b4a5121a9b2ce181fe2f039548f25805d11cd7b/evidence/f11-stage4/CHECKS.md"
+          "evidence_url": "EVIDENCE_TIP_PENDING/evidence/f11-stage7/safety-gates-note.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/1b4a5121a9b2ce181fe2f039548f25805d11cd7b/evidence/f11-stage4/CHECKS.md"
+          "evidence_url": "EVIDENCE_TIP_PENDING/evidence/f11-stage7/safety-gates-note.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/1b4a5121a9b2ce181fe2f039548f25805d11cd7b/evidence/f11-stage3/CHECKS.md"
+          "evidence_url": "EVIDENCE_TIP_PENDING/evidence/f11-stage7/safety-gates-note.md"
         },
         "independent-qa": {
           "status": "PASS",
@@ -556,15 +556,15 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/1b4a5121a9b2ce181fe2f039548f25805d11cd7b/evidence/f11-stage4/CHECKS.md"
+          "evidence_url": "EVIDENCE_TIP_PENDING/evidence/f11-stage7/safety-gates-note.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/1b4a5121a9b2ce181fe2f039548f25805d11cd7b/evidence/f11-stage4/CHECKS.md"
+          "evidence_url": "EVIDENCE_TIP_PENDING/evidence/f11-stage7/safety-gates-note.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/1b4a5121a9b2ce181fe2f039548f25805d11cd7b/evidence/f11-stage3/CHECKS.md"
+          "evidence_url": "EVIDENCE_TIP_PENDING/evidence/f11-stage7/safety-gates-note.md"
         },
         "independent-qa": {
           "status": "PASS",
