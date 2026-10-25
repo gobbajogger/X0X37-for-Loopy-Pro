@@ -194,6 +194,54 @@ def _receipt(model, version, package_sha256, controller_sha256, controller_size)
     }
 
 
+def _git_tree(repo, source_commit):
+    """Return the commit and its real Git tree id. This does not touch the checkout."""
+    if not isinstance(source_commit, str) or not COMMIT.fullmatch(source_commit):
+        raise ReleaseError("source_commit must be a full 40-character lowercase Git SHA")
+    kind = _git(repo, "cat-file", "-t", source_commit, check=False)
+    if kind.returncode or kind.stdout.strip() != "commit":
+        raise ReleaseError("source_commit is not a commit in this repository")
+    actual = _git(repo, "rev-parse", "--verify", source_commit + "^{tree}", check=False)
+    if actual.returncode or not TREE.fullmatch(actual.stdout.strip()):
+        raise ReleaseError("source commit has no Git tree")
+    return source_commit, actual.stdout.strip()
+
+
+def _ledger_of(repo, ledger=None):
+    path = Path(ledger) if ledger is not None else Path(repo) / LEDGER
+    return _load(path)
+
+
+def _allocation(ledger, version):
+    version = canonical_version(version)
+    found = [item for item in ledger["allocations"] if item.get("version") == version]
+    if len(found) != 1:
+        raise ReleaseError("firmware version " + version + " is not allocated")
+    return found[0]
+
+
+def require_allocated(repo, version, source_commit, ledger=None):
+    """The number was issued for this commit and Git tree. Model receipts may still be empty."""
+    source_commit, source_tree = _git_tree(repo, source_commit)
+    item = _allocation(_ledger_of(repo, ledger), version)
+    if item.get("source_commit") != source_commit or item.get("source_tree") != source_tree:
+        raise ReleaseError("firmware version " + item["version"] + " belongs to a different source")
+    return item
+
+
+def require_receipt(repo, version, source_commit, model, package_sha256, controller_sha256=None, ledger=None):
+    """Catalog gate. The build may precede the receipt; publication may not."""
+    item = require_allocated(repo, version, source_commit, ledger)
+    receipt = item.get("models", {}).get(model)
+    if not isinstance(receipt, dict):
+        raise ReleaseError("allocated version has no " + str(model) + " receipt")
+    if receipt.get("package_sha256") != package_sha256:
+        raise ReleaseError("package hash does not match the allocated receipt")
+    if controller_sha256 is not None and receipt.get("controller_sha256") != controller_sha256:
+        raise ReleaseError("controller hash does not match the allocated receipt")
+    return receipt
+
+
 def bind_file(path, version, model, package_sha256, controller_sha256, controller_size):
     """Record one model's bytes. The same bytes may be recorded again. Different bytes may not."""
     version = canonical_version(version)

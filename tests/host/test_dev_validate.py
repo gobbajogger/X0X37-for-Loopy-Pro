@@ -102,7 +102,32 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         r = self.run_validation()
         self.assertEqual(r.returncode, 0, r.stdout+r.stderr)
 
+    def grant(self, version):
+        sys.path.insert(0, str(ROOT/'tools'))
+        from release_alloc import empty_ledger
+        tree = self.git('rev-parse', self.commit + '^{tree}')
+        path = self.repo/'releases'/'openbeta'/'ledger.json'
+        ledger = empty_ledger()
+        if path.is_file():
+            ledger = json.loads(path.read_text())
+        if not any(item.get('version') == version for item in ledger['allocations']):
+            major, minor, patch = (int(part) for part in version.split('.'))
+            ledger['allocations'].append({
+                'version': version, 'major': major, 'minor': minor, 'patch': patch,
+                'display': version + '_openbeta', 'source_commit': self.commit, 'source_tree': tree,
+                'immutable': False, 'models': {},
+            })
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(ledger, indent=2) + '\n')
+
+    def test_unallocated_firmware_version_is_refused(self):
+        result = self.run_validation(version='0.7.2')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('not allocated', result.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+
     def test_firmware_version_is_stamped_into_dev_package_and_verified(self):
+        self.grant('0.7.2')
         result = self.run_validation(version='0.7.2')
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         record = self.out/'record.json'
@@ -128,6 +153,7 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         record.write_text(original)
 
     def test_pro_package_has_independent_versioned_identity(self):
+        self.grant('0.7.2')
         r = self.run_validation(version='0.7.2', model='pro')
         self.assertEqual(r.returncode, 0, r.stdout+r.stderr)
         record = json.loads((self.out/'record.json').read_text())

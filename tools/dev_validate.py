@@ -30,6 +30,7 @@ import tempfile
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import release_alloc
 import validation_inputs
 from firmware_build_labels import canonical_version, inspect_package
 
@@ -77,7 +78,7 @@ def check_plan(plan):
     return checks
 
 
-def verify(repo, commit, record, fwsc, ctl=None):
+def verify(repo, commit, record, fwsc, ctl=None, ledger=None):
     record = Path(record).resolve()
     data = json.loads(record.read_text())
     if (data.get('schema') != 2 or data.get('result') != 'DEV CHECKED' or
@@ -118,6 +119,19 @@ def verify(repo, commit, record, fwsc, ctl=None):
             raise ValueError('recorded firmware version/identity/build label differs from package')
     elif data.get('firmware_version') is not None:
         raise ValueError('versioned record has no verified firmware identity')
+    if data.get('firmware_version') is not None:
+        # Allocation is required. A receipt is required only after it has been bound,
+        # so a build can be checked before its package hash is recorded.
+        try:
+            item = release_alloc.require_allocated(repo, data['firmware_version'], data['commit'], ledger)
+        except release_alloc.ReleaseError as exc:
+            raise ValueError(str(exc)) from exc
+        receipt = item.get('models', {}).get(data['model'])
+        if receipt is not None:
+            if receipt.get('package_sha256') != digest(fwsc):
+                raise ValueError('package hash does not match the allocated receipt')
+            if ctl and receipt.get('controller_sha256') != digest(ctl):
+                raise ValueError('controller hash does not match the allocated receipt')
     if bool(ctl) != bool(data['controller']):
         raise ValueError('controller selection differs from validation record')
     if ctl and digest(ctl) != artifacts['controller']['sha256']:
@@ -227,9 +241,14 @@ def run(a):
     if not a.worker_image and (system != 'Linux' or platform.machine() not in ('x86_64', 'AMD64')):
         raise ValueError('use --worker-image on macOS, or run inside Linux x86-64')
     if firmware_version is not None:
-        canonical_version(firmware_version)
+        firmware_version = canonical_version(firmware_version)
     repo = Path(a.repo).resolve()
     commit = git(repo, 'rev-parse', '--verify', a.commit + '^{commit}')
+    if firmware_version is not None:
+        try:
+            release_alloc.require_allocated(repo, firmware_version, commit, getattr(a, 'release_ledger', None))
+        except release_alloc.ReleaseError as exc:
+            raise ValueError(str(exc)) from exc
     plan = json.loads(Path(a.plan).read_text())
     checks = check_plan(plan)
     if 'worker' in plan:
@@ -369,6 +388,8 @@ def main():
         p = sub.add_parser(action)
         p.add_argument('--repo', default=os.environ.get('X0X_REPO', '.'))
         p.add_argument('--commit', required=True)
+        p.add_argument('--release-ledger',
+                       help='open-beta ledger to read; default is releases/openbeta/ledger.json in --repo')
         if action == 'run':
             p.add_argument('--model', choices=('elite', 'pro'), required=True)
             p.add_argument('--firmware-version',
@@ -392,7 +413,7 @@ def main():
         if a.action == 'run':
             run(a)
         else:
-            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl)
+            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl, a.release_ledger)
             print('DEV CHECKED ' + a.commit)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as e:
         print('REFUSED: ' + str(e), file=sys.stderr)

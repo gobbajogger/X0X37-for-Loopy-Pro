@@ -43,6 +43,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dev_validate  # noqa: E402
 import make_pages  # noqa: E402
+import release_alloc  # noqa: E402
 from firmware_build_labels import canonical_version, release_display, version_of_product  # noqa: E402
 from make_site import product_of  # noqa: E402
 
@@ -90,7 +91,7 @@ def _commit_of(record):
     return commit
 
 
-def _verify_records(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl):
+def _verify_records(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl, ledger=None):
     verified = []
     for model, record_path, fwsc, ctl in (
         ("elite", elite_record, elite_fwsc, elite_ctl),
@@ -137,6 +138,13 @@ def _verify_records(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_
                 raise NightlyPublishError(f"{model} record does not match the package bytes")
             if firmware.get("firmware_version") != embedded:
                 raise NightlyPublishError(f"{model} record identity does not match the package")
+            controller_sha = make_pages.sha256_file(Path(ctl)) if ctl else None
+            try:
+                receipt = release_alloc.require_receipt(
+                    repo, embedded, commit, model, digest, controller_sha, ledger)
+            except release_alloc.ReleaseError as exc:
+                raise NightlyPublishError(str(exc)) from exc
+            record["_bound_controller_sha256"] = receipt["controller_sha256"]
         record = dict(record)
         record["_embedded_version"] = embedded
         record["_product"] = product
@@ -228,12 +236,40 @@ def _version_ok(entry):
     return True
 
 
-def _kept_versions(catalog, merge_from, version):
+def _same_numeric_release(old, new):
+    """Exact republish of one allocated release. Any other same-version record collides."""
+    if not new.get("firmware_version"):
+        return False
+    if (old.get("firmware_version") != new.get("firmware_version")
+            or old.get("source_commit") != new.get("source_commit")
+            or old.get("source_tree") != new.get("source_tree")
+            or old.get("release_display") != new.get("release_display")):
+        return False
+    old_models = old.get("models") if isinstance(old.get("models"), dict) else {}
+    new_models = new.get("models") if isinstance(new.get("models"), dict) else {}
+    if set(old_models) != set(new_models):
+        return False
+    for key, model in new_models.items():
+        prev = old_models.get(key)
+        if not isinstance(prev, dict):
+            return False
+        for field in ("product", "sha256", "controller_sha256"):
+            if prev.get(field) != model.get(field):
+                return False
+    return True
+
+
+def _kept_versions(catalog, merge_from, version, incoming):
     """Prior nightlies stay only when their bytes still match the recorded hash."""
     kept = []
     firmware = (Path(merge_from) / "firmware") if merge_from else None
     for entry in catalog.get("versions", []):
-        if entry.get("version") == version or not _version_ok(entry):
+        if entry.get("version") == version:
+            if incoming.get("firmware_version") and not _same_numeric_release(entry, incoming):
+                raise NightlyPublishError(
+                    "catalog version " + str(version) + " already records a different source or package")
+            continue
+        if not _version_ok(entry):
             continue
         if firmware is None:
             continue
@@ -273,7 +309,9 @@ def _new_version(commit, verified):
             "status": "dev-checked",
             "hardware_tested": False,
         }
-        if ctl:
+        if record.get("_bound_controller_sha256"):
+            entry["controller_sha256"] = record["_bound_controller_sha256"]
+        elif ctl:
             entry["controller_sha256"] = make_pages.sha256_file(ctl)
         if record.get("artifacts", {}).get("package", {}).get("sha256") != entry["sha256"]:
             raise NightlyPublishError(f"{model} package hash is not the validated artifact")
@@ -305,7 +343,7 @@ def _catalog(commit, verified, merges):
         if not merge:
             continue
         previous = make_pages.load_catalog(Path(merge) / "versions.json")
-        for item in _kept_versions(previous, merge, version):
+        for item in _kept_versions(previous, merge, version, entry):
             if item["version"] in seen:
                 continue
             seen.add(item["version"])
@@ -477,7 +515,7 @@ def _handoff_record():
 
 def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
                           elite_ctl=None, pro_ctl=None, remote=None, push=False,
-                          branch=BRANCH, merge=None):
+                          branch=BRANCH, merge=None, ledger=None):
     """Record a validated nightly page. A push is a handoff, not a live deploy.
 
     Returns the page directory. Raises NightlyPublishError without writing `out`
@@ -503,7 +541,7 @@ def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, 
     prior = None
     try:
         commit, verified = _verify_records(
-            repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl)
+            repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl, ledger)
         version, catalog, copies = _catalog(commit, verified, merges)
         prior = _prior_tree(merges)
         out = Path(out)

@@ -16,6 +16,7 @@ import validation_inputs  # noqa: E402
 from firmware_build_labels import inspect_package  # noqa: E402
 from fm1pkg_make import ufw  # noqa: E402
 from publish_nightly import NightlyPublishError, publish_valid_nightly  # noqa: E402
+from release_alloc import ReleaseError, bind_file, empty_ledger  # noqa: E402
 
 
 def git(repo, *args):
@@ -24,6 +25,33 @@ def git(repo, *args):
 
 def make_pkg(product):
     return ufw(b"\x00" * 1024, b"FELUCCA-LOADER-1" + b"\x00" * 128, product)
+
+
+def grant(repo, version, commit=None):
+    """Place one allocated number for this repo's real commit and Git tree."""
+    commit = commit or git(repo, "rev-parse", "HEAD")
+    tree = git(repo, "rev-parse", commit + "^{tree}")
+    path = repo / "releases" / "openbeta" / "ledger.json"
+    ledger = empty_ledger()
+    if path.is_file():
+        ledger = json.loads(path.read_text(encoding="utf-8"))
+    if not any(item.get("version") == version for item in ledger["allocations"]):
+        major, minor, patch = (int(part) for part in version.split("."))
+        ledger["allocations"].append({
+            "version": version, "major": major, "minor": minor, "patch": patch,
+            "display": version + "_openbeta", "source_commit": commit, "source_tree": tree,
+            "immutable": False, "models": {},
+        })
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(ledger, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def bind_models(repo, version, elite, pro):
+    path = repo / "releases" / "openbeta" / "ledger.json"
+    bind_file(path, version, "elite", dev_validate.digest(elite), "ab" * 32, 128)
+    bind_file(path, version, "pro", dev_validate.digest(pro), "cd" * 32, 256)
+    return path
 
 
 def write_record(repo, model, fwsc, directory, version=None):
@@ -104,10 +132,11 @@ class ReleasePublishTest(unittest.TestCase):
     def test_shared_numeric_version_ignores_misleading_names(self):
         elite = self.package("x0x37-9.9.9_openbeta-elite.fwsc", "SMK-37 Elite_9000103")
         pro = self.package("renamed-pro.fwsc", "SMK-37 Pro_9000103")
-        catalog = self.publish(
-            elite, pro,
-            write_record(self.repo, "elite", elite, Path(self.tmp.name) / "elite", "0.1.3"),
-            write_record(self.repo, "pro", pro, Path(self.tmp.name) / "pro", "0.1.3"))
+        grant(self.repo, "0.1.3")
+        elite_record = write_record(self.repo, "elite", elite, Path(self.tmp.name) / "elite", "0.1.3")
+        pro_record = write_record(self.repo, "pro", pro, Path(self.tmp.name) / "pro", "0.1.3")
+        bind_models(self.repo, "0.1.3", elite, pro)
+        catalog = self.publish(elite, pro, elite_record, pro_record)
         self.assertEqual(catalog["latest"], "0.1.3")
         entry = catalog["versions"][0]
         self.assertEqual(entry["firmware_version"], "0.1.3")
@@ -117,6 +146,8 @@ class ReleasePublishTest(unittest.TestCase):
         self.assertEqual(Path(entry["models"]["elite"]["pkg"]).name, "x0x37-0.1.3-elite.fwsc")
         self.assertNotIn("9.9.9", entry["models"]["elite"]["pkg"])
         self.assertNotIn("openbeta", entry["models"]["elite"]["product"])
+        self.assertEqual(entry["models"]["elite"]["controller_sha256"], "ab" * 32)
+        self.assertEqual(entry["models"]["pro"]["controller_sha256"], "cd" * 32)
 
     def test_legacy_name_does_not_invent_a_version(self):
         elite = self.package("0.1.3_openbeta.fwsc", "SMK-37 Elite_900")
@@ -136,9 +167,14 @@ class ReleasePublishTest(unittest.TestCase):
         elite = self.package("elite.fwsc", "SMK-37 Elite_9000103")
         pro = self.package("pro.fwsc", "SMK-37 Pro_9000103")
         other = self.package("other.fwsc", "SMK-37 Pro_9000104")
+        grant(self.repo, "0.1.3")
+        grant(self.repo, "0.1.4")
         elite_record = write_record(self.repo, "elite", elite, Path(self.tmp.name) / "e", "0.1.3")
         pro_record = write_record(self.repo, "pro", pro, Path(self.tmp.name) / "p", "0.1.3")
         other_record = write_record(self.repo, "pro", other, Path(self.tmp.name) / "o", "0.1.4")
+        bind_models(self.repo, "0.1.3", elite, pro)
+        bind_file(self.repo / "releases" / "openbeta" / "ledger.json", "0.1.4", "pro",
+                  dev_validate.digest(other), "cd" * 32, 256)
         page = Path(self.tmp.name) / "refused"
         with self.assertRaises(NightlyPublishError):
             publish_valid_nightly(self.repo, elite_record, other_record, elite, other, page, push=False)
@@ -155,6 +191,56 @@ class ReleasePublishTest(unittest.TestCase):
         with self.assertRaises(NightlyPublishError):
             publish_valid_nightly(self.repo, elite_record, pro_record, tampered, pro, hashed, push=False)
         self.assertFalse(hashed.exists())
+
+    def test_unallocated_numeric_catalog_is_refused(self):
+        elite = self.package("elite.fwsc", "SMK-37 Elite_9000103")
+        with self.assertRaisesRegex(ValueError, "not allocated"):
+            write_record(self.repo, "elite", elite, Path(self.tmp.name) / "bare", "0.1.3")
+        grant(self.repo, "0.1.3")
+        pro = self.package("pro.fwsc", "SMK-37 Pro_9000103")
+        elite_record = write_record(self.repo, "elite", elite, Path(self.tmp.name) / "e", "0.1.3")
+        pro_record = write_record(self.repo, "pro", pro, Path(self.tmp.name) / "p", "0.1.3")
+        ledger = self.repo / "releases" / "openbeta" / "ledger.json"
+        ledger.write_text(json.dumps(empty_ledger(), indent=2) + "\n", encoding="utf-8")
+        page = Path(self.tmp.name) / "unallocated"
+        with self.assertRaisesRegex(NightlyPublishError, "not allocated"):
+            publish_valid_nightly(self.repo, elite_record, pro_record, elite, pro, page, push=False)
+        self.assertFalse(page.exists())
+
+    def test_same_version_collision_refuses_and_exact_rebuild_republishes(self):
+        elite = self.package("elite.fwsc", "SMK-37 Elite_9000103")
+        pro = self.package("pro.fwsc", "SMK-37 Pro_9000103")
+        grant(self.repo, "0.1.3")
+        elite_record = write_record(self.repo, "elite", elite, Path(self.tmp.name) / "e", "0.1.3")
+        pro_record = write_record(self.repo, "pro", pro, Path(self.tmp.name) / "p", "0.1.3")
+        bind_models(self.repo, "0.1.3", elite, pro)
+        original = self.publish(elite, pro, elite_record, pro_record)
+        original_sha = original["versions"][0]["models"]["elite"]["sha256"]
+
+        def collide(name, mutate):
+            history = Path(self.tmp.name) / name
+            history.mkdir()
+            changed = json.loads(json.dumps(original))
+            mutate(changed["versions"][0])
+            (history / "versions.json").write_text(json.dumps(changed), encoding="utf-8")
+            page = Path(self.tmp.name) / (name + "-out")
+            with self.assertRaisesRegex(NightlyPublishError, "different source or package"):
+                publish_valid_nightly(self.repo, elite_record, pro_record, elite, pro, page,
+                                      push=False, merge=history)
+            self.assertFalse(page.exists())
+
+        collide("hash", lambda entry: entry["models"]["elite"].__setitem__("sha256", "ef" * 32))
+        collide("source", lambda entry: entry.__setitem__("source_commit", "ab" * 20))
+        collide("controller", lambda entry: entry["models"]["pro"].__setitem__("controller_sha256", "11" * 32))
+        with self.assertRaisesRegex(ReleaseError, "cannot reuse"):
+            bind_file(self.repo / "releases" / "openbeta" / "ledger.json", "0.1.3", "elite",
+                      "ef" * 32, "ab" * 32, 128)
+        again_dir = Path(self.tmp.name) / "again"
+        publish_valid_nightly(self.repo, elite_record, pro_record, elite, pro, again_dir,
+                              push=False, merge=Path(self.tmp.name) / "page")
+        again = json.loads((again_dir / "versions.json").read_text(encoding="utf-8"))
+        self.assertEqual([item["version"] for item in again["versions"]], ["0.1.3"])
+        self.assertEqual(again["versions"][0]["models"]["elite"]["sha256"], original_sha)
 
 
 if __name__ == "__main__":

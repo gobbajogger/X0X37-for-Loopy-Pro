@@ -53,6 +53,15 @@ python3 tools/dev_validate.py run \
 
 `--firmware-version` stamps the numeric identity. It does not make the build a release and it does not test hardware. The on-device version string is `X.Y.Z`. The settings row shows `X.Y.Z_openbeta`.
 
+The in-repo ledger stays empty until a number is issued on `release-records`. Point the build at that record without resetting the source checkout:
+
+```
+git fetch origin release-records
+git show FETCH_HEAD:releases/openbeta/ledger.json > /tmp/openbeta-ledger.json
+```
+
+Pass `--release-ledger /tmp/openbeta-ledger.json` to `dev_validate.py`. A version that is not allocated to this commit and `commit^{tree}` is refused. Bind both models after the package and controller hashes exist, then publish. Publish refuses a missing receipt and refuses to replace an existing catalog version with different source, package, or controller bytes. The same bytes may be published again.
+
 Check both packages with `tools/firmware_build_labels.py --model elite|pro --source-commit <SHA> --expected-version <X.Y.Z>`. Refuse the pair if the models disagree, the loader is missing, or the hash does not match the record.
 
 ## Return

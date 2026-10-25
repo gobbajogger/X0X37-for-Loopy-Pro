@@ -21,7 +21,11 @@ starts at 0.1.0. `tools/release_alloc.py` stores the next number in
 `releases/openbeta/ledger.json`. The tree id is the 40-character Git id of
 `commit^{tree}`. Issuance checks that the commit exists and that id matches,
 then commits the ledger in an isolated `release-records` checkout. It does not
-reset the source checkout. Patch 99 rolls to the next minor, and minor 99 rolls
+reset the source checkout. A numeric build requires that allocation for the
+same commit and Git tree, and it does not require package receipts yet. Catalog
+publication requires the bound Elite and Pro receipts. The same version with a
+different source, package, or controller is refused. An unallocated number is
+refused. Legacy `model_900` packages stay unversioned. Patch 99 rolls to the next minor, and minor 99 rolls
 to the next major. The counter stops at 99.99.99. Do not invent a number from a
 commit count, a hash, or a date. Rebuilding the same commit and tree keeps its
 number. The same tree at a different commit is refused. Different package bytes
