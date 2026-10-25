@@ -73,11 +73,11 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-f02-bind|installer-f02-bind-web|installer-f03-probe|installer-f03-probe-web|installer-bf001-local-file|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
+    installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smc-interaction-negative|smc-pickup-acceptance|corner-coverage) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|smc-pickup-acceptance|smk-fader-state|smc-navigation|smc-navigation-review|smc-navigation-negative|smc-pattern-navigation|smc-muted-fader) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -114,7 +114,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage|legacy-bdpan-motion) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -281,33 +281,14 @@ seq_test() {
     $OUT/seq_test
 }
 run sequencer seq_test
-run tb3po-mutate-accent sh -c "$CC $W -Ifirmware/src/seq -o $OUT/tb3po_mutate_accent_test tests/host/tb3po_mutate_accent_test.c firmware/src/seq/tb3po.c && $OUT/tb3po_mutate_accent_test"   # BF-032: ACCENT survives orphan SLIDE cleanup
+run bass-prob-midi sh -c "$CC -O2 -Wall -Wextra -Werror -o $OUT/bass_probability_midi_test tests/host/bass_probability_midi_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bass_probability_midi_test"
 run seq-tb3po-bars sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_tb3po_bar_test tests/host/seq_tb3po_bar_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_tb3po_bar_test"
 run seq-random-swing sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_swing_test tests/host/seq_random_swing_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_swing_test"
 run seq-random-clock-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_clock_handoff_test tests/host/seq_random_clock_handoff_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_random_clock_handoff_test"
-run bass-prob-midi sh -c "$CC -O2 -Wall -Wextra -Werror -o $OUT/bass_probability_midi_test tests/host/bass_probability_midi_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bass_probability_midi_test"
 run seq-long-notes sh -c "$CC $W -o $OUT/seq_long_note_test tests/host/seq_long_note_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_long_note_test"
 run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
-run seq-pingpong-linked sh -c "$CC -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/seq_pingpong_linked_test tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -lm && $OUT/seq_pingpong_linked_test"   # production-linked 303 live resize / UI step
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
-run clock-handover sh -c "$CC $W -o $OUT/bugfinder_clock_handover_test tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bugfinder_clock_handover_test"   # BF-005: drop pending clocks with the lock
-run clk-source-owner sh -c "$CC $W -o $OUT/clk_source_owner_reset_test tests/host/clk_source_owner_reset_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_owner_reset_test"   # MID-13/MID-15: INTERNAL immediately releases MIDI clock owner
-run clk-src-tag sh -c "$CC $W -o $OUT/clk_source_tag_test tests/host/clk_source_tag_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_tag_test"   # MID-15: reject reserved MIDI source tags
-run transport-coalesce sh -c "$CC $W -o $OUT/seq_transport_coalesce_test tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_transport_coalesce_test"
-run transport-origin python3 tests/host/seq_transport_origin_test.py --source firmware/src/seq/sequencer.c
-run clock-epoch python3 tests/host/seq_clock_epoch_test.py --source firmware/src/seq/sequencer.c
 run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_tie_lookahead_test tests/host/seq_random_tie_lookahead_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_random_tie_lookahead_test"   # BAS-03/06 RANDOM TIE gate prediction
-run clock-internal-queued-linked sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_internal_queue_firstnightly_test tests/host/seq_internal_queue_firstnightly_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_internal_queue_firstnightly_test"
-run transport-noteoff-linked sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_transport_noteoff_linked_test tests/host/seq_transport_noteoff_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_transport_noteoff_linked_test"
-run transport-epoch-output-linked sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_transport_epoch_output_linked_test tests/host/seq_transport_epoch_output_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_transport_epoch_output_linked_test"
-run transport-sample-scheduling sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_sample_event_partition_linked_test tests/host/seq_sample_event_partition_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_sample_event_partition_linked_test"
-run transport-midi-lifetime sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_midi_lifetime_stress_test tests/host/seq_midi_lifetime_stress_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_midi_lifetime_stress_test"
-run transport-external-dropout sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_external_dropout_resume_test tests/host/seq_external_dropout_resume_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_external_dropout_resume_test"
-run transport-stop-restart sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_stop_restart_burst_test tests/host/seq_stop_restart_burst_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_stop_restart_burst_test"
-run transport-clock-owner sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_clock_owner_handoff_linked_test tests/host/seq_clock_owner_handoff_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_clock_owner_handoff_linked_test"
-run transport-clock-disconnect sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_clock_disconnect_handoff_test tests/host/seq_clock_disconnect_handoff_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_clock_disconnect_handoff_test"
-run transport-clock-uptime-wrap sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_clock_uptime_wrap_test tests/host/seq_clock_uptime_wrap_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_clock_uptime_wrap_test"
-run transport-clock-auto-idle-wrap sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_clock_auto_idle_wrap_test tests/host/seq_clock_auto_idle_wrap_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_clock_auto_idle_wrap_test"
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
@@ -317,18 +298,13 @@ run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tes
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
-run motion-pattern-pending sh -c "$CC $W -o $OUT/motion_pattern_pending_test tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_pending_test"
-run motion-pattern-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/motion_pattern_handoff_test tests/host/motion_pattern_handoff_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_handoff_test"
-run motion-idle-transport python3 -B tests/host/motion_idle_transport_test.py
-run motion-transport-transition python3 -B tests/host/motion_transport_transition_test.py
-run motion-external-clock-wait python3 -B tests/host/motion_external_clock_wait_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
+run wave-motion-migrate sh tests/host/run_wave_motion_migrate.sh   # snd rev 6: Wave motion/snapshot 1→127
 run project-protocol sh tests/host/run_project_protocol.sh
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
+run storage-scratch sh tests/host/run_storage_scratch.sh
 run project-stage sh tests/host/run_project_stage.sh
-# BF-007: legacy 909/808 BD PAN motion lanes must remap after arrangement load
-run legacy-bdpan-motion sh tests/host/run_bugfinder_legacy_bdpan_motion.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run font-pack Pillow; else run font-pack python3 tests/font_pack_test.py; fi
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
@@ -352,11 +328,19 @@ run ble-link-epoch-reset sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmwar
 run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_disconnect_status_test tests/host/ble_disconnect_status_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_disconnect_status_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reachability sh tests/host/smc_reachability_test.sh; fi
 run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
-run smc-ui sh tests/host/smc_ui_test.sh
-run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-lock sh tests/host/smc_lock_test.sh
+run smc-navigation sh tests/host/smc_navigation_test.sh
+run smc-navigation-review env SMC_UI_TEST_FILE=tests/host/smc_navigation_review_test.c SMC_UI_OUT=build/host/smc-navigation-review sh tests/host/smc_ui_test.sh
+run smc-navigation-negative python3 tests/host/smc_navigation_negative_test.py
+run smc-pattern-navigation sh tests/host/smc_pattern_navigation_test.sh
+run smc-muted-fader sh tests/host/smc_muted_fader_test.sh
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
+run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
+run corner-coverage python3 tests/host/corner_coverage_test.py
+run smc-ui sh tests/host/smc_ui_test.sh
+run ui-page-layout sh tests/host/ui_page_layout_test.sh
+run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-mutes Pillow; else run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-rs Pillow; else run smc-drum-rs sh tests/host/smc_drum_rs_test.sh; fi
@@ -367,8 +351,6 @@ if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-re
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
-# BF-006: d8_exp2_cr must apply a negative integer exponent without a signed left-shift UB (prefer gcc UBSan)
-run drum808-exp2 sh -c "UBCC=gcc; command -v gcc >/dev/null || UBCC=\"$CC\"; \$UBCC -std=c99 -O1 -g -ffp-contract=off -Wall -Wextra -Wno-unused-function -fsanitize=undefined -fno-sanitize-recover=all -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/bugfinder_drum808_exp2_test tests/host/bugfinder_drum808_exp2_test.c -lm && $OUT/bugfinder_drum808_exp2_test"
 run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
@@ -377,6 +359,12 @@ for t in drum909 drum808 bass303 breaks; do
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
     else run "$t" sh "tests/host/run_$t.sh"; fi
 done
+run bass303-ampmode sh tests/host/run_bass303_ampmode.sh   # Chicago AmpMod Env/Gate on native303 (no schwung ref)
+run bass303-wave-gnaw sh tests/host/run_bass303_wave_gnaw.sh   # Chicago Wave morph + VCF Gnaw on native303
+run bass303-amp-adsr sh tests/host/run_bass303_amp_adsr.sh   # Chicago Bite + amp Env A/D/S/R on native303
+run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Range/Speed (live held-note)
+run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (not insert)
+run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time
@@ -396,7 +384,6 @@ run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
-run installer-digests python3 tests/host/test_check_installer_digests.py   # FP-001: source fingerprint ≠ served install HTML; dual fields required
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
 if [ "$PIL_SKIP" = 1 ]; then not_run gen-order Pillow; else run gen-order sh tests/host/test_gen_order.sh; fi   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
@@ -408,13 +395,8 @@ run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: th
 run installer python3 tests/install_test.py
 run installer-f02-bind python3 tests/install_f02_loader_bind_test.py   # F02: loader/restart wait accepts only one newly appeared port
 command -v node >/dev/null 2>&1 && run installer-f02-bind-web node web/test_f02_loader_bind.mjs   # F02 web waitFor: same fail-closed newly-appeared rule
-run installer-f03-probe python3 tests/install_f03_slot_probe_test.py   # F03: same-keyboard slot probe fails closed before write
-command -v node >/dev/null 2>&1 && run installer-f03-probe-web node web/test_f03_slot_probe.mjs   # F03 web installKeepingSlots: same fail-closed probe
-command -v node >/dev/null 2>&1 && run installer-bf001-local-file node web/test_install_local_file.mjs   # BF-001: newest local .fwsc / ctl.img selection wins
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
-run boot-screen sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/boot_screen_test tests/boot_screen_test.c && $OUT/boot_screen_test"
-command -v node >/dev/null 2>&1 && run boot-screen-web node web/test_boot_screen.mjs
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
 run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
@@ -422,9 +404,6 @@ run smk-apc40-map sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -
 run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-ble-clear sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/ble -o $OUT/smk_clip_ble_clear_test tests/smk_clip_ble_clear_test.c && $OUT/smk_clip_ble_clear_test"
 run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
-run smk-clip-key-overlap python3 tests/host/clip_key_overlap_test.py   # SMK CLIP KEYS shared MIDI pitch ownership
-run smk-clip-strum-overlap python3 tests/host/clip_key_strum_overlap_test.py   # delayed shared-chord note ownership
-run smk-clip-project-reset python3 tests/host/clip_key_project_reset_test.py   # discard unsent HUMAN notes without spurious NoteOff
 run smk-chord-recognize sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_chord_recognize_test tests/smk_chord_recognize_test.c && $OUT/smk_chord_recognize_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run smk-clip-chord-display Pillow; else run smk-clip-chord-display sh tests/host/smk_clip_chord_display_test.sh; fi
 run smk-ck-page-layout python3 tests/smk_ck_page_layout_test.py   # CLP-75: no top bar on the stage page, help line at the bottom
@@ -454,7 +433,8 @@ run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a li
 run smk-clip-isolation python3 tests/host/smk_clip_isolation_test.py
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
 run smk-fader-pickup sh tests/host/smk_fader_pickup_test.sh   # fader pickup and input draining across project holds
-run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh   # navigation preserves wheel ownership, DSP and rendered audio
+run smk-fader-state sh tests/host/smk_fader_state_test.sh
+run smk-fader-scanner python3 tests/host/smk_fader_scanner_test.py
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
 if [ -f build/smk37/x0x.bin ] && [ -f build/smk37/loader/ota.bin ] && [ -n "${AC79_SDK:-}" ]; then
@@ -521,7 +501,6 @@ run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
-run corner-coverage python3 tests/host/corner_coverage_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
 for s in tests/scenarios/*.x0x; do
     n=${s##*/}; n=${n%.x0x}

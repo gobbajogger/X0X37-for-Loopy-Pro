@@ -11,6 +11,9 @@
 #include "../dsp/master.h"
 #include "../dsp/fastmath.h"
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
+#include "chicago_arp.h"
+#include "chicago_fx.h"
+#include "chicago_aux.h"
 
 #define POOL X0X_POOL
 
@@ -31,11 +34,21 @@ volatile uint32_t eng_scope_w;
 static drum909_t d909 POOL;
 static drum808_t d808 POOL;
 static bass303_t b303[NBASS] POOL;
+/* Chicago Arp: live-keyboard only. Pattern sink (s_bon) never reads this. */
+static uint8_t chi_arp_on[NBASS] POOL, chi_arp_mode[NBASS] POOL, chi_arp_range[NBASS] POOL, chi_arp_speed[NBASS] POOL;
+static uint8_t chi_arp_accent[NBASS] POOL, chi_arp_vel[NBASS] POOL;
+static chi_arp_run_t chi_arp_run[NBASS] POOL;
+/* Chicago damper: live/MIDI sustain. Pattern sink ignores it. */
+static uint8_t chi_damper[NBASS] POOL;
+static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper on */
 static breaks_t brk POOL;
 static fxbus_t fx POOL;
+void engine_fx_mute(uint8_t mask) { fx.muted = mask & 7u; }
+uint8_t engine_fx_muted(void) { return fx.muted; }
 static master_t mst;
 #define DLY_LEN 88200
 static int16_t dly_buf[DLY_LEN] POOL;
+static volatile uint8_t brk_hold;      /* main loop is rewriting the break loops: ISR leaves it alone */
 static volatile uint8_t project_hold, project_midi_drop;
 void engine_project_hold(int hold)
 {
@@ -162,7 +175,7 @@ int engine_nparams(int t, int v)
     switch (t) {
     case T_909: return drum909_nparams(v);
     case T_808: return drum808_nparams(v);
-    case T_303: return bass303_nparams();
+    case T_303: return CHI_AUX_END;                      /* … + SEND FX 27..29 + PBend/Damp 30..31 */
     case T_BRK: return 2;                                /* Level, Pitch (sends: the mixer's; the rest: the pattern's) */
     case T_FX: return fxbus_nparams();
     case T_MIX: return MX_NPARAMS;                       /* every part: Level, Rev send, Dly send */
@@ -176,7 +189,14 @@ const x0x_param_t *engine_param(int t, int v, int i)
     switch (t) {
     case T_909: return drum909_param(v, i);
     case T_808: return drum808_param(v, i);
-    case T_303: return bass303_param(i);
+    case T_303:
+        if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
+            return &CHI_ARP_PARAMS[i - CHI_ARP_SWITCH];
+        if (i >= CHI_FX_TYPE && i < CHI_FX_END)
+            return &CHI_FX_PARAMS[i - CHI_FX_TYPE];
+        if (i >= CHI_PBEND && i < CHI_AUX_END)
+            return &CHI_AUX_PARAMS[i - CHI_PBEND];
+        return bass303_param(i);
     case T_BRK: return breaks_param(BRK_NSET + i);
     case T_FX: return fxbus_param(i);
     case T_MIX: return (i >= 0 && i < MX_NPARAMS) ? &MIX_P[i] : 0;
@@ -202,12 +222,133 @@ const char *engine_voice_name(int t, int v)
     }
 }
 
+/* Live/MIDI note-off: damper sustains the gate; pattern s_boff never calls this. */
+static void chi_live_note_off(int v)
+{
+    if ((unsigned)v >= NBASS)
+        return;
+    if (chi_damper_on(chi_damper[v])) {
+        chi_damp_latched[v] = 1;
+        return;
+    }
+    chi_damp_latched[v] = 0;
+    bass303_note_off(&b303[v]);
+}
+
+static void chi_arp_gate_off(int v)
+{
+    if ((unsigned)v >= NBASS)
+        return;
+    if (chi_arp_run[v].cur >= 0) {
+        chi_live_note_off(v);
+        chi_arp_run[v].cur = -1;
+    }
+}
+
+static void chi_aux_apply(int v, int i, int val)
+{
+    if ((unsigned)v >= NBASS)
+        return;
+    if (val < 0)
+        val = 0;
+    if (val > 127)
+        val = 127;
+    if (i == CHI_PBEND) {
+        bass303_set_bend(&b303[v], val);
+        return;
+    }
+    if (i == CHI_DAMPER) {
+        uint8_t was = chi_damper[v];
+        chi_damper[v] = (uint8_t)val;
+        /* Pedal up releases only a live/MIDI deferred note — latch is cleared
+         * on every pattern/arp note-on so this cannot cut a sequencer gate. */
+        if (chi_damper_on(was) && !chi_damper_on((uint8_t)val) && chi_damp_latched[v]) {
+            bass303_note_off(&b303[v]);
+            chi_damp_latched[v] = 0;
+        }
+    }
+}
+
+typedef struct { int part; } chi_arp_step_ctx_t;
+static void chi_arp_on_step(int note, void *ctx)
+{
+    int b = ((chi_arp_step_ctx_t *)ctx)->part;
+    if ((unsigned)b < NBASS)
+        chi_damp_latched[b] = 0; /* arp step owns the gate */
+    bass303_note_on_velocity(&b303[b], note, chi_arp_accent[b], 0,
+                             chi_arp_vel[b] ? chi_arp_vel[b] : 100);
+}
+
+/* Advance live Chicago arp clocks; pattern sink is untouched. */
+static void chi_arp_tick(uint32_t samples)
+{
+    int b;
+    float bpm = seq_tempo(&seq);
+    for (b = 0; b < NBASS; b++) {
+        chi_arp_step_ctx_t ctx;
+        if (!chi_arp_on[b] || !chi_arp_run[b].n)
+            continue;
+        ctx.part = b;
+        chi_arp_run_process(&chi_arp_run[b], samples, bpm, 44100.0f, chi_arp_on_step, &ctx);
+    }
+}
+
+static void chi_arp_apply_cfg(int v, int i, int val)
+{
+    if ((unsigned)v >= NBASS)
+        return;
+    if (val < 0)
+        val = 0;
+    switch (i) {
+    case CHI_ARP_SWITCH:
+        if (val > 1)
+            val = 1;
+        if (!val && chi_arp_on[v]) {
+            chi_arp_gate_off(v);
+            chi_arp_run_clear(&chi_arp_run[v]);
+        }
+        chi_arp_on[v] = (uint8_t)val;
+        break;
+    case CHI_ARP_MODE:
+        if (val >= CHI_ARP_NMODE)
+            val = CHI_ARP_NMODE - 1;
+        chi_arp_mode[v] = (uint8_t)val;
+        chi_arp_run[v].mode = (uint8_t)val;
+        break;
+    case CHI_ARP_RANGE:
+        if (val >= CHI_ARP_NRANGE)
+            val = CHI_ARP_NRANGE - 1;
+        chi_arp_range[v] = (uint8_t)val;
+        chi_arp_run[v].range = (uint8_t)val;
+        break;
+    case CHI_ARP_SPEED:
+        if (val >= CHI_ARP_NSPEED)
+            val = CHI_ARP_NSPEED - 1;
+        chi_arp_speed[v] = (uint8_t)val;
+        chi_arp_run[v].speed = (uint8_t)val;
+        break;
+    default:
+        break;
+    }
+}
+
 static void apply_param(int t, int v, int i, int val)    /* ISR */
 {
     switch (t) {
     case T_909: drum909_set(&d909, v, i, val); break;
     case T_808: drum808_set(&d808, v, i, val); break;
-    case T_303: if (v >= 0 && v < NBASS) bass303_set(&b303[v], i, val); break;
+    case T_303:
+        if (v < 0 || v >= NBASS)
+            break;
+        if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
+            chi_arp_apply_cfg(v, i, val);
+        else if (i >= CHI_FX_TYPE && i < CHI_FX_END)
+            break; /* sound_t only; live Mix/fxbus writes come from chicago_fx_apply (UI) */
+        else if (i >= CHI_PBEND && i < CHI_AUX_END)
+            chi_aux_apply(v, i, val);
+        else
+            bass303_set(&b303[v], i, val);
+        break;
     case T_BRK: breaks_set(&brk, BRK_NSET + i, val); break;
     case T_FX: fxbus_set(&fx, i, val); break;
     case T_MIX:
@@ -357,7 +498,22 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
            (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
 }
+void engine_bass_record(int part, int note, int velocity, int down, int flags)
+{
+    (void)part;
+    (void)note;
+    (void)velocity;
+    (void)down;
+    (void)flags;
+}
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
+void engine_bass_off_note(int part, int note)
+{
+    if (note <= 0)
+        engine_bass_off(part);
+    else
+        cq_put(C_BOFF, (uint32_t)part, (uint32_t)(note & 127), 1u);
+}
 void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
 /* ------------------------------------------------------- sequencer sink --- */
@@ -403,6 +559,10 @@ static void s_drum(void *x, int kit, int v, float vel)
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     (void)x;
+    /* Pattern owns the gate: drop any live/MIDI damper latch so turning Damp
+     * Off later cannot cut this step (Bugbot on #342). */
+    if ((unsigned)p < NBASS)
+        chi_damp_latched[p] = 0;
     if (prob_skip(PART_303A + p, 0)) {                /* skipped: a rest for audio AND MIDI */
         bass303_note_off(&b303[p]);
         return 0;
@@ -410,7 +570,13 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
     return 1;
 }
-static void s_boff(void *x, int p) { (void)x; bass303_note_off(&b303[p]); }
+static void s_boff(void *x, int p)
+{
+    (void)x;
+    if ((unsigned)p < NBASS)
+        chi_damp_latched[p] = 0; /* pattern gate wins over damper */
+    bass303_note_off(&b303[p]);
+}
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
 static void s_brk(void *x, int s16, int bar, float spb, int en)
 {
@@ -419,6 +585,8 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     if (en && prob_skip(PART_BRK, 0))
         en = 0;
     (void)x;
+    if (brk_hold)
+        return;
     breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)));   /* unheard: stop decoding */
     for (i = 0; i < BRK_NSET; i++)       /* follow the playing pattern's settings (12 compares) */
         if (bp->set[i] != brk_applied[i]) {
@@ -447,12 +615,8 @@ static void s_step(void *x, int t, int p)
 static int mot_base(void *x, int t, int v, int i)
 {
     (void)x;
-    if (t == T_PROB)
-        return 100;                                   /* always */
-    if (t == T_VEL)
-        return 0;                                     /* legacy accent / accent_q7 */
     if (t >= NTARGETS)
-        return 100;
+        return 100;                                   /* T_PROB: always */
     return mot_base_snd ? mot_base_snd->v[t][v][i] : 0;
 }
 static void mot_apply(void *x, int t, int v, int i, int val)
@@ -461,10 +625,6 @@ static void mot_apply(void *x, int t, int v, int i, int val)
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
             prob[v >> 4][v & 15] = (uint8_t)val;
-    } else if (t == T_VEL) {
-        int kit = v >> 4, voice = v & 15;
-        if ((unsigned)kit < NKIT && (unsigned)voice < NDRUM)
-            seq.drum_vel[kit][voice] = (uint8_t)(val < 0 ? 0 : val > 127 ? 127 : val);
     } else if (t < NTARGETS)
         apply_param(t, v, i, val);
 }
@@ -477,15 +637,14 @@ int engine_motion_part(int t, int v)
     case T_303: return PART_303A + (v & 1);
     case T_BRK: return PART_BRK;
     case T_MIX: return v < NPARTS ? v : PART_909;
-    case T_PROB:
-    case T_VEL: return (v >> 4) < NPARTS ? v >> 4 : PART_909;
+    case T_PROB: return (v >> 4) < NPARTS ? v >> 4 : PART_909;
     default: return PART_909;                     /* FX, master: the bar */
     }
 }
 int engine_motion_value(int k) { return motion_value(&mot, k); }
-void engine_motion_clear(int k) { motion_clear(&mot, k); }
 void engine_motion_rec(int k) { motion_req_rec(&mot, k); }
 void engine_motion_hold(int k) { motion_req_hold(&mot, k); }
+void engine_motion_clear(int k) { motion_clear(&mot, k); }
 static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0};
 
 #if BOARD_SMK37
@@ -679,8 +838,8 @@ static void midi_in(uint32_t pkt)
         uint8_t vel = (ty == 0x80) ? 0u : d2;
         if (d1 < SMK_APC40_CLIP_COUNT) {
             /* The USB interrupt (smk_apc_usb_event) already stored this clip feedback.
-             * Do not store it again: a second store breaks the flash detection.
-             * A note on the break's own channel is the break, not a clip pad. */
+             * Do not store it again: a second store breaks the flash detection. */
+            /* A note on the break's own channel is the break, not a clip pad. */
             if (smk_clip_mode_on() && ch != seq.ch[TRK_BRK])
                 return;
         } else if (smk_apc40_transport_feedback_note(d1)) {
@@ -712,6 +871,7 @@ static void midi_in(uint32_t pkt)
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
                 bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+                chi_damp_latched[k] = 0;
                 bass_held[k] = d1;
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
@@ -719,15 +879,13 @@ static void midi_in(uint32_t pkt)
                 if (src < 2)
                     src_held[src] |= (uint16_t)v;
             } else if (ty == 0x80 && bass_held[k] == d1) {
-                /* BF-004: USB/Bluetooth Note Off releases only when that input owns the bit
-                 * (mirror link-drop). TRS (src >= 2) is not tracked in src_held and still releases. */
                 v = 1 << k;
                 if (src < 2 && !(src_held[src] & (uint16_t)v))
                     continue;
-                bass303_note_off(&b303[k]);
+                chi_live_note_off(k);
                 bass_held[k] = 0;
-                src_held[0] &= (uint16_t)~v;
-                src_held[1] &= (uint16_t)~v;
+                src_held[0] &= (uint16_t)~(1u << k);
+                src_held[1] &= (uint16_t)~(1u << k);
             }
         }
 }
@@ -753,11 +911,54 @@ static void drain(void)
             apply_param((int)type, (int)a, (int)b, (int)v);
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
-        else if (type == C_BON && a < NBASS)
-            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
-        else if (type == C_BOFF && a < NBASS)
-            bass303_note_off(&b303[a]);
-        else if (type == C_BRK)
+        else if (type == C_BON && a < NBASS) {
+            chi_arp_accent[a] = (uint8_t)(v & 1u);
+            chi_arp_vel[a] = (uint8_t)(v >> 2);
+            if (chi_arp_on[a]) {
+                uint8_t tmp[CHI_ARP_MAXN];
+                uint32_t n = chi_arp_run[a].n, i, have = 0;
+                for (i = 0; i < n; i++) {
+                    tmp[i] = chi_arp_run[a].notes[i];
+                    if (tmp[i] == (uint8_t)b)
+                        have = 1;
+                }
+                if (!have && n < CHI_ARP_MAXN) {
+                    tmp[n++] = (uint8_t)b;
+                    chi_arp_run_set(&chi_arp_run[a], tmp, n, chi_arp_mode[a], chi_arp_range[a],
+                                    chi_arp_speed[a]);
+                } else if (!n)
+                    chi_arp_run_hold(&chi_arp_run[a], (uint8_t)b, chi_arp_mode[a], chi_arp_range[a],
+                                     chi_arp_speed[a]);
+            } else {
+                bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+            }
+            chi_damp_latched[a] = 0;
+            bass_held[a] = (uint8_t)b;
+        } else if (type == C_BOFF && a < NBASS) {
+            if (chi_arp_on[a] && v) {
+                uint8_t tmp[CHI_ARP_MAXN];
+                uint32_t n = 0, i;
+                for (i = 0; i < chi_arp_run[a].n; i++)
+                    if (chi_arp_run[a].notes[i] != (uint8_t)b)
+                        tmp[n++] = chi_arp_run[a].notes[i];
+                if (n) {
+                    chi_arp_run_set(&chi_arp_run[a], tmp, n, chi_arp_mode[a], chi_arp_range[a],
+                                    chi_arp_speed[a]);
+                    bass_held[a] = tmp[0];
+                } else {
+                    chi_arp_gate_off((int)a);
+                    chi_arp_run_clear(&chi_arp_run[a]);
+                    bass_held[a] = 0;
+                }
+            } else if (chi_arp_on[a]) {
+                chi_arp_gate_off((int)a);
+                chi_arp_run_clear(&chi_arp_run[a]);
+                bass_held[a] = 0;
+            } else {
+                chi_live_note_off((int)a);
+                bass_held[a] = 0;
+            }
+        } else if (type == C_BRK && !brk_hold)
             breaks_live(&brk, (int)a, (int)b);
     }
     cq_r = r;
@@ -878,8 +1079,10 @@ static void core2_job(uint32_t arg)
         PROF_ADD(PR_808, pt);
         pt = plat_cycles();
     }
-    brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
-    breaks_render(&brk, kbuf, (int)n);
+    if (!brk_hold) {
+        brk_silent_now = breaks_silent(&brk);             /* the render writes zeros: nothing to mix */
+        breaks_render(&brk, kbuf, (int)n);
+    }
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }
@@ -969,7 +1172,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
     }
-    if (!brk_silent_now) {
+    if (!brk_hold && !brk_silent_now) {
         float g = mix_level[PART_BRK];
         mix_targets(PART_BRK, g, solo_parts);
         add_glide(dry_l, kbuf, &mix_glide[PART_BRK][GL_L], n);
@@ -1008,14 +1211,15 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
+        if (mot_on)
+            motion_tick(&mot, n);
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
-        if (mot_on && seq.playing && !seq_clock_waiting(&seq))
-            motion_tick(&mot, n);
         PROF_ADD(7, pt);
     }
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
+        chi_arp_tick(k);
         render_sub(out_l + done, out_r + done, k);
         {
             PROF_T(pt);
@@ -1142,7 +1346,7 @@ void engine_brk_state(int *slice, int *bank, int *div, int *running)
  * whole loop once, ~20k IMA steps; called when the loop changes, never per frame) */
 X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
 {
-    const brk_bank_t *bk = breaks_bank(&brk, which & 1);
+    const brk_bank_t *bk = &brk.bank[which & 1];
     uint32_t i, ns = bk->n;
     int32_t pred = 0, idx = 0, col = 0, pk = 0;
     uint32_t per;
@@ -1174,10 +1378,7 @@ X0X_COLD void engine_brk_loops(void)
     brk_loop_t L[2];
     int w;
     scan_loops();                                       /* an upload may have changed the user loops */
-    /* No mute. The voice that is already sounding keeps its snapshot, and the
-     * new loop is published for the next trigger. Skipping the break here used
-     * to drop a whole buffer. */
-    breaks_flush(&brk);                                /* a change that waited for a free snapshot */
+    brk_hold = 1;                                       /* the ISR skips the break while we rewrite it */
     for (w = 0; w < 2; w++) {
         int slot = w ? bp->slot_b : bp->slot_a;
         uint32_t ns = 0, rate = 0;
@@ -1194,13 +1395,14 @@ X0X_COLD void engine_brk_loops(void)
             breaks_set_loop(&brk, w, brk_builtin(slot < X0X_NBREAKS ? slot : 0));   /* built-in (or an empty user slot: the first) */
         }
     }
+    brk_hold = 0;
 }
 
 void engine_brk_flush(void) { breaks_flush(&brk); }
 
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
 {
-    breaks_drop_range(&brk, base, nbytes);              /* flash under these bytes is about to change */
+    breaks_drop_range(&brk, base, nbytes);
 }
 
 X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
@@ -1208,14 +1410,15 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     int p, g;
     cq_w = cq_r = 0;
     src_held[0] = src_held[1] = 0;
-    for (p = 0; p < 2; p++)
-        for (g = 0; g < 16; g++)
-            brk_down[p][g] = 0;
-    for (p = 0; p < NBASS; p++)
+    for (p = 0; p < NBASS; p++) {
         bass_held[p] = 0;
+        chi_arp_on[p] = chi_arp_mode[p] = chi_arp_range[p] = chi_arp_speed[p] = 0;
+        chi_arp_accent[p] = chi_arp_vel[p] = 0;
+        chi_arp_run_clear(&chi_arp_run[p]);
+    }
     for (p = 0; p < BRK_NSET; p++)
         brk_applied[p] = 0xFFu;
-    mot_playing = mot_release_req = 0;
+    brk_hold = mot_playing = mot_release_req = 0;
     mot_on = mot_was_on = 1;
     guard_on = guard_applied = 0;
     guard_enabled = 1;

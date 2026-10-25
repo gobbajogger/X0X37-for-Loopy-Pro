@@ -219,6 +219,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
+#include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint8_t knob_bank_prev;
@@ -788,21 +789,26 @@ static void smk_faders(void)
     static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
     /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
-    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held;
+    /* held bit 1 marks an unknown first sample: startup may already exceed 200 frames. */
+    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held = 2u;
+    uint32_t bank_changed = 0;
     uint32_t i, down = (fm1_in.buttons >> SMK_BTN_FADER_BANK) & 1u;
-    if (ui_project_busy()) {
+    if ((held & 2u) || ui_project_busy()) {
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
+        smk_mute_known = smk_mute_active = smk_mute_edit = 0;
         held = (uint8_t)down;
         return;
     }
     if (down && !held) {                                /* FADER BANK: match the new targets before taking over */
+        bank_changed = 1;
         smk_fbank ^= 1u;
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
         say(smk_fbank ? "FADERS: BRK REV DLY FILTER" : "FADERS: 909 808 303A 303B", 0);   /* (say: 27 chars) */
     }
     held = (uint8_t)down;
+    smk_mute_bank = smk_fbank;
     for (i = 0; i < 4u; i++) {
         uint32_t v = fm1_in.fader[i];
         pref_t r;
@@ -822,6 +828,17 @@ static void smk_faders(void)
             r = PR(R_ENG, T_FX, 0, FX_DL_LEVEL);
         else
             r = PR(R_ENG, T_MST, 0, MST_DJF);
+        uint8_t bit = (uint8_t)(1u << i);
+        int level = pref_get(r), silent = volume_muted(r), mute_history = smk_mute_known & bit;
+        /* Seed a new bank without inheriting the previous destination's mute
+         * gesture. An external base edit ends this epoch's exception. */
+        if (!(smk_mute_known & bit) || (!(smk_mute_active & bit) && silent)) smk_mute_edit |= bit;
+        if (bank_changed || !silent || ((smk_mute_known & bit) && smk_mute_intended[i] != level))
+            smk_mute_edit &= (uint8_t)~bit;
+        smk_mute_known |= bit;
+        if (silent) smk_mute_active |= bit;
+        else smk_mute_active &= (uint8_t)~bit;
+        smk_mute_intended[i] = (uint8_t)level;
         /* These eight fader destinations are all 0..127 pots. */
         /* A knob or loaded project can change a target while this bank stays selected. */
         if (!(last[i] & 0x80u) && pref_get(r) != (int)(last[i] & 127u))
@@ -834,7 +851,7 @@ static void smk_faders(void)
             uint32_t near = v + 2u >= target && v <= target + 2u;
             uint32_t crossed = (prev < target && v >= target) || (prev > target && v <= target);
             last[i] = (uint8_t)(0x80u | v);
-            if (!near && !crossed) {
+            if (!near && !crossed && !(mute_history && (smk_mute_edit & bit))) {
                 char hint[20], *p = put_s(hint, "PICK F");
                 p = put_i(p, (int)i + 1);
                 put_s(p, v < target ? " UP" : " DOWN");
@@ -844,6 +861,7 @@ static void smk_faders(void)
         }
         last[i] = (uint8_t)v;
         pref_set(r, (int)v);
+        smk_mute_intended[i] = (uint8_t)v;
         motion_touch(r);
         ui.act_t = plat_ms();                            /* (the autosave waits for quiet) */
         pref_value(r, num, unit);
@@ -858,15 +876,18 @@ static void smk_faders(void)
 
 /* The wheels (mux C address 4 = pitch, 5 = mod), self-calibrating as in the reference port: the pitch wheel's
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
- * has reached. On a 303 (the part on screen) they play its sound without changing what is saved: pitch = its
- * TUNE (about +-1.5 semitones), mod = its CUTOFF opened from the saved value up to the top. Released (or
- * wheel returned to rest), the saved values sound again. A gesture keeps its original 303
- * until release, across screen/part changes; navigation never sends a sound parameter. */
+ * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
+ * Pitch wheel = Chicago pitch bend (±2 st via CHI_PBEND, never TUNE). Release restores the saved bend.
+ * Mod wheel = Chicago cutoff. It replaces the cutoff knob. Down closes the voice filter (cutoff 0).
+ * Up opens it (cutoff 127). High ADC is down; that sense is not inverted. The write is BASS303_CUTOFF,
+ * which the voice filter uses before the master cutoff. It does not write MST_CUTOFF, the saved pot,
+ * or Miami wobble. A gesture keeps its original 303 until the wheel returns to rest, across screen/part
+ * changes. A stationary wheel does not send a sound parameter. */
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
     static int32_t pc, plo, phi, mlo, mhi, rest;
-    static int8_t tune_part = -1, cut_part = -1;
+    static int8_t bend_part = -1, cut_part = -1;
     static int16_t bend_now, mw_now;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
@@ -907,13 +928,15 @@ static void smk_wheels(void)
      * release, so changing the visible part neither restores nor retargets a held wheel.
      * In particular, a stationary wheel must not overwrite a knob or sequencer lock. */
     if (bend != bend_now) {
-        if (tune_part < 0 && bend && is_303())
-            tune_part = (int8_t)bidx();
-        if (tune_part >= 0) {
-            want = clamp(proj.sound.v[T_303][tune_part][BASS303_TUNE] + bend, 0, 127);
-            engine_set(T_303, tune_part, BASS303_TUNE, want);
+        if (bend_part < 0 && bend && is_303())
+            bend_part = (int8_t)bidx();
+        if (bend_part >= 0) {
+            /* Off-centre: the wheel is the bend. At rest: put the saved bend back. Never TUNE. */
+            want = bend ? chi_pbend_from_wheel((int)bend)
+                        : proj.sound.v[T_303][bend_part][CHI_PBEND];
+            engine_set(T_303, bend_part, CHI_PBEND, (int)want);
             if (!bend)
-                tune_part = -1;
+                bend_part = -1;
         }
         bend_now = (int16_t)bend;
     }
@@ -921,9 +944,9 @@ static void smk_wheels(void)
         if (cut_part < 0 && mw && is_303())
             cut_part = (int8_t)bidx();
         if (cut_part >= 0) {
-            int32_t base = proj.sound.v[T_303][cut_part][BASS303_CUTOFF];
-            want = base + (127 - base) * mw / 127;
-            engine_set(T_303, cut_part, BASS303_CUTOFF, want);
+            /* mw 0 is down (closed). mw 127 is up (open). The wheel is the cutoff. */
+            want = mw;
+            engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
             if (!mw)
                 cut_part = -1;
         }
@@ -998,9 +1021,6 @@ enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
 #define CK_QN 24u
 static uint16_t ck_qe[CK_QN];
 static uint8_t ck_qt[CK_QN], ck_qn;
-/* A new strum inherits pitches already sounding from earlier held keys. */
-static uint32_t ck_strum_keep[4];
-static uint32_t ck_clip_live[4];
 static void ck_q_run(uint32_t only);
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
@@ -1054,23 +1074,6 @@ CK_FN static void ck_on(uint32_t note)
     ck_qe[ck_qn] = (uint16_t)(note | v << 7);
     ck_qt[ck_qn++] = (uint8_t)(fm1_ms + late);
 }
-/* Non-ARP CLIP KEYS owns only pitches actually triggered or queued.
- * Queued HUMAN notes are flushed by ck_send before their matching NoteOff. */
-CK_FN static void ck_clip_on(uint32_t note)
-{
-    if (CK_BIT(ck_clip_live, note))
-        return;
-    ck_clip_live[note >> 5] |= 1u << (note & 31u);
-    ck_on(note);
-}
-CK_FN static void ck_clip_off(uint32_t note)
-{
-    CK_BASE;
-    if (!CK_BIT(ck_clip_live, note))
-        return;
-    ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
-    ck_send(0x80u | cp->ch, note, 0u);
-}
 /* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
  * (0x81: a key release) */
 CK_FN static void ck_key_send(uint32_t k, uint32_t st)
@@ -1078,19 +1081,17 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
     CK_BASE;
     uint8_t out[CK_MAXN];
     uint32_t keep[4] = {0, 0, 0, 0}, n, i, q;
-    /* Private dispatch bits: single-key events compare all other owners;
-     * whole-voice off/on compares only earlier visited keys (one MIDI event per pitch). */
-    if (st & 3u)
+    if (st & 1u)
         for (q = 0; q < CK_NKEY; q++)
-            if (q != k && CK_BIT(cp->snd, q) && (!(st & 2u) || q < k))
+            if (q != k && CK_BIT(cp->snd, q))
                 for (i = 0, n = ck_key_notes(q, out); i < n; i++)
                     keep[out[i] >> 5] |= 1u << (out[i] & 31u);
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
         if (!CK_BIT(keep, out[i])) {
             if (st & 0x10u)
-                ck_clip_on(out[i]);
+                ck_on(out[i]);
             else
-                ck_clip_off(out[i]);
+                ck_send(0x80u | cp->ch, out[i], 0u);
         }
 }
 /* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
@@ -1098,12 +1099,9 @@ CK_FN static void ck_voice(uint32_t st)
 {
     CK_BASE;
     uint32_t k;
-    /* Full revoice/panic supersedes any unfinished non-ARP strum. */
-    if (!(cp->on & CK_M_ARP))
-        cp->nk = 0;
     for (k = 0; k < CK_NKEY; k++)
         if (CK_BIT(cp->snd, k))
-            ck_key_send(k, st | 3u);
+            ck_key_send(k, st);
 }
 /* All notes off: the keys, the arp note, the arp list */
 CK_FN static void ck_all_off(void)
@@ -1114,7 +1112,6 @@ CK_FN static void ck_all_off(void)
     cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
     cp->nk = 0;
-    memset(ck_clip_live, 0, sizeof ck_clip_live);
 }
 
 /* Project replacement ends notes using the old scale/chord and channel. Calibration,
@@ -1122,15 +1119,7 @@ CK_FN static void ck_all_off(void)
 CK_FN void smk_project_reset(void)
 {
     uint32_t i;
-    /* Project reset discards HUMAN notes that never reached MIDI. Releasing
-     * those queued pitches would cut unrelated Loopy voices sharing a note. */
-    for (i = 0; i < ck_qn; i++) {
-        uint32_t note = ck_qe[i] & 127u;
-        ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
-        if (ck.arp_note == note + 1u)
-            ck.arp_note = 0;
-    }
-    ck_qn = 0;
+    ck_qn = 0;                                       /* delayed note-ons never belong to the new project */
     ck_all_off();
     memset(&ck, 0, sizeof ck);
     ck.keys[0] = ((const volatile uint32_t *)&fm1_in.keys)[0];
@@ -1147,21 +1136,6 @@ CK_FN void smk_project_reset(void)
     clip_pad_active = clip_grid_mode;
     knob_bank_prev = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
     was_on = 0u;                                    /* redraw clip-key settings after the swap */
-}
-/* Finish the previous strum before snapshotting the tones owned by held keys.
- * Keep the snapshot through this strum: a previously held key might be released
- * before a shared delayed note, but its sounding pitch is now owned by this key. */
-CK_FN static void ck_strum_snapshot(uint32_t key)
-{
-    CK_BASE;
-    uint8_t out[CK_MAXN];
-    uint32_t q, i, n;
-    for (q = 0; q < 4u; q++)
-        ck_strum_keep[q] = 0;
-    for (q = 0; q < CK_NKEY; q++)
-        if (q != key && CK_BIT(cp->snd, q))
-            for (i = 0, n = ck_key_notes(q, out); i < n; i++)
-                ck_strum_keep[out[i] >> 5] |= 1u << (out[i] & 31u);
 }
 /* STRUM (ARP off): the notes of the strum key, low to high, one each STRUM x 10 ms after the press.
  * dt: the ms since the last call (a big dt sends all the notes that wait). */
@@ -1180,8 +1154,7 @@ CK_FN static void ck_strum(uint32_t dt)
         }
     cp->acc += dt;
     for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
-        if (!CK_BIT(ck_strum_keep, out[cp->nk - 1u]))
-            ck_clip_on(out[cp->nk - 1u]);
+        ck_on(out[cp->nk - 1u]);
     if (cp->nk > n)
         cp->nk = 0;
 }
@@ -1191,18 +1164,16 @@ CK_FN static void ck_press(uint32_t k, uint32_t vel)
     CK_BASE;
     cp->vel = (uint8_t)(vel ? vel : 1u);
     if (!(cp->on & CK_M_ARP)) {
+        cp->snd[k >> 5] |= 1u << (k & 31u);
         if ((sp->ck_x2 >> 4) && (cp->on & CK_M_CHORD)) {     /* STRUM: the last strum ends at once */
             ck_strum(1u << 20);
-            ck_strum_snapshot(k);                       /* before the new physical owner is added */
-            cp->snd[k >> 5] |= 1u << (k & 31u);
             cp->korder[0] = (uint8_t)k;
             cp->nk = 1;
             cp->acc = 0;
             ck_strum(0);
             return;
         }
-        cp->snd[k >> 5] |= 1u << (k & 31u);
-        ck_key_send(k, 0x91u);  /* bit 0 checks existing owners; ck_on emits real NoteOn */
+        ck_key_send(k, 0x90u);
         return;
     }
     cp->keys[k >> 5] ^= 1u << (k & 31u);                     /* (for a moment: the other keys only) */
@@ -2017,42 +1988,6 @@ CK_FN static void smk_frame(void)
 }
 #endif
 
-/* The boot screen. A saved record can replace the two lines and put a
- * 240 by 96 one-bit picture in the rows above them. No record, or a torn
- * one, keeps the original words. The picture reuses the canvas in gfx.c. */
-X0X_COLD static void boot_draw_pic(const uint8_t *bits)
-{
-    uint32_t x, y;
-    uint16_t ink = swap16(C_HI);
-    cv_begin(BOOT_PIC_W, BOOT_PIC_H, C_BLACK);
-    for (y = 0; y < BOOT_PIC_H; y++) {
-        uint16_t *row = cv_px + y * BOOT_PIC_W;
-        for (x = 0; x < BOOT_PIC_W; x++)
-            if (boot_pix(bits, x, y))
-                row[x] = ink;
-    }
-    cv_blit(0, 0);
-    lcd_sync();
-}
-X0X_COLD static void boot_splash(void)
-{
-    const uint8_t *sec = 0, *pay = 0;
-    char l0[13], l1[22];
-    if (flash_ok) {
-        int w = boot_pick(fm1_xip_ptr(BOOT_SEC0), fm1_xip_ptr(BOOT_SEC1));
-        if (w >= 0)
-            sec = fm1_xip_ptr(w ? BOOT_SEC1 : BOOT_SEC0);
-    }
-    if (sec)
-        pay = sec + BOOT_PAY_OFF;
-    if (pay && (pay[1] & BOOT_F_PIC))
-        boot_draw_pic(pay + BOOT_PAY_FIXED);
-    boot_lines(pay, l0, l1);
-    draw_text_box(0, 96, 240, &FONT_M, l0, C_HI, 1);
-    draw_text_box(0, 134, 240, &FONT_S, l1, C_GRAY, 1);
-}
-_Static_assert(BOOT_PIC_H <= CV_ROWS, "boot picture taller than the one screen strip");
-
 /* ------------------------------------------------------------- boot --- */
 #define BOOTGUARD_MAGIC 0x42475244u
 struct bootguard_s bootguard __attribute__((section(".noinit")));   /* declared in x0x.c (ota_commit) */
@@ -2186,7 +2121,8 @@ static void fm1_main(void)
     }
     lcd_init();
     palette_set(1);
-    boot_splash();
+    draw_text_box(0, 96, 240, &FONT_M, "X0X", C_HI, 1);
+    draw_text_box(0, 134, 240, &FONT_S, "909 808 303 303 BREAK", C_GRAY, 1);
     if (x0x_dbg.magic != DBG_MAGIC) {
         memset(&x0x_dbg, 0, sizeof x0x_dbg);
         x0x_dbg.magic = DBG_MAGIC;
@@ -2345,7 +2281,6 @@ static void fm1_main(void)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
-        engine_brk_flush();                            /* a loop change that waited out a crossfade */
 #if BOARD_SMK37
         smk_clip_mode_poll();
 #endif

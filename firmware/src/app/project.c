@@ -15,6 +15,10 @@
 #include "x0x.h"
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
+#include "../dsp/bass303.h"            /* BASS303_* (sound rev 5–7) */
+#include "chicago_arp.h"               /* CHI_ARP_* (snd rev 8) */
+#include "chicago_fx.h"                /* CHI_FX_* (snd rev 9) */
+#include "chicago_aux.h"               /* CHI_PBEND / CHI_DAMPER (snd rev 10) */
 #include "lz.c"
 #include "../crc32_nibble.h"           /* one nibble table shared with storage.c */
 
@@ -178,6 +182,42 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
+#define SOUND_CELL_V4 16u
+#define SOUND_BYTES_V4 (NTARGETS * NVOICES_MAX * SOUND_CELL_V4)
+#define SOUND_CELL_V7 24u
+#define SOUND_BYTES_V7 (NTARGETS * NVOICES_MAX * SOUND_CELL_V7)
+#define SOUND_CELL_V8 28u
+#define SOUND_BYTES_V8 (NTARGETS * NVOICES_MAX * SOUND_CELL_V8)
+
+static int load_sound(sound_t *dst)
+{
+    int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
+    uint32_t i, t, v, p, body, cell;
+    if (n < 4 || get32(io_buf) != PROJ_FORMAT)
+        return -1;
+    body = (uint32_t)n - 4u;
+    if (body == sizeof *dst) {
+        for (i = 0; i < body; i++)
+            ((uint8_t *)dst)[i] = io_buf[4u + i];
+        stored_known[OBJ_SOUND] = 1;
+        stored_hash[OBJ_SOUND] = hash_of(io_buf, (uint32_t)n);
+        return 0;
+    }
+    if (body == SOUND_BYTES_V4)
+        cell = SOUND_CELL_V4;
+    else if (body == SOUND_BYTES_V7)
+        cell = SOUND_CELL_V7;
+    else if (body == SOUND_BYTES_V8)
+        cell = SOUND_CELL_V8;
+    else
+        return -1;
+    for (t = 0; t < NTARGETS; t++)
+        for (v = 0; v < NVOICES_MAX; v++)
+            for (p = 0; p < cell; p++)
+                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * cell + p];
+    stored_known[OBJ_SOUND] = 0;
+    return 0;
+}
 
 static void arrange_defaults(project_t *pr)
 {
@@ -564,7 +604,7 @@ static int read_project(project_t *pr)
         bad = 1;
     project_clk_check(pr);                              /* (first: it can clear the a74 byte 38) */
     project_ck_check(pr, 0);                              /* (main_fm1.c trusts the clip keys settings) */
-    sound_ok = load_obj(OBJ_SOUND, &pr->sound, sizeof pr->sound) == 0;
+    sound_ok = load_sound(&pr->sound) == 0;
     if (!sound_ok)
         bad = 1;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
@@ -601,6 +641,44 @@ static int read_project(project_t *pr)
     if (sound_ok && pr->set.snd_rev < 4) {            /* the 808 BD's, the same */
         sound_bd_sends(pr, T_808, 7);
         sound_bd_sends_lanes(pr, T_808, 7);
+    }
+    if (sound_ok && pr->set.snd_rev < 5) {
+        for (i = 0; i < NBASS; i++)
+            pr->sound.v[T_303][i][BASS303_AMPMODE] = bass303_param(BASS303_AMPMODE)->def;
+    }
+    if (sound_ok && pr->set.snd_rev < 6) {
+        for (i = 0; i < NBASS; i++)
+            if (pr->sound.v[T_303][i][BASS303_WAVE] == 1)
+                pr->sound.v[T_303][i][BASS303_WAVE] = 127;
+    }
+    if (sound_ok && pr->set.snd_rev < 7) {
+        for (i = 0; i < NBASS; i++) {
+            pr->sound.v[T_303][i][BASS303_BITE] = bass303_param(BASS303_BITE)->def;
+            pr->sound.v[T_303][i][BASS303_AATTACK] = bass303_param(BASS303_AATTACK)->def;
+            pr->sound.v[T_303][i][BASS303_ADECAY] = bass303_param(BASS303_ADECAY)->def;
+            pr->sound.v[T_303][i][BASS303_ASUSTAIN] = bass303_param(BASS303_ASUSTAIN)->def;
+            pr->sound.v[T_303][i][BASS303_ARELEASE] = bass303_param(BASS303_ARELEASE)->def;
+        }
+    }
+    if (sound_ok && pr->set.snd_rev < 8) {
+        for (i = 0; i < NBASS; i++) {
+            int k;
+            for (k = 0; k < 4; k++)
+                pr->sound.v[T_303][i][CHI_ARP_SWITCH + k] = CHI_ARP_PARAMS[k].def;
+        }
+    }
+    if (sound_ok && pr->set.snd_rev < 9) {
+        for (i = 0; i < NBASS; i++) {
+            pr->sound.v[T_303][i][CHI_FX_TYPE] = CHI_FX_OFF;
+            pr->sound.v[T_303][i][CHI_FX_EDIT1] = CHI_FX_PARAMS[1].def;
+            pr->sound.v[T_303][i][CHI_FX_EDIT2] = CHI_FX_PARAMS[2].def;
+        }
+    }
+    if (sound_ok && pr->set.snd_rev < 10) {
+        for (i = 0; i < NBASS; i++) {
+            pr->sound.v[T_303][i][CHI_PBEND] = CHI_AUX_PARAMS[0].def;
+            pr->sound.v[T_303][i][CHI_DAMPER] = CHI_AUX_PARAMS[1].def;
+        }
     }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)

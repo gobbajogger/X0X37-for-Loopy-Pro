@@ -15,20 +15,84 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
+#include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
+#include "chicago_fx.h"                        /* CHI_FX_* SEND FX bridge (not insert) */
+#include "chicago_aux.h"                       /* CHI_PBEND / CHI_DAMPER */
+#include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "undo.c"
-#include "note_names.h"
+
+/* Commit a chicago_fx_map result into sound_t + live Mix/fxbus (shared bus theft). */
+static void chi_fx_commit(int voice, const chicago_fx_out_t *o)
+{
+    int part = chi_fx_mix_part(voice);
+    uint16_t t = o->touch;
+    uint8_t rv, dl;
+    if (!t)
+        return;
+    rv = (t & CHI_FX_W_MX_REV) ? o->mx_rev : 0;
+    dl = (t & CHI_FX_W_MX_DLY) ? o->mx_dly : 0;
+    if ((t & CHI_FX_W_CLEAR_SENDS) || (t & CHI_FX_W_MX_REV) || (t & CHI_FX_W_MX_DLY)) {
+        if (t & CHI_FX_W_CLEAR_SENDS) {
+            if (!(t & CHI_FX_W_MX_REV))
+                rv = 0;
+            if (!(t & CHI_FX_W_MX_DLY))
+                dl = 0;
+        }
+        proj.sound.v[T_MIX][part][MX_REV] = rv;
+        proj.sound.v[T_MIX][part][MX_DLY] = dl;
+        engine_set(T_MIX, part, MX_REV, rv);
+        engine_set(T_MIX, part, MX_DLY, dl);
+    }
+    if (t & CHI_FX_W_COMP) {
+        proj.sound.v[T_FX][0][FX_COMP] = o->fx_comp;
+        engine_set(T_FX, 0, FX_COMP, o->fx_comp);
+    }
+    if (t & CHI_FX_W_DIST) {
+        proj.sound.v[T_FX][0][FX_DIST] = o->fx_dist;
+        engine_set(T_FX, 0, FX_DIST, o->fx_dist);
+    }
+    if (t & CHI_FX_W_DRIVE) {
+        proj.sound.v[T_FX][0][FX_DRIVE] = o->fx_drive;
+        engine_set(T_FX, 0, FX_DRIVE, o->fx_drive);
+    }
+    if (t & CHI_FX_W_DL_TIME) {
+        proj.sound.v[T_FX][0][FX_DL_TIME] = o->fx_dl_time;
+        engine_set(T_FX, 0, FX_DL_TIME, o->fx_dl_time);
+    }
+    if (t & CHI_FX_W_DL_LVL) {
+        proj.sound.v[T_FX][0][FX_DL_LEVEL] = o->fx_dl_level;
+        engine_set(T_FX, 0, FX_DL_LEVEL, o->fx_dl_level);
+    }
+    if (t & CHI_FX_W_RV_DEC) {
+        proj.sound.v[T_FX][0][FX_RV_DECAY] = o->fx_rv_decay;
+        engine_set(T_FX, 0, FX_RV_DECAY, o->fx_rv_decay);
+    }
+    if (t & CHI_FX_W_RV_LVL) {
+        proj.sound.v[T_FX][0][FX_RV_LEVEL] = o->fx_rv_level;
+        engine_set(T_FX, 0, FX_RV_LEVEL, o->fx_rv_level);
+    }
+}
+
+static void chi_fx_apply_ui(int voice, uint8_t type, uint8_t e1, uint8_t e2, int clear_ny)
+{
+    chicago_fx_out_t o;
+    chicago_fx_map(type, e1, e2, clear_ny, &o);
+    chi_fx_commit(voice, &o);
+}
+
+static void chi_fx_clear_sends_ui(int voice)
+{
+    chicago_fx_out_t o;
+    memset(&o, 0, sizeof o);
+    o.touch = CHI_FX_W_CLEAR_SENDS;
+    chi_fx_commit(voice, &o);
+}
 
 /* ================================================================ model === */
 static const int8_t KEY_WHITE[NKEYS] = {0, -1, 1, -1, 2, -1, 3, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, -1, 10, 11, -1, 12, -1, 13, 14, -1, 15};
 static const int8_t KEY_BLACK[NKEYS] = {-1, 0, -1, 1, -1, 2, -1, -1, 3, -1, 4, -1, -1, 5, -1, 6, -1, 7, -1, -1, 8, -1, 9, -1, -1, 10, -1};
-/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init).
- * On SMK, x0x.c included smk_input.h first: the pad map is these same 16 indices. */
-#if defined(SMK_NPAD)
-_Static_assert(SMK_NPAD == 16u, "SMK white-key map is the 16 panel white keys");
-#define WHITE_KEY SMK_WHITE_NOTE
-#else
+/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init). */
 static const uint8_t WHITE_KEY[16] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
-#endif
 static const uint8_t BLACK_KEY[11] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25};
 
 enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };
@@ -200,6 +264,14 @@ static uint8_t kbd_held_note[NBASS];
 static uint8_t bass_rec_step[NBASS];                 /* recorded source step + 1; zero means none */
 static uint8_t bass_rec_pat[NBASS], bass_rec_playing[NBASS];
 static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
+/* Chicago arp freeplay: track every held key so chords arpeggiate (clip ARP is MIDI-only). */
+static uint8_t kbd_arp_key[NBASS][CHI_ARP_MAXN];     /* physical key + 1 */
+static uint8_t kbd_arp_note[NBASS][CHI_ARP_MAXN];
+static uint8_t kbd_arp_n[NBASS];
+static int chi_arp_on_part(int b)
+{
+    return b >= 0 && b < NBASS && proj.sound.v[T_303][b][CHI_ARP_SWITCH] != CHI_ARP_OFF;
+}
 static int held_note_of(const bpart_t *bp, int s);
 static void bass_step_cancel(void);
 static void drum_step_cancel(void);
@@ -228,11 +300,7 @@ static char *put_i(char *b, int v)
     *b = 0;
     return b;
 }
-/* Pointers into X0X_NOTE_PACK (same letters the switch draws). */
-static const char *const NOTE_N[12] = {
-    X0X_NOTE_PACK + 0, X0X_NOTE_PACK + 2, X0X_NOTE_PACK + 5, X0X_NOTE_PACK + 7,
-    X0X_NOTE_PACK + 10, X0X_NOTE_PACK + 12, X0X_NOTE_PACK + 14, X0X_NOTE_PACK + 17,
-    X0X_NOTE_PACK + 19, X0X_NOTE_PACK + 22, X0X_NOTE_PACK + 24, X0X_NOTE_PACK + 27};
+static const char *const NOTE_N[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 static char *put_note(char *b, int n)
 {
     b = put_s(b, NOTE_N[(n % 12 + 12) % 12]);
@@ -257,7 +325,7 @@ static void say(const char *a, const char *b)
 
 /* =============================================================== param refs === */
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
-       R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
+       R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
        R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
@@ -304,7 +372,6 @@ static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
-static const x0x_param_t BRKSLICE_P = {"8 SLICES", 1, 0, ONOFF_N};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
@@ -332,7 +399,7 @@ static int pref_read_only(pref_t r)
 }
 
 /* the song's bar k exists from here on: a new bar repeats the one before (the first: what plays) */
-X0X_COLD static void song_fill(int k)
+static void song_fill(int k)
 {
     song_t *sg = song();
     if (sg->len <= k && sg->len < NSONG) song_structure_revision++;
@@ -363,7 +430,6 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BRATE: return &SEQ_P[SQ_BRATE];
     case R_BDIR: return &SEQ_P[SQ_BDIR];
     case R_BTRANS: return &SEQ_P[SQ_BTRANS];
-    case R_BRKSLICE: return &BRKSLICE_P;
     case R_BRKSLOT: {
         static x0x_param_t d = {"LOOP", 0, 0, 0};
         d.max = (uint8_t)(engine_brk_nslots() - 1);
@@ -450,7 +516,6 @@ static int pref_get(pref_t r)
     }
     case R_BRKSET: return p->brk.set[r.c];
     case R_BRKSLOT: return r.a ? p->brk.slot_b : p->brk.slot_a;
-    case R_BRKSLICE: return p->brk.slice_mode ? 1 : 0;
     case R_TEMPO: return (int)(seq.bpm + 0.5f) - 20;
     case R_ACCENT: return seq.accent_q7;
     case R_CLKOUT: return seq.send_clock;
@@ -505,6 +570,20 @@ X0X_COLD static void pref_set(pref_t r, int v)
                               &proj.sound.v[T_MST][0][MST_MAKEUP]);
         else if (r.a == T_MST && r.c == MST_DJF)
             master_djf_pots(v, &proj.sound.v[T_MST][0][MST_MODE], &proj.sound.v[T_MST][0][MST_CUTOFF]);
+        else if (r.a == T_303 && r.c >= CHI_FX_TYPE && r.c < CHI_FX_END && r.b < NBASS) {
+            /* SEND FX bridge: map onto Mix/fxbus. NOT_YET types refuse insert, clear sends. */
+            uint8_t ty = proj.sound.v[T_303][r.b][CHI_FX_TYPE];
+            uint8_t e1 = proj.sound.v[T_303][r.b][CHI_FX_EDIT1];
+            uint8_t e2 = proj.sound.v[T_303][r.b][CHI_FX_EDIT2];
+            if (r.c == CHI_FX_TYPE && ty == CHI_FX_OFF)
+                chi_fx_clear_sends_ui(r.b);
+            else if (r.c == CHI_FX_TYPE && chi_fx_is_not_yet(ty)) {
+                say("NO INSERT: ", CHI_FX_TYPE_N[ty]);
+                chi_fx_apply_ui(r.b, ty, e1, e2, 1);
+            } else if (chi_fx_supported(ty) && ty != CHI_FX_OFF)
+                chi_fx_apply_ui(r.b, ty, e1, e2, 0);
+        } else if (r.a == T_303 && r.c == CHI_DAMPER && r.b < NBASS)
+            say(chi_damper_on((uint8_t)v) ? "DAMP ON" : "DAMP OFF", "");
         break;
     case R_SWING: p->swing = (uint8_t)v; break;
     case R_DLEN: p->drum[r.a].len = (uint8_t)(v + 1); break;
@@ -530,7 +609,6 @@ X0X_COLD static void pref_set(pref_t r, int v)
         break;
     }
     case R_BRKSET: p->brk.set[r.c] = (uint8_t)v; break;
-    case R_BRKSLICE: p->brk.slice_mode = (uint8_t)(v ? 1 : 0); break;
     case R_BRKSLOT:
         if (r.a)
             p->brk.slot_b = (uint8_t)v;
@@ -580,10 +658,11 @@ X0X_COLD static void pref_set(pref_t r, int v)
         if (v && ui.part == PART_303A + r.a)
             bass_step_cancel();                       /* the held step must not become a held keyboard note */
         ui.freeplay[r.a] = (uint8_t)v;
-        if (!v && kbd_held_note[r.a]) {                /* a key still down: let it go */
+        if (!v && (kbd_held_note[r.a] || kbd_arp_n[r.a])) { /* a key still down: let it go */
             engine_bass_off(r.a);
             kbd_held_note[r.a] = 0;
             kbd_held_key[r.a] = 0;
+            kbd_arp_n[r.a] = 0;
         }
         break;
     case R_SREP: {
@@ -640,7 +719,7 @@ static int in_pattern(pref_t r)
 {
     switch (r.kind) {
     case R_SWING: case R_DLEN: case R_DRATE: case R_BLEN: case R_BRATE: case R_BDIR: case R_BTRANS: case R_GEN:
-    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE:
+    case R_BRKSET: case R_BRKSLOT:
         return 1;
     default:
         return 0;
@@ -730,20 +809,21 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     }
     if (is_pan(r)) {                                     /* L64 .. C .. R63 */
         if (v == 64)
-            put_s(num, X0X_NOTE_PACK);             /* letter C, the first name in the pack */
+            put_s(num, "C");
         else
             put_i(put_s(num, v < 64 ? "L" : "R"), v < 64 ? 64 - v : v - 64);
         return;
     }
     switch (r.kind) {
     case R_ENG:
-        if (r.a == T_303 && (r.c == BASS303_FATTACK || r.c == BASS303_FRELEASE || r.c == BASS303_DECAY)) {
+        if (r.a == T_303 && (r.c == BASS303_FATTACK || r.c == BASS303_FRELEASE || r.c == BASS303_DECAY
+                            || r.c == BASS303_AATTACK || r.c == BASS303_ADECAY || r.c == BASS303_ARELEASE)) {
             float ms = bass303_env_time_ms(r.c, v);
             put_i(num, (int)(ms + 0.5f));
             put_s(unit, "ms");
             return;
         }
-        if (r.a == T_303 && r.c == BASS303_FSUSTAIN) {
+        if (r.a == T_303 && (r.c == BASS303_FSUSTAIN || r.c == BASS303_ASUSTAIN)) {
             put_i(num, (v * 100 + 63) / 127);
             put_s(unit, "%");
             return;
@@ -888,48 +968,19 @@ static pref_t find_ref(int t, int v, const char *n)
     return NONE;
 }
 
-/* Drum sound knobs: named ranks so matching controls keep the same physical
- * knobs across 909/808 tracks (DSP tables differ per voice). Level/Pan/Rev/Dly
- * stay on MIX; Drive/Dist stay in SEL's list. Unknown names keep their relative
- * table order after the named ranks. */
-static int track_param_rank(const x0x_param_t *d)
-{
-    static const char *const order[] = {
-        "Tune", "Tone", "Attack", "Sound", "Decay", "Snappy", "Tail", "P.Dpth", "Pitch",
-    };
-    int i;
-    for (i = 0; i < (int)(sizeof order / sizeof *order); i++)
-        if (name_is(d, order[i]))
-            return i;
-    return (int)(sizeof order / sizeof *order);
-}
-
 /* a drum track: its sound, four knobs a page (its DRIVE and DIST: SEL's list; its level, pan and sends:
  * MIX's 909 MIX / 808 MIX page) */
-X0X_COLD static void add_track_pages(int t, int v)
+static void add_track_pages(int t, int v)
 {
     const char *nm = engine_voice_name(t, v);
     pref_t snd[NPARAMS_MAX];
-    int rank[NPARAMS_MAX];
-    int n = 0, i, j;
+    int n = 0, i;
     for (i = 0; i < engine_nparams(t, v) && n < NPARAMS_MAX; i++) {
         const x0x_param_t *d = engine_param(t, v, i);
         if (name_is(d, "Drive") || name_is(d, "Dist"))
             more(PR(R_ENG, t, v, i));
-        else if (!name_is(d, "Level") && !name_is(d, "Pan") && !name_is(d, "Rev") && !name_is(d, "Dly")) {
-            rank[n] = track_param_rank(d);
+        else if (!name_is(d, "Level") && !name_is(d, "Pan") && !name_is(d, "Rev") && !name_is(d, "Dly"))
             snd[n++] = PR(R_ENG, t, v, i);
-        }
-    }
-    for (i = 1; i < n; i++) {              /* stable insertion by rank */
-        pref_t x = snd[i];
-        int rx = rank[i];
-        for (j = i; j > 0 && rank[j - 1] > rx; j--) {
-            snd[j] = snd[j - 1];
-            rank[j] = rank[j - 1];
-        }
-        snd[j] = x;
-        rank[j] = rx;
     }
     pg_grp = GR_TRACK;
     for (i = 0; i < n; i += 4)
@@ -942,7 +993,39 @@ static uint8_t *page_of(int view)
     return &ui.page[view][view == V_PART || view == V_SEQ || view == V_GEN ? ui.part : 0];
 }
 
-X0X_COLD static void build_pages(void)
+/* Immutable page descriptions avoid rebuilding four constant preference records at
+ * every call site. The only patched byte is the current part/voice/channel;
+ * NONE retains its all-zero record. This runs only during UI page construction. */
+X0X_COLD __attribute__((noinline)) static void add_page_refs(const char *t, const pref_t *refs, int axis, uint8_t value)
+{
+    int i;
+    if (pg.n >= MAXPAGES)
+        return;
+    for (i = 0; i < 4; i++) {
+        pref_t r = refs[i];
+        if (r.kind != R_NONE) {
+            if (axis == 1) r.a = value;
+            if (axis == 2) r.b = value;
+        }
+        pg.r[pg.n][i] = r;
+    }
+    title(pg.n, t);
+    pg.group[pg.n] = pg_grp;
+    pg.n++;
+}
+
+X0X_COLD __attribute__((noinline)) static void more_refs(const pref_t *refs, unsigned n, int axis, uint8_t value)
+{
+    unsigned i;
+    for (i = 0; i < n; i++) {
+        pref_t r = refs[i];
+        if (axis == 1) r.a = value;
+        if (axis == 2) r.b = value;
+        more(r);
+    }
+}
+
+static void build_pages(void)
 {
     int p = ui.part, b = bidx();
     pg.n = pg.nmore = 0;
@@ -950,27 +1033,29 @@ X0X_COLD static void build_pages(void)
     switch (ui.view) {
     case V_HOME:                                       /* the pattern: how the parts run through it */
     case V_GLO:
-        add_page("PERFORM", PR(R_TEMPO, 0, 0, 0), PR(R_SWING, 0, 0, 0), PR(R_ENG, T_MST, 0, MST_DJF),
-                 PR(R_ENG, T_MST, 0, MST_PUMP));
+        do { static const pref_t refs[4] = {PR(R_TEMPO, 0, 0, 0), PR(R_SWING, 0, 0, 0), PR(R_ENG, T_MST, 0, MST_DJF), PR(R_ENG, T_MST, 0, MST_PUMP)};
+            add_page_refs("PERFORM", refs, 0, 0); } while (0);
         break;
     case V_SEQ:                                        /* the part's steps: how its pattern runs */
         pg_grp = GR_PAT;
         if (is_drum())
-            add_page("SEQUENCE", PR(R_DLEN, p, 0, 0), PR(R_DRATE, p, 0, 0), NONE, NONE);   /* (the swing: HOME's, all parts') */
+            do { static const pref_t refs[4] = {PR(R_DLEN, 0, 0, 0), PR(R_DRATE, 0, 0, 0), NONE, NONE};
+            add_page_refs("SEQUENCE", refs, 1, p); } while (0);   /* (the swing: HOME's, all parts') */
         else if (is_303())
         {
-            add_page("SEQUENCE", PR(R_BLEN, b, 0, 0), PR(R_BRATE, b, 0, 0), PR(R_BDIR, b, 0, 0), PR(R_BTRANS, b, 0, 0));
+            do { static const pref_t refs[4] = {PR(R_BLEN, 0, 0, 0), PR(R_BRATE, 0, 0, 0), PR(R_BDIR, 0, 0, 0), PR(R_BTRANS, 0, 0, 0)};
+            add_page_refs("SEQUENCE", refs, 1, b); } while (0);
             pg_grp = GR_NONE;                          /* (not the pattern's: no P1 in its name) */
-            add_page("KEYS", PR(R_FREEPLAY, b, 0, 0), NONE, NONE, NONE);
+            do { static const pref_t refs[4] = {PR(R_FREEPLAY, 0, 0, 0), NONE, NONE, NONE};
+            add_page_refs("KEYS", refs, 1, b); } while (0);
         }
         else {
-            add_page("GROOVE", PR(R_BRKSET, 0, 0, BRK_COMPLEX), PR(R_BRKSET, 0, 0, BRK_ANCHOR),
-                     PR(R_BRKSET, 0, 0, BRK_ROLL), PR(R_BRKSET, 0, 0, BRK_FILL));
-            add_page("RETRIG", PR(R_BRKSET, 0, 0, BRK_R2), PR(R_BRKSET, 0, 0, BRK_R3), PR(R_BRKSET, 0, 0, BRK_R4),
-                     PR(R_BRKSET, 0, 0, BRK_R8));
-            more(PR(R_BRKSET, 0, 0, BRK_PHRASE));
-            more(PR(R_BRKSET, 0, 0, BRK_ALEN));
-            more(PR(R_BRKSET, 0, 0, BRK_BLEN));
+            do { static const pref_t refs[4] = {PR(R_BRKSET, 0, 0, BRK_COMPLEX), PR(R_BRKSET, 0, 0, BRK_ANCHOR), PR(R_BRKSET, 0, 0, BRK_ROLL), PR(R_BRKSET, 0, 0, BRK_FILL)};
+            add_page_refs("GROOVE", refs, 0, 0); } while (0);
+            do { static const pref_t refs[4] = {PR(R_BRKSET, 0, 0, BRK_R2), PR(R_BRKSET, 0, 0, BRK_R3), PR(R_BRKSET, 0, 0, BRK_R4), PR(R_BRKSET, 0, 0, BRK_R8)};
+            add_page_refs("RETRIG", refs, 0, 0); } while (0);
+            do { static const pref_t refs[] = {PR(R_BRKSET, 0, 0, BRK_PHRASE), PR(R_BRKSET, 0, 0, BRK_ALEN), PR(R_BRKSET, 0, 0, BRK_BLEN)};
+                more_refs(refs, 3, 0, 0); } while (0);
         }
         break;
     case V_PART:                                       /* the part's sound */
@@ -979,86 +1064,85 @@ X0X_COLD static void build_pages(void)
             add_track_pages(t, ui.sel[p]);
             pg_grp = GR_KIT;
             if (p == PART_909)                         /* (the kit's gain: the mixer's level does it) */
-                add_page("KIT", PR(R_ENG, T_909, NDRUM, 1), NONE, NONE, NONE);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_909, NDRUM, 1), NONE, NONE, NONE};
+            add_page_refs("KIT", refs, 0, 0); } while (0);
             else
-                add_page("KIT", PR(R_ENG, T_808, NDRUM, 1), NONE, NONE, NONE);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_808, NDRUM, 1), NONE, NONE, NONE};
+            add_page_refs("KIT", refs, 0, 0); } while (0);
         } else if (is_303()) {
             pg_grp = GR_SOUND;
-            add_page("TONE", PR(R_ENG, T_303, b, BASS303_CUTOFF), PR(R_ENG, T_303, b, BASS303_RESO),
-                     PR(R_ENG, T_303, b, BASS303_ENVMOD), PR(R_ENG, T_303, b, BASS303_DECAY));
-            add_page("VOICE", PR(R_ENG, T_303, b, BASS303_ACCENT), PR(R_ENG, T_303, b, BASS303_WAVE),
-                     PR(R_ENG, T_303, b, BASS303_DRIVE), PR(R_ENG, T_303, b, BASS303_SLIDE));
-            more(PR(R_ENG, T_303, b, BASS303_TUNE));
-            more(PR(R_ENG, T_303, b, BASS303_VOLUME));
-            more(PR(R_ENG, T_303, b, BASS303_DRVTYPE));
-            more(PR(R_ENG, T_303, b, BASS303_ACCDEC));
-            add_page("FILTER ADSR", PR(R_ENG, T_303, b, BASS303_FATTACK), PR(R_ENG, T_303, b, BASS303_DECAY),
-                     PR(R_ENG, T_303, b, BASS303_FSUSTAIN), PR(R_ENG, T_303, b, BASS303_FRELEASE));
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_CUTOFF), PR(R_ENG, T_303, 0, BASS303_RESO), PR(R_ENG, T_303, 0, BASS303_ENVMOD), PR(R_ENG, T_303, 0, BASS303_DECAY)};
+            add_page_refs("TONE", refs, 2, b); } while (0);
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_ACCENT), PR(R_ENG, T_303, 0, BASS303_WAVE), PR(R_ENG, T_303, 0, BASS303_DRIVE), PR(R_ENG, T_303, 0, BASS303_SLIDE)};
+            add_page_refs("VOICE", refs, 2, b); } while (0);
+            /* AmpMod = Chicago Amp ENV/GATE; Gnaw/Bite = Chicago VCF (not Soft/RAT Drive). */
+            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC), PR(R_ENG, T_303, 0, BASS303_AMPMODE), PR(R_ENG, T_303, 0, BASS303_GNAW), PR(R_ENG, T_303, 0, BASS303_BITE)};
+                more_refs(refs, 7, 2, b); } while (0);
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_FATTACK), PR(R_ENG, T_303, 0, BASS303_DECAY), PR(R_ENG, T_303, 0, BASS303_FSUSTAIN), PR(R_ENG, T_303, 0, BASS303_FRELEASE)};
+            add_page_refs("FILTER ADSR", refs, 2, b); } while (0);
+            /* Amp Env: Chicago Attack/Decay/Sustain/Release (filter Decay stays on FILTER ADSR). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_AATTACK), PR(R_ENG, T_303, 0, BASS303_ADECAY), PR(R_ENG, T_303, 0, BASS303_ASUSTAIN), PR(R_ENG, T_303, 0, BASS303_ARELEASE)};
+            add_page_refs("AMP ADSR", refs, 2, b); } while (0);
+            /* Chicago Arp (live held-note); B_ARP still opens TB-3PO generate. */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_ARP_SWITCH), PR(R_ENG, T_303, 0, CHI_ARP_MODE), PR(R_ENG, T_303, 0, CHI_ARP_RANGE), PR(R_ENG, T_303, 0, CHI_ARP_SPEED)};
+            add_page_refs("CHI ARP", refs, 2, b); } while (0);
+            /* SEND FX: labeled Mix/fxbus bridge — not Chicago insert (see chicago_fx.h). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_FX_TYPE), PR(R_ENG, T_303, 0, CHI_FX_EDIT1), PR(R_ENG, T_303, 0, CHI_FX_EDIT2), NONE};
+            add_page_refs("SEND FX", refs, 2, b); } while (0);
+            /* Chicago pitch bend (±2 st) + damper (live/MIDI sustain). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_PBEND), PR(R_ENG, T_303, 0, CHI_DAMPER), NONE, NONE};
+            add_page_refs("CHI AUX", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */
-            add_page("LOOPS", PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE),
-                     PR(R_ENG, T_BRK, 0, 1));
+            do { static const pref_t refs[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
+            add_page_refs("LOOPS", refs, 0, 0); } while (0);
             more(PR(R_ENG, T_BRK, 0, 0));
-            more(PR(R_BRKSLICE, 0, 0, 0));
         }
         break;
     case V_GEN:
         pg_grp = GR_PAT;
-        add_page("GENERATE", PR(R_GEN, b, 0, G_DENS), PR(R_GEN, b, 0, G_ACC), PR(R_GEN, b, 0, G_SLIDE),
-                 PR(R_GEN, b, 0, G_OCTS));
-        add_page("SCALE", PR(R_GEN, b, 0, G_ROOT), PR(R_GEN, b, 0, G_SCALE), PR(R_GEN, b, 0, G_BASE),
-                 PR(R_GEN, b, 0, G_MUT));
+        do { static const pref_t refs[4] = {PR(R_GEN, 0, 0, G_DENS), PR(R_GEN, 0, 0, G_ACC), PR(R_GEN, 0, 0, G_SLIDE), PR(R_GEN, 0, 0, G_OCTS)};
+            add_page_refs("GENERATE", refs, 1, b); } while (0);
+        do { static const pref_t refs[4] = {PR(R_GEN, 0, 0, G_ROOT), PR(R_GEN, 0, 0, G_SCALE), PR(R_GEN, 0, 0, G_BASE), PR(R_GEN, 0, 0, G_MUT)};
+            add_page_refs("SCALE", refs, 1, b); } while (0);
         break;
     case V_FX:                                         /* (each part's sends: MIX's PARTS) */
-        add_page("REVERB", PR(R_ENG, T_FX, 0, FX_RV_DECAY), PR(R_ENG, T_FX, 0, FX_RV_TONE), NONE, NONE);
-        add_page("DELAY", PR(R_ENG, T_FX, 0, FX_DL_TIME), PR(R_ENG, T_FX, 0, FX_DL_FDBK),
-                 PR(R_ENG, T_FX, 0, FX_DL_TONE), PR(R_TAPE, 0, 0, 0));
-        more(PR(R_ENG, T_FX, 0, FX_RV_HPF));
-        more(PR(R_ENG, T_FX, 0, FX_RV_LEVEL));
-        more(PR(R_ENG, T_FX, 0, FX_DL_HPF));
-        more(PR(R_ENG, T_FX, 0, FX_DL_LEVEL));
-        more(PR(R_ENG, T_FX, 0, FX_DL_PING));
+        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_RV_DECAY), PR(R_ENG, T_FX, 0, FX_RV_TONE), NONE, NONE};
+            add_page_refs("REVERB", refs, 0, 0); } while (0);
+        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_DL_TIME), PR(R_ENG, T_FX, 0, FX_DL_FDBK), PR(R_ENG, T_FX, 0, FX_DL_TONE), PR(R_TAPE, 0, 0, 0)};
+            add_page_refs("DELAY", refs, 0, 0); } while (0);
+            do { static const pref_t refs[] = {PR(R_ENG, T_FX, 0, FX_RV_HPF), PR(R_ENG, T_FX, 0, FX_RV_LEVEL), PR(R_ENG, T_FX, 0, FX_DL_HPF), PR(R_ENG, T_FX, 0, FX_DL_LEVEL), PR(R_ENG, T_FX, 0, FX_DL_PING)};
+                more_refs(refs, 5, 0, 0); } while (0);
         break;
     case V_MIX:                                        /* a channel picked with a black key, its four knobs */
-        add_page("PARTS", PR(R_ENG, T_MIX, ui.mixsel, MX_LEVEL), PR(R_ENG, T_MIX, ui.mixsel, MX_PAN),
-                 PR(R_ENG, T_MIX, ui.mixsel, MX_REV), PR(R_ENG, T_MIX, ui.mixsel, MX_DLY));
+        do { static const pref_t refs[4] = {PR(R_ENG, T_MIX, 0, MX_LEVEL), PR(R_ENG, T_MIX, 0, MX_PAN), PR(R_ENG, T_MIX, 0, MX_REV), PR(R_ENG, T_MIX, 0, MX_DLY)};
+            add_page_refs("PARTS", refs, 2, ui.mixsel); } while (0);
         for (p = 0; p < NKIT; p++) {                    /* each drum machine's tracks: LEVEL, PAN, REV, DLY */
             int t = p ? T_808 : T_909, v = ui.sel[p];
             add_page(p ? "808 MIX" : "909 MIX", find_ref(t, v, "Level"), find_ref(t, v, "Pan"), find_ref(t, v, "Rev"),
                      find_ref(t, v, "Dly"));
         }
-        add_page("MASTER", PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP),
-                 PR(R_ENG, T_MST, 0, MST_DJF));
-        more(PR(R_ENG, T_MST, 0, MST_THRESH));
-        more(PR(R_ENG, T_MST, 0, MST_RATIO));
-        more(PR(R_ENG, T_MST, 0, MST_ATTACK));
-        more(PR(R_ENG, T_MST, 0, MST_RELEASE));
-        more(PR(R_ENG, T_MST, 0, MST_MAKEUP));
-        more(PR(R_ENG, T_MST, 0, MST_MIX));
-        more(PR(R_ENG, T_MST, 0, MST_PUMPSRC));
-        more(PR(R_ENG, T_MST, 0, MST_RESO));
-        more(PR(R_ENG, T_MST, 0, MST_LIMIT));
-        more(PR(R_ENG, T_FX, 0, FX_DIST));
-        more(PR(R_ENG, T_FX, 0, FX_COMP));
-        more(PR(R_ENG, T_FX, 0, FX_VOLUME));
-        /* sibling of MASTER: same knobs, post-master eng_scope wave (Baud Girl ≤10 Hz redraw) */
-        add_page("WAVE", PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP),
-                 PR(R_ENG, T_MST, 0, MST_DJF));
+        do { static const pref_t refs[4] = {PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP), PR(R_ENG, T_MST, 0, MST_DJF)};
+            add_page_refs("MASTER", refs, 0, 0); } while (0);
+            do { static const pref_t refs[] = {PR(R_ENG, T_MST, 0, MST_THRESH), PR(R_ENG, T_MST, 0, MST_RATIO), PR(R_ENG, T_MST, 0, MST_ATTACK), PR(R_ENG, T_MST, 0, MST_RELEASE), PR(R_ENG, T_MST, 0, MST_MAKEUP), PR(R_ENG, T_MST, 0, MST_MIX), PR(R_ENG, T_MST, 0, MST_PUMPSRC), PR(R_ENG, T_MST, 0, MST_RESO), PR(R_ENG, T_MST, 0, MST_LIMIT), PR(R_ENG, T_FX, 0, FX_DIST), PR(R_ENG, T_FX, 0, FX_COMP), PR(R_ENG, T_FX, 0, FX_VOLUME)};
+                more_refs(refs, 12, 0, 0); } while (0);
         break;
     case V_PERF:
-        add_page("PERF", PR(R_STALLS, 0, 0, 0), NONE, NONE, NONE);
+        do { static const pref_t refs[4] = {PR(R_STALLS, 0, 0, 0), NONE, NONE, NONE};
+            add_page_refs("PERF", refs, 0, 0); } while (0);
         break;
     case V_SONG:
-        add_page("BAR", PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_909, 0, 0), PR(R_SPAT, PART_808, 0, 0),
-                 PR(R_SPAT, PART_303A, 0, 0));
-        add_page("BAR", PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_303B, 0, 0), PR(R_SPAT, PART_BRK, 0, 0),
-                 PR(R_SREP, 0, 0, 0));
+        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_909, 0, 0), PR(R_SPAT, PART_808, 0, 0), PR(R_SPAT, PART_303A, 0, 0)};
+            add_page_refs("BAR", refs, 0, 0); } while (0);
+        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_303B, 0, 0), PR(R_SPAT, PART_BRK, 0, 0), PR(R_SREP, 0, 0, 0)};
+            add_page_refs("BAR", refs, 0, 0); } while (0);
         break;
     default: break;
     }
     if (pg.n == 0)
-        add_page("", NONE, NONE, NONE, NONE);
+        do { static const pref_t refs[4] = {NONE, NONE, NONE, NONE};
+            add_page_refs("", refs, 0, 0); } while (0);
     if (*page_of(ui.view) >= pg.n)
         *page_of(ui.view) = 0;
 }
@@ -1070,20 +1154,6 @@ static int drum_mix_page(void)
 {
     const char *t = pg.title[cur_page()];
     return ui.view == V_MIX && t[4] == 'M' && t[5] == 'I' && t[6] == 'X' ? (t[0] == '8') : -1;
-}
-
-/* MIX MASTER (peak hist + COMP knobs); not the WAVE sibling */
-static int master_mix_page(void)
-{
-    const char *t = pg.title[cur_page()];
-    return ui.view == V_MIX && t[0] == 'M' && t[1] == 'A' && t[2] == 'S' && t[3] == 'T';
-}
-
-/* MIX WAVE: live post-master mono scope from eng_scope[] */
-static int wave_mix_page(void)
-{
-    const char *t = pg.title[cur_page()];
-    return ui.view == V_MIX && t[0] == 'W' && t[1] == 'A' && t[2] == 'V' && t[3] == 'E';
 }
 
 /* a drum machine's page of the selected track's own sound (not the whole kit's: SENDS, PART, KIT) */
@@ -1112,7 +1182,7 @@ static void list_add(pref_t r)
 }
 
 /* a list section's name: whose values follow */
-X0X_COLD static void hdr_name(int g, char *t)
+static void hdr_name(int g, char *t)
 {
     const char *who = is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part]) : PART_N[ui.part];
     switch (g) {
@@ -1133,7 +1203,7 @@ X0X_COLD static void hdr_name(int g, char *t)
 
 static int list_skip(int i) { return i < ui.list_n && list_rows[i].kind == R_HDR; }
 
-X0X_COLD static void open_list_of_pages(void)
+static void open_list_of_pages(void)
 {
     int p, k, last = -1, groups = 0;
     ui.list_n = 0;
@@ -1169,7 +1239,7 @@ X0X_COLD static void open_list_of_pages(void)
     ui.overlay = ui.list_n ? O_LIST : O_NONE;
 }
 
-X0X_COLD static void open_global(void)
+static void open_global(void)
 {
     ui.list_n = 0;
     list_rows[ui.list_n++] = PR(R_HDR, GR_MIDI, 0, 0);
@@ -1221,7 +1291,7 @@ X0X_COLD static void open_global(void)
 }
 
 /* ================================================================ questions === */
-X0X_COLD static void ask(int act, int arg, const char *q1, const char *q2)
+static void ask(int act, int arg, const char *q1, const char *q2)
 {
     ui.ask_act = (uint8_t)act;
     ui.ask_overlay = ui.overlay;
@@ -1260,7 +1330,7 @@ static int pattern_used(const pattern_t *pt)
 }
 
 /* motion lanes of one part pattern: gone, and the knobs back to their own values */
-X0X_COLD static void clear_lanes(int pat, int part)
+static void clear_lanes(int pat, int part)
 {
     int k;
     for (k = 0; k < NLANE; k++) {
@@ -1274,7 +1344,7 @@ X0X_COLD static void clear_lanes(int pat, int part)
 }
 
 /* part `part` of pattern src onto pattern dst, its lanes too; 0 = done, -1 = lanes did not fit */
-X0X_COLD static int copy_part(int dst, int src, int part)
+static int copy_part(int dst, int src, int part)
 {
     pattern_t *d = &proj.pat[dst];
     const pattern_t *a = &proj.pat[src];
@@ -1303,7 +1373,7 @@ X0X_COLD static int copy_part(int dst, int src, int part)
     return rc;
 }
 
-X0X_COLD static void clear_part(pattern_t *p, int part)
+static void clear_part(pattern_t *p, int part)
 {
     int i;
     if (part < NKIT) {
@@ -1335,7 +1405,7 @@ static int perf_save_busy(void);
 static const char *const BTN_LABEL[NB] = {"FX", "SEL", "ENV", "LFO", "EDIT", "GLO", "HOME", "SAVE", "ARP", "SEQ",
                                           "PLAY / STOP", "REC", "OCT-", "OCT+"};
 
-X0X_COLD static int help_lines(int b, const char *l[HELP_LINES])
+static int help_lines(int b, const char *l[HELP_LINES])
 {
     int n = 0, gen = ui.view == V_GEN, kbd = is_303() && ui.rec;
 #define L(s) (l[n++] = (s))
@@ -1512,8 +1582,16 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
     }
 }
 
-X0X_COLD static void do_undo(int redo)
+/* Finish an audio-owned recorder before history or bulk pattern edits. Hold is
+ * brief, covers state finalization only, and never reinitializes a voice. */
+static void record_finish(void)
 {
+    engine_project_hold(1);
+    engine_project_hold(0);
+}
+static void do_undo(int redo)
+{
+    record_finish();
     uint32_t lo, hi;
     char t[24];
     undo_commit(&undo);                              /* what was just done is a step too */
@@ -1544,15 +1622,9 @@ X0X_COLD int ui_project_save(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void);
 #endif
-#ifndef X0X_HOST
-    extern int store_stage_held(void);
-#endif
     if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
 #if BOARD_SMK37
         || smk_ck_flash_busy()
-#endif
-#ifndef X0X_HOST
-        || store_stage_held()
 #endif
     )
         return UI_PROJECT_BUSY;
@@ -1565,7 +1637,7 @@ X0X_COLD int ui_project_save(void)
     return rc;
 }
 
-X0X_COLD static void save_project(void)
+static void save_project(void)
 {
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
@@ -1594,18 +1666,10 @@ X0X_COLD static void save_project(void)
  * sound, 1 s to settle and 3 s measured each, and keeps the table; then it puts back the project's
  * patterns, sound, tempo, mutes, chain and song mode. The project itself is never written. */
 static const char *const PT_N[3] = {"FACTORY LOOP", "ALL FIVE", "WORST CASE"};
-#ifdef PERF_SCRATCH       /* the app: in the main-loop scratch (x0x.c) */
-typedef struct {
-    pattern_t bench[3];
-    sound_t snd;
-} perf_data_t;
-_Static_assert(sizeof(perf_data_t) <= 0xD00, "PERF TEST data overlaps the ota.c host message");
-_Static_assert(sizeof(perf_data_t) <= sizeof PERF_SCRATCH, "PERF TEST data is larger than the scratch");
-#define perf_bench (((perf_data_t *)(void *)PERF_SCRATCH)->bench)
-#define perf_snd (((perf_data_t *)(void *)PERF_SCRATCH)->snd)
+#ifdef PERF_SCRATCH
+#define perf_bench ((pattern_t *)(void *)PERF_SCRATCH)
 #else
 static pattern_t perf_bench[3];
-static sound_t perf_snd;
 #endif
 
 static void perf_window(int force)
@@ -1648,7 +1712,7 @@ static void perf_window(int force)
 
 /* the test's patterns: 0 the factory loop (909 kick, clap, open hats; 303 A; the break), 1 all five,
  * 2 everything dense */
-X0X_COLD static void perf_build(void)
+static void perf_build(void)
 {
     /* the tracks in key order (pattern.h): 909 BD SD LT MT HT RS CP CH OH CR RD, 808 ... CB CY OH CH */
     enum { DR_BD, DR_SD, DR_LT, DR_MT, DR_HT, DR_RS, DR_CP, DR_CH, DR_OH, DR_CR, DR_RD };
@@ -1688,7 +1752,7 @@ X0X_COLD static void perf_build(void)
     }
 }
 
-X0X_COLD static void perf_restore(void)
+static void perf_restore(void)
 {
     int p;
     seq.pat = perf.pat;
@@ -1706,7 +1770,7 @@ X0X_COLD static void perf_restore(void)
     engine_brk_loops();
 }
 
-X0X_COLD static void perf_test_start(void)
+static void perf_test_start(void)
 {
     int p;
     if (perf.test >= 0 && perf.phase != 4)
@@ -1727,7 +1791,7 @@ X0X_COLD static void perf_test_start(void)
         perf.res_load[p] = perf.res_cps[p] = perf.res_peak[p] = 0;
 }
 
-X0X_COLD static void perf_test_abort(void)
+static void perf_test_abort(void)
 {
     seq_stop(&seq);
     perf.phase = 3;
@@ -1756,8 +1820,8 @@ static void perf_test_tick(void)
         seq.song_on = 0;
         seq_chain(&seq, 0, 0);
         seq.bpm = 125.0f;
-        engine_sound_defaults(&perf_snd);
-        engine_apply_sound(&perf_snd);
+        engine_sound_defaults(&proj.sound);
+        engine_apply_sound(&proj.sound);
         engine_motion_enable(0);
         engine_guard_enable(0);
         engine_brk_loops();
@@ -1815,11 +1879,12 @@ static void perf_test_tick(void)
     }
 }
 
-X0X_COLD static void set_view(int v);
+static void set_view(int v);
 
 X0X_COLD static void run_action(int act, int arg)
 {
     char t[28], *q;
+    if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
     switch (act) {
     case ACT_SAVE: save_project(); break;
     case ACT_LOAD: (void)ui_project_load(); break;
@@ -1934,11 +1999,11 @@ static int32_t accel(int role, int32_t s, int range)
     if (accel_smc) {
         m = dt < 12u ? 3u : dt < 45u ? 2u : 1u;
         if (range < 100 && m > 2u)
-            m = 2u;                                   /* a shorter pot stays finer */
+            m = 2u;
         if (m == 1u)
-            return s;                                 /* not a quick spin: one value per detent */
+            return s;
         {
-            uint32_t head = a < 3u ? a : 3u;          /* boost the start of the message only */
+            uint32_t head = a < 3u ? a : 3u;
             uint32_t scaled = head * m + (a - head);
             return s < 0 ? -(int32_t)scaled : (int32_t)scaled;
         }
@@ -1947,11 +2012,11 @@ static int32_t accel(int role, int32_t s, int range)
     if (range < 100 && m > 3u)
         m = 3u;
     if (range > 150 && m > 1u)
-        m *= 2u;                                      /* tempo and the other wide ones, when quick */
+        m *= 2u;
     return s * (int32_t)m;
 }
 
-X0X_COLD static void set_view(int v)
+static void set_view(int v)
 {
 #if BOARD_SMK37
     smc_ui_cancel();
@@ -2213,69 +2278,26 @@ static void turn_ref(pref_t r, int e, int knob)
 
 static int rec_step(int track) { return seq_rec_step(&seq, track); }
 
-/* Per-step drum velocity lives in a T_VEL motion lane (same packing as T_PROB): pattern size
- * cannot hold an 11×64 plane under the pool/RAM budgets. MOT_NONE = legacy accent law. */
-static void drum_vel_clear_step(int k, int v, int s)
-{
-    int voice = k << 4 | v, lane, j, any = 0;
-    lane_t *l;
-    if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
-        return;
-    lane = motion_find(proj.arr.lane, seq.ppat[k], k, T_VEL, voice, 0);
-    if (lane < 0)
-        return;
-    l = &proj.arr.lane[lane];
-    l->val[s] = MOT_NONE;
-    for (j = 0; j < NSTEPS; j++)
-        any |= l->val[j] != MOT_NONE;
-    if (!any)
-        engine_motion_clear(lane);
-}
-
-static void drum_vel_set_step(int k, int v, int s, uint8_t vel)
-{
-    int voice = k << 4 | v, lane;
-    lane_t *l;
-    if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
-        return;
-    if (!vel)
-        vel = 1;
-    if (vel > 127u)
-        vel = 127u;
-    lane = motion_find(proj.arr.lane, seq.ppat[k], k, T_VEL, voice, 0);
-    if (lane < 0 && (lane = motion_alloc(proj.arr.lane, seq.ppat[k], k, T_VEL, voice, 0)) < 0) {
-        say("MOTION FULL", 0);
-        return;
-    }
-    l = &proj.arr.lane[lane];
-    l->val[s] = vel;
-}
-
 static void drum_key(int v, int down)
 {
     int k = ui.part;
-    uint8_t kv;
-    int accent;
     if (!down)
         return;
     if (ui.sel[k] != v) drum_step_cancel();
     ui.sel[k] = (uint8_t)v;
     build_pages();
-    accent = (ui.btn & (1u << B_ENV)) != 0;
-    kv = plat_key_velocity(BLACK_KEY[v]);
     /* KEY SOUND STOPPED (the default): while the pattern plays a black key only selects its track,
      * so choosing one to edit does not add a hit to the groove; stopped, it plays it, and with REC
-     * on it always does (that is how drums are recorded). Strike velocity matches 303 FREE PLAY. */
+     * on it always does (that is how drums are recorded) */
     if (proj.set.keysound || !seq.playing || ui.rec)
-        engine_drum(k, v, accent ? 1.0f : (float)kv / 127.0f);
-    if (accent)
+        engine_drum(k, v, (ui.btn & (1u << B_ENV)) ? 1.0f : 0.75f);
+    if (ui.btn & (1u << B_ENV))
         ui.btn_used |= 1u << B_ENV;
     if (ui.rec && seq.playing) {
         int s = rec_step(TRK_DRUM + k);
         sm_set(cur_pat()->drum[k].hit[v], s);
-        if (accent)
+        if (ui.btn & (1u << B_ENV))
             sm_set(cur_pat()->drum[k].accent, s);
-        drum_vel_set_step(k, v, s, accent ? 127u : kv);
         seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
         mark_dirty();
     }
@@ -2298,8 +2320,6 @@ static void drum_step(int k, int white, int down)
                        ui.hold_pat == seq.ppat[k];
             if (same && !ui.hold_created && !ui.hold_used && plat_ms() - ui.hold_t0 < STEP_TAP_MS) {
                 sm_flip(bits, s);
-                if (!sm_get(bits, s))
-                    drum_vel_clear_step(k, ui.sel[k], s);
                 mark_dirty();
             }
             if (same_target && ui.hold_used)
@@ -2372,27 +2392,27 @@ static void bass_write(int b, int note, int gate)
 static void bass_kbd(int key)
 {
     int b = bidx(), n = kbd_note(key);
-    engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0,
+    if (chi_arp_on_part(b) && kbd_arp_n[b] < CHI_ARP_MAXN) {
+        uint32_t i, have = 0;
+        for (i = 0; i < kbd_arp_n[b]; i++)
+            if (kbd_arp_key[b][i] == (uint8_t)(key + 1))
+                have = 1;
+        if (!have) {
+            kbd_arp_key[b][kbd_arp_n[b]] = (uint8_t)(key + 1);
+            kbd_arp_note[b][kbd_arp_n[b]] = (uint8_t)n;
+            kbd_arp_n[b]++;
+        }
+    }
+    engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0,
+                            !chi_arp_on_part(b) && kbd_held_note[b] != 0,
                             ui.freeplay[b] && !ui.rec ? plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
     } else if (ui.rec && seq.playing) {
-        bpart_t *bp = &cur_pat()->bass[b];
-        int s = rec_step(TRK_BASS0 + b);
-        uint8_t f = G_NOTE;
-        bass_rec_link(b, s);
-        if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
-            f |= BS_ACCENT;
-            ui.btn_used |= 1u << B_ENV;
-        }
-        if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
-            f |= BS_SLIDE;
-            ui.btn_used |= 1u << B_LFO;
-        }
-        bp->step[s].note = (uint8_t)n;
-        bp->step[s].flags = f;
-        bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
-        seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
+        int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
+                ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
+        ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
+        (void)f;
         mark_dirty();
     } else
         bass_rec_step[b] = 0;
@@ -2461,13 +2481,28 @@ static void held_note_by(int by)
     int n = held_note_of(bp, ui.held_step) + by;
     st->note = (uint8_t)(n < 12 ? 12 : n > 108 ? 108 : n);
     if (bstep_gate(st) != G_NOTE)
-        st->flags = (uint8_t)((st->flags & ~BS_GATE_MASK) | G_NOTE);
+        st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | G_NOTE);
     ui.step_edited = 1;
     mark_dirty();
     if (key_sounds()) {                                /* as the drum keys: playing, the line is heard */
         engine_bass_on_velocity(bidx(), st->note + bp->transpose - 24, 0, 1, bstep_velocity(st));
         ui.step_preview = 1;
     }
+}
+
+/* Keyboard mute pickup history is shared only with explicit mute edges, so an
+ * off/on pair between scans cannot hide a new epoch. No physical sample is invented. */
+static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+static void smk_mute_edge(int target, int silent)
+{
+    if (target / 4 != smk_mute_bank) return;
+    int i = target % 4;
+    uint8_t bit = (uint8_t)(1u << i);
+    pref_t r = target < NPARTS ? PR(R_ENG, T_MIX, target, MX_LEVEL) :
+               PR(R_ENG, T_FX, 0, target == 5 ? FX_RV_LEVEL : FX_DL_LEVEL);
+    smk_mute_intended[i] = (uint8_t)pref_get(r);
+    if (silent) { smk_mute_active |= bit; smk_mute_edit |= bit; }
+    else { smk_mute_active &= (uint8_t)~bit; smk_mute_edit &= (uint8_t)~bit; }
 }
 
 static void mute_part(int p)                         /* a whole part on / off (HOME, MIX's PARTS) */
@@ -2478,9 +2513,26 @@ static void mute_part(int p)                         /* a whole part on / off (H
         b->mute = (uint8_t)(part_muted(p) ? b->mute | 1u << p : b->mute & ~(1u << p));
         mark_dirty();
     }
+    smk_mute_edge(p, part_muted(p));
     say(part_muted(p) ? "MUTED " : "UNMUTED ", PART_N[p]);
 }
 static int track_muted(int km, int v) { return (int)(seq.vmute >> (km * NDRUM + v) & 1u); }
+/* Only actual level destinations participate. FILTER and navigation never do.
+ * A muted kit also silences its voice levels; their separate mute bits survive. */
+static int volume_muted(pref_t r)
+{
+    if (r.kind != R_ENG) return 0;
+    if (r.a == T_MIX && r.b < NPARTS && r.c == MX_LEVEL)
+        return part_muted(r.b);
+    if (r.a <= T_808 && r.b < NDRUM && r.c == find_ref(r.a, r.b, "Level").c)
+        return part_muted(r.a) || track_muted(r.a, r.b);
+    if (r.a == T_FX && !r.b) {
+        int bit = r.c == FX_RV_LEVEL ? 1 : r.c == FX_DL_LEVEL ? 2 : r.c == FX_VOLUME ? 4 : 0;
+        return engine_fx_muted() & bit;
+    }
+    return 0;
+}
+
 static void mute_track(int km, int v)                /* one drum track on / off */
 {
     seq.vmute ^= 1u << (km * NDRUM + v);
@@ -2495,10 +2547,11 @@ void smk_clip_enter_cleanup(void)
     ui.hold_step = -1;
     ui.brk_held = -1;
     for (int b = 0; b < NBASS; b++)                   /* a 303 key note that still sounds: let it go */
-        if (kbd_held_note[b]) {
+        if (kbd_held_note[b] || kbd_arp_n[b]) {
             engine_bass_off(b);
             kbd_held_note[b] = 0;
             kbd_held_key[b] = 0;
+            kbd_arp_n[b] = 0;
             bass_rec_step[b] = 0;
         }
 }
@@ -2507,14 +2560,36 @@ void smk_clip_enter_cleanup(void)
 static void key_event(int k, int down)
 {
     if (!down) {
-        for (int b = 0; b < NBASS; b++)
-            if (kbd_held_key[b] == k + 1) {
-                engine_bass_off(b);
-                kbd_held_note[b] = 0;
-                kbd_held_key[b] = 0;
+        for (int b = 0; b < NBASS; b++) {
+            uint32_t i, j, hit = 0;
+            int note = -1;
+            for (i = 0; i < kbd_arp_n[b]; i++)
+                if (kbd_arp_key[b][i] == (uint8_t)(k + 1)) {
+                    note = kbd_arp_note[b][i];
+                    for (j = i + 1; j < kbd_arp_n[b]; j++) {
+                        kbd_arp_key[b][j - 1] = kbd_arp_key[b][j];
+                        kbd_arp_note[b][j - 1] = kbd_arp_note[b][j];
+                    }
+                    kbd_arp_n[b]--;
+                    hit = 1;
+                    break;
+                }
+            if (kbd_held_key[b] == k + 1 || hit) {
+                if (chi_arp_on_part(b) && note >= 0)
+                    engine_bass_off_note(b, note);
+                else
+                    engine_bass_off(b);
+                if (!kbd_arp_n[b]) {
+                    kbd_held_note[b] = 0;
+                    kbd_held_key[b] = 0;
+                } else {
+                    kbd_held_note[b] = kbd_arp_note[b][kbd_arp_n[b] - 1u];
+                    kbd_held_key[b] = kbd_arp_key[b][kbd_arp_n[b] - 1u];
+                }
                 bass_rec_step[b] = 0;
                 return;
             }
+        }
     }
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
@@ -2697,7 +2772,7 @@ static void list_move(int d)
         ui.list_top = (uint8_t)(ui.list_sel - 5);
 }
 
-X0X_COLD static void list_enter(void)
+static void list_enter(void)
 {
     pref_t r = list_rows[ui.list_sel];
     if (r.kind != R_ACT)
@@ -2741,7 +2816,7 @@ static void ui_menu_arrow(int d)
 }
 #endif
 
-X0X_COLD static void close_overlay(void)
+static void close_overlay(void)
 {
     if (ui.view == V_GLO) {
         ui.overlay = O_NONE;
@@ -3089,7 +3164,7 @@ X0X_COLD static void input(void)
             if (i == 0) {
                 held_note_by(e);
             } else if (i == 1) {
-                st->flags = (uint8_t)((st->flags & ~BS_GATE_MASK) | (bstep_gate(st) + (e > 0 ? 1 : 2)) % 3);
+                st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | (bstep_gate(st) + (e > 0 ? 1 : 2)) % 3);
             } else if (i == 2) {
                 st->flags ^= BS_ACCENT;
             } else {
@@ -3114,14 +3189,6 @@ X0X_COLD static void input(void)
 #define BAND_H 69                     /* the main area: two bands of 69 (the knob row takes the 6 below) */
 #define KNOB_Y 158
 #define KNOB_H 82
-/* gfx.c sizes the one screen strip (CV_ROWS) to this main area. The unity
- * build sees that macro; a host file that compiles ui.c alone does not. */
-#ifdef CV_ROWS
-_Static_assert(2u * BAND_H <= CV_ROWS, "main area taller than the screen strip");
-_Static_assert(KNOB_H <= CV_ROWS, "knob row taller than the screen strip");
-_Static_assert(HDR_H <= CV_ROWS, "header taller than the screen strip");
-_Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile the 240-row panel");
-#endif
 
 static uint32_t blit_hash[4];
 static uint32_t cv_hash(void)
@@ -3142,7 +3209,7 @@ static void cv_commit(int region, uint32_t x, uint32_t y)
 
 /* the main area sends only the rectangle that changed: the panel has no tearing-effect line the
  * FM-1 can see, so a transfer the panel's refresh overtakes shows half old, half new. The whole
- * area is 240 by 138 (about 65 KB), longer than a refresh at 30 MHz, so every playhead step sheared; the two
+ * area is 69 KB, 18 ms at 30 MHz, longer than a refresh, so every playhead step sheared; the two
  * columns a step changes are ~3 ms. Rows and 8-pixel column blocks are hashed against the last
  * frame sent; the changed rectangle is packed to the front of the canvas (it is rebuilt every
  * frame) and sent as one transfer. blit_hash[region] == 0 (a reset) sends it all. */
@@ -3793,7 +3860,7 @@ static UI_DRAW void draw_break(int band)
 }
 
 /* a part's lane on HOME: the 16 steps of the page its playhead is on (bits: those 16, from base) */
-static UI_DRAW void lane(int y, int p, uint32_t bits, int ph, int len, int base)
+static void lane(int y, int p, uint32_t bits, int ph, int len, int base)
 {
     int c, muted = part_muted(p);
     cv_text(3, y, &FONT_XS, PART_S[p], muted ? C_DIM : PART_COL[p]);
@@ -3957,84 +4024,26 @@ static UI_DRAW void draw_drum_mix(int band, int k)
     }
 }
 
-/* WAVE page: mid-line plot of eng_scope (post-master L+R). Latch ≤10 Hz; skip if shape/write
- * index unchanged so SPI stays calm (Baud Girl FM-1+VA scope policy). No second audio tap. */
-static UI_DRAW void draw_master_wave(void)
-{
-    enum { X0 = 4, W = 196, MID = 34, AMP = 30 };
-    static int16_t latched[SCOPE_N];
-    static uint32_t last_ms, last_w, last_hash;
-    static uint8_t have;
-    uint32_t now = plat_ms(), w = eng_scope_w, h, base;
-    int i, x, y0, y1;
-    if (!have || (int32_t)(now - last_ms) >= 100) {
-        base = w;
-        h = 2166136261u;
-        for (i = 0; i < (int)SCOPE_N; i++)
-            h = (h ^ (uint32_t)(uint16_t)eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)]) * 16777619u;
-        if (!have || h != last_hash || w != last_w) {
-            for (i = 0; i < (int)SCOPE_N; i++)
-                latched[i] = eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)];
-            last_hash = h;
-            last_w = w;
-            have = 1;
-        }
-        last_ms = now;
-    }
-    cv_rect(X0, MID, W, 1, C_LINE);
-    y0 = MID - (int)latched[0] * AMP / 32768;
-    if (y0 < 2)
-        y0 = 2;
-    if (y0 > BAND_H - 3)
-        y0 = BAND_H - 3;
-    for (x = 1; x < W; x++) {
-        int si = x * (int)SCOPE_N / W;
-        y1 = MID - (int)latched[si] * AMP / 32768;
-        if (y1 < 2)
-            y1 = 2;
-        if (y1 > BAND_H - 3)
-            y1 = BAND_H - 3;
-        cv_line(X0 + x - 1, y0, X0 + x, y1, part_col());
-        y0 = y1;
-    }
-}
-
 static UI_DRAW void draw_mix(int band)
 {
-    int p, master = master_mix_page(), wave = wave_mix_page();
+    int p;
     if (drum_mix_page() >= 0) {
         draw_drum_mix(band, drum_mix_page());
         return;
     }
-    /* MASTER peak history: fixed 98 columns. A scrolling ring rewrote every column each
-     * frame, so cv_commit_rect sent nearly the whole main band (~18 ms SPI) — panel tear
-     * ("broken" hist) and knob-strip lag (draw_knobs waits on that blit). Write-head
-     * overwrite + wall-clock sample keeps geometry stable and dirties ~one column. */
-    if (band == 0 && master) {
-        enum { HIST_N = 98, HIST_MS = 20 };             /* ~2 s window; never shrink width */
-        static uint8_t hist[HIST_N];
-        static uint32_t hw, hist_ms;                    /* hw was uint8_t: ring broke every 256 */
-        static uint16_t peak_hold;
+    if (band == 0 && cur_page() == pg.n - 1) {         /* MASTER: the level over the last moments, not */
+        static uint8_t hist[98];                       /* the parts (it shows the pump and the comp) */
+        static uint8_t hw;
         int x, pk = 0;
-        uint32_t now = plat_ms();
         for (p = 0; p < NPARTS; p++)
             pk = eng_peak[p] > pk ? eng_peak[p] : pk;
-        if ((uint16_t)pk > peak_hold)
-            peak_hold = (uint16_t)pk;
-        if (!hist_ms || (int32_t)(now - hist_ms) >= HIST_MS) {
-            hist[hw % (uint32_t)HIST_N] = (uint8_t)(peak_hold * 62 / 32768);
-            hw++;
-            peak_hold = 0;
-            hist_ms = now;                             /* one column per paint when overdue */
-        }
-        for (x = 0; x < HIST_N; x++) {
-            int h = hist[x];
+        hist[hw++ % 98u] = (uint8_t)(pk * 62 / 32768);
+        for (x = 0; x < 98; x++) {
+            int h = hist[(hw + (unsigned)x) % 98u];
             cv_rect(4 + x * 2, 66 - h, 2, h + 1, part_col());
         }
     }
-    if (band == 0 && wave)
-        draw_master_wave();
-    if (band == 0 && !master && !wave) {               /* channel strips */
+    if (band == 0 && cur_page() != pg.n - 1) {         /* channel strips */
         for (p = 0; p < NPARTS; p++) {
             int x = 6 + p * 38, lvl = proj.sound.v[T_MIX][p][0], pk = eng_peak[p] * 64 / 32768;
             if (cur_page() == 0 && p == ui.mixsel)       /* PARTS: the part the knobs set */
@@ -4045,7 +4054,7 @@ static UI_DRAW void draw_mix(int band)
             rbox(x + 4, 67 - lvl * 64 / 127, 18, 3, 1, C_WHITE);
         }
     }
-    if (band == 0) {                                   /* the master's gain reduction (MASTER and WAVE) */
+    if (band == 0) {                                   /* the master's gain reduction */
         {
             int gr = (int)(engine_gr_db() * 64.0f / 24.0f);
             gr = gr > 64 ? 64 : gr;
@@ -4056,7 +4065,7 @@ static UI_DRAW void draw_mix(int band)
         }
     } else {
         char t[24], a[12], u[8], *q;
-        for (p = 0; p < NPARTS && !master && !wave; p++)   /* the strips' names (not on MASTER / WAVE) */
+        for (p = 0; p < NPARTS && cur_page() != pg.n - 1; p++)   /* the strips' names (not on MASTER) */
             text_c(6 + p * 38 + 13, 0, &FONT_XS, PART_N[p], part_muted(p) ? C_LINE : PART_COL[p]);
         if ((int)(engine_gr_db() + 0.5f))
             put_s(put_i(put_s(t, "COMP -"), (int)(engine_gr_db() + 0.5f)), "dB");
@@ -4523,7 +4532,7 @@ static UI_DRAW void draw_main(void)
 }
 
 /* -------------------------------------------------------------- knob strip --- */
-static UI_DRAW void cell_value(int cx, int y, const char *num, const char *unit, uint16_t c)
+static void cell_value(int cx, int y, const char *num, const char *unit, uint16_t c)
 {
     int32_t w = tw(&FONT_B, num) + (unit[0] ? tw(&FONT_XS, unit) + 1 : 0), x = cx - w / 2;
     x = cv_text(x, y, &FONT_B, num, c);
@@ -4579,16 +4588,16 @@ static int strcmp_s(const char *a, const char *b)
 }
 
 /* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5) */
-static UI_DRAW void knob_tag(char *t)
+static void knob_tag(char *t)
 {
     int g = pg.group[cur_page()], dm = drum_mix_page();
     const char *ti = pg.title[cur_page()];
-    if (lock_step() >= 0)
+    if (lock_step() >= 0) {
         put_i(put_s(put_s(t, is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part])
                                         : PART_N[ui.part]), " P-LOCK STEP "), lock_step() + 1);
-    else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0)
+    } else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {
         put_i(put_s(put_s(t, PART_N[ui.part]), " STEP "), ui.held_step + 1);
-    else if (dm >= 0)
+    } else if (dm >= 0)
         put_s(put_s(put_s(t, ti), ": "), engine_voice_name(dm ? T_808 : T_909, ui.sel[dm]));
     else if (ui.view == V_MIX && cur_page() == 0)
         put_s(put_s(t, "PARTS: "), PART_N[ui.mixsel]);
@@ -4637,7 +4646,7 @@ static UI_DRAW void draw_knobs(void)
     last_sig = sig;
     cv_begin(240, KNOB_H, C_BLACK);
     {   /* the rule; at its right end, where you are: the tag, then the page dots */
-        char t[28];
+        char t[36];                    /* room for "303A P-LOCK STEP 16 · WBL1 (1/2)" */
         int dots = pg.n > 1 && ui.view != V_GLO;
         int32_t xd = 237 - (dots ? pg.n * 5 : 0), xt;
         knob_tag(t);
@@ -4857,6 +4866,7 @@ X0X_COLD void ui_init(void)
     memset(&ui, 0, sizeof ui);
     memset(kbd_held_note, 0, sizeof kbd_held_note);
     memset(kbd_held_key, 0, sizeof kbd_held_key);
+    memset(kbd_arp_n, 0, sizeof kbd_arp_n);
     memset(bass_rec_step, 0, sizeof bass_rec_step);
     memset(bass_rec_pat, 0, sizeof bass_rec_pat);
     memset(bass_rec_playing, 0, sizeof bass_rec_playing);
@@ -4983,11 +4993,6 @@ static void autosave(void)
     uint32_t now = plat_ms();
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
-#endif
-#ifndef X0X_HOST
-    extern int store_stage_held(void);
-    if (store_stage_held())                          /* do not clobber a boot record being uploaded */
-        return;
 #endif
     if (project_busy)
         return;
