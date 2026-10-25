@@ -871,7 +871,10 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
         if (st == 0xFCu || st == 0xF2u)
             return 1;                                 /* no input has the clock: a Stop or a Song Position gets none */
         if (s->clk_last && s->clk_last != me) {      /* another input: the tempo measure starts again, */
+            /* Discard unrendered clocks from the old source before accepting the
+             * new source's tick, or one audio block can advance twice. */
             s->ext_pending = 0;                       /* queued ticks belong to the previous input */
+            s->req_prior_ticks = 0;
             s->ext_nb = s->ext_bi = s->ext_q = 0;     /* from the tempo now (no gap in the beat ring) */
             s->ext_skip = 1;                          /* (the first ticks give no period) */
         }

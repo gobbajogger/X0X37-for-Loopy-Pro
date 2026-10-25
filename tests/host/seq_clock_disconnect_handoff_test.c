@@ -126,11 +126,79 @@ static void midstep_disconnect(void)
     CHECK(!s.playing && m.held==0u && m.on==m.off);
     CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
 }
+
+/* A disconnect and replacement source can share one audio callback. Clock
+ * packets queued by the dead source must not advance the new owner's phase.
+ * Otherwise one physical beat advances twice, one step before Loopy's tick. */
+static void queued_clock_disconnect(uint32_t old_input)
+{
+    seq_t s; monitor_t m; seq_sink_t out;
+    uint32_t new_input=old_input ^ 1u;
+    init(&s,&m,&out);
+    CHECK(recv(&s,0xfau,old_input));
+    CHECK(recv(&s,0xf8u,old_input));
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==1u && m.held==1u);
+    for(unsigned i=0;i<4u;i++) {
+        CHECK(recv(&s,0xf8u,old_input));
+        render(&s,&out,1u);
+    }
+    CHECK(s.t[TRK_BASS0].ext_ticks==4u && m.steps==1u);
+    CHECK(recv(&s,0xf8u,old_input)); /* queued in USB/BLE callback */
+    CHECK(s.ext_pending==1u);
+    seq_clk_drop(&s,old_input);      /* link closes before render */
+    CHECK(s.clk_lock==0u);
+    CHECK(recv(&s,0xf8u,new_input)); /* replacement clocks in same render */
+    CHECK(s.clk_lock==new_input+1u);
+    CHECK(s.ext_pending==1u);       /* NOT one abandoned plus one new */
+    render(&s,&out,1u);
+    CHECK(s.t[TRK_BASS0].ext_ticks==5u && m.steps==1u);
+    CHECK(recv(&s,0xf8u,new_input));
+    render(&s,&out,1u);
+    CHECK(m.steps==2u && m.last_step==1u); /* next step is six ticks total */
+    CHECK(!recv(&s,0xfcu,old_input));
+    CHECK(recv(&s,0xfcu,new_input));
+    render(&s,&out,1u);
+    CHECK(!s.playing && m.held==0u && m.on==m.off);
+    CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
+}
+
+
+/* A local PLAY gesture must survive a USB disconnect and use the first BLE
+ * clock, even when an older USB F8 was queued before PLAY. Reset both the
+ * obsolete F8 queue and its request-epoch boundary on clock-owner change. */
+static void pending_local_play_handoff(uint32_t old_input)
+{
+    seq_t s; monitor_t m; seq_sink_t out;
+    uint32_t new_input=old_input ^ 1u;
+    init(&s,&m,&out);
+    CHECK(!s.playing);
+    CHECK(recv(&s,0xf8u,old_input));
+    CHECK(s.ext_pending==1u);
+    seq_start(&s); /* local PLAY wins; F8 from old link predates it */
+    CHECK(s.req_start && !s.req_rt && s.req_prior_ticks==1u);
+    seq_clk_drop(&s,old_input);
+    CHECK(recv(&s,0xf8u,new_input));
+    CHECK(s.ext_pending==1u && s.req_prior_ticks==0u);
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==1u && m.last_step==0u);
+    CHECK(s.t[TRK_BASS0].ext_ticks==0u);
+    CHECK(m.on==1u && m.held==1u);
+    CHECK(recv(&s,0xfcu,new_input));
+    render(&s,&out,1u);
+    CHECK(!s.playing && m.on==m.off && m.held==0u);
+    CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
+}
+
 int main(void)
 {
     const unsigned blocks[]={1u,64u,1024u};
     for(unsigned i=0;i<3u;i++) {
         block_size=blocks[i];scenario=i+1u;midstep_disconnect();
+        scenario=4u+i;queued_clock_disconnect(0u);
+        scenario=7u+i;queued_clock_disconnect(1u);
+        scenario=10u+i;pending_local_play_handoff(0u);
+        scenario=13u+i;pending_local_play_handoff(1u);
     }
     fprintf(stderr,"seq link-drop clock handoff: %u/%u checks %s\n",checks-failures,checks,failures?"FAILED":"PASSED");
     return failures?EXIT_FAILURE:EXIT_SUCCESS;
