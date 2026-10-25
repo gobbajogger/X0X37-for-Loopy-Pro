@@ -1,0 +1,50 @@
+You are the new stage-1 audit thread in the X0X37 full-cycle loop (next cycle after F11 Stage 7 publish). Do not resume the stage-7 thread bc-a7d005ad-7a34-54fb-bd61-45fd0eb0179d, the pages worker bc-1b875c0d-27fd-5a1e-91ec-eb99da1303c9, the stage-5 thread bc-432a157b-5c8e-5b0e-8adf-47cddc020e72, the stage-4 thread bc-283a6d11-1c65-5746-9fd3-3d5878784dfc, the stage-3 thread bc-2bc7a358-dad4-5b70-b3e3-d4a3e7b43fef, the stage-2 thread bc-1ef92313-0365-52c7-bb5d-751d2aef133c, the stage-1 thread bc-1751adc0-5254-5401-a54e-48e433f242b9, the stage-7 thread bc-c926071e-0ab5-513d-bff4-01cca78cb685, the stage-5 thread bc-d573d60c-9080-5a6b-836a-2166e4fa7a82, the stage-4 thread bc-515ee598-6baf-5740-a8c9-bf951aa1d0ea, or any earlier F02–F10 thread. Do not continue any internal probe; this cloud agent is the only Stage 1 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA (pre-BF-007): af4947846df7233c68a6be72c4d0c634052a2752
+Audited firmware reference SHA: 1325f5d34340ea877e65ab86f3663f5dea052c0d
+Validated source SHA (audit this; published on nightly; do not substitute an older or diverged nightly tip): 4f96b0d9f5f11f700ea3fc935800b8714e11f35d
+Content tree (Stage-4 DEV CHECKED records): f27c89e1ac8e11ab57c5ae7e49145ce19b964082bf3ca9a700a99bfa8a97091e
+Git tree (catalog source_tree): 7b35932d5f0adbceeb35111f2136855aa54ebc9b
+Firmware tree: 5b1a21f07563b0262ece6728051cb0436bd4bfa1
+Audited firmware content tree (pre-BF-005 package bytes baseline): b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190
+BF-007 repair commit: 78a0452e (project.c blob 240a4b1735166dfb990b52c26686c7ea5ad4317e + tests/host/bugfinder_legacy_bdpan_motion_test.c + legacy-bdpan-motion in tests/run_tests.sh + docs/audit/bugfinder-legacy-bdpan-motion-20261023.md)
+Repair commits already in tip (not re-opened): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007)
+cloud_base_branch / evidence-bearing tip: start from the remote tip of cursor/f11-bf007-stage7-179d that contains evidence/f11-stage7/SUCCESSOR-STAGE1.txt, HANDOFF.md, CHECKS.md, live-verify.log, independent-qa-local-review.md, and safety-gates-note.md. That tip is evidence/docs only; packages authenticate 4f96b0d9 / tree f27c89e1….
+
+Read AGENTS.md and docs/rules/workflow.md. You are stage 1 only (audit). Make no production edits. Do not use GitHub Actions or Codex-on-GitHub for tests/review (no quota); use local host/node checks only. Local-env reviews are the review gate. Ignore Codex as merge gate; local proof + LIVE_PAGE_MATCH already done for this publish.
+
+Published page (Stage 7 confirmed LIVE_PAGE_MATCH):
+- latest: nightly-4f96b0d9-dev
+- label: DEV / HARDWARE TEST — DEVICE NOT TESTED; hardware_tested false
+- Elite bundled sha256 4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a (size 651396)
+- Pro bundled sha256 b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720 (size 651392)
+- controller_sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a (bundled)
+- Stage-4 blank Elite/Pro: 829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056 / d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec
+- Installer fingerprint (qualification): 4d29566e14c3f252bf52047676e993367e3d155aa1a94a45157ec07d77e47dc8 (current nightly main; dual-digest served HTML remains distinct — do not reopen FP-001)
+- Live install HTML / versions.json contain nightly-4f96b0d9-dev and 4f96b0d9
+- Host: artifacts/nightly-dev @ 02f4f4f48408db96e01b143d5410b7fb00a5a70a
+- Pages tip: 48ffd27ebaceff48494cb3145c6699bb1a5c1def
+- Cloud pages worker: bc-1b875c0d-27fd-5a1e-91ec-eb99da1303c9
+Evidence: evidence/f11-stage7/CHECKS.md, HANDOFF.md, live-verify.log, independent-qa-local-review.md (cites Project store internal/pr-local-reviews/pr-264.md PASS), safety-gates-note.md; prior f11-stage3/4/5. Firmware nightly FF was REFUSED (still 08d3164a…); audit uses validated source 4f96b0d9. Stage-7 evidence PR #268 local review — cite internal/pr-local-reviews/pr-268.md when present; never Codex/GHA.
+
+Next defect (do not ask which): oldest deferred not already fixed in 4f96b0d9 — from evidence/f11-stage2/DEFERRED.md (withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, open PR #28 fastmath.h), then any recorded failing check, then oldest open audit/bugfinder finding. BF-001 through BF-007 and FP-001 are already fixed in this SHA. Write defects, evidence, affected scope, proposed fixes, which already have approval, and which decisions are missing.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed stage-7 tip as cursor/<slug>-stage1-<suffix> using this CreateAgent run's required prefix cursor/ and required suffix. No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash. Do not use a local helper as the successor. Stage 6 flash remains Mac LaunchAgent after DEV OK — owner advance-approved; still no production main.
+
+When the audit is recorded, hand off before you stop. If a recorded defect remains: push SUCCESSOR-STAGE2.txt and create exactly one owner-visible stage-2 Cloud Agent. If no recorded defect: push SUCCESSOR-STAGE1.txt and create exactly one owner-visible stage-1 Cloud Agent (loop continues). Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY. Keep ownership until the successor URL is on the remote.
+
+Completion condition: audit recorded for validated source SHA 4f96b0d9 against the published nightly page hashes above, and one owner-visible successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval. After opening any PR, ask the Project coordinator to subscribe (local-env review only; no Codex-on-GitHub / Actions).
+
+Policy: all review/tests in agent cloud VM only — never GitHub Actions or @codex.
+
+Coordinator note: Prefer minimum local proof for evidence-only tips. Owner advance-approved flash + nightly publish; still no production main.
+
+Full successor prompt also at evidence/f11-stage7/SUCCESSOR-STAGE1.txt on startingRef cursor/f11-bf007-stage7-179d.
