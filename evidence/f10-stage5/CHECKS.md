@@ -62,7 +62,7 @@ Stage 7 and the next audit still use validated source SHA `af494784…`, not the
 ## Project PR merge
 
 Proven stage-4 PR [#253](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/253): `tools/merge_project_prs.py --pr 253` hit `Resource not accessible by integration` on retarget to `main`. Merged into existing base `cursor/f10-bf006-stage3-fb90` without retarget (`gh pr merge 253 --merge`). Merge commit `c46576693f56d83225ae14e34b6a821fb80e6186`. Logs: `merge-pr253-dry-run.log`, `merge-pr253.log`, `merge-pr253-direct.log`, `merge-pr253-result.json`.
-Stage-5 PR opened on base `cursor/f10-bf006-stage4-fb90` (subscribe for local-env review).
+Stage-5 PR [#255](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/255) opened on base `cursor/f10-bf006-stage4-fb90` (subscribe for local-env review).
 
 ## Production
 
