@@ -29,10 +29,16 @@ invalidates the receipt. Each package receipt repeats `source_commit`,
 8192 bytes. Controller bytes are never copied into the site.
 
 Every gate exported by `requiredGates` needs a PASS and an immutable review/log
-`evidence_url`: real native build, package integrity, model/controller,
-memory/flash, host regressions, backup/restore/readback, interrupted recovery,
-OTA target binding, independent QA, distribution licensing and corresponding
-source. The receipt also links exact `corresponding_source` and `notices`.
+`evidence_url`. What remains is `package-integrity`, `model-controller`,
+`memory-flash`, `host-regressions`, `backup-restore-readback`,
+`interruption-recovery`, `ota-target-binding`, and `independent-qa`. A missing
+native-build receipt does not reject a nightly candidate. A present native-build
+receipt which is not PASS with evidence still rejects. A distribution license is
+not a nightly qualification gate. Corresponding source does not block
+qualification either; that check existed only to satisfy a distribution license.
+A receipt may still include `corresponding_source` or `notices`. Those fields do
+not accept or reject a candidate. This tool does not write a PASS for a missing
+native-build receipt or for either retired gate.
 The tool validates receipts; it does not create independent reviews or prove
 that somebody's PASS claim is authentic. Existing owners must inspect those
 records before approving the site. Synthetic test receipts are never approvals.
@@ -51,6 +57,6 @@ Next, independent site QA must inspect the generated site and qualified package
 flows in a browser. The sole publisher reconciles the live Pages history,
 fast-forwards only through the approved route, and checks live served catalog,
 installer and package hashes. A prepared folder is not deployed or device tested.
-An unavailable URL, failed source test or missing legal/QA receipt stays NOT
-INSTALLABLE. Physical owner PASS is not a prerequisite for qualified NIGHTLY;
+An unavailable URL, failed source test, or missing QA receipt stays NOT
+INSTALLABLE. A missing distribution license or corresponding-source receipt does not. A missing native-build receipt does not reject a candidate. A present native-build receipt which is not PASS with evidence still rejects. Physical owner PASS is not a prerequisite for qualified NIGHTLY;
 production still requires its separate same-byte device evidence and approval.
