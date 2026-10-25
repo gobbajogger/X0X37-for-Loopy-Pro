@@ -29,7 +29,7 @@ No polynomial, clamping, DSP algorithm, SMC source, or controller source changes
 - Baseline header blob `7d2e41bf70590bafa8af0a7376bb912bf763b098`.
 - Related open PR search for `fastmath` found PR28 plus dependent/unrelated
   PRs 37, 51, 57, 68, 70, 93, 99; no active current-NIGHTLY replacement.
-  Remote NIGHTLY was read back unchanged before delivery.
+  Remote NIGHTLY was unchanged at the pre-delivery observation; see the late-base observation below.
 - Pinned trial contract `e2482a5039527195e346925c751ac3e3a333ada9`,
   `docs/engineering-delivery/SKILL.md` SHA256
   `2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3`.
@@ -135,3 +135,19 @@ publication and physical Elite/Pro results remain PENDING/NOT_RUN. This is not
 DEV CHECKED, an installable candidate, full-tree QA, hardware PASS, or permission
 to close PR28. No protected merge, firmware publication, flashing, GUI or access
 change occurred.
+
+## Late-base observation at remote delivery
+
+Remote source branch was read back at
+`392f0940bbf9db6dd9274779b234cb4f9d1e23dd` (source commit plus evidence).
+NIGHTLY advanced during testing to
+`660a60aac2989146d16c28c4e86af33f6dc3d076`, merging PR160. Readback/fetch confirmed
+that fastmath header remains baseline blob `7d2e41bf70590bafa8af0a7376bb912bf763b098`
+and none of this repair's five source/test paths changed. No rebase, merge or
+retest of unchanged focused inputs was needed for this handoff. The SMC source
+and several SMC tests changed, so the 14-suite and 191-check evidence above remains
+at the reviewed source commit, not the newly combined SMC tree. Integration owner
+`01a1720a` must run applicable combined-source checks before the combined native
+build. The isolated source branch intentionally does not import PR160 or old PR28
+SMC ancestry. [Draft PR161](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/161)
+provides the replacement; original PR28 remains open.
