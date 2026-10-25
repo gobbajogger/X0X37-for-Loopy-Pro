@@ -1,0 +1,11 @@
+HEAD=811d7dd2fd13d4ca13ac3d899fb202758ae997a7
+fxbus=032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d
+stereo_test=c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39
+expected_stereo=c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39
+expected_fxbus_repair_only=49a89483e1c777a46758ed370973afb85f15274d
+fxbus_diff_vs_repair_only=x0x_pot_exp_value helper (unrelated flash win; keep nightly blob)
+af67d575_ancestor=yes
+31dd6388_ancestor=yes
+f62ff102_pr74_ancestor=yes
+70:    const float bpm = f->bpm >= 20.0f ? f->bpm : 120.0f;
+132:    if (bpm >= 20.0f && bpm != f->bpm) {
