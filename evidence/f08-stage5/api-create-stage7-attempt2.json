@@ -1,1 +1,1 @@
-{"error":"NO_CURSOR_API_KEY"}
+{"http":401,"error":"NO_CURSOR_API_KEY","body":{"code":"error","message":"Invalid User API Key"}}
