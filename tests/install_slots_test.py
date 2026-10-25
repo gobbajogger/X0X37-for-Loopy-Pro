@@ -271,13 +271,16 @@ def drop_third():
        "3 slots -> 2: the warning names slot 3 and the restore reports it")
     clear()
     fl = Flash()
-    a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
-    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    a = put(fl, SMK_MAP, 1, "LOOPA", 120000, 5)
+    b = put(fl, SMK_MAP, 2, "LOOPB", 60000, 7)
     raw = package(NOW_PKG, SMK_NOW)
     dev = FakeX0X(I.logical_image(raw), NEW_PKG, NOW_PKG, {NEW_PKG: NEW, NOW_PKG: NOW}, fl)
     rc, out, err = T.cli([pkgfile("two-free.fwsc", raw), "--yes", "--backup", "drop3b.x0xslots"], dev)
-    ok(rc == 0 and read(fl, SMK_NOW) == [a, c] and "slot 3 written back to slot 2 and read back: ok" in out,
-       "3 slots -> 2: an empty slot 2 receives the saved slot 3 loop")
+    ok(rc == I.EXIT["slots"] == 7 and read(fl, SMK_NOW) == [None, a]
+       and "not restored automatically" in out and "LOOP menu order" in out,
+       "3 slots -> 2: empty slot 1 + A in 2 + B in 3 must not auto-restore B into slot 1 (break indices)")
+    ok("x0x_slots.py restore drop3b.x0xslots" in err,
+       "3 slots -> 2: loop-menu guard leaves manual restore instructions")
     clear()
 
 

@@ -661,6 +661,8 @@ class SlotMove:
         new_lay = xs.layout(el)
         new_map = xs.flash_map(new_lay, self.board)
         todo, skipped = xs.plan_migration(self.images, self.risk, self.old_map, new_lay, new_map)
+        todo, skipped = xs.guard_migration_loop_menu(self.lay, self.images, self.risk, self.old_map,
+                                                     new_lay, new_map, todo, skipped)
         xs.restore_mapped(el, todo, self.images)
         for k, j in todo:
             print(f"slot {k + 1} written back to slot {j + 1} and read back: ok", file=out)
