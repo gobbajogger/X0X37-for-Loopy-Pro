@@ -16,6 +16,9 @@
 static const char *const wave_names[] = { "Saw", "Sqr" };
 static const char *const fenv_names[] = { "303", "ADSR" };
 static const char *const drv_names[] = { "Off", "Soft", "RAT" };
+/* Chicago Amp ENV/GATE: Env keeps Open303's amp path; Gate holds VCA while the note is down.
+ * Not EnvMod, not the ENV page, not velocity→cutoff. */
+static const char *const ampmode_names[] = { "Env", "Gate" };
 
 /* defaults are schwung-303's (every knob at 0.5, Devilfish values stock), except Volume,
  * lowered from 0.8 so the nominal peak is ~0.5 */
@@ -36,6 +39,7 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
     { "FSustain", 127, 0, 0 },       /* 0 .. 100 % */
     { "FRelease", 127, 0, 0 },       /* 0 .. 4000 ms, quadratic */
     { "FEnv", 1, 0, fenv_names },    /* old sounds use the original 303 envelope */
+    { "AmpMod", 1, BASS303_AMP_ENV, ampmode_names }, /* Chicago amp Env/Gate; default Env = old sound */
 };
 
 int bass303_nparams(void) { return BASS303_NPARAMS; }
@@ -602,8 +606,11 @@ static void run(bass303_t *b, float *out, int n)
     float y1 = b->f_y1, y2 = b->f_y2, y3 = b->f_y3, y4 = b->f_y4, fbx = b->fb_x1, fby = b->fb_y1;
     const float osc_freq = b->osc_freq, acc = b->accent_gain;
     const float scaler = b->env_scaler, offset = b->env_offset, cutoff = b->cutoff, r = b->reso;
-    const float *amp_pw = b->gate ? b->ampd_pw : b->amp_acc ? b->ampa_pw : b->ampn_pw;
-    const float amp_boost = b->gate ? 0.45f + 4.0f * acc : 0.0f;
+    /* AmpMod Gate: VCA stays open while the note is held (Chicago Gate); Env keeps Open303. */
+    const int amp_gate = b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE;
+    const float *amp_pw = (amp_gate && b->gate) ? 0
+        : b->gate ? b->ampd_pw : b->amp_acc ? b->ampa_pw : b->ampn_pw;
+    const float amp_boost = (!amp_gate && b->gate) ? 0.45f + 4.0f * acc : 0.0f;
     /* the overload guard's lite mode: no oversampling; a change of rate jumps to the new rate's
      * coefficients (snap) rather than gliding between the two rates' values */
     const int lite = b->lite;
@@ -628,7 +635,10 @@ static void run(bass303_t *b, float *out, int n)
             ? (1.0f - b->rc1_pw[m]) * filter_adsr(b, m) : b->g1[m] * e0);    /* RC followers of it */
         b->rc2_y = b->rc2_pw[m] * b->rc2_y + (acc > 0.0f ? b->g2[m] * e0 : 0.0f);
         b->slew_y = osc_freq + b->slew_pw[m] * (b->slew_y - osc_freq);
-        if (b->amp_trig) {                                     /* attack 0: 1, then decay */
+        if (amp_gate && b->gate) {                             /* Chicago Gate: hold VCA open */
+            b->amp_y = 1.0f;
+            b->amp_trig = 0;
+        } else if (b->amp_trig) {                              /* attack 0: 1, then decay */
             b->amp_y = amp_pw[m - 1];
             b->amp_trig = 0;
         } else {
