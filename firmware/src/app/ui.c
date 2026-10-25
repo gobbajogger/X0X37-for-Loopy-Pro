@@ -320,7 +320,7 @@ static int pref_read_only(pref_t r)
 }
 
 /* the song's bar k exists from here on: a new bar repeats the one before (the first: what plays) */
-static void song_fill(int k)
+X0X_COLD static void song_fill(int k)
 {
     song_t *sg = song();
     if (sg->len <= k && sg->len < NSONG) song_structure_revision++;
@@ -891,7 +891,7 @@ static int track_param_rank(const x0x_param_t *d)
 
 /* a drum track: its sound, four knobs a page (its DRIVE and DIST: SEL's list; its level, pan and sends:
  * MIX's 909 MIX / 808 MIX page) */
-static void add_track_pages(int t, int v)
+X0X_COLD static void add_track_pages(int t, int v)
 {
     const char *nm = engine_voice_name(t, v);
     pref_t snd[NPARAMS_MAX];
@@ -927,7 +927,7 @@ static uint8_t *page_of(int view)
     return &ui.page[view][view == V_PART || view == V_SEQ || view == V_GEN ? ui.part : 0];
 }
 
-static void build_pages(void)
+X0X_COLD static void build_pages(void)
 {
     int p = ui.part, b = bidx();
     pg.n = pg.nmore = 0;
@@ -1079,7 +1079,7 @@ static void list_add(pref_t r)
 }
 
 /* a list section's name: whose values follow */
-static void hdr_name(int g, char *t)
+X0X_COLD static void hdr_name(int g, char *t)
 {
     const char *who = is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part]) : PART_N[ui.part];
     switch (g) {
@@ -1100,7 +1100,7 @@ static void hdr_name(int g, char *t)
 
 static int list_skip(int i) { return i < ui.list_n && list_rows[i].kind == R_HDR; }
 
-static void open_list_of_pages(void)
+X0X_COLD static void open_list_of_pages(void)
 {
     int p, k, last = -1, groups = 0;
     ui.list_n = 0;
@@ -1136,7 +1136,7 @@ static void open_list_of_pages(void)
     ui.overlay = ui.list_n ? O_LIST : O_NONE;
 }
 
-static void open_global(void)
+X0X_COLD static void open_global(void)
 {
     ui.list_n = 0;
     list_rows[ui.list_n++] = PR(R_HDR, GR_MIDI, 0, 0);
@@ -1188,7 +1188,7 @@ static void open_global(void)
 }
 
 /* ================================================================ questions === */
-static void ask(int act, int arg, const char *q1, const char *q2)
+X0X_COLD static void ask(int act, int arg, const char *q1, const char *q2)
 {
     ui.ask_act = (uint8_t)act;
     ui.ask_overlay = ui.overlay;
@@ -1227,7 +1227,7 @@ static int pattern_used(const pattern_t *pt)
 }
 
 /* motion lanes of one part pattern: gone, and the knobs back to their own values */
-static void clear_lanes(int pat, int part)
+X0X_COLD static void clear_lanes(int pat, int part)
 {
     int k;
     for (k = 0; k < NLANE; k++) {
@@ -1241,7 +1241,7 @@ static void clear_lanes(int pat, int part)
 }
 
 /* part `part` of pattern src onto pattern dst, its lanes too; 0 = done, -1 = lanes did not fit */
-static int copy_part(int dst, int src, int part)
+X0X_COLD static int copy_part(int dst, int src, int part)
 {
     pattern_t *d = &proj.pat[dst];
     const pattern_t *a = &proj.pat[src];
@@ -1270,7 +1270,7 @@ static int copy_part(int dst, int src, int part)
     return rc;
 }
 
-static void clear_part(pattern_t *p, int part)
+X0X_COLD static void clear_part(pattern_t *p, int part)
 {
     int i;
     if (part < NKIT) {
@@ -1302,7 +1302,7 @@ static int perf_save_busy(void);
 static const char *const BTN_LABEL[NB] = {"FX", "SEL", "ENV", "LFO", "EDIT", "GLO", "HOME", "SAVE", "ARP", "SEQ",
                                           "PLAY / STOP", "REC", "OCT-", "OCT+"};
 
-static int help_lines(int b, const char *l[HELP_LINES])
+X0X_COLD static int help_lines(int b, const char *l[HELP_LINES])
 {
     int n = 0, gen = ui.view == V_GEN, kbd = is_303() && ui.rec;
 #define L(s) (l[n++] = (s))
@@ -1479,7 +1479,7 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
     }
 }
 
-static void do_undo(int redo)
+X0X_COLD static void do_undo(int redo)
 {
     uint32_t lo, hi;
     char t[24];
@@ -1526,7 +1526,7 @@ X0X_COLD int ui_project_save(void)
     return rc;
 }
 
-static void save_project(void)
+X0X_COLD static void save_project(void)
 {
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
@@ -1609,7 +1609,7 @@ static void perf_window(int force)
 
 /* the test's patterns: 0 the factory loop (909 kick, clap, open hats; 303 A; the break), 1 all five,
  * 2 everything dense */
-static void perf_build(void)
+X0X_COLD static void perf_build(void)
 {
     /* the tracks in key order (pattern.h): 909 BD SD LT MT HT RS CP CH OH CR RD, 808 ... CB CY OH CH */
     enum { DR_BD, DR_SD, DR_LT, DR_MT, DR_HT, DR_RS, DR_CP, DR_CH, DR_OH, DR_CR, DR_RD };
@@ -1649,7 +1649,7 @@ static void perf_build(void)
     }
 }
 
-static void perf_restore(void)
+X0X_COLD static void perf_restore(void)
 {
     int p;
     seq.pat = perf.pat;
@@ -1667,7 +1667,7 @@ static void perf_restore(void)
     engine_brk_loops();
 }
 
-static void perf_test_start(void)
+X0X_COLD static void perf_test_start(void)
 {
     int p;
     if (perf.test >= 0 && perf.phase != 4)
@@ -1688,7 +1688,7 @@ static void perf_test_start(void)
         perf.res_load[p] = perf.res_cps[p] = perf.res_peak[p] = 0;
 }
 
-static void perf_test_abort(void)
+X0X_COLD static void perf_test_abort(void)
 {
     seq_stop(&seq);
     perf.phase = 3;
@@ -1776,7 +1776,7 @@ static void perf_test_tick(void)
     }
 }
 
-static void set_view(int v);
+X0X_COLD static void set_view(int v);
 
 X0X_COLD static void run_action(int act, int arg)
 {
@@ -1896,7 +1896,7 @@ static int32_t accel(int role, int32_t s, int range)
     return s * (int32_t)m;
 }
 
-static void set_view(int v)
+X0X_COLD static void set_view(int v)
 {
 #if BOARD_SMK37
     smc_ui_cancel();
@@ -2642,7 +2642,7 @@ static void list_move(int d)
         ui.list_top = (uint8_t)(ui.list_sel - 5);
 }
 
-static void list_enter(void)
+X0X_COLD static void list_enter(void)
 {
     pref_t r = list_rows[ui.list_sel];
     if (r.kind != R_ACT)
@@ -2686,7 +2686,7 @@ static void ui_menu_arrow(int d)
 }
 #endif
 
-static void close_overlay(void)
+X0X_COLD static void close_overlay(void)
 {
     if (ui.view == V_GLO) {
         ui.overlay = O_NONE;
@@ -3730,7 +3730,7 @@ static UI_DRAW void draw_break(int band)
 }
 
 /* a part's lane on HOME: the 16 steps of the page its playhead is on (bits: those 16, from base) */
-static void lane(int y, int p, uint32_t bits, int ph, int len, int base)
+static UI_DRAW void lane(int y, int p, uint32_t bits, int ph, int len, int base)
 {
     int c, muted = part_muted(p);
     cv_text(3, y, &FONT_XS, PART_S[p], muted ? C_DIM : PART_COL[p]);
@@ -4402,7 +4402,7 @@ static UI_DRAW void draw_main(void)
 }
 
 /* -------------------------------------------------------------- knob strip --- */
-static void cell_value(int cx, int y, const char *num, const char *unit, uint16_t c)
+static UI_DRAW void cell_value(int cx, int y, const char *num, const char *unit, uint16_t c)
 {
     int32_t w = tw(&FONT_B, num) + (unit[0] ? tw(&FONT_XS, unit) + 1 : 0), x = cx - w / 2;
     x = cv_text(x, y, &FONT_B, num, c);
@@ -4458,7 +4458,7 @@ static int strcmp_s(const char *a, const char *b)
 }
 
 /* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5) */
-static void knob_tag(char *t)
+static UI_DRAW void knob_tag(char *t)
 {
     int g = pg.group[cur_page()], dm = drum_mix_page();
     const char *ti = pg.title[cur_page()];
