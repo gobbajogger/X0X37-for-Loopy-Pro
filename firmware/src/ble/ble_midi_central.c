@@ -275,6 +275,16 @@ void blec_join(blec_t *c, uint32_t now)
     blec_scan_again(c, now);
     blec_progress(c);
 }
+int blec_connect_expected(const blec_t *c)
+{ return c->state == BLEC_CONNECTING && c->step == S_CREATE; }
+void blec_abandon_connect(blec_t *c, uint32_t now)
+{
+    blec_rx_reset(c);
+    c->now_ms = now; c->deadline = now + 3000u;
+    c->state = BLEC_STOPPING; c->step = S_CANCEL;
+    c->disconnect_flags |= D_STOP;
+    c->qr = c->qw; c->att_waiting = 0;
+}
 void blec_stop(blec_t *c)
 {
     if (c->state == BLEC_OFF || (c->disconnect_flags & D_STOP)) return;

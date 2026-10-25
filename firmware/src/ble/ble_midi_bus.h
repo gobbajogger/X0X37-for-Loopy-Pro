@@ -19,6 +19,7 @@ typedef struct blec_bus {
     uint16_t outstanding[BLEC_PEERS];
     uint32_t generation[BLEC_PEERS], rejected, command_deadline;
     uint8_t allowed[BLEC_PEERS], allowed_type[BLEC_PEERS], allowed_addr[BLEC_PEERS][6];
+    uint8_t create_pending, scan_active, scan_value;
     uint8_t command_fault; /* Timeout retains owner: never guess a delayed opcode owner. */
     uint8_t command_owner, scan_owner, ready, started, stopping, turn;
     uint8_t total, available, command_credit;

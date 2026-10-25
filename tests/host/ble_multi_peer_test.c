@@ -145,7 +145,7 @@ static void test_command_fault(void)
 static void test_zero_handle_and_lengths(void)
 {
     blec_bus_t b; init(&b); b.started=b.ready=1; b.total=b.available=5;
-    b.peer[0].state=BLEC_CONNECTING; b.peer[0].step=S_CREATE; b.scan_owner=0;
+    b.peer[0].state=BLEC_CONNECTING; b.peer[0].step=S_CREATE; b.scan_owner=0; b.create_pending=1;
     uint8_t bad[]={0x3e,19,0x0a,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     blec_bus_rx(&b,4,bad,sizeof bad,1);
     CHECK(!blec_has_conn(&b.peer[0]) && !b.generation[0]);
@@ -176,9 +176,46 @@ static void test_credit_only_command_event(void)
     CHECK(b.command==COP_UPDATE && b.command_owner==0 && b.command_credit==2);
     status(&b,COP_UPDATE,0); CHECK(!b.command && b.command_credit==1);
 }
+static void pending_create(blec_bus_t *b)
+{
+    live(b); b->allowed[1]=1; b->peer[1].conn=0; b->peer[1].has_conn=0;
+    b->peer[1].state=BLEC_CONNECTING; b->peer[1].step=S_CREATE;
+    b->peer[1].now_ms=0; b->peer[1].deadline=10; b->scan_owner=1;
+    blec_progress(&b->peer[1]); CHECK(b->create_pending && b->command==COP_CREATE);
+    status(b,COP_CREATE,0); CHECK(b->create_pending && !b->command);
+}
+static void terminal_create(blec_bus_t *b,unsigned status_code)
+{
+    uint8_t p[]={0x3e,19,1,(uint8_t)status_code,0x41,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    blec_bus_rx(b,4,p,sizeof p,3014);
+}
+static void test_async_create_quarantine(void)
+{
+    blec_bus_t b; pending_create(&b);
+    reject_send=1; blec_bus_poll(&b,11); blec_bus_poll(&b,3012); blec_bus_poll(&b,3013);
+    CHECK(b.scan_owner==1 && b.create_pending && b.peer[1].state==BLEC_FAILED);
+    CHECK(b.peer[0].state==BLEC_CONNECTED);
+    reject_send=0; terminal_create(&b,0);
+    CHECK(!b.create_pending && blec_has_conn(&b.peer[1]) && b.peer[1].conn==0x41);
+    CHECK(b.peer[1].state==BLEC_STOPPING && b.command==COP_DISCONNECT && b.command_owner==1);
+    status(&b,COP_DISCONNECT,0); down(&b,0x41);
+    CHECK(!blec_has_conn(&b.peer[1]) && b.peer[0].state==BLEC_CONNECTED);
+    pending_create(&b); blec_bus_poll(&b,11);
+    CHECK(b.command==COP_CANCEL); complete(&b,COP_CANCEL,0);
+    CHECK(b.create_pending && b.scan_owner==1 && !b.command);
+    unsigned sent=commands; blec_bus_poll(&b,12);
+    CHECK(commands==sent && b.create_pending); /* Same-owner scan is deferred too. */
+    terminal_create(&b,2); CHECK(!b.create_pending && b.peer[1].state==BLEC_OFF);
+    blec_bus_poll(&b,3015); CHECK(b.command==COP_SCAN_ENABLE && b.command_owner==1);
+    CHECK(b.peer[0].state==BLEC_CONNECTED && !resets);
+    /* A confirmed scanner cannot transfer ownership on local timeout either. */
+    live(&b); b.allowed[1]=1; b.peer[1].conn=0; b.peer[1].state=BLEC_FAILED;
+    b.scan_owner=1; b.scan_active=1; blec_bus_poll(&b,5000);
+    CHECK(b.scan_owner==1 && !b.command && b.peer[0].state==BLEC_CONNECTED);
+}
 int main(void)
 {
-    test_credit_only_command_event(); test_zero_handle_and_lengths(); test_command_fault(); test_bootstrap(); test_credits(); test_command_owner(); test_notification_and_targets();
+    test_async_create_quarantine(); test_credit_only_command_event(); test_zero_handle_and_lengths(); test_command_fault(); test_bootstrap(); test_credits(); test_command_owner(); test_notification_and_targets();
     printf("multi-peer HCI: %u checks, %u failures; sizeof central=%zu bus=%zu\n",checks,failures,sizeof(blec_t),sizeof(blec_bus_t));
     return failures?1:0;
 }

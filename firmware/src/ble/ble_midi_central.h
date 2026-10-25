@@ -49,3 +49,8 @@ static inline int blec_connected(const blec_t *c) { return c->state == BLEC_CONN
 void blec_join(blec_t *c, uint32_t now_ms);
 
 static inline int blec_has_conn(const blec_t *c) { return c->has_conn || c->conn != 0u; }
+
+/* Reconcile a late connection result after a local initiating timeout. */
+void blec_abandon_connect(blec_t *c, uint32_t now_ms);
+
+int blec_connect_expected(const blec_t *c);
