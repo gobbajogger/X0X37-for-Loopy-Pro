@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-25T09:02:53Z",
+  "generated_at": "2026-10-25T10:29:45Z",
   "purpose": "Durable public-safe request continuity. Unknown is not done; source-ready is not delivered.",
-  "snapshot_note": "Compact technical transcription of the reviewed 30-request handoff, with subsequent supplied deltas; observations retain their original times. No fresh firmware qualification asserted.",
+  "snapshot_note": "Bounded coordinator-supplied technical progress delta; linked PR metadata freshly checked at generated_at. No broad audit or fresh firmware qualification. Earlier observations and history retained.",
   "scope": {
     "repositories": [
       "gobbajogger/X0X37-for-Loopy-Pro",
@@ -17,7 +17,8 @@
       "Historical content integration used 93449136; owner-flashed 58e2c520 is a separate evidence identity.",
       "Supplied execution observations may lag; scheduler repair completion requires readback.",
       "Historical source-write denials remain binding; tracker records grant no bypass.",
-      "Repository public; role owners and technical summaries only."
+      "Repository public; role owners and technical summaries only.",
+      "Latest bounded delta records supplied scheduler prompt completion; actual live feature intake/dispatch and throughput gain remain unverified."
     ]
   },
   "baseline": {
@@ -39,11 +40,11 @@
     {
       "request_id": "LX-REQ-001",
       "title": "Reset project without touching imported samples",
-      "owner": "unassigned",
-      "owner_execution_state": "UNASSIGNED",
-      "status": "RECONCILIATION_REQUIRED",
+      "owner": "Project lifecycle coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
       "priority": "P1",
-      "next_action": "Reconcile current reset and unavailable historical commits; assign lifecycle and sample-preservation QA.",
+      "next_action": "Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-002",
@@ -106,12 +107,24 @@
           "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
           "state": "open",
           "observed_at": "2026-10-25T08:53:19Z"
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 171,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+          "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Issue remains open; absence of completion evidence does not prove absent implementation."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR171 57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3 reconciles existing reset/save/load/export features and fixes malformed legacy arrangement load rejection. Scoped fix reviewed; combined validation remains pending.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -127,18 +140,119 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata."
+      "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-001",
+            "title": "Reset project without touching imported samples",
+            "owner": "unassigned",
+            "owner_execution_state": "UNASSIGNED",
+            "status": "RECONCILIATION_REQUIRED",
+            "priority": "P1",
+            "next_action": "Reconcile current reset and unavailable historical commits; assign lifecycle and sample-preservation QA.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-002",
+              "LX-REQ-003",
+              "LX-REQ-008",
+              "LX-REQ-028"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Reset/cancel safe stopped, playing, recording and external-clock; live/save/reboot agree; sample hashes unchanged.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 101,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/101",
+                "head": "08aef212e064b0db89312a9fd30fcd0d1c6454fc",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 120,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/120",
+                "head": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 130,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/130",
+                "head": "722c795278f3f3c6549b32187e90421a9243aadf",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 131,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/131",
+                "head": "65c4a5612a27425c02442f0f829affaf7b80b0a5",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 135,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/135",
+                "head": "e1ba9d6802c8229c5c96cdaa74c85f3e2c53ff07",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "issue",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 2,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
+                "state": "open",
+                "observed_at": "2026-10-25T08:53:19Z"
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Issue remains open; absence of completion evidence does not prove absent implementation."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-002",
       "title": "Reliable explicit Save Project",
-      "owner": "unassigned",
-      "owner_execution_state": "UNASSIGNED",
-      "status": "QA_AND_RECONCILIATION_REQUIRED",
+      "owner": "Project lifecycle coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
       "priority": "P1",
-      "next_action": "Assign combined project/NOR/cache/save/power-loss QA for PR127 on current root; resolve collisions.",
+      "next_action": "Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-028"
@@ -162,12 +276,24 @@
           "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
           "state": "open",
           "observed_at": "2026-10-25T08:53:19Z"
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 171,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+          "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "PR127 remains referenced, not accepted; wider RAM hash does not eliminate collisions."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR171 57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3 reconciles existing reset/save/load/export features and fixes malformed legacy arrangement load rejection. Scoped fix reviewed; combined validation remains pending.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -183,18 +309,80 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Save all current project changes completely and durably."
+      "user_intent": "Save all current project changes completely and durably.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-002",
+            "title": "Reliable explicit Save Project",
+            "owner": "unassigned",
+            "owner_execution_state": "UNASSIGNED",
+            "status": "QA_AND_RECONCILIATION_REQUIRED",
+            "priority": "P1",
+            "next_action": "Assign combined project/NOR/cache/save/power-loss QA for PR127 on current root; resolve collisions.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-028"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Distinct edits persist save/reboot/power interruption; no silent cache collision; samples preserved; exact-root tests and builds.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 127,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/127",
+                "head": "a03ca363e645c9e1d5528625c24494d18462b4fc",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "issue",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 2,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
+                "state": "open",
+                "observed_at": "2026-10-25T08:53:19Z"
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "PR127 remains referenced, not accepted; wider RAM hash does not eliminate collisions."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Save all current project changes completely and durably."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-003",
       "title": "Explicit Load Project and safe imported-project loading",
-      "owner": "unassigned",
-      "owner_execution_state": "UNASSIGNED",
-      "status": "QA_AND_RECONCILIATION_REQUIRED",
+      "owner": "Project lifecycle coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
       "priority": "P1",
-      "next_action": "Reconcile existing UI/serialization; assign staged-load, legacy migration, rollback and unsaved-edit tests.",
+      "next_action": "Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-001",
@@ -230,12 +418,24 @@
           "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/3",
           "state": "open",
           "observed_at": "2026-10-25T08:53:19Z"
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 171,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+          "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "PR123/128 referenced, not accepted; issue lacks current completion receipt."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR171 57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3 reconciles existing reset/save/load/export features and fixes malformed legacy arrangement load rejection. Scoped fix reviewed; combined validation remains pending.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -251,18 +451,92 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Load saved/imported projects atomically with confirmation and rollback."
+      "user_intent": "Load saved/imported projects atomically with confirmation and rollback.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-003",
+            "title": "Explicit Load Project and safe imported-project loading",
+            "owner": "unassigned",
+            "owner_execution_state": "UNASSIGNED",
+            "status": "QA_AND_RECONCILIATION_REQUIRED",
+            "priority": "P1",
+            "next_action": "Reconcile existing UI/serialization; assign staged-load, legacy migration, rollback and unsaved-edit tests.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-001",
+              "LX-REQ-002",
+              "LX-REQ-008",
+              "LX-REQ-028"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Reachable explicit load; invalid/truncated/unsupported input preserves current state; legacy PAN/HP, engine/MIDI/motion and samples correct.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 123,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/123",
+                "head": "5c592ec44638194842ae32d09471ac55901cbe19",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 128,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/128",
+                "head": "168869eecaa6a8cc4035c33928293131ada40226",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "issue",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 3,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/3",
+                "state": "open",
+                "observed_at": "2026-10-25T08:53:19Z"
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "PR123/128 referenced, not accepted; issue lacks current completion receipt."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Load saved/imported projects atomically with confirmation and rollback."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-004",
       "title": "Portable full-project export and import",
-      "owner": "unassigned",
-      "owner_execution_state": "UNASSIGNED",
-      "status": "RECONCILIATION_REQUIRED",
+      "owner": "Project lifecycle coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
       "priority": "P1",
-      "next_action": "Locate existing transfer implementation and historical evidence before duplicating; define project-only versus embedded samples.",
+      "next_action": "Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root.",
       "dependencies": [
         "LX-REQ-002",
         "LX-REQ-003"
@@ -283,12 +557,24 @@
           "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/4",
           "state": "open",
           "observed_at": "2026-10-25T08:53:19Z"
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 171,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+          "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Historical source leads presently unresolvable; no standalone export completion surfaced."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR171 57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3 reconciles existing reset/save/load/export features and fixes malformed legacy arrangement load rejection. Scoped fix reviewed; combined validation remains pending.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -304,18 +590,77 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Portable patterns, sounds, song, motion, settings and sample references with a safe embedded-sample policy."
+      "user_intent": "Portable patterns, sounds, song, motion, settings and sample references with a safe embedded-sample policy.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-004",
+            "title": "Portable full-project export and import",
+            "owner": "unassigned",
+            "owner_execution_state": "UNASSIGNED",
+            "status": "RECONCILIATION_REQUIRED",
+            "priority": "P1",
+            "next_action": "Locate existing transfer implementation and historical evidence before duplicating; define project-only versus embedded samples.",
+            "dependencies": [
+              "LX-REQ-002",
+              "LX-REQ-003"
+            ],
+            "related_requests": [
+              "LX-REQ-002",
+              "LX-REQ-003",
+              "LX-REQ-011",
+              "LX-REQ-028"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Versioned checksum full-project round trip; corruption/version/interruption rollback; sample identity preserved. Sample backup alone is insufficient.",
+            "known_source_references": [
+              {
+                "type": "issue",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 4,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/4",
+                "state": "open",
+                "observed_at": "2026-10-25T08:53:19Z"
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Historical source leads presently unresolvable; no standalone export completion surfaced."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Portable patterns, sounds, song, motion, settings and sample references with a safe embedded-sample policy."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-005",
       "title": "Readable SMC mixer layout and deliberate controls",
       "owner": "SMC layout and control implementation owner",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "SOURCE_AND_ELITE_BUILD_REPORTED_UI_REFINEMENT_ACTIVE",
+      "status": "SOURCE_IMPLEMENTED_PACKAGE_PENDING",
       "priority": "P1",
-      "next_action": "Finish active-lane highlight and actual context-aware button labels, including filter S/R rather than assuming Solo/Record; independent review and exact-root qualification follow.",
+      "next_action": "SMC implementation/build owner to finish size recovery and exact-head package, then independent UI/control review and model qualification; preserve installed-source distinction.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-006",
@@ -360,44 +705,134 @@
           "head": "5c3d9f2fbd86030dc2f7e6d6d54a44414465b090",
           "observed_at": "2026-10-25T09:02:53Z",
           "snapshot_note": "Historical handoff reference; refresh before integration.",
-          "current_head_metadata_only": "6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67",
+          "current_head_metadata_only": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
           "current_state": "open",
           "draft": true,
-          "metadata_note": "Later API read observes an advanced head; original seed head retained. No delta code review, test/build or delivery qualification asserted.",
-          "metadata_observed_at": "2026-10-25T09:11:40Z"
+          "metadata_note": "Fresh metadata only; retain earlier evidence head. Changed-head delta requires qualification.",
+          "metadata_observed_at": "2026-10-25T10:29:45Z"
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "PR168 5c3d9f2fbd86030dc2f7e6d6d54a44414465b090 source and Elite build reported; refinement active. Pro, owner-installed and published outcome not established."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Physical Pause identified; PR168 source implements target-page lock and LED mode, Play toggle, repeated Select mixer switch, real drum abbreviations, selected-lane highlight, actual action captions, knob arcs and removal of cryptic footer. Size recovery active; reported Elite link has 68 B code / 300 B RAM headroom and 8324 B pool; final package pending. Latest observed head e75fb2a584aa22978f352697a5e36fc9f886c3c5 is metadata only; reconcile any build/source delta. Installed owner source remains 58e2c5205a02836df678083eaa8db9994b6192e8.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
           "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
         },
         "build": {
-          "state": "NATIVE_ELITE_ONLY_REPORTED"
+          "state": "ELITE_LINK_REPORTED_FINAL_PACKAGE_PENDING",
+          "summary": "68 B code / 300 B RAM headroom; 8324 B pool. Supplied link evidence is not exact latest-head package acceptance."
         },
         "deployed": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "hardware": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_FLASHED_NOT_HARDWARE_PROVEN"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Keep eight strips visible, touched values readable, correct context lock/transport and second-press selection."
+      "user_intent": "Keep eight strips visible, touched values readable, correct context lock/transport and second-press selection.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-005",
+            "title": "Readable SMC mixer layout and deliberate controls",
+            "owner": "SMC layout and control implementation owner",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "SOURCE_AND_ELITE_BUILD_REPORTED_UI_REFINEMENT_ACTIVE",
+            "priority": "P1",
+            "next_action": "Finish active-lane highlight and actual context-aware button labels, including filter S/R rather than assuming Solo/Record; independent review and exact-root qualification follow.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-006",
+              "LX-REQ-016",
+              "LX-REQ-030"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Eight readable strips, touched values and deliberate controls accepted at preview/device stage; qualified build/delivery; no unsupported physical mapping. Preserve transport/context-lock and deliberate second-press selection behavior; labels reflect actual context.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 150,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/150",
+                "head": "025fba5a777b74012bf0cc1746fda207482423bc",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 161,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/161",
+                "head": "516301da13f1c48f8ce6a17147be00b47937da7c",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 162,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/162",
+                "head": "43ef16e9b6455157c8e0df9e8c7b4a1434b3d5b8",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 168,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/168",
+                "head": "5c3d9f2fbd86030dc2f7e6d6d54a44414465b090",
+                "observed_at": "2026-10-25T09:02:53Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration.",
+                "current_head_metadata_only": "6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67",
+                "current_state": "open",
+                "draft": true,
+                "metadata_note": "Later API read observes an advanced head; original seed head retained. No delta code review, test/build or delivery qualification asserted.",
+                "metadata_observed_at": "2026-10-25T09:11:40Z"
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "PR168 5c3d9f2fbd86030dc2f7e6d6d54a44414465b090 source and Elite build reported; refinement active. Pro, owner-installed and published outcome not established."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NATIVE_ELITE_ONLY_REPORTED"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Keep eight strips visible, touched values readable, correct context lock/transport and second-press selection."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-006",
       "title": "Physical Pause/context-lock mapping and LED feedback",
       "owner": "Replacement-control capture owner with SMC implementation owner",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "ACTIVE_CAPTURE_MAPPING_UNVERIFIED",
+      "status": "SOURCE_IMPLEMENTED_PACKAGE_PENDING",
       "priority": "P1",
-      "next_action": "Obtain live labelled capture to identify actual Pause/control messages; preserve STOP and mapped actions; bind/verify only after identification.",
+      "next_action": "SMC implementation/build owner to finish size recovery and exact-head package, then independent UI/control review and model qualification; preserve installed-source distinction.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-005"
@@ -422,39 +857,115 @@
           "head": "d29f365df8b60436749b6712ca9d605d2f912708",
           "observed_at": "2026-10-25T08:17:29Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 168,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/168",
+          "head": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Prepared PR150 helper previously lacked MIDI caller; physical Pause and LED unverified."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Physical Pause identified; PR168 source implements target-page lock and LED mode, Play toggle, repeated Select mixer switch, real drum abbreviations, selected-lane highlight, actual action captions, knob arcs and removal of cryptic footer. Size recovery active; reported Elite link has 68 B code / 300 B RAM headroom and 8324 B pool; final package pending. Latest observed head e75fb2a584aa22978f352697a5e36fc9f886c3c5 is metadata only; reconcile any build/source delta. Installed owner source remains 58e2c5205a02836df678083eaa8db9994b6192e8.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
           "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
         },
         "build": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "ELITE_LINK_REPORTED_FINAL_PACKAGE_PENDING",
+          "summary": "68 B code / 300 B RAM headroom; 8324 B pool. Supplied link evidence is not exact latest-head package acceptance."
         },
         "deployed": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "hardware": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_FLASHED_NOT_HARDWARE_PROVEN"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Actual physical lock interaction and visible feedback while retaining STOP."
+      "user_intent": "Actual physical lock interaction and visible feedback while retaining STOP.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-006",
+            "title": "Physical Pause/context-lock mapping and LED feedback",
+            "owner": "Replacement-control capture owner with SMC implementation owner",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "ACTIVE_CAPTURE_MAPPING_UNVERIFIED",
+            "priority": "P1",
+            "next_action": "Obtain live labelled capture to identify actual Pause/control messages; preserve STOP and mapped actions; bind/verify only after identification.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-005"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Actual control identity and end-to-end lock/LED verified; STOP retained. Helper tests do not qualify physical routing.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 150,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/150",
+                "head": "025fba5a777b74012bf0cc1746fda207482423bc",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 18,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+                "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Prepared PR150 helper previously lacked MIDI caller; physical Pause and LED unverified."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Actual physical lock interaction and visible feedback while retaining STOP."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-007",
       "title": "Multiple independent SMC controllers",
-      "owner": "unassigned",
-      "owner_execution_state": "UNASSIGNED",
-      "status": "IMPLEMENTATION_REQUIRED",
+      "owner": "Transport/controller implementation coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "QUEUE_FOUNDATION_REVIEWED_RUNTIME_SINGLE_SMC",
       "priority": "P1",
-      "next_action": "Assign transport/controller implementer for per-slot queues, generations, Solo release, pickup and feedback on current accepted source.",
+      "next_action": "Transport/controller owner to integrate app state, HCI/controller support and budgets; then independent multi-controller and hardware qualification.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-006",
@@ -471,12 +982,24 @@
           "head": "d29f365df8b60436749b6712ca9d605d2f912708",
           "observed_at": "2026-10-25T08:17:29Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 174,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/174",
+          "head": "272b80fbc38ac8be7e6adac96fe990394c1934f8",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "PR18 shared 32-event queue can lose another controller Solo release and repurposes STOP 0x5D; do not merge wholesale."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR174 272b80fbc38ac8be7e6adac96fe990394c1934f8 peer-owned queue foundation reviewed. Runtime still supports ONE direct SMC; app state, HCI/controller, budgets and hardware remain required.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -492,9 +1015,64 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Independent per-controller locks, pickup, Solo and feedback."
+      "user_intent": "Independent per-controller locks, pickup, Solo and feedback.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-007",
+            "title": "Multiple independent SMC controllers",
+            "owner": "unassigned",
+            "owner_execution_state": "UNASSIGNED",
+            "status": "IMPLEMENTATION_REQUIRED",
+            "priority": "P1",
+            "next_action": "Assign transport/controller implementer for per-slot queues, generations, Solo release, pickup and feedback on current accepted source.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-006",
+              "LX-REQ-016"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Combined overload/disconnect/reconnect/cross-controller tests; matching controller and Elite/Pro builds; explicit multi-controller hardware proof.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 18,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+                "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "PR18 shared 32-event queue can lose another controller Solo release and repurposes STOP 0x5D; do not merge wholesale."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Independent per-controller locks, pickup, Solo and feedback."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-008",
@@ -594,9 +1172,9 @@
       "title": "Preserve probability/TIE and RANDOM behavior",
       "owner": "Sequencer producer and independent QA",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "COMBINED_QA_REQUIRED",
+      "status": "COMBINED_CANDIDATE_TESTED_NATIVE_BUILDS_REPORTED",
       "priority": "P1",
-      "next_action": "Combine engine/sequencer skipped-MIDI, orphan-TIE and RANDOM tests; adapt bass_on callbacks and swing parity.",
+      "next_action": "Sole firmware integrator to reconcile remaining scope on PR188 exact head and retain independent QA/sanitizer limits before any authorized integration; publication and hardware remain separate.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016"
@@ -639,39 +1217,144 @@
           "head": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
           "observed_at": "2026-10-25T08:17:29Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 188,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/188",
+          "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 183,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/183",
+          "head": "f9d1480a4db20af513ab5f7504a3ad56d3a03692",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "PR159 scoped independent QA exists; scoped acceptance does not qualify full combined root."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR188 4baf1160f69d8bbc55ec36ca2dae22c22856f3f4 combines PR139/140/159/182/183. Native Elite and Pro pass reported with 2132 B code / 412 B RAM headroom and 8324 B pool; independent tests pass. Linux ASan intermittent crashes reproduced with an empty program; sanitizer limits remain. Not merged, published or flashed.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "SCOPED_INDEPENDENT_PASS_REPORTED_SANITIZER_LIMITS",
+          "summary": "Supplied independent pass; Linux ASan intermittent failure also reproduced with empty program, so no blanket ASan pass."
         },
         "build": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NATIVE_ELITE_PRO_PASS_REPORTED",
+          "summary": "PR188 exact supplied head; 2132 B code / 412 B RAM headroom; 8324 B pool."
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_MERGED_NOT_PUBLISHED"
         },
         "hardware": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_FLASHED_NOT_HARDWARE_PROVEN"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Fix probability/MIDI/TIE inconsistency while preserving musical probability semantics."
+      "user_intent": "Fix probability/MIDI/TIE inconsistency while preserving musical probability semantics.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-009",
+            "title": "Preserve probability/TIE and RANDOM behavior",
+            "owner": "Sequencer producer and independent QA",
+            "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+            "status": "COMBINED_QA_REQUIRED",
+            "priority": "P1",
+            "next_action": "Combine engine/sequencer skipped-MIDI, orphan-TIE and RANDOM tests; adapt bass_on callbacks and swing parity.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-016"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Intended probability preserved; skipped notes emit no MIDI; orphan TIE cannot start note; RANDOM preview matches runtime.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 139,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/139",
+                "head": "55acb2fd442bd86f372e72e06727d7f27a4f5474",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 140,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/140",
+                "head": "4b67024e62bfd1b4d5789827334f6bea4f9b4e00",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 152,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/152",
+                "head": "d92f9735eb61eecc6dae30d510c0b56ab587ab00",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 159,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/159",
+                "head": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "PR159 scoped independent QA exists; scoped acceptance does not qualify full combined root."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Fix probability/MIDI/TIE inconsistency while preserving musical probability semantics."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-010",
       "title": "Preserve unique recording/DSP fixes in older WIP",
       "owner": "unassigned",
       "owner_execution_state": "UNASSIGNED",
-      "status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+      "status": "COMBINED_CANDIDATE_TESTED_NATIVE_BUILDS_REPORTED",
       "priority": "P1",
-      "next_action": "Extract unique recording, swing/index, signed-shift and limiter deltas onto current source, including PR65/140 parity.",
+      "next_action": "Sole firmware integrator to reconcile remaining scope on PR188 exact head and retain independent QA/sanitizer limits before any authorized integration; publication and hardware remain separate.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-009",
@@ -751,30 +1434,172 @@
           "head": "99543b84c4a785c6bd279721250d99db977b4da7",
           "observed_at": "2026-10-25T08:17:29Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 188,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/188",
+          "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 183,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/183",
+          "head": "f9d1480a4db20af513ab5f7504a3ad56d3a03692",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Completed reviews identify unique residuals in apparently superseded stacks; rejected SMC ancestry must not return."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR188 4baf1160f69d8bbc55ec36ca2dae22c22856f3f4 combines PR139/140/159/182/183. Native Elite and Pro pass reported with 2132 B code / 412 B RAM headroom and 8324 B pool; independent tests pass. Linux ASan intermittent crashes reproduced with an empty program; sanitizer limits remain. Not merged, published or flashed.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "SCOPED_INDEPENDENT_PASS_REPORTED_SANITIZER_LIMITS",
+          "summary": "Supplied independent pass; Linux ASan intermittent failure also reproduced with empty program, so no blanket ASan pass."
         },
         "build": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NATIVE_ELITE_PRO_PASS_REPORTED",
+          "summary": "PR188 exact supplied head; 2132 B code / 412 B RAM headroom; 8324 B pool."
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_MERGED_NOT_PUBLISHED"
         },
         "hardware": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_FLASHED_NOT_HARDWARE_PROVEN"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Recover useful older recording/DSP fixes without rejected SMC ancestry."
+      "user_intent": "Recover useful older recording/DSP fixes without rejected SMC ancestry.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-010",
+            "title": "Preserve unique recording/DSP fixes in older WIP",
+            "owner": "unassigned",
+            "owner_execution_state": "UNASSIGNED",
+            "status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+            "priority": "P1",
+            "next_action": "Extract unique recording, swing/index, signed-shift and limiter deltas onto current source, including PR65/140 parity.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-009",
+              "LX-REQ-016"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Each delta accepted or explicitly declined with reason; sanitizer/linked/native checks appropriate; no blind old-stack merge/discard.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 61,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/61",
+                "head": "b5ac731b86fed108fa5daa8e34581304fb36b6ba",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 70,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/70",
+                "head": "9564d183eba77c62fbd1af8555499c9c7e73c931",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 71,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/71",
+                "head": "4012987db3f04a2f3b062181fd6dd50a8adb6582",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 55,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/55",
+                "head": "6eb58874a32e8d072631f68136cb89c3e651f6a9",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 65,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/65",
+                "head": "61948df57dd38ee511067b78c3a59ef2f3e89939",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 57,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/57",
+                "head": "02bf5ad80ea451464865a69b3a146eb1e395c5ec",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 28,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/28",
+                "head": "832f8dbb0655cba8b9fd512be34c1e89ace185aa",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 68,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/68",
+                "head": "99543b84c4a785c6bd279721250d99db977b4da7",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Completed reviews identify unique residuals in apparently superseded stacks; rejected SMC ancestry must not return."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Recover useful older recording/DSP fixes without rejected SMC ancestry."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-011",
@@ -856,9 +1681,9 @@
       "title": "Unified clear installer and sample-management page",
       "owner": "Installer illustration implementation owner",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "ACTIVE_CORRECTION_NOT_DEPLOYED",
+      "status": "WEBSITE_REVIEWED_PUBLICATION_DECISION_PENDING",
       "priority": "P1",
-      "next_action": "Complete faithful square 240x240 vector corrections in website PR18; preserve scripts/controls and historical SMC-preview label; review then single publisher.",
+      "next_action": "Website publisher/coordinator to obtain the pending owner publication decision, then integrate and publish only under that authority.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-013"
@@ -901,12 +1726,24 @@
           "head": "c778be046753101e1fab0c7004c479a07f3e00ff",
           "observed_at": "2026-10-25T08:54:07Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 19,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/19",
+          "head": "570253d35c84748bba82ddd616b9c17af8d7da58",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "PR14/16/17 merged; prior gh-pages 9577aa1b reported. PR18 fidelity correction active; wide-card illustrations rejected; correction not deployed."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Website PR19 570253d35c84748bba82ddd616b9c17af8d7da58 reviewed: top Install + Import, Closer look before integration, standalone/SMC/Loopy feature explanation and faithful vectors. Not published; owner publication question pending.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -916,15 +1753,96 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "PARTIAL_PREVIOUS_VERSION_CORRECTION_NOT_DEPLOYED"
+          "state": "PR19_NOT_PUBLISHED_OWNER_DECISION_PENDING"
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls."
+      "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-012",
+            "title": "Unified clear installer and sample-management page",
+            "owner": "Installer illustration implementation owner",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "ACTIVE_CORRECTION_NOT_DEPLOYED",
+            "priority": "P1",
+            "next_action": "Complete faithful square 240x240 vector corrections in website PR18; preserve scripts/controls and historical SMC-preview label; review then single publisher.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-013"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Requested corrected page independently checked and served at intended URL with truthful build/preview labels; source-ready alone insufficient.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 14,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/14",
+                "head": "593c0fc3c18200fd887373bff4602bfd322f0d54",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 16,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/16",
+                "head": "cc7e7e8e68717acda8c774d4da8ca7d5cc401ff8",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 17,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/17",
+                "head": "7d920217b32edb7e3c93fae222a1c69a0025696f",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 18,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/18",
+                "head": "c778be046753101e1fab0c7004c479a07f3e00ff",
+                "observed_at": "2026-10-25T08:54:07Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "PR14/16/17 merged; prior gh-pages 9577aa1b reported. PR18 fidelity correction active; wide-card illustrations rejected; correction not deployed."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "PARTIAL_PREVIOUS_VERSION_CORRECTION_NOT_DEPLOYED"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-013",
@@ -991,9 +1909,9 @@
       "title": "Accurate public catalog/history and retained installable builds",
       "owner": "Catalog producer and website QA",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "LATEST_QA_SOURCE_PENDING_INTEGRATION",
+      "status": "LIVE_LABEL_OBSERVED_BYTES_UNCHANGED",
       "priority": "P2",
-      "next_action": "Use website PR13 1fe8a5b and latest scoped QA; reconcile publication/history and stale circular prerequisite.",
+      "next_action": "Catalog producer and website QA to preserve byte/source provenance and retained installables; do not infer shipped code from catalog labels.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-013"
@@ -1027,12 +1945,24 @@
           "head": "fec0cafbd6848f1ee6982e06c37039bfaded15b3",
           "observed_at": "2026-10-25T08:17:29Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 19,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/19",
+          "head": "570253d35c84748bba82ddd616b9c17af8d7da58",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Latest R44: 139 history records, two DEV generations, zero selectable source packages; 467 assertions/16 mutations reported. PR12 gh-pages is publication."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Supplied live catalog label is latestnightly-a03cfab3-dev; firmware bytes unchanged from F02. Label change does not establish new code delivery. Website PR19 remains unpublished.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -1042,15 +1972,88 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "SUPPLIED_LIVE_CATALOG_LABEL_BYTES_UNCHANGED",
+          "summary": "latestnightly-a03cfab3-dev; firmware bytes unchanged from F02; no fresh endpoint byte check in this ledger stage."
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Retain known-good installable builds and separate source/history from selectable firmware."
+      "user_intent": "Retain known-good installable builds and separate source/history from selectable firmware.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-014",
+            "title": "Accurate public catalog/history and retained installable builds",
+            "owner": "Catalog producer and website QA",
+            "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+            "status": "LATEST_QA_SOURCE_PENDING_INTEGRATION",
+            "priority": "P2",
+            "next_action": "Use website PR13 1fe8a5b and latest scoped QA; reconcile publication/history and stale circular prerequisite.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-013"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Accepted history/schema/parity tests; served metadata matches approved packages; source-only rows never selectable by metadata promotion.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 13,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/13",
+                "head": "1fe8a5bf2e628a319de08efeb507a8d8be1d9e12",
+                "observed_at": "2026-10-25T08:54:07Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 12,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/12",
+                "head": "1fc6f9a372b2d326934411a12a18af707c3e7cee",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 5,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/5",
+                "head": "fec0cafbd6848f1ee6982e06c37039bfaded15b3",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Latest R44: 139 history records, two DEV generations, zero selectable source packages; 467 assertions/16 mutations reported. PR12 gh-pages is publication."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Retain known-good installable builds and separate source/history from selectable firmware."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-015",
@@ -1214,9 +2217,9 @@
       "title": "Exact combined-root build, independent QA and integration",
       "owner": "Sole firmware integrator with Build and independent QA",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "COMBINED_CANDIDATE_NOT_ESTABLISHED",
+      "status": "COMBINED_CANDIDATE_TESTED_NATIVE_BUILDS_REPORTED",
       "priority": "P1",
-      "next_action": "Select bounded current candidate; consume producer proof; run remaining combined tests/build closure; record source-to-package-to-delivery receipts.",
+      "next_action": "Sole firmware integrator to reconcile remaining scope on PR188 exact head and retain independent QA/sanitizer limits before any authorized integration; publication and hardware remain separate.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
@@ -1257,30 +2260,133 @@
           "head": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
           "observed_at": "2026-10-25T08:17:29Z",
           "snapshot_note": "Historical handoff reference; refresh before integration."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 188,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/188",
+          "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 183,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/183",
+          "head": "f9d1480a4db20af513ab5f7504a3ad56d3a03692",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
         }
       ],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Earlier Build start delayed 55m28s, completion unverified. Ready PR22/25 are docs; isolated PR159 artifacts do not qualify newer combined source."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "PR188 4baf1160f69d8bbc55ec36ca2dae22c22856f3f4 combines PR139/140/159/182/183. Native Elite and Pro pass reported with 2132 B code / 412 B RAM headroom and 8324 B pool; independent tests pass. Linux ASan intermittent crashes reproduced with an empty program; sanitizer limits remain. Not merged, published or flashed.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "SCOPED_INDEPENDENT_PASS_REPORTED_SANITIZER_LIMITS",
+          "summary": "Supplied independent pass; Linux ASan intermittent failure also reproduced with empty program, so no blanket ASan pass."
         },
         "build": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NATIVE_ELITE_PRO_PASS_REPORTED",
+          "summary": "PR188 exact supplied head; 2132 B code / 412 B RAM headroom; 8324 B pool."
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_MERGED_NOT_PUBLISHED"
         },
         "hardware": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "NOT_FLASHED_NOT_HARDWARE_PROVEN"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Move requested source through qualified exact-root tests/builds into owner-installable bytes."
+      "user_intent": "Move requested source through qualified exact-root tests/builds into owner-installable bytes.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-016",
+            "title": "Exact combined-root build, independent QA and integration",
+            "owner": "Sole firmware integrator with Build and independent QA",
+            "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+            "status": "COMBINED_CANDIDATE_NOT_ESTABLISHED",
+            "priority": "P1",
+            "next_action": "Select bounded current candidate; consume producer proof; run remaining combined tests/build closure; record source-to-package-to-delivery receipts.",
+            "dependencies": [],
+            "related_requests": [],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Independent exact-root QA; authentic Elite/Pro/matching-controller hashes retained; gates and intended owner-installable bytes verified.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 122,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122",
+                "head": "b037edac22f914bd14c6ca7aaa2988a530abd13d",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 139,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/139",
+                "head": "55acb2fd442bd86f372e72e06727d7f27a4f5474",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 140,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/140",
+                "head": "4b67024e62bfd1b4d5789827334f6bea4f9b4e00",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 159,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/159",
+                "head": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Earlier Build start delayed 55m28s, completion unverified. Ready PR22/25 are docs; isolated PR159 artifacts do not qualify newer combined source."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Move requested source through qualified exact-root tests/builds into owner-installable bytes."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-017",
@@ -1446,9 +2552,9 @@
       "title": "Canonical workflow, plugin and skill coherence",
       "owner": "Sole workflow integrator",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "TRIAL_ACCEPTED_DEFAULT_ADOPTION_PENDING",
+      "status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
       "priority": "P2",
-      "next_action": "Reconcile stacked draft PR155 with intended protected target; synchronize authorized adapters/checkpoints and latest authority.",
+      "next_action": "Workflow integrator to preserve pinned contract/default-adoption limits and observe capability-aware handoffs; measure outcomes before throughput claims.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
@@ -1466,8 +2572,9 @@
       ],
       "evidence": {
         "source": {
-          "state": "TRIAL_ACCEPTED_NOT_DEFAULT",
-          "summary": "Plugin 0.1.54 trial pins e2482a5039527195e346925c751ac3e3a333ada9; ten tests/30 links reported; not default adoption. No firmware rebuild for unchanged compiled inputs."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Plugin 0.1.55 and coordinator skill saved with capability-aware role split. Existing trial/default-adoption distinctions remain; no proven throughput gain.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -1483,18 +2590,70 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority."
+      "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority.",
+      "history": [
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-019",
+            "title": "Canonical workflow, plugin and skill coherence",
+            "owner": "Sole workflow integrator",
+            "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+            "status": "TRIAL_ACCEPTED_DEFAULT_ADOPTION_PENDING",
+            "priority": "P2",
+            "next_action": "Reconcile stacked draft PR155 with intended protected target; synchronize authorized adapters/checkpoints and latest authority.",
+            "dependencies": [],
+            "related_requests": [],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Canonical revision/hash and adapters agree; reviewed adoption recorded; no unauthorized waiver policies; accurate default status.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 155,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "TRIAL_ACCEPTED_NOT_DEFAULT",
+                "summary": "Plugin 0.1.54 trial pins e2482a5039527195e346925c751ac3e3a333ada9; ten tests/30 links reported; not default adoption. No firmware rebuild for unchanged compiled inputs."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority."
+          }
+        }
+      ]
     },
     {
       "request_id": "LX-REQ-020",
       "title": "Productive schedulers and reduced request-to-install lead time",
       "owner": "Scheduler maintenance coordinator",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "PROMPT_REPAIR_UNDERWAY_READBACK_PENDING",
+      "status": "TWELVE_PROMPT_UPDATES_SAVED_CADENCE_UNCHANGED",
       "priority": "P1",
-      "next_action": "Complete authorized scoped prompt repair and verify supported readback; exact-head queue, one integrator, bounded handoffs, obsolete waits removed.",
+      "next_action": "Scheduler maintenance coordinator to verify actual next-run intake/dispatch and gather outcome evidence; retain existing cadence.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016",
@@ -1506,8 +2665,9 @@
       "known_source_references": [],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Twelve scheduler prompt updates saved; capability-aware roles and existing Safe Merge prompt wiring verified. Cadence unchanged after latest prompt edits; no proven throughput gain. Actual live feature intake/dispatch remains unverified.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -1517,13 +2677,14 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "PROMPT_UPDATES_SAVED_REPORTED",
+          "summary": "Prompt updates saved; existing cadence unchanged. Live execution effectiveness unverified."
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Advance independent requested work and reduce stale integration waits.",
       "history": [
@@ -1533,6 +2694,50 @@
           "next_action": "Assign authorized scoped prompt update and verify readback.",
           "source_state": "UNKNOWN",
           "note": "Earlier review performed no scheduler updates; subsequent supplied delta says repair underway, completion needs readback."
+        },
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-020",
+            "title": "Productive schedulers and reduced request-to-install lead time",
+            "owner": "Scheduler maintenance coordinator",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "PROMPT_REPAIR_UNDERWAY_READBACK_PENDING",
+            "priority": "P1",
+            "next_action": "Complete authorized scoped prompt repair and verify supported readback; exact-head queue, one integrator, bounded handoffs, obsolete waits removed.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-016",
+              "LX-REQ-019",
+              "LX-REQ-027"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Changed definitions read back and next delivery transitions observed; cadence/wording alone is not throughput/billing proof.",
+            "known_source_references": [],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Advance independent requested work and reduce stale integration waits."
+          }
         }
       ]
     },
@@ -2052,9 +3257,9 @@
       "title": "Durable request/progress tracking and parallel continuity",
       "owner": "Sole request tracker writer",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "TRACKER_IMPLEMENTATION_ACTIVE",
+      "status": "PRIOR_TRACKER_REMOTE_VERIFIED_DELTA_RECONCILIATION_ACTIVE",
       "priority": "P1",
-      "next_action": "Persist reviewed ledger/index and validator; independent public-safety review; verify remote branch delivery; continue evidence updates through designated writer.",
+      "next_action": "Sole request tracker writer to validate this bounded delta, obtain independent privacy/continuity review, push normally and verify remote SHA.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
@@ -2062,8 +3267,9 @@
       "known_source_references": [],
       "evidence": {
         "source": {
-          "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "Initial tracker preparation; durable branch delivery remains pending until independently verified."
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Prior tracker ce8bfd4a40179590485ecf35e6bb0be2d652e602 freshly verified on coordination/merge-queue. All original IDs, histories, 79 unmatched branch records and existing queue files retained; this stage adds scoped requests and progress only.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -2079,7 +3285,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T09:02:53Z",
+      "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "No request silently lost or treated done when source-ready.",
       "history": [
@@ -2088,6 +3294,46 @@
           "status": "TRACKER_PREPARATION_ACTIVE",
           "next_action": "Persist reviewed ledger through sole writer.",
           "source_state": "UNKNOWN"
+        },
+        {
+          "observed_at": "2026-10-25T10:29:45Z",
+          "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+          "previous": {
+            "request_id": "LX-REQ-027",
+            "title": "Durable request/progress tracking and parallel continuity",
+            "owner": "Sole request tracker writer",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "TRACKER_IMPLEMENTATION_ACTIVE",
+            "priority": "P1",
+            "next_action": "Persist reviewed ledger/index and validator; independent public-safety review; verify remote branch delivery; continue evidence updates through designated writer.",
+            "dependencies": [],
+            "related_requests": [],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Stable IDs, owner/state/next action/dependencies/criteria and separated evidence; no history discarded or unknown treated done.",
+            "known_source_references": [],
+            "evidence": {
+              "source": {
+                "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                "summary": "Initial tracker preparation; durable branch delivery remains pending until independently verified."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "No request silently lost or treated done when source-ready."
+          }
         }
       ]
     },
@@ -2244,6 +3490,280 @@
       "updated_at": "2026-10-25T09:02:53Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Explore Up/Down mapping banks and strip8 mode controls through owner-reviewed design first."
+    },
+    {
+      "request_id": "LX-REQ-031",
+      "title": "Automatic feature inbox and owner vote",
+      "owner": "Feature intake coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "HELPER_REVIEWED_LIVE_DISPATCH_UNVERIFIED",
+      "priority": "P1",
+      "next_action": "Feature intake coordinator to land form through authorized integration and verify one real intake/vote/dispatch cycle using existing Safe Merge wiring.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-020",
+        "LX-REQ-027"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Default-branch form and deterministic owner-vote intake verified through actual live dispatch with durable request continuity.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 184,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/184",
+          "head": "efa57425600a23d88efde6152c977542883da4a7",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh metadata; supplied progress is scoped evidence, not full qualification."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "SUPPLIED_SCOPED_EVIDENCE",
+          "summary": "PR184 efa57425600a23d88efde6152c977542883da4a7 helper/form/tests reviewed. Existing Safe Merge prompt wired and verified. Actual live intake/dispatch unverified; form not on default branch.",
+          "provenance": "Coordinator supplied technical summary; fresh metadata check for linked PRs."
+        },
+        "test": {
+          "state": "SCOPED_HELPER_FORM_TESTS_REVIEWED_REPORTED"
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "PROMPT_WIRED_FORM_NOT_DEFAULT_LIVE_UNVERIFIED"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T10:29:45Z",
+      "request_origin": "Public-safe technical summary from bounded coordinator handoff",
+      "user_intent": "Automatic feature inbox and owner vote",
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-032",
+      "title": "Alternative selectable synth engine inspired by KORG Miami",
+      "owner": "Synth engine planning coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "RESEARCH_COMPLETE_ENGINE_NOT_IMPLEMENTED",
+      "priority": "P1",
+      "next_action": "Planning coordinator to assess DaisySP/Plaits/Basilico licensing and versioned engine/project integration; reference-hosting owner to complete supported permission recovery and establish offline audio comparison before any flash.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Feasible licensed selectable-engine design, versioned project/lock compatibility, offline audio match accepted before authorized hardware testing.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "SUPPLIED_SCOPED_EVIDENCE",
+          "summary": "Research found no exact public clone; DaisySP/Plaits/Basilico are reuse candidates. Native feasibility shows tight code/RAM; raw project format and locks require versioned engine integration. No engine implemented. Installed Miami/Chicago 3.1.6 reference hosting is under supported permission recovery; no audio baseline yet. Owner requires offline audio match before flash.",
+          "provenance": "Coordinator supplied technical summary; fresh metadata check for linked PRs."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_REQUEST"
+        },
+        "build": {
+          "state": "FEASIBILITY_ONLY_NO_ENGINE_BUILD"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "OFFLINE_AUDIO_MATCH_REQUIRED_BEFORE_FLASH"
+        }
+      },
+      "updated_at": "2026-10-25T10:29:45Z",
+      "request_origin": "Public-safe technical summary from bounded coordinator handoff",
+      "user_intent": "Alternative selectable synth engine inspired by KORG Miami",
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-033",
+      "title": "Stock preset import, browser and pattern sound assignment",
+      "owner": "Preset planning coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "DESIGN_COMPATIBILITY_RIGHTS_ASSESSMENT_REQUIRED",
+      "priority": "P1",
+      "next_action": "Coordinator/planning owner to assess stock preset formats and rights, browser UX, per-pattern assignment and optional per-note sound changes against versioned project/engine compatibility.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-032"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Reviewed design and compatibility/rights assessment followed by separately scoped implementation and validation.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "SUPPLIED_SCOPED_EVIDENCE",
+          "summary": "New request for stock preset import, preset browser, per-pattern assignment and possible per-note sound changes. Design, compatibility and rights assessment only; not implemented.",
+          "provenance": "Coordinator supplied technical summary; fresh metadata check for linked PRs."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_REQUEST"
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T10:29:45Z",
+      "request_origin": "Public-safe technical summary from bounded coordinator handoff",
+      "user_intent": "Stock preset import, browser and pattern sound assignment",
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-034",
+      "title": "Longer notes and held-duration live recording",
+      "owner": "Sequencer UX planning coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "EXISTING_NOTE_TIE_AUDITED_DURATION_CAPTURE_PROPOSED",
+      "priority": "P1",
+      "next_action": "Sequencer UX coordinator to review held-duration capture design and compatibility while retaining existing NOTE/TIE behavior.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-009",
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Existing NOTE/TIE documented and preserved; held-duration capture has an owner-reviewed UX proposal before implementation.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 183,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/183",
+          "head": "f9d1480a4db20af513ab5f7504a3ad56d3a03692",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh metadata; supplied progress is scoped evidence, not full qualification."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "SUPPLIED_SCOPED_EVIDENCE",
+          "summary": "PR183 f9d1480a4db20af513ab5f7504a3ad56d3a03692 tests/docs reviewed: NOTE/TIE exists; live recording captures onset only, with no held-duration recording. Longer duration capture remains a UX proposal.",
+          "provenance": "Coordinator supplied technical summary; fresh metadata check for linked PRs."
+        },
+        "test": {
+          "state": "EXISTING_NOTE_TIE_TESTS_DOCS_REVIEWED_REPORTED"
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T10:29:45Z",
+      "request_origin": "Public-safe technical summary from bounded coordinator handoff",
+      "user_intent": "Longer notes and held-duration live recording",
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-035",
+      "title": "Preserve active cutoff locks and gesture ownership across mode switches",
+      "owner": "Mode-switch fix coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "SOURCE_AND_96_CASES_PASS_NATIVE_HARDWARE_PENDING",
+      "priority": "P1",
+      "next_action": "Build/QA coordinator to qualify PR189 exact head with native builds and hardware checks; retain physical-release ownership without restore-on-reentry workaround.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-005",
+        "LX-REQ-016"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Navigation preserves active cutoff lock; gestures retain original part until physical release; native and hardware qualification on exact candidate.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 189,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/189",
+          "head": "662ce39e43096fea1be159247ad46465034a0b28",
+          "observed_at": "2026-10-25T10:29:45Z",
+          "current_state": "open",
+          "draft": true,
+          "snapshot_note": "Fresh metadata; supplied progress is scoped evidence, not full qualification."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "SUPPLIED_SCOPED_EVIDENCE",
+          "summary": "PR189 662ce39e43096fea1be159247ad46465034a0b28 fixes navigation writing stored cutoff over active lock by removing navigation-triggered writes. Gestures retain original part until physical release. 96 production cases pass; native build and hardware pending. No restore-on-reentry workaround.",
+          "provenance": "Coordinator supplied technical summary; fresh metadata check for linked PRs."
+        },
+        "test": {
+          "state": "96_PRODUCTION_CASES_PASS_REPORTED"
+        },
+        "build": {
+          "state": "NATIVE_BUILD_PENDING"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "HARDWARE_PENDING"
+        }
+      },
+      "updated_at": "2026-10-25T10:29:45Z",
+      "request_origin": "Public-safe technical summary from bounded coordinator handoff",
+      "user_intent": "Preserve active cutoff locks and gesture ownership across mode switches",
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-036",
+      "title": "Assess Cursor contribution and review coverage",
+      "owner": "Engineering audit coordinator",
+      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+      "status": "SCOPED_IMPACT_AUDIT_COMPLETE_ACCOUNT_UNCHANGED",
+      "priority": "P1",
+      "next_action": "Coordinator to use scoped findings for coverage planning; do not infer account-wide statistics or change Cursor account settings.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-020",
+        "LX-REQ-025"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Attributable PR/family/source coverage and quota limits documented without unsupported account-wide conclusions.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "SUPPLIED_SCOPED_EVIDENCE",
+          "summary": "Completed impact audit: 47 attributable PRs grouped into 13 families; 9 families present in current source/tooling. 62 of 64 Bugbot runs quota-blocked. Findings describe audit coverage, not all account statistics. No authority to alter Cursor account.",
+          "provenance": "Coordinator supplied technical summary; fresh metadata check for linked PRs."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_FULL_REQUEST"
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T10:29:45Z",
+      "request_origin": "Public-safe technical summary from bounded coordinator handoff",
+      "user_intent": "Assess Cursor contribution and review coverage",
+      "history": []
     }
   ],
   "unclassified_preserved_branches": [

@@ -1,43 +1,185 @@
 {
   "schema_version": "1.0",
   "role": "Sole request tracker writer",
-  "outcome": "REVIEWED_TRACKER_PREPARED",
-  "parent_commit": "118d46a14ff7d8840de8e847a219a1c3eec8ace7",
-  "parent_tree": "a9849239d40f433a30f093952b9790fbc8f1f75d",
+  "outcome": "BOUNDED_DELTA_VALIDATED_INDEPENDENT_REVIEW_PASSED",
+  "parent_commit": "ce8bfd4a40179590485ecf35e6bb0be2d652e602",
+  "parent_tree": "77b6bdc53ef59ea6ed19139b62de5740b47c8d6d",
   "policy_pin": "e2482a5039527195e346925c751ac3e3a333ada9",
-  "scope": "Documentation/request continuity only; existing queue/history retained unchanged.",
+  "observed_at": "2026-10-25T10:29:45Z",
+  "scope": "Documentation/request continuity only; no broad audit, firmware changes, issue submissions, merge or publication.",
+  "changed_request_ids": [
+    "LX-REQ-001",
+    "LX-REQ-002",
+    "LX-REQ-003",
+    "LX-REQ-004",
+    "LX-REQ-005",
+    "LX-REQ-006",
+    "LX-REQ-007",
+    "LX-REQ-009",
+    "LX-REQ-010",
+    "LX-REQ-012",
+    "LX-REQ-014",
+    "LX-REQ-016",
+    "LX-REQ-019",
+    "LX-REQ-020",
+    "LX-REQ-027",
+    "LX-REQ-031",
+    "LX-REQ-032",
+    "LX-REQ-033",
+    "LX-REQ-034",
+    "LX-REQ-035",
+    "LX-REQ-036"
+  ],
   "validation": {
-    "command": "python3 coordination/requests/validate_requests.py",
+    "command": "python3 coordination/requests/validate_requests.py --previous previous-requests.json",
+    "previous_identity": "ce8bfd4a40179590485ecf35e6bb0be2d652e602:coordination/requests/requests.json",
     "exit_code": 0,
-    "requests": 30,
+    "requests": 36,
     "preserved_branch_heads": 79,
     "divergent": 45,
     "ancestral": 34,
-    "negative_cases_passed": [
-      "duplicate request ID",
-      "missing request ID",
-      "missing open owner",
-      "missing open next action",
-      "erased request",
-      "valid supersession accepted",
-      "invalid dependency",
-      "missing test evidence",
-      "erased preserved head",
-      "invalid reference URL"
-    ],
-    "independent_read_only_review": "Public-safety/schema review passed except one SMC scope omission; fixed by retaining user_intent and completion criterion. Full-project export scope also restored.",
-    "reference_check": "All historical PR references are covered by retained 139-row queue except newly observed PR168; PR168 and website PR18 additionally read through GitHub API. URL/repository/head formats validated.",
-    "public_safety": "New files contain role names and technical summaries; no private paths, task/Library IDs, raw captures, transcript excerpts, secrets or binaries."
+    "continuity": "All original request records retained; prior histories and full previous record snapshots preserved for each update. All 79 unmatched branch records and baseline identical. Registry appends six IDs.",
+    "queue_preservation": "Tree update restricted to request README, requests.json, continuity-registry.json and this receipt; existing queue and history files unchanged.",
+    "independent_read_only_review": "PASS: separate read-only reviewer checked all 12 supplied areas, original IDs/histories, 79 identical branch records, appended registry, README coverage, privacy and evidence limits. No blocking findings.",
+    "public_safety": "Role ownership and technical summaries only; no private paths, Library IDs, raw captures or transcript text."
   },
+  "fresh_pr_metadata": [
+    {
+      "number": 168,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/168",
+      "title": "Bind captured Pause target lock and show drum SEQ sound names"
+    },
+    {
+      "number": 19,
+      "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "head": "570253d35c84748bba82ddd616b9c17af8d7da58",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/19",
+      "title": "Put install and sample tools first; show current SMC preview before integration"
+    },
+    {
+      "number": 184,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "efa57425600a23d88efde6152c977542883da4a7",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/184",
+      "title": "Add deterministic feature-request intake to existing coordinator"
+    },
+    {
+      "number": 183,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "f9d1480a4db20af513ab5f7504a3ad56d3a03692",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/183",
+      "title": "test(seq): verify and explain longer bass notes with existing TIE gates"
+    },
+    {
+      "number": 188,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/188",
+      "title": "fix(seq): combine reviewed 303 gate, RANDOM timing and sustain repairs"
+    },
+    {
+      "number": 189,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "662ce39e43096fea1be159247ad46465034a0b28",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/189",
+      "title": "Preserve 303 cutoff and wheel ownership across mode changes"
+    },
+    {
+      "number": 171,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+      "title": "fix(project): refuse incomplete legacy arrangement loads; reconcile persistence"
+    },
+    {
+      "number": 174,
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "head": "272b80fbc38ac8be7e6adac96fe990394c1934f8",
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/174",
+      "title": "Isolate SMC BLE ingress ownership for staged multi-peer recovery"
+    }
+  ],
   "not_run": [
-    "Firmware source tests",
-    "Native firmware/controller builds",
+    "Firmware tests/builds",
     "Device tests",
-    "Publication endpoint verification"
+    "Publication endpoint verification",
+    "Live feature intake/dispatch"
   ],
   "remaining_limits": [
-    "Request evidence is a timestamped handoff, not full current-root acceptance.",
-    "PR168 head advanced to 6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67; metadata-only observation, no new acceptance inferred.",
-    "Remote tracker commit/readback is reported separately after push."
+    "PR168 latest observed head is metadata only; supplied Elite link cannot qualify an unknown source delta or final package.",
+    "Supplied technical evidence is attributed to the coordinator; PR metadata reads do not reperform reviews/builds.",
+    "Website owner publication decision pending; no owner installation or throughput gain inferred.",
+    "Remote commit/readback reported separately after guarded normal update."
+  ],
+  "previous_validation_receipts": [
+    {
+      "schema_version": "1.0",
+      "role": "Sole request tracker writer",
+      "outcome": "REVIEWED_TRACKER_PREPARED",
+      "parent_commit": "118d46a14ff7d8840de8e847a219a1c3eec8ace7",
+      "parent_tree": "a9849239d40f433a30f093952b9790fbc8f1f75d",
+      "policy_pin": "e2482a5039527195e346925c751ac3e3a333ada9",
+      "scope": "Documentation/request continuity only; existing queue/history retained unchanged.",
+      "validation": {
+        "command": "python3 coordination/requests/validate_requests.py",
+        "exit_code": 0,
+        "requests": 30,
+        "preserved_branch_heads": 79,
+        "divergent": 45,
+        "ancestral": 34,
+        "negative_cases_passed": [
+          "duplicate request ID",
+          "missing request ID",
+          "missing open owner",
+          "missing open next action",
+          "erased request",
+          "valid supersession accepted",
+          "invalid dependency",
+          "missing test evidence",
+          "erased preserved head",
+          "invalid reference URL"
+        ],
+        "independent_read_only_review": "Public-safety/schema review passed except one SMC scope omission; fixed by retaining user_intent and completion criterion. Full-project export scope also restored.",
+        "reference_check": "All historical PR references are covered by retained 139-row queue except newly observed PR168; PR168 and website PR18 additionally read through GitHub API. URL/repository/head formats validated.",
+        "public_safety": "New files contain role names and technical summaries; no private paths, task/Library IDs, raw captures, transcript excerpts, secrets or binaries."
+      },
+      "not_run": [
+        "Firmware source tests",
+        "Native firmware/controller builds",
+        "Device tests",
+        "Publication endpoint verification"
+      ],
+      "remaining_limits": [
+        "Request evidence is a timestamped handoff, not full current-root acceptance.",
+        "PR168 head advanced to 6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67; metadata-only observation, no new acceptance inferred.",
+        "Remote tracker commit/readback is reported separately after push."
+      ]
+    }
   ]
 }
