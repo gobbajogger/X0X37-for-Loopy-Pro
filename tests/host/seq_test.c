@@ -1261,6 +1261,8 @@ static void test_chain_endpoint_bounds(void)
     seq_chain(&S, 3, 3);
     CHECK(S.chain_a == 3 && S.chain_b == 3, "equal endpoints disable chain");
     printf("  chain endpoints: valid, reversed, disabled and eight invalid ranges checked\n");
+}
+
 /* REC-06: a swung internal step is long or short. Recording must use the midpoint
  * of that ACTUAL interval (fire_step), not half an unswung step. */
 static void test_rec_swing_midpoint(void)
