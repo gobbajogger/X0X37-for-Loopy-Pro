@@ -246,14 +246,14 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
         }
         tr->sounding = 1;
     }
-    nx = next_pos(s, TRK_BASS0 + b, p, 0);
     if ((bp->dir & 3) == DIR_RANDOM) {
         /* Preview the next random step without advancing the committed RNG.
          * A random TIE must hold the note picked before it, not the forward
          * neighbour (which may never play on this pass). */
         uint32_t peek_rng = tr->rng;
         nx = (int)(rng_next(&peek_rng) % (uint32_t)seq_part_len(s, TRK_BASS0 + b));
-    }
+    } else
+        nx = next_pos(s, TRK_BASS0 + b, p, 0);
     hold = (st->flags & BS_SLIDE) || bstep_gate(&bp->step[nx]) == G_TIE;
     tr->held_note = (uint8_t)((note & 0x7F) | ((st->flags & BS_SLIDE) ? 0x80 : 0));
     tr->to_off = hold ? 0 : carry + step_q8 / 2u;
@@ -376,17 +376,16 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     uint32_t L = seq_step_q8(s, rate);
     uint32_t carry = tr->to_next < 256u ? tr->to_next : 0;   /* the step was due this far into the sample: keep it */
     int bass = is_bass(t);
+    int dir = bass ? bpart(s, t - TRK_BASS0)->dir : DIR_FWD;
     if (!tr->started) {
-        p = (bass && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
+        p = (dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
         tr->started = 1;
         wrapped = 0;
     } else {
         p = next_pos(s, t, tr->pos, 1);
         /* The reverse pass wraps only at its last step, not also at zero.
          * Random steps have no positional wrap: count a logical pass below. */
-        wrapped = !bass ? p == 0 :
-            (bpart(s, t - TRK_BASS0)->dir == DIR_REV ? p == seq_part_len(s, t) - 1 :
-             bpart(s, t - TRK_BASS0)->dir != DIR_RANDOM && p == 0);
+        wrapped = dir != DIR_RANDOM && p == (dir == DIR_REV ? seq_part_len(s, t) - 1 : 0);
     }
     if (wrapped && t == TRK_DRUM && (changed = bar_end(s, 0)) != 0) {
         rate = part_rate(s, t);                       /* the 909's new pattern */
@@ -394,7 +393,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         p = 0;
     }
     if (bass) {
-        if (bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
+        if (dir == DIR_RANDOM) {
             /* Visiting step zero at random is not a bar boundary. Count
              * LEN actual played steps for both TB-3PO and probability. */
             uint8_t count = (uint8_t)(tr->mut_steps & RANDOM_PASS_STEPS);
