@@ -14,9 +14,9 @@ Checks: `evidence/f04-stage1/CHECKS.md`.
 Prior publish evidence: `evidence/f03-stage7/CHECKS.md`, `HANDOFF.md`, `live-verify.log`.
 Deferred younger items: BF-002, BF-003, withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume `find(IS_OTA)`, longer `SLOT_PROBE` budgets (`evidence/f03-stage2/DEFERRED.md`).
 Successor prompt: `evidence/f04-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-d910ead2-0c33-5313-adea-956b263a6fae`.
+Successor URL: https://cursor.com/agents/bc-d910ead2-0c33-5313-adea-956b263a6fae
+Handoff status: **complete** (owner-visible desktop Stage 2 recorded by Project coordinator CreateAgent; base `cursor/f04-bf001-stage1-fb90`).
 
 Selected defect: **BF-001**. Local `.fwsc` (and related) file selections can finish out of order so an older package replaces the most recently chosen one. Approved repair: selection generation token before `arrayBuffer`; clear stock / require fresh confirmation; ignore stale completions; preferably harden `ctlfile` the same way. Reimplement on this tip — do not stack-merge draft PR #31.
 
