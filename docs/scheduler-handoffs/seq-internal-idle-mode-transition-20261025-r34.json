@@ -1,0 +1,80 @@
+{
+  "evidence_revision": "seqclock-pr90-internal-idle-clock-mode-handoff-20261025-r34",
+  "role": "existing sole Sequencer Clock source specialist",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 90,
+  "parent_pr": 86,
+  "authorized_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "input_commit": "5dac8dec1b771ef8903b3bcf3011fb01c7095403",
+  "input_root_tree": "6371e1afa1f64dd74e503b1cf7b349ff72e1a125",
+  "unchanged_compiler_inputs": "e2644be97bb5182ecbcfcceb8300a1b1f10924ef",
+  "source_file": "firmware/src/seq/sequencer.c",
+  "source_blob": "f908e99be0fb7aba9e2d31364a3cf3ed952cc5d9",
+  "changed_test": "tests/host/seq_clock_auto_idle_wrap_test.c",
+  "test_before_blob": "aad82d7000dcb9548749d532d50167eed04a8535",
+  "test_after_blob": "397e6ade2c5fa5aac86a465601f394b30b705bff",
+  "maintained_runner_selector": "transport-clock-auto-idle-wrap",
+  "intended_user_behavior": "After 27h INTERNAL inactivity, switching to AUTO or EXTERNAL immediately before Loopy MIDI clock reconnect must not fabricate tempo. First F8 keeps 125 BPM; subsequent valid F8 establishes 120 BPM while 32-bit free-running time wraps.",
+  "actual_stimulus": "LINKED REAL sequencer.c+pattern.c+tb3po.c: initialize INTERNAL, set idle/ext_now to UINT32_MAX-16, advance 64 frames, change clock source through seq_advance, inject first and second accepted USB F8 via seq_clk_take/seq_midi_rt, check first ext_period==0 and bpm==125 and second bpm in [119,121], render partitions 1/64/1024.",
+  "executed_environment": "Linux x86_64; GCC 14.2.0 and Clang 17.0.0; -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror; plain, UBSan, ASan+UBSan; detect_leaks=0",
+  "executed_commands": "python3 run-r34.py; exact per-command argument arrays and exits contained in replay ZIP R34-LOCAL-EVIDENCE.json. Compiler source windows matched Git blob SHA.",
+  "observed": {
+    "patched": {
+      "compiles": 6,
+      "compilation_exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "assertions_each": "406668/406668 PASSED",
+      "run_log_sha256": "e1e6aaf4a55ca3e5305b4c397598029b7fe29f8cb9e3f4fb90d5b8c14f8a3d22"
+    },
+    "baseline": {
+      "compiles": 6,
+      "compilation_exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exit_codes": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "assertions_each": "406626/406668 FAILED (expected 42 detected regressions)",
+      "run_log_sha256": "a11899214caee505053ae3d017febc4c1733e507d0f649e26bb18d73576f9774"
+    },
+    "adjacent": {
+      "uptime": "GCC+Clang exit 0, 36328/36328",
+      "disconnect": "GCC+Clang exit 0, 186/186"
+    },
+    "total_expected_outcomes": "16/16"
+  },
+  "unrun": [
+    "complete exact-root test suite",
+    "independent whole-root QA",
+    "Elite/Pro target build",
+    "model/controller/CRC/hash/budget/install qualification",
+    "hardware/backup/OTA/restore",
+    "browser and served HTTPS"
+  ],
+  "next_owner": "existing Independent QA for exact-tree test review; existing Hourly Build for R33-changed firmware input SHA; sole Safe Merge alone may integrate after review",
+  "safety": "test coverage + JSON evidence only; does not change firmware source/toolchain/sdk/config/controller/model, protected nightly/main/gh-pages, public binary or device."
+}
