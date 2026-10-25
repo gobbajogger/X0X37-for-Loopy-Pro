@@ -110,6 +110,8 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         self.assertEqual(data['firmware_version'], '0.7.2')
         self.assertEqual(data['firmware']['version_label'], 'v0.7.2')
         self.assertEqual(data['firmware']['product'], 'SMK-37 Elite_9000702')
+        self.assertEqual(data['firmware']['release_display'], '0.7.2_openbeta')
+        self.assertNotIn('openbeta', data['firmware']['product'])
         self.assertFalse(data['firmware']['device_tested'])
         self.assertFalse(data['firmware']['installable'])
         self.assertIn('DEVICE NOT TESTED', data['firmware']['display_label'])

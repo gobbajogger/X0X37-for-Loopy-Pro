@@ -1822,12 +1822,35 @@ X0X_COLD static void run_action(int act, int arg)
         break;
     }
 #endif
-    case ACT_ABOUT:
-        q = put_s(t, "X0X " X0X_VERSION "  MEM ");
-        q = put_s(put_i(q, project_mem_pct()), "%  CPU ");
-        put_s(put_i(q, (int)plat_cpu_pct()), "%");
+    case ACT_ABOUT: {
+        char full[64], *e;
+        /* The header toast is 27 characters. DEV still uses the long form. A numeric
+         * version that does not fit uses a shorter form. The open-beta words are the
+         * settings-row label, not this line. */
+        e = put_s(full, "X0X " X0X_VERSION "  MEM ");
+        e = put_s(put_i(e, project_mem_pct()), "%  CPU ");
+        put_s(put_i(e, (int)plat_cpu_pct()), "%");
+        for (e = full; *e; e++)
+            ;
+        if ((unsigned)(e - full) < sizeof ui.msg) {
+            say(full, 0);
+            break;
+        }
+        e = put_s(t, "X0X ");
+        {
+            const char *v = X0X_VERSION;
+            int n = 0;
+            while (v[n] && n < 8 && e < t + (int)sizeof t - 1)
+                *e++ = v[n++];
+            *e = 0;
+        }
+        e = put_s(e, " M");
+        e = put_i(e, project_mem_pct());
+        e = put_s(e, " C");
+        put_i(e, (int)plat_cpu_pct());
         say(t, 0);
         break;
+    }
     default: break;
     }
 }
@@ -4024,6 +4047,23 @@ static UI_DRAW void draw_readout(void)
     }
 }
 
+/* Open-beta display to the left of the action arrow. Empty on an unversioned build.
+ * The name and the arrow stay put; a label that would touch either one is not drawn. */
+static int release_label_box(const char *label, int selected, int32_t *x, int32_t *w)
+{
+    int32_t name_w, lw, lx;
+    if (!label || !label[0])
+        return 0;
+    name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT X0X");
+    lw = tw(&FONT_XS, label);
+    lx = 204 - lw;
+    if (lx < 8 + name_w + 4 || lx + lw > 206)
+        return 0;
+    *x = lx;
+    *w = lw;
+    return 1;
+}
+
 /* a list over the main area: six rows of 24 px */
 static UI_DRAW void draw_list(int band)
 {
@@ -4049,6 +4089,11 @@ static UI_DRAW void draw_list(int band)
         cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
         if (r.kind == R_ACT) {                         /* an action: the return arrow */
             uint16_t ac = sel ? C_WHITE : C_DIM;
+            if (r.a == ACT_ABOUT) {
+                int32_t lx, lw;
+                if (release_label_box(X0X_RELEASE_LABEL, sel, &lx, &lw))
+                    cv_text(lx, vc(&FONT_XS, y + 1, 18), &FONT_XS, X0X_RELEASE_LABEL, sel ? C_WHITE : C_HI);
+            }
             cv_rect(212, y + 12, 12, 2, ac);
             cv_rect(222, y + 6, 2, 7, ac);
             cv_line(212, y + 13, 216, y + 9, ac);

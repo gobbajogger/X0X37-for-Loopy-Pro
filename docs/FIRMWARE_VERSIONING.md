@@ -16,9 +16,18 @@ retroactively call them v1.0.0 or claim hardware testing. Historical short
 FM-1 identities are likewise not reliable semantic versions.
 
 **Version selection:** MAJOR for incompatible data/storage/MIDI/interface
-changes; MINOR for compatible features; PATCH for fixes. The build owner must
-choose the next version deliberately. Do not invent or auto-increment versions
-from Git counts or dates. Different DEV artifacts at the same version must
+changes; MINOR for compatible features; PATCH for fixes. The open-beta line
+starts at 0.1.0. `tools/release_alloc.py` stores the next number in
+`releases/openbeta/ledger.json` and commits that file. Patch 99 rolls to the
+next minor, and minor 99 rolls to the next major. The counter stops at
+99.99.99. Do not invent a number from a commit count, a hash, or a date.
+Rebuilding the same source tree keeps its number. Different package bytes
+cannot reuse a recorded receipt. Elite and Pro share one number and keep
+separate package and controller hashes. The readable label is
+`X.Y.Z_openbeta`. The `_openbeta` suffix is not written into the package
+identity and a renamed catalog file does not change the installed identity.
+The preserved source `892bf60d912eca93597dcf03be25a9756540c949` stays
+unversioned. Different DEV artifacts at the same version must
 have distinct build IDs containing the immutable source SHA plus package
 SHA-256, compactly displayed as g[git12]-h[sha256-12]. Preserve full hashes in
 records. Never overwrite previously published package bytes.
@@ -72,9 +81,14 @@ SMK-37 Elite_9000702 означает v0.7.2 для Elite. Время, имя ф
 Git, SHA-256 пакета и старый build ID. Придумывать им v1.0.0 нельзя.
 
 MAJOR обозначает несовместимые изменения; MINOR — совместимые новые функции;
-PATCH — исправления. Следующую версию выбирает ответственный за сборку,
-а не счётчик коммитов. Разные сборки одной версии различаются build ID,
-содержащим SHA коммита и SHA-256 файла.
+PATCH — исправления. Следующий номер open-beta берётся из
+releases/openbeta/ledger.json, начиная с 0.1.0. После 0.1.99 идёт 0.2.0.
+Суффикс `_openbeta` только для показа рядом с ABOUT X0X и не входит в
+идентификатор пакета. Одинаковое дерево исходников сохраняет номер. Другие
+байты пакета этот номер повторить не могут. Elite и Pro делят номер, но
+хранят разные хеши пакета и контроллера. Исходник
+892bf60d912eca93597dcf03be25a9756540c949 остаётся без числовой версии.
+Переименование файла в каталоге не меняет установленную прошивку.
 
 tools/dev_validate.py run с --firmware-version X.Y.Z записывает номер в
 DEV-прошивку Pro/Elite и проверяет совпадение номера внутри пакета и записи.

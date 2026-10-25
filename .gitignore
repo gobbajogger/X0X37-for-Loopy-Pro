@@ -2,3 +2,5 @@ build/
 .DS_Store
 __pycache__/
 *.o
+releases/openbeta/*.lock
+releases/openbeta/*.json.tmp

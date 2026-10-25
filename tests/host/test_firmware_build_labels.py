@@ -32,6 +32,8 @@ class FirmwareBuildLabelsTest(unittest.TestCase):
         self.make_package('SMK-37 Elite_9000702')
         result = inspect_package(self.path, 'elite', SHA, expected_version='0.7.2')
         self.assertEqual(result['firmware_version'], '0.7.2')
+        self.assertEqual(result['release_display'], '0.7.2_openbeta')
+        self.assertNotIn('openbeta', result['product'])
         self.assertEqual(result['version_label'], 'v0.7.2')
         self.assertEqual(result['source_commit'], SHA)
         self.assertEqual(result['package_sha256'], __import__('hashlib').sha256(self.path.read_bytes()).hexdigest())
@@ -77,7 +79,7 @@ class FirmwareBuildLabelsTest(unittest.TestCase):
             inspect_package(self.path, 'pro', SHA)
 
     def test_canonical_semver_and_identity_bounds(self):
-        for candidate in ('01.2.3', '1.02.3', '1.2', '1.2.3-beta', '100.0.0', '-1.0.0'):
+        for candidate in ('01.2.3', '1.02.3', '1.2', '1.2.3-beta', '100.0.0', '-1.0.0', '0.7.2_openbeta'):
             with self.subTest(version=candidate), self.assertRaises(ValueError):
                 canonical_version(candidate)
         self.assertEqual(version_of_product('SMK-37 Elite_9999999', 'elite'), '99.99.99')

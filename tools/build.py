@@ -68,7 +68,8 @@ BOARD_PREFIX = {"fm1": "FM-1_9", "smk37": "SMK-37 Pro_9"}   # identity of a rele
 BOARD_DEFS = {"fm1": [], "smk37": ["-DBOARD_SMK37=1"]}       # the FM-1 build gets no new flag (byte-identical)
 # smk37: the keyboard's model name (MODEL env or --model); one hardware, three names. pro adds no flag
 MODELS = {"pro": "SMK-37 Pro", "elite": "SMK-37 Elite", "mke": "MKE-P37"}
-VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
+VERSION = None                      # numeric X.Y.Z passed to the firmware as X0X_VERSION
+RELEASE_LABEL = None                # display only, e.g. 0.1.3_openbeta; not part of the package identity
 
 
 def toolchain():
@@ -257,6 +258,8 @@ def build_app():
             flags.append(f"-DLCD_BAUD={baud}u")
     if VERSION:
         flags.append(f'-DX0X_VERSION="{VERSION}"')
+    if RELEASE_LABEL:
+        flags.append(f'-DX0X_RELEASE_LABEL="{RELEASE_LABEL}"')
     o2 = [f if f != "-Os" else "-O2" for f in flags]
     units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
@@ -402,8 +405,31 @@ def mmio_check():
     return errors
 
 
+def release_identity(text):
+    """Split a --release argument into machine identity and open-beta display.
+
+    The package identity uses only X.Y.Z, each component 0..99, as model_9XXYYZZ.
+    `_openbeta` is a display label. It is not accepted as a version argument and
+    it is not encoded in the product name. A different -suffix keeps the older
+    on-device version string and gets no open-beta label.
+    """
+    match = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", text or "")
+    if not match:
+        raise ValueError("use X.Y[.Z][-suffix], up to two digits each")
+    major, minor, patch = int(match[1]), int(match[2]), int(match[3] or 0)
+    numeric = "%d.%d.%d" % (major, minor, patch)
+    digits = "%02d%02d%02d" % (major, minor, patch)
+    channel = match.group(4)
+    if channel in (None, "-openbeta"):
+        return {"numeric": numeric, "digits": digits, "version_macro": numeric,
+                "release_label": numeric + "_openbeta", "filename": numeric}
+    shown = text.upper() if "BETA" in text.upper() else text.upper() + " BETA"
+    return {"numeric": numeric, "digits": digits, "version_macro": shown,
+            "release_label": None, "filename": text}
+
+
 def main():
-    global PRODUCT, VERSION, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
+    global PRODUCT, VERSION, RELEASE_LABEL, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
@@ -438,17 +464,20 @@ def main():
         OUT = OUT.parent / f"{BOARD}-{model}"     # its own objects: the Pro build's stay as they are
         LDR = OUT / "loader"
     name = f"{stem}.fwsc"
+    RELEASE_LABEL = None
     if a.release:
         # identity FM-1_9 + major, minor, patch as two digits each (0.10 -> FM-1_9001000). FM-1 is the
         # model the update tools match on; the number is ours (X0X 0.3..0.9 were FM-1_9XY, one digit
-        # each, which ran out at 0.9 and was also Felucca's own numbering). 12 of the 20 characters a
-        # package's identity holds; digits only after the underscore, as the tools parse it.
-        m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", a.release)
-        if not m:
-            raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
-        PRODUCT = BOARD_PREFIX[BOARD] + "%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
-        VERSION = a.release.upper() if "BETA" in a.release.upper() else a.release.upper() + " BETA"
-        name = f"{stem}-{a.release}.fwsc"
+        # each, which ran out at 0.9 and was also Felucca's own numbering). Digits only after the
+        # underscore. The open-beta words stay in X0X_RELEASE_LABEL, not in this identity.
+        try:
+            ident = release_identity(a.release)
+        except ValueError as exc:
+            raise SystemExit(f"--release {a.release}: {exc}") from exc
+        PRODUCT = BOARD_PREFIX[BOARD] + ident["digits"]
+        VERSION = ident["version_macro"]
+        RELEASE_LABEL = ident["release_label"]
+        name = f"{stem}-{ident['filename']}.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
         if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:

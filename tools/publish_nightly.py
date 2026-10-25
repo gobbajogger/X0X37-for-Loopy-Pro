@@ -43,6 +43,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dev_validate  # noqa: E402
 import make_pages  # noqa: E402
+from firmware_build_labels import canonical_version, release_display, version_of_product  # noqa: E402
 from make_site import product_of  # noqa: E402
 
 LABEL = "DEV / HARDWARE TEST — DEVICE NOT TESTED"
@@ -58,6 +59,21 @@ BRANCH = "nightly-pages"
 # gh-pages is production. main/master and the firmware nightly branch are source.
 FORBIDDEN = {"gh-pages", "main", "master", "nightly"}
 PRODUCTS = {"pro": "SMK-37 Pro_900", "elite": "SMK-37 Elite_900"}
+
+
+def _embedded_version(product, model):
+    """None for a legacy model_900 package. Refuse any other non-codec identity."""
+    if model not in PRODUCTS:
+        raise NightlyPublishError("nightly model must be elite or pro")
+    if product == PRODUCTS[model]:
+        return None
+    try:
+        found = version_of_product(product, model)
+    except ValueError as exc:
+        raise NightlyPublishError(f"{model} package identity {product!r} is not a validated version") from exc
+    if found is None:
+        raise NightlyPublishError(f"{model} package identity {product!r} is not a validated version")
+    return found
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 FWSC_NAME = re.compile(r"^[A-Za-z0-9._-]+\.fwsc$")
@@ -97,12 +113,39 @@ def _verify_records(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_
         if record.get("model") != model or record.get("commit") != commit:
             raise NightlyPublishError(f"{model} record does not match the validated commit")
         raw = fwsc.read_bytes()
-        if product_of(raw) != PRODUCTS[model] or b"FELUCCA-LOADER-1" not in raw:
-            raise NightlyPublishError(f"{model} package is not the development build {PRODUCTS[model]}")
+        if b"FELUCCA-LOADER-1" not in raw:
+            raise NightlyPublishError(f"{model} package has no update loader")
+        try:
+            product = product_of(raw)
+        except (ValueError, OSError) as error:
+            raise NightlyPublishError(f"{model} package identity is unreadable") from error
+        embedded = _embedded_version(product, model)
+        recorded = record.get("firmware_version")
+        if embedded is None:
+            if recorded is not None:
+                raise NightlyPublishError(f"{model} legacy package has no numeric version")
+        else:
+            try:
+                recorded = canonical_version(recorded)
+            except (ValueError, TypeError) as error:
+                raise NightlyPublishError(f"{model} validation record has no canonical firmware version") from error
+            if recorded != embedded:
+                raise NightlyPublishError(f"{model} package version does not match its validation record")
+            firmware = record.get("firmware")
+            digest = make_pages.sha256_file(fwsc)
+            if not isinstance(firmware, dict) or firmware.get("product") != product or firmware.get("package_sha256") != digest:
+                raise NightlyPublishError(f"{model} record does not match the package bytes")
+            if firmware.get("firmware_version") != embedded:
+                raise NightlyPublishError(f"{model} record identity does not match the package")
+        record = dict(record)
+        record["_embedded_version"] = embedded
+        record["_product"] = product
         verified.append((model, record, fwsc, Path(ctl) if ctl else None))
     elite, pro = verified
     if elite[1]["commit"] != pro[1]["commit"] or elite[1].get("tree") != pro[1].get("tree"):
         raise NightlyPublishError("Elite and Pro are not the same validated source")
+    if elite[1].get("_embedded_version") != pro[1].get("_embedded_version"):
+        raise NightlyPublishError("Elite and Pro firmware versions differ")
     return elite[1]["commit"], verified
 
 
@@ -118,8 +161,15 @@ def _pkg_name(pkg):
 def _model_entry_ok(key, model):
     if key not in PRODUCTS or not isinstance(model, dict):
         return False
-    if model.get("product") != PRODUCTS[key]:
-        return False
+    product = model.get("product")
+    if product == PRODUCTS[key]:
+        pass
+    else:
+        try:
+            if version_of_product(product, key) is None:
+                return False
+        except (ValueError, TypeError):
+            return False
     if model.get("fromRelease") or model.get("qualified") is False or model.get("installable") is False:
         return False
     if model.get("revoked") or model.get("blocked") or model.get("withdrawn"):
@@ -155,7 +205,27 @@ def _version_ok(entry):
         return False
     if any(key not in PRODUCTS for key in models):
         return False
-    return all(_model_entry_ok(key, model) for key, model in models.items())
+    if not all(_model_entry_ok(key, model) for key, model in models.items()):
+        return False
+    decoded = []
+    for key, model in models.items():
+        product = model.get("product")
+        if product == PRODUCTS[key]:
+            decoded.append(None)
+            continue
+        try:
+            decoded.append(version_of_product(product, key))
+        except (ValueError, TypeError):
+            return False
+    if any(item is None for item in decoded) and any(item is not None for item in decoded):
+        return False
+    if decoded[0] is None:
+        return entry.get("firmware_version") in (None,) and entry.get("release_display") in (None,)
+    if len(set(decoded)) != 1 or entry.get("firmware_version") != decoded[0]:
+        return False
+    if entry.get("version") != decoded[0] or entry.get("release_display") != release_display(decoded[0]):
+        return False
+    return True
 
 
 def _kept_versions(catalog, merge_from, version):
@@ -185,14 +255,18 @@ def _kept_versions(catalog, merge_from, version):
 
 
 def _new_version(commit, verified):
-    version = "nightly-" + commit[:12]
+    embedded = verified[0][1].get("_embedded_version")
+    # The catalog version is the machine identity. A filename is not an identity.
+    # Legacy packages keep the historical nightly label and stay unversioned.
+    version = embedded if embedded else "nightly-" + commit[:12]
+    display = release_display(embedded) if embedded else None
     models = {}
     copies = {}
     for model, record, fwsc, ctl in verified:
         name = f"x0x37-{version}-elite.fwsc" if model == "elite" else f"x0x37-{version}.fwsc"
         raw_size = fwsc.stat().st_size
         entry = {
-            "product": PRODUCTS[model],
+            "product": record.get("_product") or PRODUCTS[model],
             "pkg": f"../firmware/{name}",
             "sha256": make_pages.sha256_file(fwsc),
             "size": raw_size,
@@ -205,7 +279,7 @@ def _new_version(commit, verified):
             raise NightlyPublishError(f"{model} package hash is not the validated artifact")
         models[model] = entry
         copies[name] = fwsc
-    return version, {
+    entry = {
         "version": version,
         "label": LABEL,
         "status": "dev-checked",
@@ -216,7 +290,11 @@ def _new_version(commit, verified):
         "source_commit": commit,
         "source_tree": verified[0][1].get("tree"),
         "models": models,
-    }, copies
+    }
+    if embedded:
+        entry["firmware_version"] = embedded
+        entry["release_display"] = display
+    return version, entry, copies
 
 
 def _catalog(commit, verified, merges):

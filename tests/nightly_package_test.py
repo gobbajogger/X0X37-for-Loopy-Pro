@@ -175,7 +175,15 @@ def main(argv=None):
         _, logical = add_ctl.logical_of(complete)
         for version in ("901", "016"):
             rewrapped = add_ctl.fwsc_of(logical, nightly.MODELS[model] + "_" + version)
-            refused(lambda: nightly.inspect(rewrapped, model, digest, size), "does not match")
+            refused(lambda raw=rewrapped, m=model: nightly.inspect(raw, m, digest, size), "does not match")
+        stamped = add_ctl.fwsc_of(logical, nightly.MODELS[model] + "_9000103")
+        receipt_v = nightly.inspect(stamped, model, digest, size, "0.1.3")
+        assert receipt_v["firmware_version"] == "0.1.3", receipt_v
+        assert receipt_v["release_display"] == "0.1.3_openbeta"
+        assert receipt_v["product"].endswith("_9000103") and "_openbeta" not in receipt_v["product"]
+        refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.4"), "does not match")
+        refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.3_openbeta"), "not a firmware version")
+        assert nightly.inspect(complete, model, digest, size)["firmware_version"] is None
         refused(lambda: nightly.inspect(complete, model, "0" * 64, size), "reviewed pin")
         refused(lambda: nightly.inspect(complete, model, digest, size - 1), "reviewed pin")
         refused(lambda: nightly.inspect(fixtures[model + "-outer-crc.fwsc"], model, digest, size), "package integrity")

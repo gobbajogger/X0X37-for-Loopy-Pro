@@ -28,13 +28,24 @@ MODELS = {
 }
 VERSION = re.compile(r"(0|[1-9][0-9]?)\.(0|[1-9][0-9]?)\.(0|[1-9][0-9]?)\Z")
 COMMIT = re.compile(r"[0-9a-f]{40}\Z")
+DISPLAY_SUFFIX = "_openbeta"
 
 
 def canonical_version(value):
-    """Return canonical X.Y.Z (each component 0..99) or refuse it."""
+    """Return canonical X.Y.Z (each component 0..99) or refuse it.
+
+    A channel display such as 0.1.3_openbeta is not a machine version.
+    """
+    if isinstance(value, str) and value.endswith(DISPLAY_SUFFIX):
+        raise ValueError("channel display is not a firmware version")
     if not isinstance(value, str) or not VERSION.fullmatch(value):
         raise ValueError("firmware version must be canonical X.Y.Z (components 0..99)")
     return value
+
+
+def release_display(version):
+    """Readable open-beta label. The suffix is not part of the package identity."""
+    return canonical_version(version) + DISPLAY_SUFFIX
 
 
 def version_of_product(product, model):
@@ -76,6 +87,7 @@ def inspect_package(path, model, source_commit, expected_version=None):
     build_id = "g" + source_commit[:12] + "-h" + package_sha[:12]
     return {
         "firmware_version": actual_version,
+        "release_display": None if actual_version is None else release_display(actual_version),
         "version_label": label,
         "build_id": build_id,
         "display_label": "X0X37 " + label + " · " + MODELS[model] + " · DEV · DEVICE NOT TESTED",
