@@ -1,0 +1,65 @@
+{
+  "schema": "loopyx0x37-performance-r28-generator-cache-closure",
+  "stage": "R28 bounded installable reliability regression",
+  "problem": "tools/gen_cache.py hashes source/fonts/compiler but not the Pillow/FreeType/RAQM renderer used by tools/gen_font.py; an otherwise identical key can retrieve an incompatible generated glyph header",
+  "musician_effect": "Makes reused firmware build inputs distinguish renderer revisions, reducing the chance a generated UI glyph cache hides different build contents or code-size changes; does NOT make differing Pillow versions produce identical fonts",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "base_nightly": "08d3164a265123cb4c84e5104642fd93257d63d7",
+    "old_gen_cache_blob": "19e69927627abc5de9634353e6493829b427afae",
+    "new_gen_cache_blob": "3b52fc543fa1395a61c221ca9a962de382fed824",
+    "new_test_blob": "1ba7365909efb0580cba4542231a028398d07dd8",
+    "firmware_subtree_unchanged": "a8eb1d512a8917f84f26908da181d9b042dad282",
+    "assets_subtree_unchanged": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "ble_subtree_unchanged": "6336915688f7b9178d17f8975703c108aa464ec0",
+    "current_pr193_draft": "bd489eda7c4ce4b56770fd24d6eec228d997c778",
+    "policy_reviewed_trial": "218dbf80cc61384947d6bb2b02e41fc1f3556048_not_merged"
+  },
+  "execution": {
+    "host": "Linux x86_64",
+    "python": "3.11/3.13 host test tooling as available",
+    "actual_test_pillow": "12.3.0",
+    "actual_freetype": "2.14.3",
+    "actual_raqm": "0.10.5",
+    "test_command": "python3 tests/gen_cache_renderer_closure_test.py",
+    "test_exit": 0,
+    "syntax_command": "python3 -m py_compile tools/gen_cache.py tests/gen_cache_renderer_closure_test.py",
+    "syntax_exit": 0,
+    "whitespace_command": "git diff --cached --check (isolated local source fixture)",
+    "whitespace_exit": 0,
+    "baseline_mutation_test": "baseline test exits 1 because renderer closure helper absent; direct baseline comparison proves 9.4.0/12.3.0 hashed identically with identical simulated other inputs"
+  },
+  "measured": {
+    "baseline_key_pillow_9_4": "85a41f10b2166cde5d70b0f46a3bc4cb26162a23b79a556e4d50a328d49f7d25",
+    "baseline_key_pillow_12_3": "85a41f10b2166cde5d70b0f46a3bc4cb26162a23b79a556e4d50a328d49f7d25",
+    "fixed_key_pillow_9_4": "9c8307d2541efac2db88f11a49d8843cc1abbf67401dcdb95179c35e4356d2c4",
+    "fixed_key_pillow_12_3": "ec2b9167127d394ed4fff02d4eed84d878e9b79344dde68faad409a97afc75f6",
+    "covered": [
+      "same renderer -> same key and verified cache restore",
+      "changed Pillow -> cache miss",
+      "changed FreeType -> different key",
+      "changed RAQM presence -> different key",
+      "changed RAQM version -> different key",
+      "damaged cached header -> restore refused",
+      "missing renderer metadata -> OSError fail-closed"
+    ]
+  },
+  "limits": {
+    "actual_9_4_pillow_install": "NOT_RUN; version change injected via standard library mock",
+    "real_font_generation": "NOT_RUN; font assets not reproduced in this scoped host test",
+    "Elite_Pro_native_build": "NOT_RUN; build tool input changed so affected future closures must be qualified",
+    "controller_full_closure": "NOT_RUN",
+    "device_cpu_latency": "NOT_MEASURED",
+    "independent_QA": "PENDING",
+    "merge_publish_hardware": "NOT_AUTHORIZED_NOT_PERFORMED",
+    "GitHub_Actions": "NOT_USED"
+  },
+  "next": {
+    "Build": "On exact combined source and pinned Pillow/FreeType/RAQM/fonts/compiler assets closure, rerun affected native Elite/Pro BUILD_ONLY and inspect XIP/RAM/pool/stack before package reuse",
+    "Independent_QA": "Independently review cache key scope and negative tests; validate generated-header bytes and reused controller closure where applicable",
+    "Integrator": "Reconcile source PR on its own scope with current candidate and mandatory action-specific authorization before protected merge",
+    "Performance": "Do not conflate R25 whole-renderer no-speedup evidence with this generator closure regression"
+  },
+  "tokens": null,
+  "elapsed_seconds": null
+}
