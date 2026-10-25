@@ -1909,8 +1909,12 @@ X0X_COLD static void run_action(int act, int arg)
 /* ===================================================================== input === */
 /* knob acceleration by speed: a slow turn is one step a detent (fine detail), a quick one up to 8,
  * so a fast half turn sweeps 0-127. Several detents in one read are a fast turn too. Small ranges
- * stay gentler; switches and lists never get here (turn_ref steps them one at a time). */
+ * stay gentler; switches and lists never get here (turn_ref steps them one at a time).
+ * SMC strips set accel_smc. Their byte already counts the detents, and the panel's x8 (x16 on a
+ * wide range) made a flick leap the pot. A slow click stays one step. A quicker turn still gains,
+ * but only the first few detents in that message are multiplied, and a wide range is not doubled. */
 static uint8_t accel_off;              /* the host simulator's "spin": exact steps */
+static uint8_t accel_smc;              /* this step is an SMC strip, not a panel encoder */
 static int32_t accel(int role, int32_t s, int range)
 {
     uint32_t now = plat_ms(), dt = now - ui.enc_t[role], a = (uint32_t)(s < 0 ? -s : s), m;
@@ -1922,6 +1926,18 @@ static int32_t accel(int role, int32_t s, int range)
     ui.enc_run[role] = (uint8_t)(dt < 60u ? (ui.enc_run[role] + a > 255u ? 255u : ui.enc_run[role] + a) : a);
     if (range <= 24 || accel_off || ui.enc_run[role] < 4u)
         return s;                                     /* a few clicks, however quick: one each */
+    if (accel_smc) {
+        m = dt < 12u ? 3u : dt < 45u ? 2u : 1u;
+        if (range < 100 && m > 2u)
+            m = 2u;                                   /* a shorter pot stays finer */
+        if (m == 1u)
+            return s;                                 /* not a quick spin: one value per detent */
+        {
+            uint32_t head = a < 3u ? a : 3u;          /* boost the start of the message only */
+            uint32_t scaled = head * m + (a - head);
+            return s < 0 ? -(int32_t)scaled : (int32_t)scaled;
+        }
+    }
     m = dt < 12u ? 8u : dt < 25u ? 5u : dt < 45u ? 3u : 1u;
     if (range < 100 && m > 3u)
         m = 3u;
