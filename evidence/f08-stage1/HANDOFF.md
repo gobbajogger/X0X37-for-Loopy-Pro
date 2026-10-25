@@ -19,9 +19,10 @@ Stage-7 local review: Project store `internal/pr-local-reviews/pr-225.md` (PASS)
 Package local review: Project store `internal/pr-local-reviews/pr-222.md` (PASS).
 Deferred younger / excluded items: withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume `find(IS_OTA)`, longer `SLOT_PROBE` budgets, delete Felucca-era `make_site.py` entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite (`evidence/f07-stage2/DEFERRED.md`); younger BF-005/BF-006/BF-007.
 Successor prompt: `evidence/f08-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create ×2 → 401; logs `api-create-stage2-attempt{1,2}.json`); coordinator CreateAgent is required.
+Successor agent id: `bc-b8f70f77-86ea-5f4d-8f65-8b52329fee6e`.
+Successor URL: https://cursor.com/agents/bc-b8f70f77-86ea-5f4d-8f65-8b52329fee6e.
+Successor name: F08 stage2 BF-004.
+Handoff status: **complete** — owner-visible Stage 2 id recorded on this remote tip (coordinator CreateAgent after pod API 401 ×2). PR #229 local-env review agent: `bc-c6acd4a5-5aa6-574a-8e7c-b29b0ae5c1e0` → `internal/pr-local-reviews/pr-229.md`.
 
 Selected defect: **BF-004**. Stale Note Off from a previous USB/Bluetooth source releases the current owner’s 303 / BREAK hold because `midi_in` does not check `src_held` ownership on Note Off (`firmware/src/app/engine.c`, blob `555480d9…`). **Approved repair: ownership-gated Note Off / BREAK off + host regressions.** Do not reopen BF-001–BF-003 or FP-001.
 
