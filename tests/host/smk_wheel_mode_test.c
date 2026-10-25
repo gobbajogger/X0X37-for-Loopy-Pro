@@ -145,10 +145,17 @@ int main(int argc,char **argv) {
     fm1_in.wheel[1]=550; smk_wheels(); render();
     select_part(PART_303A+(1-part),smc_path);
     fm1_in.wheel[0]=580; smk_wheels(); render();
+    assert(last_param==CHI_PBEND && last_voice==1-part && last_value!=64);
+    assert(observed_bass[1-part]->pot[BASS303_TUNE]==64);
+    assert(observed_bass[1-part]->bend_pot==(uint8_t)last_value);
     before=commands;
     fm1_in.wheel[1]=615; smk_wheels();
     assert(commands==before+1 && last_voice==part && last_param==BASS303_CUTOFF && last_value==51);
     fm1_in.wheel[0]=550; smk_wheels();
-    assert(commands==before+2 && last_voice==1-part && last_param==BASS303_TUNE);
+    assert(commands==before+2 && last_voice==1-part && last_param==CHI_PBEND);
+    assert(last_value==proj.sound.v[T_303][1-part][CHI_PBEND]);
+    render();
+    assert(observed_bass[1-part]->pot[BASS303_TUNE]==64);
+    assert(observed_bass[1-part]->bend_pot==proj.sound.v[T_303][1-part][CHI_PBEND]);
     return 0;
 }

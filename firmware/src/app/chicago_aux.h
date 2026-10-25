@@ -3,8 +3,9 @@
  *
  * Stored in sound_t after SEND FX (CHI_PBEND / CHI_DAMPER). Pitch bend is a
  * live ±2 semitone offset around centre pot 64 — it does not rewrite TUNE.
- * Damper (sustain) defers live/MIDI note-off while pot ≥ 64; pattern gates
- * ignore it. Physical pitch wheel stays on its TUNE overlay (separate path).
+ * The SMK pitch wheel is the live source: while it is off centre it writes
+ * CHI_PBEND (not TUNE) and on release the saved pot returns. Damper (sustain)
+ * defers live/MIDI note-off while pot ≥ 64; pattern gates ignore it.
  * Miami aux stays on WBL1 — not mapped here. */
 #pragma once
 #include <stdint.h>
@@ -55,4 +56,15 @@ static inline int chi_damper_on(uint8_t pot)
 static inline float chi_pbend_semitones(uint8_t pot)
 {
     return ((float)((int)pot - 64) / 64.0f) * 2.0f;
+}
+
+/* Pitch-wheel deflection −63..63 (0 = spring centre) → CHI_PBEND pot.
+ * 64 is no bend. The wheel does not add this onto TUNE. */
+static inline int chi_pbend_from_wheel(int bend)
+{
+    if (bend < -63)
+        bend = -63;
+    if (bend > 63)
+        bend = 63;
+    return 64 + bend;
 }

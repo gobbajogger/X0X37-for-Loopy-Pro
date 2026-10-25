@@ -48,6 +48,10 @@ static void test_indices(void)
     CHECK(fabsf(chi_pbend_semitones(64)) < 1e-6f, "centre = 0 st");
     CHECK(fabsf(chi_pbend_semitones(0) + 2.0f) < 1e-5f, "0 = −2 st");
     CHECK(fabsf(chi_pbend_semitones(127) - 2.0f) < 0.05f, "127 ≈ +2 st");
+    CHECK(chi_pbend_from_wheel(0) == 64, "wheel rest → centre pot");
+    CHECK(chi_pbend_from_wheel(-63) == 1, "wheel full down");
+    CHECK(chi_pbend_from_wheel(63) == 127, "wheel full up");
+    CHECK(chi_pbend_from_wheel(-100) == 1 && chi_pbend_from_wheel(100) == 127, "wheel clamps");
 }
 
 static void test_factory_decode(void)
