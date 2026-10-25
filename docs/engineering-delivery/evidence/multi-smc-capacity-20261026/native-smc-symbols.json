@@ -1,0 +1,258 @@
+{
+  "input_smc_sha256": "13dcda0303c95a1d8ff064b2795be44b954ee7122dd406b5c76140f3008fd678",
+  "meaning": "Actual compiled Elite x0x.o function section sizes; linked package FAILED overflow3516; not final linked attribution",
+  "functions": [
+    {
+      "symbol": "smc_ui_grid",
+      "bytes": 1436
+    },
+    {
+      "symbol": "smc_ui_draw",
+      "bytes": 1432
+    },
+    {
+      "symbol": "smc_button_apply",
+      "bytes": 1314
+    },
+    {
+      "symbol": "smc_poll",
+      "bytes": 1026
+    },
+    {
+      "symbol": "smc_message",
+      "bytes": 794
+    },
+    {
+      "symbol": "smc_button",
+      "bytes": 756
+    },
+    {
+      "symbol": "smc_knob_target",
+      "bytes": 514
+    },
+    {
+      "symbol": "smc_fader",
+      "bytes": 466
+    },
+    {
+      "symbol": "smc_led",
+      "bytes": 432
+    },
+    {
+      "symbol": "smc_frame",
+      "bytes": 390
+    },
+    {
+      "symbol": "smc_ble_midi_peer",
+      "bytes": 272
+    },
+    {
+      "symbol": "smc_notice",
+      "bytes": 258
+    },
+    {
+      "symbol": "smc_capture",
+      "bytes": 256
+    },
+    {
+      "symbol": "smc_extra_target",
+      "bytes": 246
+    },
+    {
+      "symbol": "smc_ui_label",
+      "bytes": 222
+    },
+    {
+      "symbol": "smc_midi_host",
+      "bytes": 214
+    },
+    {
+      "symbol": "smc_voice_target",
+      "bytes": 194
+    },
+    {
+      "symbol": "smc_project_reset",
+      "bytes": 170
+    },
+    {
+      "symbol": "smc_solo_publish",
+      "bytes": 166
+    },
+    {
+      "symbol": "smc_bind",
+      "bytes": 160
+    },
+    {
+      "symbol": "smc_mmc_host",
+      "bytes": 158
+    },
+    {
+      "symbol": "smc_context_prepare",
+      "bytes": 150
+    },
+    {
+      "symbol": "smc_ui_strip_value",
+      "bytes": 138
+    },
+    {
+      "symbol": "smc_target",
+      "bytes": 134
+    },
+    {
+      "symbol": "smc_ui_context",
+      "bytes": 130
+    },
+    {
+      "symbol": "smc_page_target",
+      "bytes": 124
+    },
+    {
+      "symbol": "smc_lock_toggle",
+      "bytes": 124
+    },
+    {
+      "symbol": "smc_mmc_drain_stop",
+      "bytes": 96
+    },
+    {
+      "symbol": "smc_scaled",
+      "bytes": 96
+    },
+    {
+      "symbol": "smc_record_toggle",
+      "bytes": 92
+    },
+    {
+      "symbol": "smc_ble_link_peer",
+      "bytes": 88
+    },
+    {
+      "symbol": "smc_bank_sync",
+      "bytes": 86
+    },
+    {
+      "symbol": "smc_mix_context",
+      "bytes": 84
+    },
+    {
+      "symbol": "smc_ui_begin",
+      "bytes": 82
+    },
+    {
+      "symbol": "smc_drum_mix",
+      "bytes": 80
+    },
+    {
+      "symbol": "smc_ui_active",
+      "bytes": 78
+    },
+    {
+      "symbol": "smc_nav_key",
+      "bytes": 70
+    },
+    {
+      "symbol": "smc_peer_lock",
+      "bytes": 70
+    },
+    {
+      "symbol": "smc_select_part",
+      "bytes": 64
+    },
+    {
+      "symbol": "smc_fader_of",
+      "bytes": 62
+    },
+    {
+      "symbol": "smc_mmc_note",
+      "bytes": 58
+    },
+    {
+      "symbol": "smc_drum_track",
+      "bytes": 52
+    },
+    {
+      "symbol": "smc_is_solo_release",
+      "bytes": 52
+    },
+    {
+      "symbol": "smc_guarded_button",
+      "bytes": 50
+    },
+    {
+      "symbol": "smc_ui_cancel",
+      "bytes": 46
+    },
+    {
+      "symbol": "smc_connected",
+      "bytes": 44
+    },
+    {
+      "symbol": "smc_solo_press",
+      "bytes": 42
+    },
+    {
+      "symbol": "smc_view",
+      "bytes": 42
+    },
+    {
+      "symbol": "smc_home_target",
+      "bytes": 40
+    },
+    {
+      "symbol": "smc_solo_clear",
+      "bytes": 38
+    },
+    {
+      "symbol": "smc_lock_button",
+      "bytes": 38
+    },
+    {
+      "symbol": "smc_peer_locked",
+      "bytes": 36
+    },
+    {
+      "symbol": "smc_select_drum",
+      "bytes": 34
+    },
+    {
+      "symbol": "smc_ui_clip_show",
+      "bytes": 34
+    },
+    {
+      "symbol": "smc_clip_on",
+      "bytes": 30
+    },
+    {
+      "symbol": "smc_select",
+      "bytes": 30
+    },
+    {
+      "symbol": "smc_ui_text",
+      "bytes": 30
+    },
+    {
+      "symbol": "smc_project_active",
+      "bytes": 28
+    },
+    {
+      "symbol": "smc_rx_diag",
+      "bytes": 28
+    },
+    {
+      "symbol": "smc_ble_role_get",
+      "bytes": 16
+    },
+    {
+      "symbol": "smc_ble_midi",
+      "bytes": 10
+    },
+    {
+      "symbol": "smc_ble_link",
+      "bytes": 8
+    },
+    {
+      "symbol": "smc_show",
+      "bytes": 4
+    }
+  ]
+}

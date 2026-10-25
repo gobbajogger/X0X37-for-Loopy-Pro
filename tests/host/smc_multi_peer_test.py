@@ -101,7 +101,7 @@ static void reset(int cursor)
 {
     memset(smc_states,0,sizeof smc_states);memset(smc_inputs,0,sizeof smc_inputs);
     memset(smc_links_seen,0,sizeof smc_links_seen);memset(smc_losses_seen,0,sizeof smc_losses_seen);
-    memset((void*)smc_link_seq,0,sizeof smc_link_seq);smc_peer=0;
+    memset((void*)smc_link_seq,0,sizeof smc_link_seq);smc_select(0);
     memset((void*)smc_pause_lost,0,sizeof smc_pause_lost);
     memset(smc_pause_seen,0,sizeof smc_pause_seen);
     memset((void*)smc_pause_link_boundary,0,sizeof smc_pause_link_boundary);
@@ -148,9 +148,9 @@ int main(void)
         reset(cursor);fill(0);smc_states[0].lock_down=smc_states[0].play_down=smc_states[0].select_down=1;
         off(0);smc_poll();assert(smc_states[0].lock_down&&!smc_states[0].play_down&&!smc_states[0].select_down);
         fill(0);emit(0,0x80,0x5d,0);smc_poll();assert(!smc_states[0].lock_down);
-        reset(cursor);smc_peer=0;smc_solo_press(0,NPARTS+1+NDRUM,0);
-        smc_peer=1;smc_solo_press(0,NPARTS+1+NDRUM,0);smc_release(8);assert(drums[1]==1);
-        smc_peer=0;smc_release(8);assert(!drums[1]);
+        reset(cursor);smc_select(0);smc_solo_press(0,NPARTS+1+NDRUM,0);
+        smc_select(1);smc_solo_press(0,NPARTS+1+NDRUM,0);smc_release(8);assert(drums[1]==1);
+        smc_select(0);smc_release(8);assert(!drums[1]);
     }
     assert(!smc_resuming);
     reset(0);smc_state_t before[3];smc_ble_input_t inputs[2];

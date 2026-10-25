@@ -92,7 +92,14 @@ typedef struct {
     pref_t knob_target;
 } smc_state_t;
 static smc_state_t smc_states[SMC_DIRECT_PEERS + 1u];
-#define smc (smc_states[smc_peer])
+/* Main-loop selector only. ISR producers continue to address validated slots. */
+static smc_state_t *smc_current = &smc_states[0];
+static void smc_select(uint8_t peer)
+{
+    smc_peer = peer;
+    smc_current = &smc_states[peer];
+}
+#define smc (*smc_current)
 static uint8_t smc_solo_all;
 static uint16_t smc_drum_solo_all[NKIT];
 
@@ -510,9 +517,9 @@ int smc_peer_lock(uint8_t peer, int locked)
 {
     if (peer >= SMC_DIRECT_PEERS) return 0;
     uint8_t saved = smc_peer;
-    smc_peer = peer;
+    smc_select(peer);
     int result = !!locked == smc.locked || smc_lock_toggle();
-    smc_peer = saved;
+    smc_select(saved);
     return result;
 }
 int smc_peer_locked(uint8_t peer)
@@ -739,7 +746,7 @@ static UI_DRAW void smc_ui_grid(void)
 void smc_ui_draw(void)
 {
     uint8_t saved_peer = smc_peer;
-    smc_peer = smc_ui.peer;
+    smc_select(smc_ui.peer);
     char name[24], num[32], unit[12], tag[80];
     const char *status = "ACTIVE";
     pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);
@@ -809,7 +816,7 @@ void smc_ui_draw(void)
     }
     text_c(120, 49, &FONT_XS, status, C_HI);
     cv_commit(3, 0, KNOB_Y);
-    smc_peer = saved_peer;
+    smc_select(saved_peer);
 }
 
 static void smc_show(int n, int knob, pref_t r)
@@ -1428,11 +1435,13 @@ void smc_poll(void)
         smc_project_reset();
         return;
     }
-    for (smc_peer = 0; smc_peer < SMC_DIRECT_PEERS; smc_peer++)
+    for (uint8_t peer = 0; peer < SMC_DIRECT_PEERS; peer++) {
+        smc_select(peer);
         smc_poll_peer(allow);
+    }
     /* Hosted USB/peripheral BLE cannot identify physical controllers. Give
      * this explicitly shared source its own state; never alias it to peer 0. */
-    smc_peer = SMC_DIRECT_PEERS;
+    smc_select(SMC_DIRECT_PEERS);
     uint32_t host_lost = smc_host_solo_release_lost;
     uint32_t host_seen = smc_host_solo_release_seen;
     uint32_t pause_lost = smc_pause_lost[SMC_DIRECT_PEERS];
@@ -1481,7 +1490,7 @@ void smc_poll(void)
         smc.lock_down = 0;
     }
     if (perf_testing() || ui.overlay == O_ASK) smc_solo_clear();
-    smc_peer = saved;
+    smc_select(saved);
 }
 
 static int smc_led(int note)
@@ -1567,7 +1576,9 @@ static void smc_frame_peer(void)
 void smc_frame(void)
 {
     uint8_t saved = smc_peer;
-    for (smc_peer = 0; smc_peer < SMC_DIRECT_PEERS; smc_peer++)
+    for (uint8_t peer = 0; peer < SMC_DIRECT_PEERS; peer++) {
+        smc_select(peer);
         smc_frame_peer();
-    smc_peer = saved;
+    }
+    smc_select(saved);
 }

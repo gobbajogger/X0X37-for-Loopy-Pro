@@ -101,7 +101,7 @@ static void setup(int view, int part)
     held_btn = held_keys = 0;
     memset(enc_acc, 0, sizeof enc_acc);
     memset(&ui, 0, sizeof ui);
-    smc_peer = 0;
+    smc_select(0);
     memset(smc_states, 0, sizeof smc_states);
     memset(smc_inputs, 0, sizeof smc_inputs);
     memset(smc_links_seen, 0, sizeof smc_links_seen);

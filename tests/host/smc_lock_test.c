@@ -391,7 +391,7 @@ static void test_select_and_play(void)
  * transition to clear a direct peer's edges before a host overflow. */
 static void edge_message(int host, unsigned st, unsigned note, unsigned velocity)
 {
-    smc_peer = host ? SMC_DIRECT_PEERS : 0;
+    smc_select(host ? SMC_DIRECT_PEERS : 0);
     if (host) {
         proj.set.bt |= PROJ_BT_SMC_USER;
         CHECK(smc_midi_host(9u | (st | 15u) << 8 | note << 16 | velocity << 24));
@@ -446,7 +446,7 @@ static void test_dropped_pause_press(void)
             for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
             smc_ble_midi(down, 3);
         }
-        smc_poll(); smc_peer = host ? SMC_DIRECT_PEERS : 0; CHECK(!smc.locked && !smc.lock_down);
+        smc_poll(); smc_select(host ? SMC_DIRECT_PEERS : 0); CHECK(!smc.locked && !smc.lock_down);
         edge_message(host, 0x90, 0x5D, 0); CHECK(!smc.locked);
         edge_press(host, 0x5D); CHECK(smc.locked); CHECK(!smc.lock_down);
     }

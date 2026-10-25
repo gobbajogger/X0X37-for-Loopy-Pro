@@ -20,13 +20,13 @@ static void peer_message(uint8_t peer, uint8_t st, uint8_t a, uint8_t b)
 }
 static pref_t peer_fader(uint8_t peer, int n)
 {
-    uint8_t saved = smc_peer; smc_peer=peer;
-    pref_t r=smc_target(n); smc_peer=saved; return r;
+    uint8_t saved = smc_peer; smc_select(peer);
+    pref_t r=smc_target(n); smc_select(saved); return r;
 }
 static pref_t peer_knob(uint8_t peer, int n)
 {
-    uint8_t saved = smc_peer; smc_peer=peer;
-    pref_t r=smc_knob_target(n); smc_peer=saved; return r;
+    uint8_t saved = smc_peer; smc_select(peer);
+    pref_t r=smc_knob_target(n); smc_select(saved); return r;
 }
 static void two_links(void)
 {

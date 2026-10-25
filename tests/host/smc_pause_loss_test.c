@@ -19,7 +19,7 @@ int plat_ble_smc_send(const uint8_t *m, uint8_t n)
 
 static void send_note(int host, unsigned note, unsigned status, unsigned velocity)
 {
-    smc_peer = host ? SMC_DIRECT_PEERS : 0;
+    smc_select(host ? SMC_DIRECT_PEERS : 0);
     if (!host) message(status, note, velocity);
     else {
         CHECK(smc_midi_host((status == 0x80 ? 8u : 9u) |
