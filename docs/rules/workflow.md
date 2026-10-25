@@ -10,6 +10,8 @@ Every change states a reason, a purpose, and the effect on the person using the 
 
 Agents run every applicable test in their own environment with the tools that machine has. Optional host tooling gaps (Pillow, ASan, missing reference repos) are not cycle blockers. Install when possible (environment `install` / `bash tools/agent_env_install.sh`); otherwise mark those checks not-run and continue the loop. A generator that actually runs and fails still fails. GitHub is not a test runner. GitHub Actions and billing locks are never test results. A missing optional input does not stop other work. Do not wait on another agent, on GitHub, or on the owner for a missing optional library. Do the next independent step.
 
+For stage PRs and local-env review, use the minimum proof that still decides merge or publish: [local-proof.md](local-proof.md). Plan selectors with `python3 tools/local_proof_plan.py --base <pr-base> --head HEAD`. Evidence-only tips verify CHECKS and recorded digests; they do not rebuild Elite/Pro packages when stage 4 already recorded `DEV CHECKED`. Keep package integrity gates (`dev_validate`, `pool_free`, publish hash MATCH) and required BF host regressions when firmware changes.
+
 ## Project PR merge
 
 When Project PRs are mergeable after local proof, merge them. Do not leave them parked in For Review. Automatic merge of properly tested work is pre-approved by the owner — no per-PR human APPROVE, and never ask the owner to approve a merge.
