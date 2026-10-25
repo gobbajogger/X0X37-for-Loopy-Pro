@@ -1,0 +1,397 @@
+{
+  "after_breaks_c_blob": "01e0e759d2b8be3b028e0e25d4f93348a36aeb46",
+  "before_breaks_c_blob": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "before_commit": "15e5316f16fe45bc5c49df53712d07e2d1b56b1c",
+  "before_compiler_input_tree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "before_root_tree": "6ac01d8448b86f35251c0d9f86732ddabf40d994",
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "change": "early return at exact IMA checkpoint for bank_seek_reverse; no DSP struct/config mutation",
+  "changed_text_file_blobs": {
+    "docs/audit/performance-pr93-checkpoint-aligned-fast-seek-20261025.md": "13b8d78b0eb11e3c8fbb94cf9aa04e7781e84c10",
+    "firmware/src/dsp/breaks.c": "01e0e759d2b8be3b028e0e25d4f93348a36aeb46",
+    "tests/host/breaks_aligned_reverse_seek_benchmark.c": "51453200d0fb283703059ec4c67a012aae9cc615",
+    "tests/host/run_breaks_aligned_seek_compare.py": "d89b46b9cc6d763e6e14647b1f5522f9b42ff7a5"
+  },
+  "date_utc": "2026-10-25",
+  "end_user_intent": "Keep reversed BREAK slices musically identical through pad release, tempo, pitch and STOP with less checkpoint lookup work where sample and checkpoint boundaries coincide.",
+  "explicitly_not_run": {
+    "Elite_Pro_controller_build_for_new_compiled_tree": true,
+    "MCU_cycles_and_XRUN": true,
+    "actual_original_source_sanitizer_PASS": true,
+    "firmware_installer_hosting_and_restore_QA": true,
+    "independent_QA": true,
+    "physical_device": true
+  },
+  "inherited_failure": "Original-source fastmath.h:57 UBSan negative left shift remains with existing draft PR #28; sanitizer projections are not original-source PASS.",
+  "native_log_summary": {
+    "complete_runs": 16,
+    "invalid_binary_cli_rejections": 16,
+    "matched_before_after_pcm": true,
+    "microbench_trial_pairs_per_compiler_and_length": 9
+  },
+  "next_owners": [
+    "Existing Hourly Build: exact new firmware-tree Elite/Pro/controller BUILD_ONLY, memory/code/pool margins",
+    "Existing Independent QA: independent complete-root review and negative source controls; only Safe Merge integrates"
+  ],
+  "owner": "Performance Engineering",
+  "prohibited_assets_included": false,
+  "protected_branch_changes": "none",
+  "raw_host_results": [
+    {
+      "calls_per_trial": 25000000,
+      "change_percent": -7.814,
+      "compiler": "gcc",
+      "exact_state_checksum": "length=65535 shift=8 checks=69326877471177",
+      "length": 65535,
+      "median_after_ms": 79.5146,
+      "median_before_ms": 86.2547,
+      "note": "host process elapsed; noisy; not complete callback or target-cycle speed",
+      "raw_elapsed_ms": {
+        "after": [
+          79.514606,
+          78.58543,
+          87.681852,
+          80.26875,
+          79.396929,
+          79.728461,
+          70.533043,
+          74.013291,
+          80.864376
+        ],
+        "before": [
+          84.55936,
+          86.254682,
+          88.192588,
+          92.160207,
+          91.110523,
+          83.916214,
+          92.282728,
+          81.105511,
+          78.681065
+        ]
+      }
+    },
+    {
+      "calls_per_trial": 25000000,
+      "change_percent": -6.022,
+      "compiler": "gcc",
+      "exact_state_checksum": "length=176400 shift=9 checks=72782103768269",
+      "length": 176400,
+      "median_after_ms": 73.7138,
+      "median_before_ms": 78.4377,
+      "note": "host process elapsed; noisy; not complete callback or target-cycle speed",
+      "raw_elapsed_ms": {
+        "after": [
+          73.115491,
+          73.713801,
+          74.401797,
+          79.845683,
+          71.104885,
+          72.054495,
+          73.785676,
+          75.092489,
+          71.607744
+        ],
+        "before": [
+          77.632223,
+          80.502684,
+          83.69599,
+          77.362812,
+          76.737382,
+          78.437702,
+          78.927093,
+          78.698902,
+          78.183498
+        ]
+      }
+    },
+    {
+      "calls_per_trial": 25000000,
+      "change_percent": -9.67,
+      "compiler": "clang",
+      "exact_state_checksum": "length=65535 shift=8 checks=69326877471177",
+      "length": 65535,
+      "median_after_ms": 76.5649,
+      "median_before_ms": 84.7615,
+      "note": "host process elapsed; noisy; not complete callback or target-cycle speed",
+      "raw_elapsed_ms": {
+        "after": [
+          76.805453,
+          76.209978,
+          76.564929,
+          75.983123,
+          76.669483,
+          74.155826,
+          74.991315,
+          76.703568,
+          76.951327
+        ],
+        "before": [
+          84.761544,
+          84.858187,
+          92.055357,
+          85.35329,
+          83.469539,
+          89.37871,
+          81.05639,
+          80.838434,
+          83.371034
+        ]
+      }
+    },
+    {
+      "calls_per_trial": 25000000,
+      "change_percent": -9.837,
+      "compiler": "clang",
+      "exact_state_checksum": "length=176400 shift=9 checks=72782103768269",
+      "length": 176400,
+      "median_after_ms": 75.8301,
+      "median_before_ms": 84.1036,
+      "note": "host process elapsed; noisy; not complete callback or target-cycle speed",
+      "raw_elapsed_ms": {
+        "after": [
+          75.404363,
+          76.956696,
+          75.830118,
+          79.691588,
+          77.738906,
+          74.341849,
+          74.928042,
+          75.54545,
+          77.692518
+        ],
+        "before": [
+          83.37143,
+          80.729405,
+          80.46099,
+          86.08421,
+          91.127297,
+          83.146519,
+          84.47994,
+          84.103647,
+          85.769387
+        ]
+      }
+    }
+  ],
+  "raw_log_files": {
+    "clang-bench-after.compile.log": "528b79d8a415db23331cac82f3b17db0e0a69a47e4f509ebcea85c540dc444bd",
+    "clang-bench-before.compile.log": "d5474c37aca69fdf0dab58eeb9405f34aebb23d3dffbc416a750f7509d8b5293",
+    "clang-opt-fast-reverse-after.compile.log": "692edf4c3b24180d61f805b35ca9511bb999dfc1a74e0865cc102aa694b38d98",
+    "clang-opt-fast-reverse-after.negative.log": "f6d1f7f7eef9d7aaa88aae887ed034fddf1ad4d54d877f4e8f9952470c7b2944",
+    "clang-opt-fast-reverse-after.run.log": "bfb1172c11f95b05aa373220f131a4e26034c5b6ca0dfa9b081a06e9a686e603",
+    "clang-opt-fast-reverse-before.compile.log": "302db38a41bc41882d0d9fd7ba365c1e5471f102201f3f71c198b73de8d5d6d2",
+    "clang-opt-fast-reverse-before.negative.log": "d69d7902fe7989fd259dfd07eeccda4896d80dfd2c2009ab8ce0e15f716cd5e8",
+    "clang-opt-fast-reverse-before.run.log": "0ca96e5e7dab113cd3c6424041546a3125ceb31c92914ff2f9eb9775c6990a7c",
+    "clang-opt-live-stress-after.compile.log": "a93aaa26846fdcc86b6031e38e8cbb69f90577d74c9eac834aebebacd23adeb2",
+    "clang-opt-live-stress-after.negative.log": "ae181ba9aeb882da6d51396115d9ebcd49c081e518a147cce78e202fbba2d91a",
+    "clang-opt-live-stress-after.run.log": "2fb1b6f9faf7a0dd4a67337fbcb39e04d9c262b57f7d54d016c9205dc4285549",
+    "clang-opt-live-stress-before.compile.log": "50359d2059cb9e1ce4e17088b37dac66556e676aee73d2bea44795ea79a4f9bc",
+    "clang-opt-live-stress-before.negative.log": "3b1bfa4b573104ac480dbb970effb66c4054c9df663b811c15e2dace29afddd3",
+    "clang-opt-live-stress-before.run.log": "baacb9ee155a8250c21903bc2c3c7b006ebf743b9c0a01b9762532a1a82b5754",
+    "clang-san_projection-fast-reverse-after.compile.log": "f1f0074a593e55d0c4869c400483dd42bdd5f9f1ca67f16ca9fea7585dee7509",
+    "clang-san_projection-fast-reverse-after.negative.log": "d97c29bb6e8fc1793ac600f2464bdfa6ca702a997ddcfe21f489983f0d31c5a4",
+    "clang-san_projection-fast-reverse-after.run.log": "f9515078195b6761ca44748424363ed8ce45ce124aea728a9a181752c94af87d",
+    "clang-san_projection-fast-reverse-before.compile.log": "41575b392a92825b0d3549b4a274b5d53782a829da0d22d1644d6ea43f16a85b",
+    "clang-san_projection-fast-reverse-before.negative.log": "9aa4b62aca1ad28a6f4898b3d20dbb71a0deb2de3a3291ce6d72f8b2068a5b60",
+    "clang-san_projection-fast-reverse-before.run.log": "e279ad54ecdbf61c7330b3b3351e9f32493e11567c815973c5ac45e71432555c",
+    "clang-san_projection-live-stress-after.compile.log": "c6185669dac1e09a3621041f35f32f8c1dc3d7729603aae0b88b98d35e31327e",
+    "clang-san_projection-live-stress-after.negative.log": "cfaa78c024b56ad1b0c8074a9e6d2526453506e50f55693def16b9701e21c89f",
+    "clang-san_projection-live-stress-after.run.log": "0b2e05a4720c00613c78bc1aa299f82b27c75dd3accc4f04b025ec6653203b9d",
+    "clang-san_projection-live-stress-before.compile.log": "454b57b28bb9d3a581ddb69b780d3399aab002276a4db0629feb71014e54908c",
+    "clang-san_projection-live-stress-before.negative.log": "e30b8719953af56bbd21c94b0be745b5ffe587c3a7cf8005c087697673e2ec87",
+    "clang-san_projection-live-stress-before.run.log": "15a84061127978587e807184a2aab3ad02e2b09f0e8f9209a12a45dc3bd35f29",
+    "gcc-bench-after.compile.log": "e897b0c8a3d4a8453d963c069cf8773b2899459337c008b44b07e9977aaada63",
+    "gcc-bench-before.compile.log": "bf8e913d2c0af3af0c6a79d7796bb6f5c055972064c4c0dd9edb8275fc8f221d",
+    "gcc-opt-fast-reverse-after.compile.log": "98cc5025fb6e774f10da4ed76bf17daae0949742e343d19b52b1f1ab52fb63b2",
+    "gcc-opt-fast-reverse-after.negative.log": "d471475b082a9071865630b2a41ec7449eb10e4ee18527b567e56b48c5081816",
+    "gcc-opt-fast-reverse-after.run.log": "1ffcde006806c2ce445b06b870d8908407a2dfa2651036a828b50ce8cbe0f199",
+    "gcc-opt-fast-reverse-before.compile.log": "b8b39d0aebaa12f4a751d18939b8e1392892db100b1da3781dba9762a99aa03f",
+    "gcc-opt-fast-reverse-before.negative.log": "3fe04185ebf918be43c82643633780034e5dfeaca0f63ce633b0ff46676c59f2",
+    "gcc-opt-fast-reverse-before.run.log": "b6ef0589fcf6458ff11b1f0519e821a2667feacf07e839f3f93963ddad657a63",
+    "gcc-opt-live-stress-after.compile.log": "f242b9b292e1e3f4102096748bd6edfc68a10bbca53a5037c9c7fd15ea80a7c9",
+    "gcc-opt-live-stress-after.negative.log": "e5aa5ace095a1dbd104d36df5345835c7bc77bc01a3372650c62f0ef6ad850e9",
+    "gcc-opt-live-stress-after.run.log": "728c43f05190548a5fd98b74f09ffe23aba0faffcf6d70542f0c8aa4384f3c4a",
+    "gcc-opt-live-stress-before.compile.log": "e8be3ec20398776014301ea94fd4c20c27b9e457db3bbe92d757b235f0805474",
+    "gcc-opt-live-stress-before.negative.log": "babe6eab6f5877b62d84a9a3ce18941ffa03e30830630ded5a0f868e8c89906b",
+    "gcc-opt-live-stress-before.run.log": "1c48a6d5088e7a5654672a38e7e05e4188513559d1177225d47df7aa01e2b97d",
+    "gcc-san_projection-fast-reverse-after.compile.log": "dae9d35c19ee70dfc2af9c8cbd0d93b8e3a00abb79e40d4b22c6bd75659cd8bf",
+    "gcc-san_projection-fast-reverse-after.negative.log": "474b9cca499a8e94e3c8bdd8de9e27acc993f5a98e51c2e63a7abd372e2ef3b5",
+    "gcc-san_projection-fast-reverse-after.run.log": "b2e22ee8df16788301ab302f2b46f817aa8eca69c2cadc1c77668cc9d0008c05",
+    "gcc-san_projection-fast-reverse-before.compile.log": "0828940487c3bedd299e71b3c5bc38f14781f5cf797e4f7aea29c89cb7b26a8e",
+    "gcc-san_projection-fast-reverse-before.negative.log": "ffece95072985e32761ca6a3d4bbf9084b3401b90673f88be85de4cf12a168c2",
+    "gcc-san_projection-fast-reverse-before.run.log": "4710d9e71d8182a49123013dbbc7149df6b3028117b618fff79dc7c42c2d8785",
+    "gcc-san_projection-live-stress-after.compile.log": "16cf5ed9b747326d855c021dfe26ec7a54cef06435d7ddcede11dba99765b310",
+    "gcc-san_projection-live-stress-after.negative.log": "bc666252cb6c1a7455a56274351e931fe1daa1ddd9766452324ea92eeeed872e",
+    "gcc-san_projection-live-stress-after.run.log": "3932cd64be07a459a49678193bc810c2870ba57312bc7239f9a4024a338b63c3",
+    "gcc-san_projection-live-stress-before.compile.log": "b73814d552886a4875158a9bffc32a0fbb699751d4dab17699ea9a27f043f226",
+    "gcc-san_projection-live-stress-before.negative.log": "10a9fdbb7f07c068cf01d4041e949bf26b3256af5978974545697a15e5af8ce9",
+    "gcc-san_projection-live-stress-before.run.log": "f178caddc42cb77c9b0ce03bab0737f05e6705303c31e700ea3f12fe56051de4",
+    "result.json": "7415801be7781c60009cd41f7f15c804b64da1a8a082c12c6535a7b42a610f39"
+  },
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "schema": "performance-pr93-checkpoint-aligned-r23",
+  "test_matrix": [
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "b8b39d0aebaa12f4a751d18939b8e1392892db100b1da3781dba9762a99aa03f",
+      "config": "gcc-opt-fast-reverse-before",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "e8be3ec20398776014301ea94fd4c20c27b9e457db3bbe92d757b235f0805474",
+      "config": "gcc-opt-live-stress-before",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "98cc5025fb6e774f10da4ed76bf17daae0949742e343d19b52b1f1ab52fb63b2",
+      "config": "gcc-opt-fast-reverse-after",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "f242b9b292e1e3f4102096748bd6edfc68a10bbca53a5037c9c7fd15ea80a7c9",
+      "config": "gcc-opt-live-stress-after",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "0828940487c3bedd299e71b3c5bc38f14781f5cf797e4f7aea29c89cb7b26a8e",
+      "config": "gcc-san_projection-fast-reverse-before",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "b73814d552886a4875158a9bffc32a0fbb699751d4dab17699ea9a27f043f226",
+      "config": "gcc-san_projection-live-stress-before",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "dae9d35c19ee70dfc2af9c8cbd0d93b8e3a00abb79e40d4b22c6bd75659cd8bf",
+      "config": "gcc-san_projection-fast-reverse-after",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "16cf5ed9b747326d855c021dfe26ec7a54cef06435d7ddcede11dba99765b310",
+      "config": "gcc-san_projection-live-stress-after",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "302db38a41bc41882d0d9fd7ba365c1e5471f102201f3f71c198b73de8d5d6d2",
+      "config": "clang-opt-fast-reverse-before",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "50359d2059cb9e1ce4e17088b37dac66556e676aee73d2bea44795ea79a4f9bc",
+      "config": "clang-opt-live-stress-before",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "692edf4c3b24180d61f805b35ca9511bb999dfc1a74e0865cc102aa694b38d98",
+      "config": "clang-opt-fast-reverse-after",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "a93aaa26846fdcc86b6031e38e8cbb69f90577d74c9eac834aebebacd23adeb2",
+      "config": "clang-opt-live-stress-after",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "41575b392a92825b0d3549b4a274b5d53782a829da0d22d1644d6ea43f16a85b",
+      "config": "clang-san_projection-fast-reverse-before",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "454b57b28bb9d3a581ddb69b780d3399aab002276a4db0629feb71014e54908c",
+      "config": "clang-san_projection-live-stress-before",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "f1f0074a593e55d0c4869c400483dd42bdd5f9f1ca67f16ca9fea7585dee7509",
+      "config": "clang-san_projection-fast-reverse-after",
+      "negative_exit": 2,
+      "pcm_bytes": 286720,
+      "pcm_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508",
+      "render_exit": 0,
+      "scenarios": 140
+    },
+    {
+      "compile_exit": 0,
+      "compile_log_sha256": "c6185669dac1e09a3621041f35f32f8c1dc3d7729603aae0b88b98d35e31327e",
+      "config": "clang-san_projection-live-stress-after",
+      "negative_exit": 2,
+      "pcm_bytes": 1310720,
+      "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+      "render_exit": 0,
+      "scenarios": 16
+    }
+  ],
+  "verified_result": "Production BREAK host PCM/control parity for two fixture types, GCC+Clang optimized and separate ASan/UBSan projection from PR #28; synthetic seek-helper timing only."
+}

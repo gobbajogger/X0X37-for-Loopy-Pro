@@ -1,0 +1,79 @@
+{
+  "baseline_nightly_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "candidate_firmware_tree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "candidate_pr93_commit": "26cd60444e7b5d1ee4d62ab67f5cd85b158d2212",
+  "firmware_compiler_inputs_modified": false,
+  "gates": {
+    "Elite_Pro_target_BUILD_ONLY": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "independent_QA": "NOT_RUN",
+    "publication": "NOT_RUN"
+  },
+  "known_failure": "original unmodified PR93 fastmath.h UBSan FAIL; PR28 owns",
+  "pins": {
+    "nightly": {
+      "firmware/src/dsp/breaks.c": "1d3d692b6788d9d1f13901cd7ab13df506cdb72f",
+      "firmware/src/dsp/breaks.h": "094af6650333e844311a8806145a6177a0318225",
+      "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+      "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+      "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd"
+    },
+    "pr93": {
+      "firmware/src/dsp/breaks.c": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+      "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+      "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+      "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+      "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+      "tests/host/breaks_reverse_fast_advance_test.c": "5e77b152253422d36ab7218669187d02318d21cb"
+    }
+  },
+  "producer_only": true,
+  "results": {
+    "clang": {
+      "stats": {
+        "F": {
+          "baseline_decodes": 5232078,
+          "baseline_max_block": 524290,
+          "candidate_decodes": 5232078,
+          "candidate_max_block": 524290,
+          "cases": 70,
+          "reduction_percent": 0.0
+        },
+        "R": {
+          "baseline_decodes": 5165212,
+          "baseline_max_block": 530529,
+          "candidate_decodes": 2017436,
+          "candidate_max_block": 295009,
+          "cases": 70,
+          "reduction_percent": 60.9419
+        }
+      },
+      "trace_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508"
+    },
+    "gcc": {
+      "stats": {
+        "F": {
+          "baseline_decodes": 5232078,
+          "baseline_max_block": 524290,
+          "candidate_decodes": 5232078,
+          "candidate_max_block": 524290,
+          "cases": 70,
+          "reduction_percent": 0.0
+        },
+        "R": {
+          "baseline_decodes": 5165212,
+          "baseline_max_block": 530529,
+          "candidate_decodes": 2017436,
+          "candidate_max_block": 295009,
+          "cases": 70,
+          "reduction_percent": 60.9419
+        }
+      },
+      "trace_sha256": "e81183ad48c3a41c74832240ab3e8960327fcd1f562fe30cb0ea55baa318e508"
+    }
+  },
+  "revision": "performance-pr93-direct-nightly-source-compare-20261025-r19",
+  "source_kind": "exact-blob C/H/dependencies + identical test source; not full repo root build"
+}

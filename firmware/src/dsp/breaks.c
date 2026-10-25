@@ -40,6 +40,11 @@
  * IMA ADPCM tables and decoder step: ima_adpcm.h (from Felucca's eng_sample.c,
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hugelton Instruments, GPL-3.0). */
 #include "breaks.h"
+
+/* Build-time A/B: 0 runs original per-sample reverse advancement. */
+#ifndef BRK_FAST_REV_SKIP
+#define BRK_FAST_REV_SKIP 1
+#endif
 #include "fastmath.h"
 #include "ima_adpcm.h"
 
@@ -249,6 +254,43 @@ static float brk_inc(const breaks_t *b, const brk_bank_t *k)
     return k->sp16 / sp16 * fm_exp2f(semi * (1.0f / 12.0f)) * b->perf.rate_mult;
 }
 
+/* Only one decoder state is cached for the preceding reverse-cache block.
+ * An unrelated seek still starts from authoritative bank checkpoints; the saved
+ * state is invalidated when a voice is started on any bank or direction. */
+static void bank_seek_reverse(brk_voice_t *v, const brk_bank_t *k, uint32_t p, int32_t *pred,
+                              int32_t *idx)
+{
+    uint32_t c, i;
+    if (v->seek_pos == p) {
+        *pred = v->seek_state.pred;
+        *idx = v->seek_state.idx;
+        v->seek_pos = UINT32_MAX;
+        return;
+    }
+    c = p >> k->ck_shift;
+    i = c << k->ck_shift;
+    *pred = k->ck[c].pred;
+    *idx = k->ck[c].idx;
+    /* rev_fetch passes a BRK_RCH-aligned base. If it is also an exact
+     * checkpoint, no decoding or adjacent-state lookup is necessary. */
+    if (i == p) {
+        v->seek_pos = UINT32_MAX;
+        return;
+    }
+    if (p >= BRK_RCH && p - BRK_RCH >= i) {
+        uint32_t prev = p - BRK_RCH;
+        while (i < prev)
+            ima_decode(k->adpcm, i++, pred, idx);
+        v->seek_state.pred = (int16_t)*pred;
+        v->seek_state.idx = (uint8_t)*idx;
+        v->seek_pos = prev;
+    } else {
+        v->seek_pos = UINT32_MAX;
+    }
+    while (i < p)
+        ima_decode(k->adpcm, i++, pred, idx);
+}
+
 static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
 {
     if (!v->rvalid || q < v->rbase || q >= v->rbase + BRK_RCH) {
@@ -256,7 +298,7 @@ static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
         int32_t pred, idx;
         if (m > BRK_RCH)
             m = BRK_RCH;
-        bank_seek(k, base, &pred, &idx);
+        bank_seek_reverse(v, k, base, &pred, &idx);
         for (i = 0; i < m; i++)
             v->rbuf[i] = (int16_t)ima_decode(k->adpcm, base + i, &pred, &idx);
         v->rbase = base;
@@ -283,6 +325,7 @@ static void voice_start(breaks_t *b, int bk, int sl, uint32_t p, int rev, int ha
     v->bank = (uint8_t)bk;
     v->gen = k->gen;
     v->rev = (uint8_t)rev;
+    v->seek_pos = UINT32_MAX;       /* never reuse state from a prior voice */
     v->lo = k->start[sl];
     v->hi = k->start[sl + 1];
     v->frac = 0.0f;
@@ -624,19 +667,43 @@ void breaks_render(breaks_t *b, float *out, int n)
                 continue;
             }
             v->frac += inc[j];
-            while (v->frac >= 1.0f) {
-                v->frac -= 1.0f;
-                v->s0 = v->s1;
-                if (v->rev) {
-                    v->pos = rev_next(v, v->pos);
-                    v->s1 = rev_fetch(v, k, v->pos);
-                } else {
-                    if (++v->pos >= k->n) {                /* BB Gen loops at the end; state 0/0 */
-                        v->pos = 0;
-                        v->pred = 0;
-                        v->idx = 0;
+            /* Reverse ADPCM is position-addressable. At high playback rates, do
+             * not fetch every skipped interpolation sample. Preserve the final
+             * two samples and the fraction for exactly the same PCM result.
+             * The forward path is stateful and deliberately stays unchanged.
+             * Limit the shortcut to floats with an exactly representable
+             * integral sample count, and retain the original path otherwise. */
+            #if BRK_FAST_REV_SKIP
+            if (v->rev && v->frac >= 32.0f && v->frac < 16777216.0f &&
+                v->hi > v->lo && v->pos >= v->lo && v->pos < v->hi) {
+                uint32_t steps = (uint32_t)v->frac;
+                uint32_t span = v->hi - v->lo;
+                uint32_t shift = steps % span;
+                uint32_t off = v->pos - v->lo;
+                uint32_t next_off = off >= shift ? off - shift : span - (shift - off);
+                uint32_t newpos = v->lo + next_off;
+                uint32_t prevpos = newpos < v->hi - 1u ? newpos + 1u : v->lo;
+                v->frac -= (float)steps;
+                v->s0 = rev_fetch(v, k, prevpos);
+                v->pos = newpos;
+                v->s1 = rev_fetch(v, k, newpos);
+            } else
+            #endif
+            {
+                while (v->frac >= 1.0f) {
+                    v->frac -= 1.0f;
+                    v->s0 = v->s1;
+                    if (v->rev) {
+                        v->pos = rev_next(v, v->pos);
+                        v->s1 = rev_fetch(v, k, v->pos);
+                    } else {
+                        if (++v->pos >= k->n) {                /* BB Gen loops at the end; state 0/0 */
+                            v->pos = 0;
+                            v->pred = 0;
+                            v->idx = 0;
+                        }
+                        v->s1 = (float)ima_decode(k->adpcm, v->pos, &v->pred, &v->idx);
                     }
-                    v->s1 = (float)ima_decode(k->adpcm, v->pos, &v->pred, &v->idx);
                 }
             }
         }
