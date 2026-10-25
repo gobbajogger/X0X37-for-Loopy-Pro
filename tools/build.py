@@ -25,6 +25,7 @@ import os
 import platform
 import re
 import struct
+import shutil
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -139,9 +140,302 @@ def tc_all(*cmds):
         return list(ex.map(lambda c: tc(*c), cmds))
 
 
+# Headers generate() writes. A hit reuses these bytes; it does not run the generators again.
+_GEN_OUTPUTS = ("felucca_font.h", "x0x_drum_samples.h", "x0x_drum_tables.h", "x0x_break_bank.h")
+# Sources whose bytes decide those headers, besides assets, Pillow and the host compiler.
+# Generated headers are outputs of this list, not inputs: hashing them would make every run miss.
+_GEN_SOURCES = (
+    "tools/build.py", "tools/gen_font.py", "tools/gen_drum_samples.py", "tools/gen_break_bank.py",
+    "tools/sampleio.py", "tools/gen_builtin_break.c", "tools/gen_builtin_break.sh",
+    "firmware/src/dsp/drum909.c", "firmware/src/dsp/drum909.h", "firmware/src/dsp/drum909_dsp.h",
+    "firmware/src/dsp/fastmath.h", "firmware/src/dsp/ima_adpcm.h", "firmware/src/dsp/x0x_param.h",
+)
+_GEN_STAMP = GEN / ".cachekey"
+
+
+def _sha256_file(path):
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _gnu_build_id(path):
+    """GNU build-id of an ELF, or an empty string. Large compiler libraries use this instead of a full hash."""
+    try:
+        with path.open("rb") as f:
+            ident = f.read(16)
+            if len(ident) < 16 or ident[:4] != b"\x7fELF" or ident[4] != 2 or ident[5] != 1:
+                return ""
+            f.seek(0x20)
+            e_phoff = struct.unpack("<Q", f.read(8))[0]
+            f.seek(0x36)
+            e_phentsize, e_phnum = struct.unpack("<HH", f.read(4))
+            if e_phentsize < 56 or not 0 < e_phnum <= 512:
+                return ""
+            for i in range(e_phnum):
+                f.seek(e_phoff + i * e_phentsize)
+                hdr = f.read(56)
+                if len(hdr) < 56:
+                    return ""
+                p_type, _, p_offset, _, _, p_filesz, _, _ = struct.unpack("<IIQQQQQQ", hdr)
+                if p_type != 4 or not p_filesz or p_filesz > 1_000_000:  # PT_NOTE
+                    continue
+                f.seek(p_offset)
+                note = f.read(p_filesz)
+                off = 0
+                while off + 12 <= len(note):
+                    namesz, descsz, ntype = struct.unpack_from("<III", note, off)
+                    off += 12
+                    name = note[off:off + namesz]
+                    off += (namesz + 3) & ~3
+                    desc = note[off:off + descsz]
+                    off += (descsz + 3) & ~3
+                    if name.startswith(b"GNU") and ntype == 3 and desc:  # NT_GNU_BUILD_ID
+                        return desc.hex()
+    except OSError:
+        return ""
+    return ""
+
+
+def _file_id(path):
+    """Content identity. Large ELF libraries use their build-id so the check stays cheap."""
+    path = path.resolve()
+    size = path.stat().st_size
+    if size > 8_000_000:
+        bid = _gnu_build_id(path)
+        if bid:
+            return f"buildid:{bid}:{size}"
+    return "sha256:" + _sha256_file(path)
+
+
+def _key_add(h, label, data):
+    if isinstance(data, str):
+        data = data.encode()
+    h.update(label.encode())
+    h.update(b"\0")
+    h.update(str(len(data)).encode())
+    h.update(b"\0")
+    h.update(data)
+    h.update(b"\0")
+
+
+def _iter_files(root):
+    if not root.exists():
+        return
+    if root.is_file():
+        yield root
+        return
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
+        for name in sorted(filenames):
+            if name.endswith(".pyc") or name == ".cachekey":
+                continue
+            yield Path(dirpath) / name
+
+
+def _under_gen(path):
+    try:
+        path.resolve().relative_to(GEN.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def _path_label(path):
+    path = path.resolve()
+    try:
+        return path.relative_to(SRC).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _pillow_signature():
+    """Version and feature flags the font renderer branches on, including raqm."""
+    import PIL
+    from PIL import features
+    lines = [PIL.__version__]
+    for name in sorted(features.get_supported()):
+        try:
+            ver = features.version(name)
+        except Exception as exc:
+            ver = "error:" + exc.__class__.__name__
+        lines.append(f"{name}={features.check(name)!r}:{ver!r}")
+    return "\n".join(lines)
+
+
+def _pillow_libs():
+    """Font rasterizer binaries. A replaced FreeType or raqm build must miss even at the same version."""
+    from PIL import ImageFont, features
+    pil_dir = Path(features.__file__).resolve().parent
+    files = []
+    for pattern in ("_imaging*.so", "_imaging*.dylib", "_imaging*.pyd"):
+        files.extend(pil_dir.glob(pattern))
+    libs = pil_dir.parent / "pillow.libs"
+    if libs.is_dir():
+        files.extend(p for p in libs.iterdir()
+                     if p.is_file() and any(s in p.name.lower() for s in ("freetype", "harfbuzz", "fribidi", "raqm")))
+    font = SRC / "assets" / "fonts" / "BarlowSemiCondensed-SemiBold.ttf"
+    if font.is_file():
+        try:
+            ImageFont.truetype(str(font), 12)  # load the same stack render() uses
+        except Exception:
+            pass
+    maps = Path("/proc/self/maps")
+    if maps.is_file():
+        for line in maps.read_text(errors="replace").splitlines():
+            parts = line.split()
+            if len(parts) < 6 or not parts[-1].startswith("/"):
+                continue
+            base = Path(parts[-1]).name.lower()
+            if any(s in base for s in ("freetype", "harfbuzz", "fribidi", "raqm", "libm.so", "libc.so")):
+                files.append(Path(parts[-1]))
+    return files
+
+
+def _compiler_libs(cc):
+    exe = shutil.which(cc)
+    if not exe:
+        return []
+    files = [Path(exe).resolve()]
+    ldd = shutil.which("ldd")
+    if not ldd:
+        return files
+    r = subprocess.run([ldd, str(files[0])], capture_output=True, text=True)
+    if r.returncode != 0:
+        return files
+    for line in r.stdout.splitlines():
+        if "=>" not in line:
+            continue
+        soname = line.split("=>", 1)[0].strip().split()[0]
+        if not (soname.startswith("libLLVM.so") or soname.startswith("libclang-cpp.so")
+                or soname.startswith("libm.so") or soname.startswith("libc.so")):
+            continue
+        token = line.split("=>", 1)[1].strip().split()
+        if token and token[0].startswith("/"):
+            lib = Path(token[0])
+            if lib.is_file():
+                files.append(lib)
+    return files
+
+
+def _c_dep_files(cc):
+    """Headers the break tool compiles, from the same include path as gen_builtin_break.sh.
+    None if the preprocessor cannot see them (generated headers not written yet): do not cache."""
+    cmd = [cc, "-M", "-Ifirmware/src", "-I" + GEN.relative_to(SRC).as_posix(),
+           "tools/gen_builtin_break.c", "firmware/src/dsp/drum909.c"]
+    r = subprocess.run(cmd, cwd=SRC, capture_output=True, text=True)
+    if r.returncode != 0:
+        return None
+    found = []
+    for tok in r.stdout.replace("\\\n", " ").split():
+        if not tok or tok.endswith(":"):
+            continue
+        path = Path(tok)
+        if not path.is_absolute():
+            path = SRC / path
+        if path.is_file() and not _under_gen(path):
+            found.append(path)
+    return found or None
+
+
+def _generation_key():
+    """sha256 of every input that can change felucca_font.h, the drum headers or the break bank.
+    None if an input cannot be read: the caller regenerates and does not store a stamp."""
+    try:
+        return _generation_key_for(os.environ.get("CC") or "cc")
+    except (OSError, subprocess.SubprocessError, ImportError):
+        return None
+
+
+def _generation_key_for(cc):
+    deps = _c_dep_files(cc)
+    if deps is None:
+        return None
+    import math
+    math.tanh(0.5)  # make sure this interpreter's libm is mapped before the scan below
+    h = hashlib.sha256()
+    _key_add(h, "schema", "x0x-gen-cache-1")
+    _key_add(h, "python", sys.version)
+    _key_add(h, "platform", platform.system() + "/" + platform.machine())
+    for name in ("LANG", "LC_ALL", "LC_NUMERIC", "LC_CTYPE"):
+        _key_add(h, name, os.environ.get(name, ""))
+    _key_add(h, "fontset", os.environ.get("X0X_FONTSET", "barlow"))
+    _key_add(h, "fontdirs", os.environ.get("X0X_FONT_DIRS", ""))
+    _key_add(h, "cc", cc)
+    ver = subprocess.run([cc, "--version"], capture_output=True)
+    _key_add(h, "cc-version", ver.stdout + b"\n" + ver.stderr)
+    bank = os.environ.get("X0X_BREAK_BANK") or ""
+    _key_add(h, "breakbank", bank)
+    _key_add(h, "pillow", _pillow_signature())
+    files = [SRC / rel for rel in _GEN_SOURCES]
+    files.extend(deps)
+    files.extend(_iter_files(SRC / "assets" / "fonts"))
+    files.extend(_iter_files(SRC / "assets" / "909"))
+    for raw in os.environ.get("X0X_FONT_DIRS", "").split(":"):
+        if raw:
+            root = Path(raw)
+            files.extend(_iter_files(root if root.is_absolute() else Path.cwd() / root))
+    if bank:
+        root = Path(bank)
+        files.extend(_iter_files(root if root.is_absolute() else Path.cwd() / root))
+    files.extend(_pillow_libs())
+    files.extend(_compiler_libs(cc))
+    seen = {}
+    for path in files:
+        try:
+            if not path.is_file():
+                continue
+            label = _path_label(path)
+        except OSError:
+            continue
+        seen.setdefault(label, path)
+    for label in sorted(seen):
+        try:
+            _key_add(h, "file:" + label, _file_id(seen[label]))
+        except OSError:
+            return None
+    return h.hexdigest()
+
+
+def _generation_stamp_matches(key):
+    try:
+        lines = _GEN_STAMP.read_text().splitlines()
+    except OSError:
+        return False
+    if len(lines) != 1 + len(_GEN_OUTPUTS) or lines[0] != key:
+        return False
+    for line, name in zip(lines[1:], _GEN_OUTPUTS):
+        parts = line.split()
+        path = GEN / name
+        if len(parts) != 2 or parts[0] != name or not path.is_file():
+            return False
+        if _sha256_file(path) != parts[1]:
+            return False
+    return True
+
+
+def _generation_stamp_write(key):
+    lines = [key]
+    for name in _GEN_OUTPUTS:
+        lines.append(name + " " + _sha256_file(GEN / name))
+    _GEN_STAMP.write_text("\n".join(lines) + "\n")
+
+
 def generate():
-    """generated headers: the font (Felucca's), the 909's samples and tables, the break bank"""
+    """generated headers: the font (Felucca's), the 909's samples and tables, the break bank.
+
+    When the font files, Pillow features, drum WAVs, break sources and the host compiler
+    are unchanged, the headers already in build/gen are kept. The check uses their bytes,
+    not file times, so a replaced font or a different Pillow misses.
+    """
     GEN.mkdir(parents=True, exist_ok=True)
+    key = _generation_key() if all((GEN / name).is_file() for name in _GEN_OUTPUTS) else None
+    if key is not None and _generation_stamp_matches(key):
+        print("generate: cache hit")
+        return
+    print("generate: cache miss")
     tools = SRC / "tools"
     cmds = [[tools / "gen_font.py", GEN / "felucca_font.h"],
             [tools / "gen_drum_samples.py", GEN / "x0x_drum_samples.h"]]
@@ -164,6 +458,9 @@ def generate():
     if r.returncode:
         sys.stderr.write(r.stderr)
         raise SystemExit("build: break bank failed")
+    fresh = _generation_key()
+    if fresh is not None:
+        _generation_stamp_write(fresh)
 
 
 # ---- update loader
