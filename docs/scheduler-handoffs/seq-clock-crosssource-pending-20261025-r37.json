@@ -1,0 +1,90 @@
+{
+  "schema": "x0x37-sequencer-source-producer-evidence-v1",
+  "revision": "R37",
+  "date_utc": "2026-10-25",
+  "user_visible_intent": "USB/Bluetooth clock ownership handover while an F8 tick is queued must not cause an extra 303 step or discard a local PLAY. Stop must release held MIDI notes exactly once.",
+  "input": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 90,
+    "head_sha": "147b44f7b0f6bafdf2a33d29d587b513321bb55b",
+    "root_tree": "b132b1593ebdf04e1c2d69f4a399e27182290e34",
+    "parent_pr": 86,
+    "sequencer_blob": "4b3e07786390d12980e8fecb5c553051c0a056ef",
+    "regression_blob": "d5a91d950de954fa1ba1e62b76fb3d6508b0e22e"
+  },
+  "changed": {
+    "firmware_sequencer_blob": "0a239d1faba079bec6c85efbbf31883af0a59ce8",
+    "linked_host_test_blob": "cc5b5fd0510ed0466de1daf7332b835efb6be86c",
+    "implementation": "On a changed clock-input owner, clear unrendered previous-owner ext_pending and its req_prior_ticks epoch before first new F8 is queued. No other sequencer logic changed.",
+    "compiled_inputs_changed": true
+  },
+  "native_reproduction": {
+    "path": "tests/host/seq_clock_disconnect_handoff_test.c",
+    "positive": {
+      "gcc": [
+        "plain",
+        "ubsan",
+        "asan+ubsan"
+      ],
+      "clang": [
+        "plain",
+        "ubsan",
+        "asan+ubsan"
+      ],
+      "expected_exit": 0,
+      "assertions_each": "534/534"
+    },
+    "negative_original": {
+      "expected_exit": 1,
+      "assertions_each": "516/534",
+      "failures_each": 18
+    },
+    "negative_deliberate_mutant_no_epoch_reset": {
+      "expected_exit": 1,
+      "assertions_each": "510/534",
+      "failures_each": 24
+    },
+    "scenarios": [
+      "queued old F8 then disconnect and new F8 within one callback",
+      "USB to Bluetooth",
+      "Bluetooth to USB",
+      "local PLAY queued after old F8 and before new source",
+      "phase six ticks per step",
+      "Stop releases 303 note exactly once",
+      "buffers 1, 64, 1024 frames"
+    ],
+    "adjacent_positive": [
+      "seq_clock_auto_idle_wrap_test.c gcc+clang 654616/654616 each",
+      "seq_clock_owner_handoff_linked_test.c gcc+clang 36120/36120 each",
+      "seq_clock_uptime_wrap_test.c gcc+clang 36328/36328 each",
+      "seq_midi_lifetime_stress_test.c gcc+clang 388092/388092 each, 1472 NoteOns/1472 NoteOffs"
+    ],
+    "expected_total": 26,
+    "expected_passed": 26,
+    "method": "Actual production sequencer.c + pattern.c + tb3po.c linked native, not complete exact-root suite",
+    "asan_options": "detect_leaks=0:halt_on_error=1",
+    "ub_san_options": "halt_on_error=1"
+  },
+  "replay": {
+    "private_library_zip": "LoopyX0X37-SeqClock-PR90-QueuedHandover-R37-20261025.zip",
+    "zip_bytes": 94480,
+    "zip_sha256": "5bca6721548dc20739ee854c43aca0965fa43490f308371d6c5137f1bb783e0f",
+    "script": "python3 run-r37.py",
+    "raw_logs": "r37_logs/ inside ZIP"
+  },
+  "gates": {
+    "scoped_native_source": "PASS",
+    "independent_root_qa": "PENDING",
+    "affected_elite_pro_target_build": "REQUIRED, NOT RUN",
+    "host_browser_ota_backup_restore": "NOT RUN",
+    "device": "NOT TESTED",
+    "nightly_publication": "NOT AUTHORIZED",
+    "protected_main_nightly": "UNCHANGED"
+  },
+  "next_owners": [
+    "Independent QA: independently validate changed exact Git root and interactions with #86 and current firmware nightly source",
+    "Hourly Build: new compiler inputs require pinned Elite/Pro DEV build or explicit build disposition",
+    "Safe Merge: sole integrator after independent review; do not merge or publish on producer's approval"
+  ],
+  "ownership": "Existing Sequencer Clock PR #90 branch only; no other source owner, firmware release, protected branch, or public Pages write."
+}
