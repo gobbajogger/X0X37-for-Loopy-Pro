@@ -14,7 +14,14 @@ typedef struct {               /* proportional, see tools/gen_font.py */
 } felucca_font_t;
 #include "felucca_font.h"
 
-#define CV_MAX (240u * 144u)      /* X0X: the main area, both bands, is 240 x 144 */
+/* One strip, not a 240x240 frame. The panel is three strips that are never
+ * drawn at the same time: header 20, main area 2*69 = 138, knob row 82
+ * (20+138+82 = 240). The tallest is the main area. The strip used to be 144
+ * rows; the extra 6 moved into the knob row and were still reserved here
+ * (240 * 6 * 2 = 2880 bytes of the pool). */
+#define CV_ROWS 138u
+#define CV_MAX (240u * CV_ROWS)
+_Static_assert(CV_ROWS >= 82u, "screen strip shorter than the knob row");
 static uint16_t cv_px[CV_MAX] __attribute__((section(".pool")));
 static uint32_t cv_w, cv_h;
 static int32_t cv_oy;            /* y offset for graph drawing */
