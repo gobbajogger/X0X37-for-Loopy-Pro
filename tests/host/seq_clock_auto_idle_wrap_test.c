@@ -65,6 +65,34 @@ static void idle_rollover_then_clock(void)
     CHECK(s.ext_period != 0u);
     CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
 }
+/* Real user path: an idle INTERNAL session is changed back to AUTO/EXTERNAL
+ * immediately before Loopy reconnects. Do not infer tempo from counter wrap. */
+static void internal_idle_mode_change_then_clock(unsigned target)
+{
+    seq_t s;
+    setup(&s, SEQ_CLK_INT);
+    s.ext_since = UINT32_MAX - 16u;
+    s.ext_now = UINT32_MAX - 16u;
+    advance(&s, 64u);
+    CHECK(s.ext_since > FS);  /* silence is not a 47-sample MIDI interval */
+    CHECK(s.ext_now == 47u);  /* the free-running clock still wraps */
+    s.clk_src = (uint8_t)target;
+    advance(&s, 1u);         /* firmware applies clock-source change in ISR */
+    CHECK(s.clk_cur == target);
+    CHECK(s.ext_period == 0u);
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_period == 0u);    /* first clock cannot measure a tempo */
+    CHECK(s.ext_bpm == 125.0f);
+    advance(&s, FS / 48u);        /* genuine 120 BPM quarter-tick interval */
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_period != 0u);
+    CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
+}
+
 int main(void)
 {
     const unsigned partitions[] = {1u, 64u, 1024u};
@@ -74,6 +102,8 @@ int main(void)
             idle_saturates();
         mode = SEQ_CLK_AUTO;
         idle_rollover_then_clock();
+        internal_idle_mode_change_then_clock(SEQ_CLK_AUTO);
+        internal_idle_mode_change_then_clock(SEQ_CLK_EXT);
     }
     fprintf(stderr, "seq AUTO idle wrap: %u/%u checks %s\n", checks-failed, checks, failed?"FAILED":"PASSED");
     return failed ? 1 : 0;
