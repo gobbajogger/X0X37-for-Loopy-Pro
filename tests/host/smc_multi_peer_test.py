@@ -102,6 +102,9 @@ static void reset(int cursor)
     memset(smc_states,0,sizeof smc_states);memset(smc_inputs,0,sizeof smc_inputs);
     memset(smc_links_seen,0,sizeof smc_links_seen);memset(smc_losses_seen,0,sizeof smc_losses_seen);
     memset((void*)smc_link_seq,0,sizeof smc_link_seq);smc_peer=0;
+    memset((void*)smc_pause_lost,0,sizeof smc_pause_lost);
+    memset(smc_pause_seen,0,sizeof smc_pause_seen);
+    memset((void*)smc_pause_link_boundary,0,sizeof smc_pause_link_boundary);
     memset((void*)smc_mmc_w,0,sizeof smc_mmc_w);memset((void*)smc_mmc_r,0,sizeof smc_mmc_r);
     memset((void*)smc_mmc_stop_w,0,sizeof smc_mmc_stop_w);memset((void*)smc_mmc_stop_r,0,sizeof smc_mmc_stop_r);
     smc_host_r=smc_host_w=0;smc_host_solo_release_lost=smc_host_solo_release_seen=0;
@@ -143,7 +146,8 @@ int main(void)
         reset(cursor);emit(0,0xb0,16,1);proj.set.bt|=PROJ_BT_SMC_USER;
         emit(1,0xb0,16,1);smc_poll();assert(actions[0]==0&&actions[1]==1);
         reset(cursor);fill(0);smc_states[0].lock_down=smc_states[0].play_down=smc_states[0].select_down=1;
-        off(0);smc_poll();assert(!smc_states[0].lock_down&&!smc_states[0].play_down&&!smc_states[0].select_down);
+        off(0);smc_poll();assert(smc_states[0].lock_down&&!smc_states[0].play_down&&!smc_states[0].select_down);
+        fill(0);emit(0,0x80,0x5d,0);smc_poll();assert(!smc_states[0].lock_down);
         reset(cursor);smc_peer=0;smc_solo_press(0,NPARTS+1+NDRUM,0);
         smc_peer=1;smc_solo_press(0,NPARTS+1+NDRUM,0);smc_release(8);assert(drums[1]==1);
         smc_peer=0;smc_release(8);assert(!drums[1]);

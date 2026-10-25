@@ -18,6 +18,11 @@ static smc_ble_input_t smc_inputs[SMC_DIRECT_PEERS];
 static volatile uint32_t smc_link_seq[SMC_DIRECT_PEERS];
 static uint32_t smc_links_seen[SMC_DIRECT_PEERS];
 static uint32_t smc_losses_seen[SMC_DIRECT_PEERS];
+/* Pause has an independent release class. Losing Solo/PLAY/SELECT key-up
+ * must never turn a still-held Pause repeat into another lock toggle. */
+static volatile uint32_t smc_pause_lost[SMC_DIRECT_PEERS + 1u];
+static uint32_t smc_pause_seen[SMC_DIRECT_PEERS + 1u];
+static volatile uint32_t smc_pause_link_boundary[SMC_DIRECT_PEERS];
 static uint8_t smc_peer;
 #define smc_ble_input (smc_inputs[smc_peer])
 #define smc_q (smc_ble_input.q)
@@ -147,6 +152,7 @@ X0X_COLD static void smc_project_drop(void)
     smc_mmc_stop_r[0] = smc_mmc_stop_w[0];
     smc_mmc_stop_r[1] = smc_mmc_stop_w[1];
     smc_host_solo_release_seen = smc_host_solo_release_lost;
+    for (uint8_t p = 0; p <= SMC_DIRECT_PEERS; p++) smc_pause_seen[p] = smc_pause_lost[p];
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -176,8 +182,10 @@ void smc_ble_midi_peer(uint8_t peer, const uint8_t *msg, uint8_t len)
     if (smc_ble_input_push(in, msg, len,
                           proj.set.bt & PROJ_BT_SMC_USER, release))
         smc_enqueued++;
-    else
+    else {
         smc_dropped++;
+        if (release && msg[1] == 0x5Du) smc_pause_lost[peer]++;
+    }
 }
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
@@ -188,6 +196,7 @@ void smc_ble_link_peer(uint8_t peer, int up)
     if (peer >= SMC_DIRECT_PEERS) return;
     smc_link_seq[peer]++;
     __asm__ volatile("" ::: "memory");
+    smc_pause_link_boundary[peer] = smc_pause_lost[peer];
     smc_ble_input_link(&smc_inputs[peer], up);
     __asm__ volatile("" ::: "memory");
     smc_link_seq[peer]++;
@@ -220,6 +229,7 @@ int smc_midi_host(uint32_t pkt)
         smc_host_w = (uint8_t)(w + 1u);
     } else if (smc_is_solo_release(st, a, b)) {
         smc_host_solo_release_lost++;
+        if (a == 0x5Du) smc_pause_lost[SMC_DIRECT_PEERS]++;
     }
     return 1;
 }
@@ -1327,23 +1337,30 @@ static void smc_context_prepare(int allow)
 }
 static void smc_poll_peer(int allow)
 {
-    uint32_t seq, link, ble_link_loss;
+    uint32_t seq, link, ble_link_loss, pause_link_loss;
     do {
         seq = smc_link_seq[smc_peer];
         if (seq & 1u) continue;
         __asm__ volatile("" ::: "memory");
         link = smc_link_published;
         ble_link_loss = smc_link_ble_loss_boundary;
+        pause_link_loss = smc_pause_link_boundary[smc_peer];
         __asm__ volatile("" ::: "memory");
     } while (seq != smc_link_seq[smc_peer] || (seq & 1u));
     uint32_t ble_lost = smc_ble_solo_release_lost;
     uint32_t ble_seen = smc_ble_solo_release_seen;
+    uint32_t pause_lost = smc_pause_lost[smc_peer];
+    uint32_t pause_seen = smc_pause_seen[smc_peer];
     uint8_t r, count = 0;
     if (link != smc_link_seen) {
         smc_link_seen = link;
         if ((uint32_t)(ble_link_loss - ble_seen) < 0x80000000u) {
             ble_seen = ble_link_loss;
             smc_ble_solo_release_seen = ble_link_loss;
+        }
+        if ((uint32_t)(pause_link_loss - pause_seen) < 0x80000000u) {
+            pause_seen = pause_link_loss;
+            smc_pause_seen[smc_peer] = pause_link_loss;
         }
         uint8_t cutoff = (uint8_t)(link >> 1);
         if ((uint8_t)(cutoff - smc_qr) <= (uint8_t)(smc_qw - smc_qr))
@@ -1395,7 +1412,11 @@ static void smc_poll_peer(int allow)
         smc_ble_solo_release_seen = ble_lost;
         smc_solo_clear();
         smc.nav_down = 0;
-        smc.lock_down = smc.play_down = smc.select_down = smc.pattern_down = 0;
+        smc.play_down = smc.select_down = smc.pattern_down = 0;
+    }
+    if (pause_lost != pause_seen && smc_pause_seen[smc_peer] == pause_seen) {
+        smc_pause_seen[smc_peer] = pause_lost;
+        smc.lock_down = 0;
     }
     if (perf_testing() || ui.overlay == O_ASK) smc_solo_clear();
 }
@@ -1414,6 +1435,8 @@ void smc_poll(void)
     smc_peer = SMC_DIRECT_PEERS;
     uint32_t host_lost = smc_host_solo_release_lost;
     uint32_t host_seen = smc_host_solo_release_seen;
+    uint32_t pause_lost = smc_pause_lost[SMC_DIRECT_PEERS];
+    uint32_t pause_seen = smc_pause_seen[SMC_DIRECT_PEERS];
     uint8_t r, count;
     smc_context_prepare(allow);
     count = 0;
@@ -1451,7 +1474,11 @@ void smc_poll(void)
         smc_host_solo_release_seen = host_lost;
         smc_solo_clear();
         smc.nav_down = 0;
-        smc.lock_down = smc.play_down = smc.select_down = smc.pattern_down = 0;
+        smc.play_down = smc.select_down = smc.pattern_down = 0;
+    }
+    if (pause_lost != pause_seen && smc_pause_seen[SMC_DIRECT_PEERS] == pause_seen) {
+        smc_pause_seen[SMC_DIRECT_PEERS] = pause_lost;
+        smc.lock_down = 0;
     }
     if (perf_testing() || ui.overlay == O_ASK) smc_solo_clear();
     smc_peer = saved;

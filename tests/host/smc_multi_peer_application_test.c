@@ -1,8 +1,18 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Full production UI/project/engine, decoder, locks, pickup and feedback.
  * The existing host fixture supplies hardware substitutes; no device claim. */
+#define SMC_UI_PEER_SEND_IMPLEMENTED 1
 #define SMC_UI_MAIN smc_ui_single_peer_main
 #include "smc_ui_test.c"
+static uint8_t output_led[SMC_DIRECT_PEERS][128], output_fader[SMC_DIRECT_PEERS][8];
+static unsigned output_count[SMC_DIRECT_PEERS];
+int plat_ble_smc_send_peer(uint8_t peer,const uint8_t *m,uint8_t n)
+{
+    CHECK(peer<SMC_DIRECT_PEERS&&n==3);output_count[peer]++;
+    if(m[0]==0x90) output_led[peer][m[1]]=m[2];
+    if(m[0]>=0xe0&&m[0]<0xe8) {CHECK(m[1]==m[2]);output_fader[peer][m[0]-0xe0]=m[2];}
+    return 1;
+}
 static void peer_message(uint8_t peer, uint8_t st, uint8_t a, uint8_t b)
 {
     const uint8_t msg[] = {st,a,b};
@@ -22,6 +32,8 @@ static void two_links(void)
 {
     setup(V_SEQ,PART_909);
     smc_ble_link_peer(1,1);smc_poll();
+    memset(output_led,0,sizeof output_led);memset(output_fader,0,sizeof output_fader);
+    memset(output_count,0,sizeof output_count);
 }
 static void navigate_peer_target(int kit,int bank)
 {
@@ -64,6 +76,7 @@ static void distinct_locks_pickup_and_feedback(void)
     /* Per-peer feedback cache follows each captured target, including after remote edits. */
     pref_set(a,33);pref_set(b,101);smc_frame();
     CHECK(smc_states[0].value[0]==33&&smc_states[1].value[0]==101);
+    CHECK(output_fader[0][0]==33&&output_fader[1][0]==101);
     CHECK(!smc_states[0].picked&&!smc_states[1].picked);
     CHECK(!smc_peer_lock(2,1)&&!smc_peer_locked(255));
     puts("PASS full production: two captured kits/banks, independent fader crossing/knob acceleration, display owner and feedback");
@@ -91,7 +104,12 @@ static void same_target_and_solo(void)
     CHECK(smc_states[0].lock_bank==0&&smc_states[1].lock_bank==8);
     peer_message(0,0x90,8,127);peer_message(1,0x90,8,127);
     CHECK(smc_drum_solo_all[0]==((1u<<0)|(1u<<8)));
+    smc_frame();CHECK(output_led[0][8]==127&&output_led[1][8]==127);
+    peer_message(1,0x80,8,0);smc_frame();
+    CHECK(output_led[0][8]==127&&output_led[1][8]==0); /* each bank projects the union onto its own strip */
+    peer_message(1,0x90,8,127);smc_frame();
     smc_ble_link_peer(0,0);smc_poll();CHECK(smc_drum_solo_all[0]==(1u<<8));
+    smc_frame();CHECK(output_led[1][8]==127);
     smc_project_reset();CHECK(!smc_project_active());
     CHECK(!smc_peer_locked(0)&&!smc_peer_locked(1));
     puts("PASS full production: same-target pickup, same/different Solo union, per-peer intentional navigation and disconnect/reset");
