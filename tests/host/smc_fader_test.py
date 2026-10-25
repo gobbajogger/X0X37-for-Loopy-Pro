@@ -15,7 +15,7 @@ harness = r'''
 enum { R_NONE, R_ACT, R_HDR, R_ENG };
 typedef struct { uint8_t kind; } pref_t;
 typedef struct { int max; } x0x_param_t;
-static struct { pref_t target[8]; uint8_t value[8],last[8],seen,picked,pending; } smc;
+static struct { pref_t target[8]; uint8_t value[8],last[8],seen,picked,pending,input_seen; } smc;
 static struct { uint32_t act_t; } ui;
 static x0x_param_t desc={127};
 static int value=64,writes,shows,shown,motions;
@@ -37,7 +37,7 @@ int main(void) {
     shows=0; smc_fader(0,126);
     assert(writes==2 && motions==2 && shows==1 && shown==126);
     shows=0; smc_fader(0,126);
-    assert(writes==2 && shows==1 && shown==126);
+    assert(writes==2 && shows==0 && shown==126);
     shows=0; smc_fader(8,0); smc_fader(-1,0);
     smc.target[0].kind=R_NONE; smc_fader(0,0);
     assert(shows==0 && writes==2);

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prove the full UI regression detects runtime failures in four real paths.
+"""Prove the full UI regression detects runtime failures in five real paths.
 
 Each mutation changes one production operation in a private scratch source;
 compiler failures do not count as an expected negative result. No device I/O.
@@ -13,6 +13,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "firmware/src/app/smc_mixer.c"
 text = SOURCE.read_text()
 MUTANTS = {
+    "duplicate-opens-overlay": (
+        "    if (moved) {",
+        "    if (1) { /* negative: duplicates reopen */",
+    ),
     "timeout-disabled": (
         "(int32_t)(plat_ms() - smc_ui.until) >= 0",
         "0 /* negative control: no inactivity timeout */",
@@ -46,4 +50,4 @@ for name, (old, new) in MUTANTS.items():
             raise RuntimeError(f"{name}: expected a runtime assertion failure, exit={result.returncode}\n{result.stdout}")
         failure = next(line for line in result.stdout.splitlines() if line.startswith("FAIL tests/host/smc_ui_test.c:"))
         print(f"PASS negative {name}: {failure}")
-print("smc_ui_negative: PASS (4 runtime failures detected; compile failures excluded)")
+print("smc_ui_negative: PASS (5 runtime failures detected; compile failures excluded)")
