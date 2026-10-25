@@ -1,0 +1,374 @@
+{
+  "stage": "DIAGNOSTIC_RELINK_ONLY",
+  "source_pin": {
+    "commit": "89463c4aa83eb19a00a42d1410541323cfbc5253",
+    "root_tree": "f11bf0088d259fd8eeac4e131f6e819daf877aff",
+    "firmware_tree": "d5831559c6d59b588b1af15583912bf7634bcc5d",
+    "controller_tree": "7d169a6b97cd3b48064d938c23ccb6d3fb197fbd",
+    "tools_tree": "0a30ed660aab681045dd71e76619e08e56fa2a88",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "expected_controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "expected_controller_size": 65492,
+    "scope": {
+      "physical_input_bound": false,
+      "pause_led_bound": false,
+      "control_context_mechanism_only": true,
+      "normal_build_separate_from_retention_diagnostic": true
+    }
+  },
+  "link_configuration_change": "-u smc_lock_button",
+  "purpose": "Measure retained dormant mechanism; does not bind a physical event or build a normal firmware package",
+  "compiled_objects_reused_without_recompilation": true,
+  "packages_created": false,
+  "models": {
+    "elite": {
+      "normal_has_smc_lock_button": false,
+      "link_exit": 0,
+      "diagnostic_has_smc_lock_button": true,
+      "app_bytes": 551180,
+      "code_free": 1492,
+      "ram_used": 97988,
+      "ram_free": 316,
+      "pool_used": 335740,
+      "pool_free": 8324,
+      "checks_errors": [],
+      "checks_notes": [
+        ".ram_text: 1082 insns, no calls",
+        "app code area 552672 B, 1492 B free (Bluetooth block at app.bin 0x86ee0)",
+        "no soft-double routines (single-precision FPU only)",
+        "image 551180 B; RAM .data+.bss 97988 B of 98304; pool 335740 B of 344064"
+      ],
+      "elf_sha256": "28613ad91359f66b8b2e97e3926958f1f6a0cfbd5e3e943c8df88f22eb27d1dc",
+      "diagnostic_bin_sha256": "5f8675cb0c75382f7b9f4bf923efd24501153e996ccbaa6bd32a9336863eb1d2",
+      "normal_bundled_sha256_after_diagnostic": "fe9358fe64b411c3cde8fb9b70bc630e070d4167e049df91e6855212ba2d469c",
+      "additional_retained_code_bytes": 496
+    },
+    "pro": {
+      "normal_has_smc_lock_button": false,
+      "link_exit": 0,
+      "diagnostic_has_smc_lock_button": true,
+      "app_bytes": 551180,
+      "code_free": 1492,
+      "ram_used": 97988,
+      "ram_free": 316,
+      "pool_used": 335740,
+      "pool_free": 8324,
+      "checks_errors": [],
+      "checks_notes": [
+        ".ram_text: 1082 insns, no calls",
+        "app code area 552672 B, 1492 B free (Bluetooth block at app.bin 0x86ee0)",
+        "no soft-double routines (single-precision FPU only)",
+        "image 551180 B; RAM .data+.bss 97988 B of 98304; pool 335740 B of 344064"
+      ],
+      "elf_sha256": "21744b88c447231ee7a1fce30ae1ec2aa7411b60778cb429694061e6e64e8e61",
+      "diagnostic_bin_sha256": "fd28d53aaee4214dac64b9871ed0ea118530bbd2db34fe11275db82f1ba4bafa",
+      "normal_bundled_sha256_after_diagnostic": "6f893df24672c013add4daa553a7c0b154e02d2541c3ab22813f6bd0d18c8011",
+      "additional_retained_code_bytes": 496
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-t",
+        "/work/build-copy/build/smk37-elite/x0x.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/normal-symbols.txt"
+    },
+    {
+      "argv": [
+        "/tc/pi32v2/bin/ld",
+        "--gc-sections",
+        "-u",
+        "smc_lock_button",
+        "-e",
+        "_start",
+        "-T",
+        "/work/build-copy/build/smk37-elite/app.ld",
+        "/work/build-copy/build/smk37-elite/crt0.o",
+        "/work/build-copy/build/smk37-elite/fm1_vec.o",
+        "/work/build-copy/build/smk37-elite/fm1_isr.o",
+        "/work/build-copy/build/smk37-elite/fm1_cpu1.o",
+        "/work/build-copy/build/smk37-elite/x0x.o",
+        "/work/build-copy/build/smk37-elite/o2/dsp_drum909.o",
+        "/work/build-copy/build/smk37-elite/o2/dsp_drum808.o",
+        "/work/build-copy/build/smk37-elite/o2/dsp_bass303.o",
+        "/work/build-copy/build/smk37-elite/o2/dsp_breaks.o",
+        "/work/build-copy/build/smk37-elite/o2/dsp_fxbus.o",
+        "/work/build-copy/build/smk37-elite/o2/dsp_master.o",
+        "/work/build-copy/build/smk37-elite/o2/seq_sequencer.o",
+        "/work/build-copy/build/smk37-elite/o2/seq_tb3po.o",
+        "/work/build-copy/build/smk37-elite/o2/seq_pattern.o",
+        "/work/build-copy/build/smk37-elite/o2/seq_motion.o",
+        "/work/build-copy/build/smk37-elite/o2/app_engine.o",
+        "-o",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/link.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".text",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/elite/text.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/text.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".data",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/elite/data.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/data.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".ram_text",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/elite/ramtext.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/ramtext.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".c1_text",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/elite/c1text.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/c1text.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-t",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/retained-symbols.txt"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-d",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/retained-disassembly.txt"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-d",
+        "-j",
+        ".ram_text",
+        "/work/native-build/diagnostic-retained/elite/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/elite/retained-ram-disassembly.txt"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-t",
+        "/work/build-copy/build/smk37/x0x.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/normal-symbols.txt"
+    },
+    {
+      "argv": [
+        "/tc/pi32v2/bin/ld",
+        "--gc-sections",
+        "-u",
+        "smc_lock_button",
+        "-e",
+        "_start",
+        "-T",
+        "/work/build-copy/build/smk37/app.ld",
+        "/work/build-copy/build/smk37/crt0.o",
+        "/work/build-copy/build/smk37/fm1_vec.o",
+        "/work/build-copy/build/smk37/fm1_isr.o",
+        "/work/build-copy/build/smk37/fm1_cpu1.o",
+        "/work/build-copy/build/smk37/x0x.o",
+        "/work/build-copy/build/smk37/o2/dsp_drum909.o",
+        "/work/build-copy/build/smk37/o2/dsp_drum808.o",
+        "/work/build-copy/build/smk37/o2/dsp_bass303.o",
+        "/work/build-copy/build/smk37/o2/dsp_breaks.o",
+        "/work/build-copy/build/smk37/o2/dsp_fxbus.o",
+        "/work/build-copy/build/smk37/o2/dsp_master.o",
+        "/work/build-copy/build/smk37/o2/seq_sequencer.o",
+        "/work/build-copy/build/smk37/o2/seq_tb3po.o",
+        "/work/build-copy/build/smk37/o2/seq_pattern.o",
+        "/work/build-copy/build/smk37/o2/seq_motion.o",
+        "/work/build-copy/build/smk37/o2/app_engine.o",
+        "-o",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/link.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".text",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/pro/text.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/text.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".data",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/pro/data.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/data.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".ram_text",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/pro/ramtext.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/ramtext.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".c1_text",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf",
+        "/work/native-build/diagnostic-retained/pro/c1text.bin"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/c1text.bin.log"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-t",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/retained-symbols.txt"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-d",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/retained-disassembly.txt"
+    },
+    {
+      "argv": [
+        "/tc/common/bin/objdump",
+        "-d",
+        "-j",
+        ".ram_text",
+        "/work/native-build/diagnostic-retained/pro/x0x-retained.elf"
+      ],
+      "exit": 0,
+      "log": "/work/native-build/diagnostic-retained/pro/retained-ram-disassembly.txt"
+    }
+  ],
+  "driver": {
+    "argv": [
+      "docker",
+      "run",
+      "--rm",
+      "--name",
+      "x0x37-smc-lock-diagnostic-task22",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--pull",
+      "never",
+      "--user",
+      "501:20",
+      "-v",
+      "/Users/mac/Documents/Codex/2026-10-25/task-22:/work",
+      "-v",
+      "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1:/tc:ro",
+      "-v",
+      "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/validation_refs:/refs:ro",
+      "-e",
+      "JIELI_TOOLCHAIN=/tc",
+      "-e",
+      "AC79_SDK=/sdk",
+      "-e",
+      "SDK_LOCAL=/sdk",
+      "-e",
+      "JIELI_DOCKER=0",
+      "-e",
+      "CTL_NATIVE=1",
+      "-e",
+      "CTL_NO_CACHE=1",
+      "-e",
+      "X0X_DEV_PADCAL=1",
+      "-e",
+      "X0X_JOBS=4",
+      "-e",
+      "CC=gcc",
+      "-e",
+      "CXX=g++",
+      "-e",
+      "NINEW9_DIR=/refs/schwung-9W9",
+      "-e",
+      "EIGHTW8_DIR=/refs/schwung-8W8",
+      "-e",
+      "SCHWUNG303=/refs/schwung-303",
+      "-e",
+      "TB3PO_REF=/refs/schwung-tb3po/src/dsp/tb3po.c",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "/work/native-build/diagnostic-retained.py"
+    ],
+    "exit": 0,
+    "observed_utc": "2026-10-25T05:40:33.688911+00:00",
+    "log": "native-build/diagnostic-driver.log"
+  }
+}

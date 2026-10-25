@@ -1,0 +1,47 @@
+{
+  "schema": "smc-control-context-target-review-v1",
+  "reviewer_role": "independent read-only target/pickup source reviewer",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base": "3862175d5815d2bd505ab04ca1c8e1868761a2e7",
+  "source_commit": "89463c4aa83eb19a00a42d1410541323cfbc5253",
+  "root_tree": "f11bf0088d259fd8eeac4e131f6e819daf877aff",
+  "firmware_tree": "d5831559c6d59b588b1af15583912bf7634bcc5d",
+  "source_sha256": {
+    "firmware/src/app/smc_mixer.c": "59155fc04833906d8eabe595eac74336ba59d16d3d82bf8a605473cd6a99bc58",
+    "firmware/src/app/ui.c": "1de1f375b08f3e26b3e11c59c9eef3a036664dbc79b91673b407e65753b76657"
+  },
+  "disposition": "ACCEPT_PREPARED_UNBOUND_SOURCE",
+  "remaining_source_findings": [],
+  "purpose": "Freeze complete SMC control destinations while the keyboard UI navigates, without restoring or pinning its temporary screen.",
+  "reviewed_contract": [
+    "Fader and knob parameter identities snapshot all four pref_t bytes. Pattern-backed references bind the exact original pattern slot in their otherwise unused b byte; ordinary panel refs retain b=0 behavior.",
+    "Drum kit and eight-strip bank are frozen. Empty strips in bank two remain inactive. Mute and held Solo retain snapshot target identity, including drum Solo aliases 13-15.",
+    "SMC REC rows, SELECT rows, bank/channel and ordinary view/page navigation wait for unlock. Help close and confirmation confirm/cancel preserve existing priority. Keyboard navigation remains independent.",
+    "Global STOP/PLAY/REC retain existing behavior; rewind/forward cue the part selected when lock was captured. Sound motion recording follows the currently playing sequencer pattern, while pattern-setting knobs edit their captured pattern slots.",
+    "Song cursor is not a captured editable parameter. Bound song controls become inactive after structural generation or length changes, including insert/delete/clear/undo, rather than targeting shifted or recreated bars.",
+    "Lock/unlock resets fader pickup, crossing history, encoder acceleration and pending feedback even for equal targets. External value changes retain the existing pickup invalidation path. Solo releases still address the original held target.",
+    "Reconnect resets held-button edge and pickup state while retaining frozen targets; project reset clears lock through the existing runtime reset.",
+    "The temporary SMC UI continues to use the live keyboard context hash and 1200ms expiry. Lock feedback reports snapshot kit/bank or view/part/page/song bar. Live navigation cancellation and return behavior are retained.",
+    "Capture in clip mode is explicitly unavailable; an existing lock can survive keyboard entry to clip mode without redirecting its encoders into clip fields. Unlock resumes existing clip routing."
+  ],
+  "verification_performed": [
+    "Verified exact commit/root/firmware identities with git rev-parse.",
+    "Reviewed complete two-file production diff against installed base and all affected pref constructors/getters/setters, SMC routing, row actions, pickup and output paths.",
+    "Verified source bytes against committed git objects using SHA256.",
+    "git diff base..source --check exited 0."
+  ],
+  "resolved_before_pinned_commit": [
+    "Initial unconditional navigation alias guard would have blocked drum Solo strips 6-8; final guard applies aliases 13-15 only outside captured drum mode.",
+    "Initial song index binding could redirect after insert/delete; final song structure generation plus length check invalidates bound song controls.",
+    "A frozen inactive BREAK pattern slot edit no longer reloads the unrelated live playback loop projection."
+  ],
+  "limits": [
+    "No physical Pause mapping or Pause LED was proven or bound. note53/CC53 remain unassigned; existing STOP/PLAY/REC input/output mappings are preserved.",
+    "Unreferenced lock entrypoints may be removed by target linker garbage collection. A private build is not proof the feature is physically reachable.",
+    "This receipt is source review only. Independent runtime tests, target build/package evidence, and physical behavior have separate owners and are not claimed by this receipt.",
+    "The user-facing Pause toggle and blinking/steady indicator remain incomplete pending exact physical event and LED identification."
+  ],
+  "hardware_actions": "NONE",
+  "source_mutations_by_reviewer": "NONE",
+  "access_denials_or_uncertain_actions": "NONE"
+}

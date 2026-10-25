@@ -1,0 +1,25 @@
+{
+  "schema": "smc-lock-coordinator-reconciliation-v1",
+  "source_commit": "89463c4aa83eb19a00a42d1410541323cfbc5253",
+  "firmware_tree": "d5831559c6d59b588b1af15583912bf7634bcc5d",
+  "source_and_test_bytes_match_independent_receipts": true,
+  "recorded_test_logs_hash_match": true,
+  "private_package_actual_byte_checks": {
+    "elite": {
+      "identity": "SMK-37 Elite_900",
+      "bytes": 651396,
+      "sha256": "fe9358fe64b411c3cde8fb9b70bc630e070d4167e049df91e6855212ba2d469c",
+      "crc32": "42b719f4"
+    },
+    "pro": {
+      "identity": "SMK-37 Pro_900",
+      "bytes": 651392,
+      "sha256": "6f893df24672c013add4daa553a7c0b154e02d2541c3ab22813f6bd0d18c8011",
+      "crc32": "aca79296"
+    }
+  },
+  "normal_hook_absent_and_diagnostic_retained": true,
+  "hardware_actions": "NONE",
+  "physical_pause_binding": "PENDING_IDENTIFICATION",
+  "full_root_release_QA": "NOT_CLAIMED"
+}

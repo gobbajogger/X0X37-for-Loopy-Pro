@@ -1,0 +1,392 @@
+{
+  "schema": "smc-context-lock-independent-tests/v1",
+  "disposition": "PASS_SCOPED_MECHANISM_ONLY_PHYSICAL_ROUTE_UNBOUND",
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "commit": "89463c4aa83eb19a00a42d1410541323cfbc5253",
+    "root_tree": "f11bf0088d259fd8eeac4e131f6e819daf877aff",
+    "firmware_tree": "d5831559c6d59b588b1af15583912bf7634bcc5d",
+    "smc_blob": "9200624186635ed0ba8a83f1184268ec988325f5",
+    "ui_blob": "9693b88972d1f389596df0e33ac91baacef4b3d3"
+  },
+  "tests": {
+    "commit": "6e5abdc600ee6d6bf664eef753248d15a8928a52",
+    "root_tree": "04e31d3d9ad9b226a514f7434e8cefbea7dc5289",
+    "additional_untracked_script": "tests/host/smc_lock_negative_test.py",
+    "files": [
+      {
+        "path": "tests/host/smc_buttons_test.py",
+        "sha256": "d7c009b7b0453c849d1246dbbaa68aee65442c940643963ea61689725def8fb3",
+        "git_blob": "96eacfa7979e7db071536dd8c527847e0f2a08ac"
+      },
+      {
+        "path": "tests/host/smc_feedback_test.py",
+        "sha256": "72fd0ddeada92bd30bdb7beb66f8b6dc01994fdce942e1a42f52de996c2df0fc",
+        "git_blob": "515005185f2e4275f83450e6dc0eb87a346ffec8"
+      },
+      {
+        "path": "tests/host/smc_filter_test.py",
+        "sha256": "224cc5362f07bf0d47ff1ccbf2fbfb66f496571ce0ef7fa1a3f9afd9bdca977e",
+        "git_blob": "76bc11b8c1e6d6cf799814c2ddbd3ac9550e621c"
+      },
+      {
+        "path": "tests/host/smc_mapping_test.py",
+        "sha256": "8ebc45dfe29415548d08a4980fb4e54ca1cb15a0c712983ef9b73dacc10ea545",
+        "git_blob": "cefbcbbe6c772111f3700a09a08d22097c53a228"
+      },
+      {
+        "path": "tests/host/smc_solo_overflow_test.py",
+        "sha256": "09854198ff450ec8daf9ad2dcb65d6b38d62f00a18106e7fdf4e89db04474e4c",
+        "git_blob": "86734da112e396882a59f44c4495890f65241b5f"
+      },
+      {
+        "path": "tests/host/smc_ui_test.c",
+        "sha256": "3ceae9a05ce61fbb7ee5a7996feef66b72b9c72288dfa833234c1ac9c3b86468",
+        "git_blob": "ecc043aef0a8face71bf7cc7d37284515f8cb09a"
+      },
+      {
+        "path": "tests/host/smc_ui_test.sh",
+        "sha256": "a206c076d583441f41194bfcb3c196bc8e417d847ab201e0bb0beb7e47321a9c",
+        "git_blob": "7ee474b3b383b12a9b2d724a159519a76d6b6f37"
+      },
+      {
+        "path": "tests/host/smc_lock_test.c",
+        "sha256": "c12ceca63a7ac1e62657805b1699bc7719f42fc98993231b7146a3dfe0a1f52f",
+        "git_blob": "7115351b89b5ed1bc6c277e997aa036bf1781fea"
+      },
+      {
+        "path": "tests/host/smc_lock_test.sh",
+        "sha256": "86110757a92d2eb0f31f575404c0ad8e28f31b5899e9c701b36d96e462c790b0",
+        "git_blob": "42c8ef8002a13f1d912c93d09aea96a99424e4ac"
+      },
+      {
+        "path": "tests/host/smc_lock_negative_test.py",
+        "sha256": "4ccae343e28c117983e7c4428d0657dab7c107aebec3df97d45543ff2cd92873",
+        "git_blob": "b1bf8a6448f17f4719ce91e7e60eb86518c0f0b4"
+      },
+      {
+        "path": "tests/run_tests.sh",
+        "sha256": "c72220129b5e844497401c888060225c57eb41b8b743e6efd54177522bbb5ca2",
+        "git_blob": "8cf9f70e0848e477d0794e322bcf97cd84424db4"
+      }
+    ]
+  },
+  "positive": {
+    "plain": {
+      "exit_code": 0,
+      "checks": 393,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock.log"
+    },
+    "asan": {
+      "exit_code": 0,
+      "checks": 393,
+      "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-asan.log",
+      "flags": "-fsanitize=address -fno-omit-frame-pointer"
+    },
+    "affected_suites_final_pass_count": 25,
+    "affected_suites": [
+      {
+        "suite": "project-runtime",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/project-runtime.log",
+        "sha256": "d9a185bba122be2c4c546993e9eb2b89c36cc0127f254df569e630aaa0bcb493",
+        "last_line": "project_smc_runtime: reset drops all queued routes; lock/abort/solo/pickup state ok"
+      },
+      {
+        "suite": "smc-protocol",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-protocol.log",
+        "sha256": "7dd80227d6127e4d93cd62751cc2242f4123ac82ccaa3e744c9a433c6bce773b",
+        "last_line": "SMC protocol: 43 buttons, pickup, encoders and host isolation ok"
+      },
+      {
+        "suite": "smc-fader",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-fader.log",
+        "sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2",
+        "last_line": "PASS: fader pickup, motion, inactive inputs and one final-value display"
+      },
+      {
+        "suite": "smc-buttons",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-buttons.log",
+        "sha256": "1df751729edccc07a92318958edd074cf7027b7b9635e4717f9de5520630439d",
+        "last_line": "PASS: strip shortcuts and page/menu arrows use explicit view/page/menu mappings"
+      },
+      {
+        "suite": "smc-queue",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-queue.log",
+        "sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb",
+        "last_line": "PASS: 42 full-queue ISR interleavings, MMC STOP priority, wrap and reset discard"
+      },
+      {
+        "suite": "smc-solo-overflow",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-solo-overflow.log",
+        "sha256": "f0c2305c4646b5c93366c40ca93fa3c546ea39bc1ad44d8f14438c865f0f5e7f",
+        "last_line": "SMC combined source-window Solo overflow: 20/20 PASS"
+      },
+      {
+        "suite": "smc-host-data7",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-host-data7.log",
+        "sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f",
+        "last_line": "SMC source-selected host data7: 13 tested, 0 failed"
+      },
+      {
+        "suite": "smc-host-overflow-data7",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-host-overflow-data7.log",
+        "sha256": "183f8112a038138f3202f5ede6c84f361520e1863c5f90e6b07a7c9d3a79e01b",
+        "last_line": "SMC overflow/user-data7 source-exact: 16 cases, 0 failures"
+      },
+      {
+        "suite": "smc-sender-isolation",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-sender-isolation.log",
+        "sha256": "15fe5ddaad57091be40b1d9d3e98e8ca71d9f668bdddf0e0e30f36a8e108b3e2",
+        "last_line": "PASS: 9 host MIDI source isolation cases"
+      },
+      {
+        "suite": "smc-link",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-link.log",
+        "sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc",
+        "last_line": "PASS: 10 SMC link cases preserve reconnect, disconnect, pickup, reset and wrap"
+      },
+      {
+        "suite": "smc-reachability",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-reachability.log",
+        "sha256": "e2322eab897bf8bd378ca9c17f182fd35c889c58cd0286c7e339a0190a24b7e8",
+        "last_line": "PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths"
+      },
+      {
+        "suite": "smc-ui",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-ui.log",
+        "sha256": "b25385c914668352d603ceba73bbe94c94292e734af2b3a9b20139eb874482a7",
+        "last_line": "smc_ui: PASS (191 checks)"
+      },
+      {
+        "suite": "smc-mapping",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-mapping.log",
+        "sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938",
+        "last_line": "PASS: both drum kits, 11 tracks, bank bounds, three knob modes, unique targets within each type, menus and stage isolation"
+      },
+      {
+        "suite": "smc-drum-mutes",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-drum-mutes.log",
+        "sha256": "e54cc258b48f8ae80aa5c4b006409b7de8fecf29453fabe6973a6d70ff428465",
+        "last_line": "PASS: 22 active drum mute/light destinations, 10 inactive positions, 30 knob/fader writes, main mute/FX and ownership priorities."
+      },
+      {
+        "suite": "smc-drum-rs",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-drum-rs.log",
+        "sha256": "04a5f72cc9479a85ef201ee130b289221e5249edd7ada0b48316868a036e0de9",
+        "last_line": "PASS: 44 active drum destinations, 20 inactive positions, 88 pad writes, 88 audio cases; 124970 checks, 0 failures"
+      },
+      {
+        "suite": "smc-performance-abort",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-performance-abort.log",
+        "sha256": "3633c954719dfff591f8d5b6f1070b78641df2649292a2323c79f1475378e1ad",
+        "last_line": "PASS: host User MMC1 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort"
+      },
+      {
+        "suite": "smc-filter",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-filter.log",
+        "sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92",
+        "last_line": "PASS: SMC filter destination and independent master mute light"
+      },
+      {
+        "suite": "smc-feedback",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-feedback.log",
+        "sha256": "e955f5d8e434484ca245da46d3336212b16b7bd7023aab5fc1a2300e896d0018",
+        "last_line": "PASS: 1838 SMC feedback expectations, 0 failures; navigation, main/drum banks, transport and emitted MIDI"
+      },
+      {
+        "suite": "smc-record-feedback",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-record-feedback.log",
+        "sha256": "f35c7a277fd65d3228bec16a0683b0774c2d5a9d24324fbfb130d4bafcdcafd4",
+        "last_line": "PASS: 4 real pattern writes, 7 emitted Record projections, 0 failures"
+      },
+      {
+        "suite": "smc-part-select",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-part-select.log",
+        "sha256": "232941838900ea044e95c2e848228751dd188b6c5441145fc0dc70069c338938",
+        "last_line": "smc_part_select: ok"
+      },
+      {
+        "suite": "smc-clip-visibility",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-clip-visibility.log",
+        "sha256": "1069e67bd4b28e47b02b5a8f7560e276cd956dd8a5e78589cd57cba15724e00d",
+        "last_line": "smc_clip_visibility: ok (0 failures)"
+      },
+      {
+        "suite": "copy-semantics",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/copy-semantics.log",
+        "sha256": "ab44688c616ce84b8179ab63abb910b80880305f68be2e6903260efd844005f7",
+        "last_line": "copy_semantics: ok"
+      },
+      {
+        "suite": "song-actions",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/song-actions.log",
+        "sha256": "f3cee9bb32f11eee7eebe173c4f1bfc708176b81c8b7d64005ac3f4185ada24d",
+        "last_line": "song_actions: ok"
+      },
+      {
+        "suite": "smc-ui-negative",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/passed-suite-logs/smc-ui-negative.log",
+        "sha256": "5460894df23851ff09044d76c028462826a7bb97010e80de61eee279662f9b75",
+        "last_line": "smc_ui_negative: PASS (4 runtime failures detected; compile failures excluded)"
+      },
+      {
+        "suite": "smc-lock",
+        "exit_code": 0,
+        "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock.log",
+        "sha256": "81d87e0827be946a6003248f5622539fe5e1c58f30279382fc1e2ef316245d48",
+        "checks": 393
+      }
+    ]
+  },
+  "new_runtime_negatives": {
+    "exit_code": 0,
+    "count": 4,
+    "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-negative.log",
+    "compile_errors_count_as_pass": false,
+    "mutants": [
+      "fader-captures-home",
+      "pattern-binding-removed",
+      "pickup-epoch-retained",
+      "song-structure-ignored"
+    ]
+  },
+  "absent_operation_negative": {
+    "exit_code": 1,
+    "expected_runtime_assertion": "smc_same(f[i], smc_target(i))",
+    "log": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-base-lock.log",
+    "scope": "HYBRID_MISSING_LOCK_DEMONSTRATION, not exact-root baseline QA",
+    "old_smc_commit": "3862175d5815d2bd505ab04ca1c8e1868761a2e7",
+    "old_smc_blob": "c9a1b3036ef0575ad502ae0ef1ae19644df49daf",
+    "ui_and_engine": "current firmware tree d5831559c6d59b588b1af15583912bf7634bcc5d",
+    "shim": "SMC_LOCK_BASELINE adds no-op absent smc_lock_toggle/button symbols only; old routing executes unchanged"
+  },
+  "commands": [
+    {
+      "command": "CC=cc SMC_UI_OUT=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/base-ui sh tests/host/smc_ui_test.sh > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/base-ui.log 2>&1",
+      "exit_code": 0,
+      "scope": "initial smoke,191 checks; not used as pinned exact-root baseline QA"
+    },
+    {
+      "command": "X0X_TEST_JOBS=1 X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh tests/run_tests.sh smc-protocol smc-fader smc-buttons smc-mapping smc-filter smc-feedback smc-queue smc-link smc-solo-overflow smc-host-data7 smc-host-overflow-data7 smc-sender-isolation smc-reachability smc-ui smc-lock smc-ui-negative smc-drum-mutes smc-drum-rs smc-performance-abort smc-record-feedback smc-part-select smc-clip-visibility song-actions copy-semantics project-runtime > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/affected-runner.log 2>&1",
+      "exit_code": 1
+    },
+    {
+      "command": "CC=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/cc-darwin.sh X0X_TEST_JOBS=1 sh tests/run_tests.sh smc-buttons smc-solo-overflow smc-lock smc-lock-negative smc-mapping smc-filter smc-feedback copy-semantics song-actions > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/affected-repaired.log 2>&1",
+      "exit_code": 1
+    },
+    {
+      "command": "CC=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/cc-darwin.sh SMC_LOCK_OUT=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock sh tests/host/smc_lock_test.sh > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock.log 2>&1",
+      "exit_code": 0,
+      "checks": 393
+    },
+    {
+      "command": "CC=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/cc-darwin.sh SAN_FLAGS='-fsanitize=address -fno-omit-frame-pointer' SMC_LOCK_OUT=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-asan sh tests/host/smc_lock_test.sh > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-asan.log 2>&1",
+      "exit_code": 0,
+      "checks": 393
+    },
+    {
+      "command": "CC=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/cc-darwin.sh SMC_LOCK_NEGATIVE_OUT=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-negative python3 tests/host/smc_lock_negative_test.py > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-negative.log 2>&1",
+      "exit_code": 0,
+      "runtime_failures_detected": 4
+    },
+    {
+      "command": "CC=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/cc-darwin.sh SMC_UI_SOURCE_FILE=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/base-smc_mixer.c SMC_LOCK_OUT=/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-base-lock X0X_HOST_DEFS=-DSMC_LOCK_BASELINE sh tests/host/smc_lock_test.sh > /Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-base-lock.log 2>&1",
+      "exit_code": 1,
+      "expected_runtime_failure": true
+    },
+    {
+      "command": "git diff --check -- tests; ast.parse changed Python test sources; sh -n tests/host/smc_lock_test.sh tests/host/smc_ui_test.sh",
+      "exit_code": 0,
+      "scope": "syntax/whitespace checks, not behavior evidence"
+    }
+  ],
+  "retained_failed_attempts": [
+    {
+      "log": "affected-runner.log",
+      "outcome": "exit1",
+      "reason": "five extraction fixtures lacked new lock fields/helpers; two wrappers omitted macOS _DARWIN_C_SOURCE; initial new lock test assumed synchronous transport rather than request flags; source did not change"
+    },
+    {
+      "log": "affected-repaired.log",
+      "outcome": "exit1",
+      "reason": "all replayed positive suites passed, but first new fast-path-removal mutant survived because frozen drum helpers reconstructed same target; replaced by corrupt-capture mutant and final four runtime negatives passed"
+    }
+  ],
+  "test_changes_reason": "Preserve all existing unlocked assertions while extending extraction substitutes for new production dependencies. New integration tests exercise actual UI/engine/SMC and prepared lock API, preventing context drift and pickup jumps.",
+  "visual": {
+    "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock/locked-context.png",
+    "sha256": "69115298e8f02736f21957de18a45a18eaeed8766a29fdca0eec3e7f5a9eaa80",
+    "observed": "Readable compact LOCK 909 BANK 1 with current target/pickup; synthetic framebuffer only"
+  },
+  "limits": [
+    "Physical Pause identity/LED binding remains unverified and intentionally absent; tests do not qualify physical Pause or requested flashing/steady LED behavior.",
+    "No hardware or GUI/MIDI-client action; no target firmware build or package review owned by this role.",
+    "Not full-root QA. Historical fastmath.h negative-shift UBSan from task14/task16 remains unchanged; reused parent-confirmed evidence; no clean full-engine UBSan claim.",
+    "Clip-stage capture is intentionally rejected; lock acquired outside clip keeps its nonclip targets after UI enters clip."
+  ],
+  "logs": [
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/affected-runner.log",
+      "sha256": "5a34e190cb96db1b7ab1255a309fee68c521aa43a465d6a5a7b3bd954f395d02"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/affected-repaired.log",
+      "sha256": "4a793d3bc4f2e70910fe20da93c85660e2b2cf2bc6a3e4252635d97b19f51dd8"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock.log",
+      "sha256": "81d87e0827be946a6003248f5622539fe5e1c58f30279382fc1e2ef316245d48"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-asan.log",
+      "sha256": "81d87e0827be946a6003248f5622539fe5e1c58f30279382fc1e2ef316245d48"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-lock-negative.log",
+      "sha256": "0a8d8188232f182eb0ccd1994ddad64a418ee67d3a919ff2e1a15543eed4b9bf"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/final-base-lock.log",
+      "sha256": "dfb0c674dff05daa6d700e8dabc17bfe8a144c37671a1987ac19716522026c31"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/lock-negative.log",
+      "sha256": "0a8d8188232f182eb0ccd1994ddad64a418ee67d3a919ff2e1a15543eed4b9bf"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/base-lock.log",
+      "sha256": "76720965df2abca1a42d8c1f2d3c67368a5490584f386ace238d35816e98b05b"
+    }
+  ],
+  "pending_or_denied_actions": [],
+  "working_directory": "/Users/mac/Documents/Codex/2026-10-25/task-22/candidate",
+  "compiler_wrapper": {
+    "path": "/Users/mac/Documents/Codex/2026-10-25/task-22/evidence/tests/cc-darwin.sh",
+    "sha256": "5c8361f347e6b05a668ab625af8c06bb54aee55c35e77953a430b169aab6d674",
+    "contents": "#!/bin/sh\nexec cc -D_DARWIN_C_SOURCE \"$@\"\n"
+  }
+}
