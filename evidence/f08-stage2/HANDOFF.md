@@ -15,9 +15,9 @@ BF-004 implement: ownership-gated Note Off in `firmware/src/app/engine.c` (blob 
 Implement evidence: `evidence/f08-stage2/CHECKS.md`, `evidence/f08-stage2/DEFERRED.md`, red/green + usbnotes/blenotes logs.
 Audit record: `evidence/f08-stage1/AUDIT.md`.
 Successor prompt: `evidence/f08-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create ×2 → 401; logs `api-create-stage3-attempt{1,2}.json`); coordinator CreateAgent is required.
+Successor agent id: `bc-85452fe2-cacc-5d1e-a23d-189f00c0f7c9`.
+Successor URL: https://cursor.com/agents/bc-85452fe2-cacc-5d1e-a23d-189f00c0f7c9
+Handoff status: **complete** — owner-visible Stage 3 (name `F08 stage3 BF-004`, base `cursor/f08-bf004-stage2-fb90`) recorded after coordinator CreateAgent (pod API create ×2 → 401; logs `api-create-stage3-attempt{1,2}.json`).
 
 ## Repair summary
 
