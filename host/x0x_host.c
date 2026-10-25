@@ -975,7 +975,12 @@ int main(int argc, char **argv)
             }
             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
         } else if (!strcmp(cmd, "brkwrap")) {      /* brkwrap 0|1: 8 SLICES off or on, current break pattern */
-            proj.pat[seq.ppat[TRK_BRK]].brk.slice_mode = (uint8_t)(atoi(a) ? 1 : 0);
+            pattern_t *bp = &proj.pat[seq.ppat[TRK_BRK]];
+            uint8_t m = (uint8_t)(atoi(a) ? 1 : 0);
+            if (bp->brk.slice_mode != m) {
+                bp->brk.slice_mode = m;
+                engine_brk_slice_mode_reconcile();
+            }
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */

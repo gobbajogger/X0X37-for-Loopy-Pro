@@ -530,7 +530,14 @@ X0X_COLD static void pref_set(pref_t r, int v)
         break;
     }
     case R_BRKSET: p->brk.set[r.c] = (uint8_t)v; break;
-    case R_BRKSLICE: p->brk.slice_mode = (uint8_t)(v ? 1 : 0); break;
+    case R_BRKSLICE: {
+        uint8_t m = (uint8_t)(v ? 1 : 0);
+        if (p->brk.slice_mode != m) {
+            p->brk.slice_mode = m;
+            engine_brk_slice_mode_reconcile();
+        }
+        break;
+    }
     case R_BRKSLOT:
         if (r.a)
             p->brk.slot_b = (uint8_t)v;
