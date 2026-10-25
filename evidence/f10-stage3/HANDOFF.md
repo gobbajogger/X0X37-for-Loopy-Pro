@@ -18,9 +18,10 @@ Test evidence: `evidence/f10-stage3/CHECKS.md`.
 Implement evidence: `evidence/f10-stage2/CHECKS.md`, `evidence/f10-stage2/DEFERRED.md`.
 Audit record: `evidence/f10-stage1/AUDIT.md`.
 Successor prompt: `evidence/f10-stage3/SUCCESSOR-STAGE4.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 4 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create expected ×2 → 401); coordinator CreateAgent is required.
+Successor agent id: `bc-515ee598-6baf-5740-a8c9-bf951aa1d0ea`.
+Successor URL: `https://cursor.com/agents/bc-515ee598-6baf-5740-a8c9-bf951aa1d0ea`.
+Successor name: F10 BF-006 validate.
+Handoff status: **complete** — owner-visible Stage 4 recorded via coordinator CreateAgent (`startingRef` `cursor/f10-bf006-stage3-fb90`). Pod had no `CURSOR_API_KEY`; no second Stage 4 created.
 
 ## Test summary
 
