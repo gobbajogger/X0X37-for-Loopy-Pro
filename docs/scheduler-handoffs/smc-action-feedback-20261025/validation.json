@@ -1,0 +1,41 @@
+{
+  "base": "6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67",
+  "source_sha256": "6c89b3012fa2f0aee6d05ff4293a8bcb12c00a77930675649341274f1e822998",
+  "compiled_inputs": 189,
+  "compiled_closure_sha256": "a8ccff6bda2d133227d95e73cb2255ff27bfe2152ec9e372239857c30ca77271",
+  "native_inputs_match_source": true,
+  "changed_compiled_files_from_original": [
+    "firmware/src/app/smc_mixer.c"
+  ],
+  "ui_asan_checks": 5781,
+  "independent_ui_asan_checks": 5780,
+  "last_extra_assertion": "Final UI adds one aggregate absence-of-footer assertion after independent source acceptance; source/render unchanged",
+  "lock_asan_checks": 527,
+  "runtime_mutants_detected": 11,
+  "independent_knob_framebuffer_checks": 14,
+  "independent_caption_dispatch_and_width": "PASS",
+  "model": "Elite DEV BUILD_ONLY",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "network": "none",
+  "SDK_toolchain": "same verified input preparation as PR168; read-only mounts",
+  "budgets": {
+    "app_image": 552332,
+    "app_code_area": 552672,
+    "code_free": 340,
+    "ram_used": 97988,
+    "ram_total": 98304,
+    "ram_free": 316,
+    "pool_used": 335740,
+    "pool_total": 344064,
+    "pool_free": 8324,
+    "pool_minimum_free": 8192
+  },
+  "app_sha256": "702f49a43fdbd83780741aec363ab83bb3114587861061298d0397c40a35caab",
+  "controller": "unchanged; no new bundled candidate delivered",
+  "limits": [
+    "No Pro native build in bounded size-check stage",
+    "No device, GUI, capture, physical Pause binding, flash, merge or publication",
+    "BUILD_ONLY does not qualify installability",
+    "Knob-bank remapping remains design-only"
+  ]
+}
