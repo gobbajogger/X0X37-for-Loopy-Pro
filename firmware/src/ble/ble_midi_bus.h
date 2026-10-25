@@ -31,5 +31,6 @@ void blec_bus_poll(blec_bus_t *, uint32_t now_ms);
 void blec_bus_rx(blec_bus_t *, uint8_t h4, const uint8_t *, uint16_t, uint32_t now_ms);
 int blec_bus_midi_send(blec_bus_t *, uint8_t peer, const uint8_t *, uint8_t);
 
-/* Boot/configuration context only, before start. Peer 1 is denied by default. */
+/* Boot/configuration only, before start. Peer1 requires both exact targets.
+ * Default single-peer mode keeps peer0 name discovery. */
 int blec_bus_allow_peer(blec_bus_t *, uint8_t peer, const uint8_t addr[6], uint8_t type);

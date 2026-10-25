@@ -203,14 +203,20 @@ static void ble_prepare(int on)
  * into every start (in the TX IQ trim), with its RAM code unchanged; core 1 then went on to READY.
  * ble_attach hands the controller to core 1 after plat_cpu2_set. */
 static uint8_t ble_c0_ready;
-/* Optional second target is supplied explicitly in boot/config context. No
+/* Optional exact targets are supplied explicitly in boot/config context. No
  * historical device identity is persisted or inferred from an advertised name. */
-static uint8_t ble_second_target[6], ble_second_type, ble_second_allowed, ble_config_closed;
+static uint8_t ble_known_target[BLEC_PEERS][6], ble_known_type[BLEC_PEERS], ble_known_allowed[BLEC_PEERS], ble_config_closed;
 int plat_ble_smc_peer_target(uint8_t peer, const uint8_t addr[6], uint8_t type)
 {
-    if (ble_config_closed || peer != 1u || !addr || type > 1u) return 0;
-    for (uint8_t i = 0; i < 6u; i++) ble_second_target[i] = addr[i];
-    ble_second_type = type; ble_second_allowed = 1;
+    if (ble_config_closed || peer >= BLEC_PEERS || !addr || type > 1u) return 0;
+    for (uint8_t other = 0; other < BLEC_PEERS; other++)
+        if (other != peer && ble_known_allowed[other] && ble_known_type[other] == type) {
+            uint8_t i;
+            for (i = 0; i < 6u && ble_known_target[other][i] == addr[i]; i++) {}
+            if (i == 6u) return 0;
+        }
+    for (uint8_t i = 0; i < 6u; i++) ble_known_target[peer][i] = addr[i];
+    ble_known_type[peer] = type; ble_known_allowed[peer] = 1;
     return 1;
 }
 static void ble_central_link_notify(uint8_t peer, int up);
@@ -263,8 +269,9 @@ static void ble_start(void)
     ble_config_closed = 1;
     if (ble_central_role) {
         blec_bus_init(&ble_r.host.bus, ble_send, ble_central_midi, 0, addr);
-        if (ble_second_allowed)
-            blec_bus_allow_peer(&ble_r.host.bus, 1u, ble_second_target, ble_second_type);
+        for (uint8_t peer = 0; peer < BLEC_PEERS; peer++)
+            if (ble_known_allowed[peer])
+                blec_bus_allow_peer(&ble_r.host.bus, peer, ble_known_target[peer], ble_known_type[peer]);
     }
     else {
         bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, addr);

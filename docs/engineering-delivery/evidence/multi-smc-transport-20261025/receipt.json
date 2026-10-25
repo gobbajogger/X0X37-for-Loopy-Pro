@@ -1,19 +1,20 @@
 {
   "base": "272b80fbc38ac8be7e6adac96fe990394c1934f8",
   "inputs": {
-    "firmware/src/ble.c": "39f0599db242a8dbf8c0fa62da16b633eef9b9c20da7ec3c69aa20722491fa09",
-    "firmware/src/ble/ble_midi_bus.c": "8c52ace693411e01daa8e2c9e1cbbd4f9e5f3f754fe80f9103be2debe82d22c6",
-    "firmware/src/ble/ble_midi_bus.h": "be7e39ca16a2ed08e8f0aaf8364c81ee4a4e4680a96cdf3cea9181e207ea4c81",
+    "firmware/src/ble.c": "287ae05a608534863d5532ba74f3dbe59f1b634bc80b8b3dd6bd489f89d39ecb",
+    "firmware/src/ble/ble_midi_bus.c": "86e7fa93076f612b026c0ddf8145b8084cac96e087c7fd0074de0c0a97d7eff6",
+    "firmware/src/ble/ble_midi_bus.h": "f0a9806da956ef82d4a201b5c0168fc3f69fe8bc9ab16f4502cf46195d574629",
     "firmware/src/ble/ble_midi_central.c": "6cedccaf72ff69b1171b0ff9d57f6430cfbed811395e53aeaaa3f0b7fe3bdd0c",
     "firmware/src/ble/ble_midi_central.h": "5aa8c8b1bfcf4831f06f0551918a3d8108d45f2ce547202112fa6623101b5098",
-    "firmware/src/app/plat.h": "9eefda73f69089bee492506d295dcabba1a7b6bb8878f0c0cad6bd50ff5c9ec0",
-    "tests/host/ble_multi_peer_test.c": "26e46797bc63eb632aa521725dc444e4449074194f8b1a9f92eafce6f55460c6",
+    "firmware/src/app/plat.h": "87d82ad25fd190cffcfedc08e8281657349a7f757fdeaad2bc6628dce53b8285",
+    "tests/host/ble_multi_peer_test.c": "75fb048db5dc0eba9fda8182f2fd5fb1a9347813369451027f6144346ae730fd",
     "ble/ctl/src/config.c": "3dbb2be4ae2dcb189f2099be0674ce66b144d4f96e567cfb750537077edbbff5",
     "tools/locked_settings.json": "d971f441452f74dba926108ac90b7d84d0410b1927b8525745fbb6c491a8ffa7",
     "tests/host/ble_multi_state_test.py": "ca6b314b40edc697abd9add930a5daf06e80527566a4383287aa33dc6514e477",
-    "tests/host/ble_async_create_test.c": "1f87ba125a4e31b9854ab843f38cb74749989bdf354dcd12fc55f3ab46601f7e"
+    "tests/host/ble_async_create_test.c": "1f87ba125a4e31b9854ab843f38cb74749989bdf354dcd12fc55f3ab46601f7e",
+    "tests/host/ble_multi_admission_test.py": "2380981ed183ed521d04e60179e41778205fa26b6a331dfe917638fb3dc3284f"
   },
-  "host_tests": "PASS79; ASan+UBSan PASS79; production state reporter6PASS",
+  "host_tests": "PASS107; ASan+UBSan PASS107; production state reporter6PASS; production boot setter7PASS",
   "controller": "LINK_FAIL CFLASH overflow1144",
   "native_sizes": {
     "central": 348,

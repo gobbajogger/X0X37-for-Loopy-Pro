@@ -213,9 +213,53 @@ static void test_async_create_quarantine(void)
     b.scan_owner=1; b.scan_active=1; blec_bus_poll(&b,5000);
     CHECK(b.scan_owner==1 && !b.command && b.peer[0].state==BLEC_CONNECTED);
 }
+static void advertise(blec_bus_t *b,const uint8_t addr[6])
+{
+    uint8_t p[]={0x3e,17,2,1,0,1,0,0,0,0,0,0,5,4,9,'S','M','C',0};
+    memcpy(p+6,addr,6); blec_bus_rx(b,4,p,sizeof p,5);
+}
+static void scan_fixture(blec_bus_t *b,unsigned peer)
+{
+    b->peer[peer].state=BLEC_SCANNING; b->peer[peer].step=S_SCAN_ON;
+    b->peer[peer].waiting=0; b->peer[peer].deadline=10;
+    b->scan_owner=(uint8_t)peer; b->scan_active=1; b->command=0;
+    b->command_owner=BLEC_NO_OWNER; b->command_credit=1;
+}
+static void test_exact_slot_admission_and_fair_scan(void)
+{
+    blec_bus_t b; uint8_t a[6]={1,2,3,4,5,6},z[6]={6,5,4,3,2,1},other[6]={7,7,7,7,7,7};
+    for(unsigned first=0;first<2;first++) {
+        init(&b); CHECK(blec_bus_allow_peer(&b,1,z,1));
+        CHECK(!blec_bus_allow_peer(&b,0,z,1)); CHECK(blec_bus_allow_peer(&b,0,a,1));
+        b.started=b.ready=1;b.total=b.available=5;scan_fixture(&b,0);
+        advertise(&b,first? a:z);
+        if(!first) CHECK(!b.peer[0].found);
+        advertise(&b,first? z:a);
+        CHECK(b.peer[0].found && !memcmp(b.peer[0].target,a,6));
+        b.peer[0].state=BLEC_CONNECTED;b.peer[0].conn=0x40;b.peer[0].has_conn=1;
+        scan_fixture(&b,1);advertise(&b,a);CHECK(!b.peer[1].found);
+        advertise(&b,z);CHECK(b.peer[1].found && !memcmp(b.peer[1].target,z,6));
+        /* Reconnection cannot silently inherit the logical slot's locks. */
+        b.peer[0].conn=0;b.peer[0].has_conn=0;b.peer[0].found=0;
+        scan_fixture(&b,0);advertise(&b,other);CHECK(!b.peer[0].found);
+        advertise(&b,z);CHECK(!b.peer[0].found);advertise(&b,a);CHECK(b.peer[0].found);
+    }
+    init(&b);CHECK(blec_bus_allow_peer(&b,1,z,1));blec_bus_start(&b,0);
+    CHECK(!b.started && !resets && b.peer[0].state==BLEC_FAILED);
+    init(&b); CHECK(blec_bus_allow_peer(&b,0,a,1));CHECK(blec_bus_allow_peer(&b,1,z,1));
+    b.started=b.ready=1;b.total=b.available=5;scan_fixture(&b,0);
+    blec_bus_poll(&b,11);
+    CHECK(b.scan_owner==0 && b.scan_active && b.command==COP_SCAN_ENABLE && b.scan_value==0);
+    complete(&b,COP_SCAN_ENABLE,0);CHECK(!b.scan_active && b.peer[0].state==BLEC_OFF);
+    blec_bus_poll(&b,12);CHECK(b.scan_owner==1 && b.command==COP_SCAN_ENABLE && b.scan_value==1);
+    complete(&b,COP_SCAN_ENABLE,0);advertise(&b,z);
+    CHECK(b.peer[1].found && !resets);
+    init(&b);b.started=b.ready=1;b.total=b.available=5;scan_fixture(&b,0);
+    blec_bus_poll(&b,11);CHECK(b.scan_owner==0 && b.peer[0].state==BLEC_SCANNING && !b.command);
+}
 int main(void)
 {
-    test_async_create_quarantine(); test_credit_only_command_event(); test_zero_handle_and_lengths(); test_command_fault(); test_bootstrap(); test_credits(); test_command_owner(); test_notification_and_targets();
+    test_exact_slot_admission_and_fair_scan(); test_async_create_quarantine(); test_credit_only_command_event(); test_zero_handle_and_lengths(); test_command_fault(); test_bootstrap(); test_credits(); test_command_owner(); test_notification_and_targets();
     printf("multi-peer HCI: %u checks, %u failures; sizeof central=%zu bus=%zu\n",checks,failures,sizeof(blec_t),sizeof(blec_bus_t));
     return failures?1:0;
 }
