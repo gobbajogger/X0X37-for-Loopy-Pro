@@ -1,0 +1,149 @@
+[
+  {
+    "symbol": "smk_faders",
+    "before": 646,
+    "after": 916,
+    "delta": 270,
+    "section": ".text"
+  },
+  {
+    "symbol": "smk_mute_edge",
+    "before": 0,
+    "after": 158,
+    "delta": 158,
+    "section": ".text"
+  },
+  {
+    "symbol": "smc_notice",
+    "before": 90,
+    "after": 238,
+    "delta": 148,
+    "section": ".text"
+  },
+  {
+    "symbol": "volume_muted",
+    "before": 0,
+    "after": 142,
+    "delta": 142,
+    "section": ".text"
+  },
+  {
+    "symbol": "fx_reverb",
+    "before": 944,
+    "after": 1016,
+    "delta": 72,
+    "section": ".text"
+  },
+  {
+    "symbol": "fx_delay",
+    "before": 1838,
+    "after": 1870,
+    "delta": 32,
+    "section": ".text"
+  },
+  {
+    "symbol": "engine_fx_mute",
+    "before": 0,
+    "after": 20,
+    "delta": 20,
+    "section": ".text"
+  },
+  {
+    "symbol": "smc_fader",
+    "before": 400,
+    "after": 416,
+    "delta": 16,
+    "section": ".text"
+  },
+  {
+    "symbol": "engine_fx_muted",
+    "before": 0,
+    "after": 16,
+    "delta": 16,
+    "section": ".text"
+  },
+  {
+    "symbol": "mute_part",
+    "before": 160,
+    "after": 174,
+    "delta": 14,
+    "section": ".text"
+  },
+  {
+    "symbol": ".L_MergedGlobals.626",
+    "before": 476,
+    "after": 484,
+    "delta": 8,
+    "section": ".bss"
+  },
+  {
+    "symbol": "smc_project_reset",
+    "before": 50,
+    "after": 56,
+    "delta": 6,
+    "section": ".text"
+  },
+  {
+    "symbol": "smk_mute_intended",
+    "before": 0,
+    "after": 4,
+    "delta": 4,
+    "section": ".bss"
+  },
+  {
+    "symbol": "smk_mute_edit",
+    "before": 0,
+    "after": 1,
+    "delta": 1,
+    "section": ".bss"
+  },
+  {
+    "symbol": "smk_mute_active",
+    "before": 0,
+    "after": 1,
+    "delta": 1,
+    "section": ".bss"
+  },
+  {
+    "symbol": "smk_mute_bank",
+    "before": 0,
+    "after": 1,
+    "delta": 1,
+    "section": ".bss"
+  },
+  {
+    "symbol": "smk_mute_known",
+    "before": 0,
+    "after": 1,
+    "delta": 1,
+    "section": ".bss"
+  },
+  {
+    "symbol": "smk_apc_burst_close",
+    "before": 284,
+    "after": 282,
+    "delta": -2,
+    "section": ".text"
+  },
+  {
+    "symbol": "fxbus_process_st",
+    "before": 1064,
+    "after": 1056,
+    "delta": -8,
+    "section": ".text"
+  },
+  {
+    "symbol": "smc_led",
+    "before": 452,
+    "after": 412,
+    "delta": -40,
+    "section": ".text"
+  },
+  {
+    "symbol": "smc_button_apply",
+    "before": 1138,
+    "after": 1070,
+    "delta": -68,
+    "section": ".text"
+  }
+]

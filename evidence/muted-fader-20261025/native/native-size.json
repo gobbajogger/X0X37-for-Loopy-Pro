@@ -1,0 +1,457 @@
+{
+  "state": "BOTH_NATIVE_APP_LINKS_FAIL_CODE_BUDGET",
+  "scope": "source/test draft only; native app sizing; no package/controller/hardware qualification",
+  "base_sha": "b4f43dcbcc14f5ef059cda5c7650b5996c77160a",
+  "baseline": {
+    "kind": "ALL_APP_TUS_RECOMPILE_RELINK",
+    "model": "elite",
+    "bytes": 552636,
+    "code_free": 36,
+    "image_sha256": "77209e096e2697289bb06c8e0e79d0dd1351e053efb88c91fa0e07f8b741dbe6",
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 36 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552636 B; RAM .data+.bss 98004 B of 98304; pool 335740 B of 344064"
+    ],
+    "generated_headers": {
+      "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "felucca_font.h": "8529407f76ca5ac703c70575505779515ebc8b815a7dac4195ba66c9b33efcfe"
+    }
+  },
+  "baseline_reproduction": "All app TUs freshly compiled; exact accepted b4 Elite app hash reproduced. Accepted b4 Pro baseline same552636-byte size reused, not freshly recompiled.",
+  "models": {
+    "elite": {
+      "normal_link": {
+        "result": "FAIL",
+        "exit": 1,
+        "overflow_bytes": 748,
+        "log_sha256_private": "a5664f588938aac08785874104ec87465a97cef6151c7bb895e56d36299e1717",
+        "sanitized_log": "normal-elite.log",
+        "compiled_objects": {
+          "fm1_isr.o": "748cd6c427d43925b509108aeaab7e12c9f9aa69cbc3facb7b968c94388ecb35",
+          "x0x.o": "bcb19570079ce77ab7b672ec19fca767d8783ac51377a48bb4bc044d6cade11b",
+          "fm1_cpu1.o": "0fc6dd9c29a4e65d648be9033c058fe538ccb271d546efbc22a7de3ce0c8a8b1",
+          "fm1_vec.o": "28b3ddb497512aa7fc9625058ad5222ebb1f66a2f29918fde6e837594ba9b570",
+          "crt0.o": "a038b72c3bb98101faba65f7c6df989838f2fd104ff4f8af645b61274b4a2a8c",
+          "o2/dsp_drum808.o": "c7d82db19505443f39445f8672480ff43404c6c02d16bcf177a4fb9d91b12ca9",
+          "o2/seq_motion.o": "b7d7f0338ae0aa36e6cd7cadc021447240648a9b07b19a78471fd42cb0aa783b",
+          "o2/dsp_bass303.o": "a52ccadd2ecba4e28e21909e59655b8ab84cc7198daf2daec2d0cf39aa2f2583",
+          "o2/dsp_fxbus.o": "8bafca8e3186989f861433b3a3d5b0045b3038a37cdc00038f6beb1c94daa5a0",
+          "o2/app_engine.o": "181b66eca9f01aa2e2cff3dbefb31c54baaf42e9d02cb542ff2febd6211fb610",
+          "o2/seq_tb3po.o": "18a5a93b68c5a8aa3080f121f1b56f1805d3c96cf48a5fcf4bf22ac8c5413788",
+          "o2/dsp_breaks.o": "c3476e2d0bb275ed038e0f4fe17886ca90b007bccb371519a01b9afd89b938a8",
+          "o2/dsp_master.o": "08f4dde2789058717c69951537b6746153e194ad0ad6f322338818a4e98ebf2f",
+          "o2/seq_sequencer.o": "e3657ae10213ccd9c4b7b686f621685e4d33dfa896764d9dfd3f2995e2892b9e",
+          "o2/seq_pattern.o": "a7219d61d3e1bc2d4d8a37ff6c2033779017b853c8d7e4aeddeb106d5d10a783",
+          "o2/dsp_drum909.o": "a7b0a77c6f4638ffa0e350db55f717bbb0f6367ebca95101593617b4d8e79ec8"
+        }
+      },
+      "diagnostic": {
+        "kind": "DIAGNOSTIC_OVERSIZE_LINK_ONLY_NOT_BUILD_PASS",
+        "bytes": 553420,
+        "delta_bytes_from_b4": 784,
+        "code_free": -748,
+        "ram_free": 284,
+        "pool_free": 8324,
+        "errors": [
+          "image 553420 B exceeds the app code area (552672 B)"
+        ],
+        "notes": [
+          ".ram_text: 1082 insns, no calls",
+          "no soft-double routines (single-precision FPU only)",
+          "image 553420 B; RAM .data+.bss 98020 B of 98304; pool 335740 B of 344064"
+        ],
+        "image_sha256": "a8e47441c85874132e3490e2f356be0c7fd95869354d90f3b84ab90e933552cb",
+        "installable": false
+      },
+      "model_specific_compile": "x0x.c freshly compiled with this model identity; all model-independent TUs match source closures",
+      "commands": [
+        [
+          "cc",
+          "-Oz",
+          "-ffunction-sections",
+          "-fno-builtin",
+          "-Wall",
+          "-Wno-unused-function",
+          "-mcpu=r3",
+          "-mfprev1",
+          "-ffp-contract=off",
+          "-DBOARD_SMK37=1",
+          "-DSMK_MODEL=\"SMK-37 Elite\"",
+          "-Ifirmware/hal",
+          "-Ifirmware/src",
+          "-I<workspace>/native/gen",
+          "-DX0X_DEV_PADCAL=1",
+          "-DFELUCCA_ID=\"SMK-37 Elite_900\"",
+          "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+          "-DFELUCCA_DATA_UNTAGGED_OK=0",
+          "-c",
+          "<workspace>/native/final-repo/firmware/src/x0x.c",
+          "-o",
+          "<workspace>/native/final-elite/x0x.o"
+        ],
+        [
+          "cc",
+          "-O2",
+          "-ffunction-sections",
+          "-fno-builtin",
+          "-Wall",
+          "-Wno-unused-function",
+          "-mcpu=r3",
+          "-mfprev1",
+          "-ffp-contract=off",
+          "-DBOARD_SMK37=1",
+          "-DSMK_MODEL=\"SMK-37 Elite\"",
+          "-Ifirmware/hal",
+          "-Ifirmware/src",
+          "-I<workspace>/native/gen",
+          "-DX0X_DEV_PADCAL=1",
+          "-DFELUCCA_ID=\"SMK-37 Elite_900\"",
+          "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+          "-DFELUCCA_DATA_UNTAGGED_OK=0",
+          "-c",
+          "<workspace>/native/final-repo/firmware/src/dsp/fxbus.c",
+          "-o",
+          "<workspace>/native/final-elite/o2/dsp_fxbus.o"
+        ],
+        [
+          "cc",
+          "-O2",
+          "-ffunction-sections",
+          "-fno-builtin",
+          "-Wall",
+          "-Wno-unused-function",
+          "-mcpu=r3",
+          "-mfprev1",
+          "-ffp-contract=off",
+          "-DBOARD_SMK37=1",
+          "-DSMK_MODEL=\"SMK-37 Elite\"",
+          "-Ifirmware/hal",
+          "-Ifirmware/src",
+          "-I<workspace>/native/gen",
+          "-DX0X_DEV_PADCAL=1",
+          "-DFELUCCA_ID=\"SMK-37 Elite_900\"",
+          "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+          "-DFELUCCA_DATA_UNTAGGED_OK=0",
+          "-c",
+          "<workspace>/native/final-repo/firmware/src/app/engine.c",
+          "-o",
+          "<workspace>/native/final-elite/o2/app_engine.o"
+        ],
+        [
+          "pi32v2/bin/ld",
+          "--gc-sections",
+          "-e",
+          "_start",
+          "-T",
+          "<workspace>/native/final-elite/app.ld",
+          "<workspace>/native/final-elite/crt0.o",
+          "<workspace>/native/final-elite/fm1_vec.o",
+          "<workspace>/native/final-elite/fm1_isr.o",
+          "<workspace>/native/final-elite/fm1_cpu1.o",
+          "<workspace>/native/final-elite/x0x.o",
+          "<workspace>/native/final-elite/o2/dsp_drum909.o",
+          "<workspace>/native/final-elite/o2/dsp_drum808.o",
+          "<workspace>/native/final-elite/o2/dsp_bass303.o",
+          "<workspace>/native/final-elite/o2/dsp_breaks.o",
+          "<workspace>/native/final-elite/o2/dsp_fxbus.o",
+          "<workspace>/native/final-elite/o2/dsp_master.o",
+          "<workspace>/native/final-elite/o2/seq_sequencer.o",
+          "<workspace>/native/final-elite/o2/seq_tb3po.o",
+          "<workspace>/native/final-elite/o2/seq_pattern.o",
+          "<workspace>/native/final-elite/o2/seq_motion.o",
+          "<workspace>/native/final-elite/o2/app_engine.o",
+          "-o",
+          "<workspace>/native/final-elite/x0x.elf"
+        ]
+      ],
+      "diagnostic_link_commands": [
+        [
+          "pi32v2/bin/ld",
+          "--gc-sections",
+          "-e",
+          "_start",
+          "-T",
+          "<workspace>/native/final-elite-diagnostic/diagnostic.ld",
+          "<workspace>/native/final-elite-diagnostic/crt0.o",
+          "<workspace>/native/final-elite-diagnostic/fm1_vec.o",
+          "<workspace>/native/final-elite-diagnostic/fm1_isr.o",
+          "<workspace>/native/final-elite-diagnostic/fm1_cpu1.o",
+          "<workspace>/native/final-elite-diagnostic/x0x.o",
+          "<workspace>/native/final-elite-diagnostic/o2/dsp_drum909.o",
+          "<workspace>/native/final-elite-diagnostic/o2/dsp_drum808.o",
+          "<workspace>/native/final-elite-diagnostic/o2/dsp_bass303.o",
+          "<workspace>/native/final-elite-diagnostic/o2/dsp_breaks.o",
+          "<workspace>/native/final-elite-diagnostic/o2/dsp_fxbus.o",
+          "<workspace>/native/final-elite-diagnostic/o2/dsp_master.o",
+          "<workspace>/native/final-elite-diagnostic/o2/seq_sequencer.o",
+          "<workspace>/native/final-elite-diagnostic/o2/seq_tb3po.o",
+          "<workspace>/native/final-elite-diagnostic/o2/seq_pattern.o",
+          "<workspace>/native/final-elite-diagnostic/o2/seq_motion.o",
+          "<workspace>/native/final-elite-diagnostic/o2/app_engine.o",
+          "-o",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".text",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf",
+          "<workspace>/native/final-elite-diagnostic/text.bin"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".data",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf",
+          "<workspace>/native/final-elite-diagnostic/data.bin"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".ram_text",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf",
+          "<workspace>/native/final-elite-diagnostic/ramtext.bin"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".c1_text",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf",
+          "<workspace>/native/final-elite-diagnostic/c1text.bin"
+        ],
+        [
+          "common/bin/objdump",
+          "-t",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf"
+        ],
+        [
+          "common/bin/objdump",
+          "-d",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf"
+        ],
+        [
+          "common/bin/objdump",
+          "-d",
+          "-j",
+          ".ram_text",
+          "<workspace>/native/final-elite-diagnostic/x0x.elf"
+        ]
+      ]
+    },
+    "pro": {
+      "normal_link": {
+        "result": "FAIL",
+        "exit": 1,
+        "overflow_bytes": 748,
+        "log_sha256_private": "99c4a9f630b2a364ed5d48a97dd3691fa0ee451f81861598b148269aa56b8ca6",
+        "sanitized_log": "normal-pro.log",
+        "compiled_objects": {
+          "fm1_isr.o": "748cd6c427d43925b509108aeaab7e12c9f9aa69cbc3facb7b968c94388ecb35",
+          "x0x.o": "23fe0cf5ee8ab09090a6b42e72a8081af13b0f7542cb033705b83abc486c0520",
+          "fm1_cpu1.o": "0fc6dd9c29a4e65d648be9033c058fe538ccb271d546efbc22a7de3ce0c8a8b1",
+          "fm1_vec.o": "28b3ddb497512aa7fc9625058ad5222ebb1f66a2f29918fde6e837594ba9b570",
+          "crt0.o": "a038b72c3bb98101faba65f7c6df989838f2fd104ff4f8af645b61274b4a2a8c",
+          "o2/dsp_drum808.o": "c7d82db19505443f39445f8672480ff43404c6c02d16bcf177a4fb9d91b12ca9",
+          "o2/seq_motion.o": "b7d7f0338ae0aa36e6cd7cadc021447240648a9b07b19a78471fd42cb0aa783b",
+          "o2/dsp_bass303.o": "a52ccadd2ecba4e28e21909e59655b8ab84cc7198daf2daec2d0cf39aa2f2583",
+          "o2/dsp_fxbus.o": "8bafca8e3186989f861433b3a3d5b0045b3038a37cdc00038f6beb1c94daa5a0",
+          "o2/app_engine.o": "181b66eca9f01aa2e2cff3dbefb31c54baaf42e9d02cb542ff2febd6211fb610",
+          "o2/seq_tb3po.o": "18a5a93b68c5a8aa3080f121f1b56f1805d3c96cf48a5fcf4bf22ac8c5413788",
+          "o2/dsp_breaks.o": "c3476e2d0bb275ed038e0f4fe17886ca90b007bccb371519a01b9afd89b938a8",
+          "o2/dsp_master.o": "08f4dde2789058717c69951537b6746153e194ad0ad6f322338818a4e98ebf2f",
+          "o2/seq_sequencer.o": "e3657ae10213ccd9c4b7b686f621685e4d33dfa896764d9dfd3f2995e2892b9e",
+          "o2/seq_pattern.o": "a7219d61d3e1bc2d4d8a37ff6c2033779017b853c8d7e4aeddeb106d5d10a783",
+          "o2/dsp_drum909.o": "a7b0a77c6f4638ffa0e350db55f717bbb0f6367ebca95101593617b4d8e79ec8"
+        }
+      },
+      "diagnostic": {
+        "kind": "DIAGNOSTIC_OVERSIZE_LINK_ONLY_NOT_BUILD_PASS",
+        "bytes": 553420,
+        "delta_bytes_from_b4": 784,
+        "code_free": -748,
+        "ram_free": 284,
+        "pool_free": 8324,
+        "errors": [
+          "image 553420 B exceeds the app code area (552672 B)"
+        ],
+        "notes": [
+          ".ram_text: 1082 insns, no calls",
+          "no soft-double routines (single-precision FPU only)",
+          "image 553420 B; RAM .data+.bss 98020 B of 98304; pool 335740 B of 344064"
+        ],
+        "image_sha256": "8b843c2440381150a32595ad7a09da64f44ea8ad91099f93e97ecfd569aeb345",
+        "installable": false
+      },
+      "model_specific_compile": "x0x.c freshly compiled with this model identity; all model-independent TUs match source closures",
+      "commands": [
+        [
+          "cc",
+          "-Oz",
+          "-ffunction-sections",
+          "-fno-builtin",
+          "-Wall",
+          "-Wno-unused-function",
+          "-mcpu=r3",
+          "-mfprev1",
+          "-ffp-contract=off",
+          "-DBOARD_SMK37=1",
+          "-Ifirmware/hal",
+          "-Ifirmware/src",
+          "-I<workspace>/native/gen",
+          "-DX0X_DEV_PADCAL=1",
+          "-DFELUCCA_ID=\"SMK-37 Pro_900\"",
+          "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+          "-DFELUCCA_DATA_UNTAGGED_OK=0",
+          "-c",
+          "<workspace>/native/final-repo/firmware/src/x0x.c",
+          "-o",
+          "<workspace>/native/final-pro/x0x.o"
+        ],
+        [
+          "pi32v2/bin/ld",
+          "--gc-sections",
+          "-e",
+          "_start",
+          "-T",
+          "<workspace>/native/final-pro/app.ld",
+          "<workspace>/native/final-pro/crt0.o",
+          "<workspace>/native/final-pro/fm1_vec.o",
+          "<workspace>/native/final-pro/fm1_isr.o",
+          "<workspace>/native/final-pro/fm1_cpu1.o",
+          "<workspace>/native/final-pro/x0x.o",
+          "<workspace>/native/final-pro/o2/dsp_drum909.o",
+          "<workspace>/native/final-pro/o2/dsp_drum808.o",
+          "<workspace>/native/final-pro/o2/dsp_bass303.o",
+          "<workspace>/native/final-pro/o2/dsp_breaks.o",
+          "<workspace>/native/final-pro/o2/dsp_fxbus.o",
+          "<workspace>/native/final-pro/o2/dsp_master.o",
+          "<workspace>/native/final-pro/o2/seq_sequencer.o",
+          "<workspace>/native/final-pro/o2/seq_tb3po.o",
+          "<workspace>/native/final-pro/o2/seq_pattern.o",
+          "<workspace>/native/final-pro/o2/seq_motion.o",
+          "<workspace>/native/final-pro/o2/app_engine.o",
+          "-o",
+          "<workspace>/native/final-pro/x0x.elf"
+        ]
+      ],
+      "diagnostic_link_commands": [
+        [
+          "pi32v2/bin/ld",
+          "--gc-sections",
+          "-e",
+          "_start",
+          "-T",
+          "<workspace>/native/final-pro-diagnostic/diagnostic.ld",
+          "<workspace>/native/final-pro-diagnostic/crt0.o",
+          "<workspace>/native/final-pro-diagnostic/fm1_vec.o",
+          "<workspace>/native/final-pro-diagnostic/fm1_isr.o",
+          "<workspace>/native/final-pro-diagnostic/fm1_cpu1.o",
+          "<workspace>/native/final-pro-diagnostic/x0x.o",
+          "<workspace>/native/final-pro-diagnostic/o2/dsp_drum909.o",
+          "<workspace>/native/final-pro-diagnostic/o2/dsp_drum808.o",
+          "<workspace>/native/final-pro-diagnostic/o2/dsp_bass303.o",
+          "<workspace>/native/final-pro-diagnostic/o2/dsp_breaks.o",
+          "<workspace>/native/final-pro-diagnostic/o2/dsp_fxbus.o",
+          "<workspace>/native/final-pro-diagnostic/o2/dsp_master.o",
+          "<workspace>/native/final-pro-diagnostic/o2/seq_sequencer.o",
+          "<workspace>/native/final-pro-diagnostic/o2/seq_tb3po.o",
+          "<workspace>/native/final-pro-diagnostic/o2/seq_pattern.o",
+          "<workspace>/native/final-pro-diagnostic/o2/seq_motion.o",
+          "<workspace>/native/final-pro-diagnostic/o2/app_engine.o",
+          "-o",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".text",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf",
+          "<workspace>/native/final-pro-diagnostic/text.bin"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".data",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf",
+          "<workspace>/native/final-pro-diagnostic/data.bin"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".ram_text",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf",
+          "<workspace>/native/final-pro-diagnostic/ramtext.bin"
+        ],
+        [
+          "common/bin/objcopy",
+          "-O",
+          "binary",
+          "-j",
+          ".c1_text",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf",
+          "<workspace>/native/final-pro-diagnostic/c1text.bin"
+        ],
+        [
+          "common/bin/objdump",
+          "-t",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf"
+        ],
+        [
+          "common/bin/objdump",
+          "-d",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf"
+        ],
+        [
+          "common/bin/objdump",
+          "-d",
+          "-j",
+          ".ram_text",
+          "<workspace>/native/final-pro-diagnostic/x0x.elf"
+        ]
+      ]
+    }
+  },
+  "reuse": "Final Elite recompiles x0x.c/engine.c/fxbus.c; remaining objects from freshly reproduced baseline. Final Pro recompiles x0x.c and reuses same exact model-independent objects: no SMK_MODEL/FELUCCA_ID occurrence in DSP/seq/engine.",
+  "toolchain": {
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "execution": {
+    "network": "none",
+    "hardware": "none",
+    "toolchain_mount": "read-only",
+    "writes": "isolated private workspace"
+  },
+  "public_source_closure_sha256": "8dd2fd687375f6cb593f65231ab84d71e284ddf178acac10d51f298a6fdcf06e",
+  "private_final_source_manifest_sha256": "1acc0be143c092fea86635c5767f1c1e6a616406c5b0d0731e0ac15a3fa8aef3",
+  "executed_private_script_sha256": {
+    "measure-baseline.py": "15d267533b58ac1dfc5c3015c5b21dd675c272756371982bf9a9195c564f7821",
+    "prepare-candidate.py": "9a2e1213195d6952b704092b416badb405edc3297513e00925b78411f52c0b48",
+    "measure-candidate.py": "22d86696cfda87ca8183053714376656e8ff001ced006db821f31af8ccab5900",
+    "diagnostic-link.py": "a4edec6f013f03b4f9abe5791ad0e2b7012c80e5e878001f60aefece7914ccaf"
+  },
+  "portable_reproducer": {
+    "file": "reproduce.py",
+    "sha256": "92ddee9f06e8fd41f39448da615040b83a2ff84bdfa059fc54705d382d8159d0",
+    "relationship": "portable all-app-TU reproducer supplied after measurement; not the executed cached-object orchestration script"
+  },
+  "limits": "Diagnostic links use larger private linker MEMORY length only to inspect bytes; real APP_CODE_MAX check fails. All diagnostic images installable:false and stay private. No alternate safe flash region or publication bypass."
+}

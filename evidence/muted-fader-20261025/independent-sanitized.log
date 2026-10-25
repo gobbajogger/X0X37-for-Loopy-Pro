@@ -1,0 +1,17 @@
+PASS fresh late first scan: noncrossing parked sample cannot seize muted target; subsequent genuine movement can
+PASS 40 mute periods: part/both drum kits/reverb/delay, acquired/pending, moved/untouched, DAW/User; 400 rapid toggle pairs
+PASS 35 identity epochs: locked navigation, external edit, exact other target, reconnect, exact match, parked lock, rapid mute epoch
+PASS rapid press pairs without an intervening display frame rearm a new explicit mute epoch
+PASS M8 master-volume mute remains distinct from fader8 master FILTER
+PASS actual maps: all five parts and all eleven voices in each drum kit, including final partial bank
+PASS deliberate muted takeover uses existing target motion hold and leaves target lane data/unrelated automation intact
+PASS REC muted edits use existing target motion recording and preserve untouched target steps/unrelated lanes
+PASS held parameter locks remain byte-identical while an exact locked fader edits only its base volume
+PASS initially zero FX levels never resurrect a fallback100; project reset clears only explicit mute state
+PASS actual mono/stereo DSP: reverb/delay/master output silent through edits and tails while muted, audible on unmute
+PASS 38 keyboard muted periods/epochs: seven exact levels, moved/untouched, acquired/pending, external edit, UI/lock navigation, bank changes; FILTER excluded
+PASS keyboard rapid mute edges rearm exact target without scans; subsequent external edit revokes exception
+PASS muted fader production regression: 3958 checks
+PASS independent initial-zero return/master levels stay zero across mute pairs; project reset clears only runtime gate
+PASS independent keyboard unmute/remute between scans reopens explicit epoch after outside edit
+PASS independent reconnect across five muted target kinds seeds first packet then accepts real movement

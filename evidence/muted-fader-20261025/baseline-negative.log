@@ -1,0 +1,1 @@
+FAIL tests/host/smc_muted_fader_test.c:47: writes==1

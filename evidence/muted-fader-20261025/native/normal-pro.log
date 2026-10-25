@@ -1,0 +1,3 @@
+<toolchain>/pi32v2/bin/ld: <workspace>/native/final-pro/x0x.elf section `.c1_text' will not fit in region `XIP'
+<toolchain>/pi32v2/bin/ld: region `XIP' overflowed by 748 bytes
+build: pi32v2/bin/ld failed

@@ -1,0 +1,81 @@
+[
+  {
+    "command": [
+      "sh",
+      "tests/host/smc_pickup_acceptance_test.sh"
+    ],
+    "exit": 0,
+    "log": "smc_pickup_acceptance_test.sh.log"
+  },
+  {
+    "command": [
+      "sh",
+      "tests/host/smc_ui_test.sh"
+    ],
+    "exit": 0,
+    "log": "smc_ui_test.sh.log"
+  },
+  {
+    "command": [
+      "sh",
+      "tests/host/smc_lock_test.sh"
+    ],
+    "exit": 0,
+    "log": "smc_lock_test.sh.log"
+  },
+  {
+    "command": [
+      "env",
+      "CC=cc -D_DARWIN_C_SOURCE",
+      "sh",
+      "tests/host/smc_drum_rs_test.sh"
+    ],
+    "exit": 0,
+    "log": "smc_drum_rs_test.sh.log",
+    "initial_exit": 1,
+    "initial_failure": "Darwin fixture lacked _DARWIN_C_SOURCE; scoped rerun defines it"
+  },
+  {
+    "command": [
+      "env",
+      "CC=cc -D_DARWIN_C_SOURCE",
+      "sh",
+      "tests/host/smc_drum_mutes_test.sh"
+    ],
+    "exit": 0,
+    "log": "smc_drum_mutes_test.sh.log"
+  },
+  {
+    "command": [
+      "sh",
+      "tests/host/smk_fader_pickup_test.sh"
+    ],
+    "exit": 0,
+    "log": "smk_fader_pickup_test.sh.log"
+  },
+  {
+    "command": [
+      "env",
+      "CC=clang",
+      "SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer",
+      "SMC_MUTED_OUT=build/host/muted-final-sanitized",
+      "sh",
+      "tests/host/smc_muted_fader_test.sh"
+    ],
+    "exit": 0,
+    "log": "muted-fader-sanitized.log"
+  },
+  {
+    "command": [
+      "SMC_UI_SOURCE_FILE=<baseline-smc_mixer.c>",
+      "SMC_MUTED_OUT=build/host/smc-muted-fader-negative",
+      "sh",
+      "tests/host/smc_muted_fader_test.sh"
+    ],
+    "baseline_sha": "b4f43dcbcc14f5ef059cda5c7650b5996c77160a",
+    "baseline_smc_sha256": "d1212dc0f817ca4961b503f74269af3c145014c592bb9fda781e07ae922d6b4a",
+    "exit": 1,
+    "expected": "FAIL pending muted noncrossing move writes==1; original defect demonstrated",
+    "log": "baseline-negative.log"
+  }
+]

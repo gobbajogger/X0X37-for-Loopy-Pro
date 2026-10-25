@@ -1,0 +1,6 @@
+PASS 192 crossings: DAW/User, main/both drum kits, eight strips, both directions, fine/coarse extrema; movement UI and writes checked separately
+PASS routing epochs: lock/unlock, page/part/bank target change, parked equal target, reconnect and first-entry safety
+PASS exact-equal acquisition emits one real engine write and holds real motion lane immediately; no second movement required
+PASS slow ramps: 262144 raw pitch-bend packets, 2048 real writes; full14-bit increasing/decreasing all8 main faders, every byte boundary, feedback and framebuffer status
+PASS 4096 stateful input events: target edits, parked away/back plus edits while away, kit/bank/part, lock/unlock, reconnect, duplicates and feedback timing
+smc_pickup_acceptance: PASS (835361 assertions)

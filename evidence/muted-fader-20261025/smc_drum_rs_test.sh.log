@@ -1,0 +1,3 @@
+Simulated DAW/MMC, production SMC/UI/SMK pad mapping/engine; no physical-device result.
+Normal stereo audio fingerprints: 909=2b1a2725 808=a0999a81
+PASS: 44 active drum destinations, 20 inactive positions, 88 pad writes, 88 audio cases; 124992 checks, 0 failures
