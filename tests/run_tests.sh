@@ -314,6 +314,8 @@ if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-re
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
+# BF-006: d8_exp2_cr must apply a negative integer exponent without a signed left-shift UB (prefer gcc UBSan)
+run drum808-exp2 sh -c "UBCC=gcc; command -v gcc >/dev/null || UBCC=\"$CC\"; \$UBCC -std=c99 -O1 -g -ffp-contract=off -Wall -Wextra -Wno-unused-function -fsanitize=undefined -fno-sanitize-recover=all -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/bugfinder_drum808_exp2_test tests/host/bugfinder_drum808_exp2_test.c -lm && $OUT/bugfinder_drum808_exp2_test"
 run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
