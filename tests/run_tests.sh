@@ -332,6 +332,7 @@ run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run smc-ui sh tests/host/smc_ui_test.sh
+run ui-page-layout sh tests/host/ui_page_layout_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-mutes Pillow; else run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh; fi
