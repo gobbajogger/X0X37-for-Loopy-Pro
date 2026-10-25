@@ -2,7 +2,7 @@
   "schema": 1,
   "reviewer": "independent_qa agent (separate from implementation owner)",
   "scope": "Source ingress foundation, fixture repairs and topology documentation",
-  "positive_runs": 42,
+  "positive_runs": 54,
   "profiles": [
     "plain",
     "UBSan",
@@ -31,7 +31,15 @@
       "log_sha256": "874a96f634aa1f1d3428a06550b084f072af2c9c7ff23f194f308a5b00e9d256"
     }
   ],
-  "input_sha256": {
+  "additional_input_sha256": {
+    "tests/host/smc_feedback_retry_test.py": "0a511047c41a9b7ebbf5e42c68c87530e00c111bacfa0ac83e570f3d21a7be55",
+    "tests/host/smc_host_data7_test.py": "cd64e8311452d4ba336e05d8a157f676e8780d8c2efde5991442f7e331d337c1",
+    "tests/host/smc_feedback_test.py": "733ae1db61ebdcab3de7e039424a7660348904475a0273f03da997b9a3bae659"
+  },
+  "test_c_sha256": "8fb435406510d9f9c352345e3f38bcf8a38be56c64f5ca1e2a46ef1d79bda3d5",
+  "verdict": "No blocking source-scope findings; frozen inputs stable before/after; final Git blob readback in delivery handoff",
+  "limits": "Independent host/source scope only; two physical peers, target builds and hardware remain unqualified",
+  "original_test_input_sha256": {
     "firmware/src/app/smc_mixer.c": "0a5158e2f6de8cdcd333f55df623df0cb765c6bbef14b4cd2af2cd07fae73cb2",
     "firmware/src/app/smc_ble_input.h": "c7ae298808284db26dc9082876d5e912297037957aa9996f5434a32c8a3b2ce0",
     "tests/host/smc_ble_input_test.py": "c018b4f64de7101c0b136270ef0777630136c33345bf50b4abd2a9fbfc592e7c",
@@ -46,12 +54,18 @@
     "tests/host/smc_link_test.py": "cd881bec6483d95cbcadffa9c92385cc417fb9fed40af3b84d3b70c59be6af53",
     "tests/host/smc_ble_reconnect_epoch_test.py": "79d74928e1eeb72c5e19210f3f81fc7dd2093e62a5199c382a3b9e6e70e8a177"
   },
-  "additional_input_sha256": {
+  "input_sha256": {
+    "docs/SMC_MULTI_PEER.md": "e41d909527863b018c2ef5e5b923808954b39e9afdc355422a0c963e9480c527",
+    "firmware/src/app/smc_ble_input.h": "600adfa59688238aba8fac0e5d7e744326cbd9ac2c05d38c3b021b205fd8a557",
+    "firmware/src/app/smc_mixer.c": "0a5158e2f6de8cdcd333f55df623df0cb765c6bbef14b4cd2af2cd07fae73cb2",
+    "tests/host/smc_ble_input_test.c": "8fb435406510d9f9c352345e3f38bcf8a38be56c64f5ca1e2a46ef1d79bda3d5",
+    "tests/host/smc_ble_input_test.py": "c018b4f64de7101c0b136270ef0777630136c33345bf50b4abd2a9fbfc592e7c",
     "tests/host/smc_feedback_retry_test.py": "0a511047c41a9b7ebbf5e42c68c87530e00c111bacfa0ac83e570f3d21a7be55",
+    "tests/host/smc_feedback_test.py": "733ae1db61ebdcab3de7e039424a7660348904475a0273f03da997b9a3bae659",
     "tests/host/smc_host_data7_test.py": "cd64e8311452d4ba336e05d8a157f676e8780d8c2efde5991442f7e331d337c1",
-    "tests/host/smc_feedback_test.py": "733ae1db61ebdcab3de7e039424a7660348904475a0273f03da997b9a3bae659"
+    "tests/run_tests.sh": "9de9f84d8754c7634640f74903040aec4ddfd0a2f17cbb80dd25cea7795d4263"
   },
-  "test_c_sha256": "8fb435406510d9f9c352345e3f38bcf8a38be56c64f5ca1e2a46ef1d79bda3d5",
-  "verdict": "No blocking source-scope findings; final Git blob readback required in handoff",
-  "limits": "Independent host/source scope only; two physical peers, target builds and hardware remain unqualified"
+  "frozen_recheck_runs": 12,
+  "code_commit": "88baa85fafd44676ea66a14392f8ac74e34dc758",
+  "reuse_note": "Earlier 33 core runs reused after independent comment/whitespace-stripped header equality; final 12 runs include all three changed fixtures and ingress across all profiles."
 }
