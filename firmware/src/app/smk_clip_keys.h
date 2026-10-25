@@ -48,7 +48,8 @@ static const char CK_ORD_N[] = "UP\0DOWN\0UP/DN\0DN/UP\0PLAYED\0RANDOM";
 static const uint8_t CK_RATE_T[CK_NRATE] = {48, 36, 32, 24, 18, 16, 12, 9, 8, 6, 4, 3, 2};
 static const char CK_RATE_N[] = "1/2\0" "1/4D\0" "1/2T\0" "1/4\0" "1/8D\0" "1/4T\0" "1/8\0" "1/16D\0" "1/8T\0" "1/16\0"
                                 "1/16T\0" "1/32\0" "1/32T";
-static const char CK_ROOT_N[] = "C\0C#\0D\0D#\0E\0F\0F#\0G\0G#\0A\0A#\0B";
+#include "note_names.h"
+#define CK_ROOT_N X0X_NOTE_PACK          /* same twelve names as the UI note labels */
 
 /* The name number n in a list of names, each one ends with a 0 byte */
 CK_FN static const char *ck_nm(const char *s, uint32_t n)

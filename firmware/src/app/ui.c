@@ -16,12 +16,19 @@
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
 #include "undo.c"
+#include "note_names.h"
 
 /* ================================================================ model === */
 static const int8_t KEY_WHITE[NKEYS] = {0, -1, 1, -1, 2, -1, 3, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, -1, 10, 11, -1, 12, -1, 13, 14, -1, 15};
 static const int8_t KEY_BLACK[NKEYS] = {-1, 0, -1, 1, -1, 2, -1, -1, 3, -1, 4, -1, -1, 5, -1, 6, -1, 7, -1, -1, 8, -1, 9, -1, -1, 10, -1};
-/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init). */
+/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init).
+ * On SMK, x0x.c included smk_input.h first: the pad map is these same 16 indices. */
+#if defined(SMK_NPAD)
+_Static_assert(SMK_NPAD == 16u, "SMK white-key map is the 16 panel white keys");
+#define WHITE_KEY SMK_WHITE_NOTE
+#else
 static const uint8_t WHITE_KEY[16] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
+#endif
 static const uint8_t BLACK_KEY[11] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25};
 
 enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };
@@ -221,7 +228,11 @@ static char *put_i(char *b, int v)
     *b = 0;
     return b;
 }
-static const char *const NOTE_N[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+/* Pointers into X0X_NOTE_PACK (same letters the switch draws). */
+static const char *const NOTE_N[12] = {
+    X0X_NOTE_PACK + 0, X0X_NOTE_PACK + 2, X0X_NOTE_PACK + 5, X0X_NOTE_PACK + 7,
+    X0X_NOTE_PACK + 10, X0X_NOTE_PACK + 12, X0X_NOTE_PACK + 14, X0X_NOTE_PACK + 17,
+    X0X_NOTE_PACK + 19, X0X_NOTE_PACK + 22, X0X_NOTE_PACK + 24, X0X_NOTE_PACK + 27};
 static char *put_note(char *b, int n)
 {
     b = put_s(b, NOTE_N[(n % 12 + 12) % 12]);
@@ -715,7 +726,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     }
     if (is_pan(r)) {                                     /* L64 .. C .. R63 */
         if (v == 64)
-            put_s(num, "C");
+            put_s(num, X0X_NOTE_PACK);             /* letter C, the first name in the pack */
         else
             put_i(put_s(num, v < 64 ? "L" : "R"), v < 64 ? 64 - v : v - 64);
         return;
