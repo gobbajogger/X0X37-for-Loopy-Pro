@@ -1,0 +1,9 @@
+{
+  "note": "coordinator CreateAgent returned owner-visible Stage 4; handoff complete",
+  "successor_id": "bc-eacdb970-e51c-553e-b0f8-fd49e9201626",
+  "successor_url": "https://cursor.com/agents/bc-eacdb970-e51c-553e-b0f8-fd49e9201626",
+  "local_review_id": "bc-964ab6a2-d8a9-50af-9f5c-2241cbc9f1ec",
+  "pr": 271,
+  "startingRef": "cursor/f12-stage3-bf008-1207",
+  "ts": "2026-10-25T16:56:30Z"
+}
