@@ -73,7 +73,7 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-f02-bind|installer-f02-bind-web|installer-f03-probe|installer-f03-probe-web|installer-targets|installer-slots|slot-backup|upload-tools|\
+    installer|installer-f02-bind|installer-f02-bind-web|installer-f03-probe|installer-f03-probe-web|installer-bf001-local-file|installer-targets|installer-slots|slot-backup|upload-tools|\
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
@@ -353,6 +353,7 @@ run installer-f02-bind python3 tests/install_f02_loader_bind_test.py   # F02: lo
 command -v node >/dev/null 2>&1 && run installer-f02-bind-web node web/test_f02_loader_bind.mjs   # F02 web waitFor: same fail-closed newly-appeared rule
 run installer-f03-probe python3 tests/install_f03_slot_probe_test.py   # F03: same-keyboard slot probe fails closed before write
 command -v node >/dev/null 2>&1 && run installer-f03-probe-web node web/test_f03_slot_probe.mjs   # F03 web installKeepingSlots: same fail-closed probe
+command -v node >/dev/null 2>&1 && run installer-bf001-local-file node web/test_install_local_file.mjs   # BF-001: newest local .fwsc / ctl.img selection wins
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
