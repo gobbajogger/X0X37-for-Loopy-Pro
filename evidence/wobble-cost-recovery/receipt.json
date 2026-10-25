@@ -186,12 +186,12 @@
     "barrier-review.json": "c00e288018250370f841aae8281bab9945577ca712118cdcc6a41c020bbe5265",
     "final-native.log": "a4f4e007302eef5c409692137330b48a15d6a3a0992982d18c81a895f8679f11",
     "probe-metadata.log": "9f1b36b5f1adf5b1f3137353afb1db8e64ea0dc035b671b43cea1481040f9a5e",
-    "pro-sections.txt": "be86cc159eff8660added6479168bd00b6c89f294db2752cd9218730a54ed44c",
+    "pro-sections.txt": "cf623852f4b868d18f6e730c6e7e44c19541a6a5a74b711f6105620a5163b415",
     "reused-object-closure.json": "684049a3575cc37c2f6c65d6932bb30224cac4ea5a9550a0e8eb2866a1243d1c",
     "native-frames-review.json": "69895f3c4072e5869e1d64e24756144ab6ed2895d6b054e34a46195c0bf6333d",
     "legacy303.log": "9cb8d71f7de18750545cc4a4904396b2e37eaf3ced70a334443baae071c0b813",
     "barrier-final-qa-receipt.json": "3c0cc3621fbcd6cca7662da39c4a0b63bb2c3d13a5f8cf541dab362d5ac089e0",
-    "elite-sections.txt": "88bc52c700c422660be91bc7c140c962b9bc2c04f79de65024541df850442ed8",
+    "elite-sections.txt": "a51fa5488ce0c912fcdd295fb2c795cc81c45eb334221451833afb70e21e0339",
     "host-logs/fragments-normal.txt": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd",
     "host-logs/barrier-final-compile-fragments-normal.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "host-logs/final-default303-whole-app.txt": "fe0ca550177f57617ed35f6952d1baa54f92e683f0e7d2819df9dbf9871053d0",
@@ -213,5 +213,6 @@
     "host-logs/barrier-final-backend.txt": "aaa50b4d2f72cf77856b26ee7dbf7dbd46229ebaa9270d139cdeb7680a9093d0"
   },
   "sdkTrackedCleanBeforeAndAfter": true,
-  "toolchainAndImageVerifiedBeforeAndAfter": true
+  "toolchainAndImageVerifiedBeforeAndAfter": true,
+  "sectionListingFormatting": "Trailing whitespace normalized in public listings; raw private tool outputs retained."
 }
