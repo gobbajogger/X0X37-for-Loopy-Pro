@@ -1,0 +1,79 @@
+{
+  "evidence_revision": "seqclock-pr90-auto-idle-counter-overflow-20261025-r33",
+  "role": "existing sole Sequencer Clock firmware source specialist",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_pr": 90,
+  "parent_pr": 86,
+  "parent_commit": "545fe3f5a81289e5fe3d245a3de6d56e7171b3dc",
+  "parent_root_tree": "3342b2bc7cbd912bf4685a80ff4a30cf21e131b8",
+  "user_outcome": "A Loopy Pro clock reconnect after a long silent session must not turn about 27.05 hours of idle into a false short MIDI tick or corrupt tempo. Valid later ticks must still measure tempo normally.",
+  "observed_defect": "In AUTO/INTERNAL, ext_since incremented without a ceiling. It wraps after 2^32 samples; an incoming first F8 then sees a fake short interval and sets a wrong ext_period/ext_bpm.",
+  "minimal_fix": "Bound ext_since in all clock-source modes after two seconds of silence; retain free-running ext_now and clock-lock wrap arithmetic unchanged.",
+  "source_before_blob": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+  "source_after_expected_blob": "f908e99be0fb7aba9e2d31364a3cf3ed952cc5d9",
+  "test_expected_blob": "aad82d7000dcb9548749d532d50167eed04a8535",
+  "linked_inputs": {
+    "sequencer_h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "pattern_c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "pattern_h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "tb3po_c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "tb3po_h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c"
+  },
+  "executed_host": "Linux x86_64, actual production seq C linked with pattern.c/tb3po.c, GCC 14.2 and Clang 17, -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror, plain/UBSan/ASan+UBSan",
+  "positive": {
+    "six_compile_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "six_run_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "observed": "404578/404578 assertions each across AUTO/INTERNAL/EXTERNAL idle cap, legacy rollover and 1,64,1024-frame partitions",
+    "identical_run_log_sha256": "c3280e5461aef8afa9e64760f6a285c10d553cede281564c861adde19b856748"
+  },
+  "negative": {
+    "baseline_compiles": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "baseline_runs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "observed": "404560/404578, 18 failures per run: unbounded AUTO/INTERNAL idle, false first-clock tempo and subsequent tempo mismatch",
+    "identical_run_log_sha256": "b68085b070bedaeba8b958581206f19d14fd3ecd416519fe8ef27c4efa04a19e"
+  },
+  "adjacent": {
+    "uptime_wrap": "GCC/Clang plain 36328/36328 passed",
+    "usb_link_drop": "GCC/Clang plain 186/186 passed"
+  },
+  "test_command": "gcc|clang -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -I source/firmware/src/seq seq_clock_auto_idle_wrap_test.c source/firmware/src/seq/{sequencer,pattern,tb3po}.c -lm [sanitizers] -o executable && executable",
+  "asan_note": "ASAN_OPTIONS=detect_leaks=0; LeakSanitizer was not tested.",
+  "unrun": [
+    "complete exact-root test suite",
+    "full independent QA",
+    "Elite and Pro target build, byte/budget/model/controller qualification",
+    "sample/backup/OTA/restore negative qualification",
+    "hardware",
+    "installer/browser/live HTTPS verification"
+  ],
+  "next_owner": "existing Independent QA exact-root review; existing Hourly Build owns compiler-input-changed Elite/Pro BUILD_ONLY; existing sole Safe Merge integrates only after approvals",
+  "protections": "One owned source/test/evidence commit; no SMC/OTA, other lanes, protected NIGHTLY/main/gh-pages, public binaries or device writes."
+}

@@ -632,7 +632,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 {
     int t, guard;
     uint32_t dq = k << 8;
-    if (s->clk_cur != SEQ_CLK_EXT || s->ext_since < 2u * FS)   /* (EXTERNAL waits long: no wrap) */
+    if (s->ext_since < 2u * FS)   /* all modes: long idle must not wrap into a fake short tick */
         s->ext_since += k;
     s->ext_now += k;
     for (t = 0; t < NBASS; t++)
