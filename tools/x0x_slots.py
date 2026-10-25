@@ -215,6 +215,13 @@ def read_archive(b):
         h = parse_header(img)
         if not h or zlib.crc32(img[DATA_OFF:]) != h["crc"] or len(img) != DATA_OFF + h["data_len"]:
             raise SlotError(f"slot {e['slot']}: the image is not a valid slot")
+        # Match smp_user_scan() before restore can erase the target slot.
+        for z in range(h["nz"]):
+            zone = 32 + z * 28
+            off, samples, _, _, rate_q16 = struct.unpack_from("<5I", img, zone)
+            if (off > h["data_len"] or (samples + 1) // 2 > h["data_len"] - off
+                    or img[zone + 24] > 88 or not 0 < rate_q16 <= (4 << 16)):
+                raise SlotError(f"slot {e['slot']}: invalid sample zone {z + 1}")
         images.append(img)
         used += len(img)
     if base + used != len(b) - 4:
