@@ -180,7 +180,7 @@ run() {
     fi
     gw=0; gen_wait "$name" && gw=1
     [ "$cls" = W ] || [ $gw = 1 ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
-    (
+    (                                       # xtrace goes to the file on the next line so sh -x lines do not tear
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
         mkdir -p "$HOME" "$TMPDIR"
         if [ $gw = 1 ]; then      # wait for the end of host-build without a job slot, then take a slot
@@ -192,7 +192,7 @@ run() {
         [ "$cls" = G ] && gen_unlock
         [ "$name" = host-build ] && : > "$OUT/iso/.gen-done"   # also after a FAIL: the waiting tests then start and report
         [ "$cls" = W ] || echo >&3
-    ) &
+    ) 2>>"$OUT/$name.xtrace" &
 }
 note() {                # a skip line, in the serial order
     T_SEQ=$((T_SEQ + 1))

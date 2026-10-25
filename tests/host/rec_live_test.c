@@ -38,6 +38,9 @@ int smc_connected(void) { return 0; }
 void smc_frame(void) {}
 void smc_poll(void) {}
 int smc_midi_host(uint32_t pkt) { (void)pkt; return 0; }
+/* This link does not include smc_mixer.c. ui.c still asks whether an SMC solo holds the project. */
+int smc_project_active(void) { return 0; }
+void smc_project_reset(void) {}
 #endif
 
 static int fails;
