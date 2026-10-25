@@ -21,11 +21,20 @@ or a capture:
 
 ```sh
 python3 repo/tools/audio303/test_synthetic_diagnostics.py
+python3 repo/tools/audio303/velocity_cutoff.py
+python3 repo/tools/audio303/test_velocity_cutoff.py
 ```
 
 A passing synthetic run does not retune the instrument. Firmware DSP and the
 default sound stay as they are. The private scripts remain the only path that
 loads reference audio.
+
+`velocity_cutoff.py` is a separate host measurement: same-preset/note brightness
+(H2..H6) vs RMS across MIDI velocities, using approved derived Gate AU metrics
+plus fresh `render.c` bass303 output. It does not import the rejected joint gain
+model from `a33c2de`. See `VELOCITY_CUTOFF_RESULTS.md`. Gate AU brightness is
+flat across velocity here, so that packet cannot calibrate a firmware
+velocity→filter depth change.
 Dependencies already present in this test: Apple clang/AudioToolbox, Python,
 NumPy/SciPy; Matplotlib only for plot.py. Do not install or alter permissions as
 part of this workflow. Audio and reference manifests remain outside Git.
