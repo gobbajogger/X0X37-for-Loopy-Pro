@@ -189,6 +189,16 @@ int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
 void motion_clear(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE) {
+        if (m->lane[k].used && m->apply && m->base) {
+            /* Restore the target before freeing the slot. T_VEL caches the last
+             * applied strike in seq.drum_vel; skipping this leaves that override
+             * sticky after the lane is gone (and after Stop), so later hits keep
+             * the deleted velocity instead of the accent fallback. */
+            m->apply(m->ctx, m->lane[k].t, m->lane[k].v, m->lane[k].i,
+                     m->base(m->ctx, m->lane[k].t, m->lane[k].v, m->lane[k].i));
+            m->rt[k].applied = MOT_NONE;
+            m->rt[k].ramp = 0;
+        }
         /* This slot may be reused before the next audio step.  Drop knob
          * intents from its former owner, not the fresh owner's first event. */
         m->lane[k].used = 0;

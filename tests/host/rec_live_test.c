@@ -572,6 +572,32 @@ static void test_drum_record_velocity(void)
     printf("  909 live record: black-key strike velocity in T_VEL lane: checked\n");
 }
 
+/* Clearing the last T_VEL lane must restore seq.drum_vel so later hits use accent law.
+ * drum_vel_clear_step and CLEAR PART both reach engine_motion_clear → motion_clear. */
+static void test_drum_vel_clear_resets_runtime(void)
+{
+    int lane, voice = PART_909 << 4 | 3;
+    ui.part = PART_909;
+    set_view(V_PART);
+    build_pages();
+    clear_909();
+    tick(100);
+    seq_stop(&seq);
+    ui.rec = 0;
+    tick(20);
+    lane = motion_alloc(proj.arr.lane, seq.ppat[0], PART_909, T_VEL, voice, 0);
+    CHECK(lane >= 0, "T_VEL lane allocated for clear-reset test");
+    if (lane < 0)
+        return;
+    proj.arr.lane[lane].val[0] = 55;
+    seq.drum_vel[0][3] = 55;                          /* as if motion had applied the strike */
+    engine_motion_clear(lane);
+    CHECK(!proj.arr.lane[lane].used, "engine_motion_clear frees the lane");
+    CHECK(seq.drum_vel[0][3] == 0,
+          "clearing last T_VEL restores accent fallback (drum_vel=%u)", seq.drum_vel[0][3]);
+    printf("  909 T_VEL clear restores seq.drum_vel to accent fallback: checked\n");
+}
+
 /* a73 (owner OK 2026-10-16 20:11): a live drum hit records on the nearest step */
 static void test_drum_nearest(void)
 {
@@ -652,6 +678,7 @@ int main(void)
     test_303_live();
     test_start_ext_running();
     test_drum_record_velocity();
+    test_drum_vel_clear_resets_runtime();
     test_drum_nearest();
 #if BOARD_SMK37
     seq_stop(&seq);
