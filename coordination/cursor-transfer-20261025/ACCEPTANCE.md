@@ -141,13 +141,13 @@ The commit adds `seq_rec_cancel`, which bumps `gen` and clears `own_ok`, and `se
 
 ## Next assignments
 
-Independent QA of `90397cf0965048665d431f35c8c287b0dc9ea3f5` is a different worker from `bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b`. It reviews and may re-run the host test. It does not take schema ownership and does not migrate stream4.
+Independent QA of `90397cf0965048665d431f35c8c287b0dc9ea3f5` is `bc-16db7290-07a8-5ae1-bb37-d5a504ead477` (https://cursor.com/agents/bc-16db7290-07a8-5ae1-bb37-d5a504ead477). It is not `bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b`. It reviews and may re-run the host test. It does not take schema ownership and does not migrate stream4. Creation is not its acceptance. Multi-SMC review stays with `bc-bef73392-2a77-58c4-a8fc-f6f0c8dd9500`. No third reviewer was created for that result.
 
 The same owner holds the next combined revision and does not start it inside the repair. Recorder layout remains the endpoint nibble in `firmware/src/seq/pattern.h`. Miami layout remains `MOT_SNAPSHOT` `0xFE`, schema 1, in `firmware/src/seq/motion.h` on `d7f156eca43ccf9ede1d291bc71743b356883e03`. Miami engine continuation, capacity recovery, and acoustic validation stay open. Acoustic reference renders still wait on a placed local thread. No new license gate.
 
 Clock next owner: none. Frozen source `7989a51edb62313e57afa16c68ae5bd2bd0497db`, tree `0736ca3e3afbc49a006bd865dcc2f7e524dd4e8e`. `clock-rejected.patch` SHA256 `ed2fd0cccdeed69544d056b913295ac49d4f5acb435fc3cd52ded21033c3354d` is not applied. Native measurement stays on the unplaced local route.
 
-Chicago correction source owner stays open. No successor. Independent QA of the repair is a different worker after the repair commit exists. It is not started before that commit.
+Chicago correction source owner stays open. No successor. The repair QA named above is the one reviewer for `90397cf0965048665d431f35c8c287b0dc9ea3f5`.
 
 ## Project continuation acceptance (Full Cycle Dev Chain)
 
