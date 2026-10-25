@@ -67,7 +67,7 @@ static void engine_smc_solo_targets(uint8_t p, uint16_t a, uint16_t b)
 { solos_on = (unsigned)p | a | b; ++solos_published; }
 ''' + queue_definitions + '\n' + extract('smc_is_solo_release') + '\n' + solo_state + '\n' + '\n'.join(extract(n) for n in (
     'smc_project_active', 'smc_solo_clear', 'smc_solo_publish', 'smc_solo_press',
-    'smc_project_drop', 'smc_ble_midi', 'smc_ble_link', 'smc_midi_host')) + r'''
+    'smc_project_drop', 'smc_project_reset', 'smc_ble_midi', 'smc_ble_link', 'smc_midi_host')) + r'''
 static void smc_fader(int n, uint8_t v)
 {
  (void)n; (void)v; ++faders;
@@ -478,10 +478,62 @@ static int ble_link_overflow_lifetime(uint8_t cursor, int user,
        "matching legitimate Solo release still ends held state");
  return 1;
 }
+/* A project replacement discards old BLE frames and acknowledges their lost
+ * Solo releases. Otherwise a saturated old project's lost NoteOff could
+ * release the next project's genuinely fresh held Solo on the next poll.
+ * Exercise the actual producer, project reset, queue and main-loop decoder. */
+static int project_reset_ble_overflow(uint8_t cursor, int user,
+                                      int link_edge, int foreign)
+{
+ reset(cursor,user);
+ ble_note(user,1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0], "old project first Solo is held");
+ const uint8_t filler[3]={0xB1u,40u,64u};
+ for(unsigned i=0;i<SMC_Q;i++) smc_ble_midi(filler,3u);
+ CHECK((uint8_t)(smc_qw-smc_qr)==SMC_Q,
+       "old project fills the actual BLE producer ring");
+ uint32_t old_lost=smc_ble_solo_release_lost;
+ const uint8_t release[3]={
+  (uint8_t)(foreign ? 0x82u : (user ? 0x8Fu : 0x80u)),8u,0u};
+ smc_ble_midi(release,3u);
+ CHECK(smc_ble_solo_release_lost == old_lost + (unsigned)!foreign,
+       "only a legitimate lost release increments the producer generation");
+ if(link_edge) { smc_ble_link(0); smc_ble_link(1); }
+ smc_project_reset();
+ CHECK(!solos_on && !smc_project_active(),
+       "new project begins with no inherited held Solo");
+ CHECK(smc_qr==smc_qw,
+       "project reset discards old queued input");
+ ble_note(user,1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],
+       "old project's missing release cannot cancel new project's Solo");
+ ble_note(user,0);
+ smc_poll();
+ CHECK(!solos_on && !smc_project_active(),
+       "new project's matching NoteOff still releases Solo");
+ smc_poll();
+ CHECK(!solos_on,"idle poll cannot resurrect old project state");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Focused real producer/project-reset lifetime check for rapid triage. */
+ if (getenv("SMC_ONLY_RESET_OVERFLOW")) {
+  for(unsigned i=0;i<sizeof cursors;i++)
+   for(int user=0;user<2;user++)
+    for(int link_edge=0;link_edge<2;link_edge++)
+     for(int foreign=0;foreign<2;foreign++) {
+      if(!project_reset_ble_overflow(cursors[i],user,link_edge,foreign)) return 1;
+      ++cases;
+     }
+  printf("SMC BLE project reset overflow: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  /* Focused paired BLE link/overflow phase regression; not a hardware test. */
  if (getenv("SMC_ONLY_LINK_OVERFLOW")) {
   for(unsigned user=0;user<2;user++)
@@ -536,10 +588,17 @@ int main(void)
          cases,cases,checks);
   return 0;
  }
+ for(unsigned i=0;i<sizeof cursors;i++)
+  for(int user=0;user<2;user++)
+   for(int link_edge=0;link_edge<2;link_edge++)
+    for(int foreign=0;foreign<2;foreign++) {
+     if(!project_reset_ble_overflow(cursors[i],user,link_edge,foreign)) return 1;
+     ++cases;
+    }
  for(unsigned user=0;user<2;user++)
   for(unsigned ch=0;ch<16;ch++)
    for(int zero_on=0;zero_on<2;zero_on++)
-    for(int new_link=0;new_link<2;new_link++)
+    for(int new_link=0;new_link<2;new_link++
      for(unsigned i=0;i<sizeof cursors;i++) {
       if(!ble_link_overflow_lifetime(cursors[i],user,ch,zero_on,new_link)) return 1;
       ++cases;
