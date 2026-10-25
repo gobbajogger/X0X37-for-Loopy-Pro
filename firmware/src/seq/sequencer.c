@@ -2,6 +2,7 @@
 /* X0X sequencer; see sequencer.h for the model. */
 #include "sequencer.h"
 #include "tb3po.h"
+#include "../x0x_cold.h"              /* X0X_COLD: boot/UI cue/chain — not advance/fire/clock/MIDI */
 
 #define NEVER 0xFFFFFFFFu
 #define RANDOM_PASS_STEPS 0x7Fu
@@ -14,7 +15,7 @@ static const uint8_t GM_DRUM[NKIT][NDRUM] = {
     {36, 38, 41, 45, 50, 37, 39, 56, 49, 46, 42},   /* 808: BD SD LT MT HT RS CP CB CY OH CH */
 };
 
-void seq_init(seq_t *s, pattern_t *patterns)
+X0X_COLD void seq_init(seq_t *s, pattern_t *patterns)
 {
     uint32_t i;
     uint8_t *p = (uint8_t *)s;
@@ -916,19 +917,19 @@ int seq_clock_waiting(const seq_t *s)
 {
     return s->clk_cur == SEQ_CLK_EXT && s->playing && s->ext_since > FS / 2u;
 }
-void seq_cue(seq_t *s, int p)
+X0X_COLD void seq_cue(seq_t *s, int p)
 {
     int t;
     if (p >= 0 && p < NPAT)
         for (t = 0; t < NTRACKS; t++)
             s->pcue[t] = (uint8_t)p;
 }
-void seq_cue_part(seq_t *s, int t, int p)
+X0X_COLD void seq_cue_part(seq_t *s, int t, int p)
 {
     if (t >= 0 && t < NTRACKS && p >= 0 && p < NPAT)
         s->pcue[t] = (uint8_t)p;
 }
-int seq_cue_of(const seq_t *s, int t) { return s->pcue[t] < NPAT ? s->pcue[t] : -1; }
+X0X_COLD int seq_cue_of(const seq_t *s, int t) { return s->pcue[t] < NPAT ? s->pcue[t] : -1; }
 int seq_next_step(seq_t *s, int t, int p) { return next_pos(s, t, p, 0); }
 /* the step a live hit now records on: the nearest step. That is the step that plays, or the next one
  * after half of the step (samples on the internal clock, ticks on an external clock; on an external
@@ -966,7 +967,7 @@ void seq_rec_skip(seq_t *s, int t, int p, int v)
     tr->rec_skip_pat = s->ppat[t];
     tr->rec_skip |= (uint16_t)(1u << v);
 }
-void seq_chain(seq_t *s, int a, int b)
+X0X_COLD void seq_chain(seq_t *s, int a, int b)
 {
     /* Reject invalid endpoints before narrowing to uint8_t: an out-of-range
      * chain otherwise selects a non-existent pattern at the next bar. */

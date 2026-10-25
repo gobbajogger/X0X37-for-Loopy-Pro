@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* TB-3PO generator; see tb3po.h. Integer and float maths only, no libm. */
 #include "tb3po.h"
+#include "../x0x_cold.h"              /* X0X_COLD: UI/setup generate — not auto_mutate on fire_step */
 
 typedef struct { int8_t deg[7]; uint8_t len; } scale_t;
 
@@ -31,7 +32,7 @@ static float rng_f(uint32_t *r)                      /* [0, 1) */
     return (float)(rng_u32(r) & 0xFFFFFFu) / (float)0x1000000;
 }
 
-void tb3po_defaults(tb3po_cfg_t *g, uint32_t seed)
+X0X_COLD void tb3po_defaults(tb3po_cfg_t *g, uint32_t seed)
 {
     g->density = 70;                                 /* schwung-tb3po: 0.7 / 0.4 / 0.25, 2 octaves, A minor */
     g->accent = 40;
@@ -75,7 +76,7 @@ static uint8_t roll_kind(uint32_t *r, const tb3po_cfg_t *g)
     return f;
 }
 
-void tb3po_generate(bpart_t *b)
+X0X_COLD void tb3po_generate(bpart_t *b)
 {
     tb3po_cfg_t *g = &b->gen;
     const scale_t *sc = &SCALES[g->scale < TB3PO_NSCALES ? g->scale : 0];
@@ -152,7 +153,7 @@ void tb3po_mutate(bpart_t *b, uint32_t *rng)
     *rng = r;
 }
 
-uint32_t tb3po_new_seed(uint32_t entropy)
+X0X_COLD uint32_t tb3po_new_seed(uint32_t entropy)
 {
     uint32_t r = entropy * 2654435761u + 0x9E3779B9u;
     rng_u32(&r);

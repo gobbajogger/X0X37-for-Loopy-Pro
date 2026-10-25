@@ -1,8 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X motion; see motion.h. */
 #include "motion.h"
+#include "../x0x_cold.h"              /* X0X_COLD: Main-path edit helpers — not ISR step/tick/release */
 
-void motion_init(motion_t *m, lane_t *lanes)
+X0X_COLD void motion_init(motion_t *m, lane_t *lanes)
 {
     uint32_t i;
     uint8_t *z = (uint8_t *)m;
@@ -156,7 +157,7 @@ int motion_value(const motion_t *m, int k)
     return m->rt[k].applied == MOT_NONE ? -1 : m->rt[k].applied;
 }
 
-int motion_find(const lane_t *L, int pat, int part, int t, int v, int i)
+X0X_COLD int motion_find(const lane_t *L, int pat, int part, int t, int v, int i)
 {
     int k;
     for (k = 0; k < NLANE; k++)
@@ -165,7 +166,7 @@ int motion_find(const lane_t *L, int pat, int part, int t, int v, int i)
     return -1;
 }
 
-int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
+X0X_COLD int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
 {
     int k, s;
     for (k = 0; k < NLANE; k++)
@@ -186,7 +187,7 @@ int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
     return k;
 }
 
-void motion_clear(motion_t *m, int k)
+X0X_COLD void motion_clear(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE) {
         if (m->lane[k].used && m->apply && m->base) {
@@ -207,7 +208,7 @@ void motion_clear(motion_t *m, int k)
     }
 }
 
-int motion_count(const lane_t *L)
+X0X_COLD int motion_count(const lane_t *L)
 {
     int k, n = 0;
     for (k = 0; k < NLANE; k++)
@@ -215,13 +216,13 @@ int motion_count(const lane_t *L)
     return n;
 }
 
-void motion_req_rec(motion_t *m, int k)
+X0X_COLD void motion_req_rec(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE)
         m->rt[k].rec_req = 1;
 }
 
-void motion_req_hold(motion_t *m, int k)
+X0X_COLD void motion_req_hold(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE)
         m->rt[k].hold_req = 1;
