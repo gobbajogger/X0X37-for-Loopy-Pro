@@ -28,6 +28,9 @@ int main(void)
     values[0]=99;
     assert(!memcmp(motion_snapshot_read(lanes,0,2,4),expected,16));
     assert(motion_snapshot_engine(lanes,0,2,4)==2);
+    assert(!strcmp(motion_snapshot_engine_label(2),"WBL1"));
+    assert(!strcmp(motion_snapshot_engine_label(1),"303"));
+    assert(!motion_snapshot_engine_label(0)[0] && !motion_snapshot_engine_label(3)[0]);
     /* Main replacement has a complete old bank until one selector publication. */
     assert(lanes[k].val[63]==0);
     assert(motion_snapshot_edit(lanes,0,2,4,5,101)==k);
