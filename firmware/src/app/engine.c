@@ -6,6 +6,10 @@
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
 #include "../dsp/bass303.h"
+#if X0X_DEV_WOBBLE
+#include "../dsp/synth_engine.h"
+#include "../dsp/wobble_backend.h"
+#endif
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
@@ -18,6 +22,11 @@
 #include "chicago_aux.h"
 
 #define POOL X0X_POOL
+
+#if X0X_DEV_WOBBLE
+static wobble_t dev_wobble POOL;
+static synth_slot_t bass_slot[NBASS] POOL;
+#endif
 
 /* time per stage of the render, in plat_cycles() units (the CPU's cycles, or the 24 MHz timer):
  * running totals (wrapping; the PERF screen takes differences) and the frames rendered. */
@@ -112,7 +121,11 @@ static void guard_apply(void)
         return;
     guard_applied = guard_on;
     for (k = 0; k < NBASS; k++)
+#if X0X_DEV_WOBBLE
+        synth_lite(&bass_slot[k], guard_on);
+#else
         bass303_set_lite(&b303[k], guard_on);
+#endif
     drum808_quiet = guard_on ? 3.2e-3f : 3.2e-5f;
 }
 
@@ -272,7 +285,11 @@ static void chi_live_note_off(int v)
         return;
     }
     chi_damp_latched[v] = 0;
+#if X0X_DEV_WOBBLE
+    synth_off(&bass_slot[v]);
+#else
     bass303_note_off(&b303[v]);
+#endif
 }
 
 static void chi_arp_gate_off(int v)
@@ -386,8 +403,13 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             break; /* sound_t only; live Mix/fxbus writes come from chicago_fx_apply (UI) */
         else if (i >= CHI_PBEND && i < CHI_AUX_END)
             chi_aux_apply(v, i, val);
+#if X0X_DEV_WOBBLE
+        else
+            synth_set(&bass_slot[v], synth303_key((unsigned)i), val);
+#else
         else
             bass303_set(&b303[v], i, val);
+#endif
         break;
     case T_BRK: breaks_set(&brk, BRK_NSET + i, val); break;
     case T_FX: fxbus_set(&fx, i, val); break;
@@ -606,10 +628,18 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     if ((unsigned)p < NBASS)
         chi_damp_latched[p] = 0;
     if (prob_skip(PART_303A + p, 0)) {                /* skipped: a rest for audio AND MIDI */
+#if X0X_DEV_WOBBLE
+        synth_off(&bass_slot[p]);
+#else
         bass303_note_off(&b303[p]);
+#endif
         return 0;
     }
+#if X0X_DEV_WOBBLE
+    synth_note(&bass_slot[p], note, acc, sl, velocity);
+#else
     bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
+#endif
     return 1;
 }
 static void s_boff(void *x, int p)
@@ -617,7 +647,11 @@ static void s_boff(void *x, int p)
     (void)x;
     if ((unsigned)p < NBASS)
         chi_damp_latched[p] = 0; /* pattern gate wins over damper */
+#if X0X_DEV_WOBBLE
+    synth_off(&bass_slot[p]);
+#else
     bass303_note_off(&b303[p]);
+#endif
 }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
 static void s_brk(void *x, int s16, int bar, float spb, int en)
@@ -729,7 +763,11 @@ X0X_COLD int engine_project_notes(void)
     if (brk.keys || src_held[0] || src_held[1])
         return 1;
     for (k = 0; k < NBASS; k++)
+#if X0X_DEV_WOBBLE
+        if (synth_active(&bass_slot[k]) || bass_held[k])
+#else
         if (b303[k].gate || bass_held[k])
+#endif
             return 1;
     while (r != cq_w) {
         uint32_t c = cq[r++ % CQ], t = c >> 28;
@@ -862,7 +900,11 @@ static void midi_in(uint32_t pkt)
         v = src_held[src];
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
             if ((v >> k) & 1) {
+#if X0X_DEV_WOBBLE
+                synth_off(&bass_slot[k]);
+#else
                 bass303_note_off(&b303[k]);
+#endif
                 bass_held[k] = 0;
             }
         brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
@@ -938,7 +980,11 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
+#if X0X_DEV_WOBBLE
+                synth_note(&bass_slot[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+#else
                 bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+#endif
                 chi_damp_latched[k] = 0;
                 bass_held[k] = d1;
                 v = 1 << k;                     /* the input of the last note-on holds the note */
@@ -962,7 +1008,11 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 {
     int k, r = brk.keys << 8 & 0xFF00;
     for (k = 0; k < NBASS; k++)
+#if X0X_DEV_WOBBLE
+        r |= synth_active(&bass_slot[k]) ? 1 << k : 0;
+#else
         r |= b303[k].gate ? 1 << k : 0;
+#endif
     return r;
 }
 #endif
@@ -998,7 +1048,11 @@ static void drain(void)
                     chi_arp_run_hold(&chi_arp_run[a], (uint8_t)b, chi_arp_mode[a], chi_arp_range[a],
                                      chi_arp_speed[a]);
             } else {
+#if X0X_DEV_WOBBLE
+                synth_note(&bass_slot[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+#else
                 bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+#endif
             }
             chi_damp_latched[a] = 0;
             bass_held[a] = (uint8_t)b;
@@ -1268,6 +1322,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         PROF_ADD(PR_909, p9);
     }
+#if !X0X_DEV_WOBBLE
     for (b = 0; b < NBASS; b++) {
         PROF_T(pb);
         idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
@@ -1276,6 +1331,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             bfx_shape(PART_303A + b, bb[b], 0, 0, 0, 1, (int)n);
         PROF_ADD(2 + b, pb);
     }
+#endif
     pt = plat_cycles();
 #if X0X_DEBUG
     eng_dbg_nsub++;
@@ -1305,11 +1361,28 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
+#if X0X_DEV_WOBBLE
+        PROF_T(pb);
+        idle[b] = synth_idle(&bass_slot[b]);
+        if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
+            synth_render(&bass_slot[b], bb[b], (int)n);
+        PROF_ADD(2 + b, pb);
+#endif
         if (idle[b])
             continue;
         mix_targets(p, mix_level[p], solo_parts);
-        add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
-        add_glide(dry_r, bb[b], &mix_glide[p][GL_R], n);
+#if X0X_DEV_WOBBLE
+        if (bass_slot[b].active.ops == &wobble_foundation_ops) {
+            add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
+            add_glide(dry_r, bb[1 - b], &mix_glide[p][GL_R], n);
+            for (i = 0; i < n; ++i)
+                bb[b][i] = .5f * (bb[b][i] + bb[1 - b][i]);
+        } else
+#endif
+        {
+            add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
+            add_glide(dry_r, bb[b], &mix_glide[p][GL_R], n);
+        }
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
@@ -1356,6 +1429,19 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
+#if X0X_DEV_WOBBLE
+        for (p = 0; p < NBASS; ++p) {
+            if (synth_boundary(&bass_slot[p])) {
+                bass_held[p] = 0;
+                src_held[0] &= (uint16_t)~(1u << p);
+                src_held[1] &= (uint16_t)~(1u << p);
+            }
+            if (bass_slot[p].running != !!seq.playing) {
+                bass_slot[p].running = !!seq.playing;
+                bass_slot[p].active.ops->transport(bass_slot[p].active.context, !!seq.playing);
+            }
+        }
+#endif
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
@@ -1651,6 +1737,12 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     drum808_init(&d808);
     bass303_init(&b303[0]);
     bass303_init(&b303[1]);
+#if X0X_DEV_WOBBLE
+    synth_init(&bass_slot[0], synth303_binding(&b303[0]));
+    synth_init(&bass_slot[1], synth303_binding(&b303[1]));
+    wobble_foundation_init(&dev_wobble);
+    synth_request(&bass_slot[0], wobble_foundation_binding(&dev_wobble), 0);
+#endif
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);
