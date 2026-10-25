@@ -70,8 +70,8 @@ Production `main` and production GitHub Pages: **unchanged**. No device flash fr
 
 ## Successor create (API)
 
-`POST https://api.cursor.com/v1/agents` attempted with no `CURSOR_API_KEY` (see attempt JSON). Coordinator CreateAgent required for owner-visible Stage 7. Do not create another Stage 7 once an owner-visible id is recorded.
+`POST https://api.cursor.com/v1/agents` attempted with no `CURSOR_API_KEY` (see attempt JSON). Coordinator CreateAgent launched owner-visible Stage 7 `bc-a7d005ad-7a34-54fb-bd61-45fd0eb0179d` (https://cursor.com/agents/bc-a7d005ad-7a34-54fb-bd61-45fd0eb0179d; desktop; `F11 nightly publish`; startingRef `cursor/f11-bf007-stage5-0e72` @ `080057d4`). Do not create another Stage 7. PR #266 subscribed; local-env review `bc-69da0845-d31b-58bf-b28f-b95fdaa51d1b`.
 
 ## Overall
 
-Merge gate complete for nightly refusal + stage-6 prompt save. Validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA. Owner-visible Stage 7 successor id recorded when coordinator CreateAgent returns it.
+Merge gate complete for nightly refusal + stage-6 prompt save. Owner-visible Stage 7 successor id recorded on the handoff. Validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA.
