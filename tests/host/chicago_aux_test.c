@@ -111,7 +111,9 @@ static void test_bend_on_note(void)
 
 static void test_gate_without_engine_damper(void)
 {
-    /* Damper policy lives in engine (live paths). DSP note_off always releases. */
+    /* Damper policy lives in engine (live paths). DSP note_off always releases.
+     * Engine invariant (Bugbot #342): pattern s_bon/s_boff and arp steps clear
+     * chi_damp_latched so pedal-up cannot cut a sequencer gate. */
     bass303_t b;
     bass303_init(&b);
     bass303_note_on(&b, 60, 0, 0);
