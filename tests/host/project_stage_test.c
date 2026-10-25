@@ -452,6 +452,128 @@ static void test_storage_rejection(void)
     check_live_unchanged();
 }
 
+/* Encode the actual pre-stream format, with valid current sound/settings so
+ * these cases isolate legacy arrangement completeness rather than migrations. */
+static void store_legacy_project(int arrangement)
+{
+    uint8_t payload[PLAT_STORE_MAX], raw[ARR1_LEN];
+    pattern1_t old;
+    unsigned h, p, k, v, i;
+    REQUIRE(save_obj(OBJ_SET, &proj.set, sizeof proj.set) == 0);
+    REQUIRE(save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0);
+    for (h = 0; h < 2; h++) {
+        put32(payload, PROJ_FORMAT);
+        for (p = 0; p < 8; p++) {
+            const pattern_t *pat = &proj.pat[h * 8 + p];
+            memset(&old, 0, sizeof old);
+            for (k = 0; k < NKIT; k++) {
+                for (v = 0; v < NDRUM; v++)
+                    old.drum[k].hit[v] = pat->drum[k].hit[v][0];
+                old.drum[k].accent = pat->drum[k].accent[0];
+                old.drum[k].len = pat->drum[k].len;
+                old.drum[k].rate = pat->drum[k].rate;
+            }
+            for (k = 0; k < NBASS; k++) {
+                for (i = 0; i < NSTEPS1; i++) {
+                    old.bass[k].step[i].note = pat->bass[k].step[i].note;
+                    old.bass[k].step[i].flags = pat->bass[k].step[i].flags;
+                }
+                old.bass[k].len = pat->bass[k].len;
+                old.bass[k].rate = pat->bass[k].rate;
+                old.bass[k].dir = pat->bass[k].dir;
+                old.bass[k].transpose = pat->bass[k].transpose;
+                old.bass[k].gen = pat->bass[k].gen;
+            }
+            old.brk.steps = pat->brk.steps;
+            memcpy(old.brk.set, pat->brk.set, sizeof old.brk.set);
+            old.brk.slot_a = pat->brk.slot_a;
+            old.brk.slot_b = pat->brk.slot_b;
+            old.swing = pat->swing;
+            memcpy(payload + 4 + p * sizeof old, &old, sizeof old);
+        }
+        REQUIRE(st_save(h ? OBJ_PAT1 : OBJ_PAT0, payload, 4u + 8u * sizeof old) == 0);
+    }
+    if (!arrangement)
+        return;
+    memcpy(raw, &proj.arr.song, sizeof(song_t));
+    for (k = 0; k < NLANE; k++) {
+        lane1_t old_lane;
+        const lane_t *l = &proj.arr.lane[k];
+        memset(&old_lane, 0, sizeof old_lane);
+        old_lane.used = l->used;
+        old_lane.gen = l->gen;
+        old_lane.pat = l->pat;
+        old_lane.part = l->part;
+        old_lane.t = l->t;
+        old_lane.v = l->v;
+        old_lane.i = l->i;
+        memcpy(old_lane.val, l->val, NSTEPS1);
+        memcpy(raw + sizeof(song_t) + k * sizeof old_lane, &old_lane, sizeof old_lane);
+    }
+    REQUIRE(save_obj(OBJ_SONG, raw, ARR1_A) == 0);
+    REQUIRE(save_obj(OBJ_MOTION, raw + ARR1_A, ARR1_LEN - ARR1_A) == 0);
+}
+
+static void test_legacy_arrangement(void)
+{
+    static const uint32_t objects[] = {OBJ_SONG, OBJ_MOTION};
+    uint8_t payload[PLAT_STORE_MAX];
+    unsigned k, fault;
+    fixture("legacy arrangement widens without changing live data or samples");
+    proj.arr.song.len = 1;
+    proj.arr.song.bar[0].pat[PART_303B] = 15;
+    proj.arr.lane[NLANE - 1].used = 1;
+    proj.arr.lane[NLANE - 1].pat = 15;
+    proj.arr.lane[NLANE - 1].part = PART_303B;
+    proj.arr.lane[NLANE - 1].t = T_303;
+    proj.arr.lane[NLANE - 1].v = 1;
+    proj.arr.lane[NLANE - 1].i = 0;
+    memset(proj.arr.lane[NLANE - 1].val, MOT_NONE, NSTEPS);
+    proj.arr.lane[NLANE - 1].val[NSTEPS1 - 1] = 53;
+    store_legacy_project(1);
+    snapshot();
+    CHECK(project_load_stage() == 0);
+    CHECK(project_stage.arr.song.len == 1);
+    CHECK(project_stage.arr.song.bar[0].pat[PART_303B] == 15);
+    CHECK(project_stage.arr.lane[NLANE - 1].val[NSTEPS1 - 1] == 53);
+    for (k = NSTEPS1; k < NSTEPS; k++)
+        CHECK(project_stage.arr.lane[NLANE - 1].val[k] == MOT_NONE);
+    check_live_unchanged();
+
+    fixture("pre-arrangement projects retain compatibility when both objects unavailable");
+    store_legacy_project(0);
+    snapshot();
+    CHECK(project_load_stage() == 0);
+    CHECK(project_stage.arr.song.len == 0);
+    for (k = 0; k < NLANE; k++)
+        CHECK(!project_stage.arr.lane[k].used);
+    check_live_unchanged();
+
+    for (k = 0; k < sizeof objects / sizeof objects[0]; k++)
+        for (fault = 0; fault < 3; fault++) {
+            int n;
+            fixture("incomplete or malformed legacy arrangement refuses staged load");
+            store_legacy_project(1);
+            n = st_load(objects[k], payload, sizeof payload);
+            REQUIRE(n > 4);
+            if (fault == 0) {
+                /* Simulate one unavailable object; both A/B copies are absent. */
+                REQUIRE(st_erase(st_sector(objects[k], 0)) == 0);
+                REQUIRE(st_erase(st_sector(objects[k], 1)) == 0);
+            } else {
+                if (fault == 2)
+                    put32(payload, PROJ_FORMAT + 1u);
+                REQUIRE(st_save(objects[k], payload, (uint32_t)n - (fault == 1)) == 0);
+            }
+            musical_fixture();
+            seq.bpm = 231.0f;
+            packed_len = 4321u;
+            snapshot();
+            CHECK(project_load_stage() < 0);
+            check_live_unchanged();
+        }
+}
+
 static uint32_t random_state = 0x1C0369E7u;
 static uint32_t next_random(void)
 {
@@ -523,6 +645,7 @@ int main(void)
     test_semantic_rejection();
     test_storage_rejection();
     test_capacity_rejection();
+    test_legacy_arrangement();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }
