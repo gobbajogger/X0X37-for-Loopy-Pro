@@ -1,0 +1,265 @@
+{
+  "evidence_revision": "performance-pr93-rch-buffer-host-tradeoff-20261024-r7",
+  "role": "LoopyX0X37 Performance Engineering",
+  "stage": "HOST_PERFORMANCE_RESEARCH_SOURCE_ONLY",
+  "outcome": "REJECTED_EXPERIMENT_PRODUCER_TESTED_NO_FIRMWARE_CHANGE",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "consumed_commit": "1074d667c106472bb3f05db571abb4b9fea13ceb",
+  "consumed_root_tree": "4f6c4734f20a33d79e248860622ef77689008fa7",
+  "unchanged_firmware_tree": "a87a83e15116422eed84528d95f52ddef5029927",
+  "source_blobs": {
+    "firmware/src/dsp/breaks.c": "0fcdbe65b674dea3becb26fc265cb2514908f1a5",
+    "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264"
+  },
+  "test_command_exits": [
+    {
+      "command": "bash tests/host/run_breaks_renderer_adversarial.sh in each isolated RCH=512/256/128 root",
+      "exit": [
+        0,
+        0,
+        0
+      ],
+      "coverage": "GCC/Clang optimized and address+UB sanitizer each, 20 scenarios 2334720 frames each configuration; positive bit-exact all; selector negative expected 2; corrupted PCM negative rejected"
+    },
+    {
+      "command": "python3 tests/host/replay_rch_sweep.py --trials 2 --skip-adversarial",
+      "exit": 0,
+      "coverage": "6 optimized GCC/Clang compilations, 48 native 1048576-frame workloads, all hashes matched"
+    },
+    {
+      "command": "python3 tests/host/replay_rch_sweep.py --trials 1 --skip-adversarial",
+      "exit": 0,
+      "coverage": "valid exact repository-layout prospective test-file runner, 24 workload samples"
+    },
+    {
+      "command": "python3 measure_reverse_steady.py",
+      "exit": "TIMEOUT",
+      "coverage": "partial 86/120 observations; NOT marked PASS, 54 balanced completed reverse samples extracted only"
+    },
+    {
+      "command": "three trial forward control using six compiled binaries",
+      "exit": 0,
+      "coverage": "18 observations, exact matching synthetic output"
+    }
+  ],
+  "host_struct_sizes_bytes": {
+    "RCH512": 6296,
+    "RCH256": 5272,
+    "RCH128": 4760
+  },
+  "host_native_3trial_reverse_summary": [
+    {
+      "n": 4096,
+      "cc": "gcc",
+      "rch": 512,
+      "median_ms": 5.611,
+      "pct_vs512": 0.0,
+      "mad_ms": 0.436,
+      "trace_hash": "d14b635eb0498ab7",
+      "trial_count": 3
+    },
+    {
+      "n": 4096,
+      "cc": "gcc",
+      "rch": 256,
+      "median_ms": 5.727,
+      "pct_vs512": 2.07,
+      "mad_ms": 0.07,
+      "trace_hash": "d14b635eb0498ab7",
+      "trial_count": 3
+    },
+    {
+      "n": 4096,
+      "cc": "gcc",
+      "rch": 128,
+      "median_ms": 5.777,
+      "pct_vs512": 2.96,
+      "mad_ms": 0.095,
+      "trace_hash": "d14b635eb0498ab7",
+      "trial_count": 3
+    },
+    {
+      "n": 4096,
+      "cc": "clang",
+      "rch": 512,
+      "median_ms": 6.558,
+      "pct_vs512": 0.0,
+      "mad_ms": 0.01,
+      "trace_hash": "d14b635eb0498ab7",
+      "trial_count": 3
+    },
+    {
+      "n": 4096,
+      "cc": "clang",
+      "rch": 256,
+      "median_ms": 6.206,
+      "pct_vs512": -5.37,
+      "mad_ms": 0.279,
+      "trace_hash": "d14b635eb0498ab7",
+      "trial_count": 3
+    },
+    {
+      "n": 4096,
+      "cc": "clang",
+      "rch": 128,
+      "median_ms": 6.015,
+      "pct_vs512": -8.28,
+      "mad_ms": 0.008,
+      "trace_hash": "d14b635eb0498ab7",
+      "trial_count": 3
+    },
+    {
+      "n": 176400,
+      "cc": "gcc",
+      "rch": 512,
+      "median_ms": 18.885,
+      "pct_vs512": 0.0,
+      "mad_ms": 0.383,
+      "trace_hash": "e0a9a5a2b7d86f4d",
+      "trial_count": 3
+    },
+    {
+      "n": 176400,
+      "cc": "gcc",
+      "rch": 256,
+      "median_ms": 23.455,
+      "pct_vs512": 24.2,
+      "mad_ms": 0.1,
+      "trace_hash": "e0a9a5a2b7d86f4d",
+      "trial_count": 3
+    },
+    {
+      "n": 176400,
+      "cc": "gcc",
+      "rch": 128,
+      "median_ms": 26.893,
+      "pct_vs512": 42.4,
+      "mad_ms": 0.614,
+      "trace_hash": "e0a9a5a2b7d86f4d",
+      "trial_count": 3
+    },
+    {
+      "n": 176400,
+      "cc": "clang",
+      "rch": 512,
+      "median_ms": 20.863,
+      "pct_vs512": 0.0,
+      "mad_ms": 1.035,
+      "trace_hash": "e0a9a5a2b7d86f4d",
+      "trial_count": 3
+    },
+    {
+      "n": 176400,
+      "cc": "clang",
+      "rch": 256,
+      "median_ms": 26.722,
+      "pct_vs512": 28.08,
+      "mad_ms": 4.062,
+      "trace_hash": "e0a9a5a2b7d86f4d",
+      "trial_count": 3
+    },
+    {
+      "n": 176400,
+      "cc": "clang",
+      "rch": 128,
+      "median_ms": 32.92,
+      "pct_vs512": 57.79,
+      "mad_ms": 0.276,
+      "trace_hash": "e0a9a5a2b7d86f4d",
+      "trial_count": 3
+    },
+    {
+      "n": 2116800,
+      "cc": "gcc",
+      "rch": 512,
+      "median_ms": 556.414,
+      "pct_vs512": 0.0,
+      "mad_ms": 3.093,
+      "trace_hash": "a3c3483d9d1b6650",
+      "trial_count": 3
+    },
+    {
+      "n": 2116800,
+      "cc": "gcc",
+      "rch": 256,
+      "median_ms": 873.358,
+      "pct_vs512": 56.96,
+      "mad_ms": 1.389,
+      "trace_hash": "a3c3483d9d1b6650",
+      "trial_count": 3
+    },
+    {
+      "n": 2116800,
+      "cc": "gcc",
+      "rch": 128,
+      "median_ms": 1616.094,
+      "pct_vs512": 190.45,
+      "mad_ms": 3.055,
+      "trace_hash": "a3c3483d9d1b6650",
+      "trial_count": 3
+    },
+    {
+      "n": 2116800,
+      "cc": "clang",
+      "rch": 512,
+      "median_ms": 740.49,
+      "pct_vs512": 0.0,
+      "mad_ms": 21.517,
+      "trace_hash": "a3c3483d9d1b6650",
+      "trial_count": 3
+    },
+    {
+      "n": 2116800,
+      "cc": "clang",
+      "rch": 256,
+      "median_ms": 1121.981,
+      "pct_vs512": 51.52,
+      "mad_ms": 22.249,
+      "trace_hash": "a3c3483d9d1b6650",
+      "trial_count": 3
+    },
+    {
+      "n": 2116800,
+      "cc": "clang",
+      "rch": 128,
+      "median_ms": 1879.245,
+      "pct_vs512": 153.78,
+      "mad_ms": 12.556,
+      "trace_hash": "a3c3483d9d1b6650",
+      "trial_count": 3
+    }
+  ],
+  "full_original_5trial_parent_status": "TIMED_OUT_AFTER_86_OBSERVATIONS_NOT_A_PASS",
+  "artifact": {
+    "private_main_library_destination": "/LoopyX0X37-PR93-RCH-Cache-Tradeoff-Host-R7-20261024.zip",
+    "sha256": "1cf23ae3bd618b1aae03c428fb87a3f3d42e87d0bf806d574e78b6aba45d05a9",
+    "bytes": 15882,
+    "includes_no_firmware_or_sdk": true,
+    "logs_sha256": {
+      "adversarial_rch512.log": "a9014ca4141a89b5d01b3e2a95d1dd4e581f1b848bbb22619864dd308757bbb3",
+      "adversarial_rch256.log": "a9014ca4141a89b5d01b3e2a95d1dd4e581f1b848bbb22619864dd308757bbb3",
+      "adversarial_rch128.log": "a9014ca4141a89b5d01b3e2a95d1dd4e581f1b848bbb22619864dd308757bbb3",
+      "reverse_steady_summary.json": "b9cbe443b6ed093d2ad6cc366a0486dd7927f1f0254fe0b6434754d2ac86f027",
+      "reverse_steady_run.log": "c585c01bda7672b9f3b002fcc1cfc6c7a5453cd5cdc5e7508eaf376b8f82ceb2",
+      "portable_replay_evidence.json": "9ee75a1745965f4d6b778f9dc31a7e8e0a77b80b04220bae8f77ff5e2935b940",
+      "checked_repo_layout_replay.json": "c7e0960a2a7fc7b0e710891cdcf9e9e036463a8f0af6d66337499758fae1dd10",
+      "forward_steady_control.json": "218d55f223c79d08a34d4651182b78cd7a34d2b3a4b54950236608a559d2c177"
+    }
+  },
+  "unrun": [
+    "physical target CPU/ISR/XRUN",
+    "native compiler Elite/Pro for rejected throwaway RCH variants",
+    "target pool/RAM/flash for throwaway RCH variants",
+    "independent full-root PR93 QA",
+    "device testing",
+    "site/publication"
+  ],
+  "unchanged_existing_performance_fw_build_scope": "Earlier PR93 real Elite and Pro pinned DEV BUILD_ONLY exit0, 8308B pool free vs required 8192, source compiled inputs unchanged; neither re-executed nor promoted here",
+  "decision": "Keep BRK_RCH=512, reject cache-size reductions for performance, do not modify first NIGHTLY champion",
+  "next": {
+    "owner": "LoopyX0X37 Independent QA",
+    "action": "Inspect PR93 exact head, independent suite/negative review, and review new host-only test evidence",
+    "remaining_gate": "Independent exact-root QA, separate Safe Merge acceptance later, independent first NIGHTLY candidate not ready; no device PASS"
+  }
+}

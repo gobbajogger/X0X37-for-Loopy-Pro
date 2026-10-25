@@ -1,0 +1,208 @@
+{
+  "benchmark_runner_git_sha": null,
+  "benchmark_runner_sha256": "b2a5bbd7a876d1cf09c11fcc3de5806ab96156258d8c58a35e0b4fb67acb8d95",
+  "compiled_firmware_tree": "75723d43185b1b7aeeaf4c50615e4381ce623a6c",
+  "coverage": {
+    "callbacks_per_executable": 3840,
+    "cases_per_executable": 48,
+    "comparisons": [
+      "process_cpu",
+      "monotonic"
+    ],
+    "compiler": [
+      "gcc",
+      "clang"
+    ],
+    "pcm_and_control_identity": "PASS all 44 main pairwise program runs, 48 cases each",
+    "repetitions_per_clock": 11,
+    "stop_silent": "PASS native producer scope"
+  },
+  "inference": "No reproducible whole renderer latency improvement. R23 helper microbenchmark does not establish device benefit.",
+  "limits": [
+    "unstable shared host frequencies/scheduling",
+    "synthetic ADPCM fixture",
+    "same symmetric timer/IMA instrumentation"
+  ],
+  "negative_controls": {
+    "existing_output_refusal": {
+      "exit": 2,
+      "expected_exit": 2,
+      "marker_preserved": true,
+      "stderr": "usage: run_breaks_r25_renderer_latency.py [-h] --before-root BEFORE_ROOT\n                                          --after-root AFTER_ROOT\n                                          --output-dir OUTPUT_DIR\n                                          [--repetitions REPETITIONS]\n                                          [--clock {process_cpu,monotonic}]\nrun_breaks_r25_renderer_latency.py: error: will not overwrite evidence output\n",
+      "stdout": ""
+    },
+    "invalid_repetition_count": {
+      "exit": 2,
+      "expected_exit": 2,
+      "output_created": false,
+      "stderr": "usage: run_breaks_r25_renderer_latency.py [-h] --before-root BEFORE_ROOT\n                                          --after-root AFTER_ROOT\n                                          --output-dir OUTPUT_DIR\n                                          [--repetitions REPETITIONS]\n                                          [--clock {process_cpu,monotonic}]\nrun_breaks_r25_renderer_latency.py: error: repetitions must be 3..15\n",
+      "stdout": ""
+    },
+    "mutated_dependency": {
+      "exit": 1,
+      "expected_exit": 1,
+      "output_created": false,
+      "stderr": "FAIL: after invalid blob firmware/src/dsp/ima_adpcm.h: 09a2dda77158eb4e86c9265e4984813456ee6215 != 9ba16e4fe9f0cb643c95a68d540042ab2581d4de\n",
+      "stdout": ""
+    },
+    "mutated_production_code": {
+      "exit": 1,
+      "expected_exit": 1,
+      "output_created": false,
+      "stderr": "FAIL: after invalid blob firmware/src/dsp/breaks.c: c4095ac9ecb7998d0b75a693ec2a4814d493cb1d != 01e0e759d2b8be3b028e0e25d4f93348a36aeb46\n",
+      "stdout": ""
+    }
+  },
+  "observed_at_utc": "2026-10-25T07:32:30.698251+00:00",
+  "owner_role": "Performance Engineering",
+  "pending_owner_actions": [
+    "Hourly Build exact R23 compiled closure",
+    "Independent QA exact current PR93 revision"
+  ],
+  "pr": 93,
+  "result_cpu": {
+    "clang": {
+      "all_median_ms": {
+        "after": 40.877,
+        "before": 39.69
+      },
+      "forward_median_ms": {
+        "after": 14.048,
+        "before": 14.195
+      },
+      "paired_reverse_speedup_median_percent": -3.826,
+      "paired_reverse_speedup_percent": [
+        5.883,
+        7.865,
+        -7.383,
+        -59.276,
+        -3.826,
+        -3.281,
+        -0.125,
+        -16.823,
+        -0.374,
+        -3.83,
+        -10.907
+      ],
+      "pcm_sha256": "b176bc84b11fad61010d715bc30d0ec5235953e0bc916290ba49630e95497cf7",
+      "producer_only": true,
+      "reverse_median_ms": {
+        "after": 26.233,
+        "before": 24.984
+      },
+      "runs": 11
+    },
+    "gcc": {
+      "all_median_ms": {
+        "after": 23.555,
+        "before": 23.794
+      },
+      "forward_median_ms": {
+        "after": 5.201,
+        "before": 5.418
+      },
+      "paired_reverse_speedup_median_percent": -1.1,
+      "paired_reverse_speedup_percent": [
+        -1.1,
+        6.594,
+        0.287,
+        1.953,
+        4.476,
+        -14.095,
+        -21.22,
+        -11.534,
+        -7.286,
+        0.141,
+        -7.89
+      ],
+      "pcm_sha256": "b176bc84b11fad61010d715bc30d0ec5235953e0bc916290ba49630e95497cf7",
+      "producer_only": true,
+      "reverse_median_ms": {
+        "after": 18.846,
+        "before": 18.199
+      },
+      "runs": 11
+    }
+  },
+  "result_cpu_sha256": "c066c66684ee7057ffe51dfb693f14d8e3d5b89ba913107a3ac1bf611e0562c0",
+  "result_monotonic": {
+    "clang": {
+      "all_median_ms": {
+        "after": 39.099,
+        "before": 38.838
+      },
+      "forward_median_ms": {
+        "after": 13.589,
+        "before": 13.099
+      },
+      "paired_reverse_speedup_median_percent": -4.735,
+      "paired_reverse_speedup_percent": [
+        12.208,
+        -5.47,
+        -5.394,
+        -4.796,
+        1.269,
+        8.381,
+        -4.735,
+        -4.226,
+        -5.708,
+        -14.592,
+        2.816
+      ],
+      "pcm_sha256": "b176bc84b11fad61010d715bc30d0ec5235953e0bc916290ba49630e95497cf7",
+      "producer_only": true,
+      "reverse_median_ms": {
+        "after": 25.51,
+        "before": 25.739
+      },
+      "runs": 11
+    },
+    "gcc": {
+      "all_median_ms": {
+        "after": 22.403,
+        "before": 21.909
+      },
+      "forward_median_ms": {
+        "after": 5.133,
+        "before": 4.914
+      },
+      "paired_reverse_speedup_median_percent": -5.892,
+      "paired_reverse_speedup_percent": [
+        -5.892,
+        -6.728,
+        10.019,
+        -9.674,
+        2.714,
+        -6.414,
+        -8.496,
+        -0.266,
+        6.653,
+        -6.374,
+        4.871
+      ],
+      "pcm_sha256": "b176bc84b11fad61010d715bc30d0ec5235953e0bc916290ba49630e95497cf7",
+      "producer_only": true,
+      "reverse_median_ms": {
+        "after": 17.114,
+        "before": 16.483
+      },
+      "runs": 11
+    }
+  },
+  "result_monotonic_sha256": "fd410077df0372e36a664ae8470d5f1ca2afd14073ba278ce738104d5675a4a8",
+  "schema": "loopyx0x37-performance-producer-host-benchmark-r25-v1",
+  "source_commit": "a7f56778cf24a1c933a8f507eaf0728a7f524614",
+  "source_git_blob_after": "01e0e759d2b8be3b028e0e25d4f93348a36aeb46",
+  "source_git_blob_before": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "source_root_tree": "d99ceb058738dbaa76abbe18d08c7fe26d4c3557",
+  "unrun": [
+    "original-source sanitizers",
+    "Elite/Pro/controller target compilation",
+    "Independent QA",
+    "hardware callback CPU/XRUN",
+    "browser/OTA/installer"
+  ],
+  "workflow_checkpoint_helper_sha256": "21fee28e9911dd1164a2c730a926a2b38092f6cbc515dbcfb2e89878076f9beb",
+  "workflow_skill_sha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "workflow_trial_commit": "e2482a5039527195e346925c751ac3e3a333ada9"
+}
