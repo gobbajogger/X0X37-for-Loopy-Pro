@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "stage": "bounded original wobble native flash recovery",
+  "state": "DELIVERED_APP_FIT_AND_SCOPED_HOST_QA",
+  "baseCommit": "6391d0ec834a983609bdb5e5e1bdd8d91f05dc8d",
+  "baseTree": "973155edf20824585936f34166f9c153790195e7",
+  "testedCodeCommit": "fa26655c310a067ade76e5a5d08746f97bf34d1f",
+  "testedCodeTree": "5617b36e7e0a119b02bbcbe7f28c34d7225d33b3",
+  "canonicalContractRevision": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "canonicalContractSha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "config": {
+    "board": "smk37",
+    "models": [
+      "elite",
+      "pro"
+    ],
+    "X0X_DEV_PADCAL": 1,
+    "X0X_DEV_WOBBLE": 1,
+    "target": "pi32v2/r3",
+    "engineOptimization": "-O2 with explicit noinline and cold minsize hints",
+    "dspOptimization": "unchanged -Oz",
+    "network": "none",
+    "vendorMounts": "read-only"
+  },
+  "toolSha256": {
+    "pi32v2/bin/clang": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "pi32v2/bin/ld": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9",
+    "common/bin/objdump": "f7e449e2c8001d5ed4493a45d1f5f304c8910418e4074acdc8715079ef64e08a",
+    "common/bin/objcopy": "295151226e28891115c97262e6460a06fe67fc0753858e0df3234eb000ea6e66"
+  },
+  "sdkRevision": "d179b4484759423312073f5fbb232501aa491047",
+  "imageId": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "sourceSha256": {
+    "firmware/src/app/engine.c": "f94821ae58692e0e8b6c71edbabf11ab33accf71ffd832bca4611189df856e5b",
+    "firmware/src/dsp/synth_engine.h": "fd64dedab31737ef215ff478462efaf7f896f1851f205886a8be10c253851f61",
+    "firmware/src/dsp/wobble_backend.h": "90904505c8ed8b3a0781af684596649f8d877f91ea9606f83ebc10f6c95c76b9",
+    "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
+    "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+    "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43",
+    "experiments/wobble/wobble.h": "cdb22d828f029e02a7d8b58cc02426626d6dc3faaf725fabad4ab9c64b09f751",
+    "experiments/wobble/blep.h": "b95e129e11b13b1b56b34ac8be253f6c2e0f04fba11b4874d78dfd483749f4a3",
+    "firmware/src/dsp/fastmath.h": "30763cfdecd73d92a94e872ac2731d2dfadb5d9f2537a9f0712ed895d435bd46",
+    "firmware/app.ld": "28a4d11dd20d221f01303587e6e9217e2ae85798e896e1bc559400769e7dae1d"
+  },
+  "generatedHeaderSha256": {
+    "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+    "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+    "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+    "felucca_font.h": "8529407f76ca5ac703c70575505779515ebc8b815a7dac4195ba66c9b33efcfe"
+  },
+  "native": {
+    "linkExit": {
+      "elite": 0,
+      "pro": 0
+    },
+    "postcheckExit": {
+      "elite": 0,
+      "pro": 0
+    },
+    "finalPipelineExit": 0,
+    "xipBefore": 553388,
+    "xipAfter": 552556,
+    "recoveredBytes": 832,
+    "xipLimit": 552672,
+    "xipSpare": 116,
+    "text": 548080,
+    "ram_text": 3500,
+    "c1_text": 608,
+    "data": 368,
+    "bss": 97700,
+    "ramOccupancyIncludingAlignment": 98084,
+    "ramLimit": 98304,
+    "ramSpare": 220,
+    "pool": 335740,
+    "poolLimit": 344064,
+    "poolSpare": 8324,
+    "poolReserve": 8192,
+    "poolSpareAboveReserve": 132,
+    "outputs": {
+      "elite": {
+        "build/smk37-elite/x0x.elf": {
+          "sha256": "2a34d44f4b9a819a36c6229d1f5b498df9a69b0ad11d4741e8a5c18ab5af52f2",
+          "size": 602780
+        },
+        "build/smk37-elite/x0x.bin": {
+          "sha256": "f724fb891b5bcfc2df79d9532d2b3c1351e8c100c173e8cef3773f0f3d1363e4",
+          "size": 552556
+        },
+        "build/smk37-elite/o2/app_engine.o": {
+          "sha256": "04c1ac88f1340e51890188beef314a7375128f36661cc68eec4f8549f226ef98",
+          "size": 466752
+        },
+        "build/cost-recovery/elite.map": {
+          "sha256": "2e2e260990af2cf018b2e960347192d29b00dd66dbd678ef4c6657d5e7fb95a6",
+          "size": 107270
+        }
+      },
+      "pro": {
+        "build/smk37/x0x.elf": {
+          "sha256": "795655523940d604cb9bb1d8a5dffe3635f1425c70dbf4e16df712ce0bab3553",
+          "size": 602772
+        },
+        "build/smk37/x0x.bin": {
+          "sha256": "2516d90dd8a8576df8a6653c66d323671aba8ea5e80e05d099c65286687c0475",
+          "size": 552556
+        },
+        "build/smk37/o2/app_engine.o": {
+          "sha256": "04c1ac88f1340e51890188beef314a7375128f36661cc68eec4f8549f226ef98",
+          "size": 466752
+        },
+        "build/cost-recovery/pro.map": {
+          "sha256": "2b782690974a1744f12d7f25543ab77347517671389fa760ae68e8b37b4c2f54",
+          "size": 101600
+        }
+      }
+    },
+    "unchangedObjectClosure": "reused-object-closure.json; hashes match predecessor per-object receipt",
+    "barrierFinalObjectEquivalence": true,
+    "baselineFullLink": "NOT_ESTABLISHED: inherited uncertain foundation action was not retried; comparison is exact combined failed-link base, not foundation full image"
+  },
+  "host": {
+    "independent": "PASS_SCOPED",
+    "legacy303Samples": 526336,
+    "stateChecks": 70509,
+    "independentOracleSamples": 394752,
+    "defaultWavSha256": "a75af3fc060631d1140b3970ae7a7a492e9937a60f88f852e4e4f85f8d7f7030",
+    "stereoSendWavSha256": "db993853d8f1fd2788a4a8d22247a4a048849da7723c50ef996c481b32e94d99",
+    "sanitizers": "PASS"
+  },
+  "stack": {
+    "engineRenderFrame": 88,
+    "renderSubFrame": 92,
+    "knownDirectChain": 280,
+    "knownMonoChain": 380,
+    "increaseFromInheritedKnownChain": 60,
+    "totalHighWater": "NOT_RUN",
+    "reservations": "UNCHANGED",
+    "targetCyclesAndDeadline": "NOT_RUN"
+  },
+  "gates": {
+    "linkedSoftDouble": "PASS_NONE",
+    "linkedRomReferences": "PASS_NONE",
+    "linkedRamText": "PASS_NO_CALLS",
+    "linkedBudgets": "PASS_BOTH_MODELS",
+    "mmioSourceScanner": "PASS_UNCHANGED_CHECKER",
+    "nativeFit": "APP_LINKED_POSTCHECKED_ONLY",
+    "controllerPairing": "NOT_RUN",
+    "package": "NOT_PRODUCED",
+    "devChecked": "NOT_CLAIMED",
+    "hardware": "NOT_RUN",
+    "soundFidelity": "INHERITED_FAIL",
+    "publicExposure": "NONE"
+  },
+  "refinementDeferred": {
+    "localCommit": "ad206210f4909f31f992475c58d0696fb2a115fb",
+    "remoteCommit": "9b94d154643a041586997353d32675a9fd1c4a4f",
+    "tree": "ffd67d7fdc1a18aa5bfbfb084796a89201128ae5",
+    "receiptSha256": "16c3f1aab0590b131eea30f5470d6e84fbf0f01f99d0a8d4129018efa4d3c0df",
+    "verified": "all recorded source/dependency hashes, HEAD and tree",
+    "reason": "Only116B linked flash margin and new60B known call-chain cost; preserve bounded recovery candidate. Native refined cost remains unknown and needs its own exact-source import/measurement, affected QA and timing/stack gates."
+  },
+  "presetInterfaceDisposition": {
+    "status": "DEFERRED_NO_ENGINE_HOOKS_IMPORTED",
+    "proposalPatchSha256": "68760d89417795ab1ed367a5b06a46f554c85f59af188fed7b096442545bd29b",
+    "nextAssignedOwner": "01a17326-7fdd-7613-8a6a-8ed3cc65a641",
+    "reason": "96B model plus runtime snapshots/bridge/code requires combined resource and controls-owner integration;116B flash and220B RAM are not a fit proof. No overlapping engine writer lease granted by this cost stage."
+  },
+  "ownership": "RELEASED_TO_COORDINATOR_01a1730a-4ccf-7430-b295-11692ec23090_FOR_ASSIGNMENT",
+  "successor": "NOT_CREATED; active outcome coordinator already assigned",
+  "requestedSettings": {
+    "reasoning": "medium",
+    "serviceTier": "unavailable omitted",
+    "observedReasoning": "not exposed"
+  },
+  "finishTimeUtc": "2026-10-25T13:07:17.260489+00:00",
+  "evidenceSha256": {
+    "qa-receipt.json": "cbec2e48b7506382f0cd3454ef1d0237f02306b0c18ec69dd4bd30034c3f4c02",
+    "final-native.py": "9ce7abef4505601d19aeb40eead90609d24c456a9ed618dac5ee47ac932b724a",
+    "backend.log": "aaa50b4d2f72cf77856b26ee7dbf7dbd46229ebaa9270d139cdeb7680a9093d0",
+    "final-native.json": "991b7366248627e1b857bb2b027dfd046327a68f69e30f9f1a9bb1feac360cb3",
+    "independent-review.md": "b8cb42cc215107ab2172c1a7000438695eec633815776a93c80262c7a361331f",
+    "state.log": "776dac8863682a9e19821f4c6285e97372329ba39b709d21872c5b297baef9dc",
+    "fragment_review.c": "b18fe393bffae50b20334805e3c3e7846d2ea14bdc0b2a0f32645faff9c907d8",
+    "probe.log": "9f1b36b5f1adf5b1f3137353afb1db8e64ea0dc035b671b43cea1481040f9a5e",
+    "probe-gain-helper.log": "c4293b188de37d39cdf0fa14747f0168261c72fb07eef0c5fb6ccdac8db08de0",
+    "barrier-review.json": "c00e288018250370f841aae8281bab9945577ca712118cdcc6a41c020bbe5265",
+    "final-native.log": "a4f4e007302eef5c409692137330b48a15d6a3a0992982d18c81a895f8679f11",
+    "probe-metadata.log": "9f1b36b5f1adf5b1f3137353afb1db8e64ea0dc035b671b43cea1481040f9a5e",
+    "pro-sections.txt": "be86cc159eff8660added6479168bd00b6c89f294db2752cd9218730a54ed44c",
+    "reused-object-closure.json": "684049a3575cc37c2f6c65d6932bb30224cac4ea5a9550a0e8eb2866a1243d1c",
+    "native-frames-review.json": "69895f3c4072e5869e1d64e24756144ab6ed2895d6b054e34a46195c0bf6333d",
+    "legacy303.log": "9cb8d71f7de18750545cc4a4904396b2e37eaf3ced70a334443baae071c0b813",
+    "barrier-final-qa-receipt.json": "3c0cc3621fbcd6cca7662da39c4a0b63bb2c3d13a5f8cf541dab362d5ac089e0",
+    "elite-sections.txt": "88bc52c700c422660be91bc7c140c962b9bc2c04f79de65024541df850442ed8",
+    "host-logs/fragments-normal.txt": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd",
+    "host-logs/barrier-final-compile-fragments-normal.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/final-default303-whole-app.txt": "fe0ca550177f57617ed35f6952d1baa54f92e683f0e7d2819df9dbf9871053d0",
+    "host-logs/compile-fragments-sanitized.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/final-stereo-sends.txt": "a01411b026628cae97195b0da7cafbfc3db7a6ea909d839aedb5ff77b1ccefe2",
+    "host-logs/barrier-final-compile-fragments-sanitized.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/barrier-final-default303.txt": "aaa59c5b99c3d24072041d3492f62f0e70ab503991522287f0bfab30e4f38169",
+    "host-logs/barrier-final-stereo.txt": "1f550821e70444539e0e2c4bad6fa22bf03ddc41f74b407ee17c2a8b53cd857d",
+    "host-logs/fragments-sanitized.txt": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd",
+    "host-logs/barrier-final-fragments-normal.txt": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd",
+    "host-logs/backend.txt": "aaa50b4d2f72cf77856b26ee7dbf7dbd46229ebaa9270d139cdeb7680a9093d0",
+    "host-logs/barrier-final-fragments-sanitized.txt": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd",
+    "host-logs/stereo-sends.txt": "6f2af18acc2c4a6e8a8a28c0d76de725f604b282ec140bc4284fc66253b07914",
+    "host-logs/compile-fragments-normal.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/state.txt": "776dac8863682a9e19821f4c6285e97372329ba39b709d21872c5b297baef9dc",
+    "host-logs/native303-registry.txt": "9cb8d71f7de18750545cc4a4904396b2e37eaf3ced70a334443baae071c0b813",
+    "host-logs/default303-whole-app.txt": "7a2410a8e9a30efd9256a168cecc37ec72510840e2ef6cc42e94d644bb6c1e92",
+    "host-logs/barrier-final-lifecycle-registry.txt": "9cb8d71f7de18750545cc4a4904396b2e37eaf3ced70a334443baae071c0b813",
+    "host-logs/barrier-final-backend.txt": "aaa50b4d2f72cf77856b26ee7dbf7dbd46229ebaa9270d139cdeb7680a9093d0"
+  },
+  "sdkTrackedCleanBeforeAndAfter": true,
+  "toolchainAndImageVerifiedBeforeAndAfter": true
+}

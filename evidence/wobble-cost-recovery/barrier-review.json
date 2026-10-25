@@ -1,0 +1,7 @@
+{
+  "mmioCheck": [],
+  "sourceScannerUnchangedSha256": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+  "equivalentHostAssemblySha256": "464bdb03b880da48d10348bd355ec91eca95081b6f4712d8a476e674621365ab",
+  "negativeControls": "nonempty asm and different clobber remain rejected by exact existing exception",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)"
+}

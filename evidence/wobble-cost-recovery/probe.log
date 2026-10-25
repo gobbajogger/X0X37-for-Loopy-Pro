@@ -1,0 +1,3 @@
+/opt/jieli/pi32v2/bin/ld: build/smk37-elite/x0x.elf section `.data' will not fit in region `XIP'
+/opt/jieli/pi32v2/bin/ld: region `XIP' overflowed by 44 bytes
+build: pi32v2/bin/ld failed
