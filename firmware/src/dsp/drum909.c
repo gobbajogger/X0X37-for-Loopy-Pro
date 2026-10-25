@@ -6,6 +6,7 @@
  * that explain WHY a constant is what it is live in 9W9 and are not repeated. */
 #define X0X_DRUM_TABLES_DEFINE              /* the shared lookup tables live here (x0x_drum_tables.h) */
 #include "drum909.h"
+#include "../x0x_cold.h"
 #include "x0x_drum_samples.h"
 #include "ima_adpcm.h"
 
@@ -257,7 +258,7 @@ static void d9_bt_init(d9_bt_t *v)
     d9_shape_prep(&v->shape, v->drive, v->dist_type);
 }
 
-void drum909_init(drum909_t *d)
+X0X_COLD void drum909_init(drum909_t *d)
 {
     uint8_t *p = (uint8_t *)d;
     for (unsigned i = 0; i < sizeof(*d); ++i)
