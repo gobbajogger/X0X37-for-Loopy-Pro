@@ -1,0 +1,8 @@
+Local stage-6 install prompt — BLOCKED (F13 BF-012 land).
+
+Do not flash. Land tip f4284ab8 has host PASS but no Elite/Pro DEV CHECKED (nightly tip bd2d9933 overflows XIP by 972 B; land tip by 1036 B). origin/nightly remains bd2d9933 without BF-012.
+
+When a later Stage 5 land succeeds with DEV CHECKED packages, replace this with a Stage-6 prompt for that landed SHA + package/controller hashes.
+
+LaunchAgent: leave pending. INSTALL BLOCKED.
+Merge evidence: evidence/f13-stage5/land/CHECKS.md
