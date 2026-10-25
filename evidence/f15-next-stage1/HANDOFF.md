@@ -5,6 +5,7 @@
 | Stage | 1 audit complete |
 | Agent | `bc-81498ba3-dd15-5d08-89cd-4bbec88134df` |
 | Branch | `cursor/f15-next-stage1-34df` |
+| Evidence PR | [#337](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/337) |
 | Audited published SHA | `b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a` |
 | Nightly tip (BF-034 witness) | `dea76784e302db8bfa2940d3a846aac176c68f6e` (#332+#334) |
 | Live | **LIVE_PAGE_MATCH** `nightly-b48cd800-dev` |
