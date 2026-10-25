@@ -18,3 +18,12 @@ See Project store:
 | Pro page sha256 | `d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb` |
 | Status | **awaiting Mac FF** (cloud 403) |
 | Mac worker | `83d16cde-07a3-5bce-81a3-2234761197a1` |
+
+## Mac agent (coordinator CreateAgent)
+
+| Field | Value |
+| --- | --- |
+| Mac agent id | `bc-36495868-6d21-55f1-9274-4c6b065bdc08` |
+| URL | https://cursor.com/agents/bc-36495868-6d21-55f1-9274-4c6b065bdc08 |
+| Worker | `83d16cde-07a3-5bce-81a3-2234761197a1` |
+| Status at record | launched; awaiting result `internal/f07-stage7-mac-pages-result.md` |
