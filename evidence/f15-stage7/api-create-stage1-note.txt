@@ -5,12 +5,12 @@ Tip-wait Stage 1 already RUNNING (owner-visible):
   id:  bc-deca3b7b-4de7-5203-b277-bd4f80284629
   url: https://cursor.com/agents/bc-deca3b7b-4de7-5203-b277-bd4f80284629
   name: Stage 1 tip wait
-Verified via cursor-cloud batch-fetch-details this turn. Do NOT CreateAgent a duplicate.
+Do NOT CreateAgent a duplicate.
 
 ASK_COORDINATOR — wake/hand off existing Stage 1 with:
   repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
   startingRef: cursor/f15-bf034-stage7-c144
-  prompt: full text of evidence/f15-stage7/SUCCESSOR-STAGE1.txt on that branch
+  prompt: full text of evidence/f15-stage7/SUCCESSOR-STAGE1.txt
   existing agent: bc-deca3b7b-4de7-5203-b277-bd4f80284629
 
-Only if that agent is gone/failed, CreateAgent once with the same startingRef + SUCCESSOR-STAGE1.txt.
+Bugbot: tip authenticated = b48cd800 (not 092589b8). No Pages rewind.

@@ -9,4 +9,4 @@ If CreateAgent is required (agent gone):
   startingRef: cursor/f15-bf034-stage7-c144
   prompt: full text of evidence/f15-stage7/SUCCESSOR-STAGE1.txt on that tip
 
-LIVE_PAGE_MATCH yes (CONFIRM_ONLY nightly-092589b8-dev Stage-4 hashes). Latest remains nightly-b48cd800-dev.
+LIVE_PAGE_MATCH yes for tip b48cd800 (NO-OP). Rewind to 092589b8: NO. Pages write: none.
