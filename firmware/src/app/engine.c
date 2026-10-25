@@ -30,7 +30,7 @@ seq_t seq;
 volatile uint8_t eng_step[NTRACKS];
 volatile uint16_t eng_peak[NPARTS];
 volatile uint8_t eng_hit[NKIT][NDRUM];
-int16_t eng_scope[SCOPE_N];
+int16_t eng_scope[SCOPE_N] X0X_POOL;
 volatile uint32_t eng_scope_w;
 
 static drum909_t d909 POOL;
