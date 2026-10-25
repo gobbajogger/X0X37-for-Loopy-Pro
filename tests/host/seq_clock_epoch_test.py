@@ -54,7 +54,7 @@ PREFIX = r'''
 #define FS 44100u
 
 typedef struct {
-    uint8_t req_start, req_cont, req_stop, req_rt, req_stop_rt, midi_req;
+    uint8_t req_start, req_cont, req_stop, req_rt, midi_req;
     uint8_t clk_src, playing, start_local;
     uint32_t ext_pending, ext_now, start_at, req_prior_ticks;
     uint32_t starts, continues, stops;
@@ -135,6 +135,42 @@ int main(void)
     seq_start(&s); apply_transport(&s);
     CHECK(s.starts == 1 && s.start_local, "INTERNAL still accepts local PLAY");
     CHECK(seq_midi_rt(&s, 0x80) == 0, "Note Off is not intercepted by MIDI realtime handler");
+
+
+    /* Boundary: most recent Start supersedes a queued Continue and owns its ticks. */
+    memset(&s, 0, sizeof s);
+    seq_midi_rt(&s, 0xFA);
+    for (int i = 0; i < 3; i++) seq_midi_rt(&s, 0xF8);
+    seq_midi_rt(&s, 0xFB);
+    seq_midi_rt(&s, 0xF8);
+    seq_start(&s);
+    seq_midi_rt(&s, 0xF8); seq_midi_rt(&s, 0xF8);
+    apply_transport(&s);
+    CHECK(s.ext_pending == 2, "last local Start retains only its two following clocks");
+    CHECK(s.starts == 1 && s.continues == 0, "last Start supersedes remote Continue");
+    CHECK(s.start_local == 1, "last local Start keeps local origin after two remote requests");
+
+    /* Stop cancels pending remote Start, but a later local Continue survives Stop. */
+    memset(&s, 0, sizeof s);
+    seq_midi_rt(&s, 0xFA);
+    seq_midi_rt(&s, 0xF8);
+    seq_stop(&s);
+    seq_midi_rt(&s, 0xF8);
+    seq_continue(&s);
+    seq_midi_rt(&s, 0xF8);
+    apply_transport(&s);
+    CHECK(s.ext_pending == 1, "Stop/local Continue discards older epoch clocks");
+    CHECK(s.starts == 0 && s.continues == 1, "Stop/local Continue executes only Continue");
+    CHECK(s.start_local == 1, "Stop/local Continue is not misclassified as remote");
+
+    /* MIDI Note Off is never consumed by the realtime clock/transport dispatcher. */
+    memset(&s, 0, sizeof s);
+    seq_midi_rt(&s, 0xFA);
+    seq_midi_rt(&s, 0xF8);
+    uint32_t before = s.ext_pending;
+    CHECK(seq_midi_rt(&s, 0x80) == 0, "Note Off remains available to MIDI note routing");
+    CHECK(s.ext_pending == before && s.req_start == 1,
+          "Note Off leaves queued Start and clock phase unchanged");
 
     printf("%u/%u clock epoch native checks passed\n", checks - failures, checks);
     return failures ? 1 : 0;
