@@ -8,9 +8,9 @@ Default to a development build (`X0X_DEV_PADCAL=1`). `tools/dev_validate.py` acc
 
 Run a firmware build when compiled inputs changed and the owner asked for implementation or a build. Docs and skill edits do not require a firmware rebuild. Skip a firmware build for browser-only diffs. Quickcheck treats `.cursor/skills/`, `.agents/skills/`, `skills/`, and `loopyx0x37-classic-build-skill.zip` as non-target scope for this reason.
 
-Run `tools/gate.sh` only after the owner explicitly requests a release build for this work. A generic request to build, validate, or install does not authorize the release gate. A `--trial` gate result does not permit a release install or a release. The Mac LaunchAgent `com.x0x37.unattended-install` may install a validated development package. A cloud agent does not flash the keyboard. Release packages use `X0X_DEV_PADCAL=0` and the release identity from `BUILDING.md`.
+Run `tools/gate.sh` only after the owner explicitly requests a release build for this work. A generic request to build, validate, or install does not authorize the release gate. A `--trial` gate result does not permit a release install or a release. Release packages use `X0X_DEV_PADCAL=0` and the release identity from `BUILDING.md`.
 
-Development install evidence uses `tools/dev_validate.py` with a JSON plan: `base`, `scope`, and `checks` whose entries have `reason` and `argv`. Use `no_tests_reason` only when no host test applies. Review the plan against the diff. The runner cannot infer coverage. `DEV CHECKED` is the local development record used when firmware nightly fast-forwards: host checks passed and both affected development packages are `DEV CHECKED`. It is not a release pass, not a device pass, and not the firmware main fast-forward.
+Development install evidence uses `tools/dev_validate.py` with a JSON plan: `base`, `scope`, and `checks` whose entries have `reason` and `argv`. Use `no_tests_reason` only when no host test applies. Review the plan against the diff. The runner cannot infer coverage. `DEV CHECKED` records the validator result for those exact outputs. It is not independent QA, hardware proof, publication or merge acceptance; use the [canonical gates](../../../../docs/engineering-delivery/SKILL.md).
 
 ## Before invoking the compiler
 
@@ -26,7 +26,18 @@ Compare the candidate's compiled inputs with the last verified build's inputs:
 
 `tools/fm1_install.py` and `tools/x0x_slots.py` are host installer files. Confirm the build's own input closure before treating the rest of `tools/` as non-compiled.
 
-When every compiled input matches a build whose package bytes, SHA-256, CRC, and budgets are still on record, record `UNCHANGED_VALID_SCOPED` with the old and new root trees and the unchanged package hashes. Do not recompile. Do not call that reuse a new binary or full-root QA. A changed compiler input, or missing attested bytes, requires a new native build.
+Apply this comparison per output, separately for the app and controller. Include
+shared ABI, linker, generators, packaging, flags and modes in the controller's
+complete closure. Reuse only authentic retrievable bytes whose hash and applicable
+acceptance match that closure, recording old-to-current input mapping. An app-only
+change requires fresh affected app builds, not an unchanged verified controller
+rebuild. Recompose/check every current model package and pairing, with headers,
+CRC, sizes and budgets. A changed input or missing bytes requires rebuilding that
+output and its dependents; reuse is not a new binary or full-root QA.
+
+`CTL_NO_CACHE=1` disables writes to the shared installer cache, not compiler caching.
+Isolate generated/output trees or serialize Elite/Pro builds. Do not blindly
+increase `X0X_JOBS` or assume a shared tree supports model concurrency.
 
 Host and installer checks still run when those files changed, including an executable-bit change.
 
@@ -74,7 +85,7 @@ python3 tools/dev_validate.py run --commit <commit> --model elite \
 
 Repeat with `--model pro`. Elite writes `x0x-smk37-elite.fwsc`. Pro writes `x0x-smk37.fwsc`. The runner builds that model in development configuration, checks budgets, builds the controller, and records hashes. Failed checks issue no record.
 
-A cloud agent does not flash the keyboard and does not run the install. The Mac LaunchAgent `com.x0x37.unattended-install` may install a validated development package. Current SMK packages rewrite the controller block. That install uses `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
+Installation requires its own action-specific authorization. Current SMK packages rewrite the controller block. The maintained LaunchAgent install uses `--ctl` pointing at that artifact; inspect its actual command before running it. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
 
 Release gate, only after an explicit release request:
 
@@ -90,6 +101,11 @@ bash tools/gate.sh <commit> --purpose release-install \
 
 Keep gate work outside `/tmp`. Do not apply the 2026-10-23 replay patches onto a newer tree. See [provenance](provenance.md).
 
+`CTL_NO_CACHE=1` disables shared installer-cache writes only, not compiler caching.
+Isolate generated trees or serialize model builds; do not blindly increase `X0X_JOBS`.
+Check each model package/pairing: hashes, headers, CRC, size, memory/flash/pool
+budgets and affected compatibility tests.
+
 ## What to record from a real build
 
 For each model: command and exit, source commit and root tree, toolchain and SDK identities, package size and SHA-256, CRC, model metadata, app and loader sizes, code, static RAM, pool, and flash headroom, and the matching `ctl.img` size and hash when one was produced. Keep those binaries off the source branch. The assigned `gh-pages` publisher is the path that puts release packages on the site branch. Store the manifest in the pull request and, when the change already records evidence, under `evidence/` as hashes and logs only.
@@ -98,4 +114,8 @@ For each model: command and exit, source commit and root tree, toolchain and SDK
 
 ## Labels
 
-Use the glossary in [handoff.md](handoff.md). A compiler exit of 0 is `BUILD_SUCCEEDED_UNREVIEWED` while independent QA has not accepted that commit. That label is not the firmware nightly gate. Firmware nightly fast-forwards when host checks passed and both affected development packages are `DEV CHECKED`. `DEV CHECKED` is the `tools/dev_validate.py` record for those exact artifacts. It is local development evidence. It is not `QA_PASSED`, not a release gate, and not `DEVICE VERIFIED`. Firmware main fast-forwards only after a successful hardware validation of those exact bytes on the matching model. `INSTALL BLOCKED` is not success. Elite evidence does not move a Pro package. A successful compile stays a successful compile when QA or hosting is still pending. Hosting does not turn that exit into `BUILD_FAILED`. Neither label means the package is on the live installer.
+Use [handoff.md](handoff.md) for observations and the
+[canonical contract](../../../../docs/engineering-delivery/SKILL.md) for gates.
+A compiler exit 0 stays a successful compile when QA or hosting is pending; it does
+not prove either. Failed checks remain visible. No label alone establishes a merge,
+release, published package or device pass.

@@ -1,21 +1,10 @@
-# Evidence packet and handoff
+# Evidence adapter
 
-Git is the cross-run inbox. A chat summary, a subagent id, and a local patch are not delivery.
-
-## Packet
-
-Every source delivery includes:
-
-- repository, branch, full 40-character commit, full root tree, and compiled subtree when a build ran
-- producer role and the next consumer
-- commands, exits, and the checks that failed, were not run, or are unknown
-- for a build: per-model config, toolchain and SDK pins, package and controller sizes, SHA-256, CRC, budgets, and the private retrieval location of the bytes
-- pull request URL after it exists
-- the next permitted action and the gate that is still open
-
-The evidence commit cannot contain its own future hash. Report that hash after the push, in the pull-request body.
-
-Use a glossary name only for the observation it names. A negative result stays visible.
+Use the canonical [small stage packet](../../../../docs/engineering-delivery/handoff.md)
+and [contract](../../../../docs/engineering-delivery/SKILL.md). This glossary names
+observations only; it cannot override acceptance or authorization. Authentic existing
+evidence can satisfy a field without a new redundant form. Unknown optional metadata
+is not a blocker. Keep private retrieval locations in the authorized private handoff.
 
 | Label | Observation |
 | --- | --- |
@@ -26,8 +15,8 @@ Use a glossary name only for the observation it names. A negative result stays v
 | `BUILD_SUCCEEDED_UNREVIEWED` | The compiler exited 0. Independent QA has not accepted this commit. This label is not the firmware nightly gate. |
 | `UNCHANGED_VALID_SCOPED` | Compiled inputs match an attested build. The old package hashes are reused. |
 | `SCOPED FIRMWARE-SUBTREE BUILD` | A subtree was built. Full-root QA is still pending. |
-| `DEV CHECKED` | `tools/dev_validate.py` wrote a record whose result is `DEV CHECKED` for these exact artifacts. Firmware nightly fast-forwards when host checks passed and both affected development packages have this record. It is not the firmware main fast-forward. |
-| `QA_PENDING` | This run authored the change, so it cannot supply independent QA. `QA_PENDING` does not block the firmware nightly fast-forward. |
+| `DEV CHECKED` | `tools/dev_validate.py` wrote a record whose result is `DEV CHECKED` for these exact artifacts. It is not independent QA or a source-merge decision. |
+| `QA_PENDING` | Independent QA has not accepted this exact candidate; required independent QA remains incomplete. |
 | `QA_PASSED` | A reviewer who did not author the change accepted this exact commit. |
 | `NO-GO` | A required check failed. |
 | `PACKAGE_NOT_PUBLISHED` | The package is not on the live installer. |
@@ -40,34 +29,7 @@ Use a glossary name only for the observation it names. A negative result stays v
 | `DELIVERY_BLOCKED` | The required write was refused. |
 | `EXACT-SOURCE VALIDATION PENDING` | The exact tree could not be reconstructed. |
 
-Optional commit trailers, one line each, when they help the next reader:
-
-```text
-X0X37-Role: <role>
-X0X37-Stage: <label>
-X0X37-Consumer: <next owner>
-X0X37-Evidence: <path or pull request>
-X0X37-Next: <one action>
-```
-
-Do not add a trailer-only commit on an unchanged tree. `NO_NEW_DELIVERABLE` is a valid run result: cite the unchanged SHA and the reason. `DELIVERY_BLOCKED` names the refused operation.
-
-## Consumer acceptance
-
-A later run is a new thread. Never resume an old thread. It acts on a handoff only after it reads the remote head, the diff, and the claimed evidence. Agents run every applicable test in their own environment with every tool that machine has. GitHub is not a test runner. An Actions result, a billing lock, or an empty workflow is not a firmware result. A zero failure counter is not a pass unless the named tests printed ok. It does not edit the producer branch. It writes its disposition on its own branch or as a pull-request review.
-
-Deduplicate on `(repository, branch, full commit, evidence revision)`. A changed head invalidates affected reviews. Docs-only reuse of package bytes requires proof that every compiler input and pin is unchanged, plus a recorded mapping to the current root. A subtree SHA is not the root SHA.
-
-If the exact tree cannot be reconstructed, do the narrower work and record `EXACT-SOURCE VALIDATION PENDING`. Do not report a build pass.
-
-## Bounded run result
-
-End with:
-
-- the remote commit and pull request, or `GIT DELIVERY PENDING` with the refused operation
-- checks executed and checks not run
-- the stage that advanced and the stage that remains
-- per model, when installability was in scope: `NEW VERIFIED LIVE`, `PRIOR VERIFIED LIVE RETAINED`, `NO INSTALLABLE YET`, or `REVOKED/UNSAFE`
-- the next owner and action
-
-Configuration notes, build results, HTTP results, and device results stay in separate sentences.
+Optional `X0X37-Role`, `X0X37-Stage`, `X0X37-Consumer`, `X0X37-Evidence` and
+`X0X37-Next` trailers can help readers. They are not required metadata or a reason
+for a trailer-only commit. The optional ledger introduced in PR #134 is another
+evidence adapter, not a universal execution or acceptance gate.

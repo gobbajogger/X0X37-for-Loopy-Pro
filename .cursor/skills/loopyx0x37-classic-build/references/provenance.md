@@ -2,7 +2,11 @@
 
 This skill adapts the single-file export of plugin `loopyx0x37-classic-build-handoff`, verified version **0.1.47**, release `pluginrel_6adce6992d408191b7df8bf46ec27616`, retrieved 2026-10-24 UTC. The export contained 52 UTF-8 files. Their original SHA-256 values attest to that package text. They do not attest to compiled artifacts or to the current Git head.
 
-The owner's current request overrides this skill. Docs and skill edits do not require a firmware rebuild. The export's canonical contract is preserved here as procedure: one pinned candidate, separate stage evidence, build-before-publication for firmware, independent QA, nightly test candidates distinct from production, and no hosted GitHub runner for firmware builds. Where that export disagrees with this checkout, the checkout wins over the export: `BUILDING.md`, `tools/make_pages.py`, `tools/publish_pages.sh`, `tools/dev_validate.py`, and `tools/build.py`. Cursor execution replaces ChatGPT Library, Codex cloud tasks, Work agents, Dots schedules, and plugin-creator APIs. Those routes are not installed by this skill.
+The [canonical contract](../../../../docs/engineering-delivery/SKILL.md) now owns
+active coordination and gate policy. The historical export and this adaptation are
+provenance, not current authority. `BUILDING.md`, current tools and actual inputs
+supply technical facts; inspect them before execution. Historical environment routes
+and dated paths do not install tools or identify current artifacts.
 
 ## Do not replay the 2026-10-23 patches
 
@@ -21,6 +25,10 @@ Refresh every SHA against live Git before acting. If a file is absent, record th
 
 ## Authority that does not carry over
 
-The export describes standing nightly publication permission and hourly specialist roles (Safe Merge, Hourly Build, Catalog Sync, Pages publisher, and others). Those roles are a scope map from that scheduler. They are not assignments in a Cursor run. Discover live branch protection and pull-request state. The owner's current request overrides this skill. Owner decisions (2026-10-25) assign the firmware nightly fast-forward and the firmware main fast-forward. Firmware nightly fast-forwards when host checks passed and both affected development packages are `DEV CHECKED`. Firmware main fast-forwards only after a successful hardware validation of those exact bytes on the matching model. `INSTALL BLOCKED` is not success. Elite evidence does not move a Pro package. No force-push.
-
-Do not restore the removed skill pack. Project skills that once lived at `skills/x0x37-*/SKILL.md` were removed from `main` by `5b38047` ("Remove project rules and skills"). This directory is the current Cursor skill.
+Historical scheduler roles and permission statements are not assignments in a new
+environment. Current scope and verified user authority govern; use canonical gates.
+The historical removed project skill pack is not restored by this consolidation.
+The original adapted texts remain accessible in Git at
+`aa90929547f32eb255ec2cbd88eac919b0257099`; do not use their superseded policy to
+override current instructions. The current Cursor entrypoint references the canonical
+file rather than maintaining a second workflow.
