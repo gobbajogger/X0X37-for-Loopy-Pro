@@ -1,0 +1,10 @@
+model: pre-repair plan treats probe failure as None (silent skip)        ok
+slot_probe: timeout raises                                               ok
+plan_slots: probe failure raises (fail closed)                           ok
+plan_slots: successful empty layout -> None (no backup)                  ok
+run: probe failure -> exit 7, no install write                           ok
+run: --no-slots skips the probe and still installs                       ok
+run: successful empty layout installs without --no-slots                 ok
+run: --backup with probe failure -> exit 7, nothing written              ok
+f03 slot probe tests passed
+EXIT1=0
