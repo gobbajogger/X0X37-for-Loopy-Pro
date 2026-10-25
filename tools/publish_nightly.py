@@ -70,7 +70,7 @@ def _embedded_version(product, model):
         return None
     try:
         found = version_of_product(product, model)
-    except ValueError as exc:
+    except (ValueError, TypeError, AttributeError) as exc:
         raise NightlyPublishError(f"{model} package identity {product!r} is not a validated version") from exc
     if found is None:
         raise NightlyPublishError(f"{model} package identity {product!r} is not a validated version")
@@ -170,13 +170,15 @@ def _model_entry_ok(key, model):
     if key not in PRODUCTS or not isinstance(model, dict):
         return False
     product = model.get("product")
+    if not isinstance(product, str):
+        return False
     if product == PRODUCTS[key]:
         pass
     else:
         try:
             if version_of_product(product, key) is None:
                 return False
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, AttributeError):
             return False
     if model.get("fromRelease") or model.get("qualified") is False or model.get("installable") is False:
         return False
@@ -221,9 +223,11 @@ def _version_ok(entry):
         if product == PRODUCTS[key]:
             decoded.append(None)
             continue
+        if not isinstance(product, str):
+            return False
         try:
             decoded.append(version_of_product(product, key))
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, AttributeError):
             return False
     if any(item is None for item in decoded) and any(item is not None for item in decoded):
         return False

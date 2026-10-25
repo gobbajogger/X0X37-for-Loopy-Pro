@@ -86,6 +86,10 @@ class FirmwareBuildLabelsTest(unittest.TestCase):
         self.assertEqual(version_of_product('FM-1_9000600', 'fm1'), '0.6.0')
         with self.assertRaises(ValueError):
             version_of_product('SMK-37 Elite_9abc', 'elite')
+        for malformed in (None, 900, {"product": "SMK-37 Elite_900"}):
+            with self.subTest(product=malformed):
+                with self.assertRaisesRegex(ValueError, "text"):
+                    version_of_product(malformed, "elite")
 
     def test_cli_output_and_mismatch_do_not_write_output(self):
         self.make_package('SMK-37 Pro_9000702')

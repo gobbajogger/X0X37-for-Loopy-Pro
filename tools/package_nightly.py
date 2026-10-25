@@ -46,7 +46,7 @@ def _embedded_version(product, model):
         return None
     try:
         found = version_of_product(product, model)
-    except ValueError as exc:
+    except (ValueError, TypeError, AttributeError) as exc:
         raise add_ctl.PkgError(f"package model {product!r} does not match {model}") from exc
     if found is None:
         raise add_ctl.PkgError(f"package model {product!r} does not match {model}")

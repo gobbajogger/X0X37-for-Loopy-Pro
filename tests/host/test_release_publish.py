@@ -13,9 +13,10 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 import dev_validate  # noqa: E402
 import validation_inputs  # noqa: E402
-from firmware_build_labels import inspect_package  # noqa: E402
+from firmware_build_labels import inspect_package, version_of_product  # noqa: E402
 from fm1pkg_make import ufw  # noqa: E402
-from publish_nightly import NightlyPublishError, publish_valid_nightly  # noqa: E402
+from publish_nightly import (LABEL, NightlyPublishError, _embedded_version, _model_entry_ok,  # noqa: E402
+                             _version_ok, publish_valid_nightly)
 from release_alloc import ReleaseError, bind_file, empty_ledger  # noqa: E402
 
 
@@ -241,6 +242,77 @@ class ReleasePublishTest(unittest.TestCase):
         again = json.loads((again_dir / "versions.json").read_text(encoding="utf-8"))
         self.assertEqual([item["version"] for item in again["versions"]], ["0.1.3"])
         self.assertEqual(again["versions"][0]["models"]["elite"]["sha256"], original_sha)
+
+    def test_null_catalog_product_is_a_structured_refusal(self):
+        try:
+            version_of_product(None, "elite")
+        except AttributeError:
+            self.fail("null product raised AttributeError")
+        except ValueError as exc:
+            self.assertIn("text", str(exc))
+        else:
+            self.fail("null product was accepted")
+        with self.assertRaises(NightlyPublishError):
+            _embedded_version(None, "elite")
+        self.assertFalse(_model_entry_ok("elite", {"product": None}))
+        self.assertFalse(_version_ok({
+            "version": "nightly-nullproduct",
+            "label": LABEL,
+            "status": "dev-checked",
+            "config": "dev",
+            "hardware_tested": False,
+            "source_commit": "ab" * 20,
+            "models": {"elite": {"product": None}, "pro": {"product": None}},
+        }))
+        history = Path(self.tmp.name) / "history"
+        firmware = history / "firmware"
+        firmware.mkdir(parents=True)
+        kept_elite = firmware / "x0x37-nightly-keptkeptkee-elite.fwsc"
+        kept_pro = firmware / "x0x37-nightly-keptkeptkee.fwsc"
+        kept_elite.write_bytes(make_pkg("SMK-37 Elite_900"))
+        kept_pro.write_bytes(make_pkg("SMK-37 Pro_900"))
+
+        def model(path, product):
+            return {
+                "product": product,
+                "pkg": "../firmware/" + path.name,
+                "sha256": dev_validate.digest(path),
+                "size": path.stat().st_size,
+                "status": "dev-checked",
+                "hardware_tested": False,
+            }
+
+        kept = {
+            "version": "nightly-keptkeptkee",
+            "label": LABEL,
+            "status": "dev-checked",
+            "config": "dev",
+            "hardware_tested": False,
+            "source_commit": "ab" * 20,
+            "models": {
+                "elite": model(kept_elite, "SMK-37 Elite_900"),
+                "pro": model(kept_pro, "SMK-37 Pro_900"),
+            },
+        }
+        broken = json.loads(json.dumps(kept))
+        broken["version"] = "nightly-nullproduct"
+        broken["models"]["elite"]["product"] = None
+        broken["models"]["pro"]["product"] = None
+        (history / "versions.json").write_text(
+            json.dumps({"versions": [broken, kept]}), encoding="utf-8")
+        elite = self.package("elite.fwsc", "SMK-37 Elite_900")
+        pro = self.package("pro.fwsc", "SMK-37 Pro_900")
+        page = Path(self.tmp.name) / "null-product"
+        publish_valid_nightly(
+            self.repo,
+            write_record(self.repo, "elite", elite, Path(self.tmp.name) / "null-e"),
+            write_record(self.repo, "pro", pro, Path(self.tmp.name) / "null-p"),
+            elite, pro, page, push=False, merge=history)
+        catalog = json.loads((page / "versions.json").read_text(encoding="utf-8"))
+        versions = [item["version"] for item in catalog["versions"]]
+        self.assertIn("nightly-keptkeptkee", versions)
+        self.assertNotIn("nightly-nullproduct", versions)
+        self.assertTrue(any(item.startswith("nightly-") and item != "nightly-keptkeptkee" for item in versions))
 
 
 if __name__ == "__main__":

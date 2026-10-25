@@ -214,6 +214,27 @@ class ReleaseAllocationTest(unittest.TestCase):
         self.assertEqual(bound["models"]["elite"]["product"], "SMK-37 Elite_9000101")
         self.assertEqual(stamp(source), held)
 
+    def test_cli_refuses_a_fabricated_commit_tree_pair(self):
+        source = Path(self.tmp.name) / "source"
+        commit, tree = make_source(source, "real\n")
+        self.assertEqual(len(tree), 40)
+        tool = [sys.executable, str(ROOT / "tools" / "release_alloc.py"), "--repo", str(source), "allocate"]
+        refused = subprocess.run(tool + ["--source-commit", "ab" * 20, "--source-tree", "cd" * 20],
+                                 capture_output=True, text=True)
+        self.assertEqual(refused.returncode, 3, refused.stderr)
+        self.assertIn("not a commit", refused.stderr)
+        mismatch = subprocess.run(tool + ["--source-commit", commit, "--source-tree", "cd" * 20],
+                                  capture_output=True, text=True)
+        self.assertEqual(mismatch.returncode, 3, mismatch.stderr)
+        self.assertIn("does not match", mismatch.stderr)
+        digest = subprocess.run(tool + ["--source-commit", commit, "--source-tree", "d" * 64],
+                                capture_output=True, text=True)
+        self.assertEqual(digest.returncode, 3, digest.stderr)
+        self.assertIn("40-character", digest.stderr)
+        self.assertFalse((source / "releases" / "openbeta" / "ledger.json").exists())
+        self.assertEqual((source / "firmware.c").read_text(), "real\n")
+        self.assertEqual(git_out(source, "rev-parse", "HEAD"), commit)
+
     def test_git_push_collision_retries_and_rebuild_reuses(self):
         root = Path(self.tmp.name)
         bare = root / "bare.git"

@@ -25,7 +25,7 @@ reset the source checkout. A numeric build requires that allocation for the
 same commit and Git tree, and it does not require package receipts yet. Catalog
 publication requires the bound Elite and Pro receipts. The same version with a
 different source, package, or controller is refused. An unallocated number is
-refused. Legacy `model_900` packages stay unversioned. Patch 99 rolls to the next minor, and minor 99 rolls
+refused. Legacy `model_900` packages stay unversioned. A catalog product that is not text is refused instead of being read as a version. Patch 99 rolls to the next minor, and minor 99 rolls
 to the next major. The counter stops at 99.99.99. Do not invent a number from a
 commit count, a hash, or a date. Rebuilding the same commit and tree keeps its
 number. The same tree at a different commit is refused. Different package bytes
@@ -98,7 +98,9 @@ release-records и не сбрасывает исходный checkout. Посл
 байты пакета этот номер повторить не могут. Elite и Pro делят номер, но
 хранят разные хеши пакета и контроллера. Исходник
 892bf60d912eca93597dcf03be25a9756540c949 остаётся без числовой версии.
-Переименование файла в каталоге не меняет установленную прошивку.
+Запись каталога, в которой поле продукта не является текстом, отклоняется и
+не читается как версия. Переименование файла в каталоге не меняет
+установленную прошивку.
 
 tools/dev_validate.py run с --firmware-version X.Y.Z записывает номер в
 DEV-прошивку Pro/Elite и проверяет совпадение номера внутри пакета и записи.

@@ -52,6 +52,8 @@ def version_of_product(product, model):
     """Find actual numeric identity, not the build's name, time or revision."""
     if model not in MODELS:
         raise ValueError("unsupported model: " + str(model))
+    if not isinstance(product, str):
+        raise ValueError("firmware product must be text")
     prefix = MODELS[model] + "_"
     if not product.startswith(prefix):
         raise ValueError("firmware model does not match expected " + MODELS[model])
