@@ -1487,12 +1487,18 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
     }
 }
 
-static void do_undo(int redo)
+/* Finish an audio-owned recorder before history or bulk pattern edits. Hold is
+ * brief, covers state finalization only, and never reinitializes a voice. */
+static void record_finish(void)
 {
     seq.rec_mask = 0;
     engine_project_hold(1);
     for (int b = 0; b < NBASS; b++) seq_rec_bass_end(&seq, b);
-    engine_project_release();
+    engine_project_hold(0);
+}
+static void do_undo(int redo)
+{
+    record_finish();
     uint32_t lo, hi;
     char t[24];
     undo_commit(&undo);                              /* what was just done is a step too */
@@ -1793,6 +1799,7 @@ static void set_view(int v);
 X0X_COLD static void run_action(int act, int arg)
 {
     char t[28], *q;
+    if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
     switch (act) {
     case ACT_SAVE: save_project(); break;
     case ACT_LOAD: (void)ui_project_load(); break;

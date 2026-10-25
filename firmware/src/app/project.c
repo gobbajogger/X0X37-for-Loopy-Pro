@@ -21,7 +21,8 @@ project_t proj;
 /* Reuses the UI undo shadow while an exclusive project operation is active. */
 project_t project_stage X0X_POOL;
 
-#define PROJ_STREAM 3u                  /* 303 steps gained velocity; format 2 migrates below */
+#define PROJ_STREAM 4u                  /* endpoint flags; unchanged 3-byte step layout */
+#define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
 #define NSTREAM ((int)sizeof STREAM_OBJ)
@@ -330,7 +331,7 @@ static void stream_from2(project_t *pr)
         __builtin_memcpy(dst->rsv, old.rsv, sizeof old.rsv);
     }
     for (p = 0; p < NSTREAM; p++)
-        stored_known[STREAM_OBJ[p]] = 0;             /* next save writes format 3 */
+        stored_known[STREAM_OBJ[p]] = 0;             /* next save writes current format */
 }
 
 static int load_stream(project_t *pr, int n, uint32_t format)
@@ -562,7 +563,7 @@ static int read_project(project_t *pr)
         engine_sound_centre_drum_pans(&pr->sound);
     pr->set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
+    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_PREV || get32(io_buf) == PROJ_STREAM_OLD)) {
         if (load_stream(pr, n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
             patterns_defaults(pr);
             arrange_defaults(pr);
@@ -713,7 +714,7 @@ void project_file_header(uint8_t *h)
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT || get32(h + 20) != PROJ_STREAM ||
+        get32(h + 16) != PROJ_FORMAT || (get32(h + 20) != PROJ_STREAM && get32(h + 20) != PROJ_STREAM_PREV) ||
         get32(h + 24) != PROJ_SND_REV || get32(h + 28))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
