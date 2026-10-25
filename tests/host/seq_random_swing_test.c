@@ -8,7 +8,8 @@
 static pattern_t patterns[NPAT];
 static unsigned bass_fired;
 static int drum(void *c,int kit,int v,float vel) {(void)c;(void)kit;(void)v;(void)vel;return 1;}
-static void bass_on(void*c,int b,int n,int a,int s,int v){(void)c;(void)b;(void)n;(void)a;(void)s;(void)v;}
+static int bass_on(void*c,int b,int n,int a,int s,int v){(void)c;(void)b;(void)n;(void)a;(void)s;(void)v;    return 1; /* This fixture accepts the note under the seq_sink_t contract. */
+}
 static void bass_off(void*c,int b){(void)c;(void)b;}
 static void brk(void*c,int p,int b,float sp,int en){(void)c;(void)p;(void)b;(void)sp;(void)en;}
 static void brk_stop(void*c){(void)c;}

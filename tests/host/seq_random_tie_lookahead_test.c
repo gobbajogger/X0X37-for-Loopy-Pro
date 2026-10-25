@@ -13,9 +13,10 @@ static int note_on, note_off, m_on, m_off, errors, total;
 #define EXPECT(c,why) do { total++; if (!(c)) { errors++; fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__,__LINE__,why); } } while (0)
 
 static int drum(void *ctx,int k,int v,float vel) { (void)ctx; (void)k; (void)v; (void)vel; return 1; }
-static void bass_on(void *ctx,int b,int note,int accent,int slide,int vel) {
+static int bass_on(void *ctx,int b,int note,int accent,int slide,int vel) {
     (void)ctx; (void)note; (void)accent; (void)slide; (void)vel;
     if (b == 0) note_on++;
+    return 1; /* This fixture accepts the note under the seq_sink_t contract. */
 }
 static void bass_off(void *ctx,int b) { (void)ctx; if (b == 0) note_off++; }
 static void brk(void *ctx,int p,int bar,float len,int enable) {
