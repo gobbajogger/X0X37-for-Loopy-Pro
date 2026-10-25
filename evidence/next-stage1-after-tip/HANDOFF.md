@@ -12,7 +12,8 @@
 | BF-034 | **CLEARED** on nightly tip (PASS); do not duplicate F15 Stage 3 |
 | Tip RAM `07773682` | **CLEARED** (#329) |
 | Successor file | `SUCCESSOR-STAGE1.txt` |
-| Owner-visible successor id | pending (no `CURSOR_API_KEY` — ask coordinator CreateAgent) |
+| Owner-visible successor id | `bc-81498ba3-dd15-5d08-89cd-4bbec88134df` |
+| Successor URL | https://cursor.com/agents/bc-81498ba3-dd15-5d08-89cd-4bbec88134df |
 
 Do not start Stage 2 from this handoff. Do not resume Stage 7. Do not resume prior Stage 1 `bc-f979be14…`.
 
@@ -20,6 +21,7 @@ Do not start Stage 2 from this handoff. Do not resume Stage 7. Do not resume pri
 
 | Attempt | Result |
 | --- | --- |
-| API key | **unset** on this pod — CreateAgent not attempted |
+| API key on Stage-1 pod | **unset** — CreateAgent not attempted there |
+| Coordinator CreateAgent | **done** — owner-visible Stage 1 `bc-81498ba3-dd15-5d08-89cd-4bbec88134df` live |
 
-**Handoff incomplete** for owner-visible next Stage 1 until Project coordinator CreateAgent launches with `startingRef=cursor/next-after-tip-stage1-237f` and `SUCCESSOR-STAGE1.txt`.
+**Handoff complete** for owner-visible next Stage 1 (`startingRef=cursor/next-after-tip-stage1-237f`, prompt `SUCCESSOR-STAGE1.txt`).

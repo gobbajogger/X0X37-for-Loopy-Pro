@@ -42,7 +42,7 @@ If the create call is unauthenticated, rejected, or returns an internal subagent
 
 Completion condition: audit recorded for validated source SHA b48cd800 against the published nightly page hashes above, and one owner-visible successor id pushed on the handoff.
 
-Coordinator note: This Stage 1 recorded SUCCESSOR-STAGE1.txt with BF-034 CLEARED and stopped without an owner-visible next Stage 1 id when CURSOR_API_KEY was unset. Coordinator CreateAgent should launch Stage 1 with startingRef=cursor/next-after-tip-stage1-237f and this prompt.
+Coordinator note: Stage 1 recorded SUCCESSOR-STAGE1.txt with BF-034 CLEARED; CURSOR_API_KEY was unset on that pod. Coordinator CreateAgent launched owner-visible next Stage 1 bc-81498ba3-dd15-5d08-89cd-4bbec88134df (https://cursor.com/agents/bc-81498ba3-dd15-5d08-89cd-4bbec88134df) with startingRef=cursor/next-after-tip-stage1-237f and this prompt. Handoff complete.
 
 LIVE_PAGE_MATCH reference: nightly-b48cd800-dev @ pages a338960c…; Elite 81aaf361cb11…; Pro e0ac6b68e117…; ctl 956e3e214658….
 BF-034 CLEARED on a8981541 (#332) — do not duplicate Stage 2/3.
