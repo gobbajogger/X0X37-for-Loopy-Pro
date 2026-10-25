@@ -66,8 +66,8 @@ Log: `evidence/f10-stage1/live-verify.log`.
 | Oldest open bugfinder | **BF-006** (drum808.c blob `4b873a79…` still matches finding baseline) |
 | Younger BF-007 | Open on PR #26 lane; not selected |
 
-Evidence PR: (pending open)
-API CreateAgent attempts: (pending)
+Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/250
+API CreateAgent attempts: `api-create-stage2-attempt1.json` / `attempt2.json` — **NO_CURSOR_API_KEY**
 
 ## Overall
 
