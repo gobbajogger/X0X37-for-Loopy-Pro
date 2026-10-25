@@ -5,7 +5,7 @@
 #include "../../firmware/src/seq/sequencer.h"
 
 static int drum(void *x, int k, int v, float vel) { (void)x; (void)k; (void)v; (void)vel; return 1; }
-static void bass_on(void *x, int p, int n, int a, int slide, int vel) { (void)x; (void)p; (void)n; (void)a; (void)slide; (void)vel; }
+static int bass_on(void *x, int p, int n, int a, int slide, int vel) { (void)x; (void)p; (void)n; (void)a; (void)slide; (void)vel;  return 1; }
 static void bass_off(void *x, int p) { (void)x; (void)p; }
 static void brk(void *x, int p, int b, float n, int en) { (void)x; (void)p; (void)b; (void)n; (void)en; }
 static void brk_stop(void *x) { (void)x; }

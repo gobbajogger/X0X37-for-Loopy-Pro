@@ -10,7 +10,7 @@ static pattern_t pat[NPAT];
 static unsigned checks, failed, played;
 #define VERIFY(c) do { ++checks; if (!(c)) { ++failed; fprintf(stderr, "FAIL line %d: %s\n", __LINE__, #c); } } while(0)
 static int on_drum(void*ctx,int kit,int v,float vel){(void)ctx;(void)kit;(void)v;(void)vel;return 1;}
-static void on_bass(void*ctx,int b,int note,int accent,int slide,int velocity){(void)ctx;(void)b;(void)note;(void)accent;(void)slide;(void)velocity;}
+static int on_bass(void*ctx,int b,int note,int accent,int slide,int velocity){(void)ctx;(void)b;(void)note;(void)accent;(void)slide;(void)velocity; return 1; }
 static void off_bass(void*ctx,int b){(void)ctx;(void)b;}
 static void on_brk(void*ctx,int st,int b,float per,int en){(void)ctx;(void)st;(void)b;(void)per;(void)en;}
 static void off_brk(void*ctx){(void)ctx;}

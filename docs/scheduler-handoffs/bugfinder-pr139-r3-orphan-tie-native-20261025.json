@@ -1,0 +1,59 @@
+{
+  "schema": "bugfinder-exact-source-repair-v1",
+  "evidence_revision": "bugfinder-pr139-r3-orphan-tie-native-20261025-v1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer_role": "existing LoopyX0X37 Hourly Bugfinder",
+  "pr": 139,
+  "parent_source_commit": "9fac6aeac50892d38298d28a1a1c0e86a61a6162",
+  "parent_root_tree": "01b499144c69de5ba4618e15b5140e710e13986c",
+  "parent_compiler_firmware_tree": "83e1a7d3f11425b0c25936333ecdf83512f5378b",
+  "parent_sequencer_blob": "47e0fafba445e3524e6be61c71b6e775850d08cb",
+  "parent_test_blob": "9e61be36bdf552d901d792d3ca4058408360d783",
+  "next_source_blob": "1fde80683c2dc9b85f6b0832f59e107c97092029",
+  "next_registered_test_blob": "9b3716de8c426ed40db42b2ac42e713732324529",
+  "user_observable_goal": "A 303 TIE sustains an already sounding NOTE but must not create a new internal/MIDI note after a probability-rejected NOTE, initial orphan TIE or REST. Later ordinary NOTE and REC-06 echo remain audible.",
+  "maintained_behavior": "BEHAVIOR.md BAS-03, MOT-07 and REC-06",
+  "source_patch": "Treat G_TIE with !tr->sounding as G_REST before bass_on and MIDI-note admission. Preserve sounding TIE and note-off behavior.",
+  "independent_review_reference": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/139#issuecomment-6391495935",
+  "native_replay": {
+    "machine": "Linux x86_64 local GCC and Clang",
+    "source_input_proof": "Git-borne fire_bass source window byte-for-byte equal to local pre-patch source: 3141 bytes, FNV1a32 39034319, SHA256 991b794edd23e3a8046d8d8fcd4efb99a91357191272e42b10f02bd63c7ca4c7",
+    "fixture": "Standalone 19-assertion regression linked to real sequencer/pattern/TB3PO; surrounding code taken from previous BF030 pinned native test source (not full current PR139 root). Registered PR139 test extended with same adversarial cases but not yet executed as a full-root suite.",
+    "profiles": [
+      "gcc -O2",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang -O2",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "before": "6/6 compile exit 0; 6/6 run exit 1, expected 11/19 failures per profile, note after rejected TIE wrongly sounds",
+    "after": "6/6 compile exit 0; 6/6 run exit 0 with 19/19 checks per profile and no sanitizer diagnostics observed",
+    "stimuli": [
+      "chance-rejected NOTE -> callback-accepted TIE",
+      "initial orphan TIE",
+      "REST -> TIE",
+      "accepted NOTE -> TIE -> REST MIDI NoteOff balance",
+      "rejected NOTE -> TIE -> accepted NOTE clean attack",
+      "REC-06 live note MIDI echo"
+    ],
+    "evidence_archive": "LoopyX0X37-Bugfinder-BF028-R3-OrphanTie-Native-20261025.zip",
+    "archive_sha256": "5f1f2a3d513b289bed9e6a12eea3da6b237ef4cc3d38db8fd5fbcd43bba1a6a1",
+    "archive_crc": "passed",
+    "limitations": [
+      "Not full current PR139 root execution",
+      "Not registered test run against full changed PR139 C",
+      "Not a native Elite/Pro firmware/controller build for R3",
+      "No Independent QA or real physical device validation",
+      "No installer/website/build publication approval"
+    ]
+  },
+  "next_owners": {
+    "build": "Existing Hourly Build: fresh private Elite+Pro/controller BUILD_ONLY if compiler firmware inputs changed",
+    "qa": "Existing Independent QA: exact new HEAD and full-source linked positive/negative, build and current-root checks",
+    "integrator": "Sole Safe Merge: review/integrate when independently acceptable",
+    "website": "Existing website/Pages owners only; no Bugfinder publication"
+  },
+  "public_binaries_or_sdk": "none",
+  "protected_branch_write": false
+}
