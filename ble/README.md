@@ -1,13 +1,15 @@
 # Bluetooth MIDI on the SMK-37
 
-This folder builds the optional Bluetooth controller image (`ctl.img`) for X0X on the SMK-37.
-X0X does not ship the image. You build it on your own computer. See LICENSING.md for the reasons.
+This folder builds the Bluetooth controller image (`ctl.img`) for X0X on the SMK-37.
+New qualified NIGHTLY packages must include the matching image; current legacy packages
+require it locally. Combined public distribution remains undecided. See [LICENSING.md](../LICENSING.md).
 
 ## How it fits together
 
 The SMK-37's chip (JieLi AC79) has the Bluetooth radio on the chip. JieLi's controller software
-for it (`btctrler.a` and friends) is closed. X0X is GPL-3.0-only. So the controller runs as a
-separate program, like a Bluetooth chip on its own:
+for it (`btctrler.a` and five other archives) has SDK-level Apache-2.0 evidence, with
+component-specific runtime/source/notice questions still open. X0X is GPL-3.0-only.
+The controller runs as a separate program:
 
 | Part | Where | Licence | Who builds it |
 | --- | --- | --- | --- |
@@ -53,11 +55,18 @@ Without an image, the app starts as before (BEHAVIOR.md BLE-02).
 
 ```
 ble/ctl/build_ctl.sh                                   # needs tools/get_toolchain.sh and Docker
-python3 tools/fm1_install.py build/x0x-smk37.fwsc      # adds ~/.config/x0x/ctl.img by itself
+python3 tools/fm1_install.py build/x0x-smk37.fwsc --ctl ble/ctl/out/ctl.img
 ```
 
-Or `tools/add_ctl.py PACKAGE ctl.img -o NEW.fwsc`, or the web installer's ctl.img field. Each X0X
-update writes the Bluetooth block, so add the image to every update.
+The command above is the legacy unbundled-package path. The installer never selects
+`~/.config/x0x/ctl.img` implicitly. `tools/add_ctl.py PACKAGE ctl.img -o NEW.fwsc` and the legacy
+web file field provide the same composition; a current package with an empty block is refused
+unless its matching controller is supplied.
+
+Qualified NIGHTLY packages include the matching controller and need no separate file selection.
+Use [the checked NIGHTLY packaging command](../docs/bundled-nightly-packages.md) to compose or
+inspect one complete Elite or Pro package. All byte, source, component-term, independent QA and
+publication requirements still apply. This source support does not publish a controller.
 
 ## Numbers (2026-10-15 baseline)
 

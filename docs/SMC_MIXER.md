@@ -2,7 +2,9 @@
 
 Choose **GLOBAL → BLUETOOTH MIDI → BT ROLE → SMC HOST**, enable Bluetooth, then restart. Choose **SMC PRESET → DAW** for the mixer's factory DAW mode or **USER** for its editable User preset. A role change takes effect after restart; the preset setting takes effect immediately. The SMC connection is separate from the APC40/Loopy port.
 
-The eight faders use pickup. A fader starts changing a value when it reaches the X0X target (within two MIDI steps, or crossing it). **PICK F1 …** means fader 1 is waiting; its number is the target value, not a successful edit. **SMC F1 …** means the fader has pickup. Changing the target or changing its value elsewhere resets pickup and discards the old crossing history. X0X sends the target position back to the SMC. A frame after the fader's own write preserves pickup.
+The eight faders use pickup. A fader starts changing a value when it reaches the X0X target (within two MIDI steps, or crossing it). The temporary **SMC CONTROL** screen shows the actual destinations and values. **PICKUP: MOVE FADER UP/DOWN** means the fader is waiting; the displayed value is the target, not a successful edit. **FADER ACTIVE** means pickup is acquired. Changing the target or changing its value elsewhere resets pickup and discards the old crossing history. X0X sends the target position back to the SMC. A frame after the fader's own write preserves pickup.
+
+Fader, encoder and action feedback uses the full control screen instead of a yellow SMC header notice. The screen returns to the underlying UI after 1.2 seconds without control activity. Repeated activity extends that interval. It does not change the underlying view, page, selection, menu or clip editor. Panel input and intentional SMC navigation dismiss it immediately; an old timeout cannot undo the new navigation. Help keeps its card while controls work underneath. Confirmation retains its input lock. Clip-editor feedback shows the field edited by the SMC; clip-grid encoders remain inactive. These behaviors have host coverage; physical LCD and controller behavior still require device testing.
 
 | Screen | Faders | Encoders |
 | --- | --- | --- |

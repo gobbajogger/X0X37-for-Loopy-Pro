@@ -1,0 +1,483 @@
+{
+  "schema": 1,
+  "date": "2026-10-25",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/mb-smc-full-control-ui-20261025",
+  "base": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "source_commit": "0e00c262348a1574c37f27e37a60531faef44cb4",
+  "source_root": "1d212c2c19ce742e9f2ccde5e863881e5253ee27",
+  "reviewed_source_tests_commit": "cf66dab4d09e273957586b353c12e83abd8c0774",
+  "reviewed_source_tests_root": "9cdae097abb5bd4e8e853d2bb39461d060ec8146",
+  "compiled_firmware_tree": "e74f6c399bd90676ab9a44542272fb67175c72ab",
+  "result": "SOURCE_HOST_REVIEW_ACCEPTED_AND_NATIVE_BUILD_ONLY",
+  "scope": "Presentation-only full SMC control UI; exact underlying navigation remains authoritative. No MIDI ports, physical hardware, merge or publication.",
+  "host": {
+    "compiler": "Apple clang 21.0.0 (clang-2100.3.34.2), arm64-apple-darwin27.2.0",
+    "full_ui": {
+      "command": "sh tests/host/smc_ui_test.sh",
+      "exit": 0,
+      "assertions": 191
+    },
+    "affected_regressions": {
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE X0X_TEST_JOBS=1 sh tests/run_tests.sh project-runtime smc-protocol smc-fader smc-buttons smc-queue smc-link smc-reachability smc-mapping smc-drum-mutes smc-drum-rs smc-performance-abort smc-filter smc-feedback smc-record-feedback smc-part-select smc-clip-visibility",
+      "exit": 0,
+      "suites": [
+        "project-runtime",
+        "smc-protocol",
+        "smc-fader",
+        "smc-buttons",
+        "smc-queue",
+        "smc-link",
+        "smc-reachability",
+        "smc-mapping",
+        "smc-drum-mutes",
+        "smc-drum-rs",
+        "smc-performance-abort",
+        "smc-filter",
+        "smc-feedback",
+        "smc-record-feedback",
+        "smc-part-select",
+        "smc-clip-visibility"
+      ]
+    },
+    "ordinary_host": {
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE X0X_HOST_OUT=build/host/smc-ui-board0-host sh host/build_host.sh",
+      "exit": 0
+    },
+    "independent_review": {
+      "reviewer": "smc_independent_review (did not author source or tests)",
+      "disposition": "ACCEPT scoped source/host review at reviewed_source_tests_commit",
+      "asan_only": {
+        "assertions": 191,
+        "exit": 0,
+        "diagnostics": 0,
+        "command": "CC=/usr/bin/clang SAN_FLAGS='-fsanitize=address -fno-omit-frame-pointer' ASAN_OPTIONS=halt_on_error=1 SMC_UI_OUT=/tmp/smc-independent-address sh tests/host/smc_ui_test.sh"
+      },
+      "negative_controls": {
+        "command": "CC=/usr/bin/clang SMC_UI_NEGATIVE_OUT=/tmp/smc-independent-negative python3 tests/host/smc_ui_negative_test.py",
+        "exit": 0,
+        "mutants": [
+          "timeout-disabled",
+          "cancel-disabled",
+          "clip-redraw-disabled",
+          "yellow-notice-returned"
+        ],
+        "expected_runtime_failures": 4,
+        "compile_failures_counted": false
+      },
+      "remaining_ui_findings": [],
+      "test_sha256": {
+        "smc_ui_test.c": "69a7e360bd18dbcfa991e486d0887e7e76189c63835524aa2713915139629c3b",
+        "smc_ui_test.sh": "06c32b2070a837d58f56991be27c8443afcb8a1d4261ec99cd27ea2dae9ea41d",
+        "smc_ui_negative_test.py": "fc7683a1b823af451f557170ca5fa3ed0ef2739461a23c44cab92f05d92a18a9"
+      }
+    },
+    "logs": [
+      {
+        "file": "smc-ui-final.log",
+        "sha256": "b25385c914668352d603ceba73bbe94c94292e734af2b3a9b20139eb874482a7",
+        "bytes": 596
+      },
+      {
+        "file": "smc-full-regression.log",
+        "sha256": "295d629a52748bd45162fad8814bff759015dd1854e3d1ec75af45acfbce4017",
+        "bytes": 463
+      },
+      {
+        "file": "smc-independent-address.log",
+        "sha256": "b25385c914668352d603ceba73bbe94c94292e734af2b3a9b20139eb874482a7",
+        "bytes": 596
+      },
+      {
+        "file": "smc-independent-negative.log",
+        "sha256": "7491953e53dd1218eb9e8d50690a83b3f28d61d6e487bae23975da90febcf4d0",
+        "bytes": 463
+      },
+      {
+        "file": "smc-ui-board0-host.log",
+        "sha256": "c9971299dca5c0d9484ea93516d232862c522bd2d1f7b02434b953d06f7be11a",
+        "bytes": 26
+      },
+      {
+        "file": "fastmath-baseline-ubsan.log",
+        "sha256": "c909e1cfe8f98b82b6b9c59734614ad6823d7d889c3e10e7860f2be67cccc8d0",
+        "bytes": 193
+      }
+    ],
+    "limitations": [
+      "Hardware and clip field storage/grid painter are substitutes. Physical LCD timing and controller behavior are not tested.",
+      "Combined ASan+UBSan is NOT clean: unchanged fastmath.h:57 shifts negative values. Direct fm_exp2f(-1) against identical accepted NIGHTLY source reproduces it (exit 134). ASan-only is clean."
+    ],
+    "unchanged_fastmath_sha256": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349"
+  },
+  "remaining_stages": [
+    "Sole Safe Merge owner decides reviewed integration into firmware nightly.",
+    "Full package/installability and independent model/controller/backup/recovery qualification remain downstream.",
+    "Physical LCD/controller tests remain unrun; no hardware validation is claimed.",
+    "No public artifacts, releases, protected refs or production promotion were performed."
+  ],
+  "native": {
+    "stage": "BUILD_ONLY",
+    "configuration": {
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "board": "smk37",
+      "X0X_DEV_PADCAL": "1",
+      "release": false
+    },
+    "source": {
+      "commit": "0e00c262348a1574c37f27e37a60531faef44cb4",
+      "root_tree": "1d212c2c19ce742e9f2ccde5e863881e5253ee27",
+      "firmware_tree": "e74f6c399bd90676ab9a44542272fb67175c72ab",
+      "controller_tree": "7d169a6b97cd3b48064d938c23ccb6d3fb197fbd",
+      "tools_tree": "555fcc70876e6faeddd45e33074f7b4e70de334e",
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "tracked_inputs_unchanged": true
+    },
+    "artifacts": {
+      "controller": {
+        "path": "private-build/ctl.img",
+        "bytes": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "header": {
+          "magic": "43423058",
+          "header_version": 2,
+          "header_size": 68,
+          "size": 65492,
+          "header_crc32": "77b7a496",
+          "abi": 2,
+          "ram_lo": "01c01800",
+          "ram_hi": "01c07ce0",
+          "ram_bytes": 25824,
+          "ram_free": 544
+        }
+      },
+      "elite": {
+        "product": "SMK-37 Elite_900",
+        "app": {
+          "path": "build/smk37-elite/x0x.bin",
+          "bytes": 549772,
+          "sha256": "668e26235f44fa48c44ed18601a1e8a8a370b2d4271d2269e33d9ae253684584",
+          "crc32": "d034c414"
+        },
+        "loader": {
+          "path": "build/smk37-elite/loader/ota.bin",
+          "bytes": 7280,
+          "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+          "crc32": "efce9076"
+        },
+        "plain": {
+          "path": "build/x0x-smk37-elite.fwsc",
+          "bytes": 651396,
+          "sha256": "207bf24ae4d09c0e995ef135df2936a3ffdada5b8d102b71da764228b4742c0e",
+          "crc32": "e1c0957c"
+        },
+        "controller_joined": {
+          "path": "private-build/x0x-smk37-elite-ble.fwsc",
+          "bytes": 651396,
+          "sha256": "afee11d5e4045044ad1757d968dc9d462edd9890e2e547605b36a7fbb49e3c38",
+          "crc32": "a806135b"
+        },
+        "header_and_file_CRCS": "PASS",
+        "embedded_controller_identity": "same exact ctl.img bytes"
+      },
+      "pro": {
+        "product": "SMK-37 Pro_900",
+        "app": {
+          "path": "build/smk37/x0x.bin",
+          "bytes": 549772,
+          "sha256": "d8119fc7f9234ee80578667cd35fc93673cef74ccc4a6284ed1d4c8cc6baf700",
+          "crc32": "8da58831"
+        },
+        "loader": {
+          "path": "build/smk37/loader/ota.bin",
+          "bytes": 7276,
+          "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+          "crc32": "a0f8bca9"
+        },
+        "plain": {
+          "path": "build/x0x-smk37.fwsc",
+          "bytes": 651392,
+          "sha256": "37e300d01c9a3bedcf4572a85de7978c485fdfdaf62ce256043f394114b609b2",
+          "crc32": "6f597755"
+        },
+        "controller_joined": {
+          "path": "private-build/x0x-smk37-pro-ble.fwsc",
+          "bytes": 651392,
+          "sha256": "f02b53bac13fbe9b98fc709f4268f86362497c1f2899bf4e31ad16ef39f0d368",
+          "crc32": "ac069dcf"
+        },
+        "header_and_file_CRCS": "PASS",
+        "embedded_controller_identity": "same exact ctl.img bytes"
+      }
+    },
+    "budgets": {
+      "elite": {
+        "code_limit": 552672,
+        "code_free": 2900,
+        "ram_used": 97892,
+        "ram_limit": 98304,
+        "ram_free": 412,
+        "pool_used": 335740,
+        "pool_limit": 344064,
+        "pool_free": 8324
+      },
+      "pro": {
+        "code_limit": 552672,
+        "code_free": 2900,
+        "ram_used": 97892,
+        "ram_limit": 98304,
+        "ram_free": 412,
+        "pool_used": 335740,
+        "pool_limit": 344064,
+        "pool_free": 8324
+      }
+    },
+    "commands": [
+      {
+        "argv": "python3 tools/build.py --board smk37 --model elite",
+        "exit": 0,
+        "log": "private-build/elite-build.log"
+      },
+      {
+        "argv": "python3 tools/build.py --board smk37 --model pro",
+        "exit": 0,
+        "log": "private-build/pro-build.log"
+      },
+      {
+        "argv": "CTL_NATIVE=1 CTL_NO_CACHE=1 SDK_LOCAL=/sdk sh ble/ctl/build_ctl.sh",
+        "exit": 0,
+        "log": "private-build/controller-build.log"
+      },
+      {
+        "argv": "python3 tools/add_ctl.py ble/ctl/out/ctl.img --check",
+        "exit": 0,
+        "log": "private-build/controller-check.log"
+      },
+      {
+        "argv": "python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o private-build/x0x-smk37-elite-ble.fwsc",
+        "exit": 0,
+        "log": "private-build/elite-join.log"
+      },
+      {
+        "argv": "python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o private-build/x0x-smk37-pro-ble.fwsc",
+        "exit": 0,
+        "log": "private-build/pro-join.log"
+      },
+      {
+        "argv": "python3 /work/verify-build.py /work/source",
+        "exit": 0,
+        "log": "../verification.log"
+      }
+    ],
+    "verification": {
+      "package_header_file_crc": true,
+      "controller_header_abi_crc_ram": true,
+      "embedded_controller_same_bytes": true,
+      "model_identity": true,
+      "code_ram_pool_budgets": true,
+      "hardware": false,
+      "source_tracked_bytes_unchanged": true,
+      "sdk_and_toolchain_before_after_unchanged": true
+    },
+    "unrun": [
+      "hardware",
+      "full_root_QA",
+      "installer_safety_qualification",
+      "publication"
+    ],
+    "notes": [
+      "Initial receipt-only verification hit Git ownership check on known mounted clone; successful rerun used per-command safe.directory=/work/source without global configuration. Native build/joins were already exit 0.",
+      "Private BUILD_ONLY only; no installation, independent QA, publication, or hardware claim."
+    ],
+    "native_driver": {
+      "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "platform": "linux/amd64",
+      "network": "none",
+      "X0X_DEV_PADCAL": "1",
+      "CTL_NATIVE": "1",
+      "CTL_NO_CACHE": "1",
+      "exit": 0
+    },
+    "coordinator_artifact_readback": [
+      {
+        "model": "elite",
+        "identity": "SMK-37 Elite_900",
+        "bytes": 651396,
+        "sha256": "afee11d5e4045044ad1757d968dc9d462edd9890e2e547605b36a7fbb49e3c38",
+        "crc32": "a806135b",
+        "header_crc": "PASS",
+        "embedded_controller": "same exact ctl.img"
+      },
+      {
+        "model": "pro",
+        "identity": "SMK-37 Pro_900",
+        "bytes": 651392,
+        "sha256": "f02b53bac13fbe9b98fc709f4268f86362497c1f2899bf4e31ad16ef39f0d368",
+        "crc32": "ac069dcf",
+        "header_crc": "PASS",
+        "embedded_controller": "same exact ctl.img"
+      },
+      {
+        "model": "controller",
+        "bytes": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "header_abi_crc": "PASS"
+      }
+    ],
+    "input_provenance": {
+      "compiler": "JieLi clang 4.0.1, Linux x86_64",
+      "selected_files": [
+        {
+          "path": "toolchain/pi32v2/bin/clang",
+          "bytes": 46784720,
+          "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+        },
+        {
+          "path": "toolchain/pi32v2/bin/ld",
+          "bytes": 5728352,
+          "sha256": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9"
+        },
+        {
+          "path": "toolchain/common/bin/objcopy",
+          "bytes": 2141808,
+          "sha256": "295151226e28891115c97262e6460a06fe67fc0753858e0df3234eb000ea6e66"
+        },
+        {
+          "path": "toolchain/common/bin/objdump",
+          "bytes": 3523120,
+          "sha256": "f7e449e2c8001d5ed4493a45d1f5f304c8910418e4074acdc8715079ef64e08a"
+        },
+        {
+          "path": "toolchain/pi32v2/bin/LLVMgold.so",
+          "bytes": 17659208,
+          "sha256": "2ca8dafde18070d6a42fc47fc2ec4723946cf3d2404ca25981de5070beb1aa12"
+        },
+        {
+          "path": "sdk/cpu/wl82/tools/uboot.boot",
+          "bytes": 14536,
+          "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+        },
+        {
+          "path": "sdk/cpu/wl82/tools/cfg_tool.bin",
+          "bytes": 383,
+          "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+        },
+        {
+          "path": "sdk/cpu/wl82/tools/cfg/eq_cfg_hw.bin",
+          "bytes": 655,
+          "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+        },
+        {
+          "path": "sdk/cpu/wl82/liba/btctrler.a",
+          "bytes": 5157416,
+          "sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de"
+        },
+        {
+          "path": "sdk/cpu/wl82/liba/wl_rf_common.a",
+          "bytes": 321802,
+          "sha256": "ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2"
+        },
+        {
+          "path": "sdk/cpu/wl82/liba/crypto_toolbox_Osize.a",
+          "bytes": 421662,
+          "sha256": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e"
+        },
+        {
+          "path": "sdk/cpu/wl82/liba/lib_ccm_aes.a",
+          "bytes": 33128,
+          "sha256": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c"
+        },
+        {
+          "path": "sdk/include_lib/newlib/pi32v2-lib/libc.a",
+          "bytes": 188988,
+          "sha256": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4"
+        },
+        {
+          "path": "sdk/include_lib/newlib/pi32v2-lib/libcompiler_rt.a",
+          "bytes": 111588,
+          "sha256": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009"
+        },
+        {
+          "path": "sdk/apps/common/net/wifi_conf.c",
+          "bytes": 52960,
+          "sha256": "697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb"
+        },
+        {
+          "path": "sdk/LICENSE",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ],
+      "dsp_refs": {
+        "schwung-9W9": {
+          "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+          "dirty": ""
+        },
+        "schwung-8W8": {
+          "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+          "dirty": ""
+        },
+        "schwung-303": {
+          "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+          "dirty": ""
+        },
+        "schwung-tb3po": {
+          "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+          "dirty": ""
+        }
+      },
+      "toolchain_tree_manifest": {
+        "files": 640,
+        "bytes": 508140323,
+        "sha256": "8b15b1677566fff0c467001e53f8c674824e395e26051d6b3d430957b31f66b4"
+      },
+      "after": {
+        "all_selected_inputs_unchanged": true,
+        "toolchain_tree_manifest_sha256": "8b15b1677566fff0c467001e53f8c674824e395e26051d6b3d430957b31f66b4",
+        "toolchain_file_entries": 640,
+        "before_manifest_sha256": "ecc05cab68195f008b5674f6411081fe5dc341620c7751c869347cf0a9be3cd9",
+        "source_commit": "0e00c262348a1574c37f27e37a60531faef44cb4",
+        "source_diff": ""
+      }
+    },
+    "logs": {
+      "elite-build.log": {
+        "bytes": 1320,
+        "sha256": "57306cd97ee543f1906cc19abd6c217d59d849502d3a29df95246e29ba97fba4"
+      },
+      "pro-build.log": {
+        "bytes": 1300,
+        "sha256": "aa4d0fcdf1fb77bb75b618cc8921a5b57ed84384f744ef17c50f1e085727ea03"
+      },
+      "controller-build.log": {
+        "bytes": 731,
+        "sha256": "e3ad70b8bf495c9faf7f35331bb171edde446086b958f59ac38a619cd7dbdad7"
+      },
+      "controller-check.log": {
+        "bytes": 24,
+        "sha256": "2baffe460c777740a2b17796d532972d41b4937f0a95e23ad428b8cd25b26939"
+      },
+      "elite-join.log": {
+        "bytes": 65,
+        "sha256": "bc825b702d58fed868e5ab1424382a881e8be9202d865a4650d33d2cf1f6452c"
+      },
+      "pro-join.log": {
+        "bytes": 63,
+        "sha256": "48c876ef8326357c07ef74ecc241b768b7bd6ed57ae9131969aa057c46aeed73"
+      },
+      "runtime.txt": {
+        "bytes": 217,
+        "sha256": "dbfa566c44c3fbffaaeed01eee06326691684d4c1b8f2bc7f59e576ef0ee8e8d"
+      }
+    },
+    "private_receipt_sha256": "013639b2937b667388cd6c8c1f70ac207fb281d2d4639884021f8dfee4b7e649"
+  },
+  "compiler_input_equivalence": {
+    "build_commit": "0e00c262348a1574c37f27e37a60531faef44cb4",
+    "source_tests_commit": "cf66dab4d09e273957586b353c12e83abd8c0774",
+    "proof": "git diff --quiet BUILD_COMMIT SOURCE_TESTS_COMMIT -- firmware tools ble host build.sh exited 0; all changed paths were tests only. Subsequent handoff changes are documentation/evidence only.",
+    "matching_firmware_tree": "e74f6c399bd90676ab9a44542272fb67175c72ab"
+  }
+}
