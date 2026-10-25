@@ -107,9 +107,10 @@ function pkHasSlotMap(d) {
 export const CTL_NO_BLOCK = "the app code of this package goes into the Bluetooth block (flash 0x8B000-0x9AFFF). "
   + "It is an X0X from before the block. It takes no controller image (install it without one)";
 
-// the logical image (logicalImage) with ctl in the Bluetooth block; throws on anything unexpected
-export function insertCtl(logical, ctl) {
-  if (ctl && ctlProblem(ctl)) throw new Error("ctl.img: " + ctlProblem(ctl));
+const SMK_SLOT = 0x97400, FM1_CODE_MAX = 0x8DFBC;
+
+// Decrypt the app area, let edit(area, slot) change it, then seal the CRCs again.
+function editAppArea(logical, edit) {
   const lg = new Uint8Array(logical);
   const hdr = lg.slice(0, 0x40);
   pkEnc(hdr, 0, 0x40);
@@ -140,15 +141,7 @@ export function insertCtl(logical, ctl) {
   pkSfc(area, 0, n, key);
   if (!pkStarts(area, 48, "app.bin") || pkU32(area, 36) !== 0x120) throw new Error("no app.bin in the app area");
   const slot = pkU32(area, 40);
-  if (slot !== CTL_SLOT) throw new Error("not an SMK-37 package (the Bluetooth block is on the SMK-37 only)");
-  const lo = 0x120 + CTL_CODE_MAX;
-  // the block must be free: empty, a controller image, or a package with the slot map record (the build
-  // limits the app code since then). An older X0X has app code there: writing it would stop the unit.
-  const blockFree = area.subarray(lo, lo + CTL_SIZE).every((b) => b === 0xFF) || pkU32(area, lo) === 0x43423058
-    || pkHasSlotMap(lg);
-  if (!blockFree) throw new Error(CTL_NO_BLOCK);
-  area.fill(0xFF, lo, lo + CTL_SIZE);
-  if (ctl) area.set(ctl, lo);
+  edit(area, slot, lg);
   pkPut16(area, 34, pkCrc16(area, 0x120, 0x120 + slot));
   pkPut16(area, 32, pkCrc16(area, 34, 64));
   pkPut16(area, 2, pkCrc16(area, 32, blk));
@@ -164,4 +157,70 @@ export function insertCtl(logical, ctl) {
   lg.set(hdr, 0);
   lg.set(lst, 0x40);
   return lg;
+}
+
+// the logical image (logicalImage) with ctl in the Bluetooth block; throws on anything unexpected
+export function insertCtl(logical, ctl) {
+  if (ctl && ctlProblem(ctl)) throw new Error("ctl.img: " + ctlProblem(ctl));
+  return editAppArea(logical, (area, slot, lg) => {
+    if (slot !== CTL_SLOT) throw new Error("not an SMK-37 package (the Bluetooth block is on the SMK-37 only)");
+    const lo = 0x120 + CTL_CODE_MAX;
+    // the block must be free: empty, a controller image, or a package with the slot map record (the build
+    // limits the app code since then). An older X0X has app code there: writing it would stop the unit.
+    const blockFree = area.subarray(lo, lo + CTL_SIZE).every((b) => b === 0xFF) || pkU32(area, lo) === 0x43423058
+      || pkHasSlotMap(lg);
+    if (!blockFree) throw new Error(CTL_NO_BLOCK);
+    area.fill(0xFF, lo, lo + CTL_SIZE);
+    if (ctl) area.set(ctl, lo);
+  });
+}
+
+function packMagic(app, o) {
+  const m = "X0XBRKPK";
+  for (let i = 0; i < 8; i++) if (app[o + i] !== m.charCodeAt(i)) return false;
+  return true;
+}
+
+// Write a break pack into the free tail of the code region. Does not touch the Bluetooth block.
+export function placeBreakPack(app, pack) {
+  const codeMax = app.length;
+  if (!pack || pack.length < 20 || !packMagic(pack, 0)) throw new Error("not a break pack");
+  let at = -1;
+  for (let o = (codeMax - 20) & ~15; o >= 0; o -= 16) {
+    if (!packMagic(app, o)) continue;
+    let end = o + 20, ok = true;
+    const count = app[o + 10] | (app[o + 11] << 8);
+    if (count < 1 || count > 8) continue;
+    for (let n = 0; n < count; n++) {
+      if (end + 20 > codeMax) { ok = false; break; }
+      const nbytes = pkU32(app, end + 16);
+      end += 20 + nbytes;
+      if (end > codeMax) { ok = false; break; }
+    }
+    if (!ok || pkCrc32(app, o + 20, end) !== pkU32(app, o + 16)) continue;
+    let ff = true;
+    for (let i = end; i < codeMax; i++) if (app[i] !== 0xFF) { ff = false; break; }
+    if (ff) { at = o; break; }
+    if (o === 0) break;
+  }
+  if (at < 0) {
+    let i = codeMax - 1;
+    while (i > 0 && app[i] === 0xFF) i--;
+    at = (i + 1 + 15) & ~15;
+  }
+  if (at + pack.length > codeMax) {
+    throw new Error(`loop pack needs ${pack.length} bytes, ${codeMax - at} free`);
+  }
+  app.fill(0xFF, at, codeMax);
+  app.set(pack, at);
+  return app;
+}
+
+// The logical image with the loop pack in the free code tail.
+export function insertBreakPack(logical, pack) {
+  return editAppArea(logical, (area, slot) => {
+    const codeMax = slot === SMK_SLOT ? CTL_CODE_MAX : slot === FM1_CODE_MAX ? FM1_CODE_MAX : 0;
+    if (!codeMax || 0x120 + codeMax > area.length) throw new Error("this package has no room for a loop pack");
+    placeBreakPack(area.subarray(0x120, 0x120 + codeMax), pack);
+  });
 }

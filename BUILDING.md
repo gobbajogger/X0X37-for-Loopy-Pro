@@ -382,12 +382,14 @@ To get the calibration mode again, build with `X0X_DEV_PADCAL=1` (or with no val
 marks the complete calibration mode (CLP-79, orientation page, reopen fix, ok dot).
 
 The build also generates `build/gen/`. It contains the font and the 909's cymbal samples (IMA ADPCM,
-44.1 kHz) and tables (`tools/gen_drum_samples.py`). It also contains the built-in break loops (two 2-bar
-loops, IMA ADPCM at 44.1 kHz, 220,500 B). The 909 port renders them on the host
-(`tools/gen_builtin_break.sh`, needs a host `cc`). Opt-in: `X0X_BREAK_BANK=DIR` builds the break bank
-from one-bar WAVs instead. `tools/import_breaks.py` makes such a folder from BB Gen's samples, in
-`build/breaks/` (README.md, Breaks). The build fails if it links a soft-double routine (a `double` crept
-in). It also checks the image, RAM and pool sizes.
+44.1 kHz) and tables (`tools/gen_drum_samples.py`). The default image does not contain the two factory
+break loops. Those loops are 2 bars each, IMA ADPCM at 44.1 kHz, 220,500 B together, and they stay in
+`assets/factory-breaks/` (`tools/export_factory_breaks.sh`). The installer can write that pack, or your
+own loops, into the free tail of the app code. `X0X_FACTORY_BREAKS=1` compiles the factory loops back
+into the image. `X0X_BREAK_BANK=DIR` uses another bank instead (`tools/gen_break_bank.py`).
+`tools/import_breaks.py` makes such a folder from BB Gen's samples, in `build/breaks/` (README.md, Breaks).
+The build fails if it links a soft-double routine (a `double` crept in). It also checks the image, RAM
+and pool sizes.
 
 ### M-Vave SMK-37 Pro
 

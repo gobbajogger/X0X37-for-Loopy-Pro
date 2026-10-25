@@ -389,8 +389,9 @@ bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are 
 eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
 the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
 tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. X0X comes with two loops of its own, 909 GR and 909 FL, played by its 909; loops you
-upload come after them.
+on top. The default firmware does not carry built-in loops, so that room can hold more of the
+synth. The installer can put the two factory loops back, 909 GR and 909 FL, or your own WAV files
+in their place. Loops you upload into the sample slots come after those, when they are installed.
 
 All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
 and sends are on the mixer's PARTS page (LFO, black key 5).

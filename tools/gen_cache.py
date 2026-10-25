@@ -27,6 +27,7 @@ TOOLS = (
     "tools/gen_builtin_break.sh",
     "tools/gen_builtin_break.c",
     "tools/sampleio.py",
+    "tools/break_pack.py",
 )
 ROOTS = (
     SRC / "tools" / "gen_builtin_break.c",
@@ -110,8 +111,11 @@ def _wavs(directory):
 def fingerprint():
     """Hash the inputs of generate(). The compiler version is part of the break bank."""
     hasher = hashlib.sha256()
-    for key in ("X0X_FONTSET", "X0X_FONT_DIRS", "X0X_BREAK_BANK", "CC"):
+    for key in ("X0X_FONTSET", "X0X_FONT_DIRS", "X0X_BREAK_BANK", "X0X_FACTORY_BREAKS", "CC"):
         _add(hasher, key, os.environ.get(key, "").encode())
+    mode = "bank" if os.environ.get("X0X_BREAK_BANK") else (
+        "factory" if os.environ.get("X0X_FACTORY_BREAKS") == "1" else "none")
+    _add(hasher, "break-bank-mode", mode.encode())
     cc = os.environ.get("CC", "cc")
     resolved = shutil.which(cc) or cc
     _add(hasher, "cc-path", resolved.encode())
