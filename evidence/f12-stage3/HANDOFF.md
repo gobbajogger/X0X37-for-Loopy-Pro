@@ -18,10 +18,11 @@ Test evidence: `evidence/f12-stage3/CHECKS.md`.
 Implement evidence: `evidence/f12-stage2/CHECKS.md`, `evidence/f12-stage2/DEFERRED.md`.
 Audit record: `evidence/f12-stage1/AUDIT.md`, `bf008-definition.md`.
 Successor prompt: `evidence/f12-stage3/SUCCESSOR-STAGE4.txt`.
-Successor agent id: none.
-Successor URL: none.
-Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
-Handoff status: **incomplete** until an owner-visible Stage 4 id is recorded on this remote tip.
+Successor agent id: `bc-eacdb970-e51c-553e-b0f8-fd49e9201626`.
+Successor URL: https://cursor.com/agents/bc-eacdb970-e51c-553e-b0f8-fd49e9201626
+Successor source: coordinator CreateAgent (owner-visible; F12 package validate).
+Local-env review: `bc-964ab6a2-d8a9-50af-9f5c-2241cbc9f1ec` (PR #271 subscribed).
+Handoff status: **complete** — owner-visible Stage 4 id on this remote tip.
 
 ## Test summary
 
