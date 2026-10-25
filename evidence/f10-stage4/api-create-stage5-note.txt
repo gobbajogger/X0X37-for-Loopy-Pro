@@ -1,0 +1,1 @@
+Pod has no CURSOR_API_KEY. API create Stage 5 expected to fail with 401. Coordinator CreateAgent required.
