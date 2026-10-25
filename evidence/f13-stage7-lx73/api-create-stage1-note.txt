@@ -1,0 +1,8 @@
+CURSOR_API_KEY was unset on Stage-7 pod; two local attempts recorded NO_CURSOR_API_KEY.
+Coordinator CreateAgent launched owner-visible F15 Stage 1 (no Stage-7 relaunch):
+  id: bc-6c51c5fd-d995-54b7-baf7-b5033919009d
+  url: https://cursor.com/agents/bc-6c51c5fd-d995-54b7-baf7-b5033919009d
+  name: F15 Stage 1 audit
+  source: desktop
+  startingRef: cursor/f13-lx73-stage7-237f
+Handoff complete when this id is on the remote tip. Do not relaunch Stage 1.
