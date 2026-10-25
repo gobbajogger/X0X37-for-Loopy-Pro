@@ -16,9 +16,11 @@ BF-005 implement: owner-matching `seq_clk_drop` clears `ext_pending` in `firmwar
 Implement evidence: `evidence/f09-stage2/CHECKS.md`, `evidence/f09-stage2/DEFERRED.md`, `bf005-red.log`, `bf005-green.log`, `clk-lock.log`, `host-unit.log`, `nonowning-drop.log`.
 Audit record: `evidence/f09-stage1/AUDIT.md`.
 Successor prompt: `evidence/f09-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create expected ×2 → 401); coordinator CreateAgent is required.
+Successor agent id: `bc-ae6fbd79-7084-5960-9b7c-1f7fce57cc2b` (coordinator CreateAgent; owner-visible).
+Successor URL: https://cursor.com/agents/bc-ae6fbd79-7084-5960-9b7c-1f7fce57cc2b
+startingRef: `cursor/f09-bf005-stage2-fb90`.
+API CreateAgent (this pod): attempt1/2 **401** (no `CURSOR_API_KEY`) — see `api-create-stage3-attempt{1,2}.json`.
+Handoff status: **complete** — owner-visible Stage 3 id recorded on this remote tip. Stage 2 releases ownership.
 
 ## Repair summary
 
