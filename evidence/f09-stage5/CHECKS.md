@@ -70,8 +70,17 @@ Production `main` and production GitHub Pages: **unchanged**. No device flash. D
 
 ## Successor create (API)
 
-`POST https://api.cursor.com/v1/agents` attempted with no `CURSOR_API_KEY` (see attempt JSON). Coordinator CreateAgent required for owner-visible Stage 7. Handoff incomplete until that id is on the remote tip.
+`POST https://api.cursor.com/v1/agents` attempted twice with no `CURSOR_API_KEY`.
+
+| Attempt | Result |
+| --- | --- |
+| 1 | `NO_CURSOR_API_KEY` |
+| 2 | `NO_CURSOR_API_KEY` |
+
+Logs: `api-create-stage7-attempt1.json`, `api-create-stage7-attempt2.json`.
+Coordinator CreateAgent launched owner-visible Stage 7: `bc-bb6e5cd5-b939-53c7-a83d-6b012405e45c` (https://cursor.com/agents/bc-bb6e5cd5-b939-53c7-a83d-6b012405e45c; `startingRef` `cursor/f09-bf005-stage5-fb90`). Handoff complete on the remote tip. Do not create another Stage 7.
+PR [#244](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/244) subscribed for local-env review.
 
 ## Overall
 
-Merge gate complete for nightly refusal + stage-6 prompt save. Stage 7 successor id pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`). Validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA.
+Merge gate complete for this stage: nightly refusal recorded without force-push; validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA; owner-visible Stage 7 successor id on the remote.
