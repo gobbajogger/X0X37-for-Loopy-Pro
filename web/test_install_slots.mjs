@@ -346,9 +346,36 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
       appendChild(n) { this.children.push(n); return n; },
       remove() {},
       removeAttribute() {},
+      setAttribute(name, value) { this[name] = value; if (name === "id") this.id = value; },
+      focus() {},
       click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
       set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
       get innerHTML() { return this._html || ""; },
+      // Installer backup readback inserts a panel after #status; auto-confirm it.
+      after(node) {
+        this._after = this._after || [];
+        this._after.push(node);
+        if (node && node.id === "backupverify") {
+          queueMicrotask(async () => {
+            const link = node.children.find((c) => c && c.download);
+            const chooser = node.children.find((c) => c && c.type === "file");
+            if (!link || !chooser || !chooser.handlers.change) return;
+            const blob = blobs.get(link.href);
+            if (!blob) return;
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            link.click();
+            Object.defineProperty(chooser, "files", {
+              configurable: true,
+              get: () => [{
+                name: link.download || "backup.x0xslots",
+                size: bytes.length,
+                async arrayBuffer() { return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength); },
+              }],
+            });
+            await chooser.handlers.change();
+          });
+        }
+      },
     };
     if (tag === "input") radios.push(o);
     return o;

@@ -204,6 +204,7 @@ function eligiblePickerResult(eligible, latest, current = "") {
     const $ = (id) => dom[id];
     const versions = () => eligible;
     const refreshModelUi = () => {};
+    const refreshNightly = () => {};
     const loadSelectedPackage = () => {};
     const say = () => {}, t = () => "";
     ${downloadGuard}
@@ -260,7 +261,7 @@ function attemptedNightlyWrite({selection=good.version, cached=pkg,
     cachedHref,calls,Uint8Array});
   new Script(`const $=(id)=>dom[id];
     let catalogLive={latest:good.version,versions:[good]},chosenModel="elite";
-    let image=new Uint8Array([17]),selectedProduct=cachedProduct;
+    let loadSerial=0,image=new Uint8Array([17]),selectedProduct=cachedProduct;
     let verifiedDownload=cached&&{pkg:cached,model:"elite",
       version:cachedVersion,href:cachedHref};
     let writing=false,ctlNeedsResolution=false,ctl=null,ctlHash=null;
