@@ -1,0 +1,52 @@
+name: Feature request
+description: Describe a musical problem and a useful improvement to LoopyX0X37.
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what would help you make music. Requests are analysed for usefulness,
+        reuse and control conflicts before implementation. Community votes help
+        discussion; only an owner request or verified owner approval can authorize work.
+  - type: textarea
+    id: musical_goal
+    attributes:
+      label: What are you trying to do musically?
+      description: Describe the musical goal and what currently gets in your way.
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: What improvement would help?
+      description: Describe what you expect to happen and a simple example of success.
+    validations:
+      required: true
+  - type: input
+    id: model_area
+    attributes:
+      label: Which model or area is affected?
+      placeholder: Elite, Pro, SMC, sequencer, project management, or another area
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: How do you do this today?
+      description: Describe any workaround, or say that there is none.
+    validations:
+      required: true
+  - type: textarea
+    id: duplicate_check
+    attributes:
+      label: Have you found an existing feature or similar request?
+      description: Mention related requests or documentation, or say where you looked.
+    validations:
+      required: true
+  - type: checkboxes
+    id: public_notice
+    attributes:
+      label: Public submission
+      options:
+        - label: I understand this issue is public and will not include secrets, private recordings, backups or personal captures.
+          required: true
