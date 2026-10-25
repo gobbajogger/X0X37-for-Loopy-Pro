@@ -301,7 +301,8 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     if (ed_project.mode == 2)
         ed_project.changed = 1;
     usr_nz[k] = 0;
-    engine_brk_loops();                               /* nothing may read the slot now */
+    engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
+    engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k)); /* this erase rewrites the slot: drop voices still in it */
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
         audio_silence();
         rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);

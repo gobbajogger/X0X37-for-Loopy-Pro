@@ -86,6 +86,8 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 void engine_bass_off(int part);
 void engine_brk_live(int key, int down);
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
+void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
+void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes); /* stop voices reading bytes that are about to be erased */
 int engine_brk_slice(void);                                 /* slice sounding now, -1 none (UI) */
 void engine_brk_state(int *slice, int *bank, int *div, int *running);
 int engine_brk_outline(int which, uint8_t *peaks, int n);   /* the loop's peaks for the screen (main loop) */

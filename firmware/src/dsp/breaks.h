@@ -9,11 +9,13 @@
  * player resamples it so the loop's stated `bars` follow the current tempo (pitch
  * follows tempo, as in BB Gen), times the Pitch param.
  *
- * Threading: breaks_set_loop, breaks_set, breaks_live may run in the main loop
- * while breaks_step / breaks_render / breaks_stop run in the audio ISR (single
- * core: the ISR runs to completion). Every cross-context write is a single byte
- * or aligned word; breaks_set_loop marks the bank invalid while it rebuilds it.
- * Output rate is BRK_FS. Float only, no libm, no allocation. */
+ * Threading: the main loop may call breaks_set_loop while the audio ISR and the
+ * second core run breaks_step / breaks_render. A new loop is built in a snapshot
+ * no voice is reading, then published with one byte. The voice that is already
+ * sounding keeps the snapshot it started on, so a loop change does not mute it
+ * and does not rewrite its samples. breaks_set_loop(NULL) drops that loop's
+ * voices: the samples may be about to leave. Output rate is BRK_FS. Float only,
+ * no libm, no allocation. */
 #pragma once
 #include <stdint.h>
 #include "x0x_param.h"
@@ -41,7 +43,7 @@ typedef struct {
     uint8_t idx, rsv;
 } brk_ima_t;
 
-typedef struct {
+typedef struct brk_bank {
     const uint8_t *adpcm;
     uint32_t n;                       /* samples */
     float sp16;                       /* source samples per 16th note: n / (bars * 16) */
@@ -49,13 +51,14 @@ typedef struct {
     brk_ima_t at_start[8];            /* exact decoder state at each slice start */
     brk_ima_t ck[BRK_NCK];            /* decoder state every 1 << ck_shift samples */
     uint8_t ck_shift;
-    volatile uint8_t valid;           /* 0 while breaks_set_loop rebuilds this bank */
-    uint8_t gen;                      /* bumped on every load: voices of an old load die */
+    volatile uint8_t valid;           /* 0 while this snapshot is being built; published only when 1 */
+    uint8_t gen;                      /* bumped on every load of this snapshot */
     uint8_t rsv;
 } brk_bank_t;
 
 typedef struct {
     uint8_t on, rev, bank, gen;
+    const struct brk_bank *snap;      /* bank snapshot this voice keeps reading */
     uint32_t pos;                     /* index of s1 (the sample being approached) */
     int32_t pred, idx;                /* forward: decoder state after decoding pos */
     float frac, s0, s1;               /* output = s0 + (s1 - s0) * frac */
@@ -78,7 +81,11 @@ typedef struct {
 } brk_perf_t;
 
 typedef struct breaks {
-    brk_bank_t bank[2];               /* 0 = A, 1 = B */
+    brk_bank_t bank[2];               /* 0 = A, 1 = B, when pub[] still names them */
+    brk_bank_t side[2];               /* spare snapshots for a loop change under a voice */
+    volatile uint8_t pub[2];          /* published snapshot: 0..1 bank[], 2..3 side[] */
+    uint8_t pend_on[2];               /* a change waiting for a free snapshot */
+    brk_loop_t pend[2];
     brk_voice_t v[2];                 /* the sounding voice and the one fading out */
     uint8_t cur;                      /* index of the sounding voice */
     uint8_t set[BRK_NPARAM];          /* parameter values */
@@ -120,6 +127,9 @@ typedef struct breaks {
 
 void breaks_init(breaks_t *b);
 void breaks_set_loop(breaks_t *b, int which /*0 = A, 1 = B*/, const brk_loop_t *loop);   /* NULL = empty (silent) */
+void breaks_flush(breaks_t *b);                /* publish a loop change that waited for a free snapshot */
+void breaks_drop_range(breaks_t *b, const uint8_t *base, uint32_t nbytes); /* samples at base are going away */
+const brk_bank_t *breaks_bank(const breaks_t *b, int which); /* the published loop, for the screen */
 void breaks_step(breaks_t *b, int step16, int bar, float samples_per_16th, int enabled);
 void breaks_pin(breaks_t *b, int slice);           /* X0X: the next breaks_step plays loop A's slice (0-7), -1 = none */
 void breaks_stop(breaks_t *b);

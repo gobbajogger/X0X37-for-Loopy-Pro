@@ -36,7 +36,6 @@ static fxbus_t fx POOL;
 static master_t mst;
 #define DLY_LEN 88200
 static int16_t dly_buf[DLY_LEN] POOL;
-static volatile uint8_t brk_hold;      /* main loop is rewriting the break loops: ISR leaves it alone */
 static volatile uint8_t project_hold, project_midi_drop;
 void engine_project_hold(int hold)
 {
@@ -420,8 +419,6 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     if (en && prob_skip(PART_BRK, 0))
         en = 0;
     (void)x;
-    if (brk_hold)
-        return;
     breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)));   /* unheard: stop decoding */
     for (i = 0; i < BRK_NSET; i++)       /* follow the playing pattern's settings (12 compares) */
         if (bp->set[i] != brk_applied[i]) {
@@ -677,7 +674,7 @@ static void drain(void)
             bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
         else if (type == C_BOFF && a < NBASS)
             bass303_note_off(&b303[a]);
-        else if (type == C_BRK && !brk_hold)
+        else if (type == C_BRK)
             breaks_live(&brk, (int)a, (int)b);
     }
     cq_r = r;
@@ -798,10 +795,8 @@ static void core2_job(uint32_t arg)
         PROF_ADD(PR_808, pt);
         pt = plat_cycles();
     }
-    if (!brk_hold) {
-        brk_silent_now = breaks_silent(&brk);             /* the render writes zeros: nothing to mix */
-        breaks_render(&brk, kbuf, (int)n);
-    }
+    brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
+    breaks_render(&brk, kbuf, (int)n);
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }
@@ -891,7 +886,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
     }
-    if (!brk_hold && !brk_silent_now) {
+    if (!brk_silent_now) {
         float g = mix_level[PART_BRK];
         mix_targets(PART_BRK, g, solo_parts);
         add_glide(dry_l, kbuf, &mix_glide[PART_BRK][GL_L], n);
@@ -1064,7 +1059,7 @@ void engine_brk_state(int *slice, int *bank, int *div, int *running)
  * whole loop once, ~20k IMA steps; called when the loop changes, never per frame) */
 X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
 {
-    const brk_bank_t *bk = &brk.bank[which & 1];
+    const brk_bank_t *bk = breaks_bank(&brk, which & 1);
     uint32_t i, ns = bk->n;
     int32_t pred = 0, idx = 0, col = 0, pk = 0;
     uint32_t per;
@@ -1096,7 +1091,10 @@ X0X_COLD void engine_brk_loops(void)
     brk_loop_t L[2];
     int w;
     scan_loops();                                       /* an upload may have changed the user loops */
-    brk_hold = 1;                                       /* the ISR skips the break while we rewrite it */
+    /* No mute. The voice that is already sounding keeps its snapshot, and the
+     * new loop is published for the next trigger. Skipping the break here used
+     * to drop a whole buffer. */
+    breaks_flush(&brk);                                /* a change that waited for a free snapshot */
     for (w = 0; w < 2; w++) {
         int slot = w ? bp->slot_b : bp->slot_a;
         uint32_t ns = 0, rate = 0;
@@ -1113,7 +1111,13 @@ X0X_COLD void engine_brk_loops(void)
             breaks_set_loop(&brk, w, brk_builtin(slot < X0X_NBREAKS ? slot : 0));   /* built-in (or an empty user slot: the first) */
         }
     }
-    brk_hold = 0;
+}
+
+void engine_brk_flush(void) { breaks_flush(&brk); }
+
+void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
+{
+    breaks_drop_range(&brk, base, nbytes);              /* flash under these bytes is about to change */
 }
 
 X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
@@ -1125,7 +1129,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         bass_held[p] = 0;
     for (p = 0; p < BRK_NSET; p++)
         brk_applied[p] = 0xFFu;
-    brk_hold = mot_playing = mot_release_req = 0;
+    mot_playing = mot_release_req = 0;
     mot_on = mot_was_on = 1;
     guard_on = guard_applied = 0;
     guard_enabled = 1;
