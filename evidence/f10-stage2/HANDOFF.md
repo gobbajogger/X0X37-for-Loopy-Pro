@@ -16,9 +16,9 @@ BF-006 implement: `d8_exp2_cr` defined shift in `firmware/src/dsp/drum808.c` (bl
 Implement evidence: `evidence/f10-stage2/CHECKS.md`, `evidence/f10-stage2/DEFERRED.md`, `bf006-red.log`, `bf006-green.log`, `host-unit.log`, `drum808-compile.log`.
 Audit record: `evidence/f10-stage1/AUDIT.md`.
 Successor prompt: `evidence/f10-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create expected ×2 → 401); coordinator CreateAgent is required.
+Successor agent id: `bc-3c0568a9-8766-54a3-873f-df4a542e0ec5` (name: F10 BF-006 tests; coordinator CreateAgent; startingRef `cursor/f10-bf006-stage2-fb90`).
+Successor URL: https://cursor.com/agents/bc-3c0568a9-8766-54a3-873f-df4a542e0ec5
+Handoff status: **complete** — owner-visible Stage 3 id recorded on this remote tip. Pod had no `CURSOR_API_KEY` (attempts ×2 → `NO_CURSOR_API_KEY`); coordinator CreateAgent supplied the successor. PR #251 subscribed; local-env review `bc-91b0f44b-8fa4-5170-9287-39a6e578cc98` running. Do not create another Stage 3.
 
 ## Repair summary
 
