@@ -397,7 +397,7 @@
         },
         "independent-qa": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/7d7b83984a87d574bd702295ac7dd5a4bcf8d581/evidence/f10-stage5/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/dca76fcb18446377569281ceab535868586b4aee/evidence/f10-stage7/independent-qa-local-review.md"
         }
       }
     },
@@ -454,7 +454,7 @@
         },
         "independent-qa": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/7d7b83984a87d574bd702295ac7dd5a4bcf8d581/evidence/f10-stage5/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/dca76fcb18446377569281ceab535868586b4aee/evidence/f10-stage7/independent-qa-local-review.md"
         }
       }
     }
