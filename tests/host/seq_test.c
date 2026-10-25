@@ -24,7 +24,7 @@ static void log_ev(int k, int a, int b, int c, int d)
         evs[nev++] = (ev_t){now, k, a, b, c, d};
 }
 static int s_drum(void *x, int k, int v, float vel) { (void)x; log_ev(E_DRUM, k * 100 + v, (int)(vel * 127.0f + 0.5f), 0, 0); return 1; }
-static void s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); }
+static int s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); return 1; }
 static void s_off(void *x, int p) { (void)x; log_ev(E_OFF, p, 0, 0, 0); }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; log_ev(E_BRK, s16, bar, (int)spb, en); }
 static void s_brkstop(void *x) { (void)x; log_ev(E_BRKSTOP, 0, 0, 0, 0); }
@@ -147,7 +147,7 @@ static void test_303(void)
     b->step[2] = (bstep_t){41, G_NOTE | BS_ACCENT, 0};           /* reached by slide, accented */
     b->step[3] = (bstep_t){41, G_TIE, 0};                        /* tie: 2 held through 3 */
     b->step[4] = (bstep_t){0, G_REST, 0};
-    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* tie after rest = a note */
+    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* orphan tie after rest: silent (BAS-03) */
     b->transpose = 26;                                        /* +2 */
     seq_start(&S);
     run((uint32_t)(step * 8));
@@ -163,7 +163,7 @@ static void test_303(void)
     CHECK(off > i, "no gate off between a slide and its target");
     CHECK(off >= 0 && abs((int)evs[off].t - (int)(3.5 * step + 0.5)) <= 1, "tie holds step 3 into step 4, whose gate falls at its half (%u, want %.0f)", off >= 0 ? evs[off].t : 0, 3.5 * step);
     i = find(E_ON, 0, off);
-    CHECK(i >= 0 && evs[i].b == 45 && abs((int)evs[i].t - (int)(5 * step + 0.5)) <= 1, "tie after a rest plays as a note");
+    CHECK(i < 0 || abs((int)evs[i].t - (int)(5 * step + 0.5)) > 1, "orphan tie after a rest stays silent");
     printf("  303 gate / slide / tie / transpose: checked\n");
 }
 

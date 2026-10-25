@@ -7,7 +7,7 @@
 static pattern_t patterns[NPAT];
 static unsigned bass_fired, checked, errors, mismatch_observed;
 static int drum(void *c,int k,int v,float vel){(void)c;(void)k;(void)v;(void)vel;return 1;}
-static void bass_on(void*c,int b,int n,int a,int s,int v){(void)c;(void)b;(void)n;(void)a;(void)s;(void)v;}
+static int bass_on(void*c,int b,int n,int a,int s,int v){(void)c;(void)b;(void)n;(void)a;(void)s;(void)v; return 1; }
 static void bass_off(void*c,int b){(void)c;(void)b;}
 static void brk(void*c,int p,int b,float sp,int en){(void)c;(void)p;(void)b;(void)sp;(void)en;}
 static void brk_stop(void*c){(void)c;}

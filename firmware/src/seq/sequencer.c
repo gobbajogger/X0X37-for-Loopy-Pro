@@ -196,7 +196,8 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
     if (s->mute & (1u << (MUTE_BASS0 + b)))
         gate = G_REST;
-    if (gate == G_REST) {
+    /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
+    if (gate == G_REST || (gate == G_TIE && !tr->sounding)) {
         bass_release(s, b, o);
         tr->held_note = 0;
         return;
@@ -205,9 +206,10 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     note = note < 0 ? 0 : note > 127 ? 127 : note;
     if (gate == G_NOTE || !tr->sounding) {
         int slide = tr->sounding && prev_slide;
-        if (!skip)                                   /* (recorded live on this pass: the key sounded it) */
-            o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
-        if (s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
+        /* A chance-rejected step is a rest for both the internal 303 and MIDI out.
+         * REC's live-hit skip still echoes MIDI (REC-06); it is not a chance miss. */
+        int played = skip || o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
+        if (played && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
             if (s->bass_slide_valid[b]) {                  /* only one old MIDI pitch can remain open */
@@ -235,6 +237,12 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
         } else if (s->bass_out_valid[b] || s->bass_slide_valid[b]) {
             /* Output was disabled or its channel set OFF while a note sounded. */
             bass_midi_flush(s, b, o);
+        }
+        if (!played) {                                  /* rejected chance: a real rest, not a held 303 */
+            tr->sounding = 0;
+            tr->held_note = 0;
+            tr->to_off = 0;
+            return;
         }
         tr->sounding = 1;
     }
