@@ -9,7 +9,7 @@ import tempfile
 root = Path(__file__).resolve().parents[2]
 source = Path(os.environ.get("SMC_SOURCE", root / "firmware/src/app/smc_mixer.c")).read_text()
 functions = []
-for name in ("smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led"):
+for name in ("smc_clip_on", "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led"):
     match = re.search(r"^static [^\n]+ " + name + r"\([^\n]*\)\n\{.*?^\}", source, re.M | re.S)
     if name in ("smc_drum_mix", "smc_drum_track") and not match:
         continue
@@ -29,6 +29,7 @@ static int volume, filter;
 static int pref_get(pref_t r) { return r.a == T_MST ? filter : volume; }
 static int part_muted(int p) { (void)p; return 0; }
 #define track_muted(k,t) ((void)(k),(void)(t),0)
+static unsigned smc_resuming;
 static int smk_clip_mode_on(void) { return 0; }
 #define is_drum() (ui.part < 2)
 static int drum_mix_page(void) { return -1; }

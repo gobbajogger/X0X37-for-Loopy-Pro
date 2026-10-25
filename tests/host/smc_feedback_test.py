@@ -63,6 +63,7 @@ static int track_muted(int kit,int track) {
     assert(kit>=0 && kit<NKIT && track>=0 && track<NDRUM);
     return (drum_mutes[kit]>>track)&1;
 }
+static unsigned smc_resuming;
 static int smk_clip_mode_on(void) { return clip; }
 #define is_drum() (ui.part < NKIT)
 static int cur_page(void) { return page; }
@@ -74,7 +75,7 @@ int plat_ble_smc_send(const uint8_t *msg,uint8_t len) {
 }
 '''
 harness += "\n".join(function(name) for name in (
-    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
+    "smc_clip_on", "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
 harness += r'''
 static void expect(const char *label,int note,int expected) {
     int got=smc_led(note)!=0;checks++;
