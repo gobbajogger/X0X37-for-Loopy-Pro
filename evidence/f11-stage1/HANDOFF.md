@@ -16,9 +16,11 @@ Independent claim review: `bc-b123ad99-27b7-5044-b4c6-efd6eccf2b4e` (8/8 PASS).
 Stage-7 local review cite: Project store `internal/pr-local-reviews/pr-256.md`.
 Package local review cite: Project store `internal/pr-local-reviews/pr-253.md` PASS.
 Successor prompt: `evidence/f11-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none (pending CreateAgent — pod has no `CURSOR_API_KEY`; ask Project coordinator).
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip.
+Successor agent id: `bc-1ef92313-0365-52c7-bb5d-751d2aef133c`.
+Successor URL: https://cursor.com/agents/bc-1ef92313-0365-52c7-bb5d-751d2aef133c.
+Successor source: desktop (owner-visible; name `F11 BF-007 implement`; startingRef `cursor/f11-bf007-stage1-fb90`).
+Local-env review for evidence PR #257: `bc-0e5139de-11d5-5160-ad7b-e51c76abefbc` (subscribed).
+Handoff status: **complete**. Pod had no `CURSOR_API_KEY`; coordinator CreateAgent launched Stage 2. Do not create another Stage 2. Stage 1 ownership ends after this record is on the remote tip.
 
 ## Scope for stage 2
 
