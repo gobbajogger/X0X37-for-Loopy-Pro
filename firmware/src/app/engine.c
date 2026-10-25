@@ -263,6 +263,8 @@ static void chi_aux_apply(int v, int i, int val)
     if (i == CHI_DAMPER) {
         uint8_t was = chi_damper[v];
         chi_damper[v] = (uint8_t)val;
+        /* Pedal up releases only a live/MIDI deferred note — latch is cleared
+         * on every pattern/arp note-on so this cannot cut a sequencer gate. */
         if (chi_damper_on(was) && !chi_damper_on((uint8_t)val) && chi_damp_latched[v]) {
             bass303_note_off(&b303[v]);
             chi_damp_latched[v] = 0;
@@ -274,6 +276,8 @@ typedef struct { int part; } chi_arp_step_ctx_t;
 static void chi_arp_on_step(int note, void *ctx)
 {
     int b = ((chi_arp_step_ctx_t *)ctx)->part;
+    if ((unsigned)b < NBASS)
+        chi_damp_latched[b] = 0; /* arp step owns the gate */
     bass303_note_on_velocity(&b303[b], note, chi_arp_accent[b], 0,
                              chi_arp_vel[b] ? chi_arp_vel[b] : 100);
 #ifdef X0X_HOST
@@ -558,6 +562,10 @@ static void s_drum(void *x, int kit, int v, float vel)
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     (void)x;
+    /* Pattern owns the gate: drop any live/MIDI damper latch so turning Damp
+     * Off later cannot cut this step (Bugbot on #342). */
+    if ((unsigned)p < NBASS)
+        chi_damp_latched[p] = 0;
     if (prob_skip(PART_303A + p, 0)) {                /* skipped: a rest for audio AND MIDI */
         bass303_note_off(&b303[p]);
         return 0;
