@@ -338,6 +338,7 @@ run update-names bash tests/host/test_update_names.sh   # tools/update.hook part
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
+run local-proof-plan python3 tests/host/test_local_proof_plan.py   # tools/local_proof_plan.py: minimum local proof; verify DEV CHECKED without rebuild
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
 run gen-cache python3 tests/host/test_gen_cache.py
