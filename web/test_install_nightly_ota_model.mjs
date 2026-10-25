@@ -27,6 +27,7 @@ async function simulate(spec) {
   const state = { writes: [], filters: [], rebootFilters: [], closed: 0, upgradeCalls: 0 };
   const dev = (m) => ({
     id: { model: m, text: m + "_900" },
+    name: m,
     link: { send() { state.upgradeCalls++; }, close() { state.closed++; } },
   });
   let loaderSearch = true;
@@ -35,6 +36,8 @@ async function simulate(spec) {
       const d = dev(spec.running || model);
       return filter(d.id) ? d : null;
     },
+    // Nightly transition wait snapshots prior matching ports; mock has none.
+    async matchingPorts() { return []; },
     async serve() { return { finished: true, served: 1 }; },
     async waitFor(filter) {
       if (loaderSearch) {
