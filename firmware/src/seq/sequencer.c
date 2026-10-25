@@ -237,6 +237,13 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
         tr->sounding = 1;
     }
     nx = next_pos(s, TRK_BASS0 + b, p, 0);
+    if ((bp->dir & 3) == DIR_RANDOM) {
+        /* Preview the next random step without advancing the committed RNG.
+         * A random TIE must hold the note picked before it, not the forward
+         * neighbour (which may never play on this pass). */
+        uint32_t peek_rng = tr->rng;
+        nx = (int)(rng_next(&peek_rng) % (uint32_t)seq_part_len(s, TRK_BASS0 + b));
+    }
     hold = (st->flags & BS_SLIDE) || bstep_gate(&bp->step[nx]) == G_TIE;
     tr->held_note = (uint8_t)((note & 0x7F) | ((st->flags & BS_SLIDE) ? 0x80 : 0));
     tr->to_off = hold ? 0 : carry + step_q8 / 2u;
