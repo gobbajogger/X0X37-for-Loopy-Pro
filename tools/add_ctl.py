@@ -243,11 +243,18 @@ def write_package(path, data):
         if Path(tmp).read_bytes() != data:
             raise OSError("temporary controller package did not read back")
         os.replace(tmp, path)  # same directory / filesystem: atomic replacement
-        dirfd = os.open(path.parent, os.O_RDONLY)
         try:
-            os.fsync(dirfd)
-        finally:
-            os.close(dirfd)
+            dirfd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(dirfd)
+            finally:
+                os.close(dirfd)
+        except OSError as exc:
+            raise OSError(
+                f"{path}: replacement completed, but directory finalization failed; "
+                "durability is uncertain. Inspect the output before retrying: "
+                f"{exc}"
+            ) from exc
     finally:
         if fd >= 0:
             os.close(fd)
