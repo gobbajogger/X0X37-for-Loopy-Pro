@@ -244,7 +244,7 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
     "upgrade: slots kept in place, no backup, SMP_INFO only");
 }
 
-// ---- 3. this X0X -> an older X0X: save, install, slot 3 back into the free slot 2, slot 2 (98 KiB) reported ----
+// ---- 3. downgrade: preserve an exact backup, never restore to a newly discovered unbound device ----
 {
   const fw = { [NOW]: NEW, [OLD_PKG]: OLD };
   const r = await flow(packageOf(OLD_PKG), OLD_PKG, NOW, OLD_PKG, fw, [[0, IMG[0]], [1, IMG[1]], [2, IMG[2]]]);
@@ -253,31 +253,36 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
     `downgrade: every slot saved (${r.saved[0] && r.saved[0].name})`);
   const before = r.dev.slotLog.filter(([id]) => id === NOW).map(([, c]) => c);
   ok(before.every((c) => c === 15 || c === 16) && before.includes(16), "downgrade: the backup sends SMP_INFO / SMP_READ only");
-  const now = slotImages(r.flash, OLD);
-  ok(r.res && same(now[0], IMG[0]) && same(now[1], IMG[2]) && r.res.move.todo.map((t) => `${t.k}>${t.j}`).join() === "2>1"
-    && r.res.move.skipped.length === 1 && /slot 2/.test(r.res.move.skipped[0]),
-    "downgrade: slot 1 kept, slot 3 -> slot 2 and read back, slot 2 reported");
+  ok(r.res?.move?.manualRestoreRequired === true
+    && r.res.move.skipped.join(",") === "2,3"
+    && r.res.move.todo.length === 0
+    && r.dev.slotLog.every(([, c]) => c === 15 || c === 16),
+    "downgrade: saved at-risk slots, no unbound post-reboot slot write");
   ok(r.said.some(([k, a]) => k === "slotsave" && a === "2, 3"), "downgrade: the page is told which slots are at risk");
 }
 
-// ---- 4. a later map moves slot 2: saved, installed, written back at its new offset ----
+// ---- 4. a later map moves slot 2: save faithfully, require explicit manual restore ----
 {
   const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
   const r = await flow(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, NOW, NEW_PKG, fw, [[0, IMG[0]], [1, IMG[1]]]);
-  const now = slotImages(r.flash, MOVED);
-  ok(!r.err && r.saved.length === 1 && same(now[0], IMG[0]) && same(now[1], IMG[1]) && r.res.move.skipped.length === 0,
-    "moved slot: saved, installed, slot 2 written back at 0xD7000 and verified");
+  const arch = r.saved[0] && readArchive(r.saved[0].b);
+  ok(!r.err && r.saved.length === 1 && arch && same(arch.images[1], IMG[1])
+    && r.res.move.manualRestoreRequired === true && r.res.move.skipped.join(",") === "2"
+    && r.res.move.todo.length === 0 && r.dev.slotLog.every(([, c]) => c === 15 || c === 16),
+    "moved slot: exact archive saved; no unbound sample write after OTA");
 }
 
-// ---- 5. failure mid-restore: code 'slots', the archive was saved before the install and names the file ----
+// ---- 5. a simulated future restore failure must not occur: no automatic post-reboot write ----
 {
   const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
   const r = await flow(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, NOW, NEW_PKG, fw, [[0, IMG[0]], [1, IMG[1]]], { failWriteAt: [1, 0x4200] });
-  ok(r.err && r.err.code === "slots" && r.err.detail === r.saved[0].name && /write at 0x4200 failed/.test(r.err.message),
-    `failure mid-restore: error 'slots' (${r.err && r.err.message})`);
+  ok(!r.err && r.res?.move?.manualRestoreRequired === true
+    && r.res.move.skipped.join(",") === "2"
+    && r.dev.slotLog.every(([, c]) => c === 15 || c === 16),
+    "failed restoration stimulus: no slot-restoration command sent to unbound device");
   const arch = readArchive(r.saved[0].b);
   ok(same(arch.images[0], IMG[0]) && same(arch.images[1], IMG[1]) && r.dev.upgrades === 2,
-    "failure mid-restore: the saved archive holds the slots, the install itself completed");
+    "failed restoration stimulus: sample archive survives completed firmware write");
 }
 
 // ---- 6. the backup fails: nothing is installed ----
@@ -312,7 +317,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     : /^FM-1/i.test(product) ? "fm1" : "pro";
   // Only this simulated-device test injects a reviewed-source permission.
   // The real NIGHTLY source keeps its immutable publisher allowlist EMPTY.
-  // This tests the full backup/write/restore journey *after* the picker gate.
+  // This tests backup reselect before writing and fail-closed manual restoration after picker approval.
   const pkgSha = createHash("sha256").update(pkg.raw).digest("hex");
   const ctlSha = "b".repeat(64), rootSha = "1".repeat(40), treeSha = "2".repeat(40);
   const pkgUrl = "https://nightly.example.test/sha256/test.fwsc";
@@ -345,7 +350,29 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
       addEventListener(t, f) { this.handlers[t] = f; },
       append(...nodes) { for (const n of nodes) this.children.push(n); },
       appendChild(n) { this.children.push(n); return n; },
-      remove() {},
+      setAttribute(key, value) { this.attributes ||= {}; this.attributes[key] = value; },
+      focus() { this.focused = true; },
+      after(panel) {
+        if (panel.id !== "backupverify") return;
+        queueMicrotask(async () => {
+          const anchor = panel.children.find((n) => n.tag === "a");
+          const picker = panel.children.find((n) => n.tag === "input");
+          const cancel = panel.children.find((n) => n.tag === "button");
+          anchor.click(); // User explicitly downloads the Blob.
+          const raw = new Uint8Array(await blobs.get(anchor.href).arrayBuffer());
+          if (opts.backupReadbackMode === "wrong-size") picker.files = [new Blob([raw.subarray(1)])];
+          else if (opts.backupReadbackMode === "wrong-bytes") {
+            raw[0] ^= 1;
+            picker.files = [new Blob([raw])];
+          } else if (opts.backupReadbackMode === "cancel") {
+            cancel.click(); // User refuses to confirm a saved backup.
+            return;
+          } else picker.files = [new Blob([raw])];
+          await picker.handlers.change();
+          if (opts.backupReadbackMode && opts.backupReadbackMode !== "valid") cancel.click();
+        });
+      },
+      remove() { this.removed = true; },
       removeAttribute() {},
       click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
       set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
@@ -414,15 +441,24 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
 {
   const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
   const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW, [[0, IMG[0]], [1, IMG[1]]]);
-  ok(/slots were written back and checked/.test(r.status) && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]),
-    `installer page: download, install, slots back ("${r.status}")`);
+  ok(/not restored/i.test(r.status) && /Restore/.test(r.status)
+    && r.files.length === 1 && same(readArchive(r.files[0].b).images[1], IMG[1]),
+    `installer page: saved-file reselect allowed OTA, requires manual sample restoration ("${r.status}")`);
 }
 {
   const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
   const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW, [[0, IMG[0]], [1, IMG[1]]], { failWriteAt: [1, 0x4200] });
-  ok(/not written back/.test(r.status) && /Restore/.test(r.status) && /x0x_slots\.py restore/.test(r.status)
-    && r.files.length === 1 && r.status.endsWith(r.files[0].name) && same(readArchive(r.files[0].b).images[1], IMG[1]),
-    "installer page: failure mid-restore keeps the file and says how to restore it");
+  ok(/not restored/i.test(r.status) && /Restore/.test(r.status)
+    && r.files.length === 1 && same(readArchive(r.files[0].b).images[1], IMG[1]),
+    "installer page: simulated restoration failure cannot write to unbound device");
+}
+for (const mode of ["wrong-size", "wrong-bytes", "cancel"]) {
+  const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
+  const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW,
+    [[0, IMG[0]], [1, IMG[1]]], { backupReadbackMode: mode });
+  ok(/slots could not be saved|slotbackup/i.test(r.status) &&
+    same(slotImages(r.flash, NEW)[1], IMG[1]),
+    "installer page: " + mode + " prewrite file verification refuses firmware writing");
 }
 
 console.log(bad ? `INSTALL SLOT WEB TESTS FAILED (${bad})` : "install slot web tests passed");
