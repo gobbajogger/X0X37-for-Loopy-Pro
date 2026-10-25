@@ -1,0 +1,1342 @@
+{
+  "base": "dcb41f2ead9e2166ec3dddcd658e445d22a5fac9",
+  "candidate_sha256": {
+    "install/index.html": "e24615dbf914a49d9b305eac236528c93e0f3d3c8327e4020ebe51f6a984135a",
+    "breaks/index.html": "92b4f178ebd60f36a5904670d94a3a02cdadcfc56a7a882e6ea8ad46714e7139",
+    "projects/index.html": "151d554033fb4fd33f3e0f83440a8494e06226f257e66ab94ff86a94f9809d78",
+    "versions.json": "adaa2b36046dd9c8fc38d91e7371f9845a7ac5c1318dbeb519c9586b3001597c"
+  },
+  "checks": [
+    {
+      "name": "base bytes preserved versions.json",
+      "pass": true,
+      "detail": {
+        "bytes": 7235,
+        "sha256": "adaa2b36046dd9c8fc38d91e7371f9845a7ac5c1318dbeb519c9586b3001597c"
+      }
+    },
+    {
+      "name": "base bytes preserved firmware/x0x37-dev-20261022-1638-e894804-elite.fwsc",
+      "pass": true,
+      "detail": {
+        "bytes": 651396,
+        "sha256": "19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64"
+      }
+    },
+    {
+      "name": "base bytes preserved firmware/x0x37-dev-20261022-1638-e894804-pro.fwsc",
+      "pass": true,
+      "detail": {
+        "bytes": 651392,
+        "sha256": "ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f"
+      }
+    },
+    {
+      "name": "base bytes preserved firmware/x0x37-dev-20261022-1629-116d903-pro.fwsc",
+      "pass": true,
+      "detail": {
+        "bytes": 651392,
+        "sha256": "8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57"
+      }
+    },
+    {
+      "name": "base bytes preserved firmware/x0x37-dev-20261022-1629-116d903-elite.fwsc",
+      "pass": true,
+      "detail": {
+        "bytes": 651396,
+        "sha256": "b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c"
+      }
+    },
+    {
+      "name": "embedded catalog parity unchanged production",
+      "pass": true
+    },
+    {
+      "name": "no NIGHTLY version entries imported",
+      "pass": true
+    },
+    {
+      "name": "layout 320 /install/",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "#workspace-main",
+            "visible": true
+          },
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "#firmware",
+            "visible": true
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "#projects",
+            "visible": true
+          },
+          {
+            "href": "../breaks/",
+            "visible": false
+          },
+          {
+            "href": "../projects/",
+            "visible": false
+          },
+          {
+            "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+            "visible": false
+          },
+          {
+            "href": "#",
+            "visible": false
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12",
+            "visible": true
+          },
+          {
+            "href": "../new/",
+            "visible": true
+          },
+          {
+            "href": "https://www.m-vave.com/download",
+            "visible": false
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "../manual/#recovering-an-fm-1-that-won-t-start",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/home.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/mixer.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/smc-pr168.svg",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/65a0588ed636e8db6b35bdea4991e8990f476ff2",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new",
+            "visible": true
+          },
+          {
+            "href": "https://hugelton.com",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /install/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../breaks/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../projects/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../new/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/#recovering-an-fm-1-that-won-t-start",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/home.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/mixer.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/smc-pr168.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 320 /breaks/",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/#s8",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /breaks/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /breaks/ ../manual/#s8",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 320 /projects/",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../install/#firmware",
+            "visible": true
+          },
+          {
+            "href": "../install/#samples",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#firmware",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#samples",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 390 /install/",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "#workspace-main",
+            "visible": true
+          },
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "#firmware",
+            "visible": true
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "#projects",
+            "visible": true
+          },
+          {
+            "href": "../breaks/",
+            "visible": false
+          },
+          {
+            "href": "../projects/",
+            "visible": false
+          },
+          {
+            "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+            "visible": false
+          },
+          {
+            "href": "#",
+            "visible": false
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12",
+            "visible": true
+          },
+          {
+            "href": "../new/",
+            "visible": true
+          },
+          {
+            "href": "https://www.m-vave.com/download",
+            "visible": false
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "../manual/#recovering-an-fm-1-that-won-t-start",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/home.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/mixer.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/smc-pr168.svg",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/65a0588ed636e8db6b35bdea4991e8990f476ff2",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new",
+            "visible": true
+          },
+          {
+            "href": "https://hugelton.com",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /install/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../breaks/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../projects/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../new/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/#recovering-an-fm-1-that-won-t-start",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/home.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/mixer.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/smc-pr168.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 390 /breaks/",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/#s8",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /breaks/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /breaks/ ../manual/#s8",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 390 /projects/",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../install/#firmware",
+            "visible": true
+          },
+          {
+            "href": "../install/#samples",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#firmware",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#samples",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 768 /install/",
+      "pass": true,
+      "detail": {
+        "width": 768,
+        "scroll": 768,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "#workspace-main",
+            "visible": true
+          },
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "#firmware",
+            "visible": true
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "#projects",
+            "visible": true
+          },
+          {
+            "href": "../breaks/",
+            "visible": false
+          },
+          {
+            "href": "../projects/",
+            "visible": false
+          },
+          {
+            "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+            "visible": false
+          },
+          {
+            "href": "#",
+            "visible": false
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12",
+            "visible": true
+          },
+          {
+            "href": "../new/",
+            "visible": true
+          },
+          {
+            "href": "https://www.m-vave.com/download",
+            "visible": false
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "../manual/#recovering-an-fm-1-that-won-t-start",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/home.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/mixer.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/smc-pr168.svg",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/65a0588ed636e8db6b35bdea4991e8990f476ff2",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new",
+            "visible": true
+          },
+          {
+            "href": "https://hugelton.com",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /install/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../breaks/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../projects/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../new/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/#recovering-an-fm-1-that-won-t-start",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/home.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/mixer.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/smc-pr168.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 768 /breaks/",
+      "pass": true,
+      "detail": {
+        "width": 768,
+        "scroll": 768,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/#s8",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /breaks/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /breaks/ ../manual/#s8",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 768 /projects/",
+      "pass": true,
+      "detail": {
+        "width": 768,
+        "scroll": 768,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../install/#firmware",
+            "visible": true
+          },
+          {
+            "href": "../install/#samples",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#firmware",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#samples",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 1280 /install/",
+      "pass": true,
+      "detail": {
+        "width": 1280,
+        "scroll": 1280,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "#workspace-main",
+            "visible": true
+          },
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "#firmware",
+            "visible": true
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "#projects",
+            "visible": true
+          },
+          {
+            "href": "../breaks/",
+            "visible": false
+          },
+          {
+            "href": "../projects/",
+            "visible": false
+          },
+          {
+            "href": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/",
+            "visible": false
+          },
+          {
+            "href": "#",
+            "visible": false
+          },
+          {
+            "href": "#samples",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12",
+            "visible": true
+          },
+          {
+            "href": "../new/",
+            "visible": true
+          },
+          {
+            "href": "https://www.m-vave.com/download",
+            "visible": false
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "../manual/#recovering-an-fm-1-that-won-t-start",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/home.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/mixer.svg",
+            "visible": true
+          },
+          {
+            "href": "../assets/firmware-ui/smc-pr168.svg",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/65a0588ed636e8db6b35bdea4991e8990f476ff2",
+            "visible": true
+          },
+          {
+            "href": "../manual/",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/new",
+            "visible": true
+          },
+          {
+            "href": "https://hugelton.com",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /install/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../breaks/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../projects/",
+      "pass": true,
+      "detail": {
+        "visible": false
+      }
+    },
+    {
+      "name": "local link /install/ ../new/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/#recovering-an-fm-1-that-won-t-start",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/home.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/mixer.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../assets/firmware-ui/smc-pr168.svg",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /install/ ../manual/",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 1280 /breaks/",
+      "pass": true,
+      "detail": {
+        "width": 1280,
+        "scroll": 1280,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../",
+            "visible": true
+          },
+          {
+            "href": "../manual/#s8",
+            "visible": true
+          },
+          {
+            "href": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /breaks/ ../",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /breaks/ ../manual/#s8",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "layout 1280 /projects/",
+      "pass": true,
+      "detail": {
+        "width": 1280,
+        "scroll": 1280,
+        "brokenImages": [],
+        "nightly": [],
+        "links": [
+          {
+            "href": "../install/#firmware",
+            "visible": true
+          },
+          {
+            "href": "../install/#samples",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#firmware",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "local link /projects/ ../install/#samples",
+      "pass": true,
+      "detail": {
+        "visible": true
+      }
+    },
+    {
+      "name": "workspace route samples-panel",
+      "pass": true
+    },
+    {
+      "name": "workspace route projects-panel",
+      "pass": true
+    },
+    {
+      "name": "workspace route firmware-panel",
+      "pass": true
+    },
+    {
+      "name": "zero selectable builds models downloads local UI",
+      "pass": true,
+      "detail": {
+        "versions": [],
+        "options": 0,
+        "models": 0,
+        "go": true,
+        "download": null,
+        "stockVisible": false,
+        "historyCount": 9,
+        "historyButtons": 0,
+        "historyText": "SMC-07 mixer popup + main help-card merge \u00b7 dev-20261022-1638-e894804Not available for production installationDEV CHECKEDHARDWARE UNTESTEDSMC mixer peek/hold/restore integrated with main 909/808 drum mixer, record feedback and help card. Newest recovered DEV CHECKED packages; physical installation remains pending.2026-10-22T16:38:00Z \u00b7 e894804dfdb0bb66c7247eb1846313a215422c9f \u00b7 Models: elite, proSMC-07 mixer popup: pre-help-card checkpoint \u00b7 dev-20261022-1629-116d903Not available for production installationDEV CHECKEDHARDWARE UNTESTEDSUPERSEDEDPreviously validated merge candidate; replaced by the 16:38 UTC build after integrating the main help-card. Keep only for regression comparison.2026-10-22T16:29:31Z \u00b7 116d9030f18ec251c37c3bd09ffcad2eb0a613be \u00b7 Models: elite, proOther checkpoints \u2014 not available for installationSMC peek-overlay guardSOURCE ONLY \u00b7 877f512b384fa4e903dd5b868af1fee1f7007362 \u00b7 elite, proNewer source/PR #19; no matching validated firmware package. Existing archived binaries in this branch predate the new source.Source / evidenceCurrent main sourceSOURCE ONLY \u00b7 c9718ae833eb64a5191c350922593df8a36017c9 \u00b7 Repository source head only. Do not confuse branch recency with the latest verified firmware artifact.Source / evidenceIntegrated SMC and project managementNOT HOSTED \u00b7 ab121324455e06e5fad0a8a2f16d897177965acf \u00b7 elite, proEarlier Elite/Pro DEV CHECKED installer archives are mentioned in development handoffs; original package bytes are not hosted in the GitHub installer. No flash link.Direct-SMC Elite development referenceNOT HOSTED \u00b7 81459573792a68edd02fa1ee5658796b55597ba0 \u00b7 elitePrevious Elite-only installer ZIP verified in a separate environment; original package is not hosted here and physical link behavior was not established.Project reset/save/load/export stageEVIDENCE ONLY \u00b7 68e1117262aba958f96b6eb65cb3bfb1b3cc94ce \u00b7 elite, proDEV CHECKED results recorded; original binaries are not recovered as accessible GitHub firmware packages.Source / evidenceSMC mixer popup XIP overflowFAILED \u00b7 df1b204745e78784cccfe41b03e75ac4f105eb2b \u00b7 elite, proDEV build failed the XIP budget. Not installable; retained to explain why the subsequent repair was needed.Source / evidenceEarlier SMC connected referenceREFERENCE \u00b7 53d5654c9bbaec10b64c55fb60d0e7d857ba8156 \u00b7 eliteSMC connection and RX controls were observed in a prior device report, but the exact installed firmware attribution is unproven. Not a verified flash artifact.",
+        "fetches": [],
+        "midi": 0
+      }
+    },
+    {
+      "name": "all historical records preserved no Choose buttons",
+      "pass": true,
+      "detail": {
+        "versions": [],
+        "options": 0,
+        "models": 0,
+        "go": true,
+        "download": null,
+        "stockVisible": false,
+        "historyCount": 9,
+        "historyButtons": 0,
+        "historyText": "SMC-07 mixer popup + main help-card merge \u00b7 dev-20261022-1638-e894804Not available for production installationDEV CHECKEDHARDWARE UNTESTEDSMC mixer peek/hold/restore integrated with main 909/808 drum mixer, record feedback and help card. Newest recovered DEV CHECKED packages; physical installation remains pending.2026-10-22T16:38:00Z \u00b7 e894804dfdb0bb66c7247eb1846313a215422c9f \u00b7 Models: elite, proSMC-07 mixer popup: pre-help-card checkpoint \u00b7 dev-20261022-1629-116d903Not available for production installationDEV CHECKEDHARDWARE UNTESTEDSUPERSEDEDPreviously validated merge candidate; replaced by the 16:38 UTC build after integrating the main help-card. Keep only for regression comparison.2026-10-22T16:29:31Z \u00b7 116d9030f18ec251c37c3bd09ffcad2eb0a613be \u00b7 Models: elite, proOther checkpoints \u2014 not available for installationSMC peek-overlay guardSOURCE ONLY \u00b7 877f512b384fa4e903dd5b868af1fee1f7007362 \u00b7 elite, proNewer source/PR #19; no matching validated firmware package. Existing archived binaries in this branch predate the new source.Source / evidenceCurrent main sourceSOURCE ONLY \u00b7 c9718ae833eb64a5191c350922593df8a36017c9 \u00b7 Repository source head only. Do not confuse branch recency with the latest verified firmware artifact.Source / evidenceIntegrated SMC and project managementNOT HOSTED \u00b7 ab121324455e06e5fad0a8a2f16d897177965acf \u00b7 elite, proEarlier Elite/Pro DEV CHECKED installer archives are mentioned in development handoffs; original package bytes are not hosted in the GitHub installer. No flash link.Direct-SMC Elite development referenceNOT HOSTED \u00b7 81459573792a68edd02fa1ee5658796b55597ba0 \u00b7 elitePrevious Elite-only installer ZIP verified in a separate environment; original package is not hosted here and physical link behavior was not established.Project reset/save/load/export stageEVIDENCE ONLY \u00b7 68e1117262aba958f96b6eb65cb3bfb1b3cc94ce \u00b7 elite, proDEV CHECKED results recorded; original binaries are not recovered as accessible GitHub firmware packages.Source / evidenceSMC mixer popup XIP overflowFAILED \u00b7 df1b204745e78784cccfe41b03e75ac4f105eb2b \u00b7 elite, proDEV build failed the XIP budget. Not installable; retained to explain why the subsequent repair was needed.Source / evidenceEarlier SMC connected referenceREFERENCE \u00b7 53d5654c9bbaec10b64c55fb60d0e7d857ba8156 \u00b7 eliteSMC connection and RX controls were observed in a prior device report, but the exact installed firmware attribution is unproven. Not a verified flash artifact.",
+        "fetches": [],
+        "midi": 0
+      }
+    },
+    {
+      "name": "forged metadata cannot admit production package",
+      "pass": true,
+      "detail": {
+        "versions": [],
+        "admitted": [
+          false,
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "name": "local and run attempts refuse before file read fetch MIDI",
+      "pass": true,
+      "detail": {
+        "reads": 0,
+        "fetch": [],
+        "midi": 0,
+        "log": "re with Bluetooth included.\nGLOBAL \u2192 BLUETOOTH MIDI: choose SMC HOST, enable Bluetooth and restart.\nMatch SMC PRESET to the mixer\u2019s DAW or USER preset.\n\nOne Bluetooth MIDI connection; no Bluetooth audio.\n\nPerform with Loopy Pro\n\nLaunch clips with pad feedback; play instruments with SCALE, CHORD and ARP.\n\nConnect by USB to your iPad or Mac. Select the keyboard\u2019s APC40 mkII controller in Loopy Pro.\nPress KNOB BANK for clip mode. OCT\u2212 / OCT+ move the pad view; change pages in Loopy for other clips.\n\nUse USB for Loopy when SMC uses Bluetooth. Only one Bluetooth role at a time.\n\nMore features & compatibility\n\nBrowse feature requests and add a \ud83d\udc4d reaction, or suggest a feature on GitHub. Requests are ideas, not promised releases.\n\nX0X is built on Felucca by Leo Kuroshita (@kurogedelic), H\u00fcgelton Instruments, with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.\nGPL-3.0, no warranty. Source: gobbajogger/X0X37-for-Loopy-Pro"
+      }
+    },
+    {
+      "name": "no startup MIDI access",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "name": "no JS runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "no broken HTTP assets",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "no visible NIGHTLY wording",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "candidate did not change during QA",
+      "pass": true
+    }
+  ],
+  "passed": 91,
+  "failed": 0,
+  "failures": [],
+  "layouts": [
+    {
+      "width": 320,
+      "path": "/install/",
+      "scroll": 320,
+      "broken_images": []
+    },
+    {
+      "width": 320,
+      "path": "/breaks/",
+      "scroll": 320,
+      "broken_images": []
+    },
+    {
+      "width": 320,
+      "path": "/projects/",
+      "scroll": 320,
+      "broken_images": []
+    },
+    {
+      "width": 390,
+      "path": "/install/",
+      "scroll": 390,
+      "broken_images": []
+    },
+    {
+      "width": 390,
+      "path": "/breaks/",
+      "scroll": 390,
+      "broken_images": []
+    },
+    {
+      "width": 390,
+      "path": "/projects/",
+      "scroll": 390,
+      "broken_images": []
+    },
+    {
+      "width": 768,
+      "path": "/install/",
+      "scroll": 768,
+      "broken_images": []
+    },
+    {
+      "width": 768,
+      "path": "/breaks/",
+      "scroll": 768,
+      "broken_images": []
+    },
+    {
+      "width": 768,
+      "path": "/projects/",
+      "scroll": 768,
+      "broken_images": []
+    },
+    {
+      "width": 1280,
+      "path": "/install/",
+      "scroll": 1280,
+      "broken_images": []
+    },
+    {
+      "width": 1280,
+      "path": "/breaks/",
+      "scroll": 1280,
+      "broken_images": []
+    },
+    {
+      "width": 1280,
+      "path": "/projects/",
+      "scroll": 1280,
+      "broken_images": []
+    }
+  ],
+  "visible_nightly": [],
+  "runtime_errors": [],
+  "http_errors": [],
+  "method": "Actual headless Chromium over local HTTP; no GUI or device access. Native MIDI stub refused all calls; external network blocked. Test-only HTTP response appends exports for module-local functions; algorithms/candidate unchanged.",
+  "mutation": "Test DOM/JS only; candidate files and GitHub unchanged."
+}
