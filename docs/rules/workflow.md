@@ -8,7 +8,7 @@ A docs-only edit does not start the stage loop. A new job is still a new thread.
 
 Every change states a reason, a purpose, and the effect on the person using the device.
 
-Optional host tooling gaps (Pillow, ASan, missing reference repos) are not cycle blockers. Install when possible (environment `install` / `bash tools/agent_env_install.sh`); otherwise mark those checks not-run and continue the loop. A generator that actually runs and fails still fails. GitHub Actions and billing locks are never test results. Do not wait on another agent, on GitHub, or on the owner for a missing optional library. Do the next independent step.
+Agents run every applicable test in their own environment with the tools that machine has. Optional host tooling gaps (Pillow, ASan, missing reference repos) are not cycle blockers. Install when possible (environment `install` / `bash tools/agent_env_install.sh`); otherwise mark those checks not-run and continue the loop. A generator that actually runs and fails still fails. GitHub is not a test runner. GitHub Actions and billing locks are never test results. A missing optional input does not stop other work. Do not wait on another agent, on GitHub, or on the owner for a missing optional library. Do the next independent step.
 
 ## One fresh thread per stage
 

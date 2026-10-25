@@ -4,7 +4,9 @@
      X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
      model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
      saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
-     x0x_breaks.js at LIB and the release catalog at CATALOG. -->
+     x0x_breaks.js at LIB and the release catalog at CATALOG.
+     A nightly catalog (channel "nightly") lists only dev-checked hardware-test
+     builds and does not import GitHub Releases. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -34,6 +36,7 @@
   .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; }
   p { margin: 0 0 16px; }
   .small { color: var(--dim); font-size: 13px; }
+  #nightly { border: 1px solid var(--busy); background: var(--card); border-radius: 8px; padding: 8px 12px; color: var(--fg); }
   a { color: var(--accent); }
   .home { display: inline-block; font-weight: 700; letter-spacing: .03em; color: var(--dim); text-decoration: none; margin: 0 0 12px; }
   .home:hover, .home:focus-visible { color: var(--fg); }
@@ -98,6 +101,7 @@
 
   <section class="panel" id="pick">
     <p class="small" id="noversion" hidden data-t="noversion"></p>
+    <p class="small" id="nightly" hidden></p>
     <div class="row" id="versionrow">
       <label class="field">Version
         <select id="version" aria-label="Firmware version"></select>
@@ -372,8 +376,22 @@ async function scan() {
 
 $("connbtn").addEventListener("click", () => { scan(); });
 
+function listed(v) {
+  if (!v || v.qualified === false || v.installable === false || v.revoked || v.blocked || v.withdrawn) return false;
+  // Nightly pages keep failed, missing, and unlabelled builds out of the picker.
+  if (catalogLive.channel === "nightly" && (v.status !== "dev-checked" || v.hardware_tested !== false || !v.label)) return false;
+  return true;
+}
 function versions() {
-  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+  return (catalogLive.versions || []).filter(listed).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+}
+function refreshNightly() {
+  const note = $("nightly");
+  if (!note) return;
+  const ver = currentVersion();
+  const text = (ver && ver.label) || "";
+  note.hidden = !text;
+  note.textContent = text;
 }
 function currentVersion() {
   const v = $("version").value;
@@ -435,15 +453,19 @@ function refreshModelUi() {
 }
 function refreshMeta() {
   const ver = currentVersion();
+  refreshNightly();
   const pkg = ver && chosenModel && ver.models[chosenModel];
   if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); return; }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
-  $("pkgmeta").textContent = `${pkg.product}${size}`;
+  const note = ver && ver.label ? ` · ${ver.label}` : "";
+  $("pkgmeta").textContent = `${pkg.product}${size}${note}`;
   $("download").href = pkg.pkg;
   $("download").download = pkg.pkg.split("/").pop();
 }
 async function sha256Hex(buf) {
-  const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
+  // Hash the view that was fetched or dropped. raw.buffer can be a larger allocation.
+  const view = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", view))]
     .map((b) => b.toString(16).padStart(2, "0")).join("");
   return hex;
 }
@@ -458,8 +480,9 @@ async function loadSelectedPackage() {
     const r = await fetch(pkg.pkg);
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
+    if (catalogLive.importsReleases === false && pkg.fromRelease) { sayK("badpkg"); return; }
     if (pkg.sha256) {
-      const hex = await sha256Hex(raw.buffer);
+      const hex = await sha256Hex(raw);
       if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     }
     const product = productOf(raw);
@@ -491,6 +514,7 @@ function fillVersions() {
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
     say(t("noversion"));
+    refreshNightly();
     // Still show SMK stock links when the catalog is empty.
     $("stock").hidden = false;
     $("stocklinks").innerHTML = " · "
@@ -502,7 +526,8 @@ function fillVersions() {
   for (const v of list) {
     const o = document.createElement("option");
     o.value = v.version;
-    o.textContent = v.version + (v.version === catalogLive.latest ? " (latest)" : "");
+    const label = v.label ? " — " + v.label : "";
+    o.textContent = v.version + label + (v.version === catalogLive.latest ? " (latest)" : "");
     sel.append(o);
   }
   const prefer = cur && list.some((v) => v.version === cur) ? cur
@@ -520,6 +545,8 @@ $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPa
 
 async function mergeGitHubReleases() {
   // Optional: add release assets not already in the catalog so any GitHub Release is installable.
+  // A nightly page sets importsReleases false so an unreviewed Release stays off the picker.
+  if (catalogLive.importsReleases === false) return;
   const m = /github\.com\/([^/]+)\/([^/#?]+)/.exec(repo);
   if (!m) return;
   const api = `https://api.github.com/repos/${m[1]}/${m[2]}/releases?per_page=30`;
@@ -580,7 +607,7 @@ async function acceptStock(raw) {
   try {
     const product = productOf(raw);
     const model = product.split("_")[0];
-    const hex = await sha256Hex(raw.buffer);
+    const hex = await sha256Hex(raw);
     const isFm1Stock = hex === STOCK_SHA256_FM1;
     // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
     if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
