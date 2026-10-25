@@ -564,7 +564,7 @@ class SlotMove:
         self.lay = lay
         arch = xs.make_archive(lay, self.images)
         self.path = Path(path)
-        self.path.write_bytes(arch)
+        xs.save_backup_archive(self.path, arch)
         if xs.read_archive(self.path.read_bytes())[1] != self.images:
             raise xs.SlotError(f"{self.path}: the saved backup does not read back")
         print(f"slots saved: {self.path} ({len(arch)} B)", file=out)
