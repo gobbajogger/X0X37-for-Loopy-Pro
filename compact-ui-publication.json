@@ -1,0 +1,25 @@
+{
+  "base": "dcb41f2ead9e2166ec3dddcd658e445d22a5fac9",
+  "shared_layout_source": "ee1ba86ecc4fae4ec2bfec27927b1d60b3f6fdcf",
+  "catalog_sha256": "adaa2b36046dd9c8fc38d91e7371f9845a7ac5c1318dbeb519c9586b3001597c",
+  "installer_sha256": "e24615dbf914a49d9b305eac236528c93e0f3d3c8327e4020ebe51f6a984135a",
+  "eligible_proven_models": [],
+  "admission": "Closed in picker, download predicate, local-file selection and write entrypoint; catalog records rendered read-only. No NIGHTLY entries imported. Existing firmware/catalog preserved.",
+  "limitations": "Neither Elite nor Pro catalog entry has matching hardware PASS. Future packages require separately reviewed attributable exact-model/controller/package evidence; metadata booleans cannot open this page.",
+  "scope": "Owner-approved compact installer presentation only; firmware/catalog bytes preserved",
+  "source_merge": "4f787bf651e71f3c875f2082a4950ee7f9b0d415",
+  "files": {
+    "install/index.html": "e24615dbf914a49d9b305eac236528c93e0f3d3c8327e4020ebe51f6a984135a",
+    "breaks/index.html": "92b4f178ebd60f36a5904670d94a3a02cdadcfc56a7a882e6ea8ad46714e7139",
+    "projects/index.html": "151d554033fb4fd33f3e0f83440a8494e06226f257e66ab94ff86a94f9809d78",
+    "assets/firmware-ui/smc-historical.svg": "61779a88a3c16f8d85cc034197087c58ec0782aba107f15965297fde254c6b6b",
+    "assets/firmware-ui/smc.png": "dba686ffcd4b586927ee07497fe72058cfb0ddd18cdabbfc79288e43b878e98f",
+    "assets/firmware-ui/home.svg": "b478f2c18def0b7fc6a43470785af2656add7ee3700360b8a630803e3025cced",
+    "assets/firmware-ui/smc-pr168.svg": "df9c985974a91c205f7d7c8c37fe98abf9ebaea4580c19f117270a7a67108774",
+    "assets/firmware-ui/Barlow-OFL.txt": "10b0e6bb43166a50fbe7cde2895bd7f703738a5da843acb5c97c95dc9ea26817",
+    "assets/firmware-ui/smc-pr168.png": "0a2f3c58743c07fdad5e5320fd9efbd899d5035282585d94ec4d161a01ef60aa",
+    "assets/firmware-ui/home.png": "bed528235341197ab8cbb0640eef46cdce53ad74e6eb232d809414d410199ee5",
+    "assets/firmware-ui/mixer.png": "1768d2ba62beeb4dee6a2bc412134fd928f7fe2524ac7cf8eb55a3fcb563a627",
+    "assets/firmware-ui/mixer.svg": "c955b6f38f8518b2e8d0bc2a1769b1f3c8823299b759b5380e1710f57a5e8e1d"
+  }
+}
