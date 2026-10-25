@@ -257,7 +257,7 @@ static void say(const char *a, const char *b)
 
 /* =============================================================== param refs === */
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
-       R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
+       R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
        R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
@@ -304,6 +304,7 @@ static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
+static const x0x_param_t BRKSLICE_P = {"8 SLICES", 1, 0, ONOFF_N};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
@@ -362,6 +363,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BRATE: return &SEQ_P[SQ_BRATE];
     case R_BDIR: return &SEQ_P[SQ_BDIR];
     case R_BTRANS: return &SEQ_P[SQ_BTRANS];
+    case R_BRKSLICE: return &BRKSLICE_P;
     case R_BRKSLOT: {
         static x0x_param_t d = {"LOOP", 0, 0, 0};
         d.max = (uint8_t)(engine_brk_nslots() - 1);
@@ -448,6 +450,7 @@ static int pref_get(pref_t r)
     }
     case R_BRKSET: return p->brk.set[r.c];
     case R_BRKSLOT: return r.a ? p->brk.slot_b : p->brk.slot_a;
+    case R_BRKSLICE: return p->brk.slice_mode ? 1 : 0;
     case R_TEMPO: return (int)(seq.bpm + 0.5f) - 20;
     case R_ACCENT: return seq.accent_q7;
     case R_CLKOUT: return seq.send_clock;
@@ -527,6 +530,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         break;
     }
     case R_BRKSET: p->brk.set[r.c] = (uint8_t)v; break;
+    case R_BRKSLICE: p->brk.slice_mode = (uint8_t)(v ? 1 : 0); break;
     case R_BRKSLOT:
         if (r.a)
             p->brk.slot_b = (uint8_t)v;
@@ -636,7 +640,7 @@ static int in_pattern(pref_t r)
 {
     switch (r.kind) {
     case R_SWING: case R_DLEN: case R_DRATE: case R_BLEN: case R_BRATE: case R_BDIR: case R_BTRANS: case R_GEN:
-    case R_BRKSET: case R_BRKSLOT:
+    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE:
         return 1;
     default:
         return 0;
@@ -996,6 +1000,7 @@ X0X_COLD static void build_pages(void)
             add_page("LOOPS", PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE),
                      PR(R_ENG, T_BRK, 0, 1));
             more(PR(R_ENG, T_BRK, 0, 0));
+            more(PR(R_BRKSLICE, 0, 0, 0));
         }
         break;
     case V_GEN:

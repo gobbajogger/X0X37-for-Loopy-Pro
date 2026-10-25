@@ -70,7 +70,8 @@ typedef struct {
     uint32_t steps;                   /* bit s = the break may sound on 16th s of the bar */
     uint8_t set[BRK_NSET];            /* breaks.h param values, in BRK_* order */
     uint8_t slot_a, slot_b;           /* loop A / B: the built-in bank, then the user slots (engine_brk_slot_names) */
-    uint8_t rsv[2];
+    uint8_t slice_mode;               /* 0 = MIDI notes 36-43; 1 = every note, slice = note mod 8 */
+    uint8_t rsv;
     uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..8 = loop A's slice 1..8 */
 } brkpart_t;
 

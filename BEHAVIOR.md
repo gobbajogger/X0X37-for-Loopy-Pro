@@ -133,8 +133,8 @@ BRK-08. Black key 9 plays reverse, key 10 half speed, key 11 stutter, while held
 BRK-09. Hold a white key and press black key 1-8: that step always plays that slice of loop A. Press the same black key again to give the step back to the generator. [MANUAL §8] [CODE app/ui.c:2176-2188]
 BRK-10. A held live slice key has priority over the slice of a step. [CODE dsp/breaks.c:536-537]
 BRK-11. The loop follows the tempo by a change of playback speed. Thus the pitch follows the tempo. PITCH shifts the pitch on top. [MANUAL §8]
-BRK-12. On MIDI, notes 36-43 on the BREAK channel play slices 1-8. [MANUAL §16] [CODE app/engine.c:519-520]
-BRK-13. The pattern saves the generator settings (COMPLEXITY, ANCHOR, ROLL, FILL, RETRIG, PHRASE, A/B LENGTH, B CHANCE). It also saves the steps, slices and loop choice. [MANUAL §8]
+BRK-12. On MIDI, the break uses its own channel (default channel 4) for notes in. With 8 SLICES off, notes 36-43 play slices 1-8. With 8 SLICES on, every note plays a slice: the slice is the note number mod 8. A note on that channel does not also play the drums or a 303. The break does not send note messages. [MANUAL §16] [CODE app/engine.c brk_midi_legacy brk_midi_wrap]
+BRK-13. The pattern saves the generator settings (COMPLEXITY, ANCHOR, ROLL, FILL, RETRIG, PHRASE, A/B LENGTH, B CHANCE). It also saves the steps, slices, loop choice and 8 SLICES. [MANUAL §8]
 
 ### 6.2 Loops and imported samples
 

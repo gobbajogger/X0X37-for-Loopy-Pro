@@ -500,6 +500,7 @@ void engine_clip_midi_flush(void)
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
 static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
+static uint8_t brk_down[2][16];        /* 8 SLICES: bit n of source 0/1 is MIDI note n held */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -539,6 +540,89 @@ X0X_COLD void engine_project_flush(void)
         s_midi(0, 0xFC, 0, 0);
 }
 
+static int brk_note_down(int src, int note)
+{
+    return (brk_down[src][note >> 3] >> (note & 7)) & 1;
+}
+static void brk_note_set(int src, int note, int on)
+{
+    uint8_t m = (uint8_t)(1u << (note & 7));
+    if (on)
+        brk_down[src][note >> 3] |= m;
+    else
+        brk_down[src][note >> 3] &= (uint8_t)~m;
+}
+/* 8 SLICES: slice = note mod 8, so several notes can hold one slice */
+static int brk_src_slice(int src, int slice)
+{
+    int n;
+    for (n = slice; n < 128; n += 8)
+        if (brk_note_down(src, n))
+            return 1;
+    return 0;
+}
+static void brk_clear_slice_notes(int slice)
+{
+    int src, n;
+    for (src = 0; src < 2; src++)
+        for (n = slice; n < 128; n += 8)
+            brk_note_set(src, n, 0);
+}
+/* Default map: notes 36-43, one note per slice. A stale Note Off from the other input does nothing. */
+static void brk_midi_legacy(int src, int on, int slice)
+{
+    int v = 1 << (8 + slice);
+    if (!on && src < 2 && !(src_held[src] & (uint16_t)v))
+        return;
+    breaks_live(&brk, slice, on);
+    src_held[0] &= (uint16_t)~v;
+    src_held[1] &= (uint16_t)~v;
+    if (on && src < 2)
+        src_held[src] |= (uint16_t)v;
+}
+/* 8 SLICES: every note. Note Off releases the slice only when no note of that slice remains. */
+static void brk_midi_wrap(int src, int on, int note)
+{
+    int slice = note & 7, v = 1 << (8 + slice);
+    if (src >= 2) {
+        if (on)
+            breaks_slice_on(&brk, slice);
+        else {
+            brk_clear_slice_notes(slice);
+            src_held[0] &= (uint16_t)~v;
+            src_held[1] &= (uint16_t)~v;
+            breaks_live(&brk, slice, 0);
+        }
+        return;
+    }
+    if (!on) {
+        if (!brk_note_down(src, note))
+            return;                         /* stale Note Off: this input does not hold the note */
+        brk_note_set(src, note, 0);
+        if (!brk_src_slice(src, slice))
+            src_held[src] &= (uint16_t)~v;
+        if (!brk_src_slice(0, slice) && !brk_src_slice(1, slice))
+            breaks_live(&brk, slice, 0);
+        return;
+    }
+    brk_note_set(src, note, 1);
+    src_held[src] |= (uint16_t)v;
+    breaks_slice_on(&brk, slice);           /* retrigger; the voice that is playing crossfades */
+}
+static void brk_link_end(int src, uint16_t owned)
+{
+    int s, n;
+    if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1) {
+        for (n = 0; n < 128; n++)
+            brk_note_set(src, n, 0);
+        for (s = 0; s < 8; s++)
+            if ((owned & (uint16_t)(1u << (8 + s))) && !brk_src_slice(0, s) && !brk_src_slice(1, s))
+                brk.keys = (uint16_t)(brk.keys & ~(uint16_t)(1u << s));
+        return;
+    }
+    brk.keys = (uint16_t)(brk.keys & ~(owned >> 8));
+}
+
 static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
@@ -554,7 +638,7 @@ static void midi_in(uint32_t pkt)
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
             }
-        brk.keys = (uint16_t)(brk.keys & ~(v >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
+        brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
         return;
     }
@@ -595,8 +679,9 @@ static void midi_in(uint32_t pkt)
         uint8_t vel = (ty == 0x80) ? 0u : d2;
         if (d1 < SMK_APC40_CLIP_COUNT) {
             /* The USB interrupt (smk_apc_usb_event) already stored this clip feedback.
-             * Do not store it again: a second store breaks the flash detection. */
-            if (smk_clip_mode_on())
+             * Do not store it again: a second store breaks the flash detection.
+             * A note on the break's own channel is the break, not a clip pad. */
+            if (smk_clip_mode_on() && ch != seq.ch[TRK_BRK])
                 return;
         } else if (smk_apc40_transport_feedback_note(d1)) {
             smk_apc_transport_led_set(d1, vel);
@@ -607,6 +692,14 @@ static void midi_in(uint32_t pkt)
 #endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
+    if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
+        /* The break's channel owns the note. Drums and the 303s do not also play it. */
+        if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1)
+            brk_midi_wrap(src, ty == 0x90, d1);
+        else if (d1 >= 36 && d1 <= 43)
+            brk_midi_legacy(src, ty == 0x90, d1 - 36);
+        return;
+    }
     for (k = 0; k < NKIT; k++)                          /* each part on its own channel (GLO): the drum */
         if (seq.ch[k] == ch && ty == 0x90) {             /* machines on GM drum notes */
             static const uint8_t GM[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51};
@@ -637,16 +730,6 @@ static void midi_in(uint32_t pkt)
                 src_held[1] &= (uint16_t)~v;
             }
         }
-    if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43) {   /* the break's slices */
-        v = 1 << (8 + d1 - 36);
-        if (ty == 0x80 && src < 2 && !(src_held[src] & (uint16_t)v))
-            return;                 /* BF-004: stale non-owner Note Off must not clear the live slice */
-        breaks_live(&brk, d1 - 36, ty == 0x90);
-        src_held[0] &= (uint16_t)~v;
-        src_held[1] &= (uint16_t)~v;
-        if (ty == 0x90 && src < 2)
-            src_held[src] |= (uint16_t)v;
-    }
 }
 #ifdef X0X_HOST
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
@@ -1125,6 +1208,9 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     int p, g;
     cq_w = cq_r = 0;
     src_held[0] = src_held[1] = 0;
+    for (p = 0; p < 2; p++)
+        for (g = 0; g < 16; g++)
+            brk_down[p][g] = 0;
     for (p = 0; p < NBASS; p++)
         bass_held[p] = 0;
     for (p = 0; p < BRK_NSET; p++)

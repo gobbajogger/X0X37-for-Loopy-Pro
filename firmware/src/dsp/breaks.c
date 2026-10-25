@@ -594,34 +594,61 @@ static void gate_update(breaks_t *b)
 static void perf_sync(breaks_t *b)
 {
     uint16_t k = b->keys, d = (uint16_t)(k ^ b->keys_seen);
-    int key;
-    if (!d)
+    int key, edged = -1;
+    uint8_t restart = b->restart;
+    if (restart)
+        b->restart = 0;
+    if (!d && !restart)
         return;
-    for (key = 0; key <= 10; key++) {
-        uint16_t bit = (uint16_t)(1u << key);
-        int down = (k & bit) != 0;
-        if (!(d & bit))
-            continue;
-        if (key < 8) {
-            if (down) {
-                perf_push(&b->perf, key);
-                if (breaks_bank(b, 0)->valid) {            /* instant hit */
-                    b->current_slice = key;
-                    b->render_bank = 0;
-                    b->sub_div = 0;
-                    slice_start(b, 0, key);
-                }
-            } else
-                perf_release(&b->perf, key);
-        } else if (key == 8)
-            b->perf.reverse = (uint8_t)down;
-        else if (key == 9)
-            perf_half(&b->perf, down);
-        else
-            b->perf.stutter = (uint8_t)down;
+    if (d) {
+        for (key = 0; key <= 10; key++) {
+            uint16_t bit = (uint16_t)(1u << key);
+            int down = (k & bit) != 0;
+            if (!(d & bit))
+                continue;
+            if (key < 8) {
+                if (down) {
+                    perf_push(&b->perf, key);
+                    if (breaks_bank(b, 0)->valid) {            /* instant hit */
+                        b->current_slice = key;
+                        b->render_bank = 0;
+                        b->sub_div = 0;
+                        slice_start(b, 0, key);
+                    }
+                    edged = key;
+                } else
+                    perf_release(&b->perf, key);
+            } else if (key == 8)
+                b->perf.reverse = (uint8_t)down;
+            else if (key == 9)
+                perf_half(&b->perf, down);
+            else
+                b->perf.stutter = (uint8_t)down;
+        }
+        b->keys_seen = k;
+        gate_update(b);
     }
-    b->keys_seen = k;
-    gate_update(b);
+    /* A second note for a slice that is already held restarts that slice.
+     * slice_start crossfades. It does not stop the voice, and it is not a loop change. */
+    if (restart) {
+        int sl = (int)restart - 1;
+        if ((unsigned)sl < 8u && sl != edged && (b->keys & (uint16_t)(1u << sl)) && breaks_bank(b, 0)->valid) {
+            perf_push(&b->perf, sl);
+            b->current_slice = sl;
+            b->render_bank = 0;
+            b->sub_div = 0;
+            slice_start(b, 0, sl);
+            gate_update(b);
+        }
+    }
+}
+
+void breaks_slice_on(breaks_t *b, int slice)
+{
+    if (slice < 0 || slice > 7)
+        return;
+    breaks_live(b, slice, 1);
+    b->restart = (uint8_t)(slice + 1);
 }
 
 void breaks_live(breaks_t *b, int key, int down)
