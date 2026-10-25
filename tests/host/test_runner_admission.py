@@ -106,11 +106,24 @@ def execute(source, jobs, selected, *, fail="", setup="", holds=False):
                     results=re.findall(r"^  (?:ok|FAIL) .*", p.stdout, re.M),
                     mkdir=lines(root / "mkdir-calls"), flock=lines(root / "flock-calls"),
                     scratch_sha256=hashlib.sha256(scratch.read_bytes()).hexdigest() if scratch.is_file() else None,
-                    scratch_writes=len(re.findall(r"^\++ printf ['\"]?static unsigned short host_scratch", trace, re.M)),
+                    scratch_writes=scratch_write_count(trace),
                     scenario_basename_substitutions=len(re.findall(r"^\+{2,} basename tests/scenarios/", trace, re.M)),
                     test_class_substitutions=len(re.findall(r"^\+{2,} test_class ", trace, re.M)),
                     key_formats=len(re.findall(r"^\++ printf ['\"]?%04d", trace, re.M)),
                     trace=trace)
+
+
+def scratch_write_count(trace):
+    """How many times this run tried to write the perf-scratch header.
+
+    bash xtraces the printf even when its redirection fails. dash does not: the
+    attempt shows up as the open error for scratch_defs.h. A skipped prepare
+    produces neither, so the count stays zero.
+    """
+    traced = re.findall(r"^\++ printf ['\"]?static unsigned short host_scratch", trace, re.M)
+    if traced:
+        return len(traced)
+    return len(re.findall(r"^[^ \t+].*cannot create \S*scratch_defs\.h: Is a directory", trace, re.M))
 
 
 def check(r, selected, *, fail="", setup=""):
