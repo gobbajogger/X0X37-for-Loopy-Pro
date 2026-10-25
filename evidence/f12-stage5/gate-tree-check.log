@@ -1,0 +1,54 @@
+=== branch/HEAD ===
+branch=cursor/f12-stage5-bf008-1207
+HEAD=729f7e5d8e0b2e371d4ed522182728a181938bad
+HEAD_short=729f7e5d8e0b
+expected_validated=de11b6d7e3ac3322d2db689675d9ed27ed667785
+expected_content_tree=43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9
+stage4_tip_expected=729f7e5d (evidence-only; another source tree)
+
+=== evidence records (elite/pro) ===
+elite: result=DEV CHECKED commit=de11b6d7e3ac3322d2db689675d9ed27ed667785 tree=43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9 MATCH=True
+  package=829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056
+  controller=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  pool_free=8324
+pro: result=DEV CHECKED commit=de11b6d7e3ac3322d2db689675d9ed27ed667785 tree=43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9 MATCH=True
+  package=d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec
+  controller=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  pool_free=8324
+
+=== content tree via tools/dev_validate.py tree() ===
+validated_source de11b6d7e3ac3322d2db689675d9ed27ed667785 tree=43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9 -> ACCEPT (exit_would_be=0)
+  match_expected_43e97f34=True
+stage4_evidence_tip 729f7e5d8e0b2e371d4ed522182728a181938bad tree=349eee8dca255ca416232b080295e5c366ecef3f33e0c27a38caa39cd0c4e7fb -> REFUSED (another source tree) (exit_would_be=1)
+  match_expected_43e97f34=False
+record_tree_expected 43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9
+tree_gate_script_exit=0
+
+=== firmware tree + fastmath.h blob at de11b6d7 ===
+firmware_tree=9195dce5c4beb5fa8aa564504c8d1d114c8264cd
+fastmath_blob=a5c26c95cad0d91a548a8db073f59777e36d4e86
+--- fm_exp2_nf shift line ---
+43:static inline float fm_exp2_nf(int32_t n, float f)
+59:    b.u += (uint32_t)n << 23;
+72:    return fm_exp2_nf((int32_t)fl, x - fl);
+85:    return fm_exp2_nf((int32_t)n, x * FM_LOG2E);            /* |x log2e| <= 0.5 */
+
+=== CHECKS.md vs record hashes ===
+elite_pkg: record=829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056 expected=829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056 in_CHECKS.md=True OK=True
+pro_pkg: record=d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec expected=d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec in_CHECKS.md=True OK=True
+elite_ctl: record=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a expected=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a in_CHECKS.md=True OK=True
+pro_ctl: record=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a expected=956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a in_CHECKS.md=True OK=True
+elite_pool: record=8324 expected=8324 in_CHECKS.md=n/a OK=True
+pro_pool: record=8324 expected=8324 in_CHECKS.md=n/a OK=True
+hash_crosscheck_PASS
+prefix_829bb6da_in_CHECKS=True
+prefix_d2186cb0_in_CHECKS=True
+prefix_956e3e21_in_CHECKS=True
+
+=== git trees at de11b6d7 ===
+git_tree=c143a9f8f5b5d0f6804995829ccbe515c77c6103
+content_tree_recompute=43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9
+stage4_tip_content_tree=349eee8dca255ca416232b080295e5c366ecef3f33e0c27a38caa39cd0c4e7fb
+
+=== DONE ===
+log_written=/tmp/f12-stage5-gate-tree-check.log

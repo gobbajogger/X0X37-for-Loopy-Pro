@@ -1,0 +1,2 @@
+Pod has no CURSOR_API_KEY. POST https://api.cursor.com/v1/agents not attempted with a pod token.
+Ask Project coordinator to CreateAgent Stage 7 (owner-visible) with startingRef cursor/f12-stage5-bf008-1207 and full evidence/f12-stage5/SUCCESSOR-STAGE7.txt.

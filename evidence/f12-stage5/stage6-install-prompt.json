@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "stage": 6,
+  "kind": "local-install-prompt",
+  "cloud_thread": false,
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "audited_pre_bf008_sha": "4f96b0d9f5f11f700ea3fc935800b8714e11f35d",
+  "audited_firmware_ref_sha": "1325f5d34340ea877e65ab86f3663f5dea052c0d",
+  "validated_source_sha": "de11b6d7e3ac3322d2db689675d9ed27ed667785",
+  "content_tree": "43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9",
+  "firmware_tree": "9195dce5c4beb5fa8aa564504c8d1d114c8264cd",
+  "audited_content_tree_pre_bf005": "b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190",
+  "pre_repair_content_tree": "f27c89e1ac8e11ab57c5ae7e49145ce19b964082bf3ca9a700a99bfa8a97091e",
+  "pre_repair_firmware_tree": "5b1a21f07563b0262ece6728051cb0436bd4bfa1",
+  "evidence_bearing_tip_note": "Do not pass stage-4/stage-5 evidence-only tips as --commit; tree will REFUSE.",
+  "config": "dev",
+  "X0X_DEV_PADCAL": "1",
+  "bf008_repair_commit": "de11b6d7",
+  "bf007_repair_commit": "78a0452e",
+  "bf006_repair_commit": "37bab7d1",
+  "bf005_repair_commit": "94f4a012",
+  "bf004_repair_commit": "ce690772",
+  "fp001_repair_commit": "6df0f81f",
+  "bf003_repair_commit": "1325f5d3",
+  "bf002_repair_commit": "ab90f47c",
+  "bf001_repair_commit": "d11b74fc",
+  "f03_repair_commit": "4f18983a",
+  "nightly_ff": {
+    "attempted_sha": "de11b6d7e3ac3322d2db689675d9ed27ed667785",
+    "result": "REFUSED_non_fast_forward",
+    "nightly_sha": "08d3164a265123cb4c84e5104642fd93257d63d7",
+    "force_push": false
+  },
+  "packages": {
+    "elite": {
+      "record": "evidence/f12-stage4/elite/record.json",
+      "package": "x0x-smk37-elite.fwsc",
+      "package_sha256": "829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056",
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8324,
+      "identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "record": "evidence/f12-stage4/pro/record.json",
+      "package": "x0x-smk37.fwsc",
+      "package_sha256": "d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec",
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8324,
+      "identity": "SMK-37 Pro_900"
+    }
+  },
+  "gate": "tools/require_gate_pass.sh <validated_source_sha> --config dev --fwsc <package> --ctl <ctl.img> --dev-record <record>",
+  "merge_evidence": "evidence/f12-stage5/CHECKS.md"
+}

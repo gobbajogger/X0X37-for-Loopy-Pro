@@ -1,0 +1,11 @@
+{
+  "pr": 272,
+  "title": "F12 Stage 4: BF-008 Elite/Pro DEV CHECKED",
+  "state": "MERGED",
+  "mergedAt": "2026-10-25T17:09:43Z",
+  "mergeCommit": "11604ab75c379c1fa18477677824b5904d6d6912",
+  "baseRefName": "main",
+  "headRefName": "cursor/f12-stage4-bf008-1207",
+  "tool": "tools/merge_project_prs.py --pr 272",
+  "note": "merge_project_prs gh pr list JSON hiccup after merge; gh pr view confirms MERGED"
+}
