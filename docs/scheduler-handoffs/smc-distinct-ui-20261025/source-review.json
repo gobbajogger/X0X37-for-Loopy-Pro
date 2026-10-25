@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "reviewer": "/root/independent_review",
+  "independent": true,
+  "authored_production_or_repository_tests": false,
+  "verified_utc": "2026-10-25T07:40:00.210693+00:00",
+  "verdict": "ACCEPT_SCOPED_SOURCE_AND_HOST_QA",
+  "source": {
+    "commit": "4e9d06f542058413a34472ff0e84d88c1360af6c",
+    "root_tree": "2466b26661a93f763abf14b9df3941567f4476b2",
+    "firmware_tree": "3ea8fd24d5d65cfdc119cb3f3083a92f2e6bc60d",
+    "base": "93449136baae02c9715ba20edc5c43176786b635"
+  },
+  "environment": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "compiler": "Apple clang21.0.0 clang-2100.3.34.2",
+    "execution": "isolated Git archive; native host tests; no GUI/device/Actions"
+  },
+  "findings": [],
+  "resolved_findings": [
+    {
+      "severity": "medium",
+      "source_commit": "5effa440bd9f45ef775eaf9775c6fcb43ef597e1",
+      "description": "Confirmation/performance parking inadvertently cleared physical input_seen history; unchanged sample after confirm cancel reopened overlay.",
+      "reproduction": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/confirmation-repro.log",
+        "bytes": 52,
+        "sha256": "2ffb28b600b8f76f22ab6cb6e1a66ba5693634e28318c5299053e6a50225fbd3"
+      },
+      "resolution": "Only real link reset clears input_seen now; target/pickup/confirmation parking preserves physical history. Final production suite covers confirmation replay."
+    }
+  ],
+  "checks": [
+    {
+      "command": "X0X_HOST_DEFS=-D_DARWIN_C_SOURCE X0X_TEST_JOBS=1 sh tests/run_tests.sh smc-ui smc-ui-negative smc-protocol smc-fader smc-buttons smc-queue smc-link smc-reachability smc-mapping smc-drum-mutes smc-drum-rs smc-performance-abort smc-filter smc-feedback smc-record-feedback smc-part-select smc-clip-visibility",
+      "exit": 0,
+      "selected_suites": 17,
+      "selected_suites_skipped": 0,
+      "log": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final-affected-tests.log",
+        "bytes": 477,
+        "sha256": "605f9fc23455d45214a4f1ba184ca5783c2889784a17a98b939baf4f5b25438a"
+      },
+      "scope_note": "Unselected Pro-package check prints skip because this independent source clone has no native products; no selected suite skipped."
+    },
+    {
+      "command": "CC=/usr/bin/clang SAN_FLAGS='-fsanitize=address -fno-omit-frame-pointer' ASAN_OPTIONS=halt_on_error=1 SMC_UI_OUT=build/host/smc-ui-asan sh tests/host/smc_ui_test.sh",
+      "exit": 0,
+      "assertions": 4810,
+      "diagnostics": 0,
+      "log": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final-asan.log",
+        "bytes": 807,
+        "sha256": "0c0a52e3a2065d8df9df93764990efc362b080c6d940be895a7dd55b3db65ab0"
+      }
+    },
+    {
+      "command": "native compile of review/corner-test.c against final production UI, SMC, engine and DSP; ./corner-test",
+      "exit": 0,
+      "log": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/corner-test.log",
+        "bytes": 93,
+        "sha256": "393966b909eb05c79c622c0a01e60350d7f10a670abbcc965571ec040b944171"
+      },
+      "behavior": "Absent-tail samples tracked silently; repeating after bank navigation stays silent; changed movement opens."
+    },
+    {
+      "command": "git diff --check 93449136baae02c9715ba20edc5c43176786b635..4e9d06f542058413a34472ff0e84d88c1360af6c",
+      "exit": 0
+    }
+  ],
+  "negative_controls": {
+    "count": 5,
+    "names": [
+      "duplicate-opens-overlay",
+      "timeout-disabled",
+      "cancel-disabled",
+      "clip-redraw-disabled",
+      "yellow-notice-returned"
+    ],
+    "result": "All compiled and failed runtime assertions; compile failures excluded."
+  },
+  "manual_review": [
+    "Only production file changed is smc_mixer.c. Fader target function and specialized clip/editor ownership are preserved.",
+    "HOME/MIX PARTS K1-5 pan, K6 decay, K7 feedback, K8 resonance. Drum knobs look up Pan by exact kit/voice/bank, with missing tails inactive. Ordinary rows are checked against every active fader, including cross-strip conflicts.",
+    "GLOBAL/PERFORM K3 and MIX/MASTER K4 override only their DJF duplicates. No DSP, channel/button/transport or acceleration changes.",
+    "Duplicate absolute samples still maintain normal pickup crossing/write semantics, but cannot open/extend the overlay. First sample after a real connection is admitted; no physical-device packet origin inferred.",
+    "Existing1200ms timeout and underlying UI state retained. Navigation and target refresh remain silent.",
+    "Rendering uses existing fonts/framebuffer and bounded stack buffers, without new dynamic allocation. Inspected real final frames for pickup, ACTIVE, pan, drum-bank, action, clip and parked row."
+  ],
+  "frames": [
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/01-main-pickup.png",
+      "bytes": 173118,
+      "sha256": "665d79a9b567cfcadb00c7074420c8c2325bd9e177686138a6c2d5abead7d7c7"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/03-picked-fader.png",
+      "bytes": 173118,
+      "sha256": "cc7b2a794b8fabaf3b9d31f714fcc67aefa46d3ffbe34fefa3381b5eb5fd6d68"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/04-delay-knob.png",
+      "bytes": 173118,
+      "sha256": "1378129c0f92a8c75b22e7e1f9a33ed8100920c9a01177d9f64d31a4b51c52de"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/07-clip-field.png",
+      "bytes": 173118,
+      "sha256": "c0ad2f156e4502cf61860874da04c22b48fda651442b45be88adf8453700051b"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/08-mute-action.png",
+      "bytes": 173118,
+      "sha256": "2b0521a017df09ecb831045fe6b944dfbbde5b1ae7889957bea397a0defc8f3e"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/09-part-pan.png",
+      "bytes": 173118,
+      "sha256": "4f4ee567511c7b9a1382450fe5e3d786e729ed09f5c7de3b5f619cc689083a68"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/10-808-seq-bank2-pan.png",
+      "bytes": 173118,
+      "sha256": "de61a2b0c15c2e3055468288f1bfdfde1b900d505b5fad02ac7174a0c74f04b1"
+    },
+    {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/review/final/build/host/smc-ui/12-parked-knob.png",
+      "bytes": 173118,
+      "sha256": "239690e3134d19376d46ca9d50a42fcf4f579233049822143543982a23cf6c8d"
+    }
+  ],
+  "limits": [
+    "Host harness substitutes clip-grid painter and clip field storage; production UI/SMC/engine are compiled.",
+    "Source/host acceptance only; native artifacts/budgets/model-controller pairing are separately owned.",
+    "No physical-device, hardware-echo, firmware-publication, Pause-lock or multi-peer claim.",
+    "No full release gate or full-engine UBSan run."
+  ]
+}

@@ -181,6 +181,7 @@ static void help_keeps_controls(void) {
     msg[2] = (uint8_t)(at < 120 ? at + 8 : at - 8);
     smc_ble_midi(msg, 3); smc_poll();
     assert(ui.help && pref_get(r) != 64);
+    r = smc_knob_target(0);
     after = pref_get(r);
     if (user) { msg[0] = 0xBF; msg[1] = 16; msg[2] = 1; }
     else { msg[0] = 0xB0; msg[1] = 16; msg[2] = 1; }
@@ -257,7 +258,7 @@ static void scenario(void) {
             press(24+t%8); assert(ui.sel[kit]==t);
             pref_t k=smc_knob_target(t%8); assert(k.b==t);
             edit(k,t%8);                  /* every strip in both drum knob banks */
-            for(int n=0;n<8;n++) assert(smc_same(smc_knob_target(n),smc_target(n)));
+            for(int n=0;n<8;n++) assert(smc_knob_target(n).kind == R_NONE || !smc_same(smc_knob_target(n),smc_target(n)));
             pref_t r=smc_target(t%8); assert(r.b==t);
             fader(t%8,smc_scaled(r)); fader(t%8,70); assert(smc.picked & (1u<<(t%8)));
 
@@ -273,7 +274,7 @@ static void scenario(void) {
 pickup: ;
     /* Real notice/frame: feedback must not rearm pickup after our own write. */
     smc_view(V_HOME,0);
-    for(int n=0;n<8;n++) { assert(smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
+    for(int n=0;n<8;n++) { assert(smc_knob_target(n).kind == R_NONE || !smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
     pref_t r=smc_target(0); pref_set(r,64); smc_frame();
     fader(0,0); assert(!(smc.picked&1) && smc_ui_active());
     int old=pref_get(r); smc_frame(); assert(pref_get(r)==old);

@@ -1,0 +1,67 @@
+{
+  "status": "PASS_UNCHANGED_CONTROLLER_INPUT_REUSE",
+  "utc": "2026-10-25T07:41:20.542454+00:00",
+  "independent": true,
+  "reviewer": "/root/package_review",
+  "source": {
+    "commit": "4e9d06f542058413a34472ff0e84d88c1360af6c",
+    "root": "2466b26661a93f763abf14b9df3941567f4476b2",
+    "firmware_tree": "3ea8fd24d5d65cfdc119cb3f3083a92f2e6bc60d",
+    "controller_tree": "7d169a6b97cd3b48064d938c23ccb6d3fb197fbd",
+    "tools_tree": "0a30ed660aab681045dd71e76619e08e56fa2a88",
+    "tracked_diff": ""
+  },
+  "previous_build_receipt": {
+    "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/native-build/build-receipt.json",
+    "sha256": "c19e20c0f755495adbe7f596405e629f2a2edf4ebeb0e535b7d8423e2e7771ba"
+  },
+  "toolchain": {
+    "manifest_file_entries": 640,
+    "non_symlink_files": 599,
+    "bytes": 508140323,
+    "prior_manifest_sha256": "8b15b1677566fff0c467001e53f8c674824e395e26051d6b3d430957b31f66b4",
+    "matched_existing_no_added_or_missing_files": true,
+    "symlink_count": 44
+  },
+  "pinned_sdk_tools": {
+    "files": 16,
+    "all_sha256_match": true
+  },
+  "source_closure": {
+    "command": [
+      "git",
+      "-C",
+      "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source",
+      "diff",
+      "--exit-code",
+      "0e3e4d572e2466872e1ddd1986ff34b9e77dddd3",
+      "HEAD",
+      "--",
+      "ble/ctl",
+      "firmware/hal/x0x_ble_abi.h",
+      "tools/add_ctl.py",
+      "tools/package_nightly.py",
+      "tools/build.py",
+      "assets"
+    ],
+    "exit": 0
+  },
+  "controller": {
+    "bytes": 65492,
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+  },
+  "limits": [
+    "No fresh controller compilation required: unchanged accepted task17 input/output closure reused.",
+    "This input check does not prove current package pairing, builds, install qualification or hardware behavior."
+  ],
+  "retained_prior_controller_proof": {
+    "ctl.elf": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.elf",
+      "sha256": "a53173f0b45a88b6395160ff4317c2b5dc4c92645f9ef79511aa24b8da8a9b16"
+    },
+    "ctl.map": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-17/candidate/private-build/ctl.map",
+      "sha256": "0e681ad89a50b243644488742b8105660e0a6510fbe978dc463e8e16e9e4b36f"
+    }
+  }
+}

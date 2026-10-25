@@ -1,0 +1,2 @@
+REPRODUCED: unchanged incoming fader packet after panel navigation reopens overlay without parameter change
+REPRODUCED: drum target refresh clears pickup seen; identical physical packet reopens overlay
