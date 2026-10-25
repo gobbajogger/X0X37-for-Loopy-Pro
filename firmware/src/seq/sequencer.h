@@ -120,8 +120,8 @@ typedef struct {                      /* one part's runtime */
 } seq_track_t;
 
 typedef struct {
-    uint32_t at;
-    uint8_t active, pat, first, last, note, src, count, entered;
+    uint32_t at, slot;
+    uint8_t active, pat, first, last, prev, note, src, count, entered;
 } seq_bass_rec_t;
 
 typedef struct {

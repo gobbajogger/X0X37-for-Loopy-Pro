@@ -98,3 +98,6 @@ float engine_gr_db(void);                                   /* master compressor
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);
+
+/* Physical recording edges use the existing audio command queue. */
+void engine_bass_record(int part, int note, int velocity, int down, int flags);

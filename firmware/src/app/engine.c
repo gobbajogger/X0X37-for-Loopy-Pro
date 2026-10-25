@@ -132,7 +132,7 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* ------------------------------------------------------- command queue --- */
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
-enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP };
+enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
@@ -359,6 +359,11 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
            (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
 }
+void engine_bass_record(int part, int note, int velocity, int down, int flags)
+{
+    cq_put(C_REC, (uint32_t)part, (uint32_t)note,
+           (uint32_t)((down ? 1 : 0) | (flags << 1) | (velocity << 5)));
+}
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
@@ -546,6 +551,7 @@ static void midi_in(uint32_t pkt)
         v = src_held[src];
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
             if ((v >> k) & 1) {
+                seq_rec_bass_end(&seq, k);
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
                 bass_held_count[k] = 0;
@@ -614,7 +620,7 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held_count[k] && bass_held_src[k] == src, d2);
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held_count[k] && bass_held_src[k] == src && bass_held[k] != d1, d2);
                 seq_rec_bass(&seq, k, d1, d2, 1, (int)src, d2 >= 100 ? BS_ACCENT : 0);
                 if (bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
                     if (bass_held_count[k] < 255) bass_held_count[k]++;
@@ -629,6 +635,7 @@ static void midi_in(uint32_t pkt)
             } else if (ty == 0x80 && bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
                 seq_rec_bass(&seq, k, d1, 0, 0, (int)src, 0);
                 if (--bass_held_count[k]) continue;
+                seq_rec_bass_end(&seq, k);
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
                 bass_held_count[k] = 0;
@@ -667,10 +674,15 @@ static void drain(void)
             apply_param((int)type, (int)a, (int)b, (int)v);
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
-        else if (type == C_BON && a < NBASS)
+        else if (type == C_BON && a < NBASS) {
             bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
-        else if (type == C_BOFF && a < NBASS)
-            bass303_note_off(&b303[a]);
+            bass_held[a] = (uint8_t)b; bass_held_count[a] = 1; bass_held_src[a] = 3;
+            src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a);
+        } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
+            bass303_note_off(&b303[a]); bass_held_count[a] = 0; bass_held[a] = 0;
+        }
+        else if (type == C_REC && a < NBASS)
+            seq_rec_bass(&seq, (int)a, (int)b, (int)(v >> 5), (int)(v & 1u), 3, (int)((v >> 1) & 15u));
         else if (type == C_BRK && !brk_hold)
             breaks_live(&brk, (int)a, (int)b);
     }
@@ -678,6 +690,11 @@ static void drain(void)
     while (guard-- && plat_midi_in(&pkt))
         if (!project_midi_drop)
             midi_in(pkt);
+    if (seq.req_stop)
+        for (int k = 0; k < NBASS; k++)
+            if (seq.rec_bass[k].active) {
+                bass303_note_off(&b303[k]); bass_held_count[k] = 0; bass_held[k] = 0;
+            }
     if (guard >= 0)                   /* the ring was empty; subsequent MIDI belongs to live operation */
         project_midi_drop = 0;
 }

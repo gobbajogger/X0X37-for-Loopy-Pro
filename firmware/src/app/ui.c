@@ -1489,8 +1489,10 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
 
 static void do_undo(int redo)
 {
-    for (int b = 0; b < NBASS; b++) seq_rec_bass_end(&seq, b);
     seq.rec_mask = 0;
+    engine_project_hold(1);
+    for (int b = 0; b < NBASS; b++) seq_rec_bass_end(&seq, b);
+    engine_project_release();
     uint32_t lo, hi;
     char t[24];
     undo_commit(&undo);                              /* what was just done is a step too */
@@ -2291,7 +2293,7 @@ static void bass_kbd(int key)
                 ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
         ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
         seq.rec_mask = (uint8_t)(1u << b);
-        seq_rec_bass(&seq, b, n, BASS_VELOCITY_DEFAULT, 1, 3, f);
+        engine_bass_record(b, n, BASS_VELOCITY_DEFAULT, 1, f);
         mark_dirty();
     } else
         bass_rec_step[b] = 0;
@@ -2440,7 +2442,7 @@ static void key_event(int k, int down)
     if (!down) {
         for (int b = 0; b < NBASS; b++)
             if (kbd_held_key[b] == k + 1) {
-                seq_rec_bass(&seq, b, kbd_held_note[b], 0, 0, 3, 0);
+                engine_bass_record(b, kbd_held_note[b], 0, 0, 0);
                 engine_bass_off(b);
                 kbd_held_note[b] = 0;
                 kbd_held_key[b] = 0;
@@ -2863,10 +2865,6 @@ X0X_COLD static void input(void)
     }
     if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
     seq.rec_mask = ui.rec && is_303() ? (uint8_t)(1u << bidx()) : 0;
-    for (i = 0; i < NBASS; i++)
-        if (seq.rec_bass[i].active && (!(seq.rec_mask & (1u << i)) ||
-            seq.rec_bass[i].pat != seq.ppat[PART_303A + i]))
-            seq_rec_bass_end(&seq, (int)i);
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
             bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)

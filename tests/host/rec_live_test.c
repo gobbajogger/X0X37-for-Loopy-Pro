@@ -382,15 +382,15 @@ static void test_303_auto_slide(void)
     btn(B_ENV, 0);
     at_step(TRK_BASS0, 5, 10);
     key(12, 1);
-    CHECK(bst(4)->flags == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
-    CHECK(bst(5)->flags == G_NOTE, "live destination has no outgoing slide");
+    CHECK((bst(4)->flags & 15) == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
+    CHECK((bst(5)->flags & 15) == G_NOTE, "live destination has no outgoing slide");
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 6, 10);
     key(14, 1); key(14, 0);
     CHECK(!(bst(5)->flags & BS_SLIDE), "live detached notes do not slide");
     at_step(TRK_BASS0, 8, 10);
     key(10, 1); key(12, 1);
-    CHECK(bst(8)->flags == G_NOTE && bst(8)->note == kbd_note(12),
+    CHECK((bst(8)->flags & 15) == G_NOTE && bst(8)->note == kbd_note(12),
           "two live notes on one quantized step replace pitch without a self-slide");
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 15, 10);
@@ -600,6 +600,169 @@ static void test_filter_controls(void)
     png_write("build/host/filter-adsr.png");
 }
 
+
+/* Timestamped production MIDI path: USB event queue -> engine render -> recorder.
+ * Playback below uses the production sequencer and its real gate/slide sink API. */
+static unsigned capture_clock;
+static double capture_energy;
+static void capture_frames(unsigned n)
+{
+    int32_t out[512];
+    while (n) {
+        unsigned k = n > 256 ? 256 : n;
+        engine_render(out, k);
+        for (unsigned i = 0; i < k * 2; i++) {
+            double v = out[i] / 8388608.0;
+            CHECK(isfinite(v), "record audio finite");
+            capture_energy += v * v;
+        }
+        capture_clock += k;
+        n -= k;
+    }
+    input();
+}
+static void capture_midi(unsigned at, unsigned src, int note, int velocity)
+{
+    CHECK(at >= capture_clock, "ordered timestamp");
+    capture_frames(at - capture_clock);
+    uint32_t st = (velocity ? 0x90u : 0x80u) | seq.ch[TRK_BASS0];
+    min_q[mi_w++ % MQ] = (src << 4) | (st >> 4) | (st << 8) |
+                        ((uint32_t)note << 16) | ((uint32_t)velocity << 24);
+    capture_frames(1); /* actual production MIDI queue consumption */
+}
+static void capture_reset(int len, int swing)
+{
+    seq_stop(&seq); capture_frames(1);
+    ui.part = PART_303A; ui.rec = 1; ui.freeplay[0] = 1;
+    set_view(V_PART);
+    for (int p = 0; p < NPAT; p++) pattern_init(&proj.pat[p], 1, 2);
+    proj.pat[0].bass[0].len = (uint8_t)len;
+    proj.pat[0].swing = (uint8_t)swing;
+    seq_init(&seq, proj.pat); seq.bpm = 120; seq.clk_src = SEQ_CLK_INT;
+    seq.send_notes = seq.send_clock = 0;
+    input(); seq_start(&seq); capture_frames(1);
+    capture_clock = 0; capture_energy = 0;
+}
+typedef struct { unsigned at; int kind, note, slide; } capture_event_t;
+static capture_event_t capture_events[128];
+static unsigned capture_nevents, playback_clock;
+static int capture_on(void *ctx, int b, int note, int accent, int slide, int velocity)
+{
+    (void)ctx; (void)accent; (void)velocity;
+    if (!b && capture_nevents < 128)
+        capture_events[capture_nevents++] = (capture_event_t){playback_clock, 1, note, slide};
+    return 1;
+}
+static void capture_off(void *ctx, int b)
+{
+    (void)ctx;
+    if (!b && capture_nevents < 128)
+        capture_events[capture_nevents++] = (capture_event_t){playback_clock, 0, 0, 0};
+}
+static void capture_playback(unsigned n)
+{
+    seq_t playback;
+    seq_sink_t sink = {0}; sink.bass_on = capture_on; sink.bass_off = capture_off;
+    /* Empty drums still invoke drum only for hits; clear both here. */
+    for (int k = 0; k < NKIT; k++) memset(proj.pat[0].drum[k].hit, 0, sizeof proj.pat[0].drum[k].hit);
+    seq_init(&playback, proj.pat); playback.bpm = 120; playback.clk_src = SEQ_CLK_INT;
+    playback.send_clock = playback.send_notes = 0;
+    capture_nevents = playback_clock = 0;
+    seq_start(&playback); seq_advance(&playback, 0, &sink);
+    while (playback_clock < n) {
+        unsigned k = seq_until_event(&playback, n - playback_clock);
+        playback_clock += k; seq_advance(&playback, k, &sink);
+    }
+}
+static unsigned capture_first_off(void)
+{
+    int seen = 0;
+    for (unsigned i = 0; i < capture_nevents; i++) {
+        if (capture_events[i].kind) seen = 1;
+        else if (seen) return capture_events[i].at;
+    }
+    return ~0u;
+}
+static void test_timestamped_live_duration(void)
+{
+    bpart_t *bp = &proj.pat[0].bass[0];
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90); /* press 10 ms after step zero */
+    capture_frames(14000);
+    CHECK(engine_midi_held() & 1, "live MIDI remains gated beyond multiple legacy half-step cutoffs");
+    CHECK(capture_energy > 0, "held MIDI renders nonzero continuous audio without reinitializing voice");
+    capture_midi(15435, 0, 48, 0); /* actual release at 350 ms */
+    CHECK(!(engine_midi_held() & 1), "actual MIDI release ends live voice");
+    CHECK(bstep_gate(&bp->step[0]) == G_NOTE && !(bp->step[0].flags >> 4), "onset plus continuation has no premature endpoint");
+    CHECK(bstep_gate(&bp->step[1]) == G_TIE && !(bp->step[1].flags >> 4), "middle tie sustains whole cell");
+    CHECK(bstep_gate(&bp->step[2]) == G_TIE && (bp->step[2].flags >> 4) == 12, "release captured at 12/15 terminal cell");
+    CHECK(ui.dirty, "production MIDI recorder marks UI dirty");
+    capture_playback(20000);
+    CHECK(abs((int)capture_first_off() - 15435) <= 185, "playback gate ends at recorded release within half endpoint bin (off=%u)", capture_first_off());
+    unsigned ons = 0; for (unsigned i = 0; i < capture_nevents; i++) ons += capture_events[i].kind;
+    CHECK(ons == 1, "held NOTE/TIE replay has one onset, no tail retrigger");
+
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90);
+    capture_midi(6000, 0, 55, 90); /* overlap -> outgoing slide on previous NOTE */
+    capture_midi(6200, 0, 48, 0); /* old release cannot truncate newest */
+    CHECK(engine_midi_held() & 1, "older note release preserves active last-press gate");
+    capture_midi(7000, 1, 55, 0); /* foreign route same note must not release */
+    CHECK(engine_midi_held() & 1, "foreign route same-pitch release isolated");
+    capture_midi(10000, 0, 55, 0);
+    CHECK(bp->step[0].flags & BS_SLIDE, "overlap stores source slide");
+    capture_playback(15000);
+    CHECK(capture_nevents >= 3 && capture_events[1].kind && capture_events[1].note == 55 && capture_events[1].slide,
+          "production playback overlaps destination as slide without intermediate off");
+
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90); capture_midi(3000, 0, 48, 0);
+    capture_midi(6000, 0, 48, 90); capture_midi(9000, 0, 48, 0);
+    CHECK(!(bp->step[0].flags & BS_SLIDE), "released/repeated pitch does not create legato");
+    capture_playback(13000);
+    ons = 0; for (unsigned i = 0; i < capture_nevents; i++) if (capture_events[i].kind) {
+        ons++; CHECK(!capture_events[i].slide, "released repeated pitch replay retriggers");
+    }
+    CHECK(ons == 2, "released same-pitch events produce two onsets");
+
+    capture_reset(16, 0);
+    capture_midi(441, 0, 0, 90); capture_midi(6000, 0, 0, 90);
+    capture_midi(6500, 0, 0, 0);
+    CHECK(engine_midi_held() & 1, "MIDI note zero and repeated press count survive first off");
+    capture_midi(9000, 0, 0, 0);
+    CHECK(!(engine_midi_held() & 1), "repeated note zero releases on last matching off");
+    CHECK(bstep_gate(&bp->step[0]) == G_NOTE && bstep_gate(&bp->step[1]) == G_NOTE && !(bp->step[0].flags & BS_SLIDE),
+          "overlapping same pitch stores separate retrigger events");
+
+    capture_reset(4, 0);
+    capture_midi(17000, 0, 48, 90); /* step three -> next loop */
+    capture_midi(28000, 0, 48, 0);
+    CHECK(bstep_gate(&bp->step[3]) == G_NOTE && bstep_gate(&bp->step[0]) == G_TIE && bstep_gate(&bp->step[1]) == G_TIE,
+          "long hold records across loop boundary with preserved onset");
+    /* Starting replay before an orphan continuation intentionally waits for NOTE. */
+    capture_playback(44000);
+    CHECK(capture_first_off() > 27000 && capture_first_off() < 28500, "wrapped gate replay releases at endpoint");
+
+    capture_reset(16, 100);
+    capture_midi(441, 0, 48, 90); capture_midi(6000, 0, 48, 0);
+    capture_playback(10000);
+    CHECK(abs((int)capture_first_off() - 6000) <= 280, "swing endpoint uses actual slot length (off=%u)", capture_first_off());
+
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90); capture_frames(6000);
+    ui.part = PART_303B; input(); capture_frames(1);
+    CHECK(!seq.rec_bass[0].active, "selection change finalizes original destination");
+    capture_midi(9000, 0, 48, 0);
+    CHECK(bstep_gate(&proj.pat[0].bass[1].step[0]) == G_REST, "release after selection does not write new part");
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90); capture_frames(6000);
+    seq_stop(&seq); capture_frames(1);
+    CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "stop while held finalizes recording and live gate");
+    capture_midi(9000, 0, 48, 0);
+    ui.rec = 0;
+    puts("  timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection and stop checked");
+}
+
 int main(void)
 {
     boot();
@@ -632,6 +795,7 @@ int main(void)
     test_clip_mode = 0;
 #endif
     test_filter_controls();
+    test_timestamped_live_duration();
     printf("rec_live: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }

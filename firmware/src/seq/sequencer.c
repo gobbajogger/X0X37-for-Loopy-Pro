@@ -209,7 +209,12 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     if (r->active && r->pat != s->ppat[TRK_BASS0 + b])
         seq_rec_bass_end(s, b);
     if (r->active) {
-        if (p == r->first && !r->entered) { r->entered = 1; r->at = s->ext_now; }
+        if (r->entered == 2 || (r->entered && p == r->first)) {
+            r->entered = 2; /* periodic pattern cannot encode an extra loop count */
+            tr->to_off = 0;
+            return;
+        }
+        if (p == r->first && !r->entered) { r->entered = 1; r->at = s->ext_now; r->slot = bass_slot_q8(s, b, p); }
         else if (r->entered) {
             /* Across the loop, keep the onset but suppress its live retrigger. */
             bp->step[r->last].flags &= 15u; /* continuation, not an endpoint */
@@ -218,7 +223,9 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
                 bp->step[p].velocity = bp->step[r->first].velocity;
                 bp->step[p].flags = G_TIE | 0xF0u;
             }
+            r->prev = r->last;
             r->last = (uint8_t)p;
+            r->slot = bass_slot_q8(s, b, p);
             r->at = s->ext_now;
         }
         tr->to_off = 0;
@@ -750,7 +757,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
     for (t = 0; t < NBASS; t++)
         if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
-            !(s->rec_mask & (1u << t))))
+            (!(s->rec_mask & (1u << t)) || s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t])))
             seq_rec_bass_end(s, t);
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
@@ -959,13 +966,22 @@ void seq_rec_bass_end(seq_t *s, int b)
     if (!r->active) return;
     bpart_t *bp = &s->pat[r->pat].bass[b];
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
-    uint32_t L = bass_slot_q8(s, b, r->last);
-    uint32_t elapsed = (s->ext_now - r->at) << 8;
-    unsigned end = r->entered ? (unsigned)(((uint64_t)elapsed * 15u + L / 2u) / L) : 1;
+    uint32_t L = r->slot;
+    uint32_t elapsed = s->ext_now - r->at;
+    /* Clamp before Q8 conversion/multiply: stopped external clocks may be stale.
+     * Slowest slot (20 BPM,8 ticks,+50% swing) is <=16934400 Q8;
+     * slot*15+slot/2 fits uint32_t, so no 64-bit division helper is needed. */
+    unsigned end = !r->entered ? 1 : r->entered == 2 || elapsed >= (L >> 8) ? 15 :
+                   (unsigned)(((elapsed << 8) * 15u + L / 2u) / L);
+    if (!end && r->last != r->first) {
+        bp->step[r->last].flags = G_REST;
+        r->last = r->prev;
+        end = 15; /* boundary belongs to previous slot, including reverse/wrap */
+    }
     if (end < 1) end = 1;
     if (end > 15) end = 15;
     bstep_t *st = &bp->step[r->last];
-    st->flags = (uint8_t)((st->flags & 7u) | (end << BS_END_SHIFT));
+    st->flags = (uint8_t)((st->flags & 15u) | (end << BS_END_SHIFT));
     r->active = 0;
     s->rec_dirty = 1;
     tr->to_off = 0;
@@ -983,20 +999,20 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     if (!s->playing || !(s->rec_mask & (1u << b))) return;
     unsigned count = r->active && r->note == note && r->src == src ? r->count : 0;
     int overlap = r->active && r->src == src && r->note != note;
-    int old = r->last, oldpat = r->pat;
-    seq_rec_bass_end(s, b);
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
+    int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
+    seq_rec_bass_end(s, b);
     bpart_t *bp = bpart(s, b);
     if (overlap && oldpat == s->ppat[t] && old != p)
         bp->step[old].flags = (uint8_t)((bp->step[old].flags & 15u) | BS_SLIDE);
     bp->step[p].note = (uint8_t)note;
     bp->step[p].velocity = (uint8_t)velocity;
     bp->step[p].flags = (uint8_t)(G_NOTE | flags | 0xF0u);
-    r->active = 1; r->pat = s->ppat[t]; r->first = r->last = (uint8_t)p;
+    r->active = 1; r->pat = s->ppat[t]; r->first = r->last = r->prev = (uint8_t)p;
     r->note = (uint8_t)note; r->src = (uint8_t)src; r->count = (uint8_t)(count < 255 ? count + 1 : 255);
     s->rec_dirty = 1;
     r->entered = s->t[t].started && p == s->t[t].pos;
-    r->at = s->ext_now;
+    r->at = s->ext_now; r->slot = bass_slot_q8(s, b, p);
     if (r->entered) {
         uint32_t L = bass_slot_q8(s, b, p), elapsed;
         if (s->ext) {
