@@ -16,8 +16,18 @@
 #     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
 #     build/host/.results/*.time gives the time of each test.
 #   The tests in needs_gen (drum-pan, stereo, rec-live) include the headers in build/gen. host-build writes them.
-#     In parallel mode, such a test starts only after host-build ends (build/host/iso/.gen-done), and it does
-#     not hold a job slot while it waits. In serial mode, host-build runs before them.
+#     In parallel mode, such a test starts only after build/host/iso/.gen-done, and it does not hold a job slot
+#     while it waits. In serial mode, host-build runs before them. .gen-done is published only after generation
+#     succeeds. A generation failure fails the suite and does not publish .gen-done: a waiter stops on
+#     build/host/iso/.gen-fail, records FAIL, takes no job slot, and does not use a stale header.
+#     When host-build itself ran, it still publishes .gen-done after the test (also on FAIL) so waiters report.
+#   A missing optional input prints "  not-run <name> (<reason>)". It does not write a .fail file and does not set FAIL.
+#     Pillow: python3 cannot import PIL. ASan runtime: ${CC:-cc} -fsanitize=address,undefined does not link.
+#     Reference trees: 9W9, 8W8, or schwung-303 is absent. breaks and drum909-adpcm stay in-tree and still run.
+#     The sequencer still runs when TB-3PO is absent (it prints its own skip sentence). The SMK package block stays a skip note.
+#   If this run admits host-build as not-run because Pillow is absent, drum samples and the break bank are still
+#     generated (they do not need Pillow). A parallel run writes .gen-done only when that generation succeeds.
+#     The host-build line stays not-run. A failed gen_nonfont is a separate failure and does not publish .gen-done.
 #   The install-path tests (class S and W, but not rec-live: installers, mocked devices, packages, update loaders, BLE)
 #     take a shared lock on the gate lock (flock -s on X0X_GATE_LOCK, default /workspace/x0x37-refs/gate.lock) while
 #     they run. Thus they wait while a gate holds its exclusive lock, and a gate waits for them. Dev runs can share.
@@ -31,6 +41,10 @@ X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
+GEN_FAILED=0        # 1 after gen_nonfont actually ran and failed (host-build was not-run). Not a Pillow skip.
+PIL_SKIP=0          # tests_body sets 1 when python3 cannot import PIL
+ASAN_SKIP=0         # tests_body sets 1 when the ASan runtime does not link
+ASAN_CHECKED=0
 OUT=build/host
 mkdir -p "$OUT"
 JOBS="${X0X_TEST_JOBS:-8}"
@@ -100,10 +114,91 @@ gen_wait() {            # name: 0 if the test must wait for host-build (host-bui
 }
 gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
 gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
+asan_links() {      # 0 if ${CC} can link the sanitizers the BLE host tests use
+    d=$(mktemp -d "${TMPDIR:-/tmp}/x0x-asan.XXXXXX") || return 1
+    printf 'int main(void){return 0;}\n' > "$d/t.c" || { rm -rf "$d"; return 1; }
+    "$CC" -fsanitize=address,undefined -o "$d/t" "$d/t.c" >/dev/null 2>&1
+    rc=$?
+    rm -rf "$d"
+    return $rc
+}
+gen_nonfont() {     # drum samples and the break bank, the part of host-build that does not import PIL
+    mkdir -p build/gen build/host || return 1
+    [ -f build/gen/x0x_drum_samples.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null || return 1
+    if [ -n "${X0X_BREAK_BANK:-}" ]; then
+        python3 tools/gen_break_bank.py "$X0X_BREAK_BANK" build/gen/x0x_break_bank.h >/dev/null || return 1
+    else
+        sh tools/gen_builtin_break.sh build/gen >/dev/null || return 1
+    fi
+}
+# name: print the missing reference file and return 0. Return 1 when the file is there, or the test is not optional.
+optional_ref() {
+    case "$1" in
+    drum909) f="${NINEW9_DIR:-../schwung-9W9}/src/dsp/er99_engine.c" ;;
+    drum808) f="${EIGHTW8_DIR:-../schwung-8W8}/src/dsp/sc808_engine.cpp" ;;
+    bass303) f="${SCHWUNG303:-../schwung-303}/src/dsp/open303/rosic_Open303.cpp" ;;
+    *) return 1 ;;
+    esac
+    [ -f "$f" ] && return 1
+    printf '%s\n' "$f"
+}
+mark_gen_fail() {   # gen_nonfont ran and failed. Separate from the not-run line. Does not publish .gen-done.
+    GEN_FAILED=1
+    FAIL=1
+    mkdir -p "$OUT/iso"
+    rm -f "$OUT/iso/.gen-done"
+    : > "$OUT/iso/.gen-fail"   # needs_gen waiters stop on this, not on a stale header
+    if [ "$JOBS" -le 1 ]; then
+        echo "  FAIL gen-nonfont"
+        return
+    fi
+    echo "  FAIL gen-nonfont" > "$RES/$(printf '%04d' "$T_SEQ")-gen"
+    : > "$RES/$(printf '%04d' "$T_SEQ")-gen.fail"
+}
+not_run() {         # name reason: same T_SEQ and phase admission as run, but do not execute the test
+    name=$1; reason=$2
+    T_SEQ=$((T_SEQ + 1))
+    if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
+    if [ "$JOBS" -le 1 ]; then
+        echo "  not-run $name ($reason)"
+        if [ "$name" = host-build ] && [ "$reason" = Pillow ]; then
+            if ! gen_nonfont; then mark_gen_fail; fi
+        fi
+        return
+    fi
+    test_class "$name"
+    cls=$TEST_CLASS
+    case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+    echo "  not-run $name ($reason)" > "$RES/$(printf '%04d' "$T_SEQ")"
+    if [ "$name" = host-build ] && [ "$reason" = Pillow ]; then
+        if gen_nonfont; then
+            mkdir -p "$OUT/iso"
+            : > "$OUT/iso/.gen-done"   # generation succeeded: needs_gen may start
+        else
+            mark_gen_fail
+        fi
+    fi
+}
 run() {
     name="$1"; shift
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
+    if [ "$GEN_FAILED" = 1 ] && needs_gen "$name"; then
+        # Do not compile stale build/gen headers, and do not take a job slot.
+        if [ "$JOBS" -le 1 ]; then
+            echo "  FAIL $name (gen-nonfont failed)"
+            FAIL=1
+            return
+        fi
+        test_class "$name"
+        cls=$TEST_CLASS
+        case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+        key=$(printf '%04d' "$T_SEQ")
+        echo "  FAIL $name (gen-nonfont failed)" > "$RES/$key"
+        : > "$RES/$key.fail"
+        echo "0 s $name" > "$RES/$key.time"
+        return
+    fi
     if [ "$JOBS" -le 1 ]; then
         if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
@@ -124,11 +219,17 @@ run() {
     fi
     gw=0; gen_wait "$name" && gw=1
     [ "$cls" = W ] || [ $gw = 1 ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
-    (
+    (                                       # xtrace goes to the file on the next line so sh -x lines do not tear
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
         mkdir -p "$HOME" "$TMPDIR"
-        if [ $gw = 1 ]; then      # wait for the end of host-build without a job slot, then take a slot
-            until [ -e "$OUT/iso/.gen-done" ]; do sleep 0.1; done
+        if [ $gw = 1 ]; then      # wait for generation without a job slot, then take a slot
+            until [ -e "$OUT/iso/.gen-done" ] || [ -e "$OUT/iso/.gen-fail" ]; do sleep 0.1; done
+            if [ -e "$OUT/iso/.gen-fail" ]; then
+                echo "  FAIL $name (gen-nonfont failed)" > "$RES/$key"
+                : > "$RES/$key.fail"
+                echo "0 s $name" > "$RES/$key.time"
+                exit 0            # no job-slot read: the pool must not deadlock on a failed generation
+            fi
             [ "$cls" = W ] || read -r _ <&3
         fi
         [ "$cls" = G ] && gen_lock
@@ -136,7 +237,7 @@ run() {
         [ "$cls" = G ] && gen_unlock
         [ "$name" = host-build ] && : > "$OUT/iso/.gen-done"   # also after a FAIL: the waiting tests then start and report
         [ "$cls" = W ] || echo >&3
-    ) &
+    ) 2>>"$OUT/$name.xtrace" &
 }
 note() {                # a skip line, in the serial order
     T_SEQ=$((T_SEQ + 1))
@@ -145,6 +246,13 @@ note() {                # a skip line, in the serial order
     fi
 }
 tests_body() {
+PIL_SKIP=0
+python3 -c 'import PIL' >/dev/null 2>&1 || PIL_SKIP=1
+if [ "$ASAN_CHECKED" != 1 ]; then
+    ASAN_CHECKED=1
+    ASAN_SKIP=0
+    asan_links || ASAN_SKIP=1
+fi
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
 run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
 TB3PO_REF="${TB3PO_REF:-../schwung-tb3po/src/dsp/tb3po.c}"
@@ -170,27 +278,27 @@ run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tes
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
-run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs_gen wait for it (see the top)
+if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
 run project-stage sh tests/host/run_project_stage.sh
-run project-runtime sh tests/host/project_runtime_test.sh
-run font-pack python3 tests/font_pack_test.py
+if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi
+if [ "$PIL_SKIP" = 1 ]; then not_run font-pack Pillow; else run font-pack python3 tests/font_pack_test.py; fi
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-link python3 tests/host/smc_link_test.py
-run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
-run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
-run smc-reachability sh tests/host/smc_reachability_test.sh
+if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
+if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
+if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reachability sh tests/host/smc_reachability_test.sh; fi
 run smc-mapping python3 tests/host/smc_mapping_test.py
-run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh
-run smc-drum-rs sh tests/host/smc_drum_rs_test.sh
-run smc-performance-abort sh tests/host/smc_performance_abort_test.sh
+if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-mutes Pillow; else run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh; fi
+if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-rs Pillow; else run smc-drum-rs sh tests/host/smc_drum_rs_test.sh; fi
+if [ "$PIL_SKIP" = 1 ]; then not_run smc-performance-abort Pillow; else run smc-performance-abort sh tests/host/smc_performance_abort_test.sh; fi
 run smc-filter python3 tests/host/smc_filter_test.py
 run smc-feedback python3 tests/host/smc_feedback_test.py
-run smc-record-feedback sh tests/host/smc_record_feedback_test.sh
+if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-record-feedback sh tests/host/smc_record_feedback_test.sh; fi
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
@@ -198,7 +306,9 @@ run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
 for t in drum909 drum808 bass303 breaks; do
-    [ -f "tests/host/run_$t.sh" ] && run "$t" sh "tests/host/run_$t.sh"
+    [ -f "tests/host/run_$t.sh" ] || continue
+    if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
+    else run "$t" sh "tests/host/run_$t.sh"; fi
 done
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
@@ -216,9 +326,12 @@ run runner-admission python3 tests/host/test_runner_admission.py
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
+run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
+run nightly-publish python3 tests/host/test_publish_nightly.py
+run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
-run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
+if [ "$PIL_SKIP" = 1 ]; then not_run gen-order Pillow; else run gen-order sh tests/host/test_gen_order.sh; fi   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
 run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickcheck.sh device bug step (checks 16, 17): an INLOG replay test that fails on the parent
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
 run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.sh (check 30): output folder, no write to the live orchestrator folder
@@ -235,7 +348,7 @@ run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-ble-clear sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/ble -o $OUT/smk_clip_ble_clear_test tests/smk_clip_ble_clear_test.c && $OUT/smk_clip_ble_clear_test"
 run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
 run smk-chord-recognize sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_chord_recognize_test tests/smk_chord_recognize_test.c && $OUT/smk_chord_recognize_test"
-run smk-clip-chord-display sh tests/host/smk_clip_chord_display_test.sh
+if [ "$PIL_SKIP" = 1 ]; then not_run smk-clip-chord-display Pillow; else run smk-clip-chord-display sh tests/host/smk_clip_chord_display_test.sh; fi
 run smk-ck-page-layout python3 tests/smk_ck_page_layout_test.py   # CLP-75: no top bar on the stage page, help line at the bottom
 run smk-arrows sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_arrows_test tests/smk_arrows_test.c && $OUT/smk_arrows_test"   # < > route and hold repeat
 run smk-arrows-owner python3 tests/smk_arrows_owner_test.py   # one owner for each < > press in clip mode (CLP-27)
@@ -300,25 +413,31 @@ run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py 
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
+if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
 run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \
     firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_test"
+fi
+if [ "$PIL_SKIP" = 1 ]; then not_run rec-live-smk Pillow; else
 run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD_SMK37=1 -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_smk_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \
     firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_smk_test"
-run copy-semantics sh tests/host/copy_semantics_test.sh
-run song-actions sh tests/host/song_actions_test.sh
-run ui-feedback sh tests/host/ui_feedback_test.sh
+fi
+if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
+if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
+if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
 for s in tests/scenarios/*.x0x; do
     n=${s##*/}; n=${n%.x0x}
-    run "scenario-$n" build/host/x0x_host "$s" "build/scenarios/$n"
+    if [ "$PIL_SKIP" = 1 ]; then not_run "scenario-$n" Pillow
+    else run "scenario-$n" build/host/x0x_host "$s" "build/scenarios/$n"; fi
 done
 # the device scratch (x0x.c): the PERF TEST patterns and the LZ hash table of a save in the same 4 KiB.
 # The test must play the same sound as with its own buffers (scenario perfsave: a save just before the test).
+if [ "$PIL_SKIP" = 1 ]; then not_run "perf-scratch" Pillow; return; fi
 run perf-scratch sh -c "X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OUT=$OUT/x0x_host_scratch sh host/build_host.sh 2>/dev/null && \
     mkdir -p $OUT/perf-scratch && $OUT/x0x_host_scratch tests/scenarios/perf.x0x $OUT/perf-scratch && \
     $OUT/x0x_host_scratch tests/scenarios/perfsave.x0x $OUT/perf-scratch && \
