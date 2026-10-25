@@ -114,7 +114,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage|legacy-bdpan-motion) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -294,6 +294,8 @@ if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh h
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
 run project-stage sh tests/host/run_project_stage.sh
+# BF-007: legacy 909/808 BD PAN motion lanes must remap after arrangement load
+run legacy-bdpan-motion sh tests/host/run_bugfinder_legacy_bdpan_motion.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run font-pack Pillow; else run font-pack python3 tests/font_pack_test.py; fi
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
