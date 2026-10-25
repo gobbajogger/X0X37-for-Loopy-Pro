@@ -196,9 +196,9 @@ test("inner project rejects corrupt, truncated, oversized and incompatible schem
   assert.throws(() => parseProject(rawProject(), 100), /firmware/);
 });
 
-test("inner project accepts stream 3–5 and sound revision 4–8 (AmpMod / Wave+Gnaw / amp ADSR / Chicago arp / stream5)", () => {
+test("inner project accepts stream 3–5 and sound revision 4–9 (AmpMod / Wave+Gnaw / amp ADSR / Chicago arp / SEND FX / stream5)", () => {
   for (const stream of [3, 4, 5]) {
-    for (const soundRev of [4, 5, 6, 7, 8]) {
+    for (const soundRev of [4, 5, 6, 7, 8, 9]) {
       const info = parseProject(rawProject(1, 1337, { stream, soundRev }));
       assert.equal(info.patternVersion, stream);
       assert.equal(info.soundRevision, soundRev);
@@ -206,7 +206,7 @@ test("inner project accepts stream 3–5 and sound revision 4–8 (AmpMod / Wave
   }
   assert.throws(() => parseProject(rawProject(1, 1337, { stream: 2 })), /incompatible/);
   assert.throws(() => parseProject(rawProject(1, 1337, { soundRev: 3 })), /incompatible/);
-  assert.throws(() => parseProject(rawProject(1, 1337, { soundRev: 9 })), /incompatible/);
+  assert.throws(() => parseProject(rawProject(1, 1337, { soundRev: 10 })), /incompatible/);
 });
 
 test("outer CRC, version, flags, metadata size and raw unmanifested files are rejected", async () => {

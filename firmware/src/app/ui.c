@@ -16,7 +16,76 @@
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
+#include "chicago_fx.h"                        /* CHI_FX_* SEND FX bridge (not insert) */
+#include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "undo.c"
+
+/* Commit a chicago_fx_map result into sound_t + live Mix/fxbus (shared bus theft). */
+static void chi_fx_commit(int voice, const chicago_fx_out_t *o)
+{
+    int part = chi_fx_mix_part(voice);
+    uint16_t t = o->touch;
+    uint8_t rv, dl;
+    if (!t)
+        return;
+    rv = (t & CHI_FX_W_MX_REV) ? o->mx_rev : 0;
+    dl = (t & CHI_FX_W_MX_DLY) ? o->mx_dly : 0;
+    if ((t & CHI_FX_W_CLEAR_SENDS) || (t & CHI_FX_W_MX_REV) || (t & CHI_FX_W_MX_DLY)) {
+        if (t & CHI_FX_W_CLEAR_SENDS) {
+            if (!(t & CHI_FX_W_MX_REV))
+                rv = 0;
+            if (!(t & CHI_FX_W_MX_DLY))
+                dl = 0;
+        }
+        proj.sound.v[T_MIX][part][MX_REV] = rv;
+        proj.sound.v[T_MIX][part][MX_DLY] = dl;
+        engine_set(T_MIX, part, MX_REV, rv);
+        engine_set(T_MIX, part, MX_DLY, dl);
+    }
+    if (t & CHI_FX_W_COMP) {
+        proj.sound.v[T_FX][0][FX_COMP] = o->fx_comp;
+        engine_set(T_FX, 0, FX_COMP, o->fx_comp);
+    }
+    if (t & CHI_FX_W_DIST) {
+        proj.sound.v[T_FX][0][FX_DIST] = o->fx_dist;
+        engine_set(T_FX, 0, FX_DIST, o->fx_dist);
+    }
+    if (t & CHI_FX_W_DRIVE) {
+        proj.sound.v[T_FX][0][FX_DRIVE] = o->fx_drive;
+        engine_set(T_FX, 0, FX_DRIVE, o->fx_drive);
+    }
+    if (t & CHI_FX_W_DL_TIME) {
+        proj.sound.v[T_FX][0][FX_DL_TIME] = o->fx_dl_time;
+        engine_set(T_FX, 0, FX_DL_TIME, o->fx_dl_time);
+    }
+    if (t & CHI_FX_W_DL_LVL) {
+        proj.sound.v[T_FX][0][FX_DL_LEVEL] = o->fx_dl_level;
+        engine_set(T_FX, 0, FX_DL_LEVEL, o->fx_dl_level);
+    }
+    if (t & CHI_FX_W_RV_DEC) {
+        proj.sound.v[T_FX][0][FX_RV_DECAY] = o->fx_rv_decay;
+        engine_set(T_FX, 0, FX_RV_DECAY, o->fx_rv_decay);
+    }
+    if (t & CHI_FX_W_RV_LVL) {
+        proj.sound.v[T_FX][0][FX_RV_LEVEL] = o->fx_rv_level;
+        engine_set(T_FX, 0, FX_RV_LEVEL, o->fx_rv_level);
+    }
+}
+
+static void chi_fx_apply_ui(int voice, uint8_t type, uint8_t e1, uint8_t e2, int clear_ny)
+{
+    chicago_fx_out_t o;
+    chicago_fx_map(type, e1, e2, clear_ny, &o);
+    chi_fx_commit(voice, &o);
+}
+
+static void chi_fx_clear_sends_ui(int voice)
+{
+    chicago_fx_out_t o;
+    memset(&o, 0, sizeof o);
+    o.touch = CHI_FX_W_CLEAR_SENDS;
+    chi_fx_commit(voice, &o);
+}
 
 /* ================================================================ model === */
 static const int8_t KEY_WHITE[NKEYS] = {0, -1, 1, -1, 2, -1, 3, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, -1, 10, 11, -1, 12, -1, 13, 14, -1, 15};
@@ -500,6 +569,19 @@ X0X_COLD static void pref_set(pref_t r, int v)
                               &proj.sound.v[T_MST][0][MST_MAKEUP]);
         else if (r.a == T_MST && r.c == MST_DJF)
             master_djf_pots(v, &proj.sound.v[T_MST][0][MST_MODE], &proj.sound.v[T_MST][0][MST_CUTOFF]);
+        else if (r.a == T_303 && r.c >= CHI_FX_TYPE && r.c < CHI_FX_END && r.b < NBASS) {
+            /* SEND FX bridge: map onto Mix/fxbus. NOT_YET types refuse insert, clear sends. */
+            uint8_t ty = proj.sound.v[T_303][r.b][CHI_FX_TYPE];
+            uint8_t e1 = proj.sound.v[T_303][r.b][CHI_FX_EDIT1];
+            uint8_t e2 = proj.sound.v[T_303][r.b][CHI_FX_EDIT2];
+            if (r.c == CHI_FX_TYPE && ty == CHI_FX_OFF)
+                chi_fx_clear_sends_ui(r.b);
+            else if (r.c == CHI_FX_TYPE && chi_fx_is_not_yet(ty)) {
+                say("NO INSERT: ", CHI_FX_TYPE_N[ty]);
+                chi_fx_apply_ui(r.b, ty, e1, e2, 1);
+            } else if (chi_fx_supported(ty) && ty != CHI_FX_OFF)
+                chi_fx_apply_ui(r.b, ty, e1, e2, 0);
+        }
         break;
     case R_SWING: p->swing = (uint8_t)v; break;
     case R_DLEN: p->drum[r.a].len = (uint8_t)(v + 1); break;
@@ -1002,6 +1084,9 @@ static void build_pages(void)
             /* Chicago Arp (live held-note); B_ARP still opens TB-3PO generate. */
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_ARP_SWITCH), PR(R_ENG, T_303, 0, CHI_ARP_MODE), PR(R_ENG, T_303, 0, CHI_ARP_RANGE), PR(R_ENG, T_303, 0, CHI_ARP_SPEED)};
             add_page_refs("CHI ARP", refs, 2, b); } while (0);
+            /* SEND FX: labeled Mix/fxbus bridge — not Chicago insert (see chicago_fx.h). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_FX_TYPE), PR(R_ENG, T_303, 0, CHI_FX_EDIT1), PR(R_ENG, T_303, 0, CHI_FX_EDIT2), NONE};
+            add_page_refs("SEND FX", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */

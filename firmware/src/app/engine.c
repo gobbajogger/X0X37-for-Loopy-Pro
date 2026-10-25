@@ -12,6 +12,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
 #include "chicago_arp.h"
+#include "chicago_fx.h"
 
 #define POOL X0X_POOL
 
@@ -173,7 +174,7 @@ int engine_nparams(int t, int v)
     switch (t) {
     case T_909: return drum909_nparams(v);
     case T_808: return drum808_nparams(v);
-    case T_303: return CHI_ARP_NPARAMS_END;              /* bass303 pots + Chicago Arp 23..26 */
+    case T_303: return CHI_FX_END;                       /* arp 23..26 + SEND FX Type/Edit 27..29 */
     case T_BRK: return 2;                                /* Level, Pitch (sends: the mixer's; the rest: the pattern's) */
     case T_FX: return fxbus_nparams();
     case T_MIX: return MX_NPARAMS;                       /* every part: Level, Rev send, Dly send */
@@ -190,6 +191,8 @@ const x0x_param_t *engine_param(int t, int v, int i)
     case T_303:
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             return &CHI_ARP_PARAMS[i - CHI_ARP_SWITCH];
+        if (i >= CHI_FX_TYPE && i < CHI_FX_END)
+            return &CHI_FX_PARAMS[i - CHI_FX_TYPE];
         return bass303_param(i);
     case T_BRK: return breaks_param(BRK_NSET + i);
     case T_FX: return fxbus_param(i);
@@ -300,6 +303,8 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             break;
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             chi_arp_apply_cfg(v, i, val);
+        else if (i >= CHI_FX_TYPE && i < CHI_FX_END)
+            break; /* sound_t only; live Mix/fxbus writes come from chicago_fx_apply (UI) */
         else
             bass303_set(&b303[v], i, val);
         break;
