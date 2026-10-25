@@ -920,7 +920,7 @@ static void smc_fx_save_preset(void)
 static void smc_fx_show(uint8_t note)
 {
     smc_ui.action = note;
-    smc_ui.begin(note & 7, 3);
+    smc_ui_begin(note & 7, 3);
 }
 
 static void smc_fx_main_nav(int which)
