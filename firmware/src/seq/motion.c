@@ -54,6 +54,9 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             r->hold_left = 0;
         }
         if (l->pat != pat) {                           /* not this part's pattern now: the knob */
+            /* A queued knob event belongs to the departing pattern, not the next
+             * time this lane's pattern happens to come around. */
+            r->rec_req = r->hold_req = 0;
             to_base(m, l, r);
             r->rec_last = MOT_NONE;
             r->hold_left = 0;
