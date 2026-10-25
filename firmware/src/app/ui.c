@@ -3182,28 +3182,31 @@ static void px_blend(int32_t x, int32_t y, uint16_t c, uint32_t a)
  * loop (corners_init) calculated, to the byte. */
 #define RMAX 8
 static const uint8_t CORNER_OFF[RMAX + 1] = {0, 0, 1, 5, 14, 30, 55, 91, 140};
-static const uint8_t CORNER_FILL[204] = {
-    13,   /* r 1 */
-    6, 15, 15, 16,   /* r 2 */
-    0, 9, 15, 9, 16, 16, 15, 16, 16,   /* r 3 */
-    0, 3, 11, 16, 3, 15, 16, 16, 11, 16, 16, 16, 16, 16, 16, 16,   /* r 4 */
-    0, 0, 5, 12, 16, 0, 10, 16, 16, 16, 5, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 5 */
-    0, 0, 0, 7, 13, 16, 0, 1, 13, 16, 16, 16, 0, 13, 16, 16, 16, 16, 7, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 6 */
-    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 16, 16, 16, 0, 6, 16, 16, 16, 16, 16, 2, 15, 16, 16, 16, 16, 16, 9, 16, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 7 */
-    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 16, 16, 16, 16, 0, 1, 13, 16, 16, 16, 16, 16, 0, 9, 16, 16, 16, 16, 16, 16, 3, 16, 16, 16, 16, 16, 16, 16, 10, 16, 16, 16, 16, 16, 16, 16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 8 */
+/* Lossless nibble encoding: coverage 8 is absent, so nibble 8 encodes 16.
+ * FILL's 204 values precede RING's 204 values. Every other coverage is literal. */
+static const uint8_t CORNER_PACKED[204] = {
+    0x6d, 0xff, 0x08, 0xf9, 0x89, 0xf8, 0x88, 0x30, 0x8b, 0xf3, 0x88, 0x8b, 0x88, 0x88, 0x88, 0x00,
+    0xc5, 0x08, 0x8a, 0x88, 0x85, 0x88, 0xc8, 0x88, 0x88, 0x88, 0x88, 0x08, 0x00, 0xd7, 0x08, 0xd1,
+    0x88, 0x08, 0x8d, 0x88, 0x78, 0x88, 0x88, 0xd8, 0x88, 0x88, 0x88, 0x88, 0x88, 0x08, 0x00, 0x92,
+    0x8d, 0x00, 0xf6, 0x88, 0x08, 0x86, 0x88, 0x88, 0xf2, 0x88, 0x88, 0x98, 0x88, 0x88, 0x88, 0x8d,
+    0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x00, 0x00, 0xa3, 0x8e, 0x00, 0x91, 0x88, 0x88, 0x10, 0x8d,
+    0x88, 0x88, 0x90, 0x88, 0x88, 0x88, 0x83, 0x88, 0x88, 0x88, 0x8a, 0x88, 0x88, 0x88, 0x8e, 0x88,
+    0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x6d, 0xff, 0x03, 0xf9, 0xa9, 0xf1, 0x01, 0x30, 0x8b, 0xf3,
+    0x17, 0x7b, 0x00, 0x18, 0x00, 0x00, 0xc5, 0x08, 0xda, 0x05, 0xd5, 0x01, 0xc0, 0x05, 0x00, 0x08,
+    0x00, 0x00, 0x00, 0xd7, 0x08, 0xd1, 0x4b, 0x00, 0x6d, 0x00, 0x70, 0x0b, 0x00, 0xd0, 0x04, 0x00,
+    0x80, 0x00, 0x00, 0x00, 0x00, 0x92, 0x8d, 0x00, 0xf6, 0x39, 0x00, 0xf6, 0x03, 0x00, 0xf2, 0x03,
+    0x00, 0x90, 0x09, 0x00, 0x00, 0x3d, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa3, 0x8e,
+    0x00, 0x91, 0x7e, 0x03, 0x10, 0xad, 0x01, 0x00, 0x90, 0x0a, 0x00, 0x00, 0xe3, 0x01, 0x00, 0x00,
+    0x7a, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
 };
-static const uint8_t CORNER_RING[204] = {
-    13,   /* r 1 */
-    6, 15, 15, 3,   /* r 2 */
-    0, 9, 15, 9, 10, 1, 15, 1, 0,   /* r 3 */
-    0, 3, 11, 16, 3, 15, 7, 1, 11, 7, 0, 0, 16, 1, 0, 0,   /* r 4 */
-    0, 0, 5, 12, 16, 0, 10, 13, 5, 0, 5, 13, 1, 0, 0, 12, 5, 0, 0, 0, 16, 0, 0, 0, 0,   /* r 5 */
-    0, 0, 0, 7, 13, 16, 0, 1, 13, 11, 4, 0, 0, 13, 6, 0, 0, 0, 7, 11, 0, 0, 0, 0, 13, 4, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0,   /* r 6 */
-    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 9, 3, 0, 0, 6, 15, 3, 0, 0, 0, 2, 15, 3, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 13, 3, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0,   /* r 7 */
-    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 14, 7, 3, 0, 0, 1, 13, 10, 1, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 3, 14, 1, 0, 0, 0, 0, 0, 10, 7, 0, 0, 0, 0, 0, 0, 14, 3, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0,   /* r 8 */
-};
-#define corner_fill_at(r, j, i) CORNER_FILL[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
-#define corner_ring_at(r, j, i) CORNER_RING[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
+_Static_assert(sizeof CORNER_PACKED * 2u == 408u, "complete corner coverage table");
+static __attribute__((noinline)) uint32_t corner_coverage(uint32_t index)
+{
+    uint32_t a = (CORNER_PACKED[index >> 1] >> ((index & 1u) * 4u)) & 15u;
+    return a == 8u ? 16u : a;
+}
+#define corner_fill_at(r, j, i) corner_coverage(CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i))
+#define corner_ring_at(r, j, i) corner_coverage(204u + CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i))
 
 /* a filled rounded rectangle; r is clamped to fit */
 static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c)
