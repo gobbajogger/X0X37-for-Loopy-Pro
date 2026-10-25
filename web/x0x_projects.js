@@ -35,9 +35,10 @@ export async function sha256(b) {
 }
 
 // Inner project stream (offset 20): 3 = velocity steps; 4 = frozen endpoint-only or snapshot-only;
-// 5 = combined stream5. Sound revision (offset 24): 4 = 16-wide cells; 5 = AmpMod; 6 = Wave morph + Gnaw.
+// 5 = combined stream5. Sound revision (offset 24): 4 = 16-wide cells; 5 = AmpMod; 6 = Wave morph + Gnaw;
+// 7 = Bite + amp Env Attack/Decay/Sustain/Release (NPARAMS_MAX 24).
 const PROJECT_STREAM_OK = new Set([3, 4, 5]);
-const PROJECT_SOUND_REV_OK = new Set([4, 5, 6]);
+const PROJECT_SOUND_REV_OK = new Set([4, 5, 6, 7]);
 
 // The inner file is firmware's canonical persistent project schema, not a sample archive.
 export function parseProject(b, expectedLength = null) {

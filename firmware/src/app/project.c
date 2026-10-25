@@ -670,6 +670,15 @@ static int read_project(project_t *pr)
             /* Gnaw default 0: load_sound already left new cells at engine defaults */
         }
     }
+    if (sound_ok && pr->set.snd_rev < 7) {           /* Bite + amp Env A/D/S/R: keep Open303 defaults */
+        for (i = 0; i < NBASS; i++) {
+            pr->sound.v[T_303][i][BASS303_BITE] = bass303_param(BASS303_BITE)->def;
+            pr->sound.v[T_303][i][BASS303_AATTACK] = bass303_param(BASS303_AATTACK)->def;
+            pr->sound.v[T_303][i][BASS303_ADECAY] = bass303_param(BASS303_ADECAY)->def;
+            pr->sound.v[T_303][i][BASS303_ASUSTAIN] = bass303_param(BASS303_ASUSTAIN)->def;
+            pr->sound.v[T_303][i][BASS303_ARELEASE] = bass303_param(BASS303_ARELEASE)->def;
+        }
+    }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)
             pr->sound.v[T_MIX][i][MX_PAN] = 64;

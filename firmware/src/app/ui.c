@@ -720,13 +720,14 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     }
     switch (r.kind) {
     case R_ENG:
-        if (r.a == T_303 && (r.c == BASS303_FATTACK || r.c == BASS303_FRELEASE || r.c == BASS303_DECAY)) {
+        if (r.a == T_303 && (r.c == BASS303_FATTACK || r.c == BASS303_FRELEASE || r.c == BASS303_DECAY
+                            || r.c == BASS303_AATTACK || r.c == BASS303_ADECAY || r.c == BASS303_ARELEASE)) {
             float ms = bass303_env_time_ms(r.c, v);
             put_i(num, (int)(ms + 0.5f));
             put_s(unit, "ms");
             return;
         }
-        if (r.a == T_303 && r.c == BASS303_FSUSTAIN) {
+        if (r.a == T_303 && (r.c == BASS303_FSUSTAIN || r.c == BASS303_ASUSTAIN)) {
             put_i(num, (v * 100 + 63) / 127);
             put_s(unit, "%");
             return;
@@ -993,11 +994,14 @@ static void build_pages(void)
             add_page_refs("TONE", refs, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_ACCENT), PR(R_ENG, T_303, 0, BASS303_WAVE), PR(R_ENG, T_303, 0, BASS303_DRIVE), PR(R_ENG, T_303, 0, BASS303_SLIDE)};
             add_page_refs("VOICE", refs, 2, b); } while (0);
-            /* AmpMod = Chicago Amp ENV/GATE; Gnaw = Chicago VCF Gnaw (not Drive/Bite). */
-            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC), PR(R_ENG, T_303, 0, BASS303_AMPMODE), PR(R_ENG, T_303, 0, BASS303_GNAW)};
-                more_refs(refs, 6, 2, b); } while (0);
+            /* AmpMod = Chicago Amp ENV/GATE; Gnaw/Bite = Chicago VCF (not Soft/RAT Drive). */
+            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC), PR(R_ENG, T_303, 0, BASS303_AMPMODE), PR(R_ENG, T_303, 0, BASS303_GNAW), PR(R_ENG, T_303, 0, BASS303_BITE)};
+                more_refs(refs, 7, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_FATTACK), PR(R_ENG, T_303, 0, BASS303_DECAY), PR(R_ENG, T_303, 0, BASS303_FSUSTAIN), PR(R_ENG, T_303, 0, BASS303_FRELEASE)};
             add_page_refs("FILTER ADSR", refs, 2, b); } while (0);
+            /* Amp Env: Chicago Attack/Decay/Sustain/Release (filter Decay stays on FILTER ADSR). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_AATTACK), PR(R_ENG, T_303, 0, BASS303_ADECAY), PR(R_ENG, T_303, 0, BASS303_ASUSTAIN), PR(R_ENG, T_303, 0, BASS303_ARELEASE)};
+            add_page_refs("AMP ADSR", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */
