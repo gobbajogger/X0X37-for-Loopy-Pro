@@ -16,10 +16,12 @@ Package evidence: `evidence/f12-stage4/CHECKS.md`, `elite/record.json`, `pro/rec
 Host test evidence: `evidence/f12-stage3/CHECKS.md` (ALL_PASS).
 Deferred (unchanged): `evidence/f12-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f12-stage4/SUCCESSOR-STAGE5.txt`.
-Successor agent id: none.
-Successor URL: none.
-Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
-Handoff status: **incomplete** until an owner-visible Stage 5 id is recorded on this remote tip.
+Successor agent id: `bc-2ced8972-1537-5ad0-91cf-84177aa15c17`.
+Successor URL: `https://cursor.com/agents/bc-2ced8972-1537-5ad0-91cf-84177aa15c17`.
+Successor name: F12 nightly merge.
+Successor source: desktop (owner-visible).
+Local-env review: `bc-8cdb733e-5328-558a-a11a-5a3f3d04ca92` (PR #272 subscribed).
+Handoff status: **complete** — owner-visible Stage 5 recorded via coordinator CreateAgent (`startingRef` `cursor/f12-stage4-bf008-1207` @ `729f7e5d`). Pod had no `CURSOR_API_KEY`; no second Stage 5 created.
 
 ## Package summary
 
