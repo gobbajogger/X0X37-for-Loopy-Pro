@@ -6,7 +6,9 @@ BF-013 is **already on firmware nightly** via historical [#74](https://github.co
 | --- | --- |
 | Worker | `bc-75dd783d-5755-591c-9f4d-f6575b5029b9` |
 | Branch | `cursor/f14-tip-packages-237f` |
-| `origin/nightly` tip (package source) | `b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a` |
+| Package source SHA (DEV CHECKED) | `b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a` |
+| `origin/nightly` at first validate | `b48cd800…` (post-#325) |
+| `origin/nightly` re-fetch later | `077736829a7803a2dcec0b2a07242b20ae253386` — **BUILD_FAILED** (see below) |
 | Content tree (`dev_validate.py::tree`) | `4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60` |
 | Git tree | `16b3caf29fc3548c290ce97afaed9f44214c1ab5` |
 | Firmware tree | `1924e2cff82c4f1737fbe7a8188af1a3b229ae01` |
@@ -59,6 +61,12 @@ Prerelease tag `f14-tip-b48cd800-dev` (target `b48cd800…`): https://github.com
 
 `gh release download` re-fetch sha256 matched records. Not Stage-7 Pages publish. Do not flash a local Mac rebuild. Do not use #322 `656d70e9` packages.
 
+## Tip move rebuild attempt (`07773682`)
+
+Re-fetched `origin/nightly` after land; tip advanced via #319/#303/#315/#324. BF-013 `fxbus.c` blob unchanged (`032d2895…`). Host stereo on `07773682` PASS. Elite/Pro `dev_validate.py` **REFUSED**: linker RAM overflow **284 B** (`.bss` / `.pool` overlap) from `firmware/src/app/ui.c` (MIX WAVE / #303) on top of tip that had only `ram_free` 244 B at `b48cd800`. Log: `tip-07773682-elite-build-FAILED.log`.
+
+Disposition: keep **DEV CHECKED** packages for package source `b48cd800` (BF-013 tip after #325). Do not claim packages for `07773682`. Coordinator: Stage 6 may install `b48cd800` hashes; a tip-at-`07773682` package pass needs a Stage-2 RAM repair first (≥284 B), then re-validate.
+
 ## Overall
 
-**DEV CHECKED** Elite + Pro for nightly tip `b48cd800` (BF-013 present). Ready for Stage-6 local install and Stage-7 nightly page publish of **these** hashes.
+**DEV CHECKED** Elite + Pro for package source `b48cd800` (BF-013 present). Ready for Stage-6 local install of **these** hashes. Current `origin/nightly` `07773682` is **BUILD_FAILED** for SMK packages until RAM is freed.

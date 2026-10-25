@@ -38,3 +38,5 @@ Missing device: INSTALL BLOCKED; leave pending. Do not publish. Do not start a c
 Merge / tip evidence: evidence/f14-tip-packages/CHECKS.md
 JSON twin: evidence/f14-tip-packages/stage6-install-prompt.json
 CreateAgent: NO_CURSOR_API_KEY in this worker — coordinator must launch owner-visible Stage 6 (Mac) with startingRef=cursor/f14-tip-packages-237f and this prompt. Do not claim Task as Stage 6.
+
+Note: origin/nightly later moved to 07773682 (BUILD_FAILED RAM +284 B from ui.c/#303). Stage 6 still installs these b48cd800 hashes. A tip-matched package for 07773682 needs Stage-2 RAM repair + re-validate first.
