@@ -271,6 +271,12 @@ static void bank_seek_reverse(brk_voice_t *v, const brk_bank_t *k, uint32_t p, i
     i = c << k->ck_shift;
     *pred = k->ck[c].pred;
     *idx = k->ck[c].idx;
+    /* rev_fetch passes a BRK_RCH-aligned base. If it is also an exact
+     * checkpoint, no decoding or adjacent-state lookup is necessary. */
+    if (i == p) {
+        v->seek_pos = UINT32_MAX;
+        return;
+    }
     if (p >= BRK_RCH && p - BRK_RCH >= i) {
         uint32_t prev = p - BRK_RCH;
         while (i < prev)
