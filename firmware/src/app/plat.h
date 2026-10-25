@@ -79,6 +79,9 @@ const char *plat_ble_name(void);
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+int plat_ble_smc_send_peer(uint8_t peer, const uint8_t *msg, uint8_t len);
+/* Explicit second SMC address/type admission, boot/config context before BLE starts. */
+int plat_ble_smc_peer_target(uint8_t peer, const uint8_t addr[6], uint8_t type);
 
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;
