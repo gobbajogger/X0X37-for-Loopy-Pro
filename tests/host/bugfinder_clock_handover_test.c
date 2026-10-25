@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* BF-005: Queued USB clocks must not advance a new Bluetooth transport owner.
- * Host regression: owner-matching seq_clk_drop clears ext_pending with clk_lock.
- * Also guards non-owner / repeated disconnects (nightly #35 stack). */
+ * Standalone audit regression. It fails against current main until repaired. */
 #include <stdio.h>
 #include "../../firmware/src/seq/sequencer.h"
 
@@ -55,8 +54,7 @@ static int non_owner_drop(void) {
     seq_advance(&seq, 0, &sink);
     for (int i = 0; i < 3; i++) feed(&seq, 0xF8, 0);  /* USB owns three queued ticks */
     if (seq.clk_lock != 1u || seq.ext_pending != 3u) {
-        printf("FAIL nonowner setup lock=%u pending=%u
-", seq.clk_lock, seq.ext_pending);
+        printf("FAIL nonowner setup lock=%u pending=%u\n", seq.clk_lock, seq.ext_pending);
         return 1;
     }
     seq_clk_drop(&seq, 1);                               /* unrelated Bluetooth disconnect */
