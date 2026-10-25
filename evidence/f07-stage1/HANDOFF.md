@@ -16,9 +16,10 @@ Independent claim review: internal Task `bc-4fb732c3-0749-525e-91d0-f846466c1b04
 Stage-7 local review: Project store `internal/pr-local-reviews/pr-215.md` (PASS).
 Deferred younger / excluded items: withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume `find(IS_OTA)`, longer `SLOT_PROBE` budgets, delete Felucca-era `make_site.py` entirely (`evidence/f06-stage2/DEFERRED.md`).
 Successor prompt: `evidence/f07-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no usable `CURSOR_API_KEY` (API create ×2 → 401; logs `api-create-stage2-attempt{1,2}.json`); coordinator CreateAgent is required.
+Successor agent id: `bc-d180cf42-3a0d-5bf5-b694-aa94e5cf04ef`.
+Successor URL: https://cursor.com/agents/bc-d180cf42-3a0d-5bf5-b694-aa94e5cf04ef
+Successor source: `desktop` (owner-visible; CreateAgent via Project coordinator; name `F07 stage2 FP-001`; base `cursor/f07-fp-pin-stage1-fb90`).
+Handoff status: **complete**. Stage 1 ownership ends after this id is on the remote tip. Pod had no usable `CURSOR_API_KEY` (API create ×2 → 401); Project coordinator CreateAgent launched Stage 2.
 
 Selected defect: **FP-001**. Stage-7 qualification `installer_sha256` (`8caf8724…`, nightly `installerFingerprint()` source composite) does not equal served `install/index.html` sha256 (`66b56ba5…`). **Approved repair: dual-digest reconciliation** — record source fingerprint and served HTML digest separately; add a local host check that prevents conflating them; keep prepare:candidate source-fingerprint semantics. Do not change package/controller/firmware bytes.
 

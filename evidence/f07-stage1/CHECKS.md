@@ -51,4 +51,4 @@ Log: `evidence/f07-stage1/live-verify.log`.
 
 ## Overall
 
-**AUDIT RECORDED.** Selected defect **FP-001** (dual-digest reconciliation). Ready for Stage 2.
+**AUDIT RECORDED.** Selected defect **FP-001** (dual-digest reconciliation). Owner-visible Stage 2 successor `bc-d180cf42-3a0d-5bf5-b694-aa94e5cf04ef` recorded on HANDOFF.
