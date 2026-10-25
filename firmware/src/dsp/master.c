@@ -113,10 +113,9 @@ void master_init(master_t *m)
  * the reduction at the threshold, at most 24 dB); 3/4 is the factory's -24 dB, 4:1, +16 dB */
 void master_comp1_pots(int v, uint8_t *thresh, uint8_t *ratio, uint8_t *makeup)
 {
-    static const float R[6] = {1.0f, 1.5f, 2.0f, 3.0f, 4.0f, 6.0f};
     float x = (float)v * (1.0f / 127.0f), thr = -4.0f - 28.0f * x, mk;
     int ri = v ? 1 + (int)(x * 4.0f + 0.5f) : 0;
-    mk = ri ? fm_minf(-thr * (1.0f - 1.0f / R[ri]) * 0.85f, 24.0f) : 0.0f;
+    mk = ri ? fm_minf(-thr * (1.0f - 1.0f / RATIO_V[ri]) * 0.85f, 24.0f) : 0.0f;
     *thresh = (uint8_t)((thr + 48.0f) * (127.0f / 48.0f) + 0.5f);
     *ratio = (uint8_t)ri;
     *makeup = (uint8_t)(mk * (127.0f / 24.0f) + 0.5f);
