@@ -18,10 +18,13 @@ FM-1 identities are likewise not reliable semantic versions.
 **Version selection:** MAJOR for incompatible data/storage/MIDI/interface
 changes; MINOR for compatible features; PATCH for fixes. The open-beta line
 starts at 0.1.0. `tools/release_alloc.py` stores the next number in
-`releases/openbeta/ledger.json` and commits that file. Patch 99 rolls to the
-next minor, and minor 99 rolls to the next major. The counter stops at
-99.99.99. Do not invent a number from a commit count, a hash, or a date.
-Rebuilding the same source tree keeps its number. Different package bytes
+`releases/openbeta/ledger.json`. The tree id is the 40-character Git id of
+`commit^{tree}`. Issuance checks that the commit exists and that id matches,
+then commits the ledger in an isolated `release-records` checkout. It does not
+reset the source checkout. Patch 99 rolls to the next minor, and minor 99 rolls
+to the next major. The counter stops at 99.99.99. Do not invent a number from a
+commit count, a hash, or a date. Rebuilding the same commit and tree keeps its
+number. The same tree at a different commit is refused. Different package bytes
 cannot reuse a recorded receipt. Elite and Pro share one number and keep
 separate package and controller hashes. The readable label is
 `X.Y.Z_openbeta`. The `_openbeta` suffix is not written into the package
@@ -82,9 +85,12 @@ Git, SHA-256 пакета и старый build ID. Придумывать им 
 
 MAJOR обозначает несовместимые изменения; MINOR — совместимые новые функции;
 PATCH — исправления. Следующий номер open-beta берётся из
-releases/openbeta/ledger.json, начиная с 0.1.0. После 0.1.99 идёт 0.2.0.
+releases/openbeta/ledger.json, начиная с 0.1.0. Дерево — это 40-символьный
+Git-идентификатор `commit^{tree}`. Запись номера идёт в отдельную ветку
+release-records и не сбрасывает исходный checkout. После 0.1.99 идёт 0.2.0.
 Суффикс `_openbeta` только для показа рядом с ABOUT X0X и не входит в
-идентификатор пакета. Одинаковое дерево исходников сохраняет номер. Другие
+идентификатор пакета. Тот же коммит и то же дерево сохраняют номер. То же
+дерево у другого коммита отклоняется. Другие
 байты пакета этот номер повторить не могут. Elite и Pro делят номер, но
 хранят разные хеши пакета и контроллера. Исходник
 892bf60d912eca93597dcf03be25a9756540c949 остаётся без числовой версии.

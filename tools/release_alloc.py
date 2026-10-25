@@ -7,6 +7,11 @@ record. Exact source inputs keep the number they already have. A different
 package cannot reuse an immutable receipt. Elite and Pro share one number and
 keep separate model, package, and controller receipts.
 
+source_tree is the 40-character Git id of commit^{tree}. Issuance checks that
+the commit exists and that this id matches. The ledger commit is created in an
+isolated checkout of the release-record branch. The source checkout is not
+reset and its dirty state is left as it was.
+
 This tool does not build firmware, publish a site, or talk to a device.
 """
 
@@ -17,6 +22,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -26,8 +32,10 @@ from firmware_build_labels import canonical_version, release_display, version_of
 LEDGER = Path("releases/openbeta/ledger.json")
 PRESERVED_UNVERSIONED = "892bf60d912eca93597dcf03be25a9756540c949"
 COMMIT = re.compile(r"[0-9a-f]{40}\Z")
-TREE = re.compile(r"[0-9a-f]{64}\Z")
+TREE = COMMIT
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+RECORD_BRANCH = re.compile(r"[A-Za-z0-9._/-]+\Z")
+FORBIDDEN_BRANCHES = {"nightly", "main", "master", "gh-pages"}
 NAMES = {"elite": "SMK-37 Elite", "pro": "SMK-37 Pro", "mke": "MKE-P37", "fm1": "FM-1"}
 
 
@@ -92,7 +100,7 @@ def _ids(source_commit, source_tree):
     if not isinstance(source_commit, str) or not COMMIT.fullmatch(source_commit):
         raise ReleaseError("source_commit must be a full 40-character lowercase Git SHA")
     if not isinstance(source_tree, str) or not TREE.fullmatch(source_tree):
-        raise ReleaseError("source_tree must be a 64-character lowercase tree hash")
+        raise ReleaseError("source_tree must be the 40-character Git tree id")
     return source_commit, source_tree
 
 
@@ -226,41 +234,118 @@ def _commit_ledger(repo, message):
         raise ReleaseError("release allocation would commit more than the ledger")
     _git(repo, "-c", "user.name=X0X release record", "-c", "user.email=release-record@localhost",
          "commit", "-q", "-m", message, "--", str(LEDGER))
-    names = _git(repo, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD").stdout.split()
+    names = _git(repo, "diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "HEAD").stdout.split()
     if names != [str(LEDGER)]:
         raise ReleaseError("release commit is not ledger-only")
     return True
 
 
-def _fetch(repo, remote, branch):
-    result = _git(repo, "fetch", remote, branch, check=False)
-    return result.returncode == 0
+def _stamp(repo):
+    """Read-only identity of the source checkout. Allocation must return this unchanged."""
+    head = _git(repo, "rev-parse", "HEAD").stdout
+    name = _git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout
+    status = _git(repo, "status", "--porcelain").stdout
+    return head, name, status
+
+
+def _verify_source(repo, source_commit, source_tree):
+    """The commit must exist, and source_tree must be that commit's Git tree."""
+    source_commit, source_tree = _ids(source_commit, source_tree)
+    kind = _git(repo, "cat-file", "-t", source_commit, check=False)
+    if kind.returncode or kind.stdout.strip() != "commit":
+        raise ReleaseError("source_commit is not a commit in this repository")
+    actual = _git(repo, "rev-parse", "--verify", source_commit + "^{tree}", check=False)
+    if actual.returncode or actual.stdout.strip() != source_tree:
+        raise ReleaseError("source_tree does not match the Git tree of the source commit")
+    return source_commit, source_tree
+
+
+def _check_branch(branch):
+    if (not isinstance(branch, str) or not RECORD_BRANCH.fullmatch(branch)
+            or ".." in branch or branch in FORBIDDEN_BRANCHES):
+        raise ReleaseError("release record branch is not allowed")
+    return branch
+
+
+def _remote_has_branch(remote, branch):
+    result = subprocess.run(["git", "ls-remote", "--heads", str(remote), branch],
+                            capture_output=True, text=True)
+    if result.returncode:
+        raise ReleaseError(result.stderr.strip() or "cannot read the release record remote")
+    return bool(result.stdout.strip())
+
+
+def _prepare_record(record, remote, branch):
+    """Isolated checkout. It never checks out or resets the candidate source."""
+    record.mkdir(parents=True)
+    init = subprocess.run(["git", "init", "-q", "-b", branch, str(record)],
+                          capture_output=True, text=True)
+    if init.returncode:
+        raise ReleaseError(init.stderr.strip() or "cannot create the release record checkout")
+    _git(record, "remote", "add", "origin", str(remote))
+    if not _remote_has_branch(remote, branch):
+        return
+    fetched = _git(record, "fetch", "origin", branch, check=False)
+    if fetched.returncode:
+        raise ReleaseError(fetched.stderr.strip() or "release record fetch failed")
+    _git(record, "checkout", "-q", "-B", branch, "FETCH_HEAD")
+
+
+def _push_record(remote, branch, apply, retries):
+    """Compare-and-swap the ledger. A rejected push fetches the record again."""
+    if not remote:
+        raise ReleaseError("serialized allocation needs a release-record remote")
+    branch = _check_branch(branch)
+    last = ""
+    for _attempt in range(retries):
+        tmp = Path(tempfile.mkdtemp(prefix="x0x-release-record-"))
+        try:
+            record = tmp / "repo"
+            _prepare_record(record, remote, branch)
+            item, message = apply(record)
+            if not _commit_ledger(record, message):
+                return item
+            pushed = _git(record, "push", "origin", "HEAD:refs/heads/" + branch, check=False)
+            if pushed.returncode == 0:
+                return item
+            last = (pushed.stderr or pushed.stdout).strip()
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+    raise ReleaseError("release record push collided too many times" + (": " + last if last else ""))
 
 
 def allocate_committed(repo, source_commit, source_tree, remote=None, branch="release-records", retries=8):
-    """Allocate and commit the ledger. A rejected push reloads the remote record and retries."""
+    """Verify the source objects, then commit the ledger only in an isolated record checkout."""
     repo = Path(repo)
-    path = repo / LEDGER
-    if not (repo / ".git").exists():
-        raise ReleaseError("release allocation needs a Git repository")
-    for _attempt in range(retries):
-        if _git(repo, "status", "--porcelain").stdout.strip():
-            raise ReleaseError("release repository is dirty; allocation was not committed")
-        if remote and _fetch(repo, remote, branch):
-            changed = _git(repo, "diff", "--name-only", "HEAD", "FETCH_HEAD").stdout.split()
-            if any(name != str(LEDGER) for name in changed):
-                raise ReleaseError("remote release branch changes more than the ledger")
-            _git(repo, "reset", "--hard", "FETCH_HEAD")
-        item = allocate_file(path, source_commit, source_tree)
-        if not _commit_ledger(repo, "Allocate open-beta " + item["version"]):
-            return item
-        if not remote:
-            return item
-        pushed = _git(repo, "push", remote, "HEAD:refs/heads/" + branch, check=False)
-        if pushed.returncode == 0:
-            return item
-        _git(repo, "reset", "--hard", "HEAD~1")
-    raise ReleaseError("release allocation collided too many times")
+    if _git(repo, "rev-parse", "--is-inside-work-tree", check=False).stdout.strip() != "true":
+        raise ReleaseError("release allocation needs the source work tree to verify the commit")
+    before = _stamp(repo)
+    source_commit, source_tree = _verify_source(repo, source_commit, source_tree)
+
+    def apply(record):
+        item = allocate_file(record / LEDGER, source_commit, source_tree)
+        return item, "Allocate open-beta " + item["version"]
+
+    item = _push_record(remote, branch, apply, retries)
+    if _stamp(repo) != before:
+        raise ReleaseError("source checkout changed during allocation")
+    return item
+
+
+def bind_committed(repo, version, model, package_sha256, controller_sha256, controller_size,
+                   remote, branch="release-records", retries=8):
+    """Bind one model in the isolated record checkout. The source checkout stays put."""
+    repo = Path(repo)
+    before = _stamp(repo)
+
+    def apply(record):
+        item = bind_file(record / LEDGER, version, model, package_sha256, controller_sha256, controller_size)
+        return item, "Bind open-beta " + version + " " + model
+
+    item = _push_record(remote, branch, apply, retries)
+    if _stamp(repo) != before:
+        raise ReleaseError("source checkout changed during allocation")
+    return item
 
 
 def main(argv=None):
@@ -278,6 +363,8 @@ def main(argv=None):
     bind.add_argument("--package-sha256", required=True)
     bind.add_argument("--controller-sha256", required=True)
     bind.add_argument("--controller-size", required=True, type=int)
+    bind.add_argument("--remote")
+    bind.add_argument("--branch", default="release-records")
     sub.add_parser("show")
     args = parser.parse_args(argv)
     path = args.repo / LEDGER
@@ -285,14 +372,20 @@ def main(argv=None):
         if args.command == "show":
             result = _load(path) if path.is_file() else empty_ledger()
         elif args.command == "allocate":
+            _verify_source(args.repo, args.source_commit, args.source_tree)
             if args.remote:
                 result = allocate_committed(args.repo, args.source_commit, args.source_tree,
                                             args.remote, args.branch)
             else:
                 result = allocate_file(path, args.source_commit, args.source_tree)
         else:
-            result = bind_file(path, args.version, args.model, args.package_sha256,
-                               args.controller_sha256, args.controller_size)
+            if args.remote:
+                result = bind_committed(args.repo, args.version, args.model, args.package_sha256,
+                                        args.controller_sha256, args.controller_size,
+                                        args.remote, args.branch)
+            else:
+                result = bind_file(path, args.version, args.model, args.package_sha256,
+                                   args.controller_sha256, args.controller_size)
     except ReleaseError as exc:
         print("REFUSED: " + str(exc), file=sys.stderr)
         return 3

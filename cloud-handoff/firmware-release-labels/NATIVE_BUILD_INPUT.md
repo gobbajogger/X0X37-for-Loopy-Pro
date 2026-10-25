@@ -13,21 +13,22 @@ This packet is source and commands only. It does not include a toolchain, an SDK
 
 ## Version
 
-The ledger in this pull request has no allocation. The first number for a new source tree is `0.1.0`. Take it only when both models will be built from that exact tree, from a clean clone:
+The ledger in this pull request has no allocation. The first number for a new source tree is `0.1.0`. Take it only when both models will be built from that exact commit. `source_tree` is `git rev-parse <commit>^{tree}`: a 40-character Git object id, not a 64-character digest.
 
 ```
 python3 tools/release_alloc.py --repo . allocate \
   --remote origin --branch release-records \
   --source-commit <40-char source SHA> \
-  --source-tree <64-char tree hash>
+  --source-tree <40-char git tree id>
 ```
 
-That command commits only `releases/openbeta/ledger.json` and pushes `refs/heads/release-records`. It does not push `nightly` or `main`. A rejected push reloads that branch and retries. The same commit and tree print the same number. The same tree with a different commit is refused. A run without `--remote` only edits the local file and does not serialize across clones.
+The command reads the commit in `--repo` and refuses a missing commit or a tree that is not that commit's `^{tree}`. It commits only `releases/openbeta/ledger.json` in a temporary checkout of `release-records` and pushes `refs/heads/release-records`. It does not reset `--repo`, does not require a clean source tree, and does not push `nightly` or `main`. A rejected push fetches the record branch and retries. A later source commit allocates the next number from that record; the record does not have to match the firmware tree. The same commit and tree print the same number. The same tree with a different commit is refused.
 
-Bind each model after the package and controller hashes are known. Bind updates the ledger file. Commit only that file afterward:
+Bind each model after the package and controller hashes are known. Bind uses the same isolated record checkout:
 
 ```
 python3 tools/release_alloc.py --repo . bind \
+  --remote origin --branch release-records \
   --version <X.Y.Z> --model elite \
   --package-sha256 <64 hex> --controller-sha256 <64 hex> --controller-size <bytes>
 ```
