@@ -1,0 +1,4 @@
+Stage-4 handoff CreateAgent for Stage 5: both attempts recorded NO_CURSOR_API_KEY.
+Pod has no owner/service-account CURSOR_API_KEY. Do not send the pod token.
+Coordinator CreateAgent is required. Stage 4 retains ownership until an
+owner-visible Stage 5 id and https://cursor.com/agents/<id> URL are pushed.
