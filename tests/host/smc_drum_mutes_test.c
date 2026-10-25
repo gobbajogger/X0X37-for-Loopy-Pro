@@ -5,6 +5,7 @@
  * Hardware I/O and unused clip handlers are substitutes. No audio claim is made.
  */
 #define main simulator_main
+void smc_ui_cancel(void);
 #include "../../host/x0x_host.c"
 #undef main
 #include <assert.h>

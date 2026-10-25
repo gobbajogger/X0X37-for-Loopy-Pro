@@ -55,6 +55,7 @@ static int perf_testing(void);
 static int ui_project_busy(void);
 static void engine_smc_solo(int n) { solo = (unsigned)n; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; }
+#define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 ''' + prefix + "\n" + "\n".join(function(source, name) for name in
     ("smc_project_active", "smc_solo_clear") if "smc_solo_clear" in source) + "\n" + "\n".join(function(source, name) for name in (
     "smc_project_drop", "smc_project_reset", "smc_ble_midi", "smc_ble_link")) + r'''

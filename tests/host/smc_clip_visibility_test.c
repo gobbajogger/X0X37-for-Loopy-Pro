@@ -26,6 +26,9 @@ static uint32_t ck_get(uint32_t f) { return fields[f]; }
 static void ck_set(uint32_t f, uint32_t v) { fields[f] = (uint8_t)v; }
 static void mark_dirty(void) { dirty++; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; }
+static void smc_ui_clip_show(int n, const char *a, const char *b)
+{ (void)n; (void)a; (void)b; notices++; }
+#define smc_ui_cancel() ((void)0) /* This fixture observes routing, not presentation. */
 static char *put_s(char *d, const char *s) { while ((*d++ = *s++)) {} return d - 1; }
 static const char *ck_val_txt(uint32_t f, uint32_t v, char *s)
 {

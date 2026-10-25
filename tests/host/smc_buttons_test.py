@@ -7,7 +7,9 @@ import subprocess
 import tempfile
 root = Path(__file__).resolve().parents[2]
 s = Path(os.environ.get('SMC_SOURCE', Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c')).read_text()
-f = re.search(r'^static void smc_button\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)[0]
+# Mapping remains in apply(); the full UI regression exercises its presentation wrapper.
+f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)[0]
+f = f.replace('smc_button_apply(', 'smc_button(', 1)
 helpers = []
 for name in ('smc_drum_mix', 'smc_drum_track'):
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)

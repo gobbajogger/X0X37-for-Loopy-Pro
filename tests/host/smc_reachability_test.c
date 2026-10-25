@@ -1,6 +1,8 @@
 /* Full project, engine, UI, SMC queues and pickup logic. Hardware I/O and clip
  * field storage alone are substitutes; clip navigation/turn code is extracted. */
 #define main simulator_main
+void smc_ui_cancel(void);
+void smc_ui_clip_show(int n, const char *name, const char *value);
 #include "../../host/x0x_host.c"
 #undef main
 #include <assert.h>
@@ -204,7 +206,7 @@ static void scenario(void) {
         blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
         receive_ready();smc_ble_link(1);smc_poll();
         /* The first fader, knob and SELECT after an interrupted SysEx reach UI. */
-        fader(0,0);assert(!strncmp(ui.msg,"PICK F1",7) || !strncmp(ui.msg,"SMC F1",6));
+        fader(0,0);assert(smc_ui_active());
         press(24);assert(ui.view==V_PART && ui.part==0);
         edit(smc_knob_target(0),0);smc_view(V_HOME,0);
     }
@@ -273,9 +275,9 @@ pickup: ;
     smc_view(V_HOME,0);
     for(int n=0;n<8;n++) { assert(smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
     pref_t r=smc_target(0); pref_set(r,64); smc_frame();
-    fader(0,0); assert(!(smc.picked&1) && !strncmp(ui.msg,"PICK F1",7));
+    fader(0,0); assert(!(smc.picked&1) && smc_ui_active());
     int old=pref_get(r); smc_frame(); assert(pref_get(r)==old);
-    fader(0,127); assert((smc.picked&1) && !strncmp(ui.msg,"SMC F1",6));
+    fader(0,127); assert((smc.picked&1) && smc_ui_active());
     fader(0,100); assert(smc.picked&1);
     pref_set(r,20); smc_frame(); assert(!(smc.picked&1) && !(smc.seen&1));
     fader(0,110); assert(!(smc.picked&1));
