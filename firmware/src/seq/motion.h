@@ -85,6 +85,12 @@ void motion_req_hold(motion_t *m, int k);
 int motion_snapshot_find(const lane_t *L, int pat, int part, int step);
 const uint8_t *motion_snapshot_read(const lane_t *L, int pat, int part, int step);
 int motion_snapshot_engine(const lane_t *L, int pat, int part, int step); /* 1=303, 2=WBL1; 0=absent */
+/* Operator-facing engine short name for identity 1/2; empty string if absent/unknown.
+ * Keeps part labels (303A/303B) distinct from the sound-engine identity on a step. */
+static inline const char *motion_snapshot_engine_label(int engine)
+{
+    return engine == 1 ? "303" : engine == 2 ? "WBL1" : "";
+}
 int motion_snapshot_capture(lane_t *L, int pat, int part, int step, int engine, const uint8_t values[MOT_SNAPSHOT_PARAMS]);
 int motion_snapshot_edit(lane_t *L, int pat, int part, int step, int param, int value);
 void motion_snapshot_remove(lane_t *L, int pat, int part, int step);
