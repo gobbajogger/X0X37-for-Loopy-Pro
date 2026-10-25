@@ -1,0 +1,35 @@
+Local stage-6 install prompt for F15 BF-034 after Stage-5 Safe Merge (no cloud thread). LaunchAgent com.x0x37.unattended-install may run this. Cloud agents do not flash.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Validated / install commit (--commit): 092589b84fd455355216cb0de93c4782236f7524
+Package validation commit (harness tip): d16cdb678c2328406473a82494e91d8bd23e450e
+Content tree at validation (non-.md): be4039c0887a4e49e9baac55e216edf458c1815c9f4108f2af4986a8c4447c67
+Firmware tree (packages): a5ba08046700be5cdf2751b7afc1197411b24121
+Config: X0X_DEV_PADCAL=1 (development only).
+BF-034: harness-only; packages match LX-73 blank for 092589b8.
+
+Elite:
+- record: evidence/f15-stage4/elite/record.json
+- package: x0x-smk37-elite.fwsc sha256 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8308; identity SMK-37 Elite_900
+
+Pro:
+- record: evidence/f15-stage4/pro/record.json
+- package: x0x-smk37.fwsc sha256 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8308; identity SMK-37 Pro_900
+
+Attested package bytes (do NOT use a local Mac rebuild — hashes will differ):
+Prerelease https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/lx73-092589b8-dev
+- Elite: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37-elite.fwsc
+- Pro: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37.fwsc
+- ctl: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/ctl.img
+- sums: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/SHA256SUMS.txt
+After download, sha256sum must match the hashes above exactly before gate/install.
+
+Gate: tools/require_gate_pass.sh 092589b84fd455355216cb0de93c4782236f7524 --config dev --fwsc <package> --ctl <ctl.img> --dev-record <record> must print DEV OK before write.
+Installer: tools/fm1_install.py --commit 092589b84fd455355216cb0de93c4782236f7524 … only after DEV OK.
+Missing device: INSTALL BLOCKED; leave pending. Do not publish from Stage 6.
+Merge evidence: evidence/f15-stage5/CHECKS.md
+JSON twin: evidence/f15-stage5/stage6-install-prompt.json
