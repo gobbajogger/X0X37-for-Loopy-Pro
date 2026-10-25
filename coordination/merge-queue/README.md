@@ -7,22 +7,29 @@ not live on the protected source branches. This branch is based on main
 
 **State is a snapshot, not approval.** Reviewed heads, scopes, dependencies,
 evidence and next actions remain separate from live PR state and merge facts.
-Metadata observed 2026-10-25T08:07:55Z. No code audit or test was repeated.
+Metadata observed 2026-10-25T08:17:29Z. No code audit or test was repeated.
 
 ## Current handoff
 
-- 138 unique repository/PR records: all 137 imported records retained, plus
-  source PR161. All 137 imported heads still match their reviewed heads.
+- 139 unique repository/PR records: all 137 imported records retained, plus
+  source PR161 and newly observed stacked PR162. Source PR133/146/156 have
+  changed heads and need delta review; their original reviewed heads remain.
 - Source PR160 is merged at `660a60aac2989146d16c28c4e86af33f6dc3d076`,
   tree `3cddc2572cc920272521b0fa76cba3be666adc54`. Source integration does
   not imply combined native build or hardware qualification.
-- Source PR161 is open/draft at `516301da13f1c48f8ce6a17147be00b47937da7c`:
-  reviewed fastmath repair with bounded passing host evidence; applicable
+- Source PR161 is merged at `58e2c5205a02836df678083eaa8db9994b6192e8`:
+  reviewed head `516301da13f1c48f8ce6a17147be00b47937da7c`, current NIGHTLY
+  tree `753647346913a5d3d6e874f7e26857bda3910307`. Bounded host evidence;
+  applicable
   combined-source checks, native Elite/Pro DEV plus matching-controller build,
   and hardware qualification remain pending. Integration task prefix
   `01a1720a` owns that handoff; public PR161 identifies the other active roles.
-- Source PR28 remains open/draft; PR161 has not yet supplied accepted
-  integration. Do not close it or merge historical popup ancestry.
+- Source PR28 remains open/draft. PR161 source merge is recorded; the
+  integration owner must reconcile acceptance and downstream gates before
+  separately deciding PR28 disposition. Do not close it through this queue.
+- Source PR147/149/153/154/157/158/162 merged only into their named parent
+  branches. Parent PR133/146/156 remain open; these are partial integration
+  facts, without main integration or fresh review of changed parent heads.
 - Source PR23/145 require an eligible non-author approval covering the latest
   push. Connected login `gobbajogger` is also their author; no self-approval or
   protection bypass is implied. Website public deployment separately awaits
@@ -62,14 +69,15 @@ scoped; partial/equivalent integration is not a completed PR merge.
 ## Files and schema
 
 - `merge-queue.json`: schema 1.2, counts, original review snapshot metadata
-  and 138 entries. Each entry exposes reviewed/current heads, original
+  and 139 entries. Each entry exposes reviewed/current heads, original
   scope and base, live target/state, dependencies, public evidence, next action,
   accountable role and active task when known. Unknown tasks are null.
 - `merge-queue.csv`: same entries and columns, in the same order. Arrays,
   objects, booleans, numbers and null use JSON cell encoding; string fields
   remain text. `dependencies` retains the imported array-or-prose format.
 - Original `review_history` is unchanged. `state_history` retains the imported
-  PR28/160 states before this update. `imported_snapshot_metadata` retains
+  prior changed states, including PR28/160 and the later live merge/head
+  refresh. `imported_snapshot_metadata` retains
   original counts and audit scope. Input artifact identity and digests remain
   in private local provenance, outside this public directory.
 
