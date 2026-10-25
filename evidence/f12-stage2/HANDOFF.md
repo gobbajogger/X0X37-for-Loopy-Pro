@@ -16,10 +16,12 @@ BF-008 implement: defined unsigned exponent shift in `firmware/src/dsp/fastmath.
 Implement evidence: `evidence/f12-stage2/CHECKS.md`, `DEFERRED.md`, `bf008-red.log`, `bf008-green.log`, `host-unit.log`, `fastmath-numeric.log`.
 Audit record: `evidence/f12-stage1/AUDIT.md`, `bf008-definition.md`.
 Successor prompt: `evidence/f12-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip.
+Successor agent id: `bc-d454af26-4104-5460-becb-bcf94a34df5c`.
+Successor URL: https://cursor.com/agents/bc-d454af26-4104-5460-becb-bcf94a34df5c
+Successor name: F12 BF-008 tests.
+Successor source: owner-visible (coordinator CreateAgent; startingRef `cursor/f12-stage2-bf008-1207` @ `de11b6d7`).
+Handoff status: **complete** — Stage 3 owner-visible id is on this remote tip.
+PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/270 (local review `bc-7d5bd6c3-c985-5b92-bda9-1dc5566429a3`).
 
 ## Repair summary
 
