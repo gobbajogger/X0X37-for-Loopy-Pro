@@ -214,13 +214,37 @@ static inline void brk_barrier(void)
 static inline void brk_barrier(void) { fm1_data_sync(); }
 #endif
 
+#if !defined(X0X_HOST)
+/* spare snapshots: one engine, .bss not .pool (keeps >= 8 KiB pool headroom on device) */
+static brk_bank_t brk_side[2];
+#endif
+
+static brk_bank_t *brk_side_slot(breaks_t *b, unsigned j)
+{
+#if defined(X0X_HOST)
+    return &b->side[j];
+#else
+    (void)b;
+    return &brk_side[j];
+#endif
+}
+static const brk_bank_t *brk_side_slot_c(const breaks_t *b, unsigned j)
+{
+#if defined(X0X_HOST)
+    return &b->side[j];
+#else
+    (void)b;
+    return &brk_side[j];
+#endif
+}
+
 static brk_bank_t *bank_slot(breaks_t *b, unsigned i)
 {
-    return i < 2u ? &b->bank[i] : &b->side[i - 2u];
+    return i < 2u ? &b->bank[i] : brk_side_slot(b, i - 2u);
 }
 static const brk_bank_t *bank_slot_c(const breaks_t *b, unsigned i)
 {
-    return i < 2u ? &b->bank[i] : &b->side[i - 2u];
+    return i < 2u ? &b->bank[i] : brk_side_slot_c(b, i - 2u);
 }
 const brk_bank_t *breaks_bank(const breaks_t *b, int which)
 {

@@ -82,7 +82,9 @@ typedef struct {
 
 typedef struct breaks {
     brk_bank_t bank[2];               /* 0 = A, 1 = B, when pub[] still names them */
-    brk_bank_t side[2];               /* spare snapshots for a loop change under a voice */
+#if defined(X0X_HOST)
+    brk_bank_t side[2];               /* host tests may use several breaks_t at once */
+#endif
     volatile uint8_t pub[2];          /* published snapshot: 0..1 bank[], 2..3 side[] */
     uint8_t pend_on[2];               /* a change waiting for a free snapshot */
     brk_loop_t pend[2];
