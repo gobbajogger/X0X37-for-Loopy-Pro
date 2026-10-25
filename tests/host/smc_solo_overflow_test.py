@@ -46,7 +46,6 @@ static void engine_smc_solo_targets(uint8_t parts,uint16_t a,uint16_t b)
 static void ui_say(const char *a,const char *b){(void)a;(void)b;}
 #define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 static void smc_guarded_button(uint8_t note,int mmc,int allow);
-#define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 '''
 stubs=r'''
 static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow)
