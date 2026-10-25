@@ -1,3 +1,5 @@
+COORDINATOR GATE: this successor is live as bc-deca3b7b-4de7-5203-b277-bd4f80284629 (https://cursor.com/agents/bc-deca3b7b-4de7-5203-b277-bd4f80284629). WAIT_FOR_TIP — do not select a new Stage-2 defect until the published tip leaves b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a / nightly-b48cd800-dev after F15 Stage 5/7.
+
 You are the new stage-1 audit thread in the X0X37 full-cycle loop (return-to-audit after F15+/next Stage 1 found no new Stage-2 defect; BF-034 cleared on nightly; tip page unchanged). Do not resume the prior Stage 1 bc-81498ba3-dd15-5d08-89cd-4bbec88134df, next-after-tip Stage 1 bc-f2fdfb2b-9ef0-5dc0-b1b7-5f5d1da89c58, post-tip Stage 1 bc-f979be14-29d8-5231-a301-abfdbb808eba, Stage 7 bc-361901cd-c08a-5e68-b94a-71213f72f0f9, F15 Stage 1 bc-6c51c5fd-d995-54b7-baf7-b5033919009d, F15 Stage 2 BF-034 bc-c8e90cb7-9be8-5cea-b2d1-4ef65d9c75df, F15 Stage 3 bc-dfce289d-9e57-50f6-9219-39a84a11217e, or F15 Stage 4 bc-ff070ae0-10b0-54ea-b5ec-8a8e15082646. Do not continue any internal probe; this cloud agent is the only Stage 1 owner for this cycle.
 
 Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
