@@ -1,0 +1,9 @@
+# BF-012 Stage 3 host master suite
+# HEAD=465071f2faac226b760626f7ae0fb1f59fa81327
+# master.c=f91a9473f0ae1cdd5e037e521f39fdfcc2022395
+# master_test.c=df2f13b35a6fc7b858b019a1950982c23f6386e3
+# command: X0X_TESTS=master X0X_TEST_JOBS=8 X0X_DEV_PADCAL=1 sh tests/run_tests.sh
+  ok   master
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
+exit:0

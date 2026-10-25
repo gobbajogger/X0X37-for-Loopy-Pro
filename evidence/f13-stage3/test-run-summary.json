@@ -1,0 +1,35 @@
+{
+  "cycle": "F13",
+  "defect": "BF-012",
+  "stage": 3,
+  "stage3_owner": "bc-7c49b76a-97dd-57c9-9a5a-784be039d70a",
+  "branch": "cursor/f13-bf012-stage3-237f",
+  "implement_tip": "465071f2faac226b760626f7ae0fb1f59fa81327",
+  "audited_source": "de11b6d7e3ac3322d2db689675d9ed27ed667785",
+  "master_c_blob": "f91a9473f0ae1cdd5e037e521f39fdfcc2022395",
+  "master_test_c_blob": "df2f13b35a6fc7b858b019a1950982c23f6386e3",
+  "unrepaired_witness_blob": "b5557b6c41bdf45275547a3b6c5431d5252f62f0",
+  "config": {
+    "X0X_TESTS": "master",
+    "X0X_TEST_JOBS": 8,
+    "X0X_DEV_PADCAL": "1"
+  },
+  "required": {
+    "command": "X0X_TESTS=master X0X_TEST_JOBS=8 X0X_DEV_PADCAL=1 sh tests/run_tests.sh",
+    "exit": 0,
+    "result": "PASS",
+    "log": "evidence/f13-stage3/master-host.log"
+  },
+  "optional_red_witness": {
+    "command": "cc … tests/host/master_test.c <blob b5557b6c…> -lm",
+    "exit": 1,
+    "result": "FAIL_EXPECTED",
+    "stale_peak": "0.500000",
+    "log": "evidence/f13-stage3/bf012-red-witness.log"
+  },
+  "ALL_PASS": true,
+  "failure_investigation": "not_started",
+  "source_repair": false,
+  "task_subagents": "unavailable_in_this_runtime; stage3_owner_ran_tests_directly",
+  "ts_utc": "2026-10-25T18:51:24Z"
+}

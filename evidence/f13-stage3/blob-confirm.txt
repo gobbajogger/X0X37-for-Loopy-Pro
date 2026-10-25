@@ -1,0 +1,22 @@
+# BF-012 blob confirm (Stage 3 tip)
+
+HEAD=465071f2faac226b760626f7ae0fb1f59fa81327
+implement_tip_origin=origin/cursor/f13-bf012-stage2-237f
+audited_source=de11b6d7e3ac3322d2db689675d9ed27ed667785
+
+firmware/src/dsp/master.c=f91a9473f0ae1cdd5e037e521f39fdfcc2022395
+expected_master.c=f91a9473f0ae1cdd5e037e521f39fdfcc2022395
+master.c_MATCH=yes
+
+tests/host/master_test.c=df2f13b35a6fc7b858b019a1950982c23f6386e3
+expected_master_test.c=df2f13b35a6fc7b858b019a1950982c23f6386e3
+master_test.c_MATCH=yes
+
+unrepaired_witness_blob=b5557b6c41bdf45275547a3b6c5431d5252f62f0
+
+master_set OFF->ON clear present:
+  if (i == MST_LIMIT && v > 0 && !m->pot[MST_LIMIT]) {
+    clear la[] / la_r[]; la_pos=hold=0; env=inv_env=0; gain=1.0f;
+  }
+
+master_test OFF->ON silence + live-ring-preserve cases present (mono/stereo).

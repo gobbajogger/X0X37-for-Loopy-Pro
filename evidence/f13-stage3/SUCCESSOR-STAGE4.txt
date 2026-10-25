@@ -1,0 +1,36 @@
+You are the new stage-4 validate thread in the X0X37 full-cycle loop (F13 after stage-3 BF-012 test). Do not resume the stage-3 thread bc-f7da628e-c002-56ce-ac69-5950bbe50dcf, the parallel stage-3 tip author bc-7c49b76a-97dd-57c9-9a5a-784be039d70a, the stage-2 thread bc-a0181730-1daf-5e94-826a-e4339ed37abf, the stage-1 thread bc-09959f6e-dc18-5575-baa6-444dfdf698cc, or any earlier F02–F12 thread. Do not continue any internal probe; this cloud agent is the only Stage 4 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage unless Stage 7 later republishes): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: de11b6d7e3ac3322d2db689675d9ed27ed667785
+Git source_tree (pre-repair package attribution): c143a9f8f5b5d0f6804995829ccbe515c77c6103
+Firmware tree (pre-repair): 9195dce5c4beb5fa8aa564504c8d1d114c8264cd
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007), de11b6d7 (BF-008)
+BF-012 repair: clear look-ahead on LIMIT OFF→ON in firmware/src/dsp/master.c (blob f91a9473f0ae1cdd5e037e521f39fdfcc2022395) + host regressions in tests/host/master_test.c (blob df2f13b35a6fc7b858b019a1950982c23f6386e3); implement tip 465071f2 on cursor/f13-bf012-stage2-237f (PR #294); repair commit 6636cca1.
+Tested tip: start from the remote tip of cursor/f13-bf012-stage3-237f that contains evidence/f13-stage3/SUCCESSOR-STAGE4.txt, HANDOFF.md, CHECKS.md, DEFERRED.md, master-host.log, host-unit-reverify.log, bf012-red-witness.log, blob-confirm.txt, bf012-blob-review-reverify.txt, test-run-summary.json, and test-run-summary-reverify.json. The audited source authenticates de11b6d7; this tip adds BF-012 only (tested). Do not substitute an older unrepaired tip. Evidence tip ≠ package source until this Stage 4 rebuilds Elite/Pro packages.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f13-stage3/HANDOFF.md and CHECKS.md. You are stage 4 only.
+
+Scope: validate development packages for the BF-012 master limiter OFF→ON look-ahead clear only. Build Elite and Pro development packages with X0X_DEV_PADCAL=1 from the tested tree. Record exact package and controller identities, budgets (pool free at least 8192 bytes), checks, and logs. A host pass is not a package pass.
+
+Stage 3 result: ALL_PASS for required BF-012 host regressions (owner-visible Stage-3 bc-f7da628e-c002-56ce-ac69-5950bbe50dcf; re-verify test-run subagent bc-381a7f1e-0cdc-501b-8f7c-a52fbca93763; first tip author bc-7c49b76a-97dd-57c9-9a5a-784be039d70a; tip blobs f91a9473… / df2f13b3…; X0X_TESTS=master X0X_TEST_JOBS=8 X0X_DEV_PADCAL=1 sh tests/run_tests.sh exit 0, ok master; optional red witness on unrepaired blob b5557b6c… FAIL_EXPECTED stale peak 0.500000). No failing required check; no failure-investigation subagent; no source repair found — do not return to stage 2 for a patch. Do not implement deferred items in evidence/f13-stage2/DEFERRED.md / evidence/f13-stage3/DEFERRED.md (withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, open PR #68 unrelated base-lane history). Do not reopen BF-001 through BF-008 or FP-001. Do not steal #279/#281 sole-owner leftover Arp/Fx work (sole owner bc-8efb2f94…).
+
+A package or source failure found here returns to a new stage 2, then a new stage 3, then a new stage 4. Do not patch the failure forward. Do not advance to merge, install, or the nightly page while checks are failed.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1. Branch from the pushed test tip as cursor/<slug>-stage4-237f (required prefix cursor/ and suffix -237f). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device from this stage. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the DEV CHECKED package record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE5.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-5 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 4. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 5 if the pod has no CURSOR_API_KEY.
+
+Completion condition: Elite and Pro development packages DEV CHECKED on the remote stage-4 branch, budgets met, and one owner-visible stage-5 successor id pushed on the handoff.
+
+Policy: all review/tests in agent cloud VM / local host only — never GitHub Actions or @codex as proof. Actions/billing ≠ proof.
+
+Coordinator note: Stage 3 recorded SUCCESSOR-STAGE4.txt and stopped without an owner-visible Stage 4 id when CURSOR_API_KEY was unset. Coordinator CreateAgent should launch Stage 4 with startingRef=cursor/f13-bf012-stage3-237f and this prompt.
+
+LIVE_PAGE_MATCH reference (unchanged by Stage 4 until Stage 7 republishes): nightly-de11b6d7-dev; Elite 4841110a…; Pro b35d5875…; ctl 956e3e21….
+
+Full successor prompt also at evidence/f13-stage3/SUCCESSOR-STAGE4.txt on startingRef cursor/f13-bf012-stage3-237f.
