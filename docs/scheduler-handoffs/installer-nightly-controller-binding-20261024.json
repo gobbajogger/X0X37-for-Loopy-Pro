@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "installer-nightly-controller-binding-20261024-r2-registered-reconnect",
+  "role": "X0X37 Installer Improvements — sole firmware-repository browser installer source producer",
+  "result": "SOURCE_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_QA__NOT_DEVICE_OR_HTTP_PASS",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "full_sha": "fc120cf5f036ca070a7315d016573ecdb0d59385",
+    "full_root_tree_sha": "d01f293d6e71e65f5cce50ba4be6a6e286b44ef2",
+    "installer_blob_sha": "d053a47526c1f5fc47ca28d8437f0a909fe8ffa4",
+    "regression_blob_sha": "b78351df12e53c6a6a8c98d679404d8d4442ad8e",
+    "protected_nightly_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+  },
+  "delivered": {
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "root_commit_sha_in_git_pr_comment": true,
+    "source_only": true,
+    "source_blob_sha": "712340ed6452237ad60dd8ea4823caf972c67b71",
+    "regression_blob_sha": "3e92b412161646ed3eae38233241bbc864ded748",
+    "paths": [
+      "web/x0x_installer.html",
+      "web/test_install_nightly_controller_selection.mjs",
+      "docs/installer-nightly-controller-binding-20261024.md",
+      "docs/scheduler-handoffs/installer-nightly-controller-binding-20261024.json",
+      "web/test_install_nightly_reconnect.mjs"
+    ],
+    "firmware_subtree_modified": false
+  },
+  "checks": [
+    {
+      "command": "connected V8 new Function(exact pre-repair Git DEV Install click handler; stub DOM/insertCtl/run; synthetic approved Elite and mismatching ctl)",
+      "exit_code": 0,
+      "expected_unsafe_reproduction": "1/1 (insertCtl=1; run=1)",
+      "hardware": false
+    },
+    {
+      "command": "connected V8 execute exact repaired web/test_install_nightly_controller_selection.mjs with Node assert/vm/fs shims and new complete HTML",
+      "exit_code": 0,
+      "passed": 17,
+      "total": 17,
+      "mode": "producer controlled V8; not native Node"
+    },
+    {
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit_code": 128,
+      "executor": "local Linux x86_64 / Node v22.16.0",
+      "reason": "DNS github.com resolution failed; native full checkout not tested"
+    },
+    {
+      "command": "source-exact V8 registered reconnect fixture before amendment",
+      "exit_code": 1,
+      "error": "ReferenceError: ctl is not defined (test fixture missing new ctl UI variable)",
+      "remediated_by": "added ctl=null in both mocked runner lexical state declarations"
+    },
+    {
+      "command": "connected V8 execute full registered web/test_install_nightly_reconnect.mjs source against exact HTML with Node vm/assert/fs and Blob/URL/timer shims",
+      "exit_code": 0,
+      "reconnect_passed": 16,
+      "restoration_passed": 10,
+      "hardware": false
+    },
+    {
+      "command": "connected V8 execute registered web/test_install_nightly_download_guard.mjs source against exact HTML with Node vm/assert/fs shims",
+      "exit_code": 0,
+      "predicate_picker_passed": 26,
+      "async_download_order_passed": 2,
+      "hardware": false
+    }
+  ],
+  "gates_remaining": [
+    "Independent real Node full checkout regression suite including web/test_install_slots.mjs",
+    "Generated full-site Chromium EN/JA 320/390/1280, focus/keyboard and responsive",
+    "Independent backup/OTA/slot corruption/model/controller negative regression",
+    "Independent QA review approval and sole firmware Safe Merge integration",
+    "Separate reviewed NIGHTLY website source implementation",
+    "Publisher verifiable eligible model/controller/package/source/license and immutable HTTP SHA; first owner-installable DEV only after all"
+  ],
+  "next_owner": "Independent Firmware QA followed by sole firmware Safe Merge, separate website source owner and publisher",
+  "status": {
+    "device": "UNKNOWN / NOT TESTED",
+    "native_node": "NOT RUN",
+    "chromium": "NOT RUN",
+    "build": "NOT PART OF BROWSER ROLE",
+    "nightly_http": "NOT VERIFIED",
+    "nightly_publish": "NOT PUBLISHED",
+    "protected_refs_modified": false,
+    "hardware_pass_required_for_nightly": false
+  },
+  "self_reference": "Verified new commit SHA and new full root tree must be put in exact-SHA PR comment after remote ref update; cannot embed commit SHA in the commit's own tracked tree",
+  "followup": {
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_sha": "00bff4821ed7ee04298f4b20935e38c48d4aa01d",
+      "full_root_tree_sha": "6536221a10d9615f35f79aae47b6e24837bc81be",
+      "previous_reconnect_test_blob_sha": "69065954d6e42ec0bacbc0561ece8bd39bb938f3"
+    },
+    "finding": "source-exact reconnect test fixture omitted ctl state referenced by current run() for Remove controller write-lock control; producer V8 replay raised ReferenceError ctl is not defined",
+    "disposition": "FIXED TEST FIXTURE ONLY — no firmware or installer source change",
+    "changed_regression": "web/test_install_nightly_reconnect.mjs",
+    "new_regression_blob_sha": "ea5b19f0a7705d33d0313578b1ac81595d0f2d91",
+    "checks": [
+      {
+        "command": "connected V8 execute full registered web/test_install_nightly_reconnect.mjs source against exact HTML with Node vm/assert/fs and Blob/URL/timer shims",
+        "exit_code": 0,
+        "reconnect_passed": 16,
+        "restoration_passed": 10,
+        "hardware": false
+      },
+      {
+        "command": "connected V8 execute registered web/test_install_nightly_download_guard.mjs source against exact HTML with Node vm/assert/fs shims",
+        "exit_code": 0,
+        "predicate_picker_passed": 26,
+        "async_download_order_passed": 2,
+        "hardware": false
+      }
+    ]
+  }
+}

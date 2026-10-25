@@ -1,0 +1,96 @@
+{
+  "schema": "x0x37.installer.producer_source_receipt.v1",
+  "worker": "Installer Improvements",
+  "date_utc": "2026-10-24",
+  "revision": "R22",
+  "status": "SOURCE_PATCHES_PUSHED_REMOTE_VERIFIED; INDEPENDENT FULL-ROOT QA PENDING",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_branch": "lane/installer-nightly-download-guard-20261024",
+  "own_pr": 102,
+  "before": {
+    "commit": "2c93985c5e3e8e4448540ce75df8c3b98b658d69",
+    "installer_blob": "2efd53db2686c39c86670fde09cc237843053835",
+    "scanned_code_window": {
+      "chars": 1349,
+      "fnv1a32": "5d466ccd"
+    }
+  },
+  "after": {
+    "expected_head": "1da5c86cdadd3ace2a61f060e4a90f15d1969c0b",
+    "installer_blob": "8de1978ac2bbea8ee8b20824bddaa8c186f96bdc",
+    "web_scan_test_blob": "14cdb0388df6ae51177f0ab8cf69ea0e0650316a",
+    "full_node_suite_blob": "04af53784da6f16e79abae3800a5d32e7042a925",
+    "scanned_code_window": {
+      "chars": 1370,
+      "fnv1a32": "7817874c"
+    }
+  },
+  "patches": [
+    {
+      "commit": "833d23bdd5062a1fd355b8cf151589aa2e11039f",
+      "path": "web/x0x_installer.html",
+      "reason": "scan(true) must not suggest model or reload package and overwrite sample slot restoration result"
+    },
+    {
+      "commit": "063e0c9aeaf632758e9520b148a4726829722c69",
+      "path": "web/test_install_nightly_scan_order.mjs",
+      "reason": "registered postwrite selection unchanged assertion"
+    },
+    {
+      "commit": "1da5c86cdadd3ace2a61f060e4a90f15d1969c0b",
+      "path": "web/test_install_slots.mjs",
+      "reason": "register existing 30-case product/approval source suite in aggregate"
+    }
+  ],
+  "upstream_review_receipt": {
+    "pr": 124,
+    "source_reference_head": "451cc8f8645bba6463c532c44b7ba23bdc611f96",
+    "exact_binary_equal": "our updated installer HTML and aggregate runner Git blobs are exactly equal to independently supplied source/test blobs on PR124",
+    "foreign_unrelated_documents_not_imported": true,
+    "external_full_root_mock_run": "Before exit 1; repaired exit 0 for X0X_TEST_TIME_SCALE=20 node web/test_install_slots.mjs, reported by PR124 producer with reproducible logs; NOT independently reproduced on current owner PR102 R22 full repo",
+    "independent_final_qa_complete": false
+  },
+  "native_execution": {
+    "runner": "Node v22.16.0",
+    "suite": "test_scan_native.cjs using remote Git-exact scan() excerpts / FNV32 and mocked MIDI",
+    "before_command": "node test_scan_native.cjs scan_before.js",
+    "before_exit": 1,
+    "before_failure": "after postwrite reconnect, status overwritten by 'X0X test · SMK-37 Pro'",
+    "after_command": "node test_scan_native.cjs scan_after.js",
+    "after_exit": 0,
+    "after_pass": "6/6 synthetic positive/negative scenarios",
+    "checked": "node --check both exact scan excerpts and runner: exit 0",
+    "evidence_zip": "LoopyX0X37-PR102-R22-PostWrite-Status-20261024.zip",
+    "evidence_zip_bytes": 5693,
+    "evidence_zip_sha256": "09cc78b31e9b3e94f81ae567e41eaa04f3e0870b720ebac4d580f6f86a9e6457"
+  },
+  "same_run_r21": {
+    "receipt": "docs/scheduler-handoffs/installer-pr102-r21-unreviewed-stock-links-20261024.json",
+    "fix": "removed all six unapproved vendor .fwsc HREF literals, retained vendor landing and guarded local-file path",
+    "responsive_browser_checks": "156/156 exact source-window real Chromium synthetic assertions at 320/390/1280, EN/JA; recorded separately, not rerun after R22",
+    "retained_firmware_installer_download": "approved and byte-checked Blob-only; publisher approval list empty; unreviewed Release import disabled"
+  },
+  "peer_owner": {
+    "site_pr": 6,
+    "site_head": "ddbd8d89f7c4dfd5afa432dd51e940b6dd428592",
+    "site_unfixed": "direct pkg.pkg Download HREF without verified Blob, unchecked vendor .fwsc links, revoked malformed version/model negatives; website owner to repair own branch",
+    "independent_qa": "separate QA owner to independently review full R22 root and apply all relevant native/simulated/browser tests",
+    "firmware_integrator": "Safe Merge PR103; do not bypass protected nightly review",
+    "public_publisher": "sole Pages publisher"
+  },
+  "cannot_claim": [
+    "native full-current-root aggregate tested by this worker",
+    "physical USB/WebMIDI same-device and OTA identity",
+    "real postwrite sample restore",
+    "independent QA approved",
+    "publicly installable NIGHTLY",
+    "production hardware or release PASS"
+  ],
+  "safety": {
+    "no_protected_ref_writes": true,
+    "no_website_branch_writes": true,
+    "no_firmware_controller_sdk_or_user_sample_bytes": true,
+    "no_device_flash": true,
+    "unchanged_enabled_hourly_schedule": true
+  }
+}
