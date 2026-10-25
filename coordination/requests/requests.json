@@ -1668,11 +1668,11 @@
     {
       "request_id": "LX-REQ-007",
       "title": "Multiple independent SMC controllers",
-      "owner": "Transport/controller implementation coordinator",
-      "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
-      "status": "QUEUE_FOUNDATION_REVIEWED_RUNTIME_SINGLE_SMC",
+      "owner": "Multi-SMC local coordinator",
+      "owner_execution_state": "ACTIVE_LOCAL_COORDINATION",
+      "status": "LOCAL_IMPLEMENTATION_ACTIVE_QUALIFICATION_PENDING",
       "priority": "P1",
-      "next_action": "Transport/controller owner to integrate app state, HCI/controller support and budgets; then independent multi-controller and hardware qualification.",
+      "next_action": "Multi-SMC local coordinator to integrate disjoint application and HCI implementation: per-peer application/target locks, mapping, pickup, Solo and feedback with HCI arbitration, per-handle credit accounting and a matching two-link controller. Then run production-model, overload, reconnect, stale-event and independent-target tests, exact Elite/Pro native budget checks and independent QA. Exact-device two-SMC proof remains pending verified owner devices, exclusive device ownership and owner notification.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-006",
@@ -1705,8 +1705,8 @@
       "evidence": {
         "source": {
           "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "PR174 272b80fbc38ac8be7e6adac96fe990394c1934f8 peer-owned queue foundation reviewed. Runtime still supports ONE direct SMC; app state, HCI/controller, budgets and hardware remain required.",
-          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+          "summary": "PR174 272b80fbc38ac8be7e6adac96fe990394c1934f8 is the starting queue foundation. Local coordinator is active; application and HCI implementation are assigned to disjoint local helpers. Combined multi-SMC integration and qualification remain pending; this ownership update establishes no new runtime capability or firmware acceptance.",
+          "provenance": "Bounded local coordinator handoff; active owner and disjoint implementation assignments established. Source-start identity retained; no combined-source, package, deployment or hardware qualification claimed."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -1722,7 +1722,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T11:28:51Z",
+      "updated_at": "2026-10-25T12:48:28Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Independent per-controller locks, pickup, Solo and feedback.",
       "history": [
@@ -1842,6 +1842,207 @@
             "updated_at": "2026-10-25T10:29:45Z",
             "request_origin": "Public-safe technical summary from reviewed continuity handoff",
             "user_intent": "Independent per-controller locks, pickup, Solo and feedback."
+          }
+        },
+        {
+          "observed_at": "2026-10-25T12:48:28Z",
+          "change_reason": "Establish active local multi-SMC coordination and explicit integration/qualification next action; preserve the entire previous record and all outstanding gates.",
+          "previous": {
+            "request_id": "LX-REQ-007",
+            "title": "Multiple independent SMC controllers",
+            "owner": "Transport/controller implementation coordinator",
+            "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+            "status": "QUEUE_FOUNDATION_REVIEWED_RUNTIME_SINGLE_SMC",
+            "priority": "P1",
+            "next_action": "Transport/controller owner to integrate app state, HCI/controller support and budgets; then independent multi-controller and hardware qualification.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-006",
+              "LX-REQ-016"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Combined overload/disconnect/reconnect/cross-controller tests; matching controller and Elite/Pro builds; explicit multi-controller hardware proof.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 18,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+                "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 174,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/174",
+                "head": "272b80fbc38ac8be7e6adac96fe990394c1934f8",
+                "observed_at": "2026-10-25T10:29:45Z",
+                "current_state": "open",
+                "draft": true,
+                "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "SCOPED_PROGRESS_REPORTED",
+                "summary": "PR174 272b80fbc38ac8be7e6adac96fe990394c1934f8 peer-owned queue foundation reviewed. Runtime still supports ONE direct SMC; app state, HCI/controller, budgets and hardware remain required.",
+                "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T11:28:51Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Independent per-controller locks, pickup, Solo and feedback.",
+            "history": [
+              {
+                "observed_at": "2026-10-25T10:29:45Z",
+                "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+                "previous": {
+                  "request_id": "LX-REQ-007",
+                  "title": "Multiple independent SMC controllers",
+                  "owner": "unassigned",
+                  "owner_execution_state": "UNASSIGNED",
+                  "status": "IMPLEMENTATION_REQUIRED",
+                  "priority": "P1",
+                  "next_action": "Assign transport/controller implementer for per-slot queues, generations, Solo release, pickup and feedback on current accepted source.",
+                  "dependencies": [],
+                  "related_requests": [
+                    "LX-REQ-006",
+                    "LX-REQ-016"
+                  ],
+                  "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+                  "completion_criterion": "Combined overload/disconnect/reconnect/cross-controller tests; matching controller and Elite/Pro builds; explicit multi-controller hardware proof.",
+                  "known_source_references": [
+                    {
+                      "type": "pull_request",
+                      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                      "number": 18,
+                      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+                      "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+                      "observed_at": "2026-10-25T08:17:29Z",
+                      "snapshot_note": "Historical handoff reference; refresh before integration."
+                    }
+                  ],
+                  "evidence": {
+                    "source": {
+                      "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                      "summary": "PR18 shared 32-event queue can lose another controller Solo release and repurposes STOP 0x5D; do not merge wholesale."
+                    },
+                    "test": {
+                      "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                      "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+                    },
+                    "build": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "deployed": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "hardware": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    }
+                  },
+                  "updated_at": "2026-10-25T09:02:53Z",
+                  "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+                  "user_intent": "Independent per-controller locks, pickup, Solo and feedback."
+                }
+              },
+              {
+                "observed_at": "2026-10-25T11:28:51Z",
+                "change_reason": "Add transparent priority assessment from retained evidence; preserve legacy priority, owner, claims and next action.",
+                "previous": {
+                  "request_id": "LX-REQ-007",
+                  "title": "Multiple independent SMC controllers",
+                  "owner": "Transport/controller implementation coordinator",
+                  "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+                  "status": "QUEUE_FOUNDATION_REVIEWED_RUNTIME_SINGLE_SMC",
+                  "priority": "P1",
+                  "next_action": "Transport/controller owner to integrate app state, HCI/controller support and budgets; then independent multi-controller and hardware qualification.",
+                  "dependencies": [],
+                  "related_requests": [
+                    "LX-REQ-006",
+                    "LX-REQ-016"
+                  ],
+                  "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+                  "completion_criterion": "Combined overload/disconnect/reconnect/cross-controller tests; matching controller and Elite/Pro builds; explicit multi-controller hardware proof.",
+                  "known_source_references": [
+                    {
+                      "type": "pull_request",
+                      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                      "number": 18,
+                      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18",
+                      "head": "d29f365df8b60436749b6712ca9d605d2f912708",
+                      "observed_at": "2026-10-25T08:17:29Z",
+                      "snapshot_note": "Historical handoff reference; refresh before integration."
+                    },
+                    {
+                      "type": "pull_request",
+                      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                      "number": 174,
+                      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/174",
+                      "head": "272b80fbc38ac8be7e6adac96fe990394c1934f8",
+                      "observed_at": "2026-10-25T10:29:45Z",
+                      "current_state": "open",
+                      "draft": true,
+                      "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+                    }
+                  ],
+                  "evidence": {
+                    "source": {
+                      "state": "SCOPED_PROGRESS_REPORTED",
+                      "summary": "PR174 272b80fbc38ac8be7e6adac96fe990394c1934f8 peer-owned queue foundation reviewed. Runtime still supports ONE direct SMC; app state, HCI/controller, budgets and hardware remain required.",
+                      "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+                    },
+                    "test": {
+                      "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                      "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+                    },
+                    "build": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "deployed": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "hardware": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    }
+                  },
+                  "updated_at": "2026-10-25T10:29:45Z",
+                  "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+                  "user_intent": "Independent per-controller locks, pickup, Solo and feedback."
+                }
+              }
+            ],
+            "priority_assessment": {
+              "category": "feature_research",
+              "severity": "moderate",
+              "reach": "multi-controller users",
+              "confidence": "reported",
+              "readiness": "ready",
+              "effort": "complex",
+              "work_areas": [
+                "smc"
+              ],
+              "rationale": "Multi-controller support spans app state, HCI/controller support and budgets; complex scope, not low importance.",
+              "evidence_refs": [
+                "requests.json#LX-REQ-007.evidence.source",
+                "requests.json#LX-REQ-007.completion_criterion"
+              ]
+            }
           }
         }
       ],
@@ -2678,7 +2879,7 @@
       "evidence": {
         "source": {
           "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "R22–R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
+          "summary": "R22\u2013R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -2756,7 +2957,7 @@
             "evidence": {
               "source": {
                 "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-                "summary": "R22–R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
+                "summary": "R22\u2013R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
               },
               "test": {
                 "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -3919,7 +4120,7 @@
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
       "status": "FIX_AND_QA_REQUIRED",
       "priority": "P1",
-      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156–158 stack; serial/parallel failure and manifest/compatibility negatives.",
+      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156\u2013158 stack; serial/parallel failure and manifest/compatibility negatives.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016"
@@ -4006,7 +4207,7 @@
             "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
             "status": "FIX_AND_QA_REQUIRED",
             "priority": "P1",
-            "next_action": "Retain unique PR37/51 safeguards; reconcile PR156–158 stack; serial/parallel failure and manifest/compatibility negatives.",
+            "next_action": "Retain unique PR37/51 safeguards; reconcile PR156\u2013158 stack; serial/parallel failure and manifest/compatibility negatives.",
             "dependencies": [],
             "related_requests": [
               "LX-REQ-016"
@@ -4445,7 +4646,7 @@
             "evidence": {
               "source": {
                 "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-                "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+                "summary": "Twelve definitions audited 07:14\u201308:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
               },
               "test": {
                 "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
