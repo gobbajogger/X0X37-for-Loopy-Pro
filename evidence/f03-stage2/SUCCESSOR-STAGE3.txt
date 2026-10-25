@@ -1,0 +1,30 @@
+You are the new stage-3 test thread in the X0X37 full-cycle loop (F03 after stage-2 implement). Do not resume the stage-2 thread bc-94c505d8-1ca0-5d88-b61f-049933c106b9, the stage-1 thread bc-2e0f6b6e-50b2-506d-92f4-e19a81d6cfac, the stage-7 thread bc-aaf1fbac-fbdf-50d7-8f6f-a71e7bc55c3b, or any earlier F02 thread. Do not continue any internal probe; this cloud agent is the only Stage 3 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: 4ee8f37714b0892f2c70d157fda9328da393e987
+Content tree: 7ad3a50da8abac890215dae3c28197a2fa90041b8615e828b6b3c6e18060fb83
+Git tree: c63af7972f3ca6e5d4e8ac3aac5e70abc8178265
+Implement tip: start from the remote tip of cursor/f03-slot-probe-stage2-fb90 that contains evidence/f03-stage2/SUCCESSOR-STAGE3.txt, HANDOFF.md, CHECKS.md, DEFERRED.md, and the F03 repair commits. Do not substitute the diverged firmware nightly tip.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f03-stage2/HANDOFF.md and CHECKS.md. You are stage 3 only.
+
+Scope: test the F03 fail-closed sample-slot layout probe repair only. On the same-keyboard slot-preserving install path, a failed probe (timeout / SlotError / parse) must fail closed before any write. --no-slots remains the explicit skip. Successful empty / no-risk parses after a successful layout read remain valid. Repair lives in tools/fm1_install.py (slot_probe / plan_slots / run) and web/x0x_breaks.js (installKeepingSlots).
+
+Required regressions (no real MIDI, no device write):
+- python3 tests/install_f03_slot_probe_test.py
+- node web/test_f03_slot_probe.mjs
+
+Also run the existing installer checks affected by this diff (installer, installer-f02-bind, installer-slots, installer-ctl, install-slots-web, install-guards, install-head as applicable). Give the test run and any failure investigation to separate subagents. A source repair found here returns to a new stage 2; do not patch the failure forward.
+
+Do not implement BF-001, BF-002, BF-003, the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), or longer SLOT_PROBE budgets. Do not change firmware, controller, or package bytes unless a failing check proves the F03 repair broke them (then return to stage 2).
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed implement tip as cursor/<slug>-stage3-fb90 (required prefix cursor/ and suffix -fb90). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked test record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE4.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; ask the Project coordinator to CreateAgent Stage 4 if create fails twice. Keep ownership until the Stage 4 URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+Completion condition: checked F03 test record on the remote stage-3 branch, each failure has a cause and disposition, and one owner-visible stage-4 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/

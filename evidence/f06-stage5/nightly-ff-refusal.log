@@ -1,0 +1,14 @@
+=== git push origin 1325f5d3...:refs/heads/nightly (no force) ===
+2026-10-25T12:03:42Z
+To https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+ ! [rejected]          1325f5d34340ea877e65ab86f3663f5dea052c0d -> nightly (non-fast-forward)
+error: failed to push some refs to 'https://github.com/gobbajogger/X0X37-for-Loopy-Pro'
+hint: Updates were rejected because a pushed branch tip is behind its remote
+hint: counterpart. If you want to integrate the remote changes, use 'git pull'
+hint: before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+exit=1
+origin/nightly after:
+From https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+ * branch              nightly    -> FETCH_HEAD
+08d3164a265123cb4c84e5104642fd93257d63d7

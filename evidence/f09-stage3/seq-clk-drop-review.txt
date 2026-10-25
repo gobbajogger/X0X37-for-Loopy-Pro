@@ -1,0 +1,22 @@
+BF-005 seq_clk_drop code-intent note
+HEAD: d0d00da23c3ce2268f06f31f8c062716d5a37ad0
+blob firmware/src/seq/sequencer.c: fd3f65306df166494d10facf8ddae058287cc17b
+
+From reading seq_clk_drop (sequencer.c ~792-798):
+
+1. Owner-matching drop clears pending
+   When s->clk_lock == src + 1u, the function clears s->clk_lock and sets
+   s->ext_pending = 0 (BF-005: drop queued clocks of that input too).
+
+2. Non-owning drop leaves pending
+   If clk_lock is not that src, the if body does not run: clk_lock and
+   ext_pending are unchanged. Host clk-lock also checks that dropping a
+   non-owner (e.g. USB while BLE holds the lock) leaves the owner in place.
+
+3. Start / Continue / internal-clock paths (intent unchanged)
+   seq_start / seq_continue remain request flags only.
+   seq_midi_rt still gates Start/Continue/Stop/Clock on !INTERNAL.
+   clock_source / process paths still clear ext_pending for INTERNAL
+   (clk_cur == SEQ_CLK_INT) and still consume pending via ext_ticks when
+   external. The BF-005 change is scoped to the owner branch of
+   seq_clk_drop; transport and internal-clock intent look unchanged.

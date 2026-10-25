@@ -73,7 +73,7 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
+    installer|installer-f02-bind|installer-f02-bind-web|installer-f03-probe|installer-f03-probe-web|installer-bf001-local-file|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
@@ -114,7 +114,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage|legacy-bdpan-motion) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -288,6 +288,7 @@ run seq-random-clock-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random
 run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
 run seq-pingpong-linked sh -c "$CC -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/seq_pingpong_linked_test tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -lm && $OUT/seq_pingpong_linked_test"   # production-linked 303 live resize / UI step
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
+run clock-handover sh -c "$CC $W -o $OUT/bugfinder_clock_handover_test tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bugfinder_clock_handover_test"   # BF-005: drop pending clocks with the lock
 run clk-source-owner sh -c "$CC $W -o $OUT/clk_source_owner_reset_test tests/host/clk_source_owner_reset_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_owner_reset_test"   # MID-13/MID-15: INTERNAL immediately releases MIDI clock owner
 run clk-src-tag sh -c "$CC $W -o $OUT/clk_source_tag_test tests/host/clk_source_tag_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_tag_test"   # MID-15: reject reserved MIDI source tags
 run transport-coalesce sh -c "$CC $W -o $OUT/seq_transport_coalesce_test tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_transport_coalesce_test"
@@ -310,6 +311,8 @@ run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
 run project-stage sh tests/host/run_project_stage.sh
+# BF-007: legacy 909/808 BD PAN motion lanes must remap after arrangement load
+run legacy-bdpan-motion sh tests/host/run_bugfinder_legacy_bdpan_motion.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run font-pack Pillow; else run font-pack python3 tests/font_pack_test.py; fi
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
@@ -344,6 +347,8 @@ if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-re
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
+# BF-006: d8_exp2_cr must apply a negative integer exponent without a signed left-shift UB (prefer gcc UBSan)
+run drum808-exp2 sh -c "UBCC=gcc; command -v gcc >/dev/null || UBCC=\"$CC\"; \$UBCC -std=c99 -O1 -g -ffp-contract=off -Wall -Wextra -Wno-unused-function -fsanitize=undefined -fno-sanitize-recover=all -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/bugfinder_drum808_exp2_test tests/host/bugfinder_drum808_exp2_test.c -lm && $OUT/bugfinder_drum808_exp2_test"
 run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
@@ -371,6 +376,7 @@ run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
+run installer-digests python3 tests/host/test_check_installer_digests.py   # FP-001: source fingerprint ≠ served install HTML; dual fields required
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
 if [ "$PIL_SKIP" = 1 ]; then not_run gen-order Pillow; else run gen-order sh tests/host/test_gen_order.sh; fi   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
@@ -382,6 +388,9 @@ run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: th
 run installer python3 tests/install_test.py
 run installer-f02-bind python3 tests/install_f02_loader_bind_test.py   # F02: loader/restart wait accepts only one newly appeared port
 command -v node >/dev/null 2>&1 && run installer-f02-bind-web node web/test_f02_loader_bind.mjs   # F02 web waitFor: same fail-closed newly-appeared rule
+run installer-f03-probe python3 tests/install_f03_slot_probe_test.py   # F03: same-keyboard slot probe fails closed before write
+command -v node >/dev/null 2>&1 && run installer-f03-probe-web node web/test_f03_slot_probe.mjs   # F03 web installKeepingSlots: same fail-closed probe
+command -v node >/dev/null 2>&1 && run installer-bf001-local-file node web/test_install_local_file.mjs   # BF-001: newest local .fwsc / ctl.img selection wins
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \

@@ -674,7 +674,12 @@ class SlotMove:
 
 
 def plan_slots(dev, image, product, require_backup=False):
-    """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
+    """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup.
+
+    The layout probe must succeed. A failed probe raises (fail closed before write).
+    After a successful read, empty slots or no at-risk slots return None (no backup).
+    Callers skip this path with --no-slots.
+    """
     lay = slot_probe(dev.link)
     if not lay:
         raise xs.SlotError("the running firmware did not provide a verified sample layout")

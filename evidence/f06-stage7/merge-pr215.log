@@ -1,0 +1,7 @@
+Project PR merge (failed=1)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#215 failed: retarget to main failed: GraphQL: Resource not accessible by integration (updatePullRequest) :: pr edit 215 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Publish F06 Stage 7 BF-003 nightly candidate evidence for 1325f5d3
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/215

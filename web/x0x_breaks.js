@@ -581,8 +581,15 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
   else if (dev) {
     try {
-      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
-      if (layout && layout.slots.some((sl) => sl.nz)) {
+      // Fail closed: a probe timeout / parse error must not skip backup and continue the write.
+      // A successful empty / no-risk layout still installs without a backup.
+      let layout;
+      try {
+        layout = await readSlotLayout(dev.link, 1000, 2);
+      } catch (e) {
+        throw fail("slots", `the running firmware did not provide its slot layout (${e.message})`);
+      }
+      if (layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
         if (risk.length) {
