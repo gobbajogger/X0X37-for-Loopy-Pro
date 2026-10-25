@@ -616,11 +616,18 @@ def package_slot_map(image, product):
 
 
 def slot_probe(link):
-    """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
+    """the running firmware's slot layout (SMP_INFO).
+
+    Raises TimeoutError or SlotError when the probe fails (timeout, SlotError, or a
+    parse error). A successful empty layout is returned as-is; callers that want to
+    skip the probe use --no-slots. Do not treat a failed probe as "no backup needed".
+    """
     try:
         return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
-    except (TimeoutError, xs.SlotError, ValueError, IndexError):
-        return None
+    except TimeoutError:
+        raise
+    except (xs.SlotError, ValueError, IndexError) as e:
+        raise xs.SlotError(f"the running firmware did not provide its slot layout ({e})") from e
 
 
 class SlotMove:
@@ -663,12 +670,13 @@ class SlotMove:
 
 
 def plan_slots(dev, image, product, require_backup=False):
-    """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
+    """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup.
+
+    The layout probe must succeed. A failed probe raises (fail closed before write).
+    After a successful read, empty slots or no at-risk slots return None (no backup).
+    Callers skip this path with --no-slots.
+    """
     lay = slot_probe(dev.link)
-    if not lay:
-        if require_backup:
-            raise xs.SlotError("the running firmware did not provide its slot layout")
-        return None
     if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
@@ -894,7 +902,7 @@ def run(a, backend, out, ask):
             move = plan_slots(dev, image, product, require_backup=bool(a.backup))
         except (xs.SlotError, TimeoutError) as e:
             dev.link.close()
-            raise InstallError("slots", f"the requested slot backup cannot start ({e}); nothing was written")
+            raise InstallError("slots", f"the sample-slot layout could not be read ({e}); nothing was written")
         if move and move.risk:
             print(f"This install changes the sample slot map. These slots would lose their samples: {move.describe()}.",
                   file=out)
