@@ -3,9 +3,16 @@
 import argparse
 import collections
 import json
+import importlib.util
 from pathlib import Path
 import re
 import subprocess
+
+# Keep direct-script and existing importlib callers compatible without sys.path edits.
+_spec = importlib.util.spec_from_file_location("request_task_priority", Path(__file__).with_name("task_priority.py"))
+_priority = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_priority)
+validate_assessment = _priority.validate_assessment
 
 HERE = Path(__file__).resolve().parent
 LEDGER_PATH = "coordination/requests/requests.json"
@@ -25,6 +32,8 @@ def validate(data, registry, previous=None):
     require(not set(live) & set(dead), "live/tombstone ID collision")
     for r in records:
         rid = r.get("request_id")
+        if "priority_assessment" in r:
+            errors.extend(f"{rid}: {e}" for e in validate_assessment(r["priority_assessment"]))
         require(bool(re.fullmatch(r"LX-REQ-\d{3,}", rid or "")), "missing/invalid request ID")
         require(bool(str(r.get("status", "")).strip()), f"{rid}: missing status")
         for field in ("title", "completion_criterion"):
