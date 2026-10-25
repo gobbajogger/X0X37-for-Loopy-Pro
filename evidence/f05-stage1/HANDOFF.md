@@ -14,9 +14,11 @@ Checks: `evidence/f05-stage1/CHECKS.md`.
 Prior publish evidence: `evidence/f04-stage7/CHECKS.md`, `HANDOFF.md`, `live-verify.log`.
 Deferred younger items: BF-003 (retire-vs-restore), withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume `find(IS_OTA)`, longer `SLOT_PROBE` budgets (`evidence/f04-stage2/DEFERRED.md`).
 Successor prompt: `evidence/f05-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-9490d387-26c4-58f1-a59e-84ccb8145ef7`.
+Successor URL: https://cursor.com/agents/bc-9490d387-26c4-58f1-a59e-84ccb8145ef7
+Successor name: F05 BF-002 implement (source: desktop / owner-visible).
+startingRef: `cursor/f05-bf002-stage1-fb90`.
+Handoff status: **complete** — owner-visible Stage 2 id recorded on this remote tip. Stage 1 stops here; does not start Stage 3.
 
 Selected defect: **BF-002**. Scoped quickcheck omits project web regressions (`projects-web` / `projects-page`). Approved repair: add explicit project-suite routes for project JS/HTML and shared `x0x_breaks.js` as needed; extend `tests/host/test_quickcheck_plan.py`; run planner + project suites locally.
 
