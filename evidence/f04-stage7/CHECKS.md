@@ -8,19 +8,20 @@ Content tree: `1b067cadd1e7887415354c4f384a51f93d6437c367574e2cee52b0b44d829479`
 Catalog `source_tree`: `603e2a2b1442a8214cd97b03d32bf57fc158feac`
 BF-001 repair commit: `d11b74fc`
 
-## Codex P2 (PR #192) — installer digest
+## Installer digest repair (local host checks only)
 
-First publish reused F02/F03 `installer_sha256` `8caf8724…` while BF-001 changed selection handlers. **Not accepted as LIVE success.**
+First publish reused F02/F03 `installer_sha256` `8caf8724…` while BF-001 changed selection handlers. **Not accepted as LIVE success.** GitHub Actions and Codex-on-GitHub are **not** used (no quota); evidence below is from this cloud host only.
 
 | Field | Before (rejected) | After (repair) |
 | --- | --- | --- |
 | `installer_sha256` | `8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157` | `2240be8702176544945a4b66171269e958b47259fb275654d2f6ff7125f637ee` |
 | Marker in install HTML | none | `BF-001` / `d11b74fc` provenance comment |
 
-Regressions run against repaired nightly installer HTML:
+Local regressions against repaired nightly installer HTML:
 
 - BF-001 host race: `web/test_install_local_file.mjs` adapted for nightly size bounds — **PASS** (`evidence/f04-stage7/bf001-nightly-regression.log`)
-- Nightly `npm test` — **PASS** (`evidence/f04-stage7/nightly-npm-test.log`)
+- Nightly `npm test` (node) — **PASS** (`evidence/f04-stage7/nightly-npm-test.log`)
+- `prepare:candidate` / `render-qualified-nightly.mjs` with new fingerprint — **PASS**
 
 Package Elite/Pro digests unchanged (firmware application bytes unchanged).
 
