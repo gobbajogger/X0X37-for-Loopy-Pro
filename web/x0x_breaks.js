@@ -577,7 +577,16 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true }, hooks);
   const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
   let move = null;
-  const dev = await up.find((id) => !/^ota-/i.test(id.model));
+  const isRunning = (id) => !/^ota-/i.test(id.model);
+  const isOta = (id) => /^ota-/i.test(id.model);
+  // Snap transition baselines before opening the selected link so matchingNames
+  // does not replace that port's onmidimessage during a slot backup.
+  const knownLoaders = await up.matchingNames(isOta);
+  const knownRunning = await up.matchingNames(isRunning);
+  const dev = await up.find(isRunning);
+  // Other running keyboards stay in this baseline; the selected port is excluded so its
+  // post-install return counts as the one new match for the slot-restore wait.
+  if (dev) knownRunning.delete(dev.name);
   if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
   else if (dev) {
     try {
@@ -599,10 +608,10 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
       }
     } finally { dev.link.close(); }
   }
-  const ran = await up.install(image, product, h.step);
+  const ran = await up.install(image, product, h.step, knownLoaders);
   if (!move || !move.newMap.length) return { product: ran, move };
   h.say("slotback");
-  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
+  const back = await up.waitFor(isRunning, 20000, knownRunning);
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
     const layout = await readSlotLayout(back.link);

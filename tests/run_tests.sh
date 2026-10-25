@@ -73,9 +73,9 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-targets|installer-slots|slot-backup|upload-tools|\
+    installer|installer-f02-bind|installer-targets|installer-slots|slot-backup|upload-tools|\
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|installer-f02-bind-web) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -349,6 +349,8 @@ run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.s
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 # Shared installer protocol and model guards use synthetic devices; package parity uses SMK builds.
 run installer python3 tests/install_test.py
+run installer-f02-bind python3 tests/f02_loader_bind_test.py   # F02: post-loader wait binds to the one new loader port
+
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
@@ -420,9 +422,11 @@ command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
+command -v node >/dev/null 2>&1 && run installer-f02-bind-web node web/test_f02_loader_bind.mjs   # F02: web waitFor binds to the one new loader port
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
+
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
 run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \

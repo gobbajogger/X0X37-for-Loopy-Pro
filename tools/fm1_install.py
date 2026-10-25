@@ -101,7 +101,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
-        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
+        "noloader": 5, "noreturn": 5, "ambiguous": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
 
 
 class InstallError(Exception):
@@ -403,12 +403,57 @@ class Updater:
             link.close()
         return None
 
-    def wait_for(self, want, secs):
+    def matching_ports(self, want=None, only_port=False):
+        """port names that answer the handshake and pass want(identity); links are not kept open"""
+        found = set()
+        outs = self.backend.output_names()
+        for name in self.candidates(only_port):
+            out = pair_output(name, outs)
+            if not out:
+                continue
+            try:
+                link = self.backend.open(name, out)
+            except Exception:
+                continue
+            try:
+                ident = handshake(link, 2)
+                if ident and (want is None or want(ident)):
+                    found.add(name)
+            finally:
+                link.close()
+        return found
+
+    def wait_for(self, want, secs, known=None):
+        """after a commanded transition: accept exactly one newly appeared match vs known ports.
+
+        known is the set of matching port names from before the transition. A port already in
+        known is never chosen. Zero new matches until the timeout -> None. More than one new
+        match -> InstallError('ambiguous') so nothing is written to the wrong keyboard."""
+        known = set() if known is None else set(known)
         end = time.monotonic() + secs
         while time.monotonic() < end:
-            dev = self.find(want, only_port=False)
-            if dev:
-                return dev
+            now = self.matching_ports(want, only_port=False)
+            new = now - known
+            if len(new) == 1:
+                name = next(iter(new))
+                outs = self.backend.output_names()
+                out = pair_output(name, outs)
+                if out:
+                    try:
+                        link = self.backend.open(name, out)
+                    except Exception:
+                        link = None
+                    if link is not None:
+                        ident = handshake(link, 2)
+                        if ident and (want is None or want(ident)):
+                            return Device(link, ident, name)
+                        link.close()
+            elif len(new) > 1:
+                raise InstallError(
+                    "ambiguous",
+                    "more than one matching keyboard appeared after the update step; "
+                    "nothing was written. Unplug the other device and run the install again",
+                )
             time.sleep(DELAY["retry"])
         return None
 
@@ -441,8 +486,12 @@ class Updater:
             served += 1
             progress(served, addr + n)
 
-    def check(self, dev, image, step):
+    def check(self, dev, image, step, known_loaders=None):
         """step 1: the running firmware checks the package and starts the loader"""
+        # known_loaders must be snapped before any slot backup so the last traffic
+        # before UPGRADE stays the backup reads (not a fresh handshake sweep).
+        if known_loaders is None:
+            known_loaders = self.matching_ports(lambda i: i.loader, only_port=False)
         step("start", dev.id.text)
         dev.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -455,7 +504,7 @@ class Updater:
                                f"{served} requests; nothing was written")
         step("loader")
         time.sleep(DELAY["loader"])
-        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"])
+        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"], known=known_loaders)
         if not ota:
             raise InstallError("noloader", "the update loader did not appear. Replug the USB cable and "
                                            "run the install again: the FM-1 stays in update mode until it is done")
@@ -476,9 +525,12 @@ class Updater:
         step("write", 100)
 
     def verify(self, product, step):
+        # Snapshot running keyboards while the selected unit is still in the loader (or gone),
+        # then accept exactly one newly appeared running port after the restart.
+        known_running = self.matching_ports(lambda i: not i.loader, only_port=False)
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"], known=known_running)
         if not back:
             raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
         back.link.close()
@@ -487,13 +539,14 @@ class Updater:
         step("done", back.id.text)
         return back.id.text
 
-    def install(self, dev, image, product, step=lambda *a: None):
+    def install(self, dev, image, product, step=lambda *a: None, known_loaders=None):
         """running firmware -> loader -> new firmware; dev from find(). A device already in
         update mode only needs the write."""
         if not same_keyboard(dev.id.text, product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
-        ota = dev if dev.id.loader else self.check(dev, image, step)
+        ota = (dev if dev.id.loader
+               else self.check(dev, image, step, known_loaders=known_loaders))
         self.write(ota, image, step)
         return self.verify(product, step)
 
@@ -829,6 +882,12 @@ def run(a, backend, out, ask):
         dev.link.close()
         print("cancelled", file=out)
         return 1
+    # Snap transition baselines before any slot backup so backup SysEx stays
+    # contiguous through the first UPGRADE (no handshake sweep in between).
+    known_loaders = up.matching_ports(lambda i: i.loader, only_port=False)
+    # Other running keyboards stay in this baseline; the selected port is excluded so its
+    # post-install return counts as the one new match for slot restore / controller read-back.
+    known_running = up.matching_ports(lambda i: not i.loader, only_port=False) - {dev.name}
     if move:
         path = a.backup or f"x0x-slots-before-install-{time.strftime('%Y%m%d-%H%M%S')}.x0xslots"
         try:
@@ -839,11 +898,11 @@ def run(a, backend, out, ask):
                                         "tools/x0x_slots.py backup FILE, then install with --no-slots")
     prog = Progress(out)
     try:
-        up.install(dev, image, product, prog)
+        up.install(dev, image, product, prog, known_loaders=known_loaders)
     finally:
         prog.end()
     if move and move.risk and move.new_map:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"], known=known_running)
         try:
             if not back:
                 raise TimeoutError("the device did not answer after the install")
@@ -857,7 +916,7 @@ def run(a, backend, out, ask):
         print(move.help(), file=out)
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"], known=known_running)
         if not back:
             raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
         try:

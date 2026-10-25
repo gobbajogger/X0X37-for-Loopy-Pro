@@ -134,11 +134,49 @@ export class Updater {
     return null;
   }
 
-  async waitFor(filter, ms) {
+  // port names that answer the handshake and pass filter; links are not kept open
+  async matchingNames(filter) {
+    const names = new Set();
+    const outs = [...this.access.outputs.values()];
+    for (const input of this.access.inputs.values()) {
+      if (input.state === "disconnected") continue;
+      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;
+      const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
+      if (!output) continue;
+      try { await input.open(); await output.open(); } catch (_) { continue; }
+      const link = new Link(input, output);
+      try {
+        const id = await handshake(link, 2);
+        if (id && (!filter || filter(id))) names.add(input.name);
+      } finally { link.close(); }
+    }
+    return names;
+  }
+
+  // after a commanded transition: accept exactly one newly appeared match vs known port names
+  async waitFor(filter, ms, known = new Set()) {
+    const baseline = known instanceof Set ? known : new Set(known);
     const end = Date.now() + ms;
     while (Date.now() < end) {
-      const dev = await this.find(filter);
-      if (dev) return dev;
+      const now = await this.matchingNames(filter);
+      const neu = [...now].filter((n) => !baseline.has(n));
+      if (neu.length === 1) {
+        const name = neu[0];
+        const outs = [...this.access.outputs.values()];
+        for (const input of this.access.inputs.values()) {
+          if (input.state === "disconnected" || input.name !== name) continue;
+          const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
+          if (!output) break;
+          try { await input.open(); await output.open(); } catch (_) { break; }
+          const link = new Link(input, output);
+          const id = await handshake(link, 2);
+          if (id && (!filter || filter(id))) return { link, id, name: input.name };
+          link.close();
+          break;
+        }
+      } else if (neu.length > 1) {
+        throw fail("ambiguous", "more than one matching keyboard appeared after the update step; nothing was written. Unplug the other device and press Install again");
+      }
       await sleep(1000);
     }
     return null;
@@ -174,8 +212,12 @@ export class Updater {
   }
 
   // full install: running firmware -> loader -> new firmware
-  async install(image, product, onStep) {
+  // knownLoaders: optional pre-transition loader port names (snap before a slot backup so
+  // backup SysEx stays contiguous through the first UPGRADE). Snapshot before find() so
+  // matchingNames does not replace the selected port's onmidimessage.
+  async install(image, product, onStep, knownLoaders = null) {
     const step = onStep || (() => {});
+    const loaders = knownLoaders != null ? knownLoaders : await this.matchingNames(IS_OTA);
     const dev = await this.find((id) => !IS_OTA(id));
     if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
@@ -188,13 +230,14 @@ export class Updater {
     if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
     step("loader");
     await sleep(3000);
-    const ota = await this.waitFor(IS_OTA, 30000);
+    const ota = await this.waitFor(IS_OTA, 30000, loaders);
     if (!ota) throw fail("noloader", "the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.");
     const s2 = await this.write(ota, image, step);
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
+    const knownRunning = await this.matchingNames((id) => !IS_OTA(id));
     step("reboot");
     await sleep(3000);
-    const back = await this.waitFor((id) => !IS_OTA(id), 40000);
+    const back = await this.waitFor((id) => !IS_OTA(id), 40000, knownRunning);
     if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
