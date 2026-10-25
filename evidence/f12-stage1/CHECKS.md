@@ -73,8 +73,9 @@ Log: `evidence/f12-stage1/live-verify.log`.
 | Oldest open tip FAIL / finding | **BF-008** (`fastmath.h` blob `7d2e41bf…` still unfixed) |
 
 Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/269
-API CreateAgent Stage 2: `api-create-stage2-attempt1.json` / `attempt2.json` — **NO_CURSOR_API_KEY**; awaiting coordinator CreateAgent.
+API CreateAgent Stage 2: `api-create-stage2-attempt1.json` / `attempt2.json` — **NO_CURSOR_API_KEY**; coordinator launched owner-visible Stage 2 `bc-5b881bc0-b2cc-5ef5-8da9-e7db915ac6a8`.
+Local-env review: `bc-f8f8766d-fb8b-5a68-8c67-bce45b27c099` (PR #269 subscribed).
 
 ## Overall
 
-**AUDIT RECORDED.** Selected defect **BF-008** (`fm_exp2_nf` signed left-shift UB). Ready for Stage 2. Handoff incomplete until coordinator returns owner-visible Stage 2 id.
+**AUDIT RECORDED.** Selected defect **BF-008** (`fm_exp2_nf` signed left-shift UB). Handoff **complete** — Stage 2 id on remote tip.
