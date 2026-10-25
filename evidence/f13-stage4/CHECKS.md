@@ -5,7 +5,9 @@ Stage-4 owner: `bc-952af67e-b6f6-5318-a3b3-ba4de860c800`
 Audited / validated source SHA: `de11b6d7e3ac3322d2db689675d9ed27ed667785`
 Git `source_tree` (pre-repair package attribution): `c143a9f8f5b5d0f6804995829ccbe515c77c6103`
 Firmware tree (pre-repair): `9195dce5c4beb5fa8aa564504c8d1d114c8264cd`
-Package validation commit: `b42bcba46ee7255c18f18c10dd1f99b9fc9bb675` (tested BF-012 tip / Stage-3 tip)
+Install / merge / package SHA (authoritative): `b42bcba46ee7255c18f18c10dd1f99b9fc9bb675`
+Package validation commit (= that SHA): `b42bcba46ee7255c18f18c10dd1f99b9fc9bb675` (tested BF-012 tip / Stage-3 tip)
+Evidence tip (branch HEAD after Stage-4 logs/JSON): **not** the install/merge SHA — do not FF nightly or `--commit` verify to it
 Content tree at validation commit: `519ccdf21b46db9198993587cb9334960e67ce483641c744c5caf71b1c769141`
 Git tree at validation commit: `a15afc439fc8b7bccd62d50403b925add45ae9e5`
 Firmware tree at validation commit: `5facb3b4405d119a269a05224b9268adfa1baa13`
