@@ -58,7 +58,7 @@ its dedicated-buffer reference1267756 bytes, SHA256
 Reproduce with `sh tests/host/run_wobble_backend.sh`,
 `sh tests/host/run_synth_engine.sh`, `sh tests/host/run_synth_engine_review.sh`,
 `sh tests/host/run_synth_state.sh`, then
-`python3 tests/host/check_wobble_stereo_mix.py` after generated host headers.
+`tests/host/run_miami_stereo_split.sh` for Miami stereo-split product proof.
 No private WAV/reference audio is committed.
 
 ## Actual native failure and bounded recovery

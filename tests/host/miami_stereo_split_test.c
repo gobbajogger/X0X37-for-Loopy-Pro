@@ -21,14 +21,23 @@ static void apply_bass_patch(wobble_t *s)
     wobble_set(s, W_BASS_SPLIT, 0.285f);
 }
 
+static void render_blocks(wobble_t *s, float *ol, float *or, unsigned frames)
+{
+    for (unsigned p = 0; p < frames; ) {
+        unsigned chunk = 256;
+        if (p + chunk > frames)
+            chunk = frames - p;
+        wobble_render(s, ol + p, or + p, chunk);
+        p += chunk;
+    }
+}
+
 static void render_note(wobble_t *s, float *ol, float *or)
 {
     wobble_note_on(s, 36, 100);
-    for (unsigned p = 0; p < N; p += 256)
-        wobble_render(s, ol + p, or + p, 256);
+    render_blocks(s, ol, or, N);
     wobble_note_off(s, 36);
-    for (unsigned p = 0; p < SR / 8; p += 256)
-        wobble_render(s, ol + p, or + p, 256);
+    render_blocks(s, ol, or, SR / 8);
 }
 
 static double corr_band(const float *xl, const float *xr, unsigned i0, unsigned i1, float lp_hz)

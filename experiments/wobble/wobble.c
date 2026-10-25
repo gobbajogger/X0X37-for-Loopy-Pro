@@ -159,7 +159,8 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float out = s->filter_low * s->envelope * s->velocity * s->p[W_OUTPUT];
         float split_hz = wobble_bass_split_hz(s->p[W_BASS_SPLIT]);
         float split_alpha = wobble_bass_split_alpha(s->p[W_BASS_SPLIT]);
-        float split_f = 2.0f * fm_sinf(FM_PI * split_hz / (2.0f * s->sample_rate));
+        /* One SVF step per sample (tone path uses /(2·Fs) because it runs two passes). */
+        float split_f = 2.0f * fm_sinf(FM_PI * split_hz / s->sample_rate);
         float low12 = svf_lowpass(out, split_f, &s->split_low, &s->split_band);
         float low24 = svf_lowpass(low12, split_f, &s->split2_low, &s->split2_band);
         float low_mono = split_alpha * low24 + (1.0f - split_alpha) * low12;
