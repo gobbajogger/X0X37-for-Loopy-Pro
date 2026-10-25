@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "revision": "data-safety-pr114-r21-offline-slot-pair-no-clobber-20261025-r1",
+  "intended_owner_behavior": "Offline WAV-to-slot build must never truncate preexisting .hdr or .bin recordings, and failed writes must not leave a partial new pair or follow substituted output symlinks. Normal new-pair generation is retained.",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "original_source_commit": "548a149e4777cf51bbec39dcfda836c8ae405b2f",
+  "original_root_tree": "9fe64b9884f3f34bc7157cbc16f161be225e30cb",
+  "original_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "original_tool_blob": "795a81781630d20f01ed1b423804d6b67eeac581",
+  "new_source_blobs": {
+    "native_sample_tool": "e98995362c84955a3a47c325e6d05d2045905b45",
+    "registered_test": "02e1900f6632e6f2febfc9916d4b5c1e2e6af0a1",
+    "runner": "a78ed4e4b790155a19635195ee504ffa2ed2e2b8"
+  },
+  "source_subset_validation": {
+    "helper_fnv1a32": "9eac3cb2",
+    "registered_test_fnv1a32": "9752df03",
+    "branch_source_unchanged_elsewhere": true
+  },
+  "defect_reproduced": "Original actual Git tool main() calls Path(prefix+'.hdr').write_bytes(hdr) followed by Path(prefix+'.bin').write_bytes(data), which unconditionally truncates an existing filename. Reproduced that exact Path.write_bytes behavior with a real temporary existing file, original contents overwritten.",
+  "native_test_execution": [
+    {
+      "command": "python3 -B /mnt/data/r21_registered_test.py /mnt/data/r21_main_candidate.py",
+      "exit": 0,
+      "result": "10/10 PASS",
+      "scope": "producer local Python AST extraction of manually source-aligned sample helper + main, actual temporary POSIX files, simulated build output"
+    },
+    {
+      "command": "python3 -O -B /mnt/data/r21_registered_test.py /mnt/data/r21_main_candidate.py",
+      "exit": 0,
+      "result": "10/10 PASS",
+      "scope": "same host fixture"
+    },
+    {
+      "command": "python3 -B -m py_compile /mnt/data/r21_registered_test.py /mnt/data/r21_main_candidate.py",
+      "exit": 0,
+      "result": "PASS"
+    }
+  ],
+  "tested_risks": [
+    "normal build and repeat collision",
+    "pre-existing binary/header no-clobber",
+    "symlink to unrelated recording",
+    "second-output open failure rollback",
+    "short write rollback",
+    "output parent swap",
+    "race between preflight and create",
+    "fdopen exception closes descriptor",
+    "fstat fallback",
+    "real main build CLI route with stub WAV conversion"
+  ],
+  "incomplete": [
+    "complete current Git checkout and registered full-root runner not run due container DNS unreachable",
+    "Independent QA must independently re-run exact Git source",
+    "real WAV sampleio encode not exercised",
+    "browser installation distinct and untested",
+    "actual device, USB-MIDI OTA, backup/restore, firmware BUILD_ONLY and artifact bytes not exercised",
+    "malicious same-user mutation after final identity check cannot be prevented without OS-level isolation"
+  ],
+  "next_owner": "sole Independent QA for current exact source offline-build registered regression and affected native sample CLI tests; sole firmware Safe Merge only after independent acceptance",
+  "disposition": "producer-scoped host pass; DRAFT NEEDS CHANGES; no hardware or public firmware qualification",
+  "guardrails": "No compiler input, firmware, controller, SDK, protected refs, browser site, OTA, hardware flash or model logic modified."
+}

@@ -16,6 +16,7 @@ These are one-shots: the silence at both ends is cut first (sampleio.trim_silenc
 kept before the sound, 5 ms fade at the end); --no-trim keeps it. For loops use upload_breaks.py.
 A slot holds 80 KiB (about 7 s at 22050 Hz). Protocol: web/EDITOR_PROTOCOL.md, cmds 11..15.
 Read-only native MIDI info/backup and offline slot-image building remain supported.
+Offline build never replaces existing .hdr/.bin outputs; use a private destination folder.
 Native MIDI sample writes/erase/restore are intentionally disabled: the RtMidi
 backend cannot authenticate a physical unit or guarantee atomic output delivery.
 Matching MIDI names and successful read-only probes are not sufficient.
@@ -103,6 +104,79 @@ class Link:
         raise TimeoutError(f"no reply to cmd {cmd}")
 
 
+def write_slot_pair(prefix, hdr, data):
+    """Create both offline slot outputs without overwriting another recording.
+
+    Bind all operations to one no-follow destination directory. Any partial
+    pair is removed only while its exact newly-created inode remains at the
+    original name. Like extraction, use a private destination directory when
+    another local process might change its contents concurrently.
+    """
+    import os
+    from pathlib import Path
+
+    dest = Path(prefix)
+    if not dest.name or not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+        raise OSError("safe slot build requires POSIX no-follow directory handles")
+    directory = os.open(dest.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    names = ((dest.name + ".hdr", hdr), (dest.name + ".bin", data))
+    created = []
+    try:
+        for name, _ in names:
+            try:
+                os.stat(name, dir_fd=directory, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise FileExistsError(f"slot build refuses existing output: {dest.parent / name}")
+        try:
+            for name, payload in names:
+                fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o600, dir_fd=directory)
+                try:
+                    try:
+                        identity = os.fstat(fd)
+                    except BaseException:
+                        # Creation succeeded. Query the original open descriptor,
+                        # never a name another process could already have swapped.
+                        try:
+                            identity = os.stat(fd)
+                        except BaseException:
+                            raise OSError(f"new slot file {name} cannot be identified; "
+                                          "inspect the private destination before retrying")
+                    created.append((name, identity.st_dev, identity.st_ino))
+                    file = os.fdopen(fd, "wb")
+                    fd = None  # fdopen owns it from here
+                    with file:
+                        if file.write(payload) != len(payload):
+                            raise OSError(f"short slot build write: {name}")
+                        file.flush()
+                        os.fsync(file.fileno())
+                finally:
+                    if fd is not None:
+                        os.close(fd)
+            for name, dev, ino in created:
+                actual = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                if (actual.st_dev, actual.st_ino) != (dev, ino):
+                    raise OSError(f"slot build output replaced during writing: {name}")
+            bound = os.fstat(directory)
+            current = os.stat(dest.parent, follow_symlinks=False)
+            if (bound.st_dev, bound.st_ino) != (current.st_dev, current.st_ino):
+                raise OSError("slot build output directory changed while writing")
+            os.fsync(directory)
+        except BaseException:
+            for name, dev, ino in created:
+                try:
+                    actual = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                    if (actual.st_dev, actual.st_ino) == (dev, ino):
+                        os.unlink(name, dir_fd=directory)
+                except OSError:
+                    pass  # do not guess whether another owner's file replaced it
+            raise
+    finally:
+        os.close(directory)
+
+
 def build(name, specs, trim=True):
     """specs: "file.wav[:ROOT[:LO-HI]]" -> (header, ADPCM data) for SMP_END / SMP_WRITE. trim: cut the
     silence at both ends (one-shots)"""
@@ -141,8 +215,10 @@ def main():
         except (OSError, ValueError) as e:
             sys.exit(f"cannot build the slot: {e}")
         if cmd == "build":
-            Path(sys.argv[3] + ".hdr").write_bytes(hdr)
-            Path(sys.argv[3] + ".bin").write_bytes(data)
+            try:
+                write_slot_pair(sys.argv[3], hdr, data)
+            except OSError as e:
+                sys.exit(f"cannot safely save the slot: {e}")
             print(f"{sys.argv[2]}: {len(data)} B ADPCM, {hdr[6]} zones")
             return
     if cmd != "info":
