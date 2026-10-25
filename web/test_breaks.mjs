@@ -63,7 +63,7 @@ for (const c of cases) {
   const loops = fs.map((f) => {
     const { rate, x } = readWav(readFileSync(f[0]));
     if (c.oldschool) {
-      const { s, rate: playback } = cutLoop(x, rate, c.bars, c.rate, c.trim, true);
+      const { s, rate: playback } = cutLoop(x, rate, c.bars, c.rate, c.trim, 2);
       return { label: f[0], s, playback };
     }
     return { label: f[0], s: cut(x, rate, c.bars, c.rate, c.trim), playback: c.rate };

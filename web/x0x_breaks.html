@@ -50,6 +50,11 @@
   .home { display: inline-block; font-weight: 700; letter-spacing: .03em; color: var(--dim); text-decoration: none; margin: 0 0 12px; }
   .home:hover, .home:focus-visible { color: var(--accent); }
   input[type=file] { display: none; }
+  select { font: inherit; font-size: 14px; padding: 4px 8px; border: 1px solid var(--rule); background: var(--bg); color: var(--fg); }
+  dialog { border: 1px solid var(--rule); background: var(--bg); color: var(--fg); padding: 20px; max-width: 36rem; }
+  dialog::backdrop { background: rgba(0,0,0,.45); }
+  .preview-row { display: flex; gap: 8px; align-items: center; margin: 8px 0; font-size: 14px; }
+  .preview-row .fname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -75,8 +80,16 @@
       <input type="checkbox" id="trim"> Trim silence</label>
     <label title="Stores new loops at 22 kHz instead of 44.1 kHz: twice as many fit, but they sound duller">
       <input type="checkbox" id="half"> 22 kHz (more room)</label>
-    <label title="Speeds loops up when you add them, then the device stretches them back so timing matches but the crunch stays (off by default)">
-      <input type="checkbox" id="oldschool"> Oldschool crunch</label>
+    <label title="Speed loops up at import; the device stretches them back so timing matches but the crunch stays. Off by default.">
+      Oldschool grit
+      <select id="grit" aria-label="Oldschool grit amount">
+        <option value="">Off (clean)</option>
+        <option value="light">Light</option>
+        <option value="medium">Medium</option>
+        <option value="heavy">Heavy</option>
+        <option value="max">Max</option>
+      </select>
+    </label>
   </div>
   <div class="full"><div id="fill"></div></div>
   <p id="room"></p>
@@ -88,6 +101,25 @@
   <progress id="progress" max="100" value="0" hidden></progress>
   <input type="file" id="files" multiple accept="audio/*,.wav,.aif,.aiff,.mp3,.flac,.m4a,.ogg">
   <input type="file" id="archive" accept=".x0xslots">
+
+  <dialog id="previewDlg">
+    <p><strong>Preview before adding</strong></p>
+    <p class="small">Listen to the processed loop (with crunch and device encoding). Cancel leaves the device and your loop list unchanged.</p>
+    <div id="previewList"></div>
+    <div class="bar" style="margin-top:16px">
+      <button type="button" id="previewAdd">Add these loops</button>
+      <button type="button" class="quiet" id="previewCancel">Cancel</button>
+    </div>
+  </dialog>
+  <dialog id="sendPreviewDlg">
+    <p><strong>Preview before sending</strong></p>
+    <p class="small">These slots will be rewritten on the device. Listen first if you like. Cancel does not write anything.</p>
+    <div id="sendPreviewList"></div>
+    <div class="bar" style="margin-top:16px">
+      <button type="button" id="sendPreviewGo">Send to the device</button>
+      <button type="button" class="quiet" id="sendPreviewCancel">Cancel</button>
+    </div>
+  </dialog>
 
   <div class="bar" style="margin-top:24px">
     <button class="quiet" id="backup" disabled>Back up all slots</button>
@@ -134,11 +166,13 @@ function render() {
     const r = document.createElement("div");
     r.className = l.isNew ? "loop new" : "loop";
     const rateTag = l.rate === RATE ? "" : l.rate === RATE_HALF ? " · 22k" : ` · ${(l.rate / 1000).toFixed(1)}k`;
-    const crunch = l.isNew && l.oldschool ? " · crunch" : "";
-    r.innerHTML = `<div class="name">BR${i + 1}<small>${(l.n / l.rate).toFixed(1)} s${rateTag}${crunch}${l.isNew ? " · new" : ""}</small></div>
+    const gl = l.isNew && l.gritFactor > 1 ? ` · ${gritLabel(l.gritFactor).toLowerCase()}` : "";
+    r.innerHTML = `<div class="name">BR${i + 1}<small>${(l.n / l.rate).toFixed(1)} s${rateTag}${gl}${l.isNew ? " · new" : ""}</small></div>
       <canvas width="900" height="80"></canvas>
-      <div class="acts"><button class="link rep">Replace</button><button class="link del">Remove</button></div>`;
+      <div class="acts">${l.isNew ? '<button class="link prv">Preview</button>' : ""}<button class="link rep">Replace</button><button class="link del">Remove</button></div>`;
     if (l.file) r.title = l.file;
+    const prv = r.querySelector(".prv");
+    if (prv) prv.onclick = () => playLoopPreview(l);
     r.querySelector(".rep").onclick = () => { replaceAt = i; $("files").multiple = false; $("files").click(); };
     r.querySelector(".del").onclick = () => { loops.splice(i, 1); render(); };
     r.querySelector(".rep").disabled = r.querySelector(".del").disabled = busy;
@@ -232,20 +266,76 @@ async function decode(file) {
 
 // the rate new loops get: 44.1 kHz, or 22.05 kHz when asked for
 const newRate = () => ($("half").checked ? RATE_HALF : RATE);
+const gritFactor = () => (OLDSCHOOL_GRIT.find((g) => g.key === $("grit").value) || OLDSCHOOL_GRIT[0]).factor;
+
+let previewAudio = null, previewNode = null;
+function stopLoopPreview() {
+  if (previewNode) { try { previewNode.stop(); } catch (_) { /* already stopped */ } previewNode = null; }
+}
+async function playLoopPreview(loop) {
+  stopLoopPreview();
+  if (!previewAudio) previewAudio = new AudioContext();
+  if (previewAudio.state === "suspended") await previewAudio.resume();
+  const { samples, rate } = loopPreviewPcm(loop.s, loop.rate);
+  const buf = previewAudio.createBuffer(1, samples.length, rate);
+  buf.copyToChannel(samples, 0);
+  previewNode = previewAudio.createBufferSource();
+  previewNode.buffer = buf;
+  previewNode.connect(previewAudio.destination);
+  previewNode.onended = () => { previewNode = null; };
+  previewNode.start();
+}
+
+function previewRows(parent, items, playFn) {
+  parent.textContent = "";
+  items.forEach((it, i) => {
+    const row = document.createElement("div");
+    row.className = "preview-row";
+    row.innerHTML = `<span class="fname">${it.label}</span><button type="button" class="quiet">Play</button>`;
+    row.querySelector("button").onclick = () => playFn(it, i);
+    parent.appendChild(row);
+  });
+}
+
+function waitPreviewDialog(dlg, listEl, items, playFn, okBtn, cancelBtn) {
+  return new Promise((resolve) => {
+    previewRows(listEl, items, playFn);
+    const done = (ok) => { stopLoopPreview(); dlg.close(); resolve(ok); };
+    okBtn.onclick = () => done(true);
+    cancelBtn.onclick = () => done(false);
+    dlg.addEventListener("cancel", (ev) => { ev.preventDefault(); done(false); }, { once: true });
+    dlg.showModal();
+  });
+}
+
+async function confirmAddPreview(candidates) {
+  return waitPreviewDialog($("previewDlg"), $("previewList"), candidates,
+    (it) => playLoopPreview(it.loop), $("previewAdd"), $("previewCancel"));
+}
 
 async function addFiles(list, at = -1) {
   if (busy || !readOk || !list.length) return;
-  const got = [], bad = [];
+  const got = [], bad = [], preview = [];
+  const gf = gritFactor();
   for (const f of at >= 0 ? list.slice(0, 1) : list) {
     try {
       const { rate: srcRate, x } = await decode(f);
       if (!x.length) throw new Error("no audio");
-      const storageRate = newRate(), { s, rate } = cutLoop(x, srcRate, $("bars").checked, storageRate, $("trim").checked, $("oldschool").checked);
-      got.push({ adpcm: null, n: s.length, s, rate, file: f.name, isNew: true, srcRate, x, oldschool: $("oldschool").checked });
-    } catch (_) { bad.push(f.name); }
+      const storageRate = newRate(), { s, rate } = cutLoop(x, srcRate, $("bars").checked, storageRate, $("trim").checked, gf);
+      const loop = { adpcm: null, n: s.length, s, rate, file: f.name, isNew: true, srcRate, x, gritFactor: gf };
+      if (gf > 1) preview.push({ label: f.name, loop });
+      else got.push(loop);
+    } catch (e) { bad.push(f.name); }
   }
   say(bad.length ? `Couldn't read ${bad.join(", ")}.` : "");
-  if (at >= 0 && got.length) loops[at] = got[0];
+  if (preview.length && !(await confirmAddPreview(preview))) {
+    say("Add cancelled — nothing changed on the device.");
+    render();
+    return;
+  }
+  got.push(...preview.map((p) => p.loop));
+  if (!got.length) { render(); return; }
+  if (at >= 0) loops[at] = got[0];
   else loops.push(...got);
   render();
 }
@@ -396,7 +486,7 @@ async function readFromDevice() {
 $("connect").onclick = () => run(readFromDevice);
 $("discard").onclick = () => run(readFromDevice);
 
-$("send").onclick = () => run(async () => {
+async function doSend() {
   const todo = changedSlots(packLoops()), bar = $("progress");
   const total = todo.reduce((a, t) => a + (t.im ? t.im.data.length : 1), 0);
   let sent = 0;
@@ -420,6 +510,28 @@ $("send").onclick = () => run(async () => {
   say("Reading back…");
   await readAll();
   say("Done. On the FM-1: BREAK, then EDIT, then LOOP A or LOOP B.");
+}
+
+$("send").onclick = () => run(async () => {
+  const plan = packLoops();
+  if (!plan) return;
+  const todo = changedSlots(plan);
+  const gritty = todo.some(({ k, im }) => {
+    if (!im) return false;
+    const ls = plan[k] || [];
+    return ls.some((l) => l.isNew && l.gritFactor > 1);
+  });
+  if (gritty) {
+    const items = todo.filter((t) => t.im).map((t) => {
+      const ls = plan[t.k] || [];
+      const grittyLoop = ls.find((l) => l.isNew && l.gritFactor > 1) || ls[0];
+      return { label: `Slot ${t.k + 1}${grittyLoop?.file ? `: ${grittyLoop.file}` : ""}`, loop: grittyLoop };
+    });
+    const ok = await waitPreviewDialog($("sendPreviewDlg"), $("sendPreviewList"), items,
+      (it) => playLoopPreview(it.loop), $("sendPreviewGo"), $("sendPreviewCancel"));
+    if (!ok) { say("Send cancelled — the device was not changed."); return; }
+  }
+  await doSend();
 });
 
 $("backup").onclick = () => run(async () => {
@@ -474,12 +586,13 @@ document.body.ondragover = (ev) => { if (readOk) { ev.preventDefault(); $("list"
 document.body.ondragleave = (ev) => { if (!ev.relatedTarget) $("list").classList.remove("over"); };
 document.body.ondrop = (ev) => { ev.preventDefault(); $("list").classList.remove("over"); addFiles([...ev.dataTransfer.files]); };
 function recutNewLoops() {
+  const gf = gritFactor();
   for (const l of loops)
     if (l.isNew) {
       const storageRate = newRate();
       try {
-        ({ s: l.s, rate: l.rate } = cutLoop(l.x, l.srcRate, $("bars").checked, storageRate, $("trim").checked, $("oldschool").checked));
-        l.oldschool = $("oldschool").checked;
+        ({ s: l.s, rate: l.rate } = cutLoop(l.x, l.srcRate, $("bars").checked, storageRate, $("trim").checked, gf));
+        l.gritFactor = gf;
         l.n = l.s.length;
         l.adpcm = null;
       } catch (e) {
@@ -488,7 +601,7 @@ function recutNewLoops() {
     }
   render();
 }
-$("bars").onchange = $("trim").onchange = $("half").onchange = $("oldschool").onchange = recutNewLoops;
+$("bars").onchange = $("trim").onchange = $("half").onchange = $("grit").onchange = recutNewLoops;
 render();
 </script>
 </body>

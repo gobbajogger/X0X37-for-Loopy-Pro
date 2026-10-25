@@ -11,7 +11,8 @@ BR2, ... (the firmware numbers the loops of every slot straight through, in orde
   --bars     cut one bar from each file (bar count guessed from its length: the one that puts
              its tempo nearest 120 BPM inside 80-180); without it, files are taken whole
   --rate     44100 (default: full quality) or 22050 (opt-in: twice the loops in a slot, duller)
-  --oldschool  speed loops up at import; the device stretches them back (crunchy, off by default)
+  --oldschool  medium grit (2x); same as --oldschool-grit medium
+  --oldschool-grit light|medium|heavy|max|FACTOR  crunch amount (off by default)
   --trim     cut the silence at both ends of each file first (sampleio.trim_silence: -60 dBFS,
              1 ms kept before the sound, 5 ms fade at the end). Off by default: a loop's length
              is its tempo, and trimming its ends changes it
@@ -40,7 +41,7 @@ RATES = (44100, 22050)
 DRY_SLOT_KB = [80, 120, 44]                     # --dry-run's default layout: the SMK-37's slots (KiB)
 
 
-def cut(path, bars, rate=44100, trim=False, oldschool=False):
+def cut(path, bars, rate=44100, trim=False, grit_factor=1.0):
     sr, x = sio.read_any_wav(path)
     if trim:
         x = sio.trim_silence(x, sr)
@@ -50,8 +51,8 @@ def cut(path, bars, rate=44100, trim=False, oldschool=False):
     y = sio.resample(x, sr, rate)
     pk = max(1e-9, max(abs(v) for v in y))
     s = sio.to_int16([v * (0.95 / pk) for v in y])
-    if oldschool:
-        return sio.apply_oldschool(s, rate)
+    if grit_factor > 1:
+        return sio.apply_oldschool(s, rate, grit_factor)
     return s, rate
 
 
@@ -84,7 +85,7 @@ def main():
     if not a or a[0] in ("-h", "--help"):
         sys.exit(__doc__)
     bars = dry = slot_ids = None
-    rate, trim, oldschool, nslots, slot_kb, name, files = 44100, False, False, None, None, "BR", []
+    rate, trim, grit_factor, nslots, slot_kb, name, files = 44100, False, 1.0, None, None, "BR", []
     while a:
         o = a.pop(0)
         if o == "--bars":
@@ -98,7 +99,14 @@ def main():
         elif o == "--trim":
             trim = True
         elif o == "--oldschool":
-            oldschool = True
+            grit_factor = sio.OLDSCHOOL_FACTOR
+        elif o == "--oldschool-grit":
+            if not a:
+                sys.exit("--oldschool-grit needs light, medium, heavy, max, or a number")
+            try:
+                grit_factor = sio.parse_oldschool_grit(a.pop(0))
+            except ValueError as e:
+                sys.exit(str(e))
         elif o == "--nslots":
             nslots = int(a.pop(0))
         elif o == "--slot-kb":
@@ -129,7 +137,7 @@ def main():
     if any(not 1 <= k <= nslots for k in slot_ids):
         sys.exit(f"--slots: the device has slots 1..{nslots}")
     caps = [sizes[k - 1] - sio.SLOT_DATA_OFF for k in slot_ids]
-    loops = [(lbl, *cut(p, bars, rate, trim, oldschool)) for lbl, p in files]
+    loops = [(lbl, *cut(p, bars, rate, trim, grit_factor)) for lbl, p in files]
     slots, skipped = pack(loops, len(slot_ids), caps)
     snames = [f"{name[:2]}{slot_ids[i]}" for i in range(len(slots))]   # the device shows 3 chars + .zone
     print(f"{len(slot_ids)} slot(s) of {'/'.join(str(sizes[k - 1] // 1024) for k in slot_ids)} KiB, {rate} Hz")

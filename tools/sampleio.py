@@ -276,6 +276,17 @@ SLOT_HDR_LEN = 32 + SLOT_ZONES * 28
 SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF
 OLDSCHOOL_FACTOR = 2
 MIN_LOOP_SAMPLES = 64
+OLDSCHOOL_GRIT = {"light": 1.5, "medium": 2, "heavy": 3, "max": 4.0}
+
+
+def parse_oldschool_grit(arg):
+    """--oldschool-grit name or numeric factor; invalid values raise ValueError."""
+    if arg in OLDSCHOOL_GRIT:
+        return OLDSCHOOL_GRIT[arg]
+    f = float(arg)
+    if f <= 1 or f > 8:
+        raise ValueError("oldschool grit factor must be > 1 and <= 8")
+    return f
 
 
 def note_from_name(name, default=60):

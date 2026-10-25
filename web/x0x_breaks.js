@@ -11,8 +11,16 @@ export const SLOT_HDR_LEN = 32 + SLOT_ZONES * 28;
 export const SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF;
 export const ROOT_BASE = 36;              // loop i is zone root 36 + i: the slot sorts its zones by root
 export const RATE = 44100, RATE_HALF = 22050;   // 44.1 kHz by default; 22.05 kHz only when asked for
-export const OLDSCHOOL_FACTOR = 2;              // speed-up at import; playback rate is divided so timing matches
+export const OLDSCHOOL_FACTOR = 2;              // --oldschool CLI default (medium grit)
 export const MIN_LOOP_SAMPLES = 64;           // firmware breaks_set_loop minimum
+/** @type {{ key: string, label: string, factor: number }[]} */
+export const OLDSCHOOL_GRIT = [
+  { key: "", label: "Off (clean)", factor: 1 },
+  { key: "light", label: "Light", factor: 1.5 },
+  { key: "medium", label: "Medium", factor: 2 },
+  { key: "heavy", label: "Heavy", factor: 3 },
+  { key: "max", label: "Max", factor: 4 },
+];
 export const DRY_SLOT_KB = [80, 120, 44]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
 
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
@@ -113,11 +121,24 @@ export function applyOldschool(s, storageRate, factor = OLDSCHOOL_FACTOR) {
   return { s: out, rate: playbackRate };
 }
 
-export function cutLoop(x, sr, bars, storageRate = RATE, trim = false, oldschool = false) {
+export function cutLoop(x, sr, bars, storageRate = RATE, trim = false, gritFactor = 1) {
   let s = cut(x, sr, bars, storageRate, trim);
   let rate = storageRate;
-  if (oldschool) ({ s, rate } = applyOldschool(s, storageRate));
+  if (gritFactor > 1) ({ s, rate } = applyOldschool(s, storageRate, gritFactor));
   return { s, rate };
+}
+
+export function gritLabel(factor) {
+  const g = OLDSCHOOL_GRIT.find((o) => o.factor === factor);
+  return g && g.factor > 1 ? g.label : "";
+}
+
+// What you hear on the device: IMA round-trip at the zone playback rate (stretched timing).
+export function loopPreviewPcm(s, playbackRate, roundTrip = true) {
+  const pcm = roundTrip ? imaDecode(imaEncode(s), s.length) : s;
+  const samples = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) samples[i] = pcm[i] / 32768;
+  return { samples, rate: playbackRate };
 }
 
 // sampleio.ima_encode: 4-bit IMA ADPCM, low nibble first, from predictor 0 / index 0
