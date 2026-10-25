@@ -803,7 +803,7 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
 /* one stretch: the 909 (into the mix, in place) and the 303s here while the second core renders the
  * 808 and the break; then those are mixed in, in the order one core always used (909, 808, 303 A,
  * 303 B, break): the same sums either way */
-static void render_sub(float *out_l, float *out_r, uint32_t n)
+__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n)
 {
     float *bb[NBASS] = {out_l, out_r};
     int idle[NBASS], b;
