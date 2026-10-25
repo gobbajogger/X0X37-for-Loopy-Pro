@@ -148,19 +148,45 @@ def main():
     for i, (n, lo, hi) in enumerate(EXP_RANGES):
         t.append(f"#define X0X_EXP_{n} {i}   /* {lo:g} .. {hi:g} */")
     t.append(f"#define X0X_EXP_COUNT {len(EXP_RANGES)}")
-    t.append("#ifdef X0X_DRUM_TABLES_DEFINE")                   # shared: see arr()
-    t.append(f"const float x0x_pot_exp[{len(EXP_RANGES)}][128] = {{")
+    # All variable bits are contiguous low bits. Encode their exact binary32
+    # representation, never recompute a curve in the runtime setter.
+    words, rows = [], []
     for n, lo, hi in EXP_RANGES:
-        vals = [pot_exp(lo, hi, p) for p in range(128)]
-        t.append("    { /* " + n + " */")
-        for i in range(0, 128, 6):
-            t.append("        " + ", ".join(cfloat(v) for v in vals[i:i + 6]) + ",")
-        t.append("    },")
-    t.append("};")
-    t.append("#else")
-    t.append(f"extern const float x0x_pot_exp[{len(EXP_RANGES)}][128];")
-    t.append("#endif")
-    t.append("")
+        vals = [struct.unpack("<I", struct.pack("<f", pot_exp(lo, hi, p)))[0]
+                for p in range(128)]
+        mask = 0
+        for v in vals:
+            mask |= v ^ vals[0]
+        width = mask.bit_length()
+        assert 0 < width < 32 and mask == (1 << width) - 1
+        base = vals[0] & ~mask
+        rows.append((base, len(words), width))
+        stream = sum((v & mask) << (p * width) for p, v in enumerate(vals))
+        words.extend((stream >> bit) & 0xffffffff
+                     for bit in range(0, 128 * width, 32))
+    words.append(0)  # final aligned high-word read; no out-of-bounds load
+    t += ["#include <stdint.h>",
+          "typedef struct { uint32_t base; uint16_t offset; uint8_t width; uint8_t reserved; } x0x_exp_row_t;",
+          "#ifdef X0X_DRUM_TABLES_DEFINE",
+          "static const x0x_exp_row_t x0x_exp_rows[X0X_EXP_COUNT] = {"]
+    t += [f"    {{0x{base:08x}u, {offset}, {width}, 0}},"
+          for base, offset, width in rows]
+    t += ["};", arr("uint32_t", "x0x_exp_words", words,
+                     lambda v: f"0x{v:08x}u", per=8),
+          "/* row < X0X_EXP_COUNT, pot < 128: callers retain their domain checks.",
+          " * At most two aligned XIP payload loads plus row metadata; no cache or FP arithmetic. */",
+          "__attribute__((noinline)) float x0x_pot_exp_value(unsigned row, unsigned pot)",
+          "{",
+          "    const x0x_exp_row_t *r = &x0x_exp_rows[row];",
+          "    unsigned bit = pot * r->width, shift = bit & 31u;",
+          "    const uint32_t *p = &x0x_exp_words[r->offset + (bit >> 5)];",
+          "    uint32_t v = p[0] >> shift;",
+          "    if (shift) v |= p[1] << (32u - shift);",
+          "    union { uint32_t u; float f; } result;",
+          "    result.u = r->base | (v & ((1u << r->width) - 1u));",
+          "    return result.f;",
+          "}", "#else",
+          "float x0x_pot_exp_value(unsigned row, unsigned pot);", "#endif", ""]
     out_t.write_text("\n".join(t))
     print(f"gen_drum_samples: {total} frames ({nbytes} bytes of ADPCM, {total * 2} as int16) -> {out_s.name}; "
           f"tanh {TANH_N + 2} + {len(EXP_RANGES)} pot curves -> {out_t.name}")
