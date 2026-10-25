@@ -16,3 +16,5 @@ See Project store:
 | Pro page sha256 | `d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb` |
 | Status | WAITING Mac FF push |
 | Preferred Mac worker | `83d16cde-07a3-5bce-81a3-2234761197a1` |
+| Mac agent | `bc-c2a20c4f-164b-5375-b042-99a914c47c5f` |
+| Mac URL | https://cursor.com/agents/bc-c2a20c4f-164b-5375-b042-99a914c47c5f |
