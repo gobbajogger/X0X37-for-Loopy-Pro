@@ -42,17 +42,18 @@ static void queue_lost_release(int host, unsigned note, unsigned status)
 }
 static void feedback_retry(void)
 {
-    setup(V_SEQ, PART_808); now_ms = 0; smc_frame();
+    setup(V_SEQ, PART_808); memset(&smc_beat, 0, sizeof smc_beat); seq.bpm = 120; seq.ext_now = 0;
+    smc_clock_feedback(&seq); seq.ext_now = FS / 4; smc_frame();
     CHECK(smc.known[0x5D] && !smc.lit[0x5D]);
     unsigned before = accepted;
-    fail_note = 0x5D; failure_enabled = 1; now_ms = 512; smc_frame();
+    fail_note = 0x5D; failure_enabled = 1; seq.ext_now = FS / 2; smc_frame();
     CHECK(accepted == before && !smc.lit[0x5D]);
     smc_frame(); CHECK(accepted == before && !smc.lit[0x5D]);
     failure_enabled = 0; smc_frame();
     CHECK(accepted == before + 1 && smc.lit[0x5D]);
     CHECK(last_ok[0] == 0x90 && last_ok[1] == 0x5D && last_ok[2] == 127);
     send_note(0, 0x5D, 0x90, 127); send_note(0, 0x5D, 0x90, 0);
-    CHECK(smc.locked); now_ms = 1024; smc_frame(); CHECK(smc.lit[0x5D]);
+    CHECK(smc.locked); seq.ext_now = 3 * FS / 4; smc_frame(); CHECK(smc.lit[0x5D]);
     send_note(0, 0x5D, 0x90, 127); send_note(0, 0x5D, 0x90, 0);
     CHECK(!smc.locked); smc_frame(); CHECK(!smc.lit[0x5D]);
     puts("PASS independent LED backpressure: rejected write retries; cache tracks accepted bytes; lock/unlock phases");

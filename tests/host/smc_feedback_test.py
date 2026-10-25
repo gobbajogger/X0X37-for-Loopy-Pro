@@ -38,6 +38,7 @@ harness = r'''
 #include <stdio.h>
 #include <string.h>
 #include "app/engine.h"
+#include "app/smc_clock_feedback.h"
 #include "dsp/master.h"
 ''' + views + "\n" + overlays + "\n" + central_bit + "\n" + fx_params + r'''
 enum { R_ENG };
@@ -53,7 +54,7 @@ static uint8_t fx_muted;
 uint8_t engine_fx_muted(void) { return fx_muted; }
 static unsigned checks,failures,tx_count;
 static uint32_t now_ms;
-static uint32_t plat_ms(void) { return now_ms; }
+
 static uint8_t tx[128][3];
 static int part_muted(int p) { return (part_mutes>>p)&1; }
 static int track_muted(int kit,int track) {
@@ -163,11 +164,15 @@ static void drums(void) {
     }
     clip=0;ui.overlay=O_NONE;part_mutes=0;
 }
+static void pulse_phase(int on) {
+    memset(&smc_beat,0,sizeof smc_beat);seq.ext_now=0;seq.bpm=120;
+    smc_clock_feedback(&seq);smc_beat.phase=on?0:SMC_BEAT_UNITS/2;
+}
 static void transport(void) {
     for(int mode=0;mode<3;mode++) for(int playing=0;playing<2;playing++) for(int rec=0;rec<2;rec++) {
         ui.view=mode?V_MIX:V_HOME;page=mode;seq.playing=playing;ui.rec=rec;
         for(int captured=0;captured<2;captured++) for(int phase=0;phase<2;phase++) {
-            smc.locked=captured;now_ms=(uint32_t)phase*512u;
+            smc.locked=captured;pulse_phase(phase);
             expect("Pause lock/follow lamp",0x5d,captured||phase);
         }
         smc.locked=0;
@@ -181,19 +186,19 @@ static void wire_value(const char *label,int note,int expected) {
 }
 static void frames(void) {
     memset(&smc,0,sizeof smc);ui.view=V_HOME;page=0;ui.overlay=O_NONE;ui.help=0;ui.rec=0;seq.playing=0;
-    proj.set.bt=PROJ_BT_SMC_CENTRAL;smc.up=1;tx_count=0;smc_frame();
+    proj.set.bt=PROJ_BT_SMC_CENTRAL;smc.up=1;pulse_phase(0);tx_count=0;smc_frame();
     assert(tx_count==43);wire_value("HOME active",7,127);wire_value("MIX inactive",13,0);wire_value("PART inactive",15,0);
     tx_count=0;smc_frame();assert(tx_count==0);
     ui.view=V_MIX;page=0;smc_frame();
     wire_value("HOME extinguishes",7,0);wire_value("MIX lights",13,127);
     tx_count=0;seq.playing=1;smc_frame();assert(tx_count==1);
     wire_value("PLAY lights",0x5e,127);
-    tx_count=0;now_ms=512;smc_frame();assert(tx_count==1);wire_value("following blink on",0x5d,127);
-    tx_count=0;now_ms=1024;smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
+    tx_count=0;pulse_phase(1);smc_frame();assert(tx_count==1);wire_value("following blink on",0x5d,127);
+    tx_count=0;pulse_phase(0);smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
     tx_count=0;smc.locked=1;smc_frame();wire_value("locked steady on",0x5d,127);
     tx_count=0;now_ms=1536;smc_frame();assert(tx_count==0);
     tx_count=0;now_ms=2048;smc_frame();assert(tx_count==0);
-    smc.locked=0;tx_count=0;smc_frame();wire_value("unlock resumes blink off",0x5d,0);
+    smc.locked=0;pulse_phase(0);tx_count=0;smc_frame();wire_value("unlock resumes blink off",0x5d,0);
     tx_count=0;locked=1;seq.playing=0;smc_frame();assert(tx_count==0);locked=0;
     smc.up=0;smc_frame();assert(tx_count==0);smc.up=1;
     proj.set.bt=0;smc_frame();assert(tx_count==0);proj.set.bt=PROJ_BT_SMC_CENTRAL;

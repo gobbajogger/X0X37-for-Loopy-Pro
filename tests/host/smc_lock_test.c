@@ -318,10 +318,11 @@ static void test_physical_pause_input_and_output(void)
     reset_output(); smc_frame(); CHECK(send_count == 0);
     message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!smc_ui_active());
     message(0x90, 0x5D, 0);
-    now_ms = 1024; smc_frame(); reset_output();
-    now_ms = 1536; smc_frame();
+    memset(&smc_beat, 0, sizeof smc_beat); seq.bpm = 120; seq.ext_now = 0;
+    smc_frame(); seq.ext_now = FS / 4; smc_frame(); reset_output();
+    seq.ext_now = FS / 2; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 127);
-    reset_output(); now_ms = 2048; smc_frame();
+    reset_output(); seq.ext_now = 3 * FS / 4; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 0);
     reset_output(); smc_frame(); CHECK(send_count == 0);
     puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");

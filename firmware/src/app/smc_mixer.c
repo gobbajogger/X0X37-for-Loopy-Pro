@@ -3,6 +3,7 @@
  * DAW messages match Mackie Control; the stock User preset uses CC and MMC SysEx.
  * TIMER5 only copies complete messages. All project, sequencer and display work is in the main loop. */
 #include "smc_protocol.h"
+#include "smc_clock_feedback.h"
 
 #define SMC_Q 32u
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
@@ -610,7 +611,7 @@ static UI_DRAW void smc_ui_strip_value(pref_t r, int x, int y, uint16_t color)
 
 /* Eight physical strips, left to right: encoder above, fader left of M/S/R.
  * Keep this geometry even when a target is inactive; position is the user's map. */
-static UI_DRAW void smc_ui_grid(void)
+static UI_DRAW void smc_ui_grid(int pulse)
 {
     static const uint8_t NOTES[3] = {16, 8, 0};
     static const char *const MAIN_N[8] = {"909", "808", "303A", "303B", "BRK", "RVB", "DLY", "FLT"};
@@ -662,7 +663,7 @@ static UI_DRAW void smc_ui_grid(void)
             cv_rect(x + 1, target, 6, 4, fc);
             /* A fine white marker is physical position until pickup is acquired. */
             if (!(smc.picked & (1u << n)))
-                cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
+                cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, pulse ? C_WHITE : C_DIM);
         }
         for (int row = 0; row < 3; row++) {
             int y = 64 + row * 14;
@@ -680,6 +681,7 @@ void smc_ui_draw(void)
 {
     char name[24], num[32], unit[12], tag[80];
     const char *status = "ACTIVE";
+    int pickup = 0, pulse = smc_clock_feedback(&seq);
     pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);
     int kit = smc_drum_mix();
     cv_begin(240, HDR_H, C_BLACK);
@@ -701,7 +703,7 @@ void smc_ui_draw(void)
     cv_commit(0, 0, 0);
     cv_begin(240, 2 * BAND_H, C_BLACK);
     cv_band(0, 2 * BAND_H);
-    smc_ui_grid();
+    smc_ui_grid(pulse);
     cv_commit_rect(1, 0, MAIN_Y);
     cv_begin(240, KNOB_H, C_BLACK);
     cv_rect(0, 0, 240, 1, C_LINE);
@@ -730,7 +732,7 @@ void smc_ui_draw(void)
         smc_ui_label(r, name);
         pref_value_of(r, pref_get(r), num, unit);
         if (smc_ui.kind == 0 && !(smc.picked & (1u << smc_ui.strip)))
-            status = smc.last[smc_ui.strip] < smc_scaled(r) ? "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
+            pickup = 1, status = smc.last[smc_ui.strip] < smc_scaled(r) ? "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
     }
     text_c(120, 4, tw(&FONT_S, name) > 232 ? &FONT_XS : &FONT_S, caps_of(name), C_WHITE);
     { const felucca_font_t *font = &FONT_M;
@@ -745,7 +747,7 @@ void smc_ui_draw(void)
         put_s(put_s(end, " / "), smc_bank_name());
         status = tag;
     }
-    text_c(120, 49, &FONT_XS, status, C_HI);
+    text_c(120, 49, &FONT_XS, status, !pickup || pulse ? C_HI : C_DIM);
     cv_commit(3, 0, KNOB_Y);
 }
 
@@ -1392,7 +1394,10 @@ static int smc_led(int note)
     }
     /* Existing Mackie NoteOn feedback route; physical LED identity still
      * needs native owner verification for the captured preset. */
-    if (note == 0x5D) return smc.locked || ((plat_ms() >> 9) & 1u);
+    if (note == 0x5D) {
+        int pulse = smc_clock_feedback(&seq);
+        return smc.locked || pulse;
+    }
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;
     return 0;
@@ -1403,6 +1408,9 @@ void smc_frame(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
+    /* Observe clock even when the surface is locked, disconnected or busy.
+     * Reconnection must inherit any tempo learned before a later dropout. */
+    (void)smc_clock_feedback(&seq);
     if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
         return;
     for (i = 0; i < 8; i++) smc_notice(i);

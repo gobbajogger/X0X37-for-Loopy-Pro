@@ -77,7 +77,7 @@ test_class() {
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|smc-pickup-acceptance|smk-fader-state|smc-navigation|smc-navigation-review|smc-navigation-negative|smc-pattern-navigation|smc-muted-fader) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|smc-pickup-acceptance|smk-fader-state|smc-navigation|smc-navigation-review|smc-navigation-negative|smc-pattern-navigation|smc-muted-fader|smc-clock-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -346,6 +346,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-rs Pillow; else run smc-drum-rs sh
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-performance-abort Pillow; else run smc-performance-abort sh tests/host/smc_performance_abort_test.sh; fi
 run smc-filter python3 tests/host/smc_filter_test.py
 run smc-feedback python3 tests/host/smc_feedback_test.py
+run smc-clock-feedback sh tests/host/smc_clock_feedback_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-record-feedback sh tests/host/smc_record_feedback_test.sh; fi
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
