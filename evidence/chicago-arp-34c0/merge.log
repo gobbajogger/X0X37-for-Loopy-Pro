@@ -1,0 +1,18 @@
+Project PR merge (failed=1, retargeted=2, skip=1)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#286 retargeted: retargeted base → main after parent merge :: pr edit 286 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Document why Chicago insert FX is not on the device yet
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/286
+#286 failed: merge failed after ruleset unlock (approvals=0, last-pusher=off on 25707607); do not ask the owner to approve. X Pull request gobbajogger/X0X37-for-Loopy-Pro#286 is not mergeable: the merge commit cannot be cleanly created.
+To have the pull request merged after all the requirements have been met, add the `--auto` flag. | X Pull request gobbajogger/X0X37-for-Loopy-Pro#286 is not mergeable: the merge commit cannot be cleanly created.
+To have the pull request merged after all the requirements have been met, add the `--auto` flag. | GraphQL: Auto merge is not allowed for this repository (enablePullRequestAutoMerge) :: pr merge 286 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --auto
+  Document why Chicago insert FX is not on the device yet
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/286
+#292 retargeted: retargeted base → main after parent merge :: pr edit 292 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Add Chicago Arp Switch, Mode, Range, and Speed on live 303 keys
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/292
+#292 skip: touches firmware/; production main moves only after hardware validation of those bytes
+  Add Chicago Arp Switch, Mode, Range, and Speed on live 303 keys
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/292
