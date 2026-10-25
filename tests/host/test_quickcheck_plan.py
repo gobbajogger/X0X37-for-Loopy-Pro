@@ -206,6 +206,42 @@ run host-build sh host/probe.c
         self.assertEqual(reads.count(self.repo / 'tests/host/probe.c'), 1)
         self.assertEqual(reads.count(self.repo / 'tests/run_tests.sh'), 1)
 
+    def test_project_web_routes_select_project_suites(self):
+        """BF-002: project modules must pull projects-web and projects-page."""
+        runner = self.repo / 'tests/run_tests.sh'
+        runner.write_text(runner.read_text() + '''
+run projects-web node web/test_projects.mjs
+run projects-page node web/test_projects_page.mjs
+run breaks-page sh web/page.js
+run install-slots-web true
+''')
+        self.put('web/x0x_projects.js', '// projects\n')
+        self.put('web/x0x_projects.html', '<html></html>\n')
+        self.put('web/x0x_breaks.js', '// shared\n')
+        self.put('web/test_projects.mjs', '// project suite\n')
+        self.put('web/test_projects_page.mjs', '// project page suite\n')
+        project_paths = [
+            'web/x0x_projects.js',
+            'web/x0x_projects.html',
+            'web/x0x_breaks.js',
+            'web/test_projects.mjs',
+            'web/test_projects_page.mjs',
+        ]
+        for path in project_paths:
+            with self.subTest(path=path):
+                selected = PLAN.select(self.repo, [path], False)
+                if path.endswith('test_projects.mjs'):
+                    self.assertIn('projects-web', selected)
+                elif path.endswith('test_projects_page.mjs'):
+                    self.assertIn('projects-page', selected)
+                else:
+                    self.assertIn('projects-web', selected)
+                    self.assertIn('projects-page', selected)
+        unrelated = PLAN.select(self.repo, ['web/page.js'], False)
+        self.assertIn('breaks-web', unrelated)
+        self.assertNotIn('projects-web', unrelated)
+        self.assertNotIn('projects-page', unrelated)
+
 
 if __name__ == '__main__':
     unittest.main()

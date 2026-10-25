@@ -189,6 +189,8 @@ const TEXT = {
     stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
     stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
     stockinstall: "このパッケージを書き込む",
+    stockloading: "選択したファームウェアを読み込み、確認しています…",
+    stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
     stockok: "パッケージを確認しました。ボタンを押してください。",
     stockbad: "使える .fwsc ではありません。",
     stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
@@ -221,6 +223,8 @@ const TEXT = {
     blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。選ばなければ Bluetooth なしでインストールします。",
     ctlok: "ctl.img を確認しました。インストールに含めます。",
     ctlbad: "この ctl.img は使えません: ",
+    ctlreading: "コントローラー画像を読み込み、確認しています…",
+    ctlreadfail: "コントローラー画像を読み込めませんでした。もう一度選択してください。",
     noproduct: "このバージョンには選んだ機種のパッケージがありません。",
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
@@ -251,6 +255,8 @@ const TEXT = {
     stockdrop: "Drop the .fwsc file here, or click to choose it",
     stockconfirm: "This package is for this keyboard (matching model)",
     stockinstall: "Install this package",
+    stockloading: "Reading and checking the selected firmware file…",
+    stockloadfail: "Could not read that file. Choose it again.",
     stockok: "Package checked. Press the button to install it.",
     stockbad: "That is not a usable .fwsc package.",
     stockdone: "Done. The device has restarted with the new firmware.",
@@ -283,6 +289,8 @@ const TEXT = {
     blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. Without it, X0X installs without Bluetooth. Select it again for each update.",
     ctlok: "ctl.img checked: the install includes it.",
     ctlbad: "This ctl.img cannot be used: ",
+    ctlreading: "Reading and checking the controller image…",
+    ctlreadfail: "Could not read that controller image. Choose it again.",
     noproduct: "No package for that model in this version.",
     releasehint: "The same files are also on the GitHub Releases page.",
   },
@@ -585,29 +593,40 @@ async function mergeGitHubReleases() {
   } catch (_) { /* offline / rate limit: keep embedded catalog */ }
 }
 
+let ctlLoadSerial = 0;
 $("ctlfile").addEventListener("change", async (e) => {
-  ctl = null;
   const f = e.target.files && e.target.files[0];
-  if (!f) return;
+  if (!f || writing) return;
+  const requestId = ++ctlLoadSerial;
+  ctl = null;
+  e.target.value = ""; // Allow retrying the same controller image.
+  sayK("ctlreading");
+  let raw;
+  try { raw = new Uint8Array(await f.arrayBuffer()); }
+  catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlreadfail");
+    return;
+  }
+  if (requestId !== ctlLoadSerial || writing) return;
   try {
-    const raw = new Uint8Array(await f.arrayBuffer());
     const p = ctlProblem(raw);
     if (p) { sayK("ctlbad", p); return; }
     ctl = raw;
     sayK("ctlok");
-  } catch (err) { sayK("ctlbad", err && err.message); }
+  } catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlbad", err && err.message);
+  }
 });
 
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
 
-async function acceptStock(raw) {
-  stock = null;
-  $("stockgo").disabled = true;
-  $("dropmeta").textContent = "";
+let stockLoadSerial = 0;
+async function acceptStock(raw, requestId) {
   try {
     const product = productOf(raw);
     const model = product.split("_")[0];
     const hex = await sha256Hex(raw);
+    if (requestId !== stockLoadSerial || writing) return;
     const isFm1Stock = hex === STOCK_SHA256_FM1;
     // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
     if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
@@ -620,14 +639,33 @@ async function acceptStock(raw) {
     }
     stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
     $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
+    $("stockconfirm").disabled = false;
     $("stockgo").disabled = writing || !$("stockconfirm").checked;
     sayK("stockok");
-  } catch (err) { sayK("stockbad"); }
+  } catch (err) { if (requestId === stockLoadSerial && !writing) sayK("stockbad"); }
+}
+async function selectStockFile(f) {
+  if (!f || writing) return;
+  const requestId = ++stockLoadSerial;
+  stock = null;
+  $("stockconfirm").checked = false;
+  $("stockconfirm").disabled = true;
+  $("stockgo").disabled = true;
+  $("dropmeta").textContent = "";
+  sayK("stockloading");
+  try {
+    const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== stockLoadSerial || writing) return;
+    await acceptStock(raw, requestId);
+  } catch (err) {
+    if (requestId === stockLoadSerial && !writing) sayK("stockloadfail");
+  }
 }
 $("stockfile").addEventListener("change", async (e) => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
-  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+  e.target.value = ""; // Allow choosing the same file again after a failed read.
+  await selectStockFile(f);
 });
 $("stockconfirm").addEventListener("change", () => {
   $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
@@ -638,7 +676,7 @@ const drop = $("stockdrop");
 drop.addEventListener("drop", async (e) => {
   const f = e.dataTransfer.files && e.dataTransfer.files[0];
   if (!f) return;
-  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+  await selectStockFile(f);
 });
 
 async function run(img, product, opts = {}) {

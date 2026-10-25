@@ -1,0 +1,14 @@
+packageSlotMap: the record, else the old 2 x 80 KiB (loader mark), else none ok
+upgrade: slots kept in place, no backup, SMP_INFO only                 ok
+downgrade: every slot saved (x0x-slots-before-install-20261025-102728.x0xslots) ok
+downgrade: the backup sends SMP_INFO / SMP_READ only                   ok
+downgrade: slot 1 kept, slot 3 -> slot 2 and read back, slot 2 reported ok
+downgrade: the page is told which slots are at risk                    ok
+moved slot: saved, installed, slot 2 written back at 0xD7000 and verified ok
+failure mid-restore: error 'slots' (slot 2: write at 0x4200 failed (3)) ok
+failure mid-restore: the saved archive holds the slots, the install itself completed ok
+backup fails: error 'slotbackup', nothing sent to install              ok
+stock package: all slots saved, nothing written back                   ok
+installer page: download, install, slots back ("Done. The slots were written back and checked.") ok
+installer page: failure mid-restore keeps the file and says how to restore it ok
+install slot web tests passed

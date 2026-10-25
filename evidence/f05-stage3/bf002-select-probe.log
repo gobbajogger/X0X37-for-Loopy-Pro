@@ -1,0 +1,29 @@
+head: ref: refs/heads/cursor/f05-bf002-stage3-fb90
+sha: 19e8f6656743aa2d0cb7302715d87ff4d596070d
+INPUT ['web/x0x_projects.js']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'installer-targets', 'locked-settings', 'projects-page', 'projects-web', 'quickcheck-plan', 'smk-flash']
+HAS_projects-web True
+HAS_projects-page True
+INPUT ['web/x0x_projects.html']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'locked-settings', 'projects-page', 'projects-web', 'quickcheck-plan', 'smk-flash']
+HAS_projects-web True
+HAS_projects-page True
+INPUT ['web/x0x_breaks.js']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'locked-settings', 'projects-page', 'projects-web', 'quickcheck-plan', 'smk-flash']
+HAS_projects-web True
+HAS_projects-page True
+INPUT ['web/test_projects.mjs']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'locked-settings', 'projects-web', 'quickcheck-plan', 'smk-flash']
+HAS_projects-web True
+HAS_projects-page False
+INPUT ['web/test_projects_page.mjs']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'locked-settings', 'projects-page', 'quickcheck-plan', 'smk-flash']
+HAS_projects-web False
+HAS_projects-page True
+INPUT ['web/x0x_installer.html']
+SELECTED ['breaks-page', 'breaks-web', 'install-slots-web', 'installer-targets', 'locked-settings', 'smk-flash']
+HAS_projects-web False
+HAS_projects-page False
+BUG_FIXED project modules select projects-web and projects-page; unrelated installer UI stays scoped
+PROBE_PASS
+EXIT:0

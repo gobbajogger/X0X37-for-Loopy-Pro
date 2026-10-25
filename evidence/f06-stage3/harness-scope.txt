@@ -1,0 +1,22 @@
+# F06 Stage 3 — web/test_web.mjs harness scope (BF-003)
+
+HEAD: 212b7d5c58752e275f753347c23f932f9d44a9a6 (includes repair 1325f5d3)
+Branch: cursor/f06-bf003-stage3-fb90
+
+## Grep: does the harness open/require editor.html?
+
+- Only mention of editor.html is a retirement comment (line 6).
+- No readFileSync/open of web/editor.html.
+- No PROTO-BEGIN/END editor protocol section.
+- No editor UI / sample-byte-check sections.
+
+## Removed vs skipped
+
+Editor-dependent harness sections were REMOVED (repair 1325f5d3 deleted ~500 lines from web/test_web.mjs), not silently skipped.
+Pre-repair tip 200d4134 had unconditional `readFileSync(join(HERE, "editor.html"), "utf8")` at load time (ENOENT).
+
+Remaining checks without editor.html:
+- fm1pkg.js productOf/logicalImage (skipped only when build/felucca.fwsc is absent — unrelated to editor)
+- fm1ota.js FakeFM1 install/resume/model checks (ran and passed)
+
+Verdict: editor harness GONE (removed), not skip-gated.
