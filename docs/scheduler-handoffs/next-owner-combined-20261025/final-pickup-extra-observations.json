@@ -1,0 +1,31 @@
+{
+  "candidate": "b4f43dcbcc14f5ef059cda5c7650b5996c77160a",
+  "supplements": "FINAL-b4-review.json",
+  "state": "PASS_OPTIONAL_OBSERVATIONS_COMPLETE_NOT_NEW_GATES",
+  "observations": [
+    {
+      "log": "FINAL-b4-pickup-Apple-ASan-UBSan.log",
+      "compiler": "AppleClang21",
+      "instrumentation": "ASan+UBSan",
+      "assertions": 835361,
+      "exit": 0,
+      "diagnostics": "noneobserved"
+    },
+    {
+      "log": "FINAL-b4-locked-wheel.log",
+      "locked_SMC_local_navigation_audio_pairs": 96,
+      "exit": 0
+    }
+  ],
+  "limits": [
+    "No universalLinuxSanitizeracceptance",
+    "No device/acoustic/controllerfeedback/delayedoverlay/jumpqualification",
+    "Native/model/package proof remains separatebuilder scope"
+  ],
+  "sha256": {
+    "FINAL-b4-pickup-Apple-ASan-UBSan.log": "3168f7858b1337973b6b89988f1487986f52a2877e6427b7036971a759a87491",
+    "FINAL-b4-pickup-Apple-ASan-UBSan.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "FINAL-b4-locked-wheel.log": "c3564907011be615bfef137092498174f2973125040e17c58d8087a20ad5970f",
+    "FINAL-b4-locked-wheel.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}
