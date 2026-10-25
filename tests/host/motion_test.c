@@ -144,6 +144,7 @@ int main(void)
     motion_step(&M, 0, 0, 6, 7, 16);
     CHECK(eng == 48, "playing again (%d)", eng);
     motion_clear(&M, k);                                /* cleared while applying; the slot reused */
+    CHECK(eng == knob, "clear restores the knob base (%d, knob %d)", eng, knob);
     k2 = motion_alloc(L, 0, 0, 2, 0, 1);
     CHECK(k2 == k, "the slot is reused");
     L[k2].val[7] = 48;                                 /* the stale runtime applied 48: must still apply */

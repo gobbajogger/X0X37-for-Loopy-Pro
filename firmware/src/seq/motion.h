@@ -66,7 +66,7 @@ int motion_value(const motion_t *m, int k);      /* what lane k is applying now,
 /* main loop */
 int motion_find(const lane_t *L, int pat, int part, int t, int v, int i);   /* lane index, -1 */
 int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i);       /* -1 = pool full */
-void motion_clear(motion_t *m, int k);       /* also cancels old queued knob requests */
+void motion_clear(motion_t *m, int k);       /* restore apply(base), then free; cancels queued knob requests */
 int motion_count(const lane_t *L);
 void motion_req_rec(motion_t *m, int k);
 void motion_req_hold(motion_t *m, int k);

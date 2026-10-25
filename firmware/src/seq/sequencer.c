@@ -164,14 +164,27 @@ static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o
     const dpart_t *d = dpart(s, k);
     uint32_t bit = 1u << (p & 31);
     int w = p >> 5;
-    float vel = (d->accent[w] & bit) ? 1.0f : (float)s->accent_q7 / 127.0f;
+    float accent_vel = (d->accent[w] & bit) ? 1.0f : (float)s->accent_q7 / 127.0f;
     int v;
     for (v = 0; v < NDRUM; v++) {
+        uint8_t sv;
+        float vel;
+        uint8_t mv;
         if (!(d->hit[v][w] & bit) || ((s->mute | s->vmute) & (1u << (k * NDRUM + v))))
             continue;
+        /* A T_VEL lane (written by black-key REC) wins; else the shared accent row / accent_q7. */
+        sv = s->drum_vel[k][v];
+        if (sv) {
+            if (sv > 127u)
+                sv = 127u;
+            vel = (float)sv / 127.0f;
+            mv = sv;
+        } else {
+            vel = accent_vel;
+            mv = (uint8_t)(vel * 127.0f);
+        }
         if (skip >> v & 1u) {                        /* recorded live on this pass: the key sounded it */
             if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
-                uint8_t mv = (uint8_t)(vel * 127.0f);
                 midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
                 midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
             }
@@ -180,7 +193,6 @@ static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o
         if (!o->drum(o->ctx, k, v, vel))
             continue;                                /* its chance said no: no MIDI either */
         if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
-            uint8_t mv = (uint8_t)(vel * 127.0f);
             midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
             midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
         }

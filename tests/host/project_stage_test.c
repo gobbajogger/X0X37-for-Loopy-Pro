@@ -369,7 +369,7 @@ static void test_semantic_rejection(void)
         BAD8(pat[31].brk.slice[15], 9), BAD16(arr.song.len, NSONG + 1),
         BAD8(arr.song.bar[NSONG - 1].pat[PART_BRK], NPAT),
         BAD8(arr.lane[NLANE - 1].used, 2), BAD8(arr.lane[NLANE - 1].pat, NPAT),
-        BAD8(arr.lane[NLANE - 1].part, NPARTS), BAD8(arr.lane[NLANE - 1].t, T_PROB + 1),
+        BAD8(arr.lane[NLANE - 1].part, NPARTS), BAD8(arr.lane[NLANE - 1].t, T_VEL + 1),
         BAD8(arr.lane[NLANE - 1].v, NVOICES_MAX), BAD8(arr.lane[NLANE - 1].i, NPARAMS_MAX),
         BAD8(arr.lane[NLANE - 1].val[NSTEPS - 1], 254), BAD8(sound.v[T_303][1][0], 254),
         BAD8(sound.v[T_FX][1][0], 128),
@@ -406,6 +406,23 @@ static void test_semantic_rejection(void)
     CHECK(project_validate_stage() == -1);
     project_stage.arr.lane[0].val[63] = MOT_NONE;
     project_stage.arr.lane[0].v = NDRUM;
+    CHECK(project_validate_stage() == -1);
+    /* T_VEL: drum strike velocity lanes (1..127); not for 303 parts. */
+    memcpy(&project_stage, &saved_project, sizeof project_stage);
+    project_stage.arr.lane[0].used = 1;
+    project_stage.arr.lane[0].part = PART_909;
+    project_stage.arr.lane[0].t = T_VEL;
+    project_stage.arr.lane[0].v = (uint8_t)(PART_909 << 4 | (NDRUM - 1));
+    project_stage.arr.lane[0].i = 0;
+    memset(project_stage.arr.lane[0].val, MOT_NONE, NSTEPS);
+    project_stage.arr.lane[0].val[0] = 1;
+    project_stage.arr.lane[0].val[1] = 127;
+    CHECK(project_validate_stage() == 0);
+    project_stage.arr.lane[0].val[2] = 128;
+    CHECK(project_validate_stage() == -1);
+    project_stage.arr.lane[0].val[2] = MOT_NONE;
+    project_stage.arr.lane[0].part = PART_303A;
+    project_stage.arr.lane[0].v = (uint8_t)(PART_303A << 4);
     CHECK(project_validate_stage() == -1);
     check_live_unchanged();
 }

@@ -139,6 +139,7 @@ typedef struct {
     volatile uint32_t vmute;          /* drum tracks muted on their own (bit k * NDRUM + v): kept apart from
                                        * the part mutes, which the song and HOME set as a whole */
     volatile uint8_t accent_q7;       /* drum velocity of a non-accented hit, of 127 */
+    volatile uint8_t drum_vel[NKIT][NDRUM]; /* per-voice step velocity from a T_VEL lane (engine); 0 = accent law */
     float bpm;                        /* internal tempo (UI writes; read per step) */
     float ext_bpm;                    /* tempo measured from the external clock */
     seq_track_t t[NTRACKS];           /* TRK_DRUM, TRK_BASS0.., TRK_BRK */
