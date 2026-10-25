@@ -83,8 +83,10 @@ def main():
     try:
         fi.slot_probe(link)
         ok(False, "slot_probe: timeout raises")
-    except TimeoutError:
-        ok(True, "slot_probe: timeout raises")
+    except (TimeoutError, xs.SlotError) as e:
+        # slot_probe wraps TimeoutError as SlotError("SMP_INFO timed out…") for CLI fail-closed.
+        ok(isinstance(e, TimeoutError) or "timed out" in str(e).lower(),
+           "slot_probe: timeout raises")
     link.close()
 
     mute2 = T.FakeSMK(image)
@@ -93,8 +95,9 @@ def main():
     try:
         fi.plan_slots(d2, image, product)
         ok(False, "plan_slots: probe failure raises (fail closed)")
-    except TimeoutError:
-        ok(True, "plan_slots: probe failure raises (fail closed)")
+    except (TimeoutError, xs.SlotError) as e:
+        ok(isinstance(e, TimeoutError) or "timed out" in str(e).lower(),
+           "plan_slots: probe failure raises (fail closed)")
     d2.link.close()
 
     # --- successful empty layout: no backup needed ---
@@ -108,8 +111,10 @@ def main():
     mute3 = T.FakeSMK(image)
     mute3.answer_slots = False
     rc, out, err = T.cli([str(pkg), "--yes"], mute3)
+    # Production wraps mute as SlotError → InstallError("slots", "…backup cannot start (SMP_INFO timed out…)")
     ok(rc == fi.EXIT["slots"] == 7 and mute3.upgrades == 0
-       and "nothing was written" in err and "layout could not be read" in err,
+       and "nothing was written" in err
+       and ("timed out" in err.lower() or "slot backup cannot start" in err),
        "run: probe failure -> exit 7, no install write")
 
     mute4 = T.FakeSMK(image)
