@@ -19,7 +19,7 @@
 
 /* All of it in BLERAM (main RAM is full): not cleared at boot, so ble_start sets every field it
  * reads, and nothing reads them before (ble_host_on, in .bss, stays 0 until then). */
-#define BLE_OQ 64u                              /* MIDI out to mirror: USB-MIDI packets */
+#define BLE_OQ 56u                              /* MIDI out to mirror: USB-MIDI packets (SMK pool floor) */
 typedef struct {
     xb_mbox_t mb;                               /* first: 64-byte aligned (the rings' cache lines) */
     union { bleh_t h; blec_t c; } host;
