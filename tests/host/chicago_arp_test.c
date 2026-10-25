@@ -1,9 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Chicago Arp Switch/Mode/Range/Speed: enum surface, factory decode, held-note
- * pick + tempo clock, and honest native303 pitch change while arpeggiating. */
+ * pick + tempo clock, and honest native303 pitch change while arpeggiating.
+ * Pick/rate reuse clip smk_clip_keys.h (CK_FN host-friendly). */
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#define CK_FN __attribute__((unused))
 #include "chicago_arp.h"
 #include "bass303.h"
 
@@ -64,9 +66,14 @@ static void test_surface(void)
           "Mode def Up");
     CHECK(CHI_ARP_PARAMS[2].def == CHI_ARP_OCT1, "Range def 1 Oct");
     CHECK(CHI_ARP_PARAMS[3].def == CHI_ARP_SPD_1_16, "Speed def 1/16");
-    CHECK(CHI_ARP_TICKS[CHI_ARP_SPD_1_2] == 48 && CHI_ARP_TICKS[CHI_ARP_SPD_1_16] == 6 &&
-              CHI_ARP_TICKS[CHI_ARP_SPD_1_32] == 3,
-          "speed tick table");
+    CHECK(chi_arp_ticks(CHI_ARP_SPD_1_2) == 48 && chi_arp_ticks(CHI_ARP_SPD_1_16) == 6 &&
+              chi_arp_ticks(CHI_ARP_SPD_1_32) == 3,
+          "speed ticks via clip CK_RATE_T");
+    CHECK(chi_arp_ticks(CHI_ARP_SPD_1_2) == CK_RATE_T[CHI_ARP_RATE_IX[CHI_ARP_SPD_1_2]],
+          "Chicago speed aliases clip rate table");
+    CHECK(chi_arp_order(CHI_ARP_UP) == CK_ORD_UP && chi_arp_order(CHI_ARP_DOWN) == CK_ORD_DOWN &&
+              chi_arp_order(CHI_ARP_UPDN) == CK_ORD_UPDN,
+          "Mode maps to clip CK_ORD_*");
     CHECK(BASS303_AMPMODE == 16 && BASS303_GNAW == 17 && BASS303_BITE == 18 && BASS303_AATTACK == 19,
           "do not retarget AmpMod/Gnaw/Bite/ADSR");
 }
@@ -117,6 +124,12 @@ static void test_pick_modes(void)
     CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT1, 2) == 55, "chord Up 2");
     CHECK(chi_arp_pick(chord, 3, CHI_ARP_DOWN, CHI_ARP_OCT1, 0) == 55, "chord Down 0");
     CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT2, 3) == 60, "chord Up oct2");
+    /* Same pick as clip: Chicago adapter must equal ck_arp_pick for shared modes. */
+    for (i = 0; i < 12; i++) {
+        int a = chi_arp_pick(chord, 3, CHI_ARP_UPDN, CHI_ARP_OCT2, (uint32_t)i);
+        int b = ck_arp_pick(chord, 3, CK_ORD_UPDN, 2u, (uint32_t)i, 0u);
+        CHECK(a == b, "chi_arp_pick == ck_arp_pick UpDn step %d (got %d vs %d)", i, a, b);
+    }
 }
 
 static void test_runtime_clock(void)
