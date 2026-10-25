@@ -23,18 +23,18 @@ Use a glossary name only for the observation it names. A negative result stays v
 | `HOST CHECKED` | The applicable host checks exited 0 on this commit. |
 | `BUILD_NOT_RUN` | The compiler was not started. |
 | `BUILD_FAILED` | The compiler exited non-zero, or a budget check failed. |
-| `BUILD_SUCCEEDED_UNREVIEWED` | The compiler exited 0. Independent QA has not accepted this commit. |
+| `BUILD_SUCCEEDED_UNREVIEWED` | The compiler exited 0. Independent QA has not accepted this commit. This label is not the firmware nightly gate. |
 | `UNCHANGED_VALID_SCOPED` | Compiled inputs match an attested build. The old package hashes are reused. |
 | `SCOPED FIRMWARE-SUBTREE BUILD` | A subtree was built. Full-root QA is still pending. |
-| `DEV CHECKED` | `tools/dev_validate.py` wrote a record whose result is `DEV CHECKED` for these exact artifacts. |
-| `QA_PENDING` | This run authored the change, so it cannot supply independent QA. |
+| `DEV CHECKED` | `tools/dev_validate.py` wrote a record whose result is `DEV CHECKED` for these exact artifacts. Firmware nightly fast-forwards when host checks passed and both affected development packages have this record. It is not the firmware main fast-forward. |
+| `QA_PENDING` | This run authored the change, so it cannot supply independent QA. `QA_PENDING` does not block the firmware nightly fast-forward. |
 | `QA_PASSED` | A reviewer who did not author the change accepted this exact commit. |
 | `NO-GO` | A required check failed. |
 | `PACKAGE_NOT_PUBLISHED` | The package is not on the live installer. |
 | `SITE BRANCH ONLY` | `gh-pages` moved. The live bytes have not been fetched. |
 | `DOWNLOAD_HTTP_VERIFIED` | The fetched installer bytes match the qualified package. |
 | `DEVICE NOT TESTED` | There is no attributable hardware session for these bytes. |
-| `DEVICE VERIFIED` | Same-byte, matching-model owner hardware evidence exists. |
+| `DEVICE VERIFIED` | Same-byte, matching-model hardware evidence exists for those exact bytes. `INSTALL BLOCKED` is not this label. Elite evidence does not move a Pro package. |
 | `GIT DELIVERY PENDING` | The commit is only local, or the push was refused. |
 | `NO_NEW_DELIVERABLE` | No eligible change. No empty commit and no empty pull request. |
 | `DELIVERY_BLOCKED` | The required write was refused. |
@@ -54,7 +54,7 @@ Do not add a trailer-only commit on an unchanged tree. `NO_NEW_DELIVERABLE` is a
 
 ## Consumer acceptance
 
-A later run acts on a handoff only after it reads the remote head, the diff, and the claimed evidence. It runs the checks its own stage requires. It does not edit the producer branch. It writes its disposition on its own branch or as a pull-request review.
+A later run is a new thread. Never resume an old thread. It acts on a handoff only after it reads the remote head, the diff, and the claimed evidence. Agents run every applicable test in their own environment with every tool that machine has. GitHub is not a test runner. An Actions result, a billing lock, or an empty workflow is not a firmware result. A zero failure counter is not a pass unless the named tests printed ok. It does not edit the producer branch. It writes its disposition on its own branch or as a pull-request review.
 
 Deduplicate on `(repository, branch, full commit, evidence revision)`. A changed head invalidates affected reviews. Docs-only reuse of package bytes requires proof that every compiler input and pin is unchanged, plus a recorded mapping to the current root. A subtree SHA is not the root SHA.
 
