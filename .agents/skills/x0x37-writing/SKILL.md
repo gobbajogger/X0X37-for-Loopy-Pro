@@ -17,9 +17,6 @@ Only when the owner explicitly requests a strict ASD-STE100 review, follow [stri
 Check only that requested review against that file. Claim compliance only for text actually checked.
 Return to plain writing after the review.
 
-Use [caveman](../caveman/SKILL.md) when requested. Preserve grammar, facts, and conditions.
-For skill installation or repair, use [source status](../../docs/SKILLS.md).
-
 ### Rule 15A: reason for a change
 
 State a clear reason, its purpose, and how it affects the end user for every change.
