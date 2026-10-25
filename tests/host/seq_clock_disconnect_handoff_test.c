@@ -190,6 +190,62 @@ static void pending_local_play_handoff(uint32_t old_input)
     CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
 }
 
+
+/* MID-06 transport ordering is independent of the ownership of subsequent F8.
+ * An accepted old-source Stop before the link goes down is a real Stop, not a
+ * stale clock packet. A new clock must not silently cancel it, and a following
+ * new-source Start or local PLAY must first release the sounding 303 note. */
+static void valid_stop_during_handoff(uint32_t old_input,unsigned restart)
+{
+    seq_t s; monitor_t m; seq_sink_t out;
+    uint32_t new_input=old_input ^ 1u;
+    init(&s,&m,&out);
+    CHECK(recv(&s,0xfau,old_input));
+    CHECK(recv(&s,0xf8u,old_input));
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==1u && m.on==1u && m.held==1u);
+    for(unsigned i=0;i<4u;i++) {
+        CHECK(recv(&s,0xf8u,old_input));
+        render(&s,&out,1u);
+    }
+    CHECK(s.t[TRK_BASS0].ext_ticks==4u);
+    CHECK(recv(&s,0xf8u,old_input)); /* in-flight stale clock */
+    CHECK(recv(&s,0xfcu,old_input)); /* valid transport before disconnect */
+    CHECK(s.req_stop && s.req_stop_rt && s.ext_pending==1u);
+    seq_clk_drop(&s,old_input);
+    CHECK(s.clk_lock==0u);
+    if (restart==1u)
+        CHECK(recv(&s,0xfau,new_input)); /* Stop then Start, one callback */
+    else if (restart==2u)
+        seq_start(&s);                   /* Stop then local PLAY */
+    CHECK(recv(&s,0xf8u,new_input));     /* new owner: discard old F8 only */
+    CHECK(s.ext_pending==1u);
+    CHECK(s.req_stop && s.req_stop_rt); /* accepted old Stop is still ordered */
+    render(&s,&out,1u);
+    CHECK(m.steps==(restart ? 2u : 1u));
+    CHECK(m.off==1u);                   /* old 303 note released once */
+    CHECK(m.on==(restart ? 2u : 1u));
+    CHECK(m.held==(restart ? 1u : 0u));
+    CHECK(s.playing==(restart != 0u));
+    CHECK(!m.duplicate && !m.orphan);
+    if(restart) {
+        CHECK(m.last_step==0u);
+        CHECK(s.t[TRK_BASS0].ext_ticks==0u);
+        CHECK(s.start_local==(restart==2u));
+    } else {
+        CHECK(recv(&s,0xfau,new_input));
+        CHECK(recv(&s,0xf8u,new_input));
+        render(&s,&out,1u);
+        CHECK(s.playing && m.steps==2u && m.last_step==0u);
+        CHECK(m.on==2u && m.off==1u && m.held==1u);
+    }
+    CHECK(!recv(&s,0xfcu,old_input)); /* discarded as foreign *after* handoff */
+    CHECK(recv(&s,0xfcu,new_input));
+    render(&s,&out,1u);
+    CHECK(!s.playing && m.held==0u && m.on==m.off);
+    CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
+}
+
 int main(void)
 {
     const unsigned blocks[]={1u,64u,1024u};
@@ -199,6 +255,11 @@ int main(void)
         scenario=7u+i;queued_clock_disconnect(1u);
         scenario=10u+i;pending_local_play_handoff(0u);
         scenario=13u+i;pending_local_play_handoff(1u);
+        for(unsigned old_input=0u;old_input<2u;old_input++)
+            for(unsigned restart=0u;restart<3u;restart++) {
+                scenario=16u+i*6u+old_input*3u+restart;
+                valid_stop_during_handoff(old_input,restart);
+            }
     }
     fprintf(stderr,"seq link-drop clock handoff: %u/%u checks %s\n",checks-failures,checks,failures?"FAILED":"PASSED");
     return failures?EXIT_FAILURE:EXIT_SUCCESS;
