@@ -290,6 +290,7 @@ run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firm
 run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_tie_lookahead_test tests/host/seq_random_tie_lookahead_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_random_tie_lookahead_test"   # BAS-03/06 RANDOM TIE gate prediction
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
+run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
