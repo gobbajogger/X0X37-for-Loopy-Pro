@@ -10,6 +10,7 @@ Audit record: `evidence/f02-stage1/AUDIT.md`.
 Successor prompt: `evidence/f02-stage1/SUCCESSOR-STAGE2.txt`.
 Successor agent id: none.
 Successor URL: none.
+Handoff status: **incomplete**. `POST https://api.cursor.com/v1/agents` returned HTTP 401 (`Invalid User API Key`) with no `CURSOR_API_KEY` / `CURSOR_SERVICE_ACCOUNT_KEY` in this pod. Retried once; same result. Stage 1 still owns the loop. A Task subagent was not substituted.
 
 Selected defect: **F02**. After the installer sends the selected keyboard into its update loader, the next search can attach to a different keyboard and write the package there. The approved repair is fail-closed: snapshot the loader ports, accept exactly one new loader, and do not write otherwise.
 
