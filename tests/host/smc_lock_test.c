@@ -294,9 +294,12 @@ static void test_physical_pause_input_and_output(void)
     proj.set.bt |= PROJ_BT_SMC_USER;
     CHECK(!smc_midi_host(9u | 0x90u << 8 | 0x5Du << 16 | 127u << 24));
     CHECK(smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24)); smc_poll();
-    CHECK(smc.locked);
+    CHECK(smc_states[SMC_DIRECT_PEERS].locked);
+    CHECK(!smc.locked); /* host identity cannot capture direct peer zero */
     CHECK(smc_midi_host(8u | 0x8Fu << 8 | 0x5Du << 16)); smc_poll();
-    CHECK(smc.locked && !smc.lock_down);
+    CHECK(smc_states[SMC_DIRECT_PEERS].locked && !smc_states[SMC_DIRECT_PEERS].lock_down);
+    message(0x90, 0x5D, 127); message(0x80, 0x5D, 0);
+    CHECK(smc.locked); /* the following transport/feedback checks address direct peer zero */
 
     /* The old User-preset MMC command has no captured press/release evidence. */
     const uint8_t stop[6] = {0xF0, 0x7F, 0x7F, 6, 34, 0xF7};
@@ -383,16 +386,34 @@ static void test_select_and_play(void)
 }
 
 
+/* Hosted input cannot identify physical devices, but owns a separate application
+ * record. Prime and release the SAME source, rather than relying on a preset
+ * transition to clear a direct peer's edges before a host overflow. */
+static void edge_message(int host, unsigned st, unsigned note, unsigned velocity)
+{
+    smc_peer = host ? SMC_DIRECT_PEERS : 0;
+    if (host) {
+        proj.set.bt |= PROJ_BT_SMC_USER;
+        CHECK(smc_midi_host(9u | (st | 15u) << 8 | note << 16 | velocity << 24));
+        smc_poll();
+    } else message(st, note, velocity);
+}
+static void edge_press(int host, unsigned note)
+{
+    edge_message(host, 0x90, note, 127);
+    edge_message(host, 0x80, note, 0);
+}
+
 static void test_lost_edge_release(void)
 {
     for (int host = 0; host < 2; host++) for (int edge = 0; edge < 3; edge++) for (int noteoff = 0; noteoff < 2; noteoff++) {
         setup(V_HOME, PART_303A);
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
-        press(note); /* settle into ordinary selected/playing request state */
+        edge_press(host, note); /* settle into ordinary selected/playing request state */
         if (select) CHECK(ui.part == PART_909);
         else if (!pause) { seq.req_start = 0; seq.playing = 1; }
-        message(0x90, note, 127); /* leave held */
+        edge_message(host, 0x90, note, 127); /* leave held */
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
         if (host) {
             proj.set.bt |= PROJ_BT_SMC_USER;
@@ -405,9 +426,9 @@ static void test_lost_edge_release(void)
         }
         smc_poll();
         CHECK(pause ? smc.lock_down == 0 : select ? smc.select_down == 0 : smc.play_down == 0);
-        if (pause) { int locked = smc.locked; press(note); CHECK(smc.locked != locked); }
-        else if (select) { press(note); CHECK(cur_page() == 0); }
-        else { seq.req_stop = 0; seq.playing = 1; press(note); CHECK(seq.req_stop); }
+        if (pause) { int locked = smc.locked; edge_press(host, note); CHECK(smc.locked != locked); }
+        else if (select) { edge_press(host, note); CHECK(cur_page() == 0); }
+        else { seq.req_stop = 0; seq.playing = 1; edge_press(host, note); CHECK(seq.req_stop); }
     }
     puts("PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues");
 }
@@ -425,9 +446,9 @@ static void test_dropped_pause_press(void)
             for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
             smc_ble_midi(down, 3);
         }
-        smc_poll(); CHECK(!smc.locked && !smc.lock_down);
-        message(0x90, 0x5D, 0); CHECK(!smc.locked);
-        press(0x5D); CHECK(smc.locked); CHECK(!smc.lock_down);
+        smc_poll(); smc_peer = host ? SMC_DIRECT_PEERS : 0; CHECK(!smc.locked && !smc.lock_down);
+        edge_message(host, 0x90, 0x5D, 0); CHECK(!smc.locked);
+        edge_press(host, 0x5D); CHECK(smc.locked); CHECK(!smc.lock_down);
     }
     puts("PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures");
 }

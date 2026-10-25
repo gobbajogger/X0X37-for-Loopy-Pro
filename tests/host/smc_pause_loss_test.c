@@ -19,6 +19,7 @@ int plat_ble_smc_send(const uint8_t *m, uint8_t n)
 
 static void send_note(int host, unsigned note, unsigned status, unsigned velocity)
 {
+    smc_peer = host ? SMC_DIRECT_PEERS : 0;
     if (!host) message(status, note, velocity);
     else {
         CHECK(smc_midi_host((status == 0x80 ? 8u : 9u) |
@@ -77,10 +78,10 @@ static void independent_release_loss(void)
         setup(V_SEQ, PART_808); proj.set.bt |= PROJ_BT_SMC_USER;
         send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked);
         /* Publication rollover is ordinary modulo arithmetic, not a stale loss. */
-        smc_pause_release_lost[host] = smc_pause_release_seen[host] = UINT32_MAX;
+        smc_pause_lost[host ? SMC_DIRECT_PEERS : 0] = smc_pause_seen[host ? SMC_DIRECT_PEERS : 0] = UINT32_MAX;
         queue_lost_release(host, 0x5D, status);
         CHECK(smc.locked && !smc.lock_down);
-        CHECK(!smc_pause_release_lost[host] && !smc_pause_release_seen[host]);
+        CHECK(!smc_pause_lost[host ? SMC_DIRECT_PEERS : 0] && !smc_pause_seen[host ? SMC_DIRECT_PEERS : 0]);
         send_note(host, 0x5D, 0x90, 127); CHECK(!smc.locked);
         send_note(host, 0x5D, status, 0);
     }
