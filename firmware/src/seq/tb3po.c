@@ -138,7 +138,7 @@ void tb3po_mutate(bpart_t *b, uint32_t *rng)
     for (i = 0; i < len; i++) {
         int nx = (i + 1) % len;
         if ((b->step[i].flags & BS_SLIDE) && bstep_gate(&b->step[nx]) == G_REST)
-            b->step[i].flags = G_NOTE;
+            b->step[i].flags &= (uint8_t)~BS_SLIDE;  /* keep a manually programmed accent */
         if (bstep_gate(&b->step[i]) != G_REST)
             any_gate = 1;
     }
