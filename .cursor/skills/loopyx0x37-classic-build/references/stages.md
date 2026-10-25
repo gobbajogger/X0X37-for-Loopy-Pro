@@ -21,7 +21,7 @@ This run is not the standing Safe Merge owner or the sole Pages publisher. Those
 
 Automatically validated firmware merges without another owner prompt.
 
-Automatic validation means the applicable host checks exited 0 and `tools/dev_validate.py` recorded `DEV CHECKED` for the affected SMK-37 Elite and Pro development packages on that exact commit. A missing distribution-license receipt, corresponding-source receipt, or native-build receipt does not block this, because the owner said the project is MIT and those are not stops. A hash mismatch, a failed package check, or a compiler failure still blocks.
+Automatic validation means the applicable host checks exited 0 and `tools/dev_validate.py` recorded `DEV CHECKED` for the affected SMK-37 Elite and Pro development packages on that exact commit. A missing distribution-license receipt, corresponding-source receipt, or native-build receipt does not block this, because owner policy waives those receipts as loop stops (follow LICENSE and LICENSING.md; do not invent an MIT claim for the tree). A hash mismatch, a failed package check, or a compiler failure still blocks.
 
 The merge is a normal fast-forward of firmware `nightly` in `gobbajogger/X0X37-for-Loopy-Pro`. If the remote refuses, record the refusal and do not force-push. Production `main`, production GitHub Pages, and a device flash are not this merge. Independent human QA stays `QA_PENDING` when the author cannot supply it. Same-account approval is not that review.
 
