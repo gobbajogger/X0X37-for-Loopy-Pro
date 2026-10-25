@@ -1,5 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
+# Stage-1 witness runner: compile the evidence copy; -Itests/host finds project_stage_test.c.
 set -e
 cd "$(dirname "$0")/../.."
 case "$(uname -s)" in
@@ -11,7 +12,8 @@ mkdir -p build/host build/gen
 [ -f build/gen/x0x_break_bank.h ] || sh tools/gen_builtin_break.sh build/gen >/dev/null
 ${CC:-cc} -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-unused-function ${SAN_FLAGS:-} \
     -ffunction-sections -fdata-sections -DX0X_HOST -DBOARD_SMK37=1 \
-    -Ibuild/gen -Ifirmware/src tests/host/bugfinder_legacy_bdpan_motion_test.c \
+    -Ibuild/gen -Ifirmware/src -Itests/host \
+    evidence/f11-stage1/bugfinder_legacy_bdpan_motion_test.c \
     firmware/src/app/engine.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c \
     firmware/src/seq/sequencer.c firmware/src/seq/motion.c \
     firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass303.c \
