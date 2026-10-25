@@ -358,6 +358,7 @@ for t in drum909 drum808 bass303 breaks; do
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
     else run "$t" sh "tests/host/run_$t.sh"; fi
 done
+run bass303-ampmode sh tests/host/run_bass303_ampmode.sh   # Chicago AmpMod Env/Gate on native303 (no schwung ref)
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time

@@ -69,9 +69,11 @@ enum {
     BASS303_ACCENT, BASS303_WAVE, BASS303_TUNE, BASS303_VOLUME,      /* page 2 */
     BASS303_DRIVE, BASS303_DRVTYPE, BASS303_SLIDE, BASS303_ACCDEC,   /* page 3 */
     BASS303_FATTACK, BASS303_FSUSTAIN, BASS303_FRELEASE, BASS303_FENV,
+    BASS303_AMPMODE,                                                 /* Chicago Amp ENV/GATE */
     BASS303_NPARAMS
 };
 enum { BASS303_DRV_OFF, BASS303_DRV_SOFT, BASS303_DRV_RAT };
+enum { BASS303_AMP_ENV, BASS303_AMP_GATE };                          /* AmpMod: Open303 env vs Gate hold */
 
 typedef struct { float b0, b1, b2, a1, a2, z1, z2; } bass303_bq_t;     /* TDF-II biquad */
 typedef struct { float x1, x2, y1, y2; } bass303_df1_t;                /* DF-I state */
