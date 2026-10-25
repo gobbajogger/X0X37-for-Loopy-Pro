@@ -41,7 +41,7 @@ int smc_connected(void) { return 0; }
 /* Disconnected SMC cannot own or draw the temporary control screen. */
 int smc_ui_active(void) { return 0; }
 void smc_ui_cancel(void) {}
-int smc_ui_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
+void smc_ui_draw(void) {}
 /* This fixture models disconnected SMC; project_smc_runtime_test.c covers
  * the production SMC project-active/reset implementation. */
 int smc_project_active(void) { return 0; }
