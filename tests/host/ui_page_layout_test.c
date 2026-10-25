@@ -39,6 +39,6 @@ int main(void)
     }
     printf("ui_page_layout: %u cases, FNV64 %016llx\n", cases, (unsigned long long)layout_hash);
     CHECK(cases == 4950);
-    CHECK(layout_hash == UINT64_C(0x8fdfc4ebb1717842));
+    CHECK(layout_hash == UINT64_C(0x13861b99f40cfeca)); /* +ENGINE page on 303 PART */
     return 0;
 }

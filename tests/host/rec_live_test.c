@@ -595,7 +595,7 @@ static void test_filter_controls(void)
     ui.part = PART_303A;
     set_view(V_PART);
     build_pages();
-    *page_of(V_PART) = 2;
+    *page_of(V_PART) = 3; /* FILTER ADSR after ENGINE/TONE/VOICE pages */
     tick(50);
     png_write("build/host/filter-adsr.png");
 }

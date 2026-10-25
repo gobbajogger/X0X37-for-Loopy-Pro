@@ -246,7 +246,8 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP,
+       R_BENG };   /* R_BENG: live bass engine 303/WBL1 per part; R_TAPE: FX TAPE; R_HDR: list section */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -291,6 +292,10 @@ static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
+/* Live backend for this 303 part. Names match MOT_SNAPSHOT / knob-tag short IDs.
+ * Selecting WBL1 without a linked runtime keeps 303 and toasts honestly. */
+static const char *const BENG_N[] = {"303", "WBL1"};
+static const x0x_param_t BENG_P = {"ENGINE", 1, 0, BENG_N};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
@@ -374,6 +379,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_OUTLOUD: return &OUT_P;
     case R_USBFULL: return &USBA_P;
     case R_FREEPLAY: return &FREEPLAY_P;
+    case R_BENG: return &BENG_P;
     case R_SREP: return &SREP_P;
     case R_BATT: return &BATT_P;
     case R_BT: return &BT_P;
@@ -454,6 +460,10 @@ static int pref_get(pref_t r)
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
+    case R_BENG: {
+        int id = engine_bass_engine(r.a % NBASS);
+        return id == 2 ? 1 : 0;                 /* knob index 0=303, 1=WBL1 */
+    }
     case R_SREP: {
         unsigned bar = r.b ? r.b - 1u : ui.song_sel;
         return bar < song()->len ? song()->bar[bar].mute >> 5 : 0;
@@ -479,6 +489,19 @@ X0X_COLD static void pref_set(pref_t r, int v)
     if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
     v = v < 0 ? 0 : v > d->max ? d->max : v;
+    if (r.kind == R_BENG) {                           /* refuse unavailable WBL1 before dirtying */
+        int id = v ? 2 : 1;
+        int rc = engine_bass_engine_select(r.a % NBASS, id);
+        if (rc == -1) {
+            say("WBL1 NOT IN THIS BUILD", 0);
+            return;
+        }
+        if (rc == 0) {
+            mark_dirty();
+            say(id == 2 ? "ENGINE: WBL1" : "ENGINE: 303", 0);
+        }
+        return;
+    }
     mark_dirty();
     switch (r.kind) {
     case R_ENG:
@@ -989,6 +1012,9 @@ static void build_pages(void)
             add_page_refs("KIT", refs, 0, 0); } while (0);
         } else if (is_303()) {
             pg_grp = GR_SOUND;
+            /* First page: operator-visible live engine (303 ↔ WBL1), distinct from part name 303A/B. */
+            do { static const pref_t refs[4] = {PR(R_BENG, 0, 0, 0), NONE, NONE, NONE};
+            add_page_refs("ENGINE", refs, 1, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_CUTOFF), PR(R_ENG, T_303, 0, BASS303_RESO), PR(R_ENG, T_303, 0, BASS303_ENVMOD), PR(R_ENG, T_303, 0, BASS303_DECAY)};
             add_page_refs("TONE", refs, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_ACCENT), PR(R_ENG, T_303, 0, BASS303_WAVE), PR(R_ENG, T_303, 0, BASS303_DRIVE), PR(R_ENG, T_303, 0, BASS303_SLIDE)};
@@ -4439,6 +4465,8 @@ static uint32_t knobs_sig(void)
         MIXIN(has_motion(r) | (motion_now(r) + 1) << 1);
         MIXIN(lock_of(r, lock_step()) + 1);
     }
+    if (is_303())
+        MIXIN(engine_bass_engine(bidx()));             /* live ENGINE page / tag */
     if (ui.held_step >= 0) {
         const bstep_t *st = &cur_pat()->bass[bidx()].step[ui.held_step];
         MIXIN(st->note | st->flags << 8 | st->velocity << 16);
@@ -4459,27 +4487,37 @@ static int strcmp_s(const char *a, const char *b)
     return *a != *b;
 }
 
-/* Append " · 303" / " · WBL1" when the held bass step owns a sound snapshot.
- * Part names stay 303A/303B; the engine identity is a separate, visible field. */
-static void knob_tag_append_snapshot_engine(char *t, int step)
+/* Append live bass engine, and snap identity when a held step's snapshot differs.
+ * Part names stay 303A/303B; live engine is always visible (e.g. "303A · 303",
+ * "303A STEP 5 · 303/WBL1" when snap ≠ live). */
+static void knob_tag_append_bass_engines(char *t, int step)
 {
-    const char *eng;
+    const char *live_l, *snap_l;
     char *q;
-    int id;
-    if (step < 0 || !is_303())
+    int live, snap = 0;
+    if (!is_303())
         return;
-    id = motion_snapshot_engine(proj.arr.lane, seq.ppat[ui.part], ui.part, step);
-    eng = motion_snapshot_engine_label(id);
-    if (!eng[0])
-        return;
+    live = engine_bass_engine(bidx());
+    live_l = motion_snapshot_engine_label(live);
+    if (!live_l[0])
+        live_l = "303";
+    if (step >= 0)
+        snap = motion_snapshot_engine(proj.arr.lane, seq.ppat[ui.part], ui.part, step);
+    snap_l = motion_snapshot_engine_label(snap);
     q = t;
     while (*q)
         q++;
-    put_s(put_s(q, " · "), eng);
+    put_s(put_s(q, " · "), live_l);
+    if (snap_l[0] && snap != live) {
+        q = t;
+        while (*q)
+            q++;
+        put_s(put_s(q, "/"), snap_l);
+    }
 }
 
 /* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5)
- * With a step-sound snapshot: "303A STEP 5 · 303" or "303A STEP 5 · WBL1". */
+ * Bass parts always show live engine; held snap mismatch appends /WBL1 or /303. */
 static void knob_tag(char *t)
 {
     int g = pg.group[cur_page()], dm = drum_mix_page();
@@ -4487,19 +4525,21 @@ static void knob_tag(char *t)
     if (lock_step() >= 0) {
         put_i(put_s(put_s(t, is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part])
                                         : PART_N[ui.part]), " P-LOCK STEP "), lock_step() + 1);
-        knob_tag_append_snapshot_engine(t, lock_step());
+        knob_tag_append_bass_engines(t, is_303() ? lock_step() : -1);
     } else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {
         put_i(put_s(put_s(t, PART_N[ui.part]), " STEP "), ui.held_step + 1);
-        knob_tag_append_snapshot_engine(t, ui.held_step);
+        knob_tag_append_bass_engines(t, ui.held_step);
     } else if (dm >= 0)
         put_s(put_s(put_s(t, ti), ": "), engine_voice_name(dm ? T_808 : T_909, ui.sel[dm]));
     else if (ui.view == V_MIX && cur_page() == 0)
         put_s(put_s(t, "PARTS: "), PART_N[ui.mixsel]);
-    else if (g == GR_PAT)
+    else if (g == GR_PAT) {
         put_s(put_s(put_i(put_s(t, "P"), seq.ppat[ui.part] + 1), " "), ti);
-    else if (g == GR_KIT || g == GR_SOUND)
+        knob_tag_append_bass_engines(t, -1);
+    } else if (g == GR_KIT || g == GR_SOUND) {
         put_s(put_s(put_s(t, PART_N[ui.part]), " "), ti);
-    else
+        knob_tag_append_bass_engines(t, -1);
+    } else
         put_s(t, ti);
     {   /* a section over several pages (same name): which of them, "BD (1/2)" */
         int p = cur_page(), a = p, b = p;
@@ -4540,7 +4580,7 @@ static UI_DRAW void draw_knobs(void)
     last_sig = sig;
     cv_begin(240, KNOB_H, C_BLACK);
     {   /* the rule; at its right end, where you are: the tag, then the page dots */
-        char t[36];                    /* room for "303A P-LOCK STEP 16 · WBL1 (1/2)" */
+        char t[44];                    /* room for "303A P-LOCK STEP 16 · 303/WBL1 (1/2)" */
         int dots = pg.n > 1 && ui.view != V_GLO;
         int32_t xd = 237 - (dots ? pg.n * 5 : 0), xt;
         knob_tag(t);
