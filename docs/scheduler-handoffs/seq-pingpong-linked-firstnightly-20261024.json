@@ -1,0 +1,138 @@
+{
+  "schema": "x0x37.scheduler-evidence.v1",
+  "evidence_revision": "seqclock-pr95-firstnightly-real-linked-pingpong-20261024-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "LoopyX0X37 Sequencer Clock (SOURCE producer)",
+  "stage": "SOURCE COMPLETE / LINKED PRODUCTION HOST REGRESSION PASS / READY FOR INDEPENDENT REVIEW",
+  "producer": {
+    "pr": 95,
+    "branch": "lane/seq-pingpong-live-length-shrink-20261023-run4-1410",
+    "consumed_sha": "17631165c251aca1c6183e0b0fe85876887bea49",
+    "tested_source_and_runner_commit": "d9713bdb25a331fd034597c9baaaf87f28b6f7d4",
+    "tested_full_root_tree": "b6cad907fb375dfbb859c95bb6c10e6a16e5b8ec",
+    "tested_firmware_subtree": "5a348419335e53838bd5d2affe15df72cc97acd8",
+    "original_firmware_subtree": "5a348419335e53838bd5d2affe15df72cc97acd8",
+    "seq_source_blob": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "baseline_unfixed_source_blob": "83b03f73139d8e679c94526c66b390b6e5bc2f39",
+    "linked_regression_blob": "a9b7176cfd7865e589f64222e3562eb213de989d",
+    "runner_blob": "9f33d434fe41bd9b1a8e4f343be2af77e5662c88",
+    "previous_source_window_regression_blob": "4515a96f6794059f3b015362804d513233b49e87",
+    "compiler_inputs_changed": false,
+    "new_paths": [
+      "tests/host/seq_pingpong_resize_linked_test.c"
+    ],
+    "runner_selector": "seq-pingpong-linked"
+  },
+  "first_nightly_source_consumed": {
+    "integration_pr": 103,
+    "head_sha": "8e8338792ca20508163a2b42b17ae542825da10a",
+    "full_root_tree": "3609692ed833c5660028d2ed514e255877ca187a",
+    "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "seq_source_blob": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "seq_header_blob": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+    "pattern_source_blob": "b6b667d023a912b13de8539168c61928182ffa23",
+    "tb3po_source_blob": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d",
+    "note": "Actual linked test executed against these byte-matched 4 production seq files from private scoped first-nightly snapshot; not complete exact repository checkout. PR95 own tb3po.c has a different blob, so do not call this an exact PR95 complete-root test."
+  },
+  "checks": {
+    "native_host_linux_x86_64": {
+      "baseline": {
+        "description": "PR103 source with exact 8-line PR95 patch removed; resulting sequencer.c Git blob matches original nightly 83b03f...",
+        "command": "gcc|clang -std=c11 -O1 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o ping_<cc> tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/{sequencer,pattern,tb3po}.c -lm && ./ping_<cc>",
+        "gcc": {
+          "compile_exit": 0,
+          "run_exit": 1,
+          "checks": 357828,
+          "failed": 79451,
+          "log_sha256": "34901448498e5db082c195164a5143f0b288ee2d6c156ee8dbd9d199e6423fdf"
+        },
+        "clang": {
+          "compile_exit": 0,
+          "run_exit": 1,
+          "checks": 357828,
+          "failed": 79451,
+          "log_sha256": "34901448498e5db082c195164a5143f0b288ee2d6c156ee8dbd9d199e6423fdf"
+        },
+        "expected_negative": true
+      },
+      "patched": {
+        "source": "Git-blob-matched first-nightly PR103 sequencer.c and exact linked regression test blob",
+        "command": "gcc|clang -std=c11 -O1 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o ping_<cc> tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/{sequencer,pattern,tb3po}.c -lm && ./ping_<cc>",
+        "gcc": {
+          "compile_exit": 0,
+          "run_exit": 0,
+          "checks": 357828,
+          "failed": 0,
+          "log_sha256": "ad0e66769871206b32a63fa21e4e5b1284748595b859cc6a46dfa5a0c5265cde"
+        },
+        "clang": {
+          "compile_exit": 0,
+          "run_exit": 0,
+          "checks": 357828,
+          "failed": 0,
+          "log_sha256": "ad0e66769871206b32a63fa21e4e5b1284748595b859cc6a46dfa5a0c5265cde"
+        },
+        "coverage": [
+          "actual linked seq_start/seq_advance committed step and UI step callback for both ping-pong directions",
+          "noncommitting lookahead never flips direction",
+          "all 2..64 original lengths and 1..old shrink lengths",
+          "positive 1-step, direction modes and expansion cases"
+        ],
+        "note": "The sink records step callbacks only; the printed on/off counters are zero. This test does not establish any Note Off regression PASS."
+      },
+      "registered_runner_command": {
+        "command": "$CC -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/seq_pingpong_linked_test tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -lm && $OUT/seq_pingpong_linked_test",
+        "gcc": {
+          "compile_exit": 0,
+          "run_exit": 0,
+          "checks": 357828,
+          "failed": 0
+        },
+        "clang": {
+          "compile_exit": 0,
+          "run_exit": 0,
+          "checks": 357828,
+          "failed": 0
+        },
+        "log_sha256": "ad0e66769871206b32a63fa21e4e5b1284748595b859cc6a46dfa5a0c5265cde",
+        "runner_full_exact_checkout": "NOT_RUN",
+        "note": "The direct registered command was executed in scoped snapshot; whole runner selector under the exact complete remote repository was NOT_RUN."
+      },
+      "private_cross_repair_projection": {
+        "source": "first-nightly PR103 sequencer.c + QA Library assembled historical seq_test.c; no combined Git commit",
+        "observed_before": "current PR103 linked GCC -O2 UBSan compile 0 run 1, 29 expected failures attributable to unmerged #55 #65 #72 behavior",
+        "projected_result": "PR103 matched source with separately owner-pushed source logic #35 #41 #48 #55 #65 #72 applied privately: GCC/Clang UBSan and ASan+UBSan each compile 0/run 0 for assembled seq_test.c",
+        "status": "PROJECTION_ONLY / NOT FULL_ROOT / NOT MERGED / NO NEW PUBLIC RELEASE GATE"
+      }
+    }
+  },
+  "limits": [
+    "Not complete exact-remote Git root test; a scoped first-nightly archive was verified against Git C blob hashes",
+    "Not independent QA; installed toolchains and target builds are separate owner stages",
+    "No native Elite/Pro/controller compilation or budget/package CRC/backup/OTA/hosted HTTP result from Sequencer Clock",
+    "No device flash or attributable hardware PASS. Physical timing, real Note Off negative and owner backup results UNKNOWN.",
+    "No change to SMC race/recovery code, and no new clock-source fixes silently integrated into first-nightly #103"
+  ],
+  "disposition": "SOURCE_ONLY / LINKED_NATIVE_PRODUCER_CHECKED / SOURCE_COMPLETE / READY_FOR_REVIEW / NO_INSTALLABLE_CANDIDATE_CREATED",
+  "consumers": [
+    {
+      "owner": "Independent QA",
+      "action": "Read exact changed #95 HEAD, new seq-pingpong-linked regression and remote model-specific #103; run actual complete-root 303/playback/MIDI NoteOff/clock and sampler persistence negatives; record independent review disposition."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY at new #95 head if useful (firmware subtree unchanged) or latest independently selected #103 exact firmware subtree; do not wait for QA, merge, hardware or Pages; check Elite/Pro and controller artifact bytes/model/CRC/budgets."
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Consume this exact source+linked regression and independent QA before integrating anything to protected firmware nightly; preserve first-nightly safety and previously safe candidates. PR103 contains the PR95 sequencer code already."
+    }
+  ],
+  "publication": {
+    "status": "NOT_AUTHORIZED_FROM_THIS_STAGE",
+    "elite": "NO_NEW_INSTALLABLE_VERIFIED",
+    "pro": "NO_NEW_INSTALLABLE_VERIFIED",
+    "device": "NOT_TESTED"
+  },
+  "updated_utc_date": "2026-10-24"
+}
