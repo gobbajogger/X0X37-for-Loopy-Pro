@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* BF-005: Queued USB clocks must not advance a new Bluetooth transport owner.
- * Host regression: owner-matching seq_clk_drop clears ext_pending with clk_lock. */
+ * Host regression: owner-matching seq_clk_drop clears ext_pending with clk_lock.
+ * Also guards non-owner / repeated disconnects (nightly #35 stack). */
 #include <stdio.h>
 #include "../../firmware/src/seq/sequencer.h"
 
@@ -40,4 +41,54 @@ static int trial(int old_count) {
     printf("PASS old_pending=%d: step 2 followed the 7th fresh Bluetooth clock\n", old_count);
     return 0;
 }
-int main(void) { int control = trial(0); int regression = trial(3); return control || regression; }
+/* A disconnect from a different port must not steal the current clock
+ * or silently erase valid ticks belonging to its actual owner. */
+static int non_owner_drop(void) {
+    pattern_t patterns[NPAT];
+    seq_t seq;
+    int steps = 0;
+    const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi_out, stepped, &steps};
+    for (int i = 0; i < NPAT; i++) pattern_init(&patterns[i], (unsigned)(i + 1), (unsigned)(i + 11));
+    seq_init(&seq, patterns);
+    seq.clk_src = SEQ_CLK_EXT;
+    seq.send_clock = 0;
+    seq_advance(&seq, 0, &sink);
+    for (int i = 0; i < 3; i++) feed(&seq, 0xF8, 0);  /* USB owns three queued ticks */
+    if (seq.clk_lock != 1u || seq.ext_pending != 3u) {
+        printf("FAIL nonowner setup lock=%u pending=%u
+", seq.clk_lock, seq.ext_pending);
+        return 1;
+    }
+    seq_clk_drop(&seq, 1);                               /* unrelated Bluetooth disconnect */
+    if (seq.clk_lock != 1u || seq.ext_pending != 3u) {
+        printf("FAIL nonowner changed USB lock or pending clocks: lock=%u pending=%u
+",
+               seq.clk_lock, seq.ext_pending);
+        return 1;
+    }
+    seq_clk_drop(&seq, 0);                               /* actual owner disconnect */
+    if (seq.clk_lock != 0u || seq.ext_pending != 0u) {
+        printf("FAIL owner disconnect retained queued clocks: lock=%u pending=%u
+",
+               seq.clk_lock, seq.ext_pending);
+        return 1;
+    }
+    feed(&seq, 0xFA, 1);                                 /* Bluetooth takes ownership */
+    feed(&seq, 0xF8, 1);                                 /* queue new owner's first clock */
+    unsigned before = seq.ext_pending;
+    seq_clk_drop(&seq, 0);                               /* repeated old USB disconnection */
+    if (seq.clk_lock != 2u || seq.ext_pending != before) {
+        printf("FAIL stale USB drop erased new owner clocks: lock=%u pending=%u
+",
+               seq.clk_lock, seq.ext_pending);
+        return 1;
+    }
+    puts("PASS non-owner and repeated disconnect preserve new owner clocks");
+    return 0;
+}
+int main(void) {
+    int control = trial(0);
+    int regression = trial(3);
+    int guard = non_owner_drop();
+    return control || regression || guard;
+}
