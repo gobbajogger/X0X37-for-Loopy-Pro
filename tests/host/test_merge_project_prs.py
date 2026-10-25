@@ -78,9 +78,10 @@ class MergeProjectPrsTest(unittest.TestCase):
         self.assertEqual(action.decision, "skip")
         self.assertEqual(action.reason, "real conflicts")
 
-    def test_onetime_setup_text_names_cursor_app(self):
-        self.assertIn(str(MOD.CURSOR_APP_ID), MOD.ONETIME_SETUP)
-        self.assertIn("ONE-TIME", MOD.ONETIME_SETUP)
+    def test_onetime_setup_text_says_unlock_done(self):
+        self.assertIn("done", MOD.ONETIME_SETUP.lower())
+        self.assertIn("do not ask the owner again", MOD.ONETIME_SETUP.lower())
+        self.assertIn(str(MOD.MAIN_RULESET_ID), MOD.ONETIME_SETUP)
         self.assertNotIn("please approve", MOD.ONETIME_SETUP.lower())
 
 

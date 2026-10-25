@@ -18,7 +18,7 @@ Use `tools/merge_project_prs.py` (prefer `--dry-run` first). It walks open `curs
 
 This path does not race stage 5. Stage 5 remains the only integrator that fast-forwards firmware `nightly`. Do not merge into `nightly` here. Do not merge production `main` from unvalidated firmware bytes; firmware `main` moves only after a successful hardware validation of those exact bytes.
 
-If ruleset `LoopyX0X37 PRODUCTION main - reviewed PR only` still blocks the agent token, that is a one-time repo unlock, not a recurring owner step. Print `tools/merge_project_prs.py --print-onetime-setup`, record it once, and stop. Do not open a For Review “please approve” loop every PR. Preferred unlock: add the Cursor GitHub App as a ruleset bypass actor (or set required approvals to 0 / turn off last-pusher approval) and enable Allow auto-merge. Agent tokens cannot edit rulesets (403).
+Ruleset `LoopyX0X37 PRODUCTION main - reviewed PR only` is unlocked for agent merges: required approvals are 0 and last-pusher approval is off. Force-push and delete protections stay. Do not ask the owner to unlock or approve again. `tools/merge_project_prs.py --print-onetime-setup` only records that the unlock is done.
 
 ## One fresh thread per stage
 
@@ -74,7 +74,7 @@ Missing hardware blocks the device install record only. Do not skip a failed pac
 
 Stage 7 runs after stage 4 and stage 5. It does not wait for a physical install. Follow the nightly repo's `docs/nightly-first-development-gate.md` and `docs/qualified-nightly-candidate.md`.
 
-A candidate is valid only when every applicable prehardware gate passes for the exact source tree: both the Elite and the Pro development packages, model and header identity, package and controller CRC and SHA-256, source attribution, memory and flash budgets with at least 8192 bytes of pool free, host regressions, backup, readback, and rollback, installer and model negatives, and independent review. The project is MIT. A missing distribution-license, corresponding-source, or native-build receipt does not block a candidate. A present receipt that is not PASS, a hash mismatch, a failed package check, or a compiler failure stops that candidate only. The page label is `DEV / HARDWARE TEST — DEVICE NOT TESTED`. `hardware_tested` stays false.
+A candidate is valid only when every applicable prehardware gate passes for the exact source tree: both the Elite and the Pro development packages, model and header identity, package and controller CRC and SHA-256, source attribution, memory and flash budgets with at least 8192 bytes of pool free, host regressions, backup, readback, and rollback, installer and model negatives, and independent review. Owner policy: a missing distribution-license, corresponding-source, or native-build receipt does not block a candidate. Do not invent an MIT claim for the tree; follow LICENSE and LICENSING.md for what the code is under. A present receipt that is not PASS, a hash mismatch, a failed package check, or a compiler failure stops that candidate only. The page label is `DEV / HARDWARE TEST — DEVICE NOT TESTED`. `hardware_tested` stays false.
 
 Publish by linking those immutable hosted package bytes from the nightly installer. Fetch the bytes again and require the size and SHA-256 to match before the page can offer them. Reconcile the existing qualified catalog. Fast-forward the nightly repo's `gh-pages` through its publisher route, then fetch the live installer and confirm the served catalog, installer, and package hashes.
 

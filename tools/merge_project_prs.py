@@ -4,9 +4,9 @@
 
 Owner policy (Roman, 2026-10-25): automatic merge of properly tested work is
 pre-approved. There is no per-PR human APPROVE step. Agents merge after local
-proof. Never ask the owner to approve a merge. If GitHub ruleset blocks the
-merge, record the one-time setup once — do not open a For Review "please
-approve" loop every PR.
+proof. Never ask the owner to approve a merge. Ruleset 25707607 is unlocked
+(approvals=0, last-pusher approval off; force-push/delete protections kept).
+Do not ask the owner to unlock or approve again.
 
 Eligible PRs: cursor/ head, base main or another cursor/ branch, not draft,
 MERGEABLE (no real conflicts), no firmware/ paths into main. Never targets
@@ -39,29 +39,15 @@ MAIN_RULESET_ID = 25707607
 CURSOR_APP_ID = 1210556
 CURSOR_APP_SLUG = "cursor"
 
-# Printed once when a ruleset still blocks agent merges. Not a per-PR ask.
-ONETIME_SETUP = f"""ONE-TIME OWNER SETUP (not a per-PR approve):
-  Ruleset {MAIN_RULESET!r} (id {MAIN_RULESET_ID}) still blocks agent merges.
-  Agent tokens cannot edit rulesets or enable auto-merge (403).
-  As gobbajogger (admin), do exactly one of:
-
-  A) Preferred — bypass actor:
-     Settings → Rules → Rulesets → {MAIN_RULESET!r}
-     → Bypass list → Add bypass → GitHub App "Cursor" (id {CURSOR_APP_ID},
-       slug {CURSOR_APP_SLUG}) → Bypass mode: Always
-     Keep Block force pushes + Restrict deletions.
-
-  B) Equivalent — relax required reviews for main PRs:
-     Same ruleset → Pull request rules:
-       Required approvals = 0
-       Require approval of the most recent reviewable push = OFF
-     Keep Block force pushes + Restrict deletions.
-
-  C) Also enable Settings → General → Pull Requests → Allow auto-merge
-     so agents can arm merge after local proof.
-
-  Owner policy already pre-approves automatic merge of properly tested work.
-  After A or B, re-run: tools/merge_project_prs.py
+# Historical note only. Unlock is done; do not ask the owner again.
+ONETIME_SETUP = f"""RULESET UNLOCK STATUS (done — do not ask the owner again):
+  Ruleset {MAIN_RULESET!r} (id {MAIN_RULESET_ID}) is unlocked for agent merges:
+    required_approving_review_count = 0
+    require_last_push_approval = false
+  Force-push and delete protections remain.
+  Owner policy: automatic merge of properly tested work is pre-approved.
+  Agents run tools/merge_project_prs.py after local proof. No per-PR APPROVE.
+  (Cursor app id {CURSOR_APP_ID} / slug {CURSOR_APP_SLUG} kept for reference.)
 """
 
 
@@ -328,11 +314,12 @@ def try_merge(
             saw_ruleset = True
 
     if saw_ruleset:
-        action.decision = "needs-onetime-setup"
+        # Unlock is done on 25707607; a remaining block is an unexpected failure.
+        action.decision = "failed"
         action.reason = (
-            "ruleset still blocks agent merge; owner policy already pre-approves "
-            "tested merges — do ONE-TIME setup (bypass Cursor app or relax reviews), "
-            "not a per-PR approve. "
+            "merge still blocked after ruleset unlock "
+            f"(approvals=0, last-pusher=off on {MAIN_RULESET_ID}); "
+            "do not ask the owner to approve. "
             + " | ".join(errors)
         )
         return action
@@ -422,9 +409,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if any(a.decision == "failed" for a in actions):
         return 1
-    # needs-onetime-setup is a repo unlock, not a per-PR failure loop.
-    if any(a.decision == "needs-onetime-setup" for a in actions):
-        return 2
     return 0
 
 
