@@ -1,0 +1,90 @@
+{
+  "schema": "loopyx0x37-source-specialist-evidence-v1",
+  "evidence_revision": "smc-pr122-midpoll-postedge-host-solo-r16-20261025-v1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_pr": 122,
+  "own_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "parent_commit": "72b5b5b914a47fe782ef3c96fcc63f91c8a8ca78",
+  "parent_root_tree": "fa5d6e40ddc3e4c055ef2e294fa1f7a78096804e",
+  "unchanged_firmware_compiler_tree": "e252050c4490c73fb6e27000108a41596c33a4f3",
+  "unchanged_production_c_blob": "20e481ebf6e802426758ae1d2eb1e12700f2cdcb",
+  "unchanged_protocol_blob": "03a642226aae01ffb9bc29888e0f5802d72ced26",
+  "previous_test_blob": "ee4982d2dd0b31d2528a42fcbe377c7fcc280f9d",
+  "new_test_blob": "e29f0155718c7e91b75bd96a2b4f1a7ab17a0e09",
+  "changed_files": [
+    "tests/host/smc_preset_solo_lifetime_test.py",
+    "docs/scheduler-handoffs/smc-pr122-midpoll-postedge-host-solo-20261025-r16.json"
+  ],
+  "end_user_before": "A regression of the link cutoff could discard a legitimate fresh USB/peripheral-BLE User Solo NoteOn arriving immediately after a Bluetooth disconnect/reconnect interrupted host fader dispatch.",
+  "intended_end_user_after": "Old queued Solo events must not replay, while the fresh host Solo received after TIMER5 publishes the link cutoff must play and release normally.",
+  "scope": "TEST-ONLY extension of the existing production-C source-extracted Solo lifetime fixture; NO production C, firmware/controller, build inputs, protected branch, installed software or hardware changes.",
+  "new_risk_stimulus": "Trigger TIMER5 smc_ble_link(0), optionally smc_ble_link(1), and audio producer smc_midi_host(9F 08 7F) INSIDE the real mocked smc_fader() call during smc_poll host FIFO drain, following a queued old Solo press and optional old NoteOff. Six ring cursors (0,1,31,127,240,255) x two link outcomes x two old-release states = 24 new interleavings.",
+  "observed_expected_behavior": "Initial poll defers old queued Solo; next poll skips old Solo yet dispatches one new post-cutoff host Solo; a corresponding fresh NoteOff releases it; idle poll has no duplicate or stale relatch.",
+  "test_identity": "GCC 14.2.0, Clang 17.0.0, Python 3.13.5; Linux x86_64; each compiler plain, UBSan, ASan+UBSan; LeakSanitizer not claimed.",
+  "executed_commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "run_r16_matrix.py"
+      ],
+      "cwd": "private GPL source-extraction workspace",
+      "env": {
+        "SMC_R16_COMPILERS": "gcc"
+      },
+      "exit": 0,
+      "positive_checks": 18,
+      "specific_negative_controls": 3,
+      "stdout_sha256": "e4932df2e4d448887cb4795a2ad22fa75a57caa253053714a542948c15f8f8e3"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "run_r16_matrix.py"
+      ],
+      "cwd": "private GPL source-extraction workspace",
+      "env": {
+        "SMC_R16_COMPILERS": "clang"
+      },
+      "exit": 0,
+      "positive_checks": 18,
+      "specific_negative_controls": 3,
+      "stdout_sha256": "b14688ea92b3fccdcffa8ff10d9d3a360127d6b18a1fd5e31ba3ca56f9d70a14"
+    }
+  ],
+  "positive_matrix": {
+    "actual_result": "36/36 native program executions exit 0; 210/210 Solo lifetime scenarios and 1,326 harness checks per compiler/sanitizer profile, including 24 new positive scenarios.",
+    "preserved_regressions": "35/35 BLE exact-frame; 16/16 BLE reconnect midpoll; 84/84 BLE preset queue; 96/96 MMC FIFO; 27,884 feedback/retry checks per compiler/sanitizer profile.",
+    "matrix_gcc_json_sha256": "29a6933707ac86e260879903fad686fb96a421bac8bc4705a3b2b44e9fc8c3b1",
+    "matrix_clang_json_sha256": "54a3e72e7cc3e99cab1fc1e2f2c626447e090f48bf805eea0de1e5084b3d9467"
+  },
+  "fault_injection_negative": {
+    "deliberate_mutation": "Remove only the `r != host_cutoff` exception from the pre-edge host Solo filtering condition in a PRIVATE temporary R15 production-C snapshot. Test selector SMC_ONLY_FRESH_CUTOFF=1 confines execution to the 24 new cases.",
+    "executed_outcome": "6/6 GCC/Clang x plain/UBSan/ASan+UBSan runs compile, then exit 1 at the specific assertion `fresh post-edge host Solo must survive cutoff; old Solo skipped`; this is EXPECTED negative evidence, NOT six passed production tests.",
+    "mutation_not_committed": true
+  },
+  "private_log_archive": {
+    "library_path": "/LoopyX0X37-SMC-FreshHost-Cutoff-R16-20261025.zip",
+    "library_file_id": "libfile_47b0d4c108708191a3551421b90aab6e",
+    "bytes": 53691,
+    "sha256": "6b742399150485c5948b8f0c3e5f00bbdbb142d84d1dc664410036ce6c92cbef",
+    "library_byte_readback_equal": true,
+    "contents": "Git-verifiable production GPL-C, protocol, before/after unified diff, new regression, reproduce runner, deliberately broken private mutant, per-command logs with SHA256, GCC/Clang stdout and matrix JSON."
+  },
+  "receiving_evidence": {
+    "existing_hourly_build_R15": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122#issuecomment-6392191092",
+    "receipt_status": "R15 exact compiled inputs genuinely built Elite DEV/Pro DEV/controller under Build worker, per Git receipt; this source specialist did NOT independently inspect the private binary bytes. New R16 commit changes tests/docs only, compiler tree remains identical.",
+    "next_owner": "Existing Independent QA: independently inspect exact new complete root, source/test boundaries, native negatives, source-to-private-build provenance and other required gates. Build owner may reuse R15 BUILD_ONLY only after exact input/toolchain/SDK/model/controller/artifact hash verification. Sole firmware Safe Merge is only integrator, website publisher owns site and Pages.",
+    "independent_QA_R16": "NOT OBSERVED",
+    "selectable_nightly": "NOT QUALIFIED",
+    "hardware": "NOT TESTED",
+    "production": "NOT AUTHORIZED"
+  },
+  "limitations": [
+    "Not complete firmware/target-device test or full-root Independent QA.",
+    "Classic Build installed skill entrypoint and supported subagent dispatch were not exposed to this runner (skills list empty; no subagent action). No fictitious delegation.",
+    "No protected ref, Pages, public binary, SDK/DSP, or device action."
+  ],
+  "disposition": "SOURCE TEST-ONLY R16 PRODUCER PASS / BUILD INPUTS UNCHANGED / INDEPENDENT QA PENDING / NOT INSTALLABLE"
+}

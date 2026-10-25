@@ -38,6 +38,7 @@ code = r'''
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
 #define X0X_COLD
@@ -53,7 +54,7 @@ static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
 static unsigned solos_on, solos_off, solos_published;
 static int busy, testing, noteon, noteoff, faders, knobs, buttons;
-static int host_link_inject, host_link_reconnect, host_link_injected;
+static int host_link_inject, host_link_reconnect, host_link_injected, host_link_fresh_inside;
 static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return busy; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; }
@@ -72,6 +73,13 @@ static void smc_fader(int n, uint8_t v)
    * USB/User CC; a pre-edge host Solo press still waits in the host ring. */
   smc_ble_link(0);
   if (host_link_reconnect) smc_ble_link(1);
+  /* The audio MIDI producer can enqueue a fresh Solo during the same
+   * preempted fader dispatch. It belongs AFTER the published host cutoff. */
+  if (host_link_fresh_inside) {
+   uint32_t pkt = (uint32_t)0x9Fu << 8 | (uint32_t)8u << 16 |
+                  (uint32_t)127u << 24;
+   assert(smc_midi_host(pkt) == 1);
+  }
  }
 }
 static void smc_knob(int n, int delta) { (void)n; (void)delta; ++knobs; }
@@ -129,7 +137,7 @@ static void reset(uint8_t cursor, int user)
  smc_link_ble_loss_boundary=smc_link_host_loss_boundary=0;
  solos_on=solos_off=solos_published=0;
  busy=testing=noteon=noteoff=faders=knobs=buttons=0;
- host_link_inject=host_link_reconnect=host_link_injected=0;
+ host_link_inject=host_link_reconnect=host_link_injected=host_link_fresh_inside=0;
  set_mode(user);
  smc_ble_link(1);
  smc_poll();
@@ -282,14 +290,65 @@ static int midpoll_host_link(uint8_t cursor, int up, int fresh)
        "idle poll does not replay a discarded old Solo");
  return 1;
 }
+/* A new host Solo may arrive INSIDE the preempted fader callback, just
+ * after TIMER5 publishes the link cutoff and before the old host ring is
+ * drained. It must remain distinguishable from the old pending NoteOn,
+ * even with an old NoteOff and a coalesced reconnect in the same callback. */
+static int midpoll_fresh_during_link(uint8_t cursor, int up, int old_release)
+{
+ reset(cursor,1);
+ host_cc();
+ host_note(1);                /* old-session Solo still queued */
+ if (old_release) host_note(0);
+ host_link_reconnect=up;
+ host_link_inject=1;
+ host_link_fresh_inside=1;   /* enqueue post-cutoff Solo in real callback */
+ smc_poll();
+ CHECK(host_link_injected && faders==1,
+       "link edge and new host input really occurred during fader dispatch");
+ CHECK(!solos_on && !smc.solo_target[0] && buttons==0,
+       "old Solo must not run before next poll sees the new link");
+ CHECK(smc_host_r!=smc_host_w,
+       "old Solo and fresh Solo remain queued after midpoll edge");
+ smc_poll();
+ CHECK(smc_host_r==smc_host_w,"host ring finishes after reconnection");
+ CHECK(solos_on && smc.solo_target[0] && buttons==1,
+       "fresh post-edge host Solo must survive cutoff; old Solo skipped");
+ host_note(0);
+ smc_poll();
+ CHECK(!solos_on && !smc.solo_target[0] && !smc_project_active(),
+       "new host NoteOff releases just the fresh Solo");
+ smc_poll();
+ CHECK(!solos_on && smc_host_r==smc_host_w,
+       "no stale re-latch after the fresh host release");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Only the newly added interleaved-post-edge regression, suitable for
+  * targeted fault injection; ordinary runs execute the complete suite. */
+ if (getenv("SMC_ONLY_FRESH_CUTOFF")) {
+  for (unsigned i=0;i<sizeof cursors;i++)
+   for(int up=0;up<2;up++)
+    for(int old_release=0;old_release<2;old_release++) {
+     if(!midpoll_fresh_during_link(cursors[i],up,old_release)) return 1;
+     ++cases;
+    }
+  printf("SMC midpoll fresh host cutoff: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  for (unsigned i=0;i<sizeof cursors;i++) {
   for(int up=0;up<2;up++)
    for(int fresh=0;fresh<3;fresh++) {
     if(!midpoll_host_link(cursors[i],up,fresh)) return 1;
+    ++cases;
+   }
+  for(int up=0;up<2;up++)
+   for(int old_release=0;old_release<2;old_release++) {
+    if(!midpoll_fresh_during_link(cursors[i],up,old_release)) return 1;
     ++cases;
    }
   for(int overflow=0;overflow<2;overflow++)
