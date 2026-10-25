@@ -21,9 +21,14 @@ static int blecb_send(uint8_t h4, const uint8_t *p, uint16_t n, void *ctx)
          * operation, even after Command Status released the HCI command slot. */
         if (op >= 0x200bu && op <= 0x200eu &&
             b->scan_owner != BLEC_NO_OWNER && b->scan_owner != pc->slot) return -1;
+        /* Accepted initiation remains owned through the asynchronous result,
+         * including failed local cancellation and a successful Cancel Complete. */
+        if (b->create_pending && op >= 0x200bu && op <= 0x200du) return -1;
         /* Reset is controller-global. Only initial bootstrap may submit it. */
         if (op == 0x0c03u && (b->ready || pc->slot != 0u)) return -1;
         if (b->send(h4, p, n, b->ctx)) return -1;
+        if (op == 0x200du) b->create_pending = 1;
+        if (op == 0x200cu && n == 5u) b->scan_value = p[3];
         b->command_deadline = b->peer[pc->slot].now_ms + 3000u;
         b->command_credit--;
         b->command = (uint16_t)op;
@@ -142,6 +147,8 @@ void blec_bus_rx(blec_bus_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32
             if (p[0] == 0x0eu || status || op == 0x200du || op == 0x0406u || op == 0x2013u) {
                 b->command = 0; b->command_owner = BLEC_NO_OWNER; b->command_fault = 0;
             }
+            if (op == 0x200du && status) b->create_pending = 0;
+            if (op == 0x200cu && p[0] == 0x0eu && !status) b->scan_active = b->scan_value != 0u;
             if (op == 0x2002u && p[0] == 0x0eu && !status && n >= 9u) {
                 b->total = b->available = p[8];
             }
@@ -156,6 +163,7 @@ void blec_bus_rx(blec_bus_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32
         } else if (p[0] == 0x3eu && n >= 3u && (p[2] == 1u || p[2] == 0x0au || p[2] == 2u)) {
             if ((p[2] == 1u && n != 21u) || (p[2] == 0x0au && n != 33u)) { b->rejected++; return; }
             owner = b->scan_owner;
+            if ((p[2] == 1u || p[2] == 0x0au) && !b->create_pending) { b->rejected++; return; }
             /* Do not admit an unsolicited peer or wrong-role completion. */
             if ((p[2] == 1u || p[2] == 0x0au) && n >= 21u && !p[3] && owner < BLEC_PEERS) {
                 blec_t *c = &b->peer[owner];
@@ -170,6 +178,14 @@ void blec_bus_rx(blec_bus_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32
     if (owner >= BLEC_PEERS) { b->rejected++; return; }
     blecb_credit_view(b);
     unsigned old = blec_has_conn(&b->peer[owner]);
+    if (h4 == 4u && p[0] == 0x3eu && (p[2] == 1u || p[2] == 0x0au)) {
+        blec_t *c = &b->peer[owner];
+        b->create_pending = 0;
+        /* An eventual success after local failure/cancel still owns a real
+         * controller handle. Retire it rather than silently abandoning it. */
+        if (!blec_connect_expected(c) || b->stopping)
+            blec_abandon_connect(c, now);
+    }
     blec_rx(&b->peer[owner], h4, p, n, now);
     if (!old && blec_has_conn(&b->peer[owner])) {
         b->generation[owner]++;
@@ -185,7 +201,8 @@ void blec_bus_poll(blec_bus_t *b, uint32_t now)
     if (b->command && (int32_t)(now - b->command_deadline) >= 0) b->command_fault = 1;
     if (b->scan_owner < BLEC_PEERS) {
         blec_t *c = &b->peer[b->scan_owner];
-        if (!blec_has_conn(c) && (c->state == BLEC_OFF || c->state == BLEC_FAILED) &&
+        if (!b->create_pending && !b->scan_active && !blec_has_conn(c) &&
+            (c->state == BLEC_OFF || c->state == BLEC_FAILED) &&
             b->command_owner != b->scan_owner) b->scan_owner = BLEC_NO_OWNER;
     }
     for (unsigned k = 0; k < BLEC_PEERS; k++) {
