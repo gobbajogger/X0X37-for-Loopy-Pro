@@ -600,23 +600,26 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     ed_send();
 }
 
-static void ed_service(void)
+/* Return 1 only when this check left a non-editor frame pending for OTA. */
+static int ed_service(void)
 {
     const uint8_t *p;
     uint32_t n;
     if (ed_project.mode && !ed_project.recovery && fm1_ms - ed_project.at >= 15000u)
         ed_project_end(0);
     if (!ota_frame_get(&p, &n))
-        return;
+        return 0;
     if (n < 4u || p[0] != ED_HDR0 || p[1] != ED_HDR1 || p[2] != ED_HDR2) {
-        if (ed_project.mode)
+        if (ed_project.mode) {
             ota_frame_done();                        /* OTA and project operations share scratch */
-        return;                                       /* not an editor frame: ota_service() reads it */
+            return 0;
+        }
+        return 1;                                    /* this same pending frame belongs to ota_service() */
     }
     if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ)) {
         ed_handle(p, n);
         ota_frame_done();
-        return;
+        return 0;
     }
     {
         uint8_t f[64];                                /* (on the stack: ed_handle keeps no pointer to it) */
@@ -626,4 +629,5 @@ static void ed_service(void)
         ota_frame_done();
         ed_handle(f, k);
     }
+    return 0;
 }

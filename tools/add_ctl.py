@@ -6,12 +6,15 @@
   tools/add_ctl.py X0X.fwsc --remove -o X0X-plain.fwsc   an empty Bluetooth block again
   tools/add_ctl.py ctl.img --check                       check an image only
 
-The image is built on your own computer by ble/ctl/build_ctl.sh from JieLi's files; X0X never
-ships it. It goes into the package's Bluetooth block (flash 0x8B000..0x9AFFF, inside the app area,
+The image is built by ble/ctl/build_ctl.sh from the reviewed JieLi inputs. Qualified NIGHTLY
+packages include their matching controller; tools/package_nightly.py checks and composes that
+package without making a distribution-rights decision. It goes into the package's Bluetooth
+block (flash 0x8B000..0x9AFFF, inside the app area,
 encrypted like the rest of it); the app.bin and app area checksums and the package's own CRCs are
 written again. Everything else in the package stays byte for byte. Every X0X update writes this
-block too, so add the image to each new package (tools/fm1_install.py does it with --ctl; the web
-installer has a file field for it). web/fm1pkg.js insertCtl does the same in the browser
+block too, so include the image in each new NIGHTLY package. Legacy unbundled packages still
+need an explicit matching image (tools/fm1_install.py --ctl or the web installer file field).
+web/fm1pkg.js insertCtl does the same composition in the browser
 (tests/ble_pkg_test.py checks that both give the same bytes).
 """
 import argparse
