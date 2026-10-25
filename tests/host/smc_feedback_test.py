@@ -49,6 +49,8 @@ static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8]; u
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
+/* A connected, consumer-acknowledged epoch for the real frame guard. */
+static uint32_t smc_link_published=1, smc_link_seen=1;
 static unsigned checks,failures,tx_count;
 static uint8_t tx[128][3];
 static int pref_get(pref_t r) {
@@ -198,5 +200,6 @@ with tempfile.TemporaryDirectory(prefix="smc-feedback-") as tmp:
     binary = Path(tmp) / "feedback"
     c.write_text(harness)
     subprocess.run([*shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-Wall", "-Wextra", "-Werror",
+                    *shlex.split(os.environ.get("SAN_FLAGS", "")),
                     "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(binary)], check=True)
     subprocess.run([str(binary)], check=True)

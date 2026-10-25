@@ -180,6 +180,7 @@ run font-pack python3 tests/font_pack_test.py
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
+run smc-ble-input python3 tests/host/smc_ble_input_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-mmc-stop-fifo python3 tests/host/smc_mmc_stop_fifo_test.py
 run smc-ble-midpoll-link python3 tests/host/smc_ble_midpoll_link_test.py
