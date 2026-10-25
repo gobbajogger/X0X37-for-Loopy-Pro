@@ -348,17 +348,19 @@ static void test_select_and_play(void)
     for (int kit = 0; kit < NKIT; kit++) {
         setup(V_HOME, PART_303A);
         int rec = ui.rec;
-        press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
-        CHECK(!smc_ui_active()); CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
-        press(24 + kit); CHECK(ui.view == V_MIX); CHECK(drum_mix_page() == kit);
-        CHECK(!smc_ui_active()); CHECK(ui.rec == rec);
+        press(24 + kit); CHECK(ui.part == PART_303A); CHECK(ui.view == V_HOME);
+        CHECK(smc_ui_active() && smc_ui.strip == kit);
+        CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
+        setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
+        CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
         unsigned selected = ui.sel[kit];
         unsigned other = selected == 0 ? 1 : 0;
         press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit);
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); CHECK(!smc_ui_active());
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); /* held repeat is one gesture */
         message(0x80, 24 + other, 0);
-        press(24 + kit); CHECK(drum_mix_page() == kit);
+        *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
+        CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
         screen_state_t before = screen_state();
@@ -388,7 +390,7 @@ static void test_lost_edge_release(void)
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
         press(note); /* settle into ordinary selected/playing request state */
-        if (select) CHECK(ui.part == PART_909);
+        if (select) CHECK(ui.part == PART_303A); /* 909 SELECT is the momentary effect */
         else if (!pause) { seq.req_start = 0; seq.playing = 1; }
         message(0x90, note, 127); /* leave held */
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);

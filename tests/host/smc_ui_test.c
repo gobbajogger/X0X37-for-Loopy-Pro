@@ -317,7 +317,7 @@ static void test_distinct_maps(void)
 {
     setup(V_HOME, PART_303A);
     for (int n = 0; n < 8; n++) CHECK(smc_same(smc_target(n), smc_home_target(n)));
-    for (int n = 0; n < NPARTS; n++) CHECK(smc_same(smc_knob_target(n), PR(R_ENG,T_MIX,n,MX_PAN)));
+    for (int n = 0; n < NPARTS; n++) CHECK(smc_same(smc_knob_target(n), PR(R_ENG,T_MIX,n,MX_CUT)));
     CHECK(smc_same(smc_knob_target(5), PR(R_ENG,T_FX,0,FX_RV_DECAY)));
     CHECK(smc_same(smc_knob_target(6), PR(R_ENG,T_FX,0,FX_DL_FDBK)));
     CHECK(smc_same(smc_knob_target(7), PR(R_ENG,T_MST,0,MST_RESO)));
@@ -433,7 +433,8 @@ static void test_track_knob_align(void)
 }
 
 /* Verify physical grouping in the real framebuffer, rather than accepting any
- * nonempty screen: eight encoders over eight faders, with M/S/R to right and selection on the title. */
+ * nonempty screen: eight encoders over eight faders, with M/S/R and the effect
+ * button to the right. */
 static void test_physical_geometry(void)
 {
     setup(V_HOME, PART_909); fader(0, 0); ui_frame();
@@ -441,9 +442,8 @@ static void test_physical_geometry(void)
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 36) * 240 + x + 8] != 0); /* encoder top */
         CHECK(fb[(MAIN_Y + 90) * 240 + x + 3] != 0);  /* vertical fader */
-        for (int row = 0; row < 3; row++)
-            CHECK(fb[(MAIN_Y + 64 + row * 14) * 240 + x + 18] != 0);
-        CHECK(fb[(MAIN_Y + 106) * 240 + x + 18] == swap16(C_BLACK));
+        for (int row = 0; row < 4; row++)
+            CHECK(fb[(MAIN_Y + 62 + row * 12) * 240 + x + 18] != swap16(C_BLACK));
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
@@ -452,7 +452,7 @@ static void test_physical_geometry(void)
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 36) * 240 + n * 30 + 8] != 0);
     shot("13-eight-strip-resonance");
-    puts("PASS physical layout: all eight knob/fader positions and right-side M/S/R rows; no Select depiction");
+    puts("PASS physical layout: all eight knob/fader positions and four right-side button rows");
 }
 
 
@@ -460,7 +460,7 @@ static void check_selected(int selected)
 {
     for (int n = 0; n < 8; n++) {
         CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
-        CHECK(fb[(MAIN_Y + 106) * 240 + n * 30 + 18] == swap16(C_BLACK));
+        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] != swap16(C_BLACK));
     }
 }
 static void test_selected_lane(void)
@@ -569,7 +569,7 @@ static void test_action_captions_and_knobs(void)
     ui.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
     CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "X"));
     knob(0, 1); ui_frame(); shot("18-locked-disabled-actions");
-    setup(V_HOME, PART_303A);
+    setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages();
     pref_t pan = smc_knob_target(0);
     for (int v = 0; v <= 2; v++) {
         pref_set(pan, v == 0 ? 0 : v == 1 ? 64 : 127);
@@ -584,6 +584,17 @@ static void test_action_captions_and_knobs(void)
         CHECK(fb[(MAIN_Y + 25) * 240 + 14] == swap16(C_WHITE));
         memcpy(before_fb, fb, sizeof fb);
         shot(v == 0 ? "19-pan-left" : v == 1 ? "20-pan-center" : "21-pan-right");
+    }
+    setup(V_HOME, PART_303A);
+    pref_t cut = smc_knob_target(0);
+    CHECK(!is_pan(cut)); CHECK(cut.c == MX_CUT);
+    pref_set(cut, 0); smc_ui_begin(0, 1); ui_frame(); memcpy(before_fb, fb, sizeof fb);
+    pref_set(cut, 127); smc_ui_begin(0, 1); ui_frame();
+    {
+        unsigned pixels = 0;
+        for (int y = 28; y < 45; y++) for (int x = 5; x < 26; x++)
+            pixels += before_fb[(MAIN_Y+y)*240+x] != fb[(MAIN_Y+y)*240+x];
+        CHECK(pixels > 0);
     }
     unsigned footer_pixels = 0;
     for (int y = KNOB_Y + 65; y < 240; y++) for (int x = 0; x < 240; x++)

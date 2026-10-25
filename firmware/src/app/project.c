@@ -602,6 +602,9 @@ static int read_project(project_t *pr)
         sound_bd_sends(pr, T_808, 7);
         sound_bd_sends_lanes(pr, T_808, 7);
     }
+    if (sound_ok && pr->set.snd_rev < 5)              /* channel cutoff arrived: open, not closed */
+        for (i = 0; i < NPARTS; i++)
+            pr->sound.v[T_MIX][i][MX_CUT] = 127;
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)
             pr->sound.v[T_MIX][i][MX_PAN] = 64;
