@@ -1,16 +1,17 @@
 {
   "base": "08d3164a265123cb4c84e5104642fd93257d63d7",
-  "runtime_candidate": "ac11dc7cc363d78214e355a05c3b63601a2729ed",
-  "root_tree": "11a379224f058f5330b9ec59ae0bad19f81686d3",
-  "firmware_tree": "679b553e337673ecac4374df77c654a565dac35c",
+  "runtime_candidate": "b4f43dcbcc14f5ef059cda5c7650b5996c77160a",
+  "root_tree": "fb945c4fe0dee5efce439fab5b473ed42b97698a",
+  "firmware_tree": "b66e5a310ba9c42fb03c2fbcff93d2be4318a799",
   "source_inclusion": [
     {
       "path": "firmware/src/app/smc_mixer.c",
-      "input": "PR168",
-      "head": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
-      "blob": "5748a91151e2e3ddfe25830d34bf84e8c8f6be23",
+      "input": "PR196",
+      "head": "f98a17adee107d5047de7c34c57b5abf22133b7d",
+      "blob": "e5c856ed91fd20b02e8e877e2d565318d3f5232c",
       "exact_match": true,
-      "candidate_blob": "5748a91151e2e3ddfe25830d34bf84e8c8f6be23"
+      "candidate_blob": "e5c856ed91fd20b02e8e877e2d565318d3f5232c",
+      "provenance": "Reviewed PR168 SMC plus parent-authorized narrow pickup repair"
     },
     {
       "path": "firmware/src/app/ui.c",
@@ -79,5 +80,10 @@
     "hardware/GUI/flash",
     "protected ref merges",
     "public binaries"
-  ]
+  ],
+  "prior_checkpoint": {
+    "runtime": "ac11dc7cc363d78214e355a05c3b63601a2729ed",
+    "docs_tip": "d5c7e9b6a3550bff78fc13e4e7ab7e15e69db7e3",
+    "both_models": "Actual DEV CHECKED 52Bcode/300BRAM/8324Bpool; superseded, not final candidate model proof"
+  }
 }
