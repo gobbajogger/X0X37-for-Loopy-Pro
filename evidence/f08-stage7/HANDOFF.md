@@ -17,9 +17,9 @@ Blank Elite/Pro: `aab3cd8e…` / `066e2b1a…`.
 Label: `DEV / HARDWARE TEST — DEVICE NOT TESTED`; `hardware_tested` false.
 Evidence: `evidence/f08-stage7/CHECKS.md`, `live-verify.log`, `independent-qa-local-review.md`.
 Successor prompt: `evidence/f08-stage7/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none (pending coordinator CreateAgent — pod has no `CURSOR_API_KEY`).
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip.
+Successor agent id: `bc-2ac9852a-4eac-553f-906c-d7ecf1a4d46e`.
+Successor URL: https://cursor.com/agents/bc-2ac9852a-4eac-553f-906c-d7ecf1a4d46e
+Handoff status: **complete** (owner-visible Stage 1 id on this remote tip). Stage 7 releases ownership.
 
 ## Scope for stage 1
 
