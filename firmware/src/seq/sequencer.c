@@ -360,15 +360,32 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         wrapped = 0;
     } else {
         p = next_pos(s, t, tr->pos, 1);
-        wrapped = !bass ? p == 0 : p == 0 || (bpart(s, t - TRK_BASS0)->dir == DIR_REV && p == seq_part_len(s, t) - 1);
+        /* The reverse pass wraps only at its last step, not also at zero.
+         * Random steps have no positional wrap: count a logical pass below. */
+        wrapped = !bass ? p == 0 :
+            (bpart(s, t - TRK_BASS0)->dir == DIR_REV ? p == seq_part_len(s, t) - 1 :
+             bpart(s, t - TRK_BASS0)->dir != DIR_RANDOM && p == 0);
     }
     if (wrapped && t == TRK_DRUM && (changed = bar_end(s, 0)) != 0) {
         rate = part_rate(s, t);                       /* the 909's new pattern */
         L = seq_step_q8(s, rate);
         p = 0;
     }
-    if (wrapped && bass)
-        auto_mutate(s, t - TRK_BASS0);
+    if (bass) {
+        if (bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
+            /* Visiting step zero at random is not a bar boundary. Count
+             * LEN actual played steps for both TB-3PO and probability. */
+            if (tr->mut_steps >= seq_part_len(s, t)) {
+                tr->mut_steps = 0;
+                auto_mutate(s, t - TRK_BASS0);
+            }
+            tr->mut_steps++;
+        } else {
+            tr->mut_steps = 0;
+            if (wrapped)
+                auto_mutate(s, t - TRK_BASS0);
+        }
+    }
     if (wrapped && (t == TRK_BRK || is_drum(t)))   /* (the 303s count theirs in auto_mutate) */
         tr->bars++;
     if (changed & 1u)                                /* the 909's new pattern: its passes from 1 again, as */
@@ -414,6 +431,7 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
         s->t[t].ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);
         s->t[t].bars = 0;
         s->t[t].pp_dir = 1;
+        s->t[t].mut_steps = 0;
     }
 }
 
@@ -430,6 +448,7 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
             tr->started = 0;
             tr->bars = 0;
             tr->pp_dir = 1;
+            tr->mut_steps = 0;
         }
         tr->to_off = 0;
         tr->ext_due = 0;
