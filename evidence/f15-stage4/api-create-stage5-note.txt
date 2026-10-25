@@ -1,0 +1,7 @@
+CURSOR_API_KEY unset in this Stage-4 pod.
+No POST https://api.cursor.com/v1/agents attempted with a pod token.
+Stage-5 CreateAgent status: ASK_COORDINATOR — launch owner-visible Stage 5 with
+  repository=https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+  startingRef=cursor/f15-bf034-slotprobe-stage4-237f
+  prompt=evidence/f15-stage4/SUCCESSOR-STAGE5.txt (full text on that tip)
+Handoff remains incomplete until that owner-visible id is recorded on the remote tip.
