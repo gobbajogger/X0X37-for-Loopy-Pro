@@ -1,0 +1,9 @@
+  not-run smc-drum-rs (Pillow)
+  ok   gate-trap
+  ok   runner-admission
+  ok   validation-inputs
+  ok   dev-validate
+  ok   smk-apc40
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  not-run rec-live-smk (Pillow)
+all tests passed

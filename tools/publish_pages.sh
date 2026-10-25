@@ -10,8 +10,16 @@
 #     uses build/x0x-smk37-0.2.fwsc (+ elite/mke when present), or build/x0x-0.2.fwsc for FM-1
 #
 #   tools/publish_pages.sh 0.2 --pro PATH --elite PATH [--mke PATH]
+#
+#   tools/publish_pages.sh --nightly --elite-record ... --pro-record ... --out DIR
+#     nightly installer page. Valid Elite and Pro development builds only.
+#     Does not push production gh-pages. See tools/publish_nightly.py.
 set -e
 cd "$(dirname "$0")/.."
+if [ "${1:-}" = "--nightly" ]; then
+  shift
+  exec python3 tools/publish_nightly.py "$@"
+fi
 SHELL_ONLY=0
 V=""
 if [ "${1:-}" = "--shell" ]; then

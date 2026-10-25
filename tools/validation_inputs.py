@@ -7,6 +7,7 @@ No mtime cache: replacing bytes at the same path must invalidate evidence.
 Install consumers check recorded provenance; they need not have the build SDK.
 """
 import argparse
+import csv
 import hashlib
 import importlib.metadata
 import importlib.machinery
@@ -74,18 +75,71 @@ def source_tree(repo, commit):
     return digest(''.join(r + '\n' for r in rows if not r.split('\t', 1)[-1].endswith('.md')).encode())
 
 
+def _manifest_paths(dist):
+    """Declared install paths, including ones no longer on disk.
+
+    importlib.metadata.Distribution.files drops missing paths. A package that
+    lost a declared file would then fingerprint as a smaller package.
+    installed-files.txt is relative to the egg-info directory. A console script
+    often lives in the env bin directory, outside site-packages. Keep that as an
+    upward-relative path from the distribution root so locate_file can still
+    open it. Do not require every declared file to reside below that root.
+    """
+    text = dist.read_text('RECORD')
+    if text:
+        return [row[0] for row in csv.reader(text.splitlines()) if row and row[0]]
+    text = dist.read_text('installed-files.txt')
+    subdir = getattr(dist, '_path', None)
+    if text and subdir:
+        root = Path(dist.locate_file('')).resolve()
+        paths = []
+        for name in text.splitlines():
+            if name:
+                located = (Path(subdir) / name).resolve()
+                paths.append(located.relative_to(root, walk_up=True).as_posix())
+        return paths
+    text = dist.read_text('SOURCES.txt')
+    if text:
+        return [line for line in text.splitlines() if line]
+    return None
+
+
+def _module_roots(dist):
+    """Top-level module names from top_level.txt, or from entry points when it is absent.
+
+    A distro package can ship entry_points.txt and omit both RECORD and
+    top_level.txt. An empty or unsafe top_level.txt is not replaced: that file
+    was present and does not name modules.
+    """
+    text = dist.read_text('top_level.txt')
+    if text is None:
+        roots = []
+        for point in dist.entry_points:
+            if not point.pattern.match(point.value):
+                continue
+            module = point.module
+            if module:
+                roots.append(module.split('.', 1)[0])
+        return roots
+    return text.split()
+
+
 def package_files(dist):
     """Hash a manifest, or declared installed modules when distro metadata omits it.
 
     Do not import modules: imports can execute code and select a shadowing copy.
     Missing/unsafe metadata must stop capture rather than authenticate no bytes.
+    A declared manifest file that is not on disk raises OSError.
     """
-    manifest = dist.files
-    if manifest:
-        files = {str(p): file_hash(dist.locate_file(p)) for p in manifest
-                 if not str(p).endswith(('.pyc', '.pyo'))}
+    manifest = _manifest_paths(dist)
+    if manifest is not None:
+        files = {}
+        for rel in manifest:
+            if rel.endswith(('.pyc', '.pyo')):
+                continue
+            files[rel] = file_hash(dist.locate_file(rel))
     else:
-        names = (dist.read_text('top_level.txt') or '').split()
+        names = _module_roots(dist)
         if not names or any(not name.isidentifier() for name in names):
             raise ValueError('cannot enumerate Python package: missing or unsafe top_level.txt')
         root = Path(dist.locate_file('')).resolve(strict=True)
