@@ -465,7 +465,13 @@ void smc_ui_draw(void)
             status = smc.last[smc_ui.strip] < smc_scaled(r) ? "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
     }
     text_c(120, 14, tw(&FONT_S, name) > 232 ? &FONT_XS : &FONT_S, caps_of(name), C_WHITE);
-    cell_value(120, 48, num, unit, C_HI);
+    { const felucca_font_t *font = &FONT_M;
+      int uw = unit[0] ? tw(&FONT_XS, unit) + 2 : 0;
+      if (tw(font, num) + uw > 228) font = &FONT_B;
+      int x = 120 - (tw(font, num) + uw) / 2;
+      x = cv_text(x, 48, font, num, C_HI);
+      if (unit[0]) cv_text(x + 2, base_y(font, 48, &FONT_XS), &FONT_XS, unit, C_GRAY);
+    }
     text_c(120, 94, &FONT_XS, status, C_HI);
     if (smc_ui.kind == 0) {
         cv_rect(14, 119, 212, 2, C_LINE);
