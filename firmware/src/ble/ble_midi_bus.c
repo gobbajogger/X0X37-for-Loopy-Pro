@@ -108,7 +108,8 @@ static void blecb_complete(blec_bus_t *b, const uint8_t *p, unsigned n)
         unsigned handle = blecb_rd16(p + 3u + 4u*k) & 0xfffu;
         unsigned count = blecb_rd16(p + 5u + 4u*k);
         for (unsigned i = 0; i < BLEC_PEERS; i++) if (blec_has_conn(&b->peer[i]) && b->peer[i].conn == handle) {
-            /* A duplicate/overreported completion cannot manufacture credits. */
+            /* Clamp overreport to tracked debt. An in-range duplicate is not
+             * distinguishable on the wire: ordered nonduplicating HCI is required. */
             if (count > b->outstanding[i]) { b->rejected++; count = b->outstanding[i]; }
             b->outstanding[i] -= (uint16_t)count;
             b->available = (uint8_t)(b->available + count);
@@ -123,6 +124,13 @@ void blec_bus_rx(blec_bus_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32
     if (h4 == 4u) {
         if (n < 2u || p[1] != n - 2u) { b->rejected++; return; }
         if (p[0] == 0x13u) { blecb_complete(b, p, n); return; }
+        /* Core HCI command flow control may announce credits with opcode0
+         * without completing an owned command (Complete has no return params). */
+        if ((p[0] == 0x0eu && n == 5u && !blecb_rd16(p + 3)) ||
+            (p[0] == 0x0fu && n == 6u && !blecb_rd16(p + 4))) {
+            b->command_credit = p[p[0] == 0x0eu ? 2u : 3u];
+            return;
+        }
         if ((p[0] == 0x0eu || p[0] == 0x0fu) && n >= 6u) {
             unsigned op = blecb_rd16(p + (p[0] == 0x0eu ? 3u : 4u));
             unsigned status = p[p[0] == 0x0eu ? 5u : 2u];
