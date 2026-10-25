@@ -1,0 +1,41 @@
+You are the new stage-5 merge thread in the X0X37 full-cycle loop (F13 after stage-4 BF-012 validate). Do not resume the stage-4 thread bc-952af67e-b6f6-5318-a3b3-ba4de860c800, the stage-3 thread bc-7c49b76a-97dd-57c9-9a5a-784be039d70a, the stage-2 thread bc-a0181730-1daf-5e94-826a-e4339ed37abf, the stage-1 thread bc-09959f6e-dc18-5575-baa6-444dfdf698cc, or any earlier F02–F12 thread. Do not continue any internal probe; this cloud agent is the only Stage 5 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage until stage 7): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: de11b6d7e3ac3322d2db689675d9ed27ed667785
+Git source_tree (pre-repair package attribution): c143a9f8f5b5d0f6804995829ccbe515c77c6103
+Firmware tree (pre-repair): 9195dce5c4beb5fa8aa564504c8d1d114c8264cd
+BF-012 repair commit: 6636cca1 (master.c blob f91a9473f0ae1cdd5e037e521f39fdfcc2022395 + master_test.c blob df2f13b35a6fc7b858b019a1950982c23f6386e3)
+Package validation commit: b42bcba46ee7255c18f18c10dd1f99b9fc9bb675
+Content tree at validation commit: 519ccdf21b46db9198993587cb9334960e67ce483641c744c5caf71b1c769141
+Firmware tree at validation commit: 5facb3b4405d119a269a05224b9268adfa1baa13
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007), de11b6d7 (BF-008)
+Validated tip: start from the remote tip of cursor/f13-bf012-stage4-237f that contains evidence/f13-stage4/SUCCESSOR-STAGE5.txt, HANDOFF.md, CHECKS.md, Elite and Pro DEV CHECKED records, the BF-012 master limiter OFF→ON look-ahead clear, stage-3 ALL_PASS host evidence, and stage-2 implement evidence. The audited source authenticates de11b6d7; this tip adds BF-012 only (tested and DEV CHECKED). Do not substitute an older unrepaired tip.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f13-stage4/HANDOFF.md and CHECKS.md. You are stage 5 only.
+
+Scope: one integrator. Fast-forward firmware nightly when the host checks passed and the affected development packages are DEV CHECKED for this exact validated tip. Save the local stage-6 install prompt (including package and controller hashes). Do not flash a device from the cloud thread. Stage 6 starts no cloud thread. Do not implement deferred items in evidence/f13-stage2/DEFERRED.md / evidence/f13-stage3/DEFERRED.md (withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, open PR #68 unrelated base-lane history). Do not reopen BF-001 through BF-008 or FP-001. Do not steal #279/#281 sole-owner leftover Arp/Fx work (sole owner bc-8efb2f94…). Do not merge production main or publish production GitHub Pages from this stage. If the remote refuses the nightly update, record the refusal and do not force-push; stage 7 and the next audit still use the validated SHA.
+
+Validated commit under merge: the stage-4 tip that records DEV CHECKED for:
+- Elite: x0x-smk37-elite.fwsc sha256 d9a9ccf4698d9519316d90b36f6158101f7f1c5cd96ba50f6c1be6ef8693ebcc; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8324; identity SMK-37 Elite_900
+- Pro: x0x-smk37.fwsc sha256 a6a2387c712e95772ab1ff2f184f6b21357f71da08f0414f8d698b5f94309498; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8324; identity SMK-37 Pro_900
+Source commit recorded in package validation: b42bcba46ee7255c18f18c10dd1f99b9fc9bb675
+Evidence: evidence/f13-stage4/CHECKS.md, elite/record.json, pro/record.json; stage-3 ALL_PASS in evidence/f13-stage3/CHECKS.md.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed validate tip as cursor/<slug>-stage5-237f (required prefix cursor/ and suffix -237f). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not use a local helper as the successor.
+
+When nightly matches the validated SHA (or the refusal is recorded) and the stage-6 local install prompt is saved, hand off before you stop. Push the SUCCESSOR-STAGE7.txt prompt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-7 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 5. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 7 if the pod has no CURSOR_API_KEY.
+
+Completion condition: firmware nightly matches the validated SHA (or refusal recorded without force-push), stage-6 local install prompt saved with package/controller hashes, and one owner-visible stage-7 successor id pushed on the handoff.
+
+Policy: all review/tests in agent cloud VM / local host only — never GitHub Actions or @codex as proof. Actions/billing ≠ proof.
+
+Coordinator note: Stage 4 recorded SUCCESSOR-STAGE5.txt and stopped without an owner-visible Stage 5 id when CURSOR_API_KEY was unset. Coordinator CreateAgent should launch Stage 5 with startingRef=cursor/f13-bf012-stage4-237f and this prompt.
+
+LIVE_PAGE_MATCH reference (unchanged by Stage 5 until Stage 7 republishes): nightly-de11b6d7-dev; Elite 4841110a…; Pro b35d5875…; ctl 956e3e21….
+
+Full successor prompt also at evidence/f13-stage4/SUCCESSOR-STAGE5.txt on startingRef cursor/f13-bf012-stage4-237f.
