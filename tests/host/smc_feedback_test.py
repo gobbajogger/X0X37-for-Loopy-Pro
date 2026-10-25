@@ -49,15 +49,12 @@ static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],lo
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
+static uint8_t fx_muted;
+uint8_t engine_fx_muted(void) { return fx_muted; }
 static unsigned checks,failures,tx_count;
 static uint32_t now_ms;
 static uint32_t plat_ms(void) { return now_ms; }
 static uint8_t tx[128][3];
-static int pref_get(pref_t r) {
-    if(r.a==T_MST) return filter;
-    if(r.a!=T_FX) return 100;
-    return fx[r.c==FX_RV_LEVEL?0:r.c==FX_DL_LEVEL?1:2];
-}
 static int part_muted(int p) { return (part_mutes>>p)&1; }
 static int track_muted(int kit,int track) {
     assert(kit>=0 && kit<NKIT && track>=0 && track<NDRUM);
@@ -74,7 +71,7 @@ int plat_ble_smc_send(const uint8_t *msg,uint8_t len) {
 }
 '''
 harness += "\n".join(function(name) for name in (
-    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
+    "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
 harness += r'''
 static void expect(const char *label,int note,int expected) {
     int got=smc_led(note)!=0;checks++;
@@ -123,8 +120,13 @@ static void main_strips(void) {
         expect("main REC off",strip,0);expect("main SOLO off",8+strip,0);expect("main MUTE off",16+strip,0);
     }
     for(int which=0;which<3;which++) {
-        fx[which]=0;expect("FX/master muted",21+which,1);
-        fx[which]=100;expect("FX/master audible",21+which,0);
+        fx_muted=(uint8_t)(1u<<which);fx[which]=100;
+        expect("FX/master explicit mute preserves level",21+which,1);
+        assert(fx[which]==100);
+        fx_muted=0;expect("FX/master audible",21+which,0);
+        fx[which]=0;expect("zero level is not an explicit mute",21+which,0);
+        fx_muted=(uint8_t)(1u<<which);expect("zero level explicit mute",21+which,1);
+        fx_muted=0;fx[which]=100;
     }
     filter=0;expect("filter endpoint does not mute master",23,0);filter=64;
 }

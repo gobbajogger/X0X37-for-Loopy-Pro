@@ -44,6 +44,7 @@ static void smc_record_toggle(void) {}
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
 static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
+static void smc_notice(int n) { (void)n; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }

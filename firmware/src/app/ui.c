@@ -2354,6 +2354,21 @@ static void held_note_by(int by)
     }
 }
 
+/* Keyboard mute pickup history is shared only with explicit mute edges, so an
+ * off/on pair between scans cannot hide a new epoch. No physical sample is invented. */
+static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+static void smk_mute_edge(int target, int silent)
+{
+    if (target / 4 != smk_mute_bank) return;
+    int i = target % 4;
+    uint8_t bit = (uint8_t)(1u << i);
+    pref_t r = target < NPARTS ? PR(R_ENG, T_MIX, target, MX_LEVEL) :
+               PR(R_ENG, T_FX, 0, target == 5 ? FX_RV_LEVEL : FX_DL_LEVEL);
+    smk_mute_intended[i] = (uint8_t)pref_get(r);
+    if (silent) { smk_mute_active |= bit; smk_mute_edit |= bit; }
+    else { smk_mute_active &= (uint8_t)~bit; smk_mute_edit &= (uint8_t)~bit; }
+}
+
 static void mute_part(int p)                         /* a whole part on / off (HOME, MIX's PARTS) */
 {
     seq.mute = part_muted(p) ? seq.mute & ~MUTE_MASK[p] : seq.mute | MUTE_MASK[p];
@@ -2362,9 +2377,26 @@ static void mute_part(int p)                         /* a whole part on / off (H
         b->mute = (uint8_t)(part_muted(p) ? b->mute | 1u << p : b->mute & ~(1u << p));
         mark_dirty();
     }
+    smk_mute_edge(p, part_muted(p));
     say(part_muted(p) ? "MUTED " : "UNMUTED ", PART_N[p]);
 }
 static int track_muted(int km, int v) { return (int)(seq.vmute >> (km * NDRUM + v) & 1u); }
+/* Only actual level destinations participate. FILTER and navigation never do.
+ * A muted kit also silences its voice levels; their separate mute bits survive. */
+static int volume_muted(pref_t r)
+{
+    if (r.kind != R_ENG) return 0;
+    if (r.a == T_MIX && r.b < NPARTS && r.c == MX_LEVEL)
+        return part_muted(r.b);
+    if (r.a <= T_808 && r.b < NDRUM && r.c == find_ref(r.a, r.b, "Level").c)
+        return part_muted(r.a) || track_muted(r.a, r.b);
+    if (r.a == T_FX && !r.b) {
+        int bit = r.c == FX_RV_LEVEL ? 1 : r.c == FX_DL_LEVEL ? 2 : r.c == FX_VOLUME ? 4 : 0;
+        return engine_fx_muted() & bit;
+    }
+    return 0;
+}
+
 static void mute_track(int km, int v)                /* one drum track on / off */
 {
     seq.vmute ^= 1u << (km * NDRUM + v);

@@ -139,10 +139,11 @@ static void main_regression(void)
         message(0x90, 16 + strip, 127);
         assert(seq.vmute == 0 && smc.lit[16 + strip] == 1);
         if (strip < NPARTS) assert(seq.mute == MUTE_MASK[strip]);
-        else assert(seq.mute == 0 && pref_get(fx) == 0);
+        else assert(seq.mute == 0 && pref_get(fx) == before &&
+                    (engine_fx_muted() & (1u << (strip - NPARTS))));
         message(0x90, 16 + strip, 127);
         assert(seq.vmute == 0 && seq.mute == 0 && smc.lit[16 + strip] == 0);
-        if (strip >= NPARTS) assert(pref_get(fx) == before);
+        if (strip >= NPARTS) assert(pref_get(fx) == before && !engine_fx_muted());
     }
 }
 

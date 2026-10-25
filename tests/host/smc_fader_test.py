@@ -15,7 +15,7 @@ harness = r'''
 enum { R_NONE, R_ACT, R_HDR, R_ENG };
 typedef struct { uint8_t kind; } pref_t;
 typedef struct { int max; } x0x_param_t;
-static struct { pref_t target[8]; uint8_t value[8],last[8],seen,picked,pending,input_seen; } smc;
+static struct { pref_t target[8]; uint8_t value[8],last[8],seen,picked,pending,input_seen,mute_edit; } smc;
 static struct { uint32_t act_t; } ui;
 static x0x_param_t desc={127};
 static int value=64,writes,shows,shown,motions;

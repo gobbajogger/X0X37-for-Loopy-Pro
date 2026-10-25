@@ -65,7 +65,7 @@ static struct {
     uint8_t solo_target[8];            /* physical S key: 1..5 parts, then 909/808 tracks; 0 released */
     uint16_t drum_solo[NKIT];
     uint8_t lit[128], known[128];
-    uint8_t fx_restore[3];
+    uint8_t muted, mute_edit;          /* exact-target mute epoch; external edits revoke its takeover */
     uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
     uint8_t knob_run, knob_i, play_down, select_down;
     /* Exact destinations, not a copy of the temporary display or live UI. */
@@ -129,6 +129,7 @@ X0X_COLD void smc_project_reset(void)
     smc.up = smc.fresh = up;
     smc.pending = 0xFFu;
     engine_smc_solo(0);
+    engine_fx_mute(0);
 }
 
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
@@ -662,7 +663,17 @@ static void smc_notice(int n)
     pref_t r = smc_target(n);
     uint8_t v = smc_scaled(r);
     uint8_t bit = (uint8_t)(1u << n);
-    if (!smc_same(r, smc.target[n]) || v != smc.value[n]) {
+    int same = smc_same(r, smc.target[n]);
+    int muted = volume_muted(r);
+    /* An epoch starts only on this exact destination. No initial/reconnect
+     * packet can claim it: the fader additionally requires physical history. */
+    if (muted && !(smc.muted & bit) && (same || !(smc.input_seen & bit)))
+        smc.mute_edit |= bit;
+    if (!muted || (!same && (smc.input_seen & bit)) || (same && v != smc.value[n]))
+        smc.mute_edit &= (uint8_t)~bit;
+    if (muted) smc.muted |= bit;
+    else smc.muted &= (uint8_t)~bit;
+    if (!same || v != smc.value[n]) {
         smc.target[n] = r;
         smc.value[n] = v;
         smc.picked &= (uint8_t)~bit;
@@ -675,15 +686,16 @@ static void smc_fader(int n, uint8_t v)
     pref_t r;
     const x0x_param_t *d;
     uint8_t bit, old;
-    int crossed, nv, moved;
+    int crossed, nv, moved, history;
     if (n < 0 || n >= 8)
         return;
     bit = (uint8_t)(1u << n);
     /* A repeated absolute sample is not a new gesture. Keep this history
      * separate from acceptance: target edits must retain crossing history. */
-    moved = !(smc.input_seen & bit) || smc.last[n] != v;
-    smc.input_seen |= bit;
+    history = smc.input_seen & bit;
+    moved = !history || smc.last[n] != v;
     smc_notice(n);
+    smc.input_seen |= bit;
     r = smc.target[n];
     d = pref_desc(r);
     if (!d || !d->max || r.kind == R_ACT || r.kind == R_HDR || r.kind == R_NONE) {
@@ -696,7 +708,7 @@ static void smc_fader(int n, uint8_t v)
     smc.last[n] = v;
     smc.seen |= bit;
     if (!(smc.picked & bit)) {
-        if (!moved || !crossed)
+        if (!moved || (!crossed && !(history && (smc.mute_edit & bit))))
             goto show;
         smc.picked |= bit;
     } else crossed = 0;                /* acquisition must publish even an equal saved value */
@@ -758,14 +770,10 @@ static void smc_view(int v, int page)
 
 static void smc_toggle_fx(int which)
 {
-    int param = which == 0 ? FX_RV_LEVEL : which == 1 ? FX_DL_LEVEL : FX_VOLUME;
-    pref_t r = PR(R_ENG, T_FX, 0, param);
-    int v = pref_get(r);
-    if (v) {
-        smc.fx_restore[which] = (uint8_t)v;
-        pref_set(r, 0);
-    } else
-        pref_set(r, smc.fx_restore[which] ? smc.fx_restore[which] : 100);
+    smc_notice(which + 5);
+    engine_fx_mute(engine_fx_muted() ^ (1u << which));
+    if (which < 2) smk_mute_edge(which + 5, engine_fx_muted() & (1u << which));
+    smc_notice(which + 5);
 }
 
 static void smc_record_toggle(void)
@@ -859,7 +867,9 @@ static void smc_button_apply(uint8_t note, int mmc)
                     engine_voice_name(kit ? T_808 : T_909, track));
                 break;
             case 2:
+                smc_notice(note & 7);
                 mute_track(kit, track);
+                smc_notice(note & 7);
                 break;
             default:
                 /* A different sound still selects it. Press its SELECT again
@@ -898,9 +908,11 @@ static void smc_button_apply(uint8_t note, int mmc)
             } else if (row == 1) {      /* SOLO */
                 smc_solo_press(strip, strip + 1, mmc);
                 say((smc.solo & (1u << strip)) ? "SOLO" : "UNSOLO", PART_N[strip]);
-            } else if (row == 2)       /* MUTE */
+            } else if (row == 2) {     /* MUTE: observe both edges even in one queued batch */
+                smc_notice(strip);
                 mute_part(strip);
-            else {                     /* SELECT */
+                smc_notice(strip);
+            } else {                     /* SELECT */
                 int repeat_drum = strip < NKIT && ui.part == strip && ui.overlay == O_NONE;
                 smc_select_part(strip);
                 smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? strip + 1 : -1);
@@ -1212,8 +1224,7 @@ static int smc_led(int note)
         }
         /* Strips 6–8: M = mute/zero. R8/S6/S7/S8 are handled above; SELECT 6/7/8
          * open reverb, delay and master (drum SELECT was handled above). */
-        if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
-                                     smc_home_target(strip)) == 0;
+        if (row == 2) return !!(engine_fx_muted() & (1u << (strip - 5)));
         return (strip == 5 && ui.view == V_FX && cur_page() == 0) ||
                (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
                (strip == 7 && ui.view == V_MIX && cur_page() == 3);

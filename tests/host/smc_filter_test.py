@@ -26,7 +26,8 @@ static struct { int rec, part, view, overlay, help, sel[2]; } ui;
 static struct { int rec_part, solo,locked,lock_kit,lock_bank; uint16_t drum_solo[2]; } smc;
 static struct { int playing; } seq;
 static int volume, filter;
-static int pref_get(pref_t r) { return r.a == T_MST ? filter : volume; }
+static uint8_t fx_muted;
+static uint8_t engine_fx_muted(void) { return fx_muted; }
 static int part_muted(int p) { (void)p; return 0; }
 #define track_muted(k,t) ((void)(k),(void)(t),0)
 static int smk_clip_mode_on(void) { return 0; }
@@ -49,7 +50,11 @@ int main(void) {
     volume = 100; filter = 0;
     assert(!smc_led(23)); /* Filter endpoint must not light the master mute. */
     volume = 0; filter = 64;
+    assert(!smc_led(23)); /* An intended zero is independent of explicit mute. */
+    fx_muted = 4;
     assert(smc_led(23));
+    volume = 100;
+    assert(smc_led(23)); /* Muting preserves the intended resumed volume. */
     return 0;
 }
 '''

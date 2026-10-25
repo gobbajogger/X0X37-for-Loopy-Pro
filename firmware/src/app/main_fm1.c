@@ -789,20 +789,24 @@ static void smk_faders(void)
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
     /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
     static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held;
+    uint32_t bank_changed = 0;
     uint32_t i, down = (fm1_in.buttons >> SMK_BTN_FADER_BANK) & 1u;
     if (ui_project_busy()) {
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
+        smk_mute_known = smk_mute_active = smk_mute_edit = 0;
         held = (uint8_t)down;
         return;
     }
     if (down && !held) {                                /* FADER BANK: match the new targets before taking over */
+        bank_changed = 1;
         smk_fbank ^= 1u;
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
         say(smk_fbank ? "FADERS: BRK REV DLY FILTER" : "FADERS: 909 808 303A 303B", 0);   /* (say: 27 chars) */
     }
     held = (uint8_t)down;
+    smk_mute_bank = smk_fbank;
     for (i = 0; i < 4u; i++) {
         uint32_t v = fm1_in.fader[i];
         pref_t r;
@@ -822,6 +826,17 @@ static void smk_faders(void)
             r = PR(R_ENG, T_FX, 0, FX_DL_LEVEL);
         else
             r = PR(R_ENG, T_MST, 0, MST_DJF);
+        uint8_t bit = (uint8_t)(1u << i);
+        int level = pref_get(r), silent = volume_muted(r), mute_history = smk_mute_known & bit;
+        /* Seed a new bank without inheriting the previous destination's mute
+         * gesture. An external base edit ends this epoch's exception. */
+        if (!(smk_mute_known & bit) || (!(smk_mute_active & bit) && silent)) smk_mute_edit |= bit;
+        if (bank_changed || !silent || ((smk_mute_known & bit) && smk_mute_intended[i] != level))
+            smk_mute_edit &= (uint8_t)~bit;
+        smk_mute_known |= bit;
+        if (silent) smk_mute_active |= bit;
+        else smk_mute_active &= (uint8_t)~bit;
+        smk_mute_intended[i] = (uint8_t)level;
         /* These eight fader destinations are all 0..127 pots. */
         /* A knob or loaded project can change a target while this bank stays selected. */
         if (!(last[i] & 0x80u) && pref_get(r) != (int)(last[i] & 127u))
@@ -834,7 +849,7 @@ static void smk_faders(void)
             uint32_t near = v + 2u >= target && v <= target + 2u;
             uint32_t crossed = (prev < target && v >= target) || (prev > target && v <= target);
             last[i] = (uint8_t)(0x80u | v);
-            if (!near && !crossed) {
+            if (!near && !crossed && !(mute_history && (smk_mute_edit & bit))) {
                 char hint[20], *p = put_s(hint, "PICK F");
                 p = put_i(p, (int)i + 1);
                 put_s(p, v < target ? " UP" : " DOWN");
@@ -844,6 +859,7 @@ static void smk_faders(void)
         }
         last[i] = (uint8_t)v;
         pref_set(r, (int)v);
+        smk_mute_intended[i] = (uint8_t)v;
         motion_touch(r);
         ui.act_t = plat_ms();                            /* (the autosave waits for quiet) */
         pref_value(r, num, unit);

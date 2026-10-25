@@ -33,11 +33,12 @@ static struct { pref_t r[1][4]; } pg;
 static pref_t list_rows[12];
 static int kit=-1, clip, stage;
 static struct { pref_t target[8],lock_fader[8],lock_knob[8];
-    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank;
+    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank,input_seen,muted,mute_edit;
     uint32_t lock_song_revision; uint16_t lock_song_len; } smc;
 static uint32_t song_structure_revision;
 static struct song_fixture { unsigned len; } song_data;
 static const struct song_fixture *song(void) { return &song_data; }
+static int volume_muted(pref_t r) { (void)r; return 0; } /* nonmuted routing fixture */
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
 static int cur_page(void) { return 0; }
 static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }

@@ -187,7 +187,7 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
     }
     const float damp = 0.75f - f->rv_tone * 0.55f;
     const float fb = f->rv_decay;
-    const float lvl = f->rv_level;
+    const float lvl = f->muted & 1u ? 0.0f : f->rv_level;
     int16_t *cb[4];
     cb[0] = f->comb;
     cb[1] = cb[0] + fx_cl[0];
@@ -309,7 +309,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     int16_t *buf = f->dbuf;
     const float flen = (float)len;
     const int ping = out_r && f->dl_ping && 2.0f * fm_maxf(f->dcur, target) + 4.0f < flen;
-    const float lvl = f->dl_level;
+    const float lvl = f->muted & 2u ? 0.0f : f->dl_level;
     int32_t quiet = f->dl_quiet;
     int32_t w = f->w;
     float dcur = f->dcur, lp = f->lp;
@@ -433,7 +433,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         f->comp_det = det;
         f->comp_env_db = env;
     }
-    const float vol = f->volume;
+    const float vol = f->muted & 4u ? 0.0f : f->volume;
     for (int i = 0; i < n; ++i)
         out[i] *= vol;
 }
@@ -483,7 +483,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         f->comp_det = det;
         f->comp_env_db = env;
     }
-    const float vol = f->volume;
+    const float vol = f->muted & 4u ? 0.0f : f->volume;
     for (int i = 0; i < n; ++i) {
         out_l[i] *= vol;
         out_r[i] *= vol;
