@@ -1,36 +1,54 @@
 {
   "schema": 1,
-  "base": "origin/cursor/stream4-combined-schema-53a1",
-  "head": "HEAD",
+  "base": "a692adfd",
+  "head": "1a556b2a",
   "branch": "cursor/chicago-fx-34c0",
   "stage": null,
-  "kind": "evidence-only",
+  "kind": "implement",
   "changed": [
     "docs/engineering-delivery/chicago-fx-fidelity-blocker.md",
-    "evidence/chicago-fx-34c0/BLOCKER.md"
+    "evidence/chicago-fx-34c0/BLOCKER.md",
+    "evidence/chicago-fx-34c0/local_proof_plan.json",
+    "firmware/src/app/chicago_fx.h",
+    "firmware/src/app/engine.c",
+    "firmware/src/app/engine.h",
+    "firmware/src/app/project.c",
+    "firmware/src/app/ui.c",
+    "firmware/src/app/x0x.h",
+    "tests/host/chicago_fx_bridge_test.c",
+    "tests/host/run_chicago_fx_bridge.sh",
+    "tests/run_tests.sh"
   ],
   "buckets": [
     "docs",
-    "evidence"
+    "evidence",
+    "firmware",
+    "tests"
   ],
-  "x0x_tests": [],
-  "commands": [],
+  "x0x_tests": [
+    "host-build",
+    "sequencer",
+    "stage-handoff"
+  ],
+  "commands": [
+    "X0X_TEST_JOBS=1 X0X_TESTS='host-build sequencer stage-handoff' bash tests/run_tests.sh"
+  ],
   "verify": [
     "git diff --name-only and --check vs base (scope + whitespace)",
     "Read tip CHECKS / HANDOFF claims against listed SHAs and digests"
   ],
   "skip": [
     {
-      "what": "Default publish/web kitchen sink (nightly-publish installer-targets installer-digests install-gate-guard projects-web projects-page)",
-      "why": "Evidence-only tip; those selectors do not change the merge decision unless tools/web changed"
+      "what": "Elite+Pro package rebuild",
+      "why": "Stage 4 owns DEV CHECKED packages; implement/test keep host BF regressions"
+    },
+    {
+      "what": "Unrelated publish/web selectors",
+      "why": "Only run publish selectors when tools/web paths in the diff require them"
     },
     {
       "what": "node web/test_web.mjs",
-      "why": "No web/ product change in three-dot diff"
-    },
-    {
-      "what": "Full tests/run_tests.sh",
-      "why": "Use stage-scoped selectors only"
+      "why": "No web/ change"
     }
   ],
   "rebuild_packages": false,

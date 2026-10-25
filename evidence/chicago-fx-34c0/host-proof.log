@@ -1,0 +1,23 @@
+  ok   sequencer
+  FAIL host-build (see build/host/host-build.log)
+         418 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:418:12: note: forward declaration of 'struct rusage_info_v4'
+         418 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:419:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         419 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:419:53: error: use of undeclared identifier 'rusage_info_t'
+         419 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:419:68: error: expected expression
+         419 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+  ok   project-stage
+  ok   bass303-amp-adsr
+  ok   chicago-fx-bridge
+  ok   stage-handoff
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED
