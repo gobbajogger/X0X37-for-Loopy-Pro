@@ -10,11 +10,8 @@
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
 #include "../dsp/fastmath.h"
-<<<<<<< HEAD
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
-=======
 #include "chicago_arp.h"
->>>>>>> 70140e46 (Add Chicago Arp Switch/Mode/Range/Speed on live 303 keys)
 
 #define POOL X0X_POOL
 
