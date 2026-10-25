@@ -1,0 +1,6 @@
+CURSOR_API_KEY unset on this pod (bc-81498ba3-dd15-5d08-89cd-4bbec88134df).
+CreateAgent for SUCCESSOR-STAGE1 was not attempted.
+Coordinator owns launching the next Stage 1 with:
+  startingRef=cursor/f15-next-stage1-34df
+  prompt=evidence/f15-next-stage1/SUCCESSOR-STAGE1.txt
+Do not treat a Task subagent as the successor.
