@@ -300,6 +300,7 @@ run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
+run wave-motion-migrate sh tests/host/run_wave_motion_migrate.sh   # snd rev 6: Wave motion/snapshot 1→127
 run project-protocol sh tests/host/run_project_protocol.sh
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
 run storage-scratch sh tests/host/run_storage_scratch.sh

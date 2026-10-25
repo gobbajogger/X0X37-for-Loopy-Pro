@@ -15,7 +15,7 @@
 #include "x0x.h"
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
-#include "../dsp/bass303.h"            /* BASS303_AMPMODE (sound rev 5) */
+#include "../dsp/bass303.h"            /* BASS303_AMPMODE / BASS303_WAVE (snd rev 5–6) */
 #include "lz.c"
 
 project_t proj;
@@ -585,6 +585,33 @@ static void sound_bd_sends(project_t *pr, int t, int pan)
     }
 }
 
+/* PROJ_SND_REV 6: Wave became continuous 0..127. Remap discrete square (1) after the
+ * arrangement is loaded so knob motion and MOT_SNAPSHOT banks match the base sound. */
+static void sound_rev6_wave_motion(project_t *pr)
+{
+    int k, s, b;
+    for (k = 0; k < NLANE; k++) {
+        lane_t *l = &pr->arr.lane[k];
+        if (!l->used)
+            continue;
+        if (l->t == T_303 && l->i == BASS303_WAVE) {
+            for (s = 0; s < NSTEPS; s++)
+                if (l->val[s] == 1)
+                    l->val[s] = 127;
+            continue;
+        }
+        if (l->t != MOT_SNAPSHOT || l->i != MOT_SNAPSHOT_SCHEMA)
+            continue;
+        for (b = 0; b < 2; b++) {
+            unsigned bank = (unsigned)b * MOT_SNAPSHOT_PARAMS;
+            if (l->val[32 + b] != 1)                 /* engine 1 = native303; leave WBL1 alone */
+                continue;
+            if (l->val[bank + BASS303_WAVE] == 1)
+                l->val[bank + BASS303_WAVE] = 127;
+        }
+    }
+}
+
 static void patterns_defaults(project_t *pr)
 {
     int i;
@@ -675,6 +702,9 @@ static int read_project(project_t *pr)
         sound_rev1(pr);
     if (sound_ok && pr->set.snd_rev < 2)             /* before the one-knob COMP, FILTER, TAPE */
         sound_rev2(pr);
+    /* After the arrangement is loaded: Wave automation / MOT_SNAPSHOT still hold discrete 1. */
+    if (pr->set.snd_rev < 6)
+        sound_rev6_wave_motion(pr);
     pr->set.snd_rev = PROJ_SND_REV;
     return bad ? -1 : 0;
 }
