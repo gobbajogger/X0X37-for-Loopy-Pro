@@ -835,7 +835,7 @@ int seq_rec_step(seq_t *s, int t)
     if (!tr->started)
         return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
     if (s->ext)
-        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= TICKS_PER_STEP[rate] / 2u);
+        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= (TICKS_PER_STEP[rate] + 1u) / 2u);
     else
         late = tr->to_next != NEVER && tr->to_next < seq_step_q8(s, rate) / 2u;
     return late ? next_pos(s, t, tr->pos, 0) : tr->pos;
