@@ -1,0 +1,40 @@
+Local stage-6 install prompt for F14 tip packages on nightly tip b48cd800 (BF-013 already on nightly via #74; Safe Merge #325 evidence-only). No cloud thread. LaunchAgent com.x0x37.unattended-install may run this. Cloud agents do not flash.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Procedure: AGENTS.md and docs/rules/workflow.md
+Validated / install commit (--commit): b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+Content tree: 4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60
+Git tree: 16b3caf29fc3548c290ce97afaed9f44214c1ab5
+Firmware tree: 1924e2cff82c4f1737fbe7a8188af1a3b229ae01
+Evidence-bearing tip (do NOT pass as --commit): any later commit on cursor/f14-tip-packages-237f that only adds records/logs/handoff. Those change tools/dev_validate.py::tree and return REFUSED.
+Config: X0X_DEV_PADCAL=1 (development only). Refuse production main / release config.
+Do NOT install packages from diverged Stage-4 tip 656d70e9 (#322 Elite 34c381e1… / Pro 7498e646…).
+
+Elite (attached SMK-37 Elite_900 when present):
+- DEV CHECKED record: evidence/f14-tip-packages/elite/record.json
+- package: x0x-smk37-elite.fwsc sha256 4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8308
+- identity: SMK-37 Elite_900
+
+Pro (same source tree; install only when that model is attached):
+- DEV CHECKED record: evidence/f14-tip-packages/pro/record.json
+- package: x0x-smk37.fwsc sha256 3f3b5c00148347d2dec8fdaf5933e606cd1755c6c55f80f550d5ef915f5a2980
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8308
+- identity: SMK-37 Pro_900
+
+Attested package bytes (do NOT use a local Mac rebuild — hashes will differ):
+Prerelease https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/f14-tip-b48cd800-dev
+- Elite: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/f14-tip-b48cd800-dev/x0x-smk37-elite.fwsc
+- Pro: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/f14-tip-b48cd800-dev/x0x-smk37.fwsc
+- ctl: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/f14-tip-b48cd800-dev/ctl.img
+- sums: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/f14-tip-b48cd800-dev/SHA256SUMS.txt
+After download, sha256sum must match the hashes above exactly before gate/install.
+
+Gate: tools/require_gate_pass.sh b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a --config dev --fwsc <package> --ctl <ctl.img> --dev-record <matching record.json> must print DEV OK before write.
+Installer: tools/fm1_install.py with --commit b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a --dev-record … --config dev --ctl … --backup … --yes only after DEV OK, in the watched install session.
+Missing device: INSTALL BLOCKED; leave pending. Do not publish. Do not start a cloud successor. Do not push main or nightly.
+Merge / tip evidence: evidence/f14-tip-packages/CHECKS.md
+JSON twin: evidence/f14-tip-packages/stage6-install-prompt.json
+CreateAgent: NO_CURSOR_API_KEY in this worker — coordinator must launch owner-visible Stage 6 (Mac) with startingRef=cursor/f14-tip-packages-237f and this prompt. Do not claim Task as Stage 6.

@@ -1,0 +1,23 @@
+{
+  "base": "a40e978cc55a2435bc131425148735bd7fcb11df",
+  "scope": "F14 tip package validate (DEV CHECK) on current nightly tip b48cd800 after Safe Merge #325 evidence-only land. BF-013 exact 20 BPM delay sync already on nightly via historical #74 (fxbus.c blob 032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; stereo_test.c blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; gates bpm >= 20.0f). Do NOT use diverged Stage-4 tip 656d70e9 packages from #322. Host stereo PASS required. Builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers; pool free >= 8192 B. Companion logs check-0.log, controller.log, build.log required beside each record.json. No Arp/Fx steal. No production main/Pages.",
+  "checks": [
+    {
+      "reason": "BF-013 tip gates present: fxbus bpm >= 20.0f and stereo_test BF-013 block; tip blobs match nightly.",
+      "argv": [
+        "bash",
+        "-c",
+        "set -euo pipefail; git(){ command git -c safe.directory=\"$PWD\" -c safe.directory='*' \"$@\"; }; want_fxbus=032d289580d33df6a2d7cfe0e8a3d9b6fa5cbd2d; want_test=c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; got_fxbus=$(git rev-parse HEAD:firmware/src/dsp/fxbus.c); got_test=$(git rev-parse HEAD:tests/host/stereo_test.c); echo HEAD=$(git rev-parse HEAD); echo fxbus.c=$got_fxbus; echo stereo_test.c=$got_test; test \"$got_fxbus\" = \"$want_fxbus\"; test \"$got_test\" = \"$want_test\"; grep -E -q 'bpm >= 20\\.0f' firmware/src/dsp/fxbus.c; grep -E -q 'BF-013' tests/host/stereo_test.c; echo PASS bf013 tip gates"
+      ]
+    },
+    {
+      "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
+      "argv": [
+        "bash",
+        "-c",
+        "export X0X_TESTS=stereo X0X_DEV_PADCAL=1 X0X_TEST_JOBS=8; mkdir -p build/gen build/host; python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null; sh tools/gen_builtin_break.sh build/gen >/dev/null; exec sh tests/run_tests.sh"
+      ]
+    }
+  ],
+  "dependencies": []
+}

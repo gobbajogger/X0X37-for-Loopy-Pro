@@ -1,0 +1,12 @@
+CreateAgent Stage 6 not launched from this worker.
+
+Reason: CURSOR_API_KEY unset (NO_CURSOR_API_KEY).
+Rule: do not claim Task as Stage 6; coordinator must CreateAgent an owner-visible Mac Stage 6 agent.
+
+startingRef: cursor/f14-tip-packages-237f
+Prompt: evidence/f14-tip-packages/SUCCESSOR-STAGE6.txt
+Validated commit: b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+Elite package sha256: 4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376
+Pro package sha256: 3f3b5c00148347d2dec8fdaf5933e606cd1755c6c55f80f550d5ef915f5a2980
+Controller sha256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+Prerelease: f14-tip-b48cd800-dev
