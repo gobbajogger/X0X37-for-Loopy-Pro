@@ -304,8 +304,11 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
 
     def test_missing_package_issues_no_record(self):
         path = self.repo/'build.sh'
+        # Tip fixture emits via fm1pkg_make.ufw, not printf → .fwsc.
         path.write_text(path.read_text().replace(
-            "printf 'development package' > build/x0x-smk37-elite.fwsc\n", ""))
+            "Path('build', filename + '.fwsc').write_bytes(\n"
+            "    ufw(b'\x00' * 1024, b'FELUCCA-LOADER-1' + b'\x00' * 128, product))\n",
+            ""))
         self.git('add', '.')
         self.git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'no package')
         self.commit = self.git('rev-parse', 'HEAD')
