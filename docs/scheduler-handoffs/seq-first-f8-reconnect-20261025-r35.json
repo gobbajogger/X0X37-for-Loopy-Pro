@@ -1,0 +1,176 @@
+{
+  "schema": "x0x37-sequencer-source-producer-evidence-v1",
+  "evidence_revision": "seqclock-pr90-first-f8-reconnect-20261025-r35",
+  "subject": "First MIDI clock after boot, mode switching, or external clock dropout is a phase origin, not a tempo measurement",
+  "owner": "Existing Sequencer Clock source specialist; stacked existing PR #90 only",
+  "user_observable_behavior": "Starting Loopy soon after powering on X0X37 or reconnecting after a >0.5 second MIDI Clock gap must not cause false 25/28 BPM readouts. The initial incoming F8 keeps the configured or last valid tempo; the next 120-BPM tick measures 119-121 BPM. Clock-owner phase, note lifetime, and original R33 27-hour rollover protection remain intact.",
+  "input": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "producer_pr": 90,
+    "stacked_parent_pr": 86,
+    "producer_head": "1e1a07517e5f49bef06a2ba6bd414055b00b1e60",
+    "root_tree": "eb629e34ac74de44aeb667ed388c44bbb8a214cb",
+    "firmware_tree": "e2644be97bb5182ecbcfcceb8300a1b1f10924ef",
+    "baseline_seq_blob": "f908e99be0fb7aba9e2d31364a3cf3ed952cc5d9",
+    "baseline_test_blob": "397e6ade2c5fa5aac86a465601f394b30b705bff"
+  },
+  "changed_source": {
+    "path": "firmware/src/seq/sequencer.c",
+    "blob": "4b3e07786390d12980e8fecb5c553051c0a056ef",
+    "semantic_change": "Only if first tick of a reset beat-ring (ext_nb==0 && ext_q==0), reuse ext_skip tempo-priming; no transport-state or file format modification"
+  },
+  "changed_test": {
+    "path": "tests/host/seq_clock_auto_idle_wrap_test.c",
+    "blob": "d023eb0419b447692d59ea251aa12c88ba0010f1",
+    "existing_selector": "transport-clock-auto-idle-wrap",
+    "cases": "real seq_init, AUTO/EXTERNAL, INTERNAL→AUTO/EXTERNAL, loss after >0.5 s, first F8 and subsequent 120 BPM F8, audio partitions 1/64/1024"
+  },
+  "reproduced_baseline": {
+    "real_production_linked_source": true,
+    "first_F8_100ms_after_boot_BPM": 24.9943,
+    "second_valid_120BPM_F8_BPM": 27.7393,
+    "expected_first_BPM": 125,
+    "expected_second_BPM_range": [
+      119,
+      121
+    ]
+  },
+  "native_tests": {
+    "platform": "Linux x86_64",
+    "source_linked": [
+      "sequencer.c",
+      "pattern.c",
+      "tb3po.c"
+    ],
+    "compilers": [
+      "gcc",
+      "clang"
+    ],
+    "profiles": [
+      {
+        "name": "plain",
+        "flags": []
+      },
+      {
+        "name": "ubsan",
+        "flags": [
+          "-fsanitize=undefined",
+          "-fno-sanitize-recover=all"
+        ]
+      },
+      {
+        "name": "asan-ubsan",
+        "flags": [
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all"
+        ]
+      }
+    ],
+    "cmd_argv_template": [
+      "$COMPILER",
+      "-std=c11",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Wdouble-promotion",
+      "-Werror",
+      "-I$SOURCE_DIR",
+      "seq_clock_auto_idle_wrap_test.c",
+      "$SOURCE_DIR/sequencer.c",
+      "$SOURCE_DIR/pattern.c",
+      "$SOURCE_DIR/tb3po.c",
+      "-lm",
+      "$PROFILE_FLAGS",
+      "-o",
+      "$TEST_BINARY"
+    ],
+    "environments": [
+      "ASAN_OPTIONS=detect_leaks=0:halt_on_error=1",
+      "UBSAN_OPTIONS=halt_on_error=1"
+    ],
+    "fixed_results": {
+      "runs": 6,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions_each": "566968/566968",
+      "run_log_sha256": "9120e0e72e19be4dbf2a12be47b23077f928b614b93f9b91ddc82f82389cae29"
+    },
+    "negative_original_R34_results": {
+      "runs": 6,
+      "compile_exit": 0,
+      "expected_run_exit": 1,
+      "assertions_each": "566920/566968",
+      "first_tick_and_dropout_failures_each": 48,
+      "run_log_sha256": "2cbfeaed1356e9677cd20242df23cc9f39ec847754fde4146a8e2bcca1571168"
+    },
+    "adjacent_results": {
+      "runs": 8,
+      "exit": 0,
+      "by_test": [
+        {
+          "name": "uptime-wrap",
+          "runs": 2,
+          "assertions_each": "36328/36328",
+          "log_sha256": "0a0a056a1211cd2b7700bfaf1d08be034d81f8566348c5cb1217add171adcfce"
+        },
+        {
+          "name": "USB/BLE-disconnect",
+          "runs": 2,
+          "assertions_each": "186/186",
+          "log_sha256": "eee002da62bae8dc6a5c65b58a95843a69b1f0775809e369685cb18390c4fdd4"
+        },
+        {
+          "name": "clock-owner",
+          "runs": 2,
+          "assertions_each": "36120/36120",
+          "log_sha256": "5093b950e0ec17fcf494e4b6f2c5ddb17ab7aeaf51b59382569a1317a37e3bb3"
+        },
+        {
+          "name": "MIDI NoteOff lifetime",
+          "runs": 2,
+          "assertions_each": "388092/388092",
+          "noteOns_each": 1472,
+          "noteOffs_each": 1472,
+          "log_sha256": "cfdb1ceee0c1648f184a201ce8aebb863dbdd6e403efebd143d85eef77a4ddf9"
+        }
+      ]
+    },
+    "total_expected_results": 20,
+    "observed_expected_results": 20,
+    "compiler_logs_empty_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_and_test_git_blob_verified_locally": true,
+    "scope": "Producer native tests only; no independently executed exact-root suite",
+    "leak_sanitizer": "NOT RUN; leak detection explicitly off"
+  },
+  "private_replay_archive": {
+    "filename": "LoopyX0X37-SeqClock-PR90-FirstTick-R35-20261025.zip",
+    "bytes": 63501,
+    "sha256": "3f07148fc4430ed09cb7c05a09c0912d6612fd65815b0bee84c0ece4df7dd483",
+    "contents": "Exact new and R34 baseline source, registered test, replay Python, raw 20-run compiler/runtime logs and SHA256s, README; private only; no firmware/controller/SDK binaries"
+  },
+  "gates": {
+    "producer_source": "PROPOSED_GIT_PUSH_THIS_COMMIT",
+    "producer_native": "PASSED_SCOPED",
+    "independent_complete_root_QA": "NOT_RUN",
+    "Elite_Pro_dev_target_build_for_new_compiler_input": "REQUIRED_NOT_RUN",
+    "independent_controller_package_validation": "NOT_RUN",
+    "OTA_backup_restore_interruption": "NOT_RUN",
+    "live_installer_bytes": "NOT_VERIFIED",
+    "device": "NOT_TESTED",
+    "production": "NOT_APPROVED"
+  },
+  "next_owners": [
+    "Existing Independent QA: review and validate exact new root plus stacked PR #86 behavior",
+    "Existing Hourly Build: fresh Elite and Pro BUILD_ONLY from changed firmware compiler input tree; no need to wait for QA/hardware/Pages",
+    "Existing sole Safe Merge: reconcile integration only after independent approval"
+  ],
+  "no_privileged_actions": [
+    "no protected refs",
+    "no website/Pages",
+    "no device flash",
+    "no OTA/backup/user samples",
+    "no release/promotion",
+    "no SDK or proprietary public bytes"
+  ]
+}
