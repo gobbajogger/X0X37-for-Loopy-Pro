@@ -564,6 +564,24 @@ static void sound_bd_sends_lanes(project_t *pr, int t, int pan)
     }
 }
 
+/* PROJ_SND_REV 6: Wave became continuous 0..127. Remap discrete square (1) in the base
+ * sound and in used T_303 / BASS303_WAVE motion lanes after the arrangement is loaded. */
+static void sound_rev6_wave_motion(project_t *pr)
+{
+    int k, s, b;
+    for (b = 0; b < NBASS; b++)
+        if (pr->sound.v[T_303][b][BASS303_WAVE] == 1)
+            pr->sound.v[T_303][b][BASS303_WAVE] = 127;
+    for (k = 0; k < NLANE; k++) {
+        lane_t *l = &pr->arr.lane[k];
+        if (!l->used || l->t != T_303 || l->i != BASS303_WAVE)
+            continue;
+        for (s = 0; s < NSTEPS; s++)
+            if (l->val[s] == 1)
+                l->val[s] = 127;
+    }
+}
+
 static void patterns_defaults(project_t *pr)
 {
     int i;
@@ -646,11 +664,8 @@ static int read_project(project_t *pr)
         for (i = 0; i < NBASS; i++)
             pr->sound.v[T_303][i][BASS303_AMPMODE] = bass303_param(BASS303_AMPMODE)->def;
     }
-    if (sound_ok && pr->set.snd_rev < 6) {
-        for (i = 0; i < NBASS; i++)
-            if (pr->sound.v[T_303][i][BASS303_WAVE] == 1)
-                pr->sound.v[T_303][i][BASS303_WAVE] = 127;
-    }
+    if (sound_ok && pr->set.snd_rev < 6)
+        sound_rev6_wave_motion(pr);
     if (sound_ok && pr->set.snd_rev < 7) {
         for (i = 0; i < NBASS; i++) {
             pr->sound.v[T_303][i][BASS303_BITE] = bass303_param(BASS303_BITE)->def;

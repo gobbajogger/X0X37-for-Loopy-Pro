@@ -1021,6 +1021,8 @@ enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
 #define CK_QN 24u
 static uint16_t ck_qe[CK_QN];
 static uint8_t ck_qt[CK_QN], ck_qn;
+static uint32_t ck_strum_keep[4];
+static uint32_t ck_clip_live[4];
 static void ck_q_run(uint32_t only);
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
@@ -1074,6 +1076,23 @@ CK_FN static void ck_on(uint32_t note)
     ck_qe[ck_qn] = (uint16_t)(note | v << 7);
     ck_qt[ck_qn++] = (uint8_t)(fm1_ms + late);
 }
+/* Non-ARP CLIP KEYS owns only pitches actually triggered or queued.
+ * Queued HUMAN notes are flushed by ck_send before their matching NoteOff. */
+CK_FN static void ck_clip_on(uint32_t note)
+{
+    if (CK_BIT(ck_clip_live, note))
+        return;
+    ck_clip_live[note >> 5] |= 1u << (note & 31u);
+    ck_on(note);
+}
+CK_FN static void ck_clip_off(uint32_t note)
+{
+    CK_BASE;
+    if (!CK_BIT(ck_clip_live, note))
+        return;
+    ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
+    ck_send(0x80u | cp->ch, note, 0u);
+}
 /* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
  * (0x81: a key release) */
 CK_FN static void ck_key_send(uint32_t k, uint32_t st)
@@ -1081,17 +1100,19 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
     CK_BASE;
     uint8_t out[CK_MAXN];
     uint32_t keep[4] = {0, 0, 0, 0}, n, i, q;
-    if (st & 1u)
+    /* Private dispatch bits: single-key events compare all other owners;
+     * whole-voice off/on compares only earlier visited keys (one MIDI event per pitch). */
+    if (st & 3u)
         for (q = 0; q < CK_NKEY; q++)
-            if (q != k && CK_BIT(cp->snd, q))
+            if (q != k && CK_BIT(cp->snd, q) && (!(st & 2u) || q < k))
                 for (i = 0, n = ck_key_notes(q, out); i < n; i++)
                     keep[out[i] >> 5] |= 1u << (out[i] & 31u);
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
         if (!CK_BIT(keep, out[i])) {
             if (st & 0x10u)
-                ck_on(out[i]);
+                ck_clip_on(out[i]);
             else
-                ck_send(0x80u | cp->ch, out[i], 0u);
+                ck_clip_off(out[i]);
         }
 }
 /* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
@@ -1099,9 +1120,12 @@ CK_FN static void ck_voice(uint32_t st)
 {
     CK_BASE;
     uint32_t k;
+    /* Full revoice/panic supersedes any unfinished non-ARP strum. */
+    if (!(cp->on & CK_M_ARP))
+        cp->nk = 0;
     for (k = 0; k < CK_NKEY; k++)
         if (CK_BIT(cp->snd, k))
-            ck_key_send(k, st);
+            ck_key_send(k, st | 3u);
 }
 /* All notes off: the keys, the arp note, the arp list */
 CK_FN static void ck_all_off(void)
@@ -1112,6 +1136,7 @@ CK_FN static void ck_all_off(void)
     cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
     cp->nk = 0;
+    memset(ck_clip_live, 0, sizeof ck_clip_live);
 }
 
 /* Project replacement ends notes using the old scale/chord and channel. Calibration,
@@ -1119,7 +1144,15 @@ CK_FN static void ck_all_off(void)
 CK_FN void smk_project_reset(void)
 {
     uint32_t i;
-    ck_qn = 0;                                       /* delayed note-ons never belong to the new project */
+    /* Project reset discards HUMAN notes that never reached MIDI. Releasing
+     * those queued pitches would cut unrelated Loopy voices sharing a note. */
+    for (i = 0; i < ck_qn; i++) {
+        uint32_t note = ck_qe[i] & 127u;
+        ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
+        if (ck.arp_note == note + 1u)
+            ck.arp_note = 0;
+    }
+    ck_qn = 0;
     ck_all_off();
     memset(&ck, 0, sizeof ck);
     ck.keys[0] = ((const volatile uint32_t *)&fm1_in.keys)[0];
@@ -1136,6 +1169,21 @@ CK_FN void smk_project_reset(void)
     clip_pad_active = clip_grid_mode;
     knob_bank_prev = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
     was_on = 0u;                                    /* redraw clip-key settings after the swap */
+}
+/* Finish the previous strum before snapshotting the tones owned by held keys.
+ * Keep the snapshot through this strum: a previously held key might be released
+ * before a shared delayed note, but its sounding pitch is now owned by this key. */
+CK_FN static void ck_strum_snapshot(uint32_t key)
+{
+    CK_BASE;
+    uint8_t out[CK_MAXN];
+    uint32_t q, i, n;
+    for (q = 0; q < 4u; q++)
+        ck_strum_keep[q] = 0;
+    for (q = 0; q < CK_NKEY; q++)
+        if (q != key && CK_BIT(cp->snd, q))
+            for (i = 0, n = ck_key_notes(q, out); i < n; i++)
+                ck_strum_keep[out[i] >> 5] |= 1u << (out[i] & 31u);
 }
 /* STRUM (ARP off): the notes of the strum key, low to high, one each STRUM x 10 ms after the press.
  * dt: the ms since the last call (a big dt sends all the notes that wait). */
@@ -1154,7 +1202,8 @@ CK_FN static void ck_strum(uint32_t dt)
         }
     cp->acc += dt;
     for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
-        ck_on(out[cp->nk - 1u]);
+        if (!CK_BIT(ck_strum_keep, out[cp->nk - 1u]))
+            ck_clip_on(out[cp->nk - 1u]);
     if (cp->nk > n)
         cp->nk = 0;
 }
@@ -1164,16 +1213,18 @@ CK_FN static void ck_press(uint32_t k, uint32_t vel)
     CK_BASE;
     cp->vel = (uint8_t)(vel ? vel : 1u);
     if (!(cp->on & CK_M_ARP)) {
-        cp->snd[k >> 5] |= 1u << (k & 31u);
         if ((sp->ck_x2 >> 4) && (cp->on & CK_M_CHORD)) {     /* STRUM: the last strum ends at once */
             ck_strum(1u << 20);
+            ck_strum_snapshot(k);                       /* before the new physical owner is added */
+            cp->snd[k >> 5] |= 1u << (k & 31u);
             cp->korder[0] = (uint8_t)k;
             cp->nk = 1;
             cp->acc = 0;
             ck_strum(0);
             return;
         }
-        ck_key_send(k, 0x90u);
+        cp->snd[k >> 5] |= 1u << (k & 31u);
+        ck_key_send(k, 0x91u);  /* bit 0 checks existing owners; ck_on emits real NoteOn */
         return;
     }
     cp->keys[k >> 5] ^= 1u << (k & 31u);                     /* (for a moment: the other keys only) */

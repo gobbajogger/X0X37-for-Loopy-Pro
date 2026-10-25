@@ -2278,26 +2278,69 @@ static void turn_ref(pref_t r, int e, int knob)
 
 static int rec_step(int track) { return seq_rec_step(&seq, track); }
 
+/* Per-step drum velocity lives in a T_VEL motion lane (same packing as T_PROB): pattern size
+ * cannot hold an 11×64 plane under the pool/RAM budgets. MOT_NONE = legacy accent law. */
+static void drum_vel_clear_step(int k, int v, int s)
+{
+    int voice = k << 4 | v, lane, j, any = 0;
+    lane_t *l;
+    if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
+        return;
+    lane = motion_find(proj.arr.lane, seq.ppat[k], k, T_VEL, voice, 0);
+    if (lane < 0)
+        return;
+    l = &proj.arr.lane[lane];
+    l->val[s] = MOT_NONE;
+    for (j = 0; j < NSTEPS; j++)
+        any |= l->val[j] != MOT_NONE;
+    if (!any)
+        engine_motion_clear(lane);
+}
+
+static void drum_vel_set_step(int k, int v, int s, uint8_t vel)
+{
+    int voice = k << 4 | v, lane;
+    lane_t *l;
+    if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
+        return;
+    if (!vel)
+        vel = 1;
+    if (vel > 127u)
+        vel = 127u;
+    lane = motion_find(proj.arr.lane, seq.ppat[k], k, T_VEL, voice, 0);
+    if (lane < 0 && (lane = motion_alloc(proj.arr.lane, seq.ppat[k], k, T_VEL, voice, 0)) < 0) {
+        say("MOTION FULL", 0);
+        return;
+    }
+    l = &proj.arr.lane[lane];
+    l->val[s] = vel;
+}
+
 static void drum_key(int v, int down)
 {
     int k = ui.part;
+    uint8_t kv;
+    int accent;
     if (!down)
         return;
     if (ui.sel[k] != v) drum_step_cancel();
     ui.sel[k] = (uint8_t)v;
     build_pages();
+    accent = (ui.btn & (1u << B_ENV)) != 0;
+    kv = plat_key_velocity(BLACK_KEY[v]);
     /* KEY SOUND STOPPED (the default): while the pattern plays a black key only selects its track,
      * so choosing one to edit does not add a hit to the groove; stopped, it plays it, and with REC
-     * on it always does (that is how drums are recorded) */
+     * on it always does (that is how drums are recorded). Strike velocity matches 303 FREE PLAY. */
     if (proj.set.keysound || !seq.playing || ui.rec)
-        engine_drum(k, v, (ui.btn & (1u << B_ENV)) ? 1.0f : 0.75f);
-    if (ui.btn & (1u << B_ENV))
+        engine_drum(k, v, accent ? 1.0f : (float)kv / 127.0f);
+    if (accent)
         ui.btn_used |= 1u << B_ENV;
     if (ui.rec && seq.playing) {
         int s = rec_step(TRK_DRUM + k);
         sm_set(cur_pat()->drum[k].hit[v], s);
-        if (ui.btn & (1u << B_ENV))
+        if (accent)
             sm_set(cur_pat()->drum[k].accent, s);
+        drum_vel_set_step(k, v, s, accent ? 127u : kv);
         seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
         mark_dirty();
     }
@@ -2320,6 +2363,8 @@ static void drum_step(int k, int white, int down)
                        ui.hold_pat == seq.ppat[k];
             if (same && !ui.hold_created && !ui.hold_used && plat_ms() - ui.hold_t0 < STEP_TAP_MS) {
                 sm_flip(bits, s);
+                if (!sm_get(bits, s))
+                    drum_vel_clear_step(k, ui.sel[k], s);
                 mark_dirty();
             }
             if (same_target && ui.hold_used)
@@ -2409,10 +2454,22 @@ static void bass_kbd(int key)
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
     } else if (ui.rec && seq.playing) {
-        int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
-                ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
-        ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
-        (void)f;
+        bpart_t *bp = &cur_pat()->bass[b];
+        int s = rec_step(TRK_BASS0 + b);
+        uint8_t f = G_NOTE;
+        bass_rec_link(b, s);
+        if (ui.btn & (1u << B_ENV)) {
+            f |= BS_ACCENT;
+            ui.btn_used |= 1u << B_ENV;
+        }
+        if (ui.btn & (1u << B_LFO)) {
+            f |= BS_SLIDE;
+            ui.btn_used |= 1u << B_LFO;
+        }
+        bp->step[s].note = (uint8_t)n;
+        bp->step[s].flags = f;
+        bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
+        seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);
         mark_dirty();
     } else
         bass_rec_step[b] = 0;
