@@ -24,6 +24,7 @@ static int st_prog(uint32_t off, const void *src, uint32_t n) { (void)off; (void
 #include "../firmware/src/storage.c"
 #define SMP_USER_XIP(k) ((const uint8_t *)0)  /* (slots.c: only its map is used here) */
 #include "../firmware/src/app/slots.c"
+#include "../firmware/src/app/boot_screen.h"
 #define LDR_RANGE_OK(off, n) FL_LDR_RANGE_OK(off, n)       /* what loader.c uses on the SMK */
 
 static int bad;
@@ -85,6 +86,10 @@ int main(void)
     check("storage.c: settings 0x9D000/0x9E000, motion up to 0xAAFFF",
           st_sector(OBJ_SET, 0) == 0x9D000u && st_sector(OBJ_SET, 1) == 0x9E000u &&
           st_sector(OBJ_MOTION, 1) == 0xAA000u);
+    check("boot screen A/B follows the objects, inside the store, short of the owner tag",
+          BOOT_SEC0 == 0xAB000u && BOOT_SEC1 == 0xAC000u && st_sector(OBJ_MOTION, 1) + 0x1000u == BOOT_SEC0 &&
+          FL_GUARD(BOOT_SEC0, 0x1000u) && FL_GUARD(BOOT_SEC1, 0x1000u) && BOOT_SEC1 + 0x1000u < ST_OWNER_SECTOR &&
+          !FL_GUARD(0xFF000u, 0x1000u));
     check("store owner tag 0xAF000: in FL_DATA, the convention of every SMK port",
           ST_OWNER_SECTOR == 0xAF000u && FL_GUARD(ST_OWNER_SECTOR, 0x1000u));
     for (k = 0; k < SMP_USER_SLOTS; k++) {

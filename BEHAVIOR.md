@@ -472,11 +472,11 @@ CLP-80. In clip mode, the LCD main area shows "WAITING FOR LOOPY PRO" until a li
 FLS-01. SMK-37 flash map (layout 2):
   - App code 0x04120-0x8AFFF.
   - Bluetooth controller block 0x8B000-0x9AFFF (FLS-13).
-  - X0X store 0x9D000-0xAFFFF (spare 0xAB000-0xAEFFF, owner tag 0xAF000).
+  - X0X store 0x9D000-0xAFFFF (objects through 0xAAFFF, boot screen 0xAB000-0xACFFF, spare 0xAD000-0xAEFFF, owner tag 0xAF000).
   - User sample slot 3 0xB0000-0xBAFFF.
   - Update staging 0xBB000-0xBFFFF.
   - User sample slots 1 and 2 0xC2000-0xF3FFF.
-  - 0xFE000-0xFEFFF stays unused (4 KiB is too small for a slot). [CODE ../hal/fm1_flash_map.h:25-68] (Changed 2026-10-15: the store ended at 0xBAFFF, the slots at 0xE9FFF.)
+  - 0xAB000 and 0xAC000 hold the boot screen (two copies). 0xAD000-0xAEFFF stays spare. 0xFE000-0xFEFFF stays unused on the SMK-37 (4 KiB is too small for a slot). [CODE ../hal/fm1_flash_map.h:25-68] [CODE app/boot_screen.h]
 FLS-02. The SMK-37 has 3 user sample slots: slot 1 80 KiB at 0xC2000, slot 2 120 KiB at 0xD6000, slot 3 44 KiB at 0xB0000. Slots 1 and 2 keep the flash offsets of the earlier 2 x 80 KiB layout. The FM-1 has 3 slots of 80 KiB. [CODE app/slots.c:15-34] (Changed 2026-10-15: was 2 x 80 KiB.)
 FLS-03. Keep the imported-sample flash. A space saving must not take flash from the sample storage. [USER]
 FLS-04. The store-owner check at first start clears only 0x9D000-0xAEFFF. It does not clear the sample slots. Slot 3 starts at 0xB0000, after the owner tag. [CODE storage.c:50-105]
@@ -502,6 +502,13 @@ FLS-16. An install can lose samples when a slot moves, becomes smaller or disapp
   - They report a slot that has no place. If the backup fails, they install nothing. If the write back fails, the archive stays (fm1_install.py exit 7). The message tells the end user to restore it with Restore on the break loops page or with tools/x0x_slots.py restore FILE. fm1_install.py --no-slots skips this. [USER] [CODE ../../tools/fm1_install.py] [CODE ../../web/x0x_breaks.js] [CODE ../../web/x0x_installer.html]
 FLS-17. A downgrade to an older X0X (2 x 80 KiB) cannot keep slot 3 or slot 2 data larger than 80 KiB in place. The install flow (FLS-16) saves them and writes slot 3 back into a free older slot when it fits. A stock firmware install can erase the VM (the store and slot 3). Slots 1 and 2 are in stock USRFLASH, which the stock firmware can also use. The install flow saves every slot before a stock install. It tells the end user to restore the archive after the next X0X install. [USER] [CODE ../../tools/fm1_install.py]
 FLS-18. The update loader drops a stale update record only where one matches (bytes +6 = 0x5441 and a nonzero CRC16). It looks only at a 4 KiB boundary − 256 in 0x9D000-0xBFFFF. Sample data in slot 3 can match by chance (about 2^-32 for each sector). The loader stays unchanged, because it must still drop the stock records. [CODE ../loader/ldr_core.c]
+FLS-19. The boot screen can be changed from the installer page while X0X is running.
+  - With nothing stored, the screen is the original words "X0X" and "909 808 303 303 BREAK" and no picture. The sound does not change.
+  - A custom record replaces those two lines and may add a black-and-amber picture, 240 by 96 pixels, in the rows above the words. A color photo does not fit: 240 by 240 in full color is 115200 bytes, and one copy has room for 2924.
+  - The top line is at most 12 characters. The second line is at most 21. Empty lines are refused. The previous record stays.
+  - The new copy is written beside the old one. The header is last. A picture that is too big, the wrong size, cut off, or failing its check is not shown. Pulling the cable before the keyboard confirms leaves the previous screen.
+  - If the keyboard cannot store it, the installer says so and does not claim the save. The previous screen stays.
+  - On the SMK-37 the copies are 0xAB000 and 0xAC000. Clearing a foreign firmware's store also clears them. The original words come back. On the FM-1 the copies are 0x9F000 and 0xFE000. Sample slots are not used. [CODE app/boot_screen.h] [CODE app/editor.c] [CODE app/main_fm1.c] [CODE ../../web/boot_screen.js]
 
 ## 17. Known limitations
 

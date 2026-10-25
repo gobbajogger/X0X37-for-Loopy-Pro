@@ -784,6 +784,11 @@ void project_capture_stage(void)
 /* 0 = saved and verified; -7 = the patterns, song and motion do not fit (nothing was written) */
 int project_save(void)
 {
+#ifndef X0X_HOST
+    extern int store_stage_held(void);
+    if (store_stage_held())                          /* boot upload is using the store buffer */
+        return -8;
+#endif
     capture_settings(&proj.set);
     if (measure_project(&proj, &packed_len))
         return -7;

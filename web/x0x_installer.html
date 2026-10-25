@@ -4,7 +4,7 @@
      X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
      model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
      saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
-     x0x_breaks.js at LIB and the release catalog at CATALOG.
+     x0x_breaks.js and boot_screen.js at LIB and the release catalog at CATALOG.
      A nightly catalog (channel "nightly") lists only dev-checked hardware-test
      builds and does not import GitHub Releases. -->
 <html lang="en">
@@ -79,6 +79,11 @@
   .drop input { display: none; }
   ol { margin: 0 0 16px; padding-left: 20px; }
   .meta { font-size: 12px; color: var(--dim); margin: 0 0 14px; }
+  #bootscreen { margin: 8px 0 28px; }
+  #bootscreen .field { margin: 0 0 12px; }
+  #bootscreen input[type=text] { font: inherit; font-size: 16px; width: 100%; padding: 6px 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--fg); }
+  #bootprev { width: 100%; height: auto; background: #000; border: 1px solid var(--rule); margin: 0 0 12px; }
+  #bootstatus { min-height: 1.4em; }
 </style>
 </head>
 <body>
@@ -127,6 +132,28 @@
   <p class="small"><a href="../manual/" data-t="manual">The manual</a>
     · <a href="../new/" data-t="whatsnew">What's new</a>
     · <a id="download" hidden data-t="download">Download this package</a></p>
+
+  <section id="bootscreen">
+    <h2 data-t="booth">Boot screen</h2>
+    <p class="small" data-t="bootwhy"></p>
+    <label class="field" for="boottitle"><span data-t="boottitle"></span>
+      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="X0X">
+    </label>
+    <label class="field" for="bootsub"><span data-t="bootsub"></span>
+      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 303 303 BREAK">
+    </label>
+    <label class="field" for="bootfile"><span data-t="bootpic"></span>
+      <input id="bootfile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,.png,.jpg,.jpeg,.gif,.webp,.bmp">
+    </label>
+    <canvas id="bootprev" width="240" height="96"></canvas>
+    <p>
+      <button type="button" id="bootsave" data-t="bootsave">Save boot screen</button>
+      <button type="button" class="quiet" id="bootfactory" data-t="bootfactorybtn">Original words</button>
+      <button type="button" class="quiet" id="bootread" data-t="bootread">Read from keyboard</button>
+      <button type="button" class="quiet" id="bootclear" data-t="bootclear">Remove picture</button>
+    </p>
+    <p class="small" id="bootstatus" role="status"></p>
+  </section>
 
   <section id="stock">
     <h2 data-t="stockh"></h2>
@@ -249,6 +276,38 @@ const TEXT = {
     noproduct: "このバージョンには選んだ機種のパッケージがありません。",
     selectionstale: "書き込み前にファームウェアの選択または承認が変更されました。何も書き込んでいません。パッケージをもう一度確認してください。",
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
+    booth: "起動画面",
+    bootwhy: "起動中に出る2行と、その上の白黒（琥珀）の絵を変えられます。絵は240×96ドットです。カラー写真もこの大きさの1色に縮みます。音は変わりません。次に起動したときに見えます。",
+    boottitle: "上の行（12文字まで）",
+    bootsub: "下の行（21文字まで）",
+    bootpic: "絵（画像ファイル）",
+    bootclear: "絵を外す",
+    bootsave: "起動画面を保存",
+    bootfactorybtn: "元の文言に戻す",
+    bootread: "キーボードから読む",
+    bootempty: "ファイルが空です。起動画面は変えていません。",
+    boottype: "このページが読める画像ではありません。起動画面は変えていません。",
+    bootbig: "絵が大きすぎます（8MB超）。起動画面は変えていません。",
+    bootdecode: "その絵は読めませんでした。起動画面は変えていません。",
+    bootblank: "その絵には画素がありません。起動画面は変えていません。",
+    bootlong0: "上の行は12文字までです。起動画面は変えていません。",
+    bootlong1: "下の行は21文字までです。起動画面は変えていません。",
+    bootshort: "2行とも入力するか、「元の文言」を選んでください。起動画面は変えていません。",
+    bootchars: "文字・数字・記号だけ使えます。起動画面は変えていません。",
+    bootbusyinstall: "インストールが終わるまで待ってください。起動画面は変えていません。",
+    bootrun: "X0Xが起動している必要があります（更新ローダーではだめです）。起動画面は変えていません。",
+    bootrefuse: "キーボードがこの起動画面を拒否しました。前の画面のままです。",
+    bootnoflash: "キーボードに保存先がありません。前の起動画面のままです。",
+    bootflash: "キーボードは保存できませんでした。前の起動画面のままです。",
+    bootbusy: "キーボードが取り込み中です。前の起動画面のままです。",
+    bootfit: "この起動画面はキーボードに入りません。前の画面のままです。",
+    bootlate: "キーボードが未完了の保存を捨てました。前の起動画面のままです。",
+    bootlost: "保存は終わりませんでした。前の起動画面のままです。",
+    bootunconfirmed: "キーボードが保存を確認しませんでした。再起動して画面を見て、古いままならもう一度試してください。",
+    bootsaved: "保存しました。次に起動したときに新しい画面が出ます。",
+    bootorig: "元の文言に戻しました。次に起動したときに出ます。",
+    bootgot: "キーボードの起動画面を読みました。まだ保存はしていません。",
+    bootreadfail: "キーボードから起動画面を読めませんでした。",
   },
   en: {
     title: "Install X0X",
@@ -337,6 +396,38 @@ const TEXT = {
     noproduct: "No package for that model in this version.",
     selectionstale: "Firmware selection or approval changed before writing. Nothing was installed. Check the package and try again.",
     releasehint: "The same files are also on the GitHub Releases page.",
+    booth: "Boot screen",
+    bootwhy: "Change the two lines shown while the keyboard starts, and the picture above them. The picture is 240 by 96 pixels, black and amber. A color photo is reduced to that. This does not change the sound. You see it the next time the keyboard starts.",
+    boottitle: "Top line (12 characters)",
+    bootsub: "Second line (21 characters)",
+    bootpic: "Picture",
+    bootclear: "Remove picture",
+    bootsave: "Save boot screen",
+    bootfactorybtn: "Original words",
+    bootread: "Read from keyboard",
+    bootempty: "That file is empty. The boot screen was not changed.",
+    boottype: "That file is not a picture this page can read. The boot screen was not changed.",
+    bootbig: "That picture is too big to import (over 8 MB). The boot screen was not changed.",
+    bootdecode: "That picture could not be read. The boot screen was not changed.",
+    bootblank: "That picture has no pixels. The boot screen was not changed.",
+    bootlong0: "The top line can be 12 characters. The boot screen was not changed.",
+    bootlong1: "The second line can be 21 characters. The boot screen was not changed.",
+    bootshort: "Type both lines, or choose Original words. The boot screen was not changed.",
+    bootchars: "Use letters, numbers, and symbols only. The boot screen was not changed.",
+    bootbusyinstall: "Wait until the install finishes. The boot screen was not changed.",
+    bootrun: "X0X has to be running, not the update loader. The boot screen was not changed.",
+    bootrefuse: "The keyboard refused this boot screen. The previous one is still there.",
+    bootnoflash: "The keyboard has no storage for this. The previous boot screen is still there.",
+    bootflash: "The keyboard could not store this. The previous boot screen is still there.",
+    bootbusy: "The keyboard is busy. The previous boot screen is still there.",
+    bootfit: "This boot screen does not fit in the keyboard. The previous one is still there.",
+    bootlate: "The keyboard dropped the unfinished save. The previous boot screen is still there.",
+    bootlost: "The save did not finish. The previous boot screen is still there.",
+    bootunconfirmed: "The keyboard did not confirm the save. Restart it to see the screen, and try again if it is the old one.",
+    bootsaved: "Saved. The new boot screen shows the next time the keyboard starts.",
+    bootorig: "Original words restored. They show the next time the keyboard starts.",
+    bootgot: "Read the boot screen from the keyboard. Nothing has been saved yet.",
+    bootreadfail: "Could not read the boot screen from the keyboard.",
   },
 };
 let lang = "en";
@@ -1088,8 +1179,129 @@ $("stockgo").addEventListener("click", () => {
   run(stock.image, stock.product, { foreign: true });
 });
 
+let bootBits = null, bootOp = false;
+const BOOT_SAY = {
+  1: "bootrefuse", 2: "bootnoflash", 3: "bootflash", 4: "bootbusy", 5: "bootfit", 6: "bootlate",
+  lost: "bootlost", unconfirmed: "bootunconfirmed", short: "bootshort", long0: "bootlong0",
+  long1: "bootlong1", chars: "bootchars", picsize: "boottype",
+};
+function bootSay(key) { $("bootstatus").textContent = key ? t(key) : ""; }
+function loadBootImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad")); };
+    img.src = url;
+  });
+}
+function fitBootImage(img) {
+  const c = document.createElement("canvas");
+  c.width = 240; c.height = 96;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.fillStyle = "#000";
+  g.fillRect(0, 0, 240, 96);
+  const s = Math.min(240 / img.width, 96 / img.height);
+  const w = Math.max(1, Math.round(img.width * s)), h = Math.max(1, Math.round(img.height * s));
+  g.drawImage(img, Math.floor((240 - w) / 2), Math.floor((96 - h) / 2), w, h);
+  return g.getImageData(0, 0, 240, 96).data;
+}
+function drawBootPreview(bits) {
+  const g = $("bootprev").getContext("2d");
+  g.putImageData(new ImageData(bootBitsToRgba(bits || new Uint8Array(BOOT_PIC_BYTES)), 240, 96), 0, 0);
+}
+function bootBytes() {
+  const packed = bootPack({ line0: $("boottitle").value, line1: $("bootsub").value, bits: bootBits });
+  if (!packed.ok) { bootSay(BOOT_SAY[packed.code] || "bootshort"); return null; }
+  return packed.bytes;
+}
+function showBootResult(r, okKey) {
+  bootSay(r.ok ? okKey : (BOOT_SAY[r.code] || "bootrefuse"));
+}
+async function withRunningX0x(fn) {
+  if (writing) { bootSay("bootbusyinstall"); return; }
+  if (bootOp) return;
+  bootOp = true;
+  let dev = null;
+  try {
+    const up = new Updater(await midiAccess(), () => {});
+    dev = await up.find((id) => !/^ota-/i.test(id.model));
+    if (!dev) { bootSay("bootrun"); return; }
+    await fn(dev.link);
+  } catch (e) {
+    bootSay("bootlost");
+  } finally {
+    if (dev) dev.link.close();
+    bootOp = false;
+  }
+}
+$("bootfile").addEventListener("change", async () => {
+  const f = $("bootfile").files && $("bootfile").files[0];
+  const keep = () => { $("bootfile").value = ""; drawBootPreview(bootBits); };
+  if (!f) return;
+  if (!f.size) { bootSay("bootempty"); keep(); return; }
+  if (f.size > BOOT_FILE_MAX) { bootSay("bootbig"); keep(); return; }
+  const named = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.name);
+  if ((f.type && !f.type.startsWith("image/")) || (!f.type && !named)) {
+    bootSay("boottype"); keep(); return;
+  }
+  try {
+    const img = await loadBootImage(f);
+    if (!img.width || !img.height) { bootSay("bootblank"); keep(); return; }
+    const bits = bootRgbaToBits(fitBootImage(img));
+    if (!bits) { bootSay("bootdecode"); keep(); return; }
+    bootBits = bits;
+    drawBootPreview(bits);
+    bootSay("");
+  } catch (e) {
+    bootSay("bootdecode");
+    keep();
+  }
+});
+$("bootclear").addEventListener("click", () => {
+  bootBits = null;
+  $("bootfile").value = "";
+  drawBootPreview(null);
+  bootSay("");
+});
+$("bootsave").addEventListener("click", () => {
+  const bytes = bootBytes();
+  if (!bytes) return;
+  withRunningX0x(async (link) => showBootResult(await bootTransfer(link, bytes), "bootsaved"));
+});
+$("bootfactory").addEventListener("click", () => {
+  const packed = bootPack({ factory: true });
+  withRunningX0x(async (link) => {
+    const r = await bootTransfer(link, packed.bytes);
+    if (r.ok) {
+      $("boottitle").value = "X0X";
+      $("bootsub").value = "909 808 303 303 BREAK";
+      bootBits = null;
+      $("bootfile").value = "";
+      drawBootPreview(null);
+    }
+    showBootResult(r, "bootorig");
+  });
+});
+$("bootread").addEventListener("click", () => {
+  withRunningX0x(async (link) => {
+    try {
+      const info = await bootRead(link);
+      if (info.status === 2) { bootSay("bootnoflash"); return; }
+      $("boottitle").value = info.line0;
+      $("bootsub").value = info.line1;
+      bootBits = info.bits;
+      drawBootPreview(info.bits);
+      bootSay("bootgot");
+    } catch (e) {
+      bootSay("bootreadfail");
+    }
+  });
+});
+
 (async () => {
   applyLang();
+  drawBootPreview(null);
   await mergeGitHubReleases();
   fillVersions();
   if (navigator.requestMIDIAccess) {

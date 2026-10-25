@@ -10,7 +10,9 @@
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
-       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38 };
+       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_BOOT_INFO = 39,
+       ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT };
+#include "boot_screen.h"
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
  * count, fm1_ms now, then 2 words for each entry (the oldest first), each word 5 x 7 bits, low bits
@@ -392,6 +394,147 @@ static int ed_debug(uint32_t cmd, const uint8_t *a, uint32_t na)
 }
 #endif
 
+/* Boot screen upload. Chunks sit in the existing store buffer. Flash is
+ * touched only by END, and only with a whole valid record, written to the
+ * inactive copy with the header last. */
+static boot_stage_t bst;
+static boot_io_t bio;
+
+static int boot_dev_erase(void *ctx, uint32_t off)
+{
+    uint32_t took;
+    (void)ctx;
+    audio_silence();
+    fm1_wdt_feed();
+    return fl_erase4k(off, &took);
+}
+static int boot_dev_prog(void *ctx, uint32_t off, const uint8_t *src, uint32_t n)
+{
+    (void)ctx;
+    return fl_write(off, src, n);
+}
+static int boot_dev_read(void *ctx, uint32_t off, uint8_t *dst, uint32_t n)
+{
+    (void)ctx;
+    return fl_read(off, dst, n);
+}
+static int boot_cmd(uint32_t cmd)
+{
+    return cmd == ED_BOOT_INFO || (cmd >= ED_BOOT_BEGIN && cmd <= ED_BOOT_ABORT);
+}
+static void boot_housekeep(void)
+{
+    if (boot_poll(&bst, fm1_ms) == BOOT_LATE)
+        store_stage_unlock();
+}
+static const uint8_t *boot_shown(void)
+{
+    const uint8_t *a, *b;
+    int w;
+    if (!flash_ok)
+        return 0;
+    a = fm1_xip_ptr(BOOT_SEC0);
+    b = fm1_xip_ptr(BOOT_SEC1);
+    w = boot_pick(a, b);
+    return w < 0 ? 0 : (w ? b : a);
+}
+static void boot_finish(int rc)
+{
+    if (!bst.armed)
+        store_stage_unlock();
+    ed_b((uint32_t)rc);
+}
+static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
+{
+    int rc;
+    if (cmd == ED_BOOT_INFO) {
+        const uint8_t *sec = boot_shown();
+        const uint8_t *pay = sec ? sec + BOOT_PAY_OFF : 0;
+        char l0[13], l1[22];
+        boot_lines(!flash_ok ? 0 : pay, l0, l1);
+        ed_b(flash_ok ? (pay && pay[0] == BOOT_KIND_CUSTOM ? 0u : 1u) : (uint32_t)BOOT_NOFLASH);
+        ed_b(pay && (pay[1] & BOOT_F_PIC) ? 1u : 0u);
+        ed_str(l0, 12);
+        ed_str(l1, 21);
+        return;
+    }
+    if (cmd == ED_BOOT_ABORT) {
+        boot_abort(&bst);
+        store_stage_unlock();
+        ed_b(0);
+        return;
+    }
+    if (cmd == ED_BOOT_READ) {
+        const uint8_t *sec = boot_shown();
+        uint32_t off, n, len;
+        if (na < 4u || !sec) {
+            ed_b(1);
+            return;
+        }
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        len = boot_u32(sec + 12);
+        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
+        if (off >= len) {
+            ed_b(1);
+            return;
+        }
+        if (n > len - off)
+            n = len - off;
+        ed_b(0);
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_put7(sec + BOOT_PAY_OFF + off, n);
+        return;
+    }
+    if (cmd == ED_BOOT_BEGIN) {
+        uint32_t cap = 0;
+        uint8_t *b;
+        if (!flash_ok) {
+            ed_b(BOOT_NOFLASH);
+            return;
+        }
+        if (!store_stage_held()) {
+            b = store_stage_lock(&cap);
+            if (!b) {
+                ed_b(BOOT_BUSY);
+                return;
+            }
+            bst.buf = b;
+            bst.cap = cap;
+        }
+        bio.erase = boot_dev_erase;
+        bio.prog = boot_dev_prog;
+        bio.read = boot_dev_read;
+        bio.ctx = 0;
+        rc = boot_begin(&bst, fm1_ms);
+        if (rc != BOOT_OK) {
+            bst.armed = 0;
+            store_stage_unlock();
+        }
+        ed_b((uint32_t)rc);
+        return;
+    }
+    if (cmd == ED_BOOT_WRITE) {
+        uint32_t off = 0, n;
+        if (na >= 3u)
+            off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        n = na >= 3u ? ed_unpack_exact(a + 3, na - 3u, ed_smp_buf, 256u) : 0u;
+        rc = boot_write(&bst, off, n ? ed_smp_buf : 0, n, fm1_ms);
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        boot_finish(rc);
+        return;
+    }
+    if (cmd == ED_BOOT_END) {
+        rc = boot_end(&bst, &bio, BOOT_SEC0, BOOT_SEC1, fm1_ms);
+        boot_finish(rc);
+        return;
+    }
+    ed_b(BOOT_BAD);
+}
+
 static void ed_handle(const uint8_t *f, uint32_t n)
 {
     uint32_t cmd = f[3], i;
@@ -487,6 +630,14 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             return;
         break;
 #endif
+    case ED_BOOT_INFO:
+    case ED_BOOT_BEGIN:
+    case ED_BOOT_WRITE:
+    case ED_BOOT_READ:
+    case ED_BOOT_END:
+    case ED_BOOT_ABORT:
+        ed_boot(cmd, a, na);
+        break;
     case ED_SMP_READ: {                              /* X0X: slot, offset (3 x 7 bits, from the slot's start,
                                                       * its header included), count -> slot, offset, the bytes
                                                       * packed 7 to 8 (as WRITE takes them) */
@@ -617,6 +768,7 @@ static int ed_service(void)
     uint32_t n;
     if (ed_project.mode && !ed_project.recovery && fm1_ms - ed_project.at >= 15000u)
         ed_project_end(0);
+    boot_housekeep();
     if (!ota_frame_get(&p, &n))
         return 0;
     if (n < 4u || p[0] != ED_HDR0 || p[1] != ED_HDR1 || p[2] != ED_HDR2) {
@@ -626,7 +778,9 @@ static int ed_service(void)
         }
         return 1;                                    /* this same pending frame belongs to ota_service() */
     }
-    if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ)) {
+    /* Boot writes are longer than the 64-byte stack copy below. A truncated
+     * frame would fail the check and must not be stored. */
+    if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) || boot_cmd(p[3])) {
         ed_handle(p, n);
         ota_frame_done();
         return 0;

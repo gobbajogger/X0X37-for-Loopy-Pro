@@ -211,5 +211,5 @@ editor takes both from `INFO`. Records stored with 53 load with the SLICER off.
 - **Port.** The device's MIDI port has the name "Felucca" (USB 1209:0001). Updates use the same
   port with other SysEx (the `F0 22 24 35 …` keys, `00 59 …` frames). Never send those
   from the editor.
-- **Safety.** Only `PROJECT` save, the sample-slot commands and `UP_PUT` / `UP_STORE` / `UP_ERASE` write flash, and only in
-  Felucca's own storage. They never write the app or the update area.
+- **Safety.** Only `PROJECT` save, the sample-slot commands, the boot-screen commands (39, 43–47) and `UP_PUT` / `UP_STORE` / `UP_ERASE` write flash, and only in
+  Felucca's own storage or the boot-screen sectors. They never write the app or the update area. A boot-screen save that the keyboard refuses does not erase the previous boot screen. The header of a new copy is written last.

@@ -49,11 +49,14 @@ static uint32_t st_crc32(const void *p, uint32_t n)   /* zlib CRC-32, 4 bits per
 #if BOARD_SMK37
 /* SMK-37 Pro: every object in FL_DATA 0x9D000..0xAFFFF (the stock VM), A/B
  * neighbours in plat.h order: settings 0x9D000, sound 0x9F000, patterns 1-8 0xA1000, patterns 9-16 0xA3000,
- * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); 0xAB000..0xAEFFF spare, the store owner tag at
+ * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); boot screen A/B at 0xAB000 and
+ * 0xAC000 (app/boot_screen.h). A foreign-store clear erases those two with the
+ * rest of the store. 0xAD000..0xAEFFF stays spare. The owner tag is at
  * 0xAF000 (st_owner_check). 0xB0000..0xBAFFF is user sample slot 3 (app/slots.c), not the store: the
  * owner check never clears it. Never near BTIF / USRTRIM (0xC0000..0xC1FFF) or key_mac (0xFF000). */
 #define ST_SMK_BASE 0x9D000u
 _Static_assert(ST_SMK_BASE + 2u * OBJ_NOBJ * ST_SECTOR <= 0xAF000u, "SMK store: objects past the owner tag");
+_Static_assert(ST_SMK_BASE + 2u * OBJ_NOBJ * ST_SECTOR == 0xAB000u, "boot screen sectors must follow the objects");
 static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy A (0) / B (1) */
 {
     return ST_SMK_BASE + ((obj % OBJ_NOBJ) * 2u + (copy & 1u)) * ST_SECTOR;
@@ -119,6 +122,21 @@ static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy 
 #endif
 
 static uint8_t st_buf[ST_PAYLOAD_MAX] __attribute__((aligned(4)));
+static uint8_t st_stage_hold;             /* boot screen is filling st_buf; saves must not clobber it */
+
+/* The boot screen stages its record in this existing buffer. A second buffer
+ * would not fit. While held, load and save fail and leave the bytes alone. */
+uint8_t *store_stage_lock(uint32_t *cap)
+{
+    if (st_stage_hold)
+        return 0;
+    st_stage_hold = 1;
+    if (cap)
+        *cap = (uint32_t)sizeof st_buf;
+    return st_buf;
+}
+void store_stage_unlock(void) { st_stage_hold = 0; }
+int store_stage_held(void) { return st_stage_hold; }
 
 static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record valid: 0 */
 {
@@ -167,6 +185,8 @@ static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
     uint32_t i;
     st_hdr_t h;
+    if (st_stage_hold)                            /* do not wipe a boot record being built */
+        return -1;
     if (st_current(obj, &h) < 0)
         return -1;
     if (h.len > max)
@@ -181,6 +201,8 @@ static int st_save(uint32_t obj, const void *src, uint32_t len)
     uint32_t seq, base, off;
     int cur, rc;
     st_hdr_t h;
+    if (st_stage_hold)                            /* refuse; the previous object stays on flash */
+        return -8;
     if (len > ST_PAYLOAD_MAX)
         return -1;
     cur = st_current(obj, &h);

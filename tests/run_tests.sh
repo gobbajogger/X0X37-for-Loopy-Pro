@@ -413,6 +413,8 @@ command -v node >/dev/null 2>&1 && run installer-f03-probe-web node web/test_f03
 command -v node >/dev/null 2>&1 && run installer-bf001-local-file node web/test_install_local_file.mjs   # BF-001: newest local .fwsc / ctl.img selection wins
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
+run boot-screen sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/boot_screen_test tests/boot_screen_test.c && $OUT/boot_screen_test"
+command -v node >/dev/null 2>&1 && run boot-screen-web node web/test_boot_screen.mjs
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
 run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"

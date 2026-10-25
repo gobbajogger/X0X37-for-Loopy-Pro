@@ -2017,6 +2017,41 @@ CK_FN static void smk_frame(void)
 }
 #endif
 
+/* The boot screen. A saved record can replace the two lines and put a
+ * 240 by 96 one-bit picture in the rows above them. No record, or a torn
+ * one, keeps the original words. The picture reuses the canvas in gfx.c. */
+X0X_COLD static void boot_draw_pic(const uint8_t *bits)
+{
+    uint32_t x, y;
+    uint16_t ink = swap16(C_HI);
+    cv_begin(BOOT_PIC_W, BOOT_PIC_H, C_BLACK);
+    for (y = 0; y < BOOT_PIC_H; y++) {
+        uint16_t *row = cv_px + y * BOOT_PIC_W;
+        for (x = 0; x < BOOT_PIC_W; x++)
+            if (boot_pix(bits, x, y))
+                row[x] = ink;
+    }
+    cv_blit(0, 0);
+    lcd_sync();
+}
+X0X_COLD static void boot_splash(void)
+{
+    const uint8_t *sec = 0, *pay = 0;
+    char l0[13], l1[22];
+    if (flash_ok) {
+        int w = boot_pick(fm1_xip_ptr(BOOT_SEC0), fm1_xip_ptr(BOOT_SEC1));
+        if (w >= 0)
+            sec = fm1_xip_ptr(w ? BOOT_SEC1 : BOOT_SEC0);
+    }
+    if (sec)
+        pay = sec + BOOT_PAY_OFF;
+    if (pay && (pay[1] & BOOT_F_PIC))
+        boot_draw_pic(pay + BOOT_PAY_FIXED);
+    boot_lines(pay, l0, l1);
+    draw_text_box(0, 96, 240, &FONT_M, l0, C_HI, 1);
+    draw_text_box(0, 134, 240, &FONT_S, l1, C_GRAY, 1);
+}
+
 /* ------------------------------------------------------------- boot --- */
 #define BOOTGUARD_MAGIC 0x42475244u
 struct bootguard_s bootguard __attribute__((section(".noinit")));   /* declared in x0x.c (ota_commit) */
@@ -2150,8 +2185,7 @@ static void fm1_main(void)
     }
     lcd_init();
     palette_set(1);
-    draw_text_box(0, 96, 240, &FONT_M, "X0X", C_HI, 1);
-    draw_text_box(0, 134, 240, &FONT_S, "909 808 303 303 BREAK", C_GRAY, 1);
+    boot_splash();
     if (x0x_dbg.magic != DBG_MAGIC) {
         memset(&x0x_dbg, 0, sizeof x0x_dbg);
         x0x_dbg.magic = DBG_MAGIC;

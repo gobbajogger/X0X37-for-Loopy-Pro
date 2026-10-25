@@ -90,6 +90,19 @@ int main(void)
     nor[st_sector(OBJ_PROJECT0 + 2, 0) + 8] ^= 0x01;    /* both headers broken */
     nor[st_sector(OBJ_PROJECT0 + 2, 1) + 8] ^= 0x01;
     bad += check("both headers broken -> nothing", st_load(OBJ_PROJECT0 + 2, got, sizeof got) < 0);
+    {   /* a boot upload holds the one store buffer: refuse load and save, keep the bytes */
+        uint32_t cap = 0;
+        uint8_t *b = store_stage_lock(&cap);
+        bad += check("boot stage uses the existing store buffer", b && cap >= 2924u);
+        b[0] = 0x5A;
+        bad += check("save refused while the boot stage holds the buffer", st_save(OBJ_SETTINGS, "nope", 4) == -8);
+        bad += check("refused save leaves the staged bytes", b[0] == 0x5A);
+        bad += check("load refused while the boot stage holds the buffer", st_load(OBJ_SETTINGS, got, 5) < 0);
+        bad += check("refused load leaves the staged bytes", b[0] == 0x5A);
+        store_stage_unlock();
+        bad += check("save works after the boot stage releases the buffer",
+                     st_save(OBJ_SETTINGS, "hello", 5) == 0 && st_load(OBJ_SETTINGS, got, 5) == 5);
+    }
     {   /* X0X map: every object in a data region, none in the sample slots (0xA0000..0xDBFFF), no overlaps */
         uint32_t o, p, ok = 1;
         for (o = 0; o < OBJ_NOBJ; o++) {

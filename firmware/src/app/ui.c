@@ -1528,9 +1528,15 @@ X0X_COLD int ui_project_save(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void);
 #endif
+#ifndef X0X_HOST
+    extern int store_stage_held(void);
+#endif
     if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
 #if BOARD_SMK37
         || smk_ck_flash_busy()
+#endif
+#ifndef X0X_HOST
+        || store_stage_held()
 #endif
     )
         return UI_PROJECT_BUSY;
@@ -4937,6 +4943,11 @@ static void autosave(void)
     uint32_t now = plat_ms();
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
+#endif
+#ifndef X0X_HOST
+    extern int store_stage_held(void);
+    if (store_stage_held())                          /* do not clobber a boot record being uploaded */
+        return;
 #endif
     if (project_busy)
         return;
