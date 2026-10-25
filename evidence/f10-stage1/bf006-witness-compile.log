@@ -1,1 +1,0 @@
-gcc -fsanitize=undefined ... /tmp/bugfinder_drum808_exp2_test.c -> exit 0

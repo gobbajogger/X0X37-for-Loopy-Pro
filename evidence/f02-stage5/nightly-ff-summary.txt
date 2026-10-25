@@ -1,7 +1,0 @@
-validated_source_sha: 4ee8f37714b0892f2c70d157fda9328da393e987
-content_tree: 7ad3a50da8abac890215dae3c28197a2fa90041b8615e828b6b3c6e18060fb83
-nightly_before_after: 58e2c5205a02836df678083eaa8db9994b6192e8 (unchanged)
-merge-base: c9718ae833eb64a5191c350922593df8a36017c9
-commits_on_validated_not_in_nightly: 18
-commits_on_nightly_not_in_validated: 155
-result: REFUSED non-fast-forward; no force-push

@@ -107,12 +107,6 @@ class FakeSMK:
                 link.q.put(bytes(pkt))
 
     def rx(self, d):
-        # Empty SMP_INFO: successful layout read with no samples (F03: fail closed is for probe
-        # failure, not for a successful empty parse). Opt out of answering with answer_slots=False.
-        if (getattr(self, "answer_slots", True) and d[:4] == I.ED_HDR and d[-1] == 0xF7
-                and len(d) >= 5 and d[4] == 15 and not self.identity.startswith("ota-")):
-            self.tx(I.ED_HDR + bytes([15, 0, 0]) + b"\xF7")
-            return
         if d == I.HS_QUERY:
             t = self.identity.encode()
             self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(28 - len(t))) + b"\xF7")

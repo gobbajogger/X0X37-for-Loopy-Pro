@@ -1,1 +1,0 @@
-{"attempt": 1, "url": "https://api.cursor.com/v1/agents", "key_present": false, "status": 401, "response": "{\"code\":\"error\",\"message\":\"Invalid User API Key\"}\n"}

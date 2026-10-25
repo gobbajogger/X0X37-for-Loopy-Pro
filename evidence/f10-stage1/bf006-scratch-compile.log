@@ -1,1 +1,0 @@
-gcc -fsanitize=undefined ... scratch unsigned-shift test -> exit 0

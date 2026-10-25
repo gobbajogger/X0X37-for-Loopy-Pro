@@ -1,10 +1,6 @@
 # Felucca editor protocol (SysEx over USB-MIDI)
 
-Historical notes for the Felucca editor SysEx surface. The X0X fork removed
-`web/editor.html` and `firmware/src/editor.c` (commit 23775375); this document is
-kept as protocol reference only and is not a live product surface.
-
-The firmware side was `firmware/src/editor.c`. Commands 16-26 (user presets and live sync) are protocol v2. Commands 27-30 (tracks) are protocol v3. Commands 31-32 (any track's parameters) are protocol v4.
+The firmware side is `firmware/src/editor.c`. Commands 16-26 (user presets and live sync) are protocol v2. Commands 27-30 (tracks) are protocol v3. Commands 31-32 (any track's parameters) are protocol v4.
 
 **v3 (four tracks):** the device has four tracks: 1..3 are synth parts, 4 is the drum track. One
 of them is *selected* (the TRACKS page on the device, or `TRACK`). Every v1 / v2 command acts on the
@@ -91,8 +87,7 @@ after an engine change.
 
 **User sample slot** (80 KiB each, SAMPLE engine sets USR1..USR3): header at 0, ADPCM data at 512.
 The reference uploader is `tools/fm1_sample_upload.py`, and the slot builder is `sampleio.user_slot`.
-The retired Felucca web editor once carried a JS port checked by `web/test_web.mjs`; that
-byte-check was removed with the editor (BF-003).
+`web/test_web.mjs` checks the editor's port of it byte for byte.
 
 | Offset | Field |
 | --- | --- |

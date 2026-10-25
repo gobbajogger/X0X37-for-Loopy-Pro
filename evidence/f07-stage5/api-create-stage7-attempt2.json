@@ -1,9 +1,0 @@
-{
-  "error": "no CURSOR_API_KEY",
-  "attempt": 2,
-  "http_status": 401,
-  "response": {
-    "code": "error",
-    "message": "Invalid User API Key"
-  }
-}

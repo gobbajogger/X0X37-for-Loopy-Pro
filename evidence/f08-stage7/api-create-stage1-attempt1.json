@@ -1,5 +1,0 @@
-{
-  "attempt": 1,
-  "endpoint": "https://api.cursor.com/v1/agents",
-  "result": "NO_CURSOR_API_KEY"
-}

@@ -1,9 +1,0 @@
-=== tip SHA 4f96b0d9f5f11f700ea3fc935800b8714e11f35d ===
-blob: 7d2e41bf70590bafa8af0a7376bb912bf763b098
-compiler: gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
-flags: -fsanitize=undefined -fno-sanitize-recover=all
-call: fm_exp2f(-3.0f)
-exit: 1
---- stdout ---
---- stderr ---
-/tmp/f12-bf008/fastmath.h:57:14: runtime error: left shift of negative value -3

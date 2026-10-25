@@ -1,5 +1,0 @@
-
-> x0x37-nightly-installer-preview@0.0.0-dev prepare:candidate
-> node scripts/render-qualified-nightly.mjs --catalog /workspace/evidence/f07-stage7/catalog.json --qualification /workspace/evidence/f07-stage7/qualification.json --out /tmp/f07-stage7-prep/candidate-site
-
-PREPARED — HTTP bytes verified; local candidate only. Independent site review and sole publisher deployment/served-byte checks remain required.

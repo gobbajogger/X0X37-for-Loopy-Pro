@@ -54,9 +54,7 @@ static inline float fm_exp2_nf(int32_t n, float f)
     p = p * f + 6.931472057e-01f;
     p = p * f + 1.0f;
     b.f = p;
-    /* Unsigned exponent adjustment: negative signed shifts are undefined in C.
-     * The bit pattern is unchanged for the supported n range [-126, 127]. */
-    b.u += (uint32_t)n << 23;
+    b.i += n << 23;
     return b.f;
 }
 

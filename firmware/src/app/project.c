@@ -488,19 +488,14 @@ static void sound_rev2(project_t *pr)
     pr->sound.v[T_FX][1][0] = (uint8_t)(pr->sound.v[T_FX][0][FX_DL_TYPE] ? 16 + pr->sound.v[T_FX][0][FX_DL_WEAR] * 111 / 127 : 0);
 }
 
-/* a BD gained REV and DLY before its PAN (909: 8 -> 10, 808: 7 -> 9): the pan value moves, the sends start
- * at none (as the kick had). Motion-lane remap is separate: lanes load after OBJ_SOUND. */
+/* a BD gained REV and DLY before its PAN (909: 8 -> 10, 808: 7 -> 9): the pan and its motion move, the sends start
+ * at none (as the kick had) */
 static void sound_bd_sends(project_t *pr, int t, int pan)
 {
     uint8_t *bd = pr->sound.v[t][0];
+    int i;
     bd[pan + 2] = bd[pan];
     bd[pan] = bd[pan + 1] = 0;
-}
-
-/* BF-007: remap BD PAN motion only after arrangement/lanes exist (909: 8->10, 808: 7->9) */
-static void sound_bd_sends_lanes(project_t *pr, int t, int pan)
-{
-    int i;
     for (i = 0; i < NLANE; i++) {
         lane_t *l = &pr->arr.lane[i];
         if (l->used && l->t == t && l->v == 0 && l->i == pan)
@@ -582,11 +577,6 @@ static int read_project(project_t *pr)
         bad = 1;
         pr->arr.song.len = NSONG;
     }
-    /* BF-007: lanes exist only after stream/arrange load; migrate BD PAN motion here */
-    if (sound_ok && pr->set.snd_rev < 3)
-        sound_bd_sends_lanes(pr, T_909, 8);
-    if (sound_ok && pr->set.snd_rev < 4)
-        sound_bd_sends_lanes(pr, T_808, 7);
     if (sound_ok && pr->set.snd_rev < 1)             /* saved before the 909 SD's DECAY: its pots move up one */
         sound_rev1(pr);
     if (sound_ok && pr->set.snd_rev < 2)             /* before the one-knob COMP, FILTER, TAPE */
