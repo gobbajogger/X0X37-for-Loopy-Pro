@@ -147,6 +147,35 @@ static void first_clock_after_dropout(unsigned target)
     CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
 }
 
+
+/* Bluetooth may deliver several 0xF8 ticks in one audio callback. The first
+ * packet after silence establishes phase, not an artificial tempo; all ticks
+ * must remain counted, and the next *separately timed* tick can measure BPM. */
+static void first_clock_burst(unsigned target, unsigned input, unsigned burst)
+{
+    seq_t s;
+    setup(&s, target);
+    advance(&s, FS / 10u);  /* early Loopy connection, 100 ms after boot */
+    for (unsigned i = 0; i < burst; i++) {
+        CHECK(seq_clk_take(&s, 0xF8u, input) == 1);
+        CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    }
+    advance(&s, 1u);         /* one audio callback, multiple F8 inputs */
+    CHECK(s.ext_q == burst);
+    CHECK(s.ext_nb == 0u);
+    CHECK(s.ext_period == 0u);   /* no independently measured interval */
+    CHECK(s.ext_bpm == 125.0f);
+    CHECK(s.clk_lock == input + 1u);
+    CHECK(seq_clk_take(&s, 0xF8u, input ^ 1u) == 0); /* no double-rate input */
+    advance(&s, FS / 48u); /* next true 120-BPM clock tick */
+    CHECK(seq_clk_take(&s, 0xF8u, input) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_q == burst + 1u);
+    CHECK(s.ext_period != 0u);
+    CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
+}
+
 int main(void)
 {
     const unsigned partitions[] = {1u, 64u, 1024u};
@@ -164,6 +193,12 @@ int main(void)
         early_first_clock(SEQ_CLK_EXT, 1);
         first_clock_after_dropout(SEQ_CLK_AUTO);
         first_clock_after_dropout(SEQ_CLK_EXT);
+        for (unsigned burst = 2u; burst <= 5u; burst++) {
+            first_clock_burst(SEQ_CLK_AUTO, 0u, burst); /* USB */
+            first_clock_burst(SEQ_CLK_AUTO, 1u, burst); /* Bluetooth */
+            first_clock_burst(SEQ_CLK_EXT, 0u, burst);
+            first_clock_burst(SEQ_CLK_EXT, 1u, burst);
+        }
     }
     fprintf(stderr, "seq AUTO idle wrap: %u/%u checks %s\n", checks-failed, checks, failed?"FAILED":"PASSED");
     return failed ? 1 : 0;
