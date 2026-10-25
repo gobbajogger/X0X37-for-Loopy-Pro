@@ -360,7 +360,7 @@ static void test_distinct_maps(void)
 }
 
 /* Verify physical grouping in the real framebuffer, rather than accepting any
- * nonempty screen: eight encoders over eight faders, with M/S/R/Select to right. */
+ * nonempty screen: eight encoders over eight faders, with M/S/R to right and selection on the title. */
 static void test_physical_geometry(void)
 {
     setup(V_HOME, PART_909); fader(0, 0); ui_frame();
@@ -368,8 +368,9 @@ static void test_physical_geometry(void)
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 29) * 240 + x + 12] != 0); /* encoder top */
         CHECK(fb[(MAIN_Y + 90) * 240 + x + 8] != 0);  /* vertical fader */
-        for (int row = 0; row < 4; row++)
+        for (int row = 0; row < 3; row++)
             CHECK(fb[(MAIN_Y + 64 + row * 14) * 240 + x + 18] != 0);
+        CHECK(fb[(MAIN_Y + 106) * 240 + x + 18] == swap16(C_BLACK));
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
@@ -378,7 +379,43 @@ static void test_physical_geometry(void)
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 29) * 240 + n * 30 + 12] == swap16(C_GRAY));
     shot("13-eight-strip-resonance");
-    puts("PASS physical layout: all eight knob/fader positions and right-side M/S/R/Select rows");
+    puts("PASS physical layout: all eight knob/fader positions and right-side M/S/R rows; no Select depiction");
+}
+
+
+static void check_selected(int selected)
+{
+    for (int n = 0; n < 8; n++) {
+        CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
+        CHECK(fb[(MAIN_Y + 106) * 240 + n * 30 + 18] == swap16(C_BLACK));
+    }
+}
+static void test_selected_lane(void)
+{
+    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); check_selected(2);
+    CHECK(fb[(MAIN_Y + 29) * 240 + 7 * 30 + 12] == swap16(C_HI));
+    shot("14-selected-part-touched-filter");
+    setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(PART_BRK);
+    setup(V_FX, PART_303A); knob(0, 1); ui_frame(); check_selected(5);
+    *page_of(V_FX) = 1; build_pages(); knob(1, 1); ui_frame(); check_selected(6);
+    setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages();
+    knob(3, 1); ui_frame(); check_selected(7);
+    for (int kit = 0; kit < 2; kit++) for (int view = 0; view < 2; view++)
+        for (int track = 0; track < NDRUM; track++) {
+            setup(view ? V_SEQ : V_MIX, kit);
+            if (!view) *page_of(V_MIX) = kit + 1;
+            ui.sel[kit] = track; build_pages(); knob(0, 1); ui_frame(); check_selected(track % 8);
+        }
+    setup(V_MIX, PART_808); *page_of(V_MIX) = 2; ui.sel[1] = 9; build_pages();
+    CHECK(smc_lock_toggle()); ui.sel[1] = 10; knob(0, 1); ui_frame(); check_selected(2);
+    CHECK(smc_drum_track(1, 0) == 8);
+    shot("15-locked-bank-selected-other-drum");
+    ui.sel[1] = 0; knob(0, 1); ui_frame(); check_selected(-1);
+    shot("16-locked-bank-selection-outside");
+    ui.part = PART_909; ui.sel[1] = 9; knob(0, 1); ui_frame(); check_selected(1);
+    setup(V_MIX, PART_303A); *page_of(V_MIX) = 2; ui.sel[1] = 4; build_pages();
+    knob(0, 1); ui_frame(); check_selected(4);
+    puts("PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank");
 }
 
 #ifndef SMC_UI_MAIN
@@ -386,7 +423,7 @@ static void test_physical_geometry(void)
 #endif
 int SMC_UI_MAIN(void)
 {
-    test_navigation_replay(); test_distinct_maps(); test_physical_geometry();
+    test_navigation_replay(); test_distinct_maps(); test_physical_geometry(); test_selected_lane();
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
     test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();
     printf("smc_ui: PASS (%u checks)\n", checks);
