@@ -20,7 +20,9 @@
 /* ================================================================ model === */
 static const int8_t KEY_WHITE[NKEYS] = {0, -1, 1, -1, 2, -1, 3, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, -1, 10, 11, -1, 12, -1, 13, 14, -1, 15};
 static const int8_t KEY_BLACK[NKEYS] = {-1, 0, -1, 1, -1, 2, -1, -1, 3, -1, 4, -1, -1, 5, -1, 6, -1, 7, -1, -1, 8, -1, 9, -1, -1, 10, -1};
-static uint8_t WHITE_KEY[16], BLACK_KEY[11];
+/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init). */
+static const uint8_t WHITE_KEY[16] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
+static const uint8_t BLACK_KEY[11] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25};
 
 enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };
 static const char *const VIEW_N[NVIEWS] = {"HOME", "", "TB-3PO", "FX", "MIX", "GLOBAL", "SONG", "PERF", "SEQ"};
@@ -254,7 +256,7 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;
 static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T"};
 static const char *const DIR_N[] = {"FWD", "REV", "PING", "RND"};
 static const char *const ONOFF_N[] = {"OFF", "ON"};
-static const char *const ROOT_N[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+#define ROOT_N NOTE_N                       /* same twelve names as put_note */
 static const char *const THEME_N[] = {"GREEN", "AMBER", "CYAN", "RED", "MONO"};
 enum { G_DENS, G_ACC, G_SLIDE, G_OCTS, G_ROOT, G_SCALE, G_BASE, G_MUT, NGEN };
 static const x0x_param_t GEN_P[NGEN] = {
@@ -294,7 +296,7 @@ static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
-static const char *const BT_N[] = {"OFF", "ON"};
+#define BT_N ONOFF_N                                           /* same OFF/ON labels */
 static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
 static const char *const SMC_ROLE_N[] = {"DEVICE", "SMC HOST"};
 static const char *const SMC_MAP_N[] = {"DAW", "USER"};
@@ -852,21 +854,6 @@ static void add_page(const char *t, pref_t a, pref_t b, pref_t c, pref_t d)
     title(pg.n, t);
     pg.group[pg.n] = pg_grp;
     pg.n++;
-}
-
-static void add_eng_pages(int t, int v, int from, int to, const char *name)
-{
-    int n = engine_nparams(t, v), i;
-    if (to > n)
-        to = n;
-    for (i = from; i < to && pg.n < MAXPAGES; i += 4) {
-        int k;
-        for (k = 0; k < 4; k++)
-            pg.r[pg.n][k] = (i + k < to) ? PR(R_ENG, t, v, i + k) : NONE;
-        title(pg.n, name);
-        pg.group[pg.n] = pg_grp;
-        pg.n++;
-    }
 }
 
 static int name_is(const x0x_param_t *d, const char *n)
@@ -4323,7 +4310,7 @@ static UI_DRAW void draw_footer(void)
     segs(4, vc(&FONT_T, FOOT_Y, 9), &FONT_T, col, FOOT_GAP, a, b, c, 0);
 }
 
-static void draw_main(void)
+static UI_DRAW void draw_main(void)
 {
     int band, readout = ui.touched >= 0 && (int32_t)(ui.touch_until - plat_ms()) > 0 &&
                         ui.overlay == O_NONE && !ui.help;
@@ -4769,12 +4756,6 @@ X0X_COLD void ui_init(void)
     memset(bass_rec_pat, 0, sizeof bass_rec_pat);
     memset(bass_rec_playing, 0, sizeof bass_rec_playing);
     undo_lanes = 0;
-    for (i = 0; i < NKEYS; i++) {
-        if (KEY_WHITE[i] >= 0)
-            WHITE_KEY[KEY_WHITE[i]] = (uint8_t)i;
-        if (KEY_BLACK[i] >= 0)
-            BLACK_KEY[KEY_BLACK[i]] = (uint8_t)i;
-    }
     ui.view = V_PART;
     ui.prev_view = V_PART;
     ui.part = PART_909;
