@@ -1,0 +1,18 @@
+You are a fresh stage-7 retry for F12 BF-008 (same candidate). Do not resume bc-45a62e39-2e34-5bca-b974-4df019080a51 or Stage 5 bc-2ced8972-1537-5ad0-91cf-84177aa15c17.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly pages: https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly (place with repo_url when pushing pages)
+startingRef: remote tip of cursor/f12-stage7-bf008-1207 that contains evidence/f12-stage7/SUCCESSOR-STAGE7-RETRY.txt and the prepared candidate receipts.
+
+Validated source SHA: de11b6d7e3ac3322d2db689675d9ed27ed667785
+Content tree: 43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9
+Page Elite / Pro (bundled): 4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a / b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720
+Blank Elite / Pro: 829bb6da… / d2186cb0…
+Host: artifacts/nightly-dev @ 02f4f4f4…
+Parent gh-pages: re-read remote tip before FF; no force-push.
+Prepared site: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/artifacts/f12-stage7-publish/candidate-site.tgz
+Pages prompt: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/internal/f12-stage7-pages-push.md
+
+Prefer cloud gh-pages via nightly repo_url placement. Record LIVE_PAGE_MATCH when catalog matches. Then write SUCCESSOR-STAGE1.txt and ask coordinator CreateAgent for Stage 1 if no CURSOR_API_KEY.
+
+No production main. Local-env proof only. Owner advance-approved nightly publish.
