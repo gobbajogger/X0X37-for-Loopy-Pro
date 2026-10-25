@@ -14,10 +14,13 @@ Repair commits already in tip (not re-opened): `d11b74fc` (BF-001), `4f18983a` (
 Test evidence: `evidence/f05-stage3/CHECKS.md`.
 Implement evidence: `evidence/f05-stage2/CHECKS.md`, `evidence/f05-stage2/DEFERRED.md`.
 Audit record: `evidence/f05-stage1/AUDIT.md`.
+Stage-3 PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/197
 Successor prompt: `evidence/f05-stage3/SUCCESSOR-STAGE4.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 4 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-beff5dde-a986-5a97-bde7-a992b937cc42`.
+Successor URL: https://cursor.com/agents/bc-beff5dde-a986-5a97-bde7-a992b937cc42
+Successor name: F05 BF-002 packages
+startingRef: `cursor/f05-bf002-stage3-fb90`
+Handoff status: **complete** — owner-visible Stage 4 id recorded on this remote tip (coordinator CreateAgent; pod had no `CURSOR_API_KEY`). Did not start Stage 5.
 
 ## Test summary
 
