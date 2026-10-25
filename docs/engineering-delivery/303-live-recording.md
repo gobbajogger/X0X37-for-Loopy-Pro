@@ -1,5 +1,18 @@
 # Live 303 gate duration and legato capture
 
+**WIP — NOT FIXED OR QUALIFIED.** Implementation checkpoint
+`73114a8822307c8813fcb2332069970c6c26966c` is preserved for continuation.
+Source ownership is released. The last independently tested and native-built
+firmware is `1750096754a4e509a4a8a20e0afcf60d70356433`; later context-transition
+changes and the newest REC-off/clear test additions are not independently accepted
+or native-built. No hardware was touched.
+
+Known open defect: canceled held-key membership plus an open DSP gate can still
+misclassify a new press as legato if sequencer playback opens that gate after the
+cancellation. Establish active live ownership or generation and test that ordering
+before accepting the single-lifecycle claim below. The behavior description is the
+intended contract, not a final verification statement.
+
 This repair starts from installed source `892bf60d912eca93597dcf03be25a9756540c949`.
 The old live recorder wrote only a NOTE on press and discarded release. Manual
 NOTE/TIE tests (including PR183) did not exercise or fix that path. This change
@@ -38,10 +51,11 @@ only the terminal cell has a finite endpoint. Once a hold revisits its source
 cell, recording saturates at one traversal and preserves the originating NOTE.
 Live audio continues until its real off. The periodic pattern has no loop-count
 field and cannot encode a finite hold longer than one complete traversal; replay
-repeats the saturated one-traversal event. Random/ping-pong revisits similarly
-saturate when they revisit the source: their direction semantics remain existing
-sequencer semantics, not a promise that a stochastic later pass repeats the
-capture's timing. No step capacity or reserve was removed.
+repeats the saturated one-traversal event. This bound is verified for collision-free FWD/REV traversal. PINGPONG can revisit
+a different cell before returning to the source, and RANDOM can revisit any cell.
+A terminal endpoint can therefore play on an earlier visit than the captured
+release. Exact duration on nonlinear repeated-cell traversal is currently
+**unqualified and unmet**; source-return saturation alone does not solve it. No step capacity or reserve was removed.
 
 ## One accepted live transition
 
@@ -102,13 +116,15 @@ cherry-pick this lane into a separate engine writer's scope.
 `tests/host/rec_live_test.c` injects timestamped Note On/Off messages into `min_q`,
 runs actual `engine_render`/`midi_in`, asserts stored NOTE/TIE/endpoint data, and
 replays it through production sequencer gate/slide callbacks. It also exercises
-physical queued record events. The tests cover held audio beyond multiple old
+physical queued record events. The checkpoint tests include assertions for held audio beyond multiple old
 half-step cutoffs; endpoint/data and one-onset replay; overlap versus detached and
 same-pitch attacks; older/foreign-route offs; pitch0; wrap; reverse; >loop
 saturation; swing; boundary±1sample; externalF8 jitter and same-drain clock bursts;
 part selection and RECoff; STOP; same-pitch old-off debt after cancellation; queued
 successor press after clear; real undo/redo, UI copy, pending-keyboard epoch,
-stream4 save/load and actual legacy3 load. `project_303_stream_test` tests real
+stream4 save/load and actual legacy3 load. The newest REC-off/clear assertions
+were added after the last completed run and remain NOT_RUN; final test-source
+identity and all claimed cases must be verified by the continuation owner. `project_303_stream_test` tests real
 format2 conversion and legacy flags/velocities. `project_stage_test` exercises
 current import semantic rejection with endpoint bits accepted but gate3 rejected.
 
