@@ -66,6 +66,10 @@ static int ota_frame_get(const uint8_t **p, uint32_t *n)
     *p = frame; *n = frame_n; return frame_n != 0;
 }
 static void ota_frame_done(void) { frame_n = 0; }
+/* Prove the device overlay path: editor chunk staging aliases the same 0xD00
+ * region class as ota_dec (call-scoped; no cross-message retention). */
+static uint8_t host_main_scratch[4096] __attribute__((aligned(4)));
+#define ED_SMP_SCRATCH (host_main_scratch + 0xD00)
 #include "../../firmware/src/app/editor.c"
 
 static void request(uint8_t cmd, const uint8_t *p, uint32_t n)
