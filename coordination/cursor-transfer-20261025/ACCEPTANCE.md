@@ -121,16 +121,24 @@ Owner trigger comment `6399253761` asked for one read-only check on worker label
 
 This run is still `bc-919ca392-4052-45c0-80e5-88778518dfc7`. `run-info` after that comment: `privateWorkerId` null, `usePrivateWorker` false, source `scm`. The follow-up marker on that comment links this same agent. The named worker is still idle: `isInUse` false, `activeBcId` null. `list-cloud-agents` created after `2026-10-25T15:03:00Z` returned 0, including self-hosted. No placed check exists to reconcile, and this coordinator does not accept the check. No OS, toolchain, or reference-setup probe was run here. No competing local request was issued. Schema, source, device, and Pages ownership are unchanged. Flash is not approved.
 
+## Schema ownership transfer
+
+Local trigger `6399253761` stays not placed. Receipt `ecf67b9d2dba4a10bb3eaf2142be891041d7f19e` stands. No retry and no API-key route.
+
+After that, one cloud worker accepted the whole recorder and Miami schema scope before any repair write. Worker `bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b` (https://cursor.com/agents/bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b). `privateWorkerId` null. `usePrivateWorker` false. It is not the Mac worker. Its GitHub comment attempt returned `Resource not accessible by integration`. This coordinator records the Task completion.
+
+Verified here before the transfer: `fix/303-live-duration-20261026` is `b923b39711736b79a559a2bed3e835e2fdc75eab`, and `73114a8822307c8813fcb2332069970c6c26966c` is an ancestor. `experiment/miami-step-snapshot-20261026` is `d7f156eca43ccf9ede1d291bc71743b356883e03`. `MASTER.md` at `6374bb8078aeb9dea9fbc0df07635403f8a55e03` is still blob `5066ac8909c892893d8e4fa5ffd11a9d2a851594`.
+
+I transfer sole recorder and Miami shared schema and lifecycle ownership to that worker. The transfer includes the bounded `seq_rec_bass` repair and the later combined revision. I do not keep a second migration writer, and I will not edit that scope. Both stream4 layouts stay frozen until that same worker migrates them together. Pull request 53, Performance, F07, the queue, Pages, and device ownership stay where they were. The rejected clock patch and the Chicago gain candidate stay unimported.
+
+The repair write starts only after this acceptance, by resuming that same worker.
+
 ## Next assignments
 
-Recorder and Miami stay one schema owner: `bc-919ca392-4052-45c0-80e5-88778518dfc7`. No second migration writer.
+Repair owner `bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b` implements one change on top of `b923b39711736b79a559a2bed3e835e2fdc75eab`: after context cancel, `seq_rec_bass` must not treat a reopened DSP gate as legato. `SEQ_REC_LEGATO` is set from `firmware/src/app/engine.c` and consumed at `firmware/src/seq/sequencer.c`. The overlap test is `flags & SEQ_REC_LEGATO` together with `r->active`. That is not ownership proof. Use the accepted note owner and generation. No preset timer and no independent voice reset. Host check is `tests/host/rec_live_test.c`. PINGPONG and RANDOM repeated-cell timing stay unmet and are outside this edit. A host pass is not native fit.
 
-Immediate source next unit, not started in this revision: on `fix/303-live-duration-20261026` at `b923b39711736b79a559a2bed3e835e2fdc75eab` (implementation `73114a8822307c8813fcb2332069970c6c26966c`, open pull request 247), stop `seq_rec_bass` from treating a reopened DSP gate as legato after context cancel. The recorder must consume the accepted note owner and generation. `SEQ_REC_LEGATO` and `BS_SLIDE` in `firmware/src/seq/sequencer.c` are the classification site. `tests/host/rec_live_test.c` is the host check. PINGPONG and RANDOM repeated-cell timing stay unmet and are not this edit. Newest REC-off and clear tests stay `NOT_RUN`. Host tests do not qualify native fit.
+The same owner holds the next combined revision and does not start it inside the repair. Recorder layout remains the endpoint nibble in `firmware/src/seq/pattern.h`. Miami layout remains `MOT_SNAPSHOT` `0xFE`, schema 1, in `firmware/src/seq/motion.h` on `d7f156eca43ccf9ede1d291bc71743b356883e03`. Miami engine continuation, capacity recovery, and acoustic validation stay open. Acoustic reference renders still wait on a placed local thread. No new license gate.
 
-Following schema unit, same owner, also not started: do not import either existing stream4. The frozen recorder layout is the endpoint nibble in `firmware/src/seq/pattern.h` (`flags` holds gate, accent, slide, and endpoint). The frozen Miami layout is `MOT_SNAPSHOT` `0xFE`, 16 parameters, `MOT_SNAPSHOT_SCHEMA` 1 in `firmware/src/seq/motion.h` on `experiment/miami-step-snapshot-20261026` at `d7f156eca43ccf9ede1d291bc71743b356883e03`. The combined change allocates a new revision and migrates both layouts, with atomic legacy rejection, load, copy, undo, and capacity tests, before either migration is integrated.
+Clock next owner: none. Frozen source `7989a51edb62313e57afa16c68ae5bd2bd0497db`, tree `0736ca3e3afbc49a006bd865dcc2f7e524dd4e8e`. `clock-rejected.patch` SHA256 `ed2fd0cccdeed69544d056b913295ac49d4f5acb435fc3cd52ded21033c3354d` is not applied. Native measurement stays on the unplaced local route.
 
-Miami engine continuation, capacity recovery, and acoustic validation stay open and separate from that schema edit. Snapshot tests still do not prove them. Acoustic reference renders wait on the placed local thread. They are not blocked on a new license question.
-
-Clock next owner: none. The local clock writer is released and is not resumed. No cloud clock writer is created. Frozen source remains `7989a51edb62313e57afa16c68ae5bd2bd0497db`, tree `0736ca3e3afbc49a006bd865dcc2f7e524dd4e8e`. `clock-rejected.patch` SHA256 `ed2fd0cccdeed69544d056b913295ac49d4f5acb435fc3cd52ded21033c3354d` is not an accepted repair and is not applied. Approval provenance stays `UNKNOWN`. No pending command was observed. Final Elite and Pro measurement stays with the unplaced local route. Coordinator `bc-919ca392-4052-45c0-80e5-88778518dfc7` holds that freeze until a placed local thread accepts the clock measurement.
-
-Chicago correction source owner stays open. Completed agent `bc-3e82a453-3099-4fb6-9109-483c530fa726` still has no acceptance after comment `6398913054`. No successor is assigned.
+Chicago correction source owner stays open. No successor. Independent QA of the repair is a different worker after the repair commit exists. It is not started before that commit.
