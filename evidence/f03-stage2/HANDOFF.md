@@ -11,9 +11,10 @@ Git tree: `c63af7972f3ca6e5d4e8ac3aac5e70abc8178265`.
 Implement evidence: `evidence/f03-stage2/CHECKS.md`, `evidence/f03-stage2/DEFERRED.md`.
 Audit record: `evidence/f03-stage1/AUDIT.md`.
 Successor prompt: `evidence/f03-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-21ba0310-0c10-5552-a8e2-35032c15b732`.
+Successor URL: https://cursor.com/agents/bc-21ba0310-0c10-5552-a8e2-35032c15b732
+Successor source: `desktop` (coordinator CreateAgent). Name: `F03 stage3 tests`. `startingRef`: `cursor/f03-slot-probe-stage2-fb90`.
+Handoff status: **complete**. Owner-visible Stage 3 is recorded on this remote tip. Stage 2 ownership ends.
 
 ## Repair summary
 

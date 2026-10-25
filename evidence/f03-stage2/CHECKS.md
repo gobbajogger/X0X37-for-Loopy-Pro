@@ -27,3 +27,7 @@ No real MIDI opened. No device written. Firmware / controller / package bytes un
 | install-head | `sh tests/host/test_install_head.sh` | PASS (13/13) |
 
 GitHub Actions were not used as tests.
+
+## Successor
+
+Owner-visible Stage 3: `bc-21ba0310-0c10-5552-a8e2-35032c15b732` — https://cursor.com/agents/bc-21ba0310-0c10-5552-a8e2-35032c15b732 (`desktop`, CreateAgent). Recorded on `HANDOFF.md`.
