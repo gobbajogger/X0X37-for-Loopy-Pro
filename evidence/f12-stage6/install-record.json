@@ -1,0 +1,91 @@
+{
+  "result": "PASS",
+  "pass": true,
+  "flashed": true,
+  "started": "2026-10-25T18:31:40Z",
+  "firmware_sha": "de11b6d7e3ac3322d2db689675d9ed27ed667785",
+  "branch": "cursor/f12-stage5-bf008-1207",
+  "model": "elite",
+  "config": "dev",
+  "package_sha256": "829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056",
+  "package_path": "/Users/mac/Library/Application Support/x0x37/unattended-install/artifacts/829bb6da6eb0042a/x0x-smk37-elite.fwsc",
+  "controller_path": "/Users/mac/Library/Application Support/x0x37/unattended-install/artifacts/956e3e214658aeaa/ctl.img",
+  "dev_record": "/Users/mac/Library/Application Support/x0x37/unattended-install/work/tree-0ebd4856896ea1631c1e3aa5f5ec356775a0270c/evidence/f12-stage4/elite/record.json",
+  "repository_check": "DEV CHECKED de11b6d7e3ac3322d2db689675d9ed27ed667785\nDEV OK de11b6d /Users/mac/Library/Application Support/x0x37/unattended-install/work/tree-0ebd4856896ea1631c1e3aa5f5ec356775a0270c/evidence/f12-stage4/elite/record.json (config dev; queue: 13 open lines in de11b6d)",
+  "device_before": "SMK-37 Elite_900  [running]  port: X0X FM-1",
+  "prewrite_notice": "/Users/mac/Library/Application Support/x0x37/unattended-install/NOTICE.txt",
+  "source": "inbox:LOCAL-INSTALL.json:ddc16f88cff4611f69c10dcaf3abd504c5c0857cdc878289a275afa26e5978c1",
+  "completed": "2026-10-25T18:33:10Z",
+  "installer_exit": 0,
+  "slots": {
+    "slots": [
+      {
+        "slot": 1,
+        "size": 81920,
+        "empty": false,
+        "flash": 794624,
+        "name": "BR1",
+        "zones": 3,
+        "samples": [
+          34800,
+          41788,
+          42862
+        ],
+        "rates": [
+          22050,
+          22050,
+          22050
+        ],
+        "data_len": 59725,
+        "data_crc32": 100363929,
+        "offset": 0,
+        "length": 60237,
+        "crc32": 2518034133
+      },
+      {
+        "slot": 2,
+        "size": 122880,
+        "empty": false,
+        "flash": 876544,
+        "name": "BR2",
+        "zones": 2,
+        "samples": [
+          46184,
+          52913
+        ],
+        "rates": [
+          22050,
+          22050
+        ],
+        "data_len": 49549,
+        "data_crc32": 1806788080,
+        "offset": 60237,
+        "length": 50061,
+        "crc32": 2584346041
+      },
+      {
+        "slot": 3,
+        "size": 45056,
+        "empty": true,
+        "flash": 720896
+      }
+    ],
+    "count": 3,
+    "bytes": 110905,
+    "backup_written": true,
+    "readback_ok": true,
+    "path": "/Users/mac/Library/Application Support/x0x37/unattended-install/records/e88f1ce2eb88ae4a/slots-before-install.x0xslots"
+  },
+  "slot_map_changed": false,
+  "slot_restore_recorded": false,
+  "data_preservation_ok": true,
+  "controller_readback_ok": true,
+  "device_after": "SMK-37 Elite_900  [running]  port: X0X FM-1",
+  "diag": {
+    "returncode": 0,
+    "status": "READY",
+    "ready": true
+  },
+  "bootloader": "The installer does not write the bootloader. No unit head reference is configured, so the head compare stays the tool's existing no-reference path.",
+  "hands_on_controls": "NOT RUN. Fader peek, hold, and restore need a person at the keyboard. This job does not call that a pass."
+}

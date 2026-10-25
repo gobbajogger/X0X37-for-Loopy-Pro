@@ -1,0 +1,39 @@
+You are the new stage-1 audit thread in the X0X37 full-cycle loop (next cycle after F12 Stage 7 LIVE_PAGE_MATCH + Stage 6 PASS). Do not resume the stage-7 thread bc-45a62e39-2e34-5bca-b974-4df019080a51, the Stage 6 Mac run bc-a82248f2-aeb7-52b9-97d7-0cf2d4c171b5, the F11 stage-1 thread bc-1751adc0-5254-5401-a54e-48e433f242b9, or any earlier F02–F12 stage thread. Do not continue any internal probe; this cloud agent is the only Stage 1 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Procedure: AGENTS.md and docs/rules/workflow.md
+Validated source SHA (audit this; published on nightly; do not substitute an older or diverged nightly tip): de11b6d7e3ac3322d2db689675d9ed27ed667785
+Content tree (Stage-4 DEV CHECKED): 43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9
+Git tree (catalog source_tree): c143a9f8f5b5d0f6804995829ccbe515c77c6103
+Firmware tree: 9195dce5c4beb5fa8aa564504c8d1d114c8264cd
+BF-008 repair commit: de11b6d7 (firmware/src/dsp/fastmath.h defined unsigned exp2 shift + tests/host/run_fastmath_ubsan.sh)
+Repair commits already in tip (not re-opened): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007), de11b6d7 (BF-008)
+cloud_base_branch / evidence-bearing tip: start from the remote tip of cursor/f12-next-cycle-stage6-71b5 that contains evidence/f12-stage7/SUCCESSOR-STAGE1.txt, evidence/f12-stage6/CHECKS.md (Stage 6 PASS), and evidence/f12-stage7/*. That tip is evidence/docs only; packages authenticate de11b6d7 / tree 43e97f34….
+
+Read AGENTS.md and docs/rules/workflow.md. You are stage 1 only (audit). Make no production edits. Do not use GitHub Actions or Codex-on-GitHub for tests/review. Local-env reviews are the review gate.
+
+Published page (LIVE_PAGE_MATCH confirmed):
+- latest: nightly-de11b6d7-dev
+- label: DEV / HARDWARE TEST — DEVICE NOT TESTED; hardware_tested false
+- Elite bundled sha256 4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a
+- Pro bundled sha256 b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720
+- controller_sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- Stage-4 blank Elite/Pro: 829bb6da… / d2186cb0…
+- Host: artifacts/nightly-dev @ 02f4f4f48408db96e01b143d5410b7fb00a5a70a
+
+Stage 6 (Mac LaunchAgent, Elite): PASS — record e88f1ce2eb88ae4a; flashed true; data_preservation_ok; controller_readback_ok; diag READY. Evidence: evidence/f12-stage6/.
+
+Next defect (do not ask which): oldest deferred not already fixed in de11b6d7 — from evidence/f12-stage2/DEFERRED.md (withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, open PR #28 leftover history beyond the three BF-008 paths), then any recorded failing check, then oldest open audit/bugfinder finding not already in this SHA. BF-001 through BF-008, F03, and FP-001 are already fixed. Write defects, evidence, affected scope, proposed fixes, which already have approval, and which decisions are missing.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from this pushed tip as cursor/<slug>-stage1-71b5 using required prefix cursor/ and suffix -71b5. No force-push of firmware main or firmware nightly. Leave production main and production GitHub Pages unchanged. Do not flash.
+
+When the audit is recorded, hand off before you stop. If a recorded defect remains: push SUCCESSOR-STAGE2.txt and create exactly one owner-visible stage-2 Cloud Agent. If no recorded defect: push SUCCESSOR-STAGE1.txt and create exactly one owner-visible stage-1 Cloud Agent (loop continues). Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY. Keep ownership until the successor URL is on the remote.
+
+Completion condition: audit recorded for validated source SHA de11b6d7 against the published nightly page hashes above, and one owner-visible successor id pushed on the handoff.
+
+Project store (Full Cycle): /cursor/stores/bc-267ffbd6-96dd-4d7b-8b24-0ac084c39a8e/
+
+Policy: all review/tests in agent environment only — never GitHub Actions or @codex. Build-speed: internal/perf-and-pr-fanout.md (plan-first local_proof_plan; X0X_TEST_JOBS=8).
