@@ -67,7 +67,12 @@ then render it using the same approved AU route. `slide_experiment.py` trains9
 host slew candidates on48→55, selecting120ms, and tests60→67 without retuning.
 The optional C argument `--experimental-slide-tau-ms 120` changes only the host
 instance's slew coefficient/powers. Without this flag the three independently
-rerendered controls are byte-identical. Output is native float32 mono44.1kHz.
+rerendered controls are byte-identical. `--experimental-gate-model GAIN_DB BETA SLOPE_DB_PER_S`
+is a separate host-only gain on the rendered samples. It restarts on a new
+non-slide note, holds through a slide, and keeps the last value after note-off.
+Omit it and the file matches the default renderer. The measured coefficients and
+the train/held-out scores are in `GATE_AMPLITUDE_RESULTS.md`. That flag does not
+change firmware DSP. Output is native float32 mono44.1kHz.
 Use `verify.py` for readback/finite/repeat/gain/default/rejection checks and
 `contour.py`/`plot.py` for the recorded comparisons. These scripts do not execute
 the AU. Calibration does not establish envelope, resonance, accent or general
