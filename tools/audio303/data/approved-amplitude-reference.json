@@ -76,7 +76,7 @@
       "repeat-n60-r0",
       "repeat-n60-r1"
     ],
-    "primary_rms_bins": "indices2..8 inclusive, centers .125 through .425 seconds; normalize velocity to100 and temporal envelope to bin2, report absolute gain separately"
+    "primary_rms_bins": "Temporal envelope RMSE normalized at bin2 over bin indices2..8 inclusive, centers .125 through .425 seconds, across cutoff training/heldout; relative-to-velocity100 level transfer at cutoff.6 separately. Absolute level RMSE reported separately using ONE fixed training gain at cutoff.6; no per-heldout gain normalization or new cutoff calibration curve."
   },
   "interpretation": {
     "gate": "Chicago amp Gate; source retains independent amp envelope. A host-only gain/envelope correction does not prove waveform/filter/amp engine equivalence.",
