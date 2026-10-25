@@ -1,0 +1,4 @@
+HEAD=b42bcba46ee7255c18f18c10dd1f99b9fc9bb675
+master.c=f91a9473f0ae1cdd5e037e521f39fdfcc2022395
+master_test.c=df2f13b35a6fc7b858b019a1950982c23f6386e3
+PASS bf012 tip blobs

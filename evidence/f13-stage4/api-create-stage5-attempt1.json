@@ -1,0 +1,8 @@
+{
+  "attempt": 1,
+  "action": "POST https://api.cursor.com/v1/agents",
+  "result": "NO_CURSOR_API_KEY",
+  "authenticated": false,
+  "created_agent_id": null,
+  "note": "Pod environment has no CURSOR_API_KEY; no CreateAgent call was made. Stage 4 retains ownership of the handoff until coordinator CreateAgent returns an owner-visible Stage 5 id."
+}
