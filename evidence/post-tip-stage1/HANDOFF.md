@@ -14,3 +14,12 @@
 | Owner-visible successor id | pending (see api notes / coordinator CreateAgent) |
 
 Do not start Stage 2 from this handoff. Do not resume Stage 7.
+
+## Successor create
+
+| Attempt | Result |
+| --- | --- |
+| 1 | HTTP 401 Invalid User API Key (`api-create-stage1-attempt1.json`) |
+| 2 | HTTP 401 Invalid User API Key (`api-create-stage1-attempt2.json`) |
+
+**Handoff incomplete** for owner-visible next Stage 1. Ask Project coordinator to CreateAgent.
