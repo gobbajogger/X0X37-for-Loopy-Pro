@@ -11,7 +11,7 @@ export const SLOT_HDR_LEN = 32 + SLOT_ZONES * 28;
 export const SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF;
 export const ROOT_BASE = 36;              // loop i is zone root 36 + i: the slot sorts its zones by root
 export const RATE = 44100, RATE_HALF = 22050;   // 44.1 kHz by default; 22.05 kHz only when asked for
-export const DRY_SLOT_KB = [80, 120, 44]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
+export const DRY_SLOT_KB = [80, 120]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
 
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
   97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658,

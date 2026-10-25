@@ -16,7 +16,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import install_test as T  # noqa: E402  (FakeSMK, package, cli; its tests run only as __main__)
-from slot_mock import Flash, MockDevice, SMK_MAP, SMK_OLD_MAP  # noqa: E402
+from slot_mock import Flash, MockDevice, SMK_MAP, SMK_NOW, SMK_OLD_MAP  # noqa: E402
 import fm1pkg_make  # noqa: E402
 import x0x_slots as xs  # noqa: E402
 import sampleio as sio  # noqa: E402
@@ -93,7 +93,9 @@ def read(flash, slot_map, ext=True):
     return [m.image(k) for k in range(m.count)]
 
 
-NEW = (SMK_MAP, True)                  # this X0X
+NEW = (SMK_MAP, True)                  # the previous 3-slot X0X (installer scenarios)
+NOW = (SMK_NOW, True)                  # this firmware: two slots, same offsets for 1 and 2
+NOW_PKG = "SMK-37 Pro_9001200"
 OLD = (SMK_OLD_MAP, False)             # X0X before the layout change: 2 x 80 KiB, no extension
 MOVED = [(0xC2000, 0x14000), (0xD7000, 0x1D000), (0xB0000, 0xB000)]    # a later map: slot 2 one sector up
 NEW_PKG = "SMK-37 Pro_9001100"
@@ -252,6 +254,33 @@ def old_package_without_controller():
        "old package transport: no controller is selected implicitly")
 
 
+def drop_third():
+    """a 3-slot keyboard -> this 2-slot map. Slots 1 and 2 stay. A filled slot 3 is saved."""
+    fl = Flash()
+    a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
+    b = put(fl, SMK_MAP, 1, "BR2", 140000, 5)
+    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    raw = package(NOW_PKG, SMK_NOW)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, NOW_PKG, {NEW_PKG: NEW, NOW_PKG: NOW}, fl)
+    rc, out, err = T.cli([pkgfile("two.fwsc", raw), "--yes", "--backup", "drop3.x0xslots"], dev)
+    f = TMP / "drop3.x0xslots"
+    meta, imgs = xs.read_archive(f.read_bytes()) if f.exists() else (None, None)
+    ok(rc == I.EXIT["slots"] == 7 and imgs == [a, b, c] and read(fl, SMK_NOW) == [a, b],
+       "3 slots -> 2: slots 1 and 2 stay, slot 3 is saved, both remaining slots are full")
+    ok("slot 3 (BR3, 30 KiB)" in out and "not written back: slot 3" in out,
+       "3 slots -> 2: the warning names slot 3 and the restore reports it")
+    clear()
+    fl = Flash()
+    a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
+    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    raw = package(NOW_PKG, SMK_NOW)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, NOW_PKG, {NEW_PKG: NEW, NOW_PKG: NOW}, fl)
+    rc, out, err = T.cli([pkgfile("two-free.fwsc", raw), "--yes", "--backup", "drop3b.x0xslots"], dev)
+    ok(rc == 0 and read(fl, SMK_NOW) == [a, c] and "slot 3 written back to slot 2 and read back: ok" in out,
+       "3 slots -> 2: an empty slot 2 receives the saved slot 3 loop")
+    clear()
+
+
 def maps():
     ok(I.package_slot_map(I.logical_image(package(NEW_PKG, SMK_MAP)), NEW_PKG) == SMK_MAP
        and I.package_slot_map(I.logical_image(package(OLD_PKG)), OLD_PKG) == SMK_OLD_MAP
@@ -260,7 +289,8 @@ def maps():
     p = ROOT / "build/x0x-smk37.fwsc"
     if p.exists():
         prod, img = I.load_package(str(p), False)
-        ok(I.package_slot_map(img, prod) == SMK_MAP, "build/x0x-smk37.fwsc carries this firmware's slot map")
+        ok(I.package_slot_map(img, prod) == fm1pkg_make.SLOTMAP["smk37"] == SMK_NOW,
+           "build/x0x-smk37.fwsc carries this firmware's slot map")
 
 
 ROOT = HERE.parent
@@ -269,6 +299,7 @@ upgrade_keeps()
 explicit_backup_keeps()
 downgrade()
 clear()
+drop_third()
 moved()
 fails()
 backup_fails()

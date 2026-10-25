@@ -415,8 +415,8 @@ The SMK build differs from the FM-1 build in these items:
   calibration), the stock resources (0xF4000-0xFDFFF) or key_mac (0xFF000-). The RAM flash driver has a
   second guard.
 - The store (`storage.c`): seven objects A/B at 0x9D000-0xAAFFF, boot screen copies at 0xAB000 and 0xAC000, spare 0xAD000-0xAEFFF, the store owner tag at
-  0xAF000. The update staging at 0xBB000 (`ota.c`). Three user sample slots (`app/slots.c`): slot 1 80 KiB at
-  0xC2000 and slot 2 120 KiB at 0xD6000 (to 0xF3FFF). Slot 3 44 KiB at 0xB0000 (to 0xBAFFF).
+  0xAF000. The update staging at 0xBB000 (`ota.c`). Two user sample slots (`app/slots.c`): slot 1 80 KiB at
+  0xC2000 and slot 2 120 KiB at 0xD6000 (to 0xF3FFF). The 44 KiB window at 0xB0000 is not a sample slot.
 - The Bluetooth controller block: 64 KiB at flash 0x8B000-0x9AFFF (XIP 0x02087000), at the top of the
   encrypted app slot. The app code ends below it: `APP_CODE_MAX` 0x86EE0 (552,672 B). `build.py` links the
   app to that length and stops when the image is larger.
