@@ -72,7 +72,8 @@ int main(void)
     engine_smc_solo(1);
     assert(ui_project_begin() == UI_PROJECT_BUSY && smc.solo == 1);
     smc.picked = smc.seen = 0xFF;
-    smc.fx_restore[0] = 89;
+    smc.muted = smc.mute_edit = 1;
+    engine_fx_mute(1);
     memset(smc.known, 1, sizeof smc.known);
     seq.mute = 0x123;
     ui.rec = 1;
@@ -82,7 +83,7 @@ int main(void)
     smc_poll();
     check_queues();
     assert(!seq.playing && !seq.req_start && !ui.rec && !seq.mute);
-    assert(!smc.solo && !smc.picked && !smc.seen && !smc.fx_restore[0]);
+    assert(!smc.solo && !smc.picked && !smc.seen && !smc.muted && !smc.mute_edit && !engine_fx_muted());
     assert(smc.up && smc.fresh && smc.pending == 0xFF);
     for (int i = 0; i < 128; i++) assert(!smc.known[i]);
     assert((proj.set.bt & (PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)) ==

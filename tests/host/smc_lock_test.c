@@ -78,16 +78,17 @@ static void test_drum_lock(void)
         CHECK(smc.drum_solo[kit] == (1u << (bank * 8)));
         message(0x80, 8, 0); CHECK(!smc_project_active());
         message(0x80, 8, 0); CHECK(!smc_project_active());
-        ui_before = screen_state();
-        const int parked[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
-        for (unsigned i = 0; i < sizeof parked / sizeof *parked; i++) {
-            message(0x90, parked[i], 127); navigation_unchanged(ui_before);
-            CHECK(smc_same(f[0], smc_target(0)));
-        }
+        /* Intentional SMC bank navigation now updates the isolated context. */
+        message(0x90, bank ? 0x2E : 0x2F, 127);
+        message(0x80, bank ? 0x2E : 0x2F, 0);
+        CHECK(smc.locked); CHECK(smc.lock_bank == (bank ? 0 : 8));
+        CHECK(smc_target(0).b == (bank ? 0 : 8));
+        navigate(V_PART, PART_303A); /* keyboard still cannot redirect the new lock */
+        CHECK(smc_target(0).b == (bank ? 0 : 8));
         CHECK(smc_lock_toggle());
         CHECK(smc_same(smc_target(0), smc_home_target(0)));
     }
-    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, parked navigation");
+    puts("PASS lock drum identity: both kits/banks, empty strips, isolated edits/mute/Solo, intentional SMC navigation");
 }
 static void test_engine_lock_and_clip(void)
 {
@@ -240,7 +241,7 @@ static void test_pickup_and_display(void)
     setup(V_SEQ, PART_909); ui.sel[0] = 0; build_pages();
     pref_t r = smc_target(0); pref_set(r, 80); smc_frame();
     fader(0, smc_scaled(r)); CHECK(smc.picked & 1u);
-    CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u));
+    CHECK(smc_lock_toggle()); CHECK(smc.picked & 1u);
     navigate(V_SEQ, PART_808); ui.sel[1] = 8; build_pages();
     pref_t next = find_ref(T_808, 8, "Level"); pref_set(next, 40);
     /* Move the target above the last physical sample: the next downward
@@ -255,7 +256,7 @@ static void test_pickup_and_display(void)
     fader(0, smc_scaled(r)); CHECK(smc.picked & 1u);
     fader(0, 127); CHECK(pref_get(r) >= original); CHECK(pref_get(next) == nextval);
     pref_set(r, 25); smc_frame(); CHECK(!(smc.picked & 1u));
-    CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u)); CHECK(smc.seen & 1u);
+    CHECK(smc_lock_toggle()); smc_frame(); CHECK(!(smc.picked & 1u)); CHECK(smc.seen & 1u);
     CHECK(smc_same(next, smc_target(0)));
     fader(0, 127); CHECK(pref_get(next) == nextval); CHECK(!(smc.picked & 1u));
     fader(0, smc_scaled(next)); CHECK(smc.picked & 1u);
@@ -360,10 +361,11 @@ static void test_select_and_play(void)
         message(0x80, 24 + other, 0);
         press(24 + kit); CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
-        pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
-        screen_state_t before = screen_state();
-        press(24 + other); navigation_unchanged(before); CHECK(!smc_ui_active());
-        CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
+        unsigned old_track = ui.sel[kit];
+        press(24 + other); CHECK(smc.locked); CHECK(!smc_ui_active());
+        CHECK(ui.sel[kit] == other || cur_page() == 0);
+        CHECK(smc.lock_sel[kit] == ui.sel[kit]);
+        (void)old_track;
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
     }

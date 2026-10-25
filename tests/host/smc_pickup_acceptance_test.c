@@ -185,7 +185,9 @@ static void stateful_sequences(void)
             if (op == 0) {
                 pref_set(smc_target(0), (rng >> 8) & 127);
             } else if (op == 1) {
-                CHECK(smc_lock_toggle()); accepted = 0;
+                /* Lock preserves pickup if the exact target/value is unchanged.
+                 * The identity/value oracle below rearms actual routing edits. */
+                CHECK(smc_lock_toggle());
             } else if (op == 2) {
                 /* Parked switch away/back; edit the destination while away. */
                 uint8_t view = ui.view, part = ui.part;

@@ -32,6 +32,8 @@ static drum808_t d808 POOL;
 static bass303_t b303[NBASS] POOL;
 static breaks_t brk POOL;
 static fxbus_t fx POOL;
+void engine_fx_mute(uint8_t mask) { fx.muted = mask & 7u; }
+uint8_t engine_fx_muted(void) { return fx.muted; }
 static master_t mst;
 #define DLY_LEN 88200
 static int16_t dly_buf[DLY_LEN] POOL;

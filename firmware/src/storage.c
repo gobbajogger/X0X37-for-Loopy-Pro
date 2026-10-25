@@ -32,19 +32,24 @@ static int st_read(uint32_t off, void *dst, uint32_t n);
 static int st_erase(uint32_t off);
 static int st_prog(uint32_t off, const void *src, uint32_t n);
 
-static uint32_t st_crc32(const void *p, uint32_t n)   /* zlib CRC-32, 4 bits per step */
+static uint32_t st_crc32_more(const void *p, uint32_t n, uint32_t crc)   /* zlib CRC-32, 4 bits per step */
 {
     static const uint32_t T[16] = {
         0x00000000u, 0x1DB71064u, 0x3B6E20C8u, 0x26D930ACu, 0x76DC4190u, 0x6B6B51F4u, 0x4DB26158u, 0x5005713Cu,
         0xEDB88320u, 0xF00F9344u, 0xD6D6A3E8u, 0xCB61B38Cu, 0x9B64C2B0u, 0x86D3D2D4u, 0xA00AE278u, 0xBDBDF21Cu};
     const uint8_t *b = p;
-    uint32_t c = 0xFFFFFFFFu;
+    uint32_t c = ~crc;
     while (n--) {
         c ^= *b++;
         c = (c >> 4) ^ T[c & 15u];
         c = (c >> 4) ^ T[c & 15u];
     }
     return ~c;
+}
+
+static uint32_t st_crc32(const void *p, uint32_t n)
+{
+    return st_crc32_more(p, n, 0);
 }
 
 #if BOARD_SMK37
@@ -119,7 +124,12 @@ static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy 
 }
 #endif
 
+/* Main-loop only, synchronous and non-reentrant. The native project codec
+ * borrows st_buf for the duration of a load/save call. No ISR/core1 caller and
+ * no retained project pointer may use this scratch across main-loop turns.
+ * Verification must never overwrite it: it can hold the incoming save bytes. */
 static uint8_t st_buf[ST_PAYLOAD_MAX] __attribute__((aligned(4)));
+static uint8_t st_verify[256] __attribute__((aligned(4)));
 
 static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record valid: 0 */
 {
@@ -131,32 +141,44 @@ static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record 
     return 0;
 }
 
-static int st_body(uint32_t obj, uint32_t copy, const st_hdr_t *h)   /* payload -> st_buf, CRC ok: 0 */
+static int st_body(uint32_t obj, uint32_t copy, const st_hdr_t *h, int preserve)
 {
-    if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF, st_buf, h->len) || st_crc32(st_buf, h->len) != h->crc)
-        return -1;
-    return 0;
+    uint32_t base = st_sector(obj, copy) + ST_PAYLOAD_OFF;
+    uint32_t off = 0, crc = 0, chunk = preserve ? sizeof st_verify : sizeof st_buf;
+    uint8_t *buf = preserve ? st_verify : st_buf;
+    /* Loads stage the whole body; saves verify in bounded chunks without
+     * overwriting incoming bytes. Each path retains the same CRC and fallback. */
+    do {
+        uint32_t n = h->len - off;
+        if (n > chunk)
+            n = chunk;
+        if (st_read(base + off, buf, n))
+            return -1;
+        crc = st_crc32_more(buf, n, crc);
+        off += n;
+    } while (off < h->len);
+    return crc == h->crc ? 0 : -1;
 }
 
 /* the current copy: the valid one with the highest seq (A on a tie), -1 when
  * neither is valid. Headers first, so only the winner's payload is read (it
- * is left in st_buf); *h gets its header. */
-static int st_current(uint32_t obj, st_hdr_t *h)
+ * is left in st_buf unless preserve); *h gets its header. */
+static int st_current(uint32_t obj, st_hdr_t *h, int preserve)
 {
     st_hdr_t a, b;
     int va = st_head(obj, 0, &a) == 0, vb = st_head(obj, 1, &b) == 0;
     if (vb && (!va || b.seq > a.seq)) {
-        if (st_body(obj, 1, &b) == 0) {
+        if (st_body(obj, 1, &b, preserve) == 0) {
             *h = b;
             return 1;
         }
         vb = 0;
     }
-    if (va && st_body(obj, 0, &a) == 0) {
+    if (va && st_body(obj, 0, &a, preserve) == 0) {
         *h = a;
         return 0;
     }
-    if (vb && st_body(obj, 1, &b) == 0) {
+    if (vb && st_body(obj, 1, &b, preserve) == 0) {
         *h = b;
         return 1;
     }
@@ -168,7 +190,7 @@ static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
     uint32_t i;
     st_hdr_t h;
-    if (st_current(obj, &h) < 0)
+    if (st_current(obj, &h, 0) < 0)
         return -1;
     if (h.len > max)
         h.len = max;
@@ -184,7 +206,7 @@ static int st_save(uint32_t obj, const void *src, uint32_t len)
     st_hdr_t h;
     if (len > ST_PAYLOAD_MAX)
         return -1;
-    cur = st_current(obj, &h);
+    cur = st_current(obj, &h, 1);
     seq = cur < 0 ? 0u : h.seq;
     base = st_sector(obj, cur == 0 ? 1u : 0u);       /* write the other copy */
     for (off = 0; off < len; off++)
@@ -209,7 +231,7 @@ static int st_save(uint32_t obj, const void *src, uint32_t len)
     {   /* read back: a write-protected or failing part must not report SAVED */
         st_hdr_t chk;
         uint32_t c = cur == 0 ? 1u : 0u;
-        if (st_head(obj, c, &chk) || chk.seq != h.seq || st_body(obj, c, &chk))
+        if (st_head(obj, c, &chk) || chk.seq != h.seq || st_body(obj, c, &chk, 1))
             return -7;
     }
     return 0;

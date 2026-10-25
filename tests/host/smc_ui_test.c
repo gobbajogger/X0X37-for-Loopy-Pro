@@ -494,8 +494,8 @@ static void test_action_captions_and_knobs(void)
     int rec = ui.rec; smc_button_apply(7, 0); CHECK(ui.rec != rec && ui.sel[0] == 7);
     smc_button_apply(15, 0); CHECK(smc.drum_solo[0] & (1u << 7));
     ui.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
-    CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "X"));
-    knob(0, 1); ui_frame(); shot("18-locked-disabled-actions");
+    CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "R"));
+    knob(0, 1); ui_frame(); shot("18-locked-live-actions");
     setup(V_HOME, PART_303A);
     pref_t pan = smc_knob_target(0);
     for (int v = 0; v <= 2; v++) {

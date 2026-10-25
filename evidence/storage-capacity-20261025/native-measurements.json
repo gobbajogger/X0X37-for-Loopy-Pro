@@ -1,0 +1,736 @@
+{
+  "baseline_elite": {
+    "elf_sha256": "e8ea84809cd43590fd27e338392a8cc20dd0de1909b08255140a934a71a83f8b",
+    "sections": {
+      ".text": {
+        "address": 33554720,
+        "size": 548128
+      },
+      ".ram_sink": {
+        "address": 29360128,
+        "size": 1024
+      },
+      ".ram_text": {
+        "address": 29361152,
+        "size": 3500
+      },
+      ".c1_text": {
+        "address": 29364652,
+        "size": 608
+      },
+      ".data": {
+        "address": 29392896,
+        "size": 368
+      },
+      ".bss": {
+        "address": 29393280,
+        "size": 97620
+      },
+      ".pool": {
+        "address": 29491200,
+        "size": 335740
+      },
+      ".noinit": {
+        "address": 29868032,
+        "size": 308
+      },
+      ".ble_ram": {
+        "address": 29869056,
+        "size": 3880
+      }
+    },
+    "budgets": {
+      "app_used": 552604,
+      "app_free": 68,
+      "static_used": 98004,
+      "pool_used": 335740,
+      "static_free": 300,
+      "pool_free": 8324
+    },
+    "scratch_symbols": {
+      "io_buf": {
+        "address": 29410288,
+        "size": 3840
+      },
+      "st_buf": {
+        "address": 29406448,
+        "size": 3840
+      }
+    },
+    "frames": {
+      "st_crc32": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r3 = -1",
+          "r2 = 33773396 <crc32_of.T : 2035754 >"
+        ]
+      },
+      "st_head": {
+        "own_frame_bytes": 12,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "r4 = r2",
+          "r5 = r0"
+        ]
+      },
+      "st_body": {
+        "own_frame_bytes": 12,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "r4 = r2"
+        ]
+      },
+      "st_current": {
+        "own_frame_bytes": 88,
+        "prologue": [
+          "[--sp] = {rets, r8-r4}",
+          "sp += -64",
+          "r8 = r1",
+          "r5 = r0",
+          "r2 = sp + 32",
+          "r1 = 0"
+        ]
+      },
+      "st_read": {
+        "own_frame_bytes": 28,
+        "prologue": [
+          "[--sp] = {rets, r9-r4}",
+          "r5 = r2",
+          "r6 = r1",
+          "r7 = r0"
+        ]
+      },
+      "plat_store_load": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "sp += -32",
+          "r3 = 29429712 <ble_want : 1c10fd0 >",
+          "r5 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r4 = r1"
+        ]
+      },
+      "plat_store_save": {
+        "own_frame_bytes": 108,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "sp += -64",
+          "r3 = 29429712 <ble_want : 1c10fd0 >",
+          "r7 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r6 = r1",
+          "r12 = r0"
+        ]
+      },
+      "save_buf": {
+        "own_frame_bytes": 24,
+        "prologue": [
+          "[--sp] = {rets, r8-r4}",
+          "r6 = r1",
+          "r4 = r0",
+          "r0 = 29429712 <ble_want : 1c10fd0 >",
+          "r7 = r4 + r0",
+          "r0 = r6"
+        ]
+      },
+      "st_flush": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r4 = r0",
+          "r0 = [r4+4]",
+          "r1 = 33803938 <STREAM_OBJ : 203cea2 >",
+          "r0 = b[r0+r1] (u)",
+          "r1 = [r4+12]"
+        ]
+      },
+      "project_save": {
+        "own_frame_bytes": 48,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "sp += -28",
+          "r5 = 29454932 <proj : 1c17254 >",
+          "r0 = r5"
+        ]
+      },
+      "st_get": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "r5 = r0",
+          "r8 = -1  # <_data_load+0xFFFFFFFFFDF791B2 : fffffffffffffffe >",
+          "r0 = [r5+12]"
+        ]
+      },
+      "st_put": {
+        "own_frame_bytes": 20,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "r4 = r0",
+          "r5 = r2  #",
+          "r0 = [r4+16]",
+          "r2 = r0 + r5",
+          "r6 = r1  #",
+          "[r4+16] = r2",
+          "r0 = [r4+0]"
+        ]
+      }
+    }
+  },
+  "baseline_pro": {
+    "elf_sha256": "5b12837fe01bc68150e9c9946f04abf66dbf2c7a8c4a3c190a4018652f52e05a",
+    "sections": {
+      ".text": {
+        "address": 33554720,
+        "size": 548128
+      },
+      ".ram_sink": {
+        "address": 29360128,
+        "size": 1024
+      },
+      ".ram_text": {
+        "address": 29361152,
+        "size": 3500
+      },
+      ".c1_text": {
+        "address": 29364652,
+        "size": 608
+      },
+      ".data": {
+        "address": 29392896,
+        "size": 368
+      },
+      ".bss": {
+        "address": 29393280,
+        "size": 97620
+      },
+      ".pool": {
+        "address": 29491200,
+        "size": 335740
+      },
+      ".noinit": {
+        "address": 29868032,
+        "size": 308
+      },
+      ".ble_ram": {
+        "address": 29869056,
+        "size": 3880
+      }
+    },
+    "budgets": {
+      "app_used": 552604,
+      "app_free": 68,
+      "static_used": 98004,
+      "pool_used": 335740,
+      "static_free": 300,
+      "pool_free": 8324
+    },
+    "scratch_symbols": {
+      "io_buf": {
+        "address": 29410288,
+        "size": 3840
+      },
+      "st_buf": {
+        "address": 29406448,
+        "size": 3840
+      }
+    },
+    "frames": {
+      "st_crc32": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r3 = -1",
+          "r2 = 33773396 <crc32_of.T : 2035754 >"
+        ]
+      },
+      "st_head": {
+        "own_frame_bytes": 12,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "r4 = r2",
+          "r5 = r0"
+        ]
+      },
+      "st_body": {
+        "own_frame_bytes": 12,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "r4 = r2"
+        ]
+      },
+      "st_current": {
+        "own_frame_bytes": 88,
+        "prologue": [
+          "[--sp] = {rets, r8-r4}",
+          "sp += -64",
+          "r8 = r1",
+          "r5 = r0",
+          "r2 = sp + 32",
+          "r1 = 0"
+        ]
+      },
+      "st_read": {
+        "own_frame_bytes": 28,
+        "prologue": [
+          "[--sp] = {rets, r9-r4}",
+          "r5 = r2",
+          "r6 = r1",
+          "r7 = r0"
+        ]
+      },
+      "plat_store_load": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "sp += -32",
+          "r3 = 29429712 <ble_want : 1c10fd0 >",
+          "r5 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r4 = r1"
+        ]
+      },
+      "plat_store_save": {
+        "own_frame_bytes": 108,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "sp += -64",
+          "r3 = 29429712 <ble_want : 1c10fd0 >",
+          "r7 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r6 = r1",
+          "r12 = r0"
+        ]
+      },
+      "save_buf": {
+        "own_frame_bytes": 24,
+        "prologue": [
+          "[--sp] = {rets, r8-r4}",
+          "r6 = r1",
+          "r4 = r0",
+          "r0 = 29429712 <ble_want : 1c10fd0 >",
+          "r7 = r4 + r0",
+          "r0 = r6"
+        ]
+      },
+      "st_flush": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r4 = r0",
+          "r0 = [r4+4]",
+          "r1 = 33803934 <STREAM_OBJ : 203ce9e >",
+          "r0 = b[r0+r1] (u)",
+          "r1 = [r4+12]"
+        ]
+      },
+      "project_save": {
+        "own_frame_bytes": 48,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "sp += -28",
+          "r5 = 29454932 <proj : 1c17254 >",
+          "r0 = r5"
+        ]
+      },
+      "st_get": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "r5 = r0",
+          "r8 = -1  # <_data_load+0xFFFFFFFFFDF791B2 : fffffffffffffffe >",
+          "r0 = [r5+12]"
+        ]
+      },
+      "st_put": {
+        "own_frame_bytes": 20,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "r4 = r0",
+          "r5 = r2  #",
+          "r0 = [r4+16]",
+          "r2 = r0 + r5",
+          "r6 = r1  #",
+          "[r4+16] = r2",
+          "r0 = [r4+0]"
+        ]
+      }
+    }
+  },
+  "candidate_elite": {
+    "elf_sha256": "9276eac430427780496fbe23fa1d5e7157316397bd37f0dfa723def5d914fa59",
+    "sections": {
+      ".text": {
+        "address": 33554720,
+        "size": 548192
+      },
+      ".ram_sink": {
+        "address": 29360128,
+        "size": 1024
+      },
+      ".ram_text": {
+        "address": 29361152,
+        "size": 3500
+      },
+      ".c1_text": {
+        "address": 29364652,
+        "size": 608
+      },
+      ".data": {
+        "address": 29392896,
+        "size": 368
+      },
+      ".bss": {
+        "address": 29393280,
+        "size": 94036
+      },
+      ".pool": {
+        "address": 29491200,
+        "size": 335740
+      },
+      ".noinit": {
+        "address": 29868032,
+        "size": 308
+      },
+      ".ble_ram": {
+        "address": 29869056,
+        "size": 3880
+      }
+    },
+    "budgets": {
+      "app_used": 552668,
+      "app_free": 4,
+      "static_used": 94420,
+      "pool_used": 335740,
+      "static_free": 3884,
+      "pool_free": 8324
+    },
+    "scratch_symbols": {
+      "st_buf": {
+        "address": 29406448,
+        "size": 3840
+      },
+      "st_verify": {
+        "address": 29410288,
+        "size": 256
+      }
+    },
+    "frames": {
+      "st_crc32": {
+        "own_frame_bytes": 0,
+        "prologue": [
+          "r2 = 0"
+        ]
+      },
+      "st_crc32_more": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r3 = ~r2",
+          "r2 = 33773460 <crc32_of.T : 2035794 >"
+        ]
+      },
+      "st_head": {
+        "own_frame_bytes": 12,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "r4 = r2",
+          "r5 = r0"
+        ]
+      },
+      "st_body": {
+        "own_frame_bytes": 32,
+        "prologue": [
+          "[--sp] = {rets, r10-r4}",
+          "r8 = r2"
+        ]
+      },
+      "st_current": {
+        "own_frame_bytes": 92,
+        "prologue": [
+          "[--sp] = {rets, r9-r4}",
+          "sp += -64",
+          "r9 = r2",
+          "r8 = r1",
+          "r6 = r0",
+          "r2 = sp + 32",
+          "r1 = 0"
+        ]
+      },
+      "st_read": {
+        "own_frame_bytes": 28,
+        "prologue": [
+          "[--sp] = {rets, r9-r4}",
+          "r5 = r2",
+          "r6 = r1",
+          "r7 = r0"
+        ]
+      },
+      "plat_store_load": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "sp += -32",
+          "r3 = 29426128 <ble_want : 1c101d0 >",
+          "r5 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r4 = r1"
+        ]
+      },
+      "plat_store_save": {
+        "own_frame_bytes": 108,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "sp += -64",
+          "r3 = 29426128 <ble_want : 1c101d0 >",
+          "r7 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r6 = r1",
+          "r12 = r0"
+        ]
+      },
+      "save_buf": {
+        "own_frame_bytes": 24,
+        "prologue": [
+          "[--sp] = {rets, r8-r4}",
+          "r6 = r1",
+          "r4 = r0",
+          "r0 = 29426128 <ble_want : 1c101d0 >",
+          "r7 = r4 + r0",
+          "r0 = r6"
+        ]
+      },
+      "st_flush": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r4 = r0",
+          "r0 = [r4+4]",
+          "r1 = 33804002 <STREAM_OBJ : 203cee2 >",
+          "r0 = b[r0+r1] (u)",
+          "r1 = [r4+12]"
+        ]
+      },
+      "project_save": {
+        "own_frame_bytes": 48,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "sp += -28",
+          "r5 = 29451348 <proj : 1c16454 >",
+          "r0 = r5"
+        ]
+      },
+      "st_get": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "r5 = r0",
+          "r8 = -1  # <_data_load+0xFFFFFFFFFDF79172 : fffffffffffffffe >",
+          "r0 = [r5+12]"
+        ]
+      },
+      "st_put": {
+        "own_frame_bytes": 20,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "r4 = r0",
+          "r5 = r2  #",
+          "r0 = [r4+16]",
+          "r2 = r0 + r5",
+          "r6 = r1  #",
+          "[r4+16] = r2",
+          "r0 = [r4+0]"
+        ]
+      }
+    }
+  },
+  "candidate_pro": {
+    "elf_sha256": "637f78770c3cf8725434f87296f36c4c50b873bded393194cc3178bbc0d1fc2f",
+    "sections": {
+      ".text": {
+        "address": 33554720,
+        "size": 548192
+      },
+      ".ram_sink": {
+        "address": 29360128,
+        "size": 1024
+      },
+      ".ram_text": {
+        "address": 29361152,
+        "size": 3500
+      },
+      ".c1_text": {
+        "address": 29364652,
+        "size": 608
+      },
+      ".data": {
+        "address": 29392896,
+        "size": 368
+      },
+      ".bss": {
+        "address": 29393280,
+        "size": 94036
+      },
+      ".pool": {
+        "address": 29491200,
+        "size": 335740
+      },
+      ".noinit": {
+        "address": 29868032,
+        "size": 308
+      },
+      ".ble_ram": {
+        "address": 29869056,
+        "size": 3880
+      }
+    },
+    "budgets": {
+      "app_used": 552668,
+      "app_free": 4,
+      "static_used": 94420,
+      "pool_used": 335740,
+      "static_free": 3884,
+      "pool_free": 8324
+    },
+    "scratch_symbols": {
+      "st_buf": {
+        "address": 29406448,
+        "size": 3840
+      },
+      "st_verify": {
+        "address": 29410288,
+        "size": 256
+      }
+    },
+    "frames": {
+      "st_crc32": {
+        "own_frame_bytes": 0,
+        "prologue": [
+          "r2 = 0"
+        ]
+      },
+      "st_crc32_more": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r3 = ~r2",
+          "r2 = 33773460 <crc32_of.T : 2035794 >"
+        ]
+      },
+      "st_head": {
+        "own_frame_bytes": 12,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "r4 = r2",
+          "r5 = r0"
+        ]
+      },
+      "st_body": {
+        "own_frame_bytes": 32,
+        "prologue": [
+          "[--sp] = {rets, r10-r4}",
+          "r8 = r2"
+        ]
+      },
+      "st_current": {
+        "own_frame_bytes": 92,
+        "prologue": [
+          "[--sp] = {rets, r9-r4}",
+          "sp += -64",
+          "r9 = r2",
+          "r8 = r1",
+          "r6 = r0",
+          "r2 = sp + 32",
+          "r1 = 0"
+        ]
+      },
+      "st_read": {
+        "own_frame_bytes": 28,
+        "prologue": [
+          "[--sp] = {rets, r9-r4}",
+          "r5 = r2",
+          "r6 = r1",
+          "r7 = r0"
+        ]
+      },
+      "plat_store_load": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r5, r4}",
+          "sp += -32",
+          "r3 = 29426128 <ble_want : 1c101d0 >",
+          "r5 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r4 = r1"
+        ]
+      },
+      "plat_store_save": {
+        "own_frame_bytes": 108,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "sp += -64",
+          "r3 = 29426128 <ble_want : 1c101d0 >",
+          "r7 = r2  #",
+          "r3 = b[r3+3] (u)",
+          "r6 = r1",
+          "r12 = r0"
+        ]
+      },
+      "save_buf": {
+        "own_frame_bytes": 24,
+        "prologue": [
+          "[--sp] = {rets, r8-r4}",
+          "r6 = r1",
+          "r4 = r0",
+          "r0 = 29426128 <ble_want : 1c101d0 >",
+          "r7 = r4 + r0",
+          "r0 = r6"
+        ]
+      },
+      "st_flush": {
+        "own_frame_bytes": 8,
+        "prologue": [
+          "[--sp] = {rets, r4}",
+          "r4 = r0",
+          "r0 = [r4+4]",
+          "r1 = 33803998 <STREAM_OBJ : 203cede >",
+          "r0 = b[r0+r1] (u)",
+          "r1 = [r4+12]"
+        ]
+      },
+      "project_save": {
+        "own_frame_bytes": 48,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "sp += -28",
+          "r5 = 29451348 <proj : 1c16454 >",
+          "r0 = r5"
+        ]
+      },
+      "st_get": {
+        "own_frame_bytes": 44,
+        "prologue": [
+          "[--sp] = {rets, r13-r4}",
+          "r5 = r0",
+          "r8 = -1  # <_data_load+0xFFFFFFFFFDF79172 : fffffffffffffffe >",
+          "r0 = [r5+12]"
+        ]
+      },
+      "st_put": {
+        "own_frame_bytes": 20,
+        "prologue": [
+          "[--sp] = {rets, r7-r4}",
+          "r4 = r0",
+          "r5 = r2  #",
+          "r0 = [r4+16]",
+          "r2 = r0 + r5",
+          "r6 = r1  #",
+          "[r4+16] = r2",
+          "r0 = [r4+0]"
+        ]
+      }
+    }
+  }
+}

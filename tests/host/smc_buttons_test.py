@@ -21,8 +21,8 @@ harness = r'''
 #include <stdint.h>
 enum { NKIT=2, NPARTS=5, NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
-static struct { int solo,locked,lock_kit,lock_bank,lock_part; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
-static struct { int ppat[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
+static struct { int solo,locked,lock_kit,lock_bank,lock_part,bank,mode_note; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
+static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
 static struct { int n; } pg;
 static uint8_t page;
@@ -32,8 +32,12 @@ static void button_tap(int b) { tap=b; }
 static int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
 static int drum_mix_page(void) { return -1; }
 static int smk_clip_mode_on(void) { return 0; }
+static int smc_clip_on(void) { return smk_clip_mode_on(); }
+static unsigned smc_resuming;
+static int smc_bank_count(void) { return 4; }
+static void smc_ui_begin(int n,int k) { (void)n;(void)k; }
+static int seq_cue_of(void *s,int part) { (void)s;(void)part;return -1; }
 static int is_drum(void) { return 0; }
-static int is_303(void) { return 1; }
 static void build_pages(void) {}
 #define song() (&song_data)
 static void smc_select_part(int p) { ui.part=p; }
@@ -44,6 +48,7 @@ static void smc_record_toggle(void) {}
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
 static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
+static void smc_notice(int n) { (void)n; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }
@@ -72,9 +77,9 @@ int main(void) {
     pg.n=4;
     for(int note=0x60;note<=0x63;note++) {
         int d=(note&1)?1:-1;
-        ui.overlay=O_NONE; ui.view=V_PART; page=1; smc_button(note,0);
-        if(note<0x62) assert(last_view==(d<0?V_HOME:V_SEQ));
-        else { assert(page==1+d); page=d<0?0:3; smc_button(note,0); assert(page==(d<0?0:3)); }
+        ui.overlay=O_NONE; ui.view=V_PART; page=1; smc.bank=1; smc_button(note,0);
+        if(note<0x62) assert(smc.bank==1+d);
+        else { assert(page==1+d); page=d<0?0:3; smc_button(note,0); assert(page==(d<0?3:0)); }
         ui.overlay=O_LIST; moved=edited=0; smc_button(note,0);
         assert(note<0x62 ? moved==d && edited==0 : moved==0 && edited==d);
     }
@@ -85,4 +90,4 @@ with tempfile.TemporaryDirectory() as tmp:
     c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
     subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
-print('PASS: strip shortcuts and page/menu arrows use explicit view/page/menu mappings')
+print('PASS: strip shortcuts, knob banks and wrapping page/menu arrows use explicit mappings')

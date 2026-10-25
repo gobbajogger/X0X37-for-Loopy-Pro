@@ -59,7 +59,7 @@ int main(int argc,char **argv) {
    if(epoch==2)matches=matches&&edited_writes==0&&after_edit==90;
    cases++;mismatches+=!matches;
    printf("MUTE_AUDIT %s kind=%s acquired=%d moved=%d epoch=%s raw=%d before_picked=%d movement_writes=%u during_saved=%d during_picked=%d edited_writes=%u after_edit=%d resumed_saved=%d desired=%d cache=%d\n",
-          matches?"MATCH":"DESIRED_MISMATCH",kinds[kind],active,moved,epoch==0?"base":epoch==1?"locked-navigation":"real-target-edit",raw,before_picked,movement_writes,during,during_picked,edited_writes,after_edit,resumed,desired,kind>=3?smc.fx_restore[kind-3]:0);
+          matches?"MATCH":"DESIRED_MISMATCH",kinds[kind],active,moved,epoch==0?"base":epoch==1?"locked-navigation":"real-target-edit",raw,before_picked,movement_writes,during,during_picked,edited_writes,after_edit,resumed,desired,kind>=3?!!(engine_fx_muted() & (1u << (kind-3))):0);
    /* Two further mute/unmute pairs, with no physical movement, must preserve
     * the desired resumed level. A previous mismatch stays a mismatch;
     * repetition cannot bless an already-wrong saved value. */

@@ -32,6 +32,10 @@ static void pref_set(pref_t r, int n)
 }
 static void motion_touch(pref_t r) { (void)r; touches++; }
 static void pref_value(pref_t r, char *num, char *unit) { sprintf(num, "%d", pref_get(r)); *unit = 0; }
+/* This isolated legacy fixture covers nonmuted pickup only. Full mute/audio
+ * ownership coverage lives in smc_muted_fader_test.c with real UI+engine. */
+static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+static int volume_muted(pref_t r) { (void)r; return 0; }
 #include "smk_faders.inc"
 
 static int failed;
