@@ -56,4 +56,4 @@ Production `main` / production Pages unchanged. No device flash. Deferred: `evid
 
 ## Overall
 
-**PUBLISHED LIVE** for validated source `1325f5d3…` with matching package hashes, labeled hardware test / device not tested. Independent-qa cites local-env PR #210 review for unchanged package bytes. Ready for Stage 1 after owner-visible successor id is on the remote.
+**PUBLISHED LIVE** for validated source `1325f5d3…` with matching package hashes, labeled hardware test / device not tested. Independent-qa cites local-env PR #210 review for unchanged package bytes. Owner-visible Stage 1 successor `bc-b1215ac4-b3bd-5a72-a25e-e97bb3d629dd` recorded on HANDOFF.
