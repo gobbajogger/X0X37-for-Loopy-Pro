@@ -10,6 +10,7 @@
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
 #include "../dsp/fastmath.h"
+#include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
 
 #define POOL X0X_POOL
 
@@ -1048,13 +1049,6 @@ void engine_brk_state(int *slice, int *bank, int *div, int *running)
 
 /* the loop's outline for the screen: n columns of peak level 0..255 (main loop: decodes the
  * whole loop once, ~20k IMA steps; called when the loop changes, never per frame) */
-static const int16_t ISTEP[89] = {
-    7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97,
-    107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
-    876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428,
-    4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350,
-    22385, 24623, 27086, 29794, 32767};
-static const int8_t IIDX[8] = {-1, -1, -1, -1, 2, 4, 6, 8};
 int engine_brk_outline(int which, uint8_t *peaks, int n)
 {
     const brk_bank_t *bk = &brk.bank[which & 1];
@@ -1065,23 +1059,15 @@ int engine_brk_outline(int which, uint8_t *peaks, int n)
         return 0;
     per = (ns + (uint32_t)n - 1u) / (uint32_t)n;       /* samples per column (32-bit: no __udivdi3) */
     for (i = 0; i < ns; i++) {
-        uint32_t code = (bk->adpcm[i >> 1] >> ((i & 1u) * 4u)) & 15u;
-        int32_t st = ISTEP[idx], vd = st >> 3, c;
-        if (code & 4u) vd += st;
-        if (code & 2u) vd += st >> 1;
-        if (code & 1u) vd += st >> 2;
-        pred += (code & 8u) ? -vd : vd;
-        pred = pred < -32768 ? -32768 : pred > 32767 ? 32767 : pred;
-        idx += IIDX[code & 7u];
-        idx = idx < 0 ? 0 : idx > 88 ? 88 : idx;
+        int32_t s = ima_decode(bk->adpcm, i, &pred, &idx), c;
         c = (int32_t)(i / per);
         if (c != col) {
             peaks[col] = (uint8_t)(pk >> 7);
             col = c;
             pk = 0;
         }
-        if ((pred < 0 ? -pred : pred) > pk)
-            pk = pred < 0 ? -pred : pred;
+        if ((s < 0 ? -s : s) > pk)
+            pk = s < 0 ? -s : s;
     }
     peaks[col] = (uint8_t)(pk >> 7);
     for (col++; col < n; col++)
