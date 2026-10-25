@@ -40,6 +40,7 @@
  * IMA ADPCM tables and decoder step: ima_adpcm.h (from Felucca's eng_sample.c,
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hugelton Instruments, GPL-3.0). */
 #include "breaks.h"
+#include "../x0x_cold.h"          /* X0X_COLD: breaks_init is boot only, not the render */
 
 /* Build-time A/B: 0 runs original per-sample reverse advancement. */
 #ifndef BRK_FAST_REV_SKIP
@@ -578,7 +579,8 @@ void breaks_stop(breaks_t *b)
     gate_update(b);
 }
 
-void breaks_init(breaks_t *b)
+/* Boot only (engine_init). The render, the step, and the live keys do not call it. */
+X0X_COLD void breaks_init(breaks_t *b)
 {
     uint8_t *p = (uint8_t *)b;
     uint32_t i;
