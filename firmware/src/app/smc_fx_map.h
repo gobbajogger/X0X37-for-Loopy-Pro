@@ -18,17 +18,17 @@ static const uint8_t SMCFX_NOTE[SMCFX_N] = {24, 25, 26, 28};
 /* Curated per-bus lists (Home+cycle order). Same effect may repeat on buses; omit
  * effects that do not suit a bus — no padding to a fixed count. */
 static const uint8_t SMCFX_SUIT[SMCFX_N][4] = {
-    {SMCFX_REV, SMCFX_DLY, SMCFX_GATE, 0},
-    {SMCFX_DLY, SMCFX_REV, SMCFX_GATE, 0},
+    {SMCFX_REV, SMCFX_DLY, 0, 0},
+    {SMCFX_DLY, SMCFX_REV, 0, 0},
     {SMCFX_HP, SMCFX_DLY, SMCFX_REV, SMCFX_LP},
     {SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_HP},
 };
-static const uint8_t SMCFX_SUIT_N[SMCFX_N] = {3, 3, 4, 4};
+static const uint8_t SMCFX_SUIT_N[SMCFX_N] = {2, 2, 4, 4};
 
 /* Preset banks: one assignment per bus, each must be in that bus's SMCFX_SUIT list. */
 static const uint8_t SMCFX_PAGE[SMCFX_NPAGE][SMCFX_N] = {
     {SMCFX_REV, SMCFX_DLY, SMCFX_HP, SMCFX_GATE},
-    {SMCFX_GATE, SMCFX_GATE, SMCFX_HP, SMCFX_HP},
+    {SMCFX_DLY, SMCFX_REV, SMCFX_HP, SMCFX_HP},
     {SMCFX_DLY, SMCFX_REV, SMCFX_REV, SMCFX_DLY},
 };
 static const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT", "ECHO"};
