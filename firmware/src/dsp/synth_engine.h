@@ -35,7 +35,7 @@ typedef struct {
  * byte occurs last; pending fields cannot be reused until acknowledgement.
  * Compiler fences suffice on this single-core interrupt contract. Other thread
  * models must supply a synchronized external queue (host tests are sequential). */
-#define SYNTH_FENCE() __asm__ __volatile__("" ::: "memory")
+#define SYNTH_FENCE() __asm__ volatile("" ::: "memory")
 static inline int synth_valid(synth_binding_t b)
 {
     return b.context && b.ops && b.ops->id && b.ops->schema && b.ops->init &&
