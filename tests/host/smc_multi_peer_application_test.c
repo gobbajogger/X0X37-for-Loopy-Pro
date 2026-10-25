@@ -114,9 +114,30 @@ static void same_target_and_solo(void)
     CHECK(!smc_peer_locked(0)&&!smc_peer_locked(1));
     puts("PASS full production: same-target pickup, same/different Solo union, per-peer intentional navigation and disconnect/reset");
 }
+static void pause_release_classes_and_sessions(void)
+{
+    two_links();
+    peer_message(1,0x90,0x5d,127);
+    CHECK(smc_states[1].locked&&smc_states[1].lock_down);
+    const uint8_t filler[]={0xb0,16,0},pause_off[]={0x80,0x5d,0};
+    for(int i=0;i<32;i++) smc_ble_midi_peer(0,filler,3);
+    smc_ble_midi_peer(0,pause_off,3);smc_poll();
+    CHECK(smc_states[1].locked&&smc_states[1].lock_down);
+    peer_message(1,0x90,0x5d,127);CHECK(smc_states[1].locked);
+    peer_message(1,0x80,0x5d,0);peer_message(1,0x90,0x5d,127);
+    CHECK(!smc_states[1].locked);
+    /* A previous link's lost Pause release must not rearm the new session. */
+    peer_message(0,0x90,0x5d,127);CHECK(smc_states[0].locked);
+    for(int i=0;i<32;i++) smc_ble_midi_peer(0,filler,3);
+    smc_ble_midi_peer(0,pause_off,3);
+    smc_ble_link_peer(0,0);smc_ble_link_peer(0,1);smc_poll();
+    peer_message(0,0x90,0x5d,127);CHECK(!smc_states[0].locked&&smc_states[0].lock_down);
+    peer_message(0,0x90,0x5d,127);CHECK(!smc_states[0].locked&&smc_states[0].lock_down);
+    puts("PASS full production: independent physical Pause edges and old-session lost-release retirement");
+}
 int main(void)
 {
-    distinct_locks_pickup_and_feedback();same_target_and_solo();
+    distinct_locks_pickup_and_feedback();same_target_and_solo();pause_release_classes_and_sessions();
     printf("smc_multi_peer_application: PASS (%u checks)\n",checks);
     return 0;
 }
