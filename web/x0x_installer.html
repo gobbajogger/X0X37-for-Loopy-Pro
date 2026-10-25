@@ -1159,6 +1159,8 @@ $("go").addEventListener("click", async () => {
   if (writing || ctlNeedsResolution || $("go").disabled ||
       !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
   if (!confirmWrite(selectedProduct)) return;
+  const product = selectedProduct;
+  const guard = guardApprovedSelection();
   let img = image;
   if (ctl) {
     const v = currentVersion(), p = v && v.models && v.models[chosenModel];
@@ -1178,6 +1180,10 @@ $("go").addEventListener("click", async () => {
         if (!files || !files.length) { sayK("loopsneed"); return; }
         const loops = [];
         for (const f of files) loops.push(loopFromWav(new Uint8Array(await f.arrayBuffer()), f.name));
+        if (selectedProduct !== product) {
+          sayK("selectionstale");
+          return;
+        }
         pack = encodeBreakPack(loops);
       }
       img = insertBreakPack(img, pack);
@@ -1186,8 +1192,12 @@ $("go").addEventListener("click", async () => {
       return;
     }
   }
+  if (selectedProduct !== product) {
+    sayK("selectionstale");
+    return;
+  }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, selectedProduct, { foreign: false, selectionGuard: guardApprovedSelection() });
+  run(img, product, { foreign: false, selectionGuard: guard });
 });
 function confirmNightlyModel(deviceModel, product) {
   const actual = String(deviceModel || "").replace(/^ota-/i, "");

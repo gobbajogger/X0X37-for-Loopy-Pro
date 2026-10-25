@@ -286,6 +286,18 @@ def maps():
        and I.package_slot_map(I.logical_image(package(OLD_PKG)), OLD_PKG) == SMK_OLD_MAP
        and I.package_slot_map(I.logical_image(package("SMK-37 Pro_016", marker=False)), "SMK-37 Pro_016") == [],
        "package slot map: the map record, else the old 2 x 80 KiB (Felucca loader), else none (stock)")
+    fm1, fm1_now = "FM-1_900", fm1pkg_make.SLOTMAP["fm1"]
+    fm1_old = [(0xA0000 + k * 0x14000, 0x14000) for k in range(3)]
+    ok(I.package_slot_map(I.logical_image(package(fm1, fm1_now)), fm1) == fm1_now
+       and I.package_slot_map(I.logical_image(package(fm1)), fm1) == fm1_old,
+       "FM-1: a package with the record has two slots; an older package with no record stays at three")
+    sdk = Path(os.environ.get("AC79_SDK", Path.home() / "fw-AC79_AIoT_SDK"))
+    if (sdk / "cpu/wl82/tools/uboot.boot").is_file():
+        os.environ["AC79_SDK"] = str(sdk)
+        fm1pkg_make.set_board("fm1")
+        flash = fm1pkg_make.flash_image(b"\x00" * 64, fm1pkg_make.KEY)
+        ok(fm1pkg_make.slotmap_of(flash) == fm1_now, "an FM-1 image carries the two-slot map")
+        fm1pkg_make.set_board("smk37")
     p = ROOT / "build/x0x-smk37.fwsc"
     if p.exists():
         prod, img = I.load_package(str(p), False)
