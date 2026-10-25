@@ -1,0 +1,173 @@
+{
+  "state": "BOTH_AFFECTED_APP_RELINK_SIZING_PASS",
+  "source_base_sha": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+  "runtime_main_sha256": "7c3748bc563ecf7b21eac213c2c07721bf2128f55cf10a073ab9cfb64329767b",
+  "scope": "Standalone startup-only fix. PR196 excluded. Affected native TU recompile and app relink; not package, controller, hardware or combined-build qualification.",
+  "models": [
+    {
+      "stage": "AFFECTED_TU_RECOMPILE_AND_APP_RELINK_ONLY",
+      "variant": "fixed",
+      "model": "elite",
+      "config": "DEV X0X_DEV_PADCAL=1",
+      "commands": [
+        [
+          "cc",
+          "-Oz",
+          "-ffunction-sections",
+          "-fno-builtin",
+          "-Wall",
+          "-Wno-unused-function",
+          "-mcpu=r3",
+          "-mfprev1",
+          "-ffp-contract=off",
+          "-DBOARD_SMK37=1",
+          "-DSMK_MODEL=\"SMK-37 Elite\"",
+          "-Ifirmware/hal",
+          "-Ifirmware/src",
+          "-I/work/native/gen",
+          "-DX0X_DEV_PADCAL=1",
+          "-DFELUCCA_ID=\"SMK-37 Elite_900\"",
+          "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+          "-DFELUCCA_DATA_UNTAGGED_OK=0",
+          "-c",
+          "/work/repo/firmware/src/x0x.c",
+          "-o",
+          "/work/native/elite-fixed/x0x.o"
+        ]
+      ],
+      "bytes": 552636,
+      "code_free": 36,
+      "errors": [],
+      "notes": [
+        ".ram_text: 1082 insns, no calls",
+        "app code area 552672 B, 36 B free (Bluetooth block at app.bin 0x86ee0)",
+        "no soft-double routines (single-precision FPU only)",
+        "image 552636 B; RAM .data+.bss 98004 B of 98304; pool 335740 B of 344064"
+      ],
+      "image_sha256": "4b4139a3669479f9509069985c17c91b73285fa9a52b4275c330a033fcd43ed0",
+      "main_source_sha256": "7c3748bc563ecf7b21eac213c2c07721bf2128f55cf10a073ab9cfb64329767b",
+      "x0x_object_sha256": "8ae39dd04512b5a52d110b8b8a2df78e746f8c12854af074d92bc5503986ba94",
+      "baseline_bytes": 552604,
+      "baseline_code_free": 68,
+      "delta_bytes": 32,
+      "ram_free": 300,
+      "pool_free": 8324,
+      "static_ram_delta_bytes": 0,
+      "pool_delta_bytes": 0,
+      "measurement_sha256": "d93efd560028b04161bfcf95d6f406197cd975ae3a45b0c29d8bfcab0643ee3e"
+    },
+    {
+      "stage": "AFFECTED_TU_RECOMPILE_AND_APP_RELINK_ONLY",
+      "variant": "fixed",
+      "model": "pro",
+      "config": "DEV X0X_DEV_PADCAL=1",
+      "commands": [
+        [
+          "cc",
+          "-Oz",
+          "-ffunction-sections",
+          "-fno-builtin",
+          "-Wall",
+          "-Wno-unused-function",
+          "-mcpu=r3",
+          "-mfprev1",
+          "-ffp-contract=off",
+          "-DBOARD_SMK37=1",
+          "-Ifirmware/hal",
+          "-Ifirmware/src",
+          "-I/work/native/gen",
+          "-DX0X_DEV_PADCAL=1",
+          "-DFELUCCA_ID=\"SMK-37 Pro_900\"",
+          "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+          "-DFELUCCA_DATA_UNTAGGED_OK=0",
+          "-c",
+          "/work/repo/firmware/src/x0x.c",
+          "-o",
+          "/work/native/pro-fixed/x0x.o"
+        ]
+      ],
+      "bytes": 552636,
+      "code_free": 36,
+      "errors": [],
+      "notes": [
+        ".ram_text: 1082 insns, no calls",
+        "app code area 552672 B, 36 B free (Bluetooth block at app.bin 0x86ee0)",
+        "no soft-double routines (single-precision FPU only)",
+        "image 552636 B; RAM .data+.bss 98004 B of 98304; pool 335740 B of 344064"
+      ],
+      "image_sha256": "daf28b1a79825f14ef22e9158e9c2432ebb46c17e5418932001b29d4247eea89",
+      "main_source_sha256": "7c3748bc563ecf7b21eac213c2c07721bf2128f55cf10a073ab9cfb64329767b",
+      "x0x_object_sha256": "d14345f3a44bd6449f1a87f60f0951871105a11390fc9e1c7c16e69201a8bdee",
+      "baseline_bytes": 552604,
+      "baseline_code_free": 68,
+      "delta_bytes": 32,
+      "ram_free": 300,
+      "pool_free": 8324,
+      "static_ram_delta_bytes": 0,
+      "pool_delta_bytes": 0,
+      "measurement_sha256": "6b698fbebc57c0a8af3ae802ddaee84a91bee60437b74443aa76a4f680b83004"
+    }
+  ],
+  "elite_baseline_control": {
+    "stage": "AFFECTED_TU_RECOMPILE_AND_APP_RELINK_ONLY",
+    "variant": "baseline",
+    "model": "elite",
+    "config": "DEV X0X_DEV_PADCAL=1",
+    "commands": [
+      [
+        "cc",
+        "-Oz",
+        "-ffunction-sections",
+        "-fno-builtin",
+        "-Wall",
+        "-Wno-unused-function",
+        "-mcpu=r3",
+        "-mfprev1",
+        "-ffp-contract=off",
+        "-DBOARD_SMK37=1",
+        "-DSMK_MODEL=\"SMK-37 Elite\"",
+        "-Ifirmware/hal",
+        "-Ifirmware/src",
+        "-I/work/native/gen",
+        "-DX0X_DEV_PADCAL=1",
+        "-DFELUCCA_ID=\"SMK-37 Elite_900\"",
+        "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+        "-DFELUCCA_DATA_UNTAGGED_OK=0",
+        "-c",
+        "/work/native/base-firmware/src/x0x.c",
+        "-o",
+        "/work/native/elite-baseline/x0x.o"
+      ]
+    ],
+    "bytes": 552604,
+    "code_free": 68,
+    "errors": [],
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 68 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552604 B; RAM .data+.bss 98004 B of 98304; pool 335740 B of 344064"
+    ],
+    "image_sha256": "13ace0e9165067c0844fbce0ca92386bc582dce5fafee5a4f3ed51fc2178e62f",
+    "main_source_sha256": "5f8f68755f61c65b595a10bc61b2788d5d6b8e28d552a74658f391b84928c134",
+    "x0x_object_sha256": "91e0f53a9b850e940ab9088b909d5389e6c7a0b2cd8e2d304ba70427c3043575"
+  },
+  "pro_baseline": "Accepted task69/pro-build-receipt.json exact e75fb2a552604B/codefree68/RAMfree300/poolfree8324, source/object/header closure verified in neighboring JSON receipts",
+  "reuse_provenance": {
+    "accepted_source": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+    "runtime_main_sha256": "7c3748bc563ecf7b21eac213c2c07721bf2128f55cf10a073ab9cfb64329767b",
+    "compiler_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "accepted_receipts": {
+      "compiled-inputs.json": "d15a1fc7b9ef5255fddaae00e8c3563ef146de714fa0dd775caaf6331f55b7b3",
+      "delivery-receipt.json": "cf7affe48eff05955f3c83a8e1526d2f1b510d18df57e2ff6853059738c1d4dd",
+      "pro-build-receipt.json": "07ffc75429e5541784013fe5239ab6982e08d96dc4928c94ef55d31ac8ce918a",
+      "toolchain-verification.json": "8278488fe92a19c08a08e79db832dd4164f61e1fac13467413eaef0dd9f2b3b5"
+    },
+    "unchanged_cached_objects_match_count": 21,
+    "generated_header_match_count": 4,
+    "unchanged_o2_model_macro_check": "No SMK_MODEL or FELUCCA_ID occurrence in DSP/seq/engine source; board hardware same. Changed x0x.c recompiled separately for each model."
+  },
+  "runner_disposition": "Original runner intentionally stopped after successful Elite fixed receipt while redundant Pro baseline began; stop exit137. Useful Pro fixed-only runner completed exit0.",
+  "transient_environment": "Two read-only polls encountered exec-server disconnect, then recovered; no uncertain build was relaunched."
+}

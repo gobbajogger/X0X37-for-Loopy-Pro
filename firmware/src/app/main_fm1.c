@@ -788,9 +788,10 @@ static void smk_faders(void)
     static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
     /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
-    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held;
+    /* held bit 1 marks an unknown first sample: startup may already exceed 200 frames. */
+    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held = 2u;
     uint32_t i, down = (fm1_in.buttons >> SMK_BTN_FADER_BANK) & 1u;
-    if (ui_project_busy()) {
+    if ((held & 2u) || ui_project_busy()) {
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
         held = (uint8_t)down;
