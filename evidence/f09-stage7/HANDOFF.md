@@ -18,9 +18,10 @@ Label: `DEV / HARDWARE TEST — DEVICE NOT TESTED`; `hardware_tested` false.
 Evidence: `evidence/f09-stage7/CHECKS.md`, `live-verify.log`, `independent-qa-local-review.md`.
 Cloud pages worker: `bc-e4d74847-d6da-53e4-b413-96cb0e585799`.
 Successor prompt: `evidence/f09-stage7/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none (pending coordinator CreateAgent — pod has no `CURSOR_API_KEY`).
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip.
+Successor agent id: `bc-6b7eb25f-60be-5d9e-8fa7-d8b9111b5e63` (coordinator CreateAgent; pod had `NO_CURSOR_API_KEY`).
+Successor URL: https://cursor.com/agents/bc-6b7eb25f-60be-5d9e-8fa7-d8b9111b5e63
+Successor source: `desktop` (owner-visible; visibility `user`; name `F10 stage1 audit`).
+Handoff status: **complete** — owner-visible Stage 1 id is on this remote tip. Stage 7 ownership ends.
 
 ## Scope for stage 1
 
