@@ -1,0 +1,4 @@
+Stage 1 handoff to Stage 2 incomplete: CURSOR_API_KEY unset in this pod.
+Do not claim a Task / internal subagent as Stage 2.
+Coordinator CreateAgent required with startingRef=cursor/f14-bf013-stage1-237f and prompt evidence/f14-stage1/SUCCESSOR-STAGE2.txt.
+Attempts: api-create-stage2-attempt1.json, api-create-stage2-attempt2.json.

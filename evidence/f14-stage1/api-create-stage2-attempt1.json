@@ -1,0 +1,10 @@
+{
+  "attempt": 1,
+  "stage": 2,
+  "result": "NO_CURSOR_API_KEY",
+  "endpoint": "POST https://api.cursor.com/v1/agents",
+  "startingRef": "cursor/f14-bf013-stage1-237f",
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "prompt_path": "evidence/f14-stage1/SUCCESSOR-STAGE2.txt",
+  "note": "Pod has no CURSOR_API_KEY; CreateAgent not called. Stage 1 retains ownership."
+}

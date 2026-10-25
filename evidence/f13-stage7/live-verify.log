@@ -1,0 +1,30 @@
+=== versions.json pages ===
+nightly-de11b6d7-dev
+de11b6d7e3ac3322d2db689675d9ed27ed667785
+4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a
+b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720
+hardware_tested False
+label DEV / HARDWARE TEST — DEVICE NOT TESTED
+=== raw gh-pages ===
+nightly-b42bcba4-dev
+82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14
+bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34
+=== package refetch ===
+elite size 651396 sha 82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14 MATCH
+pro size 651392 sha bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34 MATCH
+LIVE_PAGE_MATCH
+=== final live verify ===
+latest nightly-b42bcba4-dev
+b42bcba46ee7255c18f18c10dd1f99b9fc9bb675
+elite 82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14
+pro bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34
+label DEV / HARDWARE TEST — DEVICE NOT TESTED
+hw False
+82ee29d3
+BF-012
+b42bcba4
+bc6c0422
+nightly-b42bcba4-dev
+elite MATCH 82ee29d3ede1c174
+pro MATCH bc6c04229840c634
+LIVE_PAGE_MATCH

@@ -1,0 +1,7 @@
+{
+  "attempt": 2,
+  "endpoint": "https://api.cursor.com/v1/agents",
+  "result": "NO_CURSOR_API_KEY",
+  "CURSOR_API_KEY": "unset",
+  "claimed_task_as_stage1": false
+}
