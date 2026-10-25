@@ -1,0 +1,12 @@
+# absence checks F06 Stage 3 BF-003
+date: 2026-10-25T11:48:06Z
+HEAD: 212b7d5c58752e275f753347c23f932f9d44a9a6
+branch: cursor/f06-bf003-stage3-fb90
+
+web/editor.html: ABSENT (test ! -e => true)
+firmware/src/editor.c: ABSENT (test ! -e => true)
+
+exit_web_editor_html:0
+exit_firmware_editor_c:0
+overall: PASS
+exit:0
