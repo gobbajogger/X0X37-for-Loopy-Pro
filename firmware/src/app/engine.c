@@ -126,6 +126,13 @@ static volatile uint8_t bfx_down_pub;
 static volatile uint8_t bfx_fx_pub[SMCFX_N];
 static uint8_t bfx_hold[NPARTS], bfx_eff[NPARTS];
 static busfx_t bfx_st[NPARTS];
+static busfx_t bfx_send_st[2];
+static busfx_t bfx_flt_st;
+static uint32_t bfx_transport;
+static float bfx_bpm_snap;
+static uint32_t bfx_stretch_s0;
+static uint8_t bfx_send_hold[2], bfx_send_eff[2];
+static uint8_t bfx_flt_hold, bfx_flt_eff;
 /* Main-loop publication is one aligned word; each render stretch snapshots it
  * once for both audio cores. This never changes the sequencer's saved mutes. */
 static volatile uint32_t smc_solo_state;
@@ -135,7 +142,7 @@ void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808)
                      (uint32_t)(kit808 & 0x7FFu) << 16;
 }
 void engine_smc_solo(uint8_t mask) { engine_smc_solo_targets(mask, 0, 0); }
-void engine_smc_busfx(uint8_t down, const uint8_t effect[4])
+void engine_smc_busfx(uint8_t down, const uint8_t effect[7])
 {
     int i;
     bfx_down_pub = down;
@@ -1108,23 +1115,38 @@ static void bfx_snapshot(void)
 {
     uint8_t down = bfx_down_pub;
     int i, p;
+    bfx_stretch_s0 = bfx_transport;
+    bfx_bpm_snap = seq_tempo(&seq);
+    bfx_send_hold[0] = bfx_send_hold[1] = 0;
+    bfx_flt_hold = 0;
     for (p = 0; p < NPARTS; p++) {
         bfx_hold[p] = 0;
         bfx_eff[p] = 0;
     }
     for (i = 0; i < SMCFX_N; i++) {
-        if (down & (uint8_t)(1u << i)) {
+        if (!(down & (uint8_t)(1u << i)))
+            continue;
+        if (i < SMCFX_RVB) {
             p = SMCFX_PART[i];
             bfx_hold[p] = 1;
             bfx_eff[p] = bfx_fx_pub[i];
+        } else if (i == SMCFX_RVB) {
+            bfx_send_hold[0] = 1;
+            bfx_send_eff[0] = bfx_fx_pub[i];
+        } else if (i == SMCFX_MDLY) {
+            bfx_send_hold[1] = 1;
+            bfx_send_eff[1] = bfx_fx_pub[i];
+        } else {
+            bfx_flt_hold = 1;
+            bfx_flt_eff = bfx_fx_pub[i];
         }
     }
 }
 
 static void bfx_shape(int part, float *a, float *b, float *c, float *d, int nch, int n)
 {
-    busfx_apply(&bfx_st[part], a, b, c, d, nch, (int)n, mix_cut[part], bfx_hold[part], bfx_eff[part],
-                (int)n, (int)n);
+    busfx_apply(&bfx_st[part], a, b, c, d, nch, (int)n, mix_cut[part], bfx_hold[part], bfx_eff[part], (int)n,
+                (int)n, bfx_bpm_snap, bfx_stretch_s0);
 }
 
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
@@ -1256,11 +1278,21 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(dly, kbuf, &mix_glide[PART_BRK][GL_DLY], n);
         meter(PART_BRK, kbuf, g, n);
     }
+    if (bfx_send_hold[0])
+        busfx_apply(&bfx_send_st[0], rev, 0, 0, 0, 1, (int)n, 127.0f, 1, bfx_send_eff[0], (int)n, (int)n,
+                    bfx_bpm_snap, bfx_stretch_s0);
+    if (bfx_send_hold[1])
+        busfx_apply(&bfx_send_st[1], dly, 0, 0, 0, 1, (int)n, 127.0f, 1, bfx_send_eff[1], (int)n, (int)n,
+                    bfx_bpm_snap, bfx_stretch_s0);
     {
         PROF_T(pf);
         fxbus_process_st(&fx, dry_l, dry_r, rev, dly, out_l, out_r, (int)n);
         PROF_ADD(5, pf);
     }
+    if (bfx_flt_hold)
+        busfx_apply(&bfx_flt_st, out_l, out_r, 0, 0, 2, (int)n, 127.0f, 1, bfx_flt_eff, (int)n, (int)n, bfx_bpm_snap,
+                    bfx_stretch_s0);
+    bfx_transport = bfx_stretch_s0 + n;
 }
 
 void engine_render(int32_t *out_lr, uint32_t n)
@@ -1567,6 +1599,10 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         bfx_hold[p] = 0;
         bfx_eff[p] = 0;
     }
+    busfx_init(&bfx_send_st[0]);
+    busfx_init(&bfx_send_st[1]);
+    busfx_init(&bfx_flt_st);
+    bfx_transport = 0;
     prob_rng = 0x2545F491u;
     brk_silent_now = 1;
     d808_was_active = 0;
