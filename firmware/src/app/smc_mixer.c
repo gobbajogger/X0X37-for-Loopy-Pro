@@ -513,7 +513,7 @@ static const char *smc_button_caption(int note)
         if (bus >= 0) {
             if (!smc.fx_ready)
                 smc_fx_publish();
-            if (smc.fx_effect[bus] < 4)
+            if (smc.fx_effect[bus] < SMCFX_NFX)
                 return SMCFX_SHORT[smc.fx_effect[bus]];
         }
         return "SEL";

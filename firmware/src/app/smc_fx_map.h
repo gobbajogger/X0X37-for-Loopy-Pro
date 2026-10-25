@@ -6,28 +6,45 @@
 #pragma once
 #include <stdint.h>
 
-enum { SMCFX_GATE = 0, SMCFX_REV = 1, SMCFX_HP = 2, SMCFX_DLY = 3 };
+enum { SMCFX_GATE = 0, SMCFX_REV = 1, SMCFX_HP = 2, SMCFX_DLY = 3, SMCFX_LP = 4 };
 enum { SMCFX_909 = 0, SMCFX_808 = 1, SMCFX_303A = 2, SMCFX_BRK = 3, SMCFX_N = 4 };
+enum { SMCFX_NFX = 5 };
 #define SMCFX_NPAGE 3
 
 /* PART_909, PART_808, PART_303A, PART_BRK. */
 static const uint8_t SMCFX_PART[SMCFX_N] = {0, 1, 2, 4};
 static const uint8_t SMCFX_NOTE[SMCFX_N] = {24, 25, 26, 28};
+
+/* Each bus has four momentary effects, in Home+cycle order (not shared across buses). */
+static const uint8_t SMCFX_SUIT[SMCFX_N][4] = {
+    {SMCFX_REV, SMCFX_DLY, SMCFX_GATE, SMCFX_HP},
+    {SMCFX_DLY, SMCFX_REV, SMCFX_GATE, SMCFX_HP},
+    {SMCFX_HP, SMCFX_DLY, SMCFX_REV, SMCFX_LP},
+    {SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_HP},
+};
+static const uint8_t SMCFX_SUIT_N[SMCFX_N] = {4, 4, 4, 4};
+
+/* Preset banks: one assignment per bus, each must be in that bus's SMCFX_SUIT list. */
 static const uint8_t SMCFX_PAGE[SMCFX_NPAGE][SMCFX_N] = {
     {SMCFX_REV, SMCFX_DLY, SMCFX_HP, SMCFX_GATE},
-    {SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_HP},
-    {SMCFX_DLY, SMCFX_GATE, SMCFX_REV, SMCFX_DLY},
+    {SMCFX_GATE, SMCFX_HP, SMCFX_HP, SMCFX_HP},
+    {SMCFX_DLY, SMCFX_REV, SMCFX_REV, SMCFX_DLY},
 };
 static const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT", "ECHO"};
-static const char *const SMCFX_SHORT[4] = {"GATE", "REV", "HPF", "DLY"};
-static const char *const SMCFX_LONG[4] = {"DECAY GATE", "REV THROW", "HIGH-PASS", "DLY THROW"};
-static const uint8_t SMCFX_SUIT[SMCFX_N][4] = {
-    {SMCFX_REV, SMCFX_DLY, SMCFX_GATE, 0},
-    {SMCFX_REV, SMCFX_DLY, SMCFX_GATE, 0},
-    {SMCFX_HP, SMCFX_DLY, SMCFX_REV, 0},
-    {SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_HP},
-};
-static const uint8_t SMCFX_SUIT_N[SMCFX_N] = {3, 3, 3, 4};
+static const char *const SMCFX_SHORT[SMCFX_NFX] = {"GATE", "REV", "HPF", "DLY", "LPF"};
+static const char *const SMCFX_LONG[SMCFX_NFX] = {
+    "DECAY GATE", "REV THROW", "HIGH-PASS", "DLY THROW", "LOW-PASS"};
+
+static inline int smcfx_suit_ok(int bus, uint8_t fx)
+{
+    int k;
+    if (bus < 0 || bus >= SMCFX_N)
+        return 0;
+    for (k = 0; k < SMCFX_SUIT_N[bus]; k++)
+        if (SMCFX_SUIT[bus][k] == fx)
+            return 1;
+    return 0;
+}
 
 static inline int smcfx_bus(unsigned note)
 {

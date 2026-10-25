@@ -130,30 +130,65 @@ static void test_sends(void)
     expect(busfx_send(0.4f, 1, BFX_GATE, BFX_DLY) == 0.4f, "a gate does not steal the delay send");
 }
 
+static void test_lowpass_returns(void)
+{
+    busfx_t s;
+    float dry[1024], wet[1024];
+    busfx_init(&s);
+    fill_sine(dry, 1024, 2000.0f, 0.6f);
+    memcpy(wet, dry, sizeof wet);
+    busfx_apply(&s, wet, 0, 0, 0, 1, 512, 127.0f, 1, BFX_LP, 512, 512);
+    expect(rms(wet + 256, 256) < rms(dry + 256, 256) * 0.75f, "held low-pass dulls the tone");
+    busfx_apply(&s, wet + 512, 0, 0, 0, 1, 512, 127.0f, 0, BFX_LP, 512, 512);
+    expect(rms(wet + 768, 256) > rms(dry + 768, 256) * 0.85f, "release brings brightness back");
+}
+
+static int suit_has_gate(int bus)
+{
+    int k;
+    for (k = 0; k < SMCFX_SUIT_N[bus]; k++)
+        if (SMCFX_SUIT[bus][k] == SMCFX_GATE)
+            return 1;
+    return 0;
+}
+
 static void test_map(void)
 {
-    int page, bus, prev;
+    int page, bus, k, prev;
     expect(SMCFX_N == 4, "four buses");
     expect(SMCFX_PART[SMCFX_909] == 0 && SMCFX_PART[SMCFX_808] == 1 &&
                SMCFX_PART[SMCFX_303A] == 2 && SMCFX_PART[SMCFX_BRK] == 4,
            "buttons sit on 909, 808, 303A and BREAK");
+    for (bus = 0; bus < SMCFX_N; bus++) {
+        expect(SMCFX_SUIT_N[bus] == 4, "each bus has four cyclable effects");
+        for (k = 0; k < 4; k++)
+            expect(SMCFX_SUIT[bus][k] < SMCFX_NFX, "suit entries are valid effects");
+        if (bus == SMCFX_303A)
+            expect(!suit_has_gate(bus), "303A never uses the break decay gate");
+        if (bus == SMCFX_BRK)
+            expect(SMCFX_SUIT[bus][0] == SMCFX_GATE, "BREAK leads with the decay gate");
+    }
     expect(SMCFX_PAGE[0][SMCFX_BRK] == SMCFX_GATE, "BREAK starts on the decay gate");
     expect(SMCFX_PAGE[0][SMCFX_909] == SMCFX_REV, "909 starts on the reverb throw");
     expect(SMCFX_PAGE[0][SMCFX_303A] == SMCFX_HP, "303A starts on the high-pass");
     expect(SMCFX_PAGE[0][SMCFX_808] == SMCFX_DLY, "808 starts on the delay throw");
     for (page = 0; page < SMCFX_NPAGE; page++) {
         for (bus = 0; bus < SMCFX_N; bus++)
-            expect(SMCFX_PAGE[page][bus] <= SMCFX_DLY, "every button on every page has an effect");
+            expect(smcfx_suit_ok(bus, SMCFX_PAGE[page][bus]),
+                   "preset pages only assign bus-suited effects");
         if (page)
             expect(memcmp(SMCFX_PAGE[page], SMCFX_PAGE[0], SMCFX_N) != 0, "pages are not copies");
     }
+    expect(SMCFX_PAGE[1][SMCFX_909] == SMCFX_GATE && SMCFX_PAGE[1][SMCFX_303A] == SMCFX_HP,
+           "TIGHT is not a global rotation of ROOM");
     prev = SMCFX_REV;
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
     expect(prev == SMCFX_DLY, "home cycles 909 to the next drum effect");
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
-    expect(prev == SMCFX_REV, "909's list wraps");
-    expect(smcfx_cycle(SMCFX_303A, SMCFX_HP) != SMCFX_GATE, "303A does not cycle onto the drum gate");
+    prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
+    expect(prev == SMCFX_REV, "909's four-effect list wraps");
+    expect(smcfx_cycle(SMCFX_303A, SMCFX_HP) == SMCFX_DLY, "303A cycles its own four");
     expect(smcfx_bus(24) == SMCFX_909 && smcfx_bus(28) == SMCFX_BRK && smcfx_bus(27) < 0,
            "303B select is not one of the four effect buttons");
 }
@@ -166,11 +201,12 @@ int main(void)
     test_two_buttons();
     test_highpass_returns();
     test_sends();
+    test_lowpass_returns();
     test_map();
     if (failures) {
         fprintf(stderr, "%d failed\n", failures);
         return 1;
     }
-    puts("PASS smc fx: wire cutoff, smooth close, in-buffer gate, two buses, high-pass return, sends, pages");
+    puts("PASS smc fx: wire cutoff, smooth close, in-buffer gate, two buses, HP/LP return, sends, four-per-bus pages");
     return 0;
 }
