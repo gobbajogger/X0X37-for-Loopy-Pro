@@ -64,10 +64,10 @@ static uint32_t seq_step_q8(const seq_t *s, int rate)
 { (void)s; (void)rate; return 11025u * 256u; }
 static int part_rate(const seq_t *s, int track)
 { (void)s; (void)track; return 0; }
-static void do_start(seq_t *s, int top, const seq_sink_t *o)
-{ (void)o; s->playing = 1; if (top) s->starts++; else s->continues++; }
-static void do_stop(seq_t *s, const seq_sink_t *o)
-{ (void)o; s->playing = 0; s->stops++; }
+static void do_start(seq_t *s, int top, const seq_sink_t *o, uint8_t remote)
+{ (void)top; (void)o; (void)remote; (void)o; s->playing = 1; if (top) s->starts++; else s->continues++; }
+static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote)
+{ (void)o; (void)remote; (void)o; s->playing = 0; s->stops++; }
 '''
 SUFFIX = r'''
 static void apply_transport(seq_t *s)

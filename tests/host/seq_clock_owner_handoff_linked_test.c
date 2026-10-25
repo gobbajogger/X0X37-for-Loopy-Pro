@@ -41,7 +41,7 @@ static void on_step(void *opaque,int part,int index)
 }
 static void on_break(void *opaque){ ((monitor_t *)opaque)->breaks++; }
 static int on_drum(void *opaque,int p,int k,float vel){(void)opaque;(void)p;(void)k;(void)vel;return 1;}
-static void on_bass(void *opaque,int p,int n,int a,int slide,int velocity){(void)opaque;(void)p;(void)n;(void)a;(void)slide;(void)velocity;}
+static int on_bass(void *opaque,int p,int n,int a,int slide,int velocity){(void)opaque;(void)p;(void)n;(void)a;(void)slide;(void)velocity; return 1; }
 static void off_bass(void *opaque,int p){(void)opaque;(void)p;}
 static void render(seq_t *s,const seq_sink_t *sink,uint32_t frames)
 {

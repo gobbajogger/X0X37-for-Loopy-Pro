@@ -21,12 +21,12 @@ static void midi_out(void *ctx, uint8_t st, uint8_t d1, uint8_t d2)
     if (o->used < (int)(sizeof o->event / sizeof o->event[0]))
         o->event[o->used++] = (event_t){st, d1, d2};
 }
-static void bass_on(void *ctx, int part, int note, int accent, int slide, int vel)
+static int bass_on(void *ctx, int part, int note, int accent, int slide, int vel)
 {
     observed_t *o = ctx;
     (void)part; (void)note; (void)accent; (void)slide; (void)vel;
     ++o->bass_on;
-}
+ return 1; }
 static void bass_off(void *ctx, int part)
 {
     observed_t *o = ctx;

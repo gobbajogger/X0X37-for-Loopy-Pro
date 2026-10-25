@@ -38,8 +38,8 @@ static void on_step(void *p,int part,int index)
 }
 static int on_drum(void *p,int a,int b,float vel)
 {(void)p;(void)a;(void)b;(void)vel;return 1;}
-static void on_bass(void *p,int a,int b,int c,int d,int e)
-{(void)p;(void)a;(void)b;(void)c;(void)d;(void)e;}
+static int on_bass(void *p,int a,int b,int c,int d,int e)
+{(void)p;(void)a;(void)b;(void)c;(void)d;(void)e; return 1; }
 static void off_bass(void *p,int a){(void)p;(void)a;}
 static void render(seq_t *s,const seq_sink_t *out,uint32_t frames)
 {
