@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prove the full UI regression detects runtime failures in five real paths.
+"""Prove the full UI regression detects runtime failures in eight real paths.
 
 Each mutation changes one production operation in a private scratch source;
 compiler failures do not count as an expected negative result. No device I/O.
@@ -13,6 +13,18 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "firmware/src/app/smc_mixer.c"
 text = SOURCE.read_text()
 MUTANTS = {
+    "selection-follows-touch": (
+        "if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);",
+        "if (n == smc_ui.strip) cv_rect(x + 1, 0, 28, 13, C_WHITE);",
+    ),
+    "visible-kit-requires-part": (
+        "kit >= 0 ? ui.sel[kit] - smc_drum_track(kit, 0) :",
+        "kit >= 0 ? (ui.part == kit ? ui.sel[kit] - smc_drum_track(kit, 0) : -1) :",
+    ),
+    "main-mix-ignores-channel": (
+        "(cur_page() == 3 ? 7 : ui.mixsel)",
+        "(cur_page() == 3 ? 7 : ui.part)",
+    ),
     "duplicate-opens-overlay": (
         "    if (moved) {",
         "    if (1) { /* negative: duplicates reopen */",
@@ -50,4 +62,4 @@ for name, (old, new) in MUTANTS.items():
             raise RuntimeError(f"{name}: expected a runtime assertion failure, exit={result.returncode}\n{result.stdout}")
         failure = next(line for line in result.stdout.splitlines() if line.startswith("FAIL tests/host/smc_ui_test.c:"))
         print(f"PASS negative {name}: {failure}")
-print("smc_ui_negative: PASS (5 runtime failures detected; compile failures excluded)")
+print("smc_ui_negative: PASS (8 runtime failures detected; compile failures excluded)")
