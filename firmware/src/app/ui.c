@@ -16,12 +16,19 @@
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
 #include "undo.c"
+#include "note_names.h"
 
 /* ================================================================ model === */
 static const int8_t KEY_WHITE[NKEYS] = {0, -1, 1, -1, 2, -1, 3, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, -1, 10, 11, -1, 12, -1, 13, 14, -1, 15};
 static const int8_t KEY_BLACK[NKEYS] = {-1, 0, -1, 1, -1, 2, -1, -1, 3, -1, 4, -1, -1, 5, -1, 6, -1, 7, -1, -1, 8, -1, 9, -1, -1, 10, -1};
-/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init). */
+/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init).
+ * On SMK, x0x.c included smk_input.h first: the pad map is these same 16 indices. */
+#if defined(SMK_NPAD)
+_Static_assert(SMK_NPAD == 16u, "SMK white-key map is the 16 panel white keys");
+#define WHITE_KEY SMK_WHITE_NOTE
+#else
 static const uint8_t WHITE_KEY[16] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
+#endif
 static const uint8_t BLACK_KEY[11] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25};
 
 enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };
@@ -221,7 +228,11 @@ static char *put_i(char *b, int v)
     *b = 0;
     return b;
 }
-static const char *const NOTE_N[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+/* Pointers into X0X_NOTE_PACK (same letters the switch draws). */
+static const char *const NOTE_N[12] = {
+    X0X_NOTE_PACK + 0, X0X_NOTE_PACK + 2, X0X_NOTE_PACK + 5, X0X_NOTE_PACK + 7,
+    X0X_NOTE_PACK + 10, X0X_NOTE_PACK + 12, X0X_NOTE_PACK + 14, X0X_NOTE_PACK + 17,
+    X0X_NOTE_PACK + 19, X0X_NOTE_PACK + 22, X0X_NOTE_PACK + 24, X0X_NOTE_PACK + 27};
 static char *put_note(char *b, int n)
 {
     b = put_s(b, NOTE_N[(n % 12 + 12) % 12]);
@@ -246,7 +257,7 @@ static void say(const char *a, const char *b)
 
 /* =============================================================== param refs === */
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
-       R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
+       R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
        R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
@@ -293,6 +304,7 @@ static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
+static const x0x_param_t BRKSLICE_P = {"8 SLICES", 1, 0, ONOFF_N};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
@@ -351,10 +363,13 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BRATE: return &SEQ_P[SQ_BRATE];
     case R_BDIR: return &SEQ_P[SQ_BDIR];
     case R_BTRANS: return &SEQ_P[SQ_BTRANS];
+    case R_BRKSLICE: return &BRKSLICE_P;
     case R_BRKSLOT: {
         static x0x_param_t d = {"LOOP", 0, 0, 0};
-        d.max = (uint8_t)(engine_brk_nslots() - 1);
-        d.names = engine_brk_slot_names();
+        static const char *none[] = {"none"};
+        int n = engine_brk_nslots();
+        d.max = n ? (uint8_t)(n - 1) : 0;
+        d.names = n ? engine_brk_slot_names() : none;
         return &d;
     }
     case R_TEMPO: return &SEQ_P[SQ_TEMPO];
@@ -437,6 +452,7 @@ static int pref_get(pref_t r)
     }
     case R_BRKSET: return p->brk.set[r.c];
     case R_BRKSLOT: return r.a ? p->brk.slot_b : p->brk.slot_a;
+    case R_BRKSLICE: return p->brk.slice_mode ? 1 : 0;
     case R_TEMPO: return (int)(seq.bpm + 0.5f) - 20;
     case R_ACCENT: return seq.accent_q7;
     case R_CLKOUT: return seq.send_clock;
@@ -516,6 +532,14 @@ X0X_COLD static void pref_set(pref_t r, int v)
         break;
     }
     case R_BRKSET: p->brk.set[r.c] = (uint8_t)v; break;
+    case R_BRKSLICE: {
+        uint8_t m = (uint8_t)(v ? 1 : 0);
+        if (p->brk.slice_mode != m) {
+            p->brk.slice_mode = m;
+            engine_brk_slice_mode_reconcile();
+        }
+        break;
+    }
     case R_BRKSLOT:
         if (r.a)
             p->brk.slot_b = (uint8_t)v;
@@ -625,7 +649,7 @@ static int in_pattern(pref_t r)
 {
     switch (r.kind) {
     case R_SWING: case R_DLEN: case R_DRATE: case R_BLEN: case R_BRATE: case R_BDIR: case R_BTRANS: case R_GEN:
-    case R_BRKSET: case R_BRKSLOT:
+    case R_BRKSET: case R_BRKSLOT: case R_BRKSLICE:
         return 1;
     default:
         return 0;
@@ -635,14 +659,14 @@ static int in_pattern(pref_t r)
 /* a knob's label: mixer refs name their part */
 static const char *pref_name(pref_t r)
 {
-    static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN"},
-                                                         {"808", "808 RV", "808 DL", "808 PAN"},
-                                                         {"303 A", "A REV", "A DLY", "A PAN"},
-                                                         {"303 B", "B REV", "B DLY", "B PAN"},
-                                                         {"BREAK", "BRK RV", "BRK DL", "BRK PAN"}};
+    static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN", "909 CUT"},
+                                                         {"808", "808 RV", "808 DL", "808 PAN", "808 CUT"},
+                                                         {"303 A", "A REV", "A DLY", "A PAN", "A CUT"},
+                                                         {"303 B", "B REV", "B DLY", "B PAN", "B CUT"},
+                                                         {"BREAK", "BRK RV", "BRK DL", "BRK PAN", "BRK CUT"}};
     static const char *const PATN[6][2] = {{"909 LEN", "808 LEN"}, {"909 RATE", "808 RATE"}, {"A LEN", "B LEN"},
                                            {"A RATE", "B RATE"}, {"A DIR", "B DIR"}, {"A TRANSP", "B TRANSP"}};
-    static const char *const CHN[MX_NPARAMS] = {"LEVEL", "REV", "DLY", "PAN"};
+    static const char *const CHN[MX_NPARAMS] = {"LEVEL", "REV", "DLY", "PAN", "CUT"};
     const x0x_param_t *d = pref_desc(r);
     static const char *const SEQN[6] = {"LENGTH", "RATE", "LENGTH", "RATE", "DIRECTION", "TRANSP"};
     if (r.kind >= R_DLEN && r.kind <= R_BTRANS)       /* SEQ: the part's own; a list elsewhere: whose */
@@ -715,7 +739,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     }
     if (is_pan(r)) {                                     /* L64 .. C .. R63 */
         if (v == 64)
-            put_s(num, "C");
+            put_s(num, X0X_NOTE_PACK);             /* letter C, the first name in the pack */
         else
             put_i(put_s(num, v < 64 ? "L" : "R"), v < 64 ? 64 - v : v - 64);
         return;
@@ -985,6 +1009,7 @@ X0X_COLD static void build_pages(void)
             add_page("LOOPS", PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE),
                      PR(R_ENG, T_BRK, 0, 1));
             more(PR(R_ENG, T_BRK, 0, 0));
+            more(PR(R_BRKSLICE, 0, 0, 0));
         }
         break;
     case V_GEN:
@@ -1522,6 +1547,21 @@ X0X_COLD static void do_undo(int redo)
 /* SAVE while playing waits for the stop: writing the flash stops the audio (the code and the samples
  * are read from it, and a 4 KB erase takes tens of ms) */
 #define AUTOSAVE_QUIET 4000u
+X0X_COLD int ui_boot_flash_busy(void)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_ck_flash_busy(void);
+#endif
+    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
+        || engine_project_notes()
+#if BOARD_SMK37
+        || smk_ck_flash_busy()
+#endif
+    )
+        return 1;
+    return 0;
+}
+
 X0X_COLD int ui_project_save(void)
 {
     int rc;
@@ -1531,7 +1571,7 @@ X0X_COLD int ui_project_save(void)
 #ifndef X0X_HOST
     extern int store_stage_held(void);
 #endif
-    if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
+    if (project_busy || ui_boot_flash_busy()
 #if BOARD_SMK37
         || smk_ck_flash_busy()
 #endif
@@ -1898,8 +1938,12 @@ X0X_COLD static void run_action(int act, int arg)
 /* ===================================================================== input === */
 /* knob acceleration by speed: a slow turn is one step a detent (fine detail), a quick one up to 8,
  * so a fast half turn sweeps 0-127. Several detents in one read are a fast turn too. Small ranges
- * stay gentler; switches and lists never get here (turn_ref steps them one at a time). */
+ * stay gentler; switches and lists never get here (turn_ref steps them one at a time).
+ * SMC strips set accel_smc. Their byte already counts the detents, and the panel's x8 (x16 on a
+ * wide range) made a flick leap the pot. A slow click stays one step. A quicker turn still gains,
+ * but only the first few detents in that message are multiplied, and a wide range is not doubled. */
 static uint8_t accel_off;              /* the host simulator's "spin": exact steps */
+static uint8_t accel_smc;              /* this step is an SMC strip, not a panel encoder */
 static int32_t accel(int role, int32_t s, int range)
 {
     uint32_t now = plat_ms(), dt = now - ui.enc_t[role], a = (uint32_t)(s < 0 ? -s : s), m;
@@ -1911,6 +1955,18 @@ static int32_t accel(int role, int32_t s, int range)
     ui.enc_run[role] = (uint8_t)(dt < 60u ? (ui.enc_run[role] + a > 255u ? 255u : ui.enc_run[role] + a) : a);
     if (range <= 24 || accel_off || ui.enc_run[role] < 4u)
         return s;                                     /* a few clicks, however quick: one each */
+    if (accel_smc) {
+        m = dt < 12u ? 3u : dt < 45u ? 2u : 1u;
+        if (range < 100 && m > 2u)
+            m = 2u;                                   /* a shorter pot stays finer */
+        if (m == 1u)
+            return s;                                 /* not a quick spin: one value per detent */
+        {
+            uint32_t head = a < 3u ? a : 3u;          /* boost the start of the message only */
+            uint32_t scaled = head * m + (a - head);
+            return s < 0 ? -(int32_t)scaled : (int32_t)scaled;
+        }
+    }
     m = dt < 12u ? 8u : dt < 25u ? 5u : dt < 45u ? 3u : 1u;
     if (range < 100 && m > 3u)
         m = 3u;
@@ -3746,8 +3802,13 @@ static UI_DRAW void draw_break(int band)
         cv_text(3, 1, &FONT_XS, "ON", C_GRAY);
         {
             char ta[16], tb[16];
-            put_s(put_s(ta, "A  "), sn[bp->slot_a % ns]);
-            put_s(put_s(tb, "B  "), sn[bp->slot_b % ns]);
+            if (!ns) {
+                put_s(ta, "A  none");
+                put_s(tb, "B  none");
+            } else {
+                put_s(put_s(ta, "A  "), sn[bp->slot_a % ns]);
+                put_s(put_s(tb, "B  "), sn[bp->slot_b % ns]);
+            }
             segs(4, 18, &FONT_S, C_HI, 18, ta, tb, 0, 0);
             (void)q;
         }
@@ -3758,6 +3819,43 @@ static UI_DRAW void draw_break(int band)
             cv_text(4, 36, &FONT_S, t, bank ? C_AMB : C_GRAY);
         }
     }
+}
+
+/* first 16 steps of one part in a pattern (drums: any voice; 303: gates; break: steps) */
+static uint32_t pat_part_bits16(const pattern_t *pt, int part)
+{
+    int s, len;
+    uint32_t bits = 0;
+    if (part < NKIT) {
+        const dpart_t *d = &pt->drum[part];
+        len = d->len < 16 ? d->len : 16;
+        for (s = 0; s < len; s++) {
+            int v;
+            for (v = 0; v < NDRUM; v++)
+                if (sm_get(d->hit[v], s))
+                    bits |= 1u << (unsigned)s;
+        }
+        return bits;
+    }
+    if (part == PART_BRK)
+        return pt->brk.steps & 0xFFFFu;
+    {
+        const bpart_t *bp = &pt->bass[part - NKIT];
+        len = bp->len < 16 ? bp->len : 16;
+        for (s = 0; s < len; s++)
+            if (bstep_gate(&bp->step[s]) != G_REST)
+                bits |= 1u << (unsigned)s;
+    }
+    return bits;
+}
+
+/* 8 px wide row in a pattern glyph: each column is on when either of two 16th steps hits */
+static void pat_glyph_row(int32_t x, int32_t y, uint32_t bits16, uint16_t c)
+{
+    int i;
+    for (i = 0; i < 8; i++)
+        if ((bits16 >> (i * 2) & 3u) != 0u)
+            cv_rect(x + i, y, 1, 2, c);
 }
 
 /* a part's lane on HOME: the 16 steps of the page its playhead is on (bits: those 16, from base) */
@@ -3783,12 +3881,19 @@ static UI_DRAW void draw_home(int band)
             int in_chain = seq.chain_a != seq.chain_b &&
                            c >= (seq.chain_a < seq.chain_b ? seq.chain_a : seq.chain_b) &&
                            c <= (seq.chain_a < seq.chain_b ? seq.chain_b : seq.chain_a);
-            box(x, 3, 12, 18, pattern_used(&proj.pat[c]) ? C_DIM : C_LINE);
-            for (p = 0; p < NPARTS; p++) {               /* a line per part with notes here: bright where it */
-                int used = part_used(&proj.pat[c], p);   /* plays now; a part playing it empty, a faint one */
-                if (used || seq.ppat[p] == c)
-                    rbox(x + 2, 5 + p * 3, 8, 2, 1, seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4))
-                                                                     : dim(PART_COL[p], 7));
+            frame(x, 3, 12, 18, C_LINE);
+            for (p = 0; p < NPARTS; p++) {               /* a line per part: its first 16 steps, bright where */
+                int used = part_used(&proj.pat[c], p);   /* it plays now; empty assignment, a faint bar */
+                uint32_t pb;
+                uint16_t fc;
+                if (!used && seq.ppat[p] != c)
+                    continue;
+                pb = pat_part_bits16(&proj.pat[c], p);
+                fc = seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4)) : dim(PART_COL[p], 7);
+                if (pb)
+                    pat_glyph_row(x + 2, 5 + p * 3, pb, fc);
+                else
+                    rbox(x + 2, 5 + p * 3, 8, 2, 1, fc);
             }
             if (c == cue && c != seq.ppat[PART_909] && (ui.frame & 16u))
                 frame(x - 1, 2, 14, 20, C_WHITE);

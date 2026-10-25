@@ -80,8 +80,13 @@ static void project_defaults_for(project_t *pr, uint8_t device_bt)
 /* how full the stream's room is, in % (GLO > ABOUT) */
 int project_mem_pct(void) { return (int)((packed_len * 100u + STREAM_CAP - 1u) / STREAM_CAP); }
 
-/* object payload: format word + body */
+/* object payload: format word + body. The device aliases this to st_buf
+ * (x0x.c PROJECT_IO_BUFFER). Host builds keep a private buffer. */
+#ifdef PROJECT_IO_BUFFER
+#define io_buf PROJECT_IO_BUFFER
+#else
 static uint8_t io_buf[PLAT_STORE_MAX] __attribute__((aligned(4)));
+#endif
 
 /* what each object last held on the flash (a hash of its payload), so a save writes only the
  * objects that changed: an autosave usually erases one or two sectors, not six */
@@ -597,6 +602,9 @@ static int read_project(project_t *pr)
         sound_bd_sends(pr, T_808, 7);
         sound_bd_sends_lanes(pr, T_808, 7);
     }
+    if (sound_ok && pr->set.snd_rev < 5)              /* channel cutoff arrived: open, not closed */
+        for (i = 0; i < NPARTS; i++)
+            pr->sound.v[T_MIX][i][MX_CUT] = 127;
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)
             pr->sound.v[T_MIX][i][MX_PAN] = 64;
@@ -670,6 +678,8 @@ int project_validate_stage(void)
         for (i = 0; i < 16; i++)
             if (pat->brk.slice[i] > 8)
                 return -1;
+        if (pat->brk.slice_mode > 1)
+            return -1;
     }
     if (p->arr.song.len > NSONG)
         return -1;

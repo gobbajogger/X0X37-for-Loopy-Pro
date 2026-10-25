@@ -269,6 +269,12 @@ int main(void)
           !s.armed && erases == er0);
     check("a write after the timeout does not erase", boot_write(&s, 0, rec, 8, 100 + BOOT_MS + 2) == BOOT_BAD && erases == er0);
 
+    n = build(rec, "REDO", "WRITE", 0);
+    check("repeating an accepted write chunk is ok", boot_begin(&s, 60) == BOOT_OK && boot_write(&s, 0, rec, 8, 61) == BOOT_OK &&
+          boot_write(&s, 0, rec, 8, 62) == BOOT_OK && boot_write(&s, 8, rec + 8, n - 8, 63) == BOOT_OK);
+    check("a repeated end after commit is ok", boot_end(&s, &io, BOOT_SMK_SEC0, BOOT_SMK_SEC1, 64) == BOOT_OK &&
+          boot_end(&s, &io, BOOT_SMK_SEC0, BOOT_SMK_SEC1, 65) == BOOT_OK && saved_is("REDO", "WRITE"));
+
     check("CRC-32 matches zlib's check value", boot_crc((const uint8_t *)"123456789", 9) == 0xCBF43926u);
 
     printf("%s\n", bad ? "BOOT SCREEN TEST FAILED" : "boot screen test passed");

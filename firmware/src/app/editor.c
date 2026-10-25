@@ -301,7 +301,8 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     if (ed_project.mode == 2)
         ed_project.changed = 1;
     usr_nz[k] = 0;
-    engine_brk_loops();                               /* nothing may read the slot now */
+    engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
+    engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k)); /* this erase rewrites the slot: drop voices still in it */
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
         audio_silence();
         rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);
@@ -494,6 +495,10 @@ static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
             ed_b(BOOT_NOFLASH);
             return;
         }
+        if (ui_boot_flash_busy()) {
+            ed_b(BOOT_BUSY);
+            return;
+        }
         if (!store_stage_held()) {
             b = store_stage_lock(&cap);
             if (!b) {
@@ -528,6 +533,10 @@ static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
         return;
     }
     if (cmd == ED_BOOT_END) {
+        if (ui_boot_flash_busy()) {
+            ed_b(BOOT_BUSY);
+            return;
+        }
         rc = boot_end(&bst, &bio, BOOT_SEC0, BOOT_SEC1, fm1_ms);
         boot_finish(rc);
         return;

@@ -666,6 +666,126 @@ static void test_live(void)
     CHECK(!b.v[0].on && !b.v[1].on, "loop removed: voices dropped");
 }
 
+static void arm(breaks_t *b);
+/* Changing slice while one is already sounding crossfades. The buffer stays loud, and reverse stays on. */
+static void test_slice_retrigger(void)
+{
+    breaks_t b;
+    float buf[256];
+    int i, quiet = 0;
+    arm(&b);
+    breaks_live(&b, 0, 1);
+    breaks_render(&b, buf, 256);
+    breaks_live(&b, 8, 1);                 /* reverse, still holding slice 0 */
+    breaks_render(&b, buf, 256);
+    breaks_slice_on(&b, 3);                /* another note of a different slice, reverse still held */
+    breaks_render(&b, buf, 256);
+    for (i = 0; i < 256; i += 32) {
+        int k, any = 0;
+        for (k = 0; k < 32; k++)
+            if (buf[i + k] != 0.0f)
+                any = 1;
+        if (!any)
+            quiet++;
+    }
+    CHECK(quiet == 0 && b.v[b.cur].on && b.v[b.cur].rev, "slice change keeps the voice and reverse");
+    CHECK(identify(buf + 120, 120, 1.0, 0, 0) == 6 || identify(buf + 120, 120, 1.0, 0, 0) == 7,
+          "retrigger plays slice 3");
+}
+
+/* A loop change must not mute the voice that is already sounding, not even for one buffer.
+ * The new loop is what the next trigger plays. The sounding loop stays as it was. */
+static int pcm_same(const float *a, const float *b, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (a[i] != b[i])
+            return 0;
+    return 1;
+}
+static int pcm_loud(const float *x, int n)
+{
+    float p = 0.0f;
+    for (int i = 0; i < n; i++) {
+        float a = x[i] < 0.0f ? -x[i] : x[i];
+        if (a > p)
+            p = a;
+    }
+    return p > 0.02f;
+}
+static void arm(breaks_t *b)
+{
+    breaks_init(b);
+    breaks_set_loop(b, 0, &g_loop[0]);
+    breaks_set_loop(b, 1, &g_loop[1]);
+    breaks_set(b, BRK_COMPLEX, 0);
+    breaks_set(b, BRK_BCHANCE, 0);
+    breaks_set(b, BRK_PHRASE, 0);
+    breaks_set(b, BRK_LEVEL, 100);
+    breaks_step(b, 0, 0, 5512.5f, 1);
+}
+static void test_loop_switch(void)
+{
+    breaks_t *live = calloc(1, sizeof *live), *hold = calloc(1, sizeof *hold);
+    float a[256], c[256];
+    int i, loud, same;
+    CHECK(live && hold, "loop-switch buffers");
+    if (!live || !hold) {
+        free(live);
+        free(hold);
+        return;
+    }
+    /* mid-slice: reloading the same loop, the other bank, and a new loop must not drop a buffer */
+    arm(live);
+    arm(hold);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "both voices started on the same loop");
+    breaks_set_loop(live, 0, &g_loop[0]);             /* the reload that used to bump the voice generation */
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256) && (live->v[0].on || live->v[1].on),
+          "reloading the playing loop keeps every sample");
+    breaks_set_loop(live, 1, &g_loop[0]);             /* the other bank */
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "switching the other bank leaves the playing loop");
+    breaks_set_loop(live, 0, &g_loop[1]);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256) && (live->v[0].on || live->v[1].on),
+          "a new loop does not mute or rewrite the voice already playing");
+    /* rapid changes, still mid-slice */
+    for (i = 0; i < 24; i++)
+        breaks_set_loop(live, 0, (i & 1) ? &g_loop[0] : &g_loop[1]);
+    breaks_flush(live);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "rapid loop changes keep the sounding loop");
+    /* the next trigger, on a downbeat, plays the loop just chosen and is not a silent buffer */
+    breaks_set_loop(live, 0, &g_loop[1]);
+    breaks_flush(live);
+    breaks_step(live, 0, 1, 5512.5f, 1);
+    breaks_step(hold, 0, 1, 5512.5f, 1);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    loud = pcm_loud(a, 256);
+    same = pcm_same(a, c, 256);
+    CHECK(loud && !same, "downbeat after a loop change stays loud and plays the new loop");
+    /* reverse keeps the loop it started, including across a bank change */
+    arm(live);
+    arm(hold);
+    breaks_live(live, 8, 1);
+    breaks_live(hold, 8, 1);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    breaks_set_loop(live, 0, &g_loop[1]);
+    breaks_render(live, a, 256);
+    breaks_render(hold, c, 256);
+    CHECK(pcm_same(a, c, 256) && pcm_loud(a, 256), "reverse keeps its samples across a loop change");
+    free(live);
+    free(hold);
+}
+
 /* ---------------------------------------------------------------------------------------- */
 /* 7. demo                                                                                     */
 
@@ -712,7 +832,8 @@ int main(int argc, char **argv)
     printf("sizeof(breaks_t) = %u bytes (bank %u, voice %u)\n", (unsigned)sizeof(breaks_t),
            (unsigned)sizeof(brk_bank_t), (unsigned)sizeof(brk_voice_t));
 #ifdef BRK_CLICK_CONTROL
-    (void)test_slice_select; (void)test_perf; (void)test_generator; (void)test_gate; (void)test_live; (void)demo;
+    (void)test_slice_select; (void)test_perf; (void)test_generator; (void)test_gate; (void)test_live;
+    (void)test_slice_retrigger; (void)test_loop_switch; (void)demo;
     printf("positive control: BRK_FADE = %d (crossfade off)\n", BRK_FADE);
     test_audio(90.0f);
     test_audio(170.0f);
@@ -726,6 +847,8 @@ int main(int argc, char **argv)
     test_audio(170.0f);
     test_gate();
     test_live();
+    test_slice_retrigger();
+    test_loop_switch();
     if (argc > 1) demo(argv[1]);
     printf("%d passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;

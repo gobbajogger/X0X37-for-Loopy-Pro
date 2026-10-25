@@ -496,6 +496,7 @@ static void run_ms(uint32_t ms)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
+        engine_brk_flush();
         if (now_ms >= ui_due) {
             ui_due = now_ms + 16;
             ui_frame();
@@ -970,6 +971,20 @@ int main(int argc, char **argv)
             smp_user_scan((uint32_t)k);
             printf("  slot %d: %d zone(s) from the image\n", k, usr_nz[k]);
             engine_brk_loops();
+        } else if (!strcmp(cmd, "partch")) {       /* partch PART CHANNEL: CHANNEL 1-16, 0 = off */
+            int part = atoi(a), chn = atoi(b);
+            if (part < 0 || part >= NPARTS || chn < 0 || chn > 16) {
+                printf("line %d: partch %s %s\n", lineno, a, b);
+                return 2;
+            }
+            seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+        } else if (!strcmp(cmd, "brkwrap")) {      /* brkwrap 0|1: 8 SLICES off or on, current break pattern */
+            pattern_t *bp = &proj.pat[seq.ppat[TRK_BRK]];
+            uint8_t m = (uint8_t)(atoi(a) ? 1 : 0);
+            if (bp->brk.slice_mode != m) {
+                bp->brk.slice_mode = m;
+                engine_brk_slice_mode_reconcile();
+            }
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */

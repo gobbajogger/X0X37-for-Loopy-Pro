@@ -10,6 +10,8 @@
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
 #include "../dsp/fastmath.h"
+#include "../dsp/busfx.h"
+#include "smc_fx_map.h"
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
 
 #define POOL X0X_POOL
@@ -36,7 +38,6 @@ static fxbus_t fx POOL;
 static master_t mst;
 #define DLY_LEN 88200
 static int16_t dly_buf[DLY_LEN] POOL;
-static volatile uint8_t brk_hold;      /* main loop is rewriting the break loops: ISR leaves it alone */
 static volatile uint8_t project_hold, project_midi_drop;
 void engine_project_hold(int hold)
 {
@@ -104,9 +105,14 @@ static void guard_apply(void)
 
 /* mixer: per part Level, Rev send, Dly send (a drum machine's add to its voices' own sends) */
 static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 127, 0, 0}, {"DLY", 127, 0, 0},
-                                               {"PAN", 127, 64, 0}};
+                                               {"PAN", 127, 64, 0}, {"CUT", 127, 127, 0}};
 static const char *const PART_NAMES[NPARTS] = {"909", "808", "303 A", "303 B", "BREAK"};
-static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS];
+static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS], mix_cut[NPARTS];
+/* Momentary bus FX, snapshotted once per stretch so both cores see the same hold. */
+static volatile uint8_t bfx_down_pub;
+static volatile uint8_t bfx_fx_pub[SMCFX_N];
+static uint8_t bfx_hold[NPARTS], bfx_eff[NPARTS];
+static busfx_t bfx_st[NPARTS];
 /* Main-loop publication is one aligned word; each render stretch snapshots it
  * once for both audio cores. This never changes the sequencer's saved mutes. */
 static volatile uint32_t smc_solo_state;
@@ -116,6 +122,15 @@ void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808)
                      (uint32_t)(kit808 & 0x7FFu) << 16;
 }
 void engine_smc_solo(uint8_t mask) { engine_smc_solo_targets(mask, 0, 0); }
+void engine_smc_busfx(uint8_t down, const uint8_t effect[4])
+{
+    int i;
+    bfx_down_pub = down;
+    if (!effect)
+        return;
+    for (i = 0; i < SMCFX_N; i++)
+        bfx_fx_pub[i] = effect[i];
+}
 
 static uint16_t smc_audible_drums(uint32_t solo, int kit)
 {
@@ -222,6 +237,8 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             mix_dly[v] = (float)val / 127.0f;
         else if (i == MX_PAN)
             x0x_pan_gains(val, &mix_pl[v], &mix_pr[v]);
+        else if (i == MX_CUT)
+            mix_cut[v] = (float)val;
         break;
     case T_MST: master_set(&mst, i, val); break;
     default: break;
@@ -420,8 +437,6 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     if (en && prob_skip(PART_BRK, 0))
         en = 0;
     (void)x;
-    if (brk_hold)
-        return;
     breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)));   /* unheard: stop decoding */
     for (i = 0; i < BRK_NSET; i++)       /* follow the playing pattern's settings (12 compares) */
         if (bp->set[i] != brk_applied[i]) {
@@ -503,6 +518,7 @@ void engine_clip_midi_flush(void)
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
 static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
+static uint8_t brk_down[2][16];        /* 8 SLICES: bit n of source 0/1 is MIDI note n held */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -542,6 +558,106 @@ X0X_COLD void engine_project_flush(void)
         s_midi(0, 0xFC, 0, 0);
 }
 
+static int brk_note_down(int src, int note)
+{
+    return (brk_down[src][note >> 3] >> (note & 7)) & 1;
+}
+static void brk_note_set(int src, int note, int on)
+{
+    uint8_t m = (uint8_t)(1u << (note & 7));
+    if (on)
+        brk_down[src][note >> 3] |= m;
+    else
+        brk_down[src][note >> 3] &= (uint8_t)~m;
+}
+/* 8 SLICES: slice = note mod 8, so several notes can hold one slice */
+static int brk_src_slice(int src, int slice)
+{
+    int n;
+    for (n = slice; n < 128; n += 8)
+        if (brk_note_down(src, n))
+            return 1;
+    return 0;
+}
+static void brk_clear_slice_notes(int slice)
+{
+    int src, n;
+    for (src = 0; src < 2; src++)
+        for (n = slice; n < 128; n += 8)
+            brk_note_set(src, n, 0);
+}
+/* Default map: notes 36-43, one note per slice. A stale Note Off from the other input does nothing. */
+static void brk_midi_legacy(int src, int on, int slice)
+{
+    int v = 1 << (8 + slice);
+    if (!on && src < 2 && !(src_held[src] & (uint16_t)v))
+        return;
+    breaks_live(&brk, slice, on);
+    src_held[0] &= (uint16_t)~v;
+    src_held[1] &= (uint16_t)~v;
+    if (on && src < 2)
+        src_held[src] |= (uint16_t)v;
+}
+/* 8 SLICES: every note. Note Off releases the slice only when no note of that slice remains. */
+static void brk_midi_wrap(int src, int on, int note)
+{
+    int slice = note & 7, v = 1 << (8 + slice);
+    if (src >= 2) {
+        if (on)
+            breaks_slice_on(&brk, slice);
+        else {
+            brk_clear_slice_notes(slice);
+            src_held[0] &= (uint16_t)~v;
+            src_held[1] &= (uint16_t)~v;
+            breaks_live(&brk, slice, 0);
+        }
+        return;
+    }
+    if (!on) {
+        if (!brk_note_down(src, note))
+            return;                         /* stale Note Off: this input does not hold the note */
+        brk_note_set(src, note, 0);
+        if (!brk_src_slice(src, slice))
+            src_held[src] &= (uint16_t)~v;
+        if (!brk_src_slice(0, slice) && !brk_src_slice(1, slice))
+            breaks_live(&brk, slice, 0);
+        return;
+    }
+    brk_note_set(src, note, 1);
+    src_held[src] |= (uint16_t)v;
+    breaks_slice_on(&brk, slice);           /* retrigger; the voice that is playing crossfades */
+}
+/* 8 SLICES map change: legacy note numbers and wrap (note mod 8) disagree, so MIDI
+ * holds tracked in src_held / brk_down must not survive a mode toggle. */
+void engine_brk_slice_mode_reconcile(void)
+{
+    int src, s, g;
+    for (s = 0; s < 8; s++) {
+        uint16_t mask = (uint16_t)(1u << (8 + s));
+        if ((src_held[0] | src_held[1]) & mask)
+            breaks_live(&brk, s, 0);
+    }
+    for (src = 0; src < 2; src++) {
+        src_held[src] &= 0xFFu;
+        for (g = 0; g < 16; g++)
+            brk_down[src][g] = 0;
+    }
+}
+
+static void brk_link_end(int src, uint16_t owned)
+{
+    int s, n;
+    if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1) {
+        for (n = 0; n < 128; n++)
+            brk_note_set(src, n, 0);
+        for (s = 0; s < 8; s++)
+            if ((owned & (uint16_t)(1u << (8 + s))) && !brk_src_slice(0, s) && !brk_src_slice(1, s))
+                brk.keys = (uint16_t)(brk.keys & ~(uint16_t)(1u << s));
+        return;
+    }
+    brk.keys = (uint16_t)(brk.keys & ~(owned >> 8));
+}
+
 static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
@@ -557,7 +673,7 @@ static void midi_in(uint32_t pkt)
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
             }
-        brk.keys = (uint16_t)(brk.keys & ~(v >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
+        brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
         return;
     }
@@ -598,8 +714,9 @@ static void midi_in(uint32_t pkt)
         uint8_t vel = (ty == 0x80) ? 0u : d2;
         if (d1 < SMK_APC40_CLIP_COUNT) {
             /* The USB interrupt (smk_apc_usb_event) already stored this clip feedback.
-             * Do not store it again: a second store breaks the flash detection. */
-            if (smk_clip_mode_on())
+             * Do not store it again: a second store breaks the flash detection.
+             * A note on the break's own channel is the break, not a clip pad. */
+            if (smk_clip_mode_on() && ch != seq.ch[TRK_BRK])
                 return;
         } else if (smk_apc40_transport_feedback_note(d1)) {
             smk_apc_transport_led_set(d1, vel);
@@ -610,6 +727,14 @@ static void midi_in(uint32_t pkt)
 #endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
+    if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
+        /* The break's channel owns the note. Drums and the 303s do not also play it. */
+        if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1)
+            brk_midi_wrap(src, ty == 0x90, d1);
+        else if (d1 >= 36 && d1 <= 43)
+            brk_midi_legacy(src, ty == 0x90, d1 - 36);
+        return;
+    }
     for (k = 0; k < NKIT; k++)                          /* each part on its own channel (GLO): the drum */
         if (seq.ch[k] == ch && ty == 0x90) {             /* machines on GM drum notes */
             static const uint8_t GM[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51};
@@ -640,16 +765,6 @@ static void midi_in(uint32_t pkt)
                 src_held[1] &= (uint16_t)~v;
             }
         }
-    if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43) {   /* the break's slices */
-        v = 1 << (8 + d1 - 36);
-        if (ty == 0x80 && src < 2 && !(src_held[src] & (uint16_t)v))
-            return;                 /* BF-004: stale non-owner Note Off must not clear the live slice */
-        breaks_live(&brk, d1 - 36, ty == 0x90);
-        src_held[0] &= (uint16_t)~v;
-        src_held[1] &= (uint16_t)~v;
-        if (ty == 0x90 && src < 2)
-            src_held[src] |= (uint16_t)v;
-    }
 }
 #ifdef X0X_HOST
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
@@ -677,7 +792,7 @@ static void drain(void)
             bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
         else if (type == C_BOFF && a < NBASS)
             bass303_note_off(&b303[a]);
-        else if (type == C_BRK && !brk_hold)
+        else if (type == C_BRK)
             breaks_live(&brk, (int)a, (int)b);
     }
     cq_r = r;
@@ -743,8 +858,9 @@ __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo) 
         g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
     glide_set(&mix_glide[p][GL_R], g * mix_pr[p]);
-    glide_set(&mix_glide[p][GL_REV], g * mix_rev[p]);
-    glide_set(&mix_glide[p][GL_DLY], g * mix_dly[p]);
+    /* A throw opens the existing send. Release glides back; the fxbus tail stays. */
+    glide_set(&mix_glide[p][GL_REV], g * busfx_send(mix_rev[p], bfx_hold[p], bfx_eff[p], BFX_REV));
+    glide_set(&mix_glide[p][GL_DLY], g * busfx_send(mix_dly[p], bfx_hold[p], bfx_eff[p], BFX_DLY));
     glide_set(&mix_glide[p][GL_VREV], g);
     glide_set(&mix_glide[p][GL_VDLY], g);
 }
@@ -778,6 +894,29 @@ __attribute__((noinline)) static void scale_glide(float *buf, glide_t *g, uint32
     g->cur = c;
 }
 
+static void bfx_snapshot(void)
+{
+    uint8_t down = bfx_down_pub;
+    int i, p;
+    for (p = 0; p < NPARTS; p++) {
+        bfx_hold[p] = 0;
+        bfx_eff[p] = 0;
+    }
+    for (i = 0; i < SMCFX_N; i++) {
+        if (down & (uint8_t)(1u << i)) {
+            p = SMCFX_PART[i];
+            bfx_hold[p] = 1;
+            bfx_eff[p] = bfx_fx_pub[i];
+        }
+    }
+}
+
+static void bfx_shape(int part, float *a, float *b, float *c, float *d, int nch, int n)
+{
+    busfx_apply(&bfx_st[part], a, b, c, d, nch, (int)n, mix_cut[part], bfx_hold[part], bfx_eff[part],
+                (int)n, (int)n);
+}
+
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
  * and the break into kbuf; arg bit 8: not timed (the cycle counter is the first core's). Nothing
  * here is mixed: the first core does that afterwards, in one core's order.
@@ -792,16 +931,17 @@ static void core2_job(uint32_t arg)
         for (i = 0; i < n; i++)
             t0[i] = t1[i] = t2[i] = tr[i] = 0.0f;
         drum808_render_st_masked(&d808, t0, tr, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+        bfx_shape(PART_808, t0, tr, t1, t2, 4, (int)n);
     } else
         drum808_pan_settle(&d808);
     if (timed) {
         PROF_ADD(PR_808, pt);
         pt = plat_cycles();
     }
-    if (!brk_hold) {
-        brk_silent_now = breaks_silent(&brk);             /* the render writes zeros: nothing to mix */
-        breaks_render(&brk, kbuf, (int)n);
-    }
+    brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
+    breaks_render(&brk, kbuf, (int)n);
+    if (!brk_silent_now)
+        bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }
@@ -826,6 +966,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
+    bfx_snapshot();                                   /* before the second core reads the holds */
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
@@ -837,8 +978,9 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         } else {
             drum909_render_st_masked(&d909, dry_l, dry_r, rev, dly, (int)n, smc_audible_drums(solo, PART_909));
             mix_targets(PART_909, mix_level[PART_909], solo_parts);
-            for (i = 0; i < n; i++)                       /* the kit send: the whole machine, both sides */
-                mono[i] = (dry_l[i] + dry_r[i]) * 0.5f;   /* (centred: L exactly) */
+            bfx_shape(PART_909, dry_l, dry_r, rev, dly, 4, (int)n);
+            for (i = 0; i < n; i++)                       /* kit send: filtered sides, still centred */
+                mono[i] = (dry_l[i] + dry_r[i]) * 0.5f;
             scale_glide(dry_l, &mix_glide[PART_909][GL_L], n);   /* then the part's PAN over the kit */
             scale_glide(dry_r, &mix_glide[PART_909][GL_R], n);
             scale_glide(rev, &mix_glide[PART_909][GL_VREV], n);
@@ -851,6 +993,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         PROF_T(pb);
         idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
         bass303_render(&b303[b], bb[b], (int)n);
+        if (!idle[b])
+            bfx_shape(PART_303A + b, bb[b], 0, 0, 0, 1, (int)n);
         PROF_ADD(2 + b, pb);
     }
     pt = plat_cycles();
@@ -891,7 +1035,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
     }
-    if (!brk_hold && !brk_silent_now) {
+    if (!brk_silent_now) {
         float g = mix_level[PART_BRK];
         mix_targets(PART_BRK, g, solo_parts);
         add_glide(dry_l, kbuf, &mix_glide[PART_BRK][GL_L], n);
@@ -988,36 +1132,92 @@ X0X_COLD static uint8_t loop_bars(uint32_t ns, uint32_t rate)
     return bars;
 }
 
-#include "x0x_break_bank.h"              /* tools/gen_break_bank.py: the built-in loops */
+#include "x0x_break_bank.h"              /* empty by default; factory or X0X_BREAK_BANK fills it */
+#include "app/brk_pack.h"                 /* optional pack in the free tail of the app image */
+
+#if X0X_NBREAKS == 0 && !defined(X0X_HOST)
+extern const uint8_t _start[];            /* crt0: app.bin offset 0, the XIP image */
+static brk_pack_loop_t pack_loops[BRK_PACK_MAX];
+static int pack_n = -1;
+
+static int load_pack(void)
+{
+#if defined(BOARD_SMK37) && BOARD_SMK37
+    const uint32_t limit = 0x86EE0u;      /* FL_APP_CODE_MAX: code ends where Bluetooth begins */
+#else
+    const uint32_t limit = 0x8DFBCu;
+#endif
+    pack_n = brk_pack_parse(_start, limit, pack_loops, BRK_PACK_MAX);
+    return pack_n;
+}
+#endif
+
+static int builtin_count(void)
+{
+#if X0X_NBREAKS > 0
+    return X0X_NBREAKS;                   /* compiled into the image */
+#else
+#ifndef X0X_HOST
+    if (pack_n < 0)
+        load_pack();
+    return pack_n > 0 ? pack_n : 0;
+#else
+    return 0;
+#endif
+#endif
+}
 
 X0X_COLD static const brk_loop_t *brk_builtin(int k)
 {
     static brk_loop_t L[2];
     static int which;
     brk_loop_t *l = &L[which ^= 1];      /* two: A and B are set one after the other */
-    if (k < 0 || k >= X0X_NBREAKS)
+    int n = builtin_count();
+    if (k < 0 || k >= n)
         return 0;
+#if X0X_NBREAKS > 0
     l->adpcm = X0X_BREAKS[k].adpcm;
     l->nsamples = X0X_BREAKS[k].n;
     l->rate = X0X_BREAK_RATE;
     l->bars = X0X_BREAKS[k].bars;
+#else
+#ifndef X0X_HOST
+    l->adpcm = pack_loops[k].adpcm;
+    l->nsamples = pack_loops[k].n;
+    l->rate = pack_loops[k].rate;
+    l->bars = pack_loops[k].bars;
+#else
+    (void)l;
+    return 0;
+#endif
+#endif
     return l;
 }
 
 /* the LOOP choices: the built-in bank, then every loop (zone) of the user slots, in order.
- * The list follows uploads: engine_brk_loops() rescans it. */
-#define NLOOPS_MAX (X0X_NBREAKS + PLAT_NSLOTS * PLAT_SLOT_ZONES)
+ * The list follows uploads: engine_brk_loops() rescans it. Room for a pack of 8 when the
+ * image itself has fewer built-in loops. */
+#define NLOOPS_MAX ((X0X_NBREAKS > BRK_PACK_MAX ? X0X_NBREAKS : BRK_PACK_MAX) + PLAT_NSLOTS * PLAT_SLOT_ZONES)
 static const char *loop_names[NLOOPS_MAX];
 static char user_names[PLAT_NSLOTS * PLAT_SLOT_ZONES][8];
 static uint8_t loop_slot[NLOOPS_MAX], loop_zone[NLOOPS_MAX];
-static int nloops;
+static int nloops, loops_ready;
 
 X0X_COLD static void scan_loops(void)
 {
-    int i, k, z, u = 0;
+    int i, k, z, u = 0, nb = builtin_count();
     nloops = 0;
-    for (i = 0; i < X0X_NBREAKS; i++)
+    for (i = 0; i < nb; i++) {
+#if X0X_NBREAKS > 0
         loop_names[nloops++] = X0X_BREAKS[i].name;
+#else
+#ifndef X0X_HOST
+        loop_names[nloops++] = pack_loops[i].name;
+#else
+        break;
+#endif
+#endif
+    }
     for (k = 0; k < PLAT_NSLOTS; k++) {                 /* yours: BR1, BR2 ... in order, whatever slot */
         int nz = plat_slot_zones(k);                    /* holds them (the break page packs the list) */
         for (z = 0; z < nz && z < PLAT_SLOT_ZONES; z++) {
@@ -1035,17 +1235,18 @@ X0X_COLD static void scan_loops(void)
             loop_names[nloops++] = n;
         }
     }
+    loops_ready = 1;
 }
 
 int engine_brk_nslots(void)
 {
-    if (!nloops)
+    if (!loops_ready)
         scan_loops();
     return nloops;
 }
 const char *const *engine_brk_slot_names(void)
 {
-    if (!nloops)
+    if (!loops_ready)
         scan_loops();
     return loop_names;
 }
@@ -1064,7 +1265,7 @@ void engine_brk_state(int *slice, int *bank, int *div, int *running)
  * whole loop once, ~20k IMA steps; called when the loop changes, never per frame) */
 X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
 {
-    const brk_bank_t *bk = &brk.bank[which & 1];
+    const brk_bank_t *bk = breaks_bank(&brk, which & 1);
     uint32_t i, ns = bk->n;
     int32_t pred = 0, idx = 0, col = 0, pk = 0;
     uint32_t per;
@@ -1096,12 +1297,16 @@ X0X_COLD void engine_brk_loops(void)
     brk_loop_t L[2];
     int w;
     scan_loops();                                       /* an upload may have changed the user loops */
-    brk_hold = 1;                                       /* the ISR skips the break while we rewrite it */
+    /* No mute. The voice that is already sounding keeps its snapshot, and the
+     * new loop is published for the next trigger. Skipping the break here used
+     * to drop a whole buffer. */
+    breaks_flush(&brk);                                /* a change that waited for a free snapshot */
     for (w = 0; w < 2; w++) {
         int slot = w ? bp->slot_b : bp->slot_a;
         uint32_t ns = 0, rate = 0;
         char name[9];
-        const uint8_t *d = (slot >= X0X_NBREAKS && slot < nloops)
+        int nb = builtin_count();
+        const uint8_t *d = (slot >= nb && slot < nloops)
                                ? plat_slot(loop_slot[slot], loop_zone[slot], &ns, &rate, name) : 0;
         if (d) {
             L[w].adpcm = d;
@@ -1110,10 +1315,16 @@ X0X_COLD void engine_brk_loops(void)
             L[w].bars = loop_bars(ns, rate);
             breaks_set_loop(&brk, w, &L[w]);
         } else {
-            breaks_set_loop(&brk, w, brk_builtin(slot < X0X_NBREAKS ? slot : 0));   /* built-in (or an empty user slot: the first) */
+            breaks_set_loop(&brk, w, brk_builtin(slot < nb ? slot : 0));   /* built-in, or the first if the slot is empty */
         }
     }
-    brk_hold = 0;
+}
+
+void engine_brk_flush(void) { breaks_flush(&brk); }
+
+void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
+{
+    breaks_drop_range(&brk, base, nbytes);              /* flash under these bytes is about to change */
 }
 
 X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
@@ -1121,17 +1332,29 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     int p, g;
     cq_w = cq_r = 0;
     src_held[0] = src_held[1] = 0;
+    for (p = 0; p < 2; p++)
+        for (g = 0; g < 16; g++)
+            brk_down[p][g] = 0;
     for (p = 0; p < NBASS; p++)
         bass_held[p] = 0;
     for (p = 0; p < BRK_NSET; p++)
         brk_applied[p] = 0xFFu;
-    brk_hold = mot_playing = mot_release_req = 0;
+    mot_playing = mot_release_req = 0;
     mot_on = mot_was_on = 1;
     guard_on = guard_applied = 0;
     guard_enabled = 1;
     guard_avg_q8 = guard_calm = 0;
     drum808_quiet = 3.2e-5f;
     smc_solo_state = 0;
+    bfx_down_pub = 0;
+    for (p = 0; p < SMCFX_N; p++)
+        bfx_fx_pub[p] = 0;
+    for (p = 0; p < NPARTS; p++) {
+        mix_cut[p] = 127.0f;
+        busfx_init(&bfx_st[p]);
+        bfx_hold[p] = 0;
+        bfx_eff[p] = 0;
+    }
     prob_rng = 0x2545F491u;
     brk_silent_now = 1;
     d808_was_active = 0;

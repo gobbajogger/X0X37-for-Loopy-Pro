@@ -384,10 +384,14 @@ In SEL's list: PHRASE, the length of a phrase (2, 4, 8 or 16 bars, or off), and 
 LENGTH, how often a new slice is chosen (every 1/4 bar to every 8 bars).
 
 **The loops.** EDIT has LOOP A, LOOP B, B CHANCE (the chance of switching to loop B in the last
-bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL is in SEL's list. Loops follow the
+bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are in SEL's list.
+8 SLICES is off unless you turn it on. Off, MIDI notes 36–43 on the break's channel play the
+eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
+the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
 tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. X0X comes with two loops of its own, 909 GR and 909 FL, played by its 909; loops you
-upload come after them.
+on top. The default firmware does not carry built-in loops, so that room can hold more of the
+synth. The installer can put the two factory loops back, 909 GR and 909 FL, or your own WAV files
+in their place. Loops you upload into the sample slots come after those, when they are installed.
 
 All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
 and sends are on the mixer's PARTS page (LFO, black key 5).
@@ -767,7 +771,7 @@ listens on its own channel; these are the defaults:
 | Channel 11 | The 808, with the same notes, plus 56 for the cowbell and 49 for the cymbal. |
 | Channel 2 | 303A. Overlapping notes slide, and a velocity of 100 or more plays an accent. |
 | Channel 3 | 303B, in the same way. |
-| Channel 4 | Notes 36–43 play break slices 1–8. |
+| Channel 4 | Notes 36–43 play break slices 1–8. With 8 SLICES on, every note on this channel plays a slice (note mod 8). Notes on this channel do not also play another part. |
 | Clock | X0X follows an incoming MIDI clock automatically, and returns to its own tempo half a second after the clock stops. Start, Stop and Continue start and stop the patterns. |
 
 GLO sets each part's channel (909 MIDI CH and so on), or OFF to ignore its notes, for example when

@@ -92,7 +92,8 @@ static void filt_coefs(master_t *m)
     m->a1 = 1.0f / (1.0f + m->g * (m->g + m->k));       /* the resonance may have changed */
 }
 
-void master_init(master_t *m)
+/* Boot only (engine_init). master_process is the audio path and stays -O2. */
+X0X_COLD void master_init(master_t *m)
 {
     int i;
     uint8_t *z = (uint8_t *)m;

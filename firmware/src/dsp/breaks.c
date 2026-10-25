@@ -40,6 +40,7 @@
  * IMA ADPCM tables and decoder step: ima_adpcm.h (from Felucca's eng_sample.c,
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hugelton Instruments, GPL-3.0). */
 #include "breaks.h"
+#include "../x0x_cold.h"          /* X0X_COLD: breaks_init is boot only, not the render */
 
 /* Build-time A/B: 0 runs original per-sample reverse advancement. */
 #ifndef BRK_FAST_REV_SKIP
@@ -199,29 +200,92 @@ static int perf_trigger_fires(brk_perf_t *p)
 
 /* ---- ADPCM ------------------------------------------------------------------------------ */
 
-/* decoder state before nibble p (p < n) */
-static void bank_seek(const brk_bank_t *k, uint32_t p, int32_t *pred, int32_t *idx)
+#if defined(X0X_HOST) || (defined(__GNUC__) && !defined(__clang__)) || __SIZEOF_POINTER__ != 4
+static inline void brk_barrier(void)
 {
-    uint32_t c = p >> k->ck_shift, i = c << k->ck_shift;
-    *pred = k->ck[c].pred;
-    *idx = k->ck[c].idx;
-    while (i < p)
-        ima_decode(k->adpcm, i++, pred, idx);
+#if defined(X0X_HOST) || __SIZEOF_POINTER__ != 4
+    __asm__ volatile("" ::: "memory");
+#else
+    __sync_synchronize();
+#endif
+}
+#else
+#include "../../hal/fm1_sync.h"
+static inline void brk_barrier(void) { fm1_data_sync(); }
+#endif
+
+#if !defined(X0X_HOST)
+/* spare snapshots: one engine, .bss not .pool (keeps >= 8 KiB pool headroom on device) */
+static brk_bank_t brk_side[2];
+#endif
+
+static brk_bank_t *brk_side_slot(breaks_t *b, unsigned j)
+{
+#if defined(X0X_HOST)
+    return &b->side[j];
+#else
+    (void)b;
+    return &brk_side[j];
+#endif
+}
+static const brk_bank_t *brk_side_slot_c(const breaks_t *b, unsigned j)
+{
+#if defined(X0X_HOST)
+    return &b->side[j];
+#else
+    (void)b;
+    return &brk_side[j];
+#endif
 }
 
-void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
+static brk_bank_t *bank_slot(breaks_t *b, unsigned i)
 {
-    brk_bank_t *k;
+    return i < 2u ? &b->bank[i] : brk_side_slot(b, i - 2u);
+}
+static const brk_bank_t *bank_slot_c(const breaks_t *b, unsigned i)
+{
+    return i < 2u ? &b->bank[i] : brk_side_slot_c(b, i - 2u);
+}
+const brk_bank_t *breaks_bank(const breaks_t *b, int which)
+{
+    if (which < 0 || which > 1)
+        return 0;
+    return bank_slot_c(b, b->pub[which]);
+}
+static int bank_referenced(const breaks_t *b, const brk_bank_t *k)
+{
+    return (b->v[0].on && b->v[0].snap == k) || (b->v[1].on && b->v[1].snap == k);
+}
+static int loop_same(const brk_bank_t *k, const brk_loop_t *loop)
+{
+    float sp16;
+    if (!k->valid || !loop || !loop->adpcm || loop->nsamples < 64 || !loop->bars)
+        return 0;
+    if (k->adpcm != loop->adpcm || k->n != loop->nsamples)
+        return 0;
+    sp16 = (float)loop->nsamples / ((float)loop->bars * 16.0f);
+    return k->sp16 == sp16;
+}
+/* a snapshot nobody is reading and that is not the other published loop */
+static int pick_slot(const breaks_t *b, int which)
+{
+    unsigned i, pub = b->pub[which], other = b->pub[which ^ 1];
+    for (i = 0; i < 4u; i++) {
+        if (i == pub || i == other)
+            continue;
+        if (bank_referenced(b, bank_slot_c(b, i)))
+            continue;
+        return (int)i;
+    }
+    return -1;
+}
+static void bank_fill(brk_bank_t *k, const brk_loop_t *loop)
+{
     uint32_t n, i, s, sh;
     int32_t pred = 0, idx = 0;
-    if (which < 0 || which > 1)
-        return;
-    k = &b->bank[which];
+    n = loop->nsamples;
     k->valid = 0;
     k->gen++;
-    if (!loop || !loop->adpcm || loop->nsamples < 64 || !loop->bars)
-        return;
-    n = loop->nsamples;
     for (sh = 6; ((n + (1u << sh) - 1u) >> sh) > BRK_NCK; sh++)
         ;
     k->ck_shift = (uint8_t)sh;
@@ -242,7 +306,94 @@ void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
         }
         ima_decode(k->adpcm, i, &pred, &idx);
     }
+    brk_barrier();
     k->valid = 1;
+}
+static void pend_store(breaks_t *b, int which, const brk_loop_t *loop)
+{
+    b->pend[which] = *loop;
+    b->pend_on[which] = 1;
+}
+
+/* decoder state before nibble p (p < n) */
+static void bank_seek(const brk_bank_t *k, uint32_t p, int32_t *pred, int32_t *idx)
+{
+    uint32_t c = p >> k->ck_shift, i = c << k->ck_shift;
+    *pred = k->ck[c].pred;
+    *idx = k->ck[c].idx;
+    while (i < p)
+        ima_decode(k->adpcm, i++, pred, idx);
+}
+
+void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
+{
+    brk_bank_t *k;
+    int idx, j;
+    if (which < 0 || which > 1)
+        return;
+    k = bank_slot(b, b->pub[which]);
+    if (!loop || !loop->adpcm || loop->nsamples < 64 || !loop->bars) {
+        /* the samples may be erased: do not keep a voice on them */
+        for (j = 0; j < 2; j++)
+            if (b->v[j].bank == (uint8_t)which)
+                b->v[j].on = 0;
+        k->valid = 0;
+        k->gen++;
+        b->pend_on[which] = 0;
+        return;
+    }
+    if (loop_same(k, loop)) {
+        b->pend_on[which] = 0;
+        return;                                         /* already sounding this loop: leave the voice */
+    }
+    idx = pick_slot(b, which);
+    if (idx >= 0) {
+        bank_fill(bank_slot(b, (unsigned)idx), loop);
+        brk_barrier();
+        b->pub[which] = (uint8_t)idx;                   /* triggers keep reading valid audio */
+        b->pend_on[which] = 0;
+        return;
+    }
+    if (!bank_referenced(b, k)) {
+        k->valid = 0;                                   /* voice_start will not take a half-built bank */
+        brk_barrier();
+        if (!bank_referenced(b, k)) {
+            bank_fill(k, loop);
+            b->pend_on[which] = 0;
+            return;
+        }
+        k->valid = 1;                                   /* a voice claimed it; do not rewrite its samples */
+    }
+    pend_store(b, which, loop);                         /* every spare snapshot is still sounding */
+}
+
+void breaks_flush(breaks_t *b)
+{
+    int w;
+    for (w = 0; w < 2; w++)
+        if (b->pend_on[w])
+            breaks_set_loop(b, w, &b->pend[w]);
+}
+
+void breaks_drop_range(breaks_t *b, const uint8_t *base, uint32_t nbytes)
+{
+    const uint8_t *end;
+    int j, w;
+    if (!base || !nbytes)
+        return;
+    end = base + nbytes;
+    for (j = 0; j < 2; j++) {
+        const brk_bank_t *k = b->v[j].snap;
+        if (b->v[j].on && k && k->adpcm >= base && k->adpcm < end)
+            b->v[j].on = 0;
+    }
+    for (w = 0; w < 2; w++) {
+        brk_bank_t *k = bank_slot(b, b->pub[w]);
+        if (k->adpcm >= base && k->adpcm < end)
+            k->valid = 0;
+        if (b->pend_on[w] && b->pend[w].adpcm >= base && b->pend[w].adpcm < end)
+            b->pend_on[w] = 0;
+    }
 }
 
 /* ---- voices ----------------------------------------------------------------------------- */
@@ -308,15 +459,25 @@ static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
 }
 static inline uint32_t rev_next(const brk_voice_t *v, uint32_t q) { return q > v->lo ? q - 1u : v->hi - 1u; }
 
-/* start a new voice at sample p of bank bk, slice sl, crossfading out the current one.
- * have_state: (pred, idx) is the decoder state before nibble p; otherwise it is sought. */
-static void voice_start(breaks_t *b, int bk, int sl, uint32_t p, int rev, int have_state, int32_t pred,
-                        int32_t idx)
+/* start a new voice at sample p of snapshot k (logical bank bk), slice sl, crossfading the current one.
+ * have_state: (pred, idx) is the decoder state before nibble p; otherwise it is sought.
+ * The claim of k happens before the fade, and a bank that goes invalid under us is refused,
+ * so a loop rebuild cannot silence the voice that is already playing. */
+static void voice_start_on(breaks_t *b, const brk_bank_t *k, int bk, int sl, uint32_t p, int rev,
+                           int have_state, int32_t pred, int32_t idx)
 {
-    const brk_bank_t *k = &b->bank[bk];
     brk_voice_t *o = &b->v[b->cur], *v;
-    if (!k->valid)
+    const brk_bank_t *prev;
+    if (!k || !k->valid)
         return;
+    v = &b->v[b->cur ^ 1u];
+    prev = v->snap;
+    v->snap = k;                                        /* hold this snapshot so a reload will not rewrite it */
+    brk_barrier();
+    if (!k->valid) {
+        v->snap = prev;
+        return;
+    }
     if (o->on)
         o->dg = -1.0f / (float)BRK_FADE;                   /* fade the old one out from where it is */
     b->cur ^= 1u;
@@ -324,6 +485,7 @@ static void voice_start(breaks_t *b, int bk, int sl, uint32_t p, int rev, int ha
     v->on = 1;
     v->bank = (uint8_t)bk;
     v->gen = k->gen;
+    v->snap = k;
     v->rev = (uint8_t)rev;
     v->seek_pos = UINT32_MAX;       /* never reuse state from a prior voice */
     v->lo = k->start[sl];
@@ -358,8 +520,10 @@ static void voice_start(breaks_t *b, int bk, int sl, uint32_t p, int rev, int ha
  * from its first sample then wrapping to its end (BB Gen's reverse) */
 static void slice_start(breaks_t *b, int bk, int sl)
 {
-    const brk_bank_t *k = &b->bank[bk];
-    voice_start(b, bk, sl, k->start[sl], b->perf.reverse, 1, k->at_start[sl].pred, k->at_start[sl].idx);
+    const brk_bank_t *k = breaks_bank(b, bk);
+    if (!k || !k->valid)
+        return;
+    voice_start_on(b, k, bk, sl, k->start[sl], b->perf.reverse, 1, k->at_start[sl].pred, k->at_start[sl].idx);
 }
 
 /* ---- the generator ---------------------------------------------------------------------- */
@@ -410,9 +574,9 @@ static void fire_trigger(breaks_t *b, int bp, int forced)
             b->sub_div = 4;                                /* BB Gen's Stutter 4x pad */
     }
     rb = held >= 0 ? 0 : b->engine_bank;                   /* this part's slice keys are A's */
-    if (!b->bank[rb].valid)
+    if (!breaks_bank(b, rb)->valid)
         rb ^= 1;
-    if (!b->bank[rb].valid)
+    if (!breaks_bank(b, rb)->valid)
         rb = b->engine_bank;
     b->render_bank = (uint8_t)rb;
     b->sub_count = 0;
@@ -466,34 +630,61 @@ static void gate_update(breaks_t *b)
 static void perf_sync(breaks_t *b)
 {
     uint16_t k = b->keys, d = (uint16_t)(k ^ b->keys_seen);
-    int key;
-    if (!d)
+    int key, edged = -1;
+    uint8_t restart = b->restart;
+    if (restart)
+        b->restart = 0;
+    if (!d && !restart)
         return;
-    for (key = 0; key <= 10; key++) {
-        uint16_t bit = (uint16_t)(1u << key);
-        int down = (k & bit) != 0;
-        if (!(d & bit))
-            continue;
-        if (key < 8) {
-            if (down) {
-                perf_push(&b->perf, key);
-                if (b->bank[0].valid) {                    /* instant hit */
-                    b->current_slice = key;
-                    b->render_bank = 0;
-                    b->sub_div = 0;
-                    slice_start(b, 0, key);
-                }
-            } else
-                perf_release(&b->perf, key);
-        } else if (key == 8)
-            b->perf.reverse = (uint8_t)down;
-        else if (key == 9)
-            perf_half(&b->perf, down);
-        else
-            b->perf.stutter = (uint8_t)down;
+    if (d) {
+        for (key = 0; key <= 10; key++) {
+            uint16_t bit = (uint16_t)(1u << key);
+            int down = (k & bit) != 0;
+            if (!(d & bit))
+                continue;
+            if (key < 8) {
+                if (down) {
+                    perf_push(&b->perf, key);
+                    if (breaks_bank(b, 0)->valid) {            /* instant hit */
+                        b->current_slice = key;
+                        b->render_bank = 0;
+                        b->sub_div = 0;
+                        slice_start(b, 0, key);
+                    }
+                    edged = key;
+                } else
+                    perf_release(&b->perf, key);
+            } else if (key == 8)
+                b->perf.reverse = (uint8_t)down;
+            else if (key == 9)
+                perf_half(&b->perf, down);
+            else
+                b->perf.stutter = (uint8_t)down;
+        }
+        b->keys_seen = k;
+        gate_update(b);
     }
-    b->keys_seen = k;
-    gate_update(b);
+    /* A second note for a slice that is already held restarts that slice.
+     * slice_start crossfades. It does not stop the voice, and it is not a loop change. */
+    if (restart) {
+        int sl = (int)restart - 1;
+        if ((unsigned)sl < 8u && sl != edged && (b->keys & (uint16_t)(1u << sl)) && breaks_bank(b, 0)->valid) {
+            perf_push(&b->perf, sl);
+            b->current_slice = sl;
+            b->render_bank = 0;
+            b->sub_div = 0;
+            slice_start(b, 0, sl);
+            gate_update(b);
+        }
+    }
+}
+
+void breaks_slice_on(breaks_t *b, int slice)
+{
+    if (slice < 0 || slice > 7)
+        return;
+    breaks_live(b, slice, 1);
+    b->restart = (uint8_t)(slice + 1);
 }
 
 void breaks_live(breaks_t *b, int key, int down)
@@ -531,12 +722,12 @@ void breaks_step(breaks_t *b, int step16, int bar, float samples_per_16th, int e
         if (pb) {
             int bip = bar % pb;
             if (bip == pb - 2) {
-                if (brk_rand(b) < (float)b->set[BRK_BCHANCE] * 0.01f && b->bank[1].valid)
+                if (brk_rand(b) < (float)b->set[BRK_BCHANCE] * 0.01f && breaks_bank(b, 1)->valid)
                     b->pending_bank = 1;
             } else if (bip == pb - 1)
                 b->pending_bank = 0;
         } else if (b->set[BRK_BCHANCE] && !forced) {      /* X0X: no phrase: B chance rolls for every bar */
-            int bank = brk_rand(b) < (float)b->set[BRK_BCHANCE] * 0.01f && b->bank[1].valid;
+            int bank = brk_rand(b) < (float)b->set[BRK_BCHANCE] * 0.01f && breaks_bank(b, 1)->valid;
             if (bank != b->engine_bank) {
                 b->engine_bank = (uint8_t)bank;
                 forced = 1;
@@ -552,7 +743,7 @@ void breaks_step(breaks_t *b, int step16, int bar, float samples_per_16th, int e
     b->trig_left = 0;
     pin = b->pin;
     b->pin = -1;
-    if (pin >= 0 && (!enabled || !b->bank[0].valid || b->perf.count))
+    if (pin >= 0 && (!enabled || !breaks_bank(b, 0)->valid || b->perf.count))
         pin = -1;                                          /* off, no loop A, or a held slice key wins */
     if (pin >= 0) {
         if (forced)
@@ -578,7 +769,8 @@ void breaks_stop(breaks_t *b)
     gate_update(b);
 }
 
-void breaks_init(breaks_t *b)
+/* Boot only (engine_init). The render, the step, and the live keys do not call it. */
+X0X_COLD void breaks_init(breaks_t *b)
 {
     uint8_t *p = (uint8_t *)b;
     uint32_t i;
@@ -586,6 +778,8 @@ void breaks_init(breaks_t *b)
         p[i] = 0;
     for (i = 0; i < BRK_NPARAM; i++)
         b->set[i] = BRK_PARAMS[i].def;
+    b->pub[0] = 0;
+    b->pub[1] = 1;                                       /* A and B start on their own snapshots */
     b->rng = 0x2545F491u;
     b->pending_bank = -1;
     b->perf.rate_mult = 1.0f;
@@ -619,20 +813,22 @@ void breaks_render(breaks_t *b, float *out, int n)
     perf_sync(b);
     for (j = 0; j < 2; j++) {
         brk_voice_t *v = &b->v[j];
-        const brk_bank_t *k = &b->bank[v->bank];
-        if (v->on && (!k->valid || k->gen != v->gen))
-            v->on = 0;                                     /* its loop was replaced */
+        const brk_bank_t *k = v->snap;
+        if (v->on && !k)
+            v->on = 0;
         inc[j] = v->on ? brk_inc(b, k) : 0.0f;
     }
-    {   /* reverse pressed or released: continue from where the playhead is, the other way */
+    {   /* reverse pressed or released: continue from where the playhead is, the other way.
+         * Stay on the snapshot already sounding, so a loop change does not steer the reverse. */
         brk_voice_t *v = &b->v[b->cur];
-        if (v->on && v->rev != b->perf.reverse && v->dg >= 0.0f) {
+        const brk_bank_t *k = v->snap;
+        if (v->on && k && v->rev != b->perf.reverse && v->dg >= 0.0f) {
             int bk = v->bank, sl = 0;
             uint32_t p = v->rev ? v->pos : (v->pos ? v->pos - 1u : 0u);
-            while (sl < 7 && b->bank[bk].start[sl + 1] <= v->lo)
+            while (sl < 7 && k->start[sl + 1] <= v->lo)
                 sl++;
-            voice_start(b, bk, sl, p, b->perf.reverse, 0, 0, 0);
-            inc[b->cur] = brk_inc(b, &b->bank[bk]);
+            voice_start_on(b, k, bk, sl, p, b->perf.reverse, 0, 0, 0);
+            inc[b->cur] = brk_inc(b, b->v[b->cur].snap ? b->v[b->cur].snap : k);
         }
     }
     lvl = (float)b->set[BRK_LEVEL] * (1.0f / 127.0f);
@@ -641,13 +837,14 @@ void breaks_render(breaks_t *b, float *out, int n)
         float y = 0.0f;
         if (b->trig_left > 0 && --b->trig_left == 0 && b->running) {
             clock_trigger(b);
-            inc[b->cur] = brk_inc(b, &b->bank[b->v[b->cur].bank]);
+            if (b->v[b->cur].snap)
+                inc[b->cur] = brk_inc(b, b->v[b->cur].snap);
         }
         if (b->sub_count + 1 < b->sub_div) {                /* retrigger: replay the slice head */
             if ((float)b->sub_elapsed >= (float)(b->sub_count + 1) * b->sub_len) {
                 b->sub_count++;
                 slice_start(b, b->render_bank, b->current_slice);
-                inc[b->cur] = brk_inc(b, &b->bank[b->render_bank]);
+                inc[b->cur] = b->v[b->cur].snap ? brk_inc(b, b->v[b->cur].snap) : 0.0f;
             }
             b->sub_elapsed++;
         }
@@ -656,7 +853,9 @@ void breaks_render(breaks_t *b, float *out, int n)
             const brk_bank_t *k;
             if (!v->on)
                 continue;
-            k = &b->bank[v->bank];
+            k = v->snap;
+            if (!k)
+                continue;
             y += (v->s0 + (v->s1 - v->s0) * v->frac) * v->g;
             v->g += v->dg;
             if (v->g >= 1.0f) {

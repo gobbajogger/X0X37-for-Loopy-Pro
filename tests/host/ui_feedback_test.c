@@ -139,6 +139,42 @@ static void read_only_rows_do_not_edit(void)
 
 /* MIX WAVE sibling: silent eng_scope is flat; a latched shape changes the main hash; MASTER
  * page index stays 3; WAVE is page 4 with the same master knobs. */
+/* HOME pattern glyphs: two used patterns with different 909 hits must not paint the same fill. */
+static void home_pattern_glyph_content(void)
+{
+    int lit0, lit1, sx0, sx1, y, i;
+
+    memset(&ui, 0, sizeof ui);
+    boot();
+    pattern_init(&proj.pat[0], 1u, 2u);
+    pattern_init(&proj.pat[1], 3u, 4u);
+    sm_set(proj.pat[0].drum[PART_909].hit[0], 0);
+    sm_set(proj.pat[0].drum[PART_909].hit[0], 8);
+    sm_set(proj.pat[1].drum[PART_909].hit[0], 1);
+    sm_set(proj.pat[1].drum[PART_909].hit[0], 2);
+    sm_set(proj.pat[1].drum[PART_909].hit[0], 3);
+    set_view(V_HOME);
+    ui.pbank = 0;
+    now_ms = 1000;
+    (void)main_hash();
+    sx0 = 4 + 2;
+    sx1 = 4 + 14 + 2;
+    y = MAIN_Y + 5;
+    lit0 = lit1 = 0;
+    for (i = 0; i < 8; i++) {
+        if (fb[y * 240 + (unsigned)(sx0 + i)] != 0)
+            lit0++;
+        if (fb[y * 240 + (unsigned)(sx1 + i)] != 0)
+            lit1++;
+    }
+    assert(lit0 == 2);
+    assert(lit1 == 2);
+    assert(fb[y * 240 + (unsigned)(sx0 + 4)] != 0);
+    assert(fb[y * 240 + (unsigned)(sx1 + 1)] != 0);
+    assert(fb[y * 240 + (unsigned)(sx0 + 1)] == 0);
+    assert(fb[y * 240 + (unsigned)(sx1 + 4)] == 0);
+}
+
 static void mix_wave_sibling_scope(void)
 {
     uint32_t silent, moving, master_hash;
@@ -187,6 +223,8 @@ int main(int argc, char **argv)
         mix_wave_sibling_scope();
     if (argc == 1 || !strcmp(argv[1], "master-hist"))
         master_hist_write_head_stable();
-    puts("PASS: help hides pending readout, read-only rows reject edits, MIX WAVE scope draws, MASTER hist write-head stable");
+    if (argc == 1 || !strcmp(argv[1], "pat-glyph"))
+        home_pattern_glyph_content();
+    puts("PASS: help hides pending readout, read-only rows reject edits, MIX WAVE scope draws, MASTER hist write-head stable, HOME pattern glyphs");
     return 0;
 }

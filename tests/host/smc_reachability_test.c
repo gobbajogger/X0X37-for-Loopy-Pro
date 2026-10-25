@@ -113,6 +113,182 @@ static void knob_accel_isolated(void) {
     assert(pref_get(slow) == before + 1);
     assert(ui.enc_run[EN_K1] == panel_run);
 }
+/* Panel curve stays x8. SMC quick spins use a shorter curve. Same translation unit. */
+static int accel_at(int smc, uint32_t gap, int s, int range, uint8_t run)
+{
+    int got;
+    accel_smc = (uint8_t)smc;
+    ui.enc_t[EN_K1] = now_ms;
+    ui.enc_run[EN_K1] = run;
+    now_ms += gap;
+    got = (int)accel(EN_K1, s, range);
+    accel_smc = 0;
+    return got;
+}
+static void knob_cc(int n, int value, uint32_t gap)
+{
+    uint8_t msg[3] = {0xB0, (uint8_t)(16 + n), (uint8_t)value};
+    now_ms += gap;
+    smc_ble_midi(msg, 3);
+    smc_poll();
+}
+/* Count `count` same-byte turns. The first message after a strip reset sees a
+ * long gap, so it is the one-step warmup; later gaps are `gap`. */
+static int knob_burst(pref_t r, int n, int value, int count, uint32_t gap)
+{
+    int before;
+    smc.knob_i = 0;
+    before = pref_get(r);
+    knob_cc(n, value, 80);
+    for (int i = 1; i < count; i++)
+        knob_cc(n, value, gap);
+    return pref_get(r) - before;
+}
+static void knob_quick_spin_slower(void)
+{
+    pref_t pan, tempo, length, rate, transpose;
+    const x0x_param_t *dpan, *drate;
+    int travel, saved_tempo, saved_len, saved_rate, saved_tr, part;
+    uint32_t frames;
+    int32_t buf[512];
+    /* Panel numbers stay. A running spin, one detent. */
+    assert(accel_at(0, 8, 1, 127, 8) == 8);
+    assert(accel_at(0, 20, 1, 127, 8) == 5);
+    assert(accel_at(0, 30, 1, 127, 8) == 3);
+    assert(accel_at(0, 50, 1, 127, 8) == 1);
+    assert(accel_at(0, 8, 1, 48, 8) == 3);
+    assert(accel_at(0, 8, 1, 255, 8) == 16);
+    assert(accel_at(0, 8, 20, 127, 8) == 160);
+    assert(accel_at(0, 8, -1, 127, 8) == -8);
+    assert(accel_at(0, 8, 1, 127, 2) == 1);          /* still warming up */
+    assert(accel_at(0, 8, 5, 20, 8) == 5);           /* short range: no multiply */
+    /* SMC: slow click unchanged, quick end much smaller, both signs. */
+    assert(accel_at(1, 8, 1, 127, 2) == 1);
+    assert(accel_at(1, 80, 1, 127, 8) == 1);
+    assert(accel_at(1, 80, -1, 127, 8) == -1);
+    assert(accel_at(1, 8, 1, 127, 8) == 3);
+    assert(accel_at(1, 20, 1, 127, 8) == 2);
+    assert(accel_at(1, 30, 1, 127, 8) == 2);
+    assert(accel_at(1, 8, 1, 48, 8) == 2);           /* shorter pot */
+    assert(accel_at(1, 8, 1, 255, 8) == 3);          /* wide: not the panel's x16 */
+    assert(accel_at(1, 8, 20, 127, 8) == 26);        /* 3*3 + 17, not 20*8 */
+    assert(accel_at(1, 8, -20, 127, 8) == -26);
+    assert(accel_at(1, 8, 63, 127, 8) == 69);        /* flick, not 63*8 */
+    assert(accel_at(1, 8, -63, 127, 8) == -69);
+    assert(accel_at(1, 900, 20, 127, 8) == 20);      /* a slow bundle stays 1:1 */
+    assert(accel_at(1, 8, 20, 20, 8) == 20);         /* short range still unmultiplied */
+    assert(accel_smc == 0);
+
+    smc_view(V_HOME, 0);
+    pan = smc_knob_target(0);
+    dpan = pref_desc(pan);
+    assert(dpan && !dpan->names && dpan->max >= 100 && dpan->max <= 150);
+    pref_set(pan, 40);
+    assert(knob_burst(pan, 0, 1, 1, 80) == 1);
+    pref_set(pan, 40);
+    assert(knob_burst(pan, 0, 0x41, 1, 80) == -1);
+    /* 12 messages: one slow anchor, two more warmup steps, then 9 at x3 = 30.
+     * The old curve on those 9 was x8, so 75. */
+    pref_set(pan, 40);
+    travel = knob_burst(pan, 0, 1, 12, 8);
+    assert(travel == 30);
+    assert(travel > 12 && travel < 75);
+    pref_set(pan, 80);
+    assert(knob_burst(pan, 0, 0x41, 12, 8) == -30);
+    /* Anchor with one detent, then a 63-detent flick 10 ms later: +69, not 63*8.
+     * 10 + 1 + 69 = 80, still short of the top, so this did not slam the end. */
+    pref_set(pan, 10);
+    smc.knob_i = 0;
+    knob_cc(0, 1, 80);
+    knob_cc(0, 0x3F, 10);
+    assert(pref_get(pan) == 80);
+    pref_set(pan, 100);
+    smc.knob_i = 0;
+    knob_cc(0, 0x41, 80);
+    knob_cc(0, 0x7F, 10);
+    assert(pref_get(pan) == 30);
+    /* Clamp. A fast turn into either end stops. It does not wrap. */
+    pref_set(pan, dpan->max);
+    smc.knob_i = 0;
+    knob_cc(0, 0x3F, 8);
+    assert(pref_get(pan) == dpan->max);
+    knob_cc(0, 1, 8);
+    assert(pref_get(pan) == dpan->max);
+    pref_set(pan, 0);
+    smc.knob_i = 0;
+    knob_cc(0, 0x7F, 8);
+    assert(pref_get(pan) == 0);
+    knob_cc(0, 0x41, 8);
+    assert(pref_get(pan) == 0);
+
+    /* Wide tempo on GLOBAL, and a shorter 303 transpose. Named rate stays one step. */
+    smc_view(V_GLO, 0);
+    tempo = smc_knob_target(0);
+    assert(pref_desc(tempo) && pref_desc(tempo)->max > 150);
+    saved_tempo = pref_get(tempo);
+    pref_set(tempo, 40);
+    travel = knob_burst(tempo, 0, 1, 12, 8);
+    assert(travel == 30);
+    assert(travel < 3 + 9 * 16);                     /* old wide curve */
+    pref_set(tempo, saved_tempo);
+
+    part = ui.part;
+    smc_select_part(PART_303A);
+    smc_view(V_SEQ, 0);
+    length = smc_knob_target(0);
+    rate = smc_knob_target(1);
+    transpose = smc_knob_target(3);
+    assert(pref_desc(length) && pref_desc(length)->max > 24 && pref_desc(length)->max < 100);
+    drate = pref_desc(rate);
+    assert(drate && drate->names && drate->max < 24);
+    assert(pref_desc(transpose) && pref_desc(transpose)->max > 24 && pref_desc(transpose)->max < 100);
+    saved_len = pref_get(length);
+    saved_rate = pref_get(rate);
+    saved_tr = pref_get(transpose);
+    pref_set(length, 10);
+    travel = knob_burst(length, 0, 1, 12, 8);
+    assert(travel == 21);                            /* 3 + 9*2, not the old x3 */
+    pref_set(transpose, 10);
+    assert(knob_burst(transpose, 3, 1, 12, 8) == 21);
+    pref_set(rate, 0);
+    smc.knob_i = 0;
+    knob_cc(1, 0x3F, 8);                             /* a flick on a switch is still one position */
+    assert(pref_get(rate) == 1);
+    pref_set(rate, drate->max);
+    smc.knob_i = 0;
+    knob_cc(1, 0x3F, 8);
+    knob_cc(1, 1, 8);
+    assert(pref_get(rate) == drate->max);            /* stops; does not wrap to the first name */
+    pref_set(rate, 0);
+    smc.knob_i = 0;
+    knob_cc(1, 0x7F, 8);
+    assert(pref_get(rate) == 0);
+    pref_set(length, saved_len);
+    pref_set(rate, saved_rate);
+    pref_set(transpose, saved_tr);
+
+    /* Playing: the spin stays on the main loop. The render still completes. */
+    smc_view(V_HOME, 0);
+    pan = smc_knob_target(0);
+    pref_set(pan, 40);
+    seq.playing = 1;
+    frames = eng_prof_frames;
+    for (int i = 0; i < 512; i++) buf[i] = 0x7fffffff;
+    engine_render(buf, 256);
+    assert(eng_prof_frames == frames + 256);
+    assert(buf[0] != 0x7fffffff);
+    travel = knob_burst(pan, 0, 1, 8, 8);
+    assert(travel == 18);                            /* 3 + 5*3; still the short curve */
+    for (int i = 0; i < 512; i++) buf[i] = 0x7fffffff;
+    engine_render(buf, 256);
+    assert(seq.playing);
+    assert(eng_prof_frames == frames + 512);
+    assert(buf[0] != 0x7fffffff);
+    seq.playing = 0;
+    smc_select_part(part);
+    smc_view(V_HOME, 0);
+    assert(accel_smc == 0);
+}
 /* Panel part change must move the lit Record strip even if smc.rec_part is stale. */
 static void record_lamp_follows_part(void) {
     memset(led_vel, 0, sizeof led_vel);
@@ -189,6 +365,7 @@ static void help_keeps_controls(void) {
     assert(ui.help && pref_get(r) != after);
     msg[0] = 0x90; msg[1] = 6; msg[2] = 127; /* R7 closes help; inject before HCI routes are armed */
     smc_ble_midi(msg, 3); smc_poll();
+    msg[2] = 0; smc_ble_midi(msg, 3); smc_poll(); /* release Home so it is not still held */
     assert(!ui.help);
 }
 static void scenario(void) {
@@ -196,6 +373,7 @@ static void scenario(void) {
     memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
     boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
     knob_accel_isolated();
+    knob_quick_spin_slower();
     record_lamp_follows_part();
     nav_strip_lamps();
     help_keeps_controls();
@@ -206,16 +384,25 @@ static void scenario(void) {
         const uint8_t down[]={5,4,0,1,0,0x13};
         blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
         receive_ready();smc_ble_link(1);smc_poll();
-        /* The first fader, knob and SELECT after an interrupted SysEx reach UI. */
+        /* The first fader, knob and SELECT after an interrupted SysEx reach UI.
+         * SELECT on 909 is the momentary effect; 303 B SELECT still opens the part. */
         fader(0,0);assert(smc_ui_active());
-        press(24);assert(ui.view==V_PART && ui.part==0);
+        { int part0=ui.part, view0=ui.view; press(24); assert(ui.part==part0 && ui.view==view0); }
+        press(24+PART_303B);assert(ui.view==V_PART && ui.part==PART_303B);
         edit(smc_knob_target(0),0);smc_view(V_HOME,0);
     }
     if(getenv("SMC_PICKUP_ONLY")) goto pickup;
     /* Starting at HOME, SELECT must expose each part's sound. */
     for(int part=0;part<NPARTS;part++) {
         smc_select_part((part + 1) % NPARTS);
-        smc_view(V_HOME,0); press(24+part); assert(ui.part==part && ui.view==V_PART);
+        smc_view(V_HOME,0);
+        if (part == PART_303B) {
+            press(24+part); assert(ui.part==part && ui.view==V_PART);
+        } else {
+            int stayed = ui.part;
+            press(24+part); assert(ui.part==stayed && ui.view==V_HOME);
+            smc_select_part(part); smc_view(V_PART, 0);
+        }
         for(int p=0;p<pg.n;p++) {
             assert(cur_page()==p);
             for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE) edit(r,n); }
@@ -244,7 +431,7 @@ static void scenario(void) {
     }
     /* Both kits: all eleven tracks, sound pages then mix pan and sends. */
     for(int kit=0;kit<2;kit++) {
-        smc_select_part(PART_303A); view(V_HOME); press(24+kit);
+        smc_select_part(kit); smc_view(V_PART, 0);
         for(int t=0;t<NDRUM;t++) {
             assert(ui.sel[kit]==t); assert(pg.r[0][0].b==t);
             if(t+1<NDRUM) press(0x2F);
@@ -301,7 +488,8 @@ pickup: ;
     smc_ble_link(1); smc_poll(); assert(!smc.picked && !smc.seen);
     if(getenv("SMC_PICKUP_ONLY")) return;
     /* View navigation reaches all ordinary views and Global's actions. */
-    press(26); view(V_SEQ); view(V_GEN); view(V_FX); view(V_MIX); view(V_SONG); view(V_HOME);
+    smc_select_part(PART_303A); smc_view(V_PART, 0);
+    view(V_SEQ); view(V_GEN); view(V_FX); view(V_MIX); view(V_SONG); view(V_HOME);
     press(14); assert(ui.view==V_GLO && ui.overlay==O_LIST); press(6); assert(ui.overlay==O_NONE);
     /* Confirmation guards edits, consumes input, and has explicit cancel/confirm. */
     ask(ACT_SONG_CLR,0,"TEST",0); old=pref_get(r);
@@ -313,7 +501,7 @@ pickup: ;
     fader(0,127); turn(0,1); press(24);
     assert(pref_get(r)==old && smc_qr==smc_qw && smc_host_r==smc_host_w);
     perf.test=saved_test; perf.phase=saved_phase;
-    ui.help=1; press(24); assert(ui.help && ui.part==0 && ui.view==V_PART);
+    ui.help=1; { int part=ui.part, view_now=ui.view; press(24); assert(ui.help && ui.part==part && ui.view==view_now); }
     old=pref_get(smc_knob_target(0)); turn(0,1);
     assert(ui.help && pref_get(smc_knob_target(0))!=old); /* card stays; knob still edits */
     press(6); assert(!ui.help);

@@ -46,7 +46,7 @@ APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX   # SMK: the app code ends below the Blu
 LOADER_LOAD = 0x01C0A800
 LOADER_NAME = b"usb_hid_ota.bin"    # the file name the SPL looks for
 DOCKER_IMAGE = os.environ.get("JIELI_DOCKER_IMAGE", "debian:bookworm-slim")
-CFLAGS = ["-Os", "-ffunction-sections", "-fno-builtin", "-Wall", "-Wno-unused-function"]
+CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wall", "-Wno-unused-function"]
 # X0X: the AC79's single-precision FPU (the SDK's own flags); no fused multiply-add, so the host
 # build (-ffp-contract=off) computes the same samples
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
@@ -158,16 +158,22 @@ def generate():
             failed.append(c[0].name)
     if failed:
         raise SystemExit(f"build: {', '.join(failed)} failed")
-    # the BREAK part's built-in bank: the 909-rendered loops (no recordings), or, opt-in,
-    # one-bar WAVs from X0X_BREAK_BANK (made by tools/import_breaks.py; not in this tree)
+    # The default image has no built-in loops: that flash is code room. X0X_FACTORY_BREAKS=1
+    # puts the 909 loops back in the image. X0X_BREAK_BANK=DIR uses another bank instead.
+    import break_pack
     bank = os.environ.get("X0X_BREAK_BANK")
-    cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
-           else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    sys.stdout.write(r.stdout)
-    if r.returncode:
-        sys.stderr.write(r.stderr)
-        raise SystemExit("build: break bank failed")
+    factory = os.environ.get("X0X_FACTORY_BREAKS") == "1"
+    if bank or factory:
+        cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
+               else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        sys.stdout.write(r.stdout)
+        if r.returncode:
+            sys.stderr.write(r.stderr)
+            raise SystemExit("build: break bank failed")
+    else:
+        break_pack.write_empty_header(GEN / "x0x_break_bank.h")
+        print("break bank: none (factory loops are an optional install)")
     gen_cache.store(GEN)
 
 
@@ -309,6 +315,9 @@ def build_app():
             img += b"\xff" * (load - APP_XIP - len(img))
             img += blob
     img += b"\xff" * (-len(img) % 4)
+    # A 0x00 mark, then pad back to a word. The optional break pack sits after this
+    # mark, in the 0xFF tail, and does not overwrite the image.
+    img += b"\x00\xff\xff\xff"
     (OUT / "x0x.bin").write_bytes(img)
     return bytes(img), syms, dis, rt
 
