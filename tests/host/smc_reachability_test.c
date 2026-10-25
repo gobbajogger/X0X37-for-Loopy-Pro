@@ -278,12 +278,15 @@ pickup: ;
     /* Real notice/frame: feedback must not rearm pickup after our own write. */
     smc_view(V_HOME,0);
     for(int n=0;n<8;n++) { assert(smc_knob_target(n).kind == R_NONE || !smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
+    /* Establish a physical sample below the new target; routing must no
+     * longer discard a valid crossing from the previous visible page. */
+    fader(0,0);
     pref_t r=smc_target(0); pref_set(r,64); smc_frame();
-    fader(0,0); assert(!(smc.picked&1) && smc_ui_active());
+    fader(0,1); assert(!(smc.picked&1) && smc_ui_active());
     int old=pref_get(r); smc_frame(); assert(pref_get(r)==old);
     fader(0,127); assert((smc.picked&1) && smc_ui_active());
     fader(0,100); assert(smc.picked&1);
-    pref_set(r,20); smc_frame(); assert(!(smc.picked&1) && !(smc.seen&1));
+    pref_set(r,20); smc_frame(); assert(!(smc.picked&1) && (smc.seen&1));
     fader(0,110); assert(!(smc.picked&1));
     fader(0,0); assert(smc.picked&1);
     /* Waiting must not allocate motion; crossing must record through production motion_touch. */

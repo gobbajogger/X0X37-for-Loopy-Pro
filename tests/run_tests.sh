@@ -199,6 +199,7 @@ run ble-acl-zero-credit sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware
 run ble-link-epoch-reset sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_link_epoch_reset_test tests/host/ble_link_epoch_reset_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_link_epoch_reset_test"
 run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_disconnect_status_test tests/host/ble_disconnect_status_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_disconnect_status_test"
 run smc-reachability sh tests/host/smc_reachability_test.sh
+run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-lock sh tests/host/smc_lock_test.sh
