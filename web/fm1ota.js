@@ -72,11 +72,27 @@ function parseIdentity(pkt) {
 class Link {
   constructor(input, output) {
     this.input = input; this.output = output; this.q = []; this.waiter = null;
-    input.onmidimessage = (ev) => {
+    this.onMessage = (ev) => {
       if (ev.data[0] !== 0xF0) return;
       this.q.push(Array.from(ev.data));
       if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
+    // A MIDI input may already have an application handler. Do not replace it.
+    if (typeof input.addEventListener === "function" &&
+        typeof input.removeEventListener === "function") {
+      this.useEvents = true;
+      input.addEventListener("midimessage", this.onMessage);
+    } else {
+      // Compatibility with legacy/mock inputs that only expose the property.
+      this.useEvents = false;
+      const previous = input.onmidimessage;
+      this.previousHandler = previous;
+      this.installedHandler = (ev) => {
+        this.onMessage(ev);
+        if (typeof previous === "function") previous.call(input, ev);
+      };
+      input.onmidimessage = this.installedHandler;
+    }
   }
   get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
   // false when the port is gone (unplugged): WebMIDI throws on a disconnected output
@@ -93,7 +109,11 @@ class Link {
     }
     return this.q.shift() || null;
   }
-  close() { this.input.onmidimessage = null; }
+  close() {
+    if (this.useEvents) this.input.removeEventListener("midimessage", this.onMessage);
+    else if (this.input.onmidimessage === this.installedHandler)
+      this.input.onmidimessage = this.previousHandler;
+  }
 }
 
 async function handshake(link, tries = 3) {
