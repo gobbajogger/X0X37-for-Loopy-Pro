@@ -1,0 +1,29 @@
+{
+  "base": "6df0f81fbbe0adc3207f67d912d2fe0ab676be04",
+  "scope": "F08 BF-004 ownership-gated 303/BREAK Note Off only (firmware/src/app/engine.c blob ab6d9667e9cd40ae12cc8c8ece8d7bb12be29216 + tests/scenarios/midiowner.x0x; implement commit ce690772). Firmware tree changed vs audited tip 6df0f81f / content tree 69ccb3d7… (firmware tree 19840d87… → 581d1cb2…). Stage 3 ALL_PASS for required BF-004 host regressions (build_host, midiowner.x0x, usbnotes.x0x, blenotes.x0x, engine Note Off src_held gate for src<2 with TRS src>=2 release preserved). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-004-affected host checks. A host pass is not a package pass. Do not reopen BF-001, BF-002, BF-003, or FP-001. Do not implement deferred items. Do not take BF-005–BF-007.",
+  "checks": [
+    {
+      "reason": "BF-004 host binary must build before scenario regressions.",
+      "argv": ["sh", "host/build_host.sh"]
+    },
+    {
+      "reason": "BF-004 midiowner must keep stale non-owner Off from clearing hold and allow owner/TRS release.",
+      "argv": ["build/host/x0x_host", "tests/scenarios/midiowner.x0x", "build/scenarios/midiowner"]
+    },
+    {
+      "reason": "BF-004 must not regress USB note ownership (usbnotes).",
+      "argv": ["build/host/x0x_host", "tests/scenarios/usbnotes.x0x", "build/scenarios/usbnotes"]
+    },
+    {
+      "reason": "BF-004 must not regress Bluetooth note ownership (blenotes).",
+      "argv": ["build/host/x0x_host", "tests/scenarios/blenotes.x0x", "build/scenarios/blenotes"]
+    },
+    {
+      "reason": "BF-004 engine Note Off must gate USB/BT on src_held and keep TRS release.",
+      "argv": ["bash", "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"]
+    }
+  ],
+  "dependencies": [
+    "/workspace/evidence/f08-stage4/check-engine-noteoff-gate.sh"
+  ]
+}
