@@ -13,9 +13,11 @@
 
 /* ---- parameters ------------------------------------------------------------------------ */
 
-static const char *const wave_names[] = { "Saw", "Sqr" };
 static const char *const fenv_names[] = { "303", "ADSR" };
 static const char *const drv_names[] = { "Off", "Soft", "RAT" };
+/* Chicago Amp ENV/GATE: Env keeps Open303's amp path; Gate holds VCA while the note is down.
+ * Not EnvMod, not the ENV page, not velocity→cutoff. Owned by #277. */
+static const char *const ampmode_names[] = { "Env", "Gate" };
 
 /* defaults are schwung-303's (every knob at 0.5, Devilfish values stock), except Volume,
  * lowered from 0.8 so the nominal peak is ~0.5 */
@@ -25,10 +27,10 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
     { "EnvMod", 127, 64, 0 },        /* 0 .. 100 % */
     { "Decay", 127, 64, 0 },         /* 200 .. 2000 ms, exponential (stock 303 range) */
     { "Accent", 127, 64, 0 },        /* 0 .. 100 % */
-    { "Wave", 1, 0, wave_names },
+    { "Wave", 127, 0, 0 },           /* Chicago OSC Waveform: 0 saw .. 127 square */
     { "Tune", 127, 64, 0 },          /* A4 = 440 + (pot - 64) * 0.625 Hz: 400 .. 479.4 */
     { "Volume", 127, 96, 0 },        /* -60 .. 0 dB; 96 = -14.6 dB: peaks ~0.5 (schwung-303: 102) */
-    { "Drive", 127, 0, 0 },          /* 0 = bypass */
+    { "Drive", 127, 0, 0 },          /* 0 = bypass; Chicago VCF Bite maps here */
     { "DrvTyp", 2, 1, drv_names },
     { "Slide", 127, 21, 0 },         /* 2 .. 360 ms (Devilfish); 21 = 61 ms, stock is 60 */
     { "AccDec", 127, 7, 0 },         /* 30 .. 3000 ms (Devilfish); 7 = 194 ms, stock is 200 */
@@ -36,6 +38,8 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
     { "FSustain", 127, 0, 0 },       /* 0 .. 100 % */
     { "FRelease", 127, 0, 0 },       /* 0 .. 4000 ms, quadratic */
     { "FEnv", 1, 0, fenv_names },    /* old sounds use the original 303 envelope */
+    { "AmpMod", 1, BASS303_AMP_ENV, ampmode_names }, /* Chicago amp Env/Gate; #277 */
+    { "Gnaw", 127, 0, 0 },           /* Chicago VCF Gnaw: pre-filter input grit */
 };
 
 int bass303_nparams(void) { return BASS303_NPARAMS; }
@@ -212,7 +216,10 @@ void bass303_set(bass303_t *b, int i, int v)
         b->accent = n;
         break;
     case BASS303_WAVE:
-        b->wave = v;
+        b->wave_mix = n;                                   /* 0 saw .. 1 square */
+        break;
+    case BASS303_GNAW:
+        b->gnaw = n;                                       /* Chicago VCF Gnaw */
         break;
     case BASS303_TUNE:
         b->tuning = 440.0f + (float)(v - 64) * 0.625f;
@@ -602,8 +609,11 @@ static void run(bass303_t *b, float *out, int n)
     float y1 = b->f_y1, y2 = b->f_y2, y3 = b->f_y3, y4 = b->f_y4, fbx = b->fb_x1, fby = b->fb_y1;
     const float osc_freq = b->osc_freq, acc = b->accent_gain;
     const float scaler = b->env_scaler, offset = b->env_offset, cutoff = b->cutoff, r = b->reso;
-    const float *amp_pw = b->gate ? b->ampd_pw : b->amp_acc ? b->ampa_pw : b->ampn_pw;
-    const float amp_boost = b->gate ? 0.45f + 4.0f * acc : 0.0f;
+    /* AmpMod Gate: VCA stays open while the note is held (Chicago Gate); Env keeps Open303. */
+    const int amp_gate = b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE;
+    const float *amp_pw = (amp_gate && b->gate) ? 0
+        : b->gate ? b->ampd_pw : b->amp_acc ? b->ampa_pw : b->ampn_pw;
+    const float amp_boost = (!amp_gate && b->gate) ? 0.45f + 4.0f * acc : 0.0f;
     /* the overload guard's lite mode: no oversampling; a change of rate jumps to the new rate's
      * coefficients (snap) rather than gliding between the two rates' values */
     const int lite = b->lite;
@@ -613,7 +623,10 @@ static void run(bass303_t *b, float *out, int n)
     const float fb_b0 = lite ? b->fbhpl_b0 : b->fbhp_b0, fb_a1 = lite ? b->fbhpl_a1 : b->fbhp_a1;
     const float sq_dc = b->sq_dc, sq_h2 = 0.5f * b->sq_h;
     const float out_gain = b->amp_scaler * b->velocity_gain;
-    const int square = b->wave;
+    const float wmix = b->wave_mix;                        /* Chicago continuous OSC Waveform */
+    const float gnaw = b->gnaw;                            /* Chicago VCF Gnaw */
+    const int wave_saw = wmix <= 0.0f;
+    const int wave_sqr = wmix >= 1.0f;
     float os[BASS303_OS];
 
     for (i = 0; i < n; i += m) {
@@ -628,7 +641,10 @@ static void run(bass303_t *b, float *out, int n)
             ? (1.0f - b->rc1_pw[m]) * filter_adsr(b, m) : b->g1[m] * e0);    /* RC followers of it */
         b->rc2_y = b->rc2_pw[m] * b->rc2_y + (acc > 0.0f ? b->g2[m] * e0 : 0.0f);
         b->slew_y = osc_freq + b->slew_pw[m] * (b->slew_y - osc_freq);
-        if (b->amp_trig) {                                     /* attack 0: 1, then decay */
+        if (amp_gate && b->gate) {                             /* Chicago Gate: hold VCA open */
+            b->amp_y = 1.0f;
+            b->amp_trig = 0;
+        } else if (b->amp_trig) {                              /* attack 0: 1, then decay */
             b->amp_y = amp_pw[m - 1];
             b->amp_trig = 0;
         } else {
@@ -688,16 +704,19 @@ static void run(bass303_t *b, float *out, int n)
             {
                 int q;
                 for (q = 0; q < nos; q++) {
-                    if (!square) {
-                        t = phase + 0.5f;                       /* Saw303: rises -1..1, jump at p = .5 */
-                        if (t >= 1.0f)
-                            t -= 1.0f;
-                        s = -(t + t - 1.0f - blep(t, inc));     /* Open303 inverts the osc */
+                    float saw, sqr;
+                    t = phase + 0.5f;                           /* Saw303: rises -1..1, jump at p = .5 */
+                    if (t >= 1.0f)
+                        t -= 1.0f;
+                    saw = -(t + t - 1.0f - blep(t, inc));       /* Open303 inverts the osc */
+                    if (wave_saw) {
+                        s = saw;
                     } else {
                         /* Square303 (shaped saw, minus its mean, polyBLEP on the hard rising edge
                          * at p = 0), times 0.5 as BlendOscillator scales it, inverted */
-                        s = 0.5f * (fm_tanhf(69.98419960f * (phase + phase - 1.0f) + 4.37f)
-                                    + sq_dc - sq_h2 * blep(phase, inc));
+                        sqr = 0.5f * (fm_tanhf(69.98419960f * (phase + phase - 1.0f) + 4.37f)
+                                      + sq_dc - sq_h2 * blep(phase, inc));
+                        s = wave_sqr ? sqr : saw + wmix * (sqr - saw);
                     }
                     phase += inc;
                     if (phase >= 1.0f)
@@ -706,6 +725,9 @@ static void run(bass303_t *b, float *out, int n)
                     ym = hp1_b0 * (s - hp1x) + hp1_a1 * hp1y;
                     hp1x = s;
                     hp1y = ym;
+                    /* Chicago VCF Gnaw: grit on the filter input (pre TeeBee), not post Drive. */
+                    if (gnaw > 0.0f)
+                        ym = fm_tanhf(ym * (1.0f + 5.0f * gnaw));
 
                     t = k * y4;                                 /* feedback through the highpass */
                     fby = fb_b0 * (t - fbx) + fb_a1 * fby;

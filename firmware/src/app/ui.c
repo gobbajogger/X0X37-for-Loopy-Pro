@@ -993,8 +993,9 @@ static void build_pages(void)
             add_page_refs("TONE", refs, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_ACCENT), PR(R_ENG, T_303, 0, BASS303_WAVE), PR(R_ENG, T_303, 0, BASS303_DRIVE), PR(R_ENG, T_303, 0, BASS303_SLIDE)};
             add_page_refs("VOICE", refs, 2, b); } while (0);
-            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC)};
-                more_refs(refs, 4, 2, b); } while (0);
+            /* AmpMod = Chicago Amp ENV/GATE; Gnaw = Chicago VCF Gnaw (not Drive/Bite). */
+            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC), PR(R_ENG, T_303, 0, BASS303_AMPMODE), PR(R_ENG, T_303, 0, BASS303_GNAW)};
+                more_refs(refs, 6, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_FATTACK), PR(R_ENG, T_303, 0, BASS303_DECAY), PR(R_ENG, T_303, 0, BASS303_FSUSTAIN), PR(R_ENG, T_303, 0, BASS303_FRELEASE)};
             add_page_refs("FILTER ADSR", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
@@ -1487,8 +1488,19 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
     }
 }
 
+/* Finish an audio-owned recorder before history or bulk pattern edits. Hold is
+ * brief, covers state finalization only, and never reinitializes a voice. */
+static void record_finish(void)
+{
+    seq.rec_mask = 0;
+    engine_project_hold(1);
+    seq.rec_epoch++;
+    for (int b = 0; b < NBASS; b++) seq_rec_cancel(&seq, b);
+    engine_project_hold(0);
+}
 static void do_undo(int redo)
 {
+    record_finish();
     uint32_t lo, hi;
     char t[24];
     undo_commit(&undo);                              /* what was just done is a step too */
@@ -1789,6 +1801,7 @@ static void set_view(int v);
 X0X_COLD static void run_action(int act, int arg)
 {
     char t[28], *q;
+    if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
     switch (act) {
     case ACT_SAVE: save_project(); break;
     case ACT_LOAD: (void)ui_project_load(); break;
@@ -2285,22 +2298,11 @@ static void bass_kbd(int key)
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
     } else if (ui.rec && seq.playing) {
-        bpart_t *bp = &cur_pat()->bass[b];
-        int s = rec_step(TRK_BASS0 + b);
-        uint8_t f = G_NOTE;
-        bass_rec_link(b, s);
-        if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
-            f |= BS_ACCENT;
-            ui.btn_used |= 1u << B_ENV;
-        }
-        if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
-            f |= BS_SLIDE;
-            ui.btn_used |= 1u << B_LFO;
-        }
-        bp->step[s].note = (uint8_t)n;
-        bp->step[s].flags = f;
-        bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
-        seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
+        int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
+                ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
+        ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
+        seq.rec_mask = (uint8_t)(1u << b);
+        engine_bass_record(b, n, BASS_VELOCITY_DEFAULT, 1, f);
         mark_dirty();
     } else
         bass_rec_step[b] = 0;
@@ -2369,7 +2371,7 @@ static void held_note_by(int by)
     int n = held_note_of(bp, ui.held_step) + by;
     st->note = (uint8_t)(n < 12 ? 12 : n > 108 ? 108 : n);
     if (bstep_gate(st) != G_NOTE)
-        st->flags = (uint8_t)((st->flags & ~BS_GATE_MASK) | G_NOTE);
+        st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | G_NOTE);
     ui.step_edited = 1;
     mark_dirty();
     if (key_sounds()) {                                /* as the drum keys: playing, the line is heard */
@@ -2449,6 +2451,7 @@ static void key_event(int k, int down)
     if (!down) {
         for (int b = 0; b < NBASS; b++)
             if (kbd_held_key[b] == k + 1) {
+                engine_bass_record(b, kbd_held_note[b], 0, 0, 0);
                 engine_bass_off(b);
                 kbd_held_note[b] = 0;
                 kbd_held_key[b] = 0;
@@ -2869,6 +2872,8 @@ X0X_COLD static void input(void)
 #endif
         return;
     }
+    if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
+    seq.rec_mask = ui.rec && is_303() ? (uint8_t)(1u << bidx()) : 0;
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
             bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)
@@ -3029,7 +3034,7 @@ X0X_COLD static void input(void)
             if (i == 0) {
                 held_note_by(e);
             } else if (i == 1) {
-                st->flags = (uint8_t)((st->flags & ~BS_GATE_MASK) | (bstep_gate(st) + (e > 0 ? 1 : 2)) % 3);
+                st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | (bstep_gate(st) + (e > 0 ? 1 : 2)) % 3);
             } else if (i == 2) {
                 st->flags ^= BS_ACCENT;
             } else {
@@ -4438,6 +4443,9 @@ static uint32_t knobs_sig(void)
     if (ui.held_step >= 0) {
         const bstep_t *st = &cur_pat()->bass[bidx()].step[ui.held_step];
         MIXIN(st->note | st->flags << 8 | st->velocity << 16);
+        /* Snapshot engine identity is part of the knob tag; redraw when it changes. */
+        if (is_303())
+            MIXIN(motion_snapshot_engine(proj.arr.lane, seq.ppat[ui.part], ui.part, ui.held_step));
     }
 #undef MIXIN
     return h;
@@ -4452,17 +4460,39 @@ static int strcmp_s(const char *a, const char *b)
     return *a != *b;
 }
 
-/* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5) */
+/* Append " · 303" / " · WBL1" when the held bass step owns a sound snapshot.
+ * Part names stay 303A/303B; the engine identity is a separate, visible field. */
+static void knob_tag_append_snapshot_engine(char *t, int step)
+{
+    const char *eng;
+    char *q;
+    int id;
+    if (step < 0 || !is_303())
+        return;
+    id = motion_snapshot_engine(proj.arr.lane, seq.ppat[ui.part], ui.part, step);
+    eng = motion_snapshot_engine_label(id);
+    if (!eng[0])
+        return;
+    q = t;
+    while (*q)
+        q++;
+    put_s(put_s(q, " · "), eng);
+}
+
+/* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5)
+ * With a step-sound snapshot: "303A STEP 5 · 303" or "303A STEP 5 · WBL1". */
 static void knob_tag(char *t)
 {
     int g = pg.group[cur_page()], dm = drum_mix_page();
     const char *ti = pg.title[cur_page()];
-    if (lock_step() >= 0)
+    if (lock_step() >= 0) {
         put_i(put_s(put_s(t, is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part])
                                         : PART_N[ui.part]), " P-LOCK STEP "), lock_step() + 1);
-    else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0)
+        knob_tag_append_snapshot_engine(t, lock_step());
+    } else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {
         put_i(put_s(put_s(t, PART_N[ui.part]), " STEP "), ui.held_step + 1);
-    else if (dm >= 0)
+        knob_tag_append_snapshot_engine(t, ui.held_step);
+    } else if (dm >= 0)
         put_s(put_s(put_s(t, ti), ": "), engine_voice_name(dm ? T_808 : T_909, ui.sel[dm]));
     else if (ui.view == V_MIX && cur_page() == 0)
         put_s(put_s(t, "PARTS: "), PART_N[ui.mixsel]);
@@ -4511,7 +4541,7 @@ static UI_DRAW void draw_knobs(void)
     last_sig = sig;
     cv_begin(240, KNOB_H, C_BLACK);
     {   /* the rule; at its right end, where you are: the tag, then the page dots */
-        char t[28];
+        char t[36];                    /* room for "303A P-LOCK STEP 16 · WBL1 (1/2)" */
         int dots = pg.n > 1 && ui.view != V_GLO;
         int32_t xd = 237 - (dots ? pg.n * 5 : 0), xt;
         knob_tag(t);

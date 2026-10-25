@@ -22,6 +22,7 @@
  *    the cymbal's envelope error goes from 0.002 dB to 0.019 dB).
  * tests/host/run_drum808.sh renders every sound against 8W8 itself. */
 #include "drum808.h"
+#include "../x0x_cold.h"
 #include "fastmath.h"
 
 #define SR 44100.0f
@@ -1376,7 +1377,7 @@ int drum808_get(const drum808_t *d, int track, int i)
 
 enum { L_BD, L_SD, L_T0, L_T1, L_T2, L_RS, L_CL, L_MA, L_CP, L_CB, L_CH, L_OH, L_CY, L_NUM };
 
-void drum808_init(drum808_t *d)
+X0X_COLD void drum808_init(drum808_t *d)
 {
     int s, k;
     {

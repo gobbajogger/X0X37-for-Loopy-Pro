@@ -26,7 +26,7 @@ enum { PART_909, PART_808, PART_303A, PART_303B, PART_BRK, NPARTS };
 /* T_MIX, per part: level, reverb send, delay send, pan (64 = centre) */
 enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
-#define NPARAMS_MAX 16                 /* params per (target, voice) */
+#define NPARAMS_MAX 20                 /* params per (target, voice); was 16 through PROJ_SND_REV 4 */
 
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {
@@ -98,3 +98,6 @@ float engine_gr_db(void);                                   /* master compressor
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);
+
+/* Physical recording edges use the existing audio command queue. */
+void engine_bass_record(int part, int note, int velocity, int down, int flags);

@@ -11,6 +11,7 @@
 #include "../seq/motion.h"
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
+#include "factory_banks.h"           /* Chicago / Miami faithful-303 factory + user banks */
 
 #ifndef X0X_VERSION                     /* a release build passes its own (tools/build.py --release) */
 #define X0X_VERSION "DEV"
@@ -21,10 +22,12 @@
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u
-#define PROJ_SND_REV 4u                  /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
+#define PROJ_SND_REV 6u                  /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
                                           * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
-                                          * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9) */
+                                          * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9);
+                                          * 5: sound cells widened 16→NPARAMS_MAX; 303 AmpMod (Env/Gate) at 16;
+                                          * 6: 303 Wave continuous morph (old 1 → 127); Gnaw pot at 17 */
 /* settings_t.bt, bits 1-2: GLO > MIDI > CLOCK SOURCE (SEQ_CLK_*). Bit 3: bits 1-2 hold it (a75 and later). Without
  * bit 3 (a74 and older), project_load reads the a74 byte at offset 38 (padding then; ck_x1 in the clip keys). */
 #define PROJ_BT_CLK_MASK 6u
