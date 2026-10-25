@@ -53,6 +53,7 @@ static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
 static unsigned solos_on, solos_off, solos_published;
 static int busy, testing, noteon, noteoff, faders, knobs, buttons;
+static int host_link_inject, host_link_reconnect, host_link_injected;
 static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return busy; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; }
@@ -62,7 +63,17 @@ static void engine_smc_solo_targets(uint8_t p, uint16_t a, uint16_t b)
 ''' + queue_definitions + '\n' + extract('smc_is_solo_release') + '\n' + solo_state + '\n' + '\n'.join(extract(n) for n in (
     'smc_project_active', 'smc_solo_clear', 'smc_solo_publish', 'smc_solo_press',
     'smc_project_drop', 'smc_ble_midi', 'smc_ble_link', 'smc_midi_host')) + r'''
-static void smc_fader(int n, uint8_t v) { (void)n; (void)v; ++faders; }
+static void smc_fader(int n, uint8_t v)
+{
+ (void)n; (void)v; ++faders;
+ if (host_link_inject && !host_link_injected) {
+  host_link_injected = 1;
+  /* TIMER5 link ISR interrupts main-loop dispatch of the first, unrelated
+   * USB/User CC; a pre-edge host Solo press still waits in the host ring. */
+  smc_ble_link(0);
+  if (host_link_reconnect) smc_ble_link(1);
+ }
+}
 static void smc_knob(int n, int delta) { (void)n; (void)delta; ++knobs; }
 static void smc_button(uint8_t note, int mmc)
 {
@@ -96,6 +107,11 @@ static void host_note_at(uint8_t note, int on)
  (void)smc_midi_host(p);
 }
 static void host_note(int on) { host_note_at(8u,on); }
+static void host_cc(void)
+{
+ const uint32_t pkt=(uint32_t)0xBFu<<8 | (uint32_t)40u<<16 | (uint32_t)64u<<24;
+ assert(smc_midi_host(pkt) == 1);
+}
 static void reset(uint8_t cursor, int user)
 {
  memset(&smc,0,sizeof smc);
@@ -113,6 +129,7 @@ static void reset(uint8_t cursor, int user)
  smc_link_ble_loss_boundary=smc_link_host_loss_boundary=0;
  solos_on=solos_off=solos_published=0;
  busy=testing=noteon=noteoff=faders=knobs=buttons=0;
+ host_link_inject=host_link_reconnect=host_link_injected=0;
  set_mode(user);
  smc_ble_link(1);
  smc_poll();
@@ -228,11 +245,53 @@ static int pre_edge_host_cutoff(uint8_t cursor, int overflow, int up, int fresh)
  }
  return 1;
 }
+/* The BLE ISR may switch links AFTER smc_poll sampled its generation,
+ * while a normal host CC is dispatched ahead of an old queued Solo press.
+ * The old press must wait for the next poll's cutoff, not transiently mute the
+ * instrument under the new link. New-link input must not be lost. */
+static int midpoll_host_link(uint8_t cursor, int up, int fresh)
+{
+ reset(cursor,1);
+ host_cc();                        /* before the link edge; valid User fader */
+ host_note(1);                    /* old Solo press queued behind the fader */
+ host_link_reconnect=up;
+ host_link_inject=1;             /* ISR fires in smc_fader() */
+ smc_poll();
+ CHECK(host_link_injected && faders==1,
+       "midpoll BLE edge exercised after real User-mode host CC dispatch");
+ CHECK(!solos_on && !smc.solo_target[0],
+       "old queued host Solo must not execute after midpoll link reset");
+ CHECK(smc_host_r != smc_host_w,
+       "deferred pre-edge Solo stays queued for next poll cutoff");
+ if (fresh==1) host_note(1);
+ else if (fresh==2 && up) ble_note(1,1);
+ smc_poll();
+ CHECK(smc_host_r == smc_host_w, "old host input retired exactly once");
+ CHECK(solos_on == (unsigned)(fresh==1 || (fresh==2 && up)),
+       "new-link press works; old host press cannot be replayed");
+ CHECK(buttons==(fresh==1 || (fresh==2 && up)),
+       "only the requested fresh Solo press reaches the decoder");
+ if(fresh==1 || (fresh==2 && up)) {
+  if(fresh==1) host_note(0); else ble_note(1,0);
+  smc_poll();
+  CHECK(!solos_on && !smc_project_active(),
+        "matched new-link NoteOff releases the new Solo");
+ }
+ smc_poll();
+ CHECK(!solos_on && smc_host_r==smc_host_w,
+       "idle poll does not replay a discarded old Solo");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
  for (unsigned i=0;i<sizeof cursors;i++) {
+  for(int up=0;up<2;up++)
+   for(int fresh=0;fresh<3;fresh++) {
+    if(!midpoll_host_link(cursors[i],up,fresh)) return 1;
+    ++cases;
+   }
   for(int overflow=0;overflow<2;overflow++)
    for(int up=0;up<2;up++)
     for(int fresh=0;fresh<3;fresh++) {

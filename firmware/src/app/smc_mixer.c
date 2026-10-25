@@ -807,11 +807,16 @@ void smc_poll(void)
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
+        /* A TIMER5 link edge can occur while a preceding host control is
+         * dispatched. Leave the rest of this FIFO untouched until the next
+         * poll has applied that edge's host-Solo cutoff and release reset. */
+        if (smc_link_published != link) break;
         r = smc_host_r;
         uint8_t msg[3];
         __asm__ volatile("" ::: "memory");
         memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
         __asm__ volatile("" ::: "memory");
+        if (smc_link_published != link) break;
         smc_host_r = (uint8_t)(r + 1u);
         /* The BLE edge cleared all held Solo keys. Neither an old host
          * NoteOff nor an old queued NoteOn may survive that reset: a full
