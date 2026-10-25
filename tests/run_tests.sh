@@ -176,6 +176,7 @@ run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
+run storage-scratch sh tests/host/run_storage_scratch.sh
 run project-stage sh tests/host/run_project_stage.sh
 run project-runtime sh tests/host/project_runtime_test.sh
 run font-pack python3 tests/font_pack_test.py

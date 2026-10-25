@@ -175,7 +175,9 @@ static void ota_commit(const uint8_t *parm)
 #include "app/x0x.h"
 #include "app/panel.c"
 #include "app/plat_fm1.c"
+#define PROJECT_IO_BUFFER st_buf  /* synchronous main-loop codec borrows storage staging */
 #include "app/project.c"
+#undef PROJECT_IO_BUFFER
 #include "app/ui.c"
 #if BOARD_SMK37
 #include "app/smc_mixer.c"

@@ -58,6 +58,7 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 #include "../../firmware/src/storage.c"
 #define SMP_USER_XIP(k) (nor + SMP_USER_OFF(k))
 #include "../../firmware/src/app/slots.c"
+#define PROJECT_IO_BUFFER st_buf
 #include "../../firmware/src/app/project.c"
 
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
@@ -515,6 +516,27 @@ static void test_capacity_rejection(void)
     check_live_unchanged();
 }
 
+/* A transfer may retain project_stage across main-loop turns. Complete other
+ * storage operations between those turns must not own or damage that state. */
+static void test_interleaved_stage(void)
+{
+    uint8_t before[PROJECT_FILE_HDR], after[PROJECT_FILE_HDR], payload[257];
+    fixture("pending staged transfer interleaved with independent storage");
+    musical_fixture();
+    project_capture_stage();
+    project_file_header(before);
+    memcpy(&saved_project, &project_stage, sizeof saved_project);
+    memset(payload, 0xA6, sizeof payload);
+    REQUIRE(st_save(OBJ_SOUND, payload, sizeof payload) == 0);
+    REQUIRE(st_load(OBJ_SOUND, io_buf, sizeof io_buf) == (int)sizeof payload);
+    CHECK(!memcmp(io_buf, payload, sizeof payload));
+    CHECK(!memcmp(&project_stage, &saved_project, sizeof saved_project));
+    project_file_header(after);
+    CHECK(!memcmp(before, after, sizeof before));
+    CHECK(project_file_validate(before) == 0);
+    check_protected_flash();
+}
+
 int main(void)
 {
     test_defaults();
@@ -523,6 +545,7 @@ int main(void)
     test_semantic_rejection();
     test_storage_rejection();
     test_capacity_rejection();
+    test_interleaved_stage();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }

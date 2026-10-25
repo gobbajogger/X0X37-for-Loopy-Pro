@@ -79,7 +79,7 @@ int main(void)
     st_save(OBJ_PROJECT0 + 2, b, sizeof b);              /* B is newer, in the other copy */
     {
         st_hdr_t h;
-        int cur = st_current(OBJ_PROJECT0 + 2, &h);
+        int cur = st_current(OBJ_PROJECT0 + 2, &h, 0);
         nor[st_sector(OBJ_PROJECT0 + 2, (uint32_t)cur) + ST_PAYLOAD_OFF + 300] ^= 0x10;   /* rot in the newer copy */
     }
     n = st_load(OBJ_PROJECT0 + 2, got, sizeof got);
