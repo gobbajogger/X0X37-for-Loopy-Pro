@@ -10,6 +10,16 @@ Every change states a reason, a purpose, and the effect on the person using the 
 
 Agents run every applicable test in their own environment with the tools that machine has. A missing optional tool, reference tree, or SDK is not-run. GitHub is not a test runner. A missing optional input does not stop other work. Do not wait on another agent or on GitHub. Do the next independent step.
 
+## Project PR merge
+
+When Project PRs are mergeable after local proof, merge them. Do not leave them parked in For Review. Automatic merge of properly tested work is pre-approved by the owner — no per-PR human APPROVE, and never ask the owner to approve a merge.
+
+Use `tools/merge_project_prs.py` (prefer `--dry-run` first). It walks open `cursor/` Project PRs bottom-up, uses a normal merge commit (no force-push), skips real conflicts and records the skip, and treats GitHub Actions / billing failures as non-blocking. Prefer GitHub auto-merge when the API allows it; otherwise merge directly (including `--admin` when a bypass actor exists).
+
+This path does not race stage 5. Stage 5 remains the only integrator that fast-forwards firmware `nightly`. Do not merge into `nightly` here. Do not merge production `main` from unvalidated firmware bytes; firmware `main` moves only after a successful hardware validation of those exact bytes.
+
+If ruleset `LoopyX0X37 PRODUCTION main - reviewed PR only` still blocks the agent token, that is a one-time repo unlock, not a recurring owner step. Print `tools/merge_project_prs.py --print-onetime-setup`, record it once, and stop. Do not open a For Review “please approve” loop every PR. Preferred unlock: add the Cursor GitHub App as a ruleset bypass actor (or set required approvals to 0 / turn off last-pusher approval) and enable Allow auto-merge. Agent tokens cannot edit rulesets (403).
+
 ## One fresh thread per stage
 
 The cloud stages are a loop: stage 1, then 2, then 3, then 4, then 5, then 7, then stage 1 again. The current stage creates the next thread only after its own checks pass, and only the next thread. It does not create the rest of the loop in advance. Stage 6 is the local install prompt saved by stage 5. It is not a cloud thread between stage 5 and stage 7, and stage 7 does not wait for it. The thread assigned to a stage does that stage. It does not create a second copy of itself.
