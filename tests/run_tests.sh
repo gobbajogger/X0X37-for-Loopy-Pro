@@ -77,7 +77,7 @@ test_class() {
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|smc-pickup-acceptance) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|smc-pickup-acceptance|smk-fader-state) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -419,6 +419,8 @@ run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a li
 run smk-clip-isolation python3 tests/host/smk_clip_isolation_test.py
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
 run smk-fader-pickup sh tests/host/smk_fader_pickup_test.sh   # fader pickup and input draining across project holds
+run smk-fader-state sh tests/host/smk_fader_state_test.sh
+run smk-fader-scanner python3 tests/host/smk_fader_scanner_test.py
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
 if [ -f build/smk37/x0x.bin ] && [ -f build/smk37/loader/ota.bin ] && [ -n "${AC79_SDK:-}" ]; then
