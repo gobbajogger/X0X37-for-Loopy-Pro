@@ -1538,6 +1538,21 @@ X0X_COLD static void do_undo(int redo)
 /* SAVE while playing waits for the stop: writing the flash stops the audio (the code and the samples
  * are read from it, and a 4 KB erase takes tens of ms) */
 #define AUTOSAVE_QUIET 4000u
+X0X_COLD int ui_boot_flash_busy(void)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_ck_flash_busy(void);
+#endif
+    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
+        || engine_project_notes()
+#if BOARD_SMK37
+        || smk_ck_flash_busy()
+#endif
+    )
+        return 1;
+    return 0;
+}
+
 X0X_COLD int ui_project_save(void)
 {
     int rc;
@@ -1547,7 +1562,7 @@ X0X_COLD int ui_project_save(void)
 #ifndef X0X_HOST
     extern int store_stage_held(void);
 #endif
-    if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
+    if (project_busy || ui_boot_flash_busy()
 #if BOARD_SMK37
         || smk_ck_flash_busy()
 #endif
