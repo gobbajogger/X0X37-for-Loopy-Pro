@@ -200,7 +200,19 @@ static int perf_trigger_fires(brk_perf_t *p)
 
 /* ---- ADPCM ------------------------------------------------------------------------------ */
 
-static void brk_barrier(void) { __sync_synchronize(); }
+#if defined(X0X_HOST) || (defined(__GNUC__) && !defined(__clang__)) || __SIZEOF_POINTER__ != 4
+static inline void brk_barrier(void)
+{
+#if defined(X0X_HOST) || __SIZEOF_POINTER__ != 4
+    __asm__ volatile("" ::: "memory");
+#else
+    __sync_synchronize();
+#endif
+}
+#else
+#include "../../hal/fm1_sync.h"
+static inline void brk_barrier(void) { fm1_data_sync(); }
+#endif
 
 static brk_bank_t *bank_slot(breaks_t *b, unsigned i)
 {
