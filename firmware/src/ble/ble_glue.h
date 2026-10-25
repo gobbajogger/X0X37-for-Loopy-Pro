@@ -153,7 +153,7 @@ static int ble_guard_boot(ble_guard_t *g, int img_ok, int on)
     g->trying = 1;
     return 1;
 }
-/* after the controller's init: rc of fm1_cpu1_run_wait_ram (0, -1 not in time, -2 a wrong job),
+/* after the controller's init: rc (0 from ble_start; -1 timeout, -2 wrong job, -3 no tick),
  * ready = the mailbox says READY */
 static void ble_guard_started(ble_guard_t *g, int rc, int ready)
 {
