@@ -499,6 +499,25 @@ void engine_clip_midi_flush(void)
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
 static uint8_t bass_held_count[NBASS], bass_held_src[NBASS], bass_live_slide[NBASS];
+#ifdef X0X_HOST
+static uint8_t bass_attacked[NBASS];
+#endif
+/* Slide needs the accepted live note, not whichever gate the sequencer has open. */
+static int live_legato(int part, int src, int note)
+{
+    const seq_bass_rec_t *r = &seq.rec_bass[part];
+    return b303[part].gate && r->own_ok && r->own_gen == r->gen && r->own_src == (uint8_t)src
+        && r->own_note == bass_held[part] && bass_held_count[part]
+        && bass_held_src[part] == (uint8_t)src && bass_held[part] != (uint8_t)note;
+}
+static void live_accept(int part, int src, int note)
+{
+    seq_bass_rec_t *r = &seq.rec_bass[part];
+    r->own_ok = 1;
+    r->own_gen = r->gen;
+    r->own_src = (uint8_t)src;
+    r->own_note = (uint8_t)note;
+}
 static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
@@ -551,7 +570,7 @@ static void midi_in(uint32_t pkt)
         v = src_held[src];
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
             if ((v >> k) & 1) {
-                seq_rec_bass_end(&seq, k);
+                seq_rec_cancel(&seq, k);
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
                 bass_held_count[k] = 0;
@@ -625,7 +644,10 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                int slide = b303[k].gate && bass_held_count[k] && bass_held_src[k] == src && bass_held[k] != d1;
+                int slide = live_legato(k, src, d1);
+#ifdef X0X_HOST
+                bass_attacked[k] = (uint8_t)!slide;
+#endif
                 bass303_note_on_velocity(&b303[k], d1, d2 >= 100, slide, d2);
                 seq_rec_bass(&seq, k, d1, d2, 1, (int)src,
                              (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
@@ -634,6 +656,7 @@ static void midi_in(uint32_t pkt)
                 } else bass_held_count[k] = 1;
                 bass_held_src[k] = (uint8_t)src;
                 bass_held[k] = d1;
+                live_accept(k, src, d1);
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
                 src_held[1] &= (uint16_t)~v;
@@ -666,6 +689,7 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
         r |= b303[k].gate ? 1 << k : 0;
     return r;
 }
+int engine_bass_attacked(int part) { return (unsigned)part < NBASS && bass_attacked[part]; }
 #endif
 
 /* ---------------------------------------------------------------- render --- */
@@ -692,15 +716,26 @@ static void drain(void)
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if (type == C_BON && a < NBASS) {
-            bass_live_slide[a] = (uint8_t)(b303[a].gate && ((v >> 1) & 1u) && bass_held_count[a] && bass_held_src[a] == 3 && bass_held[a] != b);
-            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), bass_live_slide[a], (int)(v >> 2));
+            int slide = ((v >> 1) & 1u) && live_legato((int)a, 3, (int)b);
+            bass_live_slide[a] = (uint8_t)slide;
+#ifdef X0X_HOST
+            bass_attacked[a] = (uint8_t)!slide;
+#endif
+            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), slide, (int)(v >> 2));
             bass_held[a] = (uint8_t)b; bass_held_count[a] = 1; bass_held_src[a] = 3;
             src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a);
+            /* A following C_REC still has to see the previous owner. */
+            if (!(seq.playing && (seq.rec_mask & (1u << a))))
+                live_accept((int)a, 3, (int)b);
         } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
             bass303_note_off(&b303[a]); bass_held_count[a] = 0; bass_held[a] = 0;
         }
-        else if (type == C_REC && (a >> 1) == (seq.rec_epoch & 127u))
-            seq_rec_bass(&seq, (int)(a & 1u), (int)b, (int)(v >> 5), (int)(v & 1u), 3, (int)((v >> 1) & 15u) | (bass_live_slide[a & 1u] ? SEQ_REC_LEGATO : 0));
+        else if (type == C_REC && (a >> 1) == (seq.rec_epoch & 127u)) {
+            int part = (int)(a & 1u), down = (int)(v & 1u);
+            seq_rec_bass(&seq, part, (int)b, (int)(v >> 5), down, 3, (int)((v >> 1) & 15u) | (bass_live_slide[a & 1u] ? SEQ_REC_LEGATO : 0));
+            if (down)
+                live_accept(part, 3, (int)b);
+        }
         else if (type == C_BRK && !brk_hold)
             breaks_live(&brk, (int)a, (int)b);
     }

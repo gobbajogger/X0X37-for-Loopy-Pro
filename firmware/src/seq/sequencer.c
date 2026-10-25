@@ -207,7 +207,7 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     int gate = bstep_gate(st), note, hold, nx;
     seq_bass_rec_t *r = &s->rec_bass[b];
     if (r->active && r->pat != s->ppat[TRK_BASS0 + b])
-        seq_rec_bass_end(s, b);
+        seq_rec_cancel(s, b);
     if (r->active) {
         if (r->entered == 2 || (r->entered && p == r->first)) {
             r->entered = 2; /* periodic pattern cannot encode an extra loop count */
@@ -759,7 +759,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     for (t = 0; t < NBASS; t++)
         if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
             (!(s->rec_mask & (1u << t)) || s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t])))
-            seq_rec_bass_end(s, t);
+            seq_rec_cancel(s, t);
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
         if (s->playing)
@@ -961,6 +961,14 @@ void seq_chain(seq_t *s, int a, int b)
  * This intentionally preserves release position rather than applying the old
  * implicit half gate. If a short press ends before its snapped onset, retain a
  * minimum 1/15-step event instead of deleting it. */
+void seq_rec_cancel(seq_t *s, int b)
+{
+    seq_bass_rec_t *r = &s->rec_bass[b];
+    r->gen++;
+    r->own_ok = 0; /* the old press no longer owns a gate the sequencer may reopen */
+    if (r->active)
+        seq_rec_bass_end(s, b);
+}
 void seq_rec_bass_end(seq_t *s, int b)
 {
     seq_bass_rec_t *r = &s->rec_bass[b];
@@ -996,7 +1004,10 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
         return;
     }
     if (!s->playing || !(s->rec_mask & (1u << b))) return;
-    int overlap = (flags & SEQ_REC_LEGATO) && r->active && r->src == src;
+    /* The flag alone is not proof. A context cancel bumps gen and clears own_ok,
+     * so a later open DSP gate cannot slide from the cancelled note. */
+    int owned = r->own_ok && r->own_gen == r->gen && r->own_src == (uint8_t)src;
+    int overlap = (flags & SEQ_REC_LEGATO) && owned && r->active && r->src == src;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
     seq_rec_bass_end(s, b);
@@ -1023,5 +1034,5 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     seq_rec_skip(s, t, p, 0);
     s->t[t].to_off = 0;
     s->t[t].sounding = 1; /* tie/stop bookkeeping follows the live authoritative gate */
-    s->t[t].held_note = (uint8_t)(note | ((flags & (BS_SLIDE | SEQ_REC_LEGATO)) ? 0x80u : 0));
+    s->t[t].held_note = (uint8_t)(note | (((flags & BS_SLIDE) || overlap) ? 0x80u : 0));
 }

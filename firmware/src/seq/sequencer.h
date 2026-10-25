@@ -122,6 +122,11 @@ typedef struct {                      /* one part's runtime */
 typedef struct {
     uint32_t at, slot;
     uint8_t active, pat, first, last, prev, note, src, entered;
+    uint8_t gen;       /* bumped on context cancel; a reopened DSP gate is not this generation */
+    uint8_t own_ok;    /* 1 = own_* is an accepted live press of own_gen */
+    uint8_t own_gen;   /* generation that accepted the live press */
+    uint8_t own_src;   /* route of that press */
+    uint8_t own_note;  /* pitch of that press */
 } seq_bass_rec_t;
 
 typedef struct {
@@ -210,6 +215,10 @@ void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step
 
 #define SEQ_REC_LEGATO 0x40u /* accepted live incoming transition; never stored in step flags */
 /* Live MIDI/keyboard edges, at the current audio clock. Last press owns the line;
- * older/different-route releases do not end it. Repeated identical presses count. */
+ * older/different-route releases do not end it. Repeated identical presses count.
+ * SEQ_REC_LEGATO is not ownership: overlap also needs the accepted note generation. */
 void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags);
 void seq_rec_bass_end(seq_t *s, int b);
+/* Context cancel, part or pattern change, REC off, bulk finalize: drop the accepted
+ * generation and finish the open capture. Press membership stays with the engine. */
+void seq_rec_cancel(seq_t *s, int b);

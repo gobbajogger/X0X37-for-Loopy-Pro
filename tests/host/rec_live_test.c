@@ -643,6 +643,12 @@ static void capture_reset(int len, int swing)
     input(); seq_start(&seq); capture_frames(1);
     capture_clock = 0; capture_energy = 0;
 }
+int engine_bass_attacked(int part);
+static void capture_until_gate(unsigned limit)
+{
+    while (capture_clock < limit && !(engine_midi_held() & 1))
+        capture_frames(64);
+}
 static void capture_rt(unsigned at, int st)
 {
     capture_frames(at - capture_clock);
@@ -874,7 +880,52 @@ static void test_timestamped_live_duration(void)
     CHECK(!seq.rec_bass[0].active && bstep_gate(&bp->step[0]) == G_REST,
           "bulk edit invalidates pending keyboard recording epoch before re-arm");
     ui.rec = 0;
-    puts("  timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection and stop checked");
+
+    /* Context cancel, then the pattern itself reopens the DSP gate. That gate is
+     * not the cancelled note: the new press attacks, and a stale off cannot cut it. */
+    capture_reset(16, 0);
+    bp->step[8].note = 60;
+    bp->step[8].flags = G_NOTE;
+    bp->step[8].velocity = 100;
+    capture_midi(441, 0, 48, 90);
+    capture_frames(6000);
+    ui.rec = 0; input(); capture_frames(1);
+    CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "context cancel releases the cancelled voice");
+    CHECK(!(bp->step[0].flags & BS_SLIDE) && !(bp->step[1].flags & BS_SLIDE),
+          "cancel finalizes the held note without a slide");
+    capture_until_gate(capture_clock + 50000);
+    CHECK(engine_midi_held() & 1, "sequencer reopened a DSP gate after context cancel");
+    ui.rec = 1; input();
+    capture_midi(capture_clock + 200, 0, 55, 80);
+    CHECK(!(bp->step[0].flags & BS_SLIDE) && !(bp->step[1].flags & BS_SLIDE),
+          "reopened gate does not store BS_SLIDE from the cancelled note (flags %u %u)",
+          bp->step[0].flags, bp->step[1].flags);
+    CHECK(!(seq.t[TRK_BASS0].held_note & 0x80u), "reopened gate is not accepted legato ownership");
+    CHECK(engine_bass_attacked(0), "new press after cancel attacks");
+    CHECK(engine_midi_held() & 1, "new press is gated");
+    capture_midi(capture_clock + 200, 0, 48, 0);
+    CHECK(engine_midi_held() & 1, "stale cancelled-note off does not cut the new press");
+    capture_midi(capture_clock + 200, 0, 55, 0);
+    CHECK(!(engine_midi_held() & 1), "new press ends on its own off");
+
+    capture_reset(16, 0);
+    bp->step[8].note = 60;
+    bp->step[8].flags = G_NOTE;
+    bp->step[8].velocity = 100;
+    capture_midi(441, 0, 48, 90);
+    capture_frames(6000);
+    ui.rec = 0; input(); capture_frames(1);
+    capture_until_gate(capture_clock + 50000);
+    CHECK(engine_midi_held() & 1, "sequencer reopened the gate before a same-pitch press");
+    ui.rec = 1; input();
+    capture_midi(capture_clock + 200, 0, 48, 80);
+    CHECK(!(bp->step[0].flags & BS_SLIDE), "same pitch after a reopened gate does not slide");
+    CHECK(engine_bass_attacked(0), "same pitch after cancel still attacks");
+    capture_midi(capture_clock + 200, 0, 48, 0); /* the cancelled press's off */
+    CHECK(engine_midi_held() & 1, "same-pitch count keeps the new press through the stale off");
+    capture_midi(capture_clock + 200, 0, 48, 0);
+    CHECK(!(engine_midi_held() & 1), "same-pitch count releases on the new press's own off");
+    puts("  timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection, stop and cancelled-gate ownership checked");
 }
 
 int main(void)

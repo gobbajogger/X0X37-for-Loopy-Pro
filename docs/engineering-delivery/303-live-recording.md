@@ -7,11 +7,13 @@ firmware is `1750096754a4e509a4a8a20e0afcf60d70356433`; later context-transition
 changes and the newest REC-off/clear test additions are not independently accepted
 or native-built. No hardware was touched.
 
-Known open defect: canceled held-key membership plus an open DSP gate can still
-misclassify a new press as legato if sequencer playback opens that gate after the
-cancellation. Establish active live ownership or generation and test that ordering
-before accepting the single-lifecycle claim below. The behavior description is the
-intended contract, not a final verification statement.
+Canceled membership no longer becomes legato when sequencer playback reopens the
+DSP gate. An accepted note owner and generation have to match; `SEQ_REC_LEGATO`
+plus an open gate is not ownership. Context cancel, part or pattern change, REC
+off, and bulk finalize bump that generation, release the old voice, and keep
+press membership so a stale note-off cannot cut the new press. A new press
+attacks. Host `rec_live` covers that ordering. This is not Elite or Pro native
+qualification, and the rest of this note remains an unqualified checkpoint.
 
 This repair starts from installed source `892bf60d912eca93597dcf03be25a9756540c949`.
 The old live recorder wrote only a NOTE on press and discarded release. Manual
@@ -59,10 +61,12 @@ release. Exact duration on nonlinear repeated-cell traversal is currently
 
 ## One accepted live transition
 
-The engine owns active pitch, input route and outstanding same-pitch press count.
-It classifies an incoming transition once: a slide requires an actually open DSP
-gate, the same source route, a held press and a different pitch. The recorder
-consumes `SEQ_REC_LEGATO`; it does not infer a second independent overlap state.
+The engine owns active pitch, input route, outstanding same-pitch press count,
+and the accepted note generation. It classifies an incoming transition once: a
+slide requires an open DSP gate that still belongs to that accepted note, the
+same source route, a held press and a different pitch. A gate the sequencer
+opens after cancellation does not qualify. The recorder consumes `SEQ_REC_LEGATO`
+only together with that owner; it does not infer a second overlap state.
 It retains only the projection identity (pattern, source cell, current/previous
 cell, slot and observed slot start). Manual LFO outgoing-slide remains a separate
 explicit authored flag. Slide is written on the preceding recorded source cell,
@@ -77,9 +81,10 @@ input representation. MIDI pitch zero is a valid pitch. Sustain pedal(CC64) is
 not supported by this engine and is not interpreted as an extended held note.
 
 REC off, selecting another part/pattern, undo/copy/clear and STOP finalize the
-original capture and release its voice. Outstanding physical membership remains
-until its real off: a new press after context release attacks because the actual
-gate is closed; an old same-pitch off cannot cut the new press prematurely.
+original capture, invalidate its note generation and release its voice.
+Outstanding press membership remains until its real off. A new press after that
+cancel attacks even if playback has opened another gate. An old same-pitch off
+cannot cut the new press prematurely.
 Context gate-off is consumed before a queued successor press. Normal release
 also flushes tracked MIDI output. Active recording reuses existing `fire_bass`
 MIDI bookkeeping with audio skipped, preserving upcoming-step physical REC echo.
