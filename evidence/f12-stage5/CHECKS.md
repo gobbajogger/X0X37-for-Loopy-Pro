@@ -60,12 +60,13 @@ Stage 7 and the next audit still use validated source SHA `de11b6d7…`, not the
 
 ## Project PR merge
 
-Proven stage-4 PR [#272](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/272): merged into `main` via `tools/merge_project_prs.py --pr 272` after digest/record verify. Merge commit `11604ab75c379c1fa18477677824b5904d6d6912` at `2026-10-25T17:09:43Z`. Logs: `merge-pr272-dry-run.log`, `merge-pr272-result.json`.
+Proven stage-4 PR [#272](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/272): local-env review **PASS**. Tip landed on stage-3 branch `cursor/f12-stage3-bf008-1207` (merge `403ae0a8…` includes stage-4 tip `f99d5601…` and validated source `de11b6d7…`).
+A brief mistaken merge of #272 into production `main` (`11604ab7…`) was **reverted** via [#273](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/273); production `main` tip is `4e12d022…`. Stage 5 continues on **stage bases only** — no production `main`. Prefer `tools/merge_project_prs.py` / direct stage-branch merge when `gh pr edit --base` fails. Logs: `merge-pr272-dry-run.log`, `merge-pr272-result.json`.
 Stage-5 PR opens on base `cursor/f12-stage4-bf008-1207` (subscribe for local-env review).
 
 ## Production
 
-Production `main` and production GitHub Pages: **unchanged by this stage's nightly path**. No device flash from this cloud thread. Deferred items in `evidence/f12-stage2/DEFERRED.md`: not implemented. BF-001–BF-008 and FP-001 not reopened. No production main promotion of unvalidated firmware beyond the proven stage-4 PR merge already authorized by owner policy for Project PRs.
+Production `main` tip `4e12d022…` (post-#273 revert) and production GitHub Pages: **unchanged by Stage 5**. No device flash from this cloud thread. Deferred items in `evidence/f12-stage2/DEFERRED.md`: not implemented. BF-001–BF-008 and FP-001 not reopened. Do not merge firmware stage tips into production `main` from this stage.
 
 ## Successor create (API)
 
