@@ -16,9 +16,9 @@ Merge evidence: `evidence/f03-stage5/CHECKS.md` (nightly FF REFUSED; no force-pu
 Host tests: `evidence/f03-stage3/CHECKS.md` (ALL_PASS).
 Deferred (next defect = oldest): `evidence/f03-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f03-stage7/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012`.
+Successor URL: https://cursor.com/agents/bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012
+Handoff status: **complete** (owner-visible desktop Stage 1 recorded; source `desktop`).
 
 ## Live nightly page (confirmed)
 
