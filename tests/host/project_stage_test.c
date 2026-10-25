@@ -365,7 +365,7 @@ static void test_semantic_rejection(void)
         BAD8(pat[31].bass[1].dir, NDIRS), BAD8(pat[31].bass[1].transpose, 49),
         BAD8(pat[31].bass[1].gen.density, 101), BAD8(pat[31].bass[1].gen.oct_range, 0),
         BAD8(pat[31].bass[1].gen.scale, TB3PO_NSCALES), BAD8(pat[31].bass[1].step[63].flags, 3),
-        BAD8(pat[31].bass[1].step[63].flags, 16), BAD8(pat[31].bass[1].step[63].note, 128),
+        BAD8(pat[31].bass[1].step[63].flags, 0xF3), BAD8(pat[31].bass[1].step[63].note, 128),
         BAD8(pat[31].bass[1].step[63].velocity, 128), BAD8(pat[31].brk.set[BRK_PHRASE], 255),
         BAD8(pat[31].brk.slice[15], 9), BAD16(arr.song.len, NSONG + 1),
         BAD8(arr.song.bar[NSONG - 1].pat[PART_BRK], NPAT),

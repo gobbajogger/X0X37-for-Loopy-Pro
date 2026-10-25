@@ -97,7 +97,7 @@ static void key(int k, int down)
         held_keys |= 1u << k;
     else
         held_keys &= ~(1u << k);
-    tick(1);
+    tick(7); /* consume at least one production 256-frame audio block */
 }
 static void tap_key(int k, uint32_t ms) { key(k, 1); tick(ms); key(k, 0); }
 
@@ -382,8 +382,8 @@ static void test_303_auto_slide(void)
     btn(B_ENV, 0);
     at_step(TRK_BASS0, 5, 10);
     key(12, 1);
-    CHECK((bst(4)->flags & 15) == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
-    CHECK((bst(5)->flags & 15) == G_NOTE, "live destination has no outgoing slide");
+    CHECK((bst(4)->flags & 15) == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent (flags=%u recactive=%u last=%u mask=%u)", bst(4)->flags, seq.rec_bass[0].active,seq.rec_bass[0].last,seq.rec_mask);
+    CHECK((bst(5)->flags & 15) == G_NOTE, "live destination has no outgoing slide (flags=%u)",bst(5)->flags);
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 6, 10);
     key(14, 1); key(14, 0);
@@ -391,7 +391,7 @@ static void test_303_auto_slide(void)
     at_step(TRK_BASS0, 8, 10);
     key(10, 1); key(12, 1);
     CHECK((bst(8)->flags & 15) == G_NOTE && bst(8)->note == kbd_note(12),
-          "two live notes on one quantized step replace pitch without a self-slide");
+          "two live notes on one quantized step replace pitch without a self-slide (flags=%u note=%u)",bst(8)->flags,bst(8)->note);
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 15, 10);
     key(10, 1);
@@ -643,6 +643,12 @@ static void capture_reset(int len, int swing)
     input(); seq_start(&seq); capture_frames(1);
     capture_clock = 0; capture_energy = 0;
 }
+static void capture_rt(unsigned at, int st)
+{
+    capture_frames(at - capture_clock);
+    min_q[mi_w++ % MQ] = 0x0Fu | ((uint32_t)st << 8);
+    capture_frames(1);
+}
 typedef struct { unsigned at; int kind, note, slide; } capture_event_t;
 static capture_event_t capture_events[128];
 static unsigned capture_nevents, playback_clock;
@@ -759,6 +765,114 @@ static void test_timestamped_live_duration(void)
     seq_stop(&seq); capture_frames(1);
     CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "stop while held finalizes recording and live gate");
     capture_midi(9000, 0, 48, 0);
+
+
+    capture_reset(16, 0);
+    seq_stop(&seq); capture_frames(1); seq.clk_src = SEQ_CLK_EXT; capture_clock = 0;
+    capture_rt(0, 0xFA); capture_rt(100, 0xF8);
+    capture_midi(200, 0, 48, 90);
+    for (unsigned i = 1; i < 12; i++) capture_rt(100 + i * 919 + (i % 2 ? 20 : 0), 0xF8);
+    capture_midi(11025, 0, 48, 0);
+    capture_playback(15000);
+    CHECK(abs((int)capture_first_off() - 10925) <= 370,
+          "external jittered clocks preserve note-off within endpoint grid and observed clock jitter (off=%u)", capture_first_off());
+    capture_reset(16, 0);
+    seq_stop(&seq); capture_frames(1); seq.clk_src = SEQ_CLK_EXT; capture_clock = 0;
+    capture_rt(0, 0xFA); capture_rt(100, 0xF8);
+    capture_frames(4000 - capture_clock);
+    for (int i = 0; i < 4; i++) min_q[mi_w++ % MQ] = 0x0Fu | (0xF8u << 8);
+    min_q[mi_w++ % MQ] = 0x09u | ((uint32_t)(0x90 | seq.ch[TRK_BASS0]) << 8) | (48u << 16) | (90u << 24);
+    capture_frames(1);
+    CHECK(seq.rec_bass[0].first == 1, "clocks before note in one drain update authoritative quantization position");
+    capture_midi(4500, 0, 48, 0);
+
+    /* Physical keyboard live REC keeps the established upcoming-step MIDI echo. */
+    capture_reset(16, 0); seq.send_notes = 1;
+    capture_frames(3500);
+    unsigned prior_ons = note_ons;
+    engine_bass_on_velocity(0, 48, 0, 0, 90);
+    engine_bass_record(0, 48, 90, 1, 0);
+    capture_frames(2300);
+    CHECK(note_ons == prior_ons + 1 && seq.bass_out_valid[0], "physical recording echoes snapped future onset once without internal retrigger");
+    engine_bass_off(0); engine_bass_record(0, 48, 0, 0, 0); capture_frames(1);
+    CHECK(!seq.bass_out_valid[0], "physical release flushes sequencer MIDI gate");
+
+
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90); capture_frames(6000);
+    ui.rec = 0; input(); capture_frames(1);
+    CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "REC off finalizes original capture and releases voice");
+    ui.rec = 1; input();
+    capture_midi(7000, 0, 48, 90);
+    capture_midi(7500, 0, 48, 0); /* old membership off, after new attack */
+    CHECK(engine_midi_held() & 1, "stale old same-pitch off after context end cannot cut new press");
+    capture_midi(9000, 0, 48, 0);
+    CHECK(!(engine_midi_held() & 1), "new same-pitch press ends on its final off");
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90); capture_frames(6000);
+    run_action(ACT_CLEAR_PART, PART_303A); input();
+    capture_midi(7000, 0, 55, 90); /* new press shares drain with pending context off */
+    CHECK(engine_midi_held() & 1, "pending context gate-off is consumed before successor press");
+    capture_midi(7500, 0, 48, 0);
+    CHECK(engine_midi_held() & 1, "old different-pitch off cannot cut successor after clear");
+    capture_midi(9000, 0, 55, 0);
+    /* Exact release boundary and its adjacent samples share one nearest bin. */
+    for (int jitter = -1; jitter <= 1; jitter++) {
+        capture_reset(16, 0);
+        capture_midi(441, 0, 48, 90);
+        capture_midi((unsigned)(11025 + jitter), 0, 48, 0);
+        capture_playback(14000);
+        CHECK(abs((int)capture_first_off() - 11025) <= 1, "boundary jitter %d resolves to exact prior-cell endpoint (off=%u)", jitter, capture_first_off());
+    }
+    capture_reset(4, 0);
+    capture_midi(441, 0, 48, 90); capture_midi(60000, 0, 48, 0);
+    CHECK(bstep_gate(&bp->step[0]) == G_NOTE && (bp->step[3].flags >> 4) == 15,
+          "hold beyond full loop saturates one traversal without deleting onset");
+    capture_playback(23000);
+    CHECK(capture_first_off() >= 22049 && capture_first_off() <= 22051, "saturated periodic pattern ends after one full loop");
+
+    capture_reset(4, 0);
+    bp->dir = DIR_REV;
+    seq_stop(&seq); capture_frames(1); seq_start(&seq); capture_frames(1); capture_clock = 0;
+    capture_midi(441, 0, 48, 90); capture_midi(11025, 0, 48, 0);
+    CHECK(bstep_gate(&bp->step[3]) == G_NOTE && bstep_gate(&bp->step[2]) == G_TIE,
+          "reverse recording fills actual traversal");
+    capture_playback(15000);
+    CHECK(abs((int)capture_first_off() - 11025) <= 1, "reverse boundary has no orphan continuation");
+
+    capture_reset(16, 0); undo_start();
+    capture_midi(441, 0, 48, 90); capture_midi(9000, 0, 48, 0);
+    bpart_t recorded = *bp;
+    do_undo(0);
+    CHECK(bstep_gate(&bp->step[0]) == G_REST, "actual undo restores pre-recording line");
+    do_undo(1);
+    CHECK(!memcmp(bp, &recorded, sizeof recorded), "actual redo preserves all captured endpoint bytes");
+    for (int i = 0; i < NPARTS; i++) ui.paste_src[i] = 0;
+    run_action(ACT_COPY, 1);
+    CHECK(!memcmp(&proj.pat[1].bass[0], &recorded, sizeof recorded), "UI pattern copy preserves captured duration");
+    seq_stop(&seq); capture_frames(1); ui.rec = 0;
+    CHECK(project_save() == 0, "captured endpoint project saves");
+    memset(bp->step, 0, sizeof bp->step);
+    CHECK(project_load() == 0 && !memcmp(bp, &recorded, sizeof recorded), "current stream4 save/load preserves exact capture bytes");
+
+
+    CHECK(get32(store[OBJ_PAT0]) == 4, "new save names endpoint format4");
+    /* Valid format3 has the identical layout but no endpoint bits. Rewrite only
+     * format words on a newly saved all-legacy line to exercise actual loader. */
+    for (int p = 0; p < NPAT; p++) for (int b = 0; b < NBASS; b++)
+        for (int i = 0; i < NSTEPS; i++) proj.pat[p].bass[b].step[i].flags &= 15u;
+    CHECK(project_save() == 0, "legacy-shaped stream generated");
+    for (int i = 0; i < NSTREAM; i++) put32(store[STREAM_OBJ[i]], 3);
+    memset(bp->step, 0, sizeof bp->step);
+    CHECK(project_load() == 0 && bp->step[0].flags == G_NOTE && bp->step[0].velocity == 90,
+          "actual legacy format3 loads unchanged with zero endpoint");
+
+    capture_reset(16, 0);
+    engine_bass_record(0, 48, 90, 1, 0); /* admitted edge, not drained yet */
+    run_action(ACT_CLEAR_PART, PART_303A);
+    input(); capture_frames(1);
+    CHECK(!seq.rec_bass[0].active && bstep_gate(&bp->step[0]) == G_REST,
+          "bulk edit invalidates pending keyboard recording epoch before re-arm");
     ui.rec = 0;
     puts("  timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection and stop checked");
 }

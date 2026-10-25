@@ -996,7 +996,7 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
         return;
     }
     if (!s->playing || !(s->rec_mask & (1u << b))) return;
-    int overlap = r->active && r->src == src && r->note != note;
+    int overlap = (flags & SEQ_REC_LEGATO) && r->active && r->src == src;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
     seq_rec_bass_end(s, b);
@@ -1005,7 +1005,7 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
         bp->step[old].flags = (uint8_t)((bp->step[old].flags & 15u) | BS_SLIDE);
     bp->step[p].note = (uint8_t)note;
     bp->step[p].velocity = (uint8_t)velocity;
-    bp->step[p].flags = (uint8_t)(G_NOTE | flags | 0xF0u);
+    bp->step[p].flags = (uint8_t)(G_NOTE | (flags & (BS_ACCENT | BS_SLIDE)) | 0xF0u);
     r->active = 1; r->pat = s->ppat[t]; r->first = r->last = r->prev = (uint8_t)p;
     r->note = (uint8_t)note; r->src = (uint8_t)src;
     s->rec_dirty = 1;
@@ -1023,5 +1023,5 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     seq_rec_skip(s, t, p, 0);
     s->t[t].to_off = 0;
     s->t[t].sounding = 1; /* tie/stop bookkeeping follows the live authoritative gate */
-    s->t[t].held_note = (uint8_t)(note | ((flags & BS_SLIDE) ? 0x80u : 0));
+    s->t[t].held_note = (uint8_t)(note | ((flags & (BS_SLIDE | SEQ_REC_LEGATO)) ? 0x80u : 0));
 }

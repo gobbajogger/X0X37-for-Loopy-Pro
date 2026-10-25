@@ -208,6 +208,7 @@ int seq_next_step(seq_t *s, int t, int p);       /* the step after p (direction;
 int seq_rec_step(seq_t *s, int t);               /* the step a live hit now records on: the nearest */
 void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step does not sound it once */
 
+#define SEQ_REC_LEGATO 0x40u /* accepted live incoming transition; never stored in step flags */
 /* Live MIDI/keyboard edges, at the current audio clock. Last press owns the line;
  * older/different-route releases do not end it. Repeated identical presses count. */
 void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags);

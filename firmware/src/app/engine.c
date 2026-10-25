@@ -498,7 +498,7 @@ void engine_clip_midi_flush(void)
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
-static uint8_t bass_held_count[NBASS], bass_held_src[NBASS];
+static uint8_t bass_held_count[NBASS], bass_held_src[NBASS], bass_live_slide[NBASS];
 static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
@@ -625,8 +625,10 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held_count[k] && bass_held_src[k] == src && bass_held[k] != d1, d2);
-                seq_rec_bass(&seq, k, d1, d2, 1, (int)src, d2 >= 100 ? BS_ACCENT : 0);
+                int slide = b303[k].gate && bass_held_count[k] && bass_held_src[k] == src && bass_held[k] != d1;
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, slide, d2);
+                seq_rec_bass(&seq, k, d1, d2, 1, (int)src,
+                             (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
                 if (bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
                     if (bass_held_count[k] < 255) bass_held_count[k]++;
                 } else bass_held_count[k] = 1;
@@ -671,6 +673,17 @@ static void drain(void)
 {
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    /* Context finalization precedes any queued successor press. In particular,
+     * an old gate-off must not kill the newly auditioned note in this drain. */
+    for (int k = 0; k < NBASS; k++) {
+        seq_bass_rec_t *rec = &seq.rec_bass[k];
+        if (seq.req_stop || (rec->active && (!(seq.rec_mask & (1u << k)) ||
+            rec->pat != seq.ppat[TRK_BASS0 + k])) ||
+            (seq.t[TRK_BASS0 + k].to_off == 1 && bass_held_count[k])) {
+            seq_advance(&seq, 0, &SINK);
+            break;
+        }
+    }
     while (r != cq_w) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
         r++;
@@ -679,14 +692,15 @@ static void drain(void)
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if (type == C_BON && a < NBASS) {
-            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u) && bass_held_count[a] && bass_held_src[a] == 3 && bass_held[a] != b, (int)(v >> 2));
+            bass_live_slide[a] = (uint8_t)(b303[a].gate && ((v >> 1) & 1u) && bass_held_count[a] && bass_held_src[a] == 3 && bass_held[a] != b);
+            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), bass_live_slide[a], (int)(v >> 2));
             bass_held[a] = (uint8_t)b; bass_held_count[a] = 1; bass_held_src[a] = 3;
             src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a);
         } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
             bass303_note_off(&b303[a]); bass_held_count[a] = 0; bass_held[a] = 0;
         }
         else if (type == C_REC && (a >> 1) == (seq.rec_epoch & 127u))
-            seq_rec_bass(&seq, (int)(a & 1u), (int)b, (int)(v >> 5), (int)(v & 1u), 3, (int)((v >> 1) & 15u));
+            seq_rec_bass(&seq, (int)(a & 1u), (int)b, (int)(v >> 5), (int)(v & 1u), 3, (int)((v >> 1) & 15u) | (bass_live_slide[a & 1u] ? SEQ_REC_LEGATO : 0));
         else if (type == C_BRK && !brk_hold)
             breaks_live(&brk, (int)a, (int)b);
     }
@@ -697,8 +711,7 @@ static void drain(void)
     if (seq.req_stop)
         for (int k = 0; k < NBASS; k++)
             if (seq.rec_bass[k].active) {
-                bass303_note_off(&b303[k]); bass_held_count[k] = 0; bass_held[k] = 0;
-                src_held[0] &= (uint16_t)~(1u << k); src_held[1] &= (uint16_t)~(1u << k);
+                bass303_note_off(&b303[k]); /* press membership survives until its real off */
             }
     if (guard >= 0)                   /* the ring was empty; subsequent MIDI belongs to live operation */
         project_midi_drop = 0;
