@@ -219,6 +219,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
+#include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint8_t knob_bank_prev;
@@ -875,15 +876,16 @@ static void smk_faders(void)
 
 /* The wheels (mux C address 4 = pitch, 5 = mod), self-calibrating as in the reference port: the pitch wheel's
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
- * has reached. On a 303 (the part on screen) they play its sound without changing what is saved: pitch = its
- * TUNE (about +-1.5 semitones), mod = its CUTOFF opened from the saved value up to the top. Released (or
- * wheel returned to rest), the saved values sound again. A gesture keeps its original 303
- * until release, across screen/part changes; navigation never sends a sound parameter. */
+ * has reached. On a 303 (the part on screen) they play its sound without changing what is saved: pitch wheel
+ * = Chicago pitch bend (±2 st via CHI_PBEND, never TUNE), mod = its CUTOFF opened from the saved value up
+ * to the top. Released (or wheel returned to rest), the saved values sound again. A gesture keeps its
+ * original 303 until release, across screen/part changes; navigation never sends a sound parameter.
+ * Chicago's mod wheel is not this cutoff opener — that mapping is still unknown. */
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
     static int32_t pc, plo, phi, mlo, mhi, rest;
-    static int8_t tune_part = -1, cut_part = -1;
+    static int8_t bend_part = -1, cut_part = -1;
     static int16_t bend_now, mw_now;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
@@ -924,13 +926,15 @@ static void smk_wheels(void)
      * release, so changing the visible part neither restores nor retargets a held wheel.
      * In particular, a stationary wheel must not overwrite a knob or sequencer lock. */
     if (bend != bend_now) {
-        if (tune_part < 0 && bend && is_303())
-            tune_part = (int8_t)bidx();
-        if (tune_part >= 0) {
-            want = clamp(proj.sound.v[T_303][tune_part][BASS303_TUNE] + bend, 0, 127);
-            engine_set(T_303, tune_part, BASS303_TUNE, want);
+        if (bend_part < 0 && bend && is_303())
+            bend_part = (int8_t)bidx();
+        if (bend_part >= 0) {
+            /* Off-centre: the wheel is the bend. At rest: put the saved bend back. Never TUNE. */
+            want = bend ? chi_pbend_from_wheel((int)bend)
+                        : proj.sound.v[T_303][bend_part][CHI_PBEND];
+            engine_set(T_303, bend_part, CHI_PBEND, (int)want);
             if (!bend)
-                tune_part = -1;
+                bend_part = -1;
         }
         bend_now = (int16_t)bend;
     }
