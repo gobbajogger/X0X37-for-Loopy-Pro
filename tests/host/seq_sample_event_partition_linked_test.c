@@ -24,10 +24,10 @@ static void midi_out(void *p, uint8_t st, uint8_t d1, uint8_t d2)
     if (o->trace.len >= NEVENTS) { ++failures; return; }
     o->trace.event[o->trace.len++] = (event_t){o->now, st, d1, d2};
 }
-static void bass_on(void *ctx, int part, int note, int accent, int slide, int velocity)
+static int bass_on(void *ctx, int part, int note, int accent, int slide, int velocity)
 {
     (void)ctx; (void)part; (void)note; (void)accent; (void)slide; (void)velocity;
-}
+ return 1; }
 static void bass_off(void *ctx, int part) { (void)ctx; (void)part; }
 static int drum(void *ctx, int kit, int voice, float vel)
 { (void)ctx; (void)kit; (void)voice; (void)vel; return 1; }

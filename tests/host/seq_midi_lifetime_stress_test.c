@@ -44,8 +44,8 @@ static void midi_out(void *v, uint8_t status, uint8_t note, uint8_t velocity)
 }
 static int drum(void *v, int kit, int voice, float vel)
 { (void)v; (void)kit; (void)voice; (void)vel; return 1; }
-static void bass_on(void *v, int part, int pitch, int accent, int slide, int vel)
-{ (void)v; (void)part; (void)pitch; (void)accent; (void)slide; (void)vel; }
+static int bass_on(void *v, int part, int pitch, int accent, int slide, int vel)
+{ (void)v; (void)part; (void)pitch; (void)accent; (void)slide; (void)vel;  return 1; }
 static void bass_off(void *v, int part) { (void)v; (void)part; }
 static void init(seq_t *s)
 {

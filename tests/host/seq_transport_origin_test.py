@@ -59,12 +59,10 @@ static uint32_t seq_step_q8(seq_t *s, int rate) {
     (void)s; (void)rate; return 11025u * 256u;
 }
 static int part_rate(seq_t *s, int t) { (void)s; (void)t; return 0; }
-static void do_start(seq_t *s, int top, const seq_sink_t *o) {
-    (void)o; s->playing = 1;
+static void do_start(seq_t *s, int top, const seq_sink_t *o, uint8_t remote) { (void)top; (void)o; (void)remote; (void)o; s->playing = 1;
     if (top) s->count_start++; else s->count_continue++;
 }
-static void do_stop(seq_t *s, const seq_sink_t *o) {
-    (void)o; s->playing = 0; s->count_stop++;
+static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote) { (void)o; (void)remote; (void)o; s->playing = 0; s->count_stop++;
 }
 '''
 SUFFIX = r'''

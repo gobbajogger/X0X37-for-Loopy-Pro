@@ -40,8 +40,8 @@ static void step_out(void *ctx, int part, int step)
     output_t *o = ctx;
     if (part == TRK_BASS0) {o->steps++; o->last_step = step;}
 }
-static void bass_on(void *ctx, int part, int note, int accent, int slide, int vel)
-{ (void)ctx; (void)part; (void)note; (void)accent; (void)slide; (void)vel; }
+static int bass_on(void *ctx, int part, int note, int accent, int slide, int vel)
+{ (void)ctx; (void)part; (void)note; (void)accent; (void)slide; (void)vel;  return 1; }
 static void bass_off(void *ctx, int part) { (void)ctx; (void)part; }
 static int drum(void *ctx, int kit, int voice, float vel)
 { (void)ctx; (void)kit; (void)voice; (void)vel; return 1; }

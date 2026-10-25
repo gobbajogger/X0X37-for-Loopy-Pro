@@ -23,7 +23,7 @@ static void midi_cb(void *ctx,uint8_t st,uint8_t pitch,uint8_t vel){
 static void break_stop_cb(void *ctx){monitor_t*m=ctx;if(m->ev_count < sizeof(m->events))m->events[m->ev_count++]='B';m->break_stops++;}
 static void step_cb(void *ctx,int part,int step){monitor_t*m=ctx;if(part==TRK_BASS0){m->steps++;m->last_step=step;}}
 static int drum_cb(void*x,int kit,int voice,float vel){(void)x;(void)kit;(void)voice;(void)vel;return 1;}
-static void bass_on_cb(void*x,int part,int pitch,int a,int s,int vel){(void)x;(void)part;(void)pitch;(void)a;(void)s;(void)vel;}
+static int bass_on_cb(void*x,int part,int pitch,int a,int s,int vel){(void)x;(void)part;(void)pitch;(void)a;(void)s;(void)vel; return 1; }
 static void bass_off_cb(void*x,int part){(void)x;(void)part;}
 static unsigned held_count(monitor_t*m){unsigned n=0;for(unsigned ch=0;ch<16;ch++)for(unsigned p=0;p<128;p++)n+=m->held[ch][p];return n;}
 static void render(seq_t*s,const seq_sink_t*out,uint32_t count){

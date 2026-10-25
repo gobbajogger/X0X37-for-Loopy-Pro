@@ -22,10 +22,10 @@ static void capture(void *ctx, uint8_t st, uint8_t note, uint8_t velocity)
     if (t->used < (int)(sizeof t->events / sizeof t->events[0]))
         t->events[t->used++] = (event_t){st, note};
 }
-static void bass_on(void *ctx, int part, int note, int accent, int slide, int velocity)
+static int bass_on(void *ctx, int part, int note, int accent, int slide, int velocity)
 {
     (void)ctx; (void)part; (void)note; (void)accent; (void)slide; (void)velocity;
-}
+ return 1; }
 static void bass_off(void *ctx, int part) { (void)ctx; (void)part; }
 static int count(const trace_t *t, uint8_t st, uint8_t note)
 {
