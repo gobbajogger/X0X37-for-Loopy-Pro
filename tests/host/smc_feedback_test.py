@@ -50,6 +50,8 @@ static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
 static unsigned checks,failures,tx_count;
+static uint32_t now_ms;
+static uint32_t plat_ms(void) { return now_ms; }
 static uint8_t tx[128][3];
 static int pref_get(pref_t r) {
     if(r.a==T_MST) return filter;
@@ -161,9 +163,14 @@ static void drums(void) {
 static void transport(void) {
     for(int mode=0;mode<3;mode++) for(int playing=0;playing<2;playing++) for(int rec=0;rec<2;rec++) {
         ui.view=mode?V_MIX:V_HOME;page=mode;seq.playing=playing;ui.rec=rec;
-        expect("shared STOP",0x5d,!playing);expect("shared PLAY",0x5e,playing);expect("shared REC",0x5f,rec);
+        for(int captured=0;captured<2;captured++) for(int phase=0;phase<2;phase++) {
+            smc.locked=captured;now_ms=(uint32_t)phase*512u;
+            expect("Pause lock/follow lamp",0x5d,captured||phase);
+        }
+        smc.locked=0;
+        expect("shared PLAY",0x5e,playing);expect("shared REC",0x5f,rec);
     }
-    ui.rec=seq.playing=0;
+    ui.rec=seq.playing=0;now_ms=0;
 }
 static void wire_value(const char *label,int note,int expected) {
     int found=-1;for(unsigned i=0;i<tx_count;i++) if(tx[i][0]==0x90 && tx[i][1]==note) found=tx[i][2];
@@ -176,12 +183,18 @@ static void frames(void) {
     tx_count=0;smc_frame();assert(tx_count==0);
     ui.view=V_MIX;page=0;smc_frame();
     wire_value("HOME extinguishes",7,0);wire_value("MIX lights",13,127);
-    tx_count=0;seq.playing=1;smc_frame();assert(tx_count==2);
-    wire_value("STOP extinguishes",0x5d,0);wire_value("PLAY lights",0x5e,127);
+    tx_count=0;seq.playing=1;smc_frame();assert(tx_count==1);
+    wire_value("PLAY lights",0x5e,127);
+    tx_count=0;now_ms=512;smc_frame();assert(tx_count==1);wire_value("following blink on",0x5d,127);
+    tx_count=0;now_ms=1024;smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
+    tx_count=0;smc.locked=1;smc_frame();wire_value("locked steady on",0x5d,127);
+    tx_count=0;now_ms=1536;smc_frame();assert(tx_count==0);
+    tx_count=0;now_ms=2048;smc_frame();assert(tx_count==0);
+    smc.locked=0;tx_count=0;smc_frame();wire_value("unlock resumes blink off",0x5d,0);
     tx_count=0;locked=1;seq.playing=0;smc_frame();assert(tx_count==0);locked=0;
     smc.up=0;smc_frame();assert(tx_count==0);smc.up=1;
     proj.set.bt=0;smc_frame();assert(tx_count==0);proj.set.bt=PROJ_BT_SMC_CENTRAL;
-    smc_frame();assert(tx_count==2);tx_count=0;
+    smc_frame();assert(tx_count==1);tx_count=0;
     smc.pending=0x81;smc.value[0]=10;smc.value[7]=120;smc_frame();
     assert(tx_count==2 && !smc.pending);
     assert(tx[0][0]==0xe0 && tx[0][1]==10 && tx[0][2]==10);
