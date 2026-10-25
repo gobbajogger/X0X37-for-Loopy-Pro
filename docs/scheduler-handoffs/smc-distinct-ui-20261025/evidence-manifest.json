@@ -1,0 +1,36 @@
+{
+  "built_source": {
+    "commit": "4e9d06f542058413a34472ff0e84d88c1360af6c",
+    "root": "2466b26661a93f763abf14b9df3941567f4476b2",
+    "firmware_tree": "3ea8fd24d5d65cfdc119cb3f3083a92f2e6bc60d",
+    "tracked_diff": ""
+  },
+  "evidence_sha256": {
+    "README.md": "e354e1319a62f8418493a3cc3fc0d0500dedbd53d3df135e37036d2ca2127477",
+    "artifact-review.json": "83b04ed41c11e2e3448e95b519329b69ed7b81451f9e6f37993a6125b191fa60",
+    "baseline-repro.log": "a920fb69d07d9ee5fd52d0bc2362966e8307d8111886a20ba96f3ca6bee251b3",
+    "elite-build.log": "7e453e088d62c8fad57f9b9c9f8fe7791b1eae90a05cb47c8d9609c32d9b1fb7",
+    "elite-package-receipt.json": "71a372a880e598a407ccc0de76b65ca01d915d2660749da669e4876bf38fb6e3",
+    "final-affected-tests.log": "605f9fc23455d45214a4f1ba184ca5783c2889784a17a98b939baf4f5b25438a",
+    "frame-manifest.json": "b6ceeb063e5ff30084868f776d843f307323c8a27659f44bc33a4c536d439e7a",
+    "frames/00-prior-pickup.png": "dba686ffcd4b586927ee07497fe72058cfb0ddd18cdabbfc79288e43b878e98f",
+    "frames/01-main-pickup.png": "665d79a9b567cfcadb00c7074420c8c2325bd9e177686138a6c2d5abead7d7c7",
+    "frames/03-picked-fader.png": "cc7b2a794b8fabaf3b9d31f714fcc67aefa46d3ffbe34fefa3381b5eb5fd6d68",
+    "frames/04-delay-knob.png": "1378129c0f92a8c75b22e7e1f9a33ed8100920c9a01177d9f64d31a4b51c52de",
+    "frames/07-clip-field.png": "c0ad2f156e4502cf61860874da04c22b48fda651442b45be88adf8453700051b",
+    "frames/08-mute-action.png": "2b0521a017df09ecb831045fe6b944dfbbde5b1ae7889957bea397a0defc8f3e",
+    "frames/09-part-pan.png": "4f4ee567511c7b9a1382450fe5e3d786e729ed09f5c7de3b5f619cc689083a68",
+    "frames/10-808-seq-bank2-pan.png": "de61a2b0c15c2e3055468288f1bfdfde1b900d505b5fad02ac7174a0c74f04b1",
+    "frames/11-list-on-fader.png": "02ea896c37b4a506b9b440a03b5ce3cd64f8f1941fc268a324dc7e6e4b5b156b",
+    "frames/12-parked-knob.png": "239690e3134d19376d46ca9d50a42fcf4f579233049822143543982a23cf6c8d",
+    "input-reuse.json": "dbab71416a8cb516777ceb0b68ce85027b8dd4d7bc4c61b604fd7e0fb0ec2e5b",
+    "pro-build.log": "70cf089dd733a8ed92d2991774a7fc246450031b9f90463a498d1c8b3581dad2",
+    "pro-package-receipt.json": "73c552f2bfbe1ebd25afef6e067e50b450a2209a2f8eaddffd52f223d2a7a716",
+    "repro.log": "da9a0fe34bd29c1a27e23d526f0337d47288c5ff1fff560b50bcc9a2549d5a49",
+    "routing-map-comparison.json": "e239d2e3150d2e692a0e40f21e492dead1320cca05329dcee20db7805f016d85",
+    "runtime.txt": "b5fd82d55c3d3d1996006e4f9922501d98a62b366bdffdb92472d868fb208169",
+    "source-review.json": "f03ed95ec74a49d0a479dbe6048e54532fd2e4b1952d21dd4f304b1f3e0f2416",
+    "source-review.md": "facb5473d2923912bac021af52435b1da3ddf7948f507e2cb593ec174f9d3182"
+  },
+  "recorded_utc": "2026-10-25T07:42:52.869741+00:00"
+}

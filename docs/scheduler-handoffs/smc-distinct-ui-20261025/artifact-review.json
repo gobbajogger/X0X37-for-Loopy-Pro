@@ -1,0 +1,293 @@
+{
+  "verdict": "PASS_EXACT_BUILD_ONLY_MODEL_PACKAGES",
+  "utc": "2026-10-25T07:41:32.488976+00:00",
+  "independent": true,
+  "reviewer": "/root/package_review",
+  "source": {
+    "commit": "4e9d06f542058413a34472ff0e84d88c1360af6c",
+    "root": "2466b26661a93f763abf14b9df3941567f4476b2",
+    "firmware_tree": "3ea8fd24d5d65cfdc119cb3f3083a92f2e6bc60d",
+    "tracked_diff": ""
+  },
+  "execution": {
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "network": "none",
+    "board": "smk37",
+    "configuration": "DEV X0X_DEV_PADCAL=1",
+    "compiler_target": "pi32v2 r3 / AC791N",
+    "runtime": "Linux-6.8.0-117-generic-x86_64-with-glibc2.36\n3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]\nPillow 9.4.0\nclang version 4.0.1 () ()\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /toolchain/pi32v2/bin\n",
+    "driver": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/run-native-isolated.sh",
+      "bytes": 1228,
+      "sha256": "1011d142375cfbeebe1f912007e9adf60c9fb93b758783645ae59b714ab815ad",
+      "crc32": "d38dfcf6"
+    },
+    "CTL_NO_CACHE": "1"
+  },
+  "controller": {
+    "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/ctl.img",
+    "bytes": 65492,
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "crc32": "9c07ae67",
+    "header": {
+      "magic": "43423058",
+      "version": 2,
+      "header_size": 68,
+      "size": 65492,
+      "crc32": "77b7a496",
+      "abi": 2,
+      "ram_lo": "01c01800",
+      "ram_hi": "01c07ce0",
+      "ram_free": 544
+    },
+    "flash_free": 44,
+    "reused_source_build": "task17 accepted controller/input reuse per input-reuse.json"
+  },
+  "models": {
+    "elite": {
+      "product": "SMK-37 Elite_900",
+      "app": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/smk37-elite/x0x.bin",
+        "bytes": 550012,
+        "sha256": "08160803890d44f60e2b026369cea7e3cc712fa8d7ed003baddff90d95e6aa51",
+        "crc32": "0c30faa2"
+      },
+      "loader": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/smk37-elite/loader/ota.bin",
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      },
+      "plain": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/x0x-smk37-elite.fwsc",
+        "bytes": 651396,
+        "sha256": "0721fb7babecf9c2a003ce4b195ad3ecfa5cf37d08e876fa22be331aa86c0ec4",
+        "crc32": "9e8790c9"
+      },
+      "bundled": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/x0x-smk37-elite-bundled.fwsc",
+        "bytes": 651396,
+        "sha256": "448dbfecfc558e34528467c2db5b9cada9bff5f5e4b8dcc9bd9ccff9e234b571",
+        "crc32": "d74116ee"
+      },
+      "metadata": {
+        "schema": "x0x37-bundled-controller-v1",
+        "model": "elite",
+        "product": "SMK-37 Elite_900",
+        "size": 651396,
+        "sha256": "448dbfecfc558e34528467c2db5b9cada9bff5f5e4b8dcc9bd9ccff9e234b571",
+        "controller_strategy": "bundled",
+        "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "controller_size": 65492,
+        "controller": {
+          "strategy": "bundled",
+          "bundled": true,
+          "size": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "77b7a496",
+          "block_size": 65536,
+          "block_crc32": "4a400899",
+          "flash_offset": 569344,
+          "header_version": 2,
+          "abi": 2
+        }
+      },
+      "budgets": {
+        "code_used": 550012,
+        "code_limit": 552672,
+        "code_free": 2660,
+        "static_ram_used": 97892,
+        "static_ram_limit": 98304,
+        "static_ram_free": 412,
+        "pool_used": 335740,
+        "pool_limit": 344064,
+        "pool_free": 8324
+      },
+      "checks": {
+        "package_header_file_and_nested_app_crcs": true,
+        "exact_native_app_and_loader_payloads": true,
+        "app_entry_stub_and_xip_bounds": true,
+        "exact_controller_and_erased_padding": true,
+        "current_smk37_slotmap": true,
+        "controller_insertion_roundtrip_reproduces_package": true,
+        "unrelated_plain_bytes_preserved": true
+      },
+      "negative_checks": [
+        {
+          "case": "wrong-model",
+          "result": "REJECTED",
+          "reason": "package model 'SMK-37 Elite_900' does not match pro"
+        },
+        {
+          "case": "wrong-controller-pin",
+          "result": "REJECTED",
+          "reason": "bundled Bluetooth controller size/SHA256 does not match the reviewed pin"
+        },
+        {
+          "case": "wrong-controller-size",
+          "result": "REJECTED",
+          "reason": "bundled Bluetooth controller size/SHA256 does not match the reviewed pin"
+        }
+      ],
+      "build_log": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/elite-build.log",
+        "bytes": 1341,
+        "sha256": "7e453e088d62c8fad57f9b9c9f8fe7791b1eae90a05cb47c8d9609c32d9b1fb7",
+        "crc32": "5e701917"
+      },
+      "composition_receipt": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/elite-package-receipt.json",
+        "bytes": 671,
+        "sha256": "71a372a880e598a407ccc0de76b65ca01d915d2660749da669e4876bf38fb6e3",
+        "crc32": "9bb9d63c"
+      },
+      "recheck_receipt": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/elite-recheck.json",
+        "bytes": 671,
+        "sha256": "71a372a880e598a407ccc0de76b65ca01d915d2660749da669e4876bf38fb6e3",
+        "crc32": "9bb9d63c"
+      }
+    },
+    "pro": {
+      "product": "SMK-37 Pro_900",
+      "app": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/smk37/x0x.bin",
+        "bytes": 550012,
+        "sha256": "50b9c2ffe4febea1cf5a5f7244ef21a834914bde6bcc31713d6a94683ada3128",
+        "crc32": "0eeb8c30"
+      },
+      "loader": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/smk37/loader/ota.bin",
+        "bytes": 7276,
+        "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+        "crc32": "a0f8bca9"
+      },
+      "plain": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/x0x-smk37.fwsc",
+        "bytes": 651392,
+        "sha256": "4fba54fd4949d5c7458cae8ae80effedbd79b565a0c3ab3fd50f4038861bf675",
+        "crc32": "8ecd1233"
+      },
+      "bundled": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/x0x-smk37-pro-bundled.fwsc",
+        "bytes": 651392,
+        "sha256": "5c6a28a76b7f62e9dd1fe1a9490b1b127830d52bfe4f52c14a812dad9eab0e9e",
+        "crc32": "4d92f8a9"
+      },
+      "metadata": {
+        "schema": "x0x37-bundled-controller-v1",
+        "model": "pro",
+        "product": "SMK-37 Pro_900",
+        "size": 651392,
+        "sha256": "5c6a28a76b7f62e9dd1fe1a9490b1b127830d52bfe4f52c14a812dad9eab0e9e",
+        "controller_strategy": "bundled",
+        "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "controller_size": 65492,
+        "controller": {
+          "strategy": "bundled",
+          "bundled": true,
+          "size": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "77b7a496",
+          "block_size": 65536,
+          "block_crc32": "4a400899",
+          "flash_offset": 569344,
+          "header_version": 2,
+          "abi": 2
+        }
+      },
+      "budgets": {
+        "code_used": 550012,
+        "code_limit": 552672,
+        "code_free": 2660,
+        "static_ram_used": 97892,
+        "static_ram_limit": 98304,
+        "static_ram_free": 412,
+        "pool_used": 335740,
+        "pool_limit": 344064,
+        "pool_free": 8324
+      },
+      "checks": {
+        "package_header_file_and_nested_app_crcs": true,
+        "exact_native_app_and_loader_payloads": true,
+        "app_entry_stub_and_xip_bounds": true,
+        "exact_controller_and_erased_padding": true,
+        "current_smk37_slotmap": true,
+        "controller_insertion_roundtrip_reproduces_package": true,
+        "unrelated_plain_bytes_preserved": true
+      },
+      "negative_checks": [
+        {
+          "case": "wrong-model",
+          "result": "REJECTED",
+          "reason": "package model 'SMK-37 Pro_900' does not match elite"
+        },
+        {
+          "case": "wrong-controller-pin",
+          "result": "REJECTED",
+          "reason": "bundled Bluetooth controller size/SHA256 does not match the reviewed pin"
+        },
+        {
+          "case": "wrong-controller-size",
+          "result": "REJECTED",
+          "reason": "bundled Bluetooth controller size/SHA256 does not match the reviewed pin"
+        }
+      ],
+      "build_log": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/pro-build.log",
+        "bytes": 1321,
+        "sha256": "70cf089dd733a8ed92d2991774a7fc246450031b9f90463a498d1c8b3581dad2",
+        "crc32": "b6d83de8"
+      },
+      "composition_receipt": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/pro-package-receipt.json",
+        "bytes": 667,
+        "sha256": "73c552f2bfbe1ebd25afef6e067e50b450a2209a2f8eaddffd52f223d2a7a716",
+        "crc32": "dc592538"
+      },
+      "recheck_receipt": {
+        "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/private-build/pro-recheck.json",
+        "bytes": 667,
+        "sha256": "73c552f2bfbe1ebd25afef6e067e50b450a2209a2f8eaddffd52f223d2a7a716",
+        "crc32": "dc592538"
+      }
+    }
+  },
+  "limits": [
+    "BUILD_ONLY; no install qualification or hardware test.",
+    "No device mutation, publication, protected merge, raw capture or GUI.",
+    "Agent-run source tests and exact independent source review have separate receipts."
+  ],
+  "generated_inputs": {
+    "build/gen/x0x_break_bank.h": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/gen/x0x_break_bank.h",
+      "bytes": 765857,
+      "sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "crc32": "ee476a37"
+    },
+    "build/gen/x0x_drum_tables.h": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/gen/x0x_drum_tables.h",
+      "bytes": 76059,
+      "sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "crc32": "7f98c38e"
+    },
+    "build/gen/x0x_drum_samples.h": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/gen/x0x_drum_samples.h",
+      "bytes": 253844,
+      "sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "crc32": "97ca5965"
+    },
+    "build/gen/felucca_font.h": {
+      "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/native-source/build/gen/felucca_font.h",
+      "bytes": 146428,
+      "sha256": "8529407f76ca5ac703c70575505779515ebc8b815a7dac4195ba66c9b33efcfe",
+      "crc32": "00c5d6f8"
+    }
+  },
+  "input_reuse_receipt": {
+    "path": "/Users/mac/Documents/Codex/2026-10-25/task-41/package-review/input-reuse.json",
+    "bytes": 2314,
+    "sha256": "dbab71416a8cb516777ceb0b68ce85027b8dd4d7bc4c61b604fd7e0fb0ec2e5b",
+    "crc32": "7ad76a40"
+  }
+}

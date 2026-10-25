@@ -1,0 +1,22 @@
+{
+  "controller": {
+    "abi": 2,
+    "block_crc32": "4a400899",
+    "block_size": 65536,
+    "bundled": true,
+    "crc32": "77b7a496",
+    "flash_offset": 569344,
+    "header_version": 2,
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "size": 65492,
+    "strategy": "bundled"
+  },
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "controller_size": 65492,
+  "controller_strategy": "bundled",
+  "model": "elite",
+  "product": "SMK-37 Elite_900",
+  "schema": "x0x37-bundled-controller-v1",
+  "sha256": "448dbfecfc558e34528467c2db5b9cada9bff5f5e4b8dcc9bd9ccff9e234b571",
+  "size": 651396
+}
