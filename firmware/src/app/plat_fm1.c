@@ -189,7 +189,7 @@ int plat_slot_zones(int k) { return (k >= 0 && k < SMP_USER_SLOTS) ? usr_nz[k] :
 const uint8_t *plat_slot(int k, int z, uint32_t *nsamples, uint32_t *rate, char name[9])
 {
     const smp_user_hdr_t *h;
-    uint32_t i;
+    uint32_t i, rate_q16;
     if (k < 0 || k >= SMP_USER_SLOTS || z < 0 || z >= usr_nz[k])
         return 0;
     h = (const smp_user_hdr_t *)smp_user_xip((uint32_t)k);
@@ -197,7 +197,10 @@ const uint8_t *plat_slot(int k, int z, uint32_t *nsamples, uint32_t *rate, char 
         name[i] = h->name[i] >= 32 && h->name[i] < 127 ? h->name[i] : 0;
     name[8] = 0;
     *nsamples = h->zone[z].n;
-    *rate = (h->zone[z].rate * 44100u + 32768u) >> 16;
+    rate_q16 = h->zone[z].rate;
+    /* Split Q16 before multiplying: 88.2 kHz would overflow a uint32_t product. */
+    *rate = (rate_q16 >> 16) * 44100u +
+            (((rate_q16 & 0xFFFFu) * 44100u + 32768u) >> 16);
     return smp_user_xip((uint32_t)k) + SMP_USER_DATA + h->zone[z].off;
 }
 

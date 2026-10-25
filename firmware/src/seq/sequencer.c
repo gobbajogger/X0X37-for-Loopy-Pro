@@ -670,6 +670,7 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     s->clk_lost = 0;
     if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
         s->ext_pending = 0;
+        s->clk_lock = 0;                              /* MID-13/MID-15: INTERNAL owns no external clock */
         if (s->ext)
             switch_internal(s);
     } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
@@ -835,6 +836,7 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
         if (st == 0xFCu || st == 0xF2u)
             return 1;                                 /* no input has the clock: a Stop or a Song Position gets none */
         if (s->clk_last && s->clk_last != me) {      /* another input: the tempo measure starts again, */
+            s->ext_pending = 0;                       /* queued ticks belong to the previous input */
             s->ext_nb = s->ext_bi = s->ext_q = 0;     /* from the tempo now (no gap in the beat ring) */
             s->ext_skip = 1;                          /* (the first ticks give no period) */
         }
@@ -855,8 +857,10 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
 }
 void seq_clk_drop(seq_t *s, uint32_t src)
 {
-    if (s->clk_lock == src + 1u)
+    if (s->clk_lock == src + 1u) {
         s->clk_lock = 0;                              /* its link ended: any input can get the clock now */
+        s->ext_pending = 0;                           /* discard queued ticks from the disconnected owner */
+    }
 }
 int seq_clock_waiting(const seq_t *s)
 {
@@ -887,7 +891,7 @@ int seq_rec_step(seq_t *s, int t)
     if (!tr->started)
         return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
     if (s->ext)
-        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= TICKS_PER_STEP[rate] / 2u);
+        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= (TICKS_PER_STEP[rate] + 1u) / 2u);
     else
         late = tr->to_next != NEVER && tr->to_next < seq_step_q8(s, rate) / 2u;
     return late ? next_pos(s, t, tr->pos, 0) : tr->pos;
@@ -907,6 +911,10 @@ void seq_rec_skip(seq_t *s, int t, int p, int v)
 }
 void seq_chain(seq_t *s, int a, int b)
 {
+    /* Reject invalid endpoints before narrowing to uint8_t: an out-of-range
+     * chain otherwise selects a non-existent pattern at the next bar. */
+    if (a < 0 || a >= NPAT || b < 0 || b >= NPAT)
+        return;
     s->chain_a = (uint8_t)a;
     s->chain_b = (uint8_t)b;
 }

@@ -476,6 +476,7 @@ int engine_motion_part(int t, int v)
     }
 }
 int engine_motion_value(int k) { return motion_value(&mot, k); }
+void engine_motion_clear(int k) { motion_clear(&mot, k); }
 void engine_motion_rec(int k) { motion_req_rec(&mot, k); }
 void engine_motion_hold(int k) { motion_req_hold(&mot, k); }
 static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0};

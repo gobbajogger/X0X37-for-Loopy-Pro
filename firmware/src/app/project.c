@@ -84,13 +84,13 @@ static uint8_t io_buf[PLAT_STORE_MAX] __attribute__((aligned(4)));
 
 /* what each object last held on the flash (a hash of its payload), so a save writes only the
  * objects that changed: an autosave usually erases one or two sectors, not six */
-static uint32_t stored_hash[OBJ_NOBJ];
+static uint64_t stored_hash[OBJ_NOBJ];
 static uint8_t stored_known[OBJ_NOBJ];
-static uint32_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a */
+static uint64_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a, 64-bit */
 {
-    uint32_t h = 2166136261u;
+    uint64_t h = UINT64_C(14695981039346656037);
     while (n--)
-        h = (h ^ *p++) * 16777619u;
+        h = (h ^ *p++) * UINT64_C(1099511628211);
     return h;
 }
 
@@ -123,7 +123,7 @@ static uint32_t crc32_of(const uint8_t *p, uint32_t n)       /* zlib CRC-32, 4 b
 /* the object is the n bytes of io_buf, format word included; written only if they changed */
 static int save_buf(uint32_t obj, uint32_t n)
 {
-    uint32_t h = hash_of(io_buf, n);
+    uint64_t h = hash_of(io_buf, n);
     int rc;
     if (stored_known[obj] && stored_hash[obj] == h)
         return 0;                                    /* the flash already holds exactly this */
@@ -546,16 +546,6 @@ static int read_project(project_t *pr)
     sound_ok = load_obj(OBJ_SOUND, &pr->sound, sizeof pr->sound) == 0;
     if (!sound_ok)
         bad = 1;
-    if (sound_ok && pr->set.snd_rev < 3)             /* before the 909 BD's sends: its pan moves up two */
-        sound_bd_sends(pr, T_909, 8);                     /* (first: the pans' own fixes below see the new place) */
-    if (sound_ok && pr->set.snd_rev < 4)             /* the 808 BD's, the same */
-        sound_bd_sends(pr, T_808, 7);
-    if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
-        for (i = 0; i < NPARTS; i++)
-            pr->sound.v[T_MIX][i][MX_PAN] = 64;
-    if (pr->set.stereo < 2)                          /* saved before the drum voices had pans */
-        engine_sound_centre_drum_pans(&pr->sound);
-    pr->set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
     if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
         if (load_stream(pr, n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
@@ -577,6 +567,18 @@ static int read_project(project_t *pr)
         bad = 1;
         pr->arr.song.len = NSONG;
     }
+    /* Stored motion lanes are not present until the pattern/arrangement stream has loaded.
+     * Migrate their BD PAN indices together with sound values, before subsequent sound revisions. */
+    if (sound_ok && pr->set.snd_rev < 3)             /* before the 909 BD's sends: its pan moves up two */
+        sound_bd_sends(pr, T_909, 8);                     /* (first: the pans' own fixes below see the new place) */
+    if (sound_ok && pr->set.snd_rev < 4)             /* the 808 BD's, the same */
+        sound_bd_sends(pr, T_808, 7);
+    if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
+        for (i = 0; i < NPARTS; i++)
+            pr->sound.v[T_MIX][i][MX_PAN] = 64;
+    if (pr->set.stereo < 2)                          /* saved before the drum voices had pans */
+        engine_sound_centre_drum_pans(&pr->sound);
+    pr->set.stereo = PROJ_STEREO;
     if (sound_ok && pr->set.snd_rev < 1)             /* saved before the 909 SD's DECAY: its pots move up one */
         sound_rev1(pr);
     if (sound_ok && pr->set.snd_rev < 2)             /* before the one-knob COMP, FILTER, TAPE */
