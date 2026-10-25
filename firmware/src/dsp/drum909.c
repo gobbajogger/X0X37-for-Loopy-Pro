@@ -128,7 +128,7 @@ int drum909_get(const drum909_t *d, int voice, int i)
 static float d9_pot_value(const d9_pspec_t *s, int pot)
 {
     if (s->curve == CV_EXP)
-        return x0x_pot_exp[s->exp][pot];
+        return x0x_pot_exp_value(s->exp, pot);
     if (s->curve == CV_SW)
         return (float)pot;
     const float t = (float)pot / 127.0f;
