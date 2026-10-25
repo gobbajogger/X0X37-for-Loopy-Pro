@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define X0X_IMA_TABLES_DEFINE              /* breaks.c alone: define the shared IMA tables here */
 #include "../../firmware/src/dsp/breaks.c"
 
 static int g_pass, g_fail;
