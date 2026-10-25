@@ -1,0 +1,360 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "589176c672271d26b684d586f56fdecd299a4130d435edb9dedfd900c2d05455",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "69ccb3d77a718d32191cf17a75bce6454dad807ef9bb76f6050e6532a0bff3ad",
+      "configuration": {
+        "model": "pro",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "1325f5d34340ea877e65ab86f3663f5dea052c0d",
+          "scope": "F07 FP-001 installer dual-digest reconciliation only (tools/check_installer_digests.py, tests/host/test_check_installer_digests.py, tools/quickcheck_plan.py installer-digests route, docs/installer-dual-digest.md, evidence/f07-stage2/digests.json). Firmware, controller, and package application bytes are unchanged versus the audited tip 1325f5d3 / content tree b02108f7\u2026 unless a package gate proves otherwise. Stage 3 ALL_PASS for required FP-001 dual-digest host regressions (unit, live --fetch, installer_sha256-alone conflation reject, quickcheck planner route, tracked firmware/product paths unchanged). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the FP-001-affected host checks. A host pass is not a package pass. Do not reopen BF-001, BF-002, or BF-003. Do not implement deferred items.",
+          "checks": [
+            {
+              "reason": "FP-001 dual-digest host unit tests must pass.",
+              "argv": [
+                "python3",
+                "tests/host/test_check_installer_digests.py",
+                "-v"
+              ]
+            },
+            {
+              "reason": "FP-001 live fetch must match served HTML digest and keep source fingerprint unequal.",
+              "argv": [
+                "python3",
+                "tools/check_installer_digests.py",
+                "evidence/f07-stage2/digests.json",
+                "--fetch",
+                "--expect-source",
+                "8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157"
+              ]
+            },
+            {
+              "reason": "FP-001 must reject installer_sha256-alone conflation evidence (non-zero exit).",
+              "argv": [
+                "bash",
+                "/workspace/evidence/f07-stage4/check-conflation-alone.sh"
+              ]
+            },
+            {
+              "reason": "FP-001 quickcheck planner must include installer-digests route.",
+              "argv": [
+                "python3",
+                "tests/host/test_quickcheck_plan.py",
+                "-v"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/workspace/evidence/f07-stage4/check-conflation-alone.sh"
+          ]
+        },
+        "dependencies": [
+          "/workspace/evidence/f07-stage4/check-conflation-alone.sh"
+        ]
+      },
+      "environment": {
+        "CXX": "c++",
+        "CC": "cc",
+        "MODEL": "pro",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "0c618c6238d871609647467e8f4a1026a7d927cf57ce0ad118978edc09d24eca",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        },
+        "python3": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
+        },
+        "pillow": {
+          "version": "13.0.0",
+          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/workspace/evidence/f07-stage4/check-conflation-alone.sh": {
+          "sha256": "81036dd4d3db2fd8040be783fb78008aa62e4b456716307e1ab60c12209fdb97",
+          "executable": true
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "pro",
+  "commit": "6df0f81fbbe0adc3207f67d912d2fe0ab676be04",
+  "tree": "69ccb3d77a718d32191cf17a75bce6454dad807ef9bb76f6050e6532a0bff3ad",
+  "plan": {
+    "base": "1325f5d34340ea877e65ab86f3663f5dea052c0d",
+    "scope": "F07 FP-001 installer dual-digest reconciliation only (tools/check_installer_digests.py, tests/host/test_check_installer_digests.py, tools/quickcheck_plan.py installer-digests route, docs/installer-dual-digest.md, evidence/f07-stage2/digests.json). Firmware, controller, and package application bytes are unchanged versus the audited tip 1325f5d3 / content tree b02108f7\u2026 unless a package gate proves otherwise. Stage 3 ALL_PASS for required FP-001 dual-digest host regressions (unit, live --fetch, installer_sha256-alone conflation reject, quickcheck planner route, tracked firmware/product paths unchanged). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the FP-001-affected host checks. A host pass is not a package pass. Do not reopen BF-001, BF-002, or BF-003. Do not implement deferred items.",
+    "checks": [
+      {
+        "reason": "FP-001 dual-digest host unit tests must pass.",
+        "argv": [
+          "python3",
+          "tests/host/test_check_installer_digests.py",
+          "-v"
+        ]
+      },
+      {
+        "reason": "FP-001 live fetch must match served HTML digest and keep source fingerprint unequal.",
+        "argv": [
+          "python3",
+          "tools/check_installer_digests.py",
+          "evidence/f07-stage2/digests.json",
+          "--fetch",
+          "--expect-source",
+          "8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157"
+        ]
+      },
+      {
+        "reason": "FP-001 must reject installer_sha256-alone conflation evidence (non-zero exit).",
+        "argv": [
+          "bash",
+          "/workspace/evidence/f07-stage4/check-conflation-alone.sh"
+        ]
+      },
+      {
+        "reason": "FP-001 quickcheck planner must include installer-digests route.",
+        "argv": [
+          "python3",
+          "tests/host/test_quickcheck_plan.py",
+          "-v"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/workspace/evidence/f07-stage4/check-conflation-alone.sh"
+    ]
+  },
+  "changed_files": [
+    "docs/installer-dual-digest.md",
+    "evidence/f06-stage2/HANDOFF.md",
+    "evidence/f06-stage2/SUCCESSOR-STAGE3.txt",
+    "evidence/f06-stage3/CHECKS.md",
+    "evidence/f06-stage3/HANDOFF.md",
+    "evidence/f06-stage3/SUCCESSOR-STAGE4.txt",
+    "evidence/f06-stage3/absence.log",
+    "evidence/f06-stage3/harness-scope.txt",
+    "evidence/f06-stage3/make-site-dry.log",
+    "evidence/f06-stage3/test-web.log",
+    "evidence/f06-stage4/CHECKS.md",
+    "evidence/f06-stage4/HANDOFF.md",
+    "evidence/f06-stage4/SUCCESSOR-STAGE5.txt",
+    "evidence/f06-stage4/check-make-site-dry.sh",
+    "evidence/f06-stage4/dev-plan.json",
+    "evidence/f06-stage4/elite/build.log",
+    "evidence/f06-stage4/elite/check-0.log",
+    "evidence/f06-stage4/elite/check-1.log",
+    "evidence/f06-stage4/elite/check-2.log",
+    "evidence/f06-stage4/elite/controller.log",
+    "evidence/f06-stage4/elite/record.json",
+    "evidence/f06-stage4/pro/build.log",
+    "evidence/f06-stage4/pro/check-0.log",
+    "evidence/f06-stage4/pro/check-1.log",
+    "evidence/f06-stage4/pro/check-2.log",
+    "evidence/f06-stage4/pro/controller.log",
+    "evidence/f06-stage4/pro/record.json",
+    "evidence/f06-stage5/CHECKS.md",
+    "evidence/f06-stage5/HANDOFF.md",
+    "evidence/f06-stage5/SUCCESSOR-STAGE6.txt",
+    "evidence/f06-stage5/SUCCESSOR-STAGE7.txt",
+    "evidence/f06-stage5/api-create-stage7-attempt1.json",
+    "evidence/f06-stage5/api-create-stage7-attempt2.json",
+    "evidence/f06-stage5/gate-tree-check.log",
+    "evidence/f06-stage5/nightly-ff-refusal.log",
+    "evidence/f06-stage5/nightly-ff-summary.txt",
+    "evidence/f06-stage5/stage6-install-prompt.json",
+    "evidence/f06-stage7/CHECKS.md",
+    "evidence/f06-stage7/HANDOFF.md",
+    "evidence/f06-stage7/MAC-PAGES-PUSH.md",
+    "evidence/f06-stage7/SUCCESSOR-STAGE1.txt",
+    "evidence/f06-stage7/api-create-stage1-attempt1.json",
+    "evidence/f06-stage7/api-create-stage1-attempt2.json",
+    "evidence/f06-stage7/bf001-nightly-regression.log",
+    "evidence/f06-stage7/catalog.json",
+    "evidence/f06-stage7/cloud-gh-pages-403.log",
+    "evidence/f06-stage7/gh-pages-prepared-commit.txt",
+    "evidence/f06-stage7/independent-qa-local-review.md",
+    "evidence/f06-stage7/live-verify.log",
+    "evidence/f06-stage7/merge-pr215-dry-run.log",
+    "evidence/f06-stage7/merge-pr215-existing-base.log",
+    "evidence/f06-stage7/merge-pr215.log",
+    "evidence/f06-stage7/nightly-npm-test.log",
+    "evidence/f06-stage7/package-manifest.txt",
+    "evidence/f06-stage7/prepare-candidate.log",
+    "evidence/f06-stage7/qualification.json",
+    "evidence/f06-stage7/versions.prepared.json",
+    "evidence/f07-stage1/AUDIT.md",
+    "evidence/f07-stage1/CHECKS.md",
+    "evidence/f07-stage1/HANDOFF.md",
+    "evidence/f07-stage1/SUCCESSOR-STAGE2.txt",
+    "evidence/f07-stage1/api-create-stage2-attempt1.json",
+    "evidence/f07-stage1/api-create-stage2-attempt2.json",
+    "evidence/f07-stage1/live-verify.log",
+    "evidence/f07-stage2/CHECKS.md",
+    "evidence/f07-stage2/DEFERRED.md",
+    "evidence/f07-stage2/check-result.json",
+    "evidence/f07-stage2/conflation-fail.log",
+    "evidence/f07-stage2/digests.json",
+    "evidence/f07-stage2/host-unit.log",
+    "evidence/f07-stage2/live-fetch-check.log",
+    "evidence/f07-stage2/planner-host.log",
+    "tests/host/test_check_installer_digests.py",
+    "tests/run_tests.sh",
+    "tools/check_installer_digests.py",
+    "tools/quickcheck_plan.py"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 6676,
+    "ram_free": 492,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "python3",
+        "tests/host/test_check_installer_digests.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "sha256": "5e5d354ed7885b323b51db3b6ec9145c07eb1a30df5b7d618b9443fdf825efbe"
+    },
+    "check-1": {
+      "argv": [
+        "python3",
+        "tools/check_installer_digests.py",
+        "evidence/f07-stage2/digests.json",
+        "--fetch",
+        "--expect-source",
+        "8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157"
+      ],
+      "returncode": 0,
+      "sha256": "401f5e596126078b659503d425b37c61defc63952a0d2f4100bb6b9533329369"
+    },
+    "check-2": {
+      "argv": [
+        "bash",
+        "/workspace/evidence/f07-stage4/check-conflation-alone.sh"
+      ],
+      "returncode": 0,
+      "sha256": "162e91923ca56065f446fe0c1e591859861d7a2d5807ad2ee8b27866d9c03684"
+    },
+    "check-3": {
+      "argv": [
+        "python3",
+        "tests/host/test_quickcheck_plan.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "sha256": "014c426053bccaedc059727340294ddab1a65b4bcd51944601f54b3e61dbd1e2"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "9f80c79647541062515de110daf5d3c5de45a60555d5535ff5ada219bd78b6d5"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "f4e21f875bc7e7513d958af0fccef3857d643c4e64a8df6eeb92e2ced2a4aa2e"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37.fwsc",
+      "sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

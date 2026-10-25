@@ -1,0 +1,19 @@
+test_cli_pass_and_fail (__main__.DualDigest.test_cli_pass_and_fail) ... ok
+test_expect_source_mismatch (__main__.DualDigest.test_expect_source_mismatch) ... ok
+test_fail_explicit_single_pin_claim (__main__.DualDigest.test_fail_explicit_single_pin_claim) ... ok
+test_fail_installer_sha256_alone (__main__.DualDigest.test_fail_installer_sha256_alone) ... ok
+test_fail_legacy_installer_fp_without_dual_fields (__main__.DualDigest.test_fail_legacy_installer_fp_without_dual_fields) ... ok
+test_fail_missing_served_field (__main__.DualDigest.test_fail_missing_served_field) ... ok
+test_fail_when_alias_does_not_match_source (__main__.DualDigest.test_fail_when_alias_does_not_match_source) ... ok
+test_fail_when_html_bytes_mismatch (__main__.DualDigest.test_fail_when_html_bytes_mismatch) ... ok
+test_fail_when_source_equals_served (__main__.DualDigest.test_fail_when_source_equals_served) ... ok
+test_fetch_compares_served_digest (__main__.DualDigest.test_fetch_compares_served_digest) ... ok
+test_fetch_mismatch_fails (__main__.DualDigest.test_fetch_mismatch_fails) ... ok
+test_pass_when_html_bytes_match (__main__.DualDigest.test_pass_when_html_bytes_match) ... ok
+test_pass_with_installer_sha256_alias_matching_source (__main__.DualDigest.test_pass_with_installer_sha256_alias_matching_source) ... ok
+test_pass_with_separate_fields (__main__.DualDigest.test_pass_with_separate_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.002s
+
+OK
