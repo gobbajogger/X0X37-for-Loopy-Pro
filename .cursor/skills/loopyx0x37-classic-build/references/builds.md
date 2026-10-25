@@ -4,13 +4,13 @@
 
 ## What a Cursor run builds
 
-Default to a development build (`X0X_DEV_PADCAL=1`). `tools/dev_validate.py` accepts `elite` and `pro`. FM-1 source is reference-only. Its target build is not a gate requirement. `MODEL=mke` exists for the MKE-P37 package. Include it when the user requests a release and `tools/build_smk_release.sh` builds it. A development validation run does not substitute that release script.
+Default to a development build (`X0X_DEV_PADCAL=1`). `tools/dev_validate.py` accepts `elite` and `pro`. FM-1 source is reference-only. Its target build is not a gate requirement. `MODEL=mke` exists for the MKE-P37 package. Include it when the owner requests a release and `tools/build_smk_release.sh` builds it. A development validation run does not substitute that release script.
 
-Run a firmware build when compiled inputs changed and the user asked for implementation or a build. Skip it for docs, skills, and browser-only diffs. Quickcheck treats `.cursor/skills/`, `.agents/skills/`, `skills/`, and `loopyx0x37-classic-build-skill.zip` as non-target scope for this reason.
+Run a firmware build when compiled inputs changed and the owner asked for implementation or a build. Docs and skill edits do not require a firmware rebuild. Skip a firmware build for browser-only diffs. Quickcheck treats `.cursor/skills/`, `.agents/skills/`, `skills/`, and `loopyx0x37-classic-build-skill.zip` as non-target scope for this reason.
 
-Run `tools/gate.sh` only after the user explicitly requests a release build for this work. A generic request to build, validate, or install does not authorize the release gate. A `--trial` gate result does not permit install or release. Release packages use `X0X_DEV_PADCAL=0` and the release identity from `BUILDING.md`.
+Run `tools/gate.sh` only after the owner explicitly requests a release build for this work. A generic request to build, validate, or install does not authorize the release gate. A `--trial` gate result does not permit a release install or a release. The Mac LaunchAgent `com.x0x37.unattended-install` may install a validated development package. A cloud agent does not flash the keyboard. Release packages use `X0X_DEV_PADCAL=0` and the release identity from `BUILDING.md`.
 
-Development install evidence uses `tools/dev_validate.py` with a JSON plan: `base`, `scope`, and `checks` whose entries have `reason` and `argv`. Use `no_tests_reason` only when no host test applies. Review the plan against the diff. The runner cannot infer coverage. `DEV CHECKED` is local development evidence. It is not a release pass or a device pass.
+Development install evidence uses `tools/dev_validate.py` with a JSON plan: `base`, `scope`, and `checks` whose entries have `reason` and `argv`. Use `no_tests_reason` only when no host test applies. Review the plan against the diff. The runner cannot infer coverage. `DEV CHECKED` is the local development record used when firmware nightly fast-forwards: host checks passed and both affected development packages are `DEV CHECKED`. It is not a release pass, not a device pass, and not the firmware main fast-forward.
 
 ## Before invoking the compiler
 
@@ -74,7 +74,7 @@ python3 tools/dev_validate.py run --commit <commit> --model elite \
 
 Repeat with `--model pro`. Elite writes `x0x-smk37-elite.fwsc`. Pro writes `x0x-smk37.fwsc`. The runner builds that model in development configuration, checks budgets, builds the controller, and records hashes. Failed checks issue no record.
 
-Current SMK packages rewrite the controller block. Install with `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
+A cloud agent does not flash the keyboard. The Mac LaunchAgent `com.x0x37.unattended-install` may install a validated development package. Current SMK packages rewrite the controller block. That LaunchAgent install uses `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
 
 Release gate, only after an explicit release request:
 
@@ -98,4 +98,4 @@ For each model: command and exit, source commit and root tree, toolchain and SDK
 
 ## Labels
 
-Use the glossary in [handoff.md](handoff.md). A compiler exit of 0 is `BUILD_SUCCEEDED_UNREVIEWED` until independent QA accepts that commit. `DEV CHECKED` is the `tools/dev_validate.py` record for those exact artifacts. It is local development evidence. It is not `QA_PASSED`, not a release gate, and not `DEVICE VERIFIED`. A successful compile stays a successful compile when QA or hosting is still pending. Hosting does not turn that exit into `BUILD_FAILED`. Neither label means the package is on the live installer.
+Use the glossary in [handoff.md](handoff.md). A compiler exit of 0 is `BUILD_SUCCEEDED_UNREVIEWED` while independent QA has not accepted that commit. That label is not the firmware nightly gate. Firmware nightly fast-forwards when host checks passed and both affected development packages are `DEV CHECKED`. `DEV CHECKED` is the `tools/dev_validate.py` record for those exact artifacts. It is local development evidence. It is not `QA_PASSED`, not a release gate, and not `DEVICE VERIFIED`. Firmware main fast-forwards only after a successful hardware validation of those exact bytes on the matching model. `INSTALL BLOCKED` is not success. Elite evidence does not move a Pro package. A successful compile stays a successful compile when QA or hosting is still pending. Hosting does not turn that exit into `BUILD_FAILED`. Neither label means the package is on the live installer.
