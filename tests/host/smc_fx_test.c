@@ -164,7 +164,7 @@ static void test_map(void)
         for (k = 0; k < SMCFX_SUIT_N[bus]; k++)
             expect(SMCFX_SUIT[bus][k] < SMCFX_NFX, "suit entries are valid effects");
         if (bus == SMCFX_909 || bus == SMCFX_808)
-            expect(SMCFX_SUIT_N[bus] == 3, "drum buses omit filter holds from the cycle list");
+            expect(SMCFX_SUIT_N[bus] == 2, "drum buses are reverb and delay throws only");
         if (bus == SMCFX_303A)
             expect(!suit_has_gate(bus), "303A never uses the break decay gate");
         if (bus == SMCFX_BRK)
@@ -181,16 +181,17 @@ static void test_map(void)
         if (page)
             expect(memcmp(SMCFX_PAGE[page], SMCFX_PAGE[0], SMCFX_N) != 0, "pages are not copies");
     }
-    expect(SMCFX_PAGE[1][SMCFX_909] == SMCFX_GATE && SMCFX_PAGE[1][SMCFX_808] == SMCFX_GATE,
+    expect(SMCFX_PAGE[1][SMCFX_909] == SMCFX_DLY && SMCFX_PAGE[1][SMCFX_808] == SMCFX_REV,
            "TIGHT is not a global rotation of ROOM");
     prev = SMCFX_REV;
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
     expect(prev == SMCFX_DLY, "home cycles 909 to the next drum effect");
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
-    prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
-    expect(prev == SMCFX_REV, "909's three-effect list wraps");
+    expect(prev == SMCFX_REV, "909's throw pair wraps");
     expect(smcfx_cycle(SMCFX_303A, SMCFX_HP) == SMCFX_DLY, "303A cycles its curated list");
     expect(!smcfx_suit_ok(SMCFX_909, SMCFX_HP), "909 omits high-pass from Home+cycle");
+    expect(!smcfx_suit_ok(SMCFX_909, SMCFX_GATE) && !smcfx_suit_ok(SMCFX_808, SMCFX_GATE),
+           "decay gate is only on BREAK, not the drum machine buses");
     expect(!smcfx_suit_ok(SMCFX_303A, SMCFX_GATE), "303A omits the break decay gate");
     expect(smcfx_bus(24) == SMCFX_909 && smcfx_bus(28) == SMCFX_BRK && smcfx_bus(27) < 0,
            "303B select is not one of the four effect buttons");
