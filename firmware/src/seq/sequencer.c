@@ -4,6 +4,8 @@
 #include "tb3po.h"
 
 #define NEVER 0xFFFFFFFFu
+#define RANDOM_PASS_STEPS 0x7Fu
+#define RANDOM_SWING_ODD  0x80u
 #define BASS_SLIDE_OVERLAP_Q8 (FS / 50u * 256u) /* 20 ms after the next note-on */
 
 static const uint8_t TICKS_PER_STEP[NRATES] = {6, 4, 3, 8};     /* 24 ppqn: 1/16, 1/16T, 1/32, 1/8T */
@@ -375,11 +377,14 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         if (bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
             /* Visiting step zero at random is not a bar boundary. Count
              * LEN actual played steps for both TB-3PO and probability. */
-            if (tr->mut_steps >= seq_part_len(s, t)) {
-                tr->mut_steps = 0;
+            uint8_t count = (uint8_t)(tr->mut_steps & RANDOM_PASS_STEPS);
+            if (count >= seq_part_len(s, t)) {
+                count = 0;
                 auto_mutate(s, t - TRK_BASS0);
             }
-            tr->mut_steps++;
+            /* A random pick is a note choice, not a timing slot. Preserve the
+             * alternating swing slot across odd-length passes and live edits. */
+            tr->mut_steps = (uint8_t)(((tr->mut_steps ^ RANDOM_SWING_ODD) & RANDOM_SWING_ODD) | (count + 1u));
         } else {
             tr->mut_steps = 0;
             if (wrapped)
@@ -411,9 +416,15 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         /* the step that follows p: swung if it is an odd one */
         int np = next_pos(s, t, p, 0);
         uint32_t sw = swing_q8(s, rate, L);
-        tr->to_next = carry + ((np & 1) ? L + sw : L - sw);
-        if (!(np & 1) && (p & 1) == 0)               /* even -> even (odd lengths, wraps): no swing */
-            tr->to_next = carry + L;
+        if (bass && bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
+            /* Swing belongs to successive musical time slots, not to the
+             * parity of the randomly selected source-step position. */
+            tr->to_next = carry + ((tr->mut_steps & RANDOM_SWING_ODD) ? L + sw : L - sw);
+        } else {
+            tr->to_next = carry + ((np & 1) ? L + sw : L - sw);
+            if (!(np & 1) && (p & 1) == 0)           /* even -> even (odd lengths, wraps): no swing */
+                tr->to_next = carry + L;
+        }
     }
     return changed;
 }
@@ -533,8 +544,10 @@ static void ext_ticks(seq_t *s)
             }
             {
                 int np = tr->started ? next_pos(s, t, tr->pos, 0) : 0;
+                int odd = is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM
+                    ? (tr->mut_steps & RANDOM_SWING_ODD) != 0 : (np & 1) != 0;
                 uint32_t L = s->ext_period ? s->ext_period * (uint32_t)tps : seq_step_q8(s, rate);
-                tr->to_next = (np & 1) ? swing_q8(s, rate, L) : 0;
+                tr->to_next = odd ? swing_q8(s, rate, L) : 0;
             }
         }
     }
