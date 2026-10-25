@@ -3,7 +3,7 @@
 Branch: `cursor/f05-bf002-stage7-fb90`
 Stage-7 owner: `bc-1db0b238-d8dd-5769-acf7-2a9237155a9f`
 Audited SHA: `0d79d63485dc6585800a71ef716d095445f5a1fc`
-Validated **source** SHA (publish candidate): `ab90f47ccad0f213114d6a98c1bc6179be2ebb35`
+Validated **source** SHA (published): `ab90f47ccad0f213114d6a98c1bc6179be2ebb35`
 Content tree (DEV CHECKED): `0ee03318a0b64a1e535b36fad284558529ff7e3f95ff069efed86bbcf308518c`
 Catalog `source_tree` (git): `50c381c528cae9692deff4a712071f7dc6acb020`
 BF-002 repair commit: `ab90f47c`
@@ -19,7 +19,19 @@ Repair commits already in tip (not re-opened): `d11b74fc` (BF-001), `4f18983a` (
 | Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) |
 | `prepare:candidate` | **PASS** (HTTP package bytes re-fetched; size + SHA-256 match) |
 
-GitHub Actions / Codex-on-GitHub not used.
+GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate.
+
+## Independent QA (package digests)
+
+| Field | Value |
+| --- | --- |
+| Receipt | `evidence/f05-stage7/independent-qa-local-review.md` |
+| Primary | Project store `internal/pr-local-reviews/pr-198.md` — Overall **PASS** (rebuilt + verified Elite/Pro on `ab90f47c`) |
+| Lineage | `internal/pr-local-reviews/pr-199.md` — Overall **PASS** (hash spot-check agrees; no package rebuild) |
+| Bytes | Unchanged from Stage-4 DEV CHECKED / F04 page digests — local review remains applicable |
+| Not used alone | `evidence/f05-stage3/CHECKS.md` (planner/project host only) |
+
+HTTPS evidence_url in `qualification.json` for Elite/Pro `independent-qa` points at the committed local-review copy above (not stage-3).
 
 ## Packages (DEV CHECKED blank; page serves bundled)
 
@@ -29,18 +41,15 @@ GitHub Actions / Codex-on-GitHub not used.
 | pro | `0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9` | `d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb` | 651392 | MATCH |
 | ctl | `956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a` | embedded | 65492 | embedded |
 
-Package digests match F04 page bytes (firmware application paths unchanged by BF-002). Hosted at existing immutable URLs under `artifacts/nightly/dev-20261025-4ee8f377/…` (`f917b636…`).
-
 ## Pages deploy
 
 | Field | Value |
 | --- | --- |
-| Cloud push | **403** (`cloud-gh-pages-403.log`) — `cursor[bot]` denied |
+| Cloud push | **403** (`cloud-gh-pages-403.log`) |
 | Parent `gh-pages` | `38b5d2a7d6380a4b9fd9ea1ff28d45b53d826569` |
-| Prepared candidate | Project store `artifacts/f05-stage7-publish/candidate-site.tgz` |
-| Mac push | **REQUESTED** — see `MAC-PAGES-PUSH.md` / store `internal/f05-stage7-mac-pages-push.md` |
-| Preferred Mac worker | `83d16cde-07a3-5bce-81a3-2234761197a1` |
-| Live | **PENDING** until Mac FF |
+| Mac agent | `bc-c2a20c4f-164b-5375-b042-99a914c47c5f` |
+| Mac tip | `e10823e38ec9e56f5ec381822b1597f7364a95d9` (FF only) |
+| Live | **MATCH** `nightly-ab90f47c-dev` + BF-001 marker (`live-verify.log`) |
 
 ## Production / deferred
 
@@ -48,4 +57,4 @@ Production `main` / production Pages unchanged. No device flash. Deferred: `evid
 
 ## Overall
 
-**QUALIFIED CANDIDATE PREPARED** for validated source `ab90f47c…`. Live page update blocked on Mac gh-pages push (cloud 403). Stage 7 retains ownership; Stage 1 not started until live MATCH (or a stage-7 retry successor if page cannot update).
+**PUBLISHED LIVE** for validated source `ab90f47c…` with matching package hashes, labeled hardware test / device not tested. Independent-qa cites local-env PR #198 review for unchanged package bytes. Ready for Stage 1 after owner-visible successor id is on the remote.
