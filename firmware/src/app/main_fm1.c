@@ -1353,8 +1353,8 @@ int smk_ck_smc_turn(int n, int delta)
         ck_set(f, (uint32_t)v);
         mark_dirty();
     }
-    put_s(put_s(name, ck_nm(CK_FLD_N, f)), " ");
-    ui_say(name, ck_val_txt(f, ck_get(f), value));
+    put_s(name, ck_nm(CK_FLD_N, f));
+    smc_ui_clip_show(n, name, ck_val_txt(f, ck_get(f), value));
     return 1;
 }
 /* SMC arrows select stages and edit the highlighted field; bank/channel buttons
@@ -1366,6 +1366,7 @@ int smk_ck_smc_nav(uint8_t note)
     if (!clip_grid_mode || !((note >= 0x60 && note <= 0x63) ||
         note == 0x2E || note == 0x2F || note == 0x30 || note == 0x31 || note == 6))
         return 0;
+    smc_ui_cancel();
     if (note == 6)
         ck.pg = 0;
     else if (note == 0x60 || note == 0x61)
@@ -1398,6 +1399,7 @@ CK_FN static void ck_controls(void)
     cur |= (raw >> SMK_BTN_LEFT & 3u) << 5;                  /* < and > */
     press = cur & ~(uint32_t)cp->btn_prev;
     rel = (uint32_t)cp->btn_prev & ~cur;
+    if (press || rel) smc_ui_cancel();
     cp->btn_prev = (uint8_t)cur;
     if (!own)
         press &= ~0x60u;                                    /* a menu: < and > belong to smk_arrows */
@@ -1429,6 +1431,7 @@ CK_FN static void ck_controls(void)
             char n[12], t[12];
             if (!d)
                 continue;
+            smc_ui_cancel();
             ui.act_t = fm1_ms;                               /* CC turns also keep flash writes away from playing */
             if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */

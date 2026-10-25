@@ -110,6 +110,7 @@ X0X_COLD static void smc_project_drop(void)
 X0X_COLD void smc_project_reset(void)
 {
     uint8_t up = smc.up;
+    smc_ui_cancel();
     smc_project_drop();
     memset(&smc, 0, sizeof smc);
     smc.up = smc.fresh = up;
@@ -276,19 +277,187 @@ static uint8_t smc_scaled(pref_t r)
     return (uint8_t)((v * 127 + d->max / 2) / d->max);
 }
 
+/* Temporary presentation only: the underlying ui/clip state is never replaced or
+ * restored. A navigation edge cancels this owner rather than scheduling a write. */
+#define SMC_UI_MS 1200u
+static struct {
+    uint32_t until, context;
+    uint8_t on, kind, strip, action;
+    char name[24], value[24];
+} smc_ui;
+
+static uint32_t smc_ui_context(void)
+{
+    uint32_t h = 2166136261u;
+#define SMC_CTX(v) (h = (h ^ (uint32_t)(v)) * 16777619u)
+    SMC_CTX(ui.view); SMC_CTX(ui.part); SMC_CTX(cur_page());
+    SMC_CTX(ui.mixsel); SMC_CTX(ui.sel[0]); SMC_CTX(ui.sel[1]);
+    SMC_CTX(ui.overlay); SMC_CTX(ui.help); SMC_CTX(ui.list_sel); SMC_CTX(ui.list_top);
+    SMC_CTX(ui.spage); SMC_CTX(ui.pbank); SMC_CTX(project_revision);
+    SMC_CTX(smk_clip_mode_on());
+#undef SMC_CTX
+    return h;
+}
+
+void smc_ui_cancel(void)
+{
+    if (!smc_ui.on)
+        return;
+    smc_ui.on = 0;
+    for (int i = 0; i < 4; i++) blit_hash[i] = 0;
+#if BOARD_SMK37
+    { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
+#endif
+}
+
+int smc_ui_active(void)
+{
+    if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
+        smc_ui.context != smc_ui_context() ||
+        (int32_t)(plat_ms() - smc_ui.until) >= 0))
+        smc_ui_cancel();
+    return smc_ui.on;
+}
+
+static void smc_ui_begin(int n, int kind)
+{
+    if (ui.help || ui.overlay == O_ASK || ui_project_busy()) {
+        smc_ui_cancel();
+        return;                         /* Help keeps its card; confirmation keeps ownership. */
+    }
+    smc_ui.on = 1;
+    smc_ui.strip = (uint8_t)n;
+    smc_ui.kind = (uint8_t)kind;
+    smc_ui.context = smc_ui_context();
+    smc_ui.until = plat_ms() + SMC_UI_MS;
+}
+
+/* Bounded copies also cover enum text from the clip editor. */
+static void smc_ui_text(char *to, const char *from)
+{
+    int i = 0;
+    while (from && from[i] && i < 23) { to[i] = from[i]; i++; }
+    to[i] = 0;
+}
+
+void smc_ui_clip_show(int n, const char *name, const char *value)
+{
+    smc_ui_text(smc_ui.name, name);
+    smc_ui_text(smc_ui.value, value);
+    smc_ui_begin(n, 2);
+}
+
+/* Include the destination when a page labels several different controls Level. */
+static void smc_ui_label(pref_t r, char *text)
+{
+    const char *name = pref_name(r);
+    char *q = text;
+    if (r.kind == R_ENG && r.a == T_MIX && r.b < NPARTS) {
+        q = put_s(q, PART_N[r.b]);
+        name = r.c == MX_LEVEL ? "LEVEL" : pref_name(r);
+        *q++ = ' ';
+    } else if (r.kind == R_ENG && (r.a == T_909 || r.a == T_808) && r.b < NDRUM) {
+        q = put_s(q, engine_voice_name(r.a, r.b));
+        *q++ = ' ';
+    }
+    /* Destination prefixes have at most eight bytes; keep each complete label bounded. */
+    while (*name && q < text + 23) *q++ = *name++;
+    *q = 0;
+}
+
+static int smc_led(int note);
+
+static UI_DRAW void smc_ui_grid(void)
+{
+    for (int n = 0; n < 8; n++) {
+        pref_t r = smc_ui.kind == 1 ? smc_knob_target(n) : smc_target(n);
+        const x0x_param_t *d = pref_desc(r);
+        char name[24], num[32], unit[12], tag[5];
+        int x = 4 + (n & 1) * 120, y = 2 + (n >> 1) * 34;
+        int valid = d && d->max && r.kind != R_ACT && r.kind != R_HDR && r.kind != R_NONE;
+        int selected = n == smc_ui.strip && smc_ui.kind < 2;
+        uint16_t c = selected ? C_HI : C_GRAY;
+        if (selected) rbox(x - 2, y, 116, 33, 3, dim(C_HI, 5));
+        put_i(put_s(tag, smc_ui.kind == 1 ? "K" : "F"), n + 1);
+        cv_text(x, y + 2, &FONT_T, tag, c);
+        if (!valid) {
+            cv_text(x + 19, y + 2, &FONT_XS, "UNASSIGNED", C_GRAY);
+            continue;
+        }
+        smc_ui_label(r, name);
+        /* The full destination appears in the focused strip; compact cards use 15 chars. */
+        name[15] = 0;
+        cv_text(x + 19, y + 2, &FONT_XS, caps_of(name), c);
+        pref_value_of(r, pref_get(r), num, unit);
+        if (tw(&FONT_S, num) > 90) num[15] = 0;
+        cv_text(x + 19, y + 13, tw(&FONT_S, num) > 90 ? &FONT_XS : &FONT_S, num, C_WHITE);
+        if (smc_ui.kind != 1) {
+            tag[0] = (n < NPARTS || smc_drum_mix() >= 0) && smc_led(n) ? 'R' : '-';
+            tag[1] = (n < NPARTS || smc_drum_mix() >= 0) && smc_led(8 + n) ? 'S' : '-';
+            tag[2] = smc_led(16 + n) ? 'M' : '-';
+            tag[3] = 0;
+            cv_text(x + 91, y + 24, &FONT_T, tag, C_HI);
+        }
+        cv_rect(x + 19, y + 29, 68, 2, C_LINE);
+        cv_rect(x + 19, y + 29, smc_scaled(r) * 68 / 127, 2, c);
+    }
+}
+
+void smc_ui_draw(void)
+{
+    char name[24], num[32], unit[12], tag[16];
+    const char *status;
+    pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);
+    cv_begin(240, HDR_H, C_BLACK);
+    cv_text(5, vc(&FONT_S, 0, HDR_H), &FONT_S, "SMC CONTROL", C_HI);
+    text_r(235, vc(&FONT_XS, 0, HDR_H), &FONT_XS,
+           smc_ui.kind == 1 ? "ENCODERS" : smc_ui.kind == 2 ? "CLIP KEYS" : "MIXER", C_GRAY);
+    cv_commit(0, 0, 0);
+    cv_begin(240, 2 * BAND_H, C_BLACK);
+    cv_band(0, 2 * BAND_H);
+    if (smc_ui.kind == 2) {
+        text_c(120, 23, &FONT_S, "CLIP KEYS", C_HI);
+        text_c(120, 52, tw(&FONT_B, smc_ui.name) > 232 ? &FONT_S : &FONT_B, smc_ui.name, C_WHITE);
+        text_c(120, 87, tw(&FONT_B, smc_ui.value) > 232 ? &FONT_S : &FONT_B, smc_ui.value, C_HI);
+    } else
+        smc_ui_grid();
+    cv_commit_rect(1, 0, MAIN_Y);
+    cv_begin(240, KNOB_H, C_BLACK);
+    cv_rect(0, 0, 240, 1, C_LINE);
+    if (smc_ui.kind == 2) {
+        put_i(put_s(tag, "ENCODER "), smc_ui.strip + 1);
+        text_c(120, 9, &FONT_S, tag, C_HI);
+        status = "CLIP VALUE UPDATED";
+    } else if (smc_ui.kind == 3) {
+        int note = smc_ui.action;
+        const char *action = note >= 0x5D ? "TRANSPORT" : note < 8 ? "RECORD" : note < 16 ? "SOLO" : "MUTE";
+        if (note < 24) {
+            if (smc_drum_mix() < 0 && smc_ui.strip == 7) r = PR(R_ENG, T_FX, 0, FX_VOLUME);
+            smc_ui_label(r, name);
+        } else put_s(name, "TRANSPORT");
+        text_c(120, 7, &FONT_S, caps_of(name), C_WHITE);
+        put_s(put_s(put_s(num, action), " "), note >= 0x5D ?
+              (note == 0x5F ? ui.rec ? "REC ON" : "REC OFF" : seq.playing ? "PLAYING" : "STOPPED") :
+              (note < 8 ? ui.rec : smc_led(note)) ? "ON" : "OFF");
+        text_c(120, 29, &FONT_S, num, C_HI);
+        status = "R REC   S SOLO   M MUTE";
+    } else {
+        smc_ui_label(r, name);
+        text_c(120, 7, &FONT_S, caps_of(name), C_WHITE);
+        pref_value_of(r, pref_get(r), num, unit);
+        cell_value(120, 27, num, unit, C_HI);
+        status = smc_ui.kind == 1 ? "ENCODER" : smc.picked & (1u << smc_ui.strip) ? "FADER ACTIVE" :
+                 smc.last[smc_ui.strip] < smc_scaled(r) ? "PICKUP: MOVE FADER UP" : "PICKUP: MOVE FADER DOWN";
+    }
+    text_c(120, 52, &FONT_XS, status, C_HI);
+    text_c(120, 69, &FONT_T, "RETURNS AFTER CONTROLS REST", C_GRAY);
+    cv_commit(3, 0, KNOB_Y);
+}
+
 static void smc_show(int n, int knob, pref_t r)
 {
-    char t[28], *q = t;
-    const char *name = pref_name(r);
-    int i = 0;
-    q = put_s(q, knob ? "SMC K" : (smc.picked & (1u << n)) ? "SMC F" : "PICK F");
-    q = put_i(q, n + 1);
-    *q++ = ' ';
-    while (name[i] && i < 12) *q++ = name[i++];
-    *q++ = ' ';
-    put_i(q, pref_get(r));
-    say(t, 0);                        /* the header remains visible above the clip grid */
-    ui.touched = -1;                   /* an encoder on the next page is not a local knob cell */
+    (void)r;
+    smc_ui_begin(n, knob);
 }
 
 static void smc_notice(int n)
@@ -429,7 +598,6 @@ static int smc_bank(uint8_t note)
         !smk_clip_mode_on() && smc_drum_mix() >= 0) {
         int kit = smc_drum_mix();
         smc_select_drum(kit, note == 0x2E ? 0 : 8);
-        say(PART_N[kit], note == 0x2E ? "1-8" : "9-11");
         return 1;
     }
     return 0;
@@ -437,7 +605,7 @@ static int smc_bank(uint8_t note)
 
 /* All four drum SEQ/MIX rows follow the visible fader/knob bank. Outside those
  * pages the strips retain their whole-part, FX and navigation functions. */
-static void smc_button(uint8_t note, int mmc)
+static void smc_button_apply(uint8_t note, int mmc)
 {
     int row, strip;
     if (ui.help && note == 6) {          /* R7 closes the card; every other control keeps working under it */
@@ -509,7 +677,6 @@ static void smc_button(uint8_t note, int mmc)
             else {                     /* SELECT */
                 smc_select_part(strip);
                 smc_view(V_PART, -1);
-                say("SELECT", PART_N[strip]);
             }
         } else {
             int which = strip - NPARTS;
@@ -570,6 +737,25 @@ static void smc_button(uint8_t note, int mmc)
         break;
     }
     default: break;
+    }
+}
+
+static void smc_button(uint8_t note, int mmc)
+{
+    char saved[sizeof ui.msg];
+    uint32_t until = ui.msg_until;
+    int kit = smc_drum_mix();
+    int action = note == 0x5Du || note == 0x5Eu || note == 0x5Fu ||
+        (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
+            (((note & 7u) < NPARTS && note != 14u) || note >= 16u)));
+    memcpy(saved, ui.msg, sizeof saved);
+    smc_ui_cancel();                     /* navigation owns its new screen immediately */
+    smc_button_apply(note, mmc);
+    if (action) {
+        memcpy(ui.msg, saved, sizeof saved);  /* Help keeps its card and the preexisting notice too. */
+        ui.msg_until = until;
+        smc_ui.action = note;
+        smc_ui_begin(note < 32u ? note & 7u : 0, 3);
     }
 }
 

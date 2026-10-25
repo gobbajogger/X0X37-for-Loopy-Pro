@@ -91,6 +91,11 @@ typedef struct {
     uint8_t song_sel;                  /* the SONG screen's bar */
 } ui_t;
 static ui_t ui;
+/* SMC is a presentation layer; its implementation follows this file in the unity build. */
+void smc_ui_cancel(void);
+int smc_ui_active(void);
+void smc_ui_draw(void);
+void smc_ui_clip_show(int n, const char *name, const char *value);
 static uint8_t any_button;             /* a button has been pressed since power-on (the footer's first line) */
 #define FOOT_GAP 7                     /* between the footer's parts */
 static uint16_t footer_text(const char **a, const char **b, const char **c);
@@ -143,8 +148,12 @@ static const char *queued_save_message(void)
 static int32_t enc(int role)
 {
     int32_t v = plat_enc(role);
-    if (v)
+    if (v) {
+#if BOARD_SMK37
+        smc_ui_cancel();
+#endif
         ui.act_t = ui.turn_t = plat_ms();
+    }
     return v;
 }
 
@@ -1849,6 +1858,9 @@ static int32_t accel(int role, int32_t s, int range)
 
 static void set_view(int v)
 {
+#if BOARD_SMK37
+    smc_ui_cancel();
+#endif
     bass_step_cancel();
     drum_step_cancel();
     if (v != ui.view)
@@ -2578,6 +2590,9 @@ static int list_sub_arrow(pref_t r, int d)
  * acceleration does not start: the presses and the repeats are 60 ms or more apart (accel). */
 static void ui_menu_arrow(int d)
 {
+#if BOARD_SMK37
+    smc_ui_cancel();
+#endif
     pref_t r = list_rows[ui.list_sel];
     if (list_sub_arrow(r, d))
         return;
@@ -2791,6 +2806,10 @@ X0X_COLD static void input(void)
     extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
 #endif
     ch = btn ^ ui.btn;
+#if BOARD_SMK37
+    if (ch || keys != ui.keys)
+        smc_ui_cancel();
+#endif
     for (i = 0; i < NB; i++) {
         uint32_t m = 1u << i;
         if (!(ch & m))
@@ -4228,6 +4247,7 @@ static void draw_main(void)
         extern void smk_clip_lcd_force(void);
         extern uint8_t smk_clip_wait(void);
         static uint8_t clip_wait_on;              /* 1: the waiting screen is on the LCD */
+        if (!blit_hash[1]) clip_wait_on = 0u;      /* an SMC screen covered the waiting screen */
 #if X0X_DEV_PADCAL
         extern uint8_t smk_padcal_on(void);
         extern uint8_t smk_padcal_draw(uint32_t w, uint32_t h);
@@ -4621,6 +4641,9 @@ static void leds(void)
 /* ===================================================================== frame === */
 X0X_COLD void ui_init(void)
 {
+#if BOARD_SMK37
+    smc_ui_cancel();
+#endif
     int i;
     memset(&ui, 0, sizeof ui);
     memset(kbd_held_note, 0, sizeof kbd_held_note);
@@ -4799,6 +4822,9 @@ void ui_frame(void)
     uint32_t i;
     input();
     if (project_busy) {
+#if BOARD_SMK37
+        smc_ui_cancel();
+#endif
         draw_header();                             /* keep transfer status visible; samples and runtime stay untouched */
         return;
     }
@@ -4831,9 +4857,16 @@ void ui_frame(void)
         volatile uint8_t *h = &eng_hit[i / NDRUM][i % NDRUM];
         *h = (uint8_t)(*h - (*h >> 3) - (*h ? 1 : 0));
     }
-    draw_header();
-    draw_main();
-    draw_knobs();
+#if BOARD_SMK37
+    if (smc_ui_active())
+        smc_ui_draw();
+    else
+#endif
+    {
+        draw_header();
+        draw_main();
+        draw_knobs();
+    }
     leds();
     ui.frame++;
 }
