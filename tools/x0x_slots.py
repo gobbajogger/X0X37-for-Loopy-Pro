@@ -194,17 +194,38 @@ def read_archive(b):
         if not isinstance(e, dict) or type(e.get("slot")) is not int or e["slot"] != k + 1:
             raise SlotError(f"archive slot {k + 1}: noncanonical slot number")
     base, images = 16 + n, []
-    for e in meta["slots"]:
+    if base > len(b) - 4:
+        raise SlotError("archive metadata exceeds file length")
+    used = 0
+    for e in slots:
+        if type(e.get("empty")) is not bool:
+            raise SlotError(f"slot {e['slot']}: invalid empty flag")
         if e["empty"]:
+            if any(k in e for k in ("offset", "length", "crc32")):
+                raise SlotError(f"slot {e['slot']}: empty slot has image data pointers")
             images.append(None)
             continue
-        img = b[base + e["offset"]:base + e["offset"] + e["length"]]
-        if len(img) != e["length"] or zlib.crc32(img) != e["crc32"]:
+        if (type(e.get("offset")) is not int or e["offset"] != used
+                or type(e.get("length")) is not int or e["length"] < DATA_OFF
+                or e["length"] > len(b) - 4 - base - used):
+            raise SlotError(f"slot {e['slot']}: noncanonical image offset or length")
+        img = b[base + used:base + used + e["length"]]
+        if zlib.crc32(img) != e["crc32"]:
             raise SlotError(f"slot {e['slot']}: image CRC mismatch")
         h = parse_header(img)
         if not h or zlib.crc32(img[DATA_OFF:]) != h["crc"] or len(img) != DATA_OFF + h["data_len"]:
             raise SlotError(f"slot {e['slot']}: the image is not a valid slot")
+        # Match smp_user_scan() before restore can erase the target slot.
+        for z in range(h["nz"]):
+            zone = 32 + z * 28
+            off, samples, _, _, rate_q16 = struct.unpack_from("<5I", img, zone)
+            if (off > h["data_len"] or (samples + 1) // 2 > h["data_len"] - off
+                    or img[zone + 24] > 88 or not 0 < rate_q16 <= (4 << 16)):
+                raise SlotError(f"slot {e['slot']}: invalid sample zone {z + 1}")
         images.append(img)
+        used += len(img)
+    if base + used != len(b) - 4:
+        raise SlotError("archive contains unreferenced sample data")
     return meta, images
 
 
