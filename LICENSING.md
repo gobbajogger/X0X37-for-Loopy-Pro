@@ -51,7 +51,7 @@ of your choosing into a build or onto a device; those recordings keep their own 
   and other component licence requirements still apply. This corrects only the former
   requirement to obtain a separate BB Gen permission record: the explicit upstream MIT
   declaration supplies the licence evidence. It does not clear QA, OTA, hosting or publication
-  gates, or change the private, locally built controller policy below.
+  gates, or clear the controller distribution questions below.
 - The built-in break loops (`tools/gen_builtin_break.c`, `tools/gen_builtin_break.sh`) are
   output of the X0X 909 code. They contain no BB Gen code and no BB Gen samples.
 - `tools/import_breaks.py` and `tools/upload_breaks.py --bbgen` can read BB Gen's sample
@@ -92,29 +92,46 @@ You must include `LICENSES/Apache-2.0.txt` with each package that you distribute
 applies to a `.fwsc` file, a release download and an installer ZIP. Also include `LICENSE`
 (GPL-3.0) and this file.
 
-## The Bluetooth controller image (SMK-37, optional)
+## The Bluetooth controller image (SMK-37)
 
-Bluetooth MIDI on the SMK-37 needs JieLi's Bluetooth controller (`btctrler.a`, `wl_rf_common.a`,
-the crypto libraries, the newlib and compiler runtime of the JieLi toolchain). These files are
-closed or not GPL-compatible. X0X does not contain them, does not distribute them and does not
-link them into the GPL app.
+Qualified new NIGHTLY packages must include their exact matching Bluetooth controller.
+The existing published Elite/Pro packages have erased controller blocks and still require
+the exact local `ctl.img`; do not label those bytes bundled or remove their working local
+composition path. Source support for combined packages is not publication approval.
 
-- `ble/ctl/build_ctl.sh` runs on **your** computer. It fetches the files from JieLi's own
-  repository (gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK, pinned to commit `d179b44`) and checks
-  each SHA-256 (`btctrler.a`: `9ef42624...`). It then links them with the MPL-2.0 shim in
-  `ble/ctl/src/` into a separate image, `ctl.img`.
-- The image is a separate program. It runs from its own flash block (0x8B000) and its own RAM.
-  The GPL app and the image share no code and call no function in each other except the image's
-  two entry points (start and poll). They exchange only standard Bluetooth HCI packets through a
-  shared-RAM mailbox, as an app processor and a separate Bluetooth chip do. The only file that
-  both sides compile is `firmware/hal/x0x_ble_abi.h` (MPL-2.0).
-- `tools/add_ctl.py`, `tools/fm1_install.py --ctl` and the web installer put your `ctl.img`
-  into a package on your computer, just before the install. The packages and installers that
-  X0X distributes never contain it.
-- The shim is MPL-2.0 so that you may link it with JieLi's files. The image that you build
-  contains JieLi's files under JieLi's terms (the SDK's `LICENSE`, fetched with them). If you
-  give that image to anyone else, those terms apply to it. X0X's GPL does not cover it.
-- BlueKitchen BTstack is not used.
+The controller links six SDK archives with the MPL-2.0 shim in `ble/ctl/`. The SDK fetch
+pin is `d179b4484759423312073f5fbb232501aa491047`; its exact 11,357-byte `LICENSE`
+has SHA256 `c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4`
+and contains Apache License 2.0. The official later README also describes the SDK as
+Apache-2.0. This establishes SDK-level evidence, not every linked component's origin.
+
+The former blanket statement that these archives are closed or not GPL compatible was
+not established by component-specific evidence. The earlier no-shipping wording was
+project policy, not an independently verified vendor prohibition. Equally, do not assume
+that every archive is freely redistributable from the root license alone. Related crypto
+headers contain BSD-2-Clause, public-domain and GPL-2.0-or-later notices; exact retained
+archive members and their sources need mapping. Newlib has per-file notices; the exact
+compiler runtime version, origin and terms remain unverified. See the
+[dated evidence and unresolved conditions](docs/controller-licensing-evidence-20261025.md).
+
+The app and controller remain separate executable images, communicating through standard
+Bluetooth HCI packets and the MPL-2.0 ABI/mailbox interface. This technical layout does not
+by itself settle license compatibility or conveyance obligations. BlueKitchen BTstack is
+not used by this build.
+
+`tools/package_nightly.py` reuses the existing `tools/add_ctl.py` composition and atomic
+output path, requires an explicit reviewed controller hash/size, and verifies the exact
+embedded bytes and model/layout/CRCs. It creates no legal, independent-QA or publication
+approval. Owner-local composition can proceed. Public distribution remains **undecided**
+until component grants, notices and applicable source obligations are established for the
+exact output. Private transfer to another recipient also requires applicable conditions;
+privacy alone is not an exemption.
+
+Where applicable, retain Apache license/NOTICE and modification notices, provide MPL
+covered-source availability and notices, preserve runtime-specific notices/disclaimers,
+and provide the GPL app's complete corresponding source. Before any combined artifact is
+hosted, the existing rights/release owner must review that exact artifact's source and
+notice package. Do not commit SDK archives, toolchain files or controller binaries here.
 
 ## Trademarks
 
@@ -139,6 +156,6 @@ show that the device is an Akai product.
 
 ## Radio
 
-X0X enables the Bluetooth radio only on an SMK-37 that has a user-built controller image
+X0X enables the Bluetooth radio only on an SMK-37 that has a matching validated controller image
 (above) and only when GLOBAL > BLUETOOTH MIDI > BLUETOOTH is ON (it is OFF by default). Then it
 runs Bluetooth Low Energy (BLE MIDI) only. X0X never enables Wi-Fi or Bluetooth Classic.

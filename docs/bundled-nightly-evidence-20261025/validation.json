@@ -1,0 +1,31 @@
+{
+  "scope": "packaging only; synthetic Elite/Pro source tests; unchanged native firmware inputs",
+  "producer_test_result": "PASS; full synthetic suite and exact DEV identity delta",
+  "independent_review": "PASS after repairing malformed pointer/app-area clear error handling",
+  "source_blobs": {
+    "tools/package_nightly.py": "4744f9d2c42bbb6564f64eca596574232be283f8",
+    "tests/nightly_package_test.py": "075312bb046869fa1a078ebebfd77aea1f3925e4"
+  },
+  "logs": [
+    {
+      "name": "x0x37-nightly-package-test.log",
+      "sha256": "9552935f49cf3e76442b2bd2237da6bf672c2805f2bcd4e38dd136ffcc775a59",
+      "exit": 0
+    },
+    {
+      "name": "x0x37-nightly-product-identity-test.log",
+      "sha256": "27e5d45ee554905aaf20f329c14505a1d1bf0c104b402a2af5beb73ebf86c003",
+      "exit": 0
+    },
+    {
+      "name": "task15-independent-nightly-package-test.log",
+      "sha256": "9552935f49cf3e76442b2bd2237da6bf672c2805f2bcd4e38dd136ffcc775a59",
+      "exit": 0
+    },
+    {
+      "name": "task15-independent-final-boundaries.log",
+      "sha256": "da807af67ed7debeb4e3bcdc1534d06727a5f13139bf165f2afe253cf639a801",
+      "exit": 0
+    }
+  ]
+}

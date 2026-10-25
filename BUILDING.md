@@ -434,11 +434,15 @@ X0X clears a store with the tag of another firmware, or with no tag (`FELUCCA_DA
 The tests (below) include the SMK flash map, the store, the package layout and the update path on
 SMK-layout packages. They check `build/x0x-smk37.fwsc` when it exists.
 
-## The Bluetooth controller image (SMK-37, optional)
+## The Bluetooth controller image (SMK-37)
 
-Bluetooth MIDI on the SMK-37 needs a controller image that you build yourself. X0X does not
-ship it (LICENSING.md). With the toolchain above and Docker (or on Linux x86-64 with
-`CTL_NATIVE=1`), do these steps:
+Qualified NIGHTLY packages include their matching Bluetooth controller. See
+[bundled NIGHTLY packaging](docs/bundled-nightly-packages.md) for the checked composition
+command and catalog contract. Publication depends on the applicable source, component terms,
+QA and publication decisions; this source change does not authorize distribution.
+
+The existing unbundled package path remains available. To build a controller locally, use
+the toolchain above and Docker (or Linux x86-64 with `CTL_NATIVE=1`):
 
 ```
 ble/ctl/build_ctl.sh        # fetches JieLi's files (pinned, SHA-256 checked), builds ble/ctl/out/ctl.img
@@ -448,8 +452,9 @@ python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
 
 `build_ctl.sh` also copies the image to `~/.config/x0x/ctl.img`, but the installer
 does not select that cache implicitly. Give the exact validated image with
-`tools/fm1_install.py --ctl FILE` for every current SMK-37 update. The installer
-refuses an empty controller block. The web installer has a file field for the image.
+`tools/fm1_install.py --ctl FILE` when installing an unbundled current SMK-37 package.
+The installer refuses an empty controller block. The legacy web path has a file field for
+the matching image; a qualified bundled NIGHTLY package needs no separate selection.
 See ble/README.md for how the image and the app fit together.
 
 ## Tests

@@ -768,14 +768,18 @@ so it doesn't flicker with every clock.
 The SMK-37 can also send and receive MIDI over Bluetooth (BLE MIDI, as iPads, Macs and most
 music apps use it). Bluetooth audio is not supported.
 
-The Bluetooth part is a separate program from Bluetooth chip maker JieLi. X0X is not allowed to
-include it, so you build it on your own computer once, and the installer adds it:
+The Bluetooth controller is a separate program that uses JieLi components. Qualified NIGHTLY
+packages include the matching controller, so select one complete package in the NIGHTLY
+installer. No separate `ctl.img` selection is needed for that path. Availability depends on
+the package checks, applicable component terms and authorized publication; see LICENSING.md.
+
+For an existing unbundled package, supply its exact matching controller explicitly:
 
 1. Run `ble/ctl/build_ctl.sh` from the X0X source (needs the JieLi toolchain and Docker; see
    BUILDING.md). It downloads JieLi's files from JieLi's own site, checks them and makes `ctl.img`.
-2. Install X0X with `tools/fm1_install.py` (it adds `ctl.img` by itself), or in the web
-   installer choose the `ctl.img` file under "Bluetooth MIDI (optional)" before you press Install.
-   Do this again for every update: an update without it removes Bluetooth.
+2. Install X0X with `tools/fm1_install.py PACKAGE.fwsc --ctl ctl.img`, or select the
+   matching `ctl.img` in the legacy web installer before you press Install. The installer
+   refuses a current package with an empty controller block when no matching image is supplied.
 3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON and switch it off and on again.
 
 STATUS then shows READY. Connect from your app's Bluetooth MIDI settings (on an iPad or a Mac:
