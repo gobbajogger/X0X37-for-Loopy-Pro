@@ -385,10 +385,10 @@ static void scenario(void) {
         blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
         receive_ready();smc_ble_link(1);smc_poll();
         /* The first fader, knob and SELECT after an interrupted SysEx reach UI.
-         * SELECT on 909 is the momentary effect; 303 B SELECT still opens the part. */
+         * Source-strip SELECT keys are momentary FX, not part navigation. */
         fader(0,0);assert(smc_ui_active());
         { int part0=ui.part, view0=ui.view; press(24); assert(ui.part==part0 && ui.view==view0); }
-        press(24+PART_303B);assert(ui.view==V_PART && ui.part==PART_303B);
+        { int part0=ui.part, view0=ui.view; press(24+PART_303B); assert(ui.part==part0 && ui.view==view0); }
         edit(smc_knob_target(0),0);smc_view(V_HOME,0);
     }
     if(getenv("SMC_PICKUP_ONLY")) goto pickup;
@@ -396,13 +396,13 @@ static void scenario(void) {
     for(int part=0;part<NPARTS;part++) {
         smc_select_part((part + 1) % NPARTS);
         smc_view(V_HOME,0);
-        if (part == PART_303B) {
-            press(24+part); assert(ui.part==part && ui.view==V_PART);
-        } else {
+        if (part <= PART_BRK) {
             int stayed = ui.part;
-            press(24+part); assert(ui.part==stayed && ui.view==V_HOME);
-            smc_select_part(part); smc_view(V_PART, 0);
+            press(24 + part);
+            assert(ui.part == stayed && ui.view == V_HOME);
         }
+        smc_select_part(part);
+        smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {
             assert(cur_page()==p);
             for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE) edit(r,n); }

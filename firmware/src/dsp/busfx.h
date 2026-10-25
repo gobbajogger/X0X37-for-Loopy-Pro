@@ -20,6 +20,7 @@ enum {
 };
 
 #define BFX_RING 64u
+#define BFX_SEND_NOM 0.4f
 
 typedef struct {
     float a;
@@ -30,8 +31,8 @@ typedef struct {
     float lp_mix;
     float gate;
     float follow;
-    float ring[BFX_RING];
-    uint8_t ring_w;
+    float ring[4][BFX_RING];
+    uint8_t ring_w[4];
 } busfx_t;
 
 static inline void busfx_init(busfx_t *s)
@@ -52,16 +53,20 @@ static inline int busfx_is_rhythm(int effect)
            effect == BFX_SHUF;
 }
 
+static inline int busfx_settling(const busfx_t *s)
+{
+    return s->gate < 0.9995f || s->hp_mix > 0.002f || s->lp_mix > 0.002f || s->a < 0.9995f;
+}
+
 static inline float busfx_bpm_clamp(float bpm)
 {
-    if (bpm < 40.0f)
-        bpm = 120.0f;
-    if (bpm > 220.0f)
-        bpm = 220.0f;
+    if (bpm < 20.0f)
+        bpm = 20.0f;
+    if (bpm > 300.0f)
+        bpm = 300.0f;
     return bpm;
 }
 
-/* Samples per 16th at bpm (4/4). */
 static inline uint32_t busfx_sp16(float bpm)
 {
     bpm = busfx_bpm_clamp(bpm);
@@ -104,22 +109,27 @@ static inline float busfx_rhythm_target(int effect, float bpm, uint32_t abs_s)
     return ph < duty ? 1.0f : 0.0f;
 }
 
-static inline void busfx_ring_write(busfx_t *s, float x)
+static inline void busfx_ring_write(busfx_t *s, int ch, float x)
 {
-    s->ring[s->ring_w] = x;
-    s->ring_w = (uint8_t)((s->ring_w + 1u) % BFX_RING);
+    uint8_t w;
+    if (ch < 0 || ch >= 4)
+        return;
+    w = s->ring_w[ch];
+    s->ring[ch][w] = x;
+    s->ring_w[ch] = (uint8_t)((w + 1u) % BFX_RING);
 }
 
-static inline float busfx_ring_read(busfx_t *s, uint8_t back)
+static inline float busfx_ring_read(busfx_t *s, int ch, uint8_t back)
 {
-    int idx = (int)s->ring_w - 1 - (int)back;
+    int idx;
+    if (ch < 0 || ch >= 4)
+        return 0.0f;
+    idx = (int)s->ring_w[ch] - 1 - (int)back;
     while (idx < 0)
         idx += (int)BFX_RING;
-    return s->ring[(unsigned)idx];
+    return s->ring[ch][(unsigned)idx];
 }
 
-/* Held reverb/delay throws the existing send to full. Release returns to the
- * saved send. The fxbus lines are left running, so the tail rings out. */
 static inline float busfx_send(float saved, int held, int effect, int which)
 {
     if (held && effect == which)
@@ -127,10 +137,6 @@ static inline float busfx_send(float saved, int held, int effect, int which)
     return saved < 0.0f ? 0.0f : saved;
 }
 
-/* Shape n samples on 1..4 buffers that belong to one bus.
- * held0 is the button at the first sample. press_at / release_at are indexes
- * inside the block, or n when that edge is not in this block. bpm and sample0
- * are the transport at the first sample (44100 Hz). Cutoff 127 is a wire. */
 static inline void busfx_apply(busfx_t *s, float *c0, float *c1, float *c2, float *c3, int nch, int n,
                                float cut, int held0, int effect, int press_at, int release_at, float bpm,
                                uint32_t sample0)
@@ -212,9 +218,9 @@ static inline void busfx_apply(busfx_t *s, float *c0, float *c1, float *c2, floa
                 uint32_t chunk = sp16 / 4u;
                 if (chunk < 8u)
                     chunk = 8u;
-                busfx_ring_write(s, y);
+                busfx_ring_write(s, k, y);
                 if (pos % chunk < chunk / 2u)
-                    y = busfx_ring_read(s, (uint8_t)(pos & 31u));
+                    y = busfx_ring_read(s, k, (uint8_t)(pos & 31u));
             }
             ch[k][i] = y;
         }
