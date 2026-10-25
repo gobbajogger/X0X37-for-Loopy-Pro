@@ -344,6 +344,7 @@ run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD
     firmware/src/app/engine.c -lm && $OUT/rec_live_smk_test"
 run copy-semantics sh tests/host/copy_semantics_test.sh
 run song-actions sh tests/host/song_actions_test.sh
+run corner-coverage python3 tests/host/corner_coverage_test.py
 run ui-feedback sh tests/host/ui_feedback_test.sh
 for s in tests/scenarios/*.x0x; do
     n=${s##*/}; n=${n%.x0x}
