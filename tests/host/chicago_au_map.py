@@ -71,6 +71,15 @@ def au_params_to_render_pots(au: Sequence[float], *, arp_off: bool = True) -> di
     for au_ix, bix in enumerate(_AU_TO_BASS303):
         if bix == 16:  # AmpMod Env/Gate (AU 0..1 → discrete 0 Env / 1 Gate)
             pots[bix] = _discrete_from_byte(bytes_[au_ix], 2)
+        elif bix == 7:
+            # Amp Level → VOLUME. native303 maps pot 0 to -60 dB (inaudible).
+            # Factory dumps Hot Tube / One Hit Wonder / The Visitor store Level
+            # byte 0 while AU refs are audible — floor to Chicago Init Level
+            # (201) so envelope/correlation can score those rows.
+            lvl = bytes_[au_ix]
+            if lvl == 0:
+                lvl = 201
+            pots[bix] = _pot_from_byte(lvl, 127)
         else:
             pots[bix] = _pot_from_byte(bytes_[au_ix], 127)
 
