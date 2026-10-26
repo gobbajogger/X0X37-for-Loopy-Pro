@@ -61,7 +61,8 @@ class FakeFM1 {
   rx(d) {
     if (eq(d, HS)) {
       const t = [...new TextEncoder().encode(this.identity)];
-      const body = [0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)];
+      const payload = [...t, ...new Array(27 - t.length).fill(0)];
+      const body = [0, 0x59, 0x11, 27, 0, 0, ...payload, ~payload.reduce((sum, b) => sum + b, 0) & 255];
       this.tx([0xF0, ...pack7(body), 0xF7]);
     } else if (eq(d, UPGRADE)) {
       this.queue = this.identity.startsWith("ota-")

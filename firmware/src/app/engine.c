@@ -680,6 +680,10 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
     s->v[T_MIX][PART_BRK][MX_LEVEL] = 120;
     s->v[T_MIX][PART_BRK][MX_REV] = 25;
     for (v = 0; v < NBASS; v++) {                    /* acid: low cutoff, high resonance, a long sweep, RAT */
+#if X0X_DEV_WOBBLE
+        /* WBL1 has its own parameter bank: Chicago cutoff is WBL1's wave enum. */
+        if (!bass_wobble_voice(v)) {
+#endif
         s->v[T_303][v][BASS303_CUTOFF] = 48;
         s->v[T_303][v][BASS303_RESO] = 100;
         s->v[T_303][v][BASS303_ENVMOD] = 85;
@@ -687,6 +691,9 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
         s->v[T_303][v][BASS303_VOLUME] = 127;
         s->v[T_303][v][BASS303_DRIVE] = 45;
         s->v[T_303][v][BASS303_DRVTYPE] = 2;
+#if X0X_DEV_WOBBLE
+        }
+#endif
         s->v[T_MIX][PART_303A + v][MX_LEVEL] = 74;   /* the RAT makes it dense: -5 dB (square law) */
         s->v[T_MIX][PART_303A + v][MX_DLY] = v ? 60 : 80;
         s->v[T_MIX][PART_303A + v][MX_REV] = 12;
