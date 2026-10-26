@@ -83,6 +83,16 @@ def au_params_to_render_pots(au: Sequence[float], *, arp_off: bool = True) -> di
         else:
             pots[bix] = _pot_from_byte(bytes_[au_ix], 127)
 
+    # Chicago AU has one Env ADSR. native303 splits amp ADSR from the TeeBee
+    # filter EG. Mirror Env → filter ADSR (FEnv=ADSR) so Gate-mode presets
+    # (amp held open) still get Env Attack/Sustain/Decay on the filter — the
+    # audible envelope under high Env Amt. Matches firmware chicago_env.h.
+    pots[12] = pots[19]  # FAttack ← AAttack
+    pots[3] = pots[20]  # filter Decay ← ADec (same pot; curves differ by design)
+    pots[13] = pots[21]  # FSustain ← ASustain
+    pots[14] = pots[22]  # FRelease ← ARelease
+    pots[15] = 1  # FEnv ADSR
+
     arp_switch = 0 if arp_off else _discrete_from_byte(bytes_[13], 2)
     chi: dict[str, int] = {
         "arp_switch": arp_switch,

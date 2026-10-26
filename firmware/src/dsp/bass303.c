@@ -92,6 +92,8 @@ __attribute__((noinline)) float bass303_env_time_ms(int param, int value)
     return 4000.0f * n * n;                            /* FRelease */
 }
 
+static void gate_filter_from_amp_env(bass303_t *b); /* Amp Mode Gate → filter ADSR from amp Env */
+
 /* Amp decay + release power tables. ARel 0 keeps Open303 1 ms / accent 50 ms. */
 static void amp_env_tables(bass303_t *b)
 {
@@ -452,9 +454,17 @@ __attribute__((noinline)) void bass303_note_on_velocity(bass303_t *b, int note, 
     if (!(slide && b->gate)) {           /* triggerNote; else slideToNote (no retrigger) */
         b->slew_y = f;                   /* pitchSlewLimiter.setState */
         b->env_y = 1.0f / b->env_c;      /* mainEnv.trigger: the next sample is 1 */
-        b->fenv_y = b->pot[BASS303_FATTACK] ? 0.0f : 1.0f;
-        b->fenv_samples = 0;
-        b->fenv_stage = b->pot[BASS303_FATTACK] ? 1 : 2;
+        if (b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE)
+            gate_filter_from_amp_env(b);
+        {
+            /* Gate uses amp AAtt for filter attack; FEnv ADSR uses FAttack. */
+            const int f_atk = (b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE)
+                                  ? b->pot[BASS303_AATTACK]
+                                  : b->pot[BASS303_FATTACK];
+            b->fenv_y = f_atk ? 0.0f : 1.0f;
+            b->fenv_samples = 0;
+            b->fenv_stage = f_atk ? 1 : 2;
+        }
         if (b->pot[BASS303_AATTACK] == 0) {
             /* Open303 Attack 0: stock amp_trig jump into decay (bit-exact with #277). */
             b->amp_stage = BASS303_AMP_DEC;
@@ -574,6 +584,21 @@ static inline float decim_hb2(bass303_ap_t *s, float x_old, float x_new)
 }
 #endif
 
+/* Amp Mode Gate: Chicago AU Env ADSR shapes the filter while the VCA stays open.
+ * Refresh filter ADSR coeffs from amp AAtt/ADec/ASus/ARel (same AU Env bytes). */
+static void gate_filter_from_amp_env(bass303_t *b)
+{
+    const int va = b->pot[BASS303_AATTACK];
+    const int vd = b->pot[BASS303_ADECAY];
+    const int vr = b->pot[BASS303_ARELEASE];
+    const float dms = bass303_env_time_ms(BASS303_DECAY, vd);
+    b->fattack_step = va ? 1000.0f / (BASS303_SR * bass303_env_time_ms(BASS303_FATTACK, va)) : 1.0f;
+    b->fdecay_step = 1000.0f / (BASS303_SR * dms);
+    b->fsustain = (float)b->pot[BASS303_ASUSTAIN] * (1.0f / 127.0f);
+    b->frelease_rate = vr ? 1000.0f / (BASS303_SR * bass303_env_time_ms(BASS303_FRELEASE, vr)) : 1.0f;
+    b->frelease_step = b->fenv_y * b->frelease_rate;
+}
+
 /* Filter-only ADSR; the original amp and accent envelopes remain independent. */
 __attribute__((noinline)) static float filter_adsr(bass303_t *b, int n)
 {
@@ -614,9 +639,11 @@ static void idle_advance(bass303_t *b, int n)
     cn = fm_powf(b->env_c, N);
     an = fm_powf(b->rc1_c, N);
     /* r[n] = a r[n-1] + (1-a) u[n], u[n] = E c^n:  r_N = a^N r0 + (1-a) E c (c^N - a^N)/(c - a) */
-    if (b->pot[BASS303_FENV])
+    if (b->pot[BASS303_FENV] || b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE) {
+        if (b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE)
+            gate_filter_from_amp_env(b);
         b->rc1_y = an * b->rc1_y + (1.0f - an) * filter_adsr(b, n);
-    else
+    } else
         b->rc1_y = an * b->rc1_y + (1.0f - b->rc1_c) * b->env_y * b->env_c * (cn - an) / (b->env_c - b->rc1_c);
     an = fm_powf(b->rc2_c, N);
     if (b->accent_gain > 0.0f)
@@ -692,8 +719,10 @@ static void run(bass303_t *b, float *out, int n)
     float y1 = b->f_y1, y2 = b->f_y2, y3 = b->f_y3, y4 = b->f_y4, fbx = b->fb_x1, fby = b->fb_y1;
     const float osc_freq = b->osc_freq, acc = b->accent_gain;
     const float scaler = b->env_scaler, offset = b->env_offset, cutoff = b->cutoff, r = b->reso;
-    /* AmpMod Gate: VCA stays open while the note is held (Chicago Gate); Env uses amp ADSR. */
+    /* AmpMod Gate: VCA stays open while the note is held (Chicago Gate); Env uses amp ADSR.
+     * Gate also drives the filter EG from amp Env ADSR (Chicago AU one-Env law). */
     const int amp_gate = b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE;
+    const int use_fadsr = b->pot[BASS303_FENV] || amp_gate;
     const float amp_boost = (!amp_gate && b->gate) ? 0.45f + 4.0f * acc : 0.0f;
     const float asustain = b->asustain;
     /* the overload guard's lite mode: no oversampling; a change of rate jumps to the new rate's
@@ -720,7 +749,9 @@ static void run(bass303_t *b, float *out, int n)
          * form (exact), then the cutoff and amp they produce at the chunk's last sample */
         e0 = b->env_y;                                         /* main envelope: y *= c */
         b->env_y = e0 * b->env_pw[m];
-        b->rc1_y = b->rc1_pw[m] * b->rc1_y + (b->pot[BASS303_FENV]
+        if (amp_gate)
+            gate_filter_from_amp_env(b);
+        b->rc1_y = b->rc1_pw[m] * b->rc1_y + (use_fadsr
             ? (1.0f - b->rc1_pw[m]) * filter_adsr(b, m) : b->g1[m] * e0);    /* RC followers of it */
         b->rc2_y = b->rc2_pw[m] * b->rc2_y + (acc > 0.0f ? b->g2[m] * e0 : 0.0f);
         b->slew_y = osc_freq + b->slew_pw[m] * (b->slew_y - osc_freq);

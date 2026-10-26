@@ -369,6 +369,7 @@ run bass303-amp-adsr sh tests/host/run_bass303_amp_adsr.sh   # Chicago Bite + am
 run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Range/Speed (live held-note)
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (not insert)
 run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
+run chicago-env sh tests/host/run_chicago_env.sh   # Chicago AU Env → filter EG dual-drive + Gate DSP
 run au-compare-align python3 tests/host/test_au_compare_align.py   # lag search law for Chicago/Miami AU compares
 run chicago-au-render sh tests/host/run_chicago_au_render.sh   # native303 offline renderer for Chicago AU battery
 run chicago-au-map python3 tests/host/test_chicago_au_map.py   # AU factory tuple → bass303 pots
