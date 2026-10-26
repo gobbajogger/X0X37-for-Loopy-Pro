@@ -1,0 +1,673 @@
+{
+  "observed_at": "2026-10-26T09:15:30.699259+00:00",
+  "counts": {
+    "firmware_open": 27,
+    "site_open": 1,
+    "total": 28,
+    "immediate_qualified_merges_verified": 0
+  },
+  "not_run": [
+    "No source test/build execution by queue intake",
+    "No merge/ref update/retarget/undraft/close/review-submission",
+    "No Actions dispatch or polling",
+    "No hardware/GUI/publication"
+  ],
+  "scope": "Bounded open-PR observation, not a qualified merge queue or live monitoring claim.",
+  "merge_integration_owner": "Task-6 Codex; owner-directed transfer in ownership-transfer.json",
+  "entries": [
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 617,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/617",
+      "title": "fix(bass): isolate Miami/Chicago modes, complete WBL1 controls and add regressions",
+      "draft": true,
+      "head": "9108a14df0f44a497036a27c0d539bcd6b473673",
+      "head_branch": "fix/bass-mode-routing-wbl1-20261026",
+      "base": "nightly",
+      "base_sha": "d633833ac369f8466bc2563791614206070e87d1",
+      "updated_at": "2026-10-26T09:03:03Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "ACTIVE_BASS_OWNER_NEEDS_TEST_AND_MIGRATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "PR body explicitly records host/native checks NOT_RUN and rev10 saved-sound ambiguity; no visible independent review at current head."
+      ],
+      "next_actions": [
+        "Preserve bass author ownership; attach owner engine/preset/UI acceptance; run current host production-path checks, resolve legacy data migration with schema owner, independently review exact changes; qualify native builds before firmware readiness."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 254,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/254",
+      "title": "Handoff: one read-only Mac worker placement check (no flash)",
+      "draft": true,
+      "head": "fc7dcbec146913cfb31d25f629aee3438d3053f9",
+      "head_branch": "handoff/cursor-local-executor-20261025",
+      "base": "coordination/merge-queue",
+      "base_sha": "2cbea6e93d571e78774293e8a0dc8524b4a7e27a",
+      "updated_at": "2026-10-25T18:42:35Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "PRESERVED_HANDOFF_NOT_IMPLEMENTATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Documentation continuity packet intentionally parked; merging does not establish worker launch, capability, source integration or request completion."
+      ],
+      "next_actions": [
+        "Preserve records/IDs; coordinator reconcile current acceptance and add meaningful scoped evidence through assigned writer."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 249,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/249",
+      "title": "Handoff: keep unfinished LoopyX0X37 work owned and tracked",
+      "draft": true,
+      "head": "c58713ecbabb8ba9cc598c55a2adabbd4a051094",
+      "head_branch": "handoff/cursor-master-20261025",
+      "base": "coordination/merge-queue",
+      "base_sha": "2cbea6e93d571e78774293e8a0dc8524b4a7e27a",
+      "updated_at": "2026-10-26T06:02:12Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "PRESERVED_HANDOFF_NOT_IMPLEMENTATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Documentation continuity packet intentionally parked; merging does not establish worker launch, capability, source integration or request completion."
+      ],
+      "next_actions": [
+        "Preserve records/IDs; coordinator reconcile current acceptance and add meaningful scoped evidence through assigned writer."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 228,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/228",
+      "title": "Stage 2: free ~0.8KB flash so experimental wobble can link on Elite/Pro",
+      "draft": true,
+      "head": "2beada3381830bb4cc4a4cfab404b5104c5e63b4",
+      "head_branch": "experiment/wobble-native-cost-recovery-20261025",
+      "base": "experiment/wobble-combined-native-20261025",
+      "base_sha": "6391d0ec834a983609bdb5e5e1bdd8d91f05dc8d",
+      "updated_at": "2026-10-25T18:42:35Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "PRESERVED_EXPERIMENT_RECONCILE",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Experimental lineage predates current shipped WBL1/adapter source; exact current-source closure and useful delta are unverified. Historical failures are recorded evidence, not proof current source still fails."
+      ],
+      "next_actions": [
+        "Compare affected source against current nightly before any merge; retain meaningful musical/audio checks and native fit gates; no arbitrary percentage-matching threshold; do not duplicate active bass implementation."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 220,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/220",
+      "title": "Stage 2: make experimental wobble pulse and release closer to the original",
+      "draft": true,
+      "head": "9b94d154643a041586997353d32675a9fd1c4a4f",
+      "head_branch": "experiment/original-wobble-refinement-20261025",
+      "base": "experiment/original-wobble-host-20261025",
+      "base_sha": "74167d4a1b2f2e7b961134b3c71dea4c7098de58",
+      "updated_at": "2026-10-25T18:42:35Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "PRESERVED_EXPERIMENT_RECONCILE",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Experimental lineage predates current shipped WBL1/adapter source; exact current-source closure and useful delta are unverified. Historical failures are recorded evidence, not proof current source still fails."
+      ],
+      "next_actions": [
+        "Compare affected source against current nightly before any merge; retain meaningful musical/audio checks and native fit gates; no arbitrary percentage-matching threshold; do not duplicate active bass implementation."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 219,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/219",
+      "title": "Stage 2: wire experimental original wobble into DEV (still over flash budget)",
+      "draft": true,
+      "head": "6391d0ec834a983609bdb5e5e1bdd8d91f05dc8d",
+      "head_branch": "experiment/wobble-combined-native-20261025",
+      "base": "experiment/selectable-engine-foundation",
+      "base_sha": "6f717e216390ffca0d20be9e2204ab401ad09792",
+      "updated_at": "2026-10-25T18:42:35Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "PRESERVED_EXPERIMENT_RECONCILE",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Experimental lineage predates current shipped WBL1/adapter source; exact current-source closure and useful delta are unverified. Historical failures are recorded evidence, not proof current source still fails."
+      ],
+      "next_actions": [
+        "Compare affected source against current nightly before any merge; retain meaningful musical/audio checks and native fit gates; no arbitrary percentage-matching threshold; do not duplicate active bass implementation."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 212,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/212",
+      "title": "Stage 2: add a versioned engine boundary so bass can swap DSP later",
+      "draft": true,
+      "head": "6f717e216390ffca0d20be9e2204ab401ad09792",
+      "head_branch": "experiment/selectable-engine-foundation",
+      "base": "nightly",
+      "base_sha": "08d3164a265123cb4c84e5104642fd93257d63d7",
+      "updated_at": "2026-10-25T18:42:35Z",
+      "mergeable": false,
+      "mergeable_state": "dirty",
+      "classification": "PRESERVED_EXPERIMENT_RECONCILE",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Experimental lineage predates current shipped WBL1/adapter source; exact current-source closure and useful delta are unverified. Historical failures are recorded evidence, not proof current source still fails.",
+        "GitHub reports actual merge conflict (mergeable=false, mergeable_state=dirty)."
+      ],
+      "next_actions": [
+        "Compare affected source against current nightly before any merge; retain meaningful musical/audio checks and native fit gates; no arbitrary percentage-matching threshold; do not duplicate active bass implementation."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 100,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/100",
+      "title": "UX(installer): explain unsupported Web MIDI browsers before Connect",
+      "draft": true,
+      "head": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "head_branch": "lane/installer-ux-webmidi-preflight-20261024-run17",
+      "base": "lane/installer-ux-aria-language-20261023-run16",
+      "base_sha": "8344f586e57512f651965f3ac21545b24a6c6241",
+      "updated_at": "2026-10-23T15:00:05Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 97,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/97",
+      "title": "UX(installer): localize screen-reader names when switching EN/JA",
+      "draft": true,
+      "head": "8344f586e57512f651965f3ac21545b24a6c6241",
+      "head_branch": "lane/installer-ux-aria-language-20261023-run16",
+      "base": "lane/installer-ux-journey-state-20261023-run15",
+      "base_sha": "46299fb0f2a38af5fabc1372790e1b0f84e50dc3",
+      "updated_at": "2026-10-23T14:32:33Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 92,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/92",
+      "title": "UX: highlight current and completed firmware installer steps",
+      "draft": true,
+      "head": "46299fb0f2a38af5fabc1372790e1b0f84e50dc3",
+      "head_branch": "lane/installer-ux-journey-state-20261023-run15",
+      "base": "lane/installer-ux-local-feedback-20261023-run14",
+      "base_sha": "ed3fc80a084a4ab39de3335075e31be505e84750",
+      "updated_at": "2026-10-23T14:28:30Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 83,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/83",
+      "title": "UX: show local firmware validation beside the file chooser",
+      "draft": true,
+      "head": "ed3fc80a084a4ab39de3335075e31be505e84750",
+      "head_branch": "lane/installer-ux-local-feedback-20261023-run14",
+      "base": "lane/installer-ux-midi-retry-states-20261023-run13",
+      "base_sha": "bbe325d48c5d4d2de2d48823bcaec69e45a524ec",
+      "updated_at": "2026-10-23T12:46:45Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 77,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/77",
+      "title": "UX: clear scanning, retry and rescan states for Web MIDI connection",
+      "draft": true,
+      "head": "bbe325d48c5d4d2de2d48823bcaec69e45a524ec",
+      "head_branch": "lane/installer-ux-midi-retry-states-20261023-run13",
+      "base": "lane/installer-ux-readable-steps-20261023-run12",
+      "base_sha": "69d013956e259cb0faf83a801dfe463c247b0fd3",
+      "updated_at": "2026-10-23T11:37:48Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 67,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/67",
+      "title": "UX: make three-step installer guidance readable on narrow mobile screens",
+      "draft": true,
+      "head": "69d013956e259cb0faf83a801dfe463c247b0fd3",
+      "head_branch": "lane/installer-ux-readable-steps-20261023-run12",
+      "base": "lane/installer-ux-local-file-entry-20261023-run11",
+      "base_sha": "38cc39c507f18425943d216393dc75c3a8e82803",
+      "updated_at": "2026-10-23T10:27:59Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 59,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/59",
+      "title": "UX: choose local firmware directly from the empty installer picker",
+      "draft": true,
+      "head": "38cc39c507f18425943d216393dc75c3a8e82803",
+      "head_branch": "lane/installer-ux-local-file-entry-20261023-run11",
+      "base": "lane/installer-public-device-proof-browser-20261023-run10",
+      "base_sha": "c305b7cec490e0f8fd623784c2b87ef0553cb2c8",
+      "updated_at": "2026-10-23T09:40:53Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 52,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/52",
+      "title": "fix(installer): fail closed on unproven production firmware",
+      "draft": true,
+      "head": "c305b7cec490e0f8fd623784c2b87ef0553cb2c8",
+      "head_branch": "lane/installer-public-device-proof-browser-20261023-run10",
+      "base": "lane/installer-improvements-scan-generation-20261023-1717",
+      "base_sha": "3f44e56f3d0dbb59e2f74612e4d62c89e18c1106",
+      "updated_at": "2026-10-23T08:40:21Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 46,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/46",
+      "title": "fix(pages): fail-closed production firmware picker until per-model device proof",
+      "draft": true,
+      "head": "bf8ada5d4ca534c074e6e5dbfcc2a7f573089610",
+      "head_branch": "lane/production-pages-device-proof-picker-20261023-1746",
+      "base": "gh-pages",
+      "base_sha": "dcb41f2ead9e2166ec3dddcd658e445d22a5fac9",
+      "updated_at": "2026-10-23T08:41:53Z",
+      "mergeable": false,
+      "mergeable_state": "dirty",
+      "classification": "PUBLISHER_OR_PRODUCTION_SCOPE_NEEDS_RECONCILIATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Publisher/production safety lane; branch-source proof does not establish current catalog/history or live-source parity and publication remains separate.",
+        "GitHub reports actual merge conflict (mergeable=false, mergeable_state=dirty)."
+      ],
+      "next_actions": [
+        "Preserve designated publisher; compare current actual source and immutable history before scoped code integration. Do not update gh-pages or publish through auto-merge intake."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 44,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/44",
+      "title": "fix(installer): ignore superseded Web MIDI scans and close stale connections",
+      "draft": true,
+      "head": "3f44e56f3d0dbb59e2f74612e4d62c89e18c1106",
+      "head_branch": "lane/installer-improvements-scan-generation-20261023-1717",
+      "base": "lane/installer-stale-download-error-20261023",
+      "base_sha": "8a5f1a6aa55c659fd92dbc30b9d49f44bb70d28e",
+      "updated_at": "2026-10-23T07:37:38Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 39,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/39",
+      "title": "Installer: ignore stale firmware download errors after selection changes",
+      "draft": true,
+      "head": "8a5f1a6aa55c659fd92dbc30b9d49f44bb70d28e",
+      "head_branch": "lane/installer-stale-download-error-20261023",
+      "base": "lane/installer-studio-design-20261023",
+      "base_sha": "33c60ee9d3161de48b11ce890410384429983886",
+      "updated_at": "2026-10-23T06:08:02Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 36,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/36",
+      "title": "fix(pages): prevent metadata promotion and asset/catalog loss in safe publisher",
+      "draft": true,
+      "head": "30e86dc49214ce534e0f12515e4389ec861c95c5",
+      "head_branch": "lane/safe-merge-publisher-hardening-20261023",
+      "base": "lane/safe-pages-publisher-guard-20261023",
+      "base_sha": "a0d738c9ef5f904250ca21292c3adc5031697d50",
+      "updated_at": "2026-10-23T04:03:38Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "PUBLISHER_OR_PRODUCTION_SCOPE_NEEDS_RECONCILIATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Publisher/production safety lane; branch-source proof does not establish current catalog/history or live-source parity and publication remains separate."
+      ],
+      "next_actions": [
+        "Preserve designated publisher; compare current actual source and immutable history before scoped code integration. Do not update gh-pages or publish through auto-merge intake."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 34,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/34",
+      "title": "Installer: single-writer MIDI permission guard and post-flash reconnect",
+      "draft": true,
+      "head": "59add18387a2e0809898b215e26d606559ef01c6",
+      "head_branch": "lane/installer-postflash-reconnect-20261023",
+      "base": "lane/installer-local-file-safety-20261023",
+      "base_sha": "491a0ddf2306ea94de14299332f0ac32a809583f",
+      "updated_at": "2026-10-23T16:33:27Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 33,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/33",
+      "title": "fix(installer): refresh USB connection indicator after firmware write",
+      "draft": true,
+      "head": "c8ce2d6861536ef16b6da8238fa26f281a8e8c7a",
+      "head_branch": "lane/installer-rescan-after-write-20261023",
+      "base": "lane/installer-local-file-safety-20261023",
+      "base_sha": "491a0ddf2306ea94de14299332f0ac32a809583f",
+      "updated_at": "2026-10-22T21:30:09Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 32,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
+      "title": "Installer: hardware-studio redesign inspired by Meshtastic, WLED and qFlipper",
+      "draft": true,
+      "head": "33c60ee9d3161de48b11ce890410384429983886",
+      "head_branch": "lane/installer-studio-design-20261023",
+      "base": "lane/installer-local-file-safety-20261023",
+      "base_sha": "491a0ddf2306ea94de14299332f0ac32a809583f",
+      "updated_at": "2026-10-22T21:30:14Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 31,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/31",
+      "title": "Installer: prevent stale local firmware and controller-image selection",
+      "draft": true,
+      "head": "491a0ddf2306ea94de14299332f0ac32a809583f",
+      "head_branch": "lane/installer-local-file-safety-20261023",
+      "base": "lane/installer-ux-refresh-20261023",
+      "base_sha": "6d93c9d220406537e63e96ff1c4b87395aef1cf1",
+      "updated_at": "2026-10-22T20:44:24Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 30,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/30",
+      "title": "fix(pages): safe fast-forward publisher and preview-only workflow",
+      "draft": true,
+      "head": "a0d738c9ef5f904250ca21292c3adc5031697d50",
+      "head_branch": "lane/safe-pages-publisher-guard-20261023",
+      "base": "main",
+      "base_sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "updated_at": "2026-10-22T20:36:07Z",
+      "mergeable": false,
+      "mergeable_state": "dirty",
+      "classification": "PUBLISHER_OR_PRODUCTION_SCOPE_NEEDS_RECONCILIATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Publisher/production safety lane; branch-source proof does not establish current catalog/history or live-source parity and publication remains separate.",
+        "GitHub reports actual merge conflict (mergeable=false, mergeable_state=dirty)."
+      ],
+      "next_actions": [
+        "Preserve designated publisher; compare current actual source and immutable history before scoped code integration. Do not update gh-pages or publish through auto-merge intake."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 24,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/24",
+      "title": "Installer UI: guided workflow, visible model selection and accessible status",
+      "draft": true,
+      "head": "6d93c9d220406537e63e96ff1c4b87395aef1cf1",
+      "head_branch": "lane/installer-ux-refresh-20261023",
+      "base": "lane/installer-build-registry-20261023",
+      "base_sha": "87cbda9997794d12d32f4b9804a95dbf97028265",
+      "updated_at": "2026-10-22T19:36:05Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "STACKED_UX_NEEDS_COMBINED_PROOF",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Historical isolated installer branch; exact-head/full stacked sample/OTA and generated-site validation or independent QA remain explicitly unrun in body. Clean mergeability is not acceptance."
+      ],
+      "next_actions": [
+        "Designated installer/source integrator should compare current equivalent implementation, preserve useful missing deltas, then validate one combined tree and actual UI preview before source integration."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 21,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/21",
+      "title": "docs: make classic ChatGPT build-to-Git skill discoverable",
+      "draft": false,
+      "head": "5274fef570b8443e065b5614a139aca8ed82adc7",
+      "head_branch": "lane/dk-rules-classic-git-delivery-20261023",
+      "base": "main",
+      "base_sha": "c9718ae833eb64a5191c350922593df8a36017c9",
+      "updated_at": "2026-10-22T17:34:27Z",
+      "mergeable": false,
+      "mergeable_state": "dirty",
+      "classification": "DOC_CONFLICT_NEEDS_CURRENT_POLICY_DELTA_REVIEW",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Actual merge conflict against current main; old agent entrypoint/skill procedure needs current contract comparison, not blind policy import.",
+        "GitHub reports actual merge conflict (mergeable=false, mergeable_state=dirty)."
+      ],
+      "next_actions": [
+        "Assign disjoint rules owner for minimal current policy delta review and conflict repair; no firmware build required for pure docs."
+      ],
+      "review_submissions": [
+        {
+          "state": "COMMENTED",
+          "commit": "5274fef570b8443e065b5614a139aca8ed82adc7",
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/21#pullrequestreview-5618329866"
+        }
+      ]
+    },
+    {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 1,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/1",
+      "title": "ci: run focused SMC regressions on GitHub-hosted Ubuntu",
+      "draft": false,
+      "head": "a9afd482d808f2a51b5cd8bc839ff5b27f5da1ab",
+      "head_branch": "lane/opt-smc-host-ci-20261021",
+      "base": "lane/mb-cloud-transfer-20261020",
+      "base_sha": "354d85cb3b237f2dd3ad8f5595feff00fc2e83c1",
+      "updated_at": "2026-10-20T14:55:34Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "INCOMPATIBLE_TEST_EXECUTOR_POLICY",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Adds GitHub Actions execution as test runner; current owner contract requires agent-run tests and forbids Actions execution. Nondraft/clean state does not make it good to merge."
+      ],
+      "next_actions": [
+        "Retain as historical record until explicit disposition; do not activate or dispatch workflow or use its statuses as proof."
+      ],
+      "review_submissions": []
+    },
+    {
+      "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "pr": 28,
+      "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/28",
+      "title": "Fix sample archive validation and MIDI reply correlation",
+      "draft": true,
+      "head": "e4e3d42c3573e73629c03b0a1dd819bc47c80c7e",
+      "head_branch": "codex/archive-midi-preservation-20261026",
+      "base": "main",
+      "base_sha": "2b11200c8cc69b7f80d8cd2ccef968adb6cc3a75",
+      "updated_at": "2026-10-26T09:11:58Z",
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "classification": "ACTIVE_REPAIR_VALIDATION",
+      "ready_to_merge_by_this_intake": false,
+      "reasons": [
+        "Independent source review and full npm PASS at e4e3d42; five wider browser assertions under active unchanged-main comparison, not yet classified as PASS."
+      ],
+      "next_actions": [
+        "Finish existing browser triage/fix evidence; independently review affected fixture changes; refresh exact head before website merger acts."
+      ],
+      "review_submissions": []
+    }
+  ]
+}

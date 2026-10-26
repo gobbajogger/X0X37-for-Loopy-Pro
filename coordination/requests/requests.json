@@ -7629,5 +7629,14 @@
     "DIVERGED_CONTENT_DISPOSITION_UNKNOWN": 45,
     "ANCESTOR_OF_CURRENT_NIGHTLY_NOT_ABANDONED": 34
   },
-  "tombstones": []
+  "tombstones": [],
+  "continuation_receipts": [
+    {
+      "recorded_at": "2026-10-26T09:18:15.299884+00:00",
+      "kind": "OWNER_DIRECTED_MERGE_INTEGRATION_TRANSFER",
+      "path": "coordination/continuations/2026-10-26-task6/ownership-transfer.json",
+      "owner": "Task-6 Codex merge/integration coordinator",
+      "scope": "Owner-directed qualified merge/integration transfer and bounded open-PR observation; per-request/per-PR evidence retained."
+    }
+  ]
 }
