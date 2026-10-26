@@ -77,7 +77,10 @@ static struct {
     uint32_t fx_main_t0[3];
     /* Exact destinations, not a copy of the temporary display or live UI. */
     pref_t lock_fader[8], lock_knob[8];
-    uint32_t lock_song_revision;
+    uint32_t lock_song_revision, lock_t0;
+    uint32_t beat_at, beat_period;     /* free-running audio sample clock, including STOP */
+    float beat_internal;
+    uint8_t beat_external;
     uint16_t lock_song_len;
     uint8_t locked, lock_down, lock_kit, lock_bank, lock_part, lock_view, lock_page;
 } smc;
@@ -364,6 +367,7 @@ int smc_lock_toggle(void)
         }
     }
     smc.locked ^= 1u;
+    if (smc.lock_down) smc.lock_down = 1; /* consume a hold, including a programmatic toggle */
     /* Rearm acceptance for this routing epoch, keeping the last physical
      * sample so the next move can cross the real target in either direction. */
     smc.picked = 0;
@@ -373,13 +377,77 @@ int smc_lock_toggle(void)
     return 1;
 }
 
-/* The verified physical input route reports both press and release here.
- * Repeated positive messages while held cannot unlock the surface again. */
+static int smc_lock_ready(void)
+{
+    return smc.lock_down == 2 && !ui_project_busy() && !perf_testing() && ui.overlay != O_ASK &&
+        smc_pause_release_lost[0] == smc_pause_release_seen[0] &&
+        smc_pause_release_lost[1] == smc_pause_release_seen[1] &&
+        (uint32_t)(plat_ms() - smc.lock_t0) >= 900u;
+}
+
+/* A press begun while following captures immediately. Only a NEW press begun
+ * locked can arm the 900 ms unlock. Repeats never rearm or extend that hold. */
 int smc_lock_button(int pressed)
 {
-    uint8_t down = pressed != 0, edge = down && !smc.lock_down;
-    smc.lock_down = down;
-    return edge ? smc_lock_toggle() : 0;
+    if (!pressed) {
+        /* The first poll after the deadline can contain the actual key-up. */
+        int changed = smc_lock_ready() ? smc_lock_toggle() : 0;
+        smc.lock_down = 0;
+        return changed;
+    } else if (!smc.lock_down) {
+        smc.lock_down = 1;
+        if (!smc.locked) return smc_lock_toggle();
+        smc.lock_down = 2;
+        smc.lock_t0 = plat_ms();
+    }
+    return 0;
+}
+
+static void smc_lock_tick(void)
+{
+    /* Drain input/loss first. A producer may have published a newer release
+     * during this poll; defer rather than unlock before its cancellation. */
+    if (smc_qr == smc_qw && smc_host_r == smc_host_w && smc_lock_ready())
+        smc_lock_toggle();
+}
+
+/* Follow the sequencer's accepted 24-ppqn clock, not wall time or transport.
+ * Its sample counter runs while stopped. Preserve the last period/anchor when
+ * clock loss resets the external beat ring; a later pickup rephases it. */
+static int smc_beat_lit(void)
+{
+    const volatile seq_t *clock = &seq;
+    uint32_t now, since, tick_period, period = smc.beat_period;
+    uint8_t q;
+    int external;
+    float internal;
+    /* The audio ISR owns these fields. Retry if it advanced during the read,
+     * rather than combine a new tick count with an older elapsed timestamp. */
+    do {
+        now = clock->ext_now;
+        since = clock->ext_since; tick_period = clock->ext_period; q = clock->ext_q;
+        external = clock->ext && !clock->clk_lost; internal = clock->bpm;
+    } while (now != clock->ext_now);
+    if (!period || (!external && !smc.beat_external && smc.beat_internal != internal)) {
+        float bpm = internal;
+        if (!(bpm >= 20.0f && bpm <= 300.0f)) bpm = 125.0f;
+        period = (uint32_t)((float)FS * 60.0f / bpm);
+        smc.beat_at = now;
+    }
+    if (external) {
+        if (tick_period) period = tick_period / 32u * 3u; /* Q8 tick -> beat */
+        if (period < FS / 5u) period = FS / 5u;
+        if (period > FS * 3u) period = FS * 3u;
+        /* ext_q counts the tick just consumed: tick one is the lit downbeat. */
+        uint32_t phase = (uint32_t)((q + 23u) % 24u) * period / 24u + since;
+        smc.beat_at = now - phase % period;
+    }
+    smc.beat_period = period;
+    smc.beat_internal = internal; /* loss may round internal BPM; keep the exact visual period */
+    smc.beat_external = (uint8_t)external;
+    uint32_t phase = (now - smc.beat_at) % period;
+    smc.beat_at = now - phase; /* keep subtraction bounded across sample-counter wrap */
+    return phase < period / 2u;
 }
 
 static uint8_t smc_scaled(pref_t r)
@@ -608,7 +676,7 @@ static UI_DRAW void smc_ui_grid(void)
             if (!(smc.picked & (1u << n)))
                 cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
         }
-        for (int row = 0; row < 4; row++) {
+        for (unsigned row = 0; row < sizeof NOTES / sizeof NOTES[0]; row++) {
             int y = 62 + row * 12;
             uint16_t c = smc_led(NOTES[row] + n) ? C_HI : f.kind == R_NONE ? C_DIM : C_GRAY;
             const char *caption = smc_button_caption(NOTES[row] + n);
@@ -1403,6 +1471,7 @@ void smc_poll(void)
         smc.play_down = smc.select_down = smc.home_down = 0;
         smc_fx_clear();
     }
+    smc_lock_tick();
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
 }
@@ -1450,7 +1519,10 @@ static int smc_led(int note)
     }
     /* Existing Mackie NoteOn feedback route; physical LED identity still
      * needs native owner verification for the captured preset. */
-    if (note == 0x5D) return smc.locked || ((plat_ms() >> 9) & 1u);
+    if (note == 0x5D) {
+        int beat = smc_beat_lit(); /* keep phase current even while locked */
+        return smc.locked || beat;
+    }
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;
     return 0;
