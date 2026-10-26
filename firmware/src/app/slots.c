@@ -62,7 +62,22 @@ static uint8_t usr_nz[SMP_USER_SLOTS];
 #endif
 static const uint8_t *smp_user_xip(uint32_t k) { return SMP_USER_XIP(k); }
 
-/* (re)read slot k: a valid header with sane zones makes it usable */
+#include "../crc32_nibble.h"
+/* Same zlib CRC-32 as storage.c st_crc32 / SMP_END — keep scan fail-closed with END. */
+static uint32_t smp_data_crc(const uint8_t *p, uint32_t n)
+{
+    uint32_t c = 0xFFFFFFFFu;
+    while (n--) {
+        c ^= *p++;
+        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
+        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
+    }
+    return ~c;
+}
+
+/* (re)read slot k: a valid header with sane zones and matching data CRC makes it usable.
+ * Without the CRC check, a restored sector-0 header over wiped higher-sector data
+ * (mid-rewrite abort past 0x1000) would still set usr_nz. */
 static void smp_user_scan(uint32_t k)
 {
     const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(k);
@@ -77,5 +92,7 @@ static void smp_user_scan(uint32_t k)
             z->idx > 88u || !z->rate || z->rate > 4u << 16)
             return;
     }
+    if (smp_data_crc(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
+        return;
     usr_nz[k] = h->nz;
 }

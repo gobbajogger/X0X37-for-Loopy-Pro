@@ -253,5 +253,51 @@ int main(void)
     assert(usr_nz[0] == 1);
     assert(!memcmp(before, flash_image + SMP_USER_OFF(0), sizeof before));
     puts("smp begin-cancel: failed END restores last-good ok");
+
+    /* Multi-sector last-good: WRITE into 0x1000 then abandon must NOT leave
+     * usr_nz set over a restored sector-0 header with wiped higher data. */
+    {
+        uint8_t big_hdr[512], big_data[5000], sec1_before[4096], chunk[256];
+        smp_user_hdr_t *bh = (smp_user_hdr_t *)big_hdr;
+        uint32_t base = SMP_USER_OFF(0);
+        memset(flash_image, 0xFF, sizeof flash_image);
+        memset(big_hdr, 0, sizeof big_hdr);
+        memset(big_data, 0x5A, sizeof big_data);
+        bh->magic = SMP_USER_MAGIC;
+        bh->version = 1;
+        bh->nz = 1;
+        memcpy(bh->name, "BIGLOOP1", 8);
+        bh->data_len = sizeof big_data;
+        bh->zone[0].n = (uint32_t)sizeof big_data * 2u;
+        bh->zone[0].rate = 65536;
+        bh->crc = st_crc32(big_data, sizeof big_data);
+        memcpy(flash_image + base, big_hdr, 512);
+        memcpy(flash_image + base + 512, big_data, sizeof big_data);
+        smp_user_scan(0);
+        assert(usr_nz[0] == 1);
+        memcpy(sec1_before, flash_image + base + 0x1000, sizeof sec1_before);
+
+        a[0] = 0;
+        request(ED_SMP_BEGIN, a, 1);
+        assert(reply[6] == 0);
+        for (off = 512; off <= 0x1000u; off += 256) {
+            memset(chunk, 0xA5, sizeof chunk);
+            a[0] = 0;
+            u21(a + 1, off);
+            n = pack(chunk, sizeof chunk, a + 4);
+            request(ED_SMP_WRITE, a, n + 4);
+            assert(reply[9] == 0);
+        }
+        assert(memcmp(flash_image + base + 0x1000, sec1_before, sizeof sec1_before) != 0);
+        a[0] = 0;
+        request(ED_SMP_BEGIN, a, 1);   /* abandon: must not resurrect corrupt sample */
+        assert(reply[6] == 0);
+        assert(usr_nz[0] == 0);
+        /* Boot path: scan then recover — still empty, not a zombie usr_nz. */
+        smp_user_scan(0);
+        ed_smp_recover();
+        assert(usr_nz[0] == 0);
+        puts("smp begin-cancel: higher-sector mid-WRITE abandon fail-closed ok");
+    }
     return 0;
 }
