@@ -42,6 +42,7 @@ harness = r'''
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -173,6 +174,8 @@ with tempfile.TemporaryDirectory(prefix="smc-link-epoch-") as tmp:
     path.write_text(harness, encoding="utf-8")
     args = [os.getenv("CC", "gcc"), "-std=c99", "-O1", "-g", "-Wall",
             "-Wextra", "-Werror", *shlex.split(os.getenv("SAN_FLAGS", "")),
+            "-I" + str(ROOT / "firmware/src"),
+            "-I" + str(ROOT / "tests/host"),
             str(path), "-o", str(exe)]
     subprocess.run(args, check=True)
     total = failures = 0

@@ -41,6 +41,7 @@ harness = r'''
 #include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -177,7 +178,9 @@ with tempfile.TemporaryDirectory(prefix="smc-link-") as tmp:
         flags.append("-DLINK_GENERATION")
     subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
                     "-Wall", "-Wextra", "-Werror", *flags,
-                    "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(executable)], check=True)
+                    "-I" + str(ROOT / "firmware/src"),
+                    "-I" + str(ROOT / "tests/host"),
+                    str(c), "-o", str(executable)], check=True)
     failures = []
     for label, mode, site in cases:
         result = subprocess.run([str(executable), str(mode), str(site)], check=False)
