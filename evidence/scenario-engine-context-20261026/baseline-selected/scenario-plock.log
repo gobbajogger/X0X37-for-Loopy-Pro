@@ -1,0 +1,1 @@
+sh: line 1: 91640 Segmentation fault: 11  build/host/x0x_host "tests/scenarios/plock.x0x" "build/scenarios/plock"

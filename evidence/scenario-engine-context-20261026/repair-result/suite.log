@@ -1,0 +1,7 @@
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   scenario-getting_started
+  ok   scenario-perf
+  ok   scenario-plock
+  ok   scenario-song
+  ok   perf-scratch
+all tests passed

@@ -1,0 +1,11 @@
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+       host: build/host/x0x_host
+       sh: line 1: 91539 Segmentation fault: 11  build/host/x0x_host "tests/scenarios/getting_started.x0x" "build/scenarios/getting_started"
+  ok   scenario-perf
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+       sh: line 1: 91640 Segmentation fault: 11  build/host/x0x_host "tests/scenarios/plock.x0x" "build/scenarios/plock"
+  FAIL scenario-song (see build/host/scenario-song.log)
+       sh: line 1: 91653 Segmentation fault: 11  build/host/x0x_host "tests/scenarios/song.x0x" "build/scenarios/song"
+  ok   perf-scratch
+TESTS FAILED

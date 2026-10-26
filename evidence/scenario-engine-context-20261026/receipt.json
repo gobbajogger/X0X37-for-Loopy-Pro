@@ -1,0 +1,211 @@
+{
+  "base": "8333eca5d9e5fb5c039edde0b988c5058275c22b",
+  "comparison_baseline": "d633833ac369f8466bc2563791614206070e87d1",
+  "scope": "Exactly4 test scenarios; production firmware/host/tools/controller/assets unchanged",
+  "reason": "WBL1voice0 is Miami; reviewed defaults repair stopped corrupting CrWave/CrLvl with Chicago cutoff/resonance. Existing scenario Chicago cutoff assumptions now target actualChicago voice1/part3. No brokenCarrier48 expectation retained.",
+  "original_fullsuite": {
+    "pass": 259,
+    "fail": 16,
+    "exit": 1,
+    "not_relabelled": true
+  },
+  "paired_direct_exits": [
+    {
+      "source": "baseline",
+      "case": "scenario-getting_started",
+      "exit": -11,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/getting_started.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-getting_started"
+      ],
+      "log": "baseline-getting_started.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "baseline",
+      "case": "scenario-perf",
+      "exit": 0,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/perf.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-perf"
+      ],
+      "log": "baseline-perf.log",
+      "sha256": "9e438b358827cfa9a415ce2f76910bfb7aa73eb2ec5852cb38160bff6ae76d76"
+    },
+    {
+      "source": "baseline",
+      "case": "scenario-plock",
+      "exit": -11,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/plock.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-plock"
+      ],
+      "log": "baseline-plock.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "baseline",
+      "case": "scenario-song",
+      "exit": -11,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/song.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-song"
+      ],
+      "log": "baseline-song.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "combined",
+      "case": "scenario-getting_started",
+      "exit": 1,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/getting_started.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-getting_started"
+      ],
+      "log": "combined-getting_started.log",
+      "sha256": "3fdef5df1a27cb4040195cb13af524066d79aa8a31fa0a837bd9823ac66ee6e1"
+    },
+    {
+      "source": "combined",
+      "case": "scenario-perf",
+      "exit": 1,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/perf.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-perf"
+      ],
+      "log": "combined-perf.log",
+      "sha256": "21edee0afda406ceeca5af393639eba0ef95a5870e174eeb52bfddd5bddfbc59"
+    },
+    {
+      "source": "combined",
+      "case": "scenario-plock",
+      "exit": 1,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/plock.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-plock"
+      ],
+      "log": "combined-plock.log",
+      "sha256": "bcae63f3805257bbb06a1f6728449d1e07f697d99fca250a6d0104985ef9905f"
+    },
+    {
+      "source": "combined",
+      "case": "scenario-song",
+      "exit": 1,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/song.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-song"
+      ],
+      "log": "combined-song.log",
+      "sha256": "7ae367f7a90e28aa70b2ce82a7ab7ed7df741168986c742b6c2e88af1c7ccff9"
+    },
+    {
+      "source": "repaired",
+      "case": "scenario-getting_started",
+      "exit": 0,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/getting_started.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-getting_started"
+      ],
+      "log": "repaired-getting_started.log",
+      "sha256": "fd9cd517ab070e025011702762b656cdf0749b4b20d0875a2997858181a2a84e"
+    },
+    {
+      "source": "repaired",
+      "case": "scenario-perf",
+      "exit": 0,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/perf.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-perf"
+      ],
+      "log": "repaired-perf.log",
+      "sha256": "7f054c722f4266d818dcd53fb63b44e2d7f91e700d6a956ed5eea921430f6713"
+    },
+    {
+      "source": "repaired",
+      "case": "scenario-plock",
+      "exit": 0,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/plock.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-plock"
+      ],
+      "log": "repaired-plock.log",
+      "sha256": "b9a3ebc6286590dcf43c288151281f76b8eb4977c19eb8766177dbb5660a8cba"
+    },
+    {
+      "source": "repaired",
+      "case": "scenario-song",
+      "exit": 0,
+      "argv": [
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/song.x0x",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-song"
+      ],
+      "log": "repaired-song.log",
+      "sha256": "c68d1b60efef0e534632f6ed87685f70a276f0c0396df175fb036879a291773c"
+    }
+  ],
+  "maintained_runner": {
+    "baseline_five_cases_exit": 1,
+    "baseline_scope": "3 simulator SIGSEGV(-11) plus perf/perf-scratchPASS; clean baseline source",
+    "combined_original": "four scenario assertionFAIL, perf-scratch stops at its reused scenario-perf",
+    "repaired_five_cases_exit": 0,
+    "final_getting_started_exit": 0,
+    "scratch_cmp": "Unchanged maintained perf-scratch script completed cmp after two scratch scenarios, exit0"
+  },
+  "retained_assertions": "All original numeric cutoff/lane/motion thresholds, timing waits, lock clear/save/reboot/song pattern assertions retained; same concepts now addressedtoChicago. Added Miami0/89/cutoff76 and Chicago48 defaults restoration checks; added getting_started58->38 realcutoffrecord check.",
+  "native_target_identity": {
+    "changed_code": "NONE",
+    "changed_firmware_host_tools_controller_assets": "NONE",
+    "basis": "Git diff only4scenariofiles, no compiled native input changed. No new native run or DEV claim."
+  },
+  "wrapper_sha256": "58f7ca1adc1b3634bd53c3813bc61a6af8e6633db2dc522f80df5ffa30813023",
+  "files_sha256": {
+    "baseline-result/suite.log": "a09ff37f0fa703412b9c206ee7049b22f04485581137048930c4ddd01305e637",
+    "baseline-result/receipt.json": "114285faa2fbe45b9c1eb0bace3889608c4d882a2162b3d009aa70f6efb0d54c",
+    "repair-result/suite.log": "5816fac1ea39e6a9e9bd78b9348aa6cdd518364514706fc31d103537bbb70fd0",
+    "repair-result/receipt.json": "56e3467ed0bd355b6fa3d61f0dabcd426f6fd542509dcd846fd95c4c127fad2b",
+    "repair-final-getting-started/suite.log": "f84d532c7f627baab38b4e50d8d1581e471d608edde1e7e493f766a5d605179f",
+    "repair-final-getting-started/receipt.json": "b6cb3ffffb44d435da92aa74d67e3aef76bbd2087405770af764182a6f48288f",
+    "paired-direct/receipt.json": "a7ad0da53b170e0e8297cb38c58c42ccf07ae392291039d0e137ef34f2384801",
+    "paired-direct/baseline-song.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paired-direct/repaired-song.log": "c68d1b60efef0e534632f6ed87685f70a276f0c0396df175fb036879a291773c",
+    "paired-direct/combined-getting_started.log": "3fdef5df1a27cb4040195cb13af524066d79aa8a31fa0a837bd9823ac66ee6e1",
+    "paired-direct/combined-perf.log": "21edee0afda406ceeca5af393639eba0ef95a5870e174eeb52bfddd5bddfbc59",
+    "paired-direct/baseline-getting_started.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paired-direct/repaired-getting_started.log": "fd9cd517ab070e025011702762b656cdf0749b4b20d0875a2997858181a2a84e",
+    "paired-direct/baseline-plock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paired-direct/repaired-plock.log": "b9a3ebc6286590dcf43c288151281f76b8eb4977c19eb8766177dbb5660a8cba",
+    "paired-direct/repaired-perf.log": "7f054c722f4266d818dcd53fb63b44e2d7f91e700d6a956ed5eea921430f6713",
+    "paired-direct/combined-plock.log": "bcae63f3805257bbb06a1f6728449d1e07f697d99fca250a6d0104985ef9905f",
+    "paired-direct/combined-song.log": "7ae367f7a90e28aa70b2ce82a7ab7ed7df741168986c742b6c2e88af1c7ccff9",
+    "paired-direct/baseline-perf.log": "9e438b358827cfa9a415ce2f76910bfb7aa73eb2ec5852cb38160bff6ae76d76",
+    "original-combined/scenario-getting_started.log": "dd73648d04b36800f01225712d01c727819e89afbc469e85cb296a8428a8750a",
+    "baseline-selected/scenario-getting_started.log": "b8d0d84d853634a2781c4befd45a08d1d4d8afcd7e396367b9c042b7fd660161",
+    "repaired-selected/scenario-getting_started.log": "fd9cd517ab070e025011702762b656cdf0749b4b20d0875a2997858181a2a84e",
+    "original-combined/scenario-perf.log": "55424c9a16b5063f1e6297ebeaab2713d3380f8ba31114aa5c5d84b882b95c2b",
+    "baseline-selected/scenario-perf.log": "5fbb5dc0e2b228320b1f35ea3ccdcdf5d8889e729f95fb1f0af6a191e2516ce9",
+    "repaired-selected/scenario-perf.log": "2473ba51fb00008f1093b2ae9fdedde6bf061c594db885eddaeeb571e6a09ec8",
+    "original-combined/scenario-plock.log": "68ef3016c804636a4b41c2b2ac7d6117e297e08e797df3e7f621a3172112ddb9",
+    "baseline-selected/scenario-plock.log": "1ef33d213483b85bd6420bd4c471b7d01df12b1bdec3278426f139e22d8605a0",
+    "repaired-selected/scenario-plock.log": "731fec9cb52e76f82649cdd737d39eaf64e4974c8b492db920f8200d8162c158",
+    "original-combined/scenario-song.log": "18b2fda14686894e616e038c6252f39f7a0cd62c67b627df8f657436fb8b551e",
+    "baseline-selected/scenario-song.log": "f9b787ac91ac751212720b369e62fac9a5b5f03d22a4919756a16521fa845a59",
+    "repaired-selected/scenario-song.log": "9d168022723be9f6f1380a38ad362460f52db86ff59c9940baeaf67a3cc2e1fb",
+    "original-combined/perf-scratch.log": "1a427dc6f94f7dc049b235e447363b38a0375fbda0105a4125f60c66c5ecb511",
+    "baseline-selected/perf-scratch.log": "00e5b0df42818add37da08b10d28deae4fbf82b3008fb72f3a3f23983893ed82",
+    "repaired-selected/perf-scratch.log": "d4384bbd1e201a2a5b9b9afeb9520ed63fba8f2efd218b5ba48766173c70bde9"
+  },
+  "review": "PENDING independent review",
+  "hardware": "NONE; no device/probe/recovery/GUI calls"
+}

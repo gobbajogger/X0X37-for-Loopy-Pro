@@ -1,0 +1,1 @@
+sh: line 1: 91653 Segmentation fault: 11  build/host/x0x_host "tests/scenarios/song.x0x" "build/scenarios/song"

@@ -1,0 +1,2 @@
+host: build/host/x0x_host
+sh: line 1: 91539 Segmentation fault: 11  build/host/x0x_host "tests/scenarios/getting_started.x0x" "build/scenarios/getting_started"

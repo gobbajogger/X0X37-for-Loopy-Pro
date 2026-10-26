@@ -1,0 +1,27 @@
+  ok view == 1
+  ok part == 0
+  ok peak -11.3 dBFS
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 1
+  ok playing == 1
+  ok hit0.6.4 == 1
+  ok hit0.6.12 == 1
+  ok hit0.8.2 == 1
+  ok hit0.8.14 == 1
+  ok part == 2
+  ok view == 2
+  ok view == 1
+FAIL expect sound2.0.0 == 58, got 1
+FAIL expect sound2.0.1 == 90, got 79
+  ok part == 4
+  ok brk0 == 1
+  ok brk15 == 1
+  ok view == 0
+  ok mute == 16777216
+  ok mute == 0
+  ok part == 2
+  ok view == 1
+  ok lanes == 1
+  ok store_writes == 6
+host: 8170 ms simulated, 228 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+host: playing, 1881 instructions / sample (mean), 3210 in the worst block

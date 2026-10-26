@@ -1,0 +1,13 @@
+{
+  "source_commit": "8333eca5d9e5fb5c039edde0b988c5058275c22b",
+  "command": [
+    "sh",
+    "tests/run_tests.sh",
+    "scenario-getting_started"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 0.312091083,
+  "wrapper_sha256": "58f7ca1adc1b3634bd53c3813bc61a6af8e6633db2dc522f80df5ffa30813023",
+  "suite_log_sha256": "f84d532c7f627baab38b4e50d8d1581e471d608edde1e7e493f766a5d605179f",
+  "source_post_status": " M tests/scenarios/getting_started.x0x\n M tests/scenarios/perf.x0x\n M tests/scenarios/plock.x0x\n M tests/scenarios/song.x0x\n"
+}

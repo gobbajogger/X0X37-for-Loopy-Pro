@@ -1,0 +1,146 @@
+[
+  {
+    "source": "baseline",
+    "case": "scenario-getting_started",
+    "exit": -11,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/getting_started.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-getting_started"
+    ],
+    "log": "baseline-getting_started.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "baseline",
+    "case": "scenario-perf",
+    "exit": 0,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/perf.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-perf"
+    ],
+    "log": "baseline-perf.log",
+    "sha256": "9e438b358827cfa9a415ce2f76910bfb7aa73eb2ec5852cb38160bff6ae76d76"
+  },
+  {
+    "source": "baseline",
+    "case": "scenario-plock",
+    "exit": -11,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/plock.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-plock"
+    ],
+    "log": "baseline-plock.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "baseline",
+    "case": "scenario-song",
+    "exit": -11,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/baseline/tests/scenarios/song.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/baseline-song"
+    ],
+    "log": "baseline-song.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "combined",
+    "case": "scenario-getting_started",
+    "exit": 1,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/getting_started.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-getting_started"
+    ],
+    "log": "combined-getting_started.log",
+    "sha256": "3fdef5df1a27cb4040195cb13af524066d79aa8a31fa0a837bd9823ac66ee6e1"
+  },
+  {
+    "source": "combined",
+    "case": "scenario-perf",
+    "exit": 1,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/perf.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-perf"
+    ],
+    "log": "combined-perf.log",
+    "sha256": "21edee0afda406ceeca5af393639eba0ef95a5870e174eeb52bfddd5bddfbc59"
+  },
+  {
+    "source": "combined",
+    "case": "scenario-plock",
+    "exit": 1,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/plock.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-plock"
+    ],
+    "log": "combined-plock.log",
+    "sha256": "bcae63f3805257bbb06a1f6728449d1e07f697d99fca250a6d0104985ef9905f"
+  },
+  {
+    "source": "combined",
+    "case": "scenario-song",
+    "exit": 1,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/scenarios/song.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/combined-song"
+    ],
+    "log": "combined-song.log",
+    "sha256": "7ae367f7a90e28aa70b2ce82a7ab7ed7df741168986c742b6c2e88af1c7ccff9"
+  },
+  {
+    "source": "repaired",
+    "case": "scenario-getting_started",
+    "exit": 0,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/getting_started.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-getting_started"
+    ],
+    "log": "repaired-getting_started.log",
+    "sha256": "fd9cd517ab070e025011702762b656cdf0749b4b20d0875a2997858181a2a84e"
+  },
+  {
+    "source": "repaired",
+    "case": "scenario-perf",
+    "exit": 0,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/perf.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-perf"
+    ],
+    "log": "repaired-perf.log",
+    "sha256": "7f054c722f4266d818dcd53fb63b44e2d7f91e700d6a956ed5eea921430f6713"
+  },
+  {
+    "source": "repaired",
+    "case": "scenario-plock",
+    "exit": 0,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/plock.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-plock"
+    ],
+    "log": "repaired-plock.log",
+    "sha256": "b9a3ebc6286590dcf43c288151281f76b8eb4977c19eb8766177dbb5660a8cba"
+  },
+  {
+    "source": "repaired",
+    "case": "scenario-song",
+    "exit": 0,
+    "argv": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/build/host/x0x_host",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/repair/tests/scenarios/song.x0x",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-scenario-triage/paired-direct/repaired-song"
+    ],
+    "log": "repaired-song.log",
+    "sha256": "c68d1b60efef0e534632f6ed87685f70a276f0c0396df175fb036879a291773c"
+  }
+]

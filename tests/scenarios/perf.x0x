@@ -42,7 +42,11 @@ expect playing 0
 expect tempo 120
 expect mute 4194304
 expect hit0.0.8 1
-expect sound2.0.0 48
+# Both current engine defaults survive the scratch test: Miami plus Chicago cutoff.
+expect sound2.0.0 0
+expect sound2.0.1 89
+expect sound2.0.9 76
+expect sound2.1.0 48
 # run it again and stop it halfway with HOME: everything back as well
 expect view 7
 tap SEL

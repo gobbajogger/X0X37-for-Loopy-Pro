@@ -1,0 +1,25 @@
+  ok view == 1
+  ok part == 0
+  ok sound0.0.0 == 34
+  ok hit0.0.0 == 1
+  ok hit0.0.4 == 1
+  ok hit0.0.4 == 1
+  ok sound0.0.0 == 34
+  ok lanes == 1
+  ok laneval0.0.0.4 == 54
+  ok laneval0.0.0.0 == 255
+  ok hit0.0.0 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.0 == 1
+  ok playhead0 == 5
+  ok motion0.0.0 == 54
+  ok playhead0 == 6
+  ok motion0.0.0 == 34
+  ok lanes == 0
+  ok hit0.0.4 == 1
+  ok lanes == 0
+  ok laneval2.1.0.2 == 28
+  ok sound2.1.0 == 48
+  ok lanes == 1
+host: 2792 ms simulated, 66 blits, render 0.2% of real time (host CPU)
+host: playing, 813 instructions / sample (mean), 1018 in the worst block
