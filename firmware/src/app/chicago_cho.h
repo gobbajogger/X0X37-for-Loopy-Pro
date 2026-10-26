@@ -6,9 +6,9 @@
  * previously rendered dry native303 while Cho stayed NOT_YET.
  *
  * Compact mono chorus/flanger: int16 delay line (~21 ms @ 48 kHz) + sine LFO
- * with linear tap interp. Edit1 → wet (no floor — Detuned Square Edit1≈47 must
- * stay milder than Hall/SDly send floors). Edit2 → depth + feedback (low =
- * chorus detune; high = flanger whoosh). Mild fixed LFO rate. No libm. */
+ * with linear tap interp. Edit1 → wet via sqrt (no Hall/SDly floor — those
+ * floors left Detuned Square too wet). Edit2 → mild quadratic depth + feedback
+ * (low = chorus detune; high = flanger whoosh). Slow LFO rate. No libm. */
 #pragma once
 #include <stdint.h>
 #include <string.h>
@@ -51,12 +51,12 @@ static inline void chi_cho_set(chi_cho_t *c, uint8_t e1, uint8_t e2, float sr)
         sr = CHI_CHO_SR;
     send = (float)e1 * (1.0f / 127.0f);
     t = (float)e2 * (1.0f / 127.0f);
-    /* No wet floor — Hall/SDly floors left Detuned Square too wet (strongRel↑). */
-    c->wet = send;
-    /* Edit2 low: nearly-static slap (Detuned Square Edit2≈16). Quadratic depth
-     * so factory Cho rows stay mild; high Edit2 opens flanger depth/fb. */
+    /* Sqrt wet (no floor): linear wet + Hall-style floor raised Detuned strongRel. */
+    c->wet = fm_powf(send, 0.5f);
+    /* Edit2 low: nearly-static slap (Detuned Square Edit2≈16). Mild quadratic
+     * depth; high Edit2 opens flanger depth/fb. */
     base_ms = 9.0f - 4.0f * t;           /* ~9 ms → ~5 ms */
-    depth_ms = 0.12f + 4.0f * t * t;     /* ~0.12..4.1 ms */
+    depth_ms = 0.05f + 2.0f * t * t;     /* ~0.05..2.05 ms */
     c->fb = t < 0.35f ? 0.0f : (t - 0.35f) * (0.55f / 0.65f);
     rate_hz = 0.25f + 1.4f * t;          /* ~0.25..1.65 Hz */
     c->base = base_ms * 0.001f * sr;
