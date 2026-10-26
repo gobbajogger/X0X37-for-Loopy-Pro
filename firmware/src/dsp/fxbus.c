@@ -23,7 +23,6 @@ typedef struct {
     float lo, hi;
 } fx_pspec_t;
 
-static const char *const fx_dist_names[8] = { "Off", "Diode", "Clip", "SAT", "BFZ", "PDIST", "Fold", "Crush" };
 static const char *const fx_div_names[13] = {
     "1/32", "1/16T", "1/16", "1/8T", "1/16.", "1/8", "1/4T", "1/8.", "1/4", "1/2T", "1/4.", "1/2", "1/2."
 };
@@ -34,7 +33,7 @@ static const char *const fx_onoff_names[2] = { "OFF", "ON" };
  * starts on the exact defaults) */
 static const fx_pspec_t fx_p[FX_NPARAMS] = {
     [FX_VOLUME]   = { { "Volume", 127, 44, 0 }, CV_LIN, 0, 0.0f, 1.0f },
-    [FX_DIST]     = { { "Dist", 7, 0, fx_dist_names }, CV_SW, 0, 0.0f, 0.0f },
+    [FX_DIST]     = { { "Dist", 7, 0, x0x_dist_names }, CV_SW, 0, 0.0f, 0.0f },
     [FX_DRIVE]    = { { "Drive", 127, 41, 0 }, CV_EXP, X0X_EXP_DRIVE, 0.0f, 0.0f },
     [FX_COMP]     = { { "Comp", 127, 0, 0 }, CV_LIN, 0, 0.0f, 1.0f },
     [FX_RV_DECAY] = { { "RvDec", 127, 73, 0 }, CV_LIN, 0, 0.2f, 0.93f },
