@@ -390,6 +390,19 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     f->dl_quiet = quiet;
 }
 
+/* Soft-knee glue gain reduction — one body for mono + stereo (same pattern as
+ * master soft_ceiling / djf_gsmooth). */
+__attribute__((noinline)) static float fx_comp_gr(float over, float slope)
+{
+    if (over >= 3.0f)
+        return -over * slope;
+    if (over > -3.0f) {
+        const float t = over + 3.0f;
+        return -(t * t) * (1.0f / 12.0f) * slope;
+    }
+    return 0.0f;
+}
+
 /* ===================================================================== */
 /* Master: distortion, glue (master_glue), volume                         */
 /* ===================================================================== */
@@ -416,14 +429,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
             const float mag = fm_fabsf(in);
             det = mag > det ? mag : det * drel;
             const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
-            const float over = in_db - thr;
-            float gr = 0.0f;
-            if (over >= 3.0f)
-                gr = -over * slope;
-            else if (over > -3.0f) {
-                const float t = over + 3.0f;
-                gr = -(t * t) * (1.0f / 12.0f) * slope;
-            }
+            const float gr = fx_comp_gr(in_db - thr, slope);
             env = gr + (env - gr) * (gr < env ? atk : rel);
             out[i] = in * fm_db2lin(env + makeup);
         }
@@ -464,14 +470,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
             const float mag = ml > mr ? ml : mr;
             det = mag > det ? mag : det * drel;
             const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
-            const float over = in_db - thr;
-            float gr = 0.0f;
-            if (over >= 3.0f)
-                gr = -over * slope;
-            else if (over > -3.0f) {
-                const float t = over + 3.0f;
-                gr = -(t * t) * (1.0f / 12.0f) * slope;
-            }
+            const float gr = fx_comp_gr(in_db - thr, slope);
             env = gr + (env - gr) * (gr < env ? atk : rel);
             const float g = fm_db2lin(env + makeup);
             out_l[i] *= g;
