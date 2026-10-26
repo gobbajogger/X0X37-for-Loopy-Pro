@@ -200,21 +200,12 @@ static void midi_send_sysex(const uint8_t *msg, uint32_t len)
 #endif
 }
 
+#include "apc40_sysex.h"              /* shared identity / intro with ble.c */
+
 static void apc40_device_inquiry(uint8_t channel)
 {
-    /* Universal identity response: Akai (47), APC40 mkII (29), 25 bytes of data. */
-    static const uint8_t tail[25] = {
-        0x01, 0x02, 0x00, 0x00, /* firmware version 1.2 */
-        0x7F,                   /* SysEx device ID */
-        0, 0, 0, 0,             /* serial reserved */
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 /* manufacturing data */
-    };
     uint8_t msg[35];
-    uint32_t i;
-    msg[0] = 0xF0; msg[1] = 0x7E; msg[2] = channel; msg[3] = 0x06; msg[4] = 0x02;
-    msg[5] = 0x47; msg[6] = 0x29; msg[7] = 0x00; msg[8] = 0x19;
-    for (i = 0; i < sizeof tail; i++) msg[9u + i] = tail[i];
-    msg[34] = 0xF7;
+    apc40_fill_identity(msg, channel);
     midi_send_sysex(msg, sizeof msg);
 }
 
@@ -222,11 +213,7 @@ static void apc40_introduction_reply(void)
 {
     /* Type 0x61 reports the nine fader/slider values. The SMK has no APC faders
      * with the same semantics, so initialize them at zero; clip LEDs are host-driven. */
-    static const uint8_t msg[17] = {
-        0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0xF7
-    };
-    midi_send_sysex(msg, sizeof msg);
+    midi_send_sysex(APC40_INTRO_MSG, sizeof APC40_INTRO_MSG);
 }
 
 /* ------------------------------------------------------- descriptors --- */

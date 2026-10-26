@@ -1597,7 +1597,9 @@ extern const uint8_t _start[];            /* crt0: app.bin offset 0, the XIP ima
 static brk_pack_loop_t pack_loops[BRK_PACK_MAX];
 static int pack_n = -1;
 
-static int load_pack(void)
+/* Boot/pack parse only — not the audio render (X0X_COLD). noinline: keep one minsize
+ * body out of builtin_count / brk_builtin (otherwise -O2 inlines the whole parse). */
+X0X_COLD __attribute__((noinline)) static int load_pack(void)
 {
 #if defined(BOARD_SMK37) && BOARD_SMK37
     const uint32_t limit = 0x86EE0u;      /* FL_APP_CODE_MAX: code ends where Bluetooth begins */
@@ -1609,7 +1611,8 @@ static int load_pack(void)
 }
 #endif
 
-static int builtin_count(void)
+/* Boot / UI loop list only — not the audio render (X0X_COLD) */
+X0X_COLD static int builtin_count(void)
 {
 #if X0X_NBREAKS > 0
     return X0X_NBREAKS;                   /* compiled into the image */

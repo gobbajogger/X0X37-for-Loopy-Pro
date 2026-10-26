@@ -142,23 +142,22 @@ static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
     ble_sx_n = 0;
     ble_sx_over = 0;
 }
+#include "apc40_sysex.h"                          /* same identity / intro as usb.c */
+
 static void ble_sx_answer(bleh_t *h)
 {
     uint8_t m[35];
-    uint32_t i, n;
+    uint32_t n;
     if (!ble_sx_reply || !bleh_notifying(h))
         return;
-    for (i = 0; i < sizeof m; i++) m[i] = 0;
-    if (ble_sx_reply == 1u) {                     /* the same reply as usb.c apc40_device_inquiry */
-        m[0] = 0xF0; m[1] = 0x7E; m[2] = ble_sx_ch; m[3] = 0x06; m[4] = 0x02;
-        m[5] = 0x47; m[6] = 0x29; m[7] = 0x00; m[8] = 0x19;
-        m[9] = 0x01; m[10] = 0x02; m[13] = 0x7F;
-        m[34] = 0xF7;
+    if (ble_sx_reply == 1u) {                     /* usb.c apc40_device_inquiry */
+        apc40_fill_identity(m, ble_sx_ch);
         n = 35u;
     } else {                                      /* usb.c apc40_introduction_reply */
-        m[0] = 0xF0; m[1] = 0x47; m[2] = 0x7F; m[3] = 0x29; m[4] = 0x61; m[5] = 0x00; m[6] = 0x09;
-        m[16] = 0xF7;
-        n = 17u;
+        uint32_t i;
+        for (i = 0; i < sizeof APC40_INTRO_MSG; i++)
+            m[i] = APC40_INTRO_MSG[i];
+        n = sizeof APC40_INTRO_MSG;
     }
     if (bleh_sysex_send(h, m, n, (uint16_t)(fm1_ms & 0x1FFFu)) != -2)
         ble_sx_reply = 0;                         /* sent (or refused): busy only waits */
