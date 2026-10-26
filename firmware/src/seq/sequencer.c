@@ -1115,6 +1115,18 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
         s->rec_refused=2; /* sound pool full or sound identity unavailable */
         return;
     }
+    /* Preparation is the atomic admission check and already publishes sound.
+     * A just-entered provisional tail can round back to the previous slot on
+     * release. That tail is now the new onset: finalize the previous slot at
+     * its full length without clearing the sound we just admitted. */
+    if (r->active && r->pat == s->ppat[t] && r->last == p &&
+        r->last != r->first && r->entered == 1) {
+        uint32_t elapsed = s->ext_now - r->at, L = r->slot;
+        if (elapsed < (L >> 8) && ((elapsed << 8) * 15u + L / 2u) / L == 0) {
+            r->last = r->prev;
+            r->entered = 2;
+        }
+    }
 #endif
     seq_rec_bass_end(s, b);
     bpart_t *bp = bpart(s, b);
