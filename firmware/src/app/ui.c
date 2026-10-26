@@ -619,10 +619,20 @@ static int pref_get(pref_t r)
 
 X0X_COLD static void pref_set(pref_t r, int v)
 {
+#if X0X_BASS_PRESET_PREVIEW
+    /* Freeze the active bank before reading its descriptor. The audio boundary
+     * may otherwise replace Chicago with Miami between clamp and store. */
+    int bass_edit = r.kind == R_ENG && r.a == T_303;
+    if (bass_edit) engine_bass_edit_hold(1);
+#endif
     pattern_t *p = pref_pattern(r);
     const x0x_param_t *d = pref_desc(r);
-    if (!d || r.kind == R_ACT || pref_read_only(r))
+    if (!d || r.kind == R_ACT || pref_read_only(r)) {
+#if X0X_BASS_PRESET_PREVIEW
+        if (bass_edit) engine_bass_edit_hold(0);
+#endif
         return;
+    }
     v = v < 0 ? 0 : v > d->max ? d->max : v;
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BCANCEL) {engine_bass_cancel_preset(r.b);return;}
@@ -784,6 +794,9 @@ X0X_COLD static void pref_set(pref_t r, int v)
         break;
     default: break;
     }
+#if X0X_BASS_PRESET_PREVIEW
+    if (bass_edit) engine_bass_edit_hold(0);
+#endif
 }
 
 /* a name in capitals (the engines' own are mixed case): two at a time */
@@ -1810,12 +1823,26 @@ static void undo_start(void) {
 #endif
     undo_init(&undo, (uint8_t *)&proj + UNDO_OFF, undo_shadow, UNDO_BYTES); }
 
+static int undo_commit_stable(void)
+{
+#if X0X_BASS_PRESET_PREVIEW
+    /* Preset application writes a bank and tag from the audio boundary. Keep
+     * it pending while undo measures and copies the project snapshot. */
+    engine_bass_edit_hold(1);
+#endif
+    int result = undo_commit(&undo);
+#if X0X_BASS_PRESET_PREVIEW
+    engine_bass_edit_hold(0);
+#endif
+    return result;
+}
+
 static void undo_tick(void)
 {
     if (project_busy || perf_testing() || (ui.rec && seq.playing) || ui.btn || ui.keys || plat_ms() - ui.act_t < UNDO_QUIET ||
         (ui.frame & 3u))
         return;
-    undo_commit(&undo);
+    undo_commit_stable();
 }
 
 /* a run of the project changed under the engine: the sound's pots go to the engine again */
@@ -1887,7 +1914,7 @@ static void do_undo(int redo)
 #if X0X_BASS_PRESET_PREVIEW && !X0X_BASS_TAGGED_SOUND
     if(engine_bass_preview_changed()) { say("UNDO UNAVAILABLE",""); return; }
 #endif
-    undo_commit(&undo);                              /* what was just done is a step too */
+    undo_commit_stable();                       /* what was just done is a step too */
 #if X0X_BASS_TAGGED_SOUND
     undo_wait=0;undo_bass_mask=0;
     int entry=redo?undo.cur:undo.cur-1;
@@ -5795,7 +5822,7 @@ X0X_COLD static int project_acquire(int reset)
         return UI_PROJECT_BUSY;
     }
     project_busy = 1;
-    undo_commit(&undo);                              /* no uncommitted gesture is lost when staging borrows shadow */
+    undo_commit_stable();                       /* no uncommitted gesture is lost when staging borrows shadow */
     return 0;
 }
 
