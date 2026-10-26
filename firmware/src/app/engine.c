@@ -999,14 +999,25 @@ static void midi_in(uint32_t pkt)
             brk_midi_legacy(src, ty == 0x90, d1 - 36);
         return;
     }
-    for (k = 0; k < NKIT; k++)                          /* each part on its own channel (GLO): the drum */
-        if (seq.ch[k] == ch && ty == 0x90) {             /* machines on GM drum notes */
-            static const uint8_t GM[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51};
-            static const uint8_t GM8[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 56, 49, 46, 42};
-            for (v = 0; v < NDRUM; v++)
-                if ((k ? GM8 : GM)[v] == d1)
-                    s_drum(0, k, v, (float)d2 / 127.0f);
+    /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
+     * a Note On/Off on a kit channel must not also hit a 303 that shares that channel. */
+    {
+        int kit_own = 0;
+        for (k = 0; k < NKIT; k++) {
+            if (seq.ch[k] != ch)
+                continue;
+            kit_own = 1;
+            if (ty == 0x90) {                            /* machines on GM drum notes */
+                static const uint8_t GM[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51};
+                static const uint8_t GM8[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 56, 49, 46, 42};
+                for (v = 0; v < NDRUM; v++)
+                    if ((k ? GM8 : GM)[v] == d1)
+                        s_drum(0, k, v, (float)d2 / 127.0f);
+            }
         }
+        if (kit_own && (ty == 0x90 || ty == 0x80))
+            return;
+    }
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
