@@ -4753,7 +4753,7 @@ static UI_DRAW void draw_home(int band)
                            c <= (seq.chain_a < seq.chain_b ? seq.chain_b : seq.chain_a);
             frame(x, 3, 12, 18, C_LINE);
             for (p = 0; p < NPARTS; p++) {               /* a line per part: its first 16 steps, bright where */
-                int used = part_used(&proj.pat[c], p);   /* it plays now; empty assignment, a faint bar */
+                int used = part_used(&proj.pat[c], p);   /* it plays now; assignment has a separate border tick */
                 uint32_t pb;
                 uint16_t fc;
                 if (!used && seq.ppat[p] != c)
@@ -4762,8 +4762,8 @@ static UI_DRAW void draw_home(int band)
                 fc = seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4)) : dim(PART_COL[p], 7);
                 if (pb)
                     pat_glyph_row(x + 2, 5 + p * 3, pb, fc);
-                else
-                    rbox(x + 2, 5 + p * 3, 8, 2, 1, fc);
+                if (seq.ppat[p] == c)                  /* never invent content inside the eight columns */
+                    cv_rect(x, 5 + p * 3, 1, 2, PART_COL[p]);
             }
             if (c == cue && c != seq.ppat[PART_909] && (ui.frame & 16u))
                 frame(x - 1, 2, 14, 20, C_WHITE);
