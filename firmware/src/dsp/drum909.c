@@ -95,11 +95,18 @@ static const d9_pspec_t d9_ch_p[] = {
 static const d9_pspec_t d9_oh_p[] = {
     EXP("Decay", F_DECAY, 97, OH_DECAY), LEVEL(80),
 };
+/* Crash and ride share these five pots. Tune and level stay on each cymbal
+ * (level differs; pot order keeps tune ahead of level). The tail records match. */
+static const d9_pspec_t d9_cy_tail[] = {
+    EXP("Decay", F_DECAY, 108, CY_DECAY), DRIVE(0), DIST, SENDS, PAN,
+};
+#define D9_CY_HEAD 2
+#define D9_CY_N (D9_CY_HEAD + NP(d9_cy_tail))
 static const d9_pspec_t d9_cr_p[] = {
-    EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(47), EXP("Decay", F_DECAY, 108, CY_DECAY), DRIVE(0), DIST, SENDS, PAN,
+    EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(47),
 };
 static const d9_pspec_t d9_rd_p[] = {
-    EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(42), EXP("Decay", F_DECAY, 108, CY_DECAY), DRIVE(0), DIST, SENDS, PAN,
+    EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(42),
 };
 static const d9_pspec_t d9_kit_p[] = {
     LIN("Accent", F_ACCENT, 42, 1.0f, 4.0f), LIN("Veloc", F_VEL, 127, 0.0f, 1.0f),
@@ -112,16 +119,19 @@ static const d9_pspec_t *const d9_specs[DR_NUM + 1] = {
 /* every list must fit pots[][DR_MAX_PARAMS]: a longer one writes into the next voice's pots */
 #define FITS(a) _Static_assert(NP(a) <= DR_MAX_PARAMS, #a " has more params than DR_MAX_PARAMS")
 FITS(d9_bd_p); FITS(d9_sd_p); FITS(d9_lt_p); FITS(d9_mt_p); FITS(d9_ht_p); FITS(d9_rs_p); FITS(d9_cp_p);
-FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail); FITS(d9_hat_tail);
+FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail); FITS(d9_hat_tail); FITS(d9_cy_tail);
 _Static_assert(NP(d9_lt_p) == D9_TOM_HEAD && NP(d9_mt_p) == D9_TOM_HEAD && NP(d9_ht_p) == D9_TOM_HEAD,
                "tom heads are tune and decay only");
 _Static_assert(D9_TOM_N <= DR_MAX_PARAMS, "tom pot count");
 _Static_assert(NP(d9_ch_p) == D9_HAT_HEAD && NP(d9_oh_p) == D9_HAT_HEAD,
                "hat heads are decay and level only");
 _Static_assert(D9_HAT_N <= DR_MAX_PARAMS, "hat pot count");
+_Static_assert(NP(d9_cr_p) == D9_CY_HEAD && NP(d9_rd_p) == D9_CY_HEAD,
+               "cymbal heads are tune and level only");
+_Static_assert(D9_CY_N <= DR_MAX_PARAMS, "cymbal pot count");
 static const uint8_t d9_nspec[DR_NUM + 1] = {
     NP(d9_bd_p), NP(d9_sd_p), D9_TOM_N, D9_TOM_N, D9_TOM_N, NP(d9_rs_p), NP(d9_cp_p),
-    D9_HAT_N, D9_HAT_N, NP(d9_cr_p), NP(d9_rd_p), NP(d9_kit_p),
+    D9_HAT_N, D9_HAT_N, D9_CY_N, D9_CY_N, NP(d9_kit_p),
 };
 
 static const d9_pspec_t *d9_spec(int voice, int i)
@@ -130,6 +140,8 @@ static const d9_pspec_t *d9_spec(int voice, int i)
         return &d9_tom_tail[i - D9_TOM_HEAD];
     if (i >= D9_HAT_HEAD && (voice == DR_CH || voice == DR_OH))
         return &d9_hat_tail[i - D9_HAT_HEAD];
+    if (i >= D9_CY_HEAD && (voice == DR_CR || voice == DR_RD))
+        return &d9_cy_tail[i - D9_CY_HEAD];
     return &d9_specs[voice][i];
 }
 
