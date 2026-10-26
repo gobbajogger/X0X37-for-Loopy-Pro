@@ -381,7 +381,7 @@ static uint32_t bar_end(seq_t *s, int start)
     return changed;
 }
 
-static void auto_mutate(seq_t *s, int b)
+__attribute__((noinline)) static void auto_mutate(seq_t *s, int b)
 {
     bpart_t *bp = bpart(s, b);
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
@@ -521,7 +521,7 @@ __attribute__((noinline)) static void seq_send_rt(seq_t *s, const seq_sink_t *o,
         midi(o, st, 0, 0);
 }
 
-static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote)
+__attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote)
 {
     int t;
     bass_release_all(s, o);                /* Start/Continue reinitialises timers: release old notes first */
@@ -631,7 +631,7 @@ uint32_t seq_until_event(seq_t *s, uint32_t n)
 }
 
 /* the external clock is gone: a new beat ring, and the internal tempo takes the last measured one */
-static void clock_lost(seq_t *s)
+__attribute__((noinline)) static void clock_lost(seq_t *s)
 {
     s->ext_nb = s->ext_bi = s->ext_q = 0;             /* the next clock: a new beat ring */
     if (s->ext_period) {                              /* the internal tempo takes the last measured one */

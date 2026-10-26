@@ -877,7 +877,7 @@ static void brk_note_set(int src, int note, int on)
         brk_down[src][note >> 3] &= (uint8_t)~m;
 }
 /* 8 SLICES: slice = note mod 8, so several notes can hold one slice */
-static int brk_src_slice(int src, int slice)
+__attribute__((noinline)) static int brk_src_slice(int src, int slice)
 {
     int n;
     for (n = slice; n < 128; n += 8)
