@@ -27,9 +27,10 @@ print("PASS APC40 pad table (128 entries, owner-calibrated)")
 assert "apc40_device_inquiry" in usb
 assert "msg[1] = 0x7E" in usb and "msg[5] = 0x47" in usb and "msg[6] = 0x29" in usb
 assert "msg[7] = 0x00; msg[8] = 0x19" in usb
-assert "midi_send_sysex(msg, sizeof msg)" in usb
+assert "midi_send_sysex(msg, n)" in usb
 assert "packets = (len + 2u) / 3u" in usb and "so_w - so_r + packets > SXQ" in usb
 assert "sx_busy = 1" in usb and "sx_out_q[so_w % SXQ] = pkt" in usb
+assert "usb_sx_reply" in usb and "usb_sx_try_send" in usb  # sticky retry when SXQ full
 assert "usb.sysex[4] == 0x01u" in usb and "apc40_device_inquiry(usb.sysex[2])" in usb
 print("PASS Universal Device Inquiry response (Akai APC40 mkII identity)")
 
@@ -141,7 +142,8 @@ assert "w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)" in main
 update_mode = main.split("/* OCT- + OCT+ held 5 s:")[1].split("/* Project transfers cannot queue")[0]
 assert "if (ui_project_busy()" in update_mode and "|| smk_clip_mode_on()" in update_mode
 assert "t0 = fm1_ms;" in update_mode and 'enter_uboot("UBOOT")' in update_mode
-assert "0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09" in usb
+assert "msg[0] = 0xF0; msg[1] = 0x47; msg[2] = 0x7F; msg[3] = 0x29; msg[4] = 0x61" in usb
+assert "msg[5] = 0x00; msg[6] = 0x09; msg[16] = 0xF7" in usb
 assert "apc40_introduction_reply();" in usb
 print("PASS clip input isolation and APC40 initialization handshake")
 
