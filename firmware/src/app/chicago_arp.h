@@ -6,9 +6,10 @@
  * Pattern playback (seq sink) is unchanged. Factory pots are 0..255; UI pots
  * are discrete 0..n-1 with the Chicago labels.
  *
- * Note pick + rate tables reuse clip-mode arp (smk_clip_keys.h ck_arp_pick /
- * CK_RATE_T). Clip MIDI→Loopy (main_fm1.c ck_arp*) stays separate I/O; this
- * header is the thin Chicago surface + sample-clock runtime for native303. */
+ * Note pick + rate tables reuse clip-mode arp (smk_clip_arp_share.c ck_arp_pick /
+ * CK_RATE_T; one copy for engine.o + x0x.o). Clip MIDI→Loopy (main_fm1.c ck_arp*)
+ * stays separate I/O; this header is the thin Chicago surface + sample-clock
+ * runtime for native303. */
 #pragma once
 #include <stdint.h>
 #include "../dsp/x0x_param.h"
