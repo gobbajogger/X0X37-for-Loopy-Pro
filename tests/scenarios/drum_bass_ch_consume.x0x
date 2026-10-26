@@ -1,0 +1,32 @@
+# Kit MIDI channel owns Note On/Off. GLO partch can put 909 and 303A on one channel;
+# a GM kick on that channel must not open the 303A gate (MIDI consume, no leak).
+# midiheld: bit 0 = 303A gate. Defaults stay distinct (MID-02); this remaps like GLO.
+wait 50
+expect midiheld 0
+
+# Remap 909 (part 0) and 303A (part 2) both onto MIDI channel 10 (0x99 / 0x89).
+partch 0 10
+partch 2 10
+
+# Kick (GM 36) on the shared kit channel — 303A must stay off.
+midi 99 24 64 0
+wait 20
+expect midiheld 0
+
+# Non-GM pitch on the kit channel is still consumed (no bass leak).
+midi 99 30 64 0
+wait 20
+expect midiheld 0
+
+# Control: 303A alone on channel 2 still opens on the same pitch.
+partch 2 2
+midi 91 24 64 0
+wait 20
+expect midiheld 1
+midi 81 24 00 0
+wait 20
+expect midiheld 0
+
+# Defaults restored for later scenarios in a shared host process (host is one-shot).
+partch 0 10
+partch 2 2
