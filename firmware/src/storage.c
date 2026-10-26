@@ -215,7 +215,6 @@ static int st_pick(uint32_t obj, uint32_t *seq)
 /* load object into dst (up to max bytes); returns the length, or -1 */
 static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
-    uint32_t i;
     st_hdr_t h;
     if (st_stage_hold)                            /* do not wipe a boot record being built */
         return -1;
@@ -223,8 +222,7 @@ static int st_load(uint32_t obj, void *dst, uint32_t max)
         return -1;
     if (h.len > max)
         h.len = max;
-    for (i = 0; i < h.len; i++)
-        ((uint8_t *)dst)[i] = st_buf[i];
+    __builtin_memcpy(dst, st_buf, h.len);
     return (int)h.len;
 }
 
@@ -241,10 +239,8 @@ static int st_save(uint32_t obj, const void *src, uint32_t len)
     if (cur < 0)
         seq = 0;
     base = st_sector(obj, cur == 0 ? 1u : 0u);       /* write the other copy */
-    if ((const void *)src != (const void *)st_buf) {
-        for (off = 0; off < len; off++)
-            st_buf[off] = ((const uint8_t *)src)[off];    /* the driver wants RAM sources */
-    }
+    if ((const void *)src != (const void *)st_buf)
+        __builtin_memcpy(st_buf, src, len);    /* the driver wants RAM sources */
     if ((rc = st_erase(base)) != 0)
         return rc;
     for (off = 0; off < len; off += 256u) {

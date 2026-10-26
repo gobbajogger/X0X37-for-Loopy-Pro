@@ -134,11 +134,9 @@ static int save_buf(uint32_t obj, uint32_t n)
 static int load_obj(uint32_t obj, void *dst, uint32_t len)
 {
     int n = plat_store_load(obj, io_buf, sizeof io_buf);
-    uint32_t i;
     if (n < 0 || (uint32_t)n != len + 4u || get32(io_buf) != PROJ_FORMAT)
         return -1;
-    for (i = 0; i < len; i++)
-        ((uint8_t *)dst)[i] = io_buf[4u + i];
+    __builtin_memcpy(dst, io_buf + 4u, len);
     stored_known[obj] = 1;
     stored_hash[obj] = hash_of(io_buf, len + 4u);
     return 0;
@@ -149,11 +147,9 @@ static int load_obj(uint32_t obj, void *dst, uint32_t len)
 static int load_settings(settings_t *dst)
 {
     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
-    uint32_t i;
     if (n < 20 || (uint32_t)n > sizeof *dst + 4u || io_buf[0] != (uint8_t)PROJ_FORMAT || io_buf[1] || io_buf[2] || io_buf[3])
         return -1;
-    for (i = 0; i + 4u < (uint32_t)n; i++)
-        ((uint8_t *)dst)[i] = io_buf[4u + i];
+    __builtin_memcpy(dst, io_buf + 4u, (uint32_t)n - 4u);
     if ((uint32_t)n == sizeof *dst + 4u) {           /* exactly what a save of these settings writes */
         stored_known[OBJ_SET] = 1;
         stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
@@ -163,12 +159,10 @@ static int load_settings(settings_t *dst)
 
 static int save_obj(uint32_t obj, const void *src, uint32_t len)
 {
-    uint32_t i;
     if (len + 4u > sizeof io_buf)
         return -1;
     put32(io_buf, PROJ_FORMAT);
-    for (i = 0; i < len; i++)
-        io_buf[4u + i] = ((const uint8_t *)src)[i];
+    __builtin_memcpy(io_buf + 4u, src, len);
     return save_buf(obj, len + 4u);
 }
 
