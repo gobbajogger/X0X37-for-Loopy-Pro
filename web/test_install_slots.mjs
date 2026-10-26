@@ -10,6 +10,7 @@ import "./test_install_busy_hint.mjs";
 import "./test_install_local_file.mjs";
 import "./test_install_download_race.mjs";
 import "./test_install_scan_order.mjs";
+import "./test_install_public_eligibility.mjs";
 import "./test_install_reconnect.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash, webcrypto } from "node:crypto";
@@ -300,6 +301,7 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
 }
 
 // ---- 8. the installer page itself (stub DOM): the download, the status, the instructions ----
+const PAGE_PRODUCT = "SMK-37 Pro_900";
 const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/gms, "");
 async function page(pkg, product, firmware, from, fill, opts = {}) {
   const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
@@ -318,14 +320,27 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   }
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
+  const packageHash = createHash("sha256").update(pkg.raw).digest("hex");
+  const source = "1".repeat(40), controllerHash = "2".repeat(64), reportHash = "3".repeat(64);
+  const reportUrl = "https://example.invalid/synthetic-device-proof";
+  // Test-only pinned approval for this exact synthetic package. The separate
+  // public-eligibility regression still tests the unmodified empty approval map.
+  const approvals = { [`test/${model}`]: {
+    owner_publication_approved: true, model, product, source_commit: source,
+    package_sha256: packageHash, controller_sha256: controllerHash,
+    device_report_sha256: reportHash, device_report_url: reportUrl,
+  } };
   const catalog = JSON.stringify({
     repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
     latest: "test",
-    versions: [{ version: "test", title: "Synthetic DEV checked slot test", status: "dev-checked", hardware_tested: false,
-      models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length,
-        sha256: createHash("sha256").update(pkg.raw).digest("hex") } } }],
+    versions: [{ version: "test", title: "Synthetic DEV checked slot test", status: "dev-checked", lifecycle: "current", hardware_tested: true, owner_publication_approved: true, source_commit: source,
+      device_evidence: { [model]: { hardware_pass: true, sha256: reportHash, url: reportUrl } },
+      models: { [model]: { product, pkg: "../firmware/synthetic.fwsc", size: pkg.raw.length,
+        controller_sha256: controllerHash, sha256: packageHash } } }],
   });
-  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
+  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog)
+    .replace("const PRODUCTION_DEVICE_APPROVALS = Object.freeze({});",
+      `const PRODUCTION_DEVICE_APPROVALS = Object.freeze(${JSON.stringify(approvals)});`))[1];
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
   const dev = new FakeX0X(pkg.image, from, product, firmware, flash, opts);
@@ -340,7 +355,8 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
       remove() {},
       replaceChildren(...nodes) { this.children = [...nodes]; },
       scrollIntoView() {},
-      removeAttribute() {},
+      setAttribute(name, value) { this[name] = String(value); },
+      removeAttribute(name) { delete this[name]; },
       click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
       set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
       get innerHTML() { return this._html || ""; },
@@ -403,6 +419,9 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   const before = ids.status.textContent;
   const clicked = ids.go.handlers.click();
   for (let i = 0; i < 3000; i++) {
+    // Owned reconnect preserves the completed install result and resets consent.
+    if (/slots were written back and checked/.test(ids.status.textContent) && ids.conn.textContent === "Connected" &&
+        ids.bar.value === 100 && !ids.devagree.checked && ids.go.disabled) break;
     if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;
     if (/written back|Restore|Done|slots|error|Error/i.test(ids.status.textContent || "") && ids.go.disabled === false) break;
     await new Promise((r) => setTimeout(r, 10));
@@ -414,17 +433,21 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     files.push({ name: d.name, b: new Uint8Array(await blobs.get(key).arrayBuffer()) });
   }
   dump("page", flash, files.map((x) => x.b));
-  return { status: ids.status.textContent, files, flash };
+  return { status: ids.status.textContent, files, flash,
+    connected: ids.conn.textContent === "Connected", consentChecked: ids.devagree.checked,
+    installDisabled: ids.go.disabled, completedBar: ids.bar.value };
 }
 {
-  const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
-  const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW, [[0, IMG[0]], [1, IMG[1]]]);
-  ok(/slots were written back and checked/.test(r.status) && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]),
+  const fw = { [NOW]: NEW, [PAGE_PRODUCT]: MOVED };
+  const r = await page(packageOf(PAGE_PRODUCT, { map: MOVED.map }), PAGE_PRODUCT, fw, NOW, [[0, IMG[0]], [1, IMG[1]]]);
+  ok(/slots were written back and checked/.test(r.status) && r.connected && !r.consentChecked && r.installDisabled &&
+    r.completedBar === 100 && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]) &&
+    same(readArchive(r.files[0].b).images[1], IMG[1]),
     `installer page: download, install, slots back ("${r.status}")`);
 }
 {
-  const fw = { [NOW]: NEW, [NEW_PKG]: MOVED };
-  const r = await page(packageOf(NEW_PKG, { map: MOVED.map }), NEW_PKG, fw, NOW, [[0, IMG[0]], [1, IMG[1]]], { failWriteAt: [1, 0x4200] });
+  const fw = { [NOW]: NEW, [PAGE_PRODUCT]: MOVED };
+  const r = await page(packageOf(PAGE_PRODUCT, { map: MOVED.map }), PAGE_PRODUCT, fw, NOW, [[0, IMG[0]], [1, IMG[1]]], { failWriteAt: [1, 0x4200] });
   ok(/not written back/.test(r.status) && /Restore/.test(r.status) && /x0x_slots\.py restore/.test(r.status)
     && r.files.length === 1 && r.status.endsWith(r.files[0].name) && same(readArchive(r.files[0].b).images[1], IMG[1]),
     "installer page: failure mid-restore keeps the file and says how to restore it");
