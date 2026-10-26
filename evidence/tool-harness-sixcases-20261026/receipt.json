@@ -1,0 +1,103 @@
+{
+  "sourceCommit": "a7a5695616fea7295ad4bb7bd0309ff2bb26f40e",
+  "sourceTree": "0b4b7d1e0d496e88ca3acd5224950e6c9d224d96",
+  "base": "8333eca5d9e5fb5c039edde0b988c5058275c22b",
+  "comparisonBaseline": "d633833ac369f8466bc2563791614206070e87d1",
+  "verdict": "AUTHOR_CHECKED_TEST_ONLY_PENDING_INDEPENDENT_REVIEW",
+  "changedSource": [
+    "tests/padcal_flag_test.py"
+  ],
+  "productionDelta": "NONE",
+  "originalFullMac": "8333 full259PASS16FAIL/275+2optionalNOTRUN remainsFAIL",
+  "sixCaseLedger": {
+    "gate-trap": {
+      "Mac": "FAILbothpins:Linuxsigwaitinfo/proc sender andactualgateLinuxprerequisite",
+      "currentLinux8333": "Fresh5/5PASS supportednon-/tmp path;exactcommand/archive/input76pins/image/exit0 boundincurrent-gate-trap-linux-receipt.json",
+      "oldLinux43d": "FAILdue/tmp workredirectcollision;notcarried"
+    },
+    "update-names": {
+      "Mac": "FAILbothpins:flockmissing",
+      "Linux43d": "Actual23/23PASS explicitlycarriedwith446unchangedtools/hostfixtureinputs"
+    },
+    "quickcheck-devbug": {
+      "Mac": "FAILbothpins:flockmissing",
+      "Linux43d": "Actual9/9PASS explicitlycarriedwith446unchangedinputs"
+    },
+    "status-lanes": {
+      "Mac": "FAILbothpins:Bash3.2hasnoassociativearrays",
+      "Linux43d": "Actual6/6PASS explicitlycarriedwith446unchangedinputs"
+    },
+    "status-isolation": {
+      "Mac": "FAILbothpins:Bash3.2hasnoassociativearrays",
+      "Linux43d": "Actual7/7PASS explicitlycarriedwith446unchangedinputs"
+    },
+    "padcal-flag": {
+      "beforeMacBothPins": "FAILobsolete literalrequiresPADCALlastintuple;actualflagrouteworks",
+      "afterMac": "18assertionsPASSandmaintainedpadcal-flagselectorPASS; actualASTbuildloop0/1/unset/invalid anddevelopment_envElite/ProDEV1/callerunchanged",
+      "negativeControls": "Fourproductioncodemutants eachrevisedtestFAIL1:missingflag,droprelease0,forced0,DEVcal0"
+    }
+  },
+  "sameMacEnvironment": {
+    "CC": "/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-toolchain/cc-darwin",
+    "CXX": "/usr/bin/clang++",
+    "CPATH": "/usr/local/include",
+    "LIBRARY_PATH": "/usr/local/lib",
+    "X0X_DEV_PADCAL": "1",
+    "X0X_TEST_TIME_SCALE": "20",
+    "X0X_TEST_JOBS": "1"
+  },
+  "limits": [
+    "Linuxproductiongatespreserved:noMacport,testskip,assertremoval orsecurityrelaxation.",
+    "FourLinuxcases are explicitexactinputcarryforwardfromcompleted43d;notnew8333executionnoroldwholefullPASS.",
+    "No GUI/recovery/device/flash/nativebuild/hardware/push/merge/publication.",
+    "Remaining10fullregistryfailuresandwholequalification areseparateowners.",
+    "d633\u21928333 namedtest/toolclosuresunchanged;unrelatedregistryadditionsdifferandareexcludedfromidentityclaim.43d\u21928333 fullrelevantregistryclosure446matches.",
+    "Freshbaseline/candidate-six-mac logs areauthenticFAIL;candidateindividualpadcal-registry-after correctlylabelledafter; original8333fullfailure remainspadcal-flag.log."
+  ],
+  "proofHashes": {
+    "README.md": "4cd1e2649828e6773ecab3779debba42961dfc3b8d9a720a251fb0bc6df70919",
+    "always-zero.log": "d93b0110e48107c13da989a344ea7026de6ae14cd2201d7e58c4e03c474c6341",
+    "baseline-individual/gate-trap.log": "3b9449256dbe941a40ffd7377e17464f0c558d807e69d12b2931a39063abc75e",
+    "baseline-individual/padcal-flag.log": "a6469f453f2544d3e246e6927916013c65361ad674038e0b9f31739f87ed1041",
+    "baseline-individual/quickcheck-devbug.log": "7aa3675c6018fbd92006df6727502f92dca1bad2d08086e71efbc6e05f1b1e3f",
+    "baseline-individual/status-isolation.log": "7a4a31d7ed7397db1dd4373dbc8442b0ad48e6636f433bfe55e90dcd45be10aa",
+    "baseline-individual/status-lanes.log": "2e605ebb2b6f2d7eb7a7dbe26abbea28141813dd4a33638da5131669a15cb6b4",
+    "baseline-individual/update-names.log": "62993ae8122ef544ecbaca264f3abf743ee996503c29149f66f7970f88ab0076",
+    "baseline-six-mac.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "baseline-six-mac.log": "538077b51ac4553256bbc9363c5d4677811457f2fba1c6c91d8dc3744f692fc3",
+    "candidate-individual/gate-trap.log": "3e1e1bf0faae1492da1dd6ccfed7fc975044e08b0e034937cc4050fd9aa2a253",
+    "candidate-individual/padcal-registry-after.log": "1d5e7176f9bc2fe40534b8e3582a803d8e88cd9a0aa99ed867d29cfbacd4055b",
+    "candidate-individual/quickcheck-devbug.log": "7aa3675c6018fbd92006df6727502f92dca1bad2d08086e71efbc6e05f1b1e3f",
+    "candidate-individual/status-isolation.log": "2ba5314884a39b9e79c06dffe1cf4684375bc8e72a492197995b187ea2441d60",
+    "candidate-individual/status-lanes.log": "169543b564de738434c28b9d0a7a3ef4db8e8198a08cb1ec4ffb269690062d5a",
+    "candidate-individual/update-names.log": "9e8aa1b43e21c9a49815e7826952ea3af41f7fbf0683e3a5f632ccd5e7c5c9a2",
+    "candidate-six-mac.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "candidate-six-mac.log": "06c8dcfc8ca4661328f19e663b4bf269acb5072b6de041736f5469816c4c8f80",
+    "carried-linux43d/quickcheck-devbug.log": "58f2d0db358ef060815001a1ab49a9f7b184567b4a74154c506a2618979fc374",
+    "carried-linux43d/status-isolation.log": "b8d5fd89964bc65cf8923161fcd167d180290df2847597f687103e6030ce1ba1",
+    "carried-linux43d/status-lanes.log": "27c3caaf0d706fc3a92b0690a9a7a24e4bc2f214d38a2b0aca018c68d444e9b1",
+    "carried-linux43d/update-names.log": "99dede6843194474595cf928563af0af54cfc8ac54dcc5d3223bdf99611ea9f2",
+    "controls-started.json": "19f46ccf58e10d06cc93a067c34603504dc672d30417e7de2dcc1d974f0a34dd",
+    "current-gate-trap-linux-receipt.json": "73d45e7726471d2fc7f7618b14571481197aca22cc7f1ccd93d0cf3c50bfbd30",
+    "current-gate-trap-linux-suite.log": "20368f0df0c67123e37d2d53bc11a6b5572441543f5dc2ebdeaed520907a2132",
+    "current-gate-trap-linux.log": "2d37c31fed968c65d4ab20459141201fdeb944a156bd67b0c06232ef0fc397eb",
+    "d633-named-input-closure.json": "79abbf26d0d29174fc0c1565624a91b33222d212c3e70fad23f4cd68831f7542",
+    "d633-registry-delta.log": "92ebc35ae5cfcb72eb5cba6faca815e34bd9046abee528d83829ed417aaf0653",
+    "dev-flag-wrong.log": "ad4007dbfa5620b573009d02edd2f6cce0c2c95ac7bd558069a01e1faf932f15",
+    "finalize.py": "1fc7d3a73fc5e621fbe8bcf0b14644b8bb9db5f4b9e053101ec0a7e1038aeca4",
+    "gate-trap.log": "ba30af20104d7d97948ac965fffdf6b23180308255bcf00d122a5775aaf77c70",
+    "linux-carryforward-input-closure.json": "7c3a94268af4913d11aa2c8d31766e29b86d97c937286beac1525c01ed55fec2",
+    "linux-image-id.txt": "e0ee807bbe41d060f23c136ad81ac9b5f6a947ba355b3cc007c2be5d62df6191",
+    "missing-padcal.log": "8a36966a3e9edc6b8cc3e688463c169bdbf9ebfe4eea7361b7e3963be6647fff",
+    "padcal-after.log": "1d5e7176f9bc2fe40534b8e3582a803d8e88cd9a0aa99ed867d29cfbacd4055b",
+    "padcal-flag.log": "a6469f453f2544d3e246e6927916013c65361ad674038e0b9f31739f87ed1041",
+    "padcal-mutants.json": "cbc22a08d32b16a3a2b3ef483717ea6689f17e7fc394ef3be32c2c9d58ee229c",
+    "padcal-mutants.py": "9092569768aa9c2d788a6862cc8b72ee0cd62de6737ce911f49c30a8ccce97d8",
+    "padcal-registry-after.log": "d3fcc3306648bad75d4f1cb5ca4c036fb30f1be4755ea2f1a063cf23ef1049c1",
+    "quickcheck-devbug.log": "b843486c4ad15d8113e654ceccab5e4cbc50baa1205bec726f363aadb9473ca0",
+    "release-flag-dropped.log": "6fe0f8a73a8cd7ba40c7d0bbc86a7162acfe19c9d1ffa056b35d77b3775a442d",
+    "status-isolation.log": "7bb04372660a5ae852d748d786a5b3cb0907128b82dc7c11912004ff9e9fb7b2",
+    "status-lanes.log": "2e4b19cd841748cee2693e452b240289dbb771fd13e740747177d4f79dd2a9a5",
+    "update-names.log": "6d7362c31b8c06c09c259775a0b2f9239f9e4eee7d6f9c881e8a849b722f58f9"
+  }
+}

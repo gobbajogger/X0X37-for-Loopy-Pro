@@ -1,0 +1,19 @@
+FAIL device bug, good replay test (want PASS, rc=1)
+     QUICK FAIL 47fd0ec 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL device bug, no inlog test (want FAIL, rc=1)
+     QUICK FAIL a527b6f 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL device bug, owner INLOG skip (want PASS, rc=1)
+     QUICK FAIL e2f4477 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL device bug, test passes on the parent (want FAIL, rc=1)
+     QUICK FAIL 189bbd8 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL device bug, inlog file that no test uses (want FAIL, rc=1)
+     QUICK FAIL 94035d3 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL device bug, inlog log read by a test (want PASS, rc=1)
+     QUICK FAIL fd3a3b5 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL source-proven bug with regression (want PASS, rc=1)
+     QUICK FAIL c7cd7e6 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL source evidence is not a test (want FAIL, rc=1)
+     QUICK FAIL 988078e 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+FAIL no device bug (want PASS, rc=1)
+     QUICK FAIL 543c203 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+quickcheck device bug: 0 of 9 ok

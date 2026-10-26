@@ -1,0 +1,9 @@
+# Six tooling regressions: bounded triage and test repair
+
+Test-only source `a7a5695616fea7295ad4bb7bd0309ff2bb26f40e`, tree `0b4b7d1e0d496e88ca3acd5224950e6c9d224d96`, branch `codex/tool-harness-regressions-20261026` atop8333. Independent review pending; no push.
+
+All six failures reproduce on d633 and8333 with the same full-Mac wrapper and inputs. Named tests/tools and six registry entries match; unrelated slot/OTA installers and other registry additions are explicitly excluded from baseline identity. Five failures are supported-platform mismatches (Linux sender introspection, flock, modern Bash/GNU tooling). Production gates remain unchanged. Four actually completed43d Linux passes are carried explicitly after446 unchanged tools/host-fixture input checks: update-names23/23, quickcheck-devbug9/9, status-lanes6/6, status-isolation7/7. Old gate-trap FAIL under/tmp is preserved. A fresh8333 Linux run in supported non-/tmp storage passes5/5 signal sender, cleanup and script-change assertions. Command, archive commit/comment/hash,76 input hashes, image and observed exit0 are bound separately.
+
+Only padcal_flag_test.py changes: actual build_app flag-routing code runs0/1/unset/invalid; actual development_env enforces DEV calibration for Elite/Pro without mutating caller flags. Existing release/header/preprocessor/clip checks remain. All18 assertions and maintained registry selector pass. Four negative production-code mutants fail as expected. No production code/gate behavior changes.
+
+FullMac259PASS16FAIL/275+2optionalNOTRUN stays FAIL. This is explicit cross-runtime closure for these six, not a full/native/hardware qualification. No GUI, recovery, device, flash, push, merge or publication. Candidate individual padcal-registry-after was collected after repair and labelled accordingly; original before failure and both actual six-case control run failures remain.

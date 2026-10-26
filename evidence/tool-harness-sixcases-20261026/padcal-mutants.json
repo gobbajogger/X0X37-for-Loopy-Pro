@@ -1,0 +1,22 @@
+[
+  {
+    "mutant": "missing-padcal",
+    "exit": 1,
+    "expectedFailure": true
+  },
+  {
+    "mutant": "release-flag-dropped",
+    "exit": 1,
+    "expectedFailure": true
+  },
+  {
+    "mutant": "always-zero",
+    "exit": 1,
+    "expectedFailure": true
+  },
+  {
+    "mutant": "dev-flag-wrong",
+    "exit": 1,
+    "expectedFailure": true
+  }
+]

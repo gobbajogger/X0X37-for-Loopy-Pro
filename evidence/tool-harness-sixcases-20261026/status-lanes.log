@@ -1,0 +1,9 @@
+FAIL status.sh rc=0: /Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tools/status.sh: line 65: declare: -A: invalid option
+declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
+/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tools/status.sh: line 68: integration: unbound variable
+FAIL Firmware Main Builder: no (lane/mb-x) in the row: 
+FAIL Second Builder: no (lane/sb-x) in the row: 
+FAIL Optimizer: no (lane/opt-x) in the row: 
+FAIL Build and Test Runner: no (lane/btr-x) in the row: 
+FAIL Docs Keeper: no (lane/dk-rules-x) in the row: 
+status lanes: 0 of 6 ok

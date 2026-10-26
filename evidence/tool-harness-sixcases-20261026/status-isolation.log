@@ -1,0 +1,12 @@
+ok   test run, no output folder: refused, exit 4
+FAIL --out DIR: rc=0 .status-tmp  live= /Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tools/status.sh: line 65: declare: -A: invalid option
+declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
+/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tools/status.sh: line 68: integration: unbound variable
+FAIL X0X_STATUS_OUT: rc=0 live= /Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tools/status.sh: line 65: declare: -A: invalid option
+declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
+/Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tools/status.sh: line 68: integration: unbound variable
+ok   unknown argument: exit 2
+ok   scan flags the bad fixture: /Users/mac/Documents/Codex/2026-10-26/task-6/combined-host/mac-full/repo/tests/host/fixtures/status/leaky_status_test.sh:6: X0X_REPO=/tmp/none bash "$TOP/tools/status.sh"
+ok   scan: each status test gives an output folder
+ok   live folder /workspace/x0x37-orchestrator not on this machine: case 6 not needed
+status-isolation: 5 of 7 ok

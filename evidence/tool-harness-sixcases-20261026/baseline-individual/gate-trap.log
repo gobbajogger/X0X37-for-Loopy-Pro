@@ -1,0 +1,10 @@
+tests/host/test_gate_trap.sh: line 23: kill: (89369) - No such process
+FAIL wrapper: rc=1 sender=89387 out=Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/tool-harness-baseline/tools/gate_sigwrap.py", line 69, in <module>
+    sys.exit(main(sys.argv))
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/tool-harness-baseline/tools/gate_sigwrap.py", line 43, in main
+    info = signal.sigwaitinfo(waitset)
+AttributeError: module 'signal' has no attribute 'sigwaitinfo' file=ls: /Users/mac/Documents/Codex/2026-10-26/task-6/tool-harness-baseline/build/gatetrap.Luxirm/sig1: No such file or directory
+FAIL gate 2 did not reach the builds: VOID 4493053 setup: use Linux x86-64 or the local Linux container (BUILDING.md)
+FAIL gate 3 did not reach the builds: VOID 4493053 setup: use Linux x86-64 or the local Linux container (BUILDING.md)
+gate trap: 0 of 3 ok
