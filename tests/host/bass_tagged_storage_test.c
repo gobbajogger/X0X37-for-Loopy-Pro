@@ -207,6 +207,43 @@ static void note_capture_lifecycle(void)
  printf("PASS accepted REC effective capture/tie cleanup/stopped write/atomic overflow lifecycle checks\n");
 }
 #endif
+static void base_undo(void)
+{
+ /* Exercise real UI history, including engine identity and deferred admission. */
+ selected(0,0,0);run_ms(100);undo_start();
+ sound_t before=proj.sound;
+ selected(0,0,1);sound_t after=proj.sound;
+ do_undo(0);CHECK(!undo_wait && undo.cur==0);
+ CHECK(!memcmp(&proj.sound,&before,sizeof before));CHECK(engine_bass_preset_index(0)==0);
+ do_undo(1);CHECK(!undo_wait && undo.cur==1);
+ CHECK(!memcmp(&proj.sound,&after,sizeof after));CHECK(engine_bass_preset_index(0)==1);
+ engine_bass_on(0,48,1,0);render();do_undo(0);
+ CHECK(undo_wait==1 && undo.cur==1);CHECK(!memcmp(&proj.sound,&after,sizeof after));
+ engine_bass_off(0);run_ms(3000);
+ CHECK(!undo_wait && undo.cur==0);CHECK(!memcmp(&proj.sound,&before,sizeof before));
+ do_undo(1);engine_bass_wheel_owners(1);do_undo(0);CHECK(undo_wait==1);
+ engine_bass_cancel_preset(0);ui_frame();CHECK(!undo_wait && undo.cur==1);
+ engine_bass_wheel_owners(0);
+ /* Selection touches sends and shared compressor; those lanes own the sound. */
+ lane_t *lane=&proj.arr.lane[0];memset(lane,0,sizeof *lane);lane->used=1;
+ lane->t=T_MIX;lane->v=PART_303A;lane->i=MX_REV;
+ CHECK(engine_bass_select_preset(0,0,2,&proj.sound)==-4);
+ lane->t=T_FX;lane->v=0;lane->i=FX_COMP;
+ CHECK(engine_bass_select_preset(0,0,2,&proj.sound)==-4);
+ lane->t=0xfd;lane->part=PART_303A;
+ CHECK(engine_bass_select_preset(0,0,2,&proj.sound)==-4);
+ memset(lane,0,sizeof *lane);
+#if X0X_DEV_WOBBLE
+ /* Release the sole Miami context, then undo a real Chicago/Miami change. */
+ selected(1,0,0);undo_start();before=proj.sound;
+ selected(0,1,0);after=proj.sound;do_undo(0);
+ CHECK(engine_bass_bank(0)==0 && !memcmp(&proj.sound,&before,sizeof before));
+ do_undo(1);CHECK(engine_bass_bank(0)==1 && !memcmp(&proj.sound,&after,sizeof after));
+ selected(0,0,0);selected(1,1,0);
+#endif
+ undo_start();
+ puts("PASS BASE identity/value undo/redo, held-note retry, stale-choice cancellation and touched motion ownership");
+}
 int main(int argc,char **argv)
 {
  CHECK(X0X_BASS_TAGGED_SOUND==1 && PROJ_SND_REV==11);CHECK(sizeof(sound_t)==2712);CHECK(sizeof(project_t)==36420);
@@ -220,6 +257,7 @@ int main(int argc,char **argv)
 #else
  selected(1,0,0);
 #endif
+ base_undo();selected(0,0,0);
  project_capture_stage();CHECK(!project_validate_stage());project_file_header(header);CHECK(!project_file_validate(header));CHECK(!project_save());
  if(getenv("BASS_TAG_FIXTURE_OUT")){FILE *f=fopen(getenv("BASS_TAG_FIXTURE_OUT"),"wb");CHECK(f!=0);CHECK(fwrite(header,1,32,f)==32);CHECK(fwrite(&project_stage,1,sizeof project_stage,f)==sizeof project_stage);fclose(f);}
  memcpy(&original,&proj,sizeof original);memset(&proj,0,sizeof proj);CHECK(!project_load());reset_runtime();

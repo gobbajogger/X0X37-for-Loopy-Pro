@@ -1329,7 +1329,10 @@ static int bass_has_locks(int voice)
 {
     if(mot.lane) for(int k=0;k<NLANE;k++) if(mot.lane[k].used &&
        ((mot.lane[k].t==T_303 && mot.lane[k].v==voice) ||
-        (mot.lane[k].t==0xfe && mot.lane[k].part==PART_303A+voice))) return 1;
+        (mot.lane[k].t==T_MIX && mot.lane[k].v==PART_303A+voice &&
+         (mot.lane[k].i==MX_REV || mot.lane[k].i==MX_DLY)) ||
+        (mot.lane[k].t==T_FX && mot.lane[k].v==0 && mot.lane[k].i==FX_COMP) ||
+        ((mot.lane[k].t==0xfd || mot.lane[k].t==0xfe) && mot.lane[k].part==PART_303A+voice))) return 1;
     return 0;
 }
 int engine_bass_preset_pending(int voice)
@@ -1512,6 +1515,51 @@ int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1)
     bass_tag_set(sound,0,bank0,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
     bass_tag_set(sound,1,bank1,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
     return 0;
+}
+uint32_t engine_bass_choice_serial(void) { return bass_request_serial; }
+int engine_bass_base_ready(unsigned mask,const bass_base_state_t *target)
+{
+    int miami=0;
+    for(int v=0;v<NBASS;v++) {
+        int bank=0;
+        int rc=bass_tagged_cell_validate(target->cell[v],&target->tag[v],&bank);
+        if(rc)return -5;
+        if(bank && ++miami>1)return -2;
+        if(!(mask&(1u<<v)))continue;
+        if(bass_has_locks(v))return -4;
+        if(bass_wheel_mask&(1u<<v))return 2;
+        if(bass_held[v] || ((src_held[0]|src_held[1]|src_held[2])&(1u<<v)))return 2;
+#if X0X_DEV_WOBBLE
+        if(!synth_idle(&bass_slot[v]))return 2;
+#else
+        if(!b303[v].idle)return 2;
+#endif
+        if(bank && !(mask&(1u<<(1-v))) && !engine_bass_bank_available(v,bank))return -2;
+    }
+    if(cq_r!=cq_w || !plat_midi_passed(plat_midi_mark()))return 2;
+    return 0;
+}
+void engine_bass_base_restore(unsigned mask)
+{
+    /* UI holds audio around the complete identity/value transaction. Target
+     * voices are idle; no unrelated voice, clock, FX processor or mixer resets. */
+    for(int v=0;v<NBASS;v++)if(mask&(1u<<v)) {
+        engine_bass_cancel_preset(v);
+        int bank=engine_bass_sound_bank(mot_base_snd,v);
+#if X0X_DEV_WOBBLE
+        synth_binding_t binding=bank?wobble_foundation_binding(&dev_wobble):synth303_binding(&b303[v]);
+        (void)synth_request(&bass_slot[v],binding,0);synth_boundary(&bass_slot[v]);
+#endif
+        chi_arp_on[v]=0;chi_arp_run_clear(&chi_arp_run[v]);
+        chi_damper[v]=chi_damp_latched[v]=0;
+        chi_fx_type[v]=CHI_FX_OFF;chi_fx_insert_program(v);
+        int count=bank?WOBBLE_EXPERIMENT_NPARAMS:CHI_AUX_END;
+        for(int i=0;i<count;i++)apply_param(T_303,v,i,mot_base_snd->v[T_303][v][i]);
+        for(int i=0;i<MX_NPARAMS;i++)apply_param(T_MIX,PART_303A+v,i,mot_base_snd->v[T_MIX][PART_303A+v][i]);
+        bass_sound_info_t info;
+        bass_named_preset[v]=bass_tag_read(mot_base_snd,v,&info)==BASS_IDENTITY_READY &&
+            info.preset!=BASS_SOUND_NO_PRESET?(int16_t)info.preset:-1;
+    }
 }
 void engine_bass_sound_refresh(sound_t *sound,int voice)
 {

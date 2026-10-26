@@ -1712,9 +1712,18 @@ static undo_t undo X0X_POOL;
 /* Project transfers temporarily borrow the undo baseline. The history stays in undo.pool;
  * abort copies the live project back, and successful replacement starts a new history. */
 #define undo_shadow ((uint8_t *)&project_stage + UNDO_OFF)
+#if X0X_BASS_TAGGED_SOUND
+static uint8_t undo_bass_mask,undo_wait; /* 1 undo, 2 redo */
+static int undo_wait_cur;
+static uint32_t undo_wait_used,undo_wait_serial;
+#endif
 static uint8_t undo_lanes;             /* the last undo / redo touched the knob motion */
 
-static void undo_start(void) { undo_init(&undo, (uint8_t *)&proj + UNDO_OFF, undo_shadow, UNDO_BYTES); }
+static void undo_start(void) {
+#if X0X_BASS_TAGGED_SOUND
+    undo_wait=0;
+#endif
+    undo_init(&undo, (uint8_t *)&proj + UNDO_OFF, undo_shadow, UNDO_BYTES); }
 
 static void undo_tick(void)
 {
@@ -1734,6 +1743,10 @@ static void undo_changed(uint32_t off, uint32_t len)
         if (k >= s0 && k < s1) {
             uint32_t x = k - s0, t = x / (NVOICES_MAX * NPARAMS_MAX), v = (x / NPARAMS_MAX) % NVOICES_MAX,
                      i = x % NPARAMS_MAX;
+#if X0X_BASS_TAGGED_SOUND
+            if((t==T_303 && (undo_bass_mask&(1u<<v))) ||
+               (t==T_MIX && v>=PART_303A && v<=PART_303B && (undo_bass_mask&(1u<<(v-PART_303A)))))continue;
+#endif
             if ((int)v < engine_nvoices((int)t) && (int)i < engine_nparams((int)t, (int)v))
                 engine_set((int)t, (int)v, (int)i, proj.sound.v[t][v][i]);
         } else if (k >= l0) {
@@ -1786,15 +1799,45 @@ static void do_undo(int redo)
     record_finish();
     uint32_t lo, hi;
     char t[24];
-#if X0X_BASS_PRESET_PREVIEW
+#if X0X_BASS_PRESET_PREVIEW && !X0X_BASS_TAGGED_SOUND
     if(engine_bass_preview_changed()) { say("UNDO UNAVAILABLE",""); return; }
 #endif
     undo_commit(&undo);                              /* what was just done is a step too */
+#if X0X_BASS_TAGGED_SOUND
+    undo_wait=0;undo_bass_mask=0;
+    int entry=redo?undo.cur:undo.cur-1;
+    if(entry>=0 && entry<undo.n) {
+        bass_base_state_t target;
+        for(int v=0;v<NBASS;v++) {
+            uint32_t cell=__builtin_offsetof(sound_t,v)+((T_303*NVOICES_MAX+v)*NPARAMS_MAX);
+            uint32_t tag=__builtin_offsetof(sound_t,bass)+v*sizeof(bass_sound_tag_t);
+            undo_peek(&undo,entry,cell,target.cell[v],NPARAMS_MAX);
+            undo_peek(&undo,entry,tag,target.tag[v].bytes,BASS_SOUND_TAG_BYTES);
+            if(memcmp(target.cell[v],proj.sound.v[T_303][v],NPARAMS_MAX) ||
+               memcmp(&target.tag[v],&proj.sound.bass[v],sizeof target.tag[v]))undo_bass_mask|=1u<<v;
+        }
+        if(undo_bass_mask) {
+            engine_project_hold(1);
+            int ready=engine_bass_base_ready(undo_bass_mask,&target);
+            if(ready) {
+                engine_project_hold(0);
+                if(ready>0) {
+                    undo_wait=(uint8_t)(redo?2:1);undo_wait_cur=undo.cur;undo_wait_used=undo.used;
+                    undo_wait_serial=engine_bass_choice_serial();say("UNDO WAIT NOTE / INPUT",0);
+                } else say(ready==-4?"UNDO SOUND LOCKS":"UNDO ENGINE UNAVAILABLE",0);
+                return;
+            }
+        }
+    }
+#endif
     undo_lanes = 0;
     if (!(redo ? undo_redo : undo_undo)(&undo, undo_changed, &lo, &hi)) {
         say(redo ? "NOTHING TO REDO" : "NOTHING TO UNDO", 0);
         return;
     }
+#if X0X_BASS_TAGGED_SOUND
+    if(undo_bass_mask) {engine_bass_base_restore(undo_bass_mask);engine_project_hold(0);}
+#endif
     song_structure_revision++;                     /* undo may restore/reorder song bars */
     if (undo_lanes)
         engine_motion_reset();
@@ -5597,6 +5640,15 @@ void ui_frame(void)
             say("WAITING FOR CLOCK", 0);
         waited = w;
     }
+#if X0X_BASS_TAGGED_SOUND
+    if(undo_wait) {
+        int direction=undo_wait==2;
+        if(undo.cur!=undo_wait_cur || undo.used!=undo_wait_used ||
+           engine_bass_choice_serial()!=undo_wait_serial ||
+           memcmp(undo.region,undo.shadow,undo.len))undo_wait=0;
+        else do_undo(direction);
+    }
+#endif
     undo_tick();
     autosave();
     if (!project_busy)
