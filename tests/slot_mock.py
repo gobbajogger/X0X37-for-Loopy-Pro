@@ -43,6 +43,8 @@ class MockDevice:
         self.drop_every, self.n = drop_every, 0
         self.fail_write_at = fail_write_at              # (slot, offset): that SMP_WRITE returns rc 3 (flash)
         self.nz = [0] * self.count
+        self.importing = [False] * self.count           # SMP_BEGIN armed; flash intact until first sector erase
+        self.sec0_erased = [False] * self.count
         for k in range(self.count):
             self.scan(k)
 
@@ -94,9 +96,16 @@ class MockDevice:
             n = min(xs.READ_MAX if a[4] > xs.READ_MAX // 2 else a[4] * 2, size - off)
             return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F] + \
                 xs.pack7(bytes(self.fl.mem[base + off:base + off + n]))
-        if cmd in (xs.CMD_BEGIN, xs.CMD_ERASE):
+        if cmd == xs.CMD_BEGIN:
+            # Arm rewrite only. Do not erase: cancel before the first WRITE keeps last good.
+            self.importing[k] = True
+            self.sec0_erased[k] = False
+            return [k, 0]
+        if cmd == xs.CMD_ERASE:
             self.nz[k] = 0
-            for s in range(size // 0x1000 if cmd == xs.CMD_ERASE else 1):
+            self.importing[k] = False
+            self.sec0_erased[k] = False
+            for s in range(size // 0x1000):
                 self.fl.erase4k(base + s * 0x1000)
             return [k, 0]
         if cmd == xs.CMD_WRITE:
@@ -105,13 +114,19 @@ class MockDevice:
             rc = 0
             if off < xs.DATA_OFF or off & 0xFF or not b or len(b) > 256 or off + len(b) > size:
                 rc = 1
-            elif self.nz[k]:
+            elif (not self.importing[k] and self.nz[k]):
                 rc = 4
             elif self.fail_write_at == (k, off):
                 rc = 3
             else:
-                if not off & 0xFFF:
+                if off < 0x1000:
+                    if not self.sec0_erased[k]:
+                        self.fl.erase4k(base)
+                        self.nz[k] = 0
+                        self.sec0_erased[k] = True
+                elif not off & 0xFFF:
                     self.fl.erase4k(base + off)
+                    self.nz[k] = 0
                 self.fl.program(base + off, b)
             return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, rc]
         if cmd == xs.CMD_END:
@@ -125,6 +140,8 @@ class MockDevice:
                 return [k, 3]
             self.fl.program(base, h)
             self.scan(k)
+            self.importing[k] = False
+            self.sec0_erased[k] = False
             return [k, 0 if self.nz[k] else 5]
         raise TimeoutError(f"no reply to cmd {cmd}")
 
