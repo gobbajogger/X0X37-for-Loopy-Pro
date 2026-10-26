@@ -207,6 +207,11 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         }
         float carrier = waveform(s->carrier_phase, step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
+        /* Square Fourier peak ~0.92 vs unity; restore Miami-matrix
+         * square_open absolute steady envelope (~+2.23 dB). LFO shape
+         * keeps unscaled waveform() so wobble depth is unchanged. */
+        if (s->p[W_CARRIER_WAVE] >= .5f)
+            carrier *= 1.293f;
         if (xmod_live)
             carrier *= (1.0f + xmod_dep * xmod_lvl * (6.2f / 0.7f) * m);
         float sub = waveform(s->sub_phase, step * .5f, 0);
