@@ -2,6 +2,7 @@
 /* Send reverb, synced delay and master stage: a port of 9W9's er99_verb_tick,
  * er99_dly_tick, master distortion and master_glue (GPL-3.0). See fxbus.h. */
 #include "fxbus.h"
+#include "../x0x_cold.h"          /* X0X_COLD: fxbus_init is boot only, not the send/render */
 
 static const int32_t fx_cl[4] = { 1116, 1188, 1277, 1356 };
 static const int32_t fx_al[2] = { 556, 441 };
@@ -135,7 +136,8 @@ void fxbus_set_bpm(fxbus_t *f, float bpm)
     }
 }
 
-void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
+/* Boot only (engine_init). fxbus_process and the reverb/delay ticks stay -O2. */
+X0X_COLD void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
 {
     uint8_t *p = (uint8_t *)f;
     for (unsigned i = 0; i < sizeof(*f); ++i)

@@ -9,6 +9,7 @@
 #include "drum909.h"
 #include "x0x_drum_samples.h"
 #include "ima_adpcm.h"
+#include "../x0x_cold.h"          /* X0X_COLD: drum909_init is boot only, not the render */
 
 #define D9_VCA_VT 0.0002f
 #define D9_VCA_NORM (1.0f / (1.0f - D9_VCA_VT))
@@ -318,7 +319,8 @@ static void d9_bt_init(d9_bt_t *v)
     d9_shape_prep(&v->shape, v->drive, v->dist_type);
 }
 
-void drum909_init(drum909_t *d)
+/* Boot only (engine_init). d9_render and drum909_trigger stay -O2. */
+X0X_COLD void drum909_init(drum909_t *d)
 {
     uint8_t *p = (uint8_t *)d;
     for (unsigned i = 0; i < sizeof(*d); ++i)
