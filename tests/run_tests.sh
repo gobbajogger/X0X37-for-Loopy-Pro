@@ -535,8 +535,13 @@ for s in tests/scenarios/*.x0x; do
 done
 # the device scratch (x0x.c): the PERF TEST patterns and the LZ hash table of a save in the same 4 KiB.
 # The test must play the same sound as with its own buffers (scenario perfsave: a save just before the test).
+# When X0X_TESTS selects only perf-scratch, scenario-perfsave is filtered out — build the
+# baseline WAV here so cmp does not depend on a prior full-suite scenario pass.
 if [ "$PIL_SKIP" = 1 ]; then not_run "perf-scratch" Pillow; return; fi
-run perf-scratch sh -c "X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OUT=$OUT/x0x_host_scratch sh host/build_host.sh 2>/dev/null && \
+run perf-scratch sh -c "(test -x build/host/x0x_host || sh host/build_host.sh) && \
+    mkdir -p build/scenarios/perfsave && \
+    build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave && \
+    X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OUT=$OUT/x0x_host_scratch sh host/build_host.sh 2>/dev/null && \
     mkdir -p $OUT/perf-scratch && $OUT/x0x_host_scratch tests/scenarios/perf.x0x $OUT/perf-scratch && \
     $OUT/x0x_host_scratch tests/scenarios/perfsave.x0x $OUT/perf-scratch && \
     cmp $OUT/perf-scratch/perfsave.wav build/scenarios/perfsave/perfsave.wav"
