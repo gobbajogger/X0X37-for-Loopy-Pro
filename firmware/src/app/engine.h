@@ -120,4 +120,3 @@ int engine_brk_nslots(void);                                /* built-in loops + 
 const char *const *engine_brk_slot_names(void);
 
 /* Physical recording edges use the existing audio command queue. */
-void engine_bass_record(int part, int note, int velocity, int down, int flags);
