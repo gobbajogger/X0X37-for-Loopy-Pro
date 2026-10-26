@@ -83,7 +83,7 @@ test_class() {
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -364,6 +364,7 @@ run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmwa
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reachability sh tests/host/smc_reachability_test.sh; fi
 run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-lock sh tests/host/smc_lock_test.sh
+run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
