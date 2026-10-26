@@ -536,10 +536,12 @@ fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
+# When X0X_TESTS selects scenarios alone, host-build is filtered out — build x0x_host here
+# (same pattern as perf-scratch) so filtered-alone runs do not fail on a missing binary.
 for s in tests/scenarios/*.x0x; do
     n=${s##*/}; n=${n%.x0x}
     if [ "$PIL_SKIP" = 1 ]; then not_run "scenario-$n" Pillow
-    else run "scenario-$n" build/host/x0x_host "$s" "build/scenarios/$n"; fi
+    else run "scenario-$n" sh -c "(test -x build/host/x0x_host || sh host/build_host.sh) && build/host/x0x_host \"$s\" \"build/scenarios/$n\""; fi
 done
 # the device scratch (x0x.c): the PERF TEST patterns and the LZ hash table of a save in the same 4 KiB.
 # The test must play the same sound as with its own buffers (scenario perfsave: a save just before the test).
