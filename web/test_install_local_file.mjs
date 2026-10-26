@@ -18,15 +18,20 @@ const source = html.slice(ctlStart, ctlEnd) + '\n' + html.slice(start, stop);
 function picker({ digest } = {}) {
   const nodes = {};
   const node = () => ({
-    checked: false, disabled: false, value: 'previous', textContent: '', handlers: {},
+    dataset: {}, checked: false, disabled: false, value: 'previous', textContent: '', handlers: {},
     addEventListener(event, fn) { this.handlers[event] = fn; },
     classList: { add() {}, remove() {} },
+    click() {}, scrollIntoView() {},
+    focus() { this.focused = true; },
   });
   const dom = new Proxy(nodes, { get(t, p) { return (t[p] ||= node()); } });
   const events = [];
   const api = runInNewContext(`(() => {
     let stock = null, ctl = null, writing = false, lastId = null;
     const $ = id => dom[id];
+    const t = key => key;
+    // Journey rendering is presentation only; preserve file/consent assertions.
+    const refreshJourney = () => {};
     const sayK = (code, suffix) => events.push({ code, suffix });
     const STOCK_SHA256_FM1 = 'stock-reference';
     const productOf = raw => raw[0] === 1 ? 'SMK-37 Pro_9001000'
@@ -144,4 +149,20 @@ assert.ok(html.includes('ctlreading:'), 'must provide controller loading message
 assert.ok(html.includes('ctlreadfail:'), 'must provide controller read failure message');
 assert.ok(html.includes('stockloading:'), 'must provide readable loading message in both language dictionaries');
 assert.ok(html.includes('stockloadfail:'), 'must provide readable read failure message');
+
+await caseRun('empty-picker feedback keeps model confirmation unchecked', async () => {
+  const p = picker();
+  p.dom.chooseLocal.handlers.click();
+  await p.input(file(7));
+  assert.equal(p.dom.localfeedback.dataset.state, 'error');
+  assert.equal(p.dom.localfeedback.textContent, 'localinvalid');
+  assert.equal(p.dom.stockgo.disabled, true);
+  p.dom.chooseLocal.handlers.click();
+  await p.input(file(2));
+  assert.equal(p.dom.localfeedback.hidden, true);
+  assert.equal(p.dom.stockconfirm.focused, true);
+  assert.equal(p.dom.stockconfirm.checked, false);
+  assert.equal(p.dom.stockgo.disabled, true);
+});
+
 console.log('local .fwsc selection regressions passed');
