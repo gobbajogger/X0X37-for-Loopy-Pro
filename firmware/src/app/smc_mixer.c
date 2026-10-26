@@ -51,11 +51,14 @@ static uint32_t smc_release_seen[4];
 #define smc_host_solo_release_seen smc_release_seen[1]
 #define smc_pause_release_lost (smc_release_lost + 2)
 #define smc_pause_release_seen (smc_release_seen + 2)
+/* Full-ring drop must still publish key-ups that clear edge-held UI state:
+ * Solo 8–15, HOME 6, SELECT 24–31, Pause 0x5D, Play 0x5E. */
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
     return !(note & 0x80u) && !(velocity & 0x80u) &&
-           ((note >= 8u && note < 16u) || (note >= 24u && note < 32u) || note == 0x5Du || note == 0x5Eu) &&
+           (note == 6u || (note >= 8u && note < 16u) || (note >= 24u && note < 32u) ||
+            note == 0x5Du || note == 0x5Eu) &&
            (type == 0x80u || (type == 0x90u && !velocity));
 }
 static struct {
@@ -1388,8 +1391,8 @@ void smc_poll(void)
     if (missed_solo) {
         if (smc_project_active()) smc_solo_clear();
         /* The shared release-loss epoch also rearms edge-sensitive buttons.
-         * Losing a key-up must never park PLAY or SELECT until reconnect. */
-        smc.play_down = smc.select_down = 0;
+         * Losing a key-up must never park PLAY, SELECT, or HOME until reconnect. */
+        smc.play_down = smc.select_down = smc.home_down = 0;
         smc_fx_clear();
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())

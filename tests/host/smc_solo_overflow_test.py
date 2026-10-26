@@ -180,7 +180,18 @@ int main(void)
  delayed_overflow_release(0,0); cases++;
  delayed_overflow_release(1,0); cases++;
  delayed_overflow_release(1,1); cases++;
- assert(cases==22);printf("SMC combined source-window Solo overflow: %d/22 PASS\n",cases);
+ /* HOME note 6 key-up on a full host/BLE ring must clear home_down. */
+ for(int r=0;r<2;r++){
+  prepare(); smc.home_down=1; saturate(r);
+  uint32_t before=r==0?smc_host_solo_release_lost:smc_ble_solo_release_lost;
+  emit(r,0x80,6,0); smc_poll();
+  if(smc.home_down || (r==0?smc_host_solo_release_lost:smc_ble_solo_release_lost)==before){
+   fprintf(stderr,"FAIL HOME release overflow route=%d home_down=%u\n",r,(unsigned)smc.home_down);
+   exit(1);
+  }
+  cases++;
+ }
+ assert(cases==24);printf("SMC combined source-window Solo overflow: %d/24 PASS\n",cases);
  return 0;
 }
 '''
