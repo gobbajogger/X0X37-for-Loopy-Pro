@@ -146,7 +146,7 @@ __attribute__((noinline)) static void bass_slide_midi_off(seq_t *s, int b, const
     s->bass_slide_off[b] = 0;
 }
 
-static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
+__attribute__((noinline)) static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
 {
     bass_slide_midi_off(s, b, o);
     if (s->bass_out_valid[b])
