@@ -525,6 +525,7 @@ run slot-read-reply python3 tests/x0x_slots_read_reply_test.py   # malformed/non
 run slot-ack-integrity python3 tests/x0x_slots_ack_integrity_test.py   # refuse stale or malformed SMP_WRITE/BEGIN/END/ERASE ACKs
 run slot-echo-7bit python3 tests/x0x_slots_echo_7bit_test.py   # refuse aliased non-7-bit sample-slot read/write echoes
 run slot-migration-matching python3 tests/x0x_slots_migration_matching_test.py   # safe maximum matching for pre-OTA slot backup restoration
+command -v node >/dev/null 2>&1 && run slot-migration-indices-web node --test web/test_migration_indices.mjs
 run slot-break-menu-migration python3 tests/x0x_slots_break_menu_migration_test.py   # migration must not reorder LOOP menu (pattern slot_a/slot_b)
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-restore-status python3 tests/fm1_install_restore_status_test.py   # installed-but-unrestored slots are never a successful install
