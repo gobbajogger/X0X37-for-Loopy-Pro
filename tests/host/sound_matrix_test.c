@@ -102,6 +102,54 @@ static void geometry(const char *dir,int bank)
 }
 /* Independent DSP states prove both stock amp release constants and the
  * Gate-mode recalc on each control block (not merely a renderer self-test). */
+/* The header indicators describe screen banks, not rows or musical divisions. */
+static void page_dots(const char *dir)
+{
+    for (int bank = 0; bank < 2; bank++) {
+        fixture(bank);
+        int rows = pg.n, banks = (rows + 3) / 4;
+        CHECK(banks == 2 && rows == (bank ? 7 : 8));
+        CHECK(7 + tw(&FONT_B, bank ? "MIAMI A" : "CHICAGO A") < 175);
+        for (int page = 0; page < rows; page++) {
+            *page_of(V_PART) = page; ui.msg_until = 0;
+            sound_t before = proj.sound;
+            for (int state = SAVE_SAVED; state <= SAVE_FAILED; state++) {
+                ui.dirty = state == SAVE_UNSAVED; save_wait = state == SAVE_QUEUED;
+                ui.save_failed = state == SAVE_FAILED;
+                draw_header();
+                for (int i = 0; i < banks; i++) {
+                    int x = 232 - (banks - 1 - i) * 10;
+                    CHECK(x - 3 > 194 && x + 3 < 236); /* after REC, before dirty marker */
+                    CHECK(fb[9 * 240 + x] == swap16(i == page / 4 ? C_HI : C_BLACK));
+                    CHECK(fb[9 * 240 + x + 2] != swap16(C_BLACK)); /* outlined inactive remains visible */
+                }
+                uint16_t dirty = state == SAVE_SAVED ? C_BLACK : state == SAVE_FAILED ? RGB(255,70,70) : C_AMB;
+                CHECK(fb[3 * 240 + 237] == swap16(dirty));
+                CHECK(cur_page() == page && pg.n == rows);
+                CHECK(!memcmp(&before, &proj.sound, sizeof before));
+            }
+            ui.dirty = save_wait = ui.save_failed = 0;
+        }
+        for (int screen = 0; screen < banks; screen++) {
+            char name[48]; *page_of(V_PART) = screen ? rows - 1 : 0;
+            snprintf(name, sizeof name, "%s-page-dots-%d", bank ? "miami" : "chicago", screen + 1);
+            shot(dir, name);
+        }
+    }
+    /* Unknown retained identity exposes one safe SOUND row, hence one bank. */
+    fixture(FACTORY_BANK_CHICAGO);
+    sound_t before = proj.sound;
+    memset(proj.sound.bass[0].bytes, 0, sizeof proj.sound.bass[0].bytes);
+    build_pages(); *page_of(V_PART) = 0; ui.dirty = save_wait = ui.save_failed = 0;
+    CHECK(pg.n == 1); draw_header();
+    CHECK(7 + tw(&FONT_B, "CHOOSE ENGINE") < 175);
+    CHECK(fb[9 * 240 + 232] == swap16(C_HI));
+    CHECK(fb[9 * 240 + 222] == swap16(C_BLACK));
+    shot(dir, "unknown-single-page-dot");
+    proj.sound = before; build_pages();
+    puts("PASS screen-bank dots: both banks/engines, partial bank, unknown single bank, dirty marker and bounds");
+}
+
 static void dsp_release(void)
 {
     bass303_t b;float out[BASS303_CTRL];
@@ -210,6 +258,16 @@ static void drums(const char *dir)
 {
     for(int kit=0;kit<2;kit++)for(int voice=0;voice<NDRUM;voice++) {
         ui.part=kit;ui.sel[kit]=voice;set_view(V_PART);ui.touched=-1;
+        int banks = (pg.n + 3) / 4;
+        CHECK(banks >= 1 && 232 - (banks - 1) * 10 - 3 > 194);
+        for (int page = 0; page < pg.n; page++) {
+            *page_of(V_PART) = page; ui.msg_until = 0; draw_header();
+            for (int i = 0; i < banks; i++) {
+                int x = 232 - (banks - 1 - i) * 10;
+                CHECK(fb[9 * 240 + x] == swap16(i == page / 4 ? C_HI : C_BLACK));
+                CHECK(fb[9 * 240 + x + 2] != swap16(C_BLACK));
+            }
+        }
         for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++) {
             pref_t r=pg.r[p][k];if(r.kind==R_NONE)continue;
             CHECK(tw(&FONT_T,matrix_name(r))<=54);
@@ -225,6 +283,6 @@ int main(int argc,char **argv)
     CHECK(!strcmp(btn_label(B_SEL),"SCALE"));CHECK(!strcmp(btn_label(B_SAVE),"BT"));
     CHECK(!strcmp(UI_CAP_KNOBS,"K5-8"));CHECK(help_fits());
     CHECK(tw(&FONT_T,"STEP 64 " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT ":ROW")+tw(&FONT_T,"KEYS/MIDI")<222);
-    dsp_release();mapping(0);mapping(1);geometry(dir,0);geometry(dir,1);envelopes(dir);transitions(dir);drums(dir);
+    dsp_release();mapping(0);mapping(1);geometry(dir,0);geometry(dir,1);page_dots(dir);envelopes(dir);transitions(dir);drums(dir);
     printf("sound matrix B: %u checks PASS\n",checks);return 0;
 }

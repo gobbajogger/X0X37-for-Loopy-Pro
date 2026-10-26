@@ -74,3 +74,16 @@ The drawing is a **stage-normalised parameter-shape preview**, not an audio trac
 `tests/host/test_sound_matrix_display.py` runs ordinary host input scenarios for primary-bank geometry, wave controls, row/bank navigation, wrap, stale-touch rejection, held-step editing and transient envelope restoration. Existing preset, SMC mapping, UI feedback and storage/persistence checks remain applicable.
 
 Host tests and source review do not establish native memory margins, hardware behavior or installability. Exact-source Elite/Pro development builds and independent review remain required before rollout. No merge, publication, flash or production promotion is authorized by this change.
+
+## Owner follow-on: screen-bank dots
+
+The top-right page fraction is replaced by circular page dots: the active screen
+bank is filled and inactive banks are outlined. They count groups of four matrix
+rows, not musical divisions or individual selected rows. The existing dot drawing
+primitive is reused. Chicago and Miami both currently have two banks; Miami's
+second bank is partial. Unknown retained engines have one safe SOUND bank and
+one filled dot. Row selection, controls, pending/edited state and the separate
+save-state corner marker are unchanged. Actual framebuffer tests cover every
+bass row, both engines, the partial/single bank, both drum kits, indicator bounds
+and all four save states. This supersedes only the fraction shown in the earlier
+frozen-B screenshots; broader overview redesign remains proposal-only.

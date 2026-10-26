@@ -4270,8 +4270,14 @@ static UI_DRAW void draw_header(void)
             name=bidx()?"CHICAGO B":"CHICAGO A";
         }
         cv_text(7,2,&FONT_B,name,matrix_col());
-        put_i(put_s(put_i(b,cur_page()/4+1),"/"),(pg.n+3)/4);
-        text_r(232,3,&FONT_XS,b,C_HI);
+        {   /* Screen banks, not musical divisions or the selected control row. */
+            int banks = (pg.n + 3) / 4;
+            for (int i = 0; i < banks; i++) {
+                int dx = 232 - (banks - 1 - i) * 10;
+                dot(dx, 9, 2, C_HI);
+                if (i != cur_page() / 4) dot(dx, 9, 1, C_BLACK);
+            }
+        }
         if(seq.playing) play_icon(175,4,C_HI);
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
