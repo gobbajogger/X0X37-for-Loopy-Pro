@@ -111,6 +111,32 @@ static void chi_fx_insert_program(int v)
         chi_gaterev_set(&chi_fx[v].gaterev, e1, e2, BASS303_SR);
     }
 }
+
+/* One insert-process switch for both bass slots (NBASS unrolls under -O2). */
+static void __attribute__((noinline)) chi_fx_process(int b, float *buf, int n)
+{
+    uint8_t t = chi_fx_type[b];
+    if (chi_fx_is_crush_insert(t))
+        chi_crush_process(&chi_fx[b].crush, buf, n);
+    else if (chi_fx_is_ring_insert(t))
+        chi_ring_process(&chi_fx[b].ring, buf, n);
+    else if (chi_fx_is_eq_insert(t))
+        chi_eq_process(&chi_fx[b].eq, buf, n);
+    else if (chi_fx_is_cho_insert(t))
+        chi_cho_process(&chi_fx[b].cho, buf, n);
+    else if (chi_fx_is_ens_insert(t))
+        chi_ens_process(&chi_fx[b].ens, buf, n);
+    else if (chi_fx_is_phaser_insert(t))
+        chi_phaser_process(&chi_fx[b].phaser, buf, n);
+    else if (chi_fx_is_sdly_insert(t))
+        chi_sdly_process(&chi_fx[b].sdly, buf, n);
+    else if (chi_fx_is_bpmdly_insert(t))
+        chi_bpmdly_process(&chi_fx[b].bpmdly, buf, n);
+    else if (chi_fx_is_hall_insert(t))
+        chi_hall_process(&chi_fx[b].hall, buf, n);
+    else if (chi_fx_is_gaterev_insert(t))
+        chi_gaterev_process(&chi_fx[b].gaterev, buf, n);
+}
 /* Chicago damper: live/MIDI sustain. Pattern sink ignores it. */
 static uint8_t chi_damper[NBASS] POOL;
 static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper on */
@@ -379,14 +405,14 @@ const char *engine_voice_name(int t, int v)
 
 #if X0X_DEV_WOBBLE
 int engine_bass_is_wobble(int voice) { return bass_wobble_voice(voice); }
-static void bass_voice_note_on(int v, int note, int acc, int slide, int vel)
+static void __attribute__((noinline)) bass_voice_note_on(int v, int note, int acc, int slide, int vel)
 {
     if (bass_wobble_voice(v))
         synth_note(&bass_slot[v], note, acc, slide, vel);
     else
         bass303_note_on_velocity(&b303[v], note, acc, slide, vel);
 }
-static void bass_voice_note_off(int v)
+static void __attribute__((noinline)) bass_voice_note_off(int v)
 {
     if (bass_wobble_voice(v))
         synth_off(&bass_slot[v]);
@@ -1463,26 +1489,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         PROF_T(pb);
         idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
         bass303_render(&b303[b], bb[b], (int)n);
-        if (!idle[b] && chi_fx_is_crush_insert(chi_fx_type[b]))
-            chi_crush_process(&chi_fx[b].crush, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_ring_insert(chi_fx_type[b]))
-            chi_ring_process(&chi_fx[b].ring, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_eq_insert(chi_fx_type[b]))
-            chi_eq_process(&chi_fx[b].eq, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_cho_insert(chi_fx_type[b]))
-            chi_cho_process(&chi_fx[b].cho, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_ens_insert(chi_fx_type[b]))
-            chi_ens_process(&chi_fx[b].ens, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_phaser_insert(chi_fx_type[b]))
-            chi_phaser_process(&chi_fx[b].phaser, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_sdly_insert(chi_fx_type[b]))
-            chi_sdly_process(&chi_fx[b].sdly, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_bpmdly_insert(chi_fx_type[b]))
-            chi_bpmdly_process(&chi_fx[b].bpmdly, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_hall_insert(chi_fx_type[b]))
-            chi_hall_process(&chi_fx[b].hall, bb[b], (int)n);
-        else if (!idle[b] && chi_fx_is_gaterev_insert(chi_fx_type[b]))
-            chi_gaterev_process(&chi_fx[b].gaterev, bb[b], (int)n);
+        if (!idle[b])
+            chi_fx_process(b, bb[b], (int)n);
         if (!idle[b])
             bfx_shape(PART_303A + b, bb[b], 0, 0, 0, 1, (int)n);
         PROF_ADD(2 + b, pb);
@@ -1523,28 +1531,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
         /* Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev inserts are Chicago/native303 only — never on WBL1. */
-        if (!idle[b] && bass_slot[b].active.ops != &wobble_foundation_ops) {
-            if (chi_fx_is_crush_insert(chi_fx_type[b]))
-                chi_crush_process(&chi_fx[b].crush, bb[b], (int)n);
-            else if (chi_fx_is_ring_insert(chi_fx_type[b]))
-                chi_ring_process(&chi_fx[b].ring, bb[b], (int)n);
-            else if (chi_fx_is_eq_insert(chi_fx_type[b]))
-                chi_eq_process(&chi_fx[b].eq, bb[b], (int)n);
-            else if (chi_fx_is_cho_insert(chi_fx_type[b]))
-                chi_cho_process(&chi_fx[b].cho, bb[b], (int)n);
-            else if (chi_fx_is_ens_insert(chi_fx_type[b]))
-                chi_ens_process(&chi_fx[b].ens, bb[b], (int)n);
-            else if (chi_fx_is_phaser_insert(chi_fx_type[b]))
-                chi_phaser_process(&chi_fx[b].phaser, bb[b], (int)n);
-            else if (chi_fx_is_sdly_insert(chi_fx_type[b]))
-                chi_sdly_process(&chi_fx[b].sdly, bb[b], (int)n);
-            else if (chi_fx_is_bpmdly_insert(chi_fx_type[b]))
-                chi_bpmdly_process(&chi_fx[b].bpmdly, bb[b], (int)n);
-            else if (chi_fx_is_hall_insert(chi_fx_type[b]))
-                chi_hall_process(&chi_fx[b].hall, bb[b], (int)n);
-            else if (chi_fx_is_gaterev_insert(chi_fx_type[b]))
-                chi_gaterev_process(&chi_fx[b].gaterev, bb[b], (int)n);
-        }
+        if (!idle[b] && bass_slot[b].active.ops != &wobble_foundation_ops)
+            chi_fx_process(b, bb[b], (int)n);
         PROF_ADD(2 + b, pb);
 #endif
         if (idle[b])
