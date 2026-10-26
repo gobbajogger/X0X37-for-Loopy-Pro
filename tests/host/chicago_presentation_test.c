@@ -64,6 +64,17 @@ static void edges(uint32_t btn,uint32_t keys)
 static void patch(void) {edges(1u<<B_HOME,held_keys);edges(0,held_keys);}
 static void shot(const char *dir,const char *name)
 {char path[512];ui.touched=-1;ui.msg_until=0;draw_header();draw_main();draw_knobs();snprintf(path,sizeof path,"%s/%s.png",dir,name);png_write(path);}
+/* Independent expected primitive for the footer, not the production helper. */
+static int expected_row_hint(int x,int y,uint16_t c)
+{
+    cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);x+=tw(&FONT_T,UI_CAP_ARROWS)+4;
+    for(int i=0;i<2;i++) {
+        int xx=x+i*6,tip=y+(i?9:1),base=tip+(i?-2:2);
+        cv_line(xx+2,y+1,xx+2,y+9,c);
+        cv_line(xx,base,xx+2,tip,c);cv_line(xx+4,base,xx+2,tip,c);
+    }
+    cv_text(x+14,y,&FONT_T,"ROW",c);return x+14+tw(&FONT_T,"ROW");
+}
 static void fixture(int voice,int bank)
 {
     publication_voice=race_voice=-1;unstable=0;clip_grid_mode=0;

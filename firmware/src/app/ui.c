@@ -44,7 +44,7 @@
 #define UI_CAP_ALGO "K3"
 #define UI_CAP_PRESET "K4"
 #define UI_CAP_OCT "OCTAVE"
-#define UI_CAP_KNOBS "K5-8"
+#define UI_FIRST_KNOB 5
 #define UI_CAP_ARROWS "< >"
 #else
 #define UI_CAP_HOME "HOME"
@@ -60,7 +60,7 @@
 #define UI_CAP_ALGO "ALGO"
 #define UI_CAP_PRESET "PRESET"
 #define UI_CAP_OCT "OCT"
-#define UI_CAP_KNOBS "K1-4"
+#define UI_FIRST_KNOB 1
 #define UI_CAP_ARROWS "SELECT"
 #endif
 
@@ -3765,7 +3765,10 @@ X0X_COLD static void input(void)
             list_move(e > 0 ? 1 : -1);
         } else {
             int p = cur_page() + (e > 0 ? 1 : -1);
-            *page_of(ui.view) = (uint8_t)(p < 0 ? 0 : p >= pg.n ? pg.n - 1 : p);
+            if(ui.view==V_PART && is_303()) /* Matrix row arrows cycle both banks. */
+                *page_of(ui.view) = (uint8_t)(p < 0 ? pg.n-1 : p >= pg.n ? 0 : p);
+            else
+                *page_of(ui.view) = (uint8_t)(p < 0 ? 0 : p >= pg.n ? pg.n - 1 : p);
         }
     }
     if ((e = enc(EN_ALGO)) != 0) {               /* ALGORITHM: part, or held 303 step's velocity */
@@ -4587,6 +4590,17 @@ static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col);
 static UI_DRAW int adsr_touch_active(void);
 static UI_DRAW int draw_adsr_overlay(int band);
+enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
+static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg);
+
+static UI_DRAW int matrix_row_hint(int x,int y,uint16_t c)
+{
+    cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);
+    x+=tw(&FONT_T,UI_CAP_ARROWS)+4;
+    matrix_glyph(x,y,GL_BOTH,c,C_BLACK);
+    cv_text(x+14,y,&FONT_T,"ROW",c);
+    return x+14+tw(&FONT_T,"ROW");
+}
 
 static UI_DRAW int matrix_touch_matches(pref_t r, int i)
 {
@@ -4608,6 +4622,25 @@ static UI_DRAW const char *matrix_group(int page)
     if (!strcmp_s(t,"FILTER ADSR")) return "FILTER ENVELOPE";
     if (!strcmp_s(t,"WOB / FILT")) return "WOBBLE / FILTER";
     return t;
+}
+
+/* Describe only mapped slots; sparse rows keep their physical knob numbers. */
+static UI_DRAW void matrix_knob_caption(char *text, int page)
+{
+    int k, n=0, emitted=0;
+    char *q=text;
+    for(k=0;k<4;k++) n+=pg.r[page][k].kind!=R_NONE;
+    *q=0;
+    if(!n) return;
+    q=put_s(q,n==1?"KNOB ":"KNOBS ");
+    for(k=0;k<4;k++) if(pg.r[page][k].kind!=R_NONE) {
+        int last=k;
+        while(last+1<4 && pg.r[page][last+1].kind!=R_NONE) last++;
+        if(emitted++) q=put_s(q,",");
+        q=put_i(q,UI_FIRST_KNOB+k);
+        if(last>k) q=put_i(put_s(q,"-"),UI_FIRST_KNOB+last);
+        k=last;
+    }
 }
 
 static UI_DRAW void draw_part_sound(int band)
@@ -4632,7 +4665,10 @@ static UI_DRAW void draw_part_sound(int band)
         }
 #endif
         cv_text(8,y,&FONT_T,t,active?C_BLACK:C_GRAY);
-        if (active) text_r(232,y,&FONT_T,UI_CAP_KNOBS,C_BLACK);
+        if (active) {
+            char knobs[20];matrix_knob_caption(knobs,p);
+            text_r(232,y,&FONT_T,knobs,C_BLACK);
+        }
         for (k=0;k<4;k++) {
             int x=4+k*59;
             if (k && (pg.r[p][k].kind!=R_NONE
@@ -4682,12 +4718,17 @@ static UI_DRAW void draw_part_sound(int band)
         cv_text(7,208-off,&FONT_T,UI_CAP_HOME ": CANCEL",C_GRAY);
     else
 #endif
-        cv_text(7,208-off,&FONT_T,UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",C_GRAY);
+    {
+        int x=matrix_row_hint(7,208-off,C_GRAY);
+        cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT ": NEXT",C_GRAY);
+    }
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE) {
-        if (lock_step()<0)
-            text_r(234,208-off,&FONT_T,engine_bass_preset_pending(bidx())?
-                UI_CAP_ARROWS ": ROW":UI_CAP_HOME ": BACK",C_HI);
+        if (lock_step()<0) {
+            if(engine_bass_preset_pending(bidx()))
+                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-18-tw(&FONT_T,"ROW"),208-off,C_HI);
+            else text_r(234,208-off,&FONT_T,UI_CAP_HOME ": BACK",C_HI);
+        }
     } else
 #endif
     {
@@ -5701,7 +5742,6 @@ static UI_DRAW int adsr_touch_active(void)
     return matrix_touch_matches(r, i);
 }
 
-enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
 static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg)
 {
     if (glyph==GL_POWER) {

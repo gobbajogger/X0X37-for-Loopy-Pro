@@ -30,7 +30,7 @@ static void check_readout(const char *status,const char *reason,const char *left
     int snd=row(R_BENGINE,0),r=snd%4,top=24+r*50,pending=reason!=NULL;
     int iw=!strcmp(status,"UNKNOWN")?0:pending?9:!strcmp(status,"ACTIVE")?10:8;
     int vy=pending?24:29,tx=180-(tw(&FONT_T,status)+iw+(iw?2:0))/2;
-    const char *right=pending?UI_CAP_ARROWS ": ROW":"PATCH: BACK";
+    const char *right=UI_CAP_HOME ": BACK";
     *page_of(V_PART)=selected?snd:snd-1;
     sound_t before=proj.sound;int page=cur_page(),dirty=ui.dirty,sw=save_wait;
     shot(output_dir,name);
@@ -58,8 +58,16 @@ static void check_readout(const char *status,const char *reason,const char *left
         CHECK(next-end-1>=2 && next-end-1<=3);
     }
     if(selected) {
-        CHECK(7+tw(&FONT_T,left)+8+tw(&FONT_T,right)<=234);
-        cv_begin(240,12,C_BLACK);cv_text(7,0,&FONT_T,left,C_GRAY);text_r(234,0,&FONT_T,right,C_HI);
+        int nav=tw(&FONT_T,UI_CAP_ARROWS)+18+tw(&FONT_T,"ROW");
+        cv_begin(240,12,C_BLACK);
+        if(pending) {
+            CHECK(7+tw(&FONT_T,left)+8+nav<=234);
+            cv_text(7,0,&FONT_T,left,C_GRAY);expected_row_hint(234-nav,0,C_HI);
+        } else {
+            int x=expected_row_hint(7,0,C_GRAY);cv_text(x+8,0,&FONT_T,UI_CAP_EDIT ": NEXT",C_GRAY);
+            CHECK(x+8+tw(&FONT_T,UI_CAP_EDIT ": NEXT")+8+tw(&FONT_T,right)<=234);
+            text_r(234,0,&FONT_T,right,C_HI);
+        }
         for(int y=0;y<12;y++)for(int x=0;x<240;x++)CHECK(fb[(228+y)*240+x]==cv_px[y*240+x]);
     }
 }
@@ -67,21 +75,21 @@ static void cases(int v,int bank)
 {
     char name[80];
     fixture(v,bank);snprintf(name,sizeof name,"%s-%c-active",bank?"miami":"chicago",'a'+v);
-    check_readout("ACTIVE",NULL,UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",1,name);
+    check_readout("ACTIVE",NULL,NULL,1,name);
     snprintf(name,sizeof name,"%s-%c-unselected-active",bank?"miami":"chicago",'a'+v);
     check_readout("ACTIVE",NULL,NULL,0,name);
     *page_of(V_PART)=row(R_BENGINE,0);int p=bank?W_CUTOFF:BASS303_CUTOFF;
     pref_set(PR(R_ENG,T_303,v,p),pref_get(PR(R_ENG,T_303,v,p))+1);
-    CHECK(engine_bass_preset_edited(v));check_readout("EDITED",NULL,UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",1,"edited");
+    CHECK(engine_bass_preset_edited(v));check_readout("EDITED",NULL,NULL,1,"edited");
     /* Canonical known-engine USER identity, then a quarantined unknown tag. */
     proj.sound.bass[v].bytes[8]=proj.sound.bass[v].bytes[9]=0xff;
     proj.sound.bass[v].bytes[10]=BASS_SOUND_EDITED;
     CHECK(engine_bass_sound_validate(&proj.sound)==0);
     engine_bass_edit_hold(1);engine_bass_base_restore(1u<<v);engine_bass_edit_hold(0);audio();
-    CHECK(engine_bass_preset_index(v)<0);check_readout("USER",NULL,UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",1,"user");
+    CHECK(engine_bass_preset_index(v)<0);check_readout("USER",NULL,NULL,1,"user");
     bass_sound_tag_t known=proj.sound.bass[v];
     memset(proj.sound.bass[v].bytes,0,sizeof proj.sound.bass[v].bytes);build_pages();
-    CHECK(pg.n==1);check_readout("UNKNOWN",NULL,UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",1,"unknown");
+    CHECK(pg.n==1);check_readout("UNKNOWN",NULL,NULL,1,"unknown");
     /* Restore the fixture's tag; rendering never applied the unknown identity. */
     proj.sound.bass[v]=known;build_pages();
     for(int cause=1;cause<=6;cause++) {

@@ -48,7 +48,7 @@ static void mapping(int bank)
     fixture(bank);CHECK(pg.n==(bank?7:8));CHECK(sound_page()==pg.n-1);
     for(int i=0;i<factory_bank(bank)->npresets;i++) {
         const char *name=factory_preset_name(bank,i);
-        CHECK(strlen(name)+4<32);CHECK(tw(&FONT_T,name)+tw(&FONT_T,"4 >")+tw(&FONT_T,UI_CAP_KNOBS)<224);
+        CHECK(strlen(name)+4<32);CHECK(tw(&FONT_T,name)+tw(&FONT_T,"4 >")+tw(&FONT_T,"KNOBS 5-6")<224);
     }
     for(int p=0;p<4;p++)for(int k=0;k<4;k++)CHECK(pg.r[p][k].c==expected[bank][p*4+k]);
     for(int p=0;p<pg.n;p++) {
@@ -76,9 +76,9 @@ static void mapping(int bank)
         CHECK(pref_get(r)==before+1);ui.overlay=O_NONE;
     }
     for(int i=0;i<engine_nparams(T_303,0);i++) CHECK(seen[i]==(i==(bank?W_PITCH_BEND:CHI_PBEND)?0:1)); /* performance-only physical wheel */
-    *page_of(V_PART)=0;select_row(-1);CHECK(cur_page()==0);
+    *page_of(V_PART)=0;select_row(-1);CHECK(cur_page()==pg.n-1);select_row(1);CHECK(cur_page()==0);
     for(int p=1;p<pg.n;p++){select_row(1);CHECK(cur_page()==p);CHECK(cur_page()/4==p/4);}
-    select_row(1);CHECK(cur_page()==pg.n-1);button_tap(B_EDIT);CHECK(cur_page()==0);
+    select_row(1);CHECK(cur_page()==0);*page_of(V_PART)=pg.n-1;button_tap(B_EDIT);CHECK(cur_page()==0);
     button_tap(B_EDIT);CHECK(cur_page()==1);select_row(-1);CHECK(cur_page()==0);
     *page_of(V_PART)=sound_page();int n=engine_bass_requested_preset(0);now_ms++;enc_acc[EN_PRESET]=1;ui_input_only();
     CHECK(engine_bass_requested_preset(0)==n+1);CHECK(engine_bass_preset_pending(0));
@@ -283,7 +283,7 @@ int main(int argc,char **argv)
     const char *dir=argc>1?argv[1]:"build/ui-b-evidence";boot();
     CHECK(!strcmp(btn_label(B_EDIT),"PARA"));CHECK(!strcmp(btn_label(B_HOME),"PATCH"));
     CHECK(!strcmp(btn_label(B_SEL),"SCALE"));CHECK(!strcmp(btn_label(B_SAVE),"BT"));
-    CHECK(!strcmp(UI_CAP_KNOBS,"K5-8"));CHECK(help_fits());
+    CHECK(UI_FIRST_KNOB==5);CHECK(help_fits());
     CHECK(tw(&FONT_T,"STEP 64 " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT ":ROW")+tw(&FONT_T,"KEYS/MIDI")<222);
     dsp_release();mapping(0);mapping(1);geometry(dir,0);geometry(dir,1);page_dots(dir);envelopes(dir);transitions(dir);drums(dir);
     printf("sound matrix B: %u checks PASS\n",checks);return 0;
