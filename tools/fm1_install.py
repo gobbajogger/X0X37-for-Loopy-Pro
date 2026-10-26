@@ -152,8 +152,13 @@ def parse_request(pkt):
     """-> (flags, addr, len) or None"""
     if len(pkt) < 2 or pkt[0] != 0xF0 or pkt[-1] != 0xF7:
         return None
-    u = unpack7(pkt[1:-1])
-    if len(u) != 15 or u[:3] != b"\x00\x59\x30" or ~sum(u[6:14]) & 0xFF != u[14]:
+    wire = bytes(pkt[1:-1])
+    if any(b & 0x80 for b in wire):
+        return None
+    u = unpack7(wire)
+    # ota_read sends flags/address32/requested length24, an eight-byte body.
+    if (len(u) != 15 or u[:6] != b"\x00\x59\x30\x08\x00\x00"
+            or pack7(u) != wire or (~sum(u[6:14]) & 0xFF) != u[14]):
         return None
     return u[6], int.from_bytes(u[7:11], "little"), int.from_bytes(u[11:14], "little")
 
