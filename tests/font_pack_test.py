@@ -52,7 +52,7 @@ def main():
             (path / "font_raw.h").write_text(original.replace("FONT_", "RAW_FONT_"))
             executable = path / "font_pack_test"
             subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-Wall", "-Wextra", "-Werror",
-                            "-Wno-unused-function", "-I" + directory, str(ROOT / "tests/host/font_pack_test.c"),
+                            "-Wno-unused-function", "-DX0X_HOST", "-I" + directory, str(ROOT / "tests/host/font_pack_test.c"),
                             "-o", str(executable)], check=True)
             subprocess.run([str(executable)], check=True)
             print(f"{fontset}: {size(original) - size(packed)} bytes saved; all rendered pixels retained")

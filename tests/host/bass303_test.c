@@ -383,13 +383,17 @@ static double alias_db(const float *x, double f0)
 
 /* ---- settings ---- */
 typedef struct { const char *name; int pots[BASS303_NPARAMS]; int check; } setting_t;
-#define DEF 64, 64, 64, 64, 64, 0, 64, 96, 0, 1, 21, 7          /* the power-on pots */
+/* Explicit Open303-compatible extension values: native Chicago filter/amp
+ * envelope additions, AmpMod Env and zero Gnaw/Bite; ADec64 is1230ms. Keep this
+ * oracle independent from bass303_param() and verify it below. */
+#define STOCK_EXTRA 0, 0, 0, 0, BASS303_AMP_ENV, 0, 0, 0, 64, 0, 0
+#define DEF 64, 64, 64, 64, 64, 0, 64, 96, 0, 1, 21, 7, STOCK_EXTRA
 static const setting_t settings[] = {
     { "default", { DEF }, 1 },
-    { "reso+envmod", { 40, 120, 120, 90, 64, 0, 64, 102, 0, 1, 21, 7 }, 1 },
-    { "square+accent", { 64, 80, 80, 64, 127, 1, 64, 102, 0, 1, 21, 7 }, 1 },
-    { "drive soft", { 64, 64, 64, 64, 64, 0, 64, 90, 80, 1, 21, 7 }, 0 },
-    { "drive RAT", { 64, 64, 64, 64, 64, 0, 64, 90, 80, 2, 21, 7 }, 0 },
+    { "reso+envmod", { 40, 120, 120, 90, 64, 0, 64, 102, 0, 1, 21, 7, STOCK_EXTRA }, 1 },
+    { "square+accent", { 64, 80, 80, 64, 127, 127, 64, 102, 0, 1, 21, 7, STOCK_EXTRA }, 1 },
+    { "drive soft", { 64, 64, 64, 64, 64, 0, 64, 90, 80, 1, 21, 7, STOCK_EXTRA }, 0 },
+    { "drive RAT", { 64, 64, 64, 64, 64, 0, 64, 90, 80, 2, 21, 7, STOCK_EXTRA }, 0 },
 };
 #define NSET ((int)(sizeof(settings) / sizeof(settings[0])))
 
@@ -561,9 +565,9 @@ int main(int argc, char **argv)
         printf("  alias floor (inharmonic > 500 Hz), sustained note, cutoff/decay max, reso/envmod 0:\n");
         for (w = 0; w < 2; w++)
             for (k = 0; k < 3; k++) {
-                setting_t st = { "alias", { 127, 0, 0, 127, 0, 0, 64, 102, 0, 1, 21, 7 }, 0 };
+                setting_t st = { "alias", { 127, 0, 0, 127, 0, 0, 64, 102, 0, 1, 21, 7, STOCK_EXTRA }, 0 };
                 void *ref = ref_create();
-                st.pots[BASS303_WAVE] = w;
+                st.pots[BASS303_WAVE] = w ? 127 : 0;
                 bass303_init(&port);
                 apply(&port, ref, &st);
                 ref_note_on(ref, notes[k], 0, 0);

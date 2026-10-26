@@ -49,7 +49,7 @@ void ref_set(void *p, int i, int pot)
     case 2: r->e.setEnvMod(linToLin(n, 0, 1, 0.0, 100.0)); break;
     case 3: r->e.setDecay(linToExp(n, 0, 1, 200.0, 2000.0)); break;
     case 4: r->e.setAccent(linToLin(n, 0, 1, 0.0, 100.0)); break;
-    case 5: r->e.setWaveform(pot ? 1.0 : 0.0); break;
+    case 5: r->e.setWaveform(n); break;
     case 6: r->e.setTuning(440.0 + (pot - 64) * 0.625); break;
     case 7: r->e.setVolume(linToLin(n, 0, 1, -60.0, 0.0)); break;
     case 8: r->damt = (float)n; break;
@@ -108,7 +108,7 @@ for OS in 1 2 4; do
     if [ -s "$WARN" ]; then echo "warnings (BASS303_OS=$OS):"; cat "$WARN"; FAIL=1; fi
     # the same port with the control rate at every sample, symbols renamed k1_*
     K1=""
-    for f in env_time_ms init set note_on note_on_velocity note_off all_off render set_lite nparams param get; do K1="$K1 -Dbass303_$f=k1_bass303_$f"; done
+    for f in env_time_ms init set set_bend note_on note_on_velocity note_off all_off render set_lite nparams param get; do K1="$K1 -Dbass303_$f=k1_bass303_$f"; done
     $CC $CFLAGS -DBASS303_OS=$OS -DBASS303_CTRL=1 $K1 -c firmware/src/dsp/bass303.c -o "$OUT/bass303_k1_$OS.o"
     rm -f "$OUT/bass303_test_$OS"     # macOS kills a binary relinked in place
     $CXX "$OUT/test_$OS.o" "$OUT/bass303_$OS.o" "$OUT/bass303_k1_$OS.o" "$OUT"/ref/*.o -o "$OUT/bass303_test_$OS"

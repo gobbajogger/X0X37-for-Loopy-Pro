@@ -21,7 +21,8 @@ WARN="-Wall -Wextra -Wdouble-promotion -Werror"
 "$CXX" -std=c++14 -O2 -ffp-contract=off -w -I"$REF" -c "$REF/sc808_engine.cpp" -o "$OUT/sc808_engine.o"
 # the port, C99, warnings are errors
 "$CC" -std=c99 -O2 -ffp-contract=off $WARN -DD8_TAIL_DB=0 -Ifirmware/src/dsp -c firmware/src/dsp/drum808.c -o "$OUT/drum808.o"
+"$CC" -std=c99 -O2 -ffp-contract=off $WARN -Ifirmware/src/dsp -c firmware/src/dsp/x0x_param.c -o "$OUT/x0x_param.o"
 "$CC" -std=c99 -O2 -ffp-contract=off $WARN -Ifirmware/src/dsp -I"$REF" -c tests/host/drum808_test.c -o "$OUT/drum808_test.o"
-"$CXX" -o "$OUT/drum808_test" "$OUT/drum808_test.o" "$OUT/drum808.o" "$OUT/sc808_engine.o" -lm
+"$CXX" -o "$OUT/drum808_test" "$OUT/drum808_test.o" "$OUT/drum808.o" "$OUT/x0x_param.o" "$OUT/sc808_engine.o" -lm
 
 "$OUT/drum808_test" build/drum808_demo.wav "$@"

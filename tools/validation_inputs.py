@@ -96,7 +96,9 @@ def _manifest_paths(dist):
         for name in text.splitlines():
             if name:
                 located = (Path(subdir) / name).resolve()
-                paths.append(located.relative_to(root, walk_up=True).as_posix())
+                # Both paths are resolved above; relpath retains walk-up/anchor
+                # semantics on supported Python3.9/3.11 as well as newer hosts.
+                paths.append(Path(os.path.relpath(located, root)).as_posix())
         return paths
     text = dist.read_text('SOURCES.txt')
     if text:
