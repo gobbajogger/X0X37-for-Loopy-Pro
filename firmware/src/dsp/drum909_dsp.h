@@ -148,7 +148,9 @@ typedef struct {
     float x1, x2, y1, y2;
 } d9_biquad_t;
 
-static inline void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+/* One link-wide body: drum909.c and fxbus.c both retune biquads (was a private
+ * copy in each -O2 unit). D9_ONE keeps inlining at call sites like d9_tanh. */
+D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
 {
     float fc = freq / (D9_SR * 0.5f);
     if (fc >= 1.0f) fc = 0.9999f;
@@ -224,7 +226,7 @@ typedef struct {
     float c1, c2;  /* type-specific constants (see prep) */
 } d9_shape_t;
 
-static inline void d9_shape_prep(d9_shape_t *s, float drive, int type)
+D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
 {
     const float k = drive > 0.01f ? drive : 0.01f;
     s->type = type;
