@@ -104,7 +104,7 @@ static uint64_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a, 64-bit *
     return h;
 }
 
-static uint32_t get32(const uint8_t *p)
+__attribute__((noinline)) static uint32_t get32(const uint8_t *p)
 {
     return (uint32_t)p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
 }
