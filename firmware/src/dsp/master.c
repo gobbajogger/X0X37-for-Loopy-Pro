@@ -403,7 +403,8 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
     m->gr_view = grmax > m->gr_view ? grmax : m->gr_view * 0.93f;   /* the meter: peak, falling */
 }
 
-static void put_num(char *b, float v, int decimals, const char *unit)
+/* UI text only (master_format). Audio paths never call this — build for size. */
+X0X_COLD static void put_num(char *b, float v, int decimals, const char *unit)
 {
     int neg = v < 0.0f, n = 0, i;
     char t[16];
