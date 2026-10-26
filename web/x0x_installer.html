@@ -955,6 +955,7 @@ async function run(img, product, opts = {}) {
   try { access = await midiAccess(); }
   catch (e) { sayK(e.code || "denied"); return; }
   writing = true;
+  updateInstallGate(); // Refresh the busy USB guidance as soon as writing owns the UI.
   $("go").disabled = $("stockgo").disabled = true;
   led("busy");
   try {
