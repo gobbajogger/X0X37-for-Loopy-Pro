@@ -1,27 +1,12 @@
 --- a/firmware/src/app/smc_mixer.c
 +++ b/firmware/src/app/smc_mixer.c
-@@ -456,7 +456,7 @@
- #define SMC_UI_MS 1200u
- struct smc_ui_state {
-     uint32_t until, context;
+@@ -459 +459 @@
 -    uint8_t on, kind, strip, action; /* kind: fader/knob/clip/action/navigation/selection/FX page */
 +    uint8_t on, kind, strip, action;
-     char name[24], value[24];
- };
- /* Byte buffer (not a naked struct): IPA-SRA must not split fields into
-@@ -764,7 +764,7 @@
-     if (smc_ui.kind == 2) {
-         put_s(name, smc_ui.name);
-         put_s(num, smc_ui.value); unit[0] = 0;
+@@ -767 +767 @@
 -    } else if (smc_ui.kind >= 3) {
 +    } else if (smc_ui.kind == 3 || smc_ui.kind == 4) {
-         int note = smc_ui.action;
-         int bus = smc_fx_bus_now((uint8_t)note);
-         if (note == 0x5D) {
-@@ -774,18 +774,21 @@
-             put_s(name, "FX ASSIGN"); put_s(num, "SELECT / LEFT / RIGHT");
-         } else if (note == 0x60 || note == 0x61) {
-             put_s(name, "KNOB BANK"); put_i(num, smc.knob_bank + 1);
+@@ -777,5 +777,3 @@
 -        } else if (smc_ui.kind == 5) {
 -            put_s(name, "SELECT");
 -            put_s(num, is_drum() ? engine_voice_name(ui.part ? T_808 : T_909, ui.sel[ui.part]) : PART_N[ui.part]);
@@ -30,12 +15,7 @@
 +        } else if ((note == 7 || note == 15 || note == 31) && bus < 0) {
 +            put_s(name, ui.view == V_PART ? PART_N[ui.part] : VIEW_N[ui.view]);
 +            put_s(num, pg.title[cur_page()]);
-         } else if (bus >= 0 && smc_ui.kind == 3) {
-             smc_fx_publish();
-             put_s(name, SMCFX_BUS_NAME[bus]);
-             put_s(num, SMCFX_LONG[smc.fx_effect[bus]]);
-             status = (smc.fx_down & (uint8_t)(1u << bus)) ? "HOLD" : SMCFX_PAGE_NAME[smc.fx_page];
-         } else if (smc_ui.kind == 4) {
+@@ -788 +786,6 @@
 -            if (note == 0x5B || note == 0x5C) {
 +            if (note >= 29 && note < 32) {
 +                put_s(name, "PAGE"); put_s(num, pg.title[cur_page()]);
@@ -43,54 +23,21 @@
 +                put_s(name, "SELECT");
 +                put_s(num, is_drum() ? engine_voice_name(ui.part ? T_808 : T_909, ui.sel[ui.part]) : PART_N[ui.part]);
 +            } else if (note == 0x5B || note == 0x5C) {
-                 int part = smc.locked ? smc.lock_part : ui.part, cue = seq_cue_of(&seq, part);
-                 put_s(name, "PATTERN"); put_i(put_s(num, "P"), (cue >= 0 ? cue : seq.ppat[part]) + 1);
-             } else {
-@@ -1085,7 +1088,6 @@
-         return;
-     if (which == 2) smc_mode_page(31);
-     else smc_view(SMC_VIEW[3][which], SMC_PAGE[3][which]);
+@@ -1088 +1090,0 @@
 -    smc_ui.kind = 4; smc_ui.action = SMCFX_NOTE[SMCFX_RVB + which]; smc_ui.strip = (uint8_t)(5 + which);
- }
- 
- static void smc_fx_main_tick(void)
-@@ -1384,8 +1386,6 @@
-             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
-     memcpy(saved, ui.msg, sizeof saved);
-     smc_ui_cancel();                     /* navigation owns its new screen immediately */
+@@ -1387,2 +1388,0 @@
 -    int fx_page_action = smc_home_held() && ui.overlay == O_NONE && !smk_clip_mode_on() &&
 -        (note == 0x62 || note == 0x63);
-     int locked = smc.locked, bus = smc_fx_bus_now(note);
-     int fx_action = bus >= 0 && (!mmc || !smcfx_is_main(bus) || smc_home_held());
-     int mode_nav = (note == 7 || note == 15 || note == 31) && !fx_action &&
-@@ -1399,10 +1399,6 @@
-     smc_button_apply(note, mmc);
-     if (visible_nav) smc.locked = (uint8_t)locked;
-     if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* queued SMC navigation also cancels holds */
+@@ -1402,4 +1401,0 @@
 -    int selected = note >= 24u && note < 32u && !fx_action && !mode_nav &&
 -        ((visible_kit < 0 && (note & 7u) < NPARTS) ||
 -         (visible_kit >= 0 && smc_visible_drum_mix() >= 0));
 -    int card_kind = fx_page_action ? 6 : fx_action ? 3 : selected ? 5 : 4;
-     if (action && !navigation) {
-         memcpy(ui.msg, saved, sizeof saved);  /* Help keeps its card and the preexisting notice too. */
-         ui.msg_until = until;
-@@ -1410,7 +1406,7 @@
-         smc_ui_begin(note < 32u ? note & 7u : 0, 3);
-     } else if (note >= 32u || strcmp(smc_button_caption(note), "--")) {
-         smc_ui.action = note;
+@@ -1413 +1409 @@
 -        smc_ui_begin(note < 32u ? note & 7u : 0, card_kind);
 +        smc_ui_begin(note < 32u ? note & 7u : 0, fx_action ? 3 : 4);
-     } else smc_ui_release(note);
- }
- 
-@@ -1420,9 +1416,7 @@
-     if (note == 6) {
-         int tap = (smc.home_down & 2u) && !(smc.home_down & 4u);
-         smc.home_down = 0;
+@@ -1423,3 +1419 @@
 -        if (tap && !ui.help && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on()) {
 -            button_tap(B_HOME); smc_ui.kind = 4; smc_ui.action = 6; smc_ui.strip = 6;
 -        }
 +        if (tap && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on()) button_tap(B_HOME);
-     }
-     if (note == 0x5Eu) smc.play_down = 0;
-     smc_fx_release_note(note);

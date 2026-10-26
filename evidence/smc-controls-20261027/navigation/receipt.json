@@ -44,7 +44,7 @@
       "result": "all runtime mutants rejected; these development mutation runs are not relabeled as final182 reruns"
     },
     "rendered_readout_before_source_blob": "e08a42f4920466d0a8088579416007e2028910ac",
-    "rendered_readout_reproduction": "Apply pre-N2-source.patch to a scratch copy of final smc_mixer.c; run SMC_FX_CASE=drum-readout SMC_UI_SOURCE_FILE=<scratch source> sh tests/host/smc_fx_binding_test.sh. Runtime pixel assertion is required; compiler errors do not count."
+    "rendered_readout_reproduction": "Verify final source blob, apply pre-N2-source.patch to a scratch copy using patch -p1, then run SMC_FX_CASE=drum-readout SMC_UI_SOURCE_FILE=<scratch source> sh tests/host/smc_fx_binding_test.sh. Runtime pixel assertion is required; compiler errors do not count."
   },
   "sol_review": {
     "model": "gpt-6.1-sol",
@@ -139,7 +139,7 @@
     "ui-mutations-development.log": "8b6996673f0c8056e0fcb92eda22046d3aede575ab21e2b8ae621a931a57c318",
     "interaction-mutations-development.log": "d0194f49b0e4d6aa334bbc0d74f248333e81fb59a10c57255a284ef41261c35a",
     "fx-ui-final.log": "13ee4fa6d736b9a23609e0d22d803d197ed68f331317a7527768b47dfdb80eb0",
-    "pre-N2-source.patch": "dd2681361cd5e3e6c9c333a6124e4eb08f441228720a275b39c3d79563c0d868",
+    "pre-N2-source.patch": "44badc65ed7a3413e87084ceaa6f3ce1726d106875e6ad56553f6a7718b36837",
     "fx-modifier-comparison.log": "c9b4833442b4e41820d4fcb2d659b6a11d6bcf6a511b97430150805231b1d565",
     "before-combined.log": "7e6666f8be117d96da63da3225cc1564af51f17a072f61e7922ab159e4a18d5d",
     "host-final.log": "1c4e4c8a524e682ef19fa83c5a8306d1b5471e24a188f38c43b7fdc31ae53278",

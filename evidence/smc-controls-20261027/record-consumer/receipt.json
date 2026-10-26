@@ -1,0 +1,43 @@
+{
+  "result": "HOST FIXTURE CHECKED / SOURCE REVIEW APPROVED",
+  "production_source_commit": "30c49688aa58e28bcaeaca72c0481fd9dc2ce459",
+  "production_blob": "182eea98bbeb2f81d22055caa436eb08cf35d244",
+  "pr629_replay_input": "39cff954042ff9717acd8f56b0d0d66f58f23494",
+  "composition": "Own isolated PR629 replay worktree; copied frozen SMC source182 and only updated test fixture/harness, leaving the integration owner checkout untouched.",
+  "failure_disposition": "Original PR629 fixture reproduced runtime assertion line93. EDIT is sound audition; stopped step entry must visibly use SEQ. This is an obsolete fixture expectation, not a new SMC production defect.",
+  "fix": "Enter SEQ through actual panel B_SEQ after source selection, assert part/REC preserved and expected SMC-selected part, retain actual note/gate/write-position/other-bass/wireLED checks. Feature-on harness links factory_banks.c when present.",
+  "producer_default": "PASS:4 real writes,7 Record projections,0 failures",
+  "pr629_feature_on": "PASS:4 real SEQ writes,4 EDIT no-hidden-write cases (both basses and both kits),11 Record projections,0 failures",
+  "separate_edit_gate": "X0X_HOST_DEFS=\"-D_POSIX_C_SOURCE=200809L -DX0X_BASS_PRESET_PREVIEW=1 -DX0X_BASS_TAGGED_SOUND=1 -DX0X_BASS_NOTE_SOUND=0\" sh tests/host/smc_edit_no_write_test.sh",
+  "gate_scope": "Direct consumer command for the PR629 SEQ/EDIT split; not a base504 registered selector or behavior-based skip. Old pre-split EDIT legitimately writes steps and is an expected runtime negative.",
+  "edit_negative": "Pre-split producer base reaches real all-pattern memcmp assertion; compiler failure is not counted.",
+  "sol": {
+    "model": "gpt-6.1-sol",
+    "rounds": 1,
+    "verdict": "APPROVE",
+    "findings": [],
+    "usage": "not exposed"
+  },
+  "mac": "Owner-reported RUSAGE_INFO_V4 compile block precedes assertion; NOT_RUN here, not fixed or treated as a recorder result. Actual replay used Linux GCC14.2.",
+  "native_and_device": "NOT_RUN; no build/flash/merge; PR629 is not final qualified.",
+  "inputs": {
+    "tests/host/smc_record_feedback_test.c": {
+      "git_blob": "16fd9d6c1d8a2d2c24f95b82cbeebf48f8e45c80",
+      "sha256": "58920dc1dab516ed8feb3e2b031b05ed4b89cf91eabcb7857293d6a25b65f147"
+    },
+    "tests/host/smc_record_feedback_test.sh": {
+      "git_blob": "1c812424bd877979756131be6cdf1200f18f3bd2",
+      "sha256": "ef26ce363cce448d2b695f2eb08b3fd3130f412905647075cfb1739f5d10c7d7"
+    },
+    "tests/host/smc_edit_no_write_test.sh": {
+      "git_blob": "cd1b516b27a0c91272c80c7277b2d0bbe299897d",
+      "sha256": "d279539b757bd2c00dc33cf61535393502f4c3b6c25e58bd5eb3d8f505983ace"
+    }
+  },
+  "logs_sha256": {
+    "pr629-split-pass.log": "603c64e3faed624c669dd0d0750c317f75113ada9eacb073186e1e0ecc995ffd",
+    "base-positive.log": "6c84abd9da8b2109063bb57f7be25330e618d6383bd12a70ef839ab5c37c69f8",
+    "pr629-before.log": "1382f217da1adf09acddbd6cfbc9b9ee0788d7b0e2b692ee121b4ce3906b9e17",
+    "pre-split-edit-negative.log": "e17e5864212a306c7c504a748b629926680806264ea15b50c666e012f20d0efa"
+  }
+}

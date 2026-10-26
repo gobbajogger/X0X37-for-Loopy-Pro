@@ -77,7 +77,10 @@ static void record_feedback(const char *label)
 
 static void record_note(const char *label, int key)
 {
-    assert(ui.rec && is_303() && !seq.playing && ui.view == V_PART);
+    assert(ui.rec && is_303() && !seq.playing);
+    int selected = ui.part;
+    if (ui.view != V_SEQ) panel_button(B_SEQ); /* SMC SELECT opens sound editing; step entry is visibly SEQ. */
+    assert(ui.view == V_SEQ && ui.part == selected && ui.rec);
     int bass = bidx(), other = bass ^ 1;
     bpart_t *destination = &proj.pat[seq.ppat[ui.part]].bass[bass];
     bpart_t *untouched = &proj.pat[seq.ppat[PART_303A + other]].bass[other];
@@ -100,6 +103,36 @@ static void record_note(const char *label, int key)
     record_feedback(label);
 }
 
+/* Separate consumer regression for the explicit SEQ/EDIT split in PR629.
+ * Run smc_edit_no_write_test.sh against that UI; old pre-split EDIT legitimately
+ * wrote steps, so this is an explicit consumer gate, not a behavior-based skip. */
+static void edit_no_hidden_write(void)
+{
+    pattern_t *before = malloc(sizeof proj.pat);
+    assert(before);
+    const int parts[] = {PART_303A, PART_303B, PART_909, PART_808};
+    for (unsigned n = 0; n < sizeof parts / sizeof *parts; n++) {
+        if (ui.view != V_PART) panel_button(B_EDIT);
+        panel_select(parts[n]);
+        if (!ui.rec) panel_button(B_REC);
+        assert(ui.view == V_PART && ui.rec && !seq.playing);
+        memcpy(before, proj.pat, sizeof proj.pat);
+        uint8_t positions[NBASS]; memcpy(positions, ui.wpos, sizeof positions);
+        const int keys[] = {0, 4};
+        for (unsigned k = 0; k < sizeof keys / sizeof *keys; k++) {
+            held_keys |= 1u << keys[k]; panel_input();
+            held_keys &= ~(1u << keys[k]); panel_input();
+        }
+        assert(!memcmp(before, proj.pat, sizeof proj.pat));
+        assert(!memcmp(positions, ui.wpos, sizeof positions));
+        assert(ui.view == V_PART && ui.part == parts[n] && ui.rec);
+        printf("PASS EDIT no hidden write: %s, REC on, two key gestures, all patterns and bass positions unchanged\n",PART_N[parts[n]]);
+        record_feedback("EDIT audition retains real Record feedback");
+    }
+    panel_button(B_REC); assert(!ui.rec);
+    free(before);
+}
+
 int main(void)
 {
     boot();
@@ -110,13 +143,14 @@ int main(void)
     record_feedback("boot, recording off");
 
     /* Panel REC must report the real destination even before any SMC REC. */
-    panel_button(B_EDIT);
+    panel_button(B_SEQ);
     panel_select(PART_303A);
     panel_button(B_REC);
     record_note("panel REC on 303A", 0);
 
     /* SMC SELECT changes the actual recorder while REC remains enabled. */
     smc_press(24 + PART_303B);
+    assert(ui.part == PART_303B && ui.rec);
     record_note("SMC SELECT changes active recorder to 303B", 2);
     smc_press(0x5F);
     assert(!ui.rec);
@@ -124,6 +158,7 @@ int main(void)
 
     /* Conversely, panel selection must replace the target of SMC-started REC. */
     smc_press(PART_303A);
+    assert(ui.part == PART_303A && ui.rec);
     record_note("SMC strip REC on 303A", 4);
     panel_select(PART_303B);
     record_note("panel selection changes active recorder to 303B", 5);
@@ -131,6 +166,7 @@ int main(void)
     assert(!ui.rec);
     record_feedback("panel REC off");
 
+    if (getenv("SMC_VERIFY_EDIT_NO_WRITE")) edit_no_hidden_write();
     printf("%s: %u real pattern writes, %u emitted Record projections, %u failures\n",
            failures ? "FAIL" : "PASS", writes, projections, failures);
     return failures ? 1 : 0;
