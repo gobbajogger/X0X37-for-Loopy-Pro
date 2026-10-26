@@ -105,7 +105,24 @@ static const uint16_t PART_COL[NPARTS] = {RGB(255, 150, 40), RGB(255, 72, 64), R
                                           RGB(214, 120, 255)};
 static const char *const PART_N[NPARTS] = {"909", "808", "303A", "303B", "BREAK"};
 /* Lane labels: PART_N except BREAK → BRK (4 chars). Beats a second 5-pointer table. */
-static const char *part_s(int i) { return i == PART_BRK ? "BRK" : PART_N[i]; }
+#if X0X_BASS_PRESET_PREVIEW
+static const char *bass_display_name(int bank,int other,int voice)
+{
+    if(bank==other) return bank?(voice?"MIAMI B":"MIAMI A"):(voice?"CHICAGO B":"CHICAGO A");
+    return bank?"MIAMI":"CHICAGO";
+}
+#endif
+static const char *part_display(int part)
+{
+#if X0X_BASS_PRESET_PREVIEW
+    if(part==PART_303A || part==PART_303B) {
+        int voice=part-PART_303A;
+        return bass_display_name(engine_bass_bank(voice),engine_bass_bank(1-voice),voice);
+    }
+#endif
+    return PART_N[part];
+}
+static const char *part_s(int i) { return i == PART_BRK ? "BRK" : part_display(i); }
 
 /* overlays drawn over the main area */
 enum { O_NONE, O_LIST, O_ASK };
@@ -1358,7 +1375,7 @@ static void open_list_of_pages(void)
     if (ui.view == V_SEQ)
         put_s(put_s(list_title, PART_N[ui.part]), " SEQ");
     else
-        put_s(list_title, ui.view == V_PART ? PART_N[ui.part] : VIEW_N[ui.view]);
+        put_s(list_title, ui.view == V_PART ? part_display(ui.part) : VIEW_N[ui.view]);
     ui.list_sel = ui.list_top = 0;
     while (list_skip(ui.list_sel))
         ui.list_sel++;
@@ -3844,10 +3861,7 @@ static UI_DRAW void draw_header(void)
     }
 #endif
     else if (part_view()) {                           /* the part chip, then where we are */
-        const char *part_label=PART_N[ui.part];
-#if X0X_BASS_PRESET_PREVIEW
-        if(is_303()) part_label=bidx()?"LANE B":"LANE A";
-#endif
+        const char *part_label=part_display(ui.part);
         int32_t w = tw(&FONT_B, part_label) + 12;
         box(0, 1, w, 17, part_col());
         cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, part_label, C_BLACK);
@@ -3999,7 +4013,7 @@ static UI_DRAW void draw_303(int band, int gen)
     if(ui.view==V_PART && cur_page()==0) {
         int bank=engine_bass_bank(b), preset=engine_bass_preset_index(b);
         if(!band) {
-            cv_text(10,12,&FONT_B,BENGINE_N[bank],col);
+            cv_text(10,12,&FONT_S,"CURRENT PRESET",C_DIM);
             cv_text(10,40,&FONT_B,preset<0?"SELECT PRESET":factory_preset_name(bank,preset),C_HI);
             if(preset>=0 && engine_bass_preset_edited(b)) cv_text(148,12,&FONT_S,"EDITED",C_AMB);
         } else {
@@ -5034,12 +5048,13 @@ static void knob_tag(char *t)
         put_s(put_s(t, "PARTS: "), PART_N[ui.mixsel]);
     else if (g == GR_PAT)
         put_s(put_s(put_i(put_s(t, "P"), seq.ppat[ui.part] + 1), " "), ti);
-    else if (g == GR_KIT || g == GR_SOUND)
-        put_s(put_s(put_s(t,
+    else if (g == GR_KIT || g == GR_SOUND) {
 #if X0X_BASS_PRESET_PREVIEW
-            is_303()?BENGINE_N[engine_bass_bank(bidx())]:
+        if(is_303()) put_s(t,ti);
+        else
 #endif
-            PART_N[ui.part]), " "), ti);
+        put_s(put_s(put_s(t,part_display(ui.part)), " "), ti);
+    }
     else
         put_s(t, ti);
     {   /* a section over several pages (same name): which of them, "BD (1/2)" */
