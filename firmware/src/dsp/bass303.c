@@ -203,6 +203,18 @@ X0X_COLD static void rat_coeffs(bass303_t *b)
     b->r_corr_b1 = fm_expf(-FM_TWO_PI / BASS303_SR * 1119360.558f / (dist * 2306.231003f + 1.0f));
 }
 
+/* shared drive filter/state zeros (DRVTYPE change + idle clear) */
+__attribute__((noinline)) static void drive_state_clear(bass303_t *b)
+{
+    int i;
+    b->s_pre.z1 = b->s_pre.z2 = b->s_post.z1 = b->s_post.z2 = 0.0f;
+    b->up_lp.z1 = b->up_lp.z2 = b->down_lp.z1 = b->down_lp.z2 = 0.0f;
+    for (i = 0; i < 3; i++)
+        b->r_z[i] = 0.0f;
+    b->r_corr_z = b->r_tone_z = 0.0f;
+    b->dcb_x1 = b->dcb_y1 = 0.0f;
+}
+
 /* UI/MIDI pot path — not the 303 audio render (X0X_COLD) */
 X0X_COLD void bass303_set(bass303_t *b, int i, int v)
 {
@@ -296,12 +308,8 @@ X0X_COLD void bass303_set(bass303_t *b, int i, int v)
         rat_coeffs(b);
         break;
     case BASS303_DRVTYPE:
-        if (v != b->drv_type) {                                /* drive.h set_model: fresh state */
-            b->s_pre.z1 = b->s_pre.z2 = b->s_post.z1 = b->s_post.z2 = 0.0f;
-            b->up_lp.z1 = b->up_lp.z2 = b->down_lp.z1 = b->down_lp.z2 = 0.0f;
-            b->r_z[0] = b->r_z[1] = b->r_z[2] = b->r_corr_z = b->r_tone_z = 0.0f;
-            b->dcb_x1 = b->dcb_y1 = 0.0f;
-        }
+        if (v != b->drv_type)                                /* drive.h set_model: fresh state */
+            drive_state_clear(b);
         b->drv_type = v;
         break;
     }
@@ -324,12 +332,7 @@ static void clear_audio_state(bass303_t *b)
 #endif
     b->ap_x1 = b->ap_y1 = b->hp2_x1 = b->hp2_y1 = 0.0f;
     b->nt.x1 = b->nt.x2 = b->nt.y1 = b->nt.y2 = 0.0f;
-    b->s_pre.z1 = b->s_pre.z2 = b->s_post.z1 = b->s_post.z2 = 0.0f;
-    b->up_lp.z1 = b->up_lp.z2 = b->down_lp.z1 = b->down_lp.z2 = 0.0f;
-    for (i = 0; i < 3; i++)
-        b->r_z[i] = 0.0f;
-    b->r_corr_z = b->r_tone_z = 0.0f;
-    b->dcb_x1 = b->dcb_y1 = 0.0f;
+    drive_state_clear(b);
     b->amp_y = 0.0f;
 }
 
