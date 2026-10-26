@@ -6,7 +6,9 @@ set -e
 cd "$(dirname "$0")/.."
 OUT="${1:-build/gen}"
 mkdir -p "$OUT" build/host
-[ -f "$OUT/x0x_drum_samples.h" ] || python3 tools/gen_drum_samples.py "$OUT/x0x_drum_samples.h" >/dev/null
+# drum909_dsp.h needs x0x_drum_tables.h beside samples; regenerate if either is missing.
+[ -f "$OUT/x0x_drum_samples.h" ] && [ -f "$OUT/x0x_drum_tables.h" ] \
+    || python3 tools/gen_drum_samples.py "$OUT/x0x_drum_samples.h" >/dev/null
 ${CC:-cc} -O2 -ffp-contract=off -w -Ifirmware/src -I"$OUT" -o build/host/gen_builtin_break \
     tools/gen_builtin_break.c firmware/src/dsp/drum909.c -lm
 build/host/gen_builtin_break "$OUT/x0x_break_bank.h" ${2:+"$2"}
