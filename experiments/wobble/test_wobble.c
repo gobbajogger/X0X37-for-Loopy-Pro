@@ -47,7 +47,9 @@ static void pitch_tail_and_ownership(void)
     double first=0,last=0; unsigned crossings=0;
     for(unsigned i=4801;i<19200;++i) if(a[i-1]<=0 && a[i]>0) {
         double t=i-1 + (double)(-a[i-1])/(a[i]-a[i-1]);
-        if(!crossings)first=t; last=t; ++crossings;
+        if(!crossings) first=t;
+        last=t;
+        ++crossings;
     }
     assert(crossings>20);
     double hz=(crossings-1)*48000.0/(last-first);
