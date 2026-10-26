@@ -172,6 +172,8 @@ typedef struct {
     uint8_t hold_created, hold_used;   /* drums / BREAK: the press turned the step on; a knob or a slice used it */
     int8_t chain_first;
     int8_t touched;                    /* knob cell being turned (4 = tempo), -1 none */
+    uint8_t touch_view, touch_part, touch_page;
+    uint8_t touch_kind, touch_a, touch_b, touch_c; /* exact edited ref for overlays */
     uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
     uint32_t hold_t0;                  /* when it went down (a tap takes an old step off) */
     uint16_t brk_pinkeys;              /* BREAK: black keys used to give a held step its slice (their release is not live) */
@@ -2583,6 +2585,8 @@ static void lock_turn(pref_t r, int e, int role)
     mark_dirty();
     ui.touched = (int8_t)(role - EN_K1);
     ui.touch_until = plat_ms() + 900u;
+    ui.touch_view = ui.view; ui.touch_part = ui.part; ui.touch_page = (uint8_t)cur_page();
+    ui.touch_kind = r.kind; ui.touch_a = r.a; ui.touch_b = r.b; ui.touch_c = r.c;
 }
 static void lock_release(void)                        /* the held step let go: stopped, the knobs' own back */
 {
@@ -3737,6 +3741,11 @@ X0X_COLD static void input(void)
         turn_ref(pg.r[cur_page()][i], e, EN_K1 + (int)i);
         ui.touched = (int8_t)i;
         ui.touch_until = plat_ms() + 900u;
+        {
+            pref_t r = pg.r[cur_page()][i];
+            ui.touch_view = ui.view; ui.touch_part = ui.part; ui.touch_page = (uint8_t)cur_page();
+            ui.touch_kind = r.kind; ui.touch_a = r.a; ui.touch_b = r.b; ui.touch_c = r.c;
+        }
     }
 }
 
