@@ -62,8 +62,9 @@ X0X_COLD int bass303_get(const bass303_t *b, int i)
     return (i >= 0 && i < BASS303_NPARAMS) ? b->pot[i] : 0;
 }
 
-/* exp(-1/(tau_ms * fs / 1000)): one-pole / RC coefficient */
-__attribute__((noinline)) static float rc_coeff(float tau_ms, float fs)
+/* Pot/init path only via bass303_set / bass303_init — not the render (X0X_COLD).
+ * exp(-1/(tau_ms * fs / 1000)): one-pole / RC coefficient */
+X0X_COLD __attribute__((noinline)) static float rc_coeff(float tau_ms, float fs)
 {
     return tau_ms > 0.0f ? fm_expf(-1000.0f / (tau_ms * fs)) : 0.0f;
 }
@@ -123,8 +124,9 @@ __attribute__((noinline)) static void env_tables(bass303_t *b)
     }
 }
 
-/* Open303::calculateEnvModScalerAndOffset, the measured mapping */
-__attribute__((noinline)) static void calc_envmod(bass303_t *b)
+/* Pot path only via bass303_set — not the render / note-on (X0X_COLD).
+ * Open303::calculateEnvModScalerAndOffset, the measured mapping */
+X0X_COLD __attribute__((noinline)) static void calc_envmod(bass303_t *b)
 {
     float e = (float)b->pot[BASS303_ENVMOD] * (1.0f / 127.0f);
     float c = fm_log2f(b->cutoff * (1.0f / 313.8152786f)) * (1.0f / 2.931683907f); /* log2(c1/c0) */
@@ -134,8 +136,9 @@ __attribute__((noinline)) static void calc_envmod(bass303_t *b)
     b->env_offset = 0.048292931f * c + 0.294391201f;
 }
 
-/* drive.h set_lowpass / set_low_shelf (TDF-II coefficients, a0-normalised) */
-static void bq_lowpass(bass303_bq_t *q, float fc, float fs)
+/* Boot/init only (bass303_init drive prep) — not the render (X0X_COLD).
+ * drive.h set_lowpass / set_low_shelf (TDF-II coefficients, a0-normalised) */
+X0X_COLD static void bq_lowpass(bass303_bq_t *q, float fc, float fs)
 {
     float w = FM_TWO_PI * fc / fs, cs = fm_cosf(w), sn = fm_sinf(w);
     float alpha = sn * 0.707106781f, a0 = 1.0f + alpha;     /* sn / (2 q), q = 1/sqrt2 */
@@ -146,7 +149,7 @@ static void bq_lowpass(bass303_bq_t *q, float fc, float fs)
     q->a2 = (1.0f - alpha) / a0;
 }
 
-static void bq_low_shelf(bass303_bq_t *q, float fc, float gain_db, float fs)
+X0X_COLD static void bq_low_shelf(bass303_bq_t *q, float fc, float gain_db, float fs)
 {
     float A = fm_db2lin(0.5f * gain_db);                       /* 10^(g/40) */
     float w = FM_TWO_PI * fc / fs, cs = fm_cosf(w), sn = fm_sinf(w);
@@ -168,8 +171,9 @@ static inline float bq_run(bass303_bq_t *q, float x)
     return y;
 }
 
-/* RAT op-amp: drive.h rat::State::update_op_amp_coeffs + the correction one-pole cutoff */
-static void rat_coeffs(bass303_t *b)
+/* Pot path only via bass303_set(DRIVE) — not the render (X0X_COLD).
+ * RAT op-amp: drive.h rat::State::update_op_amp_coeffs + the correction one-pole cutoff */
+X0X_COLD static void rat_coeffs(bass303_t *b)
 {
     const float R1 = 100000.0f, C1 = 1e-10f, Z1_B0 = 2.72149e-7f, Z1_B1 = 0.0027354f;
     const float Z1_A0 = 6.27638e-9f, Z1_A1 = 0.0000069f;
