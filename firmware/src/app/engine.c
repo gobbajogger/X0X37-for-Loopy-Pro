@@ -229,9 +229,29 @@ static volatile uint32_t cq_w, cq_r;
 __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
 {
     uint32_t w = cq_w;
-    if (w - cq_r >= CQ)
-        return;                        /* full: drop (a param flood; the mirror still has it) */
-    cq[w % CQ] = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
+    uint32_t word = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
+    if (w - cq_r >= CQ) {
+        /* Full: params may drop (mirror still has them). Never drop C_BOFF —
+         * a retained C_BON without its off leaves the 303 gate stuck. */
+        uint32_t i;
+        if (type != C_BOFF)
+            return;
+        for (i = cq_r; i != w; i++) {
+            uint32_t t = cq[i % CQ] >> 28;
+            if (t < C_DRUM || t == C_DRUM) {
+                cq[i % CQ] = word;
+                return;
+            }
+        }
+        for (i = cq_r; i != w; i++) {
+            if ((cq[i % CQ] >> 28) != C_BOFF) {
+                cq[i % CQ] = word;
+                return;
+            }
+        }
+        return;
+    }
+    cq[w % CQ] = word;
     __asm__ volatile("" ::: "memory");
     cq_w = w + 1;
 }
