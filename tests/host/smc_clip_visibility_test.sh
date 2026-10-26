@@ -13,6 +13,6 @@ awk '/^#define SMC_Q /{on=1} /^static int smc_same\(/{on=0}
 awk '/^static void smc_knob\(/ || /^static void smc_guarded_button\(/ || /^static uint8_t smc_message\(/ || /^static void smc_mmc_drain_stop\(/ || /^void smc_poll\(void\)/{on=1}
      on{print} on && /^}/{on=0}' "$SRC/app/smc_mixer.c" > "$OUT/smc_turn.inc"
 for f in clip_turn smc_input smc_turn; do test -s "$OUT/$f.inc"; done
-"${CC:-cc}" -std=c99 -Wall -Wextra -Werror -I"$SRC" -I"$OUT" \
+"${CC:-cc}" -std=c99 -Wall -Wextra -Werror -I"$SRC" -I"$OUT" -Itests/host \
     -o "$OUT/smc_clip_visibility_test" tests/host/smc_clip_visibility_test.c
 "$OUT/smc_clip_visibility_test"
