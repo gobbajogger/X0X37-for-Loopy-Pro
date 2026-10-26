@@ -25,7 +25,13 @@
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u
-#define PROJ_SND_REV 10u                 /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
+#if X0X_BASS_TAGGED_SOUND
+#define PROJ_SND_REV 11u
+#else
+#define PROJ_SND_REV 10u
+#endif
+/* Sound revision 11 appends two explicit engine/product-schema identities. */
+/* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
                                           * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
                                           * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9);
@@ -90,7 +96,10 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
-int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
+int project_storage_unsupported(void);
+#if X0X_BASS_TAGGED_SOUND
+int project_adopt_legacy_stage(int bank0,int bank1); /* explicit choices, no raw cell conversion */
+#endif /* stored format retained; explicit validated adoption required */
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
 int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */
 void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */
@@ -104,6 +113,10 @@ int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capa
 void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
+#if X0X_BASS_TAGGED_SOUND
+#define PROJECT_LEGACY_FILE_SIZE (PROJECT_FILE_SIZE-NBASS*BASS_SOUND_TAG_BYTES)
+int project_prepare_legacy_file(const uint8_t *header); /* exact rev10 layout; -10 explicit choice required */
+#endif
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 

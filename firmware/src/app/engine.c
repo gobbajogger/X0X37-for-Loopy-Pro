@@ -6,8 +6,10 @@
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
 #include "../dsp/bass303.h"
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE || X0X_BASS_TAGGED_SOUND
 #include "../dsp/synth_engine.h"
+#endif
+#if X0X_DEV_WOBBLE
 #include "../dsp/wobble_backend.h"
 #include "wobble_ui.h"
 #endif
@@ -574,6 +576,9 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     case T_303:
         if (v < 0 || v >= NBASS)
             break;
+#if X0X_BASS_TAGGED_SOUND
+        if(engine_bass_sound_bank(mot_base_snd,v)<0)break;
+#endif
 #if X0X_DEV_WOBBLE
         if (bass_wobble_voice(v)) {
             /* WBL1 indices overlap Chicago's private indices; never mutate
@@ -660,6 +665,10 @@ void engine_volume(int32_t *out_lr, uint32_t n)
     vol_after = v;
 }
 
+#if X0X_BASS_TAGGED_SOUND
+static void bass_tag_set(sound_t *,int,int,int,int);
+static void bass_restore_sound(const sound_t *);
+#endif
 X0X_COLD void engine_sound_defaults(sound_t *s)
 {
     int t, v, i;
@@ -672,6 +681,14 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
                 const x0x_param_t *p = engine_param(t, v, i);
                 s->v[t][v][i] = p ? p->def : 0;
             }
+#if X0X_BASS_TAGGED_SOUND
+    for(v=0;v<NBASS;v++) {
+        int bank=X0X_DEV_WOBBLE && v==0?1:0;
+        for(i=0;i<(int)(bank?WOBBLE_EXPERIMENT_NPARAMS:CHI_AUX_END);i++)
+            s->v[T_303][v][i]=engine_bass_bank_param(bank,i)->def;
+        bass_tag_set(s,v,bank,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
+    }
+#endif
     /* the factory mix: big beat (Chemical Brothers, Fatboy Slim), balanced by tools/mix_report.py
      * against a funk break, a 909 kick under it and a 303 line. The break leads, the kick sits
      * under it, the 303 screams through its RAT; the master squeezes and pumps. Each engine's
@@ -688,7 +705,13 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
     s->v[T_MIX][PART_BRK][MX_REV] = 25;
     for (v = 0; v < NBASS; v++) {
 #if X0X_DEV_WOBBLE
-        if (!bass_wobble_voice(v)) {                  /* Chicago's slot numbers are NOT Miami parameter indices */
+        if (
+#if X0X_BASS_TAGGED_SOUND
+            engine_bass_sound_bank(s,v)==0
+#else
+            !bass_wobble_voice(v)
+#endif
+        ) {                  /* Chicago's slots are NOT Miami indices */
 #endif
         s->v[T_303][v][BASS303_CUTOFF] = 48;
         s->v[T_303][v][BASS303_RESO] = 100;
@@ -734,13 +757,19 @@ X0X_COLD void engine_sound_centre_drum_pans(sound_t *s)
 X0X_COLD void engine_apply_sound(const sound_t *s)
 {
     int t, v, i;
+#if X0X_BASS_TAGGED_SOUND
+    bass_restore_sound(s); /* called only at full-project initialization/adoption */
+#endif
     engine_set(T_MST, 0, MST_COMP1, s->v[T_MST][0][MST_COMP1]);   /* the macros first: the pots they set */
     engine_set(T_MST, 0, MST_DJF, s->v[T_MST][0][MST_DJF]);       /* follow as saved (a project's own sound) */
     for (t = 0; t < NTARGETS; t++)
         for (v = 0; v < engine_nvoices(t) && v < NVOICES_MAX; v++)
             for (i = 0; i < engine_nparams(t, v) && i < NPARAMS_MAX; i++)
-                if (t != T_MST || i < MST_COMP1)
-                    engine_set(t, v, i, s->v[t][v][i]);
+                if ((t != T_MST || i < MST_COMP1)
+#if X0X_BASS_TAGGED_SOUND
+                    && (t!=T_303 || engine_bass_sound_bank(s,v)>=0)
+#endif
+                    ) engine_set(t, v, i, s->v[t][v][i]);
 }
 
 void engine_drum(int kit, int voice, float vel)
@@ -817,6 +846,9 @@ __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 }
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
+#if X0X_BASS_TAGGED_SOUND
+    if(engine_bass_sound_bank(mot_base_snd,p)<0)return 0;
+#endif
     (void)x;
     /* Pattern owns the gate: drop any live/MIDI damper latch so turning Damp
      * Off later cannot cut this step (Bugbot on #342). */
@@ -1202,6 +1234,9 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         seq_advance(&seq, 0, &SINK);
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
+#if X0X_BASS_TAGGED_SOUND
+            if(engine_bass_sound_bank(mot_base_snd,k)<0)continue;
+#endif
             if (ty == 0x90) {
                 int slide = live_rec_legato(k, src) && bass_held[k] != d1;
 #ifdef X0X_HOST
@@ -1338,6 +1373,98 @@ const x0x_param_t *engine_bass_bank_param(int bank, int i)
     if (i >= CHI_PBEND && i < CHI_AUX_END) return &CHI_AUX_PARAMS[i-CHI_PBEND];
     return bass303_param(i);
 }
+#if X0X_BASS_TAGGED_SOUND
+static const bass_identity_entry_t BASS_SOUND_REGISTRY[2]={
+    {SYNTH_ENGINE_303,BASS_IDENTITY_PRODUCT_SCHEMA,CHI_AUX_END,1},
+    {0x57424c31u,BASS_IDENTITY_PRODUCT_SCHEMA,WOBBLE_EXPERIMENT_NPARAMS,X0X_DEV_WOBBLE}
+};
+static int bass_tag_read(const sound_t *sound,int voice,bass_sound_info_t *info)
+{
+    if(!sound || (unsigned)voice>=NBASS)return BASS_IDENTITY_INVALID;
+    return bass_sound_tag_decode(info,&sound->bass[voice],BASS_SOUND_REGISTRY,2);
+}
+static void bass_tag_set(sound_t *sound,int voice,int bank,int preset,int edited)
+{
+    bass_sound_info_t info={{BASS_SOUND_REGISTRY[bank].engine,BASS_IDENTITY_PRODUCT_SCHEMA,
+        BASS_SOUND_REGISTRY[bank].count,BASS_IDENTITY_KNOWN},(uint16_t)preset,(uint8_t)edited};
+    (void)bass_sound_tag_encode(&sound->bass[voice],&info,BASS_SOUND_REGISTRY,2);
+}
+int engine_bass_sound_bank(const sound_t *sound,int voice)
+{
+    bass_sound_info_t info;
+    if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return -1;
+    return info.identity.engine==SYNTH_ENGINE_303?0:1;
+}
+static int bass_cell_valid(const sound_t *sound,int voice,int bank)
+{
+    const bass_identity_entry_t *entry=&BASS_SOUND_REGISTRY[bank];
+    if(!entry->available)return -9;
+    for(int i=0;i<entry->count;i++) {
+        const x0x_param_t *d=engine_bass_bank_param(bank,i);
+        if(!d || sound->v[T_303][voice][i]>d->max)return -1;
+    }
+    return 0;
+}
+int engine_bass_sound_validate(const sound_t *sound)
+{
+    int unknown=0,miami=0;
+    for(int voice=0;voice<NBASS;voice++) {
+        bass_sound_info_t info;int rc=bass_tag_read(sound,voice,&info);
+        if(rc==BASS_IDENTITY_CHOICE_REQUIRED){unknown=1;continue;}
+        if(rc==BASS_IDENTITY_UNSUPPORTED || rc==BASS_IDENTITY_UNAVAILABLE)return -9;
+        if(rc!=BASS_IDENTITY_READY)return -1;
+        int bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+        if(bank && ++miami>1)return -9;
+        if(bass_cell_valid(sound,voice,bank))return -1;
+        if(info.preset!=BASS_SOUND_NO_PRESET) {
+            uint8_t cell[NPARAMS_MAX];
+            if(bass_preset_decode(bank,info.preset,engine_bass_bank_param,cell))return -1;
+            int edited=__builtin_memcmp(cell,sound->v[T_303][voice],NPARAMS_MAX)!=0;
+            if(edited!=!!(info.flags&BASS_SOUND_EDITED))return -1;
+        }
+    }
+    return unknown?-10:0;
+}
+int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1)
+{
+    if(!sound)return -1;
+    for(int voice=0;voice<NBASS;voice++) {
+        bass_sound_info_t info;
+        if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_CHOICE_REQUIRED)return -9;
+    }
+    if((unsigned)bank0>1 || (unsigned)bank1>1 || (bank0 && bank1))return -9;
+    int rc=bass_cell_valid(sound,0,bank0);if(rc)return rc;
+    rc=bass_cell_valid(sound,1,bank1);if(rc)return rc;
+    bass_tag_set(sound,0,bank0,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
+    bass_tag_set(sound,1,bank1,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
+    return 0;
+}
+void engine_bass_sound_refresh(sound_t *sound,int voice)
+{
+    bass_sound_info_t info;uint8_t cell[NPARAMS_MAX];
+    if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return;
+    int bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+    int edited=info.preset==BASS_SOUND_NO_PRESET || bass_preset_decode(bank,info.preset,engine_bass_bank_param,cell) ||
+        __builtin_memcmp(cell,sound->v[T_303][voice],NPARAMS_MAX);
+    bass_tag_set(sound,voice,bank,info.preset,edited?BASS_SOUND_EDITED:0);
+}
+static void bass_restore_sound(const sound_t *sound)
+{
+    for(int voice=0;voice<NBASS;voice++) {
+        int bank=engine_bass_sound_bank(sound,voice);
+        bass_sound_info_t info;
+        bass_named_preset[voice]=-1;
+        if(bank<0)continue; /* unknown bytes are quarantined, never applied */
+#if X0X_DEV_WOBBLE
+        synth_binding_t binding=bank?wobble_foundation_binding(&dev_wobble):synth303_binding(&b303[voice]);
+        if(!synth_request(&bass_slot[voice],binding,0))continue;
+        synth_boundary(&bass_slot[voice]);
+#endif
+        if(bass_tag_read(sound,voice,&info)==BASS_IDENTITY_READY && info.preset!=BASS_SOUND_NO_PRESET)
+            bass_named_preset[voice]=(int16_t)info.preset;
+    }
+}
+#endif
 int engine_bass_bank(int voice)
 {
     return engine_bass_is_wobble(voice) ? FACTORY_BANK_MIAMI : FACTORY_BANK_CHICAGO;
@@ -1372,6 +1499,9 @@ int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
 {
     uint8_t values[NPARAMS_MAX];
     if((unsigned)voice>=NBASS || !sound || sound!=mot_base_snd) return -1;
+#if X0X_BASS_TAGGED_SOUND
+    if(engine_bass_sound_bank(sound,voice)<0)return -5; /* explicit legacy adoption first */
+#endif
     if(!engine_bass_bank_available(voice,bank)) return -2;
     if(bass_has_locks(voice)) return -4;
     if(bass_preset_decode(bank,preset,engine_bass_bank_param,values)) return -1;
@@ -1411,6 +1541,9 @@ static void bass_preset_boundary(void)
     chi_fx_type[voice]=CHI_FX_OFF; chi_fx_insert_program(voice);
     int count = bank == FACTORY_BANK_CHICAGO ? CHI_AUX_END : WOBBLE_EXPERIMENT_NPARAMS;
     for (int i=0;i<NPARAMS_MAX;i++) cell[i]=values[i];
+#if X0X_BASS_TAGGED_SOUND
+    bass_tag_set(sound,voice,bank,preset,0);
+#endif
     for (int i=0;i<count;i++) apply_param(T_303,voice,i,values[i]);
     /* Existing Chicago bridge has only Comp as a shared master effect;
      * inserts and Off clear the selected lane sends on explicit selection. */
@@ -1454,6 +1587,9 @@ static void drain(void)
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if ((type == C_BON || type == C_REC) && a < NBASS) {
+#if X0X_BASS_TAGGED_SOUND
+            if(engine_bass_sound_bank(mot_base_snd,(int)a)<0)continue;
+#endif
             int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
 #ifdef X0X_HOST
             bass_attacked[a] = (uint8_t)!slide;

@@ -33,9 +33,18 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
 #define NPARAMS_MAX 32                 /* params per (target, voice); fills at Chicago aux PBend/Damp 30..31 */
 
-/* Review-only runtime engine/preset unit; no tagged storage/adoption yet. */
+/* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
 #ifndef X0X_BASS_PRESET_PREVIEW
 #define X0X_BASS_PRESET_PREVIEW 0
+#endif
+#ifndef X0X_BASS_TAGGED_SOUND
+#define X0X_BASS_TAGGED_SOUND 0
+#endif
+#if X0X_BASS_TAGGED_SOUND && !X0X_BASS_PRESET_PREVIEW
+#error Tagged bass unit requires the reviewed runtime preset unit
+#endif
+#if X0X_BASS_TAGGED_SOUND
+#include "bass_identity.h"
 #endif
 #if X0X_BASS_PRESET_PREVIEW
 #include "factory_banks.h"
@@ -56,7 +65,16 @@ void engine_bass_wheel_owners(uint8_t mask);
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {
     uint8_t v[NTARGETS][NVOICES_MAX][NPARAMS_MAX];
+#if X0X_BASS_TAGGED_SOUND
+    bass_sound_tag_t bass[NBASS]; /* explicit LE bytes; never native ABI encoding */
+#endif
 } sound_t;
+#if X0X_BASS_TAGGED_SOUND
+int engine_bass_sound_bank(const sound_t *sound,int voice);
+int engine_bass_sound_validate(const sound_t *sound);
+int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1);
+void engine_bass_sound_refresh(sound_t *sound,int voice);
+#endif
 #if X0X_BASS_PRESET_PREVIEW
 int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound);
 #endif

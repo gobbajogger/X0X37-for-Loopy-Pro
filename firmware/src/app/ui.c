@@ -117,6 +117,9 @@ static const char *part_display(int part)
 #if X0X_BASS_PRESET_PREVIEW
     if(part==PART_303A || part==PART_303B) {
         int voice=part-PART_303A;
+#if X0X_BASS_TAGGED_SOUND
+        if(engine_bass_sound_bank(&proj.sound,voice)<0)return "CHOOSE ENGINE";
+#endif
         return bass_display_name(engine_bass_bank(voice),engine_bass_bank(1-voice),voice);
     }
 #endif
@@ -127,6 +130,9 @@ static const char *part_s(int i)
 #if X0X_BASS_PRESET_PREVIEW
     if(i==PART_303A || i==PART_303B) {
         int v=i-PART_303A,b=engine_bass_bank(v);
+#if X0X_BASS_TAGGED_SOUND
+        if(engine_bass_sound_bank(&proj.sound,v)<0)return "?";
+#endif
         if(b==engine_bass_bank(1-v)) return b?(v?"MI-B":"MI-A"):(v?"CH-B":"CH-A");
         return b?"MIA":"CHI";
     }
@@ -542,7 +548,11 @@ static int pref_get(pref_t r)
     pattern_t *p = pref_pattern(r);
     switch (r.kind) {
 #if X0X_BASS_PRESET_PREVIEW
-    case R_BENGINE: return engine_bass_requested_bank(r.b);
+    case R_BENGINE:
+#if X0X_BASS_TAGGED_SOUND
+        if(engine_bass_sound_bank(&proj.sound,r.b)<0)return -1;
+#endif
+        return engine_bass_requested_bank(r.b);
     case R_BPRESET: return engine_bass_requested_preset(r.b);
     case R_BCANCEL: return 0;
 #endif
@@ -620,7 +630,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         int bank=r.kind==R_BENGINE?v:engine_bass_requested_bank(r.b);
         int preset=r.kind==R_BENGINE?0:v;
         int rc=engine_bass_select_preset(r.b,bank,preset,&proj.sound);
-        if(rc) { say(rc==-2?"ENGINE UNAVAILABLE":rc==-4?"SOUND LOCKS OWN LANE":"INVALID PRESET",""); return; }
+        if(rc) { say(rc==-2?"ENGINE UNAVAILABLE":rc==-4?"SOUND LOCKS OWN LANE":rc==-5?"ADOPT OLD PROJECT FIRST":"INVALID PRESET",""); return; }
         mark_dirty(); build_pages(); return;
     }
 #endif
@@ -628,6 +638,9 @@ X0X_COLD static void pref_set(pref_t r, int v)
     switch (r.kind) {
     case R_ENG:
         proj.sound.v[r.a][r.b][r.c] = (uint8_t)v;
+#if X0X_BASS_TAGGED_SOUND
+        if(r.a==T_303)engine_bass_sound_refresh(&proj.sound,r.b);
+#endif
         engine_set(r.a, r.b, r.c, v);
         if (r.a == T_MST && r.c == MST_COMP1)          /* the macros: the details they set, for the list */
             master_comp1_pots(v, &proj.sound.v[T_MST][0][MST_THRESH], &proj.sound.v[T_MST][0][MST_RATIO],
@@ -867,6 +880,9 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     if (!d || r.kind == R_ACT)
         return;
 #if X0X_BASS_PRESET_PREVIEW
+#if X0X_BASS_TAGGED_SOUND
+    if(r.kind==R_BENGINE && v<0){put_s(num,"?");return;}
+#endif
     if(r.kind==R_BCANCEL) {put_s(num,engine_bass_preset_pending(r.b)?"TURN":"--");return;}
     if(r.kind==R_BPRESET) { if(v<0) put_s(num,"--"); else put_i(num,v+1); return; }
 #endif
@@ -1181,6 +1197,9 @@ static void build_pages(void)
 #if X0X_BASS_PRESET_PREVIEW
             { const pref_t refs[4]={PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BCANCEL,0,b,0),NONE};
               add_page_refs("SOUND",refs,0,0); }
+#if X0X_BASS_TAGGED_SOUND
+            if(engine_bass_sound_bank(&proj.sound,b)<0)break;
+#endif
 #endif
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(b)) {
@@ -1698,7 +1717,7 @@ static void undo_tick(void)
 /* a run of the project changed under the engine: the sound's pots go to the engine again */
 static void undo_changed(uint32_t off, uint32_t len)
 {
-    const uint32_t s0 = __builtin_offsetof(project_t, sound), s1 = s0 + sizeof(sound_t);
+    const uint32_t s0 = __builtin_offsetof(project_t, sound), s1 = s0 + sizeof(proj.sound.v);
     const uint32_t l0 = __builtin_offsetof(project_t, arr) + __builtin_offsetof(arrange_t, lane);
     uint32_t a = off + UNDO_OFF, k;
     for (k = a; k < a + len; k++) {
@@ -4018,10 +4037,22 @@ static UI_DRAW void draw_303(int band, int gen)
     (void)gen;
 #if X0X_BASS_PRESET_PREVIEW
     if(ui.view==V_PART && cur_page()==0) {
+#if X0X_BASS_TAGGED_SOUND
+        if(engine_bass_sound_bank(&proj.sound,b)<0) {
+            cv_text(10,12,&FONT_S,band?"EXPLICIT IDENTITY REQUIRED":"LEGACY SOUND PRESERVED",C_AMB);
+            cv_text(10,38,&FONT_S,band?"SAVE / BASS PLAY BLOCKED":"NO ENGINE WAS INFERRED",C_DIM);return;
+        }
+#endif
         int bank=engine_bass_bank(b), preset=engine_bass_preset_index(b);
         if(!band) {
             cv_text(10,12,&FONT_S,"CURRENT PRESET",C_DIM);
-            cv_text(10,40,&FONT_B,preset<0?"SELECT PRESET":factory_preset_name(bank,preset),C_HI);
+            cv_text(10,40,&FONT_B,preset<0?
+#if X0X_BASS_TAGGED_SOUND
+                "USER SOUND"
+#else
+                "SELECT PRESET"
+#endif
+                :factory_preset_name(bank,preset),C_HI);
             if(preset>=0 && engine_bass_preset_edited(b)) cv_text(148,12,&FONT_S,"EDITED",C_AMB);
         } else {
             int pending=engine_bass_preset_pending(b);
