@@ -23,6 +23,7 @@
  * tests/host/run_drum808.sh renders every sound against 8W8 itself. */
 #include "drum808.h"
 #include "fastmath.h"
+#include "../x0x_cold.h"          /* X0X_COLD: cy/hat/cb_init are boot only, not the render */
 
 #define SR 44100.0f
 #define TWO_PI_SR 1.424758520e-4f              /* 2 pi / 44100 */
@@ -901,7 +902,8 @@ static inline float knee_gate(float e)            /* the swing VCA's diode, knee
 }
 
 /* ---- cymbal: sc808_mt_circuit.h CymbalCircuit ---- */
-static void cy_init(d8_cy_t *v)
+/* Boot only (drum808_init). cy_tick / cy_trigger stay -O2. */
+X0X_COLD static void cy_init(d8_cy_t *v)
 {
     bp_set(&v->sus1, 2944.0f, 75.0f);
     bp_set(&v->sus2, 3265.0f, 32.0f);
@@ -986,7 +988,8 @@ D8_TICK float cy_tick(d8_cy_t *v, float bus)
 }
 
 /* ---- hi-hats: sc808_mt_circuit.h HatCircuit ---- */
-static void hat_init(d8_hat_t *v, int mode)
+/* Boot only (drum808_init). hat_tick / hat_trigger stay -O2. */
+X0X_COLD static void hat_init(d8_hat_t *v, int mode)
 {
     v->mode = (uint8_t)mode;
     if (mode == 0) {
@@ -1078,7 +1081,8 @@ D8_TICK float hat_tick(d8_hat_t *v, float bus)
 }
 
 /* ---- cowbell: sc808_mt_circuit.h CowbellCircuit ---- */
-static void cb_init(d8_cb_t *v)
+/* Boot only (drum808_init). cb_tick / cb_trigger stay -O2. */
+X0X_COLD static void cb_init(d8_cb_t *v)
 {
     bp_set(&v->bp, 812.0f, 5.5f);
     hp1_set_a(&v->hp, D8_HP1_A_200);
@@ -1278,11 +1282,15 @@ static const x0x_param_t d8_sd_head[] = {PP("Level", 64), PP("Tone", 64), PP("Sn
 static const d8_pmap_t k_m_sd[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_X2, 0}, {K_POT, D8P_X1, 0},
                                    {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0}, {K_POT, D8P_DRIVE, 0},
                                    {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t d8_lt_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 68), {"Sound", 1, 0, k_tom_names}};
-#define D8_SW_HEAD ((int)(sizeof(d8_lt_head) / sizeof(d8_lt_head[0])))
-static const x0x_param_t d8_mt_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 56), {"Sound", 1, 0, k_tom_names}};
-static const x0x_param_t d8_ht_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 53), {"Sound", 1, 0, k_tom_names}};
-static const x0x_param_t d8_rs_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 40), {"Sound", 1, 0, k_rim_names}};
+/* Level+Tune defaults match on LT/MT/HT/RS/CB/CH — one copy; decay/sound stay per track. */
+static const x0x_param_t d8_lvl_tune[] = {PP("Level", 64), PP("Tune", 64)};
+#define D8_LTUNE_N ((int)(sizeof(d8_lvl_tune) / sizeof(d8_lvl_tune[0])))
+static const x0x_param_t d8_lt_mid[] = {PP("Decay", 68), {"Sound", 1, 0, k_tom_names}};
+static const x0x_param_t d8_mt_mid[] = {PP("Decay", 56), {"Sound", 1, 0, k_tom_names}};
+static const x0x_param_t d8_ht_mid[] = {PP("Decay", 53), {"Sound", 1, 0, k_tom_names}};
+static const x0x_param_t d8_rs_mid[] = {PP("Decay", 40), {"Sound", 1, 0, k_rim_names}};
+#define D8_SW_MID_N 2
+#define D8_SW_HEAD (D8_LTUNE_N + D8_SW_MID_N)
 static const d8_pmap_t k_m_sw[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                    {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0},
                                    {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
@@ -1292,9 +1300,10 @@ static const x0x_param_t d8_cp_head[] = {PP("Level", 64), PP("Tune", 64), PP("De
 static const d8_pmap_t k_m_cp[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                    {K_FIXED, D8P_X1, D8S_MA}, {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0},
                                    {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t d8_cb_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 62)};
-static const x0x_param_t d8_ch_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 47)};
-#define D8_HAT_HEAD 3
+static const x0x_param_t d8_cb_mid[] = {PP("Decay", 62)};
+static const x0x_param_t d8_ch_mid[] = {PP("Decay", 47)};
+#define D8_HAT_MID_N 1
+#define D8_HAT_HEAD (D8_LTUNE_N + D8_HAT_MID_N)
 static const d8_pmap_t k_m_tune_decay[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                            {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0},
                                            {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
@@ -1323,14 +1332,20 @@ _Static_assert(sizeof(k_m_sw) / sizeof(k_m_sw[0]) == D8_SW_HEAD + D8_FX_N, "tom/
 _Static_assert(sizeof(k_m_cp) / sizeof(k_m_cp[0]) == D8_CP_HEAD + D8_FX_N, "clap pmap");
 _Static_assert(sizeof(k_m_tune_decay) / sizeof(k_m_tune_decay[0]) == D8_HAT_HEAD + D8_FX_N, "cb/ch pmap");
 _Static_assert(sizeof(k_m_decay_tune) / sizeof(k_m_decay_tune[0]) == D8_CY_HEAD + D8_FX_N, "cy/oh pmap");
+_Static_assert(sizeof(d8_lt_mid) / sizeof(d8_lt_mid[0]) == D8_SW_MID_N, "lt mid");
+_Static_assert(sizeof(d8_mt_mid) / sizeof(d8_mt_mid[0]) == D8_SW_MID_N, "mt mid");
+_Static_assert(sizeof(d8_ht_mid) / sizeof(d8_ht_mid[0]) == D8_SW_MID_N, "ht mid");
+_Static_assert(sizeof(d8_rs_mid) / sizeof(d8_rs_mid[0]) == D8_SW_MID_N, "rs mid");
+_Static_assert(sizeof(d8_cb_mid) / sizeof(d8_cb_mid[0]) == D8_HAT_MID_N, "cb mid");
+_Static_assert(sizeof(d8_ch_mid) / sizeof(d8_ch_mid[0]) == D8_HAT_MID_N, "ch mid");
 
 static const d8_track_t k_tracks[D8_NUM + 1] = {
     TRK(d8_bd_head, k_m_bd, D8_BD_HEAD + D8_FX_N), TRK(d8_sd_head, k_m_sd, D8_SD_HEAD + D8_FX_N),
-    TRK(d8_lt_head, k_m_sw, D8_SW_HEAD + D8_FX_N), TRK(d8_mt_head, k_m_sw, D8_SW_HEAD + D8_FX_N),
-    TRK(d8_ht_head, k_m_sw, D8_SW_HEAD + D8_FX_N), TRK(d8_rs_head, k_m_sw, D8_SW_HEAD + D8_FX_N),
-    TRK(d8_cp_head, k_m_cp, D8_CP_HEAD + D8_FX_N), TRK(d8_cb_head, k_m_tune_decay, D8_HAT_HEAD + D8_FX_N),
+    TRK(d8_lt_mid, k_m_sw, D8_SW_HEAD + D8_FX_N), TRK(d8_mt_mid, k_m_sw, D8_SW_HEAD + D8_FX_N),
+    TRK(d8_ht_mid, k_m_sw, D8_SW_HEAD + D8_FX_N), TRK(d8_rs_mid, k_m_sw, D8_SW_HEAD + D8_FX_N),
+    TRK(d8_cp_head, k_m_cp, D8_CP_HEAD + D8_FX_N), TRK(d8_cb_mid, k_m_tune_decay, D8_HAT_HEAD + D8_FX_N),
     TRK(d8_cy_head, k_m_decay_tune, D8_CY_HEAD + D8_FX_N), TRK(d8_oh_head, k_m_decay_tune, D8_CY_HEAD + D8_FX_N),
-    TRK(d8_ch_head, k_m_tune_decay, D8_HAT_HEAD + D8_FX_N), TRK(k_p_kit, k_m_kit, sizeof(k_p_kit) / sizeof(k_p_kit[0])),
+    TRK(d8_ch_mid, k_m_tune_decay, D8_HAT_HEAD + D8_FX_N), TRK(k_p_kit, k_m_kit, sizeof(k_p_kit) / sizeof(k_p_kit[0])),
 };
 
 static const x0x_param_t *d8_spec(int track, int i)
@@ -1346,23 +1361,31 @@ static const x0x_param_t *d8_spec(int track, int i)
         return &d8_fx_tail[i - D8_SD_HEAD];
     }
     if (track == D8_LT) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_SW_HEAD)
-            return &d8_lt_head[i];
+            return &d8_lt_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_SW_HEAD];
     }
     if (track == D8_MT) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_SW_HEAD)
-            return &d8_mt_head[i];
+            return &d8_mt_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_SW_HEAD];
     }
     if (track == D8_HT) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_SW_HEAD)
-            return &d8_ht_head[i];
+            return &d8_ht_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_SW_HEAD];
     }
     if (track == D8_RS) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_SW_HEAD)
-            return &d8_rs_head[i];
+            return &d8_rs_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_SW_HEAD];
     }
     if (track == D8_CP) {
@@ -1371,13 +1394,17 @@ static const x0x_param_t *d8_spec(int track, int i)
         return &d8_fx_tail[i - D8_CP_HEAD];
     }
     if (track == D8_CB) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_HAT_HEAD)
-            return &d8_cb_head[i];
+            return &d8_cb_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_HAT_HEAD];
     }
     if (track == D8_CH) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_HAT_HEAD)
-            return &d8_ch_head[i];
+            return &d8_ch_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_HAT_HEAD];
     }
     if (track == D8_CY) {

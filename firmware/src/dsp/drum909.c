@@ -304,7 +304,8 @@ void drum909_set(drum909_t *d, int voice, int i, int value)
 /* ===================================================================== */
 /* Init (er99_engine_init)                                                */
 /* ===================================================================== */
-static void d9_bt_init(d9_bt_t *v)
+/* Boot only (drum909_init). d9_render stays -O2. */
+X0X_COLD static void d9_bt_init(d9_bt_t *v)
 {
     d9_biquad_set(&v->dc_block, D9_HP, 20.0f, 0.7071f);
     d9_env_set(&v->pitch, v->tune);
