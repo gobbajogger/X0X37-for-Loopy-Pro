@@ -474,6 +474,21 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
     }
 }
 
+__attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink_t *o)
+{
+    int b;
+    for (b = 0; b < NBASS; b++)
+        bass_release(s, b, o);
+    if (o->brk_stop)
+        o->brk_stop(o->ctx);
+}
+
+__attribute__((noinline)) static void seq_send_rt(seq_t *s, const seq_sink_t *o, uint8_t remote, uint8_t st)
+{
+    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
+        midi(o, st, 0, 0);
+}
+
 static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote)
 {
     int t;
@@ -497,25 +512,20 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote
     }
     s->clk_to_next = 0;
     s->playing = 1;
-    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
-        midi(o, from_top ? 0xFA : 0xFB, 0, 0);
+    seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
 }
 
 static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote)
 {
-    int b, t;
+    int t;
     s->playing = 0;
-    for (b = 0; b < NBASS; b++)
-        bass_release(s, b, o);
-    if (o->brk_stop)
-        o->brk_stop(o->ctx);
+    bass_and_brk_stop(s, o);
     for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
         s->t[t].ext_due = 0;
         s->t[t].rec_skip = 0;
     }
-    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
-        midi(o, 0xFC, 0, 0);
+    seq_send_rt(s, o, remote, 0xFC);
 }
 
 static void ext_set_period(seq_t *s, uint32_t q)   /* samples per external clock, Q8 */
@@ -660,13 +670,9 @@ static void rephase(seq_t *s)                         /* the next tick is tick 0
 
 static void pause_sound(seq_t *s, const seq_sink_t *o)   /* EXTERNAL waits: the 303 notes and the break stop */
 {
-    int b;
     if (!s->playing)
         return;
-    for (b = 0; b < NBASS; b++)
-        bass_release(s, b, o);
-    if (o->brk_stop)
-        o->brk_stop(o->ctx);
+    bass_and_brk_stop(s, o);
 }
 
 /* apply a new clock source (GLO > MIDI > CLOCK SOURCE), in the audio ISR */
