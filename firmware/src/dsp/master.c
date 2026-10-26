@@ -135,7 +135,8 @@ void master_djf_pots(int v, uint8_t *mode, uint8_t *cutoff)
     }
 }
 
-void master_set(master_t *m, int i, int v)
+/* UI/MIDI pot path — not the master audio render (X0X_COLD) */
+X0X_COLD void master_set(master_t *m, int i, int v)
 {
     if (i < 0 || i >= MST_NPARAMS)
         return;
