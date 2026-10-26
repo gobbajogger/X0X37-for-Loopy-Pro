@@ -205,21 +205,39 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
                 - 20.0f * mod * mod * mod + 5.0f * mod;
             m = fm_tanhf(mod + 1.3f * xmod_dep * m3 + 0.7f * xmod_dep * m5);
         }
-        float carrier = waveform(s->carrier_phase, step,
-                                 s->p[W_CARRIER_WAVE] >= .5f);
+        int carrier_muted_xmod = xmod_live && (s->p[W_CARRIER_LEVEL] <= 1e-6f);
+        float carrier_phase_s = s->carrier_phase;
+        /* Muted carrier + Depth>0 (x_form / trash_alias): PM the carrier so
+         * X-mod remains audible; skip mix_depth odd residual (H4 spike). */
+        if (carrier_muted_xmod)
+            carrier_phase_s = wrap(s->carrier_phase
+                + xmod_dep * xmod_lvl * 0.28f * m);
+        int square_carrier = s->p[W_CARRIER_WAVE] >= .5f;
+        float sub_lvl = s->p[W_SUB_LEVEL];
+        float carrier;
+        /* Sub-less muted X-mod (trash_alias): pulse at carrier Hz for even/high
+         * partials. Sub-heavy muted rows (x_form) keep square carrier + PM. */
+        if (carrier_muted_xmod && xmod_pulse && sub_lvl <= 1e-6f)
+            carrier = xmod_pulse_waveform(carrier_phase_s, step);
+        else
+            carrier = waveform(carrier_phase_s, step, square_carrier);
         /* Square Fourier peak ~0.92 vs unity; restore Miami-matrix
          * square_open absolute steady envelope (~+2.23 dB). LFO shape
          * keeps unscaled waveform() so wobble depth is unchanged. */
-        if (s->p[W_CARRIER_WAVE] >= .5f)
+        if (square_carrier && !(carrier_muted_xmod && xmod_pulse && sub_lvl <= 1e-6f))
             carrier *= 1.293f;
-        if (xmod_live)
+        if (xmod_live && !carrier_muted_xmod)
             carrier *= (1.0f + xmod_dep * xmod_lvl * (6.2f / 0.7f) * m);
         float sub = waveform(s->sub_phase, step * .5f, 0);
+        float carrier_lvl = s->p[W_CARRIER_LEVEL];
         float mod_bus = 0.0f;
         if (!xmod_live) {
             mod_bus = xmod_lvl * mod;
             if (xmod_pulse && xmod_dep <= 1e-6f)
                 mod_bus *= 1.8f; /* matrix mod_pulse was ~5 dB quiet at unity bus */
+        } else if (carrier_muted_xmod) {
+            carrier_lvl = xmod_lvl;
+            mod_bus = 0.0f;
         } else {
             /* Cosine (not sine) odd partials of mod Hz: closes mix_depth
              * lag-correlation (≥0.99) while keeping strong-relative ≤1 dB.
@@ -228,10 +246,19 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
                 + 0.03f * fm_cosf(10.0f * FM_PI * s->mod_phase);
             mod_bus = xmod_lvl * odd;
         }
-        float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
+        float mixed = 0.07725f * (carrier_lvl * carrier
             + s->p[W_SUB_LEVEL] * sub + mod_bus);
         float crush = s->p[W_CRUSH];
-        if (crush > 0) mixed = fm_tanhf(mixed * (1.0f + 31.0f * crush));
+        if (crush > 0) {
+            mixed = fm_tanhf(mixed * (1.0f + 31.0f * crush));
+            /* Muted-carrier X-mod rows (x_form / trash_alias): add reflective
+             * Crush alias colour for H8..H14. Leave normal Crush as tanh. */
+            if (carrier_muted_xmod) {
+                float a = crush * crush;
+                mixed += a * (0.40f * fm_sinf(8.0f * FM_PI * mixed)
+                            + 0.55f * fm_sinf(14.0f * FM_PI * mixed));
+            }
+        }
         /* Pre-filter tone — softens pulse H11–H16 and square H15 vs Miami open. */
         s->prefilt_lp = fm_flush(s->prefilt_lp + 0.115f * (mixed - s->prefilt_lp));
         mixed = s->prefilt_lp;
