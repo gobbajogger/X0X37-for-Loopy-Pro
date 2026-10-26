@@ -534,7 +534,7 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
 }
 
-static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote)
+__attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote)
 {
     int t;
     s->playing = 0;
