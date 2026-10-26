@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T13:28:40Z",
+  "role": "X0X37 Installer Improvements",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-ux-journey-state-20261023-run15",
+    "tested_commit": "ed3fc80a084a4ab39de3335075e31be505e84750",
+    "tested_tree": "56defe7f92a7cbde2ccf15125efa82c5730a7641"
+  },
+  "summary": "Display one current guide step and completed connection/selection markers without changing install or backup safety gates.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "web/x0x_installer.html",
+      "description": "User-visible current/completed step classes and aria-current; exact Git blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3."
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_journey.mjs",
+      "description": "Seven positive and negative projection cases; exact Git blob d8237fbfc5aa3f0b70e3bb108184b893dae57c45."
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_connection_retry.mjs",
+      "description": "One no-op journey stub for isolated Web MIDI harness; exact Git blob 722f9338bc180775c9049ba5e879169822d889f2."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/installer-ux-journey-20261023-run15.md",
+      "description": "Visible before/after, actual native checks, narrow missing gate and review handoff."
+    }
+  ],
+  "checks": [
+    {
+      "name": "Node before",
+      "status": "FAIL",
+      "command": "node test_install_journey.mjs candidate.html",
+      "exit_code": 1,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "a6e3e233a9ea1b99ebb437a9be4f09760986fd9dcb0c2649df88693c4dc10933",
+      "coverage": "Expected baseline failure; no active projection"
+    },
+    {
+      "name": "Node after",
+      "status": "PASS",
+      "command": "node test_install_journey.mjs candidate_journey.html",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "f7c4fe6e5cb7927287fcaade50ba4cd92c463c2fa707498b19a46e04a75a5c60",
+      "coverage": "Seven projection states, exactly one aria-current"
+    },
+    {
+      "name": "Chromium before",
+      "status": "FAIL",
+      "command": "python3 test_install_journey_browser.py candidate.html before",
+      "exit_code": 1,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "29c1490c221886d83532e162e5092db2a8cb6be42ea448ad4dc09f1ef38de7a6",
+      "coverage": "Expected baseline failure"
+    },
+    {
+      "name": "Chromium responsive after",
+      "status": "PASS",
+      "command": "python3 test_install_journey_browser.py candidate_journey.html after",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "2fbf6bde75a3d682235c04890da5e0561e07ae9ac0a3ee710a5752bda5c87dd6",
+      "coverage": "320/390/1280, connect/retry/offline-selection/invalid replacement/JA/no overflow"
+    },
+    {
+      "name": "Chromium local file",
+      "status": "PASS",
+      "command": "python3 test_install_local_feedback_browser.py candidate_journey.html after",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "7e16aa5077bc92a287bf871bf82099bc355e29f46d7f0b3c6324540323066b60",
+      "coverage": "Three widths, invalid/stale/successful file"
+    },
+    {
+      "name": "Node local selection",
+      "status": "PASS",
+      "command": "node test_install_local_entry.mjs candidate_journey.html",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "868c394779897d1ff585823212684d53fce79806dad23323116eb2eff17cb7bc",
+      "coverage": "Five local file cases"
+    },
+    {
+      "name": "Node MIDI retry",
+      "status": "PASS",
+      "command": "node test_install_connection_retry.mjs candidate_journey.html",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "f6b5751df59e1237eac2ceda901b21a0ccfafef3db215fa01d7a84c597eeac93",
+      "coverage": "Isolated Web MIDI scan with no-op display function stub"
+    },
+    {
+      "name": "Node forged picker eligibility",
+      "status": "PASS",
+      "command": "node test_install_public_eligibility.mjs candidate_journey.html",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "bf9e698b4fcfb81f8ba414fa1e38bebd933e7f2d31bafd501f8b905a6c9dbb1b",
+      "coverage": "20 forged proof/model cases"
+    },
+    {
+      "name": "Inline JS parse",
+      "status": "PASS",
+      "command": "node --check candidate_journey.html.js",
+      "exit_code": 0,
+      "evidence": "run15 private execution log for exact source blob 0f81dd4bf0c5cac624b38209d349f554e8b161b3",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "coverage": "Syntax accepted"
+    },
+    {
+      "name": "Full combined slot and OTA suite",
+      "status": "NOT_RUN",
+      "command": "node web/test_install_slots.mjs",
+      "evidence": "Full remote repository checkout unavailable through shell Git DNS; exact web source and scoped native browser regressions were executed."
+    },
+    {
+      "name": "Elite/Pro native firmware builds",
+      "status": "NOT_RUN",
+      "command": "Elite and Pro target builds",
+      "evidence": "Browser UI only: no firmware/controller/SDK files changed."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Browser-only source UX"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Browser-only source UX"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA then sole Safe Merge",
+    "action": "Review latest source plus exact combined-tree sample/OTA, mobile and model guards; integrate stacked approved source into firmware nightly only.",
+    "gate": "Independent combined QA and authorized NIGHTLY-source merge; not live and no physical/production authorization."
+  },
+  "dependencies": [
+    "Firmware draft PR #83 head ed3fc80a084a4ab39de3335075e31be505e84750",
+    "PR #77 -> #67 -> #59 -> #52 -> #44 -> #39 -> #32 ancestry"
+  ],
+  "publication": "SOURCE_ONLY"
+}
