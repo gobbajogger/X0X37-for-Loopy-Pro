@@ -4,10 +4,23 @@
 # Samples can exist without x0x_drum_tables.h; a custom X0X_BREAK_BANK skips
 # gen_builtin_break.sh, so gen_nonfont must regenerate drums when tables vanish
 # (same gate as host/build_host.sh). Otherwise stereo / drum-pan fail to compile.
+#
+# Nested run_tests shares parent build/host/iso. Clearing .gen-done for the
+# probe must not strand parallel needs_gen waiters in the parent suite — always
+# republish .gen-done (tables present) or .gen-fail before exit.
 set -eu
 cd "$(dirname "$0")/../.."
 T=$(mktemp -d "${TMPDIR:-/tmp}/x0x-gen-nonfont.XXXXXX")
-trap 'rm -rf "$T"' EXIT HUP INT TERM
+publish_parent_gen() {
+    mkdir -p build/host/iso
+    if [ -f build/gen/x0x_drum_tables.h ]; then
+        : > build/host/iso/.gen-done
+        rm -f build/host/iso/.gen-fail
+    else
+        : > build/host/iso/.gen-fail
+    fi
+}
+trap 'publish_parent_gen; rm -rf "$T"' EXIT HUP INT TERM
 mkdir -p "$T/nopil" "$T/bank" build/gen build/host
 : > "$T/bank/bank.txt"
 printf 'stub\n' > build/gen/x0x_drum_samples.h
@@ -32,6 +45,11 @@ printf '%s\n' "$out" | grep -q 'ok   stereo' || {
 }
 [ -f build/gen/x0x_drum_tables.h ] || {
     echo "FAIL: gen_nonfont left x0x_drum_tables.h missing" >&2
+    exit 1
+}
+publish_parent_gen
+[ -e build/host/iso/.gen-done ] || {
+    echo "FAIL: parent needs_gen marker .gen-done missing after probe" >&2
     exit 1
 }
 echo "gen-nonfont-tables: ok"
