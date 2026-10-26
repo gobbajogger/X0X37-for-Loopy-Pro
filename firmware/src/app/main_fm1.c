@@ -898,6 +898,12 @@ static void smk_wheels(void)
         return;
     if (fm1_in.frames < 300u)                         /* (the readings settle) */
         return;
+#if X0X_BASS_PRESET_PREVIEW
+    /* A first physical wheel move must choose its engine and publish ownership
+     * as one transaction. Otherwise the audio boundary can switch banks before
+     * the command's engine-dependent parameter is selected. */
+    engine_bass_edit_hold(1);
+#endif
     if (!pc) {
         pc = p;
         plo = p - SPAN0;
@@ -969,6 +975,7 @@ static void smk_wheels(void)
 #if X0X_BASS_PRESET_PREVIEW
     engine_bass_wheel_owners((uint8_t)((bend_part >= 0 ? 1u << bend_part : 0u) |
                                       (cut_part >= 0 ? 1u << cut_part : 0u)));
+    engine_bass_edit_hold(0);
 #endif
 }
 
