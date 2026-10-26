@@ -64,16 +64,11 @@ typedef struct {
     uint8_t fx_rv_decay, fx_rv_level;
 } chicago_fx_out_t;
 
-/* UI names: "—" = NOT_YET (no product insert). Page title is SEND FX. */
-static const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES] = {
-    "Off", "EQ—", "Comp", "Crush", "Ring—", "Cho—", "Ens—", "Phas—", "SDly", "BPM", "Hall", "Gate—"
-};
+/* UI names: "—" = NOT_YET (no product insert). Page title is SEND FX.
+ * Tables live in chicago_param_tables.c (one copy for engine.o + x0x.o). */
+extern const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES];
 
-static const x0x_param_t CHI_FX_PARAMS[3] = {
-    {"FxTyp", CHI_FX_NTYPES - 1, CHI_FX_OFF, CHI_FX_TYPE_N},
-    {"FxEd1", 127, 64, 0},
-    {"FxEd2", 127, 64, 0},
-};
+extern const x0x_param_t CHI_FX_PARAMS[3];
 
 static inline int chi_fx_supported(uint8_t type)
 {

@@ -43,21 +43,16 @@ enum {
 
 #define CHI_ARP_MAXN 8u /* held notes in one live chord (product path) */
 
-/* Chicago Speed → clip CK_RATE_T index (subset; skips 1/16D and 1/16T). */
-static const uint8_t CHI_ARP_RATE_IX[CHI_ARP_NSPEED] = {0, 1, 2, 3, 4, 5, 6, 8, 9, 11};
+/* Chicago Speed → clip CK_RATE_T index (subset; skips 1/16D and 1/16T).
+ * Tables live in chicago_param_tables.c (one copy for engine.o + x0x.o). */
+extern const uint8_t CHI_ARP_RATE_IX[CHI_ARP_NSPEED];
 
-static const char *const CHI_ARP_SWITCH_N[] = {"Off", "On"};
-static const char *const CHI_ARP_MODE_N[] = {"Down", "Up", "Up/Dn"};
-static const char *const CHI_ARP_RANGE_N[] = {"1 Oct", "2Octs", "Full"};
-static const char *const CHI_ARP_SPEED_N[] = {"1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "1/12",
-                                               "1/16", "1/32"};
+extern const char *const CHI_ARP_SWITCH_N[];
+extern const char *const CHI_ARP_MODE_N[];
+extern const char *const CHI_ARP_RANGE_N[];
+extern const char *const CHI_ARP_SPEED_N[];
 
-static const x0x_param_t CHI_ARP_PARAMS[4] = {
-    {"ArpSw", 1, CHI_ARP_OFF, CHI_ARP_SWITCH_N},
-    {"ArpMd", CHI_ARP_NMODE - 1, CHI_ARP_UP, CHI_ARP_MODE_N},
-    {"ArpRg", CHI_ARP_NRANGE - 1, CHI_ARP_OCT1, CHI_ARP_RANGE_N},
-    {"ArpSp", CHI_ARP_NSPEED - 1, CHI_ARP_SPD_1_16, CHI_ARP_SPEED_N},
-};
+extern const x0x_param_t CHI_ARP_PARAMS[4];
 
 /* Octaves sounded: 1 / 2 / Full. Full is provisional 3 octaves until AU characterization. */
 static inline uint32_t chi_arp_octaves(uint32_t range)

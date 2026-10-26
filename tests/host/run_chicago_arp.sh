@@ -8,5 +8,6 @@ mkdir -p "$OUT"
 CC="${CC:-cc}"
 CFLAGS="-std=c99 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion"
 $CC $CFLAGS -I firmware/src -I firmware/src/app -I firmware/src/dsp \
-  tests/host/chicago_arp_test.c firmware/src/dsp/bass303.c -lm -o "$OUT/chicago_arp"
+  tests/host/chicago_arp_test.c firmware/src/app/chicago_param_tables.c \
+  firmware/src/dsp/bass303.c -lm -o "$OUT/chicago_arp"
 "$OUT/chicago_arp"
