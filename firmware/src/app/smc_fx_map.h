@@ -31,34 +31,19 @@ enum { SMCFX_SUIT_MAX = 8 };
 enum { SMCFX_SRC_N = 5 };
 #define SMCFX_NPAGE 3
 
-static const uint8_t SMCFX_PART[SMCFX_SRC_N] = {0, 1, 2, 3, 4};
-static const uint8_t SMCFX_NOTE[SMCFX_N] = {24, 25, 26, 27, 28, 29, 30, 31};
+/* Tables live in smc_fx_map_tables.c (one copy for engine.o + x0x/smc_mixer). */
+extern const uint8_t SMCFX_PART[SMCFX_SRC_N];
+extern const uint8_t SMCFX_NOTE[SMCFX_N];
 
-static const char *const SMCFX_BUS_NAME[SMCFX_N] = {
-    "909", "808", "303A", "303B", "BREAK", "REVERB", "DELAY", "MASTER"};
+extern const char *const SMCFX_BUS_NAME[SMCFX_N];
 
-static const uint8_t SMCFX_SUIT[SMCFX_N][SMCFX_SUIT_MAX] = {
-    {SMCFX_REV, SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF},
-    {SMCFX_DLY, SMCFX_REV, SMCFX_STUT, SMCFX_SHUF},
-    {SMCFX_HP, SMCFX_DLY, SMCFX_REV, SMCFX_LP, SMCFX_GATE8, SMCFX_GATE16, SMCFX_TRANCE},
-    {SMCFX_HP, SMCFX_LP, SMCFX_DLY, SMCFX_REV, SMCFX_GATE16, SMCFX_GATE8},
-    {SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_HP},
-    {SMCFX_REV, SMCFX_GATE8, SMCFX_GATE16, SMCFX_TRANCE, SMCFX_GATE, SMCFX_STUT, SMCFX_SHUF},
-    {SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF, SMCFX_GATE16, SMCFX_GATE8},
-    {SMCFX_GATE16, SMCFX_GATE8, SMCFX_TRANCE, SMCFX_STUT, SMCFX_SHUF, SMCFX_HP, SMCFX_LP},
-};
-static const uint8_t SMCFX_SUIT_N[SMCFX_N] = {4, 4, 7, 6, 4, 7, 5, 7};
+extern const uint8_t SMCFX_SUIT[SMCFX_N][SMCFX_SUIT_MAX];
+extern const uint8_t SMCFX_SUIT_N[SMCFX_N];
 
-static const uint8_t SMCFX_PAGE[SMCFX_NPAGE][SMCFX_N] = {
-    {SMCFX_REV, SMCFX_DLY, SMCFX_HP, SMCFX_LP, SMCFX_GATE, SMCFX_REV, SMCFX_DLY, SMCFX_GATE16},
-    {SMCFX_DLY, SMCFX_REV, SMCFX_HP, SMCFX_DLY, SMCFX_HP, SMCFX_GATE16, SMCFX_STUT, SMCFX_TRANCE},
-    {SMCFX_DLY, SMCFX_REV, SMCFX_REV, SMCFX_REV, SMCFX_DLY, SMCFX_STUT, SMCFX_SHUF, SMCFX_GATE8},
-};
-static const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE] = {"ROOM", "TIGHT", "ECHO"};
-static const char *const SMCFX_SHORT[SMCFX_NFX] = {
-    "GATE", "REV", "HPF", "DLY", "LPF", "G8", "G16", "TRNC", "STUT", "SHUF"};
-static const char *const SMCFX_LONG[SMCFX_NFX] = {"DECAY GATE", "REV THROW", "HIGH-PASS", "DLY THROW", "LOW-PASS",
-                                                    "8TH GATE", "16TH GATE", "TRANCE GATE", "STUTTER", "SHUFFLER"};
+extern const uint8_t SMCFX_PAGE[SMCFX_NPAGE][SMCFX_N];
+extern const char *const SMCFX_PAGE_NAME[SMCFX_NPAGE];
+extern const char *const SMCFX_SHORT[SMCFX_NFX];
+extern const char *const SMCFX_LONG[SMCFX_NFX];
 
 static inline int smcfx_is_main(int bus) { return bus >= SMCFX_RVB; }
 

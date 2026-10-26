@@ -5,6 +5,7 @@
  * points so the real queue/link regressions can compile and run. */
 #pragma once
 #include "app/smc_fx_map.h"
+#include "app/smc_fx_map_tables.c" /* one map copy for single-file smc_mixer harnesses */
 
 static void __attribute__((unused)) smc_fx_main_tick(void) {}
 static void __attribute__((unused)) smc_fx_clear(void) {}
