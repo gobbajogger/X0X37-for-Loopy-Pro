@@ -491,7 +491,7 @@ __attribute__((noinline)) static void track_arm(seq_t *s, int t, int from_top, i
     tr->ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);   /* the first clock is the downbeat */
 }
 
-static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: from step 1 (not the 909's) */
+__attribute__((noinline)) static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: from step 1 (not the 909's) */
 {
     int t;
     for (t = 1; t < NTRACKS; t++) {

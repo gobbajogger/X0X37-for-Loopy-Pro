@@ -27,7 +27,7 @@ static uint32_t rng_u32(uint32_t *r)                 /* xorshift32, as schwung-t
     return x;
 }
 
-static float rng_f(uint32_t *r)                      /* [0, 1) */
+__attribute__((noinline)) static float rng_f(uint32_t *r)                      /* [0, 1) */
 {
     return (float)(rng_u32(r) & 0xFFFFFFu) / (float)0x1000000;
 }
