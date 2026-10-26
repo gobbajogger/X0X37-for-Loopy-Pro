@@ -674,6 +674,9 @@ X0X_COLD static void pref_set(pref_t r, int v)
     v = v < 0 ? 0 : v > d->max ? d->max : v;
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BENGINE || r.kind==R_BPRESET) {
+        /* An unchanged navigation target is not an intentional factory reload.
+         * Compare the requested target; USER (-1) can still enter preset zero. */
+        if(v==pref_get(r)) return;
         int bank=r.kind==R_BENGINE?v:engine_bass_requested_bank(r.b);
         int preset=r.kind==R_BENGINE?0:v;
         int rc=engine_bass_select_preset(r.b,bank,preset,&proj.sound);
