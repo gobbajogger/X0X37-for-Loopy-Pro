@@ -2540,13 +2540,20 @@ static int lock_of(pref_t r, int s)                  /* step s's own value of r,
 static void lock_turn(pref_t r, int e, int role)
 {
     int s = lock_step(), part = ui.part, k, cur, nv;
+#if X0X_BASS_PRESET_PREVIEW
+    /* The active preset can change the descriptor at an audio boundary. Keep
+     * descriptor, first lane allocation, lock value and audible preview in
+     * one engine-identity transaction, including all early exits. */
+    int bass_edit = r.kind == R_ENG && r.a == T_303;
+    if (bass_edit) engine_bass_edit_hold(1);
+#endif
     const x0x_param_t *d = pref_desc(r);
     lane_t *l;
     if (!d)
-        return;
+        goto done;
     if (!lockable(r)) {
         say("NO P-LOCK: ", caps_of(pref_name(r)));
-        return;
+        goto done;
     }
     if (is_303())
         ui.step_edited = 1;                           /* its release keeps the step */
@@ -2557,7 +2564,7 @@ static void lock_turn(pref_t r, int e, int role)
         int j, any = 0;
         ui.btn_used |= 1u << B_SAVE;
         if (k < 0 || proj.arr.lane[k].val[s] == MOT_NONE)
-            return;
+            goto done;
         l = &proj.arr.lane[k];
         l->val[s] = MOT_NONE;
         for (j = 0; j < NSTEPS; j++)
@@ -2568,11 +2575,11 @@ static void lock_turn(pref_t r, int e, int role)
             engine_set(r.a, r.b, r.c, proj.sound.v[r.a][r.b][r.c]);
         mark_dirty();
         say("P-LOCK CLEARED: ", caps_of(pref_name(r)));
-        return;
+        goto done;
     }
     if (k < 0 && (k = motion_alloc(proj.arr.lane, seq.ppat[part], part, r.a, r.b, r.c)) < 0) {
         say("MOTION FULL", 0);
-        return;
+        goto done;
     }
     l = &proj.arr.lane[k];
     cur = l->val[s] != MOT_NONE ? l->val[s] : proj.sound.v[r.a][r.b][r.c];
@@ -2587,6 +2594,11 @@ static void lock_turn(pref_t r, int e, int role)
     ui.touch_until = plat_ms() + 900u;
     ui.touch_view = ui.view; ui.touch_part = ui.part; ui.touch_page = (uint8_t)cur_page();
     ui.touch_kind = r.kind; ui.touch_a = r.a; ui.touch_b = r.b; ui.touch_c = r.c;
+done:
+#if X0X_BASS_PRESET_PREVIEW
+    if (bass_edit) engine_bass_edit_hold(0);
+#endif
+    return;
 }
 static void lock_release(void)                        /* the held step let go: stopped, the knobs' own back */
 {
