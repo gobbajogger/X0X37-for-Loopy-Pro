@@ -67,7 +67,7 @@ static void fx_retime(fxbus_t *f)
     int32_t i = f->dl_div;
     if (i < 0) i = 0;
     if (i > 12) i = 12;
-    const float bpm = f->bpm > 20.0f ? f->bpm : 120.0f;
+    const float bpm = f->bpm >= 20.0f ? f->bpm : 120.0f;
     float ms = fx_beats[i] * 60000.0f / bpm;
     const float max_ms = (float)(f->dlen - 256) / D9_SR * 1000.0f;
     while (ms > max_ms)                 /* longer than the line (1/2. under 90 BPM): half of it, */
@@ -132,7 +132,7 @@ X0X_COLD void fxbus_set(fxbus_t *f, int i, int value)
 
 void fxbus_set_bpm(fxbus_t *f, float bpm)
 {
-    if (bpm > 20.0f && bpm != f->bpm) {
+    if (bpm >= 20.0f && bpm != f->bpm) {
         f->bpm = bpm;
         fx_retime(f);
     }
