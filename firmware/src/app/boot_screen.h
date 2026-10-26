@@ -104,16 +104,11 @@ static void boot_p32(uint8_t *p, uint32_t v)
 
 static uint32_t boot_crc_upd(uint32_t c, const uint8_t *p, uint32_t n)
 {
-    while (n--) {
-        c ^= *p++;
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-    }
-    return c;
+    return x0x_crc32_upd(c, p, n);
 }
 static uint32_t boot_crc(const uint8_t *p, uint32_t n)
 {
-    return ~boot_crc_upd(0xFFFFFFFFu, p, n);
+    return x0x_crc32(p, n);
 }
 
 /* 1 = the bytes are a whole record the keyboard may store. Anything else

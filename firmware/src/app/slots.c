@@ -66,13 +66,7 @@ static const uint8_t *smp_user_xip(uint32_t k) { return SMP_USER_XIP(k); }
 /* Same zlib CRC-32 as storage.c st_crc32 / SMP_END — keep scan fail-closed with END. */
 static uint32_t smp_data_crc(const uint8_t *p, uint32_t n)
 {
-    uint32_t c = 0xFFFFFFFFu;
-    while (n--) {
-        c ^= *p++;
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-    }
-    return ~c;
+    return x0x_crc32(p, n);
 }
 
 /* (re)read slot k: a valid header with sane zones and matching data CRC makes it usable.
