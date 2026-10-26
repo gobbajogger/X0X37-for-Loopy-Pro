@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-10-26T09:20:00Z",
+  "merge_integration_owner": "Task-6 Codex coordinator (explicit owner transfer; root GitHub event monitor6adf1a1a6b808191b853917d2f3470c8 routes to active owner)",
+  "website": {
+    "pr": 28,
+    "head": "33c316feb04717f8f2666df9d256337465f2f176",
+    "merge": "5ba8596579fc3649aa205cd927cf8d03a327ff2c",
+    "tree": "35698de9e416a8e96159e807fbd5266d9a5f6f32",
+    "state": "MERGED_SOURCE_ONLY",
+    "proof": "43 edge regressions, full npm, all6 headless browser suites, actualPythonarchivecompatibility and independentreviewPASS; servedPages notupdated"
+  },
+  "smc_select": {
+    "owner": "Task-6 bounded isolated SMC source lane; implementation frozen, independentreviewPASS; native qualification executor active",
+    "candidate": "bbb6eba673582bbb9a0b35db961ec64dcbbfc3ee",
+    "base": "d633833ac369f8466bc2563791614206070e87d1",
+    "state": "HOST_AND_REVIEW_PASS_NATIVE_PENDING",
+    "semantics": "OutsideFX ordinarySELECT. FX per-bus assigned effect only (defaultROOM303B LPF). Recordedpressownership clears held/pending effects safely oncontextchanges."
+  },
+  "bass": {
+    "audit_pr": 617,
+    "audit_head": "9108a14df0f44a497036a27c0d539bcd6b473673",
+    "audit_state": "Owner reports audit finished; originalPR6fixes retained for independentreview and actualhostexecution",
+    "integration_owner": "Task-6 accepted bounded bass_integration helper onnewisolatedbranch; no writes to originalauditbranch",
+    "scope": "Integrate existingfixes onto currentnightly withoutdroppingnewerBLE changes; usableengine/presetselectors, selected-engine validatedone-at-timepresetnames, compactnavigation, visibleparameters andpernotesoundlock; actualrenderedUIpreview before rollout",
+    "blockers": "Legacy pervoiceengineidentity ambiguous: no blanketguessing; safemigration/REC-snapshotcoordinationneeded; recorderduration/timingunresolved; noauthornative/hardwareproof"
+  },
+  "partial_restore": {
+    "status": "CONFIRMED_OPEN",
+    "source_blob": "d3d6c34c77f09a03fa4b969c11882f403679b214",
+    "case": "Skipping oversized middleB cancompactA,B,CtoA,Candshift savednumericselection; sourcefix notyetdelivered"
+  },
+  "queue": "27firmwareopenPRsnapshot historical; no unrelatedqualifiedmergeinferred. Fourhistoricalconflicts andunexecuted/oldheadproofremainseparateblockers.",
+  "limits": [
+    "No flash",
+    "No Pagespublication",
+    "No productionpromotion",
+    "No newmonitor",
+    "LX-REQ-038 deferred",
+    "No90percentacousticthreshold"
+  ]
+}
