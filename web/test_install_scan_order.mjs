@@ -23,6 +23,8 @@ function setup() {
     $: id => ui[id] || (ui[id] = {}),
     led: value => state.leds.push(value),
     t: k => k,
+    // Presentation is outside this concurrency fixture; keep real scan ordering.
+    renderConnectionAction() {},
     midiAccess: async () => ({}),
     Updater: class {
       find(predicate) {
@@ -35,7 +37,7 @@ function setup() {
     suggestModel: model => state.selected.push(model),
   };
   const ctx = createContext(env);
-  new Script('let writing = false, lastId = null, scanSerial = 0;\n' + code + '\nglobalThis.start=scan; globalThis.setWriting = v => writing = v; globalThis.getLastId = () => lastId;').runInContext(ctx);
+  new Script('let writing = false, lastId = null, scanSerial = 0, connectionState = "idle";\n' + code + '\nglobalThis.start=scan; globalThis.setWriting = v => writing = v; globalThis.getLastId = () => lastId;').runInContext(ctx);
   const device = (model='SMK-37 Pro') => ({ id: { model, text: model }, name: model + ' MIDI',
     link: { close() { state.closed.push(model); } } });
   const tick = async () => { for (let i=0; i<8; i++) await Promise.resolve(); };
