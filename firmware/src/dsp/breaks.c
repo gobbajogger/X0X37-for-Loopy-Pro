@@ -219,7 +219,8 @@ static inline void brk_barrier(void) { fm1_data_sync(); }
 static brk_bank_t brk_side[2];
 #endif
 
-static brk_bank_t *brk_side_slot(breaks_t *b, unsigned j)
+/* Set/drop path only — breaks_bank uses brk_side_slot_c (X0X_COLD) */
+X0X_COLD static brk_bank_t *brk_side_slot(breaks_t *b, unsigned j)
 {
 #if defined(X0X_HOST)
     return &b->side[j];
@@ -238,7 +239,8 @@ static const brk_bank_t *brk_side_slot_c(const breaks_t *b, unsigned j)
 #endif
 }
 
-static brk_bank_t *bank_slot(breaks_t *b, unsigned i)
+/* Set/drop path only — render uses bank_slot_c / breaks_bank (X0X_COLD) */
+X0X_COLD static brk_bank_t *bank_slot(breaks_t *b, unsigned i)
 {
     return i < 2u ? &b->bank[i] : brk_side_slot(b, i - 2u);
 }
@@ -252,11 +254,13 @@ const brk_bank_t *breaks_bank(const breaks_t *b, int which)
         return 0;
     return bank_slot_c(b, b->pub[which]);
 }
-static int bank_referenced(const breaks_t *b, const brk_bank_t *k)
+/* Set-loop path only — not breaks_render (X0X_COLD) */
+X0X_COLD static int bank_referenced(const breaks_t *b, const brk_bank_t *k)
 {
     return (b->v[0].on && b->v[0].snap == k) || (b->v[1].on && b->v[1].snap == k);
 }
-static int loop_same(const brk_bank_t *k, const brk_loop_t *loop)
+/* Set-loop path only — not breaks_render (X0X_COLD) */
+X0X_COLD static int loop_same(const brk_bank_t *k, const brk_loop_t *loop)
 {
     float sp16;
     if (!k->valid || !loop || !loop->adpcm || loop->nsamples < 64 || !loop->bars)
@@ -266,8 +270,8 @@ static int loop_same(const brk_bank_t *k, const brk_loop_t *loop)
     sp16 = (float)loop->nsamples / ((float)loop->bars * 16.0f);
     return k->sp16 == sp16;
 }
-/* a snapshot nobody is reading and that is not the other published loop */
-static int pick_slot(const breaks_t *b, int which)
+/* a snapshot nobody is reading and that is not the other published loop (set path) */
+X0X_COLD static int pick_slot(const breaks_t *b, int which)
 {
     unsigned i, pub = b->pub[which], other = b->pub[which ^ 1];
     for (i = 0; i < 4u; i++) {
@@ -310,7 +314,8 @@ X0X_COLD static void bank_fill(brk_bank_t *k, const brk_loop_t *loop)
     brk_barrier();
     k->valid = 1;
 }
-static void pend_store(breaks_t *b, int which, const brk_loop_t *loop)
+/* Set-loop path only — not breaks_render (X0X_COLD) */
+X0X_COLD static void pend_store(breaks_t *b, int which, const brk_loop_t *loop)
 {
     b->pend[which] = *loop;
     b->pend_on[which] = 1;
