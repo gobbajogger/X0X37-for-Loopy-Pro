@@ -228,6 +228,7 @@ int main(void)
     n = pack(data, sizeof data, a + 4);
     request(ED_SMP_WRITE, a, n + 4);
     assert(reply[9] == 0);
+    assert(!memcmp(flash_image + SMP_USER_OFF(0) + 512, data, sizeof data));
     assert(usr_nz[0] == 0);
     a[0] = 0;
     request(ED_SMP_BEGIN, a, 1);

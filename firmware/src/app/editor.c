@@ -778,8 +778,12 @@ static void ed_handle(const uint8_t *f, uint32_t n)
                 ed_project.changed = 1;
             if (ed_smp_erase_for_write(a[0], off, &took))
                 rc = 2;
-            if (!rc && fl_write(ed_smp_slot(a[0]) + off, ed_smp_buf, len))
-                rc = 3;
+            if (!rc) {
+                /* Sector-0 backup/restore reuses ed_smp_buf; re-unpack after erase. */
+                len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
+                if (fl_write(ed_smp_slot(a[0]) + off, ed_smp_buf, len))
+                    rc = 3;
+            }
         }
         ed_b(a[0]);
         ed_b(off);
