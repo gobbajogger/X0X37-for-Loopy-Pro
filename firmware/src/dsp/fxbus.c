@@ -62,7 +62,7 @@ int fxbus_get(const fxbus_t *f, int i)
     return i >= 0 && i < FX_NPARAMS ? f->pots[i] : 0;
 }
 
-static void fx_retime(fxbus_t *f)
+__attribute__((noinline)) static void fx_retime(fxbus_t *f)
 {
     int32_t i = f->dl_div;
     if (i < 0) i = 0;
