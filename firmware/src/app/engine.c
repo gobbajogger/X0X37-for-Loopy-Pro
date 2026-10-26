@@ -1617,7 +1617,7 @@ static char user_names[PLAT_NSLOTS * PLAT_SLOT_ZONES][8];
 static uint8_t loop_slot[NLOOPS_MAX], loop_zone[NLOOPS_MAX];
 static int nloops, loops_ready;
 
-X0X_COLD static void scan_loops(void)
+X0X_COLD __attribute__((noinline)) static void scan_loops(void)
 {
     int i, k, z, u = 0, nb = builtin_count();
     nloops = 0;
@@ -1652,13 +1652,13 @@ X0X_COLD static void scan_loops(void)
     loops_ready = 1;
 }
 
-int engine_brk_nslots(void)
+X0X_COLD int engine_brk_nslots(void)
 {
     if (!loops_ready)
         scan_loops();
     return nloops;
 }
-const char *const *engine_brk_slot_names(void)
+X0X_COLD const char *const *engine_brk_slot_names(void)
 {
     if (!loops_ready)
         scan_loops();
