@@ -243,7 +243,7 @@ static float d9_pot_value(const d9_pspec_t *s, int pot)
 /* ===================================================================== */
 /* Rim and clap filter setup (er99_rim909_retune, er99_clap909_retune)    */
 /* ===================================================================== */
-static void d9_rim_retune(d9_rim_t *v)
+__attribute__((noinline)) static void d9_rim_retune(d9_rim_t *v)
 {
     d9_biquad_set(&v->bp1, D9_BP, v->tune, v->res);
     d9_biquad_set(&v->bp2, D9_BP, v->tune2, v->res * 1.1f);
