@@ -204,3 +204,15 @@ static int undo_redo(undo_t *u, void (*changed)(uint32_t, uint32_t), uint32_t *l
     u->cur++;
     return 1;
 }
+
+/* Read the bytes an entry would restore without changing history or its baseline. */
+static inline void undo_peek(const undo_t *u,int k,uint32_t off,uint8_t *out,uint32_t len)
+{
+    for(uint32_t i=0;i<len;i++)out[i]=u->region[off+i];
+    const uint8_t *e=u->pool+u->at[k];unsigned runs=ud_get16(e);e+=8;
+    for(unsigned r=0;r<runs;r++) {
+        uint32_t at=ud_get16(e),n=ud_get16(e+2);e+=4;
+        for(uint32_t i=0;i<n;i++)if(at+i>=off && at+i<off+len)out[at+i-off]=e[i];
+        e+=(n+1u)&~1u;
+    }
+}

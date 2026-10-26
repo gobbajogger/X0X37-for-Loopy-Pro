@@ -39,7 +39,13 @@ static void wobble_foundation_set(void *p, int parameter, int value)
     if (parameter < 0 || parameter >= (int)W_PARAMETER_COUNT) return;
     if (value < 0) value = 0;
     if (value > 127) value = 127;
-    wobble_set(p, (unsigned)parameter, (float)value/127.0f);
+    /* The Miami page stores switches as 0/1, while the DSP threshold is 0.5.
+     * Sending 1/127 left Wave, XMod Wave, Wobble Shape and Damper permanently OFF. */
+    float norm = (float)value / 127.0f;
+    if (parameter == W_CARRIER_WAVE || parameter == W_XMOD_WAVE ||
+        parameter == W_WOBBLE_SHAPE || parameter == W_DAMPER)
+        norm = value ? 1.0f : 0.0f;
+    wobble_set(p, (unsigned)parameter, norm);
 }
 static void wobble_foundation_transport(void *p, int running) { (void)p; (void)running; }
 static int wobble_foundation_active(const void *p) { return ((const wobble_t *)p)->gate; }

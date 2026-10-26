@@ -48,6 +48,9 @@ void plat_keys_dim(uint32_t keys);     /* these keys light dim (a second level; 
 void plat_play_red(int red);           /* PLAY lights green; red (its other LED) while recording (before plat_leds) */
 
 /* USB MIDI, 4-byte USB-MIDI event packets (cable 0) */
+uint32_t plat_midi_mark(void);        /* accepted input producer watermark, non-consuming */
+int plat_midi_passed(uint32_t mark);  /* consumer reached/passed mark; <2^31 outstanding */
+int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input ring query */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */

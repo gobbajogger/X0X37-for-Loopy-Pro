@@ -252,6 +252,9 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
                 bp->step[p].note = r->note;
                 bp->step[p].velocity = bp->step[r->first].velocity;
                 bp->step[p].flags = G_TIE | 0xF0u;
+#if X0X_BASS_NOTE_SOUND
+                seq_bass_sound_clear(s,b,s->ppat[TRK_BASS0+b],p);
+#endif
             }
             r->prev = r->last;
             r->last = (uint8_t)p;
@@ -1069,6 +1072,9 @@ void seq_rec_bass_end(seq_t *s, int b)
                    (unsigned)(((elapsed << 8) * 15u + L / 2u) / L);
     if (!end && r->last != r->first) {
         bp->step[r->last].flags = G_REST;
+#if X0X_BASS_NOTE_SOUND
+        seq_bass_sound_clear(s,b,r->pat,r->last);
+#endif
         r->last = r->prev;
         end = 15; /* boundary belongs to previous slot, including reverse/wrap */
     }
@@ -1103,6 +1109,12 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     int overlap = (flags & SEQ_REC_LEGATO) && owned && r->active && r->src == src;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
+#if X0X_BASS_NOTE_SOUND
+    if(seq_bass_sound_prepare(s,b,s->ppat[t],p)) {
+        s->rec_refused=2; /* sound pool full or sound identity unavailable */
+        return;
+    }
+#endif
     seq_rec_bass_end(s, b);
     bpart_t *bp = bpart(s, b);
     if (overlap && oldpat == s->ppat[t] && old != p)

@@ -84,6 +84,7 @@ test_class() {
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -120,7 +121,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -302,6 +303,15 @@ run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_t
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
+for t in bass-presets-map bass-presets-live bass-legacy-display bass-tagged-storage; do
+    if [ "$PIL_SKIP" = 1 ]; then not_run "$t" Pillow; else
+        run "$t" sh "tests/host/$(echo "$t" | tr - _)_test.sh"
+    fi
+done
+if [ "$PIL_SKIP" = 1 ]; then not_run bass-presets-export Pillow; else
+    run bass-presets-export sh -c 'sh host/build_host.sh --generate-only && sh tests/host/bass_presets_export_test.sh'
+fi
+run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
