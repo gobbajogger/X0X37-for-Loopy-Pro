@@ -24,6 +24,7 @@
 #include "chicago_ring.h"
 #include "chicago_eq.h"
 #include "chicago_sdly.h"
+#include "chicago_bpmdly.h"
 #include "chicago_aux.h"
 
 #define POOL X0X_POOL
@@ -54,12 +55,13 @@ static bass303_t b303[NBASS] POOL;
 static uint8_t chi_arp_on[NBASS] POOL, chi_arp_mode[NBASS] POOL, chi_arp_range[NBASS] POOL, chi_arp_speed[NBASS] POOL;
 static uint8_t chi_arp_accent[NBASS] POOL, chi_arp_vel[NBASS] POOL;
 static chi_arp_run_t chi_arp_run[NBASS] POOL;
-/* Chicago SEND FX pots (sound_t) + Crush/Ring/EQ/SDly insert DSP per 303 voice. */
+/* Chicago SEND FX pots (sound_t) + Crush/Ring/EQ/SDly/BPM insert DSP per 303 voice. */
 static uint8_t chi_fx_type[NBASS] POOL, chi_fx_e1[NBASS] POOL, chi_fx_e2[NBASS] POOL;
 static chi_crush_t chi_crush[NBASS] POOL;
 static chi_ring_t chi_ring[NBASS] POOL;
 static chi_eq_t chi_eq[NBASS] POOL;
 static chi_sdly_t chi_sdly[NBASS] POOL;
+static chi_bpmdly_t chi_bpmdly[NBASS] POOL;
 /* Chicago damper: live/MIDI sustain. Pattern sink ignores it. */
 static uint8_t chi_damper[NBASS] POOL;
 static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper on */
@@ -449,7 +451,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             chi_arp_apply_cfg(v, i, val);
         else if (i >= CHI_FX_TYPE && i < CHI_FX_END) {
-            /* sound_t mirror + Crush/Ring/EQ/SDly insert coeffs; Mix/fxbus via UI map. */
+            /* sound_t mirror + Crush/Ring/EQ/SDly/BPM insert coeffs; Mix/fxbus via UI map. */
             if (i == CHI_FX_TYPE) {
                 if (val >= CHI_FX_NTYPES)
                     val = CHI_FX_OFF;
@@ -463,6 +465,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             chi_ring_init(&chi_ring[v]);
             chi_eq_init(&chi_eq[v]);
             chi_sdly_init(&chi_sdly[v]);
+            chi_bpmdly_init(&chi_bpmdly[v]);
             if (chi_fx_is_crush_insert(chi_fx_type[v]))
                 chi_crush_set(&chi_crush[v], chi_fx_e1[v], chi_fx_e2[v]);
             else if (chi_fx_is_ring_insert(chi_fx_type[v]))
@@ -471,6 +474,8 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
                 chi_eq_set(&chi_eq[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
             else if (chi_fx_is_sdly_insert(chi_fx_type[v]))
                 chi_sdly_set(&chi_sdly[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
+            else if (chi_fx_is_bpmdly_insert(chi_fx_type[v]))
+                chi_bpmdly_set(&chi_bpmdly[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
         } else if (i >= CHI_PBEND && i < CHI_AUX_END)
             chi_aux_apply(v, i, val);
 #if X0X_DEV_WOBBLE
@@ -1403,6 +1408,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             chi_eq_process(&chi_eq[b], bb[b], (int)n);
         else if (!idle[b] && chi_fx_is_sdly_insert(chi_fx_type[b]))
             chi_sdly_process(&chi_sdly[b], bb[b], (int)n);
+        else if (!idle[b] && chi_fx_is_bpmdly_insert(chi_fx_type[b]))
+            chi_bpmdly_process(&chi_bpmdly[b], bb[b], (int)n);
         if (!idle[b])
             bfx_shape(PART_303A + b, bb[b], 0, 0, 0, 1, (int)n);
         PROF_ADD(2 + b, pb);
@@ -1442,7 +1449,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         idle[b] = synth_idle(&bass_slot[b]);
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
-        /* Crush/Ring/EQ/SDly inserts are Chicago/native303 only — never on WBL1. */
+        /* Crush/Ring/EQ/SDly/BPM inserts are Chicago/native303 only — never on WBL1. */
         if (!idle[b] && bass_slot[b].active.ops != &wobble_foundation_ops) {
             if (chi_fx_is_crush_insert(chi_fx_type[b]))
                 chi_crush_process(&chi_crush[b], bb[b], (int)n);
@@ -1452,6 +1459,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                 chi_eq_process(&chi_eq[b], bb[b], (int)n);
             else if (chi_fx_is_sdly_insert(chi_fx_type[b]))
                 chi_sdly_process(&chi_sdly[b], bb[b], (int)n);
+            else if (chi_fx_is_bpmdly_insert(chi_fx_type[b]))
+                chi_bpmdly_process(&chi_bpmdly[b], bb[b], (int)n);
         }
         PROF_ADD(2 + b, pb);
 #endif
@@ -1848,6 +1857,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     chi_eq_init(&chi_eq[1]);
     chi_sdly_init(&chi_sdly[0]);
     chi_sdly_init(&chi_sdly[1]);
+    chi_bpmdly_init(&chi_bpmdly[0]);
+    chi_bpmdly_init(&chi_bpmdly[1]);
 #if X0X_DEV_WOBBLE
     synth_init(&bass_slot[0], synth303_binding(&b303[0]));
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));
