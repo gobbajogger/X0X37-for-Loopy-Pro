@@ -169,6 +169,41 @@ static void note_schema(void)
  CHECK(!memcmp(&original,&proj,sizeof original));CHECK(copy_part(2,1,PART_303A)==-1);CHECK(!memcmp(&original,&proj,sizeof original));
  printf("PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks\n");
 }
+/* The old recorder can own a provisional tie on the newly quantized onset.
+ * Its release rounds back to the previous step during the first 1/30 slot. */
+static void note_capture_boundary(void)
+{
+ for(int direction=0;direction<2;direction++)for(int wrap=0;wrap<2;wrap++)for(int timing=0;timing<3;timing++) {
+  project_defaults();reset_runtime();selected(0,0,0);selected(1,0,0);
+  memset(proj.arr.lane,0,sizeof proj.arr.lane);
+  bpart_t *bp=&proj.pat[0].bass[0];bp->dir=direction?DIR_REV:DIR_FWD;
+  int previous=direction?1:0, onset=direction?0:1;
+  if(wrap){previous=direction?0:bp->len-1;onset=direction?bp->len-1:0;}
+  seq.playing=1;seq.rec_mask=1;seq.ext=0;
+  seq.t[TRK_BASS0].started=1;seq.t[TRK_BASS0].pos=(uint8_t)onset;
+  seq.t[TRK_BASS0].to_next=0xffffffffu;
+  seq_bass_rec_t *r=&seq.rec_bass[0];memset(r,0,sizeof *r);
+  r->active=1;r->pat=0;r->first=r->prev=(uint8_t)previous;r->last=(uint8_t)onset;
+  r->entered=1;r->note=48;r->slot=1000000;
+  unsigned elapsed=timing==0?0:timing==1?130:131;r->at=seq.ext_now-elapsed;
+  bp->step[previous].flags=G_NOTE;bp->step[onset].flags=G_TIE;
+  CHECK(seq_rec_step(&seq,TRK_BASS0)==onset);
+  /* Failed allocation must leave even an active old boundary transaction intact. */
+  for(int i=0;i<NLANE;i++){proj.arr.lane[i].used=1;proj.arr.lane[i].part=PART_808;}
+  memcpy(&original,&proj,sizeof original);seq_bass_rec_t before=*r;
+  seq_rec_bass(&seq,0,52,100,1,0,0);CHECK(seq.rec_refused==2);
+  CHECK(!memcmp(&original,&proj,sizeof original));CHECK(!memcmp(&before,r,sizeof before));
+  memset(proj.arr.lane,0,sizeof proj.arr.lane);seq.rec_refused=0;
+  seq_rec_bass(&seq,0,52,100,1,0,0);
+  int k=bass_note_find(proj.arr.lane,0,0,onset);
+  CHECK(k>=0);CHECK(!engine_bass_note_validate(&proj.arr.lane[k]));
+  CHECK(bstep_gate(&bp->step[onset])==G_NOTE && bp->step[onset].note==52);
+  CHECK((bp->step[previous].flags>>BS_END_SHIFT)==(timing<2?15:0));
+  CHECK(!seq.rec_refused && r->active && r->first==onset && r->last==onset);
+ }
+ seq.playing=0;seq.rec_mask=0;
+ puts("PASS NOTE_SOUND boundary snapshot forward/reverse/wrap, rounding threshold and atomic refusal");
+}
 static void note_capture_lifecycle(void)
 {
  project_defaults();reset_runtime();selected(0,0,0);selected(1,0,0);
@@ -289,6 +324,7 @@ int main(int argc,char **argv)
  older_cell_objects();
 #if X0X_BASS_NOTE_SOUND
  note_schema();
+ note_capture_boundary();
  note_capture_lifecycle();
 #endif
  printf("PASS %u tagged rev11 storage/stage/legacy adoption checks WBL%d; sound=%u project=%u\n",checks,X0X_DEV_WOBBLE,(unsigned)sizeof(sound_t),(unsigned)sizeof(project_t));return 0;
