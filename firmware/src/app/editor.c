@@ -308,12 +308,10 @@ static void ed_smp_retire(uint32_t k)
     engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k));
 }
 #if SMP_SEC0_BACKUP
-/* Copy live sector 0 into FL_SMPV before the first destructive erase. Chunked
- * through ed_smp_buf so we do not need a 4 KiB stack temporary. */
-static int ed_smp_backup_sec0(uint32_t k)
+/* Erase 4 KiB at dst and program from src through ed_smp_buf (backup and restore). */
+static int ed_smp_copy_4k(uint32_t dst, const uint8_t *src)
 {
-    uint32_t i, took, dst = SMP_SEC0_BACKUP_OFF(k);
-    const uint8_t *src = smp_user_xip(k);
+    uint32_t i, took;
     audio_silence();
     if (fl_erase4k(dst, &took))
         return 1;
@@ -327,6 +325,11 @@ static int ed_smp_backup_sec0(uint32_t k)
         fm1_wdt_feed();
     }
     return 0;
+}
+/* Copy live sector 0 into FL_SMPV before the first destructive erase. */
+static int ed_smp_backup_sec0(uint32_t k)
+{
+    return ed_smp_copy_4k(SMP_SEC0_BACKUP_OFF(k), smp_user_xip(k));
 }
 static int ed_smp_backup_present(uint32_t k)
 {
@@ -344,23 +347,13 @@ static void ed_smp_clear_backup(uint32_t k)
 /* Put sector 0 back from FL_SMPV when an import aborted after erasing it. */
 static int ed_smp_restore_sec0(uint32_t k)
 {
-    uint32_t i, took, dst = ed_smp_slot(k);
+    uint32_t dst = ed_smp_slot(k);
     const uint8_t *src;
     if (!ed_smp_backup_present(k))
         return 1;
     src = fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k));
-    audio_silence();
-    if (fl_erase4k(dst, &took))
+    if (ed_smp_copy_4k(dst, src))
         return 1;
-    for (i = 0; i < 0x1000u; i += 256u) {
-        uint32_t n = 0x1000u - i;
-        if (n > 256u)
-            n = 256u;
-        memcpy(ed_smp_buf, src + i, n);
-        if (fl_write(dst + i, ed_smp_buf, n))
-            return 1;
-        fm1_wdt_feed();
-    }
     ed_smp_inval(k);
     smp_user_scan(k);
     smp_sec0_erased[k] = 0;
