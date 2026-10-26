@@ -252,6 +252,9 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
                 bp->step[p].note = r->note;
                 bp->step[p].velocity = bp->step[r->first].velocity;
                 bp->step[p].flags = G_TIE | 0xF0u;
+#if X0X_BASS_NOTE_SOUND
+                seq_bass_sound_clear(s,b,s->ppat[TRK_BASS0+b],p);
+#endif
             }
             r->prev = r->last;
             r->last = (uint8_t)p;
@@ -772,7 +775,8 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     uint32_t dq = k << 8;
     for (t = 0; t < NBASS; t++)
         if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
-            (!(s->rec_mask & (1u << t)) || s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t] || bpart(s, t)->dir >= DIR_PINGPONG)))
+            (!((s->rec_mask | s->rec_hold_mask) & (1u << t)) ||
+             s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t] || bpart(s, t)->dir >= DIR_PINGPONG)))
             seq_rec_cancel(s, t);
     if (s->ext_since < 2u * FS)   /* all modes: long idle must not wrap into a fake short tick */
         s->ext_since += k;
@@ -1069,6 +1073,9 @@ void seq_rec_bass_end(seq_t *s, int b)
                    (unsigned)(((elapsed << 8) * 15u + L / 2u) / L);
     if (!end && r->last != r->first) {
         bp->step[r->last].flags = G_REST;
+#if X0X_BASS_NOTE_SOUND
+        seq_bass_sound_clear(s,b,r->pat,r->last);
+#endif
         r->last = r->prev;
         end = 15; /* boundary belongs to previous slot, including reverse/wrap */
     }
@@ -1103,6 +1110,24 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     int overlap = (flags & SEQ_REC_LEGATO) && owned && r->active && r->src == src;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
+#if X0X_BASS_NOTE_SOUND
+    if(seq_bass_sound_prepare(s,b,s->ppat[t],p)) {
+        s->rec_refused=2; /* sound pool full or sound identity unavailable */
+        return;
+    }
+    /* Preparation is the atomic admission check and already publishes sound.
+     * A just-entered provisional tail can round back to the previous slot on
+     * release. That tail is now the new onset: finalize the previous slot at
+     * its full length without clearing the sound we just admitted. */
+    if (r->active && r->pat == s->ppat[t] && r->last == p &&
+        r->last != r->first && r->entered == 1) {
+        uint32_t elapsed = s->ext_now - r->at, L = r->slot;
+        if (elapsed < (L >> 8) && ((elapsed << 8) * 15u + L / 2u) / L == 0) {
+            r->last = r->prev;
+            r->entered = 2;
+        }
+    }
+#endif
     seq_rec_bass_end(s, b);
     bpart_t *bp = bpart(s, b);
     if (overlap && oldpat == s->ppat[t] && old != p)

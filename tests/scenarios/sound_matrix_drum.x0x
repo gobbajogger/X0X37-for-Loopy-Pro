@@ -1,0 +1,7 @@
+wait 300
+tap EDIT
+tapkey b1
+shot drum_sd_edit.png
+spin K1 2
+wait 30
+shot drum_sd_touch.png

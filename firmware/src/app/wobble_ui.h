@@ -33,6 +33,7 @@ static const x0x_param_t WOBBLE_P[W_PARAMETER_COUNT] = {
     { "ADec", 127, 0, 0 },
     { "ASus", 127, 127, 0 },
     { "ARel", 127, 0, 0 },
+    { "BassSpl", 127, 36, 0 }, /* 36/127 ≈ 0.285; product 60–250 Hz crossover */
 };
 
 static inline const x0x_param_t *wobble_param(int i)

@@ -74,6 +74,7 @@ static void ud_drop_oldest(undo_t *u)
 static int undo_commit(undo_t *u)
 {
     uint32_t i = 0, sz = 8, runs = 0, lo = 0, hi = 0;
+    uint32_t written_runs = 0;
     uint8_t *e;
     /* first pass: the runs and the entry's size */
     while (i < u->len) {
@@ -137,8 +138,15 @@ static int undo_commit(undo_t *u)
                 break;
             end = found;
         }
+        /* A concurrent project writer could change the run shape after the
+         * sizing pass. Never write beyond the reserved entry in that case. */
+        uint32_t n = end - s + 1u;
+        if ((uint32_t)(e - (u->pool + u->used)) + 4u + ((n + 1u) & ~1u) > sz) {
+            undo_reset(u);
+            return -1;
+        }
         ud_put16(e, s);
-        ud_put16(e + 2, end - s + 1u);
+        ud_put16(e + 2, n);
         e += 4;
         for (k = s; k <= end; k++) {
             *e++ = u->shadow[k];
@@ -146,7 +154,12 @@ static int undo_commit(undo_t *u)
         }
         if ((end - s + 1u) & 1u)
             *e++ = 0;
+        written_runs++;
         i = end + 1u;
+    }
+    if (written_runs != runs || (uint32_t)(e - (u->pool + u->used)) != sz) {
+        undo_reset(u);
+        return -1;
     }
     u->used += sz;
     u->n++;
@@ -203,4 +216,16 @@ static int undo_redo(undo_t *u, void (*changed)(uint32_t, uint32_t), uint32_t *l
     ud_swap(u, u->cur, changed);
     u->cur++;
     return 1;
+}
+
+/* Read the bytes an entry would restore without changing history or its baseline. */
+static inline void undo_peek(const undo_t *u,int k,uint32_t off,uint8_t *out,uint32_t len)
+{
+    for(uint32_t i=0;i<len;i++)out[i]=u->region[off+i];
+    const uint8_t *e=u->pool+u->at[k];unsigned runs=ud_get16(e);e+=8;
+    for(unsigned r=0;r<runs;r++) {
+        uint32_t at=ud_get16(e),n=ud_get16(e+2);e+=4;
+        for(uint32_t i=0;i<n;i++)if(at+i>=off && at+i<off+len)out[at+i-off]=e[i];
+        e+=(n+1u)&~1u;
+    }
 }

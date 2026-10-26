@@ -26,7 +26,13 @@ project_t proj;
 /* Reuses the UI undo shadow while an exclusive project operation is active. */
 project_t project_stage X0X_POOL;
 
-#define PROJ_STREAM 6u                  /* current layout + captured release endpoints, no snapshots */
+#if X0X_BASS_NOTE_SOUND
+#define PROJ_STREAM 7u                  /* tagged whole per-note product sounds in existing lane pool */
+#else
+#define PROJ_STREAM 6u                  /* release endpoints, no snapshots */
+#endif
+static int stream_known(uint32_t format)
+{return format==2u || format==3u || format==6u || (X0X_BASS_NOTE_SOUND && format==7u);}
 #define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
@@ -158,6 +164,7 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
+#define SOUND_BYTES_V10 (NTARGETS * NVOICES_MAX * NPARAMS_MAX)
 #define SOUND_CELL_V4 16u
 #define SOUND_BYTES_V4 (NTARGETS * NVOICES_MAX * SOUND_CELL_V4)
 #define SOUND_CELL_V7 24u
@@ -165,19 +172,38 @@ typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
 #define SOUND_CELL_V8 28u
 #define SOUND_BYTES_V8 (NTARGETS * NVOICES_MAX * SOUND_CELL_V8)
 
+#if X0X_BASS_TAGGED_SOUND
+static uint8_t loaded_sound_tagged;
+static uint32_t loaded_sound_bytes;
+#endif
 static int load_sound(sound_t *dst)
 {
     int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
+#if X0X_BASS_TAGGED_SOUND
+    loaded_sound_tagged=0;loaded_sound_bytes=0;
+#endif
     uint32_t t, v, p, body, cell;
     if (n < 4 || get32(io_buf) != PROJ_FORMAT)
         return -1;
     body = (uint32_t)n - 4u;
+#if X0X_BASS_TAGGED_SOUND
+    loaded_sound_bytes=body;
+#endif
     if (body == sizeof *dst) {
+#if X0X_BASS_TAGGED_SOUND
+        loaded_sound_tagged=1;
+#endif
         __builtin_memcpy(dst, io_buf + 4u, body);
         stored_known[OBJ_SOUND] = 1;
         stored_hash[OBJ_SOUND] = hash_of(io_buf, (uint32_t)n);
         return 0;
     }
+#if X0X_BASS_TAGGED_SOUND
+    __builtin_memset(dst->bass,0,sizeof dst->bass); /* unknown, no identity inference */
+    if(body==SOUND_BYTES_V10) {
+        __builtin_memcpy(dst->v,io_buf+4u,body);stored_known[OBJ_SOUND]=0;return 0;
+    }
+#endif
     if (body == SOUND_BYTES_V4)
         cell = SOUND_CELL_V4;
     else if (body == SOUND_BYTES_V7)
@@ -289,7 +315,7 @@ static int st_get(void *ctx)
         if (s->n < 4)
             return -1;
         uint32_t format = get32(io_buf);
-        if (format != PROJ_STREAM && format >= 4u) {
+        if (!stream_known(format) && format >= 4u) {
             s->unsupported = 1;
             return -1;
         }
@@ -356,23 +382,38 @@ static void stream_from2(project_t *pr)
 
 /* No frozen snapshot layout is reinterpreted as ordinary motion or endpoints.
  * Streams 1/2/3 never assigned the upper flags nibble. */
-static int stream_layout_ok(const project_t *pr, uint32_t format)
+static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t format)
 {
     int p, b, k;
     for (p = 0; p < NPAT; p++)
         for (b = 0; b < NBASS; b++)
             for (k = 0; k < NSTEPS; k++) {
-                unsigned f = pr->pat[p].bass[b].step[k].flags;
+                unsigned f = pat[p].bass[b].step[k].flags;
                 if ((f & BS_GATE_MASK) > G_TIE ||
-                    (format != PROJ_STREAM && (f >> BS_END_SHIFT)) ||
+                    (format < 6u && (f >> BS_END_SHIFT)) ||
                     ((f >> BS_END_SHIFT) && (f & BS_GATE_MASK) == G_REST))
                     return 0;
             }
-    for (k = 0; k < NLANE; k++)
-        if (pr->arr.lane[k].used && pr->arr.lane[k].t == 0xFEu)
-            return 0; /* frozen MOT_SNAPSHOT; this endpoint-only unit has no decoder */
+    for (k = 0; k < NLANE; k++) {
+        const lane_t *l=&arr->lane[k];
+        if(!l->used)continue;
+        if(l->t==0xfeu)return 0; /* frozen historical contract remains unsupported */
+        if(l->t==0xfdu) {
+#if X0X_BASS_NOTE_SOUND
+            if(format!=7u || engine_bass_note_validate(l) ||
+               bstep_gate(&pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return 0;
+            for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
+                arr->lane[j].pat==l->pat && arr->lane[j].part==l->part && arr->lane[j].v==l->v)return 0;
+#else
+            return 0;
+#endif
+        }
+    }
     return 1;
 }
+static int stream_layout_ok(const project_t *pr,uint32_t format)
+{return stream_parts_ok(pr->pat,&pr->arr,format);}
+
 
 static int load_stream(project_t *pr, int n, uint32_t format)
 {
@@ -639,9 +680,9 @@ static int read_project(project_t *pr)
     if (!sound_ok)
         bad = 1;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && get32(io_buf) != PROJ_STREAM && get32(io_buf) >= 4u)
+    if (n >= 4 && !stream_known(get32(io_buf)) && get32(io_buf) >= 4u)
         return -9; /* unsupported/ambiguous stream: no legacy fallback or rewrite */
-    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_PREV || get32(io_buf) == PROJ_STREAM_OLD)) {
+    if (n >= 4 && (stream_known(get32(io_buf)))) {
         int rc = load_stream(pr, n, get32(io_buf));
         if (rc == -9) return -9;
         if (rc) {          /* torn or broken: the defaults, not garbage */
@@ -678,13 +719,13 @@ static int read_project(project_t *pr)
         sound_bd_sends(pr, T_808, 7);
         sound_bd_sends_lanes(pr, T_808, 7);
     }
-    if (sound_ok && pr->set.snd_rev < 5) {
+    if (!X0X_BASS_TAGGED_SOUND && sound_ok && pr->set.snd_rev < 5) {
         for (i = 0; i < NBASS; i++)
             pr->sound.v[T_303][i][BASS303_AMPMODE] = bass303_param(BASS303_AMPMODE)->def;
     }
-    if (sound_ok && pr->set.snd_rev < 6)
+    if (!X0X_BASS_TAGGED_SOUND && sound_ok && pr->set.snd_rev < 6)
         sound_rev6_wave_motion(pr);
-    if (sound_ok && pr->set.snd_rev < 7) {
+    if (!X0X_BASS_TAGGED_SOUND && sound_ok && pr->set.snd_rev < 7) {
         for (i = 0; i < NBASS; i++) {
             pr->sound.v[T_303][i][BASS303_BITE] = bass303_param(BASS303_BITE)->def;
             pr->sound.v[T_303][i][BASS303_AATTACK] = bass303_param(BASS303_AATTACK)->def;
@@ -693,21 +734,21 @@ static int read_project(project_t *pr)
             pr->sound.v[T_303][i][BASS303_ARELEASE] = bass303_param(BASS303_ARELEASE)->def;
         }
     }
-    if (sound_ok && pr->set.snd_rev < 8) {
+    if (!X0X_BASS_TAGGED_SOUND && sound_ok && pr->set.snd_rev < 8) {
         for (i = 0; i < NBASS; i++) {
             int k;
             for (k = 0; k < 4; k++)
                 pr->sound.v[T_303][i][CHI_ARP_SWITCH + k] = CHI_ARP_PARAMS[k].def;
         }
     }
-    if (sound_ok && pr->set.snd_rev < 9) {
+    if (!X0X_BASS_TAGGED_SOUND && sound_ok && pr->set.snd_rev < 9) {
         for (i = 0; i < NBASS; i++) {
             pr->sound.v[T_303][i][CHI_FX_TYPE] = CHI_FX_OFF;
             pr->sound.v[T_303][i][CHI_FX_EDIT1] = CHI_FX_PARAMS[1].def;
             pr->sound.v[T_303][i][CHI_FX_EDIT2] = CHI_FX_PARAMS[2].def;
         }
     }
-    if (sound_ok && pr->set.snd_rev < 10) {
+    if (!X0X_BASS_TAGGED_SOUND && sound_ok && pr->set.snd_rev < 10) {
         for (i = 0; i < NBASS; i++) {
             pr->sound.v[T_303][i][CHI_PBEND] = CHI_AUX_PARAMS[0].def;
             pr->sound.v[T_303][i][CHI_DAMPER] = CHI_AUX_PARAMS[1].def;
@@ -723,7 +764,17 @@ static int read_project(project_t *pr)
         sound_rev1(pr);
     if (sound_ok && pr->set.snd_rev < 2)             /* before the one-knob COMP, FILTER, TAPE */
         sound_rev2(pr);
+#if X0X_BASS_TAGGED_SOUND
+    if(sound_ok && ((pr->set.snd_rev==11)!=!!loaded_sound_tagged ||
+       (pr->set.snd_rev==10 && loaded_sound_bytes!=SOUND_BYTES_V10)))return -9;
+    if(pr->set.snd_rev<11) {
+        /* Untagged legacy cells remain byte-for-byte as decoded, quarantined.
+         * No old part number or value range supplies an engine identity. */
+        __builtin_memset(pr->sound.bass,0,sizeof pr->sound.bass);
+    } else if(engine_bass_sound_validate(&pr->sound)) return -9;
+#else
     pr->set.snd_rev = PROJ_SND_REV;
+#endif
     return bad ? -1 : 0;
 }
 
@@ -731,7 +782,11 @@ void project_defaults(void) { project_defaults_for(&proj, proj.set.bt); }
 int project_load(void)
 {
     int rc = read_project(&proj);
-    project_incompatible = (uint8_t)(rc == -9);
+    project_incompatible = (uint8_t)(rc == -9
+#if X0X_BASS_TAGGED_SOUND
+        || (!rc && engine_bass_sound_validate(&proj.sound))
+#endif
+        );
     return rc;
 }
 int project_storage_unsupported(void) { return project_incompatible; }
@@ -747,6 +802,10 @@ int project_validate_stage(void)
     const settings_t *s = &p->set;
     uint32_t length;
     int t, v, i, k, b;
+#if X0X_BASS_TAGGED_SOUND
+    int bass_status=engine_bass_sound_validate(&p->sound);
+    if(bass_status)return bass_status;
+#endif
     if (s->magic != PROJ_MAGIC || s->format != PROJ_FORMAT || s->stereo != PROJ_STEREO ||
         s->snd_rev != PROJ_SND_REV || s->palette > 4 || s->keyled > 2 || s->clk_out > 1 ||
         s->notes_out > 1 || s->bpm_x10 < 200 || s->bpm_x10 > 2750 || s->accent_q7 > 127 ||
@@ -765,7 +824,11 @@ int project_validate_stage(void)
     for (t = 0; t < NTARGETS; t++)
         for (v = 0; v < engine_nvoices(t); v++)
             for (i = 0; i < engine_nparams(t, v); i++)
-                if (p->sound.v[t][v][i] > engine_param(t, v, i)->max)
+                if (
+#if X0X_BASS_TAGGED_SOUND
+                    t!=T_303 &&
+#endif
+                    p->sound.v[t][v][i] > engine_param(t, v, i)->max)
                     return -1;
     for (k = 0; k < NPAT; k++) {
         const pattern_t *pat = &p->pat[k];
@@ -809,6 +872,15 @@ int project_validate_stage(void)
             continue;
         if (l->used != 1 || l->pat >= NPAT || l->part >= NPARTS)
             return -1;
+#if X0X_BASS_NOTE_SOUND
+        if(l->t==BASS_NOTE_TARGET) {
+            if(engine_bass_note_validate(l))return -1;
+            if(bstep_gate(&p->pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return -1;
+            for(int j=0;j<k;j++)if(p->arr.lane[j].used && p->arr.lane[j].t==l->t &&
+                p->arr.lane[j].pat==l->pat && p->arr.lane[j].part==l->part && p->arr.lane[j].v==l->v)return -1;
+            continue;
+        }
+#endif
         if (l->t == T_PROB) {
             if ((l->v >> 4) != l->part || (l->v & 15) >= (l->part < NKIT ? NDRUM : 1) || l->i)
                 return -1;
@@ -819,9 +891,19 @@ int project_validate_stage(void)
                 return -1;
             max = 127;
         } else {
-            if (l->t >= NTARGETS || l->v >= engine_nvoices(l->t) || l->i >= engine_nparams(l->t, l->v))
+            if (l->t >= NTARGETS || l->v >= engine_nvoices(l->t) ||
+#if X0X_BASS_TAGGED_SOUND
+                (l->t==T_303?!engine_bass_bank_param(engine_bass_sound_bank(&p->sound,l->v),l->i):l->i>=engine_nparams(l->t,l->v))
+#else
+                l->i>=engine_nparams(l->t,l->v)
+#endif
+                )
                 return -1;
-            max = engine_param(l->t, l->v, l->i)->max;
+            max =
+#if X0X_BASS_TAGGED_SOUND
+                l->t==T_303?engine_bass_bank_param(engine_bass_sound_bank(&p->sound,l->v),l->i)->max:
+#endif
+                engine_param(l->t, l->v, l->i)->max;
         }
         for (i = 0; i < NSTEPS; i++)
             if (l->val[i] != MOT_NONE && l->val[i] > max)
@@ -830,13 +912,33 @@ int project_validate_stage(void)
     return measure_project(p, &length);
 }
 
+#if X0X_BASS_TAGGED_SOUND
+int project_adopt_legacy_stage(int bank0,int bank1)
+{
+    /* This is an explicit whole-project identity choice, not a preset change.
+     * Only the exact rev10 product surface is admitted in this first unit. */
+    if(project_stage.set.snd_rev!=10)return -9;
+    bass_sound_tag_t old[NBASS];uint8_t rev=project_stage.set.snd_rev;
+    __builtin_memcpy(old,project_stage.sound.bass,sizeof old);
+    int rc=engine_bass_sound_adopt(&project_stage.sound,bank0,bank1);
+    if(rc)return rc;
+    project_stage.set.snd_rev=PROJ_SND_REV;
+    rc=project_validate_stage();
+    if(rc) {project_stage.set.snd_rev=rev;__builtin_memcpy(project_stage.sound.bass,old,sizeof old);}
+    return rc;
+}
+#endif
 int project_load_stage(void)
 {
     uint32_t live_length = packed_len;
     int rc = read_project(&project_stage);
     if (rc == -9) project_incompatible = 1;
     packed_len = live_length;
-    return rc ? rc : project_validate_stage();
+    rc=rc?rc:project_validate_stage();
+#if X0X_BASS_TAGGED_SOUND
+    if(rc==-10)project_incompatible=1;
+#endif
+    return rc;
 }
 
 void project_commit_stage(void)
@@ -863,14 +965,40 @@ void project_file_header(uint8_t *h)
     put32(h + 28, 0);
 }
 
+#if X0X_BASS_TAGGED_SOUND
+int project_prepare_legacy_file(const uint8_t *h)
+{
+    const uint32_t payload=sizeof(project_stage)-NBASS*BASS_SOUND_TAG_BYTES;
+    const uint32_t shift=NBASS*BASS_SOUND_TAG_BYTES;
+    const uint32_t tail=__builtin_offsetof(project_t,pat);
+    uint8_t *raw=(uint8_t *)&project_stage;
+    uint32_t stream=get32(h+20);
+    if(get32(h)!=0x50583058u || get32(h+4)!=1 || get32(h+8)!=payload ||
+       get32(h+16)!=PROJ_FORMAT || (stream!=3 && stream!=6) || get32(h+24)!=10 || get32(h+28))return -9;
+    if(get32(h+12)!=crc32_of(raw,payload))return -4;
+    if(project_stage.set.magic!=PROJ_MAGIC || project_stage.set.format!=PROJ_FORMAT || project_stage.set.snd_rev!=10)return -1;
+    const pattern_t *pat=(const pattern_t *)(raw+tail-shift);
+    const arrange_t *arr=(const arrange_t *)(raw+__builtin_offsetof(project_t,arr)-shift);
+    if(!stream_parts_ok(pat,arr,stream))return -9; /* no 4/5/snapshot guessing */
+    /* Move toward higher addresses from the end. The empty compiler barrier
+     * prevents a libc memmove call, which the firmware cannot link. */
+    for(uint32_t i=sizeof project_stage-tail;i>0;i--){
+        __asm__ volatile("" ::: "memory");
+        raw[tail+i-1u]=raw[tail-shift+i-1u];
+    }
+    __builtin_memset(project_stage.sound.bass,0,sizeof project_stage.sound.bass);
+    return -10; /* prepared and quarantined, not adopted or implicitly saved */
+}
+#endif
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT || get32(h + 20) != PROJ_STREAM ||
+        get32(h + 16) != PROJ_FORMAT || (get32(h + 20) != PROJ_STREAM && !(X0X_BASS_NOTE_SOUND && get32(h+20)==6u)) ||
         get32(h + 24) != PROJ_SND_REV || get32(h + 28))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
+    if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
     return project_validate_stage();
 }
 
@@ -910,6 +1038,12 @@ void project_capture_stage(void)
 /* 0 = saved and verified; -7 = the patterns, song and motion do not fit (nothing was written) */
 int project_save(void)
 {
+#if X0X_BASS_TAGGED_SOUND
+    if(engine_bass_sound_validate(&proj.sound))return -9;
+    for(int v=0;v<NBASS;v++)if(engine_bass_preset_pending(v))return -8;
+#elif X0X_BASS_PRESET_PREVIEW
+    if(engine_bass_preview_changed()) return -9; /* no untagged preview writes */
+#endif
     if (project_incompatible || !stream_layout_ok(&proj, PROJ_STREAM))
         return -9; /* not one settings/sound/pattern object may be rewritten */
 #ifndef X0X_HOST

@@ -45,13 +45,11 @@ typedef struct { int kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 seq_t seq;
 static struct { int rec,part,view,overlay,help,sel[NKIT]; } ui;
-static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank,fx_down; uint16_t drum_solo[NKIT]; } smc;
+static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank,fx_down; uint16_t drum_solo[NKIT]; uint32_t beat_at,beat_period; float beat_internal; uint8_t beat_external; } smc;
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
 static unsigned checks,failures,tx_count;
-static uint32_t now_ms;
-static uint32_t plat_ms(void) { return now_ms; }
 static uint8_t tx[128][3];
 static int pref_get(pref_t r) {
     if(r.a==T_MST) return filter;
@@ -74,7 +72,7 @@ int plat_ble_smc_send(const uint8_t *msg,uint8_t len) {
 }
 '''
 harness += "\n".join(function(name) for name in (
-    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
+    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_beat_lit", "smc_led", "smc_frame"))
 harness += r'''
 static void expect(const char *label,int note,int expected) {
     int got=smc_led(note)!=0;checks++;
@@ -176,13 +174,13 @@ static void transport(void) {
     for(int mode=0;mode<3;mode++) for(int playing=0;playing<2;playing++) for(int rec=0;rec<2;rec++) {
         ui.view=mode?V_MIX:V_HOME;page=mode;seq.playing=playing;ui.rec=rec;
         for(int captured=0;captured<2;captured++) for(int phase=0;phase<2;phase++) {
-            smc.locked=captured;now_ms=(uint32_t)phase*512u;
-            expect("Pause lock/follow lamp",0x5d,captured||phase);
+            smc.locked=captured;seq.ext_now=(uint32_t)phase*10584u;
+            expect("Pause lock/follow lamp",0x5d,captured||!phase);
         }
         smc.locked=0;
         expect("shared PLAY",0x5e,playing);expect("shared REC",0x5f,rec);
     }
-    ui.rec=seq.playing=0;now_ms=0;
+    ui.rec=seq.playing=0;seq.ext_now=0;
 }
 static void wire_value(const char *label,int note,int expected) {
     int found=-1;for(unsigned i=0;i<tx_count;i++) if(tx[i][0]==0x90 && tx[i][1]==note) found=tx[i][2];
@@ -209,11 +207,12 @@ static void frames(void) {
     wire_value("HOME extinguishes",7,0);wire_value("MIX lights",13,127);
     tx_count=0;seq.playing=1;smc_frame();assert(tx_count==1);
     wire_value("PLAY lights",0x5e,127);
-    tx_count=0;now_ms=512;smc_frame();assert(tx_count==1);wire_value("following blink on",0x5d,127);
-    tx_count=0;now_ms=1024;smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
+    tx_count=0;seq.ext_now=10584u;smc_frame();assert(tx_count==1);wire_value("following beat off",0x5d,0);
+    tx_count=0;seq.ext_now=21168u;smc_frame();assert(tx_count==1);wire_value("following beat on",0x5d,127);
+    tx_count=0;seq.ext_now=31752u;smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
     tx_count=0;smc.locked=1;smc_frame();wire_value("locked steady on",0x5d,127);
-    tx_count=0;now_ms=1536;smc_frame();assert(tx_count==0);
-    tx_count=0;now_ms=2048;smc_frame();assert(tx_count==0);
+    tx_count=0;seq.ext_now=42336u;smc_frame();assert(tx_count==0);
+    tx_count=0;seq.ext_now=52920u;smc_frame();assert(tx_count==0);
     smc.locked=0;tx_count=0;smc_frame();wire_value("unlock resumes blink off",0x5d,0);
     tx_count=0;locked=1;seq.playing=0;smc_frame();assert(tx_count==0);locked=0;
     smc.up=0;smc_frame();assert(tx_count==0);smc.up=1;
@@ -225,7 +224,7 @@ static void frames(void) {
     assert(tx[1][0]==0xe7 && tx[1][1]==120 && tx[1][2]==120);
 }
 int main(void) {
-    navigation();main_strips();drums();transport();frames();
+    seq.bpm=125;navigation();main_strips();drums();transport();frames();
     printf("%s: %u SMC feedback expectations, %u failures; navigation, main/drum banks, transport and emitted MIDI\n",failures?"FAIL":"PASS",checks,failures);
     return failures?1:0;
 }

@@ -84,7 +84,8 @@ static void capture_reset(int len, int swing)
 {
     seq_stop(&seq); capture_frames(1);
     ui.part = PART_303A; ui.rec = 1; ui.freeplay[0] = 1;
-    set_view(V_PART);
+    /* REC only admits new notes from visible SEQ after the SEQ/EDIT split. */
+    set_view(V_SEQ);
     for (int p = 0; p < NPAT; p++) pattern_init(&proj.pat[p], 1, 2);
     proj.pat[0].bass[0].len = (uint8_t)len;
     proj.pat[0].swing = (uint8_t)swing;

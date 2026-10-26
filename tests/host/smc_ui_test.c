@@ -423,18 +423,42 @@ static void test_track_knob_align(void)
     CHECK(track_slot_of(T_909, 9, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Decay") == 1);
-    /* 303 TONE stays Cutoff / Reso / EnvMod / Decay. */
+    /* Owner-approved Chicago B primary row: Cutoff / Reso / EnvMod / Wave.
+     * Feature-on factory boot can be Miami, so establish engine identity first. */
     setup(V_PART, PART_303A);
-    CHECK(smc_same(pg.r[0][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
-    CHECK(smc_same(pg.r[0][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
-    CHECK(smc_same(pg.r[0][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
-    CHECK(smc_same(pg.r[0][3], PR(R_ENG, T_303, 0, BASS303_DECAY)));
-    puts("PASS align: drum sound knobs share Tune/Decay ranks; 303 TONE unchanged");
+#if X0X_BASS_PRESET_PREVIEW
+    engine_bass_off(0); engine_bass_off(1);
+    CHECK(engine_bass_select_preset(0, FACTORY_BANK_CHICAGO, 0, &proj.sound) == 0);
+    for (int n = 0; n < 1024 && engine_bass_preset_pending(0); n++) {
+        int32_t audio[512]; engine_render(audio, 256);
+    }
+    CHECK(!engine_bass_preset_pending(0));
+    CHECK(engine_bass_bank(0) == FACTORY_BANK_CHICAGO);
+    build_pages();
+#endif
+    int tone = -1;
+    for (int page = 0; page < pg.n; page++)
+        if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF))) tone = page;
+    CHECK(tone == 0); /* selected B primary physical row */
+    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
+    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
+    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
+    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, BASS303_WAVE)));
+#if X0X_BASS_PRESET_PREVIEW
+    int sound = -1;
+    for (int page = 0; page < pg.n; page++)
+        if (pg.r[page][0].kind == R_BENGINE) sound = page;
+    CHECK(sound == pg.n - 1); /* SOUND follows the selected B parameter matrix. */
+    CHECK(smc_same(pg.r[sound][0], PR(R_BENGINE, 0, 0, 0)));
+    CHECK(smc_same(pg.r[sound][1], PR(R_BPRESET, 0, 0, 0)));
+    CHECK(pg.r[sound][2].kind == R_NONE); /* former physical K7 cancel is now empty */
+#endif
+    puts("PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity");
 }
 
 /* Verify physical grouping in the real framebuffer, rather than accepting any
- * nonempty screen: eight encoders over eight faders, with M/S/R and the effect
- * button to the right. */
+ * nonempty screen: eight encoders over eight faders, three M/S/R rows, and
+ * SELECT represented only by the separately checked title highlight. */
 static void test_physical_geometry(void)
 {
     setup(V_HOME, PART_909); fader(0, 0); ui_frame();
@@ -442,8 +466,9 @@ static void test_physical_geometry(void)
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 36) * 240 + x + 8] != 0); /* encoder top */
         CHECK(fb[(MAIN_Y + 90) * 240 + x + 3] != 0);  /* vertical fader */
-        for (int row = 0; row < 4; row++)
+        for (int row = 0; row < 3; row++)
             CHECK(fb[(MAIN_Y + 62 + row * 12) * 240 + x + 18] != swap16(C_BLACK));
+        CHECK(fb[(MAIN_Y + 98) * 240 + x + 18] == swap16(C_BLACK)); /* no phantom fourth row */
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
@@ -452,7 +477,7 @@ static void test_physical_geometry(void)
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 36) * 240 + n * 30 + 8] != 0);
     shot("13-eight-strip-resonance");
-    puts("PASS physical layout: all eight knob/fader positions and four right-side button rows");
+    puts("PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row");
 }
 
 
@@ -460,7 +485,7 @@ static void check_selected(int selected)
 {
     for (int n = 0; n < 8; n++) {
         CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
-        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] != swap16(C_BLACK));
+        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)); /* SELECT stays in the title */
     }
 }
 static void test_selected_lane(void)

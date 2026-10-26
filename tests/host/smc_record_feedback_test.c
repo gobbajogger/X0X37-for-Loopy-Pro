@@ -77,7 +77,7 @@ static void record_feedback(const char *label)
 
 static void record_note(const char *label, int key)
 {
-    assert(ui.rec && is_303() && !seq.playing && ui.view == V_PART);
+    assert(ui.rec && is_303() && !seq.playing && ui.view == V_SEQ);
     int bass = bidx(), other = bass ^ 1;
     bpart_t *destination = &proj.pat[seq.ppat[ui.part]].bass[bass];
     bpart_t *untouched = &proj.pat[seq.ppat[PART_303A + other]].bass[other];
@@ -112,11 +112,15 @@ int main(void)
     /* Panel REC must report the real destination even before any SMC REC. */
     panel_button(B_EDIT);
     panel_select(PART_303A);
+    panel_button(B_SEQ); /* recording onsets belong to the visible SEQ page */
+    assert(ui.view == V_SEQ);
     panel_button(B_REC);
     record_note("panel REC on 303A", 0);
 
     /* SMC SELECT changes the actual recorder while REC remains enabled. */
     smc_press(24 + PART_303B);
+    assert(ui.view == V_PART); /* SMC SELECT intentionally opens EDIT */
+    panel_button(B_SEQ);      /* return to SEQ to make a pattern write */
     record_note("SMC SELECT changes active recorder to 303B", 2);
     smc_press(0x5F);
     assert(!ui.rec);

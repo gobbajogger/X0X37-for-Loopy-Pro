@@ -1,0 +1,23 @@
+# Saved attack 51, held-step attack 61: graph and number resolve the same lock.
+wait 300
+turn ALGO 2
+tap EDIT
+turn SELECT 6
+spin K1 -1
+wait 30
+turn SELECT -7
+tap SEQ
+key w0 down
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+expect page 3
+wait 1000
+spin K1 10
+wait 30
+shot locked_adsr.png
+expect lanes 1
+expect sound2.0.19 51
+expect laneval2.0.19.0 61
+key w0 up

@@ -252,6 +252,19 @@ def build_app():
         v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
+    # Sound-selector previews use tagged storage but deliberately leave the
+    # separate per-note snapshot lifecycle disabled until it is qualified.
+    bass_flags = ("X0X_BASS_PRESET_PREVIEW", "X0X_BASS_TAGGED_SOUND", "X0X_BASS_NOTE_SOUND")
+    for flag in bass_flags:
+        v = os.environ.get(flag)
+        if v is not None:
+            if v not in ("0", "1"):
+                raise SystemExit(f"{flag}: 0 or 1")
+            flags.append(f"-D{flag}={v}")
+    if os.environ.get("X0X_BASS_NOTE_SOUND") == "1" and os.environ.get("X0X_BASS_TAGGED_SOUND") != "1":
+        raise SystemExit("X0X_BASS_NOTE_SOUND requires X0X_BASS_TAGGED_SOUND=1")
+    if os.environ.get("X0X_BASS_TAGGED_SOUND") == "1" and os.environ.get("X0X_BASS_PRESET_PREVIEW") != "1":
+        raise SystemExit("X0X_BASS_TAGGED_SOUND requires X0X_BASS_PRESET_PREVIEW=1")
     # Product Miami/WBL1: on unless explicitly X0X_WOBBLE=0 (or legacy X0X_DEV_WOBBLE=0 alone).
     wobble = os.environ.get("X0X_WOBBLE")
     if wobble is None:

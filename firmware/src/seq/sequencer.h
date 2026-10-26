@@ -164,6 +164,7 @@ typedef struct {
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     volatile uint8_t rec_epoch, rec_dirty, rec_mask, rec_refused; /* accepted audio-side recorder context */
+    volatile uint8_t rec_hold_mask;             /* finish an onset carried from SEQ into EDIT; no new onsets */
     seq_bass_rec_t rec_bass[NBASS];
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
@@ -228,3 +229,9 @@ void seq_rec_bass_end(seq_t *s, int b);
 /* Context cancel, part or pattern change, REC off, bulk finalize: drop the accepted
  * generation and finish the open capture. Press membership stays with the engine. */
 void seq_rec_cancel(seq_t *s, int b);
+
+#if X0X_BASS_NOTE_SOUND
+/* Audio recorder storage transaction supplied by the product engine. */
+int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step);
+void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
+#endif

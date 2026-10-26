@@ -374,6 +374,9 @@ export function parseInfo(r) {
       const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
       if (!v[1] || v[2] > v[1] * 4)
         throw new Error("invalid SMP_INFO extended slot size");
+      // Firmware saturates only the legacy byte; both fields describe the same used KiB.
+      if (sl.kb !== Math.min(127, v[2]))
+        throw new Error(`slot ${k + 1}: legacy/extended used-size disagreement`);
       Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
     });
   }
