@@ -15,7 +15,7 @@
  *   pot I V           bass303 pot index and 0..127 value
  *   fx_type T         Chicago Fx Type 0..11 (Crush/Ring insert when T matches)
  *   fx_edit1 V        Edit1 0..127 (Crush intensity / Ring carrier)
- *   fx_edit2 V        Edit2 0..127 (wet)
+ *   fx_edit2 V        Edit2 0..127 (Ring wet; Crush reserved / full-wet insert)
  */
 #include <stdio.h>
 #include <stdlib.h>

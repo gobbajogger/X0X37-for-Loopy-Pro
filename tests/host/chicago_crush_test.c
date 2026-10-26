@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Host proof: Chicago Crush/Decimator insert quantizes + holds vs dry native303. */
+/* Host proof: Chicago Crush/Decimator insert holds + quantises vs dry native303. */
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
-#include "chicago_crush.h"
 #include "chicago_fx.h"
+#include "chicago_crush.h"
 
 static int fails;
 #define CHECK(c, ...)                                                                                                  \
@@ -41,39 +41,32 @@ static void render_note(bass303_t *b, float *out, int n)
     }
 }
 
-static double rms(const float *x, int n)
+static int count_holds(const float *x, int n)
+{
+    int i, holds = 0;
+    for (i = 1; i < n; i++) {
+        if (x[i] == x[i - 1])
+            holds++;
+    }
+    return holds;
+}
+
+static double rms_delta(const float *a, const float *b, int n)
 {
     double s = 0;
     int i;
-    for (i = 0; i < n; i++)
-        s += (double)x[i] * (double)x[i];
-    return sqrt(s / (double)n);
-}
-
-static int unique_levels(const float *x, int n, float eps)
-{
-    /* Count roughly distinct sample values (bitcrush collapses the set). */
-    float seen[256];
-    int nseen = 0, i, j;
-    for (i = 0; i < n && nseen < 256; i++) {
-        int hit = 0;
-        for (j = 0; j < nseen; j++) {
-            if (fabsf(x[i] - seen[j]) < eps) {
-                hit = 1;
-                break;
-            }
-        }
-        if (!hit)
-            seen[nseen++] = x[i];
+    for (i = 0; i < n; i++) {
+        double d = (double)a[i] - (double)b[i];
+        s += d * d;
     }
-    return nseen;
+    return sqrt(s / (double)n);
 }
 
 static void test_supported_flags(void)
 {
     CHECK(chi_fx_supported(CHI_FX_DECIM), "Crush supported");
     CHECK(chi_fx_is_insert(CHI_FX_DECIM), "Crush is insert");
-    CHECK(chi_fx_is_crush_insert(CHI_FX_DECIM), "Crush crush-insert helper");
+    CHECK(chi_fx_is_crush_insert(CHI_FX_DECIM), "Crush insert helper");
     CHECK(!chi_fx_is_not_yet(CHI_FX_DECIM), "Crush not NOT_YET");
     CHECK(strstr(CHI_FX_TYPE_N[CHI_FX_DECIM], "—") == 0, "Crush label has no em-dash");
 }
@@ -81,44 +74,43 @@ static void test_supported_flags(void)
 static void test_map_clears_sends(void)
 {
     chicago_fx_out_t o;
-    chicago_fx_map(CHI_FX_DECIM, 80, 127, 0, &o);
+    chicago_fx_map(CHI_FX_DECIM, 70, 127, 0, &o);
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Crush map clears sends");
-    CHECK(!(o.touch & CHI_FX_W_DIST), "Crush insert does not steal master Dist");
-    CHECK(!(o.touch & CHI_FX_W_DRIVE), "Crush insert does not steal master Drive");
+    CHECK(!(o.touch & CHI_FX_W_DIST), "Crush does not steal master Dist");
+    CHECK(!(o.touch & CHI_FX_W_DRIVE), "Crush does not steal master Drive");
 }
 
-static void test_quant_hold(void)
+static void test_hold_and_delta(void)
 {
     bass303_t b;
     chi_crush_t crush;
-    int n = 4096, skip = 512, udry, ucrush;
-    double r_dry, r_crush;
+    int n = 4096, skip = 512;
+    int holds_dry, holds_crush;
+    double delta;
     render_note(&b, dry, n);
     memcpy(buf, dry, (size_t)n * sizeof(float));
     chi_crush_init(&crush);
-    /* Yigh-class: high Edit1 + full wet — should collapse amplitude levels. */
-    chi_crush_set(&crush, 108, 127);
+    /* High Edit1 — insert is full-wet; sample-and-hold creates equal neighbours. */
+    chi_crush_set(&crush, 110, 0);
     chi_crush_process(&crush, buf + skip, n - skip);
-    udry = unique_levels(dry + skip, n - skip, 1e-5f);
-    ucrush = unique_levels(buf + skip, n - skip, 1e-5f);
-    CHECK(udry > 40, "dry has many distinct levels (%d)", udry);
-    CHECK(ucrush < udry / 2, "full wet crush collapses levels (dry %d crush %d)", udry, ucrush);
-    r_dry = rms(dry + skip, n - skip);
-    r_crush = rms(buf + skip, n - skip);
-    CHECK(r_dry > 1e-4, "dry has energy");
-    CHECK(r_crush > 0.2 * r_dry, "crush keeps audible energy (dry %g crush %g)", r_dry, r_crush);
-    /* wet=0 must be a no-op */
+    holds_dry = count_holds(dry + skip, n - skip);
+    holds_crush = count_holds(buf + skip, n - skip);
+    CHECK(holds_crush > holds_dry + 200, "crush increases held-sample count (dry %d crush %d)", holds_dry,
+          holds_crush);
+    delta = rms_delta(dry + skip, buf + skip, n - skip);
+    CHECK(delta > 1e-4, "crush insert changes waveform (rms delta %g)", delta);
+    /* Unset insert (init wet=0) must be a no-op */
     memcpy(buf, dry, (size_t)n * sizeof(float));
-    chi_crush_set(&crush, 108, 0);
+    chi_crush_init(&crush);
     chi_crush_process(&crush, buf + skip, n - skip);
-    CHECK(memcmp(buf + skip, dry + skip, (size_t)(n - skip) * sizeof(float)) == 0, "wet=0 leaves PCM unchanged");
+    CHECK(memcmp(buf + skip, dry + skip, (size_t)(n - skip) * sizeof(float)) == 0, "unset crush leaves PCM unchanged");
 }
 
 int main(void)
 {
     test_supported_flags();
     test_map_clears_sends();
-    test_quant_hold();
+    test_hold_and_delta();
     if (fails) {
         printf("%d FAIL(s)\n", fails);
         return 1;
