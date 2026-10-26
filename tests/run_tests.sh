@@ -103,7 +103,7 @@ run_one() {             # key name command...: the result goes to $RES/key (and 
     echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
 }
 GLOCK="${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}"
-install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) [ "$1" != rec-live ] ;; *) return 1 ;; esac; }
+install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) case "$1" in rec-live|rec-live-smk) return 1 ;; *) return 0 ;; esac ;; *) return 1 ;; esac; }
 lk() {                  # name command...: start the command. An install-path test holds the shared gate lock while it runs
     n_="$1"; shift
     if install_path "$n_" && [ "${X0X_GATE_HOLDS_LOCK:-0}" != 1 ] && [ -w "$GLOCK" ] && command -v flock >/dev/null 2>&1; then
@@ -114,7 +114,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
