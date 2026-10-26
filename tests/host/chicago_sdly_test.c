@@ -81,17 +81,17 @@ static void test_delay_changes_pcm(void)
 
     memcpy(buf, dry, (size_t)n * sizeof(float));
     chi_sdly_init(&sdly);
-    chi_sdly_set(&sdly, 64, 40, BASS303_SR); /* mid time, modest feedback */
+    chi_sdly_set(&sdly, 64, 40, BASS303_SR); /* mid wet, modest feedback */
     chi_sdly_process(&sdly, buf + skip, n - skip);
     delta = rms_delta(dry + skip, buf + skip, n - skip);
     CHECK(delta > 1e-4, "SDly changes waveform (rms delta %g)", delta);
 
     memcpy(buf, dry, (size_t)n * sizeof(float));
     chi_sdly_init(&sdly);
-    chi_sdly_set(&sdly, 64, 127, BASS303_SR); /* max feedback */
+    chi_sdly_set(&sdly, 127, 127, BASS303_SR); /* max wet + feedback */
     chi_sdly_process(&sdly, buf + skip, n - skip);
     delta_hi_fb = rms_delta(dry + skip, buf + skip, n - skip);
-    CHECK(delta_hi_fb > delta * 1.05, "higher feedback moves PCM more (lo %g hi %g)", delta, delta_hi_fb);
+    CHECK(delta_hi_fb > delta * 1.05, "higher wet/fb moves PCM more (lo %g hi %g)", delta, delta_hi_fb);
 
     memcpy(buf, dry, (size_t)n * sizeof(float));
     chi_sdly_init(&sdly);

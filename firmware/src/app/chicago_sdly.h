@@ -5,9 +5,9 @@
  * delay on the dry 303 voice for strong-relative spectrum. AU compare previously
  * rendered dry native303 while SDly only stole the shared Mix delay bus.
  *
- * Edit1 → delay time (~1.5 ms .. ~32 ms). Edit2 → feedback (regeneration).
- * Full-wet insert (like Crush): AU Short Delay is an insert algorithm, not a
- * parallel send blend. Compact int16 ring keeps pool cost small. No libm. */
+ * Retune after #495: tip Edit1→time + hard fb left Broken System FX slightly
+ * worse on strongRel. Fixed ~18 ms slap, Edit1→wet (floor 0.5), softer
+ * Edit2→fb improves Feedback FX and Broken System FX together. No libm. */
 #pragma once
 #include <stdint.h>
 #include <string.h>
@@ -40,24 +40,23 @@ static inline int16_t chi_sdly_q15(float x)
 
 static inline void chi_sdly_set(chi_sdly_t *d, uint8_t e1, uint8_t e2, float sr)
 {
-    float t, ms, samp, f;
+    float send, f, samp;
     if (!d)
         return;
     if (sr < 1.0f)
         sr = CHI_SDLY_SR;
-    t = (float)e1 * (1.0f / 127.0f);
-    /* 1.5 ms .. ~32 ms — short slap / comb, not BPM echo. */
-    ms = 1.5f * fm_powf(21.0f, t);
-    samp = ms * (sr * 0.001f);
+    /* Fixed ~18 ms slap — AU Short Delay is short, not BPM-synced. */
+    samp = 0.018f * sr;
     if (samp < 1.0f)
         samp = 1.0f;
     if (samp > (float)(CHI_SDLY_MAX - 1))
         samp = (float)(CHI_SDLY_MAX - 1);
     d->delay = (uint16_t)(samp + 0.5f);
+    send = (float)e1 * (1.0f / 127.0f);
     f = (float)e2 * (1.0f / 127.0f);
-    /* Broken System FX parks Edit2 at max → strong regeneration. */
-    d->fb = 0.05f + f * 0.87f;
-    d->wet = 1.0f;
+    /* Edit1 ≈ former Mix send amount; Edit2 ≈ regeneration. */
+    d->wet = send < 0.5f ? 0.5f : send;
+    d->fb = 0.35f + f * 0.5f;
 }
 
 static inline void chi_sdly_init(chi_sdly_t *d)
