@@ -116,6 +116,11 @@ button.quiet, .build-item button { border: 1px solid var(--rule); background: va
 button.quiet:hover, .build-item button:hover:not(:disabled) { border-color: var(--accent); }
 .panel-heading { margin-bottom: 23px; }
 .panel-heading h2 { margin-top: 7px; font-size: 26px; line-height: 1.2; letter-spacing: -.04em; }
+/* Offer the local firmware path where a visitor first looks for a build. */
+.local-empty { margin: 12px 0 22px; }
+.local-pick { display: inline-flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 51px; padding: 12px 16px; border: 1px solid var(--accent); background: var(--soft); color: var(--accent); border-radius: 8px; font-weight: 780; text-align: left; }
+.local-pick:hover { background: var(--card-raised); }
+.local-empty .small { margin: 9px 0 0; font-size: 12px; }
 #versionrow { margin: 0 0 8px; }
 .row { display: flex; flex-wrap: wrap; gap: 12px 20px; }
 label.field { display: grid; gap: 8px; width: 100%; font-size: 12px; font-weight: 720; color: var(--dim); }
@@ -311,6 +316,10 @@ progress::-moz-progress-bar { background: var(--accent); }
           <h2 data-t="pickheading">Choose the right firmware</h2>
         </div>
         <p class="small" id="noversion" hidden data-t="noversion"></p>
+        <div class="local-empty" id="localempty" hidden>
+          <button class="local-pick" id="chooseLocal" type="button"><span data-t="localchoose">Choose a local .fwsc file</span><span aria-hidden="true">↗</span></button>
+          <p class="small" data-t="localhint">Select a file from your computer. You will review the model and confirm before installing.</p>
+        </div>
         <div class="row" id="versionrow">
           <label class="field"><span data-t="versionlabel">Firmware version</span>
             <select id="version" aria-label="Firmware version"></select>
@@ -462,7 +471,9 @@ const TEXT = {
     bricklink: "起動しない FM-1 の復旧（マニュアル）",
     beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
     back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
-    noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    noversion: "現在、ダウンロード可能な承認済みファームウェアはありません。",
+    localchoose: "このパソコンの .fwsc を選択",
+    localhint: "ファイル選択後、機種を確認してからインストールを承認してください。",
     stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
     stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
     stock1: "純正が必要なら機種の公式 .fwsc を入手:",
@@ -550,7 +561,9 @@ const TEXT = {
     bricklink: "recovering an FM-1 that won't start (manual)",
     beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
     back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
-    noversion: "No published packages on this site yet. Drop any .fwsc below to upgrade, downgrade, restore stock, or switch to another custom build.",
+    noversion: "No approved firmware downloads are available on this site yet.",
+    localchoose: "Choose a local .fwsc file",
+    localhint: "Select a file from your computer. Review the keyboard model and confirm before installing.",
     stockh: "Any .fwsc (stock, other custom, or a local build)",
     stockwhy: "Upgrade, downgrade, switch to another custom firmware, or return to stock the same way. Packages keep the keyboard's model name; calibration and pairing are never touched. If sample slots would be lost, they are saved to a .x0xslots file first.",
     stock1: "For stock, get the official .fwsc for your model:",
@@ -937,6 +950,7 @@ function fillVersions() {
   sel.innerHTML = "";
   const list = versions();
   $("noversion").hidden = list.length > 0;
+  $("localempty").hidden = list.length > 0;
   $("versionrow").hidden = list.length === 0;
   $("modeldetails").hidden = list.length === 0;
   $("go").hidden = list.length === 0;
@@ -1052,11 +1066,24 @@ async function selectStockFile(f) {
     if (requestId === stockLoadSerial && !writing) sayK("stockloadfail");
   }
 }
+let localPickerFromEmptyState = false;
+$("chooseLocal").addEventListener("click", () => {
+  localPickerFromEmptyState = true;
+  $("stockfile").click(); // Reuse the existing guarded local-file input; never start a write.
+});
+$("stockfile").addEventListener("cancel", () => { localPickerFromEmptyState = false; });
 $("stockfile").addEventListener("change", async (e) => {
   const f = e.target.files && e.target.files[0];
+  const fromEmpty = localPickerFromEmptyState;
+  localPickerFromEmptyState = false;
   if (!f) return;
   e.target.value = ""; // Allow choosing the same file again after a failed read.
+  const expectedSerial = stockLoadSerial + 1;
   await selectStockFile(f);
+  if (fromEmpty && expectedSerial === stockLoadSerial && stock && !writing) {
+    $("stock").scrollIntoView({ block: "start" });
+    $("stockconfirm").focus({ preventScroll: true }); // Confirmation stays unchecked and install stays guarded.
+  }
 });
 $("stockconfirm").addEventListener("change", () => {
   $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
