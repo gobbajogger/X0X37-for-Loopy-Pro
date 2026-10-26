@@ -4458,146 +4458,41 @@ static UI_DRAW void draw_303(int band, int gen)
     }
 }
 
-/* The upper EDIT bands preview other live sound settings. The lower strip stays
- * the four current physical knobs; no second value on screen pretends to be a
- * separate control or changes the serialized parameter order. */
-static pref_t sound_overview_ref(int row)
-{
-#if X0X_DEV_WOBBLE
-    static const uint8_t miami[] = {W_CUTOFF, W_OUTPUT, W_WOBBLE_DEPTH, W_ATTACK,
-        W_RELEASE, W_CARRIER_LEVEL, W_XMOD_LEVEL, W_GLIDE, W_BASS_SPLIT};
-#endif
-    static const uint8_t chicago[] = {BASS303_CUTOFF, BASS303_RESO, BASS303_VOLUME,
-        BASS303_DECAY, BASS303_WAVE, BASS303_DRIVE, BASS303_ACCENT, BASS303_AATTACK};
-    const uint8_t *rank = 0;
-    int n_rank = 0, t, v, n, i, k, seen = 0, page = cur_page();
-    if (is_drum()) {
-        t = ui.part == PART_909 ? T_909 : T_808;
-        v = ui.sel[ui.part];
-    } else {
-        t = T_303;
-        v = bidx();
-#if X0X_DEV_WOBBLE
-        if (engine_bass_is_wobble(v)) {
-            rank = miami;
-            n_rank = sizeof miami;
-        } else
-#endif
-        {
-            rank = chicago;
-            n_rank = sizeof chicago;
-        }
-    }
-    n = engine_nparams(t, v);
-    for (i = 0; i < n_rank + n; i++) {
-        int id = i < n_rank ? rank[i] : i - n_rank, repeat = 0;
-        if (id >= n || !engine_param(t, v, id)) continue;
-        if (i >= n_rank)
-            for (k = 0; k < n_rank; k++) if (rank[k] == id) repeat = 1;
-        if (repeat) continue;
-        for (k = 0; k < 4; k++) {
-            pref_t cur = pg.r[page][k];
-            if (cur.kind == R_ENG && cur.a == t && cur.b == v && cur.c == id) repeat = 1;
-        }
-        if (!repeat && seen++ == row) return PR(R_ENG, t, v, id);
-    }
-    return NONE;
-}
+static int strcmp_s(const char *a, const char *b);
+static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col);
+static UI_DRAW int draw_adsr_overlay(int band);
 
-static const char *sound_overview_label(pref_t r)
-{
-    if (r.a == T_303) {
-#if X0X_DEV_WOBBLE
-        if (engine_bass_is_wobble(r.b)) {
-            switch (r.c) {
-            case W_CARRIER_LEVEL: return "CARRIER LEVEL";
-            case W_CARRIER_PITCH: return "CARRIER PITCH";
-            case W_WOBBLE_DEPTH: return "WOBBLE DEPTH";
-            case W_WOBBLE_RATE: return "WOBBLE RATE";
-            case W_XMOD_LEVEL: return "X-MOD LEVEL";
-            case W_XMOD_DEPTH: return "X-MOD DEPTH";
-            case W_BASS_SPLIT: return "BASS SPLIT";
-            default: break;
-            }
-        } else
-#endif
-        {
-            switch (r.c) {
-            case BASS303_RESO: return "RESONANCE";
-            case BASS303_DECAY: return "FILTER DECAY";
-            case BASS303_FATTACK: return "FILTER ATTACK";
-            case BASS303_FSUSTAIN: return "FILTER SUSTAIN";
-            case BASS303_FRELEASE: return "FILTER RELEASE";
-            case BASS303_AATTACK: return "AMP ATTACK";
-            case BASS303_ADECAY: return "AMP DECAY";
-            case BASS303_ASUSTAIN: return "AMP SUSTAIN";
-            case BASS303_ARELEASE: return "AMP RELEASE";
-            default: break;
-            }
-        }
-    }
-    return caps_of(pref_name(r));
-}
-
-/* EDIT is the selected instrument's sound, while SEQ keeps the visible steps. */
+/* EDIT has one value per physical knob, in a 2x2 page matrix.  The knob strip
+ * is deliberately empty on this view; it cannot contradict the live page. */
 static UI_DRAW void draw_part_sound(int band)
 {
-    int page = cur_page(), row;
-    (void)page;
+    int page = cur_page(), k;
     uint16_t col = part_col();
-#if X0X_BASS_PRESET_PREVIEW
-    if (is_303() && page == 0) {
-        draw_303(band, 0);             /* existing engine / real preset card */
-        return;
-    }
-#endif
+    if (draw_adsr_overlay(band)) return;
     cv_rect(0, 0, 3, BAND_H, col);
     if (!band) {
         char head[64], *q = put_s(head, part_display(ui.part));
-        if (is_drum()) {
-            int t = ui.part == PART_909 ? T_909 : T_808;
-            q = put_s(q, "  ");
-            put_s(q, engine_voice_name(t, ui.sel[ui.part]));
-        }
 #if X0X_BASS_PRESET_PREVIEW
-        else if (is_303()) {
+        if (is_303() && page == 0) {
             int b = bidx(), preset = engine_bass_preset_index(b);
-            if (preset >= 0) {
-                q = put_s(q, "  ");
-                put_s(q, factory_preset_name(engine_bass_bank(b), preset));
-            } else {
-                q = put_s(q, "  ");
-                put_s(q, "USER SOUND");
-            }
+            q = put_s(q, "  ");
+            q = put_s(q, preset >= 0 ? factory_preset_name(engine_bass_bank(b), preset) : "USER SOUND");
         }
 #endif
-        cv_text(9, 3, &FONT_S, head, col);
-        cv_rect(9, 19, 222, 1, C_LINE);
+        if (page != 0 || !is_303()) {
+            q = put_s(q, "  ");
+            put_s(q, pg.title[page]);
+        }
+        cv_text(8, 1, &FONT_S, head, col);
+        cv_rect(8, 18, 224, 1, C_LINE);
     }
-    for (row = 0; row < 2; row++) {
-        int i = band * 2 + row, y = (band ? 4 : 24) + row * 22;
-        pref_t r = sound_overview_ref(i);
-        const x0x_param_t *d = pref_desc(r);
-        char num[16], unit[8], value[26];
-        int val, live;
-        if (!d)
-            continue;
-        val = pref_get(r);
-        live = lock_step() >= 0 ? lock_of(r, lock_step()) : -1;
-        if (live < 0 && has_motion(r))
-            live = motion_now(r);
-        if (live >= 0)
-            val = live;
-        pref_value_of(r, val, num, unit);
-        put_s(put_s(value, num), unit);
-        cv_text(10, y, &FONT_S, sound_overview_label(r), C_GRAY);
-        text_r(231, y, &FONT_B, value, C_WHITE);
-        cv_rect(10, y + 18, 220, 1, C_LINE);
-        if (d->max && val > 0)
-            cv_rect(10, y + 18, (uint32_t)val * 220u / d->max, 1, col);
+    for (k = 0; k < 2; k++) {
+        int two = pg.r[page][2].kind == R_NONE && pg.r[page][3].kind == R_NONE;
+        int i = two ? band : band * 2 + k;
+        if (two && k) break;
+        draw_param_widget(pg.r[page][i], two ? 9 : k * 120 + 3,
+                          band ? 2 : 20, two ? 222 : 117, ui.touched == i, col);
     }
-    if (band)
-        cv_text(9, 54, &FONT_XS, "SOUND OVERVIEW", C_DIM);
 }
 
 static UI_DRAW void draw_break(int band)
@@ -5389,6 +5284,9 @@ static UI_DRAW void draw_main(void)
 {
     int band, readout = ui.touched >= 0 && (int32_t)(ui.touch_until - plat_ms()) > 0 &&
                         ui.overlay == O_NONE && !ui.help;
+    int envelope = readout && ui.view == V_PART && is_303() &&
+        (!strcmp_s(pg.title[cur_page()], "AMP ADSR") ||
+         !strcmp_s(pg.title[cur_page()], "FILTER ADSR"));
     if (!readout)
         ui.touched = -1;
 #if BOARD_SMK37
@@ -5462,7 +5360,8 @@ static UI_DRAW void draw_main(void)
             draw_303(band, ui.view == V_GEN);
         else
             draw_break(band);
-        if (band == 1 && readout)
+        if (band == 1 && readout && !envelope &&
+            !(ui.view == V_PART && (is_drum() || is_303())))
             draw_readout();
     }
     cv_band(0, 2 * BAND_H);
@@ -5476,6 +5375,190 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
     x = cv_text(x, y, &FONT_B, num, c);
     if (unit[0])
         cv_text(x + 1, base_y(&FONT_B, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
+}
+
+/* A shape cue, not a sampled oscilloscope. Chicago Wave continuously crossfades
+ * saw and square; Miami's carrier, modulator and LFO are discrete choices. */
+static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
+{
+    if (r.kind != R_ENG || r.a != T_303) return 0;
+#if X0X_DEV_WOBBLE
+    if (engine_bass_is_wobble(r.b)) {
+        if (r.c == W_CARRIER_WAVE || r.c == W_XMOD_WAVE || r.c == W_WOBBLE_SHAPE) {
+            *mix = v == 0 ? 0 : 127;
+            return r.c == W_XMOD_WAVE ? 3 : 2; /* triangle/pulse or triangle/square */
+        }
+        return 0;
+    }
+#endif
+    if (r.c == BASS303_WAVE) { *mix = v; return 1; }
+    return 0;
+}
+
+static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col)
+{
+    int i, prev = 0;
+    for (i = 0; i < 36; i++) {
+        int saw = 15 - i * 30 / 35;
+        int square = i < 18 ? -15 : 15;
+        int tri = i < 18 ? 15 - i * 30 / 17 : -15 + (i - 18) * 30 / 17;
+        int pulse = i < 4 ? -15 : 15; /* Miami X-mod's actual 10% duty */
+        int a = shape == 1 ? (saw * (127 - mix) + square * mix) / 127
+              : shape == 3 ? (tri * (127 - mix) + pulse * mix) / 127
+              : (tri * (127 - mix) + square * mix) / 127;
+        int py = y + (a + 15) * 12 / 30;
+        if (i) cv_line(cx - 18 + i - 1, prev, cx - 18 + i, py, col);
+        prev = py;
+    }
+}
+
+static UI_DRAW const char *matrix_name(pref_t r)
+{
+#if X0X_DEV_WOBBLE
+    if (r.kind == R_ENG && r.a == T_303 && engine_bass_is_wobble(r.b)) {
+        switch (r.c) {
+        case W_CARRIER_WAVE: return "CARRIER WAVE";
+        case W_CARRIER_LEVEL: return "CARRIER LEVEL";
+        case W_CARRIER_PITCH: return "CARRIER PITCH";
+        case W_XMOD_LEVEL: return "X-MOD LEVEL";
+        case W_XMOD_WAVE: return "X-MOD WAVE";
+        case W_XMOD_TUNE: return "X-MOD TUNE";
+        case W_XMOD_DEPTH: return "X-MOD DEPTH";
+        case W_WOBBLE_SHAPE: return "WOBBLE SHAPE";
+        case W_WOBBLE_DEPTH: return "WOBBLE DEPTH";
+        case W_WOBBLE_RATE: return "WOBBLE RATE";
+        default: break;
+        }
+    }
+#endif
+    if (r.kind == R_ENG && r.a == T_303
+#if X0X_DEV_WOBBLE
+        && !engine_bass_is_wobble(r.b)
+#endif
+        ) {
+        switch (r.c) {
+        case BASS303_RESO: return "RESONANCE";
+        case BASS303_DECAY: return "FILTER DECAY";
+        case BASS303_FATTACK: return "FILTER ATTACK";
+        case BASS303_FSUSTAIN: return "FILTER SUSTAIN";
+        case BASS303_FRELEASE: return "FILTER RELEASE";
+        default: break;
+        }
+    }
+    return caps_of(pref_name(r));
+}
+
+static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col)
+{
+    const x0x_param_t *d = pref_desc(r);
+    char num[16], unit[8];
+    int cx = x + width / 2, val, shape = 0, mix = 0;
+    if (!d) return;
+    val = pref_get(r);
+    if (lock_step() >= 0) {
+        int lv = lock_of(r, lock_step());
+        if (lv >= 0) val = lv;
+    } else if (has_motion(r)) {
+        int mv = motion_now(r);
+        if (mv >= 0) val = mv;
+    }
+    if (touched) rframe(x + 2, y, width - 4, 48, 3, col);
+    cv_text(x + 7, y + 1, &FONT_XS, matrix_name(r), touched ? C_WHITE : C_GRAY);
+    if (r.kind == R_ENG && val >= 0 && val <= d->max)
+        shape = wave_shape(r, val, &mix);
+    if (shape)
+        draw_wave_glyph(cx, y + 20, shape, mix, col);
+    else if (d->names && d->max < 12) {
+        int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;
+        for (k = 0; k < n; k++)
+            box(cx - w0 / 2 + k * (pw + gap), y + 21, pw, 8, k == val ? col : C_LINE);
+    } else
+        arc(cx, y + 27, 10, d->max ? (float)val / (float)d->max : 0.0f, C_LINE, col,
+            r.kind == R_BTRANS || is_pan(r) || (r.kind == R_ENG && r.a == T_MST && r.c == MST_DJF));
+    pref_value_of(r, val, num, unit);
+    cell_value(cx, y + 36, num, unit, touched ? C_WHITE : C_HI);
+}
+
+static UI_DRAW int draw_adsr_overlay(int band)
+{
+    int a, d, s, r, wa, wd, wr, x0 = 17, x1, x2, x3, x4, x5;
+    int y0 = 60, ys, hi = 27, edited = ui.touched;
+    int curved = 0;
+    char t[48], *q;
+    const char *name = pg.title[cur_page()];
+    uint16_t col = part_col();
+    if (ui.view != V_PART || !is_303() || edited < 0 || edited > 3 ||
+        (int32_t)(ui.touch_until - plat_ms()) <= 0 ||
+        (strcmp_s(name, "AMP ADSR") && strcmp_s(name, "FILTER ADSR"))) return 0;
+    a = pref_get(pg.r[cur_page()][0]);
+    d = pref_get(pg.r[cur_page()][1]);
+    s = pref_get(pg.r[cur_page()][2]);
+    r = pref_get(pg.r[cur_page()][3]);
+    /* Match each active engine's envelope time laws, then compress the
+     * durations proportionally to a diagram. Sustain is a level, not time. */
+#if X0X_DEV_WOBBLE
+    if (engine_bass_is_wobble(bidx())) {
+        wa = 2 + 1998 * a * a / 16129;
+        wd = 1 + 2499 * d * d / 16129;
+        wr = 5 + 2995 * r * r / 16129;
+    } else
+#endif
+    {
+        int filter = !strcmp_s(name, "FILTER ADSR");
+        curved = !filter; /* Chicago amp decay/release use RC powers; filter is linear. */
+        wa = (int)bass303_env_time_ms(filter ? BASS303_FATTACK : BASS303_AATTACK, a);
+        wd = (int)bass303_env_time_ms(filter ? BASS303_DECAY : BASS303_ADECAY, d);
+        wr = (int)bass303_env_time_ms(filter ? BASS303_FRELEASE : BASS303_ARELEASE, r);
+    }
+    /* Minimum segment width makes instant attack and short release visible. */
+    { int total = wa + wd + wr + 1;
+      int room = 160;
+      int sa = 7 + wa * room / total, sd = 7 + wd * room / total;
+      int sr = 7 + wr * room / total;
+      int sum = sa + sd + sr;
+      sa = sa * 170 / sum; sd = sd * 170 / sum; sr = 170 - sa - sd;
+      x1 = x0 + sa; x2 = x1 + sd; x3 = x2 + 22; x4 = x3 + sr;
+    }
+    x5 = x4; ys = y0 - s * (y0 - hi) / 127;
+    if (!band) {
+        q = put_s(t, !strcmp_s(name, "FILTER ADSR") ? "FILTER ENVELOPE" : "AMP ENVELOPE");
+        (void)q;
+        cv_text(9, 2, &FONT_S, t, col);
+        cv_line(x0, y0, x1, hi, edited == 0 ? C_WHITE : col);
+        if (curved) {
+            int k, px = x1, py = hi;
+            for (k = 1; k <= 8; k++) {
+                int nx = x1 + (x2 - x1) * k / 8;
+                int ease = k * (16 - k); /* 0..64: fast RC fall, slow tail */
+                int ny = hi + (ys - hi) * ease / 64;
+                cv_line(px, py, nx, ny, edited == 1 ? C_WHITE : col);
+                px = nx; py = ny;
+            }
+        } else cv_line(x1, hi, x2, ys, edited == 1 ? C_WHITE : col);
+        cv_line(x2, ys, x3, ys, edited == 2 ? C_WHITE : col);
+        if (curved) {
+            int k, px = x3, py = ys;
+            for (k = 1; k <= 8; k++) {
+                int nx = x3 + (x5 - x3) * k / 8;
+                int ease = k * (16 - k);
+                int ny = ys + (y0 - ys) * ease / 64;
+                cv_line(px, py, nx, ny, edited == 3 ? C_WHITE : col);
+                px = nx; py = ny;
+            }
+        } else cv_line(x3, ys, x5, y0, edited == 3 ? C_WHITE : col);
+        cv_rect(x0, y0 + 2, 210, 1, C_LINE);
+    } else {
+        static const char *const names[4] = {"ATTACK", "DECAY", "SUSTAIN", "RELEASE"};
+        int k;
+        for (k = 0; k < 4; k++) {
+            pref_t p = pg.r[cur_page()][k];
+            char num[16], unit[8];
+            pref_value_of(p, pref_get(p), num, unit);
+            text_c(30 + k * 60, 11, &FONT_XS, names[k], k == edited ? C_WHITE : C_GRAY);
+            cell_value(30 + k * 60, 37, num, unit, k == edited ? C_WHITE : C_HI);
+        }
+    }
+    return 1;
 }
 
 /* what the knob strip shows, hashed: it is only redrawn when this changes (the arcs cost a
@@ -5586,6 +5669,14 @@ static UI_DRAW void draw_knobs(void)
         blit_hash[2] = 0;
     }
 #endif
+    if (ui.view == V_PART && (is_drum() || is_303())) {
+        /* EDIT's four current values live in the main 2x2 matrix. */
+        if (last_sig == 0 && blit_hash[3]) return;
+        cv_begin(240, KNOB_H, C_BLACK);
+        cv_commit(3, 0, KNOB_Y);
+        last_sig = 0;
+        return;
+    }
     sig = knobs_sig();
     if (sig == last_sig && blit_hash[3])
         return;
