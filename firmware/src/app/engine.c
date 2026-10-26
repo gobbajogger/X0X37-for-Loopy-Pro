@@ -667,7 +667,7 @@ void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t
  * before the step fires (motion_step runs first); 100 = always */
 static uint8_t prob[NPARTS][NDRUM];
 static uint32_t prob_rng = 0x2545F491u;
-static int prob_skip(int part, int v)                 /* ISR: 1 = this hit does not play */
+__attribute__((noinline)) static int prob_skip(int part, int v)                 /* ISR: 1 = this hit does not play */
 {
     uint32_t p = prob[part][v];
     if (p > 100u && p < PROB_COND + PROB_NCOND) {      /* A:B: the A-th of every B passes (seq_track_t.bars) */
