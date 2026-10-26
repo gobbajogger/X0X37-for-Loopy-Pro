@@ -1736,7 +1736,10 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
  * brief, covers state finalization only, and never reinitializes a voice. */
 static void record_finish(void)
 {
+    seq.rec_mask = 0;
     engine_project_hold(1);
+    seq.rec_epoch++;
+    for (int b = 0; b < NBASS; b++) seq_rec_cancel(&seq, b);
     engine_project_hold(0);
 }
 static void do_undo(int redo)
@@ -1805,7 +1808,7 @@ X0X_COLD int ui_project_save(void)
         return UI_PROJECT_BUSY;
     save_wait = 0;
     rc = project_save();
-    say(rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
+    say(rc == -9 ? "NEWER DATA: NOT SAVED" : rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
     ui.save_failed = rc != 0;
     if (!rc)
         ui.dirty = 0;
@@ -2650,28 +2653,18 @@ static void bass_kbd(int key)
             kbd_arp_n[b]++;
         }
     }
-    engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0,
-                            !chi_arp_on_part(b) && kbd_held_note[b] != 0,
-                            ui.freeplay[b] && !ui.rec ? plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
+    if (!(ui.rec && seq.playing))
+        engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0,
+                                !chi_arp_on_part(b) && kbd_held_note[b] != 0,
+                                ui.freeplay[b] && !ui.rec ? plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
     } else if (ui.rec && seq.playing) {
-        bpart_t *bp = &cur_pat()->bass[b];
-        int s = rec_step(TRK_BASS0 + b);
-        uint8_t f = G_NOTE;
-        bass_rec_link(b, s);
-        if (ui.btn & (1u << B_ENV)) {
-            f |= BS_ACCENT;
-            ui.btn_used |= 1u << B_ENV;
-        }
-        if (ui.btn & (1u << B_LFO)) {
-            f |= BS_SLIDE;
-            ui.btn_used |= 1u << B_LFO;
-        }
-        bp->step[s].note = (uint8_t)n;
-        bp->step[s].flags = f;
-        bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
-        seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);
+        int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
+                ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
+        ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
+        seq.rec_mask = (uint8_t)(1u << b);
+        engine_bass_record(b, n, BASS_VELOCITY_DEFAULT, f);
         mark_dirty();
     } else
         bass_rec_step[b] = 0;
@@ -3133,6 +3126,7 @@ X0X_COLD static void button_tap(int b)
             ask(ACT_CLEAR_PART, ui.part, t, "IN THIS PATTERN?");
             break;
         }
+        record_finish();
         bass_step_cancel();                            /* key-up will now take the keyboard path */
         memset(bass_rec_step, 0, sizeof bass_rec_step);
         ui.rec = !ui.rec;
@@ -3269,6 +3263,9 @@ X0X_COLD static void input(void)
 #endif
         return;
     }
+    if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
+    if (seq.rec_refused) { seq.rec_refused = 0; say("REC NEEDS FWD/REV", 0); }
+    seq.rec_mask = ui.rec && is_303() && part_view() && ui.overlay == O_NONE ? (uint8_t)(1u << bidx()) : 0;
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
             bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)
@@ -5339,6 +5336,10 @@ X0X_COLD void ui_init(void)
         blit_hash[i] = 0;
     build_pages();
     undo_start();                                   /* the project as loaded is where undo stops */
+    if (project_storage_unsupported()) {
+        ui.save_failed = 1;
+        say("NEWER DATA: LOAD BLOCKED", 0);
+    }
 }
 
 /* A transaction borrows the undo baseline and holds the audio engine. Setting the hold before
@@ -5468,6 +5469,10 @@ static void autosave(void)
         ui.dirty = 0;
         ui.save_failed = 0;
         say("AUTOSAVED", 0);
+        break;
+    case -9:
+        ui.save_failed = 1;
+        say("NEWER DATA: NOT SAVED", 0);
         break;
     case -7:
         ui.save_failed = 1;

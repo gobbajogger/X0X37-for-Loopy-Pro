@@ -290,7 +290,7 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* ------------------------------------------------------- command queue --- */
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
-enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP };
+enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
@@ -304,7 +304,7 @@ __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t
          * C_BOFF, C_BRK, or C_DRUM — missing a live drum hit or break press
          * under param flood is a silent loss; a retained release without its
          * press is rare but must not displace an already-queued release. */
-        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM);
+        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_REC);
         if (!keep)
             return;
         for (i = cq_r; i != w; i++) {
@@ -758,6 +758,13 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
            (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
 }
+void engine_bass_record(int part, int note, int velocity, int flags)
+{
+    if (velocity < 1) velocity = 1;
+    if (velocity > 127) velocity = 127;
+    cq_put(C_REC, (uint32_t)(part | ((seq.rec_epoch & 127u) << 1)), (uint32_t)note,
+           (uint32_t)((flags & BS_ACCENT ? 1 : 0) | (velocity << 2) | (flags & BS_SLIDE ? 512 : 0)));
+}
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 void engine_bass_off_note(int part, int note)
 {
@@ -928,7 +935,24 @@ void engine_clip_midi_flush(void)
 
 
 /* ---------------------------------------------------------------- MIDI in --- */
-static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
+static uint8_t bass_held[NBASS];       /* last accepted live pitch */
+static uint8_t bass_held_count[NBASS], bass_held_src[NBASS];
+#ifdef X0X_HOST
+static uint8_t bass_attacked[NBASS];
+#endif
+/* Accepted physical edges, not the DSP gate, decide recorder legato. */
+static int live_rec_legato(int part, int src)
+{
+    const seq_bass_rec_t *r = &seq.rec_bass[part];
+    return r->own_ok && r->own_gen == r->gen && r->own_src == (uint8_t)src &&
+           r->own_note == bass_held[part] && bass_held_count[part] && bass_held_src[part] == (uint8_t)src;
+}
+static void live_rec_accept(int part, int src, int note)
+{
+    seq_bass_rec_t *r = &seq.rec_bass[part];
+    r->own_ok = 1; r->own_gen = r->gen;
+    r->own_src = (uint8_t)src; r->own_note = (uint8_t)note;
+}
 static uint16_t src_held[3];           /* BLE-16: USB [0], Bluetooth [1], TRS [2]: bit k the 303 k, bit 8 + s the slice s */
 static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
 enum { MIDI_NSRC = 3 };
@@ -958,7 +982,7 @@ X0X_COLD int engine_project_notes(void)
             return 1;
     while (r != cq_w) {
         uint32_t c = cq[r++ % CQ], t = c >> 28;
-        if (t == C_DRUM || t == C_BON || (t == C_BRK && ((c >> 12) & 0xFFu)))
+        if (t == C_DRUM || t == C_BON || t == C_REC || (t == C_BRK && ((c >> 12) & 0xFFu)))
             return 1;
     }
     return 0;
@@ -1079,9 +1103,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
     int k, v, src = (int)PLAT_MIDI_SRC(pkt);
+    if (src < 0 || src >= MIDI_NSRC) return; /* source 3 is internal keyboard ownership only */
     if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
         seq_clk_drop(&seq, (uint32_t)src);      /* MID-15: another input can get the clock at once */
-        if (src > 1)
+        if (src < 0 || src >= MIDI_NSRC)
             return;
         v = src_held[src];
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
@@ -1091,7 +1116,8 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #else
                 bass303_note_off(&b303[k]);
 #endif
-                bass_held[k] = 0;
+                seq_rec_cancel(&seq, k);
+                bass_held[k] = bass_held_count[k] = 0;
             }
         brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
@@ -1172,26 +1198,41 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         if (kit_own && (ty == 0x90 || ty == 0x80))
             return;
     }
+    if ((ty == 0x90 || ty == 0x80) && (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont))
+        seq_advance(&seq, 0, &SINK);
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
+                int slide = live_rec_legato(k, src) && bass_held[k] != d1;
+#ifdef X0X_HOST
+                bass_attacked[k] = (uint8_t)!slide;
+#endif
+                seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
 #if X0X_DEV_WOBBLE
-                bass_voice_note_on(k, d1, d2 >= 100, bass_held[k] != 0, d2);
+                bass_voice_note_on(k, d1, d2 >= 100, slide, d2);
 #else
-                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, slide, d2);
 #endif
                 chi_damp_latched[k] = 0;
+                if (bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == (uint8_t)src) {
+                    if (bass_held_count[k] < 255u) bass_held_count[k]++;
+                } else bass_held_count[k] = 1;
+                bass_held_src[k] = (uint8_t)src;
                 bass_held[k] = d1;
+                live_rec_accept(k, src, d1);
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
                 src_held[1] &= (uint16_t)~v;
                 src_held[2] &= (uint16_t)~v;
                 if (src >= 0 && src < MIDI_NSRC)
                     src_held[src] |= (uint16_t)v;
-            } else if (ty == 0x80 && bass_held[k] == d1) {
+            } else if (ty == 0x80 && bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == (uint8_t)src) {
                 v = 1 << k;
                 if (src < 0 || src >= MIDI_NSRC || !(src_held[src] & (uint16_t)v))
                     continue;
+                if (--bass_held_count[k]) continue;
+                seq_rec_bass(&seq, k, d1, 0, 0, src, 0);
+                seq.rec_bass[k].own_ok = 0;
                 chi_live_note_off(k);
                 bass_held[k] = 0;
                 src_held[0] &= (uint16_t)~(1u << k);
@@ -1201,6 +1242,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         }
 }
 #ifdef X0X_HOST
+int engine_bass_attacked(int part) { return (unsigned)part < NBASS && bass_attacked[part]; }
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
     int k, r = brk.keys << 8 & 0xFF00;
@@ -1392,14 +1434,34 @@ static void drain(void)
 {
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    /* Finish old contexts before a queued new press can acquire note ownership. */
+    for (int k = 0; k < NBASS; k++) {
+        const seq_bass_rec_t *rec = &seq.rec_bass[k];
+        if (seq.req_stop || ((seq.req_start || seq.req_cont) && seq.rec_mask) || (rec->active &&
+            (!(seq.rec_mask & (1u << k)) || rec->pat != seq.ppat[TRK_BASS0 + k])) ||
+            (seq.t[TRK_BASS0 + k].to_off == 1 && bass_held_count[k])) {
+            seq_advance(&seq, 0, &SINK);
+            break;
+        }
+    }
     while (r != cq_w) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
         r++;
+        uint32_t rec_epoch = a >> 1;
+        if (type == C_REC) a &= 1u;
         if (type < 8u)
             apply_param((int)type, (int)a, (int)b, (int)v);
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
-        else if (type == C_BON && a < NBASS) {
+        else if ((type == C_BON || type == C_REC) && a < NBASS) {
+            int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
+#ifdef X0X_HOST
+            bass_attacked[a] = (uint8_t)!slide;
+#endif
+            if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
+                seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
+                    ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
+            v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
             chi_arp_accent[a] = (uint8_t)(v & 1u);
             chi_arp_vel[a] = (uint8_t)(v >> 2);
             if (chi_arp_on[a]) {
@@ -1419,14 +1481,22 @@ static void drain(void)
                                      chi_arp_speed[a]);
             } else {
 #if X0X_DEV_WOBBLE
-                bass_voice_note_on((int)a, (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+                bass_voice_note_on((int)a, (int)b, (int)(v & 1u), slide, (int)(v >> 2));
 #else
-                bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+                bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), slide, (int)(v >> 2));
 #endif
             }
             chi_damp_latched[a] = 0;
             bass_held[a] = (uint8_t)b;
-        } else if (type == C_BOFF && a < NBASS) {
+            bass_held_count[a] = 1; bass_held_src[a] = 3;
+            src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a); src_held[2] &= (uint16_t)~(1u << a);
+            live_rec_accept((int)a, 3, (int)b);
+        } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
+            if ((!v || b == bass_held[a]) && seq.rec_bass[a].own_src == 3) {
+                seq_rec_bass(&seq, (int)a, seq.rec_bass[a].own_note, 0, 0, 3, 0);
+                seq.rec_bass[a].own_ok = 0;
+                bass_held_count[a] = 0;
+            }
             if (chi_arp_on[a] && v) {
                 uint8_t tmp[CHI_ARP_MAXN];
                 uint32_t n = 0, i;
@@ -1806,7 +1876,8 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #if X0X_DEV_WOBBLE
         for (p = 0; p < NBASS; ++p) {
             if (synth_boundary(&bass_slot[p])) {
-                bass_held[p] = 0;
+                seq_rec_cancel(&seq, p);
+                bass_held[p] = bass_held_count[p] = 0;
                 src_held[0] &= (uint16_t)~(1u << p);
                 src_held[1] &= (uint16_t)~(1u << p);
                 src_held[2] &= (uint16_t)~(1u << p);
@@ -2093,7 +2164,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         for (g = 0; g < 16; g++)
             brk_down[p][g] = 0;
     for (p = 0; p < NBASS; p++) {
-        bass_held[p] = 0;
+        bass_held[p] = bass_held_count[p] = bass_held_src[p] = 0;
         chi_arp_on[p] = chi_arp_mode[p] = chi_arp_range[p] = chi_arp_speed[p] = 0;
         chi_arp_accent[p] = chi_arp_vel[p] = 0;
         chi_arp_run_clear(&chi_arp_run[p]);
