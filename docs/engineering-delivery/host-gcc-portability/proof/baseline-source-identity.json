@@ -1,0 +1,57 @@
+{
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "combined": "43d078dd384dd9d6544d368f5081da985dd27698",
+  "identical_source_blobs": [
+    {
+      "path": "firmware/src/dsp/fastmath.h",
+      "base_blob": "60add5ad5c76cf23610a9070748552bcd7cd7146",
+      "combined_blob": "60add5ad5c76cf23610a9070748552bcd7cd7146"
+    },
+    {
+      "path": "firmware/src/dsp/bass303.c",
+      "base_blob": "dac582e9f8ff2f86328e22788c9845afb9166a35",
+      "combined_blob": "dac582e9f8ff2f86328e22788c9845afb9166a35"
+    },
+    {
+      "path": "tests/host/fastmath_test.c",
+      "base_blob": "d5b2b5eb4c316e7197db179e23388b7e56e30e98",
+      "combined_blob": "d5b2b5eb4c316e7197db179e23388b7e56e30e98"
+    },
+    {
+      "path": "tests/host/run_fastmath_ubsan.sh",
+      "base_blob": "d16b893a0bf2618ec7e1b632885e3edc92e4f4c0",
+      "combined_blob": "d16b893a0bf2618ec7e1b632885e3edc92e4f4c0"
+    },
+    {
+      "path": "tests/host/bass303_sustain_test.c",
+      "base_blob": "ead4afaf94f48022926b942630040c6c2da670ed",
+      "combined_blob": "ead4afaf94f48022926b942630040c6c2da670ed"
+    },
+    {
+      "path": "tests/host/editor_ota_dispatch_test.py",
+      "base_blob": "a2cb521e9887ab57bf92f9e98749f5599c819244",
+      "combined_blob": "a2cb521e9887ab57bf92f9e98749f5599c819244"
+    },
+    {
+      "path": "tests/host/editor_ota_dispatch_test.c",
+      "base_blob": "ee8e9505729e8a8d039b7aa87635604429f8b9c9",
+      "combined_blob": "ee8e9505729e8a8d039b7aa87635604429f8b9c9"
+    },
+    {
+      "path": "tests/ota_test.c",
+      "base_blob": "16fce983d4833aa5c5122fc0a2a9bb47b7feddc0",
+      "combined_blob": "16fce983d4833aa5c5122fc0a2a9bb47b7feddc0"
+    },
+    {
+      "path": "firmware/src/ota.c",
+      "base_blob": "7d1c48c7dc4ca4a6cb62925bb723a84cc1b146ad",
+      "combined_blob": "7d1c48c7dc4ca4a6cb62925bb723a84cc1b146ad"
+    },
+    {
+      "path": "firmware/src/app/editor.c",
+      "base_blob": "a6693e319636a0f46cb5be6215247464aceb57a3",
+      "combined_blob": "a6693e319636a0f46cb5be6215247464aceb57a3"
+    }
+  ],
+  "actual_main_dispatch_extraction_identical": true
+}

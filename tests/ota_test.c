@@ -75,8 +75,10 @@ static int ota_wire_send(const uint8_t *p, uint32_t n)
 {
     uint8_t u[64], m[600];
     uint32_t d, addr, len, i, s = 0;
-    if (p[0] != 0xF0 || p[n - 1] != 0xF7) { printf("bad wire framing\n"); exit(1); }
+    if (n < 2 || p[0] != 0xF0 || p[n - 1] != 0xF7) { printf("bad wire framing\n"); exit(1); }
+    if (n - 2 > (sizeof u * 8u + 6u) / 7u) { printf("oversized device msg\n"); exit(1); }
     d = unpack7h(p + 1, n - 2, u);
+    if (d < 3) { printf("short device msg\n"); exit(1); }
     if (u[2] == 0x11) { ident_replies++; return 0; }
     if (d != 15 || u[2] != 0x30) { printf("unexpected device msg cmd %02x len %u\n", u[2], d); exit(1); }
     addr = u[7] | u[8] << 8 | u[9] << 16 | (uint32_t)u[10] << 24;

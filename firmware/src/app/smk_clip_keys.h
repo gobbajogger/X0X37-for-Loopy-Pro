@@ -6,7 +6,13 @@
 #include <stdint.h>
 
 #ifndef CK_FN
+#if defined(__clang__)
 #define CK_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#elif defined(__GNUC__)
+#define CK_FN __attribute__((optimize("Os"), noinline, unused))
+#else
+#define CK_FN
+#endif
 #endif
 
 #define CK_NKEY 37u           /* keybed keys; key 0 = C3 = MIDI note 48 */

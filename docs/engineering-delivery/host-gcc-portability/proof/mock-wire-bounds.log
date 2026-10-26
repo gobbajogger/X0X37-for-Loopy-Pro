@@ -1,0 +1,9 @@
+wire_length_case=0 exit=1 bad wire framing
+wire_length_case=1 exit=1 bad wire framing
+wire_length_case=2 exit=1 short device msg
+wire_length_case=3 exit=1 short device msg
+wire_length_case=4 exit=1 short device msg
+wire_length_case=5 exit=1 short device msg
+wire_length_case=80 exit=1 oversized device msg
+wire_length_case=99 exit=0 
+PASS actual OTA mock rejects short/oversized frames before command read, valid identity retained; ASan/UBSan

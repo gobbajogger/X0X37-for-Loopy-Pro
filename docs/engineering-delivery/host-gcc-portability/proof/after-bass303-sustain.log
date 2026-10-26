@@ -1,0 +1,8 @@
+lite=0 adsr=0 accent=0 differing=0/88200 diff_rms=0 envelope=1
+lite=0 adsr=0 accent=1 differing=0/88200 diff_rms=0 envelope=1
+lite=0 adsr=1 accent=0 differing=0/88200 diff_rms=0 envelope=0.503937006
+lite=0 adsr=1 accent=1 differing=0/88200 diff_rms=0 envelope=0.503937006
+lite=1 adsr=0 accent=0 differing=0/88200 diff_rms=0 envelope=1
+lite=1 adsr=0 accent=1 differing=0/88200 diff_rms=0 envelope=1
+lite=1 adsr=1 accent=0 differing=0/88200 diff_rms=0 envelope=0.503937006
+lite=1 adsr=1 accent=1 differing=0/88200 diff_rms=0 envelope=0.503937006
