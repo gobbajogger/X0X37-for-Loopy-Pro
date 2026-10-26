@@ -69,7 +69,7 @@
 /* ======================================================================= */
 
 /* expm1 with full relative accuracy near 0, where 1 - exp(x) is what matters */
-static float d8_expm1(float x)
+__attribute__((noinline)) static float d8_expm1(float x)
 {
     if (x > -0.5f && x < 0.5f) {
         float p = 1.0f / 362880.0f;
@@ -86,7 +86,7 @@ static float d8_expm1(float x)
     return fm_expf(x) - 1.0f;
 }
 
-static float d8_exp(float x) { return (x > -0.5f && x < 0.5f) ? 1.0f + d8_expm1(x) : fm_expf(x); }
+__attribute__((noinline)) static float d8_exp(float x) { return (x > -0.5f && x < 0.5f) ? 1.0f + d8_expm1(x) : fm_expf(x); }
 
 /* float-float (double-single) arithmetic, for set-time values that must match
  * a double or a correctly rounded libm result. Needs strict float evaluation and
@@ -144,7 +144,7 @@ static const d8ff_t k_ln2 = {6.931471825e-01f, -1.904654212e-09f};
 
 /* 2^x, correctly rounded but for ties within ~1e-12: Taylor series of e^(f ln2)
  * in float-float. Set time only (~400 flops). */
-static float d8_exp2_cr(float x)
+__attribute__((noinline)) static float d8_exp2_cr(float x)
 {
     float n, f;
     d8ff_t r, s;
@@ -200,7 +200,7 @@ static int32_t floor_mul(float a, float b)
     return r;
 }
 
-static float clampf(float x, float lo, float hi) { return x < lo ? lo : (x > hi ? hi : x); }
+__attribute__((noinline)) static float clampf(float x, float lo, float hi) { return x < lo ? lo : (x > hi ? hi : x); }
 
 /* ======================================================================= */
 /* primitives                                                              */
@@ -239,7 +239,7 @@ D8_TICK float shaper(float *st, float gate)
 static inline float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
 
 /* BridgedT::set: constant-peak bandpass, clamps as 8W8 */
-static void bp_set(d8_bp_t *f, float hz, float q)
+__attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
 {
     float w, s, sh, alpha, inv;
     hz = hz < 20.0f ? 20.0f : (hz > SR * 0.4f ? SR * 0.4f : hz);
