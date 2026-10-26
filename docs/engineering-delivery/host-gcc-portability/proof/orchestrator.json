@@ -1,0 +1,8 @@
+{
+  "source": "4e20d3fa",
+  "kind": "Strict GCC final affected checks and actual native Clang identity; no hardware",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "orchestrator_exit": 0,
+  "native_identity_exit": 0,
+  "owned_worker_cleanup": "PASS"
+}

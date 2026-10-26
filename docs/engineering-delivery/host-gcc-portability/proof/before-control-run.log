@@ -1,0 +1,14 @@
+cc (Debian 12.2.0-14+deb12u1) 12.2.0
+Copyright (C) 2022 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+base fastmath exit 1
+base fastmath-ubsan exit 1
+base bass303-sustain exit 1
+base editor-ota-dispatch exit 1
+combined fastmath exit 1
+combined fastmath-ubsan exit 1
+combined bass303-sustain exit 1
+combined editor-ota-dispatch exit 1

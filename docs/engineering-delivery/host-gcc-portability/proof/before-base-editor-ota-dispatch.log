@@ -1,0 +1,15 @@
+In file included from /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/base/tests/host/editor_ota_dispatch_test.c:6:
+/tmp/editor-ota-dispatch-pxkbrb63/ota_fixture.inc: In function ‘ota_wire_send.constprop’:
+/tmp/editor-ota-dispatch-pxkbrb63/ota_fixture.inc:80:10: error: ‘u’ may be used uninitialized [-Werror=maybe-uninitialized]
+   80 |     if (u[2] == 0x11) { ident_replies++; return 0; }
+      |         ~^~~
+/tmp/editor-ota-dispatch-pxkbrb63/ota_fixture.inc:76:13: note: ‘u’ declared here
+   76 |     uint8_t u[64], m[600];
+      |             ^
+cc1: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/base/tests/host/editor_ota_dispatch_test.py", line 53, in <module>
+    subprocess.run(argv, check=True)
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Wno-unused-variable', '-Wno-sign-compare', '-DBOARD_SMK37=1', '-DT_MODEL=1', '-DED_SERVICE_RETURNS_PENDING=1', '-I', '/tmp/editor-ota-dispatch-pxkbrb63', '/Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/base/tests/host/editor_ota_dispatch_test.c', '-o', '/tmp/editor-ota-dispatch-pxkbrb63/test']' returned non-zero exit status 1.

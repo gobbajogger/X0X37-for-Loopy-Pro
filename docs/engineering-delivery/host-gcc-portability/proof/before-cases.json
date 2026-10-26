@@ -1,0 +1,88 @@
+[
+  {
+    "source": "base",
+    "selector": "fastmath",
+    "command": [
+      "sh",
+      "-c",
+      "cc -O2 -ffp-contract=off -Wall -Wextra -Werror -o /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/base-fastmath tests/host/fastmath_test.c -lm && /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/base-fastmath"
+    ],
+    "exit": 1,
+    "log": "base-fastmath.log"
+  },
+  {
+    "source": "base",
+    "selector": "fastmath-ubsan",
+    "command": [
+      "sh",
+      "tests/host/run_fastmath_ubsan.sh"
+    ],
+    "exit": 1,
+    "log": "base-fastmath-ubsan.log"
+  },
+  {
+    "source": "base",
+    "selector": "bass303-sustain",
+    "command": [
+      "sh",
+      "-c",
+      "cc -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -Ifirmware/src/dsp -o /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/base-sustain tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/base-sustain"
+    ],
+    "exit": 1,
+    "log": "base-bass303-sustain.log"
+  },
+  {
+    "source": "base",
+    "selector": "editor-ota-dispatch",
+    "command": [
+      "python3",
+      "-B",
+      "tests/host/editor_ota_dispatch_test.py"
+    ],
+    "exit": 1,
+    "log": "base-editor-ota-dispatch.log"
+  },
+  {
+    "source": "combined",
+    "selector": "fastmath",
+    "command": [
+      "sh",
+      "-c",
+      "cc -O2 -ffp-contract=off -Wall -Wextra -Werror -o /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/combined-fastmath tests/host/fastmath_test.c -lm && /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/combined-fastmath"
+    ],
+    "exit": 1,
+    "log": "combined-fastmath.log"
+  },
+  {
+    "source": "combined",
+    "selector": "fastmath-ubsan",
+    "command": [
+      "sh",
+      "tests/host/run_fastmath_ubsan.sh"
+    ],
+    "exit": 1,
+    "log": "combined-fastmath-ubsan.log"
+  },
+  {
+    "source": "combined",
+    "selector": "bass303-sustain",
+    "command": [
+      "sh",
+      "-c",
+      "cc -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -Ifirmware/src/dsp -o /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/combined-sustain tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && /Users/mac/Documents/Codex/2026-10-26/task-6/compiler-triage/results/combined-sustain"
+    ],
+    "exit": 1,
+    "log": "combined-bass303-sustain.log"
+  },
+  {
+    "source": "combined",
+    "selector": "editor-ota-dispatch",
+    "command": [
+      "python3",
+      "-B",
+      "tests/host/editor_ota_dispatch_test.py"
+    ],
+    "exit": 1,
+    "log": "combined-editor-ota-dispatch.log"
+  }
+]
