@@ -937,7 +937,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
 #endif
     if (d->names) {
         /* Retained or incompatible sound data must not become a pointer lookup. */
-        put_s(num, v >= 0 && v <= d->max ? d->names[v] : "?");
+        put_s(num, v >= 0 && v <= d->max ? d->names[v] : "INVALID");
         return;
     }
     if (r.kind == R_TAPE) {
