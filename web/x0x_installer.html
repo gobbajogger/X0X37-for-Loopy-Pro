@@ -1181,6 +1181,7 @@ async function run(img, product, opts = {}) {
   catch (e) {
     writing = false;
     sayK(e.code || "denied");
+    if (connectionState === "scanning") connectionState = connected ? "connected" : "idle";
     renderConnectionAction();
     updateInstallGate();
     $("stockgo").disabled = !stock || !$("stockconfirm").checked;
