@@ -1,0 +1,7 @@
+fixture package loads                                                    ok
+model: pre-repair mute probe still installs (silent skip)                ok
+installKeepingSlots: mute probe -> slotlayout error, nothing written     ok
+known stock _016 without SMP_INFO still uses its admitted install path   ok
+fixture supplies a valid empty 80 KiB slot layout                        ok
+installKeepingSlots: successful empty layout installs without backup     ok
+installKeepingSlots: bad layout parse -> slotlayout error, nothing written ok

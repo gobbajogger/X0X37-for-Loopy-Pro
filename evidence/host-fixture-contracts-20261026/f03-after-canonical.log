@@ -1,0 +1,10 @@
+fixture package loads                                                    ok
+model: pre-repair mute probe still installs (silent skip)                ok
+installKeepingSlots: mute probe -> slots error, nothing written          FAIL
+Error: Cannot verify the current sample layout before install: invalid SMP_INFO slot count or size
+    at fail (file:///Users/mac/Documents/Codex/2026-10-26/task-6/ota-fixture-followup/web/x0x_breaks.js:691:58)
+    at installKeepingSlots (file:///Users/mac/Documents/Codex/2026-10-26/task-6/ota-fixture-followup/web/x0x_breaks.js:709:17)
+    at async main (file:///Users/mac/Documents/Codex/2026-10-26/task-6/ota-fixture-followup/web/test_f03_slot_probe.mjs:159:17) {
+  code: 'slotlayout',
+  detail: ''
+}

@@ -1,0 +1,8 @@
+fixture package loads                                                    ok
+Error: FM-1 not found (USB cable, and no other app using it?)
+    at fail (file:///Users/mac/Documents/Codex/2026-10-26/task-6/ota-fixture-followup/web/fm1ota.js:21:51)
+    at Updater.install (file:///Users/mac/Documents/Codex/2026-10-26/task-6/ota-fixture-followup/web/fm1ota.js:271:21)
+    at async main (file:///Users/mac/Documents/Codex/2026-10-26/task-6/ota-fixture-followup/web/test_f03_slot_probe.mjs:137:17) {
+  code: 'notfound',
+  detail: ''
+}

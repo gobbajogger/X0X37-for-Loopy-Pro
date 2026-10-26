@@ -1,0 +1,35 @@
+{
+  "base": "43d078dd384dd9d6544d368f5081da985dd27698",
+  "kind": "test-only current-wire/current-layout fixture corrections; no production source or guard changes",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "node": "v24.14.1",
+  "changes": [
+    "Canonical27byteidentity payload+checksum in slots/F02/F03 responders; slots/F03 requestdeclaredlength8 matches existingactualfirmware and upcoming EC010",
+    "F03required-probe scenarios now use sample-awareSMK900; validone-empty80KiBslot fixture, current slotlayout errors, zero upgrades; admittedstock016 no-response case explicitly retained separately",
+    "Memory-full preflight uses maintained stagefill_capacity valid musicaldata, explicitly stream_layout_ok before -7/zero writes/reboot previous saved bytes; separate unsupported endpointREST -9/zero writes preserved"
+  ],
+  "before": "All3 OTAfixture commands exit1 on base; capacitypreflight exits1 with zero writes because arbitrary random bytes hit -9 unsupported admission, not intended -7 capacity",
+  "after": {
+    "install-slots": 0,
+    "f02": 0,
+    "f03": 0,
+    "project-save-preflight": 0,
+    "OTA_envelope_negative_tests": 0
+  },
+  "intermediate_failure": "Identity-only repair exposed F03 obsolete stock016/invalid count0-size0 layout/errorcode scenario; retained intermediate log then corrected fixture contract. No production safety policy weakened.",
+  "EC010_coordination": "Owner edits web/test_web.mjs and tests/install_test.py request0\u21928 separately; this patch does not touch those files or request parser. Preserve when composing.",
+  "Linux_full43d": "Still running immutable historical source; these corrected fixture results are separate and not a claim it passed. GCCportable header unit separately owned/reviewed.",
+  "logs_sha256": {
+    "f03-after-canonical.log": "efd5c943ceda4c3c4fec5385349a252f661cd986656d003773b106c9c7020438",
+    "f02-before.log": "1d443ee63d83d3d4644497a82222a1ffb24dca543a39a361021f401c3c3255d6",
+    "f02-after-canonical.log": "82c0428229e2f279f655094adb10f63f420a46620934d41cb42fa9d09e34d2b9",
+    "f03-after-final.log": "d464c39c048185c049af756615477ada79f9c90afb2acae70b5be73b9976d7ed",
+    "strict-parser-negative-final.log": "64775bc8334cdf85a58def1f43b11758ee6f8f6bbc1b6ee483594310f59dd3be",
+    "preflight-final.log": "a90d9b634341a7e4daafa7d31a832826c5ca0861de76c7016ed7bc00786c367b",
+    "install-slots-after-canonical.log": "12719a5b156ff7c06b6e130a38e860dba0bb193ca57e27fb735181a30095f2a5",
+    "install-slots-before.log": "f2a28d0edb1dad12bce5ce11ea64361841ff34c4fc5bfc492288b6f229ccefde",
+    "preflight-before.log": "388a3dca8fe8d6386a9c3796d5abe9dc754a90f4a85f218030c070d03d51261a",
+    "f03-before.log": "4dddf2addd83c207e9f177179302203db59c4c7358928811174f1f8885ede105",
+    "preflight-after.log": "be3ce649561da2bed36da7759d051b614eea8062f3cbe832e2d7eda13b1a5bf1"
+  }
+}
