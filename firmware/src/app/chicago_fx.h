@@ -1,14 +1,16 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Chicago Fx Type / Edit 1 / Edit 2 — honest send-bridge (FCDC-205).
+/* Chicago Fx Type / Edit 1 / Edit 2 — SEND bridge + Ring insert (FCDC-205).
  *
  * Chicago AU is a per-voice insert strip (12 algorithms). Product audio is a
- * shared T_FX fxbus + per-part T_MIX sends only. This module maps a labeled
- * subset onto that bus. It is not insert fidelity.
+ * shared T_FX fxbus + per-part T_MIX sends, plus Ring Mod insert on the 303
+ * dry voice (chicago_ring.h). Other modulation FX remain NOT_YET.
  *
- * Supported (send / master stage, labeled SEND FX in the UI):
+ * Supported SEND / master stage (labeled SEND FX in the UI):
  *   Off, Comp, Crush (Decimator), Short Delay, BPM Delay, Hall
+ * Supported INSERT (per-voice DSP, not Mix theft):
+ *   Ring Mod
  * Explicit NOT_YET (no DSP; UI says NO INSERT; do not fake silence as FX):
- *   EQ, Ring Mod, Cho/Flg, Ensemble, Phaser, Gate Reverb
+ *   EQ, Cho/Flg, Ensemble, Phaser, Gate Reverb
  *
  * Stored in sound_t after bass303 DSP pots (CHI_FX_*). Not consumed by
  * bass303_set. Global Comp/Crush/Delay/Hall theft is intentional and labeled.
@@ -64,11 +66,17 @@ typedef struct {
     uint8_t fx_rv_decay, fx_rv_level;
 } chicago_fx_out_t;
 
-/* UI names: "—" = NOT_YET (no product insert). Page title is SEND FX.
- * Tables live in chicago_param_tables.c (one copy for engine.o + x0x.o). */
+/* UI names: "—" = NOT_YET. Ring is plain "Ring" (insert). Page title SEND FX
+ * still covers Comp/Crush/Delay/Hall; Ring is insert. Tables in
+ * chicago_param_tables.c (one copy for engine.o + x0x.o). */
 extern const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES];
 
 extern const x0x_param_t CHI_FX_PARAMS[3];
+
+static inline int chi_fx_is_insert(uint8_t type)
+{
+    return type == CHI_FX_RING;
+}
 
 static inline int chi_fx_supported(uint8_t type)
 {
@@ -76,6 +84,7 @@ static inline int chi_fx_supported(uint8_t type)
     case CHI_FX_OFF:
     case CHI_FX_COMP:
     case CHI_FX_DECIM:
+    case CHI_FX_RING: /* insert — chicago_ring.h */
     case CHI_FX_SHORT_DLY:
     case CHI_FX_BPM_DLY:
     case CHI_FX_HALL:
@@ -124,6 +133,12 @@ static inline void chicago_fx_map(uint8_t type, uint8_t e1, uint8_t e2, int clea
         type = CHI_FX_OFF;
     if (type == CHI_FX_OFF)
         return;
+    if (chi_fx_is_insert(type)) {
+        /* Ring (and future inserts): clear part sends so Mix does not smear
+         * the insert; audio path applies DSP from sound_t FX pots. */
+        o->touch = CHI_FX_W_CLEAR_SENDS;
+        return;
+    }
     if (chi_fx_is_not_yet(type)) {
         if (clear_ny)
             o->touch = CHI_FX_W_CLEAR_SENDS;

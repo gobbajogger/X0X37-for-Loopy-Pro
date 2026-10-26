@@ -22,7 +22,7 @@ const x0x_param_t CHI_ARP_PARAMS[4] = {
 };
 
 const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES] = {
-    "Off", "EQ—", "Comp", "Crush", "Ring—", "Cho—", "Ens—", "Phas—", "SDly", "BPM", "Hall", "Gate—"
+    "Off", "EQ—", "Comp", "Crush", "Ring", "Cho—", "Ens—", "Phas—", "SDly", "BPM", "Hall", "Gate—"
 };
 
 const x0x_param_t CHI_FX_PARAMS[3] = {

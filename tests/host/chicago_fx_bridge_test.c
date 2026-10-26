@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Host proof: Chicago SEND FX bridge maps Off/Comp/Crush/Delay/Hall onto Mix+fxbus
- * intentions; NOT_YET types never invent Ring/Cho/Phaser/Ensemble/Gate/EQ DSP. */
+ * intentions; Ring is insert (clear sends only); other NOT_YET types never invent
+ * Cho/Phaser/Ensemble/Gate/EQ DSP. */
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
@@ -34,7 +35,9 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_BPM_DLY), "BPM Delay supported");
     CHECK(chi_fx_supported(CHI_FX_HALL), "Hall supported");
     CHECK(chi_fx_is_not_yet(CHI_FX_EQ), "EQ NOT_YET");
-    CHECK(chi_fx_is_not_yet(CHI_FX_RING), "Ring NOT_YET");
+    CHECK(chi_fx_supported(CHI_FX_RING), "Ring supported (insert)");
+    CHECK(chi_fx_is_insert(CHI_FX_RING), "Ring is insert");
+    CHECK(!chi_fx_is_not_yet(CHI_FX_RING), "Ring not NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_CHO), "Cho NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_ENS), "Ens NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_PHASER), "Phaser NOT_YET");
@@ -52,11 +55,11 @@ static void test_not_yet_clear(void)
 {
     chicago_fx_out_t o;
     chicago_fx_map(CHI_FX_RING, 80, 80, 0, &o);
-    CHECK(o.touch == 0, "Ring without clear_ny writes nothing");
-    chicago_fx_map(CHI_FX_RING, 80, 80, 1, &o);
-    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Ring with clear_ny only clears sends");
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Ring insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_COMP), "Ring does not set Comp");
     CHECK(!(o.touch & CHI_FX_W_DIST), "Ring does not set Dist/Crush");
+    chicago_fx_map(CHI_FX_CHO, 90, 90, 0, &o);
+    CHECK(o.touch == 0, "Cho without clear_ny writes nothing");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 1, &o);
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Cho clear_ny only clears sends");
     chicago_fx_map(CHI_FX_GATE_REV, 90, 90, 1, &o);
@@ -117,7 +120,7 @@ static void test_factory_decode(void)
 
 static void test_labels_honest(void)
 {
-    CHECK(strstr(CHI_FX_TYPE_N[CHI_FX_RING], "—") != 0, "Ring labeled NOT_YET");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_RING], "Ring") == 0, "Ring plain insert name");
     CHECK(strstr(CHI_FX_TYPE_N[CHI_FX_EQ], "—") != 0, "EQ labeled NOT_YET");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");

@@ -13,22 +13,31 @@
  *   midi_note N       0..127
  *   velocity N        1..127
  *   pot I V           bass303 pot index and 0..127 value
+ *   fx_type T         Chicago Fx Type 0..11 (Ring insert applied when T=Ring)
+ *   fx_edit1 V        Edit1 0..127 (Ring carrier)
+ *   fx_edit2 V        Edit2 0..127 (Ring wet)
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "../../firmware/src/dsp/bass303.h"
+#include "../../firmware/src/app/chicago_fx.h"
+#include "../../firmware/src/app/chicago_ring.h"
 
-static int read_ctl(bass303_t *b, int *frames, int *note_on, int *note_off, int *midi, int *vel)
+static int read_ctl(bass303_t *b, chi_ring_t *ring, int *frames, int *note_on, int *note_off, int *midi,
+                    int *vel, uint8_t *fx_type)
 {
     char line[256];
+    uint8_t e1 = 64, e2 = 64;
     *frames = 48000;
     *note_on = 4800;
     *note_off = 24000;
     *midi = 48;
     *vel = 80;
+    *fx_type = CHI_FX_OFF;
     bass303_init(b);
+    chi_ring_init(ring);
     while (fgets(line, sizeof line, stdin)) {
         int a, c;
         float f;
@@ -59,19 +68,47 @@ static int read_ctl(bass303_t *b, int *frames, int *note_on, int *note_off, int 
                 bass303_set(b, a, c);
             continue;
         }
+        if (sscanf(line, "fx_type %d", &a) == 1) {
+            if (a < 0)
+                a = 0;
+            if (a >= CHI_FX_NTYPES)
+                a = CHI_FX_OFF;
+            *fx_type = (uint8_t)a;
+            continue;
+        }
+        if (sscanf(line, "fx_edit1 %d", &a) == 1) {
+            if (a < 0)
+                a = 0;
+            if (a > 127)
+                a = 127;
+            e1 = (uint8_t)a;
+            continue;
+        }
+        if (sscanf(line, "fx_edit2 %d", &a) == 1) {
+            if (a < 0)
+                a = 0;
+            if (a > 127)
+                a = 127;
+            e2 = (uint8_t)a;
+            continue;
+        }
         fprintf(stderr, "chicago_au_render: unknown line: %s", line);
         return -1;
     }
+    if (chi_fx_is_ring_insert(*fx_type))
+        chi_ring_set(ring, e1, e2, BASS303_SR);
     return 0;
 }
 
 int main(void)
 {
     bass303_t b;
+    chi_ring_t ring;
     int frames, note_on, note_off, midi, vel, pos, note_down;
+    uint8_t fx_type;
     float out[512];
 
-    if (read_ctl(&b, &frames, &note_on, &note_off, &midi, &vel) < 0)
+    if (read_ctl(&b, &ring, &frames, &note_on, &note_off, &midi, &vel, &fx_type) < 0)
         return 2;
     note_down = 0;
     for (pos = 0; pos < frames; pos++) {
@@ -84,6 +121,8 @@ int main(void)
             note_down = 0;
         }
         bass303_render(&b, out, 1);
+        if (chi_fx_is_ring_insert(fx_type))
+            chi_ring_process(&ring, out, 1);
         {
             float s = out[0];
             if (fwrite(&s, sizeof(float), 1, stdout) != 1)
