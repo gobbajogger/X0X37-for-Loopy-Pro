@@ -110,7 +110,8 @@ static void fx_apply(fxbus_t *f, int i, float v)
         d9_shape_prep(&f->shape, f->drive, f->dist_mode - 1);
 }
 
-void fxbus_set(fxbus_t *f, int i, int value)
+/* UI/MIDI pot path — not the send/render (X0X_COLD) */
+X0X_COLD void fxbus_set(fxbus_t *f, int i, int value)
 {
     if (i < 0 || i >= FX_NPARAMS)
         return;

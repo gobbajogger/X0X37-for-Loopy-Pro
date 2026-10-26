@@ -1308,9 +1308,11 @@ static const x0x_param_t d8_ch_mid[] = {PP("Decay", 47)};
 static const d8_pmap_t k_m_tune_decay[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                            {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0},
                                            {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t d8_cy_head[] = {PP("Level", 64), PP("Decay", 70), PP("Tune", 64)};
-static const x0x_param_t d8_oh_head[] = {PP("Level", 64), PP("Decay", 74), PP("Tune", 64)};
-#define D8_CY_HEAD 3
+/* CY/OH Level+Tune match d8_lvl_tune; Decay stays per track. Pot order Level, Decay, Tune. */
+static const x0x_param_t d8_cy_mid[] = {PP("Decay", 70)};
+static const x0x_param_t d8_oh_mid[] = {PP("Decay", 74)};
+#define D8_CY_MID_N 1
+#define D8_CY_HEAD (D8_LTUNE_N + D8_CY_MID_N)
 static const d8_pmap_t k_m_decay_tune[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_DECAY, 0}, {K_POT, D8P_TUNE, 0},
                                            {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0},
                                            {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
@@ -1340,6 +1342,8 @@ _Static_assert(sizeof(d8_rs_mid) / sizeof(d8_rs_mid[0]) == D8_SW_MID_N, "rs mid"
 _Static_assert(sizeof(d8_cb_mid) / sizeof(d8_cb_mid[0]) == D8_HAT_MID_N, "cb mid");
 _Static_assert(sizeof(d8_ch_mid) / sizeof(d8_ch_mid[0]) == D8_HAT_MID_N, "ch mid");
 _Static_assert(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0]) == D8_CP_MID_N, "cp mid");
+_Static_assert(sizeof(d8_cy_mid) / sizeof(d8_cy_mid[0]) == D8_CY_MID_N, "cy mid");
+_Static_assert(sizeof(d8_oh_mid) / sizeof(d8_oh_mid[0]) == D8_CY_MID_N, "oh mid");
 
 static const d8_pmap_t *const k_maps[D8_NUM + 1] = {
     k_m_bd, k_m_sd, k_m_sw, k_m_sw, k_m_sw, k_m_sw, k_m_cp, k_m_tune_decay,
@@ -1408,13 +1412,21 @@ static const x0x_param_t *d8_spec(int track, int i)
         return &d8_fx_tail[i - D8_HAT_HEAD];
     }
     if (track == D8_CY) {
-        if (i < D8_CY_HEAD)
-            return &d8_cy_head[i];
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_cy_mid[0];
+        if (i == 2)
+            return &d8_lvl_tune[1];
         return &d8_fx_tail[i - D8_CY_HEAD];
     }
     if (track == D8_OH) {
-        if (i < D8_CY_HEAD)
-            return &d8_oh_head[i];
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_oh_mid[0];
+        if (i == 2)
+            return &d8_lvl_tune[1];
         return &d8_fx_tail[i - D8_CY_HEAD];
     }
     return &k_p_kit[i];
