@@ -263,8 +263,10 @@ static inline float fx_psin(uint32_t ph)                 /* parabolic sine of a 
     return 4.0f * x * (1.0f - fm_fabsf(x));
 }
 
-/* the line at d samples behind w, interpolated (X0X: the ping-pong tap) */
-static inline float dl_tap(const int16_t *buf, int32_t len, float flen, int32_t w, float d)
+/* the line at d samples behind w, interpolated (X0X: the ping-pong tap).
+ * Outlined once: fx_delay calls this many times (mono + stereo / PING taps);
+ * one body beats N inlined copies on pi32 (-O2). */
+__attribute__((noinline)) static float dl_tap(const int16_t *buf, int32_t len, float flen, int32_t w, float d)
 {
     float rp = (float)w - d;
     while (rp < 0.0f) rp += flen;
