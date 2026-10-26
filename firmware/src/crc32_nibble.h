@@ -26,7 +26,7 @@ __attribute__((noinline)) static uint32_t x0x_crc32_upd(uint32_t c, const uint8_
     }
     return c;
 }
-static uint32_t x0x_crc32(const void *p, uint32_t n)
+__attribute__((noinline)) static uint32_t x0x_crc32(const void *p, uint32_t n)
 {
     return ~x0x_crc32_upd(0xFFFFFFFFu, (const uint8_t *)p, n);
 }
