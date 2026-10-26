@@ -34,7 +34,7 @@
     "siteBuild": "exit0",
     "siteFullNpm": "exit0;127edge tests plus8 sample-page tests pass",
     "firmwareInstaller": "node web/test_web.mjs exit0; package/image parity skipped without a built package",
-    "additionalFirmwareIntegration": "Final generation-check rerun currently executing; will append completed log in evidence-only follow-up."
+    "additionalFirmwareIntegration": "Final production source: node web/test_install_slots.mjs; node web/test_f03_slot_probe.mjs; node web/test_projects.mjs; node web/test_projects_page.mjs all exit0. Full source unchanged during these commands."
   },
   "unchanged": "parseIdentity and parseRequest byte-identical to each frozen base. Python/C/model policy/catalog/build labels untouched. Site additionally adopts the existing firmware mirror application-handler preservation pattern.",
   "limits": [
@@ -48,6 +48,11 @@
     "ec011-firmware-before.log": "decc584c67e81a884d39432a5bb51a35f7e7ddcf77156135aef35d97001867c2",
     "ec008-firmware-before.log": "702ddb65b3ec1a99f14ee3f0be135ab03619aa6c348b96fd9efc5e865fc0bde0",
     "firmware-focused.log": "a60fa3fa9c8b8c5b7bf9e7cde69b114b4dc00014a374611229dabda7c3d0a26c",
-    "firmware-installer.log": "bc39c9ab9dfa58bab143a5eefc5041c8beb9494715861ea8024636afca19bf4f"
+    "firmware-installer.log": "bc39c9ab9dfa58bab143a5eefc5041c8beb9494715861ea8024636afca19bf4f",
+    "firmware-integration.log": "00e3dca0b0793522dd0d31d88379c6dfd487e7fc256a4a2de89dc1a77a102ee1"
+  },
+  "frozenSourceHeads": {
+    "site": "7894f6772779b2c930a8d2a7ade35455dea5c897",
+    "firmware": "fd4cd438648ec9c8b3d66433045964c30fae8688"
   }
 }
