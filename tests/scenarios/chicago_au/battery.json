@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "sampleRate": 48000,
+  "scenarios": [
+    {
+      "id": "acid_lab_1",
+      "manifest": "chicago_au_acid_lab_1.json"
+    },
+    {
+      "id": "acid_lab_2",
+      "manifest": "chicago_au_acid_lab_2.json"
+    },
+    {
+      "id": "bass_simple",
+      "manifest": "chicago_au_bass_simple.json"
+    },
+    {
+      "id": "bearhug",
+      "manifest": "chicago_au_bearhug.json"
+    },
+    {
+      "id": "bite_bass",
+      "manifest": "chicago_au_bite_bass.json"
+    },
+    {
+      "id": "square_cut",
+      "manifest": "chicago_au_square_cut.json"
+    },
+    {
+      "id": "gnaw_line",
+      "manifest": "chicago_au_gnaw_line.json"
+    },
+    {
+      "id": "open_saw",
+      "manifest": "chicago_au_open_saw.json"
+    },
+    {
+      "id": "env_sustain",
+      "manifest": "chicago_au_env_sustain.json"
+    },
+    {
+      "id": "filter_peak",
+      "manifest": "chicago_au_filter_peak.json"
+    }
+  ]
+}
