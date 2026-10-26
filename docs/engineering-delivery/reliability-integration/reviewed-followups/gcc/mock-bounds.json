@@ -1,0 +1,80 @@
+[
+  {
+    "n": 0,
+    "exit": 1,
+    "stdout": "bad wire framing\n",
+    "stderr": ""
+  },
+  {
+    "n": 1,
+    "exit": 1,
+    "stdout": "bad wire framing\n",
+    "stderr": ""
+  },
+  {
+    "n": 2,
+    "exit": 1,
+    "stdout": "short device msg\n",
+    "stderr": ""
+  },
+  {
+    "n": 3,
+    "exit": 1,
+    "stdout": "short device msg\n",
+    "stderr": ""
+  },
+  {
+    "n": 4,
+    "exit": 1,
+    "stdout": "short device msg\n",
+    "stderr": ""
+  },
+  {
+    "n": 5,
+    "exit": 1,
+    "stdout": "short device msg\n",
+    "stderr": ""
+  },
+  {
+    "n": 6,
+    "exit": 1,
+    "stdout": "unexpected device msg cmd 00 len 3\n",
+    "stderr": ""
+  },
+  {
+    "n": 74,
+    "exit": 1,
+    "stdout": "unexpected device msg cmd 00 len 63\n",
+    "stderr": ""
+  },
+  {
+    "n": 75,
+    "exit": 1,
+    "stdout": "unexpected device msg cmd 00 len 63\n",
+    "stderr": ""
+  },
+  {
+    "n": 76,
+    "exit": 1,
+    "stdout": "unexpected device msg cmd 00 len 64\n",
+    "stderr": ""
+  },
+  {
+    "n": 80,
+    "exit": 1,
+    "stdout": "oversized device msg\n",
+    "stderr": ""
+  },
+  {
+    "n": 98,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "n": 99,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

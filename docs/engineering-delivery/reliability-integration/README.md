@@ -32,3 +32,13 @@ negative mutants pass sanitizers; maintained `tools/build.py:mmio_check` returns
 no violations. Earlier standalone CQ object compilation was not sufficient to
 catch this whole-build source ownership gate. Fresh combined native builds and
 full host closure must bind to the corrected pin, not the earlier5f8d candidate.
+
+## Reviewed host/OTA follow-ups
+
+The next source candidate merges independently accepted GCC portability, EC010
+read-request framing and four host fixture contract corrections over43d. No
+manual conflicts occurred; engine, UI, project storage and sequencer bytes stay
+exactly43d. Component reviews and nonsecret text logs are preserved under
+`reviewed-followups/`. Full new-pin host execution and exact native qualification
+remain distinct gates; the superseded43d Linux run is historical evidence only.
+No new bass selector UI, codec or importer work is admitted in this candidate.

@@ -1,0 +1,13 @@
+  ok   fastmath
+  FAIL fastmath-ubsan (see build/host/fastmath-ubsan.log)
+       ld: library 'ubsan' not found
+       collect2: error: ld returned 1 exit status
+  ok   bass303-sustain
+  ok   project-protocol
+  ok   editor-ota-dispatch
+  ok   project-stage
+  ok   chicago-arp
+  ok   chicago-ens
+  ok   smk-clip-keys
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED

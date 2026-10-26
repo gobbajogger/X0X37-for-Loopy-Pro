@@ -1,0 +1,47 @@
+{
+  "verdict": "PASS bounded GCC portability source/test unit, not native full qualification",
+  "sourceCommit": "4e20d3fa69a08c77bc36a741b0ae4b37e3df8cbb",
+  "sourceTree": "d917d2172f872161553819e7d5d229537daf12f9",
+  "base": "43d078dd384dd9d6544d368f5081da985dd27698",
+  "authorEvidenceHead": "a8ddbf84c5e3cb721f7398ae110a9ca370043f73",
+  "authorEvidenceTree": "5f4027d3bced9e8a36d3d45ef062599924dceb45",
+  "sourceStatus": "",
+  "independentChecks": {
+    "linuxGCC": "9/9 PASS with unmodified strict flags:fastmath fastmath-ubsan bass303-sustain chicago-arp chicago-ens smk-clip-keys editor-ota-dispatch project-protocol project-stage",
+    "macGCC15": "8/9 PASS; fastmath-ubsan failed to link because libubsan missing. Linux actual sanitizer PASS covers it; Mac failure retained, not counted passing.",
+    "mockBounds": "actual tests/ota_test.c included by external reviewer probe under Clang ASan+UBSan;13 cases PASS:11 malformed/wrong-command refusals,7byte canonical identity and64byte maximum decode safely accepted",
+    "authorNativeEvidence": "29 proof file digests verified;7 source blobs, actual archived compiler inputs, evidence-only suffix, recorded compiler binarySHA;4 actual targetobject pairs byteidentical and hashesmatch; actual8 helper functionbytepairs exact; wholepreprocessed normalized hashesmatch. Compiler outputs verified, not recompiled by reviewer."
+  },
+  "reviewFindings": [
+    "GCC static inline fallback changes linkage/duplicate-body emission, not math body or state; native Clang weak/gnu_inline path unchanged. GCC supports optimize(Os),noinline; Clang minsize path unchanged. No test warning/error flags weakened.",
+    "Ensemble delta splits three chained statements only: branch order/conditions/math unchanged.",
+    "Mock framing checks n<2 before indexing n-1. Packed-length bound floor((64*8+6)/7)=74 bounds unpacked output to64; n75 rejected before decode; d<3 before command read. It is a synthetic mock guard, not a production parser expansion.",
+    "Frozen source chain comprises41511a37 and4e20d3fa atop43d; a8dd adds only docs/evidence. Source-only diffcheckPASS."
+  ],
+  "setupDispositions": [
+    "Initial exec requested workdir gcc-review before clone existed; process creation failed, nothing executed. Clone then created successfully.",
+    "Mac GCC lacks libubsan; retained actual failure, LinuxGCC sanitizer check passed.",
+    "First Linux test attempt ran on Mac bindmount, mkfifo unsupported; no selector results, exit0 is NOT testPASS. Subsequent identical source archived to container Linux /tmp,9 checksPASS. A cleanup stop raced completed --rm container and returned no-such-container; no unrelated container affected.",
+    "Sandbox Docker socket access initially permission denied; approved require_escalated test calls then succeeded. No auto-review rejection."
+  ],
+  "whitespace": {
+    "source": "git diff --check43d..4e20 exit0",
+    "evidenceSuffix": "full43d..a8dd diffcheckexit2 only originalraw mock-wire-bounds.log line8 trailing outputspace, preserved hash-bound"
+  },
+  "limits": [
+    "Existing project-save-preflight random/reservedflags fixture fails -9 validation before expectedcapacity-7 with0writes; separate writer owns repair; no guard weakening/fixture edit in thisunit.",
+    "Recorded actual native comparison flags are pi32v2/r3 SMK/PADCAL1/WOBBLE1, not full Elite/Pro/controller package, current combined budget,hardware or installed behavior qualification.",
+    "No GUI/device/recovery/hardware/flash/source edits/push/merge/publication; no whole default-suite rerun."
+  ],
+  "logs": {
+    "author-native-verification.json": "7b9e0585e01795210b28d75201e5774572f75b90c1bab04c322cf2b1fd521732",
+    "author-verification.log": "667f5d7310442d816bb3707681a0c980f68aba5488cde5ab8664313334333e78",
+    "focused-gcc.log": "7658206da2659ff883699f678fd53011a8de2b3051a740a0ff22190505afadb3",
+    "linux-focused.log": "7bc0a9b06f43a23e76c02ae75745357927fbc727f63f0013e73ad1646032aa1a",
+    "linux-internal-focused.log": "800062c6a1ec2c583065623ae8d0940c00c6725e2c2219b7d68c264e68879886",
+    "mock-bounds.c": "125bd941caa680e9b955724557b9989c5c203ef88142baf2296ff7df6df0481d",
+    "mock-bounds.json": "cc30d717269b0ba826fd2152c8417bedfbf0761c26f38b2faecfe3ba0993daad",
+    "verify-author.py": "5b32f4f584371cea86d4b5ce9a349b86124d2cd1a04ed2278a728bc577a946f0",
+    "README.md": "59a7359e4d6dc680b8bc0ff4285fe24c4c0ebd0f94645227fcc790b8d9cf0a07"
+  }
+}

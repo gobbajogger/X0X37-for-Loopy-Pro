@@ -1,0 +1,55 @@
+{
+  "head": "e24ae3cfaff33dd32dc54d3ad09336bb09e71058",
+  "tree": "3094d127073d48e522759e259e25c23874edd425",
+  "base": "43d078dd384dd9d6544d368f5081da985dd27698",
+  "status": "PASS_BOUNDED_FIXTURE_CONTRACT_AND_EC010_COMPATIBILITY",
+  "source_scope": [
+    "tests/host/project_save_preflight_test.c",
+    "web/test_f02_loader_bind.mjs",
+    "web/test_f03_slot_probe.mjs",
+    "web/test_install_slots.mjs"
+  ],
+  "production_tools_delta": "",
+  "actual_contract": "ota.c ota_send_msg writes body length and ~sum; identity body27/read request8. Fixture bytes match; stock016 exception kept separate from SMK900 required probe.",
+  "commands": [
+    {
+      "command": "node --test web/test_install_slots.mjs web/test_f02_loader_bind.mjs web/test_f03_slot_probe.mjs tests/edge-ota-identity-envelope.test.mjs tests/edge-ota-identity-frame-integrity.test.mjs",
+      "node": "v24.14.1",
+      "exit": 0,
+      "result": "28Node tests0fail; all composite fixture console safety assertions pass",
+      "log": "node24.log"
+    },
+    {
+      "command": "CC='cc -fsanitize=address,undefined' sh tests/host/run_project_save_preflight.sh",
+      "exit": 0,
+      "log": "preflight-sanitized.log",
+      "result": "Separate unsupported -9/0writes; supported-layout capacity -7/0writes; saved prior project restored after simulated reboot; different FNV-colliding sound bytes persist and identical save skipped"
+    }
+  ],
+  "limitations": [
+    "Preflight intentionally retains existing engine/pattern stubs; supported-layout and storage safety proof, not whole musical stage/DSP qualification.",
+    "No production guard, warning flag or parser change in this fixture-only commit.",
+    "No hardware, native firmware build, install or publication performed."
+  ],
+  "ec010": {
+    "pin": "6e08cf42e10d1d0d47d1df8471cb1294e86fdbed",
+    "pins": "ec010-composite/source-closure.json",
+    "initial_scratch": "First generated dependency closure omitted imported installer guard modules; slots failed MODULE_NOT_FOUND before test execution, not source regression. F02/F03+21request cases passed; prior log retained.",
+    "complete_slots_retry": {
+      "command": "node --test web/test_install_slots.mjs",
+      "exit": 0,
+      "log": "ec010-slots-compatible.log",
+      "result": "All console backup/install/restore/page safety assertions pass with strict6e08 request parser; complete textual dependency hashes recorded",
+      "scope": "Generated compatibility control, no reviewed checkout source edits or real device writes"
+    }
+  },
+  "author_log_manifest_entries_verified": 11,
+  "log_sha256": {
+    "ec010-compatible.log": "5033cca01c291507d8f10940b702e4f4f48b926f43cafbd5bac54209e16685fb",
+    "preflight-sanitized.log": "a90d9b634341a7e4daafa7d31a832826c5ca0861de76c7016ed7bc00786c367b",
+    "ec010-slots-compatible.log": "1c504d21436c82dce4046b361c276e00f101cfe2c0b3e175df0d8fcd6474cfea",
+    "node24.log": "efe5794855097ee42cfbb0388ae27ce74721f82757d4ca102fd428390cca0498",
+    "ec010-attempt1-incomplete-scratch.log": "5033cca01c291507d8f10940b702e4f4f48b926f43cafbd5bac54209e16685fb"
+  },
+  "blockers": []
+}

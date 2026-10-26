@@ -1,0 +1,72 @@
+✔ positive: valid length-8 request reads one chunk then finishes (12.923292ms)
+✔ negative: contradictory 24-bit length 7 must not read firmware bytes (0.144583ms)
+✔ negative: contradictory 24-bit length 65544 must not read firmware bytes (0.065125ms)
+✔ valid request fields retained {} (0.616917ms)
+✔ valid request fields retained {"fl":255,"addr":305419896,"len":1193046} (0.053416ms)
+✔ valid request fields retained {"addr":3758096384,"len":8} (0.04525ms)
+✔ valid request fields retained {"addr":4026531840,"len":0} (0.04575ms)
+✔ declared 0 refuses before any firmware-data reply (0.203333ms)
+✔ declared 7 refuses before any firmware-data reply (0.058084ms)
+✔ declared 9 refuses before any firmware-data reply (0.052375ms)
+✔ declared 264 refuses before any firmware-data reply (0.05325ms)
+✔ declared 65544 refuses before any firmware-data reply (0.063292ms)
+✔ checksum refuses before any firmware-data reply (0.627209ms)
+✔ changed address unchanged checksum refuses before any firmware-data reply (0.061291ms)
+✔ wrong command refuses before any firmware-data reply (0.13725ms)
+✔ missing F0 refuses before any firmware-data reply (0.180375ms)
+✔ missing F7 refuses before any firmware-data reply (0.119542ms)
+✔ truncated refuses before any firmware-data reply (0.064666ms)
+✔ extra refuses before any firmware-data reply (0.048292ms)
+✔ status byte refuses before any firmware-data reply (0.036709ms)
+✔ packed padding refuses before any firmware-data reply (0.038542ms)
+model: first-match would attach to the unrelated loader                  ok
+snapshot before transition is the pre-existing loader only               ok
+waitFor: only a pre-existing loader -> timeout (noloader), not that port ok
+waitFor: accepts exactly the newly appeared loader, not Other OTA        ok
+returnedPort records the accepted transition port                        ok
+waitFor: two new loaders throw (fail closed)                             ok
+reconnectAfter: reopens the transition port, not the sibling keyboard    ok
+✔ web/test_f02_loader_bind.mjs (1056.717083ms)
+fixture package loads                                                    ok
+model: pre-repair mute probe still installs (silent skip)                ok
+installKeepingSlots: mute probe -> slotlayout error, nothing written     ok
+known stock _016 without SMP_INFO still uses its admitted install path   ok
+fixture supplies a valid empty 80 KiB slot layout                        ok
+installKeepingSlots: successful empty layout installs without backup     ok
+installKeepingSlots: bad layout parse -> slotlayout error, nothing written ok
+✔ web/test_f03_slot_probe.mjs (34590.683417ms)
+node:internal/modules/esm/resolve:275
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/mac/Documents/Codex/2026-10-26/task-6/fixture-review/ec010-composite/web/test_install_nightly_download_guard.mjs' imported from /Users/mac/Documents/Codex/2026-10-26/task-6/fixture-review/ec010-composite/web/test_install_slots.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:991:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:719:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:736:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:765:52)
+    at #resolve (node:internal/modules/esm/loader:701:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:621:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:160:33)
+    at ModuleJob.link (node:internal/modules/esm/module_job:245:17) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/mac/Documents/Codex/2026-10-26/task-6/fixture-review/ec010-composite/web/test_install_nightly_download_guard.mjs'
+}
+
+Node.js v24.14.1
+✖ web/test_install_slots.mjs (33.603708ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 23
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34597.356
+
+✖ failing tests:
+
+test at web/test_install_slots.mjs:1:1
+✖ web/test_install_slots.mjs (33.603708ms)
+  'test failed'

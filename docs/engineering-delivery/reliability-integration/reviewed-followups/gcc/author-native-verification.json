@@ -1,0 +1,105 @@
+{
+  "proofHashes": {
+    "native-weak-helper-identity.json": true,
+    "after-fastmath-ubsan.log": true,
+    "before-base-fastmath.log": true,
+    "before-combined-fastmath-ubsan.log": true,
+    "before-base-fastmath-ubsan.log": true,
+    "before-control-run.log": true,
+    "mock-wire-bounds.log": true,
+    "before-base-bass303-sustain.log": true,
+    "after-editor-ota-dispatch.log": true,
+    "before-combined-bass303-sustain.log": true,
+    "frontend-export.log": true,
+    "after-project-303-stream.log": true,
+    "orchestrator.json": true,
+    "before-cases.json": true,
+    "before-combined-editor-ota-dispatch.log": true,
+    "selected.log": true,
+    "after-wave-motion-migrate.log": true,
+    "after-project-protocol.log": true,
+    "after-bass303-sustain.log": true,
+    "after-chicago-ens.log": true,
+    "after-project-stage.log": true,
+    "native-identity.log": true,
+    "native-identity.json": true,
+    "baseline-source-identity.json": true,
+    "after-fastmath.log": true,
+    "before-combined-fastmath.log": true,
+    "after-project-save-preflight.log": true,
+    "before-base-editor-ota-dispatch.log": true,
+    "actual-product-export.log": true
+  },
+  "sourceBlobs": {
+    "firmware/src/app/chicago_ens.h": true,
+    "firmware/src/app/chicago_param_tables.c": true,
+    "firmware/src/app/smk_clip_arp_share.c": true,
+    "firmware/src/app/smk_clip_keys.h": true,
+    "firmware/src/dsp/drum909_dsp.h": true,
+    "firmware/src/dsp/fastmath.h": true,
+    "tests/ota_test.c": true
+  },
+  "evidenceOnlySuffixPaths": [
+    "docs/engineering-delivery/host-gcc-portability/README.md",
+    "docs/engineering-delivery/host-gcc-portability/proof/actual-product-export.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-bass303-sustain.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-chicago-ens.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-editor-ota-dispatch.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-fastmath-ubsan.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-fastmath.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-project-303-stream.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-project-protocol.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-project-save-preflight.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-project-stage.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/after-wave-motion-migrate.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/baseline-source-identity.json",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-base-bass303-sustain.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-base-editor-ota-dispatch.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-base-fastmath-ubsan.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-base-fastmath.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-cases.json",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-combined-bass303-sustain.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-combined-editor-ota-dispatch.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-combined-fastmath-ubsan.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-combined-fastmath.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/before-control-run.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/frontend-export.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/mock-wire-bounds.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/native-identity.json",
+    "docs/engineering-delivery/host-gcc-portability/proof/native-identity.log",
+    "docs/engineering-delivery/host-gcc-portability/proof/native-weak-helper-identity.json",
+    "docs/engineering-delivery/host-gcc-portability/proof/orchestrator.json",
+    "docs/engineering-delivery/host-gcc-portability/proof/selected.log",
+    "docs/engineering-delivery/host-gcc-portability/receipt.json"
+  ],
+  "actualNativeFiles": [
+    {
+      "file": "firmware/src/app/engine.c",
+      "verifiedObjectsAndPreprocessedHashes": true
+    },
+    {
+      "file": "firmware/src/x0x.c",
+      "verifiedObjectsAndPreprocessedHashes": true
+    },
+    {
+      "file": "firmware/src/app/chicago_param_tables.c",
+      "verifiedObjectsAndPreprocessedHashes": true
+    },
+    {
+      "file": "firmware/src/app/smk_clip_arp_share.c",
+      "verifiedObjectsAndPreprocessedHashes": true
+    }
+  ],
+  "authorNativeSourceArchiveMatchesFrozenInputs": true,
+  "recordedCompilerFileSHA256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "actualEightHelpersByteIdentical": [
+    "fm_floorf",
+    "fm_sin_pi",
+    "fm_wrap_pi",
+    "fm_sinf",
+    "fm_cosf",
+    "d9_biquad_set",
+    "d9_tanh",
+    "d9_shape_prep"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "approved_inputs": {
+    "base": "43d078dd384dd9d6544d368f5081da985dd27698",
+    "gcc": "a8ddbf84c5e3cb721f7398ae110a9ca370043f73",
+    "ec010": "6e08cf42e10d1d0d47d1df8471cb1294e86fdbed",
+    "fixture_contracts": "e24ae3cfaff33dd32dc54d3ad09336bb09e71058"
+  },
+  "merge_tip_before_record": "7a714f92495da3c1a1a0afefe5d7ac7934238cbb",
+  "manual_conflicts": [],
+  "review_verdicts": {
+    "gcc": "PASS bounded GCC portability source/test unit, not native full qualification",
+    "ec010": "PASS: bounded EC010 production read-request envelope source/test review; not hardware qualification",
+    "fixtures": "PASS_BOUNDED_FIXTURE_CONTRACT_AND_EC010_COMPATIBILITY"
+  },
+  "review_receipt_sha256": {
+    "gcc": "598cc24188aa79f3a1ba460b4ae06048751c87f6663457de7e4632aa63d80218",
+    "ec010": "13ebc414f5f669c37bca96b72833dfa7acd2a4a31862bb9297ab09feb1d164e1",
+    "fixtures": "7aa359acaeeead308a73f14d0a676be17565b7908079e58b666d73010873d854"
+  },
+  "unchanged_from43d": "Engine/UI/project.c+seq subtree exact bytes; no new bass selector/UI/codec/importer unit merged",
+  "current_contract": "stream6/sound10, endpoint-only no historical engine inference",
+  "full_mac": "PENDING actual new-pin full default run; old43dLinux run not fullpassed",
+  "fresh_native_and_independent_final": "PENDING exact source closure; isolated GCC/native identity proof not additive combined qualification",
+  "publication_device_push": "NONE"
+}
