@@ -64,8 +64,8 @@ const x0x_param_t CHI_ARP_PARAMS[4] = {
 };
 
 const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES] = {
-    "Off", "EQ", "Comp", "Crush", "Ring", "Cho", "Ens", "Phas—", "SDly", "BPM", "Hall", "Gate"
-}; /* Crush + Ring + EQ + Cho + Ens + SDly + BPM + Hall + Gate = insert (plain names); "—" = NOT_YET */
+    "Off", "EQ", "Comp", "Crush", "Ring", "Cho", "Ens", "Phas", "SDly", "BPM", "Hall", "Gate"
+}; /* Crush + Ring + EQ + Cho + Ens + Phaser + SDly + BPM + Hall + Gate = insert (plain names) */
 
 const x0x_param_t CHI_FX_PARAMS[3] = {
     {"FxTyp", CHI_FX_NTYPES - 1, CHI_FX_OFF, CHI_FX_TYPE_N},

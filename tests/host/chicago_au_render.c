@@ -13,8 +13,8 @@
  *   midi_note N       0..127
  *   velocity N        1..127
  *   pot I V           bass303 pot index and 0..127 value
- *   fx_type T         Chicago Fx Type 0..11 (Crush/Ring/EQ/Cho/Ens/SDly/BPM/Hall/GateRev insert when T matches)
- *   fx_edit1 V        Edit1 0..127 (Crush / Ring / EQ / Cho / Ens / SDly / BPM / Hall / GateRev wet)
+ *   fx_type T         Chicago Fx Type 0..11 (Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert when T matches)
+ *   fx_edit1 V        Edit1 0..127 (Crush / Ring / EQ / Cho / Ens / Phaser / SDly / BPM / Hall / GateRev wet)
  *   fx_edit2 V        Edit2 0..127 (wet / depth / feedback / BPM division / Hall decay / Gate hold)
  */
 #include <stdio.h>
@@ -28,15 +28,16 @@
 #include "../../firmware/src/app/chicago_eq.h"
 #include "../../firmware/src/app/chicago_cho.h"
 #include "../../firmware/src/app/chicago_ens.h"
+#include "../../firmware/src/app/chicago_phaser.h"
 #include "../../firmware/src/app/chicago_sdly.h"
 #include "../../firmware/src/app/chicago_bpmdly.h"
 #include "../../firmware/src/app/chicago_hall.h"
 #include "../../firmware/src/app/chicago_gaterev.h"
 
 static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, chi_eq_t *eq, chi_cho_t *cho,
-                    chi_ens_t *ens, chi_sdly_t *sdly, chi_bpmdly_t *bpmdly, chi_hall_t *hall,
-                    chi_gaterev_t *grev, int *frames, int *note_on, int *note_off, int *midi, int *vel,
-                    uint8_t *fx_type)
+                    chi_ens_t *ens, chi_phaser_t *phaser, chi_sdly_t *sdly, chi_bpmdly_t *bpmdly,
+                    chi_hall_t *hall, chi_gaterev_t *grev, int *frames, int *note_on, int *note_off,
+                    int *midi, int *vel, uint8_t *fx_type)
 {
     char line[256];
     uint8_t e1 = 64, e2 = 64;
@@ -52,6 +53,7 @@ static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, chi_eq_t
     chi_eq_init(eq);
     chi_cho_init(cho);
     chi_ens_init(ens);
+    chi_phaser_init(phaser);
     chi_sdly_init(sdly);
     chi_bpmdly_init(bpmdly);
     chi_hall_init(hall);
@@ -123,6 +125,8 @@ static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, chi_eq_t
         chi_cho_set(cho, e1, e2, BASS303_SR);
     else if (chi_fx_is_ens_insert(*fx_type))
         chi_ens_set(ens, e1, e2, BASS303_SR);
+    else if (chi_fx_is_phaser_insert(*fx_type))
+        chi_phaser_set(phaser, e1, e2, BASS303_SR);
     else if (chi_fx_is_sdly_insert(*fx_type))
         chi_sdly_set(sdly, e1, e2, BASS303_SR);
     else if (chi_fx_is_bpmdly_insert(*fx_type))
@@ -142,6 +146,7 @@ int main(void)
     chi_eq_t eq;
     chi_cho_t cho;
     chi_ens_t ens;
+    chi_phaser_t phaser;
     chi_sdly_t sdly;
     chi_bpmdly_t bpmdly;
     chi_hall_t hall;
@@ -150,8 +155,8 @@ int main(void)
     uint8_t fx_type;
     float out[512];
 
-    if (read_ctl(&b, &crush, &ring, &eq, &cho, &ens, &sdly, &bpmdly, &hall, &grev, &frames, &note_on,
-                 &note_off, &midi, &vel, &fx_type) < 0)
+    if (read_ctl(&b, &crush, &ring, &eq, &cho, &ens, &phaser, &sdly, &bpmdly, &hall, &grev, &frames,
+                 &note_on, &note_off, &midi, &vel, &fx_type) < 0)
         return 2;
     note_down = 0;
     for (pos = 0; pos < frames; pos++) {
@@ -174,6 +179,8 @@ int main(void)
             chi_cho_process(&cho, out, 1);
         else if (chi_fx_is_ens_insert(fx_type))
             chi_ens_process(&ens, out, 1);
+        else if (chi_fx_is_phaser_insert(fx_type))
+            chi_phaser_process(&phaser, out, 1);
         else if (chi_fx_is_sdly_insert(fx_type))
             chi_sdly_process(&sdly, out, 1);
         else if (chi_fx_is_bpmdly_insert(fx_type))

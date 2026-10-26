@@ -28,6 +28,7 @@
 #include "chicago_hall.h"
 #include "chicago_cho.h"
 #include "chicago_ens.h"
+#include "chicago_phaser.h"
 #include "chicago_gaterev.h"
 #include "chicago_aux.h"
 
@@ -59,13 +60,14 @@ static bass303_t b303[NBASS] POOL;
 static uint8_t chi_arp_on[NBASS] POOL, chi_arp_mode[NBASS] POOL, chi_arp_range[NBASS] POOL, chi_arp_speed[NBASS] POOL;
 static uint8_t chi_arp_accent[NBASS] POOL, chi_arp_vel[NBASS] POOL;
 static chi_arp_run_t chi_arp_run[NBASS] POOL;
-/* Chicago SEND FX pots (sound_t) + Crush/Ring/EQ/Cho/Ens/SDly/BPM/Hall/GateRev insert DSP per 303 voice. */
+/* Chicago SEND FX pots (sound_t) + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert DSP per 303 voice. */
 static uint8_t chi_fx_type[NBASS] POOL, chi_fx_e1[NBASS] POOL, chi_fx_e2[NBASS] POOL;
 static chi_crush_t chi_crush[NBASS] POOL;
 static chi_ring_t chi_ring[NBASS] POOL;
 static chi_eq_t chi_eq[NBASS] POOL;
 static chi_cho_t chi_cho[NBASS] POOL;
 static chi_ens_t chi_ens[NBASS] POOL;
+static chi_phaser_t chi_phaser[NBASS] POOL;
 static chi_sdly_t chi_sdly[NBASS] POOL;
 static chi_bpmdly_t chi_bpmdly[NBASS] POOL;
 static chi_hall_t chi_hall[NBASS] POOL;
@@ -465,7 +467,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             chi_arp_apply_cfg(v, i, val);
         else if (i >= CHI_FX_TYPE && i < CHI_FX_END) {
-            /* sound_t mirror + Crush/Ring/EQ/Cho/Ens/SDly/BPM/Hall/GateRev insert coeffs; Mix/fxbus via UI map. */
+            /* sound_t mirror + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert coeffs; Mix/fxbus via UI map. */
             if (i == CHI_FX_TYPE) {
                 if (val >= CHI_FX_NTYPES)
                     val = CHI_FX_OFF;
@@ -480,6 +482,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             chi_eq_init(&chi_eq[v]);
             chi_cho_init(&chi_cho[v]);
             chi_ens_init(&chi_ens[v]);
+            chi_phaser_init(&chi_phaser[v]);
             chi_sdly_init(&chi_sdly[v]);
             chi_bpmdly_init(&chi_bpmdly[v]);
             chi_hall_init(&chi_hall[v]);
@@ -494,6 +497,8 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
                 chi_cho_set(&chi_cho[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
             else if (chi_fx_is_ens_insert(chi_fx_type[v]))
                 chi_ens_set(&chi_ens[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
+            else if (chi_fx_is_phaser_insert(chi_fx_type[v]))
+                chi_phaser_set(&chi_phaser[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
             else if (chi_fx_is_sdly_insert(chi_fx_type[v]))
                 chi_sdly_set(&chi_sdly[v], chi_fx_e1[v], chi_fx_e2[v], BASS303_SR);
             else if (chi_fx_is_bpmdly_insert(chi_fx_type[v]))
@@ -1434,6 +1439,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             chi_cho_process(&chi_cho[b], bb[b], (int)n);
         else if (!idle[b] && chi_fx_is_ens_insert(chi_fx_type[b]))
             chi_ens_process(&chi_ens[b], bb[b], (int)n);
+        else if (!idle[b] && chi_fx_is_phaser_insert(chi_fx_type[b]))
+            chi_phaser_process(&chi_phaser[b], bb[b], (int)n);
         else if (!idle[b] && chi_fx_is_sdly_insert(chi_fx_type[b]))
             chi_sdly_process(&chi_sdly[b], bb[b], (int)n);
         else if (!idle[b] && chi_fx_is_bpmdly_insert(chi_fx_type[b]))
@@ -1481,7 +1488,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         idle[b] = synth_idle(&bass_slot[b]);
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
-        /* Crush/Ring/EQ/Cho/Ens/SDly/BPM/Hall/GateRev inserts are Chicago/native303 only — never on WBL1. */
+        /* Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev inserts are Chicago/native303 only — never on WBL1. */
         if (!idle[b] && bass_slot[b].active.ops != &wobble_foundation_ops) {
             if (chi_fx_is_crush_insert(chi_fx_type[b]))
                 chi_crush_process(&chi_crush[b], bb[b], (int)n);
@@ -1493,6 +1500,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
                 chi_cho_process(&chi_cho[b], bb[b], (int)n);
             else if (chi_fx_is_ens_insert(chi_fx_type[b]))
                 chi_ens_process(&chi_ens[b], bb[b], (int)n);
+            else if (chi_fx_is_phaser_insert(chi_fx_type[b]))
+                chi_phaser_process(&chi_phaser[b], bb[b], (int)n);
             else if (chi_fx_is_sdly_insert(chi_fx_type[b]))
                 chi_sdly_process(&chi_sdly[b], bb[b], (int)n);
             else if (chi_fx_is_bpmdly_insert(chi_fx_type[b]))
@@ -1899,6 +1908,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     chi_cho_init(&chi_cho[1]);
     chi_ens_init(&chi_ens[0]);
     chi_ens_init(&chi_ens[1]);
+    chi_phaser_init(&chi_phaser[0]);
+    chi_phaser_init(&chi_phaser[1]);
     chi_sdly_init(&chi_sdly[0]);
     chi_sdly_init(&chi_sdly[1]);
     chi_bpmdly_init(&chi_bpmdly[0]);
