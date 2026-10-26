@@ -8,7 +8,8 @@
 #include "app/smc_fx_map.h"
 #include "app/smc_fx_map_tables.c" /* one map copy for single-file smc_mixer harnesses */
 
-static uint8_t accel_smc; /* panel accel flag; production lives in ui.c */
+/* Solo / BLE-reconnect extractors omit smc_knob; queue/link/buttons still write it. */
+static uint8_t __attribute__((unused)) accel_smc; /* production lives in ui.c */
 static void __attribute__((unused)) smc_fx_main_tick(void) {}
 static void __attribute__((unused)) smc_fx_clear(void) {}
 static void __attribute__((unused)) smc_fx_release_note(uint8_t note) { (void)note; }
