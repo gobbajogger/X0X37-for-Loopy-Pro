@@ -854,6 +854,42 @@ static const char *pref_name(pref_t r)
         put_s(put_s(put_s(put_s(t, r.a == T_909 ? "909 " : "808 "), engine_voice_name(r.a, r.b)), " "), d ? d->name : "");
         return t;
     }
+    if (r.kind == R_ENG && r.a == T_303) {
+#if X0X_DEV_WOBBLE
+        if (engine_bass_is_wobble(r.b)) {
+            switch (r.c) {
+            case W_CARRIER_WAVE: return "CR WAVE";
+            case W_CARRIER_LEVEL: return "CR LEVEL";
+            case W_CARRIER_PITCH: return "CR PITCH";
+            case W_XMOD_LEVEL: return "XM LEVEL";
+            case W_XMOD_WAVE: return "XM WAVE";
+            case W_XMOD_TUNE: return "XM TUNE";
+            case W_XMOD_DEPTH: return "XM DEPTH";
+            case W_WOBBLE_SHAPE: return "WOB SHAPE";
+            case W_WOBBLE_DEPTH: return "WOB DEPTH";
+            case W_WOBBLE_RATE: return "WOB RATE";
+            case W_ATTACK: return "ATTACK";
+            case W_DECAY: return "DECAY";
+            case W_SUSTAIN: return "SUSTAIN";
+            case W_RELEASE: return "RELEASE";
+            case W_BASS_SPLIT: return "BASS SPLIT";
+            default: break;
+            }
+        } else
+#endif
+        {
+            switch (r.c) {
+            case BASS303_AATTACK: return "ATTACK";
+            case BASS303_ADECAY: return "DECAY";
+            case BASS303_ASUSTAIN: return "SUSTAIN";
+            case BASS303_ARELEASE: return "RELEASE";
+            case BASS303_FATTACK: return "F ATTACK";
+            case BASS303_FSUSTAIN: return "F SUSTAIN";
+            case BASS303_FRELEASE: return "F RELEASE";
+            default: break;
+            }
+        }
+    }
     if (r.kind == R_BRKSLOT)
         return r.a ? "LOOP B" : "LOOP A";
     return d ? d->name : "";
@@ -3404,14 +3440,15 @@ X0X_COLD static void button_tap(int b)
             }
             mark_dirty();
         } else if (kbd_on() && steps_view()) {        /* the keyboard's octave */
-            if (ui.btn & (1u << B_LFO)) {                 /* LFO + OCT: a tie; ENV + OCT: a rest */
+            if (ui.view == V_SEQ && (ui.btn & (1u << B_LFO))) { /* SEQ LFO + OCT: a tie */
                 ui.btn_used |= 1u << B_LFO;
                 bass_write(bidx(), 0, G_TIE);
-            } else if (ui.btn & (1u << B_ENV)) {
+            } else if (ui.view == V_SEQ && (ui.btn & (1u << B_ENV))) { /* SEQ ENV + OCT: a rest */
                 ui.btn_used |= 1u << B_ENV;
                 bass_write(bidx(), 0, G_REST);
             } else {
                 char t[12];
+                ui.btn_used |= ui.btn & ((1u << B_LFO) | (1u << B_ENV));
                 ui.oct = (int8_t)(ui.oct + (up ? 1 : -1));
                 ui.oct = ui.oct < -2 ? -2 : ui.oct > 3 ? 3 : ui.oct;
                 put_i(put_s(t, "OCTAVE "), ui.oct);
@@ -4053,6 +4090,20 @@ static UI_DRAW void draw_header(void)
 #endif
     else if (part_view()) {                           /* the part chip, then where we are */
         const char *part_label=part_display(ui.part);
+#if X0X_BASS_PRESET_PREVIEW
+        if ((ui.view == V_SEQ || ui.view == V_PART) && is_303()) {
+#if X0X_BASS_TAGGED_SOUND
+            if (engine_bass_sound_bank(&proj.sound, bidx()) < 0)
+                part_label = bidx() ? "303 B" : "303 A";
+            else
+#endif
+            {
+            int miami = engine_bass_bank(bidx()) == FACTORY_BANK_MIAMI;
+            part_label = miami ? (bidx() ? "MIAMI B" : "MIAMI A") :
+                                 (bidx() ? "CHICAGO B" : "CHICAGO A");
+            }
+        }
+#endif
         int32_t w = tw(&FONT_B, part_label) + 12;
         box(0, 1, w, 17, part_col());
         cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, part_label, C_BLACK);
@@ -4295,7 +4346,8 @@ static UI_DRAW void draw_303(int band, int gen)
                 cv_rect(x + 5, y - 3, 2, 2, C_WHITE);
             if (g == G_TIE) {
                 if (c > 0)                           /* continued from previous visible step */
-                    cv_rect(col_x(c - 1) + 6, y, x - col_x(c - 1), 5, fc);
+                    cv_rect(col_x(c - 1) + 6, y,
+                            x - (col_x(c - 1) + 6) + (width < 6 ? width : 6), 5, fc);
                 else {                               /* page 16→17 or loop last→first */
                     cv_rect(x - 4, y + 1, 4, 3, fc);
                     cv_rect(x - 7, y + 2, 3, 1, fc);
@@ -4340,11 +4392,90 @@ static UI_DRAW void draw_303(int band, int gen)
     }
 }
 
-/* EDIT is the selected instrument's sound, while SEQ keeps the visible steps.
- * The same pg.r records drive these values and the four physical knobs. */
+/* The upper EDIT bands preview other live sound settings. The lower strip stays
+ * the four current physical knobs; no second value on screen pretends to be a
+ * separate control or changes the serialized parameter order. */
+static pref_t sound_overview_ref(int row)
+{
+    static const uint8_t miami[] = {W_CUTOFF, W_OUTPUT, W_WOBBLE_DEPTH, W_ATTACK,
+        W_RELEASE, W_CARRIER_LEVEL, W_XMOD_LEVEL, W_GLIDE, W_BASS_SPLIT};
+    static const uint8_t chicago[] = {BASS303_CUTOFF, BASS303_RESO, BASS303_VOLUME,
+        BASS303_DECAY, BASS303_WAVE, BASS303_DRIVE, BASS303_ACCENT, BASS303_AATTACK};
+    const uint8_t *rank = 0;
+    int n_rank = 0, t, v, n, i, k, seen = 0, page = cur_page();
+    if (is_drum()) {
+        t = ui.part == PART_909 ? T_909 : T_808;
+        v = ui.sel[ui.part];
+    } else {
+        t = T_303;
+        v = bidx();
+#if X0X_DEV_WOBBLE
+        if (engine_bass_is_wobble(v)) {
+            rank = miami;
+            n_rank = sizeof miami;
+        } else
+#endif
+        {
+            rank = chicago;
+            n_rank = sizeof chicago;
+        }
+    }
+    n = engine_nparams(t, v);
+    for (i = 0; i < n_rank + n; i++) {
+        int id = i < n_rank ? rank[i] : i - n_rank, repeat = 0;
+        if (id >= n || !engine_param(t, v, id)) continue;
+        if (i >= n_rank)
+            for (k = 0; k < n_rank; k++) if (rank[k] == id) repeat = 1;
+        if (repeat) continue;
+        for (k = 0; k < 4; k++) {
+            pref_t cur = pg.r[page][k];
+            if (cur.kind == R_ENG && cur.a == t && cur.b == v && cur.c == id) repeat = 1;
+        }
+        if (!repeat && seen++ == row) return PR(R_ENG, t, v, id);
+    }
+    return NONE;
+}
+
+static const char *sound_overview_label(pref_t r)
+{
+    if (r.a == T_303) {
+#if X0X_DEV_WOBBLE
+        if (engine_bass_is_wobble(r.b)) {
+            switch (r.c) {
+            case W_CARRIER_LEVEL: return "CARRIER LEVEL";
+            case W_CARRIER_PITCH: return "CARRIER PITCH";
+            case W_WOBBLE_DEPTH: return "WOBBLE DEPTH";
+            case W_WOBBLE_RATE: return "WOBBLE RATE";
+            case W_XMOD_LEVEL: return "X-MOD LEVEL";
+            case W_XMOD_DEPTH: return "X-MOD DEPTH";
+            case W_BASS_SPLIT: return "BASS SPLIT";
+            default: break;
+            }
+        } else
+#endif
+        {
+            switch (r.c) {
+            case BASS303_RESO: return "RESONANCE";
+            case BASS303_DECAY: return "FILTER DECAY";
+            case BASS303_FATTACK: return "FILTER ATTACK";
+            case BASS303_FSUSTAIN: return "FILTER SUSTAIN";
+            case BASS303_FRELEASE: return "FILTER RELEASE";
+            case BASS303_AATTACK: return "AMP ATTACK";
+            case BASS303_ADECAY: return "AMP DECAY";
+            case BASS303_ASUSTAIN: return "AMP SUSTAIN";
+            case BASS303_ARELEASE: return "AMP RELEASE";
+            default: break;
+            }
+        }
+    }
+    return caps_of(pref_name(r));
+}
+
+/* EDIT is the selected instrument's sound, while SEQ keeps the visible steps. */
 static UI_DRAW void draw_part_sound(int band)
 {
     int page = cur_page(), row;
+    (void)page;
     uint16_t col = part_col();
 #if X0X_BASS_PRESET_PREVIEW
     if (is_303() && page == 0) {
@@ -4377,7 +4508,7 @@ static UI_DRAW void draw_part_sound(int band)
     }
     for (row = 0; row < 2; row++) {
         int i = band * 2 + row, y = (band ? 4 : 24) + row * 22;
-        pref_t r = pg.r[page][i];
+        pref_t r = sound_overview_ref(i);
         const x0x_param_t *d = pref_desc(r);
         char num[16], unit[8], value[26];
         int val, live;
@@ -4391,14 +4522,14 @@ static UI_DRAW void draw_part_sound(int band)
             val = live;
         pref_value_of(r, val, num, unit);
         put_s(put_s(value, num), unit);
-        cv_text(10, y, &FONT_S, caps_of(pref_name(r)), C_GRAY);
+        cv_text(10, y, &FONT_S, sound_overview_label(r), C_GRAY);
         text_r(231, y, &FONT_B, value, C_WHITE);
         cv_rect(10, y + 18, 220, 1, C_LINE);
         if (d->max && val > 0)
             cv_rect(10, y + 18, (uint32_t)val * 220u / d->max, 1, col);
     }
     if (band)
-        cv_text(9, 54, &FONT_XS, pg.title[page], C_DIM);
+        cv_text(9, 54, &FONT_XS, "SOUND OVERVIEW", C_DIM);
 }
 
 static UI_DRAW void draw_break(int band)

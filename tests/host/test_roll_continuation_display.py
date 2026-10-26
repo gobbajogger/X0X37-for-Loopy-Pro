@@ -24,4 +24,11 @@ for stem in ("page", "loop"):
     assert green(f"roll_{stem}_out_connected.png", 237, 102), f"{stem}: missing right cue"
     assert green(f"roll_{stem}_in.png", 21, 102), f"{stem}: missing left cue"
 
+short = out / "short"
+short.mkdir(exist_ok=True)
+subprocess.run([str(binary), str(root / "tests/scenarios/roll_short_tie.x0x"), str(short)], check=True)
+short_image = Image.open(short / "fractional_tie.png").convert("RGB")
+assert short_image.getpixel((53, 102))[1] > 70, "short tied endpoint has no brick"
+assert short_image.getpixel((56, 102))[1] < 70, "connector overdraws short tied endpoint"
+
 print("roll continuation display: page and loop cues PASS")

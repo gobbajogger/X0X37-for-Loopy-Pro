@@ -1,0 +1,21 @@
+# EDIT's sound keyboard may change octave, never an unseen pattern gate.
+wait 300
+turn ALGO 2
+tap EDIT
+expect view 1
+expect gate0.0 0
+press LFO
+tap OCT+
+release LFO
+expect gate0.0 0
+press ENV
+tap OCT-
+release ENV
+expect gate0.0 0
+# The same LFO/ENV step commands remain available on the visible SEQ page.
+tap SEQ
+tap REC
+press LFO
+tap OCT+
+release LFO
+expect gate0.0 2
