@@ -30,7 +30,7 @@ __attribute__((noinline)) static float d9_vca(float x)
 
 /* 9W9's back-to-back diode rounding at the two fixed drives the circuits use */
 static inline float d9_diode16(float x) { return d9_tanh(1.6f * x) * D9_INV_TANH_1_6; }
-static inline float d9_diode20(float x) { return d9_tanh(2.0f * x) * D9_INV_TANH_2_0; }
+__attribute__((noinline)) static float d9_diode20(float x) { return d9_tanh(2.0f * x) * D9_INV_TANH_2_0; }
 
 /* ===================================================================== */
 /* Parameters                                                             */
@@ -871,7 +871,7 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
 
 static float *d9_dry_r;         /* the render in progress: its right side (0: mono) */
 static float d9_pl0[DR_NUM], d9_pr0[DR_NUM];   /* each voice's pan where this block starts */
-static inline void d9_bus(d9_bus_t *b, drum909_t *d, int voice, float *dry, float *rev, float *dly,
+__attribute__((noinline)) static void d9_bus(d9_bus_t *b, drum909_t *d, int voice, float *dry, float *rev, float *dly,
                           uint16_t audible_tracks)
 {
     b->dry = audible_tracks & (1u << voice) ? dry : 0;

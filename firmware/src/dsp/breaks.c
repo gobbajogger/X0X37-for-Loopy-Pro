@@ -225,7 +225,7 @@ X0X_COLD static brk_bank_t *brk_side_slot(breaks_t *b, unsigned j)
     return &brk_side[j];
 #endif
 }
-static const brk_bank_t *brk_side_slot_c(const breaks_t *b, unsigned j)
+__attribute__((noinline)) static const brk_bank_t *brk_side_slot_c(const breaks_t *b, unsigned j)
 {
 #if defined(X0X_HOST)
     return &b->side[j];
