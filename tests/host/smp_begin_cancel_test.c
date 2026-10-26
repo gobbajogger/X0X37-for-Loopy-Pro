@@ -170,8 +170,10 @@ static void load_good(void)
 
 int main(void)
 {
-    uint8_t a[8], before[512];
+    uint8_t a[600], before[4096], data[32], header[512];
+    uint32_t n, off;
     int erases_before;
+    smp_user_hdr_t *h = (smp_user_hdr_t *)header;
     memset(flash_image, 0xFF, sizeof flash_image);
     load_good();
     memcpy(before, flash_image + SMP_USER_OFF(0), sizeof before);
@@ -184,5 +186,51 @@ int main(void)
     assert(flash_erases == erases_before);
     assert(!memcmp(before, flash_image + SMP_USER_OFF(0), sizeof before));
     puts("smp begin-cancel: BEGIN alone keeps last-good ok");
+
+    /* Mid-WRITE erases sector 0; next BEGIN restores from FL_SMPV shadow. */
+    memset(data, 0x5A, sizeof data);
+    memset(header, 0, sizeof header);
+    h->magic = SMP_USER_MAGIC;
+    h->version = 1;
+    h->nz = 1;
+    memcpy(h->name, "GOODLOOP", 8);
+    h->data_len = sizeof data;
+    h->zone[0].n = 64;
+    h->zone[0].rate = 65536;
+    h->crc = st_crc32(data, sizeof data);
+    a[0] = 0;
+    request(ED_SMP_BEGIN, a, 1);
+    assert(reply[6] == 0);
+    off = 512;
+    a[0] = 0;
+    u21(a + 1, off);
+    n = pack(data, sizeof data, a + 4);
+    request(ED_SMP_WRITE, a, n + 4);
+    assert(reply[9] == 0);
+    assert(usr_nz[0] == 0);
+    a[0] = 0;
+    request(ED_SMP_BEGIN, a, 1);
+    assert(reply[6] == 0);
+    assert(usr_nz[0] == 1);
+    assert(!memcmp(before, flash_image + SMP_USER_OFF(0), sizeof before));
+    puts("smp begin-cancel: mid-WRITE abandon restores last-good ok");
+
+    /* Failed END (CRC) restores last-good. */
+    a[0] = 0;
+    request(ED_SMP_BEGIN, a, 1);
+    off = 512;
+    a[0] = 0;
+    u21(a + 1, off);
+    memset(data, 0xA5, sizeof data);
+    n = pack(data, sizeof data, a + 4);
+    request(ED_SMP_WRITE, a, n + 4);
+    assert(reply[9] == 0);
+    a[0] = 0;
+    n = pack(header, 512, a + 1);   /* header CRC still matches old 0x5A data */
+    request(ED_SMP_END, a, n + 1);
+    assert(reply[6] == 3);
+    assert(usr_nz[0] == 1);
+    assert(!memcmp(before, flash_image + SMP_USER_OFF(0), sizeof before));
+    puts("smp begin-cancel: failed END restores last-good ok");
     return 0;
 }

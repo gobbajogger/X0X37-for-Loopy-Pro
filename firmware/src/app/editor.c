@@ -307,8 +307,93 @@ static void ed_smp_retire(uint32_t k)
     engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
     engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k));
 }
+#if SMP_SEC0_BACKUP
+/* Copy live sector 0 into FL_SMPV before the first destructive erase. Chunked
+ * through ed_smp_buf so we do not need a 4 KiB stack temporary. */
+static int ed_smp_backup_sec0(uint32_t k)
+{
+    uint32_t i, took, dst = SMP_SEC0_BACKUP_OFF(k);
+    const uint8_t *src = smp_user_xip(k);
+    audio_silence();
+    if (fl_erase4k(dst, &took))
+        return 1;
+    for (i = 0; i < 0x1000u; i += 256u) {
+        uint32_t n = 0x1000u - i;
+        if (n > 256u)
+            n = 256u;
+        memcpy(ed_smp_buf, src + i, n);
+        if (fl_write(dst + i, ed_smp_buf, n))
+            return 1;
+        fm1_wdt_feed();
+    }
+    return 0;
+}
+static int ed_smp_backup_present(uint32_t k)
+{
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k));
+    return h->magic == SMP_USER_MAGIC && h->version == 1 && h->nz && h->nz <= 16u;
+}
+static void ed_smp_clear_backup(uint32_t k)
+{
+    uint32_t took;
+    if (!ed_smp_backup_present(k))
+        return;
+    audio_silence();
+    (void)fl_erase4k(SMP_SEC0_BACKUP_OFF(k), &took);
+}
+/* Put sector 0 back from FL_SMPV when an import aborted after erasing it. */
+static int ed_smp_restore_sec0(uint32_t k)
+{
+    uint32_t i, took, dst = ed_smp_slot(k);
+    const uint8_t *src;
+    if (!ed_smp_backup_present(k))
+        return 1;
+    src = fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k));
+    audio_silence();
+    if (fl_erase4k(dst, &took))
+        return 1;
+    for (i = 0; i < 0x1000u; i += 256u) {
+        uint32_t n = 0x1000u - i;
+        if (n > 256u)
+            n = 256u;
+        memcpy(ed_smp_buf, src + i, n);
+        if (fl_write(dst + i, ed_smp_buf, n))
+            return 1;
+        fm1_wdt_feed();
+    }
+    ed_smp_inval(k);
+    smp_user_scan(k);
+    smp_sec0_erased[k] = 0;
+    smp_importing[k] = 0;
+    ed_smp_clear_backup(k);
+    engine_brk_loops();
+    return usr_nz[k] ? 0 : 1;
+}
+/* Recover last-good after a failed END, a new BEGIN, or boot (power loss). */
+static void ed_smp_try_restore(uint32_t k)
+{
+    if (usr_nz[k]) {
+        ed_smp_clear_backup(k);
+        return;
+    }
+    if (ed_smp_backup_present(k))
+        (void)ed_smp_restore_sec0(k);
+}
+void ed_smp_recover(void)
+{
+    uint32_t k;
+    for (k = 0; k < SMP_USER_SLOTS; k++)
+        ed_smp_try_restore(k);
+}
+#else
+static int ed_smp_backup_sec0(uint32_t k) { (void)k; return 0; }
+static void ed_smp_clear_backup(uint32_t k) { (void)k; }
+static void ed_smp_try_restore(uint32_t k) { (void)k; }
+void ed_smp_recover(void) {}
+#endif
 static int ed_smp_begin(uint32_t k)
 {
+    ed_smp_try_restore(k);                            /* prior abandon / power-loss mid-WRITE */
     if (ed_project.mode == 2)
         ed_project.changed = 1;
     smp_importing[k] = 1;
@@ -324,6 +409,7 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     ed_smp_retire(k);
     smp_importing[k] = 0;
     smp_sec0_erased[k] = 0;
+    ed_smp_clear_backup(k);
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
         audio_silence();
         rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);
@@ -333,13 +419,16 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     return rc;
 }
 /* Erase the 4 KiB sector that holds off. Sector 0 is deferred until the first
- * WRITE into it (BEGIN no longer wipes the header). Higher sectors still erase
- * on a 4 KiB-aligned offset, as before. */
+ * WRITE into it (BEGIN no longer wipes the header). Before that erase, shadow
+ * sector 0 into FL_SMPV so cancel / failed END can restore last-good. Higher
+ * sectors still erase on a 4 KiB-aligned offset, as before. */
 static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
 {
     if (off < 0x1000u) {
         if (smp_sec0_erased[k])
             return 0;
+        if (usr_nz[k] && ed_smp_backup_sec0(k))
+            return 1;                                 /* refuse wipe if shadow cannot be stored */
         ed_smp_retire(k);
         audio_silence();
         if (fl_erase4k(ed_smp_slot(k), took))
@@ -358,22 +447,31 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
     const smp_user_hdr_t *h = (const smp_user_hdr_t *)ed_smp_buf;
     uint32_t n = ed_unpack_exact(a, na, ed_smp_buf, ED_SMP_BUF_SIZE);
-    if (n != sizeof(smp_user_hdr_t) && n != SMP_USER_DATA)
+    if (n != sizeof(smp_user_hdr_t) && n != SMP_USER_DATA) {
+        ed_smp_try_restore(k);
         return 1;
+    }
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
-        h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA)
+        h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA) {
+        ed_smp_try_restore(k);
         return 2;
+    }
     ed_smp_inval(k);
-    if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
+    if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc) {
+        ed_smp_try_restore(k);
         return 3;
+    }
     if (ed_project.mode == 2)
         ed_project.changed = 1;
-    if (fl_write(ed_smp_slot(k), ed_smp_buf, n))
+    if (fl_write(ed_smp_slot(k), ed_smp_buf, n)) {
+        ed_smp_try_restore(k);
         return 4;
+    }
     ed_smp_inval(k);
     smp_user_scan(k);
     smp_importing[k] = 0;
     smp_sec0_erased[k] = 0;
+    ed_smp_clear_backup(k);
     engine_brk_loops();
     return usr_nz[k] ? 0 : 5;
 }

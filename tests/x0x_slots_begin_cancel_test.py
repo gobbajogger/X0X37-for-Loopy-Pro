@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""SMP_BEGIN must not wipe the last good sample when the import is cancelled.
+"""SMP_BEGIN / mid-WRITE cancel must not wipe the last good sample.
 
-Cancel = BEGIN with no WRITE/END. The previous header and zones stay valid.
+Cancel = BEGIN with no WRITE/END: header stays. Mid-WRITE that erased sector 0
+restores it from the FL_SMPV shadow on the next BEGIN (or failed END).
 A full BEGIN→WRITE→END rewrite still replaces the slot.
 """
 import struct
@@ -58,6 +59,26 @@ def main():
           "BEGIN alone keeps nz and name (cancel / abandon)")
     check(bytes(d.fl.mem[d.slots[k][0]:d.slots[k][0] + len(b)]) == before,
           "BEGIN alone leaves flash bytes unchanged")
+
+    # One WRITE erases sector 0; abandon then BEGIN must restore last-good.
+    assert d.req(xs.CMD_BEGIN, [k])[1] == 0
+    off = xs.DATA_OFF
+    a = [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F] + xs.pack7(b[off:off + 256])
+    assert d.req(xs.CMD_WRITE, a)[-1] == 0
+    check(d.nz[k] == 0 and header_name(d, k) is None, "first WRITE clears live header")
+    assert d.req(xs.CMD_BEGIN, [k])[1] == 0
+    check(d.nz[k] == 1 and header_name(d, k) == "GOODLOOP",
+          "BEGIN after mid-WRITE abandon restores last-good")
+    check(bytes(d.fl.mem[d.slots[k][0]:d.slots[k][0] + len(b)]) == before,
+          "restored sector 0 matches pre-import bytes")
+
+    # Bad END after a corrupting WRITE restores last-good too.
+    assert d.req(xs.CMD_BEGIN, [k])[1] == 0
+    a = [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F] + xs.pack7(bytes([0xAA] * 256))
+    assert d.req(xs.CMD_WRITE, a)[-1] == 0
+    check(d.req(xs.CMD_END, [k] + xs.pack7(b[:xs.HDR_LEN]))[1] == 3, "END CRC mismatch -> rc 3")
+    check(d.nz[k] == 1 and header_name(d, k) == "GOODLOOP",
+          "failed END restores last-good from shadow")
 
     # Without BEGIN, a populated slot still refuses WRITE.
     d2 = MockDevice(count=2, size=0x14000)

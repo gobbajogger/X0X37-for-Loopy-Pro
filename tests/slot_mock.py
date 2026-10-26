@@ -45,6 +45,8 @@ class MockDevice:
         self.nz = [0] * self.count
         self.importing = [False] * self.count           # SMP_BEGIN armed; flash intact until first sector erase
         self.sec0_erased = [False] * self.count
+        # SMK FL_SMPV: per-slot 4 KiB shadow of sector 0 (firmware editor.c / slots.c)
+        self.backup_base = 0xB0000
         for k in range(self.count):
             self.scan(k)
 
@@ -66,6 +68,37 @@ class MockDevice:
 
     def data_len(self, k):
         return struct.unpack_from("<I", self.fl.mem, self.slots[k][0] + 16)[0] if self.nz[k] else 0
+
+    def _backup_off(self, k):
+        return self.backup_base + k * 0x1000
+
+    def _backup_present(self, k):
+        return xs.parse_header(bytes(self.fl.mem[self._backup_off(k):self._backup_off(k) + xs.HDR_LEN])) is not None
+
+    def _backup_sec0(self, k):
+        base = self.slots[k][0]
+        dst = self._backup_off(k)
+        self.fl.erase4k(dst)
+        self.fl.program(dst, bytes(self.fl.mem[base:base + 0x1000]))
+
+    def _clear_backup(self, k):
+        if self._backup_present(k):
+            self.fl.erase4k(self._backup_off(k))
+
+    def _try_restore_sec0(self, k):
+        if self.nz[k]:
+            self._clear_backup(k)
+            return
+        if not self._backup_present(k):
+            return
+        base = self.slots[k][0]
+        src = self._backup_off(k)
+        self.fl.erase4k(base)
+        self.fl.program(base, bytes(self.fl.mem[src:src + 0x1000]))
+        self.scan(k)
+        self.sec0_erased[k] = False
+        self.importing[k] = False
+        self._clear_backup(k)
 
     def req(self, cmd, a, timeout=3.0):
         self.log.append(cmd)
@@ -98,6 +131,8 @@ class MockDevice:
                 xs.pack7(bytes(self.fl.mem[base + off:base + off + n]))
         if cmd == xs.CMD_BEGIN:
             # Arm rewrite only. Do not erase: cancel before the first WRITE keeps last good.
+            # A prior mid-WRITE abandon restores sector 0 from FL_SMPV first.
+            self._try_restore_sec0(k)
             self.importing[k] = True
             self.sec0_erased[k] = False
             return [k, 0]
@@ -105,6 +140,7 @@ class MockDevice:
             self.nz[k] = 0
             self.importing[k] = False
             self.sec0_erased[k] = False
+            self._clear_backup(k)
             for s in range(size // 0x1000):
                 self.fl.erase4k(base + s * 0x1000)
             return [k, 0]
@@ -121,6 +157,8 @@ class MockDevice:
             else:
                 if off < 0x1000:
                     if not self.sec0_erased[k]:
+                        if self.nz[k]:
+                            self._backup_sec0(k)
                         self.fl.erase4k(base)
                         self.nz[k] = 0
                         self.sec0_erased[k] = True
@@ -133,15 +171,19 @@ class MockDevice:
             h = xs.unpack7(a[1:])
             p = xs.parse_header(h)
             if len(h) != xs.HDR_LEN:
+                self._try_restore_sec0(k)
                 return [k, 1]
             if not p or p["data_len"] > size - xs.DATA_OFF:
+                self._try_restore_sec0(k)
                 return [k, 2]
             if zlib.crc32(bytes(self.fl.mem[base + xs.DATA_OFF:base + xs.DATA_OFF + p["data_len"]])) != p["crc"]:
+                self._try_restore_sec0(k)
                 return [k, 3]
             self.fl.program(base, h)
             self.scan(k)
             self.importing[k] = False
             self.sec0_erased[k] = False
+            self._clear_backup(k)
             return [k, 0 if self.nz[k] else 5]
         raise TimeoutError(f"no reply to cmd {cmd}")
 
