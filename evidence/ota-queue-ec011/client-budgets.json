@@ -1,0 +1,44 @@
+{
+  "contractPin": "8333eca5d9e5fb5c039edde0b988c5058275c22b",
+  "OTAidentity": {
+    "source": "firmware/src/ota.c ota_reply_identity / ota_send_msg",
+    "wireMax": 41,
+    "formula": "2 + ceil((6+27+1)*8/7)"
+  },
+  "OTAreadAndFinish": {
+    "source": "firmware/src/ota.c ota_read",
+    "wireMax": 20,
+    "formula": "2 + ceil((6+8+1)*8/7)"
+  },
+  "sampleRead": {
+    "source": "web/x0x_breaks.js readSlotBytes; firmware/src/app/editor.c ED_SMP_READ / ED_READ_MAX224",
+    "wireMax": 266,
+    "formula": "6 framing +4 echoed slot/offset +224+ceil(224/7)"
+  },
+  "bootRead": {
+    "source": "web/boot_screen.js bootRead; editor.c ED_BOOT_READ",
+    "wireMax": 266,
+    "formula": "6 framing +4 status/offset +256 packed"
+  },
+  "controllerRead": {
+    "source": "editor.c ED_CTL_READ",
+    "wireMax": 265,
+    "formula": "6 framing +3 offset +256 packed"
+  },
+  "sampleInfo": {
+    "source": "editor.c ED_SMP_INFO; slots.c SMP_USER_SLOTS2",
+    "wireMax": 42,
+    "formula": "6 framing +4 fixed +16*2 slot entries"
+  },
+  "bootInfo": {
+    "source": "editor.c ED_BOOT_INFO",
+    "wireMax": 43,
+    "formula": "6 framing +2 flags +12+1 line0 +21+1 line1"
+  },
+  "projectRead": {
+    "source": "web/x0x_projects.js ProjectDevice.command/exportStart; editor.c project READ",
+    "wireMax": 267,
+    "formula": "6 framing +5 operation/status/offset +256 packed"
+  },
+  "clientScope": "All repository OTA Link consumers: Updater handshake/serve, installer sample backup/readback and boot-screen operations. ProjectDevice is tested with the generic Link; its page normally uses separate ProjectMidiLink. Standalone sample page has its own Link, outside this patch. No OTA Link whole-project/image or unchunked screen receive path exists; bulk readers chunk224. Client protocol correlation remains in each client; Link is generic FIFO, not a protocol request matcher."
+}

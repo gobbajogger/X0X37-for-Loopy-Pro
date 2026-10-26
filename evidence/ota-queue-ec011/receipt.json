@@ -1,0 +1,53 @@
+{
+  "base": "8333eca5d9e5fb5c039edde0b988c5058275c22b",
+  "sourceBlob": "ed3504fb05c0cf1bcfb42182b043a35cb7c6be93",
+  "baseSourceBlob": "a87104d36e732c0c2175b944a35fb07f8030aade",
+  "LinkBodySHA256": "841a9baf34f18ad279273c77b00843cd06554f968720b421cc00282c2030ca43",
+  "reproducers": {
+    "EC011": {
+      "PR": 36,
+      "head": "f49dcd70ef29a1342e4d119afc693e924be60701",
+      "file": "edge-ota-sysex-queue-overflow.test.mjs",
+      "sha256": "c2754b661f5861ee1b0959c0102be64aa47173317fb9171e5ca31540748aff58"
+    },
+    "EC008": {
+      "PR": 29,
+      "head": "e77669f264bc5dd9f9bb57bb2953bb6f5f701bd9",
+      "file": "edge-ota-finish-ack-loss.test.mjs",
+      "sha256": "aef2d110ad1461239688ce6b7193a963f4ac6557313574fa2e3819677d1988b5"
+    }
+  },
+  "budgets": {
+    "frames": 64,
+    "packetBytes": 32768,
+    "perFrameBytes": 1024,
+    "pendingReaders": 64,
+    "meaning": "Logical retained packet bytes, not an exact JS heap measurement. Admission checked before a bounded index-copy. 64 largest current267-byte replies fit the byte budget. Larger per-frame envelope has room for605-byte packed512-payload message but no current client needs it."
+  },
+  "failurePolicy": "No eviction-and-continue. Oversize/unsafe length, total-byte/frame overflow or reader overflow raises terminal queueoverflow, clears queued bytes, rejects pending readers and bars future sends even after drain. Read delivery checks fault/generation after await; drain/close cannot leak old replies. Close clears timers/readers and releases only this listener, preserving application-owned handlers. Existing client match predicates remain intact.",
+  "finishPolicy": "EC008: completion succeeds only if finish response send succeeds. False -> finished:false/lost:true. Real output throw -> Link.send false -> same result. Terminal overflow throws and cannot be interpreted as successful completion.",
+  "checks": {
+    "EC011Before": "Both frozen bases:1PASS1FAIL;16000 packets retained",
+    "EC008Before": "Both frozen bases:1PASS1FAIL;false finish send incorrectly completed",
+    "EC011AndEC008Focused": "25PASS after repair including FIFO/timeouts/drain-generation/byte bounds/client reply sizes/matching/overflow-before-data/overflow-during-finish/actual resume failure/valid identity and finish bursts",
+    "firmwareAllOTA": "71PASS after repair",
+    "siteBuild": "exit0",
+    "siteFullNpm": "exit0;127edge tests plus8 sample-page tests pass",
+    "firmwareInstaller": "node web/test_web.mjs exit0; package/image parity skipped without a built package",
+    "additionalFirmwareIntegration": "Final generation-check rerun currently executing; will append completed log in evidence-only follow-up."
+  },
+  "unchanged": "parseIdentity and parseRequest byte-identical to each frozen base. Python/C/model policy/catalog/build labels untouched. Site additionally adopts the existing firmware mirror application-handler preservation pattern.",
+  "limits": [
+    "Independent review pending; no push/merge authorized for this stage yet.",
+    "No GUI, browser process, actual MIDI/USB/device/probe/flash/publication performed; owner STOP preserved.",
+    "No physical stock/loader compatibility or installed behavior proven; all injected frames synthetic.",
+    "No firmware C or native size/build qualification implied; current8333 full host/native evidence remains separate.",
+    "Raw negative Node diagnostic whitespace is preserved; source diffcheck passes; full diffcheck may flag immutable evidence lines."
+  ],
+  "logs": {
+    "ec011-firmware-before.log": "decc584c67e81a884d39432a5bb51a35f7e7ddcf77156135aef35d97001867c2",
+    "ec008-firmware-before.log": "702ddb65b3ec1a99f14ee3f0be135ab03619aa6c348b96fd9efc5e865fc0bde0",
+    "firmware-focused.log": "a60fa3fa9c8b8c5b7bf9e7cde69b114b4dc00014a374611229dabda7c3d0a26c",
+    "firmware-installer.log": "bc39c9ab9dfa58bab143a5eefc5041c8beb9494715861ea8024636afca19bf4f"
+  }
+}

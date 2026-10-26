@@ -1,0 +1,29 @@
+✔ positive: an acknowledged OTA completion succeeds after serving a data request (10.884583ms)
+✖ negative: a lost OTA finish acknowledgment must not report completion (11.137084ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.099
+
+✖ failing tests:
+
+test at ../../../../../../private/tmp/ota-queue-before-firmware/tests/edge-ota-finish-ack-loss.test.mjs:49:1
+✖ negative: a lost OTA finish acknowledgment must not report completion (11.137084ms)
+  AssertionError [ERR_ASSERTION]: FAIL_BEFORE_FIX: disconnected finish acknowledgment was silently treated as an OTA success
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///private/tmp/ota-queue-before-firmware/tests/edge-ota-finish-ack-loss.test.mjs:54:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

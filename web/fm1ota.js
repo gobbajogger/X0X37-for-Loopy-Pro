@@ -85,20 +85,35 @@ function parseIdentity(pkt) {
 
 // one MIDI in/out pair with a SysEx queue
 class Link {
+  // Bound retained packet bytes as well as JS array count, before copying input.
+  // OTA identity/read frames are 41/20 bytes; sample/boot/controller chunks
+  // are at most 266 and project chunks 267. 32 KiB fits 64 of every current reply;
+  // 1024 admits those plus a full 512-byte protocol payload. Overflow is terminal.
+  static MAX_FRAMES = 64;
+  static MAX_BYTES = 32768;
+  static MAX_FRAME_BYTES = 1024;
+  static MAX_READERS = 64;
   constructor(input, output) {
-    this.input = input; this.output = output; this.q = []; this.waiter = null;
+    this.input = input; this.output = output; this.q = []; this.queuedBytes = 0;
+    this.readers = []; this.closed = false; this.error = null; this.generation = 0;
     this.onMessage = (ev) => {
-      if (ev.data[0] !== 0xF0) return;
-      this.q.push(Array.from(ev.data));
-      if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
+      if (this.closed || this.error || ev.data[0] !== 0xF0) return;
+      const n = ev.data.length;
+      if (!Number.isSafeInteger(n) || n < 2 || n > Link.MAX_FRAME_BYTES || (!this.readers.length &&
+          (this.q.length >= Link.MAX_FRAMES || this.queuedBytes + n > Link.MAX_BYTES))) {
+        this.abort("queueoverflow", "OTA MIDI receive budget exceeded; reconnect and retry the update.");
+        return;
+      }
+      const packet = Array.from({ length: n }, (_, i) => ev.data[i]);
+      if (this.readers.length) this.settle(this.readers[0], packet);
+      else { this.q.push(packet); this.queuedBytes += n; }
     };
-    // A MIDI input may already have an application handler. Do not replace it.
+    // Preserve any application-owned handler on shared MIDI inputs.
     if (typeof input.addEventListener === "function" &&
         typeof input.removeEventListener === "function") {
       this.useEvents = true;
       input.addEventListener("midimessage", this.onMessage);
     } else {
-      // Compatibility with legacy/mock inputs that only expose the property.
       this.useEvents = false;
       const previous = input.onmidimessage;
       this.previousHandler = previous;
@@ -109,22 +124,59 @@ class Link {
       input.onmidimessage = this.installedHandler;
     }
   }
-  get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
-  // false when the port is gone (unplugged): WebMIDI throws on a disconnected output
-  send(bytes) {
-    try { this.output.send(bytes); return true; } catch (_) { return false; }
+  get lost() { return this.closed || this.input.state === "disconnected" || this.output.state === "disconnected"; }
+  settle(reader, packet, error = null) {
+    const i = this.readers.indexOf(reader);
+    if (i < 0) return; // A timed-out/drained reader cannot consume a later reply.
+    this.readers.splice(i, 1); clearTimeout(reader.timer);
+    if (error) reader.reject(error); else reader.resolve(packet);
   }
-  drain() { this.q.length = 0; }
+  abort(code, message) {
+    if (!this.error) { this.error = new Error(message); this.error.code = code; }
+    this.q.length = 0; this.queuedBytes = 0;
+    for (const reader of [...this.readers]) this.settle(reader, null, this.error);
+  }
+  send(bytes) {
+    if (this.error) { this.close(); throw this.error; }
+    if (this.closed) return false;
+    try { this.output.send(bytes); } catch (_) { return false; }
+    // Synchronous/mock delivery can overflow during output.send as well.
+    if (this.error) { this.close(); throw this.error; }
+    return true;
+  }
+  drain() {
+    this.generation++;
+    this.q.length = 0; this.queuedBytes = 0;
+    for (const reader of [...this.readers]) this.settle(reader, null);
+  }
   async read(ms) {
-    if (!this.q.length) {
-      let tm;
-      await Promise.race([new Promise((r) => { this.waiter = r; }), new Promise((r) => { tm = setTimeout(r, ms); })]);
-      clearTimeout(tm);
-      this.waiter = null;
+    if (this.error) { this.close(); throw this.error; }
+    if (this.closed) return null;
+    const generation = this.generation;
+    let delivery;
+    if (this.q.length) {
+      const packet = this.q.shift(); this.queuedBytes -= packet.length;
+      delivery = Promise.resolve(packet);
+    } else {
+      if (this.readers.length >= Link.MAX_READERS) {
+        this.abort("queueoverflow", "Too many concurrent OTA MIDI reads; reconnect and retry the update.");
+        this.close(); throw this.error;
+      }
+      delivery = new Promise((resolve, reject) => {
+        const reader = { resolve, reject, timer: null };
+        this.readers.push(reader);
+        reader.timer = setTimeout(() => this.settle(reader, null), ms);
+      });
     }
-    return this.q.shift() || null;
+    let packet;
+    try { packet = await delivery; }
+    catch (e) { this.close(); throw e; }
+    // A reply resolved just before cancellation must not escape into a new request.
+    if (this.error) { this.close(); throw this.error; }
+    return this.closed || generation !== this.generation ? null : packet;
   }
   close() {
+    this.closed = true; this.drain();
     if (this.useEvents) this.input.removeEventListener("midimessage", this.onMessage);
     else if (this.input.onmidimessage === this.installedHandler)
       this.input.onmidimessage = this.previousHandler;
@@ -177,7 +229,9 @@ export class Updater {
     for (const { input, output, name } of this._portPairs()) {
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);
-      const id = await handshake(link, 2);
+      let id;
+      try { id = await handshake(link, 2); }
+      catch (e) { link.close(); throw e; }
       if (id && (!filter || filter(id))) return { link, id, name };
       link.close();
     }
@@ -205,7 +259,9 @@ export class Updater {
     if (!pair) return null;
     try { await pair.input.open(); await pair.output.open(); } catch (_) { return null; }
     const link = new Link(pair.input, pair.output);
-    const id = await handshake(link, 2);
+    let id;
+    try { id = await handshake(link, 2); }
+    catch (e) { link.close(); throw e; }
     if (id && (!filter || filter(id))) return { link, id, name };
     link.close();
     return null;
@@ -243,30 +299,33 @@ export class Updater {
   // serve read requests until the device asks for one of the finish addresses; stops early
   // when the port disappears (lost: true) instead of waiting out idleMs
   async serve(link, image, finishAddr, idleMs, onProgress) {
-    let served = 0, last = Date.now();
-    for (;;) {
-      const pkt = await link.read(1000);
-      if (!pkt) {
-        if (link.lost) return { served, finished: false, lost: true };
-        if (Date.now() - last > idleMs) return { served, finished: false };
-        continue;
+    try {
+      let served = 0, last = Date.now();
+      for (;;) {
+        const pkt = await link.read(1000);
+        if (!pkt) {
+          if (link.lost) return { served, finished: false, lost: true };
+          if (Date.now() - last > idleMs) return { served, finished: false };
+          continue;
+        }
+        const r = parseRequest(pkt);
+        if (!r) continue;
+        last = Date.now();
+        if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
+          if (!link.send(response(r.addr, [...new TextEncoder().encode("success"), 0])))
+            return { served, finished: false, lost: true };
+          if (r.addr === finishAddr) return { served, finished: true };
+          continue;
+        }
+        if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
+        await sleep(10);
+        if (!link.send(response(r.addr, Array.from(image.subarray(r.addr, r.addr + r.len)), r.fl))) {
+          return { served, finished: false, lost: true };
+        }
+        served++;
+        if (onProgress) onProgress(served, r.addr);
       }
-      const r = parseRequest(pkt);
-      if (!r) continue;
-      last = Date.now();
-      if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
-        link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]));
-        if (r.addr === finishAddr) return { served, finished: true };
-        continue;
-      }
-      if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
-      await sleep(10);
-      if (!link.send(response(r.addr, Array.from(image.subarray(r.addr, r.addr + r.len)), r.fl))) {
-        return { served, finished: false, lost: true };
-      }
-      served++;
-      if (onProgress) onProgress(served, r.addr);
-    }
+    } catch (e) { link.close?.(); throw e; }
   }
 
   // full install: running firmware -> loader -> new firmware
