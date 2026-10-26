@@ -174,7 +174,7 @@ __attribute__((noinline)) static float d8_pow(float b, float t) { return d8_exp2
 __attribute__((noinline)) static float d8_midicps(float note) { return 440.0f * d8_exp2_cr((note - 69.0f) / 12.0f); }
 
 /* an ff value (>= 0, < 2^32) rounded to an integer */
-static uint32_t ff_to_u32(d8ff_t v)
+__attribute__((noinline)) static uint32_t ff_to_u32(d8ff_t v)
 {
     float fl = fm_floorf(v.hi);
     uint32_t u;
@@ -272,7 +272,7 @@ static inline float bq_run(d8_bq_t *f, float x)
 }
 
 /* SuperCollider HPF / LPF (2nd-order Butterworth, prewarped), coefficients only */
-static void sc_hpf_set(d8_bq_t *f, float hz)
+__attribute__((noinline)) static void sc_hpf_set(d8_bq_t *f, float hz)
 {
     float c = fm_tanf(PI_SR * hz), c2 = c * c, s2c = c * 1.41421356f;
     float a0 = 1.0f / (1.0f + s2c + c2);
@@ -291,7 +291,7 @@ static void sc_lpf_set(d8_bq_t *f, float hz)
 }
 
 /* SKHighpass: RBJ highpass with a gain */
-static void sk_hp_set(d8_bq_t *f, float hz, float q, float g)
+__attribute__((noinline)) static void sk_hp_set(d8_bq_t *f, float hz, float q, float g)
 {
     float w = TWO_PI_SR * hz, s = fm_sin_pi(w), sh = fm_sin_pi(0.5f * w);
     float alpha = s / (2.0f * q), inv = 1.0f / (1.0f + alpha);
@@ -824,7 +824,7 @@ static const d8ff_t k_bank_inc[6] = {             /* oscHz / sr * 2^32 */
     {7.821515200e+07f, 7.305577993e-01f}, {5.275700000e+07f, 1.910276651e+00f}};
 #define BANK_DUTY 2060725309u                     /* phase < 0.4798 */
 
-static void bank_ratio(d8_bank_t *b, float r)
+__attribute__((noinline)) static void bank_ratio(d8_bank_t *b, float r)
 {
     int i;
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
