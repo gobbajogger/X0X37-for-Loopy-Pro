@@ -198,11 +198,14 @@ static float gr_of(const master_t *m, float lv)
 
 /* Limiter soft knee over 0.89. Outlined once for mono + L/R stereo (pi32: one
  * body beats two inlined tanh copies inside master_process_st). */
+/* One |s| path for the ±knee (same math as the prior mirrored branches). */
 __attribute__((noinline)) static float soft_ceiling(float s)
 {
-    if (s > 0.89f || s < -0.89f)
-        s = s > 0.0f ? 0.89f + 0.11f * fm_tanhf((s - 0.89f) * 9.0f)
-                     : -0.89f - 0.11f * fm_tanhf((-s - 0.89f) * 9.0f);
+    float a = fm_fabsf(s);
+    if (a > 0.89f) {
+        a = 0.89f + 0.11f * fm_tanhf((a - 0.89f) * 9.0f);
+        return s < 0.0f ? -a : a;
+    }
     return s;
 }
 
