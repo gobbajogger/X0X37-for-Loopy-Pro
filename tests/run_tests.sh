@@ -82,6 +82,7 @@ test_class() {
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -119,7 +120,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -323,6 +324,7 @@ run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-fx sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Ifirmware/src/dsp -Ifirmware/src/app -o $OUT/smc_fx_test tests/host/smc_fx_test.c firmware/src/app/smc_fx_map_tables.c -lm && $OUT/smc_fx_test"
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
+run engine-cq-rec-overflow python3 tests/host/engine_cq_rec_overflow_test.py
 run engine-cq-boff-overflow python3 tests/host/engine_cq_boff_overflow_test.py   # full CQ must keep C_BOFF (displace param)
 run engine-cq-brk-overflow python3 tests/host/engine_cq_brk_overflow_test.py   # full CQ must keep C_BRK press+release (displace param)
 run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   # full CQ must keep C_BON (displace param)
@@ -533,6 +535,10 @@ run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py 
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
+run rec-held-duration sh tests/host/rec_held_duration_test.sh
+run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh
+run rec-endpoint-storage sh tests/host/rec_endpoint_storage_test.sh
+run rec-nonforward-guard sh tests/host/rec_nonforward_guard_test.sh
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
 # Full generate-only: needs font + break bank (Pillow-gated above), not tables alone.
