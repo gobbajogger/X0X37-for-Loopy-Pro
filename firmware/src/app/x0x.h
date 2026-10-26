@@ -90,8 +90,9 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
+int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
-int project_save(void);                  /* 0 = saved and verified; -7 = too much to fit (nothing written) */
+int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */
 void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */
 int project_mem_pct(void);               /* how full the room for patterns, song and motion is, % */
 

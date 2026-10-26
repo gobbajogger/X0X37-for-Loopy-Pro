@@ -26,7 +26,8 @@ project_t proj;
 /* Reuses the UI undo shadow while an exclusive project operation is active. */
 project_t project_stage X0X_POOL;
 
-#define PROJ_STREAM 3u                  /* 303 steps gained velocity; format 2 migrates below */
+#define PROJ_STREAM 6u                  /* current layout + captured release endpoints, no snapshots */
+#define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
 #define NSTREAM ((int)sizeof STREAM_OBJ)
@@ -38,6 +39,7 @@ typedef char raw_fits[(RAW_LEN < 0xFFFFu) ? 1 : -1];
 typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + sizeof proj.pat) ? 1 : -1];
 
 static void arrange_defaults(project_t *pr);
+static uint8_t project_incompatible; /* retain unsupported stored bytes until explicit staged adoption */
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
 /* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
@@ -272,6 +274,7 @@ typedef struct {
     int k, n;
     uint32_t pos, left;
     uint32_t format;
+    uint8_t unsupported; /* a consumed segment must retain its format classification */
 } st_in_t;
 
 static int st_get(void *ctx)
@@ -283,7 +286,14 @@ static int st_get(void *ctx)
         if (++s->k >= NSTREAM)
             return -1;
         s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
-        if (s->n < 4 || get32(io_buf) != s->format)
+        if (s->n < 4)
+            return -1;
+        uint32_t format = get32(io_buf);
+        if (format != PROJ_STREAM && format >= 4u) {
+            s->unsupported = 1;
+            return -1;
+        }
+        if (format != s->format)
             return -1;
         stored_known[STREAM_OBJ[s->k]] = 1;
         stored_hash[STREAM_OBJ[s->k]] = hash_of(io_buf, (uint32_t)s->n);
@@ -344,21 +354,51 @@ static void stream_from2(project_t *pr)
         stored_known[STREAM_OBJ[p]] = 0;             /* next save writes format 3 */
 }
 
+/* No frozen snapshot layout is reinterpreted as ordinary motion or endpoints.
+ * Streams 1/2/3 never assigned the upper flags nibble. */
+static int stream_layout_ok(const project_t *pr, uint32_t format)
+{
+    int p, b, k;
+    for (p = 0; p < NPAT; p++)
+        for (b = 0; b < NBASS; b++)
+            for (k = 0; k < NSTEPS; k++) {
+                unsigned f = pr->pat[p].bass[b].step[k].flags;
+                if ((f & BS_GATE_MASK) > G_TIE ||
+                    (format != PROJ_STREAM && (f >> BS_END_SHIFT)) ||
+                    ((f >> BS_END_SHIFT) && (f & BS_GATE_MASK) == G_REST))
+                    return 0;
+            }
+    for (k = 0; k < NLANE; k++)
+        if (pr->arr.lane[k].used && pr->arr.lane[k].t == 0xFEu)
+            return 0; /* frozen MOT_SNAPSHOT; this endpoint-only unit has no decoder */
+    return 1;
+}
+
 static int load_stream(project_t *pr, int n, uint32_t format)
 {
     uint8_t *raw = (uint8_t *)pr + RAW_OFF;
     uint32_t crc = get32(io_buf + 8), plen = get32(io_buf + 12);
     uint32_t raw_len = format == PROJ_STREAM_OLD ? RAW_LEN_2 : RAW_LEN;
-    st_in_t s = {0, n, STREAM_HDR, plen, format};
+    st_in_t s = {0, n, STREAM_HDR, plen, format, 0};
     lz_src_t src = {st_get, &s};
     if (n < (int)STREAM_HDR || get32(io_buf + 4) != raw_len || plen > STREAM_CAP)
         return -1;
     stored_known[STREAM_OBJ[0]] = 1;
     stored_hash[STREAM_OBJ[0]] = hash_of(io_buf, (uint32_t)n);
-    if (lz_decompress(&src, raw, raw_len) || s.left || crc32_of(raw, raw_len) != crc)
+    int decode_rc = lz_decompress(&src, raw, raw_len);
+    /* Only st_get encounters used continuation objects; stale unused tails are
+     * deliberately irrelevant. Do not turn newer data into ordinary corruption
+     * and allow the boot-default autosave path to overwrite it. */
+    if (s.unsupported)
+        return -9;
+    if (decode_rc || s.left || crc32_of(raw, raw_len) != crc)
         return -1;
     if (format == PROJ_STREAM_OLD)
         stream_from2(pr);
+    if (!stream_layout_ok(pr, format))
+        return -9;
+    if (format != PROJ_STREAM)
+        for (int k = 0; k < NSTREAM; k++) stored_known[STREAM_OBJ[k]] = 0;
     packed_len = plen;
     return 0;
 }
@@ -599,8 +639,12 @@ static int read_project(project_t *pr)
     if (!sound_ok)
         bad = 1;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
-        if (load_stream(pr, n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
+    if (n >= 4 && get32(io_buf) != PROJ_STREAM && get32(io_buf) >= 4u)
+        return -9; /* unsupported/ambiguous stream: no legacy fallback or rewrite */
+    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_PREV || get32(io_buf) == PROJ_STREAM_OLD)) {
+        int rc = load_stream(pr, n, get32(io_buf));
+        if (rc == -9) return -9;
+        if (rc) {          /* torn or broken: the defaults, not garbage */
             patterns_defaults(pr);
             arrange_defaults(pr);
             bad = 1;
@@ -619,6 +663,7 @@ static int read_project(project_t *pr)
                 bad = 1;
         }
         stored_known[OBJ_PAT0] = stored_known[OBJ_PAT1] = 0;
+        if (!stream_layout_ok(pr, PROJ_FORMAT)) return -9;
     }
     if (pr->arr.song.len > NSONG) {
         bad = 1;
@@ -683,7 +728,13 @@ static int read_project(project_t *pr)
 }
 
 void project_defaults(void) { project_defaults_for(&proj, proj.set.bt); }
-int project_load(void) { return read_project(&proj); }
+int project_load(void)
+{
+    int rc = read_project(&proj);
+    project_incompatible = (uint8_t)(rc == -9);
+    return rc;
+}
+int project_storage_unsupported(void) { return project_incompatible; }
 void project_reset_stage(void) { project_defaults_for(&project_stage, proj.set.bt); }
 
 /* Validate indices before the UI, sequencer or DSP can see an imported project.
@@ -732,7 +783,8 @@ int project_validate_stage(void)
                 return -1;
             for (i = 0; i < NSTEPS; i++)
                 if (bp->step[i].note > 127 || bp->step[i].velocity > 127 ||
-                    (bp->step[i].flags & ~15u) || bstep_gate(&bp->step[i]) > G_TIE)
+                    bstep_gate(&bp->step[i]) > G_TIE ||
+                    ((bp->step[i].flags >> BS_END_SHIFT) && bstep_gate(&bp->step[i]) == G_REST))
                     return -1;
         }
         for (i = 0; i < BRK_NSET; i++)
@@ -782,6 +834,7 @@ int project_load_stage(void)
 {
     uint32_t live_length = packed_len;
     int rc = read_project(&project_stage);
+    if (rc == -9) project_incompatible = 1;
     packed_len = live_length;
     return rc ? rc : project_validate_stage();
 }
@@ -792,6 +845,7 @@ void project_commit_stage(void)
      * Bluetooth connection or opt-in control surface mode. */
     project_stage.set.bt = (uint8_t)((project_stage.set.bt & ~PROJ_DEVICE_BT) | (proj.set.bt & PROJ_DEVICE_BT));
     __builtin_memcpy(&proj, &project_stage, sizeof proj);
+    project_incompatible = 0; /* explicitly validated import/reset is the recovery boundary */
     (void)measure_project(&proj, &packed_len);
 }
 
@@ -856,6 +910,8 @@ void project_capture_stage(void)
 /* 0 = saved and verified; -7 = the patterns, song and motion do not fit (nothing was written) */
 int project_save(void)
 {
+    if (project_incompatible || !stream_layout_ok(&proj, PROJ_STREAM))
+        return -9; /* not one settings/sound/pattern object may be rewritten */
 #ifndef X0X_HOST
     extern int store_stage_held(void);
     if (store_stage_held())                          /* boot upload is using the store buffer */
