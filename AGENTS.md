@@ -12,3 +12,5 @@ Cloud Agent `install` must prepare Pillow, ASan runtime (`libclang-rt-18-dev`), 
 
 Hello-world without hardware: `sh host/build_host.sh` then `build/host/x0x_host tests/scenarios/getting_started.x0x OUTDIR`. Development Elite package: `BOARD=smk37 MODEL=elite ./build.sh`. Run host/web suites with `sh tests/run_tests.sh` (the file may lack the executable bit). Missing optional refs or ASan stay not-run; they are not cycle blockers. No long-running `start` service is required for this tree.
 
+
+Optional classic ChatGPT tooling: [Classic Thread Build-to-Git](skills/classic-thread-build-to-git/SKILL.md) provides tool-discovery and evidence guidance subordinate to this entry point and the current workflow. It does not restore removed stage routing or replace the canonical procedure.
