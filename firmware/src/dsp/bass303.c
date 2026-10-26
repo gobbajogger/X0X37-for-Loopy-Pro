@@ -662,10 +662,19 @@ static void idle_advance(bass303_t *b, int n)
     b->rc2_y = fm_flush(b->rc2_y);
 }
 
+/* DC blocker — one body for soft + RAT drive tails. */
+__attribute__((noinline)) static float dcb_tick(bass303_t *b, float y)
+{
+    float yh = y - b->dcb_x1 + 0.9996f * b->dcb_y1;
+    b->dcb_x1 = y;
+    b->dcb_y1 = yh;
+    return yh;
+}
+
 static void drive_block(bass303_t *b, float *out, int n)
 {
     int i;
-    float y, v, u0, u1, yh;
+    float y, v, u0, u1;
     if (b->drv_type == BASS303_DRV_SOFT) {
         const float g = b->s_gain, ig = b->s_inv;
         for (i = 0; i < n; i++) {
@@ -675,10 +684,7 @@ static void drive_block(bass303_t *b, float *out, int n)
             bq_run(&b->down_lp, fm_tanhf(u0 + 0.15f) - 0.14888503f);
             y = bq_run(&b->down_lp, fm_tanhf(u1 + 0.15f) - 0.14888503f);
             y = bq_run(&b->s_post, y * ig);
-            yh = y - b->dcb_x1 + 0.9996f * b->dcb_y1;
-            b->dcb_x1 = y;
-            b->dcb_y1 = yh;
-            out[i] = yh;
+            out[i] = dcb_tick(b, y);
         }
     } else {                                           /* RAT */
         const float *rb = b->r_b, *ra = b->r_a;
@@ -707,10 +713,7 @@ static void drive_block(bass303_t *b, float *out, int n)
             y = bq_run(&b->down_lp, u1) * 0.3204805f;
             b->r_tone_z = y * (1.0f - tb1) + b->r_tone_z * tb1;
             y = b->r_tone_z;
-            yh = y - b->dcb_x1 + 0.9996f * b->dcb_y1;
-            b->dcb_x1 = y;
-            b->dcb_y1 = yh;
-            out[i] = yh;
+            out[i] = dcb_tick(b, y);
         }
     }
 }
