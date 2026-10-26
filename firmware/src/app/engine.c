@@ -1300,7 +1300,7 @@ static void bfx_snapshot(void)
     }
 }
 
-static void bfx_shape(int part, float *a, float *b, float *c, float *d, int nch, int n)
+__attribute__((noinline)) static void bfx_shape(int part, float *a, float *b, float *c, float *d, int nch, int n)
 {
     if (!bfx_hold[part] && !busfx_settling(&bfx_st[part]))
         return;
