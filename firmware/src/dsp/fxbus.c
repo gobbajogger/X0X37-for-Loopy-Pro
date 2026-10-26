@@ -188,6 +188,12 @@ __attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
     return k;
 }
 
+/* Distortion sample — one body; stereo process_st calls this for L and R. */
+__attribute__((noinline)) static float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
+{
+    return d9_shape(sh, x * k, crush) * 0.7f;
+}
+
 /* ===================================================================== */
 /* Reverb (er99_verb_tick), adds its return into out                      */
 /* ===================================================================== */
@@ -418,7 +424,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
     if (f->dist_mode >= 1) {
         const float k = f->drive;
         for (int i = 0; i < n; ++i)
-            out[i] = d9_shape(&f->shape, out[i] * k, f->crush_st) * 0.7f;
+            out[i] = dist_one(&f->shape, out[i], k, f->crush_st);
     }
     if (f->comp > 0.001f) {
         const float thr = f->c_thr, slope = f->c_slope, makeup = f->c_makeup;
@@ -457,8 +463,8 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
     if (f->dist_mode >= 1) {
         const float k = f->drive;
         for (int i = 0; i < n; ++i) {
-            out_l[i] = d9_shape(&f->shape, out_l[i] * k, f->crush_st) * 0.7f;
-            out_r[i] = d9_shape(&f->shape, out_r[i] * k, f->crush_str) * 0.7f;
+            out_l[i] = dist_one(&f->shape, out_l[i], k, f->crush_st);
+            out_r[i] = dist_one(&f->shape, out_r[i], k, f->crush_str);
         }
     }
     if (f->comp > 0.001f) {
