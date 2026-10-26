@@ -456,6 +456,13 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
         ed_smp_try_restore(k);
         return 2;
     }
+    /* NOR can only clear bits. Programming a new header onto a live sector 0
+     * AND-corrupts the previous one (BEGIN no longer erases). Require a WRITE
+     * that erased sector 0 this import; otherwise keep last-good and refuse. */
+    if (!smp_sec0_erased[k]) {
+        smp_importing[k] = 0;
+        return 6;
+    }
     ed_smp_inval(k);
     if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc) {
         ed_smp_try_restore(k);
