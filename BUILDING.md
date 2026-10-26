@@ -402,8 +402,9 @@ but a different panel). Each difference is behind `BOARD_SMK37` (C, default 0). 
 (`-DBOARD_SMK37=1`, for the app and the update loader). The plain `./build.sh` does not change. Its
 `build/x0x.bin`, `build/loader/ota.bin` and `build/x0x.fwsc` stay byte for byte as before the SMK port.
 The SMK build keeps its objects, app and loader in `build/smk37/`. It writes the package
-`build/x0x-smk37.fwsc` (identity `SMK-37 Pro_900`). `--release X.Y` gives `x0x-smk37-X.Y.fwsc`
-(`SMK-37 Pro_9XXYYZZ`).
+`build/x0x-smk37.fwsc` (identity `SMK-37 Pro_900`). `--release X.Y[.Z]` gives `x0x-smk37-X.Y.Z.fwsc`
+(`SMK-37 Pro_9XXYYZZ`). The package identity is only that number. An open-beta build also shows
+`X.Y.Z_openbeta` beside ABOUT X0X; those words are not part of the identity.
 
 `MODEL=elite` or `MODEL=mke` builds the same firmware under the model name of the SMK-37 Elite or the
 MKE-P37. The identity is `SMK-37 Elite_900` / `MKE-P37_900`. The objects go in `build/smk37-elite/` /

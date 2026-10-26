@@ -26,15 +26,40 @@ class DevelopmentValidation(unittest.TestCase):
         self.repo = self.root/'repo'
         self.repo.mkdir()
         self.git('init', '-q')
-        (self.repo/'build.sh').write_text('''#!/bin/sh
+        # Mock compilation with real .fwsc framing/CRCs and an unflashable fake
+        # payload, so version assertions inspect embedded bytes, not filenames.
+        fixture_build = '''#!/bin/sh
 set -eu
-[ "$MODEL" = elite ]
+case "$MODEL" in elite|pro) ;; *) exit 1 ;; esac
 [ "$X0X_DEV_PADCAL" = 1 ]
+version=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --release) version="$2"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 mkdir -p build
-printf 'development package' > build/x0x-smk37-elite.fwsc
+python3 - "$version" "$MODEL" <<'PYMOCK'
+from pathlib import Path
+import sys
+sys.path.insert(0, __TOOL_DIR__)
+from fm1pkg_make import ufw
+version, model = sys.argv[1:]
+model_name = {'pro': 'SMK-37 Pro', 'elite': 'SMK-37 Elite'}[model]
+product = model_name + '_900'
+filename = 'x0x-smk37' + ('-elite' if model == 'elite' else '')
+if version:
+    major, minor, patch = (int(s) for s in version.split('.'))
+    product = model_name + '_9' + f'{major:02d}{minor:02d}{patch:02d}'
+    filename += '-' + version
+Path('build', filename + '.fwsc').write_bytes(
+    ufw(b'\x00' * 1024, b'FELUCCA-LOADER-1' + b'\x00' * 128, product))
+PYMOCK
 echo 'app code area 100 B, 40 B free'
 echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
-''')
+'''
+        (self.repo/'build.sh').write_text(fixture_build.replace('__TOOL_DIR__', repr(str(ROOT/'tools'))))
         (self.repo/'.gitignore').write_text('build/\nble/ctl/out/\n')
         (self.repo/'test.py').write_text('print("affected test passed")\n')
         self.git('add', '.')
@@ -59,11 +84,14 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
     def git(self, *args):
         return subprocess.check_output(['git', '-C', str(self.repo), *args], text=True).strip()
 
-    def run_validation(self, controller=False, timeout=1800):
+    def run_validation(self, controller=False, timeout=1800, version=None, model='elite'):
         launcher = 'import runpy,sys; sys.path.insert(0,str(__import__("pathlib").Path(sys.argv[1]).parent)); from unittest.mock import patch; sys.argv=sys.argv[1:]; a=patch("platform.system",return_value="Linux"); b=patch("platform.machine",return_value="x86_64"); a.start(); b.start(); runpy.run_path(sys.argv[0],run_name="__main__")'
         return subprocess.run([sys.executable, '-c', launcher, str(RUNNER), 'run', '--repo', str(self.repo),
-                               '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
-                               '--output', str(self.out), '--timeout', str(timeout)] + ([] if controller else ['--no-controller']), capture_output=True, text=True, env=self.env)
+                               '--commit', self.commit, '--model', model, '--plan', str(self.plan),
+                               '--output', str(self.out), '--timeout', str(timeout)]
+                              + (['--firmware-version', version] if version is not None else [])
+                              + ([] if controller else ['--no-controller']),
+                              capture_output=True, text=True, env=self.env)
 
     def guard(self, *args):
         return subprocess.run(['bash', str(GUARD), self.commit, '--fwsc', str(self.out/'x0x-smk37-elite.fwsc'),
@@ -73,6 +101,76 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
     def ready(self):
         r = self.run_validation()
         self.assertEqual(r.returncode, 0, r.stdout+r.stderr)
+
+    def grant(self, version):
+        sys.path.insert(0, str(ROOT/'tools'))
+        from release_alloc import empty_ledger
+        tree = self.git('rev-parse', self.commit + '^{tree}')
+        path = self.repo/'releases'/'openbeta'/'ledger.json'
+        ledger = empty_ledger()
+        if path.is_file():
+            ledger = json.loads(path.read_text())
+        if not any(item.get('version') == version for item in ledger['allocations']):
+            major, minor, patch = (int(part) for part in version.split('.'))
+            ledger['allocations'].append({
+                'version': version, 'major': major, 'minor': minor, 'patch': patch,
+                'display': version + '_openbeta', 'source_commit': self.commit, 'source_tree': tree,
+                'immutable': False, 'models': {},
+            })
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(ledger, indent=2) + '\n')
+
+    def test_unallocated_firmware_version_is_refused(self):
+        result = self.run_validation(version='0.7.2')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('not allocated', result.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+
+    def test_firmware_version_is_stamped_into_dev_package_and_verified(self):
+        self.grant('0.7.2')
+        result = self.run_validation(version='0.7.2')
+        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+        record = self.out/'record.json'
+        data = json.loads(record.read_text())
+        self.assertEqual(data['firmware_version'], '0.7.2')
+        self.assertEqual(data['firmware']['version_label'], 'v0.7.2')
+        self.assertEqual(data['firmware']['product'], 'SMK-37 Elite_9000702')
+        self.assertEqual(data['firmware']['release_display'], '0.7.2_openbeta')
+        self.assertNotIn('openbeta', data['firmware']['product'])
+        self.assertFalse(data['firmware']['device_tested'])
+        self.assertFalse(data['firmware']['installable'])
+        self.assertIn('DEVICE NOT TESTED', data['firmware']['display_label'])
+        pkg = self.out/'x0x-smk37-elite-0.7.2.fwsc'
+        verify_args = [sys.executable, str(RUNNER), 'verify', '--repo', str(self.repo),
+                       '--commit', self.commit, '--record', str(record), '--fwsc', str(pkg)]
+        ok = subprocess.run(verify_args, capture_output=True, text=True, env=self.env)
+        self.assertEqual(ok.returncode, 0, ok.stdout+ok.stderr)
+        original = record.read_text()
+        data['firmware']['version_label'] = 'v9.9.9'
+        record.write_text(json.dumps(data))
+        tampered = subprocess.run(verify_args, capture_output=True, text=True, env=self.env)
+        self.assertEqual(tampered.returncode, 3, tampered.stdout+tampered.stderr)
+        record.write_text(original)
+
+    def test_pro_package_has_independent_versioned_identity(self):
+        self.grant('0.7.2')
+        r = self.run_validation(version='0.7.2', model='pro')
+        self.assertEqual(r.returncode, 0, r.stdout+r.stderr)
+        record = json.loads((self.out/'record.json').read_text())
+        self.assertEqual(record['firmware']['product'], 'SMK-37 Pro_9000702')
+        self.assertEqual(record['firmware']['firmware_version'], '0.7.2')
+        self.assertIn('SMK-37 Pro', record['firmware']['display_label'])
+        self.assertTrue((self.out/'x0x-smk37-0.7.2.fwsc').exists())
+
+    def test_noncanonical_version_refused_without_a_valid_record(self):
+        for invalid in ('01.2.3', '0.7', '99.99.100', '1.2.3-rc1'):
+            with self.subTest(version=invalid):
+                result = self.run_validation(version=invalid)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.out/'record.json').exists())
+                if self.out.exists():
+                    import shutil
+                    shutil.rmtree(self.out)
 
     def test_success_without_gate_and_queue_enforced(self):
         self.ready()
@@ -206,8 +304,11 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
 
     def test_missing_package_issues_no_record(self):
         path = self.repo/'build.sh'
+        # Tip fixture emits via fm1pkg_make.ufw, not printf → .fwsc.
         path.write_text(path.read_text().replace(
-            "printf 'development package' > build/x0x-smk37-elite.fwsc\n", ""))
+            "Path('build', filename + '.fwsc').write_bytes(\n"
+            "    ufw(b'\x00' * 1024, b'FELUCCA-LOADER-1' + b'\x00' * 128, product))\n",
+            ""))
         self.git('add', '.')
         self.git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'no package')
         self.commit = self.git('rev-parse', 'HEAD')
@@ -298,10 +399,12 @@ class NativeLinuxValidation(DevelopmentValidation):
         self.fixture_parent.mkdir(parents=True, exist_ok=True)
         super().setUp()
 
-    def run_validation(self, controller=False, timeout=1800):
+    def run_validation(self, controller=False, timeout=1800, version=None, model='elite'):
         return subprocess.run([sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo),
-            '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
-            '--output', str(self.out), '--timeout', str(timeout)] + ([] if controller else ['--no-controller']),
+            '--commit', self.commit, '--model', model, '--plan', str(self.plan),
+            '--output', str(self.out), '--timeout', str(timeout)]
+            + (['--firmware-version', version] if version is not None else [])
+            + ([] if controller else ['--no-controller']),
             capture_output=True, text=True, env=self.env)
 
 
@@ -313,16 +416,18 @@ class WorkerValidation(DevelopmentValidation):
         super().setUp()
 
     # Reuse all consumer, mutation and failure tests with real worker commands.
-    def run_validation(self, controller=False, timeout=1800):
+    def run_validation(self, controller=False, timeout=1800, version=None, model='elite'):
         plan = json.loads(self.plan.read_text())
         for check in plan.get('checks', []):
             if check['argv'][0] == sys.executable:
                 check['argv'][0] = 'python3'
         self.plan.write_text(json.dumps(plan))
         return subprocess.run([sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo),
-            '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
+            '--commit', self.commit, '--model', model, '--plan', str(self.plan),
             '--output', str(self.out), '--timeout', str(timeout),
-            '--worker-image', os.environ['X0X_TEST_WORKER_IMAGE']] + ([] if controller else ['--no-controller']),
+            '--worker-image', os.environ['X0X_TEST_WORKER_IMAGE']]
+            + (['--firmware-version', version] if version is not None else [])
+            + ([] if controller else ['--no-controller']),
             capture_output=True, text=True, env=self.env)
 
     def test_worker_provenance_and_consumer_authentication(self):

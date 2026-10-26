@@ -21,6 +21,8 @@ from pathlib import Path
 import add_ctl
 import fm1_install
 import fm1pkg_make as pm
+import release_alloc
+from firmware_build_labels import canonical_version, release_display, version_of_product
 
 MODELS = {"elite": "SMK-37 Elite", "pro": "SMK-37 Pro"}
 
@@ -36,13 +38,49 @@ def _pin(expected_sha256, expected_size):
         raise add_ctl.PkgError("controller size must be an exact image size between 68 and 65536 bytes")
 
 
-def _package(raw, model):
+def _embedded_version(product, model):
+    """Legacy model_900 is unversioned. Any other identity must be the 9XXYYZZ codec."""
+    if model not in MODELS:
+        raise add_ctl.PkgError("NIGHTLY model must be elite or pro")
+    if product == MODELS[model] + "_900":
+        return None
+    try:
+        found = version_of_product(product, model)
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise add_ctl.PkgError(f"package model {product!r} does not match {model}") from exc
+    if found is None:
+        raise add_ctl.PkgError(f"package model {product!r} does not match {model}")
+    return found
+
+
+def _require_allocated_version(version, ledger):
+    """A numeric identity must already exist in the ledger. Legacy model_900 stays unversioned."""
+    if version is None:
+        return
+    path = Path(ledger) if ledger is not None else Path("releases/openbeta/ledger.json")
+    try:
+        data = release_alloc._load(path)
+    except release_alloc.ReleaseError as exc:
+        raise add_ctl.PkgError(str(exc)) from exc
+    if not any(item.get("version") == version for item in data["allocations"]):
+        raise add_ctl.PkgError("firmware version is not allocated")
+
+
+def _package(raw, model, expected_version=None, ledger=None):
     """Strict current NIGHTLY structure, without weakening the legacy composition path."""
     if model not in MODELS:
         raise add_ctl.PkgError("NIGHTLY model must be elite or pro")
     product, logical = add_ctl.logical_of(raw)
-    if product != MODELS[model] + "_900":
-        raise add_ctl.PkgError(f"package model {product!r} does not match {model}")
+    version = _embedded_version(product, model)
+    if expected_version is not None:
+        try:
+            expected_version = canonical_version(expected_version)
+        except ValueError as exc:
+            raise add_ctl.PkgError(str(exc)) from exc
+        if version != expected_version:
+            raise add_ctl.PkgError(
+                f"package model {product!r} does not match firmware version {expected_version}")
+    _require_allocated_version(version, ledger)
     if problem := fm1_install.package_damage(logical):
         raise add_ctl.PkgError(f"package integrity: {problem}")
     hdr = add_ctl._dec(logical[:0x40])
@@ -100,10 +138,11 @@ def _package(raw, model):
     return product, logical, st
 
 
-def inspect(raw, model, expected_sha256, expected_size):
+def inspect(raw, model, expected_sha256, expected_size, expected_version=None, ledger=None):
     """Return byte-derived metadata only after the embedded controller matches its review pin."""
     _pin(expected_sha256, expected_size)
-    product, logical, _ = _package(raw, model)
+    product, logical, _ = _package(raw, model, expected_version, ledger)
+    version = _embedded_version(product, model)
     ctl = add_ctl.controller_of(logical)
     if ctl is None:
         raise add_ctl.PkgError("NIGHTLY package is missing its bundled Bluetooth controller")
@@ -114,6 +153,8 @@ def inspect(raw, model, expected_sha256, expected_size):
         "schema": "x0x37-bundled-controller-v1",
         "model": model,
         "product": product,
+        "firmware_version": version,
+        "release_display": None if version is None else release_display(version),
         "size": len(raw),
         "sha256": sha256(raw),
         "controller_strategy": "bundled",
@@ -131,10 +172,10 @@ def inspect(raw, model, expected_sha256, expected_size):
     }
 
 
-def compose(raw, ctl, model, expected_sha256, expected_size):
+def compose(raw, ctl, model, expected_sha256, expected_size, expected_version=None, ledger=None):
     """Build one complete package; the exact controller is mandatory before any output write."""
     _pin(expected_sha256, expected_size)
-    _package(raw, model)
+    _package(raw, model, expected_version, ledger)
     if not isinstance(ctl, (bytes, bytearray)):
         raise add_ctl.PkgError("a matching Bluetooth controller image is required")
     if len(ctl) != expected_size or sha256(ctl) != expected_sha256:
@@ -144,7 +185,7 @@ def compose(raw, ctl, model, expected_sha256, expected_size):
     if problem := add_ctl.ctl_problem(ctl):
         raise add_ctl.PkgError(f"Bluetooth controller: {problem}")
     output = add_ctl.add(raw, ctl)
-    receipt = inspect(output, model, expected_sha256, expected_size)
+    receipt = inspect(output, model, expected_sha256, expected_size, expected_version, ledger)
     if len(output) != len(raw) or add_ctl.add(output, None) != add_ctl.add(raw, None):
         raise add_ctl.PkgError("controller composition changed bytes outside the controller/checksum fields")
     return output, receipt
@@ -157,6 +198,8 @@ def main(argv=None):
     ap.add_argument("--model", choices=MODELS, required=True)
     ap.add_argument("--controller-sha256", required=True)
     ap.add_argument("--controller-size", type=int, required=True)
+    ap.add_argument("--firmware-version", help="require this canonical X.Y.Z machine identity")
+    ap.add_argument("--ledger", type=Path, help="open-beta ledger; default releases/openbeta/ledger.json")
     ap.add_argument("--check", action="store_true", help="inspect an already complete package; write no package")
     ap.add_argument("-o", "--out", type=Path)
     args = ap.parse_args(argv)
@@ -167,16 +210,19 @@ def main(argv=None):
     try:
         raw = args.package.read_bytes()
         if args.check:
-            receipt = inspect(raw, args.model, args.controller_sha256, args.controller_size)
+            receipt = inspect(raw, args.model, args.controller_sha256, args.controller_size,
+                              args.firmware_version, args.ledger)
         else:
             output, receipt = compose(raw, args.controller.read_bytes(), args.model,
-                                      args.controller_sha256, args.controller_size)
+                                      args.controller_sha256, args.controller_size, args.firmware_version,
+                                      args.ledger)
             add_ctl.write_package(args.out, output)
             # Read the committed name too, not just the temporary file checked by write_package.
             committed = args.out.read_bytes()
             if committed != output:
                 raise OSError("output replacement completed but its bytes changed before readback; inspect before retrying")
-            inspect(committed, args.model, args.controller_sha256, args.controller_size)
+            inspect(committed, args.model, args.controller_sha256, args.controller_size,
+                    args.firmware_version, args.ledger)
         print(json.dumps(receipt, indent=2, sort_keys=True))
         return 0
     except (OSError, add_ctl.PkgError, ValueError, struct.error) as exc:
