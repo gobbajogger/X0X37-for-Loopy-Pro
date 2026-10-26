@@ -557,7 +557,7 @@ __attribute__((noinline)) static float blep(float t, float dt)
 }
 
 #if BASS303_OS >= 2
-static inline float hb(bass303_ap_t *s, float a, float x)
+__attribute__((noinline)) static float hb(bass303_ap_t *s, float a, float x)
 {
     float y = a * (x - s->y1) + s->x1;
     s->x1 = x;
