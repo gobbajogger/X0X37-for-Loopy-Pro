@@ -1434,11 +1434,10 @@ static int smc_led(int note)
             if (row == 0) return ui.rec && ui.part == strip;
             if (row == 1) return !!(smc.solo & (1u << strip));
             if (row == 2) return part_muted(strip);
-            if (row == 3) {
-                int bus = strip == 0 ? 0 : strip == 1 ? 1 : strip == 2 ? 2 : strip == 4 ? 3 : -1;
-                if (bus >= 0)
-                    return (smc.fx_down >> bus) & 1;
-            }
+            /* SELECT feedback follows the same mode as its press action. Source
+             * buses map directly to strips 0..4, including 303B and BREAK. */
+            if (row == 3 && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())
+                return (smc.fx_down >> strip) & 1;
             return ui.part == strip;
         }
         /* Strips 6–8: M = mute/zero. R8/S6/S7/S8 are handled above; SELECT 6/7/8
