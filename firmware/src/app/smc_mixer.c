@@ -676,7 +676,7 @@ static UI_DRAW void smc_ui_grid(void)
             if (!(smc.picked & (1u << n)))
                 cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
         }
-        for (int row = 0; row < 4; row++) {
+        for (unsigned row = 0; row < sizeof NOTES / sizeof NOTES[0]; row++) {
             int y = 62 + row * 12;
             uint16_t c = smc_led(NOTES[row] + n) ? C_HI : f.kind == R_NONE ? C_DIM : C_GRAY;
             const char *caption = smc_button_caption(NOTES[row] + n);
