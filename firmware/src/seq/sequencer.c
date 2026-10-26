@@ -54,7 +54,7 @@ uint32_t seq_step_q8(const seq_t *s, int rate)
     return (uint32_t)(q * 256.0f * (float)TICKS_PER_STEP[rate & 3] / 24.0f);
 }
 
-static const dpart_t *dpart(const seq_t *s, int k) { return &s->pat[s->ppat[k]].drum[k]; }
+__attribute__((noinline)) static const dpart_t *dpart(const seq_t *s, int k) { return &s->pat[s->ppat[k]].drum[k]; }
 static int is_drum(int t) { return t < NKIT; }
 static int is_bass(int t) { return t >= TRK_BASS0 && t < TRK_BASS0 + NBASS; }
 __attribute__((noinline)) static bpart_t *bpart(const seq_t *s, int b) { return &s->pat[s->ppat[TRK_BASS0 + b]].bass[b]; }
