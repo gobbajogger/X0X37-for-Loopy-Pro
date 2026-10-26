@@ -74,7 +74,10 @@ static inline int wobble_bank_load(wobble_t *s, uint32_t id, unsigned schema,
 {
     if (!s || !bank || id != WOBBLE_EXPERIMENT_ENGINE || schema != 1 || n != 16) return 0;
     for (unsigned i=0; i<16; ++i) if (bank[i]>127) return 0;
-    for (unsigned i=0; i<16; ++i) wobble_foundation_set(s,(int)i,bank[i]);
+    /* Version-1 banks retain their original 7-bit values. Live Miami switches
+     * use 0/1 UI controls, but normalizing a legacy nonzero byte to 127 here
+     * would change the bank on save and silently change its old DSP meaning. */
+    for (unsigned i=0; i<16; ++i) wobble_set(s,i,(float)bank[i]/127.0f);
     return 1;
 }
 static inline void wobble_bank_save(const wobble_t *s, uint8_t bank[16])
