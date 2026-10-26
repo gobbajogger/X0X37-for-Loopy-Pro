@@ -82,7 +82,7 @@ int breaks_get(const breaks_t *b, int i) { return (i >= 0 && i < BRK_NPARAM) ? b
 
 /* ---- randomness ------------------------------------------------------------------------- */
 
-static uint32_t brk_rand_u(breaks_t *b)
+__attribute__((noinline)) static uint32_t brk_rand_u(breaks_t *b)
 {
     uint32_t x = b->rng;
     x ^= x << 13;
@@ -91,7 +91,7 @@ static uint32_t brk_rand_u(breaks_t *b)
     b->rng = x;
     return x;
 }
-static float brk_rand(breaks_t *b) { return (float)(brk_rand_u(b) >> 8) * (1.0f / 16777216.0f); }
+__attribute__((noinline)) static float brk_rand(breaks_t *b) { return (float)(brk_rand_u(b) >> 8) * (1.0f / 16777216.0f); }
 
 /* ---- BB Gen's slice selection (slice_select.c) ------------------------------------------ */
 
