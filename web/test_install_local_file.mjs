@@ -165,4 +165,40 @@ await caseRun('empty-picker feedback keeps model confirmation unchecked', async 
   assert.equal(p.dom.stockgo.disabled, true);
 });
 
+await caseRun('valid drop clears inline error from an invalid main chooser', async () => {
+  const p = picker();
+  p.dom.chooseLocal.handlers.click();
+  await p.input(file(7));
+  assert.equal(p.dom.localfeedback.dataset.state, 'error');
+  assert.equal(p.dom.localfeedback.hidden, false);
+  await p.drop(file(2));
+  assert.equal(p.dom.localfeedback.hidden, true, 'new drop must clear stale chooser feedback');
+  assert.equal(p.dom.localfeedback.textContent, '');
+  assert.equal(p.api.stock()?.product, 'SMK-37 Elite_9001000');
+  assert.equal(p.dom.stockconfirm.checked, false);
+  assert.equal(p.dom.stockgo.disabled, true);
+  assert.equal(p.events.at(-1)?.code, 'stockok');
+});
+await caseRun('valid drop supersedes pending main chooser feedback and late reads', async () => {
+  for (const older of ['valid', 'invalid', 'rejected']) {
+    const p = picker(), slow = deferred();
+    p.dom.chooseLocal.handlers.click();
+    const first = p.input({arrayBuffer: () => slow.promise});
+    assert.equal(p.dom.localfeedback.textContent, 'localchecking', 'main chooser must retain loading progress');
+    assert.equal(p.dom.localfeedback.hidden, false);
+    await p.drop(file(2));
+    assert.equal(p.dom.localfeedback.hidden, true, 'drop must supersede pending chooser feedback');
+    assert.equal(p.dom.localfeedback.textContent, '');
+    if (older === 'rejected') slow.reject(new Error('old chooser read failed'));
+    else slow.resolve(Uint8Array.of(older === 'valid' ? 1 : 7).buffer);
+    await first;
+    assert.equal(p.dom.localfeedback.hidden, true, older + ': stale feedback resurrected');
+    assert.equal(p.dom.localfeedback.textContent, '');
+    assert.equal(p.api.stock()?.product, 'SMK-37 Elite_9001000');
+    assert.equal(p.dom.stockconfirm.checked, false);
+    assert.equal(p.dom.stockgo.disabled, true);
+    assert.equal(p.dom.stockconfirm.focused, undefined, 'stale chooser must not claim drop focus');
+    assert.equal(p.events.at(-1)?.code, 'stockok', 'stale read must not replace current status');
+  }
+});
 console.log('local .fwsc selection regressions passed');
