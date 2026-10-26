@@ -73,7 +73,11 @@ console.log("PASS "+passed+"/"+cases.length+" exact-source stock model preflight
 const breaks = readFileSync(new URL("./x0x_breaks.js", import.meta.url), "utf8");
 const helperStart = breaks.indexOf("export async function installKeepingSlots(");
 assert.ok(helperStart >= 0);
-const helperBody = breaks.slice(helperStart).replace(/^export /, "");
+// Stop at the next section — slicing to EOF pulled encodeBreakPack's export
+// into the non-module vm.Script and threw SyntaxError.
+const helperEnd = breaks.indexOf("\n\n// A break pack:", helperStart);
+assert.ok(helperEnd > helperStart, "installKeepingSlots end not found");
+const helperBody = breaks.slice(helperStart, helperEnd).replace(/^export /, "");
 assert.match(html, /!foreign && !confirmNightlyModel\(ota\.id\.model, product\)/);
 assert.match(html, /confirmModel: foreign \? null : \(id, p\) => confirmNightlyModel\(id\.model, p\)/);
 assert.match(html, /nightlymodel: "DEV FIRMWARE/);

@@ -305,7 +305,8 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
 // ---- 8. the installer page itself (stub DOM): the download, the status, the instructions ----
 const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/gms, "");
 async function page(pkg, product, firmware, from, fill, opts = {}) {
-  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
+  // Match tools/make_pages.py LIB order (boot preview + factory loops).
+  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
@@ -341,6 +342,13 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     const o = {
       tag, textContent: "", value: "", disabled: false, hidden: false, checked: false, className: "",
       dataset: {}, handlers: {}, children: [], style: {},
+      // Boot preview canvas; installer draws at import time.
+      getContext() { return { clearRect() {}, fillRect() {}, drawImage() {}, fillText() {},
+        measureText: () => ({ width: 0 }), save() {}, restore() {}, beginPath() {}, closePath() {},
+        moveTo() {}, lineTo() {}, stroke() {}, fill() {}, translate() {}, scale() {},
+        putImageData() {}, getImageData: () => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }),
+        createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }),
+        canvas: { width: 128, height: 64 } }; },
       addEventListener(t, f) { this.handlers[t] = f; },
       append(...nodes) { for (const n of nodes) this.children.push(n); },
       appendChild(n) { this.children.push(n); return n; },
@@ -381,7 +389,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     return o;
   };
   globalThis.document = {
-    getElementById: (id) => (ids[id] ||= el(id === "version" ? "select" : id === "models" ? "div" : "div")),
+    getElementById: (id) => (ids[id] ||= el(id === "version" ? "select" : id === "bootprev" ? "canvas" : id === "models" ? "div" : "div")),
     querySelectorAll: () => [],
     querySelector: (sel) => {
       const m = /input\[value="([^"]+)"\]/.exec(sel);
@@ -408,6 +416,19 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     return node;
   };
   globalThis.window = { addEventListener() {}, confirm: () => true };
+  if (typeof globalThis.ImageData !== "function") {
+    globalThis.ImageData = class ImageData {
+      constructor(dataOrW, wOrH, h) {
+        if (typeof dataOrW === "number") {
+          this.width = dataOrW; this.height = wOrH;
+          this.data = new Uint8ClampedArray(this.width * this.height * 4);
+        } else {
+          this.data = dataOrW; this.width = wOrH; this.height = h;
+        }
+      }
+    };
+  }
+
   globalThis.fetch = async (url) => {
     if (String(url).includes("api.github.com")) return { ok: false, status: 404, json: async () => [] };
     // Mirror modern Fetch: approved remote firmware requires bounded streaming.
@@ -421,7 +442,8 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   for (let i = 0; i < 200 && ids.go?.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
   if (!ids.go || ids.go.disabled !== false) throw new Error("installer page did not enable Install");
   if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
-  const before = ids.status.textContent;
+  // Status is only created when say()/applyLang touch it; seed before click.
+  const before = (ids.status ||= el()).textContent;
   const clicked = ids.go.handlers.click();
   for (let i = 0; i < 3000; i++) {
     if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;

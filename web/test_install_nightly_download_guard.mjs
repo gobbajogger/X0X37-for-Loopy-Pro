@@ -249,7 +249,7 @@ test("empty eligible catalog keeps picker blank and direct link hidden", () => {
 // approved version/model/package. A blank or programmatically replaced DOM
 // selection must never flash an old image under a new package's approval.
 const exactSelectedVersion = cut("function currentVersion()", "\nfunction modelKeyForProduct(");
-const exactGoHandler = cut('$("go").addEventListener("click", () => {', "\nfunction confirmNightlyModel(");
+const exactGoHandler = cut('$("go").addEventListener("click", async () => {', "\nfunction confirmNightlyModel(");
 const publisherAdmission = admission.replace("Object.freeze({})",
   `Object.freeze(${JSON.stringify({[key]:approval})})`);
 function attemptedNightlyWrite({selection=good.version, cached=pkg,
@@ -257,8 +257,10 @@ function attemptedNightlyWrite({selection=good.version, cached=pkg,
   const handlers={}, calls=[];
   const dom = {version:{value:selection}, go:{disabled:false,
     addEventListener(event,fn){handlers[event]=fn;}}};
+  // Product go-handler reads break-pack radio via document.querySelector;
+  // default null => choice "none" (no pack insert) for these selection-guard cases.
   const ctx=createContext({dom,good,pkg,cached,cachedVersion,cachedProduct,
-    cachedHref,calls,Uint8Array});
+    cachedHref,calls,Uint8Array,document:{querySelector:()=>null}});
   new Script(`const $=(id)=>dom[id];
     let catalogLive={latest:good.version,versions:[good]},chosenModel="elite";
     let loadSerial=0,image=new Uint8Array([17]),selectedProduct=cachedProduct;

@@ -87,7 +87,7 @@ await check("cannot clear active controller during write",async()=>{
   const x=fixture();await x.choose(event(Promise.resolve(Uint8Array.of(2).buffer)));
   x.write(true);x.clear();assert.equal(x.ctl(),2);assert.equal(x.hash(),"sha-2");
 });
-const goBegin=html.indexOf('$("go").addEventListener("click", () => {');
+const goBegin=html.indexOf('$("go").addEventListener("click", async () => {');
 const goEnd=html.indexOf("\nfunction confirmNightlyModel(",goBegin);
 assert.ok(goBegin>=0&&goEnd>goBegin,"DEV Install handler missing");
 const goSource=html.slice(goBegin,goEnd);
@@ -98,6 +98,7 @@ function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true,pending=fa
   let callback,writes=0,inserts=0,errors=[];
   const ctx=createContext({
     Uint8Array,$:()=>({disabled:false,addEventListener:(_e,f)=>{callback=f}}),
+    document:{querySelector:()=>null}, // break-pack radios absent => choice "none"
     currentVersion:()=>({models:{elite:{controller_sha256:approvedHash}}}),
     isCatalogChecked:()=>approved,hasVerifiedNightlySelection:()=>approved,confirmWrite:()=>true,
     guardApprovedSelection:()=>()=>true, // R26 captures approved selection before mocked run().
