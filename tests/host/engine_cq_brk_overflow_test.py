@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Full audio CQ must retain BREAK key release (C_BRK down=0) under param flood.
+"""Full audio CQ must retain BREAK key press and release (C_BRK) under param flood.
 
-Sibling of engine_cq_boff_overflow_test.py (#588). Extracts production cq_put
-from engine.c. A queued C_BRK press plus a full ring of params must still accept
-a C_BRK release by displacing a disposable param/drum entry. C_BOFF remains
-protected and must not be displaced by a break release either.
+Sibling of engine_cq_boff_overflow_test.py (#588) / bon (#603). Extracts
+production cq_put from engine.c. A full ring of params must still accept a
+C_BRK press by displacing a disposable param/drum entry; a queued press plus
+a full ring must still accept a C_BRK release. C_BOFF remains protected and
+must not be displaced by a break release either.
 """
 from pathlib import Path
 import subprocess
@@ -37,6 +38,21 @@ static int count_brk_down(uint32_t down)
     return (int)n;
 }
 
+static int expect_brk_press_kept(void)
+{
+    cq_w = cq_r = 0;
+    for (unsigned i = 0; i < CQ; i++)
+        cq_put(C_PARAM_T0, 0, 0, i);
+    cq_put(C_BRK, 3, 1, 0);                 /* press must displace a param */
+    if (cq_w - cq_r != CQ)
+        return 11;
+    if (count_brk_down(1) != 1)
+        return 12;
+    if (count_type(C_PARAM_T0) != (int)CQ - 1)
+        return 13;
+    return 0;
+}
+
 static int expect_brk_release_kept(void)
 {
     cq_w = cq_r = 0;
@@ -45,13 +61,13 @@ static int expect_brk_release_kept(void)
         cq_put(C_PARAM_T0, 0, 0, i);
     cq_put(C_BRK, 3, 0, 0);                 /* release must displace a param */
     if (cq_w - cq_r != CQ)
-        return 11;
+        return 21;
     if (count_brk_down(1) != 1)
-        return 12;
+        return 22;
     if (count_brk_down(0) != 1)
-        return 13;
+        return 23;
     if (count_type(C_PARAM_T0) != (int)CQ - 2)
-        return 14;
+        return 24;
     return 0;
 }
 
@@ -63,9 +79,9 @@ static int expect_boff_still_kept(void)
         cq_put(C_PARAM_T0, 0, 0, i);
     cq_put(C_BOFF, 0, 0, 0);
     if (count_type(C_BON) != 1)
-        return 21;
+        return 31;
     if (count_type(C_BOFF) != 1)
-        return 22;
+        return 32;
     return 0;
 }
 
@@ -79,11 +95,39 @@ static int expect_release_does_not_displace_boff(void)
     /* Ring full of: 1×C_BOFF, 1×C_BRK press, rest params. Release must displace a param. */
     cq_put(C_BRK, 1, 0, 0);
     if (count_type(C_BOFF) != 1)
-        return 31;
+        return 41;
     if (count_brk_down(1) != 1)
-        return 32;
+        return 42;
     if (count_brk_down(0) != 1)
-        return 33;
+        return 43;
+    return 0;
+}
+
+static int expect_press_does_not_displace_boff(void)
+{
+    cq_w = cq_r = 0;
+    cq_put(C_BOFF, 0, 0, 0);
+    for (unsigned i = 0; i < CQ - 1u; i++)
+        cq_put(C_PARAM_T0, 0, 0, i);
+    cq_put(C_BRK, 2, 1, 0);
+    if (count_type(C_BOFF) != 1)
+        return 51;
+    if (count_brk_down(1) != 1)
+        return 52;
+    return 0;
+}
+
+static int expect_press_does_not_displace_brk_release(void)
+{
+    cq_w = cq_r = 0;
+    cq_put(C_BRK, 4, 0, 0);                 /* release already queued */
+    for (unsigned i = 0; i < CQ - 1u; i++)
+        cq_put(C_PARAM_T0, 0, 0, i);
+    cq_put(C_BRK, 5, 1, 0);
+    if (count_brk_down(0) != 1)
+        return 61;
+    if (count_brk_down(1) != 1)
+        return 62;
     return 0;
 }
 
@@ -94,10 +138,10 @@ static int expect_param_still_drops(void)
         cq_put(C_PARAM_T0, 0, 0, i);
     cq_put(C_PARAM_T0, 0, 0, 0xABC);
     if (cq_w - cq_r != CQ)
-        return 41;
+        return 71;
     for (uint32_t i = cq_r; i != cq_w; i++) {
         if ((cq[i % CQ] & 0xFFFu) == 0xABCu)
-            return 42;
+            return 72;
     }
     return 0;
 }
@@ -105,22 +149,35 @@ static int expect_param_still_drops(void)
 int main(void)
 {
     int rc;
+    if ((rc = expect_brk_press_kept()) != 0) {
+        printf("FAIL brk-press-kept rc=%d depth=%u press=%d param=%d\n",
+               rc, (unsigned)(cq_w - cq_r), count_brk_down(1), count_type(C_PARAM_T0));
+        return 1;
+    }
     if ((rc = expect_brk_release_kept()) != 0) {
         printf("FAIL brk-release-kept rc=%d depth=%u press=%d rel=%d\n",
                rc, (unsigned)(cq_w - cq_r), count_brk_down(1), count_brk_down(0));
-        return 1;
+        return 2;
     }
     if ((rc = expect_boff_still_kept()) != 0) {
         printf("FAIL boff-still-kept rc=%d\n", rc);
-        return 2;
+        return 3;
     }
     if ((rc = expect_release_does_not_displace_boff()) != 0) {
         printf("FAIL brk-vs-boff rc=%d\n", rc);
-        return 3;
+        return 4;
+    }
+    if ((rc = expect_press_does_not_displace_boff()) != 0) {
+        printf("FAIL press-vs-boff rc=%d\n", rc);
+        return 5;
+    }
+    if ((rc = expect_press_does_not_displace_brk_release()) != 0) {
+        printf("FAIL press-vs-brk-rel rc=%d\n", rc);
+        return 6;
     }
     if ((rc = expect_param_still_drops()) != 0) {
         printf("FAIL param-drop rc=%d\n", rc);
-        return 4;
+        return 7;
     }
     puts("ok");
     return 0;
