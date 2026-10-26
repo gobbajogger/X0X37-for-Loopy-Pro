@@ -95,14 +95,19 @@ export function trimSilence(x, sr, floor = 0.001, preMs = 1, fadeMs = 5) {
   return y;
 }
 
-// upload_breaks.cut: mono floats at their rate -> int16 at `rate` (one bar if bars; silence cut if trim)
-export function cut(x, sr, bars, rate = RATE, trim = false) {
+// Keep the reference audition on the same trim and first-bar selection as the stored loop.
+function selectLoopSource(x, sr, bars, trim) {
   if (trim) x = trimSilence(x, sr);
   if (bars) {
     const n = barsOf(x.length / sr)[0];
     x = x.slice(0, Math.round(x.length / n));
   }
-  const y = resample(x, sr, rate);
+  return x;
+}
+
+// upload_breaks.cut: mono floats at their rate -> int16 at `rate` (one bar if bars; silence cut if trim)
+export function cut(x, sr, bars, rate = RATE, trim = false) {
+  const y = resample(selectLoopSource(x, sr, bars, trim), sr, rate);
   const pk = peak(y);
   return toInt16(y.map((v) => v * (0.95 / pk)));
 }
@@ -128,12 +133,28 @@ export function cutLoop(x, sr, bars, storageRate = RATE, trim = false, gritFacto
   return { s, rate };
 }
 
+export function prepareLoopImport(x, sr, { bars = true, trim = false, storageRate = RATE, gritFactor = 1 } = {}) {
+  if (!x || !x.length || !Number.isFinite(sr) || sr <= 0 || !Array.from(x).every(Number.isFinite))
+    throw new Error("The source audio has invalid samples or sample rate.");
+  if (storageRate !== RATE && storageRate !== RATE_HALF) throw new Error("Invalid import rate.");
+  if (!Number.isFinite(gritFactor) || gritFactor < 1 || gritFactor > 8) throw new Error("Invalid oldschool factor.");
+  const selected = selectLoopSource(x, sr, bars, trim);
+  const scale = (30000 / 32768) / peak(selected);
+  const reference = Float32Array.from(selected, v => v * scale);
+  const baseline = cut(x, sr, bars, RATE, trim);
+  const { s, rate } = cutLoop(x, sr, bars, storageRate, trim, gritFactor);
+  if (s.length < MIN_LOOP_SAMPLES) throw new Error("This loop is too short for BREAK playback (64 samples minimum).");
+  const adpcm = imaEncode(s), baselineBytes = Math.ceil(baseline.length / 2);
+  return { s, rate, n: s.length, adpcm, baselineSamples: baseline.length, baselineBytes,
+    savedBytes: baselineBytes - adpcm.length, gritFactor, storageRate, reference, referenceRate: sr };
+}
+
 export function gritLabel(factor) {
   const g = OLDSCHOOL_GRIT.find((o) => o.factor === factor);
   return g && g.factor > 1 ? g.label : "";
 }
 
-// What you hear on the device: IMA round-trip at the zone playback rate (stretched timing).
+// Encoded preview at the saved zone rate; device tempo and effects remain separate.
 export function loopPreviewPcm(s, playbackRate, roundTrip = true) {
   const pcm = roundTrip ? imaDecode(imaEncode(s), s.length) : s;
   const samples = new Float32Array(pcm.length);
