@@ -519,15 +519,21 @@ def plan_migration(images, risk, old_map, new_lay, new_map):
 X0X_NBREAKS_BUILTIN = 2                    # factory loops listed before BRn (engine_brk_slot_names / pattern.h)
 
 
-def _user_loop_menu_ids(lay, images):
-    """Occupied user slots in LOOP menu order (built-ins excluded; matches BR1, BR2, ...)."""
-    return [("user", zlib.crc32(images[k]) & 0xFFFFFFFF)
-            for k, sl in enumerate(lay["slots"]) if sl.get("nz") and images[k] is not None]
+def _user_loop_menu_ids(lay, images, origins=None):
+    """Original slot/zone identities in the engine's absolute user LOOP menu order.
+
+    Content CRC is not identity: two distinct slots may contain identical bytes.
+    Each zone is one menu entry (engine.scan_loops), rather than one entry per slot.
+    Unknown occupied destinations must also count, since they can shift later entries.
+    """
+    return [("old", k if origins is None else origins[k], z)
+            if origins is None or origins[k] is not None else ("new", k, z)
+            for k, sl in enumerate(lay["slots"]) for z in range(sl.get("nz", 0))]
 
 
 def _loop_menu_after_migration(old_lay, images, risk, old_map, new_map, new_lay, todo):
     n = len(new_map)
-    imgs = [None] * n
+    imgs, origins = [None] * n, [None] * n
     slots = [dict(sl) for sl in new_lay["slots"]]
     for k, img in enumerate(images):
         if k in risk or img is None:
@@ -535,33 +541,35 @@ def _loop_menu_after_migration(old_lay, images, risk, old_map, new_map, new_lay,
         off = old_map[k][0]
         for j, (noff, _) in enumerate(new_map):
             if noff == off:
-                imgs[j] = img
-                if not slots[j].get("nz"):
-                    slots[j] = dict(old_lay["slots"][k])
+                imgs[j], origins[j] = img, k
+                slots[j] = dict(old_lay["slots"][k])
                 break
     for k, j in todo:
-        imgs[j] = images[k]
+        imgs[j], origins[j] = images[k], k
         slots[j] = dict(old_lay["slots"][k])
-    return _user_loop_menu_ids({**new_lay, "slots": slots}, imgs)
+    return _user_loop_menu_ids({**new_lay, "slots": slots}, imgs, origins)
 
 
 def migration_reorders_loop_menu(old_lay, images, risk, old_map, new_lay, new_map, todo):
-    """True when surviving user loops would appear in a different LOOP menu order (pattern slot_a/slot_b)."""
+    """True if automatic restoration changes an existing absolute LOOP index.
+
+    The historical function name includes skipped-middle compaction, not just relative
+    reordering. An unchanged prefix with only trailing omissions or additions is safe.
+    """
     if not todo:
         return False
     before = _user_loop_menu_ids(old_lay, images)
     after = _loop_menu_after_migration(old_lay, images, risk, old_map, new_map, new_lay, todo)
-    survive = [x for x in before if x in after]
-    after_survive = [x for x in after if x in survive]
-    return survive != after_survive
+    return any(a != b for a, b in zip(before, after))
 
 
-LOOP_MENU_GUARD = ("LOOP menu order would change; saved break pattern A/B indices would point at the wrong "
-                   "loops. Restore samples manually from the backup, then re-assign LOOP A/B in each pattern.")
+LOOP_MENU_GUARD = ("LOOP menu order or indices would change; saved break pattern A/B indices could point at "
+                   "different loops. The backup is retained. Restore samples manually to a compatible layout, "
+                   "then check and re-assign LOOP A/B in every saved pattern before playback.")
 
 
 def guard_migration_loop_menu(old_lay, images, risk, old_map, new_lay, new_map, todo, skipped):
-    """Drop a migration plan that would reorder the LOOP menu (fail closed on automatic restore)."""
+    """Drop a migration plan that would change existing absolute LOOP indices (fail closed on automatic restore)."""
     if migration_reorders_loop_menu(old_lay, images, risk, old_map, new_lay, new_map, todo):
         extra = list(skipped)
         for k, _j in todo:

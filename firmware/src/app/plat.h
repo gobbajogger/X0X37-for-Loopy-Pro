@@ -16,6 +16,17 @@
 #define X0X_POOL __attribute__((section(".pool")))
 #endif
 
+/* CQ replacement: exclude only its audio-ISR consumer, preserving an already
+ * disabled source. Host app simulation is single-threaded; interleaving tests
+ * supply a source-mask model when extracting the production queue. */
+#ifdef X0X_HOST
+static inline uint32_t plat_cq_lock(void) { return 0; }
+static inline void plat_cq_unlock(uint32_t state) { (void)state; }
+#else
+uint32_t plat_cq_lock(void);
+void plat_cq_unlock(uint32_t state);
+#endif
+
 /* panel controls, by printed label (Felucca's panel.c map turns these into matrix ids; Felucca
  * calls the second button SCL, the panel prints SEL) */
 enum { B_FX, B_SEL, B_ENV, B_LFO, B_EDIT, B_GLO, B_HOME, B_SAVE, B_ARP, B_SEQ, B_PLAY, B_REC,

@@ -46,6 +46,10 @@ static void engine_smc_solo_targets(uint8_t parts,uint16_t a,uint16_t b)
 { output_solo=(int)parts | (int)(a!=0)<<8 | (int)(b!=0)<<9; }
 static void ui_say(const char *a,const char *b){(void)a;(void)b;}
 #define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
+/* This fixture dispatches Solo notes only, never opens an FX view, and already
+ * substitutes all FX side effects. Full SELECT/mode ownership is exercised by
+ * smc_select_mode_test.c through the production dispatch. */
+static int smc_fx_bus_now(uint8_t note) { (void)note; return -1; }
 static void smc_guarded_button(uint8_t note,int mmc,int allow);
 static int smc_lock_button(int pressed);
 '''

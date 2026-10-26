@@ -1,0 +1,40 @@
+{
+  "verdict": "PASS final source/test follow-up review",
+  "head": "2ed626fcb0cb2c1ce1d7ff85ecfbe4e6acb6b1ca",
+  "tree": "78aeb867d2dc70fa670d4d63759ff163bd3d3059",
+  "reviewed_source_parent": "5a7c1df58c0e09fa553a9ab3a750c2754208a29e",
+  "delta": [
+    "tests/host/smc_feedback_test.py"
+  ],
+  "firmware_delta_empty": true,
+  "production_blob": "36d8018012e0c38fd79a0bf0e333d33c1435fb60",
+  "feedback_test_blob": "3db79e94c8c827ffd1dd9d127e41712b532e9ddc",
+  "feedback_test_sha256": "4d21524b863f8b99983f9e96ecdebe3cb972cf8206d5d72ad7cc2bc86daa3f96",
+  "checks": [
+    {
+      "name": "feedback-final",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_test.py"
+      ],
+      "environment": {},
+      "exit": 0,
+      "log_sha256": "7f2f210f926eea8eb22ab83b0e9d6444054e3b7b13115d78322eb6117f859266"
+    },
+    {
+      "name": "feedback-old-led-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_test.py"
+      ],
+      "environment": {
+        "SMC_SOURCE": "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-review/before-smc_mixer.c"
+      },
+      "exit": 1,
+      "log_sha256": "9e086ed807999c490896fc2579990c1d74d7cb81d5dacb5178cb7f2e05198caa"
+    }
+  ],
+  "carry_forward": "Prior5a7 independent5166 production SELECT/frame, LEDmutation and filter passes retained under unchanged production and existing test closure; focused new feedback fixture independently executed",
+  "native": "Not run by reviewer; coordinator qualification must bind current corrected test/input closure, old9406 production packages remain invalid for36d80180",
+  "hardware": "NOT_RUN"
+}
