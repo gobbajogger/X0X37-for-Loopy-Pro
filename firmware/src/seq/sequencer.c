@@ -218,7 +218,7 @@ __attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t
     }
 }
 
-static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, uint32_t skip, const seq_sink_t *o)
+__attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, uint32_t skip, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
     bpart_t *bp = bpart(s, b);

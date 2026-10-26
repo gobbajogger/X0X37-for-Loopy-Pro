@@ -633,7 +633,7 @@ D8_TICK float tom_tick(d8_tom_t *v)
 #define CL_F 2.526332590e+03f
 #define CL_Q 1.431782106e+01f
 
-static void cl_trigger(d8_clave_t *v, float ratio, float decay01, float accent_v)
+__attribute__((noinline)) static void cl_trigger(d8_clave_t *v, float ratio, float decay01, float accent_v)
 {
     float r = ratio < 0.25f ? 0.25f : (ratio > 4.0f ? 4.0f : ratio);
     float dd = clampf(decay01, 0.0f, 1.0f);
@@ -673,7 +673,7 @@ D8_TICK float cl_tick(d8_clave_t *v)
 /* ---- maracas: sc808_rs_circuit.h MaracasCircuit ---- */
 #define MA_ATK_DEF 0.251968503f                   /* 32/127, as the float division */
 
-static void ma_tune(d8_ma_t *v, float ratio)
+__attribute__((noinline)) static void ma_tune(d8_ma_t *v, float ratio)
 {
     float r = ratio < 0.25f ? 0.25f : (ratio > 4.0f ? 4.0f : ratio);
     hp1_set(&v->hpa, 6300.0f * r > 15000.0f ? 15000.0f : 6300.0f * r);
@@ -769,7 +769,7 @@ D8_TICK float rs_tick(d8_rim_t *v)
 #define CP_F 8.743325448e+02f
 #define CP_Q 1.290994449e+00f
 
-static void cp_trigger(d8_cp_t *v, float ratio, float decay)
+__attribute__((noinline)) static void cp_trigger(d8_cp_t *v, float ratio, float decay)
 {
     float dd = decay < 0.05f ? 0.05f : (decay > 4.0f ? 4.0f : decay);
     bp_set(&v->bp, CP_F * ratio, CP_Q);
@@ -1092,7 +1092,7 @@ X0X_COLD static void cb_init(d8_cb_t *v)
     v->ratio = 1.0f;
 }
 
-static void cb_ratio(d8_cb_t *v, float r)
+__attribute__((noinline)) static void cb_ratio(d8_cb_t *v, float r)
 {
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
     if (r != v->ratio) {
