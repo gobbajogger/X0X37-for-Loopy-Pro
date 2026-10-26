@@ -96,7 +96,7 @@ static uint8_t io_buf[PLAT_STORE_MAX] __attribute__((aligned(4)));
  * objects that changed: an autosave usually erases one or two sectors, not six */
 static uint64_t stored_hash[OBJ_NOBJ];
 static uint8_t stored_known[OBJ_NOBJ];
-static uint64_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a, 64-bit */
+__attribute__((noinline)) static uint64_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a, 64-bit */
 {
     uint64_t h = UINT64_C(14695981039346656037);
     while (n--)
@@ -192,7 +192,7 @@ static int load_sound(sound_t *dst)
     return 0;
 }
 
-static void arrange_defaults(project_t *pr)
+__attribute__((noinline)) static void arrange_defaults(project_t *pr)
 {
     uint32_t i;
     uint8_t *z = (uint8_t *)&pr->arr;
