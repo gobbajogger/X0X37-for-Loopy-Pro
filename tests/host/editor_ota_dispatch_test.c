@@ -32,9 +32,16 @@ static int ed_project_end(int apply)
     (void)apply; ed_project.mode = 0; return 0;
 }
 static int ui_project_busy(void) { return ed_project.mode != 0; }
+/* Production ed_service calls these; boot payload bodies stay out of this fixture. */
+static int boot_cmd(uint32_t cmd)
+{
+    return cmd == ED_BOOT_INFO || (cmd >= ED_BOOT_BEGIN && cmd <= ED_BOOT_ABORT);
+}
+static void boot_housekeep(void) {}
 static void ed_handle(const uint8_t *p, uint32_t n)
 {
-    int retained = p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ);
+    int retained = p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) ||
+                   boot_cmd(p[3]);
     dispatches++;
     ownership_errors += retained ? (!rx_full || p != rx) : (rx_full || p == rx);
     memcpy(dispatched, p, n); dispatched_n = n;
