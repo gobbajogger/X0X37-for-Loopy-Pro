@@ -657,21 +657,21 @@ async function midiAccess() {
 }
 
 let scanSerial = 0;
-async function scan() {
+async function scan(allowPostWrite = false) {
   const requestId = ++scanSerial;
-  if (writing) return;
+  if (writing && !allowPostWrite) return;
   led("busy");
   $("conn").textContent = t("looking");
   try {
     const up = new Updater(await midiAccess(), () => {});
-    if (requestId !== scanSerial || writing) return;
+    if (requestId !== scanSerial || (writing && !allowPostWrite)) return;
     // Prefer a running app; if only the update loader is present, resume from there.
     let dev = await up.find((id) => !/^ota-/i.test(id.model));
-    if (requestId !== scanSerial || writing) { if (dev) dev.link.close(); return; }
+    if (requestId !== scanSerial || (writing && !allowPostWrite)) { if (dev) dev.link.close(); return; }
     let inOta = false;
     if (!dev) {
       dev = await up.find((id) => /^ota-/i.test(id.model));
-      if (requestId !== scanSerial || writing) { if (dev) dev.link.close(); return; }
+      if (requestId !== scanSerial || (writing && !allowPostWrite)) { if (dev) dev.link.close(); return; }
       inOta = !!dev;
     }
     if (!dev) {
@@ -689,7 +689,7 @@ async function scan() {
     suggestModel(bare);
     dev.link.close();
   } catch (e) {
-    if (requestId !== scanSerial || writing) return;
+    if (requestId !== scanSerial || (writing && !allowPostWrite)) return;
     lastId = null;
     setConnected(false, (e && e.message) || t("error"));
   }
@@ -1070,12 +1070,20 @@ drop.addEventListener("drop", async (e) => {
 });
 
 async function run(img, product, opts = {}) {
+  if (writing) return;
+  writing = true;
+  updateInstallGate(); // Refresh busy guidance when acquiring write ownership.
+  $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
-  catch (e) { sayK(e.code || "denied"); return; }
-  writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied");
+    updateInstallGate();
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    return;
+  }
   led("busy");
   try {
     const up = new Updater(access, log);
@@ -1119,7 +1127,7 @@ async function run(img, product, opts = {}) {
         sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
       }
     }
-    await scan();
+    await scan(true);  // Refresh status after reboot, while retaining the single-writer lock.
   } catch (e) {
     // Stock / other custom firmware often reports a different identity string than the package marker.
     if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }

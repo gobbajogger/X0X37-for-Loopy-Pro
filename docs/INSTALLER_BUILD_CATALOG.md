@@ -18,3 +18,13 @@ Published development packages are raw, immutable `.fwsc` Git objects. The websi
 The two recovered package pairs are from separate validated revisions, not renamed copies. GitHub `gh-pages/firmware/` contains exact content-addressed copies of the tracked binaries; their hashes must continue to match the catalog. Never point a catalog entry at an updated source commit while reusing a previous binary/record. Old package archives with only textual evidence appear in `history` without download buttons.
 
 Publish the existing GitHub Pages **site only**, not a GitHub Release. Do not commit user calibration, sample dumps, JieLi SDK/compiler/vendor firmware, credentials or a binary `ctl.img`. When regenerating the site, merge `gh-pages` firmware before publishing; the generator aborts if any referenced package is missing.
+
+## Catalog and generator regression safeguards — 2026-10-23
+
+The site generator now refuses a package when its embedded model does not match the explicitly requested `--pro`, `--elite`, `--mke` or `--fm1` destination. Partial republishing of an existing version preserves unchanged model packages, while any new or changed model bytes revoke inherited approval and require fresh model-specific validation before the corresponding build can be selected for installation. Unverified new versions cannot become `latest` automatically.
+
+When reusing `gh-pages/versions.json`, local package paths are normalized for the installer page; carried-forward files are checked against their recorded byte size and SHA-256 after copying. Different firmware bytes cannot overwrite a historical filename, and the generator refuses `--merge` directories equal to or contained inside the output directory. A shell site generated from the canonical source registry without archived package files intentionally fails closed.
+
+Validation workflow: `.github/workflows/installer-regressions.yml` checks the Python package/catalog generator, Web MIDI sample-slot installation simulation, sample importer, and portable-project paths. It does not publish the site or build firmware.
+
+**Outstanding repository-level hazard:** The pre-existing `.github/workflows/pages.yml` and `tools/publish_pages.sh` use force pushes to `gh-pages`. They must be reconciled by the responsible Pages/integration owner before any source PR merge triggers site regeneration; a green generator test alone does not authorize that deployment path. Preserve source-branch validation and keep public website updates non-forced.
