@@ -677,7 +677,7 @@ __attribute__((noinline)) static void switch_internal(seq_t *s)
     clock_lost(s);
 }
 
-static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
+__attribute__((noinline)) static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
 {
     int t;
     for (t = 0; t < NTRACKS; t++) {

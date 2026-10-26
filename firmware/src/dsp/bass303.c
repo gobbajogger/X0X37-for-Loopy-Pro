@@ -316,7 +316,7 @@ X0X_COLD void bass303_set(bass303_t *b, int i, int v)
 }
 
 /* clear everything that only matters while sound is running (Open303::triggerNote after idle) */
-static void clear_audio_state(bass303_t *b)
+__attribute__((noinline)) static void clear_audio_state(bass303_t *b)
 {
     int i;
     b->dc.x1 = b->dc.x2 = b->dc.y1 = b->dc.y2 = 0.0f;
