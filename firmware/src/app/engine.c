@@ -958,7 +958,7 @@ X0X_COLD void engine_brk_slice_mode_reconcile(void)
     }
 }
 
-static void brk_link_end(int src, uint16_t owned)
+__attribute__((noinline)) static void brk_link_end(int src, uint16_t owned)
 {
     int s, n;
     if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1) {
