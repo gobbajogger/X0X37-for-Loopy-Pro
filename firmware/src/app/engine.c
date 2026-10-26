@@ -366,7 +366,12 @@ int engine_nparams(int t, int v)
     switch (t) {
     case T_909: return drum909_nparams(v);
     case T_808: return drum808_nparams(v);
-    case T_303: return CHI_AUX_END;                      /* … + SEND FX 27..29 + PBend/Damp 30..31 */
+    case T_303:
+#if X0X_DEV_WOBBLE
+        if (bass_wobble_voice(v))
+            return WOBBLE_EXPERIMENT_NPARAMS;           /* Miami controls only; no phantom Chicago pots */
+#endif
+        return CHI_AUX_END;                             /* Chicago Arp / FX / bend and damper */
     case T_BRK: return 2;                                /* Level, Pitch (sends: the mixer's; the rest: the pattern's) */
     case T_FX: return fxbus_nparams();
     case T_MIX: return MX_NPARAMS;                       /* every part: Level, Rev send, Dly send */
@@ -383,11 +388,8 @@ X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
     case T_808: return drum808_param(v, i);
     case T_303:
 #if X0X_DEV_WOBBLE
-        if (bass_wobble_voice(v)) {
-            const x0x_param_t *p = wobble_param(i);
-            if (p)
-                return p;
-        }
+        if (bass_wobble_voice(v))
+            return wobble_param(i);                     /* Do not fall through into Chicago metadata */
 #endif
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             return &CHI_ARP_PARAMS[i - CHI_ARP_SWITCH];
@@ -444,6 +446,16 @@ __attribute__((noinline)) static void chi_live_note_off(int v)
 {
     if ((unsigned)v >= NBASS)
         return;
+#if X0X_DEV_WOBBLE
+    if (bass_wobble_voice(v)) {
+        /* Only live/MIDI release may defer on Miami's own damper. Pattern
+         * s_boff and transport panic retain their unconditional gate-off. */
+        wobble_t *w = (wobble_t *)bass_slot[v].active.context;
+        chi_damp_latched[v] = 0;
+        wobble_note_off(w, w->note);
+        return;
+    }
+#endif
     if (chi_damper_on(chi_damper[v])) {
         chi_damp_latched[v] = 1;
         return;
@@ -571,6 +583,14 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     case T_303:
         if (v < 0 || v >= NBASS)
             break;
+#if X0X_DEV_WOBBLE
+        if (bass_wobble_voice(v)) {
+            /* WBL1 indices overlap Chicago's private indices; never mutate
+             * dormant native303/arp/FX on a Miami pot write. */
+            wobble_foundation_set(bass_slot[v].active.context, i, val);
+            break;
+        }
+#endif
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             chi_arp_apply_cfg(v, i, val);
         else if (i >= CHI_FX_TYPE && i < CHI_FX_END) {
@@ -587,10 +607,6 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             chi_fx_insert_program(v);
         } else if (i >= CHI_PBEND && i < CHI_AUX_END)
             chi_aux_apply(v, i, val);
-#if X0X_DEV_WOBBLE
-        else if (bass_wobble_voice(v))
-            wobble_foundation_set(bass_slot[v].active.context, i, val);
-#endif
         else
             bass303_set(&b303[v], i, val);
         break;
@@ -679,7 +695,10 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
     s->v[T_BRK][0][0] = 127;                         /* the break: full level, part a little over unity */
     s->v[T_MIX][PART_BRK][MX_LEVEL] = 120;
     s->v[T_MIX][PART_BRK][MX_REV] = 25;
-    for (v = 0; v < NBASS; v++) {                    /* acid: low cutoff, high resonance, a long sweep, RAT */
+    for (v = 0; v < NBASS; v++) {
+#if X0X_DEV_WOBBLE
+        if (!bass_wobble_voice(v)) {                  /* Chicago's slot numbers are NOT Miami parameter indices */
+#endif
         s->v[T_303][v][BASS303_CUTOFF] = 48;
         s->v[T_303][v][BASS303_RESO] = 100;
         s->v[T_303][v][BASS303_ENVMOD] = 85;
@@ -687,6 +706,9 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
         s->v[T_303][v][BASS303_VOLUME] = 127;
         s->v[T_303][v][BASS303_DRIVE] = 45;
         s->v[T_303][v][BASS303_DRVTYPE] = 2;
+#if X0X_DEV_WOBBLE
+        }
+#endif
         s->v[T_MIX][PART_303A + v][MX_LEVEL] = 74;   /* the RAT makes it dense: -5 dB (square law) */
         s->v[T_MIX][PART_303A + v][MX_DLY] = v ? 60 : 80;
         s->v[T_MIX][PART_303A + v][MX_REV] = 12;
