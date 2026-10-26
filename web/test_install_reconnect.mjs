@@ -27,7 +27,7 @@ for (const mode of ['normal', 'resume', 'missing', 'failure']) {
   const link = { close() {} };
   const fake = {
     $: id => ui[id] || (ui[id] = {}),
-    Blob, URL, setTimeout, renderConnectionAction() {}, connected: false,
+    Blob, URL, setTimeout, renderConnectionAction() {}, refreshJourney() {}, connected: false,
     document: { createElement: () => ({ click() {}, remove() {} }),
       body: { appendChild() {} } },
     midiAccess: async () => ({}),
