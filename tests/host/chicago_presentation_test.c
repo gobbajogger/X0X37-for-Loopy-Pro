@@ -84,6 +84,19 @@ static void request(int v,int bank)
 {CHECK(!engine_bass_select_preset(v,bank,1,&proj.sound));CHECK(engine_bass_preset_pending(v));}
 static void cancel_edges(const char *dir)
 {
+    /* This request is eligible NOW: only the short UI hold can prevent the
+     * injected boundary between the authoritative check and cancel publication. */
+    for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++) {
+        fixture(v,bank);old_bank=bank;old_preset=0;request(v,bank^1);
+        CHECK(engine_bass_preset_pending(v)==1);
+        sound_t before=proj.sound;int page=cur_page();
+        edges(1u<<B_HOME,0);CHECK(engine_bass_preset_pending(v)==1);
+        race_voice=v;publication_voice=v;race_count=publication_count=0;
+        edges(0,0);publication_voice=-1;
+        CHECK(race_count==1 && publication_count==3);
+        CHECK(!engine_bass_preset_pending(v) && ui.view==V_PART && cur_page()==page);
+        CHECK(!memcmp(&before,&proj.sound,sizeof before));
+    }
     for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++)for(int reason=0;reason<4;reason++) {
         fixture(v,bank);old_bank=bank;old_preset=0;
         if(reason==0) {engine_bass_on(v,48,100,0);audio();}

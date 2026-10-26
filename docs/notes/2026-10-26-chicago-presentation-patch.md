@@ -56,8 +56,9 @@ actual engine publication interruption hooks and the production SMK wheel scanne
 with host ADC substitutes. It covers both voices/engines, 360 ARP states, all FX
 types, retained bars, damper63/64, blank columns, pending/applied/cancelled cases,
 CQ/MIDI/note/wheel waits, hold nesting and modifier/modal/help/busy priorities.
-The audio-boundary and publication-stage checks must fail if the short hold is
-removed. Existing matrix, live-preset, wheel, SMC and UI checks cover affected
+A ready-to-apply pending1 request isolates the short hold: the injected boundary
+must not apply it, and removing only that hold must fail. Separate publication
+stage checks preserve the existing seqlock interruption contract. Existing matrix, live-preset, wheel, SMC and UI checks cover affected
 consumers. Host pixels and native builds do not establish device readability,
 physical hardware correctness, owner acceptance or release permission.
 

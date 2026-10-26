@@ -451,7 +451,7 @@ static void test_track_knob_align(void)
     CHECK(sound == pg.n - 1); /* SOUND follows the selected B parameter matrix. */
     CHECK(smc_same(pg.r[sound][0], PR(R_BENGINE, 0, 0, 0)));
     CHECK(smc_same(pg.r[sound][1], PR(R_BPRESET, 0, 0, 0)));
-    CHECK(smc_same(pg.r[sound][2], PR(R_BCANCEL, 0, 0, 0)));
+    CHECK(pg.r[sound][2].kind == R_NONE); /* former physical K7 cancel is now empty */
 #endif
     puts("PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity");
 }
