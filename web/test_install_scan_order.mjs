@@ -7,14 +7,14 @@ import { Script, createContext } from 'node:vm';
 
 const path = process.argv[2] || new URL('./x0x_installer.html', import.meta.url);
 const source = readFileSync(path, 'utf8');
-const start = source.indexOf('async function scan() {');
+const start = source.indexOf('async function scan(allowPostWrite = false) {');
 assert.ok(start >= 0, 'production scan function missing');
 const end = source.indexOf('\n}', start);
 assert.ok(end > start, 'production scan end missing');
 const code = source.slice(start, end + 2);
 if (source.includes('<html')) assert.match(source.slice(Math.max(0,start-70),start), /let scanSerial = 0;\s*$/,
   'production installer must own the scan generation counter');
-assert.match(code, /async function scan\(\) \{/);
+assert.match(code, /async function scan\(allowPostWrite = false\) \{/);
 
 function setup() {
   const state = { connected: false, leds: [], changes: [], selected: [], requests: [], closed: [], lookups: [] };
@@ -23,6 +23,8 @@ function setup() {
     $: id => ui[id] || (ui[id] = {}),
     led: value => state.leds.push(value),
     t: k => k,
+    // Presentation is outside this concurrency fixture; keep real scan ordering.
+    renderConnectionAction() {},
     midiAccess: async () => ({}),
     Updater: class {
       find(predicate) {
@@ -35,7 +37,7 @@ function setup() {
     suggestModel: model => state.selected.push(model),
   };
   const ctx = createContext(env);
-  new Script('let writing = false, lastId = null, scanSerial = 0;\n' + code + '\nglobalThis.start=scan; globalThis.setWriting = v => writing = v; globalThis.getLastId = () => lastId;').runInContext(ctx);
+  new Script('let writing = false, lastId = null, scanSerial = 0, connectionState = "idle";\n' + code + '\nglobalThis.start=scan; globalThis.setWriting = v => writing = v; globalThis.getLastId = () => lastId;').runInContext(ctx);
   const device = (model='SMK-37 Pro') => ({ id: { model, text: model }, name: model + ' MIDI',
     link: { close() { state.closed.push(model); } } });
   const tick = async () => { for (let i=0; i<8; i++) await Promise.resolve(); };
