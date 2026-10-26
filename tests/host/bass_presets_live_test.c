@@ -6,10 +6,15 @@
 #include "../../firmware/src/app/bass_presets.h"
 static unsigned checks;
 #define CHECK(x) do{checks++;if(!(x)){fprintf(stderr,"FAIL line%d: %s\n",__LINE__,#x);exit(1);}}while(0)
+static int sound_page(void)
+{
+    for(int p=0;p<pg.n;p++) if(pg.r[p][0].kind==R_BENGINE) return p;
+    return -1;
+}
 static void picture(const char *dir,const char *name,int voice)
 {
     char path[512]; ui.part=PART_303A+voice;ui.view=V_PART;ui.overlay=O_NONE;ui.held_step=-1;
-    build_pages();*page_of(V_PART)=0;ui.msg_until=0;ui.touched=-1;
+    build_pages();*page_of(V_PART)=(uint8_t)sound_page();ui.msg_until=0;ui.touched=-1;
     memset(blit_hash,0,sizeof blit_hash);draw_header();draw_main();draw_knobs();
     snprintf(path,sizeof path,"%s/%s-%d.png",dir,name,X0X_DEV_WOBBLE);png_write(path);
 }
@@ -29,7 +34,7 @@ static void request_apply(int voice,int bank,int preset)
 }
 static void physical_browse(int voice)
 {
-    ui.part=PART_303A+voice;ui.view=V_PART;ui.overlay=O_NONE;ui.held_step=-1;build_pages();*page_of(V_PART)=0;
+    ui.part=PART_303A+voice;ui.view=V_PART;ui.overlay=O_NONE;ui.held_step=-1;build_pages();*page_of(V_PART)=(uint8_t)sound_page();
     memset(ui.enc_t,0,sizeof ui.enc_t);memset(ui.enc_run,0,sizeof ui.enc_run);
     for(int i=1;i<=6;i++){now_ms++;enc_acc[EN_K2]=1;ui_input_only();CHECK(engine_bass_requested_preset(voice)==i);}
     CHECK(engine_bass_preset_index(voice)==0);audio_block();CHECK(engine_bass_preset_index(voice)==6);
@@ -44,13 +49,13 @@ static void edited_pixels(int voice)
 {
     unsigned colored=0;
     ui.part=PART_303A+voice;ui.view=V_PART;ui.overlay=O_NONE;ui.held_step=-1;
-    build_pages();*page_of(V_PART)=0;ui.touched=-1;memset(blit_hash,0,sizeof blit_hash);draw_main();
-    /* EDITED is a live status in the SOUND page's fourth matrix cell.  The
-     * active engine/preset and three controls remain visible on the same page. */
-    CHECK(FONT_S.h<=16);
-    for(int y=MAIN_Y+BAND_H+42;y<MAIN_Y+BAND_H+58;y++)
-        for(int x=128;x<218;x++) colored+=fb[y*240+x]!=C_BLACK;
-    CHECK(colored>80);
+    build_pages();*page_of(V_PART)=(uint8_t)sound_page();ui.touched=-1;memset(blit_hash,0,sizeof blit_hash);draw_main();draw_knobs();
+    /* EDITED stays in SOUND's fourth cell after SOUND moves to the later bank. */
+    CHECK(engine_bass_preset_edited(voice));
+    int top=24+(cur_page()%4)*50+29;
+    for(int y=top;y<top+12;y++)
+        for(int x=190;x<230;x++) colored+=fb[y*240+x]==swap16(C_BLACK);
+    CHECK(colored>20);
 }
 static uint32_t note_packet(int src,int off,int pitch)
 {return (off?8u:9u)|((uint32_t)src<<4)|((uint32_t)((off?0x80:0x90)|seq.ch[TRK_BASS0])<<8)|((uint32_t)pitch<<16)|(100u<<24);}
@@ -121,7 +126,7 @@ int main(int argc,char **argv)
     proj.arr.lane[0].used=1;proj.arr.lane[0].t=T_303;proj.arr.lane[0].v=0;
     CHECK(engine_bass_select_preset(0,0,1,&proj.sound)==-4);CHECK(!engine_bass_preset_pending(0));proj.arr.lane[0].used=0;
 #if X0X_DEV_WOBBLE
-    ui.part=PART_303B;ui.view=V_PART;build_pages();*page_of(V_PART)=0;
+    ui.part=PART_303B;ui.view=V_PART;build_pages();*page_of(V_PART)=(uint8_t)sound_page();
     pref_set(PR(R_BENGINE,0,1,0),1);CHECK(engine_bass_requested_bank(1)==1);CHECK(engine_bass_bank(1)==0);
     CHECK(!strcmp(part_display(PART_303B),"CHICAGO B")); /* pending != committed */
     CHECK(!engine_bass_bank_available(0,1));CHECK(engine_bass_select_preset(0,1,0,&proj.sound)==-2);
@@ -153,7 +158,7 @@ int main(int argc,char **argv)
     engine_bass_on(0,48,100,0);audio_block();CHECK(engine_bass_select_preset(0,0,4,&proj.sound)==0);audio_block();
     CHECK(engine_bass_preset_pending(0)==2);if(argc>1)picture(argv[1],"chicago-pending-note",0);
     /* Physical cancel while held preserves actual sounding selection. */
-    ui.part=PART_303A;build_pages();*page_of(V_PART)=0;enc_acc[EN_K3]=1;ui_input_only();
+    ui.part=PART_303A;build_pages();*page_of(V_PART)=(uint8_t)sound_page();enc_acc[EN_K3]=1;ui_input_only();
     CHECK(!engine_bass_preset_pending(0));engine_bass_off(0);run_ms(3000);
     uint64_t control=break_tail(0),requested=break_tail(1);CHECK(control==requested);
     printf("PASS %u voice-scoped live preset/input/ownership/UI checks WBL%d; BREAK tail hash=%016llx\n",checks,X0X_DEV_WOBBLE,(unsigned long long)control);

@@ -423,13 +423,13 @@ static void test_track_knob_align(void)
     CHECK(track_slot_of(T_909, 9, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Decay") == 1);
-    /* 303 TONE stays Cutoff / Reso / EnvMod / Decay. */
+    /* Owner-approved B primary row: Cutoff / Reso / EnvMod / Wave. */
     setup(V_PART, PART_303A);
     CHECK(smc_same(pg.r[0][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
     CHECK(smc_same(pg.r[0][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
     CHECK(smc_same(pg.r[0][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
-    CHECK(smc_same(pg.r[0][3], PR(R_ENG, T_303, 0, BASS303_DECAY)));
-    puts("PASS align: drum sound knobs share Tune/Decay ranks; 303 TONE unchanged");
+    CHECK(smc_same(pg.r[0][3], PR(R_ENG, T_303, 0, BASS303_WAVE)));
+    puts("PASS align: drum sound knobs share Tune/Decay ranks; 303 B-design TONE / OSC mapping");
 }
 
 /* Verify physical grouping in the real framebuffer, rather than accepting any

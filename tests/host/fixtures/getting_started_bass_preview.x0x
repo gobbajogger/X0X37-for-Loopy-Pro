@@ -37,16 +37,20 @@ turn ALGO 2
 expect part 2
 tap EDIT
 expect view 1
+turn SELECT 6
+expect page 6
 turn K1 -1
 wait 300
+expect page 7
+turn SELECT -7
+expect page 0
 tap ARP
 expect view 2
 tap OCT+
-# 6. EDIT opens SOUND first; its next page is Chicago TONE.
+# 6. EDIT returns to the first TONE / OSC row.
 tap EDIT
 expect view 1
-tap EDIT
-expect page 1
+expect page 0
 turn K1 10
 turn K2 -10
 expect sound2.0.0 52
@@ -84,7 +88,7 @@ turn ALGO -2
 tap EDIT
 expect part 2
 expect view 1
-expect page 1
+expect page 0
 tap REC
 turn K1 -20
 tap REC
