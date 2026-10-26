@@ -3361,6 +3361,14 @@ X0X_COLD static void input(void)
 #define BAND_H 69                     /* the main area: two bands of 69 (the knob row takes the 6 below) */
 #define KNOB_Y 158
 #define KNOB_H 82
+/* gfx.c sizes the one screen strip (CV_ROWS) to this main area. The unity
+ * build sees that macro; a host file that compiles ui.c alone does not. */
+#ifdef CV_ROWS
+_Static_assert(2u * BAND_H <= CV_ROWS, "main area taller than the screen strip");
+_Static_assert(KNOB_H <= CV_ROWS, "knob row taller than the screen strip");
+_Static_assert(HDR_H <= CV_ROWS, "header taller than the screen strip");
+_Static_assert(HDR_H + 2u * BAND_H + KNOB_H == 240u, "the three strips must tile the 240-row panel");
+#endif
 
 static uint32_t blit_hash[4];
 static uint32_t cv_hash(void)
