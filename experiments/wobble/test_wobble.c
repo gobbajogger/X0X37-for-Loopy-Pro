@@ -153,13 +153,16 @@ static void amp_adsr_extension(void)
     wobble_set(&s, W_SUSTAIN, 0.4f);
     assert(s.sustain_level > 0.39f && s.sustain_level < 0.41f);
     wobble_set(&s, W_RELEASE, 0.5f);
-    assert(s.release_step < 1.0f / (0.030f * 48000.0f));
+    assert(s.release_step < 1.0f / (0.00475f * 48000.0f));
     wobble_init(&s, 48000);
     wobble_set(&s, W_CUTOFF, 1);
     wobble_note_on(&s, 48, 100);
-    for (unsigned p = 0; p < 48000; p += 256) {
+    for (unsigned p = 0; p < N;) {
         if (p == 24000) wobble_note_off(&s, 48);
-        wobble_render(&s, a, b, 256);
+        unsigned end = p < 24000 ? 24000u : N;
+        unsigned n = end - p < 256u ? end - p : 256u;
+        wobble_render(&s, a + p, b + p, n);
+        p += n;
     }
     tail0 = 0;
     for (unsigned i = 25000; i < 48000; ++i)
@@ -168,9 +171,12 @@ static void amp_adsr_extension(void)
     wobble_set(&s, W_CUTOFF, 1);
     wobble_set(&s, W_RELEASE, 1);
     wobble_note_on(&s, 48, 100);
-    for (unsigned p = 0; p < 48000; p += 256) {
+    for (unsigned p = 0; p < N;) {
         if (p == 24000) wobble_note_off(&s, 48);
-        wobble_render(&s, c, d, 256);
+        unsigned end = p < 24000 ? 24000u : N;
+        unsigned n = end - p < 256u ? end - p : 256u;
+        wobble_render(&s, c + p, d + p, n);
+        p += n;
     }
     tail1 = 0;
     for (unsigned i = 25000; i < 48000; ++i)

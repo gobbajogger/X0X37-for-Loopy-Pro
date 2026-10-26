@@ -22,6 +22,20 @@ static float waveform(float phase, float step, int square)
     return (phase < 0.5f ? 1.0f : -1.0f)
         + wobble_blep(phase, step) - wobble_blep(wrap(phase + 0.5f), step);
 }
+/* X-MOD pulse: low-duty asymmetric BLEP pulse (matrix even-harmonic content). */
+static float xmod_pulse_waveform(float phase, float step)
+{
+    const float duty = 0.10f;
+    const float low = -duty / (1.0f - duty);
+    float y = phase < duty ? 1.0f : low;
+    y += wobble_blep(phase, step);
+    y -= (1.0f - low) * wobble_blep(wrap(phase - duty), step);
+    return y;
+}
+static float mod_waveform(float phase, float step, int pulse)
+{
+    return pulse ? xmod_pulse_waveform(phase, step) : waveform(phase, step, 0);
+}
 static void update_pitch(wobble_t *s)
 {
     float semitones = (float)s->note - 69.0f
@@ -67,7 +81,8 @@ static void update_amp_env(wobble_t *s)
 {
     float atk_s = env_seconds(s->p[W_ATTACK], 0.002f, 2.0f);
     float dec_s = env_seconds(s->p[W_DECAY], 0.0001f, 2.5f);
-    float rel_s = env_seconds(s->p[W_RELEASE], 0.030f, 3.0f);
+    /* Matrix reference release tail ~228 frames @ 48 kHz (MEASUREMENTS.md). */
+    float rel_s = env_seconds(s->p[W_RELEASE], 0.00475f, 3.0f);
     s->sustain_level = fm_clampf(s->p[W_SUSTAIN], 0.0f, 1.0f);
     s->attack_step = 1.0f / (atk_s * s->sample_rate);
     float span = 1.0f - s->sustain_level;
@@ -163,12 +178,12 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float step = fm_clampf(s->hz / s->sample_rate, 1e-6f, .12f);
         float mod_step = fm_clampf(step * .5f
             * exp2_bounded(10.0f * (s->p[W_XMOD_TUNE] - .5f) / 12.0f), 1e-6f, .24f);
-        float mod = waveform(s->mod_phase, mod_step, s->p[W_XMOD_WAVE] >= .5f);
+        float mod = mod_waveform(s->mod_phase, mod_step, s->p[W_XMOD_WAVE] >= .5f);
         float pm = mod * s->p[W_XMOD_DEPTH] * s->p[W_XMOD_LEVEL] * .5f;
         float carrier = waveform(wrap(s->carrier_phase + pm), step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
         float sub = waveform(s->sub_phase, step * .5f, 0);
-        float mixed = .1f * (s->p[W_CARRIER_LEVEL] * carrier
+        float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
             + s->p[W_SUB_LEVEL] * sub + s->p[W_XMOD_LEVEL] * mod);
         float crush = s->p[W_CRUSH];
         if (crush > 0) mixed = fm_tanhf(mixed * (1.0f + 31.0f * crush));
