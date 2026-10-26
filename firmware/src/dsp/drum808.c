@@ -206,7 +206,7 @@ __attribute__((noinline)) static float clampf(float x, float lo, float hi) { ret
 /* primitives                                                              */
 /* ======================================================================= */
 
-static void rng_seed(d8_rng_t *r, uint32_t s)
+__attribute__((noinline)) static void rng_seed(d8_rng_t *r, uint32_t s)
 {
     r->s1 = 1243598713u ^ s; if (r->s1 < 2u) r->s1 = 1243598713u;
     r->s2 = 3093459404u ^ s; if (r->s2 < 8u) r->s2 = 3093459404u;
@@ -415,7 +415,7 @@ float drum808_quiet = D8_QUIET_INIT;
 /* ---- bass drum: sc808_bd_circuit.h ---- */
 #define BD_Q 2.356f
 
-static void bd_reset(d8_bd_t *v)
+__attribute__((noinline)) static void bd_reset(d8_bd_t *v)
 {
     v->bt.z1 = v->bt.z2 = 0.0f;
     v->shp = 0.0f;
@@ -498,7 +498,7 @@ D8_TICK float bd_tick(d8_bd_t *v)
 #define SD_G2 2.282727273e+02f
 #define SD_DECAY_DEF 0.850393713f                 /* 108/127, as the float division */
 
-static void sd_reset(d8_sd_t *v)
+__attribute__((noinline)) static void sd_reset(d8_sd_t *v)
 {
     v->bt1.z1 = v->bt1.z2 = v->bt2.z1 = v->bt2.z2 = 0.0f;
     v->shp = 0.0f;
@@ -559,7 +559,7 @@ D8_TICK float sd_tick(d8_sd_t *v)
 #define TOM_Q 1.081763729e+01f
 #define TOM_LN100_Q_PI 1.585726294e+01f              /* ln(100) Q / pi */
 
-static void tom_reset(d8_tom_t *v)
+__attribute__((noinline)) static void tom_reset(d8_tom_t *v)
 {
     v->bt.z1 = v->bt.z2 = 0.0f;
     v->skin_lp_z = v->strike_lp_z = 0.0f;
@@ -1006,7 +1006,7 @@ X0X_COLD static void hat_init(d8_hat_t *v, int mode)
     v->out_scale = mode == 1 ? 5.0f : 8.0f;
 }
 
-static void hat_trigger(d8_hat_t *v, float decay_s, float accent_v)
+__attribute__((noinline)) static void hat_trigger(d8_hat_t *v, float decay_s, float accent_v)
 {
     float a = accent_v / 8.0f;
     float t = decay_s > 0.02f ? decay_s : 0.02f;
@@ -1497,7 +1497,7 @@ static const x0x_param_t *d8_spec(int track, int i)
 }
 
 /* the sound a track plays, by its switch */
-static int track_sound(const drum808_t *d, int t)
+__attribute__((noinline)) static int track_sound(const drum808_t *d, int t)
 {
     static const uint8_t k_snd[D8_NUM][2] = {
         {D8S_BD, D8S_BD}, {D8S_SD, D8S_SD}, {D8S_LT, D8S_LC}, {D8S_MT, D8S_MC}, {D8S_HT, D8S_HC},
@@ -1516,7 +1516,7 @@ X0X_COLD const x0x_param_t *drum808_param(int track, int i)
     return d8_spec(track, i);
 }
 
-static void kit_apply(drum808_t *d)
+__attribute__((noinline)) static void kit_apply(drum808_t *d)
 {
     d->vol = (float)d->kpot[0] / 127.0f;
     d->vel_depth = (float)d->kpot[1] / 127.0f;
@@ -1623,7 +1623,7 @@ void drum808_init(drum808_t *d)
     d->lane[L_OH].snd = D8S_OH; d->lane[L_CY].snd = D8S_CY;
 }
 
-static void choke_lane(d8_lane_t *l)
+__attribute__((noinline)) static void choke_lane(d8_lane_t *l)
 {
     if (l->cg > 0.0f && l->cstep == 0.0f)
         l->cstep = -1.0f / (0.002f * SR);
