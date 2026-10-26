@@ -1,0 +1,42 @@
+{
+  "purpose": "Applicable combined-source closure proposal for coordinator/independent QA, not claims of execution",
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "registered_firmware_selectors": [
+    "rec-held-duration",
+    "rec-endpoint-lifecycle",
+    "rec-endpoint-storage",
+    "rec-nonforward-guard",
+    "rec-live",
+    "rec-live-smk",
+    "sequencer",
+    "bass-prob-midi",
+    "seq-long-notes",
+    "seq-random-tie-preview",
+    "clk-lock",
+    "project-303-stream",
+    "project-stage",
+    "engine-cq-isr-preemption",
+    "engine-cq-rec-overflow",
+    "engine-cq-boff-overflow",
+    "engine-cq-bon-overflow",
+    "engine-cq-brk-overflow",
+    "engine-cq-drum-overflow",
+    "midi-mq-noteoff-overflow",
+    "midi-mq-rt-overflow",
+    "smc-select-mode",
+    "smc-filter",
+    "smc-reachability",
+    "smc-lock",
+    "smc-ui",
+    "smc-feedback",
+    "miami-mw-wobble"
+  ],
+  "additional_direct_checks": [
+    "SAN_FLAGS=-g -fsanitize=address,undefined sh tests/host/bass_legacy_display_test.sh",
+    "Existing approved bass deterministic route/default/wheel/damper checks against new combined actual engine, plus stream6 product export generator/stage validation",
+    "Existing project-export/restore and OTA scoped headless web/Python tests from each imported proof manifest; do not perform an installer/device write",
+    "Independent review of REC/queue/bass engine.c semantic interactions and current parser/current actual export compatibility"
+  ],
+  "native_gate": "Fresh combined source exactElite+Pro DEV, matching controller closure, WOBBLE1/PAD1, actualXIP/RAM/pool/stack/link/register-access gates. No old budget addition or obsolete maps.",
+  "planner": "Repository AGENTS references tools/local_proof_plan.py, but file absent in current base; this explicit proposal substitutes only planning, not execution or qualification."
+}
