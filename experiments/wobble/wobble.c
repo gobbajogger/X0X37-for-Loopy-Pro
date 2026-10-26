@@ -221,9 +221,11 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
             if (xmod_pulse && xmod_dep <= 1e-6f)
                 mod_bus *= 1.8f; /* matrix mod_pulse was ~5 dB quiet at unity bus */
         } else {
-            /* Odd sine partials of mod Hz close mix_depth strong-relative residual. */
-            float odd = 0.30f * fm_sinf(6.0f * FM_PI * s->mod_phase)
-                + 0.06f * fm_sinf(10.0f * FM_PI * s->mod_phase);
+            /* Cosine (not sine) odd partials of mod Hz: closes mix_depth
+             * lag-correlation (≥0.99) while keeping strong-relative ≤1 dB.
+             * Amplitudes 0.15/0.03 retuned vs prior 0.30/0.06 sine bus. */
+            float odd = 0.15f * fm_cosf(6.0f * FM_PI * s->mod_phase)
+                + 0.03f * fm_cosf(10.0f * FM_PI * s->mod_phase);
             mod_bus = xmod_lvl * odd;
         }
         float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
