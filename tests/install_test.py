@@ -150,7 +150,7 @@ class FakeSMK:
         if not self.queue:
             return
         self.waiting = addr, n = self.queue.pop(0)
-        u = bytearray([0, 0x59, 0x30, 0, 0, 0, 0]) + addr.to_bytes(4, "little") + bytes([n & 0xFF, n >> 8, 0])
+        u = bytearray([0, 0x59, 0x30, 8, 0, 0, 0]) + addr.to_bytes(4, "little") + bytes([n & 0xFF, n >> 8, 0])
         u.append(~sum(u[6:14]) & 0xFF)
         self.tx(b"\xF0" + I.pack7(u) + b"\xF7")
 

@@ -1,0 +1,63 @@
+test_canonical_serve (__main__.RequestIntegrity) ... ok
+test_malformed (__main__.RequestIntegrity) ... test_valid_fields (__main__.RequestIntegrity) ... ok
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='length 0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='length 7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='length 9')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='length 264')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='length 65544')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+======================================================================
+FAIL: test_malformed (__main__.RequestIntegrity) (label='padding')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/fm1_install_request_integrity_test.py", line 33, in test_malformed
+    self.assertIsNone(I.parse_request(pkt))
+AssertionError: (0, 0, 8) is not None
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.015s
+
+FAILED (failures=7)
