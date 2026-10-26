@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Full audio CQ must retain BREAK key release (C_BRK down=0) under param flood.
+"""Full audio CQ must retain BREAK keys (C_BRK press and release) under param flood.
 
 Sibling of engine_cq_boff_overflow_test.py (#588). Extracts production cq_put
-from engine.c. A queued C_BRK press plus a full ring of params must still accept
-a C_BRK release by displacing a disposable param/drum entry. C_BOFF remains
-protected and must not be displaced by a break release either.
+from engine.c. A full ring of params must still accept a C_BRK press (displace
+param) and a queued press plus full params must still accept a C_BRK release.
+C_BOFF remains protected and must not be displaced by a break release either.
 """
 from pathlib import Path
 import subprocess
@@ -35,6 +35,21 @@ static int count_brk_down(uint32_t down)
             n++;
     }
     return (int)n;
+}
+
+static int expect_brk_press_kept(void)
+{
+    cq_w = cq_r = 0;
+    for (unsigned i = 0; i < CQ; i++)
+        cq_put(C_PARAM_T0, 0, 0, i);
+    cq_put(C_BRK, 3, 1, 0);                 /* press must displace a param */
+    if (cq_w - cq_r != CQ)
+        return 5;
+    if (count_brk_down(1) != 1)
+        return 6;
+    if (count_type(C_PARAM_T0) != (int)CQ - 1)
+        return 7;
+    return 0;
 }
 
 static int expect_brk_release_kept(void)
@@ -105,6 +120,11 @@ static int expect_param_still_drops(void)
 int main(void)
 {
     int rc;
+    if ((rc = expect_brk_press_kept()) != 0) {
+        printf("FAIL brk-press-kept rc=%d depth=%u press=%d param=%d\n",
+               rc, (unsigned)(cq_w - cq_r), count_brk_down(1), count_type(C_PARAM_T0));
+        return 5;
+    }
     if ((rc = expect_brk_release_kept()) != 0) {
         printf("FAIL brk-release-kept rc=%d depth=%u press=%d rel=%d\n",
                rc, (unsigned)(cq_w - cq_r), count_brk_down(1), count_brk_down(0));
