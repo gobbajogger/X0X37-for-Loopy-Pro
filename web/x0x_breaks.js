@@ -530,37 +530,43 @@ export function planMigration(images, risk, oldMap, newLayout, newMap) {
 }
 
 export const X0X_NBREAKS_BUILTIN = 2;
-const LOOP_MENU_GUARD = "LOOP menu order would change; saved break pattern A/B indices would point at the wrong loops. "
-  + "Restore samples manually from the backup, then re-assign LOOP A/B in each pattern.";
+const LOOP_MENU_GUARD = "LOOP menu order or indices would change; saved break pattern A/B indices could point at different loops. "
+  + "The backup is retained. Restore samples manually to a compatible layout, then check and re-assign LOOP A/B in every saved pattern before playback.";
 
-function userLoopMenuIds(layout, images) {
+function userLoopMenuIds(layout, images, origins = null) {
+  // scan_loops lists each zone, not each slot. Preserve original slot identity:
+  // identical sample bytes in distinct slots are not interchangeable indices.
   const ids = [];
-  layout.slots.forEach((sl, k) => { if (sl.nz && images[k]) ids.push(`u:${crc32(images[k])}`); });
+  layout.slots.forEach((sl, k) => {
+    for (let z = 0; z < sl.nz; z++)
+      ids.push(origins === null ? `old:${k}:${z}` : origins[k] === null ? `new:${k}:${z}` : `old:${origins[k]}:${z}`);
+  });
   return ids;
 }
 
 function loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo) {
-  const imgs = newMap.map(() => null);
+  const imgs = newMap.map(() => null), origins = newMap.map(() => null);
   const slots = newLayout.slots.map((sl) => ({ ...sl }));
   images.forEach((img, k) => {
     if (risk.includes(k) || !img) return;
     const off = oldMap[k].off;
     const j = newMap.findIndex((m) => m.off === off);
     if (j < 0) return;
-    imgs[j] = img;
-    if (!slots[j].nz) slots[j] = { ...oldLayout.slots[k] };
+    imgs[j] = img; origins[j] = k;
+    slots[j] = { ...oldLayout.slots[k] };
   });
-  todo.forEach(({ k, j }) => { imgs[j] = images[k]; slots[j] = { ...oldLayout.slots[k] }; });
-  return userLoopMenuIds({ ...newLayout, slots }, imgs);
+  todo.forEach(({ k, j }) => { imgs[j] = images[k]; origins[j] = k; slots[j] = { ...oldLayout.slots[k] }; });
+  return userLoopMenuIds({ ...newLayout, slots }, imgs, origins);
 }
 
 export function migrationReordersLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo) {
   if (!todo.length) return false;
   const before = userLoopMenuIds(oldLayout, images);
   const after = loopMenuAfterMigration(oldLayout, images, risk, oldMap, newMap, newLayout, todo);
-  const survive = before.filter((id) => after.includes(id));
-  const afterSurvive = after.filter((id) => survive.includes(id));
-  return survive.length !== afterSurvive.length || survive.some((v, i) => v !== afterSurvive[i]);
+  // Compare absolute common positions; skipped middle slots can shift indices
+  // even when surviving entries retain their relative order. Trailing-only
+  // omissions or additions leave all remaining original positions unchanged.
+  return before.slice(0, after.length).some((id, i) => id !== after[i]);
 }
 
 export function guardMigrationLoopMenu(oldLayout, images, risk, oldMap, newLayout, newMap, todo, skipped) {
