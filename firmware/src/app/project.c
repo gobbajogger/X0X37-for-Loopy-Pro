@@ -396,7 +396,7 @@ typedef struct {
 #define ARR1_A (PLAT_STORE_MAX - 4u)                 /* format 1's arrangement bytes in OBJ_SONG; the rest in OBJ_MOTION */
 typedef char arr1_room[(ARR1_LEN <= sizeof(arrange_t)) ? 1 : -1];   /* it unpacks in proj.arr */
 
-static void pattern_from1(pattern_t *p, const pattern1_t *o)
+__attribute__((noinline)) static void pattern_from1(pattern_t *p, const pattern1_t *o)
 {
     int k, s, v;
     for (k = 0; k < NKIT; k++) {
@@ -446,7 +446,7 @@ static int load_patterns1(project_t *pr)
 
 /* OBJ_SONG + OBJ_MOTION, format 1: the song as it is, the lanes widened to 64 steps (in place, last
  * first: lane k's new place never reaches below its old one) */
-static int load_arrange1(project_t *pr)
+__attribute__((noinline)) static int load_arrange1(project_t *pr)
 {
     uint8_t *a = (uint8_t *)&pr->arr;
     int k, i, song_n, motion_n, bad;
