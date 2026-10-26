@@ -332,7 +332,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BCANCEL };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -428,13 +428,15 @@ static void build_pages(void);
 static const char *const BENGINE_N[]={"CHICAGO","MIAMI"};
 static const x0x_param_t BENGINE_P={"ENGINE",1,0,BENGINE_N};
 static x0x_param_t BPRESET_P={"PRESET",80,0,0};
+static const x0x_param_t BCANCEL_P={"CANCEL",1,0,0};
 #endif
 static const x0x_param_t *pref_desc(pref_t r)
 {
     switch (r.kind) {
 #if X0X_BASS_PRESET_PREVIEW
     case R_BENGINE: return &BENGINE_P;
-    case R_BPRESET: BPRESET_P.max=(uint8_t)(factory_bank(engine_bass_bank(r.b))->npresets-1); return &BPRESET_P;
+    case R_BPRESET: BPRESET_P.max=(uint8_t)(factory_bank(engine_bass_requested_bank(r.b))->npresets-1); return &BPRESET_P;
+    case R_BCANCEL: return &BCANCEL_P;
 #endif
     case R_ENG: return engine_param(r.a, r.b, r.c);
     case R_GEN: return &GEN_P[r.c % NGEN];
@@ -513,8 +515,9 @@ static int pref_get(pref_t r)
     pattern_t *p = pref_pattern(r);
     switch (r.kind) {
 #if X0X_BASS_PRESET_PREVIEW
-    case R_BENGINE: return engine_bass_bank(r.b);
-    case R_BPRESET: return engine_bass_preset_index(r.b);
+    case R_BENGINE: return engine_bass_requested_bank(r.b);
+    case R_BPRESET: return engine_bass_requested_preset(r.b);
+    case R_BCANCEL: return 0;
 #endif
     case R_ENG: return proj.sound.v[r.a][r.b][r.c];
     case R_SWING: return p->swing;
@@ -585,11 +588,12 @@ X0X_COLD static void pref_set(pref_t r, int v)
         return;
     v = v < 0 ? 0 : v > d->max ? d->max : v;
 #if X0X_BASS_PRESET_PREVIEW
+    if(r.kind==R_BCANCEL) {engine_bass_cancel_preset(r.b);return;}
     if(r.kind==R_BENGINE || r.kind==R_BPRESET) {
-        int bank=r.kind==R_BENGINE?v:engine_bass_bank(r.b);
+        int bank=r.kind==R_BENGINE?v:engine_bass_requested_bank(r.b);
         int preset=r.kind==R_BENGINE?0:v;
         int rc=engine_bass_select_preset(r.b,bank,preset,&proj.sound);
-        if(rc) { say(rc==-2?"ENGINE UNAVAILABLE":"RELEASE / STOP FIRST",""); return; }
+        if(rc) { say(rc==-2?"ENGINE UNAVAILABLE":rc==-4?"SOUND LOCKS OWN LANE":"INVALID PRESET",""); return; }
         mark_dirty(); build_pages(); return;
     }
 #endif
@@ -836,6 +840,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     if (!d || r.kind == R_ACT)
         return;
 #if X0X_BASS_PRESET_PREVIEW
+    if(r.kind==R_BCANCEL) {put_s(num,engine_bass_preset_pending(r.b)?"TURN":"--");return;}
     if(r.kind==R_BPRESET) { if(v<0) put_s(num,"--"); else put_i(num,v+1); return; }
 #endif
     if (d->names) {
@@ -1147,7 +1152,7 @@ static void build_pages(void)
         } else if (is_303()) {
             pg_grp = GR_SOUND;
 #if X0X_BASS_PRESET_PREVIEW
-            { const pref_t refs[4]={PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),NONE,NONE};
+            { const pref_t refs[4]={PR(R_BENGINE,0,b,0),PR(R_BPRESET,0,b,0),PR(R_BCANCEL,0,b,0),NONE};
               add_page_refs("SOUND",refs,0,0); }
 #endif
 #if X0X_DEV_WOBBLE
@@ -3231,6 +3236,12 @@ X0X_COLD static void button_tap(int b)
 
 X0X_COLD static void input(void)
 {
+#if X0X_BASS_PRESET_PREVIEW
+    static int observed_bank[NBASS]={-1,-1};
+    for(int v=0;v<NBASS;v++) if(observed_bank[v]!=engine_bass_bank(v)) {
+        observed_bank[v]=engine_bass_bank(v);build_pages();
+    }
+#endif
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     uint8_t revision = project_revision;
     int e;
@@ -3992,6 +4003,14 @@ static UI_DRAW void draw_303(int band, int gen)
             cv_text(10,40,&FONT_B,preset<0?"SELECT PRESET":factory_preset_name(bank,preset),C_HI);
             if(preset>=0 && engine_bass_preset_edited(b)) cv_text(148,12,&FONT_S,"EDITED",C_AMB);
         } else {
+            int pending=engine_bass_preset_pending(b);
+            if(pending) {
+                int rb=engine_bass_requested_bank(b),rp=engine_bass_requested_preset(b);
+                cv_text(10,10,&FONT_S,"PENDING - LATEST CHOICE",C_AMB);
+                cv_text(10,29,&FONT_S,factory_preset_name(rb,rp),C_HI);
+                cv_text(10,50,&FONT_S,pending==2?"WAIT NOTE / RELEASE TAIL":pending==3?"WAIT WHEEL RELEASE":pending==4?"WAIT SOUND LOCKS":pending==5?"WAIT EARLIER MIDI / KEYS":"NEXT AUDIO BOUNDARY",C_DIM);
+                return;
+            }
             char count[32];
             put_i(put_s(put_i(put_s(count,"PRESET "),preset+1)," / "),factory_bank(bank)->npresets);
             cv_text(10,12,&FONT_S,preset<0?"PRESETS: BROWSE SOUND":count,C_DIM);
@@ -4002,7 +4021,7 @@ static UI_DRAW void draw_303(int band, int gen)
                 "MIAMI NOT IN THIS BUILD"
 #endif
                 ,C_DIM);
-            cv_text(10,56,&FONT_S,lmarks?"STEP PARAMETER LOCKS":"NO STEP PARAMETER LOCKS",C_DIM);
+            cv_text(10,50,&FONT_S,lmarks?"STEP PARAMETER LOCKS":"NO STEP PARAMETER LOCKS",C_DIM);
         }
         return;
     }
@@ -4958,6 +4977,9 @@ static uint32_t knobs_sig(void)
 #define MIXIN(v) (h = (h ^ (uint32_t)(v)) * 16777619u)
     MIXIN(ui.view);
     MIXIN(ui.part);
+#if X0X_BASS_PRESET_PREVIEW
+    if(is_303()) MIXIN(engine_bass_preset_pending(bidx()));
+#endif
     MIXIN(pgi);
     MIXIN(ui.touched);
     MIXIN(ui.held_step);

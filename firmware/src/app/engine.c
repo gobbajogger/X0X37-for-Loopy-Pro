@@ -1216,7 +1216,70 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 
 #if X0X_BASS_PRESET_PREVIEW
 static int16_t bass_named_preset[NBASS] = {-1, -1};
-static uint8_t bass_preview_dirty, bass_wheel_mask;
+static volatile uint8_t bass_preview_dirty, bass_wheel_mask;
+static volatile uint32_t bass_request[NBASS], bass_applied[NBASS];
+static uint32_t bass_request_serial;
+static volatile uint32_t bass_publish_seq[NBASS],bass_midi_mark[NBASS],bass_cq_mark[NBASS];
+typedef struct {uint32_t token,midi,cq;} bass_request_t;
+static int bass_request_snapshot(int voice,bass_request_t *r)
+{
+    uint32_t seq=bass_publish_seq[voice];
+    if(seq&1u) return 0; /* ISR interrupted producer: defer, never spin. */
+    __asm__ volatile("" ::: "memory");
+    r->token=bass_request[voice];r->midi=bass_midi_mark[voice];r->cq=bass_cq_mark[voice];
+    __asm__ volatile("" ::: "memory");
+    return seq==bass_publish_seq[voice];
+}
+#if defined(X0X_HOST) && defined(X0X_BASS_PUBLISH_TEST)
+extern void bass_publish_test_hook(int voice,int stage);
+#define BASS_PUBLISH_HOOK(v,s) bass_publish_test_hook(v,s)
+#else
+#define BASS_PUBLISH_HOOK(v,s) ((void)0)
+#endif
+static void bass_publish_request(int voice,uint32_t token)
+{
+    bass_publish_seq[voice]++;
+    __asm__ volatile("" ::: "memory");
+    BASS_PUBLISH_HOOK(voice,1);
+    bass_midi_mark[voice]=plat_midi_mark();bass_cq_mark[voice]=cq_w;
+    BASS_PUBLISH_HOOK(voice,2);
+    bass_request[voice]=token;
+    BASS_PUBLISH_HOOK(voice,3);
+    __asm__ volatile("" ::: "memory");
+    bass_publish_seq[voice]++;
+}
+static int bass_has_locks(int voice)
+{
+    if(mot.lane) for(int k=0;k<NLANE;k++) if(mot.lane[k].used &&
+       ((mot.lane[k].t==T_303 && mot.lane[k].v==voice) ||
+        (mot.lane[k].t==0xfe && mot.lane[k].part==PART_303A+voice))) return 1;
+    return 0;
+}
+int engine_bass_preset_pending(int voice)
+{
+    bass_request_t request;
+    if((unsigned)voice>=NBASS) return 0;
+    if(!bass_request_snapshot(voice,&request)) return 6;
+    if(!(request.token&0x80000000u) || request.token==bass_applied[voice]) return 0;
+    if(!plat_midi_passed(request.midi) || (int32_t)(cq_r-request.cq)<0) return 5;
+    if(bass_has_locks(voice)) return 4;
+    if(bass_wheel_mask & (1u<<voice)) return 3;
+    if(bass_held[voice] || ((src_held[0]|src_held[1]|src_held[2])&(1u<<voice))) return 2;
+#if X0X_DEV_WOBBLE
+    if(!synth_idle(&bass_slot[voice])) return 2;
+#else
+    if(!b303[voice].idle) return 2;
+#endif
+    return 1;
+}
+int engine_bass_requested_bank(int voice)
+{ bass_request_t r;return (unsigned)voice<NBASS && bass_request_snapshot(voice,&r) && engine_bass_preset_pending(voice)?(int)((r.token>>7)&1):engine_bass_bank(voice); }
+int engine_bass_requested_preset(int voice)
+{ bass_request_t r;return (unsigned)voice<NBASS && bass_request_snapshot(voice,&r) && engine_bass_preset_pending(voice)?(int)(r.token&127):engine_bass_preset_index(voice); }
+void engine_bass_cancel_preset(int voice)
+{
+    if((unsigned)voice<NBASS) bass_publish_request(voice,0x40000000u|((++bass_request_serial&0x3fffffu)<<8));
+}
 const x0x_param_t *engine_bass_bank_param(int bank, int i)
 {
     if (i < 0) return 0;
@@ -1243,7 +1306,9 @@ int engine_bass_bank_available(int voice, int bank)
     if (bank == FACTORY_BANK_CHICAGO) return 1;
 #if X0X_DEV_WOBBLE
     /* There is one actual WBL1 context; never bind it to two voices. */
-    if (bank == FACTORY_BANK_MIAMI) return !bass_wobble_voice(1-voice);
+    if (bank == FACTORY_BANK_MIAMI) return !bass_wobble_voice(1-voice) &&
+        !(bass_publish_seq[1-voice]&1u) &&
+        !(bass_request[1-voice]!=bass_applied[1-voice] && (bass_request[1-voice]&0x80000000u) && ((bass_request[1-voice]>>7)&1));
 #endif
     return 0;
 }
@@ -1263,35 +1328,38 @@ int engine_bass_preset_edited(int voice)
 }
 int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
 {
-    uint8_t values[NPARAMS_MAX], *cell;
-    int count;
-    if ((unsigned)voice >= NBASS || !sound || sound!=mot_base_snd) return -1;
-    cell=sound->v[T_303][voice];
-    if (!engine_bass_bank_available(voice,bank)) return -2;
-    if (bank!=engine_bass_bank(voice) && mot.lane)
-        for(int k=0;k<NLANE;k++) if(mot.lane[k].used &&
-            ((mot.lane[k].t==T_303 && mot.lane[k].v==voice) ||
-             (mot.lane[k].t==0xfe && mot.lane[k].part==PART_303A+voice))) return -4;
-    if (bass_preset_decode(bank,preset,engine_bass_bank_param,values)) return -1;
-    if (project_hold) return -3;
-    /* Hold first: audio cannot accept an old queued Start/note between the
-     * quiet check and the backend swap. Never consume input to pass this check. */
-    engine_project_hold(1);
-    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop ||
-        engine_project_notes() || cq_w != cq_r || (bass_wheel_mask & (1u<<voice)) ||
-        plat_midi_pending()) { engine_project_hold(0); return -3; }
+    uint8_t values[NPARAMS_MAX];
+    if((unsigned)voice>=NBASS || !sound || sound!=mot_base_snd) return -1;
+    if(!engine_bass_bank_available(voice,bank)) return -2;
+    if(bass_has_locks(voice)) return -4;
+    if(bass_preset_decode(bank,preset,engine_bass_bank_param,values)) return -1;
+    /* One aligned publication, no project/audio hold or MIDI consumption.
+     * Rapid browsing explicitly replaces the not-yet-applied request. */
+    uint32_t token=0x80000000u|((++bass_request_serial&0x3fffffu)<<8)|((uint32_t)bank<<7)|(uint32_t)preset;
+    bass_preview_dirty=1;
+    __asm__ volatile("" ::: "memory");
+    bass_publish_request(voice,token);
+    return 0;
+}
+static void bass_preset_boundary(void)
+{
+    /* Called only by audio, after CQ+MIDI drain, before new sequence triggers.
+     * Old accepted notes retain their complete sound through release/legato. */
+    for(int voice=0;voice<NBASS;voice++) {
+    bass_request_t request;
+    if(!bass_request_snapshot(voice,&request)) continue;
+    uint32_t token=request.token;
+    if(!(token&0x80000000u)) {bass_applied[voice]=token;continue;}
+    if(engine_bass_preset_pending(voice)!=1) continue;
+    int bank=(token>>7)&1, preset=token&127;
+    uint8_t values[NPARAMS_MAX];
+    sound_t *sound=(sound_t *)mot_base_snd;
+    uint8_t *cell=sound->v[T_303][voice];
+    if(!engine_bass_bank_available(voice,bank) || bass_preset_decode(bank,preset,engine_bass_bank_param,values)) continue;
 #if X0X_DEV_WOBBLE
-    if (!synth_idle(&bass_slot[voice])) { engine_project_hold(0); return -3; }
-#else
-    if (!b303[voice].idle) { engine_project_hold(0); return -3; }
-#endif
-    /* The empty platform-ring observation is the input boundary. Input
-     * published afterwards belongs to this transaction and release drops it
-     * using the existing project policy until the bounded drain sees empty. */
-#if X0X_DEV_WOBBLE
-    synth_binding_t binding = bank == FACTORY_BANK_MIAMI ?
-        wobble_foundation_binding(&dev_wobble) : synth303_binding(&b303[voice]);
-    if (!synth_request(&bass_slot[voice],binding,0)) { engine_project_hold(0); return -3; }
+    synth_binding_t binding=bank==FACTORY_BANK_MIAMI?
+        wobble_foundation_binding(&dev_wobble):synth303_binding(&b303[voice]);
+    if(!synth_request(&bass_slot[voice],binding,0)) continue;
     synth_boundary(&bass_slot[voice]);
 #else
     bass303_all_off(&b303[voice]);
@@ -1299,7 +1367,7 @@ int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
     chi_arp_on[voice]=0; chi_arp_run_clear(&chi_arp_run[voice]);
     chi_damper[voice]=chi_damp_latched[voice]=0;
     chi_fx_type[voice]=CHI_FX_OFF; chi_fx_insert_program(voice);
-    count = bank == FACTORY_BANK_CHICAGO ? CHI_AUX_END : WOBBLE_EXPERIMENT_NPARAMS;
+    int count = bank == FACTORY_BANK_CHICAGO ? CHI_AUX_END : WOBBLE_EXPERIMENT_NPARAMS;
     for (int i=0;i<NPARAMS_MAX;i++) cell[i]=values[i];
     for (int i=0;i<count;i++) apply_param(T_303,voice,i,values[i]);
     /* Existing Chicago bridge has only Comp as a shared master effect;
@@ -1313,9 +1381,9 @@ int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
         apply_param(T_FX,0,FX_COMP,values[CHI_FX_EDIT1]);
     }
     bass_named_preset[voice]=(int16_t)preset;
-    bass_preview_dirty=1;
-    engine_project_release();
-    return 0;
+    __asm__ volatile("" ::: "memory");
+    bass_applied[voice]=token;
+    }
 }
 #endif
 
@@ -1732,6 +1800,9 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
+#if X0X_BASS_PRESET_PREVIEW
+        bass_preset_boundary();
+#endif
 #if X0X_DEV_WOBBLE
         for (p = 0; p < NBASS; ++p) {
             if (synth_boundary(&bass_slot[p])) {
@@ -2012,6 +2083,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #if X0X_BASS_PRESET_PREVIEW
     bass_named_preset[0]=bass_named_preset[1]=-1;
     bass_preview_dirty=bass_wheel_mask=0;
+    bass_request_serial=0;
+    for(int v=0;v<NBASS;v++) bass_request[v]=bass_applied[v]=bass_publish_seq[v]=bass_midi_mark[v]=bass_cq_mark[v]=0;
 #endif
     int p, g;
     cq_w = cq_r = 0;

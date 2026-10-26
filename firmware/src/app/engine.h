@@ -44,6 +44,11 @@ int engine_bass_bank(int voice);
 int engine_bass_bank_available(int voice, int bank);
 int engine_bass_preset_index(int voice);
 int engine_bass_preset_edited(int voice);
+int engine_bass_requested_bank(int voice);
+int engine_bass_requested_preset(int voice);
+/* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */
+int engine_bass_preset_pending(int voice);
+void engine_bass_cancel_preset(int voice);
 int engine_bass_preview_changed(void);
 void engine_bass_wheel_owners(uint8_t mask);
 #endif
