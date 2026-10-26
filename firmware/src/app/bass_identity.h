@@ -1,0 +1,101 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Unintegrated product-sound identity proposal. No storage, DSP or migration writes.
+ * Registry entries must use the current backend's existing engine ID, but schema
+ * describes the complete product T_303 surface, not the smaller DSP-only schema.
+ * The integration owner supplies the registry from actual production descriptors. */
+#pragma once
+#include <stddef.h>
+#include <stdint.h>
+
+#define BASS_IDENTITY_BYTES 8u
+#define BASS_IDENTITY_PRODUCT_SCHEMA 1u
+#define BASS_IDENTITY_LAST_UNTAGGED_SOUND_REV 10u
+
+enum { BASS_IDENTITY_UNKNOWN = 0, BASS_IDENTITY_KNOWN = 1 };
+enum {
+    BASS_IDENTITY_READY = 0,
+    BASS_IDENTITY_CHOICE_REQUIRED,
+    BASS_IDENTITY_UNSUPPORTED,
+    BASS_IDENTITY_UNAVAILABLE,
+    BASS_IDENTITY_INVALID
+};
+typedef struct {
+    uint32_t engine;
+    uint16_t schema;
+    uint8_t count, state;
+} bass_identity_t;
+typedef struct {
+    uint32_t engine;
+    uint16_t schema;
+    uint8_t count, available;
+} bass_identity_entry_t;
+
+/* Count/schema mismatches and conflicting registry rows never admit a sound.
+ * An unavailable known engine remains distinct from an invalid or unknown tag. */
+static inline int bass_identity_check(const bass_identity_t *tag,
+                                     const bass_identity_entry_t *registry, size_t n)
+{
+    const bass_identity_entry_t *match = NULL;
+    size_t i;
+    if (!tag || (!registry && n)) return BASS_IDENTITY_INVALID;
+    if (tag->state == BASS_IDENTITY_UNKNOWN)
+        return !tag->engine && !tag->schema && !tag->count ?
+            BASS_IDENTITY_CHOICE_REQUIRED : BASS_IDENTITY_INVALID;
+    if (tag->state != BASS_IDENTITY_KNOWN || !tag->engine || !tag->schema || !tag->count)
+        return BASS_IDENTITY_INVALID;
+    for (i = 0; i < n; i++) {
+        const bass_identity_entry_t *row = &registry[i];
+        if (!row->engine || !row->schema || !row->count || row->available > 1)
+            return BASS_IDENTITY_INVALID;
+        if (row->engine != tag->engine || row->schema != tag->schema) continue;
+        if (match && (match->count != row->count || match->available != row->available))
+            return BASS_IDENTITY_INVALID;
+        match = row;
+    }
+    if (!match) return BASS_IDENTITY_UNSUPPORTED;
+    if (tag->count != match->count) return BASS_IDENTITY_INVALID;
+    return match->available ? BASS_IDENTITY_READY : BASS_IDENTITY_UNAVAILABLE;
+}
+
+static inline int bass_identity_decode(bass_identity_t *out, const uint8_t *wire, size_t bytes,
+                                      const bass_identity_entry_t *registry, size_t n)
+{
+    bass_identity_t tag;
+    int status;
+    if (!out || !wire || bytes != BASS_IDENTITY_BYTES) return BASS_IDENTITY_INVALID;
+    tag.engine = (uint32_t)wire[0] | (uint32_t)wire[1] << 8 |
+                 (uint32_t)wire[2] << 16 | (uint32_t)wire[3] << 24;
+    tag.schema = (uint16_t)((uint16_t)wire[4] | (uint16_t)wire[5] << 8);
+    tag.count = wire[6]; tag.state = wire[7];
+    status = bass_identity_check(&tag, registry, n);
+    if (status != BASS_IDENTITY_INVALID) *out = tag;
+    return status;
+}
+
+/* Unknown future tags are retained as their original bytes, never rewritten by
+ * this encoder. Write only canonical known/known-unavailable or empty tags. */
+static inline int bass_identity_encode(uint8_t *wire, size_t bytes, const bass_identity_t *tag,
+                                      const bass_identity_entry_t *registry, size_t n)
+{
+    int status = bass_identity_check(tag, registry, n);
+    if (!wire || bytes != BASS_IDENTITY_BYTES) return BASS_IDENTITY_INVALID;
+    if (status != BASS_IDENTITY_READY && status != BASS_IDENTITY_UNAVAILABLE &&
+        status != BASS_IDENTITY_CHOICE_REQUIRED) return status;
+    wire[0] = (uint8_t)tag->engine; wire[1] = (uint8_t)(tag->engine >> 8);
+    wire[2] = (uint8_t)(tag->engine >> 16); wire[3] = (uint8_t)(tag->engine >> 24);
+    wire[4] = (uint8_t)tag->schema; wire[5] = (uint8_t)(tag->schema >> 8);
+    wire[6] = tag->count; wire[7] = tag->state;
+    return status;
+}
+
+/* No voice-index, value-range, producer-version or snapshot inference. The caller
+ * owns a separate tag output; the original sound/export is not an argument. */
+static inline int bass_identity_legacy(unsigned sound_revision, bass_identity_t *out)
+{
+    bass_identity_t unknown = {0, 0, 0, BASS_IDENTITY_UNKNOWN};
+    if (!out) return BASS_IDENTITY_INVALID;
+    if (sound_revision > BASS_IDENTITY_LAST_UNTAGGED_SOUND_REV)
+        return BASS_IDENTITY_UNSUPPORTED;
+    *out = unknown;
+    return BASS_IDENTITY_CHOICE_REQUIRED;
+}
