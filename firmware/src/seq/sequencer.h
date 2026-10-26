@@ -194,6 +194,11 @@ void seq_chain(seq_t *s, int a, int b);
 int seq_cue_of(const seq_t *s, int part);   /* the part's cued pattern, or -1 */
 int seq_part_muted(const seq_t *s, int part);
 
+/* GM drum note per kit voice — seq MIDI out and engine MIDI in share one table */
+extern const uint8_t GM_DRUM[NKIT][NDRUM];
+/* Default 0-based MIDI channels for the five parts (seq_init + project_apply_io) */
+extern const uint8_t SEQ_CH_DEFAULT[NTRACKS];
+
 /* steps of one part's rate, in samples Q8 (no swing) at the current tempo */
 uint32_t seq_step_q8(const seq_t *s, int rate);
 float seq_tempo(const seq_t *s);      /* the tempo in effect (internal or measured) */
