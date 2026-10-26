@@ -134,7 +134,11 @@ asan_links() {      # 0 if ${CC} can link the sanitizers the BLE host tests use
 }
 gen_nonfont() {     # drum samples and the break bank, the part of host-build that does not import PIL
     mkdir -p build/gen build/host || return 1
-    [ -f build/gen/x0x_drum_samples.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null || return 1
+    # Same gate as host/build_host.sh: samples alone can linger while tables vanish;
+    # custom X0X_BREAK_BANK skips gen_builtin_break.sh, so tables must be filled here.
+    if [ ! -f build/gen/x0x_drum_samples.h ] || [ ! -f build/gen/x0x_drum_tables.h ]; then
+        python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null || return 1
+    fi
     if [ -n "${X0X_BREAK_BANK:-}" ]; then
         python3 tools/gen_break_bank.py "$X0X_BREAK_BANK" build/gen/x0x_break_bank.h >/dev/null || return 1
     else
@@ -394,6 +398,7 @@ run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13)
 run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
+run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h
 run runner-admission python3 tests/host/test_runner_admission.py
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run gate-reason python3 tests/host/test_gate_reason.py
