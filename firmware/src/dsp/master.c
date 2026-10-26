@@ -59,7 +59,8 @@ static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
 /* one-pole coefficient reaching 1 - 1/e of a step in t milliseconds */
 static float coef_ms(float t) { return fm_expf(-1000.0f / (t * FS)); }
 
-static void comp_coefs(master_t *m)
+/* Pot/init path only — master_process reads precomputed coefs (X0X_COLD) */
+X0X_COLD static void comp_coefs(master_t *m)
 {
     float ratio = RATIO_V[m->pot[MST_RATIO] % 10];
     m->thr_db = thresh_db(m->pot[MST_THRESH]);
@@ -83,7 +84,8 @@ static void comp_coefs(master_t *m)
     }
 }
 
-static void filt_coefs(master_t *m)
+/* Pot/init path only — master_process reads precomputed coefs (X0X_COLD) */
+X0X_COLD static void filt_coefs(master_t *m)
 {
     float fc = 30.0f * fm_exp2f((float)m->pot[MST_CUTOFF] * (9.23f / 127.0f));   /* 30 Hz .. 18 kHz */
     float q = 0.5f + (float)m->pot[MST_RESO] * (11.5f / 127.0f);
@@ -112,7 +114,8 @@ X0X_COLD void master_init(master_t *m)
 
 /* COMP x: the threshold falls (-4 .. -32 dB), the ratio climbs (1.5:1 .. 6:1), makeup follows (0.85 of
  * the reduction at the threshold, at most 24 dB); 3/4 is the factory's -24 dB, 4:1, +16 dB */
-void master_comp1_pots(int v, uint8_t *thresh, uint8_t *ratio, uint8_t *makeup)
+/* UI / master_set COMP macro only — not the audio render (X0X_COLD) */
+X0X_COLD void master_comp1_pots(int v, uint8_t *thresh, uint8_t *ratio, uint8_t *makeup)
 {
     float x = (float)v * (1.0f / 127.0f), thr = -4.0f - 28.0f * x, mk;
     int ri = v ? 1 + (int)(x * 4.0f + 0.5f) : 0;

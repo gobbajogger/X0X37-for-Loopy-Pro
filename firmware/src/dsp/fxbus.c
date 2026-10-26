@@ -75,7 +75,8 @@ static void fx_retime(fxbus_t *f)
     f->dl_time_ms = ms;
 }
 
-static void fx_comp_prep(fxbus_t *f)
+/* Pot/init path only — not the send/render (X0X_COLD) */
+X0X_COLD static void fx_comp_prep(fxbus_t *f)
 {
     const float a = f->comp;
     const float ratio = 2.0f + 3.0f * a;
@@ -84,7 +85,8 @@ static void fx_comp_prep(fxbus_t *f)
     f->c_makeup = a * 2.2f + a * a * 6.6f;
 }
 
-static void fx_apply(fxbus_t *f, int i, float v)
+/* Pot path only — not the send/render (X0X_COLD) */
+X0X_COLD static void fx_apply(fxbus_t *f, int i, float v)
 {
     switch (i) {
     case FX_VOLUME: f->volume = v; break;
