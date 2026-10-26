@@ -335,6 +335,48 @@ static void pending_local_stop_handoff(uint32_t old_input)
     CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
 }
 
+
+/* Regression: an input may unplug and reconnect as the SAME source ID before
+ * the audio callback applies a pending Start, Continue or local PLAY. Dropping
+ * its old F8 queue must drop the saved request epoch too, otherwise the first
+ * F8 from the reconnected device is consumed as an OLD tick: one missing
+ * downbeat and a held 303 note that never starts when expected. */
+static void same_owner_reconnect_epoch(uint32_t input,unsigned transport)
+{
+    seq_t s; monitor_t m; seq_sink_t out;
+    init(&s,&m,&out);
+    CHECK(!s.playing);
+    CHECK(recv(&s,0xf8u,input));                 /* old tick queued */
+    CHECK(s.ext_pending==1u);
+    if (transport==0u)
+        seq_start(&s);                          /* local PLAY */
+    else if (transport==1u)
+        CHECK(recv(&s,0xfau,input));             /* remote Start */
+    else
+        CHECK(recv(&s,0xfbu,input));             /* remote Continue */
+    CHECK(s.req_start || s.req_cont);
+    CHECK(s.req_prior_ticks==1u);
+    seq_clk_drop(&s,input);                     /* USB/BLE disconnect */
+    CHECK(s.clk_lock==0u && s.ext_pending==0u);
+    CHECK(s.req_start || s.req_cont);           /* accepted gesture survives */
+    CHECK(recv(&s,0xf8u,input));                 /* SAME endpoint ID returns */
+    CHECK(s.clk_lock==(uint8_t)(input+1u) && s.ext_pending==1u);
+    CHECK(s.req_prior_ticks==0u);               /* obsolete boundary discarded */
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==1u && m.last_step==0u); /* first new tick = downbeat */
+    CHECK(m.on==1u && m.off==0u && m.held==1u);
+    CHECK(!m.duplicate && !m.orphan);
+    for (unsigned i=0;i<5u;i++) {
+        CHECK(recv(&s,0xf8u,input)); render(&s,&out,1u);
+        CHECK(m.steps==1u);                     /* never an early second step */
+    }
+    CHECK(recv(&s,0xf8u,input));render(&s,&out,1u);
+    CHECK(m.steps==2u && m.last_step==1u);     /* sixth FOLLOWING tick = next step */
+    seq_stop(&s);render(&s,&out,1u);             /* local STOP releases 303 */
+    CHECK(!s.playing && m.held==0u && m.on==m.off);
+    CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
+}
+
 int main(void)
 {
     const unsigned blocks[]={1u,64u,1024u};
@@ -346,6 +388,11 @@ int main(void)
         scenario=13u+i;pending_local_play_handoff(1u);
         scenario=70u+i*2u;pending_local_stop_handoff(0u);
         scenario=71u+i*2u;pending_local_stop_handoff(1u);
+        for(unsigned input=0u;input<2u;input++)
+            for(unsigned transport=0u;transport<3u;transport++) {
+                scenario=90u+i*6u+input*3u+transport;
+                same_owner_reconnect_epoch(input,transport);
+            }
         for(unsigned old_input=0u;old_input<2u;old_input++)
             for(unsigned command=0u;command<2u;command++) {
                 scenario=40u+i*4u+old_input*2u+command;
