@@ -1133,7 +1133,7 @@ static void build_pages(void)
                     PR(R_ENG, T_303, 0, W_WOBBLE_RATE), PR(R_ENG, T_303, 0, W_OUTPUT)};
                 add_page_refs("WOBBLE", refs, 2, b); } while (0);
                 do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_STEREO), PR(R_ENG, T_303, 0, W_PITCH_BEND),
-                    PR(R_ENG, T_303, 0, W_DAMPER), NONE};
+                    PR(R_ENG, T_303, 0, W_DAMPER), PR(R_ENG, T_303, 0, W_BASS_SPLIT)};
                 add_page_refs("MIAMI AUX", refs, 2, b); } while (0);
                 do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_ATTACK), PR(R_ENG, T_303, 0, W_DECAY),
                     PR(R_ENG, T_303, 0, W_SUSTAIN), PR(R_ENG, T_303, 0, W_RELEASE)};
