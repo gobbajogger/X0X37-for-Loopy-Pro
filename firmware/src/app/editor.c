@@ -307,13 +307,21 @@ static void ed_smp_retire(uint32_t k)
     engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
     engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k));
 }
+/* Silence audio then erase one 4 KiB sector (import / boot flash paths). */
+static int ed_silence_erase4k(uint32_t off, uint32_t *took)
+{
+    uint32_t local;
+    if (!took)
+        took = &local;
+    audio_silence();
+    return fl_erase4k(off, took);
+}
 #if SMP_SEC0_BACKUP
 /* Erase 4 KiB at dst and program from src through ed_smp_buf (backup and restore). */
 static int ed_smp_copy_4k(uint32_t dst, const uint8_t *src)
 {
-    uint32_t i, took;
-    audio_silence();
-    if (fl_erase4k(dst, &took))
+    uint32_t i;
+    if (ed_silence_erase4k(dst, 0))
         return 1;
     for (i = 0; i < 0x1000u; i += 256u) {
         uint32_t n = 0x1000u - i;
@@ -338,11 +346,9 @@ static int ed_smp_backup_present(uint32_t k)
 }
 static void ed_smp_clear_backup(uint32_t k)
 {
-    uint32_t took;
     if (!ed_smp_backup_present(k))
         return;
-    audio_silence();
-    (void)fl_erase4k(SMP_SEC0_BACKUP_OFF(k), &took);
+    (void)ed_silence_erase4k(SMP_SEC0_BACKUP_OFF(k), 0);
 }
 /* Put sector 0 back from FL_SMPV when an import aborted after erasing it. */
 static int ed_smp_restore_sec0(uint32_t k)
@@ -395,7 +401,7 @@ static int ed_smp_begin(uint32_t k)
 }
 static int ed_smp_erase(uint32_t k, uint32_t all)
 {
-    uint32_t i, took;
+    uint32_t i;
     int rc = 0;
     if (ed_project.mode == 2)
         ed_project.changed = 1;
@@ -404,8 +410,7 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     smp_sec0_erased[k] = 0;
     ed_smp_clear_backup(k);
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
-        audio_silence();
-        rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);
+        rc = ed_silence_erase4k(ed_smp_slot(k) + i * 0x1000u, 0);
         fm1_wdt_feed();
     }
     ed_smp_inval(k);
@@ -426,8 +431,7 @@ static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
         if (usr_nz[k] && ed_smp_backup_sec0(k))
             return 1;                                 /* refuse wipe if shadow cannot be stored */
         ed_smp_retire(k);
-        audio_silence();
-        if (fl_erase4k(ed_smp_slot(k), took))
+        if (ed_silence_erase4k(ed_smp_slot(k), took))
             return 1;
         smp_sec0_erased[k] = 1;
         ed_smp_inval(k);
@@ -438,16 +442,14 @@ static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
     if (!smp_sec0_erased[k]) {
         /* First destructive touch is past sector 0: last-good cannot be kept. */
         ed_smp_retire(k);
-        audio_silence();
-        if (fl_erase4k(ed_smp_slot(k), took))
+        if (ed_silence_erase4k(ed_smp_slot(k), took))
             return 1;
         smp_sec0_erased[k] = 1;
         ed_smp_inval(k);
     } else {
         ed_smp_retire(k);
     }
-    audio_silence();
-    if (fl_erase4k(ed_smp_slot(k) + off, took))
+    if (ed_silence_erase4k(ed_smp_slot(k) + off, took))
         return 1;
     ed_smp_clear_backup(k);                           /* sec0-only shadow would lie after this */
     return 0;
@@ -562,11 +564,9 @@ static boot_io_t bio;
 
 static int boot_dev_erase(void *ctx, uint32_t off)
 {
-    uint32_t took;
     (void)ctx;
-    audio_silence();
     fm1_wdt_feed();
-    return fl_erase4k(off, &took);
+    return ed_silence_erase4k(off, 0);
 }
 static int boot_dev_prog(void *ctx, uint32_t off, const uint8_t *src, uint32_t n)
 {
