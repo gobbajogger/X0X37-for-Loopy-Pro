@@ -562,10 +562,85 @@ static int project_reset_ble_overflow(uint8_t cursor, int user,
  CHECK(!solos_on,"idle poll cannot resurrect old project state");
  return 1;
 }
+/* USB/peripheral User SMC MIDI remains usable when the direct BLE central is
+ * disconnected. A lost host NoteOff in its separate full FIFO must still
+ * fail-safe the held Solo; an unrelated channel's key-up must not. Reconnect
+ * must not replay stale release state into a subsequent genuine USB press. */
+static int offline_host_solo_overflow(uint8_t cursor, int zero_noteon,
+                                      int foreign, int reconnect)
+{
+ reset(cursor,1);
+ smc_ble_link(0);
+ smc_poll();
+ CHECK(!smc.up && !solos_on, "central link is physically down");
+ host_note(1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],
+       "USB User Solo press works with BLE central disconnected");
+ for(unsigned i=0;i<SMC_Q;i++) host_cc();
+ CHECK((uint8_t)(smc_host_w-smc_host_r)==SMC_Q,
+       "offline host producer FIFO is genuinely full");
+ uint32_t before=smc_host_solo_release_lost;
+ uint8_t st=(uint8_t)((zero_noteon ? 0x90u : 0x80u) |
+                       (foreign ? 2u : 15u));
+ uint32_t release=(uint32_t)st<<8 | (uint32_t)8u<<16;
+ CHECK(smc_midi_host(release)==(foreign ? 0 : 1),
+       "only User channel 16 belongs to USB SMC");
+ CHECK(smc_host_solo_release_lost==before+(unsigned)!foreign,
+       "only an owned dropped USB release advances the lost-generation");
+ smc_poll();
+ CHECK((uint8_t)(smc_host_w-smc_host_r)==0,
+       "USB ring drains while direct BLE central is offline");
+ CHECK(!!solos_on==(unsigned)foreign,
+       "owned lost USB NoteOff fails safe offline; foreign key-up does not");
+ if(foreign) {
+  host_note(0);
+  smc_poll();
+  CHECK(!solos_on && !smc_project_active(),
+        "valid USB key-up still releases after foreign MIDI rejection");
+ }
+ host_note(1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],
+       "new USB Solo remains usable after overflow without central");
+ if(reconnect) {
+  smc_ble_link(1);
+  smc_poll();
+  CHECK(!solos_on && !smc_project_active(),
+        "link return clears old hold without reusing stale release");
+  host_note(1);
+  smc_poll();
+  CHECK(solos_on && smc.solo_target[0],
+        "fresh USB Solo after BLE reconnect is not cancelled by old loss");
+ }
+ host_note(0);
+ smc_poll();
+ CHECK(!solos_on && !smc_project_active(),
+       "matched USB release ends final fresh Solo");
+ smc_poll();
+ CHECK(!solos_on && smc_host_r==smc_host_w,
+       "idle after disconnection/reconnect never replays Solo");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Focused USB/User lost-release behavior while BLE central is OFFLINE.
+  * 6 wrapping ring cursors x NoteOff/zero-on x owned/foreign x reconnect. */
+ if (getenv("SMC_ONLY_OFFLINE_HOST_OVERFLOW")) {
+  for(unsigned i=0;i<sizeof cursors;i++)
+   for(int zero_noteon=0;zero_noteon<2;zero_noteon++)
+    for(int foreign=0;foreign<2;foreign++)
+     for(int reconnect=0;reconnect<2;reconnect++) {
+      if(!offline_host_solo_overflow(cursors[i],zero_noteon,
+                                     foreign,reconnect)) return 1;
+      ++cases;
+     }
+  printf("SMC offline USB host lost release: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  /* Focused host ring/project reset regression, distinct from BLE producer.
   * 6 FIFO cursors x 2 release encodings x 2 link epochs x accepted/foreign
   * release x new BLE/host input = 96 real queue and decoder scenarios. */
@@ -650,6 +725,15 @@ int main(void)
          cases,cases,checks);
   return 0;
  }
+ /* Standard run includes the BLE-disconnected USB/User release-loss phase. */
+ for(unsigned i=0;i<sizeof cursors;i++)
+  for(int zero_noteon=0;zero_noteon<2;zero_noteon++)
+   for(int foreign=0;foreign<2;foreign++)
+    for(int reconnect=0;reconnect<2;reconnect++) {
+     if(!offline_host_solo_overflow(cursors[i],zero_noteon,
+                                    foreign,reconnect)) return 1;
+     ++cases;
+    }
  for(unsigned i=0;i<sizeof cursors;i++)
   for(int zero_noteon=0;zero_noteon<2;zero_noteon++)
    for(int link_edge=0;link_edge<2;link_edge++)

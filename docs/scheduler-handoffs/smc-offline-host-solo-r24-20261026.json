@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "stage": "smc-transport-R24",
+  "status": "PRODUCER_TEST_ONLY_DELIVERED_NOT_INDEPENDENT_ACCEPTED",
+  "workflow": {
+    "pin": "218dbf80cc61384947d6bb2b02e41fc1f3556048",
+    "contract_sha256": "c41776551668119ce561c9e03fe9eb55d4fa03e52e0eda198e32c43fde75a9df",
+    "trial_not_default": true
+  },
+  "purpose": "A musician controlling SMC Solo over USB/peripheral User MIDI must retain correct NoteOn/NoteOff fail-safe behavior if the independent direct BLE central disconnects and the separate host queue saturates.",
+  "design": "Extend registered production-C source-extraction regression for host Solo release-loss while direct BLE central is offline. Vary host FIFO wrap, zero-velocity NoteOn vs NoteOff, owned channel-16 vs foreign channel-3 release and optional reconnect. Keep all production source unchanged. A deliberately broken main-loop guard requiring BLE up must fail.",
+  "expected_observable_user_effect": "USB SMC Solo remains usable without direct BLE; a dropped accepted host release clears held Solo, foreign MIDI does not, and new presses work after reconnect. This is intended behavior protected by tests, not measured device reliability.",
+  "source_before": {
+    "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+    "parent": "c9beec98235d1cb97ce4294b8f9d8d05cb880223",
+    "complete_root_tree": "a49760d547086e7affc482d197e67cf2edc26754",
+    "firmware_compiler_tree": "a9a1fb4c66d3c86d20bb2ec8ea8bff13bf25757e",
+    "smc_mixer_c_blob": "d0175c59d7318cb9aaa7604399a9a4b26062ebca",
+    "smc_ble_input_h_blob": "0084503f6a0c0e89450af93d92b2808e23dedae8",
+    "smc_protocol_h_blob": "03a642226aae01ffb9bc29888e0f5802d72ced26",
+    "prior_r23_regression_blob": "d483be2d4bfa8b8e5196d640e164651500f16e0a"
+  },
+  "test_after": {
+    "path": "tests/host/smc_preset_solo_lifetime_test.py",
+    "blob": "96860d44d58c95c3d073caf077a57dab8a07580e",
+    "sha256": "9d3ebc9d32f167a1c1673accaaf7b445384f200790fe8a2152a9634ed65b9152",
+    "production_firmware_changes": false
+  },
+  "native_evidence": {
+    "observed_at_utc": "2026-10-26T07:09:02.741690+00:00",
+    "environment": "container Linux x86_64; Python 3.13.5; GCC 14.2.0; Clang 17 (compiler modes plain, UBSan, ASan+UBSan)",
+    "scenario_count_per_profile": {
+      "focused_offline_host": 48,
+      "full_solo": 1938
+    },
+    "positive_executions": {
+      "passed": 12,
+      "total": 12
+    },
+    "deliberately_broken_negative": {
+      "matched_expected_assertion": 6,
+      "total": 6,
+      "failed_at": "owned lost USB NoteOff fails safe offline; foreign key-up does not"
+    },
+    "matrix_sha256": "bdce2b755075da7f8bc3888dce40fd8586d1cb0f83a414570d9e8cda51bd34ce",
+    "archive_sha256": "d1222f955e2b06b0c00622cdbb50c83f2c7ddfdc1c2eb870588e43c07a4e9a2d",
+    "archive_path_private_library": "/LoopyX0X37/smc-transport-R24-offline-host-solo-native-20261026.zip",
+    "archive_library_id": "libfile_13e596c993cc8191a2ba10afbd38aacc",
+    "is_source_extraction": true,
+    "mocked_ui_ble_isr": true,
+    "physical_hardware": "NOT_RUN",
+    "full_target_build": "NOT_RUN",
+    "independent_qa": "NOT_RUN",
+    "execution_note": "Several aggregate driver invocations reached their tool-level time limit; completed individual logs were retained, missing cases executed on later invocations, and all 18 expected outcomes verified. No aggregate timeout itself was recorded as a pass."
+  },
+  "live_intake": {
+    "pr122": "CLOSED_MERGED earlier source, not R24",
+    "pr174": "CLOSED_MERGED earlier source",
+    "own_branch_after_merge": "R23 and R24 not in merged PR122 tree",
+    "mergequeue_ref_observed": "b96ff47cd8cfe7720e864ee025a8da8a012ac411",
+    "mergequeue_pr122_row": "stale R20 open snapshot; separate queue writer only",
+    "nightly_ref_observed": "ed562d3f7e13b3e62516fb8d72ac3a5b9f09aca7",
+    "nightly_firmware_C": "different/updated; this source-extraction test is not combined NIGHTLY acceptance"
+  },
+  "handoff": {
+    "next_owners": [
+      "Existing Independent QA",
+      "Existing Hourly Build",
+      "Sole firmware Safe Merge/integrator"
+    ],
+    "qa_action": "Independently review exact R24 test and assertions against current combined source, run affected positive/negative including BLE-down User MIDI path. Coordinate Clock owner for any affected clock boundary.",
+    "build_action": "Confirm unchanged complete PR174 app and controller compiler-input closures and stored exact Elite/Pro/controller bytes, or obtain fresh BUILD_ONLY; test-only R24 does not itself invalidate unchanged compiled inputs.",
+    "integrator_action": "After independent review, reconcile post-merge R24 source test on current combined target; perform only separately authorized protected merge with applicable gates.",
+    "publication_action": "Not authorized; data-safety/installer/hardware and rights gating still separate."
+  },
+  "limits": [
+    "No full combined-root/source or target build.",
+    "No model-matching hardware PASS, installer qualification, public package or publication.",
+    "No independent QA R24 acceptance.",
+    "No firmware/compiler-input changes; old R19 artifacts cannot qualify PR174 changed firmware.",
+    "Protected normal source merges and publication require action-specific approval under current instruction."
+  ],
+  "forbidden_or_not_done": [
+    "No GitHub Actions tests/builds",
+    "No restricted SDK/DSP/controller firmware binaries",
+    "No merge/force/flash/publish",
+    "No scheduler changes"
+  ]
+}
