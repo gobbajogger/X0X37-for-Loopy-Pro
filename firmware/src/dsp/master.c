@@ -268,6 +268,19 @@ __attribute__((noinline)) static float djf_tick(float s, float *ic1, float *ic2,
     return mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
 }
 
+/* Smooth DJF cutoff g toward g_t and refresh a1 — shared by mono/stereo process. */
+__attribute__((noinline)) static float djf_gsmooth(master_t *m, float k)
+{
+    float g = m->g;
+    if (g != m->g_t) {                               /* the cutoff moving: its coefficient too */
+        g = m->g += (m->g_t - m->g) * 0.0625f;
+        if (fm_fabsf(m->g_t - g) < 1e-6f * m->g_t)
+            g = m->g = m->g_t;
+        m->a1 = 1.0f / (1.0f + g * (g + k));
+    }
+    return g;
+}
+
 void master_process(master_t *m, float *x, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE];
@@ -285,14 +298,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             s = s + (wet - s) * m->mix;
         }
         if (mode) {
-            float g = m->g, a1;
-            if (g != m->g_t) {                               /* the cutoff moving: its coefficient too */
-                g = m->g += (m->g_t - m->g) * 0.0625f;
-                if (fm_fabsf(m->g_t - g) < 1e-6f * m->g_t)
-                    g = m->g = m->g_t;
-                m->a1 = 1.0f / (1.0f + g * (g + k));
-            }
-            a1 = m->a1;
+            float g = djf_gsmooth(m, k), a1 = m->a1;
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
@@ -334,14 +340,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             sr = sr + (wet - sr) * m->mix;
         }
         if (mode) {
-            float g = m->g, a1;
-            if (g != m->g_t) {                               /* the cutoff moving: its coefficient too */
-                g = m->g += (m->g_t - m->g) * 0.0625f;
-                if (fm_fabsf(m->g_t - g) < 1e-6f * m->g_t)
-                    g = m->g = m->g_t;
-                m->a1 = 1.0f / (1.0f + g * (g + k));
-            }
-            a1 = m->a1;
+            float g = djf_gsmooth(m, k), a1 = m->a1;
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
             sr = djf_tick(sr, &m->ic1r, &m->ic2r, mode, g, a1, k);
         }
