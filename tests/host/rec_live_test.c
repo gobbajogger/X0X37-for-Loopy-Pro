@@ -47,6 +47,8 @@ int smc_midi_host(uint32_t pkt) { (void)pkt; return 0; }
 void smc_ui_cancel(void) {}
 int smc_ui_active(void) { return 0; }
 void smc_ui_draw(void) {}
+void smc_ui_clip_show(int n, const char *name, const char *value)
+{ (void)n; (void)name; (void)value; }
 #endif
 
 static int fails;
