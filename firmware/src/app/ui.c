@@ -16,7 +16,7 @@
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
-#include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Ring insert */
+#include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring insert */
 #include "chicago_aux.h"                       /* CHI_PBEND / CHI_DAMPER */
 #if X0X_DEV_WOBBLE
 #include "../../../experiments/wobble/wobble.h" /* W_ATTACK..W_RELEASE Miami amp ADSR */

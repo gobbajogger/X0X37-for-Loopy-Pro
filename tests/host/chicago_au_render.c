@@ -13,9 +13,9 @@
  *   midi_note N       0..127
  *   velocity N        1..127
  *   pot I V           bass303 pot index and 0..127 value
- *   fx_type T         Chicago Fx Type 0..11 (Ring insert applied when T=Ring)
- *   fx_edit1 V        Edit1 0..127 (Ring carrier)
- *   fx_edit2 V        Edit2 0..127 (Ring wet)
+ *   fx_type T         Chicago Fx Type 0..11 (Crush/Ring insert when T matches)
+ *   fx_edit1 V        Edit1 0..127 (Crush intensity / Ring carrier)
+ *   fx_edit2 V        Edit2 0..127 (wet)
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +23,11 @@
 #include <math.h>
 #include "../../firmware/src/dsp/bass303.h"
 #include "../../firmware/src/app/chicago_fx.h"
+#include "../../firmware/src/app/chicago_crush.h"
 #include "../../firmware/src/app/chicago_ring.h"
 
-static int read_ctl(bass303_t *b, chi_ring_t *ring, int *frames, int *note_on, int *note_off, int *midi,
-                    int *vel, uint8_t *fx_type)
+static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, int *frames, int *note_on,
+                    int *note_off, int *midi, int *vel, uint8_t *fx_type)
 {
     char line[256];
     uint8_t e1 = 64, e2 = 64;
@@ -37,6 +38,7 @@ static int read_ctl(bass303_t *b, chi_ring_t *ring, int *frames, int *note_on, i
     *vel = 80;
     *fx_type = CHI_FX_OFF;
     bass303_init(b);
+    chi_crush_init(crush);
     chi_ring_init(ring);
     while (fgets(line, sizeof line, stdin)) {
         int a, c;
@@ -95,7 +97,9 @@ static int read_ctl(bass303_t *b, chi_ring_t *ring, int *frames, int *note_on, i
         fprintf(stderr, "chicago_au_render: unknown line: %s", line);
         return -1;
     }
-    if (chi_fx_is_ring_insert(*fx_type))
+    if (chi_fx_is_crush_insert(*fx_type))
+        chi_crush_set(crush, e1, e2);
+    else if (chi_fx_is_ring_insert(*fx_type))
         chi_ring_set(ring, e1, e2, BASS303_SR);
     return 0;
 }
@@ -103,12 +107,13 @@ static int read_ctl(bass303_t *b, chi_ring_t *ring, int *frames, int *note_on, i
 int main(void)
 {
     bass303_t b;
+    chi_crush_t crush;
     chi_ring_t ring;
     int frames, note_on, note_off, midi, vel, pos, note_down;
     uint8_t fx_type;
     float out[512];
 
-    if (read_ctl(&b, &ring, &frames, &note_on, &note_off, &midi, &vel, &fx_type) < 0)
+    if (read_ctl(&b, &crush, &ring, &frames, &note_on, &note_off, &midi, &vel, &fx_type) < 0)
         return 2;
     note_down = 0;
     for (pos = 0; pos < frames; pos++) {
@@ -121,7 +126,9 @@ int main(void)
             note_down = 0;
         }
         bass303_render(&b, out, 1);
-        if (chi_fx_is_ring_insert(fx_type))
+        if (chi_fx_is_crush_insert(fx_type))
+            chi_crush_process(&crush, out, 1);
+        else if (chi_fx_is_ring_insert(fx_type))
             chi_ring_process(&ring, out, 1);
         {
             float s = out[0];

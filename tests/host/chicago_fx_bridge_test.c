@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Host proof: Chicago SEND FX bridge maps Off/Comp/Crush/Delay/Hall onto Mix+fxbus
- * intentions; Ring is insert (clear sends only); other NOT_YET types never invent
- * Cho/Phaser/Ensemble/Gate/EQ DSP. */
+/* Host proof: Chicago SEND FX bridge maps Off/Comp/Delay/Hall onto Mix+fxbus
+ * intentions; Crush + Ring are insert (clear sends only); other NOT_YET types
+ * never invent Cho/Phaser/Ensemble/Gate/EQ DSP. */
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
@@ -31,6 +31,7 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_OFF), "Off supported (inactive)");
     CHECK(chi_fx_supported(CHI_FX_COMP), "Comp supported");
     CHECK(chi_fx_supported(CHI_FX_DECIM), "Crush/Decim supported");
+    CHECK(chi_fx_is_insert(CHI_FX_DECIM), "Crush is insert");
     CHECK(chi_fx_supported(CHI_FX_SHORT_DLY), "Short Delay supported");
     CHECK(chi_fx_supported(CHI_FX_BPM_DLY), "BPM Delay supported");
     CHECK(chi_fx_supported(CHI_FX_HALL), "Hall supported");
@@ -58,6 +59,10 @@ static void test_not_yet_clear(void)
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Ring insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_COMP), "Ring does not set Comp");
     CHECK(!(o.touch & CHI_FX_W_DIST), "Ring does not set Dist/Crush");
+    chicago_fx_map(CHI_FX_DECIM, 70, 100, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Crush insert clears sends (no Mix theft)");
+    CHECK(!(o.touch & CHI_FX_W_DIST), "Crush insert does not set Dist");
+    CHECK(!(o.touch & CHI_FX_W_DRIVE), "Crush insert does not set Drive");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 0, &o);
     CHECK(o.touch == 0, "Cho without clear_ny writes nothing");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 1, &o);
@@ -95,15 +100,12 @@ static void test_short_delay(void)
     CHECK(o.mx_dly == 50, "Short Delay send");
 }
 
-static void test_comp_crush(void)
+static void test_comp(void)
 {
     chicago_fx_out_t o;
     chicago_fx_map(CHI_FX_COMP, 90, 0, 0, &o);
     CHECK(o.fx_comp == 90, "Comp Edit1 → FX_COMP (global)");
     CHECK(o.touch & CHI_FX_W_CLEAR_SENDS, "Comp clears part sends");
-    chicago_fx_map(CHI_FX_DECIM, 70, 0, 0, &o);
-    CHECK(o.fx_dist == 7, "Decimator → Crush mode");
-    CHECK(o.fx_drive == 70, "Decimator Edit1 → Drive");
 }
 
 static void test_factory_decode(void)
@@ -121,6 +123,7 @@ static void test_factory_decode(void)
 static void test_labels_honest(void)
 {
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_RING], "Ring") == 0, "Ring plain insert name");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_DECIM], "Crush") == 0, "Crush plain insert name");
     CHECK(strstr(CHI_FX_TYPE_N[CHI_FX_EQ], "—") != 0, "EQ labeled NOT_YET");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");
@@ -135,7 +138,7 @@ int main(void)
     test_hall();
     test_bpm_delay();
     test_short_delay();
-    test_comp_crush();
+    test_comp();
     test_factory_decode();
     test_labels_honest();
     if (fails) {
