@@ -31,6 +31,9 @@ void wobble_reset(wobble_t *s);
 /* Public normalized controls; nonfinite values are rejected; values clamp 0..1. */
 int wobble_set(wobble_t *s, unsigned parameter, float value);
 void wobble_note_on(wobble_t *s, uint8_t note, uint8_t velocity);
+/* Slide preserves amp envelope/stage only while an active gate is held.
+ * Pitch follows W_GLIDE; the latest note and velocity take ownership. */
+void wobble_note_on_slide(wobble_t *s, uint8_t note, uint8_t velocity, int slide);
 /* Last-note ownership: unmatched old note-off is ignored; no held-note stack. */
 void wobble_note_off(wobble_t *s, uint8_t note);
 void wobble_all_notes_off(wobble_t *s);

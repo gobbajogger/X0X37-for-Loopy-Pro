@@ -141,14 +141,21 @@ int wobble_set(wobble_t *s, unsigned parameter, float value)
 }
 void wobble_note_on(wobble_t *s, uint8_t note, uint8_t velocity)
 {
+    wobble_note_on_slide(s, note, velocity, 0);
+}
+void wobble_note_on_slide(wobble_t *s, uint8_t note, uint8_t velocity, int slide)
+{
     if (!velocity) { wobble_note_off(s, note); return; }
+    int legato = slide && s->active && s->gate;
     s->note = note > 127 ? 127 : note;
     update_pitch(s);
     if (!s->active || s->p[W_GLIDE] == 0.0f) s->hz = s->target_hz;
     s->velocity = (float)(velocity > 127 ? 127 : velocity) / 127.0f;
     s->gate = s->active = 1; s->deferred_off = 0;
-    s->envelope = 0.0f;
-    s->env_stage = 0;
+    if (!legato) {
+        s->envelope = 0.0f;
+        s->env_stage = 0;
+    }
 }
 void wobble_note_off(wobble_t *s, uint8_t note)
 {

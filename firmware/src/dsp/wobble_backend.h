@@ -23,14 +23,13 @@ static void wobble_foundation_render(void *p, float *out, int n)
 }
 static void wobble_foundation_note(void *p, int note, int accent, int slide, int velocity)
 {
-    /* Accent/slide do not import303 circuit semantics. Explicit velocity and
-     * existing glide control determine this original instrument's response. */
-    (void)accent; (void)slide;
+    /* Held slides continue the amp envelope; W_GLIDE controls pitch slew. */
+    (void)accent;
     if (note < 0) note = 0;
     if (note > 127) note = 127;
     if (velocity < 0) velocity = 0;
     if (velocity > 127) velocity = 127;
-    wobble_note_on(p, (uint8_t)note, (uint8_t)velocity);
+    wobble_note_on_slide(p, (uint8_t)note, (uint8_t)velocity, slide);
 }
 static void wobble_foundation_off(void *p) { wobble_all_notes_off(p); }
 static void wobble_foundation_panic(void *p) { wobble_reset(p); }
