@@ -251,7 +251,7 @@ __attribute__((noinline)) static void d9_rim_retune(d9_rim_t *v)
 
 static void d9_clap_retune(d9_clap_t *v) { d9_biquad_set(&v->bp, D9_BP, v->tune, v->res); }
 
-static void d9_smp_rate(d9_smp_t *s)
+__attribute__((noinline)) static void d9_smp_rate(d9_smp_t *s)
 {
     const float p = s->pitch > 0.0f ? s->pitch : 1.0f;
     s->inc = (uint32_t)p;
