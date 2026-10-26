@@ -19,6 +19,7 @@ enum { XB_ST_READY = 1, BLE_GUARD_OK_MS = 1000 };
 static unsigned ble_up, fm1_c1_on, ble_host_on, ble_want;
 static uint32_t fm1_ms, ble_alive[2], ble_ok_at;
 static struct { unsigned trying; } ble_guard;
+static int smc_ble_role_get(void) { return 1; }
 static void ble_record(void) { assert(0); }
 static void ble_fail(void) { assert(0); }
 static void ble_guard_ok(void *p) { (void)p; }

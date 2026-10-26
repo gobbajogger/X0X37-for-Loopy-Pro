@@ -525,7 +525,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         break;
     case R_SMC_ROLE:
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));
-        say("RESTART FOR BT ROLE", 0);
+        say(v ? "BLUETOOTH HOST" : "BLUETOOTH DEVICE", 0);
         break;
     case R_SMC_MAP:
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_USER) | (v ? PROJ_BT_SMC_USER : 0u));
