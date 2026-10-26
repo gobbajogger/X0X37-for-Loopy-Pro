@@ -272,10 +272,10 @@ __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t
     uint32_t word = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
     if (w - cq_r >= CQ) {
         /* Full: params may drop (mirror still has them). Never drop C_BON,
-         * C_BOFF, or C_BRK — missing a break press under param flood is a
-         * silent slice loss; a retained release without its press is rare but
-         * must not displace an already-queued release. */
-        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK);
+         * C_BOFF, C_BRK, or C_DRUM — missing a live drum hit or break press
+         * under param flood is a silent loss; a retained release without its
+         * press is rare but must not displace an already-queued release. */
+        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM);
         if (!keep)
             return;
         for (i = cq_r; i != w; i++) {
