@@ -1,0 +1,19 @@
+{
+  "RESULT.txt": "30fd42f1f3a57dd5141c951e365d8f64ff12de920823d9e56bb1594543d532c5",
+  "checks.json": "4b4574f82318f363f769d135dc1e2097d52dd7d48082f1f57dbaf28f00b2d00d",
+  "investigation/different-handle-probe.c": "0846aabaf549e49588764feb216dcfe95ade4f925c225905d0fc9492c00d03bf",
+  "investigation/probe-commands.json": "e33a79ab3d4e810fce0e81804d410faff51d7b9de92f9247fd0c682ad547f63b",
+  "investigation/probe-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "investigation/probe-inputs.json": "45d67b7e64fd1cbc9f58721f0518c11c74b4c9d6ac74fe9c1ed1f37774a88bd7",
+  "investigation/probe.log": "e74ac4e922b0043e5f3649de7f6ec49d4697143ad06168e6ab5e0d3443a845cb",
+  "investigation/report.json": "20f31d3f62d89b18849f33d50491b66e9306b52caed0064bbf31af903ae3ad49",
+  "investigation/run-different-handle.py": "1fd830976df66cd7185c2e5b33d30c5f56c583ef9b3628358c4a605a48c86657",
+  "investigation/service-sha256.txt": "924ec26c394489c5647e3e8c76b736f68a7672bf4bf43abc6226a559777317c1",
+  "investigation/source-identity.json": "8836a91243ef21ab8f5fd3d445046fbc64b3654e3f39ebc3deafb43df30d5fb7",
+  "reuse.json": "04f58b15d260926abc2a4e722e7c47b9997f557e0ed3832a8b4f76d01cefa7d7",
+  "stage4-prompt.txt": "f7e67b1cc94cf5323f910b1cabbc9772475321b39e6ad8322bd91b6142ba8a57",
+  "successor.json": "f9b3d4d69c3c2546a9afeb6afc612f176d8a62e4123d1e122d21f628a075de21",
+  "test/identity-review.json": "430ae2bd3eb028d6084e28d75eaba53d3f0bc9e37f0f0313e64e879da0ce34d0",
+  "test/report.json": "165a43594fe02dd9a033daf0a525da3e509ed6da3fea1e3db46c7415a1b6ebc2",
+  "verify-reuse.py": "d45257513af005a0e1dc2e2a5c2f24c036a102384b72f6b3ea304c93ff320f68"
+}

@@ -1,0 +1,3 @@
+After refused Cancel: state=0 waiting=0 conn=0 accepted=0 deadline=3100
+After successful connection: state=0 waiting=0 conn=0 accepted=0
+Assertion failed: (c.conn == 0x50), function main, file cancel-busy-probe.c, line 20.

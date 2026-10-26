@@ -1,0 +1,146 @@
+Central stage4 contribution handoff for the sole stage5 integrator.
+Marker: smc-complete-20261021-stage5-after-mapping-and-central.
+Source chat: 01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3.
+Sole stage5 selection owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Begin the assigned stage now in its one fresh LOCAL chat. Do not create another copy.
+The mapping owner must include this complete contribution in its final stage5 prompt.
+
+Current instructions and scope
+
+Read /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md.
+Initialize CURRENT x0x37-task, x0x37-workflow, x0x37-writing, x0x37-check, x0x37-integrate,
+x0x37-shared-work and x0x37-owner-decisions.
+Read selected SKILL.md bodies in /Users/mac/Documents/x0x37/.agents/skills/.
+Initialize x0x37-install before install-package evidence or artifact selection.
+Do not load old rule files. Current owner instructions win over old text.
+Use an isolated integration lane. Preserve other lanes and separate rules work.
+Git administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Never push, merge or package refs-oscuro.
+Keep proprietary SDK/toolchain files, packages and controller bytes out of commits and bundles.
+
+Exact checked contribution
+
+Complete source candidate: cce6ac5ccd45ebb2809afd973671af96b138748a.
+Candidate tree: cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Contribution base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+Latest repair base: 1c5e8f8953658689434b4b3e8687ccd630afeff0.
+Actual DEV-validated revision: 9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a.
+Its Git tree is 4b6f8f3a64010208386cf856742b607a89065c15.
+Its production, tests, tools, controller and host source agree with the complete candidate.
+The validated revision adds saved evidence. Use that exact revision for DEV-record verification.
+Later evidence-only commits do not represent a new production repair or a new built package.
+Lane: /Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021.
+Branch: lane/mb-smc-central-stop-stage4-20261021.
+Stage4 result: evidence/stop-stage4/result.json.
+Read RESULT.txt, source-identity.json, environment.json, plan-review.json, permissions.json,
+reuse-host.json, records-read.json, retained-commands.json, artifact-verification.json and stage2-artifact-match.json.
+Read elite/record.json, elite/validation-inputs.json, build.log, controller.log, check-0.log and package-layout.log.
+Read evidence/stop-stage3/RESULT.txt, checks.json and both complete helper reports.
+Read the inherited stage2 records and its complete stage3-prompt.txt as needed.
+The complete upstream stage4 assignment stays at evidence/stop-stage3/stage4-prompt.txt.
+Keep evidence/session-audit, session-stage2, session-stage3, abort-stage3, deadline-stage2 and deadline-stage3.
+
+Validated actual Elite DEV set
+
+Stage4 result: STAGE4 VALIDATION PASS.
+Configuration: board smk37, model elite, X0X_DEV_PADCAL=1, config dev, exact controller selected.
+DEV record: /Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json.
+Package: /Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/x0x-smk37-elite.fwsc.
+Controller: /Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/ctl.img.
+Validation-input SHA256: 69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5.
+Package SHA256: 1ee6d2fcf20b39b625924ee15c6788c908ad9adc2933b4408b986c45cab745d4.
+Package CRC32: f2479a6b. Package length: 651396 bytes. Product: SMK-37 Elite_900.
+App SHA256: 3204d8cd391a735f82af41b652b030b5e412da5575ac002250c913cf4ad16a98.
+Loader SHA256: 32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e.
+Controller SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+Controller file length: 65492 bytes. File CRC32: 9c07ae67. Header CRC32: 77b7a496.
+Full padded 64 KiB controller CRC32: 4a400899.
+Controller flash margin: 44 bytes. Controller RAM margin: 544 bytes.
+App code margin: 1128 bytes. Static RAM margin: 524 bytes. Pool margin: 8364 bytes.
+Required pool margin: 8192 bytes.
+The app, loader and package agree with the stage2 bytes.
+The complete DEV validator performed its required actual package/controller builds.
+Its selected checks and final input-identity comparison passed.
+The DEV record agrees with the exact package and controller.
+Package model, CRCs, region table and loop-slot map checks passed.
+Controller insertion kept app bytes, the bootloader head and loop-slot map.
+Controller removal restored the original package byte for byte.
+No validation attempt failed. No production or public test source changed in stage4.
+
+Host evidence and retained behavior
+
+Both independent stage3 helpers have PASS and no actionable source finding.
+The new different-handle event-order probe has 16 ASan/UBSan cases and PASS.
+All 415 source, 224 helper, 6 stop and 7 replay inputs agree.
+All 81 saved log hashes and three stage2 target artifacts agree.
+The host compiler, target compiler, SDK and local container image identities agree.
+The saved 56 host commands, 14 stop controls and 7 probe commands keep their expected results.
+The 30 expected nonzero controls are historical broken-source or deliberately stale-service cases.
+They are not current candidate failures. No sanitizer failure precedes their expected assertions.
+No host suite or replay ran again solely for stage4.
+The complete contribution preserves signaling identifiers, bounded queues, reply priority, fragment limits,
+lifecycle resets, reconnect credits, command acceptance and normal MIDI delivery.
+It repairs Disconnect backpressure, cutoff guards, current service time and CENTRAL-STOP-01.
+Refused stop commands stay pending. Accepted commands do not repeat before completion.
+Failed or missing completion gives FAILED. Repeated stop keeps the original cutoff.
+Late successful connections keep their handle and stop intent. Duplicate events do not replace the retained handle.
+No Disconnect is submitted at or after the original cutoff.
+Only the matching successful Disconnection Complete releases the link and restores its credits.
+Direct start cannot erase an unresolved stop. Actual stop completion permits a fresh startup.
+
+Mapping and combined validation
+
+Mapping candidate: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Mapping tree: 56a78830c67477684e1ec114274ae204acb81296.
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+That owner selects the one sole stage5 integrator for both validated contributions.
+Read both complete validation records before integration.
+Use history-preserving local integration. Record the combined revision, tree and validation identity.
+The separate central and mapping packages do not qualify as the combined install set.
+If integration changes checked inputs, start one fresh combined stage4 for applicable validation.
+The combined validation owner must keep the sole integration identity and completed merge evidence.
+Do not repeat a completed merge unless another merge is required.
+After matching combined validation, start one fresh install chat.
+Apply workflow18 and verify actual successor startup before ending each required stage.
+
+Current model policy and physical limits
+
+Elite covers shared development target checks and budgets.
+Do not repeat duplicate Pro shared-source or memory checks after Elite PASS.
+Pro-specific inputs and each actual selected Pro package retain applicable checks.
+No Pro-specific source changed here. No Pro artifact was selected or built in this stage4.
+Do not claim an unbuilt Pro artifact or a Pro device PASS.
+Use matching completed evidence again. A stage or commit ID change alone does not invalidate it.
+The replay keeps 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The queue is empty. The performance test is idle. Help and overlay are inactive.
+The peer, HCI framing, mailbox, clock and schedule are simulated.
+Three oversized ATT packets stay excluded. No payload resegmentation occurs.
+The store is synthetic. Target interrupts and physical radio execution are not tested.
+Physical result: NOT TESTED. Original all-input failure: UNRESOLVED.
+The idle CONNECTED trace and zero idle counters do not establish a receive failure.
+The rejected header contains no signaling command or identifier.
+The owner states that the messages did not change.
+Working-reference omissions do not establish the cause of the later physical failure.
+Do not request control movement, mode repetition, setup checks or another capture.
+Preserve features, controls, notes, pad colours, loop slots, menus, navigation, pickup, licensing and sample quality.
+Keep keyboard-equivalent, individual 909 and individual 808 mixer modes.
+Do not restore withdrawn generic screen-following mappings.
+Keep the mapping R/S policy deferral and its non-blocking documentation discrepancy.
+
+Authorization
+
+The owner repair request is "Now read rules and fix".
+The standing owner request is "Make sure that they automatically allow to do that without my intervention".
+Workflow17 and workflow18 permit required stage launch, recovery, actual startup checks and completion notices.
+Owner-decisions14 permits the complete validated DEV install with a notice.
+The designated installer must send the notice and use all model, data, bootloader, lock, backup and readback guards.
+Carry these permissions through successors. Do not ask again because a chat, stage, commit or artifact changes.
+No device/controller write occurs in this stage4.
+No hands-on request, release/full gate/trial, fallback, unrelated feature, external push or publication is authorized.
+No Pro or FM-1 target work is required solely to duplicate the shared Elite result.
+Missing hardware blocks only device-dependent work. Do not skip installation to push.
+Send permitted validation and successor completion notices to the mapping selection owner and sole receiving integrator.
+End this stage after verified sole successor startup. Do not wait for that next stage to finish.

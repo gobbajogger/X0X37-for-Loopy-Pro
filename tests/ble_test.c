@@ -140,24 +140,26 @@ static void connect(bleh_t *h)
 {
     static const uint8_t uaddr[6] = {1, 2, 3, 4, 5, 6};
     static const uint8_t cmplt[21] = {0x3E, 19, 0x01, 0x00, 0x40, 0x00, 0x01};
-    unsigned ops[] = {0x0C03, 0x2002, 0x2005, 0x2006, 0x2008, 0x2009};
+    unsigned ops[] = {0x0C03, 0x0C01, 0x2001, 0x2002, 0x2005, 0x2006, 0x2008, 0x2009};
     int i;
     nsent = 0;
     bleh_init(h, fake_send, 0, "X0X-ABCD", uaddr);
     bleh_set_sysex(h, sx_cb);
     bleh_start(h);
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 8; i++) {
         CHECK(nsent == i + 1 && sent[i].t == BLEH_H4_CMD && op_of(i) == ops[i]);
-        if (i == 2) CHECK(sent[i].b[3] == 1 && sent[i].b[8] == (6 | 0xC0));   /* the random static address */
-        if (i == 3) CHECK(sent[i].b[3 + 5] == 1);                            /* own address type: random */
+        if (i == 1) CHECK(sent[i].b[10] & 0x20);                             /* LE meta (bit 61) */
+        if (i == 2) CHECK(sent[i].b[3] & 1);                                 /* LE connection complete */
+        if (i == 4) CHECK(sent[i].b[3] == 1 && sent[i].b[8] == (6 | 0xC0));   /* the random static address */
+        if (i == 5) CHECK(sent[i].b[3 + 5] == 1);                            /* own address type: random */
         cc(h, ops[i], 0, 4);
     }
     CHECK(h->state == BLEH_ADVERTISING);
     bleh_poll(h);                                  /* advertising on */
-    CHECK(nsent == 7 && op_of(6) == 0x200A && sent[6].b[3] == 1);
+    CHECK(nsent == 9 && op_of(8) == 0x200A && sent[8].b[3] == 1);
     cc(h, 0x200A, 0, 0);
     bleh_poll(h);
-    CHECK(nsent == 7);
+    CHECK(nsent == 9);
     bleh_rx(h, BLEH_H4_EVT, cmplt, 21);
     CHECK(bleh_connected(h) && h->conn == 0x40);
 }
@@ -186,6 +188,18 @@ static void t_host(void)
     CHECK(bleh_midi_next(&h, &m) && m.b[0] == 0x90 && m.b[1] == 64 && m.b[2] == 102 && m.ts == (1 << 7 | 3));
     CHECK(bleh_midi_next(&h, &m) && m.len == 1 && m.b[0] == 0xF8 && m.ts == (1 << 7 | 4));
     CHECK(!bleh_midi_next(&h, &m));
+    /* a72: real time as Loopy Pro sends it: Stop, Start, clocks and Continue in one event, a clock between
+     * running status notes; each one is a USB-MIDI packet CIN 0xF for the sequencer (engine.c midi_in) */
+    { const uint8_t d[] = {0x80, 0x81, 0xFC, 0x81, 0xFA, 0x81, 0xF8, 0x82, 0x90, 60, 100, 0x83, 0xF8, 61, 100,
+                           0x84, 0xF8, 0x85, 0xFB};
+      static const uint32_t want[] = {0xFu | 0xFCu << 8, 0xFu | 0xFAu << 8, 0xFu | 0xF8u << 8,
+                                      0x9u | 0x90u << 8 | 60u << 16 | 100u << 24, 0xFu | 0xF8u << 8,
+                                      0x9u | 0x90u << 8 | 61u << 16 | 100u << 24, 0xFu | 0xF8u << 8, 0xFu | 0xFBu << 8};
+      unsigned i;
+      midi_w(&h, d, sizeof d);
+      for (i = 0; i < sizeof want / sizeof want[0]; i++)
+          CHECK(bleh_midi_next(&h, &m) && ble_usb_of_msg(&m) == want[i]);
+      CHECK(!bleh_midi_next(&h, &m)); }
     /* program change (2 bytes), song position (system common, ends running status) */
     { const uint8_t d[] = {0x80, 0x80, 0xC3, 5, 0x81, 0xF2, 0x10, 0x20, 0x82, 7};
       midi_w(&h, d, sizeof d); }
@@ -205,9 +219,28 @@ static void t_host(void)
     /* a cut message: the rest of the packet is dropped */
     { const uint8_t d[] = {0x80, 0x81, 0x90, 1}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));
+    /* attempt 32: a burst of 60 notes (12 packets of 5) all arrive */
+    { int k, j, got = 0;
+      for (k = 0; k < 12; k++) {
+          uint8_t d[17] = {0x80, 0x81, 0x90, 0, 1};
+          for (j = 0; j < 4; j++) { d[5 + 3 * j] = 0x81; d[6 + 3 * j] = (uint8_t)(k * 5 + j + 1); d[7 + 3 * j] = 1; }
+          d[3] = (uint8_t)(k * 5); midi_w(&h, d, sizeof d);
+      }
+      while (bleh_midi_next(&h, &m)) { if (m.b[0] == 0x90 && m.b[1] == got) got++; }
+      CHECK(got == 60); }
     /* a bad header: ignored */
     { const uint8_t d[] = {0x00, 0x81, 0x90, 1, 2}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));
+    /* attempt 34: the parameter request on demand, once; its answer */
+    nsent = 0;
+    CHECK(bleh_conn_update(&h, 12, 24, 0, 600) == 1 && nsent == 1 && sent[0].b[8] == 0x12 &&
+          sent[0].b[12] == 12 && sent[0].b[14] == 24 && sent[0].b[18] == 0x58 && sent[0].b[19] == 2);
+    CHECK(bleh_conn_update(&h, 12, 24, 0, 600) == 0);
+    { uint8_t e[] = {0x13, 5, 1, 0x40, 0, 1, 0}; bleh_rx(&h, BLEH_H4_EVT, e, sizeof e); }
+    { uint8_t r[] = {0x40, 0x20, 10, 0, 6, 0, 5, 0, 0x13, 0x31, 2, 0, 1, 0};
+      bleh_rx(&h, BLEH_H4_ACL, r, sizeof r); CHECK(h.cpu_result == 2); }
+    { uint8_t u[] = {0x3E, 10, 0x03, 0, 0x40, 0, 24, 0, 0, 0, 0x58, 2}; bleh_rx(&h, BLEH_H4_EVT, u, sizeof u);
+      CHECK(h.conn_int == 24 && h.conn_lat == 0); }
     /* MIDI out: one notification, one header, running status off by default */
     nsent = 0;
     { const uint8_t a[3] = {0x90, 60, 100}, b[3] = {0x90, 61, 100}, c[1] = {0xF8};
@@ -455,6 +488,44 @@ static void t_park(void)
     CHECK(pk_bad_poll == 0);
 }
 
+/* the start guard (BEHAVIOR.md BLE-12) */
+static void t_guard(void)
+{
+    ble_guard_t g;
+    memset(&g, 0xA5, sizeof g);                      /* power-on RAM: no magic */
+    CHECK(ble_guard_boot(&g, 1, 1) == 1 && g.magic == BLE_GUARD_MAGIC && g.trying && !g.blocked && !g.fails);
+    ble_guard_started(&g, 0, 1);                     /* READY: still trying until ok */
+    CHECK(g.trying && !g.blocked);
+    ble_guard_ok(&g);
+    CHECK(!g.trying && !g.fails);
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);            /* a good start does not block the next one */
+    /* a crash or a hang in the start: the unit resets with trying set */
+    CHECK(ble_guard_boot(&g, 1, 1) == 0 && g.blocked && g.why == BLE_WHY_RESET && g.fails == 1 && !g.trying);
+    CHECK(ble_guard_boot(&g, 1, 1) == 0 && g.fails == 1);  /* stays blocked, no new count */
+    ble_guard_user_off(&g);                          /* BLUETOOTH OFF */
+    CHECK(!g.blocked && ble_guard_boot(&g, 1, 0) == 0 && !g.trying);
+    CHECK(ble_guard_boot(&g, 1, 1) == 1 && g.trying);  /* ON again: one new try */
+    ble_guard_started(&g, -1, 0);
+    CHECK(g.blocked && g.why == BLE_WHY_TIMEOUT && !g.trying && g.fails == 2);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);
+    ble_guard_started(&g, -2, 0);
+    CHECK(g.why == BLE_WHY_WRONG_JOB && g.blocked);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);
+    ble_guard_started(&g, 0, 0);
+    CHECK(g.why == BLE_WHY_NOT_READY && g.blocked);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);
+    ble_guard_started(&g, -3, 0);
+    CHECK(g.why == BLE_WHY_NO_TICK && g.blocked && !g.trying);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 0, 1) == 0 && !g.trying);  /* no image: no try */
+    g.magic = 0;                                     /* bad magic: a clean record */
+    g.trying = 1;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1 && !g.blocked && !g.fails);
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1) {                                /* ble_test ctl.img: the app's check on a real image */
@@ -472,6 +543,7 @@ int main(int argc, char **argv)
     t_host();
     t_glue();
     t_park();
+    t_guard();
     printf("ble_test: %d checks, %d failed\n", checks, fails);
     return fails != 0;
 }

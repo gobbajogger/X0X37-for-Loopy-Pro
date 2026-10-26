@@ -58,6 +58,39 @@ typedef struct {
 } fm1_c1_mb_t;
 static fm1_c1_mb_t fm1_c1_mb __attribute__((aligned(64)));
 volatile uint32_t fm1_c1_trace;                 /* breadcrumbs (fm1_cpu1.S, fm1_c1_main) */
+/* Words the BLE guard still copies after a failed start. Nothing in this firmware writes them.
+ * They survive a reset, so a previous image can leave a value: 0xC1000000 | TIMER4 time in 100 ms
+ * (bits 16-23) | stalls << 8 | (rc & 0xFF), 0xEE = still waiting. */
+static volatile uint32_t fm1_c1_wait_end __attribute__((section(".noinit")));
+/* TIMER4 ms of that old wait, at its last look. Survives a reset. */
+static volatile uint32_t fm1_c1_wait_ms __attribute__((section(".noinit")));
+/* Optional checks nothing calls. Results stay in .noinit for the guard:
+ * - fm1_c1_watch: 4 words copied to fm1_c1_wait_seen
+ * - fm1_c1_sum_lo..hi: words added up; fm1_c1_sum_ref the sum before a start.
+ *   fm1_c1_sum_bad = ms of the first different sum | 0xBAD00000, fm1_c1_sum_got that sum. */
+static const volatile uint32_t *fm1_c1_watch;
+static const volatile uint32_t *fm1_c1_sum_lo, *fm1_c1_sum_hi;
+static uint32_t fm1_c1_sum_ref;
+static volatile uint32_t fm1_c1_wait_seen[4] __attribute__((section(".noinit")));
+static volatile uint32_t fm1_c1_sum_bad, fm1_c1_sum_got __attribute__((section(".noinit")));
+/* the sum of fm1_c1_sum_lo..hi (inline: the RAM code makes no calls) */
+static inline __attribute__((always_inline)) uint32_t fm1_c1_sum(void);
+/* watch (4 words) and the words lo..hi. Nothing calls this. */
+__attribute__((unused)) static void fm1_cpu1_wait_checks(const void *watch, const void *lo, const void *hi)
+{
+    fm1_c1_sum_lo = (const volatile uint32_t *)lo;
+    fm1_c1_sum_hi = (const volatile uint32_t *)hi;
+    fm1_c1_sum_ref = fm1_c1_sum();
+    fm1_c1_watch = (const volatile uint32_t *)watch;
+}
+static inline __attribute__((always_inline)) uint32_t fm1_c1_sum(void)
+{
+    const volatile uint32_t *p = fm1_c1_sum_lo;
+    uint32_t s = 0;
+    while (p < fm1_c1_sum_hi)
+        s = (s << 1 | s >> 31) ^ *p++;
+    return s;
+}
 static uint8_t fm1_c1_on;                       /* started and answering: core 0 may hand it work */
 #define FM1_C1_CHECK(fn, arg, job) ((uint32_t)(uintptr_t)(fn) ^ (arg) ^ (job) * 0x9E3779B1u)
 static uint8_t fm1_c1_gave_up;                  /* 1 = it read a wrong job, 2 = it did not finish one,
@@ -68,6 +101,27 @@ uint32_t fm1_c1_ssp = (uint32_t)(uintptr_t)_c1_sstack_top;
 static uint32_t fm1_c1_lim_lo, fm1_c1_lim_hi;
 static uint32_t fm1_c1_park_seq;                /* core 0: the last park request's number */
 
+/* Core 0 seen from core 1 (the Bluetooth start, test 24). With a controller, core 1 watches core 0's
+ * ms counter (fm1_c1_c0_clock, set by src/ble.c). When it has not moved for 100 ms, core 1 copies
+ * core 0's ETM (its last 4 branches), DBG_MSG and EMU_MSG, 4 times 10 ms apart, into fm1_c0_dead
+ * (.ble_ram: a watchdog reset keeps it). Then it stops looking. */
+#define FM1_C0_DEAD_MAGIC 0xC0DEAD01u
+typedef struct {
+    uint32_t magic, n, t4_ms, c0_ms, dbg, emu;  /* n: samples taken */
+    uint32_t etm[4][4];                         /* 4 samples of core 0's ETM_PC0..3 */
+} fm1_c0_dead_t;
+static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".ble_ram")));
+static const volatile uint32_t *volatile fm1_c1_c0_clock;
+/* RAM canary (test 26): the 8 KiB under core 0's stack guard (0x01C72000..0x01C74000, the pool's
+ * spare: tools/build.py keeps >= 8 KiB of the pool free) is set to all ones before the controller
+ * starts. Core 1 looks at 16 words per loop; a word that changed is recorded (the first 8: address,
+ * value, TIMER4 ms) and set back. Shows whether RAM loses bits with nothing writing it. */
+#define FM1_CAN_LO 0x01C72000u
+#define FM1_CAN_HI 0x01C74000u
+typedef struct {
+    uint32_t armed, n, scans, rec[8][3];
+} fm1_can_t;
+static fm1_can_t fm1_can __attribute__((section(".ble_ram")));
 void fm1_c1_main(void);
 void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
 {
@@ -78,6 +132,8 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
     uint32_t lo = fm1_c1_lim_lo ? fm1_c1_lim_lo : (uint32_t)(uintptr_t)_c1_ustack + 256u;
     uint32_t hi = fm1_c1_lim_hi ? fm1_c1_lim_hi : (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
     uint32_t done, last_bad = 0xFFFFFFFFu, parked = 0;
+    uint32_t c0_last = 0, c0_t = 0, c0_next = 0;
+    uint32_t can_i = 0;
     *(volatile uint32_t *)0x1EEF2D8u = hi;
     *(volatile uint32_t *)0x1EEF2DCu = lo;
     *(volatile uint32_t *)0x1EEF2E0u = hi;
@@ -119,6 +175,50 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
             dt = FM1_C1_T4 - t0;
             if (dt > fm1_c1_mb.poll_max)
                 fm1_c1_mb.poll_max = dt;
+            if (fm1_can.armed == 0xCA9A11E5u) {          /* the RAM canary (inline: no calls) */
+                volatile uint32_t *cw = (volatile uint32_t *)(uintptr_t)FM1_CAN_LO;
+                uint32_t e = can_i + 16u;
+                for (; can_i < e; can_i++) {
+                    uint32_t v = cw[can_i];
+                    if (v != 0xFFFFFFFFu) {
+                        uint32_t k = fm1_can.n;
+                        if (k < 8u) {
+                            fm1_can.rec[k][0] = FM1_CAN_LO + 4u * can_i;
+                            fm1_can.rec[k][1] = v;
+                            fm1_can.rec[k][2] = FM1_C1_T4 / 24000u;
+                        }
+                        fm1_can.n = k + 1u;
+                        cw[can_i] = 0xFFFFFFFFu;
+                    }
+                }
+                if (can_i >= (FM1_CAN_HI - FM1_CAN_LO) / 4u) {
+                    can_i = 0;
+                    fm1_can.scans++;
+                }
+            }
+            if (fm1_c1_c0_clock && fm1_c0_dead.n < 4u) {   /* core 0 alive? (inline: no calls) */
+                uint32_t m = *fm1_c1_c0_clock, t = FM1_C1_T4;
+                if (m != c0_last || !c0_t) {
+                    c0_last = m;
+                    c0_t = t;
+                } else if (t - c0_t > 2400000u && (int32_t)(t - c0_next) >= 0) {
+                    uint32_t k = fm1_c0_dead.n;
+                    if (!k) {
+                        fm1_c0_dead.t4_ms = t / 24000u;
+                        fm1_c0_dead.c0_ms = m;
+                        fm1_c0_dead.dbg = *(volatile uint32_t *)0x1EEE244u;
+                        fm1_c0_dead.emu = *(volatile uint32_t *)0x1EEF0D4u;
+                        fm1_c0_dead.magic = FM1_C0_DEAD_MAGIC;
+                    }
+                    fm1_c0_dead.etm[k][0] = *(volatile uint32_t *)0x1EEF1C4u;
+                    fm1_c0_dead.etm[k][1] = *(volatile uint32_t *)0x1EEF1C8u;
+                    fm1_c0_dead.etm[k][2] = *(volatile uint32_t *)0x1EEF1CCu;
+                    fm1_c0_dead.etm[k][3] = *(volatile uint32_t *)0x1EEF1D0u;
+                    fm1_c0_dead.n = k + 1u;
+                    c0_next = t + 240000u;
+                    FM1_C1_SYNC();
+                }
+            }
             continue;
         }
         if (j == done + 1u) {
@@ -251,31 +351,6 @@ static inline int fm1_cpu1_wait(void)
             fm1_c1_gave_up = 2;
             return -1;
         }
-    }
-}
-
-/* One job with core 0 in RAM until it ends (the Bluetooth controller's start: its RF trim turns
- * the flash off). Core 0's interrupts off; call through a pointer (FL_FAR). No calls in here (RAM
- * code: tools/build.py checks). 0 = done, -1 = not in time, -2 = a wrong job. */
-#define FM1_C1_RAMFN __attribute__((section(".ram_text"), noinline, used))
-static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg, uint32_t ticks)
-{
-    uint32_t job = fm1_c1_mb.job + 1u, t0;
-    fm1_c1_mb.fn = fn;
-    fm1_c1_mb.arg = arg;
-    fm1_c1_mb.check = FM1_C1_CHECK(fn, arg, job);
-    FM1_C1_SYNC();
-    fm1_c1_mb.job = job;
-    FM1_C1_SYNC();
-    t0 = FM1_C1_T4;
-    for (;;) {
-        FM1_C1_SYNC();
-        if (fm1_c1_mb.done == job)
-            return 0;
-        if (fm1_c1_mb.bad)
-            return -2;
-        if (FM1_C1_T4 - t0 > ticks)
-            return -1;
     }
 }
 

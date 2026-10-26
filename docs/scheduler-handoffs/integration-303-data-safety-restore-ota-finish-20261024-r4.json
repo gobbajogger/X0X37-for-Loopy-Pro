@@ -1,0 +1,130 @@
+{
+  "schema": "loopyx0x37.safe-merge.integration-evidence.v1",
+  "evidence_revision": "safe-merge-pr103-data-safety-pr105-intake-20261024-r4",
+  "owner": "LoopyX0X37 Safe Merge — sole NIGHTLY firmware PR integrator",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "integration": {
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "parent_head": "94c093e01680d69e22b64a176b3dc27b7fffdd7f",
+    "parent_full_root": "c95bf58439d4b5fc3a438dc91cbebc97f7ecae2b",
+    "source_root_before_new_evidence": "964e49852a00b888cde21528e9d040bc46fb8e07",
+    "new_source_and_tests": [
+      "tools/fm1_install.py",
+      "tools/x0x_slots.py",
+      "tests/fm1_install_finish_ack_test.py",
+      "tests/x0x_slots_migration_matching_test.py",
+      "tests/run_tests.sh"
+    ],
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "protected_nightly_at_review": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "status": "SOURCE_COMPLETE_SCOPED_VERIFIED_READY_FOR_INDEPENDENT_REVIEW_QA_PENDING_NOT_INSTALLABLE"
+  },
+  "consumed": {
+    "producer_pr": 105,
+    "branch": "lane/data-safety-restore-max-matching-20261024-0715",
+    "head": "a99f4992e5bcbc5d677cae5a750d9684c0c78985",
+    "full_root": "964e49852a00b888cde21528e9d040bc46fb8e07",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "source_commits": [
+      "79d815a793fd1c1c149ca8c3ecabbf5618ef4cac",
+      "a99f4992e5bcbc5d677cae5a750d9684c0c78985"
+    ],
+    "producer_evidence_revisions": [
+      "data-safety-restore-max-matching-20261024-0715-v1",
+      "data-safety-ota-finish-ack-20261024-0726-v1"
+    ],
+    "related_bugfinder_evidence": "bugfinder-pr103-ota-finish-ack-send-20261024-r1",
+    "source_blobs": {
+      "tools/x0x_slots.py": "78b041ab3e0c736517dbf2f509c9776c7c632f10",
+      "tools/fm1_install.py": "5498084bed95985f091f9525a936e4c4bef154af",
+      "tests/x0x_slots_migration_matching_test.py": "f02aab647564ee96e70c45ed6bafb31471255e2a",
+      "tests/fm1_install_finish_ack_test.py": "df0b4cd1cc8400fa26e5d3d36f5f66116145f799",
+      "tests/run_tests.sh": "a9d246c6b78564086d60b391284da8c49de6a39"
+    }
+  },
+  "actual_integrator_checks": [
+    {
+      "command": "GitHub PR/tree/compare/content read-only source checks; 17 exact assertions",
+      "exit": 0,
+      "checks": "17/17 passed",
+      "scope": "Git source/ref and review-presence consistency only; no full-root tests"
+    },
+    {
+      "command": "python3 -B /mnt/data/pr105_scoped_integrator_tests.py",
+      "exit": 0,
+      "checks": "6 deterministic + 250 seeded property scenarios passed",
+      "scope": "exact producer plan_migration source window only; 1729 characters, FNV1a64 d53582c532f45edc",
+      "script_sha256": "cf723ab43bc57f24337f1e9ce9846caa25ae1a118bb5816a1c0887da423d7a7e",
+      "log_sha256": "52134180740048d573b6e3a65d5e6cf500e17c17878b42ffe8164f21dd6266c8"
+    },
+    {
+      "command": "python3 -B /mnt/data/pr105_ack_scoped_integrator_tests.py",
+      "exit": 0,
+      "checks": "9/9 finish-ACK send success/failure/negative cases passed",
+      "scope": "exact producer Updater.serve source window only; 1284 characters, FNV1a64 fad11c7cbe116cd5",
+      "script_sha256": "ae8c658acaf8ee31af7855d522e54f3732bb85fd37c3ccc9c0477a17322ffcc4",
+      "log_sha256": "dc73341c10d05b59e623aaa59184af85ba4b78ea110f34b99a121b06e391ee0d"
+    },
+    {
+      "command": "python3 -m py_compile /mnt/data/pr105_scoped_integrator_tests.py /mnt/data/pr105_ack_scoped_integrator_tests.py",
+      "exit": 0,
+      "checks": "both integrator replay scripts compiled",
+      "scope": "syntax only"
+    },
+    {
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit": 128,
+      "checks": "DNS resolution failed: Could not resolve host github.com",
+      "scope": "shell checkout path only; connector Git reads work"
+    }
+  ],
+  "independent_qa": {
+    "status": "PENDING",
+    "formal_review_pr105_count_at_review": 0,
+    "required": "Independently execute newly registered regressions and exact full-root installer/slot/OTA interruption, backup/restore/readback, wrong-model/controller CRC, 303 timing-negative suites; check all failed gates before protected PR merge"
+  },
+  "build": {
+    "owner": "Hourly Build",
+    "status": "BUILD_ONLY historical exact-firmware-subtree private Elite/Pro/controller artifacts available, new full-root identity and complete compiler input equality require independent builder acknowledgment",
+    "must_not_wait_for": [
+      "independent QA",
+      "source merge",
+      "hosting",
+      "owner hardware"
+    ]
+  },
+  "publication": {
+    "owner": "Catalog and sole NIGHTLY Pages publisher",
+    "status": "NO_GO_NOT_INSTALLABLE",
+    "remaining": "independent prehardware model/controller/backup/safety/package integrity/source/complete corresponding GPL+Apache licenses and immutable live HTTP checks",
+    "owner_hardware_observation": "UNKNOWN",
+    "production": "separately hardware-proven and expressly approved"
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Review exact resulting integration commit/root and execute combined whole-root regressions and negatives; emit exact-SHA Git disposition"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Independently attest complete compiler inputs and private Elite/Pro/controller outputs against resulting exact source, recompile if changed; BUILD_ONLY allowed immediately"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "Only after exact-root independent QA/review and legitimate branch protections, merge PR103 via protected PR path and reread actual NIGHTLY SHA"
+    },
+    {
+      "owner": "Catalog/sole Publisher",
+      "action": "Do not publish/select candidate until full independent prehardware legal, model/controller, backup/integrity, source and immutable HTTP gates pass"
+    }
+  ],
+  "not_done": [
+    "complete-root QA",
+    "independent code approval",
+    "protected NIGHTLY merge",
+    "public HTTP publication",
+    "physical device test",
+    "production promotion"
+  ]
+}

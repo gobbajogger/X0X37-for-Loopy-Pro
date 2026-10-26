@@ -1,0 +1,2 @@
+After production stop: path=scan-disable refused=1 state=0 waiting=0 handle=0 attempts=1 accepted=0 deadline=3100
+Assertion failed: (c->state == BLEC_STOPPING), function main, file service-stop-probe.c, line 67.

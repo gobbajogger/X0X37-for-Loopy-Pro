@@ -1,0 +1,135 @@
+SMC stage 3: scoped source and host checks PASS; hardware input NOT TESTED.
+Owner chat: 01a15a0c-471c-7bd3-b989-4e306ca6a082.
+Lane: lane/mb-smc-stage3-20261021.
+Checkout: /Users/mac/Documents/x0x37/smc_stage3_20261021.
+Receiving owner: exactly one fresh LOCAL stage-4 exact DEV build/package chat.
+
+Candidate and metadata correction
+
+The tested stage-2 candidate was 3d7b1999a245e84d6d9faf1241dd1078ef335d31.
+Stage 3 found its committed docs/rules check failed because its preference update
+lacked required Trigger:/Check: commit-message lines. The stage-2 passing log
+identified pre-commit HEAD 3d7c29b and did not cover that message. Stage 3 reworded
+only its own isolated copy of the tip to
+3fc770dcde261a23556f6c3749ebd4bc5911f1c3. Both commits have exact tree
+854b4d97bdac0a6941ab1dd83ae26b9c1535cdec, the same parent and author, and an empty
+file diff. The old lane remains intact. metadata-correction.json records proof;
+docs-check.log retains FAIL and docs-check-corrected.log records actual PASS.
+Independent review confirmed this metadata-only disposition. No source repair
+occurred; no fresh stage-2 loop was needed. The enclosing evidence commit adds
+only stage-3 evidence. Use that final lane commit for stage 4 and record its exact
+ID from the launch prompt/successor record. Never validate an uncommitted tree.
+
+Read workspace AGENTS.md, agent-rules.md and matching maintained checkout rules,
+especially workflow/shared-work/commit/integration/install. The candidate's
+docs/rules/device-bug.md has the newer capture-reuse rule than workspace mirrors.
+Read COMPLETE evidence/smc-stage2/HANDOFF.txt, OWNER-CORRECTION.txt, CHECKS.json
+and preserved-contracts.json, then this directory's CHECKS.json and all three
+scoped reports: knob-ui/REPORT.txt, receive-diag/report.json and
+silence-review/REPORT.txt. Do not revive the withdrawn original audit finding 1.
+
+Current approved behavior
+
+Latest owner decision: "Because thats intended. And there's 3 modes for faders and buttons to map like they do on keyboard faders and to then map to individual sounds of either 909 and 808".
+Then: "Map knobs too". This supersedes the old generic fader page-following
+proposal. Fader/button, navigation, pickup and feedback functions remain unchanged
+(nine function hashes verified). New knobs trim matching strips on HOME/main MIX
+and 909/808 drum MIX banks. Main strips are 909, 808, 303A, 303B, BREAK, reverb,
+delay and master filter. Drum bank 2 exposes tracks 9-11 on knobs 1-3; knobs 4-8
+are inactive. Other sound pages, menus and clip editors retain fields and modal
+priority. A paired fader and knob can share a destination. Deep menus retain
+drum pan and sends. See docs/SMC_MIXER.md and docs/USER_PREFERENCES.md.
+
+Stage-3 evidence and failure dispositions
+
+Independent knob/UI tests pass: mapping, pickup, buttons, master filter,
+clip/menu/help/confirmation visibility, part selection and the full production
+UI runner on all five injected or synthetic routes. An extra scratch-only harness
+checks that the matching knob resets paired fader pickup and crossing history,
+then permits reacquisition. All thirteen stage-2 source hashes match. The nine
+preserved function hashes match the audit base. No product source was edited.
+
+Old/new DIAG decoding, 77-word output bounds and intended fail-on-base decoder
+regression pass. Strict address+undefined sanitizer receive and replay checks
+pass on supported native macOS with Apple clang 21.0.0. Linux initial and one
+bounded retry produced AddressSanitizer:DEADLYSIGNAL startup crashes without a
+source diagnostic. The same signature reproduces in trivial sanitized main
+(1/10 fail, 9/10 pass); this supports a runtime/startup problem, whose deeper
+host cause is unproven. All failed logs are retained; supported-host passes are
+separate. No production repair is indicated. Do not retry unrelated passes.
+Docker socket and container Git ownership setup failures were resolved without
+shared/global configuration changes. A baseline decoder scratch missing its
+helper was invalid; its corrected exact-base fixture then failed as intended.
+The ten docs grammar heuristics are advisory; required rules/preferences pass.
+
+Replay preserves 1271 notification payloads, SHA
+a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+SIMULATED whole and fragmented HCI yield 2616 supported events and reject the same
+three ATT packets above 64 bytes. A separate RESEGMENTED MTU23 SIMULATION yields
+all 2711 events, no rejections. Synthetic CONNECTED/discovery/CCCD/UI tests prove
+source behavior and downstream reachability, not physical peer delivery.
+
+All-input silence remains unresolved
+
+Trust the owner's report: all controls fail, both ends DAW, light feedback works.
+The knob addition is not a live-silence repair. Last-good source 53d5654 first
+had silence and later worked without a firmware change. No exact old physical
+package/readback is retained. The source review found no new deterministic
+complete-silence cause; controller/radio sources remain unchanged from last-good.
+Do not ask for modes again, movement or another capture. Reuse recorded captures
+and simulated sends. An idle zero-packet snapshot is not evidence of absent input.
+
+New diagnostics are not installed. Live rejected CID/packet shape and discovered
+value/CCCD handles remain UNKNOWN. Trace gives best-effort bounded snapshots,
+not event history or synchronized fields; values persist until replaced or
+reinitialized. Only start packets with >=8 bytes contain an interpretable CID;
+continuations do not contain an L2CAP header. ATT pending also covers discovery.
+CONNECTED/step14 follows a successful subscribe Write Response in production,
+but tests do not prove physical delivery. Dispatch counts a call, not an edit
+surviving guards/pickup. Use the candidate's decoder for its six-word extension.
+Do not make speculative reconnect/subscription/SMP/MTU/radio policy changes.
+
+Stage-4 inputs and boundaries
+
+Use local Linux x86-64 image x0x37-validation:local, network disabled, workspace
+mounted at the same absolute path for linked Git. SDK /Users/mac/fw-AC79_AIoT_SDK
+is clean at d179b4484759423312073f5fbb232501aa491047, normally mounted at /sdk.
+Compiler /Users/mac/.jieli/toolchain/pi32v2/bin/clang SHA
+c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+matches. Use CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L.
+References are under /Users/mac/Documents/x0x37/validation_refs; preserve pins.
+The Mac full UI compiler previously hit SDK declarations; Linux full UI passed.
+Linux sanitizer startup instability is scoped above; supported Mac receive and
+replay coverage is valid and must not be relabeled as a target test.
+
+Default DEV X0X_DEV_PADCAL=1; Elite and Pro only. Stage-2 preliminary final builds
+are build-elite-knobs-dev.log and build-pro-knobs-dev.log; earlier *-dev.log files
+are superseded. Code headroom 2104/2120 B, static RAM free 524 B, pool free
+8364 B (required >=8192). Stage 4 owns exact committed artifact/package identities
+and maintained schema-2 DEV CHECKED records with justified scoped plans. Reuse
+matching source evidence; new artifact identities and package/controller checks
+must cover actual final bytes. No full gate, release or FM-1 target work.
+
+Preserve installed app b3112a8 (39db004 is source-same plus Markdown), current
+controller SHA956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a,
+ctl.img CRC9c07ae67, full64KiB readback CRC4a400899. Both retained images at
+/Users/mac/Documents/x0x37/local_fixture_stage4_evidence_20261021/{elite,pro}/ctl.img
+were independently hashed again and match. They are 65492 bytes; 44 bytes free.
+Current SMK packages rewrite the controller block and need an exact validated
+matching controller; do not use --no-controller/--no-ctl as a preservation shortcut.
+Old exact records are historical dependency evidence, not authorization or
+validation of this new app. Preserve notes, pad colors, all loop slots, features,
+sample quality, licensing, model guards and budgets. Do not include proprietary
+SDK/toolchain or generated binaries in Git. Never alter the dirty primary/other lanes.
+
+Completion and one successor
+
+No install, fallback, external push or publication is approved for this candidate.
+Installation needs concrete checked artifacts and a separate scope decision;
+old completed-workflow permissions do not transfer. Stage 4 validates only.
+A new source repair returns to exactly one fresh LOCAL stage 2, then fresh stage3.
+After successful validation, stage 4 rechecks activity/records and creates/starts
+exactly one fresh LOCAL stage5, handing sole integration ownership to it. Record
+the returned ID, verify startup and end stage4. Never advance a failed check or
+unknown live input as hardware PASS. Use author genkigenki
+<3080081+genkigenki@users.noreply.github.com>.

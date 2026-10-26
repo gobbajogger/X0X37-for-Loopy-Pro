@@ -1,0 +1,51 @@
+{
+  "candidate": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "tree": "562b14c7ad8a7c7413b9f34fc42cc751683f3e8c",
+  "source_identity_matches_stage2": true,
+  "source_hashes": {
+    "firmware/src/ble/ble_midi_central.c": {
+      "expected": "601a29d9f5ad94518a21ac2e4279b6cd4b20fa35da628874a065a6d35f863ef5",
+      "actual": "601a29d9f5ad94518a21ac2e4279b6cd4b20fa35da628874a065a6d35f863ef5"
+    },
+    "firmware/src/ble/ble_midi_central.h": {
+      "expected": "858be9c6246329884deaa18eb82f61f3695af61e56c864c50146bdbd1d73d7b6",
+      "actual": "858be9c6246329884deaa18eb82f61f3695af61e56c864c50146bdbd1d73d7b6"
+    },
+    "firmware/src/ble.c": {
+      "expected": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+      "actual": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44"
+    },
+    "tests/host/ble_midi_signal_test.c": {
+      "expected": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f",
+      "actual": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f"
+    },
+    "tests/host/ble_midi_receive_test.c": {
+      "expected": "d81a59f91d4a4f3afdd6423e4a9c4c18ee993869afee34099ab009835d8fa5ea",
+      "actual": "d81a59f91d4a4f3afdd6423e4a9c4c18ee993869afee34099ab009835d8fa5ea"
+    },
+    "tests/host/ble_midi_receive_test.sh": {
+      "expected": "f51fa15c11b2680f27bafd837f7cd125203d79c654774ec67eebac40684caa68",
+      "actual": "f51fa15c11b2680f27bafd837f7cd125203d79c654774ec67eebac40684caa68"
+    },
+    "tools/build.py": {
+      "expected": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+      "actual": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1"
+    },
+    "tools/locked_settings.json": {
+      "expected": "ede4face10f93166964c4d2d5cca46c54f462c1c3c6d86ce0ddd6bb805634410",
+      "actual": "ede4face10f93166964c4d2d5cca46c54f462c1c3c6d86ce0ddd6bb805634410"
+    },
+    "firmware/src/app/smc_mixer.c": {
+      "expected": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+      "actual": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0"
+    },
+    "firmware/src/app/ui.c": {
+      "expected": "22f58e87d1f77baac72ca68c84a71eadd02bcb1968929b730af2074a3d9e230f",
+      "actual": "22f58e87d1f77baac72ca68c84a71eadd02bcb1968929b730af2074a3d9e230f"
+    }
+  },
+  "stage2_builds": "PASS. Reused source identity only. No stage4 install record is claimed.",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "production_edits": false
+}

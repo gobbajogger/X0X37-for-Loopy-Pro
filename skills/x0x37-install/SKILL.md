@@ -16,7 +16,7 @@ Use local access without a machine transfer when available. Exclude proprietary 
 Default: development, `X0X_DEV_PADCAL=1`.
 Before install-package validation, installation, release packaging, or publication, read [evidence requirements](references/evidence.md).
 They define the complete queued set, exact artifacts, DEV CHECKED record, explicit controller selection, model and data guards, and release conditions.
-When specifically authorized, a development install uses `tools/dev_validate.py` and `tools/fm1_install.py`; it skips the full gate under [rule 11](../x0x37-integrate/SKILL.md). Current hardware permission is withdrawn.
+When specifically authorized, a development install uses `tools/dev_validate.py` and `tools/fm1_install.py`; it skips the full gate under [rule 11](../x0x37-integrate/SKILL.md). Any installation needs current model- and action-specific permission; the authorized Pro investigation is read-only and Elite flash remains withdrawn.
 Release packaging, publication, and external pushes keep their separate authorization requirements.
 
 ### Rule 7: safe writes

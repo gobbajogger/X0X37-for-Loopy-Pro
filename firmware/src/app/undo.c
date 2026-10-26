@@ -17,7 +17,8 @@
 #include <stdint.h>
 
 #ifndef UNDO_POOL
-#define UNDO_POOL 20480u                 /* X0X 0.11: 4 KB less, for the 64-step project's shadow (pool headroom) */
+/* 4 KiB history: tip after #606 links WBL1 with only ~868 B above the 8 KiB pool floor. */
+#define UNDO_POOL 4096u
 #endif
 #define UNDO_MAX 32
 #define UNDO_GAP 8u                    /* unchanged bytes between changes cheaper to keep than a new run */

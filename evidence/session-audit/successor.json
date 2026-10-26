@@ -1,0 +1,25 @@
+{
+  "marker": "smc-central-session-20261021-stage2-after-investigation",
+  "source_thread": "01a15a73-c90c-7862-a6a4-2caa85154e41",
+  "stage": 2,
+  "status": "started",
+  "lane": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021",
+  "revision": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-audit/stage2-prompt.txt",
+  "successor": {
+    "threadId": "01a15a7c-126f-7f22-b8d3-0bad5a77306a",
+    "hostId": "local"
+  },
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "result": {
+        "threadId": "01a15a7c-126f-7f22-b8d3-0bad5a77306a",
+        "hostId": "local"
+      }
+    }
+  ],
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-audit/startup.json",
+  "duplicate_check": "Project activity and matching stage contents checked. No central-session successor exists. Separate mapping successor 01a15a7a-1348-7f10-b837-43a8ca22d62a is active.",
+  "observed_turn_id": "01a15a7c-135e-75d0-ac0b-d0c14f319e28"
+}

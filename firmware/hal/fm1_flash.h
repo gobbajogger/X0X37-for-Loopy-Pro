@@ -138,15 +138,6 @@ static RAMFN uint32_t fl_jedec_ram(void)                 /* expect 0x856014 (FL_
     return id;
 }
 
-static RAMFN uint32_t fl_status_ram(void)                /* SR1 | SR2 << 8 */
-{
-    fl_saved_t s; uint32_t v;
-    if (fl_enter(&s)) return 0xFFFFFFFFu;
-    v = fl_rdsr(0x05) | ((uint32_t)fl_rdsr(0x35) << 8);
-    fl_exit(&s);
-    return v;
-}
-
 static RAMFN int fl_erase4k_ram(uint32_t off, uint32_t *took_us)
 {
     fl_saved_t s; int rc;

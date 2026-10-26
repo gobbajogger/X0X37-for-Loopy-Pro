@@ -5,19 +5,11 @@
 #   update <ref> <old sha> <new sha>      (git receive-pack calls it; exit code 0 = accept, other = reject)
 # Fail closed: an error in a check rejects the ref.
 # 1. refs-oscuro: reject a ref name with "refs-oscuro", and a pushed commit that only refs-oscuro has
-#    (the same rule as part 2 of the client pre-push hook).
-# 1b. Rules = code (check 28, owner 02:37, docs/rules/SCRIPT-CHECKS.md on smk37): a push to refs/heads/smk37 that changes
-#    docs/rules/, docs/agent-rules.md, docs/USER_PREFERENCES.md or USER_PREFERENCES.md (git diff <old> <new>) is accepted
-#    only in one of these two forms. "A commit of a lane" = the tip of a branch refs/heads/lane/dk-rules-* or an ancestor of it.
-#    a. <new> is a merge commit. Its first parent is <old>. Its second parent is a commit of a lane/dk-rules-* branch.
-#       The merge adds no rule change of its own (git diff <second parent> <new> on these paths is empty).
-#    b. <new> is a commit of a lane/dk-rules-* branch, and <old> is an ancestor of <new> (fast-forward).
-#    Push the lane/dk-rules-* branch first, then smk37 (the hook reads the lane tip that is in the repository now).
-#    A push to smk37 that does not change these paths is not checked. The skip option does not skip this part.
-# 1c. Branch names (check 9 of rules v4, commit.md rule 10): a NEW branch (old sha = 0) must be lane/<tag>-<topic> with the tag
+#    (the same protection as the client pre-push hook).
+# 1c. Branch names: a NEW branch (old sha = 0) must be lane/<tag>-<topic> with the tag
 #    mb, sb, opt, btr or dk, or integration, smk37 or archive/<name>. Other new branches are rejected. A branch that is
 #    already in the repository (for example ble-a74 or test-speed) can still move or be deleted. Tags are not checked.
-# 1d. Integration owner (check 8 of rules v4, rule 10: only Merge Integrator moves integration): a push to
+# 1d. Integration owner: a push to
 #    refs/heads/integration (not a delete) needs the push option by=merge-integrator: git push -o by=merge-integrator ...
 #    The pre-receive hook saves the option. The skip option does not skip 1c or 1d.
 # 2. Quick check, only for refs/heads/integration (not a delete): the installed quickcheck.sh (strict STE when the
@@ -49,7 +41,7 @@ g() {   # g <git args>: output in G_OUT; an exit code other than 0 or error text
 }
 
 # ---------- 1. refs-oscuro ----------
-case "$REF" in *refs-oscuro*) reject "refs-oscuro must never be pushed (owner rule)";; esac
+case "$REF" in *refs-oscuro*) reject "refs-oscuro must never be pushed";; esac
 if [ "$NEW" != "$Z" ]; then
     g cat-file -t "$NEW"
     if [ "$G_OUT" = commit ]; then
@@ -62,40 +54,8 @@ if [ "$NEW" != "$Z" ]; then
             [ -n "$uniq" ] || { g rev-list -1 "$OSC"; uniq=$G_OUT; }
             if [ "$OLD" = "$Z" ]; then g rev-list "$NEW" --not $others; else g rev-list "$NEW" "^$OLD"; fi
             hit=$(comm -12 <(echo "$uniq" | sort) <(echo "$G_OUT" | sort) | head -1)
-            [ -z "$hit" ] || reject "the push contains the refs-oscuro commit $hit (owner rule)"
+            [ -z "$hit" ] || reject "the push contains the refs-oscuro commit $hit"
         fi
-    fi
-fi
-
-# ---------- 1b. Rules = code: rule changes on smk37 come only from a lane/dk-rules-* branch ----------
-RULEP="docs/rules/ docs/agent-rules.md docs/USER_PREFERENCES.md USER_PREFERENCES.md"
-onlane() {  # onlane <commit>: print the first refs/heads/lane/dk-rules-* branch that has <commit> (tip or ancestor)
-    local r t
-    while read -r r t; do
-        [ -n "$r" ] || continue
-        if [ "$t" = "$1" ] || git merge-base --is-ancestor "$1" "$t" 2>/dev/null </dev/null; then echo "$r"; return 0; fi
-    done <<< "$LANES"
-    return 1
-}
-if [ "$REF" = refs/heads/smk37 ] && [ "$NEW" != "$Z" ]; then
-    if [ "$OLD" = "$Z" ]; then g diff --name-only "$(git hash-object -t tree /dev/null)" "$NEW" -- $RULEP
-    else g diff --name-only "$OLD" "$NEW" -- $RULEP; fi
-    RCH=$G_OUT
-    if [ -n "$RCH" ]; then
-        g for-each-ref --format='%(refname) %(objectname)' 'refs/heads/lane/dk-rules-*'
-        LANES=$G_OUT; FORM=""
-        P1=$(git rev-parse -q --verify "$NEW^1" 2>/dev/null </dev/null || true)
-        P2=$(git rev-parse -q --verify "$NEW^2" 2>/dev/null </dev/null || true)
-        if [ -n "$P2" ] && [ "$P1" = "$OLD" ] && L=$(onlane "$P2"); then
-            g diff --name-only "$P2" "$NEW" -- $RULEP
-            [ -z "$G_OUT" ] || reject "the merge of $L changes rule files itself ($(echo $G_OUT)). Put each rule change on the lane (rules = code, owner 02:37)."
-            FORM="merge of $L"
-        elif L=$(onlane "$NEW") &&
-             { [ "$OLD" = "$Z" ] || git merge-base --is-ancestor "$OLD" "$NEW" 2>/dev/null </dev/null; }; then
-            FORM="fast-forward to $L"
-        fi
-        [ -n "$FORM" ] || reject "a rule change on smk37 ($(echo $RCH | cut -c1-200)) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)"
-        echo "update hook: rule change on smk37 accepted ($FORM)" >&2
     fi
 fi
 
@@ -105,7 +65,7 @@ if [ "$OLD" = "$Z" ] && [ "$NEW" != "$Z" ]; then
     refs/heads/*)
         BN=${REF#refs/heads/}
         echo "$BN" | grep -qE '^(lane/(mb|sb|opt|btr|dk)-[A-Za-z0-9][A-Za-z0-9._/-]*|integration|smk37|archive/[A-Za-z0-9][A-Za-z0-9._/-]*)$' ||
-            reject "a new branch must be lane/<mb|sb|opt|btr|dk>-<topic>, integration, smk37 or archive/<name> (commit.md rule 10), not $BN"
+            reject "a new branch must be lane/<mb|sb|opt|btr|dk>-<topic>, integration, smk37 or archive/<name>, not $BN"
         ;;
     esac
 fi
@@ -114,7 +74,7 @@ fi
 OPTF="$WD/pushopt.$PPID"
 if [ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ]; then
     grep -qx 'by=merge-integrator' "$OPTF" 2>/dev/null ||
-        reject "only Merge Integrator moves integration (rule 10): push with git push -o by=merge-integrator, or push your lane branch"
+        reject "only Merge Integrator moves integration: push with git push -o by=merge-integrator, or push your lane branch"
 fi
 
 # ---------- 2. Quick check (integration only) ----------

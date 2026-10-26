@@ -1,0 +1,15 @@
+{
+  "checked_candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "checked_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "validation_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "validation_revision_tree": "4b6f8f3a64010208386cf856742b607a89065c15",
+  "production_diff": "",
+  "git_dir": "/Users/mac/Documents/x0x37/x0x37/.git/worktrees/smc_central_stop_stage4_20261021",
+  "configuration": {
+    "board": "smk37",
+    "model": "elite",
+    "config": "dev",
+    "X0X_DEV_PADCAL": 1,
+    "controller": true
+  }
+}

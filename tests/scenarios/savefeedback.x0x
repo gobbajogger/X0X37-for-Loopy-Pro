@@ -1,0 +1,31 @@
+# Save status remains distinct after the short message ends. A failed flash write stays visible
+# until a save succeeds. Autosave failures use the same state as explicit SAVE failures.
+wait 300
+expect savestate 0
+storefail 1
+tapkey b0
+tapkey w0
+expect savestate 1
+wait 4600
+expect savestate 3
+expect store_writes 0
+tap GLO
+wait 1500
+expect savestate 3
+shot savefailed.png
+storefail 0
+tap SAVE
+expect savestate 0
+expect store_writes >0
+tap HOME
+tapkey w4
+expect savestate 1
+tap PLAY
+tap SAVE
+expect savestate 2
+wait 1500
+expect savestate 2
+shot savequeued.png
+tap PLAY
+wait 300
+expect savestate 0

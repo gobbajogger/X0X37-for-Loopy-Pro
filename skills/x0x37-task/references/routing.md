@@ -9,10 +9,10 @@ Use available project context or supplied evidence; never claim access to local 
 Use Codex only when an authorized task needs execution unavailable in classic ChatGPT:
 local repository inspection or edits, commands, tests, builds, integration, or artifact verification. Device actions require separate current permission.
 Before starting it, identify the exact operation, why its tools are needed, inputs, existing permission, and completion condition.
-A code topic or workflow stage alone is not a reason to start Codex. Hardware permission is currently withdrawn.
+A code topic or workflow stage alone is not a reason to start Codex. Check current model- and action-specific device permission.
 An explicit owner instruction to use Codex takes priority.
 
-For code work, select the explicit tstack mode in [x0x37-workflow](../../x0x37-workflow/SKILL.md), then apply firmware proof where relevant. Device installation remains separate and currently unauthorized. Classic chat can prepare handoffs; a stage change alone needs no new agent.
+For code work, select the explicit tstack mode in [x0x37-workflow](../../x0x37-workflow/SKILL.md), then apply firmware proof where relevant. Device installation remains separate and needs current action-specific authority; the separately authorized Pro investigation is read-only through the assigned integrator. Classic chat can prepare handoffs; a stage change alone needs no new agent.
 Use autonomous chains or subagents only where the current interface exposes those tools and the work justifies them.
 Official documentation confirms subagents for eligible ChatGPT Work and Codex accounts; classic-chat support is unverified.
 Keep classic chat sequential when delegation is unavailable. Do not pretend that a prompt creates a subagent.
@@ -34,7 +34,7 @@ Use Work only for separately authorized, necessary agentic work with verified to
 If supported tools cannot create a classic project thread, say so and leave that launch to the owner.
 Do not report a saved prompt as a started thread. Local instructions cannot enforce the app's New chat default,
 install themselves into classic ChatGPT project instructions, or guarantee any usage saving.
-The project instruction text for classic ChatGPT is [saved here](../../../docs/chatgpt-project-instructions.txt).
+This repository does not contain a verified copy of classic ChatGPT project instructions; use the live project settings for those instructions.
 
 This supersedes mandatory Codex stage launches and one execution thread per stage. The selected tstack mode supplies the PR sequence.
 Finish already authorized execution and required safety checks in its assigned lane.

@@ -1,0 +1,58 @@
+{
+  "disposition": "ACCEPT_PRESERVATION_ONLY",
+  "reviewed_base_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "reviewed_base_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "reviewed_files_sha256": {
+    "docs/native-midi/README.md": "95ddd51835c37ce169550efe44601ffde4183fc95e6dff884c05ee58fee848d7",
+    "docs/native-midi/execution-summary.json": "7478cfffab07c5323b1de2ff475dd5f95f06c646c6ac1df90d530f6e250e8da3",
+    "docs/native-midi/replay.py": "2bf95413553d929b48f7fb76aa62f1d857cbca0afe0e68e4d70ba95dfdfad63c",
+    "docs/native-midi/reviewed-workflow.patch": "584ea440bc642b5e741d12f69c135a0049056f71cb620b900535930e6d4ea01a",
+    "docs/native-midi/tests/build_mapping_test.py": "1fe863c4e51652f5dddf7d1e74bfbbcd984e6673a74ec21a3ae37c7d2e86701a",
+    "docs/native-midi/tests/head_boundary_test.py": "bd29b92b6f12bfba5082d3cd754f7abb892a0feb580d05ceff0fddf2c8484179",
+    "docs/native-midi/tests/transport_test.py": "75c5ebbb110f94aa5040c1ade19ce7a7bc683850c728953be870753cb694eb02",
+    "docs/native-midi/validation.json": "845e80c3445d6d471a42b94502ee213a9abcd03bb57c10a8e8256b00dc63c501",
+    "docs/native-midi/validation-public.json": "ce5d8c5fd16d0f468d6add5508c351a7a1d603b4a55dc4fa0417f0afb38b3872"
+  },
+  "patch_exact_original": true,
+  "replayed_updater_sha256": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+  "independent_checks": [
+    {
+      "check": "all four Python sources parse with ast.parse",
+      "exit": 0
+    },
+    {
+      "check": "private original evidence SHA256 values and selected execution fields equal public summary",
+      "exit": 0
+    },
+    {
+      "check": "exact patch git apply --check and apply at exact accepted base in disposable local clone",
+      "exit": 0
+    },
+    {
+      "check": "python3 -B docs/native-midi/tests/transport_test.py DISPOSABLE_REPLAY_ROOT",
+      "exit": 0,
+      "passed": 17,
+      "total": 17
+    },
+    {
+      "check": "public document/source sensitive-path and token pattern scan plus manual content inspection",
+      "exit": 0
+    },
+    {
+      "check": "public validation.json equals parent replay-results.json on every original key; all12 exits0; script and original implementation pins match",
+      "exit": 0
+    },
+    {
+      "check": "validation-public.json byte-identical to original public-only replay receipt; all10 exits0; private fixture checks NOT_RUN; no private content or hardware/build claims",
+      "exit": 0
+    }
+  ],
+  "blocking_findings": [],
+  "scope_limits": [
+    "Acceptance is for a preservation replay/handoff, not activation or new approval of live updater safety.",
+    "Original reviewed patch has known singleton/name-based physical continuity limits documented in README; no cryptographic ID/atomic-output guarantee.",
+    "No hardware, firmware build, remote mutation, owner-branch write, merge, release or permission changes performed.",
+    "27 private head and31 mapping checks not independently rerun by this reviewer; parent completed all12 affected command groups with exit0; receipt independently compared.",
+    "PR114 conflicts and future combined source need Data Safety reconciliation and independent combined-tree review."
+  ]
+}

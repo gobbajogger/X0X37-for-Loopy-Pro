@@ -1,0 +1,29 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "host_cc": {
+    "path": "/usr/bin/cc",
+    "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+    "version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin"
+  },
+  "target_cc": {
+    "path": "/Users/mac/.jieli/toolchain/pi32v2/bin/clang",
+    "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "sdk": {
+    "path": "/Users/mac/fw-AC79_AIoT_SDK",
+    "revision": "d179b4484759423312073f5fbb232501aa491047",
+    "tracked_status": ""
+  },
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "image_platform": "linux/amd64",
+  "configuration": {
+    "board": "smk37",
+    "model": "elite",
+    "config": "dev",
+    "X0X_DEV_PADCAL": 1,
+    "controller": true
+  },
+  "generated_header_source": "The headers are copied from the checked central replay. generated-inputs.json records their bytes.",
+  "network": "none",
+  "proprietary_mounts": "read-only"
+}

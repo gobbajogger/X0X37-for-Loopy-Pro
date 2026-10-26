@@ -46,8 +46,10 @@ expect guard 1
 # the PERF test measures the full cost: no guard while it runs, back after
 load 95
 tap PLAY
+# GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
 tap GLO
-turn SELECT 16
+turn SELECT 18
+expect listsel 23
 tap SEL
 expect view 7
 tap SEL

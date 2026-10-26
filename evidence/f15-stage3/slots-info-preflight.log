@@ -1,0 +1,38 @@
+test_extended_used_size_exceeded (__main__.Guard.test_extended_used_size_exceeded) ... ok
+test_identical_flash_ranges (__main__.Guard.test_identical_flash_ranges) ... ok
+test_invalid_7bit_clamp_disagreement (__main__.Guard.test_invalid_7bit_clamp_disagreement) ... ok
+test_known_empty_slot_is_safe_without_backup (__main__.Guard.test_known_empty_slot_is_safe_without_backup) ... ok
+test_legacy_extended_used_disagreement (__main__.Guard.test_legacy_extended_used_disagreement) ... ok
+test_legacy_used_size_exceeded (__main__.Guard.test_legacy_used_size_exceeded) ... ok
+test_missing_slot_name_nul (__main__.Guard.test_missing_slot_name_nul) ... ok
+test_none_parser_layout_must_not_skip_backup (__main__.Guard.test_none_parser_layout_must_not_skip_backup) ... ok
+test_nonzero_used_disagreement (__main__.Guard.test_nonzero_used_disagreement) ... ok
+test_overlapping_flash_ranges (__main__.Guard.test_overlapping_flash_ranges) ... ok
+test_oversized_slot_name (__main__.Guard.test_oversized_slot_name) ... ok
+test_slot_zero_count (__main__.Guard.test_slot_zero_count) ... ok
+test_stock_looking_id_cannot_justify_unknown_flash (__main__.Guard.test_stock_looking_id_cannot_justify_unknown_flash) ... ok
+test_timeout_explicit_backup_also_refuses (__main__.Guard.test_timeout_explicit_backup_also_refuses) ... ok
+test_timeout_is_unknown_not_stock (__main__.Guard.test_timeout_is_unknown_not_stock) ... ok
+test_truncated_flash_descriptor (__main__.Guard.test_truncated_flash_descriptor) ... ok
+test_truncated_flash_marker (__main__.Guard.test_truncated_flash_marker) ... ok
+test_truncated_slot_descriptor (__main__.Guard.test_truncated_slot_descriptor) ... ok
+test_unknown_extension_marker (__main__.Guard.test_unknown_extension_marker) ... ok
+test_unknown_flash_ext_version (__main__.Guard.test_unknown_flash_ext_version) ... ok
+test_valid_7bit_legacy_clamp_at_127_kib (__main__.Guard.test_valid_7bit_legacy_clamp_at_127_kib) ... ok
+test_valid_extended_offsets (__main__.Guard.test_valid_extended_offsets) ... ok
+test_valid_extension_larger_than_legacy_base (__main__.Guard.test_valid_extension_larger_than_legacy_base) ... ok
+test_valid_legacy (__main__.Guard.test_valid_legacy) ... ok
+test_zero_extended_size (__main__.Guard.test_zero_extended_size) ... ok
+test_zero_slot_base_size (__main__.Guard.test_zero_slot_base_size) ... ok
+test_zero_zone_extended_nonzero_used (__main__.Guard.test_zero_zone_extended_nonzero_used) ... ok
+test_zero_zone_legacy_nonzero_used (__main__.Guard.test_zero_zone_legacy_nonzero_used) ... ok
+test_zero_zone_phantom_name (__main__.Guard.test_zero_zone_phantom_name) ... ok
+test_zone_count_beyond_header (__main__.Guard.test_zone_count_beyond_header) ... ok
+test_zone_legacy_extended_consistency_matrix (__main__.Guard.test_zone_legacy_extended_consistency_matrix) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.001s
+
+OK
+ASSERTIONS=31 FAILURES=0 ERRORS=0
+EXIT3=0

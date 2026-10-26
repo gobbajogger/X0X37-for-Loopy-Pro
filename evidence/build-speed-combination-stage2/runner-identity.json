@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "acceptance_evidence": "fed51d6233bf4d91a0ff73de06fe46d62414d71b",
+  "source_sha256": {
+    "tests/run_tests.sh": "8962afcdca97021b76390bbbb9469982d0cb1b79931a5e0c2d4f7cedb342bb99",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f"
+  },
+  "scope": "All four applied runner/extraction/fixture files exactly match accepted candidate bytes; common browser deletion deduplicated. Firmware remains unchanged.",
+  "reuse": "Matching standalone scheduling/extraction/Linux generation/real probe PASS and independent reports reused; combined Quickcheck registrations deferred until accepted fixture files arrive.",
+  "limits": "No new behavior execution or timing claim. Complete combined candidate independent Test and host Validate remain required."
+}

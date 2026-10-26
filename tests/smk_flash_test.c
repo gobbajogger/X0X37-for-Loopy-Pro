@@ -24,6 +24,7 @@ static int st_prog(uint32_t off, const void *src, uint32_t n) { (void)off; (void
 #include "../firmware/src/storage.c"
 #define SMP_USER_XIP(k) ((const uint8_t *)0)  /* (slots.c: only its map is used here) */
 #include "../firmware/src/app/slots.c"
+#include "../firmware/src/app/boot_screen.h"
 #define LDR_RANGE_OK(off, n) FL_LDR_RANGE_OK(off, n)       /* what loader.c uses on the SMK */
 
 static int bad;
@@ -59,7 +60,7 @@ int main(void)
           FL_GUARD(0xBA000u, 0x1000u) && FL_GUARD(0xBF000u, 0x1000u) && FL_GUARD(0xC2000u, 0x1000u) &&
           FL_GUARD(0xF3000u, 0x1000u) && !FL_GUARD(0xF4000u, 0x1000u) && !FL_GUARD(0x9C000u, 0x1000u) &&
           FL_DATA_HI == 0xB0000u && allowed == (0xC0000u - 0x9D000u + 0xF4000u - 0xC2000u) / 0x1000u);
-    check("FL_DATA (the store) and FL_SMPV (slot 3) do not overlap: no store sector in 0xB0000-0xBAFFF",
+    check("FL_DATA (the store) and FL_SMPV (VM spare) do not overlap: no store sector in 0xB0000-0xBAFFF",
           FL_IN(0xAF000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) && !FL_IN(0xB0000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) &&
           FL_IN(0xB0000u, 0xB000u, FL_SMPV_LO, FL_SMPV_HI));
     check("Bluetooth block 0x8B000-0x9AFFF: 64 KiB, one piece, sector aligned, in FL_APP below the app slot end",
@@ -85,6 +86,10 @@ int main(void)
     check("storage.c: settings 0x9D000/0x9E000, motion up to 0xAAFFF",
           st_sector(OBJ_SET, 0) == 0x9D000u && st_sector(OBJ_SET, 1) == 0x9E000u &&
           st_sector(OBJ_MOTION, 1) == 0xAA000u);
+    check("boot screen A/B follows the objects, inside the store, short of the owner tag",
+          BOOT_SEC0 == 0xAB000u && BOOT_SEC1 == 0xAC000u && st_sector(OBJ_MOTION, 1) + 0x1000u == BOOT_SEC0 &&
+          FL_GUARD(BOOT_SEC0, 0x1000u) && FL_GUARD(BOOT_SEC1, 0x1000u) && BOOT_SEC1 + 0x1000u < ST_OWNER_SECTOR &&
+          !FL_GUARD(0xFF000u, 0x1000u));
     check("store owner tag 0xAF000: in FL_DATA, the convention of every SMK port",
           ST_OWNER_SECTOR == 0xAF000u && FL_GUARD(ST_OWNER_SECTOR, 0x1000u));
     for (k = 0; k < SMP_USER_SLOTS; k++) {
@@ -97,14 +102,13 @@ int main(void)
             slots_ok &= k == k2 || SMP_USER_OFF(k) + SMP_USER_SIZE(k) <= SMP_USER_OFF(k2) ||
                         SMP_USER_OFF(k2) + SMP_USER_SIZE(k2) <= SMP_USER_OFF(k);
     }
-    check("slots.c: 3 slots, 0xC2000 80 KiB, 0xD6000 120 KiB, 0xB0000 44 KiB: allowed, apart, outside the store",
-          SMP_USER_SLOTS == 3 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
-          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && SMP_USER_OFF(2u) == 0xB0000u &&
-          SMP_USER_SIZE(2u) == 0xB000u && slots_ok);
+    check("slots.c: 2 slots, 0xC2000 80 KiB, 0xD6000 120 KiB: allowed, apart, outside the store",
+          SMP_USER_SLOTS == 2 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
+          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && slots_ok);
     check("slots 1 and 2 keep the offsets of the 2 x 80 KiB layout (their data stays valid)",
           SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_OFF(1u) == 0xC2000u + 0x14000u);
-    check("no slot in the install range [0x4000, 0x9D000); slot 3 ends below the OTA area 0xBB000",
-          SMP_USER_OFF(0u) >= 0x9D000u && SMP_USER_OFF(2u) >= 0x9D000u && SMP_USER_OFF(2u) + SMP_USER_SIZE(2u) <= 0xBB000u);
+    check("no slot in the install range [0x4000, 0x9D000) or in the VM spare 0xB0000-0xBAFFF",
+          SMP_USER_OFF(0u) >= 0x9D000u && SMP_USER_OFF(0u) >= 0xBB000u && SMP_USER_OFF(1u) >= 0xBB000u);
     check("FL_PLAIN_LO = the VM start 0x9D000", FL_PLAIN_LO == 0x9D000u);
     check("FL_JEDEC_OK: the SMK part 0xEB6014 and 0x856014 only", FL_JEDEC_OK(0xEB6014u) && FL_JEDEC_OK(0x856014u) &&
           !FL_JEDEC_OK(0u) && !FL_JEDEC_OK(0xFFFFFFu) && !FL_JEDEC_OK(0xEB6015u));

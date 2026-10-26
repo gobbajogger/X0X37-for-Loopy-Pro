@@ -1,0 +1,4 @@
+COMPILE gcc -std=c11 -Wall -Wextra -Werror -O1 -fsanitize=undefined -fno-sanitize-recover=all /tmp/seq-origin-host-0t52uicx/test.c -o /tmp/seq-origin-host-0t52uicx/test
+COMPILE_EXIT 0
+16/16 transport provenance checks passed
+TEST_EXIT 0

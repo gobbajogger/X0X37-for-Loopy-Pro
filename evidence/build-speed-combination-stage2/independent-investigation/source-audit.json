@@ -1,0 +1,102 @@
+{
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "candidate_tree": "de94ec06bb3b411850104dade643492d22e4606c",
+  "result": "PASS independent source assertions",
+  "production_paths": 40,
+  "production_sha256": {
+    "BUILDING.md": "281ff6e840f5dce7d5e9cfa331640b038da6a87cdd2f0188d71356115c56ced9",
+    "LICENSING.md": "ee98f4ba5a379114ffd8cfa72c8893d390a4eb746bedde5ddba2e707d289b1fa",
+    "README.md": "01eceefd799e3c2cbdb38d6dc5cf09f9d04fe0ca9e7bc8b66ccb83492bcf68ff",
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "docs/MANUAL.md": "ec6f408c9eda336cd1ad8886523aef9faa6cdfa5b004203d68950391a5084c93",
+    "docs/NEW.md": "dea22979aafa6770d1f4580efe659be1bb319d2e969b9362eb3b5d84dca5282a",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de",
+    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+    "docs/manual.html": "cc9ce5a9236370d59c9b6806d55b7e1796351905d2a14539760e60144c9f5367",
+    "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
+    "host/x0x_host.c": "350a9b93302512c5bbde56a0a14fd07a18066e64e9492113ea59b12350d2c321",
+    "tests/host/emu_slots_test.mjs": null,
+    "tests/host/emu_test.mjs": null,
+    "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
+    "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
+    "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/test_ctl_compile.py": "ed705a2e6bf4e9851e86269da80b7786240ea352563be50faeb0f5a473a9a3d0",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+    "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f",
+    "tests/host/test_validation_inputs.py": "8a5da8b34e39a81bffe828e35eb7e660172e71c1d4639b5c50464743923ca4fa",
+    "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
+    "tests/run_tests.sh": "ba03f9ad79b7178b68d89952c284ae295b4df9e1368f0dc52db63aa86859f7bf",
+    "tools/dev_validate.py": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+    "tools/gate.sh": "c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/make_pages.py": "f0a59fb5bf75e01cfe76a55ff28a332058fecef83940b15fa12f081f2e223bcd",
+    "tools/publish_pages.sh": "13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "tools/validation_inputs.py": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+    "web/emu/build.sh": null,
+    "web/emu/index.html": null,
+    "web/emu/worklet.js": null,
+    "web/emu/x0x_web.c": null
+  },
+  "firmware_tree": "878d5c734bf6d567db8a2120e9aeec873b85eaa7",
+  "preserved_base_files": [
+    "tools/build.py",
+    "tools/fm1_install.py",
+    "tools/require_gate_pass.sh",
+    "tools/fm1pkg_make.py",
+    "web/fm1pkg.js",
+    "web/fm1ota.js",
+    "web/x0x_breaks.js",
+    "web/x0x_installer.html",
+    "web/x0x_breaks.html",
+    "web/test_breaks.mjs",
+    "web/test_breaks_page.mjs",
+    "web/test_install_slots.mjs",
+    "tools/upload_breaks.py",
+    "tests/host/run_drum909.sh",
+    "tests/host/run_drum909_adpcm.sh"
+  ],
+  "exact_contributor_files": {
+    "46a3b3e": [
+      "host/build_host.sh",
+      "tests/host/smc_drum_mutes_test.sh",
+      "tests/host/smc_performance_abort_test.sh",
+      "tests/host/smc_reachability_test.sh",
+      "tests/host/test_host_setup.py",
+      "tests/host/ui_feedback_test.sh"
+    ],
+    "fe7f040": [
+      "tests/host/smk_clip_knob_test.sh",
+      "tests/host/smk_clip_chord_display_test.sh",
+      "tests/host/test_runner_admission.py"
+    ],
+    "c4cec67": [
+      "ble/ctl/build_ctl.sh",
+      "ble/ctl/build_in_container.sh",
+      "docs/QUICKCHECK-SCOPE.md",
+      "tests/host/test_portable_rules.py",
+      "tests/host/test_quickcheck_plan.py",
+      "tools/install_gate.sh",
+      "tools/quickcheck.sh",
+      "tools/quickcheck_plan.py"
+    ],
+    "cadeae0": [
+      "tests/host/test_dev_validate.py"
+    ]
+  },
+  "contracts": [
+    "All five registration additions are literal and present; no prior maintained declaration lost.",
+    "Combined runner differs from accepted scheduler only by five literal fixture declarations; signal behavior is normalized only within the controller fixture child launch.",
+    "Native runtime/worker difference from accepted source is exactly the retired compiler/backend/environment removal.",
+    "Compiler flags and complete link/post-link section match original serial controller source; fixture change is exactly one subprocess SIGINT default reset/comment, with all assertions preserved.",
+    "Firmware/assets and installer/package/uploader/reference sources remain original; failed cache absent."
+  ],
+  "metadata_repair": "Original f53309c reproduced RULES FAIL due missing Trigger/Check. Amended c0d2ab2 has the exact same Git tree."
+}

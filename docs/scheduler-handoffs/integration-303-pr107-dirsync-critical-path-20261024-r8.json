@@ -1,0 +1,68 @@
+{
+  "schema": "loopyx0x37/safe-merge-exact-sha-handoff-v2",
+  "evidence_revision": "safe-merge-pr103-durable-backup-pr107-20261024-r8",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "integration_branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "existing_pr": 103,
+  "consumed": {
+    "previous_integration_commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+    "previous_full_root": "17d947417372bf48e8167cd9a3df970093afe3c1",
+    "previous_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "producer_pr": 107,
+    "producer_branch": "lane/data-safety-backup-dir-fsync-20261024-1111",
+    "producer_commit": "4760dec8d176ca9877413817c9cebcb8e7b4a571",
+    "producer_full_root": "0b0348ebf18a32c6b1dc794b4a715359d491b9d3",
+    "producer_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "producer_evidence_revision": "data-safety-backup-directory-durability-20261024-r1",
+    "producer_source_blob": "6089d373af404997646919611a5445a6137d3561",
+    "producer_test_blob": "130fef3b95b97e05393ff9374ce59c1f2a4c0f67",
+    "producer_runner_blob": "db0cacc324ef188b0ebc806b75deac6d8fb1d872"
+  },
+  "review": {
+    "independent_git_review_revision": "independent-qa-pr107-pr103-backup-archive-20261024-r5",
+    "independent_scoped_replay": "7/7 independent boundary assertions PASS; 6/6 producer test PASS on Git-matched source window; full checkout tests not run",
+    "first_candidate_combined_root_review": "PENDING; PR103 no formal approval at new combined HEAD",
+    "known_other_dependencies": [
+      "PR73 MMC STOP overflow: producer source checked, full combination QA pending",
+      "PR63 malformed direct BLE: producer source checked, full combination QA pending"
+    ]
+  },
+  "integration_method": "Fast-forward PR103 isolated integration branch through four source-complete PR107 commits, followed by Safe Merge's own evidence-only commit; leave PR107 producer branch untouched and preserve all parent history",
+  "validation": {
+    "commands": [
+      {
+        "name": "mcp__GitHub__compare_commits(base=56c5d971...,head=4760dec8...)",
+        "exit": 0,
+        "result": "ahead=4 behind=0; changed paths=4"
+      },
+      {
+        "name": "mcp__GitHub__fetch_file(current/pr107 source, registered tests, source manifest) + functions.exec JavaScript source assertions",
+        "exit": 0,
+        "result": "22/22 PASS; exact Git blobs matched; no native compiler process in this run"
+      },
+      {
+        "name": "mcp__GitHub__get_pr_info(103,107) + fetch firmware nightly branch preflight",
+        "exit": 0,
+        "result": "unchanged PR103 SHA 56c5...; PR107 SHA 4760...; protected nightly 58b5..."
+      }
+    ],
+    "native_full_root": "NOT_RUN",
+    "firmware_elite_pro_compile": "NOT_RUN_BY_SAFE_MERGE; BUILD_ONLY owner Hourly Build",
+    "controller_compile": "NOT_RUN_BY_SAFE_MERGE; BUILD_ONLY owner Hourly Build",
+    "device": "UNKNOWN",
+    "artifact_http": "NOT_CHECKED; NOT_INSTALLABLE",
+    "full_source_root_vs_firmware_subtree": "root changes (tools + tests + evidence); compiled firmware subtree remains e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439; matching firmware subtree alone does not prove package/controller build input equivalence"
+  },
+  "new_disposition": "SOURCE_STAGED_READY_FOR_INDEPENDENT_COMBINED_ROOT_QA_NOT_MERGE_APPROVED",
+  "exact_remaining_gate": "Run fresh complete-root critical host negatives incl installer backup dirfsync before OTA, archive malformed zone/readback, BLE reconnect/SysEx and MMC STOP/invalid BLE, 303 mutation/pingpong; independent QA formal exact-head review before protected PR merge. Per-model build + controller equivalence attest in parallel; public installability gated separately.",
+  "next_owner": [
+    "Independent QA: run exact remote integration head all applicable host/negative tests and submit SHA-bound review; identify any missing safety fixes (#73/#63).",
+    "Hourly Build: compile exact remote HEAD Elite and Pro plus matching controller BUILD_ONLY or attest all compiler inputs, with log/CRC/SHA/model/size; do not wait for merge/QA.",
+    "Safe Merge: after true combined native checks + independent approved review, merge PR103 into protected firmware nightly via expected-head protected PR workflow only; verify resulting NIGHTLY commit.",
+    "Catalog/Publisher: preserve previous safe choices; no public NIGHTLY install until independent critical QA, backup/model/controller/license/immutable external HTTP verification.",
+    "Production: owner-approved same-byte/model physical PASS only, separate from NIGHTLY."
+  ],
+  "protected_nightly_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "production_main": "UNCHANGED; NO PROMOTION",
+  "intended_publication": "NO_GO; private source integration only"
+}

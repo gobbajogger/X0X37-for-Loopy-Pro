@@ -12,8 +12,10 @@ the FM-1 restarts and the installed identity is checked.
   fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
 
-If the FM-1 is still in update mode (an earlier install was cut off), the
-install finishes the write. Needs mido with python-rtmidi.
+If the FM-1 is still in update mode (an earlier install was cut off), sample slots
+cannot be inspected or backed up there. Resume requires explicit --no-slots, only
+after verifying a prior slot backup or confirming no samples require preservation.
+Restore any saved slots manually afterward. Needs mido with python-rtmidi.
 
 Sample slots: before the install, the running X0X lists its slots (SMP_INFO). If a slot holds samples
 that the package's firmware will not keep (no slot at the same flash offset with room for them: the
@@ -28,8 +30,8 @@ tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flas
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
-7 installed, but the slots were not written back (the backup file stays),
-8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32,
+7 sample protection refused before writing, or installed but slots were not restored,
+8 installed, but the Bluetooth controller block read-back failed or its CRC32 is not the expected full-block CRC32,
 9 refused by the gate guard (no install was started),
 10 refused by the foreground guard or the hardware lock (no device was opened),
 11 refused by the bootloader guard: the package head is not the reference head (no device was opened).
@@ -52,15 +54,19 @@ Order for a real device: gate guard, foreground guard, hardware lock, bootloader
 Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
 tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
 only if the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built
-for that config. --config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
+for that config. Alternatively --dev-record accepts scoped DEV CHECKED evidence for dev only.
+An SMK-37 package with an empty controller block requires explicit --ctl FILE; --no-ctl is accepted only
+when the package already embeds a valid controller or is an old package whose application owns that range.
+--config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
 --commit (or X0X_INSTALL_COMMIT) is necessary. --info and the mocked device of the tests do not use it.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
-computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
-so without it the unit has no Bluetooth after the install. build_ctl.sh also keeps a copy in
-~/.config/x0x/ctl.img: an SMK-37 install uses that copy by itself (and says so); --no-ctl skips it.
-After the install, the tool reads the image back from the unit's Bluetooth block (editor command 37
-CTL_READ, read only) and prints the unit CRC32. If it is not the file CRC32, the tool stops with exit 8.
+computer to the package before it is sent (tools/add_ctl.py). Every current SMK install writes the
+Bluetooth block, so an empty block is refused instead of erasing the installed controller. The installer
+does not use the cached ~/.config/x0x/ctl.img implicitly: select the exact validated file with --ctl.
+After the install, the tool reads the complete 64 KiB block back from the unit (editor command 37
+CTL_READ, read only) and compares it with the selected image plus erased padding. A mismatch stops
+with exit 8.
 
 Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
 v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
@@ -372,6 +378,10 @@ class Updater:
     def __init__(self, backend, port=None):
         self.backend = backend
         self.port = port
+        # Port accepted by the last fail-closed transition wait (loader or restart).
+        self.returned_port = None
+        # Running ports observed while the selected unit is still in the loader (before reboot).
+        self._before_running = None
 
     def candidates(self, only_port):
         names = self.backend.input_names()
@@ -399,14 +409,80 @@ class Updater:
             link.close()
         return None
 
-    def wait_for(self, want, secs):
+    def matching_ports(self, want, only_port=False, skip=None):
+        """Port names that answer the handshake and match want (every link closed).
+
+        skip: a port name already held open by the caller; do not reopen it (would
+        steal the MIDI callback / collide with the in-flight update link).
+        """
+        names = []
+        outs = self.backend.output_names()
+        for name in self.candidates(only_port):
+            if skip is not None and name == skip:
+                continue
+            out = pair_output(name, outs)
+            if not out:
+                continue
+            try:
+                link = self.backend.open(name, out)
+            except Exception:
+                continue
+            try:
+                ident = handshake(link, 2)
+                if ident and (want is None or want(ident)):
+                    names.append(name)
+            finally:
+                link.close()
+        return names
+
+    def open_port(self, name, want=None):
+        """Open one named port when it still answers and matches want."""
+        outs = self.backend.output_names()
+        out = pair_output(name, outs)
+        if not out:
+            return None
+        try:
+            link = self.backend.open(name, out)
+        except Exception:
+            return None
+        ident = handshake(link, 2)
+        if ident and (want is None or want(ident)):
+            return Device(link, ident, name)
+        link.close()
+        return None
+
+    def wait_for(self, want, secs, before):
+        """Wait for exactly one newly appeared port matching want.
+
+        before: port names that already matched want before the transition.
+        Returns that device, or None when none appear before the timeout.
+        Raises InstallError when more than one new matching port appears.
+        Never returns a port that was already in before (fail closed).
+        """
         end = time.monotonic() + secs
+        prior = set(before)
         while time.monotonic() < end:
-            dev = self.find(want, only_port=False)
-            if dev:
-                return dev
+            names = self.matching_ports(want, only_port=False)
+            new = [n for n in names if n not in prior]
+            if len(new) > 1:
+                raise InstallError(
+                    "model",
+                    "more than one new device appeared after the update transition; "
+                    "disconnect other keyboards and try again. Nothing was written",
+                )
+            if len(new) == 1:
+                dev = self.open_port(new[0], want)
+                if dev:
+                    self.returned_port = new[0]
+                    return dev
             time.sleep(DELAY["retry"])
         return None
+
+    def reconnect_after(self, want, secs):
+        """Reconnect after a verified transition: same newly-appeared rule vs other ports."""
+        known = self.returned_port
+        before = [n for n in self.matching_ports(want, only_port=False) if n != known]
+        return self.wait_for(want, secs, before)
 
     def serve(self, link, image, finish, idle, progress):
         """answer read requests until the device asks for `finish`; -> (served, finished, lost)"""
@@ -425,7 +501,8 @@ class Updater:
             fl, addr, n = r
             last = time.monotonic()
             if addr in (FINISH_CHECK, FINISH_WRITE):
-                link.send(response(addr, b"success\0"))
+                if not link.send(response(addr, b"success\0")):
+                    return served, False, True
                 if addr == finish:
                     return served, True, False
                 continue
@@ -439,6 +516,7 @@ class Updater:
 
     def check(self, dev, image, step):
         """step 1: the running firmware checks the package and starts the loader"""
+        before_loaders = self.matching_ports(lambda i: i.loader, only_port=False, skip=dev.name)
         step("start", dev.id.text)
         dev.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -451,7 +529,7 @@ class Updater:
                                f"{served} requests; nothing was written")
         step("loader")
         time.sleep(DELAY["loader"])
-        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"])
+        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"], before_loaders)
         if not ota:
             raise InstallError("noloader", "the update loader did not appear. Replug the USB cable and "
                                            "run the install again: the FM-1 stays in update mode until it is done")
@@ -459,6 +537,9 @@ class Updater:
 
     def write(self, ota, image, step):
         """step 2: the loader reads and writes the whole package, then restarts"""
+        # Snapshot other running keyboards while this unit is still in the loader, so a fast
+        # reboot cannot put the selected port into the "before" set used by verify().
+        self._before_running = self.matching_ports(lambda i: not i.loader, only_port=False, skip=ota.name)
         step("write", 0)
         ota.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -468,13 +549,15 @@ class Updater:
         if not finished:
             raise InstallError("lost" if lost else "stopped",
                                f"the loader {'was disconnected' if lost else 'stopped answering'} after "
-                               f"{served} requests. Replug the USB cable and run the install again to finish")
+                               f"{served} requests. Replug the USB cable and run the install again to finish; "
+                               "if already in update mode, use --no-slots only with a verified backup or no X0X samples")
         step("write", 100)
 
     def verify(self, product, step):
+        before_running = self._before_running if self._before_running is not None else []
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"], before_running)
         if not back:
             raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
         back.link.close()
@@ -537,11 +620,14 @@ def package_slot_map(image, product):
 
 
 def slot_probe(link):
-    """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
+    """Verified SMP_INFO or an error; silence is NOT proof of factory-stock firmware."""
     try:
         return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
-    except (TimeoutError, xs.SlotError, ValueError, IndexError):
-        return None
+    except TimeoutError as e:
+        raise xs.SlotError("SMP_INFO timed out: sample layout UNKNOWN. Nothing was written. "
+                           "Use --no-slots only after independently confirming no X0X samples need preservation") from e
+    except (ValueError, IndexError) as e:
+        raise xs.SlotError(f"malformed SMP_INFO reply: {e}") from e
 
 
 class SlotMove:
@@ -558,9 +644,13 @@ class SlotMove:
     def backup(self, link, path, out):
         lay, self.images = xs.backup(EditorLink(link))
         self.lay = lay
+        # SMP_INFO may have changed since the preflight probe. Plan restoration
+        # from the same verified snapshot whose slot bytes are archived.
+        self.old_map = xs.flash_map(lay, self.board)
+        self.risk = xs.at_risk(lay, self.old_map, self.new_map)
         arch = xs.make_archive(lay, self.images)
         self.path = Path(path)
-        self.path.write_bytes(arch)
+        xs.save_backup_archive(self.path, arch)
         if xs.read_archive(self.path.read_bytes())[1] != self.images:
             raise xs.SlotError(f"{self.path}: the saved backup does not read back")
         print(f"slots saved: {self.path} ({len(arch)} B)", file=out)
@@ -571,6 +661,8 @@ class SlotMove:
         new_lay = xs.layout(el)
         new_map = xs.flash_map(new_lay, self.board)
         todo, skipped = xs.plan_migration(self.images, self.risk, self.old_map, new_lay, new_map)
+        todo, skipped = xs.guard_migration_loop_menu(self.lay, self.images, self.risk, self.old_map,
+                                                     new_lay, new_map, todo, skipped)
         xs.restore_mapped(el, todo, self.images)
         for k, j in todo:
             print(f"slot {k + 1} written back to slot {j + 1} and read back: ok", file=out)
@@ -583,15 +675,22 @@ class SlotMove:
                 f"or: python3 tools/x0x_slots.py restore {self.path}")
 
 
-def plan_slots(dev, image, product):
-    """-> SlotMove if the install would lose slot data, else None"""
+def plan_slots(dev, image, product, require_backup=False):
+    """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup.
+
+    The layout probe must succeed. A failed probe raises (fail closed before write).
+    After a successful read, empty slots or no at-risk slots return None (no backup).
+    Callers skip this path with --no-slots.
+    """
     lay = slot_probe(dev.link)
-    if not lay or not any(sl["nz"] for sl in lay["slots"]):
+    if not lay:
+        raise xs.SlotError("the running firmware did not provide a verified sample layout")
+    if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
     new_map = package_slot_map(image, product)
     risk = xs.at_risk(lay, old_map, new_map)
-    return SlotMove(lay, old_map, new_map, risk, board_of(dev.id.text)) if risk else None
+    return SlotMove(lay, old_map, new_map, risk, board_of(dev.id.text)) if risk or require_backup else None
 
 
 # ------------------------------------------------------------------- CLI ---
@@ -709,26 +808,28 @@ class Progress:
             self.line = False
 
 
-CTL_CACHE = Path.home() / ".config" / "x0x" / "ctl.img"   # ble/ctl/build_ctl.sh keeps its last image here
-
-
-def with_ctl(a, product, image, out, cache=None):
-    """the logical image with the Bluetooth controller image added (--ctl, or the cached one on an SMK-37)"""
-    cache = CTL_CACHE if cache is None else cache
+def with_ctl(a, product, image, out):
+    """Return an installable image; current SMK packages require an explicit or embedded controller."""
     path = getattr(a, "ctl", None)
     smk = board_of(product) == "smk"
-    if path is None and smk and not getattr(a, "no_ctl", False) and Path(cache).is_file():
-        # the cached image goes only into a package with a free Bluetooth block: an older X0X (a rollback)
-        # has app code there and installs without it (the cache never stops an install)
-        try:
-            add_ctl.check_block(image)
-            path = cache
-        except add_ctl.PkgError as e:
-            print(f"Bluetooth controller image: {cache} not added: {e}", file=out)
-    if path is None:
-        return image
     if not smk:
-        raise InstallError("usage", "--ctl: the Bluetooth controller image is for the SMK-37 family only")
+        if path is not None:
+            raise InstallError("usage", "--ctl: the Bluetooth controller image is for the SMK-37 family only")
+        return image
+    if path is None:
+        try:
+            ctl = add_ctl.controller_of(image)
+        except add_ctl.NoBlock as e:
+            print(f"Bluetooth controller image: not applicable: {e}", file=out)
+            return image
+        except add_ctl.PkgError as e:
+            raise InstallError("badpkg", f"Bluetooth controller image: {e}")
+        if ctl is None:
+            raise InstallError("badpkg", "SMK-37 package has an empty Bluetooth controller block. Give --ctl FILE "
+                                        "for the exact validated controller; --no-ctl does not preserve the unit block")
+        a.ctl_bytes = ctl
+        print(f"Bluetooth controller image: {len(ctl)} B already embedded in the package", file=out)
+        return image
     try:
         ctl = Path(path).read_bytes()
     except OSError as e:
@@ -756,25 +857,35 @@ def read_ctl(ed, size):
         off, n = len(got), min(CTL_READ_N, size - len(got))
         r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
                    CTL_READ["timeout"], CTL_READ["tries"])
-        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
+        if (len(r) < 3 or any(b & 0x80 for b in r[:3])
+                or r[0] | r[1] << 7 | r[2] << 14 != off):
             raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
-        d = xs.unpack7(r[3:])
-        if len(d) < n:
-            raise TimeoutError(f"short ED_CTL_READ reply at {off:#x} ({len(d)} of {n} B)")
+        wire = r[3:]
+        d = xs.unpack7(wire)
+        # The reply is a canonical pack7 frame for exactly the requested byte
+        # count; a final odd-byte request may be rounded up by one byte.
+        # Truncating surplus or accepting orphan masks could falsely certify
+        # controller readback after OTA, even if the supplied bytes match.
+        if (len(d) < n or len(d) > n + (n & 1)
+                or xs.pack7(d) != list(wire)):
+            raise TimeoutError(f"malformed ED_CTL_READ payload at {off:#x} ({len(d)} of {n} B)")
         got += d[:n]
     return bytes(got)
 
 
 def check_ctl(link, ctl, out):
-    """read the Bluetooth controller image back from the unit; stop the install if its CRC32 is not the file's"""
-    want = zlib.crc32(ctl) & 0xFFFFFFFF
+    """Read and compare the complete 64 KiB controller block, including erased padding."""
+    expected = ctl + b"\xFF" * (add_ctl.BLE_SIZE - len(ctl))
+    want = zlib.crc32(expected) & 0xFFFFFFFF
     try:
-        got = zlib.crc32(read_ctl(EditorLink(link), len(ctl))) & 0xFFFFFFFF
+        got = zlib.crc32(read_ctl(EditorLink(link), add_ctl.BLE_SIZE)) & 0xFFFFFFFF
     except TimeoutError as e:
         raise InstallError("ctlcrc", f"installed, but the Bluetooth controller image was not read back ({e})")
-    print(f"Bluetooth controller image read back: {len(ctl)} B, unit CRC32 {got:08x}, file CRC32 {want:08x}", file=out)
+    print(f"Bluetooth controller block read back: {add_ctl.BLE_SIZE} B, unit CRC32 {got:08x}, "
+          f"expected block CRC32 {want:08x}", file=out)
     if got != want:
-        raise InstallError("ctlcrc", f"Bluetooth controller image: unit CRC32 {got:08x} is not the file CRC32 {want:08x}")
+        raise InstallError("ctlcrc", f"Bluetooth controller block: unit CRC32 {got:08x} is not the expected "
+                                     f"ctl.img plus erased padding CRC32 {want:08x}")
     return got
 
 
@@ -797,9 +908,24 @@ def run(a, backend, out, ask):
     print(f"device:  {dev.id.text}  ({dev.name})" + ("  in update mode: the write will be finished" if dev.id.loader else ""),
           file=out)
     move = None
+    if a.backup and dev.id.loader:
+        dev.link.close()
+        raise InstallError("slots", "--backup needs the running firmware; the device is already in update mode. "
+                                    "Nothing was written")
+    if dev.id.loader and not a.no_slots:
+        dev.link.close()
+        raise InstallError("slots", "the device is already in update mode, where sample layout and backup "
+                                    "cannot be checked. No update was started by this attempt. "
+                                    "Resume with --no-slots only after verifying an existing slot backup "
+                                    "or confirming that no X0X samples need preservation; restore "
+                                    "any saved slots after the firmware update")
     if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
-        move = plan_slots(dev, image, product)
-        if move:
+        try:
+            move = plan_slots(dev, image, product, require_backup=bool(a.backup))
+        except (xs.SlotError, TimeoutError) as e:
+            dev.link.close()
+            raise InstallError("slots", f"the requested slot backup cannot start ({e}); nothing was written")
+        if move and move.risk:
             print(f"This install changes the sample slot map. These slots would lose their samples: {move.describe()}.",
                   file=out)
             print("They are saved to a file first and written back after the install." if move.new_map else
@@ -821,22 +947,25 @@ def run(a, backend, out, ask):
         up.install(dev, image, product, prog)
     finally:
         prog.end()
-    if move and move.new_map:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+    if move and move.risk and move.new_map:
+        back = up.reconnect_after(lambda i: not i.loader, DELAY["wait_reboot"])
         try:
             if not back:
                 raise TimeoutError("the device did not answer after the install")
             try:
-                move.restore(back.link, out)
+                _, skipped = move.restore(back.link, out)
+                if skipped:
+                    raise xs.SlotError(f"{len(skipped)} backed-up sample slot(s) could not be restored")
             finally:
                 back.link.close()
         except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
-    elif move:
-        print(move.help(), file=out)
+    elif move and move.risk:
+        raise InstallError("slots", f"installed, but this firmware has no X0X sample slots for restoration. "
+                                    f"The backed-up slots were not written back. {move.help()}")
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.reconnect_after(lambda i: not i.loader, DELAY["wait_reboot"])
         if not back:
             raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
         try:
@@ -854,22 +983,30 @@ def ask_tty(prompt):
 
 
 def gate_guard(a):
-    """tools/require_gate_pass.sh: 0 if the gate PASS of the exact tree is there, else 9 (no install)"""
+    """Require exact gate or scoped dev evidence before opening the device."""
     import os
     import subprocess
     commit = a.commit or os.environ.get("X0X_INSTALL_COMMIT", "")
     if not commit:
         print("REFUSED: give --commit HASH (the gate guard needs the commit of the package)", file=sys.stderr)
         return 9
+    dev_record = getattr(a, "dev_record", None)
+    if dev_record and (a.config != "dev" or (not a.ctl and not a.no_ctl)):
+        print("REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl", file=sys.stderr)
+        return 9
     guard = Path(__file__).resolve().parent / "require_gate_pass.sh"
     cmd = ["bash", str(guard), commit, "--fwsc", a.package, "--config", a.config] + (["--ctl", a.ctl] if a.ctl else [])
+    if dev_record:
+        cmd += ["--dev-record", dev_record]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True)
     except OSError as e:
         print(f"REFUSED {commit}: cannot run {guard}: {e}", file=sys.stderr)
         return 9
     print((r.stdout + r.stderr).strip())
-    return 0 if r.returncode == 0 and r.stdout.startswith("GATE OK ") else 9
+    lines = r.stdout.splitlines()
+    expected = "DEV OK " if dev_record else "GATE OK "
+    return 0 if r.returncode == 0 and lines and lines[-1].startswith(expected) else 9
 
 
 def foreground_guard(stdin=None, env=None):
@@ -920,16 +1057,20 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--port", metavar="NAME", help="MIDI port to use (part of its name)")
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
-    ap.add_argument("--backup", metavar="FILE", help="where to save the slots if the install would lose them")
-    ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
+    ap.add_argument("--backup", metavar="FILE", help="save and verify every slot here before writing, even if none is at risk")
+    ap.add_argument("--no-slots", action="store_true", help="explicit risk opt-out: skip sample checking and backup only after confirming no X0X samples need saving")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
-    ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
-    ap.add_argument("--commit", metavar="HASH", help="the commit of the package: the gate guard needs its gate PASS")
+    ap.add_argument("--no-ctl", action="store_true",
+                    help="SMK-37: use only a valid controller already embedded in the package (never preserves the unit block)")
+    ap.add_argument("--commit", metavar="HASH", help="the source commit covered by the package validation record")
+    ap.add_argument("--dev-record", metavar="FILE", help="scoped development validation record; requires config dev and explicit --ctl or --no-ctl")
     ap.add_argument("--head-ref", metavar="FILE", help="a flash read-back of this unit (raw, from flash 0): the bootloader guard reference")
     ap.add_argument("--head-check", action="store_true", help="compare the package head with the reference only (no device)")
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",
                     help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
+    if a.backup and a.no_slots:
+        ap.error("--backup and --no-slots cannot be used together")
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")
     if a.head_check:                        # no device: only the bootloader guard

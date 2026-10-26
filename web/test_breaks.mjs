@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readWav, cut, pack, userSlot, DRY_SLOT_KB, RATE, RATE_HALF, imaDecode, trimSilence, parseSlot, parseInfo, makeArchive, readArchive,
+import { readWav, cut, cutLoop, pack, userSlot, userSlotRaw, imaEncode, DRY_SLOT_KB, RATE, RATE_HALF, imaDecode, trimSilence, parseSlot, parseInfo, makeArchive, readArchive,
   planRestore } from "./x0x_breaks.js";
 
 const dir = mkdtempSync(join(tmpdir(), "x0x-breaks-"));
@@ -43,7 +43,7 @@ const files = [
 ];
 for (const f of files) wav(...f);
 
-// the defaults (44.1 kHz, no trim, the SMK-37's 80 / 120 / 44 KB), 22.05 kHz on request, trim on request,
+// the defaults (44.1 kHz, no trim, the SMK-37's 80 / 120 KB), 22.05 kHz on request, trim on request,
 // other layouts (equal slots; the older 2 x 80 KB)
 const D = DRY_SLOT_KB;
 const cases = [
@@ -51,6 +51,7 @@ const cases = [
   { what: "one bar, 44.1 kHz", bars: true, rate: RATE, trim: false, kb: D, args: ["--bars"] },
   { what: "whole, 22.05 kHz", bars: false, rate: RATE_HALF, trim: false, kb: D, args: ["--rate", "22050"] },
   { what: "one bar, trimmed", bars: true, rate: RATE, trim: true, kb: D, args: ["--bars", "--trim"] },
+  { what: "one bar, oldschool", bars: true, rate: RATE, trim: false, kb: D, args: ["--bars", "--oldschool"], oldschool: true },
   { what: "shot, trimmed", bars: false, rate: RATE, trim: true, kb: D, args: ["--trim"], only: [3] },
   { what: "whole, 3 x 120 KB", bars: false, rate: RATE, trim: false, kb: [120, 120, 120], args: ["--nslots", "3", "--slot-kb", "120"] },
   { what: "whole, 2 x 80 KB", bars: false, rate: RATE, trim: false, kb: [80, 80], args: ["--slot-kb", "80,80"] },
@@ -61,7 +62,11 @@ for (const c of cases) {
   execFileSync("python3", ["tools/upload_breaks.py", ...c.args, "--dry-run", out, ...fs.map((f) => f[0])], { stdio: "pipe" });
   const loops = fs.map((f) => {
     const { rate, x } = readWav(readFileSync(f[0]));
-    return { label: f[0], s: cut(x, rate, c.bars, c.rate, c.trim) };
+    if (c.oldschool) {
+      const { s, rate: playback } = cutLoop(x, rate, c.bars, c.rate, c.trim, 2);
+      return { label: f[0], s, playback };
+    }
+    return { label: f[0], s: cut(x, rate, c.bars, c.rate, c.trim), playback: c.rate };
   });
   const { slots } = pack(loops, c.kb.length, c.kb.map((k) => k * 1024 - 512));
   slots.forEach((sl, i) => {
@@ -71,7 +76,9 @@ for (const c of cases) {
       if (!none) bad++;
       return;
     }
-    const img = userSlot(`BR${i + 1}`, sl.map((l) => l.s), c.rate, c.kb[i] * 1024);
+    const img = c.oldschool
+      ? userSlotRaw(`BR${i + 1}`, sl.map((l) => ({ adpcm: imaEncode(l.s), n: l.s.length, rate: l.playback })), c.kb[i] * 1024)
+      : userSlot(`BR${i + 1}`, sl.map((l) => l.s), c.rate, c.kb[i] * 1024);
     const hdr = readFileSync(join(out, `slot${i + 1}.hdr`)), bin = readFileSync(join(out, `slot${i + 1}.bin`));
     const same = Buffer.compare(Buffer.from(img.hdr), hdr) === 0 && Buffer.compare(Buffer.from(img.data), bin) === 0;
     console.log(`  ${same ? "ok" : "FAIL"} ${c.what}, slot ${i + 1}: ${sl.length} loop(s), ${img.data.length} B`);

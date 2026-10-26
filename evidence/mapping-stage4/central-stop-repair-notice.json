@@ -1,0 +1,20 @@
+{
+  "source_chat": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+  "result": "SOURCE REPAIR CHECKED PASS",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "evidence_commit": "40899e1a47ca704b0d3f63bbd0372ed27b7a5e45",
+  "evidence": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/evidence/stop-stage2/checks.json",
+  "evidence_sha256": "31067e97df23ae81e5a623242132112b778448b014bbbc53f5dd9e069054c868",
+  "stage3_owner": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "stage3_startup_turn": "01a15ab0-ecc5-7081-915d-2bd6dfb5c22f",
+  "startup_source": "The recorded stage2 owner verified actual acknowledgment of its separate lane and independent helpers.",
+  "stage4": "PENDING",
+  "elite_build_margins": {
+    "code_free": 1128,
+    "ram_free": 524,
+    "pool_free": 8364
+  },
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED"
+}

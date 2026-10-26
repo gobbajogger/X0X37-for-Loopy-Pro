@@ -14,7 +14,14 @@ typedef struct {               /* proportional, see tools/gen_font.py */
 } felucca_font_t;
 #include "felucca_font.h"
 
-#define CV_MAX (240u * 144u)      /* X0X: the main area, both bands, is 240 x 144 */
+/* One strip, not a 240x240 frame. The panel is three strips that are never
+ * drawn at the same time: header 20, main area 2*69 = 138, knob row 82
+ * (20+138+82 = 240). The tallest is the main area. The strip used to be 144
+ * rows; the extra 6 moved into the knob row and were still reserved here
+ * (240 * 6 * 2 = 2880 bytes of the pool). */
+#define CV_ROWS 138u
+#define CV_MAX (240u * CV_ROWS)
+_Static_assert(CV_ROWS >= 82u, "screen strip shorter than the knob row");
 static uint16_t cv_px[CV_MAX] __attribute__((section(".pool")));
 static uint32_t cv_w, cv_h;
 static int32_t cv_oy;            /* y offset for graph drawing */
@@ -151,14 +158,40 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
 {
     uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
     for (; *s; s++) {
-        uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w, bpr;
+        uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w;
+#ifdef FONT_PACKBITS
+        uint32_t left = 0, repeated = 0, byte = 0;
+#else
+        uint32_t bpr;
+#endif
         const uint8_t *gd;
         w = f->bw[gi];
+#ifndef FONT_PACKBITS
         bpr = (w + 1u) / 2u;
+#endif
         gd = f->data + f->off[gi];
         for (gy = 0; gy < f->h; gy++)
             for (gx = 0; gx < w; gx++) {
-                uint32_t a = gd[gy * bpr + gx / 2u];
+                uint32_t a;
+#ifdef FONT_PACKBITS
+                /* Decode one byte per pixel pair; odd-width rows discard their
+                 * padding nibble exactly as the original bitmap reader did. */
+                if (!(gx & 1u)) {
+                    if (!left) {
+                        uint32_t token = *gd++;
+                        left = (token & 127u) + 1u;
+                        repeated = token & 128u;
+                        if (repeated)
+                            byte = *gd++;
+                    }
+                    if (!repeated)
+                        byte = *gd++;
+                    left--;
+                }
+                a = byte;
+#else
+                a = gd[gy * bpr + gx / 2u];
+#endif
                 int32_t px = x - f->pad + (int32_t)gx, py = y + (int32_t)gy + cv_oy;
                 a = (gx & 1u) ? (a & 15u) : (a >> 4);
                 if (!a || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)

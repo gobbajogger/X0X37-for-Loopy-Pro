@@ -1,0 +1,19 @@
+model: pre-repair plan treats probe failure as None (silent skip)        ok
+slot_probe: timeout raises                                               FAIL
+plan_slots: probe failure raises (fail closed)                           FAIL
+Traceback (most recent call last):
+  File "/tmp/b48-wt/tests/install_f03_slot_probe_test.py", line 138, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/tmp/b48-wt/tests/install_f03_slot_probe_test.py", line 103, in main
+    move = fi.plan_slots(d3, image, product)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/b48-wt/tools/fm1_install.py", line 683, in plan_slots
+    lay = slot_probe(dev.link)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/b48-wt/tools/fm1_install.py", line 625, in slot_probe
+    return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/b48-wt/tools/x0x_slots.py", line 87, in parse_info
+    raise SlotError("invalid SMP_INFO slot count or size")
+x0x_slots.SlotError: invalid SMP_INFO slot count or size

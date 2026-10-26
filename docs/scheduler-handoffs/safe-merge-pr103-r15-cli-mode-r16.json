@@ -1,0 +1,96 @@
+{
+  "schema": "LoopyX0X37.SafeMerge.SourceTreeModeCorrection.v1",
+  "revision": "safe-merge-pr103-r15-fm1-install-executable-20261024-r16",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "sole firmware NIGHTLY Safe Merge",
+  "pr": 103,
+  "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "consumed": {
+    "integration_head": "f22d05719eed5283d71c71f3fac94e450150ed3d",
+    "root_tree": "3d8b5566bbe2355d3922e6e94b1dfad67e6fab72",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "data_safety_pr": 110,
+    "producer_head": "b5008faa87c2bb897a48f8a37df10b445bb26b77",
+    "producer_revision": "data-safety-pr110-controller-address-echo-7bit-20261024-r2",
+    "independent_qa": "REVIEWED SCOPED 14/14 PASS; complete integrated root INCOMPLETE"
+  },
+  "bug": "Merged PR #110 source inherited producer Git mode 100644 for POSIX executable tools/fm1_install.py, violating existing tests/x0x_cli_executable_mode_test.py; historical PR103 r14 was 100755. This would break invoking tools/fm1_install.py directly.",
+  "changed_path": "tools/fm1_install.py",
+  "before": {
+    "mode": "100644",
+    "blob": "7e383aed118ff2ee9791b7792a1774b09c3921eb"
+  },
+  "after": {
+    "mode": "100755",
+    "blob": "7e383aed118ff2ee9791b7792a1774b09c3921eb"
+  },
+  "source_bytes_unchanged": true,
+  "executable_regression": {
+    "test_file": "tests/x0x_cli_executable_mode_test.py",
+    "exact_test_git_blob": "ee53bd389f18c874108b66fea0bff73c50380fea",
+    "environment": "Linux x86_64 representative POSIX mode-only checkout projection, NOT complete real source tree",
+    "before": {
+      "cmd": "X0X_TEST_REPO_ROOT=<mode-only-temp-tree> python3 -B tests/x0x_cli_executable_mode_test.py",
+      "exit": 1,
+      "results": "1/2 FAIL: installer not executable"
+    },
+    "after": {
+      "cmd": "X0X_TEST_REPO_ROOT=<mode-only-temp-tree> python3 -B tests/x0x_cli_executable_mode_test.py",
+      "exit": 0,
+      "results": "2/2 PASS"
+    },
+    "private_main_library": {
+      "path": "/LoopyX0X37-SafeMerge-PR103-R15-CLI-Mode-20261024.zip",
+      "id": "libfile_09ae14ac374881918a37c29baccd569e",
+      "size": 2246,
+      "sha256": "68606327a9dbc117003989386ccb47af6101efc8e1f99173eee4f663d7186c0a",
+      "verified": "byte cmp PASS and ZIP CRC PASS"
+    }
+  },
+  "companion_scoped_native": {
+    "main_library": "/LoopyX0X37-SafeMerge-PR103-R15-PR110-Scoped-Native-20261024.zip",
+    "id": "libfile_5934018f8aa0819182c6cd9b73ff7600",
+    "sha256": "36ab43827f44d4b10e31aea2359cafad7e1425b8bb77a93ec41a15a0699268a5",
+    "size": 31827,
+    "executed": "Controller old 3/5 failures exit1 expected, after 5/5 normal+optimized exit0, controller 11/11 normal+optimized exit0, Independent QA 14/14 normal+optimized exit0, SMC 20/20 four GCC/Clang sanitizer configs exit0, syntax exit0",
+    "scope": "source-window-only with exact function hash checks and real compiled SMC source; NOT complete Git root QA"
+  },
+  "proven_compiled_inputs": {
+    "firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "r14_builder_source": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+    "private_archive_sha256": "fd0c763b01d49496362dfb5e6cdef6dcaf0834e1ebfd2c04279c759a9208fcb6",
+    "elite_fwsc_sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+    "pro_fwsc_sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+    "controller_reused_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "status": "R14 BUILD_ONLY: exact r15/r16 host-only changes leave native compiler subtrees unchanged, but Hourly Build owns complete tool/config/input equivalence attestation; firmware not rebuilt during this mode correction"
+  },
+  "disposition": "SOURCE_BYTES_UNCHANGED_PERMISSIONS_REPAIRED / DRAFT QA_PENDING / NIGHTLY_NOT_MERGED / NOT_INSTALLABLE / DEVICE_UNKNOWN",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "run complete exact new Git root suite on SMC/303/data safety/slot/backup/restore/OTA and direct installer CLI; investigate existing installer fixtures fail-closed SMP_INFO handling"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "acknowledge new full root plus unchanged verified firmware/ble/assets/build tools and private r14 outputs as BUILD_ONLY; verify all compile inputs/controller strategy or rebuild"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "only after exact-head complete-root QA + formal protected review merge into guarded firmware nightly and verify resulting SHA"
+    },
+    {
+      "owner": "Catalog/publisher",
+      "action": "only qualified lawful immutable exact model/controller/source/license/backup/HTTP package selectable NIGHTLY; physical PASS not required for DEV but is required for production"
+    }
+  ],
+  "forbidden": [
+    "force",
+    "direct protected nightly/main writes",
+    "hosted CI/build runner",
+    "public firmware/vendor/controller bytes in browser repo",
+    "hardware flash",
+    "production promotion"
+  ]
+}

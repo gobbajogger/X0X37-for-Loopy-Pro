@@ -1,0 +1,23 @@
+{
+  "status": "blocked_external_cloud_configuration_and_execution",
+  "cloud_settings_applied": false,
+  "cloud_firmware_build_executed": false,
+  "local_checks": {
+    "bash_syntax": "pass",
+    "draft_json": "pass",
+    "sdk_hashes_match_inspected_build_script": "pass",
+    "sdk_tag_matches_build_documentation": "pass",
+    "macos_guard": {
+      "exit_code": 2,
+      "result": "expected refusal before dependency writes"
+    }
+  },
+  "prior_cloud_commit": "5d7997da2082b528924716643c607b276e71b9c1",
+  "sha256": {
+    "prior-draft.json": "f6f6739a626c3c7a374699d2283c5c5527204bc097a3620e120e2b10a9e8dbb3",
+    "prior-host-setup.sh": "9fc77f82bd1c90ae7c09f15ffc5ff6246f5247a3756e26fb631243012f865b6d",
+    "environment-values.env": "088a54e7af48abb6ad855802b2978a2910bb563cfd3381cbd85fbd4fd2076e0f",
+    "firmware-setup-check.sh": "d5169ddb81a91c0ad28c9dde1df74b2dfbc75ec7c8019fa19eaa507bf814bd01",
+    "HANDOFF.txt": "9cbe923fe123822bc222c370571df610a4d41bf2a66a8b0caf8364bebfc2f03b"
+  }
+}

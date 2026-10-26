@@ -1,0 +1,6 @@
+  ok   smc-ui
+  ok   smc-ui-negative
+  ok   smc-feedback
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   ui-feedback
+all tests passed

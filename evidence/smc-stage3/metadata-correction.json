@@ -1,0 +1,10 @@
+{
+  "old_candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "metadata_corrected_candidate": "3fc770dcde261a23556f6c3749ebd4bc5911f1c3",
+  "old_tree": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "new_tree": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "same_parent": true,
+  "old_lane_still_retains_original": true,
+  "cause": "Committed preference update lacked Trigger:/Check: body lines. Stage2 docs check ran before commit at3d7c29b.",
+  "disposition": "Metadata-only reword in stage3 own isolated branch; no file-content, parent or author changes. No new source repair, so stage2 repeat not required."
+}

@@ -1,0 +1,21 @@
+{
+  "marker": "smc-central-stop-backpressure-20261021-stage3-after-checked-repair",
+  "source_thread": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "evidence_commit": null,
+  "next_stage": 3,
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/evidence/stop-stage2/stage3-prompt.txt",
+  "prompt_sha256": "083ade305bdb24c4c058fb8ee23916a59841623bebc097172856676ec3c61452",
+  "status": "pending",
+  "receiving_owner": null,
+  "thread_id": null,
+  "host_id": null,
+  "attempts": [],
+  "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "duplicate_check": "The saved record and current project activity have no matching stop-repair stage3 successor. Earlier central stages are idle.",
+  "authorization": "Workflow17 requires a fresh independent stage3. Workflow18 permits automatic launch, recovery, startup checks and completion notices. Complete validated DEV-install permission carries forward with notice.",
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "stage4_permitted_now": false
+}

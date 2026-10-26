@@ -1,0 +1,31 @@
+{
+  "defect": "CENTRAL-ABORT-02",
+  "public_cases": 38,
+  "cases": [
+    "Overflow and reply-timeout aborts.",
+    "Direct stop and the extracted production service body.",
+    "Legacy and enhanced successful connection events during cancel.",
+    "One millisecond before expiry, exact expiry and one millisecond after expiry.",
+    "Normal time and uint32 timer wrap.",
+    "Recovery before expiry permits one accepted Disconnect.",
+    "Expiry retains the handle and unreturned credits.",
+    "Repeated stop and poll cannot renew an expired abort interval.",
+    "Failed and wrong-handle completions do not release the link.",
+    "Late successful completion respects stop intent.",
+    "A normal stop starts a distinct interval at the current service time."
+  ],
+  "retained_coverage": "The existing public central, receive, signaling and abort suites cover accepted command status, failed status, missing completion, reply priority, identifiers, fragments, size bounds, lifecycle resets, reconnect credits and normal MIDI.",
+  "controls": {
+    "05eff60": "The saved stop probe and all 12 saved deadline probes reproduce functional failures. All three new public path controls fail.",
+    "28d0fc2": "The public overflow and timeout controls and both saved independent backpressure probes reproduce functional failures.",
+    "guard_only": "The repaired helper with the old production caller fails the new service control.",
+    "repaired": "All current public checks and applicable independent probes pass. The four saved stale-caller simulations remain expected negative examples."
+  },
+  "limits": [
+    "The mailbox, clock, peer, HCI events and schedule are simulated.",
+    "The service body is production code. Its radio and hardware dependencies are stubs.",
+    "The replay retains 1268 unchanged payloads and excludes three oversized ATT packets. No resegmentation occurs.",
+    "The project store is synthetic. Target interrupts and physical radio execution are untested.",
+    "Physical result: NOT TESTED. Original input failure: UNRESOLVED."
+  ]
+}

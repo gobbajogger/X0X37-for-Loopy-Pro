@@ -114,10 +114,14 @@ static inline uint8_t smk_apc40_cell_event(volatile uint8_t velocity[SMK_APC40_C
     vel &= 0x7Fu;
     f = flags[note];
     if (!vel) {
+        /* An off less than SMK_APC40_TOGGLE_TICKS after an on can be the first flash of a
+         * queued clip. Keep the color: smk_apc40_cells_age clears it if no on follows. */
+        uint8_t hold = (uint8_t)(!(f & SMK_APC40_CELL_OFF) &&
+                                 (uint8_t)(now - tick[note]) < SMK_APC40_TOGGLE_TICKS);
         f |= SMK_APC40_CELL_OFF;
         flags[note] = f;
         tick[note] = now;
-        if (f & SMK_APC40_CELL_QUEUED)
+        if ((f & SMK_APC40_CELL_QUEUED) || hold)
             return 0u;                      /* flash off phase: keep the color */
         if (!velocity[note])
             return 0u;
@@ -155,7 +159,17 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
     uint8_t note, changed = 0u;
     for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++) {
         uint8_t f = flags[note];
-        if (!(f & SMK_APC40_CELL_QUEUED) || (uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
+        if (!(f & SMK_APC40_CELL_QUEUED)) {
+            /* A held off (smk_apc40_cell_event) with no on after it: clear the cell now. */
+            if ((f & SMK_APC40_CELL_OFF) && velocity[note] &&
+                (uint8_t)(now - tick[note]) >= SMK_APC40_TOGGLE_TICKS) {
+                velocity[note] = 0u;
+                channel[note] = 0u;
+                changed = 1u;
+            }
+            continue;
+        }
+        if ((uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
             continue;
         if (f & SMK_APC40_CELL_OFF) {
             velocity[note] = 0u;
@@ -165,6 +179,65 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
         flags[note] = (uint8_t)(f & SMK_APC40_CELL_OFF);
     }
     return changed;
+}
+
+/* Bluetooth link state for the clip feedback. Bit 0: the link is up. Bit 1: notify is on.
+ * Return 1 when a bit went from 1 to 0: the link ended, or the central turned notify off
+ * (CCCD write 0). Then Loopy is gone and its feedback is not true any more. */
+static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint8_t notifying)
+{
+    uint8_t now = (uint8_t)((connected ? 1u : 0u) | (notifying ? 2u : 0u));
+    uint8_t lost = (uint8_t)((*prev & (uint8_t)~now) != 0u);
+    *prev = now;
+    return lost;
+}
+
+/* a76: 1 = a Bluetooth note-on with a colour (velocity 1-127, a USB-MIDI event packet) for a clip cell
+ * (notes 0-39, the pad colours) while notify is off (Loopy does not listen). The cell does not change.
+ * CLP-18: an off (note-off, or note-on velocity 0, any channel) always goes to the cell: an off cannot
+ * show an old colour, and Loopy can send its offs when it closes. */
+static inline uint8_t smk_apc40_ble_colour_unheard(uint32_t pkt, uint8_t notifying)
+{
+    return (uint8_t)(!notifying && ((pkt >> 8) & 0xF0u) == 0x90u && ((pkt >> 24) & 0x7Fu) &&
+                     ((pkt >> 16) & 0x7Fu) < SMK_APC40_CLIP_COUNT);
+}
+
+/* a76: the clear runs again SMK_APC40_RECLEAR_MS after a link loss, to remove a late write
+ * (a write that was on its way, or USB), if Loopy did not come back (link up and notify on). */
+#define SMK_APC40_RECLEAR_MS 300u
+typedef struct { uint8_t link, armed; uint32_t due; } smk_apc40_lost_t;
+/* 1 = clear the clip feedback now */
+static inline uint8_t smk_apc40_lost_step(smk_apc40_lost_t *s, uint8_t connected, uint8_t notifying, uint32_t ms)
+{
+    if (smk_apc40_link_lost(&s->link, connected, notifying)) {
+        s->armed = 1u;
+        s->due = ms + SMK_APC40_RECLEAR_MS;
+        return 1u;
+    }
+    if (!s->armed || (int32_t)(ms - s->due) < 0)
+        return 0u;
+    s->armed = 0u;
+    return (uint8_t)(s->link != 3u);
+}
+
+/* Clear the clip cells that have their bit set in mask (bit n = cell n): no colour, no queued state. */
+static inline void smk_apc40_cells_clear_mask(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
+                                              volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
+                                              volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
+                                              volatile uint8_t tick[SMK_APC40_CLIP_COUNT], uint64_t mask)
+{
+    uint8_t note;
+    for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++, mask >>= 1)
+        if (mask & 1u)
+            velocity[note] = channel[note] = flags[note] = tick[note] = 0u;
+}
+/* Clear all clip cells: no colour, no queued state. */
+static inline void smk_apc40_cells_clear(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t tick[SMK_APC40_CLIP_COUNT])
+{
+    smk_apc40_cells_clear_mask(velocity, channel, flags, tick, ~(uint64_t)0u);
 }
 
 /* Beat phase 0..255 from the 24 PPQN clock count: one cycle per quarter note. */
@@ -278,8 +351,8 @@ static inline void smk_apc40_build_layout(const uint8_t velocity[SMK_APC40_CLIP_
      * A 4x4 grid with a late or empty edge row or column still folds. Wider
      * footprints keep the 0.7 8-wide drawing.
      * An empty edge column of a 4x4 project can make the span narrower than 4. */
-    *columns = (uint8_t)(max_col - min_col <= 3u && max_row - min_row >= 2u &&
-                                 max_row - min_row <= 3u
+    *columns = (uint8_t)((unsigned)(max_col - min_col) <= 3u && (unsigned)(max_row - min_row) >= 2u &&
+                                 (unsigned)(max_row - min_row) <= 3u
                              ? 4u : SMK_APC40_SOURCE_COLS);
     *rows = (uint8_t)(max_row - min_row + 1u);
 }
@@ -410,6 +483,22 @@ static inline uint32_t smk_apc40_history_packet(uint8_t redo, uint8_t on)
     uint32_t status = (on ? 0x90u : 0x80u) | SMK_APC40_HISTORY_CHANNEL;
     uint32_t note = redo ? SMK_APC40_REDO_NOTE : SMK_APC40_UNDO_NOTE;
     return (on ? 0x09u : 0x08u) | status << 8 | note << 16 | (uint32_t)(on ? 0x7Fu : 0x00u) << 24;
+}
+
+/* Outside clip mode, PLAY also sends note 0x5B on MIDI channel 16, the channel of the Undo / Redo notes
+ * (MID-14), for a MIDI-learn in Loopy Pro. X0X starts and stops as before. In clip mode, PLAY is the APC
+ * PLAY (smk_apc40_transport_event), so this sends nothing. HOME + PLAY (X0X redo) sends nothing.
+ * The release sends note off only after a press that sent note on, also if clip mode started between. */
+#define SMK_APC40_PLAY_CTL_NOTE 0x5Bu
+static inline uint8_t smk_apc40_play_note_event(uint8_t *sent, uint8_t clip_mode, uint8_t home_held, uint8_t pressed)
+{
+    return smk_apc40_transport_event(sent, (uint8_t)(!clip_mode && !home_held), pressed);
+}
+/* USB-MIDI packet: note on 0x5B velocity 127, or note off 0x5B velocity 0, on channel 16. */
+static inline uint32_t smk_apc40_play_note_packet(uint8_t on)
+{
+    uint32_t status = (on ? 0x90u : 0x80u) | SMK_APC40_HISTORY_CHANNEL;
+    return (on ? 0x09u : 0x08u) | status << 8 | SMK_APC40_PLAY_CTL_NOTE << 16 | (uint32_t)(on ? 0x7Fu : 0x00u) << 24;
 }
 
 /* Return 1 when the current footprint fully contains the latched one and differs.

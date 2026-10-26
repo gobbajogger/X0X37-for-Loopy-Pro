@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "reviewer": "/root/review_latest_merge",
+  "scope": "Read-only independent review of staged merge against 6aad011 and d1aa6a2; conflicts, decisions, task routing, maintained links, authorization, and protected source identity.",
+  "findings": [],
+  "limits": "No behavior suites, builds, device operations or ref changes by reviewer. Pending execution evidence and generated primary error.log outside staged review."
+}

@@ -1,7 +1,7 @@
 # Artifacts and owner data
 
 The designated installer owns device writes. This is Firmware Main Builder unless ownership has transferred.
-Check current owner permission under [rule 14](../../x0x37-owner-decisions/SKILL.md). Hardware permission is currently withdrawn; stop before device actions.
+Check current owner permission under [rule 14](../../x0x37-owner-decisions/SKILL.md). Current permission must cover the exact device action; read-only Pro investigation does not authorize installation, and Elite flash remains withdrawn.
 
 Before each install:
 

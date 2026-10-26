@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "role": "LoopyX0X37 Hourly Bugfinder",
+  "revision": "BF033-R2",
+  "change": "Registered test-only chance-aware bass callback adapter for PR139+PR159 integration",
+  "observed_utc": "2026-10-25",
+  "musician_outcome": "RANDOM 303 must sustain through the actually selected TIE and release MIDI precisely. This repair preserves meaningful regression coverage when the chance-aware callback is integrated; hardware behavior is not measured.",
+  "cause": "Original PR159 host test declares a void bass_on callback, incompatible under -Werror with PR139's int-returning bass_on callback. This is a test source integration defect, not a demonstrated standalone firmware defect.",
+  "design": "Use C11 _Generic on the exact seq_sink_t.bass_on member to select correctly typed void or int test callback; int callback accepts the deliberately sounding test note with return 1. No production firmware inputs change.",
+  "pins": {
+    "pr159_before": "28fbcf78b8930da6f1535268501cdb7c0a66b6b3",
+    "pr159_root_before": "be3f140a3244662fc74bd7f7a68c4b1b8c200478",
+    "compiler_inputs_tree_unchanged": "75a7a40cb8b0fb647e7143b889309b485bb59fcd",
+    "test_blob_before": "61260c0ecd8705c9fb58c721d2e0bb339c6a634b",
+    "test_blob_after": "950b1290ca068e36399f08aa5c1e990002d17198",
+    "pr159_header": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+    "pr139_header": "83f2ea67bcd1e4dd4f077c1faf7eff2ca4e44921",
+    "pr159_sequencer": "ee5b7eff8fe6c4f05dc0651306f06c166c77751d",
+    "synthetic_pr139_style_plus_pr159_sequencer": "2b4c3aa52acdf8f9d9d36b9afc8c5cd30db88145"
+  },
+  "native": {
+    "environment": "Linux x86_64, GCC 14.2, Clang 17, -std=c11 -O2 -Wall -Wextra -Wdouble-promotion -Werror",
+    "profiles": [
+      "optimized",
+      "UBSan",
+      "ASan+UBSan"
+    ],
+    "reproducer": "Original registered test against exact PR139 header and a synthetic PR139-style patched PR159 sequencer: six expected compile failures, incompatible function-pointer type. PR159 original header controls pass.",
+    "after": "Corrected test: all six legacy-void and all six chance-aware-int runs compiled and passed, 34/34 real-linked expectations each; no observed sanitizer errors.",
+    "totals": {
+      "expected_states": 24,
+      "negative_compiler_failures": 6,
+      "positive_corrected_runs": 12,
+      "legacy_original_runs": 6,
+      "unexpected": 0
+    },
+    "source_note": "Int source is synthetic, assembled from exact PR159 production C and BF028 R3 source-window changes; not a committed combined ROOT. The int header blob is exact PR139.",
+    "registered_selector": "X0X_TEST_JOBS=1 sh tests/run_tests.sh seq-random-tie-preview",
+    "complete_current_root_test": "NOT_RUN",
+    "independent_combined_QA": "NOT_RUN",
+    "fresh_target_build": "NOT_RUN",
+    "hardware_audio": "NOT_RUN"
+  },
+  "handoff": {
+    "receiver": "Existing Independent QA; sole Safe Merge integration owner; Build owner on changed app/compiler closure only",
+    "next": "Use test on one real committed combined current-root candidate, independently validate cross-PR note ownership, clock/swing/probability and required negatives; do not reuse prior compiler proof without complete unchanged closure.",
+    "protected_merge": "NOT_AUTHORIZED_IN_THIS_SCOPE",
+    "site_publication": "NOT_AUTHORIZED",
+    "GitHub_Actions": "NOT_USED"
+  }
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "name": "broken-stop-cancel",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "cancel"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-cancel.log"
+  },
+  {
+    "name": "repaired-stop-cancel",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "cancel"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-cancel.log"
+  },
+  {
+    "name": "broken-stop-scan",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "scan"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-scan.log"
+  },
+  {
+    "name": "repaired-stop-scan",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "scan"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-scan.log"
+  },
+  {
+    "name": "broken-stop-failed-status",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-failed-status.log"
+  },
+  {
+    "name": "repaired-stop-failed-status",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-failed-status.log"
+  },
+  {
+    "name": "broken-stop-edges",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "edges"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-edges.log"
+  },
+  {
+    "name": "repaired-stop-edges",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "edges"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-edges.log"
+  },
+  {
+    "name": "saved-service-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "-I/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/firmware/src/ble",
+      "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/evidence/deadline-stage3/investigation/service-stop-probe.c",
+      "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-compile.log"
+  },
+  {
+    "name": "saved-service-cancel-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "cancel",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-cancel-refused.log"
+  },
+  {
+    "name": "saved-service-cancel-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "cancel",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-cancel-accepted.log"
+  },
+  {
+    "name": "saved-service-scan-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "scan",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-scan-refused.log"
+  },
+  {
+    "name": "saved-service-scan-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "scan",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-scan-accepted.log"
+  },
+  {
+    "name": "saved-service-scan-failed-status",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "scan",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-scan-failed-status.log"
+  }
+]

@@ -1,0 +1,39 @@
+{
+ "status": "CONNECTED",
+ "guard": "blocked 0 why - fails 0",
+ "start": "mailbox READY err NONE stage 0 delays 0 stage time 0 ms image init 0 ms core0 wait 0x00000000 last look 0 ms",
+ "xosc": "0x099A61FF -> 0x05D9625F",
+ "core0": "last look 0 ms; image then: stage 0 at 0 ms, delays 0, last delay caller 0x00000000; RAM code unchanged",
+ "hci": "host state 6 step 14 wait 0 credits 5; h2c head/tail 541/541 c2h 644/644 drops 0; controller took 86, gave 114; polls 143851607",
+ "link": "SMC receive (counters modulo 256): ACL 8, notifications 0, MIDI 0, rejected 2; last receive rejection 5; queue enqueued 0, dropped 0, dispatched 0, dispatch reason 0",
+ "alive": "core 0 last Bluetooth tick at 443792 ms after boot, core 1 polls then 143851464, now 143851607",
+ "rails": "before/after the stock supply setup: SYSVDD sel 11 -> 15, VDC14 sel 3 -> 7, VDDIOM sel 7 -> 4, CON0 0x77 -> 0xFB (DCDC13 on, LDO13 off); setup read-back ok (raw 0x771B0B47 -> 0xFB1F0F74)",
+ "reset": "this boot 0x00000101 last start 0x00000000",
+ "crash": "none new",
+ "t5w": "no record of the last boot; changes now 0"
+}
+INLOG: 0 entries, the oldest first (time before the read, fm1_ms now 444744)
+Stored clip cells (APC row 4 = top Loopy row; velocity/channel; '.' = off):
+  row 4:    .      .      .      .      .      .      .      .
+  row 3:    .      .      .      .      .      .      .      .
+  row 2:    .      .      .      .      .      .      .      .
+  row 1:    .      .      .      .      .      .      .      .
+  row 0:    .      .      .      .      .      .      .      .
+PADS: the LED output (hardware pads 0-7 top row, 8-15 bottom row; R,G,B; a frame waits to go out: no)
+  pad  0: to send 127, 74, 20 (orange)  sent 127, 74, 20 (orange)
+  pad  1: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad  2: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad  3: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad  4: to send 127, 74, 20 (orange)  sent 127, 74, 20 (orange)
+  pad  5: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad  6: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad  7: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad  8: to send 127, 74, 20 (orange)  sent 127, 74, 20 (orange)
+  pad  9: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad 10: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad 11: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad 12: to send 127, 74, 20 (orange)  sent 127, 74, 20 (orange)
+  pad 13: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad 14: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  pad 15: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
+  WARNING: all clip cells are off, but 4 pads show a colour

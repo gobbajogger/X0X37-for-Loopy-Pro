@@ -1,0 +1,33 @@
+{
+  "previous_candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "selected_previous_inputs": 412,
+  "changed_existing_inputs": {
+    "firmware/src/ble.c": {
+      "before": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+      "after": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba"
+    },
+    "firmware/src/ble/ble_midi_central.c": {
+      "before": "246252a8defe2a6accd92926d5d08cda87dd693dd252ebce5f055d32bfb423d4",
+      "after": "0f400b3e9d88b95599eac7d3ce21f7fd71b990cb6530589dba08e6fcf235eb77"
+    },
+    "tests/host/ble_midi_receive_test.sh": {
+      "before": "bd95f675f5a1f12467fe2c30a53df8f6029c7ee07a0bbe2af70c14e3fec85b99",
+      "after": "215dd2bbff0a6d5538418b668c436da79dc07616654d50c7391f8187600bb816"
+    }
+  },
+  "new_public_tests": [
+    "tests/host/ble_midi_deadline_test.c",
+    "tests/host/ble_midi_deadline_test.py"
+  ],
+  "controller_and_mapping_inputs": "UNCHANGED",
+  "production_changes": [
+    "One helper cutoff applies to poll, stop and cancel-race Disconnect entries.",
+    "The production service supplies fm1_ms before stop can submit Disconnect."
+  ],
+  "scope": "CENTRAL-ABORT-02",
+  "initial_test_failure": {
+    "cause": "The new service fixture expected two total attempts. Its intentional busy pre-poll adds a third attempt.",
+    "disposition": "The fixture now measures the count before service and checks its increment. Production code did not change for this correction."
+  },
+  "saved_probe_limit": "The old standalone service simulation deliberately supplies stale time. It still fails against the repaired helper alone. The new regression extracts and executes the actual production caller. Its old-caller mutation fails and its repaired caller passes."
+}

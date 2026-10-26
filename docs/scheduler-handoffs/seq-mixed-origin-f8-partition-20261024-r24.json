@@ -1,0 +1,69 @@
+{
+  "schema": "loopyx0x37.seqclock.producer-evidence.v1",
+  "evidence_revision": "seqclock-pr90-mixed-origin-f8-partition-r24-20261024",
+  "created_utc": "2026-10-24T15:18:00Z",
+  "role": "LoopyX0X37 Sequencer Clock",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "head_before": "b8a0ffc56afa180e92d7abd5722fd90682934f3c",
+  "root_before": "e45d9a6d94a6b3a5fd6656b068e5813557135c15",
+  "target_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "stacked_parent_pr": 86,
+  "first_nightly_pr": 103,
+  "changed_files": [
+    "tests/host/seq_transport_epoch_output_linked_test.c",
+    "docs/scheduler-handoffs/seq-mixed-origin-f8-partition-20261024-r24.json"
+  ],
+  "firmware_tree_unchanged": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "source_blobs": {
+    "firmware/src/seq/sequencer.c": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+    "firmware/src/seq/sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "firmware/src/seq/pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "firmware/src/seq/tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "firmware/src/seq/tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c"
+  },
+  "native_test_blob_before": "09bb27a426173fe947ecdb3496e9636d15caad58",
+  "native_test_blob_after": "2ef7caa3f7eaff4291782c83d7564b3366e8d580",
+  "change": "Registered linked C regression extends same-block transport F8 epoch partition: remote Start/Continue superseded by local last-wins Start/Continue; only post-winning-request F8 advance phase, first downbeat not duplicated, exactly-once held 303 NoteOff on Stop; no transport echo under external clock; zero post-request ticks must not emit phantom 303 note or Off; 1,64,1024-frame block sizes.",
+  "test_command": "bash reproduce-native-r24.sh",
+  "environment": "Linux native x86_64; GCC and Clang, C11 -O1 -g -Wall -Wextra -Werror, plain/UBSan/ASan+UBSan; ASAN_OPTIONS=detect_leaks=0; actual Git blob-matched linked sequencer.c+pattern.c+tb3po.c, no dummy sequencer algorithm",
+  "run_exit": 0,
+  "positive": {
+    "matrix": "GCC,Clang x plain,UBSan,ASan+UBSan",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "cases": "6/6",
+    "assertions": "558/558 per run",
+    "log_sha256": "119941d81bd9a8941ebfc5b2eb668a3d34ccc1f9216246092c11273afba2eee0"
+  },
+  "negative": {
+    "mutation": "local scratch only: omit subtraction of pre-request MIDI F8 from s->ext_pending",
+    "compile_exit": 0,
+    "execution_exit": 1,
+    "expected_failure_count": "33 per run",
+    "cases": "6/6 reproduced red",
+    "assertions": "525/558 per run",
+    "log_sha256": "f21a4cab05ef0e2f944c24f4979524f0427263c6e2d6f90b4ba9432670d36955",
+    "committed": false
+  },
+  "compatibility": {
+    "noteoff": "GCC and Clang linked actual source: 195/195, exit 0",
+    "epoch": "GCC and Clang linked actual source: 159/159, exit 0"
+  },
+  "local_full_replay_log_sha256": "52f28d3946ff486cb2f1dd6b2b055a20265d5ec7c5b7a7f44045c3cec2d1c143",
+  "private_reproducibility_zip": {
+    "basename": "LoopyX0X37-SeqClock-PR90-F8-Partition-R24-20261024.zip",
+    "sha256": "fef6bbf1a1d4829f6b4635bc6bc4c3a0f6f373569b3c07b2b6b22c7965a0a4ec",
+    "bytes": 53667,
+    "crc_verified": true,
+    "no_binaries": true
+  },
+  "run_limits": [
+    "No exact-root full-suite run; no independent QA acceptance; no new Elite/Pro target build; no physical hardware test; no firmware publication/merges",
+    "Leaksan disabled, not claimed",
+    "This does not integrate changes into draft PR #103"
+  ],
+  "next_owner": "Existing independent QA Sequencer Clock review owner",
+  "next_action": "Verify this exact full commit/root/tree and native tested blobs; execute X0X_TEST_JOBS=1 sh tests/run_tests.sh transport-epoch-output-linked transport-noteoff-linked transport-origin clock-epoch clock-internal-queued-linked transport-coalesce sequencer clk-lock from complete exact-source checkout, inspect clock/phase/F8/gesture/NoteOff invariants; post exact-SHA independent review PASS/NEEDS CHANGES. Sole Safe Merge subsequently evaluates; Hourly Build may compile exact firmware/ inputs independently (this R24 changed no compiled firmware).",
+  "stage_outcome": "OWNED TEST SOURCE VERIFIED / SCOPED NATIVE HOST PASS / NO INDEPENDENT APPROVAL / BUILD NOT RUN / DEVICE NOT TESTED"
+}

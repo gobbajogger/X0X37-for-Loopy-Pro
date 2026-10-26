@@ -1,0 +1,40 @@
+You are the new stage-3 test thread in the X0X37 full-cycle loop (F07 after stage-2 FP-001 implement). Do not resume the stage-2 thread bc-d180cf42-3a0d-5bf5-b694-aa94e5cf04ef, the stage-1 thread bc-b1215ac4-b3bd-5a72-a25e-e97bb3d629dd, the stage-7 thread bc-f7783059-a0d9-5c29-a373-763ffd739822, the stage-5 thread bc-79dd773c-ae89-569f-8782-477f0086ede5, the stage-4 thread bc-497c8ca7-9e61-5bf9-aa11-010fe85a0374, the stage-3 thread bc-fd451c4d-a054-5318-bad5-ee55cb5dbabe, the earlier stage-2 thread bc-764bccc6-54f9-58a3-bf70-6f95773c3460, the earlier stage-1 thread bc-a76a9628-9a50-5b04-a7a4-ba134f41d9e1, the earlier stage-7 thread bc-1db0b238-d8dd-5769-acf7-2a9237155a9f, the earlier stage-5 thread bc-97198e69-b677-5452-99d2-348253ba0224, the earlier stage-4 thread bc-beff5dde-a986-5a97-bde7-a992b937cc42, the earlier stage-3 thread bc-267d1e71-e911-5c7d-aecc-36f285bdf065, the earlier stage-2 thread bc-9490d387-26c4-58f1-a59e-84ccb8145ef7, the earlier stage-1 thread bc-bd9cb2ca-4784-5d48-968d-bee42f593ff1, the earlier stage-7 thread bc-0d4e5c60-b783-50bf-aade-b445b509603c, the earlier stage-5 thread bc-53d982c6-2d09-50b5-a24b-19a82e0ab4bc, the earlier stage-4 thread bc-5cbf81ce-9d35-5c9f-8919-36e1f7b2a870, the earlier stage-3 thread bc-ead74ca6-9020-58cf-9542-8b8091a1c878, the earlier stage-2 thread bc-d910ead2-0c33-5313-adea-956b263a6fae, the earlier stage-1 thread bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012, the Mac gh-pages push agents bc-3161dbe9-ac70-502b-9032-a3314f404283, bc-8bb9d6e5-bd6e-5f14-be5b-952d7c2f2dde, bc-c2a20c4f-164b-5375-b042-99a914c47c5f, bc-795342a0-d8f9-52d2-8485-20377d0a90f8 or bc-130fb82c-37a5-5211-adcc-10db676a56f3, the earlier Mac agent bc-3f7a599b-afeb-52c0-8f2a-84c20ba806e6, or any earlier F02/F03/F04/F05/F06 thread. Do not continue any internal probe; this cloud agent is the only Stage 3 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage unless Stage 7 later republishes evidence): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: 1325f5d34340ea877e65ab86f3663f5dea052c0d
+Content tree: b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190
+Git tree: 6b6401f5c57ed4142bce1adbc3ceab2f99a80b6e
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003)
+FP-001 implement tip: start from the remote tip of cursor/f07-fp-pin-stage2-fb90 that contains evidence/f07-stage2/SUCCESSOR-STAGE3.txt, HANDOFF.md, CHECKS.md, DEFERRED.md, digests.json, and the dual-digest host check. The source under repair authenticates 1325f5d3. Do not substitute the diverged firmware nightly tip (still 08d3164a…).
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f07-stage2/HANDOFF.md and CHECKS.md. You are stage 3 only.
+
+Scope: test the FP-001 dual-digest reconciliation only. Evidence must record installer_source_fingerprint and served_install_html_sha256 separately; prepare:candidate / validateCatalog must keep source-fingerprint semantics for installer_sha256; tools/check_installer_digests.py must fail on conflation (installer_sha256 alone / equal digests / single Installer FP claim) and must fail when recorded served_install_html_sha256 ≠ fetched install HTML; live fetch of https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/ must match the recorded served digest while remaining unequal to the source fingerprint. Definition / prior repro: evidence/f07-stage1/AUDIT.md and live-verify.log; deferred item closed for FP-001 in evidence/f07-stage2/DEFERRED.md.
+
+Required regressions (local host only; no GitHub Actions, no Codex-on-GitHub, no device write):
+- python3 tests/host/test_check_installer_digests.py -v
+- python3 tools/check_installer_digests.py evidence/f07-stage2/digests.json --fetch --expect-source 8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157
+- Negative: installer_sha256-alone evidence must exit non-zero
+- python3 tests/host/test_quickcheck_plan.py -v (installer-digests route present)
+- Confirm firmware / controller / package bytes unchanged relative to 1325f5d3 for product paths
+
+Give the test run and any failure investigation to separate subagents. A source repair found here returns to a new stage 2; do not patch the failure forward.
+
+Do not implement the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, or delete Felucca-era make_site.py entirely. Do not reopen BF-001, BF-002, or BF-003. Do not change firmware, controller, or package bytes unless a failing check proves the FP-001 repair broke them (then return to stage 2).
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1 if any firmware build is required. Branch from the pushed implement tip as cursor/<slug>-stage3-fb90 (required prefix cursor/ and suffix -fb90). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked test record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE4.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-4 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 3. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 4 if the pod has no CURSOR_API_KEY.
+
+Completion condition: checked FP-001 test record on the remote stage-3 branch, each failure has a cause and disposition, and one owner-visible stage-4 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval. After opening any PR, ask the Project coordinator to subscribe (local-env review only; no Codex-on-GitHub / Actions).
+
+Policy: all review/tests in agent cloud VM only — never GitHub Actions or @codex.

@@ -12,6 +12,10 @@
 #include "../../firmware/src/dsp/master.h"
 #define X0X_DRUM_TABLES_DEFINE              /* no drum909.c in this link: the tables are defined here */
 #include "../../firmware/src/dsp/fxbus.h"
+/* fxbus Dist labels live in drum909.c; this recipe links master+fxbus only. Same strings. */
+const char *const x0x_dist_names[8] = {
+    "Off", "Diode", "Clip", "SAT", "BFZ", "PDIST", "Fold", "Crush"
+};
 
 #define N 256
 #define BLOCKS 400
@@ -125,6 +129,23 @@ int main(void)
         printf("       first echo: left at %d, right at %d samples (time %.0f)\n", first_l, first_r,
                (double)(f2.dl_time_ms * 0.001f * 44100.0f));
         check(first_l > 0 && first_r > first_l && abs(first_r - 2 * first_l) < 8, "ping: left at T, right at 2T");
+    }
+    {   /* BF-013: the UI/sequencer accepts 20 BPM; FX division must follow that tempo. */
+        fxbus_init(&f1, dl1, 88200);
+        check(fabsf(f1.dl_time_ms - 375.0f) < 0.02f,
+              "fx tempo: default 120 BPM gives 375 ms dotted-eighth delay");
+        fxbus_set_bpm(&f1, 20.0f);
+        check(f1.bpm == 20.0f, "fx tempo: supported minimum 20 BPM accepted");
+        check(fabsf(f1.dl_time_ms - 1125.0f) < 0.02f,
+              "fx tempo: 20 BPM dotted-eighth delay folds to 1125 ms");
+        fxbus_set(&f1, FX_DL_TIME, 8);
+        check(fabsf(f1.dl_time_ms - 1500.0f) < 0.02f,
+              "fx tempo: subdivision change at 20 BPM remains synchronized");
+        fxbus_set_bpm(&f1, 19.0f);
+        check(f1.bpm == 20.0f, "fx tempo: below-minimum input rejected");
+        fxbus_set_bpm(&f1, 275.0f);
+        check(f1.bpm == 275.0f && fabsf(f1.dl_time_ms - 60000.0f / 275.0f) < 0.02f,
+              "fx tempo: higher supported tempo still updates delay");
     }
     printf(fails ? "stereo: %d FAILED\n" : "stereo: ok\n", fails);
     return fails != 0;

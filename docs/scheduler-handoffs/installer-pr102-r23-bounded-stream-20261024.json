@@ -1,0 +1,121 @@
+{
+  "schema": "x0x37.installer.source-evidence.v1",
+  "revision": "R23",
+  "date_utc": "2026-10-24",
+  "role": "Installer Improvements",
+  "status": "PRODUCER_SOURCE_WINDOW_NATIVE_CHECKED; FULL_CURRENT_BRANCH_QA_PENDING",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "pr": 102,
+  "parent_checked": "21fcf3f9b4131d9cac7d035881cf332264a468a3",
+  "source_edit_commit": "9473850ec30b9ff36b89d913a1c0228104332f5d",
+  "source_sha_before": "8de1978ac2bbea8ee8b20824bddaa8c186f96bdc",
+  "source_sha_after": "c6f1724cb4cf6176761b5d68fcb90becec6c8cbb",
+  "regression_edit_commit": "ce26c78359810eb77afb569327320bdfa0db7abc",
+  "regression_sha_after": "ccc8f267551177ee9338e3caddabe1b48283881f",
+  "source_windows": {
+    "loader_before": {
+      "length": 2143,
+      "fnv1a32": "4a77479a"
+    },
+    "helper_plus_loader_after": {
+      "length": 3468,
+      "fnv1a32": "71639ce8"
+    },
+    "registered_test_append": {
+      "length": 2742,
+      "fnv1a32": "b4e8fbf1"
+    }
+  },
+  "behavior": {
+    "changed": "When supported, read remote approved .fwsc in chunks within exact approved pkg.size limit, abort/cancel on excessive response, stale selection or network failure, reject truncated body before SHA/product/Blob; retain preexisting SHA/product/model/publisher and guarded local file checks.",
+    "no_new_download_bypass": true,
+    "github_release_auto_import_remains_disabled": true,
+    "full_buffer_legacy_fallback": "Legacy/test mock Response without ReadableStream still uses arrayBuffer() then exact-size check; not claimed to have streaming preallocation bound."
+  },
+  "native_local_producer": {
+    "node": "v22.16.0",
+    "chromium": "144.0.7559.96",
+    "python": "3.13.5",
+    "commands": [
+      {
+        "command": "node --check helper.js && node --check loader.js && node --check test_append_native.mjs && node --check test_install_nightly_stream.mjs",
+        "exit": 0
+      },
+      {
+        "command": "node test_stream_r23.cjs",
+        "exit": 0,
+        "passed": 10,
+        "total": 10
+      },
+      {
+        "command": "node test_append_native.mjs",
+        "exit": 0,
+        "passed": 8,
+        "total": 8
+      },
+      {
+        "command": "node test_install_nightly_stream.mjs",
+        "exit": 0,
+        "passed": 10,
+        "total": 10
+      },
+      {
+        "command": "python3 test_chromium_stream.py",
+        "exit": 0,
+        "passed": 312,
+        "total": 312,
+        "viewports": [
+          320,
+          390,
+          1280
+        ],
+        "languages": [
+          "en",
+          "ja"
+        ],
+        "models": [
+          "elite",
+          "pro"
+        ],
+        "network_paths": [
+          "good",
+          "oversize",
+          "truncated",
+          "http404",
+          "stale"
+        ],
+        "native_browser": true
+      }
+    ],
+    "source_scope": "Exact remote loader baseline fingerprint matched R20 local regression 4a77479a. Patched helper+loader remote staging window FNV1a 71639ce8 equals native local test window. Registered test append FNV b4e8fbf1 equals native local test append. Node/Chromium exercised synthetic source-window fixture, not full Git checkout or real network firmware.",
+    "evidence_private_zip": "LoopyX0X37-PR102-R23-Bounded-Download-Stream-20261024.zip",
+    "evidence_sha256": "57ef13ed390eb36d03a3deb7be3d40a19d1808e9b0cf6fcc5ea82b7b1a409311",
+    "evidence_bytes": 12648
+  },
+  "pending": [
+    "Whole exact PR #102 branch node web/test_install_nightly_download_guard.mjs",
+    "Whole exact PR #102 branch node web/test_install_slots.mjs",
+    "Full native firmware installer/backup/OTA/slot/WebMIDI reconnect tests",
+    "Whole generated website/nightly site viewport/keyboard tests",
+    "Independent QA exact HEAD review",
+    "Qualifying real Elite/Pro/ctl package/source/license/live HTTPS byte hashes",
+    "Owner hardware testing only after fully qualified nightly preview"
+  ],
+  "downstream": {
+    "site_source_owner": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "pr": 6,
+      "observed_head": "ddbd8d89f7c4dfd5afa432dd51e940b6dd428592",
+      "issue": "Still offers direct pkg.pkg URL, not verified Blob. Site source owner must replace after independent package approval and byte check; do not edit site owner branch."
+    },
+    "independent_qa": "Reconstruct full checked Git tree and run exact-native plus negative model/slot/MIDI/browser/source review.",
+    "firmware_safe_merge": "PR #103 separate draft integration and physical binding NO-GO; do not merge installer into protected nightly without source QA.",
+    "pages_publisher": "Only designated publisher may publish independently qualified lawful live same-byte DEV candidate; no physical pre-PASS required for DEV; never for production."
+  },
+  "no_protected_or_site_write": true,
+  "no_firmware_sdk_controller_or_user_sample_bytes": true,
+  "no_flash": true,
+  "no_public_installable_candidate": true,
+  "schedule_changed": false
+}

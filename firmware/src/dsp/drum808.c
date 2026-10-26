@@ -23,6 +23,7 @@
  * tests/host/run_drum808.sh renders every sound against 8W8 itself. */
 #include "drum808.h"
 #include "fastmath.h"
+#include "../x0x_cold.h"          /* X0X_COLD: cy/hat/cb_init boot; set/get/param UI/MIDI — not render */
 
 #define SR 44100.0f
 #define TWO_PI_SR 1.424758520e-4f              /* 2 pi / 44100 */
@@ -68,7 +69,7 @@
 /* ======================================================================= */
 
 /* expm1 with full relative accuracy near 0, where 1 - exp(x) is what matters */
-static float d8_expm1(float x)
+__attribute__((noinline)) static float d8_expm1(float x)
 {
     if (x > -0.5f && x < 0.5f) {
         float p = 1.0f / 362880.0f;
@@ -85,7 +86,7 @@ static float d8_expm1(float x)
     return fm_expf(x) - 1.0f;
 }
 
-static float d8_exp(float x) { return (x > -0.5f && x < 0.5f) ? 1.0f + d8_expm1(x) : fm_expf(x); }
+__attribute__((noinline)) static float d8_exp(float x) { return (x > -0.5f && x < 0.5f) ? 1.0f + d8_expm1(x) : fm_expf(x); }
 
 /* float-float (double-single) arithmetic, for set-time values that must match
  * a double or a correctly rounded libm result. Needs strict float evaluation and
@@ -143,7 +144,7 @@ static const d8ff_t k_ln2 = {6.931471825e-01f, -1.904654212e-09f};
 
 /* 2^x, correctly rounded but for ties within ~1e-12: Taylor series of e^(f ln2)
  * in float-float. Set time only (~400 flops). */
-static float d8_exp2_cr(float x)
+__attribute__((noinline)) static float d8_exp2_cr(float x)
 {
     float n, f;
     d8ff_t r, s;
@@ -162,18 +163,18 @@ static float d8_exp2_cr(float x)
     for (k = 10; k >= 0; k--)
         s = ff_add(ff_mul(s, r), k_ifact[k]);
     b.f = s.hi + s.lo;
-    b.i += (int32_t)n << 23;
+    b.u += (uint32_t)(int32_t)n << 23;
     return b.f;
 }
 
 /* b^t for b > 0 (pot curves, set time) */
-static float d8_pow(float b, float t) { return d8_exp2_cr(t * fm_log2f(b)); }
+__attribute__((noinline)) static float d8_pow(float b, float t) { return d8_exp2_cr(t * fm_log2f(b)); }
 
 /* 8W8's midicps: 440 * powf(2, (note - 69) / 12), in float */
-static float d8_midicps(float note) { return 440.0f * d8_exp2_cr((note - 69.0f) / 12.0f); }
+__attribute__((noinline)) static float d8_midicps(float note) { return 440.0f * d8_exp2_cr((note - 69.0f) / 12.0f); }
 
 /* an ff value (>= 0, < 2^32) rounded to an integer */
-static uint32_t ff_to_u32(d8ff_t v)
+__attribute__((noinline)) static uint32_t ff_to_u32(d8ff_t v)
 {
     float fl = fm_floorf(v.hi);
     uint32_t u;
@@ -199,20 +200,20 @@ static int32_t floor_mul(float a, float b)
     return r;
 }
 
-static float clampf(float x, float lo, float hi) { return x < lo ? lo : (x > hi ? hi : x); }
+__attribute__((noinline)) static float clampf(float x, float lo, float hi) { return x < lo ? lo : (x > hi ? hi : x); }
 
 /* ======================================================================= */
 /* primitives                                                              */
 /* ======================================================================= */
 
-static void rng_seed(d8_rng_t *r, uint32_t s)
+__attribute__((noinline)) static void rng_seed(d8_rng_t *r, uint32_t s)
 {
     r->s1 = 1243598713u ^ s; if (r->s1 < 2u) r->s1 = 1243598713u;
     r->s2 = 3093459404u ^ s; if (r->s2 < 8u) r->s2 = 3093459404u;
     r->s3 = 1821928721u ^ s; if (r->s3 < 16u) r->s3 = 1821928721u;
 }
 
-static inline float rng_frand2(d8_rng_t *r)
+__attribute__((noinline)) static float rng_frand2(d8_rng_t *r)
 {
     fm_bits_t u;
     r->s1 = ((r->s1 & 0xFFFFFFFEu) << 12) ^ (((r->s1 << 13) ^ r->s1) >> 19);
@@ -235,10 +236,10 @@ D8_TICK float shaper(float *st, float gate)
     return v;
 }
 
-static inline float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
+__attribute__((noinline)) static float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
 
 /* BridgedT::set: constant-peak bandpass, clamps as 8W8 */
-static void bp_set(d8_bp_t *f, float hz, float q)
+__attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
 {
     float w, s, sh, alpha, inv;
     hz = hz < 20.0f ? 20.0f : (hz > SR * 0.4f ? SR * 0.4f : hz);
@@ -253,7 +254,7 @@ static void bp_set(d8_bp_t *f, float hz, float q)
     f->e2 = -2.0f * alpha * inv;
 }
 
-static inline float bp_run(d8_bp_t *f, float x)
+__attribute__((noinline)) static float bp_run(d8_bp_t *f, float x)
 {
     float bx = f->b0 * x;
     float y = bx + f->z1;
@@ -262,7 +263,7 @@ static inline float bp_run(d8_bp_t *f, float x)
     return y;
 }
 
-static inline float bq_run(d8_bq_t *f, float x)
+__attribute__((noinline)) static float bq_run(d8_bq_t *f, float x)
 {
     float y = f->n0 * x + f->z1;
     f->z1 = (f->n1 * x + (y + y + f->z2)) - f->e1 * y;
@@ -271,7 +272,7 @@ static inline float bq_run(d8_bq_t *f, float x)
 }
 
 /* SuperCollider HPF / LPF (2nd-order Butterworth, prewarped), coefficients only */
-static void sc_hpf_set(d8_bq_t *f, float hz)
+__attribute__((noinline)) static void sc_hpf_set(d8_bq_t *f, float hz)
 {
     float c = fm_tanf(PI_SR * hz), c2 = c * c, s2c = c * 1.41421356f;
     float a0 = 1.0f / (1.0f + s2c + c2);
@@ -290,7 +291,7 @@ static void sc_lpf_set(d8_bq_t *f, float hz)
 }
 
 /* SKHighpass: RBJ highpass with a gain */
-static void sk_hp_set(d8_bq_t *f, float hz, float q, float g)
+__attribute__((noinline)) static void sk_hp_set(d8_bq_t *f, float hz, float q, float g)
 {
     float w = TWO_PI_SR * hz, s = fm_sin_pi(w), sh = fm_sin_pi(0.5f * w);
     float alpha = s / (2.0f * q), inv = 1.0f / (1.0f + alpha);
@@ -316,7 +317,7 @@ static void sc_peak_set(d8_bq_t *f, float hz, float rq, float a)
 
 /* OnePoleHP: set() also clears the state, as 8W8's does */
 static void hp1_set_a(d8_hp1_t *f, float a) { f->a = a; f->z = 0.0f; f->y = 0.0f; }
-static void hp1_set(d8_hp1_t *f, float hz) { hp1_set_a(f, d8_exp(-TWO_PI_SR * hz)); }
+__attribute__((noinline)) static void hp1_set(d8_hp1_t *f, float hz) { hp1_set_a(f, d8_exp(-TWO_PI_SR * hz)); }
 static inline float hp1_run(d8_hp1_t *f, float x)
 {
     f->y = f->a * (f->y + x - f->z);
@@ -330,7 +331,7 @@ static const float k_cy_bp1[7] = {-7.319914168e-01f, 7.136070782e-01f, 7.3199141
                                   -1.388193671e+00f, -1.157075547e-01f, 5.065353624e-01f};
 static const float k_cy_bp2[7] = {-5.120760045e-01f, 4.815941287e-01f, 5.120760045e-01f, -4.815941287e-01f,
                                   -1.055101523e+00f, -5.886905868e-01f, 6.606506222e-01f};
-static inline float bq3_run(d8_bq3_t *f, const float *c, float x)
+__attribute__((noinline)) static float bq3_run(d8_bq3_t *f, const float *c, float x)
 {
     float y = c[0] * x + f->z[0];
     f->z[0] = c[1] * x - c[4] * y + f->z[1];
@@ -365,7 +366,7 @@ static void env_arm(d8_env_t *e)
     }
 }
 
-static float env_step(d8_env_t *e)
+__attribute__((noinline)) static float env_step(d8_env_t *e)
 {
     if (e->done)
         return e->level;
@@ -414,7 +415,7 @@ float drum808_quiet = D8_QUIET_INIT;
 /* ---- bass drum: sc808_bd_circuit.h ---- */
 #define BD_Q 2.356f
 
-static void bd_reset(d8_bd_t *v)
+__attribute__((noinline)) static void bd_reset(d8_bd_t *v)
 {
     v->bt.z1 = v->bt.z2 = 0.0f;
     v->shp = 0.0f;
@@ -497,7 +498,7 @@ D8_TICK float bd_tick(d8_bd_t *v)
 #define SD_G2 2.282727273e+02f
 #define SD_DECAY_DEF 0.850393713f                 /* 108/127, as the float division */
 
-static void sd_reset(d8_sd_t *v)
+__attribute__((noinline)) static void sd_reset(d8_sd_t *v)
 {
     v->bt1.z1 = v->bt1.z2 = v->bt2.z1 = v->bt2.z2 = 0.0f;
     v->shp = 0.0f;
@@ -558,7 +559,7 @@ D8_TICK float sd_tick(d8_sd_t *v)
 #define TOM_Q 1.081763729e+01f
 #define TOM_LN100_Q_PI 1.585726294e+01f              /* ln(100) Q / pi */
 
-static void tom_reset(d8_tom_t *v)
+__attribute__((noinline)) static void tom_reset(d8_tom_t *v)
 {
     v->bt.z1 = v->bt.z2 = 0.0f;
     v->skin_lp_z = v->strike_lp_z = 0.0f;
@@ -568,7 +569,7 @@ static void tom_reset(d8_tom_t *v)
     v->quiet = 0;
 }
 
-static void tom_trigger(d8_tom_t *v, int mode, float hz, float ring_s, float accent_v)
+__attribute__((noinline)) static void tom_trigger(d8_tom_t *v, int mode, float hz, float ring_s, float accent_v)
 {
     float t, g, c2f;
     v->mode = (uint8_t)mode;
@@ -632,7 +633,7 @@ D8_TICK float tom_tick(d8_tom_t *v)
 #define CL_F 2.526332590e+03f
 #define CL_Q 1.431782106e+01f
 
-static void cl_trigger(d8_clave_t *v, float ratio, float decay01, float accent_v)
+__attribute__((noinline)) static void cl_trigger(d8_clave_t *v, float ratio, float decay01, float accent_v)
 {
     float r = ratio < 0.25f ? 0.25f : (ratio > 4.0f ? 4.0f : ratio);
     float dd = clampf(decay01, 0.0f, 1.0f);
@@ -672,7 +673,7 @@ D8_TICK float cl_tick(d8_clave_t *v)
 /* ---- maracas: sc808_rs_circuit.h MaracasCircuit ---- */
 #define MA_ATK_DEF 0.251968503f                   /* 32/127, as the float division */
 
-static void ma_tune(d8_ma_t *v, float ratio)
+__attribute__((noinline)) static void ma_tune(d8_ma_t *v, float ratio)
 {
     float r = ratio < 0.25f ? 0.25f : (ratio > 4.0f ? 4.0f : ratio);
     hp1_set(&v->hpa, 6300.0f * r > 15000.0f ? 15000.0f : 6300.0f * r);
@@ -715,7 +716,7 @@ D8_TICK float ma_tick(d8_ma_t *v)
 static const d8ff_t k_pul_inc = {3.006253711e+04f, -2.567672927e-04f};   /* 2^(-22/12) 1.1 2^32 / sr */
 #define PUL_DUTY 3435973837u                      /* phase < 0.8 */
 
-static void rs_trigger(d8_rim_t *v, float hz, float decay, float hpf, float lpf)
+__attribute__((noinline)) static void rs_trigger(d8_rim_t *v, float hz, float decay, float hpf, float lpf)
 {
     d8_env_t *e = &v->env;
     e->start = 1.0f;
@@ -768,7 +769,7 @@ D8_TICK float rs_tick(d8_rim_t *v)
 #define CP_F 8.743325448e+02f
 #define CP_Q 1.290994449e+00f
 
-static void cp_trigger(d8_cp_t *v, float ratio, float decay)
+__attribute__((noinline)) static void cp_trigger(d8_cp_t *v, float ratio, float decay)
 {
     float dd = decay < 0.05f ? 0.05f : (decay > 4.0f ? 4.0f : decay);
     bp_set(&v->bp, CP_F * ratio, CP_Q);
@@ -823,7 +824,7 @@ static const d8ff_t k_bank_inc[6] = {             /* oscHz / sr * 2^32 */
     {7.821515200e+07f, 7.305577993e-01f}, {5.275700000e+07f, 1.910276651e+00f}};
 #define BANK_DUTY 2060725309u                     /* phase < 0.4798 */
 
-static void bank_ratio(d8_bank_t *b, float r)
+__attribute__((noinline)) static void bank_ratio(d8_bank_t *b, float r)
 {
     int i;
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
@@ -832,7 +833,7 @@ static void bank_ratio(d8_bank_t *b, float r)
 }
 
 /* the two-sample polyBLEP edge correction, on fixed-point phases */
-static inline float blep_fix(uint32_t t, uint32_t dt)
+__attribute__((noinline)) static float blep_fix(uint32_t t, uint32_t dt)
 {
     float x;
     uint32_t r;
@@ -890,7 +891,7 @@ static inline float menv_tick(d8_menv_t *e)
 }
 
 #define DIODE_VON 0.5899f
-static inline float knee_gate(float e)            /* the swing VCA's diode, knee 1.2 */
+__attribute__((noinline)) static float knee_gate(float e)            /* the swing VCA's diode, knee 1.2 */
 {
     float over = e - DIODE_VON;
     if (over <= 0.0f)
@@ -901,7 +902,8 @@ static inline float knee_gate(float e)            /* the swing VCA's diode, knee
 }
 
 /* ---- cymbal: sc808_mt_circuit.h CymbalCircuit ---- */
-static void cy_init(d8_cy_t *v)
+/* Boot only (drum808_init). cy_tick / cy_trigger stay -O2. */
+X0X_COLD __attribute__((noinline)) static void cy_init(d8_cy_t *v)
 {
     bp_set(&v->sus1, 2944.0f, 75.0f);
     bp_set(&v->sus2, 3265.0f, 32.0f);
@@ -986,7 +988,8 @@ D8_TICK float cy_tick(d8_cy_t *v, float bus)
 }
 
 /* ---- hi-hats: sc808_mt_circuit.h HatCircuit ---- */
-static void hat_init(d8_hat_t *v, int mode)
+/* Boot only (drum808_init). hat_tick / hat_trigger stay -O2. */
+X0X_COLD __attribute__((noinline)) static void hat_init(d8_hat_t *v, int mode)
 {
     v->mode = (uint8_t)mode;
     if (mode == 0) {
@@ -1003,7 +1006,7 @@ static void hat_init(d8_hat_t *v, int mode)
     v->out_scale = mode == 1 ? 5.0f : 8.0f;
 }
 
-static void hat_trigger(d8_hat_t *v, float decay_s, float accent_v)
+__attribute__((noinline)) static void hat_trigger(d8_hat_t *v, float decay_s, float accent_v)
 {
     float a = accent_v / 8.0f;
     float t = decay_s > 0.02f ? decay_s : 0.02f;
@@ -1024,7 +1027,7 @@ static void hat_trigger(d8_hat_t *v, float decay_s, float accent_v)
     v->quiet = 0;
 }
 
-static void hat_choke(d8_hat_t *v)
+__attribute__((noinline)) static void hat_choke(d8_hat_t *v)
 {
     v->env.v = 0.0f;
     v->env.target = 0.0f;
@@ -1078,7 +1081,8 @@ D8_TICK float hat_tick(d8_hat_t *v, float bus)
 }
 
 /* ---- cowbell: sc808_mt_circuit.h CowbellCircuit ---- */
-static void cb_init(d8_cb_t *v)
+/* Boot only (drum808_init). cb_tick / cb_trigger stay -O2. */
+X0X_COLD static void cb_init(d8_cb_t *v)
 {
     bp_set(&v->bp, 812.0f, 5.5f);
     hp1_set_a(&v->hp, D8_HP1_A_200);
@@ -1088,7 +1092,7 @@ static void cb_init(d8_cb_t *v)
     v->ratio = 1.0f;
 }
 
-static void cb_ratio(d8_cb_t *v, float r)
+__attribute__((noinline)) static void cb_ratio(d8_cb_t *v, float r)
 {
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
     if (r != v->ratio) {
@@ -1198,25 +1202,58 @@ typedef struct { float min, max; uint8_t exp, def; } d8_spec_t;
 #define DST {0.0f, 6.0f, 0, 0}
 #define SND {0.0f, 1.0f, 0, 0}
 #define NON {0.0f, 1.0f, 0, 0}
-/*                       level tune  decay                    drive dist rev  dly  x1                    x2 */
-static const d8_spec_t k_spec[D8S_NUM][D8P_NUM] = {
-    [D8S_BD] = {LVL, TU12, {0.1f, 8.0f, 1, 87},     DRV, DST, NON, NON, {0.0f, 6.0f, 0, 42}, {0.0f, 1.0f, 0, 24}},
-    [D8S_SD] = {LVL, TU12, {0.1f, 8.0f, 1, 108},    DRV, DST, SND, SND, {0.0f, 1.0f, 0, 89}, {0.0f, 1.0f, 0, 64}},
-    [D8S_LT] = {LVL, TU2,  {0.06f, 2.0f, 1, 68},    DRV, DST, SND, SND, NON, NON},
-    [D8S_MT] = {LVL, TU2,  {0.06f, 2.0f, 1, 56},    DRV, DST, SND, SND, NON, NON},
-    [D8S_HT] = {LVL, TU2,  {0.06f, 2.0f, 1, 53},    DRV, DST, SND, SND, NON, NON},
-    [D8S_LC] = {LVL, TU2,  {0.06f, 2.0f, 1, 58},    DRV, DST, SND, SND, NON, NON},
-    [D8S_MC] = {LVL, TU2,  {0.06f, 2.0f, 1, 36},    DRV, DST, SND, SND, NON, NON},
-    [D8S_HC] = {LVL, TU2,  {0.06f, 2.0f, 1, 34},    DRV, DST, SND, SND, NON, NON},
-    [D8S_RS] = {LVL, TU12, {0.005f, 0.2f, 1, 40},   DRV, DST, SND, SND, NON, NON},
-    [D8S_CL] = {LVL, TU12, {0.0f, 1.0f, 0, 64},     DRV, DST, SND, SND, NON, NON},
-    [D8S_MA] = {LVL, TU12, {0.01f, 0.3f, 1, 51},    DRV, DST, SND, SND, {0.0f, 1.0f, 0, 32}, NON},
-    [D8S_CP] = {LVL, TU12, {0.35f, 2.8f, 1, 64},    DRV, DST, SND, SND, NON, NON},
-    [D8S_CB] = {LVL, TUM,  {0.1f, 2.0f, 1, 62},     DRV, DST, SND, SND, NON, NON},
-    [D8S_CH] = {LVL, TUM,  {0.03f, 0.5f, 1, 47},    DRV, DST, SND, SND, NON, NON},
-    [D8S_OH] = {LVL, TUM,  {0.08f, 1.5f, 1, 74},    DRV, DST, SND, SND, NON, NON},
-    [D8S_CY] = {LVL, TUM,  {0.4f, 6.0f, 1, 70},     DRV, DST, SND, SND, NON, NON},
+/* Level/tune/decay stay per sound. Thirteen voices share one drive..x2 block
+ * (DRV,DST,SND,SND,NON,NON). Kick, snare, and maracas keep private FX columns. */
+#define D8_SPEC_HEAD 3
+static const d8_spec_t k_spec_fx6[] = {DRV, DST, SND, SND, NON, NON};
+/* BD/SD/MA private FX: share the fx6 prefix, keep only the differing tail cells.
+ * BD: DRV,DST then NON,NON from fx6[4..], then private x2. SD/MA: DRV..SND from fx6[0..3]. */
+static const d8_spec_t k_spec_bd_x2[] = {{0.0f, 6.0f, 0, 42}, {0.0f, 1.0f, 0, 24}};
+static const d8_spec_t k_spec_sd_x2[] = {{0.0f, 1.0f, 0, 89}, {0.0f, 1.0f, 0, 64}};
+static const d8_spec_t k_spec_ma_x2[] = {{0.0f, 1.0f, 0, 32}, NON};
+static const d8_spec_t k_spec_head[D8S_NUM][D8_SPEC_HEAD] = {
+    [D8S_BD] = {LVL, TU12, {0.1f, 8.0f, 1, 87}},
+    [D8S_SD] = {LVL, TU12, {0.1f, 8.0f, 1, 108}},
+    [D8S_LT] = {LVL, TU2,  {0.06f, 2.0f, 1, 68}},
+    [D8S_MT] = {LVL, TU2,  {0.06f, 2.0f, 1, 56}},
+    [D8S_HT] = {LVL, TU2,  {0.06f, 2.0f, 1, 53}},
+    [D8S_LC] = {LVL, TU2,  {0.06f, 2.0f, 1, 58}},
+    [D8S_MC] = {LVL, TU2,  {0.06f, 2.0f, 1, 36}},
+    [D8S_HC] = {LVL, TU2,  {0.06f, 2.0f, 1, 34}},
+    [D8S_RS] = {LVL, TU12, {0.005f, 0.2f, 1, 40}},
+    [D8S_CL] = {LVL, TU12, {0.0f, 1.0f, 0, 64}},
+    [D8S_MA] = {LVL, TU12, {0.01f, 0.3f, 1, 51}},
+    [D8S_CP] = {LVL, TU12, {0.35f, 2.8f, 1, 64}},
+    [D8S_CB] = {LVL, TUM,  {0.1f, 2.0f, 1, 62}},
+    [D8S_CH] = {LVL, TUM,  {0.03f, 0.5f, 1, 47}},
+    [D8S_OH] = {LVL, TUM,  {0.08f, 1.5f, 1, 74}},
+    [D8S_CY] = {LVL, TUM,  {0.4f, 6.0f, 1, 70}},
 };
+static const d8_spec_t *d8_kspec(int s, int slot)
+{
+    int fx;
+    if (slot < D8_SPEC_HEAD)
+        return &k_spec_head[s][slot];
+    fx = slot - D8_SPEC_HEAD;
+    if (s == D8S_BD) {
+        if (fx < 2)
+            return &k_spec_fx6[fx];       /* DRV, DST */
+        if (fx < 4)
+            return &k_spec_fx6[fx + 2];   /* NON, NON at fx6[4..] */
+        return &k_spec_bd_x2[fx - 4];
+    }
+    if (s == D8S_SD) {
+        if (fx < 4)
+            return &k_spec_fx6[fx];       /* DRV, DST, SND, SND */
+        return &k_spec_sd_x2[fx - 4];
+    }
+    if (s == D8S_MA) {
+        if (fx < 4)
+            return &k_spec_fx6[fx];
+        return &k_spec_ma_x2[fx - 4];
+    }
+    return &k_spec_fx6[fx];
+}
 
 /* the lanes 8W8 balanced the kit with, applied before the drive stage */
 static const float k_trim[D8S_NUM] = {
@@ -1231,7 +1268,7 @@ static const float k_base_note[D8S_NUM] = {
 
 static float pot_value(int s, int slot, int pot)
 {
-    const d8_spec_t *p = &k_spec[s][slot];
+    const d8_spec_t *p = d8_kspec(s, slot);
     float t = (float)pot / 127.0f;
     if (p->exp && p->min > 0.0f)
         return p->min * d8_pow(p->max / p->min, t);
@@ -1261,55 +1298,206 @@ static const char *const k_clap_names[2] = {"CLAP", "MARAC"};
 #define P_REV {"Rev", 127, 0, 0}
 #define P_DLY {"Dly", 127, 0, 0}
 
-static const x0x_param_t k_p_bd[] = {PP("Level", 64), PP("Tone", 42), PP("Decay", 87), PP("Tune", 64),
-                                     PP("Attack", 24), P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};   /* X0X: sends */
+/* Every 808 track ends on the same drive / dist / sends / pan block — one copy.
+ * The kick mid keeps Attack before that shared tail. */
+static const x0x_param_t d8_fx_tail[] = {P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
+#define D8_FX_N ((int)(sizeof(d8_fx_tail) / sizeof(d8_fx_tail[0])))
+
+/* Level+Tune defaults match on BD/SD/LT/MT/HT/RS/CP/CB/CH/CY/OH — one copy. */
+static const x0x_param_t d8_lvl_tune[] = {PP("Level", 64), PP("Tune", 64)};
+#define D8_LTUNE_N ((int)(sizeof(d8_lvl_tune) / sizeof(d8_lvl_tune[0])))
+/* Kick: Level+Tune from d8_lvl_tune; pot order Level, Tone, Decay, Tune, Attack. */
+static const x0x_param_t d8_bd_mid[] = {PP("Tone", 42), PP("Decay", 87), PP("Attack", 24)};
+#define D8_BD_MID_N ((int)(sizeof(d8_bd_mid) / sizeof(d8_bd_mid[0])))
+#define D8_BD_HEAD (D8_LTUNE_N + D8_BD_MID_N)
+/* Heads only — DRIVE…PAN kinds are synthesized in d8_pmap_at (one recipe, no copies). */
 static const d8_pmap_t k_m_bd[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_X1, 0}, {K_POT, D8P_DECAY, 0},
-                                   {K_POT, D8P_TUNE, 0}, {K_POT, D8P_X2, 0}, {K_POT, D8P_DRIVE, 0},
-                                   {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t k_p_sd[] = {PP("Level", 64), PP("Tone", 64), PP("Snappy", 89), PP("Tune", 64),
-                                     PP("Decay", 108), P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
+                                   {K_POT, D8P_TUNE, 0}, {K_POT, D8P_X2, 0}};
+/* Snare: Level+Tune from d8_lvl_tune; pot order Level, Tone, Snappy, Tune, Decay. */
+static const x0x_param_t d8_sd_mid[] = {PP("Tone", 64), PP("Snappy", 89), PP("Decay", 108)};
+#define D8_SD_MID_N ((int)(sizeof(d8_sd_mid) / sizeof(d8_sd_mid[0])))
+#define D8_SD_HEAD (D8_LTUNE_N + D8_SD_MID_N)
 static const d8_pmap_t k_m_sd[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_X2, 0}, {K_POT, D8P_X1, 0},
-                                   {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0}, {K_POT, D8P_DRIVE, 0},
-                                   {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t k_p_lt[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 68), {"Sound", 1, 0, k_tom_names},
-                                     P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const x0x_param_t k_p_mt[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 56), {"Sound", 1, 0, k_tom_names},
-                                     P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const x0x_param_t k_p_ht[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 53), {"Sound", 1, 0, k_tom_names},
-                                     P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const x0x_param_t k_p_rs[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 40), {"Sound", 1, 0, k_rim_names},
-                                     P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
+                                   {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0}};
+/* Toms share one Sound switch; decay stays per track. Rim keeps its own Sound. */
+static const x0x_param_t d8_tom_sound = {"Sound", 1, 0, k_tom_names};
+static const x0x_param_t d8_lt_decay[] = {PP("Decay", 68)};
+static const x0x_param_t d8_mt_decay[] = {PP("Decay", 56)};
+static const x0x_param_t d8_ht_decay[] = {PP("Decay", 53)};
+static const x0x_param_t d8_rs_mid[] = {PP("Decay", 40), {"Sound", 1, 0, k_rim_names}};
+#define D8_SW_MID_N 2
+#define D8_SW_HEAD (D8_LTUNE_N + D8_SW_MID_N)
 static const d8_pmap_t k_m_sw[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
-                                   {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0},
-                                   {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t k_p_cp[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 64), PP("Attack", 32),
-                                     {"Sound", 1, 0, k_clap_names}, P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
+                                   {K_SWITCH, 0, 0}};
+/* Clap Level+Tune match d8_lvl_tune; Decay/Attack/Sound stay on the clap. */
+static const x0x_param_t d8_cp_mid[] = {PP("Decay", 64), PP("Attack", 32), {"Sound", 1, 0, k_clap_names}};
+#define D8_CP_MID_N ((int)(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0])))
+#define D8_CP_HEAD (D8_LTUNE_N + D8_CP_MID_N)
 static const d8_pmap_t k_m_cp[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
-                                   {K_FIXED, D8P_X1, D8S_MA}, {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0},
-                                   {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t k_p_cb[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 62), P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const x0x_param_t k_p_ch[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 47), P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const d8_pmap_t k_m_tune_decay[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
-                                           {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0},
-                                           {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t k_p_cy[] = {PP("Level", 64), PP("Decay", 70), PP("Tune", 64), P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const x0x_param_t k_p_oh[] = {PP("Level", 64), PP("Decay", 74), PP("Tune", 64), P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
-static const d8_pmap_t k_m_decay_tune[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_DECAY, 0}, {K_POT, D8P_TUNE, 0},
-                                           {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0},
-                                           {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
+                                   {K_FIXED, D8P_X1, D8S_MA}, {K_SWITCH, 0, 0}};
+static const x0x_param_t d8_cb_mid[] = {PP("Decay", 62)};
+static const x0x_param_t d8_ch_mid[] = {PP("Decay", 47)};
+#define D8_HAT_MID_N 1
+#define D8_HAT_HEAD (D8_LTUNE_N + D8_HAT_MID_N)
+static const d8_pmap_t k_m_tune_decay[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0},
+                                           {K_POT, D8P_DECAY, 0}};
+/* CY/OH Level+Tune match d8_lvl_tune; Decay stays per track. Pot order Level, Decay, Tune. */
+static const x0x_param_t d8_cy_mid[] = {PP("Decay", 70)};
+static const x0x_param_t d8_oh_mid[] = {PP("Decay", 74)};
+#define D8_CY_MID_N 1
+#define D8_CY_HEAD (D8_LTUNE_N + D8_CY_MID_N)
+static const d8_pmap_t k_m_decay_tune[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_DECAY, 0},
+                                           {K_POT, D8P_TUNE, 0}};
 /* (X0X: the hats' choke is the 909's, fixed: the closed hat cuts the open one) */
 static const x0x_param_t k_p_kit[] = {PP("Level", 100), PP("Accent", 127)};
 static const d8_pmap_t k_m_kit[] = {{K_KIT, 0, 0}, {K_KIT, 1, 0}};
 
-typedef struct { const x0x_param_t *p; const d8_pmap_t *m; uint8_t n; } d8_track_t;
-#define TRK(p, m) {p, m, (uint8_t)(sizeof(p) / sizeof(p[0]))}
-static const d8_track_t k_tracks[D8_NUM + 1] = {
-    TRK(k_p_bd, k_m_bd), TRK(k_p_sd, k_m_sd), TRK(k_p_lt, k_m_sw), TRK(k_p_mt, k_m_sw), TRK(k_p_ht, k_m_sw),
-    TRK(k_p_rs, k_m_sw), TRK(k_p_cp, k_m_cp), TRK(k_p_cb, k_m_tune_decay), TRK(k_p_cy, k_m_decay_tune),
-    TRK(k_p_oh, k_m_decay_tune), TRK(k_p_ch, k_m_tune_decay), TRK(k_p_kit, k_m_kit)};
+/* Pot maps only — descriptor tables are reached through d8_spec (the old .p/.n
+ * fields were never read and only cost flash). Heads omit the shared FX kinds. */
+static const uint8_t d8_nspec[D8_NUM + 1] = {
+    (uint8_t)(D8_BD_HEAD + D8_FX_N), (uint8_t)(D8_SD_HEAD + D8_FX_N),
+    (uint8_t)(D8_SW_HEAD + D8_FX_N), (uint8_t)(D8_SW_HEAD + D8_FX_N), (uint8_t)(D8_SW_HEAD + D8_FX_N),
+    (uint8_t)(D8_SW_HEAD + D8_FX_N), (uint8_t)(D8_CP_HEAD + D8_FX_N), (uint8_t)(D8_HAT_HEAD + D8_FX_N),
+    (uint8_t)(D8_CY_HEAD + D8_FX_N), (uint8_t)(D8_CY_HEAD + D8_FX_N), (uint8_t)(D8_HAT_HEAD + D8_FX_N),
+    (uint8_t)(sizeof(k_p_kit) / sizeof(k_p_kit[0])),
+};
+_Static_assert(sizeof(k_m_bd) / sizeof(k_m_bd[0]) == D8_BD_HEAD, "BD pmap head");
+_Static_assert(sizeof(k_m_sd) / sizeof(k_m_sd[0]) == D8_SD_HEAD, "SD pmap head");
+_Static_assert(sizeof(k_m_sw) / sizeof(k_m_sw[0]) == D8_SW_HEAD, "tom/rim pmap head");
+_Static_assert(sizeof(k_m_cp) / sizeof(k_m_cp[0]) == D8_CP_HEAD, "clap pmap head");
+_Static_assert(sizeof(k_m_tune_decay) / sizeof(k_m_tune_decay[0]) == D8_HAT_HEAD, "cb/ch pmap head");
+_Static_assert(sizeof(k_m_decay_tune) / sizeof(k_m_decay_tune[0]) == D8_CY_HEAD, "cy/oh pmap head");
+_Static_assert(sizeof(d8_lt_decay) / sizeof(d8_lt_decay[0]) == 1, "lt decay");
+_Static_assert(sizeof(d8_mt_decay) / sizeof(d8_mt_decay[0]) == 1, "mt decay");
+_Static_assert(sizeof(d8_ht_decay) / sizeof(d8_ht_decay[0]) == 1, "ht decay");
+_Static_assert(sizeof(d8_rs_mid) / sizeof(d8_rs_mid[0]) == D8_SW_MID_N, "rs mid");
+_Static_assert(sizeof(d8_cb_mid) / sizeof(d8_cb_mid[0]) == D8_HAT_MID_N, "cb mid");
+_Static_assert(sizeof(d8_ch_mid) / sizeof(d8_ch_mid[0]) == D8_HAT_MID_N, "ch mid");
+_Static_assert(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0]) == D8_CP_MID_N, "cp mid");
+_Static_assert(sizeof(d8_cy_mid) / sizeof(d8_cy_mid[0]) == D8_CY_MID_N, "cy mid");
+_Static_assert(sizeof(d8_oh_mid) / sizeof(d8_oh_mid[0]) == D8_CY_MID_N, "oh mid");
+_Static_assert(sizeof(d8_bd_mid) / sizeof(d8_bd_mid[0]) == D8_BD_MID_N, "bd mid");
+_Static_assert(sizeof(d8_sd_mid) / sizeof(d8_sd_mid[0]) == D8_SD_MID_N, "sd mid");
+_Static_assert(D8_BD_HEAD == 5 && D8_SD_HEAD == 5, "bd/sd pot heads stay five deep");
+
+static const d8_pmap_t *const k_maps[D8_NUM + 1] = {
+    k_m_bd, k_m_sd, k_m_sw, k_m_sw, k_m_sw, k_m_sw, k_m_cp, k_m_tune_decay,
+    k_m_decay_tune, k_m_decay_tune, k_m_tune_decay, k_m_kit,
+};
+
+static const uint8_t d8_fx_slots[4] = {D8P_DRIVE, D8P_DIST, D8P_REV, D8P_DLY};
+
+static d8_pmap_t d8_pmap_at(int track, int i)
+{
+    int head = (track == D8_KIT) ? d8_nspec[track] : (d8_nspec[track] - D8_FX_N);
+    if (i < head)
+        return k_maps[track][i];
+    i -= head;
+    if (i >= 4)
+        return (d8_pmap_t){K_PAN, 0, 0};
+    return (d8_pmap_t){K_POT, d8_fx_slots[i], 0};
+}
+
+static const x0x_param_t *d8_tom_mid(int track, int i)
+{
+    if (i == 0) {
+        if (track == D8_LT)
+            return &d8_lt_decay[0];
+        if (track == D8_MT)
+            return &d8_mt_decay[0];
+        return &d8_ht_decay[0];
+    }
+    return &d8_tom_sound;
+}
+
+static const x0x_param_t *d8_spec(int track, int i)
+{
+    if (track == D8_BD) {
+        /* Order Level, Tone, Decay, Tune, Attack — Level/Tune from d8_lvl_tune. */
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_bd_mid[0];
+        if (i == 2)
+            return &d8_bd_mid[1];
+        if (i == 3)
+            return &d8_lvl_tune[1];
+        if (i == 4)
+            return &d8_bd_mid[2];
+        return &d8_fx_tail[i - D8_BD_HEAD];
+    }
+    if (track == D8_SD) {
+        /* Order Level, Tone, Snappy, Tune, Decay — Level/Tune from d8_lvl_tune. */
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_sd_mid[0];
+        if (i == 2)
+            return &d8_sd_mid[1];
+        if (i == 3)
+            return &d8_lvl_tune[1];
+        if (i == 4)
+            return &d8_sd_mid[2];
+        return &d8_fx_tail[i - D8_SD_HEAD];
+    }
+    if (track == D8_LT || track == D8_MT || track == D8_HT) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
+        if (i < D8_SW_HEAD)
+            return d8_tom_mid(track, i - D8_LTUNE_N);
+        return &d8_fx_tail[i - D8_SW_HEAD];
+    }
+    if (track == D8_RS) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
+        if (i < D8_SW_HEAD)
+            return &d8_rs_mid[i - D8_LTUNE_N];
+        return &d8_fx_tail[i - D8_SW_HEAD];
+    }
+    if (track == D8_CP) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
+        if (i < D8_CP_HEAD)
+            return &d8_cp_mid[i - D8_LTUNE_N];
+        return &d8_fx_tail[i - D8_CP_HEAD];
+    }
+    if (track == D8_CB) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
+        if (i < D8_HAT_HEAD)
+            return &d8_cb_mid[i - D8_LTUNE_N];
+        return &d8_fx_tail[i - D8_HAT_HEAD];
+    }
+    if (track == D8_CH) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
+        if (i < D8_HAT_HEAD)
+            return &d8_ch_mid[i - D8_LTUNE_N];
+        return &d8_fx_tail[i - D8_HAT_HEAD];
+    }
+    if (track == D8_CY) {
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_cy_mid[0];
+        if (i == 2)
+            return &d8_lvl_tune[1];
+        return &d8_fx_tail[i - D8_CY_HEAD];
+    }
+    if (track == D8_OH) {
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_oh_mid[0];
+        if (i == 2)
+            return &d8_lvl_tune[1];
+        return &d8_fx_tail[i - D8_CY_HEAD];
+    }
+    return &k_p_kit[i];
+}
 
 /* the sound a track plays, by its switch */
-static int track_sound(const drum808_t *d, int t)
+__attribute__((noinline)) static int track_sound(const drum808_t *d, int t)
 {
     static const uint8_t k_snd[D8_NUM][2] = {
         {D8S_BD, D8S_BD}, {D8S_SD, D8S_SD}, {D8S_LT, D8S_LC}, {D8S_MT, D8S_MC}, {D8S_HT, D8S_HC},
@@ -1318,55 +1506,58 @@ static int track_sound(const drum808_t *d, int t)
     return k_snd[t][d->sw[t] & 1];
 }
 
-int drum808_nparams(int track) { return track >= 0 && track <= D8_KIT ? k_tracks[track].n : 0; }
+int drum808_nparams(int track) { return track >= 0 && track <= D8_KIT ? d8_nspec[track] : 0; }
 
-const x0x_param_t *drum808_param(int track, int i)
+/* UI / MIDI pot metadata — not the 808 audio render (X0X_COLD) */
+X0X_COLD const x0x_param_t *drum808_param(int track, int i)
 {
-    if (track < 0 || track > D8_KIT || i < 0 || i >= k_tracks[track].n)
+    if (track < 0 || track > D8_KIT || i < 0 || i >= d8_nspec[track])
         return 0;
-    return &k_tracks[track].p[i];
+    return d8_spec(track, i);
 }
 
-static void kit_apply(drum808_t *d)
+__attribute__((noinline)) static void kit_apply(drum808_t *d)
 {
     d->vol = (float)d->kpot[0] / 127.0f;
     d->vel_depth = (float)d->kpot[1] / 127.0f;
     d->choke = 1;                                 /* CH cuts OH */
 }
 
-void drum808_set(drum808_t *d, int track, int i, int value)
+/* UI/MIDI pot path — not the 808 audio render (X0X_COLD). drum808_init stays hot/untouched. */
+X0X_COLD void drum808_set(drum808_t *d, int track, int i, int value)
 {
-    const d8_pmap_t *m;
+    d8_pmap_t m;
     const x0x_param_t *p = drum808_param(track, i);
     if (!p)
         return;
     if (value < 0) value = 0;
     if (value > p->max) value = p->max;
-    m = &k_tracks[track].m[i];
-    switch (m->kind) {
-    case K_POT: set_pot(d, track_sound(d, track), m->slot, value); break;
-    case K_FIXED: set_pot(d, m->snd, m->slot, value); break;
+    m = d8_pmap_at(track, i);
+    switch (m.kind) {
+    case K_POT: set_pot(d, track_sound(d, track), m.slot, value); break;
+    case K_FIXED: set_pot(d, m.snd, m.slot, value); break;
     case K_SWITCH: d->sw[track] = (uint8_t)value; break;
     case K_PAN:
         d->tpan[track] = (uint8_t)value;
         x0x_pan_gains(value, &d->pan_l[track], &d->pan_r[track]);
         break;
-    default: d->kpot[m->slot] = (uint8_t)value; kit_apply(d); break;
+    default: d->kpot[m.slot] = (uint8_t)value; kit_apply(d); break;
     }
 }
 
-int drum808_get(const drum808_t *d, int track, int i)
+/* UI / tests only — not the audio render (X0X_COLD) */
+X0X_COLD int drum808_get(const drum808_t *d, int track, int i)
 {
-    const d8_pmap_t *m;
+    d8_pmap_t m;
     if (!drum808_param(track, i))
         return 0;
-    m = &k_tracks[track].m[i];
-    switch (m->kind) {
-    case K_POT: return d->pot[track_sound(d, track)][m->slot];
-    case K_FIXED: return d->pot[m->snd][m->slot];
+    m = d8_pmap_at(track, i);
+    switch (m.kind) {
+    case K_POT: return d->pot[track_sound(d, track)][m.slot];
+    case K_FIXED: return d->pot[m.snd][m.slot];
     case K_SWITCH: return d->sw[track];
     case K_PAN: return d->tpan[track];
-    default: return d->kpot[m->slot];
+    default: return d->kpot[m.slot];
     }
 }
 
@@ -1387,7 +1578,7 @@ void drum808_init(drum808_t *d)
     }
     for (s = 0; s < D8S_NUM; s++)
         for (k = 0; k < D8P_NUM; k++)
-            set_pot(d, s, k, k_spec[s][k].def);
+            set_pot(d, s, k, d8_kspec(s, k)->def);
     for (s = 0; s < D8_NUM; s++) {
         d->tpan[s] = 64;                          /* centre */
         d->pan_l[s] = d->pan_r[s] = d->pan_lc[s] = d->pan_rc[s] = 1.0f;
@@ -1432,13 +1623,13 @@ void drum808_init(drum808_t *d)
     d->lane[L_OH].snd = D8S_OH; d->lane[L_CY].snd = D8S_CY;
 }
 
-static void choke_lane(d8_lane_t *l)
+__attribute__((noinline)) static void choke_lane(d8_lane_t *l)
 {
     if (l->cg > 0.0f && l->cstep == 0.0f)
         l->cstep = -1.0f / (0.002f * SR);
 }
 
-static float lane_hz(int s, float tune) { return d8_midicps(k_base_note[s] + tune); }
+__attribute__((noinline)) static float lane_hz(int s, float tune) { return d8_midicps(k_base_note[s] + tune); }
 
 void drum808_trigger(drum808_t *d, int track, float vel)
 {
@@ -1569,7 +1760,7 @@ static int voice_active(const drum808_t *d, int l)
 #define D8_TAIL_N 882                  /* 20 ms: the gaps between a clap's bursts are shorter */
 #define D8_TAIL_FLOOR 1.0e-2f          /* the hit has sounded (voices peak at 0.2 .. 7) */
 #if D8_TAIL_DB
-static void voice_stop(drum808_t *d, int l)
+__attribute__((noinline)) static void voice_stop(drum808_t *d, int l)
 {
     switch (l) {
     case L_BD: d->bd.active = 0; break;
@@ -1585,7 +1776,7 @@ static void voice_stop(drum808_t *d, int l)
     default: d->cy.active = 0; break;
     }
 }
-static void lane_tail(drum808_t *d, int l, const float *buf, int m)
+__attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float *buf, int m)
 {
     d8_lane_t *ln = &d->lane[l];
     float pk = ln->pk;
@@ -1607,7 +1798,7 @@ static void lane_tail(drum808_t *d, int l, const float *buf, int m)
 }
 #endif
 
-static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
+__attribute__((noinline)) static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
 
 int drum808_active(const drum808_t *d)
 {
@@ -1620,7 +1811,7 @@ int drum808_active(const drum808_t *d)
 
 /* Run one voice for up to m samples into buf; stops where 8W8 would stop calling
  * it (the voice went inactive). Returns the samples written. */
-static int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
+static __attribute__((noinline)) int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
 {
     int i;
     switch (l) {
@@ -1649,7 +1840,8 @@ static const uint8_t k_lane_track[L_NUM] = {D8_BD, D8_SD, D8_LT, D8_MT, D8_HT, D
                                             D8_CB, D8_CH, D8_OH, D8_CY};
 static float *d8_dry_r;         /* the render in progress: its right side (0: mono) */
 
-static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float *dry, float *rev, float *dly)
+__attribute__((noinline)) static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float *dry, float *rev, float *dly,
+                     uint16_t audible_tracks)
 {
     const int tr = k_lane_track[l - d->lane];
     float *dry_r = d8_dry_r;
@@ -1659,6 +1851,7 @@ static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float 
     float trim = k_trim[s], g = d->potv[s][D8P_LEVEL] * l->hit * d->vol;
     float ra = d->potv[s][D8P_REV], da = d->potv[s][D8P_DLY];
     int bypass = p->drive < 1.0e-3f;
+    if (!(audible_tracks & (1u << tr))) g = 0.0f; /* retain envelope, choke and crush state while inaudible */
     if (l->cstep == 0.0f && bypass) {             /* the common case */
         float k = trim * g * l->cg;
         if (dry_r) {
@@ -1700,7 +1893,7 @@ static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float 
     }
 }
 
-static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
+static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
 {
     float buf[CHUNK], bus[CHUNK], pair[CHUNK];
     int off, l, i;
@@ -1740,7 +1933,7 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
             {
                 float *dr = d8_dry_r;                     /* the chunk's slice of the right side */
                 d8_dry_r = dr ? dr + off : 0;
-                lane_mix(d, ln, buf, got, dry + off, rev + off, dly + off);
+                lane_mix(d, ln, buf, got, dry + off, rev + off, dly + off, audible_tracks);
                 d8_dry_r = dr;
             }
 #if D8_TAIL_DB
@@ -1753,7 +1946,7 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
 void drum808_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
 {
     d8_dry_r = 0;
-    d8_render(d, dry, rev, dly, n);
+    d8_render(d, dry, rev, dly, n, 0x7FFu);
 }
 
 void drum808_pan_settle(drum808_t *d)
@@ -1765,9 +1958,15 @@ void drum808_pan_settle(drum808_t *d)
     }
 }
 
-void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n)
+void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly,
+                             int n, uint16_t audible_tracks)
 {
     d8_dry_r = dry_r;
-    d8_render(d, dry_l, rev, dly, n);
+    d8_render(d, dry_l, rev, dly, n, audible_tracks);
     d8_dry_r = 0;
+}
+
+void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n)
+{
+    drum808_render_st_masked(d, dry_l, dry_r, rev, dly, n, 0x7FFu);
 }

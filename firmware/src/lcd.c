@@ -74,7 +74,11 @@ static void lcd_window(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
     lcd_cmd(0x2C);
 }
 
+#if BOARD_SMK37
+static uint16_t lcd_fillbuf[240] SMK_BIG;
+#else
 static uint16_t lcd_fillbuf[240];
+#endif
 
 static void lcd_fill(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint16_t c)
 {
@@ -189,6 +193,16 @@ static void padled_set(uint32_t pad, uint8_t r, uint8_t g, uint8_t b)
         padled_rgb[pad] = c;
         padled_dirty = 1;
     }
+}
+
+/* a76: the GRB colour of a hardware pad in the last frame sent (padled_buf), for ED_INLOG */
+static uint32_t padled_sent(uint32_t pad)
+{
+    const uint8_t *o = padled_buf + PADLED_LATCH + PADLED_SLOT[pad % PADLED_N] * 24u;
+    uint32_t v = 0, i;
+    for (i = 0; i < 24u; i++)
+        v = v << 1 | (o[i] == 0xF0u);
+    return v;
 }
 
 static void padled_flush(void)

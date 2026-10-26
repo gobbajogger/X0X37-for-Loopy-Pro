@@ -1,0 +1,8 @@
+COMPILE gcc -std=c99 -O1 -g -Wall -Wextra -Werror -I<stage>/repo/firmware/src /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-r10-combined-bvclqhj7/test.c -o /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-r10-combined-bvclqhj7/test
+Assertion failed: (!smc.solo_target[0] && !output_solo), function main, file test.c, line 462.
+Traceback (most recent call last):
+  File "<stage>/repo/tests/host/smc_solo_overflow_test.py", line 168, in <module>
+    subprocess.run([str(exe)],check=True)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-r10-combined-bvclqhj7/test']' died with <Signals.SIGABRT: 6>.

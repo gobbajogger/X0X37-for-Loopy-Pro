@@ -1,256 +1,1096 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
-     X0X installer for FM-1 and SMK-37 family release packages, English first, no editor.
-     tools/make_pages.py inlines fm1pkg.js, fm1ota.js, x0x_breaks.js (the sample slots: an install that
-     changes the slot map saves them to a file first and writes them back after) and the package's metadata. -->
+     X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
+     model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
+     saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
+     x0x_breaks.js and boot_screen.js at LIB and the release catalog at CATALOG.
+     A nightly catalog (channel "nightly") lists only dev-checked hardware-test
+     builds and does not import GitHub Releases. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>X0X installer</title>
+<title>Install · X0X</title>
 <style>
-  :root { --bg: #fff; --fg: #000; --dim: #777; }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --bg: #000; --fg: #fff; --dim: #888; }
+  :root {
+    --bg: #f4f5f6; --fg: #1c1f23; --dim: #5b626a; --rule: #d9dde1; --accent: #c8700a;
+    --card: #fff; --ok: #1a7f4b; --busy: #b45309; --err: #b42318; color-scheme: light;
   }
-  :root[data-theme="dark"] { --bg: #000; --fg: #fff; --dim: #888; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131518; --fg: #e6e8eb; --dim: #9aa1a9; --rule: #2d3137; --accent: #f0a043;
+      --card: #1a1d21; --ok: #3dd68c; --busy: #f0a043; --err: #f97066; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131518; --fg: #e6e8eb; --dim: #9aa1a9; --rule: #2d3137; --accent: #f0a043;
+    --card: #1a1d21; --ok: #3dd68c; --busy: #f0a043; --err: #f97066; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg);
          font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
-  main { max-width: 520px; margin: 0 auto; padding: 48px 16px; }
-  h1 { font-size: 24px; font-weight: 600; margin: 0 0 24px; }
-  .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; padding: 0; color: var(--dim); }
-  p { margin: 0 0 16px; }
-  button { font: inherit; background: var(--fg); color: var(--bg); border: 0; padding: 8px 20px; cursor: pointer; }
-  button:disabled { opacity: .3; cursor: default; }
-  #status { margin-top: 16px; min-height: 1.6em; }
-  .small { color: var(--dim); font-size: 13px; }
-  progress { width: 100%; height: 4px; margin-top: 16px; }
-  pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; margin-top: 16px; }
+  main { max-width: 560px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 12px; }
   h2 { font-size: 18px; font-weight: 600; margin: 40px 0 12px; }
-  ol { margin: 0 0 16px; padding-left: 20px; }
-  input[type=file] { font: inherit; font-size: 13px; color: var(--dim); max-width: 100%; }
+  .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; }
+  p { margin: 0 0 16px; }
+  .small { color: var(--dim); font-size: 13px; }
+  #nightly { border: 1px solid var(--busy); background: var(--card); border-radius: 8px; padding: 8px 12px; color: var(--fg); }
+  a { color: var(--accent); }
   .home { display: inline-block; font-weight: 700; letter-spacing: .03em; color: var(--dim); text-decoration: none; margin: 0 0 12px; }
   .home:hover, .home:focus-visible { color: var(--fg); }
+  .connect {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+    margin: 0 0 24px; padding: 12px 14px; background: color-mix(in srgb, var(--card) 92%, transparent);
+    border: 1px solid var(--rule); backdrop-filter: blur(8px);
+  }
+  .led { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
+  .led.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+  .led.busy { background: var(--busy); animation: blink .8s infinite; }
+  .led.err { background: var(--err); }
+  @keyframes blink { 50% { opacity: .35; } }
+  .ctext { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .ctext b { font-size: 14px; }
+  .ctext span { color: var(--dim); font-size: 12px; overflow-wrap: anywhere; }
+  .panel { background: var(--card); border: 1px solid var(--rule); padding: 16px; margin: 0 0 20px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin: 0 0 14px; }
+  label.field { display: grid; gap: 4px; font-size: 13px; color: var(--dim); }
+  select, input[type=file] { font: inherit; font-size: 14px; color: var(--fg); max-width: 100%; }
+  select { background: var(--bg); border: 1px solid var(--rule); padding: 6px 10px; }
+  .models { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--fg); }
+  .models label { cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  .models input { accent-color: var(--accent); margin: 0; }
+  details.model { margin: 0 0 14px; color: var(--dim); }
+  details.model summary { cursor: pointer; width: max-content; font-size: 13px; }
+  details.model summary:hover { color: var(--accent); }
+  details.model p { margin: 8px 0 0; font-size: 12px; }
+  button { font: inherit; background: var(--fg); color: var(--bg); border: 0; padding: 8px 20px; cursor: pointer; }
+  button.quiet { background: none; color: var(--fg); border: 1px solid var(--rule); }
+  button:disabled { opacity: .3; cursor: default; }
+  #status { margin-top: 12px; min-height: 1.6em; }
+  progress { width: 100%; height: 4px; margin-top: 12px; }
+  pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; margin-top: 12px; max-height: 12em; overflow: auto; }
+  .drop {
+    border: 1px dashed var(--rule); padding: 18px 14px; text-align: center; color: var(--dim);
+    font-size: 13px; margin: 0 0 12px; cursor: pointer;
+  }
+  .drop.over { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .drop input { display: none; }
+  ol { margin: 0 0 16px; padding-left: 20px; }
+  .meta { font-size: 12px; color: var(--dim); margin: 0 0 14px; }
+  #bootscreen { margin: 8px 0 28px; }
+  #bootscreen .field { margin: 0 0 12px; }
+  #bootscreen input[type=text] { font: inherit; font-size: 16px; width: 100%; padding: 6px 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--fg); }
+  #bootprev { width: 100%; height: auto; background: #000; border: 1px solid var(--rule); margin: 0 0 12px; }
+  #bootstatus { min-height: 1.4em; }
 </style>
 </head>
 <body>
 <main>
-  <button class="lang" id="lang"></button>
+  <button class="lang" id="lang" type="button"></button>
   <a class="home" href="../">X0X</a>
-  <h1>Install X0X</h1>
+  <h1 data-t="title">Install X0X</h1>
   <p data-t="intro"></p>
-  <p data-t="warn"></p>
   <p class="small" data-t="direct"></p>
-  <p class="small" data-t="untested"></p>
   <p class="small" data-t="beta"></p>
-  <p class="small" id="recovery"><span data-t="brick"></span>
-    <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
-  <p class="small" data-t="back"></p>
-  <p class="small"><a href="https://www.m-vave.com/download" target="_blank" rel="noopener" style="color:inherit">www.m-vave.com/download</a></p>
-  <p><button id="go" disabled data-t="install"></button></p>
-  <progress id="bar" max="100" value="0"></progress>
-  <p id="status"></p>
-  <pre id="log"></pre>
-  <section id="ble" hidden>
-    <h2 data-t="bleh"></h2>
-    <p class="small" data-t="blewhy"></p>
-    <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+
+  <div class="connect" id="connectbar">
+    <span class="led" id="led" aria-hidden="true"></span>
+    <div class="ctext">
+      <b id="conn">Not connected</b>
+      <span id="connDetail" data-t="connhelp"></span>
+    </div>
+    <button class="quiet" id="connbtn" type="button" data-t="connect">Connect</button>
+  </div>
+
+  <section class="panel" id="pick">
+    <p class="small" id="noversion" hidden data-t="noversion"></p>
+    <p class="small" id="nightly" hidden></p>
+    <div class="row" id="versionrow">
+      <label class="field">Version
+        <select id="version" aria-label="Firmware version"></select>
+      </label>
+    </div>
+    <p class="meta" id="pkgmeta"></p>
+    <details class="model" id="modeldetails">
+      <summary data-t="flashother">Flash another keyboard version</summary>
+      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
+      <p data-t="modelwhy"></p>
+    </details>
+    <section id="ble" hidden>
+      <p class="small" data-t="blewhy"></p>
+      <p class="small"><label for="ctlfile" data-t="ctlchoose">Controller image (.img):</label> <input type="file" id="ctlfile" accept=".img"> <button class="quiet" id="ctlclear" type="button" data-t="ctlclear" disabled>Remove controller</button></p>
+    </section>
+    <fieldset id="loops">
+      <legend data-t="loops">Built-in loops</legend>
+      <p class="small" data-t="loopswhy"></p>
+      <label class="small"><input type="radio" name="brkpack" value="none" checked> <span data-t="loopsnone"></span></label><br>
+      <label class="small"><input type="radio" name="brkpack" value="factory"> <span data-t="loopsfactory"></span></label><br>
+      <label class="small"><input type="radio" name="brkpack" value="mine"> <span data-t="loopsmine"></span></label>
+      <p class="small"><input type="file" id="loopfiles" accept=".wav,audio/wav" multiple></p>
+    </fieldset>
+    <p><button id="go" disabled data-t="install">Install</button></p>
+    <progress id="bar" max="100" value="0"></progress>
+    <p id="status"></p>
+    <pre id="log"></pre>
   </section>
+
+  <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a><br>
+  <span data-t="breakshint">Optional oldschool grit (light to max) and preview before you send — on the importer page.</span></p>
+  <p class="small"><a href="../manual/" data-t="manual">The manual</a>
+    · <a href="../new/" data-t="whatsnew">What's new</a>
+    · <a id="download" hidden data-t="download">Download this package</a></p>
+
+  <section id="bootscreen">
+    <h2 data-t="booth">Boot screen</h2>
+    <p class="small" data-t="bootwhy"></p>
+    <label class="field" for="boottitle"><span data-t="boottitle"></span>
+      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="X0X">
+    </label>
+    <label class="field" for="bootsub"><span data-t="bootsub"></span>
+      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 303 303 BREAK">
+    </label>
+    <label class="field" for="bootfile"><span data-t="bootpic"></span>
+      <input id="bootfile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,.png,.jpg,.jpeg,.gif,.webp,.bmp">
+    </label>
+    <canvas id="bootprev" width="240" height="96"></canvas>
+    <p>
+      <button type="button" id="bootsave" data-t="bootsave">Save boot screen</button>
+      <button type="button" class="quiet" id="bootfactory" data-t="bootfactorybtn">Original words</button>
+      <button type="button" class="quiet" id="bootread" data-t="bootread">Read from keyboard</button>
+      <button type="button" class="quiet" id="bootclear" data-t="bootclear">Remove picture</button>
+    </p>
+    <p class="small" id="bootstatus" role="status"></p>
+  </section>
+
   <section id="stock">
     <h2 data-t="stockh"></h2>
     <p class="small" data-t="stockwhy"></p>
-    <ol class="small">
-      <li><span data-t="stock1"></span> <a id="stocklink" href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" style="color:inherit">FM-1.fwsc</a></li>
-      <li><span data-t="stock2"></span><br><input type="file" id="stockfile" accept=".fwsc"></li>
+    <ol class="small" id="stocksteps">
+      <li><span data-t="stock1"></span>
+        <a id="stocklink" href="https://www.m-vave.com/download" target="_blank" rel="noopener">m-vave.com/download</a>
+        <span id="stocklinks"></span></li>
+      <li data-t="stock2"></li>
       <li data-t="stock3"></li>
     </ol>
+    <label class="drop" id="stockdrop">
+      <input type="file" id="stockfile" accept=".fwsc">
+      <span data-t="stockdrop"></span>
+    </label>
+    <p class="meta" id="dropmeta"></p>
+    <p class="small"><label><input type="checkbox" id="stockconfirm" disabled> <span data-t="stockconfirm"></span></label></p>
     <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
   </section>
-  <p><a href="../manual/" style="color:inherit" data-t="manual"></a></p>
-  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener" style="color:inherit">Hügelton Instruments</a>,
-    with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator. The manual's Credits list them all.<br>
-    Fonts: Barlow Semi Condensed and Terminus (SIL OFL 1.1). M-VAVE and FM-1 are trademarks of their respective owners.<br>
-    <span data-t="license"></span> <a href="https://github.com/charlesvestal/fm1-x0x" target="_blank" rel="noopener" style="color:inherit">github.com/charlesvestal/fm1-x0x</a></p>
+
+  <p class="small" id="recovery"><span data-t="brick"></span>
+    <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
+  <p class="small" data-t="back"></p>
+
+  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
+    with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
+    <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
 </main>
 <script type="module">
 /*LIB*/
 const $ = (id) => document.getElementById(id);
+const MODELS = { pro: "SMK-37 Pro", elite: "SMK-37 Elite", mke: "MKE-P37", fm1: "FM-1" };
+const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
+const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
-    intro: "FM-1 を USB で接続してください。（Chrome か Edge で使えます）",
+    title: "X0X をインストール",
+    intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
     warn: "書き込み中は USB を抜かないでください。",
-    install: "インストール", other: "English",
-    manual: "マニュアル（英語）",
-    untested: "X0X はベータ版です。FM-1 で動作しますが、全パートを同時に密に鳴らすと処理が追いつかないことがあります。",
-    direct: "USB ケーブルはパソコンに直接つないでください。Probe や Transporter などの機材は不要です。",
+    install: "インストール", other: "English", connect: "接続",
+    loops: "内蔵ループ",
+    loopswhy: "初期の書き込みには 909 のループを入れません。空いた場所は音源のプログラム用です。工場の 2 ループか、自分の WAV を、その場所に戻せます。読み込み用のスロット 1 と 2 はそのままです。",
+    loopsnone: "入れない（初期状態）。",
+    loopsfactory: "工場の 2 ループ（909 GR と 909 FL）を入れる",
+    loopsmine: "自分のループを、その代わりに入れる",
+    loopsfit: "このファームウェアの空きにループが入りません。",
+    loopsneed: "先に WAV を選んでください。",
+    connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
+    connected: "接続済み", notconnected: "未接続", looking: "探しています…",
+    otahelp: "復旧用の書き込みモードです。この状態ではサンプルを自動保存できません。既存の .x0xslots バックアップがあるか、保存するサンプルがなかった場合にのみ続行してください。",
+    otaconfirm: "復旧モード：今はサンプルを読み出してバックアップできません。\n\n外部に保存済みの .x0xslots バックアップを自分で確認した、または保存すべきサンプルがなかったと確信している場合のみ［OK］を押してください。\n\nそうでない場合、続けるとサンプルが失われる可能性があります。［キャンセル］なら書き込みません。確認しましたか？",
+    otabackup: "何も書き込んでいません。復旧モードではサンプルを確認・保存できません。既存の .x0xslots バックアップかサンプルがなかったことを確認し、同じパッケージでもう一度実行してください。",
+    flashother: "別の機種名で書き込む",
+    modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
+    manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
+    breaks: "サンプル・インポーター：自分のブレイク・ループ",
+    breakshint: "インポーター画面で、オプションのオールドスクール・グリット（軽い〜最大）と送信前プレビュー。",
+    untested: "X0X はベータ版です。",
+    direct: "USB ケーブルはパソコンに直接つないでください。",
     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
     bricklink: "起動しない FM-1 の復旧（マニュアル）",
-    beta: "これはベータ版で、不安定な場合があります。このカスタムファームウェアを使ったことで FM-1 が壊れたり不具合が起きたりしても、作者は一切の責任を負いません。自己責任でお使いください。",
-    back: "公式ファームウェアに戻すには、このページ下の「純正ファームウェアに戻す」か、M-VAVE 公式のアップデーター M-UPGRADE（Downloads → PC Software → M-UPGRADE）を使います。",
-    stockh: "純正ファームウェアに戻す",
-    stockwhy: "M-VAVE の FM-1 V15 を、X0X（またはそのセーフモード）から同じ USB ケーブルで書き込みます。X0X で保存したパターンは消えることがあります。",
-    stock1: "M-VAVE の FM-1 V15 をダウンロード:",
-    stock2: "ダウンロードしたファイルを選ぶ:",
-    stock3: "FM-1 を USB で接続し、下のボタンを押す。",
-    stockinstall: "純正ファームウェアを書き込む",
-    stockok: "M-VAVE の FM-1 V15 です。ボタンを押してください。",
-    stockbad: "これは M-VAVE の FM-1 V15 のファイルではありません。上のリンクのファイルを選んでください。",
-    stockdone: "完了。FM-1 は純正ファームウェアで起動しました。",
+    beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
+    back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
+    noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    nightlymodel: "DEV ファームウェア — 本体モデルの確認\n選択したパッケージ: ",
+    nightlymodelReported: "\n接続機器の表示名: ",
+    nightlymodelEnd: "\n\n本体に記載のモデル（Elite / Pro）を直接確認してください。古い Elite は Pro と表示されることがあり、USB 名だけでは機種は確定しません。実際の機種が選択したファームウェアと一致するときだけ OK を押してください。違う機種に書き込むと起動しなくなる場合があります。キャンセルでは書き込みません。",
+    modelcancel: "本体モデルを確認しなかったため、何も書き込んでいません。",
+    stockalias: "機種名が異なります。接続中: ",
+    stockaliasTo: "\n選択したパッケージ: ",
+    stockaliasEnd: "\n\nSMK-37 系列の機種名が一致しても、本体の正確なモデルは確認できません。古い Elite が Pro と表示されることがあります。本体の型番とファームウェアの対応情報を確認してください。誤った書き込みで使用できなくなるおそれがあります。この違いを理解して続行しますか？",
+    stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
+    stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
+    stock1: "純正が必要なら機種の公式 .fwsc を入手:",
+    stock2: "任意の .fwsc を下にドロップ（または選択）。",
+    stock3: "USB で接続して確認にチェックし、書き込みます。途中で止まったら同じファイルで再試行できますが、復旧モードでは以前のサンプルバックアップ（またはサンプルがないこと）の追加確認が必要です。",
+    stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
+    stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
+    stockinstall: "このパッケージを書き込む",
+    stockloading: "選択したファームウェアを読み込み、確認しています…",
+    stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
+    stockok: "パッケージを確認しました。ボタンを押してください。",
+    stockloading: "選択したファームウェアを読み込み、確認しています…", stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
+    stockbad: "使える .fwsc ではありません。", localfilesize: "ファイルが空か、16 MiB の安全上限を超えています。",
+    stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
+    confirm: "書き込みますか？\n\n接続中: ",
+    confirmto: "\n書き込む: ",
+    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。通常モードで読み出せるスロットは、必要なら書き込み前に保存します。復旧モードでは自動保存できないため、別途確認が必要です。USB を抜かないでください。",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
     error: "エラー: ",
     denied: "MIDI（SysEx）の使用が許可されませんでした。アドレスバーのサイト設定で MIDI を許可して、もう一度押してください。",
-    notfound: "FM-1 が見つかりません。USB ケーブル（データ通信用か）を確かめ、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
-    model: "接続されている機器は FM-1 ではありません。",
+    notfound: "機器が見つかりません。USB ケーブル（データ通信用か）を確かめ、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
+    model: "接続されている機器はこのパッケージ向けではありません。",
     lost: "USB の接続が切れました。挿し直してもう一度押してください。",
-    noloader: "書き込みモードの FM-1 が見つかりません。USB を挿し直してもう一度押してください（終わるまで書き込みモードのままです）。",
-    noreturn: "FM-1 が戻ってきません。電源を入れ直してください。",
-    mismatch: "書き込みは終わりましたが、FM-1 が別のバージョンを報告しています: ",
+    noloader: "書き込みモードの機器が見つかりません。USB を挿し直してもう一度押してください。",
+    noreturn: "機器が戻ってきません。電源を入れ直してください。",
+    mismatch: "書き込みは終わりましたが、別のバージョンを報告しています: ",
     badpkg: "インストールするファイルが壊れています。ページを再読み込みしてください。",
     leave: "書き込み中です。ページを閉じないでください。",
     slotsave: "新しいファームウェアではスロットのサンプルが消えます（スロット ",
     slotsave2: "）。先に全スロットをファイルに保存します。",
     slotsaved: "スロットを保存しました（ダウンロード）: ",
+    backupverify: "書き込み前にサンプルのバックアップを保存してください:",
+    backupdownload: "バックアップをダウンロード",
+    backupreopen: "保存したファイルを選択して書き込み前に検証してください。保存を確認できるまでファームウェアは書き込みません。",
+    backupchoose: "保存済みバックアップを選択", backupcancelbutton: "インストールを中止",
+    backupcancelled: "バックアップを確認できないため何も書き込みません。",
+    backupbad: "このファイルはバックアップと一致しません。正しいファイルを選んでください。",
     slotback: "スロットを書き戻しています",
     slotsdone: "完了。スロットを書き戻して確認しました。",
+    slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
     slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
+    slotlayout: "既存のサンプルスロット情報を確認できません。ファームウェアは書き込まれていません。接続し直し、バックアップを確認してから再試行してください。",
     license: "GPL-3.0、無保証。ソース:",
-    bleh: "Bluetooth MIDI（任意）",
-    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。X0X とは別のプログラムで、X0X には含まれていません。選ばなければ Bluetooth なしでインストールします。アップデートのたびに選び直してください。",
-    ctlok: "ctl.img を確認しました。インストールに含めます。",
+    blewhy: "Bluetooth MIDI 用 ctl.img は、この DEV ファームウェアと機種で承認された SHA-256 と一致するものだけ選択できます。選ばなければ Bluetooth なしでインストールします。",
+    ctlchoose: "コントローラー画像 (.img):", ctlclear: "解除",
+    ctlcleared: "コントローラー画像を解除しました。",
+    ctlunapproved: "この機種向けに承認された ctl.img の SHA-256 と一致しません。対応するファイルを選ぶか、解除して Bluetooth なしでインストールしてください。",
+    ctlok: "ctl.img の形式を確認しました。書き込み前に機種別 SHA-256 と照合します。",
     ctlbad: "この ctl.img は使えません: ",
+    ctlreading: "コントローラー画像を読み込み、確認しています…",
+    ctlreadfail: "コントローラー画像を読み込めませんでした。もう一度選択してください。",
+    noproduct: "このバージョンには選んだ機種のパッケージがありません。",
+    selectionstale: "書き込み前にファームウェアの選択または承認が変更されました。何も書き込んでいません。パッケージをもう一度確認してください。",
+    releasehint: "GitHub の Releases からも同じファイルを取れます。",
+    booth: "起動画面",
+    bootwhy: "起動中に出る2行と、その上の白黒（琥珀）の絵を変えられます。絵は240×96ドットです。カラー写真もこの大きさの1色に縮みます。音は変わりません。次に起動したときに見えます。",
+    boottitle: "上の行（12文字まで）",
+    bootsub: "下の行（21文字まで）",
+    bootpic: "絵（画像ファイル）",
+    bootclear: "絵を外す",
+    bootsave: "起動画面を保存",
+    bootfactorybtn: "元の文言に戻す",
+    bootread: "キーボードから読む",
+    bootempty: "ファイルが空です。起動画面は変えていません。",
+    boottype: "このページが読める画像ではありません。起動画面は変えていません。",
+    bootbig: "絵が大きすぎます（8MB超）。起動画面は変えていません。",
+    bootdecode: "その絵は読めませんでした。起動画面は変えていません。",
+    bootblank: "その絵には画素がありません。起動画面は変えていません。",
+    bootlong0: "上の行は12文字までです。起動画面は変えていません。",
+    bootlong1: "下の行は21文字までです。起動画面は変えていません。",
+    bootshort: "2行とも入力するか、「元の文言」を選んでください。起動画面は変えていません。",
+    bootchars: "文字・数字・記号だけ使えます。起動画面は変えていません。",
+    bootbusyinstall: "インストールが終わるまで待ってください。起動画面は変えていません。",
+    bootrun: "X0Xが起動している必要があります（更新ローダーではだめです）。起動画面は変えていません。",
+    bootrefuse: "キーボードがこの起動画面を拒否しました。前の画面のままです。",
+    bootnoflash: "キーボードに保存先がありません。前の起動画面のままです。",
+    bootflash: "キーボードは保存できませんでした。前の起動画面のままです。",
+    bootbusy: "キーボードが取り込み中です。前の起動画面のままです。",
+    bootfit: "この起動画面はキーボードに入りません。前の画面のままです。",
+    bootlate: "キーボードが未完了の保存を捨てました。前の起動画面のままです。",
+    bootlost: "保存は終わりませんでした。前の起動画面のままです。",
+    bootunconfirmed: "キーボードが保存を確認しませんでした。再起動して画面を見て、古いままならもう一度試してください。",
+    bootsaved: "保存しました。次に起動したときに新しい画面が出ます。",
+    bootorig: "元の文言に戻しました。次に起動したときに出ます。",
+    bootgot: "キーボードの起動画面を読みました。まだ保存はしていません。",
+    bootreadfail: "キーボードから起動画面を読めませんでした。",
   },
   en: {
-    intro: "Connect the FM-1 by USB. (Works in Chrome or Edge.)",
+    title: "Install X0X",
+    intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
-    install: "Install", other: "日本語",
-    manual: "The manual",
-    untested: "X0X is a beta. It runs on the FM-1, but every part playing a dense pattern at once can still overload it.",
+    install: "Install", other: "日本語", connect: "Connect",
+    loops: "Built-in loops",
+    loopswhy: "The default install leaves the factory loops out, so that flash can hold more of the synth. You can put the two factory loops back, or your own WAV files in their place. Import slots 1 and 2 stay as they are.",
+    loopsnone: "Leave them out (default).",
+    loopsfactory: "Install the two factory loops (909 GR and 909 FL)",
+    loopsmine: "Install my own loops instead",
+    loopsfit: "These loops do not fit in the free space of this firmware.",
+    loopsneed: "Choose WAV files first.",
+    connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
+    connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
+    otahelp: "Recovery/update loader. Automatic sample backup is unavailable in this mode. Resume only if you have an existing .x0xslots backup or know there were no samples to preserve.",
+    otaconfirm: "RECOVERY MODE: Sample slots cannot be read or backed up while the device is in the update loader.\n\nPress OK ONLY if you personally verified that a .x0xslots backup is already safely saved outside this browser, or know there were no samples to preserve.\n\nContinuing without that protection can permanently erase samples. Cancel stops without writing. Have you verified this?",
+    otabackup: "Nothing was written. Sample slots cannot be checked in update mode. Verify your previously saved .x0xslots backup or that there were no samples, then retry with the same package.",
+    flashother: "Flash another keyboard version",
+    modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
+    manual: "The manual", whatsnew: "What's new", download: "Download this package",
+    breaks: "Sample importer: your own break loops",
+    breakshint: "Optional oldschool grit (light to max) and preview before you send — on the importer page.",
+    untested: "X0X is a beta.",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
     bricklink: "recovering an FM-1 that won't start (manual)",
-    beta: "This is a beta and may be unstable. The author accepts no responsibility if your FM-1 is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
-    back: "To go back to the official firmware, use \"Back to the stock firmware\" below, or M-VAVE's own updater, M-UPGRADE (Downloads → PC Software → M-UPGRADE).",
-    stockh: "Back to the stock firmware",
-    stockwhy: "This writes M-VAVE's own FM-1 V15 back, from X0X (or its safe mode, or Felucca) over the same USB cable. Patterns saved in X0X may be lost.",
-    stock1: "Download M-VAVE's FM-1 V15:",
-    stock2: "Choose the file you downloaded:",
-    stock3: "Connect the FM-1 by USB and press the button below.",
-    stockinstall: "Install the stock firmware",
-    stockok: "That is M-VAVE's FM-1 V15. Press the button to install it.",
-    stockbad: "That is not M-VAVE's FM-1 V15 file. Choose the file from the link above.",
-    stockdone: "Done. The FM-1 has restarted with its original firmware.",
+    beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
+    back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
+    noversion: "No published packages on this site yet. Drop any .fwsc below to upgrade, downgrade, restore stock, or switch to another custom build.",
+    nightlymodel: "DEV FIRMWARE — PHYSICAL MODEL CHECK\nSelected package: ",
+    nightlymodelReported: "\nConnected device reports: ",
+    nightlymodelEnd: "\n\nCheck the model printed on the actual keyboard (Elite or Pro), not just its USB name. Older Elite units can report Pro. Only press OK if the physical model matches this approved package. A wrong-model write can make the keyboard unusable. Cancel writes nothing.",
+    modelcancel: "Physical model not confirmed. Nothing was written.",
+    stockalias: "MODEL NAME DIFFERENCE\nConnected: ",
+    stockaliasTo: "\nSelected file: ",
+    stockaliasEnd: "\n\nA shared SMK family identity does not prove the physical model. An older Elite may report Pro; other variants also share identifiers. Verify the keyboard label and firmware compatibility. A wrong package can make the device unusable. Continue with these different model names?",
+    stockh: "Any .fwsc (stock, other custom, or a local build)",
+    stockwhy: "Upgrade, downgrade, switch to another custom firmware, or return to stock the same way. Packages keep the keyboard's model name; calibration and pairing are never touched. If sample slots would be lost, they are saved to a .x0xslots file first.",
+    stock1: "For stock, get the official .fwsc for your model:",
+    stock2: "Drop any .fwsc below (or click to choose it).",
+    stock3: "Connect by USB, confirm the model, and install. After an interrupted write, replug and choose the same file; recovery mode additionally requires verifying a previous sample backup or no samples.",
+    stockdrop: "Drop the .fwsc file here, or click to choose it",
+    stockconfirm: "This package is for this keyboard (matching model)",
+    stockinstall: "Install this package",
+    stockloading: "Reading and checking the selected firmware file…",
+    stockloadfail: "Could not read that file. Choose it again.",
+    stockok: "Package checked. Press the button to install it.",
+    stockloading: "Reading and checking the selected firmware file…", stockloadfail: "Could not read that file. Choose it again.",
+    stockbad: "That is not a usable .fwsc package.", localfilesize: "File is empty or exceeds the 16 MiB safety limit.",
+    stockdone: "Done. The device has restarted with the new firmware.",
+    confirm: "Install this firmware?\n\nConnected: ",
+    confirmto: "\nWill write: ",
+    confirmrisk: "\n\nCalibration and pairing are never touched. The normal installer backs up at-risk readable slots before writing; update-loader recovery cannot do so and requires separate confirmation. Keep USB connected until Done.",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
     error: "Error: ",
     denied: "MIDI (SysEx) access was not allowed. Allow MIDI in the site settings (address bar) and press Install again.",
-    notfound: "FM-1 not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
-    model: "The connected device is not an FM-1.",
+    notfound: "Device not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
+    model: "The connected device does not match this package.",
     lost: "The USB connection was lost. Replug it and press Install again.",
-    noloader: "The FM-1 in update mode was not found. Replug the USB cable and press Install again (it stays in update mode until it is finished).",
-    noreturn: "The FM-1 did not come back. Power-cycle it.",
-    mismatch: "Written, but the FM-1 reports another version: ",
+    noloader: "The device in update mode was not found. Replug the USB cable and press Install again.",
+    noreturn: "The device did not come back. Power-cycle it.",
+    mismatch: "Written, but the device reports another version: ",
     badpkg: "The file to install is damaged. Reload the page.",
     leave: "Writing. Do not close the page.",
     slotsave: "The new firmware does not keep the samples in slot ",
     slotsave2: ". Saving every slot to a file first.",
     slotsaved: "Slots saved (downloaded): ",
+    backupverify: "Save this sample backup before installing:",
+    backupdownload: "Download backup",
+    backupreopen: "Select the saved file to verify it before firmware writing. Firmware will not be written until that file is checked.",
+    backupchoose: "Select saved backup", backupcancelbutton: "Cancel installation",
+    backupcancelled: "Backup was not confirmed; nothing written.",
+    backupbad: "The selected file does not match this backup. Choose the correct saved file.",
     slotback: "Writing the slots back",
     slotsdone: "Done. The slots were written back and checked.",
+    slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
     slotskip: " Not written back (no room): ",
     slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
+    slotlayout: "Cannot verify existing sample-slot information. Nothing was installed. Reconnect, check your backup and retry before flashing.",
     license: "GPL-3.0, no warranty. Source:",
-    bleh: "Bluetooth MIDI (optional)",
-    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. It is a separate program, not part of X0X. Without it, X0X installs without Bluetooth. Select it again for each update.",
-    ctlok: "ctl.img checked: the install includes it.",
+    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, X0X installs without Bluetooth.",
+    ctlchoose: "Controller image (.img):", ctlclear: "Remove controller",
+    ctlcleared: "Controller image removed.",
+    ctlunapproved: "SHA-256 does not match the approved controller for this model. Select its matching ctl.img or remove the controller to install without Bluetooth.",
+    ctlok: "ctl.img format checked. SHA-256 will be checked against the model before installation.",
     ctlbad: "This ctl.img cannot be used: ",
+    ctlreading: "Reading and checking the controller image…",
+    ctlreadfail: "Could not read that controller image. Choose it again.",
+    noproduct: "No package for that model in this version.",
+    selectionstale: "Firmware selection or approval changed before writing. Nothing was installed. Check the package and try again.",
+    releasehint: "The same files are also on the GitHub Releases page.",
+    booth: "Boot screen",
+    bootwhy: "Change the two lines shown while the keyboard starts, and the picture above them. The picture is 240 by 96 pixels, black and amber. A color photo is reduced to that. This does not change the sound. You see it the next time the keyboard starts.",
+    boottitle: "Top line (12 characters)",
+    bootsub: "Second line (21 characters)",
+    bootpic: "Picture",
+    bootclear: "Remove picture",
+    bootsave: "Save boot screen",
+    bootfactorybtn: "Original words",
+    bootread: "Read from keyboard",
+    bootempty: "That file is empty. The boot screen was not changed.",
+    boottype: "That file is not a picture this page can read. The boot screen was not changed.",
+    bootbig: "That picture is too big to import (over 8 MB). The boot screen was not changed.",
+    bootdecode: "That picture could not be read. The boot screen was not changed.",
+    bootblank: "That picture has no pixels. The boot screen was not changed.",
+    bootlong0: "The top line can be 12 characters. The boot screen was not changed.",
+    bootlong1: "The second line can be 21 characters. The boot screen was not changed.",
+    bootshort: "Type both lines, or choose Original words. The boot screen was not changed.",
+    bootchars: "Use letters, numbers, and symbols only. The boot screen was not changed.",
+    bootbusyinstall: "Wait until the install finishes. The boot screen was not changed.",
+    bootrun: "X0X has to be running, not the update loader. The boot screen was not changed.",
+    bootrefuse: "The keyboard refused this boot screen. The previous one is still there.",
+    bootnoflash: "The keyboard has no storage for this. The previous boot screen is still there.",
+    bootflash: "The keyboard could not store this. The previous boot screen is still there.",
+    bootbusy: "The keyboard is busy. The previous boot screen is still there.",
+    bootfit: "This boot screen does not fit in the keyboard. The previous one is still there.",
+    bootlate: "The keyboard dropped the unfinished save. The previous boot screen is still there.",
+    bootlost: "The save did not finish. The previous boot screen is still there.",
+    bootunconfirmed: "The keyboard did not confirm the save. Restart it to see the screen, and try again if it is the old one.",
+    bootsaved: "Saved. The new boot screen shows the next time the keyboard starts.",
+    bootorig: "Original words restored. They show the next time the keyboard starts.",
+    bootgot: "Read the boot screen from the keyboard. Nothing has been saved yet.",
+    bootreadfail: "Could not read the boot screen from the keyboard.",
   },
 };
-let lang = "en";                                 /* X0X: English first (the manual is English); 日本語 is a click away */
+let lang = "en";
 const t = (k) => TEXT[lang][k];
 let lastKey = null, lastArg = "";
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
   $("lang").textContent = t("other");
+  $("conn").textContent = connected ? t("connected") : t("notconnected");
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
+  refreshMeta();
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
-applyLang();
 const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
-const log = (t) => { $("log").textContent += t + "\n"; };
-let image = null;
-const meta = /*META*/;
-/* The stock restore link is specific to the FM-1; never offer it for SMK builds. */
-if (!meta.stock) { $("stock").hidden = true; $("recovery").hidden = true; }
-/* SMK-37 family: an optional Bluetooth controller image, built by the user (never served from here) */
-let ctl = null;
-if (/^(SMK|MKE)/i.test(meta.product)) $("ble").hidden = false;
+const log = (txt) => { $("log").textContent += txt + "\n"; };
+
+const catalog = /*CATALOG*/;
+let catalogLive = catalog;
+const repo = catalog.repo || "https://github.com/gobbajogger/X0X37-for-Loopy-Pro";
+$("repolink").href = repo;
+$("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
+
+let midi = null, connected = false, lastId = null, writing = false;
+let image = null, selectedProduct = null, ctl = null, stock = null;
+let chosenModel = null;
+let loadSerial = 0;
+let verifiedDownload = null;
+function discardVerifiedDownload() {
+  if (verifiedDownload) URL.revokeObjectURL(verifiedDownload.href);
+  verifiedDownload = null;
+  const link = $("download");
+  link.removeAttribute("href");
+  link.removeAttribute("download");
+  link.hidden = true;
+}
+$("download").addEventListener("click", (event) => {
+  const v = currentVersion();
+  const p = v && chosenModel && v.models[chosenModel];
+  if (!isCatalogChecked(v, p) || !verifiedDownload ||
+      verifiedDownload.pkg !== p || verifiedDownload.model !== chosenModel ||
+      verifiedDownload.version !== v.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:") ||
+      $("download").href !== verifiedDownload.href) {
+    event.preventDefault();
+    discardVerifiedDownload();
+  }
+});
+
+function led(state) {
+  $("led").className = "led" + (state ? " " + state : "");
+}
+function setConnected(on, detail) {
+  connected = on;
+  led(on ? "on" : (detail && detail.startsWith("No ") ? "err" : ""));
+  $("conn").textContent = on ? t("connected") : t("notconnected");
+  $("connDetail").textContent = detail || t("connhelp");
+  $("connbtn").textContent = t("connect");
+}
+
+async function midiAccess() {
+  if (midi) return midi;
+  if (!navigator.requestMIDIAccess) throw Object.assign(new Error(t("nomidi")), { code: "nomidi" });
+  try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
+  catch (e) { throw Object.assign(new Error(t("denied")), { code: "denied" }); }
+  const ports = () => [...midi.inputs.values(), ...midi.outputs.values()]
+    .filter((p) => p.state === "connected").map((p) => p.id).sort().join();
+  midiAccess.ports = ports();
+  midi.onstatechange = () => {
+    const now = ports();
+    if (now === midiAccess.ports) return;
+    midiAccess.ports = now;
+    if (!writing) { clearTimeout(midiAccess.t); midiAccess.t = setTimeout(scan, 800); }
+  };
+  return midi;
+}
+
+let scanSerial = 0;
+async function scan(allowPostWrite = false) {
+  if (writing && !allowPostWrite) return;
+  const requestId = ++scanSerial;
+  const isCurrent = () => requestId === scanSerial && (!writing || allowPostWrite);
+  led("busy");
+  $("conn").textContent = t("looking");
+  try {
+    const up = new Updater(await midiAccess(), () => {});
+    if (!isCurrent()) return;
+    // Prefer a running app; if only the update loader is present, resume from there.
+    let dev = await up.find((id) => !/^ota-/i.test(id.model));
+    if (!isCurrent()) { if (dev) dev.link.close(); return; }
+    let inOta = false;
+    if (!dev) {
+      dev = await up.find((id) => /^ota-/i.test(id.model));
+      if (!isCurrent()) { if (dev) dev.link.close(); return; }
+      inOta = !!dev;
+    }
+    if (!dev) {
+      lastId = null;
+      setConnected(false, t("notfound"));
+      return;
+    }
+    lastId = dev.id;
+    const bare = inOta ? dev.id.model.replace(/^ota-/i, "") : dev.id.model;
+    const detail = inOta
+      ? `${dev.id.text}${dev.name ? " · " + dev.name : ""} — ${t("otahelp")}`
+      : `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
+    setConnected(true, detail);
+    if (inOta) led("busy");
+    if (!allowPostWrite) suggestModel(bare);
+    dev.link.close();
+  } catch (e) {
+    if (!isCurrent()) return;
+    lastId = null;
+    setConnected(false, (e && e.message) || t("error"));
+  }
+}
+
+$("connbtn").addEventListener("click", () => { scan(); });
+
+// Only publisher-reviewed, immutable, independently checked per-model artifacts
+// may be offered for download OR for installation. Never trust remote catalog or
+// GitHub Releases fields to grant publication. Keep empty until independent
+// source/QA/license/backup/controller and hosted-byte verification is recorded.
+// NIGHTLY device testing does NOT require a prior owner physical-device PASS.
+const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});
+const NIGHTLY_SHA256 = /^[0-9a-f]{64}$/;
+const NIGHTLY_SHA40 = /^[0-9a-f]{40}$/;
+const NIGHTLY_PRODUCTS = Object.freeze({ elite: /^SMK-37 Elite_900[0-9]*$/, pro: /^SMK-37 Pro_900[0-9]*$/ });
+function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
+  if (!v || v.status !== "dev-checked" ||
+       (v.revoked !== undefined && v.revoked !== false) ||
+       (v.fromRelease !== undefined && v.fromRelease !== false) ||
+      !NIGHTLY_SHA40.test(v.source_commit || "") ||
+      !NIGHTLY_SHA40.test(v.firmware_tree_sha || "") ||
+      v.qa_pass !== true || v.source_licenses_approved !== true) return [];
+  return ["elite", "pro"].filter((model) => {
+    const p = v.models && v.models[model];
+    const a = approvals && approvals[`${v.version}/${model}`];
+    return !!p && !!a &&
+       (p.fromRelease === undefined || p.fromRelease === false) &&
+       (p.revoked === undefined || p.revoked === false) &&
+       (a.revoked === undefined || a.revoked === false) &&
+       (a.fromRelease === undefined || a.fromRelease === false) &&
+      NIGHTLY_PRODUCTS[model].test(p.product || "") &&
+      Number.isSafeInteger(p.size) && p.size > 0 &&
+      NIGHTLY_SHA256.test(p.sha256 || "") &&
+      NIGHTLY_SHA256.test(p.controller_sha256 || "") &&
+      typeof p.pkg === "string" &&
+      /^https:\/\/[a-zA-Z0-9][a-zA-Z0-9.-]*\/[a-zA-Z0-9_./%-]+\.fwsc$/.test(p.pkg) &&
+      !p.pkg.includes("..") &&
+      a.prehardware_qa_pass === true &&
+      a.license_and_source_ok === true &&
+      a.backup_integrity_pass === true &&
+      a.model_and_controller_pass === true &&
+      a.immutable_http_pass === true &&
+      a.model === model && a.product === p.product &&
+      a.source_root_sha === v.source_commit &&
+      a.firmware_tree_sha === v.firmware_tree_sha &&
+      a.package_url === p.pkg && a.package_size === p.size &&
+      a.package_sha256 === p.sha256 &&
+      a.controller_sha256 === p.controller_sha256 &&
+      a.host_sha256 === p.sha256;
+  });
+}
+function versions() {
+  return (Array.isArray(catalogLive.versions) ? catalogLive.versions : [])
+    .filter((v) => approvedNightlyModels(v).length > 0)
+    .map((v) => ({ ...v,
+      models: Object.fromEntries(approvedNightlyModels(v).map((m) => [m, v.models[m]])) }))
+    .sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+}
+function refreshNightly() {
+  const note = $("nightly");
+  if (!note) return;
+  const ver = currentVersion();
+  const text = (ver && ver.label) || "";
+  note.hidden = !text;
+  note.textContent = text;
+}
+function currentVersion() {
+  const v = $("version").value;
+  return versions().find((x) => x.version === v) || null;
+}
+function modelKeyForProduct(product) {
+  if (/^FM-1/i.test(product)) return "fm1";
+  if (/^SMK-37 Elite/i.test(product)) return "elite";
+  if (/^MKE-P37/i.test(product)) return "mke";
+  if (/^SMK-37/i.test(product)) return "pro";
+  return null;
+}
+function availableModels(ver) {
+  return approvedNightlyModels(ver);
+}
+function suggestModel(deviceModel) {
+  const ver = currentVersion();
+  if (!ver) return;
+  const avail = availableModels(ver);
+  let want = "pro";
+  if (/Elite/i.test(deviceModel)) want = "elite";
+  else if (/MKE/i.test(deviceModel)) want = "mke";
+  else if (/^FM-1/i.test(deviceModel)) want = "fm1";
+  if (!avail.includes(want)) want = avail[0];
+  if (want) {
+    chosenModel = want;
+    const input = document.querySelector(`#models input[value="${want}"]`);
+    if (input) input.checked = true;
+    loadSelectedPackage();
+  }
+}
+function refreshModelUi() {
+  const ver = currentVersion();
+  const box = $("models");
+  box.innerHTML = "";
+  const avail = availableModels(ver);
+  if (!avail.length) return;
+  if (!chosenModel || !avail.includes(chosenModel)) chosenModel = avail.includes("pro") ? "pro" : avail[0];
+  for (const k of avail) {
+    const lab = document.createElement("label");
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "model"; inp.value = k;
+    inp.checked = k === chosenModel;
+    inp.addEventListener("change", () => { chosenModel = k; loadSelectedPackage(); });
+    lab.append(inp, document.createTextNode(MODELS[k] || k));
+    box.append(lab);
+  }
+  $("modeldetails").hidden = avail.length <= 1 && avail[0] === "fm1";
+  $("ble").hidden = !avail.some((k) => k !== "fm1");
+  $("recovery").hidden = !avail.includes("fm1") || avail.some((k) => k !== "fm1");
+  // Stock section always useful for SMK; for FM-1-only catalogs keep the SHA check path.
+  $("stock").hidden = false;
+  // Vendor binary URLs are not catalog-reviewed or SHA-verified. Link to the
+  // official download page instead; the guarded local-file flow stays available.
+  $("stocklinks").textContent = "";
+}
+function isCatalogChecked(v, p) {
+  return !!v && !!p && approvedNightlyModels(v).includes(chosenModel) &&
+    v.models && v.models[chosenModel] === p;
+}
+// Cached bytes belong only to the exact approved package that was hashed and
+// parsed. Stale DOM selection or another package cannot authorize this image.
+function hasVerifiedNightlySelection(v, p) {
+  return isCatalogChecked(v, p) && !!image && selectedProduct === p.product &&
+    !!verifiedDownload && verifiedDownload.pkg === p &&
+    verifiedDownload.model === chosenModel &&
+    verifiedDownload.version === v.version &&
+    typeof verifiedDownload.href === "string" &&
+    verifiedDownload.href.startsWith("blob:");
+}
+// Bind approved selection across the asynchronous MIDI permission/scan.
+// Never write a replaced, revoked or different controller/package choice.
+function guardApprovedSelection() {
+  const v = currentVersion(), version = v && v.version, model = chosenModel;
+  const pkg = v && v.models && v.models[model];
+  const serial = loadSerial, bytes = image, product = selectedProduct;
+  const download = verifiedDownload, href = download && download.href;
+  const controller = ctl, hash = ctlHash;
+  return () => {
+    const current = currentVersion();
+    const candidate = current && current.models && current.models[chosenModel];
+    return !!version && serial === loadSerial && chosenModel === model &&
+      !!current && current.version === version && candidate === pkg &&
+      hasVerifiedNightlySelection(current, candidate) &&
+      image === bytes && selectedProduct === product &&
+      verifiedDownload === download && verifiedDownload?.href === href &&
+      ctl === controller && ctlHash === hash;
+  };
+}
+function refreshMeta() {
+  const ver = currentVersion();
+  refreshNightly();
+  const pkg = ver && chosenModel && ver.models[chosenModel];
+  const link = $("download");
+  if (!isCatalogChecked(ver, pkg)) {
+    $("pkgmeta").textContent = "";
+    discardVerifiedDownload();
+    return;
+  }
+  const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
+  const note = ver && ver.label ? ` · ${ver.label}` : "";
+  $("pkgmeta").textContent = `${pkg.product}${size}${note}`;
+  if (!verifiedDownload || verifiedDownload.pkg !== pkg ||
+      verifiedDownload.model !== chosenModel || verifiedDownload.version !== ver.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:")) {
+    discardVerifiedDownload();
+    return;
+  }
+  link.href = verifiedDownload.href;
+  link.download = pkg.pkg.split("/").pop();
+  link.hidden = false;
+}
+async function sha256Hex(buf) {
+  // Hash the view that was fetched or dropped. raw.buffer can be a larger allocation.
+  const view = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", view))]
+    .map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hex;
+}
+// Stream modern Fetch responses within the catalog-approved byte budget.
+// A wrong/truncated/oversize response never reaches SHA/product parsing.
+async function readApprovedPackage(response, expectedSize, isLatest) {
+  if (!response.body || typeof response.body.getReader !== "function") {
+    // A non-streaming response cannot be bounded before allocation.
+    // Fail closed rather than buffering potentially unbounded remote bytes.
+    return null;
+  }
+  const reader = response.body.getReader();
+  const chunks = [];
+  let length = 0, reject = false;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (!isLatest()) { reject = true; break; }
+      if (done) break;
+      if (!(value instanceof Uint8Array) || value.byteLength > expectedSize - length) {
+        reject = true; break;
+      }
+      chunks.push(value);
+      length += value.byteLength;
+    }
+  } catch (error) {
+    reject = true;
+    throw error;
+  } finally {
+    if (reject) { try { await reader.cancel(); } catch (_) {} }
+    try { reader.releaseLock(); } catch (_) {}
+  }
+  if (reject || length !== expectedSize) return null;
+  const raw = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) { raw.set(chunk, offset); offset += chunk.byteLength; }
+  return raw;
+}
+
+async function loadSelectedPackage() {
+  const requestId = ++loadSerial;
+  discardVerifiedDownload();
+  image = null; selectedProduct = null;
+  $("go").disabled = true;
+  refreshMeta();
+  const ver = currentVersion();
+  const model = chosenModel;
+  const pkg = ver && model && ver.models[model];
+  if (!isCatalogChecked(ver, pkg)) { sayK("noproduct"); return; }
+  // A verified response is usable only while the SAME model/version/package
+  // remains selected and publisher-approved. An old request cannot re-enable Install.
+  const isLatest = () => {
+    if (requestId !== loadSerial || chosenModel !== model) return false;
+    const current = currentVersion();
+    return !!current && current.version === ver.version &&
+      current.models && current.models[model] === pkg && isCatalogChecked(current, pkg);
+  };
+  try {
+    const r = await fetch(pkg.pkg);
+    if (!isLatest()) return;
+    if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
+    const raw = await readApprovedPackage(r, pkg.size, isLatest);
+    if (!isLatest()) return;
+    // Streaming enforces the approved byte budget before digest/product parsing.
+    if (!raw) { sayK("badpkg"); return; }
+    // Approved downloads require a SHA and the exact product/model identity.
+    const hex = await sha256Hex(raw.buffer);
+    if (!isLatest()) return;
+    if (hex !== pkg.sha256) { sayK("badpkg"); return; }
+    const product = productOf(raw);
+    if (product !== pkg.product) { sayK("badpkg"); return; }
+    image = logicalImage(raw);
+    selectedProduct = product;
+    // Never hand out the unverified remote URL: this Blob contains the bytes
+    // already checked against the immutable package digest and model identity.
+    verifiedDownload = { pkg, model, version: ver.version,
+      href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
+    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
+    $("go").disabled = writing || ctlNeedsResolution ||
+      !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    refreshMeta();
+  } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
+}
+
+function fillVersions() {
+  loadSerial++; // Also invalidate a pending download when the picker becomes empty.
+  const sel = $("version");
+  const cur = sel.value;
+  sel.innerHTML = "";
+  const list = versions();
+  $("noversion").hidden = list.length > 0;
+  $("versionrow").hidden = list.length === 0;
+  $("modeldetails").hidden = list.length === 0;
+  $("go").hidden = list.length === 0;
+  if (!list.length) {
+    image = null; selectedProduct = null;
+    $("go").disabled = true;
+    $("pkgmeta").textContent = "";
+    discardVerifiedDownload();
+    say(t("noversion"));
+    refreshNightly();
+    // Do not reintroduce unverified vendor firmware binaries on empty catalogs.
+    // Keep the official manufacturer landing page and guarded local file picker.
+    $("stock").hidden = false;
+    $("stocklinks").textContent = "";
+    return;
+  }
+  for (const v of list) {
+    const o = document.createElement("option");
+    o.value = v.version;
+    const label = v.label ? " — " + v.label : "";
+    o.textContent = v.version + label + (v.version === catalogLive.latest ? " (latest)" : "");
+    sel.append(o);
+  }
+  const prefer = cur && list.some((v) => v.version === cur) ? cur
+    : (list.some((v) => v.version === catalogLive.latest)
+      ? catalogLive.latest : list[0].version);
+  if (prefer) sel.value = prefer;
+  refreshModelUi();
+  loadSelectedPackage();
+}
+
+function confirmWrite(product) {
+  const from = lastId ? lastId.text : "(not connected yet — Connect first if you can)";
+  return window.confirm(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
+}
+$("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
+
+async function mergeGitHubReleases() {
+  // Intentionally no-op: unreviewed GitHub Releases never change the picker.
+  // Only explicit per-model, source-checked and hosted-hash-approved catalog
+  // entries can be shown after review of NIGHTLY_PUBLISHER_APPROVALS.
+}
+let ctlLoadSerial = 0;
+let ctlHash = null;
+let ctlNeedsResolution = false;
 $("ctlfile").addEventListener("change", async (e) => {
-  ctl = null;
+  if (writing) { e.target.value = ""; return; }
   const f = e.target.files && e.target.files[0];
-  if (!f) return;
+  if (!f) return; // Canceling the chooser preserves the previous controller.
+  const requestId = ++ctlLoadSerial;
+  ctl = null; ctlHash = null;
+  ctlNeedsResolution = true;
+  $("ctlclear").disabled = false; // Allows explicit cancellation while reading.
+  $("go").disabled = true;
+  e.target.value = ""; // Allow choosing the same file again after a read failure.
+  // Reject oversized local controller files before allocating the contents.
+  if (!Number.isSafeInteger(f.size) || f.size < 1 || f.size > 16 * 1024 * 1024) {
+    sayK("ctlbad", t("localfilesize"));
+    return; // Keep Install blocked until explicit Remove controller.
+  }
   try {
     const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== ctlLoadSerial || writing) return;
     const p = ctlProblem(raw);
     if (p) { sayK("ctlbad", p); return; }
-    ctl = raw;
+    const hash = await sha256Hex(raw.buffer);
+    if (requestId !== ctlLoadSerial || writing) return;
+    ctl = raw; ctlHash = hash;
+    ctlNeedsResolution = false;
+    $("go").disabled = writing || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("ctlclear").disabled = false;
     sayK("ctlok");
-  } catch (err) { sayK("ctlbad", err && err.message); }
+  } catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlbad", err && err.message);
+  }
 });
 
-let writing = false;
+$("ctlclear").addEventListener("click", () => {
+  if (writing) return;
+  ctlLoadSerial++;
+  ctl = null; ctlHash = null;
+  ctlNeedsResolution = false;
+  $("go").disabled = writing || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+  $("ctlfile").value = "";
+  $("ctlclear").disabled = true;
+  sayK("ctlcleared");
+});
+
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
 
-(async () => {
-  if (!navigator.requestMIDIAccess) { sayK("nomidi"); return; }
+let stockLoadSerial = 0;
+async function acceptStock(raw, requestId) {
+  if (requestId !== stockLoadSerial || writing) return;
   try {
-    const r = await fetch(meta.pkg);
-    if (!r.ok) throw new Error(`${meta.pkg}: HTTP ${r.status}`);
-    const pkg = new Uint8Array(await r.arrayBuffer());
-    if (productOf(pkg) !== meta.product) { sayK("badpkg"); return; }
-    image = logicalImage(pkg);
-    say(`X0X ${meta.version}`);
-    $("go").disabled = false;
-  } catch (e) { sayK("loadfail", e.message); }
-})();
-
-/* stock firmware: M-VAVE's FM-1 V15, chosen by the user (M-VAVE's server allows no cross-site
-   download) and checked against its SHA-256 before anything is written */
-const STOCK_SHA256 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
-let stock = null;
-$("stockfile").addEventListener("change", async (e) => {
+    const product = productOf(raw);
+    const model = product.split("_")[0];
+    const hex = await sha256Hex(raw);
+    if (requestId !== stockLoadSerial || writing) return;
+    const isFm1Stock = hex === STOCK_SHA256_FM1;
+    // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
+    if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
+      sayK("stockbad"); return;
+    }
+    // If a device is connected, refuse a package for the other keyboard family (FM-1 vs SMK).
+    if (lastId && !sameKeyboard(lastId.model.replace(/^ota-/i, ""), model)) {
+      sayK("model", ` ${lastId.text} → ${product}`);
+      return;
+    }
+    stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
+    $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
+    $("stockconfirm").disabled = false;
+    $("stockgo").disabled = writing || !$("stockconfirm").checked;
+    sayK("stockok");
+  } catch (err) { if (requestId === stockLoadSerial && !writing) sayK("stockbad"); }
+}
+async function selectStockFile(f) {
+  if (!f || writing) return;
+  const requestId = ++stockLoadSerial;
   stock = null;
+  $("stockconfirm").checked = false;
+  $("stockconfirm").disabled = true;
   $("stockgo").disabled = true;
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
+  $("dropmeta").textContent = "";
+  sayK("stockloading");
+  // Refuse oversized local packages (chooser and drag/drop) before allocation.
+  if (!Number.isSafeInteger(f.size) || f.size < 1 || f.size > 16 * 1024 * 1024) {
+    sayK("stockbad", " " + t("localfilesize"));
+    return;
+  }
   try {
     const raw = new Uint8Array(await f.arrayBuffer());
-    const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("");
-    if (hex !== STOCK_SHA256) { sayK("stockbad"); return; }
-    stock = { image: logicalImage(raw), product: productOf(raw) };
-    $("stockgo").disabled = writing;
-    sayK("stockok");
-  } catch (err) { sayK("error", err && err.message); }
+    if (requestId !== stockLoadSerial || writing) return;
+    await acceptStock(raw, requestId);
+  } catch (err) {
+    if (requestId === stockLoadSerial && !writing) sayK("stockloadfail");
+  }
+}
+$("stockfile").addEventListener("change", async (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  e.target.value = ""; // Selecting the same file after failure must retry.
+  await selectStockFile(f);
+});
+$("stockconfirm").addEventListener("change", () => {
+  $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
+});
+const drop = $("stockdrop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", async (e) => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!f) return;
+  await selectStockFile(f);
 });
 
-async function run(img, product, isStock) {
-  let midi;
-  try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
-  catch (e) { sayK("denied"); return; }
+function verifyDownloadedSlotBackup(file, name) {
+  const expected = file instanceof Uint8Array ? file : new Uint8Array(file);
+  if (!expected.length || !Number.isSafeInteger(expected.length))
+    return Promise.reject(new Error(t("backupbad")));
+  const url = URL.createObjectURL(new Blob([expected], { type: "application/octet-stream" }));
+  return new Promise((resolve, reject) => {
+    let finished = false;
+    let choiceSerial = 0;
+    const panel = document.createElement("section");
+    panel.id = "backupverify";
+    panel.className = "panel";
+    panel.setAttribute("role", "group");
+    panel.setAttribute("aria-label", t("backupverify"));
+    const message = document.createElement("p");
+    message.textContent = t("backupverify") + " " + name;
+    const download = document.createElement("a");
+    download.href = url;
+    download.download = name;
+    download.textContent = t("backupdownload");
+    const instruction = document.createElement("p");
+    instruction.className = "small";
+    instruction.textContent = t("backupreopen");
+    const chooser = document.createElement("input");
+    chooser.type = "file";
+    chooser.accept = ".x0xslots";
+    chooser.setAttribute("aria-label", t("backupchoose"));
+    const feedback = document.createElement("p");
+    feedback.setAttribute("role", "status");
+    feedback.className = "small";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "quiet";
+    cancel.textContent = t("backupcancelbutton");
+    const finish = (error) => {
+      if (finished) return;
+      finished = true;
+      URL.revokeObjectURL(url);
+      panel.remove();
+      if (error) reject(error);
+      else resolve(true);
+    };
+    chooser.addEventListener("change", async () => {
+      const selected = chooser.files && chooser.files[0];
+      chooser.value = ""; // Allow retrying the same file after a mismatch.
+      if (!selected || finished) return;
+      const request = ++choiceSerial;
+      chooser.disabled = true;
+      try {
+        if (selected.size !== expected.length) throw new Error("size mismatch");
+        const actual = new Uint8Array(await selected.arrayBuffer());
+        if (finished || request !== choiceSerial) return;
+        if (actual.length !== expected.length || !actual.every((v, i) => v === expected[i]))
+          throw new Error("byte mismatch");
+        finish();
+      } catch (error) {
+        if (!finished && request === choiceSerial) {
+          feedback.textContent = t("backupbad");
+          chooser.disabled = false;
+          chooser.focus();
+        }
+      }
+    });
+    cancel.addEventListener("click", () => finish(new Error(t("backupcancelled"))));
+    panel.append(message, download, instruction, chooser, feedback, cancel);
+    $("status").after(panel);
+    download.focus();
+  });
+}
+
+async function run(img, product, opts = {}) {
+  // Lock both install paths before an asynchronous MIDI permission request.
+  if (writing) return;
   writing = true;
+  scanSerial++; // Invalidate any pre-write lookup before Web MIDI/OTA operations.
+  ctlLoadSerial++; // Ignore controller file reads pending before the write.
+  $("ctlclear").disabled = true;
   $("go").disabled = $("stockgo").disabled = true;
+  const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
+  let access;
+  try { access = await midiAccess(); }
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied");
+    $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
+    return;
+  }
+  led("busy");
   try {
-    const up = new Updater(midi, log);
+    // Permission and loader discovery may outlive the verified selection.
+    const selectionValid = () => foreign ||
+      (typeof opts.selectionGuard === "function" && opts.selectionGuard());
+    if (!selectionValid()) throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
+    const up = new Updater(access, log);
     const total = 74 + 1167;
     const step = (k, a) => {
       log(`${k} ${a ?? ""}`);
@@ -259,55 +1099,267 @@ async function run(img, product, isStock) {
       if (k === "loader") sayK("loader");
       if (k === "write") { sayK("write"); $("bar").value = ((74 + a) / total) * 100; }
       if (k === "reboot") sayK("reboot");
-      if (k === "done") { $("bar").value = 100; sayK(isStock ? "stockdone" : "done"); }
+      if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
+    if (!selectionValid()) {
+      if (ota) ota.link.close();
+      throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
+    }
     if (ota) {
+      // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
-      sayK((await up.resume(img, step, product)) ? (isStock ? "stockdone" : "done") : "stopped");
+      // Already in the loader: SMP_INFO and prewrite slot backup are unavailable.
+      // This is a deliberate manual recovery override, never an inferred backup PASS.
+      if (!foreign && !confirmNightlyModel(ota.id.model, product))
+        throw Object.assign(new Error(t("modelcancel")), { code: "modelcancel" });
+      if (!window.confirm(t("otaconfirm"))) {
+        throw Object.assign(new Error(t("otabackup")), { code: "otabackup" });
+      }
+      const ok = await up.resume(img, step, product);
+      $("bar").value = ok ? 100 : $("bar").value;
+      sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
     } else {
-      /* the sample slots: saved to a file first when the new firmware would lose them, written back after */
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
-        step, sameKeyboard,
+        step, sameKeyboard, beforeFirmwareWrite: selectionValid,
+        confirmModel: foreign ? null : (id, p) => confirmNightlyModel(id.model, p),
         say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
         progress: (f) => { $("bar").value = Math.min(100, f * 100); },
-        save: (file, name) => {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
-          a.download = name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+        save: async (file, name) => {
+          await verifyDownloadedSlotBackup(file, name);
           log(t("slotsaved") + name);
+          return true;
         },
       });
       if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
       else if (r.move) {
         $("bar").value = 100;
-        sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
+        if (r.move.skipped.length) {
+          // Firmware completed, but restoration did not. Never show a clean
+          // success: preserve the skipped-slot list and backup filename.
+          sayK("slotspartial", r.move.skipped.join("; ") + ` (${r.move.name})`);
+          log(t("slotspartial") + r.move.skipped.join("; ") + ` (${r.move.name})`);
+        } else sayK("slotsdone");
       }
     }
+    await scan(true); // Re-detect after reboot without releasing the single-writer lock.
   } catch (e) {
-    if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }   /* stock names itself its own way */
+    // Stock / other custom firmware often reports a different identity string than the package marker.
+    if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
     else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
+    led("err");
   }
   writing = false;
-  $("go").disabled = !image;
-  $("stockgo").disabled = !stock;
+  $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+  $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+  $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
 }
 
-$("go").addEventListener("click", () => {
+$("go").addEventListener("click", async () => {
+  if (writing || ctlNeedsResolution || $("go").disabled ||
+      !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
+  if (!confirmWrite(selectedProduct)) return;
+  const product = selectedProduct;
+  const guard = guardApprovedSelection();
   let img = image;
   if (ctl) {
+    const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+    // Valid format alone does not prove the controller matches the approved DEV build.
+    if (!isCatalogChecked(v, p) || ctlHash !== p.controller_sha256) {
+      sayK("ctlbad", t("ctlunapproved"));
+      return;
+    }
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
-  run(img, meta.product, false);
+  const choice = (document.querySelector('input[name="brkpack"]:checked') || {}).value || "none";
+  if (choice !== "none") {
+    try {
+      let pack = FACTORY_BREAK_PACK;
+      if (choice === "mine") {
+        const files = $("loopfiles").files;
+        if (!files || !files.length) { sayK("loopsneed"); return; }
+        const loops = [];
+        for (const f of files) loops.push(loopFromWav(new Uint8Array(await f.arrayBuffer()), f.name));
+        if (selectedProduct !== product) {
+          sayK("selectionstale");
+          return;
+        }
+        pack = encodeBreakPack(loops);
+      }
+      img = insertBreakPack(img, pack);
+    } catch (e) {
+      say(t("loopsfit") + " " + (e && e.message ? e.message : ""));
+      return;
+    }
+  }
+  if (selectedProduct !== product) {
+    sayK("selectionstale");
+    return;
+  }
+  $("go").disabled = true;   // sync before the first await in run()
+  run(img, product, { foreign: false, selectionGuard: guard });
 });
-$("stockgo").addEventListener("click", () => { if (stock) run(stock.image, stock.product, true); });
+function confirmNightlyModel(deviceModel, product) {
+  const actual = String(deviceModel || "").replace(/^ota-/i, "");
+  if (!sameKeyboard(actual, product.split("_")[0]))
+    throw Object.assign(new Error(t("model")), { code: "model" });
+  return window.confirm(t("nightlymodel") + product + t("nightlymodelReported") + actual + t("nightlymodelEnd"));
+}
+function confirmStockModel(product) {
+  if (!lastId) return true; // Without a scan, Updater still checks the family; manual model confirmation stays mandatory.
+  const connectedModel = lastId.model.replace(/^ota-/i, "");
+  const packageModel = product.split("_")[0];
+  // The connected keyboard can change after selecting a local package.
+  if (!sameKeyboard(connectedModel, packageModel)) {
+    sayK("model", ` ${lastId.text} → ${product}`);
+    return false;
+  }
+  if (connectedModel.toLowerCase() !== packageModel.toLowerCase()) {
+    // A shared SMK-family identity never certifies the physical model.
+    return window.confirm(t("stockalias") + lastId.text + t("stockaliasTo") +
+      product + t("stockaliasEnd"));
+  }
+  return true;
+}
+$("stockgo").addEventListener("click", () => {
+  if (!stock || !$("stockconfirm").checked || writing) return;
+  if (!confirmStockModel(stock.product) || !confirmWrite(stock.product)) return;
+  $("stockgo").disabled = true;
+  run(stock.image, stock.product, { foreign: true });
+});
+
+let bootBits = null, bootOp = false;
+const BOOT_SAY = {
+  1: "bootrefuse", 2: "bootnoflash", 3: "bootflash", 4: "bootbusy", 5: "bootfit", 6: "bootlate",
+  lost: "bootlost", unconfirmed: "bootunconfirmed", short: "bootshort", long0: "bootlong0",
+  long1: "bootlong1", chars: "bootchars", picsize: "boottype",
+};
+function bootSay(key) { $("bootstatus").textContent = key ? t(key) : ""; }
+function loadBootImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad")); };
+    img.src = url;
+  });
+}
+function fitBootImage(img) {
+  const c = document.createElement("canvas");
+  c.width = 240; c.height = 96;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.fillStyle = "#000";
+  g.fillRect(0, 0, 240, 96);
+  const s = Math.min(240 / img.width, 96 / img.height);
+  const w = Math.max(1, Math.round(img.width * s)), h = Math.max(1, Math.round(img.height * s));
+  g.drawImage(img, Math.floor((240 - w) / 2), Math.floor((96 - h) / 2), w, h);
+  return g.getImageData(0, 0, 240, 96).data;
+}
+function drawBootPreview(bits) {
+  const g = $("bootprev").getContext("2d");
+  g.putImageData(new ImageData(bootBitsToRgba(bits || new Uint8Array(BOOT_PIC_BYTES)), 240, 96), 0, 0);
+}
+function bootBytes() {
+  const packed = bootPack({ line0: $("boottitle").value, line1: $("bootsub").value, bits: bootBits });
+  if (!packed.ok) { bootSay(BOOT_SAY[packed.code] || "bootshort"); return null; }
+  return packed.bytes;
+}
+function showBootResult(r, okKey) {
+  bootSay(r.ok ? okKey : (BOOT_SAY[r.code] || "bootrefuse"));
+}
+async function withRunningX0x(fn) {
+  if (writing) { bootSay("bootbusyinstall"); return; }
+  if (bootOp) return;
+  bootOp = true;
+  let dev = null;
+  try {
+    const up = new Updater(await midiAccess(), () => {});
+    dev = await up.find((id) => !/^ota-/i.test(id.model));
+    if (!dev) { bootSay("bootrun"); return; }
+    await fn(dev.link);
+  } catch (e) {
+    bootSay("bootlost");
+  } finally {
+    if (dev) dev.link.close();
+    bootOp = false;
+  }
+}
+$("bootfile").addEventListener("change", async () => {
+  const f = $("bootfile").files && $("bootfile").files[0];
+  const keep = () => { $("bootfile").value = ""; drawBootPreview(bootBits); };
+  if (!f) return;
+  if (!f.size) { bootSay("bootempty"); keep(); return; }
+  if (f.size > BOOT_FILE_MAX) { bootSay("bootbig"); keep(); return; }
+  const named = /\.(png|jpe?g|gif|webp|bmp)$/i.test(f.name);
+  if ((f.type && !f.type.startsWith("image/")) || (!f.type && !named)) {
+    bootSay("boottype"); keep(); return;
+  }
+  try {
+    const img = await loadBootImage(f);
+    if (!img.width || !img.height) { bootSay("bootblank"); keep(); return; }
+    const bits = bootRgbaToBits(fitBootImage(img));
+    if (!bits) { bootSay("bootdecode"); keep(); return; }
+    bootBits = bits;
+    drawBootPreview(bits);
+    bootSay("");
+  } catch (e) {
+    bootSay("bootdecode");
+    keep();
+  }
+});
+$("bootclear").addEventListener("click", () => {
+  bootBits = null;
+  $("bootfile").value = "";
+  drawBootPreview(null);
+  bootSay("");
+});
+$("bootsave").addEventListener("click", () => {
+  const bytes = bootBytes();
+  if (!bytes) return;
+  withRunningX0x(async (link) => showBootResult(await bootTransfer(link, bytes), "bootsaved"));
+});
+$("bootfactory").addEventListener("click", () => {
+  const packed = bootPack({ factory: true });
+  withRunningX0x(async (link) => {
+    const r = await bootTransfer(link, packed.bytes);
+    if (r.ok) {
+      $("boottitle").value = "X0X";
+      $("bootsub").value = "909 808 303 303 BREAK";
+      bootBits = null;
+      $("bootfile").value = "";
+      drawBootPreview(null);
+    }
+    showBootResult(r, "bootorig");
+  });
+});
+$("bootread").addEventListener("click", () => {
+  withRunningX0x(async (link) => {
+    try {
+      const info = await bootRead(link);
+      if (info.status === 2) { bootSay("bootnoflash"); return; }
+      $("boottitle").value = info.line0;
+      $("bootsub").value = info.line1;
+      bootBits = info.bits;
+      drawBootPreview(info.bits);
+      bootSay("bootgot");
+    } catch (e) {
+      bootSay("bootreadfail");
+    }
+  });
+});
+
+(async () => {
+  applyLang();
+  drawBootPreview(null);
+  await mergeGitHubReleases();
+  fillVersions();
+  if (navigator.requestMIDIAccess) {
+    // Soft probe without prompting until Connect, unless the browser already granted MIDI.
+  }
+})();
 </script>
 </body>
 </html>

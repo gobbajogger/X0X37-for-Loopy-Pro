@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* TB-3PO generator; see tb3po.h. Integer and float maths only, no libm. */
 #include "tb3po.h"
+#include "../x0x_cold.h"              /* X0X_COLD: UI/setup generate — not auto_mutate on fire_step */
 
 typedef struct { int8_t deg[7]; uint8_t len; } scale_t;
 
@@ -14,7 +15,7 @@ static const scale_t SCALES[TB3PO_NSCALES] = {     /* schwung-tb3po's SCALES, sa
 };
 const char *const TB3PO_SCALE_NAMES[TB3PO_NSCALES] = {"MIN", "PHRY", "HARM", "MPEN", "DOR", "MAJ"};
 
-static uint32_t rng_u32(uint32_t *r)                 /* xorshift32, as schwung-tb3po */
+__attribute__((noinline)) static uint32_t rng_u32(uint32_t *r)                 /* xorshift32, as schwung-tb3po */
 {
     uint32_t x = *r;
     if (x == 0)
@@ -26,12 +27,12 @@ static uint32_t rng_u32(uint32_t *r)                 /* xorshift32, as schwung-t
     return x;
 }
 
-static float rng_f(uint32_t *r)                      /* [0, 1) */
+__attribute__((noinline)) static float rng_f(uint32_t *r)                      /* [0, 1) */
 {
     return (float)(rng_u32(r) & 0xFFFFFFu) / (float)0x1000000;
 }
 
-void tb3po_defaults(tb3po_cfg_t *g, uint32_t seed)
+X0X_COLD void tb3po_defaults(tb3po_cfg_t *g, uint32_t seed)
 {
     g->density = 70;                                 /* schwung-tb3po: 0.7 / 0.4 / 0.25, 2 octaves, A minor */
     g->accent = 40;
@@ -44,28 +45,28 @@ void tb3po_defaults(tb3po_cfg_t *g, uint32_t seed)
     g->seed = seed ? seed : 0xBEEF;
 }
 
-static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+__attribute__((noinline)) static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 
-static uint8_t note_of(const tb3po_cfg_t *g, int degree, int oct)
+__attribute__((noinline)) static uint8_t note_of(const tb3po_cfg_t *g, int degree, int oct)
 {
     const scale_t *sc = &SCALES[g->scale < TB3PO_NSCALES ? g->scale : 0];
     return (uint8_t)clampi(12 * (g->base_oct + 1) + g->root + sc->deg[degree] + 12 * oct, 0, 127);
 }
 
-static int roll_degree(uint32_t *r, const scale_t *sc)
+__attribute__((noinline)) static int roll_degree(uint32_t *r, const scale_t *sc)
 {
     int d = (int)(rng_f(r) * (float)sc->len);
     return d >= sc->len ? sc->len - 1 : d;
 }
 
-static int roll_oct(uint32_t *r, int range)
+__attribute__((noinline)) static int roll_oct(uint32_t *r, int range)
 {
     int o = (int)(rng_f(r) * (float)range);
     return o >= range ? range - 1 : o;
 }
 
 /* step kind -> flags, schwung-tb3po's STEP_NOTE / ACCENT / SLIDE */
-static uint8_t roll_kind(uint32_t *r, const tb3po_cfg_t *g)
+__attribute__((noinline)) static uint8_t roll_kind(uint32_t *r, const tb3po_cfg_t *g)
 {
     uint8_t f = G_NOTE;
     if (rng_f(r) < (float)g->accent / 100.0f)
@@ -75,7 +76,7 @@ static uint8_t roll_kind(uint32_t *r, const tb3po_cfg_t *g)
     return f;
 }
 
-void tb3po_generate(bpart_t *b)
+X0X_COLD void tb3po_generate(bpart_t *b)
 {
     tb3po_cfg_t *g = &b->gen;
     const scale_t *sc = &SCALES[g->scale < TB3PO_NSCALES ? g->scale : 0];
@@ -84,6 +85,7 @@ void tb3po_generate(bpart_t *b)
     for (i = 0; i < NSTEPS; i++) {
         b->step[i].flags = G_REST;
         b->step[i].note = note_of(g, 0, 0);
+        b->step[i].velocity = 0;       /* generated notes use the default, not a prior edit */
     }
     for (i = 0; i < len; i++) {
         int deg, oct;
@@ -116,6 +118,11 @@ void tb3po_mutate(bpart_t *b, uint32_t *rng)
     const scale_t *sc = &SCALES[g->scale < TB3PO_NSCALES ? g->scale : 0];
     int range = clampi(g->oct_range, 1, 3), len = clampi(b->len, 1, NSTEPS), i;
     uint32_t r = *rng ? *rng : (g->seed ? g->seed : 1);
+    int had_gate = 0, any_gate = 0;
+    for (i = 0; i < len; i++) {
+        if (bstep_gate(&b->step[i]) != G_REST)
+            had_gate = 1;
+    }
     for (i = 0; i < len; i++) {
         if (rng_f(&r) >= 0.25f)
             continue;
@@ -132,12 +139,21 @@ void tb3po_mutate(bpart_t *b, uint32_t *rng)
     for (i = 0; i < len; i++) {
         int nx = (i + 1) % len;
         if ((b->step[i].flags & BS_SLIDE) && bstep_gate(&b->step[nx]) == G_REST)
-            b->step[i].flags = G_NOTE;
+            b->step[i].flags &= (uint8_t)~BS_SLIDE;  /* keep a manually programmed accent */
+        if (bstep_gate(&b->step[i]) != G_REST)
+            any_gate = 1;
+    }
+    /* Preserve the generator's audible anchor when mutations remove the last note.
+     * Leave intentionally cleared (all-rest) user patterns untouched. */
+    if (had_gate && !any_gate) {
+        b->step[0].note = note_of(g, 0, 0);
+        b->step[0].flags = G_NOTE;
+        b->step[0].velocity = 0;
     }
     *rng = r;
 }
 
-uint32_t tb3po_new_seed(uint32_t entropy)
+X0X_COLD uint32_t tb3po_new_seed(uint32_t entropy)
 {
     uint32_t r = entropy * 2654435761u + 0x9E3779B9u;
     rng_u32(&r);

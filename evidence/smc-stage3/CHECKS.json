@@ -1,0 +1,67 @@
+{
+  "stage": 3,
+  "owner_chat": "01a15a0c-471c-7bd3-b989-4e306ca6a082",
+  "original_candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "metadata_corrected_candidate": "3fc770dcde261a23556f6c3749ebd4bc5911f1c3",
+  "candidate_tree": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "source_changes_in_stage3": false,
+  "result": "PASS for scoped source/host checks; ready for stage4 exact DEV validation",
+  "checks": [
+    {
+      "scope": "knob/UI/guards",
+      "report": "knob-ui/REPORT.txt",
+      "details": "mapping, faders/pickup, buttons, filter, clips/modal guards, part selection and full five-route production UI"
+    },
+    {
+      "scope": "receive/DIAG/bounds/replay",
+      "report": "receive-diag/report.json",
+      "details": "old/new DIAG and 77-word bounds; fail-on-base decoder; strict address+undefined receive/replay pass on supported native macOS"
+    },
+    {
+      "scope": "independent source/last-good/live-silence review",
+      "report": "silence-review/REPORT.txt",
+      "details": "no new production defect; intentional three-mode mapping; no speculative transport repair"
+    },
+    {
+      "scope": "source identity",
+      "report": "source-identity.json",
+      "details": "13/13 recorded hashes match"
+    },
+    {
+      "scope": "build inputs",
+      "report": "build-input-review.json",
+      "details": "compiler hash and clean SDK exact; preliminary Elite/Pro DEV source build logs reused only within their stated scope"
+    },
+    {
+      "scope": "owner preferences",
+      "log": "prefs-lint.log",
+      "result": "PASS"
+    },
+    {
+      "scope": "committed-candidate docs/rules",
+      "original_log": "docs-check.log",
+      "original_result": "FAIL missing Trigger:/Check: commit-body lines",
+      "corrected_log": "docs-check-corrected.log",
+      "result": "PASS after own-lane metadata-only reword; exact tree/parent preserved; independent review agrees"
+    }
+  ],
+  "failures_dispositions": [
+    "Committed preference update lacked required body lines. Corrected only isolated stage3 copy of tip; old lane retains original. metadata-correction.json proves same tree/parent. No source repair, so no repeated stage2.",
+    "Linux sanitized binary startup SIGSEGV also reproduces in trivial main (1/10), with no source diagnostic; deeper runtime cause unproven. Initial and bounded retry failures retained. Same strict checks pass on supported macOS. No source repair indicated.",
+    "Docker sandbox/socket and container Git ownership setup failures resolved by approved Docker entry and process-local safe.directory; no shared/global config mutation.",
+    "Invalid initial decoder-baseline scratch lacked helper module; retained separately, corrected exact-base fixture then failed expected old field assertion.",
+    "Ten prose heuristics remain advisory; required preference/rule/commit checks pass."
+  ],
+  "hardware": "NOT TESTED; owner-reported all-input silence remains unresolved",
+  "live_boundary": "UNKNOWN: diagnostics not installed; old idle snapshot has no packet bytes or discovered handles and cannot prove absent input",
+  "preserved_controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "stage4_required": "Exact candidate DEV records, configurations, dependencies, packages and explicit matching controller for Elite and Pro; no install authorization",
+  "unrun_in_stage3": [
+    "new target builds (matching preliminary stage2 logs retained; exact stage4 validation pending)",
+    "physical radio/input delivery",
+    "firmware install",
+    "full gate/release",
+    "FM1 target",
+    "external push/publication"
+  ]
+}

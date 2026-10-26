@@ -39,6 +39,7 @@ struct fxbus {
     float rv_decay, rv_tone, rv_level;
     d9_biquad_t rv_hp;
     int16_t comb[FX_RV_COMB_TOTAL];
+    volatile uint8_t muted;          /* uses alignment padding: reverb/delay/master output gates, not pots */
     float ap[FX_RV_AP_TOTAL];
     int32_t cpos[4], apos[2];
     float cdmp[4];

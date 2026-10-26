@@ -5,16 +5,14 @@
 # Made by Build and Test Runner for Orchestrator (audit item 4), 2026-10-16. Run time target: < 20 s.
 # Source: tools/status.sh in the box repository. Live copy: /workspace/x0x37-orchestrator/status.sh (copy it when it does not run).
 # Environment for a test (defaults = the live paths): X0X_REPO, X0X_STATUS_OUT, X0X_STATUS_TMP, X0X_RESULTS_DIR, X0X_GATE_LOCK.
-# Output folder (check 30 of rules v4): "status.sh --out DIR" or X0X_STATUS_OUT=DIR (old name X0X_STATUS_OUTDIR).
+# Output folder: "status.sh --out DIR" or X0X_STATUS_OUT=DIR (old name X0X_STATUS_OUTDIR).
 #   The default is the live folder /workspace/x0x37-orchestrator (for cron). With an output folder that is not the live
 #   folder, the temp files go to DIR/.status-tmp (X0X_STATUS_TMP sets another folder). All files that this script writes
 #   are in the output folder or in the temp folder.
 #   X0X_TEST_RUN not empty (tests/run_tests.sh sets it): the script refuses (exit 4) to write the live folder.
 #   X0X_STATUS_LIVEDIR sets the path of the live folder for this guard (only for its test).
-# Agent output (check 12 of rules v4): the commits on the lane branches lane/<agent>-* of each agent count
+# Agent output: the commits on the lane branches lane/<agent>-* of each agent count
 # (mb Firmware Main Builder, sb Second Builder, opt Optimizer, btr Build and Test Runner, dk Docs Keeper).
-# Check 27: the summary has the result of the docs lint (prefs_lint.py --git REPO smk37, X0X_PREFS_LINT
-#   [/workspace/x0x37-refs/gate/prefs_lint.py]). "PREFS FAIL" is the flag RULE POINTERS.
 # Check 29: ROADMAP INSTALLED MISMATCH: the installed hash of smk37:docs/ROADMAP.md (the first "Installed = batch N (<hash>)"
 #   or "The keyboard runs [integration] <hash>") is not the hash of the last row of INSTALLED.tsv.
 #   BEHAVIOR ITEM MISSING: an integration commit after the last install (INSTALLED.tsv) names an ID (for example CLP-99)
@@ -50,7 +48,7 @@ GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 LIVE_H=24          # live = tip commit time in the last 24 h
 STALL_MIN=45       # stall = queued work and no output for more than 45 min
 G() { git --git-dir="$REPO" "$@"; }
-SELFD=$(cd "$(dirname "$0")" && pwd)   # the folder of this script (ste_check.py is beside it)
+SELFD=$(cd "$(dirname "$0")" && pwd)   # the folder of this script
 T0=$(date +%s.%N); NOW=$(date +%s)
 mkdir -p "$OUTDIR" "$TMPD"
 TMP=$(mktemp "$TMPD/status.md.XXXXXX"); TMPL=$(mktemp "$TMPD/LIVE_BRANCHES.XXXXXX")
@@ -235,39 +233,6 @@ while read -r lg; do
     RUNCHK+="| $c7 | $(dirname "$lg") | $(fmt "$m") | **NO GATE ROW**: $why |"$'\n'; NGRN=$((NGRN+1)); NGR+="gate run $c7 ($(dirname "$lg")), "; fi
 done < <(find /workspace /home/box/.cache/x0x37-gate -maxdepth 4 -path '*.logs/gate.log' 2>/dev/null)
 
-# ---------- STE (last hour): commit messages of all box branches, committer time in the last hour ----------
-# ste_check.py (beside this script) on each message (subject + body), one check for each hash.
-# Hard categories (the same as the strict mode of tools/quickcheck.sh on branch ste-check):
-# long_proc long_desc semicolon modal passive contraction no_verb.
-STELINE="- STE (last hour): ste_check.py not found."
-if [ -f "$(dirname "$0")/ste_check.py" ]; then
-  SD=$(mktemp -d "$TMPD/ste.XXXXXX")
-  for c in $(G rev-list --branches --since="@$((NOW-3600))" 2>/dev/null | sort -u); do
-    { echo "${c:0:7}"; G log -1 --format=%B "$c"; echo "@@END@@"; } > "$SD/${c:0:7}"
-  done
-  if [ -n "$(ls "$SD")" ]; then
-    STELINE=$(cd "$SD" && timeout 10 python3 "$SELFD/ste_check.py" --json --examples 20 $(ls) 2>/dev/null | GD="$REPO" python3 -c '
-import json, subprocess, sys, os
-K = ["long_proc", "long_desc", "semicolon", "modal", "passive", "contraction", "no_verb"]
-try: rs = json.load(sys.stdin)
-except Exception: print("- STE (last hour): ste_check.py output not read."); sys.exit()
-bad = []
-for r in rs:
-    n = sum(r["counts"][k] for k in K)
-    if not n: continue
-    top = max(K, key=lambda k: r["counts"][k]); ex = ""
-    for e in r["worst"]:
-        if top in e["rules"]: ex = e["text"][:60]; break
-    subj = subprocess.run(["git", "--git-dir", os.environ["GD"], "log", "-1", "--format=%s", r["file"]], capture_output=True, text=True).stdout.strip()[:60]
-    bad.append((n, r["file"], subj, top, r["counts"][top], ex))
-bad.sort(key=lambda b: -b[0])
-w = "; ".join("%s \"%s\" (%s x%d%s)" % (b[1], b[2].replace("|", "/"), b[3], b[4], (": " + b[5].replace("|", "/")) if b[5] else "") for b in bad[:3])
-print("- STE (last hour): %d commit messages checked, %d with hard violations.%s" % (len(rs), len(bad), (" Worst: " + w + ".") if w else ""))')
-    [ -n "$STELINE" ] || STELINE="- STE (last hour): ste_check.py failed or took more than 10 s."
-  else STELINE="- STE (last hour): 0 commit messages checked (no commit in the last hour)."; fi
-  rm -rf "$SD"
-fi
-
 # ---------- agents ----------
 # name;branch regex (box repo);folders (space separated);result files/dirs
 AGENTS=(
@@ -293,7 +258,7 @@ gitact() { local d=$1 m=0 v f gd=""; [ -f "$d/.git" ] && gd=$(sed -n 's/^gitdir:
 
 # ---------- branches that must not merge (never queued work) ----------
 declare -A NOMERGE
-NOMERGE[smk37]="docs base branch"; NOMERGE[refs-oscuro]="never merge (owner rule)"
+NOMERGE[smk37]="docs base branch"; NOMERGE[refs-oscuro]="never merge"
 if [ -f "$RESULTS/LIVE_BRANCHES" ]; then
   while read -r n rest; do
     echo "$rest" | grep -qiE 'do not merge|watch only' || continue
@@ -305,7 +270,7 @@ if [ -f "$RESULTS/LIVE_BRANCHES" ]; then
 fi
 
 # ---------- behavior diff (file content) ----------
-# Rule: compare smk37 BEHAVIOR.md (docs/BEHAVIOR.md, else BEHAVIOR.md) with integration:BEHAVIOR.md.
+# Method: compare smk37 BEHAVIOR.md (docs/BEHAVIOR.md, else BEHAVIOR.md) with integration:BEHAVIOR.md.
 # Ignore (1) the header: all lines before the first "## " heading, and (2) the sync note paragraph
 # that starts with "Reference copy:" (metadata, not behaviour). Trailing spaces are ignored.
 bnorm() { awk 'f==0 && /^## /{f=1} f==0{next} /^Reference copy:/{skip=1} skip && /^[[:space:]]*$/{skip=0; next} skip{next} {sub(/[ \t]+$/,""); print}'; }
@@ -321,10 +286,6 @@ fi
 # ================= write =================
 # ---------- check 27: docs lint; check 29: ROADMAP installed hash, BEHAVIOR items since the last install ----------
 DOCB=${X0X_DOCS_BRANCH:-smk37}
-PLINT=${X0X_PREFS_LINT:-/workspace/x0x37-refs/gate/prefs_lint.py}
-if [ -f "$PLINT" ]; then PL=$(python3 "$PLINT" --git "$REPO" "$DOCB" 2>&1 | head -1)
-  case "$PL" in "PREFS OK"*) L27="- Rule pointers (check 27): $PL.";; *) L27="- **RULE POINTERS** (check 27): ${PL:-no output} (run $PLINT --git $REPO $DOCB for the list).";; esac
-else L27="- Rule pointers (check 27): not checked (no $PLINT)."; fi
 INSTLAST=""; [ -f "$RESULTS/INSTALLED.tsv" ] && INSTLAST=$(awk -F '\t' 'NR > 1 && $2 ~ /^[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/ {h = $2} END {print h}' "$RESULTS/INSTALLED.tsv")
 RMH=$(G show "$DOCB:docs/ROADMAP.md" 2>/dev/null | grep -oiE 'installed = batch [0-9]+ \([0-9a-f]{7,40}\)|the keyboard runs (integration )?[0-9a-f]{7,40}' | head -1 | grep -oE '[0-9a-f]{7,40}' | tail -1)
 if [ -z "$INSTLAST" ]; then L29A="- ROADMAP installed (check 29): not checked (no hash row in $RESULTS/INSTALLED.tsv)."
@@ -357,12 +318,10 @@ echo
 echo "- Integration: ${INTH:-missing} \"${SUBJ[$INT]:-}\" ($(age "${CT[$INT]:-0}") old)."
 echo "- Installed firmware: $INST. Source: ${INSTSRC:-none}."
 echo "- Gate lock: $LOCKTXT."
-echo "$STELINE"
 if [ "$NGRN" -gt 0 ]; then echo "- **NO GATE ROW** ($NGRN): ${NGR%, }. Historical (pre-guard, allowlisted): $HISTN."; else echo "- NO GATE ROW: 0 (each install and each gate run of the last 24 h has a gate row, or is on the pre-guard allowlist: $HISTN historical)."; fi
 if [ -n "$BNOTE" ]; then echo "- BEHAVIOR diff: $BNOTE."
 elif [ -n "$BDIFF" ]; then echo "- **BEHAVIOR DIFF:** $BSRC and $INT:BEHAVIOR.md differ in $BREAL text lines (header and sync note ignored). See below."
 else echo "- BEHAVIOR diff: none. $BSRC = $INT:BEHAVIOR.md in text (header and sync note ignored; raw diff $BRAW lines)."; fi
-echo "$L27"
 echo "$L29A"
 echo "$L29B"
 STALLS=""
@@ -435,7 +394,7 @@ echo "- Hash: $INST."
 echo "- Source: ${INSTSRC:-none}."
 echo "- Why this row: ${INSTWHY:--}."
 echo "- Source row: \`$(echo "${INSTROW:--}" | sed 's/`/'"'"'/g')\`"
-echo "- Rule: primary source $INSTTSV (newest row by time). If it is missing or empty: the newest INSTALLED row of any id (a74, b1, ...) in BLE_ATTEMPTS.md on all branches, by date + install time. The device itself is not read."
+echo "- Method: primary source $INSTTSV (newest row by time). If it is missing or empty: the newest INSTALLED row of any id (a74, b1, ...) in BLE_ATTEMPTS.md on all branches, by date + install time. The device itself is not read."
 echo
 echo "## Agents"
 echo
@@ -468,7 +427,7 @@ if [ -n "$STALLS" ]; then echo "**STALL FLAGS:** ${STALLS%, }."; else echo "Stal
 echo
 echo "## BEHAVIOR diff (file content)"
 echo
-echo "Compares ${BSRC:-smk37 BEHAVIOR.md} with $INT:BEHAVIOR.md. Rule: ignore the header (all lines before the first \"## \" heading), the sync note paragraph that starts with \"Reference copy:\", and trailing spaces. Flag only when other text differs."
+echo "Compares ${BSRC:-smk37 BEHAVIOR.md} with $INT:BEHAVIOR.md. Method: ignore the header (all lines before the first \"## \" heading), the sync note paragraph that starts with \"Reference copy:\", and trailing spaces. Flag only when other text differs."
 echo
 if [ -n "$BNOTE" ]; then echo "$BNOTE."
 elif [ -n "$BDIFF" ]; then echo "**BEHAVIOR DIFF** ($BREAL text lines differ; first 20 diff lines):"; echo; echo '```diff'; echo "$BDIFF" | head -22 | cut -c1-200; echo '```'

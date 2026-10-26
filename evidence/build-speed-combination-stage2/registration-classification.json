@@ -1,0 +1,6 @@
+{
+  "result": "PASS",
+  "unchanged_existing_names": 107,
+  "new_fixture": "ctl-compile S no",
+  "meaning": "All existing class and installer-lock classifications retained; controller fixture executes serially without installer lock."
+}

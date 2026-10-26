@@ -1,0 +1,8 @@
+{
+  "firmware/src/ble.c": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba",
+  "firmware/src/ble/ble_midi_central.c": "4fbc29db6f9fb97f5598bdd3eb960f097c08567e63bba6b000a12fe0a24c3b27",
+  "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+  "tests/host/ble_midi_stop_test.c": "07c8bd830d65694990579d778aee4dd797cf006dfa8bf95c57275a4a182081d5",
+  "evidence/stop-stage3/investigation/different-handle-probe.c": "0846aabaf549e49588764feb216dcfe95ade4f925c225905d0fc9492c00d03bf",
+  "evidence/stop-stage3/investigation/run-different-handle.py": "1fd830976df66cd7185c2e5b33d30c5f56c583ef9b3628358c4a605a48c86657"
+}

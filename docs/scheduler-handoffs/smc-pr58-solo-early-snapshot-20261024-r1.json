@@ -1,0 +1,158 @@
+{
+  "schema": "loopyx0x37-smc-producer-evidence-v1",
+  "evidence_revision": "smc-pr58-solo-early-snapshot-20261024-r1",
+  "producer": "LoopyX0X37 SMC Transport",
+  "date_utc": "2026-10-24",
+  "candidate": "smc-solo-ack-drain-snapshot-r1",
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-solo-release-overflow-20261023-run4",
+    "review_pr": 58,
+    "source_parent_commit": "bad8e453b20e4f837a0d8a5f961d517b0b095816",
+    "source_parent_root_tree": "bf84eae81700c08d8f8db2949da3edcd5212e724",
+    "source_parent_firmware_tree": "e42f1fbaa60e02a8d338a54b39c5a57c617813ee",
+    "changed_c_blob": "0debbf671fca45366f371f4a914a09bb2cef76c9",
+    "changed_host_test_blob": "6f88dad1988fea608f12736a9abec4f1160d2410",
+    "committed_result_root": "read-back final PR HEAD, cannot embed self-referential SHA",
+    "compiled_firmware_tree": "read-back final PR HEAD; distinct from full root",
+    "affected_firmware_path": "firmware/src/app/smc_mixer.c",
+    "registered_test": "tests/host/smc_solo_overflow_test.py",
+    "test_registration": "tests/run_tests.sh selector smc-solo-overflow, existing"
+  },
+  "consumed": {
+    "producer_pr58_head": "bad8e453b20e4f837a0d8a5f961d517b0b095816",
+    "integrator_first_nightly_pr": 103,
+    "integrator_head": "8e8338792ca20508163a2b42b17ae542825da10a",
+    "integrator_root": "3609692ed833c5660028d2ed514e255877ca187a",
+    "integrator_firmware_tree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "integrator_smc_blob": "91552e4d7a47b43d548cfd1e2df97f7add9b8837",
+    "owner_review": "PR58 inline 4365922997; PR58 Safe Merge comment 6380061173",
+    "test_artifact_source": "GitHub-blob-matched historic PR103-R10 scoped source-window fixture; NOT an exact checkout of PR58 or current PR103"
+  },
+  "defect": "The ISR enqueues Solo NoteOn after BLE ring already drained (or while host/central ring drains), fills ring and drops NoteOff. Current end-of-poll generation ACK is premature: queued NoteOn triggers a persistent Solo latch in next poll.",
+  "repair": "Capture BLE/host dropped-release generation and their acknowledged generations at start of smc_poll. End-of-poll consumes only those pre-drain publications if the seen cursor is unchanged; a project reset cannot be rewound. Later IRQ increments remain pending for the next poll after NoteOn drains.",
+  "native_evidence": {
+    "platform": "Linux x86_64 GCC 14.2 and Clang 17",
+    "checked_scope": "source-extracted/mocked C behavior from Git-verified PR103-R10 combined source with PR58 matching logic projected; NOT full PR58 exact-root source and NOT firmware target build",
+    "shell_commands": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "/mnt/data/smc_fix/check_candidate.py"
+        ],
+        "exit": 0,
+        "log_sha256": "93d63efd30e58b269f9fd9cd905d8d486b10a974446f18975b4119489218dd58"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "/mnt/data/smc_fix/check_extended.py"
+        ],
+        "exit": 0,
+        "log_sha256": "f06a807ecde79cec206412d4c5ca98fd65b79086db330f666d4e87e186a219b4"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "py_compile",
+          "/mnt/data/smc_fix/check_candidate.py",
+          "/mnt/data/smc_fix/check_extended.py"
+        ],
+        "exit": 0
+      }
+    ],
+    "native_compilers": [
+      {
+        "compiler": "gcc",
+        "flags": "plain",
+        "before_compile": 0,
+        "before_run": 1,
+        "after_compile": 0,
+        "after_run": 0
+      },
+      {
+        "compiler": "gcc",
+        "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "before_compile": 0,
+        "before_run": 1,
+        "after_compile": 0,
+        "after_run": 0
+      },
+      {
+        "compiler": "clang",
+        "flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+        "before_compile": 0,
+        "before_run": 1,
+        "after_compile": 0,
+        "after_run": 0
+      }
+    ],
+    "before_failure_cases": [
+      "BLE Solo NoteOff lost after central ring drain while host dispatch runs",
+      "host ring one-slot refill with Solo press and dropped release",
+      "BLE ring one-slot refill with Solo press and dropped release"
+    ],
+    "after_case_results": "5/5 scenarios latched=0 under 3 toolchain/sanitizer configurations; remaining two standard host/BLE outcomes retained",
+    "newly_registered_branch_test": "22 nominal affected cases source updated in Git, but complete exact-PR58 runner NOT EXECUTED in this run",
+    "limit": "Simulated ISR/UI; independently reproduce on exact merged source and run full host matrix; no actual hardware connection"
+  },
+  "retrievable_private_evidence": {
+    "library_root_path": "/LoopyX0X37-SMC-PR58-Solo-Queue-Race-Producer-20261024.zip",
+    "library_file_id": "libfile_129df0dad4e881919e6c7695c27209b6",
+    "bytes": 14165,
+    "sha256": "73b2042b66aa425dcb0dc2900329e202ac6fbfdf4fb142bbea4b765730e7b0f3",
+    "contents": [
+      "check_candidate.py",
+      "check_extended.py",
+      "check_candidate.log",
+      "check_extended.log",
+      "scoped source projection"
+    ],
+    "excludes": [
+      "SDK/vendor/controller binaries",
+      "actual firmware builds",
+      "personal device data"
+    ]
+  },
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+  "build_status": "BUILD_NOT_RUN_ON_NEW_SOURCE",
+  "qa_status": "INDEPENDENT_QA_PENDING",
+  "device": "NOT_TESTED",
+  "nightly_public_download": "NOT_INSTALLABLE",
+  "next": [
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY compile exact newly changed firmware/ subtree for Elite and Pro with matching ctl, SHA-256/CRC/memory budgets; independent of QA/merge/hosting."
+    },
+    {
+      "owner": "Independent QA",
+      "action": "Fetch full exact PR58 head/root, compile/run registered 22-case smc-solo-overflow and queue/BLE/reconnect tests; review concurrency and overflow invariants, full PR103 combined candidate."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Consume independently checked repair from PR58 with dependencies #40 and existing PR103 root, rerun combined-tree interleaving negatives; preserve private built prior bytes; forward exact integrated root to Build and QA."
+    }
+  ],
+  "remaining_public_gates": [
+    "independent exact-source QA",
+    "compatible reviewed integration into firmware nightly",
+    "actual pinned Elite/Pro+controller build for accepted integrated root",
+    "backup/OTA/negative safety",
+    "source/license/redistribution authorization",
+    "immutable hosted artifact URL and exact HTTP hash/model validation",
+    "sole website publisher deployment"
+  ],
+  "explicit_not_claimed": [
+    "device PASS",
+    "flash",
+    "public installable",
+    "source tree complete native tests",
+    "compilation of new firmware binaries",
+    "QA approval",
+    "production promotion"
+  ]
+}

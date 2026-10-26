@@ -27,6 +27,7 @@ enum { EN_SELECT, EN_ALGO, EN_PRESET, EN_K1, EN_K2, EN_K3, EN_K4, NE };
 uint32_t plat_ms(void);
 uint32_t plat_buttons(void);           /* held: bit B_* */
 uint32_t plat_keys(void);              /* held: bit k = key k (0 = F3) */
+uint8_t plat_key_velocity(int key);    /* last strike, 1..127; 100 without velocity sensing */
 int32_t plat_enc(int role);            /* detents since the last call, + = clockwise; EN_* */
 uint32_t plat_master(void);            /* MASTER pot, 0..4096 gain Q12 */
 int plat_battery(void);                /* 0..3 bars, 4 = powered by a USB host, -1 = not read yet */
@@ -37,6 +38,8 @@ void plat_play_red(int red);           /* PLAY lights green; red (its other LED)
 
 /* USB MIDI, 4-byte USB-MIDI event packets (cable 0) */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
+#define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
+#define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
@@ -47,8 +50,9 @@ enum { OBJ_SET, OBJ_SOUND, OBJ_PAT0, OBJ_PAT1, OBJ_PANEL, OBJ_SONG, OBJ_MOTION, 
 /* flash: OBJ_SET 0xFC000; SOUND / PAT0 / PAT1 / SONG 0x97000.. (2 sectors each); OBJ_PANEL 0xDC000,
  * OBJ_MOTION 0xDE000 (all inside Felucca's data area, 0x97000..0xDFFFF) */
 
-/* user sample slots (break loops), read in place; 0 = empty slot */
-#define PLAT_NSLOTS 3
+/* user sample slots (break loops), read in place; 0 = empty slot.
+ * Two slots. slots.c SMP_USER_SLOTS is the same count. */
+#define PLAT_NSLOTS 2
 /* every zone of a slot is one loop (tools/upload_breaks.py packs several bars per slot) */
 #define PLAT_SLOT_ZONES 16
 int plat_slot_zones(int k);            /* loops in slot k, 0 = empty */
@@ -74,6 +78,8 @@ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_B
 int plat_ble_state(void);
 const char *plat_ble_name(void);
 void plat_ble_set(int on);
+/* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
+int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;

@@ -1,0 +1,53 @@
+{
+  "schema": "x0x37.native-midi-preservation.v1",
+  "observed_utc": "2026-10-24T20:05:59.327914+00:00",
+  "accepted_source": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "accepted_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "built_source": "dc4669083218f17f8cfb69069e7f32911a232b52",
+  "built_tree": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+  "original_evidence_sha256": {
+    "reviewed-workflow.patch": "584ea440bc642b5e741d12f69c135a0049056f71cb620b900535930e6d4ea01a",
+    "original_execution_receipt": "2644ae83fef5151618a7e42588f6604f99655c2fb2329fe338c45b32fd1834fd",
+    "original_preservation_receipt": "66711557d2731ebe60a44cbabed5e05dc9a8944ae8d88e15c97b05e663f50151",
+    "original_preparation_receipt": "ee8a191e0cec1edab6b3749f686238f40cb31687be3908550e44b5479b0d90e5",
+    "original_independent_review": "79638e7da611c88b83e5281dea1967ec2cbaf8b36dc5f68646b284a223197261"
+  },
+  "updater_sha256": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+  "flash_exit": 0,
+  "transfer_percent": 100,
+  "reboot_identity": "SMK-37 Elite_900",
+  "editor_version": "X0X DEV",
+  "controller_readback_bytes": 65536,
+  "controller_readback_crc32": "4a400899",
+  "controller_expected_crc32": "4a400899",
+  "sample_slots": 3,
+  "sample_bytes_equal": true,
+  "sample_layouts_equal": true,
+  "calibration_export_equal": true,
+  "midi_ping_passed": 10,
+  "midi_ping_requested": 10,
+  "bluetooth_observations": {
+    "count": 2,
+    "status": "READY",
+    "drops": [
+      0,
+      0
+    ],
+    "new_crash": [
+      false,
+      false
+    ],
+    "controller_polls_increased": true
+  },
+  "smc_controls": "NOT_TESTED: scanning; no connection, ACL, notifications or MIDI traffic",
+  "physical_keys_pads_audio": "NOT_TESTED",
+  "project_settings_comparison": "NOT_PERFORMED",
+  "exact_installed_app_readback": "UNAVAILABLE_IN_PROTOCOL; NOT_PASS",
+  "comprehensive_hardware_validation": "NOT_CLAIMED",
+  "approved_execution": "ordinary command require_escalated; completed with no denial or pending approval",
+  "hardware_repeated_in_preservation_task": false,
+  "firmware_rebuilt": false,
+  "public_firmware_artifacts": false,
+  "production_promotion": false,
+  "evidence_handling": "Derived nonsecret summary. Original receipts, raw captures, backups, calibration, sample hashes/bytes and controller bytes remain local."
+}

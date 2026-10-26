@@ -1,0 +1,91 @@
+{
+  "role": "independent_test",
+  "result": "PASS",
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "original_checked_candidate": "f53309ce43c7624a83291b1773ae1f86ec9db484",
+  "tree": "de94ec06bb3b411850104dade643492d22e4606c",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "source_entry_count": 760,
+  "source_tree_identity_sha256": "0f9416f8363a28eb4cc3db4b51c8f664f3446ddba2139e2847affdfd8484ba46",
+  "production_edits": false,
+  "findings": [
+    {
+      "id": "outer-background-SIGINT",
+      "status": "RESOLVED",
+      "cause": "ClassS workaround inherited ignored SIGINT from outer asynchronous caller, so initial foreground-only check did not cover gate-like launch.",
+      "repair": "Normalize only tested child SIGINT before exec; restore accepted parallel scheduler mapping.",
+      "verification": "Affected source AST and exact saved outer-async general-runner seven-method PASS; original old-source negative assertions retained."
+    }
+  ],
+  "checks": [
+    {
+      "scope": "Complete candidate/source/accepted input identity",
+      "result": "PASS",
+      "evidence": "verification.json; acceptance-bindings.json",
+      "coverage": "40 changed source/deletion hashes; unchanged firmware; accepted contributor source hashes and actual retained controller image/record; 24 committed combined evidence artifacts and 35 native evidence hashes."
+    },
+    {
+      "scope": "Combined fixture invocation evidence",
+      "result": "PASS reused",
+      "coverage": "Quickcheck12, controller7 after foreground mapping repair, host7, runner13; native-input13, native-DEV15, real pinned-worker1. Existing initial SIGINT registration failure remains rejected/failure evidence.",
+      "evidence": "Parent registered-* logs, native-worker.log, native-cleanup.json, exact committed artifact hashes in acceptance-bindings.json."
+    },
+    {
+      "scope": "New fifth native fixture and earlier four direct fixtures in Quickcheck parser",
+      "result": "PASS new source assertions",
+      "evidence": "verification.json quickcheck_selection",
+      "coverage": "Actual select() sees all five existing direct fixture files, including final dev-validate registration."
+    },
+    {
+      "scope": "Native cleanup preserves active provenance",
+      "result": "PASS source/evidence verification",
+      "evidence": "acceptance-bindings.json",
+      "coverage": "Accepted native package/walker/capture/validate top-level ASTs unchanged; accepted dev_validate functions except narrowly changed LinuxWorker unchanged. Root focused runtime/forwarding/dependency mutation proof and actual worker authentication PASS verified as committed evidence."
+    },
+    {
+      "scope": "Cache exclusion and generator preservation",
+      "result": "PASS",
+      "coverage": "No asset_cache.py; build.py and both909 consumers equal1165396; host/clip generator command lines unchanged. No accepted cache speedup."
+    },
+    {
+      "scope": "Final outer-background fixture repair and restored dispatch",
+      "result": "PASS affected verification",
+      "evidence": "affected-verification.json; verify-affected.log",
+      "coverage": "Whole controller fixture AST equals previous checked module after removing only the new preexec_fn keyword. All old-source negative controls and signal/cleanup/status assertions are unchanged. Exactly accepted fe7f040 runner plus five literal declarations; classification/lock/scheduler functions fully restored, ctl-compile defaults to parallelP with no installer lock. Root actual seven-method fake compiler suite PASS through general runner jobs4/classP under asynchronous Bash; exact committed logs/hash records verified."
+    }
+  ],
+  "failure_dispositions": [
+    "First evidence binding attempt iterated all on-disk root evidence and found concurrently created final-identity.log absent from candidate. Corrected verifier scope to candidate-tracked evidence paths; accepted production source was not implicated. No behavior suite rerun.",
+    "Parent amended only commit metadata to add required Trigger/Check fields; identical Git tree verified. Passing source/evidence/behavior assertions reused.",
+    "Initial independent Test foreground-boundary PASS was superseded by investigation outer-background failure. Prior report/probe snapshots retained under pre-outer-background-*; final result uses e7e63bd affected source and proof."
+  ],
+  "limits": [
+    "Independent Test did not rerun full suites. Root reran only the affected controller suite under outer async launch; all unrelated matching checks are reused. Earlier foreground-only scratch probe remains historical failure-discovery context.",
+    "Historical recorded environment/tool identity and current source/log hashes support reuse; no complete original inherited environment snapshot or installed-byte snapshot was recorded for all host fixture runs.",
+    "SDK/toolchain byte identities are retained evidence; no full dependency rehash or target build.",
+    "No target artifact equality, whole-build timing, gate, install, device or push claim. Cache and new cache consumer routing remain excluded.",
+    "New source changed fixture normalization, not production controller behavior.",
+    "Outer-background full seven-method execution is macOS host fake-compiler coverage; no new pinned-Linux suite or target build is claimed.",
+    "Prior source/timing/dependency/environment limitations remain. Cache source and consumer routing remain excluded."
+  ],
+  "report_sha256": {
+    "verify.log": "b130836516a307d84eb76690de97be41c3b9f524f66c4b22b7c4b214ad16b295",
+    "pre-outer-background-result.json": "1542be7fd873fcb6af51dead83320807dd6fb091aeba1eae23a3800c746cd3da",
+    "verify-affected.log": "0dc40f73a480ce740262b7d1780a09b2107993d9f9b64f3322fb259510aa8cb1",
+    "pre-outer-background-verification.json": "b3133525e5614aa6eb29256be4211d572dfb6cccc138e9659959ea465feb1380",
+    "verify-affected.py": "1d7c3b1c12b80285371f61d2287f4957e6bdd6d995841566c1910e281149fb5c",
+    "acceptance-bindings.json": "9ef363dd59ae40ff3f09dde102b7e2767fe71c3fab4222cf1b69fba100be4d87",
+    "affected-verification.json": "0dc40f73a480ce740262b7d1780a09b2107993d9f9b64f3322fb259510aa8cb1",
+    "pre-outer-background-verify.py": "f880fed5fcdb1c46c535defa4a2f4b7b6f0e0bc3458a5ee198df4c22b22a1e3e",
+    "verification.json": "691b9e338e2038afdc3a54df5c96a65b2b33fe5f1607b39c20c704e79fa155d6",
+    "verify.py": "dec7e1799fb8579abf4b6e34909c98856425273f98b2df6b87d216bb088d2250",
+    "pre-outer-background-verify.log": "b130836516a307d84eb76690de97be41c3b9f524f66c4b22b7c4b214ad16b295"
+  },
+  "final_metadata_binding": {
+    "previous_candidate": "e0ec9b763f79bd1e44a2294a1815866f3dad06ed",
+    "final_candidate": "c0d2ab2f3248ce86a1e6421be926ce5297768272",
+    "tree": "f5bd7b999fea184e8377dcb2d80f2465954fc1a4",
+    "assertion": "PASS identical tree and empty diff; required Check: manual: commit field present.",
+    "execution": "Identity assertions only; all passing source/evidence/behavior results reused."
+  }
+}

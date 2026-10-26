@@ -1,0 +1,16 @@
+{
+  "source_commit": "a9b1b4272676b80ec4262a8cf6c71050fc9af576",
+  "implementation_commit": "daa7794",
+  "base": "2592a00",
+  "platform": "Linux x86_64",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_tag_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_input_sha256": {
+    "uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+    "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+    "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+  },
+  "toolchain": "MISSING: approved official redirect blocked by cloud proxy",
+  "checks": "Host only; no target build, gate, controller build, package, installation or device PASS",
+  "CC": "cc (Debian 14.2.0-19) 14.2.0"
+}

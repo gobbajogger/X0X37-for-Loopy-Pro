@@ -1,0 +1,121 @@
+{
+  "stage": 2,
+  "marker": "smc-central-abort-20261021-stage2-after-28d0fc2-stage3",
+  "owner_thread": "01a15a8a-6061-7a83-9716-5766833e15a5",
+  "source_owner": "01a15a85-2fb6-7683-a11e-72faeecd3a8e",
+  "base": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "start": "0b9ef50ccb390cbb4311e6a10fbbdd3771ff4339",
+  "result": "PASS",
+  "defect": "CENTRAL-ABORT-01",
+  "source_sha256": {
+    "firmware/src/ble/ble_midi_central.c": "246252a8defe2a6accd92926d5d08cda87dd693dd252ebce5f055d32bfb423d4",
+    "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+    "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+    "tests/host/ble_midi_abort_test.c": "84f746c90c8fd0d9fdf626e8080d316e5f900fcb9597e7b120dce527b0b10db1",
+    "tests/host/ble_midi_receive_test.sh": "bd95f675f5a1f12467fe2c30a53df8f6029c7ee07a0bbe2af70c14e3fec85b99",
+    "tests/host/ble_midi_signal_test.c": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f",
+    "tools/build.py": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+    "tools/locked_settings.json": "ede4face10f93166964c4d2d5cca46c54f462c1c3c6d86ce0ddd6bb805634410"
+  },
+  "checks": [
+    {
+      "command": "python3 -B evidence/abort-stage2/run-checks.py",
+      "reason": "The repair changes Disconnect transport acceptance, status events, deadline and stop/start lifecycle. The runner covers their direct HCI and diagnostic consumers.",
+      "result": "PASS",
+      "detail": "host-checks.json",
+      "coverage": "coverage.json"
+    },
+    {
+      "command": "python3 -B evidence/abort-stage2/replay-run.py",
+      "reason": "The central structure and session state feed the production callback, mailbox, UI and light feedback.",
+      "result": "PASS",
+      "detail": "replay.json"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "negative_controls": {
+    "source": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+    "new_public": [
+      "overflow",
+      "timeout"
+    ],
+    "independent_investigation": [
+      "overflow",
+      "timeout"
+    ],
+    "independent_test": [
+      "overflow and timeout"
+    ],
+    "cause": "Each functional assertion identifies the lost Disconnect after transport recovery.",
+    "disposition": "Expected broken-source failures. The repaired candidate passes all of these controls.",
+    "details": "host-checks.json"
+  },
+  "build_environment": "environment.json",
+  "builds": {
+    "elite": {
+      "result": "PASS",
+      "log": "build-elite.log",
+      "code_margin_bytes": 1416,
+      "static_ram_margin_bytes": 524,
+      "pool_margin_bytes": 8364,
+      "required_pool_margin_bytes": 8192,
+      "artifacts": {
+        "app": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/build/smk37-elite/x0x.bin",
+          "size": 551256,
+          "sha256": "9621942e2c83f36a652feaa47e48212bbb223a8f5faef018d10f8ef61944e2e1"
+        },
+        "loader": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/build/smk37-elite/loader/ota.bin",
+          "size": 7280,
+          "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e"
+        },
+        "package": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/build/x0x-smk37-elite.fwsc",
+          "size": 651396,
+          "sha256": "d686e40e109a1f80cb5cdd201ee0ae6ef3f4e3d790e8d38783c59780e4173511"
+        }
+      },
+      "limit": "Stage2 DEV build evidence. This is not a stage4 validated install record."
+    },
+    "pro": {
+      "result": "PASS",
+      "log": "build-pro.log",
+      "code_margin_bytes": 1432,
+      "static_ram_margin_bytes": 524,
+      "pool_margin_bytes": 8364,
+      "required_pool_margin_bytes": 8192,
+      "artifacts": {
+        "app": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/build/smk37/x0x.bin",
+          "size": 551240,
+          "sha256": "8ee0411533d3395414024908e92f92fd176eb3b527269475e2d82ae285523835"
+        },
+        "loader": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/build/smk37/loader/ota.bin",
+          "size": 7276,
+          "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf"
+        },
+        "package": {
+          "path": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/build/x0x-smk37.fwsc",
+          "size": 651392,
+          "sha256": "70f9b028c71e1acae1335e33d365fe69a8342cde4bed9db4f78500806961c249"
+        }
+      },
+      "limit": "Stage2 DEV build evidence. This is not a stage4 validated install record."
+    }
+  },
+  "original_input_failure": "UNRESOLVED",
+  "physical_result": "NOT TESTED",
+  "preservation": "The full signaling and reconnect repair remains present. Mapping and controller source do not change.",
+  "device_write": false,
+  "controller_write": false,
+  "release_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "next_stage": 3
+}

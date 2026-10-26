@@ -1,0 +1,17 @@
+{
+  "commit": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "tree": "a00e1710ab67f800dea2bf4b97fbb9bd34fde384",
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "inputs": {
+    "firmware/src/ble/ble_midi_central.c": "246252a8defe2a6accd92926d5d08cda87dd693dd252ebce5f055d32bfb423d4",
+    "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+    "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+    "firmware/hal/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+    "firmware/src/app/smc_mixer.c": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+    "tests/host/ble_midi_abort_test.c": "84f746c90c8fd0d9fdf626e8080d316e5f900fcb9597e7b120dce527b0b10db1",
+    "tests/host/ble_midi_signal_test.c": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f",
+    "evidence/session-stage3/investigation-abort-probe.c": "8d0f79c597591d4694eb227fde5bda486cf0bc1fe6786de4d97311628fa90394",
+    "evidence/session-stage3/test-busy-disconnect.c": "c7740f13ff41e4f982884063078fe534c2afabb7daa739e30683131df8b3fbb9"
+  }
+}

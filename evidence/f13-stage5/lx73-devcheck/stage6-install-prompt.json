@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "stage": 6,
+  "kind": "local-install-prompt",
+  "cloud_thread": false,
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "validated_source_sha": "092589b84fd455355216cb0de93c4782236f7524",
+  "content_tree": "25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af",
+  "git_tree": "9382fb1276e320d9f9d290dbad187fa08cdd224c",
+  "land_pr": 308,
+  "config": "dev",
+  "X0X_DEV_PADCAL": "1",
+  "packages": {
+    "elite": {
+      "record": "evidence/f13-stage5/lx73-devcheck/elite/record.json",
+      "package": "x0x-smk37-elite.fwsc",
+      "package_sha256": "9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5",
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8308,
+      "code_free": 292,
+      "identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "record": "evidence/f13-stage5/lx73-devcheck/pro/record.json",
+      "package": "x0x-smk37.fwsc",
+      "package_sha256": "3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07",
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8308,
+      "code_free": 292,
+      "identity": "SMK-37 Pro_900"
+    }
+  },
+  "merge_evidence": "evidence/f13-stage5/lx73-devcheck/CHECKS.md",
+  "attested_bytes": {
+    "release_tag": "lx73-092589b8-dev",
+    "release_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/lx73-092589b8-dev",
+    "note": "Fetch these exact bytes on Mac; do not flash a local rebuild.",
+    "elite_fwsc_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37-elite.fwsc",
+    "pro_fwsc_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37.fwsc",
+    "ctl_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/ctl.img",
+    "sha256sums_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/SHA256SUMS.txt"
+  }
+}
+

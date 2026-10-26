@@ -106,6 +106,35 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 
 struct bootguard_s { uint32_t magic, failed, pending; };
 extern struct bootguard_s bootguard;
+/* One 4 KiB scratch for main-loop jobs that never use the same bytes at the same time:
+ *   0x000-0xFFF  the LZ hash table of a project save (lz.c);
+ *   0x000-0x7FF  the read buffers of an update session (ota.c);
+ *   0x000-0xCEF  the PERF TEST patterns and sound (ui.c, PERF_SCRATCH);
+ *   0xD00-0xF7F  the decoded host message of ota.c (OTA_FRAME_MAX), read only in the call that decoded it;
+ *   0xD00-0xEFF  editor sample/project chunk staging (editor.c, ED_SMP_SCRATCH), 512 B — same
+ *                ownership class as ota_dec: live only inside one ed_handle. ed_service runs
+ *                before ota_service; an editor frame is consumed before ota_take can write
+ *                ota_dec. SAVE/LOAD paths that call lz_compress do not use ed_smp_buf. An
+ *                update session does not call ed_service (blocked in ota_session / ota_idle).
+ *   0xF80-0xFEF  the update parameter block (ota.c, 112 B). It is filled only after ota_stage
+ *                returns, and ota_commit resets before the main loop can save. A save's LZ table
+ *                uses this tail at every other time. ota_dec stops at 0xF7F, so a frame cannot
+ *                reach it. The audio interrupt does not use this scratch.
+ * A save does not run while the PERF TEST plays its patterns (seq.playing blocks it), and the test
+ * makes its patterns after the last possible save (ui.c perf_test_tick, phase 0). An update session
+ * stops the sequencer first, and the test then stops and puts the project back. */
+_Static_assert(0xD00 + 640 <= 4096, "scratch");
+_Static_assert(512u <= 640u, "ed_smp_buf fits the ota_dec region");
+static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
+#define OTA_SCRATCH ((uint8_t *)x0x_main_scratch)
+#define OTA_DEC_OFF 0xD00u
+#define LZ_SCRATCH x0x_main_scratch
+#define PERF_SCRATCH x0x_main_scratch
+#define ED_SMP_SCRATCH (OTA_SCRATCH + OTA_DEC_OFF)   /* 512 B; call-scoped like ota_dec */
+#define OTA_PARM_OFF 0xF80u
+#define OTA_PARM_N 112u
+_Static_assert(OTA_DEC_OFF + 640u <= OTA_PARM_OFF, "update parm overlaps the decoded frame");
+_Static_assert(OTA_PARM_OFF + OTA_PARM_N <= sizeof x0x_main_scratch, "update parm fits the scratch");
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }
@@ -159,9 +188,22 @@ static void ota_commit(const uint8_t *parm)
 
 #include "app/slots.c"
 #include "app/x0x.h"
+#include "app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
+#include "app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
+#include "app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
+#include "app/factory_banks.c"       /* built-in Chicago/Miami factory banks + user import bank */
 #include "app/panel.c"
 #include "app/plat_fm1.c"
+/* Project objects are built in the store buffer. st_save reads the old copy's
+ * sequence without loading its payload, so those new bytes stay. A boot upload
+ * holds the buffer; project_save returns before it writes. Panel save passes
+ * its own struct and copies in. The audio interrupt does not use this buffer. */
+#define PROJECT_IO_BUFFER st_buf
+_Static_assert(sizeof st_buf >= PLAT_STORE_MAX, "project object fits the store buffer");
 #include "app/project.c"
 #include "app/ui.c"
+#if BOARD_SMK37
+#include "app/smc_mixer.c"
+#endif
 #include "app/editor.c"
 #include "app/main_fm1.c"

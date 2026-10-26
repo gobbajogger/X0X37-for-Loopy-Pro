@@ -1,0 +1,10 @@
+{
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "lane_base": "767de3dea05ac7a38b17f7a4380b063d364f8a84",
+  "selected_stage2_inputs": 413,
+  "mismatch": {},
+  "candidate_source_match": true,
+  "source_inputs": "source-inputs.json",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "python": "Python 3.9.6\n"
+}

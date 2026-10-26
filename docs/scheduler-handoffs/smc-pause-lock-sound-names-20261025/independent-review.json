@@ -1,0 +1,94 @@
+{
+  "reviewer": "independent_review",
+  "base": "b8794f9f10b0be68bf21579d43d4a6fef6cd4d72",
+  "outcome": "PASS_SCOPED_INDEPENDENT_SOURCE_AND_HOST_REVIEW",
+  "files": {
+    "firmware/src/app/smc_mixer.c": "a7268c5df260d3671a98ebb31a9a822a486f3e4b50d6ba902bb89d2201152d51",
+    "tests/host/smc_ui_test.c": "4d9b8f20dbbd5012a8a9332ff81e5980cfc3928e11b51967eb20408299d86122",
+    "tests/host/smc_lock_test.c": "1bdd30adb35b8e6845a2766e95d8d820839fb86acd5c2f950afa594e244743de",
+    "tests/host/smc_feedback_test.py": "56ac9794e370e3d31267d11e9baba8ee4b25fa3a8e5147afacccc0e609695bef",
+    "tests/host/smc_pause_loss_test.c": "413cfd1ffb62bde0ca3df49ae79ec697516681be258478f201ff0bdc9e5df9bc",
+    "tests/host/smc_pause_loss_test.sh": "cf0eadd036625b3e0f38dc181959622bc32ffa8b20f7d6d214d39b154be18c01"
+  },
+  "native_host_results": {
+    "ui_asan_ubsan": 5893,
+    "lock_asan_ubsan": 703,
+    "feedback": 1877,
+    "independent_pause_loss_asan_ubsan": 397,
+    "source_window_solo_overflow": 20
+  },
+  "fixed_finding": "Pause previously rearmed on unrelated lost Solo/Select/Play releases; separate producer-owned Pause generations now preserve held press identity. Exact original repro retained in initial-review.json and independent.c.",
+  "meaningful_negative_control": {
+    "mutation": "Clear lock_down in broad missed_solo branch",
+    "runtime_exit": 1,
+    "failure": "tests/host/smc_pause_loss_test.c:70 smc.locked && smc.lock_down",
+    "log": "qa/pause-loss-negative-replay.log"
+  },
+  "independent_matrix": [
+    "BLE and opted-in host queue",
+    "NoteOff and NoteOn zero releases",
+    "Unrelated Solo/Select/Play release loss does not rearm held Pause",
+    "Actual lost Pause release rearms next press",
+    "32-bit Pause publication generation rollover",
+    "Rejected LED feedback retry leaves cache unchanged until acceptance",
+    "Blink phases and locked steady output bytes"
+  ],
+  "reviewed_preserved_behavior": [
+    "Actual 909/808 tables through engine_voice_name, both SEQ banks; MIX and other mode titles remain numeric/existing",
+    "Selected lane highlight and physical caption-to-route source preserved",
+    "MMC34 remains STOP, Play remains playback toggle",
+    "No permanent Pause overlay/navigation, captured context persists across link loss, reset clears it",
+    "minsize attributes change codegen only; no implementation behavior removed"
+  ],
+  "remaining_conditions": [
+    "Elite native linker exceeds XIP budget by108B; no source-host PASS may be promoted into build/install/hardware readiness.",
+    "Both Elite and Pro native linker outputs exceed XIP budget by108B; RAM/pool validation not reached.",
+    "Physical LED identity/preset route requires authorized hardware owner observation on build-qualified candidate; no hardware pass claimed."
+  ],
+  "blockers": [],
+  "prior_review_source_sha256": "a1fb4929cac0758307647460dfaddd0942092dd8c6726f14a4b24e308b58a2dc",
+  "optimization_review": {
+    "result": "PASS",
+    "final_scope": [
+      "Shared strip value formatter; noinline smc_button_apply",
+      "Direct fader capture: R_ENG/NONE invariant, smc_bind identity",
+      "Removed unread lock_song",
+      "Original header/FNV macro and physical API calls retained"
+    ],
+    "direct_capture_invariant_assertions_reused": 4080,
+    "reuse_reason": "smc_target/smc_bind and direct fader capture unchanged from independently enumerated a14a488 candidate; other changes do not alter this input closure",
+    "frames_pixel_equal": 25,
+    "frame_evidence": "qa/delivery-frame-equivalence.json",
+    "font_sha256": "8529407f76ca5ac703c70575505779515ebc8b815a7dac4195ba66c9b33efcfe",
+    "early_library_limitation": "Early smc-label-ui uses different generated font raster bytes; controlled pre/post source comparison with identical native font passes."
+  },
+  "logs": [
+    "qa/consolidated-ui.log",
+    "qa/consolidated-lock.log",
+    "qa/consolidated-pause-loss.log",
+    "qa/consolidated-solo-overflow.log"
+  ],
+  "latest_consolidation_review": {
+    "result": "PASS_SCOPED_SOURCE_HOST_ONLY",
+    "patch_reverse_produces_previous_sha256": "a1fb4929cac0758307647460dfaddd0942092dd8c6726f14a4b24e308b58a2dc",
+    "producer_ownership": "Slots0/2 TIMER5 BLE; slots1/3 audioISR host; main loop only acknowledges",
+    "generation_width_bits": 32,
+    "loss_classes_separate": true,
+    "snapshot_semantics": "Per-slot lost/seen snapshots all captured before queues drain. Endpoll seen guard does not rewind acknowledgment after projectdrop/reset. Pause slots alone rearm Pause. Generic slots retain Solo/Play/Select handling.",
+    "negative_control": "Live endpoll producer reads replace startpoll snapshots; native Solo overflow late-ISR case fails at runtime SIGABRT.",
+    "negative_log": "qa/consolidated-late-ack-negative.log",
+    "frames_pixel_equal": 25,
+    "frame_and_function_closure": "qa/consolidated-frame-equivalence.json"
+  },
+  "build_blocker": {
+    "status": "BUILD_BLOCKED",
+    "model": "Elite DEV",
+    "xip_overflow_bytes": 108,
+    "evidence": "size-specialist/size-native.log",
+    "source_match": true,
+    "app_package_emitted": false,
+    "ram_pool_validation": "NOT_REACHED_LINK_FAILED",
+    "pro_status": "BUILD_BLOCKED Pro DEV XIP overflow108B; matching native-source input verified",
+    "pro_evidence": "native-source/private-build/pro-delivery-build.log"
+  }
+}

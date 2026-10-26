@@ -3,8 +3,19 @@
 X0X also builds for the M-Vave SMK-37, a 37-key controller with the same chip as the FM-1. The FM-1 build is
 unchanged; everything for the SMK-37 is behind `BOARD_SMK37`.
 
-Until this project's releases include SMK-37 packages, unofficial builds can be installed with the web installer:
-https://genkigenki.github.io/smk37/
+**Install / upgrade / downgrade / switch:** open the project web installer in Chrome or Edge —
+https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/
+
+1. Connect the keyboard by USB and press Connect (if it is already in update mode, Install resumes).
+2. Pick a published version and your model (Pro / Elite / MKE-P37), **or** drop any `.fwsc`
+   (stock V016, another custom firmware, or a local build) and confirm the model matches.
+3. Install. Sample slots that would be lost are saved to a `.x0xslots` file first and written back
+   when the new map still has room. Calibration and pairing are never touched.
+4. If a write stops halfway, replug and Install the same package again to finish from update mode.
+
+The [sample importer](https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/) loads your own
+break loops the same way. Unofficial multi-firmware builds also appear on
+https://genkigenki.github.io/smk37/.
 
 ## Supported models
 
@@ -34,13 +45,13 @@ The X0X manual still applies; the SMK-37's controls map onto the FM-1's like thi
 | ARP / SEQ | ARP / SEQ |
 | SEQ PLAY / SEQ REC | PLAY / REC |
 | OCTAVE- / OCTAVE+ | OCT- / OCT+ |
-| < / > | one step of SELECT back / forward (the page, a list's row); not while HOME is held |
+| < / > | no menu open, clip mode off: one step of SELECT back / forward for each press (the page); no repeat. A menu list open (GLO, or a page's list from SEL; also in clip mode): the value of the selected row one step down / up, as ALGORITHM (in clip mode with no menu, the clip keys page takes < and >). Hold to repeat (first repeat after 400 ms, then each 80 ms). The value stops at its ends. Action rows do not run. Not while HOME is held |
 | FADER BANK | switches the faders between bank A and bank B (lit on B) |
 | Faders 1..4, bank A | levels of the 909, the 808, 303 A, 303 B |
 | Faders 1..4, bank B | BREAK level, reverb return, delay return, master FILTER (middle off, left low-pass, right high-pass) |
 | Pitch wheel | on a 303 (the part on screen): its TUNE, about +-1.5 semitones, back when let go; other parts: nothing |
 | Mod wheel | on a 303: opens its CUTOFF from the saved value up to the top; other parts: nothing |
-| KNOB BANK | a short press: nothing; held for more than 1 s: toggles clip mode (APC40 mkII clip launcher for Loopy Pro, see [APC40_IMPLEMENTATION.md](APC40_IMPLEMENTATION.md)) |
+| KNOB BANK | press: toggles clip mode; a hold makes one change (APC40 mkII clip launcher for Loopy Pro, see [APC40_IMPLEMENTATION.md](APC40_IMPLEMENTATION.md)) |
 | OCTAVE- + OCTAVE+ held at power-on | HARDWARE CALIBRATION: teach the buttons and knobs K2..K8 again |
 
 A fader takes over only once it moves (also after a bank change). The faders set the same values as the knobs

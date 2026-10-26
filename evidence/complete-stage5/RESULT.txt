@@ -1,0 +1,10 @@
+Stage5 merge passes. The combined package needs fresh DEV validation.
+Both source histories remain in merge dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9.
+The merge has no conflicts or production repairs.
+Every contributed file matches its checked input.
+The separate DEV records pass exact verification.
+The combined startup replay must run with the new source.
+The retained unit checks do not need another run for a stage change alone.
+Physical result: NOT TESTED. The original input failure is UNRESOLVED.
+No device write or external push occurred.
+The next owner must preserve the completed merge and sole integration identity.

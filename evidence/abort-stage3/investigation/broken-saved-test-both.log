@@ -1,0 +1,4 @@
+queue timeout: disconnect retry=0 sent=0 state=8 waiting=0 conn=80 errors=1
+FAIL: mailbox accepted later polls, but no HCI Disconnect was submitted
+queue overflow: disconnect retry=0 sent=0 state=8 waiting=0 conn=80 errors=1
+FAIL: mailbox accepted later polls, but no HCI Disconnect was submitted

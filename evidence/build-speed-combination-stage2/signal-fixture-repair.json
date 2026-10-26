@@ -1,0 +1,15 @@
+{
+  "finding": "Controller signal fixture inherited ignored SIGINT from gate-like outer async Bash launch. A serial runner class alone did not resolve it.",
+  "source_repair": "Set SIGINT to SIG_DFL in only the tested controller-shell child before exec. Production compiler source, flags, object/link order and cleanup remain unchanged.",
+  "runner": "Remove partial ctl-compile classS/installer-lock special case. Restore accepted scheduler/classification functions; only five literal fixture declarations differ from accepted runner.",
+  "negative_proof": "independent-investigation/outer-background-signal.json and .log; exact one-method old fixture times out for two SIGINT cases under outer async caller. Other four signal cases pass.",
+  "final_command": "X0X_TEST_JOBS=4 bash -c '\"$@\" & owned=$!; wait \"$owned\"' fixture sh tests/run_tests.sh ctl-compile",
+  "result": "PASS: all seven fixture methods through final parallel classP runner under outer async shell; controller signal cases deliver HUP/INT/TERM and verify cleanup/status.",
+  "logs_sha256": {
+    "registered-ctl-outer-final.log": "2020c1fbea88396864015daad083e6457b5a8ce6cae3c2bc441fb0e4569f9496",
+    "registered-ctl-outer-methods.log": "260ce4ea2972fddc69d584113f8809fe7bb9ef323756317392a8a83acae0ec48"
+  },
+  "supersedes": "Earlier registration-classification.json and classS workaround in controller-quickcheck-identity.json describe the initial attempt only. This record and final independent reports describe accepted dispatch.",
+  "reuse": "All unaffected fixture/assertion bodies, controller production and native provenance source retain prior matching checks. Real controller artifact evidence remains valid; no build repeated.",
+  "limits": "macOS host fake compiler fixture integration; no full gate, target/controller build or timing claim."
+}

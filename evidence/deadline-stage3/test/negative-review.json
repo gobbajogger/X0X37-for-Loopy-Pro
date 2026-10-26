@@ -1,0 +1,184 @@
+[
+  {
+    "name": "abort01-broken-public-abort-overflow",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 1 && c.waiting && last_type == 1), function recovered, file ble_midi_abort_test.c, line 53.",
+    "expected_negative": true,
+    "log": "abort01-broken-public-abort-overflow.log"
+  },
+  {
+    "name": "abort01-broken-public-abort-timeout",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 1 && c.waiting && last_type == 1), function recovered, file ble_midi_abort_test.c, line 53.",
+    "expected_negative": true,
+    "log": "abort01-broken-public-abort-timeout.log"
+  },
+  {
+    "name": "abort01-broken-saved-investigation-overflow",
+    "returncode": -6,
+    "assertion": "Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.",
+    "expected_negative": true,
+    "log": "abort01-broken-saved-investigation-overflow.log"
+  },
+  {
+    "name": "abort01-broken-saved-investigation-timeout",
+    "returncode": -6,
+    "assertion": "Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.",
+    "expected_negative": true,
+    "log": "abort01-broken-saved-investigation-timeout.log"
+  },
+  {
+    "name": "abort01-broken-saved-test-None",
+    "returncode": 1,
+    "assertion": null,
+    "expected_negative": true,
+    "log": "abort01-broken-saved-test-None.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop",
+    "returncode": -6,
+    "assertion": "Assertion failed: (!sent), function main, file stop-deadline.c, line 19.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-stop.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-exact",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-stop-exact.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-exact-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-stop-exact-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-after",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-stop-after.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-after-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-stop-after-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-exact",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-service-exact.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-exact-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-service-exact-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-after",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-service-after.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-after-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-service-after-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-exact",
+    "returncode": -6,
+    "assertion": "Assertion failed: (attempts == 0), function main, file deadline-stop-probe.c, line 19.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-cancel-exact.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-exact-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (attempts == 0), function main, file deadline-stop-probe.c, line 19.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-cancel-exact-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-after",
+    "returncode": -6,
+    "assertion": "Assertion failed: (attempts == 0), function main, file deadline-stop-probe.c, line 19.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-cancel-after.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-after-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (attempts == 0), function main, file deadline-stop-probe.c, line 19.",
+    "expected_negative": true,
+    "log": "deadline-broken-saved-cancel-after-wrap.log"
+  },
+  {
+    "name": "deadline-broken-public-stop",
+    "returncode": 1,
+    "assertion": "Assertion failed: (c->state == BLEC_FAILED && !c->waiting && c->conn == 0x50 && !c->credits), function stopped, file ble_midi_deadline_test.c, line 51.",
+    "expected_negative": true,
+    "log": "deadline-broken-public-stop.log"
+  },
+  {
+    "name": "deadline-broken-public-service",
+    "returncode": 1,
+    "assertion": "Assertion failed: (c->deadline == deadline && disconnect_attempts == before && !sent), function stopped, file ble_midi_deadline_test.c, line 52.",
+    "expected_negative": true,
+    "log": "deadline-broken-public-service.log"
+  },
+  {
+    "name": "deadline-broken-public-cancel",
+    "returncode": 1,
+    "assertion": "Assertion failed: (c->state == BLEC_FAILED && !c->waiting && c->conn == 0x50 && !c->credits), function stopped, file ble_midi_deadline_test.c, line 51.",
+    "expected_negative": true,
+    "log": "deadline-broken-public-cancel.log"
+  },
+  {
+    "name": "repaired-saved-service-exact",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "repaired-saved-service-exact.log"
+  },
+  {
+    "name": "repaired-saved-service-exact-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "repaired-saved-service-exact-wrap.log"
+  },
+  {
+    "name": "repaired-saved-service-after",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "repaired-saved-service-after.log"
+  },
+  {
+    "name": "repaired-saved-service-after-wrap",
+    "returncode": -6,
+    "assertion": "Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 37.",
+    "expected_negative": true,
+    "log": "repaired-saved-service-after-wrap.log"
+  },
+  {
+    "name": "guard-only-service-negative",
+    "returncode": 1,
+    "assertion": "Assertion failed: (c->deadline == deadline && disconnect_attempts == before && !sent), function stopped, file ble_midi_deadline_test.c, line 52.",
+    "expected_negative": true,
+    "log": "guard-only-service-negative.log"
+  }
+]

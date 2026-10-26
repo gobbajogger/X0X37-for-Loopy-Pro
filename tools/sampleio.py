@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 """Sample helpers shared by gen_samples.py (built-in sets), fm1_sample_upload.py
-(user slots) and tests/pitch.py. The web editor (web/editor.html) has a JS port of
-read_any_wav / resample / ima_encode / user_slot that must give the same bytes
-(web/test_web.mjs checks it).
+(user slots) and tests/pitch.py.
+
+A Felucca web-editor JS port of read_any_wav / resample / ima_encode / user_slot
+once lived in web/editor.html and was checked byte-for-byte by web/test_web.mjs.
+That editor was retired with the X0X fork (commit 23775375); those checks are gone.
+tools/fm1_sample_upload.py remains the reference slot builder.
 
 The float arithmetic here is part of the generated output: keep the order of
 operations (and Python's sum() where it is used) when touching these functions.
@@ -37,16 +40,37 @@ def wav_chunks(d):
 
 
 def wav_format(d, ch):
-    """-> (tag, channels, rate, bits); WAVE_FORMAT_EXTENSIBLE resolved to its subformat"""
+    """-> (tag, channels, rate, bits); validate supported WAVE extensible GUID."""
     if b"fmt " not in ch:
         raise ValueError("WAV without a fmt chunk")
-    o = ch[b"fmt "][0]
-    tag, nch, sr = struct.unpack_from("<HHI", d, o)
-    bits = struct.unpack_from("<H", d, o + 14)[0]
+    offset, length = ch[b"fmt "]
+    if length < 16 or offset + length > len(d):
+        raise ValueError("WAV fmt chunk truncated or invalid")
+    tag, channels, rate = struct.unpack_from("<HHI", d, offset)
+    align, bits = struct.unpack_from("<HH", d, offset + 12)
     if tag == 0xFFFE:
-        tag = struct.unpack_from("<H", d, o + 24)[0]
-    return tag, nch, sr, bits
-
+        if length < 40:
+            raise ValueError("WAV extensible fmt chunk truncated")
+        extension_size, valid_bits = struct.unpack_from("<HH", d, offset + 16)
+        if extension_size < 22 or length < 18 + extension_size:
+            raise ValueError("WAV extensible fmt extension length invalid")
+        if not 0 < valid_bits <= bits:
+            raise ValueError("WAV extensible fmt valid bits invalid")
+        guid = d[offset + 24:offset + 40]
+        if guid[2:] != bytes.fromhex("000000001000800000aa00389b71"):
+            raise ValueError("WAV extensible subtype GUID unsupported")
+        tag = struct.unpack_from("<H", guid)[0]
+    if channels == 0 or rate == 0 or not (
+        (tag == 1 and bits in (8, 16, 24, 32)) or
+        (tag == 3 and bits in (32, 64))
+    ):
+        raise ValueError(
+            f"unsupported WAV format (tag {tag}, {bits} bit, "
+            f"channels {channels}, rate {rate})"
+        )
+    if align != channels * (bits // 8):
+        raise ValueError("WAV fmt block alignment inconsistent with channels and bits")
+    return tag, channels, rate, bits
 
 def read_wav(path):
     """16-bit PCM, first channel, as ints -> (rate, samples, (loop start, loop end) from 'smpl' or None)"""
@@ -69,7 +93,10 @@ def _channel_values(tag, bps, raw):
     """interleaved sample values as floats in [-1, 1)"""
     n = len(raw) // bps
     if tag == 3:
-        return list(struct.unpack("<%d%s" % (n, "f" if bps == 4 else "d"), raw))
+        values = struct.unpack("<%d%s" % (n, "f" if bps == 4 else "d"), raw)
+        if not all(math.isfinite(v) for v in values):
+            raise ValueError("WAV float data contains a NaN or infinity sample")
+        return list(values)
     if bps == 2:
         return [v / 32768 for v in struct.unpack("<%dh" % n, raw)]
     if bps == 3:                                     # 24 bit: pad to 32 (zero low byte), exact power-of-two scale
@@ -97,13 +124,18 @@ def read_any_wav(path):
     if nch == 1:
         return sr, v
     if nch == 2:                                     # (0.0 + l + r) / 2, as the per-channel sum below
-        return sr, [(a + b) / 2 for a, b in zip(v[0::2], v[1::2])]
+        mixed = [(a + b) / 2 for a, b in zip(v[0::2], v[1::2])]
+        if not all(math.isfinite(value) for value in mixed):
+            raise ValueError("WAV channel mix overflowed into NaN or infinity")
+        return sr, mixed
     out = []
     for f in range(0, len(v), nch):
         acc = 0.0
         for c in range(nch):
             acc += v[f + c]
         out.append(acc / nch)
+    if not all(math.isfinite(value) for value in out):
+        raise ValueError("WAV channel mix overflowed into NaN or infinity")
     return sr, out
 
 
@@ -124,6 +156,8 @@ def resample(x, sr, to):
         f = p - i
         append(x[i] * (1 - f) + x[i + 1] * f)
         p += step
+    if not all(math.isfinite(value) for value in out):
+        raise ValueError("WAV resampling overflowed into NaN or infinity")
     return out
 
 
@@ -271,6 +305,19 @@ def key_split(roots):
 SLOT_SIZE, SLOT_DATA_OFF, SLOT_RATE, SLOT_ZONES = 0x14000, 512, 22050, 16
 SLOT_HDR_LEN = 32 + SLOT_ZONES * 28
 SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF
+OLDSCHOOL_FACTOR = 2
+MIN_LOOP_SAMPLES = 64
+OLDSCHOOL_GRIT = {"light": 1.5, "medium": 2, "heavy": 3, "max": 4.0}
+
+
+def parse_oldschool_grit(arg):
+    """--oldschool-grit name or numeric factor; invalid values raise ValueError."""
+    if arg in OLDSCHOOL_GRIT:
+        return OLDSCHOOL_GRIT[arg]
+    f = float(arg)
+    if f <= 1 or f > 8:
+        raise ValueError("oldschool grit factor must be > 1 and <= 8")
+    return f
 
 
 def note_from_name(name, default=60):
@@ -286,6 +333,19 @@ def to_int16(x):
     """mono float -> int16 list, peak normalised to 30000"""
     pk = peak(x)
     return [max(-32768, min(32767, int(v / pk * 30000))) for v in x]
+
+
+def apply_oldschool(samples, storage_rate, factor=OLDSCHOOL_FACTOR):
+    """Speed up by `factor`, return (samples, playback_rate) for the slot zone header."""
+    if factor <= 1:
+        return samples, storage_rate
+    x = [s / 32768.0 for s in samples]
+    y = resample(x, storage_rate, storage_rate / factor)
+    out = to_int16([v * 0.95 for v in y])
+    playback = int(round(storage_rate / factor))
+    if len(out) < MIN_LOOP_SAMPLES:
+        raise ValueError(f"too short after oldschool processing ({len(out)} samples)")
+    return out, playback
 
 
 def user_slot(name, zones, rate=SLOT_RATE, slot_size=SLOT_SIZE):

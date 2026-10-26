@@ -31,8 +31,8 @@ static void want(const char *what, const uint32_t *pk, uint32_t n)
     }
     mi_r = mi_w;
 }
-#define PK(s, a, b) ((uint32_t)((s) >> 4) | (uint32_t)(s) << 8 | (uint32_t)(a) << 16 | (uint32_t)(b) << 24)
-#define RT(s) (0xFu | (uint32_t)(s) << 8)
+#define PK(s, a, b) ((uint32_t)((s) >> 4) | 0x20u | (uint32_t)(s) << 8 | (uint32_t)(a) << 16 | (uint32_t)(b) << 24)
+#define RT(s) (0x2Fu | (uint32_t)(s) << 8)   /* cable bits 2: the TRS input (MID-15) */
 
 int main(void)
 {

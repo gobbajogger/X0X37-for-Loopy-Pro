@@ -1,0 +1,35 @@
+Stage4 validation passes for the complete Elite DEV package/controller set.
+The physical result is NOT TESTED. The original input failure is UNRESOLVED.
+
+Checked complete candidate: cce6ac5ccd45ebb2809afd973671af96b138748a.
+Candidate tree: cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Validated evidence revision: 9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a.
+Its production source is equal to the checked candidate.
+The actual DEV record is elite/record.json. The exact identities are in result.json and artifact-verification.json.
+The configuration is X0X_DEV_PADCAL=1. The selected model is Elite.
+Code margin: 1128 bytes. Static RAM margin: 524 bytes. Pool margin: 8364 bytes.
+The required pool margin is 8192 bytes.
+The controller has 44 bytes of flash margin and 544 bytes of RAM margin.
+Its full 64 KiB CRC32 is 4a400899.
+The final validation-input identity comparison passes.
+The package model, CRCs, region table and loop-slot map pass.
+Controller insertion keeps the app bytes, bootloader head and slot map.
+Controller removal restores the original package byte for byte.
+The new package agrees with the saved stage2 package byte for byte.
+No production source changed in stage4.
+
+All selected host inputs and saved results agree. The suites did not run again.
+The 30 expected nonzero controls keep their expected results.
+Both separate stage3 helper reviews pass. The new 16-case probe passes ASan/UBSan.
+The replay keeps 1268 payloads, 2616 decoded messages and 513 feedback messages.
+The peer, mailbox, clock and schedule are simulated. Target interrupts and physical radio execution are not tested.
+No Pro package is selected or claimed. Each later selected Pro package needs its applicable checks.
+
+Mapping stage4 retains sole stage5 selection: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Its separate mapping result is /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+Both separate contributions must reach one sole integrator.
+The separate central package is not the combined install set.
+The combined source needs matching validation before installation.
+The complete validated DEV-install permission continues with its notice requirement.
+No device/controller write, release build, full gate, trial, fallback or external push occurred.
+The successor record must show actual startup before this stage ends.

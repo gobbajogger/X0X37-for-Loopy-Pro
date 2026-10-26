@@ -1,0 +1,70 @@
+# BLE-16: when the Bluetooth link ends, X0X releases the notes that came from Bluetooth (the 4th field of midi: 1).
+# midiheld: bit 0 the 303A gate, bit 1 the 303B gate, bit 8 + s the break slice key s.
+# Default channels (MID-02): 303A 2 (0x91), 303B 3 (0x92), BREAK 4 (0x93, slices on notes 36-43).
+wait 300
+expect midiheld 0
+# nothing held: a link end changes nothing
+blelinkend
+wait 20
+expect midiheld 0
+# Bluetooth holds a 303A note and break slice 0; USB holds a 303B note and break slice 1
+midi 91 30 64 1
+midi 93 24 64 1
+midi 92 30 64 0
+midi 93 25 64 0
+wait 20
+expect midiheld 0x303
+blelinkend
+wait 20
+expect midiheld 0x202
+# the USB notes stay; a USB note off still ends them
+midi 82 30 00 0
+midi 83 25 00 0
+wait 20
+expect midiheld 0
+# a Bluetooth note, then a USB note on the same 303 (a slide): USB holds it, the link end keeps it
+midi 91 31 64 1
+midi 91 32 64 0
+wait 20
+blelinkend
+wait 20
+expect midiheld 1
+midi 81 32 00 0
+wait 20
+expect midiheld 0
+# Bluetooth note on with velocity 0 is a note off: nothing to release
+midi 91 33 64 1
+midi 91 33 00 1
+wait 20
+expect midiheld 0
+# the link ends while the sequencer plays on an external clock from Bluetooth: no note hangs
+tapkey b0
+tapkey w0
+midi FA 00 00 1
+midi F8 00 00 1
+wait 20
+midi 91 34 7F 1
+midi 93 2B 64 1
+wait 20
+expect midiheld 0x8001
+blelinkend
+wait 20
+expect midiheld 0
+wait 600
+expect midiheld 0
+# all eight slices and both 303s from Bluetooth
+midi 91 30 64 1
+midi 92 30 64 1
+midi 93 24 64 1
+midi 93 25 64 1
+midi 93 26 64 1
+midi 93 27 64 1
+midi 93 28 64 1
+midi 93 29 64 1
+midi 93 2A 64 1
+midi 93 2B 64 1
+wait 20
+expect midiheld 0xFF03
+blelinkend
+wait 20
+expect midiheld 0

@@ -1,0 +1,74 @@
+{
+  "elite": {
+    "result": "PASS",
+    "record": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json",
+    "validation_input_sha256": "69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5",
+    "budgets": {
+      "code_free": 1128,
+      "ram_free": 524,
+      "pool_free": 8364
+    },
+    "package": {
+      "bytes": 651396,
+      "sha256": "1ee6d2fcf20b39b625924ee15c6788c908ad9adc2933b4408b986c45cab745d4",
+      "crc32": "f2479a6b"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "controller_full_64k": {
+      "bytes": 65536,
+      "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+      "crc32": "4a400899"
+    },
+    "app": {
+      "bytes": 551544,
+      "sha256": "3204d8cd391a735f82af41b652b030b5e412da5575ac002250c913cf4ad16a98",
+      "crc32": "4ea217ae"
+    },
+    "entries": {
+      "flash.bin": {
+        "bytes": 643072,
+        "sha256": "47809cf10fce5a8781db609777390d5227fecc66990c75c2b61edaff00398c47",
+        "crc32": "2275d871"
+      },
+      "ota.bin": {
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      }
+    },
+    "slot_map": [
+      [
+        794624,
+        81920
+      ],
+      [
+        876544,
+        122880
+      ],
+      [
+        720896,
+        45056
+      ]
+    ],
+    "assembled_install_image": {
+      "bytes": 651396,
+      "sha256": "4806958847cae141dcd3bfc0a889f5f3df791ebf9d2a028beedeb5df5676ba93",
+      "crc32": "bb811c4c"
+    },
+    "checks": [
+      "The DEV record matches the candidate, logs, package and exact controller.",
+      "The package model, CRCs, region table and slot map pass.",
+      "The exact controller passes its CRC, ABI, RAM, entry and IRQ checks.",
+      "Controller insertion preserves app bytes, the bootloader head and slot map.",
+      "Controller removal restores the original package byte for byte."
+    ],
+    "limits": [
+      "The assembled image remains in memory. No device write occurs.",
+      "No physical-device PASS is established."
+    ]
+  }
+}

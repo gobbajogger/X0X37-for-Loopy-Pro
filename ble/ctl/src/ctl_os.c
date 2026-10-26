@@ -8,7 +8,7 @@
 #include "ctl_port.h"
 
 
-#define CTL_MAX_TASKS   2
+#define CTL_MAX_TASKS   1   /* btctrler_task_init creates one controller task */
 #define CTL_TASKQ_WORDS 64
 
 struct ctl_task {
@@ -34,9 +34,8 @@ static struct ctl_ctx idle_ctx;
 static struct ctl_task *find(const char *name)
 {
     if (!name) return cur;
-    for (int i = 0; i < CTL_MAX_TASKS; i++)
-        if (tasks[i].used && strcmp(tasks[i].name, name) == 0) return &tasks[i];
-    return NULL;
+    /* This image has one controller task. The SDK's named queue always addresses it. */
+    return tasks[0].used ? &tasks[0] : NULL;
 }
 
 static void task_trampoline(void)

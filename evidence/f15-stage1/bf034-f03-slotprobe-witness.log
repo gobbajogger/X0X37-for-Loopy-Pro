@@ -1,0 +1,28 @@
+X0X_TEST_JOBS=8
+audited_sha=092589b84fd455355216cb0de93c4782236f7524
+blobs:
+  tests/install_f03_slot_probe_test.py 018d80e6fb871c337c680bc233de0d159391b95e
+  tests/install_test.py 4de1cc02719fd606aafce4c78537a844d925dbda
+  tools/fm1_install.py 3195c4b1249648074d15bd613db57067a16642e5
+  tools/x0x_slots.py f05a978ce01641bf75d44be6320eae494a1f994b
+---
+model: pre-repair plan treats probe failure as None (silent skip)        ok
+slot_probe: timeout raises                                               FAIL
+plan_slots: probe failure raises (fail closed)                           FAIL
+Traceback (most recent call last):
+  File "/agent/repos/x0x37-for-loopy-pro/tests/install_f03_slot_probe_test.py", line 138, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tests/install_f03_slot_probe_test.py", line 103, in main
+    move = fi.plan_slots(d3, image, product)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tools/fm1_install.py", line 683, in plan_slots
+    lay = slot_probe(dev.link)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tools/fm1_install.py", line 625, in slot_probe
+    return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/agent/repos/x0x37-for-loopy-pro/tools/x0x_slots.py", line 87, in parse_info
+    raise SlotError("invalid SMP_INFO slot count or size")
+x0x_slots.SlotError: invalid SMP_INFO slot count or size
+EXIT:1

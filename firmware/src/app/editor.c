@@ -4,15 +4,35 @@
 /* X0X's subset of Felucca's editor protocol (web/EDITOR_PROTOCOL.md):
  *   F0 7D 46 4C cmd args.. F7
  * INFO (1), PING (25) and the sample-slot commands SMP_BEGIN .. SMP_INFO (11..15), so
- * tools/fm1_sample_upload.py loads break loops into the three slots unchanged. The
+ * tools/fm1_sample_upload.py loads break loops into the user slots unchanged. The
  * parameter / preset / track commands are Felucca's instrument and are not answered. */
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
-enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25 };
+enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
+       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_BOOT_INFO = 39,
+       ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT };
+#include "boot_screen.h"
+#if BOARD_SMK37
+/* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
+ * count, fm1_ms now, then 2 words for each entry (the oldest first), each word 5 x 7 bits, low bits
+ * first. Then the 40 stored clip velocities and the 40 stored clip channels (one byte each).
+ * Arg 1: 1, padled_dirty, then 16 GRB words of padled_rgb (the colour to send) and 16 GRB words of the
+ * last frame sent to the pads (padled_buf), each word 4 x 7 bits, low bits first. */
+static void smk_inlog_reply(uint32_t arg);   /* main_fm1.c */
+#endif
+/* ED_CTL_READ (SMK-37 with Bluetooth, for tools/fm1_install.py; read only): the Bluetooth block
+ * (x0x_ble_abi.h XB_FLASH_OFF, XB_FLASH_SIZE = fm1_flash_map.h FL_BLE_LO..FL_BLE_HI). Offset (3 x 7 bits,
+ * from the block start), count (pairs, 7 bits) -> offset, the bytes packed 7 to 8 (as ED_SMP_READ).
+ * An offset outside the block gets no reply; the count stops at the block end. 36 (ABI 3 CTL2_READ,
+ * piece 2) is not used, so an ABI 3 tool gets no reply. */
+/* ED_BT_TEST (SMK-37 with Bluetooth, for tools/ble_autotest.py): op 0 = query, 1 = clear the start
+ * block (as BLUETOOTH OFF), 2 = restart the unit (a chip reset, as fm1_reboot; never the update
+ * loader). Reply: op, BLUETOOTH setting, guard blocked, plat_ble_state(). */
+static uint32_t ed_reboot_at;                /* fm1_ms + 1 when a restart was asked for (0: none) */
 #define ED_READ_MAX 224u                     /* X0X: SMP_READ's bytes a frame (the break page draws the slots) */
 
-static uint8_t ed_out[288];
+static uint8_t ed_out[732];                  /* ED_INLOG with 64 entries: 732 B (tests/diag_size_test.py) */
 static uint32_t ed_n;
 
 static void ed_begin(uint32_t cmd)
@@ -53,43 +73,423 @@ static uint32_t ed_unpack7(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t
     }
     return n;
 }
-static uint8_t ed_smp_buf[512] __attribute__((aligned(4)));
+/* n bytes packed 7 to 8: a byte of high bits, then up to 7 low 7-bit bytes (ED_SMP_READ, ED_CTL_READ) */
+static void ed_put7(const uint8_t *src, uint32_t n)
+{
+    uint32_t k, j;
+    for (k = 0; k < n; k += 7) {
+        uint32_t m = 0;
+        for (j = 0; j < 7u && k + j < n; j++)
+            m |= (uint32_t)(src[k + j] >> 7) << j;
+        ed_b(m);
+        for (j = 0; j < 7u && k + j < n; j++)
+            ed_b(src[k + j]);
+    }
+}
+/* Sample/project chunk staging: 512 B, live only for the duration of one ed_handle
+ * (fill then consume; no cross-message retention). On the device this aliases the
+ * main-loop scratch at OTA_DEC_OFF (x0x.c ED_SMP_SCRATCH), the same call-scoped
+ * ownership class as ota_dec / PROJECT_IO_BUFFER. Host builds keep a private buffer. */
+#define ED_SMP_BUF_SIZE 512u
+#ifdef ED_SMP_SCRATCH
+_Static_assert(ED_SMP_BUF_SIZE <= 640u, "ed_smp_buf fits the ota_dec region");
+#define ed_smp_buf ED_SMP_SCRATCH
+#else
+static uint8_t ed_smp_buf[ED_SMP_BUF_SIZE] __attribute__((aligned(4)));
+#endif
+
+/* Unlike the legacy decoder, reject truncated groups, excess bytes and noncanonical
+ * high-bit masks. A malformed frame must never be accepted as a shorter write. */
+static uint32_t ed_unpack_exact(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t max)
+{
+    uint32_t n = na - (na + 7u) / 8u, i, pos = 0;
+    if (!n || n > max || na % 8u == 1u)
+        return 0;
+    while (na) {
+        uint32_t mask = *a++, take = --na > 7u ? 7u : na;
+        if (mask >> take)
+            return 0;
+        for (i = 0; i < take; i++, na--) {
+            if (*a & 0x80u)
+                return 0;
+            out[pos++] = (uint8_t)(*a++ | ((mask >> i) & 1u) << 7);
+        }
+    }
+    return n;
+}
+
+/* PROJECT version 1. The project-stage allocation doubles as UI undo storage;
+ * ui_project_begin freezes input/audio, and end restores that storage on every exit.
+ * A browser restores sample slots only while mode 2 holds this lock, after VALIDATE. */
+static struct {
+    uint32_t at, next;
+    uint32_t sample_len[SMP_USER_SLOTS], sample_crc[SMP_USER_SLOTS];
+    uint8_t mode, valid, changed, recovery, header[PROJECT_FILE_HDR];
+} ed_project;
+
+static uint32_t ed_project_sample_len(uint32_t k)
+{
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(k);
+    return usr_nz[k] ? SMP_USER_DATA + h->data_len : 0;
+}
+static void ed_project_sample_snapshot(void)
+{
+    uint32_t k;
+    for (k = 0; k < SMP_USER_SLOTS; k++) {
+        uint32_t n = ed_project_sample_len(k);
+        ed_project.sample_len[k] = n;
+        ed_project.sample_crc[k] = n ? st_crc32(smp_user_xip(k), n) : 0;
+    }
+}
+static int ed_project_samples_restored(void)
+{
+    uint32_t k;
+    if (!ed_project.changed)
+        return 1;
+    for (k = 0; k < SMP_USER_SLOTS; k++) {
+        uint32_t n = ed_project_sample_len(k);
+        if (n != ed_project.sample_len[k] || (n && st_crc32(smp_user_xip(k), n) != ed_project.sample_crc[k]))
+            return 0;
+    }
+    return 1;
+}
+
+static uint32_t ed_u21(const uint8_t *a)
+{
+    return (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+}
+static void ed_w21(uint32_t v) { ed_b(v); ed_b(v >> 7); ed_b(v >> 14); }
+static uint8_t *ed_project_byte(uint32_t off)
+{
+    return off < PROJECT_FILE_HDR ? &ed_project.header[off] : (uint8_t *)&project_stage + off - PROJECT_FILE_HDR;
+}
+static int ed_project_samples_locked(void)
+{
+    return ed_project.mode == 1 || (ed_project.mode == 2 && !ed_project.valid);
+}
+static int ed_project_end(int apply)
+{
+    if (ed_project.mode) {
+        if (!apply && !ed_project_samples_restored()) {
+            ed_project.recovery = 1;
+            ui_say("SAMPLE RECOVERY NEEDED", "");
+            return 2;                               /* never resume old music against partial samples */
+        }
+        ed_project.mode = 0;
+        ed_project.recovery = 0;
+        ui_project_end(apply);
+    }
+    return 0;
+}
+static uint32_t ed_project_rc(int rc)
+{
+    return rc == 0 ? 0u : rc == UI_PROJECT_BUSY ? 2u : rc == -4 ? 4u : rc == -7 ? 6u : 5u;
+}
+static void ed_project_handle(const uint8_t *a, uint32_t na)
+{
+    uint32_t op, rc = 0, off = 0, n = 0, i;
+    if (!na)
+        return;
+    op = *a++; na--;
+    ed_b(op);
+    if (ed_project.mode)
+        ed_project.at = fm1_ms;
+    switch (op) {
+    case 64:                                        /* QUERY / keepalive */
+        if (na) { rc = 1; break; }
+        ed_b(0); ed_b(1); ed_w21(PROJECT_FILE_SIZE); ed_b(ed_project.recovery ? 3 : ed_project.mode);
+        return;
+    case 65:                                        /* EXPORT BEGIN */
+    case 67:                                        /* IMPORT BEGIN */
+        if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
+            rc = 1; break;
+        }
+        if (op == 67 && ed_project.recovery) {
+            ed_project.recovery = 0;                 /* recover under the existing audio/input hold */
+        } else {
+            if (ed_project.mode || ui_project_begin()) { rc = 2; break; }
+            ed_project.changed = 0;
+            if (op == 67)
+                ed_project_sample_snapshot();
+        }
+        ed_project.mode = (uint8_t)(op == 65 ? 1 : 2);
+        ed_project.at = fm1_ms;
+        ed_project.next = 0;
+        ed_project.valid = 0;
+        if (op == 65) {
+            project_capture_stage();
+            project_file_header(ed_project.header);
+            ed_b(0); ed_w21(PROJECT_FILE_SIZE);
+            return;
+        }
+        break;
+    case 66:                                        /* READ */
+        if (ed_project.mode != 1) { rc = 2; break; }
+        if (na != 5) { rc = 1; break; }
+        off = ed_u21(a); n = (uint32_t)a[3] | (uint32_t)a[4] << 7;
+        if (!n || n > ED_READ_MAX || off > PROJECT_FILE_SIZE || n > PROJECT_FILE_SIZE - off) {
+            rc = 1; break;
+        }
+        for (i = 0; i < n; i++)
+            ed_smp_buf[i] = *ed_project_byte(off + i);
+        ed_b(0); ed_w21(off); ed_put7(ed_smp_buf, n);
+        return;
+    case 68:                                        /* sequential WRITE, exact retries are idempotent */
+        if (ed_project.mode != 2) { rc = 2; break; }
+        if (na < 5) { rc = 1; break; }
+        off = ed_u21(a);
+        n = ed_unpack_exact(a + 3, na - 3, ed_smp_buf, ED_READ_MAX);
+        if (!n || off > PROJECT_FILE_SIZE || n > PROJECT_FILE_SIZE - off) { rc = 1; break; }
+        if (off > ed_project.next || (off < ed_project.next && n > ed_project.next - off)) {
+            rc = 3; break;
+        }
+        if (off < ed_project.next) {
+            for (i = 0; i < n; i++)
+                if (*ed_project_byte(off + i) != ed_smp_buf[i]) { rc = 3; break; }
+            if (rc) break;
+        } else {
+            ed_project.valid = 0;
+            for (i = 0; i < n; i++)
+                *ed_project_byte(off + i) = ed_smp_buf[i];
+            ed_project.next += n;
+        }
+        ed_b(0); ed_w21(ed_project.next);
+        return;
+    case 69:                                        /* COMMIT, deliberately never saved implicitly */
+    case 74:                                        /* VALIDATE before any sample write */
+        if (ed_project.mode != 2) { rc = 2; break; }
+        if (op == 69 && (na != 2 || a[0] != 0x58 || a[1] != 0x30)) { rc = 8; break; }
+        if (op == 74 && na) { rc = 1; break; }
+        if (ed_project.next != PROJECT_FILE_SIZE) { rc = 3; break; }
+        rc = ed_project_rc(project_file_validate(ed_project.header));
+        ed_project.valid = rc == 0;
+        if (!rc && op == 69)
+            ed_project_end(1);
+        break;
+    case 70:                                        /* ABORT, including an already expired session */
+        if (na) { rc = 1; break; }
+        rc = (uint32_t)ed_project_end(0);
+        break;
+    case 71:                                        /* SAVE */
+    case 72:                                        /* LOAD SAVED */
+    case 73: {                                      /* RESET */
+        int result;
+        if (ed_project.mode) { rc = 2; break; }
+        if (op == 71 ? na != 0 : na != 2 || a[0] != 0x58 || a[1] != 0x30) {
+            rc = op == 71 ? 1 : 8; break;
+        }
+        result = op == 71 ? ui_project_save() : op == 72 ? ui_project_load() : ui_project_reset();
+        rc = result == UI_PROJECT_BUSY ? 2u : result == -7 ? 6u : result ? 7u : 0u;
+        break;
+    }
+    default: rc = 1; break;
+    }
+    ed_b(rc);
+}
+
 static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
+/* Armed for rewrite: WRITE may touch the slot. Flash stays intact until the first
+ * sector erase, so cancel after BEGIN alone keeps the last good sample. */
+static uint8_t smp_importing[SMP_USER_SLOTS];
+static uint8_t smp_sec0_erased[SMP_USER_SLOTS];
 static void ed_smp_inval(uint32_t k)
 {
     fm1_irq_off();
     fl_inval(ed_smp_slot(k), SMP_USER_SIZE(k));
     fm1_irq_on();
 }
+/* Drop live use of slot k before flash rewrite. Does not erase. */
+static void ed_smp_retire(uint32_t k)
+{
+    if (!usr_nz[k])
+        return;
+    usr_nz[k] = 0;
+    engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
+    engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k));
+}
+/* Silence audio then erase one 4 KiB sector (import / boot flash paths). */
+static int ed_silence_erase4k(uint32_t off, uint32_t *took)
+{
+    uint32_t local;
+    if (!took)
+        took = &local;
+    audio_silence();
+    return fl_erase4k(off, took);
+}
+#if SMP_SEC0_BACKUP
+/* Erase 4 KiB at dst and program from src through ed_smp_buf (backup and restore). */
+static int ed_smp_copy_4k(uint32_t dst, const uint8_t *src)
+{
+    uint32_t i;
+    if (ed_silence_erase4k(dst, 0))
+        return 1;
+    for (i = 0; i < 0x1000u; i += 256u) {
+        uint32_t n = 0x1000u - i;
+        if (n > 256u)
+            n = 256u;
+        memcpy(ed_smp_buf, src + i, n);
+        if (fl_write(dst + i, ed_smp_buf, n))
+            return 1;
+        fm1_wdt_feed();
+    }
+    return 0;
+}
+/* Copy live sector 0 into FL_SMPV before the first destructive erase. */
+static int ed_smp_backup_sec0(uint32_t k)
+{
+    return ed_smp_copy_4k(SMP_SEC0_BACKUP_OFF(k), smp_user_xip(k));
+}
+static int ed_smp_backup_present(uint32_t k)
+{
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k));
+    return h->magic == SMP_USER_MAGIC && h->version == 1 && h->nz && h->nz <= 16u;
+}
+static void ed_smp_clear_backup(uint32_t k)
+{
+    if (!ed_smp_backup_present(k))
+        return;
+    (void)ed_silence_erase4k(SMP_SEC0_BACKUP_OFF(k), 0);
+}
+/* Put sector 0 back from FL_SMPV when an import aborted after erasing it. */
+static int ed_smp_restore_sec0(uint32_t k)
+{
+    uint32_t dst = ed_smp_slot(k);
+    const uint8_t *src;
+    if (!ed_smp_backup_present(k))
+        return 1;
+    src = fm1_xip_ptr(SMP_SEC0_BACKUP_OFF(k));
+    if (ed_smp_copy_4k(dst, src))
+        return 1;
+    ed_smp_inval(k);
+    smp_user_scan(k);
+    smp_sec0_erased[k] = 0;
+    smp_importing[k] = 0;
+    ed_smp_clear_backup(k);
+    engine_brk_loops();
+    return usr_nz[k] ? 0 : 1;
+}
+/* Recover last-good after a failed END, a new BEGIN, or boot (power loss). */
+static void ed_smp_try_restore(uint32_t k)
+{
+    if (usr_nz[k]) {
+        ed_smp_clear_backup(k);
+        return;
+    }
+    if (ed_smp_backup_present(k))
+        (void)ed_smp_restore_sec0(k);
+}
+void ed_smp_recover(void)
+{
+    uint32_t k;
+    for (k = 0; k < SMP_USER_SLOTS; k++)
+        ed_smp_try_restore(k);
+}
+#else
+static int ed_smp_backup_sec0(uint32_t k) { (void)k; return 0; }
+static void ed_smp_clear_backup(uint32_t k) { (void)k; }
+static void ed_smp_try_restore(uint32_t k) { (void)k; }
+void ed_smp_recover(void) {}
+#endif
+static int ed_smp_begin(uint32_t k)
+{
+    ed_smp_try_restore(k);                            /* prior abandon / power-loss mid-WRITE */
+    if (ed_project.mode == 2)
+        ed_project.changed = 1;
+    smp_importing[k] = 1;
+    smp_sec0_erased[k] = 0;
+    return 0;
+}
 static int ed_smp_erase(uint32_t k, uint32_t all)
 {
-    uint32_t i, took;
+    uint32_t i;
     int rc = 0;
-    usr_nz[k] = 0;
-    engine_brk_loops();                               /* nothing may read the slot now */
+    if (ed_project.mode == 2)
+        ed_project.changed = 1;
+    ed_smp_retire(k);
+    smp_importing[k] = 0;
+    smp_sec0_erased[k] = 0;
+    ed_smp_clear_backup(k);
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
-        audio_silence();
-        rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);
+        rc = ed_silence_erase4k(ed_smp_slot(k) + i * 0x1000u, 0);
         fm1_wdt_feed();
     }
     ed_smp_inval(k);
     return rc;
 }
+/* Erase the 4 KiB sector that holds off. Sector 0 is deferred until the first
+ * WRITE into it (BEGIN no longer wipes the header). Before that erase, shadow
+ * sector 0 into FL_SMPV so cancel / failed END can restore last-good.
+ * Higher sectors: FL_SMPV only holds sector 0, so wiping past 0x1000 already
+ * destroys unrecoverable last-good. Clear any sec0 shadow (do not restore a
+ * header over wiped data) and, if sector 0 is still live, erase it too so a
+ * valid header cannot outlive its higher-sector payload. */
+static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
+{
+    if (off < 0x1000u) {
+        if (smp_sec0_erased[k])
+            return 0;
+        if (usr_nz[k] && ed_smp_backup_sec0(k))
+            return 1;                                 /* refuse wipe if shadow cannot be stored */
+        ed_smp_retire(k);
+        if (ed_silence_erase4k(ed_smp_slot(k), took))
+            return 1;
+        smp_sec0_erased[k] = 1;
+        ed_smp_inval(k);
+        return 0;
+    }
+    if (off & 0xFFFu)
+        return 0;
+    if (!smp_sec0_erased[k]) {
+        /* First destructive touch is past sector 0: last-good cannot be kept. */
+        ed_smp_retire(k);
+        if (ed_silence_erase4k(ed_smp_slot(k), took))
+            return 1;
+        smp_sec0_erased[k] = 1;
+        ed_smp_inval(k);
+    } else {
+        ed_smp_retire(k);
+    }
+    if (ed_silence_erase4k(ed_smp_slot(k) + off, took))
+        return 1;
+    ed_smp_clear_backup(k);                           /* sec0-only shadow would lie after this */
+    return 0;
+}
 static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
     const smp_user_hdr_t *h = (const smp_user_hdr_t *)ed_smp_buf;
-    if (ed_unpack7(a, na, ed_smp_buf, sizeof(smp_user_hdr_t)) != sizeof(smp_user_hdr_t))
+    uint32_t n = ed_unpack_exact(a, na, ed_smp_buf, ED_SMP_BUF_SIZE);
+    if (n != sizeof(smp_user_hdr_t) && n != SMP_USER_DATA) {
+        ed_smp_try_restore(k);
         return 1;
+    }
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
-        h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA)
+        h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA) {
+        ed_smp_try_restore(k);
         return 2;
+    }
+    /* NOR can only clear bits. Programming a new header onto a live sector 0
+     * AND-corrupts the previous one (BEGIN no longer erases). Require a WRITE
+     * that erased sector 0 this import; otherwise keep last-good and refuse. */
+    if (!smp_sec0_erased[k]) {
+        smp_importing[k] = 0;
+        return 6;
+    }
     ed_smp_inval(k);
-    if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
+    if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc) {
+        ed_smp_try_restore(k);
         return 3;
-    if (fl_write(ed_smp_slot(k), ed_smp_buf, sizeof(smp_user_hdr_t)))
+    }
+    if (ed_project.mode == 2)
+        ed_project.changed = 1;
+    if (fl_write(ed_smp_slot(k), ed_smp_buf, n)) {
+        ed_smp_try_restore(k);
         return 4;
+    }
     ed_smp_inval(k);
     smp_user_scan(k);
+    smp_importing[k] = 0;
+    smp_sec0_erased[k] = 0;
+    ed_smp_clear_backup(k);
     engine_brk_loops();
     return usr_nz[k] ? 0 : 5;
 }
@@ -156,6 +556,153 @@ static int ed_debug(uint32_t cmd, const uint8_t *a, uint32_t na)
 }
 #endif
 
+/* Boot screen upload. Chunks sit in the existing store buffer. Flash is
+ * touched only by END, and only with a whole valid record, written to the
+ * inactive copy with the header last. */
+static boot_stage_t bst;
+static boot_io_t bio;
+
+static int boot_dev_erase(void *ctx, uint32_t off)
+{
+    (void)ctx;
+    fm1_wdt_feed();
+    return ed_silence_erase4k(off, 0);
+}
+static int boot_dev_prog(void *ctx, uint32_t off, const uint8_t *src, uint32_t n)
+{
+    (void)ctx;
+    return fl_write(off, src, n);
+}
+static int boot_dev_read(void *ctx, uint32_t off, uint8_t *dst, uint32_t n)
+{
+    (void)ctx;
+    return fl_read(off, dst, n);
+}
+static int boot_cmd(uint32_t cmd)
+{
+    return cmd == ED_BOOT_INFO || (cmd >= ED_BOOT_BEGIN && cmd <= ED_BOOT_ABORT);
+}
+static void boot_housekeep(void)
+{
+    if (boot_poll(&bst, fm1_ms) == BOOT_LATE)
+        store_stage_unlock();
+}
+static const uint8_t *boot_shown(void)
+{
+    const uint8_t *a, *b;
+    int w;
+    if (!flash_ok)
+        return 0;
+    a = fm1_xip_ptr(BOOT_SEC0);
+    b = fm1_xip_ptr(BOOT_SEC1);
+    w = boot_pick(a, b);
+    return w < 0 ? 0 : (w ? b : a);
+}
+static void boot_finish(int rc)
+{
+    if (!bst.armed)
+        store_stage_unlock();
+    ed_b((uint32_t)rc);
+}
+static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
+{
+    int rc;
+    if (cmd == ED_BOOT_INFO) {
+        const uint8_t *sec = boot_shown();
+        const uint8_t *pay = sec ? sec + BOOT_PAY_OFF : 0;
+        char l0[13], l1[22];
+        boot_lines(!flash_ok ? 0 : pay, l0, l1);
+        ed_b(flash_ok ? (pay && pay[0] == BOOT_KIND_CUSTOM ? 0u : 1u) : (uint32_t)BOOT_NOFLASH);
+        ed_b(pay && (pay[1] & BOOT_F_PIC) ? 1u : 0u);
+        ed_str(l0, 12);
+        ed_str(l1, 21);
+        return;
+    }
+    if (cmd == ED_BOOT_ABORT) {
+        boot_abort(&bst);
+        store_stage_unlock();
+        ed_b(0);
+        return;
+    }
+    if (cmd == ED_BOOT_READ) {
+        const uint8_t *sec = boot_shown();
+        uint32_t off, n, len;
+        if (na < 4u || !sec) {
+            ed_b(1);
+            return;
+        }
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        len = boot_u32(sec + 12);
+        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
+        if (off >= len) {
+            ed_b(1);
+            return;
+        }
+        if (n > len - off)
+            n = len - off;
+        ed_b(0);
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_put7(sec + BOOT_PAY_OFF + off, n);
+        return;
+    }
+    if (cmd == ED_BOOT_BEGIN) {
+        uint32_t cap = 0;
+        uint8_t *b;
+        if (!flash_ok) {
+            ed_b(BOOT_NOFLASH);
+            return;
+        }
+        if (ui_boot_flash_busy()) {
+            ed_b(BOOT_BUSY);
+            return;
+        }
+        if (!store_stage_held()) {
+            b = store_stage_lock(&cap);
+            if (!b) {
+                ed_b(BOOT_BUSY);
+                return;
+            }
+            bst.buf = b;
+            bst.cap = cap;
+        }
+        bio.erase = boot_dev_erase;
+        bio.prog = boot_dev_prog;
+        bio.read = boot_dev_read;
+        bio.ctx = 0;
+        rc = boot_begin(&bst, fm1_ms);
+        if (rc != BOOT_OK) {
+            bst.armed = 0;
+            store_stage_unlock();
+        }
+        ed_b((uint32_t)rc);
+        return;
+    }
+    if (cmd == ED_BOOT_WRITE) {
+        uint32_t off = 0, n;
+        if (na >= 3u)
+            off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        n = na >= 3u ? ed_unpack_exact(a + 3, na - 3u, ed_smp_buf, 256u) : 0u;
+        rc = boot_write(&bst, off, n ? ed_smp_buf : 0, n, fm1_ms);
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        boot_finish(rc);
+        return;
+    }
+    if (cmd == ED_BOOT_END) {
+        if (ui_boot_flash_busy()) {
+            ed_b(BOOT_BUSY);
+            return;
+        }
+        rc = boot_end(&bst, &bio, BOOT_SEC0, BOOT_SEC1, fm1_ms);
+        boot_finish(rc);
+        return;
+    }
+    ed_b(BOOT_BAD);
+}
+
 static void ed_handle(const uint8_t *f, uint32_t n)
 {
     uint32_t cmd = f[3], i;
@@ -163,6 +710,9 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     uint32_t na = n - 4u;
     ed_begin(cmd);
     switch (cmd) {
+    case ED_PROJECT:
+        ed_project_handle(a, na);
+        break;
     case ED_INFO:
         ed_str("X0X " X0X_VERSION, 24);
         ed_b(0);                                      /* no engines / parameters over this protocol */
@@ -175,12 +725,42 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     case ED_PING:
         ed_b(0);
         break;
+    case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
+        uint32_t w[77], nw = 0, k;            /* 77 x 5 B fit ed_out (tests/diag_size_test.py) */
+        const uint32_t *c = (const uint32_t *)&fm1_crash;
+        for (k = 0; k < sizeof fm1_crash / 4u; k++)
+            w[nw++] = c[k];
+        w[nw++] = bootguard.failed;
+        w[nw++] = bootguard.pending;
+#if X0X_BLE
+        nw += ble_diag(w + nw, (uint32_t)(sizeof w / 4u) - nw);
+#endif
+        ed_b(nw);
+        for (k = 0; k < nw; k++) {
+            ed_b(w[k]);
+            ed_b(w[k] >> 7);
+            ed_b(w[k] >> 14);
+            ed_b(w[k] >> 21);
+            ed_b(w[k] >> 28);
+        }
+        break;
+    }
+#if BOARD_SMK37
+    case ED_INLOG:                                    /* read only: the inbound recorder (main_fm1.c) */
+        smk_inlog_reply(na >= 1u ? a[0] : 0u);
+        break;
+#endif
     case ED_SMP_BEGIN:
     case ED_SMP_ERASE:
         if (na < 1u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b(ed_smp_erase(a[0], cmd == ED_SMP_ERASE) ? 1u : 0u);
+        if (ed_project_samples_locked())
+            ed_b(4u);
+        else if (cmd == ED_SMP_BEGIN)
+            ed_b(ed_smp_begin(a[0]) ? 1u : 0u);
+        else
+            ed_b(ed_smp_erase(a[0], 1u) ? 1u : 0u);
         break;
     case ED_SMP_WRITE: {
         uint32_t off, len, rc = 0, took;
@@ -190,15 +770,20 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
         if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE(a[0]))
             rc = 1;
-        else if (usr_nz[a[0]])
+        else if (ed_project_samples_locked() ||
+                 (!smp_importing[a[0]] && usr_nz[a[0]]))
             rc = 4;
         else {
-            if (!(off & 0xFFFu)) {
-                audio_silence();
-                rc = fl_erase4k(ed_smp_slot(a[0]) + off, &took) ? 2u : 0u;
+            if (ed_project.mode == 2)
+                ed_project.changed = 1;
+            if (ed_smp_erase_for_write(a[0], off, &took))
+                rc = 2;
+            if (!rc) {
+                /* Sector-0 backup/restore reuses ed_smp_buf; re-unpack after erase. */
+                len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
+                if (fl_write(ed_smp_slot(a[0]) + off, ed_smp_buf, len))
+                    rc = 3;
             }
-            if (!rc && fl_write(ed_smp_slot(a[0]) + off, ed_smp_buf, len))
-                rc = 3;
         }
         ed_b(a[0]);
         ed_b(off);
@@ -211,7 +796,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 2u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b((uint32_t)ed_smp_end(a[0], a + 1, na - 1u));
+        ed_b(ed_project_samples_locked() ? 4u : (uint32_t)ed_smp_end(a[0], a + 1, na - 1u));
         break;
 #if X0X_DEBUG
     case ED_PEEK:
@@ -221,10 +806,18 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             return;
         break;
 #endif
+    case ED_BOOT_INFO:
+    case ED_BOOT_BEGIN:
+    case ED_BOOT_WRITE:
+    case ED_BOOT_READ:
+    case ED_BOOT_END:
+    case ED_BOOT_ABORT:
+        ed_boot(cmd, a, na);
+        break;
     case ED_SMP_READ: {                              /* X0X: slot, offset (3 x 7 bits, from the slot's start,
                                                       * its header included), count -> slot, offset, the bytes
                                                       * packed 7 to 8 (as WRITE takes them) */
-        uint32_t off, n, k, j;
+        uint32_t off, n;
         const uint8_t *src;
         if (na < 5u || a[0] >= SMP_USER_SLOTS)
             return;
@@ -239,14 +832,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(off);
         ed_b(off >> 7);
         ed_b(off >> 14);
-        for (k = 0; k < n; k += 7) {
-            uint32_t m = 0;
-            for (j = 0; j < 7u && k + j < n; j++)
-                m |= (uint32_t)(src[k + j] >> 7) << j;
-            ed_b(m);
-            for (j = 0; j < 7u && k + j < n; j++)
-                ed_b(src[k + j]);
-        }
+        ed_put7(src, n);
         break;
     }
     case ED_SMP_INFO: {                              /* count, size (KiB, 7 bits: the SMALLEST slot, so an older
@@ -286,29 +872,102 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         }
         break;
     }
+#if X0X_BLE
+    case ED_BT_TEST: {
+        uint32_t op = na > 0u ? a[0] : 0u;
+        if (op > 4u)
+            return;
+        if (ui_project_busy() && (op == 1u || op == 2u))
+            return;                                 /* radio reset/reboot cannot interrupt sample recovery */
+        if (op >= 3u) {     /* 3: the timer 5 frame watch (fm1_guard.h), last boot's, then hits now;
+                             * 4: core 1's records (fm1_cpu1.h): core 0 seen stopping, the RAM canary */
+            const uint32_t *t = op == 3u ? (const uint32_t *)&fm1_t5w_prev : (const uint32_t *)&fm1_c0_dead;
+            const uint32_t *g = (const uint32_t *)&fm1_can;
+            const uint32_t nt = op == 3u ? sizeof fm1_t5w_prev / 4u : sizeof fm1_c0_dead / 4u;
+            const uint32_t n = nt + (op == 3u ? 1u : sizeof fm1_can / 4u);
+            uint32_t k;
+            ed_b(op);
+            ed_b(n);
+            for (k = 0; k < n; k++) {
+                uint32_t v = k < nt ? t[k] : op == 3u ? fm1_t5w.hits : g[k - nt];
+                ed_b(v);
+                ed_b(v >> 7);
+                ed_b(v >> 14);
+                ed_b(v >> 21);
+                ed_b(v >> 28);
+            }
+            break;
+        }
+        if (op == 1u) {
+            plat_ble_set(0);                          /* as BLUETOOTH OFF: the next power-on tries again */
+            plat_ble_set((proj.set.bt & 1u) != 0u);   /* the setting itself does not change */
+        }
+        if (op == 2u)
+            ed_reboot_at = fm1_ms + 1u;               /* after this reply is out (main loop) */
+        ed_b(op);
+        ed_b(proj.set.bt & 1u);
+        ed_b(ble_guard.blocked & 1u);
+        ed_b((uint32_t)plat_ble_state());
+        break;
+    }
+    case ED_CTL_READ: {
+        uint32_t off, n;
+        const uint8_t *src;
+        _Static_assert(XB_FLASH_OFF == FL_BLE_LO && XB_FLASH_SIZE == FL_BLE_HI - FL_BLE_LO,
+                       "ED_CTL_READ: the Bluetooth block is FL_BLE");
+        if (na < 4u)
+            return;
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
+        if (off >= XB_FLASH_SIZE)
+            return;
+        if (n > XB_FLASH_SIZE - off)
+            n = XB_FLASH_SIZE - off;
+        src = fm1_xip_ptr(XB_FLASH_OFF) + off;     /* the app area: reads decrypted, as core 1 runs it */
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_put7(src, n);
+        break;
+    }
+#endif
     default:
         return;                                       /* not ours: no reply */
     }
     ed_send();
 }
 
-static void ed_service(void)
+/* Return 1 only when this check left a non-editor frame pending for OTA. */
+static int ed_service(void)
 {
     const uint8_t *p;
     uint32_t n;
-    if (!ota_frame_get(&p, &n) || n < 4u || p[0] != ED_HDR0 || p[1] != ED_HDR1 || p[2] != ED_HDR2)
-        return;                                       /* not an editor frame: ota_service() reads it */
-    if (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) {
+    if (ed_project.mode && !ed_project.recovery && fm1_ms - ed_project.at >= 15000u)
+        ed_project_end(0);
+    boot_housekeep();
+    if (!ota_frame_get(&p, &n))
+        return 0;
+    if (n < 4u || p[0] != ED_HDR0 || p[1] != ED_HDR1 || p[2] != ED_HDR2) {
+        if (ed_project.mode) {
+            ota_frame_done();                        /* OTA and project operations share scratch */
+            return 0;
+        }
+        return 1;                                    /* this same pending frame belongs to ota_service() */
+    }
+    /* Boot writes are longer than the 64-byte stack copy below. A truncated
+     * frame would fail the check and must not be stored. */
+    if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) || boot_cmd(p[3])) {
         ed_handle(p, n);
         ota_frame_done();
-        return;
+        return 0;
     }
     {
-        static uint8_t f[64];
+        uint8_t f[64];                                /* (on the stack: ed_handle keeps no pointer to it) */
         uint32_t k = n > sizeof f ? sizeof f : n, i;
         for (i = 0; i < k; i++)
             f[i] = p[i];
         ota_frame_done();
         ed_handle(f, k);
     }
+    return 0;
 }

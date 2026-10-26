@@ -1,0 +1,26 @@
+{
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "python": "Python 3.9.6\n",
+  "inputs": {
+    "firmware/src/app/smc_mixer.c": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+    "tests/run_tests.sh": "281c75d6337919ace9e0792c59fb684b255bcc0985d5196701d3e9fa69d71e6f",
+    "host/build_host.sh": "12c9149e5e5550deb045452b652d3ef2d67ee9e502df483fc35b0c208dd28413",
+    "tests/host/smc_buttons_test.py": "6605b78294ded7b455d62379e346b39e401f2fc9846ab119968067e130d02379",
+    "tests/host/smc_clip_visibility_test.c": "376d87e775aa260fde1d44efd418b7373d4200afc424af648d93a2b444f7c594",
+    "tests/host/smc_clip_visibility_test.sh": "e0aa2c843ebda76d263a4c7060b0030b12ab9c708484ca2266d5914513bd8628",
+    "tests/host/smc_drum_mutes_test.c": "8d828bc5537f32c720a92006850916e9ce3b1646622f0f0003be7d6b84d65fb4",
+    "tests/host/smc_drum_mutes_test.sh": "dd88873a65ae03e683bc878faa5045b44c6a13ac881b6df22fa59ce1c28cf9ff",
+    "tests/host/smc_fader_test.py": "f8c90b3c886c63bf981b2ccdb11c52fc38194d6a4e83b554e04c54e3e643981b",
+    "tests/host/smc_filter_test.py": "8da9cb18e784489d67c517ecd4665194437330955353e362502bf1feaefbe73c",
+    "tests/host/smc_mapping_test.py": "5fc9ff944db93c7636c5e0cdff7d6af68a8b3e71f68d5a504da3e737e3a7ca56",
+    "tests/host/smc_part_select_test.c": "8eb8375ca70804737f15cc1c303f54e1617b99669b23180c4034130431ad9de0",
+    "tests/host/smc_part_select_test.sh": "6aaede421dd6690bc3010bedd85776ac393e43813a7884f05b3d95c59e63d34b",
+    "tests/host/smc_performance_abort_test.c": "5cc405670147eb2fe4362cf45aa65d58cb19d8d44db10bfbb77a65d760582fce",
+    "tests/host/smc_performance_abort_test.sh": "e271395c8e9de3424d2a12fe8b9fa209c4ef04e34d52620551fc0aeed1cd1022",
+    "tests/host/smc_protocol_test.c": "ecf44ae77899c7f2ba48f1e3f096006735faeaabec5d162d9d3e83d8625ffccf",
+    "tests/host/smc_reachability_test.c": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+    "tests/host/smc_reachability_test.sh": "7d3fec22308b2fe41d0bcbb144f21f82446a58c18b43585ff2522b00b8bcb49b"
+  }
+}

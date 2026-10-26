@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "name": "receive",
+      "command": [
+        "sh",
+        "tests/host/ble_midi_receive_test.sh"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021",
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/test-receive.log"
+    },
+    {
+      "name": "diag",
+      "command": [
+        "python3",
+        "-B",
+        "tests/ble_central_diag_test.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021",
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/test-diag.log"
+    }
+  ],
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "python": "3.9.6",
+  "platform": "macOS-27.2-arm64-arm-64bit"
+}

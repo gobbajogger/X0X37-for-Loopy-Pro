@@ -1,0 +1,210 @@
+Begin the central abort repair NOW in this one fresh LOCAL stage-2 chat.
+Do not create another copy of stage 2.
+Marker: smc-central-abort-20261021-stage2-after-28d0fc2-stage3.
+Source owner: 01a15a85-2fb6-7683-a11e-72faeecd3a8e.
+Prior stage-2 owner: 01a15a7c-126f-7f22-b8d3-0bad5a77306a.
+
+Initialize the current workspace skills before their steps.
+Current entry: /Users/mac/Documents/x0x37/AGENTS.md.
+Skill triggers: /Users/mac/Documents/x0x37/agent-rules.md.
+Required startup skills: x0x37-task, x0x37-workflow and x0x37-writing.
+Stage skills: x0x37-check, x0x37-device-bug, x0x37-shared-work and x0x37-owner-decisions.
+Each path is /Users/mac/Documents/x0x37/.agents/skills/NAME/SKILL.md.
+Read the writing skill and its strict references.
+Read x0x37-integrate when target validation begins.
+Current owner instructions override old checkout text and saved permission limits.
+Do not load the old rule files.
+
+Authorization
+
+Latest direct owner request: "Now read rules and fix".
+This task is the source-repair loop required by workflow rule 17.
+The requested workflow includes necessary reversible repairs and affected checks.
+The source chat's original assignment explicitly authorizes source-repair loops.
+Standing owner request: "Make sure that they automatically allow to do that without my intervention".
+Workflow rule 18 permits automatic successors, recovery, startup checks and completion notices.
+Save each full prompt and successor record before creation.
+Create exactly one fresh required successor. Verify actual assistant or tool startup.
+Do not ask the owner to launch a chat.
+Owner-decisions rule 14 carries permission for the complete validated DEV install with a notice.
+A stage, commit or artifact change does not require another permission question.
+No stage-2 device or controller write is authorized.
+No external push, publication, release build, full gate, fallback or unrelated feature is authorized.
+Do not request another capture, movement, mode repetition or setup check.
+
+Repository and inputs
+
+Repository administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Failed source candidate: 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.
+Original base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+Stage-2 contribution branch: lane/mb-smc-central-session-repair-20261021.
+Stage-3 evidence lane: /Users/mac/Documents/x0x37/smc_central_session_stage3_20261021.
+Stage-3 evidence branch: lane/mb-smc-central-session-stage3-20261021.
+The exact evidence commit is in successor.json as evidence_commit.
+Use that evidence commit as the starting revision for your own isolated lane.
+Its production source is exactly the failed candidate.
+Suggested lane: /Users/mac/Documents/x0x37/smc_central_abort_repair_20261021.
+Suggested branch: lane/mb-smc-central-abort-repair-20261021.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Preserve all other lanes and the separate rules migration files.
+Do not include rules rollout changes in firmware integration.
+
+Read these complete records before source work
+
+- evidence/session-stage3/RESULT.txt and inputs.json.
+- evidence/session-stage3/test-report.json and test-RESULT.txt.
+- evidence/session-stage3/investigation-report.json and investigation-RESULT.txt.
+- evidence/session-stage3/investigation-abort-probe.c and investigation-abort-results.json.
+- evidence/session-stage3/investigation-overflow.log and investigation-timeout.log.
+- evidence/session-stage3/test-busy-disconnect.c, test-busy-disconnect-record.json and test-busy-disconnect.log.
+- evidence/session-stage3/replay-check.json and replay.json.
+- evidence/session-stage2/RESULT.txt, checks.json, regressions.json and replay.json.
+- evidence/session-audit/stage2-prompt.txt and audit.json.
+- firmware/src/ble/ble_midi_central.c and .h.
+- tests/host/ble_midi_signal_test.c and the affected receive tests and runner.
+
+Confirmed failure and cause
+
+The central queues four required signaling replies.
+If a fifth reply arrives, blec_signal_in() calls blec_fail().
+If the pending reply reaches its 3-second deadline, blec_poll() calls blec_fail().
+blec_fail() clears pending replies and enters BLEC_DISCONNECTING.
+It calls blec_command(COP_DISCONNECT).
+If the h2c mailbox is full, send() returns failure.
+blec_command() then retains no pending command and waiting stays zero.
+blec_poll() has no disconnect retry path.
+After the mailbox becomes available at +1 ms, no command reaches it.
+The same result occurs immediately before the deadline.
+At +3000 ms, the state becomes BLEC_FAILED with conn still 0x50.
+Both independent helpers reproduce this failure for overflow and timeout.
+The investigation probe exits -6 at assert(disconnects == 1).
+The test helper probe exits 1 after it reports both failed scenarios.
+ASan and UBSan were enabled. Compilation passes.
+These are functional failures, not sanitizer failures or expected base controls.
+
+Required repair
+
+Make the smallest complete source repair for the lost abort command.
+Retain the required Disconnect command when the mailbox refuses it.
+After the transport becomes available before the abort deadline, submit that command.
+Do not repeatedly submit an accepted command.
+Do not extend the bounded deadline after a failed send.
+Keep command acceptance distinct from successful Disconnection Complete.
+Do not clear the connection or restore credits before the applicable successful event.
+Keep failed events, stop/start, reconnect and timeout behaviour bounded and coherent.
+Preserve the reply queue, identifiers, fragment and size limits, priority and lifecycle resets.
+Add public regressions for overflow and timeout while the transport remains busy.
+Keep the transport busy at the first Disconnect attempt.
+Then make the transport available before the deadline.
+Verify that the required Disconnect reaches it exactly once.
+Verify the successful event, failed event and lifecycle cases affected by the repair.
+Use the saved probes as independent negative controls on 28d0fc2.
+The regression must fail on that source and pass after your repair.
+Do not stop after a diagnostic change or a changed state label.
+Do not edit mapping code owned by the parallel contribution.
+
+Existing passing evidence and limits
+
+Public HCI ASan/UBSan receive, signaling and lifecycle tests pass on 28d0fc2.
+The DIAG decoder passes. Extra fragment, lifecycle and credit checks pass.
+These tests did not cover a refused Disconnect command.
+The stage-2 base failures remain valid for signaling omission and reconnect credit starvation.
+The source hashes in stage-3 inputs.json match the stage-2 source hashes.
+Rerun checks affected by your changed source. Do not repeat unrelated passing suites.
+Read script headers and BUILDING.md before commands.
+
+The startup replay passes with 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+Capture SHA256: a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+Path: cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json.
+Peer, HCI framing and scheduling are simulated.
+Three ATT packets above 64 bytes are excluded. No payload resegmentation occurs.
+The project store is synthetic. The result does not test target interrupts or radio execution.
+The stage-3 replay script, hashes and generated inputs are in evidence/session-stage3/.
+Its external harness and synthetic store remain under /Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021.
+Use -D_DARWIN_C_SOURCE on macOS. Never change HOME.
+
+Both DEV target builds passed before this finding.
+Elite code margin: 1640 bytes. Pro code margin: 1656 bytes.
+Static RAM margin: 524 bytes. Pool margin: 8364 bytes. Required pool margin: 8192 bytes.
+The logs, input identities and app/package hashes are in evidence/session-stage2/checks.json.
+These are stage-2 build checks, not validated stage-4 install records.
+Your source repair invalidates affected build evidence.
+Use supported Linux x86-64 or the local x0x37-validation:local image for JieLi tools.
+Toolchain: /Users/mac/.jieli/toolchain. SDK: /Users/mac/fw-AC79_AIoT_SDK.
+Mount SDK and toolchain read-only. Keep proprietary material outside commits and bundles.
+DEV X0X_DEV_PADCAL=1 remains the default.
+
+Original physical input failure
+
+The owner reports that SMC input controls failed while light feedback operated.
+Working reference: 53d5654c9bbaec10b64c55fb60d0e7d857ba8156.
+Owner quotes: "Controls now work" and "and smc drives them too".
+The owner states that the messages did not change.
+The working reference also lacks signaling replies and disconnect-credit reclamation.
+Neither omission establishes a changed source regression or a complete cure.
+The idle trace reports CONNECTED, handles 114/115, five credits and continued polling.
+It has no pending ATT and no mailbox drops.
+The rejected header is 50 20 10 00 0c 00 05 00.
+Its retained bytes have no signaling command or identifier.
+Zero idle counters do not establish input loss.
+Credit starvation reproduces discovery failure, which differs from that CONNECTED observation.
+The new abort defect is a proven source defect within this repair.
+It does not prove the cause of the reported physical all-input failure.
+Preserve that uncertainty. Do not claim a physical PASS or a complete cure.
+Physical result: NOT TESTED.
+
+Prior evidence remains at:
+/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/COMPARISON.txt and CHECKS.json.
+/Users/mac/Documents/x0x37/smc_input_functional_repair_evidence_20261021/investigation-state.json and live-diag.log.
+/Users/mac/Documents/x0x37/smc_input_repair_restart_20261021/HANDOFF.txt.
+/Users/mac/Documents/x0x37/smc_stage6_evidence_20261021/install-record.json.
+Old missing-permission statements do not override current owner-decisions rule 14.
+
+Parallel mapping and sole integration
+
+Mapping commit: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Mapping stage 3 passed in 01a15a82-82cb-75a1-9aff-9bbc76a3d482.
+Its selected checks, base controls and 4400 helper/LED cases pass.
+Mapping stage 4: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping stage-4 lane: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021.
+That chat retains selection of the one sole stage-5 integrator for both validated contributions.
+It knows that the central contribution requires this source-repair loop.
+Send permitted completion notices with your checked commit and successor IDs.
+Carry the mapping stage-4 ID into each successor prompt.
+After central stage 4 passes, send its completion record to that mapping stage-4 owner or its selected integrator.
+Check current project activity and saved records before any stage-5 selection.
+Do not create a competing integrator or install over an active integration owner.
+Both complete contributions must pass their required stages before merge.
+
+Preservation
+
+Preserve all valid fragment, bounds and lifecycle repairs.
+Preserve controls, notes, pad colours, loops and all loop slots.
+Preserve menus, navigation, pickup, sample quality, licensing, model guards and budgets.
+Preserve the three mixer modes: keyboard-equivalent, individual 909 and individual 808.
+Do not restore withdrawn generic screen-following mappings.
+Controller SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+Full 64 KiB controller CRC32: 4a400899.
+Controller flash margin: 44 bytes. Controller RAM margin: 544 bytes.
+Do not change the controller blindly.
+No FM-1 target work, release, full gate, fallback, external push or publication is authorized.
+
+Completion
+
+Deliver a coherent local repair commit with the required author and matching affected checks.
+Record each command, input identity, log, failure cause and disposition.
+After the repaired source passes stage 2, start one fresh LOCAL stage 3.
+That stage must use separate independent test and investigation subagents under workflow rule 17.
+Give it both busy-mailbox negative controls and the complete repaired candidate.
+A further source defect requires the same fresh stage-2 then stage-3 sequence.
+Do not advance a failed candidate as a success.
+After the repaired stage 3 passes, continue to scoped DEV stage 4.
+Then hand off to the one sole stage 5 and the authorized complete DEV install with notice.
+Do not add a permission question for an already authorized stage.
+No push is authorized in this workflow.
+Apply workflow rule 18 at each required transition.
+Save the full prompt and successor record before creation.
+Check duplicates, including idle and setup chats.
+Create exactly one successor, record its returned host/chat IDs and verify actual startup.
+End the completed stage after that startup. Do not wait for the successor to finish.

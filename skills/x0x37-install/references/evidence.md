@@ -22,7 +22,7 @@ A release install needs an explicit release-build request and the required full-
 `tools/require_gate_pass.sh` accepts development evidence only for development configuration. It cannot create a release PASS.
 
 Preserve configuration, queue, model, artifact, and data guards. Do not use a team web install or bypass a refusal.
-Current owner permission, a device, and required validation are all needed for installation. Hardware permission is withdrawn; do no device action now.
+Current owner permission, a device, and required validation are all needed for installation. The authorized Pro investigation is read-only, not an install grant; Elite flash remains withdrawn. Recheck current permission before any device action.
 
 A public release or release package needs the formal gate and the owner's device PASS for the same build.
 Set `X0X_DEV_PADCAL=0`. Include model-specific packages and licensing files.

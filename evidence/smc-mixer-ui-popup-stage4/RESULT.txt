@@ -1,0 +1,34 @@
+Stage 4 Validate: FAIL (Elite and Pro DEV package builds do not link)
+
+Validated candidate (tested code tip from stage 3): 5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
+Stage-3 tip at stage-4 checkout: fa377e3490805e25571bd6b0d5a775fcd41b3f68
+Implementation: ad4f311. Host tests start: d91a489.
+Stage-4 branch: cursor/smc-mixer-ui-popup-stage4-5686
+Stage-4 owner: bc-03fb7159-af1e-5d80-837b-f4bec84f0cb4
+Recorded UTC: 2026-10-22T15:42:25Z
+
+Toolchain: AVAILABLE (not a toolchain gap).
+- Host: Linux x86_64
+- JIELI clang SHA256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+- AC79 SDK d179b4484759423312073f5fbb232501aa491047
+- DSP refs pinned (environment.json)
+
+Host suite (stage 3): PASS on 5109ef613d212ce8a261ddf75ee1f0e844b0bbbc — does not prove flash fit.
+
+DEV package identity validation via tools/dev_validate.py:
+- Elite: REFUSED — region XIP overflowed by 248 bytes (see elite-dev_validate-build.log / size-ad4f311 implement log)
+- Pro: REFUSED — region XIP overflowed by 232 bytes (see size-pro-ad4f311.log)
+
+Baseline on main e00741e (same toolchain):
+- Elite: PASS link, 488 B code free
+- Pro: PASS link, 504 B code free
+
+Delta: ad4f311 peek/hold/restore grows XIP past the budget (~736 B Elite / ~736 B Pro).
+
+Repair attempt in this stage (compact rewrite of peek helpers): host smc_ui_popup still PASS;
+Elite still overflowed by 248 B. Change reverted; not committed.
+
+Disposition: do NOT advance to Stage 5 Merge. Start exactly one fresh Stage-2 repair
+thread (then fresh Stage 3, then Stage 4) with DEFECT.txt / stage2-repair-prompt.txt.
+
+No firmware install. No merge to main. No page-lock/multi-SMC work.

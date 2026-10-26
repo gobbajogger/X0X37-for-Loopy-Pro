@@ -1,0 +1,28 @@
+{
+  "elite": {
+    "result": "MATCH",
+    "stage2": {
+      "app": "21268e95f3bbfd1f29de1f6bd313f2470e5b3d5bf7fe7794663012a2b236f3b2",
+      "loader": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+      "package": "0759c0312eb22f39805d5a60039cbfdc71fb98e1edee37355f39ac88e0629c86"
+    },
+    "stage4": {
+      "app": "21268e95f3bbfd1f29de1f6bd313f2470e5b3d5bf7fe7794663012a2b236f3b2",
+      "loader": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+      "package": "0759c0312eb22f39805d5a60039cbfdc71fb98e1edee37355f39ac88e0629c86"
+    }
+  },
+  "pro": {
+    "result": "MATCH",
+    "stage2": {
+      "app": "b4be8c5c8a61c3c2bc7bdaad3abd382d7c2055feb3d92b4412ac05770e206804",
+      "loader": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+      "package": "d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3"
+    },
+    "stage4": {
+      "app": "b4be8c5c8a61c3c2bc7bdaad3abd382d7c2055feb3d92b4412ac05770e206804",
+      "loader": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf",
+      "package": "d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3"
+    }
+  }
+}

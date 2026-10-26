@@ -25,6 +25,9 @@ extern void smk_apc_host_seen(void);
 extern void smk_apc_host_lost(void);
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_usb_tick(void);
+extern void smk_apc_usb_link(uint8_t up);
+extern void smk_apc_host_generic(uint8_t ble);
+extern void smk_inlog(uint32_t src, uint32_t pkt);   /* a76: the inbound recorder (main_fm1.c) */
 #endif
 enum { S_FADDR = 0, S_POWER = 1, S_INTRTX1 = 2, S_INTRTX2 = 3, S_INTRRX1 = 4, S_INTRRX2 = 5, S_INTRUSB = 6,
        S_INTRTX1E = 7, S_INTRTX2E = 8, S_INTRRX1E = 9, S_INTRRX2E = 10, S_INTRUSBE = 11, S_FRAME1 = 12,
@@ -136,13 +139,73 @@ static volatile uint32_t so_w, so_r;
 static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
 
+/* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
+static int midi_pkt_is_note_off(uint32_t pkt)
+{
+    uint32_t cin = pkt & 0xFu;
+    return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
+}
+#define midi_in_is_note_off midi_pkt_is_note_off
+
+/* USB-MIDI single-byte realtime transport (CIN 0xF): Start/Continue/Stop.
+ * Under a CC flood these must displace disposable events — a dropped Stop
+ * leaves the sequencer playing (sticky transport). Clock/SPP are not kept. */
+static int midi_pkt_is_rt_transport(uint32_t pkt)
+{
+    uint32_t st;
+    if ((pkt & 0xFu) != 0xFu)
+        return 0;
+    st = (pkt >> 8) & 0xFFu;
+    return st == 0xFAu || st == 0xFBu || st == 0xFCu;
+}
+
+static int midi_pkt_is_keep(uint32_t pkt)
+{
+    return midi_pkt_is_note_off(pkt) || midi_pkt_is_rt_transport(pkt);
+}
+
+/* When a MIDI ring is full, CC floods may drop; never drop Note Off or
+ * Start/Continue/Stop — displace a CC first, then any non-keep
+ * (same class as engine cq_put C_BOFF). */
+static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
+                                  uint32_t pkt)
+{
+    uint32_t i, pass, ww = *w, rr = *r;
+    if (ww - rr < MQ) {
+        q[ww % MQ] = pkt;
+        RING_PUBLISH();
+        *w = ww + 1u;
+        return 1;
+    }
+    if (!midi_pkt_is_keep(pkt))
+        return 0;
+    for (pass = 0; pass < 2u; pass++) {
+        for (i = rr; i != ww; i++) {
+            uint32_t p = q[i % MQ];
+            if (midi_pkt_is_keep(p))
+                continue;
+            if (pass == 0u && (p & 0xFu) != 0xBu)
+                continue;
+            q[i % MQ] = pkt;
+            RING_PUBLISH();
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off or Start/Continue/Stop. */
+static int midi_in_put(uint32_t pkt)
+{
+    return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, pkt);
+}
+
 static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
-    if (usb.config && mo_w - mo_r < MQ) {
-        midi_out_q[mo_w % MQ] = pkt;
-        RING_PUBLISH();
-        mo_w++;
-    }
+    if (!usb.config)
+        return;
+    /* Outbound mirror of midi_in_put: a full MQ must not strand a Note Off on USB/DAW. */
+    (void)midi_ring_put_note_off(midi_out_q, &mo_w, &mo_r, pkt);
 }
 void midi_send_note(uint32_t note, uint32_t vel)
 {
@@ -153,18 +216,19 @@ void midi_send_note(uint32_t note, uint32_t vel)
 }
 
 /* Send a complete SysEx message through the same USB-MIDI event queue as notes.
- * This is used for Universal Device Inquiry and the APC40 mkII introduction handshake. */
-static void midi_send_sysex(const uint8_t *msg, uint32_t len)
+ * This is used for Universal Device Inquiry and the APC40 mkII introduction handshake.
+ * Returns 0 on enqueue, -1 on bad args / no config, -2 when the whole message will
+ * not fit (never partial — receiver would lose framing). */
+static int midi_send_sysex(const uint8_t *msg, uint32_t len)
 {
     uint32_t i = 0, packets = (len + 2u) / 3u;
-    /* Never enqueue only part of a SysEx reply: the receiver would lose framing. */
     if (!usb.config || !len || len > sizeof usb.sysex)
-        return;
+        return -1;
 #if FELUCCA_OTA
     /* Keep protocol replies in the dedicated SysEx ring so sequencer note events
      * cannot split a message. Do not join an in-progress OTA SysEx frame. */
     if (sx_busy || so_w - so_r + packets > SXQ)
-        return;
+        return -2;
     sx_busy = 1;
     while (i < len) {
         uint32_t left = len - i, n = left >= 3u ? 3u : left;
@@ -180,7 +244,7 @@ static void midi_send_sysex(const uint8_t *msg, uint32_t len)
     sx_busy = 0;
 #else
     if (mo_w - mo_r + packets > MQ)
-        return;
+        return -2;
     while (i < len) {
         uint32_t left = len - i, n = left >= 3u ? 3u : left;
         uint32_t cin = n == 3u && left > 3u ? 4u : n == 1u ? 5u : n == 2u ? 6u : 7u;
@@ -195,35 +259,58 @@ static void midi_send_sysex(const uint8_t *msg, uint32_t len)
         i += n;
     }
 #endif
+    return 0;
+}
+
+/* Sticky APC handshake replies (mirror ble_sx_reply): TIMER5 must not wait on a
+ * full SXQ/MQ, but a refused Device Inquiry / intro must retry once space frees. */
+static uint8_t usb_sx_reply, usb_sx_ch;
+
+static void usb_sx_answer(void)
+{
+    uint8_t m[35];
+    uint32_t i, n;
+    if (!usb_sx_reply || !usb.config)
+        return;
+    for (i = 0; i < sizeof m; i++)
+        m[i] = 0;
+    if (usb_sx_reply == 1u) {
+        /* Universal identity response: Akai (47), APC40 mkII (29), 25 bytes of data. */
+        static const uint8_t tail[25] = {
+            0x01, 0x02, 0x00, 0x00, /* firmware version 1.2 */
+            0x7F,                   /* SysEx device ID */
+            0, 0, 0, 0,             /* serial reserved */
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 /* manufacturing data */
+        };
+        m[0] = 0xF0; m[1] = 0x7E; m[2] = usb_sx_ch; m[3] = 0x06; m[4] = 0x02;
+        m[5] = 0x47; m[6] = 0x29; m[7] = 0x00; m[8] = 0x19;
+        for (i = 0; i < sizeof tail; i++)
+            m[9u + i] = tail[i];
+        m[34] = 0xF7;
+        n = 35u;
+    } else {
+        /* Type 0x61 reports the nine fader/slider values. The SMK has no APC faders
+         * with the same semantics, so initialize them at zero; clip LEDs are host-driven. */
+        m[0] = 0xF0; m[1] = 0x47; m[2] = 0x7F; m[3] = 0x29; m[4] = 0x61; m[5] = 0x00; m[6] = 0x09;
+        m[16] = 0xF7;
+        n = 17u;
+    }
+    /* -2 = ring full: keep sticky and retry from ep1_tx. Other results clear. */
+    if (midi_send_sysex(m, n) != -2)
+        usb_sx_reply = 0;
 }
 
 static void apc40_device_inquiry(uint8_t channel)
 {
-    /* Universal identity response: Akai (47), APC40 mkII (29), 25 bytes of data. */
-    static const uint8_t tail[25] = {
-        0x01, 0x02, 0x00, 0x00, /* firmware version 1.2 */
-        0x7F,                   /* SysEx device ID */
-        0, 0, 0, 0,             /* serial reserved */
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 /* manufacturing data */
-    };
-    uint8_t msg[35];
-    uint32_t i;
-    msg[0] = 0xF0; msg[1] = 0x7E; msg[2] = channel; msg[3] = 0x06; msg[4] = 0x02;
-    msg[5] = 0x47; msg[6] = 0x29; msg[7] = 0x00; msg[8] = 0x19;
-    for (i = 0; i < sizeof tail; i++) msg[9u + i] = tail[i];
-    msg[34] = 0xF7;
-    midi_send_sysex(msg, sizeof msg);
+    usb_sx_ch = channel;
+    usb_sx_reply = 1u;
+    usb_sx_answer();
 }
 
 static void apc40_introduction_reply(void)
 {
-    /* Type 0x61 reports the nine fader/slider values. The SMK has no APC faders
-     * with the same semantics, so initialize them at zero; clip LEDs are host-driven. */
-    static const uint8_t msg[17] = {
-        0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0xF7
-    };
-    midi_send_sysex(msg, sizeof msg);
+    usb_sx_reply = 2u;
+    usb_sx_answer();
 }
 
 /* ------------------------------------------------------- descriptors --- */
@@ -668,6 +755,9 @@ stall:
 /* SysEx assembly: only short commands matter here */
 static void sysex_byte(uint8_t b)
 {
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    extern void smc_mmc_host(uint8_t cmd, uint8_t src);
+#endif
     static const uint8_t UBOOT_KEY[6] = {0xF0, 0x22, 0x24, 0x35, 0x7D, 0xF7};
     if (b == 0xF0) {
         usb.sx_on = 1;
@@ -691,6 +781,14 @@ static void sysex_byte(uint8_t b)
         usb.sysex[usb.sx_len++] = b;
     if (b == 0xF7) {
         uint32_t i, ok = usb.sx_len == 6u;
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+        /* The stock SMC User preset sends 43 distinct six-byte MMC commands.
+         * Exact envelope only: APC inquiry/initialization stays independent. */
+        if (usb.sx_len == 6u && usb.sysex[0] == 0xF0u && usb.sysex[1] == 0x7Fu &&
+            usb.sysex[2] == 0x7Fu && usb.sysex[3] == 0x06u &&
+            usb.sysex[4] >= 1u && usb.sysex[4] <= 43u)
+            smc_mmc_host(usb.sysex[4], 0u);
+#endif
         /* Universal MIDI Device Inquiry, used by Loopy Pro to auto-identify the APC40 mkII. */
         if (usb.sx_len == 6u && usb.sysex[1] == 0x7Eu && usb.sysex[3] == 0x06u &&
             usb.sysex[4] == 0x01u && (usb.sysex[2] <= 0x0Fu || usb.sysex[2] == 0x7Fu)) {
@@ -705,6 +803,8 @@ static void sysex_byte(uint8_t b)
             usb.sysex[6] == 0x04u && (usb.sysex[7] == 0x40u || usb.sysex[7] == 0x41u || usb.sysex[7] == 0x42u)) {
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
             smk_apc_host_seen();
+            if (usb.sysex[7] == 0x40u)
+                smk_apc_host_generic(0u);              /* CLP-18: generic mode: the USB host feedback ends */
 #endif
             apc40_introduction_reply();
         }
@@ -727,6 +827,24 @@ static void sysex_byte(uint8_t b)
     }
 }
 
+#ifndef FELUCCA_LOADER
+/* MID-15, BLE-16: when the link of input src ends (up goes to 0), one PLAT_MIDI_LINK_END packet goes into
+ * midi_in_q, after the MIDI in of that tick. If the queue is full, it goes at a later tick.
+ * *st: bit 0 the link was up, bit 1 a packet waits. TIMER5 only (the one writer of midi_in_q). */
+static __attribute__((noinline)) void midi_link_check(uint8_t *st, uint32_t up, uint32_t src)
+{
+    uint8_t v = (uint8_t)((*st & 2u) | ((*st & 1u) && !up ? 2u : 0u));
+    if ((v & 2u) && mi_w - mi_r < MQ) {
+        midi_in_q[mi_w % MQ] = src << 4;              /* PLAT_MIDI_LINK_END(src) */
+        RING_PUBLISH();
+        mi_w++;
+        v = 0;
+    }
+    *st = (uint8_t)(v | (up ? 1u : 0u));
+}
+static uint8_t usb_link_st;
+#endif
+
 static void ep1_rx(void)
 {
     uint32_t csr, n, i;
@@ -747,16 +865,15 @@ static void ep1_rx(void)
                 sysex_byte(ep1rx[i + 1 + k]);
         }
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
-        else if ((cin == 8u || cin == 9u) && smk_apc_usb_event(pkt)) {
+        else if ((cin == 8u || cin == 9u || cin == 0xBu) && (smk_inlog(0u, pkt), smk_apc_usb_event(pkt))) {
             /* APC clip feedback: applied at once, not queued (no drops in a burst) */
         }
 #endif
-        else if (((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
-                  (cin == 3u && ep1rx[i + 1] == 0xF2u)) && mi_w - mi_r < MQ) {
-            /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter */
-            midi_in_q[mi_w % MQ] = pkt;
-            RING_PUBLISH();
-            mi_w++;
+        else if ((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
+                 (cin == 3u && ep1rx[i + 1] == 0xF2u)) {
+            /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter.
+             * Cable bits: the input, 0 USB (MID-15). Note Off never drops on a full MQ. */
+            (void)midi_in_put(pkt & ~0xF0u);
         }
     }
     usb.rx_pkts++;
@@ -811,9 +928,20 @@ static void ota_frame_done(void)
 }
 #endif
 
+/* One USB MIDI packet → 4 EP1 bytes (SysEx and note paths share). */
+static void ep1_put_pkt(uint32_t n, uint32_t pkt)
+{
+    ep1tx[n] = (uint8_t)pkt;
+    ep1tx[n + 1] = (uint8_t)(pkt >> 8);
+    ep1tx[n + 2] = (uint8_t)(pkt >> 16);
+    ep1tx[n + 3] = (uint8_t)(pkt >> 24);
+}
+
 static void ep1_tx(void)
 {
     uint32_t csr, n = 0;
+    /* Retry a sticky APC SysEx reply after TX drain frees ring space (ISR-safe). */
+    usb_sx_answer();
 #if FELUCCA_OTA
     if (mo_w == mo_r && so_w == so_r)
         return;
@@ -830,10 +958,7 @@ static void ep1_tx(void)
 #if FELUCCA_OTA
     while (so_r != so_w && n < 64u) {                   /* SysEx first, never split by notes */
         uint32_t pkt = sx_out_q[so_r % SXQ];
-        ep1tx[n] = (uint8_t)pkt;
-        ep1tx[n + 1] = (uint8_t)(pkt >> 8);
-        ep1tx[n + 2] = (uint8_t)(pkt >> 16);
-        ep1tx[n + 3] = (uint8_t)(pkt >> 24);
+        ep1_put_pkt(n, pkt);
         n += 4u;
         so_r++;
     }
@@ -844,10 +969,7 @@ static void ep1_tx(void)
         uint32_t pkt;
         RING_PUBLISH();                                 /* the audio ISR (producer) can preempt us: */
         pkt = midi_out_q[mo_r % MQ];                    /* slot read strictly between the index checks */
-        ep1tx[n] = (uint8_t)pkt;
-        ep1tx[n + 1] = (uint8_t)(pkt >> 8);
-        ep1tx[n + 2] = (uint8_t)(pkt >> 16);
-        ep1tx[n + 3] = (uint8_t)(pkt >> 24);
+        ep1_put_pkt(n, pkt);
         n += 4u;
         RING_PUBLISH();
         mo_r++;
@@ -1118,6 +1240,7 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
         usb.suspended = 0;
         mo_r = mo_w;                                    /* nothing stale for the next host */
         usb.sx_on = 0;
+        usb_sx_reply = 0;
 #if FELUCCA_OTA
         so_r = so_w;
         sx_collect = 0;
@@ -1142,7 +1265,11 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
         ep0_service();
     if (ir & 0x02u)
         ep1_rx();
+#ifndef FELUCCA_LOADER
+    midi_link_check(&usb_link_st, usb.config && !usb.suspended, 0u);   /* unplug, host asleep, bus reset */
+#endif
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    smk_apc_usb_link((uint8_t)(usb.config && !usb.suspended));   /* CLP-18: link end clears the cells USB wrote */
     smk_apc_usb_tick();                                 /* APC cell aging in the same interrupt as the stores */
 #endif
     if (usb.config)

@@ -36,9 +36,6 @@ New in this version: see [What's new](https://charlesvestal.github.io/fm1-x0x/ne
 
 ## 1. Install
 
-**Try it first:** the [X0X emulator](https://charlesvestal.github.io/fm1-x0x/emu/) runs the same
-code in the browser, with sound, played with the mouse, a touch screen or the keyboard.
-
 **Install:** open the [web installer](https://charlesvestal.github.io/fm1-x0x/install/) in Chrome or
 Edge, connect the FM-1 with a USB data cable and press Install. Don't unplug it while it's
 writing; when it finishes, the FM-1 restarts into X0X.
@@ -172,8 +169,9 @@ Hold HOME and press REC to take back your last change; the screen says what it u
 example UNDO 909 P1. HOME + PLAY redoes it. You can go back up to 32 steps (fewer after very big
 changes). A step is whatever you did before pausing for a moment: a few steps tapped in a row,
 one turn of a knob, or a whole recording pass. Undo covers the sounds, patterns, song and knob
-motion, even CLEAR PATTERN and FACTORY RESET, but not the tempo or the settings. The history is
-cleared when you switch off.
+motion, including CLEAR PATTERN, but not the tempo or the settings. Loading a saved project,
+importing a project or choosing RESET PROJECT clears the history; you cannot undo those
+replacements. The history is also cleared when you switch off.
 
 <details><summary>What the key lights show</summary>
 
@@ -208,7 +206,7 @@ The **top line** shows, from left to right:
 - a play symbol while playing and a red dot while recording. A small grey dot means there are
   unsaved changes.
 
-When a button does something, the top line says what for a second, for example SAVED or P1
+When a button does something, the top line says what for a second, for example SAVED or PARTS
 PASTED TO P5.
 
 The **knobs** sit under a tag that says whose they are: the selected track (BD), the whole
@@ -290,20 +288,42 @@ A **tie** holds the note before it through the step, so it doesn't play again. O
 tied note joins the note it holds in one long bar. Turning KNOB 1 on a tie makes it a note of
 its own.
 
+For a longer bass note, enter a NOTE, then set each following step to TIE with
+KNOB 2. For example, `NOTE C2 | TIE | TIE | REST` sounds one C2 across three
+step positions, with no new attack on the ties. The final tie releases halfway
+through its step, as a normal note does. To glide into a new pitch instead, use
+SLIDE on the step before that NOTE. The part's RATE sets the time between steps;
+adding ties extends a note without changing that rate.
+
 **Keyboard.** Press REC and all 27 keys become a keyboard (KEYS shows on the top line). The
 notes you play are written: step by step while the pattern is stopped, live while it plays.
 OCT- and OCT+ change the octave. Play a key while still holding another and the 303 slides
 between them. Press REC again to go back to steps.
 
+While stopped with REC on, enter the note, then hold LFO and press OCT- or OCT+
+once for each continuation TIE. Hold ENV and press OCT- or OCT+ to insert a REST.
+Live recording currently writes a NOTE when you press a key; holding that key
+does not automatically write ties. Add the ties in SEQ after recording.
+
 **Free play.** To play the 303 without writing anything, press SEQ, turn SELECT to the KEYS page
 and set FREE PLAY to ON. The keys then play the 303 on every 303 screen, stopped or playing, so
 you can try lines and turn EDIT's knobs as you go; the top line says FREE PLAY. Nothing is
 written until you press REC, which records as above. Set FREE PLAY back to OFF for the steps.
-Each 303 has its own, and both are off at power-on.
+Each 303 has its own, and both are off at power-on. In FREE PLAY, the SMK keybed's strike
+velocity controls volume and cutoff: soft notes are quieter and darker; hard notes are louder
+and brighter. Incoming MIDI notes use the same response. Velocity 100 is neutral. Overlapping
+notes still slide.
 
 **The pages.** EDIT has TONE (CUTOFF, RESO, ENVMOD, DECAY) and VOICE (ACCENT, WAVE, saw or
 square, DRIVE, SLIDE time); TUNE, VOLUME, DRIVE TYPE (off, soft or RAT) and ACCENT DECAY are in
-SEL's list. SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
+SEL's list. FILTER ADSR adds FATTACK (0–2000 ms), DECAY (200–2000 ms), FSUSTAIN (0–100%) and
+FRELEASE (0–4000 ms). In SEL's list, set FENV to ADSR to use these filter controls; 303 keeps
+the original envelope and is the default for existing sounds. DECAY is the same control on
+TONE and FILTER ADSR. ENVMOD sets the filter envelope depth. A slide continues the envelope;
+a fresh note starts it again. These controls affect the filter only: the original volume
+envelope still determines how long the release is audible.
+
+SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
 or random) and TRANSPOSE. Each 303's level, pan and sends are on the mixer (LFO).
 
 ---
@@ -364,10 +384,14 @@ In SEL's list: PHRASE, the length of a phrase (2, 4, 8 or 16 bars, or off), and 
 LENGTH, how often a new slice is chosen (every 1/4 bar to every 8 bars).
 
 **The loops.** EDIT has LOOP A, LOOP B, B CHANCE (the chance of switching to loop B in the last
-bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL is in SEL's list. Loops follow the
+bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are in SEL's list.
+8 SLICES is off unless you turn it on. Off, MIDI notes 36–43 on the break's channel play the
+eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
+the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
 tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. X0X comes with two loops of its own, 909 GR and 909 FL, played by its 909; loops you
-upload come after them.
+on top. The default firmware does not carry built-in loops, so that room can hold more of the
+synth. The installer can put the two factory loops back, 909 GR and 909 FL, or your own WAV files
+in their place. Loops you upload into the sample slots come after those, when they are installed.
 
 All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
 and sends are on the mixer's PARTS page (LFO, black key 5).
@@ -376,9 +400,9 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots of different sizes: slot 1
-holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 2 seconds, about 11.3 seconds
-in all. The FM-1 has three slots of about 3.7 seconds, about 11 seconds in all. A one-bar loop
+Loops are sent at full quality, 44.1 kHz. The SMK-37 has two slots: slot 1
+holds about 3.7 seconds and slot 2 about 5.5 seconds, about 9.2 seconds
+in all. The FM-1 has two slots of about 3.7 seconds, about 7.4 seconds in all. A one-bar loop
 at 120 BPM takes 2 seconds. A loop must fit in one slot, so the longest loop on the SMK-37 is
 about 5.5 seconds. The page fills the slots in order and puts a loop that is too long for one
 slot into the next slot that can take it.
@@ -435,10 +459,12 @@ with notes in that pattern: bright where that part is playing it now, dim otherw
 While playing, the new pattern starts when the current bar ends; stopped, it takes over at once.
 A part that changes pattern starts again from step 1; the others carry on.
 
-**Copy and paste.** Hold SAVE: the top line says P1 COPIED. Press a white key to paste onto that
-pattern (P1 PASTED TO P2): all five parts, as they're playing now. If the pattern you paste onto
-has notes, X0X asks first. While holding SAVE, OCT- and OCT+ switch between patterns 1–16 and
-17–32.
+**Copy and paste.** Hold SAVE: the top line says CHOOSE PASTE TARGET. Press a white key to copy
+the five parts currently playing onto that pattern (PARTS PASTED TO P2). Each part can come from a
+different pattern. If the destination has notes, X0X asks first; the source pattern numbers are
+held from when you pressed the destination key, and their contents are copied when you confirm.
+SAVE does not make a clipboard snapshot. While holding SAVE, OCT- and OCT+ switch between patterns
+1–16 and 17–32.
 
 **Clearing.** Hold SAVE and press REC to clear the selected part in its pattern. GLO > CLEAR
 PATTERN clears all five.
@@ -578,7 +604,7 @@ the echoes between left and right.
 
 ![MIX, with the compressor pumping](img/screen-mix.png)
 
-Press LFO to open the mixer; press it again (or turn SELECT) for its four pages. The red bar on
+Press LFO to open the mixer; press it again (or turn SELECT) for its five pages. The red bar on
 the right is the compressor's gain reduction.
 
 - **PARTS**: a level and a meter for each part. Press black keys 1-5 to pick the 909, 808,
@@ -587,6 +613,9 @@ the right is the compressor's gain reduction.
   the black keys pick a track, and the knobs set its LEVEL, PAN, REV and DLY.
 - **MASTER**: four knobs over the whole mix. The screen shows the output level over the last
   couple of seconds, so you can see the pump and the compressor working.
+- **WAVE**: the same four master knobs, with a live mid-line plot of the master output (after
+  the compressor, pump, filter and limiter). The compressor's gain-reduction bar stays on the
+  right. Press LFO again from MASTER to open it.
 
 On PARTS, 909 MIX and 808 MIX, hold HOME and press a black key to mute or unmute that channel (a
 part on PARTS, a track on the drum pages). The key lights show it: the channel the knobs set is
@@ -638,9 +667,10 @@ The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk
 | KEY SOUND | STOPPED (the default): picking a drum or editing a 303 step is silent while the pattern plays, unless REC is on. ALWAYS: you always hear it. The 303 keyboard always plays either way. |
 | THEME | The screen colour: green, amber, cyan, red or mono. |
 | SAVE PROJECT | Saves everything. |
+| LOAD SAVED | Loads the last saved project. Stop playback and recording first. Asks before discarding unsaved edits. Keeps the sample slots and clears undo history. |
 | AUTOSAVE | ON (the default): while the pattern is stopped, changes are saved by themselves once nothing has been touched for four seconds. OFF: only SAVE saves. |
 | CLEAR PATTERN | Clears all five parts of the current pattern. |
-| FACTORY RESET | Goes back to the factory sounds and empty patterns, with no song and no knob motion. Your saved project is kept until you save over it. |
+| RESET PROJECT | Asks before resetting the live project to factory sounds, empty patterns and default settings, with no song or knob motion. Keeps the sample slots and clears undo history. AUTOSAVE returns to ON, so the reset state can replace your saved project automatically. |
 | PERFORMANCE | Opens the performance page (below). |
 | ABOUT X0X | Shows the version, how full the memory for patterns is (MEM), and the audio load. |
 | BATTERY | The battery's charge: FULL, 2/3, 1/3 or EMPTY; USB POWER while a computer powers the FM-1. Read only. |
@@ -651,15 +681,26 @@ The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk
 ### Saving
 
 **SAVE** saves the sounds, all 32 patterns, the song, the knob motion, the tempo and the
-settings. A small grey dot at the top right of the screen means there are unsaved changes, and
-anything unsaved is lost when you switch off.
+settings. UNSAVED in the header and a SAVE button that flashes mean the project needs a save.
+If the header has little space, it shows a small amber mark. You lose unsaved changes when you
+switch off. Hold SAVE to see the current save state.
 
-With **AUTOSAVE** on (the default) you'll rarely need SAVE: whenever the pattern is stopped and
-nothing has been touched for four seconds, X0X saves and says AUTOSAVED.
+With **AUTOSAVE** on, X0X saves after you stop the pattern and leave the controls untouched
+for four seconds. AUTOSAVE is on by default. X0X then says AUTOSAVED.
+If REC is on, turn REC off for autosave. Hold SAVE to see this reminder.
 
-> **X0X never saves while playing.** Saving pauses the sound for a moment (the FM-1 plays from the
-> same memory it saves to), so a SAVE pressed while playing says SAVES WHEN STOPPED and saves when
-> you stop.
+> **X0X never saves while the pattern plays.** A save pauses the sound for a moment. The FM-1
+> plays from the same memory that it writes. A press on SAVE while the pattern plays says
+> SAVES WHEN STOPPED and shows SAVE AT STOP in the header. X0X saves when you stop. The SAVE
+> button stays lit until then.
+
+In clip mode while X0X plays, SAVE first shows SAVES WHEN STOPPED and then SAVE AT STOP in the header. Once X0X stops, the header changes to SAVE WHEN QUIET. A SAVE pressed while clip keys or encoders are active shows SAVES WHEN QUIET. X0X waits
+until the transport stops and keybed or control activity stays quiet for four seconds. The
+SAVE button stays lit until the save completes.
+
+If a save fails, the header shows SAVE FAILED (or a red mark when space is tight). The SAVE
+button flashes fast. The warning stays until a save succeeds. A flash write failure also
+shows SAVE FAILED after an autosave.
 
 <details><summary>How much fits</summary>
 
@@ -670,6 +711,18 @@ keeps what was saved before; clearing patterns you don't need makes room. Projec
 earlier versions load as they were, with their steps on 1–32 and their patterns on 1–16.
 
 </details>
+
+### Portable project files
+
+The **Projects** companion page exports and imports `.x0xproject` files over USB MIDI.
+Export includes the project and the original samples by default, preserving their encoded
+bytes and slot positions. A smaller project-only file is also available; it can be imported
+only when every sample slot matches, including empty slots.
+
+Choose **Projects** in the generated site's home page, or serve the repository over localhost
+and open `web/x0x_projects.html`. See the [project files guide](PROJECT_FILES.md) for browser
+requirements, backups, import confirmation and recovery. Import replaces the live project
+and uses the file's autosave setting. Use SAVE to store the new project while stopped.
 
 <details><summary>Performance: how hard the FM-1 is working</summary>
 
@@ -718,7 +771,7 @@ listens on its own channel; these are the defaults:
 | Channel 11 | The 808, with the same notes, plus 56 for the cowbell and 49 for the cymbal. |
 | Channel 2 | 303A. Overlapping notes slide, and a velocity of 100 or more plays an accent. |
 | Channel 3 | 303B, in the same way. |
-| Channel 4 | Notes 36–43 play break slices 1–8. |
+| Channel 4 | Notes 36–43 play break slices 1–8. With 8 SLICES on, every note on this channel plays a slice (note mod 8). Notes on this channel do not also play another part. |
 | Clock | X0X follows an incoming MIDI clock automatically, and returns to its own tempo half a second after the clock stops. Start, Stop and Continue start and stop the patterns. |
 
 GLO sets each part's channel (909 MIDI CH and so on), or OFF to ignore its notes, for example when
@@ -734,14 +787,18 @@ so it doesn't flicker with every clock.
 The SMK-37 can also send and receive MIDI over Bluetooth (BLE MIDI, as iPads, Macs and most
 music apps use it). Bluetooth audio is not supported.
 
-The Bluetooth part is a separate program from Bluetooth chip maker JieLi. X0X is not allowed to
-include it, so you build it on your own computer once, and the installer adds it:
+The Bluetooth controller is a separate program that uses JieLi components. Qualified NIGHTLY
+packages include the matching controller, so select one complete package in the NIGHTLY
+installer. No separate `ctl.img` selection is needed for that path. Availability depends on
+the package checks, applicable component terms and authorized publication; see LICENSING.md.
+
+For an existing unbundled package, supply its exact matching controller explicitly:
 
 1. Run `ble/ctl/build_ctl.sh` from the X0X source (needs the JieLi toolchain and Docker; see
    BUILDING.md). It downloads JieLi's files from JieLi's own site, checks them and makes `ctl.img`.
-2. Install X0X with `tools/fm1_install.py` (it adds `ctl.img` by itself), or in the web
-   installer choose the `ctl.img` file under "Bluetooth MIDI (optional)" before you press Install.
-   Do this again for every update: an update without it removes Bluetooth.
+2. Install X0X with `tools/fm1_install.py PACKAGE.fwsc --ctl ctl.img`, or select the
+   matching `ctl.img` in the legacy web installer before you press Install. The installer
+   refuses a current package with an empty controller block when no matching image is supplied.
 3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON and switch it off and on again.
 
 STATUS then shows READY. Connect from your app's Bluetooth MIDI settings (on an iPad or a Mac:
@@ -831,7 +888,10 @@ Drum settings range from 0 to 127. DIST, the distortion type, can be DIODE, CLIP
 PDIST, FOLD or CRUSH. PAN goes from L64 through C (the middle) to R63.
 
 Each track's Level, Pan, Rev and Dly are on the mixer (909 MIX, 808 MIX); its Drive and Dist are
-in SEL's list; the rest are its sound pages.
+in SEL's list; the rest are its sound pages. Sound-page knobs follow a fixed order across tracks —
+Tune, Tone, Attack, Sound, Decay, then Snappy / Tail / pitch envelope — so the same kind of
+control stays on the same physical knob when you change drum or kit. Tables below list each
+track's settings (including mixer and SEL fields), not the knobs' left-to-right order.
 
 <details><summary>909 tracks</summary>
 

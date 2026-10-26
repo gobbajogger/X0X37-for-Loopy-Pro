@@ -1,0 +1,18 @@
+{
+  "result": "PASS",
+  "class_line": "    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|smc-reachability|smc-drum-mutes|smc-performance-abort) echo G ;;",
+  "checks": {
+    "smc-reachability": {
+      "registration": "run smc-reachability sh tests/host/smc_reachability_test.sh",
+      "class": "G"
+    },
+    "smc-drum-mutes": {
+      "registration": "run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh",
+      "class": "G"
+    },
+    "smc-performance-abort": {
+      "registration": "run smc-performance-abort sh tests/host/smc_performance_abort_test.sh",
+      "class": "G"
+    }
+  }
+}

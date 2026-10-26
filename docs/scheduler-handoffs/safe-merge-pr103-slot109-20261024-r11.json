@@ -1,0 +1,81 @@
+{
+  "schema": "x0x37-safe-merge-consumer-v1",
+  "evidence_revision": "safe-merge-pr103-slot109-20261024-r11",
+  "role": "sole firmware nightly Safe Merge source integrator",
+  "action": "Source-only isolated merge candidate: PR #109 reviewed scoped ACK fix",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "original_integration_head": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+  "original_root_tree": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+  "producer_pr": 109,
+  "producer_branch": "lane/data-safety-slot-write-ack-20261024-1411",
+  "producer_commit": "0ca385b947fb5317319461f15fe9b9a6f0184db2",
+  "producer_root_tree": "18adb347c160e6a36a6cec98c5cc0b68b0bc1612",
+  "unchanged_firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+  "consumed_producer_evidence": "data-safety-slot-write-ack-integrity-20261024-r1",
+  "consumed_independent_qa": "Independent QA — REVIEWED / SOURCE-WINDOW SCOPED PASS / FULL CURRENT-ROOT QA INCOMPLETE at producer 0ca385b947fb5317319461f15fe9b9a6f0184db2",
+  "changed_producer_paths": [
+    "tools/x0x_slots.py",
+    "tests/x0x_slots_ack_integrity_test.py",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/data-safety-slot-write-ack-integrity-20261024-r1.json"
+  ],
+  "replayed_local_evidence": {
+    "private_library_source": "/LoopyX0X37-DataSafety-PR109-Protocol-Contract-20261024.zip",
+    "library_sha256": "5e5eaddd2347e4644fa3fc3908f34f64e986a738bcb18ba75654c5c6469ee9d6",
+    "note": "Local fixture uses Git-verified ACK/write source window, NOT complete current Git checkout or exact current full module",
+    "checked_commands": [
+      {
+        "argv": "python3 -B verify_slot_ack_contract.py",
+        "exit": 0,
+        "pass": "1728/1728 contract checks, GCC, Clang, GCC UBSan, Clang UBSan",
+        "log_sha256": "79c1faf8bf2a717808996f454bdab211793e7857517d50d628aadf1fb9cb34cb"
+      },
+      {
+        "argv": "python3 -B slot_ack_integrity_test.py after",
+        "exit": 0,
+        "pass": "16/16 source-window tests",
+        "log_sha256": "1cd30b52c00e2cb2671f6ed5a019bc37f423955cca6c5f345c728f7a72de0689"
+      },
+      {
+        "argv": "python3 -O -B slot_ack_integrity_test.py after",
+        "exit": 0,
+        "pass": "16/16 source-window tests",
+        "log_sha256": "e597e6d97893ccbc7ed601f58dfa87eedf3a074447b5f2025ee5277a81177dc5"
+      },
+      {
+        "argv": "python3 -B slot_ack_integrity_test.py before",
+        "exit": 1,
+        "pass": "expected regression-red, 7 failures and 4 errors",
+        "log_sha256": "099f5558225c4ed7a90aa9b28fcde82c9104577a3cc86e8e864400570b205303"
+      },
+      {
+        "argv": "python3 -B -m py_compile after/tools/x0x_slots.py slot_ack_integrity_test.py verify_slot_ack_contract.py",
+        "exit": 0,
+        "pass": "syntax"
+      }
+    ]
+  },
+  "new_disposition": "SOURCE-COMPLETE, INTEGRATOR SCOPED CHECKED, READY FOR INDEPENDENT COMPLETE-ROOT QA; NOT MERGE APPROVED; BUILD_ONLY",
+  "publicly_installable": false,
+  "device_tested": "UNKNOWN",
+  "target_model_status": {
+    "Elite": "Prior R10 private BUILD_ONLY, no new current full-root build qualification",
+    "Pro": "Prior R10 private BUILD_ONLY, no new current full-root build qualification"
+  },
+  "exact_remaining_gates": [
+    "Independent QA must test/review exact new complete integration head and negative combined backup/restore/OTA/SMC/BLE/MMC/303 regressions",
+    "Resolve current-head SMC lost Solo release known regression via independently reviewed PR #58; its outstanding automated findings are NOT waived",
+    "Hourly Build must attest complete compiled input equivalence for Elite/Pro/controller or produce new native bytes and budgets",
+    "Guarded protected nightly PR merge requires full passing current-head native combined tests plus independent review and effective protections",
+    "After nightly integration: exact model/controller/backup/CRC/SHA/negative/license checks, lawful immutable hosting, sole publisher live HTTP verification before public installer"
+  ],
+  "next_owners": {
+    "immediate": "Independent QA — exact new integrator HEAD current-root review",
+    "parallel": "Hourly Build — verify build input identity or compile BUILD_ONLY",
+    "dependent": "SMC Transport producer #58 — address review findings and submit corrected exact HEAD for independent QA",
+    "integrate": "Safe Merge — protected firmware nightly PR workflow only after gates"
+  },
+  "forbidden": "No protected branch writes, production promotion, public binary upload, web Pages publication, hosted CI, hardware flash or force",
+  "no_artifact_claim": "No firmware or controller artifacts were built during this Safe Merge run."
+}

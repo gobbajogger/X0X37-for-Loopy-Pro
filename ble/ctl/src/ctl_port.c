@@ -80,6 +80,20 @@ void ctl_port_request_irq(u8 n, u8 prio, void (*handler)(void))
     ctl_port_irq_restore(f);
 }
 
+/* core 1's interrupt bank again for every routed interrupt: the app cleared the bank when it started
+ * core 1, after the init had routed them */
+void ctl_port_irq_reroute(u8 prio)
+{
+    volatile u32 *cfg = (volatile u32 *)(uintptr_t)ctl_bp->icfg_base;
+    u32 n, sh;
+    for (n = 0; n < 64u; n++)
+        if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u))) {
+            sh = (n & 7u) * 4u;
+            cfg[n >> 3] = (cfg[n >> 3] & ~(0xFu << sh)) | ((((u32)prio & 7u) << 1 | 1u) << sh);
+        }
+    XB_SYNC();
+}
+
 /* core 1 takes interrupts from here on (icfg bit 8, as the app's fm1_irq_enable_all) */
 void ctl_port_irq_enable_core(void)
 {

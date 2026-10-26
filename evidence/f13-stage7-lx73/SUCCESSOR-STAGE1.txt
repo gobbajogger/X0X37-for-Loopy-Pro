@@ -1,0 +1,41 @@
+You are the new stage-1 audit thread in the X0X37 full-cycle loop (F15 after F13 LX-73 LIVE_PAGE_MATCH). Do not resume the stage-7 thread bc-981370f0-380d-5980-8f03-f70bac9128d6, Stage 5/6 LX-73 owners, or any earlier F02–F14 stage thread. Do not continue any internal probe; this cloud agent is the only Stage 1 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly pages repository: https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly
+Nightly installer (published): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Validated source SHA (audit this; published on nightly; do not substitute an older tip): 092589b84fd455355216cb0de93c4782236f7524
+Content tree at validation commit (non-.md): 25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af
+Firmware tree at validation commit: a5ba08046700be5cdf2751b7afc1197411b24121
+Catalog source_tree (git): 9382fb1276e320d9f9d290dbad187fa08cdd224c
+Land: PR #308 MERGED (BF-012). LX-73 Elite+Pro DEV CHECKED. Stage-6 Elite Mac install PASS exists; page hardware_tested remains false.
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007), de11b6d7 (BF-008), BF-012/#308, and LX-73 package publish itself.
+Evidence-bearing branch tip: start from the remote tip of cursor/f13-lx73-stage7-237f that contains evidence/f13-stage7-lx73/SUCCESSOR-STAGE1.txt, HANDOFF.md, CHECKS.md. The evidence tip is not the package source tree; packages authenticate 092589b8 / tree 25ada1f0…. Ignore Codex GitHub comments; use local proof only.
+
+Read AGENTS.md and docs/rules/workflow.md. You are stage 1 only (audit). Make no production edits. Do not use GitHub Actions or Codex-on-GitHub for tests/review. Local-env reviews are the review gate.
+
+Published page (Stage 7 confirmed LIVE_PAGE_MATCH):
+- latest: nightly-092589b8-dev
+- Pages tip: 2fd5541f079839aa6ae9a6036791964525a37bfc
+- Elite page sha256 (bundled): 3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e
+- Pro page sha256 (bundled): 60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3
+- Blank Elite/Pro (stage-4 / prerelease): 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5 / 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07
+- ctl: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- Label: DEV / HARDWARE TEST — DEVICE NOT TESTED; hardware_tested false
+- Host: artifacts/nightly-dev @ bb8543371761e75b7a89a422f00f9fe501bb338f
+Evidence: evidence/f13-stage7-lx73/CHECKS.md, live-verify.log, independent-qa-local-review.md, safety-gates-note.md; evidence/f13-stage5/lx73-devcheck/; evidence/f13-stage6/lx73-install/.
+
+Scope: audit validated source SHA 092589b8 against the published nightly page hashes above. Select the next defect per workflow Next cycle: oldest deferred not already fixed in that SHA, then a recorded failing check not already fixed (including supporting install_f03_slot_probe_test empty-FakeSMK SlotError noted in Stage-7 safety log), then the oldest open audit or bugfinder finding not already contained in that SHA. Do not reopen BF-001 through BF-012 or LX-73 package publish. Do not merge production main or publish production GitHub Pages. Do not flash. Leave .fwsc and ctl.img out of both Git repositories.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed stage-7 tip as cursor/<slug>-stage1-237f (required prefix cursor/ and suffix -237f). No force-push. Leave production main and production GitHub Pages unchanged. Do not use a local helper as the successor.
+
+When the audit is recorded, hand off before you stop. Push SUCCESSOR-STAGE2.txt if a defect is selected, or SUCCESSOR-STAGE1.txt if no defect (loop return to audit). Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible successor Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 1. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent if the pod has no CURSOR_API_KEY.
+
+Completion condition: audit recorded for validated source SHA 092589b8 against the published nightly page hashes above, and one owner-visible successor id pushed on the handoff.
+
+Coordinator note: Stage 7 recorded SUCCESSOR-STAGE1.txt and stopped without an owner-visible Stage 1 id when CURSOR_API_KEY was unset. Coordinator CreateAgent should launch Stage 1 (F15) with startingRef=cursor/f13-lx73-stage7-237f and this prompt.
+
+LIVE_PAGE_MATCH: nightly-092589b8-dev @ pages 2fd5541f…; Elite 3d107710cde2…; Pro 60dc7fda13fd…; ctl 956e3e214658….

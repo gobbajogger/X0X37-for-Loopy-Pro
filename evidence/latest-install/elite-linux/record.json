@@ -1,0 +1,429 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "4ae236763a9107104626b0d8283594edaf4bb81e8ff78690f147ef32fec1c3df",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "d0296430c42eaf622a3d9eaf187b01abbe4c0cdfc7a504412d4b245bcd569252",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "1165396199210889fa460d26cbdd0b66183267e1",
+          "scope": "Latest GitHub main a5cb24d contains unchanged combined firmware and accepted non-cache tooling. Reuse matching independent source/host test evidence. Build the actual Elite DEV app/controller with current scripts and native validator; verify budgets and exact artifacts before authorized install.",
+          "checks": [
+            {
+              "reason": "Prove matching unchanged firmware/installer and independently tested tooling scope before reusing accepted host evidence.",
+              "argv": [
+                "python3",
+                "-B",
+                "-c",
+                "import subprocess,json,hashlib,pathlib\nbase=pathlib.Path('/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2')\nr=json.loads((base/'final-result.json').read_text())\nassert r['status']=='PASS checked local non-cache tooling combination'\nfor key in ['independent_test','independent_investigation']:\n p=base/r[key]['path'];assert hashlib.sha256(p.read_bytes()).hexdigest()==r[key]['sha256']\nassert not subprocess.check_output(['git','diff','1165396','HEAD','--','firmware','tools/build.py','tools/fm1pkg_make.py','tools/add_ctl.py','tools/fm1_install.py','tools/x0x_slots.py'])\nassert sorted(subprocess.check_output(['git','diff','--name-only',r['production_candidate'],'HEAD','--','tools','tests','ble'],text=True).splitlines())==['tests/host/test_prefs_lint.py', 'tests/host/test_quickcheck_rules.sh', 'tests/host/test_rules_guard_hook.sh', 'tests/host/test_rules_rollout.py', 'tools/check_project_skills.py', 'tools/prefs_lint.py', 'tools/rollout_rules.py', 'tools/update.hook']\nassert all(x['returncode']==0 for x in json.loads(pathlib.Path('evidence/commit-latest-20261021/checks.json').read_text()))\nprint('PASS: firmware and installer unchanged; accepted tooling/test sources match independently checked candidate; failed cache excluded.')\n"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json",
+            "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-test/result.json",
+            "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-investigation/result.json"
+          ]
+        },
+        "dependencies": [
+          "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json",
+          "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-test/result.json",
+          "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-investigation/result.json"
+        ]
+      },
+      "environment": {
+        "CC": "cc",
+        "CXX": "c++",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+          "executable": true
+        },
+        "make": {
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+          "executable": true
+        },
+        "node": {
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+          "executable": true
+        },
+        "python": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        },
+        "python3": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": null,
+        "pillow": {
+          "version": "9.4.0",
+          "sha256": "c6d6f5bc403396868ad18dad0b1d84a003b0837ece68e7f144d88fec9ea358b2"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json": {
+          "sha256": "448dbf36103b08fac83f6cc7499043727428dcc64635e5542253ca1b13f0a163",
+          "executable": false
+        },
+        "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-test/result.json": {
+          "sha256": "57dff834dc7282d659874a3d18c8abe6bf5e7388f197281a5743773d607f5626",
+          "executable": false
+        },
+        "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-investigation/result.json": {
+          "sha256": "d01c502f58ae8650545d22c14942143a83bd0f9e067ec25ea58f83fccadc4068",
+          "executable": false
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "a5cb24dd08b40b80e802e03ff0d9c848315a9751",
+  "tree": "d0296430c42eaf622a3d9eaf187b01abbe4c0cdfc7a504412d4b245bcd569252",
+  "plan": {
+    "base": "1165396199210889fa460d26cbdd0b66183267e1",
+    "scope": "Latest GitHub main a5cb24d contains unchanged combined firmware and accepted non-cache tooling. Reuse matching independent source/host test evidence. Build the actual Elite DEV app/controller with current scripts and native validator; verify budgets and exact artifacts before authorized install.",
+    "checks": [
+      {
+        "reason": "Prove matching unchanged firmware/installer and independently tested tooling scope before reusing accepted host evidence.",
+        "argv": [
+          "python3",
+          "-B",
+          "-c",
+          "import subprocess,json,hashlib,pathlib\nbase=pathlib.Path('/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2')\nr=json.loads((base/'final-result.json').read_text())\nassert r['status']=='PASS checked local non-cache tooling combination'\nfor key in ['independent_test','independent_investigation']:\n p=base/r[key]['path'];assert hashlib.sha256(p.read_bytes()).hexdigest()==r[key]['sha256']\nassert not subprocess.check_output(['git','diff','1165396','HEAD','--','firmware','tools/build.py','tools/fm1pkg_make.py','tools/add_ctl.py','tools/fm1_install.py','tools/x0x_slots.py'])\nassert sorted(subprocess.check_output(['git','diff','--name-only',r['production_candidate'],'HEAD','--','tools','tests','ble'],text=True).splitlines())==['tests/host/test_prefs_lint.py', 'tests/host/test_quickcheck_rules.sh', 'tests/host/test_rules_guard_hook.sh', 'tests/host/test_rules_rollout.py', 'tools/check_project_skills.py', 'tools/prefs_lint.py', 'tools/rollout_rules.py', 'tools/update.hook']\nassert all(x['returncode']==0 for x in json.loads(pathlib.Path('evidence/commit-latest-20261021/checks.json').read_text()))\nprint('PASS: firmware and installer unchanged; accepted tooling/test sources match independently checked candidate; failed cache excluded.')\n"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json",
+      "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-test/result.json",
+      "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-investigation/result.json"
+    ]
+  },
+  "changed_files": [
+    ".agents/skills/x0x37-check",
+    ".agents/skills/x0x37-device-bug",
+    ".agents/skills/x0x37-docs",
+    ".agents/skills/x0x37-install",
+    ".agents/skills/x0x37-integrate",
+    ".agents/skills/x0x37-owner-decisions",
+    ".agents/skills/x0x37-shared-work",
+    ".agents/skills/x0x37-task",
+    ".agents/skills/x0x37-workflow",
+    ".agents/skills/x0x37-writing",
+    "AGENTS.md",
+    "BUILDING.md",
+    "LICENSING.md",
+    "README.md",
+    "ble/ctl/build_ctl.sh",
+    "ble/ctl/build_in_container.sh",
+    "docs/MANUAL.md",
+    "docs/NEW.md",
+    "docs/QUICKCHECK-SCOPE.md",
+    "docs/SKILLS.md",
+    "docs/USER_PREFERENCES.md",
+    "docs/agent-rules.md",
+    "docs/audit/classic-chain-correction-2026-10-21.md",
+    "docs/audit/classic-chain-correction-2026-10-21/after.json",
+    "docs/audit/classic-chain-correction-2026-10-21/before.json",
+    "docs/audit/classic-chain-correction-2026-10-21/results.json",
+    "docs/audit/classic-chat-2026-10-21.md",
+    "docs/audit/classic-chat-2026-10-21/after.json",
+    "docs/audit/classic-chat-2026-10-21/before.json",
+    "docs/audit/classic-chat-2026-10-21/changed-files.json",
+    "docs/audit/classic-chat-2026-10-21/checks.txt",
+    "docs/audit/classic-chat-2026-10-21/review.txt",
+    "docs/audit/classic-chat-2026-10-21/rollout-apply.json",
+    "docs/audit/classic-chat-2026-10-21/rollout-check.json",
+    "docs/audit/classic-chat-2026-10-21/rollout-dry-run.json",
+    "docs/audit/classic-chat-2026-10-21/source-rollout.json",
+    "docs/audit/clear-authorization-2026-10-21.md",
+    "docs/audit/elite-default-2026-10-21.md",
+    "docs/audit/handoff-reliability-2026-10-21.md",
+    "docs/audit/handoff-reliability-2026-10-21/approval-recurrence.json",
+    "docs/audit/handoff-reliability-2026-10-21/automatic-discovery-check.json",
+    "docs/audit/handoff-reliability-2026-10-21/automatic-discovery-rollout.json",
+    "docs/audit/handoff-reliability-2026-10-21/automatic-independent-review.txt",
+    "docs/audit/handoff-reliability-2026-10-21/automatic-maintained-rollout.json",
+    "docs/audit/handoff-reliability-2026-10-21/automatic-startup.json",
+    "docs/audit/handoff-reliability-2026-10-21/checks.txt",
+    "docs/audit/handoff-reliability-2026-10-21/discovery-check.json",
+    "docs/audit/handoff-reliability-2026-10-21/discovery-rollout.json",
+    "docs/audit/handoff-reliability-2026-10-21/independent-review.txt",
+    "docs/audit/handoff-reliability-2026-10-21/maintained-rollout.json",
+    "docs/audit/handoff-reliability-2026-10-21/reading-size.json",
+    "docs/audit/plain-writing-2026-10-21.md",
+    "docs/audit/shorter-skills-2026-10-21.md",
+    "docs/audit/skills-migration-2026-10-21.md",
+    "docs/audit/strict-ste-2026-10-21.md",
+    "docs/audit/uncommitted-merge-2026-10-21.md",
+    "docs/chatgpt-project-instructions.txt",
+    "docs/manual.html",
+    "docs/rules/SCRIPT-CHECKS.md",
+    "docs/rules/commit.md",
+    "docs/rules/core.md",
+    "docs/rules/device-bug.md",
+    "docs/rules/docs.md",
+    "docs/rules/install.md",
+    "docs/rules/integration.md",
+    "docs/rules/owner-messages.md",
+    "docs/rules/shared-work.md",
+    "docs/rules/style.md",
+    "docs/rules/workflow.md",
+    "evidence/build-speed-combination-stage2/cache-exclusion.json",
+    "evidence/build-speed-combination-stage2/check-initial.py",
+    "evidence/build-speed-combination-stage2/check-native-cleanup.py",
+    "evidence/build-speed-combination-stage2/checkpoint.json",
+    "evidence/build-speed-combination-stage2/classic-cache-repair-handoff.txt",
+    "evidence/build-speed-combination-stage2/classic-completion-handoff.txt",
+    "evidence/build-speed-combination-stage2/controller-quickcheck-identity.json",
+    "evidence/build-speed-combination-stage2/final-checks.json",
+    "evidence/build-speed-combination-stage2/final-evidence-sha256.json",
+    "evidence/build-speed-combination-stage2/final-identity.json",
+    "evidence/build-speed-combination-stage2/final-identity.log",
+    "evidence/build-speed-combination-stage2/final-result.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/outer-background-signal.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/outer-background-signal.log",
+    "evidence/build-speed-combination-stage2/independent-investigation/result.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-accepted.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-accepted.log",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-accepted.py",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-final.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-final.log",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-final.py",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-proof.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-proof.log",
+    "evidence/build-speed-combination-stage2/independent-investigation/rules-proof.py",
+    "evidence/build-speed-combination-stage2/independent-investigation/source-audit.json",
+    "evidence/build-speed-combination-stage2/independent-investigation/source-audit.py",
+    "evidence/build-speed-combination-stage2/independent-test/acceptance-bindings.json",
+    "evidence/build-speed-combination-stage2/independent-test/affected-verification.json",
+    "evidence/build-speed-combination-stage2/independent-test/pre-outer-background-result.json",
+    "evidence/build-speed-combination-stage2/independent-test/pre-outer-background-verification.json",
+    "evidence/build-speed-combination-stage2/independent-test/pre-outer-background-verify.log",
+    "evidence/build-speed-combination-stage2/independent-test/pre-outer-background-verify.py",
+    "evidence/build-speed-combination-stage2/independent-test/result.json",
+    "evidence/build-speed-combination-stage2/independent-test/verification.json",
+    "evidence/build-speed-combination-stage2/independent-test/verify-affected.log",
+    "evidence/build-speed-combination-stage2/independent-test/verify-affected.py",
+    "evidence/build-speed-combination-stage2/independent-test/verify.log",
+    "evidence/build-speed-combination-stage2/independent-test/verify.py",
+    "evidence/build-speed-combination-stage2/initial-checks.json",
+    "evidence/build-speed-combination-stage2/initial-checks.log",
+    "evidence/build-speed-combination-stage2/native-cleanup-initial.log",
+    "evidence/build-speed-combination-stage2/native-cleanup.json",
+    "evidence/build-speed-combination-stage2/native-cleanup.log",
+    "evidence/build-speed-combination-stage2/native-worker.log",
+    "evidence/build-speed-combination-stage2/preferences-lint.log",
+    "evidence/build-speed-combination-stage2/registered-ctl-final.log",
+    "evidence/build-speed-combination-stage2/registered-ctl-initial.log",
+    "evidence/build-speed-combination-stage2/registered-ctl-outer-final.log",
+    "evidence/build-speed-combination-stage2/registered-ctl-outer-methods.log",
+    "evidence/build-speed-combination-stage2/registered-dev-validate.log",
+    "evidence/build-speed-combination-stage2/registered-fixtures.log",
+    "evidence/build-speed-combination-stage2/registered-host-setup.log",
+    "evidence/build-speed-combination-stage2/registered-native-fixtures.log",
+    "evidence/build-speed-combination-stage2/registered-quickcheck-plan.log",
+    "evidence/build-speed-combination-stage2/registered-runner-admission.log",
+    "evidence/build-speed-combination-stage2/registered-validation-inputs.log",
+    "evidence/build-speed-combination-stage2/registration-classification.json",
+    "evidence/build-speed-combination-stage2/retired-reference-scan.json",
+    "evidence/build-speed-combination-stage2/runner-identity.json",
+    "evidence/build-speed-combination-stage2/signal-fixture-repair.json",
+    "evidence/build-speed-combination-stage2/verify-final.py",
+    "evidence/commit-latest-20261021/checks.json",
+    "evidence/commit-latest-20261021/independent-review.json",
+    "evidence/commit-latest-20261021/log-identities.json",
+    "evidence/commit-latest-20261021/reconciliation.json",
+    "evidence/commit-latest-20261021/test_portable_rules.log",
+    "evidence/commit-latest-20261021/test_prefs_lint.log",
+    "evidence/commit-latest-20261021/test_quickcheck_plan.log",
+    "evidence/commit-latest-20261021/test_quickcheck_rules.log",
+    "evidence/commit-latest-20261021/test_rules_guard_hook.log",
+    "evidence/commit-latest-20261021/test_rules_rollout.log",
+    "evidence/commit-latest-20261021/validators.json",
+    "evidence/host-setup-stage2/fixtures.log",
+    "evidence/host-setup-stage2/inputs.json",
+    "evidence/host-setup-stage2/probes.json",
+    "evidence/host-setup-stage2/result.json",
+    "evidence/host-setup-stage2/smc_drum_mutes.log",
+    "evidence/host-setup-stage2/smc_performance_abort.log",
+    "evidence/host-setup-stage2/smc_reachability.log",
+    "evidence/host-setup-stage2/source-preservation.json",
+    "evidence/host-setup-stage2/ui_feedback.log",
+    "host/build_host.sh",
+    "host/x0x_host.c",
+    "skills/workflows.json",
+    "skills/x0x37-check/SKILL.md",
+    "skills/x0x37-check/references/build-environment.md",
+    "skills/x0x37-check/references/commits.md",
+    "skills/x0x37-check/references/validation.md",
+    "skills/x0x37-device-bug/SKILL.md",
+    "skills/x0x37-docs/SKILL.md",
+    "skills/x0x37-docs/references/checks.md",
+    "skills/x0x37-install/SKILL.md",
+    "skills/x0x37-install/references/artifacts.md",
+    "skills/x0x37-install/references/evidence.md",
+    "skills/x0x37-integrate/SKILL.md",
+    "skills/x0x37-integrate/references/release-gate.md",
+    "skills/x0x37-owner-decisions/SKILL.md",
+    "skills/x0x37-shared-work/SKILL.md",
+    "skills/x0x37-task/SKILL.md",
+    "skills/x0x37-task/references/ownership.md",
+    "skills/x0x37-task/references/routing.md",
+    "skills/x0x37-workflow/SKILL.md",
+    "skills/x0x37-workflow/references/handoff.md",
+    "skills/x0x37-workflow/references/stages.md",
+    "skills/x0x37-writing/SKILL.md",
+    "skills/x0x37-writing/references/strict.md",
+    "skills/x0x37-writing/references/terms.md",
+    "tests/host/emu_slots_test.mjs",
+    "tests/host/emu_test.mjs",
+    "tests/host/smc_drum_mutes_test.sh",
+    "tests/host/smc_performance_abort_test.sh",
+    "tests/host/smc_reachability_test.sh",
+    "tests/host/smk_clip_chord_display_test.sh",
+    "tests/host/smk_clip_knob_test.sh",
+    "tests/host/test_ctl_compile.py",
+    "tests/host/test_dev_validate.py",
+    "tests/host/test_host_setup.py",
+    "tests/host/test_portable_rules.py",
+    "tests/host/test_prefs_lint.py",
+    "tests/host/test_quickcheck_plan.py",
+    "tests/host/test_quickcheck_rules.sh",
+    "tests/host/test_rules_guard_hook.sh",
+    "tests/host/test_rules_rollout.py",
+    "tests/host/test_runner_admission.py",
+    "tests/host/test_validation_inputs.py",
+    "tests/host/ui_feedback_test.sh",
+    "tests/run_tests.sh",
+    "tools/check_project_skills.py",
+    "tools/dev_validate.py",
+    "tools/gate.sh",
+    "tools/install_gate.sh",
+    "tools/make_pages.py",
+    "tools/prefs_lint.py",
+    "tools/publish_pages.sh",
+    "tools/quickcheck.sh",
+    "tools/quickcheck_plan.py",
+    "tools/rollout_rules.py",
+    "tools/update.hook",
+    "tools/validation_inputs.py",
+    "web/emu/build.sh",
+    "web/emu/index.html",
+    "web/emu/worklet.js",
+    "web/emu/x0x_web.c"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 952,
+    "ram_free": 524,
+    "pool_free": 8364
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess,json,hashlib,pathlib\nbase=pathlib.Path('/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2')\nr=json.loads((base/'final-result.json').read_text())\nassert r['status']=='PASS checked local non-cache tooling combination'\nfor key in ['independent_test','independent_investigation']:\n p=base/r[key]['path'];assert hashlib.sha256(p.read_bytes()).hexdigest()==r[key]['sha256']\nassert not subprocess.check_output(['git','diff','1165396','HEAD','--','firmware','tools/build.py','tools/fm1pkg_make.py','tools/add_ctl.py','tools/fm1_install.py','tools/x0x_slots.py'])\nassert sorted(subprocess.check_output(['git','diff','--name-only',r['production_candidate'],'HEAD','--','tools','tests','ble'],text=True).splitlines())==['tests/host/test_prefs_lint.py', 'tests/host/test_quickcheck_rules.sh', 'tests/host/test_rules_guard_hook.sh', 'tests/host/test_rules_rollout.py', 'tools/check_project_skills.py', 'tools/prefs_lint.py', 'tools/rollout_rules.py', 'tools/update.hook']\nassert all(x['returncode']==0 for x in json.loads(pathlib.Path('evidence/commit-latest-20261021/checks.json').read_text()))\nprint('PASS: firmware and installer unchanged; accepted tooling/test sources match independently checked candidate; failed cache excluded.')\n"
+      ],
+      "returncode": 0,
+      "sha256": "194a3e232aa3813a247823b37095d7edc47e33a301658a296f40acabe3631afd"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "af7de3ce24e01e32a68e78130970410293ece837e1f1833466bca8cebdb9842d"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "c667ff7f3581126d94f66cde952bf44489dd215874cdd4f316fdea2015212b9d"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "9bc1d9fdf6252a8bf5a6e79038c34b5bbc102918888283dea41be4738096d2f8"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

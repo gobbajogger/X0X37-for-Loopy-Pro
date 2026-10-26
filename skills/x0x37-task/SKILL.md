@@ -34,10 +34,10 @@ Same-task follow-ups use loaded instructions. After a source change, read its ch
 Claim skill use only after reading it. Current owner instructions take priority over old checkout text and saved handoffs.
 
 Complete authorized work and required checks. Carry permission forward under [rule 14](../x0x37-owner-decisions/SKILL.md); do not ask again.
-Hardware permission is currently withdrawn; leave all device work pending. Retired roles do not block independent authorized work.
+Use current, model- and action-specific device permission under [rule 14](../x0x37-owner-decisions/SKILL.md). Elite recovery and flash remain withdrawn; read-only Pro investigation belongs to the assigned integrator. Retired roles do not block independent authorized work.
 Default to development under [rule 11](../x0x37-integrate/SKILL.md). For code review and PR delivery, select the explicit mode in [x0x37-workflow](../x0x37-workflow/SKILL.md); installed skills alone do not select a mode.
 State the real blocker and next action.
 Report verified results only. Separate source review, host tests, target builds, gates, installs, and device tests.
 Include relevant unchecked inputs and checks that did not run. A PASS does not expand permission.
-Before all output or saved text, initialize [plain writing](../x0x37-writing/SKILL.md).
+Before all output or saved text, initialize [plain writing](../../.agents/skills/x0x37-writing/SKILL.md).
 Give the result first. Keep facts, conditions, uncertainty, and evidence.

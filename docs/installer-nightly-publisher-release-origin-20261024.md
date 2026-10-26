@@ -1,0 +1,21 @@
+# Installer NIGHTLY publisher proof Release-origin marker — 2026-10-24
+
+**Role:** existing installer browser-source producer, PR #102. **Consumed:** gobbajogger/X0X37-for-Loopy-Pro `lane/installer-nightly-download-guard-20261024@bfbe80117f65a1d5e86de769801e08b24c75f2df`, repository ROOT Git tree `9bb7609a6ba99fb45868c3cd9a42d500d42d5753`; **compiled firmware/ subtree remains** `19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf` (no firmware build or firmware code change).
+
+## Source-exact finding
+The current publisher approval predicate rejects catalog-level and per-model `fromRelease` origin markers, but fails to reject `approval.fromRelease=true` or a string marker. Even with all other synthetic prehardware attestations set true, a Release-origin publisher tuple was previously eligible to expose the direct firmware link. Fail closed across all three record levels; only missing or literal `false` marker is permitted. This is a synthetic future-catalog/proof hardening finding, **not** evidence of a real published vulnerable package (the compiled allowlist is empty).
+
+**Change:** one predicate conjunct `(a.fromRelease === undefined || a.fromRelease === false)` in `web/x0x_installer.html` and two negative plus one literal-false positive test in `web/test_install_nightly_download_guard.mjs`. GitHub Release auto-import remains disabled. Guarded local arbitrary `.fwsc` import/backup/model/confirm remains unchanged.
+
+## Executed producer tests (Linux, not hardware)
+- Connected GitHub fetch verified old installer blob `e52c9a05241d44d5862ca11b4feebadedd478321`, 1921-character predicate excerpt FNV32 `fd535469`. Changed excerpt independently matched native local bytes 1988 characters FNV32 `94c646cf`.
+- V8 exact-remote predicate 40 property tests PASS, including legitimate approved device-untested synthetic positive, revoked/Release/source/QA/model/controller/hash/URL/host negatives; identified `approval.fromRelease=true` acceptance on old source. **No real artifact authorized**.
+- `node --check approved-nightly-exact-proposed.js`: exit 0; `node --check test-revocation-exact-excerpt.cjs`: exit 0.
+- `node test-revocation-exact-excerpt.cjs`: exit 0, 14/14 scenarios plus two explicit previous-code fail-before/new-code pass-after Release-origin markers, preservation of empty default allowlist.
+- `python3 browser-revocation-excerpt.py`: exit 0, 60/60 real Chromium/Playwright minimal-DOM cases across 320/390/1280 pixels, EN/JA, stale href, local input and focus.
+- `python3 browser_release_approval.py`: exit 0, 24/24 additional real Chromium cases across the same sizes/locales: missing and literal-false marker allow; `true` and string `"true"` deny and clear link.
+- Native `git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly`: exit 128, DNS cannot resolve GitHub in shell; connected GitHub Git Data API remains functional.
+
+**Scope:** Chromium fixtures use source-exact gate and `refreshMeta` excerpts in synthetic minimal HTML. This is not full-branch native `node web/test_install_nightly_download_guard.mjs`, complete regenerated site/Chromium, WebMIDI reconnect, full backup/OTA/confirmation, immutable HTTP hash, Elite/Pro build, or physical device PASS. Do not reclassify this producer check as independent QA.
+
+**Disposition:** SOURCE-COMPLETE / PRODUCER-CHECKED SCOPED; existing PR #102 stays NON-DRAFT, READY FOR INDEPENDENT REVIEW, NOT QA APPROVED OR MERGED. **Next owner Independent Firmware QA:** exact new head, registered native Node suites, complete generated-browser EN/JA/mobile/WebMIDI/backup/OTA negative checks and independent review. **Then sole Firmware Safe Merge:** normal NIGHTLY integration after checks. **Separate NIGHTLY website source owner:** reconcile equivalent guard and existing direct `.fwsc` hazard through owned reviewed PR #1, never edit website main/gh-pages directly. **Sole Pages publisher:** independently verify per-model source/firmware/controller/licensing/backup/host immutable HTTP and show DEV DEVICE NOT TESTED only on eligible genuine bytes; no prior physical PASS required for NIGHTLY. Existing safe Pages content preserved; production requires separate same-byte device proof and approval.

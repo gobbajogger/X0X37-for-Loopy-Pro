@@ -1,0 +1,21 @@
+{
+  "input_commit": "1c6847412b8a380858d2eaace50e8dfe36b7495a",
+  "source_hashes": {
+    "tests/host/ble_midi_receive_test.sh": "d7f0fe7996e82b8216e5fb67f1258fbc3b0bcb5850b9dd1148aefd44704b0904",
+    "tests/host/ble_midi_central_test.c": "1eeebf9db8288eebc897c360dfa17f1f01acf09eaaffb24338de9791233cf6ba",
+    "tests/host/ble_midi_receive_test.c": "e8b455b5e7ab6199048c286ee43b51fbd98bb595243e12f885e6c65f44b6dd30",
+    "firmware/src/ble/ble_midi_central.c": "38647328b70425c87b769e45f16cf66080508ff4784d9ccb4ac9bf0dccf796bd",
+    "firmware/src/ble/ble_midi_central.h": "96d6cd43d20209dc3f02785505d15b1dede1582d77ea6179e28e0e65654e60cc"
+  },
+  "focused_command": "CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L X0X_TEST_JOBS=1 X0X_GATE_LOCK=/workspace/x0x-stage3-evidence/receive/test.lock UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ASAN_OPTIONS=halt_on_error=1:abort_on_error=1 sh tests/run_tests.sh ble-midi-receive",
+  "focused_exit": 0,
+  "negative_probe": {
+    "restored_fixture_commit": "6e0da0bc97f04ed6b11cbd5b5c03c432eb9061c2",
+    "restored_fixture_sha256": "daea6f684f1eca94cc34bcf7ae1885726e66b2d39f5491e8b617f2a326bdd111",
+    "command": "CC=cc UBSAN_OPTIONS=halt_on_error=0:print_stacktrace=1 ASAN_OPTIONS=halt_on_error=1:abort_on_error=1 sh tests/host/ble_midi_receive_test.sh",
+    "exit": 1,
+    "expected_nonzero_and_null_pointer_diagnostic": true
+  },
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "kernel": "Linux x86_64"
+}

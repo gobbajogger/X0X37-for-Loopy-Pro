@@ -13,6 +13,7 @@
  * glides so a fast sweep does not zipper (ReBirth's PCF idea: sweep the whole mix).
  * Limiter: instant-attack peak follower, ~150 ms release, then a tanh knee above -1 dBFS. */
 #include "master.h"
+#include "../x0x_cold.h"
 #include "fastmath.h"
 
 #define FS 44100.0f
@@ -42,11 +43,12 @@ static const x0x_param_t MST_P[MST_NPARAMS] = {
 int master_nparams(void) { return MST_NPARAMS; }
 const x0x_param_t *master_param(int i) { return (i >= 0 && i < MST_NPARAMS) ? &MST_P[i] : 0; }
 
-static float thresh_db(int p) { return -48.0f + 48.0f * (float)p / 127.0f; }
-static float attack_ms(int p) { return 0.1f * fm_exp2f((float)p * (9.966f / 127.0f)); }     /* 0.1 .. 100 */
-static float release_ms(int p) { return 10.0f * fm_exp2f((float)p * (7.229f / 127.0f)); }   /* 10 .. 1500 */
-static float makeup_db(int p) { return 24.0f * (float)p / 127.0f; }
-static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
+/* Pot/format maps only — audio reads precomputed master_t fields (X0X_COLD) */
+X0X_COLD static float thresh_db(int p) { return -48.0f + 48.0f * (float)p / 127.0f; }
+X0X_COLD static float attack_ms(int p) { return 0.1f * fm_exp2f((float)p * (9.966f / 127.0f)); }     /* 0.1 .. 100 */
+X0X_COLD static float release_ms(int p) { return 10.0f * fm_exp2f((float)p * (7.229f / 127.0f)); }   /* 10 .. 1500 */
+X0X_COLD static float makeup_db(int p) { return 24.0f * (float)p / 127.0f; }
+X0X_COLD static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
 
 /* PUMP's duck rises over this: 12 ms lets the kick's attack through and then ducks. At 3 ms it
  * dropped the whole mix 4 dB inside a cycle of the bass: measured, the fast gain movement at the
@@ -55,10 +57,11 @@ static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
 #define MASTER_PUMP_RISE_MS 12.0f
 #endif
 
-/* one-pole coefficient reaching 1 - 1/e of a step in t milliseconds */
-static float coef_ms(float t) { return fm_expf(-1000.0f / (t * FS)); }
+/* Pot/init path only via comp_coefs — not the audio render (X0X_COLD) */
+X0X_COLD static float coef_ms(float t) { return fm_expf(-1000.0f / (t * FS)); }
 
-static void comp_coefs(master_t *m)
+/* Pot/init path only — master_process reads precomputed coefs (X0X_COLD) */
+X0X_COLD static void comp_coefs(master_t *m)
 {
     float ratio = RATIO_V[m->pot[MST_RATIO] % 10];
     m->thr_db = thresh_db(m->pot[MST_THRESH]);
@@ -82,7 +85,8 @@ static void comp_coefs(master_t *m)
     }
 }
 
-static void filt_coefs(master_t *m)
+/* Pot/init path only — master_process reads precomputed coefs (X0X_COLD) */
+X0X_COLD static void filt_coefs(master_t *m)
 {
     float fc = 30.0f * fm_exp2f((float)m->pot[MST_CUTOFF] * (9.23f / 127.0f));   /* 30 Hz .. 18 kHz */
     float q = 0.5f + (float)m->pot[MST_RESO] * (11.5f / 127.0f);
@@ -91,7 +95,8 @@ static void filt_coefs(master_t *m)
     m->a1 = 1.0f / (1.0f + m->g * (m->g + m->k));       /* the resonance may have changed */
 }
 
-void master_init(master_t *m)
+/* Boot only (engine_init). master_process is the audio path and stays -O2. */
+X0X_COLD void master_init(master_t *m)
 {
     int i;
     uint8_t *z = (uint8_t *)m;
@@ -110,17 +115,18 @@ void master_init(master_t *m)
 
 /* COMP x: the threshold falls (-4 .. -32 dB), the ratio climbs (1.5:1 .. 6:1), makeup follows (0.85 of
  * the reduction at the threshold, at most 24 dB); 3/4 is the factory's -24 dB, 4:1, +16 dB */
-void master_comp1_pots(int v, uint8_t *thresh, uint8_t *ratio, uint8_t *makeup)
+/* UI / master_set COMP macro only — not the audio render (X0X_COLD) */
+X0X_COLD void master_comp1_pots(int v, uint8_t *thresh, uint8_t *ratio, uint8_t *makeup)
 {
-    static const float R[6] = {1.0f, 1.5f, 2.0f, 3.0f, 4.0f, 6.0f};
     float x = (float)v * (1.0f / 127.0f), thr = -4.0f - 28.0f * x, mk;
     int ri = v ? 1 + (int)(x * 4.0f + 0.5f) : 0;
-    mk = ri ? fm_minf(-thr * (1.0f - 1.0f / R[ri]) * 0.85f, 24.0f) : 0.0f;
+    mk = ri ? fm_minf(-thr * (1.0f - 1.0f / RATIO_V[ri]) * 0.85f, 24.0f) : 0.0f;
     *thresh = (uint8_t)((thr + 48.0f) * (127.0f / 48.0f) + 0.5f);
     *ratio = (uint8_t)ri;
     *makeup = (uint8_t)(mk * (127.0f / 24.0f) + 0.5f);
 }
-void master_djf_pots(int v, uint8_t *mode, uint8_t *cutoff)
+/* UI / master_set DJF macro only — not the audio render (X0X_COLD) */
+X0X_COLD void master_djf_pots(int v, uint8_t *mode, uint8_t *cutoff)
 {
     if (v < 60) {                                     /* low-pass: right of 0, the cutoff falls to the left */
         *mode = 1;
@@ -134,7 +140,8 @@ void master_djf_pots(int v, uint8_t *mode, uint8_t *cutoff)
     }
 }
 
-void master_set(master_t *m, int i, int v)
+/* UI/MIDI pot path — not the master audio render (X0X_COLD) */
+X0X_COLD void master_set(master_t *m, int i, int v)
 {
     if (i < 0 || i >= MST_NPARAMS)
         return;
@@ -149,6 +156,16 @@ void master_set(master_t *m, int i, int v)
         master_djf_pots(m->pot[i], &m->pot[MST_MODE], &m->pot[MST_CUTOFF]);
         filt_coefs(m);
         return;
+    }
+    /* Bypass does not advance the look-ahead ring. Re-enabling the limiter must not
+     * replay audio left in that ring before it was switched off. */
+    if (i == MST_LIMIT && v > 0 && !m->pot[MST_LIMIT]) {
+        int j;
+        for (j = 0; j < MST_LA; ++j)
+            m->la[j] = m->la_r[j] = 0.0f;
+        m->la_pos = m->hold = 0;
+        m->env = m->inv_env = 0.0f;
+        m->gain = 1.0f;
     }
     m->pot[i] = (uint8_t)(v < 0 ? 0 : v > MST_P[i].max ? MST_P[i].max : v);
     if (i <= MST_PUMPSRC)
@@ -179,6 +196,100 @@ static float gr_of(const master_t *m, float lv)
     return m->slope * over * over / (2.0f * m->knee);
 }
 
+/* Limiter soft knee over 0.89. Outlined once for mono + L/R stereo (pi32: one
+ * body beats two inlined tanh copies inside master_process_st). */
+/* One |s| path for the ±knee (same math as the prior mirrored branches). */
+__attribute__((noinline)) static float soft_ceiling(float s)
+{
+    float a = fm_fabsf(s);
+    if (a > 0.89f) {
+        a = 0.89f + 0.11f * fm_tanhf((a - 0.89f) * 9.0f);
+        return s < 0.0f ? -a : a;
+    }
+    return s;
+}
+
+
+/* Compressor/pump gain advance after ms is updated — one body for mono + stereo. */
+__attribute__((noinline)) static void comp_tick(master_t *m, float *grmax)
+{
+    float lv, want, total;
+    if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
+        lv = 2.0f * m->ms;
+        m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
+    }
+    want = m->want;
+    m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
+                         : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
+    if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
+        m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
+        if (m->pump_tgt - m->pump < 0.05f)
+            m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
+    } else {
+        m->pump = fm_flush(m->a_rel * m->pump);
+    }
+    total = m->gr + m->pump;
+    if (total > *grmax)
+        *grmax = total;
+    if (m->cr == 0) {                                /* the gain, linear, ramped over MST_CR samples */
+        m->g_step = (m->makeup * fm_db2lin(-total) - m->g_lin) * (1.0f / MST_CR);
+        m->cr = MST_CR;
+    }
+    m->cr--;
+    m->g_lin += m->g_step;
+}
+
+/* Look-ahead limiter envelope + gain — one body for mono and stereo. */
+__attribute__((noinline)) static void limit_env(master_t *m, float a)
+{
+    if (a >= m->env) {
+        m->env = a;
+        m->hold = MST_LA;
+        float r = 1.0f / fm_maxf(a, 0.8f);
+        m->inv_env = a > 0.8f ? r : 0.0f;
+    } else if (m->hold) {
+        m->hold--;
+    } else {
+        m->env *= 0.99985f;
+        m->inv_env *= 1.0001500225f;                 /* 1 / 0.99985 */
+    }
+    {
+        float want = m->env > 0.8f ? 0.8f * m->inv_env : 1.0f;
+        m->gain += (want - m->gain) * (want < m->gain ? (5.0f / MST_LA) : 0.002f);
+    }
+}
+
+/* One DJF SVF channel step — shared by mono and L/R stereo (same pattern as soft_ceiling). */
+__attribute__((noinline)) static float djf_tick(float s, float *ic1, float *ic2, int mode, float g,
+                                                float a1, float k)
+{
+    float v3 = s - *ic2;
+    float v1 = a1 * *ic1 + g * a1 * v3;
+    float v2 = *ic2 + g * v1;
+    *ic1 = fm_flush(2.0f * v1 - *ic1);
+    *ic2 = fm_flush(2.0f * v2 - *ic2);
+    return mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
+}
+
+/* Smooth DJF cutoff g toward g_t and refresh a1 — shared by mono/stereo process. */
+__attribute__((noinline)) static float djf_gsmooth(master_t *m, float k)
+{
+    float g = m->g;
+    if (g != m->g_t) {                               /* the cutoff moving: its coefficient too */
+        g = m->g += (m->g_t - m->g) * 0.0625f;
+        if (fm_fabsf(m->g_t - g) < 1e-6f * m->g_t)
+            g = m->g = m->g_t;
+        m->a1 = 1.0f / (1.0f + g * (g + k));
+    }
+    return g;
+}
+
+/* ±1 clamp — one body for mono + stereo when the limiter is off. */
+__attribute__((noinline)) static float clamp_pm1(float s)
+{
+    return fm_clampf(s, -1.0f, 1.0f);
+}
+
 void master_process(master_t *m, float *x, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE];
@@ -186,52 +297,18 @@ void master_process(master_t *m, float *x, int n, float volume)
     for (i = 0; i < n; i++) {
         float s = x[i];
         if (m->comp_on) {
-            float lv, want, total, wet;
+            float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
             m->ms = fm_flush(m->a_det * m->ms + (1.0f - m->a_det) * s * s);
-            if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
-                lv = 2.0f * m->ms;
-                m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
-            }
-            want = m->want;
-            m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
-                                 : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
-            if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
-                m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
-                if (m->pump_tgt - m->pump < 0.05f)
-                    m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
-            } else {
-                m->pump = fm_flush(m->a_rel * m->pump);
-            }
-            total = m->gr + m->pump;
-            if (total > grmax)
-                grmax = total;
-            if (m->cr == 0) {                                /* the gain, linear, ramped over MST_CR samples */
-                m->g_step = (m->makeup * fm_db2lin(-total) - m->g_lin) * (1.0f / MST_CR);
-                m->cr = MST_CR;
-            }
-            m->cr--;
-            m->g_lin += m->g_step;
+            comp_tick(m, &grmax);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
         }
         if (mode) {
-            float g = m->g, a1;
-            if (g != m->g_t) {                               /* the cutoff moving: its coefficient too */
-                g = m->g += (m->g_t - m->g) * 0.0625f;
-                if (fm_fabsf(m->g_t - g) < 1e-6f * m->g_t)
-                    g = m->g = m->g_t;
-                m->a1 = 1.0f / (1.0f + g * (g + k));
-            }
-            a1 = m->a1;
-            float v3 = s - m->ic2;
-            float v1 = a1 * m->ic1 + g * a1 * v3;
-            float v2 = m->ic2 + g * v1;
-            m->ic1 = fm_flush(2.0f * v1 - m->ic1);
-            m->ic2 = fm_flush(2.0f * v2 - m->ic2);
-            s = mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
+            float g = djf_gsmooth(m, k), a1 = m->a1;
+            s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
         if (m->pot[MST_LIMIT]) {
@@ -239,45 +316,17 @@ void master_process(master_t *m, float *x, int n, float volume)
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
             float a = fm_fabsf(s), d;
-            if (a >= m->env) {
-                m->env = a;
-                m->hold = MST_LA;
-                /* a divide only for a new peak over the ceiling. The compiler computes the divide
-                 * before the test, so it must be safe on its own: a clamp INSIDE the branch is folded
-                 * away (a > 0.8 there) and 0.2-beta crashed here on 1 / 0 (firmware/hal/fm1_irq.h). */
-                float r = 1.0f / fm_maxf(a, 0.8f);
-                m->inv_env = a > 0.8f ? r : 0.0f;
-            } else if (m->hold) {
-                m->hold--;
-            } else {
-                m->env *= 0.99985f;
-                m->inv_env *= 1.0001500225f;                 /* 1 / 0.99985 */
-            }
-            {
-                float want = m->env > 0.8f ? 0.8f * m->inv_env : 1.0f;
-                m->gain += (want - m->gain) * (want < m->gain ? (5.0f / MST_LA) : 0.002f);
-            }
+            limit_env(m, a);
             d = m->la[m->la_pos];
             m->la[m->la_pos] = s;
             m->la_pos = (m->la_pos + 1) % MST_LA;
-            s = d * m->gain;
-            if (s > 0.89f || s < -0.89f)
-                s = s > 0.0f ? 0.89f + 0.11f * fm_tanhf((s - 0.89f) * 9.0f)
-                             : -0.89f - 0.11f * fm_tanhf((-s - 0.89f) * 9.0f);
+            s = soft_ceiling(d * m->gain);
         } else {
-            s = fm_clampf(s, -1.0f, 1.0f);
+            s = clamp_pm1(s);
         }
         x[i] = s;
     }
     m->gr_view = grmax > m->gr_view ? grmax : m->gr_view * 0.93f;   /* the meter: peak, falling */
-}
-
-/* the limiter's last stage: a soft knee over 0.89 (master_process spells it out) */
-static inline float soft_ceiling(float s)
-{
-    if (s > 0.89f || s < -0.89f)
-        s = s > 0.0f ? 0.89f + 0.11f * fm_tanhf((s - 0.89f) * 9.0f) : -0.89f - 0.11f * fm_tanhf((-s - 0.89f) * 9.0f);
-    return s;
 }
 
 void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
@@ -287,61 +336,22 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
     for (i = 0; i < n; i++) {
         float s = xl[i], sr = xr[i];
         if (m->comp_on) {
-            float lv, want, total, wet;
+            float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
             /* both sides' power, each term as master_process forms it, so l == r gives its value */
             m->ms = fm_flush(m->a_det * m->ms + 0.5f * ((1.0f - m->a_det) * s * s + (1.0f - m->a_det) * sr * sr));
-            if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
-                lv = 2.0f * m->ms;
-                m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
-            }
-            want = m->want;
-            m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
-                                 : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
-            if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
-                m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
-                if (m->pump_tgt - m->pump < 0.05f)
-                    m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
-            } else {
-                m->pump = fm_flush(m->a_rel * m->pump);
-            }
-            total = m->gr + m->pump;
-            if (total > grmax)
-                grmax = total;
-            if (m->cr == 0) {                                /* the gain, linear, ramped over MST_CR samples */
-                m->g_step = (m->makeup * fm_db2lin(-total) - m->g_lin) * (1.0f / MST_CR);
-                m->cr = MST_CR;
-            }
-            m->cr--;
-            m->g_lin += m->g_step;
+            comp_tick(m, &grmax);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
             wet = sr * m->g_lin;
             sr = sr + (wet - sr) * m->mix;
         }
         if (mode) {
-            float g = m->g, a1;
-            if (g != m->g_t) {                               /* the cutoff moving: its coefficient too */
-                g = m->g += (m->g_t - m->g) * 0.0625f;
-                if (fm_fabsf(m->g_t - g) < 1e-6f * m->g_t)
-                    g = m->g = m->g_t;
-                m->a1 = 1.0f / (1.0f + g * (g + k));
-            }
-            a1 = m->a1;
-            float v3 = s - m->ic2;
-            float v1 = a1 * m->ic1 + g * a1 * v3;
-            float v2 = m->ic2 + g * v1;
-            m->ic1 = fm_flush(2.0f * v1 - m->ic1);
-            m->ic2 = fm_flush(2.0f * v2 - m->ic2);
-            s = mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
-            v3 = sr - m->ic2r;
-            v1 = a1 * m->ic1r + g * a1 * v3;
-            v2 = m->ic2r + g * v1;
-            m->ic1r = fm_flush(2.0f * v1 - m->ic1r);
-            m->ic2r = fm_flush(2.0f * v2 - m->ic2r);
-            sr = mode == 1 ? v2 : mode == 2 ? v1 : sr - k * v1 - v2;
+            float g = djf_gsmooth(m, k), a1 = m->a1;
+            s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
+            sr = djf_tick(sr, &m->ic1r, &m->ic2r, mode, g, a1, k);
         }
         if (vc != volume) {                          /* the MASTER knob glides (~10 ms): no zipper */
             vc += (volume - vc) * 0.0022651f;
@@ -355,24 +365,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
             float a = fm_maxf(fm_fabsf(s), fm_fabsf(sr)), d, dr;
-            if (a >= m->env) {
-                m->env = a;
-                m->hold = MST_LA;
-                /* a divide only for a new peak over the ceiling. The compiler computes the divide
-                 * before the test, so it must be safe on its own: a clamp INSIDE the branch is folded
-                 * away (a > 0.8 there) and 0.2-beta crashed here on 1 / 0 (firmware/hal/fm1_irq.h). */
-                float r = 1.0f / fm_maxf(a, 0.8f);
-                m->inv_env = a > 0.8f ? r : 0.0f;
-            } else if (m->hold) {
-                m->hold--;
-            } else {
-                m->env *= 0.99985f;
-                m->inv_env *= 1.0001500225f;                 /* 1 / 0.99985 */
-            }
-            {
-                float want = m->env > 0.8f ? 0.8f * m->inv_env : 1.0f;
-                m->gain += (want - m->gain) * (want < m->gain ? (5.0f / MST_LA) : 0.002f);
-            }
+            limit_env(m, a);
             d = m->la[m->la_pos];
             dr = m->la_r[m->la_pos];
             m->la[m->la_pos] = s;
@@ -381,8 +374,8 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             s = soft_ceiling(d * m->gain);
             sr = soft_ceiling(dr * m->gain);
         } else {
-            s = fm_clampf(s, -1.0f, 1.0f);
-            sr = fm_clampf(sr, -1.0f, 1.0f);
+            s = clamp_pm1(s);
+            sr = clamp_pm1(sr);
         }
         xl[i] = s;
         xr[i] = sr;
@@ -391,7 +384,8 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
     m->gr_view = grmax > m->gr_view ? grmax : m->gr_view * 0.93f;   /* the meter: peak, falling */
 }
 
-static void put_num(char *b, float v, int decimals, const char *unit)
+/* UI text only (master_format). Audio paths never call this — build for size. */
+X0X_COLD static void put_num(char *b, float v, int decimals, const char *unit)
 {
     int neg = v < 0.0f, n = 0, i;
     char t[16];
@@ -415,7 +409,8 @@ static void put_num(char *b, float v, int decimals, const char *unit)
     b[i] = 0;
 }
 
-void master_format(const master_t *m, int i, char *b)
+/* the UI text of a master value; the UI calls it, the audio does not (X0X_COLD) */
+X0X_COLD void master_format(const master_t *m, int i, char *b)
 {
     int p = m->pot[i];
     switch (i) {

@@ -1,0 +1,104 @@
+Cloud stage 3 investigation — 2026-10-20
+
+STATUS: NOT PASSED. Two runner checks fail to compile; a third fixture has
+undefined behavior hidden by default UBSan recovery. No checked source changed.
+The enclosing commit contains evidence and proposed diagnostic patches only.
+Copied text logs trim trailing whitespace and final blank lines; raw logs remain
+in /workspace/x0x-stage3-evidence. Patch context whitespace is preserved.
+Do not advance to stage 4 until repairs and affected fresh stage-3 checks pass.
+
+Input: lane/mb-cloud-transfer-20261020 at
+e50df9a67f72211f85f0410c97c430b03c2e96ee. Read AGENTS.md and
+docs/agent-rules.md, then docs/rules/workflow.md. This is the user-assigned
+fresh stage-3 thread, not a duplicate successor. The initial restored checkout
+was clean at 5d7997d on work; fetched only the assigned transfer branch and
+switched to its exact input. No onboarding dirty edits were present or changed.
+Available activity check showed only this root before its two required helpers.
+The prior /workspace/shared/x0x-stage3-start.json was absent after workspace loss.
+
+Findings for exactly one fresh stage-2 repair owner:
+1. Introduced fixture drift: tests/host/smc_clip_visibility_test.sh:11 extracts
+   only static void smc_message; production now returns static uint8_t.
+   Test fails to compile because smc_message is omitted. Baseline 2592a00
+   passes. A temporary extractor matching the actual signature passes all
+   assertions with ASan and strict UBSan. See receive/REPORT.txt and logs.
+2. Pre-existing undefined behavior: tests/host/ble_midi_central_test.c:23 calls
+   memcpy with extra=NULL,n=0. Default sanitizer recovers and runner reports ok;
+   UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 proves failure at fixture cc(),
+   including on baseline 2592a00. Temporary if(n) guard passes ASan/strict UBSan.
+   Require a clean strict sanitizer run; retain fail-fast behavior in the repaired
+   check so future UB cannot masquerade as PASS. Receive-specific test alone
+   passes strict UBSan. This is not evidence of a production parser fault.
+3. Pre-existing extractor annotation mismatch:
+   tests/host/smk_clip_isolation_test.py extracts CK_FN static void smk_frame
+   from firmware/src/app/main_fm1.c:1819 without defining CK_FN in its host
+   fixture. Compilation fails. All consumed source/test inputs are unchanged
+   between 2592a00 and e50df9a. A temporary fixture with empty CK_FN passes both
+   BLE configurations, pad velocity, MIDI flush and UI dispatch assertions.
+   See app/smk-clip-isolation.log and app/isolation-probe.log.
+
+Proposed patches are diagnostic only, not applied or checked implementation:
+receive/diagnostic-fixture-repairs.patch; app/isolation-fixture-probe.patch.
+The repair owner must review minimal fixture repairs, preserve behavioral
+assertions/guards, and then create a fresh stage 3. No firmware defect or
+firmware repair is established by these fixture findings. No new owner decision
+is needed for the scoped test repairs required to complete this workflow.
+
+Checked evidence:
+- docs-check.log: X0X_QUICK_ONLY=ste X0X_QC_BASE=e50df9a bash
+  tools/quickcheck.sh "$PWD" passes for the evidence-only handoff.
+- receive/focused.log: 18 selected named executions, 17 logged ok and the
+  smc-clip-visibility failure. The logged ble-midi-receive ok is qualified by
+  the strict sanitizer failure above. receive/REPORT.txt contains commands,
+  baseline/probe results, direct consumers and capture distinctions.
+- safety/report.json and runner.log: all 11 selected safety checks pass;
+  direct dev_validate scratch suite passes 12/12. Exact-tree/model/package,
+  gate-config/identity, installer, slots, controller and admission guards.
+  Scratch DEV CHECKED is not validation of the firmware candidate.
+- app/runner.log: seven of eight selected host/app/clip checks pass, including
+  full host-build and BLE mailbox. smk-clip-isolation fails as recorded above.
+  Command: CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L
+  X0X_TEST_JOBS=1 X0X_GATE_LOCK=/workspace/x0x-stage3-evidence/app/test.lock
+  sh tests/run_tests.sh host-build ble smk-clip-ble-clear smk-clip-ble-notify
+  smk-clip-usb-clear smk-clip-isolation smk-clip-knob smk-clip-wait
+- Elite and Pro development builds pass with restored inputs. Commands use
+  CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L
+  JIELI_TOOLCHAIN=/workspace/x0x-deps/jieli/toolchain
+  AC79_SDK=/workspace/x0x-deps/fw-AC79_AIoT_SDK
+  MODEL=elite (then pro) bash build.sh --board smk37
+  Logs: app/elite-build.log and app/pro-build.log. Code free 2472/2488 B,
+  static RAM free 524 B, pool headroom 8364 B for both.
+- app/packages.log: all nine selected built-package checks pass with the same
+  dependency/environment variables plus X0X_TEST_JOBS=1 and the app test lock:
+  sh tests/run_tests.sh smk-package smk-ota-entry smk-ota-entry-model1
+  smk-ota-entry-model2 smk-update-loader smk-build-package
+  smk-build-package-elite ble-package installer
+- input-and-artifact-identity.json: both new packages match stage-2 SHA256 and
+  CRC32 exactly. Only the saved uploaded toolchain was used. After workspace
+  loss it was restored with download_file file_00000000f06881f4ac2a5fee6ee7ea57;
+  archive size/digest and extracted compiler digest match the prior handoff.
+  Paths and resolved archive links were checked before extraction. SDK restored
+  from its approved Gitee tag, exact d179b4484759423312073f5fbb232501aa491047;
+  all three packaging inputs match pinned hashes. No toolchain vendor download.
+  /workspace/x0x-deps/REUSE-TOOLCHAIN.txt and upload metadata restored outside Git.
+
+Limits: no full gate, release configuration build, controller build, installation,
+physical-device PASS, public-release packaging or publication. Stage 4 still
+owns pinned DSP refs, full candidate/package/configuration validation and gate.
+Stage 5 remains sole integration, stage 6 local installation, stage 7 verified
+normal fast-forward private-main push. No stage may be skipped.
+Exact capture replay, synthetic HCI and MTU-23 resegmentation remain distinct;
+no new hands-on capture is required. Prior package/input skips in isolated host
+logs are covered by this thread's nine actual built-package checks.
+
+Next receiving owner: exactly one fresh cloud stage-2 fixture-repair thread,
+not created. All available tool metadata was checked: no chat activity/thread
+creation capability is exposed. Subagents support a stage and cannot replace
+its fresh thread under workflow rule 17. No successor ID can be recorded, and
+no duplicate successor or stage 4 was started. This operational blocker must be
+resolved by launching that fresh repair thread with this handoff and enclosing
+checkpoint commit. Check project activity/start record before creation/retry.
+The two helper agents have finished and made no source commits.
+
+Checkpoint push to the authorized transfer branch is allowed. Main, cancelled
+histories, refs-oscuro, proprietary dependencies and build artifacts are excluded.

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec cc -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all "$@"

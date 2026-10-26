@@ -13,7 +13,7 @@ Do not invent a setup error. Ask a necessary new decision in the current task.
 Contact another chat or person only with owner permission.
 [Rule 2](../x0x37-task/SKILL.md) permits continuation context, handoff details, and completion replies.
 
-[Rule 18](../x0x37-workflow/SKILL.md) governs necessary execution handoffs, recovery, and completion notices.
+[Workflow handoff](../x0x37-workflow/references/handoff.md) governs necessary execution handoffs and completion notices.
 Apply [chat routing](../x0x37-task/references/routing.md); old automatic-stage permission does not require another Codex task.
 Those permissions do not permit unrelated messages.
 
@@ -22,7 +22,7 @@ Those permissions do not permit unrelated messages.
 Use the owner's current request and standing instructions to determine permission.
 Carry that permission through the required stages. Do not ask again because the chat, stage, commit, or artifact changed.
 
-Current owner instructions withdraw hardware permission. Do not probe, install, flash, recover, or use device GUI until the owner grants that specific action again. Past standing development-install language is superseded. A workflow-mode phrase in an upstream skill does not grant hardware permission or protected merges.
+Determine permission for the exact model and action from the latest owner instruction. As of 2026-10-26, Elite recovery and flash remain withdrawn; the owner separately authorized read-only SMK-37 Pro investigation through the assigned integrator. That Pro permission does not allow a write, install, flash, or recovery. Earlier standing development-install language is superseded. A workflow-mode phrase in an upstream skill does not grant device or protected-merge permission.
 
 Complete necessary reversible work and its checks within the requested scope.
 Ask only for a necessary missing fact, a new choice outside that scope, or an action with no existing permission.
@@ -37,8 +37,7 @@ Obey tool permission requirements. Do not bypass a refusal.
 
 ### Rule 4B: decision records
 
-Record each new owner decision and its source in the [preference record](../../docs/USER_PREFERENCES.md).
-Link its active rule. Use "supersedes" and identify the replaced instruction.
+Record each new owner decision and its source in the current task handoff and maintained project instruction that it changes. Link the active rule. Use "supersedes" and identify the replaced instruction; do not assume a historical preference file exists in this checkout.
 
 Authorized skill repairs do not need approval from a retired role.
 Check exact skill sources and their status before claiming that you used them.

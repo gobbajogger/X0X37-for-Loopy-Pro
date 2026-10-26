@@ -1,0 +1,298 @@
+{
+  "stage": 3,
+  "scope": "Independent host test and changed-path coverage",
+  "helper": "/root/central_tests",
+  "candidate": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "lane": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021",
+  "result": "FAIL",
+  "recorded_at": "2026-10-21T05:16:49.018595+11:00",
+  "source_identity": {
+    "firmware/src/ble/ble_midi_central.c": {
+      "sha256": "601a29d9f5ad94518a21ac2e4279b6cd4b20fa35da628874a065a6d35f863ef5",
+      "matches_candidate_blob": true
+    },
+    "firmware/src/ble/ble_midi_central.h": {
+      "sha256": "858be9c6246329884deaa18eb82f61f3695af61e56c864c50146bdbd1d73d7b6",
+      "matches_candidate_blob": true
+    },
+    "firmware/src/ble.c": {
+      "sha256": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+      "matches_candidate_blob": true
+    },
+    "tests/host/ble_midi_signal_test.c": {
+      "sha256": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f",
+      "matches_candidate_blob": true
+    },
+    "tests/host/ble_midi_receive_test.c": {
+      "sha256": "d81a59f91d4a4f3afdd6423e4a9c4c18ee993869afee34099ab009835d8fa5ea",
+      "matches_candidate_blob": true
+    },
+    "tests/host/ble_midi_receive_test.sh": {
+      "sha256": "f51fa15c11b2680f27bafd837f7cd125203d79c654774ec67eebac40684caa68",
+      "matches_candidate_blob": true
+    },
+    "tests/host/ble_midi_central_test.c": {
+      "sha256": "1eeebf9db8288eebc897c360dfa17f1f01acf09eaaffb24338de9791233cf6ba",
+      "matches_candidate_blob": true
+    },
+    "tests/ble_central_diag_test.py": {
+      "sha256": "259c501482f87a077cb1193502e31b5fb14b5108b47e076a8f9e223a3e864839",
+      "matches_candidate_blob": true
+    },
+    "tools/ble_autotest.py": {
+      "sha256": "77219c2dc187d39dbdaa1b263261d8d78c2a2ddde6090f63c231a0e75161642c",
+      "matches_candidate_blob": true
+    }
+  },
+  "stage2_input_hash_matches": {
+    "firmware/src/ble/ble_midi_central.c": true,
+    "firmware/src/ble/ble_midi_central.h": true,
+    "firmware/src/ble.c": true,
+    "tests/host/ble_midi_signal_test.c": true,
+    "tests/host/ble_midi_receive_test.c": true,
+    "tests/host/ble_midi_receive_test.sh": true,
+    "tools/build.py": true,
+    "tools/locked_settings.json": true,
+    "firmware/src/app/smc_mixer.c": true,
+    "firmware/src/app/ui.c": true
+  },
+  "commands_and_tools": {
+    "checks": [
+      {
+        "name": "receive",
+        "command": [
+          "sh",
+          "tests/host/ble_midi_receive_test.sh"
+        ],
+        "cwd": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021",
+        "returncode": 0,
+        "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/test-receive.log"
+      },
+      {
+        "name": "diag",
+        "command": [
+          "python3",
+          "-B",
+          "tests/ble_central_diag_test.py"
+        ],
+        "cwd": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021",
+        "returncode": 0,
+        "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/test-diag.log"
+      }
+    ],
+    "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+    "python": "3.9.6",
+    "platform": "macOS-27.2-arm64-arm-64bit"
+  },
+  "extra_commands": [
+    {
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "evidence/session-stage3/test-extra.c",
+        "firmware/src/ble/ble_midi_central.c",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-test-extra-yw034823/extra"
+      ],
+      "returncode": 0,
+      "log": "evidence/session-stage3/test-extra-compile.log"
+    },
+    {
+      "command": [
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-test-extra-yw034823/extra"
+      ],
+      "returncode": 0,
+      "log": "evidence/session-stage3/test-extra.log"
+    }
+  ],
+  "coverage": [
+    {
+      "risk": "CID dispatch and fragments",
+      "evidence": [
+        "tests/host/ble_midi_signal_test.c:103",
+        "tests/host/ble_midi_signal_test.c:106",
+        "tests/host/ble_midi_receive_test.c:32",
+        "evidence/session-stage3/test-extra.c:13"
+      ],
+      "result": "PASS",
+      "detail": "All 12 split positions retain the identifier. ATT short tails from 1 to 8 bytes decode. PB=0 also accepts signaling."
+    },
+    {
+      "risk": "Length and storage bounds",
+      "evidence": [
+        "tests/host/ble_midi_signal_test.c:125",
+        "tests/host/ble_midi_signal_test.c:130",
+        "tests/host/ble_midi_signal_test.c:146",
+        "tests/host/ble_midi_receive_test.c:34"
+      ],
+      "result": "PASS",
+      "detail": "Malformed lengths, overshooting fragments and 64, 65, 80 and 65535-byte signaling packets are covered. ATT remains bounded at 64 bytes."
+    },
+    {
+      "risk": "Identifiers and reply policy",
+      "evidence": [
+        "tests/host/ble_midi_signal_test.c:102",
+        "tests/host/ble_midi_signal_test.c:112",
+        "tests/host/ble_midi_signal_test.c:120",
+        "tests/host/ble_midi_signal_test.c:171"
+      ],
+      "result": "PASS",
+      "detail": "Refusals retain identifiers. Unknown requests receive Command Reject. Recognized unsolicited responses and zero identifiers receive no reply. Duplicate requests receive replies."
+    },
+    {
+      "risk": "Credit and mailbox pressure",
+      "evidence": [
+        "tests/host/ble_midi_signal_test.c:150",
+        "tests/host/ble_midi_signal_test.c:164",
+        "evidence/session-stage3/test-extra.c:31"
+      ],
+      "result": "PASS",
+      "detail": "Four queued replies survive unavailable credits and a busy callback. Wrong-handle credits have no effect. Replies precede feedback and discovery."
+    },
+    {
+      "risk": "Queue overflow and deadline",
+      "evidence": [
+        "tests/host/ble_midi_signal_test.c:173",
+        "evidence/session-stage3/test-extra.c:31"
+      ],
+      "result": "PASS",
+      "detail": "The fifth pending reply disconnects with an error. Credit and mailbox stalls reach the 3-second limit. The public test covers timer wrap."
+    },
+    {
+      "risk": "Lifecycle and credits",
+      "evidence": [
+        "tests/host/ble_midi_signal_test.c:77",
+        "tests/host/ble_midi_signal_test.c:180",
+        "tests/host/ble_midi_receive_test.c:65",
+        "evidence/session-stage3/test-extra.c:15",
+        "evidence/session-stage3/test-extra.c:38"
+      ],
+      "result": "PASS",
+      "detail": "Start, stop and successful disconnect clear partial signaling and pending replies. Failed disconnects retain the connection. Counts 255 and 65535 saturate."
+    },
+    {
+      "risk": "Normal MIDI and public diagnostics",
+      "evidence": [
+        "tests/host/ble_midi_central_test.c",
+        "tests/host/ble_midi_receive_test.c",
+        "tests/ble_central_diag_test.py"
+      ],
+      "result": "PASS",
+      "detail": "Discovery, MIDI notes, SysEx, feedback and old and extended DIAG formats pass."
+    },
+    {
+      "risk": "Mailbox busy during required disconnect",
+      "evidence": [
+        "evidence/session-stage3/test-busy-disconnect.c",
+        "firmware/src/ble/ble_midi_central.c:43",
+        "firmware/src/ble/ble_midi_central.c:68",
+        "firmware/src/ble/ble_midi_central.c:487"
+      ],
+      "result": "FAIL",
+      "detail": "Both overflow and timeout lose the disconnect command when the mailbox rejects its first send. Later polls do not retry it."
+    }
+  ],
+  "reused_evidence": {
+    "path": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage2/regressions.json",
+    "sha256": "53378f9d9fb225b8af80e183127e381510536d770dddd21e80868c8014866a3a",
+    "reason": "The exact public test and candidate source match the prior regression inputs. The expected base failures establish signaling omission and lost reconnect credits."
+  },
+  "expected_base_failures": [
+    {
+      "case": "base-signaling",
+      "returncode": -6,
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage2/base-signaling.log",
+      "cause": "The base sends no required signaling response.",
+      "disposition": "Expected regression evidence. The candidate passes."
+    },
+    {
+      "case": "base-lifecycle",
+      "returncode": -6,
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage2/base-lifecycle.log",
+      "cause": "The base does not restore flushed ACL credits after disconnect.",
+      "disposition": "Expected regression evidence. The candidate passes."
+    }
+  ],
+  "candidate_failures": [
+    {
+      "id": "busy-disconnect-not-retried",
+      "severity": "P1",
+      "result": "FAIL",
+      "cases": [
+        "Signaling queue timeout",
+        "Signaling queue overflow"
+      ],
+      "probe": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/test-busy-disconnect.c",
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/test-busy-disconnect.log",
+      "returncode": 1,
+      "cause": "blec_fail submits HCI Disconnect once. A busy send callback rejects it. blec_command does not set waiting after rejection. blec_poll does not retry the command in BLEC_DISCONNECTING.",
+      "observed": "After the callback accepts sends again, polls at 1 ms and 2999 ms submit no command. At 3000 ms, the state becomes BLEC_FAILED. The connection handle remains 80. No Disconnect was submitted.",
+      "impact": "The central can stop its local session while the controller retains the physical connection. The new overflow and timeout paths do not guarantee disconnection.",
+      "disposition": "A fresh stage 2 must repair the bounded command retry. A fresh stage 3 must repeat the affected checks. Do not advance this candidate to stage 4."
+    }
+  ],
+  "source_repair_required": true,
+  "limits": [
+    "All new HCI packets and scheduling are simulated. The busy callback represents mailbox rejection.",
+    "These tests do not exercise target interrupts, radio execution or the physical peer.",
+    "The task agent owns the exact recorded payload replay. This helper did not repeat it.",
+    "Target build and package validation belong to stage 4. No target build ran in this test scope.",
+    "Coverage is directed at the changed paths. It is not exhaustive protocol conformance testing.",
+    "The passing public and scratch timeout cases accept the disconnect command at the deadline. They do not cover this persistent-busy failure."
+  ],
+  "original_input_failure": "UNRESOLVED",
+  "physical_result": "NOT TESTED",
+  "production_edits": false,
+  "tracked_test_edits": false,
+  "device_write": false,
+  "artifacts": {
+    "test-busy-disconnect-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test-busy-disconnect-record.json": "f293e58ded28a64d21608ba32daf14d47554ece4d34d6c96d96ae58907563c6a",
+    "test-busy-disconnect.c": "c7740f13ff41e4f982884063078fe534c2afabb7daa739e30683131df8b3fbb9",
+    "test-busy-disconnect.log": "2ae9452013bc042f9c10b225a10ee340637d353e50731ebe7bd65ccbbfa813b9",
+    "test-diag.log": "23e1fda6a358d6abf4bffaa33cc25911565b5858e45ced2e8a1efaf7f250226d",
+    "test-extra-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test-extra-record.json": "33718f83de8022934997b976076d29c901c02a3a67daa3c283b02999f5567ea4",
+    "test-extra.c": "3a615312c92c3afd8cc70d29a2a6ef3c338e5d1ac37e3ec4b06511963d1e416a",
+    "test-extra.log": "73d821c3a8dc809f6b164a379e31ccc3e9d5ed1ed826a7eec66a16b0ade47e2f",
+    "test-receive.log": "a82d8c813e7cc9ef313bc28a8aa6ec18a555002107ae87873bc035feb7b567f9",
+    "test-run-record.json": "75c16293ee911f62dbdc8f11c484c7918c3b8e063ae889fd5c18ffa7c7dd3637"
+  },
+  "passing_checks_result": "PASS",
+  "busy_disconnect_commands": [
+    {
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "evidence/session-stage3/test-busy-disconnect.c",
+        "firmware/src/ble/ble_midi_central.c",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-busy-disconnect-cx3gbw_x/busy-disconnect"
+      ],
+      "returncode": 0,
+      "log": "evidence/session-stage3/test-busy-disconnect-compile.log"
+    },
+    {
+      "command": [
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-busy-disconnect-cx3gbw_x/busy-disconnect"
+      ],
+      "returncode": 1,
+      "log": "evidence/session-stage3/test-busy-disconnect.log"
+    }
+  ]
+}

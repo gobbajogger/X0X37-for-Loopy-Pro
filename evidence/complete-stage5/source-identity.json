@@ -1,0 +1,36 @@
+{
+  "merge_revision": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "merge_tree": "4540c0afecc0e6482614fc41aaade8485d565976",
+  "parents": [
+    "049d0274c80af543bd4e334af92b4393015c4f85",
+    "4ff0cd468e8afa746deca5840afb7f2890eedb9c"
+  ],
+  "contribution_base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "checked_path_tree_sha256": "a4d31ccd2c2a60b052506e1da118b7ef6c68909d10dffd596b88261eb449624f",
+  "checked_paths": [
+    "firmware",
+    "tests",
+    "tools",
+    "ble/ctl",
+    "host",
+    "build.sh",
+    "build_ctl.sh",
+    "Makefile"
+  ],
+  "configuration": {
+    "board": "smk37",
+    "model": "elite",
+    "config": "dev",
+    "X0X_DEV_PADCAL": 1,
+    "controller": true
+  },
+  "dependencies": {
+    "target_compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "sdk_revision": "d179b4484759423312073f5fbb232501aa491047",
+    "sdk_tracked_changes": "",
+    "upstream_toolchain_content_sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5",
+    "upstream_sdk_content_sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3",
+    "upstream_linux_image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+  },
+  "dependency_limits": "The compiler bytes and SDK Git identity were checked here. The content hashes and image ID are recorded upstream identities. Combined stage4 must check its actual environment."
+}

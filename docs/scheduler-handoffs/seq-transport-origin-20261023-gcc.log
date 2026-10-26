@@ -1,0 +1,4 @@
+COMPILE gcc -std=c11 -Wall -Wextra -Werror -O1 /tmp/seq-origin-host-z76bot15/test.c -o /tmp/seq-origin-host-z76bot15/test
+COMPILE_EXIT 0
+16/16 transport provenance checks passed
+TEST_EXIT 0

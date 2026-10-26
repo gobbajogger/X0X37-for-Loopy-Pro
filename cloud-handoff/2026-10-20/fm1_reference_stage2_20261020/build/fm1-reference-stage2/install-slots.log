@@ -1,0 +1,15 @@
+package slot map: the map record, else the old 2 x 80 KiB (Felucca loader), else none (stock) ok
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tests/install_slots_test.py", line 236, in <module>
+    upgrade_keeps()
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tests/install_slots_test.py", line 118, in upgrade_keeps
+    rc, out, err = T.cli([pkgfile("new.fwsc", raw), "--yes"], dev)
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tests/install_test.py", line 165, in cli
+    rc = I.main(args, backend=dev, out=out, ask=lambda _p: answer)
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tools/fm1_install.py", line 972, in main
+    return run(a, backend, out, ask)
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tools/fm1_install.py", line 794, in run
+    image = with_ctl(a, product, image, out)
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tools/fm1_install.py", line 725, in with_ctl
+    add_ctl.check_block(image)
+AttributeError: module 'add_ctl' has no attribute 'check_block'

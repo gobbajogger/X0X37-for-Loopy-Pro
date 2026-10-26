@@ -6,17 +6,22 @@
   tools/add_ctl.py X0X.fwsc --remove -o X0X-plain.fwsc   an empty Bluetooth block again
   tools/add_ctl.py ctl.img --check                       check an image only
 
-The image is built on your own computer by ble/ctl/build_ctl.sh from JieLi's files; X0X never
-ships it. It goes into the package's Bluetooth block (flash 0x8B000..0x9AFFF, inside the app area,
+The image is built by ble/ctl/build_ctl.sh from the reviewed JieLi inputs. Qualified NIGHTLY
+packages include their matching controller; tools/package_nightly.py checks and composes that
+package without making a distribution-rights decision. It goes into the package's Bluetooth
+block (flash 0x8B000..0x9AFFF, inside the app area,
 encrypted like the rest of it); the app.bin and app area checksums and the package's own CRCs are
 written again. Everything else in the package stays byte for byte. Every X0X update writes this
-block too, so add the image to each new package (tools/fm1_install.py does it with --ctl; the web
-installer has a file field for it). web/fm1pkg.js insertCtl does the same in the browser
+block too, so include the image in each new NIGHTLY package. Legacy unbundled packages still
+need an explicit matching image (tools/fm1_install.py --ctl or the web installer file field).
+web/fm1pkg.js insertCtl does the same composition in the browser
 (tests/ble_pkg_test.py checks that both give the same bytes).
 """
 import argparse
+import os
 import struct
 import sys
+import tempfile
 import zlib
 from pathlib import Path
 
@@ -51,6 +56,8 @@ def ctl_problem(img):
         return f"header version {ver}, size {hsize}, ABI {abi}: this X0X takes version {HDR_VERSION}, ABI {ABI}"
     if not HDR_SIZE <= size <= len(img):
         return f"image size {size} does not fit the file ({len(img)} B)"
+    if any(byte != 0xFF for byte in img[size:]):
+        return "non-erased bytes after the controller image declared size"
     if zlib.crc32(img[:16] + b"\0\0\0\0" + img[20:size]) != crc:
         return "CRC mismatch (a damaged file)"
     for name, a in (("init", init), ("poll", poll)):
@@ -91,8 +98,12 @@ def fwsc_of(logical, product):
     return bytes(raw + logical[BLOCKS * KEEP:])
 
 
-def insert(logical, ctl):
-    """the logical image with ctl (bytes, or None for an empty block) in the Bluetooth block"""
+class NoBlock(PkgError):
+    """the package has no free Bluetooth block: its app code runs into 0x8B000 (an X0X before 7054cc5)"""
+
+
+def _open(logical):
+    """the decrypted app area of a logical image, and what _close needs to put it back"""
     lg = bytearray(logical)
     hdr = _dec(lg[0:0x40])
     if pm.crc16(hdr[2:0x40]) != struct.unpack_from("<H", hdr, 0)[0]:
@@ -130,18 +141,21 @@ def insert(logical, ctl):
         raise PkgError("no app.bin in the app area")
     if slot != SMK_SLOT:
         raise PkgError("not an SMK-37 package (the Bluetooth block is on the SMK-37 only)")
-    lo = 0x120 + CODE_MAX
-    block = bytearray(b"\xFF" * BLE_SIZE)
-    if ctl is not None:
-        block[:len(ctl)] = ctl
-    area[lo:lo + BLE_SIZE] = block
+    return dict(lg=lg, hdr=hdr, lst=lst, i=i, e=e, off=off, size=size, flash=flash, key=key, n=n, area=area,
+                blk=blk, slot=slot)
+
+
+def _close(st):
+    """the logical image of an _open state: app area and package checksums written again"""
+    area, flash, e, hdr, lst, lg = st["area"], st["flash"], st["e"], st["hdr"], st["lst"], st["lg"]
+    slot, blk, n, key, i = st["slot"], st["blk"], st["n"], st["key"], st["i"]
     struct.pack_into("<H", area, 34, pm.crc16(area[0x120:0x120 + slot]))   # app.bin dcrc, then its CRC
     struct.pack_into("<H", area, 32, pm.crc16(area[34:64]))
     struct.pack_into("<H", area, 2, pm.crc16(area[32:blk]))                # app_area_head dcrc, CRC
     struct.pack_into("<H", area, 0, pm.crc16(area[2:32]))
     pm.sfc(area, 0, n, 0, key)
     flash[0x4000:0x4000 + n] = area
-    lg[off:off + size] = flash
+    lg[st["off"]:st["off"] + st["size"]] = flash
     struct.pack_into("<H", e, 4, pm.crc16(flash))
     pm.enc(e, 0, 0x50)
     lst[i * 0x50:(i + 1) * 0x50] = e
@@ -153,12 +167,104 @@ def insert(logical, ctl):
     return bytes(lg)
 
 
+def block_free(st):
+    """True if the Bluetooth block of an _open state belongs to the block: empty (0xFF), a controller image
+    (X0BC header), or a package with the slot map record (7054cc5 and later: the build limits the app code)"""
+    lo = 0x120 + CODE_MAX
+    b = st["area"][lo:lo + BLE_SIZE]
+    return (b == b"\xFF" * BLE_SIZE or struct.unpack_from("<I", b, 0)[0] == HDR_MAGIC
+            or pm.slotmap_of(st["lg"]) is not None)
+
+
+NO_BLOCK = ("the app code of this package goes into the Bluetooth block (flash 0x8B000-0x9AFFF). "
+            "It is an X0X from before the block. It takes no controller image (install it without one)")
+
+
+def check_block(logical):
+    """raise NoBlock if the package cannot take a controller image (PkgError if it is not an SMK-37 package)"""
+    if not block_free(_open(logical)):
+        raise NoBlock(NO_BLOCK)
+
+
+def controller_of(logical):
+    """Return the valid controller embedded in a package, or None for an empty controller block.
+
+    NoBlock still identifies old packages whose application owns this range.  Other non-empty
+    contents are refused: a current package must not silently install an unknown controller block.
+    """
+    st = _open(logical)
+    if not block_free(st):
+        raise NoBlock(NO_BLOCK)
+    lo = 0x120 + CODE_MAX
+    block = bytes(st["area"][lo:lo + BLE_SIZE])
+    if block == b"\xFF" * BLE_SIZE:
+        return None
+    if len(block) < HDR_SIZE or struct.unpack_from("<I", block, 0)[0] != HDR_MAGIC:
+        raise PkgError("the Bluetooth block is neither empty nor a controller image")
+    size = struct.unpack_from("<I", block, 12)[0]
+    ctl = block[:size]
+    if (problem := ctl_problem(ctl)):
+        raise PkgError(f"embedded controller image: {problem}")
+    if block[size:] != b"\xFF" * (BLE_SIZE - size):
+        raise PkgError("embedded controller image has non-erased bytes after its declared size")
+    return ctl
+
+
+def insert(logical, ctl):
+    """the logical image with ctl (bytes, or None for an empty block) in the Bluetooth block"""
+    st = _open(logical)
+    if not block_free(st):
+        raise NoBlock(NO_BLOCK)       # writing the block would overwrite app code: the unit would not start
+    lo = 0x120 + CODE_MAX
+    block = bytearray(b"\xFF" * BLE_SIZE)
+    if ctl is not None:
+        block[:len(ctl)] = ctl
+    st["area"][lo:lo + BLE_SIZE] = block
+    return _close(st)
+
+
 def add(raw, ctl):
     """a .fwsc with ctl (None: an empty block) -> the new .fwsc"""
     if ctl is not None and (p := ctl_problem(ctl)):
         raise PkgError(f"ctl.img: {p}")
     product, logical = logical_of(raw)
     return fwsc_of(insert(logical, ctl), product)
+
+
+def write_package(path, data):
+    """Durably publish a checked package without partially replacing an existing one.
+
+    The output can intentionally equal the input path.  No existing package is
+    truncated until the full new bytes have been written, synced and read back.
+    """
+    path = Path(path)
+    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            fd = -1
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        if Path(tmp).read_bytes() != data:
+            raise OSError("temporary controller package did not read back")
+        os.replace(tmp, path)  # same directory / filesystem: atomic replacement
+        try:
+            dirfd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(dirfd)
+            finally:
+                os.close(dirfd)
+        except OSError as exc:
+            raise OSError(
+                f"{path}: replacement completed, but directory finalization failed; "
+                "durability is uncertain. Inspect the output before retrying: "
+                f"{exc}"
+            ) from exc
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        if os.path.exists(tmp):
+            os.unlink(tmp)
 
 
 def main(argv=None):
@@ -177,7 +283,7 @@ def main(argv=None):
         if bool(a.ctl) == bool(a.remove) or not a.out:
             ap.error("give PACKAGE CTL -o OUT, or PACKAGE --remove -o OUT")
         out = add(a.package.read_bytes(), None if a.remove else a.ctl.read_bytes())
-        a.out.write_bytes(out)
+        write_package(a.out, out)
         print(f"{a.out}: {'empty Bluetooth block' if a.remove else 'with ' + str(a.ctl)}")
         return 0
     except (OSError, PkgError) as e:

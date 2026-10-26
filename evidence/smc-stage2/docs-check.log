@@ -1,0 +1,7 @@
+STE WARN 10 issues
+STE  BEHAVIOR.md: [modal] A paired fader and knob may share a destination.
+STE  docs/SMC_MIXER.md: [modal,semicolon] Each control type has unique destinations; a paired fader and knob may share one.
+STE  docs/SMC_MIXER.md: [long_proc] SELECT 1–8 chooses the track within the current bank, so the page and deep menu can edit each track's pan and sends.
+STE  docs/SMC_MIXER.md: [semicolon] 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter
+STE  docs/SMC_MIXER.md: [semicolon] Four visible fields; knobs 5–8 inactive.
+QUICK PASS 3d7c29b 0 s (STE step only; STE WARN 10 issues)

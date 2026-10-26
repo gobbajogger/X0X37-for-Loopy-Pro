@@ -1,0 +1,124 @@
+{
+  "candidate": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.36",
+  "checks": [
+    {
+      "name": "knob-mapping",
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "reason": "three intended knob modes, eleven tracks, bank bounds, unique fields and menu priority",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "knob-mapping.log"
+    },
+    {
+      "name": "pickup",
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "reason": "fader pickup, crossing, motion and inactive input preservation",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "pickup.log"
+    },
+    {
+      "name": "buttons",
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "reason": "strip shortcuts and menu/page navigation preservation",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "buttons.log"
+    },
+    {
+      "name": "filter",
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "reason": "master filter destination and independent master mute feedback",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "filter.log"
+    },
+    {
+      "name": "clip-visibility",
+      "argv": [
+        "sh",
+        "tests/host/smc_clip_visibility_test.sh"
+      ],
+      "reason": "clip/menu/help/confirmation priority and ordinary field suppression",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "clip-visibility.log"
+    },
+    {
+      "name": "part-selection",
+      "argv": [
+        "sh",
+        "tests/host/smc_part_select_test.sh"
+      ],
+      "reason": "part selection/navigation preservation",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "part-selection.log"
+    },
+    {
+      "name": "reachability",
+      "argv": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "reason": "complete production UI/engine/queue/pickup with five injected or synthetic routes",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "reachability.log"
+    },
+    {
+      "name": "paired-knob-pickup",
+      "argv": [
+        "python3",
+        "evidence/smc-stage3/knob-ui/paired-knob-pickup.py"
+      ],
+      "reason": "new shared knob destinations must reset paired fader pickup and crossing history; reaching new target must reacquire pickup",
+      "returncode": 0,
+      "result": "PASS",
+      "log": "paired-knob-pickup.log",
+      "type": "additional evidence-only temporary production UI harness assertion, all five injected/synthetic routes"
+    }
+  ],
+  "result": "PASS",
+  "source_findings": [],
+  "source_repairs_required": false,
+  "tree": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "metadata_corrected_candidate": "3fc770dcde261a23556f6c3749ebd4bc5911f1c3",
+  "preservation": "Nine recorded routing/pickup/button/navigation/dispatch function hashes match audited base and stage-2 records. Six relevant source-file hashes match stage-2 CHECKS.json.",
+  "failures_and_dispositions": [
+    {
+      "failure": "Docker API socket denied within sandbox before tests",
+      "cause": "local sandbox boundary",
+      "disposition": "reran through required escalation; offline local container succeeded"
+    },
+    {
+      "failure": "Git dubious ownership in Linux container before tests",
+      "cause": "container user differs from host checkout owner",
+      "disposition": "evidence runner uses per-process git -c safe.directory for this checkout; no global configuration changes"
+    },
+    {
+      "warning": "Two signedness diagnostics in unchanged ui.c pref_set/prob_turn",
+      "cause": "existing host compiler warnings",
+      "disposition": "all checks compile and pass; file unchanged from candidate (SHA256 22f58e87d1f77baac72ca68c84a71eadd02bcb1968929b730af2074a3d9e230f)"
+    }
+  ],
+  "limits": [
+    "Injected BLE DAW, BLE USER and host USER routes and simulated fragmented HCI DAW/USER cover downstream processing only.",
+    "The host harness forces/injects connected state and substitutes hardware I/O and clip storage. It does not establish physical peer delivery.",
+    "All-input silence remains unresolved; no candidate installed; hardware result NOT TESTED.",
+    "No production source/test/docs edits by this agent. No target builds, release/full gate, FM1 target work, install or push."
+  ]
+}

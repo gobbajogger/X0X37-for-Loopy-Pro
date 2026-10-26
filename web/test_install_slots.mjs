@@ -6,13 +6,30 @@
 // firmware/src/app/editor.c over one NOR flash model, so the slots stay over an install as on the device.
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
+import "./test_install_nightly_download_guard.mjs";
+import "./test_install_nightly_product_identity.mjs";
+import "./test_install_nightly_reconnect.mjs";
+import "./test_install_stock_model_preflight.mjs";
+import "./test_install_nightly_scan_order.mjs";
+import "./test_install_nightly_ota_model.mjs";
+import "./test_install_nightly_local_selection.mjs";
+import "./test_install_nightly_controller_selection.mjs";
+import "./test_install_nightly_slot_prewrite.mjs";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Updater, pack7, unpack7, sameKeyboard } from "./fm1ota.js";
 import { crc32, parseHeader, readArchive, pack78, unpack78, installKeepingSlots, packageSlotMap } from "./x0x_breaks.js";
 
+// X0X_TEST_TIME_SCALE=N (opt-in, default 1): waits of 1000 ms or more (the updater's fixed waits for a reboot
+// and its read timeouts) take 1/N of the time. The mock keyboard replies at once, so it does not use these waits.
+const TIME_SCALE = Number(process.env.X0X_TEST_TIME_SCALE || 1);
+if (TIME_SCALE > 1) {
+  const realSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (f, ms = 0, ...a) => realSetTimeout(f, ms >= 1000 ? ms / TIME_SCALE : ms, ...a);
+}
 let bad = 0;
 const ok = (c, what) => { console.log(`${what.padEnd(70)} ${c ? "ok" : "FAIL"}`); if (!c) bad++; };
 const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
@@ -93,12 +110,12 @@ class FakeX0X {
     this.input = { id: "i" + id, name, state: "connected", onmidimessage: null, open: async () => {} };
     this.output = { id: "o" + id, name, state: "connected", open: async () => {}, send: (d) => {
       if (this.output.state !== "connected") throw new Error("InvalidStateError");
-      setTimeout(() => this.rx(Array.from(d)), 0);
+      setImmediate(() => this.rx(Array.from(d)));          // async as a device, without the 1 ms of setTimeout
     } };
     this.access.inputs.set(this.input.id, this.input);
     this.access.outputs.set(this.output.id, this.output);
   }
-  tx(bytes) { const i = this.input; setTimeout(() => { if (i.state === "connected" && i.onmidimessage) i.onmidimessage({ data: Uint8Array.from(bytes) }); }, 0); }
+  tx(bytes) { const i = this.input; setImmediate(() => { if (i.state === "connected" && i.onmidimessage) i.onmidimessage({ data: Uint8Array.from(bytes) }); }); }
   rx(d) {
     if (d[1] === 0x7D && d[2] === 0x46 && d[3] === 0x4C) {
       if (!this.fw) return;                                  // stock firmware or the loader: no answer
@@ -188,6 +205,15 @@ class FakeX0X {
 }
 
 const same = (a, b) => (a === null || b === null ? a === b : eq(a, b));
+// X0X_SLOT_DUMP=<file>: write one line per install (the CRC-32 of the whole flash model and of each slot image in
+// each saved file), so that two runs of this test can be compared. Not set: no file is written.
+let dumps = 0;
+function dump(kind, flash, files) {
+  if (!process.env.X0X_SLOT_DUMP) return;
+  const h = (b) => (crc32(b) >>> 0).toString(16).padStart(8, "0");
+  const fl = files.map((b) => { const a = readArchive(b); return a ? a.images.map((im) => (im ? h(im) : "-")).join("/") : "no-archive"; });
+  appendFileSync(process.env.X0X_SLOT_DUMP, [String(++dumps).padStart(2, "0"), kind, "flash", h(flash.mem), "files", ...fl].join(" ") + "\n");
+}
 async function flow(pkg, product, from, to, firmware, fill, opts = {}) {
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
@@ -198,6 +224,7 @@ async function flow(pkg, product, from, to, firmware, fill, opts = {}) {
     res = await installKeepingSlots(new Updater(dev.access), pkg.image, product, "smk",
       { sameKeyboard, save: (b, name) => saved.push({ b, name }), say: (k, a) => said.push([k, a]) });
   } catch (e) { err = e; }
+  dump("flow", flash, saved.map((x) => x.b));
   return { flash, dev, saved, said, res, err };
 }
 
@@ -278,30 +305,158 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
 // ---- 8. the installer page itself (stub DOM): the download, the status, the instructions ----
 const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/gms, "");
 async function page(pkg, product, firmware, from, fill, opts = {}) {
-  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
+  // Match tools/make_pages.py LIB order (boot preview + factory loops).
+  const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
-  const meta = JSON.stringify({ version: "test", product, pkg: "x.fwsc", stock: false });
-  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*META*/", meta))[1];
+  const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
+    : /^FM-1/i.test(product) ? "fm1" : "pro";
+  // Only this simulated-device test injects a reviewed-source permission.
+  // The real NIGHTLY source keeps its immutable publisher allowlist EMPTY.
+  // This tests the full backup/write/restore journey *after* the picker gate.
+  const pkgSha = createHash("sha256").update(pkg.raw).digest("hex");
+  const ctlSha = "b".repeat(64), rootSha = "1".repeat(40), treeSha = "2".repeat(40);
+  const pkgUrl = "https://nightly.example.test/sha256/test.fwsc";
+  const entry = { product, pkg: pkgUrl, size: pkg.raw.length, sha256: pkgSha, controller_sha256: ctlSha };
+  const catalog = JSON.stringify({
+    repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+    latest: "test",
+    versions: [{ version: "test", status: "dev-checked", source_commit: rootSha,
+      firmware_tree_sha: treeSha, qa_pass: true, source_licenses_approved: true,
+      models: { [model]: entry } }],
+  });
+  const approval = {
+    prehardware_qa_pass: true, license_and_source_ok: true, backup_integrity_pass: true,
+    model_and_controller_pass: true, immutable_http_pass: true, model, product,
+    source_root_sha: rootSha, firmware_tree_sha: treeSha,
+    package_url: pkgUrl, package_size: entry.size, package_sha256: pkgSha, controller_sha256: ctlSha, host_sha256: pkgSha,
+  };
+  const source = html.replace("const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});",
+    `const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze(${JSON.stringify({ [`test/${model}`]: approval })});`);
+  if (source === html) throw new Error("test source publisher guard not found");
+  const js = /<script type="module">([\s\S]*)<\/script>/.exec(source.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
   const dev = new FakeX0X(pkg.image, from, product, firmware, flash, opts);
-  const ids = {}, downloads = [];
-  const el = () => ({ textContent: "", value: 0, disabled: false, hidden: false, dataset: {}, handlers: {},
-    addEventListener(t, f) { this.handlers[t] = f; }, click() { if (this.download) downloads.push({ name: this.download, blob: this.blob }); }, remove() {} });
-  globalThis.document = { getElementById: (id) => (ids[id] ||= el()), querySelectorAll: () => [], documentElement: {},
-    body: { appendChild() {} }, createElement: () => el() };
-  globalThis.window = { addEventListener() {} };
-  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => pkg.raw.buffer.slice(0) });
+  const ids = {}, downloads = [], radios = [];
+  const el = (tag = "div") => {
+    const o = {
+      tag, textContent: "", value: "", disabled: false, hidden: false, checked: false, className: "",
+      dataset: {}, handlers: {}, children: [], style: {},
+      // Boot preview canvas; installer draws at import time.
+      getContext() { return { clearRect() {}, fillRect() {}, drawImage() {}, fillText() {},
+        measureText: () => ({ width: 0 }), save() {}, restore() {}, beginPath() {}, closePath() {},
+        moveTo() {}, lineTo() {}, stroke() {}, fill() {}, translate() {}, scale() {},
+        putImageData() {}, getImageData: () => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }),
+        createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }),
+        canvas: { width: 128, height: 64 } }; },
+      addEventListener(t, f) { this.handlers[t] = f; },
+      append(...nodes) { for (const n of nodes) this.children.push(n); },
+      appendChild(n) { this.children.push(n); return n; },
+      remove() {},
+      removeAttribute() {},
+      setAttribute(name, value) { this[name] = value; if (name === "id") this.id = value; },
+      focus() {},
+      click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
+      set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
+      get innerHTML() { return this._html || ""; },
+      // Installer backup readback inserts a panel after #status; auto-confirm it.
+      after(node) {
+        this._after = this._after || [];
+        this._after.push(node);
+        if (node && node.id === "backupverify") {
+          queueMicrotask(async () => {
+            const link = node.children.find((c) => c && c.download);
+            const chooser = node.children.find((c) => c && c.type === "file");
+            if (!link || !chooser || !chooser.handlers.change) return;
+            const blob = blobs.get(link.href);
+            if (!blob) return;
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            link.click();
+            Object.defineProperty(chooser, "files", {
+              configurable: true,
+              get: () => [{
+                name: link.download || "backup.x0xslots",
+                size: bytes.length,
+                async arrayBuffer() { return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength); },
+              }],
+            });
+            await chooser.handlers.change();
+          });
+        }
+      },
+    };
+    if (tag === "input") radios.push(o);
+    return o;
+  };
+  globalThis.document = {
+    getElementById: (id) => (ids[id] ||= el(id === "version" ? "select" : id === "bootprev" ? "canvas" : id === "models" ? "div" : "div")),
+    querySelectorAll: () => [],
+    querySelector: (sel) => {
+      const m = /input\[value="([^"]+)"\]/.exec(sel);
+      if (m) return radios.find((r) => r.value === m[1] && r.checked) || radios.find((r) => r.value === m[1]) || null;
+      return null;
+    },
+    documentElement: {},
+    body: { appendChild() {} },
+    createElement: (tag) => el(tag),
+    createTextNode: (t) => ({ textContent: t }),
+  };
+  // createElement("label") then append(input, text) — make label.append wire the radio value
+  const realCreate = globalThis.document.createElement;
+  globalThis.document.createElement = (tag) => {
+    const node = realCreate(tag);
+    if (tag === "label") {
+      node.append = (...nodes) => {
+        for (const n of nodes) {
+          node.children.push(n);
+          if (n && n.tag === "input") radios.push(n);
+        }
+      };
+    }
+    return node;
+  };
+  globalThis.window = { addEventListener() {}, confirm: () => true };
+  if (typeof globalThis.ImageData !== "function") {
+    globalThis.ImageData = class ImageData {
+      constructor(dataOrW, wOrH, h) {
+        if (typeof dataOrW === "number") {
+          this.width = dataOrW; this.height = wOrH;
+          this.data = new Uint8ClampedArray(this.width * this.height * 4);
+        } else {
+          this.data = dataOrW; this.width = wOrH; this.height = h;
+        }
+      }
+    };
+  }
+
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("api.github.com")) return { ok: false, status: 404, json: async () => [] };
+    // Mirror modern Fetch: approved remote firmware requires bounded streaming.
+    return { ok: true, body: new Blob([pkg.raw]).stream() };
+  };
   const blobs = new Map();
   URL.createObjectURL = (b) => { const u = `blob:${blobs.size}`; blobs.set(u, b); return u; };
   URL.revokeObjectURL = () => {};
   Object.defineProperty(globalThis, "navigator", { configurable: true, value: { requestMIDIAccess: async () => dev.access } });
   await import("data:text/javascript;base64," + Buffer.from(js + `\n//${Math.random()}`).toString("base64"));
-  for (let i = 0; i < 100 && ids.go.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
-  await ids.go.handlers.click();
-  for (let i = 0; i < 3000 && (ids.go.disabled || !ids.status.textContent); i++) await new Promise((r) => setTimeout(r, 10));
+  for (let i = 0; i < 200 && ids.go?.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
+  if (!ids.go || ids.go.disabled !== false) throw new Error("installer page did not enable Install");
+  if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
+  // Status is only created when say()/applyLang touch it; seed before click.
+  const before = (ids.status ||= el()).textContent;
+  const clicked = ids.go.handlers.click();
+  for (let i = 0; i < 3000; i++) {
+    if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;
+    if (/written back|Restore|Done|slots|error|Error/i.test(ids.status.textContent || "") && ids.go.disabled === false) break;
+    await new Promise((r) => setTimeout(r, 10));
+  }
+  await Promise.resolve(clicked).catch(() => {});
   const files = [];
-  for (const d of downloads) files.push({ name: d.name, b: new Uint8Array(await blobs.get(d.href || [...blobs.keys()].pop()).arrayBuffer()) });
+  for (const d of downloads) {
+    const key = d.href || [...blobs.keys()].pop();
+    files.push({ name: d.name, b: new Uint8Array(await blobs.get(key).arrayBuffer()) });
+  }
+  dump("page", flash, files.map((x) => x.b));
   return { status: ids.status.textContent, files, flash };
 }
 {

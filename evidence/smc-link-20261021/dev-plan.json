@@ -1,0 +1,14 @@
+{
+  "base": "ffa7db975523d0ce8242295eae08f4fd5bf93e44",
+  "scope": "Application-only SMC link-publication race repair on the latest local queue-fixed branch. Reuse exact completed scoped host evidence after checking source, compiler and log hashes. Build Elite development firmware with X0X_DEV_PADCAL=1 and enforce code/RAM/pool budgets. BLE controller, radio, models, loader, samples and installer are unchanged. No controller artifact, Pro build, release or device operation is selected.",
+  "checks": [
+    {
+      "reason": "Verify completed SMC link, queue, real-UI reachability and project-runtime checks against the exact inputs, preserving the documented baseline sanitizer failure disposition.",
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/smc-link-20261021/reuse-host-checks.py"
+      ]
+    }
+  ]
+}

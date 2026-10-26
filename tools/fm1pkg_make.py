@@ -52,8 +52,17 @@ BOARDS = {"fm1": (0x93000, 0x8DFBC, "FM-1_900", 0x8DFBC),
           "smk37": (0x9D000, 0x97400, "SMK-37 Pro_900", 0x86EE0)}   # SMK: the stock app is 0x974B8; build.py sets app.ld XIP
 BLE_LO, BLE_HI = 0x8B000, 0x9B000              # SMK: flash range of the Bluetooth block (FL_BLE_LO / FL_BLE_HI)
 # SMK sample slot map (firmware/src/app/slots.c SMP_USER_OFF / SMP_USER_SIZE): (flash offset, size) per slot
-SLOTMAP = {"smk37": [(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)]}
-SLOTMAP_OFF, SLOTMAP_MAGIC = 0x9CF00, b"X0X-SLOTMAP-1\0\0\0"
+SLOTMAP = {"smk37": [(0xC2000, 0x14000), (0xD6000, 0x1E000)],
+           "fm1": [(0xA0000, 0x14000), (0xB4000, 0x14000)]}
+# Plain bytes after the encrypted cfg, scanned by the installers. SMK: just below 0x9D000.
+# FM-1: in the gap at the end of the 0x93000 image. Older packages have no record and stay on the
+# three-slot fallback.
+SLOTMAP_OFF, FM1_SLOTMAP_OFF = 0x9CF00, 0x92F00
+SLOTMAP_MAGIC = b"X0X-SLOTMAP-1\0\0\0"
+
+
+def slotmap_offset(board=None):
+    return FM1_SLOTMAP_OFF if (board or BOARD) == "fm1" else SLOTMAP_OFF
 
 
 def slotmap_blob(slots):
@@ -206,9 +215,10 @@ def flash_image(app, key):
     f[0x4000:0x4000 + len(region)] = region
     if BOARD in SLOTMAP:                                # plain, after the cfg: read by the installers only
         blob = slotmap_blob(SLOTMAP[BOARD])
-        if 0x4000 + len(region) > SLOTMAP_OFF or SLOTMAP_OFF + len(blob) > FLASH_SIZE:
+        off = slotmap_offset()
+        if 0x4000 + len(region) > off or off + len(blob) > FLASH_SIZE:
             raise SystemExit("fm1pkg_make: no room for the slot map after the cfg")
-        f[SLOTMAP_OFF:SLOTMAP_OFF + len(blob)] = blob
+        f[off:off + len(blob)] = blob
     return bytes(f)
 
 

@@ -1,0 +1,92 @@
+[
+  {
+    "argv": [
+      "python3",
+      "tests/host/smc_mapping_test.py"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_mapping_test.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "tests/host/smc_fader_test.py"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_fader_test.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "tests/host/smc_buttons_test.py"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_buttons_test.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "tests/host/smc_filter_test.py"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_filter_test.log"
+  },
+  {
+    "argv": [
+      "sh",
+      "tests/host/smc_part_select_test.sh"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_part_select_test.log"
+  },
+  {
+    "argv": [
+      "sh",
+      "tests/host/smc_reachability_test.sh"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_reachability_test.log"
+  },
+  {
+    "argv": [
+      "sh",
+      "tests/host/smc_clip_visibility_test.sh"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_clip_visibility_test.log"
+  },
+  {
+    "argv": [
+      "sh",
+      "tests/host/smc_drum_mutes_test.sh"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_drum_mutes_test.log"
+  },
+  {
+    "argv": [
+      "sh",
+      "tests/host/smc_performance_abort_test.sh"
+    ],
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_performance_abort_test.log"
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-o",
+      "build/stage2/smc_protocol_test",
+      "tests/host/smc_protocol_test.c"
+    ],
+    "run": [
+      "build/stage2/smc_protocol_test"
+    ],
+    "returncode": 0,
+    "log": "evidence/mapping-stage2/protocol.log"
+  }
+]

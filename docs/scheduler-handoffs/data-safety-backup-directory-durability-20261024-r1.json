@@ -1,0 +1,80 @@
+{
+  "schema": "loopyx0x37/data-safety-source-handoff-v2",
+  "evidence_revision": "data-safety-backup-directory-durability-20261024-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-backup-dir-fsync-20261024-1111",
+  "consumed": {
+    "first_candidate_pr": 103,
+    "commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+    "full_root": "17d947417372bf48e8167cd9a3df970093afe3c1",
+    "compiled_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "slot_source_blob": "09a7ff6d3b67cf3830ab3d2347de25f9b7e8cfbe",
+    "integration_evidence_revision": "safe-merge-pr103-archive75-ctl49-smc79-critical-path-20261024-r7"
+  },
+  "checked_source": {
+    "code_tests_runner_commit": "a213daebe57112d368e3e46a95ce59e5aced4bed",
+    "complete_root_pre_manifest": "46ab3d878185b214d28b8056a2864f76339d8172",
+    "compiled_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "source_blob": "6089d373af404997646919611a5445a6137d3561",
+    "test_blob": "130fef3b95b97e05393ff9374ce59c1f2a4c0f67",
+    "test_runner_blob": "db0cacc324ef188b0ebc806b75deac6d8fb1d872",
+    "new_test": "tests/x0x_slots_durable_backup_test.py",
+    "registered_test_name": "slot-backup-durable",
+    "compiled_firmware_tree_change": false
+  },
+  "defect": "save_backup_archive() fsyncs staged file but does not fsync containing directory after os.link/rename; OTA can begin with a readable archive whose published name may not survive a power loss.",
+  "change": "Sync parent directory after atomic publication; on directory open/fsync/close failure raise SlotError explicitly flagging durability unknown, so native firmware OTA prewrite backup path refuses to start firmware flash. Existing destination remains unchanged on failures before replace; after publication the new path may already exist.",
+  "native_linux_host": {
+    "limitations": "Executed against manually reconstructed Git-matched source-window fixtures for save_backup_archive and its publication helpers; archive encode/decode stubbed. This is NOT complete-root execution, device evidence, or exhaustive crash/power-loss durability proof.",
+    "tests_file_exact_git_blob": "130fef3b95b97e05393ff9374ce59c1f2a4c0f67",
+    "before": {
+      "command": "cd baseline && python3 -B tests/x0x_slots_durable_backup_test.py",
+      "exit": 1,
+      "tests": 6,
+      "failures": 4,
+      "log_sha256": "d6228b273a6c784debd8e4ed488ae78086752b9b4ecffb8ab4770b777dbb9e5a"
+    },
+    "after": {
+      "command": "cd patched && python3 -B tests/x0x_slots_durable_backup_test.py",
+      "exit": 0,
+      "tests": 6,
+      "failures": 0,
+      "log_sha256": "3a891f8e7efe3c847e293c4c0be90a64314242355bfd532d425f935d342e313b"
+    },
+    "optimized": {
+      "command": "cd patched && python3 -O -B tests/x0x_slots_durable_backup_test.py",
+      "exit": 0,
+      "tests": 6,
+      "failures": 0,
+      "log_sha256": "4fcd7afc44f608ec5ad4fee56893dab49c812ab9d5fe59b9c490ab9a258873ef"
+    },
+    "syntax": {
+      "command": "cd patched && python3 -B -m py_compile tools/x0x_slots.py tests/x0x_slots_durable_backup_test.py",
+      "exit": 0
+    },
+    "repeat": {
+      "command": "cd patched && for i in $(seq 1 10); do python3 -B tests/x0x_slots_durable_backup_test.py || exit 2; done",
+      "exit": 0,
+      "iterations": 10
+    },
+    "coverage": [
+      "fresh backup directory fsync occurs after published name exists",
+      "post-publish directory fsync failure refuses success",
+      "post-publish directory open failure refuses success",
+      "replace=True also syncs directory",
+      "file fsync/disk-full before publish leaves old backup unchanged",
+      "existing name and invalid archive rejected without clobbering"
+    ]
+  },
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_READY_FOR_INDEPENDENT_REVIEW",
+  "independent_qa": "PENDING exact complete branch checkout and actual registered test; include OTA no-flash-on-dirsync-negative, archive integrity, backup/restore, cancellation, wrong-model/CRC, controller and interruption.",
+  "build": "BUILD_ONLY IMMEDIATELY ELIGIBLE FROM EXACT_SOURCE_SHA; actual Elite/Pro/controller compilation NOT RUN; unchanged firmware subtree is not all-input build equivalence",
+  "hardware": "UNKNOWN; no device read/write or physical test",
+  "publication": "NO_GO; no immutable HTTP package verification, no legal/model/controller/integrity prehardware QA",
+  "next_owner_actions": [
+    "Independent QA: independently run exact-branch test plus installer failure injection; ACK exact commit/evidence in Git.",
+    "Sole Safe Merge: reconcile reviewed fix into PR #103 own branch, preserving existing #56/#66/#75/#76/#81/#91/#106 protections.",
+    "Hourly Build: compile exact source and pinned Elite/Pro/controller BUILD_ONLY without waiting for QA, PR merge, hosting or physical device.",
+    "Catalog/Publisher: keep previous safe live releases, select none until full prehardware model/backup/license/integrity/immutable HTTP checks."
+  ]
+}

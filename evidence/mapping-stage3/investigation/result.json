@@ -1,0 +1,128 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage3-investigation",
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "source_blob": "fa885dad6c721f413da64ab78a2f7439b51d29d7",
+  "source_sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+  "result": "PASS: no actionable firmware defects found in the approved fixes.",
+  "firmware_findings": [],
+  "documentation_findings": [
+    {
+      "file": "docs/SMC_MIXER.md",
+      "line": 47,
+      "blocking": false,
+      "finding": "The map still states whole-part and FX M behavior without the drum MIX exception. It also omits the new performance abort controls.",
+      "disposition": "Non-blocking and deferred. Stage4 receives this documentation discrepancy. Stage3 does not edit documentation or firmware.",
+      "stale_statements": [
+        "For strips 1\u20135, **M** toggles the part's mute",
+        "On strips 6\u20138, **M** toggles reverb, delay or master output.",
+        "Performance tests own the controls and drain SMC input without editing."
+      ],
+      "production_evidence": [
+        "firmware/src/app/smc_mixer.c:319-329",
+        "firmware/src/app/smc_mixer.c:436-463",
+        "firmware/src/app/smc_mixer.c:538-545"
+      ]
+    }
+  ],
+  "review": [
+    {
+      "files": [
+        "firmware/src/app/smc_mixer.c:113-152",
+        "firmware/src/app/smc_mixer.c:300-380",
+        "firmware/src/app/smc_mixer.c:532-558",
+        "firmware/src/app/ui.c:989-993",
+        "firmware/src/app/ui.c:2274-2279"
+      ],
+      "result": "The visible drum kit and selected bank determine M, SELECT, fader, knob, and M feedback destinations. Track indices stay within 0 to 10. Both kits use keyboard mute_track behavior."
+    },
+    {
+      "files": [
+        "firmware/src/app/smc_mixer.c:303-318",
+        "firmware/src/app/main_fm1.c:1323-1345"
+      ],
+      "result": "Help, confirmation, menu, and clip priorities remain in place. The new drum branch does not process R or S buttons."
+    },
+    {
+      "files": [
+        "firmware/src/app/smc_mixer.c:436-527",
+        "firmware/src/app/ui.c:1584-1689",
+        "firmware/src/app/ui.c:2532-2537"
+      ],
+      "result": "STOP, PLAY, and back call the existing panel abort path. Phase 3 blocks repeated aborts. The poll retains its initial guard across direct, host-note, and both MMC queues. Current perf_testing checks also block input after a queued test start."
+    },
+    {
+      "files": [
+        "firmware/src/app/ui.c:2698-2709",
+        "firmware/src/app/ui.c:4610-4632"
+      ],
+      "result": "The main-loop input handler drains SMC queues before the deferred performance tick. Restoration requires the transport stop to complete."
+    },
+    {
+      "files": [
+        "tests/host/smc_drum_mutes_test.c",
+        "tests/host/smc_performance_abort_test.c",
+        "tests/host/smc_buttons_test.py",
+        "tests/host/smc_filter_test.py",
+        "tests/host/smc_mapping_test.py",
+        "tests/host/smc_clip_visibility_test.c",
+        "tests/host/smc_clip_visibility_test.sh",
+        "tests/run_tests.sh"
+      ],
+      "result": "The full candidate test diff preserves prior assertions. The new regressions use production UI, engine, queue, and SMC code. The registered generated-header runners use class G."
+    }
+  ],
+  "experiments": [
+    {
+      "name": "exhaustive helper and LED probe",
+      "compile_argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/helper_led_probe.c",
+        "-o",
+        "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/helper_led_probe"
+      ],
+      "compile_returncode": 0,
+      "run_argv": [
+        "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/helper_led_probe"
+      ],
+      "run_returncode": 0,
+      "cases": 4400,
+      "scope": "Both kits, all 11 selections, all 22 drum mute bits, all eight strips, and menu/confirmation/clip exclusions.",
+      "source": "helper_led_probe.c",
+      "logs": [
+        "probe-compile.log",
+        "probe-run.log"
+      ],
+      "limit": "This probe extracts production functions. It substitutes other UI and engine functions. It does not establish device behavior."
+    },
+    {
+      "name": "candidate diff whitespace check",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d..HEAD"
+      ],
+      "returncode": 0,
+      "log": "diff-check.log"
+    }
+  ],
+  "read_failures": [
+    {
+      "cause": "A broad source query referenced a missing keys.c path and a later shell glob had no MIDI source matches.",
+      "disposition": "The review used exact ui.c, smc_mixer.c, main_fm1.c, and smc_protocol.h paths. These query errors did not fail a test."
+    }
+  ],
+  "limits": [
+    "Physical-device tests: NOT TESTED.",
+    "The complete physical input-silence cause remains unresolved.",
+    "R/S per-track policy remains deferred.",
+    "No target build, release gate, install, push, or firmware edit occurred in this investigation.",
+    "The separate central-session repair is outside this candidate. The sole stage5 integrator must receive both validated lanes."
+  ]
+}

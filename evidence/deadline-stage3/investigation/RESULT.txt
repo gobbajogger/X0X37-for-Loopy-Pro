@@ -1,0 +1,28 @@
+Stage3 investigation requires a source repair before stage4.
+
+CENTRAL-STOP-01 affects Cancel and Scan Disable when no connection handle exists.
+If the mailbox refuses either command, blec_stop reports OFF without a successful stop.
+A later successful connection then loses its handle because OFF ignores the event.
+An accepted Scan Disable with failed Command Complete status also reports OFF.
+All three failures reproduce through the extracted production service body.
+They reproduce on f080d1a5, 05eff604 and pre-session source 1313e0f.
+These are inherited stop dependencies. They do not prove the physical input failure cause.
+Accepted Cancel and successful Scan Disable controls pass on all three sources.
+Compilation passes with ASan and UBSan. Functional assertions identify the failures.
+No sanitizer diagnostic precedes those assertions.
+
+The repaired Disconnect paths retain the cutoff guard and current service time.
+The complete signaling, credits, retry and deadline source remains present.
+Twelve independent event-order and stop-intent cases pass with ASan and UBSan.
+The first clean-start fixture left transport busy. The corrected fixture passes.
+Production source did not change for that fixture correction.
+
+One fresh stage2 must repair pending no-handle stop commands and their status handling.
+The repair must preserve the original cutoff, stop intent and late connection handle.
+A checked repair then requires one fresh stage3.
+No stage4 may start from this failed candidate.
+
+Physical result: NOT TESTED.
+Original all-input failure: UNRESOLVED.
+No production edit, target build, device write, controller write or external action occurred.
+Exact source identities, commands, logs and limits are in report.json and its linked records.

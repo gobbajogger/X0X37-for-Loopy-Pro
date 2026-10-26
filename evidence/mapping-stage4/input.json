@@ -1,0 +1,33 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage4",
+  "owner_chat": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "source_sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+  "stage3_inputs": {
+    "input.json": "313d23fca04bad7f2302e32dab3e1cc56be23cd534db46e376c4702b8f90d4dd",
+    "dependency-review.json": "6899780187c4be7ec5c96ce413c8b9c436dda0759affcffab4f744b4a3b9bbd0",
+    "test/result.json": "f4dd286ce27515d6b2034f063089fdf8674ff766dd68e96bf73c38595cb6d4c8",
+    "test/input-identity.json": "888386cfcca3939c293d024af1cc26ab17de7fe5670148b21c1d0072e0bc684a",
+    "investigation/result.json": "0a597bd107d44411df46e36915a9076b3fc1dc72c8ce8edfd4c7a1472ee22c7e",
+    "evidence-sha256.json": "815662df489cf74ac8ff7ed0e21c5dab119ed19c270d51ff44df7de92e0f9851"
+  },
+  "failures": [
+    {
+      "action": "Initial Docker image query",
+      "cause": "Sandbox denied the local Docker socket.",
+      "disposition": "The approved Docker command succeeded with escalation."
+    },
+    {
+      "action": "Context reads",
+      "cause": "Three relative paths used the Git administration directory. One controller query used build.sh instead of build_ctl.sh.",
+      "disposition": "Exact paths and build_ctl.sh were then read. No check failed."
+    },
+    {
+      "action": "Successor preparation Git worktree query",
+      "cause": "The workspace root is not the Git administration repository.",
+      "disposition": "The query succeeded from local_install_stage6_20261021. No validation check failed."
+    }
+  ],
+  "central_dependency": "The central stage3 candidate failed its mailbox disconnect recovery check. A fresh central stage2 repair is pending. Both validated lanes are required before stage5 merge."
+}

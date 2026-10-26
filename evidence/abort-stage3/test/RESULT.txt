@@ -1,0 +1,33 @@
+Stage3 independent test result: FAIL.
+CENTRAL-ABORT-02 violates the original abort deadline.
+
+The required public tests pass with ASan and UBSan.
+The DIAG decoder tests pass.
+Both saved independent probes pass on the candidate.
+Those probes and the public overflow/timeout cases fail on the broken source as expected.
+Their failures identify the lost Disconnect after transport recovery.
+
+The added stop-deadline probe fails on the candidate.
+Queue overflow occurs while the transport refuses sends.
+The abort starts at 100 ms with a deadline of 3100 ms.
+An ignored HCI event advances now_ms to 3100 ms before the next poll.
+After transport recovery, blec_stop accepts one Disconnect at that deadline.
+The expected accepted count is zero.
+The deadline remains 3100 ms.
+The connection remains 0x50.
+
+blec_poll checks the deadline before a retry.
+blec_stop calls blec_disconnect without that check.
+The public API can thus submit after the permitted abort interval.
+The current production service calls stop before HCI receive and poll.
+This probe does not establish the cause of the physical input failure.
+
+The task agent confirmed the stage3 failure.
+The next action is one fresh stage2, then one fresh stage3.
+Do not advance this candidate to stage4.
+
+Physical result: NOT TESTED.
+Original all-input failure: UNRESOLVED.
+No production source changed.
+No device or controller write occurred.
+Commands, source identities, logs and failure details are in report.json.

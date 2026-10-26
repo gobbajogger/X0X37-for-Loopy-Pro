@@ -12,13 +12,16 @@
  *   key K down|up | tapkey K     (K: 0..26 = F3..G5, or w0..w15 white keys, b0..b10 black keys)
  *   turn ENC N [MS]              (ENC: SELECT ALGO PRESET K1 K2 K3 K4; N detents, signed, MS apart, 80 = slow)
  *   spin ENC N                   N detents at once (1 ms), exactly N (no knob acceleration)
+ *   arrow L|R down|up|tap        the SMK-37 "<" (L) or ">" (R), as smk_arrows (smk_arrows.h) after each frame
+ *   clipmode 0|1                 the clip mode flag for the arrow route only
  *   master N                     MASTER pot 0..4096
  *   param T V I VALUE            a sound pot (engine.h target, voice, index), as its knob would
- *   slot K NAME A.wav [B.wav..]  user sample slot K (0..2): one loop (zone) per WAV, encoded here
+ *   slot K NAME A.wav [B.wav..]  user sample slot K (0..1): one loop (zone) per WAV, encoded here
  *   slotimg K F.hdr F.bin       slot K from tools/upload_breaks.py --dry-run's image (the device format)
  *   midi B0 B1 B2                incoming USB MIDI message (hex bytes)
  *   wav FILE | wavstop           start / stop recording the output
  *   load N                       the overload guard sees every block cost N% (-1: as measured)
+ *                                (start value: env X0X_HOST_LOAD, else -1; tests/run_tests.sh sets 0)
  *   peakreset                    restart the output peak (expect peak_db_min / peak_db_max)
  *   shot FILE.png                save the screen
  *   leds                         print the lit buttons and keys
@@ -26,10 +29,13 @@
  *                                VALUE "<N" / ">N" is a bound
  *   reboot                       save nothing; re-run boot from the simulated flash (persistence test)
  *   snapline B                   remember 303 B's line on the pattern shown (expect linechgB: 1 = it changed since)
+ *   storepoke OBJ OFF VAL        write byte VAL (hex) at OFF of the saved object OBJ (0 = the settings; an older save)
+ *   storefail 0|1                make simulated flash writes fail or work
  *   projimg FILE                 a project as the FM-1 holds it in RAM (fm1_debug peek of proj): saved
  *                                to the simulated flash and booted, as if it had been made here
  */
 #define X0X_HOST 1
+#define _POSIX_C_SOURCE 200809L                 /* clock_gettime, CLOCK_MONOTONIC (glibc <time.h>) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +80,12 @@ static uint32_t lit_btn, lit_keys, dim_keys;
 
 uint32_t plat_ms(void) { return now_ms; }
 uint32_t plat_buttons(void) { return held_btn; }
+static uint8_t key_velocity[NKEYS];
 uint32_t plat_keys(void) { return held_keys; }
+uint8_t plat_key_velocity(int key)
+{
+    return (unsigned)key < NKEYS && key_velocity[key] ? key_velocity[key] : 100;
+}
 int32_t plat_enc(int role)
 {
     int32_t v = enc_acc[role];
@@ -95,6 +106,7 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 
 #define MQ 256
 static uint32_t min_q[MQ], mi_w, mi_r;
+int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
 static FILE *midi_log;
 int plat_midi_in(uint32_t *pkt)
 {
@@ -103,12 +115,14 @@ int plat_midi_in(uint32_t *pkt)
     *pkt = min_q[mi_r++ % MQ];
     return 1;
 }
-static uint32_t midi_out_count, clock_out_count, note_ons;
+static uint32_t midi_out_count, clock_out_count, note_ons, transport_out_count;
 void plat_midi_out(uint32_t pkt)
 {
     midi_out_count++;
     if ((((pkt >> 8) & 0xF0) == 0x90) && ((pkt >> 24) & 0x7F))
         note_ons++;                                  /* the notes the sequence sent (expect noteons) */
+    if (((pkt >> 8) & 0xFF) >= 0xFA && ((pkt >> 8) & 0xFF) <= 0xFC)
+        transport_out_count++;
     if (((pkt >> 8) & 0xFF) == 0xF8)
         clock_out_count++;
     else if (midi_log)
@@ -119,6 +133,7 @@ void plat_midi_out(uint32_t pkt)
 static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
 static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static uint32_t store_writes;
+static int store_fail;
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 {
     int n = store_len[obj];
@@ -131,7 +146,7 @@ int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 {
-    if (obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
+    if (store_fail || obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
         return -1;
     memcpy(store[obj], src, len);
     store_len[obj] = (int)len;
@@ -143,8 +158,8 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
  *  - slotimg: a slot image exactly as tools/upload_breaks.py writes it, read by the firmware's own
  *    slots.c (the device path: what the upload tool writes is what the firmware parses);
  *  - slot: WAVs encoded here, one zone each (quick, for scenarios that do not test the format). */
-static uint8_t slot_img[3][0x1E000];               /* the largest slot (SMK-37 slot 2: 120 KiB) */
-static int slot_is_img[3];
+static uint8_t slot_img[PLAT_NSLOTS][0x1E000];    /* the largest slot (SMK-37 slot 2: 120 KiB) */
+static int slot_is_img[PLAT_NSLOTS];
 #define SMP_USER_XIP(k) ((const uint8_t *)slot_img[k])
 static uint32_t st_crc32(const void *p, uint32_t n)
 {
@@ -240,8 +255,34 @@ void plat_stalls_enable(int on) { (void)on; }
 
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/x0x.h"
+#include "../firmware/src/app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
+#include "../firmware/src/app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
+#include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
+#if BOARD_SMK37
+/* Native SMC fixtures provide clip input substitutes; real keybed/pad reset is hardware-only. */
+int smk_project_active(void) { extern uint8_t smk_ck_flash_busy(void); return smk_ck_flash_busy(); }
+void smk_project_reset(void) {}
+#endif
+
+/* The SMK-37 "<" and ">" as main_fm1.c smk_arrows does them (the same smk_arrows.h), after each frame.
+ * Script: "arrow L|R down|up|tap", "clipmode 0|1" (the route only: the host has no clip mode screen). */
+#include "../firmware/src/app/smk_arrows.h"
+static uint32_t arrows_held, clip_on, arrow_steps;
+static arw_t host_arw;
+static void host_arrows(void)
+{
+    uint32_t route = arw_route((uint32_t)ui_menu_open(), clip_on, (held_btn >> B_HOME) & 1u);
+    int32_t d = arw_frame(&host_arw, arrows_held, route, now_ms);
+    if (!d)
+        return;
+    arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
+    if (route == ARW_MENU)
+        ui_menu_arrow(d);
+    else
+        enc_acc[EN_SELECT] += d;
+}
 
 /* ---------------------------------------------------------- outputs --- */
 static void png_write(const char *path)
@@ -422,9 +463,6 @@ static void run_ms(uint32_t ms)
                 pr0[k] = eng_prof[k];
             engine_render(blk, 256);
             engine_volume(blk, 256);
-#ifdef X0X_WEB
-            web_audio(blk, 256);                         /* the browser build: to the AudioWorklet */
-#endif
             di = instr_now() - i0;
             dt = now_ns() - t0;
             if (seq.playing) {                           /* the cost that matters: while it plays */
@@ -440,11 +478,7 @@ static void run_ms(uint32_t ms)
             cpu_pct = (uint32_t)(100.0 * dt / (256.0 * 1e9 / 44100.0));
             if (cpu_pct > cpu_peak)
                 cpu_peak = cpu_pct;
-#ifdef X0X_WEB
-            engine_load(load_force >= 0 ? (uint32_t)load_force : 0u, 256);   /* a browser's timing is not the FM-1's */
-#else
             engine_load(load_force >= 0 ? (uint32_t)load_force : cpu_pct, 256);
-#endif
             for (k = 0; k < 256; k++) {
                 float l = (float)blk[2 * k] / 8388608.0f, r = (float)blk[2 * k + 1] / 8388608.0f;
                 int16_t s[2];
@@ -465,9 +499,11 @@ static void run_ms(uint32_t ms)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
+        engine_brk_flush();
         if (now_ms >= ui_due) {
             ui_due = now_ms + 16;
             ui_frame();
+            host_arrows();
         } else {
             ui_input_only();
         }
@@ -688,16 +724,48 @@ static int expect(const char *what, const char *val)
         got = ui.rec;
     else if (!strcmp(what, "sel"))                  /* the selected track of the part on screen */
         got = ui.sel[ui.part];
+    else if (!strcmp(what, "listsel"))              /* the selected row of the open list (0-based, headers count) */
+        got = ui.list_sel;
+    else if (!strcmp(what, "overlay"))              /* 0 none, 1 a list, 2 a question */
+        got = ui.overlay;
+    else if (!strcmp(what, "page"))                 /* the page of the view on the screen (0-based) */
+        got = cur_page();
+    else if (!strcmp(what, "rowval"))               /* the value of the selected row of the open list (pref_get) */
+        got = ui.overlay == O_LIST ? pref_get(list_rows[ui.list_sel]) : -1;
+    else if (!strcmp(what, "arrowsteps"))
+        got = (int)arrow_steps;
+    else if (!strcmp(what, "setsize"))              /* sizeof settings_t */
+        got = (int)sizeof proj.set;
     else if (!strcmp(what, "view"))
         got = ui.view;
     else if (!strcmp(what, "tempo"))
         got = (int)(seq.bpm + 0.5f);
+    else if (!strcmp(what, "midiheld"))             /* bit k: the 303 k gate; bit 8 + s: break slice key s */
+        got = engine_midi_held();
+    else if (!strcmp(what, "exttempo"))             /* the tempo measured from the external clock */
+        got = (int)(seq.ext_bpm + 0.5f);
     else if (!strcmp(what, "clocks_out"))
         got = (int)clock_out_count;
+    else if (!strcmp(what, "transport_out"))       /* Start, Continue, Stop sent */
+        got = (int)transport_out_count;
+    else if (!strcmp(what, "clksrc"))               /* GLO > MIDI > CLOCK SOURCE: 0 AUTO, 1 INTERNAL, 2 EXTERNAL */
+        got = PROJ_CLK_SRC(proj.set.bt);
+    else if (!strncmp(what, "setbyte", 7) && (unsigned)atoi(what + 7) < sizeof proj.set)   /* setbyteN: the settings */
+        got = ((const uint8_t *)&proj.set)[atoi(what + 7)];
+    else if (!strncmp(what, "storeset", 8) && atoi(what + 8) >= 0 && atoi(what + 8) < store_len[OBJ_SET])
+        got = store[OBJ_SET][atoi(what + 8)];       /* storesetN: byte N of the saved settings object (4 + offset) */
+    else if (!strcmp(what, "clkext"))               /* 1: the sequencer follows (or waits for) a clock */
+        got = seq.ext;
+    else if (!strcmp(what, "waiting"))              /* EXTERNAL: playing, no clock */
+        got = seq_clock_waiting(&seq);
+    else if (!strcmp(what, "msgwait"))              /* the top line says WAITING FOR CLOCK */
+        got = !strcmp(ui.msg, "WAITING FOR CLOCK") && ui.msg_until;
     else if (!strcmp(what, "noteons"))
         got = (int)note_ons;
     else if (!strcmp(what, "store_writes"))
         got = (int)store_writes;
+    else if (!strcmp(what, "savestate"))            /* 0 saved, 1 unsaved, 2 waits for stop, 3 failed */
+        got = save_state();
     else if (!strcmp(what, "peak_db_max")) {
         double db = 20.0 * log10(peak_out > 1e-9f ? peak_out : 1e-9f);
         if (db > atof(val)) {
@@ -763,7 +831,6 @@ static int expect(const char *what, const char *val)
     return 0;
 }
 
-#ifndef X0X_WEB
 int main(int argc, char **argv)
 {
     FILE *sc;
@@ -779,6 +846,8 @@ int main(int argc, char **argv)
         perror(argv[1]);
         return 2;
     }
+    if (getenv("X0X_HOST_LOAD"))                 /* the tests: the host time is not the FM-1 load (a busy host turns on the guard) */
+        load_force = atoi(getenv("X0X_HOST_LOAD"));
     snprintf(out, sizeof out, "%s/midi_out.txt", dir);
     midi_log = fopen(out, "w");
     boot();
@@ -829,7 +898,18 @@ int main(int argc, char **argv)
                     run_ms(gap);
                 }
             }
-        } else if (!strcmp(cmd, "spin")) {              /* spin ENC N: all N detents at once, exactly N */
+        } else if (!strcmp(cmd, "arrow")) {             /* arrow L|R down|up|tap: the SMK-37 "<" or ">" */
+            uint32_t m = a[0] == 'R' ? 2u : 1u;
+            if (b[0] != 'u')
+                arrows_held |= m;
+            if (b[0] == 't')
+                run_ms(40);
+            if (b[0] != 'd')
+                arrows_held &= ~m;
+            run_ms(b[0] == 't' ? 40 : 2);
+        } else if (!strcmp(cmd, "clipmode"))
+            clip_on = (uint32_t)atoi(a) & 1u;
+        else if (!strcmp(cmd, "spin")) {              /* spin ENC N: all N detents at once, exactly N */
             int e = find_name(ENC_N, NE, a);
             if (e < 0) {
                 printf("line %d: no encoder %s\n", lineno, a);
@@ -855,6 +935,10 @@ int main(int argc, char **argv)
             int k, z = 0;
             strtok(rest, " \t\n");                          /* K */
             k = atoi(a);
+            if (k < 0 || k >= PLAT_NSLOTS) {
+                printf("line %d: no sample slot %d\n", lineno, k);
+                return 2;
+            }
             tok = strtok(0, " \t\n");                      /* NAME */
             snprintf(slot_name[k], sizeof slot_name[k], "%s", tok ? tok : "");
             slot_nz[k] = 0;
@@ -869,7 +953,7 @@ int main(int argc, char **argv)
             int k = atoi(a);
             FILE *fh = fopen(b, "rb"), *fd = fopen(c, "rb");
             size_t nh, nd;
-            if (!fh || !fd || k < 0 || k > 2) {
+            if (!fh || !fd || k < 0 || k >= PLAT_NSLOTS) {
                 printf("line %d: cannot read the slot image\n", lineno);
                 return 2;
             }
@@ -890,10 +974,26 @@ int main(int argc, char **argv)
             smp_user_scan((uint32_t)k);
             printf("  slot %d: %d zone(s) from the image\n", k, usr_nz[k]);
             engine_brk_loops();
+        } else if (!strcmp(cmd, "partch")) {       /* partch PART CHANNEL: CHANNEL 1-16, 0 = off */
+            int part = atoi(a), chn = atoi(b);
+            if (part < 0 || part >= NPARTS || chn < 0 || chn > 16) {
+                printf("line %d: partch %s %s\n", lineno, a, b);
+                return 2;
+            }
+            seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+        } else if (!strcmp(cmd, "brkwrap")) {      /* brkwrap 0|1: 8 SLICES off or on, current break pattern */
+            pattern_t *bp = &proj.pat[seq.ppat[TRK_BRK]];
+            uint8_t m = (uint8_t)(atoi(a) ? 1 : 0);
+            if (bp->brk.slice_mode != m) {
+                bp->brk.slice_mode = m;
+                engine_brk_slice_mode_reconcile();
+            }
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
-            uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4;
-            min_q[mi_w++ % MQ] = cin | s << 8 | d1 << 16 | d2 << 24;
+            uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */
+            min_q[mi_w++ % MQ] = cin | src << 4 | s << 8 | d1 << 16 | d2 << 24;   /* SRC: 0 USB, 1 BLE, 2 TRS */
+        } else if (!strcmp(cmd, "blelinkend") || !strcmp(cmd, "usblinkend")) {   /* a link ends (usb.c midi_link_check) */
+            min_q[mi_w++ % MQ] = PLAT_MIDI_LINK_END(cmd[0] == 'b' ? 1u : 0u);
         } else if (!strcmp(cmd, "wav")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
             wav_open(out);
@@ -982,6 +1082,15 @@ int main(int argc, char **argv)
                 proj.arr.lane[i].used = 0;
         } else if (!strcmp(cmd, "cpu2")) {              /* cpu2 0|1: the simulated second core */
             plat_cpu2_set(atoi(a));
+        } else if (!strcmp(cmd, "storefail"))
+            store_fail = atoi(a) != 0;
+        else if (!strcmp(cmd, "storepoke")) {
+            int o = atoi(a), off = atoi(b);
+            if (o < 0 || o >= OBJ_NOBJ || off < 0 || off >= store_len[o]) {
+                fprintf(stderr, "storepoke: no byte %d in object %d\n", off, o);
+                return 1;
+            }
+            store[o][off] = (uint8_t)strtol(c, 0, 16);
         } else if (!strcmp(cmd, "reboot")) {
             memset(&proj, 0, sizeof proj);
             boot();
@@ -1015,4 +1124,3 @@ int main(int argc, char **argv)
                (double)ins_total / (double)ins_frames, (double)ins_block_max / 256.0);
     return fails ? 1 : 0;
 }
-#endif /* X0X_WEB */

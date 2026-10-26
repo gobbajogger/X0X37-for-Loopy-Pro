@@ -1,0 +1,88 @@
+{
+  "stage": 3,
+  "helper": "independent-test",
+  "result": "FAIL",
+  "candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "candidate_tree": "a00e1710ab67f800dea2bf4b97fbb9bd34fde384",
+  "broken_control": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "source_identity": "identity.json",
+  "commands": "commands.json",
+  "edge_commands": "stop-deadline-record.json",
+  "required_controls": {
+    "result": "PASS",
+    "public_runner": "The public central, receive, signaling and abort tests pass with ASan and UBSan.",
+    "diag": "The old and extended DIAG decoder tests pass.",
+    "expected_broken_failures": "The public overflow and timeout cases fail on the broken source. Both saved independent probes also fail on that source.",
+    "broken_cause": "The required Disconnect never reaches the recovered transport. Functional assertions fail. Sanitizer setup does not cause these failures.",
+    "candidate_controls": "The new public cases and both saved probes pass on the candidate."
+  },
+  "new_failure": {
+    "id": "CENTRAL-ABORT-02",
+    "result": "UNEXPECTED CANDIDATE FAILURE",
+    "location": "firmware/src/ble/ble_midi_central.c:201-212",
+    "helper_location": "firmware/src/ble/ble_midi_central.c:69-76",
+    "probe": "stop-deadline.c",
+    "log": "stop-deadline.log",
+    "compile_result": 0,
+    "run_returncode": -6,
+    "api_preconditions": [
+      "The connection handle is 0x50. The state is BLEC_CONNECTED. Five signaling requests overflow the four-entry queue while the transport refuses sends.",
+      "The overflow starts BLEC_DISCONNECTING at now_ms=100 with deadline=3100. No Disconnect has transport acceptance.",
+      "An ignored, well-formed vendor HCI event {0xff,0} arrives through blec_rx at timestamp 3100. It advances now_ms without a poll.",
+      "The transport recovers. blec_stop runs before the next blec_poll."
+    ],
+    "expected": "At now_ms equal to or greater than the original deadline, no Disconnect submission is permitted.",
+    "actual": "At now_ms=3100 and deadline=3100, blec_stop accepts one Disconnect and changes the state to BLEC_STOPPING. The connection remains 0x50.",
+    "cause": "blec_poll checks the deadline. blec_stop calls blec_disconnect directly. That helper checks only D_SENT and has no deadline check.",
+    "consumer_limit": "The current ble_central_service calls stop before HCI receive and poll. This probe establishes a public API deadline defect. It does not establish a physical-device failure.",
+    "disposition": "The task agent confirmed a stage3 failure. Start one fresh stage2 for the bounded deadline repair. Then start one fresh stage3. Do not advance to stage4."
+  },
+  "changed_source_review": {
+    "production_files": [
+      "firmware/src/ble/ble_midi_central.c",
+      "firmware/src/ble/ble_midi_central.h"
+    ],
+    "tests": [
+      "tests/host/ble_midi_abort_test.c",
+      "tests/host/ble_midi_receive_test.c",
+      "tests/host/ble_midi_receive_test.sh",
+      "tests/host/ble_midi_signal_test.c"
+    ],
+    "reviewed_consumers": [
+      "firmware/src/ble.c:ble_central_service",
+      "firmware/src/ble.c:diagnostic words",
+      "tools/ble_autotest.py:summary"
+    ],
+    "coverage": "The passing controls cover HCI parsing, signaling, ATT bounds, fragments, reply priority, reconnect credits, failed events, transport acceptance, timer wrap and stop/start. The added probe covers stop at the abort deadline before poll.",
+    "production_edits": false,
+    "controller_changes": false,
+    "mapping_changes": false
+  },
+  "prior_evidence": {
+    "source_hashes_match_stage2": {
+      "firmware/src/ble/ble_midi_central.c": true,
+      "firmware/src/ble/ble_midi_central.h": true,
+      "firmware/src/ble.c": true,
+      "tests/host/ble_midi_abort_test.c": true,
+      "tests/host/ble_midi_receive_test.sh": true,
+      "tests/host/ble_midi_signal_test.c": true,
+      "tools/build.py": true,
+      "tools/locked_settings.json": true
+    },
+    "build_evidence": "../../abort-stage2/checks.json",
+    "replay_evidence": "../../abort-stage2/replay.json",
+    "reuse_limit": "No new target build or startup replay ran in this helper scope. These references identify prior matching source evidence. Stage3 still fails for CENTRAL-ABORT-02."
+  },
+  "unexpected_failures": [
+    "CENTRAL-ABORT-02"
+  ],
+  "physical_result": "NOT TESTED",
+  "physical_input_failure": "UNRESOLVED",
+  "limits": [
+    "All HCI inputs and transport conditions are simulated.",
+    "No device or controller access occurred.",
+    "No release build, full gate or external push occurred.",
+    "No production source changed."
+  ],
+  "next_owner": "The stage3 task agent owns the fresh stage2 handoff."
+}

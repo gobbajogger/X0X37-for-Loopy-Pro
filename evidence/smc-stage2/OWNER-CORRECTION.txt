@@ -1,0 +1,37 @@
+Owner correction received by stage 2 from the active originating audit chat
+01a159f4-de3d-7d90-9124-b09940980f92 on 2026-10-21:
+
+"Because thats intended. And there's 3 modes for faders and buttons to map like they do on keyboard faders and to then map to individual sounds of either 909 and 808"
+
+This supersedes audit/HANDOFF.txt finding 1, proposed stage-2 item 1, and the
+original stage-2 prompt's direction to restore generic page following.
+The intended THREE fader/button modes are keyboard-equivalent mapping,
+individual 909 sounds, and individual 808 sounds. Do not revive the withdrawn
+mapping changes using an older quote. The withdrawn generic page-following fader redesign was removed. Existing
+fader/button routing remains unchanged. Subsequent authorized knob additions
+are recorded below.
+
+Stage 2 had prepared page-following edits based on the erroneous audit direction.
+Those edits and their new test/doc expectations were withdrawn before commit.
+The task's container compiling those superseded checks was stopped by exact ID;
+no result from that attempt validates this final candidate. No firmware was
+installed or pushed. The first pair of diagnostic-only DEV builds passed but are superseded by
+the final knob-and-diagnostic DEV builds.
+
+ALL SMC controls failing while light feedback works, both ends DAW, remains the
+actual bug. No cause or hardware repair/PASS has been established. Existing
+fader/button mapping, navigation, pickup and banking remain intact. No new owner capture or movement
+is requested. The separate receive fragment repair stays intact.
+
+Subsequent owner request in the same originating chat: "Map knobs too".
+This adds knob mapping work for all three mixer modes. On HOME/main MIX,
+knobs trim the same eight keyboard-equivalent strip destinations as faders:
+909, 808, 303A, 303B, BREAK, reverb, delay and master filter. On 909/808 MIX,
+knobs trim matching drum levels in the active 1-8 or 9-11 bank. Knobs 4-8 are
+inactive in bank 2. Other sound pages, menus and visible clip editors keep
+field access. Duplicate fields within the knob bank use their first position;
+a paired fader and knob may edit the same field. Selected drum pan and sends
+remain accessible through the deep menu. The fader and button functions are
+unchanged. This is a concrete interpretation of the requested knob addition,
+separate from investigation of live silence. See docs/SMC_MIXER.md and the
+focused fail-on-base test tests/host/smc_mapping_test.py.

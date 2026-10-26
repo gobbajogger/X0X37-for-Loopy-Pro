@@ -1,0 +1,136 @@
+{
+  "actual_path": "Linked production firmware/src/seq/{sequencer,pattern,tb3po}.{c,h}, real seq_clk_take/seq_midi_rt/seq_until_event/seq_advance; mock bass synthesizer sink only.",
+  "build_or_hardware": "NOT RUN: no Elite/Pro target compile, device, OTA or publication. Compiled firmware inputs unchanged.",
+  "expected": "zero duplicate NoteOn, zero orphan NoteOff, matching per-channel/pitch balance after STOP, bounded event deadlines.",
+  "firmware_compiler_tree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "full_root_suite": "NOT RUN: native git checkout impossible here (DNS github.com blocked); test linked verified 6 production C/H Git blobs from unchanged remote compiler subtree",
+  "independent_qa": "PENDING: producer cannot self-approve; receiving owner Independent QA, then existing Safe Merge/Hourly Build as applicable",
+  "input_remote_sha": "771ec39f030765602f839915b0d092417b06ec02",
+  "input_root_tree": "1b5ac7c720eb791297f384a55b24422ca48dd804",
+  "negative": "Local-only source mutation suppressing bass MIDI NoteOff: GCC/Clang x plain/UBSan/ASan+UBSan 6 compile exit0, 6 run exit1, 385987/387739 checks each, 1467 on vs 41 off. Mutant NOT committed.",
+  "new_test": {
+    "bytes": 5572,
+    "git_blob": "53862596e588787e871121d494c481f8c811a918",
+    "path": "tests/host/seq_midi_lifetime_stress_test.c",
+    "sha256": "610fc9809f8f99ab031b3a0888bc96e0efd24d0d35ccad0cb7358444bfa6ef73"
+  },
+  "outcome": "SOURCE_TEST_HOST_CHECKED_INDEPENDENT_QA_PENDING",
+  "owned_ref": "lane/seq-transport-origin-20261023-run3-1317",
+  "parent_pr": 86,
+  "parent_sha": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+  "positive": "GCC/Clang x plain/UBSan/ASan+UBSan 6 compile exit0, 6 run exit0, 387739/387739 checks each, 1467 note-on/off pairs in each run",
+  "pr": 90,
+  "regression": "Every emitted MIDI NoteOn remains channel/pitch owned until its single NoteOff even if transport, clock input, note-output mode or 303 channel changes during a held note. Two Stop gestures leave no active note.",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "results": {
+    "clang-asan-ubsan-mutant_noteoff": {
+      "compile_exit": 0,
+      "kind": "EXPECTED_FAIL",
+      "last_line": "seq MIDI lifetime stress: 385987/387739 assertions FAILED, 1467 note-ons, 41 note-offs, 180 deterministic scenarios",
+      "log_bytes": 1161,
+      "log_sha256": "161f642f7c5a23bad6dd63b9d1550d80cde5e270081738c22d3c708763ac4332",
+      "run_expected_exit": 1
+    },
+    "clang-asan-ubsan-seq": {
+      "compile_exit": 0,
+      "kind": "PASS",
+      "last_line": "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios",
+      "log_bytes": 118,
+      "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_expected_exit": 0
+    },
+    "clang-plain-mutant_noteoff": {
+      "compile_exit": 0,
+      "kind": "EXPECTED_FAIL",
+      "last_line": "seq MIDI lifetime stress: 385987/387739 assertions FAILED, 1467 note-ons, 41 note-offs, 180 deterministic scenarios",
+      "log_bytes": 1161,
+      "log_sha256": "161f642f7c5a23bad6dd63b9d1550d80cde5e270081738c22d3c708763ac4332",
+      "run_expected_exit": 1
+    },
+    "clang-plain-seq": {
+      "compile_exit": 0,
+      "kind": "PASS",
+      "last_line": "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios",
+      "log_bytes": 118,
+      "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_expected_exit": 0
+    },
+    "clang-ubsan-mutant_noteoff": {
+      "compile_exit": 0,
+      "kind": "EXPECTED_FAIL",
+      "last_line": "seq MIDI lifetime stress: 385987/387739 assertions FAILED, 1467 note-ons, 41 note-offs, 180 deterministic scenarios",
+      "log_bytes": 1161,
+      "log_sha256": "161f642f7c5a23bad6dd63b9d1550d80cde5e270081738c22d3c708763ac4332",
+      "run_expected_exit": 1
+    },
+    "clang-ubsan-seq": {
+      "compile_exit": 0,
+      "kind": "PASS",
+      "last_line": "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios",
+      "log_bytes": 118,
+      "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_expected_exit": 0
+    },
+    "gcc-asan-ubsan-mutant_noteoff": {
+      "compile_exit": 0,
+      "kind": "EXPECTED_FAIL",
+      "last_line": "seq MIDI lifetime stress: 385987/387739 assertions FAILED, 1467 note-ons, 41 note-offs, 180 deterministic scenarios",
+      "log_bytes": 1161,
+      "log_sha256": "161f642f7c5a23bad6dd63b9d1550d80cde5e270081738c22d3c708763ac4332",
+      "run_expected_exit": 1
+    },
+    "gcc-asan-ubsan-seq": {
+      "compile_exit": 0,
+      "kind": "PASS",
+      "last_line": "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios",
+      "log_bytes": 118,
+      "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_expected_exit": 0
+    },
+    "gcc-plain-mutant_noteoff": {
+      "compile_exit": 0,
+      "kind": "EXPECTED_FAIL",
+      "last_line": "seq MIDI lifetime stress: 385987/387739 assertions FAILED, 1467 note-ons, 41 note-offs, 180 deterministic scenarios",
+      "log_bytes": 1161,
+      "log_sha256": "161f642f7c5a23bad6dd63b9d1550d80cde5e270081738c22d3c708763ac4332",
+      "run_expected_exit": 1
+    },
+    "gcc-plain-seq": {
+      "compile_exit": 0,
+      "kind": "PASS",
+      "last_line": "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios",
+      "log_bytes": 118,
+      "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_expected_exit": 0
+    },
+    "gcc-ubsan-mutant_noteoff": {
+      "compile_exit": 0,
+      "kind": "EXPECTED_FAIL",
+      "last_line": "seq MIDI lifetime stress: 385987/387739 assertions FAILED, 1467 note-ons, 41 note-offs, 180 deterministic scenarios",
+      "log_bytes": 1161,
+      "log_sha256": "161f642f7c5a23bad6dd63b9d1550d80cde5e270081738c22d3c708763ac4332",
+      "run_expected_exit": 1
+    },
+    "gcc-ubsan-seq": {
+      "compile_exit": 0,
+      "kind": "PASS",
+      "last_line": "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios",
+      "log_bytes": 118,
+      "log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_expected_exit": 0
+    }
+  },
+  "revision": "seqclock-pr90-lifetime-stress-20261025-r27",
+  "run_command": "gcc|clang -std=c11 -O1 -g -Wall -Wextra -Werror -I firmware/src/seq tests/host/seq_midi_lifetime_stress_test.c firmware/src/seq/{sequencer,pattern,tb3po}.c -lm; run with plain, UBSan, ASan+UBSan and compare red noteoff mutant; logs in private R27 ZIP",
+  "sanitizer_limits": "ASAN_OPTIONS=detect_leaks=0; LeakSanitizer NOT claimed",
+  "schema": "seqclock-host-evidence-v1",
+  "source_sha256": {
+    "source/firmware/src/seq/pattern.c": "0d9b36c4ab979533df2974e0adc962d521c9bf587403eaecca4109042eaddf2a",
+    "source/firmware/src/seq/pattern.h": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+    "source/firmware/src/seq/sequencer.c": "a7de20c255cc94aa50acf9fa4dcac89dc172b521702e83dc8ea103d309ae6892",
+    "source/firmware/src/seq/sequencer.h": "767c9d36df0e7f30ed0bd87bb36588bd47cbe47e7764a070b2fe9ae9bc9e2f78",
+    "source/firmware/src/seq/tb3po.c": "7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b",
+    "source/firmware/src/seq/tb3po.h": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073"
+  },
+  "stimulus": "180 deterministic seeded scenarios of 90 actions with 1/64/1024 render partitions; local and two external MIDI transports, burst F8, AUTO/INT/EXT, direct NoteOut/ch changes, 303 slides and STOP twice."
+}

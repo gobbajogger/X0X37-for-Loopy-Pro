@@ -1,0 +1,20 @@
+{
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "scope": "SMC drum M actions and LED feedback use the visible kit and bank. Performance STOP, PLAY and back use the existing abort and restore path. Elite and Pro share this application source. Stage3 passed all ten affected host checks and the selected dispatcher checks. Stage4 must validate each complete DEV package with its exact controller artifact.",
+  "checks": [
+    {
+      "reason": "Production drum actions/lights, both banks, inactive positions, main ownership and actual continuous writes.",
+      "argv": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ]
+    },
+    {
+      "reason": "Production performance abort across all supported SMC routes with queued input guard and actual deferred restoration.",
+      "argv": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ]
+    }
+  ]
+}

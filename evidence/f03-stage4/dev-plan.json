@@ -1,0 +1,46 @@
+{
+  "base": "4ee8f37714b0892f2c70d157fda9328da393e987",
+  "scope": "F03 fail-closed sample-slot layout probe repair only (tools/fm1_install.py slot_probe/plan_slots/run, web/x0x_breaks.js installKeepingSlots, callers and regressions). Firmware, controller, and package application bytes are unchanged versus the audited tip unless a package gate proves otherwise. Stage 3 ALL_PASS for required F03 slot-probe regressions and affected installer checks. Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the F03-affected installer host checks. A host pass is not a package pass.",
+  "checks": [
+    {
+      "reason": "Native slot_probe must fail closed when sample-slot layout probe fails (F03 regression).",
+      "argv": ["python3", "tests/install_f03_slot_probe_test.py"]
+    },
+    {
+      "reason": "Web installKeepingSlots must fail closed when sample-slot layout probe fails (F03 regression).",
+      "argv": ["node", "web/test_f03_slot_probe.mjs"]
+    },
+    {
+      "reason": "Core installer host path still passes after the fail-closed slot probe change.",
+      "argv": ["python3", "tests/install_test.py"]
+    },
+    {
+      "reason": "F02 loader-bind native regression still passes with the F03 slot probe change.",
+      "argv": ["python3", "tests/install_f02_loader_bind_test.py"]
+    },
+    {
+      "reason": "F02 loader-bind web regression still passes with the F03 slot probe change.",
+      "argv": ["node", "web/test_f02_loader_bind.mjs"]
+    },
+    {
+      "reason": "Installer slot backup/readback path still passes with the F03 probe change.",
+      "argv": ["python3", "tests/install_slots_test.py"]
+    },
+    {
+      "reason": "Installer controller path still passes with the F03 probe change.",
+      "argv": ["python3", "tests/install_ctl_test.py"]
+    },
+    {
+      "reason": "Web install-slots harness still passes under scaled time with the F03 probe change.",
+      "argv": ["env", "X0X_TEST_TIME_SCALE=20", "node", "web/test_install_slots.mjs"]
+    },
+    {
+      "reason": "Install guard negatives still pass after fail-closed slot probe.",
+      "argv": ["sh", "tests/host/test_install_guards.sh"]
+    },
+    {
+      "reason": "Install head negatives still pass after fail-closed slot probe.",
+      "argv": ["sh", "tests/host/test_install_head.sh"]
+    }
+  ]
+}

@@ -14,10 +14,20 @@
  *   fm_sinf / fm_cosf abs 1e-6 on [-100, 100] (three-part 2pi reduction)
  *   fm_tanf   rel 1e-6 on (-pi/2, pi/2)   fm_sqrtf rel 2e-7
  *
- * Every function is static inline and branch-light. None may be called with
- * NaN; none returns a denormal for an in-range argument. */
+ * The hot helpers are static inline. floor, sin, and cos are one shared body
+ * (still inlined at a hot call). None may be called with NaN; none returns a
+ * denormal for an in-range argument. */
 #pragma once
 #include <stdint.h>
+
+#if defined(__GNUC__) || defined(__clang__)
+/* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
+ * The body stays visible so a hot call can still be inlined. A unit that
+ * does not inline emits a weak copy, and the link keeps one of them. */
+#define FM_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#else
+#define FM_ONE static inline
+#endif
 
 #define FM_PI 3.14159265358979f
 #define FM_TWO_PI 6.28318530717959f
@@ -32,7 +42,7 @@ static inline float fm_maxf(float a, float b) { return a > b ? a : b; }
 static inline float fm_clampf(float x, float lo, float hi) { return x < lo ? lo : x > hi ? hi : x; }
 
 /* floor for |x| < 2^31 */
-static inline float fm_floorf(float x)
+FM_ONE float fm_floorf(float x)
 {
     int32_t i = (int32_t)x;
     float f = (float)i;
@@ -54,7 +64,9 @@ static inline float fm_exp2_nf(int32_t n, float f)
     p = p * f + 6.931472057e-01f;
     p = p * f + 1.0f;
     b.f = p;
-    b.i += n << 23;
+    /* Unsigned exponent adjustment: negative signed shifts are undefined in C.
+     * The bit pattern is unchanged for the supported n range [-126, 127]. */
+    b.u += (uint32_t)n << 23;
     return b.f;
 }
 
@@ -141,7 +153,7 @@ static inline float fm_tanhf(float x)
 }
 
 /* sin on [-pi, pi]: odd polynomial, degree 13 */
-static inline float fm_sin_pi(float x)
+FM_ONE float fm_sin_pi(float x)
 {
     float x2 = x * x, p;
     p = 1.345176048e-10f;                      /* degree 13, fitted */
@@ -154,14 +166,14 @@ static inline float fm_sin_pi(float x)
     return p * x;
 }
 
-static inline float fm_wrap_pi(float x)                /* to [-pi, pi), 2pi in three parts */
+FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
 {
     float k = fm_floorf(x * (1.0f / FM_TWO_PI) + 0.5f);
     return ((x - k * 6.28125f) - k * 1.9353071693331003e-3f) - k * 1.0253131561401567e-11f;
 }
 
-static inline float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
-static inline float fm_cosf(float x)
+FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+FM_ONE float fm_cosf(float x)
 {
     float r = fm_wrap_pi(x) + 0.5f * FM_PI;          /* reduce first: adding pi/2 to a big x loses bits */
     if (r >= FM_PI)

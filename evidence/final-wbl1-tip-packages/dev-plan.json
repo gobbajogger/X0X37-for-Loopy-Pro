@@ -1,0 +1,23 @@
+{
+  "base": "b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a",
+  "scope": "Final WBL1 nightly publish: DEV CHECK Elite+Pro on origin/nightly tip 0e77d923 (includes #606 WBL1 ship, #611 −220 B size, #612 MIDI RT MQ). X0X_DEV_PADCAL=1, pool >= 8192. Owner scope: product Miami/WBL1 + CQ never-drop + MIDI RT; no AU fidelity work.",
+  "checks": [
+    {
+      "reason": "WBL1 product link default on (X0X_WOBBLE=1) in build.py.",
+      "argv": [
+        "bash",
+        "-c",
+        "grep -q 'wobble = os.environ.get(\"X0X_WOBBLE\")' tools/build.py && grep -q 'X0X_DEV_WOBBLE\", \"1\"' tools/build.py && echo PASS wobble-default"
+      ]
+    },
+    {
+      "reason": "CQ never-drop + MIDI RT MQ host regressions for owner lanes #602–#612.",
+      "argv": [
+        "bash",
+        "-c",
+        "export X0X_DEV_PADCAL=1 X0X_TEST_JOBS=8; mkdir -p build/gen build/host; python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null; sh tools/gen_builtin_break.sh build/gen >/dev/null; export X0X_TESTS='engine-cq-boff-overflow engine-cq-brk-overflow engine-cq-bon-overflow engine-cq-drum-overflow midi-mq-rt-overflow'; exec sh tests/run_tests.sh"
+      ]
+    }
+  ],
+  "dependencies": []
+}

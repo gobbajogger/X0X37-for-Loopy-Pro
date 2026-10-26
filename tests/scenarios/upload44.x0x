@@ -1,15 +1,12 @@
-# Uploaded loops at 44.1 kHz (the upload_breaks.py default) in the SMK-37 slot map (80, 120, 44 KiB):
-# slot 1 one loop, slot 2 (120 KiB) two loops, slot 3 (44 KiB) one 22.05 kHz loop. Built by
-# tests/run_tests.sh into build/test_upload44/ and build/test_upload44s3/, parsed by the firmware's own
-# slots.c and played.
+# Uploaded loops at 44.1 kHz (the upload_breaks.py default) in the SMK-37 slot map (80, 120 KiB):
+# slot 1 one loop, slot 2 (120 KiB) two loops. Built by tests/run_tests.sh into build/test_upload44/,
+# parsed by the firmware's own slots.c and played.
 wait 200
 expect loops 2
 slotimg 0 build/test_upload44/slot1.hdr build/test_upload44/slot1.bin
 expect loops 3
 slotimg 1 build/test_upload44/slot2.hdr build/test_upload44/slot2.bin
 expect loops 5
-slotimg 2 build/test_upload44s3/slot3.hdr build/test_upload44s3/slot3.bin
-expect loops 6
 # BREAK part, LOOPS page: loop A = the first uploaded loop (index 2, after the 2 built-in)
 turn ALGO 4
 expect part 4

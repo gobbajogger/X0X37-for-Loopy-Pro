@@ -1,0 +1,17 @@
+  ok   ble-midi-receive
+  ok   smc-reachability
+  ok   install-gate-guard
+  ok   gate-reason
+  ok   validation-inputs
+  ok   smk-update-contract
+  ok   installer
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  ok   inlog-tool
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   installer-slots
+  ok   installer-ctl
+all tests passed

@@ -1,0 +1,57 @@
+{
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "checks": [
+    {
+      "command": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 3.849095708,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/smc_reachability.log"
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 3.1527209170000003,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/smc_drum_mutes.log"
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 2.996736416,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/smc_performance_abort.log"
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/ui_feedback_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 2.9837166669999995,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/ui_feedback.log"
+    }
+  ]
+}

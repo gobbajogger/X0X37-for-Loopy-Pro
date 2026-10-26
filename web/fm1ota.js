@@ -72,11 +72,27 @@ function parseIdentity(pkt) {
 class Link {
   constructor(input, output) {
     this.input = input; this.output = output; this.q = []; this.waiter = null;
-    input.onmidimessage = (ev) => {
+    this.onMessage = (ev) => {
       if (ev.data[0] !== 0xF0) return;
       this.q.push(Array.from(ev.data));
       if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
+    // A MIDI input may already have an application handler. Do not replace it.
+    if (typeof input.addEventListener === "function" &&
+        typeof input.removeEventListener === "function") {
+      this.useEvents = true;
+      input.addEventListener("midimessage", this.onMessage);
+    } else {
+      // Compatibility with legacy/mock inputs that only expose the property.
+      this.useEvents = false;
+      const previous = input.onmidimessage;
+      this.previousHandler = previous;
+      this.installedHandler = (ev) => {
+        this.onMessage(ev);
+        if (typeof previous === "function") previous.call(input, ev);
+      };
+      input.onmidimessage = this.installedHandler;
+    }
   }
   get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
   // false when the port is gone (unplugged): WebMIDI throws on a disconnected output
@@ -93,7 +109,11 @@ class Link {
     }
     return this.q.shift() || null;
   }
-  close() { this.input.onmidimessage = null; }
+  close() {
+    if (this.useEvents) this.input.removeEventListener("midimessage", this.onMessage);
+    else if (this.input.onmidimessage === this.installedHandler)
+      this.input.onmidimessage = this.previousHandler;
+  }
 }
 
 async function handshake(link, tries = 3) {
@@ -115,33 +135,94 @@ export class Updater {
   constructor(access, log) {
     this.access = access;
     this.log = log || (() => {});
+    // Port accepted by the last fail-closed transition wait (loader or restart).
+    this.returnedPort = null;
+    // Running ports observed while the selected unit is still in the loader (before reboot).
+    this._beforeRunning = null;
+  }
+
+  _portPairs() {
+    const ins = [...this.access.inputs.values()].filter((p) => p.state !== "disconnected");
+    const outs = [...this.access.outputs.values()].filter((p) => p.state !== "disconnected");
+    const pairs = [];
+    for (const input of ins) {
+      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
+      // Names alone do not prove physical identity. Refuse duplicate or
+      // mismatched port labels instead of guessing which keyboard receives MIDI.
+      if (ins.filter((p) => p.name === input.name).length !== 1) continue;
+      const matching = outs.filter((p) => p.name === input.name);
+      if (matching.length !== 1) continue;
+      pairs.push({ input, output: matching[0], name: input.name });
+    }
+    return pairs;
   }
 
   // every in/out pair with the same port name that answers the handshake
   async find(filter) {
-    const outs = [...this.access.outputs.values()];
-    for (const input of this.access.inputs.values()) {
-      if (input.state === "disconnected") continue;
-      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
-      const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
-      if (!output) continue;
+    for (const { input, output, name } of this._portPairs()) {
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);
       const id = await handshake(link, 2);
-      if (id && (!filter || filter(id))) return { link, id, name: input.name };
+      if (id && (!filter || filter(id))) return { link, id, name };
       link.close();
     }
     return null;
   }
 
-  async waitFor(filter, ms) {
+  // Port names that answer and match filter (every link closed). Used to snapshot before a transition.
+  // skip: a port name already held open; do not reopen it (would steal onmidimessage from the live link).
+  async matchingPorts(filter, skip = null) {
+    const names = [];
+    for (const { input, output, name } of this._portPairs()) {
+      if (skip != null && name === skip) continue;
+      try { await input.open(); await output.open(); } catch (_) { continue; }
+      const link = new Link(input, output);
+      try {
+        const id = await handshake(link, 2);
+        if (id && (!filter || filter(id))) names.push(name);
+      } finally { link.close(); }
+    }
+    return names;
+  }
+
+  async openPort(name, filter) {
+    const pair = this._portPairs().find((p) => p.name === name);
+    if (!pair) return null;
+    try { await pair.input.open(); await pair.output.open(); } catch (_) { return null; }
+    const link = new Link(pair.input, pair.output);
+    const id = await handshake(link, 2);
+    if (id && (!filter || filter(id))) return { link, id, name };
+    link.close();
+    return null;
+  }
+
+  // Fail-closed transition wait: accept exactly one newly appeared matching port.
+  // before: port names that already matched filter before the transition.
+  // Returns that device, or null when none appear before the timeout.
+  // Throws when more than one new matching port appears. Never returns a port in before.
+  async waitFor(filter, ms, before) {
     const end = Date.now() + ms;
+    const prior = new Set(before);
     while (Date.now() < end) {
-      const dev = await this.find(filter);
-      if (dev) return dev;
+      const names = await this.matchingPorts(filter);
+      const newcomers = names.filter((n) => !prior.has(n));
+      if (newcomers.length > 1) {
+        throw fail("model", "more than one new device appeared after the update transition; disconnect other keyboards and try again. Nothing was written");
+      }
+      if (newcomers.length === 1) {
+        const dev = await this.openPort(newcomers[0], filter);
+        if (dev) { this.returnedPort = newcomers[0]; return dev; }
+      }
       await sleep(1000);
     }
     return null;
+  }
+
+  // Reconnect after a verified transition: same newly-appeared rule vs other ports.
+  async reconnectAfter(filter, ms) {
+    const known = this.returnedPort;
+    const before = (await this.matchingPorts(filter)).filter((n) => n !== known);
+    return this.waitFor(filter, ms, before);
   }
 
   // serve read requests until the device asks for one of the finish addresses; stops early
@@ -180,6 +261,7 @@ export class Updater {
     if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
     if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
+    const beforeLoaders = await this.matchingPorts(IS_OTA, dev.name);
     step("start", dev.id.text);
     dev.link.send(UPGRADE);
     await sleep(2000);
@@ -188,14 +270,24 @@ export class Updater {
     if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
     step("loader");
     await sleep(3000);
-    const ota = await this.waitFor(IS_OTA, 30000);
+    const ota = await this.waitFor((id) =>
+      IS_OTA(id) && sameKeyboard(id.model.replace(/^ota-/i, ""), model), 30000, beforeLoaders);
     if (!ota) throw fail("noloader", "the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.");
+    // Reject a loader from another keyboard family, even if discovery changes.
+    if (!IS_OTA(ota.id) || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), model)) {
+      ota.link.close();
+      throw fail("model", `the loader is ${ota.id.text}, the package is for ${product}`, ota.id.text);
+    }
     const s2 = await this.write(ota, image, step);
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
+    const beforeRunning = this._beforeRunning || [];
     step("reboot");
     await sleep(3000);
-    const back = await this.waitFor((id) => !IS_OTA(id), 40000);
-    if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
+    // A different connected keyboard is not evidence that the target rebooted.
+    // In particular, stock/manual mode must not report false success on mismatch.
+    const back = await this.waitFor((id) => !IS_OTA(id) && sameKeyboard(id.model, model), 40000, beforeRunning);
+    if (!back || !sameKeyboard(back.id.model, model))
+      throw fail("noreturn", "the target keyboard did not come back: power-cycle it");
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
     step("done", back.id.text);
@@ -204,6 +296,8 @@ export class Updater {
 
   // step 2 with the loader found by find()/waitFor()
   async write(ota, image, step) {
+    // Snapshot other running keyboards while this unit is still in the loader.
+    this._beforeRunning = await this.matchingPorts((id) => !IS_OTA(id), ota.name);
     ota.link.send(UPGRADE);
     await sleep(2000);
     const s2 = await this.serve(ota.link, image, 0xF0000000, 180000, (n) => step("write", n));

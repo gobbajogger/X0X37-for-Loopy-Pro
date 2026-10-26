@@ -1,0 +1,696 @@
+diff --git a/tests/install_slots_test.py b/tests/install_slots_test.py
+index 5fba7eb..a97b91e 100644
+--- a/tests/install_slots_test.py
++++ b/tests/install_slots_test.py
+@@ -134,7 +134,8 @@ def explicit_backup_keeps():
+     first_install = next(i for i, p in enumerate(dev.sent) if p == I.UPGRADE)
+     ok(rc == 0 and imgs[:2] == [a, b] and "slots saved: fresh.x0xslots" in out,
+        "explicit --backup: every slot saved and verified with zero at-risk slots")
+-    ok(dev.sent[first_install - 1][:4] == I.ED_HDR and dev.upgrades == 2,
++    before_update = [p for p in dev.sent[:first_install] if p != I.HS_QUERY]
++    ok(before_update[-1][:4] == I.ED_HDR and dev.upgrades == 2,
+        "explicit --backup: reads finish before the first update command")
+     clear()
+ 
+@@ -154,7 +155,8 @@ def downgrade():
+        "downgrade: every slot saved before install; incomplete restoration returns exit 7")
+     first_install = next(i for i, p in enumerate(dev.sent) if p == I.UPGRADE)
+     reads_before = [c for idn, c in dev.slot_cmds if idn == NEW_PKG]
+-    ok(set(reads_before) <= {xs.CMD_INFO, xs.CMD_READ} and dev.sent[first_install - 1][:4] == I.ED_HDR,
++    before_update = [p for p in dev.sent[:first_install] if p != I.HS_QUERY]
++    ok(set(reads_before) <= {xs.CMD_INFO, xs.CMD_READ} and before_update[-1][:4] == I.ED_HDR,
+        "downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install")
+     ok("slot 2 (BIG, 98 KiB), slot 3 (BR3, 30 KiB)" in out, "downgrade: the warning names the slots at risk")
+     now = read(fl, SMK_OLD_MAP, ext=False)
+diff --git a/tests/install_test.py b/tests/install_test.py
+index a2d9a98..6b1cbb3 100755
+--- a/tests/install_test.py
++++ b/tests/install_test.py
+@@ -78,6 +78,7 @@ class FakeSMK:
+     def __init__(self, image, identity="SMK-37 Pro_016", name="SMK-37 Pro", unplug_after=None, after_write="SMK-37 Pro_900",
+                  stall_after=None, bad_addr=None, slot_info=(2, 80, 0, 0, 0, 0, 0, 0)):
+         self.image, self.unplug_after, self.after_write = image, unplug_after, after_write
++        self.model = I.model_of(identity)
+         self.stall_after, self.bad_addr = stall_after, bad_addr
+         self.slot_info = slot_info
+         self.served = self.bad = self.upgrades = 0
+@@ -136,7 +137,7 @@ class FakeSMK:
+             if self.stall_after and self.served >= self.stall_after:
+                 return
+             if addr == I.FINISH_CHECK:
+-                threading.Timer(0.05, self.boot, ("ota-SMK-37 Pro_900", "Felucca Update")).start()
++                threading.Timer(0.05, self.boot, (f"ota-{self.model}_900", "Felucca Update")).start()
+             elif addr == I.FINISH_WRITE:
+                 threading.Timer(0.05, self.boot, (self.after_write, "Felucca")).start()
+             else:
+@@ -259,8 +260,8 @@ def errors():
+ 
+     t0 = time.monotonic()
+     rc, out, err = cli([p, "--yes"], FakeSMK(image, unplug_after=2))
+-    ok(rc == 4 and "disconnected" in err and "nothing was written" in err and time.monotonic() - t0 < 3,
+-       "unplugged in step 1 -> exit 4 'lost', nothing written")
++    ok(rc == 4 and "disconnected" in err and "no successful transition confirmed" in err and time.monotonic() - t0 < 3,
++       "unplugged in step 1 -> exit 4 'lost', transition unconfirmed")
+     t0 = time.monotonic()
+     rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", unplug_after=3))
+     ok(rc == 4 and "run the install again" in err and time.monotonic() - t0 < 3, "unplugged during the write -> exit 4 at once")
+diff --git a/tools/fm1_install.py b/tools/fm1_install.py
+index 7e383ae..597c044 100755
+--- a/tools/fm1_install.py
++++ b/tools/fm1_install.py
+@@ -47,6 +47,9 @@ package's flash.bin (flash header, JLFS entries, SPL, isd_config: the bootloader
+ WRITE_MIN in tools/fm1_rescue.py) must have the sha256 of the same bytes of a reference: a flash read-back of this unit
+ (a raw dump from flash 0, for example the fm1-backup-*.bin of tools/fm1_rescue.py). The reference is --head-ref FILE,
+ else X0X_HEAD_REF, else ~/.config/x0x/flash-head.bin if that file is there. A different sha256 -> "REFUSED", exit 11.
++The exact qualified dc466908 Elite bare candidate is an app-only exception: its supplied loader/payload
++bytes, loader headers/CRCs/bounds and reference chip-key/app-header CRC must match known_app_only_head().
++The normal protocol still stages that loader and checks the actual device key before application erase.
+ With no reference, the tool says so and continues: this tool has no flash read-back over USB-MIDI, and the slot backup
+ holds only the sample slots. --head-check compares only (no device, no gate guard): HEAD OK (exit 0) or HEAD MISMATCH (11).
+ Order for a real device: gate guard, foreground guard, hardware lock, bootloader guard, then the device.
+@@ -70,8 +73,10 @@ with exit 8.
+ 
+ Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
+ v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
+-The model is checked: an FM-1 package never goes to an SMK-37 Pro, nor the other way round (the SMK-37
+-Pro, Elite and MKE-P37 are one keyboard: their packages install on each other).
++The exact model is checked, including Elite versus Pro and the update loader. Disconnect other
++update-compatible keyboards: as on the accepted website, a sole compatible MIDI pair may rename
++across modes; after reboot its port name and reported product are frozen for restore/readback.
++The reported product verifies runtime identity, not the exact application build bytes.
+ """
+ import argparse
+ import hashlib
+@@ -100,7 +105,7 @@ PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|m
+ # seconds; the tests shorten them
+ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0, "retry": 1.0,
+          "poll": 1.0, "hs": 1.0, "idle_check": 8.0, "idle_write": 180.0,
+-         "wait_loader": 30.0, "wait_reboot": 40.0}
++         "wait_loader": 30.0, "wait_reboot": 40.0, "total_check": 120.0, "total_write": 600.0}
+ 
+ EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
+         "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
+@@ -332,23 +337,25 @@ class MidoBackend:
+         self.mido = mido
+ 
+     def input_names(self):
+-        return list(dict.fromkeys(self.mido.get_input_names()))
++        return list(self.mido.get_input_names())
+ 
+     def output_names(self):
+-        return list(dict.fromkeys(self.mido.get_output_names()))
++        return list(self.mido.get_output_names())
+ 
+     def open(self, in_name, out_name):
+         return MidoLink(self, in_name, out_name)
+ 
+ 
+ def pair_output(name, outs):
++    if len(outs) != len(set(outs)):
++        raise InstallError("model", "ambiguous duplicate MIDI outputs; nothing was written")
+     if name in outs:
+         return name
+     base = re.sub(r"\s+\d+$", "", name)     # Windows numbers each port
+     same = [o for o in outs if re.sub(r"\s+\d+$", "", o) == base]
+     if len(same) == 1:
+         return same[0]
+-    return outs[0] if len(outs) == 1 else None
++    return None                          # never send even a query to unrelated gear
+ 
+ 
+ # --------------------------------------------------------------- updater ---
+@@ -358,6 +365,38 @@ class Device:
+         self.link, self.id, self.name = link, ident, name
+ 
+ 
++class BoundLink:
++    """Apply the accepted singleton-port invariant throughout a bound session.
++
++    Names/model replies provide no serial or cryptographic physical-unit proof.
++    As on the accepted website, another compatible keyboard must be disconnected.
++    """
++    def __init__(self, raw, updater, name):
++        self.raw, self.updater, self.name = raw, updater, name
++
++    @property
++    def lost(self):
++        return (self.raw.lost or self.name not in self.updater.single_port() or
++                pair_output(self.name, self.updater.backend.output_names()) is None)
++
++    def send(self, packet):
++        if self.lost:
++            return False
++        return self.raw.send(packet)
++
++    def read(self, timeout):
++        if self.lost:
++            return None
++        packet = self.raw.read(timeout)
++        return None if self.lost else packet
++
++    def drain(self):
++        self.raw.drain()
++
++    def close(self):
++        self.raw.close()
++
++
+ def handshake(link, tries=3):
+     link.drain()
+     for _ in range(tries):
+@@ -378,6 +417,45 @@ class Updater:
+     def __init__(self, backend, port=None):
+         self.backend = backend
+         self.port = port
++        self.target = self.target_name = self.product = None
++        self.verified = False
++
++    def single_port(self, selected=None):
++        names = self.backend.input_names()
++        outs = self.backend.output_names()
++        if len(names) != len(set(names)) or len(outs) != len(set(outs)):
++            raise InstallError("model", "ambiguous duplicate MIDI endpoint names")
++        ports = [n for n in names if PORT_RE.search(n) or
++                 (self.port and self.port.lower() in n.lower())]
++        if len(ports) > 1 or (selected is not None and ports != [selected]):
++            raise InstallError("model", "ambiguous MIDI target across reboot; disconnect other compatible keyboards")
++        if self.verified and ports and ports != [self.target_name]:
++            raise InstallError("model", "verified MIDI port changed before readback or sample restore")
++        return ports
++
++    def bind(self, dev, product):
++        try:
++            self.single_port(dev.name)
++            if model_of(dev.id.text) != model_of(product):
++                raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
++            if self.target and (self.target_name != dev.name or self.target.text != dev.id.text):
++                raise InstallError("model", "selected target changed before the update")
++            self.target, self.target_name, self.product = dev.id, dev.name, product
++            if not isinstance(dev.link, BoundLink):
++                dev.link = BoundLink(dev.link, self, dev.name)
++            self.validate(dev)
++        except Exception:
++            dev.link.close()
++            raise
++
++    def validate(self, dev):
++        """Refuse a stale selection after prompting, backup, or reconnect."""
++        self.single_port(dev.name)
++        fresh = None if dev.link.lost else handshake(dev.link, 2)
++        if not fresh or fresh.text != dev.id.text:
++            raise InstallError("model", "stale MIDI target or changed identity; refusing update")
++        if not self.product or model_of(fresh.text) != model_of(self.product):
++            raise InstallError("model", "wrong exact model at the bound MIDI endpoint")
+ 
+     def candidates(self, only_port):
+         names = self.backend.input_names()
+@@ -389,9 +467,10 @@ class Updater:
+         return [n for n in names if PORT_RE.search(n)]
+ 
+     def find(self, want=None, only_port=True):
+-        """the first matching port that answers the handshake (and want(identity))"""
++        """Find one compatible target, retaining the bound exact model across modes."""
+         outs = self.backend.output_names()
+-        for name in self.candidates(only_port):
++        ports = self.single_port()
++        for name in (ports if self.target else self.candidates(only_port)):
+             out = pair_output(name, outs)
+             if not out:
+                 continue
+@@ -399,7 +478,19 @@ class Updater:
+                 link = self.backend.open(name, out)
+             except Exception:
+                 continue
+-            ident = handshake(link, 2)
++            if self.target:
++                link = BoundLink(link, self, name)
++            try:
++                ident = handshake(link, 2)
++            except Exception:
++                link.close()
++                raise
++            if ident and self.target and model_of(ident.text) != model_of(self.target.text):
++                link.close()
++                raise InstallError("model", f"selected keyboard changed exact model: {ident.text}")
++            if ident and self.verified and ident.text != self.product:
++                link.close()
++                raise InstallError("mismatch", f"verified runtime changed before readback or sample restore: {ident.text}")
+             if ident and (want is None or want(ident)):
+                 return Device(link, ident, name)
+             link.close()
+@@ -417,7 +508,12 @@ class Updater:
+     def serve(self, link, image, finish, idle, progress):
+         """answer read requests until the device asks for `finish`; -> (served, finished, lost)"""
+         served, last = 0, time.monotonic()
++        end = last + DELAY["total_check" if finish == FINISH_CHECK else "total_write"]
+         while True:
++            if link.lost:
++                return served, False, True
++            if time.monotonic() >= end or time.monotonic() - last > idle:
++                return served, False, False
+             pkt = link.read(DELAY["poll"])
+             if pkt is None:
+                 if link.lost:
+@@ -431,12 +527,14 @@ class Updater:
+             fl, addr, n = r
+             last = time.monotonic()
+             if addr in (FINISH_CHECK, FINISH_WRITE):
++                if addr != finish or n != 8:
++                    raise InstallError("badreq", "unexpected finish request for this update phase")
+                 if not link.send(response(addr, b"success\0")):
+                     return served, False, True
+                 if addr == finish:
+                     return served, True, False
+                 continue
+-            if n > MAXDATA or addr + n > len(image):
++            if n == 0 or n > MAXDATA or addr + n > len(image):
+                 raise InstallError("badreq", f"the device asked for {addr:#x}+{n}, outside the package")
+             time.sleep(DELAY["reply"])
+             if not link.send(response(addr, image[addr:addr + n], fl)):
+@@ -447,15 +545,19 @@ class Updater:
+     def check(self, dev, image, step):
+         """step 1: the running firmware checks the package and starts the loader"""
+         step("start", dev.id.text)
+-        dev.link.send(UPGRADE)
+-        time.sleep(DELAY["start"])
+-        served, finished, lost = self.serve(dev.link, image, FINISH_CHECK, DELAY["idle_check"],
+-                                            lambda k, end: step("check", k))
+-        dev.link.close()
++        try:
++            self.validate(dev)
++            if not dev.link.send(UPGRADE):
++                raise InstallError("lost", "update request failed; no successful transition confirmed")
++            time.sleep(DELAY["start"])
++            served, finished, lost = self.serve(dev.link, image, FINISH_CHECK, DELAY["idle_check"],
++                                                lambda k, end: step("check", k))
++        finally:
++            dev.link.close()
+         if not finished:
+             raise InstallError("lost" if lost else "stopped",
+                                f"the FM-1 {'was disconnected' if lost else 'stopped answering'} after "
+-                               f"{served} requests; nothing was written")
++                               f"{served} requests; no successful transition confirmed")
+         step("loader")
+         time.sleep(DELAY["loader"])
+         ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"])
+@@ -466,12 +568,18 @@ class Updater:
+ 
+     def write(self, ota, image, step):
+         """step 2: the loader reads and writes the whole package, then restarts"""
+-        step("write", 0)
+-        ota.link.send(UPGRADE)
+-        time.sleep(DELAY["start"])
+-        served, finished, lost = self.serve(ota.link, image, FINISH_WRITE, DELAY["idle_write"],
+-                                            lambda k, end: step("write", min(99, end * 100 // len(image))))
+-        ota.link.close()
++        try:
++            self.validate(ota)
++            if not ota.id.loader:
++                raise InstallError("model", "refusing firmware transfer to an application endpoint")
++            step("write", 0)
++            if not ota.link.send(UPGRADE):
++                raise InstallError("lost", "loader update request failed; write outcome is unconfirmed")
++            time.sleep(DELAY["start"])
++            served, finished, lost = self.serve(ota.link, image, FINISH_WRITE, DELAY["idle_write"],
++                                                lambda k, end: step("write", min(99, end * 100 // len(image))))
++        finally:
++            ota.link.close()
+         if not finished:
+             raise InstallError("lost" if lost else "stopped",
+                                f"the loader {'was disconnected' if lost else 'stopped answering'} after "
+@@ -488,15 +596,14 @@ class Updater:
+         back.link.close()
+         if back.id.text != product:
+             raise InstallError("mismatch", f"written, but the FM-1 reports {back.id.text} (expected {product})")
++        self.target_name, self.verified = back.name, True
+         step("done", back.id.text)
+         return back.id.text
+ 
+     def install(self, dev, image, product, step=lambda *a: None):
+         """running firmware -> loader -> new firmware; dev from find(). A device already in
+         update mode only needs the write."""
+-        if not same_keyboard(dev.id.text, product):
+-            dev.link.close()
+-            raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
++        self.bind(dev, product)
+         ota = dev if dev.id.loader else self.check(dev, image, step)
+         self.write(ota, image, step)
+         return self.verify(product, step)
+@@ -669,8 +776,70 @@ def head_compare(image, ref_path):
+                    f"the first at 0x{at:04X}")
+ 
+ 
++def known_app_only_head(product, image, ref_path):
++    """Narrow exception for the accepted dc466908 Elite build, never a marker/suffix bypass.
++
++    Firmware ota_stage() validates/stages this supplied loader. ldr_session() checks
++    the actual chip key before app erase and writes only [0x4000, 0x9D000).
++    The reference check below is offline evidence, not a live device attestation.
++    """
++    if (product != "SMK-37 Elite_900" or package_damage(image) or
++            hashlib.sha256(image).hexdigest() !=
++            "0e75ea99d2fa7baaa08dbf97da84fd72d85b40da3ded8f45aa2e6fd9a02a5ca1"):
++        return False
++    entries = {}
++    hdr = _dec(image[:0x40])
++    for i in range(int.from_bytes(hdr[8:10], "little")):
++        e = _dec(image[0x40+i*0x50:0x40+(i+1)*0x50])
++        typ = int.from_bytes(e[:2], "little")
++        if typ in entries:
++            return False
++        off, size = int.from_bytes(e[8:12], "little"), int.from_bytes(e[12:16], "little")
++        entries[typ] = image[off:off+size]
++    loader, flash = entries.get(100, b""), entries.get(0, b"")
++    u16 = lambda b, p: int.from_bytes(b[p:p+2], "little")
++    u32 = lambda b, p: int.from_bytes(b[p:p+4], "little")
++    if len(loader) < 0x88:
++        return False
++    n = u32(loader, 8)
++    official = (u16(loader, 0), u16(loader, 2), n) == (0xEBAA, 0x5881, 0x4DE1)
++    own = LOADER_MARK in loader[0x48:0x88] and u32(loader, 0x24) <= 0x14000
++    if (official or not own or len(loader) != n+0x20 or n > 0x5000-0x200 or
++            u32(loader, 4) != 0x20 or loader[12] != 0x41 or
++            _crc16(loader[2:32]) != u16(loader, 0) or
++            _crc16(loader[32:]) != u16(loader, 2) or
++            _crc16(loader[0x22:0x40]) != u16(loader, 0x20) or
++            u32(loader, 0x28) != 0x01C0A800 or
++            hashlib.sha256(loader).hexdigest() !=
++            "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e" or
++            len(flash) != 0x9D000):
++        return False
++    try:
++        ref = Path(ref_path).read_bytes()[:HEAD_END]
++        if len(ref) != HEAD_END:
++            return False
++        # Match ldr_chip_key(): CRC-checked JLFS entries and 34-byte key blob.
++        for off in range(32, 0x400, 32):
++            e = _dec(ref[off:off+32])
++            if _crc16(e[2:]) != u16(e, 0):
++                return False
++            if e[16:31] == b"isd_config.ini\x00":
++                at = u32(e, 4)
++                blob = ref[at:at+34]
++                if len(blob) != 34 or _crc16(blob[:32]) != u16(blob, 32):
++                    return False
++                head = bytearray(flash[HEAD_END:HEAD_END+32])
++                fm1pkg_make.sfc(head, 0, 32, 0, fm1pkg_make.chipkey_decode(blob[:32]))
++                return _crc16(head[2:]) == u16(head, 0)
++            if u16(e, 14):
++                return False
++    except OSError:
++        return False
++    return False
++
++
+ def head_guard(a, out=None, env=None):
+-    """check 4: 0 = same head, or no reference; 11 = refused. A package that does not load is left to run()."""
++    """check 4: equality or exact app-only candidate, 11 = refused; no reference is reported."""
+     out = out or sys.stderr
+     ref = head_ref_path(a, env)
+     if ref is None:
+@@ -678,15 +847,20 @@ def head_guard(a, out=None, env=None):
+               "not checked", file=out)
+         return 0
+     try:
+-        _, image = load_package(a.package, a.force)
+-    except InstallError:
+-        return 0                              # run() loads it again and reports the error
++        product, image = load_package(a.package, a.force)
++    except InstallError as e:
++        print(f"bootloader guard: REFUSED: {e}", file=out)
++        return EXIT["head"]
+     try:
+         same, text = head_compare(image, ref)
+     except InstallError as e:
+         print(f"bootloader guard: REFUSED: {e}", file=out)
+         return EXIT["head"]
+     if not same:
++        if known_app_only_head(product, image, ref):
++            print("bootloader guard: exact qualified Elite Felucca app-only candidate; reference key/app-header CRC OK. "
++                  "Head remains untouched; live device key check precedes application erase. " + text, file=out)
++            return 0
+         print(f"bootloader guard: REFUSED: the package bytes 0..0x{HEAD_END:X} are not the reference head: {text}. "
+               "Nothing was written.", file=out)
+         return EXIT["head"]
+@@ -825,6 +999,7 @@ def run(a, backend, out, ask):
+         raise not_found(up)
+     print(f"device:  {dev.id.text}  ({dev.name})" + ("  in update mode: the write will be finished" if dev.id.loader else ""),
+           file=out)
++    up.bind(dev, product)                   # before backup, restore, or any update request
+     move = None
+     if a.backup and dev.id.loader:
+         dev.link.close()
+@@ -837,7 +1012,7 @@ def run(a, backend, out, ask):
+                                     "Resume with --no-slots only after verifying an existing slot backup "
+                                     "or confirming that no X0X samples need preservation; restore "
+                                     "any saved slots after the firmware update")
+-    if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
++    if not dev.id.loader and not a.no_slots:
+         try:
+             move = plan_slots(dev, image, product, require_backup=bool(a.backup))
+         except (xs.SlotError, TimeoutError) as e:
+diff --git a/tools/dev_validate.py b/tools/dev_validate.py
+index 11692fb..8831404 100644
+--- a/tools/dev_validate.py
++++ b/tools/dev_validate.py
+@@ -6,6 +6,10 @@ run --commit HASH --model elite|pro --plan FILE --output NEW_DIRECTORY
+ verify --commit HASH --record FILE --fwsc FILE [--ctl FILE]
+ 
+ Plans contain a base commit, scope explanation, and checks [{reason, argv}].
++Verify also accepts the narrow x0x37.accepted-build-map.v1 descriptor: original
++immutable build receipt/logs, exact compiler-input reuse and separately pinned QA.
++It preserves the original build status and emits ORIGINAL BUILD MAPPED, not a new
++schema-2 DEV CHECKED record. Missing original evidence is refused.
+ Use no_tests_reason for a change with no applicable host test. Builds and budgets
+ are mandatory. Results are DEV CHECKED, never release PASS. Run in Linux x86-64, or use
+ --worker-image on macOS for native input hashing and Linux command execution.
+@@ -77,6 +81,9 @@ def check_plan(plan):
+ def verify(repo, commit, record, fwsc, ctl=None):
+     record = Path(record).resolve()
+     data = json.loads(record.read_text())
++    if data.get('schema') == 'x0x37.accepted-build-map.v1':
++        import accepted_build_mapping
++        return accepted_build_mapping.verify(repo, commit, record, fwsc, ctl)
+     if (data.get('schema') != 2 or data.get('result') != 'DEV CHECKED' or
+             data.get('config') != 'dev' or data.get('model') not in ('elite', 'pro')):
+         raise ValueError('not a development validation record')
+@@ -365,8 +372,9 @@ def main():
+         if a.action == 'run':
+             run(a)
+         else:
+-            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl)
+-            print('DEV CHECKED ' + a.commit)
++            verified = verify(a.repo, a.commit, a.record, a.fwsc, a.ctl)
++            label = 'ORIGINAL BUILD MAPPED' if verified.get('schema') == 'x0x37.accepted-build-map.v1' else 'DEV CHECKED'
++            print(label + ' ' + a.commit)
+     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as e:
+         print('REFUSED: ' + str(e), file=sys.stderr)
+         return 3
+diff --git a/tools/accepted_build_mapping.py b/tools/accepted_build_mapping.py
+new file mode 100644
+index 0000000..622d0e6
+--- /dev/null
++++ b/tools/accepted_build_mapping.py
+@@ -0,0 +1,105 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""Verify one accepted original build without pretending it ran dev_validate schema 2.
++
++This is an intentionally exact-candidate adapter. Original source/status/log names
++are preserved; absent original log bytes or unsupported assertions fail closed.
++It authorizes no hardware operation itself and does not issue a release PASS.
++"""
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++
++SCHEMA = 'x0x37.accepted-build-map.v1'
++ACCEPTED = '54f2ffbc3124f7449a69067dc8215a2d91a2e675'
++TREE = '3b5cadafba33f4c1b116660bc9d19a27a892337c'
++BUILT = 'dc4669083218f17f8cfb69069e7f32911a232b52'
++BUILD_TREE = '02cba17c78ab0e0334995f63363c4e8c407ae6a0'
++RECEIPT = 'docs/scheduler-handoffs/first-nightly-fulltree-recovery-20261024.json'
++RECEIPT_SHA = '8b28c21c2a680017c298675d358b7d10575966efcc653337c5cb401da7da4de1'
++UPDATER_SHA = '7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa'
++
++
++def digest(data):
++    return hashlib.sha256(data).hexdigest()
++
++
++def require(condition, message):
++    if not condition:
++        raise ValueError('accepted-build evidence: '+message)
++
++
++def verify(repo, commit, record, fwsc, ctl):
++    record = Path(record).resolve()
++    data = json.loads(record.read_text())
++    require(data.get('schema') == SCHEMA and data.get('config') == 'dev' and
++            data.get('model') == 'elite' and data.get('controller') is True,
++            'only the exact Elite DEV + controller mapping is supported')
++    require(data.get('accepted_commit') == ACCEPTED and data.get('built_commit') == BUILT,
++            'descriptor source identity mismatch')
++
++    def git(*args):
++        return subprocess.check_output(['git', '-C', str(repo), *args]).strip()
++
++    require(git('rev-parse', commit+'^{commit}').decode() == ACCEPTED and
++            git('rev-parse', ACCEPTED+'^{tree}').decode() == TREE and
++            git('rev-parse', BUILT+'^{tree}').decode() == BUILD_TREE, 'full source identity mismatch')
++    # Same scopes accepted by the upstream independent reviewer; includes build tools
++    # and configuration/pins, rather than only the firmware subtree.
++    scopes = ('firmware', 'tools', 'ble', 'assets', 'build.sh', 'host', 'web')
++    for scope in scopes:
++        require(git('rev-parse', BUILT+':'+scope) == git('rev-parse', ACCEPTED+':'+scope),
++                'compiler input changed: '+scope)
++    raw = subprocess.check_output(['git', '-C', str(repo), 'show', ACCEPTED+':'+RECEIPT])
++    require(digest(raw) == RECEIPT_SHA, 'original build receipt changed')
++    original = json.loads(raw)
++    require(original['source']['commit'] == BUILT and original['source']['tree'] == BUILD_TREE and
++            original['configuration'] == 'DEV X0X_DEV_PADCAL=1' and
++            original['build_status'] == 'BUILD_SUCCEEDED_UNREVIEWED', 'unsupported original build assertions')
++    require(original['budgets'] == {'app_code_free': 5620, 'ram_free': 460,
++            'pool_free': 8324, 'minimum_pool_free': 8192}, 'original build budget mismatch')
++
++    # A map is a locator, not evidence that commands ran. Compare the actual original
++    # bytes to the immutable source receipt; never reconstruct or rename these logs.
++    logs_dir = (record.parent/data['build_logs']).resolve(strict=True)
++    for name in ('elite-build.log', 'pro-build.log', 'controller-build.log'):
++        blob = (logs_dir/name).read_bytes()
++        info = original['logs'][name]
++        require(len(blob) == info['bytes'] and digest(blob) == info['sha256'],
++                'original log missing/changed: '+name)
++
++    review = json.loads((record.parent/data['accepted_review']).read_text())
++    require(review.get('id') == 5638784846 and
++            review.get('commit_id') == '7e89df2b71b2b8e4409cc6a489f4939bbe0b71f7' and
++            review.get('html_url') == 'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103#pullrequestreview-5638784846' and
++            digest(review.get('body', '').encode()) ==
++            '5cb4a9beb0c8b0e7a668a0e55c652d173794004ea063446fef62432f142c4b9f',
++            'independent accepted-source QA changed/missing')
++    # That review excludes the OLD native CLI. Require the separately reviewed new
++    # updater and its actual independent head-boundary evidence as well.
++    root = Path(__file__).resolve().parents[1]
++    require(digest((root/'tools/fm1_install.py').read_bytes()) == UPDATER_SHA,
++            'native updater differs from independent review')
++    native = root/'review/head-guard-review.json'
++    require(digest(native.read_bytes()) ==
++            '59356c8b8f8c7f3645b2ded3d01b15f7a2e92f0eb4259a39bed61cfce652a79d',
++            'native head-boundary review changed/missing')
++    qa = json.loads(native.read_text())
++    for path, key in [('head-boundary-test.py', 'test_script_sha256'),
++                      ('head-boundary-test.log', 'test_log_sha256'),
++                      ('head-boundary-results.json', 'results_sha256'),
++                      ('head-guard-review.md', 'review_sha256')]:
++        require(digest((native.parent/path).read_bytes()) == qa[key], 'native QA evidence changed: '+path)
++
++    require(ctl is not None, 'matching controller is required')
++    for kind, path in [('elite', fwsc), ('controller', ctl)]:
++        blob = Path(path).read_bytes()
++        info = original['artifacts'][kind]
++        require(len(blob) == info['bytes'] and digest(blob) == info['sha256'], 'artifact differs: '+kind)
++    # Preserve both statuses and identities. This is a verification result, not a new
++    # build, synthetic schema-2 record, full gate PASS, or hardware qualification.
++    return {'schema': SCHEMA, 'result': 'ORIGINAL BUILD MAPPED', 'config': 'dev', 'model': 'elite',
++            'accepted_commit': ACCEPTED, 'accepted_tree': TREE, 'built_commit': BUILT,
++            'original_build_status': original['build_status'], 'original_receipt_sha256': RECEIPT_SHA,
++            'independent_source_review': review['html_url']}
+diff --git a/flash-handoff.py b/flash-handoff.py
+new file mode 100644
+index 0000000..f207b7c
+--- /dev/null
++++ b/flash-handoff.py
+@@ -0,0 +1,75 @@
++#!/usr/bin/env python3
++"""Pinned normal MIDI handoff. Default is offline; --execute is for a fresh hardware thread.
++
++The default descriptor maps the exact original build through a reviewed adapter;
++all original raw logs are mandatory. Missing evidence refuses before MIDI access.
++Never rename the original schema-1 receipt to schema 2 or manufacture DEV CHECKED.
++"""
++import argparse
++import hashlib
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++ROOT = Path(__file__).resolve().parent
++COMMIT = '54f2ffbc3124f7449a69067dc8215a2d91a2e675'
++TREE = '3b5cadafba33f4c1b116660bc9d19a27a892337c'
++PINS = {
++    'tools/fm1_install.py': '7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa',
++    'tools/require_gate_pass.sh': 'cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf',
++    'tools/dev_validate.py': 'c4ad9f53b697b0999f15d20e9ee08f4b6dfaee4c1d7da8afa6222863f93b5e45',
++    'tools/accepted_build_mapping.py': '172fc656d59bfb5da42abd7e88ee807fee3ddb63ad5790ddfdf95faea5cc9e61',
++    'prep-evidence/accepted-build-map.json': '3d91198d7a0d503100d1ed8e962dfacdf4a1692d24c1b36ac2c2ace837f47aed',
++    'tools/validation_inputs.py': '3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1',
++    'tools/add_ctl.py': 'be5e82b16559ff5483f25fb2e6b20b7862daa4532f38ca799f332727509f34cc',
++    'tools/fm1pkg_make.py': 'd944c138bafb3ac0338eab1f9a1c73ab6eb7f3d75c9a126fb1b2897526ac33dd',
++    'tools/x0x_slots.py': 'af4d1dafafd86398f8e820e5cbd4b10536cf87c489e1022ef706603308b3187c',
++    'inputs/elite-dev.fwsc': 'd14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c',
++    'inputs/ctl.img': '956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a',
++    'inputs/reference-flash.bin': 'fb975d438bc4ab0e7cf05d831d7d254760bd0955c0847870df617a0ef341a650',
++}
++
++
++def main():
++    ap = argparse.ArgumentParser(description=__doc__)
++    ap.add_argument('--dev-record', type=Path, default=ROOT/'prep-evidence/accepted-build-map.json',
++                    help='genuine native validation record or original-build mapping descriptor')
++    ap.add_argument('--execute', action='store_true', help='run the hardware update after all guards pass')
++    args = ap.parse_args()
++    for name, expected in PINS.items():
++        if hashlib.sha256((ROOT/name).read_bytes()).hexdigest() != expected:
++            raise ValueError('pinned input changed: '+name)
++    actual = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', COMMIT+'^{tree}'], text=True).strip()
++    if actual != TREE:
++        raise ValueError('accepted Git source tree mismatch')
++    env = dict(os.environ, X0X_REPO=str(ROOT), PYTHONDONTWRITEBYTECODE='1')
++    pkg, ctl, ref = [str(ROOT/'inputs'/p) for p in ('elite-dev.fwsc', 'ctl.img', 'reference-flash.bin')]
++    gate = ['bash', str(ROOT/'tools/require_gate_pass.sh'), COMMIT,
++            '--fwsc', pkg, '--config', 'dev', '--ctl', ctl]
++    record = [] if args.dev_record is None else ['--dev-record', str(args.dev_record.resolve(strict=True))]
++    rc = subprocess.run(gate+record, cwd=ROOT, env=env).returncode
++    if rc:
++        return rc
++    install = ['/usr/bin/python3', '-B', str(ROOT/'tools/fm1_install.py'), pkg]
++    rc = subprocess.run(install+['--head-check', '--head-ref', ref], cwd=ROOT, env=env).returncode
++    if rc or not args.execute:
++        return rc
++    if not sys.stdin.isatty():
++        raise ValueError('--execute requires a foreground terminal in a fresh authorized hardware thread')
++    backup = ROOT/'prep-evidence/elite-slots-before-native-flash.x0xslots'
++    if backup.exists():
++        raise ValueError('fresh backup path already exists; preserve it and resolve before execution')
++    # The updater rechecks gate/head, holds the hardware lock, binds the sole exact-model
++    # target, takes the fresh backup, stages, writes, reboots and checks sample/controller readback.
++    return subprocess.run(install+['--port', 'X0X FM-1', '--ctl', ctl, '--commit', COMMIT,
++        '--config', 'dev', '--head-ref', ref, '--backup', str(backup), '--yes']+record,
++        cwd=ROOT, env=env).returncode
++
++
++if __name__ == '__main__':
++    try:
++        sys.exit(main())
++    except (OSError, ValueError, subprocess.SubprocessError) as error:
++        print('REFUSED: '+str(error), file=sys.stderr)
++        sys.exit(3)
+diff --git a/prep-evidence/accepted-build-map.json b/prep-evidence/accepted-build-map.json
+new file mode 100644
+index 0000000..5dff54c
+--- /dev/null
++++ b/prep-evidence/accepted-build-map.json
+@@ -0,0 +1,10 @@
++{
++  "schema": "x0x37.accepted-build-map.v1",
++  "config": "dev",
++  "model": "elite",
++  "controller": true,
++  "accepted_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
++  "built_commit": "dc4669083218f17f8cfb69069e7f32911a232b52",
++  "build_logs": "../inputs/fulltree-recovery-logs",
++  "accepted_review": "accepted-independent-qa.json"
++}

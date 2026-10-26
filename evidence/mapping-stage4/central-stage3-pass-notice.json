@@ -1,0 +1,16 @@
+{
+  "source_chat": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "result": "STAGE3 PASS",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "evidence_commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "evidence": "/Users/mac/Documents/x0x37/smc_central_stop_stage3_20261021/evidence/stop-stage3/checks.json",
+  "evidence_sha256": "c32cd93a123ff175dbb700ca2515c9e72a73d6f109768bc8a911bf15c9fb6390",
+  "independent_review": "Both independent helpers passed. No actionable source defect was found. A new 16-case event-order probe passed ASan/UBSan.",
+  "stage4_owner": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+  "stage4_startup_turn": "01a15ab5-7feb-7ee3-8482-c24973618913",
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_central_stop_stage3_20261021/evidence/stop-stage3/startup.json",
+  "startup_source": "The recorded stage3 owner verified actual startup.",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED"
+}

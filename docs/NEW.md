@@ -163,7 +163,6 @@ Projects saved with 0.10 load as they were.
 - Safe mode: after two failed starts X0X starts with no sound and USB on, so the web installer can always reach it (it used to drop into the chip's update mode, which no installer can see). PLAY tries again.
 - After a crash, the next start says so and shows where.
 - The web installer can put M-VAVE's stock firmware (FM-1 V15) back.
-- The browser version can load your own breaks.
 
 </details>
 
@@ -173,7 +172,6 @@ Projects saved with 0.10 load as they were.
 - The 303 lines start empty, like the drums: a fresh FM-1 (or FACTORY RESET) no longer plays two generated lines. OCT+ on TB-3PO writes one. Saved projects are unchanged.
 - Delay: a division longer than the 2 s line (1/2. below 90 BPM, 1/2 below 60) now halves and stays on the beat instead of being cut off the grid.
 - GLO > ABOUT shows the real version (every release said 0.1).
-- New: X0X in the browser, https://charlesvestal.github.io/fm1-x0x/emu/
 - New: recovering an FM-1 that won't start, from a Mac (manual, Troubleshooting).
 
 </details>

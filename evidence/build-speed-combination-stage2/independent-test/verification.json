@@ -1,0 +1,107 @@
+{
+  "result": "PASS",
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "source_manifest_entries": 760,
+  "source_tree_identity_sha256": "0f9416f8363a28eb4cc3db4b51c8f664f3446ddba2139e2847affdfd8484ba46",
+  "checkpoint_source_hashes": 40,
+  "firmware_tree": "878d5c734bf6d567db8a2120e9aeec873b85eaa7",
+  "quickcheck_selection": {
+    "quickcheck-plan": [
+      "locked-settings",
+      "quickcheck-plan",
+      "smk-flash"
+    ],
+    "ctl-compile": [
+      "ctl-compile",
+      "locked-settings",
+      "smk-flash"
+    ],
+    "host-setup": [
+      "host-setup",
+      "locked-settings",
+      "smk-flash"
+    ],
+    "runner-admission": [
+      "locked-settings",
+      "runner-admission",
+      "smk-flash"
+    ],
+    "dev-validate": [
+      "dev-validate",
+      "locked-settings",
+      "smk-flash"
+    ]
+  },
+  "controller_image_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "recorded_evidence_reused": [
+    "Combined Quickcheck12, controller7, host7, runner13, native-input13 and native-DEV15 fixtures; final real worker1 fixture.",
+    "Contributor independent/acceptance source hashes, controller successful image/input/flags/link proof and accepted native package/walker/consumer scopes."
+  ],
+  "limits": [
+    "Independent Test did not rerun full suites. Root reran only the affected controller suite under outer async launch; all unrelated matching checks are reused. Earlier foreground-only scratch probe remains historical failure-discovery context.",
+    "Historical recorded environment/tool identity and current source/log hashes support reuse; no complete original inherited environment snapshot or installed-byte snapshot was recorded for all host fixture runs.",
+    "SDK/toolchain byte identities are retained evidence; no full dependency rehash or target build.",
+    "No target artifact equality, whole-build timing, gate, install, device or push claim. Cache and new cache consumer routing remain excluded."
+  ],
+  "original_checked_candidate": "f53309ce43c7624a83291b1773ae1f86ec9db484",
+  "commit_metadata_disposition": "Parent amended only commit metadata to add required Trigger/Check fields; identical Git tree verified. Passing source/evidence/behavior assertions reused.",
+  "final_metadata_binding": "The earlier same-tree commit-message amendments remain history; final source repair e7e63bd changes only fixture normalization and restores accepted scheduler classifications.",
+  "historical_registration_boundary_probes": [
+    {
+      "label": "serial",
+      "jobs": 1,
+      "status": 0,
+      "expected_negative": false,
+      "installer_lock_invocations": 0,
+      "stdout": "  ok   ctl-compile\nall tests passed\n",
+      "fixture_log": "SIGINT usable\n"
+    },
+    {
+      "label": "parallel",
+      "jobs": 4,
+      "status": 0,
+      "expected_negative": false,
+      "installer_lock_invocations": 0,
+      "stdout": "  ok   ctl-compile\nall tests passed\n",
+      "fixture_log": "SIGINT usable\n"
+    },
+    {
+      "label": "original-parallel-class",
+      "jobs": 4,
+      "status": 1,
+      "expected_negative": true,
+      "installer_lock_invocations": 0,
+      "stdout": "  FAIL ctl-compile (see build/host/ctl-compile.log)\n       Traceback (most recent call last):\n         File \"/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/combined-registration-012y70uq/signal-fixture.py\", line 2, in <module>\n           assert signal.getsignal(signal.SIGINT) != signal.SIG_IGN, \"inherited ignored SIGINT\"\n       AssertionError: inherited ignored SIGINT\nTESTS FAILED\n",
+      "fixture_log": "Traceback (most recent call last):\n  File \"/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/combined-registration-012y70uq/signal-fixture.py\", line 2, in <module>\n    assert signal.getsignal(signal.SIGINT) != signal.SIG_IGN, \"inherited ignored SIGINT\"\nAssertionError: inherited ignored SIGINT\n"
+    }
+  ],
+  "historical_probe_limit": "These initial serial-mapping checks did not cover outer async Bash. They are superseded for final signal-fixture acceptance by affected-verification.json and saved seven-method outer-background PASS.",
+  "tree": "de94ec06bb3b411850104dade643492d22e4606c",
+  "current_registration_boundary": {
+    "result": "PASS",
+    "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+    "superseded_candidate": "c0d2ab2f3248ce86a1e6421be926ce5297768272",
+    "tree": "de94ec06bb3b411850104dade643492d22e4606c",
+    "source_tree_identity_sha256": "0f9416f8363a28eb4cc3db4b51c8f664f3446ddba2139e2847affdfd8484ba46",
+    "source_entries": 760,
+    "production_delta": [
+      "tests/host/test_ctl_compile.py",
+      "tests/run_tests.sh"
+    ],
+    "assertion_preservation": "Whole controller fixture AST equals previous checked module after removing only the new preexec_fn keyword. All old-source negative controls and signal/cleanup/status assertions are unchanged.",
+    "signal_reset": "Exactly one tested controller-shell Popen resets SIGINT to SIG_DFL before exec. It does not reset the suite process or production compiler.",
+    "runner": "Exactly accepted fe7f040 runner plus five literal declarations; classification/lock/scheduler functions fully restored, ctl-compile defaults to parallelP with no installer lock.",
+    "affected_execution": "Root actual seven-method fake compiler suite PASS through general runner jobs4/classP under asynchronous Bash; exact committed logs/hash records verified.",
+    "reused": "All other native/source/generator/suite evidence from prior Test remains valid; old-source compiler negatives still fail before signal delivery at unchanged child-state assertions. No unrelated suite or build repeated.",
+    "logs_sha256": {
+      "registered-ctl-outer-final.log": "2020c1fbea88396864015daad083e6457b5a8ce6cae3c2bc441fb0e4569f9496",
+      "registered-ctl-outer-methods.log": "260ce4ea2972fddc69d584113f8809fe7bb9ef323756317392a8a83acae0ec48"
+    },
+    "limits": [
+      "New source changed fixture normalization, not production controller behavior.",
+      "Outer-background full seven-method execution is macOS host fake-compiler coverage; no new pinned-Linux suite or target build is claimed.",
+      "Prior source/timing/dependency/environment limitations remain. Cache source and consumer routing remain excluded."
+    ]
+  }
+}

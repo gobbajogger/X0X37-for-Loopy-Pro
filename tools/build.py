@@ -37,6 +37,7 @@ GEN = OUT / "gen"
 LDR = OUT / "loader"
 sys.path.insert(0, str(SRC / "tools"))
 import fm1pkg_make  # noqa: E402
+import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
@@ -45,13 +46,17 @@ APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX   # SMK: the app code ends below the Blu
 LOADER_LOAD = 0x01C0A800
 LOADER_NAME = b"usb_hid_ota.bin"    # the file name the SPL looks for
 DOCKER_IMAGE = os.environ.get("JIELI_DOCKER_IMAGE", "debian:bookworm-slim")
-CFLAGS = ["-Os", "-ffunction-sections", "-fno-builtin", "-Wall", "-Wno-unused-function"]
+CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wall", "-Wno-unused-function"]
 # X0X: the AC79's single-precision FPU (the SDK's own flags); no fused multiply-add, so the host
 # build (-ffp-contract=off) computes the same samples
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
+
+def clang_std_inc():
+    """pi32v2 clang does not auto-add sibling include/; -idirafter keeps resource-dir first."""
+    return ["-idirafter", str(toolchain() / "pi32v2" / "include")]
 # the DSP, the sequencer and the audio engine: separate units at -O2
 O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/bass303.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
-            "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
+            "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
 # SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
@@ -67,7 +72,8 @@ BOARD_PREFIX = {"fm1": "FM-1_9", "smk37": "SMK-37 Pro_9"}   # identity of a rele
 BOARD_DEFS = {"fm1": [], "smk37": ["-DBOARD_SMK37=1"]}       # the FM-1 build gets no new flag (byte-identical)
 # smk37: the keyboard's model name (MODEL env or --model); one hardware, three names. pro adds no flag
 MODELS = {"pro": "SMK-37 Pro", "elite": "SMK-37 Elite", "mke": "MKE-P37"}
-VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
+VERSION = None                      # numeric X.Y.Z passed to the firmware as X0X_VERSION
+RELEASE_LABEL = None                # display only, e.g. 0.1.3_openbeta; not part of the package identity
 
 
 def toolchain():
@@ -142,6 +148,9 @@ def tc_all(*cmds):
 def generate():
     """generated headers: the font (Felucca's), the 909's samples and tables, the break bank"""
     GEN.mkdir(parents=True, exist_ok=True)
+    if gen_cache.restore(GEN):
+        print("generate: cached font, drums, and break bank")
+        return
     tools = SRC / "tools"
     cmds = [[tools / "gen_font.py", GEN / "felucca_font.h"],
             [tools / "gen_drum_samples.py", GEN / "x0x_drum_samples.h"]]
@@ -154,16 +163,23 @@ def generate():
             failed.append(c[0].name)
     if failed:
         raise SystemExit(f"build: {', '.join(failed)} failed")
-    # the BREAK part's built-in bank: the 909-rendered loops (no recordings), or, opt-in,
-    # one-bar WAVs from X0X_BREAK_BANK (made by tools/import_breaks.py; not in this tree)
+    # The default image has no built-in loops: that flash is code room. X0X_FACTORY_BREAKS=1
+    # puts the 909 loops back in the image. X0X_BREAK_BANK=DIR uses another bank instead.
+    import break_pack
     bank = os.environ.get("X0X_BREAK_BANK")
-    cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
-           else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    sys.stdout.write(r.stdout)
-    if r.returncode:
-        sys.stderr.write(r.stderr)
-        raise SystemExit("build: break bank failed")
+    factory = os.environ.get("X0X_FACTORY_BREAKS") == "1"
+    if bank or factory:
+        cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
+               else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        sys.stdout.write(r.stdout)
+        if r.returncode:
+            sys.stderr.write(r.stderr)
+            raise SystemExit("build: break bank failed")
+    else:
+        break_pack.write_empty_header(GEN / "x0x_break_bank.h")
+        print("break bank: none (factory loops are an optional install)")
+    gen_cache.store(GEN)
 
 
 # ---- update loader
@@ -200,7 +216,7 @@ def ldr_wrap(image):
 def build_loader():
     LDR.mkdir(parents=True, exist_ok=True)
     src = FW / "loader"
-    flags = [*CFLAGS, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src"]
+    flags = [*CFLAGS, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", *clang_std_inc()]
     tc_all(("cc", "-c", src / "crt0_ldr.S", "-o", LDR / "crt0_ldr.o"),
            ("cc", *flags, "-c", src / "loader.c", "-o", LDR / "loader.o"))
     elf = LDR / "loader.elf"
@@ -232,10 +248,21 @@ def build_app():
     flags = [*CFLAGS, *FPU, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
-    for flag in ("X0X_CDC", "X0X_DEBUG"):
-        v = os.environ.get(flag)    # unset: the default in firmware/src/x0x.c
+    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE", "X0X_WOBBLE"):
+        v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
+    # Product Miami/WBL1: on unless explicitly X0X_WOBBLE=0 (or legacy X0X_DEV_WOBBLE=0 alone).
+    wobble = os.environ.get("X0X_WOBBLE")
+    if wobble is None:
+        wobble = os.environ.get("X0X_DEV_WOBBLE", "1")
+    if wobble not in ("0", "1"):
+        raise SystemExit("X0X_WOBBLE / X0X_DEV_WOBBLE: 0 or 1")
+    if f"-DX0X_WOBBLE={wobble}" not in flags:
+        flags.append(f"-DX0X_WOBBLE={wobble}")
+    if f"-DX0X_DEV_WOBBLE={wobble}" not in flags:
+        flags.append(f"-DX0X_DEV_WOBBLE={wobble}")
+    flags += clang_std_inc()
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
     if BOARD == "smk37":            # SMK store owner (storage.c st_owner_check): X0X's own family, untagged data cleared
         fam = os.environ.get("FELUCCA_DATA_FAMILY", "X0X")
@@ -252,17 +279,24 @@ def build_app():
             flags.append(f"-DLCD_BAUD={baud}u")
     if VERSION:
         flags.append(f'-DX0X_VERSION="{VERSION}"')
+    if RELEASE_LABEL:
+        flags.append(f'-DX0X_RELEASE_LABEL="{RELEASE_LABEL}"')
     o2 = [f if f != "-Os" else "-O2" for f in flags]
     units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
              ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
              ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
-             ("cc", *flags, "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
+             ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
     objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
     (OUT / "o2").mkdir(parents=True, exist_ok=True)
+    if wobble == "1":
+        o = OUT / "o2" / "wobble.o"
+        units.append(("cc", *[f if f != "-O2" else "-Oz" for f in o2], "-c", Path("experiments/wobble/wobble.c"), "-o", o))
+        objs.append(o)
     for u in O2_UNITS:
         o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
-        units.append(("cc", *o2, "-c", FW / "src" / u, "-o", o))
+        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
+        units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
         objs.append(o)
     tc_all(*units)
     elf = OUT / "x0x.elf"
@@ -303,6 +337,9 @@ def build_app():
             img += b"\xff" * (load - APP_XIP - len(img))
             img += blob
     img += b"\xff" * (-len(img) % 4)
+    # A 0x00 mark, then pad back to a word. The optional break pack sits after this
+    # mark, in the 0xFF tail, and does not overwrite the image.
+    img += b"\x00\xff\xff\xff"
     (OUT / "x0x.bin").write_bytes(img)
     return bytes(img), syms, dis, rt
 
@@ -396,8 +433,31 @@ def mmio_check():
     return errors
 
 
+def release_identity(text):
+    """Split a --release argument into machine identity and open-beta display.
+
+    The package identity uses only X.Y.Z, each component 0..99, as model_9XXYYZZ.
+    `_openbeta` is a display label. It is not accepted as a version argument and
+    it is not encoded in the product name. A different -suffix keeps the older
+    on-device version string and gets no open-beta label.
+    """
+    match = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", text or "")
+    if not match:
+        raise ValueError("use X.Y[.Z][-suffix], up to two digits each")
+    major, minor, patch = int(match[1]), int(match[2]), int(match[3] or 0)
+    numeric = "%d.%d.%d" % (major, minor, patch)
+    digits = "%02d%02d%02d" % (major, minor, patch)
+    channel = match.group(4)
+    if channel in (None, "-openbeta"):
+        return {"numeric": numeric, "digits": digits, "version_macro": numeric,
+                "release_label": numeric + "_openbeta", "filename": numeric}
+    shown = text.upper() if "BETA" in text.upper() else text.upper() + " BETA"
+    return {"numeric": numeric, "digits": digits, "version_macro": shown,
+            "release_label": None, "filename": text}
+
+
 def main():
-    global PRODUCT, VERSION, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
+    global PRODUCT, VERSION, RELEASE_LABEL, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
@@ -406,6 +466,9 @@ def main():
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
+    # regression guard: hardware-relevant settings must match tools/locked_settings.json
+    if subprocess.run([sys.executable, str(SRC / "tools" / "check_locked_settings.py")]).returncode:
+        raise SystemExit("build.py: locked settings differ (see above); the build stops")
     BOARD = (a.board or os.environ.get("BOARD") or "fm1").lower().replace("-", "")
     if BOARD not in BOARD_PREFIX:
         raise SystemExit(f"BOARD={BOARD}: use fm1 or smk37")
@@ -429,17 +492,20 @@ def main():
         OUT = OUT.parent / f"{BOARD}-{model}"     # its own objects: the Pro build's stay as they are
         LDR = OUT / "loader"
     name = f"{stem}.fwsc"
+    RELEASE_LABEL = None
     if a.release:
         # identity FM-1_9 + major, minor, patch as two digits each (0.10 -> FM-1_9001000). FM-1 is the
         # model the update tools match on; the number is ours (X0X 0.3..0.9 were FM-1_9XY, one digit
-        # each, which ran out at 0.9 and was also Felucca's own numbering). 12 of the 20 characters a
-        # package's identity holds; digits only after the underscore, as the tools parse it.
-        m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", a.release)
-        if not m:
-            raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
-        PRODUCT = BOARD_PREFIX[BOARD] + "%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
-        VERSION = a.release.upper() if "BETA" in a.release.upper() else a.release.upper() + " BETA"
-        name = f"{stem}-{a.release}.fwsc"
+        # each, which ran out at 0.9 and was also Felucca's own numbering). Digits only after the
+        # underscore. The open-beta words stay in X0X_RELEASE_LABEL, not in this identity.
+        try:
+            ident = release_identity(a.release)
+        except ValueError as exc:
+            raise SystemExit(f"--release {a.release}: {exc}") from exc
+        PRODUCT = BOARD_PREFIX[BOARD] + ident["digits"]
+        VERSION = ident["version_macro"]
+        RELEASE_LABEL = ident["release_label"]
+        name = f"{stem}-{ident['filename']}.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
         if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:

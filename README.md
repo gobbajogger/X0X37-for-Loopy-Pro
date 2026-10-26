@@ -10,11 +10,13 @@ The factory sound is set up for big beat, so it should make noise the moment you
 
 [![X0X running on the FM-1 (watch on YouTube)](https://img.youtube.com/vi/cZLYrZaLDUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=cZLYrZaLDUk)
 
-- **Try it in your browser** (no FM-1 needed): <https://charlesvestal.github.io/fm1-x0x/emu/>
-- **Install it** (Chrome or Edge, with the FM-1 plugged in): <https://charlesvestal.github.io/fm1-x0x/install/>
-- **Read the manual**: <https://charlesvestal.github.io/fm1-x0x/manual/>
-- **Download the firmware file**: [releases](https://github.com/charlesvestal/fm1-x0x/releases)
-- **M-Vave SMK-37:** see [SMK-37 instructions](SMK37.md).
+- **Install it** (Chrome or Edge, USB): <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/> — upgrade, downgrade, or switch: pick a published version/model, or drop any `.fwsc` (stock / other custom / local build)
+- **Sample importer** (your own break loops): <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/>
+- **Read the manual**: <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/>
+- **Download firmware**: [releases](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases)
+- **M-Vave SMK-37 / Loopy Pro:** see [SMK-37 instructions](SMK37.md).
+
+The site is the `gh-pages` branch (same hosting pattern as other FM-1/SMK projects). If the URL 404s, turn on **Settings → Pages → Deploy from a branch → `gh-pages` / root** (private repos need a plan that allows Pages, or make the repo public). First publish: `tools/publish_pages.sh --shell`, then attach `.fwsc` files to a Release.
 
 > **X0X is in beta.** It's solid for everyday playing, but a very busy pattern can push the FM-1
 > to its limit. When that happens, X0X trades a little sound quality to keep playing rather than
@@ -45,8 +47,8 @@ installer and the storage) and replaces the instrument on top.
 ## Your own breaks
 
 X0X doesn't ship with any recorded breaks, only two loops played by its own 909. You can load
-your own into the sample slots. Loops go in at 44.1 kHz. The SMK-37 has three slots of
-80, 120 and 44 KiB (about 3.7, 5.5 and 2 seconds, 11.3 seconds in all); the FM-1 has three of
+your own into the sample slots. Loops go in at 44.1 kHz. The SMK-37 has two slots of
+80 and 120 KiB (about 3.7 and 5.5 seconds, 9.2 seconds in all); the FM-1 has two of
 80 KiB (about 3.7 seconds each). Ask for 22.05 kHz to fit twice as much at lower quality. An
 install that would lose loops saves them to a file first and writes them back after.
 The [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/) does it from Chrome or
@@ -71,7 +73,6 @@ tests/run_tests.sh      # the maths, the sequencer, every engine against its ori
 ./build.sh              # build/x0x.fwsc
 ```
 
-x0x37 team: for a single change, run only the affected tests and tools/quickcheck.sh. Build and Test Runner runs the full suite (tests/run_tests.sh) only in the gate.
 
 `host/x0x_host` runs the whole app on a computer from a script (`tests/scenarios/*.x0x`). Button
 presses, keys, knob turns and MIDI go in; audio and screenshots come out. That's how most of

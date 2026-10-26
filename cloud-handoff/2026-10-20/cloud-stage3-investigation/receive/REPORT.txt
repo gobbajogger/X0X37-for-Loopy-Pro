@@ -1,0 +1,70 @@
+Stage 3 receive/SMC helper: FAILURES REQUIRE DISPOSITION
+Checked input: e50df9a67f72211f85f0410c97c430b03c2e96ee
+Detached worktree: /workspace/x0x-stage3-receive; tracked candidate unchanged.
+Baseline diagnostic worktree: /workspace/x0x-stage3-receive-baseline at 2592a00.
+Receiving owner: /root stage 3 owner. No successor created by this helper.
+
+Selected risks and evidence:
+- BLE assembly/bounds/reconnect/SysEx and SMC UI routing: ble-midi-receive,
+  ble-capture-replay, smc-reachability, ble.
+- SMC preset formats, encoder/fader/button routing, filter/master mute, part
+  selection, and covered clip fields: eight smc-* named checks below.
+- Diagnostics reporting: diag-size, smk-inlog, ble-central-diag, inlog-tool.
+- Adjacent clip mapping/palette consumers: smk-apc40-map, smk-apc40,
+  smk-apc40-violet.
+
+Command from checked worktree:
+CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L X0X_TEST_JOBS=1 X0X_GATE_LOCK=/workspace/x0x-stage3-evidence/receive/test.lock sh tests/run_tests.sh ble-midi-receive ble-capture-replay smc-reachability smc-protocol smc-filter smc-mapping smc-fader smc-buttons smc-part-select smc-clip-visibility diag-size smk-inlog ble-central-diag inlog-tool smk-apc40-map smk-apc40 smk-apc40-violet ble
+Exit 1. focused.log: 17 ok lines and one failure, smc-clip-visibility.
+Individual checked logs are *-detail.log. The runner's package-skip note is
+outside the 18 requested names; this helper did not test target packages.
+
+FINDING 1: introduced test-extractor drift, not an observed production fault.
+firmware/src/app/smc_mixer.c:411 changed smc_message from static void to
+static uint8_t for dispatch diagnostic reason. tests/host/smc_clip_visibility_test.sh:11
+still extracts only static void smc_message. Result: omitted body, implicit
+smc_message declaration at smc_poll, then unused fixture stubs/knob errors.
+The unchanged fixture passes at baseline 2592a00 (clip-baseline.log, exit 0).
+rg search across tests/tools/host found this to be the only named smc_message
+extractor; smc_reachability_test.c includes production smc_mixer.c directly.
+The production direct calls are smc_poll BLE dispatch at :473 and host queue
+at :481; production signature/calls are consistent.
+Temporary probe changes only the extractor to the real uint8_t signature,
+then compiles the original fixture with -g -O1 -fsanitize=address,undefined,
+-Wall -Wextra -Werror. It passes all visibility assertions with strict UBSan:
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 python3 /workspace/x0x-stage3-evidence/receive/clip-extractor-probe.py
+Log: clip-extractor-probe.log. Diagnostic only; checked source unchanged.
+
+FINDING 2: pre-existing test-fixture undefined behavior hidden by recovery mode.
+tests/host/ble_midi_central_test.c:23 unconditionally calls memcpy(b+6,extra,n).
+main line 51 calls cc with extra=NULL,n=0. UBSan reports the nonnull violation
+before entering production blec_rx for that fixture event. The runner returns
+ok because UBSan recovers by default. This helper does not classify its logged
+ok line as a clean sanitizer pass.
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 CC=cc sh tests/host/ble_midi_receive_test.sh
+exits 1, ubsan-strict.log. The same null-copy bug and strict failure exist at
+baseline 2592a00 (central-baseline.log), so it predates current stage-2 changes.
+Temporary source copy guards the fixture copy with if(n), uses checked production
+ble_midi_central.c, and passes ASan+strict UBSan (central-guard-probe.log).
+Exact commands:
+cc -std=c99 -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined /workspace/x0x-stage3-evidence/receive/central-probe/tests/host/ble_midi_central_test.c firmware/src/ble/ble_midi_central.c -o /workspace/x0x-stage3-evidence/receive/central-probe/test
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /workspace/x0x-stage3-evidence/receive/central-probe/test
+The original receive-specific test alone also passes with strict UBSan:
+cc -std=c99 -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined tests/host/ble_midi_receive_test.c firmware/src/ble/ble_midi_central.c -o /workspace/x0x-stage3-evidence/receive/receive-strict
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /workspace/x0x-stage3-evidence/receive/receive-strict
+Log: receive-strict.log.
+Minimal proposed fixture-only changes: diagnostic-fixture-repairs.patch.
+Neither proposed change is applied to the checked candidate.
+
+Replay and coverage limits:
+Exact saved payload bytes (capture SHA256 a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a)
+with synthetic HCI: 1271 payloads, 2616 MIDI, three size rejections. The same
+accepted results hold for synthetic ACL tails 1-8. MTU-23 resegmentation uses
+1347 generated payloads, all 2711 MIDI, zero rejections. These are separately
+labeled replay and simulation cases, not captured wire HCI.
+Five full SMC host/UI routes pass (direct DAW/User, USB User, simulated HCI
+DAW/User), including covered inputs and reconnect/SysEx regression assertions.
+smc-reachability compilation emits existing nonfatal signedness warnings in
+ui.c:498 and :2011; no failure attributed to these warnings.
+No physical device, target build, controller build, formal gate, installation,
+or release validation was run by this helper.

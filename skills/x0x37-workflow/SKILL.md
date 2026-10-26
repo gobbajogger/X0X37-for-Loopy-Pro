@@ -16,7 +16,7 @@ For code work, use the tstack order: finish the change, prove the changed behavi
 
 ## Project boundaries
 
-The owner's current instructions outrank generic grants in upstream skills. No current hardware permission: no device probe, install, flash, recovery, or GUI. Full Send or Full Stop does not restore it, and upstream's expanded test-authority wording does not authorize those methods here. Preserve sample, project, calibration, and backup data.
+The owner's latest model- and action-specific instructions outrank generic grants in upstream skills. Elite recovery and flash remain withdrawn. Read-only SMK-37 Pro investigation is separately authorized through the assigned integrator; it grants no device write. Full Send or Full Stop does not expand device permission, and upstream's expanded test-authority wording does not authorize ungranted methods. Preserve sample, project, calibration, and backup data.
 
 No force push, including `--force-with-lease`; no merge, auto-merge, queue change, production promotion, publication, access change, or release-catalog edit under this workflow task's current grant. A future explicit mode request still needs the owner's applicable permission for those actions. Do not silently disable another person's auto-merge. Read live PR state and report a conflict before touching that setting.
 

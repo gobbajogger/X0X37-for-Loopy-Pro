@@ -1,0 +1,34 @@
+{
+  "source_defect": "CENTRAL-ABORT-01",
+  "broken_source": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "public_regressions": "Both overflow and timeout fail on the broken source. Both pass after the repair.",
+  "independent_controls": "Both saved helper probes fail on the broken source and pass after the repair.",
+  "cases": [
+    "The first Disconnect send meets a busy transport.",
+    "The transport becomes available after 1 ms or 2999 ms.",
+    "Repeated refused sends do not change the deadline.",
+    "Accepted Disconnect commands are not sent again after successful Command Status or Command Complete.",
+    "Timer wrap does not change the bounded interval.",
+    "Failed command events keep the connection and its credits.",
+    "Failed or wrong-handle Disconnection Complete events do not clear the connection.",
+    "Successful Disconnection Complete restores credits and permits discovery on the next link.",
+    "A missing completion event reaches FAILED without false credit recovery.",
+    "Stop preserves an active abort deadline and does not repeat an accepted command.",
+    "Repeated stop calls after failure do not renew the deadline.",
+    "A late successful disconnect respects stop intent.",
+    "Start resets acceptance state.",
+    "A connection that wins the stop/cancel race retains its refused Disconnect command."
+  ],
+  "preserved_checks": [
+    "Public central, receive, signaling and lifecycle tests with ASan and UBSan.",
+    "Old and extended DIAG decoding.",
+    "1268 unchanged recorded payloads through startup, callback, mailbox, UI and feedback."
+  ],
+  "limits": [
+    "All new HCI inputs and transport conditions are simulated.",
+    "The replay excludes three oversized ATT packets. No payload resegmentation occurs.",
+    "The replay uses a synthetic project store.",
+    "Target interrupt timing and physical radio execution are not tested.",
+    "The physical all-input failure remains unresolved."
+  ]
+}

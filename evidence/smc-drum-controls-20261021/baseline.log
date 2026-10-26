@@ -1,0 +1,263 @@
+In file included from /workspace/scratch/efe94e5f6f65/drum-rs-tests/host/x0x_host.c:259,
+                 from /workspace/scratch/efe94e5f6f65/drum-rs-tests/tests/host/smc_drum_rs_test.c:9:
+/workspace/scratch/efe94e5f6f65/drum-rs-tests/host/../firmware/src/app/ui.c: In function ‘pref_set’:
+/workspace/scratch/efe94e5f6f65/drum-rs-tests/host/../firmware/src/app/ui.c:511:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  511 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+/workspace/scratch/efe94e5f6f65/drum-rs-tests/host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+/workspace/scratch/efe94e5f6f65/drum-rs-tests/host/../firmware/src/app/ui.c:2043:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2043 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+FAIL MIX 909 bank1 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL MIX 909 bank1 strip1 line 203: lit_keys & (1u << WHITE_KEY[physical])
+FAIL MIX 909 bank1 strip1 line 216: ui.part == kit && ui.sel[kit] == track && !ui.rec && ui.view == strip_view
+FAIL MIX 909 bank1 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL MIX 909 bank1 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip2 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank1 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip3 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank1 strip4 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip4 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank1 strip5 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip5 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank1 strip6 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip6 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL MIX 909 bank1 strip6 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank1 strip7 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip7 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL MIX 909 bank1 strip7 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank1 strip8 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank1 strip8 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL MIX 909 bank1 strip8 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank2 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL MIX 909 bank2 strip1 line 203: lit_keys & (1u << WHITE_KEY[physical])
+FAIL MIX 909 bank2 strip1 line 216: ui.part == kit && ui.sel[kit] == track && !ui.rec && ui.view == strip_view
+FAIL MIX 909 bank2 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL MIX 909 bank2 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank2 strip2 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank2 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 909 bank2 strip3 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 909 bank2 strip4 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 909 bank2 strip5 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 909 bank2 strip5 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 909 bank2 strip6 line 179: ui.overlay == O_NONE
+FAIL MIX 909 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip7 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 909 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip7 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 909 bank2 strip8 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank1 strip1 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip2 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank1 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip3 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank1 strip4 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip4 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank1 strip5 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip5 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank1 strip6 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip6 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL MIX 808 bank1 strip6 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank1 strip7 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip7 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL MIX 808 bank1 strip7 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank1 strip8 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank1 strip8 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL MIX 808 bank1 strip8 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank2 strip1 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank2 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank2 strip2 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank2 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL MIX 808 bank2 strip3 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL MIX 808 bank2 strip4 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 808 bank2 strip5 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 808 bank2 strip5 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 808 bank2 strip6 line 179: ui.overlay == O_NONE
+FAIL MIX 808 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip7 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 808 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip7 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 808 bank2 strip8 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL MIX 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank1 strip1 line 216: ui.part == kit && ui.sel[kit] == track && !ui.rec && ui.view == strip_view
+FAIL SEQ 909 bank1 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL SEQ 909 bank1 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL SEQ 909 bank1 strip1 line 233: smc_same(r, smc_target(strip)) && smc_same(r, smc_knob_target(strip))
+FAIL SEQ 909 bank1 strip1 line 239: pref_get(r) > before
+FAIL SEQ 909 bank1 strip1 line 242: pref_get(r) == 0
+FAIL SEQ 909 bank1 strip1 line 245: seq.vmute == (1u << (kit * NDRUM + track)) && !seq.mute
+FAIL SEQ 909 bank1 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip4 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip5 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip6 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip6 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL SEQ 909 bank1 strip6 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL SEQ 909 bank1 strip7 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip7 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL SEQ 909 bank1 strip7 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL SEQ 909 bank1 strip8 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank1 strip8 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL SEQ 909 bank1 strip8 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL SEQ 909 bank2 strip1 line 216: ui.part == kit && ui.sel[kit] == track && !ui.rec && ui.view == strip_view
+FAIL SEQ 909 bank2 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL SEQ 909 bank2 strip1 line 161: proj.pat[p].drum[k].hit[t][w] == expected
+FAIL SEQ 909 bank2 strip1 line 233: smc_same(r, smc_target(strip)) && smc_same(r, smc_knob_target(strip))
+FAIL SEQ 909 bank2 strip1 line 239: pref_get(r) > before
+FAIL SEQ 909 bank2 strip1 line 242: pref_get(r) == 0
+FAIL SEQ 909 bank2 strip1 line 245: seq.vmute == (1u << (kit * NDRUM + track)) && !seq.mute
+FAIL SEQ 909 bank2 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank2 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 909 bank2 strip4 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip4 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip4 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip4 line 184: !smc_project_active() && !seq.mute && !seq.vmute
+FAIL SEQ 909 bank2 strip4 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip4 line 189: !memcmp(&sound, &proj.sound, sizeof sound)
+FAIL SEQ 909 bank2 strip5 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip5 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip5 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip5 line 184: !smc_project_active() && !seq.mute && !seq.vmute
+FAIL SEQ 909 bank2 strip5 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip6 line 179: ui.overlay == O_NONE
+FAIL SEQ 909 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip6 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip7 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip7 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip8 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 909 bank2 strip8 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank1 strip1 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip4 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip5 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip6 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip6 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL SEQ 808 bank1 strip6 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL SEQ 808 bank1 strip7 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip7 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL SEQ 808 bank1 strip7 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL SEQ 808 bank1 strip8 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank1 strip8 line 195: ui.view == strip_view && (strip_view != V_MIX || drum_mix_page() == kit) && ui.overlay == O_NONE
+FAIL SEQ 808 bank1 strip8 line 196: wire_led[strip] == 127 && wire_led[24 + strip] == 127 && wire_led[0x5F] == 127
+FAIL SEQ 808 bank2 strip1 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank2 strip2 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank2 strip3 line 194: ui.part == kit && ui.sel[kit] == track && ui.rec
+FAIL SEQ 808 bank2 strip4 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip4 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip4 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip4 line 184: !smc_project_active() && !seq.mute && !seq.vmute
+FAIL SEQ 808 bank2 strip4 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip4 line 189: !memcmp(&sound, &proj.sound, sizeof sound)
+FAIL SEQ 808 bank2 strip5 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip5 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip5 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip5 line 184: !smc_project_active() && !seq.mute && !seq.vmute
+FAIL SEQ 808 bank2 strip5 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip6 line 179: ui.overlay == O_NONE
+FAIL SEQ 808 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip6 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip6 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip7 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip7 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip7 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip8 line 178: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL SEQ 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip8 line 182: !wire_led[row * 8 + strip]
+FAIL SEQ 808 bank2 strip8 line 185: ui.part == initial_part && !ui.rec && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 259: ui.part == kit && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 259: ui.part == kit && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 260: smc_target(0).b == 8 && smc_target(3).kind == R_NONE
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 262: ui.sel[kit] == 9
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 264: ui.sel[kit] == 8
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 266: ui.sel[kit] == 0 && smc_target(7).b == 7
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 259: ui.part == kit && ui.sel[kit] == 8 && ui.view == strip_view
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 260: smc_target(0).b == 8 && smc_target(3).kind == R_NONE
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 262: ui.sel[kit] == 9
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 264: ui.sel[kit] == 8
+FAIL MIX/SEQ bank and channel navigation retain the selected kit line 266: ui.sel[kit] == 0 && smc_target(7).b == 7
+FAIL held Solo target across bank/kit/page changes line 291: !wire_led[8] && !wire_led[9] && smc_project_active()
+FAIL held Solo target across bank/kit/page changes line 302: !wire_led[i]
+FAIL held S6-S8 repeat cannot become navigation on another page line 319: ui.view == V_PART && smc_project_active()
+FAIL held S6-S8 repeat cannot become navigation on another page line 319: ui.view == V_PART && smc_project_active()
+FAIL held S6-S8 repeat cannot become navigation on another page line 319: ui.view == V_PART && smc_project_active()
+FAIL User MMC drum Solo latch and transport routes line 333: ui.part == 1 && ui.sel[1] == 10 && ui.rec
+FAIL User MMC drum Solo latch and transport routes line 333: ui.part == 1 && ui.sel[1] == 10 && ui.rec
+FAIL User MMC drum Solo latch and transport routes line 333: ui.part == 1 && ui.sel[1] == 10 && ui.rec
+FAIL disconnect line 345: smc_project_active()
+FAIL coalesced reconnect line 345: smc_project_active()
+FAIL help line 345: smc_project_active()
+FAIL confirmation line 345: smc_project_active()
+FAIL performance owner line 345: smc_project_active()
+FAIL project reset line 345: smc_project_active()
+FAIL project reset line 354: rc == UI_PROJECT_BUSY
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 414: !memcmp(before, proj.arr.lane, sizeof before)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 414: !memcmp(before, proj.arr.lane, sizeof before)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 414: !memcmp(before, proj.arr.lane, sizeof before)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 414: !memcmp(before, proj.arr.lane, sizeof before)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL drum target change cancels a held pad before probability edits line 409: ui.sel[kit] == (action == 2 ? 8 : 1)
+FAIL 909 track1 audible Solo destination line 460: peak(2) == 0
+FAIL 909 track2 audible Solo destination line 455: peak(2) > 0
+FAIL 909 track2 audible Solo destination line 465: peak(2) == 0
+FAIL 909 track3 audible Solo destination line 455: peak(2) > 0
+FAIL 909 track4 audible Solo destination line 455: peak(2) > 0
+FAIL 909 track5 audible Solo destination line 455: peak(2) > 0
+FAIL 909 track6 audible Solo destination line 460: peak(2) == 0
+FAIL 909 track6 audible Solo destination line 465: peak(2) == 0
+FAIL 909 track7 audible Solo destination line 460: peak(2) == 0
+FAIL 909 track7 audible Solo destination line 465: peak(2) == 0
+FAIL 909 track8 audible Solo destination line 460: peak(2) == 0
+FAIL 909 track8 audible Solo destination line 465: peak(2) == 0
+FAIL 909 track9 audible Solo destination line 460: peak(2) == 0
+FAIL 909 track10 audible Solo destination line 455: peak(2) > 0
+FAIL 909 track10 audible Solo destination line 465: peak(2) == 0
+FAIL 909 track11 audible Solo destination line 455: peak(2) > 0
+FAIL 808 track1 audible Solo destination line 455: peak(2) > 0
+FAIL 808 track1 audible Solo destination line 465: peak(2) == 0
+FAIL 808 track2 audible Solo destination line 460: peak(2) == 0
+FAIL 808 track3 audible Solo destination line 455: peak(2) > 0
+FAIL 808 track4 audible Solo destination line 455: peak(2) > 0
+FAIL 808 track5 audible Solo destination line 455: peak(2) > 0
+FAIL 808 track6 audible Solo destination line 460: peak(2) == 0
+FAIL 808 track6 audible Solo destination line 465: peak(2) == 0
+FAIL 808 track7 audible Solo destination line 460: peak(2) == 0
+FAIL 808 track7 audible Solo destination line 465: peak(2) == 0
+FAIL 808 track8 audible Solo destination line 460: peak(2) == 0
+FAIL 808 track8 audible Solo destination line 465: peak(2) == 0
+FAIL 808 track9 audible Solo destination line 455: peak(2) > 0
+FAIL 808 track9 audible Solo destination line 465: peak(2) == 0
+FAIL 808 track10 audible Solo destination line 460: peak(2) == 0
+FAIL 808 track11 audible Solo destination line 455: peak(2) > 0
+Simulated DAW/MMC, production SMC/UI/SMK pad mapping/engine; no physical-device result.
+Normal stereo audio fingerprints: 909=2b1a2725 808=a0999a81
+FAIL: 44 active drum destinations, 20 inactive positions, 8 pad writes, 70 audio cases; 11824 checks, 250 failures

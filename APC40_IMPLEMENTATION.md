@@ -8,15 +8,15 @@ This section shows the current behaviour (`1.8-apc40`). The version sections bel
 - Added the APC40 mkII introduction-message response, with complete-message queue reservation so a full MIDI queue cannot emit a truncated SysEx reply.
 - Replaced the local simulated clip state with host-driven LED feedback. The source retains all 40 APC logical pad IDs (`0x00..0x27`) and uses the APC velocity palette (128 colors) for static RGB rendering. Clip colors are accepted on MIDI channels 0–15; the channel does not change a clip cell's color.
 - The firmware trims empty outer APC margins and keeps internal empty cells in their positions. A footprint of 3 or 4 rows and 4 or fewer columns folds onto one 8×2 view (pad order: see `0.9-apc40` and `1.7-apc40`). Other layouts show one local 8×2 view at a time.
-- The physical pad rows are vertically flipped in clip mode. Columns stay left to right. A KNOB BANK hold of more than 1 s toggles clip mode.
-- In clip mode, `<` and `>` do nothing. They do not send APC LEFT or RIGHT. A short KNOB BANK tap and FADER BANK also do nothing. The firmware sends no APC navigation messages.
+- The physical pad rows are vertically flipped in clip mode. Columns stay left to right. A KNOB BANK press toggles clip mode.
+- In clip mode, `<` and `>` do not send APC LEFT or RIGHT. They step the selected field of an open SCALE / CHORD / ARP page (BEHAVIOR.md CLP-76). KNOB BANK exits on press. FADER BANK switches the fader bank. The firmware sends no APC navigation messages.
 - OCT− and OCT+ move the local 8×2 view down and up by 2 rows. The move stays in the latched footprint. To see clips outside the Loopy APC box, change the Loopy page.
 - Pad hits do not trigger X0X pad functions. Keybed input stays available.
 - The layout latches 250 ms after the first feedback burst. It cannot shrink, so cue and play color changes cannot move pads. It grows only to complete a 4×4 fold (`smk_apc40_layout_grows` in smk_apc40.h). 8-wide layouts stay as latched. A page snapshot clears old-page cells (rules: see `0.9-apc40` and `1.0-apc40`).
 - The USB receive interrupt stores APC clip and transport feedback at all times, also before clip mode. Thus the pads show the correct colors at clip mode entry.
 - APC clip notes (0x00-0x27) and transport feedback notes go to the sound engine only when clip mode is off. In clip mode the firmware keeps them from the sound engine. Before `1.8-apc40` follow-up, the firmware also kept them from the sound engine after APC host identification.
 - Pads: a lit pad shows the Loopy color at half level. There is no brightness floor on the pads. The off phase of a queued blink is fully off.
-- LCD clip map: a lit cell shows the Loopy color with the brightest channel mapped from 0-255 to 128-255 (`SMK_CLIP_LCD_FLOOR`). The hue does not change. Playing (full) colors do not change. Idle clips stay darker than playing clips. An empty cell is a small grey dot.
+- LCD clip map: a lit cell shows the LCD color for its velocity (`APC40_LCD565` in apc40_lcd565.h, made by tools/apc_pad_colors.py from the Akai palette tools/apc40mk2_akai_protocol_v1.2.csv). Each entry is the Akai color as plain RGB565 (no lift). An empty cell is a small grey dot. (Before 2026-10-16: `SMK_CLIP_LCD_FLOOR` mapped the brightest channel from 0-255 to 128-255.)
 - In clip mode, X0X does not echo a MIDI Start, Continue or Stop from Loopy back to the host. With clip mode off, the transport behavior does not change.
 - Preserved the normal pad row-swap and LED-chain index mapping outside clip mode.
 - Seq PLAY and Seq REC send APC40 PLAY (`0x5B`) and RECORD (`0x5D`) momentary MIDI notes while clip mode is active. Their LEDs follow Loopy feedback for playback and recording/overdub state. Outside clip mode, the original sequencer play and record behavior remains active. The active Loopy Pro Record binding controls the target and overdub behavior.
@@ -78,7 +78,7 @@ The layout assumptions follow the [Loopy Pro manual](https://loopypro.com/manual
 - The firmware sends no APC navigation notes. Local 8x2 views replace Loopy viewport movement.
 - An 8x4 footprint has two views: rows 0-1 and rows 2-3. An 8x5 footprint has three views. The last view shows rows 3-4.
 - Physical `<` and `>` select the previous or next view. The move stops at the first and last view of the clip footprint.
-- A short KNOB BANK tap and FADER BANK do nothing in clip mode. A long KNOB BANK hold still toggles clip mode. OCTAVE buttons do nothing in clip mode.
+- A short KNOB BANK tap does nothing in clip mode. FADER BANK pins the clip keys page (CLP-76). A long KNOB BANK hold still toggles clip mode. OCTAVE buttons do nothing in clip mode.
 - A footprint of 4 rows and 4 or fewer columns folds onto one view. Rows 0-1 go on pads 1-4 and 9-12. Rows 2-3 go on pads 5-8 and 13-16.
 - A clip-mode press of PLAY or REC toggles its LED at once. Loopy feedback for notes `0x5B` and `0x5D` replaces the local state.
 - Limit: a sparse 8-wide project with clips in 4 or fewer columns and 4 rows folds as a 4x4 grid. APC feedback has no project size data.
@@ -92,7 +92,7 @@ The layout assumptions follow the [Loopy Pro manual](https://loopypro.com/manual
 - A footprint of 3 or 4 rows and 4 or fewer columns folds onto one view. The latched layout can grow when late feedback arrives. It cannot shrink, so cue changes cannot shift pads.
 - OCT- and OCT+ move the view up and down in steps of 2 rows. The move is clamped to the footprint. An 8x4 grid has 2 views.
 - `<` and `>` send APC LEFT (`0x61`) and RIGHT (`0x60`) to Loopy. RIGHT is legal only when APC column 8 holds a clip. LEFT is legal only back to the start position.
-- A short KNOB BANK tap and FADER BANK do nothing in clip mode.
+- A short KNOB BANK tap does nothing in clip mode. FADER BANK pins the clip keys page (CLP-76).
 - MIDI Clock and Start now drive the clip-mode LEDs. PLAY blinks on the first quarter of each beat. Pending clips (APC channels 6-15) blink on and off with the clock. Without clock they blink at 2 Hz. Static clips stay steady.
 
 ## Half swap and local arrows (`0.9-apc40`)

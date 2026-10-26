@@ -1,0 +1,149 @@
+{
+  "baseline_nightly": "93449136baae02c9715ba20edc5c43176786b635",
+  "baseline_root": "87819bd7af981f8a7315875233f69ff720bc13ce",
+  "baseline_compiler_tree": "5326e3c214cbe8d133b748685a2259d759e72c97",
+  "source_blob_before": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+  "source_blob_after": "ee5b7eff8fe6c4f05dc0651306f06c166c77751d",
+  "real_c_files": {
+    "sequencer.c": "ee5b7eff8fe6c4f05dc0651306f06c166c77751d",
+    "pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "tb3po.c": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d"
+  },
+  "checks": [
+    {
+      "compiler": "gcc",
+      "profile": "o2",
+      "state": "before",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "matched": true,
+      "duration_ms": 562,
+      "stdout_stderr_sha256": "59ae68448b197b8d6bf110682d68d63d6dc1d17abeca13f9db751de41af36059"
+    },
+    {
+      "compiler": "gcc",
+      "profile": "o2",
+      "state": "after",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "matched": true,
+      "duration_ms": 526,
+      "stdout_stderr_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+    },
+    {
+      "compiler": "gcc",
+      "profile": "ubsan",
+      "state": "before",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "matched": true,
+      "duration_ms": 905,
+      "stdout_stderr_sha256": "59ae68448b197b8d6bf110682d68d63d6dc1d17abeca13f9db751de41af36059"
+    },
+    {
+      "compiler": "gcc",
+      "profile": "ubsan",
+      "state": "after",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "matched": true,
+      "duration_ms": 859,
+      "stdout_stderr_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+    },
+    {
+      "compiler": "gcc",
+      "profile": "asan_ubsan",
+      "state": "before",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "matched": true,
+      "duration_ms": 1419,
+      "stdout_stderr_sha256": "59ae68448b197b8d6bf110682d68d63d6dc1d17abeca13f9db751de41af36059"
+    },
+    {
+      "compiler": "gcc",
+      "profile": "asan_ubsan",
+      "state": "after",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "matched": true,
+      "duration_ms": 1320,
+      "stdout_stderr_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+    },
+    {
+      "compiler": "clang",
+      "profile": "o2",
+      "state": "before",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "matched": true,
+      "duration_ms": 627,
+      "stdout_stderr_sha256": "59ae68448b197b8d6bf110682d68d63d6dc1d17abeca13f9db751de41af36059"
+    },
+    {
+      "compiler": "clang",
+      "profile": "o2",
+      "state": "after",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "matched": true,
+      "duration_ms": 513,
+      "stdout_stderr_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+    },
+    {
+      "compiler": "clang",
+      "profile": "ubsan",
+      "state": "before",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "matched": true,
+      "duration_ms": 802,
+      "stdout_stderr_sha256": "59ae68448b197b8d6bf110682d68d63d6dc1d17abeca13f9db751de41af36059"
+    },
+    {
+      "compiler": "clang",
+      "profile": "ubsan",
+      "state": "after",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "matched": true,
+      "duration_ms": 814,
+      "stdout_stderr_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+    },
+    {
+      "compiler": "clang",
+      "profile": "asan_ubsan",
+      "state": "before",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "matched": true,
+      "duration_ms": 1015,
+      "stdout_stderr_sha256": "59ae68448b197b8d6bf110682d68d63d6dc1d17abeca13f9db751de41af36059"
+    },
+    {
+      "compiler": "clang",
+      "profile": "asan_ubsan",
+      "state": "after",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "matched": true,
+      "duration_ms": 976,
+      "stdout_stderr_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+    }
+  ],
+  "limitations": [
+    "not independently reviewed",
+    "not a full root test",
+    "not an Elite/Pro target compile",
+    "not hardware tested"
+  ],
+  "role": "Existing Hourly Bugfinder (producer only)",
+  "behavior": "Random 303 TIE sustains preceding actual selected NOTE; unselected forward TIE cannot prolong random NOTE; RNG draw stream preserved.",
+  "design": "Preview only bass hold gate from a copied RNG, not global next_pos, so RANDOM clock/swing scheduling and MIDI transport remain unchanged.",
+  "test_file_git_sha_expected": "61260c0ecd8705c9fb58c721d2e0bb339c6a634b",
+  "runner": "X0X_TEST_JOBS=1 sh tests/run_tests.sh seq-random-tie-preview",
+  "runner_executed": false,
+  "run_environment": "Linux x86_64, GCC 14.2.0 and Clang 17.0.0 (local native); -O2, UBSan and ASan+UBSan",
+  "separation": "No independent QA, BUILD_ONLY target compile, signed installation, hardware or source merge",
+  "privacy": "GPL C, text test and hashes only; no vendor SDK or binary"
+}

@@ -1,0 +1,177 @@
+# a77: the SMK-37 "<" and ">" (smk_arrows.h, as main_fm1.c smk_arrows does after each frame).
+# In a menu list (GLO, the list of a page) they step the value of the selected row, as ALGORITHM.
+# A held arrow repeats: the first repeat after 400 ms, then one step each 80 ms. The value stops at its ends.
+# Action rows do not run. With no menu, the arrows move SELECT one detent for each press (GEN-29).
+wait 300
+expect setsize 40
+expect setbyte27 8
+# no menu, clip mode off: one SELECT detent for each press, no repeat
+expect overlay 0
+expect page 0
+arrow R tap
+expect page 1
+arrow R down
+wait 1500
+arrow R up
+expect page 2
+arrow L tap
+expect page 1
+arrow L tap
+expect page 0
+expect arrowsteps 4
+# GLO: the first row is CLOCK SOURCE. The row does not move
+tap GLO
+expect view 5
+expect overlay 1
+expect listsel 1
+expect clksrc 0
+arrow R tap
+expect clksrc 1
+expect listsel 1
+arrow R tap
+expect clksrc 2
+arrow R tap
+expect clksrc 2
+expect setbyte27 12
+arrow L tap
+expect clksrc 1
+arrow L tap
+arrow L tap
+expect clksrc 0
+expect listsel 1
+expect setbyte27 8
+# the same steps as ALGORITHM
+turn ALGO 1
+expect clksrc 1
+arrow L tap
+expect clksrc 0
+# hold repeat on MIDI CH 909 (10, range OFF 0 .. 16)
+turn SELECT 3
+expect listsel 4
+expect rowval 10
+arrow R down
+wait 20
+expect rowval 11
+wait 340
+expect rowval 11
+wait 80
+expect rowval 12
+wait 240
+expect rowval 15
+wait 2000
+expect rowval 16
+arrow R up
+expect rowval 16
+arrow R tap
+expect rowval 16
+arrow L down
+wait 3000
+arrow L up
+expect rowval 0
+arrow L tap
+expect rowval 0
+arrow R tap
+expect rowval 1
+turn ALGO 9
+expect rowval 10
+expect listsel 4
+# Action rows do not run: SAVE, CLEAR PATTERN, RESET PROJECT, PERFORMANCE.
+turn SELECT 10
+expect listsel 17
+expect store_writes 0
+arrow R tap
+arrow L tap
+arrow R down
+wait 1000
+arrow R up
+expect store_writes 0
+expect overlay 1
+# Skip LOAD SAVED and AUTOSAVE to reach CLEAR PATTERN.
+turn SELECT 3
+expect listsel 20
+arrow R tap
+arrow L tap
+arrow R down
+wait 1000
+arrow R up
+expect overlay 1
+turn SELECT 1
+expect listsel 21
+arrow R tap
+arrow L down
+wait 1000
+arrow L up
+expect overlay 1
+turn SELECT 1
+expect listsel 23
+arrow R tap
+arrow L tap
+expect overlay 1
+expect view 5
+expect listsel 23
+# Back to CLOCK SOURCE: PERFORMANCE is selectable offset 18.
+turn SELECT -18
+expect listsel 1
+expect clksrc 0
+# clip mode, GLO open: one press gives one step (only smk_arrows reads the arrows), and a hold repeats
+clipmode 1
+expect arrowsteps 110
+arrow R tap
+expect clksrc 1
+expect arrowsteps 111
+arrow R down
+wait 450
+arrow R up
+expect clksrc 2
+expect arrowsteps 113
+arrow L tap
+expect clksrc 1
+arrow L tap
+expect clksrc 0
+# clip mode, no menu: smk_arrows gives no step (the clip keys page takes < and >, CLP-76; not in the host)
+tap GLO
+expect overlay 0
+expect page 0
+arrow R tap
+arrow L down
+wait 1000
+arrow L up
+expect page 0
+expect arrowsteps 115
+clipmode 0
+# HOME held: the arrows do nothing (SELECT is the tempo)
+tap GLO
+expect overlay 1
+expect listsel 1
+expect tempo 125
+press HOME
+arrow R tap
+arrow R down
+wait 1000
+arrow R up
+expect clksrc 0
+expect tempo 125
+expect arrowsteps 115
+release HOME
+expect setsize 40
+expect setbyte27 8
+# the list of a page (SEL): the same. A wide value (0-127) steps one at a time (no knob acceleration)
+tap GLO
+expect overlay 0
+expect view 1
+tap SEL
+expect overlay 1
+expect listsel 1
+expect rowval 34
+arrow R tap
+expect rowval 35
+expect listsel 1
+arrow R down
+wait 450
+arrow R up
+expect rowval 37
+arrow L tap
+arrow L tap
+arrow L tap
+expect rowval 34
+expect listsel 1

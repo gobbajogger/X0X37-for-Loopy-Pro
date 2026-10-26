@@ -1,0 +1,13 @@
+  ok   install-gate-guard
+  ok   install-guards
+  ok   install-head
+  ok   gate-configs
+  ok   gate-reason
+  ok   validation-inputs
+  ok   smk-update-contract
+  ok   installer
+  ok   installer-targets
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   installer-slots
+  ok   installer-ctl
+all tests passed

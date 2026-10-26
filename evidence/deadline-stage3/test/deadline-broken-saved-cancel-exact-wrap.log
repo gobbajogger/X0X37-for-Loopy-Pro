@@ -1,0 +1,2 @@
+Cancel race at cutoff: state=1 now=2984 deadline=2984 attempts=1 accepted_total=2 conn=80
+Assertion failed: (attempts == 0), function main, file deadline-stop-probe.c, line 19.
