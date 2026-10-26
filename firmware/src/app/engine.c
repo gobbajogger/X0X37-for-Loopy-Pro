@@ -139,8 +139,10 @@ static volatile uint8_t bfx_down_pub;
 static volatile uint8_t bfx_fx_pub[SMCFX_N];
 static uint8_t bfx_hold[NPARTS], bfx_eff[NPARTS];
 static busfx_t bfx_st[NPARTS];
-static busfx_mono_t bfx_send_st[2] X0X_POOL;
-static busfx_st2_t bfx_flt_st;
+/* Send throws and master filter use the same busfx_t + busfx_apply as the parts
+ * (one outlined body). Extra channel slots stay unused for nch=1 / nch=2. */
+static busfx_t bfx_send_st[2] X0X_POOL;
+static busfx_t bfx_flt_st;
 static busfx_stut_hub_t bfx_stut_hub X0X_POOL;
 
 enum {
@@ -1271,26 +1273,26 @@ static void bfx_shape(int part, float *a, float *b, float *c, float *d, int nch,
 
 static void bfx_send_shape(int which, float *buf, int n)
 {
-    busfx_mono_t *st = &bfx_send_st[which];
+    busfx_t *st = &bfx_send_st[which];
     uint8_t hold = bfx_send_hold[which], eff = bfx_send_eff[which];
     int throw_id = which ? BFX_DLY : BFX_REV;
     uint32_t i;
     float g;
-    if (!hold && !busfx_mono_settling(st))
+    if (!hold && !busfx_settling(st))
         return;
     g = busfx_send(BFX_SEND_NOM, hold, eff, throw_id);
     for (i = 0; i < (uint32_t)n; i++)
         buf[i] *= g;
-    busfx_mono_apply(st, &bfx_stut_hub, which ? BFX_STUT_SEND_DLY : BFX_STUT_SEND_RVB, buf, n, 127.0f, hold, eff, n,
-                     n, bfx_bpm_snap, bfx_phase_snap);
+    busfx_apply(st, &bfx_stut_hub, which ? BFX_STUT_SEND_DLY : BFX_STUT_SEND_RVB, buf, 0, 0, 0, 1, n, 127.0f,
+                hold, eff, n, n, bfx_bpm_snap, bfx_phase_snap);
 }
 
 static void bfx_flt_shape(float *l, float *r, int n)
 {
-    if (!bfx_flt_hold && !busfx_st2_settling(&bfx_flt_st))
+    if (!bfx_flt_hold && !busfx_settling(&bfx_flt_st))
         return;
-    busfx_st2_apply(&bfx_flt_st, &bfx_stut_hub, BFX_STUT_FLT, l, r, n, 127.0f, bfx_flt_hold, bfx_flt_eff, n, n,
-                    bfx_bpm_snap, bfx_phase_snap);
+    busfx_apply(&bfx_flt_st, &bfx_stut_hub, BFX_STUT_FLT, l, r, 0, 0, 2, n, 127.0f, bfx_flt_hold, bfx_flt_eff, n,
+                n, bfx_bpm_snap, bfx_phase_snap);
 }
 
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
@@ -1779,9 +1781,9 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         bfx_hold[p] = 0;
         bfx_eff[p] = 0;
     }
-    busfx_mono_init(&bfx_send_st[0]);
-    busfx_mono_init(&bfx_send_st[1]);
-    busfx_st2_init(&bfx_flt_st);
+    busfx_init(&bfx_send_st[0]);
+    busfx_init(&bfx_send_st[1]);
+    busfx_init(&bfx_flt_st);
     busfx_stut_init(&bfx_stut_hub);
     prob_rng = 0x2545F491u;
     brk_silent_now = 1;
