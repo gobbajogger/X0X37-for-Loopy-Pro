@@ -168,10 +168,10 @@ __attribute__((noinline)) static float d8_exp2_cr(float x)
 }
 
 /* b^t for b > 0 (pot curves, set time) */
-static float d8_pow(float b, float t) { return d8_exp2_cr(t * fm_log2f(b)); }
+__attribute__((noinline)) static float d8_pow(float b, float t) { return d8_exp2_cr(t * fm_log2f(b)); }
 
 /* 8W8's midicps: 440 * powf(2, (note - 69) / 12), in float */
-static float d8_midicps(float note) { return 440.0f * d8_exp2_cr((note - 69.0f) / 12.0f); }
+__attribute__((noinline)) static float d8_midicps(float note) { return 440.0f * d8_exp2_cr((note - 69.0f) / 12.0f); }
 
 /* an ff value (>= 0, < 2^32) rounded to an integer */
 static uint32_t ff_to_u32(d8ff_t v)
@@ -317,7 +317,7 @@ static void sc_peak_set(d8_bq_t *f, float hz, float rq, float a)
 
 /* OnePoleHP: set() also clears the state, as 8W8's does */
 static void hp1_set_a(d8_hp1_t *f, float a) { f->a = a; f->z = 0.0f; f->y = 0.0f; }
-static void hp1_set(d8_hp1_t *f, float hz) { hp1_set_a(f, d8_exp(-TWO_PI_SR * hz)); }
+__attribute__((noinline)) static void hp1_set(d8_hp1_t *f, float hz) { hp1_set_a(f, d8_exp(-TWO_PI_SR * hz)); }
 static inline float hp1_run(d8_hp1_t *f, float x)
 {
     f->y = f->a * (f->y + x - f->z);
