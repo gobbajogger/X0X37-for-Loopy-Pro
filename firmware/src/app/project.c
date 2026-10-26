@@ -274,6 +274,7 @@ typedef struct {
     int k, n;
     uint32_t pos, left;
     uint32_t format;
+    uint8_t unsupported; /* a consumed segment must retain its format classification */
 } st_in_t;
 
 static int st_get(void *ctx)
@@ -285,7 +286,14 @@ static int st_get(void *ctx)
         if (++s->k >= NSTREAM)
             return -1;
         s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
-        if (s->n < 4 || get32(io_buf) != s->format)
+        if (s->n < 4)
+            return -1;
+        uint32_t format = get32(io_buf);
+        if (format != PROJ_STREAM && format >= 4u) {
+            s->unsupported = 1;
+            return -1;
+        }
+        if (format != s->format)
             return -1;
         stored_known[STREAM_OBJ[s->k]] = 1;
         stored_hash[STREAM_OBJ[s->k]] = hash_of(io_buf, (uint32_t)s->n);
@@ -371,13 +379,19 @@ static int load_stream(project_t *pr, int n, uint32_t format)
     uint8_t *raw = (uint8_t *)pr + RAW_OFF;
     uint32_t crc = get32(io_buf + 8), plen = get32(io_buf + 12);
     uint32_t raw_len = format == PROJ_STREAM_OLD ? RAW_LEN_2 : RAW_LEN;
-    st_in_t s = {0, n, STREAM_HDR, plen, format};
+    st_in_t s = {0, n, STREAM_HDR, plen, format, 0};
     lz_src_t src = {st_get, &s};
     if (n < (int)STREAM_HDR || get32(io_buf + 4) != raw_len || plen > STREAM_CAP)
         return -1;
     stored_known[STREAM_OBJ[0]] = 1;
     stored_hash[STREAM_OBJ[0]] = hash_of(io_buf, (uint32_t)n);
-    if (lz_decompress(&src, raw, raw_len) || s.left || crc32_of(raw, raw_len) != crc)
+    int decode_rc = lz_decompress(&src, raw, raw_len);
+    /* Only st_get encounters used continuation objects; stale unused tails are
+     * deliberately irrelevant. Do not turn newer data into ordinary corruption
+     * and allow the boot-default autosave path to overwrite it. */
+    if (s.unsupported)
+        return -9;
+    if (decode_rc || s.left || crc32_of(raw, raw_len) != crc)
         return -1;
     if (format == PROJ_STREAM_OLD)
         stream_from2(pr);
