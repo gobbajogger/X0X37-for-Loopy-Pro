@@ -282,8 +282,8 @@ progress::-moz-progress-bar { background: var(--accent); }
 <main>
   <header class="site-head">
     <div class="header-top">
-      <a class="home" href="../" aria-label="X0X37 home">X0X37</a>
-      <nav class="head-nav" aria-label="Site navigation">
+      <a class="home" href="../" aria-label="X0X37 home" data-aria-t="ariahome">X0X37</a>
+      <nav class="head-nav" aria-label="Site navigation" data-aria-t="ariasitenav">
         <a href="./" aria-current="page" data-t="navinstaller">Installer</a>
         <a href="../manual/" data-t="navmanual">Manual</a>
         <a href="../breaks/" data-t="navsamples">Samples</a>
@@ -303,7 +303,7 @@ progress::-moz-progress-bar { background: var(--accent); }
         <div class="device-bottom"><span>16 STEP PERFORMANCE</span><span>USB / MIDI</span></div>
       </div>
     </div>
-    <ol class="journey" aria-label="Install workflow">
+    <ol class="journey" aria-label="Install workflow" data-aria-t="ariajourney">
       <li data-step="connect" data-state="current" aria-current="step"><span class="stepnum">01</span><span data-t="journey1">Connect keyboard</span></li>
       <li data-step="select" data-state="pending"><span class="stepnum">02</span><span data-t="journey2">Select firmware</span></li>
       <li data-step="review" data-state="pending"><span class="stepnum">03</span><span data-t="journey3">Review and install</span></li>
@@ -311,7 +311,7 @@ progress::-moz-progress-bar { background: var(--accent); }
   </header>
   <div class="install-layout">
     <div class="install-primary">
-      <div class="connect" id="connectbar" role="region" aria-label="Keyboard connection">
+      <div class="connect" id="connectbar" role="region" aria-label="Keyboard connection" data-aria-t="ariaconnect">
         <div class="step-kicker" data-t="stage1">Step 01 / Connection</div>
         <div class="connect-line">
           <span class="led" id="led" aria-hidden="true"></span>
@@ -336,13 +336,13 @@ progress::-moz-progress-bar { background: var(--accent); }
         </div>
         <div class="row" id="versionrow">
           <label class="field"><span data-t="versionlabel">Firmware version</span>
-            <select id="version" aria-label="Firmware version"></select>
+            <select id="version" aria-label="Firmware version" data-aria-t="ariaversion"></select>
           </label>
         </div>
     <p class="meta" id="pkgmeta"></p>
     <fieldset class="model-select" id="modeldetails">
       <legend data-t="modelheading">Choose your keyboard model</legend>
-      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
+      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model" data-aria-t="ariamodes"></div>
       <p data-t="modelwhy"></p>
     </fieldset>
     <div class="build-detail" id="builddetail" hidden>
@@ -362,7 +362,7 @@ progress::-moz-progress-bar { background: var(--accent); }
           <div class="step-kicker" data-t="stage3">Step 03 / Install</div>
           <button id="go" disabled data-t="install">Install</button>
           <p class="install-hint" id="installhint" aria-live="polite"></p>
-          <progress id="bar" max="100" value="0" aria-label="Firmware installation progress"></progress>
+          <progress id="bar" max="100" value="0" aria-label="Firmware installation progress" data-aria-t="ariaprogress"></progress>
           <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
           <details class="diagnostics">
             <summary data-t="diagnostics">Technical details / activity log</summary>
@@ -371,7 +371,7 @@ progress::-moz-progress-bar { background: var(--accent); }
         </div>
       </section>
     </div>
-    <aside class="install-sidebar" aria-label="Installation guidance">
+    <aside class="install-sidebar" aria-label="Installation guidance" data-aria-t="ariaaside">
       <section class="panel sidebar-card">
         <div class="step-kicker" data-t="guidelabel">Before you begin</div>
         <h2 data-t="guideheading">Keep your samples safe</h2>
@@ -402,7 +402,7 @@ progress::-moz-progress-bar { background: var(--accent); }
     </summary>
     <div id="buildhistory"></div>
   </details>
-  <nav class="resource-links" aria-label="Other resources">
+  <nav class="resource-links" aria-label="Other resources" data-aria-t="ariaresources">
     <a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a>
     <a href="../manual/" data-t="manual">The manual</a>
     <a href="../new/" data-t="whatsnew">What's new</a>
@@ -446,6 +446,9 @@ const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
 const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
+    ariahome: "X0X37 ホーム", ariasitenav: "サイトナビゲーション", ariajourney: "インストール手順",
+    ariaconnect: "キーボード接続", ariaversion: "ファームウェアのバージョン", ariamodes: "キーボードの機種",
+    ariaprogress: "ファームウェアのインストール進行状況", ariaaside: "インストール前の案内", ariaresources: "関連リンク",
     navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
     controlleroptional: "任意 / SMC Bluetooth", ctlchoose: "コントローラー画像 (.img)",
     verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
@@ -541,6 +544,9 @@ const TEXT = {
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
+    ariahome: "X0X37 home", ariasitenav: "Site navigation", ariajourney: "Install workflow",
+    ariaconnect: "Keyboard connection", ariaversion: "Firmware version", ariamodes: "Keyboard model",
+    ariaprogress: "Firmware installation progress", ariaaside: "Installation guidance", ariaresources: "Other resources",
     navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
     controlleroptional: "Optional / SMC Bluetooth", ctlchoose: "Controller image (.img)",
     verlatest: "latest DEV", verolder: "older DEV", verdev: "DEV", verrelease: "release", verunverified: "unverified",
@@ -642,6 +648,8 @@ let lastKey = null, lastArg = "";
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
+  // Accessible names must follow the selected UI language, not remain hard-coded in English.
+  document.querySelectorAll("[data-aria-t]").forEach((e) => { e.setAttribute("aria-label", t(e.dataset.ariaT)); });
   $("lang").textContent = t("other");
   $("conn").textContent = connectionState === "scanning" ? t("looking") : connected ? t("connected") : t("notconnected");
   renderConnectionAction();
