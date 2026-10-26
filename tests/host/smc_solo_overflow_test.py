@@ -25,6 +25,7 @@ hdr=r'''
 #include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -186,7 +187,7 @@ int main(void)
 code=hdr+prefix+body+'\n'+stubs+extract('smc_poll')+'\n'+case
 with tempfile.TemporaryDirectory(prefix='smc-r10-combined-') as t:
  f=Path(t)/'test.c';exe=Path(t)/'test';f.write_text(code)
- command=[os.environ.get('CC','gcc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror',*shlex.split(os.environ.get('SAN_FLAGS','')),'-I'+str(ROOT/'firmware/src'),str(f),'-o',str(exe)]
+ command=[os.environ.get('CC','gcc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror',*shlex.split(os.environ.get('SAN_FLAGS','')),'-I'+str(ROOT/'firmware/src'),'-I'+str(ROOT/'tests/host'),str(f),'-o',str(exe)]
  print('COMPILE', ' '.join(command),flush=True)
  subprocess.run(command,check=True)
  subprocess.run([str(exe)],check=True)

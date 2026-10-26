@@ -46,6 +46,7 @@ harness = r'''
 #include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -214,7 +215,9 @@ with tempfile.TemporaryDirectory(prefix="smc-queue-") as tmp:
     flags = shlex.split(os.environ.get("SAN_FLAGS", ""))
     subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
                     "-Wall", "-Wextra", "-Werror", *flags,
-                    "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(executable)], check=True)
+                    "-I" + str(ROOT / "firmware/src"),
+                    "-I" + str(ROOT / "tests/host"),
+                    str(c), "-o", str(executable)], check=True)
     failures = []
     cases = 0
     for route, src in ((0, 0), (1, 0), (2, 0), (2, 1), (3, 0), (3, 1), (4, 0), (4, 1)):
