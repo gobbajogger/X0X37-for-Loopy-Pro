@@ -98,6 +98,7 @@ void engine_sound_centre_drum_pans(sound_t *s);             /* every drum voice'
 void engine_drum(int kit, int voice, float vel);            /* play now (keys) */
 void engine_bass_on(int part, int note, int accent, int slide);
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity);
+void engine_bass_record(int part, int note, int velocity, int flags); /* accepted live REC press, audio-owned */
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
 void engine_brk_live(int key, int down);
