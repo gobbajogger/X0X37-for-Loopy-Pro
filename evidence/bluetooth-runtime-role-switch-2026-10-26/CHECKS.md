@@ -29,11 +29,9 @@ after an OFF boot still requires a restart; this change covers role switching.
 - The first receive-suite run exposed a missing role getter stub in existing
   extracted-service harnesses. Both harnesses were updated; final runs pass.
 
-## Remaining validation
+## Initial environment limitation (resolved during Full Send)
 
-Native Elite build attempted with `BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 ./build.sh`:
-blocked because `/home/agent/.jieli/toolchain` is absent. The AC79 SDK is also
-absent. Elite/Pro packages, native memory/flash budgets and hardware switching
-are unverified. No DEV CHECKED package, installation, merge or publication is
-claimed. Validate on each model with a compatible combined-role controller
-before promoting firmware.
+Before recovery, the native Elite build was attempted with `BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 ./build.sh`:
+blocked because the default toolchain and SDK were absent. Full Send subsequently
+recovered pinned inputs and validated the Elite package and controller. See
+[FULL-SEND.md](FULL-SEND.md) for current evidence and remaining limits.
