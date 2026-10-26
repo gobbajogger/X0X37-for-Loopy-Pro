@@ -188,6 +188,7 @@ static void ota_commit(const uint8_t *parm)
 
 #include "app/slots.c"
 #include "app/x0x.h"
+#include "app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
 #include "app/factory_banks.c"       /* built-in Chicago/Miami factory banks + user import bank */
 #include "app/panel.c"
 #include "app/plat_fm1.c"

@@ -22,10 +22,8 @@ enum { CHI_DAMP_OFF = 0, CHI_DAMP_ON = 1 };
 /* Damper engages at pot ≥ 64 (AU 0.5). Factory banks leave damper at 0. */
 #define CHI_DAMP_THRESH 64
 
-static const x0x_param_t CHI_AUX_PARAMS[2] = {
-    {"PBend", 127, 64, 0}, /* centre = no bend; 0 = −2 st, 127 = +2 st */
-    {"Damp", 127, 0, 0},   /* 0..63 Off, 64..127 On (sustain) */
-};
+/* Tables live in chicago_param_tables.c (one copy for engine.o + x0x.o). */
+extern const x0x_param_t CHI_AUX_PARAMS[2];
 
 /* AU / factory 0..255 → 0..127. */
 static inline uint8_t chi_aux_from_byte(uint8_t v)
