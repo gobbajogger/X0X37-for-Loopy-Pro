@@ -291,6 +291,7 @@ seq_test() {
     fi
     $OUT/seq_test
 }
+run home-tie-semantics sh tests/host/home_tie_semantics_test.sh
 run sequencer seq_test
 run bass-prob-midi sh -c "$CC -O2 -Wall -Wextra -Werror -o $OUT/bass_probability_midi_test tests/host/bass_probability_midi_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bass_probability_midi_test"
 run seq-tb3po-bars sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_tb3po_bar_test tests/host/seq_tb3po_bar_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_tb3po_bar_test"

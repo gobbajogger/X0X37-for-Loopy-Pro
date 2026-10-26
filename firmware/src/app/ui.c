@@ -1653,7 +1653,7 @@ static int part_used(const pattern_t *pt, int part)
     if (part == PART_BRK)
         return pt->brk.steps != 0;
     for (s = 0; s < NSTEPS; s++)
-        if (bstep_gate(&pt->bass[part - NKIT].step[s]) != G_REST)
+        if (bstep_gate(&pt->bass[part - NKIT].step[s]) == G_NOTE)
             return 1;
     return 0;
 }
@@ -4691,6 +4691,25 @@ static UI_DRAW void draw_break(int band)
     }
 }
 
+/* Stored forward note-origin semantics, shared with the piano roll. Resolve
+ * a possible wrapped hold once, then propagate gates across this 16-step row. */
+static uint32_t bass_content_bits16(const bpart_t *bp, int base)
+{
+    uint32_t bits = 0;
+    int s, held;
+    if (base >= bp->len)
+        return 0;
+    held = note_start_of(bp, base) >= 0;
+    for (s = 0; s < 16 && base + s < bp->len; s++) {
+        int gate = bstep_gate(&bp->step[base + s]);
+        if (gate != G_TIE)
+            held = gate == G_NOTE;
+        if (held)
+            bits |= 1u << (unsigned)s;
+    }
+    return bits;
+}
+
 /* first 16 steps of one part in a pattern (drums: any voice; 303: gates; break: steps) */
 static uint32_t pat_part_bits16(const pattern_t *pt, int part)
 {
@@ -4711,10 +4730,7 @@ static uint32_t pat_part_bits16(const pattern_t *pt, int part)
         return pt->brk.steps & 0xFFFFu;
     {
         const bpart_t *bp = &pt->bass[part - NKIT];
-        len = bp->len < 16 ? bp->len : 16;
-        for (s = 0; s < len; s++)
-            if (bstep_gate(&bp->step[s]) != G_REST)
-                bits |= 1u << (unsigned)s;
+        return bass_content_bits16(bp, 0);
     }
     return bits;
 }
@@ -4786,13 +4802,10 @@ static UI_DRAW void draw_home(int band)
     } else {
         for (p = 2; p < NPARTS; p++) {
             uint32_t bits = 0;
-            int s;
             if (p < PART_BRK) {
                 const bpart_t *bp = &pat_of(p)->bass[p - NKIT];
                 int base = seq.playing ? (eng_step[TRK_BASS0 + p - NKIT] & ~15) : 0;
-                for (s = 0; s < 16; s++)
-                    if (bstep_gate(&bp->step[base + s]) != G_REST)
-                        bits |= 1u << s;
+                bits = bass_content_bits16(bp, base);
                 lane((p - 2) * 16 + 1, p, bits, eng_step[TRK_BASS0 + p - NKIT], bp->len, base);
             } else {
                 lane((p - 2) * 16 + 1, p, pat_of(p)->brk.steps, eng_step[TRK_BRK], 16, 0);

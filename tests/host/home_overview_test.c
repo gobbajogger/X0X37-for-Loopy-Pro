@@ -47,6 +47,16 @@ static void check(const char *name, int pattern, int part, unsigned expected_pb,
            name, part, seq.ppat[part] == pattern, part_used(&proj.pat[pattern], part),
            pb, a, b, expected_pb, expected_mask);
     if (pb != expected_pb || a != expected_mask || b != expected_mask) ++failures;
+    if (!seq.playing && seq.ppat[part] == pattern && part >= PART_303A && part < PART_BRK) {
+        unsigned lane_bits = 0;
+        int y = MAIN_Y + BAND_H + (part - PART_303A) * 16 + 7;
+        for (int step = 0; step < 16; ++step)
+            if (fb[y * 240 + col_x(step) + 6] == swap16(PART_COL[part])) lane_bits |= 1u << step;
+        if (lane_bits != expected_pb) {
+            fprintf(stderr, "HOME bass lane mismatch: %s bits=%04x expected=%04x\n", name, lane_bits, expected_pb);
+            ++failures;
+        }
+    }
     {
         int x = 4 + pattern * 14 + (pattern >= 8 ? 4 : 0);
         int y = MAIN_Y + 5 + part * 3;
@@ -116,11 +126,67 @@ static void content_matrix(void)
     render("matrix-cue-highlight");
     for (p = 0; p < NPARTS; ++p) check("cue-frame-does-not-fill", 1, p, 0x8043, 0x89);
 }
+static void tie_matrix(void)
+{
+    int b, s;
+    reset();
+    for (b = 0; b < NBASS; ++b) {
+        bpart_t *all = &proj.pat[1].bass[b], *orphan = &proj.pat[2].bass[b];
+        bpart_t *held = &proj.pat[3].bass[b], *wrap = &proj.pat[4].bass[b];
+        for (s = 0; s < 16; ++s) all->step[s].flags = G_TIE;
+        orphan->step[4].flags = G_TIE;
+        held->step[3].flags = G_NOTE; held->step[3].note = 48;
+        held->step[4].flags = held->step[5].flags = G_TIE;
+        wrap->len = 64; wrap->step[63].flags = G_NOTE; wrap->step[63].note = 48;
+        wrap->step[0].flags = wrap->step[1].flags = G_TIE;
+        assert(note_start_of(all, 4) == -1);
+        assert(note_start_of(orphan, 4) == -1);
+        assert(note_start_of(held, 5) == 3);
+        assert(note_start_of(wrap, 0) == 63);
+    }
+    render("ties-noncurrent");
+    for (b = 0; b < NBASS; ++b) {
+        check("all-tie-silent-noncurrent", 1, PART_303A+b, 0, 0);
+        check("single-orphan-tie-noncurrent", 2, PART_303A+b, 0, 0);
+        check("valid-note-and-hold-noncurrent", 3, PART_303A+b, 0x38, 6);
+        check("valid-wrap-hold-noncurrent", 4, PART_303A+b, 3, 1);
+    }
+    key_event(WHITE_KEY[1], 1); key_event(WHITE_KEY[1], 0);
+    run_ms(20);
+    for (b = 0; b < NBASS; ++b) assert(seq.ppat[PART_303A+b] == 1);
+    render("ties-current-all-tie");
+    for (b = 0; b < NBASS; ++b) check("all-tie-silent-current", 1, PART_303A+b, 0, 0);
+    for (int pat = 3; pat <= 4; ++pat) {
+        key_event(WHITE_KEY[pat], 1); key_event(WHITE_KEY[pat], 0); run_ms(20);
+        render(pat == 3 ? "ties-current-valid-hold" : "ties-current-wrap-hold");
+        for (b = 0; b < NBASS; ++b)
+            check(pat == 3 ? "valid-note-and-hold-current" : "valid-wrap-hold-current",
+                  pat, PART_303A+b, pat == 3 ? 0x38 : 3, pat == 3 ? 6 : 1);
+    }
+}
+static void editor_reachable_ties(void)
+{
+    int b, s;
+    reset();
+    for (b = 0; b < NBASS; ++b) {
+        ui.part = PART_303A+b;
+        set_view(V_SEQ);
+        ui.rec = 1;
+        ui.btn = 1u << B_LFO;
+        for (s = 0; s < 16; ++s) button_tap(B_OCTUP);
+        for (s = 0; s < 16; ++s) assert(bstep_gate(&proj.pat[0].bass[b].step[s]) == G_TIE);
+        assert(note_start_of(&proj.pat[0].bass[b], 4) == -1);
+    }
+    ui.btn = 0; ui.rec = 0;
+    set_view(V_HOME);
+    render("ties-current-editor-created");
+    for (b = 0; b < NBASS; ++b) check("all-tie-editor-created-current", 0, PART_303A+b, 0, 0);
+}
 int main(int argc, char **argv)
 {
     assert(argc == 2); outdir = argv[1]; load_force = 0;
     setvbuf(stdout, 0, _IONBF, 0);
-    content_matrix();
+    content_matrix(); tie_matrix(); editor_reachable_ties();
     printf("HOME CONTENT CONTRACT %s: failures=%d\n", failures ? "FAIL" : "PASS", failures);
     return failures ? 1 : 0;
 }
