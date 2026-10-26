@@ -218,7 +218,7 @@ enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP };
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
 
-static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
+__attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
 {
     uint32_t w = cq_w;
     if (w - cq_r >= CQ)
