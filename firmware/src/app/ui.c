@@ -303,7 +303,13 @@ static char *put_i(char *b, int v)
     *b = 0;
     return b;
 }
-static const char *const NOTE_N[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+/* Same twelve labels as X0X_NOTE_PACK / clip ROOT (offsets match ck_chord_note_name).
+ * One string pool — drop the duplicate C…B literals beside the pack. */
+static const char *const NOTE_N[12] = {
+    X0X_NOTE_PACK + 0,  X0X_NOTE_PACK + 2,  X0X_NOTE_PACK + 5,  X0X_NOTE_PACK + 7,
+    X0X_NOTE_PACK + 10, X0X_NOTE_PACK + 12, X0X_NOTE_PACK + 14, X0X_NOTE_PACK + 17,
+    X0X_NOTE_PACK + 19, X0X_NOTE_PACK + 22, X0X_NOTE_PACK + 24, X0X_NOTE_PACK + 27,
+};
 static char *put_note(char *b, int n)
 {
     b = put_s(b, NOTE_N[(n % 12 + 12) % 12]);
