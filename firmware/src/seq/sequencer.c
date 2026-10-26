@@ -184,7 +184,7 @@ __attribute__((noinline)) static void drum_midi_hit(seq_t *s, const seq_sink_t *
     }
 }
 
-static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o)
+__attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o)
 {
     const dpart_t *d = dpart(s, k);
     uint32_t bit = 1u << (p & 31);
