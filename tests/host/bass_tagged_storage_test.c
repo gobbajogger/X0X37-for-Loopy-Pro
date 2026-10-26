@@ -203,6 +203,7 @@ static void note_capture_boundary(void)
  }
  seq.playing=0;seq.rec_mask=0;
  puts("PASS NOTE_SOUND boundary snapshot forward/reverse/wrap, rounding threshold and atomic refusal");
+}
 
 static void note_effective_edited_flag(void)
 {
