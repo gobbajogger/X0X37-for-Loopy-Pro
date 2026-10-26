@@ -23,7 +23,7 @@ harness = r'''
 enum { NKIT=2, NPARTS=5, NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
 static struct { int solo,locked,lock_kit,lock_bank,lock_part; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
-static struct { int ppat[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
+static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
 static struct { int n; } pg;
 static uint8_t page;
@@ -51,6 +51,7 @@ static void smc_toggle_fx(int n) { fx=n; }
 static int smc_fx_try(uint8_t note, int mmc) { (void)note; (void)mmc; return 0; }
 static void smc_view(int v,int p) { last_view=v; last_page=p; }
 static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own routing test */
+#define seq_cue_of(s,p) (-1)
 #define seq_cue_part(s,p,n) ((s)->ppat[p]=(n))
 #define seq_stop(s) ((s)->playing=0)
 #define seq_start(s) ((s)->playing=1)

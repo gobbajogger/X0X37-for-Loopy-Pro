@@ -1,0 +1,51 @@
+{
+  "base": "504edff4ae49481b2d7c54e3c914d0b305e81358",
+  "production_blob": "5e7667fc383b547885696e80c72b7fd138fd8255",
+  "result": "HOST CHECKED",
+  "reason": "Physical Pause must require a fresh deliberate hold to unlock; its lamp must follow tempo/phase; pattern arrows must accumulate and cancel pending requests.",
+  "implementation_decision": "600ms fresh unlock hold, tap captures; initial capture hold never unlocks.",
+  "checks": {
+    "lifecycle": "240 checks PASS",
+    "all32_FX_bindings": "327 checks PASS",
+    "selectors": [
+      "smc-buttons",
+      "smc-select-mode",
+      "smc-queue",
+      "smc-reachability",
+      "smc-ui",
+      "smc-filter",
+      "smc-feedback",
+      "smc-lock",
+      "smc-pause-loss"
+    ],
+    "original_source_negatives": "hold/clock/cue each reaches runtime assertion on exact504ed source",
+    "mutations": "4 Pause runtime mutants rejected; release-before-loss mutant rejected"
+  },
+  "sol_review": {
+    "model": "gpt-6.1-sol",
+    "rounds": 2,
+    "verdict": "APPROVE",
+    "findings": [
+      {
+        "id": "S1",
+        "severity": "should",
+        "outcome": "FIXED: defer accepted-release unlock until lost-release epochs are reconciled; both route orders covered"
+      }
+    ],
+    "usage": "not exposed"
+  },
+  "native": "NOT_RUN; bounded host/source request, integrator owns combined qualification",
+  "device": "NOT_RUN; no device action",
+  "navigation_overlay_followups": "Separate bounded next commit; this checkpoint preserves existing navigation/overlay contract",
+  "logs": {
+    "compat.log": "fb5017853e007ffb61f0cfea77d090d6619a01174f556fbb9fbf702564aa0683",
+    "lifecycle.log": "4ab61e8cc552f80d33bd8691163b2960483a8861ddeb57ecd2c9a1eeb45223a7",
+    "unlock-loss-negative.log": "1f3831ffcadd2e6960e43a37f2f6692225db4773e0f87d4aba7a15b707fbe68f",
+    "mutations.log": "8be4f03d3b0e605c2f089e7cd5a173ff00e2a6b0ada7db5aee7b5610e9b77160",
+    "before-hold.log": "d87ae11d883b4e766faa2f86de9fd8b196bb5fa7989238eac02f6e76318d41ff",
+    "before-clock.log": "9afafdba3daa318134a0c908eb081e007cf390ab065cecbbed26dc839687c09a",
+    "hold.log": "75316de2d9337f726317630f0d48dfc2d6930d369022881017d1f47f0d06f42d",
+    "fx-bindings.log": "f4504a7caf8e0278100cceb2c241432362dcf30388833fd7e8c5356a1195a596",
+    "before-cue.log": "eb6cbf95cc1e07e502b80a19911304da5a177f9e22852ea9818e32b957494717"
+  }
+}

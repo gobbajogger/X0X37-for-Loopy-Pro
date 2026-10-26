@@ -14,3 +14,6 @@ static void __attribute__((unused)) smc_fx_main_tick(void) {}
 static void __attribute__((unused)) smc_fx_clear(void) {}
 static void __attribute__((unused)) smc_fx_release_note(uint8_t note) { (void)note; }
 static void __attribute__((unused)) smc_fx_load_page(int page) { (void)page; }
+
+/* Queue-only fixtures exclude the physical hold gesture stack. */
+static void __attribute__((unused)) smc_unlock_tick(void) {}

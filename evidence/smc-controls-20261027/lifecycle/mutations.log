@@ -1,0 +1,4 @@
+PASS rejected runtime mutation: pause-unbound
+PASS rejected runtime mutation: pause-no-release
+PASS rejected runtime mutation: pause-no-drop-recovery
+PASS rejected runtime mutation: pause-old-stop-led

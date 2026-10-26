@@ -42,10 +42,10 @@ static void queue_lost_release(int host, unsigned note, unsigned status)
 }
 static void feedback_retry(void)
 {
-    setup(V_SEQ, PART_808); now_ms = 0; smc_frame();
+    setup(V_SEQ, PART_808); seq.bpm = 120; seq.playing = 0; now_ms = 250; smc_frame();
     CHECK(smc.known[0x5D] && !smc.lit[0x5D]);
     unsigned before = accepted;
-    fail_note = 0x5D; failure_enabled = 1; now_ms = 512; smc_frame();
+    fail_note = 0x5D; failure_enabled = 1; now_ms = 500; smc_frame();
     CHECK(accepted == before && !smc.lit[0x5D]);
     smc_frame(); CHECK(accepted == before && !smc.lit[0x5D]);
     failure_enabled = 0; smc_frame();
@@ -53,7 +53,8 @@ static void feedback_retry(void)
     CHECK(last_ok[0] == 0x90 && last_ok[1] == 0x5D && last_ok[2] == 127);
     send_note(0, 0x5D, 0x90, 127); send_note(0, 0x5D, 0x90, 0);
     CHECK(smc.locked); now_ms = 1024; smc_frame(); CHECK(smc.lit[0x5D]);
-    send_note(0, 0x5D, 0x90, 127); send_note(0, 0x5D, 0x90, 0);
+    send_note(0, 0x5D, 0x90, 127); CHECK(smc.locked); now_ms += 600; smc_poll();
+    send_note(0, 0x5D, 0x90, 0); now_ms = 250;
     CHECK(!smc.locked); smc_frame(); CHECK(!smc.lit[0x5D]);
     puts("PASS independent LED backpressure: rejected write retries; cache tracks accepted bytes; lock/unlock phases");
 }
@@ -71,7 +72,8 @@ static void independent_release_loss(void)
             send_note(host, 0x5D, 0x90, 127);
             CHECK(smc.locked && smc_same(captured, smc_target(0)));
             send_note(host, 0x5D, status, 0); CHECK(smc.locked && !smc.lock_down);
-            send_note(host, 0x5D, 0x90, 127); CHECK(!smc.locked);
+            send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked);
+            now_ms += 600; smc_poll(); CHECK(!smc.locked);
             send_note(host, 0x5D, status, 0); CHECK(!smc.locked && !smc.lock_down);
         }
         setup(V_SEQ, PART_808); proj.set.bt |= PROJ_BT_SMC_USER;
@@ -81,7 +83,8 @@ static void independent_release_loss(void)
         queue_lost_release(host, 0x5D, status);
         CHECK(smc.locked && !smc.lock_down);
         CHECK(!smc_pause_release_lost[host] && !smc_pause_release_seen[host]);
-        send_note(host, 0x5D, 0x90, 127); CHECK(!smc.locked);
+        send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked);
+            now_ms += 600; smc_poll(); CHECK(!smc.locked);
         send_note(host, 0x5D, status, 0);
     }
     puts("PASS independent Pause release ownership: BLE/host, NoteOff/zero, unrelated Solo/Select/Play losses, actual Pause loss and epoch wrap");

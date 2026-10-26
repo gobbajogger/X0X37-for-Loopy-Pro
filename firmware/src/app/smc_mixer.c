@@ -77,9 +77,9 @@ static struct {
     uint32_t fx_main_t0[3];
     /* Exact destinations, not a copy of the temporary display or live UI. */
     pref_t lock_fader[8], lock_knob[8];
-    uint32_t lock_song_revision;
+    uint32_t lock_song_revision, unlock_t0;
     uint16_t lock_song_len;
-    uint8_t locked, lock_down, lock_kit, lock_bank, lock_part, lock_view, lock_page;
+    uint8_t locked, lock_down, unlock_wait, lock_kit, lock_bank, lock_part, lock_view, lock_page;
 } smc;
 
 int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
@@ -373,13 +373,34 @@ int smc_lock_toggle(void)
     return 1;
 }
 
-/* The verified physical input route reports both press and release here.
- * Repeated positive messages while held cannot unlock the surface again. */
+/* A tap captures targets. Only a fresh, sustained press unlocks: keeping the
+ * original capture press down must never undo the lock it just acquired. */
+#define SMC_UNLOCK_HOLD_MS 600u
 int smc_lock_button(int pressed)
 {
-    uint8_t down = pressed != 0, edge = down && !smc.lock_down;
-    smc.lock_down = down;
-    return edge ? smc_lock_toggle() : 0;
+    uint8_t down = pressed != 0;
+    if (down) {
+        if (smc.lock_down) return 0;
+        smc.lock_down = 1;
+        smc.unlock_wait = smc.locked;
+        smc.unlock_t0 = plat_ms();
+        return smc.locked ? 0 : smc_lock_toggle();
+    }
+    int unlock = smc.lock_down && smc.unlock_wait &&
+        (uint32_t)(plat_ms() - smc.unlock_t0) >= SMC_UNLOCK_HOLD_MS;
+    smc.lock_down = 0;
+    smc.unlock_wait = unlock ? 2u : 0u; /* defer until loss epochs are reconciled */
+    return 0;
+}
+
+static void smc_unlock_tick(void)
+{
+    if (smc.locked && (smc.unlock_wait == 2u ||
+        (smc.lock_down && smc.unlock_wait &&
+         (uint32_t)(plat_ms() - smc.unlock_t0) >= SMC_UNLOCK_HOLD_MS))) {
+        smc.unlock_wait = 0;
+        smc_lock_toggle();
+    }
 }
 
 static uint8_t smc_scaled(pref_t r)
@@ -1139,9 +1160,12 @@ static void smc_button_apply(uint8_t note, int mmc)
         break;
     case 0x5B: case 0x5C: {            /* rewind / forward: pattern */
         int part = smc.locked ? smc.lock_part : ui.part;
-        int next = seq.ppat[part] + (note == 0x5B ? -1 : 1);
-        if (next >= 0 && next < NPAT)
-            seq_cue_part(&seq, part, next);
+        int pending = seq_cue_of(&seq, part);
+        int next = (pending >= 0 ? pending : seq.ppat[part]) + (note == 0x5B ? -1 : 1);
+        if (next >= 0 && next < NPAT) {
+            if (next == seq.ppat[part]) seq.pcue[part] = 0xFFu;
+            else seq_cue_part(&seq, part, next);
+        }
         break;
     }
     case 0x5D: seq_stop(&seq); break;
@@ -1305,7 +1329,7 @@ void smc_poll(void)
         release_seen[i] = smc_release_seen[i];
     }
     if (ui_project_busy()) {
-        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
         smc_fx_clear();
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
@@ -1322,7 +1346,7 @@ void smc_poll(void)
             smc_qr = cutoff;
         smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
-        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0; /* reconnect clears physical press edges */
+        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0; /* reconnect clears physical press edges */
         smc_fx_clear();
         smc.picked = smc.seen = smc.input_seen = 0;
         smc.knob_i = 0;
@@ -1336,7 +1360,7 @@ void smc_poll(void)
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
@@ -1394,7 +1418,7 @@ void smc_poll(void)
         if (release_lost[i] != release_seen[i] && smc_release_seen[i] == release_seen[i]) {
             smc_release_seen[i] = release_lost[i];
             if (i < 2) missed_solo = 1;
-            else smc.lock_down = 0;
+            else smc.unlock_wait = smc.lock_down = 0;
         }
     if (missed_solo) {
         if (smc_project_active()) smc_solo_clear();
@@ -1405,6 +1429,22 @@ void smc_poll(void)
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
+    if (!ui_project_busy() && !perf_testing() && ui.overlay != O_ASK)
+        smc_unlock_tick();             /* only after releases, loss and link epochs were reconciled */
+}
+
+/* Following pulses share the transport phase; stopped pulses use current BPM.
+ * External MIDI clocks own phase directly rather than the host wall clock. */
+static int smc_pause_led(void)
+{
+    if (smc.locked) return 1;
+    if (seq.playing && seq.ext)
+        return ((seq.ext_q + 23u) % 24u) < 12u;
+    float bpm = seq_tempo(&seq);
+    if (!(bpm >= 20.0f && bpm <= 400.0f)) bpm = 120.0f;
+    uint32_t period = (uint32_t)((seq.playing ? 60.0f * FS : 60000.0f) / bpm);
+    uint32_t phase = seq.playing ? seq.ext_now - seq.start_at : plat_ms();
+    return phase % period < period / 2u;
 }
 
 static int smc_led(int note)
@@ -1450,7 +1490,7 @@ static int smc_led(int note)
     }
     /* Existing Mackie NoteOn feedback route; physical LED identity still
      * needs native owner verification for the captured preset. */
-    if (note == 0x5D) return smc.locked || ((plat_ms() >> 9) & 1u);
+    if (note == 0x5D) return smc_pause_led();
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;
     return 0;
