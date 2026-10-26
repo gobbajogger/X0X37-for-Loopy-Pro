@@ -65,13 +65,15 @@ int seq_part_len(const seq_t *s, int t)
     return n < 1 ? 1 : n > NSTEPS ? NSTEPS : n;
 }
 
-static int part_rate(const seq_t *s, int t)
+/* noinline: rate lookup shared by swing/advance/fire (else -O2 triples the ternary). */
+__attribute__((noinline)) static int part_rate(const seq_t *s, int t)
 {
     return (is_drum(t) ? dpart(s, t)->rate : t == TRK_BRK ? RATE_16 : bpart(s, t - TRK_BASS0)->rate) & 3;
 }
 
-/* swing offset of a step, Q8: odd 16ths / 32nds come late; triplets are never swung */
-static uint32_t swing_q8(const seq_t *s, int rate, uint32_t step_q8)
+/* swing offset of a step, Q8: odd 16ths / 32nds come late; triplets are never swung.
+ * noinline: one body for step timing paths (else -O2 inlines the groove math). */
+__attribute__((noinline)) static uint32_t swing_q8(const seq_t *s, int rate, uint32_t step_q8)
 {
     uint32_t sw = s->pat[s->ppat[TRK_DRUM]].swing;   /* the 909 is the bar: its pattern's groove */
     if (rate == RATE_16T || rate == RATE_8T || !sw)
@@ -146,7 +148,8 @@ __attribute__((noinline)) static void bass_slide_midi_off(seq_t *s, int b, const
     s->bass_slide_off[b] = 0;
 }
 
-static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
+/* noinline: flush glue for seq_midi_flush / release / fire / channel edit. */
+__attribute__((noinline)) static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
 {
     bass_slide_midi_off(s, b, o);
     if (s->bass_out_valid[b])
