@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "../../firmware/src/dsp/x0x_param.c"
 #include "../../firmware/src/dsp/drum909.c"
 
 static int16_t *load(const char *dir, const char *name, const char *ext, uint32_t n)

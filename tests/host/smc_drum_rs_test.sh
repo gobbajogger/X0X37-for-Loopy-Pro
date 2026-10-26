@@ -25,7 +25,7 @@ masked = "void drum909_render_st_masked" in (root / "firmware/src/dsp/drum909.h"
 Path(sys.argv[2]).write_text(("#define SMC_MASKED_AUDIO\n" if masked else "") + "\n\n".join(pieces) + "\n")
 PY
 cd "$SRC"
-U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
+U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
 firmware/src/seq/pattern.c firmware/src/seq/motion.c"
 X0X_HOST_OUT="$OUT/host" sh host/build_host.sh --generate-only > "$OUT/build.log" 2>&1 || { cat "$OUT/build.log"; exit 1; }
