@@ -61,9 +61,8 @@ static const char CK_CD_NAMES[] =
 
 CK_CD_FN static const char *ck_chord_note_name(uint32_t pc)
 {
-    /* Byte offset of each name in X0X_NOTE_PACK. Same letters as CK_CD_NOTES was. */
-    static const uint8_t off[12] = {0, 2, 5, 7, 10, 12, 14, 17, 19, 22, 24, 27};
-    return pc < 12u ? X0X_NOTE_PACK + off[pc] : "-";
+    /* Same twelve names as UI NOTE_N / clip ROOT (X0X_NOTE_N → X0X_NOTE_PACK). */
+    return pc < 12u ? X0X_NOTE_N[pc] : "-";
 }
 
 /* At least three bits, without counting the rest. */
