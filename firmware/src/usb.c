@@ -140,7 +140,7 @@ static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
 
 /* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
-static int midi_in_is_note_off(uint32_t pkt)
+static int midi_pkt_is_note_off(uint32_t pkt)
 {
     uint32_t cin = pkt & 0xFu;
     return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
@@ -157,12 +157,12 @@ static int midi_in_put(uint32_t pkt)
         mi_w++;
         return 1;
     }
-    if (!midi_in_is_note_off(pkt))
+    if (!midi_pkt_is_note_off(pkt))
         return 0;
     for (pass = 0; pass < 2u; pass++) {
         for (i = mi_r; i != mi_w; i++) {
             uint32_t p = midi_in_q[i % MQ];
-            if (midi_in_is_note_off(p))
+            if (midi_pkt_is_note_off(p))
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
@@ -174,12 +174,32 @@ static int midi_in_put(uint32_t pkt)
     return 0;
 }
 
+/* Enqueue into midi_out_q. Same never-drop Note Off policy as midi_in_put:
+ * a retained Note On without its Off leaves a stuck voice on the USB host. */
 static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
-    if (usb.config && mo_w - mo_r < MQ) {
+    uint32_t i, pass;
+    if (!usb.config)
+        return;
+    if (mo_w - mo_r < MQ) {
         midi_out_q[mo_w % MQ] = pkt;
         RING_PUBLISH();
         mo_w++;
+        return;
+    }
+    if (!midi_pkt_is_note_off(pkt))
+        return;
+    for (pass = 0; pass < 2u; pass++) {
+        for (i = mo_r; i != mo_w; i++) {
+            uint32_t p = midi_out_q[i % MQ];
+            if (midi_pkt_is_note_off(p))
+                continue;
+            if (pass == 0u && (p & 0xFu) != 0xBu)
+                continue;
+            midi_out_q[i % MQ] = pkt;
+            RING_PUBLISH();
+            return;
+        }
     }
 }
 void midi_send_note(uint32_t note, uint32_t vel)
