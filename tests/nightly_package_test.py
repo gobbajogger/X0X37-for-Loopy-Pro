@@ -175,7 +175,26 @@ def main(argv=None):
         _, logical = add_ctl.logical_of(complete)
         for version in ("901", "016"):
             rewrapped = add_ctl.fwsc_of(logical, nightly.MODELS[model] + "_" + version)
-            refused(lambda: nightly.inspect(rewrapped, model, digest, size), "does not match")
+            refused(lambda raw=rewrapped, m=model: nightly.inspect(raw, m, digest, size), "does not match")
+        stamped = add_ctl.fwsc_of(logical, nightly.MODELS[model] + "_9000103")
+        refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.3"), "not allocated")
+        granted = Path(tempfile.mkdtemp()) / "ledger.json"
+        granted.write_text(json.dumps({
+            "schema": 1, "channel": "openbeta", "display_suffix": "_openbeta",
+            "preserved_unversioned": ["892bf60d912eca93597dcf03be25a9756540c949"],
+            "allocations": [{
+                "version": "0.1.3", "major": 0, "minor": 1, "patch": 3,
+                "display": "0.1.3_openbeta", "source_commit": "a" * 40, "source_tree": "b" * 40,
+                "immutable": False, "models": {},
+            }],
+        }), encoding="utf-8")
+        receipt_v = nightly.inspect(stamped, model, digest, size, "0.1.3", granted)
+        assert receipt_v["firmware_version"] == "0.1.3", receipt_v
+        assert receipt_v["release_display"] == "0.1.3_openbeta"
+        assert receipt_v["product"].endswith("_9000103") and "_openbeta" not in receipt_v["product"]
+        refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.4"), "does not match")
+        refused(lambda raw=stamped, m=model: nightly.inspect(raw, m, digest, size, "0.1.3_openbeta"), "not a firmware version")
+        assert nightly.inspect(complete, model, digest, size)["firmware_version"] is None
         refused(lambda: nightly.inspect(complete, model, "0" * 64, size), "reviewed pin")
         refused(lambda: nightly.inspect(complete, model, digest, size - 1), "reviewed pin")
         refused(lambda: nightly.inspect(fixtures[model + "-outer-crc.fwsc"], model, digest, size), "package integrity")

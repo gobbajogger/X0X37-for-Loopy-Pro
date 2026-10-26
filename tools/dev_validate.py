@@ -4,6 +4,8 @@
 
 run --commit HASH --model elite|pro --plan FILE --output NEW_DIRECTORY
 verify --commit HASH --record FILE --fwsc FILE [--ctl FILE]
+Use --firmware-version X.Y.Z on run to stamp a numeric DEV identity.
+The --release build.py argument stamps identity, NOT release-build validation.
 
 Plans contain a base commit, scope explanation, and checks [{reason, argv}].
 Use no_tests_reason for a change with no applicable host test. Builds and budgets
@@ -28,7 +30,9 @@ import tempfile
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import release_alloc
 import validation_inputs
+from firmware_build_labels import canonical_version, inspect_package
 
 
 def git(repo, *args):
@@ -74,7 +78,7 @@ def check_plan(plan):
     return checks
 
 
-def verify(repo, commit, record, fwsc, ctl=None):
+def verify(repo, commit, record, fwsc, ctl=None, ledger=None):
     record = Path(record).resolve()
     data = json.loads(record.read_text())
     if (data.get('schema') != 2 or data.get('result') != 'DEV CHECKED' or
@@ -87,6 +91,8 @@ def verify(repo, commit, record, fwsc, ctl=None):
         raise ValueError('validation input source mismatch')
     expected_config = {'model': data['model'], 'config': 'dev', 'controller': data['controller'],
                        'plan': data['plan'], 'dependencies': data['plan'].get('dependencies', [])}
+    if data.get('firmware_version') is not None:
+        expected_config['firmware_version'] = canonical_version(data['firmware_version'])
     if (data['validation_inputs']['inputs'].get('mode') != 'dev' or
             data['validation_inputs']['inputs'].get('configuration') != expected_config):
         raise ValueError('validation input configuration mismatch')
@@ -106,6 +112,26 @@ def verify(repo, commit, record, fwsc, ctl=None):
     artifacts = data['artifacts']
     if digest(fwsc) != artifacts['package']['sha256']:
         raise ValueError('package differs from validated development artifact')
+    if 'firmware' in data:
+        identity = inspect_package(fwsc, data['model'], data['commit'],
+                                   data.get('firmware_version'))
+        if identity != data['firmware'] or identity['firmware_version'] != data.get('firmware_version'):
+            raise ValueError('recorded firmware version/identity/build label differs from package')
+    elif data.get('firmware_version') is not None:
+        raise ValueError('versioned record has no verified firmware identity')
+    if data.get('firmware_version') is not None:
+        # Allocation is required. A receipt is required only after it has been bound,
+        # so a build can be checked before its package hash is recorded.
+        try:
+            item = release_alloc.require_allocated(repo, data['firmware_version'], data['commit'], ledger)
+        except release_alloc.ReleaseError as exc:
+            raise ValueError(str(exc)) from exc
+        receipt = item.get('models', {}).get(data['model'])
+        if receipt is not None:
+            if receipt.get('package_sha256') != digest(fwsc):
+                raise ValueError('package hash does not match the allocated receipt')
+            if ctl and receipt.get('controller_sha256') != digest(ctl):
+                raise ValueError('controller hash does not match the allocated receipt')
     if bool(ctl) != bool(data['controller']):
         raise ValueError('controller selection differs from validation record')
     if ctl and digest(ctl) != artifacts['controller']['sha256']:
@@ -210,11 +236,19 @@ class LinuxWorker:
 
 
 def run(a):
+    firmware_version = getattr(a, 'firmware_version', None)
     system = platform.system()
     if not a.worker_image and (system != 'Linux' or platform.machine() not in ('x86_64', 'AMD64')):
         raise ValueError('use --worker-image on macOS, or run inside Linux x86-64')
+    if firmware_version is not None:
+        firmware_version = canonical_version(firmware_version)
     repo = Path(a.repo).resolve()
     commit = git(repo, 'rev-parse', '--verify', a.commit + '^{commit}')
+    if firmware_version is not None:
+        try:
+            release_alloc.require_allocated(repo, firmware_version, commit, getattr(a, 'release_ledger', None))
+        except release_alloc.ReleaseError as exc:
+            raise ValueError(str(exc)) from exc
     plan = json.loads(Path(a.plan).read_text())
     checks = check_plan(plan)
     if 'worker' in plan:
@@ -259,6 +293,8 @@ def run(a):
             normalized = copy.deepcopy(plan)
             config = {'model': a.model, 'config': 'dev', 'controller': not a.no_controller,
                       'plan': normalized, 'dependencies': plan.get('dependencies', [])}
+            if firmware_version is not None:
+                config['firmware_version'] = firmware_version
             execution = None
             if worker:
                 execution, provenance = worker.snapshot(config)
@@ -296,12 +332,16 @@ def run(a):
                 raise ValueError('validation changed sources; no record issued')
 
         unchanged()
-        command('build', ['sh', 'build.sh', '--board', 'smk37'])
+        build_args = ['sh', 'build.sh', '--board', 'smk37']
+        if firmware_version is not None:
+            build_args += ['--release', firmware_version]
+        command('build', build_args)
         limits = budgets((output / 'build.log').read_text())
         if not a.no_controller:
             command('controller', ['sh', 'ble/ctl/build_ctl.sh'])
         unchanged()
-        package = work / ('build/x0x-smk37-elite.fwsc' if a.model == 'elite' else 'build/x0x-smk37.fwsc')
+        stem = 'x0x-smk37-elite' if a.model == 'elite' else 'x0x-smk37'
+        package = work / 'build' / (stem + ('-' + firmware_version if firmware_version else '') + '.fwsc')
         if not package.is_file() or package.stat().st_size == 0:
             raise ValueError('build produced no development package')
         artifacts = {}
@@ -309,11 +349,13 @@ def run(a):
             dest = output / path.name
             shutil.copy2(path, dest)
             artifacts[kind] = {'file': dest.name, 'sha256': digest(dest)}
+        firmware = inspect_package(package, a.model, commit, firmware_version)
         validation_inputs.validate(inputs, identity())
         data = {'schema': 2, 'validation_inputs': inputs, 'result': 'DEV CHECKED', 'config': 'dev', 'model': a.model,
                 'commit': commit, 'tree': tree(repo, commit), 'plan': plan,
                 'changed_files': git(repo, 'diff', '--name-only', base, commit).splitlines(),
                 'controller': not a.no_controller, 'budgets': limits,
+                'firmware_version': firmware['firmware_version'], 'firmware': firmware,
                 'logs': logs, 'artifacts': artifacts}
     except BaseException as error:
         failure = error
@@ -346,8 +388,12 @@ def main():
         p = sub.add_parser(action)
         p.add_argument('--repo', default=os.environ.get('X0X_REPO', '.'))
         p.add_argument('--commit', required=True)
+        p.add_argument('--release-ledger',
+                       help='open-beta ledger to read; default is releases/openbeta/ledger.json in --repo')
         if action == 'run':
             p.add_argument('--model', choices=('elite', 'pro'), required=True)
+            p.add_argument('--firmware-version',
+                           help='stamp canonical X.Y.Z into the DEV package via build.sh --release; not a release gate')
             p.add_argument('--plan', required=True)
             p.add_argument('--output', required=True)
             p.add_argument('--no-controller', action='store_true')
@@ -367,7 +413,7 @@ def main():
         if a.action == 'run':
             run(a)
         else:
-            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl)
+            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl, a.release_ledger)
             print('DEV CHECKED ' + a.commit)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as e:
         print('REFUSED: ' + str(e), file=sys.stderr)
