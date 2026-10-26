@@ -36,6 +36,12 @@ static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
 /* Platform surfaces around the production TIMER5 service bodies. */
 enum { MQ = 64, BLE_OQ = 64 };
 static uint32_t mi_w, mi_r, midi_in_q[MQ], ble_oq[BLE_OQ];
+static int midi_in_put(uint32_t pkt)
+{
+    if (mi_w - mi_r >= MQ) return 0;
+    midi_in_q[mi_w++ % MQ] = pkt;
+    return 1;
+}
 static uint32_t ble_alive[2], ble_ok_at;
 static unsigned fm1_c1_on = 1;
 static ble_guard_t ble_guard;
