@@ -1,0 +1,9 @@
+HEAD is now at 5a7c1df5 Show ordinary SMC source selection and matching FX hold LEDs
+  ok   smc-select-mode
+  ok   smc-reachability
+  ok   smc-lock
+  ok   smc-ui
+  ok   smc-filter
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
+PASS rejected runtime mutation: select-led-fx-only

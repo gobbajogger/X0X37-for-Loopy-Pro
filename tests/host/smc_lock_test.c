@@ -345,11 +345,14 @@ static void press(unsigned note)
 }
 static void test_select_and_play(void)
 {
+    setup(V_FX, PART_303A);
+    message(0x90, 27, 127); CHECK(smc.fx_down == (1u << SMCFX_303B));
+    message(0x80, 27, 0); CHECK(!smc.fx_down);
     for (int kit = 0; kit < NKIT; kit++) {
         setup(V_HOME, PART_303A);
         int rec = ui.rec;
-        press(24 + kit); CHECK(ui.part == PART_303A); CHECK(ui.view == V_HOME);
-        CHECK(smc_ui_active() && smc_ui.strip == kit);
+        press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
+        CHECK(!smc_ui_active() && !smc.fx_down);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
         CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
@@ -390,7 +393,7 @@ static void test_lost_edge_release(void)
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
         press(note); /* settle into ordinary selected/playing request state */
-        if (select) CHECK(ui.part == PART_303A); /* 909 SELECT is the momentary effect */
+        if (select) CHECK(ui.part == PART_909); /* ordinary SELECT outside FX chooses its source */
         else if (!pause) { seq.req_start = 0; seq.playing = 1; }
         message(0x90, note, 127); /* leave held */
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
