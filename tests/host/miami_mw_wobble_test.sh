@@ -4,6 +4,11 @@
 set -eu
 TEST_ROOT=$(CDPATH= cd "$(dirname "$0")/../.." && pwd)
 SRC=${X0X_SOURCE_ROOT:-$TEST_ROOT}
+# A separate expectation makes a lost UI/test define a compile failure, not false coverage.
+SELECTOR_EXPECTED=0
+case "${X0X_BASS_SELECTOR_TEST_DEFS:-}" in
+    *X0X_BASS_SELECTOR_PROPOSAL=1*) SELECTOR_EXPECTED=1 ;;
+esac
 OUT=$(mktemp -d)
 trap 'rm -rf "$OUT"' EXIT HUP INT TERM
 awk '/^static void smk_wheels\(void\)/{on=1} on{print} on && /^}/{exit}' "$SRC/firmware/src/app/main_fm1.c" > "$OUT/smk_wheels.inc"
@@ -17,7 +22,8 @@ ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -DX0X_HOST -DX0X_WOBBLE=1 -DX0X_DEV_
     -D_POSIX_C_SOURCE=200809L -D_DARWIN_C_SOURCE -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -Dengine_set=real_engine_set -c firmware/src/app/engine.c -o "$OUT/engine.o"
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
-    -DX0X_HOST -DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1 -D_POSIX_C_SOURCE=200809L -D_DARWIN_C_SOURCE \
+    -DX0X_HOST -DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1 ${X0X_BASS_SELECTOR_TEST_DEFS:-} \
+    -DX0X_BASS_SELECTOR_EXPECTED=$SELECTOR_EXPECTED -D_POSIX_C_SOURCE=200809L -D_DARWIN_C_SOURCE \
     -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     -Dengine_set=wheel_test_engine_set \
     "-DX0X_HOST_SOURCE=\"$SRC/host/x0x_host.c\"" \

@@ -60,3 +60,14 @@ with the proposal flag absent.
   timing and snapshot migration remain open, separate obligations.
 - Owner review of these actual visuals, independent source QA, exact Elite/Pro capacity and musical
   correctness checks are required before enabling this proposal. No 90% acoustic threshold applies.
+
+## Wheel-test receipt correction
+
+The first proposal-enabled wheel run passed the flag only to the engine object,
+not to the actual UI/test translation unit. That earlier flag1 receipt is superseded:
+it tested the ordinary disabled UI path and did not prove selector-wheel ownership.
+The corrected runner passes the flag to both compiles, independently asserts the expected
+UI/test flag at compilation, and reports the enabled branch only after both held-bend
+route/release directions execute. Corrected flag0 and flag1 runs pass, as do the separate
+66 actual UI checks. Removing the second compile's flag is now an expected compile failure.
+No production source or rendered UI changed during this correction.

@@ -50,6 +50,15 @@ static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
 static int clamp(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 #include "smk_wheels.inc"
 
+#ifndef X0X_BASS_SELECTOR_PROPOSAL
+#define X0X_BASS_SELECTOR_PROPOSAL 0
+#endif
+#ifndef X0X_BASS_SELECTOR_EXPECTED
+#define X0X_BASS_SELECTOR_EXPECTED 0
+#endif
+_Static_assert(X0X_BASS_SELECTOR_PROPOSAL == X0X_BASS_SELECTOR_EXPECTED,
+               "selector test flag did not reach the actual UI/test translation unit");
+
 int main(void)
 {
     int32_t out[512];
@@ -108,7 +117,7 @@ int main(void)
     smk_wheels();
     assert(last_target == T_303 && last_voice == 0);
     assert(last_param == W_PITCH_BEND && last_value > 64);
-    #if X0X_BASS_SELECTOR_PROPOSAL
+#if X0X_BASS_SELECTOR_PROPOSAL
     ui.view = V_PART;
     pref_set(PR(R_BVOICE, 0, 0, 0), 1); /* ENGINE routes voice while bend retains A */
     assert(ui.part == PART_303B);
@@ -124,7 +133,7 @@ int main(void)
     fm1_in.wheel[0] = 580;
     smk_wheels();
     assert(last_voice == 1 && last_param == CHI_PBEND && last_value > 64);
-    #if X0X_BASS_SELECTOR_PROPOSAL
+#if X0X_BASS_SELECTOR_PROPOSAL
     pref_set(PR(R_BVOICE, 0, 0, 0), 0); /* Chicago bend also retains B after routing */
     assert(ui.part == PART_303A);
 #endif
@@ -132,6 +141,11 @@ int main(void)
     smk_wheels();
     assert(last_voice == 1 && last_param == CHI_PBEND);
     assert(last_value == proj.sound.v[T_303][1][CHI_PBEND]);
+#if X0X_BASS_SELECTOR_PROPOSAL
+    puts("PASS selector proposal enabled: both held-bend route/release directions executed");
+#else
+    puts("PASS selector proposal disabled: ordinary offscreen bend release executed");
+#endif
     /* Miami's own damper holds a live note after release. Pattern off remains
      * unconditional; damper-up releases the deferred live gate. */
     engine_set(T_303, 0, W_DAMPER, 1);
