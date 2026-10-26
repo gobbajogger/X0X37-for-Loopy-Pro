@@ -1,0 +1,11 @@
+# The SOUND engine turn expires before reaching the ADSR page.
+wait 300
+turn ALGO 2
+tap EDIT
+spin K1 -1
+wait 1000
+tap EDIT
+tap EDIT
+tap EDIT
+tap EDIT
+shot chicago_adsr_idle_clean.png
