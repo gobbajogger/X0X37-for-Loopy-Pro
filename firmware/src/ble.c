@@ -353,6 +353,23 @@ static int ble_out_is_note_off(uint32_t pkt)
     return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
 }
 
+/* USB-MIDI single-byte realtime transport (CIN 0xF): Start/Continue/Stop.
+ * Mirror of usb.c midi_pkt_is_rt_transport — a dropped Stop into Loopy over BLE
+ * leaves the DAW playing (sticky transport). Clock/SPP are not kept. */
+static int ble_out_is_rt_transport(uint32_t pkt)
+{
+    uint32_t st;
+    if ((pkt & 0xFu) != 0xFu)
+        return 0;
+    st = (pkt >> 8) & 0xFFu;
+    return st == 0xFAu || st == 0xFBu || st == 0xFCu;
+}
+
+static int ble_out_is_keep(uint32_t pkt)
+{
+    return ble_out_is_note_off(pkt) || ble_out_is_rt_transport(pkt);
+}
+
 /* the audio ISR (single producer): mirror one MIDI out packet */
 static void ble_out(uint32_t pkt)
 {
@@ -367,14 +384,14 @@ static void ble_out(uint32_t pkt)
         ble_r.ow = ww + 1u;
         return;
     }
-    /* Full BLE out mirror: drop CCs under notify backpressure, never Note Off
-     * (stuck note into Loopy over BLE — outbound sibling of USB midi_out_event). */
-    if (!ble_out_is_note_off(pkt))
+    /* Full BLE out mirror: drop CCs under notify backpressure; never Note Off
+     * or Start/Continue/Stop (outbound sibling of USB midi_out_event keep). */
+    if (!ble_out_is_keep(pkt))
         return;
     for (pass = 0; pass < 2u; pass++) {
         for (i = rr; i != ww; i++) {
             uint32_t p = ble_oq[i % BLE_OQ];
-            if (ble_out_is_note_off(p))
+            if (ble_out_is_keep(p))
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
