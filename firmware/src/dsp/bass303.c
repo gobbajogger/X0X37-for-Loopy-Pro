@@ -574,7 +574,7 @@ __attribute__((noinline)) static float hb(bass303_ap_t *s, float a, float x)
  * tests/host/run_bass303.sh: what reaches the decimator is already low-passed by the ladder.
  * Paths: even coefficients take the newer sample, odd ones the older. */
 #if BASS303_OS >= 2
-static inline float decim_hb1(bass303_ap_t *s, float x_old, float x_new)
+__attribute__((noinline)) static float decim_hb1(bass303_ap_t *s, float x_old, float x_new)
 {
     float a = x_new, c = x_old;
     a = hb(&s[0], 0.068204076f, a);
