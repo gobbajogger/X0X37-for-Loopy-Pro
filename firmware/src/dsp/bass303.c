@@ -889,7 +889,23 @@ static void run(bass303_t *b, float *out, int n)
                     y2 += f_b0 * (y1 - 2.0f * y2 + y3);
                     y3 += f_b0 * (y2 - 2.0f * y3 + y4);
                     y4 += f_b0 * (y3 - 2.0f * y4);
-                    os[q] = g2 * y4;
+                    /* Chicago filter-drive makeup (AU factory core rows):
+                     * Bite/Gnaw tanh soft-clip can leave mid-cutoff grit too quiet for
+                     * Crush/insert survival (heli_bass). Scale makeup by cutoff pot so
+                     * closed-filter perc (industrial_perc, cut≈0) is not boosted.
+                     * Low-cut + Peak body lift is grit-gated so Bite/Gnaw patches stay put. */
+                    {
+                        float cut_n = fm_clampf(
+                            fm_log2f(cutoff * (1.0f / 314.0f)) * (1.0f / 2.930586688f),
+                            0.0f, 1.0f);
+                        float grit = bite + gnaw;
+                        float grit_mk = 1.0f + (0.85f * bite + 0.55f * gnaw) * cut_n;
+                        float one_m = 1.0f - cut_n;
+                        float sub_mk = 1.0f
+                            + 5.0f * r * one_m * one_m
+                              * fm_maxf(0.0f, 1.0f - 1.25f * grit);
+                        os[q] = g2 * y4 * grit_mk * sub_mk;
+                    }
                 }
             }
 #if BASS303_OS == 1
@@ -920,7 +936,18 @@ static void run(bass303_t *b, float *out, int n)
             b->nt.x1 = s;
             b->nt.y2 = b->nt.y1;
             b->nt.y1 = t;
-            out[i + j] = t * amp;
+            /* Closed VCF + Amp Mode Gate: AU industrial-style perc dies with the
+             * filter EG while Gate holds the VCA open. Follow rc1 when cutoff is
+             * at the floor so the held note is not a sustained square. */
+            {
+                float cut_n2 = fm_clampf(
+                    fm_log2f(cutoff * (1.0f / 314.0f)) * (1.0f / 2.930586688f),
+                    0.0f, 1.0f);
+                float closed = (cut_n2 <= 0.02f && amp_gate)
+                    ? fm_maxf(b->rc1_y, 0.02f)
+                    : 1.0f;
+                out[i + j] = t * amp * closed;
+            }
         }
     }
 
