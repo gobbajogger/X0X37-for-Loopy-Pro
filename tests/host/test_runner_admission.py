@@ -144,9 +144,12 @@ def check(r, selected, *, fail="", setup=""):
     assert r["test_class_substitutions"] == 0
     assert r["key_formats"] == (len(chosen) + 1 if r["jobs"] > 1 else 0), r["key_formats"]
     locks = [x for x in r["flock"] if x[:2] == ["-s", "-o"]]
-    wanted_locks = [n for n in chosen if n in ("install-slots-web", "installer", "rec-live-smk")]
+    # install_path: W-class + S-class except rec-live/rec-live-smk (those wait on gen, not the gate).
+    wanted_locks = [n for n in chosen if n in ("install-slots-web", "installer")]
     assert len(locks) == (0 if r["holds"] else len(wanted_locks)), locks
     assert sorted(x[-1] for x in locks) == ([] if r["holds"] else sorted(wanted_locks)), locks
+    assert "rec-live" not in [x[-1] for x in locks]
+    assert "rec-live-smk" not in [x[-1] for x in locks]
     if r["jobs"] > 1 and all(n in chosen for n in NAMES):
         times = {(n, kind): t for n, kind, t in r["events"]}
         assert times["host-build", "end"] <= times["stereo", "start"]
