@@ -139,6 +139,41 @@ static volatile uint32_t so_w, so_r;
 static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
 
+/* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
+static int midi_in_is_note_off(uint32_t pkt)
+{
+    uint32_t cin = pkt & 0xFu;
+    return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
+}
+
+/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off —
+ * displace a CC first, then any non-Note-Off (same class as engine cq_put C_BOFF). */
+static int midi_in_put(uint32_t pkt)
+{
+    uint32_t i, pass;
+    if (mi_w - mi_r < MQ) {
+        midi_in_q[mi_w % MQ] = pkt;
+        RING_PUBLISH();
+        mi_w++;
+        return 1;
+    }
+    if (!midi_in_is_note_off(pkt))
+        return 0;
+    for (pass = 0; pass < 2u; pass++) {
+        for (i = mi_r; i != mi_w; i++) {
+            uint32_t p = midi_in_q[i % MQ];
+            if (midi_in_is_note_off(p))
+                continue;
+            if (pass == 0u && (p & 0xFu) != 0xBu)
+                continue;
+            midi_in_q[i % MQ] = pkt;
+            RING_PUBLISH();
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
     if (usb.config && mo_w - mo_r < MQ) {
@@ -785,12 +820,11 @@ static void ep1_rx(void)
             /* APC clip feedback: applied at once, not queued (no drops in a burst) */
         }
 #endif
-        else if (((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
-                  (cin == 3u && ep1rx[i + 1] == 0xF2u)) && mi_w - mi_r < MQ) {
-            /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter */
-            midi_in_q[mi_w % MQ] = pkt & ~0xF0u;      /* cable bits: the input, 0 USB (MID-15) */
-            RING_PUBLISH();
-            mi_w++;
+        else if ((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
+                 (cin == 3u && ep1rx[i + 1] == 0xF2u)) {
+            /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter.
+             * Cable bits: the input, 0 USB (MID-15). Note Off never drops on a full MQ. */
+            (void)midi_in_put(pkt & ~0xF0u);
         }
     }
     usb.rx_pkts++;
