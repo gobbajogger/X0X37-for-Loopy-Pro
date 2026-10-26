@@ -11,14 +11,14 @@ const start = html.indexOf(anchor), end = html.indexOf('\n}', start);
 assert.ok(start >= 0 && end > start, 'production installer run() missing');
 const run = html.slice(start, end + 2);
 
-function makeCase(midiAccess, stock = null) {
+function makeCase(midiAccess, stock = null, postScan = null) {
   const ui = Object.fromEntries(['go', 'stockgo', 'stockconfirm', 'conn', 'bar']
     .map(id => [id, { disabled: false, checked: true, value: 0, textContent: '' }]));
   const state = { writes: [], messages: [], scans: [], gateUpdates: 0 };
   let ctx;
   const fake = {
     $: id => ui[id] || (ui[id] = {}),
-    Blob, URL, setTimeout, renderConnectionAction() {}, connected: false,
+    Blob, URL, setTimeout, renderConnectionAction() {}, refreshJourney() {}, connected: false,
     document: { createElement: () => ({ click() {}, remove() {} }), body: { appendChild() {} } },
     midiAccess,
     Updater: class { async find() { return null; } },
@@ -27,7 +27,7 @@ function makeCase(midiAccess, stock = null) {
       state.writes.push(product);
       return { move: null };
     },
-    scan: async allow => { state.scans.push({ allow, writing: ctx.isWriting() }); },
+    scan: async allow => { state.scans.push({ allow, writing: ctx.isWriting() }); if (postScan) await postScan; },
     sameKeyboard: () => true, t: key => key,
     sayK: key => state.messages.push(key), log() {}, led() {},
     updateInstallGate: () => { state.gateUpdates++; ui.go.disabled = false; },
@@ -64,9 +64,26 @@ for (const stock of [null, { image: new Uint8Array(), product: 'SMK-37 Pro_900' 
   assert.equal(ctx.isWriting(), false, 'MIDI refusal left install lock held');
   assert.equal(state.writes.length, 0, 'firmware write attempted despite denial');
   assert.deepEqual(state.messages, ['denied']);
-  assert.equal(state.gateUpdates, 1, 'verified-package retry not refreshed');
+  assert.equal(state.gateUpdates, 2, 'verified-package retry not refreshed');
   assert.equal(ui.go.disabled, false, 'main Install button still disabled');
   assert.equal(ui.stockgo.disabled, !stock, 'local firmware retry state incorrect');
   console.log('PASS install guard: MIDI denial, ' + (stock ? 'local firmware' : 'catalog firmware') + ' retry');
 }
 console.log('PASS installer single-writer and permission recovery (3 mock scenarios)');
+
+// Hold reconnect pending after a successful flash: neither Install may start again.
+{
+  let release;
+  const pending = new Promise(resolve => { release = resolve; });
+  const {ctx, ui, state} = makeCase(async () => ({}), null, pending);
+  const first = ctx.start(new Uint8Array(), 'SMK-37 Pro_900');
+  for (let i=0; i<16; i++) await Promise.resolve();
+  assert.equal(state.scans.length, 1, 'owned post-write scan must be pending');
+  assert.equal(ctx.isWriting(), true, 'writer lock released before reconnect settled');
+  ui.stockconfirm.checked = true;
+  await ctx.start(new Uint8Array(), 'SMK-37 Elite_900', {foreign: true});
+  assert.deepEqual(state.writes, ['SMK-37 Pro_900'], 'second install started during post-write scan');
+  release(); await first;
+  assert.equal(ctx.isWriting(), false, 'writer lock leaked after reconnect settled');
+  console.log('PASS install guard: second install blocked during owned post-flash scan');
+}
