@@ -1202,25 +1202,43 @@ typedef struct { float min, max; uint8_t exp, def; } d8_spec_t;
 #define DST {0.0f, 6.0f, 0, 0}
 #define SND {0.0f, 1.0f, 0, 0}
 #define NON {0.0f, 1.0f, 0, 0}
-/*                       level tune  decay                    drive dist rev  dly  x1                    x2 */
-static const d8_spec_t k_spec[D8S_NUM][D8P_NUM] = {
-    [D8S_BD] = {LVL, TU12, {0.1f, 8.0f, 1, 87},     DRV, DST, NON, NON, {0.0f, 6.0f, 0, 42}, {0.0f, 1.0f, 0, 24}},
-    [D8S_SD] = {LVL, TU12, {0.1f, 8.0f, 1, 108},    DRV, DST, SND, SND, {0.0f, 1.0f, 0, 89}, {0.0f, 1.0f, 0, 64}},
-    [D8S_LT] = {LVL, TU2,  {0.06f, 2.0f, 1, 68},    DRV, DST, SND, SND, NON, NON},
-    [D8S_MT] = {LVL, TU2,  {0.06f, 2.0f, 1, 56},    DRV, DST, SND, SND, NON, NON},
-    [D8S_HT] = {LVL, TU2,  {0.06f, 2.0f, 1, 53},    DRV, DST, SND, SND, NON, NON},
-    [D8S_LC] = {LVL, TU2,  {0.06f, 2.0f, 1, 58},    DRV, DST, SND, SND, NON, NON},
-    [D8S_MC] = {LVL, TU2,  {0.06f, 2.0f, 1, 36},    DRV, DST, SND, SND, NON, NON},
-    [D8S_HC] = {LVL, TU2,  {0.06f, 2.0f, 1, 34},    DRV, DST, SND, SND, NON, NON},
-    [D8S_RS] = {LVL, TU12, {0.005f, 0.2f, 1, 40},   DRV, DST, SND, SND, NON, NON},
-    [D8S_CL] = {LVL, TU12, {0.0f, 1.0f, 0, 64},     DRV, DST, SND, SND, NON, NON},
-    [D8S_MA] = {LVL, TU12, {0.01f, 0.3f, 1, 51},    DRV, DST, SND, SND, {0.0f, 1.0f, 0, 32}, NON},
-    [D8S_CP] = {LVL, TU12, {0.35f, 2.8f, 1, 64},    DRV, DST, SND, SND, NON, NON},
-    [D8S_CB] = {LVL, TUM,  {0.1f, 2.0f, 1, 62},     DRV, DST, SND, SND, NON, NON},
-    [D8S_CH] = {LVL, TUM,  {0.03f, 0.5f, 1, 47},    DRV, DST, SND, SND, NON, NON},
-    [D8S_OH] = {LVL, TUM,  {0.08f, 1.5f, 1, 74},    DRV, DST, SND, SND, NON, NON},
-    [D8S_CY] = {LVL, TUM,  {0.4f, 6.0f, 1, 70},     DRV, DST, SND, SND, NON, NON},
+/* Level/tune/decay stay per sound. Thirteen voices share one drive..x2 block
+ * (DRV,DST,SND,SND,NON,NON). Kick, snare, and maracas keep private FX columns. */
+#define D8_SPEC_HEAD 3
+static const d8_spec_t k_spec_fx6[] = {DRV, DST, SND, SND, NON, NON};
+static const d8_spec_t k_spec_bd_fx[] = {DRV, DST, NON, NON, {0.0f, 6.0f, 0, 42}, {0.0f, 1.0f, 0, 24}};
+static const d8_spec_t k_spec_sd_fx[] = {DRV, DST, SND, SND, {0.0f, 1.0f, 0, 89}, {0.0f, 1.0f, 0, 64}};
+static const d8_spec_t k_spec_ma_fx[] = {DRV, DST, SND, SND, {0.0f, 1.0f, 0, 32}, NON};
+static const d8_spec_t k_spec_head[D8S_NUM][D8_SPEC_HEAD] = {
+    [D8S_BD] = {LVL, TU12, {0.1f, 8.0f, 1, 87}},
+    [D8S_SD] = {LVL, TU12, {0.1f, 8.0f, 1, 108}},
+    [D8S_LT] = {LVL, TU2,  {0.06f, 2.0f, 1, 68}},
+    [D8S_MT] = {LVL, TU2,  {0.06f, 2.0f, 1, 56}},
+    [D8S_HT] = {LVL, TU2,  {0.06f, 2.0f, 1, 53}},
+    [D8S_LC] = {LVL, TU2,  {0.06f, 2.0f, 1, 58}},
+    [D8S_MC] = {LVL, TU2,  {0.06f, 2.0f, 1, 36}},
+    [D8S_HC] = {LVL, TU2,  {0.06f, 2.0f, 1, 34}},
+    [D8S_RS] = {LVL, TU12, {0.005f, 0.2f, 1, 40}},
+    [D8S_CL] = {LVL, TU12, {0.0f, 1.0f, 0, 64}},
+    [D8S_MA] = {LVL, TU12, {0.01f, 0.3f, 1, 51}},
+    [D8S_CP] = {LVL, TU12, {0.35f, 2.8f, 1, 64}},
+    [D8S_CB] = {LVL, TUM,  {0.1f, 2.0f, 1, 62}},
+    [D8S_CH] = {LVL, TUM,  {0.03f, 0.5f, 1, 47}},
+    [D8S_OH] = {LVL, TUM,  {0.08f, 1.5f, 1, 74}},
+    [D8S_CY] = {LVL, TUM,  {0.4f, 6.0f, 1, 70}},
 };
+static const d8_spec_t *d8_kspec(int s, int slot)
+{
+    if (slot < D8_SPEC_HEAD)
+        return &k_spec_head[s][slot];
+    if (s == D8S_BD)
+        return &k_spec_bd_fx[slot - D8_SPEC_HEAD];
+    if (s == D8S_SD)
+        return &k_spec_sd_fx[slot - D8_SPEC_HEAD];
+    if (s == D8S_MA)
+        return &k_spec_ma_fx[slot - D8_SPEC_HEAD];
+    return &k_spec_fx6[slot - D8_SPEC_HEAD];
+}
 
 /* the lanes 8W8 balanced the kit with, applied before the drive stage */
 static const float k_trim[D8S_NUM] = {
@@ -1235,7 +1253,7 @@ static const float k_base_note[D8S_NUM] = {
 
 static float pot_value(int s, int slot, int pot)
 {
-    const d8_spec_t *p = &k_spec[s][slot];
+    const d8_spec_t *p = d8_kspec(s, slot);
     float t = (float)pot / 127.0f;
     if (p->exp && p->min > 0.0f)
         return p->min * d8_pow(p->max / p->min, t);
@@ -1534,7 +1552,7 @@ void drum808_init(drum808_t *d)
     }
     for (s = 0; s < D8S_NUM; s++)
         for (k = 0; k < D8P_NUM; k++)
-            set_pot(d, s, k, k_spec[s][k].def);
+            set_pot(d, s, k, d8_kspec(s, k)->def);
     for (s = 0; s < D8_NUM; s++) {
         d->tpan[s] = 64;                          /* centre */
         d->pan_l[s] = d->pan_r[s] = d->pan_lc[s] = d->pan_rc[s] = 1.0f;
