@@ -20,7 +20,21 @@ def extract(src, predicate, scope):
     exec(compile(ast.Module(body=chosen, type_ignores=[]), str(src), 'exec'), scope)
 
 XSSCOPE = {}
-extract(ROOT / 'tools/x0x_slots.py', lambda n: isinstance(n, ast.FunctionDef) and n.name in ('flash_map','at_risk','plan_migration'), XSSCOPE)
+# SlotMove.restore now calls guard_migration_loop_menu (LOOP menu fail-closed); pull it
+# and its helpers so the mock matches production without inventing a second policy.
+_GUARD_NAMES = (
+    'flash_map', 'at_risk', 'plan_migration',
+    '_user_loop_menu_ids', '_loop_menu_after_migration', 'migration_reorders_loop_menu',
+    'guard_migration_loop_menu',
+)
+extract(ROOT / 'tools/x0x_slots.py',
+        lambda n: isinstance(n, ast.FunctionDef) and n.name in _GUARD_NAMES,
+        XSSCOPE)
+XSSCOPE['zlib'] = __import__('zlib')
+XSSCOPE['LOOP_MENU_GUARD'] = (
+    "LOOP menu order would change; saved break pattern A/B indices would point at the wrong "
+    "loops. Restore samples manually from the backup, then re-assign LOOP A/B in each pattern."
+)
 
 class MockXS:
     class SlotError(Exception):
@@ -49,6 +63,10 @@ class MockXS:
 
     def plan_migration(self, images, risk, old_map, new_lay, new_map):
         return XSSCOPE['plan_migration'](images, risk, old_map, new_lay, new_map)
+
+    def guard_migration_loop_menu(self, old_lay, images, risk, old_map, new_lay, new_map, todo, skipped):
+        return XSSCOPE['guard_migration_loop_menu'](
+            old_lay, images, risk, old_map, new_lay, new_map, todo, skipped)
 
     def restore_mapped(self, link, todo, images):
         self.restored = list(todo)

@@ -79,6 +79,10 @@ class Fixture:
                 return SimpleNamespace(id=SimpleNamespace(text="SMK-37 Elite_900", loader=False),
                                        name="virtual-no-device", link=Link())
 
+            def reconnect_after(self, want, secs):
+                # Match tools/fm1_install.py Updater.reconnect_after after F02 bind.
+                return self.wait_for(want, secs)
+
         class Progress:
             def __init__(self, *args):
                 pass
