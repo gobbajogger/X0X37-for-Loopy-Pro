@@ -108,7 +108,13 @@ int main(void)
     smk_wheels();
     assert(last_target == T_303 && last_voice == 0);
     assert(last_param == W_PITCH_BEND && last_value > 64);
+    #if X0X_BASS_SELECTOR_PROPOSAL
+    ui.view = V_PART;
+    pref_set(PR(R_BVOICE, 0, 0, 0), 1); /* ENGINE routes voice while bend retains A */
+    assert(ui.part == PART_303B);
+#else
     ui.part = PART_909;               /* offscreen release stays on original 303 */
+#endif
     fm1_in.wheel[0] = 550;
     smk_wheels();
     assert(last_target == T_303 && last_voice == 0);
@@ -118,8 +124,14 @@ int main(void)
     fm1_in.wheel[0] = 580;
     smk_wheels();
     assert(last_voice == 1 && last_param == CHI_PBEND && last_value > 64);
+    #if X0X_BASS_SELECTOR_PROPOSAL
+    pref_set(PR(R_BVOICE, 0, 0, 0), 0); /* Chicago bend also retains B after routing */
+    assert(ui.part == PART_303A);
+#endif
     fm1_in.wheel[0] = 550;
     smk_wheels();
+    assert(last_voice == 1 && last_param == CHI_PBEND);
+    assert(last_value == proj.sound.v[T_303][1][CHI_PBEND]);
     /* Miami's own damper holds a live note after release. Pattern off remains
      * unconditional; damper-up releases the deferred live gate. */
     engine_set(T_303, 0, W_DAMPER, 1);

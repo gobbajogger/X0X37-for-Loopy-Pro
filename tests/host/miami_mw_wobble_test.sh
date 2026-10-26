@@ -13,7 +13,7 @@ sh host/build_host.sh --generate-only > "$OUT/assets.log" 2>&1 || { cat "$OUT/as
 U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
 firmware/src/seq/pattern.c firmware/src/seq/motion.c experiments/wobble/wobble.c"
-${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -DX0X_HOST -DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1 \
+${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -DX0X_HOST -DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1 ${X0X_BASS_SELECTOR_TEST_DEFS:-} \
     -D_POSIX_C_SOURCE=200809L -D_DARWIN_C_SOURCE -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -Dengine_set=real_engine_set -c firmware/src/app/engine.c -o "$OUT/engine.o"
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \

@@ -11,6 +11,10 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+/* Owner-review proposal only; native fit and engine-aware persistence are separate gates. */
+#ifndef X0X_BASS_SELECTOR_PROPOSAL
+#define X0X_BASS_SELECTOR_PROPOSAL 0
+#endif
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -332,7 +336,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BVOICE, R_BINIT };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -399,6 +403,32 @@ static const x0x_param_t SONG_P[] = {
     {"LENGTH", NSONG, 0, 0},
 };
 
+#if X0X_BASS_SELECTOR_PROPOSAL
+/* This routes the selected existing voice; it never reinterprets a stored voice's engine. */
+static void build_pages(void);
+static const char *const BASS_ROUTE_N[] = {
+#if X0X_DEV_WOBBLE
+    "MIAMI",
+#else
+    "CHICAGO",
+#endif
+    "CHICAGO"
+};
+static const char *const BASS_INIT_N[] = {"NATIVE INIT"};
+static const x0x_param_t BASS_ROUTE_P = {"ENGINE", NBASS - 1, 0, BASS_ROUTE_N};
+static const x0x_param_t BASS_INIT_P = {"PRESET", 0, 0, BASS_INIT_N};
+static int bass_native_init(int b)
+{
+    int i;
+    for (i = 0; i < engine_nparams(T_303, b); i++) {
+        const x0x_param_t *d = engine_param(T_303, b, i);
+        if (d && proj.sound.v[T_303][b][i] != d->def)
+            return 0;
+    }
+    return 1;
+}
+#endif
+
 static int pref_read_only(pref_t r)
 {
     return r.kind == R_BATT || r.kind == R_BTSTAT || r.kind == R_BTNAME;
@@ -427,6 +457,10 @@ static const x0x_param_t *pref_desc(pref_t r)
 {
     switch (r.kind) {
     case R_ENG: return engine_param(r.a, r.b, r.c);
+#if X0X_BASS_SELECTOR_PROPOSAL
+    case R_BVOICE: return &BASS_ROUTE_P;
+    case R_BINIT: return &BASS_INIT_P;
+#endif
     case R_GEN: return &GEN_P[r.c % NGEN];
     case R_BRKSET: return breaks_param(r.c);
     case R_SWING: return &SEQ_P[SQ_SWING];
@@ -545,6 +579,10 @@ static int pref_get(pref_t r)
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
+#if X0X_BASS_SELECTOR_PROPOSAL
+    case R_BVOICE: return bidx();
+    case R_BINIT: return !bass_native_init(bidx());
+#endif
     case R_SREP: {
         unsigned bar = r.b ? r.b - 1u : ui.song_sel;
         return bar < song()->len ? song()->bar[bar].mute >> 5 : 0;
@@ -565,6 +603,19 @@ static int pref_get(pref_t r)
 
 X0X_COLD static void pref_set(pref_t r, int v)
 {
+#if X0X_BASS_SELECTOR_PROPOSAL
+    if (r.kind == R_BVOICE) {
+        int b = v < 0 ? 0 : v >= NBASS ? NBASS - 1 : v;
+        if (b != bidx()) {
+            bass_step_cancel();
+            drum_step_cancel();
+            ui.part = (uint8_t)(PART_303A + b);
+            ui.page[V_PART][ui.part] = 0;
+            build_pages();
+        }
+        return; /* selection is not a project edit */
+    }
+#endif
     pattern_t *p = pref_pattern(r);
     const x0x_param_t *d = pref_desc(r);
     if (!d || r.kind == R_ACT || pref_read_only(r))
@@ -812,6 +863,12 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     *num = *unit = 0;
     if (!d || r.kind == R_ACT)
         return;
+#if X0X_BASS_SELECTOR_PROPOSAL
+    if (r.kind == R_BINIT) {
+        put_s(num, v ? "CUSTOM" : "INIT");
+        return;
+    }
+#endif
     if (d->names) {
         /* Legacy untagged bass pots can exceed the current engine's enum.
          * Report that state without dereferencing or rewriting an unknown value. */
@@ -1120,6 +1177,9 @@ static void build_pages(void)
             add_page_refs("KIT", refs, 0, 0); } while (0);
         } else if (is_303()) {
             pg_grp = GR_SOUND;
+#if X0X_BASS_SELECTOR_PROPOSAL
+            add_page("BASS SOUND", PR(R_BVOICE, 0, 0, 0), PR(R_BINIT, 0, 0, 0), NONE, NONE);
+#endif
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(b)) {
                 do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_CARRIER_WAVE), PR(R_ENG, T_303, 0, W_CARRIER_LEVEL),
@@ -2408,6 +2468,25 @@ static uint32_t lock_marks(int t, int v, int base)
 
 static void turn_ref(pref_t r, int e, int knob)
 {
+#if X0X_BASS_SELECTOR_PROPOSAL
+    if (r.kind == R_BINIT) {
+        int i, b = bidx();
+        if (seq.playing || seq.req_start || engine_project_notes()) {
+            say("STOP NOTES BEFORE INIT", 0);
+            return;
+        }
+        for (i = 0; i < engine_nparams(T_303, b); i++) {
+            const x0x_param_t *d = engine_param(T_303, b, i);
+            if (d) {
+                proj.sound.v[T_303][b][i] = d->def;
+                engine_set(T_303, b, i, d->def);
+            }
+        }
+        mark_dirty();
+        say("NATIVE INIT", 0);
+        return;
+    }
+#endif
     const x0x_param_t *d = pref_desc(r);
     if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
@@ -3339,6 +3418,13 @@ X0X_COLD static void input(void)
         }
     }
     if ((e = enc(EN_PRESET)) != 0) {             /* PRESETS: a part's screen, that part; else all five */
+#if X0X_BASS_SELECTOR_PROPOSAL
+        if (ui.view == V_PART && is_303() && cur_page() == 0 && ui.overlay == O_NONE) {
+            if (lock_step() >= 0) say("RELEASE STEP BEFORE INIT", 0);
+            else turn_ref(PR(R_BINIT, 0, 0, 0), e, EN_PRESET);
+        } else
+#endif
+        {
         int part = part_view() ? ui.part : PART_909, c = seq_cue_of(&seq, part);
         int p = (c >= 0 ? c : seq.ppat[part]) + (e > 0 ? 1 : -1);
         p = p < 0 ? 0 : p >= NPAT ? NPAT - 1 : p;
@@ -3348,6 +3434,7 @@ X0X_COLD static void input(void)
         else
             seq_cue(&seq, p);
         ui.pbank = (uint8_t)(p / 16);                 /* HOME shows the bank it is in */
+        }
     }
     for (i = 0; i < 4; i++) {
         if ((e = enc(EN_K1 + (int)i)) == 0)
@@ -3999,6 +4086,11 @@ static UI_DRAW void draw_303(int band, int gen)
             q = put_s(q, " SLIDE");
         put_i(put_s(q, " V"), bstep_velocity(st));
         cv_text(4, vc(&FONT_B, 122, 16) - o, &FONT_B, t, C_WHITE);
+#if X0X_BASS_SELECTOR_PROPOSAL
+    } else if (ui.view == V_PART && cur_page() == 0) {
+        cv_text(4, vc(&FONT_S, 122, 16) - o, &FONT_S, bass_native_init(b) ? "NATIVE INIT" : "CUSTOM", C_HI);
+        text_r(236, vc(&FONT_XS, 122, 16) - o, &FONT_XS, "SOUND LOCK: PENDING", C_DIM);
+#endif
     } else {                                           /* else the line's scale and seed */
         char t2[16];
         q = put_s(q, ROOT_N[bp->gen.root % 12]);
