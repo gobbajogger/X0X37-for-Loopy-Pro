@@ -60,7 +60,9 @@
 #if BASS303_CTRL < 1 || BASS303_CTRL > 4
 #error "BASS303_CTRL must be 1..4"
 #endif
+#ifndef BASS303_SR
 #define BASS303_SR 44100.0f
+#endif
 #define BASS303_MAX_BLOCK 256
 
 /* parameter indices (pages of four: the UI shows KNOB 1-4) */
