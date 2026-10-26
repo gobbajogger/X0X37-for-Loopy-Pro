@@ -640,7 +640,7 @@ static inline void d9_emit(const d9_bus_t *b, int i, float y)
  * r = 0.78, the stick BP's at 0.93: r^DR_NZ_HIST < 2e-8), so the last
  * DR_NZ_HIST samples are all that matter. `end` points one past the last
  * sample the filter should have seen; the DR_NZ_HIST before it are readable. */
-static void d9_warm(d9_biquad_t *f, const float *end)
+__attribute__((noinline)) static void d9_warm(d9_biquad_t *f, const float *end)
 {
     d9_biquad_reset(f);
     for (int i = -DR_NZ_HIST; i < 0; ++i)
