@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Host proof: Chicago SEND FX bridge maps Off/Comp/Hall onto Mix+fxbus
- * intentions; Crush + Ring + EQ + SDly + BPM are insert (clear sends only); other
+/* Host proof: Chicago SEND FX bridge maps Off/Comp onto Mix+fxbus intentions;
+ * Crush + Ring + EQ + SDly + BPM + Hall are insert (clear sends only); other
  * NOT_YET types never invent Cho/Phaser/Ensemble/Gate DSP. */
 #include <stdio.h>
 #include <string.h>
@@ -38,7 +38,9 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_BPM_DLY), "BPM Delay supported (insert)");
     CHECK(chi_fx_is_insert(CHI_FX_BPM_DLY), "BPM Delay is insert");
     CHECK(!chi_fx_is_not_yet(CHI_FX_BPM_DLY), "BPM Delay not NOT_YET");
-    CHECK(chi_fx_supported(CHI_FX_HALL), "Hall supported");
+    CHECK(chi_fx_supported(CHI_FX_HALL), "Hall supported (insert)");
+    CHECK(chi_fx_is_insert(CHI_FX_HALL), "Hall is insert");
+    CHECK(!chi_fx_is_not_yet(CHI_FX_HALL), "Hall not NOT_YET");
     CHECK(chi_fx_supported(CHI_FX_EQ), "EQ supported (insert)");
     CHECK(chi_fx_is_insert(CHI_FX_EQ), "EQ is insert");
     CHECK(!chi_fx_is_not_yet(CHI_FX_EQ), "EQ not NOT_YET");
@@ -78,6 +80,9 @@ static void test_not_yet_clear(void)
     chicago_fx_map(CHI_FX_BPM_DLY, 80, 60, 0, &o);
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "BPM insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_MX_DLY), "BPM insert does not set Mix delay");
+    chicago_fx_map(CHI_FX_HALL, 64, 100, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Hall insert clears sends (no Mix theft)");
+    CHECK(!(o.touch & CHI_FX_W_MX_REV), "Hall insert does not set Mix reverb");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 0, &o);
     CHECK(o.touch == 0, "Cho without clear_ny writes nothing");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 1, &o);
@@ -90,11 +95,11 @@ static void test_hall(void)
 {
     chicago_fx_out_t o;
     chicago_fx_map(CHI_FX_HALL, 64, 100, 0, &o);
-    CHECK(o.touch & CHI_FX_W_MX_REV, "Hall touches MX_REV");
-    CHECK(o.mx_rev == 64, "Hall Edit1 → MX_REV");
-    CHECK(o.mx_dly == 0, "Hall clears DLY send");
-    CHECK(o.touch & CHI_FX_W_RV_DEC, "Hall touches RvDec");
-    CHECK(o.fx_rv_decay == 100, "Hall Edit2 → RvDec");
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Hall is insert (clear sends)");
+    CHECK(o.mx_rev == 0 && o.fx_rv_decay == 0 && o.fx_rv_level == 0, "Hall no Mix/fxbus reverb fields");
+    chicago_fx_map(CHI_FX_HALL, 25, 17, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Hall Snail-ish edits still insert");
+    CHECK(!(o.touch & CHI_FX_W_MX_REV), "Hall insert does not set Mix reverb");
 }
 
 static void test_bpm_delay(void)
@@ -143,7 +148,7 @@ static void test_labels_honest(void)
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_EQ], "EQ") == 0, "EQ plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_SHORT_DLY], "SDly") == 0, "SDly plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_BPM_DLY], "BPM") == 0, "BPM plain insert name");
-    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain name");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain insert name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");
 }
 
