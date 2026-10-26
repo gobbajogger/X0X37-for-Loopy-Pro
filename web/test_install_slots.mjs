@@ -1,3 +1,4 @@
+import "./test_install_permission_overlap.mjs";
 import "./test_install_busy_hint.mjs";
 // SPDX-License-Identifier: GPL-3.0-only
 // The installer keeps the sample slots over an install that changes the slot map (no browser, no hardware,
