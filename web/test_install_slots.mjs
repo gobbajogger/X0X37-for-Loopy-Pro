@@ -253,9 +253,10 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
   const before = r.dev.slotLog.filter(([id]) => id === NOW).map(([, c]) => c);
   ok(before.every((c) => c === 15 || c === 16) && before.includes(16), "downgrade: the backup sends SMP_INFO / SMP_READ only");
   const now = slotImages(r.flash, OLD);
-  ok(r.res && same(now[0], IMG[0]) && same(now[1], IMG[2]) && r.res.move.todo.map((t) => `${t.k}>${t.j}`).join() === "2>1"
-    && r.res.move.skipped.length === 1 && /slot 2/.test(r.res.move.skipped[0]),
-    "downgrade: slot 1 kept, slot 3 -> slot 2 and read back, slot 2 reported");
+  ok(r.res && same(now[0], IMG[0]) && now[1] === null && r.res.move.todo.length === 0
+    && r.res.move.skipped.length === 2 && r.res.move.skipped.some(s => /LOOP menu order or indices/.test(s))
+    && r.dev.slotLog.filter(([id]) => id === OLD_PKG).every(([, cmd]) => cmd === 15 || cmd === 16),
+    "downgrade: skipped middle loop blocks all restore writes and preserves archive for reconciliation");
   ok(r.said.some(([k, a]) => k === "slotsave" && a === "2, 3"), "downgrade: the page is told which slots are at risk");
 }
 
