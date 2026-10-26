@@ -163,7 +163,8 @@ void seq_midi_flush(seq_t *s, const seq_sink_t *o)
         bass_midi_flush(s, b, o);
 }
 
-static void bass_release(seq_t *s, int b, const seq_sink_t *o)
+/* noinline: one release body for fire/stop/mute paths (else -O2 triples flush+off). */
+__attribute__((noinline)) static void bass_release(seq_t *s, int b, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
     bass_midi_flush(s, b, o);

@@ -62,7 +62,8 @@ int fxbus_get(const fxbus_t *f, int i)
     return i >= 0 && i < FX_NPARAMS ? f->pots[i] : 0;
 }
 
-static void fx_retime(fxbus_t *f)
+/* noinline: one delay-time recompute for pot/BPM/init (else -O2 triples the body). */
+__attribute__((noinline)) static void fx_retime(fxbus_t *f)
 {
     int32_t i = f->dl_div;
     if (i < 0) i = 0;
