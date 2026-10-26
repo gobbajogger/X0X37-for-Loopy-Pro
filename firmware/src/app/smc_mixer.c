@@ -551,7 +551,8 @@ static UI_DRAW void smc_ui_strip_value(pref_t r, int x, int y, uint16_t color)
 static UI_DRAW void smc_ui_grid(void)
 {
     static const uint8_t NOTES[3] = {16, 8, 0};
-    static const char *const MAIN_N[8] = {"909", "808", "303A", "303B", "BRK", "RVB", "DLY", "FLT"};
+    /* Strips 0..4 = part_s (PART_N / BRK); 5..7 = send/master FX. */
+    static const char *const MAIN_FX[3] = {"RVB", "DLY", "FLT"};
     int kit = smc_drum_mix();
     /* Selection follows the keyboard UI, independently of the touched control.
      * A locked bank can differ: no lane is selected if it is outside this bank.
@@ -572,7 +573,7 @@ static UI_DRAW void smc_ui_grid(void)
             else if ((smc.locked ? smc.lock_view : ui.view) == V_SEQ)
                 put_s(name, engine_voice_name(kit ? T_808 : T_909, track));
             else put_i(name, track + 1);
-        } else put_s(name, MAIN_N[n]);
+        } else put_s(name, n < NPARTS ? part_s(n) : MAIN_FX[n - NPARTS]);
         if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);
         text_c(x + 15, 1, &FONT_T, name, n == selected ? C_BLACK : C_WHITE);
         if (k.kind == R_NONE) put_s(name, "--");

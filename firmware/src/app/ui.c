@@ -98,7 +98,8 @@ static const char *const VIEW_N[NVIEWS] = {"HOME", "", "TB-3PO", "FX", "MIX", "G
 static const uint16_t PART_COL[NPARTS] = {RGB(255, 150, 40), RGB(255, 72, 64), RGB(130, 240, 90), RGB(70, 205, 255),
                                           RGB(214, 120, 255)};
 static const char *const PART_N[NPARTS] = {"909", "808", "303A", "303B", "BREAK"};
-static const char *const PART_S[NPARTS] = {"909", "808", "303A", "303B", "BRK"};   /* 4 chars: lane labels */
+/* Lane labels: PART_N except BREAK → BRK (4 chars). Beats a second 5-pointer table. */
+static const char *part_s(int i) { return i == PART_BRK ? "BRK" : PART_N[i]; }
 
 /* overlays drawn over the main area */
 enum { O_NONE, O_LIST, O_ASK };
@@ -4104,7 +4105,7 @@ static void pat_glyph_row(int32_t x, int32_t y, uint32_t bits16, uint16_t c)
 static void lane(int y, int p, uint32_t bits, int ph, int len, int base)
 {
     int c, muted = part_muted(p);
-    cv_text(3, y, &FONT_XS, PART_S[p], muted ? C_DIM : PART_COL[p]);
+    cv_text(3, y, &FONT_XS, part_s(p), muted ? C_DIM : PART_COL[p]);
     for (c = 0; c < 16 && base + c < len; c++) {
         uint16_t fc = (bits >> c & 1u) ? (muted ? C_DIM : PART_COL[p]) : C_LINE;
         box(col_x(c), y + 2, 12, 9, fc);
@@ -4184,7 +4185,7 @@ static UI_DRAW void draw_song(int band)
         if (row == 0) {                                /* the heading */
             cv_text(4, vc(&FONT_XS, y, 11), &FONT_XS, "BAR", C_GRAY);
             for (p = 0; p < NPARTS; p++)
-                text_c(58 + p * 36, vc(&FONT_XS, y, 11), &FONT_XS, PART_S[p], PART_COL[p]);
+                text_c(58 + p * 36, vc(&FONT_XS, y, 11), &FONT_XS, part_s(p), PART_COL[p]);
             continue;
         }
         if (k > sg->len || k >= NSONG)
@@ -4221,7 +4222,7 @@ static UI_DRAW void draw_fx(int band)
         cv_text(148, 0, &FONT_XS, "DELAY", C_GRAY);
         for (p = 0; p < NPARTS; p++) {
             int y = 14 + p * 11, rv = proj.sound.v[T_MIX][p][1], dl = proj.sound.v[T_MIX][p][2];
-            cv_text(3, y - 2, &FONT_XS, PART_S[p], PART_COL[p]);
+            cv_text(3, y - 2, &FONT_XS, part_s(p), PART_COL[p]);
             rbox(52, y + 2, 88, 6, 3, C_LINE);
             if (rv)
                 rbox(52, y + 2, 6 + rv * 82 / 127, 6, 3, PART_COL[p]);
@@ -4400,7 +4401,8 @@ static char *put_pct10(char *q, int v)                /* 123 -> "12.3%" */
 }
 static UI_DRAW void draw_perf(int band)
 {
-    static const char *const SN[ENG_PROF_N] = {"909", "808", "303A", "303B", "BREAK", "FX", "MASTER", "SEQ"};
+    /* First five match PART_N; only FX/MASTER/SEQ are perf-only. */
+    static const char *const SN_TAIL[ENG_PROF_N - NPARTS] = {"FX", "MASTER", "SEQ"};
     char t[40], *q;
     int k;
     if (band == 0) {
@@ -4491,7 +4493,7 @@ static UI_DRAW void draw_perf(int band)
     }
     for (k = 0; k < ENG_PROF_N; k++) {                /* each stage's share of the CPU */
         int x = (k & 1) * 118 + 4, y = (k >> 1) * 12;
-        cv_text(x, y, &FONT_XS, SN[k], C_GRAY);
+        cv_text(x, y, &FONT_XS, k < NPARTS ? PART_N[k] : SN_TAIL[k - NPARTS], C_GRAY);
         put_pct10(t, perf.stage[k]);
         text_r(x + 108, y, &FONT_XS, t, C_WHITE);
     }
