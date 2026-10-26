@@ -14,6 +14,9 @@ const pending = new Promise(resolve => { release = resolve; });
 const ui = new Proxy({}, { get(obj, id) { return obj[id] ||= { checked: true, disabled: false, textContent: '' }; } });
 const api = runInNewContext(`
   let writing = false, image = new Uint8Array([1]), stock = null;
+  // Eligibility is exercised separately by the retained public-eligibility suite.
+  const approvedModels = () => ['pro'], renderConnectionAction = () => {}, refreshJourney = () => {};
+  let connectionState = 'idle', connected = false;
   const chosenModel = 'pro', version = {status:'dev-checked',models:{pro:{sha256:'a'.repeat(64)}}};
   const currentVersion = () => version, $ = id => ui[id], t = key => strings[key];
   const midiAccess = async () => ({}), led = () => {}, log = () => {}, sayK = () => {}, sameKeyboard = () => true;
