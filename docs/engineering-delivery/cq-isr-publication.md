@@ -44,3 +44,12 @@ Implementation host proof and target object inspection are recorded under
 `cq-isr-proof`. Independent review, combined-source native budgets/full applicable
 regression and hardware qualification remain required before integration/readiness.
 No source push, merge, package publication or device operation is performed here.
+
+Target object inspection used the exact archived frozen source95e3cca3 with
+production `build_app` Elite flags (`-Oz` unity platform, `-O2` engine, PAD1,
+WOBBLE1, r3 FPU). The captured native log shows source masking at0x1EEF104,
+CSYNC and exact enable-bit restore without STI. Queue code rechecks the live
+reader after locking, writes one aligned word only on the live branch, then
+restores; consumed candidates restore and retry. Relocatable call destinations
+remain unresolved until the separate combined final-link gate. This is object
+compilation/inspection evidence, not a full package or native capacity result.

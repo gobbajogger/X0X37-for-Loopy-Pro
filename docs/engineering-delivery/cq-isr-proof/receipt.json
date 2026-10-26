@@ -19,7 +19,7 @@
     "engine-cq-drum-overflow"
   ],
   "live_rec": "rec-live and rec-live-smk PASS with CC=cc -D_DARWIN_C_SOURCE; baseline Mac compile without macro failed before tests",
-  "native": "Target compile/disassembly pending; no full native budget/hardware/combinedREC proof yet",
+  "native": "Production-flags exact95e3 Elite platform+engine object compile/disassembly PASS; see native-receipt.json. Full link/budgets/Pro/combinedREC/hardware remain pending.",
   "source_files_sha256": {
     "firmware/src/app/engine.c": "50f77964aab5e2bf1890e81c52ac984bcf278d12786bfc0d85b3614c40cd417a",
     "firmware/src/app/plat.h": "fbb532f258f2773851965a74a82440a90b22b3a61e16dae19999b065613ec756",
@@ -32,5 +32,6 @@
     "after-overflow.log": "6abb0f157bc3fe92451db00167513ce1fd496e31ce6fe98ac780c19665ea870a",
     "after-adjacent.log": "69827055165a0f4ceeaec226e023aba28af79016ec8c07e66dc7260542c3b18c",
     "after-live-darwin.log": "aab301d40ad148b1311696c609dc6ea506a06b2f826007b4f89cf8a4c51f7f1f"
-  }
+  },
+  "exact_word_supplement": "All1080cases also assert exact packed word delivered once, including C_REC a=0xA5 epoch+voice, b/c fields. Production source unchanged from95e3."
 }

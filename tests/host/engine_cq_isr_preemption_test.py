@@ -19,6 +19,8 @@ PRELUDE = r"""
 #include <stdlib.h>
 static uint32_t irq_cfg, global_enabled;
 static unsigned armed, site, drains, pending, hooks, seen[16], protected_probes;
+static uint32_t expected_word;
+static unsigned exact_deliveries;
 #define FM1_IRQ_ALNK0 11u
 #define FM1_ICFG(n) irq_cfg
 #define AUDIO_BIT (1u << ((FM1_IRQ_ALNK0 & 7u) * 4u))
@@ -29,7 +31,7 @@ HARNESS = r"""
 static void consume(unsigned count)
 {
     uint32_t r=cq_r;
-    while(count-- && r!=cq_w) { ++seen[cq[r % CQ] >> 28]; ++r; }
+    while(count-- && r!=cq_w) { uint32_t word=cq[r % CQ]; ++seen[word >> 28]; exact_deliveries+=(word==expected_word); ++r; }
     cq_r=r;
 }
 static void dispatch(void)
@@ -49,11 +51,13 @@ static int one(unsigned type,unsigned count,uint32_t offset,unsigned victim,unsi
     armed=pending=hooks=protected_probes=0;drains=count;site=at;
     for(unsigned k=0;k<16;k++)seen[k]=0;
     for(unsigned k=0;k<CQ;k++)cq_put(victim,0,60,k);
-    armed=1;cq_put(type,0,type==C_BRK?0:60,0x345);
+    uint32_t a=type==C_REC?0xA5u:1u,b=type==C_BRK?0u:60u;
+    expected_word=(type<<28)|(a<<20)|(b<<12)|0x345u;exact_deliveries=0;
+    armed=1;cq_put(type,a,b,0x345);
     dispatch();consume(CQ+1u);
     /* Count the distinctive packed word, not just its type: victim can share it. */
     unsigned delivered=seen[type];
-    if(hooks!=1 || delivered!=1 || cq_r!=cq_w || irq_cfg!=0xA5A5FFFFu) {
+    if(hooks!=1 || delivered!=1 || exact_deliveries!=1 || cq_r!=cq_w || irq_cfg!=0xA5A5FFFFu) {
         printf("FAIL type=%u drain=%u offset=%u victim=%u site=%u delivered=%u hook=%u depth=%u\n",
                type,count,offset,victim,at,delivered,hooks,(unsigned)(cq_w-cq_r));return 1;
     }
