@@ -393,6 +393,25 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
 /* ===================================================================== */
 /* Master: distortion, glue (master_glue), volume                         */
 /* ===================================================================== */
+
+/* Glue GR advance + linear gain — one body for mono + stereo process. */
+__attribute__((noinline)) static float fx_glue_gain(float mag, float thr, float slope, float makeup,
+                                                    float drel, float atk, float rel, float *det, float *env)
+{
+    *det = mag > *det ? mag : *det * drel;
+    const float in_db = *det > 1e-9f ? 6.0205999f * fm_log2f(*det) : -120.0f;
+    const float over = in_db - thr;
+    float gr = 0.0f;
+    if (over >= 3.0f)
+        gr = -over * slope;
+    else if (over > -3.0f) {
+        const float t = over + 3.0f;
+        gr = -(t * t) * (1.0f / 12.0f) * slope;
+    }
+    *env = gr + (*env - gr) * (gr < *env ? atk : rel);
+    return fm_db2lin(*env + makeup);
+}
+
 void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *dly, float *out, int n)
 {
     if (n > 256)
@@ -413,19 +432,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         float det = f->comp_det, env = f->comp_env_db;
         for (int i = 0; i < n; ++i) {
             const float in = out[i];
-            const float mag = fm_fabsf(in);
-            det = mag > det ? mag : det * drel;
-            const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
-            const float over = in_db - thr;
-            float gr = 0.0f;
-            if (over >= 3.0f)
-                gr = -over * slope;
-            else if (over > -3.0f) {
-                const float t = over + 3.0f;
-                gr = -(t * t) * (1.0f / 12.0f) * slope;
-            }
-            env = gr + (env - gr) * (gr < env ? atk : rel);
-            out[i] = in * fm_db2lin(env + makeup);
+            out[i] = in * fx_glue_gain(fm_fabsf(in), thr, slope, makeup, drel, atk, rel, &det, &env);
         }
         f->comp_det = det;
         f->comp_env_db = env;
@@ -461,19 +468,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         float det = f->comp_det, env = f->comp_env_db;
         for (int i = 0; i < n; ++i) {
             const float ml = fm_fabsf(out_l[i]), mr = fm_fabsf(out_r[i]);
-            const float mag = ml > mr ? ml : mr;
-            det = mag > det ? mag : det * drel;
-            const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
-            const float over = in_db - thr;
-            float gr = 0.0f;
-            if (over >= 3.0f)
-                gr = -over * slope;
-            else if (over > -3.0f) {
-                const float t = over + 3.0f;
-                gr = -(t * t) * (1.0f / 12.0f) * slope;
-            }
-            env = gr + (env - gr) * (gr < env ? atk : rel);
-            const float g = fm_db2lin(env + makeup);
+            const float g = fx_glue_gain(ml > mr ? ml : mr, thr, slope, makeup, drel, atk, rel, &det, &env);
             out_l[i] *= g;
             out_r[i] *= g;
         }
