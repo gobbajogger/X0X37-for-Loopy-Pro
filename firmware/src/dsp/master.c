@@ -43,11 +43,12 @@ static const x0x_param_t MST_P[MST_NPARAMS] = {
 int master_nparams(void) { return MST_NPARAMS; }
 const x0x_param_t *master_param(int i) { return (i >= 0 && i < MST_NPARAMS) ? &MST_P[i] : 0; }
 
-static float thresh_db(int p) { return -48.0f + 48.0f * (float)p / 127.0f; }
-static float attack_ms(int p) { return 0.1f * fm_exp2f((float)p * (9.966f / 127.0f)); }     /* 0.1 .. 100 */
-static float release_ms(int p) { return 10.0f * fm_exp2f((float)p * (7.229f / 127.0f)); }   /* 10 .. 1500 */
-static float makeup_db(int p) { return 24.0f * (float)p / 127.0f; }
-static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
+/* Pot/format maps only — audio reads precomputed master_t fields (X0X_COLD) */
+X0X_COLD static float thresh_db(int p) { return -48.0f + 48.0f * (float)p / 127.0f; }
+X0X_COLD static float attack_ms(int p) { return 0.1f * fm_exp2f((float)p * (9.966f / 127.0f)); }     /* 0.1 .. 100 */
+X0X_COLD static float release_ms(int p) { return 10.0f * fm_exp2f((float)p * (7.229f / 127.0f)); }   /* 10 .. 1500 */
+X0X_COLD static float makeup_db(int p) { return 24.0f * (float)p / 127.0f; }
+X0X_COLD static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
 
 /* PUMP's duck rises over this: 12 ms lets the kick's attack through and then ducks. At 3 ms it
  * dropped the whole mix 4 dB inside a cycle of the bass: measured, the fast gain movement at the
@@ -56,8 +57,8 @@ static float pump_db(int p) { return 24.0f * (float)p / 127.0f; }
 #define MASTER_PUMP_RISE_MS 12.0f
 #endif
 
-/* one-pole coefficient reaching 1 - 1/e of a step in t milliseconds */
-static float coef_ms(float t) { return fm_expf(-1000.0f / (t * FS)); }
+/* Pot/init path only via comp_coefs — not the audio render (X0X_COLD) */
+X0X_COLD static float coef_ms(float t) { return fm_expf(-1000.0f / (t * FS)); }
 
 /* Pot/init path only — master_process reads precomputed coefs (X0X_COLD) */
 X0X_COLD static void comp_coefs(master_t *m)
