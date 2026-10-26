@@ -18,15 +18,20 @@ const source = html.slice(ctlStart, ctlEnd) + '\n' + html.slice(start, stop);
 function picker({ digest } = {}) {
   const nodes = {};
   const node = () => ({
-    checked: false, disabled: false, value: 'previous', textContent: '', handlers: {},
+    dataset: {}, checked: false, disabled: false, value: 'previous', textContent: '', handlers: {},
     addEventListener(event, fn) { this.handlers[event] = fn; },
     classList: { add() {}, remove() {} },
+    click() {}, scrollIntoView() {},
+    focus() { this.focused = true; },
   });
   const dom = new Proxy(nodes, { get(t, p) { return (t[p] ||= node()); } });
   const events = [];
   const api = runInNewContext(`(() => {
     let stock = null, ctl = null, writing = false, lastId = null;
     const $ = id => dom[id];
+    const t = key => key;
+    // Journey rendering is presentation only; preserve file/consent assertions.
+    const refreshJourney = () => {};
     const sayK = (code, suffix) => events.push({ code, suffix });
     const STOCK_SHA256_FM1 = 'stock-reference';
     const productOf = raw => raw[0] === 1 ? 'SMK-37 Pro_9001000'
@@ -144,4 +149,56 @@ assert.ok(html.includes('ctlreading:'), 'must provide controller loading message
 assert.ok(html.includes('ctlreadfail:'), 'must provide controller read failure message');
 assert.ok(html.includes('stockloading:'), 'must provide readable loading message in both language dictionaries');
 assert.ok(html.includes('stockloadfail:'), 'must provide readable read failure message');
+
+await caseRun('empty-picker feedback keeps model confirmation unchecked', async () => {
+  const p = picker();
+  p.dom.chooseLocal.handlers.click();
+  await p.input(file(7));
+  assert.equal(p.dom.localfeedback.dataset.state, 'error');
+  assert.equal(p.dom.localfeedback.textContent, 'localinvalid');
+  assert.equal(p.dom.stockgo.disabled, true);
+  p.dom.chooseLocal.handlers.click();
+  await p.input(file(2));
+  assert.equal(p.dom.localfeedback.hidden, true);
+  assert.equal(p.dom.stockconfirm.focused, true);
+  assert.equal(p.dom.stockconfirm.checked, false);
+  assert.equal(p.dom.stockgo.disabled, true);
+});
+
+await caseRun('valid drop clears inline error from an invalid main chooser', async () => {
+  const p = picker();
+  p.dom.chooseLocal.handlers.click();
+  await p.input(file(7));
+  assert.equal(p.dom.localfeedback.dataset.state, 'error');
+  assert.equal(p.dom.localfeedback.hidden, false);
+  await p.drop(file(2));
+  assert.equal(p.dom.localfeedback.hidden, true, 'new drop must clear stale chooser feedback');
+  assert.equal(p.dom.localfeedback.textContent, '');
+  assert.equal(p.api.stock()?.product, 'SMK-37 Elite_9001000');
+  assert.equal(p.dom.stockconfirm.checked, false);
+  assert.equal(p.dom.stockgo.disabled, true);
+  assert.equal(p.events.at(-1)?.code, 'stockok');
+});
+await caseRun('valid drop supersedes pending main chooser feedback and late reads', async () => {
+  for (const older of ['valid', 'invalid', 'rejected']) {
+    const p = picker(), slow = deferred();
+    p.dom.chooseLocal.handlers.click();
+    const first = p.input({arrayBuffer: () => slow.promise});
+    assert.equal(p.dom.localfeedback.textContent, 'localchecking', 'main chooser must retain loading progress');
+    assert.equal(p.dom.localfeedback.hidden, false);
+    await p.drop(file(2));
+    assert.equal(p.dom.localfeedback.hidden, true, 'drop must supersede pending chooser feedback');
+    assert.equal(p.dom.localfeedback.textContent, '');
+    if (older === 'rejected') slow.reject(new Error('old chooser read failed'));
+    else slow.resolve(Uint8Array.of(older === 'valid' ? 1 : 7).buffer);
+    await first;
+    assert.equal(p.dom.localfeedback.hidden, true, older + ': stale feedback resurrected');
+    assert.equal(p.dom.localfeedback.textContent, '');
+    assert.equal(p.api.stock()?.product, 'SMK-37 Elite_9001000');
+    assert.equal(p.dom.stockconfirm.checked, false);
+    assert.equal(p.dom.stockgo.disabled, true);
+    assert.equal(p.dom.stockconfirm.focused, undefined, 'stale chooser must not claim drop focus');
+    assert.equal(p.events.at(-1)?.code, 'stockok', 'stale read must not replace current status');
+  }
+});
 console.log('local .fwsc selection regressions passed');

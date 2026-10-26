@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:44:00Z",
+  "role": "X0X37 Installer Improvements",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-ux-local-feedback-20261023-run14",
+    "tested_commit": "860eb0aef6b6fbb4b0e23fee0490a1ba914d4576",
+    "tested_tree": "fcf06a6199a0426bf788442830e8536eff5b741a",
+    "pr": 83
+  },
+  "summary": "Show immediate localized inline firmware-file checking and failure beside the Step 02 local chooser; original source placed errors only in the later install status.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "web/x0x_installer.html",
+      "description": "Inline EN/JA local file feedback, CSS, ARIA and stale-state safety; exact Git blob c0e7d2c0695cfe3e6cd6b0638bb1d469a7d3663f."
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_local_entry.mjs",
+      "description": "Node mock validates invalid file local message and unchanged guarded navigation."
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_local_feedback_browser.py",
+      "description": "Native responsive Chromium simulation of invalid, pending, stale, language and valid-file confirmation."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/installer-ux-local-feedback-20261023-run14.md",
+      "description": "Before-after, exact test exits, log digests and remaining gates."
+    }
+  ],
+  "checks": [
+    {
+      "name": "original browser reproduction",
+      "status": "FAIL",
+      "command": "python3 test_local_feedback_browser.py source-pr77.html before",
+      "exit_code": 1,
+      "evidence": "PR77 baseline: missing inline feedback near local chooser, expected failing-before check",
+      "log_sha256": "4c9183a229e6d1a47a210650f385bee3a638dcea8a11744480d274858e3a07cc",
+      "coverage": "320px original baseline, fails at missing adjacent error"
+    },
+    {
+      "name": "Chromium responsive and negative",
+      "status": "PASS",
+      "command": "python3 test_install_local_feedback_browser.py candidate.html after",
+      "exit_code": 0,
+      "evidence": "browser_final.log: PASS at 320/390/1280px",
+      "log_sha256": "7e16aa5077bc92a287bf871bf82099bc355e29f46d7f0b3c6324540323066b60",
+      "coverage": "no overflow, EN/JA, invalid/pending/stale/success/unchecked confirmation"
+    },
+    {
+      "name": "Node local file regressions",
+      "status": "PASS",
+      "command": "node test_install_local_entry.updated.mjs candidate.html",
+      "exit_code": 0,
+      "evidence": "local_node_final.log: five workflow scenarios",
+      "log_sha256": "868c394779897d1ff585823212684d53fce79806dad23323116eb2eff17cb7bc"
+    },
+    {
+      "name": "Node public firmware eligibility",
+      "status": "PASS",
+      "command": "node test_install_public_eligibility.mjs candidate.html",
+      "exit_code": 0,
+      "evidence": "test_install_public_eligibility.mjs.final.log: twenty forged evidence cases",
+      "log_sha256": "bf9e698b4fcfb81f8ba414fa1e38bebd933e7f2d31bafd501f8b905a6c9dbb1b"
+    },
+    {
+      "name": "Node Web MIDI retry",
+      "status": "PASS",
+      "command": "node test_install_connection_retry.mjs candidate.html",
+      "exit_code": 0,
+      "evidence": "test_install_connection_retry.mjs.final.log: existing positive/negative connection checks",
+      "log_sha256": "f6b5751df59e1237eac2ceda901b21a0ccfafef3db215fa01d7a84c597eeac93"
+    },
+    {
+      "name": "inline JavaScript syntax",
+      "status": "PASS",
+      "command": "node --check inline-module-final.mjs",
+      "exit_code": 0,
+      "evidence": "candidate inline module syntax parsed without errors"
+    },
+    {
+      "name": "full combined slot and OTA suite",
+      "status": "NOT_RUN",
+      "command": "node web/test_install_slots.mjs",
+      "evidence": "Full exact repository source tree not reconstructed in this run; source-only narrow browser regressions executed."
+    },
+    {
+      "name": "firmware target builds",
+      "status": "NOT_RUN",
+      "command": "Elite and Pro pinned native target builds",
+      "evidence": "Browser-only UX source edit; no firmware, controller, private SDK or target build changed."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Browser-only source change"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Browser-only source change"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA then sole Safe Merge",
+    "action": "Independently review PR #83 latest head, execute combined current-source installer/model/backup negatives, then integrate stacked dependencies to firmware nightly if approved.",
+    "gate": "Independent QA and nightly-source integration; no production Pages or hardware claim."
+  },
+  "dependencies": [
+    "firmware draft PR #77 head bbe325d48c5d4d2de2d48823bcaec69e45a524ec",
+    "draft PRs #67, #59, #52, #44, #39 and prior ancestor dependencies"
+  ],
+  "publication": "SOURCE_ONLY"
+}
