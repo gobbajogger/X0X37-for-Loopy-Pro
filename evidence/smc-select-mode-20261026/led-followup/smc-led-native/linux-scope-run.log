@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "exit": 0,
+  "observed_passes": [
+    "smc-select-mode",
+    "smc-filter",
+    "smc-reachability",
+    "smc-lock",
+    "smc-ui"
+  ],
+  "observed_failures": []
+}
