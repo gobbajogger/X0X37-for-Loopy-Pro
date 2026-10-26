@@ -823,21 +823,23 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
 }
 
-/* Publish the request type last: seq_advance must see its matching origin. */
-static void request_start(seq_t *s, int remote)
+/* Publish the request type last: seq_advance must see its matching origin.
+ * Start and Continue share the same setup; cont selects which flag is written last.
+ * noinline: one body for seq_start / seq_continue / MIDI RT (else each site inlines). */
+__attribute__((noinline)) static void request_play(seq_t *s, int remote, int cont)
 {
     s->req_prior_ticks = s->ext_pending; /* clocks before this request belong to the older epoch */
-    s->req_cont = 0;
     s->req_rt = (uint8_t)remote;
-    s->req_start = 1;
+    if (cont) {
+        s->req_start = 0;
+        s->req_cont = 1; /* type last */
+    } else {
+        s->req_cont = 0;
+        s->req_start = 1; /* type last */
+    }
 }
-static void request_continue(seq_t *s, int remote)
-{
-    s->req_prior_ticks = s->ext_pending;
-    s->req_start = 0;
-    s->req_rt = (uint8_t)remote;
-    s->req_cont = 1;
-}
+static void request_start(seq_t *s, int remote) { request_play(s, remote, 0); }
+static void request_continue(seq_t *s, int remote) { request_play(s, remote, 1); }
 void seq_start(seq_t *s) { request_start(s, 0); }
 void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start or Continue, not a later one */
 {
