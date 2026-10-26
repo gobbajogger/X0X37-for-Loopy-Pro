@@ -422,8 +422,8 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   const before = ids.status.textContent;
   const clicked = ids.go.handlers.click();
   for (let i = 0; i < 3000; i++) {
-    // Owned reconnect refreshes the selected package and resets consent.
-    if (ids.status.textContent === "X0X test · SMK-37 Pro" && ids.conn.textContent === "Connected" &&
+    // Owned reconnect preserves the completed install result and resets consent.
+    if (/slots were written back and checked/.test(ids.status.textContent) && ids.conn.textContent === "Connected" &&
         ids.bar.value === 100 && !ids.devagree.checked && ids.go.disabled) break;
     if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;
     if (/written back|Restore|Done|slots|error|Error/i.test(ids.status.textContent || "") && ids.go.disabled === false) break;
@@ -443,7 +443,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
 {
   const fw = { [NOW]: NEW, [PAGE_PRODUCT]: MOVED };
   const r = await page(packageOf(PAGE_PRODUCT, { map: MOVED.map }), PAGE_PRODUCT, fw, NOW, [[0, IMG[0]], [1, IMG[1]]]);
-  ok(r.status === "X0X test · SMK-37 Pro" && r.connected && !r.consentChecked && r.installDisabled &&
+  ok(/slots were written back and checked/.test(r.status) && r.connected && !r.consentChecked && r.installDisabled &&
     r.completedBar === 100 && r.files.length === 1 && same(slotImages(r.flash, MOVED)[1], IMG[1]) &&
     same(readArchive(r.files[0].b).images[1], IMG[1]),
     `installer page: download, install, slots back ("${r.status}")`);
