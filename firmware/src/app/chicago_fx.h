@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Chicago Fx Type / Edit 1 / Edit 2 — SEND bridge + Crush/Ring/EQ/SDly/BPM insert
- * (FCDC-205).
+/* Chicago Fx Type / Edit 1 / Edit 2 — SEND bridge + Crush/Ring/EQ/SDly/BPM/Hall
+ * insert (FCDC-205).
  *
  * Chicago AU is a per-voice insert strip (12 algorithms). Product audio is a
  * shared T_FX fxbus + per-part T_MIX sends, plus Crush / Ring / EQ / Short Delay /
- * BPM Delay inserts on the 303 dry voice (chicago_crush.h / chicago_ring.h /
- * chicago_eq.h / chicago_sdly.h / chicago_bpmdly.h). Other modulation FX remain
- * NOT_YET.
+ * BPM Delay / Hall inserts on the 303 dry voice (chicago_crush.h / chicago_ring.h /
+ * chicago_eq.h / chicago_sdly.h / chicago_bpmdly.h / chicago_hall.h). Other
+ * modulation FX remain NOT_YET.
  *
  * Supported SEND / master stage (labeled SEND FX in the UI):
- *   Off, Comp, Hall
+ *   Off, Comp
  * Supported INSERT (per-voice DSP, not Mix theft):
- *   Crush (Decimator), Ring Mod, EQ, Short Delay, BPM Delay
+ *   Crush (Decimator), Ring Mod, EQ, Short Delay, BPM Delay, Hall
  * Explicit NOT_YET (no DSP; UI says NO INSERT; do not fake silence as FX):
  *   Cho/Flg, Ensemble, Phaser, Gate Reverb
  *
  * Stored in sound_t after bass303 DSP pots (CHI_FX_*). Not consumed by
- * bass303_set. Global Comp/Hall theft is intentional and labeled.
+ * bass303_set. Global Comp theft is intentional and labeled.
  * Miami wobble stays on WBL1 — not mapped here. */
 #pragma once
 #include <stdint.h>
@@ -69,8 +69,8 @@ typedef struct {
     uint8_t fx_rv_decay, fx_rv_level;
 } chicago_fx_out_t;
 
-/* UI names: "—" = NOT_YET. Crush/Ring/EQ/SDly/BPM are plain insert names. Page
- * title SEND FX still covers Comp/Hall; Crush+Ring+EQ+SDly+BPM are insert.
+/* UI names: "—" = NOT_YET. Crush/Ring/EQ/SDly/BPM/Hall are plain insert names.
+ * Page title SEND FX still covers Comp; Crush+Ring+EQ+SDly+BPM+Hall are insert.
  * Tables in chicago_param_tables.c (one copy for engine.o + x0x.o). */
 extern const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES];
 
@@ -79,7 +79,7 @@ extern const x0x_param_t CHI_FX_PARAMS[3];
 static inline int chi_fx_is_insert(uint8_t type)
 {
     return type == CHI_FX_DECIM || type == CHI_FX_RING || type == CHI_FX_EQ ||
-           type == CHI_FX_SHORT_DLY || type == CHI_FX_BPM_DLY;
+           type == CHI_FX_SHORT_DLY || type == CHI_FX_BPM_DLY || type == CHI_FX_HALL;
 }
 
 static inline int chi_fx_supported(uint8_t type)
@@ -92,7 +92,7 @@ static inline int chi_fx_supported(uint8_t type)
     case CHI_FX_EQ:        /* insert — chicago_eq.h */
     case CHI_FX_SHORT_DLY: /* insert — chicago_sdly.h */
     case CHI_FX_BPM_DLY:   /* insert — chicago_bpmdly.h */
-    case CHI_FX_HALL:
+    case CHI_FX_HALL:      /* insert — chicago_hall.h */
         return 1;
     default:
         return 0;
@@ -128,7 +128,7 @@ static inline void chi_fx_decode_factory(const uint8_t pots[3], uint8_t out[3])
 static inline void chicago_fx_map(uint8_t type, uint8_t e1, uint8_t e2, int clear_ny,
                                  chicago_fx_out_t *o)
 {
-    uint8_t send, tone;
+    uint8_t send;
     o->touch = 0;
     o->mx_rev = o->mx_dly = 0;
     o->fx_comp = o->fx_dist = o->fx_drive = 0;
@@ -139,8 +139,8 @@ static inline void chicago_fx_map(uint8_t type, uint8_t e1, uint8_t e2, int clea
     if (type == CHI_FX_OFF)
         return;
     if (chi_fx_is_insert(type)) {
-        /* Crush / Ring / EQ / SDly / BPM: clear part sends so Mix does not smear
-         * the insert; audio path applies DSP from sound_t FX pots. */
+        /* Crush / Ring / EQ / SDly / BPM / Hall: clear part sends so Mix does not
+         * smear the insert; audio path applies DSP from sound_t FX pots. */
         o->touch = CHI_FX_W_CLEAR_SENDS;
         return;
     }
@@ -150,19 +150,12 @@ static inline void chicago_fx_map(uint8_t type, uint8_t e1, uint8_t e2, int clea
         return;
     }
     send = e1;
-    tone = e2;
+    (void)e2;
     switch (type) {
     case CHI_FX_COMP:
         /* Global master glue — not per-voice insert. */
         o->touch = CHI_FX_W_COMP | CHI_FX_W_CLEAR_SENDS;
         o->fx_comp = send;
-        break;
-    case CHI_FX_HALL:
-        o->touch = CHI_FX_W_MX_REV | CHI_FX_W_RV_DEC | CHI_FX_W_RV_LVL | CHI_FX_W_CLEAR_SENDS;
-        o->mx_rev = send;
-        o->mx_dly = 0;
-        o->fx_rv_decay = tone < 20 ? 73 : tone;
-        o->fx_rv_level = 85;
         break;
     default:
         break;
