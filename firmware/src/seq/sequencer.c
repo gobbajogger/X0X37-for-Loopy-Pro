@@ -474,11 +474,16 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
     }
 }
 
-__attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink_t *o)
+__attribute__((noinline)) static void bass_release_all(seq_t *s, const seq_sink_t *o)
 {
     int b;
     for (b = 0; b < NBASS; b++)
         bass_release(s, b, o);
+}
+
+__attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink_t *o)
+{
+    bass_release_all(s, o);
     if (o->brk_stop)
         o->brk_stop(o->ctx);
 }
@@ -492,8 +497,7 @@ __attribute__((noinline)) static void seq_send_rt(seq_t *s, const seq_sink_t *o,
 static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote)
 {
     int t;
-    for (t = 0; t < NBASS; t++)
-        bass_release(s, t, o);             /* Start/Continue reinitialises timers: release old notes first */
+    bass_release_all(s, o);                /* Start/Continue reinitialises timers: release old notes first */
     if (from_top)
         bar_end(s, 1);                                /* cues, or the song's start bar */
     for (t = 0; t < NTRACKS; t++) {
