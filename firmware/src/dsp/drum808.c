@@ -1811,7 +1811,7 @@ int drum808_active(const drum808_t *d)
 
 /* Run one voice for up to m samples into buf; stops where 8W8 would stop calling
  * it (the voice went inactive). Returns the samples written. */
-static int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
+static __attribute__((noinline)) int voice_run(drum808_t *d, int l, float *buf, int m, const float *bus, const float *pair)
 {
     int i;
     switch (l) {
