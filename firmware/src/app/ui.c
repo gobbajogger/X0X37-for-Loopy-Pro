@@ -5340,13 +5340,9 @@ static UI_DRAW const char *matrix_name(pref_t r)
     return caps_of(pref_name(r));
 }
 
-static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col)
+static UI_DRAW int matrix_value(pref_t r)
 {
-    const x0x_param_t *d = pref_desc(r);
-    char num[16], unit[8];
-    int cx = x + width / 2, val, shape = 0, mix = 0;
-    if (!d) return;
-    val = pref_get(r);
+    int val = pref_get(r);
     if (lock_step() >= 0) {
         int lv = lock_of(r, lock_step());
         if (lv >= 0) val = lv;
@@ -5354,6 +5350,16 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int tou
         int mv = motion_now(r);
         if (mv >= 0) val = mv;
     }
+    return val;
+}
+
+static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col)
+{
+    const x0x_param_t *d = pref_desc(r);
+    char num[16], unit[8];
+    int cx = x + width / 2, val, shape = 0, mix = 0;
+    if (!d) return;
+    val = matrix_value(r);
     if (touched) rframe(x + 2, y, width - 4, 48, 3, col);
     cv_text(x + 7, y + 1, &FONT_XS, matrix_name(r), touched ? C_WHITE : C_GRAY);
     if (r.kind == R_ENG && val >= 0 && val <= d->max)
@@ -5382,10 +5388,10 @@ static UI_DRAW int draw_adsr_overlay(int band)
     if (ui.view != V_PART || !is_303() || edited < 0 || edited > 3 ||
         (int32_t)(ui.touch_until - plat_ms()) <= 0 ||
         (strcmp_s(name, "AMP ADSR") && strcmp_s(name, "FILTER ADSR"))) return 0;
-    a = pref_get(pg.r[cur_page()][0]);
-    d = pref_get(pg.r[cur_page()][1]);
-    s = pref_get(pg.r[cur_page()][2]);
-    r = pref_get(pg.r[cur_page()][3]);
+    a = matrix_value(pg.r[cur_page()][0]);
+    d = matrix_value(pg.r[cur_page()][1]);
+    s = matrix_value(pg.r[cur_page()][2]);
+    r = matrix_value(pg.r[cur_page()][3]);
     /* Match each active engine's envelope time laws, then compress the
      * durations proportionally to a diagram. Sustain is a level, not time. */
 #if X0X_DEV_WOBBLE
@@ -5445,7 +5451,7 @@ static UI_DRAW int draw_adsr_overlay(int band)
         for (k = 0; k < 4; k++) {
             pref_t p = pg.r[cur_page()][k];
             char num[16], unit[8];
-            pref_value_of(p, pref_get(p), num, unit);
+            pref_value_of(p, matrix_value(p), num, unit);
             text_c(30 + k * 60, 11, &FONT_XS, names[k], k == edited ? C_WHITE : C_GRAY);
             cell_value(30 + k * 60, 37, num, unit, k == edited ? C_WHITE : C_HI);
         }
