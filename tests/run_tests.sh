@@ -367,8 +367,11 @@ run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Ran
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (not insert)
 run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
 run au-compare-align python3 tests/host/test_au_compare_align.py   # lag search law for Chicago/Miami AU compares
+run chicago-au-render sh tests/host/run_chicago_au_render.sh   # native303 offline renderer for Chicago AU battery
+run chicago-au-map python3 tests/host/test_chicago_au_map.py   # AU factory tuple → bass303 pots
+run chicago-au-battery python3 tests/host/test_chicago_au_battery.py   # scenario render + aligned self F_agg
 if [ -z "${CHICAGO_AU_REFS:-}" ]; then not_run chicago-au-compare CHICAGO_AU_REFS
-else run chicago-au-compare python3 tests/host/render_chicago_au_compare.py; fi   # Acid AU spectral battery (C-SND-2); refs gitignored
+else run chicago-au-compare python3 tests/host/render_chicago_au_compare.py; fi   # Acid AU spectral battery (C-SND-1); refs gitignored
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time
