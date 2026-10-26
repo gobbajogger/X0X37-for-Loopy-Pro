@@ -32,6 +32,12 @@ static void pref_set(pref_t r, int n)
 }
 static void motion_touch(pref_t r) { (void)r; touches++; }
 static void pref_value(pref_t r, char *num, char *unit) { sprintf(num, "%d", pref_get(r)); *unit = 0; }
+/* smk_faders.inc shares mute-pickup state with ui.c; this fixture owns fader
+ * pickup / bank / project-hold behaviour, not mute edges — seed zeros and a
+ * never-muted volume_muted so -Werror compiles (same stub/seed class as
+ * #453/#494 harness leftovers, different harness). */
+static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+static int volume_muted(pref_t r) { (void)r; return 0; }
 #include "smk_faders.inc"
 
 static int failed;
