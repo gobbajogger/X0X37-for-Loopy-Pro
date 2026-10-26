@@ -116,16 +116,7 @@ static void put32(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 24);
 }
 
-static uint32_t crc32_of(const uint8_t *p, uint32_t n)       /* zlib CRC-32, 4 bits per step */
-{
-    uint32_t c = 0xFFFFFFFFu;
-    while (n--) {
-        c ^= *p++;
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-    }
-    return ~c;
-}
+#define crc32_of(p, n) x0x_crc32((p), (n))
 
 /* the object is the n bytes of io_buf, format word included; written only if they changed */
 static int save_buf(uint32_t obj, uint32_t n)

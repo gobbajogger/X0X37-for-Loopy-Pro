@@ -32,19 +32,8 @@ static int st_read(uint32_t off, void *dst, uint32_t n);
 static int st_erase(uint32_t off);
 static int st_prog(uint32_t off, const void *src, uint32_t n);
 
-#include "crc32_nibble.h"              /* one nibble table shared with project.c */
-
-static uint32_t st_crc32(const void *p, uint32_t n)   /* zlib CRC-32, 4 bits per step */
-{
-    const uint8_t *b = p;
-    uint32_t c = 0xFFFFFFFFu;
-    while (n--) {
-        c ^= *b++;
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-        c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-    }
-    return ~c;
-}
+#include "crc32_nibble.h"              /* one nibble CRC body shared with project/slots/boot */
+#define st_crc32(p, n) x0x_crc32((p), (n))
 
 #if BOARD_SMK37
 /* SMK-37 Pro: every object in FL_DATA 0x9D000..0xAFFFF (the stock VM), A/B
@@ -188,16 +177,12 @@ static int st_body_ok(uint32_t obj, uint32_t copy, const st_hdr_t *h)
     uint8_t tmp[256];
     uint32_t off = 0, c = 0xFFFFFFFFu;
     while (off < h->len) {
-        uint32_t n = h->len - off, i;
+        uint32_t n = h->len - off;
         if (n > sizeof tmp)
             n = (uint32_t)sizeof tmp;
         if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF + off, tmp, n))
             return 0;
-        for (i = 0; i < n; i++) {
-            c ^= tmp[i];
-            c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-            c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
-        }
+        c = x0x_crc32_upd(c, tmp, n);
         off += n;
     }
     return (~c) == h->crc;
