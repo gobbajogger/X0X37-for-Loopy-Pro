@@ -476,16 +476,15 @@ static void ble_service(void)
     ble_sx_answer(h);
     /* attempt 37: no parameter request (test 34's, accepted by the iPhone, came with a huge MIDI delay) */
     bleh_poll(h);
-    while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
+    /* MIDI in: same midi_in_q as USB/TRS. Cap MQ pulls/tick (BLE-08). Note Off never
+     * drops when the ring is full of CCs — midi_in_put displaces (usb.c). */
+    for (uint32_t n = 0; n < MQ && bleh_midi_next(h, &m); n++) {
         uint32_t pkt = ble_usb_of_msg(&m);
         if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) &&
             smk_apc_ble_event(pkt, (uint8_t)bleh_notifying(h)))   /* a76: notify off: no pad colour */
             continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
-        if (pkt) {
-            midi_in_q[mi_w % MQ] = pkt | 0x10u;     /* cable bits: the input, 1 Bluetooth (MID-15) */
-            RING_PUBLISH();
-            mi_w++;
-        }
+        if (pkt)
+            (void)midi_in_put(pkt | 0x10u);         /* cable bits: the input, 1 Bluetooth (MID-15) */
     }
     midi_link_check(&ble_link_st, (uint32_t)bleh_connected(h), 1u);
 }
