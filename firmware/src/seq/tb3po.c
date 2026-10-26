@@ -45,28 +45,28 @@ X0X_COLD void tb3po_defaults(tb3po_cfg_t *g, uint32_t seed)
     g->seed = seed ? seed : 0xBEEF;
 }
 
-static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+__attribute__((noinline)) static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 
-static uint8_t note_of(const tb3po_cfg_t *g, int degree, int oct)
+__attribute__((noinline)) static uint8_t note_of(const tb3po_cfg_t *g, int degree, int oct)
 {
     const scale_t *sc = &SCALES[g->scale < TB3PO_NSCALES ? g->scale : 0];
     return (uint8_t)clampi(12 * (g->base_oct + 1) + g->root + sc->deg[degree] + 12 * oct, 0, 127);
 }
 
-static int roll_degree(uint32_t *r, const scale_t *sc)
+__attribute__((noinline)) static int roll_degree(uint32_t *r, const scale_t *sc)
 {
     int d = (int)(rng_f(r) * (float)sc->len);
     return d >= sc->len ? sc->len - 1 : d;
 }
 
-static int roll_oct(uint32_t *r, int range)
+__attribute__((noinline)) static int roll_oct(uint32_t *r, int range)
 {
     int o = (int)(rng_f(r) * (float)range);
     return o >= range ? range - 1 : o;
 }
 
 /* step kind -> flags, schwung-tb3po's STEP_NOTE / ACCENT / SLIDE */
-static uint8_t roll_kind(uint32_t *r, const tb3po_cfg_t *g)
+__attribute__((noinline)) static uint8_t roll_kind(uint32_t *r, const tb3po_cfg_t *g)
 {
     uint8_t f = G_NOTE;
     if (rng_f(r) < (float)g->accent / 100.0f)

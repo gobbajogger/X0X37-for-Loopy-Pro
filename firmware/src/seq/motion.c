@@ -22,7 +22,7 @@ static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
     }
 }
 
-static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
+__attribute__((noinline)) static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
 {
     if (r->applied != MOT_NONE)
         m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
