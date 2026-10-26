@@ -64,9 +64,15 @@ def _rms(x: np.ndarray) -> float:
     return float(np.sqrt(np.mean(x * x)))
 
 
-def _measure_mono(y: np.ndarray, expected_hz: float, sr: int) -> dict[str, Any]:
-    """Harmonic fit on steady voiced window 100–400 ms (4800:19200 @ 48 kHz)."""
-    a = y[4800:19200]
+def _measure_mono(
+    y: np.ndarray,
+    expected_hz: float,
+    sr: int,
+    steady_start: int = 4800,
+    steady_end: int = 19200,
+) -> dict[str, Any]:
+    """Harmonic fit on steady voiced window (default 100–400 ms @ 48 kHz)."""
+    a = y[steady_start:steady_end]
     tm = np.arange(len(a), dtype=np.float64) / sr
     mid = _rms(a)
 
@@ -100,17 +106,29 @@ def _measure_mono(y: np.ndarray, expected_hz: float, sr: int) -> dict[str, Any]:
 
 
 def compare_pair(
-    ref: np.ndarray, cand: np.ndarray, nominal_hz: float, sr: int = SR_DEFAULT
+    ref: np.ndarray,
+    cand: np.ndarray,
+    nominal_hz: float,
+    sr: int = SR_DEFAULT,
+    steady_start: int = 4800,
+    steady_end: int = 19200,
 ) -> dict[str, Any]:
     x = ref.mean(axis=1)
     y = cand.mean(axis=1)
     lag, r_steady = au_compare_align.lag_aligned_correlation(
-        x[4800:19200].tolist(), y[4800:19200].tolist(), lag_min=-4096, lag_max=4096
+        x[steady_start:steady_end].tolist(),
+        y[steady_start:steady_end].tolist(),
+        lag_min=-4096,
+        lag_max=4096,
     )
-    a = _measure_mono(x, nominal_hz, sr)
-    b = _measure_mono(y, nominal_hz, sr)
-    xx = x[4800:19200]
-    yy = y[4800 + lag : 19200 + lag] if lag >= 0 else y[4800 : 19200 + lag]
+    a = _measure_mono(x, nominal_hz, sr, steady_start, steady_end)
+    b = _measure_mono(y, nominal_hz, sr, steady_start, steady_end)
+    xx = x[steady_start:steady_end]
+    yy = (
+        y[steady_start + lag : steady_end + lag]
+        if lag >= 0
+        else y[steady_start : steady_end + lag]
+    )
     if len(yy) != len(xx):
         yy = yy[: len(xx)]
     ha = np.array(a["fixedHarmonicAbs"])

@@ -4,6 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+static unsigned compare_frames(void)
+{
+    const char *e = getenv("WOBBLE_COMPARE_FRAMES");
+    if(!e || !*e) return 48000u;
+    unsigned n = (unsigned)strtoul(e, 0, 10);
+    return n >= 19200u && n <= 48000u ? n : 48000u;
+}
+static unsigned compare_note_off(unsigned total)
+{
+    const char *e = getenv("WOBBLE_COMPARE_NOTE_OFF");
+    if(e && *e) return (unsigned)strtoul(e, 0, 10);
+    return total <= 19200u ? 12000u : 24000u;
+}
 static int configure(wobble_t *s,const char *mode)
 {
     wobble_set(s,W_CUTOFF,1);
@@ -37,15 +50,17 @@ int main(int argc,char **argv)
     const int creative=!strcmp(argv[1],"creative") || !strcmp(argv[1],"sweep");
     const int sweep=!strcmp(argv[1],"sweep");
     static const uint8_t riff[8]={36,36,43,39,36,48,46,43};
+    const unsigned total=compare_frames();
+    const unsigned off=compare_note_off(total);
     for(unsigned k=0;k<notes;++k) {
         uint8_t note=creative ? riff[k%8] : 48;
         wobble_note_on(&s,note,80);
-        for(unsigned p=0;p<48000;) {
-            if(p==24000)wobble_note_off(&s,note);
-            unsigned end=p<24000 ? 24000 : 48000;
+        for(unsigned p=0;p<total;) {
+            if(p==off)wobble_note_off(&s,note);
+            unsigned end=p<off ? off : total;
             unsigned n=end-p<256 ? end-p : 256;
             if(sweep) {
-                wobble_set(&s,W_CUTOFF,(float)p/48000);
+                wobble_set(&s,W_CUTOFF,(float)p/(float)total);
                 wobble_set(&s,W_XMOD_DEPTH,(float)(k%8)/7);
             }
             wobble_render(&s,l,r,n);
@@ -55,6 +70,6 @@ int main(int argc,char **argv)
     }
     if(fclose(f))return 1;
     fprintf(stderr,"rendered %u notes %u frames, 48000Hz float32 stereo; state=%zu bytes\n",
-            notes,notes*48000,sizeof s);
+            notes,notes*total,sizeof s);
     return 0;
 }

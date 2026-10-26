@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "engine": "miami",
+  "sampleRate": 48000,
+  "scenarios": [
+    {
+      "id": "16th_cutz",
+      "manifest": "miami_au_16th_cutz.json"
+    },
+    {
+      "id": "alias_tri_bass",
+      "manifest": "miami_au_alias_tri_bass.json"
+    },
+    {
+      "id": "base_shot",
+      "manifest": "miami_au_base_shot.json"
+    },
+    {
+      "id": "beee",
+      "manifest": "miami_au_beee.json"
+    },
+    {
+      "id": "blipper_bass",
+      "manifest": "miami_au_blipper_bass.json"
+    },
+    {
+      "id": "bluster_lead",
+      "manifest": "miami_au_bluster_lead.json"
+    },
+    {
+      "id": "bubblesaw",
+      "manifest": "miami_au_bubblesaw.json"
+    },
+    {
+      "id": "comp_lex_bass",
+      "manifest": "miami_au_comp_lex_bass.json"
+    },
+    {
+      "id": "cripcross",
+      "manifest": "miami_au_cripcross.json"
+    },
+    {
+      "id": "crucial_cats",
+      "manifest": "miami_au_crucial_cats.json"
+    },
+    {
+      "id": "crush_seq_bass",
+      "manifest": "miami_au_crush_seq_bass.json"
+    },
+    {
+      "id": "d_tune_base",
+      "manifest": "miami_au_d_tune_base.json"
+    },
+    {
+      "id": "evil_nail",
+      "manifest": "miami_au_evil_nail.json"
+    },
+    {
+      "id": "fax_it_bass",
+      "manifest": "miami_au_fax_it_bass.json"
+    },
+    {
+      "id": "fixnum_lead",
+      "manifest": "miami_au_fixnum_lead.json"
+    },
+    {
+      "id": "humid_bass",
+      "manifest": "miami_au_humid_bass.json"
+    },
+    {
+      "id": "init_miami",
+      "manifest": "miami_au_init_miami.json"
+    },
+    {
+      "id": "jaguar_bomb",
+      "manifest": "miami_au_jaguar_bomb.json"
+    },
+    {
+      "id": "mad_lead",
+      "manifest": "miami_au_mad_lead.json"
+    },
+    {
+      "id": "nest_step",
+      "manifest": "miami_au_nest_step.json"
+    },
+    {
+      "id": "scream_lead",
+      "manifest": "miami_au_scream_lead.json"
+    },
+    {
+      "id": "screamer",
+      "manifest": "miami_au_screamer.json"
+    },
+    {
+      "id": "switcher_bass",
+      "manifest": "miami_au_switcher_bass.json"
+    },
+    {
+      "id": "trash_alias",
+      "manifest": "miami_au_trash_alias.json"
+    },
+    {
+      "id": "trick_lead",
+      "manifest": "miami_au_trick_lead.json"
+    },
+    {
+      "id": "tune_me_lead",
+      "manifest": "miami_au_tune_me_lead.json"
+    },
+    {
+      "id": "vice_base",
+      "manifest": "miami_au_vice_base.json"
+    },
+    {
+      "id": "wide_sq_bass",
+      "manifest": "miami_au_wide_sq_bass.json"
+    },
+    {
+      "id": "x_form",
+      "manifest": "miami_au_x_form.json"
+    },
+    {
+      "id": "xross_bass",
+      "manifest": "miami_au_xross_bass.json"
+    }
+  ]
+}

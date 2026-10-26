@@ -26,6 +26,9 @@ import chicago_au_map  # noqa: E402
 import chicago_au_score  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools"))
+import au_compare_battery  # noqa: E402
+
 SCENARIO_DIR = ROOT / "tests" / "scenarios" / "chicago_au"
 BANK_JSON = ROOT / "assets" / "factory_banks" / "chicago.json"
 RENDER_BIN = ROOT / "build" / "chicago_au" / "chicago_au_render"
@@ -94,7 +97,7 @@ def main() -> int:
     rows: list[dict] = []
     sr = 48000
     for path in scenarios:
-        scen = json.loads(path.read_text())
+        scen = au_compare_battery.apply_timing_to_scenario(json.loads(path.read_text()))
         sid = scen["id"]
         pidx = int(scen["factoryPresetIndex"])
         pots = chicago_au_map.preset_from_factory_bank(
@@ -112,14 +115,21 @@ def main() -> int:
             n = min(ref.shape[0], cand.shape[0])
             ref = ref[:n]
             cand = cand[:n]
+        ws, we = au_compare_battery.steady_window_from_manifest(scen)
         comparison = chicago_au_score.compare_pair(
-            ref, cand, float(scen["nominalHz"]), sr=int(scen.get("sampleRate", sr))
+            ref,
+            cand,
+            float(scen["nominalHz"]),
+            sr=int(scen.get("sampleRate", sr)),
+            steady_start=ws,
+            steady_end=we,
         )
         row = {
             "id": sid,
             "manifest": path.name,
             "refWav": ref_wav.name,
             "tags": scen.get("tags", []),
+            "compareTiming": scen.get("compareTiming"),
             "comparison": comparison,
         }
         rows.append(row)
@@ -128,6 +138,7 @@ def main() -> int:
     summary = chicago_au_score.aggregate_f_agg(rows)
     summary["scenarios"] = len(rows)
     summary["engine"] = "chicago"
+    summary["harness"] = au_compare_battery.harness_summary_line()
     report_path = OUT_DIR / "report.json"
     report_path.write_text(json.dumps({"summary": summary, "scenarios": rows}, indent=2) + "\n")
     fagg = summary["F_agg"]

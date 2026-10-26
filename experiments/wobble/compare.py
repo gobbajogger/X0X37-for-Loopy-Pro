@@ -13,6 +13,10 @@ import pathlib
 import sys
 import warnings
 
+_REPO = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO / "tools"))
+import au_compare_battery  # noqa: E402
+
 import numpy as np
 from scipy.io import wavfile
 from scipy.optimize import minimize_scalar
@@ -35,19 +39,31 @@ def db(x):
     return float(20*np.log10(max(abs(x), 1e-20)))
 
 
-def load_wav(path):
+def _active_frames():
+    return au_compare_battery.active_timing().frames
+
+
+def _steady_window():
+    t = au_compare_battery.active_timing()
+    return t.steady_start, t.steady_end
+
+
+def load_wav(path, frames=None):
+    if frames is None:
+        frames = _active_frames()
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', wavfile.WavFileWarning)
         sr, x = wavfile.read(path)
-    assert sr == SR and x.shape == (48000, 2) and np.isfinite(x).all()
+    assert sr == SR and x.ndim == 2 and x.shape[1] == 2 and x.shape[0] >= frames
+    assert np.isfinite(x).all()
     assert np.issubdtype(x.dtype, np.floating)
-    return x.astype(float)
+    return x[:frames].astype(float)
 
 
-def measure(x, expected):
-    assert x.shape == (48000, 2) and np.isfinite(x).all()
+def measure(x, expected, steady_start=4800, steady_end=19200):
+    assert x.ndim == 2 and x.shape[1] == 2 and x.shape[0] >= steady_end and np.isfinite(x).all()
     y = x.mean(axis=1)
-    a = y[4800:19200]
+    a = y[steady_start:steady_end]
     tm = np.arange(len(a))/SR
 
     def fit(f, count):
@@ -70,31 +86,32 @@ def measure(x, expected):
     c = v[1:17]-1j*v[17:33]
     mid = rms(a)
     crossings = np.flatnonzero(abs(y) > 1e-7)
-    tail = np.flatnonzero(np.max(abs(x[24000:]), axis=1) > 1e-7)
+    tail_start = min(24000, x.shape[0])
+    tail = np.flatnonzero(np.max(abs(x[tail_start:]), axis=1) > 1e-7)
     valid_pitch = mid > 1e-8 and abs(c[0]) > mid*.01 and abs(f/expected-1) < .019
     return {'pitchFitValid': bool(valid_pitch), 'pitchFitHz': float(f), 'pitchCentsFromNominal': float(1200*np.log2(f/expected)),
-            'nominalHz': expected, 'noteRms': rms(y[:24000]), 'steadyRms': mid,
-            'channelRms': [rms(x[:24000, i]) for i in range(2)],
-            'sideMidRatio': rms((x[4800:19200, 0]-x[4800:19200, 1])*.5)/max(mid, 1e-20),
+            'nominalHz': expected, 'noteRms': rms(y[:min(24000, len(y))]), 'steadyRms': mid,
+            'channelRms': [rms(x[:min(24000, x.shape[0]), i]) for i in range(2)],
+            'sideMidRatio': rms((x[steady_start:steady_end, 0]-x[steady_start:steady_end, 1])*.5)/max(mid, 1e-20),
             'peak': float(abs(x).max()), 'dc': float(np.mean(a)),
             'thresholdOnsetSample': int(crossings[0]) if len(crossings) else None,
             'releaseLastAboveThresholdFrames': int(tail[-1]+1) if len(tail) else 0,
             'last100msPeak': float(abs(x[-4800:]).max()),
-            'envelope50msRms': [rms(y[i:i+2400]) for i in range(0, 48000, 2400)],
+            'envelope50msRms': [rms(y[i:i+2400]) for i in range(0, x.shape[0], 2400)],
             'fixedHarmonicAbs': abs(c).tolist(), 'fixedHarmonicPhase': np.angle(c).tolist()}
 
 
-def compare(ref, proto, a, b):
+def compare(ref, proto, a, b, steady_start=4800, steady_end=19200):
     x, y = ref.mean(axis=1), proto.mean(axis=1)
-    xx = x[4800:19200]
+    xx = x[steady_start:steady_end]
     limit = int(np.ceil(SR/a['nominalHz']))
-    window = y[4800-limit:19200+limit]
+    window = y[steady_start-limit:steady_end+limit]
     cs = correlate(window, xx, mode='valid', method='fft')
     en = np.sqrt(np.maximum(np.convolve(window**2, np.ones(len(xx)), mode='valid'), 0))
     co = cs/np.maximum(en*np.linalg.norm(xx), 1e-30)
     j = int(np.argmax(co))
     lag = j-limit
-    yy = y[4800+lag:19200+lag]
+    yy = y[steady_start+lag:steady_end+lag]
     gain = float(np.dot(xx, yy)/max(np.dot(xx, xx), 1e-30))
     ha, hb = np.array(a['fixedHarmonicAbs']), np.array(b['fixedHarmonicAbs'])
     # Report every partial, but phase summaries exclude weak partials in either signal.
@@ -131,8 +148,13 @@ def main():
     doc = json.loads(manifest.read_text())
     assert doc['complete'] and doc['sampleRate'] == SR and doc['channels'] == 2
     assert doc['componentVersion'] == 196870
+    frames = _active_frames()
+    steady_start, steady_end = _steady_window()
+    note_off = au_compare_battery.miami_matrix_note_off_frame()
     results = {'method': 'Separate pitch, absolute envelope, fixed-frequency spectrum, bounded constant-lag phase; no fidelity aggregate.',
-               'referenceManifestSha256': digest(manifest), 'sampleRate': SR, 'configurations': {}}
+               'referenceManifestSha256': digest(manifest), 'sampleRate': SR,
+               'harness': au_compare_battery.harness_summary_line(),
+               'compareFrames': frames, 'configurations': {}}
     for cfg in CONFIGS:
         trial = next(t for t in doc['trials'] if t['group'] == cfg+'_r0' and t['repeat'] == 0)
         rep = next(t for t in doc['trials'] if t['group'] == cfg+'_r1' and t['repeat'] == 0)
@@ -140,20 +162,24 @@ def main():
         assert trial['leadFrames'] == 0 and trial['blockFrames'] == 256
         assert [(e['relativeFrame'], e['status'], e['note'], e['velocity']) for e in trial['events']] == [(0, 144, 48, 80), (24000, 128, 48, 0)]
         refpath = refdir/trial['file']
-        ref = load_wav(refpath)
-        assert np.array_equal(ref, load_wav(refdir/rep['file'])), 'Fresh reference repeat failed'
+        ref = load_wav(refpath, frames)
+        assert np.array_equal(ref, load_wav(refdir/rep['file'], frames)), 'Fresh reference repeat failed'
         rawpath = renders/(cfg+'.f32')
         proto = np.fromfile(rawpath, dtype='<f4').reshape(-1, 2).astype(float)
+        if proto.shape[0] > frames:
+            proto = proto[:frames]
+        assert proto.shape[0] == frames
         nominal = 440*2**((48-69)/12)
         if cfg in ['sub_open', 'mod_triangle', 'mod_pulse', 'mix_depth']:
             nominal /= 2
-        a, b = measure(ref, nominal), measure(proto, nominal)
+        a, b = measure(ref, nominal, steady_start, steady_end), measure(proto, nominal, steady_start, steady_end)
         results['configurations'][cfg] = {'referenceFile': trial['file'],
+            'compareNoteOffFrame': note_off,
             'referenceSha256': digest(refpath), 'replicateSha256': digest(refdir/rep['file']),
             'referenceRepeatExactStereo': bool(np.array_equal(ref, load_wav(refdir/rep['file']))),
             'prototypeRawSha256': digest(rawpath), 'events': trial['events'],
             'parameters': trial['parameters'], 'reference': a, 'prototype': b,
-            'comparison': compare(ref, proto, a, b)}
+            'comparison': compare(ref, proto, a, b, steady_start, steady_end)}
         # Only original prototype audio is written. Reference stays at its original private location.
         wavfile.write(renders/(cfg+'.wav'), SR, proto.astype(np.float32))
     output.write_text(json.dumps(results, indent=2)+'\n')
