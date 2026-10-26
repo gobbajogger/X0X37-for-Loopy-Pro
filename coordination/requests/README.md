@@ -1,5 +1,12 @@
 # Request progress
 
+## Current owner transfer — 2026-10-26
+
+The owner transferred merge/integration responsibility from usage-exhausted Cursor to the **Task-6 Codex coordinator**. Cursor acknowledgment is not required. The independent bass audit/source owner remains in place. [Transfer receipt](../continuations/2026-10-26-task6/ownership-transfer.json) records the exact trusted direction, scope and gates; [open-PR snapshot](../continuations/2026-10-26-task6/open-pr-snapshot.json) records 27 firmware and one website PR observed during intake. It is review metadata, not qualification or a merge result.
+
+Older tables below retain their original dates and evidence limits. All 38 request IDs, 139 historical queue rows and 79 preserved branch heads remain unchanged. Task-6 may merge qualified changes under the fresh owner instruction; source, tests, native builds, hardware and publication remain distinct. No scheduler, flash or public deployment follows from this receipt. LX-REQ-038 stays deferred.
+
+
 This index preserves **all 30 initial requests and 8 appended requests** alongside the existing [139-row PR queue](../merge-queue/README.md). A new request never silently replaces an earlier one. The [ledger](requests.json) is authoritative; this compact view retains the bounded 2026-10-25 10:29 UTC progress snapshot, supplemented by the song-workflow clarification below. Neither establishes live execution.
 
 **Source-ready is not delivered.** Source, tests, builds, deployed bytes and hardware proof have separate fields. Role ownership does not establish active execution. `unassigned` is an explicit ownership gap.

@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "kind": "OWNER_DIRECTED_MERGE_INTEGRATION_TRANSFER",
+  "recorded_at": "2026-10-26T09:18:15.299884+00:00",
+  "base_coordination_commit": "b96ff47cd8cfe7720e864ee025a8da8a012ac411",
+  "state": "ACTIVE_OWNER_ACCEPTED",
+  "previous_role_holder": {
+    "provider": "Cursor",
+    "handoff_coordinator": "bc-919ca392-4052-45c0-80e5-88778518dfc7",
+    "project_continuation": "bc-b05591bb-062b-4903-a604-51ad1dfc9f05",
+    "reason": "Parent reports owner-directed transfer because Cursor is out of usage; historical receipts retained."
+  },
+  "new_role_holder": {
+    "role": "Task-6 Codex merge/integration coordinator",
+    "scope": [
+      "Current project open/new PR review and qualified integration",
+      "Reconcile shared source inputs and preserve unfinished request continuity",
+      "Delegate disjoint fixes and independent review without competing source writers"
+    ],
+    "acceptance": "Accepted by Task-6 coordinator through its assigned ledger worker. Cursor acknowledgment is not a gate."
+  },
+  "authority_evidence": [
+    {
+      "source": "Trusted parent delegation",
+      "exact_text": "Fresh explicit user transfer: Cursor out of usage; task-6 now designated merge/integration owner, replacing Cursor for that role; no acknowledgment gate. Preserve independently running bass audit owner."
+    },
+    {
+      "source": "Trusted owner transcript supplied by parent",
+      "exact_text": "Can you monitor all new and open prs and review them. And automatically merge if good"
+    },
+    {
+      "source": "Trusted parent restriction",
+      "exact_text": "Do not label review-only queue as qualified; no90% threshold, tests/native/hardware gates retained."
+    }
+  ],
+  "preserved_boundaries": [
+    "Keep independent bass audit/source owner; no competing bass UI, engine, preset or snapshot writer.",
+    "Require exact source, agent-run tests, independent review and applicable native Elite/Pro/controller checks.",
+    "Production firmware requires exact-model same-byte hardware validation. Merge authority is not flash or unqualified publication authority.",
+    "Actual rendered UI preview and owner review precede rollout of UI changes.",
+    "No force push, protection/access change, credential discovery, proprietary publication or new external commitment.",
+    "No scheduler change from this receipt; parent has separate maintenance.",
+    "Defer acoustic percentage chasing; retain meaningful musical/audio correctness.",
+    "LX-REQ-038 remains owner-deferred."
+  ],
+  "continuity": {
+    "request_ids": 38,
+    "existing_pr_queue_records": 139,
+    "preserved_branch_heads": 79,
+    "preservation": "Existing request records/history, branch inventory, queue entries/review_history/state_history and CSV rows unchanged; snapshot adds no qualification to historical records."
+  },
+  "current_observation_snapshot": "open-pr-snapshot.json",
+  "immediate_actions": [
+    "Finish website PR28 browser-harness triage and exact-input independent review; Task-6 may then integrate eligible source.",
+    "Keep bass PR617 with its author; visible host/native checks and legacy-sound migration remain outstanding.",
+    "Complete isolated SMC SELECT mode/release repair, production-path regression and independent review.",
+    "Refresh head/base/protections at each actual merge; provider status and stale clean mergeability are not proof."
+  ],
+  "delivery_evidence": {
+    "source": "OWNERSHIP_AND_OBSERVATION_ONLY",
+    "tests": "Continuity/schema preservation only",
+    "native_build": "NOT_RUN_BY_THIS_RECEIPT",
+    "hardware": "NOT_RUN",
+    "publication": "NOT_PERFORMED",
+    "merge": "NOT_PERFORMED_BY_THIS_RECEIPT"
+  }
+}

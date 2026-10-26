@@ -1,5 +1,12 @@
 # LoopyX0X37 merge queue
 
+## Current owner transfer — 2026-10-26
+
+The owner transferred merge/integration responsibility from usage-exhausted Cursor to the **Task-6 Codex coordinator**. Cursor acknowledgment is not required. The independent bass audit/source owner remains in place. [Transfer receipt](../continuations/2026-10-26-task6/ownership-transfer.json) records the exact trusted direction, scope and gates; [open-PR snapshot](../continuations/2026-10-26-task6/open-pr-snapshot.json) records 27 firmware and one website PR observed during intake. It is review metadata, not qualification or a merge result.
+
+Older tables below retain their original dates and evidence limits. All 38 request IDs, 139 historical queue rows and 79 preserved branch heads remain unchanged. Task-6 may merge qualified changes under the fresh owner instruction; source, tests, native builds, hardware and publication remain distinct. No scheduler, flash or public deployment follows from this receipt. LX-REQ-038 stays deferred.
+
+
 Shared queue on branch **`coordination/merge-queue`** in
 `gobbajogger/X0X37-for-Loopy-Pro`. Read this branch explicitly; the queue does
 not live on the protected source branches. This branch is based on main

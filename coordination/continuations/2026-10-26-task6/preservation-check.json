@@ -1,0 +1,15 @@
+{
+  "base": "b96ff47cd8cfe7720e864ee025a8da8a012ac411",
+  "state": "PASS",
+  "checks": {
+    "coordination/requests/requests.json:records": "UNCHANGED",
+    "coordination/requests/requests.json:tombstones": "UNCHANGED",
+    "coordination/requests/requests.json:unclassified_preserved_branches": "UNCHANGED",
+    "coordination/requests/requests.json:preserved_branch_classification_counts": "UNCHANGED",
+    "coordination/merge-queue/merge-queue.json:entries": "UNCHANGED",
+    "coordination/merge-queue/merge-queue.json:counts": "UNCHANGED",
+    "coordination/merge-queue/merge-queue.json:imported_snapshot_metadata": "UNCHANGED",
+    "merge-queue.csv": "BYTE_IDENTICAL"
+  },
+  "scope": "Data preservation only, no firmware/merge qualification"
+}
