@@ -194,6 +194,16 @@ __attribute__((noinline)) static float dist_one(const d9_shape_t *sh, float x, f
     return d9_shape(sh, x * k, crush) * 0.7f;
 }
 
+/* One Schroeder allpass step — shared by L/R reverb (same pattern as dl_tap). */
+__attribute__((noinline)) static float ap_tick(float *buf, int32_t *pos, int32_t len, float y)
+{
+    const int32_t p = *pos;
+    const float bo = buf[p];
+    buf[p] = y + bo * 0.5f;
+    *pos = p + 1 >= len ? 0 : p + 1;
+    return bo - y * 0.5f;
+}
+
 /* ===================================================================== */
 /* Reverb (er99_verb_tick), adds its return into out                      */
 /* ===================================================================== */
@@ -234,33 +244,13 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
             f->cpos[c] = p + 1 >= fx_cl[c] ? 0 : p + 1;
         }
         float y = acc * 0.25f;
-        {
-            const int32_t p = f->apos[0];
-            const float bo = ab0[p];
-            ab0[p] = y + bo * 0.5f;
-            y = bo - y * 0.5f;
-            f->apos[0] = p + 1 >= fx_al[0] ? 0 : p + 1;
-        }
-        {
-            const int32_t p = f->apos[1];
-            const float bo = ab1[p];
-            ab1[p] = y + bo * 0.5f;
-            y = bo - y * 0.5f;
-            f->apos[1] = p + 1 >= fx_al[1] ? 0 : p + 1;
-        }
+        y = ap_tick(ab0, &f->apos[0], fx_al[0], y);
+        y = ap_tick(ab1, &f->apos[1], fx_al[1], y);
         out[i] += y * lvl;
         if (out_r) {                        /* the right: the combs, alternate signs, its own allpasses */
             float yr = acc_r * 0.25f;
-            int32_t p = f->aposr[0];
-            float bo = ar0[p];
-            ar0[p] = yr + bo * 0.5f;
-            yr = bo - yr * 0.5f;
-            f->aposr[0] = p + 1 >= fx_alr[0] ? 0 : p + 1;
-            p = f->aposr[1];
-            bo = ar1[p];
-            ar1[p] = yr + bo * 0.5f;
-            yr = bo - yr * 0.5f;
-            f->aposr[1] = p + 1 >= fx_alr[1] ? 0 : p + 1;
+            yr = ap_tick(ar0, &f->aposr[0], fx_alr[0], yr);
+            yr = ap_tick(ar1, &f->aposr[1], fx_alr[1], yr);
             out_r[i] += yr * lvl;
         }
         quiet = (wr == 0 && in[i] == 0.0f) ? quiet + 1 : 0;
