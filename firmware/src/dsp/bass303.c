@@ -98,7 +98,7 @@ __attribute__((noinline)) float bass303_env_time_ms(int param, int value)
 static void gate_filter_from_amp_env(bass303_t *b); /* Amp Mode Gate → filter ADSR from amp Env */
 
 /* Amp decay + release power tables. ARel 0 keeps Open303 1 ms / accent 50 ms. */
-static void amp_env_tables(bass303_t *b)
+__attribute__((noinline)) static void amp_env_tables(bass303_t *b)
 {
     int i;
     powers(b->adecay_pw, b->adecay_c);
