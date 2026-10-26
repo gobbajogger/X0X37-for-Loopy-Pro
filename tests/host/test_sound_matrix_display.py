@@ -19,6 +19,12 @@ for engine in ("miami", "chicago", "drum"):
         check=True,
     )
 
+for scenario, folder in (("sound_matrix_chicago_idle", "chicago-clean"),
+                         ("sound_matrix_lock", "locked")):
+    dest = out / folder
+    dest.mkdir(parents=True, exist_ok=True)
+    subprocess.run([str(binary), str(root / f"tests/scenarios/{scenario}.x0x"), str(dest)], check=True)
+
 
 def image(group, name):
     im = Image.open(out / group / name).convert("RGB")
@@ -71,5 +77,16 @@ different("miami", "miami_adsr_active.png", "miami_adsr_sustain.png", graph)
 different("miami", "miami_adsr_sustain.png", "miami_adsr_done.png", graph)
 different("chicago", "chicago_adsr_idle.png", "chicago_adsr_active.png", graph)
 different("chicago", "chicago_adsr_active.png", "chicago_adsr_done.png", graph)
+
+# A SOUND-page detent must not activate the envelope after rapid page turns.
+assert not ImageChops.difference(
+    image("chicago", "chicago_adsr_idle.png").crop((0, 20, 240, 158)),
+    image("chicago-clean", "chicago_adsr_idle_clean.png").crop((0, 20, 240, 158)),
+).getbbox(), "stale SOUND touch followed the ADSR page"
+
+# The graph and numeric readout use the same effective held-step lock, while
+# the saved sound remains 51 and the held step is 61 (asserted in scenario).
+locked = image("locked", "locked_adsr.png")
+assert locked.crop((8, 42, 230, 93)).getbbox(), "locked envelope not drawn"
 
 print("sound matrix: active row, wave states, ADSR edit/grace/timeout PASS")

@@ -4460,7 +4460,16 @@ static UI_DRAW void draw_303(int band, int gen)
 
 static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col);
+static UI_DRAW int adsr_touch_active(void);
 static UI_DRAW int draw_adsr_overlay(int band);
+
+static UI_DRAW int matrix_touch_matches(pref_t r, int i)
+{
+    return ui.touched == i && ui.touch_view == ui.view &&
+           ui.touch_part == ui.part && ui.touch_page == cur_page() &&
+           ui.touch_kind == r.kind && ui.touch_a == r.a &&
+           ui.touch_b == r.b && ui.touch_c == r.c;
+}
 
 /* EDIT has one value per physical knob, in a 2x2 page matrix.  The knob strip
  * is deliberately empty on this view; it cannot contradict the live page. */
@@ -4490,8 +4499,9 @@ static UI_DRAW void draw_part_sound(int band)
         int two = pg.r[page][2].kind == R_NONE && pg.r[page][3].kind == R_NONE;
         int i = two ? band : band * 2 + k;
         if (two && k) break;
-        draw_param_widget(pg.r[page][i], two ? 9 : k * 120 + 3,
-                          band ? 2 : 20, two ? 222 : 117, ui.touched == i, col);
+        pref_t r = pg.r[page][i];
+        draw_param_widget(r, two ? 9 : k * 120 + 3,
+                          band ? 2 : 20, two ? 222 : 117, matrix_touch_matches(r, i), col);
     }
 }
 
@@ -5284,9 +5294,7 @@ static UI_DRAW void draw_main(void)
 {
     int band, readout = ui.touched >= 0 && (int32_t)(ui.touch_until - plat_ms()) > 0 &&
                         ui.overlay == O_NONE && !ui.help;
-    int envelope = readout && ui.view == V_PART && is_303() &&
-        (!strcmp_s(pg.title[cur_page()], "AMP ADSR") ||
-         !strcmp_s(pg.title[cur_page()], "FILTER ADSR"));
+    int envelope = readout && adsr_touch_active();
     if (!readout)
         ui.touched = -1;
 #if BOARD_SMK37
@@ -5461,6 +5469,18 @@ static UI_DRAW int matrix_value(pref_t r)
     return val;
 }
 
+static UI_DRAW int adsr_touch_active(void)
+{
+    pref_t r;
+    int page = cur_page(), i = ui.touched;
+    if (ui.view != V_PART || !is_303() || i < 0 || i > 3 ||
+        (int32_t)(ui.touch_until - plat_ms()) <= 0 ||
+        (strcmp_s(pg.title[page], "AMP ADSR") &&
+         strcmp_s(pg.title[page], "FILTER ADSR"))) return 0;
+    r = pg.r[page][i];
+    return matrix_touch_matches(r, i);
+}
+
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col)
 {
     const x0x_param_t *d = pref_desc(r);
@@ -5493,9 +5513,7 @@ static UI_DRAW int draw_adsr_overlay(int band)
     char t[48], *q;
     const char *name = pg.title[cur_page()];
     uint16_t col = part_col();
-    if (ui.view != V_PART || !is_303() || edited < 0 || edited > 3 ||
-        (int32_t)(ui.touch_until - plat_ms()) <= 0 ||
-        (strcmp_s(name, "AMP ADSR") && strcmp_s(name, "FILTER ADSR"))) return 0;
+    if (!adsr_touch_active()) return 0;
     a = matrix_value(pg.r[cur_page()][0]);
     d = matrix_value(pg.r[cur_page()][1]);
     s = matrix_value(pg.r[cur_page()][2]);
