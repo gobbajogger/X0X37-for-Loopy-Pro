@@ -1,0 +1,71 @@
+{
+  "observed_at": "2026-10-26T09:53:07.010625+00:00",
+  "merge_integration_owner": "Task-6 Codex coordinator, under explicit owner transfer. Root configured event monitor 6adf1a1a6b808191b853917d2f3470c8; no duplicate monitor.",
+  "website": {
+    "pr": 28,
+    "head": "33c316feb04717f8f2666df9d256337465f2f176",
+    "merge": "5ba8596579fc3649aa205cd927cf8d03a327ff2c",
+    "tree": "35698de9e416a8e96159e807fbd5266d9a5f6f32",
+    "state": "MERGED_SOURCE_ONLY",
+    "proof": "Full npm, 43 edge regressions, all six headless browser suites, actual Python archive compatibility and independent review passed. Pages was not published.",
+    "event_disposition": {
+      "event": "34204470-d11e-11f1-88e3-eefb60d617ea",
+      "result": "Already merged; no repeat action. Root read-only review found no blocking defect."
+    }
+  },
+  "smc_select": {
+    "owner": "Task-6 bounded isolated SMC source lane; implementation frozen, independentreviewPASS; native qualification executor active",
+    "candidate": "94061cf46483718bb63397d3c5fca8ca3d7ebb63",
+    "base": "d633833ac369f8466bc2563791614206070e87d1",
+    "state": "HOST REVIEW PASS; FINAL HARNESS REVIEW AND QUALIFICATION ACTIVE",
+    "semantics": "Outside FX mode, SELECT retains ordinary selection. In FX mode it uses the assigned bus effect; ROOM default 303B is low-pass. Original press ownership clears held or pending effects safely on context changes.",
+    "native_build_only": {
+      "source": "bbb6eba673582bbb9a0b35db961ec64dcbbfc3ee",
+      "elite_code_free": 230508,
+      "pro_code_free": 230524,
+      "ram_free": 352,
+      "pool_free": 21092,
+      "qualified": false,
+      "reason": "Target builds passed; two broader host test harnesses required repair before full qualification."
+    }
+  },
+  "bass": {
+    "audit_pr": 617,
+    "audit_head": "9108a14df0f44a497036a27c0d539bcd6b473673",
+    "audit_state": "Owner reports audit completed; existing six fixes independently reviewed with real scoped host tests.",
+    "integration_owner": "Task-6 bounded bass integration worker on a fresh isolated branch; original audit branch unchanged.",
+    "scope": "Retain audit fixes on current nightly. Prepare an accurate rendered selector/UI proposal using real available engine routes and native defaults; full per-voice reassignment, preset banks and whole-sound locks remain open.",
+    "blockers": "Rev10 lacks per-voice engine identity. Local storage and staged import differ on legacy values; do not guess a migration. Full selector/UI acceptance and native budgets remain open."
+  },
+  "partial_restore": {
+    "status": "INDEPENDENT REVIEW PASS; GIT DELIVERY NEXT",
+    "source_blob": "d3d6c34c77f09a03fa4b969c11882f403679b214",
+    "case": "Skipped middle sample must not shift absolute saved LOOP selections. New guards include each sample zone and refuse before restoration writes while retaining backup and reconciliation guidance.",
+    "owner": "partial_restore_repair, now frozen for separate independent review",
+    "firmware_tools_commit": "e4fd6fd200bedd6a9a789441b3e283a7f65b729d",
+    "website_commit": "a22c9bbef2ac315154931e9fd612b903e04cc5d5",
+    "headless_smoke": "Automatic approval review denied the new localhost headless smoke before execution, citing no GUI. No retry; Python/Node/full npm proof remains separate.",
+    "additional_fix": "Both browser installers replan oldMap and risk from the verified backup snapshot, fixing the reviewer-reproduced population race. Actual production regression confirms no restoration writes.",
+    "proof": "Independent 5/5 per browser copy and snapshot-race probes pass; Python guards pass; full site npm has 48 edge passes. No target DSP changed."
+  },
+  "queue": "Historical snapshot contains 27 open firmware PRs; four have actual conflicts. Clean mergeability or unexecuted tests do not establish qualification.",
+  "limits": [
+    "No Pages publication or production promotion.",
+    "Only the exact owner-authorized keyboard recovery may write the device; source workers have no hardware scope.",
+    "No new monitor.",
+    "LX-REQ-038 remains deferred.",
+    "No acoustic percentage delivery threshold."
+  ],
+  "recorder": {
+    "owner": "recorder_production_check, isolated test-only lane",
+    "status": "Current duration defect reproduced: 30ms and 300ms actual holds store identical data and replay 58ms gates. Reused endpoint/lifecycle implementation unit is now active in a fresh isolated branch.",
+    "scope": "One recorder/schema/lifecycle writer; upper-nibble endpoint encoding without bstep growth, atomic supported-format handling, no guessed legacy engine identity. Full snapshot/per-voice migration remains open."
+  },
+  "hardware_recovery": {
+    "owner": "User manual recovery, explicitly transferred at 09:44 UTC",
+    "status": "Task-6 stopped all device probes and writes. No agent updater, reset, RAM loader or flash was started. Earlier read-only USB/MIDI checks finished and saw only hubs, not a keyboard or ROM device.",
+    "supplied_script_review": "Read current charlesvestal/fm1-x0x/main/tools/fm1_rescue.sh and .py without executing. It downloads FM-1 V15 and uses an FM-1-only flash map with --ask; not verified for Elite. Root notified to reconcile confirmation/write state without interrupting an active write.",
+    "candidate": "Existing 0e77d923 Elite package/controller verified DEV CHECKED offline; connected target remains unidentified, no agent flash performed.",
+    "backup": "Existing two-slot backup parses with valid CRC and is preserved privately."
+  }
+}

@@ -1,5 +1,12 @@
 # Request progress
 
+## Current owner transfer — 2026-10-26
+
+The owner transferred merge/integration responsibility from usage-exhausted Cursor to the **Task-6 Codex coordinator**. Cursor acknowledgment is not required. The independent bass audit/source owner remains in place. [Transfer receipt](../continuations/2026-10-26-task6/ownership-transfer.json) records the exact trusted direction, scope and gates; [open-PR snapshot](../continuations/2026-10-26-task6/open-pr-snapshot.json) records 27 firmware and one website PR observed during intake. It is review metadata, not qualification or a merge result.
+
+Older tables below retain their original dates and evidence limits. All 38 request IDs, 139 historical queue rows and 79 preserved branch heads remain unchanged. Task-6 may merge qualified changes under the fresh owner instruction; source, tests, native builds, hardware and publication remain distinct. No scheduler, flash or public deployment follows from this receipt. LX-REQ-038 stays deferred.
+
+
 This index preserves **all 30 initial requests and 8 appended requests** alongside the existing [139-row PR queue](../merge-queue/README.md). A new request never silently replaces an earlier one. The [ledger](requests.json) is authoritative; this compact view retains the bounded 2026-10-25 10:29 UTC progress snapshot, supplemented by the song-workflow clarification below. Neither establishes live execution.
 
 **Source-ready is not delivered.** Source, tests, builds, deployed bytes and hardware proof have separate fields. Role ownership does not establish active execution. `unassigned` is an explicit ownership gap.
@@ -7,6 +14,10 @@ This index preserves **all 30 initial requests and 8 appended requests** alongsi
 Current focus: PR168 physical Pause and UI source is implemented, with size recovery/package pending and latest-head delta unqualified. Website PR19 is reviewed but awaits the owner publication decision. PR188 combined sequencer/synth builds and tests are reported; PR189 cutoff fix awaits native/hardware checks. Feature intake is wired but live dispatch remains unverified. Presets and alternative engine work remain planning/research; no new engine or held-duration recording is implemented.
 
 Song workflow clarification: **LX-REQ-037 is active** installer import/export reuse; **LX-REQ-001 remains active** sample-preserving reset with arrangement/project scope distinguished. **LX-REQ-038 is owner-deferred idea only, not eligible for automatic intake or implementation.** [Source-stage reuse/gap handoff](song-workflows-handoff-20261025.md). Earlier status observations below retain their original evidence scope.
+
+## Priority recommendations
+
+[Automatic priority policy and helper](PRIORITY.md) orders safety/integrity, UX repair, useful small improvements, then feature/research work. Separate evidence-backed assessments preserve existing owners, claims, legacy priorities and history. A bounded independent complex lane prevents starvation when capacity exists; quick work retains all QA/safety gates. LX-REQ-038 remains owner-deferred. Current effort estimates are mostly unknown, not guessed. Parent owns scheduler wiring.
 
 ## Requests
 
@@ -18,7 +29,7 @@ Song workflow clarification: **LX-REQ-037 is active** installer import/export re
 | [LX-REQ-004](requests.json) | Portable full-project export and import | EXISTING FEATURES RECONCILED COMBINED VALIDATION PENDING | Project lifecycle coordinator. Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root. |
 | [LX-REQ-005](requests.json) | Readable SMC mixer layout and deliberate controls | SOURCE IMPLEMENTED PACKAGE PENDING | SMC layout and control implementation owner. SMC implementation/build owner to finish size recovery and exact-head package, then independent UI/control review and model qualification; preserve installed-source distinction. |
 | [LX-REQ-006](requests.json) | Physical Pause/context-lock mapping and LED feedback | SOURCE IMPLEMENTED PACKAGE PENDING | Replacement-control capture owner with SMC implementation owner. SMC implementation/build owner to finish size recovery and exact-head package, then independent UI/control review and model qualification; preserve installed-source distinction. |
-| [LX-REQ-007](requests.json) | Multiple independent SMC controllers | QUEUE FOUNDATION REVIEWED RUNTIME SINGLE SMC | Transport/controller implementation coordinator. Transport/controller owner to integrate app state, HCI/controller support and budgets; then independent multi-controller and hardware qualification. |
+| [LX-REQ-007](requests.json) | Multiple independent SMC controllers | LOCAL IMPLEMENTATION ACTIVE QUALIFICATION PENDING | Multi-SMC local coordinator. Integrate disjoint app/HCI work and matching two-link controller; production-model/overload/reconnect/stale/independent-target tests, exact Elite/Pro budgets and independent QA pending; exact-device two-SMC proof requires verified devices, exclusive ownership and owner notification. |
 | [LX-REQ-008](requests.json) | Reset/load/transport motion lifecycle safety | COMBINED QA REQUIRED | Motion/sequencer producer and independent QA. Pin one current combined root; reconcile motion/clip fixes and run boundary negatives. |
 | [LX-REQ-009](requests.json) | Preserve probability/TIE and RANDOM behavior | COMBINED CANDIDATE TESTED NATIVE BUILDS REPORTED | Sequencer producer and independent QA. Sole firmware integrator to reconcile remaining scope on PR188 exact head and retain independent QA/sanitizer limits before any authorized integration; publication and hardware remain separate. |
 | [LX-REQ-010](requests.json) | Preserve unique recording/DSP fixes in older WIP | COMBINED CANDIDATE TESTED NATIVE BUILDS REPORTED | unassigned. Sole firmware integrator to reconcile remaining scope on PR188 exact head and retain independent QA/sanitizer limits before any authorized integration; publication and hardware remain separate. |
