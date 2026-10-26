@@ -856,6 +856,9 @@ void project_capture_stage(void)
 /* 0 = saved and verified; -7 = the patterns, song and motion do not fit (nothing was written) */
 int project_save(void)
 {
+#if X0X_BASS_PRESET_PREVIEW
+    if(engine_bass_preview_changed()) return -9; /* no untagged preview writes */
+#endif
 #ifndef X0X_HOST
     extern int store_stage_held(void);
     if (store_stage_held())                          /* boot upload is using the store buffer */

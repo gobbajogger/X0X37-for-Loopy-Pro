@@ -31,6 +31,9 @@
 #include "chicago_phaser.h"
 #include "chicago_gaterev.h"
 #include "chicago_aux.h"
+#if X0X_BASS_PRESET_PREVIEW
+#include "bass_presets.h"
+#endif
 
 #define POOL X0X_POOL
 
@@ -349,6 +352,9 @@ int engine_nparams(int t, int v)
     case T_909: return drum909_nparams(v);
     case T_808: return drum808_nparams(v);
     case T_303:
+#if X0X_BASS_PRESET_PREVIEW
+        return engine_bass_bank(v) == FACTORY_BANK_MIAMI ? WOBBLE_EXPERIMENT_NPARAMS : CHI_AUX_END;
+#endif
 #if X0X_DEV_WOBBLE
         if (bass_wobble_voice(v))
             return WOBBLE_EXPERIMENT_NPARAMS;           /* Miami controls only; no phantom Chicago pots */
@@ -369,6 +375,9 @@ X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
     case T_909: return drum909_param(v, i);
     case T_808: return drum808_param(v, i);
     case T_303:
+#if X0X_BASS_PRESET_PREVIEW
+        return engine_bass_bank_param(engine_bass_bank(v), i);
+#endif
 #if X0X_DEV_WOBBLE
         if (bass_wobble_voice(v))
             return wobble_param(i);                     /* Do not fall through into Chicago metadata */
@@ -1205,6 +1214,106 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 }
 #endif
 
+#if X0X_BASS_PRESET_PREVIEW
+static int16_t bass_named_preset[NBASS] = {-1, -1};
+static uint8_t bass_preview_dirty, bass_wheel_mask;
+const x0x_param_t *engine_bass_bank_param(int bank, int i)
+{
+    if (i < 0) return 0;
+    if (bank == FACTORY_BANK_MIAMI) {
+#if X0X_DEV_WOBBLE
+        return wobble_param(i);
+#else
+        return 0;
+#endif
+    }
+    if (bank != FACTORY_BANK_CHICAGO) return 0;
+    if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END) return &CHI_ARP_PARAMS[i-CHI_ARP_SWITCH];
+    if (i >= CHI_FX_TYPE && i < CHI_FX_END) return &CHI_FX_PARAMS[i-CHI_FX_TYPE];
+    if (i >= CHI_PBEND && i < CHI_AUX_END) return &CHI_AUX_PARAMS[i-CHI_PBEND];
+    return bass303_param(i);
+}
+int engine_bass_bank(int voice)
+{
+    return engine_bass_is_wobble(voice) ? FACTORY_BANK_MIAMI : FACTORY_BANK_CHICAGO;
+}
+int engine_bass_bank_available(int voice, int bank)
+{
+    if ((unsigned)voice >= NBASS) return 0;
+    if (bank == FACTORY_BANK_CHICAGO) return 1;
+#if X0X_DEV_WOBBLE
+    /* There is one actual WBL1 context; never bind it to two voices. */
+    if (bank == FACTORY_BANK_MIAMI) return !bass_wobble_voice(1-voice);
+#endif
+    return 0;
+}
+int engine_bass_preview_changed(void) { return bass_preview_dirty; }
+void engine_bass_wheel_owners(uint8_t mask) { bass_wheel_mask = mask; }
+int engine_bass_preset_index(int voice)
+{
+    return (unsigned)voice < NBASS ? bass_named_preset[voice] : -1;
+}
+int engine_bass_preset_edited(int voice)
+{
+    uint8_t values[NPARAMS_MAX];
+    if ((unsigned)voice >= NBASS || bass_named_preset[voice] < 0 || !mot_base_snd) return 1;
+    if (bass_preset_decode(engine_bass_bank(voice),bass_named_preset[voice],engine_bass_bank_param,values)) return 1;
+    for (int i=0;i<NPARAMS_MAX;i++) if(values[i]!=mot_base_snd->v[T_303][voice][i]) return 1;
+    return 0;
+}
+int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
+{
+    uint8_t values[NPARAMS_MAX], *cell;
+    int count;
+    if ((unsigned)voice >= NBASS || !sound || sound!=mot_base_snd) return -1;
+    cell=sound->v[T_303][voice];
+    if (!engine_bass_bank_available(voice,bank)) return -2;
+    if (bank!=engine_bass_bank(voice) && mot.lane)
+        for(int k=0;k<NLANE;k++) if(mot.lane[k].used &&
+            ((mot.lane[k].t==T_303 && mot.lane[k].v==voice) ||
+             (mot.lane[k].t==0xfe && mot.lane[k].part==PART_303A+voice))) return -4;
+    if (bass_preset_decode(bank,preset,engine_bass_bank_param,values)) return -1;
+    if (project_hold || seq.playing || seq.req_start || seq.req_cont || seq.req_stop ||
+        engine_project_notes() || cq_w != cq_r || (bass_wheel_mask & (1u<<voice))) return -3;
+#if X0X_DEV_WOBBLE
+    if (!synth_idle(&bass_slot[voice])) return -3;
+#else
+    if (!b303[voice].idle) return -3;
+#endif
+    /* Main and audio ISR share a core. Hold plus an empty CQ is the existing
+     * quiet transaction boundary: no old note/parameter is retargeted. */
+    engine_project_hold(1);
+#if X0X_DEV_WOBBLE
+    synth_binding_t binding = bank == FACTORY_BANK_MIAMI ?
+        wobble_foundation_binding(&dev_wobble) : synth303_binding(&b303[voice]);
+    if (!synth_request(&bass_slot[voice],binding,0)) { engine_project_hold(0); return -3; }
+    synth_boundary(&bass_slot[voice]);
+#else
+    bass303_all_off(&b303[voice]);
+#endif
+    chi_arp_on[voice]=0; chi_arp_run_clear(&chi_arp_run[voice]);
+    chi_damper[voice]=chi_damp_latched[voice]=0;
+    chi_fx_type[voice]=CHI_FX_OFF; chi_fx_insert_program(voice);
+    count = bank == FACTORY_BANK_CHICAGO ? CHI_AUX_END : WOBBLE_EXPERIMENT_NPARAMS;
+    for (int i=0;i<NPARAMS_MAX;i++) cell[i]=values[i];
+    for (int i=0;i<count;i++) apply_param(T_303,voice,i,values[i]);
+    /* Existing Chicago bridge has only Comp as a shared master effect;
+     * inserts and Off clear the selected lane sends on explicit selection. */
+    sound->v[T_MIX][PART_303A+voice][MX_REV]=0;
+    sound->v[T_MIX][PART_303A+voice][MX_DLY]=0;
+    apply_param(T_MIX,PART_303A+voice,MX_REV,0);
+    apply_param(T_MIX,PART_303A+voice,MX_DLY,0);
+    if(bank==FACTORY_BANK_CHICAGO && values[CHI_FX_TYPE]==CHI_FX_COMP) {
+        sound->v[T_FX][0][FX_COMP]=values[CHI_FX_EDIT1];
+        apply_param(T_FX,0,FX_COMP,values[CHI_FX_EDIT1]);
+    }
+    bass_named_preset[voice]=(int16_t)preset;
+    bass_preview_dirty=1;
+    engine_project_hold(0);
+    return 0;
+}
+#endif
+
 /* ---------------------------------------------------------------- render --- */
 static void drain(void)
 {
@@ -1895,6 +2004,10 @@ void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
 
 X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
 {
+#if X0X_BASS_PRESET_PREVIEW
+    bass_named_preset[0]=bass_named_preset[1]=-1;
+    bass_preview_dirty=bass_wheel_mask=0;
+#endif
     int p, g;
     cq_w = cq_r = 0;
     src_held[0] = src_held[1] = src_held[2] = 0;

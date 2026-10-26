@@ -33,10 +33,28 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
 #define NPARAMS_MAX 32                 /* params per (target, voice); fills at Chicago aux PBend/Damp 30..31 */
 
+/* Review-only runtime engine/preset unit; no tagged storage/adoption yet. */
+#ifndef X0X_BASS_PRESET_PREVIEW
+#define X0X_BASS_PRESET_PREVIEW 0
+#endif
+#if X0X_BASS_PRESET_PREVIEW
+#include "factory_banks.h"
+const x0x_param_t *engine_bass_bank_param(int bank, int param);
+int engine_bass_bank(int voice);
+int engine_bass_bank_available(int voice, int bank);
+int engine_bass_preset_index(int voice);
+int engine_bass_preset_edited(int voice);
+int engine_bass_preview_changed(void);
+void engine_bass_wheel_owners(uint8_t mask);
+#endif
+
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {
     uint8_t v[NTARGETS][NVOICES_MAX][NPARAMS_MAX];
 } sound_t;
+#if X0X_BASS_PRESET_PREVIEW
+int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound);
+#endif
 
 extern seq_t seq;                      /* the sequencer (its pattern pointer is the project's) */
 /* render stages (the PERF screen): 909, 808, 303 A, 303 B, BREAK, FX, MASTER, SEQ */

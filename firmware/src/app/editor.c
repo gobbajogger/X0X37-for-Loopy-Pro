@@ -201,6 +201,9 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         return;
     case 65:                                        /* EXPORT BEGIN */
     case 67:                                        /* IMPORT BEGIN */
+#if X0X_BASS_PRESET_PREVIEW
+        if(op==65 && engine_bass_preview_changed()) { rc=2; break; }
+#endif
         if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
             rc = 1; break;
         }

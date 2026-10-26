@@ -966,6 +966,10 @@ static void smk_wheels(void)
         }
         mw_now = (int16_t)mw;
     }
+#if X0X_BASS_PRESET_PREVIEW
+    engine_bass_wheel_owners((uint8_t)((bend_part >= 0 ? 1u << bend_part : 0u) |
+                                      (cut_part >= 0 ? 1u << cut_part : 0u)));
+#endif
 }
 
 /* < and >: the route and the hold repeat are in smk_arrows.h. Not if HARDWARE CALIBRATION gave them an FM-1 label.
