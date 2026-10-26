@@ -1,0 +1,26 @@
+{
+  "result": "UNCHANGED_TOOL_INPUTS_VERIFIED",
+  "checks": {
+    "toolchain": {
+      "path": "/Users/mac/.jieli/toolchain",
+      "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5",
+      "same_as_proven_input": true
+    },
+    "SDK": {
+      "path": "/Users/mac/fw-AC79_AIoT_SDK",
+      "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3",
+      "same_as_proven_input": true
+    },
+    "compiler": {
+      "path": "/Users/mac/.jieli/toolchain/pi32v2/bin/clang",
+      "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+      "executable": true,
+      "same_as_proven_input": true
+    }
+  },
+  "expected_worker_image": {
+    "tag": "x0x37-validation:local",
+    "id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "platform": "linux/amd64"
+  }
+}
