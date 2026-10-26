@@ -13,6 +13,13 @@
 
 #define D9_VCA_VT 0.0002f
 #define D9_VCA_NORM (1.0f / (1.0f - D9_VCA_VT))
+
+/* Soft VCA floor — one body for snare amp + noise env gates. */
+__attribute__((noinline)) static float d9_vca(float x)
+{
+    return x > D9_VCA_VT ? (x - D9_VCA_VT) * D9_VCA_NORM : 0.0f;
+}
+
 #define D9_SNAPPY_MIX 1.95f
 #define D9_BD_BASE_HZ 49.0f
 #define D9_BD_DF_PER_MS 4.6f
@@ -700,7 +707,7 @@ static void d9_render_sd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
     for (int i = 0; i < m; ++i) {
         const float f = d9_env_tick(&v->pitch);
         float amp = d9_env_tick(&v->amp);
-        amp = amp > D9_VCA_VT ? (amp - D9_VCA_VT) * D9_VCA_NORM : 0.0f;
+        amp = d9_vca(amp);
 
         v->ph += d9_inc(f);
         v->ph2 += d9_inc(f * ratio);
@@ -715,7 +722,7 @@ static void d9_render_sd(d9_bt_t *v, const float *nz, const d9_bus_t *bus, int n
                            (v->noise_decay > 0.0f ? v->noise_decay : 120.0f) * 0.7f * 0.001f * D9_SR);
             float env = d9_env_tick(&v->noise_env);
             if (v->noise_hold <= 0) {
-                env = env > D9_VCA_VT ? (env - D9_VCA_VT) * D9_VCA_NORM : 0.0f;
+                env = d9_vca(env);
                 if (env <= 0.0f)
                     v->noise_gated = 1;
             }
