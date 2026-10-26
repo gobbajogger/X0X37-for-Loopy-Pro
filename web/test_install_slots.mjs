@@ -12,6 +12,7 @@ import "./test_install_download_race.mjs";
 import "./test_install_scan_order.mjs";
 import "./test_install_public_eligibility.mjs";
 import "./test_install_local_entry.mjs";
+import "./test_install_mobile_journey.mjs";
 import "./test_install_reconnect.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash, webcrypto } from "node:crypto";
