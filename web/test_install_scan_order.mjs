@@ -7,14 +7,14 @@ import { Script, createContext } from 'node:vm';
 
 const path = process.argv[2] || new URL('./x0x_installer.html', import.meta.url);
 const source = readFileSync(path, 'utf8');
-const start = source.indexOf('async function scan() {');
+const start = source.indexOf('async function scan(allowPostWrite = false) {');
 assert.ok(start >= 0, 'production scan function missing');
 const end = source.indexOf('\n}', start);
 assert.ok(end > start, 'production scan end missing');
 const code = source.slice(start, end + 2);
 if (source.includes('<html')) assert.match(source.slice(Math.max(0,start-70),start), /let scanSerial = 0;\s*$/,
   'production installer must own the scan generation counter');
-assert.match(code, /async function scan\(\) \{/);
+assert.match(code, /async function scan\(allowPostWrite = false\) \{/);
 
 function setup() {
   const state = { connected: false, leds: [], changes: [], selected: [], requests: [], closed: [], lookups: [] };
