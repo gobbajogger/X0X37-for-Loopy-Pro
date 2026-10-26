@@ -2444,7 +2444,11 @@ static void turn_ref(pref_t r, int e, int knob)
     const x0x_param_t *d = pref_desc(r);
     if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
-    if (d->names || d->max < 24)
+    if (d->names || d->max < 24
+#if X0X_BASS_PRESET_PREVIEW
+        || r.kind == R_BPRESET
+#endif
+       )
         e = e > 0 ? 1 : -1;                          /* a switch: one detent, one position */
     else
         e = accel(knob, e, d->max);
@@ -3986,7 +3990,7 @@ static UI_DRAW void draw_303(int band, int gen)
         if(!band) {
             cv_text(10,12,&FONT_B,BENGINE_N[bank],col);
             cv_text(10,40,&FONT_B,preset<0?"SELECT PRESET":factory_preset_name(bank,preset),C_HI);
-            if(preset>=0 && engine_bass_preset_edited(b)) cv_text(10,64,&FONT_S,"EDITED",C_AMB);
+            if(preset>=0 && engine_bass_preset_edited(b)) cv_text(148,12,&FONT_S,"EDITED",C_AMB);
         } else {
             char count[32];
             put_i(put_s(put_i(put_s(count,"PRESET "),preset+1)," / "),factory_bank(bank)->npresets);

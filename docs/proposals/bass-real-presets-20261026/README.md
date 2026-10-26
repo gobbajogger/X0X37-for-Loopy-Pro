@@ -19,3 +19,11 @@ Executed source checks:
 ASan + UBSan also passed both live-test profiles with the same 19 / 29 checks.
 
 These bounded checks do not replace combined-source regression, independent runtime review or native qualification. Full per-voice persistent engine assignment and complete preset delivery remain open until those gates and the coordinated schema change are complete.
+
+## Independent review corrections
+
+The original b6827c3d preview was BLOCKED: fast physical knob 2 turns advanced preset indices 1,2,3,6; EDITED text at band-local y64 was clipped. Prior API-only 19/29 checks did not cover these defects and do not establish input/layout acceptance.
+
+The follow-up explicitly treats preset choice as discrete in the real turn_ref path and positions EDITED at x148,y12 beside the engine. The extended test sends actual encoder events through ui_input_only: six quick forward/reverse knob 2 detents and four forward/reverse PRESETS detents for both available banks. It also compares all 1,280 pixels of the EDITED region with an unclipped real-font reference. 39 WBL0 / 1,352 WBL1 checks pass, including ASan/UBSan; frames regenerated from source.
+
+Independent review also found queued platform MIDI could start on a newly selected sound. This lifecycle finding remains OPEN at this UI-only correction checkpoint; this checkpoint is not ready for adoption or Library replacement.
