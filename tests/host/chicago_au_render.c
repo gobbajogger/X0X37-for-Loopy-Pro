@@ -13,9 +13,9 @@
  *   midi_note N       0..127
  *   velocity N        1..127
  *   pot I V           bass303 pot index and 0..127 value
- *   fx_type T         Chicago Fx Type 0..11 (Crush/Ring/EQ/SDly insert when T matches)
- *   fx_edit1 V        Edit1 0..127 (Crush / Ring / EQ / SDly time)
- *   fx_edit2 V        Edit2 0..127 (wet / feedback)
+ *   fx_type T         Chicago Fx Type 0..11 (Crush/Ring/EQ/SDly/BPM insert when T matches)
+ *   fx_edit1 V        Edit1 0..127 (Crush / Ring / EQ / SDly / BPM wet)
+ *   fx_edit2 V        Edit2 0..127 (wet / feedback / BPM division)
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,9 +27,11 @@
 #include "../../firmware/src/app/chicago_ring.h"
 #include "../../firmware/src/app/chicago_eq.h"
 #include "../../firmware/src/app/chicago_sdly.h"
+#include "../../firmware/src/app/chicago_bpmdly.h"
 
 static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, chi_eq_t *eq, chi_sdly_t *sdly,
-                    int *frames, int *note_on, int *note_off, int *midi, int *vel, uint8_t *fx_type)
+                    chi_bpmdly_t *bpmdly, int *frames, int *note_on, int *note_off, int *midi, int *vel,
+                    uint8_t *fx_type)
 {
     char line[256];
     uint8_t e1 = 64, e2 = 64;
@@ -44,6 +46,7 @@ static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, chi_eq_t
     chi_ring_init(ring);
     chi_eq_init(eq);
     chi_sdly_init(sdly);
+    chi_bpmdly_init(bpmdly);
     while (fgets(line, sizeof line, stdin)) {
         int a, c;
         float f;
@@ -109,6 +112,8 @@ static int read_ctl(bass303_t *b, chi_crush_t *crush, chi_ring_t *ring, chi_eq_t
         chi_eq_set(eq, e1, e2, BASS303_SR);
     else if (chi_fx_is_sdly_insert(*fx_type))
         chi_sdly_set(sdly, e1, e2, BASS303_SR);
+    else if (chi_fx_is_bpmdly_insert(*fx_type))
+        chi_bpmdly_set(bpmdly, e1, e2, BASS303_SR);
     return 0;
 }
 
@@ -119,11 +124,13 @@ int main(void)
     chi_ring_t ring;
     chi_eq_t eq;
     chi_sdly_t sdly;
+    chi_bpmdly_t bpmdly;
     int frames, note_on, note_off, midi, vel, pos, note_down;
     uint8_t fx_type;
     float out[512];
 
-    if (read_ctl(&b, &crush, &ring, &eq, &sdly, &frames, &note_on, &note_off, &midi, &vel, &fx_type) < 0)
+    if (read_ctl(&b, &crush, &ring, &eq, &sdly, &bpmdly, &frames, &note_on, &note_off, &midi, &vel,
+                 &fx_type) < 0)
         return 2;
     note_down = 0;
     for (pos = 0; pos < frames; pos++) {
@@ -144,6 +151,8 @@ int main(void)
             chi_eq_process(&eq, out, 1);
         else if (chi_fx_is_sdly_insert(fx_type))
             chi_sdly_process(&sdly, out, 1);
+        else if (chi_fx_is_bpmdly_insert(fx_type))
+            chi_bpmdly_process(&bpmdly, out, 1);
         {
             float s = out[0];
             if (fwrite(&s, sizeof(float), 1, stdout) != 1)
