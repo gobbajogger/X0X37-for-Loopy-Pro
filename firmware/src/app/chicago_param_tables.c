@@ -7,7 +7,14 @@
 #include "chicago_fx.h"
 #include "chicago_aux.h"
 
-__attribute__((minsize, noinline)) void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes,
+#ifdef __clang__
+#define CHI_TABLE_FN __attribute__((minsize, noinline))
+#elif defined(__GNUC__)
+#define CHI_TABLE_FN __attribute__((optimize("Os"), noinline))
+#else
+#define CHI_TABLE_FN
+#endif
+CHI_TABLE_FN void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes,
                                                         uint32_t n, uint8_t mode, uint8_t range,
                                                         uint8_t speed)
 {
