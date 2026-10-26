@@ -89,33 +89,190 @@
   .build-item p{margin:5px 0}
   .build-item button{margin:5px 0;padding:7px 12px}
   .build-item .meta,#buildprovenance{overflow-wrap:anywhere}
+
+  /* Presentation-only installer redesign. Keep Web MIDI and flash guards in the script. */
+  :root {
+    --bg: #f3f6f6; --fg: #19242a; --dim: #586872; --rule: #dbe4e5;
+    --card: #ffffff; --accent: #086b59; --ok: #16805c; --busy: #995807;
+    --err: #bd352e; --soft: #eaf5f1; --radius: 17px; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f171b; --fg: #edf3f2; --dim: #acbcbe; --rule: #33464a;
+      --card: #19262b; --accent: #81e3c2; --ok: #76dbb1; --busy: #ffcb7a;
+      --err: #ff8d83; --soft: #243b38; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f171b; --fg: #edf3f2; --dim: #acbcbe; --rule: #33464a;
+    --card: #19262b; --accent: #81e3c2; --ok: #76dbb1; --busy: #ffcb7a;
+    --err: #ff8d83; --soft: #243b38; color-scheme: dark;
+  }
+  [hidden] { display: none !important; }
+  body {
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: radial-gradient(ellipse 850px 350px at 65% -130px, var(--soft), transparent 85%), var(--bg);
+  }
+  main { max-width: 1130px; padding: 32px 24px 64px; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+  a { text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  button, select, input { font: inherit; }
+  button { min-height: 44px; border-radius: 9px; font-weight: 650; transition: filter .15s, transform .15s; }
+  button:hover:not(:disabled) { filter: brightness(.9); }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .47; }
+  .site-head { margin: 0 0 26px; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin: 0 0 34px; }
+  .home { font-size: 17px; color: var(--fg); letter-spacing: .14em; margin: 0; }
+  .lang { float: none; padding: 7px 10px; min-height: 38px; border: 1px solid var(--rule); border-radius: 8px; text-decoration: none; }
+  .eyebrow, .step-kicker { color: var(--accent); font-weight: 750; font-size: 11px; letter-spacing: .13em; text-transform: uppercase; }
+  .eyebrow { margin: 0 0 9px; }
+  h1 { font-size: clamp(32px, 4vw, 48px); line-height: 1.13; letter-spacing: -.042em; margin: 0 0 12px; font-weight: 760; }
+  .lead { color: var(--dim); font-size: 16px; max-width: 690px; margin: 0 0 22px; }
+  .journey { list-style: none; display: flex; flex-wrap: wrap; gap: 9px; margin: 0; padding: 0; }
+  .journey li {
+    display: inline-flex; align-items: center; gap: 9px; padding: 8px 13px;
+    background: var(--card); border: 1px solid var(--rule); border-radius: 999px;
+    font-size: 13px; font-weight: 650;
+  }
+  .journey .stepnum { font-size: 11px; font-weight: 800; color: var(--accent); }
+  .install-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(265px, 315px); gap: 22px; align-items: start; }
+  .install-primary, .install-sidebar { min-width: 0; }
+  .panel, .connect {
+    border: 1px solid var(--rule); background: var(--card); border-radius: var(--radius);
+    box-shadow: 0 10px 36px rgba(15, 41, 39, .035); padding: 24px;
+  }
+  .panel { margin: 0 0 18px; }
+  .connect { position: static; display: block; margin: 0 0 18px; border-left: 4px solid var(--accent); }
+  .connect-line { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .connect .ctext { flex: 1; }
+  .connect .ctext b { font-size: 16px; }
+  .connect .ctext span { font-size: 13px; }
+  .connect .led { width: 12px; height: 12px; }
+  .connect button { white-space: nowrap; }
+  .panel-heading { margin-bottom: 16px; }
+  .panel-heading h2, .sidebar-card h2 { margin: 5px 0 0; font-size: 21px; line-height: 1.3; letter-spacing: -.02em; }
+  #versionrow { margin: 0 0 14px; }
+  label.field { width: 100%; font-size: 13px; font-weight: 700; gap: 7px; color: var(--fg); }
+  #version { width: 100%; min-height: 46px; border-radius: 9px; padding: 8px 12px; }
+  #pkgmeta { overflow-wrap: anywhere; }
+  .model-select { border: 0; margin: 16px 0 20px; padding: 0; min-width: 0; }
+  .model-select legend { padding: 0; margin: 0 0 9px; color: var(--fg); font-weight: 700; font-size: 13px; }
+  .models { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .models label {
+    padding: 11px 12px; min-height: 46px; border: 1px solid var(--rule); border-radius: 9px;
+    font-size: 13px; font-weight: 650; background: var(--bg);
+  }
+  .models label:has(input:checked) { border-color: var(--accent); background: var(--soft); }
+  .models label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .model-select p { margin: 12px 0 0; color: var(--dim); font-size: 12px; }
+  .build-detail { border-left: 3px solid var(--busy); background: var(--soft); padding: 12px 14px; border-radius: 0 9px 9px 0; }
+  .build-badge { border-radius: 999px; padding: 3px 9px; }
+  #devagreewrap { font-size: 13px; line-height: 1.5; }
+  #devagree { width: 18px; height: 18px; vertical-align: middle; margin-right: 5px; accent-color: var(--accent); }
+  .flash-action { border-top: 1px solid var(--rule); padding-top: 20px; margin-top: 22px; }
+  #go { display: block; width: 100%; padding: 12px 24px; background: var(--accent); color: var(--card); }
+  :root[data-theme="dark"] #go { color: #10201c; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #go { color: #10201c; } }
+  .flash-action .step-kicker { margin-bottom: 12px; }
+  .install-hint { color: var(--dim); margin: 10px 0 4px; font-size: 12px; }
+  progress { height: 9px; margin-top: 14px; border-radius: 9px; overflow: hidden; accent-color: var(--accent); }
+  progress::-webkit-progress-bar { background: var(--bg); }
+  progress::-webkit-progress-value { background: var(--accent); }
+  #status { margin: 12px 0 0; overflow-wrap: anywhere; font-weight: 650; font-size: 13px; min-height: 1.8em; }
+  .diagnostics { border-top: 1px solid var(--rule); margin-top: 12px; padding-top: 9px; }
+  .diagnostics summary { cursor: pointer; color: var(--dim); font-size: 12px; }
+  .diagnostics pre { margin-bottom: 0; max-height: 240px; }
+  .sidebar-card h2 { font-size: 19px; margin: 8px 0 12px; }
+  .sidebar-card p, .sidebar-card li { font-size: 13px; color: var(--dim); }
+  .sidebar-card a { display: inline-block; font-size: 13px; font-weight: 700; margin-top: 3px; }
+  .safety-list { margin: 12px 0 10px; padding-left: 19px; }
+  .safety-list li { padding-left: 2px; margin: 0 0 12px; }
+  .install-sidebar .small { margin: 14px 0 0; }
+  .archive-panel { display: block; margin-top: 6px; }
+  .archive-toggle { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .archive-toggle::-webkit-details-marker { display: none; }
+  .archive-toggle strong { font-size: 19px; }
+  .archive-toggle .small { display: block; margin: 6px 0 0; max-width: 790px; }
+  .archive-chevron { font-size: 25px; color: var(--accent); transition: transform .2s; }
+  .archive-panel[open] .archive-chevron { transform: rotate(180deg); }
+  #buildhistory { margin-top: 18px; border-top: 1px solid var(--rule); }
+  .build-item { padding: 16px 0; }
+  .build-item h3 { font-size: 16px; }
+  .resource-links { margin: 10px 0 26px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px 18px; }
+  .alternative h2 { margin: 0 0 10px; font-size: 19px; }
+  .alternative ol { padding-left: 23px; }
+  .drop { display: block; border-radius: 11px; border-width: 2px; background: var(--bg); padding: 24px 16px; }
+  .drop input { display: block; position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  .drop:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .site-footer { padding: 20px 2px 4px; border-top: 1px solid var(--rule); margin-top: 26px; }
+  .site-footer p { max-width: 820px; }
+  @media (max-width: 770px) {
+    main { padding: 18px 16px 46px; }
+    .header-top { margin-bottom: 24px; }
+    .install-layout { grid-template-columns: minmax(0,1fr); gap: 0; }
+    .install-sidebar { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+    .install-sidebar .panel { margin-bottom: 18px; }
+    .panel, .connect { padding: 19px; }
+  }
+  @media (max-width: 520px) {
+    .journey { gap: 7px; }
+    .journey li { font-size: 12px; padding: 6px 10px; }
+    .install-sidebar { display: block; }
+    .models { grid-template-columns: minmax(0,1fr); }
+    .connect-line { gap: 9px; flex-wrap: wrap; }
+    .connect .ctext { min-width: 160px; }
+    .connect #connbtn { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    button, .archive-chevron { transition: none; }
+    .led.busy { animation: none; }
+  }
+
 </style>
 </head>
 <body>
 <main>
-  <button class="lang" id="lang" type="button"></button>
-  <a class="home" href="../">X0X</a>
-  <h1 data-t="title">Install X0X</h1>
-  <p data-t="intro"></p>
-  <p class="small" data-t="direct"></p>
-  <p class="small" data-t="beta"></p>
-
-  <div class="connect" id="connectbar">
-    <span class="led" id="led" aria-hidden="true"></span>
-    <div class="ctext">
-      <b id="conn">Not connected</b>
-      <span id="connDetail" data-t="connhelp"></span>
+  <header class="site-head">
+    <div class="header-top">
+      <a class="home" href="../" aria-label="X0X home">X0X</a>
+      <button class="lang" id="lang" type="button"></button>
     </div>
-    <button class="quiet" id="connbtn" type="button" data-t="connect">Connect</button>
-  </div>
+    <p class="eyebrow" data-t="eyebrow">Firmware manager / Web MIDI</p>
+    <h1 data-t="title">Install X0X</h1>
+    <p class="lead" data-t="intro"></p>
+    <ol class="journey" aria-label="Install workflow">
+      <li><span class="stepnum">01</span><span data-t="journey1">Connect keyboard</span></li>
+      <li><span class="stepnum">02</span><span data-t="journey2">Select firmware</span></li>
+      <li><span class="stepnum">03</span><span data-t="journey3">Review and install</span></li>
+    </ol>
+  </header>
+  <div class="install-layout">
+    <div class="install-primary">
+      <div class="connect" id="connectbar" role="region" aria-label="Keyboard connection">
+        <div class="step-kicker" data-t="stage1">Step 01 / Connection</div>
+        <div class="connect-line">
+          <span class="led" id="led" aria-hidden="true"></span>
+          <div class="ctext">
+            <b id="conn">Not connected</b>
+            <span id="connDetail" data-t="connhelp"></span>
+          </div>
+          <button class="quiet" id="connbtn" type="button" data-t="connect">Connect</button>
+        </div>
+      </div>
 
   <section class="panel" id="pick">
-    <p class="small" id="noversion" hidden data-t="noversion"></p>
-    <div class="row" id="versionrow">
-      <label class="field">Version
-        <select id="version" aria-label="Firmware version"></select>
-      </label>
-    </div>
+        <div class="panel-heading">
+          <div class="step-kicker" data-t="stage2">Step 02 / Firmware</div>
+          <h2 data-t="pickheading">Choose the right firmware</h2>
+        </div>
+        <p class="small" id="noversion" hidden data-t="noversion"></p>
+        <div class="row" id="versionrow">
+          <label class="field"><span data-t="versionlabel">Firmware version</span>
+            <select id="version" aria-label="Firmware version"></select>
+          </label>
+        </div>
     <p class="meta" id="pkgmeta"></p>
     <div class="build-detail" id="builddetail" hidden>
       <div class="build-badges" id="buildbadges"></div>
@@ -125,33 +282,67 @@
       <p class="small" data-t="ctrlwarning">Direct SMC Bluetooth requires a separately built ctl.img; it is not bundled.</p>
       <label id="devagreewrap" hidden><input type="checkbox" id="devagree"> <span data-t="devagree">I understand this is hardware-untested development firmware; I must verify the exact model and make a backup before flashing.</span></label>
     </div>
-    <details class="model" id="modeldetails">
-      <summary data-t="flashother">Flash another keyboard version</summary>
+    <fieldset class="model-select" id="modeldetails">
+      <legend data-t="modelheading">Choose your keyboard model</legend>
       <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
       <p data-t="modelwhy"></p>
-    </details>
+    </fieldset>
     <section id="ble" hidden>
       <p class="small" data-t="blewhy"></p>
       <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
     </section>
-    <p><button id="go" disabled data-t="install">Install</button></p>
-    <progress id="bar" max="100" value="0"></progress>
-    <p id="status"></p>
-    <pre id="log"></pre>
-  </section>
-
-
-  <section class="panel" id="buildarchive">
-    <h2 data-t="archiveheading">Build history</h2>
-    <p class="small" data-t="archiveintro">SHA-verified packages are distinguished from source-only checkpoints, missing archives and failed builds. A source commit is not a flashable firmware image.</p>
+    <div class="flash-action">
+          <div class="step-kicker" data-t="stage3">Step 03 / Install</div>
+          <button id="go" disabled data-t="install">Install</button>
+          <p class="install-hint" id="installhint" aria-live="polite"></p>
+          <progress id="bar" max="100" value="0" aria-label="Firmware installation progress"></progress>
+          <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+          <details class="diagnostics">
+            <summary data-t="diagnostics">Technical details / activity log</summary>
+            <pre id="log"></pre>
+          </details>
+        </div>
+      </section>
+    </div>
+    <aside class="install-sidebar" aria-label="Installation guidance">
+      <section class="panel sidebar-card">
+        <div class="step-kicker" data-t="guidelabel">Before you begin</div>
+        <h2 data-t="guideheading">Keep your samples safe</h2>
+        <ol class="safety-list">
+          <li data-t="guide1">Use Chrome or Edge on a computer and a USB data cable.</li>
+          <li data-t="guide2">Export your important samples first. Automatic slot backup runs when needed, but a separate copy is safer.</li>
+          <li data-t="guide3">Keep USB connected until the installation finishes.</li>
+        </ol>
+        <a href="../breaks/" data-t="guidebackup">Backup and restore samples</a>
+        <p class="small" data-t="direct"></p>
+      </section>
+      <section class="panel sidebar-card">
+        <div class="step-kicker" data-t="helpbadge">Need help?</div>
+        <h2 data-t="helpheading">Connection or recovery</h2>
+        <p data-t="helptext">Close other MIDI apps if the keyboard is not detected. An interrupted update can be resumed.</p>
+        <a href="../manual/" data-t="helpmanual">Open the manual</a>
+        <p class="small" data-t="beta"></p>
+      </section>
+    </aside>
+  </div>
+  <details class="panel archive-panel" id="buildarchive">
+    <summary class="archive-toggle">
+      <span>
+        <strong data-t="archiveheading">Build history</strong>
+        <span class="small" data-t="archiveintro">SHA-verified packages are distinguished from source-only checkpoints, missing archives and failed builds. A source commit is not a flashable firmware image.</span>
+      </span>
+      <span class="archive-chevron" aria-hidden="true">⌄</span>
+    </summary>
     <div id="buildhistory"></div>
-  </section>
-  <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a></p>
-  <p class="small"><a href="../manual/" data-t="manual">The manual</a>
-    · <a href="../new/" data-t="whatsnew">What's new</a>
-    · <a id="download" href="#" data-t="download">Download this package</a></p>
+  </details>
+  <nav class="resource-links" aria-label="Other resources">
+    <a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a>
+    <a href="../manual/" data-t="manual">The manual</a>
+    <a href="../new/" data-t="whatsnew">What's new</a>
+    <a id="download" href="#" data-t="download">Download this package</a>
+  </nav>
 
-  <section id="stock">
+  <section id="stock" class="panel alternative">
     <h2 data-t="stockh"></h2>
     <p class="small" data-t="stockwhy"></p>
     <ol class="small" id="stocksteps">
@@ -170,6 +361,7 @@
     <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
   </section>
 
+  <div class="site-footer">
   <p class="small" id="recovery"><span data-t="brick"></span>
     <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
   <p class="small" data-t="back"></p>
@@ -177,6 +369,7 @@
   <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
     with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
     <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
+  </div>
 </main>
 <script type="module">
 /*LIB*/
@@ -186,6 +379,20 @@ const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
 const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
+    eyebrow: "ファームウェア管理 / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
+    stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
+    pickheading: "正しいファームウェアを選択", versionlabel: "ファームウェアのバージョン", modelheading: "機種を選択",
+    diagnostics: "技術情報・動作ログ", guidelabel: "始める前に", guideheading: "サンプルを安全に保管",
+    guide1: "PC の Chrome または Edge と USB データケーブルを使用してください。",
+    guide2: "大切なサンプルは先に個別に書き出してください。必要時に自動バックアップしますが、別のコピーも推奨します。",
+    guide3: "完了するまで USB ケーブルを抜かないでください。",
+    guidebackup: "サンプルのバックアップと復元", helpbadge: "ヘルプ", helpheading: "接続と復旧",
+    helptext: "見つからない場合は他の MIDI アプリを閉じてください。中断した更新は再開できます。",
+    helpmanual: "マニュアルを開く", hintblocked: "検証済みの機種別パッケージが必要です。",
+    hintverifying: "パッケージの読み込み・整合性確認を待ってください。",
+    hintack: "開発版の注意事項を確認し、チェックを入れてください。",
+    hintready: "書き込む準備ができました。開始前に機種と内容をもう一度確認します。",
+    hintbusy: "書き込み中です。USB を抜かず、ページを閉じないでください。",
     latestdev: "最新の利用可能な DEV", devchecked: "DEV CHECKED", hardwareuntested: "実機未テスト", superseded: "旧ビルド・非推奨",
     devagree: "実機未テストの開発版であることを理解し、機種ID・サンプルのバックアップ・ローカル検証を確認します。",
     ctrlwarning: "SMC Bluetoothには別途ビルドした ctl.img が必要です。上で選択してください。付属していません。",
@@ -253,6 +460,20 @@ const TEXT = {
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
+    eyebrow: "Firmware manager / Web MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
+    stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
+    pickheading: "Choose the right firmware", versionlabel: "Firmware version", modelheading: "Choose your keyboard model",
+    diagnostics: "Technical details / activity log", guidelabel: "Before you begin", guideheading: "Keep your samples safe",
+    guide1: "Use Chrome or Edge on a computer with a USB data cable.",
+    guide2: "Export important samples first. Automatic slot backup runs when needed, but keep a separate copy.",
+    guide3: "Keep USB connected until the installation finishes.",
+    guidebackup: "Backup and restore samples", helpbadge: "Need help?", helpheading: "Connection or recovery",
+    helptext: "Close other MIDI apps if the keyboard is not detected. Interrupted updates can be resumed.",
+    helpmanual: "Open the manual", hintblocked: "Choose a verified package for the selected keyboard model.",
+    hintverifying: "Waiting for the firmware download and integrity check.",
+    hintack: "Review and acknowledge the development firmware warning to continue.",
+    hintready: "Ready. Device and package identity will be confirmed again before writing.",
+    hintbusy: "Writing is in progress. Keep USB connected and this page open.",
     latestdev: "LATEST AVAILABLE DEV", devchecked: "DEV CHECKED", hardwareuntested: "HARDWARE UNTESTED", superseded: "SUPERSEDED",
     devagree: "I understand this is hardware-untested development firmware. I must verify the exact model, back up samples and use guarded local validation.",
     ctrlwarning: "Direct SMC Bluetooth requires a separately built ctl.img (select it above). The controller image is not bundled.",
@@ -475,10 +696,11 @@ function refreshModelUi() {
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("builddetail").hidden = true; updateInstallGate(); return; }
+  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("download").hidden = true; $("builddetail").hidden = true; updateInstallGate(); return; }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
   $("download").href = pkg.pkg;
+  $("download").hidden = false;
   $("download").download = pkg.pkg.split("/").pop();
   renderBuildInfo(ver,pkg);
 }
@@ -489,8 +711,15 @@ function isCatalogChecked(v,p) {
 }
 function updateInstallGate() {
   const v = currentVersion(), p = v && v.models && v.models[chosenModel];
-  $("go").disabled = writing || !image || !isCatalogChecked(v,p)
-    || (v.status === "dev-checked" && !$("devagree").checked);
+  const checked = isCatalogChecked(v,p);
+  const needsAck = !!v && v.status === "dev-checked" && !$("devagree").checked;
+  $("go").disabled = writing || !image || !checked || needsAck;
+  // This is explanatory UI only; the existing hash, package and write guards remain authoritative.
+  $("installhint").textContent = t(writing ? "hintbusy"
+    : !checked ? "hintblocked"
+    : !image ? "hintverifying"
+    : needsAck ? "hintack"
+    : "hintready");
 }
 function buildBadge(txt,kind) {
   const x = document.createElement("span"); x.className="build-badge"+(kind?" "+kind:""); x.textContent=txt;return x;
@@ -726,6 +955,7 @@ async function run(img, product, opts = {}) {
   try { access = await midiAccess(); }
   catch (e) { sayK(e.code || "denied"); return; }
   writing = true;
+  updateInstallGate(); // Refresh the busy USB guidance as soon as writing owns the UI.
   $("go").disabled = $("stockgo").disabled = true;
   led("busy");
   try {
@@ -802,6 +1032,7 @@ $("stockgo").addEventListener("click", () => {
 });
 
 (async () => {
+  if (typeof location !== "undefined" && location.hash === "#buildarchive") $("buildarchive").open = true;
   applyLang();
   await mergeGitHubReleases();
   fillVersions();

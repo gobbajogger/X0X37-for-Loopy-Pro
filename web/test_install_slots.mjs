@@ -1,3 +1,4 @@
+import "./test_install_busy_hint.mjs";
 // SPDX-License-Identifier: GPL-3.0-only
 // The installer keeps the sample slots over an install that changes the slot map (no browser, no hardware,
 // no device writes): x0x_breaks.js installKeepingSlots with fm1ota.js's Updater, and the installer page
@@ -299,6 +300,18 @@ const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/g
 async function page(pkg, product, firmware, from, fill, opts = {}) {
   const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
+  // The guided UI must keep model selection visible, consent and write controls
+  // intact, and expose a live result to screen readers.
+  for (const part of [
+    '<fieldset class="model-select" id="modeldetails">',
+    'id="models" role="radiogroup"',
+    'id="go" disabled',
+    'id="devagreewrap" hidden',
+    'id="status" role="status" aria-live="polite"',
+    '<details class="panel archive-panel" id="buildarchive">',
+  ]) {
+    if (!html.includes(part)) throw new Error("installer UX contract missing: " + part);
+  }
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
   const catalog = JSON.stringify({
@@ -373,11 +386,15 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     await new Promise((r) => setTimeout(r, 10));
   if (!/X0X test/.test(ids.status?.textContent || "")) throw new Error("installer did not verify test package");
   if (!ids.go?.disabled) throw new Error("DEV page allowed install without acknowledgment");
+  if (!ids.installhint?.textContent.includes("acknowledge"))
+    throw new Error("DEV consent requirement is not explained in the guided installer");
   ids.go.handlers.click(); // a disabled programmatic click must not start a hardware write
   if (dev.upgrades !== 0) throw new Error("DEV page wrote before acknowledgment");
   ids.devagree.checked = true;
   ids.devagree.handlers.change();
   if (ids.go.disabled) throw new Error("DEV page did not enable Install after verified hash and acknowledgment");
+  if (!ids.installhint?.textContent.includes("Ready"))
+    throw new Error("Verified installation-ready state is not explained to the user");
   if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
   const before = ids.status.textContent;
   const clicked = ids.go.handlers.click();

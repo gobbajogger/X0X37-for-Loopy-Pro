@@ -1,43 +1,26 @@
-name: Installer regressions (no publication)
+# Installer builds and tests run in the authorized local agent environment.
+name: Installer local regression instructions
 
 on:
-  push:
-    branches:
-      - lane/installer-build-registry-20261023
-  pull_request:
-    paths:
-      - 'tools/make_pages.py'
-      - 'web/x0x_installer.html'
-      - 'web/test_install_slots.mjs'
-      - 'tests/make_pages_test.py'
-      - 'data/installer-builds.json'
-      - '.github/workflows/installer-regressions.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  site-and-data-safety:
-    name: Generate site and simulate sample-preserving install
+  instructions:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Python installer identity and catalog regression
-        run: python3 tests/make_pages_test.py
-      - name: Web MIDI sample-slot preservation simulation
-        env:
-          X0X_TEST_TIME_SCALE: '20'
-        run: node web/test_install_slots.mjs
-      - name: Sample importer and portable-project regressions
+      - name: Show local regression commands
         run: |
-          node web/test_breaks.mjs
-          node web/test_breaks_page.mjs
-          node web/test_projects.mjs
-          node web/test_projects_page.mjs
+          cat >> "$GITHUB_STEP_SUMMARY" <<'INFO'
+          Run these checks locally before merging installer source:
+
+          ```sh
+          python3 tests/make_pages_test.py
+          node web/test_install_slots.mjs
+          ```
+
+          This manual workflow displays instructions only. It performs no build,
+          test, device operation or publication.
+          INFO
