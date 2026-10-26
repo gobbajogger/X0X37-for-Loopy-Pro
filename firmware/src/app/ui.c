@@ -4397,8 +4397,10 @@ static UI_DRAW void draw_303(int band, int gen)
  * separate control or changes the serialized parameter order. */
 static pref_t sound_overview_ref(int row)
 {
+#if X0X_DEV_WOBBLE
     static const uint8_t miami[] = {W_CUTOFF, W_OUTPUT, W_WOBBLE_DEPTH, W_ATTACK,
         W_RELEASE, W_CARRIER_LEVEL, W_XMOD_LEVEL, W_GLIDE, W_BASS_SPLIT};
+#endif
     static const uint8_t chicago[] = {BASS303_CUTOFF, BASS303_RESO, BASS303_VOLUME,
         BASS303_DECAY, BASS303_WAVE, BASS303_DRIVE, BASS303_ACCENT, BASS303_AATTACK};
     const uint8_t *rank = 0;
