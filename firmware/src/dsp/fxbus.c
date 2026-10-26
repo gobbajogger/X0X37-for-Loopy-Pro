@@ -328,55 +328,58 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     int32_t w = f->w;
     float dcur = f->dcur, lp = f->lp;
 
+    /* Digi and tape share one sample loop; tape adds wow/flutter read mod,
+     * darker fdbk/tc, and tanh+HP inside the feedback path. */
+    float fdbk, tc, wow_a = 0.0f, flut_a = 0.0f, g = 1.0f, inv_g = 1.0f, hp = 0.0f;
+    uint32_t wow_i = 0, flut_i = 0, wp = 0, fp = 0;
     if (!tape) {
-        const float fdbk = f->dl_fdbk;
-        const float tc = 0.06f + f->dl_tone * 0.6f;
-        for (int i = 0; i < n; ++i) {
-            const float x = d9_biquad_tick(&f->dl_hp, in[i]);
-            dcur += (target - dcur) * 0.0008f;
-            const float y = dl_tap(buf, len, flen, w, dcur);
-            const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * dcur) : y;
-            lp += (y2 * fdbk - lp) * tc;
-            if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
-            int32_t k = sat12_store(&buf[w], x + lp);       /* 12-bit, toward zero */
-            if (++w >= len) w = 0;
-            out[i] += y * lvl;
-            if (out_r)
-                out_r[i] += y2 * lvl;
-            quiet = (k == 0 && in[i] == 0.0f) ? quiet + 1 : 0;
-        }
+        fdbk = f->dl_fdbk;
+        tc = 0.06f + f->dl_tone * 0.6f;
     } else {
         /* TAPE: wow (0.5 Hz) and flutter (6.1 Hz) on the read, a darker loop,
          * saturation and a 30 Hz DC block inside it, feedback up to 1.15 */
         const float wear = f->wear;
         const float depth = 0.1f + 1.9f * wear;                  /* x nominal; 1 at wear ~0.5 */
-        const float wow_a = 1.5f * D9_MS * depth, flut_a = 0.15f * D9_MS * depth;
-        const uint32_t wow_i = d9_inc(0.5f), flut_i = d9_inc(6.1f);
-        const float fdbk = f->dl_fdbk * (1.15f / 0.85f);
-        const float tc = (0.06f + f->dl_tone * 0.6f) * (0.6f - 0.3f * wear);
-        const float g = 1.0f + 1.5f * wear, inv_g = 1.0f / g;
-        uint32_t wp = f->wow_ph, fp = f->flut_ph;
-        float hp = f->tape_hp;
-        for (int i = 0; i < n; ++i) {
-            const float x = d9_biquad_tick(&f->dl_hp, in[i]);
-            dcur += (target - dcur) * 0.0008f;
+        wow_a = 1.5f * D9_MS * depth;
+        flut_a = 0.15f * D9_MS * depth;
+        wow_i = d9_inc(0.5f);
+        flut_i = d9_inc(6.1f);
+        fdbk = f->dl_fdbk * (1.15f / 0.85f);
+        tc = (0.06f + f->dl_tone * 0.6f) * (0.6f - 0.3f * wear);
+        g = 1.0f + 1.5f * wear;
+        inv_g = 1.0f / g;
+        wp = f->wow_ph;
+        fp = f->flut_ph;
+        hp = f->tape_hp;
+    }
+    for (int i = 0; i < n; ++i) {
+        const float x = d9_biquad_tick(&f->dl_hp, in[i]);
+        dcur += (target - dcur) * 0.0008f;
+        float d = dcur;
+        if (tape) {
             wp += wow_i;
             fp += flut_i;
-            const float dmod = dcur + wow_a * fx_psin(wp) + flut_a * fx_psin(fp);
-            const float y = dl_tap(buf, len, flen, w, dmod);
-            const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * dmod) : y;
-            lp += (y2 * fdbk - lp) * tc;
-            if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
+            d = dcur + wow_a * fx_psin(wp) + flut_a * fx_psin(fp);
+        }
+        const float y = dl_tap(buf, len, flen, w, d);
+        const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * d) : y;
+        lp += (y2 * fdbk - lp) * tc;
+        if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
+        float write = lp;
+        if (tape) {
             float s = d9_tanh(lp * g) * inv_g;                   /* tape saturation holds the loop */
             hp += (s - hp) * 0.0042725f;                          /* 30 Hz: no DC latch-up past unity */
             s -= hp;
-            int32_t k = sat12_store(&buf[w], x + s);
-            if (++w >= len) w = 0;
-            out[i] += y * lvl;
-            if (out_r)
-                out_r[i] += y2 * lvl;
-            quiet = (k == 0 && in[i] == 0.0f) ? quiet + 1 : 0;
+            write = s;
         }
+        int32_t k = sat12_store(&buf[w], x + write);       /* 12-bit, toward zero */
+        if (++w >= len) w = 0;
+        out[i] += y * lvl;
+        if (out_r)
+            out_r[i] += y2 * lvl;
+        quiet = (k == 0 && in[i] == 0.0f) ? quiet + 1 : 0;
+    }
+    if (tape) {
         f->wow_ph = wp;
         f->flut_ph = fp;
         f->tape_hp = fm_flush(hp);
