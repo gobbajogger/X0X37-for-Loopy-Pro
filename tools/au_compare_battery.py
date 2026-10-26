@@ -50,12 +50,16 @@ FULL_TIMING = CompareTiming(
     label="full",
 )
 
+# Quick must keep the steady window entirely while the note is gated — same
+# invariant as FULL (steady inside note_on..note_off). The old quick cut
+# note_off at 12000 while steady ran to 19200, so env/corr/spectrum scored
+# release+silence vs AU held notes and collapsed F_agg.
 QUICK_TIMING = CompareTiming(
     frames=19200,
     note_on_frame=2400,
-    note_off_frame=12000,
+    note_off_frame=18000,
     steady_start=4800,
-    steady_end=19200,
+    steady_end=14400,
     label="quick",
 )
 

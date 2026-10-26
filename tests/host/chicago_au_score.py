@@ -142,6 +142,15 @@ def compare_pair(
         np.maximum(np.array(b["envelope50msRms"]), 1e-20)
         / np.maximum(np.array(a["envelope50msRms"]), 1e-20)
     )
+    # Score envelope only on 50 ms bins that cover the steady voiced window
+    # (FULL: bins 2..8 for 4800..19200; QUICK: bins for 4800..14400).
+    hop = 2400
+    env_i0 = max(0, steady_start // hop)
+    env_i1 = max(env_i0 + 1, steady_end // hop)
+    env_steady = env[env_i0:env_i1]
+    if env_steady.size == 0:
+        env_steady = env[env_i0 : env_i0 + 1]
+    env_err = float(np.max(np.abs(env_steady)))
     pitch_cents = (
         1200 * math.log2(b["pitchFitHz"] / a["pitchFitHz"])
         if a["pitchFitValid"] and b["pitchFitValid"]
@@ -155,7 +164,7 @@ def compare_pair(
         pitch_ok = abs(a["pitchFitHz"] - b["pitchFitHz"]) <= 0.5
     goals = {
         "pitchGoal2Cents": bool(pitch_ok),
-        "steadyEnvelopeGoal1Db": bool(np.max(np.abs(env[2:8])) <= 1.0),
+        "steadyEnvelopeGoal1Db": bool(env_err <= 1.0),
         "strongRelativeSpectrumGoal1Db": bool(
             spectrum_mask.any()
             and float(np.max(np.abs(relative[spectrum_mask]))) <= 1.0
@@ -166,7 +175,8 @@ def compare_pair(
         "bestLagSamples": lag,
         "lagAlignedCorrelation": float(r_steady),
         "pitchErrorCents": float(pitch_cents),
-        "steadyEnvelopeErrorDbMax": float(np.max(np.abs(env[2:8]))),
+        "steadyEnvelopeErrorDbMax": env_err,
+        "steadyEnvelopeBinRange": [env_i0, env_i1],
         "strongRelativeHarmonicMaxDb": float(np.max(np.abs(relative[spectrum_mask])))
         if spectrum_mask.any()
         else None,

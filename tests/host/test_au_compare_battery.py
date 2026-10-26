@@ -42,8 +42,20 @@ class AuCompareBatteryTest(unittest.TestCase):
         scen = {"frames": 48000, "noteOnFrame": 4800, "noteOffFrame": 24000}
         out = au_compare_battery.apply_timing_to_scenario(scen)
         self.assertEqual(out["frames"], 19200)
-        self.assertEqual(out["noteOffFrame"], 12000)
+        self.assertEqual(out["noteOnFrame"], 2400)
+        self.assertEqual(out["noteOffFrame"], 18000)
+        self.assertEqual(out["steadyWindowStart"], 4800)
+        self.assertEqual(out["steadyWindowEnd"], 14400)
+        # Steady voiced window must stay inside the gated note (FULL invariant).
+        self.assertGreaterEqual(out["steadyWindowStart"], out["noteOnFrame"])
+        self.assertLessEqual(out["steadyWindowEnd"], out["noteOffFrame"])
         self.assertEqual(len(au_compare_battery.MIAMI_MATRIX_CONFIGS), 7)
+
+    def test_full_steady_inside_gate(self) -> None:
+        t = au_compare_battery.FULL_TIMING
+        self.assertGreaterEqual(t.steady_start, t.note_on_frame)
+        self.assertLessEqual(t.steady_end, t.note_off_frame)
+        self.assertLess(t.note_off_frame, t.frames)
 
     def test_full_overrides_quick(self) -> None:
         os.environ["AU_COMPARE_QUICK"] = "1"
