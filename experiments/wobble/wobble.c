@@ -195,7 +195,7 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float mod = mod_waveform(s->mod_phase, mod_step, xmod_pulse);
         float xmod_lvl = s->p[W_XMOD_LEVEL];
         float xmod_dep = s->p[W_XMOD_DEPTH];
-        /* Depth>0 + level>0: AM with Chebyshev-boosted mod (mix_depth odds).
+        /* Depth>0 + level>0: Cheby-AM + odd sine bus (mix_depth H3/H5).
          * Level=0 must null depth (host modulation_null). Depth≈0: #397 pulse bus. */
         float m = mod;
         int xmod_live = (xmod_dep > 1e-6f) && (xmod_lvl > 1e-6f);
@@ -203,18 +203,23 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
             float m3 = 4.0f * mod * mod * mod - 3.0f * mod;
             float m5 = 16.0f * mod * mod * mod * mod * mod
                 - 20.0f * mod * mod * mod + 5.0f * mod;
-            m = fm_tanhf(mod + 1.0f * xmod_dep * m3 + 0.5f * xmod_dep * m5);
+            m = fm_tanhf(mod + 1.3f * xmod_dep * m3 + 0.7f * xmod_dep * m5);
         }
         float carrier = waveform(s->carrier_phase, step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
         if (xmod_live)
-            carrier *= (1.0f + xmod_dep * xmod_lvl * (4.5f / 0.7f) * m);
+            carrier *= (1.0f + xmod_dep * xmod_lvl * (6.2f / 0.7f) * m);
         float sub = waveform(s->sub_phase, step * .5f, 0);
         float mod_bus = 0.0f;
         if (!xmod_live) {
             mod_bus = xmod_lvl * mod;
             if (xmod_pulse && xmod_dep <= 1e-6f)
                 mod_bus *= 1.8f; /* matrix mod_pulse was ~5 dB quiet at unity bus */
+        } else {
+            /* Odd sine partials of mod Hz close mix_depth strong-relative residual. */
+            float odd = 0.30f * fm_sinf(6.0f * FM_PI * s->mod_phase)
+                + 0.06f * fm_sinf(10.0f * FM_PI * s->mod_phase);
+            mod_bus = xmod_lvl * odd;
         }
         float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
             + s->p[W_SUB_LEVEL] * sub + mod_bus);
