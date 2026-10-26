@@ -4637,28 +4637,38 @@ static UI_DRAW void draw_part_sound(int band)
             int x=4+k*59;
             if (k && (pg.r[p][k].kind!=R_NONE
 #if X0X_BASS_PRESET_PREVIEW
-                || (k==3 && pg.r[p][0].kind==R_BENGINE)
+                || (k==2 && pg.r[p][0].kind==R_BENGINE)
 #endif
                 )) cv_rect(x,y+14,1,32,active?dim(col,3):C_LINE);
             draw_param_widget(pg.r[p][k],x,y,59,active,col);
         }
 #if X0X_BASS_PRESET_PREVIEW
         if (pg.r[p][0].kind==R_BENGINE) {
-            int pending=engine_bass_preset_pending(bidx());
-            const char *status=pending?"WAIT":engine_bass_preset_edited(bidx())?"EDITED":"ACTIVE";
+            int b=bidx(), pending=engine_bass_preset_pending(b), preset=engine_bass_preset_index(b);
+            int edited=engine_bass_preset_edited(b);
+            const char *status=pending?"WAIT":preset<0?"USER":edited?"EDITED":"ACTIVE";
+            const char *reason=pending==2?"WAIT FOR NOTES/TAIL":pending==3?"RETURN WHEELS":
+                pending==4?"SOUND LOCKS ACTIVE":pending==5?"WAIT FOR INPUT":
+                pending==6?"WAIT FOR UPDATE":"WAIT FOR AUDIO";
+            int iw=pending?9:edited?8:10, vy=y+(pending?24:29);
 #if X0X_BASS_TAGGED_SOUND
-            if (engine_bass_sound_bank(&proj.sound,bidx())<0) status="UNKNOWN";
+            if (engine_bass_sound_bank(&proj.sound,b)<0) {status="UNKNOWN";iw=0;}
 #endif
-            text_c(210,y+12,&FONT_T,"STATUS",active?C_BLACK:C_GRAY);
-            text_c(212,y+29,&FONT_T,status,active?C_BLACK:C_HI);
+            /* K7/K8 stay unmapped. Their shared right half is a status display,
+             * with a compact group measured from the actual text advance and
+             * each primitive's ink width, separated by two pixels. */
+            int gx=180-(tw(&FONT_T,status)+iw+(iw?2:0))/2;
             uint16_t c=active?C_BLACK:C_HI;
-            if(pending) { /* hourglass: a request, not an applied sound */
-                cv_line(183,y+29,191,y+29,c);cv_line(183,y+37,191,y+37,c);
-                cv_line(184,y+30,190,y+36,c);cv_line(190,y+30,184,y+36,c);
-            } else if(engine_bass_preset_edited(bidx())) {
-                cv_line(184,y+36,190,y+30,c);cv_line(185,y+37,191,y+31,c);
-            } else if(engine_bass_preset_index(bidx())>=0) {
-                cv_line(183,y+33,186,y+36,c);cv_line(186,y+36,192,y+30,c);
+            text_c(180,y+11,&FONT_T,"STATUS",active?C_BLACK:C_GRAY);
+            cv_text(gx+iw+(iw?2:0),vy,&FONT_T,status,c);
+            if(pending) {
+                cv_line(gx,vy,gx+8,vy,c);cv_line(gx,vy+8,gx+8,vy+8,c);
+                cv_line(gx+1,vy+1,gx+7,vy+7,c);cv_line(gx+7,vy+1,gx+1,vy+7,c);
+                text_c(180,y+37,&FONT_T,reason,c);
+            } else if(iw && edited) {
+                cv_line(gx,vy+7,gx+6,vy+1,c);cv_line(gx+1,vy+8,gx+7,vy+2,c);
+            } else if(iw) {
+                cv_line(gx,vy+4,gx+3,vy+7,c);cv_line(gx+3,vy+7,gx+9,vy+1,c);
             }
         }
 #endif
@@ -4669,15 +4679,15 @@ static UI_DRAW void draw_part_sound(int band)
     } else
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE && engine_bass_preset_pending(bidx()))
-        cv_text(7,208-off,&FONT_T,UI_CAP_HOME ": CANCEL REQUEST",C_GRAY);
+        cv_text(7,208-off,&FONT_T,UI_CAP_HOME ": CANCEL",C_GRAY);
     else
 #endif
         cv_text(7,208-off,&FONT_T,UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",C_GRAY);
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE) {
-        int b=bidx(), pending=engine_bass_preset_pending(b), preset=engine_bass_preset_index(b);
-        const char *status=pending==2?"NOTE/TAIL":pending==3?"WHEEL":pending==4?"LOCKS":pending==5?"KEYS/MIDI":pending?"PENDING":preset>=0?"PRESET":"USER";
-        text_r(234,208-off,&FONT_T,status,C_HI);
+        if (lock_step()<0)
+            text_r(234,208-off,&FONT_T,engine_bass_preset_pending(bidx())?
+                UI_CAP_ARROWS ": ROW":UI_CAP_HOME ": BACK",C_HI);
     } else
 #endif
     {

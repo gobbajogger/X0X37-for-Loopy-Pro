@@ -50,11 +50,11 @@ static void edited_pixels(int voice)
     unsigned colored=0;
     ui.part=PART_303A+voice;ui.view=V_PART;ui.overlay=O_NONE;ui.held_step=-1;
     build_pages();*page_of(V_PART)=(uint8_t)sound_page();ui.touched=-1;memset(blit_hash,0,sizeof blit_hash);draw_main();draw_knobs();
-    /* EDITED stays in SOUND's fourth cell after SOUND moves to the later bank. */
+    /* EDITED stays in SOUND's display-only right half after its expansion. */
     CHECK(engine_bass_preset_edited(voice));
     int top=24+(cur_page()%4)*50+29;
     for(int y=top;y<top+12;y++)
-        for(int x=190;x<230;x++) colored+=fb[y*240+x]==swap16(C_BLACK);
+        for(int x=125;x<234;x++) colored+=fb[y*240+x]==swap16(C_BLACK);
     CHECK(colored>20);
 }
 static uint32_t note_packet(int src,int off,int pitch)

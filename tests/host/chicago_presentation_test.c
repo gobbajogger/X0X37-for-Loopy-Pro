@@ -256,9 +256,13 @@ static void presentation(const char *dir)
     }
     puts("PASS actual pixels: both voices/banks, 360 ARP states, 12 algorithm labels, raw pots, damper threshold, blank columns and hints");
 }
+/* The readout-only follow-on reuses this real-engine/SMK fixture. */
+#ifndef CHICAGO_PRESENTATION_NO_MAIN
 int main(int argc,char **argv)
 {
     CHECK(argc==2);boot();run_ms(50);engine_guard_enable(0);
     presentation(argv[1]);cancel_edges(argv[1]);protected_contexts();wheel_and_live_keys(argv[1]);
     printf("PASS %u Chicago presentation/PATCH checks\n",checks);return 0;
 }
+
+#endif
