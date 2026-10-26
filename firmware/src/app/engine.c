@@ -9,6 +9,7 @@
 #if X0X_DEV_WOBBLE
 #include "../dsp/synth_engine.h"
 #include "../dsp/wobble_backend.h"
+#include "wobble_ui.h"
 #endif
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"
@@ -212,6 +213,12 @@ static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
 }
 
 /* ------------------------------------------------------------ params --- */
+#if X0X_DEV_WOBBLE
+static int bass_wobble_voice(int v)
+{
+    return (unsigned)v < NBASS && bass_slot[v].active.ops == &wobble_foundation_ops;
+}
+#endif
 int engine_nvoices(int t)
 {
     switch (t) {
@@ -243,6 +250,13 @@ const x0x_param_t *engine_param(int t, int v, int i)
     case T_909: return drum909_param(v, i);
     case T_808: return drum808_param(v, i);
     case T_303:
+#if X0X_DEV_WOBBLE
+        if (bass_wobble_voice(v)) {
+            const x0x_param_t *p = wobble_param(i);
+            if (p)
+                return p;
+        }
+#endif
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             return &CHI_ARP_PARAMS[i - CHI_ARP_SWITCH];
         if (i >= CHI_FX_TYPE && i < CHI_FX_END)
@@ -276,10 +290,7 @@ const char *engine_voice_name(int t, int v)
 }
 
 #if X0X_DEV_WOBBLE
-static int bass_wobble_voice(int v)
-{
-    return (unsigned)v < NBASS && bass_slot[v].active.ops == &wobble_foundation_ops;
-}
+int engine_bass_is_wobble(int voice) { return bass_wobble_voice(voice); }
 static void bass_voice_note_on(int v, int note, int acc, int slide, int vel)
 {
     if (bass_wobble_voice(v))
@@ -1762,6 +1773,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));
     wobble_foundation_init(&dev_wobble);
     synth_request(&bass_slot[0], wobble_foundation_binding(&dev_wobble), 0);
+    synth_boundary(&bass_slot[0]); /* DEV: 303A is WBL1 before first audio block (UI/SMC pages). */
 #endif
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
