@@ -172,7 +172,8 @@ void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808)
                      (uint32_t)(kit808 & 0x7FFu) << 16;
 }
 void engine_smc_solo(uint8_t mask) { engine_smc_solo_targets(mask, 0, 0); }
-void engine_smc_busfx(uint8_t down, const uint8_t effect[8])
+/* SMC main-loop publish — render reads the published words (X0X_COLD) */
+X0X_COLD void engine_smc_busfx(uint8_t down, const uint8_t effect[8])
 {
     int i;
     bfx_down_pub = down;
@@ -889,7 +890,8 @@ static void brk_midi_wrap(int src, int on, int note)
 }
 /* 8 SLICES map change: legacy note numbers and wrap (note mod 8) disagree, so MIDI
  * holds tracked in src_held / brk_down must not survive a mode toggle. */
-void engine_brk_slice_mode_reconcile(void)
+/* UI / pref path when 8 SLICES toggles — not the audio or MIDI ISR (X0X_COLD) */
+X0X_COLD void engine_brk_slice_mode_reconcile(void)
 {
     int src, s, g;
     for (s = 0; s < 8; s++) {
