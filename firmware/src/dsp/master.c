@@ -284,6 +284,12 @@ __attribute__((noinline)) static float djf_gsmooth(master_t *m, float k)
     return g;
 }
 
+/* ±1 clamp — one body for mono + stereo when the limiter is off. */
+__attribute__((noinline)) static float clamp_pm1(float s)
+{
+    return fm_clampf(s, -1.0f, 1.0f);
+}
+
 void master_process(master_t *m, float *x, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE];
@@ -316,7 +322,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             m->la_pos = (m->la_pos + 1) % MST_LA;
             s = soft_ceiling(d * m->gain);
         } else {
-            s = fm_clampf(s, -1.0f, 1.0f);
+            s = clamp_pm1(s);
         }
         x[i] = s;
     }
@@ -368,8 +374,8 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             s = soft_ceiling(d * m->gain);
             sr = soft_ceiling(dr * m->gain);
         } else {
-            s = fm_clampf(s, -1.0f, 1.0f);
-            sr = fm_clampf(sr, -1.0f, 1.0f);
+            s = clamp_pm1(s);
+            sr = clamp_pm1(sr);
         }
         xl[i] = s;
         xr[i] = sr;
