@@ -626,14 +626,6 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
            (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
 }
-void engine_bass_record(int part, int note, int velocity, int down, int flags)
-{
-    (void)part;
-    (void)note;
-    (void)velocity;
-    (void)down;
-    (void)flags;
-}
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 void engine_bass_off_note(int part, int note)
 {

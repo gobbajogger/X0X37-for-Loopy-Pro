@@ -89,8 +89,14 @@ static void chi_fx_clear_sends_ui(int voice)
 /* ================================================================ model === */
 static const int8_t KEY_WHITE[NKEYS] = {0, -1, 1, -1, 2, -1, 3, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, -1, 10, 11, -1, 12, -1, 13, 14, -1, 15};
 static const int8_t KEY_BLACK[NKEYS] = {-1, 0, -1, 1, -1, 2, -1, -1, 3, -1, 4, -1, -1, 5, -1, 6, -1, 7, -1, -1, 8, -1, 9, -1, -1, 10, -1};
-/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init). */
+/* Inverse of KEY_WHITE / KEY_BLACK (was rebuilt into BSS at ui_init).
+ * On SMK, x0x.c included smk_input.h first: the pad map is these same 16 indices. */
+#if defined(SMK_NPAD)
+_Static_assert(SMK_NPAD == 16u, "SMK white-key map is the 16 panel white keys");
+#define WHITE_KEY SMK_WHITE_NOTE
+#else
 static const uint8_t WHITE_KEY[16] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
+#endif
 static const uint8_t BLACK_KEY[11] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25};
 
 enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };
