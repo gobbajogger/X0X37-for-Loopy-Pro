@@ -228,3 +228,9 @@ void seq_rec_bass_end(seq_t *s, int b);
 /* Context cancel, part or pattern change, REC off, bulk finalize: drop the accepted
  * generation and finish the open capture. Press membership stays with the engine. */
 void seq_rec_cancel(seq_t *s, int b);
+
+#if X0X_BASS_NOTE_SOUND
+/* Audio recorder storage transaction supplied by the product engine. */
+int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step);
+void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
+#endif

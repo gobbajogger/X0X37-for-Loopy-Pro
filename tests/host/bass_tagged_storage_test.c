@@ -161,6 +161,51 @@ static void note_schema(void)
  CHECK(!memcmp(&original,&proj,sizeof original));CHECK(copy_part(2,1,PART_303A)==-1);CHECK(!memcmp(&original,&proj,sizeof original));
  printf("PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks\n");
 }
+static void note_capture_lifecycle(void)
+{
+ project_defaults();reset_runtime();selected(0,0,0);selected(1,0,0);
+ memset(proj.arr.lane,0,sizeof proj.arr.lane);
+ ui.part=PART_303A;ui.rec=1;ui.wpos[0]=0;seq.playing=0;
+ bass_write(0,48,G_NOTE);CHECK(ui.wpos[0]==1);CHECK(bass_note_find(proj.arr.lane,0,0,0)>=0);
+ ui.wpos[0]=0;bass_write(0,0,G_TIE);CHECK(bass_note_find(proj.arr.lane,0,0,0)<0);
+ ui.wpos[0]=0;bass_write(0,48,G_NOTE);ui.wpos[0]=0;bass_write(0,0,G_REST);
+ CHECK(bass_note_find(proj.arr.lane,0,0,0)<0);
+ /* Accepted keyboard REC and MIDI use the real audio recorder transaction. */
+ seq_start(&seq);render();seq.rec_mask=1;
+ engine_bass_record(0,48,93,0);render();
+ int first=seq.rec_bass[0].first,k=bass_note_find(proj.arr.lane,0,0,first);
+ CHECK(k>=0 && seq.rec_bass[0].active);CHECK(proj.pat[0].bass[0].step[first].note==48);
+ engine_bass_off_note(0,48);render();CHECK(!seq.rec_bass[0].active);
+ /* A real applied motion value is captured; the selected base remains intact. */
+ int m=motion_alloc(proj.arr.lane,0,PART_303A,T_303,0,BASS303_CUTOFF);CHECK(m>=0);
+ for(int i=0;i<NSTEPS;i++)proj.arr.lane[m].val[i]=57;
+ run_ms(180);CHECK(engine_motion_value(m)==57);
+ uint8_t base=proj.sound.v[T_303][0][BASS303_CUTOFF];
+ uint32_t st=0x90u|seq.ch[TRK_BASS0];
+ min_q[mi_w++%MQ]=(st>>4)|(st<<8)|(52u<<16)|(99u<<24);render();
+ first=seq.rec_bass[0].first;k=bass_note_find(proj.arr.lane,0,0,first);
+ CHECK(k>=0 && seq.rec_bass[0].active);CHECK(proj.arr.lane[k].val[BASS303_CUTOFF]==57);
+ CHECK(proj.arr.lane[k].val[BASS_NOTE_TAG+10]&BASS_SOUND_EDITED);
+ CHECK(proj.sound.v[T_303][0][BASS303_CUTOFF]==base);CHECK(!engine_bass_note_validate(&proj.arr.lane[k]));
+ /* Holding across another occupied onset replaces it with a tie and frees its sound. */
+ int next=(first+1)%proj.pat[0].bass[0].len;
+ CHECK(!engine_bass_note_capture(proj.arr.lane,0,0,next,&proj.sound));
+ run_ms(180);CHECK(bstep_gate(&proj.pat[0].bass[0].step[next])==G_TIE);
+ CHECK(bass_note_find(proj.arr.lane,0,0,next)<0);
+ st=0x80u|seq.ch[TRK_BASS0];min_q[mi_w++%MQ]=(st>>4)|(st<<8)|(52u<<16);render();
+ CHECK(!seq.rec_bass[0].active);
+ /* Exhaustion refuses before finalizing the previous recorder or touching project. */
+ for(int i=0;i<NSTEPS;i++)bass_note_clear(proj.arr.lane,0,0,i);
+ for(int i=0;i<NLANE;i++)if(!proj.arr.lane[i].used){proj.arr.lane[i].used=1;proj.arr.lane[i].t=T_MIX;proj.arr.lane[i].part=PART_808;}
+ memcpy(&original,&proj,sizeof original);seq_bass_rec_t rec=seq.rec_bass[0];
+ engine_bass_record(0,60,90,0);render();CHECK(seq.rec_refused==2);
+ CHECK(!memcmp(&original,&proj,sizeof original));CHECK(seq.rec_bass[0].active==rec.active && seq.rec_bass[0].first==rec.first && seq.rec_bass[0].last==rec.last);
+ CHECK(engine_midi_held()&1);engine_bass_off_note(0,60);render();
+ seq_stop(&seq);render();ui.wpos[0]=0;memcpy(&original,&proj,sizeof original);
+ bass_write(0,64,G_NOTE);CHECK(!memcmp(&original,&proj,sizeof original));CHECK(ui.wpos[0]==0);
+ CHECK(!strcmp(ui.msg,"NOTE SOUND NOT SAVED"));
+ printf("PASS accepted REC effective capture/tie cleanup/stopped write/atomic overflow lifecycle checks\n");
+}
 #endif
 int main(int argc,char **argv)
 {
@@ -198,6 +243,7 @@ int main(int argc,char **argv)
  older_cell_objects();
 #if X0X_BASS_NOTE_SOUND
  note_schema();
+ note_capture_lifecycle();
 #endif
  printf("PASS %u tagged rev11 storage/stage/legacy adoption checks WBL%d; sound=%u project=%u\n",checks,X0X_DEV_WOBBLE,(unsigned)sizeof(sound_t),(unsigned)sizeof(project_t));return 0;
 }

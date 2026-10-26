@@ -2659,6 +2659,11 @@ static void bass_write(int b, int note, int gate)
     int len = bp->len ? bp->len : 16, w = ui.wpos[b] % len;
     uint8_t f = (uint8_t)gate;
     if (gate == G_NOTE) {
+#if X0X_BASS_NOTE_SOUND
+        if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,w,&proj.sound)) {
+            say("NOTE SOUND NOT SAVED",0);return;
+        }
+#endif
         bass_rec_link(b, w);
         if (ui.btn & (1u << B_ENV)) {
             f |= BS_ACCENT;
@@ -2671,8 +2676,12 @@ static void bass_write(int b, int note, int gate)
         bp->step[w].note = (uint8_t)note;
         bp->step[w].velocity = BASS_VELOCITY_DEFAULT;
     }
-    if (gate != G_NOTE)
+    if (gate != G_NOTE) {
         bass_rec_step[b] = 0;
+#if X0X_BASS_NOTE_SOUND
+        bass_note_clear(proj.arr.lane,seq.ppat[ui.part],b,w);
+#endif
+    }
     bp->step[w].flags = f;
     ui.wpos[b] = (uint8_t)((w + 1) % len);
     mark_dirty();
@@ -2728,6 +2737,11 @@ static void bass_step_key(int white, int down)
         ui.step_t0 = plat_ms();
         ui.step_created = bstep_gate(&bp->step[s]) == G_REST;
         if (ui.step_created) {
+#if X0X_BASS_NOTE_SOUND
+            if(engine_bass_note_capture(proj.arr.lane,seq.ppat[ui.part],b,s,&proj.sound)) {
+                bass_step_cancel();say("NOTE SOUND NOT SAVED",0);return;
+            }
+#endif
             bp->step[s].flags = G_NOTE;
             mark_dirty();
         }
@@ -2739,6 +2753,9 @@ static void bass_step_key(int white, int down)
                ui.held_step_pat == seq.ppat[ui.part]) {
         if (!ui.step_created && !ui.step_edited && plat_ms() - ui.step_t0 < STEP_TAP_MS) {   /* a tap takes it off */
             bp->step[s].flags = G_REST;
+#if X0X_BASS_NOTE_SOUND
+            bass_note_clear(proj.arr.lane,seq.ppat[ui.part],b,s);
+#endif
             mark_dirty();
         }
         bass_step_cancel();
@@ -2770,6 +2787,12 @@ static void held_note_by(int by)
     bpart_t *bp = &cur_pat()->bass[bidx()];
     bstep_t *st = &bp->step[ui.held_step];
     int n = held_note_of(bp, ui.held_step) + by;
+#if X0X_BASS_NOTE_SOUND
+    if(bstep_gate(st)!=G_NOTE && engine_bass_note_capture(proj.arr.lane,
+       seq.ppat[ui.part],bidx(),ui.held_step,&proj.sound)) {
+        say("NOTE SOUND NOT SAVED",0);return;
+    }
+#endif
     st->note = (uint8_t)(n < 12 ? 12 : n > 108 ? 108 : n);
     if (bstep_gate(st) != G_NOTE)
         st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | G_NOTE);
@@ -3244,12 +3267,19 @@ X0X_COLD static void button_tap(int b)
                 char t[20];
                 bp->gen.seed = tb3po_new_seed(plat_ms() ^ (ui.frame << 7));
                 tb3po_generate(bp);
+#if X0X_BASS_NOTE_SOUND
+                for(int step=0;step<NSTEPS;step++)bass_note_clear(proj.arr.lane,seq.ppat[ui.part],bidx(),step);
+#endif
                 ui.gen_stale[bidx()] = 0;
                 put_hex(put_s(t, "NEW LINE "), bp->gen.seed & 0xFFFFu, 4);
                 say(t, 0);
             } else {
                 uint32_t r = bp->gen.seed ^ plat_ms();
                 tb3po_mutate(bp, &r);
+#if X0X_BASS_NOTE_SOUND
+                for(int step=0;step<NSTEPS;step++)if(bstep_gate(&bp->step[step])!=G_NOTE)
+                    bass_note_clear(proj.arr.lane,seq.ppat[ui.part],bidx(),step);
+#endif
                 ui.gen_stale[bidx()] = 0;
                 say("MUTATED", 0);
             }
@@ -3303,7 +3333,10 @@ X0X_COLD static void input(void)
         return;
     }
     if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
-    if (seq.rec_refused) { seq.rec_refused = 0; say("REC NEEDS FWD/REV", 0); }
+    if (seq.rec_refused) {
+        say(seq.rec_refused==2?"NOTE SOUND NOT SAVED":"REC NEEDS FWD/REV",0);
+        seq.rec_refused=0;
+    }
     seq.rec_mask = ui.rec && is_303() && part_view() && ui.overlay == O_NONE ? (uint8_t)(1u << bidx()) : 0;
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||

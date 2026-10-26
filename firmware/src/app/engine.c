@@ -1447,7 +1447,7 @@ int engine_bass_note_validate(const lane_t *l)
     for(int i=0;i<MX_NPARAMS;i++)if(l->val[BASS_NOTE_MIX+i]>engine_param(T_MIX,l->part,i)->max)return -1;
     return 0;
 }
-int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound)
+static int bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound,int effective)
 {
     if(!lanes || sound!=mot_base_snd || (unsigned)pat>=NPAT ||
        (unsigned)voice>=NBASS || (unsigned)step>=NSTEPS || engine_bass_sound_bank(sound,voice)<0)return -1;
@@ -1460,6 +1460,25 @@ int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const soun
     __builtin_memcpy(next.val,sound->v[T_303][voice],NPARAMS_MAX);
     __builtin_memcpy(next.val+BASS_NOTE_TAG,&sound->bass[voice],BASS_SOUND_TAG_BYTES);
     __builtin_memcpy(next.val+BASS_NOTE_MIX,sound->v[T_MIX][PART_303A+voice],MX_NPARAMS);
+    if(effective) {
+        /* Audio owns motion runtime. Capture what this accepted edge hears,
+         * including an in-flight ramp, without rewriting the selected base. */
+        for(int j=0;j<NLANE;j++) {
+            const lane_t *l=&mot.lane[j];
+            int value=motion_value(&mot,j);
+            if(value<0 || l->part!=PART_303A+voice)continue;
+            if(l->t==T_303 && l->v==voice && l->i<NPARAMS_MAX)next.val[l->i]=(uint8_t)value;
+            if(l->t==T_MIX && l->v==PART_303A+voice && l->i<MX_NPARAMS)
+                next.val[BASS_NOTE_MIX+l->i]=(uint8_t)value;
+        }
+        bass_sound_info_t info;
+        if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return -1;
+        if(__builtin_memcmp(next.val,sound->v[T_303][voice],NPARAMS_MAX)) {
+            info.flags|=BASS_SOUND_EDITED;
+            if(bass_sound_tag_encode((bass_sound_tag_t *)(next.val+BASS_NOTE_TAG),&info,
+                                    BASS_SOUND_REGISTRY,2)!=BASS_IDENTITY_READY)return -1;
+        }
+    }
     if(engine_bass_note_validate(&next))return -1;
     lanes[k].used=0;
     __asm__ volatile("" ::: "memory");
@@ -1468,6 +1487,17 @@ int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const soun
     lanes[k].used=1;
     return 0;
 }
+int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound)
+{return bass_note_capture(lanes,pat,voice,step,sound,0);}
+/* Sequencer calls these only for actual recorder writes, before changing notes.
+ * A refusal affects storage only: the accepted live note still auditions. */
+int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step)
+{
+    if(s!=&seq || !mot.lane)return -1;
+    return bass_note_capture(mot.lane,pat,voice,step,mot_base_snd,1);
+}
+void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step)
+{if(s==&seq && mot.lane)bass_note_clear(mot.lane,pat,voice,step);}
 #endif
 int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1)
 {
