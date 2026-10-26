@@ -77,6 +77,15 @@ int engine_nvoices(int target);
 int engine_nparams(int target, int voice);
 const x0x_param_t *engine_param(int target, int voice, int i);
 const char *engine_voice_name(int target, int voice);
+#if X0X_DEV_WOBBLE
+int engine_bass_is_wobble(int voice); /* live WBL1 backend on 303 A/B voice */
+#else
+static inline int engine_bass_is_wobble(int voice)
+{
+    (void)voice;
+    return 0;
+}
+#endif
 
 /* main loop -> ISR */
 void engine_set(int target, int voice, int i, int value);   /* queued; the sound_t mirror is the caller's */

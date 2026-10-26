@@ -18,6 +18,9 @@
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX bridge (not insert) */
 #include "chicago_aux.h"                       /* CHI_PBEND / CHI_DAMPER */
+#if X0X_DEV_WOBBLE
+#include "../../../experiments/wobble/wobble.h" /* W_ATTACK..W_RELEASE Miami amp ADSR */
+#endif
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "undo.c"
 
@@ -1084,6 +1087,29 @@ static void build_pages(void)
             add_page_refs("KIT", refs, 0, 0); } while (0);
         } else if (is_303()) {
             pg_grp = GR_SOUND;
+#if X0X_DEV_WOBBLE
+            if (engine_bass_is_wobble(b)) {
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_CARRIER_WAVE), PR(R_ENG, T_303, 0, W_CARRIER_LEVEL),
+                    PR(R_ENG, T_303, 0, W_SUB_LEVEL), PR(R_ENG, T_303, 0, W_CARRIER_PITCH)};
+                add_page_refs("CARRIER", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_GLIDE), PR(R_ENG, T_303, 0, W_XMOD_LEVEL),
+                    PR(R_ENG, T_303, 0, W_XMOD_WAVE), PR(R_ENG, T_303, 0, W_XMOD_TUNE)};
+                add_page_refs("X-MOD", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_XMOD_DEPTH), PR(R_ENG, T_303, 0, W_CUTOFF),
+                    PR(R_ENG, T_303, 0, W_CRUSH), NONE};
+                add_page_refs("FILTER", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_WOBBLE_SHAPE), PR(R_ENG, T_303, 0, W_WOBBLE_DEPTH),
+                    PR(R_ENG, T_303, 0, W_WOBBLE_RATE), PR(R_ENG, T_303, 0, W_OUTPUT)};
+                add_page_refs("WOBBLE", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_STEREO), PR(R_ENG, T_303, 0, W_PITCH_BEND),
+                    PR(R_ENG, T_303, 0, W_DAMPER), NONE};
+                add_page_refs("MIAMI AUX", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_ATTACK), PR(R_ENG, T_303, 0, W_DECAY),
+                    PR(R_ENG, T_303, 0, W_SUSTAIN), PR(R_ENG, T_303, 0, W_RELEASE)};
+                add_page_refs("AMP ADSR", refs, 2, b); } while (0);
+            } else
+#endif
+            {
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_CUTOFF), PR(R_ENG, T_303, 0, BASS303_RESO), PR(R_ENG, T_303, 0, BASS303_ENVMOD), PR(R_ENG, T_303, 0, BASS303_DECAY)};
             add_page_refs("TONE", refs, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_ACCENT), PR(R_ENG, T_303, 0, BASS303_WAVE), PR(R_ENG, T_303, 0, BASS303_DRIVE), PR(R_ENG, T_303, 0, BASS303_SLIDE)};
@@ -1106,6 +1132,7 @@ static void build_pages(void)
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_PBEND), PR(R_ENG, T_303, 0, CHI_DAMPER), NONE, NONE};
             add_page_refs("CHI AUX", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
+            }
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */
             do { static const pref_t refs[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
