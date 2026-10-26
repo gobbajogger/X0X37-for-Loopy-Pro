@@ -240,7 +240,7 @@ X0X_COLD static brk_bank_t *bank_slot(breaks_t *b, unsigned i)
 {
     return i < 2u ? &b->bank[i] : brk_side_slot(b, i - 2u);
 }
-static const brk_bank_t *bank_slot_c(const breaks_t *b, unsigned i)
+__attribute__((noinline)) static const brk_bank_t *bank_slot_c(const breaks_t *b, unsigned i)
 {
     return i < 2u ? &b->bank[i] : brk_side_slot_c(b, i - 2u);
 }
