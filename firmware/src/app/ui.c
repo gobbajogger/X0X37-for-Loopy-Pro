@@ -1975,7 +1975,7 @@ static void set_view(int v);
 
 X0X_COLD static void run_action(int act, int arg)
 {
-    char t[28], *q;
+    char t[28];
     if (act == ACT_CLEAR_PART || act == ACT_CLEAR_PAT || act == ACT_COPY) record_finish();
     switch (act) {
     case ACT_SAVE: save_project(); break;
