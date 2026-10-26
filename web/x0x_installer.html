@@ -990,6 +990,7 @@ drop.addEventListener("drop", async (e) => {
 async function run(img, product, opts = {}) {
   if (writing) return;
   writing = true;
+  updateInstallGate(); // Refresh busy guidance when acquiring write ownership.
   $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
