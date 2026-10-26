@@ -160,6 +160,15 @@ static void bass_release(seq_t *s, int b, const seq_sink_t *o)
     tr->to_off = 0;
 }
 
+
+__attribute__((noinline)) static void drum_midi_hit(seq_t *s, const seq_sink_t *o, int k, int v, uint8_t mv)
+{
+    if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
+        midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
+        midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
+    }
+}
+
 static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o)
 {
     const dpart_t *d = dpart(s, k);
@@ -185,18 +194,12 @@ static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o
             mv = (uint8_t)(vel * 127.0f);
         }
         if (skip >> v & 1u) {                        /* recorded live on this pass: the key sounded it */
-            if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
-                midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
-                midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
-            }
+            drum_midi_hit(s, o, k, v, mv);
             continue;
         }
         if (!o->drum(o->ctx, k, v, vel))
             continue;                                /* its chance said no: no MIDI either */
-        if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
-            midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
-            midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
-        }
+        drum_midi_hit(s, o, k, v, mv);
     }
 }
 
