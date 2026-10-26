@@ -326,14 +326,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
         for (int i = 0; i < n; ++i) {
             const float x = d9_biquad_tick(&f->dl_hp, in[i]);
             dcur += (target - dcur) * 0.0008f;
-            float rp = (float)w - dcur;
-            while (rp < 0.0f) rp += flen;
-            int32_t i0 = (int32_t)rp;
-            const float fr = rp - (float)i0;
-            if (i0 >= len) i0 -= len;
-            const int32_t i1 = i0 + 1 >= len ? 0 : i0 + 1;
-            const float b0 = (float)buf[i0] * (1.0f / 2048.0f), b1 = (float)buf[i1] * (1.0f / 2048.0f);
-            const float y = b0 + (b1 - b0) * fr;
+            const float y = dl_tap(buf, len, flen, w, dcur);
             const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * dcur) : y;
             lp += (y2 * fdbk - lp) * tc;
             if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
@@ -365,14 +358,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
             wp += wow_i;
             fp += flut_i;
             const float dmod = dcur + wow_a * fx_psin(wp) + flut_a * fx_psin(fp);
-            float rp = (float)w - dmod;
-            while (rp < 0.0f) rp += flen;
-            int32_t i0 = (int32_t)rp;
-            const float fr = rp - (float)i0;
-            if (i0 >= len) i0 -= len;
-            const int32_t i1 = i0 + 1 >= len ? 0 : i0 + 1;
-            const float b0 = (float)buf[i0] * (1.0f / 2048.0f), b1 = (float)buf[i1] * (1.0f / 2048.0f);
-            const float y = b0 + (b1 - b0) * fr;
+            const float y = dl_tap(buf, len, flen, w, dmod);
             const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * dmod) : y;
             lp += (y2 * fdbk - lp) * tc;
             if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
