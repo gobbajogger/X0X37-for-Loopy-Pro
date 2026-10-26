@@ -27,7 +27,12 @@ with open("generators.log", "a") as log:
     log.write(name + ":" + repr(sys.argv[1:]) + "\\n")
 if os.environ.get("FAIL_GENERATOR") == name:
     sys.exit(23)
-pathlib.Path(sys.argv[-1]).write_text(name)
+out = pathlib.Path(sys.argv[-1])
+out.write_text(name)
+# Real gen_drum_samples.py also writes x0x_drum_tables.h beside samples;
+# build_host.sh re-runs when either header is missing.
+if name == "gen_drum_samples.py":
+    (out.parent / "x0x_drum_tables.h").write_text(name)
 '''
         for name in ("gen_font.py", "gen_drum_samples.py", "gen_break_bank.py"):
             (self.root / "tools" / name).write_text(generator)
@@ -58,7 +63,8 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
         result = self.run_builder("--generate-only")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual({p.name for p in (self.root / "build/gen").iterdir()},
-                         {"felucca_font.h", "x0x_drum_samples.h", "x0x_break_bank.h"})
+                         {"felucca_font.h", "x0x_drum_samples.h", "x0x_drum_tables.h",
+                          "x0x_break_bank.h"})
         self.assertFalse((self.root / "compile.json").exists())
         self.assertFalse((self.root / "build/host/x0x_host").exists())
 
