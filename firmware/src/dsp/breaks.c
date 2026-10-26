@@ -462,7 +462,7 @@ static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
     }
     return (float)v->rbuf[q - v->rbase];
 }
-static inline uint32_t rev_next(const brk_voice_t *v, uint32_t q) { return q > v->lo ? q - 1u : v->hi - 1u; }
+__attribute__((noinline)) static uint32_t rev_next(const brk_voice_t *v, uint32_t q) { return q > v->lo ? q - 1u : v->hi - 1u; }
 
 /* start a new voice at sample p of snapshot k (logical bank bk), slice sl, crossfading the current one.
  * have_state: (pred, idx) is the decoder state before nibble p; otherwise it is sought.
@@ -533,7 +533,7 @@ __attribute__((noinline)) static void slice_start(breaks_t *b, int bk, int sl)
 
 /* ---- the generator ---------------------------------------------------------------------- */
 
-static int bank_ticks(const breaks_t *b, int bk) { return LEN_TICKS[b->set[bk ? BRK_BLEN : BRK_ALEN] % 6u]; }
+__attribute__((noinline)) static int bank_ticks(const breaks_t *b, int bk) { return LEN_TICKS[b->set[bk ? BRK_BLEN : BRK_ALEN] % 6u]; }
 
 /* BB_FIRE_TRIGGER: decide, then sound. forced = transport start / bank switch: slice 0, no retrig */
 static void fire_trigger(breaks_t *b, int bp, int forced)
