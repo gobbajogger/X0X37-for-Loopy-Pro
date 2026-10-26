@@ -525,6 +525,7 @@ run break-pack python3 tests/break_pack_test.py   # optional factory-loop pack: 
 command -v node >/dev/null 2>&1 && run break-pack-web node web/test_break_pack.mjs
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device
+command -v node >/dev/null 2>&1 && run project-adoption-identities node --test web/test_project_adoption_identities.mjs
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
