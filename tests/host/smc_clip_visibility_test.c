@@ -5,6 +5,7 @@
 #include <string.h>
 #include "x0x_cold.h"
 #include "app/smc_protocol.h"
+#include "smc_fx_harness_stubs.h"
 #define CK_FN __attribute__((unused))
 #include "app/smk_clip_keys.h"
 
