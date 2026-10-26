@@ -3,7 +3,7 @@
 // No real MIDI, no device write. Models today's silent skip (.catch(() => null) then install)
 // and asserts the repaired rule. Run from the repo root: node web/test_f03_slot_probe.mjs
 import { Updater, pack7, sameKeyboard } from "./fm1ota.js";
-import { installKeepingSlots, packageSlotMap } from "./x0x_breaks.js";
+import { installKeepingSlots, packageSlotMap, parseInfo } from "./x0x_breaks.js";
 
 let bad = 0;
 const ok = (c, what) => { console.log(`${what.padEnd(72)} ${c ? "ok" : "FAIL"}`); if (!c) bad++; };
@@ -11,6 +11,7 @@ const HS = [0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7];
 const UPGRADE = [0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7];
 const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const PRODUCT = "SMK-37 Pro_900";
+const EMPTY_INFO = [1, 80, 0, 0, 0];
 
 function packageOf(product) {
   const raw = Uint8Array.from({ length: 0x2000 + 20 }, (_, i) => (i * 7) & 0xFF);
@@ -23,12 +24,12 @@ function packageOf(product) {
 
 /** Simulated SMK: answers identity and the update protocol; slot probe is controlled. */
 class FakeSMK {
-  constructor(image, { answerSlots = "empty" } = {}) {
+  constructor(image, { answerSlots = "empty", identity = "SMK-37 Pro_900" } = {}) {
     this.image = image;
     this.answerSlots = answerSlots; // "empty" | "mute" | "bad"
     this.upgrades = 0;
     this.access = { inputs: new Map(), outputs: new Map() };
-    this.boot("SMK-37 Pro_016", "SMK-37 Pro");
+    this.boot(identity, "SMK-37 Pro");
   }
   boot(identity, name) {
     this.identity = identity;
@@ -62,14 +63,17 @@ class FakeSMK {
           this.tx([0xF0, 0x7D, 0x46, 0x4C, 15, 0xF7]); // short / unparsable
           return;
         }
-        // empty successful layout: count=0, size=0
-        this.tx([0xF0, 0x7D, 0x46, 0x4C, 15, 0, 0, 0xF7]);
+        // Valid sample-aware layout: one empty 80 KiB slot, empty name/used.
+        this.tx([0xF0, 0x7D, 0x46, 0x4C, 15, ...EMPTY_INFO, 0xF7]);
       }
       return;
     }
     if (eq(d, HS)) {
       const t = [...new TextEncoder().encode(this.identity)];
-      this.tx([0xF0, ...pack7([0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)]), 0xF7]);
+      const payload = [...t, ...new Array(27 - t.length).fill(0)];
+      const body = [0, 0x59, 0x11, 27, 0, 0, ...payload,
+        ~payload.reduce((sum, b) => sum + b, 0) & 255];
+      this.tx([0xF0, ...pack7(body), 0xF7]);
     } else if (eq(d, UPGRADE)) {
       this.upgrades++;
       this.queue = this.identity.startsWith("ota-")
@@ -101,7 +105,7 @@ class FakeSMK {
     if (!r) return;
     this.waiting = r;
     const [addr, len] = r;
-    const u = [0, 0x59, 0x30, 0, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
+    const u = [0, 0x59, 0x30, 8, 0, 0, 0, addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF, len & 0xFF, len >> 8, 0];
     let s = 0;
     for (let i = 6; i < 14; i++) s += u[i];
     u.push(~s & 0xFF);
@@ -145,12 +149,24 @@ async function main() {
     const err = await installKeepingSlots(new Updater(dev.access), pkg.image, PRODUCT, "smk", {
       sameKeyboard,
     }).then(() => null, (e) => e);
-    ok(err && err.code === "slots" && /did not provide its slot layout/.test(err.message)
+    ok(err && err.code === "slotlayout" && /Cannot verify the current sample layout/.test(err.message)
        && dev.upgrades === 0,
-       "installKeepingSlots: mute probe -> slots error, nothing written");
+       "installKeepingSlots: mute probe -> slotlayout error, nothing written");
+  }
+
+  // The independently admitted stock _016 no-response exception is separate
+  // from the sample-aware firmware that must answer its layout probe.
+  {
+    const dev = new FakeSMK(pkg.image, { answerSlots: "mute", identity: "SMK-37 Pro_016" });
+    const res = await installKeepingSlots(new Updater(dev.access), pkg.image, PRODUCT, "smk", { sameKeyboard });
+    ok(res && res.product === PRODUCT && res.move === null && dev.upgrades === 2,
+       "known stock _016 without SMP_INFO still uses its admitted install path");
   }
 
   // Successful empty layout still installs.
+  const empty = parseInfo(EMPTY_INFO);
+  ok(empty.count === 1 && empty.size === 80 * 1024 && empty.slots[0].nz === 0,
+     "fixture supplies a valid empty 80 KiB slot layout");
   {
     const dev = new FakeSMK(pkg.image, { answerSlots: "empty" });
     const res = await installKeepingSlots(new Updater(dev.access), pkg.image, PRODUCT, "smk", {
@@ -166,8 +182,8 @@ async function main() {
     const err = await installKeepingSlots(new Updater(dev.access), pkg.image, PRODUCT, "smk", {
       sameKeyboard,
     }).then(() => null, (e) => e);
-    ok(err && err.code === "slots" && dev.upgrades === 0,
-       "installKeepingSlots: bad layout parse -> slots error, nothing written");
+    ok(err && err.code === "slotlayout" && dev.upgrades === 0,
+       "installKeepingSlots: bad layout parse -> slotlayout error, nothing written");
   }
 
   process.exit(bad ? 1 : 0);

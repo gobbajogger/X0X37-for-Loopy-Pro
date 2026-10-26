@@ -92,12 +92,46 @@ static int test_sound_hash_collision(void)
     return 0;
 }
 
+static uint32_t random_state = 0x1C0369E7u;
+static uint32_t next_random(void)
+{
+    random_state ^= random_state << 13;
+    random_state ^= random_state >> 17;
+    random_state ^= random_state << 5;
+    return random_state;
+}
+static void fill_capacity(project_t *p)
+{
+    unsigned k, b, v, i;
+    for (k = 0; k < NPAT; k++) {
+        for (b = 0; b < NKIT; b++) {
+            for (v = 0; v < NDRUM; v++)
+                for (i = 0; i < NSW; i++)
+                    p->pat[k].drum[b].hit[v][i] = next_random();
+            for (i = 0; i < NSW; i++)
+                p->pat[k].drum[b].accent[i] = next_random();
+        }
+        for (b = 0; b < NBASS; b++)
+            for (i = 0; i < NSTEPS; i++) {
+                p->pat[k].bass[b].step[i].note = (uint8_t)(next_random() % 128u);
+                p->pat[k].bass[b].step[i].velocity = (uint8_t)(next_random() % 128u);
+                p->pat[k].bass[b].step[i].flags = (uint8_t)((next_random() % 3u) | ((next_random() & 3u) << 2));
+            }
+    }
+    for (k = 0; k < NLANE; k++) {
+        lane_t *l = &p->arr.lane[k];
+        l->used = 1;
+        l->pat = (uint8_t)(k % NPAT);
+        l->part = (uint8_t)(k / NPAT);
+        l->t = T_MIX;
+        l->v = l->part;
+        l->i = MX_LEVEL;
+        for (i = 0; i < NSTEPS; i++)
+            l->val[i] = (uint8_t)(next_random() % 128u);
+    }
+}
 int main(void)
 {
-    uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
-    uint32_t rng = 1;
-    int i;
-
     project_defaults();
     proj.set.palette = 1;
     proj.sound.v[T_303][0][0] = 42;
@@ -110,19 +144,31 @@ int main(void)
     }
     memcpy(&saved_project, &proj, sizeof proj);
 
-    /* Deterministic incompressible content exceeds the four stream objects. */
-    for (i = 0; i < (int)RAW_LEN; i++) {
-        rng ^= rng << 13;
-        rng ^= rng >> 17;
-        rng ^= rng << 5;
-        raw[i] = (uint8_t)rng;
+    /* Unsupported data admission is a separate prewrite contract from OOM. */
+    uint8_t prior_flags = proj.pat[0].bass[0].step[0].flags;
+    proj.pat[0].bass[0].step[0].flags = G_REST | (1u << BS_END_SHIFT);
+    writes = 0;
+    if (project_save() != -9 || writes) {
+        puts("unsupported layout was not blocked before all object writes");
+        return 1;
+    }
+    proj.pat[0].bass[0].step[0].flags = prior_flags;
+    puts("unsupported layout preflight: rejected before all writes");
+
+    /* Use the maintained staging fixture's valid musical capacity data, not
+     * arbitrary raw bytes that hit unsupported-layout rejection first. */
+    fill_capacity(&proj);
+    if (!stream_layout_ok(&proj, PROJ_STREAM)) {
+        puts("capacity fixture is not a supported stream layout");
+        return 1;
     }
     proj.set.palette = 2;
     proj.sound.v[T_303][0][0] = 99;
     seq.bpm = 140.0f;
     writes = 0;
-    if (project_save() != -7 || writes) {
-        printf("memory-full save changed %u objects\n", (unsigned)writes);
+    int save_rc = project_save();
+    if (save_rc != -7 || writes) {
+        printf("memory-full save returned %d, changed %u objects\n", save_rc, (unsigned)writes);
         return 1;
     }
 

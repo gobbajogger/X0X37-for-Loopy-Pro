@@ -1,0 +1,35 @@
+[
+  {
+    "name": "install-slots",
+    "argv": [
+      "node",
+      "web/test_install_slots.mjs"
+    ],
+    "env": {
+      "X0X_TEST_TIME_SCALE": "20"
+    },
+    "exit": 0
+  },
+  {
+    "name": "f02",
+    "argv": [
+      "node",
+      "web/test_f02_loader_bind.mjs"
+    ],
+    "env": {
+      "X0X_TEST_TIME_SCALE": "20"
+    },
+    "exit": 0
+  },
+  {
+    "name": "f03",
+    "argv": [
+      "node",
+      "web/test_f03_slot_probe.mjs"
+    ],
+    "env": {
+      "X0X_TEST_TIME_SCALE": "20"
+    },
+    "exit": 1
+  }
+]
