@@ -231,10 +231,10 @@ __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t
     uint32_t w = cq_w;
     uint32_t word = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
     if (w - cq_r >= CQ) {
-        /* Full: params may drop (mirror still has them). Never drop C_BOFF —
-         * a retained C_BON without its off leaves the 303 gate stuck. */
-        uint32_t i;
-        if (type != C_BOFF)
+        /* Full: params may drop (mirror still has them). Never drop C_BOFF or a
+         * C_BRK release — a retained press without its off leaves the gate/slice on. */
+        uint32_t i, keep = (type == C_BOFF) || (type == C_BRK && (b & 0xFFu) == 0u);
+        if (!keep)
             return;
         for (i = cq_r; i != w; i++) {
             uint32_t t = cq[i % CQ] >> 28;
@@ -244,7 +244,8 @@ __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t
             }
         }
         for (i = cq_r; i != w; i++) {
-            if ((cq[i % CQ] >> 28) != C_BOFF) {
+            uint32_t tw = cq[i % CQ], t = tw >> 28, bb = (tw >> 12) & 0xFFu;
+            if (t != C_BOFF && !(t == C_BRK && bb == 0u)) {
                 cq[i % CQ] = word;
                 return;
             }
