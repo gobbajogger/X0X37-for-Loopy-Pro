@@ -687,7 +687,7 @@ __attribute__((noinline)) static void rephase(seq_t *s)                         
     }
 }
 
-static void pause_sound(seq_t *s, const seq_sink_t *o)   /* EXTERNAL waits: the 303 notes and the break stop */
+__attribute__((noinline)) static void pause_sound(seq_t *s, const seq_sink_t *o)   /* EXTERNAL waits: the 303 notes and the break stop */
 {
     if (!s->playing)
         return;
