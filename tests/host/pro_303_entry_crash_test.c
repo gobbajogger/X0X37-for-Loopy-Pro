@@ -48,10 +48,10 @@ int main(int argc, char **argv)
                 assert(!strcmp(number,p->names[val]));
             }
             pref_value_of(ref,-1,number,unit);
-            assert(!strcmp(number,"?"));
+            assert(!strcmp(number,"INVALID"));
             proj.sound.v[T_303][v][id]=255;
             pref_value(ref,number,unit);
-            assert(!strcmp(number,"?"));
+            assert(!strcmp(number,"INVALID"));
             assert(proj.sound.v[T_303][v][id]==255);
             ui.part=PART_303A+v;
             set_view(V_PART);

@@ -2689,9 +2689,19 @@ static uint32_t lock_marks(int t, int v, int base)
 
 static void turn_ref(pref_t r, int e, int knob)
 {
+#if X0X_BASS_PRESET_PREVIEW
+    /* The detent's descriptor, current value, write and motion ownership all
+     * belong to one committed engine, even across an audio boundary. */
+    int bass_edit = r.kind == R_ENG && r.a == T_303;
+    if (bass_edit) engine_bass_edit_hold(1);
+#endif
     const x0x_param_t *d = pref_desc(r);
-    if (!d || r.kind == R_ACT || pref_read_only(r))
+    if (!d || r.kind == R_ACT || pref_read_only(r)) {
+#if X0X_BASS_PRESET_PREVIEW
+        if (bass_edit) engine_bass_edit_hold(0);
+#endif
         return;
+    }
     if (d->names || d->max < 24
 #if X0X_BASS_PRESET_PREVIEW
         || r.kind == R_BPRESET
@@ -2702,6 +2712,9 @@ static void turn_ref(pref_t r, int e, int knob)
         e = accel(knob, e, d->max);
     pref_set(r, pref_get(r) + e);
     motion_touch(r);
+#if X0X_BASS_PRESET_PREVIEW
+    if (bass_edit) engine_bass_edit_hold(0);
+#endif
 }
 
 static int rec_step(int track) { return seq_rec_step(&seq, track); }
