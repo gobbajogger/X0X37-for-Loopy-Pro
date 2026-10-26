@@ -21,12 +21,14 @@ enum { DIR_FWD, DIR_REV, DIR_PINGPONG, DIR_RANDOM, NDIRS };  /* 303 playback dir
 enum { G_REST, G_NOTE, G_TIE };                             /* 303 step gate */
 
 /* 303 step: velocity 1..127; zero means the legacy/default velocity (100). */
+/* 0 = legacy gate; 1..15 = captured release fraction of this playback slot. */
+#define BS_END_SHIFT 4u
 #define BS_GATE_MASK 0x03u
 #define BS_ACCENT 0x04u
 #define BS_SLIDE 0x08u                /* slide INTO the next step (303 semantics) */
 typedef struct {
     uint8_t note;                     /* MIDI note */
-    uint8_t flags;                    /* gate | BS_ACCENT | BS_SLIDE */
+    uint8_t flags;                    /* gate | BS_ACCENT | BS_SLIDE | endpoint << 4 */
     uint8_t velocity;
 } bstep_t;
 #define BASS_VELOCITY_DEFAULT 100u

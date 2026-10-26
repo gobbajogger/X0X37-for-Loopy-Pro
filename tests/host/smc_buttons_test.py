@@ -60,8 +60,8 @@ static int cur_page(void) { return page; }
 static uint8_t *page_of(int v) { (void)v; return &page; }
 '''+ '\n'.join(helpers) + f + r'''
 int main(void) {
-    const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{-1,-1,-1}};
-    const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{-1,-1,-1}};
+    const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
+    const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{0,1,3}};
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
         last_view=last_page=fx=-1;
         int note=row*8+strip; tap=-1; smc_button(note,0);
@@ -69,10 +69,7 @@ int main(void) {
             assert(tap==(note==5?B_SEL:note==6?B_HOME:B_GLO)); continue;
         }
         if(row==2) assert(fx==strip-5 && last_view==-1);
-        else if(row==3) {
-            /* notes 29–31 are SMCFX_NOTE buses: momentary FX only, no view jump */
-            assert(smcfx_bus((unsigned)note) >= 0 && last_view==-1 && fx==-1);
-        } else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
+        else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
     }
     pg.n=4;
     for(int note=0x60;note<=0x63;note++) {

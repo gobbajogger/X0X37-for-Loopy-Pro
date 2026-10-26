@@ -1,0 +1,17 @@
+clang version 4.0.1 () ()
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /Users/mac/.jieli/toolchain/pi32v2/bin
+
+SDK_HEAD_FILE d179b4484759423312073f5fbb232501aa491047
+9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de cpu/wl82/liba/btctrler.a
+ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2 cpu/wl82/liba/wl_rf_common.a
+373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e cpu/wl82/liba/crypto_toolbox_Osize.a
+bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c cpu/wl82/liba/lib_ccm_aes.a
+1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4 include_lib/newlib/pi32v2-lib/libc.a
+141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009 include_lib/newlib/pi32v2-lib/libcompiler_rt.a
+697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb apps/common/net/wifi_conf.c
+c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4 LICENSE
+4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4 cpu/wl82/tools/uboot.boot
+276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b cpu/wl82/tools/cfg_tool.bin
+41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d cpu/wl82/tools/cfg/eq_cfg_hw.bin

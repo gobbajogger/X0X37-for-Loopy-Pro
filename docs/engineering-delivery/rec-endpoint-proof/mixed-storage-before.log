@@ -1,0 +1,22 @@
+tests/host/project_stage_test.c:45: used unsupported continuation is preserved: project_load_stage()==-9
+tests/host/project_stage_test.c:46: used unsupported continuation is preserved: project_storage_unsupported()
+tests/host/project_stage_test.c:20: used unsupported continuation is preserved: project_load()==-9
+tests/host/project_stage_test.c:20: used unsupported continuation is preserved: project_storage_unsupported()
+tests/host/project_stage_test.c:22: used unsupported continuation is preserved: project_save()==-9
+tests/host/project_stage_test.c:23: used unsupported continuation is preserved: erases==e && programs==p && saves==s
+tests/host/project_stage_test.c:24: used unsupported continuation is preserved: !memcmp(nor,before_flash,sizeof nor)
+tests/host/project_stage_test.c:45: used unsupported continuation is preserved: project_load_stage()==-9
+tests/host/project_stage_test.c:46: used unsupported continuation is preserved: project_storage_unsupported()
+tests/host/project_stage_test.c:20: used unsupported continuation is preserved: project_load()==-9
+tests/host/project_stage_test.c:20: used unsupported continuation is preserved: project_storage_unsupported()
+tests/host/project_stage_test.c:22: used unsupported continuation is preserved: project_save()==-9
+tests/host/project_stage_test.c:23: used unsupported continuation is preserved: erases==e && programs==p && saves==s
+tests/host/project_stage_test.c:24: used unsupported continuation is preserved: !memcmp(nor,before_flash,sizeof nor)
+tests/host/project_stage_test.c:45: used unsupported continuation is preserved: project_load_stage()==-9
+tests/host/project_stage_test.c:46: used unsupported continuation is preserved: project_storage_unsupported()
+tests/host/project_stage_test.c:20: used unsupported continuation is preserved: project_load()==-9
+tests/host/project_stage_test.c:20: used unsupported continuation is preserved: project_storage_unsupported()
+tests/host/project_stage_test.c:22: used unsupported continuation is preserved: project_save()==-9
+tests/host/project_stage_test.c:23: used unsupported continuation is preserved: erases==e && programs==p && saves==s
+tests/host/project_stage_test.c:24: used unsupported continuation is preserved: !memcmp(nor,before_flash,sizeof nor)
+rec_endpoint_storage: 1314 checks 21 failures; no unsupported rewrite

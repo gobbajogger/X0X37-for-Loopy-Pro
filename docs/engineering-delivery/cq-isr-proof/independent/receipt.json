@@ -1,0 +1,108 @@
+{
+  "head": "95e3cca30816b453d63b90254d5dc7614c40946d",
+  "tree": "1bd5cbe809c68ed70e55976fac8850c16e5aac6e",
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "status": "PASS_BOUNDED_SOURCE_HOST_AND_TARGET_OBJECT_INSPECTION",
+  "source_blobs": {
+    "firmware/src/app/engine.c": "435ba0abe99d3f776dcf2740622b8144b098a2c7",
+    "firmware/src/app/plat.h": "58892f3682d4c1719f45d6fcfe124c8ea4cc7e63",
+    "firmware/src/app/plat_fm1.c": "a7b312efdb1e7ab4ab3f2f60f12b18dd86a8a77f",
+    "firmware/hal/fm1_irq.h": "7164ca84fa95d0d71df76b36ea44e455877e9442",
+    "firmware/src/app/main_fm1.c": "1552c90dfb1c26ee8892d4b568a88fff1fa6c4a6"
+  },
+  "working_source_sha256": {
+    "firmware/src/app/engine.c": "50f77964aab5e2bf1890e81c52ac984bcf278d12786bfc0d85b3614c40cd417a",
+    "firmware/src/app/plat.h": "fbb532f258f2773851965a74a82440a90b22b3a61e16dae19999b065613ec756",
+    "firmware/src/app/plat_fm1.c": "6b82daac9db09bc431e4f64acc56061d4fb89410c8249940ae4cc6768c1dec04",
+    "firmware/hal/fm1_irq.h": "90dda45a862f19fd177f723c2584a18c7871af5c180eeebb465e162aecd9b26c",
+    "firmware/src/app/main_fm1.c": "5e2302c8e45c873d59720e717afeed87e24462b50d83913372a7cbe7b6f4f523"
+  },
+  "source_edits_by_reviewer": false,
+  "author_test_only_supplement": {
+    "path": "tests/host/engine_cq_isr_preemption_test.py",
+    "head_blob": "dbae76f41f6a7becd2adb527d7a53ced5ad12605",
+    "working_blob": "025da690e927d179238d3b5cb1f45552ad8fa69d",
+    "working_sha256": "85fab0b470a91d0855f6f0bef7cf6620a372204e7f67f5cd01cf98c14033ab60",
+    "note": "Author added exact packed-word delivery assertions after source freeze; independently reviewed and rerun separately."
+  },
+  "runs": [
+    {
+      "command": "python3 tests/host/engine_cq_isr_preemption_test.py --sanitize",
+      "exit": 0,
+      "log": "preemption-sanitized.log",
+      "result": "1080 scenarios +4 nested state cases; 2 omitted-guard mutants rejected",
+      "input": "frozen HEAD test"
+    },
+    {
+      "command": "python3 tests/host/engine_cq_isr_preemption_test.py --sanitize",
+      "exit": 0,
+      "log": "exact-word-preemption-sanitized.log",
+      "input": "test-only exact packed-word supplement",
+      "result": "1080 scenarios +4 nested state cases; 2 omitted-guard mutants rejected"
+    },
+    {
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh engine-cq-rec-overflow engine-cq-boff-overflow engine-cq-bon-overflow engine-cq-brk-overflow engine-cq-drum-overflow",
+      "exit": 0,
+      "log": "adjacent-cq.log"
+    },
+    {
+      "command": "CC='cc -D_DARWIN_C_SOURCE' X0X_TEST_JOBS=1 sh tests/run_tests.sh rec-live rec-live-smk",
+      "exit": 0,
+      "log": "live-rec.log"
+    },
+    {
+      "command": "cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined ../cq-review/protected-scan-probe.c -o ../cq-review/protected-scan-probe && ../cq-review/protected-scan-probe",
+      "exit": 0,
+      "log": "protected-scan-probe.log",
+      "result": "36 full-protected-release queues, consumer frees space during scan-end recheck, both normal and uint32 counter wrapping"
+    },
+    {
+      "command": "import exact original-pr621.py; set SOURCE=d633-engine.c; run(cc, command_queue_source(), False, False, True)",
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "original-strict-red.log",
+      "original_test_git_blob": "968e485c155f963859ca7657359b1b30560b9f10",
+      "result": "Baseline strict control loses DRUM after one consumed entry"
+    }
+  ],
+  "log_sha256": {
+    "original-strict-red.log": "01cd3a76e28092fd1db7303f36c68fa70982a9c0c3a9230b27907de4e4e72b14",
+    "protected-scan-probe.log": "26b573ab6fe5f5260fe4cf008ca8c9b138a1992a9086ea9991152edd72fae6c2",
+    "exact-word-preemption-sanitized.log": "f76bc779cd8eb45530cf3275327a0b8e35b4a723f7db847335c9e7a1d653b1d2",
+    "live-rec.log": "aab301d40ad148b1311696c609dc6ea506a06b2f826007b4f89cf8a4c51f7f1f",
+    "preemption-sanitized.log": "f76bc779cd8eb45530cf3275327a0b8e35b4a723f7db847335c9e7a1d653b1d2",
+    "adjacent-cq.log": "caa492af9822cda429555087d11fe6f2a6c93179eaaa8c50627f2b37d8635233"
+  },
+  "hardware": "NOT_RUN; deterministic schedule model is not physical interrupt proof",
+  "native": {
+    "compile_performed_by": "recorder_production_check author; reviewer inspected receipt/output and matched frozen source SHA256",
+    "log": "../cq-evidence/native/compile-disassembly.log",
+    "log_sha256": "b05ef29e564d6082aa5a839a15cca2ea9382fecb6ce74cefbe1617b1b9f2e63f",
+    "receipt_sha256": "3dca2061f887ad79d25bc56109f33b478754ff410081d797940f950941b4d130",
+    "author_receipt": {
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+      "exit": 0,
+      "owned_worker_cleanup": true
+    },
+    "result": "Both exact archived unity platform (-Oz) and engine (-O2) compiled exit0; actual pi32v2 target disassembly inspected",
+    "platform": "ICFG0x1EEF104 bit0x1000 mask; CSYNC; prior-bit return; unlock CSYNC/current config preserving others/exact prior bit/CSYNC; no STI",
+    "engine": "scan54-a2 outside critical; lock calla4; fresh readera8; modulo unsigned membershipac-b0; aligned uint32 publicationd4; unlock tailcall da. Failed membership unlockb4 then occupancyretryb8. Append storec8 precedes cq_w publicationce.",
+    "limits": [
+      "Relocatable -d calls have unresolved target names; source closure plus compiled order inspected, not final linked addresses.",
+      "No full Elite/Pro linked firmware budgets/package/controller qualification.",
+      "No physical interrupt pending/timing or hardware validation."
+    ]
+  },
+  "combined_rec": "NOT_INTEGRATED_IN_THIS_BRANCH; C_REC reservation/priority only",
+  "final_evidence_head": {
+    "head": "63519957c13a4dfbe48c1d696ce0565248f391d7",
+    "tree": "e42ca7e47bacf219cec96fb7b418e70abe569305",
+    "production_diff_from_frozen": "",
+    "test_blob": "025da690e927d179238d3b5cb1f45552ad8fa69d",
+    "test_matches_independently_run_supplement": true,
+    "status": "",
+    "tracked_native_log_sha256": "b05ef29e564d6082aa5a839a15cca2ea9382fecb6ce74cefbe1617b1b9f2e63f",
+    "tracked_native_receipt_sha256": "1a27934861ac88c00279c018fe470f2a7f45557ed74188fdf28e0c3e6e2967f2"
+  }
+}
