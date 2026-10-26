@@ -367,9 +367,10 @@ run bass303-ampmode sh tests/host/run_bass303_ampmode.sh   # Chicago AmpMod Env/
 run bass303-wave-gnaw sh tests/host/run_bass303_wave_gnaw.sh   # Chicago Wave morph + VCF Gnaw on native303
 run bass303-amp-adsr sh tests/host/run_bass303_amp_adsr.sh   # Chicago Bite + amp Env A/D/S/R on native303
 run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Range/Speed (live held-note)
-run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (+ Crush/Ring insert flags)
+run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (+ Crush/Ring/EQ insert flags)
 run chicago-crush sh tests/host/run_chicago_crush.sh   # Chicago Crush/Decimator insert quantize+hold on native303
 run chicago-ring sh tests/host/run_chicago_ring.sh   # Chicago Ring Mod insert sidebands on native303
+run chicago-eq sh tests/host/run_chicago_eq.sh   # Chicago EQ insert tilt shelf on native303
 run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
 run chicago-env sh tests/host/run_chicago_env.sh   # Chicago AU Env → filter EG dual-drive + Gate DSP
 run au-compare-align python3 tests/host/test_au_compare_align.py   # lag search law for Chicago/Miami AU compares

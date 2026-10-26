@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Host proof: Chicago SEND FX bridge maps Off/Comp/Delay/Hall onto Mix+fxbus
- * intentions; Crush + Ring are insert (clear sends only); other NOT_YET types
- * never invent Cho/Phaser/Ensemble/Gate/EQ DSP. */
+ * intentions; Crush + Ring + EQ are insert (clear sends only); other NOT_YET
+ * types never invent Cho/Phaser/Ensemble/Gate DSP. */
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
@@ -35,7 +35,9 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_SHORT_DLY), "Short Delay supported");
     CHECK(chi_fx_supported(CHI_FX_BPM_DLY), "BPM Delay supported");
     CHECK(chi_fx_supported(CHI_FX_HALL), "Hall supported");
-    CHECK(chi_fx_is_not_yet(CHI_FX_EQ), "EQ NOT_YET");
+    CHECK(chi_fx_supported(CHI_FX_EQ), "EQ supported (insert)");
+    CHECK(chi_fx_is_insert(CHI_FX_EQ), "EQ is insert");
+    CHECK(!chi_fx_is_not_yet(CHI_FX_EQ), "EQ not NOT_YET");
     CHECK(chi_fx_supported(CHI_FX_RING), "Ring supported (insert)");
     CHECK(chi_fx_is_insert(CHI_FX_RING), "Ring is insert");
     CHECK(!chi_fx_is_not_yet(CHI_FX_RING), "Ring not NOT_YET");
@@ -63,6 +65,9 @@ static void test_not_yet_clear(void)
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Crush insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_DIST), "Crush insert does not set Dist");
     CHECK(!(o.touch & CHI_FX_W_DRIVE), "Crush insert does not set Drive");
+    chicago_fx_map(CHI_FX_EQ, 0, 127, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "EQ insert clears sends (no Mix theft)");
+    CHECK(!(o.touch & CHI_FX_W_COMP), "EQ does not set Comp");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 0, &o);
     CHECK(o.touch == 0, "Cho without clear_ny writes nothing");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 1, &o);
@@ -124,7 +129,7 @@ static void test_labels_honest(void)
 {
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_RING], "Ring") == 0, "Ring plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_DECIM], "Crush") == 0, "Crush plain insert name");
-    CHECK(strstr(CHI_FX_TYPE_N[CHI_FX_EQ], "—") != 0, "EQ labeled NOT_YET");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_EQ], "EQ") == 0, "EQ plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");
 }

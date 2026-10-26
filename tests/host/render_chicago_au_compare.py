@@ -53,7 +53,7 @@ def _control_text(scen: dict, pots: dict) -> str:
     ]
     for idx, val in sorted(pots["bass303"].items()):
         lines.append(f"pot {idx} {val}")
-    # Chicago insert FX (Crush/Ring) — AU refs include grit/sidebands; dry native303 does not.
+    # Chicago insert FX (Crush/Ring/EQ) — AU refs include grit/sidebands/EQ; dry native303 does not.
     chi = pots.get("chi") or {}
     if "fx_type" in chi:
         lines.append(f"fx_type {int(chi['fx_type'])}")

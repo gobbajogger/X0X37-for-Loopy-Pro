@@ -1,17 +1,17 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Chicago Fx Type / Edit 1 / Edit 2 — SEND bridge + Crush/Ring insert (FCDC-205).
+/* Chicago Fx Type / Edit 1 / Edit 2 — SEND bridge + Crush/Ring/EQ insert (FCDC-205).
  *
  * Chicago AU is a per-voice insert strip (12 algorithms). Product audio is a
- * shared T_FX fxbus + per-part T_MIX sends, plus Crush (Decimator) and Ring Mod
- * inserts on the 303 dry voice (chicago_crush.h / chicago_ring.h). Other
- * modulation FX remain NOT_YET.
+ * shared T_FX fxbus + per-part T_MIX sends, plus Crush (Decimator), Ring Mod,
+ * and EQ inserts on the 303 dry voice (chicago_crush.h / chicago_ring.h /
+ * chicago_eq.h). Other modulation FX remain NOT_YET.
  *
  * Supported SEND / master stage (labeled SEND FX in the UI):
  *   Off, Comp, Short Delay, BPM Delay, Hall
  * Supported INSERT (per-voice DSP, not Mix theft):
- *   Crush (Decimator), Ring Mod
+ *   Crush (Decimator), Ring Mod, EQ
  * Explicit NOT_YET (no DSP; UI says NO INSERT; do not fake silence as FX):
- *   EQ, Cho/Flg, Ensemble, Phaser, Gate Reverb
+ *   Cho/Flg, Ensemble, Phaser, Gate Reverb
  *
  * Stored in sound_t after bass303 DSP pots (CHI_FX_*). Not consumed by
  * bass303_set. Global Comp/Delay/Hall theft is intentional and labeled.
@@ -67,8 +67,8 @@ typedef struct {
     uint8_t fx_rv_decay, fx_rv_level;
 } chicago_fx_out_t;
 
-/* UI names: "—" = NOT_YET. Crush/Ring are plain insert names. Page title SEND FX
- * still covers Comp/Delay/Hall; Crush+Ring are insert. Tables in
+/* UI names: "—" = NOT_YET. Crush/Ring/EQ are plain insert names. Page title
+ * SEND FX still covers Comp/Delay/Hall; Crush+Ring+EQ are insert. Tables in
  * chicago_param_tables.c (one copy for engine.o + x0x.o). */
 extern const char *const CHI_FX_TYPE_N[CHI_FX_NTYPES];
 
@@ -76,7 +76,7 @@ extern const x0x_param_t CHI_FX_PARAMS[3];
 
 static inline int chi_fx_is_insert(uint8_t type)
 {
-    return type == CHI_FX_DECIM || type == CHI_FX_RING;
+    return type == CHI_FX_DECIM || type == CHI_FX_RING || type == CHI_FX_EQ;
 }
 
 static inline int chi_fx_supported(uint8_t type)
@@ -86,6 +86,7 @@ static inline int chi_fx_supported(uint8_t type)
     case CHI_FX_COMP:
     case CHI_FX_DECIM: /* insert — chicago_crush.h */
     case CHI_FX_RING:  /* insert — chicago_ring.h */
+    case CHI_FX_EQ:    /* insert — chicago_eq.h */
     case CHI_FX_SHORT_DLY:
     case CHI_FX_BPM_DLY:
     case CHI_FX_HALL:
@@ -135,7 +136,7 @@ static inline void chicago_fx_map(uint8_t type, uint8_t e1, uint8_t e2, int clea
     if (type == CHI_FX_OFF)
         return;
     if (chi_fx_is_insert(type)) {
-        /* Crush / Ring: clear part sends so Mix does not smear the insert;
+        /* Crush / Ring / EQ: clear part sends so Mix does not smear the insert;
          * audio path applies DSP from sound_t FX pots. */
         o->touch = CHI_FX_W_CLEAR_SENDS;
         return;
