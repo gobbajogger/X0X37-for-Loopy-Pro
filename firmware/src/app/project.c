@@ -131,17 +131,6 @@ static int save_buf(uint32_t obj, uint32_t n)
     return rc;
 }
 
-static int load_obj(uint32_t obj, void *dst, uint32_t len)
-{
-    int n = plat_store_load(obj, io_buf, sizeof io_buf);
-    if (n < 0 || (uint32_t)n != len + 4u || get32(io_buf) != PROJ_FORMAT)
-        return -1;
-    __builtin_memcpy(dst, io_buf + 4u, len);
-    stored_known[obj] = 1;
-    stored_hash[obj] = hash_of(io_buf, len + 4u);
-    return 0;
-}
-
 /* the settings may have grown since they were saved: a shorter payload of this format loads into
  * the front of dst, and the rest keeps what dst held (zeros: the new settings' defaults) */
 static int load_settings(settings_t *dst)
