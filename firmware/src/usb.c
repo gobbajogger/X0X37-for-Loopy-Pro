@@ -164,9 +164,18 @@ static int midi_pkt_is_keep(uint32_t pkt)
     return midi_pkt_is_note_off(pkt) || midi_pkt_is_rt_transport(pkt);
 }
 
+/* CIN 0xE pitch bend — Mackie Control faders and the hardware wheel path.
+ * Not a hard keep (Note Off / Start/Stop must still displace it), but under a
+ * CC flood a dropped bend leaves SMC faders / bend stale. */
+static int midi_pkt_is_pitch_bend(uint32_t pkt)
+{
+    return (pkt & 0xFu) == 0xEu;
+}
+
 /* When a MIDI ring is full, CC floods may drop; never drop Note Off or
  * Start/Continue/Stop — displace a CC first, then any non-keep
- * (same class as engine cq_put C_BOFF). */
+ * (same class as engine cq_put C_BOFF). Pitch bend coalesces same-channel
+ * or displaces a CC; it is not protected from Note Off / RT. */
 static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
                                   uint32_t pkt)
 {
@@ -176,6 +185,26 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
         RING_PUBLISH();
         *w = ww + 1u;
         return 1;
+    }
+    if (midi_pkt_is_pitch_bend(pkt)) {
+        uint32_t ch = (pkt >> 8) & 0x0Fu;
+        for (i = rr; i != ww; i++) {
+            uint32_t p = q[i % MQ];
+            if (midi_pkt_is_pitch_bend(p) && (((p >> 8) & 0x0Fu) == ch)) {
+                q[i % MQ] = pkt;
+                RING_PUBLISH();
+                return 1;
+            }
+        }
+        for (i = rr; i != ww; i++) {
+            uint32_t p = q[i % MQ];
+            if ((p & 0xFu) == 0xBu) {
+                q[i % MQ] = pkt;
+                RING_PUBLISH();
+                return 1;
+            }
+        }
+        return 0;
     }
     if (!midi_pkt_is_keep(pkt))
         return 0;
@@ -194,7 +223,8 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
     return 0;
 }
 
-/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off or Start/Continue/Stop. */
+/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off,
+ * Start/Continue/Stop, or (coalesced) Pitch Bend. */
 static int midi_in_put(uint32_t pkt)
 {
     return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, pkt);
@@ -204,7 +234,8 @@ static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
     if (!usb.config)
         return;
-    /* Outbound mirror of midi_in_put: a full MQ must not strand a Note Off on USB/DAW. */
+    /* Outbound mirror of midi_in_put: a full MQ must not strand a Note Off or
+     * Mackie fader Pitch Bend on USB/DAW. */
     (void)midi_ring_put_note_off(midi_out_q, &mo_w, &mo_r, pkt);
 }
 void midi_send_note(uint32_t note, uint32_t vel)

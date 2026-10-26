@@ -353,6 +353,12 @@ static int ble_out_is_note_off(uint32_t pkt)
     return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
 }
 
+/* CIN 0xE — Mackie fader / bend mirror (sibling of usb.c midi_pkt_is_pitch_bend). */
+static int ble_out_is_pitch_bend(uint32_t pkt)
+{
+    return (pkt & 0xFu) == 0xEu;
+}
+
 /* the audio ISR (single producer): mirror one MIDI out packet */
 static void ble_out(uint32_t pkt)
 {
@@ -367,8 +373,29 @@ static void ble_out(uint32_t pkt)
         ble_r.ow = ww + 1u;
         return;
     }
-    /* Full BLE out mirror: drop CCs under notify backpressure, never Note Off
-     * (stuck note into Loopy over BLE — outbound sibling of USB midi_out_event). */
+    /* Full BLE out mirror: drop CCs under notify backpressure; never Note Off
+     * (stuck note into Loopy). Pitch bend coalesces same-channel or displaces
+     * a CC so Mackie fader feedback is not stranded (USB midi_out sibling). */
+    if (ble_out_is_pitch_bend(pkt)) {
+        uint32_t ch = (pkt >> 8) & 0x0Fu;
+        for (i = rr; i != ww; i++) {
+            uint32_t p = ble_oq[i % BLE_OQ];
+            if (ble_out_is_pitch_bend(p) && (((p >> 8) & 0x0Fu) == ch)) {
+                ble_oq[i % BLE_OQ] = pkt;
+                RING_PUBLISH();
+                return;
+            }
+        }
+        for (i = rr; i != ww; i++) {
+            uint32_t p = ble_oq[i % BLE_OQ];
+            if ((p & 0xFu) == 0xBu) {
+                ble_oq[i % BLE_OQ] = pkt;
+                RING_PUBLISH();
+                return;
+            }
+        }
+        return;
+    }
     if (!ble_out_is_note_off(pkt))
         return;
     for (pass = 0; pass < 2u; pass++) {

@@ -329,8 +329,11 @@ run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   #
 run engine-cq-drum-overflow python3 tests/host/engine_cq_drum_overflow_test.py   # full CQ must keep C_DRUM (displace param)
 run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py   # full MIDI-in MQ must keep Note Off (displace CC)
 run midi-mq-rt-overflow python3 tests/host/midi_mq_rt_overflow_test.py   # full MIDI-in MQ must keep Start/Continue/Stop (displace CC)
+run midi-mq-pb-overflow python3 tests/host/midi_mq_pb_overflow_test.py   # full MIDI-in MQ must keep Pitch Bend (coalesce / displace CC)
 run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow_test.py   # full MIDI-out MQ must keep Note Off (displace CC)
+run midi-out-mq-pb-overflow python3 tests/host/midi_out_mq_pb_overflow_test.py   # full MIDI-out MQ must keep Pitch Bend (coalesce / displace CC)
 run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
+run ble-out-pb-overflow python3 tests/host/ble_out_pb_overflow_test.py   # full BLE out mirror must keep Pitch Bend (coalesce / displace CC)
 run usb-sxq-sticky-apc python3 tests/host/usb_sxq_sticky_apc_test.py   # full SXQ must sticky-retry APC inquiry/intro
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
 run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py

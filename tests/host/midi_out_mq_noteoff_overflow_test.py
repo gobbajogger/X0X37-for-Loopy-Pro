@@ -33,7 +33,7 @@ end = u.index("void midi_send_note(")
 chunk = u[start:end]
 # Drop midi_in_* (inbound harness owns those); keep out path + shared helpers.
 chunk = re.sub(
-    r"/\* Enqueue into midi_in_q\.[^*]*\*/\s*static int midi_in_put\(uint32_t pkt\)\s*\{[^}]*\}\s*",
+    r"/\* Enqueue into midi_in_q\..*?\*/\s*static int midi_in_put\(uint32_t pkt\)\s*\{[^}]*\}\s*",
     "",
     chunk,
     count=1,
