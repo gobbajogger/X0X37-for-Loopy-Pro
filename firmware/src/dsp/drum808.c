@@ -1266,25 +1266,27 @@ static const char *const k_clap_names[2] = {"CLAP", "MARAC"};
 #define P_DLY {"Dly", 127, 0, 0}
 
 /* Every 808 track ends on the same drive / dist / sends / pan block — one copy.
- * The kick head keeps Attack before that shared tail. */
+ * The kick mid keeps Attack before that shared tail. */
 static const x0x_param_t d8_fx_tail[] = {P_DRIVE, P_DIST, P_REV, P_DLY, PP("Pan", 64)};
 #define D8_FX_N ((int)(sizeof(d8_fx_tail) / sizeof(d8_fx_tail[0])))
 
-static const x0x_param_t d8_bd_head[] = {PP("Level", 64), PP("Tone", 42), PP("Decay", 87), PP("Tune", 64),
-                                        PP("Attack", 24)};
-#define D8_BD_HEAD ((int)(sizeof(d8_bd_head) / sizeof(d8_bd_head[0])))
+/* Level+Tune defaults match on BD/SD/LT/MT/HT/RS/CP/CB/CH/CY/OH — one copy. */
+static const x0x_param_t d8_lvl_tune[] = {PP("Level", 64), PP("Tune", 64)};
+#define D8_LTUNE_N ((int)(sizeof(d8_lvl_tune) / sizeof(d8_lvl_tune[0])))
+/* Kick: Level+Tune from d8_lvl_tune; pot order Level, Tone, Decay, Tune, Attack. */
+static const x0x_param_t d8_bd_mid[] = {PP("Tone", 42), PP("Decay", 87), PP("Attack", 24)};
+#define D8_BD_MID_N ((int)(sizeof(d8_bd_mid) / sizeof(d8_bd_mid[0])))
+#define D8_BD_HEAD (D8_LTUNE_N + D8_BD_MID_N)
 static const d8_pmap_t k_m_bd[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_X1, 0}, {K_POT, D8P_DECAY, 0},
                                    {K_POT, D8P_TUNE, 0}, {K_POT, D8P_X2, 0}, {K_POT, D8P_DRIVE, 0},
                                    {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t d8_sd_head[] = {PP("Level", 64), PP("Tone", 64), PP("Snappy", 89), PP("Tune", 64),
-                                        PP("Decay", 108)};
-#define D8_SD_HEAD ((int)(sizeof(d8_sd_head) / sizeof(d8_sd_head[0])))
+/* Snare: Level+Tune from d8_lvl_tune; pot order Level, Tone, Snappy, Tune, Decay. */
+static const x0x_param_t d8_sd_mid[] = {PP("Tone", 64), PP("Snappy", 89), PP("Decay", 108)};
+#define D8_SD_MID_N ((int)(sizeof(d8_sd_mid) / sizeof(d8_sd_mid[0])))
+#define D8_SD_HEAD (D8_LTUNE_N + D8_SD_MID_N)
 static const d8_pmap_t k_m_sd[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_X2, 0}, {K_POT, D8P_X1, 0},
                                    {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0}, {K_POT, D8P_DRIVE, 0},
                                    {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-/* Level+Tune defaults match on LT/MT/HT/RS/CB/CH — one copy; decay/sound stay per track. */
-static const x0x_param_t d8_lvl_tune[] = {PP("Level", 64), PP("Tune", 64)};
-#define D8_LTUNE_N ((int)(sizeof(d8_lvl_tune) / sizeof(d8_lvl_tune[0])))
 static const x0x_param_t d8_lt_mid[] = {PP("Decay", 68), {"Sound", 1, 0, k_tom_names}};
 static const x0x_param_t d8_mt_mid[] = {PP("Decay", 56), {"Sound", 1, 0, k_tom_names}};
 static const x0x_param_t d8_ht_mid[] = {PP("Decay", 53), {"Sound", 1, 0, k_tom_names}};
@@ -1344,6 +1346,9 @@ _Static_assert(sizeof(d8_ch_mid) / sizeof(d8_ch_mid[0]) == D8_HAT_MID_N, "ch mid
 _Static_assert(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0]) == D8_CP_MID_N, "cp mid");
 _Static_assert(sizeof(d8_cy_mid) / sizeof(d8_cy_mid[0]) == D8_CY_MID_N, "cy mid");
 _Static_assert(sizeof(d8_oh_mid) / sizeof(d8_oh_mid[0]) == D8_CY_MID_N, "oh mid");
+_Static_assert(sizeof(d8_bd_mid) / sizeof(d8_bd_mid[0]) == D8_BD_MID_N, "bd mid");
+_Static_assert(sizeof(d8_sd_mid) / sizeof(d8_sd_mid[0]) == D8_SD_MID_N, "sd mid");
+_Static_assert(D8_BD_HEAD == 5 && D8_SD_HEAD == 5, "bd/sd pot heads stay five deep");
 
 static const d8_pmap_t *const k_maps[D8_NUM + 1] = {
     k_m_bd, k_m_sd, k_m_sw, k_m_sw, k_m_sw, k_m_sw, k_m_cp, k_m_tune_decay,
@@ -1353,13 +1358,31 @@ static const d8_pmap_t *const k_maps[D8_NUM + 1] = {
 static const x0x_param_t *d8_spec(int track, int i)
 {
     if (track == D8_BD) {
-        if (i < D8_BD_HEAD)
-            return &d8_bd_head[i];
+        /* Order Level, Tone, Decay, Tune, Attack — Level/Tune from d8_lvl_tune. */
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_bd_mid[0];
+        if (i == 2)
+            return &d8_bd_mid[1];
+        if (i == 3)
+            return &d8_lvl_tune[1];
+        if (i == 4)
+            return &d8_bd_mid[2];
         return &d8_fx_tail[i - D8_BD_HEAD];
     }
     if (track == D8_SD) {
-        if (i < D8_SD_HEAD)
-            return &d8_sd_head[i];
+        /* Order Level, Tone, Snappy, Tune, Decay — Level/Tune from d8_lvl_tune. */
+        if (i == 0)
+            return &d8_lvl_tune[0];
+        if (i == 1)
+            return &d8_sd_mid[0];
+        if (i == 2)
+            return &d8_sd_mid[1];
+        if (i == 3)
+            return &d8_lvl_tune[1];
+        if (i == 4)
+            return &d8_sd_mid[2];
         return &d8_fx_tail[i - D8_SD_HEAD];
     }
     if (track == D8_LT) {
