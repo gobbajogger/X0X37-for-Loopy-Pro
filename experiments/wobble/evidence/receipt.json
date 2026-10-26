@@ -19,7 +19,9 @@
     "test_wobble.c": "77328a30dae77ec1372cee07a650dbd2da8d4c0b634e84f5ef105c502391b2ee",
     "wobble.h": "cdb22d828f029e02a7d8b58cc02426626d6dc3faaf725fabad4ab9c64b09f751",
     "test_compare.py": "90b4101013e10d94a45bd5ebf5ad2cd85ab6c49f144a0856dd29079482950b3b",
-    "compare.py": "29913fc490bf2aaa176deb762a9d9d11ce3bb2d97457fe56291dffe23a7e4bfc"
+    "compare.py": "29913fc490bf2aaa176deb762a9d9d11ce3bb2d97457fe56291dffe23a7e4bfc",
+    "foundation_adapter.h": "c3ab5f64ccfae2a6db644c96722dcb21ec3e2f87981040d5ddf22aaf3fcc263a",
+    "test_foundation.c": "f7c416521fe792287b9670985bb4aae5356e3c6908ce37e24f6b6ed519d7941b"
   },
   "status": {
     "hostBehavior": "PASS",
@@ -33,5 +35,16 @@
     "nativeFit": "NOT_RUN",
     "hardware": "NOT_RUN"
   },
-  "licenseSelection": "MIT DaisySP Polyblep only; project GPL helpers; no Plaits copied"
+  "licenseSelection": "MIT DaisySP Polyblep only; project GPL helpers; no Plaits copied",
+  "foundationCompatibility": {
+    "sourceCommit": "6f717e216390ffca0d20be9e2204ab401ad09792",
+    "synthEngineHeaderBlob": "2ce3c273bfb48bd5e3b5b2719b4df8255555352b",
+    "bass303HeaderBlob": "085b8521f7410ef03bd53aa82961ace51eaf5b60",
+    "sampleRate": 44100,
+    "stateBytes": 144,
+    "temporaryStackArrayBytes": 1024,
+    "normalTest": "PASS",
+    "addressUndefinedSanitizers": "PASS",
+    "firmwareRegistration": "NOT_RUN"
+  }
 }

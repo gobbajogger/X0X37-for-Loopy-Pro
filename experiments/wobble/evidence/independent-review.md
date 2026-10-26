@@ -28,3 +28,7 @@ or broad tolerance excuses those failures.
 Next scope: original pulse-shape/common-gain/filter refinement with holdouts;
 keep deterministic spectral-history mismatch open. No denial, pending operation
 or uncertain outcome was reported by this reviewer.
+
+## Foundation compatibility addendum
+
+Independent reviewer verified external foundation HEAD exactly6f717e216390ffca0d20be9e2204ab401ad09792, inspected the host-only adapter and reran test_foundation successfully. No material compatibility defect found. Accepted scope is sequential host interface only. The1024B array is scratch storage, not measured total stack. Target stack, native fit, concurrent execution, switching clicks, stereo integration and timing remain unqualified. No foundation/registry source changed.
