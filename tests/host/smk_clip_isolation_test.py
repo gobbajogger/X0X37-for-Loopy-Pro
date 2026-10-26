@@ -172,7 +172,9 @@ static void capture(void *ctx,uint8_t st,uint8_t d1,uint8_t d2) {
  (void)ctx; assert(count<4); output[count++]=st|d1<<8|d2<<16;
 }
 '''
-flush_body = "\n".join(function(seq_source, n) for n in ("midi", "bass_midi_flush"))
+# #521/#528 shared Note Off helpers out of bass_midi_flush; extract them too.
+flush_helpers = ("midi", "midi_note_off", "bass_slide_midi_off", "bass_midi_flush")
+flush_body = "\n".join(function(seq_source, n) for n in flush_helpers)
 if "void seq_midi_flush(" in seq_source:
     flush_body += "\n" + function(seq_source, "seq_midi_flush")
 else:
