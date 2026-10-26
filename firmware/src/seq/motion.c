@@ -14,7 +14,7 @@ X0X_COLD void motion_init(motion_t *m, lane_t *lanes)
         m->rt[i].applied = m->rt[i].rec_last = MOT_NONE;
 }
 
-static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
+__attribute__((noinline)) static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
 {
     if (r->applied != v) {
         m->apply(m->ctx, l->t, l->v, l->i, v);
