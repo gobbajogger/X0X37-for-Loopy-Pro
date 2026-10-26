@@ -34,9 +34,11 @@ find "$SITE" -type f -print | while IFS= read -r path; do
       .nojekyll|index.html|versions.json|install/index.html|breaks/index.html|projects/index.html|projects/x0x_breaks.js|projects/x0x_projects.js|manual/index.html|manual/PROJECT_FILES.md|new/index.html) ;;
       manual/img/*.png|manual/img/*.svg)
         leaf=${rel#manual/img/}
+        leaf=${leaf#new/}
         case "$leaf" in ''|*/*) fail "nested manual image is not allowed: $rel" ;; esac ;;
       new/img/*.png|new/img/*.svg)
         leaf=${rel#new/img/}
+        leaf=${leaf#new/}
         case "$leaf" in ''|*/*) fail "nested what's-new image is not allowed: $rel" ;; esac ;;
       firmware/*.fwsc)
         leaf=${rel#firmware/}

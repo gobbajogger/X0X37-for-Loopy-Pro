@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -268,6 +269,26 @@ shutil.copy2(merge / 'versions.json', out / 'versions.json')
         self.assertNotIn('actions/upload-pages-artifact@', workflow)
         self.assertNotIn('git push', workflow)
         self.assertNotIn('pages: write', workflow)
+
+    def test_actual_generated_shell_publishes_known_nested_images(self):
+        # Exercise the real caller, not a hand-written flat-site approximation.
+        previous = self.work / 'previous'
+        previous.mkdir()
+        self.set_catalog(self.old)
+        (previous / 'versions.json').write_text(json.dumps(self.old))
+        (previous / 'firmware').mkdir()
+        (previous / 'firmware/old-elite.fwsc').write_bytes(self.old_bytes)
+        shutil.rmtree(self.site)
+        run(sys.executable, str(ROOT / 'tools/make_pages.py'), '--shell',
+            '--out', str(self.site), '--merge', str(previous), cwd=ROOT)
+        for rel in ('manual/img/new/1.0-song-repeat.png',
+                    'new/img/new/1.0-song-repeat.png'):
+            self.assertTrue((self.site / rel).is_file(), rel)
+        result = self.publish()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.old_remote_asset('manual/img/new/1.0-song-repeat.png'),
+                         (ROOT / 'docs/img/new/1.0-song-repeat.png').read_bytes())
+        self.assertEqual(self.old_remote_asset('firmware/old-elite.fwsc'), self.old_bytes)
 
     def test_noop_does_not_create_commit(self):
         # An identical generated site needs to be built from the existing branch.
