@@ -236,7 +236,7 @@ D8_TICK float shaper(float *st, float gate)
     return v;
 }
 
-static inline float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
+__attribute__((noinline)) static float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
 
 /* BridgedT::set: constant-peak bandpass, clamps as 8W8 */
 __attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
@@ -331,7 +331,7 @@ static const float k_cy_bp1[7] = {-7.319914168e-01f, 7.136070782e-01f, 7.3199141
                                   -1.388193671e+00f, -1.157075547e-01f, 5.065353624e-01f};
 static const float k_cy_bp2[7] = {-5.120760045e-01f, 4.815941287e-01f, 5.120760045e-01f, -4.815941287e-01f,
                                   -1.055101523e+00f, -5.886905868e-01f, 6.606506222e-01f};
-static inline float bq3_run(d8_bq3_t *f, const float *c, float x)
+__attribute__((noinline)) static float bq3_run(d8_bq3_t *f, const float *c, float x)
 {
     float y = c[0] * x + f->z[0];
     f->z[0] = c[1] * x - c[4] * y + f->z[1];
@@ -366,7 +366,7 @@ static void env_arm(d8_env_t *e)
     }
 }
 
-static float env_step(d8_env_t *e)
+__attribute__((noinline)) static float env_step(d8_env_t *e)
 {
     if (e->done)
         return e->level;
@@ -569,7 +569,7 @@ __attribute__((noinline)) static void tom_reset(d8_tom_t *v)
     v->quiet = 0;
 }
 
-static void tom_trigger(d8_tom_t *v, int mode, float hz, float ring_s, float accent_v)
+__attribute__((noinline)) static void tom_trigger(d8_tom_t *v, int mode, float hz, float ring_s, float accent_v)
 {
     float t, g, c2f;
     v->mode = (uint8_t)mode;
@@ -1629,7 +1629,7 @@ __attribute__((noinline)) static void choke_lane(d8_lane_t *l)
         l->cstep = -1.0f / (0.002f * SR);
 }
 
-static float lane_hz(int s, float tune) { return d8_midicps(k_base_note[s] + tune); }
+__attribute__((noinline)) static float lane_hz(int s, float tune) { return d8_midicps(k_base_note[s] + tune); }
 
 void drum808_trigger(drum808_t *d, int track, float vel)
 {
