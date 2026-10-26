@@ -23,7 +23,7 @@
  * tests/host/run_drum808.sh renders every sound against 8W8 itself. */
 #include "drum808.h"
 #include "fastmath.h"
-#include "../x0x_cold.h"          /* X0X_COLD: cy/hat/cb_init are boot only, not the render */
+#include "../x0x_cold.h"          /* X0X_COLD: cy/hat/cb_init boot; set/get/param UI/MIDI — not render */
 
 #define SR 44100.0f
 #define TWO_PI_SR 1.424758520e-4f              /* 2 pi / 44100 */
@@ -1508,7 +1508,8 @@ static int track_sound(const drum808_t *d, int t)
 
 int drum808_nparams(int track) { return track >= 0 && track <= D8_KIT ? d8_nspec[track] : 0; }
 
-const x0x_param_t *drum808_param(int track, int i)
+/* UI / MIDI pot metadata — not the 808 audio render (X0X_COLD) */
+X0X_COLD const x0x_param_t *drum808_param(int track, int i)
 {
     if (track < 0 || track > D8_KIT || i < 0 || i >= d8_nspec[track])
         return 0;
@@ -1522,7 +1523,8 @@ static void kit_apply(drum808_t *d)
     d->choke = 1;                                 /* CH cuts OH */
 }
 
-void drum808_set(drum808_t *d, int track, int i, int value)
+/* UI/MIDI pot path — not the 808 audio render (X0X_COLD). drum808_init stays hot/untouched. */
+X0X_COLD void drum808_set(drum808_t *d, int track, int i, int value)
 {
     d8_pmap_t m;
     const x0x_param_t *p = drum808_param(track, i);
@@ -1543,7 +1545,8 @@ void drum808_set(drum808_t *d, int track, int i, int value)
     }
 }
 
-int drum808_get(const drum808_t *d, int track, int i)
+/* UI / tests only — not the audio render (X0X_COLD) */
+X0X_COLD int drum808_get(const drum808_t *d, int track, int i)
 {
     d8_pmap_t m;
     if (!drum808_param(track, i))
