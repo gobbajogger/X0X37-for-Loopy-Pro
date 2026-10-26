@@ -12,6 +12,10 @@
 #include "../../firmware/src/dsp/master.h"
 #define X0X_DRUM_TABLES_DEFINE              /* no drum909.c in this link: the tables are defined here */
 #include "../../firmware/src/dsp/fxbus.h"
+/* fxbus Dist labels live in drum909.c; this recipe links master+fxbus only. Same strings. */
+const char *const x0x_dist_names[8] = {
+    "Off", "Diode", "Clip", "SAT", "BFZ", "PDIST", "Fold", "Crush"
+};
 
 #define N 256
 #define BLOCKS 400
