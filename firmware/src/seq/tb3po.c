@@ -15,7 +15,7 @@ static const scale_t SCALES[TB3PO_NSCALES] = {     /* schwung-tb3po's SCALES, sa
 };
 const char *const TB3PO_SCALE_NAMES[TB3PO_NSCALES] = {"MIN", "PHRY", "HARM", "MPEN", "DOR", "MAJ"};
 
-static uint32_t rng_u32(uint32_t *r)                 /* xorshift32, as schwung-tb3po */
+__attribute__((noinline)) static uint32_t rng_u32(uint32_t *r)                 /* xorshift32, as schwung-tb3po */
 {
     uint32_t x = *r;
     if (x == 0)
