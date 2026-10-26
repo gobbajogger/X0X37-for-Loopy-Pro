@@ -1,0 +1,78 @@
+test_corruption (__main__.IdentityIntegrity) ... test_valid_contract_frames (__main__.IdentityIntegrity) ... ok
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='checksum')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x104ef9040> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='version unchanged checksum')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x1050020a0> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='length 0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x105002100> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='length 26')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x105002250> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='length 28')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x105002340> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='length 283')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x105002460> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='length 65563')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x105002580> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x1050029a0> is not None
+
+======================================================================
+FAIL: test_corruption (__main__.IdentityIntegrity) (label='padding')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/ota-identity-firmware/tests/fm1_install_identity_integrity_test.py", line 38, in test_corruption
+    self.assertIsNone(I.parse_identity(pkt))
+AssertionError: <fm1_install.Identity object at 0x105002a30> is not None
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=9)
