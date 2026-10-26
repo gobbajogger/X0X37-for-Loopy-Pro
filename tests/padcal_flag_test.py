@@ -9,9 +9,12 @@ The test keeps the pad calibration module. It checks the flag itself:
   no "pad 1 top-left?", no apc40_pad_gamma.h. INLOG args 2-5 then go to the entries reply, as before CLP-79.
 - With 1, the same files keep all of it (the padcal tests run on this form).
 The Elite builds of both flags: BUILDING.md (nm and strings, in the commit report)."""
+import ast
+import os
 import re
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "firmware/src/app"
@@ -54,8 +57,38 @@ x0x_h = (SRC / "x0x.h").read_text()
 build = (ROOT / "tools/build.py").read_text()
 check(re.search(r"#ifndef X0X_DEV_PADCAL[^\n]*\n#define X0X_DEV_PADCAL 1\b", x0x_h) is not None,
       "app/x0x.h: the default is 1 (dev build)")
-check('"X0X_DEV_PADCAL")' in build and 'flags.append(f"-D{flag}={v}")' in build,
-      "tools/build.py: X0X_DEV_PADCAL=0 or 1 from the environment goes to the compiler")
+# Execute the actual flag-routing loop without starting a native build. The old
+# source-string test depended on PADCAL being the final entry in this tuple.
+app = next(n for n in ast.parse(build).body
+           if isinstance(n, ast.FunctionDef) and n.name == "build_app")
+feature_loop = next(n for n in app.body if isinstance(n, ast.For)
+                    and isinstance(n.target, ast.Name) and n.target.id == "flag")
+flag_code = compile(ast.Module(body=[feature_loop], type_ignores=[]),
+                    str(ROOT / "tools/build.py"), "exec")
+for value in ("0", "1", None, "invalid"):
+    environment = {} if value is None else {"X0X_DEV_PADCAL": value}
+    namespace = {"os": os, "flags": []}
+    with patch.dict(os.environ, environment, clear=True):
+        exec(flag_code, namespace)
+    expected = [f"-DX0X_DEV_PADCAL={value}"] if value in ("0", "1") else []
+    check(namespace["flags"] == expected,
+          f"tools/build.py: PADCAL={value!r} produces compiler flags {expected}")
+
+# The official DEV entry point intentionally overrides a caller's release flag.
+# Run that maintained environment function directly, with no compiler/device IO.
+dev_source = ast.parse((ROOT / "tools/dev_validate.py").read_text())
+dev_function = next(n for n in dev_source.body
+                    if isinstance(n, ast.FunctionDef) and n.name == "development_env")
+namespace = {"Path": Path}
+exec(compile(ast.Module(body=[dev_function], type_ignores=[]),
+             str(ROOT / "tools/dev_validate.py"), "exec"), namespace)
+for model in ("elite", "pro"):
+    original = {"X0X_DEV_PADCAL": "0", "X0X_DEBUG": "1", "MODEL": "other"}
+    development = namespace["development_env"](original, model)
+    check(development["X0X_DEV_PADCAL"] == "1" and development["MODEL"] == model
+          and development["BOARD"] == "smk37" and "X0X_DEBUG" not in development
+          and original == {"X0X_DEV_PADCAL": "0", "X0X_DEBUG": "1", "MODEL": "other"},
+          f"development_env: {model} gets DEV PADCAL=1 without mutating caller flags")
 
 building = (ROOT / "BUILDING.md").read_text()
 check("X0X_DEV_PADCAL=0 MODEL=elite ./build.sh --board smk37" in building and "`X0X_DEV_PADCAL=1`" in building
