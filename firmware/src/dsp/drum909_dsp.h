@@ -37,6 +37,9 @@
 #define D9_ONE_OUT static
 #endif
 
+/* Distortion mode labels: FX bus is Off+seven; 909 voices use &x0x_dist_names[1]. */
+extern const char *const x0x_dist_names[8];
+
 #define D9_SR 44100.0f
 #define D9_MS (0.001f * D9_SR)                 /* samples per ms, as 9W9's `ms` */
 #define D9_MIN_EXP 1.0e-9f

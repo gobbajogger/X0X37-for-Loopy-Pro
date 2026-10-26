@@ -38,12 +38,14 @@ typedef struct {
     float lo, hi;
 } d9_pspec_t;
 
-static const char *const d9_dist_names[7] = { "Diode", "Clip", "SAT", "BFZ", "PDIST", "Fold", "Crush" };
+const char *const x0x_dist_names[8] = {
+    "Off", "Diode", "Clip", "SAT", "BFZ", "PDIST", "Fold", "Crush"
+};
 
 #define LIN(nm, f, d, lo, hi) { { nm, 127, d, 0 }, f, CV_LIN, 0, lo, hi }
 #define EXP(nm, f, d, tab)    { { nm, 127, d, 0 }, f, CV_EXP, X0X_EXP_##tab, 0.0f, 0.0f }
 #define DRIVE(d)              EXP("Drive", F_DRIVE, d, DRIVE)
-#define DIST                  { { "Dist", 6, 0, d9_dist_names }, F_DIST, CV_SW, 0, 0.0f, 0.0f }
+#define DIST                  { { "Dist", 6, 0, (&x0x_dist_names[1]) }, F_DIST, CV_SW, 0, 0.0f, 0.0f }
 #define SENDS                 LIN("Rev", F_REV, 0, 0.0f, 1.0f), LIN("Dly", F_DLY, 0, 0.0f, 1.0f)
 #define LEVEL(d)              LIN("Level", F_LEVEL, d, 0.0f, 1.35f)
 #define PAN                   { { "Pan", 127, 64, 0 }, F_PAN, CV_SW, 0, 0.0f, 0.0f }   /* X0X: last on every voice */
