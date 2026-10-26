@@ -409,6 +409,18 @@ __attribute__((noinline)) static float fx_comp_gr(float over, float slope)
     return 0.0f;
 }
 
+/* One glue sample: update det/env, return linear gain (mono + stereo). */
+__attribute__((noinline)) static float fx_comp_gain(float mag, float thr, float slope, float drel,
+                                                    float atk, float rel, float makeup,
+                                                    float *det, float *env)
+{
+    *det = mag > *det ? mag : *det * drel;
+    const float in_db = *det > 1e-9f ? 6.0205999f * fm_log2f(*det) : -120.0f;
+    const float gr = fx_comp_gr(in_db - thr, slope);
+    *env = gr + (*env - gr) * (gr < *env ? atk : rel);
+    return fm_db2lin(*env + makeup);
+}
+
 /* ===================================================================== */
 /* Master: distortion, glue (master_glue), volume                         */
 /* ===================================================================== */
@@ -432,12 +444,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         float det = f->comp_det, env = f->comp_env_db;
         for (int i = 0; i < n; ++i) {
             const float in = out[i];
-            const float mag = fm_fabsf(in);
-            det = mag > det ? mag : det * drel;
-            const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
-            const float gr = fx_comp_gr(in_db - thr, slope);
-            env = gr + (env - gr) * (gr < env ? atk : rel);
-            out[i] = in * fm_db2lin(env + makeup);
+            out[i] = in * fx_comp_gain(fm_fabsf(in), thr, slope, drel, atk, rel, makeup, &det, &env);
         }
         f->comp_det = det;
         f->comp_env_db = env;
@@ -473,12 +480,7 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         float det = f->comp_det, env = f->comp_env_db;
         for (int i = 0; i < n; ++i) {
             const float ml = fm_fabsf(out_l[i]), mr = fm_fabsf(out_r[i]);
-            const float mag = ml > mr ? ml : mr;
-            det = mag > det ? mag : det * drel;
-            const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
-            const float gr = fx_comp_gr(in_db - thr, slope);
-            env = gr + (env - gr) * (gr < env ? atk : rel);
-            const float g = fm_db2lin(env + makeup);
+            const float g = fx_comp_gain(ml > mr ? ml : mr, thr, slope, drel, atk, rel, makeup, &det, &env);
             out_l[i] *= g;
             out_r[i] *= g;
         }
