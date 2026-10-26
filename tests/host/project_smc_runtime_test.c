@@ -102,6 +102,15 @@ int main(void)
     ui_project_end(0);
     smc_poll();
     assert(!memcmp(&proj, &before, sizeof proj) && !memcmp(&seq, &seq_before, sizeof seq));
+    /* HOME strip-0 knob is MIX CUT, open-at-max by default. Seed mid-range so a
+     * +1 relative detent can prove input resumed after the abort (same ceiling
+     * trap as smc_drum_mutes continuous_probe). */
+    {
+        pref_t r = smc_knob_target(0);
+        const x0x_param_t *d = pref_desc(r);
+        assert(d && d->max);
+        pref_set(r, d->max / 2);
+    }
     int value = pref_get(smc_knob_target(0));
     knob(); smc_poll();
     assert(pref_get(smc_knob_target(0)) == value + 1); /* input resumes after abort */
