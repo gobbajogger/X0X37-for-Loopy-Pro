@@ -177,6 +177,17 @@ X0X_COLD void fxbus_init(fxbus_t *f, int16_t *dly_buf, int dly_len)
         f->pots[i] = fx_p[i].ui.def;
 }
 
+
+/* 12-bit sat store (toward zero). Shared by reverb combs + delay DIGI/TAPE writes. */
+__attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
+{
+    int32_t k = (int32_t)(v * 2048.0f);
+    if (k > 32767) k = 32767;
+    if (k < -32767) k = -32767;
+    *cell = (int16_t)k;
+    return k;
+}
+
 /* ===================================================================== */
 /* Reverb (er99_verb_tick), adds its return into out                      */
 /* ===================================================================== */
@@ -212,10 +223,7 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
             acc_r += (c & 1) ? -y : y;
             f->cdmp[c] = y + (f->cdmp[c] - y) * damp;
             /* the loop runs at 12 bits, truncated toward zero (no DC) */
-            int32_t k = (int32_t)((x + f->cdmp[c] * fb) * 2048.0f);
-            if (k > 32767) k = 32767;
-            if (k < -32767) k = -32767;
-            b[p] = (int16_t)k;
+            int32_t k = sat12_store(&b[p], x + f->cdmp[c] * fb);
             wr |= k;
             f->cpos[c] = p + 1 >= fx_cl[c] ? 0 : p + 1;
         }
@@ -330,10 +338,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
             const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * dcur) : y;
             lp += (y2 * fdbk - lp) * tc;
             if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
-            int32_t k = (int32_t)((x + lp) * 2048.0f);       /* 12-bit, toward zero */
-            if (k > 32767) k = 32767;
-            if (k < -32767) k = -32767;
-            buf[w] = (int16_t)k;
+            int32_t k = sat12_store(&buf[w], x + lp);       /* 12-bit, toward zero */
             if (++w >= len) w = 0;
             out[i] += y * lvl;
             if (out_r)
@@ -365,10 +370,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
             float s = d9_tanh(lp * g) * inv_g;                   /* tape saturation holds the loop */
             hp += (s - hp) * 0.0042725f;                          /* 30 Hz: no DC latch-up past unity */
             s -= hp;
-            int32_t k = (int32_t)((x + s) * 2048.0f);
-            if (k > 32767) k = 32767;
-            if (k < -32767) k = -32767;
-            buf[w] = (int16_t)k;
+            int32_t k = sat12_store(&buf[w], x + s);
             if (++w >= len) w = 0;
             out[i] += y * lvl;
             if (out_r)
