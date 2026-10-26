@@ -331,6 +331,7 @@ run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py
 run midi-mq-rt-overflow python3 tests/host/midi_mq_rt_overflow_test.py   # full MIDI-in MQ must keep Start/Continue/Stop (displace CC)
 run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow_test.py   # full MIDI-out MQ must keep Note Off (displace CC)
 run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
+run usb-sxq-sticky-apc python3 tests/host/usb_sxq_sticky_apc_test.py   # full SXQ must sticky-retry APC inquiry/intro
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
 run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
 run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py

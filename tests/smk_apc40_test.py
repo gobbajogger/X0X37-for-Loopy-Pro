@@ -24,10 +24,11 @@ assert '#include "app/apc40_pad_owner.h"' in main and "APC40_RGB" not in main
 print("PASS APC40 pad table (128 entries, owner-calibrated)")
 
 # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
-assert "apc40_device_inquiry" in usb
-assert "msg[1] = 0x7E" in usb and "msg[5] = 0x47" in usb and "msg[6] = 0x29" in usb
-assert "msg[7] = 0x00; msg[8] = 0x19" in usb
-assert "midi_send_sysex(msg, sizeof msg)" in usb
+# Sticky usb_sx_answer (mirror ble_sx_reply) builds the same Akai/APC40 mkII bytes.
+assert "apc40_device_inquiry" in usb and "usb_sx_answer" in usb and "usb_sx_reply" in usb
+assert "m[1] = 0x7E" in usb and "m[5] = 0x47" in usb and "m[6] = 0x29" in usb
+assert "m[7] = 0x00; m[8] = 0x19" in usb
+assert "midi_send_sysex(m, n)" in usb
 assert "packets = (len + 2u) / 3u" in usb and "so_w - so_r + packets > SXQ" in usb
 assert "sx_busy = 1" in usb and "sx_out_q[so_w % SXQ] = pkt" in usb
 assert "usb.sysex[4] == 0x01u" in usb and "apc40_device_inquiry(usb.sysex[2])" in usb
@@ -141,8 +142,8 @@ assert "w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)" in main
 update_mode = main.split("/* OCT- + OCT+ held 5 s:")[1].split("/* Project transfers cannot queue")[0]
 assert "if (ui_project_busy()" in update_mode and "|| smk_clip_mode_on()" in update_mode
 assert "t0 = fm1_ms;" in update_mode and 'enter_uboot("UBOOT")' in update_mode
-assert "0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09" in usb
-assert "apc40_introduction_reply();" in usb
+assert "m[0] = 0xF0; m[1] = 0x47; m[2] = 0x7F; m[3] = 0x29; m[4] = 0x61; m[5] = 0x00; m[6] = 0x09;" in usb
+assert "apc40_introduction_reply();" in usb and "usb_sx_reply = 2u" in usb
 print("PASS clip input isolation and APC40 initialization handshake")
 
 # 1.5: clip grid on the LCD, drawn in the main loop (ui.c draw_main), rate limited, no new buffer.
