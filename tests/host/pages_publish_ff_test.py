@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -275,6 +276,26 @@ shutil.copy2(merge / 'versions.json', out / 'versions.json')
         self.assertNotIn('git push', workflow)
         self.assertNotIn('pages: write', workflow)
 
+    def test_actual_generated_shell_publishes_known_nested_images(self):
+        # Exercise the real caller, not a hand-written flat-site approximation.
+        previous = self.work / 'previous'
+        previous.mkdir()
+        self.set_catalog(self.old)
+        (previous / 'versions.json').write_text(json.dumps(self.old))
+        (previous / 'firmware').mkdir()
+        (previous / 'firmware/old-elite.fwsc').write_bytes(self.old_bytes)
+        shutil.rmtree(self.site)
+        run(sys.executable, str(ROOT / 'tools/make_pages.py'), '--shell',
+            '--out', str(self.site), '--merge', str(previous), cwd=ROOT)
+        for rel in ('manual/img/new/1.0-song-repeat.png',
+                    'new/img/new/1.0-song-repeat.png'):
+            self.assertTrue((self.site / rel).is_file(), rel)
+        result = self.publish()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.old_remote_asset('manual/img/new/1.0-song-repeat.png'),
+                         (ROOT / 'docs/img/new/1.0-song-repeat.png').read_bytes())
+        self.assertEqual(self.old_remote_asset('firmware/old-elite.fwsc'), self.old_bytes)
+
     def test_nightly_route_remains_separate_from_production_guard(self):
         result = run('sh', str(ROOT / 'tools/publish_pages.sh'), '--nightly', '--help',
                      cwd=ROOT, check=False)
@@ -297,6 +318,133 @@ shutil.copy2(merge / 'versions.json', out / 'versions.json')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('unchanged', result.stdout)
         self.assertEqual(self.head(), self.base)
+
+
+    def test_rejects_promotion_of_previous_device_untested_version(self):
+        updated = json.loads(json.dumps(self.expected_catalog))
+        updated['versions'][1]['status'] = 'stable'
+        updated['versions'][1]['hardware_tested'] = True
+        self.set_catalog(updated)
+        self.assertNotEqual(self.publish().returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
+    def test_rejects_prior_source_or_validation_evidence_rewrite(self):
+        updated = json.loads(json.dumps(self.expected_catalog))
+        updated['versions'][1]['source_commit'] = 'unproven-commit'
+        updated['versions'][1]['validation_record'] = 'fake-record'
+        self.set_catalog(updated)
+        self.assertNotEqual(self.publish().returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
+    def test_refuses_old_version_selected_as_new_latest(self):
+        run('git', 'checkout', '-q', 'gh-pages', cwd=self.repo)
+        prior = json.loads(json.dumps(self.old))
+        prior['versions'].insert(0, self.new_entry)
+        prior['latest'] = 'dev-new'
+        (self.repo / 'versions.json').write_text(json.dumps(prior))
+        (self.repo / 'firmware/new-pro.fwsc').write_bytes(self.new_bytes)
+        run('git', 'add', 'versions.json', 'firmware', cwd=self.repo)
+        run('git', 'commit', '-qm', 'publish newer DEV prior to rollback test', cwd=self.repo)
+        run('git', 'push', '-q', 'origin', 'gh-pages', cwd=self.repo)
+        self.base = self.head()
+        run('git', 'checkout', '-q', 'main', cwd=self.repo)
+        updated = json.loads(json.dumps(prior))
+        updated['latest'] = 'dev-old'
+        self.set_catalog(updated)
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('default', result.stderr)
+        self.assertEqual(self.head(), self.base)
+
+    def test_refuses_clearing_existing_latest(self):
+        updated = json.loads(json.dumps(self.expected_catalog))
+        updated['latest'] = None
+        self.set_catalog(updated)
+        self.assertNotEqual(self.publish().returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
+    def test_rejects_new_stable_or_fabricated_device_pass(self):
+        updated = json.loads(json.dumps(self.expected_catalog))
+        updated['versions'][0]['status'] = 'stable'
+        updated['versions'][0]['hardware_tested'] = True
+        self.set_catalog(updated)
+        self.assertNotEqual(self.publish().returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
+    def test_retains_existing_stable_default_when_new_dev_added(self):
+        run('git', 'checkout', '-q', 'gh-pages', cwd=self.repo)
+        stable_catalog = json.loads(json.dumps(self.old))
+        stable_catalog['versions'][0]['status'] = 'stable'
+        stable_catalog['versions'][0]['hardware_tested'] = True
+        (self.repo / 'versions.json').write_text(json.dumps(stable_catalog))
+        run('git', 'add', 'versions.json', cwd=self.repo)
+        run('git', 'commit', '-qm', 'existing stable version attested', cwd=self.repo)
+        run('git', 'push', '-q', 'origin', 'gh-pages', cwd=self.repo)
+        self.base = self.head()
+        run('git', 'checkout', '-q', 'main', cwd=self.repo)
+        updated = json.loads(json.dumps(self.expected_catalog))
+        updated['versions'][1] = stable_catalog['versions'][0]
+        updated['versions'][0]['status'] = 'dev-checked'
+        updated['versions'][0]['hardware_tested'] = False
+        self.set_catalog(updated)
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('stable default', result.stderr)
+        self.assertEqual(self.head(), self.base)
+
+    def test_rejects_new_unlisted_firmware(self):
+        (self.site / 'firmware/unlisted.fwsc').write_bytes(fwsc('SMK-37 Elite_900'))
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('unlisted', result.stderr)
+        self.assertEqual(self.head(), self.base)
+
+    def test_rejects_nested_firmware_name(self):
+        nested = self.site / 'firmware/nested'
+        nested.mkdir()
+        (nested / 'lost.fwsc').write_bytes(fwsc('SMK-37 Pro_900'))
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('nested', result.stderr)
+        self.assertEqual(self.head(), self.base)
+
+    def test_rejects_nested_manual_image(self):
+        nested = self.site / 'manual/img/nested'
+        nested.mkdir(parents=True)
+        (nested / 'secret.png').write_bytes(b'private')
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('nested', result.stderr)
+        self.assertEqual(self.head(), self.base)
+
+    def test_preserves_old_published_manual_image_bytes(self):
+        run('git', 'checkout', '-q', 'gh-pages', cwd=self.repo)
+        previous = self.repo / 'manual/img/screen-909.png'
+        previous.parent.mkdir(parents=True)
+        previous.write_bytes(b'previously-published-documentation-image')
+        run('git', 'add', 'manual/img/screen-909.png', cwd=self.repo)
+        run('git', 'commit', '-qm', 'publish original manual image', cwd=self.repo)
+        run('git', 'push', '-q', 'origin', 'gh-pages', cwd=self.repo)
+        self.base = self.head()
+        run('git', 'checkout', '-q', 'main', cwd=self.repo)
+        image = self.site / 'manual/img/screen-909.png'
+        image.parent.mkdir(parents=True)
+        image.write_bytes(b'different image bytes')
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('published image', result.stderr)
+        self.assertEqual(self.head(), self.base)
+        self.assertEqual(self.old_remote_asset('manual/img/screen-909.png'),
+                         b'previously-published-documentation-image')
+
+    def test_valid_new_image_can_be_added_without_replacing_old(self):
+        image = self.site / 'manual/img/new-example.png'
+        image.parent.mkdir(parents=True)
+        image.write_bytes(b'new-image')
+        result = self.publish()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.old_remote_asset('manual/img/new-example.png'), b'new-image')
+
 
 
 if __name__ == '__main__':
