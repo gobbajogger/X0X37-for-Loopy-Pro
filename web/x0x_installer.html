@@ -867,7 +867,7 @@ async function loadSelectedPackage() {
     say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
     refreshMeta();
     updateInstallGate();
-  } catch (e) { sayK("loadfail", e.message); }
+  } catch (e) { if (requestId === loadSerial) sayK("loadfail", e.message); }
 }
 
 function versionOptionCaption(v) {

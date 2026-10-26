@@ -8,6 +8,7 @@ import "./test_install_busy_hint.mjs";
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import "./test_install_local_file.mjs";
+import "./test_install_download_race.mjs";
 import "./test_install_reconnect.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash, webcrypto } from "node:crypto";
