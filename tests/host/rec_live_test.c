@@ -37,14 +37,16 @@ void smk_ck_midi_stop(void) {}
 int smc_connected(void) { return 0; }
 /* This fixture models disconnected SMC; project_smc_runtime_test.c covers
  * the production SMC project-active/reset implementation. */
+/* This link does not include smc_mixer.c. ui.c still asks whether an SMC solo holds the project. */
 int smc_project_active(void) { return 0; }
 void smc_project_reset(void) {}
 void smc_frame(void) {}
 void smc_poll(void) {}
 int smc_midi_host(uint32_t pkt) { (void)pkt; return 0; }
-/* This link does not include smc_mixer.c. ui.c still asks whether an SMC solo holds the project. */
-int smc_project_active(void) { return 0; }
-void smc_project_reset(void) {}
+/* Presentation lives in smc_mixer.c; this fixture is disconnected SMC / live-rec only. */
+void smc_ui_cancel(void) {}
+int smc_ui_active(void) { return 0; }
+void smc_ui_draw(void) {}
 #endif
 
 static int fails;
