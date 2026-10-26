@@ -1,0 +1,21 @@
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index f4c2a099..78287ff7 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -3193,14 +3193,14 @@ static int32_t segs(int32_t x, int32_t y, const felucca_font_t *f, uint16_t c, i
+ }
+ 
+ /* the y to draw f at so its capitals sit centred in [y0, y0 + h) */
+-static int32_t vc(const felucca_font_t *f, int32_t y0, int32_t h)
++X0X_COLD __attribute__((noinline)) static int32_t vc(const felucca_font_t *f, int32_t y0, int32_t h)
+ {
+     const capm_t *m = caps(f);
+     int32_t ch = m->bot - m->top + 1;
+     return y0 + (h - ch + 1) / 2 - m->top;
+ }
+ /* the y to draw g at so its baseline matches f drawn at y */
+-static int32_t base_y(const felucca_font_t *f, int32_t y, const felucca_font_t *g)
++X0X_COLD __attribute__((noinline)) static int32_t base_y(const felucca_font_t *f, int32_t y, const felucca_font_t *g)
+ {
+     return y + caps(f)->bot - caps(g)->bot;
+ }

@@ -1,0 +1,237 @@
+{
+  "ledger_ref": "2cbea6e93d571e78774293e8a0dc8524b4a7e27a",
+  "ledger_path": "coordination/requests/requests.json",
+  "records": [
+    {
+      "request_id": "LX-REQ-001",
+      "title": "Reset project without touching imported samples",
+      "recorded_status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-002",
+      "title": "Reliable explicit Save Project",
+      "recorded_status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-003",
+      "title": "Explicit Load Project and safe imported-project loading",
+      "recorded_status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-004",
+      "title": "Portable full-project export and import",
+      "recorded_status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-005",
+      "title": "Readable SMC mixer layout and deliberate controls",
+      "recorded_status": "SOURCE_IMPLEMENTED_PACKAGE_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-006",
+      "title": "Physical Pause/context-lock mapping and LED feedback",
+      "recorded_status": "SOURCE_IMPLEMENTED_PACKAGE_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-007",
+      "title": "Multiple independent SMC controllers",
+      "recorded_status": "QUEUE_FOUNDATION_REVIEWED_RUNTIME_SINGLE_SMC",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-008",
+      "title": "Reset/load/transport motion lifecycle safety",
+      "recorded_status": "COMBINED_QA_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-009",
+      "title": "Preserve probability/TIE and RANDOM behavior",
+      "recorded_status": "COMBINED_CANDIDATE_TESTED_NATIVE_BUILDS_REPORTED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-010",
+      "title": "Preserve unique recording/DSP fixes in older WIP",
+      "recorded_status": "COMBINED_CANDIDATE_TESTED_NATIVE_BUILDS_REPORTED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-011",
+      "title": "Durable sample backup/restore and same-device safety",
+      "recorded_status": "BLOCKED_SOURCE_WRITE_AND_QA",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-012",
+      "title": "Unified clear installer and sample-management page",
+      "recorded_status": "WEBSITE_REVIEWED_PUBLICATION_DECISION_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-013",
+      "title": "Public BT-inclusive NIGHTLY delivery",
+      "recorded_status": "THREE_LIBC_NOTICE_MAPPINGS_REMAIN",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-014",
+      "title": "Accurate public catalog/history and retained installable builds",
+      "recorded_status": "LIVE_LABEL_OBSERVED_BYTES_UNCHANGED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-015",
+      "title": "Recover residual installer UX and publisher safety changes",
+      "recorded_status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-016",
+      "title": "Exact combined-root build, independent QA and integration",
+      "recorded_status": "COMBINED_CANDIDATE_TESTED_NATIVE_BUILDS_REPORTED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-017",
+      "title": "Fail-closed host checks and generators",
+      "recorded_status": "FIX_AND_QA_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-018",
+      "title": "Honest qualified artifact handoff and safe destinations",
+      "recorded_status": "FIX_AND_QA_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-019",
+      "title": "Canonical workflow, plugin and skill coherence",
+      "recorded_status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-020",
+      "title": "Productive schedulers and reduced request-to-install lead time",
+      "recorded_status": "TWELVE_PROMPT_UPDATES_SAVED_CADENCE_UNCHANGED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-021",
+      "title": "Preserve unique quickcheck and regression assets",
+      "recorded_status": "RESIDUAL_WORK_RECONCILIATION_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-022",
+      "title": "Stable clock and transport behavior",
+      "recorded_status": "COMBINED_QA_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-023",
+      "title": "Performance improvements with preserved behavior",
+      "recorded_status": "SCOPED_EVIDENCE_NOT_FULL_OUTCOME",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-024",
+      "title": "Production main/picker promotion",
+      "recorded_status": "BLOCKED_REVIEW_HARDWARE_AUTHORIZATION",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-025",
+      "title": "Historical evidence archives and deliberate cleanup",
+      "recorded_status": "SOURCE_READY_OR_RECONCILE",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-026",
+      "title": "Retain accepted knob and already-integrated fixes",
+      "recorded_status": "REUSE_EVIDENCE_NOT_NEW_IMPLEMENTATION",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-027",
+      "title": "Durable request/progress tracking and parallel continuity",
+      "recorded_status": "PRIOR_TRACKER_REMOTE_VERIFIED_DELTA_RECONCILIATION_ACTIVE",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-028",
+      "title": "Recover missing historical feature provenance",
+      "recorded_status": "MISSING_SOURCE_PROVENANCE",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-029",
+      "title": "Account for preserved branches outside PR queue",
+      "recorded_status": "UNCLASSIFIED_BRANCH_INVENTORY",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-030",
+      "title": "Explore Up/Down knob banks and eighth-strip mode controls",
+      "recorded_status": "DESIGN_ONLY_OWNER_REVIEW_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-031",
+      "title": "Automatic feature inbox and owner vote",
+      "recorded_status": "HELPER_REVIEWED_LIVE_DISPATCH_UNVERIFIED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-032",
+      "title": "Alternative selectable synth engine inspired by KORG Miami",
+      "recorded_status": "RESEARCH_COMPLETE_ENGINE_NOT_IMPLEMENTED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-033",
+      "title": "Stock preset import, browser and pattern sound assignment",
+      "recorded_status": "DESIGN_COMPATIBILITY_RIGHTS_ASSESSMENT_REQUIRED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-034",
+      "title": "Longer notes and held-duration live recording",
+      "recorded_status": "EXISTING_NOTE_TIE_AUDITED_DURATION_CAPTURE_PROPOSED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-035",
+      "title": "Preserve active cutoff locks and gesture ownership across mode switches",
+      "recorded_status": "SOURCE_AND_96_CASES_PASS_NATIVE_HARDWARE_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-036",
+      "title": "Assess Cursor contribution and review coverage",
+      "recorded_status": "SCOPED_IMPACT_AUDIT_COMPLETE_ACCOUNT_UNCHANGED",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-037",
+      "title": "Song import/export through the installer page",
+      "recorded_status": "ACTIVE_REUSE_EXISTING_PROJECT_WORKFLOW_SOURCE_STAGE_PENDING",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    },
+    {
+      "request_id": "LX-REQ-038",
+      "title": "Community song library, sharing and import idea",
+      "recorded_status": "OWNER_DEFERRED_IDEA_NOT_INTAKE_READY",
+      "continuation": "Preserve existing evidence/history; coordinator owns reconciliation and next-owner assignment, not completion by role label."
+    }
+  ],
+  "preserved_branches": 79,
+  "queue_entries": 139,
+  "deferred": "LX-REQ-038 remains owner-deferred; no reopening authorized."
+}
