@@ -137,12 +137,18 @@ __attribute__((noinline)) static void midi_note_off(const seq_sink_t *o, uint8_t
     midi(o, (uint8_t)(0x80 | ch), note, 0);
 }
 
-static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
+/* End the overlapping slide Note Off (flush / new onset / slide timer). */
+__attribute__((noinline)) static void bass_slide_midi_off(seq_t *s, int b, const seq_sink_t *o)
 {
     if (s->bass_slide_valid[b])
         midi_note_off(o, s->bass_slide_ch[b], s->bass_slide_old[b]);
     s->bass_slide_valid[b] = 0;
     s->bass_slide_off[b] = 0;
+}
+
+static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
+{
+    bass_slide_midi_off(s, b, o);
     if (s->bass_out_valid[b])
         midi_note_off(o, s->bass_out_ch[b], s->bass_notes_out[b]);
     s->bass_out_valid[b] = 0;
@@ -234,11 +240,8 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
         if (played && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
-            if (s->bass_slide_valid[b]) {                  /* only one old MIDI pitch can remain open */
-                midi_note_off(o, s->bass_slide_ch[b], s->bass_slide_old[b]);
-                s->bass_slide_valid[b] = 0;
-                s->bass_slide_off[b] = 0;
-            }
+            if (s->bass_slide_valid[b])                  /* only one old MIDI pitch can remain open */
+                bass_slide_midi_off(s, b, o);
             /* A repeated pitch must end before its new Note On: otherwise its old
              * Note Off could silence the new voice on a monophonic receiver. */
             if (had_old && (old == note || old_ch != ch))
@@ -830,12 +833,8 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             break;
     }
     for (t = 0; t < NBASS; t++)
-        if (s->bass_slide_off[t] && s->bass_slide_off[t] < 256u) {
-            if (s->bass_slide_valid[t])
-                midi_note_off(o, s->bass_slide_ch[t], s->bass_slide_old[t]);
-            s->bass_slide_valid[t] = 0;
-            s->bass_slide_off[t] = 0;
-        }
+        if (s->bass_slide_off[t] && s->bass_slide_off[t] < 256u)
+            bass_slide_midi_off(s, t, o);
     if (!s->ext && s->send_clock && s->clk_to_next < 256u) {
         midi(o, 0xF8, 0, 0);
         s->clk_to_next += seq_step_q8(s, RATE_16) / 6u;           /* 24 ppqn */
