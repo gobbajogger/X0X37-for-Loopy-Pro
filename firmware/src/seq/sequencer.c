@@ -457,20 +457,32 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     return changed;
 }
 
+/* Shared by Start/Continue and pattern-switch restart: step timers (+ optional from-top fields).
+ * clear_to_off: Start/Continue zero note-off timers; restart leaves them (voice already released). */
+__attribute__((noinline)) static void track_arm(seq_t *s, int t, int from_top, int clear_to_off)
+{
+    seq_track_t *tr = &s->t[t];
+    if (from_top) {
+        tr->started = 0;
+        tr->bars = 0;
+        tr->pp_dir = 1;
+        tr->mut_steps = 0;
+    }
+    if (clear_to_off)
+        tr->to_off = 0;
+    tr->ext_due = 0;
+    tr->rec_skip = 0;
+    tr->to_next = s->ext ? NEVER : 0;
+    tr->ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);   /* the first clock is the downbeat */
+}
+
 static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: from step 1 (not the 909's) */
 {
     int t;
     for (t = 1; t < NTRACKS; t++) {
         if (!(parts >> t & 1u))
             continue;
-        s->t[t].started = 0;
-        s->t[t].to_next = s->ext ? NEVER : 0;
-        s->t[t].ext_due = 0;
-        s->t[t].rec_skip = 0;
-        s->t[t].ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);
-        s->t[t].bars = 0;
-        s->t[t].pp_dir = 1;
-        s->t[t].mut_steps = 0;
+        track_arm(s, t, 1, 0);
     }
 }
 
@@ -500,20 +512,8 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote
     bass_release_all(s, o);                /* Start/Continue reinitialises timers: release old notes first */
     if (from_top)
         bar_end(s, 1);                                /* cues, or the song's start bar */
-    for (t = 0; t < NTRACKS; t++) {
-        seq_track_t *tr = &s->t[t];
-        if (from_top) {
-            tr->started = 0;
-            tr->bars = 0;
-            tr->pp_dir = 1;
-            tr->mut_steps = 0;
-        }
-        tr->to_off = 0;
-        tr->ext_due = 0;
-        tr->rec_skip = 0;
-        tr->to_next = s->ext ? NEVER : 0;
-        tr->ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);   /* the first clock is the downbeat */
-    }
+    for (t = 0; t < NTRACKS; t++)
+        track_arm(s, t, from_top, 1);
     s->clk_to_next = 0;
     s->playing = 1;
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
