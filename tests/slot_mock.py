@@ -163,8 +163,15 @@ class MockDevice:
                         self.nz[k] = 0
                         self.sec0_erased[k] = True
                 elif not off & 0xFFF:
+                    # Higher sector: FL_SMPV only shadows sector 0. Wipe sec0 too if
+                    # still live, then drop any shadow so abort cannot restore a
+                    # header over destroyed higher-sector last-good.
+                    if not self.sec0_erased[k]:
+                        self.fl.erase4k(base)
+                        self.sec0_erased[k] = True
                     self.fl.erase4k(base + off)
                     self.nz[k] = 0
+                    self._clear_backup(k)
                 self.fl.program(base + off, b)
             return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, rc]
         if cmd == xs.CMD_END:

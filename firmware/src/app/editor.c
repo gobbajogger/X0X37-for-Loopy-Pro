@@ -420,8 +420,11 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
 }
 /* Erase the 4 KiB sector that holds off. Sector 0 is deferred until the first
  * WRITE into it (BEGIN no longer wipes the header). Before that erase, shadow
- * sector 0 into FL_SMPV so cancel / failed END can restore last-good. Higher
- * sectors still erase on a 4 KiB-aligned offset, as before. */
+ * sector 0 into FL_SMPV so cancel / failed END can restore last-good.
+ * Higher sectors: FL_SMPV only holds sector 0, so wiping past 0x1000 already
+ * destroys unrecoverable last-good. Clear any sec0 shadow (do not restore a
+ * header over wiped data) and, if sector 0 is still live, erase it too so a
+ * valid header cannot outlive its higher-sector payload. */
 static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
 {
     if (off < 0x1000u) {
@@ -439,9 +442,22 @@ static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
     }
     if (off & 0xFFFu)
         return 0;
-    ed_smp_retire(k);
+    if (!smp_sec0_erased[k]) {
+        /* First destructive touch is past sector 0: last-good cannot be kept. */
+        ed_smp_retire(k);
+        audio_silence();
+        if (fl_erase4k(ed_smp_slot(k), took))
+            return 1;
+        smp_sec0_erased[k] = 1;
+        ed_smp_inval(k);
+    } else {
+        ed_smp_retire(k);
+    }
     audio_silence();
-    return fl_erase4k(ed_smp_slot(k) + off, took) ? 1 : 0;
+    if (fl_erase4k(ed_smp_slot(k) + off, took))
+        return 1;
+    ed_smp_clear_backup(k);                           /* sec0-only shadow would lie after this */
+    return 0;
 }
 static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
