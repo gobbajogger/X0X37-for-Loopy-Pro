@@ -213,7 +213,7 @@ __attribute__((noinline)) static void rng_seed(d8_rng_t *r, uint32_t s)
     r->s3 = 1821928721u ^ s; if (r->s3 < 16u) r->s3 = 1821928721u;
 }
 
-static inline float rng_frand2(d8_rng_t *r)
+__attribute__((noinline)) static float rng_frand2(d8_rng_t *r)
 {
     fm_bits_t u;
     r->s1 = ((r->s1 & 0xFFFFFFFEu) << 12) ^ (((r->s1 << 13) ^ r->s1) >> 19);
@@ -716,7 +716,7 @@ D8_TICK float ma_tick(d8_ma_t *v)
 static const d8ff_t k_pul_inc = {3.006253711e+04f, -2.567672927e-04f};   /* 2^(-22/12) 1.1 2^32 / sr */
 #define PUL_DUTY 3435973837u                      /* phase < 0.8 */
 
-static void rs_trigger(d8_rim_t *v, float hz, float decay, float hpf, float lpf)
+__attribute__((noinline)) static void rs_trigger(d8_rim_t *v, float hz, float decay, float hpf, float lpf)
 {
     d8_env_t *e = &v->env;
     e->start = 1.0f;
@@ -891,7 +891,7 @@ static inline float menv_tick(d8_menv_t *e)
 }
 
 #define DIODE_VON 0.5899f
-static inline float knee_gate(float e)            /* the swing VCA's diode, knee 1.2 */
+__attribute__((noinline)) static float knee_gate(float e)            /* the swing VCA's diode, knee 1.2 */
 {
     float over = e - DIODE_VON;
     if (over <= 0.0f)
@@ -903,7 +903,7 @@ static inline float knee_gate(float e)            /* the swing VCA's diode, knee
 
 /* ---- cymbal: sc808_mt_circuit.h CymbalCircuit ---- */
 /* Boot only (drum808_init). cy_tick / cy_trigger stay -O2. */
-X0X_COLD static void cy_init(d8_cy_t *v)
+X0X_COLD __attribute__((noinline)) static void cy_init(d8_cy_t *v)
 {
     bp_set(&v->sus1, 2944.0f, 75.0f);
     bp_set(&v->sus2, 3265.0f, 32.0f);
@@ -1760,7 +1760,7 @@ static int voice_active(const drum808_t *d, int l)
 #define D8_TAIL_N 882                  /* 20 ms: the gaps between a clap's bursts are shorter */
 #define D8_TAIL_FLOOR 1.0e-2f          /* the hit has sounded (voices peak at 0.2 .. 7) */
 #if D8_TAIL_DB
-static void voice_stop(drum808_t *d, int l)
+__attribute__((noinline)) static void voice_stop(drum808_t *d, int l)
 {
     switch (l) {
     case L_BD: d->bd.active = 0; break;
@@ -1776,7 +1776,7 @@ static void voice_stop(drum808_t *d, int l)
     default: d->cy.active = 0; break;
     }
 }
-static void lane_tail(drum808_t *d, int l, const float *buf, int m)
+__attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float *buf, int m)
 {
     d8_lane_t *ln = &d->lane[l];
     float pk = ln->pk;
@@ -1840,7 +1840,7 @@ static const uint8_t k_lane_track[L_NUM] = {D8_BD, D8_SD, D8_LT, D8_MT, D8_HT, D
                                             D8_CB, D8_CH, D8_OH, D8_CY};
 static float *d8_dry_r;         /* the render in progress: its right side (0: mono) */
 
-static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float *dry, float *rev, float *dly,
+__attribute__((noinline)) static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float *dry, float *rev, float *dly,
                      uint16_t audible_tracks)
 {
     const int tr = k_lane_track[l - d->lane];
