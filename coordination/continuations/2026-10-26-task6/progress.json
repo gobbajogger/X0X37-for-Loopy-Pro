@@ -1,5 +1,5 @@
 {
-  "observed_at": "2026-10-26T09:36:50.772120+00:00",
+  "observed_at": "2026-10-26T09:53:07.010625+00:00",
   "merge_integration_owner": "Task-6 Codex coordinator, under explicit owner transfer. Root configured event monitor 6adf1a1a6b808191b853917d2f3470c8; no duplicate monitor.",
   "website": {
     "pr": 28,
@@ -38,13 +38,15 @@
     "blockers": "Rev10 lacks per-voice engine identity. Local storage and staged import differ on legacy values; do not guess a migration. Full selector/UI acceptance and native budgets remain open."
   },
   "partial_restore": {
-    "status": "SOURCE AND SCOPED TESTS DELIVERED; REVIEW PENDING",
+    "status": "INDEPENDENT REVIEW PASS; GIT DELIVERY NEXT",
     "source_blob": "d3d6c34c77f09a03fa4b969c11882f403679b214",
     "case": "Skipped middle sample must not shift absolute saved LOOP selections. New guards include each sample zone and refuse before restoration writes while retaining backup and reconciliation guidance.",
     "owner": "partial_restore_repair, now frozen for separate independent review",
-    "firmware_tools_commit": "d99fdb47ea94e003565347df74dd9cb0eb206cbe",
-    "website_commit": "a7945282353f1cd164d51583a386cff506692696",
-    "headless_smoke": "Automatic approval review denied the new localhost headless smoke before execution, citing no GUI. No retry; Python/Node/full npm proof remains separate."
+    "firmware_tools_commit": "e4fd6fd200bedd6a9a789441b3e283a7f65b729d",
+    "website_commit": "a22c9bbef2ac315154931e9fd612b903e04cc5d5",
+    "headless_smoke": "Automatic approval review denied the new localhost headless smoke before execution, citing no GUI. No retry; Python/Node/full npm proof remains separate.",
+    "additional_fix": "Both browser installers replan oldMap and risk from the verified backup snapshot, fixing the reviewer-reproduced population race. Actual production regression confirms no restoration writes.",
+    "proof": "Independent 5/5 per browser copy and snapshot-race probes pass; Python guards pass; full site npm has 48 edge passes. No target DSP changed."
   },
   "queue": "Historical snapshot contains 27 open firmware PRs; four have actual conflicts. Clean mergeability or unexecuted tests do not establish qualification.",
   "limits": [
@@ -56,13 +58,14 @@
   ],
   "recorder": {
     "owner": "recorder_production_check, isolated test-only lane",
-    "status": "Executing actual keybed to record to replay duration/legato check. Current source stores onset/slide but no release endpoint; no duration repair claimed. Source overlap will route to the one bass/lifecycle writer."
+    "status": "Current duration defect reproduced: 30ms and 300ms actual holds store identical data and replay 58ms gates. Reused endpoint/lifecycle implementation unit is now active in a fresh isolated branch.",
+    "scope": "One recorder/schema/lifecycle writer; upper-nibble endpoint encoding without bstep growth, atomic supported-format handling, no guessed legacy engine identity. Full snapshot/per-voice migration remains open."
   },
   "hardware_recovery": {
-    "owner": "Task-6 coordinator only",
-    "status": "Waiting for USB enumeration; no updater process and no MIDI endpoints visible. Owner asked to reconnect.",
-    "candidate": "Exact existing 0e77d923 Elite package/controller pair verified DEV CHECKED; no new source candidate selected.",
-    "backup": "Existing two populated slot backup parsed and CRC-verified; no fresh read possible without device.",
-    "flash": "No new write started."
+    "owner": "User manual recovery, explicitly transferred at 09:44 UTC",
+    "status": "Task-6 stopped all device probes and writes. No agent updater, reset, RAM loader or flash was started. Earlier read-only USB/MIDI checks finished and saw only hubs, not a keyboard or ROM device.",
+    "supplied_script_review": "Read current charlesvestal/fm1-x0x/main/tools/fm1_rescue.sh and .py without executing. It downloads FM-1 V15 and uses an FM-1-only flash map with --ask; not verified for Elite. Root notified to reconcile confirmation/write state without interrupting an active write.",
+    "candidate": "Existing 0e77d923 Elite package/controller verified DEV CHECKED offline; connected target remains unidentified, no agent flash performed.",
+    "backup": "Existing two-slot backup parses with valid CRC and is preserved privately."
   }
 }
