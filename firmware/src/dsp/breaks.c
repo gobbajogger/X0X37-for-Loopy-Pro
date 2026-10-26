@@ -148,7 +148,7 @@ static int brk_select_next(const brk_sel_t *in, breaks_t *b)
 
 /* ---- BB Gen's live layer (perf.c), this part's subset ------------------------------------ */
 
-static void perf_release(brk_perf_t *p, int slice)
+__attribute__((noinline)) static void perf_release(brk_perf_t *p, int slice)
 {
     int i, found = -1;
     for (i = (int)p->count - 1; i >= 0; i--)
@@ -162,7 +162,7 @@ static void perf_release(brk_perf_t *p, int slice)
         p->stack[i] = p->stack[i + 1];
     p->count--;
 }
-static void perf_push(brk_perf_t *p, int slice)
+__attribute__((noinline)) static void perf_push(brk_perf_t *p, int slice)
 {
     if (slice < 0 || slice > 7)
         return;
@@ -617,7 +617,7 @@ static void pin_trigger(breaks_t *b, int slice)
 void breaks_pin(breaks_t *b, int slice) { b->pin = (int8_t)(slice >= 0 && slice < 8 ? slice : -1); }
 
 /* a clock trigger: BB Gen counts it whether or not half speed lets it fire */
-static void clock_trigger(breaks_t *b)
+__attribute__((noinline)) static void clock_trigger(breaks_t *b)
 {
     int bp = b->trigger_count % 8;
     b->trigger_count++;
@@ -625,7 +625,7 @@ static void clock_trigger(breaks_t *b)
         fire_trigger(b, bp, 0);
 }
 
-static void gate_update(breaks_t *b)
+__attribute__((noinline)) static void gate_update(breaks_t *b)
 {
     int held = b->perf.count > 0;
     b->gate_to = (held || (b->running && b->step_on)) ? 1.0f : 0.0f;
