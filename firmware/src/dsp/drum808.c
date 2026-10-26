@@ -254,7 +254,7 @@ __attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
     f->e2 = -2.0f * alpha * inv;
 }
 
-static inline float bp_run(d8_bp_t *f, float x)
+__attribute__((noinline)) static float bp_run(d8_bp_t *f, float x)
 {
     float bx = f->b0 * x;
     float y = bx + f->z1;
@@ -263,7 +263,7 @@ static inline float bp_run(d8_bp_t *f, float x)
     return y;
 }
 
-static inline float bq_run(d8_bq_t *f, float x)
+__attribute__((noinline)) static float bq_run(d8_bq_t *f, float x)
 {
     float y = f->n0 * x + f->z1;
     f->z1 = (f->n1 * x + (y + y + f->z2)) - f->e1 * y;
@@ -291,7 +291,7 @@ static void sc_lpf_set(d8_bq_t *f, float hz)
 }
 
 /* SKHighpass: RBJ highpass with a gain */
-static void sk_hp_set(d8_bq_t *f, float hz, float q, float g)
+__attribute__((noinline)) static void sk_hp_set(d8_bq_t *f, float hz, float q, float g)
 {
     float w = TWO_PI_SR * hz, s = fm_sin_pi(w), sh = fm_sin_pi(0.5f * w);
     float alpha = s / (2.0f * q), inv = 1.0f / (1.0f + alpha);
@@ -824,7 +824,7 @@ static const d8ff_t k_bank_inc[6] = {             /* oscHz / sr * 2^32 */
     {7.821515200e+07f, 7.305577993e-01f}, {5.275700000e+07f, 1.910276651e+00f}};
 #define BANK_DUTY 2060725309u                     /* phase < 0.4798 */
 
-static void bank_ratio(d8_bank_t *b, float r)
+__attribute__((noinline)) static void bank_ratio(d8_bank_t *b, float r)
 {
     int i;
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
@@ -833,7 +833,7 @@ static void bank_ratio(d8_bank_t *b, float r)
 }
 
 /* the two-sample polyBLEP edge correction, on fixed-point phases */
-static inline float blep_fix(uint32_t t, uint32_t dt)
+__attribute__((noinline)) static float blep_fix(uint32_t t, uint32_t dt)
 {
     float x;
     uint32_t r;
@@ -1798,7 +1798,7 @@ static void lane_tail(drum808_t *d, int l, const float *buf, int m)
 }
 #endif
 
-static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
+__attribute__((noinline)) static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
 
 int drum808_active(const drum808_t *d)
 {
