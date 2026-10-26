@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 
 START = 'static int next_pos(seq_t *s, int t, int p, int commit)'
-END = '\nstatic void midi('
+END = '\n__attribute__((noinline)) static void midi('
 PREFIX = r'''
 #include <stdint.h>
 #include <stdio.h>

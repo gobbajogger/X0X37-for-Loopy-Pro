@@ -127,7 +127,7 @@ static int next_pos(seq_t *s, int t, int p, int commit)
     }
 }
 
-static void midi(const seq_sink_t *o, uint8_t st, uint8_t d1, uint8_t d2)
+__attribute__((noinline)) static void midi(const seq_sink_t *o, uint8_t st, uint8_t d1, uint8_t d2)
 {
     if (o->midi)
         o->midi(o->ctx, st, d1, d2);
