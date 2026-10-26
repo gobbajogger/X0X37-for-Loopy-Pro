@@ -144,46 +144,10 @@ static inline void chi_arp_run_clear(chi_arp_run_t *r)
     r->cur = -1;
 }
 
-/* Replace the held pitch list (sorted low→high). Restarts the cycle. */
-static inline void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes, uint32_t n, uint8_t mode,
-                                   uint8_t range, uint8_t speed)
-{
-    uint32_t i, j;
-    if (!r)
-        return;
-    if (!notes || n == 0) {
-        chi_arp_run_clear(r);
-        r->mode = mode;
-        r->range = range;
-        r->speed = speed;
-        return;
-    }
-    if (n > CHI_ARP_MAXN)
-        n = CHI_ARP_MAXN;
-    r->n = 0;
-    for (i = 0; i < n; i++) {
-        uint8_t x = notes[i];
-        uint32_t p = r->n++;
-        for (; p && r->notes[p - 1u] > x; p--)
-            r->notes[p] = r->notes[p - 1u];
-        r->notes[p] = x;
-        /* drop duplicates after insert */
-        for (j = 0; j + 1u < r->n; j++)
-            if (r->notes[j] == r->notes[j + 1u]) {
-                uint32_t k;
-                for (k = j + 1u; k + 1u < r->n; k++)
-                    r->notes[k] = r->notes[k + 1u];
-                r->n--;
-                break;
-            }
-    }
-    r->mode = mode;
-    r->range = range;
-    r->speed = speed;
-    r->step = 0;
-    r->to_next = 0;
-    r->cur = -1;
-}
+/* Replace the held pitch list (sorted low→high). Restarts the cycle.
+ * Body lives in chicago_param_tables.c (one copy; was inlined twice in midi_in). */
+void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes, uint32_t n, uint8_t mode,
+                     uint8_t range, uint8_t speed);
 
 /* Single held pitch (common freeplay case). */
 static inline void chi_arp_run_hold(chi_arp_run_t *r, uint8_t note, uint8_t mode, uint8_t range,
