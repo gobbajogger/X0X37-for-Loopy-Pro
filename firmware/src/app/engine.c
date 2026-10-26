@@ -244,7 +244,8 @@ int engine_nparams(int t, int v)
     }
 }
 
-const x0x_param_t *engine_param(int t, int v, int i)
+/* Pot metadata for the UI / project — not the audio render (X0X_COLD). */
+X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
 {
     switch (t) {
     case T_909: return drum909_param(v, i);
