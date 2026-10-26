@@ -51,8 +51,8 @@ static const char *const d9_dist_names[7] = { "Diode", "Clip", "SAT", "BFZ", "PD
 /* Pot defaults are the positions 9W9 seeds from its engineering defaults
  * (er99_engine_seed_pots); the engine itself starts on the exact defaults. */
 /* Kick, closed/open hat, and crash/ride all end on this Drive=0 FX block.
- * One copy. SD/RS/CP keep their own Drive default and reuse Dist+Rev+Dly+Pan
- * from index 1. Toms keep a separate shared tail that includes Drive. */
+ * One copy. SD/RS/CP/toms keep their own Drive default and reuse Dist+Rev+Dly+Pan
+ * from index 1. */
 static const d9_pspec_t d9_fx0_tail[] = {
     DRIVE(0), DIST, SENDS, PAN,
 };
@@ -64,7 +64,7 @@ static const d9_pspec_t d9_bd_p[] = {
     EXP("Decay", F_DECAY, 90, BD_DECAY), LEVEL(94),
     LIN("P.Dpth", F_PDEPTH, 0, 0.0f, 1.0f), EXP("Pitch", F_PITCH, 45, BD_PITCH),
 };
-/* Snare / rim / clap keep their own Drive default, then reuse Dist+Rev+Dly+Pan
+/* Snare / rim / clap / toms keep their own Drive default, then reuse Dist+Rev+Dly+Pan
  * from d9_fx0_tail[1..] (same records as kick/hats/cymbals after Drive=0). */
 #define D9_FX_AFTER_DRIVE 1
 #define D9_FX_DIST_N (D9_FX0_N - D9_FX_AFTER_DRIVE)
@@ -75,14 +75,14 @@ static const d9_pspec_t d9_sd_p[] = {
 };
 #define D9_SD_HEAD NP(d9_sd_p)
 #define D9_SD_N (D9_SD_HEAD + D9_FX_DIST_N)
-/* The low, mid, and high toms use one copy of these seven pots. The records
- * match, so a second and third copy were only flash. Tune and decay stay on
- * the tom. A caller asks for one pot, and that pot is one record. */
+/* The low, mid, and high toms use one copy of Level+Attack+Drive. Tune and decay
+ * stay on the tom. Dist+Rev+Dly+Pan come from d9_fx0_tail[1..] like SD/RS/CP. */
 static const d9_pspec_t d9_tom_tail[] = {
-    LEVEL(52), LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41), DIST, SENDS, PAN,
+    LEVEL(52), LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41),
 };
 #define D9_TOM_HEAD 2
-#define D9_TOM_N (D9_TOM_HEAD + NP(d9_tom_tail))
+#define D9_TOM_MID NP(d9_tom_tail)
+#define D9_TOM_N (D9_TOM_HEAD + D9_TOM_MID + D9_FX_DIST_N)
 static const d9_pspec_t d9_lt_p[] = {
     EXP("Tune", F_TUNE, 66, LT_TUNE), EXP("Decay", F_DECAY, 111, LT_DECAY),
 };
@@ -149,6 +149,7 @@ _Static_assert(NP(d9_cp_p) == D9_CP_HEAD, "clap head ends at drive");
 _Static_assert(D9_CP_N <= DR_MAX_PARAMS, "clap pot count");
 _Static_assert(NP(d9_lt_p) == D9_TOM_HEAD && NP(d9_mt_p) == D9_TOM_HEAD && NP(d9_ht_p) == D9_TOM_HEAD,
                "tom heads are tune and decay only");
+_Static_assert(NP(d9_tom_tail) == D9_TOM_MID, "tom mid ends at drive");
 _Static_assert(D9_TOM_N <= DR_MAX_PARAMS, "tom pot count");
 _Static_assert(NP(d9_ch_p) == D9_HAT_HEAD && NP(d9_oh_p) == D9_HAT_HEAD,
                "hat heads are decay and level only");
@@ -171,8 +172,13 @@ static const d9_pspec_t *d9_spec(int voice, int i)
         return &d9_fx0_tail[i - D9_RS_HEAD + D9_FX_AFTER_DRIVE];
     if (voice == DR_CP && i >= D9_CP_HEAD)
         return &d9_fx0_tail[i - D9_CP_HEAD + D9_FX_AFTER_DRIVE];
-    if (i >= D9_TOM_HEAD && (voice == DR_LT || voice == DR_MT || voice == DR_HT))
-        return &d9_tom_tail[i - D9_TOM_HEAD];
+    if (voice == DR_LT || voice == DR_MT || voice == DR_HT) {
+        if (i < D9_TOM_HEAD)
+            return &d9_specs[voice][i];
+        if (i < D9_TOM_HEAD + D9_TOM_MID)
+            return &d9_tom_tail[i - D9_TOM_HEAD];
+        return &d9_fx0_tail[i - (D9_TOM_HEAD + D9_TOM_MID) + D9_FX_AFTER_DRIVE];
+    }
     if (voice == DR_CH || voice == DR_OH) {
         if (i < D9_HAT_HEAD)
             return &d9_specs[voice][i];
