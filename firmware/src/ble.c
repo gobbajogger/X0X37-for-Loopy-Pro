@@ -346,13 +346,42 @@ static void ble_record(void)
         ble_guard.dbg[i] = ble_r.mb.dbg[i];
 }
 
+/* CIN 8 / CIN 9 vel0 — same release class as usb.c midi_pkt_is_note_off. */
+static int ble_out_is_note_off(uint32_t pkt)
+{
+    uint32_t cin = pkt & 0xFu;
+    return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
+}
+
 /* the audio ISR (single producer): mirror one MIDI out packet */
 static void ble_out(uint32_t pkt)
 {
-    if (!ble_central_role && ble_host_on && bleh_notifying(&ble_r.host.h) && ble_r.ow - ble_r.orr < BLE_OQ) {
-        ble_oq[ble_r.ow % BLE_OQ] = pkt;
+    uint32_t i, pass, ww, rr;
+    if (ble_central_role || !ble_host_on || !bleh_notifying(&ble_r.host.h))
+        return;
+    ww = ble_r.ow;
+    rr = ble_r.orr;
+    if (ww - rr < BLE_OQ) {
+        ble_oq[ww % BLE_OQ] = pkt;
         RING_PUBLISH();
-        ble_r.ow++;
+        ble_r.ow = ww + 1u;
+        return;
+    }
+    /* Full BLE out mirror: drop CCs under notify backpressure, never Note Off
+     * (stuck note into Loopy over BLE — outbound sibling of USB midi_out_event). */
+    if (!ble_out_is_note_off(pkt))
+        return;
+    for (pass = 0; pass < 2u; pass++) {
+        for (i = rr; i != ww; i++) {
+            uint32_t p = ble_oq[i % BLE_OQ];
+            if (ble_out_is_note_off(p))
+                continue;
+            if (pass == 0u && (p & 0xFu) != 0xBu)
+                continue;
+            ble_oq[i % BLE_OQ] = pkt;
+            RING_PUBLISH();
+            return;
+        }
     }
 }
 

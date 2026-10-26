@@ -140,33 +140,35 @@ static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
 
 /* CIN 8, or CIN 9 with velocity 0 — a release that must not stick a live Note On. */
-static int midi_in_is_note_off(uint32_t pkt)
+static int midi_pkt_is_note_off(uint32_t pkt)
 {
     uint32_t cin = pkt & 0xFu;
     return cin == 8u || (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u);
 }
+#define midi_in_is_note_off midi_pkt_is_note_off
 
-/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off —
+/* When a MIDI ring is full, CC floods may drop; never drop Note Off —
  * displace a CC first, then any non-Note-Off (same class as engine cq_put C_BOFF). */
-static int midi_in_put(uint32_t pkt)
+static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
+                                  uint32_t pkt)
 {
-    uint32_t i, pass;
-    if (mi_w - mi_r < MQ) {
-        midi_in_q[mi_w % MQ] = pkt;
+    uint32_t i, pass, ww = *w, rr = *r;
+    if (ww - rr < MQ) {
+        q[ww % MQ] = pkt;
         RING_PUBLISH();
-        mi_w++;
+        *w = ww + 1u;
         return 1;
     }
-    if (!midi_in_is_note_off(pkt))
+    if (!midi_pkt_is_note_off(pkt))
         return 0;
     for (pass = 0; pass < 2u; pass++) {
-        for (i = mi_r; i != mi_w; i++) {
-            uint32_t p = midi_in_q[i % MQ];
-            if (midi_in_is_note_off(p))
+        for (i = rr; i != ww; i++) {
+            uint32_t p = q[i % MQ];
+            if (midi_pkt_is_note_off(p))
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
-            midi_in_q[i % MQ] = pkt;
+            q[i % MQ] = pkt;
             RING_PUBLISH();
             return 1;
         }
@@ -174,13 +176,18 @@ static int midi_in_put(uint32_t pkt)
     return 0;
 }
 
+/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off. */
+static int midi_in_put(uint32_t pkt)
+{
+    return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, pkt);
+}
+
 static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
-    if (usb.config && mo_w - mo_r < MQ) {
-        midi_out_q[mo_w % MQ] = pkt;
-        RING_PUBLISH();
-        mo_w++;
-    }
+    if (!usb.config)
+        return;
+    /* Outbound mirror of midi_in_put: a full MQ must not strand a Note Off on USB/DAW. */
+    (void)midi_ring_put_note_off(midi_out_q, &mo_w, &mo_r, pkt);
 }
 void midi_send_note(uint32_t note, uint32_t vel)
 {
