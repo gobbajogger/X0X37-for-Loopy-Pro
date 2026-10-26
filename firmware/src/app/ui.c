@@ -1914,6 +1914,11 @@ static void do_undo(int redo)
 #if X0X_BASS_PRESET_PREVIEW && !X0X_BASS_TAGGED_SOUND
     if(engine_bass_preview_changed()) { say("UNDO UNAVAILABLE",""); return; }
 #endif
+#if X0X_BASS_PRESET_PREVIEW
+    /* Keep the chosen bank stable through target inspection and swap. The
+     * commit helper nests one hold while it scans the undo snapshot. */
+    engine_bass_edit_hold(1);
+#endif
     undo_commit_stable();                       /* what was just done is a step too */
 #if X0X_BASS_TAGGED_SOUND
     undo_wait=0;undo_bass_mask=0;
@@ -1937,6 +1942,9 @@ static void do_undo(int redo)
                     undo_wait=(uint8_t)(redo?2:1);undo_wait_cur=undo.cur;undo_wait_used=undo.used;
                     undo_wait_serial=engine_bass_choice_serial();say("UNDO WAIT NOTE / INPUT",0);
                 } else say(ready==-4?"UNDO SOUND LOCKS":"UNDO ENGINE UNAVAILABLE",0);
+#if X0X_BASS_PRESET_PREVIEW
+                engine_bass_edit_hold(0);
+#endif
                 return;
             }
         }
@@ -1944,11 +1952,20 @@ static void do_undo(int redo)
 #endif
     undo_lanes = 0;
     if (!(redo ? undo_redo : undo_undo)(&undo, undo_changed, &lo, &hi)) {
+#if X0X_BASS_TAGGED_SOUND
+        if(undo_bass_mask)engine_project_hold(0);
+#endif
+#if X0X_BASS_PRESET_PREVIEW
+        engine_bass_edit_hold(0);
+#endif
         say(redo ? "NOTHING TO REDO" : "NOTHING TO UNDO", 0);
         return;
     }
 #if X0X_BASS_TAGGED_SOUND
     if(undo_bass_mask) {engine_bass_base_restore(undo_bass_mask);engine_project_hold(0);}
+#endif
+#if X0X_BASS_PRESET_PREVIEW
+    engine_bass_edit_hold(0);
 #endif
     song_structure_revision++;                     /* undo may restore/reorder song bars */
     if (undo_lanes)

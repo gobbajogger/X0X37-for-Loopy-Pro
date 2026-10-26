@@ -1661,18 +1661,19 @@ int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
     bass_publish_request(voice,token);
     return 0;
 }
-static volatile uint8_t bass_edit_held;
+static volatile uint8_t bass_edit_depth;
 void engine_bass_edit_hold(int hold)
 {
     __asm__ volatile("" ::: "memory");
-    bass_edit_held = (uint8_t)(hold != 0);
+    if (hold) bass_edit_depth++;
+    else if (bass_edit_depth) bass_edit_depth--;
     __asm__ volatile("" ::: "memory");
 }
 static void bass_preset_boundary(void)
 {
     /* Called only by audio, after CQ+MIDI drain, before new sequence triggers.
      * Old accepted notes retain their complete sound through release/legato. */
-    if (bass_edit_held) return;
+    if (bass_edit_depth) return;
     for(int voice=0;voice<NBASS;voice++) {
     bass_request_t request;
     if(!bass_request_snapshot(voice,&request)) continue;
