@@ -9,7 +9,7 @@
 #include "drum909.h"
 #include "x0x_drum_samples.h"
 #include "ima_adpcm.h"
-#include "../x0x_cold.h"          /* X0X_COLD: drum909_init is boot only, not the render */
+#include "../x0x_cold.h"          /* X0X_COLD: init/set/get are boot/UI/MIDI — not d9_render */
 
 #define D9_VCA_VT 0.0002f
 #define D9_VCA_NORM (1.0f / (1.0f - D9_VCA_VT))
@@ -211,7 +211,8 @@ const x0x_param_t *drum909_param(int voice, int i)
     return &d9_spec(voice, i)->ui;
 }
 
-int drum909_get(const drum909_t *d, int voice, int i)
+/* UI / tests only — not the audio render (X0X_COLD) */
+X0X_COLD int drum909_get(const drum909_t *d, int voice, int i)
 {
     if (voice < 0 || voice > DR_KIT || i < 0 || i >= d9_nspec[voice])
         return 0;
@@ -322,7 +323,8 @@ static void d9_apply(drum909_t *d, int voice, int field, float v)
     d9_shape_prep(&s->shape, s->drive, s->dist_type);
 }
 
-void drum909_set(drum909_t *d, int voice, int i, int value)
+/* UI/MIDI pot path — not the 909 audio render (X0X_COLD) */
+X0X_COLD void drum909_set(drum909_t *d, int voice, int i, int value)
 {
     if (voice < 0 || voice > DR_KIT || i < 0 || i >= d9_nspec[voice])
         return;
