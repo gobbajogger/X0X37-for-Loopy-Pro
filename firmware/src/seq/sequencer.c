@@ -57,7 +57,7 @@ uint32_t seq_step_q8(const seq_t *s, int rate)
 static const dpart_t *dpart(const seq_t *s, int k) { return &s->pat[s->ppat[k]].drum[k]; }
 static int is_drum(int t) { return t < NKIT; }
 static int is_bass(int t) { return t >= TRK_BASS0 && t < TRK_BASS0 + NBASS; }
-static bpart_t *bpart(const seq_t *s, int b) { return &s->pat[s->ppat[TRK_BASS0 + b]].bass[b]; }
+__attribute__((noinline)) static bpart_t *bpart(const seq_t *s, int b) { return &s->pat[s->ppat[TRK_BASS0 + b]].bass[b]; }
 
 int seq_part_len(const seq_t *s, int t)
 {
@@ -83,7 +83,7 @@ __attribute__((noinline)) static uint32_t swing_q8(const seq_t *s, int rate, uin
     return step_q8 / 200u * sw;                     /* 100 -> half a step late = 75 % (32-bit: no __udivdi3) */
 }
 
-static uint32_t rng_next(uint32_t *r)
+__attribute__((noinline)) static uint32_t rng_next(uint32_t *r)
 {
     uint32_t x = *r ? *r : 1;
     x ^= x << 13;
@@ -652,7 +652,7 @@ static void to_internal(seq_t *s)
 
 /* CLOCK SOURCE set to INTERNAL while X0X follows a clock: each part's next step comes when the clock
  * would give it, so no step comes early or late (a clock that is gone: at once, as to_internal) */
-static void switch_internal(seq_t *s)
+__attribute__((noinline)) static void switch_internal(seq_t *s)
 {
     int t;
     uint32_t per = s->ext_period ? s->ext_period : seq_step_q8(s, RATE_16) / 6u;   /* one tick, Q8 */
