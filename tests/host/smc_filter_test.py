@@ -9,7 +9,7 @@ import tempfile
 root = Path(__file__).resolve().parents[2]
 source = Path(os.environ.get("SMC_SOURCE", root / "firmware/src/app/smc_mixer.c")).read_text()
 functions = []
-for name in ("smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led"):
+for name in ("smc_home_target", "smc_visible_drum_mix", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led"):
     match = re.search(r"^static [^\n]+ " + name + r"\([^\n]*\)\n\{.*?^\}", source, re.M | re.S)
     if name in ("smc_drum_mix", "smc_drum_track") and not match:
         continue

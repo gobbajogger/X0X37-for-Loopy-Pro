@@ -26,7 +26,7 @@ MUTANTS = {
         'else if (ui.view == V_SEQ)',
     ),
     "filter-shows-false-solo": (
-        'view == V_PART ? "PART"', 'view == V_PART ? "S"',
+        'note == 15 ? "SND"', 'note == 15 ? "S"',
     ),
     "static-knob-arc": (
         '(float)smc_scaled(k) / 127.0f', '0.5f',

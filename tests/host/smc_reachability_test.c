@@ -72,9 +72,22 @@ static void press(int note) { message(0x90,note,127); message(0x80,note,0); }
 static void turn(int n, int delta) { message(0xB0,16+n,delta>0?delta:64-delta); }
 static void fader(int n, int v) { message(0xE0+n,0,v); }
 static void view(int v) {
-    for(int i=0;ui.view!=v && i<8;i++) press(0x61);
+    if(ui.view==v) return;
+    /* Direct drum MIX/SEQ gives strip8 to the drum. The keyboard HOME setup
+     * boundary exits it before testing ordinary SMC mode shortcuts; this is
+     * deliberately not a claim of an SMC-only exit from direct drum entry. */
+    if(smc_visible_drum_mix()>=0) {
+        button_tap(B_HOME);
+        assert(ui.view==V_HOME);
+    }
+    int key=v==V_HOME || v==V_SEQ || v==V_SONG ? 7 :
+            v==V_PART || v==V_GEN ? 15 : v==V_FX ? 29 :
+            v==V_MIX ? 31 : v==V_GLO ? 14 : -1;
+    assert(key>=0);
+    for(int i=0;ui.view!=v && i<3*MAXPAGES+3;i++) press(key);
     assert(ui.view==v);
 }
+
 static void edit(pref_t r, int n) {
     const x0x_param_t *d=pref_desc(r); assert(d && d->max);
     int old=pref_get(r), delta=old==d->max?-1:1;
@@ -491,7 +504,7 @@ pickup: ;
     smc_ble_link(0); smc_poll(); assert(!smc.picked && !smc.seen && !smc.solo);
     smc_ble_link(1); smc_poll(); assert(!smc.picked && !smc.seen);
     if(getenv("SMC_PICKUP_ONLY")) return;
-    /* View navigation reaches all ordinary views and Global's actions. */
+    /* Mode-button families reach all ordinary views and Global's actions. */
     smc_select_part(PART_303A); smc_view(V_PART, 0);
     view(V_SEQ); view(V_GEN); view(V_FX); view(V_MIX); view(V_SONG); view(V_HOME);
     press(14); assert(ui.view==V_GLO && ui.overlay==O_LIST); press(6); assert(ui.overlay==O_NONE);
@@ -509,11 +522,16 @@ pickup: ;
     old=pref_get(smc_knob_target(0)); turn(0,1);
     assert(ui.help && pref_get(smc_knob_target(0))!=old); /* card stays; knob still edits */
     press(6); assert(!ui.help);
-    /* Clip grid hides ordinary parameters; all three editors and nine ARP fields reachable. */
+    /* Clip grid hides ordinary parameters. Up/Down is one mapping bank and
+     * cannot select a clip stage; fixture stage entry below isolates the real
+     * field edit/navigation routes, rather than claiming SMC stage assignment. */
     clip_grid_mode=1; ck.pg=0; old=pref_get(pg.r[cur_page()][0]); turn(0,1);
     assert(pref_get(pg.r[cur_page()][0])==old);
     for(int p=1;p<=3;p++) {
-        press(0x61); assert((ck.pg&3)==p);
+        ck.pg=(uint8_t)(p | CK_E_ON<<4); /* explicit fixture entry, not an SMC action */
+        int visible_view=ui.view, visible_page=cur_page(); uint8_t stage_page=ck.pg;
+        press(0x61); assert(ck.pg==stage_page && ui.view==visible_view && cur_page()==visible_page);
+        press(0x60); assert(ck.pg==stage_page && ui.view==visible_view && cur_page()==visible_page);
         int count=p==3?9:4;
         for(int i=0;i<count;i++) {
             int f=CK_PAGE_FIELDS[p-1][i]; assert((ck.pg>>4)==f);
@@ -521,12 +539,14 @@ pickup: ;
             press(0x2F);
         }
     }
+    press(6); assert(!(ck.pg&3));
     press(0x61); assert(!(ck.pg&3));
-    press(0x61); press(5); assert(ui.view==V_GLO && ui.overlay==O_LIST);
+    ck.pg=(uint8_t)(1 | CK_E_ON<<4); /* fixture reopens the stage before Global */
+    press(5); assert(ui.view==V_GLO && ui.overlay==O_LIST);
     int clip_field=fields[CK_E_ON]; turn(0,1); assert(fields[CK_E_ON]==clip_field);
     press(6); assert(ui.overlay==O_NONE && (ck.pg&3)==1);
     press(6); assert(!(ck.pg&3));
-    puts("PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths");
+    puts("PASS: SMC mode/menu navigation, edits, pickup/frame, confirmation/help and clip field routes (fixture stage entry)");
 }
 int main(void) {
     for(route=0;route<5;route++) { printf("Route %d\n",route); scenario(); }

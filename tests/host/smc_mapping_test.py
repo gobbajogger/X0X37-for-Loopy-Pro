@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 root = Path(__file__).resolve().parents[2]
 source = (Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c').read_text()
-names = ('smc_same', 'smc_home_target', 'smc_page_target', 'smc_target', 'smc_fader_of', 'smc_knob_target', 'smc_bank', 'smc_notice')
+names = ('smc_same', 'smc_home_target', 'smc_knob_context', 'smc_mapping_bank', 'smc_page_target', 'smc_target', 'smc_fader_of', 'smc_knob_target', 'smc_bank', 'smc_notice')
 functions = []
-for helper in ('smc_drum_mix', 'smc_drum_track'):
+for helper in ('smc_visible_drum_mix', 'smc_drum_mix', 'smc_drum_track'):
     match = re.search(r'^static [^\n]+ '+helper+r'\([^\n]*\)\n\{.*?^\}', source, re.M | re.S)
     if match:
         functions.append(match[0])
@@ -23,17 +23,18 @@ harness = r'''
 #include <string.h>
 #include "seq/pattern.h"
 enum { R_NONE, R_ENG, R_HDR, R_ACT, R_SPAT, R_SREP, T_909, T_808, T_MIX, T_FX, T_MST,
-       MX_LEVEL, MX_PAN, MX_CUT, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
+       MX_LEVEL, MX_PAN, MX_CUT, MX_REV, MX_DLY, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
        O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 #define NONE PR(R_NONE,0,0,0)
 static struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui;
-static struct { pref_t r[1][4]; } pg;
+static struct { pref_t r[14][4]; int n; } pg;
 static pref_t list_rows[12];
 static int kit=-1, clip, stage;
 static struct { pref_t target[8],lock_fader[8],lock_knob[8];
-    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank;
+    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank,knob_bank,knob_rebind;
+    uint32_t knob_context;
     uint32_t lock_song_revision; uint16_t lock_song_len; } smc;
 static uint32_t song_structure_revision;
 static struct song_fixture { unsigned len; } song_data;
@@ -44,8 +45,10 @@ static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
 static int smk_clip_mode_on(void) { return clip; }
 #define is_drum() (ui.part < 2)
 static pref_t find_ref(int t,int track,const char *name) {
-    assert(track>=0 && track<NDRUM && (!strcmp(name,"Level") || !strcmp(name,"Pan")));
-    return PR(R_ENG,t,track,!strcmp(name,"Pan"));
+    assert(track>=0 && track<NDRUM);
+    const char *const names[] = {"Level", "Pan", "Rev", "Dly"};
+    for (int i=0;i<4;i++) if (!strcmp(name,names[i])) return PR(R_ENG,t,track,i);
+    assert(0); return NONE;
 }
 static void build_pages(void) {
     for(int n=0;n<4;n++) pg.r[0][n]=PR(R_ENG,kit ? T_808 : T_909,ui.sel[kit],n);
@@ -68,15 +71,17 @@ static void unique(void) {
 }
 int main(void) {
     /* Owner: include knobs in all three mixer modes. */
-    ui.view=V_HOME; ui.overlay=O_NONE;
+    ui.view=V_HOME; ui.overlay=O_NONE; pg.n=1;
     for(int n=0;n<8;n++) assert(!smc_same(smc_knob_target(n),smc_home_target(n)));
     unique();
     ui.view=V_MIX; ui.overlay=O_NONE;
     for(int n=0;n<8;n++) assert(!smc_same(smc_knob_target(n),smc_home_target(n)));
     for(kit=0;kit<2;kit++) {
+        smc.knob_context=0;
         unsigned seen=0;
         for(int bank=0;bank<2;bank++) {
             assert(smc_bank(bank ? 0x2F : 0x2E));
+            (void)smc_mapping_bank(); smc.knob_bank=0;
             smc.picked=255; smc.pending=0;
             for(int n=0;n<8;n++) smc_notice(n);
             assert(smc.picked==0 && smc.pending==255);
@@ -86,8 +91,15 @@ int main(void) {
                 assert(r.kind==R_ENG && r.a==(kit ? T_808:T_909) && r.b==bank*8+n && r.c==0);
                 seen |= 1u<<r.b;
             }
-            for(int n=0;n<8;n++) { pref_t k=smc_knob_target(n); assert(bank && n>=3 ? k.kind==R_NONE : k.c==1 && k.b==bank*8+n); }
-            unique();
+            for(int dimension=0;dimension<3;dimension++) {
+                smc.knob_bank=(uint8_t)dimension;
+                for(int n=0;n<8;n++) {
+                    pref_t k=smc_knob_target(n);
+                    assert(bank && n>=3 ? k.kind==R_NONE :
+                           k.kind==R_ENG && k.a==(kit ? T_808:T_909) && k.c==dimension+1 && k.b==bank*8+n);
+                }
+                unique();
+            }
         }
         assert(seen==0x7FF);
         ui.sel[kit]=10; build_pages(); assert(smc_target(2).b==10); unique();
@@ -99,6 +111,13 @@ int main(void) {
     pg.r[0][1]=pg.r[0][0]; assert(smc_knob_target(1).kind==R_NONE);
     pg.r[0][1]=PR(R_ENG,T_MIX,0,1);
     unique(); assert(!smc_bank(0x2F));
+    /* Bank cursor selects another parameter page without changing visible page 0. */
+    pg.n=2;
+    for(int n=0;n<4;n++) pg.r[1][n]=PR(R_ENG,T_909,n,3);
+    smc_mapping_bank(); smc.knob_bank=1;
+    for(int n=0;n<4;n++) assert(smc_same(smc_knob_target(n),pg.r[1][n]));
+    assert(cur_page()==0); unique();
+    smc.knob_bank=0;
     ui.overlay=O_LIST; ui.list_n=8; ui.list_top=2;
     for(int n=0;n<12;n++) list_rows[n]=PR(R_ENG,T_MIX,n,1);
     for(int n=0;n<8;n++) {
@@ -119,4 +138,4 @@ with tempfile.TemporaryDirectory() as tmp:
     c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
     subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-I'+str(root/'firmware/src'),str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
-print('PASS: both drum kits, 11 tracks, bank bounds, three knob modes, unique targets across faders and knobs, menus and stage isolation')
+print('PASS: both drum kits, 11 tracks, all pan/send mapping banks, visible-page isolation, bank bounds, unique fader/knob targets, menus and stage isolation')

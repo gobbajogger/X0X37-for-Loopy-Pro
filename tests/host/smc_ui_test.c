@@ -193,9 +193,12 @@ static void test_navigation(void)
     fader(0, 2); CHECK(smc_ui_active()); held_keys = 1; input(); CHECK(!smc_ui_active());
     held_keys = 0; input();
     fader(0, 3); CHECK(smc_ui_active());
-    message(0x90, 0x2F, 127); /* SMC SEQ navigation */
-    CHECK(!smc_ui_active());
-    puts("PASS navigation: physical buttons, encoder, key and SMC navigation cancel");
+    message(0x90, 0x2F, 127); /* intentional SMC navigation owns its control card */
+    CHECK(smc_ui_active());
+    now_ms += 5000; ui_frame(); CHECK(smc_ui_active());
+    message(0x80, 0x2F, 0);
+    now_ms += 1199; CHECK(smc_ui_active()); now_ms++; CHECK(!smc_ui_active());
+    puts("PASS navigation: keyboard cancels idle card; SMC hold persists and last release starts grace");
 }
 static void test_overlays(void)
 {
@@ -206,13 +209,22 @@ static void test_overlays(void)
     CHECK(!smc_ui_active()); fader(0, 127); knob(0, 1); CHECK(!smc_ui_active());
     now_ms += 1500; ui_frame(); unchanged(saved);
     setup(V_SEQ, PART_303A);
-    message(0x90, 5, 127); CHECK(ui.overlay == O_LIST);
+    message(0x90, 5, 127); CHECK(ui.overlay == O_LIST && smc_ui_active());
+    message(0x80, 5, 0);
     ui.list_sel = ui.list_n > 3 ? 3 : 0; ui.list_top = 1;
     saved = screen_state(); fader(0, 0); unchanged(saved);
     now_ms += 1500; ui_frame(); unchanged(saved);
     fader(0, 1); CHECK(smc_ui_active());
-    message(0x90, 0x61, 127); CHECK(ui.overlay == O_LIST && !smc_ui_active());
-    saved = screen_state(); now_ms += 1500; ui_frame(); unchanged(saved);
+    int old_row = ui.list_sel, expected_row = old_row;
+    for (int row = old_row + 1; row < ui.list_n; row++)
+        if (list_rows[row].kind != R_HDR) { expected_row = row; break; }
+    message(0x90, 0x61, 127); CHECK(ui.overlay == O_LIST && smc_ui_active());
+    CHECK(ui.list_sel == expected_row);
+    int moved_row = ui.list_sel;
+    message(0x90, 0x61, 127); CHECK(ui.list_sel == moved_row); /* same held key is one action */
+    message(0x80, 0x61, 0);
+    saved = screen_state(); now_ms += 1199; ui_frame(); CHECK(smc_ui_active()); unchanged(saved);
+    now_ms++; ui_frame(); CHECK(!smc_ui_active()); unchanged(saved);
     setup(V_SEQ, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui.help = 1; held_btn = ui.btn = 1u << (ui.help - 1);
     CHECK(!smc_ui_active()); saved = screen_state();
@@ -247,7 +259,8 @@ static void test_actions_and_reset(void)
     message(0x90, 16, 127); CHECK(smc_ui_active()); CHECK(part_muted(0));
     unchanged(before); ui_frame(); shot("08-mute-action");
     CHECK(!strcmp(ui.msg, "PRIOR MESSAGE"));
-    expire(); unchanged(before);
+    now_ms += 5000; ui_frame(); CHECK(smc_ui_active()); unchanged(before);
+    message(0x80, 16, 0); expire(); unchanged(before);
     message(0x90, 8, 127); CHECK(smc_ui_active()); CHECK(smc.solo & 1);
     ui_frame(); memcpy(before_fb, fb, sizeof fb);
     message(0x80, 8, 0); CHECK(!(smc.solo & 1));
@@ -257,6 +270,7 @@ static void test_actions_and_reset(void)
         fader(strip, 127); CHECK(!smc_ui_active());
         for (int row = 0; row < 3; row++) {
             message(0x90, row * 8 + strip, 127); CHECK(!smc_ui_active());
+            message(0x80, row * 8 + strip, 0); CHECK(!smc_ui_active());
         }
     }
     setup(V_PART, PART_303A); fader(0, 0); CHECK(smc_ui_active());
@@ -299,7 +313,8 @@ static void test_navigation_replay(void)
     fader(0, 1); CHECK(smc_ui_active());
     setup(V_HOME, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ask(ACT_SONG_CLR, 0, "TEST", 0); smc_poll(); CHECK(!smc_ui_active());
-    message(0x90, 6, 127); CHECK(ui.overlay == O_NONE);
+    message(0x90, 6, 127); CHECK(ui.overlay == O_NONE && smc_ui_active());
+    message(0x80, 6, 0); expire();
     fader(0, 0); CHECK(!smc_ui_active());
     fader(0, 1); CHECK(smc_ui_active());
     puts("PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup");
@@ -537,8 +552,8 @@ static void test_drum_titles(void)
 static void test_action_captions_and_knobs(void)
 {
     setup(V_HOME, PART_303A);
-    CHECK(!strcmp(smc_button_caption(15), "PART"));
-    CHECK(!strcmp(smc_button_caption(7), "HOME"));
+    CHECK(!strcmp(smc_button_caption(15), "SND"));
+    CHECK(!strcmp(smc_button_caption(7), "PAT"));
     CHECK(!strcmp(smc_button_caption(13), "MIX"));
     CHECK(!strcmp(smc_button_caption(14), "GLOB"));
     CHECK(!strcmp(smc_button_caption(5), "LIST"));
@@ -567,8 +582,10 @@ static void test_action_captions_and_knobs(void)
     int rec = ui.rec; smc_button_apply(7, 0); CHECK(ui.rec != rec && ui.sel[0] == 7);
     smc_button_apply(15, 0); CHECK(smc.drum_solo[0] & (1u << 7));
     ui.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
-    CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "X"));
-    knob(0, 1); ui_frame(); shot("18-locked-disabled-actions");
+    CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "R"));
+    pref_t captured = smc_target(0);
+    ui.sel[0] = 0; build_pages(); CHECK(smc_same(captured, smc_target(0)));
+    knob(0, 1); ui_frame(); shot("18-locked-live-actions");
     setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages();
     pref_t pan = smc_knob_target(0);
     for (int v = 0; v <= 2; v++) {

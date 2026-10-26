@@ -81,17 +81,17 @@ static void pending_cues(void)
             CHECK(smc_lock_toggle());
             ui.part = (uint8_t)((part + 1) % NPARTS); build_pages();
         }
-        message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == 2);
-        message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == 3);
-        message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == 2);
-        message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == -1);
-        message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == 0);
-        message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == 0);
-        message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == -1);
+        message(0x90, 0x5C, 127); message(0x80, 0x5C, 0); CHECK(seq_cue_of(&seq, part) == 2);
+        message(0x90, 0x5C, 127); message(0x80, 0x5C, 0); CHECK(seq_cue_of(&seq, part) == 3);
+        message(0x90, 0x5B, 127); message(0x80, 0x5B, 0); CHECK(seq_cue_of(&seq, part) == 2);
+        message(0x90, 0x5B, 127); message(0x80, 0x5B, 0); CHECK(seq_cue_of(&seq, part) == -1);
+        message(0x90, 0x5B, 127); message(0x80, 0x5B, 0); CHECK(seq_cue_of(&seq, part) == 0);
+        message(0x90, 0x5B, 127); message(0x80, 0x5B, 0); CHECK(seq_cue_of(&seq, part) == 0);
+        message(0x90, 0x5C, 127); message(0x80, 0x5C, 0); CHECK(seq_cue_of(&seq, part) == -1);
         seq.ppat[part] = NPAT - 2;
-        message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == NPAT - 1);
-        message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == NPAT - 1);
-        message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == -1);
+        message(0x90, 0x5C, 127); message(0x80, 0x5C, 0); CHECK(seq_cue_of(&seq, part) == NPAT - 1);
+        message(0x90, 0x5C, 127); message(0x80, 0x5C, 0); CHECK(seq_cue_of(&seq, part) == NPAT - 1);
+        message(0x90, 0x5B, 127); message(0x80, 0x5B, 0); CHECK(seq_cue_of(&seq, part) == -1);
         for (int other = 0; other < NPARTS; other++) if (other != part)
             CHECK(seq_cue_of(&seq, other) == -1);
     }

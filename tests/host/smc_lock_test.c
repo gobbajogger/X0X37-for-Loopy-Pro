@@ -41,13 +41,11 @@ static void reset_output(void)
     send_count = led_count = led_transport_count = 0;
     memset(sent, 0, sizeof sent);
 }
-static void navigation_unchanged(screen_state_t before)
+static void press(unsigned note);
+static void captured_faders_unchanged(const pref_t *targets)
 {
-    /* Parked navigation may show its intentional locked notification. */
-    screen_state_t after = screen_state();
-    memcpy(before.msg, after.msg, sizeof before.msg);
-    before.msg_until = after.msg_until;
-    unchanged(before);
+    CHECK(smc.locked);
+    for (int i = 0; i < 8; i++) CHECK(smc_same(targets[i], smc_target(i)));
 }
 static void test_drum_lock(void)
 {
@@ -72,22 +70,47 @@ static void test_drum_lock(void)
         message(0x90, 16, 127);
         CHECK(track_muted(kit, bank * 8) != muted);
         CHECK(track_muted(!kit, 0) == foreign);
+        message(0x80, 16, 0);
         message(0x90, 8, 127);
         CHECK(smc.drum_solo[kit] & (1u << (bank * 8)));
         message(0x90, 8, 127); /* repeated held key cannot redirect */
         CHECK(smc.drum_solo[kit] == (1u << (bank * 8)));
         message(0x80, 8, 0); CHECK(!smc_project_active());
         message(0x80, 8, 0); CHECK(!smc_project_active());
-        ui_before = screen_state();
-        const int parked[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
-        for (unsigned i = 0; i < sizeof parked / sizeof *parked; i++) {
-            message(0x90, parked[i], 127); navigation_unchanged(ui_before);
-            CHECK(smc_same(f[0], smc_target(0)));
+        /* Explicit SMC navigation remains live; keyboard association changes
+         * above and these gestures must never redirect the captured faders. */
+        const int navigation[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
+        for (unsigned i = 0; i < sizeof navigation / sizeof *navigation; i++) {
+            int note = navigation[i];
+            int drum_arrow = note >= 0x2E && note <= 0x31;
+            navigate(V_PART, drum_arrow ? kit : PART_303A);
+            ui.sel[kit] = 1;
+            *page_of(V_PART) = note == 0x62 ? 1 : 0;
+            build_pages();
+            pref_t before_knobs[8];
+            for (int n = 0; n < 8; n++) before_knobs[n] = smc_knob_target(n);
+            int rec = ui.rec;
+            press((unsigned)note);
+            captured_faders_unchanged(f);
+            if (note == 0) CHECK(ui.part == kit && ui.rec != rec);
+            else if (note == 24) CHECK(ui.part == PART_909 && ui.view == V_PART);
+            else if (drum_arrow) CHECK(ui.part == kit && ui.sel[kit] == ((note & 1) ? 2 : 0));
+            else if (note == 0x62 || note == 0x63)
+                CHECK(ui.view == V_PART && ui.part == PART_303A && cur_page() == (note == 0x62 ? 0 : 1));
+            if (note == 0x60 || note == 0x61) {
+                CHECK(ui.view == V_PART && ui.part == PART_303A && cur_page() == 0);
+                int changed = 0;
+                for (int n = 0; n < 8; n++) changed |= !smc_same(before_knobs[n], smc_knob_target(n));
+                CHECK(changed);         /* deliberate banks rebind only the knob targets */
+            } else {
+                for (int n = 0; n < 8; n++) CHECK(smc_same(before_knobs[n], smc_knob_target(n)));
+            }
         }
+        navigate(V_PART, PART_303A);
         CHECK(smc_lock_toggle());
         CHECK(smc_same(smc_target(0), smc_home_target(0)));
     }
-    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, parked navigation");
+    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, live navigation and explicit knob banks");
 }
 static void test_engine_lock_and_clip(void)
 {
@@ -191,10 +214,12 @@ static void test_song_lock(void)
 static void test_solo_lock_boundaries(void)
 {
     for (int kit = 0; kit < 2; kit++) {
-        setup(V_SEQ, kit); CHECK(smc_lock_toggle()); navigate(V_PART, PART_303A);
+        setup(V_SEQ, kit); CHECK(smc_lock_toggle());
         for (int note = 13; note <= 15; note++) {
+            navigate(V_SEQ, kit);       /* direct drum entry retains Solo6–8 */
             message(0x90, note, 127);
             CHECK(smc.drum_solo[kit] == (1u << (note - 8)));
+            navigate(V_PART, PART_303A); /* release still owns the original drum */
             message(0x80, note, 0); CHECK(!smc_project_active());
         }
         setup(V_SEQ, kit); ui.sel[kit] = 0; build_pages();
@@ -278,13 +303,13 @@ static void test_physical_pause_input_and_output(void)
     screen_state_t before = screen_state();
     message(0x90, 0x5D, 127);
     CHECK(smc.locked); CHECK(smc.lock_down);
-    CHECK(seq.req_start && !seq.req_stop); CHECK(!smc_ui_active());
+    CHECK(seq.req_start && !seq.req_stop); CHECK(smc_ui_active());
     CHECK(ui.view == before.view && ui.overlay == before.overlay && !memcmp(ui.page, before.page, sizeof ui.page));
     navigate(V_PART, PART_303A);
     for (int i = 0; i < 7; i++) message(0x90, 0x5D, 127);
     CHECK(smc.locked); CHECK(smc_same(r, smc_target(0))); CHECK(!seq.req_stop);
     message(0x90, 0x5D, 0); message(0x80, 0x5D, 0);
-    CHECK(smc.locked && !smc.lock_down); CHECK(!smc_ui_active());
+    CHECK(smc.locked && !smc.lock_down); CHECK(smc_ui_active());
     message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += 600; smc_poll();
     CHECK(!smc.locked); CHECK(!seq.req_stop);
     message(0x80, 0x5D, 0); CHECK(!smc.locked);
@@ -319,8 +344,9 @@ static void test_physical_pause_input_and_output(void)
     reset_output(); smc_frame(); CHECK(led_count == 43); CHECK(led_transport_count == 3);
     reset_output(); smc_frame(); CHECK(send_count == 0);
     message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += 600; smc_poll();
-    CHECK(!smc.locked); CHECK(!smc_ui_active());
+    CHECK(!smc.locked); CHECK(smc_ui_active());
     message(0x90, 0x5D, 0);
+    now_ms += 1199; CHECK(smc_ui_active()); now_ms++; CHECK(!smc_ui_active());
     seq.playing = 0; seq.bpm = 120;
     now_ms = 250; smc_frame(); reset_output();
     now_ms = 500; smc_frame();
@@ -328,7 +354,7 @@ static void test_physical_pause_input_and_output(void)
     reset_output(); now_ms = 750; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 0);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
+    puts("PASS captured Pause dispatch: duplicate/release edges, no navigation, held/release-grace overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
 }
 static void test_guard_reset(void)
 {
@@ -357,22 +383,23 @@ static void test_select_and_play(void)
         setup(V_HOME, PART_303A);
         int rec = ui.rec;
         press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
-        CHECK(!smc_ui_active() && !smc.fx_down);
+        CHECK(smc_ui_active() && !smc.fx_down);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
         CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
         unsigned selected = ui.sel[kit];
         unsigned other = selected == 0 ? 1 : 0;
         press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit);
-        message(0x90, 24 + other, 127); CHECK(cur_page() == 0); CHECK(!smc_ui_active());
+        message(0x90, 24 + other, 127); CHECK(cur_page() == 0); CHECK(smc_ui_active());
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); /* held repeat is one gesture */
         message(0x80, 24 + other, 0);
         *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
         CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
-        screen_state_t before = screen_state();
-        press(24 + other); navigation_unchanged(before); CHECK(!smc_ui_active());
+        press(24 + other);
+        CHECK(ui.view == V_MIX && cur_page() == 0 && ui.part == kit);
+        CHECK(smc_ui_active()); CHECK(smc.locked);
         CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());

@@ -17,3 +17,5 @@ static void __attribute__((unused)) smc_fx_load_page(int page) { (void)page; }
 
 /* Queue-only fixtures exclude the physical hold gesture stack. */
 static void __attribute__((unused)) smc_unlock_tick(void) {}
+
+static void __attribute__((unused)) smc_ui_cancel(void) {}

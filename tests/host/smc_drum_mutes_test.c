@@ -112,6 +112,7 @@ static void mute_regression(int mode, int bank, int strip)
     for (int i = 0; i < 3; i++)
         assert(pref_get(PR(R_ENG, T_FX, 0, i == 0 ? FX_RV_LEVEL : i == 1 ? FX_DL_LEVEL : FX_VOLUME)) == before_fx[i]);
     assert(ui.sel[kit] == bank * 8 + 2 && ui.part == 3);
+    message(0x80, 16 + strip, 0);
     message(0x90, 16 + strip, 127);
     assert(seq.vmute == 0 && seq.mute == 0 && smc.lit[16 + strip] == 0);
     if (track < NDRUM) {
@@ -145,6 +146,9 @@ static void main_regression(void)
         assert(seq.vmute == 0 && smc.lit[16 + strip] == 1);
         if (strip < NPARTS) assert(seq.mute == MUTE_MASK[strip]);
         else assert(seq.mute == 0 && pref_get(fx) == 0);
+        message(0x90, 16 + strip, 127); /* held duplicate is one physical action */
+        assert(smc.lit[16 + strip] == 1);
+        message(0x80, 16 + strip, 0);
         message(0x90, 16 + strip, 127);
         assert(seq.vmute == 0 && seq.mute == 0 && smc.lit[16 + strip] == 0);
         if (strip >= NPARTS) assert(pref_get(fx) == before);

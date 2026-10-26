@@ -12,7 +12,7 @@ f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M
 f = f.replace('smc_button_apply(', 'smc_button(', 1)
 helpers = [re.search(r'^static const (?:uint8_t|int8_t) '+name+r'\[4\]\[3\] = \{.*?^\};', s, re.M | re.S)[0]
            for name in ('SMC_VIEW', 'SMC_PAGE')]
-for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key'):
+for name in ('smc_visible_drum_mix', 'smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key'):
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
     if match:
         helpers.append(match[0])
@@ -34,7 +34,7 @@ static int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
 static int drum_mix_page(void) { return -1; }
 static int smk_clip_mode_on(void) { return 0; }
 static int is_drum(void) { return 0; }
-static int is_303(void) { return 1; }
+
 static void build_pages(void) {}
 #define song() (&song_data)
 static void smc_select_part(int p) { ui.part=p; }
@@ -50,6 +50,9 @@ static void mute_part(int p) { (void)p; }
 static void smc_toggle_fx(int n) { fx=n; }
 static int smc_fx_try(uint8_t note, int mmc) { (void)note; (void)mmc; return 0; }
 static void smc_view(int v,int p) { last_view=v; last_page=p; }
+static int smc_mode_cycle_owned(uint8_t n) { (void)n; return 0; }
+static void smc_mode_page(uint8_t n) { smc_view(n==7?V_HOME:n==15?V_PART:V_MIX,n==31?3:0); }
+static void smc_knob_bank_move(int d) { moved+=d; }
 static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own routing test */
 #define seq_cue_of(s,p) (-1)
 #define seq_cue_part(s,p,n) ((s)->ppat[p]=(n))
@@ -75,8 +78,8 @@ int main(void) {
     pg.n=4;
     for(int note=0x60;note<=0x63;note++) {
         int d=(note&1)?1:-1;
-        ui.overlay=O_NONE; ui.view=V_PART; page=1; smc_button(note,0);
-        if(note<0x62) assert(last_view==(d<0?V_HOME:V_SEQ));
+        ui.overlay=O_NONE; ui.view=V_PART; page=1; moved=0; smc_button(note,0);
+        if(note<0x62) assert(moved==d && page==1 && ui.view==V_PART);
         else { assert(page==1+d); page=d<0?0:3; smc_button(note,0); assert(page==(d<0?0:3)); }
         ui.overlay=O_LIST; moved=edited=0; smc_button(note,0);
         assert(note<0x62 ? moved==d && edited==0 : moved==0 && edited==d);
