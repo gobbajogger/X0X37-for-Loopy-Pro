@@ -352,7 +352,11 @@ static void chi_aux_apply(int v, int i, int val)
         /* Pedal up releases only a live/MIDI deferred note — latch is cleared
          * on every pattern/arp note-on so this cannot cut a sequencer gate. */
         if (chi_damper_on(was) && !chi_damper_on((uint8_t)val) && chi_damp_latched[v]) {
+#if X0X_DEV_WOBBLE
+            synth_off(&bass_slot[v]);
+#else
             bass303_note_off(&b303[v]);
+#endif
             chi_damp_latched[v] = 0;
         }
     }

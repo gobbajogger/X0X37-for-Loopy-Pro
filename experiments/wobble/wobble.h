@@ -11,6 +11,7 @@ enum wobble_parameter {
     W_OUTPUT, W_STEREO, W_PITCH_BEND, W_DAMPER,
     /* Owner amp ADSR (not in Miami AU 3.1.6); defaults ≈ legacy 2 ms / hold / 30 ms */
     W_ATTACK, W_DECAY, W_SUSTAIN, W_RELEASE,
+    W_BASS_SPLIT,
     W_PARAMETER_COUNT
 };
 typedef struct {
@@ -20,6 +21,7 @@ typedef struct {
     float envelope, velocity, attack_step, decay_step, release_step, sustain_level;
     uint8_t env_stage; /* 0 attack 1 decay 2 sustain 3 release */
     float filter_low, filter_band, stereo_memory;
+    float split_low, split_band, split2_low, split2_band;
     uint32_t active_samples;
     uint8_t note, gate, active, deferred_off;
 } wobble_t;
@@ -36,4 +38,6 @@ void wobble_all_notes_off(wobble_t *s);
  * Mono downmix is exactly (left+right)*0.5; stereo=0 gives left==right.
  * No allocation, global state, random source, libm, clocks or device access. */
 void wobble_render(wobble_t *s, float *left, float *right, size_t n);
+float wobble_bass_split_hz(float norm);
+float wobble_bass_split_alpha(float norm);
 #endif
