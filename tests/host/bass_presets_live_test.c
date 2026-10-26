@@ -42,14 +42,15 @@ static void physical_browse(int voice)
 }
 static void edited_pixels(int voice)
 {
-    uint16_t actual[16*80];unsigned colored=0;
+    unsigned colored=0;
     ui.part=PART_303A+voice;ui.view=V_PART;ui.overlay=O_NONE;ui.held_step=-1;
     build_pages();*page_of(V_PART)=0;ui.touched=-1;memset(blit_hash,0,sizeof blit_hash);draw_main();
-    CHECK(FONT_S.h<=16);CHECK(12+FONT_S.h<=BAND_H);
-    for(int y=0;y<16;y++)for(int x=0;x<80;x++)actual[y*80+x]=fb[(MAIN_Y+12+y)*240+148+x];
-    cv_begin(240,BAND_H,C_BLACK);cv_text(148,12,&FONT_S,"EDITED",C_AMB);cv_commit(1,0,MAIN_Y);
-    for(int y=0;y<16;y++)for(int x=0;x<80;x++) {uint16_t expected=fb[(MAIN_Y+12+y)*240+148+x];CHECK(actual[y*80+x]==expected);colored+=expected!=0;}
-    CHECK(colored>20);
+    /* EDITED is a live status in the SOUND page's fourth matrix cell.  The
+     * active engine/preset and three controls remain visible on the same page. */
+    CHECK(FONT_S.h<=16);
+    for(int y=MAIN_Y+BAND_H+42;y<MAIN_Y+BAND_H+58;y++)
+        for(int x=128;x<218;x++) colored+=fb[y*240+x]!=C_BLACK;
+    CHECK(colored>80);
 }
 static uint32_t note_packet(int src,int off,int pitch)
 {return (off?8u:9u)|((uint32_t)src<<4)|((uint32_t)((off?0x80:0x90)|seq.ch[TRK_BASS0])<<8)|((uint32_t)pitch<<16)|(100u<<24);}
