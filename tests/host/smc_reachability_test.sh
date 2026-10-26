@@ -8,7 +8,7 @@ trap 'rm -rf "$OUT"' EXIT HUP INT TERM
 awk '/^static const char CK_FLD_N\[\] = /{print}
      /^static uint32_t ck_page_on\(void\)$/ || /^int smk_ck_smc_(turn|nav)\(/{on=1}
      on{print} on && /^}/{on=0}' "$SOURCE/firmware/src/app/main_fm1.c" > "$OUT/clip_smc.inc"
-U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
+U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
 firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c"
 # The supported host builder generates the same fonts/sample tables first.

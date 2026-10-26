@@ -82,7 +82,7 @@ sc = sc.replace("turn ALGO 2\n", "")
 sc = sc.replace("tap PLAY\nwait 2000\ntap PLAY\n", "")
 (q / "side-sends.x0x").write_text(sc)
 
-units = "firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c experiments/wobble/wobble.c".split()
+units = "firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c experiments/wobble/wobble.c".split()
 flags = [
     "-O2",
     "-ffp-contract=off",

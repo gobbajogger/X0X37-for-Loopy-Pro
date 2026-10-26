@@ -20,7 +20,7 @@ trap 'rm -f ${bin:+"$bin"} ${hdr:+"$hdr"}; rmdir "$lockdir" 2>/dev/null' EXIT
 bin=$(mktemp "$PWD/build/host/gen_builtin_break.XXXXXX")
 hdr=$(mktemp "$PWD/$OUT/x0x_break_bank.h.XXXXXX")
 ${CC:-cc} -O2 -ffp-contract=off -w -Ifirmware/src -I"$OUT" -o "$bin" \
-    tools/gen_builtin_break.c firmware/src/dsp/drum909.c -lm
+    tools/gen_builtin_break.c firmware/src/dsp/drum909.c firmware/src/dsp/x0x_param.c -lm
 "$bin" "$hdr" ${2:+"$2"}
 mv -f "$hdr" "$OUT/x0x_break_bank.h"
 hdr=

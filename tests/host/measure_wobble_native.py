@@ -8,7 +8,7 @@ import hashlib,json,os,pathlib,re,subprocess
 root=pathlib.Path(__file__).resolve().parents[2];os.chdir(root)
 out=root/'build/wobble-native';out.mkdir(parents=True,exist_ok=True)
 tc=pathlib.Path(os.environ['JIELI_TOOLCHAIN']);result={}
-units=['dsp/drum909.c','dsp/drum808.c','dsp/bass303.c','dsp/breaks.c','dsp/fxbus.c','dsp/master.c','seq/sequencer.c','seq/tb3po.c','seq/pattern.c','seq/motion.c','app/engine.c']
+units=['dsp/drum909.c','dsp/drum808.c','dsp/x0x_param.c','dsp/bass303.c','dsp/breaks.c','dsp/fxbus.c','dsp/master.c','seq/sequencer.c','seq/tb3po.c','seq/pattern.c','seq/motion.c','app/engine.c']
 for model,directory in [('elite','smk37-elite'),('pro','smk37')]:
  b=root/'build'/directory
  objects=[b/n for n in ['crt0.o','fm1_vec.o','fm1_isr.o','fm1_cpu1.o','x0x.o']]
