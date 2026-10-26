@@ -1206,9 +1206,11 @@ typedef struct { float min, max; uint8_t exp, def; } d8_spec_t;
  * (DRV,DST,SND,SND,NON,NON). Kick, snare, and maracas keep private FX columns. */
 #define D8_SPEC_HEAD 3
 static const d8_spec_t k_spec_fx6[] = {DRV, DST, SND, SND, NON, NON};
-static const d8_spec_t k_spec_bd_fx[] = {DRV, DST, NON, NON, {0.0f, 6.0f, 0, 42}, {0.0f, 1.0f, 0, 24}};
-static const d8_spec_t k_spec_sd_fx[] = {DRV, DST, SND, SND, {0.0f, 1.0f, 0, 89}, {0.0f, 1.0f, 0, 64}};
-static const d8_spec_t k_spec_ma_fx[] = {DRV, DST, SND, SND, {0.0f, 1.0f, 0, 32}, NON};
+/* BD/SD/MA private FX: share the fx6 prefix, keep only the differing tail cells.
+ * BD: DRV,DST then NON,NON from fx6[4..], then private x2. SD/MA: DRV..SND from fx6[0..3]. */
+static const d8_spec_t k_spec_bd_x2[] = {{0.0f, 6.0f, 0, 42}, {0.0f, 1.0f, 0, 24}};
+static const d8_spec_t k_spec_sd_x2[] = {{0.0f, 1.0f, 0, 89}, {0.0f, 1.0f, 0, 64}};
+static const d8_spec_t k_spec_ma_x2[] = {{0.0f, 1.0f, 0, 32}, NON};
 static const d8_spec_t k_spec_head[D8S_NUM][D8_SPEC_HEAD] = {
     [D8S_BD] = {LVL, TU12, {0.1f, 8.0f, 1, 87}},
     [D8S_SD] = {LVL, TU12, {0.1f, 8.0f, 1, 108}},
@@ -1229,15 +1231,28 @@ static const d8_spec_t k_spec_head[D8S_NUM][D8_SPEC_HEAD] = {
 };
 static const d8_spec_t *d8_kspec(int s, int slot)
 {
+    int fx;
     if (slot < D8_SPEC_HEAD)
         return &k_spec_head[s][slot];
-    if (s == D8S_BD)
-        return &k_spec_bd_fx[slot - D8_SPEC_HEAD];
-    if (s == D8S_SD)
-        return &k_spec_sd_fx[slot - D8_SPEC_HEAD];
-    if (s == D8S_MA)
-        return &k_spec_ma_fx[slot - D8_SPEC_HEAD];
-    return &k_spec_fx6[slot - D8_SPEC_HEAD];
+    fx = slot - D8_SPEC_HEAD;
+    if (s == D8S_BD) {
+        if (fx < 2)
+            return &k_spec_fx6[fx];       /* DRV, DST */
+        if (fx < 4)
+            return &k_spec_fx6[fx + 2];   /* NON, NON at fx6[4..] */
+        return &k_spec_bd_x2[fx - 4];
+    }
+    if (s == D8S_SD) {
+        if (fx < 4)
+            return &k_spec_fx6[fx];       /* DRV, DST, SND, SND */
+        return &k_spec_sd_x2[fx - 4];
+    }
+    if (s == D8S_MA) {
+        if (fx < 4)
+            return &k_spec_fx6[fx];
+        return &k_spec_ma_x2[fx - 4];
+    }
+    return &k_spec_fx6[fx];
 }
 
 /* the lanes 8W8 balanced the kit with, applied before the drive stage */
