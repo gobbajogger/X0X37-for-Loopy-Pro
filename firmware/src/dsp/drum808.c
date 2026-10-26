@@ -1294,9 +1294,10 @@ static const x0x_param_t d8_rs_mid[] = {PP("Decay", 40), {"Sound", 1, 0, k_rim_n
 static const d8_pmap_t k_m_sw[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                    {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0},
                                    {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-static const x0x_param_t d8_cp_head[] = {PP("Level", 64), PP("Tune", 64), PP("Decay", 64), PP("Attack", 32),
-                                         {"Sound", 1, 0, k_clap_names}};
-#define D8_CP_HEAD ((int)(sizeof(d8_cp_head) / sizeof(d8_cp_head[0])))
+/* Clap Level+Tune match d8_lvl_tune; Decay/Attack/Sound stay on the clap. */
+static const x0x_param_t d8_cp_mid[] = {PP("Decay", 64), PP("Attack", 32), {"Sound", 1, 0, k_clap_names}};
+#define D8_CP_MID_N ((int)(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0])))
+#define D8_CP_HEAD (D8_LTUNE_N + D8_CP_MID_N)
 static const d8_pmap_t k_m_cp[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                    {K_FIXED, D8P_X1, D8S_MA}, {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0},
                                    {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
@@ -1317,8 +1318,8 @@ static const d8_pmap_t k_m_decay_tune[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_DE
 static const x0x_param_t k_p_kit[] = {PP("Level", 100), PP("Accent", 127)};
 static const d8_pmap_t k_m_kit[] = {{K_KIT, 0, 0}, {K_KIT, 1, 0}};
 
-typedef struct { const x0x_param_t *p; const d8_pmap_t *m; uint8_t n; } d8_track_t;
-#define TRK(p, m, n) {p, m, (uint8_t)(n)}
+/* Pot maps only — descriptor tables are reached through d8_spec (the old .p/.n
+ * fields were never read and only cost flash). */
 static const uint8_t d8_nspec[D8_NUM + 1] = {
     (uint8_t)(D8_BD_HEAD + D8_FX_N), (uint8_t)(D8_SD_HEAD + D8_FX_N),
     (uint8_t)(D8_SW_HEAD + D8_FX_N), (uint8_t)(D8_SW_HEAD + D8_FX_N), (uint8_t)(D8_SW_HEAD + D8_FX_N),
@@ -1338,14 +1339,11 @@ _Static_assert(sizeof(d8_ht_mid) / sizeof(d8_ht_mid[0]) == D8_SW_MID_N, "ht mid"
 _Static_assert(sizeof(d8_rs_mid) / sizeof(d8_rs_mid[0]) == D8_SW_MID_N, "rs mid");
 _Static_assert(sizeof(d8_cb_mid) / sizeof(d8_cb_mid[0]) == D8_HAT_MID_N, "cb mid");
 _Static_assert(sizeof(d8_ch_mid) / sizeof(d8_ch_mid[0]) == D8_HAT_MID_N, "ch mid");
+_Static_assert(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0]) == D8_CP_MID_N, "cp mid");
 
-static const d8_track_t k_tracks[D8_NUM + 1] = {
-    TRK(d8_bd_head, k_m_bd, D8_BD_HEAD + D8_FX_N), TRK(d8_sd_head, k_m_sd, D8_SD_HEAD + D8_FX_N),
-    TRK(d8_lt_mid, k_m_sw, D8_SW_HEAD + D8_FX_N), TRK(d8_mt_mid, k_m_sw, D8_SW_HEAD + D8_FX_N),
-    TRK(d8_ht_mid, k_m_sw, D8_SW_HEAD + D8_FX_N), TRK(d8_rs_mid, k_m_sw, D8_SW_HEAD + D8_FX_N),
-    TRK(d8_cp_head, k_m_cp, D8_CP_HEAD + D8_FX_N), TRK(d8_cb_mid, k_m_tune_decay, D8_HAT_HEAD + D8_FX_N),
-    TRK(d8_cy_head, k_m_decay_tune, D8_CY_HEAD + D8_FX_N), TRK(d8_oh_head, k_m_decay_tune, D8_CY_HEAD + D8_FX_N),
-    TRK(d8_ch_mid, k_m_tune_decay, D8_HAT_HEAD + D8_FX_N), TRK(k_p_kit, k_m_kit, sizeof(k_p_kit) / sizeof(k_p_kit[0])),
+static const d8_pmap_t *const k_maps[D8_NUM + 1] = {
+    k_m_bd, k_m_sd, k_m_sw, k_m_sw, k_m_sw, k_m_sw, k_m_cp, k_m_tune_decay,
+    k_m_decay_tune, k_m_decay_tune, k_m_tune_decay, k_m_kit,
 };
 
 static const x0x_param_t *d8_spec(int track, int i)
@@ -1389,8 +1387,10 @@ static const x0x_param_t *d8_spec(int track, int i)
         return &d8_fx_tail[i - D8_SW_HEAD];
     }
     if (track == D8_CP) {
+        if (i < D8_LTUNE_N)
+            return &d8_lvl_tune[i];
         if (i < D8_CP_HEAD)
-            return &d8_cp_head[i];
+            return &d8_cp_mid[i - D8_LTUNE_N];
         return &d8_fx_tail[i - D8_CP_HEAD];
     }
     if (track == D8_CB) {
@@ -1454,7 +1454,7 @@ void drum808_set(drum808_t *d, int track, int i, int value)
         return;
     if (value < 0) value = 0;
     if (value > p->max) value = p->max;
-    m = &k_tracks[track].m[i];
+    m = &k_maps[track][i];
     switch (m->kind) {
     case K_POT: set_pot(d, track_sound(d, track), m->slot, value); break;
     case K_FIXED: set_pot(d, m->snd, m->slot, value); break;
@@ -1472,7 +1472,7 @@ int drum808_get(const drum808_t *d, int track, int i)
     const d8_pmap_t *m;
     if (!drum808_param(track, i))
         return 0;
-    m = &k_tracks[track].m[i];
+    m = &k_maps[track][i];
     switch (m->kind) {
     case K_POT: return d->pot[track_sound(d, track)][m->slot];
     case K_FIXED: return d->pot[m->snd][m->slot];

@@ -102,29 +102,31 @@ static const d9_pspec_t d9_cp_p[] = {
 };
 #define D9_CP_HEAD NP(d9_cp_p)
 #define D9_CP_N (D9_CP_HEAD + D9_FX_DIST_N)
-/* Closed and open hats: decay + level per hat, then shared tune, then fx0. */
-static const d9_pspec_t d9_hat_tune[] = {
+/* Hats and cymbals share this sample-pitch Tune record (same defaults). */
+static const d9_pspec_t d9_smp_tune[] = {
     EXP("Tune", F_TUNE, 64, SMP_PITCH),
 };
+/* Closed and open hats: decay + level per hat, then shared tune, then fx0. */
 #define D9_HAT_HEAD 2
-#define D9_HAT_N (D9_HAT_HEAD + NP(d9_hat_tune) + D9_FX0_N)
+#define D9_HAT_N (D9_HAT_HEAD + NP(d9_smp_tune) + D9_FX0_N)
 static const d9_pspec_t d9_ch_p[] = {
     EXP("Decay", F_DECAY, 84, CH_DECAY), LEVEL(89),
 };
 static const d9_pspec_t d9_oh_p[] = {
     EXP("Decay", F_DECAY, 97, OH_DECAY), LEVEL(80),
 };
-/* Crash and ride: tune + level per cymbal, then shared decay, then fx0. */
+/* Crash and ride: shared tune, level per cymbal, then shared decay, then fx0. */
 static const d9_pspec_t d9_cy_decay[] = {
     EXP("Decay", F_DECAY, 108, CY_DECAY),
 };
-#define D9_CY_HEAD 2
+#define D9_CY_LVL 1
+#define D9_CY_HEAD (NP(d9_smp_tune) + D9_CY_LVL) /* tune + level; pot order unchanged */
 #define D9_CY_N (D9_CY_HEAD + NP(d9_cy_decay) + D9_FX0_N)
 static const d9_pspec_t d9_cr_p[] = {
-    EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(47),
+    LEVEL(47),
 };
 static const d9_pspec_t d9_rd_p[] = {
-    EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(42),
+    LEVEL(42),
 };
 static const d9_pspec_t d9_kit_p[] = {
     LIN("Accent", F_ACCENT, 42, 1.0f, 4.0f), LIN("Veloc", F_VEL, 127, 0.0f, 1.0f),
@@ -138,7 +140,7 @@ static const d9_pspec_t *const d9_specs[DR_NUM + 1] = {
 #define FITS(a) _Static_assert(NP(a) <= DR_MAX_PARAMS, #a " has more params than DR_MAX_PARAMS")
 FITS(d9_bd_p); FITS(d9_sd_p); FITS(d9_lt_p); FITS(d9_mt_p); FITS(d9_ht_p); FITS(d9_rs_p); FITS(d9_cp_p);
 FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail); FITS(d9_fx0_tail);
-FITS(d9_hat_tune); FITS(d9_cy_decay);
+FITS(d9_smp_tune); FITS(d9_cy_decay);
 _Static_assert(NP(d9_bd_p) == D9_BD_HEAD, "kick head is tune..pitch only");
 _Static_assert(D9_BD_N <= DR_MAX_PARAMS, "kick pot count");
 _Static_assert(NP(d9_sd_p) == D9_SD_HEAD, "snare head ends at drive");
@@ -154,8 +156,8 @@ _Static_assert(D9_TOM_N <= DR_MAX_PARAMS, "tom pot count");
 _Static_assert(NP(d9_ch_p) == D9_HAT_HEAD && NP(d9_oh_p) == D9_HAT_HEAD,
                "hat heads are decay and level only");
 _Static_assert(D9_HAT_N <= DR_MAX_PARAMS, "hat pot count");
-_Static_assert(NP(d9_cr_p) == D9_CY_HEAD && NP(d9_rd_p) == D9_CY_HEAD,
-               "cymbal heads are tune and level only");
+_Static_assert(NP(d9_cr_p) == D9_CY_LVL && NP(d9_rd_p) == D9_CY_LVL,
+               "cymbal heads are level only; tune is shared");
 _Static_assert(D9_CY_N <= DR_MAX_PARAMS, "cymbal pot count");
 static const uint8_t d9_nspec[DR_NUM + 1] = {
     D9_BD_N, D9_SD_N, D9_TOM_N, D9_TOM_N, D9_TOM_N, D9_RS_N, D9_CP_N,
@@ -182,12 +184,14 @@ static const d9_pspec_t *d9_spec(int voice, int i)
         if (i < D9_HAT_HEAD)
             return &d9_specs[voice][i];
         if (i == D9_HAT_HEAD)
-            return &d9_hat_tune[0];
+            return &d9_smp_tune[0];
         return &d9_fx0_tail[i - (D9_HAT_HEAD + 1)];
     }
     if (voice == DR_CR || voice == DR_RD) {
-        if (i < D9_CY_HEAD)
-            return &d9_specs[voice][i];
+        if (i == 0)
+            return &d9_smp_tune[0];
+        if (i == 1)
+            return &d9_specs[voice][0];
         if (i == D9_CY_HEAD)
             return &d9_cy_decay[0];
         return &d9_fx0_tail[i - (D9_CY_HEAD + 1)];

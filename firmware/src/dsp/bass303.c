@@ -8,6 +8,7 @@
  * (pot ranges) and src/dsp/drive.h (Soft / RAT). */
 #include "bass303.h"
 #include "fastmath.h"
+#include "../x0x_cold.h"          /* X0X_COLD: bass303_init is boot only, not the render */
 
 #define FSO (BASS303_SR * (float)BASS303_OS)    /* oversampled rate */
 
@@ -320,7 +321,8 @@ static void clear_audio_state(bass303_t *b)
     b->amp_y = 0.0f;
 }
 
-void bass303_init(bass303_t *b)
+/* Boot only (engine_init / synth bind). bass303_process stays -O2. */
+X0X_COLD void bass303_init(bass303_t *b)
 {
     uint8_t *p = (uint8_t *)b;
     unsigned k;
