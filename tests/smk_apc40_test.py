@@ -103,7 +103,11 @@ assert "smk_apc_host_is_active" not in engine and "smk_apc_host_is_active" not i
 assert "apc_host_on & (1u << apc_in_ble)" in main   # APC handshake owns only the input link that sent it
 assert "smk_apc_ble_host_seen();" in ble and "smk_apc_host_seen();" in usb
 assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
-assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
+# Clip pads: keep Loopy pad feedback out of the sound engine in clip mode, but a note
+# on the break's own channel is the break (kit-consume), not a clip pad.
+assert engine.count("if (smk_clip_mode_on() && ch != seq.ch[TRK_BRK])\n                return;") == 1
+# Transport feedback notes still use the plain clip-mode early return.
+assert engine.count("if (smk_clip_mode_on())\n                return;") == 1
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
 assert "smk_clip_pad_level(rgb[0], v, brightness)" in main
 assert "SMK_CLIP_LCD_FLOOR" not in main   # LCD_FLOOR is in tools/apc_colour_model.py now
