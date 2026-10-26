@@ -2,6 +2,24 @@
 /* X0X platform on the FM-1: plat.h over Felucca's HAL, panel map, USB rings and storage.
  * Part of the unity build (x0x.c), after the HAL, usb.c, storage.c and panel.c. */
 
+/* Main-loop CQ producer and ALNK0 consumer share CPU0. Source masking leaves
+ * MIDI/clock IRQs alone and never changes the caller's global IRQ state. */
+uint32_t plat_cq_lock(void)
+{
+    uint32_t bit = 1u << ((FM1_IRQ_ALNK0 & 7u) * 4u);
+    uint32_t enabled = FM1_ICFG(FM1_IRQ_ALNK0) & bit;
+    fm1_irq_mask(FM1_IRQ_ALNK0);
+    __asm__ volatile("csync" ::: "memory");
+    return enabled;
+}
+void plat_cq_unlock(uint32_t state)
+{
+    uint32_t bit = 1u << ((FM1_IRQ_ALNK0 & 7u) * 4u);
+    __asm__ volatile("csync" ::: "memory");
+    FM1_ICFG(FM1_IRQ_ALNK0) = (FM1_ICFG(FM1_IRQ_ALNK0) & ~bit) | state;
+    __asm__ volatile("csync" ::: "memory");
+}
+
 uint32_t plat_ms(void) { return fm1_ms; }
 
 uint32_t plat_buttons(void)

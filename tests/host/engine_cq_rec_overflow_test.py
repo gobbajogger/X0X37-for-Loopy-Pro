@@ -16,6 +16,7 @@ e = (ROOT / "firmware/src/app/engine.c").read_text()
 ring = e[e.index("enum { C_PARAM_T0 = 0, C_DRUM") : e.index("/* ------------------------------------------------------------ params --- */")]
 src = (
     "#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\n"
+    + "static uint32_t plat_cq_lock(void) { return 0; }\nstatic void plat_cq_unlock(uint32_t s) { (void)s; }\n"
     + ring
     + r"""
 static int count_type(uint32_t type)

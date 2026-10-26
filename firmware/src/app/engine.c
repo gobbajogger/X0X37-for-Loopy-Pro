@@ -287,15 +287,31 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* ------------------------------------------------------- command queue --- */
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
+/* C_REC reservation/priority matches the separately reviewed atomic REC unit. */
 enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
 
+/* The scan may be preempted after choosing a victim. Revalidate the slot only
+ * while the consumer source is masked, then publish exactly one aligned word.
+ * Scanning the 1024-entry queue never runs with the audio source masked. */
+static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
+{
+    uint32_t state = plat_cq_lock();
+    uint32_t r = cq_r;
+    int live = (i - r < w - r);
+    if (live)
+        cq[i % CQ] = word;
+    plat_cq_unlock(state);
+    return live;
+}
+
 __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
 {
     uint32_t w = cq_w;
     uint32_t word = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
+retry:
     if (w - cq_r >= CQ) {
         /* Full: params may drop (mirror still has them). Never drop C_BON,
          * C_BOFF, C_BRK, or C_DRUM — missing a live drum hit or break press
@@ -304,20 +320,22 @@ __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t
         uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_REC);
         if (!keep)
             return;
-        for (i = cq_r; i != w; i++) {
+        uint32_t r = cq_r;
+        for (i = r; i != w; i++) {
             uint32_t t = cq[i % CQ] >> 28;
             if (t < C_DRUM || t == C_DRUM) {
-                cq[i % CQ] = word;
-                return;
+                if (cq_replace(i, w, word)) return;
+                goto retry;
             }
         }
         for (i = cq_r; i != w; i++) {
             uint32_t tw = cq[i % CQ], t = tw >> 28, bb = (tw >> 12) & 0xFFu;
             if (t != C_BOFF && !(t == C_BRK && bb == 0u)) {
-                cq[i % CQ] = word;
-                return;
+                if (cq_replace(i, w, word)) return;
+                goto retry;
             }
         }
+        if (cq_r != r) goto retry; /* consumer freed room during the scan */
         return;
     }
     cq[w % CQ] = word;
