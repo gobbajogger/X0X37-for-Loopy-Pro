@@ -256,6 +256,17 @@ __attribute__((noinline)) static void limit_env(master_t *m, float a)
     }
 }
 
+/* One DJF SVF channel step — shared by mono and L/R stereo (same pattern as soft_ceiling). */
+__attribute__((noinline)) static float djf_tick(float s, float *ic1, float *ic2, int mode, float g,
+                                                float a1, float k)
+{
+    float v3 = s - *ic2;
+    float v1 = a1 * *ic1 + g * a1 * v3;
+    float v2 = *ic2 + g * v1;
+    *ic1 = fm_flush(2.0f * v1 - *ic1);
+    *ic2 = fm_flush(2.0f * v2 - *ic2);
+    return mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
+}
 
 void master_process(master_t *m, float *x, int n, float volume)
 {
@@ -282,12 +293,7 @@ void master_process(master_t *m, float *x, int n, float volume)
                 m->a1 = 1.0f / (1.0f + g * (g + k));
             }
             a1 = m->a1;
-            float v3 = s - m->ic2;
-            float v1 = a1 * m->ic1 + g * a1 * v3;
-            float v2 = m->ic2 + g * v1;
-            m->ic1 = fm_flush(2.0f * v1 - m->ic1);
-            m->ic2 = fm_flush(2.0f * v2 - m->ic2);
-            s = mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
+            s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
         if (m->pot[MST_LIMIT]) {
@@ -336,18 +342,8 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
                 m->a1 = 1.0f / (1.0f + g * (g + k));
             }
             a1 = m->a1;
-            float v3 = s - m->ic2;
-            float v1 = a1 * m->ic1 + g * a1 * v3;
-            float v2 = m->ic2 + g * v1;
-            m->ic1 = fm_flush(2.0f * v1 - m->ic1);
-            m->ic2 = fm_flush(2.0f * v2 - m->ic2);
-            s = mode == 1 ? v2 : mode == 2 ? v1 : s - k * v1 - v2;
-            v3 = sr - m->ic2r;
-            v1 = a1 * m->ic1r + g * a1 * v3;
-            v2 = m->ic2r + g * v1;
-            m->ic1r = fm_flush(2.0f * v1 - m->ic1r);
-            m->ic2r = fm_flush(2.0f * v2 - m->ic2r);
-            sr = mode == 1 ? v2 : mode == 2 ? v1 : sr - k * v1 - v2;
+            s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
+            sr = djf_tick(sr, &m->ic1r, &m->ic2r, mode, g, a1, k);
         }
         if (vc != volume) {                          /* the MASTER knob glides (~10 ms): no zipper */
             vc += (volume - vc) * 0.0022651f;
