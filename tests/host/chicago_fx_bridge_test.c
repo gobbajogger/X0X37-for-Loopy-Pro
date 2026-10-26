@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Host proof: Chicago SEND FX bridge maps Off/Comp onto Mix+fxbus intentions;
- * Crush + Ring + EQ + SDly + BPM + Hall are insert (clear sends only); other
- * NOT_YET types never invent Cho/Phaser/Ensemble/Gate DSP. */
+ * Crush + Ring + EQ + Cho + SDly + BPM + Hall are insert (clear sends only);
+ * other NOT_YET types never invent Phaser/Ensemble/Gate DSP. */
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
@@ -47,7 +47,9 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_RING), "Ring supported (insert)");
     CHECK(chi_fx_is_insert(CHI_FX_RING), "Ring is insert");
     CHECK(!chi_fx_is_not_yet(CHI_FX_RING), "Ring not NOT_YET");
-    CHECK(chi_fx_is_not_yet(CHI_FX_CHO), "Cho NOT_YET");
+    CHECK(chi_fx_supported(CHI_FX_CHO), "Cho supported (insert)");
+    CHECK(chi_fx_is_insert(CHI_FX_CHO), "Cho is insert");
+    CHECK(!chi_fx_is_not_yet(CHI_FX_CHO), "Cho not NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_ENS), "Ens NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_PHASER), "Phaser NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_GATE_REV), "GateRev NOT_YET");
@@ -83,12 +85,13 @@ static void test_not_yet_clear(void)
     chicago_fx_map(CHI_FX_HALL, 64, 100, 0, &o);
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Hall insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_MX_REV), "Hall insert does not set Mix reverb");
-    chicago_fx_map(CHI_FX_CHO, 90, 90, 0, &o);
-    CHECK(o.touch == 0, "Cho without clear_ny writes nothing");
-    chicago_fx_map(CHI_FX_CHO, 90, 90, 1, &o);
-    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Cho clear_ny only clears sends");
+    chicago_fx_map(CHI_FX_CHO, 47, 16, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Cho insert clears sends (no Mix theft)");
+    CHECK(!(o.touch & CHI_FX_W_MX_DLY), "Cho insert does not set Mix delay");
+    chicago_fx_map(CHI_FX_GATE_REV, 90, 90, 0, &o);
+    CHECK(o.touch == 0, "GateRev without clear_ny writes nothing");
     chicago_fx_map(CHI_FX_GATE_REV, 90, 90, 1, &o);
-    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "GateRev does not fake hall writes");
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "GateRev clear_ny only clears sends");
 }
 
 static void test_hall(void)
@@ -149,6 +152,7 @@ static void test_labels_honest(void)
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_SHORT_DLY], "SDly") == 0, "SDly plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_BPM_DLY], "BPM") == 0, "BPM plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain insert name");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_CHO], "Cho") == 0, "Cho plain insert name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");
 }
 
