@@ -187,6 +187,27 @@ int main(void)
     assert(!memcmp(before, flash_image + SMP_USER_OFF(0), sizeof before));
     puts("smp begin-cancel: BEGIN alone keeps last-good ok");
 
+    /* BEGIN then END with no WRITE must refuse — NOR cannot rewrite a live header. */
+    memset(header, 0, sizeof header);
+    h->magic = SMP_USER_MAGIC;
+    h->version = 1;
+    h->nz = 1;
+    memcpy(h->name, "NEWNAME1", 8);
+    h->data_len = 32;
+    h->zone[0].n = 64;
+    h->zone[0].rate = 65536;
+    h->crc = st_crc32((const uint8_t *)(flash_image + SMP_USER_OFF(0) + 512), 32);
+    a[0] = 0;
+    request(ED_SMP_BEGIN, a, 1);
+    assert(reply[6] == 0);
+    a[0] = 0;
+    n = pack(header, 512, a + 1);
+    request(ED_SMP_END, a, n + 1);
+    assert(reply[6] == 6);
+    assert(usr_nz[0] == 1);
+    assert(!memcmp(before, flash_image + SMP_USER_OFF(0), sizeof before));
+    puts("smp begin-cancel: END without WRITE refuses ok");
+
     /* Mid-WRITE erases sector 0; next BEGIN restores from FL_SMPV shadow. */
     memset(data, 0x5A, sizeof data);
     memset(header, 0, sizeof header);

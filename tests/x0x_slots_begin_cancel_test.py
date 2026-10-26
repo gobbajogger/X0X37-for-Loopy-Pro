@@ -60,6 +60,16 @@ def main():
     check(bytes(d.fl.mem[d.slots[k][0]:d.slots[k][0] + len(b)]) == before,
           "BEGIN alone leaves flash bytes unchanged")
 
+    # BEGIN then END with no WRITE must refuse (NOR cannot rewrite a live header).
+    b_rename = img(name=b"NEWNAME1")
+    assert d.req(xs.CMD_BEGIN, [k])[1] == 0
+    check(d.req(xs.CMD_END, [k] + xs.pack7(b_rename[:xs.HDR_LEN]))[1] == 6,
+          "END without WRITE -> rc 6 (no sector-0 erase)")
+    check(d.nz[k] == 1 and header_name(d, k) == "GOODLOOP",
+          "refused END keeps last-good name")
+    check(bytes(d.fl.mem[d.slots[k][0]:d.slots[k][0] + len(b)]) == before,
+          "refused END leaves flash bytes unchanged")
+
     # One WRITE erases sector 0; abandon then BEGIN must restore last-good.
     assert d.req(xs.CMD_BEGIN, [k])[1] == 0
     off = xs.DATA_OFF

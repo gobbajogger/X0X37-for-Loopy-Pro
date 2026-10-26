@@ -176,6 +176,10 @@ class MockDevice:
             if not p or p["data_len"] > size - xs.DATA_OFF:
                 self._try_restore_sec0(k)
                 return [k, 2]
+            # NOR cannot replace set bits: refuse END until a WRITE erased sector 0.
+            if not self.sec0_erased[k]:
+                self.importing[k] = False
+                return [k, 6]
             if zlib.crc32(bytes(self.fl.mem[base + xs.DATA_OFF:base + xs.DATA_OFF + p["data_len"]])) != p["crc"]:
                 self._try_restore_sec0(k)
                 return [k, 3]
