@@ -17,7 +17,8 @@
 #include <stdint.h>
 
 #ifndef UNDO_POOL
-#define UNDO_POOL 16128u                 /* leave 8 KiB pool headroom after per-step 303 velocity expands the shadow */
+/* 4 KiB history: tip after #606 links WBL1 with only ~868 B above the 8 KiB pool floor. */
+#define UNDO_POOL 4096u
 #endif
 #define UNDO_MAX 32
 #define UNDO_GAP 8u                    /* unchanged bytes between changes cheaper to keep than a new run */
