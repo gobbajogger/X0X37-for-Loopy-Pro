@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* WBL1 Miami knob labels and pot law for UI / SMC (DEV wobble voice only). */
+/* WBL1 Miami knob labels and pot law for UI / SMC (product wobble voice). */
 #pragma once
 #include "../dsp/x0x_param.h"
 #include "../dsp/wobble_config.h"
