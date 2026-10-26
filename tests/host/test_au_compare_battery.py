@@ -19,15 +19,23 @@ class AuCompareBatteryTest(unittest.TestCase):
             "AU_COMPARE_MODE",
             "AU_COMPARE_QUICK",
             "AU_COMPARE_FULL",
+            "AU_COMPARE_BPM",
             "MIAMI_COMPARE_QUICK",
         ):
             os.environ.pop(key, None)
 
     def test_default_preset_full_timing(self) -> None:
         self.assertEqual(au_compare_battery.compare_mode(), "preset")
+        self.assertEqual(au_compare_battery.compare_bpm(), 170.0)
         t = au_compare_battery.active_timing()
         self.assertEqual(t.frames, 48000)
         self.assertEqual(t.note_off_frame, 24000)
+
+    def test_bpm_env_override(self) -> None:
+        os.environ["AU_COMPARE_BPM"] = "120"
+        self.assertEqual(au_compare_battery.compare_bpm(), 120.0)
+        out = au_compare_battery.apply_timing_to_scenario({})
+        self.assertEqual(out["bpm"], 120.0)
 
     def test_quick_shortens_all_presets_not_subset(self) -> None:
         os.environ["AU_COMPARE_QUICK"] = "1"

@@ -4,6 +4,7 @@
     "factory_preset",
     "steady_voiced"
   ],
+  "bpm": 170.0,
   "sampleRate": 48000,
   "frames": 48000,
   "noteOnFrame": 4800,
