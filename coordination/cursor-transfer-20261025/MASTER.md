@@ -1,5 +1,7 @@
 # Cursor master continuation: usage-conservation transfer
 
+> **Historical execution packet — superseded ownership.** Preserve the dated receipts below as history. Before using any execution or ownership instruction, reconcile it with the [current owner-directed transfer receipt](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/cf5699bb6fd44b86834da600dfb9be6f64bcc785/coordination/continuations/2026-10-26-task6/ownership-transfer.json) merged on `coordination/merge-queue`. That receipt supersedes the older merge/integration coordinator and approval instructions; it does not transfer every narrower source scope or establish Mac placement. This historical packet authorizes no launch or ownership change.
+
 This is a real project handoff, not a completion or release claim. Owner requests Cursor continuation of all unfinished LoopyX0X37 work. Codex implementation, builds, repeated tests and observers are stopped for this transfer. One Cursor coordinator must explicitly accept the exact packet commit/blob and the coverage below, preserve existing writers, and record real worker acceptance or a precise capability blocker. Admission alone is insufficient. No promise of local hardware capability.
 
 ## Authority and ownership

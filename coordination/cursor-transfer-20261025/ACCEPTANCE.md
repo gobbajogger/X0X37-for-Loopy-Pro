@@ -1,5 +1,7 @@
 # Coordinator acceptance
 
+> **Historical execution packet — superseded ownership.** Preserve the dated receipts below as history. Before using any execution or ownership instruction, reconcile it with the [current owner-directed transfer receipt](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/cf5699bb6fd44b86834da600dfb9be6f64bcc785/coordination/continuations/2026-10-26-task6/ownership-transfer.json) merged on `coordination/merge-queue`. That receipt supersedes the older merge/integration coordinator and approval instructions; it does not transfer every narrower source scope or establish Mac placement. This historical packet authorizes no launch or ownership change.
+
 This is an ownership receipt for the unfinished-work handoff. It is not a completion, firmware, or local-execution claim.
 
 ## Identity and packet readback
