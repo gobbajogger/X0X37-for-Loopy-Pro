@@ -3726,7 +3726,23 @@ X0X_COLD static void input(void)
         if ((e = enc(EN_K1 + (int)i)) == 0)
             continue;
         if (lock_step() >= 0) {                         /* EDIT, a step held: its p-lock */
+#if X0X_BASS_PRESET_PREVIEW
+            int bass_edit = is_303();
+            if (bass_edit) {
+                engine_bass_edit_hold(1);
+                /* A bank may have committed since input() refreshed pg.
+                 * Do not reinterpret this detent's old page in the new bank.
+                 * The next input pass rebuilds it before accepting an edit. */
+                if (observed_bank[bidx()] != engine_bass_bank(bidx())) {
+                    engine_bass_edit_hold(0);
+                    continue;
+                }
+            }
+#endif
             lock_turn(pg.r[cur_page()][i], e, EN_K1 + (int)i);
+#if X0X_BASS_PRESET_PREVIEW
+            if (bass_edit) engine_bass_edit_hold(0);
+#endif
             continue;
         }
         if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {     /* SEQ, a held step's knobs edit it */
