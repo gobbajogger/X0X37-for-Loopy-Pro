@@ -292,12 +292,12 @@ static struct {
 static pattern_t *pat_of(int part) { return &proj.pat[seq.ppat[part]]; }
 static pattern_t *cur_pat(void) { return pat_of(ui.part); }    /* the pattern the part on screen plays */
 static int part_view(void) { return ui.view == V_PART || ui.view == V_SEQ || ui.view == V_GEN; }
-static int steps_view(void) { return ui.view == V_PART || ui.view == V_SEQ; }   /* the keys are the part's steps */
+static int steps_view(void) { return ui.view == V_PART || ui.view == V_SEQ; }
 static song_t *song(void) { return &proj.arr.song; }
 static int is_303(void) { return ui.part == PART_303A || ui.part == PART_303B; }
 static int is_drum(void) { return ui.part == PART_909 || ui.part == PART_808; }
 static int bidx(void) { return ui.part == PART_303B ? 1 : 0; }
-static int kbd_on(void) { return is_303() && (ui.rec || ui.freeplay[bidx()]); }   /* the keys a keyboard */
+static int kbd_on(void) { return is_303() && (ui.view == V_PART || ui.rec || ui.freeplay[bidx()]); }
 static uint8_t kbd_held_note[NBASS];
 static uint8_t bass_rec_step[NBASS];                 /* recorded source step + 1; zero means none */
 static uint8_t bass_rec_pat[NBASS], bass_rec_playing[NBASS];
@@ -2300,11 +2300,19 @@ static int32_t accel(int role, int32_t s, int range)
 
 static void set_view(int v)
 {
+    /* A step held on SEQ may carry its p-lock gesture to EDIT's sound knobs.
+     * Return to SEQ after key-up so lock_release still uses those knob refs. */
+    if (ui.view == V_PART && v == V_SEQ && (ui.held_step >= 0 || ui.hold_step >= 0)) {
+        say("RELEASE STEP FIRST", 0);
+        return;
+    }
 #if BOARD_SMK37
     smc_ui_cancel();
 #endif
-    bass_step_cancel();
-    drum_step_cancel();
+    if (!(ui.view == V_SEQ && v == V_PART)) {
+        bass_step_cancel();
+        drum_step_cancel();
+    }
     if (v != ui.view)
         ui.prev_view = ui.view;
     ui.view = (uint8_t)v;
@@ -2602,7 +2610,7 @@ static void drum_vel_set_step(int k, int v, int s, uint8_t vel)
     l->val[s] = vel;
 }
 
-static void drum_key(int v, int down)
+static void drum_key(int v, int down, int step_record)
 {
     int k = ui.part;
     uint8_t kv;
@@ -2621,7 +2629,7 @@ static void drum_key(int v, int down)
         engine_drum(k, v, accent ? 1.0f : (float)kv / 127.0f);
     if (accent)
         ui.btn_used |= 1u << B_ENV;
-    if (ui.rec && seq.playing) {
+    if (step_record && ui.rec && seq.playing) {
         int s = rec_step(TRK_DRUM + k);
         sm_set(cur_pat()->drum[k].hit[v], s);
         if (accent)
@@ -2729,7 +2737,7 @@ static void bass_write(int b, int note, int gate)
     mark_dirty();
 }
 
-static void bass_kbd(int key)
+static void bass_kbd(int key, int step_record)
 {
     int b = bidx(), n = kbd_note(key);
     if (chi_arp_on_part(b) && kbd_arp_n[b] < CHI_ARP_MAXN) {
@@ -2743,13 +2751,14 @@ static void bass_kbd(int key)
             kbd_arp_n[b]++;
         }
     }
-    if (!(ui.rec && seq.playing))
+    if (!(step_record && ui.rec && seq.playing))
         engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0,
                                 !chi_arp_on_part(b) && kbd_held_note[b] != 0,
-                                ui.freeplay[b] && !ui.rec ? plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
-    if (ui.rec && !seq.playing) {
+                                (ui.view == V_PART || (ui.freeplay[b] && !ui.rec)) ?
+                                    plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
+    if (step_record && ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
-    } else if (ui.rec && seq.playing) {
+    } else if (step_record && ui.rec && seq.playing) {
         int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
                 ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
         ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
@@ -2958,6 +2967,18 @@ static void key_event(int k, int down)
         return;   /* clip mode: the pads launch clips, the keybed plays MIDI to Loopy (main_fm1.c clip keys) */
 #endif
     int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
+    /* SEQ's held step can remain down while EDIT shows its sound knobs. Its
+     * release finishes that same gesture; EDIT never starts an unseen step. */
+    if (!down && w >= 0 && ui.view == V_PART) {
+        if (is_drum() && ui.hold_step >= 0 && (ui.hold_step & 15) == w) {
+            drum_step(ui.part, w, 0);
+            return;
+        }
+        if (is_303() && ui.held_step >= 0 && (ui.held_step & 15) == w) {
+            bass_step_key(w, 0);
+            return;
+        }
+    }
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
         return;
     if (down && w >= 0 && (ui.btn & (1u << B_SAVE))) {     /* SAVE held + white key: paste the pattern here */
@@ -3061,15 +3082,17 @@ static void key_event(int k, int down)
     }
     if (is_drum()) {
         if (bl >= 0)
-            drum_key(bl, down);
-        else if (w >= 0)
+            drum_key(bl, down, ui.view == V_SEQ);
+        else if (w >= 0 && ui.view == V_SEQ)
             drum_step(ui.part, w, down);
+        else if (w >= 0 && down && ui.view == V_PART && key_sounds())
+            engine_drum(ui.part, ui.sel[ui.part], 0.75f); /* audition selected sound, never write a hidden step */
     } else if (is_303()) {
         if (kbd_on()) {                                /* REC: the keys play and write notes; FREE PLAY: play */
             if (down)
-                bass_kbd(k);
+                bass_kbd(k, ui.view == V_SEQ);
         }
-        else if (w >= 0)
+        else if (w >= 0 && ui.view == V_SEQ)
             bass_step_key(w, down);
     } else {
         brkpart_t *bp = &cur_pat()->brk;
@@ -3982,6 +4005,8 @@ static UI_DRAW void draw_header(void)
         else if (ui.view == V_SEQ)
             x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, !kbd_on() ? "SEQ" : ui.rec ? "SEQ KEYS" : "FREE PLAY",
                         kbd_on() ? C_AMB : C_HI) + 6;
+        else if (ui.view == V_PART && is_303())
+            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "SOUND", C_HI) + 6;
         else if (kbd_on())                            /* REC: KEYS (written); FREE PLAY: said so */
             x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, ui.rec ? "KEYS" : "FREE PLAY", C_AMB) + 6;
     } else {
@@ -4234,6 +4259,67 @@ static UI_DRAW void draw_303(int band, int gen)
         put_hex(put_s(t2, "SEED "), bp->gen.seed & 0xFFFFu, 4);
         segs(4, vc(&FONT_S, 122, 16) - o, &FONT_S, C_GRAY, 18, t, t2, 0, 0);
     }
+}
+
+/* EDIT is the selected instrument's sound, while SEQ keeps the visible steps.
+ * The same pg.r records drive these values and the four physical knobs. */
+static UI_DRAW void draw_part_sound(int band)
+{
+    int page = cur_page(), row;
+    uint16_t col = part_col();
+#if X0X_BASS_PRESET_PREVIEW
+    if (is_303() && page == 0) {
+        draw_303(band, 0);             /* existing engine / real preset card */
+        return;
+    }
+#endif
+    cv_rect(0, 0, 3, BAND_H, col);
+    if (!band) {
+        char head[64], *q = put_s(head, part_display(ui.part));
+        if (is_drum()) {
+            int t = ui.part == PART_909 ? T_909 : T_808;
+            q = put_s(q, "  ");
+            put_s(q, engine_voice_name(t, ui.sel[ui.part]));
+        }
+#if X0X_BASS_PRESET_PREVIEW
+        else if (is_303()) {
+            int b = bidx(), preset = engine_bass_preset_index(b);
+            if (preset >= 0) {
+                q = put_s(q, "  ");
+                put_s(q, factory_preset_name(engine_bass_bank(b), preset));
+            } else {
+                q = put_s(q, "  ");
+                put_s(q, "USER SOUND");
+            }
+        }
+#endif
+        cv_text(9, 3, &FONT_S, head, col);
+        cv_rect(9, 19, 222, 1, C_LINE);
+    }
+    for (row = 0; row < 2; row++) {
+        int i = band * 2 + row, y = (band ? 4 : 24) + row * 22;
+        pref_t r = pg.r[page][i];
+        const x0x_param_t *d = pref_desc(r);
+        char num[16], unit[8], value[26];
+        int val, live;
+        if (!d)
+            continue;
+        val = pref_get(r);
+        live = lock_step() >= 0 ? lock_of(r, lock_step()) : -1;
+        if (live < 0 && has_motion(r))
+            live = motion_now(r);
+        if (live >= 0)
+            val = live;
+        pref_value_of(r, val, num, unit);
+        put_s(put_s(value, num), unit);
+        cv_text(10, y, &FONT_S, caps_of(pref_name(r)), C_GRAY);
+        text_r(231, y, &FONT_B, value, C_WHITE);
+        cv_rect(10, y + 18, 220, 1, C_LINE);
+        if (d->max && val > 0)
+            cv_rect(10, y + 18, (uint32_t)val * 220u / d->max, 1, col);
+    }
+    if (band)
+        cv_text(9, 54, &FONT_XS, pg.title[page], C_DIM);
 }
 
 static UI_DRAW void draw_break(int band)
@@ -4984,6 +5070,13 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
         *a = ui.gen_stale[bidx()] ? "OCT+: NEW LINE *" : "OCT+: NEW LINE";
         *b = "OCT-: MUTATE";
         return ui.gen_stale[bidx()] ? C_WHITE : C_AMB;
+    } else if (ui.view == V_PART && is_drum()) {
+        *a = "BLACK: SELECT";
+        *b = key_sounds() ? "WHITE: SOUND" : "KEY SOUND OFF";
+        *c = "SEQ: STEPS";
+    } else if (ui.view == V_PART && is_303()) {
+        *a = "KEYS: SOUND";
+        *b = "SEQ: STEPS";
     } else if (is_drum()) {
         *a = "BLACK: TRACK";
         *b = "WHITE: STEP";
@@ -5083,6 +5176,8 @@ static UI_DRAW void draw_main(void)
             draw_song(band);
         else if (ui.view == V_PERF)
             draw_perf(band);
+        else if (ui.view == V_PART && (is_drum() || is_303()))
+            draw_part_sound(band);
         else if (is_drum())
             draw_drum(band);
         else if (is_303())
@@ -5444,7 +5539,7 @@ X0X_COLD void ui_init(void)
     memset(bass_rec_pat, 0, sizeof bass_rec_pat);
     memset(bass_rec_playing, 0, sizeof bass_rec_playing);
     undo_lanes = 0;
-    ui.view = V_PART;
+    ui.view = V_SEQ;                  /* start on the visible step grid; EDIT opens sound */
     ui.prev_view = V_PART;
     ui.part = PART_909;
     ui.held_step = -1;

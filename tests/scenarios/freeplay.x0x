@@ -20,15 +20,19 @@ wait 100
 key w4 up
 expect gate0.4 0
 shot freeplay_edit.png
-# REC with FREE PLAY on: the keys write again, from step 1
+# EDIT auditions even under REC; SEQ is the visible note-writing page.
 tap REC
+key w4 down
+wait 100
+key w4 up
+expect gate0.0 0
+tap SEQ
 key w4 down
 wait 100
 key w4 up
 expect gate0.0 1
 tap REC
 # off: a white key turns its step on
-tap SEQ
 turn K1 -1
 key w8 down
 wait 100
