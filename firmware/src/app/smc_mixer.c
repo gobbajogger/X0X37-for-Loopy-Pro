@@ -72,7 +72,7 @@ static struct {
     uint8_t fx_restore[3];
     uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
     uint8_t knob_run, knob_i, play_down, select_down;
-    uint8_t home_down, fx_down, fx_page, fx_ready, fx_effect[SMCFX_N];
+    uint8_t home_down, fx_down, fx_owned, fx_page, fx_ready, fx_effect[SMCFX_N];
     uint8_t fx_main_wait;              /* main SELECT: waiting for hold vs tap (bits 0..2) */
     uint32_t fx_main_t0[3];
     /* Exact destinations, not a copy of the temporary display or live UI. */
@@ -492,6 +492,7 @@ static void smc_ui_label(pref_t r, char *text)
 static int smc_led(int note);
 static void smc_fx_publish(void);
 static void smc_fx_main_tick(void);
+static void smc_fx_clear(void);
 static void smc_fx_main_nav(int which);
 static int smc_fx_bus_now(uint8_t note);
 #define SMC_FX_HOLD_MS 180u
@@ -517,7 +518,7 @@ static const char *smc_button_caption(int note)
     if (row == 2) return "M";
     if (row == 3 && kit >= 0) return "SEL";
     if (row == 3 && kit < 0) {
-        int bus = smcfx_bus((unsigned)note);
+        int bus = smc_fx_bus_now((uint8_t)note);
         if (bus >= 0) {
             if (!smc.fx_ready)
                 smc_fx_publish();
@@ -892,7 +893,7 @@ static void smc_fx_load_page(int page)
 
 static int smc_fx_bus_now(uint8_t note)
 {
-    if (smc_drum_mix() >= 0)
+    if (ui.view != V_FX || ui.overlay != O_NONE || smk_clip_mode_on() || smc_drum_mix() >= 0)
         return -1;
     return smcfx_bus(note);
 }
@@ -937,6 +938,10 @@ static void smc_fx_main_nav(int which)
 static void smc_fx_main_tick(void)
 {
     int i;
+    if (smc_fx_bus_now(24u) < 0) {
+        smc_fx_clear();                 /* keyboard navigation cancels the original FX gesture */
+        return;
+    }
     for (i = 0; i < 3; i++) {
         uint8_t note = (uint8_t)(SMCFX_NOTE[SMCFX_RVB + i]);
         uint8_t sel = (uint8_t)(1u << (note - 24u));
@@ -978,6 +983,7 @@ static int smc_fx_try(uint8_t note, int mmc)
         smc_fx_show(note);
         return 1;                         /* assign only; the effect stays as it was */
     }
+    if (!mmc) smc.fx_owned |= (uint8_t)(1u << bus);
     if (smcfx_is_main(bus)) {
         int which = bus - SMCFX_RVB;
         smc.fx_main_t0[which] = plat_ms();
@@ -996,16 +1002,17 @@ static int smc_fx_try(uint8_t note, int mmc)
 
 static void smc_fx_release_note(uint8_t note)
 {
-    int bus = smc_fx_bus_now(note);
-    if (bus < 0)
-        return;
+    int bus = smcfx_bus(note);
+    if (bus < 0 || !(smc.fx_owned & (uint8_t)(1u << bus)))
+        return;                         /* a non-FX press cannot acquire a release action later */
+    smc.fx_owned &= (uint8_t)~(1u << bus);
     if (smcfx_is_main(bus)) {
         int which = bus - SMCFX_RVB;
         uint32_t dt = plat_ms() - smc.fx_main_t0[which];
         smc.fx_main_wait &= (uint8_t)~(1u << which);
         smc.fx_down &= (uint8_t)~(1u << bus);
         smc_fx_publish();
-        if (!smc_home_held() && dt < SMC_FX_HOLD_MS)
+        if (smc_fx_bus_now(note) >= 0 && !smc_home_held() && dt < SMC_FX_HOLD_MS)
             smc_fx_main_nav(which);
         return;
     }
@@ -1015,8 +1022,9 @@ static void smc_fx_release_note(uint8_t note)
 
 static void smc_fx_clear(void)
 {
-    if (!smc.fx_down && !smc.fx_main_wait)
+    if (!smc.fx_down && !smc.fx_main_wait && !smc.fx_owned)
         return;
+    smc.fx_owned = 0;
     smc.fx_down = 0;
     smc.fx_main_wait = 0;
     smc_fx_publish();
@@ -1116,8 +1124,6 @@ static void smc_button_apply(uint8_t note, int mmc)
             int which = strip - NPARTS;
             if (row == 2)
                 smc_toggle_fx(which);
-            else if (row == 3 && smcfx_bus(note) >= 0)
-                return;                        /* main/source SELECT: momentary FX path only */
             else
                 smc_view(SMC_VIEW[row][which], SMC_PAGE[row][which]);
         }
@@ -1199,6 +1205,7 @@ static void smc_button(uint8_t note, int mmc)
     memcpy(saved, ui.msg, sizeof saved);
     smc_ui_cancel();                     /* navigation owns its new screen immediately */
     smc_button_apply(note, mmc);
+    if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* queued SMC navigation also cancels holds */
     if (action) {
         memcpy(ui.msg, saved, sizeof saved);  /* Help keeps its card and the preexisting notice too. */
         ui.msg_until = until;
@@ -1213,6 +1220,7 @@ static void smc_release(uint8_t note)
     if (note == 6) smc.home_down = 0;
     if (note == 0x5Eu) smc.play_down = 0;
     smc_fx_release_note(note);
+    if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* a main tap may have navigated out of FX */
     if (note >= 24u && note < 32u)
         smc.select_down &= (uint8_t)~(1u << (note - 24u));
     if (note >= 8u && note < 16u && smc.solo_target[note - 8u]) {
