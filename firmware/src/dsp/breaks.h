@@ -145,4 +145,3 @@ int breaks_nparams(void);
 const x0x_param_t *breaks_param(int i);
 void breaks_set(breaks_t *b, int i, int value);
 int breaks_get(const breaks_t *b, int i);
-float breaks_send(const breaks_t *b, int which);

@@ -79,10 +79,6 @@ void breaks_set(breaks_t *b, int i, int value)
     b->set[i] = (uint8_t)value;
 }
 int breaks_get(const breaks_t *b, int i) { return (i >= 0 && i < BRK_NPARAM) ? b->set[i] : 0; }
-float breaks_send(const breaks_t *b, int which)
-{
-    return (float)b->set[which ? BRK_DLY : BRK_REV] * (1.0f / 127.0f);
-}
 
 /* ---- randomness ------------------------------------------------------------------------- */
 

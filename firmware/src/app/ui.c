@@ -25,6 +25,14 @@
 #include "note_names.h"                        /* X0X_NOTE_N: one C…B table with clip/chord */
 #include "undo.c"
 
+/* One T_FX pot into project + live engine (chi_fx_commit). noinline: seven
+ * identical store+engine_set pairs become one body under unity -Oz / pi32. */
+__attribute__((noinline)) static void chi_fx_put(int i, uint8_t v)
+{
+    proj.sound.v[T_FX][0][i] = v;
+    engine_set(T_FX, 0, i, v);
+}
+
 /* Commit a chicago_fx_map result into sound_t + live Mix/fxbus (shared bus theft). */
 static void chi_fx_commit(int voice, const chicago_fx_out_t *o)
 {
@@ -47,34 +55,20 @@ static void chi_fx_commit(int voice, const chicago_fx_out_t *o)
         engine_set(T_MIX, part, MX_REV, rv);
         engine_set(T_MIX, part, MX_DLY, dl);
     }
-    if (t & CHI_FX_W_COMP) {
-        proj.sound.v[T_FX][0][FX_COMP] = o->fx_comp;
-        engine_set(T_FX, 0, FX_COMP, o->fx_comp);
-    }
-    if (t & CHI_FX_W_DIST) {
-        proj.sound.v[T_FX][0][FX_DIST] = o->fx_dist;
-        engine_set(T_FX, 0, FX_DIST, o->fx_dist);
-    }
-    if (t & CHI_FX_W_DRIVE) {
-        proj.sound.v[T_FX][0][FX_DRIVE] = o->fx_drive;
-        engine_set(T_FX, 0, FX_DRIVE, o->fx_drive);
-    }
-    if (t & CHI_FX_W_DL_TIME) {
-        proj.sound.v[T_FX][0][FX_DL_TIME] = o->fx_dl_time;
-        engine_set(T_FX, 0, FX_DL_TIME, o->fx_dl_time);
-    }
-    if (t & CHI_FX_W_DL_LVL) {
-        proj.sound.v[T_FX][0][FX_DL_LEVEL] = o->fx_dl_level;
-        engine_set(T_FX, 0, FX_DL_LEVEL, o->fx_dl_level);
-    }
-    if (t & CHI_FX_W_RV_DEC) {
-        proj.sound.v[T_FX][0][FX_RV_DECAY] = o->fx_rv_decay;
-        engine_set(T_FX, 0, FX_RV_DECAY, o->fx_rv_decay);
-    }
-    if (t & CHI_FX_W_RV_LVL) {
-        proj.sound.v[T_FX][0][FX_RV_LEVEL] = o->fx_rv_level;
-        engine_set(T_FX, 0, FX_RV_LEVEL, o->fx_rv_level);
-    }
+    if (t & CHI_FX_W_COMP)
+        chi_fx_put(FX_COMP, o->fx_comp);
+    if (t & CHI_FX_W_DIST)
+        chi_fx_put(FX_DIST, o->fx_dist);
+    if (t & CHI_FX_W_DRIVE)
+        chi_fx_put(FX_DRIVE, o->fx_drive);
+    if (t & CHI_FX_W_DL_TIME)
+        chi_fx_put(FX_DL_TIME, o->fx_dl_time);
+    if (t & CHI_FX_W_DL_LVL)
+        chi_fx_put(FX_DL_LEVEL, o->fx_dl_level);
+    if (t & CHI_FX_W_RV_DEC)
+        chi_fx_put(FX_RV_DECAY, o->fx_rv_decay);
+    if (t & CHI_FX_W_RV_LVL)
+        chi_fx_put(FX_RV_LEVEL, o->fx_rv_level);
 }
 
 static void chi_fx_apply_ui(int voice, uint8_t type, uint8_t e1, uint8_t e2, int clear_ny)
