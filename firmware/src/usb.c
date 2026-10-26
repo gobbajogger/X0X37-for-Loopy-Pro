@@ -139,6 +139,60 @@ static volatile uint32_t so_w, so_r;
 static uint32_t midi_in_q[MQ], midi_out_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
 
+/* CIN 8 = Note Off; CIN 9 with velocity 0 is also Note Off (USB-MIDI). */
+static int midi_in_is_note_off(uint32_t pkt)
+{
+    uint32_t cin = pkt & 0xFu;
+    if (cin == 8u)
+        return 1;
+    if (cin == 9u && ((pkt >> 24) & 0x7Fu) == 0u)
+        return 1;
+    return 0;
+}
+
+/* PLAT_MIDI_LINK_END: CIN 0, only cable bits in 0x30 (usb.c midi_link_check). */
+static int midi_in_is_link_end(uint32_t pkt)
+{
+    return !(pkt & ~0x30u);
+}
+
+/* Enqueue MIDI in. When full, CC/clock/etc may drop; Note Off never drops —
+ * displace a disposable entry so a retained Note On cannot stick live. */
+static int midi_in_put(uint32_t pkt)
+{
+    uint32_t w = mi_w;
+    if (w - mi_r < MQ) {
+        midi_in_q[w % MQ] = pkt;
+        RING_PUBLISH();
+        mi_w = w + 1;
+        return 1;
+    }
+    if (!midi_in_is_note_off(pkt))
+        return 0;
+    {
+        uint32_t i;
+        /* Prefer CC/clock/bend over live Note On (same idea as cq_put vs C_BOFF). */
+        for (i = mi_r; i != w; i++) {
+            uint32_t cur = midi_in_q[i % MQ];
+            uint32_t cin = cur & 0xFu;
+            if (midi_in_is_note_off(cur) || midi_in_is_link_end(cur) || cin == 9u)
+                continue;
+            midi_in_q[i % MQ] = pkt;
+            RING_PUBLISH();
+            return 1;
+        }
+        for (i = mi_r; i != w; i++) {
+            uint32_t cur = midi_in_q[i % MQ];
+            if (!midi_in_is_note_off(cur) && !midi_in_is_link_end(cur)) {
+                midi_in_q[i % MQ] = pkt;
+                RING_PUBLISH();
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
     if (usb.config && mo_w - mo_r < MQ) {
@@ -785,12 +839,11 @@ static void ep1_rx(void)
             /* APC clip feedback: applied at once, not queued (no drops in a burst) */
         }
 #endif
-        else if (((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
-                  (cin == 3u && ep1rx[i + 1] == 0xF2u)) && mi_w - mi_r < MQ) {
-            /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter */
-            midi_in_q[mi_w % MQ] = pkt & ~0xF0u;      /* cable bits: the input, 0 USB (MID-15) */
-            RING_PUBLISH();
-            mi_w++;
+        else if ((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
+                 (cin == 3u && ep1rx[i + 1] == 0xF2u)) {
+            /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter.
+             * Cable bits cleared: input 0 USB (MID-15). midi_in_put never drops Note Off. */
+            (void)midi_in_put(pkt & ~0xF0u);
         }
     }
     usb.rx_pkts++;

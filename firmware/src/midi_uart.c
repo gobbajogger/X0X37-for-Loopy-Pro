@@ -15,14 +15,10 @@ static struct {
     uint8_t st, need, got, d0, sysex;
 } um;
 
-static int um_put(uint32_t pkt)                    /* into midi_in_q (usb.c): 0 = full */
+static int um_put(uint32_t pkt)                    /* into midi_in_q (usb.c): 0 = dropped */
 {
-    if (mi_w - mi_r >= MQ)
-        return 0;
-    midi_in_q[mi_w % MQ] = pkt | 0x20u;           /* cable bits: the input, 2 TRS (MID-15) */
-    RING_PUBLISH();
-    mi_w++;
-    return 1;
+    /* Cable 2 TRS (MID-15). midi_in_put never drops Note Off when the ring is full. */
+    return midi_in_put(pkt | 0x20u);
 }
 
 static void uart_midi_init(void)                   /* before TIMER5 starts: PORTH read-modify-write */
