@@ -206,6 +206,57 @@ __attribute__((noinline)) static float soft_ceiling(float s)
     return s;
 }
 
+
+/* Compressor/pump gain advance after ms is updated — one body for mono + stereo. */
+__attribute__((noinline)) static void comp_tick(master_t *m, float *grmax)
+{
+    float lv, want, total;
+    if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
+        lv = 2.0f * m->ms;
+        m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
+    }
+    want = m->want;
+    m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
+                         : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
+    if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
+        m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
+        if (m->pump_tgt - m->pump < 0.05f)
+            m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
+    } else {
+        m->pump = fm_flush(m->a_rel * m->pump);
+    }
+    total = m->gr + m->pump;
+    if (total > *grmax)
+        *grmax = total;
+    if (m->cr == 0) {                                /* the gain, linear, ramped over MST_CR samples */
+        m->g_step = (m->makeup * fm_db2lin(-total) - m->g_lin) * (1.0f / MST_CR);
+        m->cr = MST_CR;
+    }
+    m->cr--;
+    m->g_lin += m->g_step;
+}
+
+/* Look-ahead limiter envelope + gain — one body for mono and stereo. */
+__attribute__((noinline)) static void limit_env(master_t *m, float a)
+{
+    if (a >= m->env) {
+        m->env = a;
+        m->hold = MST_LA;
+        float r = 1.0f / fm_maxf(a, 0.8f);
+        m->inv_env = a > 0.8f ? r : 0.0f;
+    } else if (m->hold) {
+        m->hold--;
+    } else {
+        m->env *= 0.99985f;
+        m->inv_env *= 1.0001500225f;                 /* 1 / 0.99985 */
+    }
+    {
+        float want = m->env > 0.8f ? 0.8f * m->inv_env : 1.0f;
+        m->gain += (want - m->gain) * (want < m->gain ? (5.0f / MST_LA) : 0.002f);
+    }
+}
+
+
 void master_process(master_t *m, float *x, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE];
@@ -213,34 +264,12 @@ void master_process(master_t *m, float *x, int n, float volume)
     for (i = 0; i < n; i++) {
         float s = x[i];
         if (m->comp_on) {
-            float lv, want, total, wet;
+            float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
             m->ms = fm_flush(m->a_det * m->ms + (1.0f - m->a_det) * s * s);
-            if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
-                lv = 2.0f * m->ms;
-                m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
-            }
-            want = m->want;
-            m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
-                                 : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
-            if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
-                m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
-                if (m->pump_tgt - m->pump < 0.05f)
-                    m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
-            } else {
-                m->pump = fm_flush(m->a_rel * m->pump);
-            }
-            total = m->gr + m->pump;
-            if (total > grmax)
-                grmax = total;
-            if (m->cr == 0) {                                /* the gain, linear, ramped over MST_CR samples */
-                m->g_step = (m->makeup * fm_db2lin(-total) - m->g_lin) * (1.0f / MST_CR);
-                m->cr = MST_CR;
-            }
-            m->cr--;
-            m->g_lin += m->g_step;
+            comp_tick(m, &grmax);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
         }
@@ -266,24 +295,7 @@ void master_process(master_t *m, float *x, int n, float volume)
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
             float a = fm_fabsf(s), d;
-            if (a >= m->env) {
-                m->env = a;
-                m->hold = MST_LA;
-                /* a divide only for a new peak over the ceiling. The compiler computes the divide
-                 * before the test, so it must be safe on its own: a clamp INSIDE the branch is folded
-                 * away (a > 0.8 there) and 0.2-beta crashed here on 1 / 0 (firmware/hal/fm1_irq.h). */
-                float r = 1.0f / fm_maxf(a, 0.8f);
-                m->inv_env = a > 0.8f ? r : 0.0f;
-            } else if (m->hold) {
-                m->hold--;
-            } else {
-                m->env *= 0.99985f;
-                m->inv_env *= 1.0001500225f;                 /* 1 / 0.99985 */
-            }
-            {
-                float want = m->env > 0.8f ? 0.8f * m->inv_env : 1.0f;
-                m->gain += (want - m->gain) * (want < m->gain ? (5.0f / MST_LA) : 0.002f);
-            }
+            limit_env(m, a);
             d = m->la[m->la_pos];
             m->la[m->la_pos] = s;
             m->la_pos = (m->la_pos + 1) % MST_LA;
@@ -303,35 +315,13 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
     for (i = 0; i < n; i++) {
         float s = xl[i], sr = xr[i];
         if (m->comp_on) {
-            float lv, want, total, wet;
+            float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
              * millisecond: audio-rate gain movement, heard as clicks */
             /* both sides' power, each term as master_process forms it, so l == r gives its value */
             m->ms = fm_flush(m->a_det * m->ms + 0.5f * ((1.0f - m->a_det) * s * s + (1.0f - m->a_det) * sr * sr));
-            if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
-                lv = 2.0f * m->ms;
-                m->want = (lv > 1e-12f && m->slope > 0.0f) ? gr_of(m, 3.0103f * fm_log2f(lv)) : 0.0f;
-            }
-            want = m->want;
-            m->gr = want > m->gr ? m->a_att * m->gr + (1.0f - m->a_att) * want
-                                 : m->a_rel * m->gr + (1.0f - m->a_rel) * want;
-            if (m->pump_tgt > m->pump) {                     /* PUMP: rise to the kick's depth ... */
-                m->pump = m->a_pump * m->pump + (1.0f - m->a_pump) * m->pump_tgt;
-                if (m->pump_tgt - m->pump < 0.05f)
-                    m->pump_tgt = 0.0f;                      /* ... then let go: the release swells back */
-            } else {
-                m->pump = fm_flush(m->a_rel * m->pump);
-            }
-            total = m->gr + m->pump;
-            if (total > grmax)
-                grmax = total;
-            if (m->cr == 0) {                                /* the gain, linear, ramped over MST_CR samples */
-                m->g_step = (m->makeup * fm_db2lin(-total) - m->g_lin) * (1.0f / MST_CR);
-                m->cr = MST_CR;
-            }
-            m->cr--;
-            m->g_lin += m->g_step;
+            comp_tick(m, &grmax);
             wet = s * m->g_lin;
             s = s + (wet - s) * m->mix;
             wet = sr * m->g_lin;
@@ -371,24 +361,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
             float a = fm_maxf(fm_fabsf(s), fm_fabsf(sr)), d, dr;
-            if (a >= m->env) {
-                m->env = a;
-                m->hold = MST_LA;
-                /* a divide only for a new peak over the ceiling. The compiler computes the divide
-                 * before the test, so it must be safe on its own: a clamp INSIDE the branch is folded
-                 * away (a > 0.8 there) and 0.2-beta crashed here on 1 / 0 (firmware/hal/fm1_irq.h). */
-                float r = 1.0f / fm_maxf(a, 0.8f);
-                m->inv_env = a > 0.8f ? r : 0.0f;
-            } else if (m->hold) {
-                m->hold--;
-            } else {
-                m->env *= 0.99985f;
-                m->inv_env *= 1.0001500225f;                 /* 1 / 0.99985 */
-            }
-            {
-                float want = m->env > 0.8f ? 0.8f * m->inv_env : 1.0f;
-                m->gain += (want - m->gain) * (want < m->gain ? (5.0f / MST_LA) : 0.002f);
-            }
+            limit_env(m, a);
             d = m->la[m->la_pos];
             dr = m->la_r[m->la_pos];
             m->la[m->la_pos] = s;
