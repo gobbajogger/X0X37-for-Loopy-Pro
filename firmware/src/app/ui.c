@@ -22,6 +22,7 @@
 #include "../../../experiments/wobble/wobble.h" /* W_ATTACK..W_RELEASE Miami amp ADSR */
 #endif
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
+#include "note_names.h"                        /* X0X_NOTE_N: one C…B table with clip/chord */
 #include "undo.c"
 
 /* Commit a chicago_fx_map result into sound_t + live Mix/fxbus (shared bus theft). */
@@ -303,7 +304,7 @@ static char *put_i(char *b, int v)
     *b = 0;
     return b;
 }
-static const char *const NOTE_N[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+#define NOTE_N X0X_NOTE_N                      /* same twelve names as clip ROOT / chord spell */
 static char *put_note(char *b, int n)
 {
     b = put_s(b, NOTE_N[(n % 12 + 12) % 12]);
