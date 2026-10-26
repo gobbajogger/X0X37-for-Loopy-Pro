@@ -75,14 +75,15 @@ static void mapping(int bank)
         CHECK(found>=0);ui.list_sel=found;now_ms+=1000;enc_acc[EN_ALGO]=1;ui_input_only();
         CHECK(pref_get(r)==before+1);ui.overlay=O_NONE;
     }
-    for(int i=0;i<engine_nparams(T_303,0);i++) CHECK(seen[i]==1);
+    for(int i=0;i<engine_nparams(T_303,0);i++) CHECK(seen[i]==(i==(bank?W_PITCH_BEND:CHI_PBEND)?0:1)); /* performance-only physical wheel */
     *page_of(V_PART)=0;select_row(-1);CHECK(cur_page()==0);
     for(int p=1;p<pg.n;p++){select_row(1);CHECK(cur_page()==p);CHECK(cur_page()/4==p/4);}
     select_row(1);CHECK(cur_page()==pg.n-1);button_tap(B_EDIT);CHECK(cur_page()==0);
     button_tap(B_EDIT);CHECK(cur_page()==1);select_row(-1);CHECK(cur_page()==0);
     *page_of(V_PART)=sound_page();int n=engine_bass_requested_preset(0);now_ms++;enc_acc[EN_PRESET]=1;ui_input_only();
     CHECK(engine_bass_requested_preset(0)==n+1);CHECK(engine_bass_preset_pending(0));
-    knob(2,1);CHECK(!engine_bass_preset_pending(0)); /* CANCEL remains logical knob 3 / physical K7 */
+    knob(2,1);CHECK(engine_bass_preset_pending(0)); /* former K7 cancel slot is inert */
+    held_btn=1u<<B_HOME;ui_input_only();held_btn=0;ui_input_only();CHECK(!engine_bass_preset_pending(0));
     puts(bank?"PASS Miami all controls, blanks, widths and navigation":"PASS Chicago all controls, blanks, widths and navigation");
 }
 static void geometry(const char *dir,int bank)
@@ -234,7 +235,8 @@ static void transitions(const char *dir)
     knob(0,-1);CHECK(engine_bass_bank(0)==FACTORY_BANK_MIAMI);
     CHECK(engine_bass_requested_bank(0)==FACTORY_BANK_CHICAGO);
     CHECK(engine_bass_preset_pending(0));CHECK(pg.r[0][0].c==W_CARRIER_WAVE);
-    shot(dir,"preset-pending-chicago");knob(2,1);CHECK(!engine_bass_preset_pending(0));
+    shot(dir,"preset-pending-chicago");knob(2,1);CHECK(engine_bass_preset_pending(0));
+    held_btn=1u<<B_HOME;ui_input_only();held_btn=0;ui_input_only();CHECK(!engine_bass_preset_pending(0));
     CHECK(engine_bass_bank(0)==FACTORY_BANK_MIAMI);shot(dir,"preset-cancelled");
     knob(0,-1);audio();ui_input_only();
     CHECK(engine_bass_bank(0)==FACTORY_BANK_CHICAGO);CHECK(cur_page()==sound_page());CHECK(cur_page()==7);

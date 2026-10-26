@@ -158,7 +158,7 @@ int main(int argc,char **argv)
     engine_bass_on(0,48,100,0);audio_block();CHECK(engine_bass_select_preset(0,0,4,&proj.sound)==0);audio_block();
     CHECK(engine_bass_preset_pending(0)==2);if(argc>1)picture(argv[1],"chicago-pending-note",0);
     /* Physical cancel while held preserves actual sounding selection. */
-    ui.part=PART_303A;build_pages();*page_of(V_PART)=(uint8_t)sound_page();enc_acc[EN_K3]=1;ui_input_only();
+    ui.part=PART_303A;build_pages();*page_of(V_PART)=(uint8_t)sound_page();held_btn=1u<<B_HOME;ui_input_only();held_btn=0;ui_input_only();
     CHECK(!engine_bass_preset_pending(0));engine_bass_off(0);run_ms(3000);
     uint64_t control=break_tail(0),requested=break_tail(1);CHECK(control==requested);
     printf("PASS %u voice-scoped live preset/input/ownership/UI checks WBL%d; BREAK tail hash=%016llx\n",checks,X0X_DEV_WOBBLE,(unsigned long long)control);
