@@ -1122,7 +1122,7 @@ async function run(img, product, opts = {}) {
     } else {
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
-        step, sameKeyboard,
+        step, sameKeyboard, beforeFirmwareWrite: selectionValid,
         confirmModel: foreign ? null : (id, p) => confirmNightlyModel(id.model, p),
         say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
         progress: (f) => { $("bar").value = Math.min(100, f * 100); },
