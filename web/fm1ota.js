@@ -142,14 +142,17 @@ export class Updater {
   }
 
   _portPairs() {
-    const outs = [...this.access.outputs.values()];
+    const ins = [...this.access.inputs.values()].filter((p) => p.state !== "disconnected");
+    const outs = [...this.access.outputs.values()].filter((p) => p.state !== "disconnected");
     const pairs = [];
-    for (const input of this.access.inputs.values()) {
-      if (input.state === "disconnected") continue;
+    for (const input of ins) {
       if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
-      const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
-      if (!output) continue;
-      pairs.push({ input, output, name: input.name });
+      // Names alone do not prove physical identity. Refuse duplicate or
+      // mismatched port labels instead of guessing which keyboard receives MIDI.
+      if (ins.filter((p) => p.name === input.name).length !== 1) continue;
+      const matching = outs.filter((p) => p.name === input.name);
+      if (matching.length !== 1) continue;
+      pairs.push({ input, output: matching[0], name: input.name });
     }
     return pairs;
   }
