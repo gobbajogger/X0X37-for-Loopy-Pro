@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Host proof: Chicago SEND FX bridge maps Off/Comp/Delay/Hall onto Mix+fxbus
- * intentions; Crush + Ring + EQ are insert (clear sends only); other NOT_YET
- * types never invent Cho/Phaser/Ensemble/Gate DSP. */
+/* Host proof: Chicago SEND FX bridge maps Off/Comp/BPM Delay/Hall onto Mix+fxbus
+ * intentions; Crush + Ring + EQ + SDly are insert (clear sends only); other
+ * NOT_YET types never invent Cho/Phaser/Ensemble/Gate DSP. */
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
@@ -32,7 +32,9 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_COMP), "Comp supported");
     CHECK(chi_fx_supported(CHI_FX_DECIM), "Crush/Decim supported");
     CHECK(chi_fx_is_insert(CHI_FX_DECIM), "Crush is insert");
-    CHECK(chi_fx_supported(CHI_FX_SHORT_DLY), "Short Delay supported");
+    CHECK(chi_fx_supported(CHI_FX_SHORT_DLY), "Short Delay supported (insert)");
+    CHECK(chi_fx_is_insert(CHI_FX_SHORT_DLY), "Short Delay is insert");
+    CHECK(!chi_fx_is_not_yet(CHI_FX_SHORT_DLY), "Short Delay not NOT_YET");
     CHECK(chi_fx_supported(CHI_FX_BPM_DLY), "BPM Delay supported");
     CHECK(chi_fx_supported(CHI_FX_HALL), "Hall supported");
     CHECK(chi_fx_supported(CHI_FX_EQ), "EQ supported (insert)");
@@ -68,6 +70,9 @@ static void test_not_yet_clear(void)
     chicago_fx_map(CHI_FX_EQ, 0, 127, 0, &o);
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "EQ insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_COMP), "EQ does not set Comp");
+    chicago_fx_map(CHI_FX_SHORT_DLY, 50, 60, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "SDly insert clears sends (no Mix theft)");
+    CHECK(!(o.touch & CHI_FX_W_MX_DLY), "SDly insert does not set Mix delay");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 0, &o);
     CHECK(o.touch == 0, "Cho without clear_ny writes nothing");
     chicago_fx_map(CHI_FX_CHO, 90, 90, 1, &o);
@@ -101,8 +106,8 @@ static void test_short_delay(void)
 {
     chicago_fx_out_t o;
     chicago_fx_map(CHI_FX_SHORT_DLY, 50, 60, 0, &o);
-    CHECK(o.fx_dl_time == 0, "Short Delay forces 1/32");
-    CHECK(o.mx_dly == 50, "Short Delay send");
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Short Delay is insert (clear sends)");
+    CHECK(o.mx_dly == 0 && o.fx_dl_time == 0 && o.fx_dl_level == 0, "Short Delay no Mix/fxbus delay fields");
 }
 
 static void test_comp(void)
@@ -130,6 +135,7 @@ static void test_labels_honest(void)
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_RING], "Ring") == 0, "Ring plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_DECIM], "Crush") == 0, "Crush plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_EQ], "EQ") == 0, "EQ plain insert name");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_SHORT_DLY], "SDly") == 0, "SDly plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");
 }
