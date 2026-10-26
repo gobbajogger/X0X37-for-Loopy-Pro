@@ -422,8 +422,7 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
 {
     if (n > 256)
         n = 256;
-    for (int i = 0; i < n; ++i)
-        out[i] = dry[i];
+    __builtin_memcpy(out, dry, (unsigned)n * sizeof(float));
     fx_reverb(f, rev, out, 0, n);
     fx_delay(f, dly, out, 0, n);
 
@@ -455,10 +454,8 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
 {
     if (n > 256)
         n = 256;
-    for (int i = 0; i < n; ++i) {
-        out_l[i] = dry_l[i];
-        out_r[i] = dry_r[i];
-    }
+    __builtin_memcpy(out_l, dry_l, (unsigned)n * sizeof(float));
+    __builtin_memcpy(out_r, dry_r, (unsigned)n * sizeof(float));
     fx_reverb(f, rev, out_l, out_r, n);
     fx_delay(f, dly, out_l, out_r, n);
     if (f->dist_mode >= 1) {
