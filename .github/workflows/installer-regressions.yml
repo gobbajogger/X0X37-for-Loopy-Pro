@@ -1,0 +1,26 @@
+# Installer builds and tests run in the authorized local agent environment.
+name: Installer local regression instructions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  instructions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show local regression commands
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'INFO'
+          Run these checks locally before merging installer source:
+
+          ```sh
+          python3 tests/make_pages_test.py
+          node web/test_install_slots.mjs
+          ```
+
+          This manual workflow displays instructions only. It performs no build,
+          test, device operation or publication.
+          INFO

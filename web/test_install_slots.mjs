@@ -1,3 +1,4 @@
+import "./test_install_busy_hint.mjs";
 // SPDX-License-Identifier: GPL-3.0-only
 // The installer keeps the sample slots over an install that changes the slot map (no browser, no hardware,
 // no device writes): x0x_breaks.js installKeepingSlots with fm1ota.js's Updater, and the installer page
@@ -8,6 +9,7 @@
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import "./test_install_local_file.mjs";
 import "./test_install_download_race.mjs";
+import "./test_install_reconnect.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash, webcrypto } from "node:crypto";
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
