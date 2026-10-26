@@ -980,12 +980,12 @@ int project_prepare_legacy_file(const uint8_t *h)
     const pattern_t *pat=(const pattern_t *)(raw+tail-shift);
     const arrange_t *arr=(const arrange_t *)(raw+__builtin_offsetof(project_t,arr)-shift);
     if(!stream_parts_ok(pat,arr,stream))return -9; /* no 4/5/snapshot guessing */
-    /* Move toward higher addresses from the end. The target firmware does not
-     * link libc memmove; volatile byte accesses keep this as an inline copy. */
-    volatile uint8_t *dst=(volatile uint8_t *)raw;
-    const volatile uint8_t *src=(const volatile uint8_t *)raw;
-    for(uint32_t i=sizeof project_stage-tail;i>0;i--)
-        dst[tail+i-1u]=src[tail-shift+i-1u];
+    /* Move toward higher addresses from the end. The empty compiler barrier
+     * prevents a libc memmove call, which the firmware cannot link. */
+    for(uint32_t i=sizeof project_stage-tail;i>0;i--){
+        __asm__ volatile("" ::: "memory");
+        raw[tail+i-1u]=raw[tail-shift+i-1u];
+    }
     __builtin_memset(project_stage.sound.bass,0,sizeof project_stage.sound.bass);
     return -10; /* prepared and quarantined, not adopted or implicitly saved */
 }
