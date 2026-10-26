@@ -44,14 +44,13 @@
     },
     "matrix_sha256": "bdce2b755075da7f8bc3888dce40fd8586d1cb0f83a414570d9e8cda51bd34ce",
     "archive_sha256": "d1222f955e2b06b0c00622cdbb50c83f2c7ddfdc1c2eb870588e43c07a4e9a2d",
-    "archive_path_private_library": "/LoopyX0X37/smc-transport-R24-offline-host-solo-native-20261026.zip",
-    "archive_library_id": "libfile_13e596c993cc8191a2ba10afbd38aacc",
     "is_source_extraction": true,
     "mocked_ui_ble_isr": true,
     "physical_hardware": "NOT_RUN",
     "full_target_build": "NOT_RUN",
     "independent_qa": "NOT_RUN",
-    "execution_note": "Several aggregate driver invocations reached their tool-level time limit; completed individual logs were retained, missing cases executed on later invocations, and all 18 expected outcomes verified. No aggregate timeout itself was recorded as a pass."
+    "execution_note": "Several aggregate driver invocations reached their tool-level time limit; completed individual logs were retained, missing cases executed on later invocations, and all 18 expected outcomes verified. No aggregate timeout itself was recorded as a pass.",
+    "private_retrieval": "Held in a restricted source-specialist checkpoint; request via authorized coordinator, matching archive SHA256."
   },
   "live_intake": {
     "pr122": "CLOSED_MERGED earlier source, not R24",
