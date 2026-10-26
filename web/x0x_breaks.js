@@ -728,6 +728,10 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
       }
     } finally { dev.link.close(); }
   }
+  // The owner may change or revoke an approved package during backup readback.
+  // Repeat the selection check immediately before beginning destructive OTA.
+  if (typeof h.beforeFirmwareWrite === "function" && !h.beforeFirmwareWrite())
+    throw fail("selectionstale", "Firmware selection changed before writing; nothing was installed.");
   const ran = await up.install(image, product, h.step);
   if (!move || !move.newMap.length) return { product: ran, move };
   h.say("slotback");
