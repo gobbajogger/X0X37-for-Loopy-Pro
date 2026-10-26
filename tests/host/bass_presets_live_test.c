@@ -34,6 +34,36 @@ static void edited_pixels(int voice)
     for(int y=0;y<16;y++)for(int x=0;x<80;x++) {uint16_t expected=fb[(MAIN_Y+12+y)*240+148+x];CHECK(actual[y*80+x]==expected);colored+=expected!=0;}
     CHECK(colored>20);
 }
+static uint32_t note_packet(int src,int off)
+{ return (off?8u:9u)|((uint32_t)src<<4)|((uint32_t)((off?0x80:0x90)|seq.ch[TRK_BASS0])<<8)|(48u<<16)|(100u<<24); }
+static void queued_midi_boundary(void)
+{
+    int32_t audio[512];uint8_t before[32];uint32_t read;
+    CHECK(engine_bass_select_preset(0,0,0,&proj.sound)==0);run_ms(50);
+    for(int src=0;src<3;src++) {
+        memcpy(before,proj.sound.v[T_303][0],32);read=mi_r;
+        uint32_t packet=note_packet(src,0);min_q[mi_w++%MQ]=packet;
+        CHECK(plat_midi_pending());CHECK(mi_r==read);CHECK(min_q[read%MQ]==packet);
+        CHECK(engine_bass_select_preset(0,0,1,&proj.sound)==-3);
+        CHECK(mi_r==read && mi_w-read==1);CHECK(engine_bass_preset_index(0)==0);
+        CHECK(!memcmp(before,proj.sound.v[T_303][0],32));CHECK(engine_bass_bank(0)==0);
+        engine_render(audio,256);CHECK(engine_midi_held()&1);CHECK(!plat_midi_pending());
+        int audible=0;for(int k=0;k<10;k++){engine_render(audio,256);for(int j=0;j<512;j++)if(audio[j])audible=1;}CHECK(audible);
+        min_q[mi_w++%MQ]=note_packet(src,1);run_ms(2000);CHECK(!engine_project_notes());
+    }
+    /* Successful quiet admission has no preexisting packet. Transaction-era
+     * input follows existing release policy; fresh input after empty survives. */
+    CHECK(!plat_midi_pending());CHECK(engine_bass_select_preset(0,0,0,&proj.sound)==0);
+    min_q[mi_w++%MQ]=note_packet(0,0);engine_render(audio,256);
+    CHECK(!(engine_midi_held()&1));CHECK(!plat_midi_pending());
+    min_q[mi_w++%MQ]=note_packet(0,0);engine_render(audio,256);CHECK(engine_midi_held()&1);
+    min_q[mi_w++%MQ]=note_packet(0,1);run_ms(2000);
+    seq.clk_src=SEQ_CLK_AUTO;read=mi_r;min_q[mi_w++%MQ]=15u|(0xFAu<<8);
+    CHECK(engine_bass_select_preset(0,0,1,&proj.sound)==-3);CHECK(mi_r==read);
+    CHECK(engine_bass_preset_index(0)==0);engine_render(audio,256);
+    CHECK(seq.playing || seq.req_start);CHECK(!plat_midi_pending());
+    min_q[mi_w++%MQ]=15u|(0xFCu<<8);run_ms(2000);
+}
 int main(int argc,char **argv)
 {
     uint8_t expected[32], old[32];unsigned writes;int32_t audio[512];
@@ -76,5 +106,6 @@ int main(int argc,char **argv)
 #else
     CHECK(!engine_bass_bank_available(0,1));CHECK(engine_bass_select_preset(0,1,0,&proj.sound)==-2);
 #endif
+    queued_midi_boundary();
     printf("PASS %u live backend/preset/UI/save checks WBL%d\n",checks,X0X_DEV_WOBBLE);return 0;
 }

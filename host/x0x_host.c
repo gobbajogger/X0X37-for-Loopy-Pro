@@ -108,6 +108,11 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 static uint32_t min_q[MQ], mi_w, mi_r;
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
 static FILE *midi_log;
+int plat_midi_pending(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_r != mi_w;
+}
 int plat_midi_in(uint32_t *pkt)
 {
     if (mi_r == mi_w)

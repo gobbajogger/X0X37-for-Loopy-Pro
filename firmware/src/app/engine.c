@@ -1273,16 +1273,21 @@ int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
             ((mot.lane[k].t==T_303 && mot.lane[k].v==voice) ||
              (mot.lane[k].t==0xfe && mot.lane[k].part==PART_303A+voice))) return -4;
     if (bass_preset_decode(bank,preset,engine_bass_bank_param,values)) return -1;
-    if (project_hold || seq.playing || seq.req_start || seq.req_cont || seq.req_stop ||
-        engine_project_notes() || cq_w != cq_r || (bass_wheel_mask & (1u<<voice))) return -3;
-#if X0X_DEV_WOBBLE
-    if (!synth_idle(&bass_slot[voice])) return -3;
-#else
-    if (!b303[voice].idle) return -3;
-#endif
-    /* Main and audio ISR share a core. Hold plus an empty CQ is the existing
-     * quiet transaction boundary: no old note/parameter is retargeted. */
+    if (project_hold) return -3;
+    /* Hold first: audio cannot accept an old queued Start/note between the
+     * quiet check and the backend swap. Never consume input to pass this check. */
     engine_project_hold(1);
+    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop ||
+        engine_project_notes() || cq_w != cq_r || (bass_wheel_mask & (1u<<voice)) ||
+        plat_midi_pending()) { engine_project_hold(0); return -3; }
+#if X0X_DEV_WOBBLE
+    if (!synth_idle(&bass_slot[voice])) { engine_project_hold(0); return -3; }
+#else
+    if (!b303[voice].idle) { engine_project_hold(0); return -3; }
+#endif
+    /* The empty platform-ring observation is the input boundary. Input
+     * published afterwards belongs to this transaction and release drops it
+     * using the existing project policy until the bounded drain sees empty. */
 #if X0X_DEV_WOBBLE
     synth_binding_t binding = bank == FACTORY_BANK_MIAMI ?
         wobble_foundation_binding(&dev_wobble) : synth303_binding(&b303[voice]);
@@ -1309,7 +1314,7 @@ int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
     }
     bass_named_preset[voice]=(int16_t)preset;
     bass_preview_dirty=1;
-    engine_project_hold(0);
+    engine_project_release();
     return 0;
 }
 #endif

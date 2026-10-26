@@ -146,6 +146,11 @@ void plat_leds(uint32_t buttons, uint32_t keys)
 #endif
 
 /* MIDI: Felucca's rings carry 4-byte USB-MIDI event packets, byte 0 = cable / CIN */
+int plat_midi_pending(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_r != mi_w;
+}
 int plat_midi_in(uint32_t *pkt)
 {
     if (mi_r == mi_w)
