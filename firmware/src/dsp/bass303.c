@@ -163,7 +163,7 @@ X0X_COLD static void bq_low_shelf(bass303_bq_t *q, float fc, float gain_db, floa
     q->a2 = ((A + 1.0f) + (A - 1.0f) * cs - s2) / a0;
 }
 
-static inline float bq_run(bass303_bq_t *q, float x)
+__attribute__((noinline)) static float bq_run(bass303_bq_t *q, float x)
 {
     float y = q->b0 * x + q->z1;
     q->z1 = q->b1 * x - q->a1 * y + q->z2;
@@ -542,7 +542,7 @@ void bass303_set_bend(bass303_t *b, int pot)
 
 /* polyBLEP residual for a unit (2-high) step at phase 0, t in [0, 1), dt = increment. The
  * divides happen only on the two samples per period next to the step. */
-static inline float blep(float t, float dt)
+__attribute__((noinline)) static float blep(float t, float dt)
 {
     float x;
     if (t < dt) {

@@ -533,7 +533,7 @@ __attribute__((noinline)) static void slice_start(breaks_t *b, int bk, int sl)
 
 /* ---- the generator ---------------------------------------------------------------------- */
 
-static int bank_ticks(const breaks_t *b, int bk) { return LEN_TICKS[b->set[bk ? BRK_BLEN : BRK_ALEN] % 6u]; }
+__attribute__((noinline)) static int bank_ticks(const breaks_t *b, int bk) { return LEN_TICKS[b->set[bk ? BRK_BLEN : BRK_ALEN] % 6u]; }
 
 /* BB_FIRE_TRIGGER: decide, then sound. forced = transport start / bank switch: slice 0, no retrig */
 static void fire_trigger(breaks_t *b, int bp, int forced)
