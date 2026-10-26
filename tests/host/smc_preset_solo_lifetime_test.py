@@ -478,6 +478,51 @@ static int ble_link_overflow_lifetime(uint8_t cursor, int user,
        "matching legitimate Solo release still ends held state");
  return 1;
 }
+/* The USB/peripheral User host ring is separate from the direct BLE ring.
+ * A project replacement must acknowledge a dropped host Solo NoteOff too:
+ * otherwise the previous project's release can unsolo a fresh BLE or USB
+ * press in the replacement project. Exercise the real host producer, reset,
+ * MIDI decoder and main-loop poll at FIFO wrap boundaries. */
+static int project_reset_host_overflow(uint8_t cursor, int zero_noteon,
+                                      int link_edge, int foreign, int fresh_ble)
+{
+ reset(cursor,1);
+ host_note(1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0], "old project host Solo starts held");
+ const uint32_t filler=(uint32_t)0xBFu<<8 | (uint32_t)40u<<16 |
+                       (uint32_t)64u<<24;
+ for(unsigned i=0;i<SMC_Q;i++)
+  CHECK(smc_midi_host(filler)==1,"full User host FIFO accepts valid fader frame");
+ CHECK((uint8_t)(smc_host_w-smc_host_r)==SMC_Q,
+       "host FIFO was saturated by accepted real MIDI packets");
+ uint32_t old_lost=smc_host_solo_release_lost;
+ uint8_t st=(uint8_t)((zero_noteon ? 0x90u : 0x80u) |
+                       (foreign ? 2u : 15u));
+ uint32_t release=(uint32_t)st<<8 | (uint32_t)8u<<16;
+ CHECK(smc_midi_host(release)==(foreign ? 0 : 1),
+       "foreign MIDI release is rejected; owned release is accepted but full");
+ CHECK(smc_host_solo_release_lost==old_lost+(unsigned)!foreign,
+       "full host FIFO counts only a valid lost SMC release");
+ if(link_edge) { smc_ble_link(0); smc_ble_link(1); }
+ smc_project_reset();
+ CHECK(!solos_on && !smc_project_active(),
+       "replacement project begins without stale Solo");
+ CHECK(smc_host_r==smc_host_w,
+       "replacement project discards old host MIDI FIFO");
+ if(fresh_ble) ble_note(1,1); else host_note(1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],
+       "old host lost-release must not cancel fresh project Solo");
+ if(fresh_ble) ble_note(1,0); else host_note(0);
+ smc_poll();
+ CHECK(!solos_on && !smc_project_active(),
+       "fresh project's matching release clears only its own Solo");
+ smc_poll();
+ CHECK(!solos_on && smc_host_r==smc_host_w,
+       "idle poll cannot replay the old project's lost host release");
+ return 1;
+}
 /* A project replacement discards old BLE frames and acknowledges their lost
  * Solo releases. Otherwise a saturated old project's lost NoteOff could
  * release the next project's genuinely fresh held Solo on the next poll.
@@ -521,6 +566,23 @@ int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Focused host ring/project reset regression, distinct from BLE producer.
+  * 6 FIFO cursors x 2 release encodings x 2 link epochs x accepted/foreign
+  * release x new BLE/host input = 96 real queue and decoder scenarios. */
+ if (getenv("SMC_ONLY_HOST_RESET_OVERFLOW")) {
+  for(unsigned i=0;i<sizeof cursors;i++)
+   for(int zero_noteon=0;zero_noteon<2;zero_noteon++)
+    for(int link_edge=0;link_edge<2;link_edge++)
+     for(int foreign=0;foreign<2;foreign++)
+      for(int fresh_ble=0;fresh_ble<2;fresh_ble++) {
+       if(!project_reset_host_overflow(cursors[i],zero_noteon,
+                                       link_edge,foreign,fresh_ble)) return 1;
+       ++cases;
+      }
+  printf("SMC User host reset overflow: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  /* Focused real producer/project-reset lifetime check for rapid triage. */
  if (getenv("SMC_ONLY_RESET_OVERFLOW")) {
   for(unsigned i=0;i<sizeof cursors;i++)
@@ -588,6 +650,15 @@ int main(void)
          cases,cases,checks);
   return 0;
  }
+ for(unsigned i=0;i<sizeof cursors;i++)
+  for(int zero_noteon=0;zero_noteon<2;zero_noteon++)
+   for(int link_edge=0;link_edge<2;link_edge++)
+    for(int foreign=0;foreign<2;foreign++)
+     for(int fresh_ble=0;fresh_ble<2;fresh_ble++) {
+      if(!project_reset_host_overflow(cursors[i],zero_noteon,
+                                      link_edge,foreign,fresh_ble)) return 1;
+      ++cases;
+     }
  for(unsigned i=0;i<sizeof cursors;i++)
   for(int user=0;user<2;user++)
    for(int link_edge=0;link_edge<2;link_edge++)

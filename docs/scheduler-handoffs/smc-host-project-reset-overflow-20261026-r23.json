@@ -1,0 +1,79 @@
+{
+  "schema": "smc-transport-host-project-reset-overflow-r23-v1",
+  "date_utc": "2026-10-26",
+  "workflow_contract": {
+    "revision": "218dbf80cc61384947d6bb2b02e41fc1f3556048",
+    "SKILL_sha256": "c41776551668119ce561c9e03fe9eb55d4fa03e52e0eda198e32c43fde75a9df",
+    "handoff_sha256": "29ab88fe2321da02f9c5a4c37e2d8a27d1ca696bfbe7093f82e739d6f597db30",
+    "status": "reviewed PR214 trial, not merged/default"
+  },
+  "role": "LoopyX0X37 SMC Transport source specialist",
+  "scheduler_id": "6adafac89db88191b0707de1ba3d95d0",
+  "current_stage": "SOURCE_PRODUCER_TESTED_NOT_INDEPENDENT_QA",
+  "musician_problem": "After a project replacement, an old dropped USB/peripheral User MIDI Solo NoteOff must not cancel a newly pressed Solo. The separate BLE producer was covered in R22; host MIDI release-loss acknowledgement was not.",
+  "design": "Add real production-C host ring saturation, accepted/foreign release, project_reset(), new USB or BLE Solo, matching release and idle stability to registered source-extraction regression. Keep all compiled sources untouched.",
+  "expected_benefit": "Recover reliable Solo behavior when replacing projects despite a full User MIDI host ring, without changing firmware behavior.",
+  "verified_result": "96/96 new focused host-reset scenarios per compiler configuration, full 1890/1890 Solo cases per profile. All 12 producer positive executions exited 0; 6 intentional mutant runs exited 1 at the new intended Solo-ownership assertion. No hardware reliability effect measured.",
+  "changed_paths": [
+    "tests/host/smc_preset_solo_lifetime_test.py",
+    "docs/scheduler-handoffs/smc-host-project-reset-overflow-20261026-r23.json"
+  ],
+  "exact_parent": {
+    "commit": "f817d301254e382cf7054bad00134a014c89711f",
+    "root_tree": "ed49abab9e4365bb93edafb9b0f55dfaca71ed14",
+    "firmware_tree": "a9a1fb4c66d3c86d20bb2ec8ea8bff13bf25757e",
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "tools_tree": "fbaef8e1eead4ca36c3c971bfac8c6e0de74ab51",
+    "build_script_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+    "smc_mixer_c_blob": "d0175c59d7318cb9aaa7604399a9a4b26062ebca",
+    "smc_ble_input_blob": "0084503f6a0c0e89450af93d92b2808e23dedae8",
+    "smc_protocol_blob": "03a642226aae01ffb9bc29888e0f5802d72ced26",
+    "old_test_blob": "40478864cdc9e8ca093eae58918560c75f0a90c8"
+  },
+  "new_test": {
+    "blob": "d483be2d4bfa8b8e5196d640e164651500f16e0a",
+    "sha256": "c29eca9ac5770516bcfe89877efb7f78ba3bdb49d1a1324a8f90b5f36df7411d",
+    "env_focus": "SMC_ONLY_HOST_RESET_OVERFLOW=1",
+    "scenarios_per_profile": 96,
+    "full_scenarios_per_profile": 1890,
+    "full_checks_per_profile": 20274
+  },
+  "matrix": {
+    "created_at_utc": "2026-10-26T01:10:22.812282+00:00",
+    "completed_at_utc": "2026-10-26T01:10:44.521009+00:00",
+    "sha256": "eb2fd46b79ff9f45e7823ac9c0f0370f14d650d39be8a881418ba7a024759199",
+    "profiles": [
+      "gcc/plain",
+      "gcc/ubsan",
+      "gcc/asan_ubsan",
+      "clang/plain",
+      "clang/ubsan",
+      "clang/asan_ubsan"
+    ],
+    "focused_positive": 6,
+    "full_positive": 6,
+    "expected_negative": 6,
+    "observed_matched_expected": 18,
+    "total_executions": 18,
+    "negative_mutation": "Temporarily omit smc_project_drop()'s host lost-release seen acknowledgement; fails specifically at 'old host lost-release must not cancel fresh project Solo'. Not committed to firmware."
+  },
+  "private_archive": {
+    "library_path": "/LoopyX0X37/smc-transport-R23-host-project-reset-overflow-evidence-20261026.zip",
+    "library_file_id": "libfile_60a4226f9fcc81918388cbb8a6122a3a",
+    "bytes": 42207,
+    "sha256": "1bcf5d402a3a1faa1decf4cbc248941f0513263b22aad45cbc83f8eb76eac6b1",
+    "re_materialized_same_sha": true,
+    "zip_integrity": "PASS"
+  },
+  "evidence_scope": "Host compiler GCC/Clang actual source extraction with simulated callbacks, not complete firmware, controller, root QA, OTA, browser, installed firmware or hardware.",
+  "current_pr_context": "PR122 is already closed/merged; new isolated R23 commit is not itself merged into firmware NIGHTLY or main. PR174 changed compiled firmware since R19; old artifacts cannot qualify changed app inputs.",
+  "consumer_actions": [
+    "Existing Independent QA: read new exact test blob and source/combined root; independently reproduce owned/foreign host overflow and event ordering, no self-approval.",
+    "Existing Hourly Build: verify latest firmware Elite+Pro BUILD_ONLY and controller complete SDK/toolchain/config/generated closures and exact bytes at current compiler source tree; this test-only change does not itself invalidate unchanged binaries.",
+    "Sole Safe Merge: determine integration eligibility at current combined heads, with action-specific approvals and all gates.",
+    "Website publisher: separate lawful installer/package and live-byte qualification."
+  ],
+  "no_actions": "No GitHub Actions build/test, protected merge, hardware flash, publication, SDK/controller/DSP binary, source behavior change, automation setting change, or new scheduler.",
+  "rights": "GPL-3.0-only test and production source; raw controller toolchain and SDK intentionally absent."
+}
