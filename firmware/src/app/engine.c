@@ -325,7 +325,7 @@ static void bass_voice_note_off(int v)
 #endif
 
 /* Live/MIDI note-off: damper sustains the gate; pattern s_boff never calls this. */
-static void chi_live_note_off(int v)
+__attribute__((noinline)) static void chi_live_note_off(int v)
 {
     if ((unsigned)v >= NBASS)
         return;
@@ -685,7 +685,7 @@ static int s_drum_seq(void *x, int kit, int v, float vel)
     s_drum(x, kit, v, vel);
     return 1;
 }
-static void s_drum(void *x, int kit, int v, float vel)
+__attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 {
     (void)x;
     if (v == 0)                          /* BD (both kits' track 1): the master's PUMP key */
