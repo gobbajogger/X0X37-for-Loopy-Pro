@@ -1,0 +1,424 @@
+{
+  "elite": {
+    "objects": {
+      "crt0.o": {
+        "sections": {
+          "text": 56,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "a038b72c3bb98101faba65f7c6df989838f2fd104ff4f8af645b61274b4a2a8c"
+      },
+      "fm1_vec.o": {
+        "sections": {
+          "text": 790,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "28b3ddb497512aa7fc9625058ad5222ebb1f66a2f29918fde6e837594ba9b570"
+      },
+      "fm1_isr.o": {
+        "sections": {
+          "text": 44,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "748cd6c427d43925b509108aeaab7e12c9f9aa69cbc3facb7b968c94388ecb35"
+      },
+      "fm1_cpu1.o": {
+        "sections": {
+          "text": 52,
+          "rodata": 0,
+          "data": 0,
+          "bss": 3072,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "0fc6dd9c29a4e65d648be9033c058fe538ccb271d546efbc22a7de3ce0c8a8b1"
+      },
+      "x0x.o": {
+        "sections": {
+          "text": 115744,
+          "rodata": 32707,
+          "data": 60,
+          "bss": 38536,
+          "pool": 121920,
+          "ram_text": 3498,
+          "c1_text": 606
+        },
+        "sha256": "26b8f507b4b5eeb00ffbec3a9ae84601095b9f62e321aa26ea84495d43f328a8"
+      },
+      "o2/wobble.o": {
+        "sections": {
+          "text": 2326,
+          "rodata": 100,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "0a63e145efe1a0be3651b3bd150030a445b8aec66989cad6f387a694ecb67725"
+      },
+      "o2/dsp_drum909.o": {
+        "sections": {
+          "text": 20824,
+          "rodata": 71888,
+          "data": 0,
+          "bss": 92,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "1f98b1f90b2e6a5ce321ab4b2d6917bd7ef60ae1adea7b18a99d9609d8553de2"
+      },
+      "o2/dsp_drum808.o": {
+        "sections": {
+          "text": 27998,
+          "rodata": 3783,
+          "data": 4,
+          "bss": 4,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "aaf97175d87d50afe09693c965bf24eb04e66fa7b207dbc27d83b42c5df1e5e8"
+      },
+      "o2/dsp_bass303.o": {
+        "sections": {
+          "text": 7090,
+          "rodata": 376,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "775ddefff13e3525fa9becea7a12d401f1e9e2449812e1189e7f74e0d358bd1a"
+      },
+      "o2/dsp_breaks.o": {
+        "sections": {
+          "text": 8240,
+          "rodata": 767,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "ef35dbdbd8367849d34e7b17b575200c9b81c4c2192d01f18974d134b9c790c3"
+      },
+      "o2/dsp_fxbus.o": {
+        "sections": {
+          "text": 7508,
+          "rodata": 755,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "6cf75120997086db85334c83b3dbcbfacb20b890f173fe348ca8753f6e866464"
+      },
+      "o2/dsp_master.o": {
+        "sections": {
+          "text": 8874,
+          "rodata": 476,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "f88677b27022ae0f18c11d8bf7e5595a3b2edcc7038f5797da6a37746073fe7d"
+      },
+      "o2/seq_sequencer.o": {
+        "sections": {
+          "text": 9130,
+          "rodata": 26,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "a81e053ff214e745b9077070240dac36a5aaa3021c7d7d72ea375b705fefc644"
+      },
+      "o2/seq_tb3po.o": {
+        "sections": {
+          "text": 1460,
+          "rodata": 99,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "7e144246cec72176b59633cfdc7f6d23c41b1f56027be8210523272944be19e0"
+      },
+      "o2/seq_pattern.o": {
+        "sections": {
+          "text": 208,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "4100414b6e7f72179751e363c61226b77279a0551a09be3f22e5bdf54448804f"
+      },
+      "o2/seq_motion.o": {
+        "sections": {
+          "text": 1234,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "9018b23f73bf41999e372d6617f1d02abbef3a32613b5b01c8b3582c3a0469ca"
+      },
+      "o2/app_engine.o": {
+        "sections": {
+          "text": 10212,
+          "rodata": 221168,
+          "data": 304,
+          "bss": 20016,
+          "pool": 213820,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "ff624111a836bd6783261e7ccec7b7f237aee8943a0391b1879ed725195d4f50"
+      }
+    },
+    "link_exit": 1,
+    "diagnostic": "/opt/jieli/pi32v2/bin/ld: /work/build/wobble-native/elite-diagnostic.elf section `.c1_text' will not fit in region `XIP'\n/opt/jieli/pi32v2/bin/ld: region `XIP' overflowed by 716 bytes\n",
+    "linker_sha256": "31c7903aa9c23a4c76c78c42bac602c4ec785e3215ce831554d90f8c5b960151"
+  },
+  "pro": {
+    "objects": {
+      "crt0.o": {
+        "sections": {
+          "text": 56,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "a038b72c3bb98101faba65f7c6df989838f2fd104ff4f8af645b61274b4a2a8c"
+      },
+      "fm1_vec.o": {
+        "sections": {
+          "text": 790,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "28b3ddb497512aa7fc9625058ad5222ebb1f66a2f29918fde6e837594ba9b570"
+      },
+      "fm1_isr.o": {
+        "sections": {
+          "text": 44,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "748cd6c427d43925b509108aeaab7e12c9f9aa69cbc3facb7b968c94388ecb35"
+      },
+      "fm1_cpu1.o": {
+        "sections": {
+          "text": 52,
+          "rodata": 0,
+          "data": 0,
+          "bss": 3072,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "0fc6dd9c29a4e65d648be9033c058fe538ccb271d546efbc22a7de3ce0c8a8b1"
+      },
+      "x0x.o": {
+        "sections": {
+          "text": 115744,
+          "rodata": 32703,
+          "data": 60,
+          "bss": 38536,
+          "pool": 121920,
+          "ram_text": 3498,
+          "c1_text": 606
+        },
+        "sha256": "848c8e9dd20890bde36b80dd3f7242d374500a0d51842e7eb07b1a04da786bdf"
+      },
+      "o2/wobble.o": {
+        "sections": {
+          "text": 2326,
+          "rodata": 100,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "0a63e145efe1a0be3651b3bd150030a445b8aec66989cad6f387a694ecb67725"
+      },
+      "o2/dsp_drum909.o": {
+        "sections": {
+          "text": 20824,
+          "rodata": 71888,
+          "data": 0,
+          "bss": 92,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "1f98b1f90b2e6a5ce321ab4b2d6917bd7ef60ae1adea7b18a99d9609d8553de2"
+      },
+      "o2/dsp_drum808.o": {
+        "sections": {
+          "text": 27998,
+          "rodata": 3783,
+          "data": 4,
+          "bss": 4,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "aaf97175d87d50afe09693c965bf24eb04e66fa7b207dbc27d83b42c5df1e5e8"
+      },
+      "o2/dsp_bass303.o": {
+        "sections": {
+          "text": 7090,
+          "rodata": 376,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "775ddefff13e3525fa9becea7a12d401f1e9e2449812e1189e7f74e0d358bd1a"
+      },
+      "o2/dsp_breaks.o": {
+        "sections": {
+          "text": 8240,
+          "rodata": 767,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "ef35dbdbd8367849d34e7b17b575200c9b81c4c2192d01f18974d134b9c790c3"
+      },
+      "o2/dsp_fxbus.o": {
+        "sections": {
+          "text": 7508,
+          "rodata": 755,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "6cf75120997086db85334c83b3dbcbfacb20b890f173fe348ca8753f6e866464"
+      },
+      "o2/dsp_master.o": {
+        "sections": {
+          "text": 8874,
+          "rodata": 476,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "f88677b27022ae0f18c11d8bf7e5595a3b2edcc7038f5797da6a37746073fe7d"
+      },
+      "o2/seq_sequencer.o": {
+        "sections": {
+          "text": 9130,
+          "rodata": 26,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "a81e053ff214e745b9077070240dac36a5aaa3021c7d7d72ea375b705fefc644"
+      },
+      "o2/seq_tb3po.o": {
+        "sections": {
+          "text": 1460,
+          "rodata": 99,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "7e144246cec72176b59633cfdc7f6d23c41b1f56027be8210523272944be19e0"
+      },
+      "o2/seq_pattern.o": {
+        "sections": {
+          "text": 208,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "4100414b6e7f72179751e363c61226b77279a0551a09be3f22e5bdf54448804f"
+      },
+      "o2/seq_motion.o": {
+        "sections": {
+          "text": 1234,
+          "rodata": 0,
+          "data": 0,
+          "bss": 0,
+          "pool": 0,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "9018b23f73bf41999e372d6617f1d02abbef3a32613b5b01c8b3582c3a0469ca"
+      },
+      "o2/app_engine.o": {
+        "sections": {
+          "text": 10212,
+          "rodata": 221168,
+          "data": 304,
+          "bss": 20016,
+          "pool": 213820,
+          "ram_text": 0,
+          "c1_text": 0
+        },
+        "sha256": "ff624111a836bd6783261e7ccec7b7f237aee8943a0391b1879ed725195d4f50"
+      }
+    },
+    "link_exit": 1,
+    "diagnostic": "/opt/jieli/pi32v2/bin/ld: /work/build/wobble-native/pro-diagnostic.elf section `.c1_text' will not fit in region `XIP'\n/opt/jieli/pi32v2/bin/ld: region `XIP' overflowed by 716 bytes\n",
+    "linker_sha256": "31c7903aa9c23a4c76c78c42bac602c4ec785e3215ce831554d90f8c5b960151"
+  }
+}

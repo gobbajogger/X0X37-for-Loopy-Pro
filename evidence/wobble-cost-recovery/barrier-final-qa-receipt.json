@@ -1,0 +1,110 @@
+{
+  "sourceSha256": {
+    "firmware/src/app/engine.c": "f94821ae58692e0e8b6c71edbabf11ab33accf71ffd832bca4611189df856e5b",
+    "firmware/src/dsp/synth_engine.h": "fd64dedab31737ef215ff478462efaf7f896f1851f205886a8be10c253851f61",
+    "firmware/src/dsp/wobble_backend.h": "90904505c8ed8b3a0781af684596649f8d877f91ea9606f83ebc10f6c95c76b9",
+    "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
+    "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+    "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+  },
+  "commands": [
+    {
+      "name": "backend",
+      "argv": [
+        "sh",
+        "tests/host/run_wobble_backend.sh"
+      ],
+      "exit": 0,
+      "logSha256": "aaa50b4d2f72cf77856b26ee7dbf7dbd46229ebaa9270d139cdeb7680a9093d0"
+    },
+    {
+      "name": "lifecycle-registry",
+      "argv": [
+        "sh",
+        "tests/host/run_synth_engine.sh"
+      ],
+      "exit": 0,
+      "logSha256": "9cb8d71f7de18750545cc4a4904396b2e37eaf3ced70a334443baae071c0b813"
+    },
+    {
+      "name": "default303",
+      "argv": [
+        "sh",
+        "tests/host/run_synth_engine_review.sh"
+      ],
+      "exit": 0,
+      "logSha256": "aaa59c5b99c3d24072041d3492f62f0e70ab503991522287f0bfab30e4f38169"
+    },
+    {
+      "name": "stereo",
+      "argv": [
+        "python3",
+        "tests/host/check_wobble_stereo_mix.py"
+      ],
+      "exit": 0,
+      "logSha256": "1f550821e70444539e0e2c4bad6fa22bf03ddc41f74b407ee17c2a8b53cd857d"
+    },
+    {
+      "name": "compile-fragments-normal",
+      "argv": [
+        "clang",
+        "-std=c99",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-DX0X_SYNTH_HOST_TEST",
+        "-Ifirmware/src",
+        "-O2",
+        "<private-stage>/work/qa/fragment_review.c",
+        "experiments/wobble/wobble.c",
+        "firmware/src/dsp/bass303.c",
+        "-o",
+        "<private-stage>/work/qa/barrier-final-fragments-normal"
+      ],
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fragments-normal",
+      "argv": [
+        "<private-stage>/work/qa/barrier-final-fragments-normal"
+      ],
+      "exit": 0,
+      "logSha256": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd"
+    },
+    {
+      "name": "compile-fragments-sanitized",
+      "argv": [
+        "clang",
+        "-std=c99",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-DX0X_SYNTH_HOST_TEST",
+        "-Ifirmware/src",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "<private-stage>/work/qa/fragment_review.c",
+        "experiments/wobble/wobble.c",
+        "firmware/src/dsp/bass303.c",
+        "-o",
+        "<private-stage>/work/qa/barrier-final-fragments-sanitized"
+      ],
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fragments-sanitized",
+      "argv": [
+        "<private-stage>/work/qa/barrier-final-fragments-sanitized"
+      ],
+      "exit": 0,
+      "logSha256": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd"
+    }
+  ],
+  "reuse": "70509 state codec proof reused only for unchanged state/layout closure"
+}

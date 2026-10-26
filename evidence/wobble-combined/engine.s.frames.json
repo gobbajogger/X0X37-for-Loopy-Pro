@@ -1,0 +1,4 @@
+{
+  "engine_render": "engine_render:                          ; @engine_render\n; BB#0:\n\t[--sp] = {rets, r15-r4}\n\tsp += -68\n\tr6 = .L_MergedGlobals.28\n\tr7 = r1  #\n\tr2 = [r6+28] ",
+  "wobble_foundation_render": "wobble_foundation_render:               ; @wobble_foundation_render\n; BB#0:\n\t[--sp] = {rets, r11-r4}\n\tsp += -64\n\tr10 = r2\n\tr2 += -1\n\tr9_r8 = r1_r0"
+}

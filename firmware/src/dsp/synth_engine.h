@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #pragma once
 #include "bass303.h"
+#include "wobble_config.h"
 #include <stddef.h>
 
 #define SYNTH_ENGINE_303 1u
@@ -34,7 +35,7 @@ typedef struct {
  * byte occurs last; pending fields cannot be reused until acknowledgement.
  * Compiler fences suffice on this single-core interrupt contract. Other thread
  * models must supply a synchronized external queue (host tests are sequential). */
-#define SYNTH_FENCE() __asm__ __volatile__("" ::: "memory")
+#define SYNTH_FENCE() __asm__ volatile("" ::: "memory")
 static inline int synth_valid(synth_binding_t b)
 {
     return b.context && b.ops && b.ops->id && b.ops->schema && b.ops->init &&
@@ -53,7 +54,11 @@ static inline int synth_request(synth_slot_t *s, synth_binding_t b, uint8_t *tic
 {
     if (!synth_valid(b) || s->requested != s->acknowledged) return 0;
 #ifndef X0X_SYNTH_HOST_TEST
-    if (b.ops->id != SYNTH_ENGINE_303 || b.ops->schema != SYNTH_SCHEMA_303) return 0;
+    if ((b.ops->id != SYNTH_ENGINE_303 || b.ops->schema != SYNTH_SCHEMA_303)
+#if X0X_DEV_WOBBLE
+        && (b.ops->id != 0x57424c31u || b.ops->schema != 1 || b.ops->nparams != 16)
+#endif
+       ) return 0;
 #endif
     SYNTH_FENCE(); s->pending = b; SYNTH_FENCE();
     s->requested = (uint8_t)(s->requested + 1u);

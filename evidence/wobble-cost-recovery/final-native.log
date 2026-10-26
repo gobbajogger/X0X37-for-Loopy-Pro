@@ -1,0 +1,24 @@
+{
+  "elite": {
+    "errors": [],
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 116 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552556 B; RAM .data+.bss 98084 B of 98304; pool 335740 B of 344064"
+    ],
+    "fenceObjectEquivalence": true
+  }
+}
+{
+  "pro": {
+    "errors": [],
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 116 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552556 B; RAM .data+.bss 98084 B of 98304; pool 335740 B of 344064"
+    ],
+    "fenceObjectEquivalence": true
+  }
+}

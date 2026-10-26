@@ -1,0 +1,5 @@
+host: 7490 ms simulated, 55 blits, render 0.2% of real time (host CPU)
+host: playing, 491 instructions / sample (mean), 1002 in the worst block
+host: 7490 ms simulated, 55 blits, render 0.2% of real time (host CPU)
+host: playing, 489 instructions / sample (mean), 1001 in the worst block
+PASS exact sequential scratch mixer equals independent dedicated planar arrays with nonzero side and sends: 1267756 db993853d8f1fd2788a4a8d22247a4a048849da7723c50ef996c481b32e94d99

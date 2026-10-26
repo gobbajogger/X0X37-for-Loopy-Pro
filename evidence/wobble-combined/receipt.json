@@ -1,0 +1,72 @@
+{
+  "foundation": "6f717e216390ffca0d20be9e2204ab401ad09792",
+  "prototypeRemote": "74167d4a1b2f2e7b961134b3c71dea4c7098de58",
+  "prototypeLocal": "fb302be506e458821f02ad7e1980c767f6160ced",
+  "prototypeTree": "d700cc094c022eb11936bb2d71243f3ec977fe50",
+  "config": {
+    "X0X_DEV_PADCAL": 1,
+    "X0X_DEV_WOBBLE": 1,
+    "target": "pi32v2/r3",
+    "wobbleOptimization": "-Oz",
+    "models": [
+      "elite",
+      "pro"
+    ]
+  },
+  "toolchainSha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "sdkRevision": "d179b4484759423312073f5fbb232501aa491047",
+  "imageId": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "nativeBuildStatus": "BUILD_FAILED",
+  "nativeLinkExit": {
+    "elite": 1,
+    "pro": 1
+  },
+  "mapDiagnostic": {
+    "text": 548912,
+    "ram_text": 3500,
+    "c1_text": 608,
+    "data": 368,
+    "bss": 97700,
+    "pool": 335740,
+    "xipLoad": 553388,
+    "xipLimit": 552672,
+    "xipOverflow": 716,
+    "ramOccupancyIncludingAlignment": 98084,
+    "ramLimit": 98304,
+    "ramSpare": 220,
+    "poolSpare": 8324,
+    "poolRequiredReserve": 8192
+  },
+  "status": {
+    "hostCorrectness": "PASS_SCOPED_INDEPENDENT",
+    "legacy303Audio": "BIT_IDENTICAL",
+    "legacyState": "UNCHANGED",
+    "nativeFit": "FAILED",
+    "linkedSoftDoubleAndRuntimeChecks": "NOT_REACHED",
+    "package": "NOT_PRODUCED",
+    "fidelity": "FAILED",
+    "hardware": "NOT_RUN",
+    "targetCycles": "NOT_RUN",
+    "totalStackHighWater": "NOT_RUN"
+  },
+  "sourceSha256": {
+    "firmware/src/app/engine.c": "3031a1a26684b3dfd558ad8f51e782a28e4726d30ecf76c4a3cd317c7a1ded24",
+    "firmware/src/dsp/wobble_backend.h": "90904505c8ed8b3a0781af684596649f8d877f91ea9606f83ebc10f6c95c76b9",
+    "firmware/src/dsp/synth_engine.h": "93820335e3d433cfc3a71b78d7f6b868231d72449c9a712d23dde93cd3d4a326",
+    "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
+    "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+    "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+  },
+  "testedSourceCommit": "fdd465a8dc4aa5125b7fe3939c12fb1b29fcfc18",
+  "testedSourceTree": "a14d385b0dea09f9be03d7aa5eca495f296dcf25",
+  "draftPr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/219",
+  "baselineFullLink": {
+    "status": "NOT_ESTABLISHED",
+    "cause": "Separate baseline docker build call interrupted before process/start confirmed; no compiler result or subsequent retry. Historical verified foundation affected-object sections only used for object deltas."
+  },
+  "successor": {
+    "status": "NOT_CREATED_BY_THIS_STAGE",
+    "nextOwner": "authorized outcome coordinator01a17306-999c-73b2-8e07-f1ecab31c028",
+    "reason": "Latest coordinator direction retains one successor creation after source ownership release."
+  }
+}

@@ -6,6 +6,10 @@
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
 #include "../dsp/synth_engine.h"
+#if X0X_DEV_WOBBLE
+#include "../dsp/wobble_backend.h"
+static wobble_t dev_wobble;
+#endif
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
@@ -266,7 +270,7 @@ void engine_volume(int32_t *out_lr, uint32_t n)
     vol_after = v;
 }
 
-void engine_sound_defaults(sound_t *s)
+X0X_COLD void engine_sound_defaults(sound_t *s)
 {
     int t, v, i;
     uint8_t *z = (uint8_t *)s;
@@ -319,7 +323,7 @@ void engine_sound_defaults(sound_t *s)
     s->v[T_FX][1][0] = (uint8_t)(16 + s->v[T_FX][0][FX_DL_WEAR] * 111 / 127);   /* TAPE (ui.c R_TAPE): on, its wear */
 }
 
-void engine_sound_centre_drum_pans(sound_t *s)
+X0X_COLD void engine_sound_centre_drum_pans(sound_t *s)
 {
     int t, v;
     for (t = T_909; t <= T_808; t++)
@@ -331,7 +335,7 @@ void engine_sound_centre_drum_pans(sound_t *s)
         }
 }
 
-void engine_apply_sound(const sound_t *s)
+X0X_COLD void engine_apply_sound(const sound_t *s)
 {
     int t, v, i;
     engine_set(T_MST, 0, MST_COMP1, s->v[T_MST][0][MST_COMP1]);   /* the macros first: the pots they set */
@@ -688,7 +692,7 @@ __attribute__((noinline)) static void meter(int p, const float *x, float g, uint
  * (no fade-in at boot); settled, cur IS the target, so the product is the unsmoothed one exactly */
 typedef struct { float cur, tgt; } glide_t;
 #define GLIDE_A 0.0022651f                                /* 1 - exp(-1 / (10 ms * 44.1 kHz)) */
-static void glide_set(glide_t *g, float t)
+__attribute__((noinline)) static void glide_set(glide_t *g, float t)
 {
     g->tgt = t;
     if (g->cur < 0.0f)
@@ -718,7 +722,8 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}, {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}},
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}, {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}},
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
-static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
+/* Share the six gain updates across parts instead of duplicating them in render. */
+__attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
 {
     if (solo && !(solo & (1u << p)))
         g = 0.0f;
@@ -798,7 +803,7 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
 /* one stretch: the 909 (into the mix, in place) and the 303s here while the second core renders the
  * 808 and the break; then those are mixed in, in the order one core always used (909, 808, 303 A,
  * 303 B, break): the same sums either way */
-static void render_sub(float *out_l, float *out_r, uint32_t n)
+__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n)
 {
     float *bb[NBASS] = {out_l, out_r};
     int idle[NBASS], b;
@@ -828,12 +833,14 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
         }
         PROF_ADD(PR_909, p9);
     }
+#if !X0X_DEV_WOBBLE
     for (b = 0; b < NBASS; b++) {
         PROF_T(pb);
         idle[b] = synth_idle(&bass_slot[b]);                           /* idle: the render writes zeros */
         synth_render(&bass_slot[b], bb[b], (int)n);
         PROF_ADD(2 + b, pb);
     }
+#endif
     pt = plat_cycles();
 #if X0X_DEBUG
     eng_dbg_nsub++;
@@ -863,11 +870,29 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
     }
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
+#if X0X_DEV_WOBBLE
+        /* Render/mix one part at a time after core2 has finished. Existing output
+         * buffers become planar scratch; no extra stereo BSS or stack arrays. */
+        PROF_T(pb);
+        idle[b] = synth_idle(&bass_slot[b]);
+        if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1-b], (int)n))
+            synth_render(&bass_slot[b], bb[b], (int)n);
+        PROF_ADD(2 + b, pb);
+#endif
         if (idle[b])
             continue;
         mix_targets(p, mix_level[p], solo_parts);
+#if X0X_DEV_WOBBLE
+        if (bass_slot[b].active.ops == &wobble_foundation_ops) {
+            add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
+            add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
+            for (i=0; i<n; ++i) bb[b][i] = .5f * (bb[b][i] + bb[1-b][i]);
+        } else
+#endif
+        {
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
         add_glide(dry_r, bb[b], &mix_glide[p][GL_R], n);
+        }
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
@@ -969,7 +994,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
 /* -------------------------------------------------------------- loops --- */
 /* a user loop's length in bars: 1, 2, 4 or 8, whichever puts its tempo nearest 120 BPM
  * inside 80..180 (breaks are recorded at their own tempo; the player stretches to ours) */
-static uint8_t loop_bars(uint32_t ns, uint32_t rate)
+X0X_COLD static uint8_t loop_bars(uint32_t ns, uint32_t rate)
 {
     float sec = (float)ns / (float)(rate ? rate : 22050u), best = 1e9f;
     uint8_t bars = 1, b;
@@ -985,7 +1010,7 @@ static uint8_t loop_bars(uint32_t ns, uint32_t rate)
 
 #include "x0x_break_bank.h"              /* tools/gen_break_bank.py: the built-in loops */
 
-static const brk_loop_t *brk_builtin(int k)
+X0X_COLD static const brk_loop_t *brk_builtin(int k)
 {
     static brk_loop_t L[2];
     static int which;
@@ -1007,7 +1032,7 @@ static char user_names[PLAT_NSLOTS * PLAT_SLOT_ZONES][8];
 static uint8_t loop_slot[NLOOPS_MAX], loop_zone[NLOOPS_MAX];
 static int nloops;
 
-static void scan_loops(void)
+X0X_COLD static void scan_loops(void)
 {
     int i, k, z, u = 0;
     nloops = 0;
@@ -1064,7 +1089,7 @@ static const int16_t ISTEP[89] = {
     4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350,
     22385, 24623, 27086, 29794, 32767};
 static const int8_t IIDX[8] = {-1, -1, -1, -1, 2, 4, 6, 8};
-int engine_brk_outline(int which, uint8_t *peaks, int n)
+X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
 {
     const brk_bank_t *bk = &brk.bank[which & 1];
     uint32_t i, ns = bk->n;
@@ -1100,7 +1125,7 @@ int engine_brk_outline(int which, uint8_t *peaks, int n)
 float engine_gr_db(void) { return mst.gr_view; }
 void engine_master_format(int i, char *buf) { master_format(&mst, i, buf); }
 
-void engine_brk_loops(void)
+X0X_COLD void engine_brk_loops(void)
 {
     const brkpart_t *bp = &seq.pat[seq.ppat[TRK_BRK]].brk;
     brk_loop_t L[2];
@@ -1152,6 +1177,12 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     drum808_init(&d808);
     synth_init(&bass_slot[0], synth303_binding(&b303[0]));
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));
+#if X0X_DEV_WOBBLE
+    /* Private integration fixture: prepare on main core; commit at audio boundary.
+     * No UI, old lock reinterpretation, project serialization or public switch API. */
+    wobble_foundation_init(&dev_wobble);
+    synth_request(&bass_slot[0], wobble_foundation_binding(&dev_wobble), 0);
+#endif
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);
