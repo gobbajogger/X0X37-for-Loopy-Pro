@@ -507,7 +507,7 @@ static void d9_bt_trigger(d9_bt_t *v, int bd, float accent)
     v->mute = d9_ceil((longest + 20.0f) * D9_MS);
 }
 
-static void d9_tom_trigger(d9_tom_t *t, const d9_bt_t *p, float accent)
+__attribute__((noinline)) static void d9_tom_trigger(d9_tom_t *t, const d9_bt_t *p, float accent)
 {
     if (t->stick_stale && t->mute > 0)
         t->stick_warm = 1;
@@ -801,7 +801,7 @@ static void d9_render_rim(d9_rim_t *v, const float *nz, const d9_bus_t *bus, int
 }
 
 /* Hand clap (er99_clap909_render) */
-static void d9_render_clap(d9_clap_t *v, const float *nz, const d9_bus_t *bus, int n)
+__attribute__((noinline)) static void d9_render_clap(d9_clap_t *v, const float *nz, const d9_bus_t *bus, int n)
 {
     static const float amp[4] = { 1.22f, 1.35f, 1.68f, 1.0f };
     const int m = n < v->mute ? n : v->mute;
