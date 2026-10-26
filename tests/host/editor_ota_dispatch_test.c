@@ -115,6 +115,7 @@ int main(void)
 {
     const uint8_t project[] = {0x7D, 0x46, 0x4C, ED_PROJECT, 64};
     const uint8_t sample[] = {0x7D, 0x46, 0x4C, ED_SMP_WRITE, 0, 1, 2, 3};
+    const uint8_t boot_write[] = {0x7D, 0x46, 0x4C, ED_BOOT_WRITE, 0, 1, 2, 3};
     const uint8_t unknown_editor[] = {0x7D, 0x46, 0x4C, 127};
     const uint8_t malformed[] = {0x7D, 0x46, 0x4C};
     uint8_t invalid[sizeof identity];
@@ -123,6 +124,7 @@ int main(void)
     bad += request_cases("CTL offset63392/count224", ctl, sizeof ctl);
     bad += request_cases("PROJECT", project, sizeof project);
     bad += request_cases("SMP_WRITE", sample, sizeof sample);
+    bad += request_cases("BOOT_WRITE", boot_write, sizeof boot_write);
     bad += request_cases("unknown editor command", unknown_editor, sizeof unknown_editor);
 
     reset_case(); inject(ping, sizeof ping); late_frame = ctl; late_n = sizeof ctl; poll();
