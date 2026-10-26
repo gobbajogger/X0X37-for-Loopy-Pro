@@ -419,7 +419,7 @@ run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/st
 run smk-apc40-map sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_apc40_map_test tests/smk_apc40_map_test.c && $OUT/smk_apc40_map_test"
 run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-ble-clear sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/ble -o $OUT/smk_clip_ble_clear_test tests/smk_clip_ble_clear_test.c && $OUT/smk_clip_ble_clear_test"
-run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
+run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c firmware/src/app/smk_clip_arp_share.c && $OUT/smk_clip_keys_test"
 run smk-chord-recognize sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_chord_recognize_test tests/smk_chord_recognize_test.c && $OUT/smk_chord_recognize_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run smk-clip-chord-display Pillow; else run smk-clip-chord-display sh tests/host/smk_clip_chord_display_test.sh; fi
 run smk-ck-page-layout python3 tests/smk_ck_page_layout_test.py   # CLP-75: no top bar on the stage page, help line at the bottom
