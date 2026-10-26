@@ -122,7 +122,17 @@ static const char *part_display(int part)
 #endif
     return PART_N[part];
 }
-static const char *part_s(int i) { return i == PART_BRK ? "BRK" : part_display(i); }
+static const char *part_s(int i)
+{
+#if X0X_BASS_PRESET_PREVIEW
+    if(i==PART_303A || i==PART_303B) {
+        int v=i-PART_303A,b=engine_bass_bank(v);
+        if(b==engine_bass_bank(1-v)) return b?(v?"MI-B":"MI-A"):(v?"CH-B":"CH-A");
+        return b?"MIA":"CHI";
+    }
+#endif
+    return i==PART_BRK?"BRK":PART_N[i];
+}
 
 /* overlays drawn over the main area */
 enum { O_NONE, O_LIST, O_ASK };

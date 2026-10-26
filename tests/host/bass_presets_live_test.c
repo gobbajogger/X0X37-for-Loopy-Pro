@@ -110,6 +110,7 @@ int main(int argc,char **argv)
     CHECK(!memcmp(expected,proj.sound.v[T_303][0],32));CHECK(!engine_bass_preset_edited(0));
     CHECK(!strcmp(part_display(PART_303A),"CHICAGO A"));CHECK(!strcmp(part_display(PART_303B),"CHICAGO B"));
     CHECK(tw(&FONT_B,part_display(PART_303A))+12<120);
+    CHECK(tw(&FONT_XS,part_s(PART_303A))<=24);CHECK(tw(&FONT_XS,part_s(PART_303B))<=24);
     CHECK(!strcmp(bass_display_name(1,1,0),"MIAMI A"));CHECK(!strcmp(bass_display_name(1,1,1),"MIAMI B"));
     physical_browse(0);if(argc>1)picture(argv[1],"chicago-acid-lab-1",0);
     writes=store_writes;CHECK(project_save()==-9);CHECK(store_writes==writes);
@@ -126,6 +127,7 @@ int main(int argc,char **argv)
     audio_block();ui_input_only();CHECK(engine_bass_bank(1)==1);CHECK(engine_nparams(T_303,1)==23);
     CHECK(bass_preset_decode(1,0,engine_bass_bank_param,expected)==0);CHECK(!memcmp(expected,proj.sound.v[T_303][1],32));
     CHECK(!strcmp(part_display(PART_303A),"CHICAGO"));CHECK(!strcmp(part_display(PART_303B),"MIAMI"));
+    CHECK(tw(&FONT_XS,part_s(PART_303A))<=24);CHECK(tw(&FONT_XS,part_s(PART_303B))<=24);
     CHECK(engine_bass_select_preset(1,0,0,&proj.sound)==0);CHECK(!strcmp(part_display(PART_303B),"MIAMI"));
     engine_bass_cancel_preset(1);audio_block();CHECK(!strcmp(part_display(PART_303B),"MIAMI"));
     physical_browse(1);if(argc>1)picture(argv[1],"miami-16th-cutz",1);
