@@ -73,3 +73,14 @@ normal audition/transport in the explicitly unavailable directions.
 
 Independent review and exact Elite/Pro/controller native validation remain
 required before qualification or integration.
+
+### Mixed/torn continuation preservation follow-up
+
+A used continuation object with an unsupported format tag must retain the same
+unsupported classification as the first object. `st_get` now records that reason
+for `load_stream` to return -9, preserving the boot-default save block. Ordinary
+corruption remains -1. Only consumed objects are checked: unused stale tails do
+not invalidate a shorter valid stream. Real NOR tests cover consumed tags4/5/7,
+staged live-state atomicity, zero fallback writes, explicit recovery, ordinary
+corrupt tag0 and unused stale format5 tails. See the mixed-storage receipt and
+before/after logs in `rec-endpoint-proof/`.

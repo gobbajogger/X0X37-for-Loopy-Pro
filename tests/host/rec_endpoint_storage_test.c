@@ -25,7 +25,43 @@ static void rejected_preserves_storage(void) {
  project_reset_stage();CHECK(project_validate_stage()==0);project_commit_stage();
  CHECK(project_save()==0);CHECK(!project_storage_unsupported()); /* explicit validated reset/adoption is the recovery boundary */
 }
+static void multisegment_fixture(void) {
+ musical_fixture();
+ for(unsigned k=0;k<8;k++) {
+  for(unsigned b=0;b<NKIT;b++) for(unsigned v=0;v<NDRUM;v++) for(unsigned i=0;i<NSW;i++)
+   proj.pat[k].drum[b].hit[v][i]=next_random();
+  for(unsigned b=0;b<NBASS;b++) for(unsigned i=0;i<NSTEPS;i++)
+   proj.pat[k].bass[b].step[i]=(bstep_t){next_random()%128,G_NOTE,next_random()%128};
+ }
+ REQUIRE(project_save()==0);
+ REQUIRE(packed_len>(sizeof io_buf)-STREAM_HDR);
+}
+static void mixed_segment_storage(void) {
+ for(unsigned format=4;format<=7;format++) {
+  if(format==PROJ_STREAM) continue;
+  fresh("used unsupported continuation is preserved");multisegment_fixture();
+  int n=plat_store_load(OBJ_PAT1,io_buf,sizeof io_buf);REQUIRE(n>4);
+  put32(io_buf,format);REQUIRE(plat_store_save(OBJ_PAT1,io_buf,(unsigned)n)==0);
+  snapshot();CHECK(project_load_stage()==-9);check_live_unchanged();
+  CHECK(project_storage_unsupported());rejected_preserves_storage();
+ }
+ fresh("ordinary corrupt continuation retains fallback");multisegment_fixture();
+ int n=plat_store_load(OBJ_PAT1,io_buf,sizeof io_buf);REQUIRE(n>4);
+ put32(io_buf,0);REQUIRE(plat_store_save(OBJ_PAT1,io_buf,(unsigned)n)==0);
+ CHECK(project_load()==-1);CHECK(!project_storage_unsupported());
+ project_defaults();CHECK(project_save()==0);
+ fresh("unused stale unsupported tails are ignored");REQUIRE(project_save()==0);
+ REQUIRE(packed_len<=(sizeof io_buf)-STREAM_HDR);
+ for(unsigned k=1;k<NSTREAM;k++) {
+  n=plat_store_load(STREAM_OBJ[k],io_buf,sizeof io_buf);REQUIRE(n>=4);
+  put32(io_buf,5);REQUIRE(plat_store_save(STREAM_OBJ[k],io_buf,(unsigned)n)==0);
+ }
+ snapshot();CHECK(project_load_stage()==0);check_live_unchanged();
+ CHECK(project_load()==0);CHECK(!project_storage_unsupported());
+ CHECK(project_save()==0);
+}
 int main(void) {
+ mixed_segment_storage();
  fresh("stream6 endpoint roundtrip");
  proj.pat[0].bass[0].step[0]=(bstep_t){60,G_NOTE|(5u<<BS_END_SHIFT),90};
  REQUIRE(project_save()==0);snapshot();
