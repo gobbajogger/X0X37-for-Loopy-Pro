@@ -140,9 +140,9 @@ static volatile uint8_t bfx_down_pub;
 static volatile uint8_t bfx_fx_pub[SMCFX_N];
 static uint8_t bfx_hold[NPARTS], bfx_eff[NPARTS];
 static busfx_t bfx_st[NPARTS];
-static busfx_mono_t bfx_send_st[2] __attribute__((section(".pool")));
+static busfx_mono_t bfx_send_st[2] X0X_POOL;
 static busfx_st2_t bfx_flt_st;
-static busfx_stut_hub_t bfx_stut_hub __attribute__((section(".pool")));
+static busfx_stut_hub_t bfx_stut_hub X0X_POOL;
 
 enum {
     BFX_STUT_SEND_RVB = 0,
