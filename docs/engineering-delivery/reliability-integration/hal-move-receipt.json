@@ -1,0 +1,17 @@
+{
+  "supersedes_source": "5f8d804be571a824d2d8bb6fa238d025482da337",
+  "cause": "Actual combined Elite/Pro native build maintained register-access gate rejected CQ register macros/inline asm in src/app/plat_fm1.c; no gate weakening permitted",
+  "fix": "Move identical source-specific mask/save/restore/CSYNC bodies into maintained fm1_irq.h; platform functions only call HAL helpers",
+  "new_platform_contract": "ALNK0 exactprior enablebit restored; global IRQ state and otherpriority nibbles unchanged; scan remains unmasked",
+  "checks": {
+    "maintained_tools_build_mmio_check": "[] PASS",
+    "actual_HAL_platform_queue_extraction_ASan_UBSan": "1080 cases +4 nestedsource/global-state cases + exactpackedword; omittedmask/omittedrevalidation mutants both rejected"
+  },
+  "new_native": "PENDING fresh correctedhead builds",
+  "source_files_sha256": {
+    "firmware/hal/fm1_irq.h": "15b8079db93109aaa34f1d11316a02c5493e620fe1d0c68cdbb06cc63fb48737",
+    "firmware/src/app/plat_fm1.c": "6b4b2461b1e5d97d3f962af7b0af201840253a94a5f9388f4000e579678b3cda",
+    "tests/host/engine_cq_isr_preemption_test.py": "ab039b3e01a66041bca972f38042d9c62f1e0a67392dcd975127ab81789c836a"
+  },
+  "original_fullhost_attempt": "Exit90 before tests: container scratch ownership from Mac tar. Preserved ../combined-host/full-attempt1-harness; no test PASS claimed. Corrected generatedscratch extraction will use --no-same-owner, no global git safe.directory change."
+}

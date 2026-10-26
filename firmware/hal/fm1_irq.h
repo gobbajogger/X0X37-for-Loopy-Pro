@@ -83,6 +83,24 @@ static void fm1_irq_attach(uint32_t n, void (*h)(void), uint32_t prio)   /* IRQs
 }
 static void fm1_irq_mask(uint32_t n) { FM1_ICFG(n) &= ~(1u << ((n & 7u) * 4u)); }
 
+/* Main-loop CQ producer and ALNK0 consumer share CPU0. Save/restore only
+ * this source enable bit; preserve priorities and the caller's global state. */
+static inline uint32_t fm1_cq_lock(void)
+{
+    uint32_t bit = 1u << ((FM1_IRQ_ALNK0 & 7u) * 4u);
+    uint32_t enabled = FM1_ICFG(FM1_IRQ_ALNK0) & bit;
+    fm1_irq_mask(FM1_IRQ_ALNK0);
+    __asm__ volatile("csync" ::: "memory");
+    return enabled;
+}
+static inline void fm1_cq_unlock(uint32_t state)
+{
+    uint32_t bit = 1u << ((FM1_IRQ_ALNK0 & 7u) * 4u);
+    __asm__ volatile("csync" ::: "memory");
+    FM1_ICFG(FM1_IRQ_ALNK0) = (FM1_ICFG(FM1_IRQ_ALNK0) & ~bit) | state;
+    __asm__ volatile("csync" ::: "memory");
+}
+
 static void fm1_irq_enable_all(void)
 {
     fm1_icfg_set(fm1_icfg() | 0x100u);

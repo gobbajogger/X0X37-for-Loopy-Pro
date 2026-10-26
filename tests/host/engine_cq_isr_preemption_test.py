@@ -108,7 +108,13 @@ def sources():
     platform=(ROOT/'firmware/src/app/plat_fm1.c').read_text()
     start=platform.index('uint32_t plat_cq_lock(void)')
     end=platform.index('uint32_t plat_ms(void)',start)
-    lock=platform[start:end]
+    wrappers=platform[start:end]
+    if 'FM1_ICFG' in wrappers or '__asm__' in wrappers:
+        raise ValueError('CQ register/asm operation escaped HAL')
+    hal=(ROOT/'firmware/hal/fm1_irq.h').read_text()
+    start=hal.index('static inline uint32_t fm1_cq_lock(void)')
+    end=hal.index('static void fm1_irq_enable_all(void)',start)
+    lock=hal[start:end]+wrappers
     sync='__asm__ volatile("csync" ::: "memory");'
     if lock.count(sync)!=3:raise ValueError('platform lock changed: review MMIO model')
     # Model the hardware source-enable register; same target C and HAL mask body.

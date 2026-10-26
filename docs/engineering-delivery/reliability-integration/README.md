@@ -21,3 +21,14 @@ are historical component evidence and do not qualify this combined input.
 
 No GitHub merge, publication, push or device operation is part of this source
 integration. Hardware recovery/testing remains with the physical coordinator.
+
+## HAL ownership correction after actual native failure
+
+The first combined native build rejected direct hardware register macros and
+CSYNC asm in `src/app/plat_fm1.c`. The follow-up moves the exact operations to
+`hal/fm1_irq.h`, with thin platform wrappers. It preserves the maintained gate
+and IRQ semantics. The corrected actual HAL/platform/queue extraction and both
+negative mutants pass sanitizers; maintained `tools/build.py:mmio_check` returns
+no violations. Earlier standalone CQ object compilation was not sufficient to
+catch this whole-build source ownership gate. Fresh combined native builds and
+full host closure must bind to the corrected pin, not the earlier5f8d candidate.
