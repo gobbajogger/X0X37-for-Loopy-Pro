@@ -1,0 +1,13 @@
+{
+  "wobble.c": "22b310a6e5a2b24015c8934ad4a85fbb2bde487f48a9d98a66e7a4283a9d59d8",
+  "wobble.h": "cdb22d828f029e02a7d8b58cc02426626d6dc3faaf725fabad4ab9c64b09f751",
+  "blep.h": "b95e129e11b13b1b56b34ac8be253f6c2e0f04fba11b4874d78dfd483749f4a3",
+  "test_wobble.c": "852a311d4494033dfb88a0138fbc7ad6919e797bd55fb273e7ff03f77e19e779",
+  "qa_render.c": "8c249f01441c04196a4e095bf26626c75f2aabf3c28a4a908474d75875a361f5",
+  "evaluate_refinement.py": "645b2255494eb0debd09192fd6364e8df0e89ddc9d44934c7fe7d5f0631c0dda",
+  "evaluate_rate_convergence.py": "9c789221d59cb17141f1350d6f7419487fdeceae4d7ff0a59cd9cadf3728fe0d",
+  "test_refinement_analysis.py": "42ccdce3b06ff2059a3500ad0312f52d7f0bdea379592cb7cae100ab6ea466e2",
+  "REFINEMENT-PLAN.md": "3b705f38a8b0c7c345fa77c339c9d41dffd5c85bb75b6c0318316deb4dca956d",
+  "fit_refinement.py": "f466feb79557cc953835323617af404504500be2dd25e9303ca2ee2460531c18",
+  "../../firmware/src/dsp/fastmath.h": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349"
+}

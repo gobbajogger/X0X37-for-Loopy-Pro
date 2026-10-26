@@ -70,25 +70,28 @@ Exact response curves below are **experimental choices**:
 | Control | Original implementation |
 | --- | --- |
 | Carrier wave, level, pitch, sub | Analytic triangle or MIT PolyBLEP square; linear level; pitch ±12 semitones; triangle sub one octave below |
-| X-MOD wave, level, tune, depth | Triangle or symmetric PolyBLEP square, half carrier frequency at centered tuning; ±5 semitones; level-gated phase modulation |
-| Cutoff | Original two-pass SVF, fixed damping; exponential40Hz mapping capped at0.18×sample rate |
+| X-MOD wave, level, tune, depth | Triangle or DC-corrected 10% duty PolyBLEP pulse, half carrier frequency at centered tuning; ±5 semitones; level-gated phase modulation |
+| Cutoff | Original two-pass SVF, fixed damping; exponential12Hz mapping capped at0.18×sample rate |
 | CRUSH | Saturation before filter; not asserted to be bit reduction, resonance or the reference algorithm |
 | Wobble shape, depth, rate | Triangle/square filter modulation;7 fixed rates1–12Hz representing an original120-BPM mapping |
 | Stereo | Fixed first-order allpass side component; mono sum preserved |
 | Glide | Exponential pitch approach;0 changes pitch immediately |
 | Output, bend, damper | Linear gain, ±2-semitone bend, deferred matching note-off |
 
-The fixed2ms attack/30ms release are original choices; no public envelope
-parameters are invented. The reference's measured release is much shorter.
+The fixed2ms attack/4.8ms release are original choices; no public envelope
+parameters are invented. The common pre-filter gain is0.07725. The first
+prototype used30ms release,0.1 gain and40Hz cutoff base; immutable evidence
+for that revision remains in `MEASUREMENTS.md` and `evidence/`.
 Pitch caps at0.12×sample rate: nominal pitch accuracy is not promised above that
 frequency. Analytic triangle and high-depth phase modulation remain susceptible
 to aliasing. Finite-output tests do not establish low aliasing or audio quality.
 
 ## Evidence and limitations
 
-See `MEASUREMENTS.md` for actual compiled-object, behavioral and reference
-comparison results. Seven fresh-reference tuning goals pass; all envelope and
-spectral goals fail. Phase correlation alone does not establish faithful sound.
+See `REFINEMENT.md` and `evidence/refinement/` for the current bounded refinement,
+held-out comparisons and actual host resource measurements. `MEASUREMENTS.md`
+retains the original prototype results unchanged. Phase correlation alone does
+not establish faithful sound.
 Carrier and square first-to-second harmonic changes also fail the reference
 history comparison. The rejected equal-two-copy interference hypothesis was not
 used as the implementation architecture.
@@ -103,3 +106,11 @@ flash fit, device cycle headroom, real-time performance or hardware validation.
 No public binary or audio is part of this source change. A separately reviewed
 integration, storage/lock migration, Elite/Pro native fit and device timing stage
 must precede any released or hardware-selectable engine.
+
+The development split and finite candidate families are declared in
+`REFINEMENT-PLAN.md`. Reproduce the fit with `fit_refinement.py BASELINE_REPO
+PRIVATE_REFERENCE_DIR PRIVATE_WORK_DIR`. Evaluate frozen holdouts with
+`evaluate_refinement.py REFERENCE_DIR BASE_RENDERS NEW_RENDERS OUTPUT_JSON`
+and run `python3 experiments/wobble/test_refinement_analysis.py`. Reference
+recordings and all rendered audio stay outside Git. Rate-convergence diagnostics
+include filter/sample-rate differences and are not pure alias-energy estimates.
