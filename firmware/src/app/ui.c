@@ -1484,8 +1484,15 @@ static void clear_part(pattern_t *p, int part)
 static int perf_testing(void);
 static int perf_save_busy(void);
 #define HELP_LINES 6
+/* Help-card titles. On device, panel.c's B_NAME (same -Oz unity TU) already has
+ * every label except PLAY → "PLAY / STOP" here. Host builds ui.c without panel.c. */
+#if defined(X0X_HOST)
 static const char *const BTN_LABEL[NB] = {"FX", "SEL", "ENV", "LFO", "EDIT", "GLO", "HOME", "SAVE", "ARP", "SEQ",
                                           "PLAY / STOP", "REC", "OCT-", "OCT+"};
+static const char *btn_label(int i) { return BTN_LABEL[i]; }
+#else
+static const char *btn_label(int i) { return i == B_PLAY ? "PLAY / STOP" : B_NAME[i]; }
+#endif
 
 static int help_lines(int b, const char *l[HELP_LINES])
 {
@@ -4641,7 +4648,7 @@ static UI_DRAW void draw_help(int band)
     uint16_t c = part_col();
     if (band == 0) {
         box(6, 4, 228, 24, c);
-        text_c(120, vc(&FONT_B, 4, 24), &FONT_B, BTN_LABEL[ui.help - 1], C_BLACK);
+        text_c(120, vc(&FONT_B, 4, 24), &FONT_B, btn_label(ui.help - 1), C_BLACK);
     }
     for (k = 0; k < n; k++) {                            /* evenly spaced; a line across the bands in both */
         int32_t y = 34 + k * 18 - band * BAND_H;
@@ -4687,7 +4694,7 @@ static int help_fits(void)
                     for (k = 0; k < n; k++)
                         if (tw(&FONT_XS, l[k]) > 224) {
                             if (ok)
-                                printf("help card too wide: %s: \"%s\" (%d px)\n", BTN_LABEL[b], l[k], (int)tw(&FONT_XS, l[k]));
+                                printf("help card too wide: %s: \"%s\" (%d px)\n", btn_label(b), l[k], (int)tw(&FONT_XS, l[k]));
                             ok = 0;
                         }
                 }
