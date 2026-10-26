@@ -1,0 +1,341 @@
+{
+  "elite": {
+    "start": "2026-10-25T13:04:23.139184+00:00",
+    "reuse": {
+      "build/smk37-elite/crt0.o": "a038b72c3bb98101faba65f7c6df989838f2fd104ff4f8af645b61274b4a2a8c",
+      "build/smk37-elite/fm1_vec.o": "28b3ddb497512aa7fc9625058ad5222ebb1f66a2f29918fde6e837594ba9b570",
+      "build/smk37-elite/fm1_isr.o": "748cd6c427d43925b509108aeaab7e12c9f9aa69cbc3facb7b968c94388ecb35",
+      "build/smk37-elite/fm1_cpu1.o": "0fc6dd9c29a4e65d648be9033c058fe538ccb271d546efbc22a7de3ce0c8a8b1",
+      "build/smk37-elite/x0x.o": "26b8f507b4b5eeb00ffbec3a9ae84601095b9f62e321aa26ea84495d43f328a8",
+      "build/smk37-elite/o2/wobble.o": "0a63e145efe1a0be3651b3bd150030a445b8aec66989cad6f387a694ecb67725",
+      "build/smk37-elite/o2/dsp_drum909.o": "1f98b1f90b2e6a5ce321ab4b2d6917bd7ef60ae1adea7b18a99d9609d8553de2",
+      "build/smk37-elite/o2/dsp_drum808.o": "aaf97175d87d50afe09693c965bf24eb04e66fa7b207dbc27d83b42c5df1e5e8",
+      "build/smk37-elite/o2/dsp_bass303.o": "775ddefff13e3525fa9becea7a12d401f1e9e2449812e1189e7f74e0d358bd1a",
+      "build/smk37-elite/o2/dsp_breaks.o": "ef35dbdbd8367849d34e7b17b575200c9b81c4c2192d01f18974d134b9c790c3",
+      "build/smk37-elite/o2/dsp_fxbus.o": "6cf75120997086db85334c83b3dbcbfacb20b890f173fe348ca8753f6e866464",
+      "build/smk37-elite/o2/dsp_master.o": "f88677b27022ae0f18c11d8bf7e5595a3b2edcc7038f5797da6a37746073fe7d",
+      "build/smk37-elite/o2/seq_sequencer.o": "a81e053ff214e745b9077070240dac36a5aaa3021c7d7d72ea375b705fefc644",
+      "build/smk37-elite/o2/seq_tb3po.o": "7e144246cec72176b59633cfdc7f6d23c41b1f56027be8210523272944be19e0",
+      "build/smk37-elite/o2/seq_pattern.o": "4100414b6e7f72179751e363c61226b77279a0551a09be3f22e5bdf54448804f",
+      "build/smk37-elite/o2/seq_motion.o": "9018b23f73bf41999e372d6617f1d02abbef3a32613b5b01c8b3582c3a0469ca"
+    },
+    "commands": [
+      [
+        "cc",
+        "-O2",
+        "-ffunction-sections",
+        "-fno-builtin",
+        "-Wall",
+        "-Wno-unused-function",
+        "-mcpu=r3",
+        "-mfprev1",
+        "-ffp-contract=off",
+        "-DBOARD_SMK37=1",
+        "-DSMK_MODEL=\"SMK-37 Elite\"",
+        "-Ifirmware/hal",
+        "-Ifirmware/src",
+        "-Ibuild/gen",
+        "-DX0X_DEV_PADCAL=1",
+        "-DX0X_DEV_WOBBLE=1",
+        "-DFELUCCA_ID=\"SMK-37 Elite_900\"",
+        "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+        "-DFELUCCA_DATA_UNTAGGED_OK=0",
+        "-c",
+        "/work/firmware/src/app/engine.c",
+        "-o",
+        "/work/build/smk37-elite/o2/app_engine.o"
+      ],
+      [
+        "pi32v2/bin/ld",
+        "--gc-sections",
+        "-e",
+        "_start",
+        "-T",
+        "/work/build/smk37-elite/app.ld",
+        "/work/build/smk37-elite/crt0.o",
+        "/work/build/smk37-elite/fm1_vec.o",
+        "/work/build/smk37-elite/fm1_isr.o",
+        "/work/build/smk37-elite/fm1_cpu1.o",
+        "/work/build/smk37-elite/x0x.o",
+        "/work/build/smk37-elite/o2/wobble.o",
+        "/work/build/smk37-elite/o2/dsp_drum909.o",
+        "/work/build/smk37-elite/o2/dsp_drum808.o",
+        "/work/build/smk37-elite/o2/dsp_bass303.o",
+        "/work/build/smk37-elite/o2/dsp_breaks.o",
+        "/work/build/smk37-elite/o2/dsp_fxbus.o",
+        "/work/build/smk37-elite/o2/dsp_master.o",
+        "/work/build/smk37-elite/o2/seq_sequencer.o",
+        "/work/build/smk37-elite/o2/seq_tb3po.o",
+        "/work/build/smk37-elite/o2/seq_pattern.o",
+        "/work/build/smk37-elite/o2/seq_motion.o",
+        "/work/build/smk37-elite/o2/app_engine.o",
+        "-o",
+        "/work/build/smk37-elite/x0x.elf",
+        "-Map",
+        "/work/build/cost-recovery/elite.map"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".text",
+        "/work/build/smk37-elite/x0x.elf",
+        "/work/build/smk37-elite/text.bin"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".data",
+        "/work/build/smk37-elite/x0x.elf",
+        "/work/build/smk37-elite/data.bin"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".ram_text",
+        "/work/build/smk37-elite/x0x.elf",
+        "/work/build/smk37-elite/ramtext.bin"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".c1_text",
+        "/work/build/smk37-elite/x0x.elf",
+        "/work/build/smk37-elite/c1text.bin"
+      ],
+      [
+        "common/bin/objdump",
+        "-t",
+        "/work/build/smk37-elite/x0x.elf"
+      ],
+      [
+        "common/bin/objdump",
+        "-d",
+        "/work/build/smk37-elite/x0x.elf"
+      ],
+      [
+        "common/bin/objdump",
+        "-d",
+        "-j",
+        ".ram_text",
+        "/work/build/smk37-elite/x0x.elf"
+      ],
+      [
+        "common/bin/objdump",
+        "-h",
+        "/work/build/smk37-elite/x0x.elf"
+      ]
+    ],
+    "end": "2026-10-25T13:05:04.351007+00:00",
+    "errors": [],
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 116 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552556 B; RAM .data+.bss 98084 B of 98304; pool 335740 B of 344064"
+    ],
+    "linkedChecks": "PASS",
+    "mmioErrors": [],
+    "fenceObjectEquivalence": true,
+    "sourceSha256": {
+      "firmware/src/app/engine.c": "f94821ae58692e0e8b6c71edbabf11ab33accf71ffd832bca4611189df856e5b",
+      "firmware/src/dsp/synth_engine.h": "fd64dedab31737ef215ff478462efaf7f896f1851f205886a8be10c253851f61",
+      "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+      "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+    },
+    "outputs": {
+      "build/smk37-elite/x0x.elf": {
+        "sha256": "2a34d44f4b9a819a36c6229d1f5b498df9a69b0ad11d4741e8a5c18ab5af52f2",
+        "size": 602780
+      },
+      "build/smk37-elite/x0x.bin": {
+        "sha256": "f724fb891b5bcfc2df79d9532d2b3c1351e8c100c173e8cef3773f0f3d1363e4",
+        "size": 552556
+      },
+      "build/smk37-elite/o2/app_engine.o": {
+        "sha256": "04c1ac88f1340e51890188beef314a7375128f36661cc68eec4f8549f226ef98",
+        "size": 466752
+      },
+      "build/cost-recovery/elite.map": {
+        "sha256": "2e2e260990af2cf018b2e960347192d29b00dd66dbd678ef4c6657d5e7fb95a6",
+        "size": 107270
+      }
+    }
+  },
+  "pro": {
+    "start": "2026-10-25T13:05:04.679119+00:00",
+    "reuse": {
+      "build/smk37/crt0.o": "a038b72c3bb98101faba65f7c6df989838f2fd104ff4f8af645b61274b4a2a8c",
+      "build/smk37/fm1_vec.o": "28b3ddb497512aa7fc9625058ad5222ebb1f66a2f29918fde6e837594ba9b570",
+      "build/smk37/fm1_isr.o": "748cd6c427d43925b509108aeaab7e12c9f9aa69cbc3facb7b968c94388ecb35",
+      "build/smk37/fm1_cpu1.o": "0fc6dd9c29a4e65d648be9033c058fe538ccb271d546efbc22a7de3ce0c8a8b1",
+      "build/smk37/x0x.o": "848c8e9dd20890bde36b80dd3f7242d374500a0d51842e7eb07b1a04da786bdf",
+      "build/smk37/o2/wobble.o": "0a63e145efe1a0be3651b3bd150030a445b8aec66989cad6f387a694ecb67725",
+      "build/smk37/o2/dsp_drum909.o": "1f98b1f90b2e6a5ce321ab4b2d6917bd7ef60ae1adea7b18a99d9609d8553de2",
+      "build/smk37/o2/dsp_drum808.o": "aaf97175d87d50afe09693c965bf24eb04e66fa7b207dbc27d83b42c5df1e5e8",
+      "build/smk37/o2/dsp_bass303.o": "775ddefff13e3525fa9becea7a12d401f1e9e2449812e1189e7f74e0d358bd1a",
+      "build/smk37/o2/dsp_breaks.o": "ef35dbdbd8367849d34e7b17b575200c9b81c4c2192d01f18974d134b9c790c3",
+      "build/smk37/o2/dsp_fxbus.o": "6cf75120997086db85334c83b3dbcbfacb20b890f173fe348ca8753f6e866464",
+      "build/smk37/o2/dsp_master.o": "f88677b27022ae0f18c11d8bf7e5595a3b2edcc7038f5797da6a37746073fe7d",
+      "build/smk37/o2/seq_sequencer.o": "a81e053ff214e745b9077070240dac36a5aaa3021c7d7d72ea375b705fefc644",
+      "build/smk37/o2/seq_tb3po.o": "7e144246cec72176b59633cfdc7f6d23c41b1f56027be8210523272944be19e0",
+      "build/smk37/o2/seq_pattern.o": "4100414b6e7f72179751e363c61226b77279a0551a09be3f22e5bdf54448804f",
+      "build/smk37/o2/seq_motion.o": "9018b23f73bf41999e372d6617f1d02abbef3a32613b5b01c8b3582c3a0469ca"
+    },
+    "commands": [
+      [
+        "cc",
+        "-O2",
+        "-ffunction-sections",
+        "-fno-builtin",
+        "-Wall",
+        "-Wno-unused-function",
+        "-mcpu=r3",
+        "-mfprev1",
+        "-ffp-contract=off",
+        "-DBOARD_SMK37=1",
+        "-Ifirmware/hal",
+        "-Ifirmware/src",
+        "-Ibuild/gen",
+        "-DX0X_DEV_PADCAL=1",
+        "-DX0X_DEV_WOBBLE=1",
+        "-DFELUCCA_ID=\"SMK-37 Pro_900\"",
+        "-DFELUCCA_DATA_FAMILY=\"X0X\"",
+        "-DFELUCCA_DATA_UNTAGGED_OK=0",
+        "-c",
+        "/work/firmware/src/app/engine.c",
+        "-o",
+        "/work/build/smk37/o2/app_engine.o"
+      ],
+      [
+        "pi32v2/bin/ld",
+        "--gc-sections",
+        "-e",
+        "_start",
+        "-T",
+        "/work/build/smk37/app.ld",
+        "/work/build/smk37/crt0.o",
+        "/work/build/smk37/fm1_vec.o",
+        "/work/build/smk37/fm1_isr.o",
+        "/work/build/smk37/fm1_cpu1.o",
+        "/work/build/smk37/x0x.o",
+        "/work/build/smk37/o2/wobble.o",
+        "/work/build/smk37/o2/dsp_drum909.o",
+        "/work/build/smk37/o2/dsp_drum808.o",
+        "/work/build/smk37/o2/dsp_bass303.o",
+        "/work/build/smk37/o2/dsp_breaks.o",
+        "/work/build/smk37/o2/dsp_fxbus.o",
+        "/work/build/smk37/o2/dsp_master.o",
+        "/work/build/smk37/o2/seq_sequencer.o",
+        "/work/build/smk37/o2/seq_tb3po.o",
+        "/work/build/smk37/o2/seq_pattern.o",
+        "/work/build/smk37/o2/seq_motion.o",
+        "/work/build/smk37/o2/app_engine.o",
+        "-o",
+        "/work/build/smk37/x0x.elf",
+        "-Map",
+        "/work/build/cost-recovery/pro.map"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".text",
+        "/work/build/smk37/x0x.elf",
+        "/work/build/smk37/text.bin"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".data",
+        "/work/build/smk37/x0x.elf",
+        "/work/build/smk37/data.bin"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".ram_text",
+        "/work/build/smk37/x0x.elf",
+        "/work/build/smk37/ramtext.bin"
+      ],
+      [
+        "common/bin/objcopy",
+        "-O",
+        "binary",
+        "-j",
+        ".c1_text",
+        "/work/build/smk37/x0x.elf",
+        "/work/build/smk37/c1text.bin"
+      ],
+      [
+        "common/bin/objdump",
+        "-t",
+        "/work/build/smk37/x0x.elf"
+      ],
+      [
+        "common/bin/objdump",
+        "-d",
+        "/work/build/smk37/x0x.elf"
+      ],
+      [
+        "common/bin/objdump",
+        "-d",
+        "-j",
+        ".ram_text",
+        "/work/build/smk37/x0x.elf"
+      ],
+      [
+        "common/bin/objdump",
+        "-h",
+        "/work/build/smk37/x0x.elf"
+      ]
+    ],
+    "end": "2026-10-25T13:05:40.685059+00:00",
+    "errors": [],
+    "notes": [
+      ".ram_text: 1082 insns, no calls",
+      "app code area 552672 B, 116 B free (Bluetooth block at app.bin 0x86ee0)",
+      "no soft-double routines (single-precision FPU only)",
+      "image 552556 B; RAM .data+.bss 98084 B of 98304; pool 335740 B of 344064"
+    ],
+    "linkedChecks": "PASS",
+    "mmioErrors": [],
+    "fenceObjectEquivalence": true,
+    "sourceSha256": {
+      "firmware/src/app/engine.c": "f94821ae58692e0e8b6c71edbabf11ab33accf71ffd832bca4611189df856e5b",
+      "firmware/src/dsp/synth_engine.h": "fd64dedab31737ef215ff478462efaf7f896f1851f205886a8be10c253851f61",
+      "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+      "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+    },
+    "outputs": {
+      "build/smk37/x0x.elf": {
+        "sha256": "795655523940d604cb9bb1d8a5dffe3635f1425c70dbf4e16df712ce0bab3553",
+        "size": 602772
+      },
+      "build/smk37/x0x.bin": {
+        "sha256": "2516d90dd8a8576df8a6653c66d323671aba8ea5e80e05d099c65286687c0475",
+        "size": 552556
+      },
+      "build/smk37/o2/app_engine.o": {
+        "sha256": "04c1ac88f1340e51890188beef314a7375128f36661cc68eec4f8549f226ef98",
+        "size": 466752
+      },
+      "build/cost-recovery/pro.map": {
+        "sha256": "2b782690974a1744f12d7f25543ab77347517671389fa760ae68e8b37b4c2f54",
+        "size": 101600
+      }
+    }
+  }
+}

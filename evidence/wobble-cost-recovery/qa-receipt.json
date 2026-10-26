@@ -1,0 +1,162 @@
+{
+  "commands": [
+    {
+      "name": "backend",
+      "argv": [
+        "sh",
+        "tests/host/run_wobble_backend.sh"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:30.714044+00:00",
+      "end": "2026-10-25T12:49:32.524553+00:00",
+      "logSha256": "aaa50b4d2f72cf77856b26ee7dbf7dbd46229ebaa9270d139cdeb7680a9093d0"
+    },
+    {
+      "name": "native303-registry",
+      "argv": [
+        "sh",
+        "tests/host/run_synth_engine.sh"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:32.524717+00:00",
+      "end": "2026-10-25T12:49:33.733955+00:00",
+      "logSha256": "9cb8d71f7de18750545cc4a4904396b2e37eaf3ced70a334443baae071c0b813"
+    },
+    {
+      "name": "default303-whole-app",
+      "argv": [
+        "sh",
+        "tests/host/run_synth_engine_review.sh"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:33.734532+00:00",
+      "end": "2026-10-25T12:49:42.887043+00:00",
+      "logSha256": "7a2410a8e9a30efd9256a168cecc37ec72510840e2ef6cc42e94d644bb6c1e92"
+    },
+    {
+      "name": "state",
+      "argv": [
+        "sh",
+        "tests/host/run_synth_state.sh"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:42.887112+00:00",
+      "end": "2026-10-25T12:49:43.299063+00:00",
+      "logSha256": "776dac8863682a9e19821f4c6285e97372329ba39b709d21872c5b297baef9dc"
+    },
+    {
+      "name": "stereo-sends",
+      "argv": [
+        "python3",
+        "tests/host/check_wobble_stereo_mix.py"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:43.299206+00:00",
+      "end": "2026-10-25T12:49:50.888049+00:00",
+      "logSha256": "6f2af18acc2c4a6e8a8a28c0d76de725f604b282ec140bc4284fc66253b07914"
+    },
+    {
+      "name": "compile-fragments-normal",
+      "argv": [
+        "clang",
+        "-std=c99",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-DX0X_SYNTH_HOST_TEST",
+        "-Ifirmware/src",
+        "-O2",
+        "<private-stage>/work/qa/fragment_review.c",
+        "experiments/wobble/wobble.c",
+        "firmware/src/dsp/bass303.c",
+        "-o",
+        "<private-stage>/work/qa/fragments-normal"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:50.888257+00:00",
+      "end": "2026-10-25T12:49:51.103064+00:00",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fragments-normal",
+      "argv": [
+        "<private-stage>/work/qa/fragments-normal"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:51.103126+00:00",
+      "end": "2026-10-25T12:49:51.466409+00:00",
+      "logSha256": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd"
+    },
+    {
+      "name": "compile-fragments-sanitized",
+      "argv": [
+        "clang",
+        "-std=c99",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-DX0X_SYNTH_HOST_TEST",
+        "-Ifirmware/src",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "<private-stage>/work/qa/fragment_review.c",
+        "experiments/wobble/wobble.c",
+        "firmware/src/dsp/bass303.c",
+        "-o",
+        "<private-stage>/work/qa/fragments-sanitized"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:51.466503+00:00",
+      "end": "2026-10-25T12:49:51.937980+00:00",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fragments-sanitized",
+      "argv": [
+        "<private-stage>/work/qa/fragments-sanitized"
+      ],
+      "exit": 0,
+      "start": "2026-10-25T12:49:51.938090+00:00",
+      "end": "2026-10-25T12:49:52.357292+00:00",
+      "logSha256": "33c5a398abad15e07383c363e0fe989f98cd88fb73dc3d9e9595fef493a7b0fd"
+    }
+  ],
+  "sourceSha256": {
+    "firmware/src/app/engine.c": "02eabd6e48fc59bc5623cac6826b77a13d0fb49aac19db7042ce0c3346e688ad",
+    "firmware/src/dsp/synth_engine.h": "93820335e3d433cfc3a71b78d7f6b868231d72449c9a712d23dde93cd3d4a326",
+    "firmware/src/dsp/wobble_backend.h": "90904505c8ed8b3a0781af684596649f8d877f91ea9606f83ebc10f6c95c76b9",
+    "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
+    "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+    "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+  },
+  "finalCandidate": {
+    "sourceSha256": {
+      "firmware/src/app/engine.c": "f94821ae58692e0e8b6c71edbabf11ab33accf71ffd832bca4611189df856e5b",
+      "firmware/src/dsp/synth_engine.h": "93820335e3d433cfc3a71b78d7f6b868231d72449c9a712d23dde93cd3d4a326",
+      "firmware/src/dsp/wobble_backend.h": "90904505c8ed8b3a0781af684596649f8d877f91ea9606f83ebc10f6c95c76b9",
+      "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
+      "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+      "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+    },
+    "affectedCheckGroupExit": 0,
+    "affectedCheckLogs": {
+      "logs/final-default303-whole-app.txt": "fe0ca550177f57617ed35f6952d1baa54f92e683f0e7d2819df9dbf9871053d0",
+      "logs/final-stereo-sends.txt": "a01411b026628cae97195b0da7cafbfc3db7a6ea909d839aedb5ff77b1ccefe2"
+    },
+    "reusedUnchangedClosure": {
+      "firmware/src/dsp/synth_engine.h": "93820335e3d433cfc3a71b78d7f6b868231d72449c9a712d23dde93cd3d4a326",
+      "firmware/src/dsp/wobble_backend.h": "90904505c8ed8b3a0781af684596649f8d877f91ea9606f83ebc10f6c95c76b9",
+      "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
+      "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
+      "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+    },
+    "deltaFromPriorReview": "Only noinline attribute added to render_sub; arithmetic/order unchanged",
+    "wholeAppDefault303Sha256": "a75af3fc060631d1140b3970ae7a7a492e9937a60f88f852e4e4f85f8d7f7030",
+    "stereoSendSha256": "db993853d8f1fd2788a4a8d22247a4a048849da7723c50ef996c481b32e94d99",
+    "nativeFramesReviewSha256": "69895f3c4072e5869e1d64e24756144ab6ed2895d6b054e34a46195c0bf6333d"
+  }
+}

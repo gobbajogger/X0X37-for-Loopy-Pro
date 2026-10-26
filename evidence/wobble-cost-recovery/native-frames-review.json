@@ -1,0 +1,103 @@
+{
+  "linkedDisassemblySha256": "f400f1663ca089fdcb5c788bd05b7b769ed9abdcc477a3127a0c184ec468b6b0",
+  "engineSha256": "f94821ae58692e0e8b6c71edbabf11ab33accf71ffd832bca4611189df856e5b",
+  "model": "elite",
+  "frames": {
+    "engine_render": {
+      "prologue": [
+        "2033c70:    7f 04             \t[--sp] = {rets, r15-r4}",
+        "2033c72:    e2 97             \tsp += -36",
+        "2033c74:    ca ff 40 6e c1 01 \tr10 = 29453888 <project_hold : 1c16e40 >"
+      ],
+      "stackOperations": [
+        "2033c70:    7f 04             \t[--sp] = {rets, r15-r4}",
+        "2033c72:    e2 97             \tsp += -36"
+      ]
+    },
+    "render_sub": {
+      "prologue": [
+        "20337d6:    7f 04             \t[--sp] = {rets, r15-r4}",
+        "20337d8:    e2 96             \tsp += -40",
+        "20337da:    80 25             \t[sp+20] = r0"
+      ],
+      "stackOperations": [
+        "20337d6:    7f 04             \t[--sp] = {rets, r15-r4}",
+        "20337d8:    e2 96             \tsp += -40"
+      ]
+    },
+    "mix_targets": {
+      "prologue": [
+        "2033538:    77 04             \t\t[--sp] = {rets, r7-r4}",
+        "203353a:    14 16             \t\tr4 = r1",
+        "203353c:    02 45             \t\tif (r2 == 0) goto 10 <mix_targets+0x10 : 2033548 >"
+      ],
+      "stackOperations": [
+        "2033538:    77 04             \t\t[--sp] = {rets, r7-r4}"
+      ]
+    },
+    "glide_set": {
+      "prologue": [
+        "203352a:    81 61             \t[r0+4] = r1",
+        "203352c:    02 60             \tr2 = [r0+0]",
+        "203352e:    43 20             \tr3 = 0"
+      ],
+      "stackOperations": []
+    },
+    "wobble_render": {
+      "prologue": [
+        "201cbbc:    7f 04             \t[--sp] = {rets, r15-r4}",
+        "201cbbe:    e2 9a             \tsp += -24",
+        "201cbc0:    24 d6             \tr4 = r2  #"
+      ],
+      "stackOperations": [
+        "201cbbc:    7f 04             \t[--sp] = {rets, r15-r4}",
+        "201cbbe:    e2 9a             \tsp += -24"
+      ]
+    },
+    "waveform": {
+      "prologue": [
+        "201cb58:    77 04             \t[--sp] = {rets, r7-r4}",
+        "201cb5a:    14 16             \tr4 = r1",
+        "201cb5c:    05 16             \tr5 = r0"
+      ],
+      "stackOperations": [
+        "201cb58:    77 04             \t[--sp] = {rets, r7-r4}"
+      ]
+    },
+    "wrap": {
+      "prologue": [
+        "201cb4a:    10 04             \t[--sp] = rets",
+        "201cb4c:    03 16             \tr3 = r0",
+        "201cb4e:    bf ea 15 fe       \tcall -982 <fm_floorf : 201c77c >"
+      ],
+      "stackOperations": [
+        "201cb4a:    10 04             \t[--sp] = rets"
+      ]
+    },
+    "wobble_foundation_render": {
+      "prologue": [
+        "2034f32:    7b 04             \t[--sp] = {rets, r11-r4}",
+        "2034f34:    e2 90             \tsp += -64",
+        "2034f36:    2a 16             \tr10 = r2"
+      ],
+      "stackOperations": [
+        "2034f32:    7b 04             \t[--sp] = {rets, r11-r4}",
+        "2034f34:    e2 90             \tsp += -64"
+      ]
+    }
+  },
+  "frameBytes": {
+    "engine_render": 88,
+    "render_sub": 92,
+    "mix_targets": 20,
+    "glide_set": 0,
+    "wobble_render": 76,
+    "waveform": 20,
+    "wrap": 4,
+    "wobble_foundation_render": 100
+  },
+  "knownDirectWobbleChainBytes": 280,
+  "knownMonoCompatibilityChainBytes": 380,
+  "deltaFromInheritedKnownChainsBytes": 60,
+  "qualification": "Static frame observation only; excludes ISR, interrupts and other DSP deepest paths; high-water and timing NOT_RUN"
+}

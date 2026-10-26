@@ -1,0 +1,2 @@
+PASS synth engine: 526336 bit-exact303 samples; switching, note cleanup, identity, retained settings, rollover; slot=40 ops=88
+PASS firmware registry rejects unknown engine, unknown schema and incomplete backend without switching
