@@ -302,6 +302,8 @@ def run(a):
             command('controller', ['sh', 'ble/ctl/build_ctl.sh'])
         unchanged()
         package = work / ('build/x0x-smk37-elite.fwsc' if a.model == 'elite' else 'build/x0x-smk37.fwsc')
+        if not package.is_file() or package.stat().st_size == 0:
+            raise ValueError('build produced no development package')
         artifacts = {}
         for kind, path in [('package', package)] + ([] if a.no_controller else [('controller', work/'ble/ctl/out/ctl.img')]):
             dest = output / path.name
