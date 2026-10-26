@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Host proof: Chicago SEND FX bridge maps Off/Comp onto Mix+fxbus intentions;
- * Crush + Ring + EQ + Cho + SDly + BPM + Hall + GateRev are insert (clear sends
- * only); other NOT_YET types never invent Phaser/Ensemble DSP. */
+ * Crush + Ring + EQ + Cho + Ens + SDly + BPM + Hall + GateRev are insert (clear
+ * sends only); other NOT_YET types never invent Phaser DSP. */
 #include <stdio.h>
 #include <string.h>
 #include "bass303.h"
@@ -50,7 +50,9 @@ static void test_supported_flags(void)
     CHECK(chi_fx_supported(CHI_FX_CHO), "Cho supported (insert)");
     CHECK(chi_fx_is_insert(CHI_FX_CHO), "Cho is insert");
     CHECK(!chi_fx_is_not_yet(CHI_FX_CHO), "Cho not NOT_YET");
-    CHECK(chi_fx_is_not_yet(CHI_FX_ENS), "Ens NOT_YET");
+    CHECK(chi_fx_supported(CHI_FX_ENS), "Ens supported (insert)");
+    CHECK(chi_fx_is_insert(CHI_FX_ENS), "Ens is insert");
+    CHECK(!chi_fx_is_not_yet(CHI_FX_ENS), "Ens not NOT_YET");
     CHECK(chi_fx_is_not_yet(CHI_FX_PHASER), "Phaser NOT_YET");
     CHECK(chi_fx_supported(CHI_FX_GATE_REV), "GateRev supported (insert)");
     CHECK(chi_fx_is_insert(CHI_FX_GATE_REV), "GateRev is insert");
@@ -93,10 +95,13 @@ static void test_not_yet_clear(void)
     chicago_fx_map(CHI_FX_GATE_REV, 28, 31, 0, &o);
     CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "GateRev insert clears sends (no Mix theft)");
     CHECK(!(o.touch & CHI_FX_W_MX_REV), "GateRev insert does not set Mix reverb");
-    chicago_fx_map(CHI_FX_ENS, 90, 90, 0, &o);
-    CHECK(o.touch == 0, "Ens without clear_ny writes nothing");
-    chicago_fx_map(CHI_FX_ENS, 90, 90, 1, &o);
-    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Ens clear_ny only clears sends");
+    chicago_fx_map(CHI_FX_ENS, 20, 80, 0, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Ens insert clears sends (no Mix theft)");
+    CHECK(!(o.touch & CHI_FX_W_MX_DLY), "Ens insert does not set Mix delay");
+    chicago_fx_map(CHI_FX_PHASER, 90, 90, 0, &o);
+    CHECK(o.touch == 0, "Phaser without clear_ny writes nothing");
+    chicago_fx_map(CHI_FX_PHASER, 90, 90, 1, &o);
+    CHECK(o.touch == CHI_FX_W_CLEAR_SENDS, "Phaser clear_ny only clears sends");
 }
 
 static void test_hall(void)
@@ -158,6 +163,7 @@ static void test_labels_honest(void)
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_BPM_DLY], "BPM") == 0, "BPM plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_HALL], "Hall") == 0, "Hall plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_CHO], "Cho") == 0, "Cho plain insert name");
+    CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_ENS], "Ens") == 0, "Ens plain insert name");
     CHECK(strcmp(CHI_FX_TYPE_N[CHI_FX_GATE_REV], "Gate") == 0, "Gate plain insert name");
     CHECK(strcmp(CHI_FX_PARAMS[0].name, "FxTyp") == 0, "param name FxTyp");
 }
