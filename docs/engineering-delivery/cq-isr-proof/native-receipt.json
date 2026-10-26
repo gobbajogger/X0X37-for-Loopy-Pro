@@ -1,0 +1,18 @@
+{
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "exit": 0,
+  "owned_worker_cleanup": true,
+  "source_commit": "95e3cca30816b453d63b90254d5dc7614c40946d",
+  "source_tree": "1bd5cbe809c68ed70e55976fac8850c16e5aac6e",
+  "kind": "exact archived source target objects only, production build_app compiler flags; no link/package/budgets/hardware qualification",
+  "model": "SMK-37 Elite",
+  "production_sources_sha256": {
+    "firmware/src/app/engine.c": "50f77964aab5e2bf1890e81c52ac984bcf278d12786bfc0d85b3614c40cd417a",
+    "firmware/src/app/plat.h": "fbb532f258f2773851965a74a82440a90b22b3a61e16dae19999b065613ec756",
+    "firmware/src/app/plat_fm1.c": "6b82daac9db09bc431e4f64acc56061d4fb89410c8249940ae4cc6768c1dec04"
+  },
+  "inspection": "ALNK0mask0x1000 atMMIO0x1EEF104;CSYNC; savedbit return. RestoreCSYNC then currentcfg preserve mask, savedbit OR, wordwrite,CSYNC;noSTI. cq_put candidate scan outsidecalls; lockcalla4,freshreader a8,livecompareac-b0,alignedwordstore d4,restoretailcall da;notliveunlock b4 thenretry. Objectcalls unresolved until combined final-link gate.",
+  "log_sha256": "b05ef29e564d6082aa5a839a15cca2ea9382fecb6ce74cefbe1617b1b9f2e63f",
+  "diagnostics": "Initial helper used unsupported combined objdump -dr, then corrected to -d. Initial strict angle-bracket symbol filter captured no functions; corrected to actual pi32v2 labels and asserted required names. Final command exit0 and required platform/queue functions captured. No source correction was required."
+}

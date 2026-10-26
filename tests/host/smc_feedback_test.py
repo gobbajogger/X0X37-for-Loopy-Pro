@@ -115,16 +115,25 @@ static void main_strips(void) {
             expect("main REC",strip,strip==selected);
             expect("main SOLO",8+strip,strip==selected);
             expect("main MUTE",16+strip,strip==selected);
-            expect("main SELECT",24+strip,strip==3 && strip==selected);
+            expect("main SELECT",24+strip,strip==selected);
         }
     }
     ui.rec=smc.solo=part_mutes=0;
     for(int strip=0;strip<NPARTS;strip++) {
         expect("main REC off",strip,0);expect("main SOLO off",8+strip,0);expect("main MUTE off",16+strip,0);
     }
-    smc.fx_down=1u<<0; expect("909 effect held",24,1);
-    smc.fx_down=1u<<3; expect("break effect held",28,1); expect("909 effect released",24,0);
+    /* Assigned source effects own these lamps only in the FX view. Each bus
+     * uses its actual strip bit, including 303B (3) and BREAK (4). */
+    ui.view=V_FX;
+    for(int held=0;held<NPARTS;held++) {
+        smc.fx_down=(uint8_t)(1u<<held);
+        for(int strip=0;strip<NPARTS;strip++)
+            expect("FX source held",24+strip,strip==held);
+    }
     smc.fx_down=0;
+    for(int strip=0;strip<NPARTS;strip++) expect("FX sources released",24+strip,0);
+    ui.view=V_HOME;
+    for(int strip=0;strip<NPARTS;strip++) expect("ordinary selection returns",24+strip,strip==ui.part);
     for(int which=0;which<3;which++) {
         fx[which]=0;expect("FX/master muted",21+which,1);
         fx[which]=100;expect("FX/master audible",21+which,0);
@@ -180,9 +189,21 @@ static void wire_value(const char *label,int note,int expected) {
     checks++;if(found!=expected) { failures++;fprintf(stderr,"FAIL %s: wire note=%d got=%d expected=%d\n",label,note,found,expected); }
 }
 static void frames(void) {
-    memset(&smc,0,sizeof smc);ui.view=V_HOME;page=0;ui.overlay=O_NONE;ui.help=0;ui.rec=0;seq.playing=0;
+    memset(&smc,0,sizeof smc);ui.part=PART_909;ui.view=V_HOME;page=0;ui.overlay=O_NONE;ui.help=0;ui.rec=0;seq.playing=0;
     proj.set.bt=PROJ_BT_SMC_CENTRAL;smc.up=1;tx_count=0;smc_frame();
     assert(tx_count==43);wire_value("HOME active",7,127);wire_value("MIX inactive",13,0);wire_value("PART inactive",15,0);
+    wire_value("selected 909 lights",24+PART_909,127);
+    tx_count=0;smc_frame();assert(tx_count==0);
+    ui.part=PART_BRK;smc_frame();assert(tx_count==2);
+    wire_value("old source selection extinguishes",24+PART_909,0);
+    wire_value("selected BREAK lights",24+PART_BRK,127);
+    tx_count=0;ui.view=V_FX;smc.fx_down=1u<<PART_303B;smc_frame();
+    wire_value("FX view removes ordinary source selection",24+PART_BRK,0);
+    wire_value("303B FX hold lights its own strip",24+PART_303B,127);
+    tx_count=0;smc.fx_down=0;smc_frame();
+    wire_value("303B FX release extinguishes",24+PART_303B,0);
+    tx_count=0;ui.view=V_HOME;smc_frame();
+    wire_value("leaving FX restores selected source",24+PART_BRK,127);
     tx_count=0;smc_frame();assert(tx_count==0);
     ui.view=V_MIX;page=0;smc_frame();
     wire_value("HOME extinguishes",7,0);wire_value("MIX lights",13,127);

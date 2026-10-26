@@ -1,0 +1,428 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "91f891798be43e09937a3f1e67d90d9e5e8974737352b5ee49d89c3bb89e8991",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "3dc70a05d363665560e4335dd1957d472314ed38d92656fc069c784253d8bbf0",
+      "configuration": {
+        "model": "pro",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "d633833ac369f8466bc2563791614206070e87d1",
+          "scope": "SMC SELECT LED read-only row3 predicate/source-bus bitindex fix at final2ed626fc with corrected feedback harness. Five registered current Linux selectors plus new LED runtime mutation and1919 corrected feedback assertions passed; source5a7->2ed feedback-only delta verified. Prior unaffected input/mutation/control proof mapped by byte-identical production outside pure smc_led. Fresh affected model app/package builds required. No29rerunritual, oldartifactrelabelling, hardware or release claim.",
+          "checks": [
+            {
+              "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+              "argv": [
+                "python3",
+                "-B",
+                "-c",
+                "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+              ]
+            },
+            {
+              "reason": "Verify exact LED-scope receipts/current fixture blobs and read-only function closure mapping, preserving original feedback failure.",
+              "argv": [
+                "python3",
+                "-B",
+                "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json",
+            "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log"
+          ],
+          "worker": {
+            "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+            "platform": [
+              "Linux",
+              "x86_64",
+              "6.8.0-117-generic"
+            ],
+            "environment": {
+              "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+              "HOSTNAME": "206a95992963",
+              "HOME": "/root",
+              "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+              "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+              "CC": "cc",
+              "CXX": "c++",
+              "PYTHONDONTWRITEBYTECODE": "1",
+              "CPATH": "/usr/local/include",
+              "LIBRARY_PATH": "/usr/local/lib",
+              "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+              "MODEL": "pro",
+              "BOARD": "smk37",
+              "X0X_DEV_PADCAL": "1",
+              "CTL_NO_CACHE": "1",
+              "CTL_NATIVE": "1"
+            },
+            "mounts": {
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/feedback-repo": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/dev-check-i26jp0vj": false,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/feedback-repo/tools": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/feedback-repo/.git": false,
+              "/Users/mac/.jieli/toolchain": true,
+              "/Users/mac/fw-AC79_AIoT_SDK": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json": true,
+              "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log": true,
+              "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+            },
+            "orchestrator_platform": [
+              "Darwin",
+              "arm64",
+              "27.2.0"
+            ],
+            "orchestrator_tools": {
+              "docker": {
+                "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+                "executable": true
+              },
+              "python": {
+                "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+                "executable": true
+              },
+              "git": {
+                "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+                "executable": true
+              }
+            }
+          }
+        },
+        "dependencies": [
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log"
+        ]
+      },
+      "environment": {
+        "BOARD": "smk37",
+        "CC": "cc",
+        "CPATH": "/usr/local/include",
+        "CTL_NATIVE": "1",
+        "CTL_NO_CACHE": "1",
+        "CXX": "c++",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "MODEL": "pro",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "39c5956f49de3ca9aa6aa3edab43aa9a481264136ed0dbb029ae377de3c965a6",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+          "executable": true
+        },
+        "make": {
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+          "executable": true
+        },
+        "node": {
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+          "executable": true
+        },
+        "python": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        },
+        "python3": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": null,
+        "pillow": {
+          "version": "9.4.0",
+          "sha256": "c6d6f5bc403396868ad18dad0b1d84a003b0837ece68e7f144d88fec9ea358b2"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py": {
+          "sha256": "ed8d8dacb21f54e6175047756381562df5261fe8713c7fb72c73355294edebb0",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json": {
+          "sha256": "35b99a4b549ecc4541db87fd9ae3c0bdb0891951fcbfeb0b3323f42283cdcf7f",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json": {
+          "sha256": "41a92653580a85568743d21f96de38b2da13b7e2ce911f207e847cd90b0597da",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json": {
+          "sha256": "f0209fbd7cfb1e4c56a9f30d7ff0de39b0498a7c57c12daf412b4880a3178e4c",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log": {
+          "sha256": "54f975bb894efe756aa9356076b00d34f3edec4134c4708b66e414bd25919113",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json": {
+          "sha256": "85454794efbc40b4483b1d981952d614c70a265c777a8f6509ab0660c015ae9e",
+          "executable": false
+        },
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log": {
+          "sha256": "7f2f210f926eea8eb22ab83b0e9d6444054e3b7b13115d78322eb6117f859266",
+          "executable": false
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "pro",
+  "commit": "2ed626fcb0cb2c1ce1d7ff85ecfbe4e6acb6b1ca",
+  "tree": "3dc70a05d363665560e4335dd1957d472314ed38d92656fc069c784253d8bbf0",
+  "plan": {
+    "base": "d633833ac369f8466bc2563791614206070e87d1",
+    "scope": "SMC SELECT LED read-only row3 predicate/source-bus bitindex fix at final2ed626fc with corrected feedback harness. Five registered current Linux selectors plus new LED runtime mutation and1919 corrected feedback assertions passed; source5a7->2ed feedback-only delta verified. Prior unaffected input/mutation/control proof mapped by byte-identical production outside pure smc_led. Fresh affected model app/package builds required. No29rerunritual, oldartifactrelabelling, hardware or release claim.",
+    "checks": [
+      {
+        "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+        "argv": [
+          "python3",
+          "-B",
+          "-c",
+          "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+        ]
+      },
+      {
+        "reason": "Verify exact LED-scope receipts/current fixture blobs and read-only function closure mapping, preserving original feedback failure.",
+        "argv": [
+          "python3",
+          "-B",
+          "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json",
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log"
+    ],
+    "worker": {
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "environment": {
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "HOSTNAME": "206a95992963",
+        "HOME": "/root",
+        "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+        "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+        "CC": "cc",
+        "CXX": "c++",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "CPATH": "/usr/local/include",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+        "MODEL": "pro",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "mounts": {
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/feedback-repo": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/dev-check-i26jp0vj": false,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/feedback-repo/tools": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/feedback-repo/.git": false,
+        "/Users/mac/.jieli/toolchain": true,
+        "/Users/mac/fw-AC79_AIoT_SDK": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/function-closure-map.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/input-reuse.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/receipt.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-scope/checks.log": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/receipt.json": true,
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/linux-feedback/feedback.log": true,
+        "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+      },
+      "orchestrator_platform": [
+        "Darwin",
+        "arm64",
+        "27.2.0"
+      ],
+      "orchestrator_tools": {
+        "docker": {
+          "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+          "executable": true
+        },
+        "python": {
+          "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+          "executable": true
+        },
+        "git": {
+          "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+          "executable": true
+        }
+      }
+    }
+  },
+  "changed_files": [
+    "evidence/smc-select-mode-20261026/harness-receipt.json",
+    "evidence/smc-select-mode-20261026/implementation-receipt.json",
+    "evidence/smc-select-mode-20261026/independent-source-review.md",
+    "evidence/smc-select-mode-20261026/native-FINAL-QUALIFICATION.json",
+    "evidence/smc-select-mode-20261026/native-README.md",
+    "evidence/smc-select-mode-20261026/native-input-preflight.json",
+    "evidence/smc-select-mode-20261026/native-qualified-dev-plan.json",
+    "evidence/smc-select-mode-20261026/native-regression-reuse.json",
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_buttons_test.py",
+    "tests/host/smc_feedback_test.py",
+    "tests/host/smc_interaction_negative_test.py",
+    "tests/host/smc_lock_test.c",
+    "tests/host/smc_reachability_test.c",
+    "tests/host/smc_select_mode_test.c",
+    "tests/host/smc_select_mode_test.sh",
+    "tests/host/smc_solo_overflow_test.py",
+    "tests/run_tests.sh"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 230524,
+    "ram_free": 352,
+    "pool_free": 21092
+  },
+  "firmware_version": null,
+  "firmware": {
+    "firmware_version": null,
+    "release_display": null,
+    "version_label": "Unversioned legacy DEV",
+    "build_id": "g2ed626fcb0cb-h4a8720077c96",
+    "display_label": "X0X37 Unversioned legacy DEV \u00b7 SMK-37 Pro \u00b7 DEV \u00b7 DEVICE NOT TESTED",
+    "model": "pro",
+    "product": "SMK-37 Pro_900",
+    "source_commit": "2ed626fcb0cb2c1ce1d7ff85ecfbe4e6acb6b1ca",
+    "package_sha256": "4a8720077c96e118586cdaaf44277291fd7b40ed10beff2e219af64e89cc8ae4",
+    "package_bytes": 651455,
+    "status": "package-inspected",
+    "device_tested": false,
+    "installable": false
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+      ],
+      "returncode": 0,
+      "sha256": "02f752490f37012639cb60b796f4cf75a03117e9732869344bc18ce56c14133f"
+    },
+    "check-1": {
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/verify_led_scope.py"
+      ],
+      "returncode": 0,
+      "sha256": "5eec763f8d46614cb49fdbcf88406281fb4506c7aa2588d05178147fb66cab46"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "5cf7a8a1c22f7b753edc2983cd75bfafc6c63726104f2057ccfb71f779465fa8"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "ed797b6c8e7ce4057f0ea4a343123e184096cf21a75cd97dfbc903c8c01fceab"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37.fwsc",
+      "sha256": "4a8720077c96e118586cdaaf44277291fd7b40ed10beff2e219af64e89cc8ae4"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

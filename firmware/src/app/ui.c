@@ -813,7 +813,8 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     if (!d || r.kind == R_ACT)
         return;
     if (d->names) {
-        put_s(num, d->names[v]);
+        /* Retained or incompatible sound data must not become a pointer lookup. */
+        put_s(num, v >= 0 && v <= d->max ? d->names[v] : "?");
         return;
     }
     if (r.kind == R_TAPE) {
