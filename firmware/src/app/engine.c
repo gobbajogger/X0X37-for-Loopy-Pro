@@ -1495,11 +1495,18 @@ static int bass_note_capture(lane_t *lanes,int pat,int voice,int step,const soun
         }
         bass_sound_info_t info;
         if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return -1;
-        if(__builtin_memcmp(next.val,sound->v[T_303][voice],NPARAMS_MAX)) {
-            info.flags|=BASS_SOUND_EDITED;
-            if(bass_sound_tag_encode((bass_sound_tag_t *)(next.val+BASS_NOTE_TAG),&info,
-                                    BASS_SOUND_REGISTRY,2)!=BASS_IDENTITY_READY)return -1;
+        /* Motion can restore an edited base to the exact named sound. Describe
+         * the complete captured cell, rather than inheriting the base flag. */
+        uint8_t named[NPARAMS_MAX];
+        int edited=info.preset==BASS_SOUND_NO_PRESET;
+        if(!edited) {
+            int bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+            if(bass_preset_decode(bank,info.preset,engine_bass_bank_param,named))return -1;
+            edited=__builtin_memcmp(next.val,named,NPARAMS_MAX)!=0;
         }
+        info.flags=(uint8_t)((info.flags&~BASS_SOUND_EDITED)|(edited?BASS_SOUND_EDITED:0));
+        if(bass_sound_tag_encode((bass_sound_tag_t *)(next.val+BASS_NOTE_TAG),&info,
+                                BASS_SOUND_REGISTRY,2)!=BASS_IDENTITY_READY)return -1;
     }
     if(engine_bass_note_validate(&next))return -1;
     lanes[k].used=0;
