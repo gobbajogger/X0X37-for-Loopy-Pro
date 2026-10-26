@@ -84,6 +84,16 @@ static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void);
 void smk_inlog(uint32_t src, uint32_t pkt) { (void)src; (void)pkt; }
 #include "apc_b.inc"
+/* ck_a.inc calls production SMC clip popup helpers; this fixture owns MIDI/CC
+ * and chord-screen behaviour, not presentation — same stub class as
+ * smc_clip_visibility_test.c (#453), different harness. */
+static void smc_ui_clip_show(int n, const char *name, const char *value)
+{
+    (void)n;
+    (void)name;
+    (void)value;
+}
+static void smc_ui_cancel(void) {}
 #include "ck_a.inc"
 #include "ck_b.inc"
 static void ck_page_draw(void) {}
