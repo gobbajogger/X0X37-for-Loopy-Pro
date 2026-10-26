@@ -166,7 +166,8 @@ static const uint8_t d9_nspec[DR_NUM + 1] = {
     D9_HAT_N, D9_HAT_N, D9_CY_N, D9_CY_N, NP(d9_kit_p),
 };
 
-static const d9_pspec_t *d9_spec(int voice, int i)
+/* UI / MIDI pot metadata — not the 909 audio render (X0X_COLD) */
+X0X_COLD static const d9_pspec_t *d9_spec(int voice, int i)
 {
     if (voice == DR_BD && i >= D9_BD_HEAD)
         return &d9_fx0_tail[i - D9_BD_HEAD];
