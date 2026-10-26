@@ -41,7 +41,7 @@ check("if (clip_grid_mode)" in enter and "smk_padcal_start(&padcal, APC40_LCD565
 check("if (smk_padcal_on())\n        return 0u;" in body(plat, "uint32_t plat_buttons(void)"), "UI: no buttons in the mode")
 check("smk_ck_knobs_owned() || smk_padcal_on()" in body(plat, "int32_t plat_enc(int role)"), "UI: no knobs in the mode")
 check("smk_clip_mode_on() || smk_padcal_on()" in body(ui, "static void key_event(int k, int down)"), "UI: no keys in the mode")
-dm = body(ui, "static void draw_main(void)")
+dm = body(ui, "static UI_DRAW void draw_main(void)")
 check(dm.index("smk_padcal_draw(240u, 2u * BAND_H)") < dm.index("smk_clip_lcd_draw(240u"), "LCD: the page draws before the clip grid")
 # The frame: the mode takes the frame; the keys and knobs.
 fr = body(main, "static void smk_frame(void)")
