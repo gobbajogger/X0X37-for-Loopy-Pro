@@ -231,11 +231,14 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float lfo = waveform(s->lfo_phase, s->lfo_step, s->p[W_WOBBLE_SHAPE] >= .5f);
         float cutoff_control = fm_clampf(s->p[W_CUTOFF]
             - .65f * s->p[W_WOBBLE_DEPTH] * (lfo + 1.0f) * .5f, 0, 1);
-        float cutoff_hz = fm_minf(36.0f * fm_exp2f(cutoff_control * 8.5f),
+        /* Span 8.0 + open-preserving damp: mid cutoff matches Miami
+         * carrier_filter strong-relative; damp→1 at pot 1 keeps open rows. */
+        float cutoff_hz = fm_minf(36.0f * fm_exp2f(cutoff_control * 8.0f),
                                   s->sample_rate * .18f);
         float f = 2.0f * fm_sinf(FM_PI * cutoff_hz / (2.0f * s->sample_rate));
         {
-            float high = mixed - s->filter_low - 1.0f * s->filter_band;
+            float damp = 1.0f + 0.875f * (1.0f - cutoff_control); /* 1.35 @ pot 0.6 */
+            float high = mixed - s->filter_low - damp * s->filter_band;
             s->filter_band = fm_flush(s->filter_band + f * high);
             s->filter_low = fm_flush(s->filter_low + f * s->filter_band);
         }
