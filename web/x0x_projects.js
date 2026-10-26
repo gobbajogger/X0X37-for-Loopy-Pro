@@ -42,10 +42,11 @@ export function parseProject(b, expectedLength = null) {
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
   const patternVersion=v.getUint32(20,true), soundRevision=v.getUint32(24,true);
   const knownSchema=(patternVersion===3 && (soundRevision===4 || soundRevision===10)) ||
-    (patternVersion===6 && (soundRevision===10 || soundRevision===11));
+    (patternVersion===6 && (soundRevision===10 || soundRevision===11)) ||
+    (patternVersion===7 && soundRevision===11);
   if(v.getUint32(4,true)!==1 || v.getUint32(16,true)!==1 || !knownSchema || v.getUint32(28,true)!==0)
     throw fail("This project uses an incompatible file, project, pattern or sound version.","version");
-  if(patternVersion===6 && soundRevision===11 && b.length!==36452)
+  if([6,7].includes(patternVersion) && soundRevision===11 && b.length!==36452)
     throw fail("This tagged project has an unsupported structural layout.","version");
   if (v.getUint32(8, true) !== b.length - PROJECT_HEADER) throw fail("The project payload length is incorrect.");
   if (expectedLength !== null && b.length !== expectedLength) throw fail("The project size does not match this firmware.", "version");

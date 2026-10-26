@@ -40,6 +40,12 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #ifndef X0X_BASS_TAGGED_SOUND
 #define X0X_BASS_TAGGED_SOUND 0
 #endif
+#ifndef X0X_BASS_NOTE_SOUND
+#define X0X_BASS_NOTE_SOUND 0
+#endif
+#if X0X_BASS_NOTE_SOUND && !X0X_BASS_TAGGED_SOUND
+#error Note sounds require tagged bass storage
+#endif
 #if X0X_BASS_TAGGED_SOUND && !X0X_BASS_PRESET_PREVIEW
 #error Tagged bass unit requires the reviewed runtime preset unit
 #endif
@@ -74,6 +80,11 @@ int engine_bass_sound_bank(const sound_t *sound,int voice);
 int engine_bass_sound_validate(const sound_t *sound);
 int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1);
 void engine_bass_sound_refresh(sound_t *sound,int voice);
+#if X0X_BASS_NOTE_SOUND
+#include "bass_note_sound.h"
+int engine_bass_note_validate(const lane_t *lane);
+int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound);
+#endif
 #endif
 #if X0X_BASS_PRESET_PREVIEW
 int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound);

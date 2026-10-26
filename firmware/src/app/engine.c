@@ -1395,13 +1395,31 @@ int engine_bass_sound_bank(const sound_t *sound,int voice)
     if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return -1;
     return info.identity.engine==SYNTH_ENGINE_303?0:1;
 }
-static int bass_cell_valid(const sound_t *sound,int voice,int bank)
+static int bass_values_valid(const uint8_t *cell,int bank)
 {
     const bass_identity_entry_t *entry=&BASS_SOUND_REGISTRY[bank];
     if(!entry->available)return -9;
     for(int i=0;i<entry->count;i++) {
         const x0x_param_t *d=engine_bass_bank_param(bank,i);
-        if(!d || sound->v[T_303][voice][i]>d->max)return -1;
+        if(!d || cell[i]>d->max)return -1;
+    }
+    return 0;
+}
+static int bass_cell_valid(const sound_t *sound,int voice,int bank)
+{return bass_values_valid(sound->v[T_303][voice],bank);}
+static int bass_tagged_cell_validate(const uint8_t *cell,const bass_sound_tag_t *tag,int *bank)
+{
+    bass_sound_info_t info;
+    int rc=bass_sound_tag_decode(&info,tag,BASS_SOUND_REGISTRY,2);
+    if(rc==BASS_IDENTITY_CHOICE_REQUIRED)return -10;
+    if(rc==BASS_IDENTITY_UNSUPPORTED || rc==BASS_IDENTITY_UNAVAILABLE)return -9;
+    if(rc!=BASS_IDENTITY_READY)return -1;
+    *bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+    if(bass_values_valid(cell,*bank))return -1;
+    if(info.preset!=BASS_SOUND_NO_PRESET) {
+        uint8_t named[NPARAMS_MAX];
+        if(bass_preset_decode(*bank,info.preset,engine_bass_bank_param,named))return -1;
+        if((__builtin_memcmp(named,cell,NPARAMS_MAX)!=0)!=!!(info.flags&BASS_SOUND_EDITED))return -1;
     }
     return 0;
 }
@@ -1409,22 +1427,48 @@ int engine_bass_sound_validate(const sound_t *sound)
 {
     int unknown=0,miami=0;
     for(int voice=0;voice<NBASS;voice++) {
-        bass_sound_info_t info;int rc=bass_tag_read(sound,voice,&info);
-        if(rc==BASS_IDENTITY_CHOICE_REQUIRED){unknown=1;continue;}
-        if(rc==BASS_IDENTITY_UNSUPPORTED || rc==BASS_IDENTITY_UNAVAILABLE)return -9;
-        if(rc!=BASS_IDENTITY_READY)return -1;
-        int bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+        int bank=0,rc=bass_tagged_cell_validate(sound->v[T_303][voice],&sound->bass[voice],&bank);
+        if(rc==-10){unknown=1;continue;}
+        if(rc)return rc;
         if(bank && ++miami>1)return -9;
-        if(bass_cell_valid(sound,voice,bank))return -1;
-        if(info.preset!=BASS_SOUND_NO_PRESET) {
-            uint8_t cell[NPARAMS_MAX];
-            if(bass_preset_decode(bank,info.preset,engine_bass_bank_param,cell))return -1;
-            int edited=__builtin_memcmp(cell,sound->v[T_303][voice],NPARAMS_MAX)!=0;
-            if(edited!=!!(info.flags&BASS_SOUND_EDITED))return -1;
-        }
     }
     return unknown?-10:0;
 }
+#if X0X_BASS_NOTE_SOUND
+int engine_bass_note_validate(const lane_t *l)
+{
+    int bank;
+    if(l->used!=1 || l->t!=BASS_NOTE_TARGET || l->pat>=NPAT ||
+       l->part<PART_303A || l->part>PART_303B || l->v>=NSTEPS ||
+       l->i!=BASS_NOTE_VERSION || l->rsv)return -1;
+    for(int i=BASS_NOTE_USED;i<NSTEPS;i++)if(l->val[i])return -1;
+    int rc=bass_tagged_cell_validate(l->val,(const bass_sound_tag_t *)(l->val+BASS_NOTE_TAG),&bank);
+    if(rc)return rc;
+    for(int i=0;i<MX_NPARAMS;i++)if(l->val[BASS_NOTE_MIX+i]>engine_param(T_MIX,l->part,i)->max)return -1;
+    return 0;
+}
+int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound)
+{
+    if(!lanes || sound!=mot_base_snd || (unsigned)pat>=NPAT ||
+       (unsigned)voice>=NBASS || (unsigned)step>=NSTEPS || engine_bass_sound_bank(sound,voice)<0)return -1;
+    int k=bass_note_find(lanes,pat,voice,step);
+    if(k<0)for(int j=0;j<NLANE;j++)if(!lanes[j].used){k=j;break;}
+    if(k<0)return -7;
+    lane_t next={0};
+    next.used=1;next.gen=(uint8_t)(lanes[k].gen+1);next.t=BASS_NOTE_TARGET;
+    next.pat=(uint8_t)pat;next.part=(uint8_t)(PART_303A+voice);next.v=(uint8_t)step;next.i=BASS_NOTE_VERSION;
+    __builtin_memcpy(next.val,sound->v[T_303][voice],NPARAMS_MAX);
+    __builtin_memcpy(next.val+BASS_NOTE_TAG,&sound->bass[voice],BASS_SOUND_TAG_BYTES);
+    __builtin_memcpy(next.val+BASS_NOTE_MIX,sound->v[T_MIX][PART_303A+voice],MX_NPARAMS);
+    if(engine_bass_note_validate(&next))return -1;
+    lanes[k].used=0;
+    __asm__ volatile("" ::: "memory");
+    __builtin_memcpy((uint8_t *)&lanes[k]+1,(const uint8_t *)&next+1,sizeof next-1);
+    __asm__ volatile("" ::: "memory");
+    lanes[k].used=1;
+    return 0;
+}
+#endif
 int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1)
 {
     if(!sound)return -1;

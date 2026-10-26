@@ -26,7 +26,13 @@ project_t proj;
 /* Reuses the UI undo shadow while an exclusive project operation is active. */
 project_t project_stage X0X_POOL;
 
-#define PROJ_STREAM 6u                  /* current layout + captured release endpoints, no snapshots */
+#if X0X_BASS_NOTE_SOUND
+#define PROJ_STREAM 7u                  /* tagged whole per-note product sounds in existing lane pool */
+#else
+#define PROJ_STREAM 6u                  /* release endpoints, no snapshots */
+#endif
+static int stream_known(uint32_t format)
+{return format==2u || format==3u || format==6u || (X0X_BASS_NOTE_SOUND && format==7u);}
 #define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
@@ -309,7 +315,7 @@ static int st_get(void *ctx)
         if (s->n < 4)
             return -1;
         uint32_t format = get32(io_buf);
-        if (format != PROJ_STREAM && format >= 4u) {
+        if (!stream_known(format) && format >= 4u) {
             s->unsupported = 1;
             return -1;
         }
@@ -384,13 +390,25 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
             for (k = 0; k < NSTEPS; k++) {
                 unsigned f = pat[p].bass[b].step[k].flags;
                 if ((f & BS_GATE_MASK) > G_TIE ||
-                    (format != PROJ_STREAM && (f >> BS_END_SHIFT)) ||
+                    (format < 6u && (f >> BS_END_SHIFT)) ||
                     ((f >> BS_END_SHIFT) && (f & BS_GATE_MASK) == G_REST))
                     return 0;
             }
-    for (k = 0; k < NLANE; k++)
-        if (arr->lane[k].used && arr->lane[k].t == 0xFEu)
-            return 0; /* frozen MOT_SNAPSHOT; this endpoint-only unit has no decoder */
+    for (k = 0; k < NLANE; k++) {
+        const lane_t *l=&arr->lane[k];
+        if(!l->used)continue;
+        if(l->t==0xfeu)return 0; /* frozen historical contract remains unsupported */
+        if(l->t==0xfdu) {
+#if X0X_BASS_NOTE_SOUND
+            if(format!=7u || engine_bass_note_validate(l) ||
+               bstep_gate(&pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return 0;
+            for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
+                arr->lane[j].pat==l->pat && arr->lane[j].part==l->part && arr->lane[j].v==l->v)return 0;
+#else
+            return 0;
+#endif
+        }
+    }
     return 1;
 }
 static int stream_layout_ok(const project_t *pr,uint32_t format)
@@ -662,9 +680,9 @@ static int read_project(project_t *pr)
     if (!sound_ok)
         bad = 1;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && get32(io_buf) != PROJ_STREAM && get32(io_buf) >= 4u)
+    if (n >= 4 && !stream_known(get32(io_buf)) && get32(io_buf) >= 4u)
         return -9; /* unsupported/ambiguous stream: no legacy fallback or rewrite */
-    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_PREV || get32(io_buf) == PROJ_STREAM_OLD)) {
+    if (n >= 4 && (stream_known(get32(io_buf)))) {
         int rc = load_stream(pr, n, get32(io_buf));
         if (rc == -9) return -9;
         if (rc) {          /* torn or broken: the defaults, not garbage */
@@ -854,6 +872,15 @@ int project_validate_stage(void)
             continue;
         if (l->used != 1 || l->pat >= NPAT || l->part >= NPARTS)
             return -1;
+#if X0X_BASS_NOTE_SOUND
+        if(l->t==BASS_NOTE_TARGET) {
+            if(engine_bass_note_validate(l))return -1;
+            if(bstep_gate(&p->pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return -1;
+            for(int j=0;j<k;j++)if(p->arr.lane[j].used && p->arr.lane[j].t==l->t &&
+                p->arr.lane[j].pat==l->pat && p->arr.lane[j].part==l->part && p->arr.lane[j].v==l->v)return -1;
+            continue;
+        }
+#endif
         if (l->t == T_PROB) {
             if ((l->v >> 4) != l->part || (l->v & 15) >= (l->part < NKIT ? NDRUM : 1) || l->i)
                 return -1;
@@ -961,11 +988,12 @@ int project_prepare_legacy_file(const uint8_t *h)
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT || get32(h + 20) != PROJ_STREAM ||
+        get32(h + 16) != PROJ_FORMAT || (get32(h + 20) != PROJ_STREAM && !(X0X_BASS_NOTE_SOUND && get32(h+20)==6u)) ||
         get32(h + 24) != PROJ_SND_REV || get32(h + 28))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
+    if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
     return project_validate_stage();
 }
 

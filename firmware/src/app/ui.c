@@ -1521,6 +1521,16 @@ static int copy_part(int dst, int src, int part)
     pattern_t *d = &proj.pat[dst];
     const pattern_t *a = &proj.pat[src];
     int k, rc = 0;
+    if(dst==src)return 0;
+    /* Preflight the complete copy, including whole note sounds. A full pool
+     * must not produce a copied note with missing or mismatched sound state. */
+    int needed=0,available=0;
+    for(k=0;k<NLANE;k++) {
+        const lane_t *l=&proj.arr.lane[k];
+        needed+=l->used && l->pat==src && l->part==part;
+        available+=!l->used || (l->pat==dst && l->part==part);
+    }
+    if(needed>available)return -1;
     if (part < NKIT) {
         d->drum[part] = a->drum[part];
         if (part == PART_909)

@@ -84,7 +84,7 @@ static void legacy_fixture(const char *path)
  project_stage.set.palette=palette;memcpy(&original,&project_stage,sizeof original);
  CHECK(!project_adopt_legacy_stage(0,0));CHECK(project_stage.set.snd_rev==11);
  CHECK(!memcmp(project_stage.sound.v,original.sound.v,sizeof original.sound.v));CHECK(!project_validate_stage());
- project_file_header(header);CHECK(!project_file_validate(header));CHECK(get32(header+20)==6 && get32(header+24)==11);
+ project_file_header(header);CHECK(!project_file_validate(header));CHECK(get32(header+20)==PROJ_STREAM && get32(header+24)==11);
  /* Create actual old local objects from the decoded producer fixture. */
  project_stage=original;proj=project_stage;project_incompatible=0;
  CHECK(!save_obj(OBJ_SET,&proj.set,sizeof proj.set));CHECK(!save_obj(OBJ_SOUND,proj.sound.v,sizeof proj.sound.v));
@@ -124,12 +124,54 @@ static void older_cell_objects(void)
  CHECK(project_load()==-9);CHECK(project_storage_unsupported());project_defaults();CHECK(project_save()==-9);CHECK(store_writes==writes);
  project_reset_stage();CHECK(!project_validate_stage());project_commit_stage();reset_runtime();CHECK(!project_save());
 }
+#if X0X_BASS_NOTE_SOUND
+static void note_schema(void)
+{
+ project_defaults();reset_runtime();selected(0,0,0);selected(1,0,0);
+ memset(proj.arr.lane,0,sizeof proj.arr.lane);
+ CHECK(!engine_bass_note_capture(proj.arr.lane,0,0,0,&proj.sound));
+ int k=bass_note_find(proj.arr.lane,0,0,0);CHECK(k>=0);lane_t captured=proj.arr.lane[k];
+ CHECK(!engine_bass_note_validate(&captured));CHECK(!memcmp(captured.val,proj.sound.v[T_303][0],32));
+ CHECK(!memcmp(captured.val+BASS_NOTE_TAG,&proj.sound.bass[0],12));
+ CHECK(!memcmp(captured.val+BASS_NOTE_MIX,proj.sound.v[T_MIX][PART_303A],5));
+ proj.pat[0].bass[0].step[0].flags=G_NOTE;project_capture_stage();CHECK(!project_validate_stage());
+ for(unsigned i=0;i<sizeof captured;i++) {
+  lane_t bad=captured;
+  if(i==1)continue; /* generation is opaque and wraps */
+  ((uint8_t *)&bad)[i]^=0x80;
+  if(i==__builtin_offsetof(lane_t,pat) || i==__builtin_offsetof(lane_t,v) ||
+     i==__builtin_offsetof(lane_t,i) || i==__builtin_offsetof(lane_t,rsv) ||
+     i==__builtin_offsetof(lane_t,t) || i>=__builtin_offsetof(lane_t,val)+BASS_NOTE_USED)
+   CHECK(engine_bass_note_validate(&bad)!=0);
+ }
+ project_stage.arr.lane[k].i=2;rejected(-1);project_capture_stage();
+ project_stage.arr.lane[1]=captured;rejected(-1);project_capture_stage();
+ project_stage.pat[0].bass[0].step[0].flags=G_REST;rejected(-1);project_capture_stage();
+ project_file_header(header);CHECK(get32(header+20)==7);CHECK(!project_file_validate(header));
+ put32(header+20,6);CHECK(project_file_validate(header)==-9);put32(header+20,7);
+ CHECK(!project_save());memset(&proj,0,sizeof proj);CHECK(!project_load());reset_runtime();
+ k=bass_note_find(proj.arr.lane,0,0,0);CHECK(k>=0);CHECK(!memcmp(&captured,&proj.arr.lane[k],sizeof captured));
+ CHECK(!copy_part(1,0,PART_303A));int cp=bass_note_find(proj.arr.lane,1,0,0);CHECK(cp>=0);
+ CHECK(!memcmp(proj.arr.lane[cp].val,captured.val,NSTEPS));
+ clear_part(&proj.pat[0],PART_303A);clear_lanes(0,PART_303A);CHECK(bass_note_find(proj.arr.lane,0,0,0)<0);
+ CHECK(bass_note_find(proj.arr.lane,1,0,0)>=0);
+ /* Pool-full capture and copy preserve every source/destination byte. */
+ for(int i=0;i<NLANE;i++)if(!proj.arr.lane[i].used){proj.arr.lane[i].used=1;proj.arr.lane[i].pat=31;proj.arr.lane[i].part=PART_808;}
+ memcpy(&original,&proj,sizeof original);CHECK(engine_bass_note_capture(proj.arr.lane,2,0,0,&proj.sound)==-7);
+ CHECK(!memcmp(&original,&proj,sizeof original));CHECK(copy_part(2,1,PART_303A)==-1);CHECK(!memcmp(&original,&proj,sizeof original));
+ printf("PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks\n");
+}
+#endif
 int main(int argc,char **argv)
 {
  CHECK(X0X_BASS_TAGGED_SOUND==1 && PROJ_SND_REV==11);CHECK(sizeof(sound_t)==2712);CHECK(sizeof(project_t)==36420);
  boot();run_ms(50);selected(0,0,0);
 #if X0X_DEV_WOBBLE
  selected(1,1,0);
+ CHECK(engine_nparams(T_303,1)==WOBBLE_EXPERIMENT_NPARAMS);
+ for(int i=0;i<(int)WOBBLE_EXPERIMENT_NPARAMS;i++)CHECK(engine_param(T_303,1,i)==engine_bass_bank_param(1,i));
+ for(int i=WOBBLE_EXPERIMENT_NPARAMS;i<NPARAMS_MAX;i++)CHECK(engine_param(T_303,1,i)==0);
+ CHECK(engine_nparams(T_303,0)==CHI_AUX_END);
 #else
  selected(1,0,0);
 #endif
@@ -154,5 +196,8 @@ int main(int argc,char **argv)
  project_reset_stage();CHECK(engine_bass_sound_bank(&project_stage.sound,0)==1);CHECK(engine_bass_bank(0)==0);CHECK(!project_validate_stage());
 #endif
  older_cell_objects();
+#if X0X_BASS_NOTE_SOUND
+ note_schema();
+#endif
  printf("PASS %u tagged rev11 storage/stage/legacy adoption checks WBL%d; sound=%u project=%u\n",checks,X0X_DEV_WOBBLE,(unsigned)sizeof(sound_t),(unsigned)sizeof(project_t));return 0;
 }

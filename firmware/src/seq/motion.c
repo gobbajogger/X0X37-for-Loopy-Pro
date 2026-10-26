@@ -47,7 +47,7 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         int v, nv;
-        if (!l->used || l->part != part)
+        if (!l->used || l->t==0xfdu || l->part != part)
             continue;
         if (r->gen != l->gen) {                        /* a reused slot: a fresh runtime */
             r->gen = l->gen;
@@ -121,7 +121,7 @@ void motion_tick(motion_t *m, uint32_t n)
         const lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         uint32_t L, a;
-        if (!r->ramp || !l->used || r->gen != l->gen || l->part >= MOT_PARTS)
+        if (!r->ramp || !l->used || l->t==0xfdu || r->gen != l->gen || l->part >= MOT_PARTS)
             continue;
         L = m->len[l->part][r->part_parity];
         if (!L)
@@ -138,7 +138,7 @@ void motion_release(motion_t *m)
     int k, p;
     for (k = 0; k < NLANE; k++) {
         lane_rt_t *r = &m->rt[k];
-        if (m->lane[k].used && r->gen == m->lane[k].gen)
+        if (m->lane[k].used && m->lane[k].t!=0xfdu && r->gen == m->lane[k].gen)
             to_base(m, &m->lane[k], r);
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
@@ -190,7 +190,7 @@ X0X_COLD int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
 X0X_COLD void motion_clear(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE) {
-        if (m->lane[k].used && m->apply && m->base) {
+        if (m->lane[k].used && m->lane[k].t!=0xfdu && m->apply && m->base) {
             /* Restore the target before freeing the slot. T_VEL caches the last
              * applied strike in seq.drum_vel; skipping this leaves that override
              * sticky after the lane is gone (and after Stop), so later hits keep
