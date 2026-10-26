@@ -236,7 +236,7 @@ D8_TICK float shaper(float *st, float gate)
     return v;
 }
 
-static inline float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
+__attribute__((noinline)) static float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
 
 /* BridgedT::set: constant-peak bandpass, clamps as 8W8 */
 __attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
@@ -331,7 +331,7 @@ static const float k_cy_bp1[7] = {-7.319914168e-01f, 7.136070782e-01f, 7.3199141
                                   -1.388193671e+00f, -1.157075547e-01f, 5.065353624e-01f};
 static const float k_cy_bp2[7] = {-5.120760045e-01f, 4.815941287e-01f, 5.120760045e-01f, -4.815941287e-01f,
                                   -1.055101523e+00f, -5.886905868e-01f, 6.606506222e-01f};
-static inline float bq3_run(d8_bq3_t *f, const float *c, float x)
+__attribute__((noinline)) static float bq3_run(d8_bq3_t *f, const float *c, float x)
 {
     float y = c[0] * x + f->z[0];
     f->z[0] = c[1] * x - c[4] * y + f->z[1];
@@ -989,7 +989,7 @@ D8_TICK float cy_tick(d8_cy_t *v, float bus)
 
 /* ---- hi-hats: sc808_mt_circuit.h HatCircuit ---- */
 /* Boot only (drum808_init). hat_tick / hat_trigger stay -O2. */
-X0X_COLD static void hat_init(d8_hat_t *v, int mode)
+X0X_COLD __attribute__((noinline)) static void hat_init(d8_hat_t *v, int mode)
 {
     v->mode = (uint8_t)mode;
     if (mode == 0) {
@@ -1027,7 +1027,7 @@ __attribute__((noinline)) static void hat_trigger(d8_hat_t *v, float decay_s, fl
     v->quiet = 0;
 }
 
-static void hat_choke(d8_hat_t *v)
+__attribute__((noinline)) static void hat_choke(d8_hat_t *v)
 {
     v->env.v = 0.0f;
     v->env.target = 0.0f;

@@ -1,0 +1,4 @@
+tip origin/nightly 51f82b0d
+pi32 drum808.o -O2 .text* tip=18320 cand=16618 Δ=-1702
+host clang -O2 .text* tip=28338 cand=26013 Δ=-2325
+symbols: opamp_clip bq3_run hat_init hat_choke noinline

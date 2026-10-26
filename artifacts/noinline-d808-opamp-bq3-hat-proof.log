@@ -1,0 +1,8 @@
+  ok   sequencer
+  ok   host-build
+  ok   drum-pan
+  ok   master
+  ok   breaks
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   copy-semantics
+all tests passed
