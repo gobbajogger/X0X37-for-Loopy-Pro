@@ -403,7 +403,7 @@ X0X_COLD void breaks_drop_range(breaks_t *b, const uint8_t *base, uint32_t nbyte
 
 /* ---- voices ----------------------------------------------------------------------------- */
 
-static float brk_inc(const breaks_t *b, const brk_bank_t *k)
+__attribute__((noinline)) static float brk_inc(const breaks_t *b, const brk_bank_t *k)
 {
     float sp16 = b->sp16 > 1.0f ? b->sp16 : (float)BRK_FS * 0.125f;   /* 120 BPM until told */
     float semi = (float)((int)b->set[BRK_PITCH] - 12);
@@ -523,7 +523,7 @@ static void voice_start_on(breaks_t *b, const brk_bank_t *k, int bk, int sl, uin
 
 /* (re)start slice sl of bank bk from its beginning: forward from its first sample, reverse
  * from its first sample then wrapping to its end (BB Gen's reverse) */
-static void slice_start(breaks_t *b, int bk, int sl)
+__attribute__((noinline)) static void slice_start(breaks_t *b, int bk, int sl)
 {
     const brk_bank_t *k = breaks_bank(b, bk);
     if (!k || !k->valid)

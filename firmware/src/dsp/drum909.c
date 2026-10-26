@@ -622,7 +622,7 @@ typedef struct {
     float dpl, dpr;           /* the pans' glide per sample this block (0 settled) */
 } d9_bus_t;
 
-static inline void d9_emit(const d9_bus_t *b, int i, float y)
+__attribute__((noinline)) static void d9_emit(const d9_bus_t *b, int i, float y)
 {
     if (!b->dry) return;              /* runtime solo suppresses the voice, including an already-playing tail */
     if (b->dry_r) {
