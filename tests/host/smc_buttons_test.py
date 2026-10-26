@@ -19,6 +19,7 @@ for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key')
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
+#include "smc_fx_harness_stubs.h"
 enum { NKIT=2, NPARTS=5, NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
 static struct { int solo,locked,lock_kit,lock_bank,lock_part; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
@@ -59,8 +60,8 @@ static int cur_page(void) { return page; }
 static uint8_t *page_of(int v) { (void)v; return &page; }
 '''+ '\n'.join(helpers) + f + r'''
 int main(void) {
-    const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
-    const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{0,1,3}};
+    const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{-1,-1,-1}};
+    const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{-1,-1,-1}};
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
         last_view=last_page=fx=-1;
         int note=row*8+strip; tap=-1; smc_button(note,0);
@@ -68,7 +69,10 @@ int main(void) {
             assert(tap==(note==5?B_SEL:note==6?B_HOME:B_GLO)); continue;
         }
         if(row==2) assert(fx==strip-5 && last_view==-1);
-        else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
+        else if(row==3) {
+            /* notes 29–31 are SMCFX_NOTE buses: momentary FX only, no view jump */
+            assert(smcfx_bus((unsigned)note) >= 0 && last_view==-1 && fx==-1);
+        } else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
     }
     pg.n=4;
     for(int note=0x60;note<=0x63;note++) {
@@ -84,6 +88,8 @@ int main(void) {
 '''
 with tempfile.TemporaryDirectory() as tmp:
     c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
-    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',str(c),'-o',str(exe)],check=True)
+    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',
+                    '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
+                    str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
 print('PASS: strip shortcuts and page/menu arrows use explicit view/page/menu mappings')
