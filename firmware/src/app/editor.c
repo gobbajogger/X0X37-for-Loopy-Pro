@@ -288,11 +288,32 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
 }
 
 static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
+/* Armed for rewrite: WRITE may touch the slot. Flash stays intact until the first
+ * sector erase, so cancel after BEGIN alone keeps the last good sample. */
+static uint8_t smp_importing[SMP_USER_SLOTS];
+static uint8_t smp_sec0_erased[SMP_USER_SLOTS];
 static void ed_smp_inval(uint32_t k)
 {
     fm1_irq_off();
     fl_inval(ed_smp_slot(k), SMP_USER_SIZE(k));
     fm1_irq_on();
+}
+/* Drop live use of slot k before flash rewrite. Does not erase. */
+static void ed_smp_retire(uint32_t k)
+{
+    if (!usr_nz[k])
+        return;
+    usr_nz[k] = 0;
+    engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
+    engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k));
+}
+static int ed_smp_begin(uint32_t k)
+{
+    if (ed_project.mode == 2)
+        ed_project.changed = 1;
+    smp_importing[k] = 1;
+    smp_sec0_erased[k] = 0;
+    return 0;
 }
 static int ed_smp_erase(uint32_t k, uint32_t all)
 {
@@ -300,9 +321,9 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     int rc = 0;
     if (ed_project.mode == 2)
         ed_project.changed = 1;
-    usr_nz[k] = 0;
-    engine_brk_loops();                               /* the next trigger reads the replacement, not this slot */
-    engine_brk_drop_range(smp_user_xip(k), SMP_USER_SIZE(k)); /* this erase rewrites the slot: drop voices still in it */
+    ed_smp_retire(k);
+    smp_importing[k] = 0;
+    smp_sec0_erased[k] = 0;
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
         audio_silence();
         rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);
@@ -310,6 +331,28 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     }
     ed_smp_inval(k);
     return rc;
+}
+/* Erase the 4 KiB sector that holds off. Sector 0 is deferred until the first
+ * WRITE into it (BEGIN no longer wipes the header). Higher sectors still erase
+ * on a 4 KiB-aligned offset, as before. */
+static int ed_smp_erase_for_write(uint32_t k, uint32_t off, uint32_t *took)
+{
+    if (off < 0x1000u) {
+        if (smp_sec0_erased[k])
+            return 0;
+        ed_smp_retire(k);
+        audio_silence();
+        if (fl_erase4k(ed_smp_slot(k), took))
+            return 1;
+        smp_sec0_erased[k] = 1;
+        ed_smp_inval(k);
+        return 0;
+    }
+    if (off & 0xFFFu)
+        return 0;
+    ed_smp_retire(k);
+    audio_silence();
+    return fl_erase4k(ed_smp_slot(k) + off, took) ? 1 : 0;
 }
 static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
@@ -329,6 +372,8 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
         return 4;
     ed_smp_inval(k);
     smp_user_scan(k);
+    smp_importing[k] = 0;
+    smp_sec0_erased[k] = 0;
     engine_brk_loops();
     return usr_nz[k] ? 0 : 5;
 }
@@ -596,7 +641,12 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 1u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b(ed_project_samples_locked() ? 4u : ed_smp_erase(a[0], cmd == ED_SMP_ERASE) ? 1u : 0u);
+        if (ed_project_samples_locked())
+            ed_b(4u);
+        else if (cmd == ED_SMP_BEGIN)
+            ed_b(ed_smp_begin(a[0]) ? 1u : 0u);
+        else
+            ed_b(ed_smp_erase(a[0], 1u) ? 1u : 0u);
         break;
     case ED_SMP_WRITE: {
         uint32_t off, len, rc = 0, took;
@@ -606,15 +656,14 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
         if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE(a[0]))
             rc = 1;
-        else if (usr_nz[a[0]] || ed_project_samples_locked())
+        else if (ed_project_samples_locked() ||
+                 (!smp_importing[a[0]] && usr_nz[a[0]]))
             rc = 4;
         else {
             if (ed_project.mode == 2)
                 ed_project.changed = 1;
-            if (!(off & 0xFFFu)) {
-                audio_silence();
-                rc = fl_erase4k(ed_smp_slot(a[0]) + off, &took) ? 2u : 0u;
-            }
+            if (ed_smp_erase_for_write(a[0], off, &took))
+                rc = 2;
             if (!rc && fl_write(ed_smp_slot(a[0]) + off, ed_smp_buf, len))
                 rc = 3;
         }

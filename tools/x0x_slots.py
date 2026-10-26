@@ -14,7 +14,8 @@ slots of 80 KiB. Since the SMK-37 flash layout 2 the slots differ in size (80, 1
 then ends with the X0X extension ('X' 1, per slot: flash offset, size, used KiB). An older firmware sends
 no extension: all its slots have the one size of the reply. Backup reads each slot that holds samples with SMP_READ (cmd 16): the 512-byte header
 area and the data. It sends no command that writes. Restore asks before it writes (--yes skips the
-question); for each slot it sends SMP_BEGIN, SMP_WRITE in 256-byte parts and SMP_END (the editor
+question); for each slot it sends SMP_BEGIN (arms rewrite; flash stays until first WRITE),
+SMP_WRITE in 256-byte parts and SMP_END (the editor
 protocol, web/EDITOR_PROTOCOL.md, 11-13), or SMP_ERASE (14) for a slot that was empty. Then it reads the
 slots back and compares them (--no-verify skips that).
 

@@ -52,8 +52,8 @@ after an engine change.
 | 8 PRESET | engine, preset | engine, preset (applies the preset: sound, sends, arp, and its pattern if the sequencer is empty or still holds an untouched preset pattern) |
 | 9 PROJECT | op (0 load, 1 save, 2 query), slot 0..3 | op, slot, used (1/0). Save writes flash: allow ~2 s |
 | 10 NAMES | engine | engine, count, count preset-name strings, then the two edit-page titles |
-| 11 SMP_BEGIN | slot 0..2 | slot, rc (0 ok). Erases the slot's header sector: the slot is empty from now on |
-| 12 SMP_WRITE | slot, offset (3 × 7 bit, LSB first), pack7 data (≤ 256 bytes) | slot, offset, rc: 0 ok, 1 arguments, 2 erase, 3 write, 4 slot in use (send SMP_BEGIN first). Offset ≥ 512 and a multiple of 256. Writes go in increasing order (a write at a 4 KiB boundary erases that sector) |
+| 11 SMP_BEGIN | slot 0..2 | slot, rc (0 ok). Arms the slot for rewrite. Does **not** erase flash: cancel or abandon before the first SMP_WRITE keeps the last good sample. The previous sample stays visible to SMP_INFO until a WRITE erases its sector (or SMP_ERASE) |
+| 12 SMP_WRITE | slot, offset (3 × 7 bit, LSB first), pack7 data (≤ 256 bytes) | slot, offset, rc: 0 ok, 1 arguments, 2 erase, 3 write, 4 slot in use (send SMP_BEGIN first). Offset ≥ 512 and a multiple of 256. Writes go in increasing order. The first write into the header sector (offset below 4 KiB) erases that 4 KiB sector; a write at a higher 4 KiB boundary erases that sector |
 | 13 SMP_END | slot, pack7 header (480 bytes) | slot, rc: 0 ok, 1 size, 2 header, 3 data CRC, 4 flash, 5 zones |
 | 14 SMP_ERASE | slot | slot, rc (erases the whole slot, ~1 s) |
 | 15 SMP_INFO | — | slots, slot KiB (the smallest slot, at most 127), then per slot: zone count (0 = empty), name string, data KiB (at most 127). Then (X0X with the SMK-37 flash layout 2) the extension `58 01` and per slot three 14-bit values, low 7 bits first. The three values are: flash offset in 4 KiB sectors, slot size in 4 KiB sectors, data KiB. A reader without the extension ignores these bytes. A reply without them has equal slots of the one size |
