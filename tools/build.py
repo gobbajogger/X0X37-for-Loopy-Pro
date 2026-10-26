@@ -37,6 +37,7 @@ GEN = OUT / "gen"
 LDR = OUT / "loader"
 sys.path.insert(0, str(SRC / "tools"))
 import fm1pkg_make  # noqa: E402
+import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
@@ -142,6 +143,9 @@ def tc_all(*cmds):
 def generate():
     """generated headers: the font (Felucca's), the 909's samples and tables, the break bank"""
     GEN.mkdir(parents=True, exist_ok=True)
+    if gen_cache.restore(GEN):
+        print("generate: cached font, drums, and break bank")
+        return
     tools = SRC / "tools"
     cmds = [[tools / "gen_font.py", GEN / "felucca_font.h"],
             [tools / "gen_drum_samples.py", GEN / "x0x_drum_samples.h"]]
@@ -164,6 +168,7 @@ def generate():
     if r.returncode:
         sys.stderr.write(r.stderr)
         raise SystemExit("build: break bank failed")
+    gen_cache.store(GEN)
 
 
 # ---- update loader

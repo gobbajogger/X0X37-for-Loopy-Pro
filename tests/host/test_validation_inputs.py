@@ -195,6 +195,34 @@ class PackageBytes(unittest.TestCase):
         with patch.object(type(self.dist), 'files', new_callable=PropertyMock, return_value=[]):
             self.assertIn('fixture/native.so', identity.package_files(self.dist))
 
+    def test_egg_info_console_script_outside_site_packages(self):
+        # installed-files.txt paths are relative to the egg-info directory.
+        # ../../../bin/fixture is the env console script, outside site-packages.
+        env = self.root/'env'
+        sp = env/'lib'/'site-packages'
+        egg = sp/'fixture.egg-info'
+        pkg = sp/'fixture'
+        script = env/'bin'/'fixture'
+        pkg.mkdir(parents=True)
+        egg.mkdir(parents=True)
+        script.parent.mkdir()
+        (pkg/'__init__.py').write_text('source = 1\n')
+        script.write_text('#!/bin/sh\necho fixture\n')
+        (egg/'PKG-INFO').write_text('Name: fixture\nVersion: 1.0\n')
+        (egg/'installed-files.txt').write_text('../fixture/__init__.py\n../../../bin/fixture\n')
+        dist = importlib.metadata.Distribution.at(egg)
+        files = identity.package_files(dist)
+        module = 'fixture/__init__.py'
+        upward = '../../bin/fixture'
+        self.assertEqual(files[module], identity.file_hash(pkg/'__init__.py'))
+        self.assertEqual(files[upward], identity.file_hash(script))
+        self.assertEqual(set(files), {module, upward})
+        script.write_text('#!/bin/sh\necho changed\n')
+        self.assertNotEqual(identity.package_files(dist)[upward], files[upward])
+        script.unlink()
+        with self.assertRaises(OSError):
+            identity.package_files(dist)
+
     def test_normal_manifest_preserves_all_declared_files(self):
         # RECORD can contain data outside the import package, including binaries.
         (self.root/'extra.data').write_bytes(b'data')

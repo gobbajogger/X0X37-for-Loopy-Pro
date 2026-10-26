@@ -20,6 +20,7 @@ cd "$repo"
   exit 2
 }
 for tool in cc c++ python3 git curl tar xz sha256sum; do command -v "$tool"; done
+bash tools/agent_env_install.sh
 python3 -c 'import PIL; print("Pillow", PIL.__version__)'
 export CC=cc CXX=c++
 export X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L

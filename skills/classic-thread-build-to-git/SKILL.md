@@ -72,7 +72,7 @@ Do not attach an old binary to a new commit. Validate that the generated install
 2. Test the generated site and mocked upgrade/downgrade/sample-preservation flows. Inspect links, model identity, checksums, assets, and whether any older published versions would be removed. A generated site folder is **not** a deployed site.
 3. Keep an internal/local **development installer bundle** separate from a public release. Public firmware publication requires its own authorization and all project-specific release/device gates. A source-only installer shell may be publishable separately if explicitly authorized and verified.
 4. On an approved publication, publish the exact validated artifact and page **without overwriting unrelated versions or losing existing pages**. Verify the remote deployment commit and, where accessible, the resulting URL/catalog/download checksum. A queued Action or `startup_failure` is not a deploy PASS.
-5. If only source Git push is approved, push source to that destination and report the installer page as **not published**. Do not interpret approval for a repository push as approval for a separate public web/firmware destination.
+5. Before a source Git push, inspect automatic deployment workflows and compare the target ref and changed paths with their triggers: a source push can also publish a site. If publication is outside the authorized scope, use an authorized nondeploying ref; do not disable or bypass deployment controls. After an authorized push, verify the actual deployment state before reporting whether the installer page was published. Approval for a repository push does not itself approve a separate public web/firmware destination.
 
 ## 6. Commit, push, and verify remote identity
 
