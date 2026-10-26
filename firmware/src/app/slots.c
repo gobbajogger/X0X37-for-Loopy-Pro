@@ -22,11 +22,18 @@ typedef struct {
 #define SMP_USER_OFF(k) ((k) == 0u ? 0xC2000u : 0xD6000u)
 #define SMP_USER_SIZE(k) ((k) == 0u ? 0x14000u : 0x1E000u)
 #define SMP_USER_MAX 0x1E000u                       /* the largest slot */
+/* First 8 KiB of FL_SMPV: per-slot 4 KiB shadow of sector 0 so a mid-WRITE
+ * cancel / failed END / power loss can put the last-good header+data back. */
+#define SMP_SEC0_BACKUP 1
+#define SMP_SEC0_BACKUP_OFF(k) (0xB0000u + (uint32_t)(k) * 0x1000u)
 #ifdef FL_SMP_LO
 _Static_assert(SMP_USER_SLOTS == 2u, "SMK: two user sample slots");
 _Static_assert(SMP_USER_OFF(0u) == FL_SMP_LO && SMP_USER_OFF(0u) + SMP_USER_SIZE(0u) == SMP_USER_OFF(1u) &&
                SMP_USER_OFF(1u) + SMP_USER_SIZE(1u) == FL_SMP_HI, "SMK: slots 1 and 2 must fill FL_SMP");
 _Static_assert(SMP_USER_OFF(0u) >= FL_SMPV_HI, "SMK: the sample slots must not use the VM spare");
+_Static_assert(SMP_SEC0_BACKUP_OFF(0u) >= FL_SMPV_LO &&
+               SMP_SEC0_BACKUP_OFF(SMP_USER_SLOTS - 1u) + 0x1000u <= FL_SMPV_HI,
+               "SMK: sector-0 backup fits in FL_SMPV");
 #endif
 #else
 /* FM-1: two slots of 80 KiB at 0xA0000 and 0xB4000. The old third slot at 0xC8000 is not offered,
@@ -35,6 +42,7 @@ _Static_assert(SMP_USER_OFF(0u) >= FL_SMPV_HI, "SMK: the sample slots must not u
 #define SMP_USER_OFF(k) (0xA0000u + (k) * 0x14000u)
 #define SMP_USER_SIZE(k) ((void)(k), 0x14000u)
 #define SMP_USER_MAX 0x14000u
+#define SMP_SEC0_BACKUP 0
 _Static_assert(SMP_USER_SLOTS == 2u, "FM-1: two user sample slots");
 #endif
 #define SMP_USER_DATA 512u

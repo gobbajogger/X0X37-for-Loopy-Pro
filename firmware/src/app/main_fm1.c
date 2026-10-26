@@ -2167,6 +2167,7 @@ static void fm1_main(void)
 #endif
             for (k = 0; k < SMP_USER_SLOTS; k++)
                 smp_user_scan(k);
+            ed_smp_recover();                       /* mid-WRITE power loss: put sector 0 back from FL_SMPV */
             ota_boot_cleanup();
         }
     }

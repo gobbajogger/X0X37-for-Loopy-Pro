@@ -149,8 +149,8 @@ def parse_header(b):
 
 def req(link, cmd, args, timeout=3.0, tries=3):
     """one command; a lost frame (no reply) is sent again. Every slot command is safe to repeat:
-    INFO and READ do not write, BEGIN and ERASE erase again, WRITE writes the same bytes, END
-    writes the same header."""
+    INFO and READ do not write, BEGIN only arms (may restore a mid-WRITE shadow), ERASE wipes,
+    WRITE writes the same bytes, END writes the same header."""
     for t in range(tries):
         try:
             return link.req(cmd, args, timeout)
