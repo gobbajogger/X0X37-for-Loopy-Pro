@@ -393,31 +393,6 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
 /* ===================================================================== */
 /* Master: distortion, glue (master_glue), volume                         */
 /* ===================================================================== */
-
-/* Glue compressor: detector + soft-knee GR + envelope → linear gain.
- * One body for mono fxbus_process and stereo fxbus_process_st (stereo feeds max(|L|,|R|)). */
-__attribute__((noinline)) static float glue_tick(float mag, float thr, float slope, float drel,
-                                                 float atk, float rel, float makeup, float *det,
-                                                 float *env)
-{
-    float det_v = *det, env_v = *env, gr = 0.0f;
-    det_v = mag > det_v ? mag : det_v * drel;
-    {
-        const float in_db = det_v > 1e-9f ? 6.0205999f * fm_log2f(det_v) : -120.0f;
-        const float over = in_db - thr;
-        if (over >= 3.0f)
-            gr = -over * slope;
-        else if (over > -3.0f) {
-            const float t = over + 3.0f;
-            gr = -(t * t) * (1.0f / 12.0f) * slope;
-        }
-    }
-    env_v = gr + (env_v - gr) * (gr < env_v ? atk : rel);
-    *det = det_v;
-    *env = env_v;
-    return fm_db2lin(env_v + makeup);
-}
-
 void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *dly, float *out, int n)
 {
     if (n > 256)
@@ -438,7 +413,19 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         float det = f->comp_det, env = f->comp_env_db;
         for (int i = 0; i < n; ++i) {
             const float in = out[i];
-            out[i] = in * glue_tick(fm_fabsf(in), thr, slope, drel, atk, rel, makeup, &det, &env);
+            const float mag = fm_fabsf(in);
+            det = mag > det ? mag : det * drel;
+            const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
+            const float over = in_db - thr;
+            float gr = 0.0f;
+            if (over >= 3.0f)
+                gr = -over * slope;
+            else if (over > -3.0f) {
+                const float t = over + 3.0f;
+                gr = -(t * t) * (1.0f / 12.0f) * slope;
+            }
+            env = gr + (env - gr) * (gr < env ? atk : rel);
+            out[i] = in * fm_db2lin(env + makeup);
         }
         f->comp_det = det;
         f->comp_env_db = env;
@@ -474,7 +461,19 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         float det = f->comp_det, env = f->comp_env_db;
         for (int i = 0; i < n; ++i) {
             const float ml = fm_fabsf(out_l[i]), mr = fm_fabsf(out_r[i]);
-            const float g = glue_tick(ml > mr ? ml : mr, thr, slope, drel, atk, rel, makeup, &det, &env);
+            const float mag = ml > mr ? ml : mr;
+            det = mag > det ? mag : det * drel;
+            const float in_db = det > 1e-9f ? 6.0205999f * fm_log2f(det) : -120.0f;
+            const float over = in_db - thr;
+            float gr = 0.0f;
+            if (over >= 3.0f)
+                gr = -over * slope;
+            else if (over > -3.0f) {
+                const float t = over + 3.0f;
+                gr = -(t * t) * (1.0f / 12.0f) * slope;
+            }
+            env = gr + (env - gr) * (gr < env ? atk : rel);
+            const float g = fm_db2lin(env + makeup);
             out_l[i] *= g;
             out_r[i] *= g;
         }
