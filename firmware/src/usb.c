@@ -845,6 +845,15 @@ static void ota_frame_done(void)
 }
 #endif
 
+/* One USB MIDI packet → 4 EP1 bytes (SysEx and note paths share). */
+static void ep1_put_pkt(uint32_t n, uint32_t pkt)
+{
+    ep1tx[n] = (uint8_t)pkt;
+    ep1tx[n + 1] = (uint8_t)(pkt >> 8);
+    ep1tx[n + 2] = (uint8_t)(pkt >> 16);
+    ep1tx[n + 3] = (uint8_t)(pkt >> 24);
+}
+
 static void ep1_tx(void)
 {
     uint32_t csr, n = 0;
@@ -864,10 +873,7 @@ static void ep1_tx(void)
 #if FELUCCA_OTA
     while (so_r != so_w && n < 64u) {                   /* SysEx first, never split by notes */
         uint32_t pkt = sx_out_q[so_r % SXQ];
-        ep1tx[n] = (uint8_t)pkt;
-        ep1tx[n + 1] = (uint8_t)(pkt >> 8);
-        ep1tx[n + 2] = (uint8_t)(pkt >> 16);
-        ep1tx[n + 3] = (uint8_t)(pkt >> 24);
+        ep1_put_pkt(n, pkt);
         n += 4u;
         so_r++;
     }
@@ -878,10 +884,7 @@ static void ep1_tx(void)
         uint32_t pkt;
         RING_PUBLISH();                                 /* the audio ISR (producer) can preempt us: */
         pkt = midi_out_q[mo_r % MQ];                    /* slot read strictly between the index checks */
-        ep1tx[n] = (uint8_t)pkt;
-        ep1tx[n + 1] = (uint8_t)(pkt >> 8);
-        ep1tx[n + 2] = (uint8_t)(pkt >> 16);
-        ep1tx[n + 3] = (uint8_t)(pkt >> 24);
+        ep1_put_pkt(n, pkt);
         n += 4u;
         RING_PUBLISH();
         mo_r++;
