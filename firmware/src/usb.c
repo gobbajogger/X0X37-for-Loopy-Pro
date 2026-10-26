@@ -147,8 +147,26 @@ static int midi_pkt_is_note_off(uint32_t pkt)
 }
 #define midi_in_is_note_off midi_pkt_is_note_off
 
-/* When a MIDI ring is full, CC floods may drop; never drop Note Off —
- * displace a CC first, then any non-Note-Off (same class as engine cq_put C_BOFF). */
+/* USB-MIDI single-byte realtime transport (CIN 0xF): Start/Continue/Stop.
+ * Under a CC flood these must displace disposable events — a dropped Stop
+ * leaves the sequencer playing (sticky transport). Clock/SPP are not kept. */
+static int midi_pkt_is_rt_transport(uint32_t pkt)
+{
+    uint32_t st;
+    if ((pkt & 0xFu) != 0xFu)
+        return 0;
+    st = (pkt >> 8) & 0xFFu;
+    return st == 0xFAu || st == 0xFBu || st == 0xFCu;
+}
+
+static int midi_pkt_is_keep(uint32_t pkt)
+{
+    return midi_pkt_is_note_off(pkt) || midi_pkt_is_rt_transport(pkt);
+}
+
+/* When a MIDI ring is full, CC floods may drop; never drop Note Off or
+ * Start/Continue/Stop — displace a CC first, then any non-keep
+ * (same class as engine cq_put C_BOFF). */
 static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
                                   uint32_t pkt)
 {
@@ -159,12 +177,12 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
         *w = ww + 1u;
         return 1;
     }
-    if (!midi_pkt_is_note_off(pkt))
+    if (!midi_pkt_is_keep(pkt))
         return 0;
     for (pass = 0; pass < 2u; pass++) {
         for (i = rr; i != ww; i++) {
             uint32_t p = q[i % MQ];
-            if (midi_pkt_is_note_off(p))
+            if (midi_pkt_is_keep(p))
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
@@ -176,7 +194,7 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
     return 0;
 }
 
-/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off. */
+/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off or Start/Continue/Stop. */
 static int midi_in_put(uint32_t pkt)
 {
     return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, pkt);
