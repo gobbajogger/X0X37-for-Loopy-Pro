@@ -15,7 +15,10 @@
 #     The default is X0X_TEST_TIME_SCALE=20 (dev and branch runs): in web/test_install_slots.mjs, waits of
 #     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
 #     build/host/.results/*.time gives the time of each test.
-#   The tests in needs_gen (drum-pan, stereo, rec-live) include the headers in build/gen. host-build writes them.
+#   The tests in needs_gen (drum-pan, stereo, rec-live, rec-live-smk) include the headers in build/gen.
+#     host-build writes them. When X0X_TESTS selects those alone (no host-build), each compile self-gens:
+#     drum-pan/stereo fill x0x_drum_tables.h (project-save-preflight style; no Pillow); rec-live* use
+#     build_host.sh --generate-only (song-actions style; Pillow-gated).
 #     In parallel mode, such a test starts only after build/host/iso/.gen-done, and it does not hold a job slot
 #     while it waits. In serial mode, host-build runs before them. .gen-done is published only after generation
 #     succeeds. A generation failure fails the suite and does not publish .gen-done: a waiter stops on
@@ -350,8 +353,9 @@ run smc-feedback python3 tests/host/smc_feedback_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-record-feedback Pillow; else run smc-record-feedback sh tests/host/smc_record_feedback_test.sh; fi
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
-run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
-run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
+# Cold / filtered-alone trees: fill drum tables before compile (host-build may be filtered out).
+run drum-pan sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
+run stereo sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
 for t in drum909 drum808 bass303 breaks; do
@@ -512,14 +516,15 @@ run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/ov
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
-run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
+# Full generate-only: needs font + break bank (Pillow-gated above), not tables alone.
+run rec-live sh -c "sh host/build_host.sh --generate-only >/dev/null && $CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \
     firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_test"
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live-smk Pillow; else
-run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD_SMK37=1 -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
+run rec-live-smk sh -c "sh host/build_host.sh --generate-only >/dev/null && $CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD_SMK37=1 -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_smk_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \
     firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
