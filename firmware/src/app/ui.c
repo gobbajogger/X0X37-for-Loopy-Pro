@@ -4326,49 +4326,6 @@ static UI_DRAW void draw_303(int band, int gen)
     uint32_t lmarks = gen ? 0 : lock_marks(-1, -1, ui.spage * 16);
     char t[40], *q = t;
     (void)gen;
-#if X0X_BASS_PRESET_PREVIEW
-    if(ui.view==V_PART && cur_page()==0) {
-#if X0X_BASS_TAGGED_SOUND
-        if(engine_bass_sound_bank(&proj.sound,b)<0) {
-            cv_text(10,12,&FONT_S,band?"EXPLICIT IDENTITY REQUIRED":"LEGACY SOUND PRESERVED",C_AMB);
-            cv_text(10,38,&FONT_S,band?"SAVE / BASS PLAY BLOCKED":"NO ENGINE WAS INFERRED",C_DIM);return;
-        }
-#endif
-        int bank=engine_bass_bank(b), preset=engine_bass_preset_index(b);
-        if(!band) {
-            cv_text(10,12,&FONT_S,"CURRENT PRESET",C_DIM);
-            cv_text(10,40,&FONT_B,preset<0?
-#if X0X_BASS_TAGGED_SOUND
-                "USER SOUND"
-#else
-                "SELECT PRESET"
-#endif
-                :factory_preset_name(bank,preset),C_HI);
-            if(preset>=0 && engine_bass_preset_edited(b)) cv_text(148,12,&FONT_S,"EDITED",C_AMB);
-        } else {
-            int pending=engine_bass_preset_pending(b);
-            if(pending) {
-                int rb=engine_bass_requested_bank(b),rp=engine_bass_requested_preset(b);
-                cv_text(10,10,&FONT_S,"PENDING - LATEST CHOICE",C_AMB);
-                cv_text(10,29,&FONT_S,factory_preset_name(rb,rp),C_HI);
-                cv_text(10,50,&FONT_S,pending==2?"WAIT NOTE / RELEASE TAIL":pending==3?"WAIT WHEEL RELEASE":pending==4?"WAIT SOUND LOCKS":pending==5?"WAIT EARLIER MIDI / KEYS":"NEXT AUDIO BOUNDARY",C_DIM);
-                return;
-            }
-            char count[32];
-            put_i(put_s(put_i(put_s(count,"PRESET "),preset+1)," / "),factory_bank(bank)->npresets);
-            cv_text(10,12,&FONT_S,preset<0?"PRESETS: BROWSE SOUND":count,C_DIM);
-            cv_text(10,34,&FONT_S,engine_bass_bank_available(b,1)?"MIAMI AVAILABLE":
-#if X0X_DEV_WOBBLE
-                "MIAMI IN USE ON OTHER LANE"
-#else
-                "MIAMI NOT IN THIS BUILD"
-#endif
-                ,C_DIM);
-            cv_text(10,50,&FONT_S,lmarks?"STEP PARAMETER LOCKS":"NO STEP PARAMETER LOCKS",C_DIM);
-        }
-        return;
-    }
-#endif
     for (c = 0; c < bp->len && c < NSTEPS; c++) {
         int start = note_start_of(bp, c);
         if (start >= 0) {
@@ -4471,6 +4428,47 @@ static UI_DRAW int matrix_touch_matches(pref_t r, int i)
            ui.touch_b == r.b && ui.touch_c == r.c;
 }
 
+#if X0X_BASS_PRESET_PREVIEW
+/* The SOUND page's fourth cell carries status, leaving its three physical
+ * controls in the same matrix. Requested choices never masquerade as active. */
+static UI_DRAW void draw_bass_status(void)
+{
+    int b = bidx(), pending = engine_bass_preset_pending(b);
+    int bank = engine_bass_bank(b), preset = engine_bass_preset_index(b);
+    cv_rect(122, 5, 1, 56, C_LINE);
+#if X0X_BASS_TAGGED_SOUND
+    if (engine_bass_sound_bank(&proj.sound, b) < 0) {
+        cv_text(128, 5, &FONT_XS, "LEGACY SOUND", C_AMB);
+        cv_text(128, 18, &FONT_XS, "ENGINE UNKNOWN", C_HI);
+        cv_text(128, 31, &FONT_XS, "CHOOSE ENGINE", C_HI);
+        cv_text(128, 44, &FONT_XS, "SAVE/PLAY BLOCKED", C_AMB);
+        return;
+    }
+#endif
+    if (pending) {
+        int rb = engine_bass_requested_bank(b), rp = engine_bass_requested_preset(b);
+        const char *name = rp >= 0 ? factory_preset_name(rb, rp) : "SELECT PRESET";
+        char line[20]; int n = 0;
+        cv_text(128, 3, &FONT_XS, rb == FACTORY_BANK_MIAMI ? "PENDING MIAMI" : "PENDING CHICAGO", C_AMB);
+        while (name[n] && n < 18) { line[n] = name[n]; n++; }
+        line[n] = 0;
+        cv_text(128, 16, &FONT_XS, line, C_HI);
+        if (name[n]) cv_text(128, 28, &FONT_XS, name + n, C_HI);
+        cv_text(128, 47, &FONT_XS,
+            pending == 2 ? "WAIT NOTE / TAIL" :
+            pending == 3 ? "WAIT WHEEL" :
+            pending == 4 ? "WAIT SOUND LOCKS" :
+            pending == 5 ? "WAIT MIDI / KEYS" : "NEXT AUDIO BOUNDARY", C_DIM);
+    } else {
+        cv_text(128, 5, &FONT_XS, "ACTIVE SOUND", C_DIM);
+        cv_text(128, 20, &FONT_XS,
+            preset >= 0 ? factory_preset_name(bank, preset) : "USER SOUND", C_HI);
+        if (preset >= 0 && engine_bass_preset_edited(b))
+            cv_text(128, 39, &FONT_S, "EDITED", C_AMB);
+    }
+}
+#endif
+
 /* EDIT has one value per physical knob, in a 2x2 page matrix.  The knob strip
  * is deliberately empty on this view; it cannot contradict the live page. */
 static UI_DRAW void draw_part_sound(int band)
@@ -4503,6 +4501,9 @@ static UI_DRAW void draw_part_sound(int band)
         draw_param_widget(r, two ? 9 : k * 120 + 3,
                           band ? 2 : 20, two ? 222 : 117, matrix_touch_matches(r, i), col);
     }
+#if X0X_BASS_PRESET_PREVIEW
+    if (band && page == 0 && is_303()) draw_bass_status();
+#endif
 }
 
 static UI_DRAW void draw_break(int band)
