@@ -49,12 +49,17 @@ static const char *const d9_dist_names[7] = { "Diode", "Clip", "SAT", "BFZ", "PD
 
 /* Pot defaults are the positions 9W9 seeds from its engineering defaults
  * (er99_engine_seed_pots); the engine itself starts on the exact defaults. */
-/* Kick, closed/open hat, and crash/ride all end on this Drive=0 FX block.
- * One copy; SD/RS/CP/toms keep their own drive defaults. */
-static const d9_pspec_t d9_fx0_tail[] = {
-    DRIVE(0), DIST, SENDS, PAN,
+/* Distortion + send + pan is identical on every voice that ends that way.
+ * Drive stays per voice (defaults differ). One Dist/Rev/Dly/Pan table. */
+static const d9_pspec_t d9_dsp_tail[] = {
+    DIST, SENDS, PAN,
 };
-#define D9_FX0_N NP(d9_fx0_tail)
+#define D9_DSP_N NP(d9_dsp_tail)
+/* Kick / hats / cymbals still share Drive=0 ahead of that table. */
+static const d9_pspec_t d9_fx0_drive[] = {
+    DRIVE(0),
+};
+#define D9_FX0_N (NP(d9_fx0_drive) + D9_DSP_N)
 #define D9_BD_HEAD 6
 #define D9_BD_N (D9_BD_HEAD + D9_FX0_N)
 static const d9_pspec_t d9_bd_p[] = {
@@ -62,19 +67,19 @@ static const d9_pspec_t d9_bd_p[] = {
     EXP("Decay", F_DECAY, 90, BD_DECAY), LEVEL(94),
     LIN("P.Dpth", F_PDEPTH, 0, 0.0f, 1.0f), EXP("Pitch", F_PITCH, 45, BD_PITCH),
 };
+#define D9_SD_HEAD 6
+#define D9_SD_N (D9_SD_HEAD + D9_DSP_N)
 static const d9_pspec_t d9_sd_p[] = {
     EXP("Tune", F_TUNE, 64, SD_TUNE), EXP("Tone", F_TONE, 68, SD_TONE),
     LIN("Snappy", F_SNAPPY, 64, 0.0f, 1.0f), LIN("Decay", F_DECAY, 41, 120.0f, 800.0f),   /* X0X: 9W9's fixed 340 ms */
-    LEVEL(58), DRIVE(36), DIST, SENDS, PAN,
+    LEVEL(58), DRIVE(36),
 };
-/* The low, mid, and high toms use one copy of these seven pots. The records
- * match, so a second and third copy were only flash. Tune and decay stay on
- * the tom. A caller asks for one pot, and that pot is one record. */
-static const d9_pspec_t d9_tom_tail[] = {
-    LEVEL(52), LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41), DIST, SENDS, PAN,
+/* Tom heads stay tune+decay; shared mid is level/attack/drive, then dsp. */
+static const d9_pspec_t d9_tom_mid[] = {
+    LEVEL(52), LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41),
 };
 #define D9_TOM_HEAD 2
-#define D9_TOM_N (D9_TOM_HEAD + NP(d9_tom_tail))
+#define D9_TOM_N (D9_TOM_HEAD + NP(d9_tom_mid) + D9_DSP_N)
 static const d9_pspec_t d9_lt_p[] = {
     EXP("Tune", F_TUNE, 66, LT_TUNE), EXP("Decay", F_DECAY, 111, LT_DECAY),
 };
@@ -84,13 +89,17 @@ static const d9_pspec_t d9_mt_p[] = {
 static const d9_pspec_t d9_ht_p[] = {
     EXP("Tune", F_TUNE, 53, HT_TUNE), EXP("Decay", F_DECAY, 105, HT_DECAY),
 };
+#define D9_RS_HEAD 3
+#define D9_RS_N (D9_RS_HEAD + D9_DSP_N)
 static const d9_pspec_t d9_rs_p[] = {
-    LEVEL(103), EXP("Tune", F_TUNE, 62, RS_TUNE), DRIVE(24), DIST, SENDS, PAN,
+    LEVEL(103), EXP("Tune", F_TUNE, 62, RS_TUNE), DRIVE(24),
 };
+#define D9_CP_HEAD 4
+#define D9_CP_N (D9_CP_HEAD + D9_DSP_N)
 static const d9_pspec_t d9_cp_p[] = {
-    LEVEL(122), EXP("Tune", F_TUNE, 63, CP_TUNE), EXP("Tail", F_TAIL, 63, CP_TAIL), DRIVE(30), DIST, SENDS, PAN,
+    LEVEL(122), EXP("Tune", F_TUNE, 63, CP_TUNE), EXP("Tail", F_TAIL, 63, CP_TAIL), DRIVE(30),
 };
-/* Closed and open hats: decay + level per hat, then shared tune, then fx0. */
+/* Closed and open hats: decay + level per hat, then shared tune, Drive=0, dsp. */
 static const d9_pspec_t d9_hat_tune[] = {
     EXP("Tune", F_TUNE, 64, SMP_PITCH),
 };
@@ -102,7 +111,7 @@ static const d9_pspec_t d9_ch_p[] = {
 static const d9_pspec_t d9_oh_p[] = {
     EXP("Decay", F_DECAY, 97, OH_DECAY), LEVEL(80),
 };
-/* Crash and ride: tune + level per cymbal, then shared decay, then fx0. */
+/* Crash and ride: tune + level per cymbal, then shared decay, Drive=0, dsp. */
 static const d9_pspec_t d9_cy_decay[] = {
     EXP("Decay", F_DECAY, 108, CY_DECAY),
 };
@@ -125,13 +134,19 @@ static const d9_pspec_t *const d9_specs[DR_NUM + 1] = {
 /* every list must fit pots[][DR_MAX_PARAMS]: a longer one writes into the next voice's pots */
 #define FITS(a) _Static_assert(NP(a) <= DR_MAX_PARAMS, #a " has more params than DR_MAX_PARAMS")
 FITS(d9_bd_p); FITS(d9_sd_p); FITS(d9_lt_p); FITS(d9_mt_p); FITS(d9_ht_p); FITS(d9_rs_p); FITS(d9_cp_p);
-FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail); FITS(d9_fx0_tail);
-FITS(d9_hat_tune); FITS(d9_cy_decay);
+FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_mid); FITS(d9_dsp_tail);
+FITS(d9_fx0_drive); FITS(d9_hat_tune); FITS(d9_cy_decay);
 _Static_assert(NP(d9_bd_p) == D9_BD_HEAD, "kick head is tune..pitch only");
 _Static_assert(D9_BD_N <= DR_MAX_PARAMS, "kick pot count");
+_Static_assert(NP(d9_sd_p) == D9_SD_HEAD, "snare head ends at drive");
+_Static_assert(D9_SD_N <= DR_MAX_PARAMS, "snare pot count");
 _Static_assert(NP(d9_lt_p) == D9_TOM_HEAD && NP(d9_mt_p) == D9_TOM_HEAD && NP(d9_ht_p) == D9_TOM_HEAD,
                "tom heads are tune and decay only");
 _Static_assert(D9_TOM_N <= DR_MAX_PARAMS, "tom pot count");
+_Static_assert(NP(d9_rs_p) == D9_RS_HEAD, "rim head ends at drive");
+_Static_assert(D9_RS_N <= DR_MAX_PARAMS, "rim pot count");
+_Static_assert(NP(d9_cp_p) == D9_CP_HEAD, "clap head ends at drive");
+_Static_assert(D9_CP_N <= DR_MAX_PARAMS, "clap pot count");
 _Static_assert(NP(d9_ch_p) == D9_HAT_HEAD && NP(d9_oh_p) == D9_HAT_HEAD,
                "hat heads are decay and level only");
 _Static_assert(D9_HAT_N <= DR_MAX_PARAMS, "hat pot count");
@@ -139,29 +154,47 @@ _Static_assert(NP(d9_cr_p) == D9_CY_HEAD && NP(d9_rd_p) == D9_CY_HEAD,
                "cymbal heads are tune and level only");
 _Static_assert(D9_CY_N <= DR_MAX_PARAMS, "cymbal pot count");
 static const uint8_t d9_nspec[DR_NUM + 1] = {
-    D9_BD_N, NP(d9_sd_p), D9_TOM_N, D9_TOM_N, D9_TOM_N, NP(d9_rs_p), NP(d9_cp_p),
+    D9_BD_N, D9_SD_N, D9_TOM_N, D9_TOM_N, D9_TOM_N, D9_RS_N, D9_CP_N,
     D9_HAT_N, D9_HAT_N, D9_CY_N, D9_CY_N, NP(d9_kit_p),
 };
+
+static const d9_pspec_t *d9_fx0_at(int i)
+{
+    if (i == 0)
+        return &d9_fx0_drive[0];
+    return &d9_dsp_tail[i - 1];
+}
 
 static const d9_pspec_t *d9_spec(int voice, int i)
 {
     if (voice == DR_BD && i >= D9_BD_HEAD)
-        return &d9_fx0_tail[i - D9_BD_HEAD];
-    if (i >= D9_TOM_HEAD && (voice == DR_LT || voice == DR_MT || voice == DR_HT))
-        return &d9_tom_tail[i - D9_TOM_HEAD];
+        return d9_fx0_at(i - D9_BD_HEAD);
+    if (voice == DR_SD && i >= D9_SD_HEAD)
+        return &d9_dsp_tail[i - D9_SD_HEAD];
+    if (voice == DR_LT || voice == DR_MT || voice == DR_HT) {
+        if (i < D9_TOM_HEAD)
+            return &d9_specs[voice][i];
+        if (i < D9_TOM_HEAD + (int)NP(d9_tom_mid))
+            return &d9_tom_mid[i - D9_TOM_HEAD];
+        return &d9_dsp_tail[i - (D9_TOM_HEAD + (int)NP(d9_tom_mid))];
+    }
+    if (voice == DR_RS && i >= D9_RS_HEAD)
+        return &d9_dsp_tail[i - D9_RS_HEAD];
+    if (voice == DR_CP && i >= D9_CP_HEAD)
+        return &d9_dsp_tail[i - D9_CP_HEAD];
     if (voice == DR_CH || voice == DR_OH) {
         if (i < D9_HAT_HEAD)
             return &d9_specs[voice][i];
         if (i == D9_HAT_HEAD)
             return &d9_hat_tune[0];
-        return &d9_fx0_tail[i - (D9_HAT_HEAD + 1)];
+        return d9_fx0_at(i - (D9_HAT_HEAD + 1));
     }
     if (voice == DR_CR || voice == DR_RD) {
         if (i < D9_CY_HEAD)
             return &d9_specs[voice][i];
         if (i == D9_CY_HEAD)
             return &d9_cy_decay[0];
-        return &d9_fx0_tail[i - (D9_CY_HEAD + 1)];
+        return d9_fx0_at(i - (D9_CY_HEAD + 1));
     }
     return &d9_specs[voice][i];
 }
