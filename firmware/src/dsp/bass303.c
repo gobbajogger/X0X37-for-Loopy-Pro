@@ -8,7 +8,7 @@
  * (pot ranges) and src/dsp/drive.h (Soft / RAT). */
 #include "bass303.h"
 #include "fastmath.h"
-#include "../x0x_cold.h"          /* X0X_COLD: bass303_init is boot only, not the render */
+#include "../x0x_cold.h"          /* X0X_COLD: init + pot get/set — not the render */
 
 #define FSO (BASS303_SR * (float)BASS303_OS)    /* oversampled rate */
 
@@ -50,12 +50,14 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
 
 int bass303_nparams(void) { return BASS303_NPARAMS; }
 
-const x0x_param_t *bass303_param(int i)
+/* UI / tests only — not the audio render (X0X_COLD) */
+X0X_COLD const x0x_param_t *bass303_param(int i)
 {
     return (i >= 0 && i < BASS303_NPARAMS) ? &params[i] : 0;
 }
 
-int bass303_get(const bass303_t *b, int i)
+/* UI / tests only — not the audio render (X0X_COLD) */
+X0X_COLD int bass303_get(const bass303_t *b, int i)
 {
     return (i >= 0 && i < BASS303_NPARAMS) ? b->pot[i] : 0;
 }
@@ -197,7 +199,8 @@ static void rat_coeffs(bass303_t *b)
     b->r_corr_b1 = fm_expf(-FM_TWO_PI / BASS303_SR * 1119360.558f / (dist * 2306.231003f + 1.0f));
 }
 
-void bass303_set(bass303_t *b, int i, int v)
+/* UI/MIDI pot path — not the 303 audio render (X0X_COLD) */
+X0X_COLD void bass303_set(bass303_t *b, int i, int v)
 {
     float n;
     if (i < 0 || i >= BASS303_NPARAMS)
