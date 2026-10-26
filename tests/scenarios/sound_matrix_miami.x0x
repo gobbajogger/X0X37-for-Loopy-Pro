@@ -1,0 +1,40 @@
+# The tagged Miami sound page has one live widget for each physical knob.
+wait 300
+turn ALGO 2
+tap EDIT
+shot miami_sound.png
+tap EDIT
+param 2 0 0 0
+wait 30
+shot miami_triangle.png
+param 2 0 0 1
+wait 30
+shot miami_square.png
+tap EDIT
+tap EDIT
+param 2 0 6 0
+wait 30
+shot miami_xmod_triangle.png
+param 2 0 6 1
+wait 30
+shot miami_xmod_pulse.png
+tap EDIT
+tap EDIT
+param 2 0 11 0
+wait 30
+shot miami_wobble_triangle.png
+param 2 0 11 1
+wait 30
+shot miami_wobble_square.png
+tap EDIT
+shot miami_adsr_idle.png
+spin K1 10
+wait 30
+shot miami_adsr_active.png
+wait 500
+shot miami_adsr_grace.png
+spin K3 -20
+wait 30
+shot miami_adsr_sustain.png
+wait 1000
+shot miami_adsr_done.png
