@@ -502,6 +502,7 @@ command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs  
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 run slot-build-safe python3 -B tests/host/sample_slot_build_safety_test.py tools/fm1_sample_upload.py   # no-clobber pair; owner inspects unidentified files rather than risk foreign deletion
+run wav-import-integrity python3 -B tests/host/wav_import_safety_test.py  # reject corrupted WAV before offline slot write; preserve valid PCM/float
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run slot-begin-cancel python3 tests/x0x_slots_begin_cancel_test.py  # SMP_BEGIN cancel keeps last-good sample
 run smp-begin-cancel sh tests/host/run_smp_begin_cancel.sh          # firmware editor.c: BEGIN alone keeps last-good
