@@ -547,7 +547,7 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
     seq_send_rt(s, o, remote, 0xFC);
 }
 
-static void ext_set_period(seq_t *s, uint32_t q)   /* samples per external clock, Q8 */
+__attribute__((noinline)) static void ext_set_period(seq_t *s, uint32_t q)   /* samples per external clock, Q8 */
 {
     s->ext_period = q;
     s->ext_bpm = (float)FS * 60.0f * 256.0f / (24.0f * (float)q);
