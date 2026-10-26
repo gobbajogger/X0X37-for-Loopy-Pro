@@ -40,7 +40,7 @@ static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* attempt 
                                                                       * (CON5 | CON6 << 8 | CON9 << 16 | CON0 << 24) */
 
 static void ble_record(void);
-static uint8_t ble_central_role;                 /* settings bit 4 at boot; one HCI role per run */
+static uint8_t ble_central_role;                 /* active role; changed only by TIMER5 after the old role stops */
 /* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
  * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
 static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
@@ -115,6 +115,10 @@ static uint8_t ble_sx[16], ble_sx_n, ble_sx_over, ble_sx_reply, ble_sx_ch;
 static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
 {
     (void)ctx;
+    if (smc_ble_role_get()) {
+        ble_sx_n = ble_sx_over = ble_sx_reply = 0;
+        return;                                 /* discard the old device link during a role change */
+    }
     if (!end) {
         while (n--) {
             if (ble_sx_n < sizeof ble_sx) ble_sx[ble_sx_n++] = *p++;
@@ -217,7 +221,8 @@ static void ble_central_midi(const uint8_t *p, uint8_t n, void *ctx)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
     else if (n == 6u)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[4] << 16);
-    smc_ble_midi(p, n);                       /* TIMER5: SMC queues for the UI main loop */
+    /* TIMER5: stop old-role input as soon as a role change is requested. */
+    if (ble_want && smc_ble_role_get()) smc_ble_midi(p, n);
 }
 static void ble_start(void)
 {
@@ -373,7 +378,8 @@ static int ble_out_pkt_is_keep(uint32_t pkt)
 static void ble_out(uint32_t pkt)
 {
     uint32_t i, pass, ww, rr;
-    if (ble_central_role || !ble_host_on || !bleh_notifying(&ble_r.host.h))
+    if (ble_central_role || smc_ble_role_get() || !ble_want ||
+        !ble_host_on || !bleh_notifying(&ble_r.host.h))
         return;
     ww = ble_r.ow;
     rr = ble_r.orr;
@@ -432,6 +438,7 @@ static void ble_central_service(void)
     blec_t *c = &ble_r.host.c;
     uint32_t k;
     uint8_t t;
+    int want = ble_want && smc_ble_role_get();
     if (!ble_up) { ble_central_link_notify(0); return; }
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
         ble_record(); ble_fail(); ble_central_link_notify(0); return;
@@ -441,19 +448,19 @@ static void ble_central_service(void)
     if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS)
         ble_guard_ok(&ble_guard);
     if (!ble_host_on) {
-        if (!ble_want) return;
+        if (!want) return;
         ble_host_on = 1;
     }
     /* Stop can submit Disconnect before receive or poll supplies the current time. */
     c->now_ms = fm1_ms;
-    if (!ble_want && c->state != BLEC_OFF && c->state != BLEC_STOPPING)
+    if (!want && c->state != BLEC_OFF && c->state != BLEC_STOPPING)
         blec_stop(c);
     for (k = 0; k < 8u; k++) {
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0) break;
         if (n > 0) blec_rx(c, t, ble_r.fr, (uint16_t)n, fm1_ms);
     }
-    if (!ble_want) {
+    if (!want) {
         blec_poll(c, fm1_ms); /* finish disable/cancel/disconnect while radio is OFF */
         ble_central_link_notify(0);
         return;
@@ -469,17 +476,17 @@ static void ble_central_service(void)
         blec_start(c, fm1_ms);
     }
     blec_poll(c, fm1_ms);
-    ble_central_link_notify(blec_connected(c));
+    ble_central_link_notify(want && blec_connected(c));
 }
 
 /* TIMER5, next to usb_poll (same context: the MIDI in queue has one writer) */
-static void ble_service(void)
+static void ble_device_service(void)
 {
-    if (ble_central_role) { ble_central_service(); return; }
     bleh_t *h = &ble_r.host.h;
     uint32_t k;
     uint8_t t;
     bleh_msg_t m;
+    int want = ble_want && !smc_ble_role_get();
     if (!ble_up) {
         midi_link_check(&ble_link_st, 0u, 1u);   /* (after a failure: the release, when the queue has room) */
         return;
@@ -495,12 +502,12 @@ static void ble_service(void)
     if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS)
         ble_guard_ok(&ble_guard);               /* it ran: the next power-on starts it again */
     if (!ble_host_on) {
-        if (!ble_want)
+        if (!want)
             return;                             /* OFF since power-on: the host never starts */
         ble_host_on = 1;
         bleh_start(h);
     }
-    bleh_radio(h, ble_want);
+    bleh_radio(h, want);
     for (k = 0; k < 8u; k++) {                  /* events and data from the controller */
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0)
@@ -508,6 +515,15 @@ static void ble_service(void)
         if (n > 0) {
             bleh_rx(h, t, ble_r.fr, (uint16_t)n);
         }
+    }
+    if (smc_ble_role_get()) {
+        /* End the old input before entering host mode, even with a full MIDI queue.
+         * Discard feedback and output from this link while Disconnect completes. */
+        h->q_r = h->q_w; h->in_r = h->in_w; h->sx_on = 0;
+        smk_apc_ble_link(0, 0);
+        bleh_poll(h);
+        midi_link_check(&ble_link_st, 0u, 1u);
+        return;
     }
     smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));   /* a71: Loopy gone: clip feedback off */
     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
@@ -534,6 +550,8 @@ static void ble_service(void)
     midi_link_check(&ble_link_st, (uint32_t)bleh_connected(h), 1u);
 }
 
+#include "ble/ble_role.h"
+
 int plat_ble_state(void)
 {
     if (ble_img == BLE_IMG_NONE)
@@ -546,6 +564,8 @@ int plat_ble_state(void)
         return ble_want ? PLAT_BLE_RESTART : PLAT_BLE_OFF;
     if (!ble_want)
         return PLAT_BLE_OFF;
+    if (ble_role_changing || ble_central_role != (uint8_t)(smc_ble_role_get() != 0))
+        return PLAT_BLE_STARTING;
     if (ble_central_role) {
         if (!ble_up || ble_r.host.c.state == BLEC_STARTING) return PLAT_BLE_STARTING;
         if (ble_r.host.c.state == BLEC_FAILED) return PLAT_BLE_FAILED;
@@ -563,8 +583,11 @@ const char *plat_ble_name(void)
 }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 {
-    return ble_central_role && ble_up && ble_host_on && ble_want &&
-           blec_midi_send(&ble_r.host.c, msg, len);
+    uint32_t f = irq_save();
+    int sent = ble_central_role && smc_ble_role_get() && ble_up && ble_host_on && ble_want &&
+               blec_midi_send(&ble_r.host.c, msg, len);
+    irq_restore(f);                             /* TIMER5 must not replace the host union mid-enqueue */
+    return sent;
 }
 void plat_ble_set(int on)
 {
