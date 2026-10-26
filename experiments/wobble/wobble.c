@@ -19,8 +19,20 @@ static int finite_value(float x)
 static float waveform(float phase, float step, int square)
 {
     if (!square) return 4.0f * fm_fabsf(phase - 0.5f) - 1.0f;
-    return (phase < 0.5f ? 1.0f : -1.0f)
-        + wobble_blep(phase, step) - wobble_blep(wrap(phase + 0.5f), step);
+    (void)step;
+    /* Open square: odd Fourier series pre-emphasized (boost≈2.15) so
+     * prefilt+SVF lands on Miami-matrix strong-relative odds (square_open). */
+    {
+        float th = 2.0f * FM_PI * phase;
+        return 1.0000000000f * fm_sinf(1.0f * th)
+            + 0.3521721782f * fm_sinf(3.0f * th)
+            + 0.2104254119f * fm_sinf(5.0f * th)
+            + 0.1394680557f * fm_sinf(7.0f * th)
+            + 0.0914483780f * fm_sinf(9.0f * th)
+            + 0.0539063596f * fm_sinf(11.0f * th)
+            + 0.0225654210f * fm_sinf(13.0f * th)
+            + 0.0042509901f * fm_sinf(15.0f * th);
+    }
 }
 /* X-MOD pulse: low-duty asymmetric BLEP pulse (matrix even-harmonic content).
  * Duty 0.10 matches ref H2..H7; 0.125 nulls H8 (sin(8*pi*D)=0) and fails spectrum. */
@@ -183,16 +195,27 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float mod = mod_waveform(s->mod_phase, mod_step, xmod_pulse);
         float xmod_lvl = s->p[W_XMOD_LEVEL];
         float xmod_dep = s->p[W_XMOD_DEPTH];
-        /* Mild PM + audible mod bus (#386 PM-only @ 5/3 worsened mix_depth H4/H8). */
-        float pm = mod * xmod_dep * xmod_lvl * 0.12f;
-        float carrier = waveform(wrap(s->carrier_phase + pm), step,
+        /* Depth>0 + level>0: AM with Chebyshev-boosted mod (mix_depth odds).
+         * Level=0 must null depth (host modulation_null). Depth≈0: #397 pulse bus. */
+        float m = mod;
+        int xmod_live = (xmod_dep > 1e-6f) && (xmod_lvl > 1e-6f);
+        if (xmod_live) {
+            float m3 = 4.0f * mod * mod * mod - 3.0f * mod;
+            float m5 = 16.0f * mod * mod * mod * mod * mod
+                - 20.0f * mod * mod * mod + 5.0f * mod;
+            m = fm_tanhf(mod + 1.0f * xmod_dep * m3 + 0.5f * xmod_dep * m5);
+        }
+        float carrier = waveform(s->carrier_phase, step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
+        if (xmod_live)
+            carrier *= (1.0f + xmod_dep * xmod_lvl * (4.5f / 0.7f) * m);
         float sub = waveform(s->sub_phase, step * .5f, 0);
-        float mod_bus = xmod_lvl * mod;
-        if (xmod_dep > 1e-6f)
-            mod_bus *= 0.70f;
-        else if (xmod_pulse)
-            mod_bus *= 1.8f; /* matrix mod_pulse was ~5 dB quiet at unity bus */
+        float mod_bus = 0.0f;
+        if (!xmod_live) {
+            mod_bus = xmod_lvl * mod;
+            if (xmod_pulse && xmod_dep <= 1e-6f)
+                mod_bus *= 1.8f; /* matrix mod_pulse was ~5 dB quiet at unity bus */
+        }
         float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
             + s->p[W_SUB_LEVEL] * sub + mod_bus);
         float crush = s->p[W_CRUSH];
