@@ -204,6 +204,17 @@ __attribute__((noinline)) static float rv_ap(float *ab, int32_t *pos, int32_t al
     return bo - y * 0.5f;
 }
 
+/* One Schroeder comb step — shared across 4 combs (pi32: beats unrolled copies). */
+__attribute__((noinline)) static float rv_comb(fxbus_t *f, int16_t *b, int c, float x, float damp, float fb, int32_t *wr)
+{
+    const int32_t p = f->cpos[c];
+    const float y = (float)b[p] * (1.0f / 2048.0f);
+    f->cdmp[c] = y + (f->cdmp[c] - y) * damp;
+    *wr |= sat12_store(&b[p], x + f->cdmp[c] * fb);
+    f->cpos[c] = p + 1 >= fx_cl[c] ? 0 : p + 1;
+    return y;
+}
+
 /* ===================================================================== */
 /* Reverb (er99_verb_tick), adds its return into out                      */
 /* ===================================================================== */
@@ -232,16 +243,9 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
         float acc = 0.0f, acc_r = 0.0f;
         int32_t wr = 0;
         for (int c = 0; c < 4; ++c) {
-            int16_t *b = cb[c];
-            const int32_t p = f->cpos[c];
-            const float y = (float)b[p] * (1.0f / 2048.0f);
+            const float y = rv_comb(f, cb[c], c, x, damp, fb, &wr);
             acc += y;
             acc_r += (c & 1) ? -y : y;
-            f->cdmp[c] = y + (f->cdmp[c] - y) * damp;
-            /* the loop runs at 12 bits, truncated toward zero (no DC) */
-            int32_t k = sat12_store(&b[p], x + f->cdmp[c] * fb);
-            wr |= k;
-            f->cpos[c] = p + 1 >= fx_cl[c] ? 0 : p + 1;
         }
         float y = acc * 0.25f;
         y = rv_ap(ab0, &f->apos[0], fx_al[0], y);
@@ -261,7 +265,7 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
 /* ===================================================================== */
 /* Delay (er99_dly_tick), adds its return into out                        */
 /* ===================================================================== */
-static inline float fx_psin(uint32_t ph)                 /* parabolic sine of a turn */
+__attribute__((noinline)) static float fx_psin(uint32_t ph)                 /* parabolic sine of a turn */
 {
     const float x = (float)(int32_t)ph * (1.0f / 2147483648.0f);
     return 4.0f * x * (1.0f - fm_fabsf(x));
