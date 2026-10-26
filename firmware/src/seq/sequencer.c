@@ -10,10 +10,13 @@
 #define BASS_SLIDE_OVERLAP_Q8 (FS / 50u * 256u) /* 20 ms after the next note-on */
 
 static const uint8_t TICKS_PER_STEP[NRATES] = {6, 4, 3, 8};     /* 24 ppqn: 1/16, 1/16T, 1/32, 1/8T */
-static const uint8_t GM_DRUM[NKIT][NDRUM] = {
+/* One GM note map for seq MIDI out and engine MIDI in (was a second copy in engine.c). */
+const uint8_t GM_DRUM[NKIT][NDRUM] = {
     {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51},   /* 909: BD SD LT MT HT RS CP CH OH CR RD */
     {36, 38, 41, 45, 50, 37, 39, 56, 49, 46, 42},   /* 808: BD SD LT MT HT RS CP CB CY OH CH */
 };
+/* Default MIDI channels (0-based): 909 10, 808 11, 303s 2/3, break 4 — also project_apply_io. */
+const uint8_t SEQ_CH_DEFAULT[NTRACKS] = {9, 10, 1, 2, 3};
 
 X0X_COLD void seq_init(seq_t *s, pattern_t *patterns)
 {
@@ -28,11 +31,8 @@ X0X_COLD void seq_init(seq_t *s, pattern_t *patterns)
     s->ext_bpm = 125.0f;
     s->accent_q7 = 88;                /* a 909 non-accented hit sits ~3 dB under an accent */
     s->send_clock = 1;
-    {
-        static const uint8_t CH[NTRACKS] = {9, 10, 1, 2, 3};   /* 909 10, 808 11, 303s 2 / 3, break 4 */
-        for (i = 0; i < NTRACKS; i++)
-            s->ch[i] = CH[i];
-    }
+    for (i = 0; i < NTRACKS; i++)
+        s->ch[i] = SEQ_CH_DEFAULT[i];
     for (i = 0; i < NTRACKS; i++) {
         s->t[i].to_next = NEVER;
         s->t[i].pp_dir = 1;

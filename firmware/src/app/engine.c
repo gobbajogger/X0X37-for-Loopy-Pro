@@ -921,7 +921,8 @@ static void brk_link_end(int src, uint16_t owned)
     brk.keys = (uint16_t)(brk.keys & ~(owned >> 8));
 }
 
-static void midi_in(uint32_t pkt)
+/* noinline: keeps GM_DRUM lookup out of engine_render when the map is shared with seq */
+__attribute__((noinline)) static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
@@ -1010,11 +1011,9 @@ static void midi_in(uint32_t pkt)
             if (seq.ch[k] != ch)
                 continue;
             kit_own = 1;
-            if (ty == 0x90) {                            /* machines on GM drum notes */
-                static const uint8_t GM[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51};
-                static const uint8_t GM8[NDRUM] = {36, 38, 41, 45, 50, 37, 39, 56, 49, 46, 42};
+            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
-                    if ((k ? GM8 : GM)[v] == d1)
+                    if (GM_DRUM[k][v] == d1)
                         s_drum(0, k, v, (float)d2 / 127.0f);
             }
         }

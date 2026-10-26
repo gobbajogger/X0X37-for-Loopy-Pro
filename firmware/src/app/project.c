@@ -849,14 +849,13 @@ int project_file_validate(const uint8_t *h)
 
 void project_apply_io(void)
 {
-    static const uint8_t DEF[5] = {9, 10, 1, 2, 3};   /* 909 10, 808 11, 303s 2 / 3, break 4 */
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
     seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
-        seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
+        seq.ch[p] = (uint8_t)(!v ? SEQ_CH_DEFAULT[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
     }
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
