@@ -750,7 +750,8 @@ async function scan(allowPostWrite = false) {
       : `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
     setConnected(true, detail);
     if (inOta) led("busy");
-    suggestModel(bare);
+    if (allowPostWrite) $("devagree").checked = false;
+    else suggestModel(bare);
     dev.link.close();
   } catch (e) {
     if (requestId !== scanSerial || (writing && !allowPostWrite)) return;
