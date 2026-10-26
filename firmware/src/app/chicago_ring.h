@@ -21,9 +21,11 @@ typedef struct {
 
 static inline float chi_ring_hz_from_edit1(uint8_t e1)
 {
-    /* Edit1 0..127 → ~20 Hz .. ~5120 Hz (8 octaves). */
+    /* Edit1 0..127 → ~20 Hz .. ~4 kHz. 8-octave map (max ~5.1 kHz) left
+     * loop_me_2 strong-relative ~63 dB; 20·200^t cuts that residual ~26 dB
+     * on tip-QUICK Ring rows without regressing hightone / network. */
     float t = (float)e1 * (1.0f / 127.0f);
-    return 20.0f * fm_exp2f(t * 8.0f);
+    return 20.0f * fm_powf(200.0f, t);
 }
 
 static inline void chi_ring_set(chi_ring_t *r, uint8_t e1, uint8_t e2, float sr)
