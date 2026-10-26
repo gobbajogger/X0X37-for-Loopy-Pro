@@ -16,6 +16,7 @@ static uint32_t fm1_ms, ble_alive[2], ble_ok_at;
 static struct { unsigned trying; } ble_guard;
 static unsigned attempts[4], accepted[4], pending_n, linked;
 static uint8_t pending[40];
+static int smc_ble_role_get(void) { return 1; }
 static void ble_record(void) { assert(0); }
 static void ble_fail(void) { assert(0); }
 static void ble_guard_ok(void *p) { (void)p; }
