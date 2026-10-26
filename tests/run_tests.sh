@@ -325,6 +325,7 @@ run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
 run engine-cq-boff-overflow python3 tests/host/engine_cq_boff_overflow_test.py   # full CQ must keep C_BOFF (displace param)
 run engine-cq-brk-overflow python3 tests/host/engine_cq_brk_overflow_test.py   # full CQ must keep C_BRK release (displace param)
+run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   # full CQ must keep C_BON (displace param)
 run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py   # full MIDI-in MQ must keep Note Off (displace CC)
 run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow_test.py   # full MIDI-out MQ must keep Note Off (displace CC)
 run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
