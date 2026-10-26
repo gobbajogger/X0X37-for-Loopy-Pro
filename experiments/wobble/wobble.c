@@ -30,6 +30,24 @@ static void update_pitch(wobble_t *s)
     s->target_hz = fm_minf(440.0f * exp2_bounded(semitones / 12.0f),
                           s->sample_rate * 0.12f);
 }
+#define WOBBLE_SPLIT_LOG_RATIO 2.05491958f
+float wobble_bass_split_hz(float norm)
+{
+    norm = fm_clampf(norm, 0.0f, 1.0f);
+    return 60.0f * exp2_bounded(norm * WOBBLE_SPLIT_LOG_RATIO);
+}
+float wobble_bass_split_alpha(float norm)
+{
+    float hz = wobble_bass_split_hz(norm);
+    return fm_clampf((250.0f - hz) / 190.0f, 0.0f, 1.0f);
+}
+static float svf_lowpass(float in, float f, float *low, float *band)
+{
+    float high = in - *low - 1.41421356f * *band;
+    *band = fm_flush(*band + f * high);
+    *low = fm_flush(*low + f * *band);
+    return *low;
+}
 static void update_rates(wobble_t *s)
 {
     static const float rates[7] = {1, 2, 3, 4, 6, 8, 12};
@@ -63,6 +81,7 @@ void wobble_reset(wobble_t *s)
     s->envelope = s->velocity = 0.0f;
     s->env_stage = 0;
     s->filter_low = s->filter_band = s->stereo_memory = 0.0f;
+    s->split_low = s->split_band = s->split2_low = s->split2_band = 0.0f;
     s->active_samples = 0;
     s->note = 0; s->gate = s->active = s->deferred_off = 0;
 }
@@ -70,7 +89,8 @@ void wobble_init(wobble_t *s, float sample_rate)
 {
     static const float defaults[W_PARAMETER_COUNT] = {
         0,.7f,0,.5f,0,0,0,.5f,0,.6f,0,0,0,0,.5f,0,.5f,0,
-        0,0,1,0 /* Attack Decay Sustain Release — AU-like at init */
+        0,0,1,0, /* Attack Decay Sustain Release — AU-like at init */
+        0.285f /* Bass Split ~90 Hz */
     };
     s->sample_rate = finite_value(sample_rate)
         ? fm_clampf(sample_rate, 8000.0f, 192000.0f) : 48000.0f;
@@ -135,6 +155,7 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         if (s->envelope == 0 && !s->gate) {
             s->active = 0;
             s->filter_low = s->filter_band = s->stereo_memory = 0;
+            s->split_low = s->split_band = s->split2_low = s->split2_band = 0;
             left[i] = right[i] = 0;
             continue;
         }
@@ -163,10 +184,18 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
             s->filter_low = fm_flush(s->filter_low + f * s->filter_band);
         }
         float out = s->filter_low * s->envelope * s->velocity * s->p[W_OUTPUT];
-        float shifted = -.5f * out + s->stereo_memory;
-        s->stereo_memory = fm_flush(out + .5f * shifted);
-        float spread = s->p[W_STEREO] * .5f * (shifted - out);
-        left[i] = out - spread; right[i] = out + spread;
+        float split_hz = wobble_bass_split_hz(s->p[W_BASS_SPLIT]);
+        float split_alpha = wobble_bass_split_alpha(s->p[W_BASS_SPLIT]);
+        float split_f = 2.0f * fm_sinf(FM_PI * split_hz / s->sample_rate);
+        float low12 = svf_lowpass(out, split_f, &s->split_low, &s->split_band);
+        float low24 = svf_lowpass(low12, split_f, &s->split2_low, &s->split2_band);
+        float low_mono = split_alpha * low24 + (1.0f - split_alpha) * low12;
+        float high = out - low_mono;
+        float shifted = -.5f * high + s->stereo_memory;
+        s->stereo_memory = fm_flush(high + .5f * shifted);
+        float spread = s->p[W_STEREO] * .5f * (shifted - high);
+        left[i] = low_mono + high - spread;
+        right[i] = low_mono + high + spread;
         s->carrier_phase = wrap(s->carrier_phase + step);
         s->mod_phase = wrap(s->mod_phase + mod_step);
         s->sub_phase = wrap(s->sub_phase + step * .5f);
