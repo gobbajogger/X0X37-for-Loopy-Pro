@@ -20,7 +20,7 @@ typedef struct {
     float hz, target_hz, glide_step, lfo_step;
     float envelope, velocity, attack_step, decay_step, release_step, sustain_level;
     uint8_t env_stage; /* 0 attack 1 decay 2 sustain 3 release */
-    float filter_low, filter_band, stereo_memory;
+    float filter_low, filter_band, stereo_memory, prefilt_lp;
     float split_low, split_band, split2_low, split2_band;
     uint32_t active_samples;
     uint8_t note, gate, active, deferred_off;

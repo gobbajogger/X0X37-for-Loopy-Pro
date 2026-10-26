@@ -22,11 +22,11 @@ static float waveform(float phase, float step, int square)
     return (phase < 0.5f ? 1.0f : -1.0f)
         + wobble_blep(phase, step) - wobble_blep(wrap(phase + 0.5f), step);
 }
-/* X-MOD pulse: low-duty asymmetric BLEP pulse (matrix even-harmonic content). */
+/* X-MOD pulse: low-duty asymmetric BLEP pulse (matrix even-harmonic content).
+ * Duty 0.10 matches ref H2..H7; 0.125 nulls H8 (sin(8*pi*D)=0) and fails spectrum. */
 static float xmod_pulse_waveform(float phase, float step)
 {
-    /* Duty tuned vs Miami matrix lag-correlation (was 0.10; 0.125 raises even partials). */
-    const float duty = 0.125f;
+    const float duty = 0.10f;
     const float low = -duty / (1.0f - duty);
     float y = phase < duty ? 1.0f : low;
     y += wobble_blep(phase, step);
@@ -96,7 +96,7 @@ void wobble_reset(wobble_t *s)
     s->hz = s->target_hz = 0.0f;
     s->envelope = s->velocity = 0.0f;
     s->env_stage = 0;
-    s->filter_low = s->filter_band = s->stereo_memory = 0.0f;
+    s->filter_low = s->filter_band = s->stereo_memory = s->prefilt_lp = 0.0f;
     s->split_low = s->split_band = s->split2_low = s->split2_band = 0.0f;
     s->active_samples = 0;
     s->note = 0; s->gate = s->active = s->deferred_off = 0;
@@ -170,7 +170,7 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
             s->envelope = fm_maxf(0.0f, s->envelope - s->release_step);
         if (s->envelope == 0 && !s->gate) {
             s->active = 0;
-            s->filter_low = s->filter_band = s->stereo_memory = 0;
+            s->filter_low = s->filter_band = s->stereo_memory = s->prefilt_lp = 0;
             s->split_low = s->split_band = s->split2_low = s->split2_band = 0;
             left[i] = right[i] = 0;
             continue;
@@ -183,20 +183,23 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float mod = mod_waveform(s->mod_phase, mod_step, xmod_pulse);
         float xmod_lvl = s->p[W_XMOD_LEVEL];
         float xmod_dep = s->p[W_XMOD_DEPTH];
-        /* AU depth readback 1.50 at norm 0.15 — stronger PM, no parallel mod bus. */
-        float pm = mod * xmod_dep * xmod_lvl * (5.0f / 3.0f);
+        /* Mild PM + audible mod bus (#386 PM-only @ 5/3 worsened mix_depth H4/H8). */
+        float pm = mod * xmod_dep * xmod_lvl * 0.12f;
         float carrier = waveform(wrap(s->carrier_phase + pm), step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
         float sub = waveform(s->sub_phase, step * .5f, 0);
         float mod_bus = xmod_lvl * mod;
         if (xmod_dep > 1e-6f)
-            mod_bus = 0.0f;
+            mod_bus *= 0.70f;
         else if (xmod_pulse)
-            mod_bus *= 0.38f;
+            mod_bus *= 1.8f; /* matrix mod_pulse was ~5 dB quiet at unity bus */
         float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
             + s->p[W_SUB_LEVEL] * sub + mod_bus);
         float crush = s->p[W_CRUSH];
         if (crush > 0) mixed = fm_tanhf(mixed * (1.0f + 31.0f * crush));
+        /* Pre-filter tone — softens pulse H11–H16 and square H15 vs Miami open. */
+        s->prefilt_lp = fm_flush(s->prefilt_lp + 0.115f * (mixed - s->prefilt_lp));
+        mixed = s->prefilt_lp;
         float lfo = waveform(s->lfo_phase, s->lfo_step, s->p[W_WOBBLE_SHAPE] >= .5f);
         float cutoff_control = fm_clampf(s->p[W_CUTOFF]
             - .65f * s->p[W_WOBBLE_DEPTH] * (lfo + 1.0f) * .5f, 0, 1);
