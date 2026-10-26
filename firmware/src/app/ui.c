@@ -910,6 +910,55 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     }
     switch (r.kind) {
     case R_ENG:
+#if X0X_DEV_WOBBLE
+        if (r.a == T_303 && engine_bass_is_wobble(r.b)) {
+            /* Miami shares T_303 indices with Chicago, but none of its pot
+             * laws are Chicago's. Format the actual WBL1 controls first. */
+            switch (r.c) {
+            case W_CARRIER_PITCH: case W_XMOD_TUNE: case W_PITCH_BEND: {
+                int span = r.c == W_CARRIER_PITCH ? 24 : r.c == W_XMOD_TUNE ? 10 : 4;
+                int st = ((v * 2 - 127) * span + (v >= 64 ? 127 : -127)) / 254;
+                if (st > 0) *num++ = '+';
+                put_i(num, st);
+                put_s(unit, "st");
+                return;
+            }
+            case W_GLIDE:
+                if (!v) put_s(num, "OFF");
+                else {
+                    put_i(num, 2 + (998 * v * v + 8064) / 16129);
+                    put_s(unit, "ms");
+                }
+                return;
+            case W_WOBBLE_RATE: {
+                static const uint8_t hz[7] = {1, 2, 3, 4, 6, 8, 12};
+                put_i(num, hz[(v * 6 + 63) / 127]);
+                put_s(unit, "Hz");
+                return;
+            }
+            case W_ATTACK: case W_DECAY: case W_RELEASE: {
+                int min_us = r.c == W_ATTACK ? 2000 : r.c == W_DECAY ? 100 : 4750;
+                int span_us = r.c == W_ATTACK ? 1998000 : r.c == W_DECAY ? 2499900 : 2995250;
+                int us = min_us + (int)(((uint64_t)span_us * v * v + 8064u) / 16129u);
+                if (us < 500) put_s(num, "<1");
+                else put_i(num, (us + 500) / 1000);
+                put_s(unit, "ms");
+                return;
+            }
+            case W_SUSTAIN:
+                put_i(num, (v * 100 + 63) / 127);
+                put_s(unit, "%");
+                return;
+            case W_BASS_SPLIT:
+                put_i(num, (int)(wobble_bass_split_hz((float)v / 127.0f) + 0.5f));
+                put_s(unit, "Hz");
+                return;
+            default:
+                put_i(num, v);
+                return;
+            }
+        }
+#endif
         if (r.a == T_303 && (r.c == BASS303_FATTACK || r.c == BASS303_FRELEASE || r.c == BASS303_DECAY
                             || r.c == BASS303_AATTACK || r.c == BASS303_ADECAY || r.c == BASS303_ARELEASE)) {
             float ms = bass303_env_time_ms(r.c, v);
@@ -1206,21 +1255,22 @@ static void build_pages(void)
                 do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_CARRIER_WAVE), PR(R_ENG, T_303, 0, W_CARRIER_LEVEL),
                     PR(R_ENG, T_303, 0, W_SUB_LEVEL), PR(R_ENG, T_303, 0, W_CARRIER_PITCH)};
                 add_page_refs("CARRIER", refs, 2, b); } while (0);
-                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_GLIDE), PR(R_ENG, T_303, 0, W_XMOD_LEVEL),
-                    PR(R_ENG, T_303, 0, W_XMOD_WAVE), PR(R_ENG, T_303, 0, W_XMOD_TUNE)};
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_GLIDE), PR(R_ENG, T_303, 0, W_PITCH_BEND), NONE, NONE};
+                add_page_refs("PITCH", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_XMOD_LEVEL), PR(R_ENG, T_303, 0, W_XMOD_WAVE),
+                    PR(R_ENG, T_303, 0, W_XMOD_TUNE), PR(R_ENG, T_303, 0, W_XMOD_DEPTH)};
                 add_page_refs("X-MOD", refs, 2, b); } while (0);
-                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_XMOD_DEPTH), PR(R_ENG, T_303, 0, W_CUTOFF),
-                    PR(R_ENG, T_303, 0, W_CRUSH), NONE};
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_CUTOFF), PR(R_ENG, T_303, 0, W_CRUSH), NONE, NONE};
                 add_page_refs("FILTER", refs, 2, b); } while (0);
                 do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_WOBBLE_SHAPE), PR(R_ENG, T_303, 0, W_WOBBLE_DEPTH),
-                    PR(R_ENG, T_303, 0, W_WOBBLE_RATE), PR(R_ENG, T_303, 0, W_OUTPUT)};
+                    PR(R_ENG, T_303, 0, W_WOBBLE_RATE), NONE};
                 add_page_refs("WOBBLE", refs, 2, b); } while (0);
-                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_STEREO), PR(R_ENG, T_303, 0, W_PITCH_BEND),
-                    PR(R_ENG, T_303, 0, W_DAMPER), PR(R_ENG, T_303, 0, W_BASS_SPLIT)};
-                add_page_refs("MIAMI AUX", refs, 2, b); } while (0);
                 do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_ATTACK), PR(R_ENG, T_303, 0, W_DECAY),
                     PR(R_ENG, T_303, 0, W_SUSTAIN), PR(R_ENG, T_303, 0, W_RELEASE)};
                 add_page_refs("AMP ADSR", refs, 2, b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, W_OUTPUT), PR(R_ENG, T_303, 0, W_STEREO),
+                    PR(R_ENG, T_303, 0, W_BASS_SPLIT), PR(R_ENG, T_303, 0, W_DAMPER)};
+                add_page_refs("OUTPUT", refs, 2, b); } while (0);
             } else
 #endif
             {
@@ -2274,6 +2324,10 @@ static void set_view(int v)
     if (v != ui.view)
         ui.prev_view = ui.view;
     ui.view = (uint8_t)v;
+    /* EDIT may complete a note recorded on SEQ, but accepts no new recorded
+     * MIDI/key onset. Keep the two recorder contexts distinct across pages. */
+    seq.rec_mask = ui.rec && is_303() && v == V_SEQ ? (uint8_t)(1u << bidx()) : 0;
+    seq.rec_hold_mask = ui.rec && is_303() && v == V_PART ? (uint8_t)(1u << bidx()) : 0;
     ui.brk_held = -1;
     ui.overlay = O_NONE;
     build_pages();
@@ -3360,7 +3414,10 @@ X0X_COLD static void input(void)
         say(seq.rec_refused==2?"NOTE SOUND NOT SAVED":"REC NEEDS FWD/REV",0);
         seq.rec_refused=0;
     }
-    seq.rec_mask = ui.rec && is_303() && part_view() && ui.overlay == O_NONE ? (uint8_t)(1u << bidx()) : 0;
+    seq.rec_mask = ui.rec && is_303() && ui.view == V_SEQ && ui.overlay == O_NONE ?
+                   (uint8_t)(1u << bidx()) : 0;
+    seq.rec_hold_mask = ui.rec && is_303() && ui.view == V_PART && ui.overlay == O_NONE ?
+                        (uint8_t)(1u << bidx()) : 0;
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
             bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)
@@ -4085,13 +4142,20 @@ static UI_DRAW void draw_drum(int band)
 #define ROLL_BOT 92                                /* ... to here; then AC, SL and the step's line */
 static int note_y(int n, int lo, int hi) { return ROLL_BOT - (n - lo) * (ROLL_BOT - ROLL_TOP) / (hi - lo); }
 
-/* the note step s sounds: a TIE holds the note of the NOTE it follows (its own is not played) */
-static int held_note_of(const bpart_t *bp, int s)
+/* A TIE only carries a real NOTE. In particular, an all-TIE/orphan pattern is
+ * silent and must not acquire a fictitious pitch on the piano roll. */
+static int note_start_of(const bpart_t *bp, int s)
 {
     int k;
     for (k = 0; k < bp->len && bstep_gate(&bp->step[s]) == G_TIE; k++)
         s = s ? s - 1 : bp->len - 1;
-    return bp->step[s].note;
+    return bstep_gate(&bp->step[s]) == G_NOTE ? s : -1;
+}
+
+static int held_note_of(const bpart_t *bp, int s)
+{
+    int start = note_start_of(bp, s);
+    return bp->step[start >= 0 ? start : s].note;
 }
 
 static UI_DRAW void draw_303(int band, int gen)
@@ -4146,13 +4210,16 @@ static UI_DRAW void draw_303(int band, int gen)
         return;
     }
 #endif
-    for (c = 0; c < bp->len && c < NSTEPS; c++)
-        if (bstep_gate(&bp->step[c]) != G_REST) {
-            if (bp->step[c].note < lo)
-                lo = bp->step[c].note;
-            if (bp->step[c].note > hi)
-                hi = bp->step[c].note;
+    for (c = 0; c < bp->len && c < NSTEPS; c++) {
+        int start = note_start_of(bp, c);
+        if (start >= 0) {
+            int pitch = bp->step[start].note;
+            if (pitch < lo)
+                lo = pitch;
+            if (pitch > hi)
+                hi = pitch;
         }
+    }
     if (lo > hi)
         lo = hi = 12 * (bp->gen.base_oct + 1) + bp->gen.root;
     lo -= 2;
@@ -4176,14 +4243,26 @@ static UI_DRAW void draw_303(int band, int gen)
         g = bstep_gate(st);
         if (s == ph)
             cv_rect(x, ROLL_TOP - 4 - o, 12, ROLL_BOT - ROLL_TOP + 10, dim(col, 2));
-        if (g != G_REST) {
+        if (g != G_REST && note_start_of(bp, s) >= 0) {
             int hn = held_note_of(bp, s), y = note_y(hn, lo, hi) - o;
             uint16_t fc = s == ui.held_step ? C_WHITE : (st->flags & BS_ACCENT) ? col : dim(col, 9);
-            box(x, y, 12, 5, fc);
+            int end = st->flags >> BS_END_SHIFT;
+            int width = end ? (end * 12 + 14) / 15 : 12;
+            box(x, y, width, 5, fc); /* captured 1..15 release fraction of this step */
             if ((lmarks >> c) & 1u)                  /* the step's own values (p-locks): a notch */
                 cv_rect(x + 5, y - 3, 2, 2, C_WHITE);
-            if (g == G_TIE && c > 0)                 /* a tie: one brick with the note it holds */
-                cv_rect(col_x(c - 1) + 6, y, x - col_x(c - 1), 5, fc);
+            if (g == G_TIE) {
+                if (c > 0)                           /* continued from previous visible step */
+                    cv_rect(col_x(c - 1) + 6, y, x - col_x(c - 1), 5, fc);
+                else {                               /* page 16→17 or loop last→first */
+                    cv_rect(x - 4, y + 1, 4, 3, fc);
+                    cv_rect(x - 7, y + 2, 3, 1, fc);
+                }
+            }
+            if (c == 15 && bstep_gate(&bp->step[s + 1 < bp->len ? s + 1 : 0]) == G_TIE) {
+                cv_rect(x + 12, y + 1, 2, 3, fc);
+                cv_rect(x + 14, y + 2, 2, 1, fc);
+            }
             if ((st->flags & BS_SLIDE) && c < 15) {
                 int nx = s + 1 < bp->len ? s + 1 : 0, ny = note_y(bp->step[nx].note, lo, hi) - o;
                 cv_line(x + 11, y + 2, x + 14, ny + 2, C_WHITE);

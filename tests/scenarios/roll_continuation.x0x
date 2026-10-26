@@ -1,0 +1,44 @@
+# A note across 16→17 and the 64→1 loop is audible and visibly connected.
+wait 300
+turn ALGO 2
+expect part 2
+expect view 8
+spin K1 48
+tap OCT+
+tap OCT+
+tap OCT+
+tapkey w15
+expect gate0.63 1
+wait 1200
+shot roll_loop_out.png
+tap OCT-
+tap OCT-
+tap OCT-
+key w0 down
+turn K2 1
+key w0 up
+expect gate0.0 2
+wait 1200
+shot roll_loop_in.png
+tap OCT+
+tap OCT+
+tap OCT+
+wait 1200
+shot roll_loop_out_connected.png
+tap OCT-
+tap OCT-
+tap OCT-
+tapkey w15
+expect gate0.15 1
+wait 1200
+shot roll_page_out.png
+tap OCT+
+key w0 down
+turn K2 1
+key w0 up
+expect gate0.16 2
+wait 1200
+shot roll_page_in.png
+tap OCT-
+wait 1200
+shot roll_page_out_connected.png

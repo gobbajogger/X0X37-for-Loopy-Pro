@@ -775,7 +775,8 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     uint32_t dq = k << 8;
     for (t = 0; t < NBASS; t++)
         if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
-            (!(s->rec_mask & (1u << t)) || s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t] || bpart(s, t)->dir >= DIR_PINGPONG)))
+            (!((s->rec_mask | s->rec_hold_mask) & (1u << t)) ||
+             s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t] || bpart(s, t)->dir >= DIR_PINGPONG)))
             seq_rec_cancel(s, t);
     if (s->ext_since < 2u * FS)   /* all modes: long idle must not wrap into a fake short tick */
         s->ext_since += k;
