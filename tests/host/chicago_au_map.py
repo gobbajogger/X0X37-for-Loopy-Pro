@@ -69,11 +69,10 @@ def au_params_to_render_pots(au: Sequence[float], *, arp_off: bool = True) -> di
     bytes_ = [_byte_from_au(x) for x in au[:22]]
     pots: dict[int, int] = dict(_OPEN303_DEFAULTS)
     for au_ix, bix in enumerate(_AU_TO_BASS303):
-        maxpot = 127
-        if bix == 16:  # AmpMod Env/Gate
-            pots[bix] = 1 if bytes_[au_ix] >= 128 else 0
+        if bix == 16:  # AmpMod Env/Gate (AU 0..1 → discrete 0 Env / 1 Gate)
+            pots[bix] = _discrete_from_byte(bytes_[au_ix], 2)
         else:
-            pots[bix] = _pot_from_byte(bytes_[au_ix], maxpot)
+            pots[bix] = _pot_from_byte(bytes_[au_ix], 127)
 
     arp_switch = 0 if arp_off else _discrete_from_byte(bytes_[13], 2)
     chi: dict[str, int] = {

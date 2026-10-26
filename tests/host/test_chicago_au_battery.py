@@ -69,6 +69,13 @@ def main() -> int:
         cand_f32 = tdp / "cand.f32"
         _render_scenario(scen, pots, cand_f32)
         cand = chicago_au_score.load_render_f32(cand_f32)
+        expect_frames = int(scen["frames"])
+        if cand.shape[0] != expect_frames:
+            print(
+                f"FAIL frame count {cand.shape[0]} != {expect_frames} (48 kHz render)",
+                file=sys.stderr,
+            )
+            return 1
         ref_wav = tdp / "ref.wav"
         _write_float_wav(ref_wav, cand, int(scen["sampleRate"]))
         ref = chicago_au_score.load_wav_f32_stereo(ref_wav, expect_sr=int(scen["sampleRate"]))
