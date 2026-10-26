@@ -1661,6 +1661,13 @@ void engine_brk_state(int *slice, int *bank, int *div, int *running)
     *running = brk.running;
 }
 
+/* Peak magnitude → screen column 0..255. IMA can hit -32768; abs is 32768, and
+ * (uint8_t)(32768 >> 7) wraps to 0 so a full-scale negative loop drew blank. */
+static uint8_t brk_outline_peak_u8(int32_t pk)
+{
+    return (uint8_t)(pk >= 32768 ? 255 : pk >> 7);
+}
+
 /* the loop's outline for the screen: n columns of peak level 0..255 (main loop: decodes the
  * whole loop once, ~20k IMA steps; called when the loop changes, never per frame) */
 X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
@@ -1676,14 +1683,14 @@ X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
         int32_t s = ima_decode(bk->adpcm, i, &pred, &idx), c;
         c = (int32_t)(i / per);
         if (c != col) {
-            peaks[col] = (uint8_t)(pk >> 7);
+            peaks[col] = brk_outline_peak_u8(pk);
             col = c;
             pk = 0;
         }
         if ((s < 0 ? -s : s) > pk)
             pk = s < 0 ? -s : s;
     }
-    peaks[col] = (uint8_t)(pk >> 7);
+    peaks[col] = brk_outline_peak_u8(pk);
     for (col++; col < n; col++)
         peaks[col] = 0;
     return 1;
