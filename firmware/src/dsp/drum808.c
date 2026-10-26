@@ -174,7 +174,7 @@ __attribute__((noinline)) static float d8_pow(float b, float t) { return d8_exp2
 __attribute__((noinline)) static float d8_midicps(float note) { return 440.0f * d8_exp2_cr((note - 69.0f) / 12.0f); }
 
 /* an ff value (>= 0, < 2^32) rounded to an integer */
-static uint32_t ff_to_u32(d8ff_t v)
+__attribute__((noinline)) static uint32_t ff_to_u32(d8ff_t v)
 {
     float fl = fm_floorf(v.hi);
     uint32_t u;
@@ -272,7 +272,7 @@ __attribute__((noinline)) static float bq_run(d8_bq_t *f, float x)
 }
 
 /* SuperCollider HPF / LPF (2nd-order Butterworth, prewarped), coefficients only */
-static void sc_hpf_set(d8_bq_t *f, float hz)
+__attribute__((noinline)) static void sc_hpf_set(d8_bq_t *f, float hz)
 {
     float c = fm_tanf(PI_SR * hz), c2 = c * c, s2c = c * 1.41421356f;
     float a0 = 1.0f / (1.0f + s2c + c2);
