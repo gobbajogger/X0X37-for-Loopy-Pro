@@ -97,12 +97,12 @@ static void test_engine_lock_and_clip(void)
     pref_t r = find_ref(T_303, 0, "Cutoff");
     pref_t other = find_ref(T_303, 1, "Cutoff");
     CHECK(r.kind == R_ENG && other.kind == R_ENG);
-    int cutoff_page = -1;
-    for (int page = 0; page < pg.n; page++)
-        if (smc_same(pg.r[page][0], r)) cutoff_page = page;
-    CHECK(cutoff_page >= 0);
+    int cutoff_page = -1, cutoff_knob = -1;
+    for (int page = 0; page < pg.n; page++) for (int k = 0; k < 4; k++)
+        if (smc_same(pg.r[page][k], r)) { cutoff_page = page; cutoff_knob = k; }
+    CHECK(cutoff_page >= 0 && cutoff_knob >= 0);
     *page_of(V_PART) = (uint8_t)cutoff_page; build_pages();
-    CHECK(smc_same(smc_knob_target(0), r));
+    CHECK(smc_same(smc_knob_target(cutoff_knob), r));
     CHECK(pref_desc(r)->max >= 85 && pref_desc(other)->max >= 85);
     pref_set(r, 40); pref_set(other, 85);
     CHECK(pref_get(r) == 40 && pref_get(other) == 85);
@@ -110,13 +110,13 @@ static void test_engine_lock_and_clip(void)
     navigate(V_PART, PART_303B);
     ui.sel[0] = 10; ui.sel[1] = 9; ui.pbank = ui.spage = 1;
     screen_state_t ui_before = screen_state();
-    knob(0, 1); CHECK(pref_get(r) > 40); CHECK(pref_get(other) == 85); unchanged(ui_before);
+    knob(cutoff_knob, 1); CHECK(pref_get(r) > 40); CHECK(pref_get(other) == 85); unchanged(ui_before);
     clip_grid_mode = 1; ck.pg = 1; clip_dirty = 1;
-    unsigned field = CK_PAGE_FIELDS[0][0]; fields[field] = 0;
-    int v = pref_get(r); knob(0, 1);
+    unsigned field = CK_PAGE_FIELDS[0][cutoff_knob]; fields[field] = 0;
+    int v = pref_get(r); knob(cutoff_knob, 1);
     CHECK(pref_get(r) > v); CHECK(fields[field] == 0);
     CHECK(smc_lock_toggle()); /* release always works, including from clip context */
-    knob(0, 1); CHECK(fields[field] == 1);
+    knob(cutoff_knob, 1); CHECK(fields[field] == 1);
     CHECK(!smc_lock_toggle()); /* no global clip-stage identity is guessed */
     clip_grid_mode = 0;
     puts("PASS engine/clip boundaries: original part target survives navigation; unlocked clip fields resume");

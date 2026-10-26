@@ -423,8 +423,19 @@ static void test_track_knob_align(void)
     CHECK(track_slot_of(T_909, 9, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Decay") == 1);
-    /* Owner-approved B primary row: Cutoff / Reso / EnvMod / Wave. */
+    /* Owner-approved Chicago B primary row: Cutoff / Reso / EnvMod / Wave.
+     * Feature-on factory boot can be Miami, so establish engine identity first. */
     setup(V_PART, PART_303A);
+#if X0X_BASS_PRESET_PREVIEW
+    engine_bass_off(0); engine_bass_off(1);
+    CHECK(engine_bass_select_preset(0, FACTORY_BANK_CHICAGO, 0, &proj.sound) == 0);
+    for (int n = 0; n < 1024 && engine_bass_preset_pending(0); n++) {
+        int32_t audio[512]; engine_render(audio, 256);
+    }
+    CHECK(!engine_bass_preset_pending(0));
+    CHECK(engine_bass_bank(0) == FACTORY_BANK_CHICAGO);
+    build_pages();
+#endif
     int tone = -1;
     for (int page = 0; page < pg.n; page++)
         if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF))) tone = page;
