@@ -351,6 +351,13 @@ static void chi_arp_gate_off(int v)
     }
 }
 
+/* Gate off + clear run — shared by SWITCH off and drain C_BOFF empty/arp-on. */
+__attribute__((noinline)) static void chi_arp_halt(int v)
+{
+    chi_arp_gate_off(v);
+    chi_arp_run_clear(&chi_arp_run[v]);
+}
+
 static void chi_aux_apply(int v, int i, int val)
 {
     if ((unsigned)v >= NBASS)
@@ -414,8 +421,7 @@ static void chi_arp_apply_cfg(int v, int i, int val)
         if (val > 1)
             val = 1;
         if (!val && chi_arp_on[v]) {
-            chi_arp_gate_off(v);
-            chi_arp_run_clear(&chi_arp_run[v]);
+            chi_arp_halt(v);
         }
         chi_arp_on[v] = (uint8_t)val;
         break;
@@ -1148,13 +1154,11 @@ static void drain(void)
                                     chi_arp_speed[a]);
                     bass_held[a] = tmp[0];
                 } else {
-                    chi_arp_gate_off((int)a);
-                    chi_arp_run_clear(&chi_arp_run[a]);
+                    chi_arp_halt((int)a);
                     bass_held[a] = 0;
                 }
             } else if (chi_arp_on[a]) {
-                chi_arp_gate_off((int)a);
-                chi_arp_run_clear(&chi_arp_run[a]);
+                chi_arp_halt((int)a);
                 bass_held[a] = 0;
             } else {
                 chi_live_note_off((int)a);
