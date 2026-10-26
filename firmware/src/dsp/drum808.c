@@ -989,7 +989,7 @@ D8_TICK float cy_tick(d8_cy_t *v, float bus)
 
 /* ---- hi-hats: sc808_mt_circuit.h HatCircuit ---- */
 /* Boot only (drum808_init). hat_tick / hat_trigger stay -O2. */
-X0X_COLD static void hat_init(d8_hat_t *v, int mode)
+X0X_COLD __attribute__((noinline)) static void hat_init(d8_hat_t *v, int mode)
 {
     v->mode = (uint8_t)mode;
     if (mode == 0) {
