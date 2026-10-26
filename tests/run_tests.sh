@@ -372,6 +372,11 @@ run chicago-au-map python3 tests/host/test_chicago_au_map.py   # AU factory tupl
 run chicago-au-battery python3 tests/host/test_chicago_au_battery.py   # scenario render + aligned self F_agg
 if [ -z "${CHICAGO_AU_REFS:-}" ]; then not_run chicago-au-compare CHICAGO_AU_REFS
 else run chicago-au-compare python3 tests/host/render_chicago_au_compare.py; fi   # Acid AU spectral battery (C-SND-1); refs gitignored
+run au-compare-battery python3 tests/host/test_au_compare_battery.py   # preset vs matrix modes + quick/full timing
+run miami-au-render sh tests/host/run_miami_au_render.sh   # wobble offline renderer for Miami factory preset battery
+run miami-au-battery python3 tests/host/test_miami_au_battery.py   # one preset render + aligned self F_agg
+if [ -z "${MIAMI_AU_REFS:-}" ]; then not_run miami-au-compare MIAMI_AU_REFS
+else run miami-au-compare python3 tests/host/render_miami_au_compare.py; fi   # Miami preset (default) or matrix diagnostic; refs gitignored
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time

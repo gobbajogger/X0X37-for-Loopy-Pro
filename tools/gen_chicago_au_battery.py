@@ -53,11 +53,13 @@ def main() -> int:
         midi = 48
         scen = {
             "id": slug,
-            "tags": ["steady_voiced"],
+            "tags": ["factory_preset", "steady_voiced"],
             "sampleRate": 48000,
             "frames": 48000,
             "noteOnFrame": 4800,
             "noteOffFrame": 24000,
+            "steadyWindowStart": 4800,
+            "steadyWindowEnd": 19200,
             "midiNote": midi,
             "velocity": 80,
             "nominalHz": nominal_hz(midi),
