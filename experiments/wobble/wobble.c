@@ -25,7 +25,8 @@ static float waveform(float phase, float step, int square)
 /* X-MOD pulse: low-duty asymmetric BLEP pulse (matrix even-harmonic content). */
 static float xmod_pulse_waveform(float phase, float step)
 {
-    const float duty = 0.10f;
+    /* Duty tuned vs Miami matrix lag-correlation (was 0.10; 0.125 raises even partials). */
+    const float duty = 0.125f;
     const float low = -duty / (1.0f - duty);
     float y = phase < duty ? 1.0f : low;
     y += wobble_blep(phase, step);
@@ -178,27 +179,38 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float step = fm_clampf(s->hz / s->sample_rate, 1e-6f, .12f);
         float mod_step = fm_clampf(step * .5f
             * exp2_bounded(10.0f * (s->p[W_XMOD_TUNE] - .5f) / 12.0f), 1e-6f, .24f);
-        float mod = mod_waveform(s->mod_phase, mod_step, s->p[W_XMOD_WAVE] >= .5f);
-        float pm = mod * s->p[W_XMOD_DEPTH] * s->p[W_XMOD_LEVEL] * .5f;
+        int xmod_pulse = s->p[W_XMOD_WAVE] >= .5f;
+        float mod = mod_waveform(s->mod_phase, mod_step, xmod_pulse);
+        float xmod_lvl = s->p[W_XMOD_LEVEL];
+        float xmod_dep = s->p[W_XMOD_DEPTH];
+        /* AU depth readback 1.50 at norm 0.15 — stronger PM, no parallel mod bus. */
+        float pm = mod * xmod_dep * xmod_lvl * (5.0f / 3.0f);
         float carrier = waveform(wrap(s->carrier_phase + pm), step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
         float sub = waveform(s->sub_phase, step * .5f, 0);
+        float mod_bus = xmod_lvl * mod;
+        if (xmod_dep > 1e-6f)
+            mod_bus = 0.0f;
+        else if (xmod_pulse)
+            mod_bus *= 0.38f;
         float mixed = 0.07725f * (s->p[W_CARRIER_LEVEL] * carrier
-            + s->p[W_SUB_LEVEL] * sub + s->p[W_XMOD_LEVEL] * mod);
+            + s->p[W_SUB_LEVEL] * sub + mod_bus);
         float crush = s->p[W_CRUSH];
         if (crush > 0) mixed = fm_tanhf(mixed * (1.0f + 31.0f * crush));
         float lfo = waveform(s->lfo_phase, s->lfo_step, s->p[W_WOBBLE_SHAPE] >= .5f);
         float cutoff_control = fm_clampf(s->p[W_CUTOFF]
             - .65f * s->p[W_WOBBLE_DEPTH] * (lfo + 1.0f) * .5f, 0, 1);
-        float cutoff_hz = fm_minf(40.0f * fm_exp2f(cutoff_control * 8.7f),
+        float cutoff_hz = fm_minf(36.0f * fm_exp2f(cutoff_control * 8.5f),
                                   s->sample_rate * .18f);
         float f = 2.0f * fm_sinf(FM_PI * cutoff_hz / (2.0f * s->sample_rate));
-        for (unsigned pass = 0; pass < 2; ++pass) {
-            float high = mixed - s->filter_low - 1.41421356f * s->filter_band;
+        {
+            float high = mixed - s->filter_low - 1.0f * s->filter_band;
             s->filter_band = fm_flush(s->filter_band + f * high);
             s->filter_low = fm_flush(s->filter_low + f * s->filter_band);
         }
-        float out = s->filter_low * s->envelope * s->velocity * s->p[W_OUTPUT];
+        float filt_gain = 0.82f + 0.18f * cutoff_control;
+        float out = s->filter_low * filt_gain * s->envelope * s->velocity
+            * s->p[W_OUTPUT];
         float split_hz = wobble_bass_split_hz(s->p[W_BASS_SPLIT]);
         float split_alpha = wobble_bass_split_alpha(s->p[W_BASS_SPLIT]);
         float split_f = 2.0f * fm_sinf(FM_PI * split_hz / s->sample_rate);
