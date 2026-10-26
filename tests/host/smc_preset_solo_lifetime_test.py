@@ -54,6 +54,7 @@ static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
 static unsigned solos_on, solos_off, solos_published;
 static int busy, testing, noteon, noteoff, faders, knobs, buttons;
+static int mmc_play, mmc_stop;
 static int host_link_inject, host_link_reconnect, host_link_injected, host_link_fresh_inside;
 /* In the fader callback, emulate a TIMER5 producer refilling the just-freed
  * BLE slot, then trying to enqueue a Solo release into the full SPSC ring. */
@@ -67,7 +68,7 @@ static void engine_smc_solo_targets(uint8_t p, uint16_t a, uint16_t b)
 { solos_on = (unsigned)p | a | b; ++solos_published; }
 ''' + queue_definitions + '\n' + extract('smc_is_solo_release') + '\n' + solo_state + '\n' + '\n'.join(extract(n) for n in (
     'smc_project_active', 'smc_solo_clear', 'smc_solo_publish', 'smc_solo_press',
-    'smc_project_drop', 'smc_project_reset', 'smc_ble_midi', 'smc_ble_link', 'smc_midi_host')) + r'''
+    'smc_project_drop', 'smc_project_reset', 'smc_ble_midi', 'smc_ble_link', 'smc_midi_host', 'smc_mmc_host')) + r'''
 static void smc_fader(int n, uint8_t v)
 {
  (void)n; (void)v; ++faders;
@@ -100,15 +101,14 @@ static void smc_knob(int n, int delta) { (void)n; (void)delta; ++knobs; }
 static void smc_button(uint8_t note, int mmc)
 {
  ++buttons;
+ if (mmc && note == 0x5Eu) ++mmc_play;
+ if (mmc && note == 0x5Du) ++mmc_stop;
  if (note >= 8u && note <= 15u) { ++noteon; smc_solo_press((int)(note - 8u), 1, mmc); }
 }
 ''' + extract('smc_release') + r'''
 static void smc_guarded_button(uint8_t note, int mmc, int allow)
 { if (allow) smc_button(note, mmc); }
-''' + extract('smc_message') + r'''
-static void smc_mmc_drain_stop(int src, int allow)
-{ (void)src; (void)allow; }
-''' + extract('smc_poll') + r'''
+''' + extract('smc_message') + '\n' + extract('smc_mmc_drain_stop') + '\n' + extract('smc_poll') + r'''
 #define CHECK(ok, why) do { if (!(ok)) { \
  fprintf(stderr,"FAIL %s line %d: %s, mode=%u solo=%u counts=%d/%d q=%u/%u host=%u/%u\n", \
  why,__LINE__,#ok,proj.set.bt,solos_on,noteon,noteoff,smc_qr,smc_qw,smc_host_r,smc_host_w); return 0; \
@@ -151,6 +151,7 @@ static void reset(uint8_t cursor, int user)
  smc_link_ble_loss_boundary=smc_link_host_loss_boundary=0;
  solos_on=solos_off=solos_published=0;
  busy=testing=noteon=noteoff=faders=knobs=buttons=0;
+ mmc_play=mmc_stop=0;
  host_link_inject=host_link_reconnect=host_link_injected=host_link_fresh_inside=0;
  ble_overflow_inject=ble_overflow_injected=ble_overflow_zero=0;
  ble_overflow_channel=0;
@@ -622,10 +623,63 @@ static int offline_host_solo_overflow(uint8_t cursor, int zero_noteon,
        "idle after disconnection/reconnect never replays Solo");
  return 1;
 }
+/* Both independent host MMC sources remain ordered when the SMC BLE
+ * controller disconnects while their 16-slot queue is saturated. Old commands
+ * drained while User is disabled must not replay after User is re-enabled.
+ * This exercises production smc_mmc_host/drain_stop/poll, not a STOP mock. */
+static int mmc_stop_after_link(uint8_t cursor, int src, int disabled, int reconnect)
+{
+ reset(cursor,1);
+ smc_mmc_w[src]=smc_mmc_r[src]=cursor;
+ for(int i=0;i<16;i++) smc_mmc_host(33,(uint8_t)src);
+ smc_mmc_host(34,(uint8_t)src); /* genuinely overflowed STOP */
+ CHECK((uint8_t)(smc_mmc_w[src]-smc_mmc_r[src])==16,
+       "MMC source is full before BLE link edge");
+ CHECK(smc_mmc_stop_w[src]!=smc_mmc_stop_r[src],
+       "overflow STOP retained by production cutoff queue");
+ smc_ble_link(0);
+ if(reconnect) smc_ble_link(1);
+ if(disabled) set_mode(0);  /* User preset switched off before poll */
+ smc_poll(); smc_poll();
+ CHECK(mmc_play==(disabled ? 0 : 16),
+       "BLE link change cannot replay or discard permitted USB PLAY");
+ CHECK(mmc_stop==(disabled ? 0 : 1),
+       "overflow STOP delivered only while USB User mode is enabled");
+ CHECK(smc_mmc_r[src]==smc_mmc_w[src] &&
+       smc_mmc_stop_r[src]==smc_mmc_stop_w[src],
+       "old source and STOP cutoff fully acknowledged");
+ if(disabled) set_mode(1);
+ smc_mmc_host(33,(uint8_t)src);
+ smc_mmc_host(34,(uint8_t)src);
+ smc_poll();
+ CHECK(mmc_play==(disabled ? 1 : 17) &&
+       mmc_stop==(disabled ? 1 : 2),
+       "fresh User PLAY and STOP work after old overflow is retired");
+ CHECK(smc_mmc_r[src]==smc_mmc_w[src],
+       "new source commands not poisoned by BLE transition");
+ smc_poll();
+ CHECK(mmc_stop==(disabled ? 1 : 2),
+       "idle poll cannot replay an old STOP");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Focused USB/peripheral MMC STOP after BLE link edge: six FIFO cursors,
+  * two independent sources, user-enabled/disabled and reconnect/no-reconnect. */
+ if (getenv("SMC_ONLY_MMC_LINK_OVERFLOW")) {
+  for(unsigned i=0;i<sizeof cursors;i++)
+   for(int src=0;src<2;src++)
+    for(int disabled=0;disabled<2;disabled++)
+     for(int reconnect=0;reconnect<2;reconnect++) {
+      if(!mmc_stop_after_link(cursors[i],src,disabled,reconnect)) return 1;
+      ++cases;
+     }
+  printf("SMC USB MMC BLE-link cutoff: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  /* Focused USB/User lost-release behavior while BLE central is OFFLINE.
   * 6 wrapping ring cursors x NoteOff/zero-on x owned/foreign x reconnect. */
  if (getenv("SMC_ONLY_OFFLINE_HOST_OVERFLOW")) {
@@ -725,6 +779,14 @@ int main(void)
          cases,cases,checks);
   return 0;
  }
+ /* Standard run includes independent MMC transport across BLE transitions. */
+ for(unsigned i=0;i<sizeof cursors;i++)
+  for(int src=0;src<2;src++)
+   for(int disabled=0;disabled<2;disabled++)
+    for(int reconnect=0;reconnect<2;reconnect++) {
+     if(!mmc_stop_after_link(cursors[i],src,disabled,reconnect)) return 1;
+     ++cases;
+    }
  /* Standard run includes the BLE-disconnected USB/User release-loss phase. */
  for(unsigned i=0;i<sizeof cursors;i++)
   for(int zero_noteon=0;zero_noteon<2;zero_noteon++)

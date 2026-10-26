@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "role": "SMC Transport source specialist",
+  "revision": "R25",
+  "parent_commit": "3625a221e2b1087b86baedcc6b5e3efa5343d794",
+  "purpose": "MMC STOP from USB/peripheral must survive BLE central disconnect/return during saturated transport queue; suppressed User input must not replay when re-enabled",
+  "design": "Extract actual production smc_mmc_host, smc_mmc_drain_stop, smc_poll and smc_ble_link into registered Solo suite instead of mocking MMC overflow handling",
+  "source_scope": "tests only; no production firmware/compiler inputs changed",
+  "changed_test_blob": "78d85c046afd8a5913b0de00f7f0af1564eb6ec5",
+  "changed_test_sha256": "8c04e4db2474fae0af3134e463a850dd13637c56552e0dc40a84d5942acd605b",
+  "compiled_firmware_subtree": "a9a1fb4c66d3c86d20bb2ec8ea8bff13bf25757e",
+  "pinned_source_c_sha256": "0a5158e2f6de8cdcd333f55df623df0cb765c6bbef14b4cd2af2cd07fae73cb2",
+  "native_matrix_sha256": "f59cd9ada79edfef842dc46b90024e7a37f3679f25fb3bef4ee77539e74e8928",
+  "environment": "Linux; GCC 14.2.0 and Clang 17.0.0; native production-C source-extraction harness",
+  "profiles": [
+    "gcc/plain",
+    "gcc/ubsan",
+    "gcc/asan_ubsan",
+    "clang/plain",
+    "clang/ubsan",
+    "clang/asan_ubsan"
+  ],
+  "observed": {
+    "focused_positive_executions": 6,
+    "full_positive_executions": 6,
+    "negative_mutant_executions": 12,
+    "expected_outcomes": 24,
+    "completed_executions": 24,
+    "new_interleavings_per_profile": 48,
+    "full_Solo_scenarios_per_profile": 1986,
+    "full_assertions_per_profile": 21210,
+    "focused_assertions_per_profile": 384
+  },
+  "negative_controls": [
+    "STOP delivery forcibly suppressed fails focused assertion",
+    "STOP incorrectly dispatched with User mode off fails focused assertion"
+  ],
+  "limitations": [
+    "No real device test, not independent QA, no current combined NIGHTLY root qualification",
+    "R24 isolated source may differ from current NIGHTLY/PR620",
+    "Existing Build owner must validate current model/controller full closure, no old binaries inherited"
+  ],
+  "next_owner": [
+    "Existing Independent QA: replay against current combined NIGHTLY with SMC SELECT/FX changes",
+    "Existing Hourly Build: assess current exact model/controller input closure; no rebuild solely for test-only R25",
+    "Sole Safe Merge integrator: reconcile test-only branch with current protected target subject to approval"
+  ],
+  "status": "SOURCE_TEST_DELIVERED_PENDING_INDEPENDENT_QA"
+}
