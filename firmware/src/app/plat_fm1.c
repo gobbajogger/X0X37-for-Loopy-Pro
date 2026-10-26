@@ -6,18 +6,11 @@
  * MIDI/clock IRQs alone and never changes the caller's global IRQ state. */
 uint32_t plat_cq_lock(void)
 {
-    uint32_t bit = 1u << ((FM1_IRQ_ALNK0 & 7u) * 4u);
-    uint32_t enabled = FM1_ICFG(FM1_IRQ_ALNK0) & bit;
-    fm1_irq_mask(FM1_IRQ_ALNK0);
-    __asm__ volatile("csync" ::: "memory");
-    return enabled;
+    return fm1_irq_mask_save(FM1_IRQ_ALNK0);
 }
 void plat_cq_unlock(uint32_t state)
 {
-    uint32_t bit = 1u << ((FM1_IRQ_ALNK0 & 7u) * 4u);
-    __asm__ volatile("csync" ::: "memory");
-    FM1_ICFG(FM1_IRQ_ALNK0) = (FM1_ICFG(FM1_IRQ_ALNK0) & ~bit) | state;
-    __asm__ volatile("csync" ::: "memory");
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, state);
 }
 
 uint32_t plat_ms(void) { return fm1_ms; }

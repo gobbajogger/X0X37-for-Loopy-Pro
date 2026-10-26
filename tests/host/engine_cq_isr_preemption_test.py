@@ -108,24 +108,32 @@ def sources():
     platform=(ROOT/'firmware/src/app/plat_fm1.c').read_text()
     start=platform.index('uint32_t plat_cq_lock(void)')
     end=platform.index('uint32_t plat_ms(void)',start)
-    lock=platform[start:end]
-    sync='__asm__ volatile("csync" ::: "memory");'
-    if lock.count(sync)!=3:raise ValueError('platform lock changed: review MMIO model')
-    # Model the hardware source-enable register; same target C and HAL mask body.
+    wrappers=platform[start:end]
+    if (wrappers.count('return fm1_irq_mask_save(FM1_IRQ_ALNK0);')!=1 or
+            wrappers.count('fm1_irq_mask_restore(FM1_IRQ_ALNK0, state);')!=1 or
+            'FM1_ICFG' in wrappers or '__asm__' in wrappers):
+        raise ValueError('platform HAL delegation changed: review source boundary')
+    # Extract the target HAL implementation too: retain every saved-state,
+    # source-mask and restore operation; replace only target CSYNC for the host.
     hal=(ROOT/'firmware/hal/fm1_irq.h').read_text()
+    start=hal.index('static uint32_t fm1_irq_mask_save(uint32_t n)')
+    end=hal.index('static void fm1_irq_enable_all(void)',start)
+    lock=hal[start:end]
+    sync='__asm__ volatile("csync" ::: "memory");'
+    if lock.count(sync)!=3:raise ValueError('HAL lock changed: review MMIO model')
     mask=next(line for line in hal.splitlines() if line.startswith('static void fm1_irq_mask('))
-    lock=lock.replace('uint32_t enabled = FM1_ICFG(FM1_IRQ_ALNK0) & bit;',
-                      'uint32_t enabled = FM1_ICFG(FM1_IRQ_ALNK0) & bit; schedule(6);')
-    lock=lock.replace('fm1_irq_mask(FM1_IRQ_ALNK0);',
-                      'fm1_irq_mask(FM1_IRQ_ALNK0); schedule(7);')
-    restore='FM1_ICFG(FM1_IRQ_ALNK0) = (FM1_ICFG(FM1_IRQ_ALNK0) & ~bit) | state;'
-    if lock.count(restore)!=1:raise ValueError('platform restore changed')
+    read='uint32_t enabled = FM1_ICFG(n) & bit;'
+    restore='FM1_ICFG(n) = (FM1_ICFG(n) & ~bit) | state;'
+    if lock.count(read)!=1 or lock.count(restore)!=1 or lock.count('fm1_irq_mask(n);')!=1:
+        raise ValueError('HAL source mask/restore changed: review preemption hooks')
+    lock=lock.replace(read,read+' schedule(6);')
+    lock=lock.replace('fm1_irq_mask(n);','fm1_irq_mask(n); schedule(7);')
     lock=lock.replace(restore,'schedule(8); '+restore+' schedule(9); dispatch();')
-    lock=mask+'\n'+lock.replace(sync,'/* target CSYNC: sequential host model */')
+    lock=mask+'\n'+lock.replace(sync,'/* target CSYNC: sequential host model */')+'\n'+wrappers
     return ring,lock
 
 def run(ring,lock,compiler,sanitize,mutant=0):
-    if mutant==1:lock=lock.replace('fm1_irq_mask(FM1_IRQ_ALNK0);','/* MUTANT: omit source mask */')
+    if mutant==1:lock=lock.replace('fm1_irq_mask(n);','/* MUTANT: omit source mask */')
     if mutant==2:ring=ring.replace("int live = (i - r < w - r);", "int live = 1; (void)r; (void)w;")
     source=PRELUDE+lock+ring+HARNESS
     with tempfile.TemporaryDirectory(prefix='x0x-cq-isr-') as tmp:
