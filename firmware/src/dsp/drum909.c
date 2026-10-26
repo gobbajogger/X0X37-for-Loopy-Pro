@@ -82,11 +82,18 @@ static const d9_pspec_t d9_rs_p[] = {
 static const d9_pspec_t d9_cp_p[] = {
     LEVEL(122), EXP("Tune", F_TUNE, 63, CP_TUNE), EXP("Tail", F_TAIL, 63, CP_TAIL), DRIVE(30), DIST, SENDS, PAN,
 };
+/* Closed and open hats share these six pots. Decay and level stay on each hat.
+ * The records match, so a second copy was only flash. */
+static const d9_pspec_t d9_hat_tail[] = {
+    EXP("Tune", F_TUNE, 64, SMP_PITCH), DRIVE(0), DIST, SENDS, PAN,
+};
+#define D9_HAT_HEAD 2
+#define D9_HAT_N (D9_HAT_HEAD + NP(d9_hat_tail))
 static const d9_pspec_t d9_ch_p[] = {
-    EXP("Decay", F_DECAY, 84, CH_DECAY), LEVEL(89), EXP("Tune", F_TUNE, 64, SMP_PITCH), DRIVE(0), DIST, SENDS, PAN,
+    EXP("Decay", F_DECAY, 84, CH_DECAY), LEVEL(89),
 };
 static const d9_pspec_t d9_oh_p[] = {
-    EXP("Decay", F_DECAY, 97, OH_DECAY), LEVEL(80), EXP("Tune", F_TUNE, 64, SMP_PITCH), DRIVE(0), DIST, SENDS, PAN,
+    EXP("Decay", F_DECAY, 97, OH_DECAY), LEVEL(80),
 };
 static const d9_pspec_t d9_cr_p[] = {
     EXP("Tune", F_TUNE, 64, SMP_PITCH), LEVEL(47), EXP("Decay", F_DECAY, 108, CY_DECAY), DRIVE(0), DIST, SENDS, PAN,
@@ -105,19 +112,24 @@ static const d9_pspec_t *const d9_specs[DR_NUM + 1] = {
 /* every list must fit pots[][DR_MAX_PARAMS]: a longer one writes into the next voice's pots */
 #define FITS(a) _Static_assert(NP(a) <= DR_MAX_PARAMS, #a " has more params than DR_MAX_PARAMS")
 FITS(d9_bd_p); FITS(d9_sd_p); FITS(d9_lt_p); FITS(d9_mt_p); FITS(d9_ht_p); FITS(d9_rs_p); FITS(d9_cp_p);
-FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail);
+FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail); FITS(d9_hat_tail);
 _Static_assert(NP(d9_lt_p) == D9_TOM_HEAD && NP(d9_mt_p) == D9_TOM_HEAD && NP(d9_ht_p) == D9_TOM_HEAD,
                "tom heads are tune and decay only");
 _Static_assert(D9_TOM_N <= DR_MAX_PARAMS, "tom pot count");
+_Static_assert(NP(d9_ch_p) == D9_HAT_HEAD && NP(d9_oh_p) == D9_HAT_HEAD,
+               "hat heads are decay and level only");
+_Static_assert(D9_HAT_N <= DR_MAX_PARAMS, "hat pot count");
 static const uint8_t d9_nspec[DR_NUM + 1] = {
     NP(d9_bd_p), NP(d9_sd_p), D9_TOM_N, D9_TOM_N, D9_TOM_N, NP(d9_rs_p), NP(d9_cp_p),
-    NP(d9_ch_p), NP(d9_oh_p), NP(d9_cr_p), NP(d9_rd_p), NP(d9_kit_p),
+    D9_HAT_N, D9_HAT_N, NP(d9_cr_p), NP(d9_rd_p), NP(d9_kit_p),
 };
 
 static const d9_pspec_t *d9_spec(int voice, int i)
 {
     if (i >= D9_TOM_HEAD && (voice == DR_LT || voice == DR_MT || voice == DR_HT))
         return &d9_tom_tail[i - D9_TOM_HEAD];
+    if (i >= D9_HAT_HEAD && (voice == DR_CH || voice == DR_OH))
+        return &d9_hat_tail[i - D9_HAT_HEAD];
     return &d9_specs[voice][i];
 }
 
