@@ -1282,15 +1282,18 @@ static const x0x_param_t d8_sd_head[] = {PP("Level", 64), PP("Tone", 64), PP("Sn
 static const d8_pmap_t k_m_sd[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_X2, 0}, {K_POT, D8P_X1, 0},
                                    {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0}, {K_POT, D8P_DRIVE, 0},
                                    {K_POT, D8P_DIST, 0}, {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
-/* Level+Tune defaults match on LT/MT/HT/RS/CB/CH — one copy; decay/sound stay per track. */
+/* Level+Tune defaults match on LT/MT/HT/RS/CB/CH — one copy; decay stays per track.
+ * LT/MT/HT Sound switch is identical — one shared record. */
 static const x0x_param_t d8_lvl_tune[] = {PP("Level", 64), PP("Tune", 64)};
 #define D8_LTUNE_N ((int)(sizeof(d8_lvl_tune) / sizeof(d8_lvl_tune[0])))
-static const x0x_param_t d8_lt_mid[] = {PP("Decay", 68), {"Sound", 1, 0, k_tom_names}};
-static const x0x_param_t d8_mt_mid[] = {PP("Decay", 56), {"Sound", 1, 0, k_tom_names}};
-static const x0x_param_t d8_ht_mid[] = {PP("Decay", 53), {"Sound", 1, 0, k_tom_names}};
+static const x0x_param_t d8_tom_sound[] = {{"Sound", 1, 0, k_tom_names}};
+static const x0x_param_t d8_lt_decay[] = {PP("Decay", 68)};
+static const x0x_param_t d8_mt_decay[] = {PP("Decay", 56)};
+static const x0x_param_t d8_ht_decay[] = {PP("Decay", 53)};
 static const x0x_param_t d8_rs_mid[] = {PP("Decay", 40), {"Sound", 1, 0, k_rim_names}};
 #define D8_SW_MID_N 2
 #define D8_SW_HEAD (D8_LTUNE_N + D8_SW_MID_N)
+static const x0x_param_t *const d8_tom_decay[3] = {d8_lt_decay, d8_mt_decay, d8_ht_decay};
 static const d8_pmap_t k_m_sw[] = {{K_POT, D8P_LEVEL, 0}, {K_POT, D8P_TUNE, 0}, {K_POT, D8P_DECAY, 0},
                                    {K_SWITCH, 0, 0}, {K_POT, D8P_DRIVE, 0}, {K_POT, D8P_DIST, 0},
                                    {K_POT, D8P_REV, 0}, {K_POT, D8P_DLY, 0}, {K_PAN, 0, 0}};
@@ -1335,10 +1338,12 @@ _Static_assert(sizeof(k_m_sw) / sizeof(k_m_sw[0]) == D8_SW_HEAD + D8_FX_N, "tom/
 _Static_assert(sizeof(k_m_cp) / sizeof(k_m_cp[0]) == D8_CP_HEAD + D8_FX_N, "clap pmap");
 _Static_assert(sizeof(k_m_tune_decay) / sizeof(k_m_tune_decay[0]) == D8_HAT_HEAD + D8_FX_N, "cb/ch pmap");
 _Static_assert(sizeof(k_m_decay_tune) / sizeof(k_m_decay_tune[0]) == D8_CY_HEAD + D8_FX_N, "cy/oh pmap");
-_Static_assert(sizeof(d8_lt_mid) / sizeof(d8_lt_mid[0]) == D8_SW_MID_N, "lt mid");
-_Static_assert(sizeof(d8_mt_mid) / sizeof(d8_mt_mid[0]) == D8_SW_MID_N, "mt mid");
-_Static_assert(sizeof(d8_ht_mid) / sizeof(d8_ht_mid[0]) == D8_SW_MID_N, "ht mid");
+_Static_assert(sizeof(d8_lt_decay) / sizeof(d8_lt_decay[0]) == 1, "lt decay");
+_Static_assert(sizeof(d8_mt_decay) / sizeof(d8_mt_decay[0]) == 1, "mt decay");
+_Static_assert(sizeof(d8_ht_decay) / sizeof(d8_ht_decay[0]) == 1, "ht decay");
+_Static_assert(sizeof(d8_tom_sound) / sizeof(d8_tom_sound[0]) == 1, "tom sound");
 _Static_assert(sizeof(d8_rs_mid) / sizeof(d8_rs_mid[0]) == D8_SW_MID_N, "rs mid");
+_Static_assert(sizeof(d8_tom_decay) / sizeof(d8_tom_decay[0]) == 3, "tom decay table");
 _Static_assert(sizeof(d8_cb_mid) / sizeof(d8_cb_mid[0]) == D8_HAT_MID_N, "cb mid");
 _Static_assert(sizeof(d8_ch_mid) / sizeof(d8_ch_mid[0]) == D8_HAT_MID_N, "ch mid");
 _Static_assert(sizeof(d8_cp_mid) / sizeof(d8_cp_mid[0]) == D8_CP_MID_N, "cp mid");
@@ -1362,25 +1367,13 @@ static const x0x_param_t *d8_spec(int track, int i)
             return &d8_sd_head[i];
         return &d8_fx_tail[i - D8_SD_HEAD];
     }
-    if (track == D8_LT) {
+    if (track == D8_LT || track == D8_MT || track == D8_HT) {
         if (i < D8_LTUNE_N)
             return &d8_lvl_tune[i];
-        if (i < D8_SW_HEAD)
-            return &d8_lt_mid[i - D8_LTUNE_N];
-        return &d8_fx_tail[i - D8_SW_HEAD];
-    }
-    if (track == D8_MT) {
-        if (i < D8_LTUNE_N)
-            return &d8_lvl_tune[i];
-        if (i < D8_SW_HEAD)
-            return &d8_mt_mid[i - D8_LTUNE_N];
-        return &d8_fx_tail[i - D8_SW_HEAD];
-    }
-    if (track == D8_HT) {
-        if (i < D8_LTUNE_N)
-            return &d8_lvl_tune[i];
-        if (i < D8_SW_HEAD)
-            return &d8_ht_mid[i - D8_LTUNE_N];
+        if (i == D8_LTUNE_N)
+            return d8_tom_decay[track - D8_LT];
+        if (i == D8_LTUNE_N + 1)
+            return &d8_tom_sound[0];
         return &d8_fx_tail[i - D8_SW_HEAD];
     }
     if (track == D8_RS) {
