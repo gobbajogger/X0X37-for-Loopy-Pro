@@ -192,6 +192,16 @@ static float gr_of(const master_t *m, float lv)
     return m->slope * over * over / (2.0f * m->knee);
 }
 
+/* Limiter soft knee over 0.89. Outlined once for mono + L/R stereo (pi32: one
+ * body beats two inlined tanh copies inside master_process_st). */
+__attribute__((noinline)) static float soft_ceiling(float s)
+{
+    if (s > 0.89f || s < -0.89f)
+        s = s > 0.0f ? 0.89f + 0.11f * fm_tanhf((s - 0.89f) * 9.0f)
+                     : -0.89f - 0.11f * fm_tanhf((-s - 0.89f) * 9.0f);
+    return s;
+}
+
 void master_process(master_t *m, float *x, int n, float volume)
 {
     int i, mode = m->pot[MST_MODE];
@@ -273,24 +283,13 @@ void master_process(master_t *m, float *x, int n, float volume)
             d = m->la[m->la_pos];
             m->la[m->la_pos] = s;
             m->la_pos = (m->la_pos + 1) % MST_LA;
-            s = d * m->gain;
-            if (s > 0.89f || s < -0.89f)
-                s = s > 0.0f ? 0.89f + 0.11f * fm_tanhf((s - 0.89f) * 9.0f)
-                             : -0.89f - 0.11f * fm_tanhf((-s - 0.89f) * 9.0f);
+            s = soft_ceiling(d * m->gain);
         } else {
             s = fm_clampf(s, -1.0f, 1.0f);
         }
         x[i] = s;
     }
     m->gr_view = grmax > m->gr_view ? grmax : m->gr_view * 0.93f;   /* the meter: peak, falling */
-}
-
-/* the limiter's last stage: a soft knee over 0.89 (master_process spells it out) */
-static inline float soft_ceiling(float s)
-{
-    if (s > 0.89f || s < -0.89f)
-        s = s > 0.0f ? 0.89f + 0.11f * fm_tanhf((s - 0.89f) * 9.0f) : -0.89f - 0.11f * fm_tanhf((-s - 0.89f) * 9.0f);
-    return s;
 }
 
 void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
