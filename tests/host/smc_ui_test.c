@@ -425,16 +425,23 @@ static void test_track_knob_align(void)
     CHECK(track_slot_of(T_808, 10, "Decay") == 1);
     /* 303 TONE stays Cutoff / Reso / EnvMod / Decay. */
     setup(V_PART, PART_303A);
-    CHECK(smc_same(pg.r[0][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
-    CHECK(smc_same(pg.r[0][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
-    CHECK(smc_same(pg.r[0][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
-    CHECK(smc_same(pg.r[0][3], PR(R_ENG, T_303, 0, BASS303_DECAY)));
+    int tone = 0;
+#if X0X_BASS_PRESET_PREVIEW
+    CHECK(smc_same(pg.r[0][0], PR(R_BENGINE, 0, 0, 0)));
+    CHECK(smc_same(pg.r[0][1], PR(R_BPRESET, 0, 0, 0)));
+    CHECK(smc_same(pg.r[0][2], PR(R_BCANCEL, 0, 0, 0)));
+    tone = 1; /* the accepted SOUND selector page precedes unchanged TONE */
+#endif
+    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
+    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
+    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
+    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, BASS303_DECAY)));
     puts("PASS align: drum sound knobs share Tune/Decay ranks; 303 TONE unchanged");
 }
 
 /* Verify physical grouping in the real framebuffer, rather than accepting any
- * nonempty screen: eight encoders over eight faders, with M/S/R and the effect
- * button to the right. */
+ * nonempty screen: eight encoders over eight faders, three M/S/R rows, and
+ * SELECT represented only by the separately checked title highlight. */
 static void test_physical_geometry(void)
 {
     setup(V_HOME, PART_909); fader(0, 0); ui_frame();
@@ -442,8 +449,9 @@ static void test_physical_geometry(void)
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 36) * 240 + x + 8] != 0); /* encoder top */
         CHECK(fb[(MAIN_Y + 90) * 240 + x + 3] != 0);  /* vertical fader */
-        for (int row = 0; row < 4; row++)
+        for (int row = 0; row < 3; row++)
             CHECK(fb[(MAIN_Y + 62 + row * 12) * 240 + x + 18] != swap16(C_BLACK));
+        CHECK(fb[(MAIN_Y + 98) * 240 + x + 18] == swap16(C_BLACK)); /* no phantom fourth row */
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
@@ -452,7 +460,7 @@ static void test_physical_geometry(void)
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 36) * 240 + n * 30 + 8] != 0);
     shot("13-eight-strip-resonance");
-    puts("PASS physical layout: all eight knob/fader positions and four right-side button rows");
+    puts("PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row");
 }
 
 
@@ -460,7 +468,7 @@ static void check_selected(int selected)
 {
     for (int n = 0; n < 8; n++) {
         CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
-        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] != swap16(C_BLACK));
+        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)); /* SELECT stays in the title */
     }
 }
 static void test_selected_lane(void)

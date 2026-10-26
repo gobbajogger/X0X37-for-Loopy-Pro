@@ -92,9 +92,20 @@ static void test_drum_lock(void)
 static void test_engine_lock_and_clip(void)
 {
     setup(V_PART, PART_303A);
-    pref_t r = smc_knob_target(0);
-    pref_t other = PR(R_ENG, T_303, 1, r.c);
+    /* Feature-on SOUND selectors precede parameter pages. Capture the actual
+     * Cutoff control, not page-zero Engine (whose maximum is only one). */
+    pref_t r = find_ref(T_303, 0, "Cutoff");
+    pref_t other = find_ref(T_303, 1, "Cutoff");
+    CHECK(r.kind == R_ENG && other.kind == R_ENG);
+    int cutoff_page = -1;
+    for (int page = 0; page < pg.n; page++)
+        if (smc_same(pg.r[page][0], r)) cutoff_page = page;
+    CHECK(cutoff_page >= 0);
+    *page_of(V_PART) = (uint8_t)cutoff_page; build_pages();
+    CHECK(smc_same(smc_knob_target(0), r));
+    CHECK(pref_desc(r)->max >= 85 && pref_desc(other)->max >= 85);
     pref_set(r, 40); pref_set(other, 85);
+    CHECK(pref_get(r) == 40 && pref_get(other) == 85);
     CHECK(smc_lock_toggle());
     navigate(V_PART, PART_303B);
     ui.sel[0] = 10; ui.sel[1] = 9; ui.pbank = ui.spage = 1;
