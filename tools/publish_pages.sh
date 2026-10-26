@@ -7,8 +7,14 @@
 #
 #   tools/publish_pages.sh --shell
 #   tools/publish_pages.sh 0.2 --pro PATH --elite PATH [--mke PATH]
+#   tools/publish_pages.sh --nightly ...
+#     Uses the separate qualified nightly route; never pushes production gh-pages.
 set -eu
 cd "$(dirname "$0")/.."
+if [ "${1:-}" = "--nightly" ]; then
+    shift
+    exec python3 tools/publish_nightly.py "$@"
+fi
 # Accident prevention: merely running `--shell` or specifying a version must
 # never publish. Publication is a distinct, owner-controlled action after the
 # external complete DEV test/build/artifact and legal gates have passed.

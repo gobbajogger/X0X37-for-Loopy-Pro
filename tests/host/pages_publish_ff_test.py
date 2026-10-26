@@ -260,11 +260,17 @@ shutil.copy2(merge / 'versions.json', out / 'versions.json')
         self.assertEqual(self.old_remote_asset('install/index.html'), b'new code')
         self.assertNotEqual(self.head(), self.base)
 
-    def test_ci_workflow_is_read_only_preview(self):
+    def test_ci_workflow_is_manual_read_only_information(self):
         workflow = (ROOT / '.github/workflows/pages.yml').read_text()
         self.assertIn('contents: read', workflow)
         self.assertNotIn('contents: write', workflow)
-        self.assertIn('actions/upload-artifact@v4', workflow)
+        self.assertIn('workflow_dispatch:', workflow)
+        self.assertNotIn('  push:', workflow)
+        self.assertNotIn('  release:', workflow)
+        self.assertNotIn('uses:', workflow)
+        # Commands are documentation inside the summary heredoc, never execution.
+        self.assertIn("<<'INFO'", workflow)
+        self.assertIn('Show local preview instructions', workflow)
         self.assertNotIn('actions/deploy-pages@', workflow)
         self.assertNotIn('actions/upload-pages-artifact@', workflow)
         self.assertNotIn('git push', workflow)
@@ -289,6 +295,13 @@ shutil.copy2(merge / 'versions.json', out / 'versions.json')
         self.assertEqual(self.old_remote_asset('manual/img/new/1.0-song-repeat.png'),
                          (ROOT / 'docs/img/new/1.0-song-repeat.png').read_bytes())
         self.assertEqual(self.old_remote_asset('firmware/old-elite.fwsc'), self.old_bytes)
+
+    def test_nightly_route_remains_separate_from_production_guard(self):
+        result = run('sh', str(ROOT / 'tools/publish_pages.sh'), '--nightly', '--help',
+                     cwd=ROOT, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('refusing publish', result.stderr)
+        self.assertIn('--elite-record', result.stdout)
 
     def test_noop_does_not_create_commit(self):
         # An identical generated site needs to be built from the existing branch.
