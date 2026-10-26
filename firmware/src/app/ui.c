@@ -984,19 +984,48 @@ static pref_t find_ref(int t, int v, const char *n)
     return NONE;
 }
 
+/* Drum sound knobs: named ranks so matching controls keep the same physical
+ * knobs across 909/808 tracks (DSP tables differ per voice). Level/Pan/Rev/Dly
+ * stay on MIX; Drive/Dist stay in SEL's list. Unknown names keep their relative
+ * table order after the named ranks. Restored after Chicago-aux land dropped it. */
+static int track_param_rank(const x0x_param_t *d)
+{
+    static const char *const order[] = {
+        "Tune", "Tone", "Attack", "Sound", "Decay", "Snappy", "Tail", "P.Dpth", "Pitch",
+    };
+    int i;
+    for (i = 0; i < (int)(sizeof order / sizeof *order); i++)
+        if (name_is(d, order[i]))
+            return i;
+    return (int)(sizeof order / sizeof *order);
+}
+
 /* a drum track: its sound, four knobs a page (its DRIVE and DIST: SEL's list; its level, pan and sends:
  * MIX's 909 MIX / 808 MIX page) */
-static void add_track_pages(int t, int v)
+X0X_COLD static void add_track_pages(int t, int v)
 {
     const char *nm = engine_voice_name(t, v);
     pref_t snd[NPARAMS_MAX];
-    int n = 0, i;
+    int rank[NPARAMS_MAX];
+    int n = 0, i, j;
     for (i = 0; i < engine_nparams(t, v) && n < NPARAMS_MAX; i++) {
         const x0x_param_t *d = engine_param(t, v, i);
         if (name_is(d, "Drive") || name_is(d, "Dist"))
             more(PR(R_ENG, t, v, i));
-        else if (!name_is(d, "Level") && !name_is(d, "Pan") && !name_is(d, "Rev") && !name_is(d, "Dly"))
+        else if (!name_is(d, "Level") && !name_is(d, "Pan") && !name_is(d, "Rev") && !name_is(d, "Dly")) {
+            rank[n] = track_param_rank(d);
             snd[n++] = PR(R_ENG, t, v, i);
+        }
+    }
+    for (i = 1; i < n; i++) {              /* stable insertion by rank */
+        pref_t x = snd[i];
+        int rx = rank[i];
+        for (j = i; j > 0 && rank[j - 1] > rx; j--) {
+            snd[j] = snd[j - 1];
+            rank[j] = rank[j - 1];
+        }
+        snd[j] = x;
+        rank[j] = rx;
     }
     pg_grp = GR_TRACK;
     for (i = 0; i < n; i += 4)
