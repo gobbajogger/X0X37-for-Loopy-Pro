@@ -50,6 +50,10 @@ CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wal
 # X0X: the AC79's single-precision FPU (the SDK's own flags); no fused multiply-add, so the host
 # build (-ffp-contract=off) computes the same samples
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
+
+def clang_std_inc():
+    """pi32v2 clang does not auto-add sibling include/; -idirafter keeps resource-dir first."""
+    return ["-idirafter", str(toolchain() / "pi32v2" / "include")]
 # the DSP, the sequencer and the audio engine: separate units at -O2
 O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/bass303.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
             "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
@@ -212,7 +216,7 @@ def ldr_wrap(image):
 def build_loader():
     LDR.mkdir(parents=True, exist_ok=True)
     src = FW / "loader"
-    flags = [*CFLAGS, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src"]
+    flags = [*CFLAGS, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", *clang_std_inc()]
     tc_all(("cc", "-c", src / "crt0_ldr.S", "-o", LDR / "crt0_ldr.o"),
            ("cc", *flags, "-c", src / "loader.c", "-o", LDR / "loader.o"))
     elf = LDR / "loader.elf"
@@ -244,10 +248,21 @@ def build_app():
     flags = [*CFLAGS, *FPU, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
-    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE"):
-        v = os.environ.get(flag)    # unset: the default in firmware/src/x0x.c
+    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE", "X0X_WOBBLE"):
+        v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
+    # Product Miami/WBL1: on unless explicitly X0X_WOBBLE=0 (or legacy X0X_DEV_WOBBLE=0 alone).
+    wobble = os.environ.get("X0X_WOBBLE")
+    if wobble is None:
+        wobble = os.environ.get("X0X_DEV_WOBBLE", "1")
+    if wobble not in ("0", "1"):
+        raise SystemExit("X0X_WOBBLE / X0X_DEV_WOBBLE: 0 or 1")
+    if f"-DX0X_WOBBLE={wobble}" not in flags:
+        flags.append(f"-DX0X_WOBBLE={wobble}")
+    if f"-DX0X_DEV_WOBBLE={wobble}" not in flags:
+        flags.append(f"-DX0X_DEV_WOBBLE={wobble}")
+    flags += clang_std_inc()
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
     if BOARD == "smk37":            # SMK store owner (storage.c st_owner_check): X0X's own family, untagged data cleared
         fam = os.environ.get("FELUCCA_DATA_FAMILY", "X0X")
@@ -274,9 +289,7 @@ def build_app():
              ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
     objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
     (OUT / "o2").mkdir(parents=True, exist_ok=True)
-    if os.environ.get("X0X_DEV_WOBBLE") == "1":
-        if VERSION or os.environ.get("X0X_DEV_PADCAL") != "1":
-            raise SystemExit("X0X_DEV_WOBBLE requires unversioned DEV")
+    if wobble == "1":
         o = OUT / "o2" / "wobble.o"
         units.append(("cc", *[f if f != "-O2" else "-Oz" for f in o2], "-c", Path("experiments/wobble/wobble.c"), "-o", o))
         objs.append(o)

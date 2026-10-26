@@ -220,6 +220,9 @@ static void apc_note(uint32_t note, uint32_t vel)
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
+#if X0X_DEV_WOBBLE
+#include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
+#endif
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint8_t knob_bank_prev;
@@ -878,11 +881,11 @@ static void smk_faders(void)
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
  * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
  * Pitch wheel = Chicago pitch bend (±2 st via CHI_PBEND, never TUNE). Release restores the saved bend.
- * Mod wheel = Chicago cutoff. It replaces the cutoff knob. Down closes the voice filter (cutoff 0).
- * Up opens it (cutoff 127). High ADC is down; that sense is not inverted. The write is BASS303_CUTOFF,
- * which the voice filter uses before the master cutoff. It does not write MST_CUTOFF, the saved pot,
- * or Miami wobble. A gesture keeps its original 303 until the wheel returns to rest, across screen/part
- * changes. A stationary wheel does not send a sound parameter. */
+ * Mod wheel = Chicago cutoff on native303; Miami/WBL1 wobble depth on a live WBL1 voice.
+ * Chicago: replaces the cutoff knob (BASS303_CUTOFF before master). Down closes (0); up opens (127).
+ * Miami: writes W_WOBBLE_DEPTH the same way. High ADC is down; that sense is not inverted.
+ * It does not write MST_CUTOFF or the saved pot. A gesture keeps its original 303 until the wheel
+ * returns to rest, across screen/part changes. A stationary wheel does not send a sound parameter. */
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
@@ -944,9 +947,14 @@ static void smk_wheels(void)
         if (cut_part < 0 && mw && is_303())
             cut_part = (int8_t)bidx();
         if (cut_part >= 0) {
-            /* mw 0 is down (closed). mw 127 is up (open). The wheel is the cutoff. */
+            /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
-            engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
+#if X0X_DEV_WOBBLE
+            if (engine_bass_is_wobble(cut_part))
+                engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
+            else
+#endif
+                engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
             if (!mw)
                 cut_part = -1;
         }

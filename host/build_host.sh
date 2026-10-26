@@ -24,8 +24,9 @@ else sh tools/gen_builtin_break.sh build/gen >/dev/null; fi
 [ "${1:-}" != --generate-only ] || exit 0
 U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
    firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
-   firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c"
+   firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c experiments/wobble/wobble.c"
 # shellcheck disable=SC2086
 $CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
-    -DX0X_HOST ${X0X_HOST_DEFS:-} -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -o ${X0X_HOST_OUT:-build/host/x0x_host} host/x0x_host.c $U -lm
+    -DX0X_HOST -DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1 ${X0X_HOST_DEFS:-} -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
+    -o ${X0X_HOST_OUT:-build/host/x0x_host} host/x0x_host.c $U -lm
 echo "host: build/host/x0x_host"

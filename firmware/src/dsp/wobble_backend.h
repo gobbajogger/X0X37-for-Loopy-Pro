@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Experimental DEV backend. No project layout or released registration. */
+/* Product Miami / WBL1 backend (also host tests). */
 #pragma once
 #include "wobble_config.h"
-#if !X0X_DEV_WOBBLE && !defined(X0X_SYNTH_HOST_TEST)
-#error "Wobble backend requires experimental DEV or host tests"
+#if !X0X_WOBBLE && !defined(X0X_SYNTH_HOST_TEST)
+#error "Wobble backend requires X0X_WOBBLE=1 or host synth tests"
 #endif
 #include "synth_engine.h"
 #include "../../../experiments/wobble/wobble.h"
