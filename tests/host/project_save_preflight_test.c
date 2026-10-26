@@ -84,8 +84,7 @@ static int test_sound_hash_collision(void)
         puts("byte-identical sound payload needlessly rewritten");
         return 1;
     }
-    if (load_obj(OBJ_SOUND, &restored, sizeof restored) ||
-        memcmp(&restored, b, sizeof b)) {
+    if (load_sound(&restored) || memcmp(&restored, b, sizeof b)) {
         puts("saved collision variant failed sound-object readback");
         return 1;
     }
