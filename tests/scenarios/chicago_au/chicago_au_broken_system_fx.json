@@ -1,0 +1,21 @@
+{
+  "id": "broken_system_fx",
+  "tags": [
+    "factory_preset",
+    "steady_voiced"
+  ],
+  "bpm": 170.0,
+  "sampleRate": 48000,
+  "frames": 48000,
+  "noteOnFrame": 4800,
+  "noteOffFrame": 24000,
+  "steadyWindowStart": 4800,
+  "steadyWindowEnd": 19200,
+  "midiNote": 48,
+  "velocity": 80,
+  "nominalHz": 130.8127826502993,
+  "refWav": "broken_system_fx.wav",
+  "factoryPresetIndex": 9,
+  "factoryPresetName": "Broken System FX",
+  "arpOff": true
+}

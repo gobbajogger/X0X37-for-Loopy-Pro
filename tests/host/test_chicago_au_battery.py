@@ -58,11 +58,21 @@ def _write_float_wav(path: Path, stereo: np.ndarray, sr: int) -> None:
 
 
 def main() -> int:
+    presets = json.loads(BANK_JSON.read_text())["presets"]
+    battery = json.loads((SCENARIO_DIR / "battery.json").read_text())
+    n_manifests = len(list(SCENARIO_DIR.glob("chicago_au_*.json")))
+    expect = len(presets)
+    if len(battery["scenarios"]) != expect or n_manifests != expect:
+        print(
+            f"FAIL battery count scenarios={len(battery['scenarios'])} "
+            f"manifests={n_manifests} bank={expect}",
+            file=sys.stderr,
+        )
+        return 1
     if not RENDER_BIN.is_file():
         subprocess.check_call(["sh", "tests/host/run_chicago_au_render.sh"], cwd=ROOT)
     scen_path = SCENARIO_DIR / "chicago_au_acid_lab_1.json"
     scen = json.loads(scen_path.read_text())
-    presets = json.loads(BANK_JSON.read_text())["presets"]
     pots = chicago_au_map.preset_from_factory_bank(presets, scen["factoryPresetIndex"], arp_off=True)
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)

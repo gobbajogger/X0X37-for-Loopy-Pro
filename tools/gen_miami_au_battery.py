@@ -12,6 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tests" / "scenarios" / "miami_au"
 BANK = ROOT / "assets" / "factory_banks" / "miami.json"
 
+import sys
+
+sys.path.insert(0, str(ROOT / "tools"))
+import au_compare_battery  # noqa: E402
+
 
 def slugify(name: str) -> str:
     s = name.lower().strip()
@@ -42,6 +47,7 @@ def main() -> int:
         scen = {
             "id": slug,
             "tags": ["factory_preset", "steady_voiced"],
+            "bpm": au_compare_battery.compare_bpm(),
             "sampleRate": 48000,
             "frames": 48000,
             "noteOnFrame": 4800,

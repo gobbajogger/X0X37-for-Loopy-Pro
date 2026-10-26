@@ -17,6 +17,8 @@ QUICK_ENV_KEYS = (
 )
 FULL_ENV_KEYS = ("AU_COMPARE_FULL",)
 MODE_ENV = "AU_COMPARE_MODE"
+BPM_ENV = "AU_COMPARE_BPM"
+DEFAULT_COMPARE_BPM = 170.0
 
 MIAMI_MATRIX_CONFIGS = (
     "carrier_filter",
@@ -89,6 +91,13 @@ def active_timing() -> CompareTiming:
     return QUICK_TIMING if compare_quick_enabled() else FULL_TIMING
 
 
+def compare_bpm() -> float:
+    raw = os.environ.get(BPM_ENV, "").strip()
+    if raw:
+        return float(raw)
+    return DEFAULT_COMPARE_BPM
+
+
 def apply_timing_to_scenario(scen: dict[str, Any]) -> dict[str, Any]:
     """Return a copy of a Chicago/Miami preset manifest with active render length."""
     out = copy.deepcopy(scen)
@@ -99,6 +108,7 @@ def apply_timing_to_scenario(scen: dict[str, Any]) -> dict[str, Any]:
     out["steadyWindowStart"] = t.steady_start
     out["steadyWindowEnd"] = t.steady_end
     out["compareTiming"] = t.label
+    out["bpm"] = compare_bpm()
     return out
 
 
