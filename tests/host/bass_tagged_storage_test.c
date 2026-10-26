@@ -169,6 +169,33 @@ static void note_schema(void)
  CHECK(!memcmp(&original,&proj,sizeof original));CHECK(copy_part(2,1,PART_303A)==-1);CHECK(!memcmp(&original,&proj,sizeof original));
  printf("PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks\n");
 }
+static void note_effective_edited_flag(void)
+{
+ project_defaults();reset_runtime();selected(0,0,0);selected(1,0,0);
+ memset(proj.arr.lane,0,sizeof proj.arr.lane);
+ uint8_t named[NPARAMS_MAX];memcpy(named,proj.sound.v[T_303][0],sizeof named);
+ int factory=named[BASS303_CUTOFF];
+ pref_set(PR(R_ENG,T_303,0,BASS303_CUTOFF),factory+1);render();
+ CHECK(proj.sound.bass[0].bytes[10]&BASS_SOUND_EDITED);
+ sound_t base=proj.sound;
+ int m=motion_alloc(proj.arr.lane,0,PART_303A,T_303,0,BASS303_CUTOFF);CHECK(m>=0);
+ for(int changed=0;changed<2;changed++) {
+  for(int i=0;i<NSTEPS;i++)proj.arr.lane[m].val[i]=(uint8_t)(factory+2*changed);
+  seq_start(&seq);render();run_ms(180);
+  CHECK(engine_motion_value(m)==factory+2*changed);
+  CHECK(!seq_bass_sound_prepare(&seq,0,0,8));
+  int k=bass_note_find(proj.arr.lane,0,0,8);CHECK(k>=0);
+  CHECK(!engine_bass_note_validate(&proj.arr.lane[k]));
+  CHECK(!!(proj.arr.lane[k].val[BASS_NOTE_TAG+10]&BASS_SOUND_EDITED)==changed);
+  CHECK(proj.arr.lane[k].val[BASS303_CUTOFF]==factory+2*changed);
+  if(!changed)CHECK(!memcmp(proj.arr.lane[k].val,named,sizeof named));
+  /* Snapshot metadata keeps its engine/schema/preset; only EDITED can change. */
+  CHECK(!memcmp(proj.arr.lane[k].val+BASS_NOTE_TAG,base.bass[0].bytes,10));
+  CHECK(!memcmp(&proj.sound,&base,sizeof base));
+  seq_stop(&seq);render();
+ }
+ puts("PASS effective motion recomputes named snapshot EDITED without changing base identity or values");
+}
 static void note_capture_lifecycle(void)
 {
  project_defaults();reset_runtime();selected(0,0,0);selected(1,0,0);
@@ -289,6 +316,7 @@ int main(int argc,char **argv)
  older_cell_objects();
 #if X0X_BASS_NOTE_SOUND
  note_schema();
+ note_effective_edited_flag();
  note_capture_lifecycle();
 #endif
  printf("PASS %u tagged rev11 storage/stage/legacy adoption checks WBL%d; sound=%u project=%u\n",checks,X0X_DEV_WOBBLE,(unsigned)sizeof(sound_t),(unsigned)sizeof(project_t));return 0;
