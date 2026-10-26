@@ -231,9 +231,11 @@ __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t
     uint32_t w = cq_w;
     uint32_t word = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
     if (w - cq_r >= CQ) {
-        /* Full: params may drop (mirror still has them). Never drop C_BOFF or a
-         * C_BRK release — a retained press without its off leaves the gate/slice on. */
-        uint32_t i, keep = (type == C_BOFF) || (type == C_BRK && (b & 0xFFu) == 0u);
+        /* Full: params may drop (mirror still has them). Never drop C_BON,
+         * C_BOFF, or a C_BRK release — missing an attack under param flood is a
+         * silent note loss; a retained press without its off leaves the gate on. */
+        uint32_t i, keep = (type == C_BON) || (type == C_BOFF)
+            || (type == C_BRK && (b & 0xFFu) == 0u);
         if (!keep)
             return;
         for (i = cq_r; i != w; i++) {
