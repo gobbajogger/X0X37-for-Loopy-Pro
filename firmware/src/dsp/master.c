@@ -121,7 +121,8 @@ void master_comp1_pots(int v, uint8_t *thresh, uint8_t *ratio, uint8_t *makeup)
     *ratio = (uint8_t)ri;
     *makeup = (uint8_t)(mk * (127.0f / 24.0f) + 0.5f);
 }
-void master_djf_pots(int v, uint8_t *mode, uint8_t *cutoff)
+/* UI / master_set DJF macro only — not the audio render (X0X_COLD) */
+X0X_COLD void master_djf_pots(int v, uint8_t *mode, uint8_t *cutoff)
 {
     if (v < 60) {                                     /* low-pass: right of 0, the cutoff falls to the left */
         *mode = 1;
