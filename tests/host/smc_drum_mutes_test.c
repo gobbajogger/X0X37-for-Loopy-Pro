@@ -67,7 +67,12 @@ static void continuous_probe(int mode, int bank, int strip)
         assert(smc_same(r, expected));
     }
     const x0x_param_t *d = pref_desc(r);
+    const x0x_param_t *dk = pref_desc(k);
     pref_set(r, d->max / 2);
+    /* Home CUT (and any other open-at-max default) must sit below the ceiling so a
+     * +1 relative detent can prove the knob moved without touching the fader. */
+    if (dk && dk->max)
+        pref_set(k, dk->max / 2);
     smc_frame();
     int level = pref_get(r), before = pref_get(k);
     /* DAW K1 = b0 10 01. */
