@@ -279,7 +279,8 @@ static int pick_slot(const breaks_t *b, int which)
     }
     return -1;
 }
-static void bank_fill(brk_bank_t *k, const brk_loop_t *loop)
+/* Main-loop bank decode — not breaks_render (X0X_COLD) */
+X0X_COLD static void bank_fill(brk_bank_t *k, const brk_loop_t *loop)
 {
     uint32_t n, i, s, sh;
     int32_t pred = 0, idx = 0;
@@ -325,7 +326,8 @@ static void bank_seek(const brk_bank_t *k, uint32_t p, int32_t *pred, int32_t *i
         ima_decode(k->adpcm, i++, pred, idx);
 }
 
-void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
+/* Main-loop loop assign — not breaks_render (X0X_COLD) */
+X0X_COLD void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
 {
     brk_bank_t *k;
     int idx, j;
@@ -367,7 +369,8 @@ void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
     pend_store(b, which, loop);                         /* every spare snapshot is still sounding */
 }
 
-void breaks_flush(breaks_t *b)
+/* Main-loop pending publish — not breaks_render (X0X_COLD) */
+X0X_COLD void breaks_flush(breaks_t *b)
 {
     int w;
     for (w = 0; w < 2; w++)
@@ -375,7 +378,8 @@ void breaks_flush(breaks_t *b)
             breaks_set_loop(b, w, &b->pend[w]);
 }
 
-void breaks_drop_range(breaks_t *b, const uint8_t *base, uint32_t nbytes)
+/* Sample unload path — not breaks_render (X0X_COLD) */
+X0X_COLD void breaks_drop_range(breaks_t *b, const uint8_t *base, uint32_t nbytes)
 {
     const uint8_t *end;
     int j, w;
