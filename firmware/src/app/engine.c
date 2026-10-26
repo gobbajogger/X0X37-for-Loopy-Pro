@@ -775,8 +775,9 @@ void engine_clip_midi_flush(void)
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
-static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
-static uint8_t brk_down[2][16];        /* 8 SLICES: bit n of source 0/1 is MIDI note n held */
+static uint16_t src_held[3];           /* BLE-16: USB [0], Bluetooth [1], TRS [2]: bit k the 303 k, bit 8 + s the slice s */
+static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
+enum { MIDI_NSRC = 3 };
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -792,7 +793,7 @@ X0X_COLD int engine_project_notes(void)
 {
     uint32_t r = cq_r;
     int k;
-    if (brk.keys || src_held[0] || src_held[1])
+    if (brk.keys || src_held[0] || src_held[1] || src_held[2])
         return 1;
     for (k = 0; k < NBASS; k++)
 #if X0X_DEV_WOBBLE
@@ -841,47 +842,44 @@ static int brk_src_slice(int src, int slice)
             return 1;
     return 0;
 }
-static void brk_clear_slice_notes(int slice)
+static int brk_any_slice(int slice)
 {
-    int src, n;
-    for (src = 0; src < 2; src++)
-        for (n = slice; n < 128; n += 8)
-            brk_note_set(src, n, 0);
+    int src;
+    for (src = 0; src < MIDI_NSRC; src++)
+        if (brk_src_slice(src, slice))
+            return 1;
+    return 0;
 }
 /* Default map: notes 36-43, one note per slice. A stale Note Off from the other input does nothing. */
 static void brk_midi_legacy(int src, int on, int slice)
 {
     int v = 1 << (8 + slice);
-    if (!on && src < 2 && !(src_held[src] & (uint16_t)v))
+    if (src < 0 || src >= MIDI_NSRC)
+        return;
+    if (!on && !(src_held[src] & (uint16_t)v))
         return;
     breaks_live(&brk, slice, on);
     src_held[0] &= (uint16_t)~v;
     src_held[1] &= (uint16_t)~v;
-    if (on && src < 2)
+    src_held[2] &= (uint16_t)~v;
+    if (on)
         src_held[src] |= (uint16_t)v;
 }
-/* 8 SLICES: every note. Note Off releases the slice only when no note of that slice remains. */
+/* 8 SLICES: every note. Note Off releases the slice only when no note of that slice remains.
+ * USB, Bluetooth, and TRS share the same per-note refcount — a foreign Note Off must not
+ * clear another input's hold (same ownership rule as midiowner / BF-004). */
 static void brk_midi_wrap(int src, int on, int note)
 {
     int slice = note & 7, v = 1 << (8 + slice);
-    if (src >= 2) {
-        if (on)
-            breaks_slice_on(&brk, slice);
-        else {
-            brk_clear_slice_notes(slice);
-            src_held[0] &= (uint16_t)~v;
-            src_held[1] &= (uint16_t)~v;
-            breaks_live(&brk, slice, 0);
-        }
+    if (src < 0 || src >= MIDI_NSRC)
         return;
-    }
     if (!on) {
         if (!brk_note_down(src, note))
             return;                         /* stale Note Off: this input does not hold the note */
         brk_note_set(src, note, 0);
         if (!brk_src_slice(src, slice))
             src_held[src] &= (uint16_t)~v;
-        if (!brk_src_slice(0, slice) && !brk_src_slice(1, slice))
+        if (!brk_any_slice(slice))
             breaks_live(&brk, slice, 0);
         return;
     }
@@ -896,10 +894,10 @@ void engine_brk_slice_mode_reconcile(void)
     int src, s, g;
     for (s = 0; s < 8; s++) {
         uint16_t mask = (uint16_t)(1u << (8 + s));
-        if ((src_held[0] | src_held[1]) & mask)
+        if ((src_held[0] | src_held[1] | src_held[2]) & mask)
             breaks_live(&brk, s, 0);
     }
-    for (src = 0; src < 2; src++) {
+    for (src = 0; src < MIDI_NSRC; src++) {
         src_held[src] &= 0xFFu;
         for (g = 0; g < 16; g++)
             brk_down[src][g] = 0;
@@ -913,7 +911,7 @@ static void brk_link_end(int src, uint16_t owned)
         for (n = 0; n < 128; n++)
             brk_note_set(src, n, 0);
         for (s = 0; s < 8; s++)
-            if ((owned & (uint16_t)(1u << (8 + s))) && !brk_src_slice(0, s) && !brk_src_slice(1, s))
+            if ((owned & (uint16_t)(1u << (8 + s))) && !brk_any_slice(s))
                 brk.keys = (uint16_t)(brk.keys & ~(uint16_t)(1u << s));
         return;
     }
@@ -1022,16 +1020,18 @@ static void midi_in(uint32_t pkt)
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
                 src_held[1] &= (uint16_t)~v;
-                if (src < 2)
+                src_held[2] &= (uint16_t)~v;
+                if (src >= 0 && src < MIDI_NSRC)
                     src_held[src] |= (uint16_t)v;
             } else if (ty == 0x80 && bass_held[k] == d1) {
                 v = 1 << k;
-                if (src < 2 && !(src_held[src] & (uint16_t)v))
+                if (src < 0 || src >= MIDI_NSRC || !(src_held[src] & (uint16_t)v))
                     continue;
                 chi_live_note_off(k);
                 bass_held[k] = 0;
                 src_held[0] &= (uint16_t)~(1u << k);
                 src_held[1] &= (uint16_t)~(1u << k);
+                src_held[2] &= (uint16_t)~(1u << k);
             }
         }
 }
@@ -1465,6 +1465,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
                 bass_held[p] = 0;
                 src_held[0] &= (uint16_t)~(1u << p);
                 src_held[1] &= (uint16_t)~(1u << p);
+                src_held[2] &= (uint16_t)~(1u << p);
             }
             if (bass_slot[p].running != !!seq.playing) {
                 bass_slot[p].running = !!seq.playing;
@@ -1730,7 +1731,10 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 {
     int p, g;
     cq_w = cq_r = 0;
-    src_held[0] = src_held[1] = 0;
+    src_held[0] = src_held[1] = src_held[2] = 0;
+    for (p = 0; p < MIDI_NSRC; p++)
+        for (g = 0; g < 16; g++)
+            brk_down[p][g] = 0;
     for (p = 0; p < NBASS; p++) {
         bass_held[p] = 0;
         chi_arp_on[p] = chi_arp_mode[p] = chi_arp_range[p] = chi_arp_speed[p] = 0;
