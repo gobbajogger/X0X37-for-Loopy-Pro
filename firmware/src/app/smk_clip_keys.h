@@ -6,7 +6,12 @@
 #include <stdint.h>
 
 #ifndef CK_FN
+#if defined(X0X_HOST) && !defined(__clang__)
+/* GCC host builds do not implement Clang's minsize attribute. */
+#define CK_FN __attribute__((noinline, unused))
+#else
 #define CK_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#endif
 #endif
 
 #define CK_NKEY 37u           /* keybed keys; key 0 = C3 = MIDI note 48 */
