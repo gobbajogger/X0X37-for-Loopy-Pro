@@ -5837,29 +5837,39 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     return 0;
 }
 
+enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
+/* One affine projection per supported range. The pulse zero is near its low
+ * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
+static float miami_wave_plot_y(int pulse, float v)
+{
+    return pulse ? 1.0f+16.0f*(1.0f-v)/(1.0f+1.0f/9.0f) :
+                   (float)MIAMI_WAVE_ZERO-(float)MIAMI_WAVE_GAIN*v;
+}
 static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col, uint16_t face)
 {
     if(shape==2 || shape==3) {
         /* Integrate line coverage in four horizontal subcolumns. Sample the
          * actual periodic function, never blur/average its amplitude or duty.
          * Tall transitions stay vertical; positive values are above the midline.
-         * Same 29x9 glyph box as before, one cycle for legibility. */
-        int x,j,k;
-        cv_rect(cx-14,y+4,29,1,blend(face,col,3)); /* zero-amplitude reference */
+         * Use the free value-cell height: 29x19, one cycle. A single
+         * affine scale preserves DC/asymmetry; never split the two polarities. */
+        int x,j,k,pulse=shape==3 && mix!=0;
+        int zero=(int)(miami_wave_plot_y(pulse,0)+.5f);
+        cv_rect(cx-14,y+zero,29,1,blend(face,col,3)); /* zero-amplitude reference */
         for(x=0;x<29;x++) {
-            unsigned coverage[9]={0};
+            unsigned coverage[MIAMI_WAVE_HEIGHT]={0};
             for(k=0;k<4;k++) {
                 float p0=((float)x+(float)k*.25f)/29.0f;
                 float p1=((float)x+(float)(k+1)*.25f)/29.0f;
-                float a=4.0f-3.0f*ui_miami_wave_value(shape==3,mix!=0,p0);
-                float b=4.0f-3.0f*ui_miami_wave_value(shape==3,mix!=0,p1);
+                float a=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p0));
+                float b=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p1));
                 float lo=fm_minf(a,b)-.5f,hi=fm_maxf(a,b)+.5f;
-                for(j=0;j<9;j++) {
+                for(j=0;j<MIAMI_WAVE_HEIGHT;j++) {
                     float overlap=fm_minf(hi,(float)j+.5f)-fm_maxf(lo,(float)j-.5f);
                     if(overlap>0) coverage[j]+=(unsigned)(fm_minf(overlap,1.0f)*4.0f+.5f);
                 }
             }
-            for(j=0;j<9;j++) if(coverage[j])px_blend(cx-14+x,y+j,col,coverage[j]);
+            for(j=0;j<MIAMI_WAVE_HEIGHT;j++) if(coverage[j])px_blend(cx-14+x,y+j,col,coverage[j]);
         }
         return;
     }
@@ -6100,7 +6110,7 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
-        draw_wave_glyph(cx-10,y+28,shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
         if(shape==2 || shape==3)put_s(num,!val?"TRI":shape==3?"PUL":"SQR");
         else put_i(num,val);
         text_c(cx+17,y+28,&FONT_T,num,ink);
