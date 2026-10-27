@@ -2,7 +2,7 @@
 
 This skill adapts the single-file export of plugin `loopyx0x37-classic-build-handoff`, verified version **0.1.47**, release `pluginrel_6adce6992d408191b7df8bf46ec27616`, retrieved 2026-10-24 UTC. The export contained 52 UTF-8 files. Their original SHA-256 values attest to that package text. They do not attest to compiled artifacts or to the current Git head.
 
-The export's canonical contract is preserved here as procedure: one pinned candidate, separate stage evidence, build-before-publication, independent QA, nightly test candidates distinct from production, and no hosted GitHub runner for firmware builds. Where that export disagrees with this checkout, the checkout wins: `BUILDING.md`, `tools/make_pages.py`, `tools/publish_pages.sh`, `tools/dev_validate.py`, and `tools/build.py`. Cursor execution replaces ChatGPT Library, Codex cloud tasks, Work agents, Dots schedules, and plugin-creator APIs. Those routes are not installed by this skill.
+The export is historical provenance. The current root `AGENTS.md` and [project workflow](../../../../docs/rules/workflow.md) govern this adapter. Preserve pinned candidate evidence, build-before-publication, independent QA and the NIGHTLY/production distinction. Read actual build and publisher implementations before using their commands; a script cannot grant authority or override a current denial. Discover tools in the actual executor. This adapter neither installs other providers' routes nor proves that a currently exposed route is unavailable.
 
 ## Do not replay the 2026-10-23 patches
 
@@ -19,8 +19,15 @@ Historical identities, for recognition only:
 
 Refresh every SHA against live Git before acting. If a file is absent, record the absence. Do not invent a Library file ID or a `/mnt/data` path.
 
-## Authority that does not carry over
+## Current authority and historical routing
 
-The export describes standing nightly publication permission and hourly specialist roles (Safe Merge, Hourly Build, Catalog Sync, Pages publisher, and others). Those roles are a scope map from that scheduler. They are not assignments in a Cursor run. Discover live branch protection and pull-request state. Perform a protected write only when this run's user request assigns it and the stage evidence exists.
+The export's dated ownership, provider routing and force-publisher examples are
+historical. Apply the current [project workflow](../../../../docs/rules/workflow.md),
+live target rules and actual tool capabilities. Preserve existing delegated owners
+and applicable standing permission; no repetition in a new run is required.
+An old role name alone does not assign that role to this worker.
 
-Project skills that once lived at `skills/x0x37-*/SKILL.md` were removed from `main` by `5b38047` ("Remove project rules and skills"). This directory is the current Cursor skill. It does not restore that deleted set.
+The removal of older project skills from main at `5b38047` was historical repository
+state, not a permanent prohibition on maintained rule repairs. This adapter is
+subordinate to root AGENTS and the maintained workflow. It does not create schedules,
+grant protected writes or activate a new thread for each stage.

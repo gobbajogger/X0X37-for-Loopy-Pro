@@ -5,8 +5,8 @@ description: "Start an x0x37 task or continuation with current ownership, isolat
 
 # Start a task
 
-First apply [chat routing](references/routing.md). Start in classic ChatGPT inside the LoopyX0X37 project.
-Use Codex only for the bounded execution that needs its tools.
+First apply [chat routing](references/routing.md). Preserve the current project context and delegated owner.
+Use a qualified execution route for the bounded work that needs its tools; an active capable owner needs no additional launcher.
 
 Search relevant product decisions and behavior. Do not load the full decision history by default.
 Old plans, rosters, logs, and archives are evidence. They do not assign work or grant approval.
@@ -21,7 +21,7 @@ Old plans, rosters, logs, and archives are evidence. They do not assign work or 
 
 ### Rule 2: process and edit ownership
 
-Use a fresh chat and isolated lane per task. Finish the assigned task there; do not create another copy.
+Use an isolated lane per task and finish it with its accountable owner. A fresh receiver is needed only for a real transfer under the [continuation contract](../x0x37-workflow/references/handoff.md); do not create another copy.
 At task start, check other project chats. Read their current scopes before shared work; refresh stale information.
 Before thread contact, shared changes, or process cleanup, read [ownership](references/ownership.md).
 It defines context requests, completion notices, task handoffs, process ownership, and permitted contact.
