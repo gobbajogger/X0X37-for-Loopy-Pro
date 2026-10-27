@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-27T22:36:00Z",
+  "updated_at": "2026-10-27T23:18:20.974264Z",
   "merge_ownership": {
     "owner": "dot existing sole PR monitor",
     "scope": "qualified source integration only",
@@ -152,25 +152,27 @@
     }
   ],
   "states": {
-    "firmware_nightly": "9a8eb237c918352dc5b671699799d45dd086e38b",
+    "firmware_nightly": "682db6d18c9a6f5017abcb0cd37514c6792601c0",
     "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
     "current_public_installable_delivery": "NOT_DONE",
     "hardware": "UNRUN",
-    "site_main": "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+    "site_main": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
     "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
-    "website_main_observed": "93d638b272bf789951553f9ff5437fd0a68d8cf1"
+    "website_main_observed": "132cbd140d5a11583096e8c1f8dda8c8f957a62d"
   },
   "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery.",
   "pending_workflow_proposal": {
     "pr": 654,
-    "head": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
-    "tree": "c4a86c729f7a19a94481f67deab14fe5900a117c",
-    "state": "NOT_ADOPTED; reported proof uninspected",
-    "handling": "Do not overwrite proposal. Existing author/sole queue writer reconciles these facts once exact proposal is qualified. Re-read branch and changed fields before applying.",
+    "head": "89599dae72bd2a33dd85ec05eb45de08ddd34983",
+    "tree": "66e63dafc31b928384d86f8b3576d19a09be11cf",
+    "state": "ADOPTED_AND_VERIFIED",
+    "adopted_at": "2026-10-27T23:16:34Z",
+    "adoption_commit": "05a0e4b1efe2c70081fba4e95bfc91948de4cfbe",
+    "handling": "This bounded proposal is complete. Do not re-open the superseded receipt or draft hold. Existing accepted owners continue their current next permitted actions; reuse unchanged exact-input proof. The previous proposal checkpoint is retained in history.",
     "review_receipt_request": {
-      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455234463",
-      "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
-      "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455726435",
+      "state": "RESOLVED; final actual native Sol review consumed before ordinary protected merge; target ref/tree/changed blobs verified",
+      "scope": "The final twelve-path source/coordination candidate; no package publication or hardware qualification claim."
     }
   },
   "history": [
@@ -183,6 +185,84 @@
         "hardware": "UNRUN"
       },
       "previous_coordination_ref": "f893a17cb179483fedf9c504dae273bc759dff64"
+    },
+    {
+      "observed_at": "2026-10-27T23:18:20.974264Z",
+      "kind": "workflow_maintenance_adoption_checkpoint",
+      "previous_coordination_ref": "05a0e4b1efe2c70081fba4e95bfc91948de4cfbe",
+      "previous_fields": {
+        "updated_at": "2026-10-27T22:36:00Z",
+        "states": {
+          "firmware_nightly": "9a8eb237c918352dc5b671699799d45dd086e38b",
+          "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
+          "current_public_installable_delivery": "NOT_DONE",
+          "hardware": "UNRUN",
+          "site_main": "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+          "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
+          "website_main_observed": "93d638b272bf789951553f9ff5437fd0a68d8cf1"
+        },
+        "pending_workflow_proposal": {
+          "pr": 654,
+          "head": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+          "tree": "c4a86c729f7a19a94481f67deab14fe5900a117c",
+          "state": "NOT_ADOPTED; reported proof uninspected",
+          "handling": "Do not overwrite proposal. Existing author/sole queue writer reconciles these facts once exact proposal is qualified. Re-read branch and changed fields before applying.",
+          "review_receipt_request": {
+            "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455234463",
+            "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
+            "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
+          }
+        },
+        "proposal_continuation_fix": {
+          "state": "PREPARED_AND_INDEPENDENTLY_REVIEWED_NOT_YET_ADOPTED",
+          "behavior": "Unknown active work areas block new claims but retain accepted continuations and read-only ownership recovery. Stale required reads and duplicate IDs still fail closed.",
+          "reviewed_files": [
+            {
+              "path": "coordination/requests/task_priority.py",
+              "blob_sha": "ef9818928db3b826a0a8e312e73c38f85a2deb50",
+              "sha256": "6963a650778106dde9b61ec9712a5b87988b8698bf06430ffde91333f13c84e3"
+            },
+            {
+              "path": "tests/task_priority_test.py",
+              "blob_sha": "12f05b186a3fcee45966f75f6e0d91e187094774",
+              "sha256": "e616829e335a60766e61286fa5a7d0aac488bedd93f8ac1c957d1d523ab04bb1"
+            },
+            {
+              "path": "coordination/requests/PRIORITY.md",
+              "blob_sha": "6cd5fb8e19645893178db89e36ae6917a55a8ed0",
+              "sha256": "34f430dca1721a5914c24c08008ad59ef4d02a8d96a5de6e8c02e6b41f4a5013"
+            }
+          ],
+          "independent_review_receipt_sha256": "d14974a41c8be97e0f0c59534e2a4271ba770c65f411408757c90b8196ac8c22"
+        },
+        "metadata_reconciliation": {
+          "observed_at": "2026-10-27T22:49:20Z",
+          "common_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+          "proposal_parent": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+          "latest_canonical_parent": "87497129fed7621036933c82a7ad9a020f558f45",
+          "current_owner_checkpoint_preserved": "Complete 87497129 packages, ownership, states, pending proposal and original updated_at retained; this proposal does not claim adoption.",
+          "queue_metadata_observed_at": "2026-10-27T22:17:33.283Z",
+          "current_head_readback": {
+            "pr653": "6076e10e5084eb5f3f579b529bb934b85a675867",
+            "pr654": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+            "pr651": "c1f3f776b13ad8f4f56bcbdb8a8061924191b93d"
+          },
+          "public_review_receipts": [
+            {
+              "pr": 653,
+              "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455351859",
+              "scope": "Exact seven-file source documentation review and remote tree/blob verification; sole-integrator inspection/adoption remains separate."
+            },
+            {
+              "pr": 654,
+              "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455352303",
+              "scope": "Original reviewed input plus transparent draft hold for the subsequently reproduced active-continuation bug. Current three-path correction requires its matching final-head receipt."
+            }
+          ],
+          "next_action": "Existing sole integrator reads the current PR head and its already-performed exact independent-review receipt; after qualified adoption, the existing accepted owners continue their next permitted work. No duplicate coordinator, new owner acknowledgement gate or bypass of any actual source/action denial."
+        }
+      },
+      "scope": "Preserve pre-adoption observations as history; reconcile only this completed workflow maintenance. No package completion, new claim, owner transfer, device or publication event."
     }
   ],
   "metadata_reconciliation": {
@@ -209,10 +289,11 @@
         "scope": "Original reviewed input plus transparent draft hold for the subsequently reproduced active-continuation bug. Current three-path correction requires its matching final-head receipt."
       }
     ],
-    "next_action": "Existing sole integrator reads the current PR head and its already-performed exact independent-review receipt; after qualified adoption, the existing accepted owners continue their next permitted work. No duplicate coordinator, new owner acknowledgement gate or bypass of any actual source/action denial."
+    "next_action": "The formerly pending workflow proposal is adopted and verified below. Preserve existing accepted product owners and continue their next executable actions; reconcile current refs before any new mutation. Earlier head/readback fields are dated historical observations, not current gates.",
+    "state": "HISTORICAL_INPUT_RECONCILIATION_RESOLVED_BY_WORKFLOW_MAINTENANCE_ADOPTION"
   },
   "proposal_continuation_fix": {
-    "state": "PREPARED_AND_INDEPENDENTLY_REVIEWED_NOT_YET_ADOPTED",
+    "state": "ADOPTED_AND_VERIFIED",
     "behavior": "Unknown active work areas block new claims but retain accepted continuations and read-only ownership recovery. Stale required reads and duplicate IDs still fail closed.",
     "reviewed_files": [
       {
@@ -231,6 +312,59 @@
         "sha256": "34f430dca1721a5914c24c08008ad59ef4d02a8d96a5de6e8c02e6b41f4a5013"
       }
     ],
-    "independent_review_receipt_sha256": "d14974a41c8be97e0f0c59534e2a4271ba770c65f411408757c90b8196ac8c22"
+    "independent_review_receipt_sha256": "d14974a41c8be97e0f0c59534e2a4271ba770c65f411408757c90b8196ac8c22",
+    "adoption_commit": "05a0e4b1efe2c70081fba4e95bfc91948de4cfbe",
+    "final_sol_review_receipt_sha256": "8ebb38152341be80830bb411c911a67d377897d1b3e959e8f4628fbdef52aff0",
+    "final_review_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455726435"
+  },
+  "workflow_maintenance_adoption": {
+    "state": "ALL_FOUR_TARGETS_ADOPTED_AND_VERIFIED",
+    "observed_at": "2026-10-27T23:18:20.974264Z",
+    "scope": "Owner-requested workflow rules, helper behavior and coordination continuation fixes only",
+    "targets": {
+      "firmware_main": {
+        "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+        "pr": 655,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+        "source_head": "31a6df2216b690ba300a103922e7afd37245763c",
+        "target_head": "37cc1a5013680f2d410d62318a354244cbc9671c",
+        "target_tree": "b0ded66b4abebc9b62b54a4a9d69bbb4827ef870",
+        "merged_at": "2026-10-27T23:12:25Z",
+        "actor": "Root under current explicit owner-requested bounded workflow maintenance; ongoing Dot ownership unchanged"
+      },
+      "firmware_nightly": {
+        "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+        "pr": 653,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653",
+        "source_head": "1446a36510b6ca7c86fec80a4170266ebaa0159d",
+        "target_head": "682db6d18c9a6f5017abcb0cd37514c6792601c0",
+        "target_tree": "9b8bc630ae824aac15e03e2145fd4801434ac142",
+        "merged_at": "2026-10-27T23:16:24Z",
+        "actor": "Root under current explicit owner-requested bounded workflow maintenance; ongoing Dot ownership unchanged"
+      },
+      "coordination": {
+        "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+        "pr": 654,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654",
+        "source_head": "89599dae72bd2a33dd85ec05eb45de08ddd34983",
+        "target_head": "05a0e4b1efe2c70081fba4e95bfc91948de4cfbe",
+        "target_tree": "66e63dafc31b928384d86f8b3576d19a09be11cf",
+        "merged_at": "2026-10-27T23:16:34Z",
+        "actor": "Root under current explicit owner-requested bounded workflow maintenance; ongoing Dot ownership unchanged"
+      },
+      "website_main": {
+        "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+        "pr": 85,
+        "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85",
+        "source_head": "745c6b2d34566971b6e7e2fd17348587d219f7ae",
+        "target_head": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+        "target_tree": "7541572aba063ee90b35219c0d4e2551452b5c32",
+        "merged_at": "2026-10-27T23:11:41Z",
+        "actor": "Existing designated Website Main Merger"
+      }
+    },
+    "verification": "Each merged PR, actual target ref, complete tree, ordered parents and every reviewed changed blob/mode were read back; source bytes and independent reviews remain pinned in the PR receipts.",
+    "packages_ownership_and_other_requests": "Unchanged; no package is closed by this maintenance receipt",
+    "next_action": "Existing accepted owners continue current ready actions under the adopted rules. Current queue admission still requires real capacity and resolved write scopes. Do not wait for the owner to read a routine report. Retain genuine action-specific blockers and continue independent ready work."
   }
 }
