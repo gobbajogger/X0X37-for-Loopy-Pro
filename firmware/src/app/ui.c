@@ -5173,17 +5173,23 @@ static UI_DRAW void draw_drum_mix(int band, int k)
         pref_t lv = find_ref(t, v, "Level"), pn = find_ref(t, v, "Pan");
         int l = lv.kind ? proj.sound.v[t][v][lv.c] : 0, pa = pn.kind ? proj.sound.v[t][v][pn.c] : 64;
         int muted = (seq.mute | seq.vmute) & (1u << (k * NDRUM + v)), fh = 96, f = l * fh / 127;
-        if (sel)
-            box(x, 0 - o, 19, 134, dim(col, 3));
-        rbox(x + 7, 4 - o, 5, fh, 2, C_LINE);
+        /* Shallow strip well and top caption: preserve the 96px level travel,
+         * independent hit brightness and the original pan/control geometry. */
+        surface_panel(x, 0 - o, 19, 134, 0, SOUND_FACE,
+                      sel ? dim(col, 8) : SOUND_EDGE, SOUND_SIDE);
+        surface_panel(x + 1, 1 - o, 17, 12, sel,
+                      sel ? col : SOUND_FACE, sel ? col : SOUND_EDGE, SOUND_SIDE);
+        text_c(x + 10, vc(&FONT_XS, 1, 12) - o, &FONT_XS,
+               engine_voice_name(t, v), sel ? C_BLACK : muted ? C_DIM : C_GRAY);
+        cv_rect(x + 6, 15 - o, 7, fh + 2, UI_N_SHADOW);
+        rbox(x + 7, 16 - o, 5, fh, 2, C_LINE);
         if (f)                                        /* the level, dim; a hit lights it up to the level */
-            rbox(x + 7, 4 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
+            rbox(x + 7, 16 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
         {
             int hf = f * eng_hit[k][v] / 255;
             if (hf > 1 && !muted)
-                rbox(x + 7, 4 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
+                rbox(x + 7, 16 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
         }
-        text_c(x + 10, vc(&FONT_XS, 104, 12) - o, &FONT_XS, engine_voice_name(t, v), sel ? C_WHITE : muted ? C_LINE : C_GRAY);
         rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);          /* the pan, a mark from the middle */
         rbox(x + 3 + (pa * 10) / 127, 121 - o, 3, 7, 1, sel ? C_WHITE : C_GRAY);
     }
@@ -6294,6 +6300,78 @@ static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
     return 1;
 }
 
+/* Shared parameter schematics from the owner-requested card vocabulary. These
+ * show control values, never measured audio; labels/units below stay authoritative.
+ * One dispatcher serves every ordinary knob strip. SOUND retains its matrix. */
+static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
+{
+    const x0x_param_t *d=pref_desc(r);
+    int q=d && d->max?(val*127+d->max/2)/d->max:0, left=cx-18, right=cx+18;
+    if(q<0)q=0;
+    if(q>127)q=127;
+    if(is_pan(r) || r.kind==R_BTRANS || (r.kind==R_ENG && r.a==T_BRK && r.c==1)) {
+        int at=left+q*36/127;
+        cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
+        cv_rect(left,35,1,7,C_GRAY);cv_rect(right,35,1,7,C_GRAY);
+        cv_rect(at-1,34,3,9,col);
+    } else if(r.kind==R_DLEN || r.kind==R_BLEN || r.kind==R_SLEN || r.kind==R_SBAR || r.kind==R_SPAT || r.kind==R_BRKSLOT) {
+        for(int j=0;j<8;j++) {
+            int x=left+(j%4)*10,y=30+(j/4)*10;
+            rbox(x,y,7,7,1,j<=q*7/127?col:C_LINE);
+        }
+    } else if(r.kind==R_DRATE || r.kind==R_BRATE) {
+        cv_rect(left,38,37,1,C_LINE);
+        static const uint8_t gaps[4]={12,8,6,16}; /* 1/16, 1/16T, 1/32, 1/8T */
+        int gap=gaps[(unsigned)val<4?(unsigned)val:0];
+        for(int x=left+1;x<=right;x+=gap)cv_rect(x,31,2,15,col);
+    } else if(r.kind==R_BDIR) {
+        if(val==3) { /* existing random direction, not an invented trajectory */
+            cv_line(left,43,cx-7,31,col);cv_line(cx-7,31,cx+7,44,col);cv_line(cx+7,44,right,33,col);
+        } else {
+            cv_rect(left,38,37,1,col);
+            if(val!=1){cv_line(right-6,32,right,38,col);cv_line(right,38,right-6,44,col);}
+            if(val!=0){cv_line(left+6,32,left,38,col);cv_line(left,38,left+6,44,col);}
+        }
+    } else if(r.kind==R_TAPE) {
+        for(int side=-1;side<=1;side+=2) {
+            int x=cx+side*10;
+            rbox(x-7,30,15,15,5,C_LINE);rbox(x-5,32,11,11,4,SOUND_FACE);
+            cv_line(x,37,x+q*4/127,33,col);cv_rect(x-1,36,3,3,col);
+        }
+        cv_rect(cx-10,46,21,1,col);
+    } else if(r.kind==R_SREP || (r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_DL_TIME || r.c==FX_DL_FDBK || r.c==FX_DL_LEVEL)) || (r.a==T_MIX && r.c==MX_DLY) || name_is(d,"Dly")))) {
+        for(int j=0;j<4;j++) {
+            int h=16-j*(4-q*3/127);
+            cv_rect(left+3+j*10,47-h,3,h,col);
+        }
+        cv_line(left+3,29,right,29,C_GRAY);cv_line(left+3,29,left+7,26,C_GRAY);
+    } else if(r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_RV_DECAY || r.c==FX_RV_LEVEL)) || (r.a==T_MIX && r.c==MX_REV) || name_is(d,"Rev"))) {
+        for(int j=0;j<7;j++) {int h=2+j*(q+32)/64;if(h>18)h=18;cv_rect(left+j*6,38-h/2,2,h,col);}
+    } else if(r.kind==R_ENG && r.a==T_FX && (r.c==FX_RV_TONE || r.c==FX_DL_TONE || r.c==FX_RV_HPF)) {
+        int pivot=left+7+q*20/127;
+        cv_rect(left,47,37,1,C_LINE);cv_line(left,32,pivot,32,col);cv_line(pivot,32,right,46,col);
+    } else if(r.kind==R_ENG && r.a==T_MST && r.c==MST_COMP1) {
+        cv_line(left,47,cx,36,col);cv_line(cx,36,right,36-q*8/127,col);
+        cv_rect(left,49,37,1,C_LINE);
+    } else if(r.kind==R_ENG && r.a==T_FX && r.c==FX_DRIVE) {
+        int flat=2+q*8/127;
+        cv_line(left,38,cx-flat,30,col);cv_line(cx-flat,30,cx-2,30,col);
+        cv_line(cx-2,30,cx+2,46,col);cv_line(cx+2,46,cx+flat,46,col);cv_line(cx+flat,46,right,38,col);
+    } else if(d && d->names && d->max<12) {
+        return 0; /* Named switches retain exact position pips. */
+    } else {
+        /* Neutral value scale for parameters without a dedicated schematic.
+         * No faux rotary knob, invented response curve, or new control. */
+        for(int j=0;j<7;j++) {
+            int h=3+j*2;
+            cv_rect(left+j*6,47-h,3,h,q && j*127/6<=q?col:C_LINE);
+        }
+        int at=left+q*36/127;
+        cv_rect(left,49,37,1,C_LINE);cv_rect(at,48,1,3,col);
+    }
+    return 1;
+}
+
 static uint32_t knobs_sig(void)
 {
     uint32_t h = 2166136261u, i;
@@ -6485,15 +6563,12 @@ static UI_DRAW void draw_knobs(void)
             if (mv >= 0)
                 val = mv;
         }
-        if(perform_glyph(r,val,cx,col)) {
+        if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
             /* Its existing value/motion/lock path is retained below. */
         } else if (d->names && d->max < 12) {           /* a switch: positions as pips */
             int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;
             for (k = 0; k < n; k++)
                 box(cx - w0 / 2 + k * (pw + gap), 33, pw, 9, k == val ? col : C_LINE);
-        } else {
-            arc(cx, 38, 12, d->max ? (float)val / (float)d->max : 0.0f, C_LINE, col,
-                r.kind == R_BTRANS || is_pan(r) || (r.kind == R_ENG && r.a == T_MST && r.c == MST_DJF));   /* from the middle */
         }
         pref_value_of(r,val,num,unit);
         if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
