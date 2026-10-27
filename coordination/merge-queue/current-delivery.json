@@ -1,0 +1,19 @@
+{
+  "updated": "2026-10-27T20:57:40Z",
+  "owner": "dot sole PR coordination role",
+  "request": "LX-REQ-017",
+  "pr": 646,
+  "source": "55f631b2e9f64a8cafb01dbcbb22c83df0c05176",
+  "reviewed_local_input": "7637286e22c5fadccf3b70f4e9972255c7090357",
+  "tree": "c7052b3f3474aead818b5e435b54da25de4d4c4e",
+  "source_delivery": "REMOTE_TREE_VERIFIED",
+  "review": "INDEPENDENT_SOL_ROUND1_APPROVE",
+  "evidence": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/646#pullrequestreview-5674185045",
+  "tests": "Executed focused6 tests/export10subcases, affected aggregate, output byte parity and real caller preservation PASS; Pro package skip not pass",
+  "merge": "a9681fc331de30dcdb278f26e602db71cc385c1d",
+  "merge_target": "PR638 feature branch, not nightly/main",
+  "publication": "NOT_DONE",
+  "hardware": "UNRUN",
+  "owner_available": "NO_NEW_FIRMWARE_DELIVERY",
+  "parent_pr638": "DRAFT; rollout preview gate distinct"
+}

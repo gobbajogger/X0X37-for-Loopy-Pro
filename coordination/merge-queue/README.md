@@ -1,6 +1,13 @@
 # LoopyX0X37 merge queue
 
-## Current checkpoint — 2026-10-27
+## Current checkpoint — 2026-10-27 20:57 UTC
+
+The existing sole PR coordination role accepted and normally merged PR646 into the PR638 feature branch at `a9681fc331de30dcdb278f26e602db71cc385c1d`. This host-generator repair has independent exact-input Sol approval and executed affected proof. Source delivery and remote tree readback are verified. See [current receipt](current-delivery.json). PR638 remains draft; no new firmware publication, hardware validation or owner-installable delivery is implied.
+
+The earlier 13:04 checkpoint and JSON/CSV rows below are retained as historical evidence, not current source-head claims. Other active repair packages retain their existing owners; local approval is not remote delivery. Action-specific tool denials do not stop independent authorized work.
+
+
+## Historical checkpoint — 2026-10-27 13:04 UTC
 
 **dot is the current sole queue writer and integration coordinator.** The historical Task-6 transfer below is retained for provenance, not an active ownership claim. Eight current PR records are appended to the authoritative JSON and matching CSV; all 139 historical entries and their histories remain unchanged.
 
