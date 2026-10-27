@@ -33,22 +33,39 @@ static void draw_bounds(void)
   cv_begin(240,69,bg);night_panel(8,5,54,55,active);
   for(int y=0;y<69;y++)for(int x=0;x<240;x++)if(x<8 || x>=62 || y<5 || y>=60)CHECK(cv_px[y*240+x]==swap16(bg));
  }
- for(int shape=2;shape<=3;shape++)for(int selected=0;selected<2;selected++) {
-  cv_begin(240,69,bg);draw_wave_glyph(60,20,shape,selected?127:0,C_WHITE,bg);
-  int ink=0,aa=0;
+ for(int active=0;active<2;active++)for(int shape=2;shape<=3;shape++)for(int selected=0;selected<2;selected++) {
+  uint16_t bg=active?PART_COL[PART_303A]:SOUND_FACE,col=active?C_BLACK:C_WHITE;
+  cv_begin(240,69,bg);draw_wave_glyph(60,20,shape,selected?127:0,col,bg);
+  int ink=0,aa=0,min_y=99,max_y=-1;
   for(int y=0;y<69;y++)for(int x=0;x<240;x++) {
    uint16_t px=cv_px[y*240+x];
-   if(x<46 || x>=75 || y<20 || y>=29)CHECK(px==swap16(bg));
-   else {ink+=px!=swap16(bg);aa+=px!=swap16(bg)&&px!=swap16(C_WHITE);}
+   if(x<46 || x>=75 || y<20 || y>=20+MIAMI_WAVE_HEIGHT)CHECK(px==swap16(bg));
+   else {ink+=px!=swap16(bg);aa+=px!=swap16(bg)&&px!=swap16(col);
+    if(px!=swap16(bg)){if(y<min_y)min_y=y;if(y>max_y)max_y=y;}
+   }
   }
   CHECK(ink>20);CHECK(aa>10);
+  CHECK(max_y-min_y>=(!selected?15:shape==2?14:15));
+  /* Single affine projection: correct zero and gain, no independent polarity
+   * normalization. AA footprint stays inside the 19px value-cell box. */
+  for(int i=0;i<=8192;i++) {
+   float v=ui_miami_wave_value(shape==3,selected,(float)i/8192.0f);
+   float py=miami_wave_plot_y(shape==3 && selected,v);
+   CHECK(py>=.5f && py<=MIAMI_WAVE_HEIGHT-1.5f);
+  }
  }
+ CHECK(fm_fabsf(miami_wave_plot_y(1,0)-15.4f)<.001f);
+ CHECK(fm_fabsf((miami_wave_plot_y(1,0)-miami_wave_plot_y(1,1))/(miami_wave_plot_y(1,-1.0f/9)-miami_wave_plot_y(1,0))-9)<.001f);
+ CHECK(25+MIAMI_WAVE_HEIGHT<=46); /* 49px row: clear of bottom edge/bar */
+ CHECK(25>11+10); /* clear of parameter caption */
  /* UIW-01: zero-only pixel is subdued for black-on-selected and white-on-dark. */
- for(int active=0;active<2;active++) {
+ for(int active=0;active<2;active++)for(int shape=2;shape<=3;shape++)for(int selected=0;selected<2;selected++) {
   uint16_t face=active?PART_COL[PART_303A]:SOUND_FACE,ink=active?C_BLACK:C_WHITE;
-  cv_begin(240,69,face);draw_wave_glyph(60,20,2,0,ink,face);
-  CHECK(cv_px[24*240+46]==swap16(blend(face,ink,3)));
-  CHECK(cv_px[24*240+46]!=swap16(ink));
+  int pulse=shape==3 && selected;
+  int zero=(int)(miami_wave_plot_y(pulse,0)+.5f),xx=pulse?70:selected?53:46;
+  cv_begin(240,69,face);draw_wave_glyph(60,20,shape,selected?127:0,ink,face);
+  CHECK(cv_px[(20+zero)*240+xx]==swap16(blend(face,ink,3)));
+  CHECK(cv_px[(20+zero)*240+xx]!=swap16(ink));
  }
  /* Drawing must not edit project, sequencer, notes or parameters. */
  setup(V_PART,PART_303A);project_t *p=malloc(sizeof proj);CHECK(p!=NULL);*p=proj;seq_t q=seq;
