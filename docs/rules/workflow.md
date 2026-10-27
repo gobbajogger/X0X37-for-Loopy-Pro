@@ -1,101 +1,147 @@
-# Full-cycle dev chain
+# Authorized project delivery
 
-Use this procedure for an authorized firmware or code change. Each stage is its own thread. Subagents do the work inside that thread. The owner of stages 1–5 and stage 7 starts exactly one new cloud thread, pushes that thread's id, and only then hands off. Stage 6 starts none.
+This is the active workflow for this production checkout. It applies the same
+continuation, ownership and evidence contract as the maintained development
+workflow. Resolve development `nightly` to its full SHA before reading its
+`skills/x0x37-workflow/SKILL.md` and relevant references. Read the actual target
+repository's rules too. Adopting workflow instructions does not promote firmware.
+Current owner instructions, actual permissions and action-specific denials govern.
+[Historical records](workflow-history.md) provide evidence, not active routing.
 
-The owner's current request overrides this procedure. Otherwise the cloud process does not pause and does not end after one cycle. A cycle publishes a valid nightly build to the nightly installer page, <https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/>, then stage 7 starts the next cycle's audit. That page is the public preview in `gobbajogger/x0x37-for-Loopy-Pro_nightly`. It is not production `main` and not production GitHub Pages.
+## Start from the existing outcome
 
-A docs-only edit does not start the stage loop. A new job is still a new thread. This procedure replaces one-chat stage routing. Leave the removed skill pack, ChatGPT project routing, and Codex `create_thread` instructions unrestored.
+Read the current request, accountable owner, shared queue/checkpoint and authentic
+source receipts. Preserve request IDs, scope, prior valid work and the declared
+completion condition. An unread, failed, stale or incomplete required queue read
+is unknown; perform the missing read. It is not an empty queue or completed work.
+Check the candidate's required dependencies, not unrelated fleet metadata.
 
-Every change states a reason, a purpose, and the effect on the person using the device.
+Record the requested outcome, exact source/input pins, owned paths, applicable
+checks, independent reviewer, actual receiving owner and next permitted action.
+Define the evidence needed by that outcome before selecting work. A source-only
+task does not acquire future publication or device prerequisites. Missing optional
+timing, model-tier or presentation metadata is not a global admission gate.
+Planning is followed by the next authorized action.
 
-Agents run every applicable test in their own environment with the tools that machine has. Optional host tooling gaps (Pillow, ASan, missing reference repos) are not cycle blockers. Install when possible (environment `install` / `bash tools/agent_env_install.sh`); otherwise mark those checks not-run and continue the loop. A generator that actually runs and fails still fails. GitHub is not a test runner. GitHub Actions and billing locks are never test results. A missing optional input does not stop other work. Do not wait on another agent, on GitHub, or on the owner for a missing optional library. Do the next independent step.
+## Continue through the current owners
 
-For stage PRs and local-env review, use the minimum proof that still decides merge or publish: [local-proof.md](local-proof.md). Plan selectors with `python3 tools/local_proof_plan.py --base <pr-base> --head HEAD`. Evidence-only tips verify CHECKS and recorded digests; they do not rebuild Elite/Pro packages when stage 4 already recorded `DEV CHECKED`. Keep package integrity gates (`dev_validate`, `pool_free`, publish hash MATCH) and required BF host regressions when firmware changes.
+Use a capable current executor and supported result reader. There is no mandatory
+local Codex launch, particular provider, fresh thread per stage or return to root
+for every step. Preserve active delegated ownership. Create a receiver only for a
+real transfer that needs it. A provider name or stored active flag proves neither
+execution capability nor free capacity.
 
-## Project PR merge
+Keep one writer per shared scope and the existing sole ledger, firmware
+integration, browser merger and publication owners. The sole ledger writer may
+admit a batch of disjoint ready tasks within verified free capacity. Existing
+accepted work continues in its owned scope. Unknown conflicting active-writer
+scope prevents new overlapping claims until reconciled; it does not erase an
+already accepted independent continuation. Independent QA and builds can run on
+the same immutable candidate while disjoint implementation proceeds. Serialize
+overlapping writes and integration, not the whole queue.
 
-When Project PRs are mergeable after local proof, merge them. Do not leave them parked in For Review. Automatic merge of properly tested work is pre-approved by the owner — no per-PR human APPROVE, and never ask the owner to approve a merge.
+After a meaningful stage, report its evidence and next action, then execute that
+action if authorized. A bounded unit limits ownership and concurrency; it is not
+a stop-after-report rule. Reports, previews and routine acknowledgments are not
+owner-response gates. Root chat and the owner's wakefulness are not dependencies.
 
-Use `tools/merge_project_prs.py --pr N` (and/or `--head SHA`) after local proof of those exact heads (prefer `--dry-run` first). Standing pre-approval does not merge unrelated untested `cursor/` PRs. The tool walks the proven set bottom-up, uses a normal merge commit (no force-push), skips real conflicts and records the skip, and treats GitHub Actions / billing failures as non-blocking. Prefer GitHub auto-merge when the API allows it; if auto-merge is armed but required Actions failed (billing), fall through to direct/`--admin` merge. After a stack parent merges, retarget remaining children to the parent's base (usually `main`) before merging them so the tip reaches trunk.
+If an execution must end with work remaining, persist and read back the exact
+checkpoint and use one supported successor or an existing qualified relay. Before
+any shared write, release the previous writer. Verify receiver consumption by its
+actual first scoped action on the pinned inputs. A queued prompt, title, launch,
+sender readback or ACK alone is not consumption. Reconcile uncertain creation
+before retrying; never duplicate a pending receiver or invent an ID. If no route
+exists, preserve BLOCKED/PENDING with its exact missing dependency and next owner.
 
-This path does not race stage 5. Stage 5 remains the only integrator that fast-forwards firmware `nightly`. Do not merge into `nightly` here. Do not merge production `main` from unvalidated firmware bytes; firmware `main` moves only after a successful hardware validation of those exact bytes.
+## Selected modes and review
 
-Ruleset `LoopyX0X37 PRODUCTION main - reviewed PR only` is unlocked for agent merges: required approvals are 0 and last-pusher approval is off. Force-push and delete protections stay. Do not ask the owner to unlock or approve again. `tools/merge_project_prs.py --print-onetime-setup` only records that the unlock is done.
+Select Full Send, Full Stop or Sol Loop only from the current owner request;
+installation of a skill selects no mode. Use the applicable installed tstack
+workflow and its required dependencies. Full Send seeks a merged PR subject to
+current role and action authority. Full Stop leaves the PR open and does not arm
+auto-merge. Sol review must use the actual supported Sol reviewer; do not rename
+another reviewer or claim agreement. Ordinary work completes its authorized
+source and proof without inferring either merge mode.
 
-## One fresh thread per stage
+Keep the candidate immutable during independent review. The author cannot supply
+independent QA; agent independence does not satisfy a separately required GitHub
+human approval. Reuse accepted exact-input evidence and rerun only changed inputs
+or concrete uncovered risks. Run applicable tests in an actual qualified execution
+environment. GitHub Actions and billing failures are not agent-run test results.
+Existing required checks and review protections still govern the permitted merge.
+Missing, skipped, inconclusive or failing required checks are not PASS.
 
-The cloud stages are a loop: stage 1, then 2, then 3, then 4, then 5, then 7, then stage 1 again. The current stage creates the next thread only after its own checks pass, and only the next thread. It does not create the rest of the loop in advance. Stage 6 is the local install prompt saved by stage 5. It is not a cloud thread between stage 5 and stage 7, and stage 7 does not wait for it. The thread assigned to a stage does that stage. It does not create a second copy of itself.
+## Visual changes
 
-Never pass `resume` to turn a stage agent into the next stage. A stage change needs a new thread.
+Within the agreed scope, use mockup, internal independent review, implementation,
+then actual validation. Reuse unchanged approved mockups. Label proposals and
+validate the real affected candidate-pinned render or interaction before rollout.
+Resolve blocking correctness/design findings internally. Report each meaningful
+completed stage and continue without waiting for an owner aesthetic reply.
+A materially new action or changed scope still needs its applicable authority.
 
-| Stage | Starting state and goal | Done when |
-| --- | --- | --- |
-| 1. Audit | Inspect the named validated SHA and the intended behavior. Write defects, evidence, affected scope, proposed fixes, which fixes already have approval, and which decisions are still missing. Make no production edits. | The audit is recorded and the next thread's id is pushed. A recorded defect starts stage 2. No recorded defect starts the next stage 1. The loop does not end. |
-| 2. Implement | Branch from the pushed audit tip as `cursor/<slug>-stage2-<suffix>`. Apply only the approved fixes. Use the development configuration `X0X_DEV_PADCAL=1`. Run the scoped checks and commit. | Checked commits for the approved fixes are on the remote branch, deferred items are recorded, and one stage-3 thread has started. |
-| 3. Test | Start from the pushed implement tip. Give the test run and any failure investigation to separate subagents. | The relevant tests pass, and each failure has a cause and a disposition. Then one stage-4 thread has started. |
-| 4. Validate | Build Elite and Pro development packages from the tested candidate. Record exact package and controller identities, budgets, checks, and logs. | The affected development packages are DEV CHECKED and meet the budgets. A host pass is not a package pass. Then one stage-5 thread has started. |
-| 5. Merge | One integrator fast-forwards firmware `nightly` when the host checks passed and the affected development packages are DEV CHECKED, and saves the local install prompt. | The handoff names that validated SHA. `nightly` matches it, or the refusal is recorded without a force-push. One stage-7 thread has started on that same SHA. |
-| 6. Install | The Mac LaunchAgent `com.x0x37.unattended-install` may run the saved stage-6 prompt for a validated development package and record installation and data-preservation checks. Stage 5 saves this prompt. Stage 6 starts no cloud thread. | A local install record exists for those artifact hashes. A cloud attempt with no device records `INSTALL BLOCKED` and leaves this stage pending. |
-| 7. Publish nightly | Publish the valid development packages to the nightly installer page. Then start the next cycle. | The live page serves that candidate, labeled for hardware test, and the served package hashes match. One new stage-1 thread has started. The page is not a production release. |
+## Source, merge and publication
 
-Use the current run's required branch prefix and suffix. Stages 1–5 each get their own `cursor/<slug>-stageN-<suffix>` branch. The successor works on its own new branch. The sender does not merge the successor's branch back into its own. Stage 7 starts from the pushed stage-5 branch and publishes in the nightly repository. Stage 6 runs from the saved prompt on a local machine.
+Deliver authorized source to an isolated branch and verify remote head, parent,
+tree and changed bytes. Follow [connected source delivery](../connected-git-source-delivery.md)
+for exact transport errors and readback. A DNS failure is transport-specific; an
+actual permission, hook, policy or automatic-review denial remains binding for
+the denied action. Do not change transport, worker or encoding to bypass it.
 
-Stage 4 stays on development packages. A full release gate runs only when the current request explicitly asks for a release build. Firmware `main` fast-forwards after a successful hardware validation of those exact bytes on the matching model. That replaces the separate production-approval wait. `INSTALL BLOCKED` is not success. Elite evidence does not move a Pro package. Production GitHub Pages is not this merge. No force-push.
+Only the assigned integration owner applies current authorized merge operations,
+with fresh expected source/base, independent review and applicable combined-tree
+proof. Read back the resulting ref. Do not force push, bypass required checks or
+reviews, change protections, flatten another stack or silently alter auto-merge.
+`tools/merge_project_prs.py` is a read-only legacy planning aid; it grants no merge
+authority and performs no merge, retarget or auto-merge action. Route eligible
+exact candidates to the existing integration owner through the current queue.
 
-Before installation, compare the merged inputs with the stage-4 evidence. A new commit id by itself leaves matching evidence valid. A change to checked source, configuration, tools, dependencies, or artifacts sends the work back to a new thread at the earliest affected stage. Repeat a completed merge only when another merge is actually required. That new merge goes through the affected validation and merge stages again.
+Firmware `nightly` is development integration. Production `main` firmware or
+installer behavior requires exact same-byte, matching-model owner-operated
+hardware PASS, independent QA and separate production authority. A documentation
+or workflow-tool repair uses its affected checks; it does not certify firmware or
+promote untested behavior. A workflow mode never grants hardware access. Current
+Elite recovery and flash remain withdrawn; read-only Pro investigation through
+the assigned integrator does not grant a write, install, flash or recovery.
 
-Stage 5 is the only integrator of firmware `nightly`. It fast-forwards firmware `nightly` when the host checks passed and the affected development packages are DEV CHECKED. If the remote refuses the update, record the refusal and do not force-push. Stage 7 and the next audit still use that validated SHA, not an older `nightly` commit. Stage order does not add permission for production GitHub Pages or a new defect fix. Carry existing approvals forward.
+The separate NIGHTLY browser/status repository and its sole Pages publisher retain
+their own current rules. Standing NIGHTLY channel authority permits a qualified
+DEV hardware-test candidate without another per-candidate chat approval or prior
+physical PASS. Qualification still needs actual applicable native Elite/Pro builds,
+matching controller/model, SHA-256/CRC, code/RAM/flash/pool budgets, host and
+installer negatives, backup/readback/rollback checks, independent QA, lawful
+distribution and verified immutable hosted bytes. Optional receipt paperwork is
+not a substitute for, or a waiver of, the underlying build, rights or checks.
+Label untested candidates `DEV / HARDWARE TEST - DEVICE NOT TESTED`. Preserve
+last-known-good candidates and truthful history; a failed/unrun required gate
+keeps that candidate out of the flashable picker.
 
-Stages 1–5 and stage 7 each start one cloud successor. Stage 5's successor is stage 7, recorded in `SUCCESSOR-STAGE7.txt`. Stage 5 also saves the stage-6 local install prompt, including the package and controller hashes. That prompt is not a cloud thread. Stage 6 starts no successor. Stage 7's successor is the next cycle's stage 1, recorded in `SUCCESSOR-STAGE1.txt`. A later local install records the device result and does not publish the page or start a cycle.
+Use only the assigned publisher's authorized nonforced route. Verify remote site
+state and actual served catalog/package bytes. Source pushed, source merged,
+BUILD_ONLY, DEV CHECKED, published, owner-available and hardware-tested are separate
+states. No automatic device install or production promotion follows from them.
 
-## Subagents inside the stage
+## Protect sources and data
 
-Delegate the stage's real work to fresh subagents. Each helper is a new Task call with no `resume`. Use separate scopes: stage 3 uses one subagent for the test run and another for failure investigation. Other stages use a fresh subagent for the stage's checks or review.
+Public project source and sanitized technical evidence can go to their authorized
+destinations. Closed DEV means owner-only testing, not private source. Temporary
+private storage is not a permanent publication ban. Preserve LICENSE, LICENSING.md
+and applicable notices/rights. Keep `refs-oscuro`, proprietary SDK/toolchain/DSP
+bytes, credentials and unrelated private samples/backups out of public commits.
+Only an owner-designated exact stock-loop selection has its scoped distribution
+permission. Preserve features, sample/project/calibration data and model guards.
 
-A subagent supports the stage. It does not replace the stage thread, and it does not launch the next stage. A Task subagent is internal to the current run. The owner cannot open it. Only the owner of stages 1–5 and stage 7 launches the successor, and that successor is an agent the owner can open.
+## Recover and close truthfully
 
-## Successor handoff
+A blocked item stays pending and blocks only real dependents. Diagnose recoverable
+failures, retain negative/unrun evidence and continue independent ready work.
+Do not retry known denials on timer ticks. Do not re-audit unchanged inputs,
+create duplicate jobs or generate no-op commits. Existing checkup owners resume
+on a relevant changed observation or concrete retry trigger.
 
-A stage hands off only after it starts a new Cloud Agent the owner can open, and that agent's id and URL are on the remote. A pushed prompt is not a handoff. An internal Task subagent is not a handoff. The current owner still owns the work until the owner-visible id is pushed.
-
-When stage 1, 2, 3, 4, 5, or 7 passes its checks:
-
-1. Write `evidence/<slug>-stageN/HANDOFF.md` and the successor prompt. Stage 1 with a recorded defect writes `SUCCESSOR-STAGE2.txt`. Stage 1 with no recorded defect writes `SUCCESSOR-STAGE1.txt` and returns the loop to audit. Stages 2–4 write `SUCCESSOR-STAGE{N+1}.txt`. Stage 5 writes `SUCCESSOR-STAGE7.txt` and the stage-6 local install prompt. Stage 7, after the live page matches, writes `SUCCESSOR-STAGE1.txt` and returns the loop to audit. A stage-7 thread that could not update the live page writes a fresh stage-7 prompt instead, and does not start stage 1 yet. The prompt names the next stage, repository, validated SHA, branch, approved scope, evidence paths, completion condition, and this same rule. Stage 6 does not write a successor prompt and does not launch a thread.
-2. Commit and push that prompt. The new thread can see only the remote tip. This push prepares the handoff. It does not complete it.
-3. Read the remote handoff and the owner's cloud agents. A recorded successor counts only when its source is one the owner can open, such as web, mobile, desktop, api, slack, linear, or automations, and its URL is `https://cursor.com/agents/<id>`. If this handoff already has that kind of id, keep it and do not start another. An agent whose source is internal does not count, even when this run can see it. A running thread from an earlier cycle does not count either.
-4. If no owner-visible successor is recorded, create exactly one with `POST https://api.cursor.com/v1/agents`. Authenticate with the owner's user or service-account API key. Send the repository `https://github.com/gobbajogger/X0X37-for-Loopy-Pro`, `startingRef` set to the pushed branch, and the full successor prompt. The pod identity token is not that key. Do not send it.
-5. Read the created agent back. Write its id and `https://cursor.com/agents/<id>` URL into `HANDOFF.md` only after its source is owner-visible. Commit and push that record. The handoff is complete when that URL is on the remote. Then the current owner stops. It does not wait for the next stage to finish.
-
-If the create call has no API key, is rejected, or returns only an internal subagent, the handoff is not complete and the loop has not advanced. Record the reason, keep ownership, and do not stop as if the next stage has begun. Do not claim it launched. Do not substitute a Task subagent, a local helper, or a pod token. Retry once with the same owner key. A second failure still belongs to the current owner. It is not an exit from the loop.
-
-A failed check is not a completed stage. Start one new thread at the earliest affected stage. An `INSTALL BLOCKED` cloud note is not a failed package check and is not an install pass. A source repair found in stage 3, a package or source failure found in stage 4, or a prehardware gate that fails in stage 7 returns to a new stage 2, then a new stage 3, then a new stage 4. The test thread does not patch the failure forward. Do not advance to merge, install, or the nightly page while checks are failed. Do not leave the failure without a successor.
-
-Missing hardware blocks the device install record only. Do not skip a failed package check and publish anyway. A valid candidate still publishes when no device is attached.
-
-## Valid nightly page
-
-Stage 7 runs after stage 4 and stage 5. It does not wait for a physical install. Follow the nightly repo's `docs/nightly-first-development-gate.md` and `docs/qualified-nightly-candidate.md`.
-
-A candidate is valid only when every applicable prehardware gate passes for the exact source tree: both the Elite and the Pro development packages, model and header identity, package and controller CRC and SHA-256, source attribution, memory and flash budgets with at least 8192 bytes of pool free, host regressions, backup, readback, and rollback, installer and model negatives, and independent review. Owner policy: a missing distribution-license, corresponding-source, or native-build receipt does not block a candidate. Do not invent an MIT claim for the tree; follow LICENSE and LICENSING.md for what the code is under. A present receipt that is not PASS, a hash mismatch, a failed package check, or a compiler failure stops that candidate only. The page label is `DEV / HARDWARE TEST — DEVICE NOT TESTED`. `hardware_tested` stays false.
-
-Publish by linking those immutable hosted package bytes from the nightly installer. Fetch the bytes again and require the size and SHA-256 to match before the page can offer them. Reconcile the existing qualified catalog. Fast-forward the nightly repo's `gh-pages` through its publisher route, then fetch the live installer and confirm the served catalog, installer, and package hashes.
-
-Leave `.fwsc` packages and `ctl.img` out of both Git repositories. Leave proprietary SDK, toolchain, DSP references, samples, and secrets out of the nightly repo. This nightly publish leaves production `main` and production GitHub Pages unchanged.
-
-A failed or skipped applicable check stays out of the flashable picker. Record that history, and start one stage-2 repair thread for that failure. Do not publish the candidate and do not start stage 1 for a new defect in parallel. If this thread cannot publish a candidate that already passed every applicable gate, save the qualified handoff and start one fresh stage-7 retry of that same candidate under the successor rule. A successor id already on this handoff, or a thread already running for this handoff's stage-7 prompt, blocks a second start. An older retry does not. Do not start stage 1 from a page that did not update. A prepared folder is not a live page.
-
-After the live page matches the candidate, start the next cycle as specified below. Do not treat the page as a production release.
-
-## Next cycle
-
-This section applies only after the live page matches the candidate. Stage 7 then starts exactly one fresh stage-1 thread, pushes that thread's id, and only then ends its own turn. It does not wait for a device install, an owner message, or a new request. The successor prompt names the validated SHA that was published, the page hashes, and this procedure. `cloud_base_branch` is the pushed branch that contains that SHA and the handoff. The audit uses that SHA even when firmware `nightly` is behind it.
-
-The next defect is the oldest deferred defect from any cycle that is not already fixed in that SHA, then a recorded failing check that is not already fixed in that SHA, then the oldest open audit or bugfinder finding not already contained in that SHA. The new audit does not ask which defect to take. It does not resume stage 7. The duplicate check is the successor id for this handoff, not an older cycle's stage-1 id. If this handoff's stage-1 id is already on the remote, or that successor is already running, stage 7 keeps that id and does not start a second thread. The handoff finishes only when the id is pushed.
-
-When no such defect is recorded, the audit records that unchanged SHA and starts one new stage-1 thread under the handoff rule. It does not start stage 2. That return to audit is the loop. A previous cycle's audit id does not block it. A failed page update stays on a stage-7 retry until the page matches, and that retry then returns to stage 1. A failed package or prehardware gate returns through stage 2, stage 3, and stage 4, then rejoins the loop at stage 5 and stage 7.
-
-## Local install
-
-Stage 6 runs on a machine with the device attached. The stage-5 owner saves the local prompt and does not spawn a cloud installer. A cloud agent does not flash. The Mac LaunchAgent `com.x0x37.unattended-install` may run the saved stage-6 prompt for a validated development package.
-
-A cloud thread that is asked to install writes `INSTALL BLOCKED`, the package and controller hashes, and the local prompt, then stops. A successful install record fast-forwards firmware `main` as the hardware-validation rule above states. The stage-7 publication thread is the only cloud successor of stage 5.
+Mark DONE/COMPLETED only when the declared requested outcome and applicable
+evidence agree with actual delivery. Negative, stale, missing or contradictory
+required proof cannot release dependents. A scheduler's completed execution is
+not request completion. End at evidenced acceptance, owner cancellation or a
+precise unavailable required dependency, while retaining unresolved ownership and
+the next action. These rules do not promise uninterrupted runtime.

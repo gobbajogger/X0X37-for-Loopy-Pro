@@ -13,6 +13,13 @@ Use this skill when a classic ChatGPT thread is asked to inspect or change repos
 
 Current user instructions and maintained repository rules override this skill. At startup, inspect the checked-out revision's `AGENTS.md`, project rules, build instructions, licensing, and active ownership. If those files are absent, discover the actual repository layout rather than treating examples here as authoritative. Do not turn a documentation-only task into a firmware release.
 
+For LoopyX0X37, first apply the [current project workflow](../../docs/rules/workflow.md).
+Consume the existing owner/request checkpoint. Reports and local stage completion
+are nonblocking; continue the next authorized action. Preserve sole integration
+ownership, independent QA and actual action-specific gates. A new provider or
+thread is needed only for a real execution transfer, with a supported result reader.
+Verify receiver consumption through its actual first scoped action on pinned inputs.
+
 ## 1. Discover the environment before saying a tool is unavailable
 
 Build a short **capability ledger** from evidence, not from memory. Mark each capability `available`, `needs connection`, `needs setup`, or `unavailable`:
@@ -35,7 +42,7 @@ Examples in this ChatGPT environment:
 - A GitHub API can edit text and refs but cannot by itself compile firmware. Use a real runner with required SDK, or report the missing runner specifically.
 - Before saying “cannot build/push,” inspect available connected GitHub actions, local/container tools, documented project CI, and any already-authorized execution environment. Do not substitute a simulated or speculative build.
 
-When tools for an exact authorized step are missing, create **one compact Codex/execution handoff**, if such an execution channel is available and authorized: goal; repository and edit lane; exact starting commit and input files; relevant skill and rule paths; permitted operations; command/check requirements; destination permissions; expected artifact identities; completion evidence. Do not start duplicate agents, take firmware integration ownership, poll idle work, or silently transfer installation authority. If no execution channel exists, give an explicit blocker and the exact command or missing dependency.
+When tools for an exact authorized step are missing, use the current capable owner or **one compact execution handoff** to an existing qualified receiver/relay, if that channel is supported and authorized: goal; repository and edit lane; exact starting commit and input files; relevant skill and rule paths; permitted operations; command/check requirements; destination permissions; expected artifact identities; completion evidence. Do not start duplicate agents, take firmware integration ownership, poll idle work, or silently transfer installation authority. If no execution channel exists, give an explicit blocker and the exact command or missing dependency.
 
 ## 2. Establish scope, source identity, and ownership
 
@@ -70,7 +77,7 @@ Do not attach an old binary to a new commit. Validate that the generated install
 
 1. Identify the real installer generator, its publication branch/workflow, version catalog, model picker, and source of firmware downloads. Read deployment commands before using them; some scripts rewrite or force-update `gh-pages`.
 2. Test the generated site and mocked upgrade/downgrade/sample-preservation flows. Inspect links, model identity, checksums, assets, and whether any older published versions would be removed. A generated site folder is **not** a deployed site.
-3. Keep an internal/local **development installer bundle** separate from a public release. Public firmware publication requires its own authorization and all project-specific release/device gates. A source-only installer shell may be publishable separately if explicitly authorized and verified.
+3. Keep an internal/local **development installer bundle** separate from a public release. Production firmware publication requires its production authority and applicable hardware gates. The separate NIGHTLY DEV hardware-test channel uses its current standing authority and prehardware qualification under the project workflow; prior physical PASS is not its admission gate. A source-only installer shell uses its actual destination rules and publication authority.
 4. On an approved publication, publish the exact validated artifact and page **without overwriting unrelated versions or losing existing pages**. Verify the remote deployment commit and, where accessible, the resulting URL/catalog/download checksum. A queued Action or `startup_failure` is not a deploy PASS.
 5. Before a source Git push, inspect automatic deployment workflows and compare the target ref and changed paths with their triggers: a source push can also publish a site. If publication is outside the authorized scope, use an authorized nondeploying ref; do not disable or bypass deployment controls. After an authorized push, verify the actual deployment state before reporting whether the installer page was published. Approval for a repository push does not itself approve a separate public web/firmware destination.
 
@@ -78,9 +85,9 @@ Do not attach an old binary to a new commit. Validate that the generated install
 
 - Check source/license safety, clean expected diff, generated-file boundaries, author policy, and selected tests before commit. Use a coherent commit with the actual validation inputs.
 - Follow repository lane, integrator, install, and stage-order rules. A GitHub connector create/update action may create a real remote commit without a local clone, but it does not execute host tests. Never claim local tests based solely on its success.
-- Push **only** to an approved remote/ref. Prefer fast-forward or reviewed PR flow; do not force-push shared firmware/installer branches without specific authorization and a verified protection/rollback plan.
+- Push **only** to an approved remote/ref. Prefer fast-forward or reviewed PR flow; do not force-push project source or installer branches, bypass denials or weaken protections.
 - Read the resulting remote branch/ref SHA and compare it with the intended commit. Record both, plus any PR and CI result. “Committed” is not “pushed”; “pushed” is not “merged”; “merged” is not “published.”
-- If the active project's staged workflow requires installation before final `main` push, preserve that order. A missing device leaves that step pending; it does not turn a build into a device-tested release.
+- Production firmware/installer behavior needs its exact hardware and production authority. A source-only documentation/tool repair uses its own affected proof and authorized source delivery; it does not require an unrelated device install.
 
 ## 7. End-of-task contract: evidence, not promises
 
@@ -97,7 +104,7 @@ Report the smallest accurate result for each requested component, with an exact 
 | Device | Not tested vs installed/tested; backup and readback evidence if applicable |
 | Blockers | Only unresolved prerequisites; one narrow follow-on operation and owner |
 
-Do not present a plan as completed work. Do not say “fixed,” “built,” “installed,” “deployed,” or “pushed” without matching evidence. A helpful partial result is preferable to a fictitious complete delivery.
+Do not present a plan as completed work. Do not say “fixed,” “built,” “installed,” “deployed,” or “pushed” without matching evidence. Continue executable authorized actions after the report. Keep genuinely unresolved work BLOCKED/PENDING with its owner and next action; independent ready work continues. A truthful partial stage is not a completed user outcome.
 
 ## Project adapter
 

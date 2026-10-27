@@ -1,74 +1,33 @@
-# Minimum local proof
+# Scoped local proof
 
-Use this matrix for stage workers and for `internal/pr-local-reviews` workers. All review and tests stay in the agent cloud VM or on the Mac. Never use GitHub Actions or `@codex` as the review gate.
+Use this matrix to select meaningful checks for the requested outcome under
+[AGENTS.md](../../AGENTS.md) and the [active workflow](workflow.md). Independent
+review, current permissions, required remote checks and ownership remain separate.
+GitHub Actions and billing status are not substitutes for agent-run test results.
 
-Plan a tip with:
+| Scope | Applicable proof |
+| --- | --- |
+| Documentation or skill rules | Exact diff, syntax and reachable links; semantic/independent review when authority or delivery behavior changes. No firmware rebuild. |
+| Workflow or validation helper | Relevant complete helper test closure, changed positive/negative behavior and affected callers. No firmware build unless consumed compiler inputs change. |
+| Firmware implementation | Covering host regressions and meaningful negative/boundary tests; affected target native validation when required by the delivery stage. |
+| Evidence-only change | Authenticate stated source/inputs, exits, records and stored byte hashes; reuse unchanged valid proof. |
+| Development package | Actual affected Elite/Pro development validation, matching controller, model/config, CRC/SHA-256 and memory/flash/pool budgets. |
+| Integration | Fresh exact source/base, independent review and applicable combined-tree checks, normal authorized update and remote readback. |
+| Publication | Applicable qualification, preserved catalog/history, authorized publisher and served page/catalog/package byte verification. |
+| Device/production | Separately authorized same-byte, matching-model owner hardware result and applicable production approval. |
 
-```bash
-python3 tools/local_proof_plan.py --base <pr-base> --head HEAD --branch <head-branch>
-```
+`tools/local_proof_plan.py` may suggest selectors from the actual diff. Verify its
+output against the requested behavior and current scripts; a planner is not proof.
+Historical numbered stage or successor validators check old records only. They do
+not require a new thread or block current delivery because no successor ID exists.
 
-Prefer the plan's `x0x_tests`, `verify`, and `skip` lists over a fixed kitchen-sink selector string. Prefer skip or narrow over delete. Package integrity gates stay required when they apply.
+Rebuild only when consumed source/configuration/tool/dependency inputs changed or
+required stored artifacts/proof cannot be verified. A new commit ID alone does
+not invalidate identical input evidence. Missing, failed or NOT_RUN required checks
+stay negative/pending; optional gaps do not stop independent ready work.
 
-## What each stage already proves
-
-| Stage | Stage worker runs | Done evidence |
-| --- | --- | --- |
-| 1 Audit | Inspection only; no production edits | Audit + successor id on remote |
-| 2 Implement | Scoped host checks for the approved fix (`X0X_DEV_PADCAL=1`) | Checked commits + stage-3 successor |
-| 3 Test | Relevant host selectors; failure disposition | ALL_PASS (or named FAIL disposition) + stage-4 successor |
-| 4 Validate | Elite + Pro `tools/dev_validate.py run`; budgets; identities | Both models `DEV CHECKED` + stage-5 successor |
-| 5 Merge | Tree gate vs records; nightly FF or recorded refusal; stage-6 prompt | Handoff + stage-7 successor |
-| 7 Publish | Prehardware gates; live catalog/package hash MATCH | Live page serves candidate + next stage-1 successor |
-
-Local review re-proves only what the PR tip can still falsify. It does not re-own an earlier stage's full suite when the three-dot diff is evidence-only and prior ALL_PASS / DEV CHECKED still apply.
-
-## PR kind → minimum proof
-
-Classify from the three-dot diff vs the PR base (and the stage number when known).
-
-| Kind | Typical tip | Must run | Must not re-run by default |
-| --- | --- | --- | --- |
-| audit-evidence / evidence-only (stage 1) | `evidence/*-stage1/*` only | Scope/whitespace; CHECKS vs SHAs; `stage-handoff` if HANDOFF/SUCCESSOR changed; live catalog MATCH only when the audit claims a live page | Full `tests/run_tests.sh`; publish/web kitchen sink; package rebuild; `node web/test_web.mjs` |
-| implement (stage 2, firmware/tests) | Repair + host test + evidence | Host BF selectors for changed firmware paths (for clock/seq: `sequencer clk-lock clock-handover`); `stage-handoff` when handoff files change | Package rebuild; unrelated publish/web selectors; full suite |
-| test-evidence (stage 3) | `evidence/*-stage3/*` only | Scope; re-run host selectors named in tip CHECKS / test-run-summary; `stage-handoff` when handoff changes | Full suite; package rebuild; default publish/web kitchen sink |
-| validate-evidence (stage 4 tip) | `evidence/*-stage4/*` only, records already `DEV CHECKED` | Scope; `X0X_TESTS=dev-validate`; `python3 tools/verify_dev_checked_records.py --evidence <dir>`; CHECKS digest spot-check | **Elite+Pro `dev_validate.py run` rebuild**; full suite; default publish/web kitchen sink |
-| validate (stage 4 with product change) | Firmware/tools build inputs in the tip | Full Elite+Pro `dev_validate.py run`; `pool_free >= 8192`; record digests MATCH | Unrelated host suites not touched by the change |
-| merge-evidence (stage 5) | `evidence/*-stage5/*` only | Scope; tree gate vs validated SHA; stage-6 prompt digests vs stage-4 records; nightly FF or refusal log; `stage-handoff`; `install-gate-guard` | Package rebuild; publish/web kitchen sink; `test_web.mjs` |
-| publish-evidence (stage 7) | `evidence/*-stage7/*` only | Scope; live catalog + package/controller hash MATCH; qualification claims | Package rebuild when stage-4 digests unchanged; unrelated host suites |
-| docs-only / harness | `docs/`, `tools/` planner, tests for tools | Planner/unit tests for touched harness; selectors only for touched tools | Firmware BF suite; package rebuild |
-| docs-only edit outside the stage loop | docs/skills only | Diff review; no stage loop | Firmware and package work |
-
-## Default kitchen sink to stop using
-
-Local reviews often ran this on every stage PR:
-
-```bash
-X0X_TESTS='stage-handoff nightly-publish installer-targets installer-digests install-gate-guard projects-web projects-page'
-node web/test_web.mjs
-```
-
-Keep those selectors when the three-dot diff touches the matching tools/web paths. Do not run them as a default tax on evidence-only tips. `tools/local_proof_plan.py` encodes that rule.
-
-## Package rebuild rule
-
-Rebuild Elite and Pro development packages in local review only when:
-
-1. The three-dot diff changes firmware, build inputs, `tools/dev_validate.py`, packaging tools, or other validation inputs, or
-2. Tip records are missing, not `DEV CHECKED`, or fail `verify_dev_checked_records.py`.
-
-When the tip is evidence-only and stage 4 already recorded `DEV CHECKED` digests, verify records and CHECKS claims instead of rebuilding.
-
-## Integrity gates that stay
-
-Do not remove or weaken:
-
-- `DEV CHECKED` result on affected Elite/Pro records
-- `pool_free >= 8192`
-- Package and controller SHA-256 MATCH for publish and install prompts
-- Required BF host regressions when firmware (or the matching host test) changes
-- Live page hash MATCH before treating a nightly publish as done
-
-## Policy
-
-GitHub Actions and `@codex` are never test results. Subscribe to Project PRs for merge/status awareness only.
+Preserve applicable DEV CHECKED records, package/controller hashes, model guards,
+flash/static-RAM limits, `pool_free >= 8192`, data-preserving installer negatives,
+independent QA and actual live byte verification. A source-only task needs none of
+the unrelated future hardware/publication proof. No local pass overrides an actual
+denial, required review or branch protection. Report, then continue authorized work.
