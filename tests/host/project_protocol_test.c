@@ -16,7 +16,7 @@ static uint8_t flash_image[0x100000];
 project_t proj, project_stage;
 static uint32_t fm1_ms, fm1_crash[2];
 static struct { uint32_t failed, pending; } bootguard;
-static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action;
+static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action, headers;
 static uint8_t frame[640], reply[800];
 static uint32_t frame_n, reply_n;
 static void fm1_irq_off(void) {}
@@ -80,7 +80,7 @@ int ui_project_save(void) { return action; }
 int ui_project_load(void) { return action; }
 int ui_project_reset(void) { return action; }
 void project_capture_stage(void) { memcpy(&project_stage, &proj, sizeof proj); }
-void project_file_header(uint8_t *h) { memset(h, 0x55, PROJECT_FILE_HDR); }
+void project_file_header(uint8_t *h) { headers++; memset(h, 0x55, PROJECT_FILE_HDR); }
 int project_file_validate(const uint8_t *h) { (void)h; return validation; }
 static int ota_wire_send(const uint8_t *p, uint32_t n)
 {
@@ -164,7 +164,9 @@ int main(void)
     validation = -4; op(69, confirm, 2, 4); assert(!adopts && held);
     validation = -7; op(74, 0, 0, 6);
     validation = -1; op(74, 0, 0, 5);
+    int headers_before_validate = headers;
     validation = 0; op(74, 0, 0, 0); assert(!adopts && held && !ed_project_samples_locked());
+    assert(headers == headers_before_validate + 1); /* migrated bytes need a new CRC header */
     op(69, confirm, 2, 0); assert(adopts == 1 && !held && !ed_project.mode);
     assert(!memcmp(&proj, data + PROJECT_FILE_HDR, sizeof proj));
     assert(!flash_writes && !flash_erases);

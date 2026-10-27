@@ -2064,6 +2064,14 @@ static void smk_clip_mode_poll(void)
 
 CK_FN static void smk_frame(void)
 {
+    extern void ui_brk_page_keys(unsigned keys, int allowed);
+    unsigned outer = (unsigned)((fm1_in.keys >> 1) & 1u) | (unsigned)((fm1_in.keys >> 2) & 2u) |
+        (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+    int allow_pages = !clip_grid_mode;
+#if X0X_DEV_PADCAL
+    allow_pages = allow_pages && !padcal.on;
+#endif
+    ui_brk_page_keys(outer, allow_pages);
     while (smk_extkey_take() >= 0)
         ;
     if (ui_project_busy()) {

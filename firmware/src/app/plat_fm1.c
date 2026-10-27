@@ -193,6 +193,37 @@ void plat_midi_out(uint32_t pkt)
     ble_out(pkt);                               /* the same, to a Bluetooth MIDI connection */
 #endif
 }
+/* A pulse must not use priority replacement: an Off replacing an older CC
+ * could otherwise precede its newly appended On. Reserve two slots or drop both. */
+int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on()) return 0;
+#endif
+    uint32_t on = 9u | ((uint32_t)(0x90u | channel) << 8) |
+        ((uint32_t)note << 16) | ((uint32_t)velocity << 24);
+    uint32_t off = 8u | ((uint32_t)(0x80u | channel) << 8) | ((uint32_t)note << 16);
+    int sent = 0;
+    uint32_t irq = irq_save();
+    if (usb.config && mo_w - mo_r <= MQ - 2u) {
+        midi_out_q[mo_w % MQ] = on;
+        midi_out_q[(mo_w + 1u) % MQ] = off;
+        RING_PUBLISH(); mo_w += 2u;
+        sent |= 1;
+    }
+#if X0X_BLE
+    if (!ble_central_role && !smc_ble_role_get() && ble_want && ble_host_on &&
+        bleh_notifying(&ble_r.host.h) && ble_r.ow - ble_r.orr <= BLE_OQ - 2u) {
+        ble_oq[ble_r.ow % BLE_OQ] = on;
+        ble_oq[(ble_r.ow + 1u) % BLE_OQ] = off;
+        RING_PUBLISH(); ble_r.ow += 2u;
+        sent |= 2;
+    }
+#endif
+    irq_restore(irq);
+    return sent;
+}
 #if !X0X_BLE
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }

@@ -144,6 +144,13 @@ void plat_midi_out(uint32_t pkt)
         fprintf(midi_log, "%u ms: %02X %02X %02X\n", now_ms, (pkt >> 8) & 0xFF, (pkt >> 16) & 0xFF, (pkt >> 24) & 0xFF);
 }
 
+int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
+{
+    plat_midi_out(9u | ((uint32_t)(0x90u | ch) << 8) | ((uint32_t)note << 16) | ((uint32_t)velocity << 24));
+    plat_midi_out(8u | ((uint32_t)(0x80u | ch) << 8) | ((uint32_t)note << 16));
+    return 1;
+}
+
 /* flash: one buffer per object, kept across a simulated reboot */
 static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
 static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
@@ -996,13 +1003,14 @@ int main(int argc, char **argv)
                 return 2;
             }
             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
-        } else if (!strcmp(cmd, "brkwrap")) {      /* brkwrap 0|1: 8 SLICES off or on, current break pattern */
-            pattern_t *bp = &proj.pat[seq.ppat[TRK_BRK]];
-            uint8_t m = (uint8_t)(atoi(a) ? 1 : 0);
-            if (bp->brk.slice_mode != m) {
-                bp->brk.slice_mode = m;
-                engine_brk_slice_mode_reconcile();
-            }
+        } else if (!strcmp(cmd, "brkcount")) { /* brkcount A|B 4|8|16|32 */
+            unsigned count = (unsigned)atoi(b), code;
+            if (count != 4 && count != 8 && count != 16 && count != 32) return 2;
+            code = count == 4 ? 1 : count == 8 ? 0 : count == 16 ? 2 : 3;
+            unsigned shift = a[0] == 'B' ? 2 : 0;
+            brkpart_t *bp = &proj.pat[seq.ppat[TRK_BRK]].brk;
+            bp->slice_mode = (uint8_t)((bp->slice_mode & ~(3u << shift)) | (code << shift));
+            engine_brk_loops();
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */

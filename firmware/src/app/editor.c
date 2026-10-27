@@ -298,6 +298,9 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
 #endif
         rc = ed_project_rc(project_file_validate(ed_project.header));
         ed_project.valid = rc == 0;
+        /* Validation may migrate a legacy BREAK mode byte. Canonicalize the
+         * header so a later VALIDATE/COMMIT checks the migrated bytes' CRC. */
+        if (!rc) project_file_header(ed_project.header);
         if (!rc && op == 69)
             ed_project_end(1);
         break;
