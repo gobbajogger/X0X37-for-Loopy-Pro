@@ -6200,11 +6200,17 @@ static UI_DRAW void filter_glyph(int cx,int y,int mode,int cutoff,int resonance,
         cv_line(pivot,peak,pivot+6,floor,col);cv_line(pivot+6,floor,right,floor,col);
     }
 }
+static uint8_t tempo_glyph_view; /* latched once for signature + complete knob strip */
 static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
 {
     if(r.kind==R_TEMPO) {
         cv_line(cx-10,47,cx-4,28,col);cv_line(cx-4,28,cx+4,28,col);cv_line(cx+4,28,cx+10,47,col);
-        cv_line(cx-10,47,cx+10,47,col);cv_line(cx,43,cx+7,31,C_WHITE);cv_rect(cx+4,32,5,3,col);
+        int phase=tempo_glyph_view?tempo_glyph_view-1:0;
+        int arm=tempo_glyph_view?(phase<16?phase-8:24-phase):0;
+        cv_line(cx-10,47,cx+10,47,col);
+        cv_line(cx,43,cx+arm,30,tempo_glyph_view?C_WHITE:C_GRAY);
+        cv_rect(cx+arm*3/4-2,32,5,3,col);
+        if(tempo_glyph_view && phase<4) cv_rect(cx-2,45,5,2,C_WHITE);
     } else if(r.kind==R_SWING) {
         int middle=cx+val*7/127;
         cv_rect(cx-18,43,37,1,C_LINE);
@@ -6248,6 +6254,7 @@ static uint32_t knobs_sig(void)
         pref_t r = pg.r[pgi][i];
         MIXIN(r.kind | r.a << 8 | r.b << 16 | (uint32_t)r.c << 24);
         MIXIN(pref_get(r));
+        if(r.kind==R_TEMPO) MIXIN(tempo_glyph_view);
         if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
             MIXIN(engine_master_get(MST_MODE));
             MIXIN(engine_master_get(MST_CUTOFF));
@@ -6339,6 +6346,7 @@ static UI_DRAW void draw_knobs(void)
         last_sig = 0;
         return;
     }
+    tempo_glyph_view = seq.metro_view;
     sig = knobs_sig();
     if (sig == last_sig && blit_hash[3])
         return;
