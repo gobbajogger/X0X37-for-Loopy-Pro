@@ -16,9 +16,11 @@ static uint8_t flash_image[0x100000];
 project_t proj, project_stage;
 static uint32_t fm1_ms, fm1_crash[2];
 static struct { uint32_t failed, pending; } bootguard;
-static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action;
+static struct { unsigned ota_req, uboot_req; } usb;
+static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action, wire_fail, stage_held;
 static uint8_t frame[640], reply[800];
 static uint32_t frame_n, reply_n;
+static void (*wire_after_send)(void);
 static void fm1_irq_off(void) {}
 static void fm1_irq_on(void) {}
 static void fm1_wdt_feed(void) {}
@@ -47,7 +49,7 @@ static uint8_t *fm1_xip_ptr(uint32_t off)
     assert(off < sizeof flash_image);
     return flash_image + off;
 }
-static int store_stage_held(void) { return 0; }
+static int store_stage_held(void) { return stage_held; }
 static uint8_t *store_stage_lock(uint32_t *cap)
 {
     static uint8_t buf[64];
@@ -69,6 +71,7 @@ void engine_brk_loops(void) {}
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes) { (void)base; (void)nbytes; }
 void ui_say(const char *a, const char *b) { (void)a; (void)b; }
 int ui_boot_flash_busy(void) { return 0; }
+int ui_project_busy(void) { return held; }
 int ui_project_begin(void) { if (held) return UI_PROJECT_BUSY; held = 1; return 0; }
 void ui_project_end(int apply)
 {
@@ -84,7 +87,9 @@ void project_file_header(uint8_t *h) { memset(h, 0x55, PROJECT_FILE_HDR); }
 int project_file_validate(const uint8_t *h) { (void)h; return validation; }
 static int ota_wire_send(const uint8_t *p, uint32_t n)
 {
-    assert(n <= sizeof reply); memcpy(reply, p, n); reply_n = n; return 0;
+    assert(n <= sizeof reply); memcpy(reply, p, n); reply_n = n;
+    if (wire_after_send) wire_after_send();
+    return wire_fail;
 }
 static int ota_frame_get(const uint8_t **p, uint32_t *n)
 {

@@ -9,6 +9,7 @@
 static uint8_t editor_flash[0x100000],editor_frame[640],reply[800];
 static uint32_t frame_n,reply_n,fm1_ms,fm1_crash[2],flash_writes,flash_erases;
 static struct {uint32_t failed,pending;} bootguard;
+static struct {unsigned ota_req,uboot_req;} usb;
 static int flash_ok=1;
 static void fm1_irq_off(void){} static void fm1_irq_on(void){} static void fm1_wdt_feed(void){}
 static void audio_silence(void){} static void fl_inval(uint32_t off,uint32_t n){(void)off;(void)n;}
