@@ -38,7 +38,7 @@ static void check_plain_leds(void)
                 for (int strip = 0; strip < 8; strip++) check_select_led(strip, strip == track % 8);
             }
         } else {
-            for (int strip = 0; strip < NPARTS; strip++) check_select_led(strip, strip == part);
+            for (int strip = 0; strip < NPARTS; strip++) check_select_led(strip, strip == (part==2?4:part==4?2:part));
         }
     }
 }
@@ -51,7 +51,7 @@ static void check_plain_select(void)
         int rec = ui.rec;
         message(0x90, 24 + strip, 127);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
-        if (strip < NPARTS) { CHECK(ui.part == strip); CHECK(ui.view == V_PART); check_select_led(strip, 1); }
+        if (strip < NPARTS) { CHECK(ui.part == (strip==2?4:strip==4?2:strip)); CHECK(ui.view == V_PART); check_select_led(strip, 1); }
         else { CHECK(ui.view == (strip == 7 ? V_MIX : V_FX)); CHECK(cur_page() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)); }
         int view = ui.view, page = cur_page(), part = ui.part;
         message(0x90, 24 + strip, 127); /* repeat cannot acquire FX after navigation */
@@ -70,13 +70,13 @@ static void check_fx_and_release(void)
         setup(V_FX, PART_303A);
         int part = ui.part;
         message(0x90, 24 + strip, 127);
-        if (strip < 5) { CHECK(smc.fx_down == (1u << strip));
+        if (strip < 5) { CHECK(smc.fx_down == (1u << (strip==2?4:strip==4?2:strip)));
             for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == strip);
         }
         else { CHECK(!smc.fx_down); CHECK(smc.fx_main_wait == (1u << (strip - 5)));
             check_main_navigation_leds(); /* pending hold retains its navigation indication */
         }
-        now_ms += 200; smc_poll(); CHECK(smc.fx_down == (1u << strip));
+        now_ms += 200; smc_poll(); CHECK(smc.fx_down == (1u << (strip==2?4:strip==4?2:strip)));
         if (strip < NPARTS) check_select_led(strip, 1);
         else check_main_navigation_leds();
         CHECK(ui.view == V_FX && ui.part == part);
@@ -120,7 +120,7 @@ static void check_mode_changes(void)
         smc_poll(); CHECK(!smc.fx_down && !smc.fx_main_wait);
         check_main_navigation_leds();
         if (views[v] != V_SEQ && views[v] != V_MIX)
-            for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == part);
+            for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == (part==2?4:part==4?2:part));
         message(0x80, 24 + strip, 0);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
         CHECK(ui.view == views[v] && ui.part == part && cur_page() == page);

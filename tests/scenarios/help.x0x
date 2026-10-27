@@ -38,7 +38,7 @@ expect help 0
 release ENV
 expect hit0.0.0 1
 # 303A on keyboard: OCT+ held
-turn ALGO 2
+turn ALGO 4
 tap SEQ
 press OCT+
 wait 1200

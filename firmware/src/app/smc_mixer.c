@@ -238,7 +238,9 @@ static __attribute__((noinline)) pref_t smc_home_target(int n)
         PR(R_ENG, T_MIX, 4, MX_LEVEL), PR(R_ENG, T_FX, 0, FX_RV_LEVEL),
         PR(R_ENG, T_FX, 0, FX_DL_LEVEL), PR(R_ENG, T_MST, 0, MST_DJF)
     };
-    return targets[n];
+    pref_t r = targets[n];
+    if (n < NPARTS) r.b = (uint8_t)part_at(n);
+    return r;
 }
 
 /* Only visible cells are targets. Empty positions never fall through to another
@@ -312,7 +314,7 @@ static pref_t smc_knob_target(int n)
     }
     if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
         (ui.view == V_HOME || (ui.view == V_MIX && cur_page() == 0))) {
-        if (n < NPARTS) return PR(R_ENG, T_MIX, n, MX_CUT);
+        if (n < NPARTS) return PR(R_ENG, T_MIX, part_at(n), MX_CUT);
         static const pref_t tail[3] = {
             PR(R_ENG, T_FX, 0, FX_RV_DECAY), PR(R_ENG, T_FX, 0, FX_DL_FDBK),
             PR(R_ENG, T_MST, 0, MST_RESO)
@@ -631,7 +633,7 @@ static UI_DRAW void smc_ui_grid(void)
      * LOCK in the header describes captured targets, never the title highlight. */
     int selected = kit >= 0 ? ui.sel[kit] - smc_drum_track(kit, 0) :
         ui.view == V_FX ? 5 + cur_page() :
-        ui.view == V_MIX ? (cur_page() == 3 ? 7 : ui.mixsel) : ui.part;
+        ui.view == V_MIX ? (cur_page() == 3 ? 7 : part_position(ui.mixsel)) : part_position(ui.part);
     for (int n = 0; n < 8; n++) {
         pref_t f = smc_target(n), k = smc_knob_target(n);
         char name[24];
@@ -645,7 +647,7 @@ static UI_DRAW void smc_ui_grid(void)
             else if ((smc.locked ? smc.lock_view : ui.view) == V_SEQ)
                 put_s(name, engine_voice_name(kit ? T_808 : T_909, track));
             else put_i(name, track + 1);
-        } else put_s(name, n < NPARTS ? part_s(n) : MAIN_FX[n - NPARTS]);
+        } else put_s(name, n < NPARTS ? part_s(part_at(n)) : MAIN_FX[n - NPARTS]);
         if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);
         text_c(x + 15, 1, &FONT_T, name, n == selected ? C_BLACK : C_WHITE);
         if (k.kind == R_NONE) put_s(name, "--");
@@ -959,11 +961,18 @@ static void smc_fx_load_page(int page)
         say(SMCFX_PAGE_NAME[page], "FX PAGE");
 }
 
+/* Translate physical strips only; effect IDs and held bus ownership stay stable. */
+static int smc_fx_bus(uint8_t note)
+{
+    int bus = smcfx_bus(note);
+    return bus >= 0 && bus < NPARTS ? part_at(bus) : bus;
+}
+
 static int smc_fx_bus_now(uint8_t note)
 {
     if (ui.view != V_FX || ui.overlay != O_NONE || smk_clip_mode_on() || smc_drum_mix() >= 0)
         return -1;
-    return smcfx_bus(note);
+    return smc_fx_bus(note);
 }
 
 static int smc_home_held(void)
@@ -1070,7 +1079,7 @@ static int smc_fx_try(uint8_t note, int mmc)
 
 static void smc_fx_release_note(uint8_t note)
 {
-    int bus = smcfx_bus(note);
+    int bus = smc_fx_bus(note);
     if (bus < 0 || !(smc.fx_owned & (uint8_t)(1u << bus)))
         return;                         /* a non-FX press cannot acquire a release action later */
     smc.fx_owned &= (uint8_t)~(1u << bus);
@@ -1175,18 +1184,19 @@ static void smc_button_apply(uint8_t note, int mmc)
         row = note >> 3;
         strip = note & 7;
         if (strip < NPARTS) {
+            int part = part_at(strip);
             if (row == 0) {             /* REC */
-                smc_select_part(strip);
+                smc_select_part(part);
                 smc_record_toggle();
             } else if (row == 1) {      /* SOLO */
-                smc_solo_press(strip, strip + 1, mmc);
-                say((smc.solo & (1u << strip)) ? "SOLO" : "UNSOLO", PART_N[strip]);
+                smc_solo_press(strip, part + 1, mmc);
+                say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", PART_N[part]);
             } else if (row == 2)       /* MUTE */
-                mute_part(strip);
+                mute_part(part);
             else {                     /* SELECT */
-                int repeat_drum = strip < NKIT && ui.part == strip && ui.overlay == O_NONE;
-                smc_select_part(strip);
-                smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? strip + 1 : -1);
+                int repeat_drum = part < NKIT && ui.part == part && ui.overlay == O_NONE;
+                smc_select_part(part);
+                smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? part + 1 : -1);
             }
         } else {
             int which = strip - NPARTS;
@@ -1200,10 +1210,10 @@ static void smc_button_apply(uint8_t note, int mmc)
     if (smc_bank(note)) return;
     switch (note) {
     case 0x2E: case 0x30:             /* bank / channel left: part */
-        if (ui.part) smc_select_part(ui.part - 1);
+        if (part_position(ui.part) > 0) smc_select_part(part_neighbor(ui.part, -1));
         break;
     case 0x2F: case 0x31:
-        if (ui.part + 1 < NPARTS) smc_select_part(ui.part + 1);
+        if (part_position(ui.part) + 1 < NPARTS) smc_select_part(part_neighbor(ui.part, 1));
         break;
     case 0x5B: case 0x5C: {            /* rewind / forward: pattern */
         int part = smc.locked ? smc.lock_part : ui.part;
@@ -1499,15 +1509,16 @@ static int smc_led(int note)
     if (note == 15) return ui.view == V_PART;
     if (note < 32) {
         if (strip < NPARTS) {
+            int part = part_at(strip);
             /* Panel REC and part changes update ui.part / ui.rec without smc.rec_part. */
-            if (row == 0) return ui.rec && ui.part == strip;
-            if (row == 1) return !!(smc.solo & (1u << strip));
-            if (row == 2) return part_muted(strip);
+            if (row == 0) return ui.rec && ui.part == part;
+            if (row == 1) return !!(smc.solo & (1u << part));
+            if (row == 2) return part_muted(part);
             /* SELECT feedback follows the same mode as its press action. Source
-             * buses map directly to strips 0..4, including 303B and BREAK. */
+             * bus identity follows the presentation mapping, not the strip index. */
             if (row == 3 && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())
-                return (smc.fx_down >> strip) & 1;
-            return ui.part == strip;
+                return (smc.fx_down >> part) & 1;
+            return ui.part == part;
         }
         /* Strips 6–8: M = mute/zero. R8/S6/S7/S8 are handled above; SELECT 6/7/8
          * open reverb, delay and master (drum SELECT was handled above). */

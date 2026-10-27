@@ -6,7 +6,7 @@ wait 100
 shot s01_pans.png
 tapkey b0
 turn K2 -40
-tapkey b2
+tapkey b4
 turn K2 30
 wait 1200
 shot s02_panned.png
@@ -25,5 +25,5 @@ expect sound0.0.10 40
 # on MIX, ALGORITHM picks the matching page: the 808's tracks, then the levels for a 303
 turn ALGO 1
 expect part 1
-turn ALGO 1
+turn ALGO 3
 expect part 2

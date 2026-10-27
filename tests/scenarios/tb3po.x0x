@@ -1,7 +1,7 @@
 # TB-3PO: the settings are the next line's. Turning them leaves the line as it is (and marks the
 # screen); OCT+ writes a new line, OCT- mutates it.
 wait 300
-turn ALGO 2
+turn ALGO 4
 expect part 2
 tap ARP
 tap OCT+

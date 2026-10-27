@@ -183,7 +183,7 @@ static void test_303_key_release(void)
     key(10, 1);
     tick(10);
     CHECK(engine_midi_held() & 1, "303 A key sounds before part change");
-    enc_acc[EN_ALGO] += 1;
+    enc_acc[EN_ALGO] -= 1;
     tick(1);
     CHECK(ui.part == PART_303B, "ALGORITHM selects 303 B while A key is held");
     key(10, 0);
@@ -254,7 +254,7 @@ static void test_303_step_preview_lifecycle(void)
     key(white, 1);
     tick(10);
     CHECK(engine_midi_held() & 1, "303 A step preview starts while its key is held");
-    enc_acc[EN_ALGO] = 1;                              /* change A to B with the key still down */
+    enc_acc[EN_ALGO] = -1;                             /* change A to B with the key still down */
     tick(20);
     CHECK(ui.part == PART_303B, "ALGORITHM selected 303 B");
     CHECK(!(engine_midi_held() & 1), "303 A preview ended on part change");

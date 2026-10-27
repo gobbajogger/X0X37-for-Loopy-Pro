@@ -143,6 +143,21 @@ static const char *const VIEW_N[NVIEWS] = {"HOME", "", "TB-3PO", "FX", "MIX", "G
 static const uint16_t PART_COL[NPARTS] = {RGB(255, 150, 40), RGB(255, 72, 64), RGB(130, 240, 90), RGB(70, 205, 255),
                                           RGB(214, 120, 255)};
 static const char *const PART_N[NPARTS] = {"909", "808", "303A", "303B", "BREAK"};
+/* Presentation only: drums together, then the default Chicago B / Miami A.
+ * Project lanes, MIDI channels, engine buses and all saved arrays keep their IDs.
+ * Engine changes never move a physical strip or a held gesture's destination. */
+static const uint8_t PART_ORDER[NPARTS] = {PART_909, PART_808, PART_BRK, PART_303B, PART_303A};
+static int part_at(int position) { return PART_ORDER[position]; }
+static int part_position(int part)
+{
+    for (int i = 0; i < NPARTS; i++) if (part_at(i) == part) return i;
+    return 0;
+}
+static int part_neighbor(int part, int direction)
+{
+    int position = part_position(part) + direction;
+    return part_at(position < 0 ? 0 : position >= NPARTS ? NPARTS - 1 : position);
+}
 /* Lane labels: PART_N except BREAK → BRK (4 chars). Beats a second 5-pointer table. */
 #if X0X_BASS_PRESET_PREVIEW
 static const char *bass_display_name(int bank,int other,int voice)
@@ -1445,9 +1460,9 @@ static void build_pages(void)
             add_page_refs("PERF", refs, 0, 0); } while (0);
         break;
     case V_SONG:
-        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_909, 0, 0), PR(R_SPAT, PART_808, 0, 0), PR(R_SPAT, PART_303A, 0, 0)};
+        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_909, 0, 0), PR(R_SPAT, PART_808, 0, 0), PR(R_SPAT, PART_BRK, 0, 0)};
             add_page_refs("BAR", refs, 0, 0); } while (0);
-        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_303B, 0, 0), PR(R_SPAT, PART_BRK, 0, 0), PR(R_SREP, 0, 0, 0)};
+        do { static const pref_t refs[4] = {PR(R_SBAR, 0, 0, 0), PR(R_SPAT, PART_303B, 0, 0), PR(R_SPAT, PART_303A, 0, 0), PR(R_SREP, 0, 0, 0)};
             add_page_refs("BAR", refs, 0, 0); } while (0);
         break;
     default: break;
@@ -1576,7 +1591,7 @@ static void open_global(void)
     list_add(PR(R_CLKOUT, 0, 0, 0));
     list_add(PR(R_NOTEOUT, 0, 0, 0));
     for (int p = 0; p < NPARTS; p++)
-        list_add(PR(R_MIDICH, p, 0, 0));
+        list_add(PR(R_MIDICH, part_at(p), 0, 0));
 #if BOARD_SMK37
     list_add(PR(R_CKCH, 0, 0, 0));
 #endif
@@ -3091,8 +3106,9 @@ static void held_note_by(int by)
 static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
 static void smk_mute_edge(int target, int silent)
 {
-    if (target / 4 != smk_mute_bank) return;
-    int i = target % 4;
+    int position = target < NPARTS ? part_position(target) : target;
+    if (position / 4 != smk_mute_bank) return;
+    int i = position % 4;
     uint8_t bit = (uint8_t)(1u << i);
     pref_t r = target < NPARTS ? PR(R_ENG, T_MIX, target, MX_LEVEL) :
                PR(R_ENG, T_FX, 0, target == 5 ? FX_RV_LEVEL : FX_DL_LEVEL);
@@ -3239,7 +3255,7 @@ static void key_event(int k, int down)
             if (k + 1 < NSONG)
                 ui.song_sel = (uint8_t)(k + 1);
         } else {
-            song()->bar[k].mute ^= (uint8_t)(1u << bl);
+            song()->bar[k].mute ^= (uint8_t)(1u << part_at(bl));
         }
         mark_dirty();
         return;
@@ -3270,12 +3286,12 @@ static void key_event(int k, int down)
         if (down && drum_mix_page() >= 0)
             mute_track(drum_mix_page(), bl);
         else if (down && bl < NPARTS)
-            mute_part(bl);
+            mute_part(part_at(bl));
         return;
     }
     if (bl >= 0 && ui.view == V_MIX && cur_page() == 0) {   /* MIX's PARTS: black keys 1-5 pick the part */
         if (down && bl < NPARTS) {
-            ui.mixsel = (uint8_t)bl;
+            ui.mixsel = (uint8_t)part_at(bl);
             build_pages();
         }
         return;
@@ -3300,7 +3316,7 @@ static void key_event(int k, int down)
     }
     if (ui.view == V_HOME && bl >= 0) {
         if (down && bl < NPARTS)
-            mute_part(bl);
+            mute_part(part_at(bl));
         return;
     }
     if (ui.view == V_MIX || ui.view == V_FX)          /* MASTER, FX: the keys choose nothing (they used to */
@@ -3783,8 +3799,7 @@ X0X_COLD static void input(void)
                                         (st->flags & BS_ACCENT) != 0, 1, st->velocity);
             }
         } else {
-            int p = ui.part + (e > 0 ? 1 : -1);
-            p = p < 0 ? 0 : p >= NPARTS ? NPARTS - 1 : p;
+            int p = part_neighbor(ui.part, e > 0 ? 1 : -1);
             if (p != ui.part) {
                 bass_step_cancel();
                 drum_step_cancel();
@@ -4907,7 +4922,8 @@ static UI_DRAW void draw_home(int band)
                            c >= (seq.chain_a < seq.chain_b ? seq.chain_a : seq.chain_b) &&
                            c <= (seq.chain_a < seq.chain_b ? seq.chain_b : seq.chain_a);
             frame(x, 3, 12, 18, C_LINE);
-            for (p = 0; p < NPARTS; p++) {               /* a line per part: its first 16 steps, bright where */
+            for (int pos = 0; pos < NPARTS; pos++) {     /* display order, stable data lane */
+                p = part_at(pos);
                 int used = part_used(&proj.pat[c], p);   /* it plays now; assignment has a separate border tick */
                 uint32_t pb;
                 uint16_t fc;
@@ -4916,9 +4932,9 @@ static UI_DRAW void draw_home(int band)
                 pb = pat_part_bits16(&proj.pat[c], p);
                 fc = seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4)) : dim(PART_COL[p], 7);
                 if (pb)
-                    pat_glyph_row(x + 2, 5 + p * 3, pb, fc);
+                    pat_glyph_row(x + 2, 5 + pos * 3, pb, fc);
                 if (seq.ppat[p] == c)                  /* never invent content inside the eight columns */
-                    cv_rect(x, 5 + p * 3, 1, 2, PART_COL[p]);
+                    cv_rect(x, 5 + pos * 3, 1, 2, PART_COL[p]);
             }
             if (c == cue && c != seq.ppat[PART_909] && (ui.frame & 16u))
                 frame(x - 1, 2, 14, 20, C_WHITE);
@@ -4939,15 +4955,16 @@ static UI_DRAW void draw_home(int band)
             lane(32 + p * 16, p, bits & 0xFFFFu, eng_step[TRK_DRUM + p], d->len, base);
         }
     } else {
-        for (p = 2; p < NPARTS; p++) {
+        for (int pos = 2; pos < NPARTS; pos++) {
+            p = part_at(pos);
             uint32_t bits = 0;
             if (p < PART_BRK) {
                 const bpart_t *bp = &pat_of(p)->bass[p - NKIT];
                 int base = seq.playing ? (eng_step[TRK_BASS0 + p - NKIT] & ~15) : 0;
                 bits = bass_content_bits16(bp, base);
-                lane((p - 2) * 16 + 1, p, bits, eng_step[TRK_BASS0 + p - NKIT], bp->len, base);
+                lane((pos - 2) * 16 + 1, p, bits, eng_step[TRK_BASS0 + p - NKIT], bp->len, base);
             } else {
-                lane((p - 2) * 16 + 1, p, pat_of(p)->brk.steps, eng_step[TRK_BRK], 16, 0);
+                lane((pos - 2) * 16 + 1, p, pat_of(p)->brk.steps, eng_step[TRK_BRK], 16, 0);
             }
         }
     }
@@ -4963,8 +4980,10 @@ static UI_DRAW void draw_song(int band)
         char t[8];
         if (row == 0) {                                /* the heading */
             cv_text(4, vc(&FONT_XS, y, 11), &FONT_XS, "BAR", C_GRAY);
-            for (p = 0; p < NPARTS; p++)
-                text_c(58 + p * 36, vc(&FONT_XS, y, 11), &FONT_XS, part_s(p), PART_COL[p]);
+            for (int pos = 0; pos < NPARTS; pos++) {
+                p = part_at(pos);
+                text_c(58 + pos * 36, vc(&FONT_XS, y, 11), &FONT_XS, part_s(p), PART_COL[p]);
+            }
             continue;
         }
         if (k > sg->len || k >= NSONG)
@@ -4979,11 +4998,12 @@ static UI_DRAW void draw_song(int band)
             cv_text(50, vc(&FONT_XS, y, 11), &FONT_XS, k ? "END" : "EMPTY: WHITE KEYS ADD BARS", C_DIM);
             continue;
         }
-        for (p = 0; p < NPARTS; p++) {
+        for (int pos = 0; pos < NPARTS; pos++) {
+            p = part_at(pos);
             int muted = sg->bar[k].mute >> p & 1u;
             t[0] = 'P';
             put_i(t + 1, sg->bar[k].pat[p] + 1);
-            text_c(58 + p * 36, vc(&FONT_XS, y, 11), &FONT_XS, muted ? "-" : t, muted ? C_DIM : PART_COL[p]);
+            text_c(58 + pos * 36, vc(&FONT_XS, y, 11), &FONT_XS, muted ? "-" : t, muted ? C_DIM : PART_COL[p]);
         }
         if (SONG_REP(&sg->bar[k]) > 1) {               /* a bar played more than once: x2 .. x8 */
             t[0] = 'x';
@@ -4999,8 +5019,9 @@ static UI_DRAW void draw_fx(int band)
     if (band == 0) {                                   /* five parts x reverb / delay */
         cv_text(52, 0, &FONT_XS, "REVERB", C_GRAY);
         cv_text(148, 0, &FONT_XS, "DELAY", C_GRAY);
-        for (p = 0; p < NPARTS; p++) {
-            int y = 14 + p * 11, rv = proj.sound.v[T_MIX][p][1], dl = proj.sound.v[T_MIX][p][2];
+        for (int pos = 0; pos < NPARTS; pos++) {
+            p = part_at(pos);
+            int y = 14 + pos * 11, rv = proj.sound.v[T_MIX][p][1], dl = proj.sound.v[T_MIX][p][2];
             cv_text(3, y - 2, &FONT_XS, part_s(p), PART_COL[p]);
             rbox(52, y + 2, 88, 6, 3, C_LINE);
             if (rv)
@@ -5130,8 +5151,9 @@ static UI_DRAW void draw_mix(int band)
     if (band == 0 && wave)
         draw_master_wave();
     if (band == 0 && !master && !wave) {               /* channel strips */
-        for (p = 0; p < NPARTS; p++) {
-            int x = 6 + p * 38, lvl = proj.sound.v[T_MIX][p][0], pk = eng_peak[p] * 64 / 32768;
+        for (int pos = 0; pos < NPARTS; pos++) {
+            p = part_at(pos);
+            int x = 6 + pos * 38, lvl = proj.sound.v[T_MIX][p][0], pk = eng_peak[p] * 64 / 32768;
             if (cur_page() == 0 && p == ui.mixsel)       /* PARTS: the part the knobs set */
                 box(x - 2, 0, 30, BAND_H, dim(PART_COL[p], 3));
             rbox(x + 10, 4, 6, 64, 3, C_LINE);
@@ -5151,8 +5173,10 @@ static UI_DRAW void draw_mix(int band)
         }
     } else {
         char t[24], a[12], u[8], *q;
-        for (p = 0; p < NPARTS && !master && !wave; p++)   /* the strips' names (not on MASTER / WAVE) */
-            text_c(6 + p * 38 + 13, 0, &FONT_XS, PART_N[p], part_muted(p) ? C_LINE : PART_COL[p]);
+        for (int pos = 0; pos < NPARTS && !master && !wave; pos++) { /* strip names */
+            p = part_at(pos);
+            text_c(6 + pos * 38 + 13, 0, &FONT_XS, part_s(p), part_muted(p) ? C_LINE : PART_COL[p]);
+        }
         if ((int)(engine_gr_db() + 0.5f))
             put_s(put_i(put_s(t, "COMP -"), (int)(engine_gr_db() + 0.5f)), "dB");
         else
@@ -5272,8 +5296,9 @@ static UI_DRAW void draw_perf(int band)
     }
     for (k = 0; k < ENG_PROF_N; k++) {                /* each stage's share of the CPU */
         int x = (k & 1) * 118 + 4, y = (k >> 1) * 12;
-        cv_text(x, y, &FONT_XS, k < NPARTS ? PART_N[k] : SN_TAIL[k - NPARTS], C_GRAY);
-        put_pct10(t, perf.stage[k]);
+        int stage = k < NPARTS ? part_at(k) : k;
+        cv_text(x, y, &FONT_XS, k < NPARTS ? part_s(stage) : SN_TAIL[k - NPARTS], C_GRAY);
+        put_pct10(t, perf.stage[stage]);
         text_r(x + 108, y, &FONT_XS, t, C_WHITE);
     }
     if (perf.cps) {
@@ -6096,7 +6121,7 @@ static void knob_tag(char *t)
     } else if (dm >= 0)
         put_s(put_s(put_s(t, ti), ": "), engine_voice_name(dm ? T_808 : T_909, ui.sel[dm]));
     else if (ui.view == V_MIX && cur_page() == 0)
-        put_s(put_s(t, "PARTS: "), PART_N[ui.mixsel]);
+        put_s(put_s(t, "PARTS: "), part_display(ui.mixsel));
     else if (g == GR_PAT)
         put_s(put_s(put_i(put_s(t, "P"), seq.ppat[ui.part] + 1), " "), ti);
     else if (g == GR_KIT || g == GR_SOUND) {
@@ -6301,17 +6326,18 @@ static void leds(void)
             if (ui.view == V_HOME && seq_cue_of(&seq, PART_909) >= 0 && blink && cu >= 0 && cu < 16)
                 k |= 1u << WHITE_KEY[cu];
             for (i = 0; i < NPARTS; i++) {            /* the parts: playing bright, muted dim */
-                int muted = ui.view == V_HOME ? part_muted((int)i) : bar ? (int)(sg->bar[ui.song_sel].mute >> i & 1u) : 1;
+                int p = part_at((int)i);
+                int muted = ui.view == V_HOME ? part_muted(p) : bar ? (int)(sg->bar[ui.song_sel].mute >> p & 1u) : 1;
                 if (muted)
                     d |= 1u << BLACK_KEY[i];
                 else
                     k |= 1u << BLACK_KEY[i];
             }
         } else if (ui.view == V_MIX && (cur_page() == 0 || drum_mix_page() >= 0)) {
-            int dm = drum_mix_page(), n = dm >= 0 ? NDRUM : NPARTS, on = dm >= 0 ? ui.sel[dm] : ui.mixsel;
+            int dm = drum_mix_page(), n = dm >= 0 ? NDRUM : NPARTS, on = dm >= 0 ? ui.sel[dm] : part_position(ui.mixsel);
             if (dm >= 0) k |= drum_step_lights(dm);
             for (i = 0; i < (uint32_t)n && i < 11u; i++) {  /* the knobs' channel bright (blinking: muted), */
-                int mu = dm >= 0 ? track_muted(dm, (int)i) : part_muted((int)i);   /* the others dim, muted dark */
+                int mu = dm >= 0 ? track_muted(dm, (int)i) : part_muted(part_at((int)i));   /* the others dim, muted dark */
                 if ((int)i == on ? !mu || blink : 0)
                     k |= 1u << BLACK_KEY[i];
                 else if ((int)i != on && !mu)

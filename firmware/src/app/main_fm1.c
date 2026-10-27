@@ -861,14 +861,13 @@ static void smk_pads(void)
     padled_flush();
 }
 
-/* The four faders, by FADER BANK (its LED lit on bank B): A = the levels of 909, 808, 303 A, 303 B; B = the
- * BREAK level, the reverb and delay returns, the master FILTER (middle off, low-pass left, high-pass right).
+/* The four faders follow PART_ORDER (FADER BANK LED lit on bank B): A = the first four
+ * displayed parts; B = the fifth part, reverb/delay returns and master FILTER (middle off).
  * They set the same values as the knobs (saved with the project; a knob move while REC runs records motion).
  * A fader takes over when it reaches the saved value (also after a bank change). */
 static void smk_faders(void)
 {
-    static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
-                                           {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
+    static const char *const NAME[3] = {"REV RETURN", "DLY RETURN", "FILTER"};
     /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
     /* held bit 1 marks an unknown first sample: startup may already exceed 200 frames. */
     static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held = 2u;
@@ -886,7 +885,13 @@ static void smk_faders(void)
         smk_fbank ^= 1u;
         for (i = 0; i < 4u; i++)
             last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
-        say(smk_fbank ? "FADERS: BRK REV DLY FILTER" : "FADERS: 909 808 303A 303B", 0);   /* (say: 27 chars) */
+        char names[28], *q = put_s(names, "FADERS: ");
+        if (smk_fbank) put_s(put_s(q, part_s(part_at(4))), " REV DLY FILTER");
+        else for (i = 0; i < 4u; i++) {
+            if (i) q = put_s(q, " ");
+            q = put_s(q, part_s(part_at((int)i)));
+        }
+        say(names, 0);                                  /* all short part labels fit 27 chars */
     }
     held = (uint8_t)down;
     smk_mute_bank = smk_fbank;
@@ -900,9 +905,9 @@ static void smk_faders(void)
             continue;
         }
         if (!smk_fbank)
-            r = PR(R_ENG, T_MIX, i, MX_LEVEL);
+            r = PR(R_ENG, T_MIX, part_at((int)i), MX_LEVEL);
         else if (i == 0)
-            r = PR(R_ENG, T_MIX, PART_BRK, MX_LEVEL);
+            r = PR(R_ENG, T_MIX, part_at(4), MX_LEVEL);
         else if (i == 1)
             r = PR(R_ENG, T_FX, 0, FX_RV_LEVEL);
         else if (i == 2)
@@ -946,7 +951,7 @@ static void smk_faders(void)
         motion_touch(r);
         ui.act_t = plat_ms();                            /* (the autosave waits for quiet) */
         pref_value(r, num, unit);
-        q = put_s(put_s(t, NAME[smk_fbank][i]), " ");
+        q = r.a == T_MIX ? put_s(put_s(t, part_s(r.b)), " LEVEL ") : put_s(put_s(t, NAME[i - 1]), " ");
         while (n < 16u && num[n])
             n++;
         if (n < 8u)                                      /* NAME (<= 11) + " " + num (< 8) + unit (< 8): fits say() */

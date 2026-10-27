@@ -1,6 +1,6 @@
 # Select Chicago through the later SOUND row, then return to its first bank.
 wait 300
-turn ALGO 2
+turn ALGO 4
 tap EDIT
 turn SELECT 6
 expect page 6

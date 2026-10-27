@@ -39,10 +39,11 @@ static void panel_button(int button)
     panel_input();
 }
 
+static const int display_position[5] = {0,1,4,3,2};
 static void panel_select(int part)
 {
     for (int i = 0; ui.part != part && i < NPARTS; i++) {
-        enc_acc[EN_ALGO] = ui.part < part ? 1 : -1;
+        enc_acc[EN_ALGO] = display_position[ui.part] < display_position[part] ? 1 : -1;
         panel_input();
     }
     assert(ui.part == part);
@@ -61,7 +62,7 @@ static void smc_press(int note)
 static void record_feedback(const char *label)
 {
     unsigned actual = 0;
-    unsigned expected = ui.rec ? 1u << ui.part : 0;
+    unsigned expected = ui.rec ? 1u << display_position[ui.part] : 0;
     smc_frame();
     for (int part = 0; part < NPARTS; part++) {
         assert(wire_led[part] == 0 || wire_led[part] == 127);
@@ -118,7 +119,7 @@ int main(void)
     record_note("panel REC on 303A", 0);
 
     /* SMC SELECT changes the actual recorder while REC remains enabled. */
-    smc_press(24 + PART_303B);
+    smc_press(24 + display_position[PART_303B]);
     assert(ui.view == V_PART); /* SMC SELECT intentionally opens EDIT */
     panel_button(B_SEQ);      /* return to SEQ to make a pattern write */
     record_note("SMC SELECT changes active recorder to 303B", 2);
@@ -127,7 +128,7 @@ int main(void)
     record_feedback("SMC global REC off");
 
     /* Conversely, panel selection must replace the target of SMC-started REC. */
-    smc_press(PART_303A);
+    smc_press(display_position[PART_303A]);
     record_note("SMC strip REC on 303A", 4);
     panel_select(PART_303B);
     record_note("panel selection changes active recorder to 303B", 5);
