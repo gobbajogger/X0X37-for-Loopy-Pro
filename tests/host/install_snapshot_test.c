@@ -7,6 +7,9 @@
 
 static unsigned checks, ota_entries, ota_polls, reboots;
 static int inject_session_request;
+static unsigned flush_calls, flush_before_ota;
+void engine_brk_flush(void) { assert(!held && !ed_install_pending); flush_calls++; }
+#include "../../build/gen/adaptive_native_brk_service.h"
 seq_t seq;
 enum { C_BLACK = 0 };
 static void usb_detach(void) {}
@@ -22,6 +25,7 @@ static void ota_session(void)
 {
     assert(!ed_install_pending && ed_install.state != 1u && ed_install.state != 2u);
     assert(!flash_writes && !flash_erases);
+    flush_before_ota=flush_calls;
     ota_entries++;
     if (inject_session_request) usb.ota_req = usb.uboot_req = 1;
 }
@@ -29,6 +33,7 @@ static void poll(void)
 {
     int ota_pending;
 #include "project_updates.inc"
+    native_break_service();
 }
 static void check(int ok) { checks++; assert(ok); }
 static void reset(void)
@@ -46,6 +51,7 @@ static void reset(void)
     usb.ota_req = usb.uboot_req = 0;
     ota_entries = ota_polls = reboots = inject_session_request = 0;
     wire_after_send = 0;
+    flush_calls=flush_before_ota=0;
 }
 static uint8_t token[ED_INSTALL_TOKEN] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 static uint32_t command(uint8_t op, const uint8_t *t, uint32_t ticket, int expected, int through_main)
@@ -159,6 +165,9 @@ int main(void)
     check(reboots==1 && ed_install.state==3);
     reset(); command(1, token, 0, 0, 0); ed_reboot_at=1; fm1_ms=202; poll();
     check(reboots==1 && ed_install.state==3);
+    reset();held=1;poll();check(flush_calls==0);held=0;poll();check(flush_calls==1);
+    reset();t=command(1,token,0,0,0);command(3,token,t,0,1);
+    check(ota_entries==1 && flush_before_ota==0 && flush_calls==1);
     printf("install snapshot: %u checks, parser + same-loop OTA boundary PASS (host only)\n", checks);
     return 0;
 }

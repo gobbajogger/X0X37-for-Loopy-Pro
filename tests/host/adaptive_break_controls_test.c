@@ -82,6 +82,27 @@ static unsigned output_run(int stutter, int core2)
     seq.req_stop=1;audio();seq.send_notes=1;before=note_ons;note(0,12,1);for(int i=0;i<24;i++)audio();note(0,12,0);CHECK(note_ons==before);
     return hits;
 }
+/* Composition proof: actual framebuffer updates, not a guessed state signature. */
+static unsigned main_pixels(void) {
+    unsigned h=2166136261u;
+    for(int i=MAIN_Y*240;i<(MAIN_Y+2*BAND_H)*240;i++) h=(h^fb[i])*16777619u;
+    return h;
+}
+static void composed_geometry(void) {
+    reset(); count_set(32,0); count_set(4,1); ui.msg_until=0;
+    ui_frame(); unsigned first=main_pixels(); ui.brk_page=3;ui_frame();CHECK(main_pixels()!=first);
+    first=main_pixels();ui.brk_count_target=1;ui_frame();CHECK(main_pixels()!=first);
+    first=main_pixels();key_event(black(2),1);audio();ui_frame();CHECK(main_pixels()!=first);
+    key_event(black(2),0);audio();ui_frame();CHECK(main_pixels()==first);
+    for(int n=1;n<=32;n++){char t[4];put_i(t,n);CHECK(tw(&FONT_XS,t)<=12);}
+    CHECK(8+tw(&FONT_XS,"A KEYS 25-32/32 PENDING")<144);
+    CHECK(144+tw(&FONT_XS,"EDIT B 32")<=232);
+    CHECK(8+tw(&FONT_T,"C/D COUNT C#/D# PAGE | LIVE A:32")<=232);
+    const char *const *names=engine_brk_slot_names();
+    for(int i=0;i<engine_brk_nslots();i++) {char t[32];put_s(put_s(t,"A  "),names[i]);CHECK(tw(&FONT_XS,t)<=108);}
+    CHECK(8+15*14+12==230);
+    printf("composed geometry: actual count/page/target/live repaint and 1-32 ink bounds checked\n");
+}
 int main(void)
 {
     for(unsigned i=0;i<sizeof synthetic;i++)synthetic[i]=(uint8_t)(i*19+1);
@@ -132,5 +153,6 @@ int main(void)
     for(int i=0;i<10;i++){native_break_service();audio();}CHECK(engine_brk_count(0)==32);
     project_busy=0;for(int i=0;i<100;i++){ui_input_only();ui_frame();audio();native_break_service();}
     CHECK(engine_brk_count(0)==16);CHECK(!engine_brk_held());
+    composed_geometry();
     printf("adaptive controls: %u checks, %u failures\n",checks,fails);return fails?1:0;
 }
