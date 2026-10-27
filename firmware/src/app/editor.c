@@ -11,7 +11,8 @@
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
        ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_BOOT_INFO = 39,
-       ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT };
+       ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT,
+       ED_INSTALL = 48 };
 #include "boot_screen.h"
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
@@ -57,10 +58,33 @@ static void ed_str(const char *s, uint32_t max)
         ed_b((uint8_t)s[i] & 0x7Fu);
     ed_b(0);
 }
-static void ed_send(void)
+static int ed_send(void)
 {
     ed_out[ed_n++] = 0xF7;
-    ota_wire_send(ed_out, ed_n);
+    return ota_wire_send(ed_out, ed_n);
+}
+
+/* EC-026: a volatile mutation watch, not a lock or authentication mechanism.
+ * No project/OTA scratch is retained. A START retry cannot clear dirty state.
+ * The per-boot ticket defeats A -> B -> delayed A / old COMMIT interleaving.
+ * Full hostile START+COMMIT replay across reboot is not authenticated here. */
+#define ED_INSTALL_TOKEN 16u
+#define ED_INSTALL_TICKET_MAX 0x0FFFFFFFu
+static struct {
+    uint32_t serial, ticket;
+    uint8_t token[ED_INSTALL_TOKEN], state; /* 0 none, 1 watching, 2 dirty, 3 consumed */
+} ed_install;
+static uint8_t ed_install_pending; /* 1 authorize, 2 discard legacy requests after failed COMMIT */
+static void ed_install_dirty(void)
+{
+    if (ed_install.state == 1u)
+        ed_install.state = 2u;
+}
+static void ed_install_forget(void)
+{
+    if (ed_install.state)
+        ed_install.state = 3u;
+    ed_install_pending = 0;
 }
 
 static uint32_t ed_unpack7(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t max)
@@ -750,13 +774,88 @@ static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
     ed_b(BOOT_BAD);
 }
 
+static int ed_install_busy(void)
+{
+    uint32_t k;
+    if (!flash_ok || ed_project.mode || ui_project_busy() || bst.armed ||
+        store_stage_held() || ed_reboot_at || usb.ota_req || usb.uboot_req)
+        return 1;
+    for (k = 0; k < SMP_USER_SLOTS; k++)
+        if (smp_importing[k] || smp_sec0_erased[k])
+            return 1;
+    return 0;
+}
+
+/* START=1 token[16]; CANCEL=2 / COMMIT=3 token[16], ticket[4 x 7 bits].
+ * Reply op, rc, token[16], ticket[4]; malformed envelopes reply only op, 1.
+ * rc: 0 ok, 1 format, 2 busy, 3 stale/consumed, 4 changed, 5 exhausted.
+ * Return true only for a consumed, valid COMMIT; caller must also enqueue its
+ * entire ACK successfully before publishing the main-loop request. */
+static int ed_install_handle(const uint8_t *a, uint32_t na)
+{
+    uint32_t op = na ? a[0] : 0, k, ticket = 0, rc = 0, any = 0;
+    int same, start = 0;
+    ed_b(op);
+    if ((op != 1u && op != 2u && op != 3u) ||
+        na != 1u + ED_INSTALL_TOKEN + (op == 1u ? 0u : 4u)) {
+        ed_b(1); return 0;
+    }
+    for (k = 1; k < na; k++) {
+        if (a[k] & 0x80u) { ed_b(1); return 0; }
+        if (k <= ED_INSTALL_TOKEN) any |= a[k];
+    }
+    if (!any) { ed_b(1); return 0; }
+    if (op != 1u)
+        for (k = 0; k < 4u; k++) ticket |= (uint32_t)a[1u + ED_INSTALL_TOKEN + k] << (7u * k);
+    same = ed_install.state && !memcmp(ed_install.token, a + 1, ED_INSTALL_TOKEN);
+    if (op == 1u) {
+        if (same) {
+            ticket = ed_install.ticket;
+            rc = ed_install.state == 2u ? 4u : ed_install.state == 3u ? 3u :
+                 ed_install_busy() ? 2u : 0u;
+        } else if (ed_install_busy()) rc = 2;
+        else if (ed_install.serial == ED_INSTALL_TICKET_MAX) rc = 5;
+        else {
+            memcpy(ed_install.token, a + 1, ED_INSTALL_TOKEN);
+            ticket = ed_install.ticket = ++ed_install.serial;
+            ed_install.state = 1;
+        }
+    } else if (!same || ticket != ed_install.ticket || ed_install.state == 3u) rc = 3;
+    else if (op == 2u) ed_install_forget();
+    else if (ed_install.state == 2u) { rc = 4; ed_install_forget(); }
+    else if (ed_install_busy()) { rc = 2; ed_install_forget(); }
+    else {
+        ed_install_forget();                         /* consume even if ACK enqueue fails */
+        start = 1;
+    }
+    ed_b(rc);
+    for (k = 0; k < ED_INSTALL_TOKEN; k++) ed_b(a[k + 1u]);
+    for (k = 0; k < 4u; k++) ed_b(ticket >> (7u * k));
+    return start;
+}
+
 static void ed_handle(const uint8_t *f, uint32_t n)
 {
     uint32_t cmd = f[3], i;
     const uint8_t *a = f + 4;
     uint32_t na = n - 4u;
     ed_begin(cmd);
+    /* Before validation: BEGIN and even failed END may restore a shadow. This
+     * also covers empty-slot writes and malformed mutation attempts. Startup
+     * recovery runs before any watch can exist. No other runtime path writes
+     * user-slot bytes. A read or INFO must never reset this state. */
+    if (cmd >= ED_SMP_BEGIN && cmd <= ED_SMP_ERASE)
+        ed_install_dirty();
     switch (cmd) {
+    case ED_INSTALL: {
+        int start = ed_install_handle(a, na);
+        int sent = ed_send();
+        if (na && a[0] == 3u)
+            ed_install_pending = sent == 0 && start ? 1u : 2u;
+        /* Even a refused/uncertain COMMIT cannot inherit a legacy IRQ request
+         * that arrived while the response was being queued. */
+        return;
+    }
     case ED_PROJECT:
         ed_project_handle(a, na);
         break;
@@ -768,6 +867,8 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(NSTEPS);
         ed_b(0);
         ed_b(0);
+        ed_b(0x58); ed_b(0x53); ed_b(0x47);           /* XSG: atomic sample snapshot admission */
+        ed_b(1); ed_b(ED_INSTALL);
         break;
     case ED_PING:
         ed_b(0);
