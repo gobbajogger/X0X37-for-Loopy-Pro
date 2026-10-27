@@ -93,11 +93,45 @@ static void identities(int voice,int bank)
     CHECK(pg.n==1 && !strcmp(matrix_preset_name(voice),"UNKNOWN"));shot(out,"unknown-preset-name");
     proj.sound.bass[voice]=known;build_pages();
 }
+/* Combined Save/SOUND boundary: a pending sound and a queued explicit save
+ * are separate requests. PATCH cancels only SOUND; neither cuts the MIDI note. */
+static void save_with_pending_sound(int cancel)
+{
+    fixture(0,0);*page_of(V_PART)=6;
+    CHECK(!project_save());
+    pref_set(PR(R_ENG,T_303,0,BASS303_CUTOFF),pref_get(PR(R_ENG,T_303,0,BASS303_CUTOFF))+1);
+    audio();
+    min_q[mi_w++%MQ]=9u|((0x90u|seq.ch[TRK_BASS0])<<8)|(48u<<16)|(100u<<24);
+    audio();CHECK(engine_project_notes() && (engine_midi_held()&1));
+    now_ms+=1000;enc_acc[EN_K2]=1;ui_input_only();
+    CHECK(engine_bass_preset_pending(0)==2 && engine_bass_preset_index(0)==0);
+    CHECK(!strcmp(matrix_preset_name(0),factory_preset_name(0,1)));
+    unsigned writes=store_writes;
+    edges(1u<<B_SAVE,0);edges(0,0);
+    CHECK(save_wait && ui.dirty && !ui.save_failed && store_writes==writes);
+    now_ms+=AUTOSAVE_QUIET+AUTOSAVE_GAP+1;ui_frame();
+    CHECK(save_wait && store_writes==writes && (engine_midi_held()&1));
+    shot(out,cancel?"combined-save-before-patch":"combined-save-and-sound-pending");
+    if(cancel) {
+        patch();CHECK(!engine_bass_preset_pending(0) && save_wait);
+        CHECK((engine_midi_held()&1) && !strcmp(matrix_preset_name(0),factory_preset_name(0,0)));
+    }
+    min_q[mi_w++%MQ]=8u|((0x80u|seq.ch[TRK_BASS0])<<8)|(48u<<16);
+    for(int i=0;i<3000 && (engine_project_notes() || engine_bass_preset_pending(0) || mi_r!=mi_w);i++)audio();
+    CHECK(!engine_project_notes() && !engine_bass_preset_pending(0));
+    CHECK(store_writes==writes);ui_frame();
+    CHECK(!save_wait && !ui.dirty && !ui.save_failed && store_writes==writes+1);
+    CHECK(engine_bass_preset_index(0)==(cancel?0:1));
+    CHECK(!strcmp(matrix_preset_name(0),factory_preset_name(0,cancel?0:1)));
+    now_ms+=AUTOSAVE_QUIET+AUTOSAVE_GAP+1;ui_frame();CHECK(store_writes==writes+1);
+    shot(out,cancel?"combined-save-patch-complete":"combined-save-and-sound-complete");
+}
 int main(int argc,char **argv)
 {
     CHECK(argc==2);out=argv[1];boot();run_ms(50);engine_guard_enable(0);
     name_bounds();acid_pixels(1);acid_pixels(0);
     for(int v=0;v<2;v++) {physical_and_history(v);for(int bank=0;bank<2;bank++)identities(v,bank);}
+    save_with_pending_sound(0);save_with_pending_sound(1);
     printf("PASS %u accepted SOUND layout/name/physical mapping/history checks; no device claim\n",checks);
     return 0;
 }
