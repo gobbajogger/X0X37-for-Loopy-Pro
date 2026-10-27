@@ -1,5 +1,5 @@
 wait 300
-turn ALGO 2
+turn ALGO 4
 tap EDIT
 turn SELECT 6
 spin K1 -1

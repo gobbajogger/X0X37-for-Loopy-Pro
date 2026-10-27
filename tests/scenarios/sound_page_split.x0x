@@ -41,7 +41,7 @@ expect sel 1
 expect hit0.1.4 1
 shot split_909_sd_sound_after_seq.png
 # A bass key on EDIT auditions without writing a hidden note, even with REC on.
-turn ALGO 2
+turn ALGO 4
 expect part 2
 expect gate0.0 0
 tap REC

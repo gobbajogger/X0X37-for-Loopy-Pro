@@ -1,6 +1,6 @@
 # Four rows, four physical knob columns; the first bank has sixteen controls.
 wait 300
-turn ALGO 2
+turn ALGO 4
 tap EDIT
 expect page 0
 shot miami_sound.png

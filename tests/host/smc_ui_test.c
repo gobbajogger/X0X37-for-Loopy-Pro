@@ -317,7 +317,7 @@ static void test_distinct_maps(void)
 {
     setup(V_HOME, PART_303A);
     for (int n = 0; n < 8; n++) CHECK(smc_same(smc_target(n), smc_home_target(n)));
-    for (int n = 0; n < NPARTS; n++) CHECK(smc_same(smc_knob_target(n), PR(R_ENG,T_MIX,n,MX_CUT)));
+    for (int n = 0; n < NPARTS; n++) CHECK(smc_same(smc_knob_target(n), PR(R_ENG,T_MIX,n==2?4:n==4?2:n,MX_CUT)));
     CHECK(smc_same(smc_knob_target(5), PR(R_ENG,T_FX,0,FX_RV_DECAY)));
     CHECK(smc_same(smc_knob_target(6), PR(R_ENG,T_FX,0,FX_DL_FDBK)));
     CHECK(smc_same(smc_knob_target(7), PR(R_ENG,T_MST,0,MST_RESO)));
@@ -490,10 +490,10 @@ static void check_selected(int selected)
 }
 static void test_selected_lane(void)
 {
-    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); check_selected(2);
+    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); check_selected(4);
     CHECK(smc_ui.kind == 1 && smc_ui.strip == 7);
     shot("14-selected-part-touched-filter");
-    setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(PART_BRK);
+    setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(2);
     setup(V_FX, PART_303A); knob(0, 1); ui_frame(); check_selected(5);
     *page_of(V_FX) = 1; build_pages(); knob(1, 1); ui_frame(); check_selected(6);
     setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages();

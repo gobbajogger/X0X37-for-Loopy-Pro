@@ -1,6 +1,6 @@
 # A note across 16→17 and the 64→1 loop is audible and visibly connected.
 wait 300
-turn ALGO 2
+turn ALGO 4
 expect part 2
 expect view 8
 spin K1 48

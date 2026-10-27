@@ -1,6 +1,6 @@
 # EDIT's sound keyboard may change octave, never an unseen pattern gate.
 wait 300
-turn ALGO 2
+turn ALGO 4
 tap EDIT
 expect view 1
 expect gate0.0 0

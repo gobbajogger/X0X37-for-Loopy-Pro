@@ -6,12 +6,13 @@
 #include <assert.h>
 
 static int failures;
+static const int display_position[5] = {0,1,4,3,2};
 static const char *outdir;
 static unsigned row_mask(int pattern, int part, int row)
 {
     int i, x = 6 + pattern * 14 + (pattern >= 8 ? 4 : 0);
     unsigned mask = 0;
-    int y = MAIN_Y + 5 + part * 3 + row;
+    int y = MAIN_Y + 5 + display_position[part] * 3 + row;
     for (i = 0; i < 8; ++i)
         if (fb[y * 240 + x + i]) mask |= 1u << i;
     return mask;
@@ -49,7 +50,7 @@ static void check(const char *name, int pattern, int part, unsigned expected_pb,
     if (pb != expected_pb || a != expected_mask || b != expected_mask) ++failures;
     if (!seq.playing && seq.ppat[part] == pattern && part >= PART_303A && part < PART_BRK) {
         unsigned lane_bits = 0;
-        int y = MAIN_Y + BAND_H + (part - PART_303A) * 16 + 7;
+        int y = MAIN_Y + BAND_H + (display_position[part] - 2) * 16 + 7;
         for (int step = 0; step < 16; ++step)
             if (fb[y * 240 + col_x(step) + 6] == swap16(PART_COL[part])) lane_bits |= 1u << step;
         if (lane_bits != expected_pb) {
@@ -59,7 +60,7 @@ static void check(const char *name, int pattern, int part, unsigned expected_pb,
     }
     {
         int x = 4 + pattern * 14 + (pattern >= 8 ? 4 : 0);
-        int y = MAIN_Y + 5 + part * 3;
+        int y = MAIN_Y + 5 + display_position[part] * 3;
         uint16_t tick = fb[y * 240 + x];
         int active = seq.ppat[part] == pattern;
         /* Rounded ordinary/cue frames can shade this border; only an active
