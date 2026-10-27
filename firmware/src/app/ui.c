@@ -1067,9 +1067,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
                 }
                 return;
             case W_WOBBLE_RATE: {
-                static const uint8_t hz[7] = {1, 2, 3, 4, 6, 8, 12};
-                put_i(num, hz[(v * 6 + 63) / 127]);
-                put_s(unit, "Hz");
+                put_i(put_s(num, "1/"), (int)wobble_rate_division((float)v / 127.0f));
                 return;
             }
             case W_ATTACK: case W_DECAY: case W_RELEASE: {

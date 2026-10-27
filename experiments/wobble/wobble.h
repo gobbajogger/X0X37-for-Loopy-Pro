@@ -31,6 +31,8 @@ void wobble_reset(wobble_t *s);
 /* Effective sequencer tempo, 20..300 BPM. Invalid input keeps the last tempo.
  * Defaults to 120 BPM; changes preserve phase, gates and all preset controls. */
 int wobble_set_tempo(wobble_t *s, float bpm);
+/* Denominator of the selected whole-note division, shared by DSP and UI. */
+unsigned wobble_rate_division(float norm);
 /* Public normalized controls; nonfinite values are rejected; values clamp 0..1. */
 int wobble_set(wobble_t *s, unsigned parameter, float value);
 void wobble_note_on(wobble_t *s, uint8_t note, uint8_t velocity);
