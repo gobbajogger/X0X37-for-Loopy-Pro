@@ -4363,18 +4363,43 @@ static int steps_len(void)
 #else
 #define UI_DRAW
 #endif
-/* Shallow 2D panel: one-pixel lit top/left and shaded lower/right. No extra
- * framebuffer, blur, animation timer, allocation or trigonometry. */
+/* Shallow bevel stays entirely inside the existing rectangle. Four-pixel
+ * chamfers, inset dark lower edge, restrained local highlight: no tall teeth,
+ * extra buffer, animation, layout change or mutable render state. */
+static UI_DRAW void surface_panel(int x,int y,int w,int h,int active,uint16_t face,uint16_t edge,uint16_t side)
+{
+    int r=h>=18?4:h>=9?2:1, row;
+    if(w<2*r+3 || h<2*r+3) r=1;
+    for(row=0;row<h;row++) {
+        int inset=row<r?r-row:row>=h-r?row-(h-r)+1:0;
+        uint16_t shade=face;
+        if(active && h>=18 && row>0 && row<5)shade=blend(face,C_WHITE,5-row);
+        if(active && h>=18 && row>=h-4)shade=blend(face,C_BLACK,(row-(h-4)+1)*2);
+        cv_rect(x+inset,y+row,w-2*inset,1,shade);
+    }
+    cv_rect(x+r,y,w-2*r,1,edge);
+    cv_line(x,y+r,x+r,y,edge);
+    cv_rect(x,y+r,1,h-2*r,active?edge:UI_N_LEFT);
+    cv_line(x+w-r-1,y,x+w-1,y+r,edge);
+    cv_rect(x+w-1,y+r,1,h-2*r,side);
+    cv_line(x+w-1,y+h-r-1,x+w-r-1,y+h-1,side);
+    cv_rect(x+r,y+h-1,w-2*r,1,UI_N_SHADOW);
+    cv_line(x,y+h-r-1,x+r,y+h-1,side);
+    /* A short light catch, not a washed-out full-width glare band. */
+    if(w>24 && h>=18) cv_rect(x+r+2,y+1,w/4,1,active?edge:UI_N_LEFT);
+    if(active && h>=18) cv_rect(x+r+1,y+h-2,w-2*r-2,1,side);
+}
 static UI_DRAW void night_panel(int x,int y,int w,int h,int active)
 {
-    uint16_t edge=active?SOUND_SELECT_EDGE:SOUND_EDGE;
-    uint16_t side=active?SOUND_SELECT_SIDE:SOUND_SIDE;
-    cv_rect(x+1,y+h,w,1,UI_N_SHADOW);
-    cv_rect(x,y,w,h,active?SOUND_SELECT:SOUND_FACE);
-    cv_rect(x+1,y,w-2,1,edge);
-    cv_rect(x,y+1,1,h-2,active?edge:UI_N_LEFT);
-    cv_rect(x+1,y+h-1,w-1,1,side);
-    cv_rect(x+w-1,y+1,1,h-1,side);
+    surface_panel(x,y,w,h,active,active?SOUND_SELECT:SOUND_FACE,
+                  active?SOUND_SELECT_EDGE:SOUND_EDGE,active?SOUND_SELECT_SIDE:SOUND_SIDE);
+}
+static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uint16_t ink)
+{
+    int x=cx-tw(f,s)/2;
+    cv_text(x,y+1,f,s,UI_N_LEFT); /* shallow incised lower light */
+    cv_text(x,y-1,f,s,UI_N_SHADOW);
+    cv_text(x,y,f,s,ink);       /* retain the native face, metrics and ink */
 }
 #define sound_slab night_panel
 
@@ -4771,8 +4796,8 @@ static UI_DRAW void draw_part_sound(int band)
         char t[32];
         if (p>=pg.n || y+height<=0 || y>=(band==2?KNOB_H:BAND_H)) continue;
         if (night) sound_slab(3,y,234,height,active);
-        else if (active) box(3,y,234,height,col);
-        else cv_rect(6,y+height-1,228,1,C_LINE);
+        else surface_panel(3,y,234,height,active,active?col:SOUND_FACE,
+                           active?blend(col,C_WHITE,5):SOUND_EDGE,active?dim(col,8):SOUND_SIDE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
         cv_text(8,y,&FONT_T,t,label);
         if (active) {
@@ -5792,6 +5817,8 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
         cv_text(x + 1, base_y(&FONT_B, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
 }
 
+#include "ui_waveform.h"
+
 /* A shape cue, not a sampled oscilloscope. Chicago Wave continuously crossfades
  * saw and square; Miami's carrier, modulator and LFO are discrete choices. */
 static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
@@ -5810,8 +5837,32 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     return 0;
 }
 
-static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col)
+static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col, uint16_t face)
 {
+    if(shape==2 || shape==3) {
+        /* Integrate line coverage in four horizontal subcolumns. Sample the
+         * actual periodic function, never blur/average its amplitude or duty.
+         * Tall transitions stay vertical; positive values are above the midline.
+         * Same 29x9 glyph box as before, one cycle for legibility. */
+        int x,j,k;
+        cv_rect(cx-14,y+4,29,1,blend(face,col,3)); /* zero-amplitude reference */
+        for(x=0;x<29;x++) {
+            unsigned coverage[9]={0};
+            for(k=0;k<4;k++) {
+                float p0=((float)x+(float)k*.25f)/29.0f;
+                float p1=((float)x+(float)(k+1)*.25f)/29.0f;
+                float a=4.0f-3.0f*ui_miami_wave_value(shape==3,mix!=0,p0);
+                float b=4.0f-3.0f*ui_miami_wave_value(shape==3,mix!=0,p1);
+                float lo=fm_minf(a,b)-.5f,hi=fm_maxf(a,b)+.5f;
+                for(j=0;j<9;j++) {
+                    float overlap=fm_minf(hi,(float)j+.5f)-fm_maxf(lo,(float)j-.5f);
+                    if(overlap>0) coverage[j]+=(unsigned)(fm_minf(overlap,1.0f)*4.0f+.5f);
+                }
+            }
+            for(j=0;j<9;j++) if(coverage[j])px_blend(cx-14+x,y+j,col,coverage[j]);
+        }
+        return;
+    }
     int i,prev=0;
     for(i=0;i<29;i++) {
         int phase=i%14, saw=15-phase*30/13;
@@ -6031,7 +6082,14 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
                 {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
         }
     }
-    text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
+    if(night) night_label_c(cx,y+14,&FONT_T,matrix_name(r),unused?SOUND_DIM:active?SOUND_INK:SOUND_GRAY);
+    else {
+        int yy=y+11,xx=cx-tw(&FONT_T,matrix_name(r))/2;
+        uint16_t face=active?col:SOUND_FACE;
+        cv_text(xx,yy+1,&FONT_T,matrix_name(r),blend(face,C_WHITE,2));
+        cv_text(xx,yy-1,&FONT_T,matrix_name(r),blend(face,C_BLACK,6));
+        text_c(cx,yy,&FONT_T,matrix_name(r),unused?SOUND_DIM:active?C_BLACK:C_GRAY);
+    }
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BPRESET) {
         draw_preset_name(r.b,cx,y,height,ink);
@@ -6042,8 +6100,10 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
-        draw_wave_glyph(cx-10,y+28,shape,mix,ink);
-        put_i(num,val);text_c(cx+17,y+28,&FONT_T,num,ink);
+        draw_wave_glyph(cx-10,y+28,shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        if(shape==2 || shape==3)put_s(num,!val?"TRI":shape==3?"PUL":"SQR");
+        else put_i(num,val);
+        text_c(cx+17,y+28,&FONT_T,num,ink);
     } else {
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
@@ -6401,7 +6461,7 @@ static UI_DRAW void draw_knobs(void)
         if (!d)
             continue;
         /* Selected control keeps the shared raised face; value/lock semantics below are unchanged. */
-        text_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
+        night_label_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
         val = pref_get(r);
         if (lock_step() >= 0) {                        /* a held step: its own value (amber mark: locked) */
             int lv = lock_of(r, lock_step());
