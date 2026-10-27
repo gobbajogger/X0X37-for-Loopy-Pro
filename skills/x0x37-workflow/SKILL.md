@@ -12,7 +12,7 @@ Use the pinned tstack skills as the workflow baseline. Select a mode from the ow
 - **Full Stop:** Read and follow `full-stop` and its dependencies only when explicitly requested. Leave the PR open for the owner; do not merge or enable auto-merge.
 - **Ordinary work:** Finish the authorized change and applicable proof. Use `file-pr`, `babysit-pr`, or `leaving-pr-comments` when the request calls for their action. Do not infer Full Send or Full Stop.
 
-For code work, use the tstack order: finish the change, prove the changed behavior, get the requested Sol review, file the PR, handle checks and real feedback, then apply the selected mode's merge or handoff. Do not run Full Send and Full Stop together. Keep the diff small; a reviewer finding is evidence to verify, not an automatic scope expansion. Reuse exact-input proof where valid. Read [project stages](references/stages.md) for firmware-specific validation.
+For visual changes, first follow the mockup and internal independent design-review stages in [AGENTS.md](../../AGENTS.md); do not wait for owner aesthetic replies within agreed scope. Then, for code work, use the tstack order: finish the change, prove the changed behavior, get the requested Sol review, file the PR, handle checks and real feedback, then apply the selected mode's merge or handoff. Do not run Full Send and Full Stop together. Keep the diff small; a reviewer finding is evidence to verify, not an automatic scope expansion. Reuse exact-input proof where valid. Read [project stages](references/stages.md) for firmware-specific validation.
 
 ## Project boundaries
 
