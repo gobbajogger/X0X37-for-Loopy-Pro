@@ -13,8 +13,8 @@ Old plans, rosters, logs, and archives are evidence. They do not assign work or 
 
 ### Rule 1: protect data and sources
 
-- Keep code on owner machines and approved local repositories.
-- Push externally only when the owner requests that destination.
+- Keep work in approved isolated repositories. The public project repositories and nonsecret technical evidence are not private merely because development is owner-tested.
+- Deliver externally only within the owner-authorized destination and action scope; reuse applicable standing permission. Temporary private storage is not a permanent publication ban.
 - Never push, merge, or package `refs-oscuro`.
 - Keep proprietary JieLi SDK and toolchain files out of commits and bundles.
 - Preserve licensing, model guards, flash and RAM limits, features, and sample quality.
