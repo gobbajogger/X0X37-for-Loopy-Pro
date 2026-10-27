@@ -2879,7 +2879,7 @@
       "evidence": {
         "source": {
           "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "R22\u2013R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
+          "summary": "R22–R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -2957,7 +2957,7 @@
             "evidence": {
               "source": {
                 "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-                "summary": "R22\u2013R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
+                "summary": "R22–R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
               },
               "test": {
                 "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -3001,9 +3001,9 @@
       "title": "Unified clear installer and sample-management page",
       "owner": "Installer illustration implementation owner",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "WEBSITE_REVIEWED_PUBLICATION_DECISION_PENDING",
+      "status": "SCOPED_SOURCE_REVIEW_DELIVERY_AND_BROWSER_HOLD",
       "priority": "P1",
-      "next_action": "Website publisher/coordinator to obtain the pending owner publication decision, then integrate and publish only under that authority.",
+      "next_action": "Existing site/Project Workspace owners consume current scoped source receipts and preserve actual public-write denials. Qualify missing applicable browser/served-page gates through supported routes; no redundant owner-publication decision or alternate-route retry.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-013"
@@ -3062,7 +3062,7 @@
       "evidence": {
         "source": {
           "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "Website PR19 570253d35c84748bba82ddd616b9c17af8d7da58 reviewed: top Install + Import, Closer look before integration, standalone/SMC/Loopy feature explanation and faithful vectors. Not published; owner publication question pending.",
+          "summary": "EC045 at source 785deb4 and tree 4ae5379 has scoped source approval and a passing full npm test. The first new public blob was denied before mutation. Browser and hardware remain UNRUN. Separate installer EC040 and SITE-INT012 dispositions are retained. Source-ready is not a delivered website.",
           "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
@@ -3079,7 +3079,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T11:28:51Z",
+      "updated_at": "2026-10-27T22:36:00Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls.",
       "history": [
@@ -3252,6 +3252,13 @@
             "request_origin": "Public-safe technical summary from reviewed continuity handoff",
             "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls."
           }
+        },
+        {
+          "at": "2026-10-27T22:36:00Z",
+          "kind": "delivery_receipt_reconciliation",
+          "previous_status": "WEBSITE_REVIEWED_PUBLICATION_DECISION_PENDING",
+          "previous_next_action": "Website publisher/coordinator to obtain the pending owner publication decision, then integrate and publish only under that authority.",
+          "previous_source_summary": "Website PR19 570253d35c84748bba82ddd616b9c17af8d7da58 reviewed: top Install + Import, Closer look before integration, standalone/SMC/Loopy feature explanation and faithful vectors. Not published; owner publication question pending."
         }
       ],
       "priority_assessment": {
@@ -4120,7 +4127,7 @@
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
       "status": "FIX_AND_QA_REQUIRED",
       "priority": "P1",
-      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156\u2013158 stack; serial/parallel failure and manifest/compatibility negatives.",
+      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156–158 stack; serial/parallel failure and manifest/compatibility negatives.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016"
@@ -4207,7 +4214,7 @@
             "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
             "status": "FIX_AND_QA_REQUIRED",
             "priority": "P1",
-            "next_action": "Retain unique PR37/51 safeguards; reconcile PR156\u2013158 stack; serial/parallel failure and manifest/compatibility negatives.",
+            "next_action": "Retain unique PR37/51 safeguards; reconcile PR156–158 stack; serial/parallel failure and manifest/compatibility negatives.",
             "dependencies": [],
             "related_requests": [
               "LX-REQ-016"
@@ -4480,9 +4487,9 @@
       "title": "Canonical workflow, plugin and skill coherence",
       "owner": "Sole workflow integrator",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
+      "status": "INSTALLED_0_1_62_VERIFIED_REPORTED_0_1_63_MAINTENANCE_PENDING_RUNTIME_EVIDENCE",
       "priority": "P2",
-      "next_action": "Workflow integrator to preserve pinned contract/default-adoption limits and observe capability-aware handoffs; measure outcomes before throughput claims.",
+      "next_action": "Existing documentation and maintenance owners preserve verified installed version 0.1.62 and its accepted contract handoff. Current contract text has been re-read, but the reported version 0.1.63 and 16-schedule maintenance do not establish effective runtime outcomes. The sole integrator needs inspectable existing-review receipts for PR653 and PR654; no replacement coordinator or duplicate review.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
@@ -4501,7 +4508,7 @@
       "evidence": {
         "source": {
           "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "Plugin 0.1.55 and coordinator skill saved with capability-aware role split. Existing trial/default-adoption distinctions remain; no proven throughput gain.",
+          "summary": "Version 0.1.62 installation and exact readback are verified. Visual-stage documentation PR652 and site PR82 source merges are verified. The current task-integration text was re-read at 22:25 and contains the newer clauses; version 0.1.63 and 16-schedule effective outcomes remain reported, not independently proven. PR653 and PR654 remain unadopted proposals subject to exact existing-proof gates; no authority transfer.",
           "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
@@ -4518,7 +4525,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T10:29:45Z",
+      "updated_at": "2026-10-27T22:36:00Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority.",
       "history": [
@@ -4571,6 +4578,13 @@
             "request_origin": "Public-safe technical summary from reviewed continuity handoff",
             "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority."
           }
+        },
+        {
+          "at": "2026-10-27T22:36:00Z",
+          "kind": "delivery_receipt_reconciliation",
+          "previous_status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
+          "previous_next_action": "Workflow integrator to preserve pinned contract/default-adoption limits and observe capability-aware handoffs; measure outcomes before throughput claims.",
+          "previous_source_summary": "Plugin 0.1.55 and coordinator skill saved with capability-aware role split. Existing trial/default-adoption distinctions remain; no proven throughput gain."
         }
       ]
     },
@@ -4646,7 +4660,7 @@
             "evidence": {
               "source": {
                 "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-                "summary": "Twelve definitions audited 07:14\u201308:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+                "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
               },
               "test": {
                 "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
