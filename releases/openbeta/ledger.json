@@ -2,9 +2,20 @@
   "schema": 1,
   "channel": "openbeta",
   "display_suffix": "_openbeta",
-  "note": "Numeric identity is X.Y.Z encoded as model_9XXYYZZ. The _openbeta suffix is display only. No number has been allocated yet. The preserved source stays unversioned.",
   "preserved_unversioned": [
     "892bf60d912eca93597dcf03be25a9756540c949"
   ],
-  "allocations": []
+  "allocations": [
+    {
+      "version": "0.1.0",
+      "major": 0,
+      "minor": 1,
+      "patch": 0,
+      "display": "0.1.0_openbeta",
+      "source_commit": "3eb42089e4cd2e8cb1a720246fb4526776433ed5",
+      "source_tree": "025b3e64f43634ade0928af7b2315336cc391e0f",
+      "immutable": false,
+      "models": {}
+    }
+  ]
 }
