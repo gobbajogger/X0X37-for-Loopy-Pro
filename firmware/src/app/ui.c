@@ -280,20 +280,14 @@ static int save_state(void)
 }
 static const char *queued_save_label(void)
 {
-#if BOARD_SMK37
-    extern uint8_t smk_clip_mode_on(void);
-    if (!seq.playing && !seq.req_stop && smk_clip_mode_on())
-        return "SAVE WHEN QUIET";
-#endif
+    if (!seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop)
+        return ui.rec ? "REC OFF TO SAVE" : "SAVE WHEN QUIET";
     return "SAVE AT STOP";
 }
 static const char *queued_save_message(void)
 {
-#if BOARD_SMK37
-    extern uint8_t smk_clip_mode_on(void);
-    if (!seq.playing && !seq.req_stop && smk_clip_mode_on())
-        return "SAVES WHEN QUIET";
-#endif
+    if (!seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop)
+        return ui.rec ? "REC OFF TO SAVE" : "SAVES WHEN QUIET";
     return "SAVES WHEN STOPPED";
 }
 
@@ -2111,16 +2105,18 @@ static void save_project(void)
         say("PROJECT TRANSFER BUSY", 0);
         return;
     }
-    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
+    if (!ui_boot_flash_busy()
 #if BOARD_SMK37
-        || (smk_clip_mode_on() && (smk_ck_flash_busy() || plat_ms() - ui.act_t < AUTOSAVE_QUIET))
+        && !(smk_clip_mode_on() && (smk_ck_flash_busy() || plat_ms() - ui.act_t < AUTOSAVE_QUIET))
 #endif
     ) {
-        save_wait = 1;
-        say(queued_save_message(), 0);
-        return;
+        if (ui_project_save() != UI_PROJECT_BUSY)
+            return;
     }
-    (void)ui_project_save();
+    /* A held MIDI note, queued audio input or other transient owner may make
+     * the final readiness check busy. Keep the user's explicit save request. */
+    save_wait = 1;
+    say(queued_save_message(), 0);
 }
 
 /* ============================================================ performance === */
@@ -6396,7 +6392,7 @@ static void autosave(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
 #endif
-    if (project_busy)
+    if (project_busy || ui_boot_flash_busy())
         return;
     if (save_wait && !seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop && !ui.rec && !perf_save_busy()) {
 #if BOARD_SMK37
