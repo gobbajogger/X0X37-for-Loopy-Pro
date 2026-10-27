@@ -2404,6 +2404,7 @@ X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
     return 1;
 }
 float engine_gr_db(void) { return mst.gr_view; }
+int engine_master_get(int i) { return master_get(&mst, i); }
 void engine_master_format(int i, char *buf) { master_format(&mst, i, buf); }
 
 X0X_COLD void engine_brk_loops(void)

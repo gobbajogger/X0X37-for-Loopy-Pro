@@ -176,6 +176,7 @@ void engine_motion_rec(int lane);                           /* record a pass fro
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
 void engine_motion_clear(int lane);                         /* free a motion lane (undo / bulk edit) */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */
+int engine_master_get(int i);                             /* read-only applied master pot */
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);
