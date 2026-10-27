@@ -2104,6 +2104,10 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         int p = PART_303A + b;
 #if X0X_DEV_WOBBLE
         PROF_T(pb);
+        /* Use the accepted internal/measured external clock, including free play.
+         * Tempo changes do not retrigger notes or reset the wobble phase. */
+        if (bass_wobble_voice(b))
+            wobble_set_tempo(bass_slot[b].active.context, seq_tempo(&seq));
         idle[b] = synth_idle(&bass_slot[b]);
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
