@@ -27,12 +27,12 @@ project_t proj;
 project_t project_stage X0X_POOL;
 
 #if X0X_BASS_NOTE_SOUND
-#define PROJ_STREAM 7u                  /* tagged whole per-note product sounds in existing lane pool */
+#define PROJ_STREAM 9u                  /* adaptive BREAK counts plus tagged per-note product sounds */
 #else
-#define PROJ_STREAM 6u                  /* release endpoints, no snapshots */
+#define PROJ_STREAM 8u                  /* adaptive BREAK counts plus release endpoints, no snapshots */
 #endif
 static int stream_known(uint32_t format)
-{return format==2u || format==3u || format==6u || (X0X_BASS_NOTE_SOUND && format==7u);}
+{return format==2u || format==3u || format==6u || format==8u || (X0X_BASS_NOTE_SOUND && (format==7u || format==9u));}
 #define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
@@ -385,6 +385,12 @@ static void stream_from2(project_t *pr)
 static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t format)
 {
     int p, b, k;
+    for (p = 0; p < NPAT; p++) {
+        /* Validate old meanings before migration: old mode 1 is not count code 1. */
+        if (pat[p].brk.slice_mode > (format < 8u ? 1u : 15u)) return 0;
+        for (k = 0; k < 16; k++)
+            if (pat[p].brk.slice[k] > (format < 8u ? 8u : 32u)) return 0;
+    }
     for (p = 0; p < NPAT; p++)
         for (b = 0; b < NBASS; b++)
             for (k = 0; k < NSTEPS; k++) {
@@ -400,7 +406,7 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
         if(l->t==0xfeu)return 0; /* frozen historical contract remains unsupported */
         if(l->t==0xfdu) {
 #if X0X_BASS_NOTE_SOUND
-            if(format!=7u || engine_bass_note_validate(l) ||
+            if((format!=7u && format!=9u) || engine_bass_note_validate(l) ||
                bstep_gate(&pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return 0;
             for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
                 arr->lane[j].pat==l->pat && arr->lane[j].part==l->part && arr->lane[j].v==l->v)return 0;
@@ -413,6 +419,14 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
 }
 static int stream_layout_ok(const project_t *pr,uint32_t format)
 {return stream_parts_ok(pr->pat,&pr->arr,format);}
+
+/* Call only after checking the original bytes' CRC and old semantic ranges.
+ * The packed count's zero means A8/B8; the reserved byte and pin intent survive. */
+static void migrate_break_counts(project_t *pr, uint32_t format)
+{
+    if (format < 8u)
+        for (int p = 0; p < NPAT; p++) pr->pat[p].brk.slice_mode = 0;
+}
 
 
 static int load_stream(project_t *pr, int n, uint32_t format)
@@ -438,6 +452,7 @@ static int load_stream(project_t *pr, int n, uint32_t format)
         stream_from2(pr);
     if (!stream_layout_ok(pr, format))
         return -9;
+    migrate_break_counts(pr, format);
     if (format != PROJ_STREAM)
         for (int k = 0; k < NSTREAM; k++) stored_known[STREAM_OBJ[k]] = 0;
     packed_len = plen;
@@ -854,9 +869,9 @@ int project_validate_stage(void)
             if (pat->brk.set[i] > breaks_param(i)->max)
                 return -1;
         for (i = 0; i < 16; i++)
-            if (pat->brk.slice[i] > 8)
+            if (pat->brk.slice[i] > 32)
                 return -1;
-        if (pat->brk.slice_mode > 1)
+        if (pat->brk.slice_mode > 15)
             return -1;
     }
     if (p->arr.song.len > NSONG)
@@ -987,18 +1002,21 @@ int project_prepare_legacy_file(const uint8_t *h)
         raw[tail+i-1u]=raw[tail-shift+i-1u];
     }
     __builtin_memset(project_stage.sound.bass,0,sizeof project_stage.sound.bass);
+    migrate_break_counts(&project_stage, stream);
     return -10; /* prepared and quarantined, not adopted or implicitly saved */
 }
 #endif
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT || (get32(h + 20) != PROJ_STREAM && !(X0X_BASS_NOTE_SOUND && get32(h+20)==6u)) ||
+        get32(h + 16) != PROJ_FORMAT || (get32(h+20)!=8u && get32(h+20)!=6u &&
+            !(X0X_BASS_NOTE_SOUND && (get32(h+20)==7u || get32(h+20)==9u))) ||
         get32(h + 24) != PROJ_SND_REV || get32(h + 28))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
+    migrate_break_counts(&project_stage, get32(h+20));
     return project_validate_stage();
 }
 

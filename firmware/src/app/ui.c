@@ -230,6 +230,8 @@ typedef struct {
     uint8_t touch_kind, touch_a, touch_b, touch_c; /* exact edited ref for overlays */
     uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
     uint32_t hold_t0;                  /* when it went down (a tap takes an old step off) */
+    uint8_t brk_page, brk_count_target;
+    uint16_t brk_localkeys;
     uint16_t brk_pinkeys;              /* BREAK: black keys used to give a held step its slice (their release is not live) */
     uint8_t gen_stale[NBASS];          /* TB-3PO's knobs changed since the line was written */
     uint32_t btn, keys, btn_used;
@@ -460,7 +462,10 @@ static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
-static const x0x_param_t BRKSLICE_P = {"8 SLICES", 1, 0, ONOFF_N};
+static const char *const BRKSLICE_N[] = {"4", "8", "16", "32"};
+static const x0x_param_t BRKSLICE_P[2] = {
+    {"A SLICES", 3, 1, BRKSLICE_N}, {"B SLICES", 3, 1, BRKSLICE_N}
+};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
@@ -529,7 +534,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BRATE: return &SEQ_P[SQ_BRATE];
     case R_BDIR: return &SEQ_P[SQ_BDIR];
     case R_BTRANS: return &SEQ_P[SQ_BTRANS];
-    case R_BRKSLICE: return &BRKSLICE_P;
+    case R_BRKSLICE: return &BRKSLICE_P[r.a != 0];
     case R_BRKSLOT: {
         static x0x_param_t d = {"LOOP", 0, 0, 0};
         static const char *none[] = {"none"};
@@ -626,7 +631,7 @@ static int pref_get(pref_t r)
     }
     case R_BRKSET: return p->brk.set[r.c];
     case R_BRKSLOT: return r.a ? p->brk.slot_b : p->brk.slot_a;
-    case R_BRKSLICE: return p->brk.slice_mode ? 1 : 0;
+    case R_BRKSLICE: { int code = (p->brk.slice_mode >> (r.a * 2)) & 3; return code < 2 ? code ^ 1 : code; }
     case R_TEMPO: return (int)(seq.bpm + 0.5f) - 20;
     case R_ACCENT: return seq.accent_q7;
     case R_CLKOUT: return seq.send_clock;
@@ -746,14 +751,14 @@ X0X_COLD static void pref_set(pref_t r, int v)
     }
     case R_BRKSET: p->brk.set[r.c] = (uint8_t)v; break;
     case R_BRKSLICE: {
-        uint8_t m = (uint8_t)(v ? 1 : 0);
-        if (p->brk.slice_mode != m) {
-            p->brk.slice_mode = m;
-            engine_brk_slice_mode_reconcile();
-        }
+        ui.brk_count_target = (uint8_t)(r.a != 0);
+        unsigned shift = r.a * 2u, code = v < 2 ? (unsigned)v ^ 1u : (unsigned)v;
+        p->brk.slice_mode = (uint8_t)((p->brk.slice_mode & ~(3u << shift)) | (code << shift));
+        if (!r.b || p == pat_of(PART_BRK)) engine_brk_loops();
         break;
     }
     case R_BRKSLOT:
+        ui.brk_count_target = (uint8_t)(r.a != 0);
         if (r.a)
             p->brk.slot_b = (uint8_t)v;
         else
@@ -1422,6 +1427,7 @@ static void build_pages(void)
             add_page_refs("LOOPS", refs, 0, 0); } while (0);
             more(PR(R_ENG, T_BRK, 0, 0));
             more(PR(R_BRKSLICE, 0, 0, 0));
+            more(PR(R_BRKSLICE, 1, 0, 0));
         }
         break;
     case V_GEN:
@@ -3154,6 +3160,11 @@ static void mute_track(int km, int v)                /* one drum track on / off 
 #if BOARD_SMK37 || X0X_HOST
 void smk_clip_enter_cleanup(void)
 {
+    for (int k = 0; k < 11; k++)
+        if (ui.brk_localkeys & (1u << k))
+            engine_brk_live(k < 8 ? 32 + ui.brk_page * 8 + k : k, 0);
+    ui.brk_localkeys = ui.brk_pinkeys = 0;
+    engine_brk_edit_hold(0);
     bass_step_cancel();
     ui.chain_first = -1;
     ui.hold_step = -1;
@@ -3169,8 +3180,52 @@ void smk_clip_enter_cleanup(void)
 }
 #endif
 
+/* Outer C3/D3 count, C#3/D#3 page; E3 remains unassigned. use the authoritative bitmap, not lossy extq.
+ * Always update the edge baseline, including modal/clip/busy frames. */
+void ui_brk_page_keys(unsigned keys, int allowed)
+{
+    static unsigned previous;
+    static int eligible_before;
+    int eligible = allowed && !project_busy && !ui.help && ui.overlay == O_NONE &&
+        ui.part == PART_BRK && (ui.view == V_SEQ || ui.view == V_PART) && !ui.btn && !perf_testing();
+    unsigned pressed = keys & ~previous;
+    previous = keys;
+    if (!eligible || !eligible_before) { eligible_before = eligible; return; }
+    if (!pressed) return;
+    if ((pressed & 12u) == 4u || (pressed & 12u) == 8u) {
+        unsigned bank = ui.brk_count_target;
+        pref_t ref = PR(R_BRKSLICE, bank, 0, 0);
+        int value = pref_get(ref) + ((pressed & 4u) ? -1 : 1);
+        if (value < 0) value = 0;
+        if (value > 3) value = 3;
+        pref_set(ref, value);
+        mark_dirty();
+        ui.act_t = plat_ms();
+    }
+    pressed &= 3u;
+    if (!pressed) return;
+    if ((ui.brk_localkeys & 255u) || ui.brk_pinkeys) { say("RELEASE SLICES", 0); return; }
+    int pages = (engine_brk_count(0) + 7) / 8;
+    int page = ui.brk_page < pages ? ui.brk_page : pages - 1;
+    if (pressed == 1 && page > 0) page--;
+    if (pressed == 2 && page + 1 < pages) page++;
+    ui.brk_page = (uint8_t)page;
+    ui.act_t = plat_ms();
+}
+
 static void key_event(int k, int down)
 {
+    /* End the press-time BREAK owner before modal/view/clip dispatch can hide it.
+     * Paging is blocked while held, so its slice identity remains stable. */
+    int oldbl = KEY_BLACK[k];
+    if (!down && oldbl >= 0 && ((ui.brk_localkeys | ui.brk_pinkeys) & (1u << oldbl))) {
+        if (ui.brk_localkeys & (1u << oldbl))
+            engine_brk_live(oldbl < 8 ? 32 + ui.brk_page * 8 + oldbl : oldbl, 0);
+        ui.brk_localkeys &= (uint16_t)~(1u << oldbl);
+        ui.brk_pinkeys &= (uint16_t)~(1u << oldbl);
+        engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
+        return;
+    }
     if (!down) {
         for (int b = 0; b < NBASS; b++) {
             uint32_t i, j, hit = 0;
@@ -3343,24 +3398,32 @@ static void key_event(int k, int down)
             bass_step_key(w, down);
     } else {
         brkpart_t *bp = &cur_pat()->brk;
+        int count = engine_brk_count(0);
+        if (!(ui.brk_localkeys & 255u) && !ui.brk_pinkeys && ui.brk_page * 8 >= count)
+            ui.brk_page = (uint8_t)((count - 1) / 8);
+        int slot = ui.brk_page * 8 + bl;
+        if (bl >= 0 && bl < 8 && down && slot >= count) { say("UNUSED SLICE KEY", 0); return; }
         if (bl >= 0 && bl < 8 && down && ui.brk_held >= 0) {     /* a step held + black 1-8: its own slice */
             int st = ui.brk_held;
-            bp->slice[st] = (uint8_t)(bp->slice[st] == bl + 1 ? 0 : bl + 1);
+            bp->slice[st] = (uint8_t)(bp->slice[st] && (bp->slice[st] - 1) % count == slot ? 0 : slot + 1);
             bp->steps |= 1u << st;
             ui.hold_used = 1;                          /* its release keeps the step */
             ui.brk_pinkeys |= (uint16_t)(1u << bl);
+            engine_brk_edit_hold(1);
             mark_dirty();
             if (bp->slice[st]) {
                 char t[24];
-                put_i(put_s(put_i(put_s(t, "STEP "), st + 1), ": SLICE "), bl + 1);
+                put_i(put_s(put_i(put_s(t, "STEP "), st + 1), ": SLICE "), slot + 1);
                 say(t, 0);
             } else
                 say("STEP: THE GENERATOR'S SLICE", 0);
         } else if (bl >= 0 && !down && (ui.brk_pinkeys & (1u << bl))) {
             ui.brk_pinkeys &= (uint16_t)~(1u << bl);
-        } else if (bl >= 0)
-            engine_brk_live(bl, down);
-        else if (w >= 0 && down) {                     /* as the drums: empty on at once, a tap takes it off */
+        } else if (bl >= 0) {
+            if (down) ui.brk_localkeys |= (uint16_t)(1u << bl);
+            engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
+            engine_brk_live(bl < 8 ? 32 + slot : bl, down);
+        } else if (w >= 0 && down) {                     /* as the drums: empty on at once, a tap takes it off */
             ui.brk_held = (int8_t)w;
             ui.hold_used = 0;
             ui.hold_t0 = plat_ms();
@@ -3392,6 +3455,8 @@ static void list_move(int d)
         s = t;
     }
     ui.list_sel = (uint8_t)s;
+    if (list_rows[s].kind == R_BRKSLICE || list_rows[s].kind == R_BRKSLOT)
+        ui.brk_count_target = (uint8_t)(list_rows[s].a != 0);
     if (ui.list_sel < ui.list_top)
         ui.list_top = ui.list_sel;
     if (ui.list_sel >= ui.list_top + 6)
@@ -4792,24 +4857,29 @@ static UI_DRAW void draw_break(int band)
     uint16_t col = part_col();
     uint32_t lmarks = lock_marks(-1, -1, 0);           /* (the break: its 16 steps) */
     engine_brk_state(&slice, &bank, &div, &running);
+    int audition = engine_brk_held() != 0, active = running || audition;
     if (!ui.outline_ok || ui.outline_slot != bp->slot_a) {
         ui.outline_ok = (uint8_t)engine_brk_outline(0, ui.outline, 232);
         ui.outline_slot = bp->slot_a;
     }
-    if (band == 0) {                                   /* loop A, eight equal source slices */
-        int x;
+    if (band == 0) {                                   /* loop A: eight visible slice slots */
+        int x, count = engine_brk_count(0);
+        int page = ui.brk_page * 8 < count ? ui.brk_page : (count - 1) / 8;
         night_panel(3,1,234,65,0);
         for (c = 0; c < 8; c++) {
-            int x0 = 8 + c * 28;
-            char t[2] = {(char)('1' + c), 0};
-            if (running && c == slice && bank == 0)
+            int x0 = 8 + c * 28, local = page * 8 + c;
+            char t[4];
+            if (local < count) put_i(t, local + 1); else put_s(t, "-");
+            if (active && local == slice && bank == 0)
                 cv_rect(x0,5,28,44,dim(col,5));
-            text_c(x0 + 14,53,&FONT_XS,t,running && c==slice && bank==0?C_WHITE:C_GRAY);
+            text_c(x0 + 14,53,&FONT_XS,t,active && local==slice && bank==0?C_WHITE:C_GRAY);
         }
         cv_rect(8,27,224,1,C_LINE);
         for (x=0;x<224 && ui.outline_ok;x++) {
-            int h=ui.outline[x*232/224]*21/255,sl=x/28;
-            if(h) cv_rect(8+x,27-h,1,2*h+1,running && sl==slice && bank==0?C_WHITE:col);
+            int sl = page * 8 + x / 28;
+            int source_x = (page * 8 * 232 + x * 8 * 232 / 224) / count;
+            int h = sl < count && source_x < 232 ? ui.outline[source_x] * 21 / 255 : 0;
+            if(h) cv_rect(8+x,27-h,1,2*h+1,active && sl==slice && bank==0?C_WHITE:col);
         }
         for(c=1;c<8;c++) cv_rect(8+c*28,5,1,44,C_LINE);
     } else {
@@ -4824,7 +4894,7 @@ static UI_DRAW void draw_break(int band)
             if (on && ((lmarks >> c) & 1u))            /* the step's own values (p-locks): a notch */
                 cv_rect(x+8,6,3,3,C_BLACK);
             if (bp->slice[c]) {                        /* the step's own slice */
-                char d[2] = {(char)('0' + bp->slice[c]), 0};
+                char d[4]; put_i(d, (bp->slice[c] - 1) % engine_brk_count(0) + 1);
                 text_c(x+6,vc(&FONT_XS,5,12),&FONT_XS,d,on?C_BLACK:C_GRAY);
             }
         }
@@ -4838,17 +4908,27 @@ static UI_DRAW void draw_break(int band)
                 put_s(put_s(ta, "A  "), sn[bp->slot_a % ns]);
                 put_s(put_s(tb, "B  "), sn[bp->slot_b % ns]);
             }
-            night_panel(3,25,114,26,bank==0 && running);
-            night_panel(123,25,114,26,bank==1 && running);
-            text_c(60,32,&FONT_XS,ta,C_HI);text_c(180,32,&FONT_XS,tb,C_HI);
+            night_panel(3,25,114,16,bank==0 && active);
+            night_panel(123,25,114,16,bank==1 && active);
+            text_c(60,28,&FONT_XS,ta,C_HI);text_c(180,28,&FONT_XS,tb,C_HI);
             (void)q;
         }
-        if (running) {
-            q = put_s(t, bank ? "PLAYING B" : "PLAYING A");
-            if (div > 1)
-                put_i(put_s(q, "   RETRIG X"), div);
-            cv_text(8,55,&FONT_XS,t,bank?C_AMB:C_GRAY);
+        int count = engine_brk_count(0), page = ui.brk_page * 8 < count ? ui.brk_page : (count - 1) / 8;
+        q = put_i(put_s(t, "A KEYS "), page * 8 + 1);
+        q = put_i(put_s(q, "-"), count < 8 ? count : page * 8 + 8);
+        q = put_i(put_s(q, "/"), count);
+        if (count != (int)brk_slice_count(bp, 0)) put_s(q, " PENDING");
+        cv_text(8, 44, &FONT_XS, t, C_GRAY);
+        q = put_s(t, ui.brk_count_target ? "EDIT B " : "EDIT A ");
+        put_i(q, (int)brk_slice_count(bp, ui.brk_count_target));
+        cv_text(144, 44, &FONT_XS, t, C_GRAY);
+        q = put_s(t, "C/D COUNT C#/D# PAGE");
+        if (active) {
+            q = put_s(q, audition ? " | LIVE A" : bank ? " | PLAY B" : " | PLAY A");
+            put_i(put_s(q, ":"), slice + 1);
+
         }
+        cv_text(8, 58, &FONT_T, t, C_DIM);
     }
 }
 

@@ -162,7 +162,9 @@ void engine_bass_record(int part, int note, int velocity, int flags); /* accepte
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
 void engine_brk_live(int key, int down);
-void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
+void engine_brk_edit_hold(int held);
+uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes);
