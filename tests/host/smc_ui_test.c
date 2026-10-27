@@ -44,6 +44,12 @@ uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 #ifndef SMC_UI_SEND_IMPLEMENTED
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
 #endif
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -97,7 +103,9 @@ static void setup(int view, int part)
     held_btn = held_keys = 0;
     memset(enc_acc, 0, sizeof enc_acc);
     memset(&ui, 0, sizeof ui);
-    memset(&smc, 0, sizeof smc);
+    smc_slot = 0;
+    memset(smc_states, 0, sizeof smc_states);
+    memset(smc_inputs, 0, sizeof smc_inputs);
     smc_ui_cancel();
     clip_grid_mode = clip_waiting = ck.pg = 0; clip_dirty = 1;
     memset(fields, 0, sizeof fields);

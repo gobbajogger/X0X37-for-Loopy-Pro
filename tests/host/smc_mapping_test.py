@@ -17,6 +17,10 @@ for name in names:
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', source, re.M | re.S)
     assert match, name
     functions.append(match[0])
+ui_source = (root / 'firmware/src/app/ui.c').read_text()
+order_helpers = 'enum { PART_909=0, PART_808=1, PART_303A=2, PART_303B=3, PART_BRK=4 };\n'
+order_helpers += re.search(r'^static const uint8_t PART_ORDER.*?;', ui_source, re.M)[0] + '\n'
+order_helpers += re.search(r'^static int part_at\(.*', ui_source, re.M)[0] + '\n'
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -52,7 +56,7 @@ static void build_pages(void) {
 }
 #define smc_select_drum(k,t) (ui.sel[k]=(t),build_pages())
 '''
-harness += '\n'.join(functions)
+harness += order_helpers + '\n'.join(functions)
 harness += r'''
 static void unique(void) {
     for(int i=0;i<8;i++) {
