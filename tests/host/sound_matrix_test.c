@@ -45,10 +45,12 @@ static void mapping(int bank)
       {W_CARRIER_WAVE,W_CARRIER_LEVEL,W_SUB_LEVEL,W_CARRIER_PITCH,W_XMOD_WAVE,W_XMOD_LEVEL,W_XMOD_TUNE,W_XMOD_DEPTH,
        W_WOBBLE_SHAPE,W_WOBBLE_DEPTH,W_WOBBLE_RATE,W_CUTOFF,W_ATTACK,W_DECAY,W_SUSTAIN,W_RELEASE}};
     unsigned seen[NPARAMS_MAX]={0};
-    fixture(bank);CHECK(pg.n==(bank?7:8));CHECK(sound_page()==pg.n-1);
+    fixture(bank);CHECK(pg.n==7);CHECK(sound_page()==pg.n-1);
     for(int i=0;i<factory_bank(bank)->npresets;i++) {
         const char *name=factory_preset_name(bank,i);
-        CHECK(strlen(name)+4<32);CHECK(tw(&FONT_T,name)+tw(&FONT_T,"4 >")+tw(&FONT_T,"KNOBS 5-6")<224);
+        preset_text_t text;preset_text(&text,name,!bank);
+        CHECK(text.lines>=1 && text.lines<=2);
+        for(int line=0;line<text.lines;line++) CHECK(tw(text.font,text.line[line])<=54);
     }
     for(int p=0;p<4;p++)for(int k=0;k<4;k++)CHECK(pg.r[p][k].c==expected[bank][p*4+k]);
     for(int p=0;p<pg.n;p++) {
@@ -109,7 +111,7 @@ static void page_dots(const char *dir)
     for (int bank = 0; bank < 2; bank++) {
         fixture(bank);
         int rows = pg.n, banks = (rows + 3) / 4;
-        CHECK(banks == 2 && rows == (bank ? 7 : 8));
+        CHECK(banks == 2 && rows == 7);
         CHECK(7 + tw(&FONT_B, bank ? "MIAMI A" : "CHICAGO A") < 175);
         for (int page = 0; page < rows; page++) {
             *page_of(V_PART) = page; ui.msg_until = 0;
@@ -121,10 +123,11 @@ static void page_dots(const char *dir)
                 for (int i = 0; i < banks; i++) {
                     int x = 232 - (banks - 1 - i) * 10;
                     CHECK(x - 3 > 194 && x + 3 < 236); /* after REC, before dirty marker */
-                    CHECK(fb[9 * 240 + x] == swap16(i == page / 4 ? C_HI : C_BLACK));
+                    int night=!bank && page>=4;
+                    CHECK(fb[9 * 240 + x] == swap16(i == page / 4 ? (night?RGB(196,155,69):C_HI) : (night?RGB(16,26,31):C_BLACK)));
                     CHECK(fb[9 * 240 + x + 2] != swap16(C_BLACK)); /* outlined inactive remains visible */
                 }
-                uint16_t dirty = state == SAVE_SAVED ? C_BLACK : state == SAVE_FAILED ? RGB(255,70,70) : C_AMB;
+                uint16_t dirty = state == SAVE_SAVED ? (!bank && page>=4?RGB(16,26,31):C_BLACK) : state == SAVE_FAILED ? RGB(255,70,70) : C_AMB;
                 CHECK(fb[3 * 240 + 237] == swap16(dirty));
                 CHECK(cur_page() == page && pg.n == rows);
                 CHECK(!memcmp(&before, &proj.sound, sizeof before));
@@ -239,7 +242,7 @@ static void transitions(const char *dir)
     held_btn=1u<<B_HOME;ui_input_only();held_btn=0;ui_input_only();CHECK(!engine_bass_preset_pending(0));
     CHECK(engine_bass_bank(0)==FACTORY_BANK_MIAMI);shot(dir,"preset-cancelled");
     knob(0,-1);audio();ui_input_only();
-    CHECK(engine_bass_bank(0)==FACTORY_BANK_CHICAGO);CHECK(cur_page()==sound_page());CHECK(cur_page()==7);
+    CHECK(engine_bass_bank(0)==FACTORY_BANK_CHICAGO);CHECK(cur_page()==sound_page());CHECK(cur_page()==6);
     CHECK(pg.r[0][0].c==BASS303_CUTOFF);shot(dir,"preset-applied-chicago");
     int preset=engine_bass_preset_index(0);knob(1,1);audio();ui_input_only();
     CHECK(engine_bass_preset_index(0)==preset+1);CHECK(cur_page()==sound_page());

@@ -1391,10 +1391,8 @@ static void build_pages(void)
                     add_page_refs("AMP ADSR",refs,2,b); } while (0);
                 do { static const pref_t refs[4] = {PR(R_ENG,T_303,0,CHI_ARP_SWITCH), PR(R_ENG,T_303,0,CHI_ARP_MODE), PR(R_ENG,T_303,0,CHI_ARP_RANGE), PR(R_ENG,T_303,0,CHI_ARP_SPEED)};
                     add_page_refs("LIVE ARP",refs,2,b); } while (0);
-                do { static const pref_t refs[4] = {PR(R_ENG,T_303,0,CHI_FX_TYPE), PR(R_ENG,T_303,0,CHI_FX_EDIT1), PR(R_ENG,T_303,0,CHI_FX_EDIT2), NONE};
-                    add_page_refs("FX",refs,2,b); } while (0);
-                do { static const pref_t refs[4] = {NONE, PR(R_ENG,T_303,0,CHI_DAMPER), NONE, NONE};
-                    add_page_refs("SUSTAIN",refs,2,b); } while (0);
+                do { static const pref_t refs[4] = {PR(R_ENG,T_303,0,CHI_FX_TYPE), PR(R_ENG,T_303,0,CHI_FX_EDIT1), PR(R_ENG,T_303,0,CHI_FX_EDIT2), PR(R_ENG,T_303,0,CHI_DAMPER)};
+                    add_page_refs("FX / DAMPER",refs,2,b); } while (0);
                 do { static const pref_t refs[] = {PR(R_ENG,T_303,0,BASS303_TUNE), PR(R_ENG,T_303,0,BASS303_VOLUME), PR(R_ENG,T_303,0,BASS303_DRVTYPE), PR(R_ENG,T_303,0,BASS303_ACCDEC), PR(R_ENG,T_303,0,BASS303_AMPMODE), PR(R_ENG,T_303,0,BASS303_SLIDE), PR(R_ENG,T_303,0,BASS303_FENV)};
                     more_refs(refs,7,2,b); } while (0);
             }
@@ -3990,6 +3988,29 @@ static uint16_t matrix_col(void)
     return is_303()?RGB(164,235,141):part_col();
 }
 
+/* Owner-approved Chicago second screen only; not a global theme or setting.
+ * The first four rows and Miami's OUTPUT/DAMPER controls keep their layout. */
+static int matrix_three_rows(void)
+{
+    return ui.view==V_PART && is_303() && cur_page()>=4 && pg.n==7 &&
+           pg.r[4][0].kind==R_ENG && pg.r[4][0].c==CHI_ARP_SWITCH &&
+           pg.r[6][0].kind==R_BENGINE;
+}
+#define SOUND_BASE RGB(5,10,13)
+#define SOUND_FACE RGB(16,26,31)
+#define SOUND_EDGE RGB(38,56,61)
+#define SOUND_SIDE RGB(7,14,17)
+#define SOUND_SELECT RGB(37,59,45)
+#define SOUND_SELECT_EDGE RGB(62,92,64)
+#define SOUND_SELECT_SIDE RGB(21,39,27)
+#define SOUND_INK RGB(224,235,214)
+#define SOUND_WHITE RGB(222,231,223)
+#define SOUND_GRAY RGB(156,170,168)
+#define SOUND_DIM RGB(128,146,148)
+#define SOUND_LINE RGB(40,56,61)
+#define SOUND_GREEN RGB(143,191,121)
+#define SOUND_AMBER RGB(196,155,69)
+
 static uint16_t dim(uint16_t c, int t) { return blend(C_BLACK, c, t); }
 
 static int32_t tw(const felucca_font_t *f, const char *s) { return text_w(f, s); }
@@ -4264,6 +4285,18 @@ static int steps_len(void)
 #else
 #define UI_DRAW
 #endif
+static UI_DRAW void sound_slab(int x,int y,int w,int h,int active)
+{
+    uint16_t edge=active?SOUND_SELECT_EDGE:SOUND_EDGE;
+    uint16_t side=active?SOUND_SELECT_SIDE:SOUND_SIDE;
+    cv_rect(x+1,y+h,w,1,RGB(2,4,6));
+    cv_rect(x,y,w,h,active?SOUND_SELECT:SOUND_FACE);
+    cv_rect(x+1,y,w-2,1,edge);
+    cv_rect(x,y+1,1,h-2,active?edge:RGB(28,44,49));
+    cv_rect(x+1,y+h-1,w-1,1,side);
+    cv_rect(x+w-1,y+1,1,h-1,side);
+}
+
 static UI_DRAW void draw_header(void)
 {
 #if BOARD_SMK37
@@ -4301,13 +4334,15 @@ static UI_DRAW void draw_header(void)
 #endif
             name=bidx()?"CHICAGO B":"CHICAGO A";
         }
-        cv_text(7,2,&FONT_B,name,matrix_col());
+        int night=matrix_three_rows();
+        if(night) sound_slab(0,0,240,20,0);
+        cv_text(7,2,&FONT_B,name,night?SOUND_GREEN:matrix_col());
         {   /* Screen banks, not musical divisions or the selected control row. */
             int banks = (pg.n + 3) / 4;
             for (int i = 0; i < banks; i++) {
                 int dx = 232 - (banks - 1 - i) * 10;
-                dot(dx, 9, 2, C_HI);
-                if (i != cur_page() / 4) dot(dx, 9, 1, C_BLACK);
+                dot(dx, 9, 2, night?SOUND_AMBER:C_HI);
+                if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
             }
         }
         if(seq.playing) play_icon(175,4,C_HI);
@@ -4586,7 +4621,7 @@ static UI_DRAW void draw_303(int band, int gen)
 }
 
 static int strcmp_s(const char *a, const char *b);
-static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col);
+static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col, int height, int night);
 static UI_DRAW int adsr_touch_active(void);
 static UI_DRAW int draw_adsr_overlay(int band);
 enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
@@ -4609,7 +4644,7 @@ static UI_DRAW int matrix_touch_matches(pref_t r, int i)
            ui.touch_b == r.b && ui.touch_c == r.c;
 }
 
-/* Four control rows share the existing main/knob strips; no framebuffer or UI state is added. */
+/* Control rows share the existing main/knob strips; no framebuffer or UI state is added. */
 static UI_DRAW const char *matrix_group(int page)
 {
     const char *t = pg.title[page];
@@ -4645,28 +4680,23 @@ static UI_DRAW void matrix_knob_caption(char *text, int page)
 static UI_DRAW void draw_part_sound(int band)
 {
     int page=cur_page(), first=page/4*4, row, k, off=band*BAND_H;
-    uint16_t col=matrix_col();
+    int night=matrix_three_rows(), rows=night?3:4, height=night?66:49, step=night?67:50;
+    uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
+    if(night) cv_rect(0,0,240,band==2?KNOB_H:BAND_H,SOUND_BASE);
     if (draw_adsr_overlay(band)) return;
-    for (row=0;row<4;row++) {
-        int p=first+row, y=4+row*50-off, active=p==page;
+    for (row=0;row<rows;row++) {
+        int p=first+row, y=4+row*step-off, active=p==page;
+        uint16_t label=night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY);
         char t[32];
-        if (p>=pg.n || y+49<=0 || y>=(band==2?KNOB_H:BAND_H)) continue;
-        if (active) box(3,y,234,49,col);
-        else cv_rect(6,y+48,228,1,C_LINE);
+        if (p>=pg.n || y+height<=0 || y>=(band==2?KNOB_H:BAND_H)) continue;
+        if (night) sound_slab(3,y,234,height,active);
+        else if (active) box(3,y,234,height,col);
+        else cv_rect(6,y+height-1,228,1,C_LINE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
-#if X0X_BASS_PRESET_PREVIEW
-        if(pg.r[p][0].kind==R_BENGINE) {
-            int b=bidx(),pending=engine_bass_preset_pending(b);
-            int preset=pending?engine_bass_requested_preset(b):engine_bass_preset_index(b);
-            int bank=pending?engine_bass_requested_bank(b):engine_bass_bank(b);
-            const char *name=preset>=0?factory_preset_name(bank,preset):"SELECT PRESET";
-            put_s(put_s(put_i(t,row+1),pending?" >":"  "),name);
-        }
-#endif
-        cv_text(8,y,&FONT_T,t,active?C_BLACK:C_GRAY);
+        cv_text(8,y,&FONT_T,t,label);
         if (active) {
             char knobs[20];matrix_knob_caption(knobs,p);
-            text_r(232,y,&FONT_T,knobs,C_BLACK);
+            text_r(232,y,&FONT_T,knobs,label);
         }
         for (k=0;k<4;k++) {
             int x=4+k*59;
@@ -4674,8 +4704,8 @@ static UI_DRAW void draw_part_sound(int band)
 #if X0X_BASS_PRESET_PREVIEW
                 || (k==2 && pg.r[p][0].kind==R_BENGINE)
 #endif
-                )) cv_rect(x,y+14,1,32,active?dim(col,3):C_LINE);
-            draw_param_widget(pg.r[p][k],x,y,59,active,col);
+                )) cv_rect(x,y+14,1,night?height-18:32,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
+            draw_param_widget(pg.r[p][k],x,y,59,active,col,height,night);
         }
 #if X0X_BASS_PRESET_PREVIEW
         if (pg.r[p][0].kind==R_BENGINE) {
@@ -4685,7 +4715,7 @@ static UI_DRAW void draw_part_sound(int band)
             const char *reason=pending==2?"WAIT FOR NOTES/TAIL":pending==3?"RETURN WHEELS":
                 pending==4?"SOUND LOCKS ACTIVE":pending==5?"WAIT FOR INPUT":
                 pending==6?"WAIT FOR UPDATE":"WAIT FOR AUDIO";
-            int iw=pending?9:edited?8:10, vy=y+(pending?24:29);
+            int iw=pending?9:edited?8:10, vy=y+(night?(pending?31:36):(pending?24:29));
 #if X0X_BASS_TAGGED_SOUND
             if (engine_bass_sound_bank(&proj.sound,b)<0) {status="UNKNOWN";iw=0;}
 #endif
@@ -4693,13 +4723,13 @@ static UI_DRAW void draw_part_sound(int band)
              * with a compact group measured from the actual text advance and
              * each primitive's ink width, separated by two pixels. */
             int gx=180-(tw(&FONT_T,status)+iw+(iw?2:0))/2;
-            uint16_t c=active?C_BLACK:C_HI;
-            text_c(180,y+11,&FONT_T,"STATUS",active?C_BLACK:C_GRAY);
+            uint16_t c=night?(active?SOUND_INK:SOUND_WHITE):(active?C_BLACK:C_HI);
+            text_c(180,y+(night?14:11),&FONT_T,"STATUS",label);
             cv_text(gx+iw+(iw?2:0),vy,&FONT_T,status,c);
             if(pending) {
                 cv_line(gx,vy,gx+8,vy,c);cv_line(gx,vy+8,gx+8,vy+8,c);
                 cv_line(gx+1,vy+1,gx+7,vy+7,c);cv_line(gx+7,vy+1,gx+1,vy+7,c);
-                text_c(180,y+37,&FONT_T,reason,c);
+                text_c(180,y+(night?49:37),&FONT_T,reason,c);
             } else if(iw && edited) {
                 cv_line(gx,vy+7,gx+6,vy+1,c);cv_line(gx+1,vy+8,gx+7,vy+2,c);
             } else if(iw) {
@@ -4708,31 +4738,32 @@ static UI_DRAW void draw_part_sound(int band)
         }
 #endif
     }
+    if(night) sound_slab(0,207-off,240,13,0);
     if (lock_step()>=0) {
         char t[48];put_s(put_i(put_s(t,"STEP "),lock_step()+1)," " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT ":ROW");
         cv_text(7,208-off,&FONT_T,t,C_AMB);
     } else
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE && engine_bass_preset_pending(bidx()))
-        cv_text(7,208-off,&FONT_T,UI_CAP_HOME ": CANCEL",C_GRAY);
+        cv_text(7,208-off,&FONT_T,UI_CAP_HOME ": CANCEL",gray);
     else
 #endif
     {
-        int x=matrix_row_hint(7,208-off,C_GRAY);
-        cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT ": NEXT",C_GRAY);
+        int x=matrix_row_hint(7,208-off,gray);
+        cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT ": NEXT",gray);
     }
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE) {
         if (lock_step()<0) {
             if(engine_bass_preset_pending(bidx()))
-                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-18-tw(&FONT_T,"ROW"),208-off,C_HI);
-            else text_r(234,208-off,&FONT_T,UI_CAP_HOME ": BACK",C_HI);
+                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-18-tw(&FONT_T,"ROW"),208-off,hint);
+            else text_r(234,208-off,&FONT_T,UI_CAP_HOME ": BACK",hint);
         }
     } else
 #endif
     {
         char t[12];put_s(put_i(put_s(put_i(t,first+1),"-"),first+4<pg.n?first+4:pg.n),"");
-        text_r(234,208-off,&FONT_T,t,C_HI);
+        text_r(234,208-off,&FONT_T,t,hint);
     }
 }
 
@@ -5765,20 +5796,96 @@ static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg)
     }
 }
 
-static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int active, uint16_t col)
+#if X0X_BASS_PRESET_PREVIEW
+/* Bounded ROM names, never a preset number masquerading as its name. During a
+ * publication interruption the requested identity is not coherent yet. */
+static const char *matrix_preset_name(int voice)
+{
+    int pending=engine_bass_preset_pending(voice);
+    if(pending==6) return "UPDATING";
+#if X0X_BASS_TAGGED_SOUND
+    if(!pending && engine_bass_sound_bank(&proj.sound,voice)<0) return "UNKNOWN";
+#endif
+    int bank=engine_bass_requested_bank(voice), preset=engine_bass_requested_preset(voice);
+    const char *name=preset>=0?factory_preset_name(bank,preset):"USER";
+    return name && name[0]?name:"UNKNOWN";
+}
+
+typedef struct {
+    char line[2][FACTORY_NAME_MAX];
+    const felucca_font_t *font;
+    int lines;
+} preset_text_t;
+
+/* Prefer whole words, then a character boundary for an unusually long word.
+ * Fit both lines by measured native-font advance. Every current factory name
+ * fits; a future over-wide name gets an explicit trailing '..', not overflow. */
+static UI_DRAW void preset_text(preset_text_t *out,const char *name,int tall)
+{
+    char full[FACTORY_NAME_MAX];int n=0;
+    while(name && name[n] && n<FACTORY_NAME_MAX-1) {
+        unsigned char c=(unsigned char)name[n];
+        full[n]=(char)(c>='a' && c<='z'?c-32:c<32 || c>126?'?':c);n++;
+    }
+    full[n]=0;
+    if(!n) {put_s(full,"UNKNOWN");n=7;}
+    const felucca_font_t *fonts[3]={&FONT_B,&FONT_XS,&FONT_T};
+    for(int f=0;f<3;f++) {
+        out->font=fonts[f];out->lines=1;put_s(out->line[0],full);out->line[1][0]=0;
+        if(tw(out->font,full)<=54) return;
+        if(!tall && f<2) continue;
+        for(int words=1;words>=(f<2?1:0);words--) {
+            int best=-1,score=999;
+            for(int split=1;split<n;split++) {
+                if(words && full[split]!=' ') continue;
+                memcpy(out->line[0],full,(unsigned)split);out->line[0][split]=0;
+                put_s(out->line[1],full+split+(full[split]==' '));
+                int a=tw(out->font,out->line[0]),b=tw(out->font,out->line[1]);
+                int d=a>b?a-b:b-a;
+                if(a<=54 && b<=54 && d<score) {best=split;score=d;}
+            }
+            if(best>=0) {
+                memcpy(out->line[0],full,(unsigned)best);out->line[0][best]=0;
+                put_s(out->line[1],full+best+(full[best]==' '));out->lines=2;return;
+            }
+        }
+    }
+    out->lines=2;out->line[0][0]=out->line[1][0]=0;
+    int i=0;
+    for(int row=0;row<2;row++) {
+        int k=0,limit=row?54-tw(out->font,".."):54;
+        while(i<n && k<FACTORY_NAME_MAX-3) {
+            out->line[row][k]=full[i];out->line[row][k+1]=0;
+            if(tw(out->font,out->line[row])>limit) {out->line[row][k]=0;break;}
+            i++;k++;
+        }
+        if(row) put_s(out->line[row]+k,"..");
+    }
+}
+
+static UI_DRAW void draw_preset_name(int voice,int cx,int y,int height,uint16_t ink)
+{
+    preset_text_t text;preset_text(&text,matrix_preset_name(voice),height>49);
+    int top=height>49?(text.lines==2?28:35):(text.lines==2?21:26);
+    for(int i=0;i<text.lines;i++) text_c(cx,y+top+i*text.font->h,text.font,text.line[i],ink);
+}
+#endif
+
+static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int active, uint16_t col, int height, int night)
 {
     const x0x_param_t *d=pref_desc(r);
     char num[16],unit[8],value[24];
     int cx=x+width/2,val,shape=0,mix=0,lv,discrete=0,glyph=GL_NONE,unused=0;
     const felucca_font_t *font;
-    uint16_t ink=active?C_BLACK:C_WHITE;
+    uint16_t ink=night?(active?SOUND_INK:SOUND_WHITE):(active?C_BLACK:C_WHITE);
+    int value_y=night?35:26, bar_y=height-4;
     if(!d) return;
     val=matrix_value(r);
     if(r.kind==R_ENG && r.a==T_303 && !engine_bass_is_wobble(r.b)) {
         if(r.c>=CHI_ARP_SWITCH && r.c<=CHI_ARP_SPEED) {
             discrete=1;
             if(r.c!=CHI_ARP_SWITCH && !matrix_value(PR(R_ENG,T_303,r.b,CHI_ARP_SWITCH)))
-                ink=active?dim(col,4):C_GRAY;
+                ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);
             if(r.c==CHI_ARP_SWITCH) glyph=GL_POWER;
             if(r.c==CHI_ARP_MODE) glyph=val==CHI_ARP_DOWN?GL_DOWN:val==CHI_ARP_UP?GL_UP:GL_BOTH;
             if(r.c==CHI_ARP_SPEED) glyph=GL_CLOCK;
@@ -5786,9 +5893,17 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         if(r.c==CHI_DAMPER) {discrete=1;glyph=GL_PEDAL;}
         if(r.c==CHI_FX_TYPE) discrete=1;
         if((r.c==CHI_FX_EDIT1 || r.c==CHI_FX_EDIT2) && !strcmp_s(matrix_name(r),"UNUSED"))
-            {unused=discrete=1;ink=active?dim(col,4):C_GRAY;}
+            {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
     }
-    text_c(cx,y+11,&FONT_T,matrix_name(r),active?C_BLACK:C_GRAY);
+    text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
+#if X0X_BASS_PRESET_PREVIEW
+    if(r.kind==R_BPRESET) {
+        draw_preset_name(r.b,cx,y,height,ink);
+        cv_rect(x+8,y+bar_y,42,1,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
+        if(val>0 && d->max) cv_rect(x+8,y+bar_y,1+41*(val>d->max?d->max:val)/d->max,1,ink);
+        return;
+    }
+#endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
         draw_wave_glyph(cx-10,y+28,shape,mix,ink);
@@ -5804,16 +5919,16 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         font=tw(&FONT_B,value)<=limit?&FONT_B:&FONT_XS;
         if(tw(font,value)>limit) font=&FONT_T;
         int w=tw(font,value), left=cx-(w+(glyph?14:0))/2;
-        if(glyph) matrix_glyph(left,y+27,glyph,ink,active?col:C_BLACK);
-        cv_text(left+(glyph?14:0),y+26,font,value,ink);
+        if(glyph) matrix_glyph(left,y+value_y+1,glyph,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:C_BLACK));
+        cv_text(left+(glyph?14:0),y+value_y,font,value,ink);
         if(!unused) {
-            cv_rect(x+8,y+45,42,1,active?dim(col,3):C_LINE);
-            if(val>0 && d->max) cv_rect(x+8,y+45,1+41*(val>d->max?d->max:val)/d->max,1,ink);
+            cv_rect(x+8,y+bar_y,42,1,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
+            if(val>0 && d->max) cv_rect(x+8,y+bar_y,1+41*(val>d->max?d->max:val)/d->max,1,ink);
         }
     }
     lv=lock_of(r,lock_step());
     if(lv>=0 || (lock_step()<0 && has_motion(r)))
-        cv_rect(x+53,y+24,2,2,active?C_BLACK:lv>=0?C_AMB:C_HI);
+        cv_rect(x+53,y+24,2,2,night?SOUND_INK:(active?C_BLACK:lv>=0?C_AMB:C_HI));
 }
 
 /* Stage-normalised parameter preview, not a millisecond axis or an audio trace.

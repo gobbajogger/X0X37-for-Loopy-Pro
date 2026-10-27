@@ -27,24 +27,27 @@ static void expected_glyph(int x,int y,int width,uint16_t c)
 }
 static void check_readout(const char *status,const char *reason,const char *left,int selected,const char *name)
 {
-    int snd=row(R_BENGINE,0),r=snd%4,top=24+r*50,pending=reason!=NULL;
-    int iw=!strcmp(status,"UNKNOWN")?0:pending?9:!strcmp(status,"ACTIVE")?10:8;
-    int vy=pending?24:29,tx=180-(tw(&FONT_T,status)+iw+(iw?2:0))/2;
-    const char *right=UI_CAP_HOME ": BACK";
+    int snd=row(R_BENGINE,0),r=snd%4,pending=reason!=NULL;
     *page_of(V_PART)=selected?snd:snd-1;
+    int night=night_fixture(),top=24+r*(night?67:50);
+    int iw=!strcmp(status,"UNKNOWN")?0:pending?9:!strcmp(status,"ACTIVE")?10:8;
+    int vy=night?(pending?31:36):(pending?24:29),tx=180-(tw(&FONT_T,status)+iw+(iw?2:0))/2;
+    const char *right=UI_CAP_HOME ": BACK";
     sound_t before=proj.sound;int page=cur_page(),dirty=ui.dirty,sw=save_wait;
     shot(output_dir,name);
     CHECK(!memcmp(&before,&proj.sound,sizeof before));CHECK(cur_page()==page && ui.dirty==dirty && save_wait==sw);
     CHECK(pg.r[snd][0].kind==R_BENGINE && pg.r[snd][1].kind==R_BPRESET);
     CHECK(pg.r[snd][2].kind==R_NONE && pg.r[snd][3].kind==R_NONE);
-    uint16_t bg=selected?matrix_col():C_BLACK,ink=selected?C_BLACK:C_HI;
+    uint16_t bg=night?(selected?RGB(37,59,45):RGB(16,26,31)):(selected?matrix_col():C_BLACK);
+    uint16_t ink=night?(selected?RGB(224,235,214):RGB(222,231,223)):(selected?C_BLACK:C_HI);
+    uint16_t label=night?(selected?RGB(224,235,214):RGB(156,170,168)):(selected?C_BLACK:C_GRAY);
     CHECK(tw(&FONT_T,status)+iw+(iw?2:0)<=110);
     CHECK(!reason || tw(&FONT_T,reason)<=110);
     /* Full right-half pixel oracle also rejects the old divider through x181. */
-    cv_begin(240,49,bg);text_c(180,11,&FONT_T,"STATUS",selected?C_BLACK:C_GRAY);
+    cv_begin(240,night?66:49,bg);text_c(180,night?14:11,&FONT_T,"STATUS",label);
     cv_text(tx+iw+(iw?2:0),vy,&FONT_T,status,ink);expected_glyph(tx,vy,iw,ink);
-    if(reason)text_c(180,37,&FONT_T,reason,ink);
-    for(int y=13;y<47;y++)for(int x=125;x<234;x++)CHECK(fb[(top+y)*240+x]==cv_px[y*240+x]);
+    if(reason)text_c(180,night?49:37,&FONT_T,reason,ink);
+    for(int y=13;y<(night?64:47);y++)for(int x=125;x<234;x++)CHECK(fb[(top+y)*240+x]==cv_px[y*240+x]);
     /* Measure actual composite ink. Primitive columns are contiguous; spacing
      * is checked against text ink, not a guessed character count. */
     if(iw) {
@@ -59,14 +62,15 @@ static void check_readout(const char *status,const char *reason,const char *left
     }
     if(selected) {
         int nav=tw(&FONT_T,UI_CAP_ARROWS)+18+tw(&FONT_T,"ROW");
-        cv_begin(240,12,C_BLACK);
+        expected_footer_bg(night);
+        uint16_t gray=night?RGB(156,170,168):C_GRAY,hint=night?RGB(196,155,69):C_HI;
         if(pending) {
             CHECK(7+tw(&FONT_T,left)+8+nav<=234);
-            cv_text(7,0,&FONT_T,left,C_GRAY);expected_row_hint(234-nav,0,C_HI);
+            cv_text(7,0,&FONT_T,left,gray);expected_row_hint(234-nav,0,hint);
         } else {
-            int x=expected_row_hint(7,0,C_GRAY);cv_text(x+8,0,&FONT_T,UI_CAP_EDIT ": NEXT",C_GRAY);
+            int x=expected_row_hint(7,0,gray);cv_text(x+8,0,&FONT_T,UI_CAP_EDIT ": NEXT",gray);
             CHECK(x+8+tw(&FONT_T,UI_CAP_EDIT ": NEXT")+8+tw(&FONT_T,right)<=234);
-            text_r(234,0,&FONT_T,right,C_HI);
+            text_r(234,0,&FONT_T,right,hint);
         }
         for(int y=0;y<12;y++)for(int x=0;x<240;x++)CHECK(fb[(228+y)*240+x]==cv_px[y*240+x]);
     }
