@@ -75,6 +75,17 @@ static int expected_row_hint(int x,int y,uint16_t c)
     }
     cv_text(x+14,y,&FONT_T,"ROW",c);return x+14+tw(&FONT_T,"ROW");
 }
+/* Independent expected palette/geometry for the accepted Chicago second screen. */
+static int night_fixture(void)
+{return !engine_bass_is_wobble(bidx()) && pg.n==7 && cur_page()>=4;}
+static void expected_footer_bg(int night)
+{
+    cv_begin(240,12,night?RGB(16,26,31):C_BLACK);
+    if(night) {
+        cv_rect(0,0,1,11,RGB(28,44,49));cv_rect(239,0,1,12,RGB(7,14,17));
+        cv_rect(1,11,239,1,RGB(7,14,17));
+    }
+}
 static void fixture(int voice,int bank)
 {
     publication_voice=race_voice=-1;unstable=0;clip_grid_mode=0;
@@ -221,8 +232,9 @@ static void presentation(const char *dir)
     static const char *e2[]={"UNUSED","MIX","UNUSED","UNUSED","MIX","SHAPE","SHAPE","SHAPE","FEEDBACK","DIVISION","DECAY","SHAPE"};
     for(int v=0;v<2;v++) {
         fixture(v,0);int arp=row(R_ENG,CHI_ARP_SWITCH),fx=row(R_ENG,CHI_FX_TYPE),aux=row(R_ENG,CHI_DAMPER),snd=row(R_BENGINE,0);
-        CHECK(arp==4 && fx==5 && aux==6 && snd==7);
-        CHECK(pg.r[aux][0].kind==R_NONE && pg.r[aux][1].c==CHI_DAMPER);
+        CHECK(pg.n==7 && arp==4 && fx==5 && aux==fx && snd==6);
+        CHECK(pg.r[fx][0].c==CHI_FX_TYPE && pg.r[fx][1].c==CHI_FX_EDIT1 &&
+              pg.r[fx][2].c==CHI_FX_EDIT2 && pg.r[fx][3].c==CHI_DAMPER);
         CHECK(pg.r[snd][2].kind==R_NONE && pg.r[snd][3].kind==R_NONE);
         for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++)CHECK(pg.r[p][k].kind!=R_ENG || pg.r[p][k].c!=CHI_PBEND);
         for(int k=0;k<pg.nmore;k++)CHECK(pg.more[k].c!=CHI_PBEND);
@@ -233,9 +245,9 @@ static void presentation(const char *dir)
             ui.touched=-1;ui.msg_until=0;draw_header();draw_main();draw_knobs();
             /* Owner retained the existing bars, including discrete enums. */
             for(int k=0;k<4;k++) {
-                uint16_t ink=!on && k?dim(matrix_col(),4):C_BLACK;
-                CHECK(fb[(24+45)*240+12+k*59]==swap16(vals[k]?ink:dim(matrix_col(),3)));
-                CHECK(fb[(24+45)*240+53+k*59]==swap16(vals[k]==pref_desc(pg.r[arp][k])->max?ink:dim(matrix_col(),3)));
+                uint16_t ink=!on && k?RGB(128,146,148):RGB(224,235,214);
+                CHECK(fb[(24+62)*240+12+k*59]==swap16(vals[k]?ink:RGB(21,39,27)));
+                CHECK(fb[(24+62)*240+53+k*59]==swap16(vals[k]==pref_desc(pg.r[arp][k])->max?ink:RGB(21,39,27)));
             }
             CHECK(!strcmp(matrix_name(pg.r[arp][1]),"DIRECTION"));
             if(!v && range==2 && speed==9) {char n[64];snprintf(n,sizeof n,"arp-%s-direction-%d-three-octaves-fast",on?"on":"off",mode);shot(dir,n);}
@@ -247,14 +259,15 @@ static void presentation(const char *dir)
         for(int ty=0;ty<CHI_FX_NTYPES;ty++) {
             *page_of(V_PART)=fx;pref_set(pg.r[fx][0],ty);
             CHECK(!strcmp(matrix_name(pg.r[fx][1]),e1[ty]));CHECK(!strcmp(matrix_name(pg.r[fx][2]),e2[ty]));
-            CHECK(!strcmp(matrix_group(fx),ty==0?"FX / OFF":ty==CHI_FX_COMP?"FX / MASTER":"FX / INSERT"));
+            CHECK(!strcmp(matrix_group(fx),"FX / DAMPER"));
             if(!v) {char n[40];snprintf(n,sizeof n,"fx-type-%02d",ty);shot(dir,n);}
         }
         *page_of(V_PART)=aux;
-        pref_set(pg.r[aux][1],63);if(!v)shot(dir,"damper-63-off");
-        pref_set(pg.r[aux][1],64);if(!v)shot(dir,"damper-64-on");
+        pref_set(pg.r[aux][3],63);if(!v)shot(dir,"damper-63-off");
+        pref_set(pg.r[aux][3],64);if(!v)shot(dir,"damper-64-on");
         ui.touched=-1;draw_header();draw_main();draw_knobs();
-        for(int k=2;k<4;k++)CHECK(fb[(24+2*50+20)*240+4+k*59]==swap16(matrix_col())); /* no tail separator */
+        CHECK(fb[(91+20)*240+181]==swap16(RGB(21,39,27))); /* K8 DAMPER has its own cell. */
+        CHECK(fb[(158+20)*240+181]==swap16(RGB(16,26,31))); /* STATUS has no K8 divider. */
         *page_of(V_PART)=snd;request(v,0);if(!v)shot(dir,"chicago-pending-patch");
         CHECK(7+tw(&FONT_T,UI_CAP_HOME ": CANCEL REQUEST")+8+tw(&FONT_T,"KEYS/MIDI")<=234);
         const char *lines[HELP_LINES];int n=help_lines(B_HOME,lines);CHECK(!strcmp(lines[0],"TAP: CANCEL SOUND REQUEST"));

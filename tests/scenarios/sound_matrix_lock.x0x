@@ -5,7 +5,7 @@ tap EDIT
 turn SELECT 6
 spin K1 -1
 wait 30
-turn SELECT -7
+turn SELECT -6
 tap SEQ
 key w0 down
 tap EDIT
