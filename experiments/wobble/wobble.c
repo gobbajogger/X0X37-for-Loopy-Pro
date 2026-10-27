@@ -75,13 +75,18 @@ static float svf_lowpass(float in, float f, float *low, float *band)
     *low = fm_flush(*low + f * *band);
     return *low;
 }
+unsigned wobble_rate_division(float norm)
+{
+    static const uint8_t divisions[8] = {2, 3, 4, 6, 8, 12, 16, 24};
+    if (!finite_value(norm)) norm = 0.0f;
+    norm = fm_clampf(norm, 0.0f, 1.0f);
+    return divisions[(unsigned)(norm * 7.0f + 0.5f)];
+}
 static void update_rates(wobble_t *s)
 {
-    static const float rates[7] = {1, 2, 3, 4, 6, 8, 12};
-    unsigned rate = (unsigned)(s->p[W_WOBBLE_RATE] * 6.0f + 0.5f);
-    /* Legacy seven rates at 120 BPM represent whole-note divisions
-     * 1/2, 1/4, 1/6, 1/8, 1/12, 1/16 and 1/24. Keep control bins stable. */
-    s->lfo_step = (rates[rate] * (s->tempo_bpm / 120.0f)) / s->sample_rate;
+    /* Factory rates span eight straight/triplet whole-note divisions. */
+    float hz120 = 0.5f * (float)wobble_rate_division(s->p[W_WOBBLE_RATE]);
+    s->lfo_step = (hz120 * (s->tempo_bpm / 120.0f)) / s->sample_rate;
     s->glide_step = s->p[W_GLIDE] == 0.0f ? 1.0f
         : 1.0f - fm_expf(-1.0f / (s->sample_rate
                 * (0.002f + 0.998f * s->p[W_GLIDE] * s->p[W_GLIDE])));
