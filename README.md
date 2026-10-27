@@ -1,5 +1,10 @@
 # X0X for the M-VAVE FM-1
 
+For project work, read [AGENTS.md](AGENTS.md) and the
+[active workflow](docs/rules/workflow.md). Build, publication and device commands
+below require their current action authority and applicable evidence; older
+examples do not assign an integration or publisher role.
+
 X0X turns the M-VAVE FM-1 into a groovebox: a **909**, an **808**, two **303s** with an acid line
 generator, and a **breakbeat player**, all playing at once. Each part can play its own pattern,
 you can string patterns into a song, and you can record knob moves. Everything runs in stereo,
@@ -16,7 +21,10 @@ The factory sound is set up for big beat, so it should make noise the moment you
 - **Download firmware**: [releases](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases)
 - **M-Vave SMK-37 / Loopy Pro:** see [SMK-37 instructions](SMK37.md).
 
-The site is the `gh-pages` branch (same hosting pattern as other FM-1/SMK projects). If the URL 404s, turn on **Settings → Pages → Deploy from a branch → `gh-pages` / root** (private repos need a plan that allows Pages, or make the repo public). First publish: `tools/publish_pages.sh --shell`, then attach `.fwsc` files to a Release.
+The site is served from the `gh-pages` branch. A missing page is a publication
+observation to diagnose through the assigned publisher; it is not permission to
+change repository visibility or settings. See [BUILDING.md](BUILDING.md) and the
+active workflow for the current authorized publication route.
 
 > **X0X is in beta.** It's solid for everyday playing, but a very busy pattern can push the FM-1
 > to its limit. When that happens, X0X trades a little sound quality to keep playing rather than

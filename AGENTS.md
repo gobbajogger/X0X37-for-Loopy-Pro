@@ -1,16 +1,35 @@
-# x0x37
+# x0x37 project instructions
 
-Read this file first, then [docs/rules/workflow.md](docs/rules/workflow.md). That file is the procedure.
+Read the [active delivery workflow](docs/rules/workflow.md) before work and the
+[writing skill](.agents/skills/x0x37-writing/SKILL.md) for output. Current owner
+instructions and action-specific permissions govern. Older stage handoffs and
+archived plans are evidence, not executable workflow instructions.
 
-Optional host tooling gaps (Pillow, ASan, missing reference repos) are not cycle blockers. Install when possible (`bash tools/agent_env_install.sh` / environment `install`); otherwise mark those checks not-run and continue the loop. GitHub Actions and billing locks are never test results.
+Consume the existing request, owner and checkpoint. Complete authorized work and
+applicable proof, report each meaningful result, then continue the next authorized
+action without waiting for routine owner acknowledgment. Preserve one writer per
+shared scope, independent QA and existing integration/publication owners. A
+blocked item must not stop independent ready work. No fresh chat or fixed provider
+is required for each logical stage.
 
-After local proof of specific heads, merge those Project PRs with `tools/merge_project_prs.py --pr N` (and/or `--head SHA`). Standing pre-approval covers only the proven set — do not batch-merge unrelated untested `cursor/` PRs. Automatic merge of properly tested work is pre-approved — no per-PR human APPROVE. Never ask the owner to approve a merge. Real conflicts are skipped and recorded. Stage 5 alone fast-forwards firmware `nightly`. Ruleset unlock for PRODUCTION main is done (required approvals 0, last-pusher approval off; force-push/delete protections kept). Do not ask the owner to unlock or approve again.
+Resolve the maintained development `nightly` to its full SHA when reading its
+workflow skills; also apply this actual target checkout's rules. Policy adoption
+is not firmware promotion. Firmware `main` and production behavior retain exact
+matching-model hardware proof and separate production authority. Do not force
+push, change protections or bypass a denied action. A workflow mode does not grant
+device access. Current Elite recovery/flash remains withdrawn; authorized Pro
+investigation is read-only through its assigned integrator.
 
-## Cursor Cloud specific instructions
+Use [scoped local proof](docs/rules/local-proof.md). Optional tooling gaps stay
+NOT_RUN for their dependent checks while other work continues. Actual failures
+remain FAIL. Required missing proof prevents the affected claim. GitHub Actions
+and billing status are not substitutes for agent-run tests. Documentation-only
+edits do not need firmware builds. Workflow tooling needs its relevant tests.
 
-Cloud Agent `install` must prepare Pillow, ASan runtime (`libclang-rt-18-dev`), Node on `PATH`, the JieLi toolchain (`tools/get_toolchain.sh` → `~/.jieli/toolchain`), AC79 SDK tag `AC79NN_SDK_V1.2.1_2023-12-13` with the three hashes in `cloud-handoff/2026-10-20/cloud_setup_20261020/firmware-setup-check.sh`, and pinned DSP refs under `~/x0x-refs` (also linked as `/schwung-*` for `tests/run_tests.sh` defaults). Login shells load `/etc/profile.d/x0x37-dev.sh` for `JIELI_TOOLCHAIN`, `AC79_SDK`, and reference paths.
+For build commands and pins, read [BUILDING.md](BUILDING.md); for distribution,
+read [LICENSING.md](LICENSING.md). Discover prerequisites only for the selected
+action. Never infer a device or release grant from setup instructions.
 
-Hello-world without hardware: `sh host/build_host.sh` then `build/host/x0x_host tests/scenarios/getting_started.x0x OUTDIR`. Development Elite package: `BOARD=smk37 MODEL=elite ./build.sh`. Run host/web suites with `sh tests/run_tests.sh` (the file may lack the executable bit). Missing optional refs or ASan stay not-run; they are not cycle blockers. No long-running `start` service is required for this tree.
-
-
-Optional classic ChatGPT tooling: [Classic Thread Build-to-Git](skills/classic-thread-build-to-git/SKILL.md) provides tool-discovery and evidence guidance subordinate to this entry point and the current workflow. It does not restore removed stage routing or replace the canonical procedure.
+Classic and Cursor skill entrypoints are adapters to this workflow. Their tool
+examples are subordinate to current capabilities, ownership and permissions.
+See [historical instruction boundaries](docs/rules/workflow-history.md).
