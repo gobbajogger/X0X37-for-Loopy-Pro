@@ -1,19 +1,70 @@
 {
-  "updated": "2026-10-27T20:57:40Z",
-  "owner": "dot sole PR coordination role",
-  "request": "LX-REQ-017",
-  "pr": 646,
-  "source": "55f631b2e9f64a8cafb01dbcbb22c83df0c05176",
-  "reviewed_local_input": "7637286e22c5fadccf3b70f4e9972255c7090357",
-  "tree": "c7052b3f3474aead818b5e435b54da25de4d4c4e",
-  "source_delivery": "REMOTE_TREE_VERIFIED",
-  "review": "INDEPENDENT_SOL_ROUND1_APPROVE",
-  "evidence": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/646#pullrequestreview-5674185045",
-  "tests": "Executed focused6 tests/export10subcases, affected aggregate, output byte parity and real caller preservation PASS; Pro package skip not pass",
-  "merge": "a9681fc331de30dcdb278f26e602db71cc385c1d",
-  "merge_target": "PR638 feature branch, not nightly/main",
-  "publication": "NOT_DONE",
-  "hardware": "UNRUN",
-  "owner_available": "NO_NEW_FIRMWARE_DELIVERY",
-  "parent_pr638": "DRAFT; rollout preview gate distinct"
+  "updated_at": "2026-10-27T21:49:00Z",
+  "merge_ownership": {
+    "owner": "dot existing sole PR monitor",
+    "scope": "qualified source integration only",
+    "competing_merger_allowed": false,
+    "transfer": "requires explicit accepted ownership transfer, not a stale historical task label"
+  },
+  "packages": [
+    {
+      "key": "LX-REQ-017",
+      "pr": 646,
+      "source": "55f631b2e9f64a8cafb01dbcbb22c83df0c05176",
+      "review": "APPROVE",
+      "source_delivery": "VERIFIED",
+      "merge": "a9681fc331de30dcdb278f26e602db71cc385c1d",
+      "publication": "NOT_DONE"
+    },
+    {
+      "key": "SHARED-UI",
+      "pr": 647,
+      "source": "e6eb8267dab19b89461592fca59abb52627b9456",
+      "review": "APPROVE_SCOPED",
+      "build": "ELITE_PRO_BUILD_ONLY_PASS",
+      "merge": "4ed44cae8decaa8a3f37a5115a2e2e5e894986c8",
+      "next": "Retain existing UI writer for current semantic and settings integration; no competing ui.c writer"
+    },
+    {
+      "key": "DOC-CONSISTENCY",
+      "pr": 648,
+      "review": "APPROVE",
+      "merge": "d892f31b0e7affa905f57370d6fa115dc4d90060",
+      "paired_site_pr": 80,
+      "paired_site_merge": "008163ee39b3c962b2bcac3fc5c5b7fdd8898bca",
+      "publication": "NO_BINARY_OR_WEBSITE_ROLLOUT_CLAIM"
+    },
+    {
+      "key": "HELD-DURATION-FIXTURE",
+      "pr": 649,
+      "review": "APPROVE",
+      "merge": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134"
+    },
+    {
+      "key": "MAIN-UI-MATERIAL",
+      "pr": 650,
+      "source": "a51b030d98e1400f697ba1fa7b5056a62f7399fc",
+      "review": "APPROVED_MAIN_AREA_DELTA; later semantic repair has separate exact proof",
+      "merge": "PENDING",
+      "owner": "existing firmware UI writer",
+      "next": "Consume current semantic-source update after exact remote delivery; no duplicate design/review"
+    },
+    {
+      "key": "STRICT-HOST-LIFECYCLE",
+      "pr": 651,
+      "source": "c1f3f776b13ad8f4f56bcbdb8a8061924191b93d",
+      "review": "APPROVE",
+      "tests": "STRICT_HOST_PASS",
+      "native": "NOT_RUN; unchanged nonhost preprocessing parity verified",
+      "merge": "HOLD_ACTION_REVIEW; no execution",
+      "next": "Resolve exact action scope/evidence without bypass or timer retries"
+    }
+  ],
+  "states": {
+    "firmware_nightly": "d892f31b0e7affa905f57370d6fa115dc4d90060",
+    "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
+    "current_public_installable_delivery": "NOT_DONE",
+    "hardware": "UNRUN"
+  },
+  "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery."
 }
