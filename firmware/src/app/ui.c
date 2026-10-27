@@ -4394,6 +4394,17 @@ static UI_DRAW void night_panel(int x,int y,int w,int h,int active)
     surface_panel(x,y,w,h,active,active?SOUND_SELECT:SOUND_FACE,
                   active?SOUND_SELECT_EDGE:SOUND_EDGE,active?SOUND_SELECT_SIDE:SOUND_SIDE);
 }
+/* Compact steps/notes use the same shallow material inside their old bounds.
+ * Keep the centre ink (hit/mute/play semantics) and all overlay notches intact. */
+static UI_DRAW void night_mark(int x,int y,int w,int h,uint16_t ink,int raised)
+{
+    box(x,y,w,h,ink);
+    if(w>=4 && h>=5) {
+        cv_rect(x+1,y+1,w-2,1,raised?blend(ink,C_WHITE,3):UI_N_SHADOW);
+        cv_rect(x+1,y+h-2,w-2,1,raised?dim(ink,7):UI_N_LEFT);
+    }
+}
+
 static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uint16_t ink)
 {
     int x=cx-tw(f,s)/2;
@@ -4584,7 +4595,7 @@ static UI_DRAW void draw_drum(int band)
         if (y < -DROW || y >= BAND_H)
             continue;
         if (sel)
-            box(0, y - 1, 24, DROW, col);
+            surface_panel(0,y-1,24,DROW,1,col,col,dim(col,5));
         cv_text(5, vc(&FONT_XS, y - 1, DROW - 1), &FONT_XS, nm, sel ? C_BLACK : muted ? C_LINE : v < NDRUM ? C_GRAY : C_WHITE);
         for (c = 0; c < 16; c++) {
             int s = step_of(c), x = col_x(c), hit = s < NSTEPS && sm_get(bits, s);
@@ -4594,12 +4605,12 @@ static UI_DRAW void draw_drum(int band)
             }
             if (v == NDRUM) {                          /* the accent row: white marks */
                 if (hit)
-                    box(x + 2, y + 1, 8, 6, C_WHITE);
+                    night_mark(x + 2, y + 1, 8, 6, C_WHITE,1);
                 else
                     rbox(x + 2, y + 3, 8, 2, 1, C_LINE);
                 continue;
             }
-            box(x, y, 12, DROW - 2, hit ? (muted ? C_DIM : sel ? col : on_dim) : (s == ph ? C_DIM : C_LINE));
+            night_mark(x, y, 12, DROW - 2, hit ? (muted ? C_DIM : sel ? col : on_dim) : (s == ph ? C_DIM : C_LINE),hit);
             if (hit && s == ph)
                 box(x + 2, y + 2, 8, DROW - 6, C_WHITE);
             if (hit && sel && ((lmarks >> c) & 1u))      /* the step's own values (p-locks): a notch */
@@ -4675,7 +4686,7 @@ static UI_DRAW void draw_303(int band, int gen)
             uint16_t fc = s == ui.held_step ? C_WHITE : (st->flags & BS_ACCENT) ? col : dim(col, 9);
             int end = st->flags >> BS_END_SHIFT;
             int width = end ? (end * 12 + 14) / 15 : 12;
-            box(x, y, width, 5, fc); /* captured 1..15 release fraction of this step */
+            night_mark(x, y, width, 5, fc,1); /* captured 1..15 release fraction of this step */
             if ((lmarks >> c) & 1u)                  /* the step's own values (p-locks): a notch */
                 cv_rect(x + 5, y - 3, 2, 2, C_WHITE);
             if (g == G_TIE) {
@@ -4696,8 +4707,8 @@ static UI_DRAW void draw_303(int band, int gen)
                 cv_line(x + 11, y + 2, x + 14, ny + 2, C_WHITE);
             }
         }
-        rbox(x + 1, 101 - o, 10, 4, 2, g && (st->flags & BS_ACCENT) ? C_WHITE : C_LINE);   /* its accent, its slide */
-        rbox(x + 1, 113 - o, 10, 4, 2, g && (st->flags & BS_SLIDE) ? col : C_LINE);
+        night_mark(x + 1, 101 - o, 10, 4, g && (st->flags & BS_ACCENT) ? C_WHITE : C_LINE,g && (st->flags & BS_ACCENT));   /* its accent, its slide */
+        night_mark(x + 1, 113 - o, 10, 4, g && (st->flags & BS_SLIDE) ? col : C_LINE,g && (st->flags & BS_SLIDE));
     }
     cv_text(3, vc(&FONT_XS, 99, 8) - o, &FONT_XS, "AC", C_GRAY);
     cv_text(3, vc(&FONT_XS, 111, 8) - o, &FONT_XS, "SL", C_GRAY);
@@ -5103,8 +5114,8 @@ static UI_DRAW void draw_song(int band)
         }
         if (k > sg->len || k >= NSONG)
             break;
-        if (k == ui.song_sel)
-            box(0, y, 236, 11, C_LINE);
+        surface_panel(0,y,236,11,k==ui.song_sel,k==ui.song_sel?C_LINE:SOUND_FACE,
+                      k==ui.song_sel?SOUND_SELECT_EDGE:SOUND_EDGE,SOUND_SIDE);
         put_i(t, k + 1);
         cv_text(4, vc(&FONT_XS, y, 11), &FONT_XS, t, k == ui.song_sel ? C_WHITE : C_GRAY);
         if (seq.song_on && seq.playing && k == seq.song_pos)
@@ -5277,8 +5288,9 @@ static UI_DRAW void draw_mix(int band)
         for (int pos = 0; pos < NPARTS; pos++) {
             p = part_at(pos);
             int x = 6 + pos * 38, lvl = proj.sound.v[T_MIX][p][0], pk = eng_peak[p] * 64 / 32768;
-            if (cur_page() == 0 && p == ui.mixsel)       /* PARTS: the part the knobs set */
-                box(x - 2, 0, 30, BAND_H, dim(PART_COL[p], 3));
+            int selected=cur_page()==0 && p==ui.mixsel;
+            surface_panel(x-2,0,30,BAND_H,selected,selected?dim(PART_COL[p],3):SOUND_FACE,
+                          selected?PART_COL[p]:SOUND_EDGE,SOUND_SIDE);
             rbox(x + 10, 4, 6, 64, 3, C_LINE);
             if (pk > 1)
                 rbox(x + 10, 68 - pk, 6, pk, 3, part_muted(p) ? C_DIM : PART_COL[p]);
@@ -5289,7 +5301,7 @@ static UI_DRAW void draw_mix(int band)
         {
             int gr = (int)(engine_gr_db() * 64.0f / 24.0f);
             gr = gr > 64 ? 64 : gr;
-            if(wave)night_panel(205,1,32,66,0);
+            night_panel(205,1,32,66,0);
             rbox(208,5,7,61,3,C_LINE);
             if (gr > 1)
                 rbox(208,5,7,gr>61?61:gr,3,RGB(255,80,60));
@@ -5316,6 +5328,8 @@ static UI_DRAW void draw_mix(int band)
             p = part_at(pos);
             text_c(6 + pos * 38 + 13, 0, &FONT_XS, part_s(p), part_muted(p) ? C_LINE : PART_COL[p]);
         }
+        night_panel(0,14,118,31,0);night_panel(120,14,120,31,0);
+        night_panel(0,46,240,22,0);
         if ((int)(engine_gr_db() + 0.5f))
             put_s(put_i(put_s(t, "COMP -"), (int)(engine_gr_db() + 0.5f)), "dB");
         else
@@ -5530,8 +5544,8 @@ static UI_DRAW void draw_list(int band)
             continue;
         }
         d = pref_desc(r);
-        if (sel)
-            box(0, y + 1, 232, 21, dim(part_col(), 6));
+        surface_panel(3,y+1,229,21,sel,sel?dim(part_col(),6):SOUND_FACE,
+                      sel?part_col():SOUND_EDGE,SOUND_SIDE);
         cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
         if (r.kind == R_ACT) {                         /* an action: the return arrow */
             uint16_t ac = sel ? C_WHITE : C_DIM;
