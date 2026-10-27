@@ -18,7 +18,8 @@ enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END,
  * count, fm1_ms now, then 2 words for each entry (the oldest first), each word 5 x 7 bits, low bits
  * first. Then the 40 stored clip velocities and the 40 stored clip channels (one byte each).
  * Arg 1: 1, padled_dirty, then 16 GRB words of padled_rgb (the colour to send) and 16 GRB words of the
- * last frame sent to the pads (padled_buf), each word 4 x 7 bits, low bits first. */
+ * last frame sent to the pads (padled_buf), each word 4 x 7 bits, low bits first.
+ * Arg 6: versioned read-only pad sensor snapshot, or BUSY; see web/EDITOR_PROTOCOL.md. */
 static void smk_inlog_reply(uint32_t arg);   /* main_fm1.c */
 #endif
 /* ED_CTL_READ (SMK-37 with Bluetooth, for tools/fm1_install.py; read only): the Bluetooth block

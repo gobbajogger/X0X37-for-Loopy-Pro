@@ -342,12 +342,90 @@ static void smk_inlog_w(uint32_t v, uint32_t nb)   /* one word, nb x 7 bits, low
         v >>= 7;
     }
 }
+/* INLOG 6: the CPU0 main loop copies existing input state without masking IRQs.
+ * Only its TIMER5 ISR writes these samples. That ISR completes before the main
+ * loop resumes and increments adc_ok or adc_miss before updating inputs. Reject
+ * a copy crossed by a tick, at most three times. Copy 176 bytes to the existing
+ * call-scoped editor scratch; serialize later, outside the short coherence window.
+ * The scratch is not shared with the ISR (x0x.c), and curves are boot-immutable.
+ * Latest mux samples are not simultaneous analog measurements. No scan-path work
+ * or persistent RAM is added. The 521-byte payload fits the existing ed_out. */
+static void smk_pad_inputs_reply(void)
+{
+    uint8_t *s = ed_smp_buf;
+    uint32_t attempt, i, j, ok = 0, miss = 0, frames = 0, now = 0, notes = 0;
+    _Static_assert(SMK_NPAD == 16u, "pad snapshot v1 requires 16 pads");
+    _Static_assert(176u <= ED_SMP_BUF_SIZE, "pad snapshot fits the call-scoped editor scratch");
+    for (attempt = 0; attempt < 3u; attempt++) {
+        ok = fm1_in.adc_ok;
+        miss = fm1_in.adc_miss;
+        frames = fm1_in.frames;
+        RING_PUBLISH();
+        now = fm1_ms;
+        notes = fm1_in.pnotes;
+        for (i = 0; i < SMK_NPAD; i++) {
+            uint32_t at = i * 10u;
+            uint16_t raw = fm1_in.pad_raw[i], base = fm1_in.pad_base[i], peak = fm1_in.pad_peak[i];
+            s[at] = (uint8_t)raw;
+            s[at + 1u] = (uint8_t)(raw >> 8);
+            s[at + 2u] = (uint8_t)base;
+            s[at + 3u] = (uint8_t)(base >> 8);
+            s[at + 4u] = (uint8_t)peak;
+            s[at + 5u] = (uint8_t)(peak >> 8);
+            s[at + 6u] = fm1_in.pad_st[i];
+            s[at + 7u] = fm1_in.pad_vel[i];
+            s[at + 8u] = fm1_in.pad_press[i];
+            s[at + 9u] = smk_pad_note[i];
+        }
+        for (i = 0; i < 8u; i++) {
+            uint16_t v = i < 4u ? fm1_in.fad_raw[i] : i < 6u ? fm1_in.wheel[i - 4u]
+                                                      : i == 6u ? fm1_in.pedal : fm1_in.batt;
+            s[160u + 2u * i] = (uint8_t)v;
+            s[161u + 2u * i] = (uint8_t)(v >> 8);
+        }
+        RING_PUBLISH();
+        if (ok == fm1_in.adc_ok && miss == fm1_in.adc_miss && frames == fm1_in.frames)
+            break;
+    }
+    ed_b(6u);
+    ed_b(1u);                                      /* schema version */
+    ed_b(attempt == 3u);                            /* status: snapshot / busy */
+    if (attempt == 3u)
+        return;                                    /* no torn/partial measurements */
+    ed_b(SMK_NPAD);
+    ed_b(smk_pad_grid | (uint32_t)smk_pad_piano << 1);
+    ed_b(SMK_PAD_ON);
+    ed_b(SMK_PAD_OFF);
+    ed_b(SMK_PAD_PEAKN);
+    smk_inlog_w(now, 5u);
+    smk_inlog_w(frames, 5u);
+    smk_inlog_w(ok, 5u);
+    smk_inlog_w(miss, 5u);
+    smk_inlog_w(notes, 5u);
+    for (i = 0; i < 8u; i++)
+        smk_inlog_w(s[160u + 2u * i] | (uint32_t)s[161u + 2u * i] << 8, 3u);
+    for (i = 0; i < SMK_NPAD; i++) {
+        const uint8_t *p = s + i * 10u;
+        for (j = 0; j < 3u; j++)                   /* raw, base, peak */
+            smk_inlog_w(p[2u * j] | (uint32_t)p[2u * j + 1u] << 8, 3u);
+        smk_inlog_w(p[6], 2u);                     /* state */
+        ed_b(p[7]);                               /* last velocity */
+        ed_b(p[8]);                               /* pressure */
+        ed_b(p[9]);                               /* mapped note + 1, or 0 */
+        for (j = 0; j < 5u; j++)
+            smk_inlog_w(smk_trim_pad[i][j], 3u);    /* active curves, not a flash read */
+    }
+}
 /* The reply of editor command 38 INLOG (editor.c, web/EDITOR_PROTOCOL.md). Arg 1: the pad LED output
  * (lcd.c): the colour to send and the last frame sent. Args 2-5: the pad calibration export (CLP-79).
- * Else: the entries and the stored clip cells. */
+ * Arg 6: the read-only pad input snapshot. Else: the entries and the stored clip cells. */
 static void smk_inlog_reply(uint32_t arg)
 {
     uint32_t i;
+    if (arg == 6u) {
+        smk_pad_inputs_reply();
+        return;
+    }
 #if X0X_DEV_PADCAL
     if (arg - 2u < 128u / SMK_PADCAL_CHUNK) {     /* args 2-5: the pad calibration, 32 entries each (CLP-79) */
         const uint8_t *c = padcal.rgb[(arg - 2u) * SMK_PADCAL_CHUNK];
