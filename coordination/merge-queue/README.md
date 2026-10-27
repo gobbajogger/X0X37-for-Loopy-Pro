@@ -1,3 +1,11 @@
+# Current coordination checkpoint and PR654 proposal
+
+The canonical sole-writer checkpoint is `87497129fed7621036933c82a7ad9a020f558f45` (2026-10-27 22:36 UTC). Its newer LX-REQ-012/019 assessments, every current-delivery package, private owner-delivery fact and action-specific hold are retained. The broad 183-row Git metadata snapshot below remains timestamped 22:17:33 UTC; it does not supersede those newer outcome facts.
+
+The corrected planner preserves accepted continuations even when unknown occupied work areas block all new claims. Those unknown owners first reconcile liveness and scope read-only. A report is a checkpoint; actual owners continue permitted work until the requested result or a specific unresolved gate. Fresh required reads, ownership and actual action denials remain binding. Existing review receipts are linked in `current-delivery.json`; the sole integrator consumes the current PR head and matching proof. Proposal publication is not adoption, firmware qualification, public delivery or hardware acceptance.
+
+## Retained 22:17 metadata proposal
+
 # LoopyX0X37 current merge queue
 
 ## Current metadata checkpoint — 2026-10-27T22:17:33.283Z

@@ -167,10 +167,89 @@ class PriorityTests(unittest.TestCase):
         self.assertIn('priority_assessment.severity', result['excluded'][0]['next_action'])
         bad['owner_execution_state'] = 'ACTIVE'
         del bad['priority_assessment']['work_areas']
-        with self.assertRaisesRegex(ValueError, 'unknown active writer work areas'):
-            self.plan(bad, record(2))
+        result = self.plan(bad, record(2))
+        self.assertEqual(result['claim_admission']['state'], 'BLOCKED')
+        self.assertEqual(result['claim_admission']['blocked_by'], ['LX-REQ-001'])
+        self.assertEqual(result['claim_candidates'], [])
+        self.assertEqual(result['continue_existing'][0]['request_id'], 'LX-REQ-001')
+        self.assertEqual(result['recovery_actions'][0]['action_kind'], 'READ_ONLY_OWNERSHIP_RECONCILIATION')
         with self.assertRaisesRegex(ValueError, 'duplicate request IDs'):
             self.plan(record(1), record(1))
+        with self.assertRaisesRegex(ValueError, 'duplicate request IDs'):
+            self.plan(bad, copy.deepcopy(bad))
+
+    def test_missing_active_areas_keep_existing_and_read_only_recovery_at_any_capacity(self):
+        running = record(5, owner_execution_state='ACTIVE_STAGE_REPORTED', owner='existing SMC owner')
+        for areas in (None, [], [''], ['smc', None], 'smc'):
+            for capacity in (0, 4):
+                with self.subTest(areas=areas, capacity=capacity):
+                    unknown = record(20, owner_execution_state='ACTIVE_STAGE_REPORTED')
+                    unknown['priority_assessment']['work_areas'] = areas
+                    ledger = {'records': [running, unknown, record(1, 'safety_integrity')]}
+                    before = copy.deepcopy(ledger)
+                    result = p.plan(ledger, NOW, capacity, read_status='success')
+                    self.assertEqual(ledger, before)
+                    self.assertEqual(result['state'], 'WORK_REQUIRED')
+                    self.assertEqual(result['claim_admission']['state'], 'BLOCKED')
+                    self.assertEqual(result['claim_candidates'], [])
+                    self.assertEqual(result['lanes'], {'quick': None, 'complex': None})
+                    continuing = {x['request_id']: x for x in result['continue_existing']}
+                    self.assertEqual(set(continuing), {'LX-REQ-005', 'LX-REQ-020'})
+                    self.assertEqual(continuing['LX-REQ-005']['next_action'], running['next_action'])
+                    self.assertEqual(continuing['LX-REQ-005']['implementation_owner'], running['owner'])
+                    self.assertEqual(continuing['LX-REQ-020']['recorded_next_action'], unknown['next_action'])
+                    self.assertEqual(continuing['LX-REQ-020']['next_action'], result['recovery_actions'][0]['next_action'])
+                    self.assertEqual(result['recovery_actions'][0]['action_kind'], 'READ_ONLY_OWNERSHIP_RECONCILIATION')
+
+    def test_actual_ledger_legacy_active_writer_shape_survives_cli_at_zero_capacity(self):
+        # Minimal exact active-state/owner/action fields from the 38-request ledger
+        # at f893a17cb179483fedf9c504dae273bc759dff64, retained by PR654's reconciliation.
+        smc = record(5, status='SOURCE_IMPLEMENTED_PACKAGE_PENDING',
+                     owner='SMC layout and control implementation owner',
+                     owner_execution_state='ACTIVE_STAGE_REPORTED',
+                     next_action='SMC implementation/build owner to finish size recovery and exact-head package, then independent UI/control review and model qualification; preserve installed-source distinction.')
+        smc['priority_assessment']['work_areas'] = ['smc']
+        scheduler = record(20, status='TWELVE_PROMPT_UPDATES_SAVED_CADENCE_UNCHANGED',
+                           owner='Scheduler maintenance coordinator',
+                           owner_execution_state='ACTIVE_STAGE_REPORTED',
+                           next_action='Scheduler maintenance coordinator to verify actual next-run intake/dispatch and gather outcome evidence; retain existing cadence.',
+                           priority_assessment=None)
+        tracker = record(27, status='PRIOR_TRACKER_REMOTE_VERIFIED_DELTA_RECONCILIATION_ACTIVE',
+                         owner='Sole request tracker writer', owner_execution_state='ACTIVE_STAGE_REPORTED',
+                         next_action='Sole request tracker writer to validate this bounded delta, obtain independent privacy/continuity review, push normally and verify remote SHA.',
+                         priority_assessment=None)
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / 'requests.json'
+            ledger.write_text(json.dumps({'records': [smc, scheduler, tracker]}))
+            observed = subprocess.run([sys.executable, str(Path(p.__file__)), '--ledger', str(ledger),
+                '--as-of', '2026-10-27T22:27:00Z', '--capacity', '0', '--read-status', 'success'],
+                capture_output=True, text=True)
+            self.assertEqual(observed.returncode, 0, observed.stdout + observed.stderr)
+            result = json.loads(observed.stdout)
+            self.assertEqual(result['state'], 'WORK_REQUIRED')
+            self.assertEqual(result['claim_admission']['blocked_by'], ['LX-REQ-020', 'LX-REQ-027'])
+            self.assertEqual(result['claim_candidates'], [])
+            self.assertEqual([x['request_id'] for x in result['continue_existing']],
+                             ['LX-REQ-005', 'LX-REQ-020', 'LX-REQ-027'])
+            self.assertEqual([x['implementation_owner'] for x in result['recovery_actions']],
+                             [scheduler['owner'], tracker['owner']])
+
+    def test_unknown_active_scope_recovery_does_not_reopen_terminal_or_deferred_work(self):
+        done = complete(record(1, owner_execution_state='ACTIVE_STAGE_REPORTED', priority_assessment=None))
+        held = record(38, priority='DEFERRED', owner_execution_state='ACTIVE', priority_assessment=None)
+        before = copy.deepcopy([done, held])
+        result = self.plan(done, held)
+        self.assertEqual([done, held], before)
+        self.assertEqual(p.completion_errors(done), [])
+        self.assertEqual(result['state'], 'WORK_REQUIRED')
+        self.assertEqual(result['claim_admission']['state'], 'BLOCKED')
+        self.assertEqual(result['claim_candidates'], [])
+        self.assertEqual(result['continue_existing'], [])
+        self.assertEqual(result['excluded'][0]['reason'], 'closed request')
+        self.assertIn('deferral', result['excluded'][1]['reason'])
+        self.assertEqual(len(result['recovery_actions']), 2)
+        self.assertTrue(all(x['action_kind'] == 'READ_ONLY_OWNERSHIP_RECONCILIATION'
+                            for x in result['recovery_actions']))
 
     def test_bare_or_contradictory_completion_blocks_dependents_only(self):
         for mutation in ('missing', 'negative', 'stale', 'criterion', 'delivery'):

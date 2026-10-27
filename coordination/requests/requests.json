@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "generated_at": "2026-10-25T10:42:55Z",
   "purpose": "Durable public-safe request continuity. Unknown is not done; source-ready is not delivered.",
-  "snapshot_note": "Request IDs, priorities, owners, preserved heads and original evidence are retained. PR metadata is current at metadata_reconciled_at; status_as_of identifies older outcome assessments. Only directly evidenced stale statuses are replaced. No source merge, build claim or run completion closes a request.",
+  "snapshot_note": "All request IDs, priorities, owners, preserved heads and both histories are retained. Broad PR metadata remains the bounded 2026-10-27T22:17:33.283Z observation; it is not relabelled as a fresh fleet read. Newer sole-writer LX-REQ-012/019 outcome/action/source assessments from 87497129 are preserved verbatim at their own status_as_of. No merge, report or build assertion establishes full request acceptance.",
   "scope": {
     "repositories": [
       "gobbajogger/X0X37-for-Loopy-Pro",
@@ -4597,9 +4597,9 @@
       "title": "Unified clear installer and sample-management page",
       "owner": "Installer illustration implementation owner",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "WEBSITE_REVIEWED_PUBLICATION_DECISION_PENDING",
+      "status": "SCOPED_SOURCE_REVIEW_DELIVERY_AND_BROWSER_HOLD",
       "priority": "P1",
-      "next_action": "Website publisher/coordinator to obtain the pending owner publication decision, then integrate and publish only under that authority.",
+      "next_action": "Existing site/Project Workspace owners consume current scoped source receipts and preserve actual public-write denials. Qualify missing applicable browser/served-page gates through supported routes; no redundant owner-publication decision or alternate-route retry.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-013"
@@ -4695,7 +4695,7 @@
       "evidence": {
         "source": {
           "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "Website PR19 570253d35c84748bba82ddd616b9c17af8d7da58 reviewed: top Install + Import, Closer look before integration, standalone/SMC/Loopy feature explanation and faithful vectors. Not published; owner publication question pending.",
+          "summary": "EC045 at source 785deb4 and tree 4ae5379 has scoped source approval and a passing full npm test. The first new public blob was denied before mutation. Browser and hardware remain UNRUN. Separate installer EC040 and SITE-INT012 dispositions are retained. Source-ready is not a delivered website.",
           "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
@@ -4712,7 +4712,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:17:33.283Z",
+      "updated_at": "2026-10-27T22:36:00Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls.",
       "history": [
@@ -4887,6 +4887,13 @@
           }
         },
         {
+          "at": "2026-10-27T22:36:00Z",
+          "kind": "delivery_receipt_reconciliation",
+          "previous_status": "WEBSITE_REVIEWED_PUBLICATION_DECISION_PENDING",
+          "previous_next_action": "Website publisher/coordinator to obtain the pending owner publication decision, then integrate and publish only under that authority.",
+          "previous_source_summary": "Website PR19 570253d35c84748bba82ddd616b9c17af8d7da58 reviewed: top Install + Import, Closer look before integration, standalone/SMC/Loopy feature explanation and faithful vectors. Not published; owner publication question pending."
+        },
+        {
           "observed_at": "2026-10-27T22:17:33.283Z",
           "change_reason": "Refresh live PR facts and only directly evidenced stale status; preserve owner/history/outcome limits.",
           "previous_ref": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -4946,6 +4953,67 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-27T22:49:20Z",
+          "change_reason": "Reconcile concurrent PR654 metadata proposal with the newer sole-writer checkpoint. Preserve newer owner status, next action, complete source assessment and timestamp; imported parallel-branch history retains its original observation time.",
+          "previous_ref": "87497129fed7621036933c82a7ad9a020f558f45",
+          "parallel_proposal_ref": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+          "previous": {
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 14,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/14",
+                "head": "593c0fc3c18200fd887373bff4602bfd322f0d54",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 16,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/16",
+                "head": "cc7e7e8e68717acda8c774d4da8ca7d5cc401ff8",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 17,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/17",
+                "head": "7d920217b32edb7e3c93fae222a1c69a0025696f",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 18,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/18",
+                "head": "c778be046753101e1fab0c7004c479a07f3e00ff",
+                "observed_at": "2026-10-25T08:54:07Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 19,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/19",
+                "head": "570253d35c84748bba82ddd616b9c17af8d7da58",
+                "observed_at": "2026-10-25T10:29:45Z",
+                "current_state": "open",
+                "draft": true,
+                "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+              }
+            ]
+          },
+          "added_fields": [
+            "metadata_reconciliation",
+            "status_as_of"
+          ]
         }
       ],
       "priority_assessment": {
@@ -4964,7 +5032,7 @@
           "requests.json#LX-REQ-012.completion_criterion"
         ]
       },
-      "status_as_of": "2026-10-25T11:28:51Z",
+      "status_as_of": "2026-10-27T22:36:00Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -5010,6 +5078,18 @@
         "request_completion": "NOT_ESTABLISHED_BY_METADATA",
         "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
         "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+      },
+      "coordination_reconciled_at": "2026-10-27T22:49:20Z",
+      "newer_owner_checkpoint": {
+        "commit": "87497129fed7621036933c82a7ad9a020f558f45",
+        "observed_at": "2026-10-27T22:36:00Z",
+        "preserved": [
+          "status",
+          "next_action",
+          "evidence.source",
+          "updated_at",
+          "history"
+        ]
       }
     },
     {
@@ -7264,9 +7344,9 @@
       "title": "Canonical workflow, plugin and skill coherence",
       "owner": "Sole workflow integrator",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "WORKFLOW_SOURCE_UPDATED_ADOPTION_VALIDATION_PENDING",
+      "status": "INSTALLED_0_1_62_VERIFIED_REPORTED_0_1_63_MAINTENANCE_PENDING_RUNTIME_EVIDENCE",
       "priority": "P2",
-      "next_action": "Existing documentation owner and Dot: use current nightly policy pins, reconcile remaining role/skill routes and verify actual next-run consumption; do not promote firmware main just to synchronize documents.",
+      "next_action": "Existing documentation and maintenance owners preserve verified installed version 0.1.62 and its accepted contract handoff. Current contract text has been re-read, but the reported version 0.1.63 and 16-schedule maintenance do not establish effective runtime outcomes. The sole integrator needs inspectable existing-review receipts for PR653 and PR654; no replacement coordinator or duplicate review.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
@@ -7331,10 +7411,9 @@
       ],
       "evidence": {
         "source": {
-          "state": "WORKFLOW_SOURCE_UPDATED_ADOPTION_VALIDATION_PENDING",
-          "summary": "Current nightly routing marks the old automatic stage chain historical; PR648 and PR652 documentation changes are merged. Default-main instructions differ. Actual role adoption remains separate from saved source.",
-          "provenance": "Live exact PR metadata and the linked existing public receipts; no product tests rerun.",
-          "observed_at": "2026-10-27T22:17:33.283Z"
+          "state": "SCOPED_PROGRESS_REPORTED",
+          "summary": "Version 0.1.62 installation and exact readback are verified. Visual-stage documentation PR652 and site PR82 source merges are verified. The current task-integration text was re-read at 22:25 and contains the newer clauses; version 0.1.63 and 16-schedule effective outcomes remain reported, not independently proven. PR653 and PR654 remain unadopted proposals subject to exact existing-proof gates; no authority transfer.",
+          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -7350,7 +7429,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:17:33.283Z",
+      "updated_at": "2026-10-27T22:36:00Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority.",
       "history": [
@@ -7405,6 +7484,13 @@
           }
         },
         {
+          "at": "2026-10-27T22:36:00Z",
+          "kind": "delivery_receipt_reconciliation",
+          "previous_status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
+          "previous_next_action": "Workflow integrator to preserve pinned contract/default-adoption limits and observe capability-aware handoffs; measure outcomes before throughput claims.",
+          "previous_source_summary": "Plugin 0.1.55 and coordinator skill saved with capability-aware role split. Existing trial/default-adoption distinctions remain; no proven throughput gain."
+        },
+        {
           "observed_at": "2026-10-27T22:17:33.283Z",
           "change_reason": "Refresh live PR facts and only directly evidenced stale status; preserve owner/history/outcome limits.",
           "previous_ref": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -7448,9 +7534,32 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-27T22:49:20Z",
+          "change_reason": "Reconcile concurrent PR654 metadata proposal with the newer sole-writer checkpoint. Preserve newer owner status, next action, complete source assessment and timestamp; imported parallel-branch history retains its original observation time.",
+          "previous_ref": "87497129fed7621036933c82a7ad9a020f558f45",
+          "parallel_proposal_ref": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+          "previous": {
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 155,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              }
+            ]
+          },
+          "added_fields": [
+            "metadata_reconciliation",
+            "status_as_of"
+          ]
         }
       ],
-      "status_as_of": "2026-10-27T22:17:33.283Z",
+      "status_as_of": "2026-10-27T22:36:00Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -7484,6 +7593,18 @@
         "request_completion": "NOT_ESTABLISHED_BY_METADATA",
         "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
         "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+      },
+      "coordination_reconciled_at": "2026-10-27T22:49:20Z",
+      "newer_owner_checkpoint": {
+        "commit": "87497129fed7621036933c82a7ad9a020f558f45",
+        "observed_at": "2026-10-27T22:36:00Z",
+        "preserved": [
+          "status",
+          "next_action",
+          "evidence.source",
+          "updated_at",
+          "history"
+        ]
       }
     },
     {
@@ -12032,5 +12153,16 @@
       "scope": "Owner-directed qualified merge/integration transfer and bounded open-PR observation; per-request/per-PR evidence retained."
     }
   ],
-  "metadata_reconciled_at": "2026-10-27T22:17:33.283Z"
+  "metadata_reconciled_at": "2026-10-27T22:17:33.283Z",
+  "coordination_reconciliation": {
+    "observed_at": "2026-10-27T22:49:20Z",
+    "common_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+    "proposal_parent": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+    "latest_canonical_parent": "87497129fed7621036933c82a7ad9a020f558f45",
+    "newer_owner_records_preserved": [
+      "LX-REQ-012",
+      "LX-REQ-019"
+    ],
+    "policy": "Current sole-writer facts win concurrent conflicts; continuation remains bounded by actual authority, ownership and applicable gates."
+  }
 }

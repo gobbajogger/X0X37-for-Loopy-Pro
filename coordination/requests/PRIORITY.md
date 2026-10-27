@@ -24,9 +24,27 @@ new lanes. Capacity means verified free worker slots in addition to existing wor
 `--busy-area` supplements retained reported-active areas with fresh runtime claims.
 A successful plan does not establish that supplied observations are current.
 Malformed inactive assessments exclude only that item with a concrete correction
-action; missing assessments/readiness remain unknown. Structural ID corruption or
-unknown active-writer areas still refuse new claims because safe ownership cannot
-be established.
+action; missing assessments/readiness remain unknown. Duplicate request IDs remain
+a global structural error (BLOCKED, exit 2), because records cannot be addressed
+unambiguously. Unknown active-writer areas instead set `claim_admission.state` to
+BLOCKED and list the affected IDs in `blocked_by`. They suppress every new claim
+and leave both lanes empty, even when verified free slots exist; unknown overlap
+cannot establish safe new ownership.
+Without that uncertainty, admission is ELIGIBLE only for scoped recommendations
+when free capacity exists, or NO_FREE_CAPACITY otherwise; neither state grants authority.
+
+That admission hold does not suppress `continue_existing` or `recovery_actions`.
+Known-scope accepted commitments retain their owner and next action. For an active
+record whose occupied areas are unknown, preserve its original action in
+`recorded_next_action` and first recommend read-only reconciliation of its current
+owner checkpoint, liveness and occupied scope. `recovery_actions` explicitly labels
+this READ_ONLY_OWNERSHIP_RECONCILIATION; it grants no write, reassignment or expansion
+of scope. The existing owner then resumes only the verified authorized action.
+These records remain actionable at capacity zero, since capacity counts only new
+claims. A valid scoped decision exits 0 with WORK_REQUIRED, rather than hiding
+unrelated accepted work behind a whole-queue BLOCKED result. Authentic completion,
+owner deferral and action-specific denials retain their own meaning; a read-only
+ownership recovery does not reopen a completed or deferred request.
 
 Delivery categories, in order:
 
@@ -109,8 +127,8 @@ Invalid terminal evidence leaves that item and its dependents pending. It does n
 exclude unrelated ready work. The continuity validator reports the mismatch; resolve
 structural ID/ownership corruption before claims, but do not turn a selected item's
 completion failure into a blanket action gate. An explicit BLOCKED status cannot be
-selected from a stale ready assessment. The planner reports WORK_REQUIRED while ready
-or existing active work remains, PENDING when only gated/deferred work remains, and
+selected from a stale ready assessment. The planner reports WORK_REQUIRED while ready,
+existing active work or a read-only ownership recovery remains, PENDING when only gated/deferred work remains, and
 QUEUE_COMPLETE only after a fresh complete read leaves no unfinished request.
 An exit code 0 reports a valid decision, not delivered functionality.
 
@@ -153,7 +171,8 @@ need a concise evidence-backed assessment when they next become relevant.
 > capacity permits, using commitment/age against starvation. Blocked long work must
 > not hold unrelated ready repairs. Owner-deferred LX-REQ-038 stays excluded until
 > explicitly reopened. No quick-lane QA/safety waiver or inferred merge/publication/
-> hardware authority. Sole tracker writer serializes changes; parent assigns owners.
+> hardware authority. Existing assigned owners continue their accepted scope;
+> the sole tracker writer serializes verified claims without a routine parent-response gate.
 
 This is proposed scheduler/plugin wording only. Parent owns the single scheduler
 update and its readback; this patch performs neither scheduler nor plugin mutation.

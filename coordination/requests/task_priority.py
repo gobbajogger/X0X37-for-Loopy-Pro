@@ -115,6 +115,9 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
         raise ValueError('capacity must be nonnegative free worker slots')
     result = {'schema': 1, 'as_of': as_of, 'state': 'BLOCKED',
               'delivery_order': [], 'continue_existing': [], 'claim_candidates': [],
+              'recovery_actions': [],
+              'claim_admission': {'state': 'BLOCKED', 'blocked_by': [],
+                                  'reason': 'fresh complete queue observation required'},
               'excluded': [], 'lanes': {'quick': None, 'complex': None},
               'limits': 'Recommendations only; the sole ledger writer authenticates observations, serializes claims and preserves QA/safety/action gates.'}
     if read_status != 'success':
@@ -128,6 +131,7 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
     completed = {r['request_id'] for r in records if r.get('status') in COMPLETED
                  and not completion_problems[r['request_id']]}
     assessment_problems = {}
+    unknown_active_areas = {}
     rows = []
     occupied = set(busy_areas)
     for r in records:
@@ -140,8 +144,22 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             areas = a.get('work_areas') if isinstance(a, dict) else None
             if (not isinstance(areas, list) or not areas or
                     any(not isinstance(area, str) or not area.strip() for area in areas)):
-                raise ValueError(r['request_id'] + ': unknown active writer work areas; reconcile ownership before new claims')
-            occupied.update(areas)
+                unknown_active_areas[r['request_id']] = {
+                    'request_id': r['request_id'], 'implementation_owner': r.get('owner'),
+                    'action_kind': 'READ_ONLY_OWNERSHIP_RECONCILIATION',
+                    'next_action': 'Read the current owner checkpoint and supported execution records to verify liveness and occupied work areas; preserve the existing owner and action gates. Do not start or expand a write scope from unknown area metadata.'}
+            else:
+                occupied.update(areas)
+    result['recovery_actions'] = list(unknown_active_areas.values())
+    result['claim_admission'] = {
+        'state': 'BLOCKED' if unknown_active_areas else 'ELIGIBLE' if capacity else 'NO_FREE_CAPACITY',
+        'blocked_by': list(unknown_active_areas),
+        'reason': ('unknown active writer work areas; reconcile ownership before new claims'
+                   if unknown_active_areas else 'recommendations still require verified capacity, disjoint scope and all item gates')}
+    if unknown_active_areas:
+        # Unknown overlap prevents every NEW claim, not already-owned continuation
+        # or read-only recovery. Preserve the latter in the returned decision.
+        capacity = 0
     for r in records:
         rid = r['request_id']
         a = r.get('priority_assessment')
@@ -156,8 +174,13 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
         elif r.get('status') in CLOSED:
             reason = 'closed request'
         elif r.get('owner_execution_state') in ACTIVE or r.get('status') == 'ACTIVE':
-            result['continue_existing'].append({'request_id': rid, 'implementation_owner': r['owner'],
-                'next_action': r['next_action'], 'reason': 'existing commitment; verify liveness, never auto-reassign'})
+            continuation = {'request_id': rid, 'implementation_owner': r['owner'],
+                'next_action': r['next_action'], 'reason': 'existing commitment; verify liveness, never auto-reassign'}
+            if rid in unknown_active_areas:
+                continuation['recorded_next_action'] = r['next_action']
+                continuation['next_action'] = unknown_active_areas[rid]['next_action']
+                continuation['scope_status'] = 'READ_ONLY_OWNERSHIP_RECONCILIATION_REQUIRED'
+            result['continue_existing'].append(continuation)
             continue
         elif rid in assessment_problems:
             reason = 'priority assessment pending: ' + '; '.join(assessment_problems[rid])
@@ -231,7 +254,7 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             select(row)
     pending = any(r.get('status') not in CLOSED or completion_problems[r['request_id']]
                   for r in records)
-    result['state'] = ('WORK_REQUIRED' if rows or result['continue_existing'] else
+    result['state'] = ('WORK_REQUIRED' if rows or result['continue_existing'] or result['recovery_actions'] else
                        'PENDING' if pending else 'QUEUE_COMPLETE')
     result['lane_note'] = ('A lane is a bounded next-stage recommendation, not a claim or release order. '
         'Missing effort/area/liveness evidence needs assessment; never guess capacity or preempt a writer. '

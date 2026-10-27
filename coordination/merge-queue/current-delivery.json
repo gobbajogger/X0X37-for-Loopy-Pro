@@ -1,10 +1,11 @@
 {
-  "updated_at": "2026-10-27T22:17:33.283Z",
+  "updated_at": "2026-10-27T22:36:00Z",
   "merge_ownership": {
     "owner": "dot existing sole PR monitor",
     "scope": "qualified source integration only",
     "competing_merger_allowed": false,
-    "transfer": "requires explicit accepted ownership transfer, not a stale historical task label"
+    "transfer": "requires explicit accepted ownership transfer, not a stale historical task label",
+    "active_merge": false
   },
   "packages": [
     {
@@ -60,12 +61,94 @@
       "next": "Resolve exact action scope/evidence without bypass or timer retries"
     },
     {
-      "key": "DOC-AUTONOMOUS-VISUAL-STAGES",
+      "key": "DOC-VISUAL-STAGES",
       "pr": 652,
       "source": "aec3f073f1c887d0fc7dc2bcdffa98a8fccc11f1",
       "merge": "9a8eb237c918352dc5b671699799d45dd086e38b",
-      "source_delivery": "MERGED_SOURCE_ONLY",
-      "publication": "NO_BINARY_OR_WEBSITE_ROLLOUT_CLAIM"
+      "paired_site_pr": 82,
+      "paired_site_source": "7f9a0f95b8488c1ce327015ffff86fc24fef7bb9",
+      "paired_site_merge": "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+      "stage": "SOURCE_ONLY_MERGED; no publication/hardware claim"
+    },
+    {
+      "key": "EC045",
+      "source": "785deb4f472fb4c753a1330b0d9120a8fe1e7527",
+      "tree": "4ae5379e730074014010cc66ef71c5a48661f8a3",
+      "review": "APPROVE for scoped source correctness; full npm test and affected checks passed.",
+      "delivery": "The first new public provenance object was denied before execution. Zero new remote objects, branches or PRs were created.",
+      "browser": "UNRUN",
+      "hardware": "UNRUN",
+      "owner": "Existing Project Workspace producer",
+      "next": "Preserve candidate and denial; supported action-specific remediation only, no alternate route or timer retry"
+    },
+    {
+      "key": "SETTINGS-IA",
+      "source": "2385ca5ec32a5617d38adf57f84fc3c26f0ee0bf",
+      "tree": "ab705a98cd94cc0220ac9a50f98cf9f265b94680",
+      "review": "APPROVE exact implementation; actual preview shown",
+      "delivery": "Inherited parent source denial preserved",
+      "owner": "Existing firmware UI writer",
+      "next": "Nine mock frames for connected-peer names and overflow marquee, plus separate DnBOX/About identity and actual build number, are ready for the same Settings reviewer. The design is not yet approved for implementation; no new transport writer is appointed."
+    },
+    {
+      "key": "ALL-GLYPH",
+      "source": "26f923dc94ced6a20d0f384fbfa4e390ac3fc0e2",
+      "tree": "b94cae24c8aaeebe796dc0a3e8c93d48d7d9651f",
+      "review": "APPROVE for exact 26f923, retained round 4 of 4; ALLGLYPH-S1 through S4 are resolved.",
+      "tests": "Independent focused suite passed 8,083,851 assertions and actual cache-pixel regression checks. Exact native model/controller receipts were checked; BUILD_ONLY, not hardware validation.",
+      "delivery": "Inherited parent source denial preserved",
+      "next": "The same writer consumed approval. The parent source-delivery denial remains; no retry or alternate route is authorized by this receipt."
+    },
+    {
+      "key": "MULTI-SMC",
+      "request_id": "LX-REQ-007",
+      "current_delivered_source": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9",
+      "state": "Dual-peer application and transport with the matching controller are already implemented, independently reviewed, host/native checked and privately owner-available. Two-device hardware validation remains UNRUN.",
+      "public_branch_limit": "PR642 merged as 84743bc2 into lane/opt-reviewed-composition-20261027, not nightly. The older public nightly single-peer implementation is not the state of the latest private owner package.",
+      "known_failures": "Two unchanged baseline drum p-lock assertions remain failed.",
+      "next": "Reuse exact dual-peer proof. The existing UI writer owns name enumeration and display. Three-mixer feasibility is being evaluated by the existing read-only investigator; no three-peer implementation or build is authorized or claimed."
+    },
+    {
+      "key": "CATALOG-R48",
+      "site_pr": 83,
+      "source": "452dbf0e5a96e26d7caace37c0aa44747e1e78c6",
+      "review": "The existing review covers 13 of 13 data invariants and 18 negative cases only; it does not approve full website QA.",
+      "native_qa": "Native npm test FAILED with exit 1 at tests/build-status-negatives.test.mjs:884: actual history count 148, expected 145. The build, generated parity and unchanged source/index checks passed. Browser remains UNRUN. Passing build does not qualify merge.",
+      "evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#pullrequestreview-5675147136",
+      "next": "Existing Catalog source owner must repair the exact failing assertion while preserving history-lock negatives. Eight downstream scripts passed; the edge suite is incomplete and final breaks script unrun. The existing process could not be resumed after a scope-evidence reevaluation returned an unknown process ID; no tests were restarted.",
+      "state": "HOLD_NATIVE_NPM_TEST_FAILURE"
+    },
+    {
+      "key": "PROJECT-PARSER-SLICE",
+      "site_pr": 63,
+      "source": "e098d2e5f14aa0858b6865cde9a6ccf57f38ee7b",
+      "review": "The new review passes 26 of 26 synthetic V8 parser cases only. It establishes no new transaction, browser or native build acceptance.",
+      "next": "Preserve earlier scoped receipts and the separate EC030, EC039, EC042 and EC045 dispositions, plus paired firmware qualification.",
+      "evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/63#pullrequestreview-5675147551"
+    },
+    {
+      "key": "EC046",
+      "site_pr": 84,
+      "source": "7fda9d89bd018b6d937c490d14b33d95407dbc85",
+      "base": "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+      "state": "Test-only draft for low-rate WAV resource-amplification triage. Current main and the owner-delivered importer were inspected read-only; no production fix is claimed.",
+      "owner": "Existing importer-owner confirmation is pending; no replacement writer is assigned.",
+      "next": "Consume current-caller and early-size-bound triage. Test-only source delivery is not repair completion."
+    },
+    {
+      "key": "DOC-AUTONOMOUS-DELIVERY",
+      "pr": 653,
+      "source": "6076e10e5084eb5f3f579b529bb934b85a675867",
+      "tree": "903d7ab97d78d4eaccc5e979ceca5fe70cca3b2f",
+      "state": "HOLD pending an inspectable exact independent-review receipt. The PR body reports review, but the live reviews list was empty.",
+      "ci": "Automatic Codex review quota failure is not a correctness verdict. Neutral Cursor checks are not approval.",
+      "owner": "Existing maintenance author, sole integrator retained",
+      "next": "The existing author must supply the inspectable receipt from the already performed review. Readback of the public request proves sending, not author acceptance. No duplicate review is requested.",
+      "review_receipt_request": {
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455234463",
+        "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
+        "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
+      }
     }
   ],
   "states": {
@@ -73,9 +156,23 @@
     "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
     "current_public_installable_delivery": "NOT_DONE",
     "hardware": "UNRUN",
+    "site_main": "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+    "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
     "website_main_observed": "93d638b272bf789951553f9ff5437fd0a68d8cf1"
   },
   "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery.",
+  "pending_workflow_proposal": {
+    "pr": 654,
+    "head": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+    "tree": "c4a86c729f7a19a94481f67deab14fe5900a117c",
+    "state": "NOT_ADOPTED; reported proof uninspected",
+    "handling": "Do not overwrite proposal. Existing author/sole queue writer reconciles these facts once exact proposal is qualified. Re-read branch and changed fields before applying.",
+    "review_receipt_request": {
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455234463",
+      "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
+      "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
+    }
+  },
   "history": [
     {
       "updated_at": "2026-10-27T21:49:00Z",
@@ -88,14 +185,52 @@
       "previous_coordination_ref": "f893a17cb179483fedf9c504dae273bc759dff64"
     }
   ],
-  "reconciliation": {
-    "metadata_observed_at": "2026-10-27T22:17:33.283Z",
-    "base": "f893a17cb179483fedf9c504dae273bc759dff64",
-    "queue_path": "coordination/merge-queue/merge-queue.json",
-    "requests_path": "coordination/requests/requests.json",
-    "source_push_diagnosis": "Native DNS failure is executor-specific; PR651 action-review raw reason is unavailable. API writes not proved by reads.",
-    "public_catalog_source": "0e77d923dfee44a9b64a98c121fac55200b91f20",
-    "selected_build_candidate": "PENDING_SOLE_INTEGRATOR_CONFIRMATION",
-    "no_owner_ack_gate": true
+  "metadata_reconciliation": {
+    "observed_at": "2026-10-27T22:49:20Z",
+    "common_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+    "proposal_parent": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+    "latest_canonical_parent": "87497129fed7621036933c82a7ad9a020f558f45",
+    "current_owner_checkpoint_preserved": "Complete 87497129 packages, ownership, states, pending proposal and original updated_at retained; this proposal does not claim adoption.",
+    "queue_metadata_observed_at": "2026-10-27T22:17:33.283Z",
+    "current_head_readback": {
+      "pr653": "6076e10e5084eb5f3f579b529bb934b85a675867",
+      "pr654": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+      "pr651": "c1f3f776b13ad8f4f56bcbdb8a8061924191b93d"
+    },
+    "public_review_receipts": [
+      {
+        "pr": 653,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455351859",
+        "scope": "Exact seven-file source documentation review and remote tree/blob verification; sole-integrator inspection/adoption remains separate."
+      },
+      {
+        "pr": 654,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455352303",
+        "scope": "Original reviewed input plus transparent draft hold for the subsequently reproduced active-continuation bug. Current three-path correction requires its matching final-head receipt."
+      }
+    ],
+    "next_action": "Existing sole integrator reads the current PR head and its already-performed exact independent-review receipt; after qualified adoption, the existing accepted owners continue their next permitted work. No duplicate coordinator, new owner acknowledgement gate or bypass of any actual source/action denial."
+  },
+  "proposal_continuation_fix": {
+    "state": "PREPARED_AND_INDEPENDENTLY_REVIEWED_NOT_YET_ADOPTED",
+    "behavior": "Unknown active work areas block new claims but retain accepted continuations and read-only ownership recovery. Stale required reads and duplicate IDs still fail closed.",
+    "reviewed_files": [
+      {
+        "path": "coordination/requests/task_priority.py",
+        "blob_sha": "ef9818928db3b826a0a8e312e73c38f85a2deb50",
+        "sha256": "6963a650778106dde9b61ec9712a5b87988b8698bf06430ffde91333f13c84e3"
+      },
+      {
+        "path": "tests/task_priority_test.py",
+        "blob_sha": "12f05b186a3fcee45966f75f6e0d91e187094774",
+        "sha256": "e616829e335a60766e61286fa5a7d0aac488bedd93f8ac1c957d1d523ab04bb1"
+      },
+      {
+        "path": "coordination/requests/PRIORITY.md",
+        "blob_sha": "6cd5fb8e19645893178db89e36ae6917a55a8ed0",
+        "sha256": "34f430dca1721a5914c24c08008ad59ef4d02a8d96a5de6e8c02e6b41f4a5013"
+      }
+    ],
+    "independent_review_receipt_sha256": "d14974a41c8be97e0f0c59534e2a4271ba770c65f411408757c90b8196ac8c22"
   }
 }
