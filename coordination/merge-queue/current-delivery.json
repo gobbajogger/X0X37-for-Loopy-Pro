@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-27T23:18:20.974264Z",
+  "updated_at": "2026-10-27T23:24:44.258162Z",
   "merge_ownership": {
     "owner": "dot existing sole PR monitor",
     "scope": "qualified source integration only",
@@ -138,16 +138,25 @@
     {
       "key": "DOC-AUTONOMOUS-DELIVERY",
       "pr": 653,
-      "source": "6076e10e5084eb5f3f579b529bb934b85a675867",
-      "tree": "903d7ab97d78d4eaccc5e979ceca5fe70cca3b2f",
-      "state": "HOLD pending an inspectable exact independent-review receipt. The PR body reports review, but the live reviews list was empty.",
+      "source": "1446a36510b6ca7c86fec80a4170266ebaa0159d",
+      "tree": "9b8bc630ae824aac15e03e2145fd4801434ac142",
+      "state": "WORKFLOW_SOURCE_ADOPTED_AND_VERIFIED; all 21 final paths independently reviewed and merged into firmware nightly. No firmware package, publication or device completion is inferred.",
       "ci": "Automatic Codex review quota failure is not a correctness verdict. Neutral Cursor checks are not approval.",
       "owner": "Existing maintenance author, sole integrator retained",
-      "next": "The existing author must supply the inspectable receipt from the already performed review. Readback of the public request proves sending, not author acceptance. No duplicate review is requested.",
+      "next": "This workflow-maintenance source task is complete. Reuse the final exact-input Sol and target adoption receipts; do not reopen the superseded seven-file receipt request. Existing accepted product owners continue their own current next permitted actions.",
       "review_receipt_request": {
-        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455234463",
-        "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
-        "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+        "state": "RESOLVED; final actual native Sol review consumed before ordinary protected merge",
+        "scope": "All 21 final workflow/helper/test paths. Original seven reviewed separately and explicitly included in the approved union."
+      },
+      "adoption": {
+        "pr_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653",
+        "target_ref": "nightly",
+        "target_commit": "682db6d18c9a6f5017abcb0cd37514c6792601c0",
+        "target_tree": "9b8bc630ae824aac15e03e2145fd4801434ac142",
+        "merged_at": "2026-10-27T23:16:24Z",
+        "target_ref_and_all21_changed_blobs_verified": true,
+        "actor": "Root under current explicit bounded workflow-maintenance instruction; ongoing Dot ownership unchanged"
       }
     }
   ],
@@ -263,6 +272,29 @@
         }
       },
       "scope": "Preserve pre-adoption observations as history; reconcile only this completed workflow maintenance. No package completion, new claim, owner transfer, device or publication event."
+    },
+    {
+      "observed_at": "2026-10-27T23:24:44.258162Z",
+      "kind": "workflow_package_row_adoption_reconciliation",
+      "previous_coordination_ref": "0060363bfe715b351faf2e72534d37d97375c54c",
+      "package_key": "DOC-AUTONOMOUS-DELIVERY",
+      "previous_package": {
+        "key": "DOC-AUTONOMOUS-DELIVERY",
+        "pr": 653,
+        "source": "6076e10e5084eb5f3f579b529bb934b85a675867",
+        "tree": "903d7ab97d78d4eaccc5e979ceca5fe70cca3b2f",
+        "state": "HOLD pending an inspectable exact independent-review receipt. The PR body reports review, but the live reviews list was empty.",
+        "ci": "Automatic Codex review quota failure is not a correctness verdict. Neutral Cursor checks are not approval.",
+        "owner": "Existing maintenance author, sole integrator retained",
+        "next": "The existing author must supply the inspectable receipt from the already performed review. Readback of the public request proves sending, not author acceptance. No duplicate review is requested.",
+        "review_receipt_request": {
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455234463",
+          "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
+          "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
+        }
+      },
+      "previous_updated_at": "2026-10-27T23:18:20.974264Z",
+      "reason": "Resolve the remaining current package-level PR653 receipt HOLD using actual final Sol approval and verified nightly adoption. All other package objects and ongoing owners are unchanged."
     }
   ],
   "metadata_reconciliation": {
