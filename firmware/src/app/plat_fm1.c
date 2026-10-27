@@ -2,6 +2,9 @@
 /* X0X platform on the FM-1: plat.h over Felucca's HAL, panel map, USB rings and storage.
  * Part of the unity build (x0x.c), after the HAL, usb.c, storage.c and panel.c. */
 
+/* Full target store ordering for the BREAK pulse publication. */
+#include "../../hal/fm1_sync.h"
+
 /* Main-loop CQ producer and ALNK0 consumer share CPU0. Source masking leaves
  * MIDI/clock IRQs alone and never changes the caller's global IRQ state. */
 uint32_t plat_cq_lock(void)
@@ -205,11 +208,15 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
         ((uint32_t)note << 16) | ((uint32_t)velocity << 24);
     uint32_t off = 8u | ((uint32_t)(0x80u | channel) << 8) | ((uint32_t)note << 16);
     int sent = 0;
-    uint32_t irq = irq_save();
+    /* Called by CPU0 only. Exclude its audio producer and TIMER5 USB/BLE
+     * consumer/link transitions, preserving source enables and global IRQ state.
+     * The generic CLI/STI flash helpers are intentionally not used. */
+    uint32_t audio = fm1_irq_mask_save(FM1_IRQ_ALNK0);
+    uint32_t transport = fm1_irq_mask_save(FM1_IRQ_TIMER5);
     if (usb.config && mo_w - mo_r <= MQ - 2u) {
         midi_out_q[mo_w % MQ] = on;
         midi_out_q[(mo_w + 1u) % MQ] = off;
-        RING_PUBLISH(); mo_w += 2u;
+        fm1_data_sync(); mo_w += 2u;
         sent |= 1;
     }
 #if X0X_BLE
@@ -217,11 +224,12 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
         bleh_notifying(&ble_r.host.h) && ble_r.ow - ble_r.orr <= BLE_OQ - 2u) {
         ble_oq[ble_r.ow % BLE_OQ] = on;
         ble_oq[(ble_r.ow + 1u) % BLE_OQ] = off;
-        RING_PUBLISH(); ble_r.ow += 2u;
+        fm1_data_sync(); ble_r.ow += 2u;
         sent |= 2;
     }
 #endif
-    irq_restore(irq);
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, transport);
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, audio);
     return sent;
 }
 #if !X0X_BLE

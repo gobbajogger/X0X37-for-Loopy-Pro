@@ -54,7 +54,7 @@ int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input 
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
-int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* atomic matched pair or drop both */
+int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 only: atomic matched pair or drop both */
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */

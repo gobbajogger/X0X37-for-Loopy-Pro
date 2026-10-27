@@ -131,6 +131,7 @@ int plat_midi_in(uint32_t *pkt)
     return 1;
 }
 static uint32_t midi_out_count, clock_out_count, note_ons, transport_out_count;
+static unsigned host_cpu2_active, midi_pulse_crosscore;
 void plat_midi_out(uint32_t pkt)
 {
     midi_out_count++;
@@ -146,6 +147,7 @@ void plat_midi_out(uint32_t pkt)
 
 int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
 {
+    if (host_cpu2_active) midi_pulse_crosscore++;
     plat_midi_out(9u | ((uint32_t)(0x90u | ch) << 8) | ((uint32_t)note << 16) | ((uint32_t)velocity << 24));
     plat_midi_out(8u | ((uint32_t)(0x80u | ch) << 8) | ((uint32_t)note << 16));
     return 1;
@@ -233,17 +235,19 @@ const uint8_t *plat_slot(int k, int z, uint32_t *ns, uint32_t *rate, char name[9
 static uint32_t cpu_pct, cpu_peak;
 static int load_force = -1;                      /* script "load N": the guard sees N%, -1 measured */
 /* the second core, simulated: a job runs at once, in order (the split path, the same sums) */
-static int cpu2_on;
+static int cpu2_on, cpu2_fail_once;
 int plat_cpu2_set(int on) { cpu2_on = on; return 0; }
 int plat_cpu2_on(void) { return cpu2_on; }
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg)
 {
     if (!cpu2_on)
         return 0;
+    host_cpu2_active = 1;
     fn(arg);
+    host_cpu2_active = 0;
     return 1;
 }
-int plat_cpu2_wait(void) { return 0; }
+int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return fail; }
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
 static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */

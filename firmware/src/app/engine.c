@@ -916,23 +916,42 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     breaks_pin(&brk, (int)bp->slice[s16 & 15] - 1);   /* the step's own slice, if it has one */
     breaks_step(&brk, s16, bar, spb, en);
 }
-static void s_brkstop(void *x) { (void)x; breaks_stop(&brk); }
+static void brk_midi_discard(void);
+static void s_brkstop(void *x) { (void)x; breaks_stop(&brk); brk_midi_discard(); }
 static void s_midi(void *x, uint8_t st, uint8_t d1, uint8_t d2)
 {
     uint32_t cin = st >= 0xF0 ? 0x0Fu : (uint32_t)(st >> 4);
     (void)x;
     plat_midi_out(cin | ((uint32_t)st << 8) | ((uint32_t)d1 << 16) | ((uint32_t)d2 << 24));
 }
-/* Immediate matched pulses use the existing protected Note Off queues on USB/BLE.
- * No live/input echo and no internal stutter sub-hit output. */
+/* Accepted hits can originate on CPU1 during its BREAK render job. Append
+ * descriptors only: transport rings belong exclusively to CPU0. CPU0 sequencing
+ * and CPU1 rendering are serialized by plat_cpu2_run/wait, whose native CSYNC
+ * job/done handoff already publishes the audio buffers. No spin/IRQ change here. */
+enum { BRK_MIDI_EVENTS = 8 };
+typedef struct { uint8_t note, channel, bank, generation; } brk_midi_event_t;
+static brk_midi_event_t brk_midi_events[BRK_MIDI_EVENTS];
+static volatile uint8_t brk_midi_count;
+static void brk_midi_discard(void) { brk_midi_count = 0; }
 static void s_brk_accepted(void *ctx, int slice, int bank, unsigned gen)
 {
-    (void)ctx; (void)bank; (void)gen;
+    (void)ctx;
     if (seq.send_notes && seq.ch[TRK_BRK] != SEQ_CH_OFF && seq.playing &&
         !(seq.mute & (1u << MUTE_BRK))) {
-        uint8_t ch = seq.ch[TRK_BRK], note = (uint8_t)(12 + slice);
-        (void)plat_midi_pulse(ch, note, 100);
+        unsigned n = brk_midi_count;
+        if (n >= BRK_MIDI_EVENTS) return; /* bounded overload: drop the whole pulse */
+        brk_midi_events[n] = (brk_midi_event_t){(uint8_t)(12 + slice), seq.ch[TRK_BRK],
+                                             (uint8_t)bank, (uint8_t)gen};
+        brk_midi_count = (uint8_t)(n + 1u);
     }
+}
+/* CPU0 only, after the render job's full synchronization or local fallback. */
+static void brk_midi_drain(void)
+{
+    unsigned n = brk_midi_count;
+    for (unsigned i = 0; i < n; i++)
+        (void)plat_midi_pulse(brk_midi_events[i].channel, brk_midi_events[i].note, 100);
+    brk_midi_count = 0;
 }
 static void s_step(void *x, int t, int p)
 {
@@ -2018,6 +2037,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
     bfx_snapshot();                                   /* before the second core reads the holds */
+    uint8_t brk_event_mark = brk_midi_count;
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
@@ -2053,22 +2073,23 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
 #endif
     pt = plat_cycles();
+    int failed;
 #if X0X_DEBUG
     eng_dbg_nsub++;
-    {
-        uint32_t w0 = plat_ticks24();
-        int failed = on2 && plat_cpu2_wait();
-        eng_dbg_wait += plat_ticks24() - w0;
-        if (failed)
-            on2 = 0;
-    }
-    if (!on2)
-#else
-    if (!on2 || plat_cpu2_wait())
+    uint32_t w0 = plat_ticks24();
 #endif
-        core2_job(arg);                                   /* one core (or the second failed): here */
-    else
-        PROF_ADD(PR_808, pt);                             /* what the first core waited for the second */
+    failed = on2 && plat_cpu2_wait();
+#if X0X_DEBUG
+    eng_dbg_wait += plat_ticks24() - w0;
+#endif
+    if (!on2 || failed) {
+        /* Discard descriptors from a failed/partial remote job before fallback.
+         * CPU0 step events queued before dispatch remain valid. */
+        brk_midi_count = brk_event_mark;
+        core2_job(arg);
+    } else
+        PROF_ADD(PR_808, pt);
+    brk_midi_drain();
     if (d808_was_active) {
         mix_targets(PART_808, mix_level[PART_808], solo_parts);
         add_glide(dry_l, t0, &mix_glide[PART_808][GL_L], n);
@@ -2172,6 +2193,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #endif
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
+        brk_midi_drain();
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
         PROF_ADD(7, pt);
@@ -2183,6 +2205,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
         {
             PROF_T(pt);
             seq_advance(&seq, k, &SINK);
+            brk_midi_drain();
             PROF_ADD(7, pt);
         }
         done += k;
@@ -2448,6 +2471,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     int p, g;
     cq_w = cq_r = 0;
     brk_local = 0;
+    brk_midi_count = 0;
     brk_input_channel = 255;
     src_held[0] = src_held[1] = src_held[2] = 0;
     for (p = 0; p < MIDI_NSRC; p++)

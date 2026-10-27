@@ -2445,6 +2445,7 @@ static void fm1_main(void)
 #if X0X_CDC
         cdc_task();
 #endif
+        if (!ui_project_busy()) engine_brk_flush(); /* main-loop completion after held notes/free snapshots */
         if (!ui_project_busy() && seq.ppat[TRK_BRK] != last_pat) { /* the break's new pattern may name other loops */
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
