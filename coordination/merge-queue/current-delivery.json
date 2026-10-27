@@ -157,7 +157,8 @@
     "current_public_installable_delivery": "NOT_DONE",
     "hardware": "UNRUN",
     "site_main": "93d638b272bf789951553f9ff5437fd0a68d8cf1",
-    "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes."
+    "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
+    "website_main_observed": "93d638b272bf789951553f9ff5437fd0a68d8cf1"
   },
   "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery.",
   "pending_workflow_proposal": {
@@ -171,5 +172,65 @@
       "state": "REQUEST_POSTED_READBACK; sender receipt only, author consumption/acceptance not established",
       "scope": "Inspect the existing exact independent-review receipts for PR653 and PR654; do not request duplicate review."
     }
+  },
+  "history": [
+    {
+      "updated_at": "2026-10-27T21:49:00Z",
+      "previous_states": {
+        "firmware_nightly": "d892f31b0e7affa905f57370d6fa115dc4d90060",
+        "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
+        "current_public_installable_delivery": "NOT_DONE",
+        "hardware": "UNRUN"
+      },
+      "previous_coordination_ref": "f893a17cb179483fedf9c504dae273bc759dff64"
+    }
+  ],
+  "metadata_reconciliation": {
+    "observed_at": "2026-10-27T22:49:20Z",
+    "common_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+    "proposal_parent": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+    "latest_canonical_parent": "87497129fed7621036933c82a7ad9a020f558f45",
+    "current_owner_checkpoint_preserved": "Complete 87497129 packages, ownership, states, pending proposal and original updated_at retained; this proposal does not claim adoption.",
+    "queue_metadata_observed_at": "2026-10-27T22:17:33.283Z",
+    "current_head_readback": {
+      "pr653": "6076e10e5084eb5f3f579b529bb934b85a675867",
+      "pr654": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+      "pr651": "c1f3f776b13ad8f4f56bcbdb8a8061924191b93d"
+    },
+    "public_review_receipts": [
+      {
+        "pr": 653,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455351859",
+        "scope": "Exact seven-file source documentation review and remote tree/blob verification; sole-integrator inspection/adoption remains separate."
+      },
+      {
+        "pr": 654,
+        "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6455352303",
+        "scope": "Original reviewed input plus transparent draft hold for the subsequently reproduced active-continuation bug. Current three-path correction requires its matching final-head receipt."
+      }
+    ],
+    "next_action": "Existing sole integrator reads the current PR head and its already-performed exact independent-review receipt; after qualified adoption, the existing accepted owners continue their next permitted work. No duplicate coordinator, new owner acknowledgement gate or bypass of any actual source/action denial."
+  },
+  "proposal_continuation_fix": {
+    "state": "PREPARED_AND_INDEPENDENTLY_REVIEWED_NOT_YET_ADOPTED",
+    "behavior": "Unknown active work areas block new claims but retain accepted continuations and read-only ownership recovery. Stale required reads and duplicate IDs still fail closed.",
+    "reviewed_files": [
+      {
+        "path": "coordination/requests/task_priority.py",
+        "blob_sha": "ef9818928db3b826a0a8e312e73c38f85a2deb50",
+        "sha256": "6963a650778106dde9b61ec9712a5b87988b8698bf06430ffde91333f13c84e3"
+      },
+      {
+        "path": "tests/task_priority_test.py",
+        "blob_sha": "12f05b186a3fcee45966f75f6e0d91e187094774",
+        "sha256": "e616829e335a60766e61286fa5a7d0aac488bedd93f8ac1c957d1d523ab04bb1"
+      },
+      {
+        "path": "coordination/requests/PRIORITY.md",
+        "blob_sha": "6cd5fb8e19645893178db89e36ae6917a55a8ed0",
+        "sha256": "34f430dca1721a5914c24c08008ad59ef4d02a8d96a5de6e8c02e6b41f4a5013"
+      }
+    ],
+    "independent_review_receipt_sha256": "d14974a41c8be97e0f0c59534e2a4271ba770c65f411408757c90b8196ac8c22"
   }
 }

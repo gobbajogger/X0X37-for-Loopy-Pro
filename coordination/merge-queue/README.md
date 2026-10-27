@@ -1,3 +1,23 @@
+# Current coordination checkpoint and PR654 proposal
+
+The canonical sole-writer checkpoint is `87497129fed7621036933c82a7ad9a020f558f45` (2026-10-27 22:36 UTC). Its newer LX-REQ-012/019 assessments, every current-delivery package, private owner-delivery fact and action-specific hold are retained. The broad 183-row Git metadata snapshot below remains timestamped 22:17:33 UTC; it does not supersede those newer outcome facts.
+
+The corrected planner preserves accepted continuations even when unknown occupied work areas block all new claims. Those unknown owners first reconcile liveness and scope read-only. A report is a checkpoint; actual owners continue permitted work until the requested result or a specific unresolved gate. Fresh required reads, ownership and actual action denials remain binding. Existing review receipts are linked in `current-delivery.json`; the sole integrator consumes the current PR head and matching proof. Proposal publication is not adoption, firmware qualification, public delivery or hardware acceptance.
+
+## Retained 22:17 metadata proposal
+
+# LoopyX0X37 current merge queue
+
+## Current metadata checkpoint — 2026-10-27T22:17:33.283Z
+
+Dot remains the sole queue writer and integration coordinator. This checkpoint refreshes all 147 retained rows and includes 36 current open/frontier PRs missing from the old snapshot (183 rows total). All 38 request IDs and their owners/history remain; LX-REQ-038 is unchanged and deferred. Live PR metadata is source-state evidence, not new review, build, publication or device qualification.
+
+Use [merge-queue.json](merge-queue.json) for current PR facts, [current-delivery.json](current-delivery.json) for the selected delivery frontier, and [requests.json](../requests/requests.json) for request acceptance. Historical outcome assessments carry status_as_of; their current references and directly evidenced corrections are recorded in the same rows. Do not repeat merged PR actions or infer a waiting-for-owner-ACK gate.
+
+PR638 remains draft; PR651 retains its exact action-review hold. Existing independent build/QA work may consume a sole-integrator-selected immutable candidate without waiting for unrelated fleet reconciliation. The published catalogue still names 0e77d923; current-source delivery and hardware acceptance remain separate.
+
+## Earlier checkpoint text — retained historical evidence
+
 # LoopyX0X37 merge queue
 
 ## Current checkpoint — 2026-10-27 20:57 UTC
@@ -108,3 +128,4 @@ scoped review dispositions, and do not assert the historical PR merged or
 authorize its closure. `READY_FOR_INTEGRATION` still requires actual current
 gates. Test evidence belongs to the recorded source and reviewer; this queue
 writer executed no firmware tests and claims no hardware or release PASS.
+
