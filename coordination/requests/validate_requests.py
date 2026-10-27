@@ -13,10 +13,11 @@ _spec = importlib.util.spec_from_file_location("request_task_priority", Path(__f
 _priority = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_priority)
 validate_assessment = _priority.validate_assessment
+completion_errors = _priority.completion_errors
 
 HERE = Path(__file__).resolve().parent
 LEDGER_PATH = "coordination/requests/requests.json"
-CLOSED = {"COMPLETED", "CANCELLED", "SUPERSEDED"}
+CLOSED = _priority.CLOSED
 
 def validate(data, registry, previous=None):
     errors = []
@@ -32,6 +33,7 @@ def validate(data, registry, previous=None):
     require(not set(live) & set(dead), "live/tombstone ID collision")
     for r in records:
         rid = r.get("request_id")
+        errors.extend(f"{rid}: {e}" for e in completion_errors(r))
         if "priority_assessment" in r:
             errors.extend(f"{rid}: {e}" for e in validate_assessment(r["priority_assessment"]))
         require(bool(re.fullmatch(r"LX-REQ-\d{3,}", rid or "")), "missing/invalid request ID")

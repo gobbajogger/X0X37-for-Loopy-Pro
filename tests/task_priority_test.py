@@ -2,7 +2,11 @@
 """Observable recommendation order, starvation, authority and ownership checks."""
 import copy
 import importlib.util
+import json
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import unittest
 
 spec = importlib.util.spec_from_file_location('task_priority', Path(__file__).resolve().parents[1] / 'coordination/requests/task_priority.py')
@@ -13,6 +17,8 @@ NOW = '2026-10-25T12:00:00Z'
 
 def record(n, category='ux_repair', effort='small', **changes):
     r = {'request_id': f'LX-REQ-{n:03d}', 'status': 'PLANNED', 'owner': 'existing owner',
+         'title': 'Scoped source request', 'completion_criterion': 'Deliver reviewed source proof.',
+         'related_requests': [],
          'next_action': 'Run bounded source/test review; retain safety gates.', 'dependencies': [],
          'updated_at': '2026-10-24T12:00:00Z', 'priority_assessment': {
              'category': category, 'severity': 'moderate', 'reach': 'affected workflow',
@@ -22,9 +28,21 @@ def record(n, category='ux_repair', effort='small', **changes):
     return r
 
 
+def complete(r):
+    r['status'] = 'COMPLETED'
+    r['required_evidence'] = ['source', 'test']
+    r['evidence'] = {level: {'state': 'NOT_RUN'} for level in p.EVIDENCE_LEVELS}
+    r['evidence']['source'] = {'state': 'SOURCE_DELIVERED', 'revision': 'a' * 40}
+    r['evidence']['test'] = {'state': 'PASS', 'receipt': 'fixture:independent-source-proof'}
+    r['completion'] = {'state': 'ACCEPTED', 'criterion': r['completion_criterion'],
+        'evidence_hashes': {level: p.evidence_hash(r['evidence'][level]) for level in r['required_evidence']},
+        'delivery': {'state': 'VERIFIED', 'evidence_refs': ['fixture:exact-remote-source-readback']}}
+    return r
+
+
 class PriorityTests(unittest.TestCase):
     def plan(self, *records, capacity=2, **kw):
-        return p.plan({'records': list(records)}, NOW, capacity, **kw)
+        return p.plan({'records': list(records)}, NOW, capacity, read_status='success', **kw)
 
     def test_high_risk_beats_cosmetic_even_if_cosmetic_is_quick(self):
         risky = record(2, 'safety_integrity', 'complex')
@@ -65,7 +83,7 @@ class PriorityTests(unittest.TestCase):
         self.assertNotIn('LX-REQ-001', [r['request_id'] for r in result['delivery_order']])
         self.assertIn('blocked dependency', result['excluded'][0]['reason'])
         self.assertEqual(result['lanes']['quick'], 'LX-REQ-002')
-        dep = record(2, status='COMPLETED')
+        dep = complete(record(2))
         self.assertEqual(self.plan(blocked, dep)['lanes']['quick'], 'LX-REQ-001')
         dep['status'] = 'CANCELLED'
         self.assertIsNone(self.plan(blocked, dep)['lanes']['quick'])
@@ -86,15 +104,15 @@ class PriorityTests(unittest.TestCase):
         other['priority_assessment']['work_areas'] = ['1']
         ledger = {'records': [running, other]}
         before = copy.deepcopy(ledger)
-        result = p.plan(ledger, NOW)
+        result = p.plan(ledger, NOW, read_status='success')
         self.assertEqual(ledger, before)
-        self.assertEqual(result, p.plan(ledger, NOW))
+        self.assertEqual(result, p.plan(ledger, NOW, read_status='success'))
         self.assertEqual(result['continue_existing'][0]['implementation_owner'], 'existing owner')
         self.assertIsNone(result['lanes']['quick'])
 
     def test_no_capacity_or_independence_no_new_lane(self):
         self.assertEqual(self.plan(record(1), capacity=0)['lanes'], {'quick': None, 'complex': None})
-        self.assertEqual(p.plan({'records': [record(1)]}, NOW)['lanes'], {'quick': None, 'complex': None})
+        self.assertEqual(p.plan({'records': [record(1)]}, NOW, read_status='success')['lanes'], {'quick': None, 'complex': None})
         self.assertIsNone(self.plan(record(1), busy_areas=['1'])['lanes']['quick'])
         shared = record(2, 'feature_research', 'complex')
         shared['priority_assessment']['work_areas'] = ['1']
@@ -125,12 +143,115 @@ class PriorityTests(unittest.TestCase):
         del r['priority_assessment']
         self.assertEqual(self.plan(r)['delivery_order'], [])
         r['priority_assessment'] = {'category': 'fake_score'}
-        with self.assertRaises(ValueError):
-            self.plan(r)
+        result = self.plan(r, record(2))
+        self.assertEqual([x['request_id'] for x in result['claim_candidates']], ['LX-REQ-002'])
+        self.assertIn('priority_assessment', result['excluded'][0]['next_action'])
         with self.assertRaises(ValueError):
             self.plan(record(1), capacity=-1)
         with self.assertRaises(ValueError):
             p.plan({'records': [record(1)]}, '2026-10-25')
+
+    def test_unread_queue_never_becomes_complete_or_claimable(self):
+        for status in ('unknown', 'failed', 'stale', 'incomplete', 'NOT_READ'):
+            with self.subTest(status=status):
+                result = p.plan({'records': []}, NOW, 4, read_status=status)
+                self.assertEqual(result['state'], 'BLOCKED')
+                self.assertEqual(result['claim_candidates'], [])
+        self.assertEqual(p.plan({'records': []}, NOW)['state'], 'BLOCKED')
+
+    def test_invalid_inactive_assessment_is_scoped_but_writer_uncertainty_is_not_ignored(self):
+        bad = record(1)
+        bad['priority_assessment']['severity'] = 'unrecognized'
+        result = self.plan(bad, record(2))
+        self.assertEqual([x['request_id'] for x in result['claim_candidates']], ['LX-REQ-002'])
+        self.assertIn('priority_assessment.severity', result['excluded'][0]['next_action'])
+        bad['owner_execution_state'] = 'ACTIVE'
+        del bad['priority_assessment']['work_areas']
+        with self.assertRaisesRegex(ValueError, 'unknown active writer work areas'):
+            self.plan(bad, record(2))
+        with self.assertRaisesRegex(ValueError, 'duplicate request IDs'):
+            self.plan(record(1), record(1))
+
+    def test_bare_or_contradictory_completion_blocks_dependents_only(self):
+        for mutation in ('missing', 'negative', 'stale', 'criterion', 'delivery'):
+            with self.subTest(mutation=mutation):
+                done = complete(record(1))
+                if mutation == 'missing':
+                    del done['completion']
+                elif mutation == 'negative':
+                    done['evidence']['test']['state'] = 'NOT_RUN'
+                elif mutation == 'stale':
+                    done['evidence']['source']['revision'] = 'b' * 40
+                elif mutation == 'criterion':
+                    done['completion_criterion'] = 'Deliver an installable firmware package.'
+                else:
+                    done['completion']['delivery']['state'] = 'NOT_DONE'
+                result = self.plan(done, record(2, dependencies=['LX-REQ-001']), record(3), capacity=3)
+                self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-003'])
+                self.assertTrue(p.completion_errors(done))
+
+    def test_source_only_completion_leaves_unrequested_gates_not_run(self):
+        done = complete(record(1))
+        self.assertEqual(p.completion_errors(done), [])
+        result = self.plan(done, record(2, dependencies=['LX-REQ-001']))
+        self.assertEqual(result['claim_candidates'][0]['request_id'], 'LX-REQ-002')
+        self.assertEqual(done['evidence']['hardware']['state'], 'NOT_RUN')
+        self.assertEqual(done['evidence']['deployed']['state'], 'NOT_RUN')
+        del done['owner']
+        del done['next_action']
+        self.assertEqual(self.plan(done)['state'], 'QUEUE_COMPLETE')
+
+    def test_blocked_or_deferred_queue_stays_pending(self):
+        for r in (record(1, status='BLOCKED_ACTION_REVIEW'), record(38, priority='DEFERRED')):
+            result = self.plan(r)
+            self.assertEqual(result['state'], 'PENDING')
+            self.assertEqual(result['claim_candidates'], [])
+
+    def test_reported_active_writer_is_not_released_by_a_terminal_label(self):
+        done = complete(record(1, owner_execution_state='ACTIVE_STAGE_REPORTED'))
+        conflict = record(2)
+        conflict['priority_assessment']['work_areas'] = ['1']
+        result = self.plan(done, conflict, record(3), capacity=3)
+        self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-003'])
+
+    def test_fill_verified_capacity_with_disjoint_candidates(self):
+        result = self.plan(*(record(i) for i in range(1, 6)), capacity=4)
+        self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                         ['LX-REQ-001', 'LX-REQ-002', 'LX-REQ-003', 'LX-REQ-004'])
+        self.assertEqual(result['lanes']['quick'], 'LX-REQ-001')
+        overlapping = record(2)
+        overlapping['priority_assessment']['work_areas'] = ['1']
+        result = self.plan(record(1), overlapping, record(3), capacity=4)
+        self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                         ['LX-REQ-001', 'LX-REQ-003'])
+        with self.assertRaises(ValueError):
+            self.plan(record(1), capacity=True)
+
+    def test_completion_validator_rejects_false_done(self):
+        v_spec = importlib.util.spec_from_file_location('completion_validator',
+            Path(__file__).resolve().parents[1] / 'coordination/requests/validate_requests.py')
+        validator = importlib.util.module_from_spec(v_spec)
+        v_spec.loader.exec_module(validator)
+        done = complete(record(1))
+        ledger = {'records': [done], 'scope': {'repositories': []},
+                  'unclassified_preserved_branches': [], 'preserved_branch_classification_counts': {}}
+        registry = {'initial_request_ids': ['LX-REQ-001'], 'initial_preserved_branch_heads': []}
+        self.assertEqual(validator.validate(ledger, registry), [])
+        del done['completion']
+        self.assertTrue(any('completion' in e for e in validator.validate(ledger, registry)))
+
+    def test_cli_default_cannot_treat_an_unread_queue_as_done(self):
+        script = Path(__file__).resolve().parents[1] / 'coordination/requests/task_priority.py'
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / 'queue.json'
+            ledger.write_text(json.dumps({'records': []}))
+            args = [sys.executable, str(script), '--ledger', str(ledger), '--as-of', NOW]
+            unknown = subprocess.run(args, capture_output=True, text=True)
+            self.assertEqual(unknown.returncode, 2)
+            self.assertEqual(json.loads(unknown.stdout)['state'], 'BLOCKED')
+            observed = subprocess.run(args + ['--read-status', 'success'], capture_output=True, text=True)
+            self.assertEqual(observed.returncode, 0)
+            self.assertEqual(json.loads(observed.stdout)['state'], 'QUEUE_COMPLETE')
 
 
 if __name__ == '__main__':

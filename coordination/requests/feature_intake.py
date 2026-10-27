@@ -83,13 +83,15 @@ def approval(issue, h, reactions, receipts, boundary=None):
     return None
 
 
-def evaluate(snapshot, ledger, checkpoint):
+def evaluate(snapshot, ledger, checkpoint, capacity=0):
     """Return a proposal only. Caller owns evidence authentication and serialized writes."""
     result = {"schema": 1, "state": "BLOCKED", "reason": "unknown input",
-              "items": [], "claim": None,
+              "items": [], "claim": None, "claims": [],
               "input_identity": {"observation": digest(snapshot), "ledger": digest(ledger),
                                  "checkpoint": digest(checkpoint)}}
     try:
+        if type(capacity) is not int or capacity < 0:
+            raise ValueError("capacity must be nonnegative verified free intake slots")
         if snapshot.get("schema") != 1 or checkpoint.get("schema") != 1:
             raise ValueError("unsupported/missing schema")
         if snapshot.get("read_status") != "success":
@@ -250,13 +252,15 @@ def evaluate(snapshot, ledger, checkpoint):
                           i["state"] == "BLOCKED" for i in result["items"]) else "ACCEPTED"), reason="complete decision",
                       proposed_checkpoint=proposed)
         if proposals:
-            result["claim"] = dict(proposals[0], owner="existing sole request coordinator",
-                                   action="serialize ledger append, then route one bounded source/test/doc unit",
-                                   limits="no merge/publication/device/security authority")
+            result["claims"] = [dict(item, owner="existing sole request coordinator",
+                action="serialize ledger append; verify source scope before bounded execution",
+                limits="no merge/publication/device/security authority")
+                for item in proposals[:capacity]]
+            result["claim"] = result["claims"][0] if result["claims"] else None
         # No new map is accepted until the coordinator actually appends a record.
         return result
     except (KeyError, TypeError, ValueError, AttributeError) as error:
-        result.update(state="BLOCKED", reason="unknown: " + str(error), items=[], claim=None)
+        result.update(state="BLOCKED", reason="unknown: " + str(error), items=[], claim=None, claims=[])
         result.pop("proposed_checkpoint", None)
         return result
 
@@ -266,12 +270,13 @@ def main():
     p.add_argument("snapshot", type=Path)
     p.add_argument("--ledger", type=Path, required=True)
     p.add_argument("--checkpoint", type=Path, required=True)
+    p.add_argument("--capacity", type=int, default=0, help="verified free intake slots; default none")
     args = p.parse_args()
     try:
         result = evaluate(json.loads(args.snapshot.read_text()), json.loads(args.ledger.read_text()),
-                          json.loads(args.checkpoint.read_text()))
+                          json.loads(args.checkpoint.read_text()), args.capacity)
     except (OSError, ValueError) as error:
-        result = {"schema": 1, "state": "BLOCKED", "reason": "unknown: " + str(error), "claim": None}
+        result = {"schema": 1, "state": "BLOCKED", "reason": "unknown: " + str(error), "claim": None, "claims": []}
     print(json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False))
     return 2 if result["state"] == "BLOCKED" else 0
 

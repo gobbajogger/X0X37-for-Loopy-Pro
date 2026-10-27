@@ -3,8 +3,8 @@
 Musicians need a place to describe useful firmware improvements without losing
 existing requests or accidentally authorizing conflicting changes. The draft
 issue form asks plain questions; the existing request coordinator analyses each
-request against current source, accepts bounded owner authority and chooses one
-unit of source/test/documentation work. No service, webhook, scheduled job or
+request against current source, accepts bounded owner authority and proposes a
+capacity-bounded batch for the sole ledger writer. No service, webhook, scheduled job or
 installer change is introduced here. **The form is not live until merged to the
 default branch.** Do not advertise a working form URL before then.
 
@@ -14,7 +14,8 @@ Python 3 standard library only, from the repository root:
 
 ```sh
 python3 coordination/requests/feature_intake.py observation.json \
-  --ledger coordination/requests/requests.json --checkpoint accepted-intake.json > plan.json
+  --ledger coordination/requests/requests.json --checkpoint accepted-intake.json \
+  --capacity 2 > plan.json
 python3 tests/feature_intake_test.py
 ```
 
@@ -23,7 +24,8 @@ network requests, executes issue text, writes a checkpoint/ledger, submits an
 issue/vote, delegates, merges or publishes. Exit 2 means BLOCKED; inspect item
 reasons. Exit 0 means a complete observation produced a plan or existing work,
 not that implementation or approval persistence happened. Mixed complete items
-can produce one claim while other items remain blocked. A failed required read
+can produce a bounded batch while other items remain blocked. Capacity defaults to
+zero and must reflect verified free intake capacity. A failed required read
 discards all claims as unknown. There is no NO_CHANGE shortcut based on a failed
 read, timestamp, reaction count or source SHA alone.
 
@@ -145,19 +147,24 @@ stable issue IDs. Preserve multiple existing requests for one issue. Repeated
 pages/observations cannot create another request; existing ledger work is never
 re-enqueued. Keep tombstoned IDs reserved and follow their retained successors.
 
-The output includes `items`, at most one `claim`, and a `proposed_checkpoint`.
+The output includes `items`, `claims` up to the supplied capacity, and a
+`proposed_checkpoint`. `claim` remains the first proposed claim for older readers.
 These reuse PLANNED/BLOCKED/CANCELLED/ACCEPTED as decision labels; they add no
 tracker status taxonomy. An existing request's status and separate source/test/
 build/deployed/hardware evidence stay under the existing tracker policy.
 
 One sole coordinator serializes acceptance. Re-read the current ledger/checkpoint
 before applying a proposal; another claimant may already have added the issue.
-Append at most the claimed new LX record using the existing schema/history rules,
-then atomically accept its canonical mapping and authenticated approval receipt
+Append each accepted claim serially using the existing schema/history rules,
+reconciling IDs and scope again if the ledger changed. Then atomically accept its
+canonical mapping and authenticated approval receipt
 in the existing coordinator checkpoint. The proposed checkpoint intentionally
 does not map uncommitted new IDs. Do not save it as an accepted claim before
 the ledger write succeeds. Retain accepted approval even if analysis is blocked.
 No cross-process lock or external write is implied by this offline helper.
+Intake capacity is not permission for concurrent source writes. Before execution,
+the existing priority/ownership flow checks actual free workers and disjoint scope.
+Existing work continues; neither a batch report nor a blocked item ends the queue.
 
 If the scheduler cannot delegate, it hands the exact observation/ledger/checkpoint
 hashes, LX ID, scope/source hashes, bounded action, owner, done criteria and limits
@@ -172,9 +179,9 @@ authority. This stage changes none of them.
 > reactions only when needed. Preserve trusted approvals of unchanged scope and
 > all existing LX requests. Analyse musician benefit, reuse, controls, model/data/
 > transport effects and concrete tests against current source. Run the offline
-> feature intake helper with the existing ledger and authenticated checkpoint.
-> Treat failed/incomplete reads as unknown. As sole writer, accept at most one
-> bounded eligible claim, deduplicate by repository/issue ID and continue existing
+> feature intake helper with the existing ledger, authenticated checkpoint and
+> verified free capacity. Treat failed/incomplete reads as unknown. As sole writer,
+> serialize the eligible claim batch, deduplicate by repository/issue ID and continue existing
 > requests. Route source/tests/docs/draft-PR work to a capable worker if this
 > scheduler lacks delegation; record exact inputs and next owner. Preserve all
 > independent review, merge, publication, hardware and security gates.

@@ -8,19 +8,25 @@ owner assignment, checkpoint or external write. PR184's pinned intake trial
 this helper orders existing requests after intake, without changing that trial.
 
 ```sh
-python3 coordination/requests/task_priority.py --as-of 2026-10-25T12:00:00Z
+python3 coordination/requests/task_priority.py --as-of 2026-10-25T12:00:00Z --read-status success
 # Only after checking current execution, free slots and conflicting source areas:
 python3 coordination/requests/task_priority.py --as-of 2026-10-25T12:00:00Z \
-  --capacity 2 --busy-area firmware-runtime
+  --read-status success --capacity 2 --busy-area firmware-runtime
 python3 tests/task_priority_test.py
 python3 coordination/requests/validate_requests.py --base-ref <accepted-tracker-sha>
 ```
 
+Set `--read-status success` only after fresh complete required queue reads; the
+default `unknown` returns BLOCKED with exit 2 and no candidates, even for an empty
+file-level queue. A local parse alone does not authenticate remote freshness.
 The explicit observation time makes output reproducible. Capacity defaults to zero
 new lanes. Capacity means verified free worker slots in addition to existing work;
 `--busy-area` supplements retained reported-active areas with fresh runtime claims.
 A successful plan does not establish that supplied observations are current.
-Malformed assessments fail with exit 2; missing assessments/readiness remain unknown.
+Malformed inactive assessments exclude only that item with a concrete correction
+action; missing assessments/readiness remain unknown. Structural ID corruption or
+unknown active-writer areas still refuse new claims because safe ownership cannot
+be established.
 
 Delivery categories, in order:
 
@@ -49,7 +55,7 @@ cross-cutting multi-controller, engine and preset scopes marked complex; no dura
 or remaining-work estimates are invented. Obtain a source-backed estimate for the
 next bounded stage before treating anything as quick.
 
-Only explicit `dependencies` block: a dependency must be COMPLETED, not merely
+Only explicit `dependencies` block: a dependency must have accepted completion evidence, not merely
 cancelled, superseded, source-ready or related. Keep readiness conservative and
 fresh for the proposed stage. A denied write remains blocked until properly
 resolved. Related requests do not become invented dependencies. A blocked long task
@@ -73,6 +79,45 @@ can therefore continue aged complex work while ordinary quick work waits for cap
 Unknown effort never silently becomes small. The delivery list still preserves
 safety/UX order; lane selection is parallel stage progress, not release order.
 All quick and complex stages retain the same applicable QA and safety gates.
+
+`claim_candidates` fills the remaining verified free slots with disjoint ready
+work after the safety/complex reservation above. The `lanes.quick` and
+`lanes.complex` fields retain the first recommendation of each kind for existing
+readers; they are not a two-worker ceiling. The sole ledger writer serializes actual
+claims after fresh ownership checks. The helper neither dispatches nor writes.
+
+## Completion evidence and pending work
+
+COMPLETED or DONE requires a `completion` receipt for the exact current
+`completion_criterion`. Define `required_evidence` as the applicable subset of
+source/test/build/deployed/hardware when scoping the outcome, not to hide a failed
+gate afterward. This is a completion check, not an admission requirement for an
+unfinished request. Existing nonterminal records remain valid.
+
+The receipt has `state: ACCEPTED`, the exact `criterion`, `evidence_hashes` for
+exactly those required levels, and `delivery: {state: VERIFIED, evidence_refs: [...]}`
+for actual delivery of the requested result. Hash each complete evidence-level
+object with `task_priority.evidence_hash`; refresh acceptance if that object changes.
+Each required level needs an accepted result state: PASS, VERIFIED, ACCEPTED,
+DELIVERED, BUILD_ONLY_PASS, DEV_CHECKED, DEVICE_VERIFIED, PUBLISHED_VERIFIED,
+SOURCE_VERIFIED or SOURCE_DELIVERED. No unrequested hardware or publication gate
+is added to a source-only outcome. An assigned reviewer authenticates the exact
+criterion, proof and destination; the helper checks consistency, not arbitrary
+JSON's truth or permission to merge/publish.
+
+Invalid terminal evidence leaves that item and its dependents pending. It does not
+exclude unrelated ready work. The continuity validator reports the mismatch; resolve
+structural ID/ownership corruption before claims, but do not turn a selected item's
+completion failure into a blanket action gate. An explicit BLOCKED status cannot be
+selected from a stale ready assessment. The planner reports WORK_REQUIRED while ready
+or existing active work remains, PENDING when only gated/deferred work remains, and
+QUEUE_COMPLETE only after a fresh complete read leaves no unfinished request.
+An exit code 0 reports a valid decision, not delivered functionality.
+
+Continue the next authorized action after each meaningful report. A bounded unit
+controls ownership and evidence, not a stop-after-report policy. Preserve real
+denials and retry triggers; do not create infinite unchanged audits or use scheduler
+run completion as request completion.
 
 New owner feedback revises the assessment with a full prior snapshot in history;
 never delete earlier requests, reset their age or replace running claims. Age uses

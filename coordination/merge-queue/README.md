@@ -1,3 +1,15 @@
+# LoopyX0X37 current merge queue
+
+## Current metadata checkpoint — 2026-10-27T22:17:33.283Z
+
+Dot remains the sole queue writer and integration coordinator. This checkpoint refreshes all 147 retained rows and includes 36 current open/frontier PRs missing from the old snapshot (183 rows total). All 38 request IDs and their owners/history remain; LX-REQ-038 is unchanged and deferred. Live PR metadata is source-state evidence, not new review, build, publication or device qualification.
+
+Use [merge-queue.json](merge-queue.json) for current PR facts, [current-delivery.json](current-delivery.json) for the selected delivery frontier, and [requests.json](../requests/requests.json) for request acceptance. Historical outcome assessments carry status_as_of; their current references and directly evidenced corrections are recorded in the same rows. Do not repeat merged PR actions or infer a waiting-for-owner-ACK gate.
+
+PR638 remains draft; PR651 retains its exact action-review hold. Existing independent build/QA work may consume a sole-integrator-selected immutable candidate without waiting for unrelated fleet reconciliation. The published catalogue still names 0e77d923; current-source delivery and hardware acceptance remain separate.
+
+## Earlier checkpoint text — retained historical evidence
+
 # LoopyX0X37 merge queue
 
 ## Current checkpoint — 2026-10-27 20:57 UTC
@@ -108,3 +120,4 @@ scoped review dispositions, and do not assert the historical PR merged or
 authorize its closure. `READY_FOR_INTEGRATION` still requires actual current
 gates. Test evidence belongs to the recorded source and reviewer; this queue
 writer executed no firmware tests and claims no hardware or release PASS.
+

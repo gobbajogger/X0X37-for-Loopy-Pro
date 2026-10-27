@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-27T21:49:00Z",
+  "updated_at": "2026-10-27T22:17:33.283Z",
   "merge_ownership": {
     "owner": "dot existing sole PR monitor",
     "scope": "qualified source integration only",
@@ -58,13 +58,44 @@
       "native": "NOT_RUN; unchanged nonhost preprocessing parity verified",
       "merge": "HOLD_ACTION_REVIEW; no execution",
       "next": "Resolve exact action scope/evidence without bypass or timer retries"
+    },
+    {
+      "key": "DOC-AUTONOMOUS-VISUAL-STAGES",
+      "pr": 652,
+      "source": "aec3f073f1c887d0fc7dc2bcdffa98a8fccc11f1",
+      "merge": "9a8eb237c918352dc5b671699799d45dd086e38b",
+      "source_delivery": "MERGED_SOURCE_ONLY",
+      "publication": "NO_BINARY_OR_WEBSITE_ROLLOUT_CLAIM"
     }
   ],
   "states": {
-    "firmware_nightly": "d892f31b0e7affa905f57370d6fa115dc4d90060",
+    "firmware_nightly": "9a8eb237c918352dc5b671699799d45dd086e38b",
     "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
     "current_public_installable_delivery": "NOT_DONE",
-    "hardware": "UNRUN"
+    "hardware": "UNRUN",
+    "website_main_observed": "93d638b272bf789951553f9ff5437fd0a68d8cf1"
   },
-  "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery."
+  "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery.",
+  "history": [
+    {
+      "updated_at": "2026-10-27T21:49:00Z",
+      "previous_states": {
+        "firmware_nightly": "d892f31b0e7affa905f57370d6fa115dc4d90060",
+        "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
+        "current_public_installable_delivery": "NOT_DONE",
+        "hardware": "UNRUN"
+      },
+      "previous_coordination_ref": "f893a17cb179483fedf9c504dae273bc759dff64"
+    }
+  ],
+  "reconciliation": {
+    "metadata_observed_at": "2026-10-27T22:17:33.283Z",
+    "base": "f893a17cb179483fedf9c504dae273bc759dff64",
+    "queue_path": "coordination/merge-queue/merge-queue.json",
+    "requests_path": "coordination/requests/requests.json",
+    "source_push_diagnosis": "Native DNS failure is executor-specific; PR651 action-review raw reason is unavailable. API writes not proved by reads.",
+    "public_catalog_source": "0e77d923dfee44a9b64a98c121fac55200b91f20",
+    "selected_build_candidate": "PENDING_SOLE_INTEGRATOR_CONFIRMATION",
+    "no_owner_ack_gate": true
+  }
 }

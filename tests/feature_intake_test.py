@@ -42,7 +42,7 @@ class IntakeTests(unittest.TestCase):
         self.s, self.l, self.c = fixture()
 
     def run_plan(self):
-        return f.evaluate(self.s, self.l, self.c)
+        return f.evaluate(self.s, self.l, self.c, capacity=1)
 
     def test_owner_needs_no_redundant_vote_and_is_deterministic(self):
         first = self.run_plan()
@@ -225,11 +225,11 @@ class IntakeTests(unittest.TestCase):
                 s = copy.deepcopy(self.s)
                 env = s[name] if name == "issues" else s["details"]["9001"][name]
                 env["pages"][0]["next_page"] = 2
-                self.assertEqual(f.evaluate(s, self.l, self.c)["items"], [])
+                self.assertEqual(f.evaluate(s, self.l, self.c, capacity=1)["items"], [])
                 env["pages"].append({"page": 2, "status": 200, "items": [], "next_page": None})
-                self.assertIsNotNone(f.evaluate(s, self.l, self.c)["claim"])
+                self.assertIsNotNone(f.evaluate(s, self.l, self.c, capacity=1)["claim"])
                 env["pages"][1]["status"] = 500
-                self.assertEqual(f.evaluate(s, self.l, self.c)["state"], "BLOCKED")
+                self.assertEqual(f.evaluate(s, self.l, self.c, capacity=1)["state"], "BLOCKED")
 
     def test_failed_stale_and_missing_reads_are_unknown(self):
         for status in ("failed", "incomplete", "stale"):
@@ -256,6 +256,32 @@ class IntakeTests(unittest.TestCase):
     def test_repository_id_mismatch(self):
         self.s["repository"]["id"] = 1
         self.assertIsNone(self.run_plan()["claim"])
+
+    def test_batch_intake_respects_capacity_and_preserves_single_writer(self):
+        for number, iid in ((102, 9002), (103, 9003)):
+            detail = copy.deepcopy(self.s['details']['9001'])
+            detail['issue'].update(number=number, id=iid, url='https://api.github.com' + f.endpoint(number))
+            h = f.scope_hash(detail['issue'], detail['spec'])
+            detail['assessment']['scope_hash'] = h
+            detail['timeline'] = page(f.endpoint(number, '/timeline'), [])
+            detail['reactions'] = page(f.endpoint(number, '/reactions'), [])
+            self.s['issues']['pages'][0]['items'].append(detail['issue'])
+            self.s['details'][str(iid)] = detail
+            self.s['approval_receipts'].append(dict(self.s['approval_receipts'][0], issue_id=iid, scope_hash=h))
+        before = copy.deepcopy((self.s, self.l, self.c))
+        result = f.evaluate(self.s, self.l, self.c, capacity=2)
+        self.assertEqual([c['request_ids'] for c in result['claims']], [['LX-REQ-031'], ['LX-REQ-032']])
+        self.assertEqual(result['claim'], result['claims'][0])
+        self.assertEqual({c['owner'] for c in result['claims']}, {'existing sole request coordinator'})
+        self.assertEqual((self.s, self.l, self.c), before)
+        self.assertEqual(f.evaluate(self.s, self.l, self.c)['claims'], [])
+        self.assertEqual(f.evaluate(self.s, self.l, self.c, capacity=-1)['state'], 'BLOCKED')
+        self.s['details']['9001']['assessment']['resolution'] = 'blocked'
+        result = f.evaluate(self.s, self.l, self.c, capacity=2)
+        self.assertEqual(len(result['claims']), 2)
+        self.assertEqual(result['items'][0]['state'], 'BLOCKED')
+        self.s['read_status'] = 'stale'
+        self.assertEqual(f.evaluate(self.s, self.l, self.c, capacity=2)['claims'], [])
 
 
 if __name__ == "__main__":
