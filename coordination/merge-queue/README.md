@@ -1,6 +1,14 @@
 # LoopyX0X37 merge queue
 
-## Current owner transfer — 2026-10-26
+## Current checkpoint — 2026-10-27
+
+**dot is the current sole queue writer and integration coordinator.** The historical Task-6 transfer below is retained for provenance, not an active ownership claim. Eight current PR records are appended to the authoritative JSON and matching CSV; all 139 historical entries and their histories remain unchanged.
+
+Source PR631/640 merged into nightly at `ba4c2bc7535c266379d2ccc8cbfca85c4733654a`. PR641 merged into PR639, and PR639/642/643 into the PR638 source stack, now `1fd1f944d6c1aa82ece2370bf879832cce22b1dc`. PR638 remains draft: its denied readiness action must not be retried on unchanged evidence; actual owner preview is outstanding. These source facts do not establish hardware validation, deployment or owner availability of the new stack. A further UI candidate remains under local review, not public delivery.
+
+Website PR70 is a red-test report, not a qualified repair. Specific website-composition blob uploads and the PR639 firmware-artifact upload were denied; these are action-specific holds, not a blanket prohibition on independent permitted source delivery. No new public package delivery is recorded. Existing package ownership is preserved. See each new row's public PR/evidence links and exact pins; unchanged older rows are historical, not current qualification.
+
+## Historical owner transfer — 2026-10-26
 
 The owner transferred merge/integration responsibility from usage-exhausted Cursor to the **Task-6 Codex coordinator**. Cursor acknowledgment is not required. The independent bass audit/source owner remains in place. [Transfer receipt](../continuations/2026-10-26-task6/ownership-transfer.json) records the exact trusted direction, scope and gates; [open-PR snapshot](../continuations/2026-10-26-task6/open-pr-snapshot.json) records 27 firmware and one website PR observed during intake. It is review metadata, not qualification or a merge result.
 
