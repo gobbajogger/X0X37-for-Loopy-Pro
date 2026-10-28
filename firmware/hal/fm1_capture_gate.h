@@ -86,6 +86,17 @@ static inline int fm1_capture_begin(uint64_t owner)
     (void)owner;
     return FM1_CAPTURE_UNSUPPORTED;
 }
+static inline int fm1_capture_maintenance_held(void)
+{
+    return fm1_capture_barrier.held != 0;
+}
+static inline int fm1_capture_pre_admit(void)
+{
+    if (!fm1_capture_maintenance_held())
+        return 1;
+    fm1_capture_gate_revoke(&fm1_capture_barrier);
+    return 0;
+}
 static inline int fm1_capture_mutation_allowed(void)
 {
     return fm1_capture_gate_mutation(&fm1_capture_barrier);

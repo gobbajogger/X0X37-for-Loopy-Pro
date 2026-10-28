@@ -2194,6 +2194,24 @@ static void enter_uboot(const char *why)
     fm1_enter_uboot();
 }
 
+/* Main-loop pre-admission only, not a supported capture dispatcher. Watchdog
+ * and USB retry keep running, but no normal UI/storage/editor work is admitted.
+ * An eventual capture reader must be serviced through a separately qualified
+ * path; adding a wire command must not silently bypass this barrier. */
+static int capture_maintenance_poll(void)
+{
+    if (!fm1_capture_maintenance_held())
+        return 0;
+    (void)ed_service(); /* held branch only: drop old-protocol frames, no housekeeping */
+    if (usb.ota_req || usb.uboot_req || ed_reboot_at) {
+        (void)fm1_capture_pre_admit();
+        usb.ota_req = 0;
+        usb.uboot_req = 0;
+        ed_reboot_at = 0;
+    }
+    return 1;
+}
+
 /* SAFE MODE: X0X crashed (or hung) twice while starting. Nothing that makes sound runs: no audio,
  * no engine, no UI; USB is on, so the web installer (X0X, or the stock firmware) and M-UPGRADE can
  * reach it. PLAY tries X0X again. The chip's own update mode stays the last resort (fm1_cstart). */
@@ -2237,6 +2255,8 @@ static void safe_main(void)
     for (;;) {
         fm1_wdt_feed();
         usb_retry(fm1_ms);
+        if (capture_maintenance_poll())
+            continue;
         if (bootguard.pending && fm1_ms - t0 > 10000u)
             bootguard.pending = 0;                  /* safe mode itself is up: not another failed boot */
         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
@@ -2363,6 +2383,8 @@ static void fm1_main(void)
     for (;;) {
         fm1_wdt_feed();
         usb_retry(fm1_ms);
+        if (capture_maintenance_poll())
+            continue;
         if (fm1_ms > 30000u && bootguard.pending) {     /* a crash or hang in the first 30 s counts */
             bootguard.pending = 0;
             bootguard.failed = 0;
