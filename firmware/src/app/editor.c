@@ -6,6 +6,13 @@
  * INFO (1), PING (25) and the sample-slot commands SMP_BEGIN .. SMP_INFO (11..15), so
  * tools/fm1_sample_upload.py loads break loops into the user slots unchanged. The
  * parameter / preset / track commands are Felucca's instrument and are not answered. */
+#ifndef ED_MAINTENANCE_ADMIT
+#define ED_MAINTENANCE_ADMIT() 1
+#endif
+#ifndef ED_MAINTENANCE_HELD
+#define ED_MAINTENANCE_HELD() 0
+#endif
+
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
@@ -755,6 +762,8 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     uint32_t cmd = f[3], i;
     const uint8_t *a = f + 4;
     uint32_t na = n - 4u;
+    if (!ED_MAINTENANCE_ADMIT())
+        return; /* no synthetic success/busy payload in an unrelated command format */
     ed_begin(cmd);
     switch (cmd) {
     case ED_PROJECT:
@@ -989,6 +998,16 @@ static int ed_service(void)
 {
     const uint8_t *p;
     uint32_t n;
+    if (ED_MAINTENANCE_HELD()) {
+        /* No project timeout, boot housekeeping or editor dispatch while held.
+         * Future capture transport must have its own qualified dispatcher; all
+         * currently supported frames are refused, never replayed on release. */
+        if (ota_frame_get(&p, &n)) {
+            (void)ED_MAINTENANCE_ADMIT();
+            ota_frame_done();
+        }
+        return 0;
+    }
     if (ed_project.mode && !ed_project.recovery && fm1_ms - ed_project.at >= 15000u)
         ed_project_end(0);
     boot_housekeep();
