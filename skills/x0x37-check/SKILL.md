@@ -28,4 +28,4 @@ Use development configuration by default; apply [rule 11](../x0x37-integrate/SKI
 
 ### Rule 10: lanes and handoffs
 
-Before a commit, fetch, rebase, push, or lane handoff, read [commit and handoff requirements](references/commits.md).
+Before a commit, fetch, rebase, push, or lane handoff, read [commit and handoff requirements](references/commits.md). Apply the current authorized destination and actual Git identity; complete the declared outcome under the [continuation contract](../x0x37-workflow/references/handoff.md).
