@@ -7344,9 +7344,9 @@
       "title": "Canonical workflow, plugin and skill coherence",
       "owner": "Sole workflow integrator",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "ADAPTIVE_POLICY_AND_ENTRYPOINTS_ADOPTED_LIVE_ROLE_ACCEPTANCE_PENDING",
+      "status": "ADAPTIVE_CORE_ADOPTED_STANDALONE_WEBSITE_SOURCE_ADOPTION_PENDING",
       "priority": "P2",
-      "next_action": "Existing workflow owner retains the adopted central contract/role registry and installed discovery chain. Consume the actual result of LX-REQ-020 live_acceptance_plan, verify the existing role read the changed request stage with its unchanged bootstrap, and record the useful scoped action and downstream consumer result. Do not rewrite prompts for this new stage or close the persistent workflow outcome from source/configuration readback alone.",
+      "next_action": "Existing Website Main Merger executes LX-REQ-020 WEBSITE_ADAPTIVE_ENTRYPOINT_SOURCE_ADOPTION for reviewed PR86 through its normal current-base and protection decision, then supplies exact target/tree/AGENTS readback to the existing state writer. The workflow owner records that actual source outcome and retains pending live acceptance where appropriate. Preserve the already running Throughput and Catalog stages; no root merger, duplicate QA, new prompt or Pages publication is introduced.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
@@ -7459,18 +7459,34 @@
           "merge_commit": "8a00ecd20d455e5871c4561bc142d47b214df1a8",
           "current_base": "nightly",
           "snapshot_note": "Exact adopted source/tree readback; configuration and live-role acceptance remain separate."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 86,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86",
+          "head": "14aad7125f727571825d350acd990cc85d26b646",
+          "observed_at": "2026-10-28T00:25:10Z",
+          "current_state": "open",
+          "draft": false,
+          "merged_at": null,
+          "merge_commit": null,
+          "current_base": "main",
+          "snapshot_note": "Reviewed documentation-only source delivered; source adoption is pending the existing sole Website Main Merger current-base/protection decision."
         }
       ],
       "evidence": {
         "source": {
-          "state": "ADAPTIVE_SOURCE_ENTRYPOINTS_AND_CONFIGURATION_VERIFIED",
-          "summary": "Central adaptive policy/registry adopted by PR658 at d1e8fbf6ac657de6a5e502c60b8c8ef18fd22873; firmware main routing adopted by PR659 at 1a6bc3fe0245277b5ae31ab554c73d74b9ab4d83; nightly routing adopted by PR660 at 42b51d4883dd7bd29388fdec31297772dfed4184. PR661 then adopted the missing nightly AGENTS discovery pointer at 8a00ecd20d455e5871c4561bc142d47b214df1a8 (AGENTS blob 8a5b9eab7aa6717370a40f7fa7dac85b7cb6e5c0). Installed plugin 0.1.63 already reads nightly AGENTS; no plugin version bump is claimed. Sixteen exact bootstrap readbacks are verified; actual new-stage role consumption remains pending.",
-          "observed_at": "2026-10-28T00:13:38.477Z",
+          "state": "ADAPTIVE_CORE_VERIFIED_STANDALONE_WEBSITE_SOURCE_ADOPTION_PENDING",
+          "summary": "Central adaptive policy/registry adopted by PR658 at d1e8fbf6ac657de6a5e502c60b8c8ef18fd22873; firmware main routing adopted by PR659 at 1a6bc3fe0245277b5ae31ab554c73d74b9ab4d83; nightly routing adopted by PR660 at 42b51d4883dd7bd29388fdec31297772dfed4184. PR661 then adopted the missing nightly AGENTS discovery pointer at 8a00ecd20d455e5871c4561bc142d47b214df1a8 (AGENTS blob 8a5b9eab7aa6717370a40f7fa7dac85b7cb6e5c0). Installed plugin 0.1.63 already reads nightly AGENTS; no plugin version bump is claimed. Sixteen exact bootstrap readbacks are verified; actual new-stage role consumption remains pending. A separate standalone website AGENTS discovery gap is now fixed in reviewed, remotely verified PR86 source 14aad7125f727571825d350acd990cc85d26b646, tree b40ba1befea636f27cd54af4267ef31ba2ed1cf2. PR86 is open and non-draft at this observation; current website main adoption remains pending with the existing sole Website Main Merger.",
+          "observed_at": "2026-10-28T00:25:10Z",
           "evidence_refs": [
             "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/658",
             "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/659",
             "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/660",
-            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/661"
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/661",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86#issuecomment-6457279674"
           ],
           "configuration_verification": {
             "observed_at": "2026-10-28T00:11:08.970Z",
@@ -7496,7 +7512,24 @@
               "known_action_denials": "Preserved. PR651 HOLD_ACTION_REVIEW and other exact action denials are not retried or bypassed by this continuation."
             }
           },
-          "provenance": "Exact authenticated source adoption and independent configuration readback. Public source references establish source; configuration observations are reported separately without private result locations or run identifiers."
+          "provenance": "Exact authenticated source adoption and independent configuration readback. Public source references establish source; configuration observations are reported separately without private result locations or run identifiers.",
+          "pending_source_adoption": {
+            "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+            "pr": 86,
+            "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86",
+            "state": "open",
+            "draft": false,
+            "merged": false,
+            "head": "14aad7125f727571825d350acd990cc85d26b646",
+            "base": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+            "head_tree": "b40ba1befea636f27cd54af4267ef31ba2ed1cf2",
+            "path": "AGENTS.md",
+            "blob": "5ee8db2f768749f8cf0c2a3caec3b0b95a7ddc50",
+            "sha256": "d4f647b8aa927bb6789f84703da88d8f5de5a6bf53c95a1ddc7558169f2c5610",
+            "review_url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86#issuecomment-6457279674",
+            "review_observed_at": "2026-10-28T00:23:44Z",
+            "review_verdict": "APPROVE; scoped exact documentation paragraph; current main adoption pending"
+          }
         },
         "test": {
           "state": "PRIOR_SCOPED_TESTS_VERIFIED_NEW_RUNTIME_ACCEPTANCE_PENDING",
@@ -7513,7 +7546,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-28T00:13:38.477Z",
+      "updated_at": "2026-10-28T00:25:10Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Keep the installed workflow coherent and let existing roles adapt to new accepted tasks and stage results through shared request data.",
       "history": [
@@ -8069,9 +8102,72 @@
               }
             ]
           }
+        },
+        {
+          "observed_at": "2026-10-28T00:25:10Z",
+          "change_reason": "Standalone website AGENTS discovery gap has a separately reviewed delivered source PR86, but current-main adoption is still pending; route it to the existing sole Website Main Merger.",
+          "previous_ref": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+          "previous_current_fields": {
+            "status": "ADAPTIVE_POLICY_AND_ENTRYPOINTS_ADOPTED_LIVE_ROLE_ACCEPTANCE_PENDING",
+            "next_action": "Existing workflow owner retains the adopted central contract/role registry and installed discovery chain. Consume the actual result of LX-REQ-020 live_acceptance_plan, verify the existing role read the changed request stage with its unchanged bootstrap, and record the useful scoped action and downstream consumer result. Do not rewrite prompts for this new stage or close the persistent workflow outcome from source/configuration readback alone.",
+            "updated_at": "2026-10-28T00:13:38.477Z",
+            "status_as_of": "2026-10-28T00:13:38.477Z",
+            "evidence": {
+              "source": {
+                "state": "ADAPTIVE_SOURCE_ENTRYPOINTS_AND_CONFIGURATION_VERIFIED",
+                "summary": "Central adaptive policy/registry adopted by PR658 at d1e8fbf6ac657de6a5e502c60b8c8ef18fd22873; firmware main routing adopted by PR659 at 1a6bc3fe0245277b5ae31ab554c73d74b9ab4d83; nightly routing adopted by PR660 at 42b51d4883dd7bd29388fdec31297772dfed4184. PR661 then adopted the missing nightly AGENTS discovery pointer at 8a00ecd20d455e5871c4561bc142d47b214df1a8 (AGENTS blob 8a5b9eab7aa6717370a40f7fa7dac85b7cb6e5c0). Installed plugin 0.1.63 already reads nightly AGENTS; no plugin version bump is claimed. Sixteen exact bootstrap readbacks are verified; actual new-stage role consumption remains pending.",
+                "observed_at": "2026-10-28T00:13:38.477Z",
+                "evidence_refs": [
+                  "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/658",
+                  "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/659",
+                  "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/660",
+                  "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/661"
+                ],
+                "configuration_verification": {
+                  "observed_at": "2026-10-28T00:11:08.970Z",
+                  "canonical_policy_commit": "d1e8fbf6ac657de6a5e502c60b8c8ef18fd22873",
+                  "state": "SIXTEEN_PROMPT_ONLY_UPDATES_APPLIED_AND_INDEPENDENTLY_READ_BACK",
+                  "count": 16,
+                  "identity_cadence_and_other_exposed_non_prompt_settings_preserved": true,
+                  "payload_set_sha256": "3dbb6ec5c5f648485be1d73aaac93cdfd9d16556b2fcd6c5b464ecea2da7860b",
+                  "configuration_readback_is_execution_proof": false,
+                  "separate_control_restoration": {
+                    "observed_at": "2026-10-28T00:12:17.820Z",
+                    "state": "FIVE_EXISTING_IDENTITIES_RESUMED_AND_INDEPENDENTLY_READ_BACK",
+                    "automation_ids": [
+                      "6ada68578b488191ac2ce427fd41cff4",
+                      "6ada5eca5db48191bd29c53016ceb665",
+                      "6ade70eb16fc8191a1d1ab31fdf8be0e",
+                      "6ada629c94c481918f86193a912d080d",
+                      "6adafdf994788191a324d6c993581f31"
+                    ],
+                    "all_other_exposed_settings_preserved": true,
+                    "historical_pause_cause": "UNKNOWN; unavailable historical cause is not reconstructed from the successful control response.",
+                    "new_matching_run_or_product_result": "NOT_ESTABLISHED_BY_CONTROL_READBACK",
+                    "known_action_denials": "Preserved. PR651 HOLD_ACTION_REVIEW and other exact action denials are not retried or bypassed by this continuation."
+                  }
+                },
+                "provenance": "Exact authenticated source adoption and independent configuration readback. Public source references establish source; configuration observations are reported separately without private result locations or run identifiers."
+              },
+              "test": {
+                "state": "PRIOR_SCOPED_TESTS_VERIFIED_NEW_RUNTIME_ACCEPTANCE_PENDING",
+                "summary": "The adopted workflow/queue corrections have 84 scoped passing regression checks and separate native review. The current data-driven acceptance and live consumer transition require their own fresh receipt; old proof is reused only for unchanged executable inputs."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "PRIOR_SCOPED_DELIVERY_VERIFIED_ADAPTIVE_STAGE_PENDING",
+                "summary": "Installed 0.1.63 was verified. The new shared adaptive runtime contract and stable bootstrap remain under current bounded maintenance until their exact adopted/live receipts exist."
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            }
+          }
         }
       ],
-      "status_as_of": "2026-10-28T00:13:38.477Z",
+      "status_as_of": "2026-10-28T00:25:10Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -8176,7 +8272,7 @@
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
       "status": "BOOTSTRAPS_16_VERIFIED_CONTROL_5_RESTORED_LIVE_TRANSITION_PENDING",
       "priority": "P1",
-      "next_action": "Existing pipeline_throughput (6adaf05c832c8191949d2f72b66a39f7) consumes live_acceptance_plan stage CATALOG_R48_CHECKPOINT_RECOVERY from this changed request using its unchanged bootstrap: reconcile the stale CATALOG-R48 repair/failure checkpoint through the retained sole state writer, then carry the actual current-main qualification transition to its existing QA and Website Main Merger. In parallel, existing catalog_sync (6ada67027c5c81918726324edd44cc3a) owns the disjoint CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF stage on the same already accepted LX-REQ-014 candidate. Preserve the single source owner, one current per-candidate QA consumer and serialized shared-state writes. Record actual actions and receiver consumption; an unchanged status report or pointer delivery alone does not complete either stage.",
+      "next_action": "Existing pipeline_throughput (6adaf05c832c8191949d2f72b66a39f7) consumes live_acceptance_plan stage CATALOG_R48_CHECKPOINT_RECOVERY from this changed request using its unchanged bootstrap: reconcile the stale CATALOG-R48 repair/failure checkpoint through the retained sole state writer, then carry the actual current-main qualification transition to its existing QA and Website Main Merger. In parallel, existing catalog_sync (6ada67027c5c81918726324edd44cc3a) owns the disjoint CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF stage on the same already accepted LX-REQ-014 candidate. Preserve the single source owner, one current per-candidate QA consumer and serialized shared-state writes. Record actual actions and receiver consumption; an unchanged status report or pointer delivery alone does not complete either stage. Separately, the existing website_main_merger (6adafdf994788191a324d6c993581f31) consumes WEBSITE_ADAPTIVE_ENTRYPOINT_SOURCE_ADOPTION for reviewed documentation-only PR86, performs its normal current-base/gate source merge and exact readback, and returns the actual result to the existing state writer. Serialize website-main integrations; preserve the two current producer/coordination executions and do not create duplicate runs or QA.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016",
@@ -8248,7 +8344,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-28T00:13:38.477Z",
+      "updated_at": "2026-10-28T00:25:10Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Run accepted independent work automatically in parallel, adapting to new tasks and results through shared state without another user push or per-task automation instruction rewrite.",
       "history": [
@@ -8510,9 +8606,24 @@
             },
             "known_source_references": []
           }
+        },
+        {
+          "observed_at": "2026-10-28T00:25:10Z",
+          "change_reason": "Add one disjoint existing Website Main Merger documentation-source adoption stage; preserve both currently executing Catalog/Throughput stage objects exactly.",
+          "previous_ref": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+          "previous_current_fields": {
+            "next_action": "Existing pipeline_throughput (6adaf05c832c8191949d2f72b66a39f7) consumes live_acceptance_plan stage CATALOG_R48_CHECKPOINT_RECOVERY from this changed request using its unchanged bootstrap: reconcile the stale CATALOG-R48 repair/failure checkpoint through the retained sole state writer, then carry the actual current-main qualification transition to its existing QA and Website Main Merger. In parallel, existing catalog_sync (6ada67027c5c81918726324edd44cc3a) owns the disjoint CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF stage on the same already accepted LX-REQ-014 candidate. Preserve the single source owner, one current per-candidate QA consumer and serialized shared-state writes. Record actual actions and receiver consumption; an unchanged status report or pointer delivery alone does not complete either stage.",
+            "updated_at": "2026-10-28T00:13:38.477Z",
+            "status_as_of": "2026-10-28T00:13:38.477Z"
+          },
+          "unchanged_stage_ids": [
+            "CATALOG_R48_CHECKPOINT_RECOVERY",
+            "CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF"
+          ],
+          "added_stage_id": "WEBSITE_ADAPTIVE_ENTRYPOINT_SOURCE_ADOPTION"
         }
       ],
-      "status_as_of": "2026-10-28T00:13:38.477Z",
+      "status_as_of": "2026-10-28T00:25:10Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -8656,6 +8767,51 @@
             "usable_result_required": {
               "source_handoff": "Complete current PR/main/composition identities, changed-closure map, reusable evidence and exact remaining independent checks; authentic remote handoff readback and current producer readiness or precise blocker.",
               "consumer": "One existing QA owner/Website Main Merger receives the immutable input pointer and begins the scoped action; sender readback alone does not establish consumption."
+            },
+            "receiver_outcome": {
+              "state": "PENDING",
+              "actual_action": null,
+              "evidence": []
+            }
+          },
+          {
+            "stage_id": "WEBSITE_ADAPTIVE_ENTRYPOINT_SOURCE_ADOPTION",
+            "state": "PENDING_EXISTING_ROLE_ACTION",
+            "role_id": "website_main_merger",
+            "automation_id": "6adafdf994788191a324d6c993581f31",
+            "unchanged_bootstrap_sha256": "098cefd706f37d19c75fec07e220668ed79413db362e97f22853fc1a02967b0f",
+            "existing_request_owner_retained": "Scheduler maintenance coordinator",
+            "purpose": "Close the demonstrated standalone website instruction-discovery gap by adopting the already reviewed single-paragraph AGENTS source change through the existing sole Website Main Merger.",
+            "input_scope": "This standalone stage uses its own input_pins. The plan-level CATALOG-R48 pins belong to the two unchanged Catalog stages, whose existing executions and ownership are preserved. PR83 qualification is not a prerequisite for this separately reviewed documentation-only source change.",
+            "input_pins": {
+              "accepted_data_parent": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+              "accepted_data_parent_tree": "0090cd038aece32bb33821f3bed8a4531e1d1932",
+              "request_data": "Read this stage from the actual complete live canonical commit containing it and record that commit/blob; the parent ca3ce71 commit is not claimed to contain the new stage.",
+              "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+              "pr": 86,
+              "pr_url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86",
+              "reviewed_base": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+              "source": "14aad7125f727571825d350acd990cc85d26b646",
+              "source_tree": "b40ba1befea636f27cd54af4267ef31ba2ed1cf2",
+              "changed_path": "AGENTS.md",
+              "changed_blob": "5ee8db2f768749f8cf0c2a3caec3b0b95a7ddc50",
+              "changed_sha256": "d4f647b8aa927bb6789f84703da88d8f5de5a6bf53c95a1ddc7558169f2c5610",
+              "independent_review": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86#issuecomment-6457279674",
+              "independent_review_scope": "Actual native Sol APPROVE on the exact single-paragraph documentation insertion; every prior AGENTS byte outside that paragraph and all other candidate tree entries preserved. Current target adoption remains pending."
+            },
+            "authority": "The current owner authorized this bounded workflow repair and normal source adoption. Only the already designated Website Main Merger performs target-main integration, through actual current permissions, required protections and exact scoped review. Root maintenance supplies the reviewed source/data and does not become another merger.",
+            "work_boundary": "One normal documentation-only PR86 website-main source adoption, serialized with all other target-main integrations. No source-producer takeover, new reviewer, Pages publication, installer/catalog/runtime/firmware change, device action, prompt edit, scheduler control or duplicate run.",
+            "concrete_actions": [
+              "Resolve the current canonical snapshot and this same registered identity; preserve any already running instance. Read actual PR86 head/draft/state, current website main, relevant repository rules, exact independent review receipt and actual required protections/action authority before the integration.",
+              "Verify the complete applicable source/target composition: the reviewed source adds only the central-policy discovery paragraph to AGENTS.md, with exact supplied blob/SHA-256 and no app/test/build/catalog/history/package change. Reuse its matching independent documentation proof. Apply only real current gates; source-only documentation does not depend on unrelated firmware, hardware, publication or a fresh full browser run.",
+              "Serialize with any Catalog or other target-main adoption. If main or source changed, compare the real affected closure and verify the proposed current composition before proceeding; preserve unrelated newly adopted bytes. Do not blindly use the old base/tree, invalidate unchanged proof by date alone, or include another candidate under this documentation review. A changed reviewed paragraph or concrete new qualification gap returns to its existing source/review owner.",
+              "When the exact current candidate satisfies normal source-integration gates, perform the supported ordinary PR86 merge as the existing sole Website Main Merger and read back the actual PR state, target commit/tree and adopted AGENTS bytes. Respect any actual denial without an alternate route or timer retry; preserve the precise unresolved gate if the operation is unavailable.",
+              "Deliver the actual adopted-source evidence through the existing request/delivery writer so LX-REQ-019 can replace its pending standalone-discovery state with the real outcome. Retain the two current Catalog stages and their receiver evidence; their next target-main comparison uses the actual new source closure. Continue the next ready accepted role action without waiting for a report acknowledgment."
+            ],
+            "usable_result_required": {
+              "source_adoption": "Actual ordinary PR86 merge and independent remote target/tree/AGENTS readback, including exact current composition and review/protection basis, or the precise demonstrated dependent gate with no false merge claim.",
+              "consumer": "Existing state writer receives the immutable adopted-source pointer and records the real source outcome for LX-REQ-019. Source adoption closes this bounded discovery repair only; it does not assert Pages rollout or completion of the Catalog product request.",
+              "runtime": "Actual action/result of this registered merger on the new request-data stage using the unchanged bootstrap; starting a run, reading a PR or publishing a pointer alone is not source adoption."
             },
             "receiver_outcome": {
               "state": "PENDING",
