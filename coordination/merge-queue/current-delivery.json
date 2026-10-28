@@ -111,12 +111,72 @@
     {
       "key": "CATALOG-R48",
       "site_pr": 83,
-      "source": "452dbf0e5a96e26d7caace37c0aa44747e1e78c6",
+      "source": "5e575a614f27bb9dd40173fa355895f97d6193dd",
       "review": "The existing review covers 13 of 13 data invariants and 18 negative cases only; it does not approve full website QA.",
-      "native_qa": "Native npm test FAILED with exit 1 at tests/build-status-negatives.test.mjs:884: actual history count 148, expected 145. The build, generated parity and unchanged source/index checks passed. Browser remains UNRUN. Passing build does not qualify merge.",
+      "native_qa": "Existing independent QA actually consumed repaired head 5e575a614f27bb9dd40173fa355895f97d6193dd, tree bace9b33574bdccac0be9b7348665a6baa1be559 (Linux, Node 24.22.1): node tests/build-status-negatives.test.mjs exit 0 reached R47/R48 positives and negatives; node --test tests/edge-*.test.mjs exit 0, 281/281; node web/test_breaks_page.mjs exit 0, 12/12. Sixteen other npm-chain components plus build/generated-parity reuse unchanged-input passing receipts; they were not rerun. Monolithic npm test on the repaired head was NOT RERUN. The old 452dbf head npm-test exit 1 remains valid historical evidence, not a current failing-fixture conclusion. Catalog has now delivered its verified virtual current-main source composition in the separate source-input receipt. Actual consumer checkout reconstruction/verification, applicable uncovered native/build/browser checks and full independent acceptance remain pending; this correction performs no new QA and grants no merge/publication/device qualification.",
       "evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#pullrequestreview-5675147136",
-      "next": "Existing Catalog source owner must repair the exact failing assertion while preserving history-lock negatives. Eight downstream scripts passed; the edge suite is incomplete and final breaks script unrun. The existing process could not be resumed after a scope-evidence reevaluation returned an unknown process ID; no tests were restarted.",
-      "state": "HOLD_NATIVE_NPM_TEST_FAILURE"
+      "next": "Existing per-candidate independent NIGHTLY Website QA consumes the delivered Catalog manifest 6457319958: reconstruct the actual PR83 5e575a plus directly verified website-main 132cbd composition, verify its real checkout tree against virtual root d29868dacccfd13ecfb973969b4d663fa1acbcdb, and perform applicable uncovered native/build/browser checks with real commands/exits and matching input identity. Reuse valid unchanged integrity/native evidence. Refresh actual main/head first; a later PR86 documentation merge requires affected-closure comparison and the corresponding current composed root, not blind use of d29868. Catalog has already supplied the source/input handoff; return only a real new source discrepancy to the same producer. Preserve one actual per-candidate QA owner, draft/readiness and separate Pages/package/device gates. Sole Website Main Merger consumes the resulting independent acceptance through its normal current gates. The bounded canonical state writer records this correction/readback as consumption of both actual runtime handoffs 6457288397 and 6457319958; no producer-manifest repeat, duplicate QA or inferred approval.",
+      "state": "SCOPED_REPAIR_NATIVE_CONSUMED_CURRENT_MAIN_QUALIFICATION_PENDING",
+      "tree": "bace9b33574bdccac0be9b7348665a6baa1be559",
+      "observed_at": "2026-10-28T00:32:56Z",
+      "native_qa_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6455852524",
+      "coordinator_recovery_evidence": {
+        "request_id": "LX-REQ-020",
+        "stage_id": "CATALOG_R48_CHECKPOINT_RECOVERY",
+        "role_id": "pipeline_throughput",
+        "automation_id": "6adaf05c832c8191949d2f72b66a39f7",
+        "consumed_canonical_commit": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+        "handoff_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6457288397",
+        "scope": "Consume the existing Throughput exact stale-row correction through the bounded canonical state writer. No source, QA, integration or ownership transfer is implied. Actual remote adoption is evidenced by the enclosing canonical commit and readback."
+      },
+      "source_input_handoff": {
+        "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
+        "created_at": "2026-10-28T00:26:31Z",
+        "updated_at": "2026-10-28T00:26:46Z",
+        "role_id": "catalog_sync",
+        "automation_id": "6ada67027c5c81918726324edd44cc3a",
+        "stage_id": "CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF",
+        "consumed_canonical_commit": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+        "product_request": "LX-REQ-014",
+        "source": "5e575a614f27bb9dd40173fa355895f97d6193dd",
+        "source_tree": "bace9b33574bdccac0be9b7348665a6baa1be559",
+        "website_main": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+        "website_main_tree": "7541572aba063ee90b35219c0d4e2551452b5c32",
+        "virtual_root": "d29868dacccfd13ecfb973969b4d663fa1acbcdb",
+        "virtual_docs_tree": "ea4ca80cfaa2b88984ba2bdaf1b0dc591428cf03",
+        "producer_verification": "Catalog reports independently recomputed matching Git SHA-1 for four remotely fetched input trees (old merge root/docs and current main root/docs), then normal Git tree serialization for the derived virtual root/docs hashes.",
+        "producer_source_checks": "Six PR83 catalog/history/test paths and seven current-main documentation paths are disjoint. Root/docs catalog blob 47622519bba0c305f7997ec8093b8f08e0ba1285, 148-row lock c245479301c0176e433cb1ff87235f46c18d009a and empty preview-catalog blob 01f9ec382878335ea9bb92d0bdf294483111de76 remain. All 145 earlier parsed rows are unchanged and three added rows are noninstallable; web/scripts/package/preview closure is unchanged versus the older merged candidate.",
+        "actual_remote_commit": null,
+        "actual_native_checkout": false,
+        "new_native_or_browser_pass": false,
+        "consumer_outcome": "PENDING_EXISTING_QA_RECONSTRUCTION_AND_ACTUAL_CHECKS; source producer handoff is delivered, not independent final acceptance."
+      },
+      "current_main_qualification": {
+        "observed_at": "2026-10-28T00:32:56Z",
+        "verified_direct_ref": "refs/heads/main",
+        "verified_target_commit": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+        "direct_ref_evidence": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/git/ref/heads/main",
+        "pr_base_metadata": {
+          "observed_at": "2026-10-28T00:28:38Z",
+          "base_ref": "main",
+          "base_sha": "008163ee39b3c962b2bcac3fc5c5b7fdd8898bca",
+          "interpretation": "The PR base SHA snapshot disagrees with the directly read main ref. It is not evidence that main advanced or reverted and is not the current target pin."
+        },
+        "older_combined_commit": "ac60e0307170ccc8e28431dc6396daab38a47e14",
+        "older_combined_tree": "554798e09c46631808c82b497369177adb4e3b96",
+        "older_combined_parents": [
+          "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+          "5e575a614f27bb9dd40173fa355895f97d6193dd"
+        ],
+        "current_combined_root": "VERIFIED_VIRTUAL_SOURCE_MANIFEST_DELIVERED; actual consumer composed checkout/tree verification remains pending.",
+        "virtual_combined_root": "d29868dacccfd13ecfb973969b4d663fa1acbcdb",
+        "virtual_docs_tree": "ea4ca80cfaa2b88984ba2bdaf1b0dc591428cf03",
+        "virtual_source_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
+        "actual_composed_checkout_verified": false,
+        "independent_acceptance": "PENDING on the actual current composition and applicable uncovered native/build/browser scope. Reuse valid unchanged input evidence; do not invent a new full-command PASS.",
+        "pr_state": "OPEN_DRAFT; no ready/merge/publication claim",
+        "refresh_rule": "The existing QA consumer and sole Website Main Merger re-read live main and PR head before acting. If either changes, including a later PR86 documentation adoption, compare the actual affected closure and recompute/verify the appropriate composed tree while preserving valid unchanged evidence. Route only a demonstrated source discrepancy to the existing Catalog producer; do not repeat its already delivered manifest or blindly qualify an older tree."
+      }
     },
     {
       "key": "PROJECT-PARSER-SLICE",
@@ -295,6 +355,27 @@
       },
       "previous_updated_at": "2026-10-27T23:18:20.974264Z",
       "reason": "Resolve the remaining current package-level PR653 receipt HOLD using actual final Sol approval and verified nightly adoption. All other package objects and ongoing owners are unchanged."
+    },
+    {
+      "observed_at": "2026-10-28T00:32:56Z",
+      "kind": "catalog_r48_runtime_handoffs_consumption",
+      "previous_coordination_ref": "2dd8457cf65176981517386491f537aa1d3e6108",
+      "previous_delivery_blob": "42fd947887d0fae6793d61b8c99bd23e7f01cec8",
+      "package_key": "CATALOG-R48",
+      "previous_package": {
+        "key": "CATALOG-R48",
+        "site_pr": 83,
+        "source": "452dbf0e5a96e26d7caace37c0aa44747e1e78c6",
+        "review": "The existing review covers 13 of 13 data invariants and 18 negative cases only; it does not approve full website QA.",
+        "native_qa": "Native npm test FAILED with exit 1 at tests/build-status-negatives.test.mjs:884: actual history count 148, expected 145. The build, generated parity and unchanged source/index checks passed. Browser remains UNRUN. Passing build does not qualify merge.",
+        "evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#pullrequestreview-5675147136",
+        "next": "Existing Catalog source owner must repair the exact failing assertion while preserving history-lock negatives. Eight downstream scripts passed; the edge suite is incomplete and final breaks script unrun. The existing process could not be resumed after a scope-evidence reevaluation returned an unknown process ID; no tests were restarted.",
+        "state": "HOLD_NATIVE_NPM_TEST_FAILURE"
+      },
+      "handoff_evidence": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6457288397",
+      "catalog_source_input_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
+      "native_qa_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6455852524",
+      "reason": "Consume both actual existing-role results: Throughput supplied the exact stale-row correction, and Catalog delivered its verified virtual current-main source/input manifest. The old fixture-repair and producer-manifest steps are superseded by their real receipts. Existing QA now owns actual composition reconstruction/verification and applicable uncovered checks. Preserve original review scope, old failure history and pending real native/browser/full independent acceptance. Only this package changes; all other packages, ownership and actual denials remain."
     }
   ],
   "metadata_reconciliation": {
