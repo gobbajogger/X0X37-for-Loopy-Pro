@@ -8,6 +8,13 @@ repository's rules too. Adopting workflow instructions does not promote firmware
 Current owner instructions, actual permissions and action-specific denials govern.
 [Historical records](workflow-history.md) provide evidence, not active routing.
 
+For recurring work, resolve the live `coordination/merge-queue` ref and read the
+[automation runtime contract](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/coordination/merge-queue/coordination/automation/runtime-contract.md),
+`coordination/automation/roles.json`, current requests and current delivery records
+at that same revision. Keep the role bootstrap stable: new authorized work updates
+the existing request and acceptance data. Task-specific proof, permissions and
+existing owners still govern.
+
 ## Start from the existing outcome
 
 Read the current request, accountable owner, shared queue/checkpoint and authentic
