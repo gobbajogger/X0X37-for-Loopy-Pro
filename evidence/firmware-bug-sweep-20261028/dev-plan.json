@@ -1,0 +1,14 @@
+{
+  "base": "7e4bbfd95da1d9ad86c80541b9bceae48231d006",
+  "scope": "Shared Elite development qualification for saturated USB/BLE MIDI order and rollover plus Chicago live tempo, effect controls and released tails. Pro/model/package behavior is unchanged; controller and model/hash/budget checks remain part of development validation. No device or publication action.",
+  "checks": [
+    {
+      "reason": "Independently replay production queue ordering, rollover, protected-event and interrupt-boundary regressions on the immutable combined source.",
+      "argv": ["python3", "tests/host/midi_overflow_order_test.py"]
+    },
+    {
+      "reason": "Independently replay the actual command queue, internal/external tempo, ten Chicago algorithms and released tails with preset/tagged sound in both engine configurations.",
+      "argv": ["sh", "tests/host/run_chicago_fx_runtime.sh"]
+    }
+  ]
+}
