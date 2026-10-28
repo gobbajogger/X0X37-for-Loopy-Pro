@@ -86,6 +86,7 @@ test_class() {
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
+    chicago-fx-runtime) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -413,6 +414,7 @@ run chicago-ens sh tests/host/run_chicago_ens.sh   # Chicago Ens insert multi-vo
 run chicago-phaser sh tests/host/run_chicago_phaser.sh   # Chicago Phaser insert moving-notch allpass on native303
 run chicago-sdly sh tests/host/run_chicago_sdly.sh   # Chicago Short Delay insert regenerative slap on native303
 run chicago-bpmdly sh tests/host/run_chicago_bpmdly.sh   # Chicago BPM Delay insert tempo-synced slap on native303
+run chicago-fx-runtime sh tests/host/run_chicago_fx_runtime.sh   # live tempo, control edits and released insert tails
 run chicago-hall sh tests/host/run_chicago_hall.sh   # Chicago Hall insert compact Schroeder on native303
 run chicago-gaterev sh tests/host/run_chicago_gaterev.sh   # Chicago GateRev insert gated reverb on native303
 run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
