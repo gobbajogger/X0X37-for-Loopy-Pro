@@ -360,6 +360,10 @@ export function parseInfo(r) {
     // Device names have at most eight bytes and must end before used-KiB.
     if (j < 0 || j > i + 9 || j + 1 >= r.length || r[j + 1] > 127)
       throw new Error("truncated SMP_INFO slot record");
+    // Empty slots must have empty names and zero used bytes. Otherwise a
+    // damaged SMP_INFO descriptor could skip the required pre-OTA sample backup.
+    if (nz === 0 && (j !== i + 1 || r[j + 1] !== 0))
+      throw new Error(`slot ${k + 1}: empty SMP_INFO slot has occupied metadata`);
     slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1],
       size, off: null, used: r[j + 1] });
     i = j + 2;
