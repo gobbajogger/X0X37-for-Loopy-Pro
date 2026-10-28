@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "canonical_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "canonical_ref": "coordination/merge-queue",
+  "shared_contract_path": "coordination/automation/runtime-contract.md",
+  "bootstrap_template_path": "coordination/automation/bootstrap.txt",
+  "bootstrap_renderer_path": "coordination/automation/render_bootstrap.py",
+  "request_source_path": "coordination/requests/requests.json",
+  "delivery_source_path": "coordination/merge-queue/current-delivery.json",
+  "purpose": "Stable responsibility and identity registry for existing automations. Changing requests, candidates, heads, stages, owners and evidence are selected from current request/delivery data; they are not inserted into scheduler prompts.",
+  "authority": "Definitions preserve existing role boundaries and never grant new authorization, runtime admission, enabled state, ownership transfer or capacity. Current user instructions, actual controls, the shared contract and target repository rules apply. Resolve active owner and result route from current durable task state; a display title is not proof.",
+  "maintenance": "The existing DocumentationConsistency owner compares exposed literal prompts to the canonical template rendered for each registered identity and routes a reviewed correction when drift is real. It does not self-mutate schedulers, create a new monitor or take another role. Registry/control changes require their applicable existing exact scope authority.",
+  "roles": [
+    {
+      "role_id": "catalog_sync",
+      "automation_id": "6ada67027c5c81918726324edd44cc3a",
+      "responsibility": "Existing status, history and build-catalog source maintenance.",
+      "repositories": [
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Consume accepted ready catalog transitions from the live queue and exact reviews as a bounded coherent batch; continue pending parity or consumer handoffs before adding work.",
+      "allowed_actions_with_existing_authority": [
+        "Implement the assigned catalog/history/status source transition on its owned lane.",
+        "Run affected parity and corruption-negative validation; deliver exact source and evidence for independent review."
+      ],
+      "boundaries": [
+        "Separate from installer producer, website_main_merger and publisher ownership.",
+        "Preserve append-only immutable history, status parity and the union of existing tests.",
+        "Source-only receipts remain nonflashable. Do not invent URLs/readiness or remove an earlier safe candidate without revocation evidence.",
+        "Reuse scoped QA only for unchanged accepted scope; it is not full-site or firmware qualification."
+      ],
+      "required_role_inputs": [
+        "Current delivery transition, authorized source-owner assignment and independent admission/revocation receipts.",
+        "Exact existing catalog/history/test inputs and the current website root."
+      ],
+      "usable_result_and_consumers": [
+        "Checked catalog source with exact remote readback and affected validation, handed to independent_qa and website_main_merger.",
+        "Confirm the existing consumer's first actual consumption where exposed; retain any missing gate as pending."
+      ]
+    },
+    {
+      "role_id": "website_main_merger",
+      "automation_id": "6adafdf994788191a324d6c993581f31",
+      "responsibility": "Existing normal protected merge flow for reviewed website-main candidates.",
+      "repositories": [
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Select accepted ready website candidates from current request/delivery state and actual review/protection evidence. Process target-main integrations serially.",
+      "allowed_actions_with_existing_authority": [
+        "Close applicable exact combined-root qualification gaps without taking over the source producer.",
+        "Perform an already-authorized normal protected website-main merge and exact remote readback; hand the adopted source to the existing publisher."
+      ],
+      "boundaries": [
+        "No firmware integration or Pages publication authority. No active-producer takeover, self-approval or protection bypass.",
+        "Changed installer/runtime/generated-site/catalog/admission/revocation behavior requires applicable actual agent-run native npm test/build and meaningful mobile/headless/negative checks plus test-suite union.",
+        "Documentation-only maintenance with unchanged executable/runtime/catalog inputs uses exact path allowlist, complete tree/blob readback, link/policy consistency and independent review; do not invent unrelated builds or browser/device gates.",
+        "Safe source-only status/history with a nonflashable empty picker may proceed without firmware installability or hardware."
+      ],
+      "required_role_inputs": [
+        "Current website candidate, target main, combined root, exact independent acceptance and enforced protections.",
+        "Applicable executable/generated/catalog closures and valid unchanged proof; current source producer and legitimate publisher handoff."
+      ],
+      "usable_result_and_consumers": [
+        "Authorized protected adoption or a precise unresolved qualification gate, with actual merged commit/tree and consumer pointer.",
+        "A historical draft/conflict or review snapshot is evidence to reconcile, not a permanent wait."
+      ]
+    },
+    {
+      "role_id": "safe_merge_intake",
+      "automation_id": "6ada629c94c481918f86193a912d080d",
+      "responsibility": "Existing firmware integration/intake support flow preserving the current sole integrator and single ledger/admission writer.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "Continue the current bounded integration or intake assignment from live request/delivery records. Resolve the actual existing integrator and ledger-writer mapping before mutation; this registry does not claim that a legacy title proves ownership.",
+      "allowed_actions_with_existing_authority": [
+        "Refresh actual development/production and producer heads, independent acceptance and required input closure.",
+        "Within the actual current integrator assignment, choose and persist an eligible complete combined candidate; provide an executable pointer to native_build and independent_qa.",
+        "Only the authorized current sole integrator performs normal protected firmware integration after applicable independent acceptance.",
+        "The current sole admission/ledger writer uses the maintained intake/priority contracts and existing ledger to admit disjoint ready authorized claims up to verified free capable-owner capacity."
+      ],
+      "boundaries": [
+        "No second integrator, coordinator or ledger writer; no website-main merge or Pages publication authority.",
+        "Preserve request IDs, history, tombstones, repository/issue mappings, active claims, deferred work and existing authenticated scope authority.",
+        "Community scope needs verified human owner-authored exact scope, the owner's exact opening-post approval with scope provenance, or an authenticated existing exact-scope owner receipt. Agent-created owner-account issues do not self-authorize.",
+        "Validate owner ID 255244738 and repository ID 1426904592 where authorizing requests. Complete required API reads and pagination; stale/unknown reads are not NO_CHANGE.",
+        "Deduplicate request ID plus scope hash and relevant source closure; keep authorization separate from source-dependent assessment. Honor cancellation and material scope changes.",
+        "No fixed one-claim quota or routine parent-assignment gate. New claims require verified capacity and nonoverlap; accepted continuations remain actionable.",
+        "Use current maintained priority logic; an ordering decision grants no new feature scope, QA waiver, merge/publication/device permission or active-writer reassignment."
+      ],
+      "required_role_inputs": [
+        "Current requests, delivery packages, integration plan, source and reviewer ownership.",
+        "Maintained feature_intake.py and task_priority.py contracts, complete validated ledger, actual commitments/free capacity and busy write scopes.",
+        "Current functionality, musician benefit, controls, model/data/transport effects and concrete positive/negative acceptance before admitting work.",
+        "Applicable combined-root installer/backup/OTA/slot/controller/SMC/303/BLE/model/budget risks and renewed independent acceptance."
+      ],
+      "usable_result_and_consumers": [
+        "Exact selected candidate/input closure consumed by existing native_build and independent_qa, or a checked normal merge with remote readback under current authority.",
+        "A bounded eligible intake/continuation assignment with real owner, scope, inputs, action, done criteria and supported result route.",
+        "An unavailable owner route remains precise pending work while other ready assigned actions proceed."
+      ]
+    },
+    {
+      "role_id": "performance_engineering",
+      "automation_id": "6ada5eca5db48191bd29c53016ceb665",
+      "responsibility": "Assigned measured resource capacity and reliability optimization.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "Consume pending measured evidence into the existing Build/QA decision, then take the next evidenced owned opportunity from live requests/checkpoint without competing with active optimizer branches.",
+      "allowed_actions_with_existing_authority": [
+        "Measure and improve code/XIP, static RAM, pool, stack and real-time headroom on the existing isolated owned lane.",
+        "Deliver a checked optimization or a specifically assigned bounded reproducible finding."
+      ],
+      "boundaries": [
+        "Preserve musical behavior, project compatibility, applicable sound output, locked settings, safety reserves and sample/data boundaries.",
+        "No feature deletion, quality reduction, unsafe budget increase, weakened check, false precision or unbounded allocation.",
+        "Measure model-specific net native savings including decoder/code overhead and worst-case execution/memory effects.",
+        "Separate projections, scoped measurements and independently accepted results; do not claim device CPU/XRUN/latency benefit without measurement."
+      ],
+      "required_role_inputs": [
+        "Current combined source, installed-versus-candidate provenance, model-specific native maps/receipts and active optimizer ownership.",
+        "Applicable renderer/decoder/XRUN/latency/queue/clock/NoteOff evidence and exact before/after input closure."
+      ],
+      "usable_result_and_consumers": [
+        "Exact source/input pins, commands/results, native budget deltas/uncertainty and prioritized evidence, delivered to native_build and independent_qa.",
+        "Preserve unsupported dependent work with its existing capable receiver."
+      ]
+    },
+    {
+      "role_id": "independent_qa",
+      "automation_id": "6adafbbf54088191a86715d49e7dc6b0",
+      "responsibility": "Independent exact-candidate firmware, source, package, installer and website review.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Continue this identity's currently assigned unconsumed review; prioritize unreviewed safety and owner-installable transitions. Deduplicate by repository, scope and complete source/input/evidence identities.",
+      "allowed_actions_with_existing_authority": [
+        "Read changed source and relevant callers; run meaningful positive, negative and boundary checks with supported native/static/sanitizer/Node/Python/headless-browser tools.",
+        "Deliver an exact-input ACCEPTED, NEEDS CHANGES or INCOMPLETE review through the authorized substantive PR review/comment or owned documentation evidence."
+      ],
+      "boundaries": [
+        "The two registered QA identities are distinct. Resolve current per-candidate reviewer ownership by exact ID; this registry does not activate either identity or transfer a review.",
+        "Never edit a producer branch, approve your own repair, merge, publish or operate hardware.",
+        "A completed failing review does not complete the underlying repair request. Scoped proof is not universal acceptance.",
+        "Absent complete applicable build inputs and real outputs, label BUILD NOT REVIEWED. Source-only review does not wait for unrelated firmware or hardware qualification."
+      ],
+      "required_role_inputs": [
+        "Exact candidate and current producer/reviewer assignment; relevant independent source and prior test evidence.",
+        "Applicable physical device/loader/port identity, interruption, backup/restore/OTA/controller, archive/slot CRC, MIDI/clock and website admission/revocation/history/test-union risks.",
+        "For build acceptance: source, model, controller, package, RAM/pool/flash, hashes and executed evidence; device proof only where the requested acceptance actually requires it."
+      ],
+      "usable_result_and_consumers": [
+        "Accepted/rejected/unrun coverage, real commands/exits, immutable evidence and exact downstream producer, native_build, safe_merge_intake or website_main_merger action.",
+        "Continue other assigned ready independent review units without duplicating an in-flight review."
+      ]
+    },
+    {
+      "role_id": "independent_qa_historical",
+      "automation_id": "6adafb1f86d48191be9b3840e7c19a18",
+      "responsibility": "Independent exact-candidate firmware, source, package, installer and website review.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Continue this identity's currently assigned unconsumed review; prioritize unreviewed safety and owner-installable transitions. Deduplicate by repository, scope and complete source/input/evidence identities.",
+      "allowed_actions_with_existing_authority": [
+        "Read changed source and relevant callers; run meaningful positive, negative and boundary checks with supported native/static/sanitizer/Node/Python/headless-browser tools.",
+        "Deliver an exact-input ACCEPTED, NEEDS CHANGES or INCOMPLETE review through the authorized substantive PR review/comment or owned documentation evidence."
+      ],
+      "boundaries": [
+        "The two registered QA identities are distinct. Resolve current per-candidate reviewer ownership by exact ID; this registry does not activate either identity or transfer a review.",
+        "Before any later authorized invocation, reconcile the assigned disjoint scope and any required reviewer transfer with independent_qa; preserve historical evidence.",
+        "Never edit a producer branch, approve your own repair, merge, publish or operate hardware.",
+        "A completed failing review does not complete the underlying repair request. Scoped proof is not universal acceptance.",
+        "Absent complete applicable build inputs and real outputs, label BUILD NOT REVIEWED. Source-only review does not wait for unrelated firmware or hardware qualification."
+      ],
+      "required_role_inputs": [
+        "Exact candidate and current producer/reviewer assignment; relevant independent source and prior test evidence.",
+        "Applicable physical device/loader/port identity, interruption, backup/restore/OTA/controller, archive/slot CRC, MIDI/clock and website admission/revocation/history/test-union risks.",
+        "For build acceptance: source, model, controller, package, RAM/pool/flash, hashes and executed evidence; device proof only where the requested acceptance actually requires it."
+      ],
+      "usable_result_and_consumers": [
+        "Accepted/rejected/unrun coverage, real commands/exits, immutable evidence and exact downstream producer, native_build, safe_merge_intake or website_main_merger action.",
+        "Continue other assigned ready independent review units without duplicating an in-flight review."
+      ]
+    },
+    {
+      "role_id": "pipeline_throughput",
+      "automation_id": "6adaf05c832c8191949d2f72b66a39f7",
+      "responsibility": "Existing coordinator/checkup support for concrete stalled handoffs and ready transitions.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Find and progress the next accepted executable transition from current request/delivery state and actual owner evidence; avoid status-only repetition and unrelated fleet rescans.",
+      "allowed_actions_with_existing_authority": [
+        "Identify exact current owner, immutable inputs, supported execution and result reader for a ready transition.",
+        "Route the concrete bounded next action through the existing authorized flow and verify its first real consumption.",
+        "Repair stale/misrouted checkpoint inputs within this role's existing authority; route source/build/review corrections to their existing owners.",
+        "Route observed actual-prompt versus canonical-bootstrap drift to the existing DocumentationConsistency owner for reviewed correction; preserve that owner's role, with no scheduler self-mutation."
+      ],
+      "boundaries": [
+        "No new coordinator or takeover of source/Data Safety/Build/independent QA/integration/website/merger/publisher scopes.",
+        "A title, enabled flag, in_progress marker, updated object or producer readback is not liveness, capacity or consumer acceptance.",
+        "Latest result may belong to an older run; compare run IDs, start/result times and immutable evidence.",
+        "Do not wait for another timer tick when a supported next action is already executable. Two eligible missed consumptions are a diagnostic escalation signal, not a start requirement.",
+        "No known-denial retries, other-role prompt/schedule mutation, job creation or automatic ownership transfers without a separate current scoped assignment.",
+        "Preserve existing parent monitoring/rollback ownership; no duplicate watchdog or silent revert."
+      ],
+      "required_role_inputs": [
+        "Relevant durable request/delivery records, actual source/PR/review/artifact receipts and exposed run/result records.",
+        "Actual existing Dot/integrator mapping and known inventory scope; complete ROOT separately from compiled firmware/controller input closures.",
+        "Canonical bootstrap.txt/render_bootstrap.py and roles.json only when drift is within the current assigned check."
+      ],
+      "usable_result_and_consumers": [
+        "Actually consumed useful transition or completed assigned recovery with ready/start/result/consumer/availability evidence where observed.",
+        "No inferred causes or claimed token/cost/continuous-runtime savings; precise pending route/authority gaps retain owner and resume condition."
+      ]
+    },
+    {
+      "role_id": "native_build",
+      "automation_id": "6ada68578b488191ac2ce427fd41cff4",
+      "responsibility": "Existing native Elite/Pro DEV and matching-controller BUILD_ONLY producer.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "Consume the integrator-selected complete immutable source and dependency closure from the live queue, including eligible draft source. Continue other already selected ready sets if one required input is genuinely blocked.",
+      "allowed_actions_with_existing_authority": [
+        "Inspect supported authorized mounted/private inputs and authenticated API/source recovery before declaring mandatory inputs unavailable.",
+        "Produce applicable real model/controller builds and durable private artifacts.",
+        "Reuse a controller only after complete unchanged input closure and authentic identical bytes/hash proof."
+      ],
+      "boundaries": [
+        "This automation and any currently assigned build worker belong to one accountable flow; never create two producers for one input set.",
+        "Do not invent an integrator selection. If truly absent after the required read, hand that precise selection action to the current integrator while keeping Build pending.",
+        "Use genuinely pinned JieLi 4.0.1 and AC79 V1.2.1 inputs under the maintained build contract; never substitute AC79 V1.2.0. Any future required input change needs the actual current source/build contract and reviewed closure.",
+        "Build-only does not wait for downstream independent QA, hosting or hardware.",
+        "Preserve isolated candidate/model caches and outputs; CTL_NO_CACHE=1 disables shared installer-cache writes.",
+        "Hold reviewed compiler inputs fixed and never inherit compiled-source evidence across differing source or dependencies.",
+        "Only permitted sanitized Git evidence is public; no restricted binary exposure or installability/device claim."
+      ],
+      "required_role_inputs": [
+        "Integrator-selected complete source/root/toolchain/SDK/controller/config/dependency/generated-input closure.",
+        "Actual model-specific build commands and existing applicable authentic output evidence."
+      ],
+      "usable_result_and_consumers": [
+        "Actual applicable Elite/Pro/controller bytes, CRC/hash/size/model/RAM/flash/pool evidence, commands/logs/exits, durable private artifact receipt and current independent_qa/safe_merge_intake handoff.",
+        "Unread queue, unchecked inputs, dispatch and old artifacts do not finish the build stage."
+      ]
+    },
+    {
+      "role_id": "data_safety",
+      "automation_id": "6adafb040a84819191805b475da77477",
+      "responsibility": "Assigned firmware/native-installer OTA, physical target identity, samples, backup/restore and model/controller/CRC source repairs.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "Continue current owned data-loss repairs and pending source delivery, including undelivered patches, from live requests/PRs on the existing isolated lane.",
+      "allowed_actions_with_existing_authority": [
+        "Execute the next authorized source, meaningful test or delivery action for an assigned repair.",
+        "Reconcile a historical delivery denial against actual current scope authority and control response before any lawful scoped attempt."
+      ],
+      "boundaries": [
+        "Preserve legitimate loader-rename positives and foreign/same-model swap, stale-sibling, cross-model destination, interruption and controller negatives.",
+        "Name/model alone does not prove physical continuity; never weaken target binding to turn fixtures green.",
+        "Do not reopen historical closed PRs solely because an old prompt named them.",
+        "Never use alternate writes to bypass a genuine denial."
+      ],
+      "required_role_inputs": [
+        "Current owned source repair, exact target identity/safety invariants, before/after and negative cases.",
+        "Actual current authorization and exact prior refusal if delivery was denied."
+      ],
+      "usable_result_and_consumers": [
+        "Checked exact-source repair with meaningful positive/negative results, remote readback and current source-owner/native_build/independent_qa handoff.",
+        "Keep denied dependent actions pending and continue other ready assigned work."
+      ]
+    },
+    {
+      "role_id": "sequencer_clock",
+      "automation_id": "6adafae688a88191b41f7b351e278a38",
+      "responsibility": "Existing sequencer phase, clock, gesture, NoteOff and pad-timing source scope.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "Continue current reproduced clock defects, assigned real-path negatives or pending delivery from live owned dependency heads and independent QA.",
+      "allowed_actions_with_existing_authority": [
+        "Implement and verify the next assigned source/test unit on its existing isolated lane.",
+        "Deliver exact checked source and closure to current native_build, independent_qa and integration consumers."
+      ],
+      "boundaries": [
+        "Coordinate SMC/Bugfinder boundaries; no speculative grafts into stabilizing candidates or duplicate owned repairs.",
+        "Preserve handover, accepted Stop, phase, NoteOff and gesture-boundary positives/negatives.",
+        "Historical PR-number snapshots do not replace current source and ownership reads."
+      ],
+      "required_role_inputs": [
+        "Live owned source/dependency heads, current defect/negative-test assignment and reviewer evidence."
+      ],
+      "usable_result_and_consumers": [
+        "Exact-source tested unit, actual remote readback and existing consumer handoff under the same request identity."
+      ]
+    },
+    {
+      "role_id": "bugfinder",
+      "automation_id": "6ada61c32714819198fd7b953078ad7b",
+      "responsibility": "Assigned noncompeting reproduced user-defect repair.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Prioritize current reproduced repairs and unconsumed delivery before a genuinely unowned defect. Continue accepted ready actions without redoing unchanged accepted repairs.",
+      "allowed_actions_with_existing_authority": [
+        "Reproduce and correct an assigned defect on an isolated owned lane.",
+        "Execute meaningful fail-before/pass-after and affected negative checks; deliver exact source/test evidence."
+      ],
+      "boundaries": [
+        "Read specialist ownership and current independent QA/downstream queue before claiming scope.",
+        "Do not assume a specialist lane, duplicate an owned repair or invent defects to fill a timer tick.",
+        "An existing title or enabled flag does not authorize a new claim."
+      ],
+      "required_role_inputs": [
+        "Current accepted request, exact owned source/test inputs, specialist scope boundaries and reviewer findings."
+      ],
+      "usable_result_and_consumers": [
+        "Actual scoped checked source/test output, remote readback and current native_build/independent_qa handoff plus supported consumption evidence."
+      ]
+    },
+    {
+      "role_id": "smc_transport",
+      "automation_id": "6adafac89db88191b0707de1ba3d95d0",
+      "responsibility": "Existing BLE, SMC, MIDI, HCI and control-routing source scope.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "When actually assigned and invoked under current authority, continue reproduced transport defects, missing real-path negatives and pending delivery from current owned candidates.",
+      "allowed_actions_with_existing_authority": [
+        "Implement minimal checked source/tests on its existing isolated owned lane.",
+        "Deliver exact source/closure to native_build and independent_qa, then continue the next ready accepted action."
+      ],
+      "boundaries": [
+        "Preserve actual scheduler state and any current successor's ownership; registry changes do not resume or transfer this role.",
+        "Preserve channel isolation, ISR/queue ordering, genuine/foreign NoteOff, Solo lifecycle, reconnect/feedback and clock-boundary tests.",
+        "Coordinate sequencer_clock ownership; no competing writer or rediscovery based solely on historical merged failures."
+      ],
+      "required_role_inputs": [
+        "Live assigned candidate/dependencies, active source ownership and current independent QA."
+      ],
+      "usable_result_and_consumers": [
+        "Minimal checked repair/tests, verified remote SHA and exact downstream closure handoff."
+      ]
+    },
+    {
+      "role_id": "installer_improvements",
+      "automation_id": "6ada65fd16808191a5e86e5593e3250a",
+      "responsibility": "Existing firmware-repository installer/UI/browser source specialist.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Continue current assigned unsafe-admission, installer UX, UI or backup repairs and pending source delivery; preserve unresolved UX requests alongside safety work.",
+      "allowed_actions_with_existing_authority": [
+        "Implement and test the assigned installer/UI repair on an isolated owned lane.",
+        "Transfer browser-source maintenance to the active website producer with ownership-safe delivery and verified first consumption where that producer owns the scope."
+      ],
+      "boundaries": [
+        "Preserve scheduler state and actual successor/source ownership; no automatic consolidation, catalog, firmware integration or publisher authority.",
+        "Preserve revoked/malformed/alias/fromRelease/stale-selection/download-failure guards, guarded local-file flow and backup/restore/OTA/mobile/keyboard/WebMIDI regressions.",
+        "Preserve test-suite union and source/license parity for website source transfers."
+      ],
+      "required_role_inputs": [
+        "Current assigned installer/UI/backup source, active website producer mapping and actual affected UI behavior.",
+        "Applicable source/test/license parity and independent review requirements."
+      ],
+      "usable_result_and_consumers": [
+        "Checked exact-source repair with actual affected UI validation where applicable, remote readback and current QA/website-owner/website_main_merger handoff."
+      ]
+    },
+    {
+      "role_id": "website_publisher",
+      "automation_id": "6ada674b477c819195394ec6797d7338",
+      "responsibility": "Historical NIGHTLY gh-pages publication and external HTTPS-byte verification flow; legacy display title is Installer UX.",
+      "repositories": [
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Resolve the current legitimate sole publisher/successor from the durable owner map, then consume only an actually assigned and qualified publication/readiness transition.",
+      "allowed_actions_with_existing_authority": [
+        "Prepare the current concrete publication qualification packet.",
+        "Within exact existing publication authority and current legitimate ownership, publish the eligible website/package transition and verify external bytes."
+      ],
+      "boundaries": [
+        "Registry/prompt changes do not resume this identity, migrate ownership or create a second publisher.",
+        "No firmware integration, catalog-source or website-main merge ownership.",
+        "Retain prior verified safe downloads unless revoked; private Library/build output is not public hosting.",
+        "Apply all relevant independent QA, site-main, package, legal and hosting gates.",
+        "Preserve DEV/HARDWARE TEST/DEVICE NOT TESTED labels, confirmation/backup/model guards and separate stable-publication requirements."
+      ],
+      "required_role_inputs": [
+        "Current website root, exact independent review/protections, package identity, hosting/rights evidence, current publication authority and rightful publisher.",
+        "Actual applicable live Elite/Pro/controller/source bytes and immutable URLs; no obsolete fixed PR/conflict wait."
+      ],
+      "usable_result_and_consumers": [
+        "Verified authorized remote Pages SHA, live site/catalog, applicable byte hashes/sizes and owner-available receipt.",
+        "Unmet permission, qualification, hosting or publisher ownership remains precise BLOCKED/PENDING; it is not completed publication."
+      ]
+    },
+    {
+      "role_id": "storage_safety",
+      "automation_id": "6adafba2367081918b3f5da273500e0c",
+      "responsibility": "Historical firmware/native storage, slot/sample preservation, controller/flash-map, backup/readback/restore, OTA/interruption, model identity and CRC specialist.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro"
+      ],
+      "selection": "Before an authorized disjoint assignment, reconcile current Data Safety and other source ownership; preserve historical tests, evidence and pending requests.",
+      "allowed_actions_with_existing_authority": [
+        "For an actually assigned defect, reproduce current exact source and implement a minimal correction with negative, boundary and rollback tests.",
+        "Deliver a coherent checked isolated source lane and discoverable draft PR/evidence to current native_build and independent_qa."
+      ],
+      "boundaries": [
+        "No activation or second storage writer is created by this registry. Verify prior same-scope writer release where required.",
+        "Scope excludes browser installer picker, BLE/SMC, sequencer timing, catalog and another owner's branch.",
+        "Physical device proof is not a prerequisite for otherwise-authorized source commits/push.",
+        "Failed checks stay WIP/NO-GO; unrun full Elite/Pro/controller builds stay BUILD PENDING/DEVICE NOT TESTED.",
+        "No merge, publication, hardware operation, force write, restricted-byte exposure or installability claim."
+      ],
+      "required_role_inputs": [
+        "Current durable assignment, Data Safety/source-owner reconciliation, exact storage source and source/data safeguards.",
+        "Real relevant commands/logs/exits, before/after/negative/boundary/rollback evidence."
+      ],
+      "usable_result_and_consumers": [
+        "Assigned exact-source repair/test evidence, remote readback and verified existing consumer handoff; unavailable dependent work remains pending."
+      ]
+    },
+    {
+      "role_id": "edge_case_hunt",
+      "automation_id": "6ade70eb16fc8191a1d1ab31fdf8be0e",
+      "responsibility": "Separate cross-component adversarial-testing and reproducible edge-case coverage.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "selection": "Continue actionable prior findings and consumer handoffs first. Select bounded new uncovered risk only when the assignment, actual coverage gap and consumer capacity justify discovery.",
+      "allowed_actions_with_existing_authority": [
+        "Read actual current code/tests, relevant ownership and durable edge-case findings; select an evidence-backed scenario with falsifiable expected behavior.",
+        "Run focused unit/integration/property/fuzz/fault-injection checks through supported authorized tools.",
+        "If uniquely unowned and permitted, add and execute a narrowly scoped reproducible negative regression on a fresh isolated lane, then verify remote SHA.",
+        "Maintain the evolving existing scenario matrix/checkpoint with trigger, expected/actual behavior, source, severity, evidence, specialist owner and resolution."
+      ],
+      "boundaries": [
+        "Do not compete with Bugfinder, Sequencer Clock, SMC, Data Safety, installer source or independent release QA ownership.",
+        "Do not implement another specialist's source repair, merge, publish, operate hardware, weaken safety or expose proprietary inputs.",
+        "Do not retest accepted unchanged cases or add findings ahead of an actionable prior handoff merely to fill a tick.",
+        "Distinguish actual execution, simulation and untested hardware; unavailable execution leaves a concrete runnable specification and exact missing prerequisite, not a fabricated pass.",
+        "NO NEW FINDING requires successful current checks and no executable pending transition; unchanged source with a prior actionable finding is not a no-change exit."
+      ],
+      "required_role_inputs": [
+        "Current exact source/test inputs and recent changes, existing role assignments, prior edge matrix and affected native/browser execution routes.",
+        "Relevant interaction/failure boundaries across timing/NoteOff/gestures; MIDI/SMC/BLE queue/reconnect; samples/save/reset/backup/OTA/CRC/model identity; saturation/allocation; catalog/admission/revocation/download/browser/mobile/cancellation."
+      ],
+      "usable_result_and_consumers": [
+        "Verified new coverage or precise new finding with severity/likelihood, exact reproduction, commands/outcomes, regression artifact/evidence and nonduplicate specialist/QA handoff.",
+        "Verify the receiver's first real action where exposed; carry unresolved cases forward without new schedulers or repeated generic notifications."
+      ]
+    }
+  ]
+}

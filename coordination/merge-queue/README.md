@@ -1,14 +1,35 @@
-# Current coordination checkpoint and PR654 proposal
+# Coordination queue and delivery state
 
-The canonical sole-writer checkpoint is `87497129fed7621036933c82a7ad9a020f558f45` (2026-10-27 22:36 UTC). Its newer LX-REQ-012/019 assessments, every current-delivery package, private owner-delivery fact and action-specific hold are retained. The broad 183-row Git metadata snapshot below remains timestamped 22:17:33 UTC; it does not supersede those newer outcome facts.
+Resolve the live `coordination/merge-queue` ref to a full commit SHA before reading
+current state. Read the [automation runtime contract](../automation/runtime-contract.md)
+and [role registry](../automation/roles.json) at that same revision. Stable role
+bootstraps select new work from existing request and acceptance data; each new
+task does not require rewriting scheduler prompts.
 
-The corrected planner preserves accepted continuations even when unknown occupied work areas block all new claims. Those unknown owners first reconcile liveness and scope read-only. A report is a checkpoint; actual owners continue permitted work until the requested result or a specific unresolved gate. Fresh required reads, ownership and actual action denials remain binding. Existing review receipts are linked in `current-delivery.json`; the sole integrator consumes the current PR head and matching proof. Proposal publication is not adoption, firmware qualification, public delivery or hardware acceptance.
+Use [merge-queue.json](merge-queue.json) for PR facts,
+[current-delivery.json](current-delivery.json) for delivery evidence and next
+actions, and [requests.json](../requests/requests.json) for request acceptance.
+Preserve the existing sole ledger and integration owners. Consume current source
+and matching proof; resolve old status labels against verified results. Source
+adoption, firmware qualification, public delivery and hardware acceptance remain
+separate outcomes.
 
-## Retained 22:17 metadata proposal
+Accepted continuations remain actionable when unknown occupied work areas block
+new claims. Reconcile those unknown owners' liveness and scope read-only. A report
+is a checkpoint; actual owners continue authorized work until the requested result
+or a specific unresolved gate. Fresh required reads, ownership and actual action
+denials remain binding.
 
-# LoopyX0X37 current merge queue
+## Retained metadata snapshots
 
-## Current metadata checkpoint — 2026-10-27T22:17:33.283Z
+The `87497129fed7621036933c82a7ad9a020f558f45` checkpoint (2026-10-27 22:36 UTC),
+PR654 proposal and 22:17:33 UTC metadata below are historical inputs. They do not
+pin the live coordination ref or override subsequent adoption receipts, request
+updates or delivery evidence in the current JSON records.
+
+# LoopyX0X37 merge queue snapshot
+
+## Metadata snapshot — 2026-10-27T22:17:33.283Z
 
 Dot remains the sole queue writer and integration coordinator. This checkpoint refreshes all 147 retained rows and includes 36 current open/frontier PRs missing from the old snapshot (183 rows total). All 38 request IDs and their owners/history remain; LX-REQ-038 is unchanged and deferred. Live PR metadata is source-state evidence, not new review, build, publication or device qualification.
 

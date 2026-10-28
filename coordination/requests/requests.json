@@ -7344,13 +7344,13 @@
       "title": "Canonical workflow, plugin and skill coherence",
       "owner": "Sole workflow integrator",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "INSTALLED_0_1_62_VERIFIED_REPORTED_0_1_63_MAINTENANCE_PENDING_RUNTIME_EVIDENCE",
+      "status": "WORKFLOW_ADOPTED_ADAPTIVE_POLICY_IN_PROGRESS",
       "priority": "P2",
-      "next_action": "Existing documentation and maintenance owners preserve verified installed version 0.1.62 and its accepted contract handoff. Current contract text has been re-read, but the reported version 0.1.63 and 16-schedule maintenance do not establish effective runtime outcomes. The sole integrator needs inspectable existing-review receipts for PR653 and PR654; no replacement coordinator or duplicate review.",
+      "next_action": "Existing workflow owner reviews and adopts the shared coordination/automation/runtime-contract.md and role registry with the current bounded maintenance author. Align installed project entrypoints to that central contract, verify exact readback, and retain existing product owners. Ordinary new tasks and stage changes update request/evidence data; do not require a new scheduler prompt for each task.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
-      "completion_criterion": "Canonical revision/hash and adapters agree; reviewed adoption recorded; no unauthorized waiver policies; accurate default status.",
+      "completion_criterion": "Canonical workflow revision and adapters agree; reviewed adoption and exact runtime readback are recorded. The same role bootstrap consumes a changed accepted request or completed stage and produces the next appropriate action without a per-task prompt rewrite; genuine authority, QA and ownership gates remain effective.",
       "known_source_references": [
         {
           "type": "pull_request",
@@ -7411,27 +7411,35 @@
       ],
       "evidence": {
         "source": {
-          "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "Version 0.1.62 installation and exact readback are verified. Visual-stage documentation PR652 and site PR82 source merges are verified. The current task-integration text was re-read at 22:25 and contains the newer clauses; version 0.1.63 and 16-schedule effective outcomes remain reported, not independently proven. PR653 and PR654 remain unadopted proposals subject to exact existing-proof gates; no authority transfer.",
-          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+          "state": "SCOPED_SOURCE_AND_CONFIGURATION_VERIFIED",
+          "summary": "Installed plugin 0.1.63 and all six changed files were read back exactly; personal coordination skill remote c368f1b1efdb55de45ea581d0c50a3378d5a2477 was verified. Firmware main PR655, nightly PR653, coordination PR654 and website main PR85 were adopted with exact target/tree/blob readback. PR656/657 resolved stale maintenance holds. This establishes those source/configuration stages, not completion of the new adaptive execution outcome.",
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6456036641",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85#issuecomment-6455890219"
+          ],
+          "provenance": "Exact existing publication, target-adoption, installed-version and automation readback receipts; no new runtime outcome inferred."
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "PRIOR_SCOPED_TESTS_VERIFIED_NEW_RUNTIME_ACCEPTANCE_PENDING",
+          "summary": "The adopted workflow/queue corrections have 84 scoped passing regression checks and separate native review. The current data-driven acceptance and live consumer transition require their own fresh receipt; old proof is reused only for unchanged executable inputs."
         },
         "build": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "PRIOR_SCOPED_DELIVERY_VERIFIED_ADAPTIVE_STAGE_PENDING",
+          "summary": "Installed 0.1.63 was verified. The new shared adaptive runtime contract and stable bootstrap remain under current bounded maintenance until their exact adopted/live receipts exist."
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:36:00Z",
+      "updated_at": "2026-10-27T23:53:42.894553Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority.",
+      "user_intent": "Keep the installed workflow coherent and let existing roles adapt to new accepted tasks and stage results through shared request data.",
       "history": [
         {
           "observed_at": "2026-10-25T10:29:45Z",
@@ -7557,9 +7565,282 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "change_reason": "Owner-requested adaptive continuation follow-up: reconcile directly verified completed workflow stages, retain the same durable request and ongoing owner, and record the actual bounded maintenance scope. Do not mark the persistent outcome complete before live evidence.",
+          "previous_ref": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+          "previous": {
+            "request_id": "LX-REQ-019",
+            "title": "Canonical workflow, plugin and skill coherence",
+            "owner": "Sole workflow integrator",
+            "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+            "status": "INSTALLED_0_1_62_VERIFIED_REPORTED_0_1_63_MAINTENANCE_PENDING_RUNTIME_EVIDENCE",
+            "priority": "P2",
+            "next_action": "Existing documentation and maintenance owners preserve verified installed version 0.1.62 and its accepted contract handoff. Current contract text has been re-read, but the reported version 0.1.63 and 16-schedule maintenance do not establish effective runtime outcomes. The sole integrator needs inspectable existing-review receipts for PR653 and PR654; no replacement coordinator or duplicate review.",
+            "dependencies": [],
+            "related_requests": [],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Canonical revision/hash and adapters agree; reviewed adoption recorded; no unauthorized waiver policies; accurate default status.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 155,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "snapshot_note": "Live metadata only; source merge is not complete request acceptance.",
+                "current_state": "closed",
+                "draft": true,
+                "merged_at": null,
+                "merge_commit": null,
+                "current_base": "cursor/clarify-classic-build-skill-e96a"
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 648,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/648",
+                "head": "ad4f296baa92364f11177b60d4de8131e3e55b3c",
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "current_state": "closed",
+                "draft": false,
+                "merged_at": "2026-10-27T21:12:16Z",
+                "merge_commit": "d892f31b0e7affa905f57370d6fa115dc4d90060",
+                "current_base": "nightly",
+                "snapshot_note": "Live metadata only; source merge is not complete request acceptance."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 652,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/652",
+                "head": "aec3f073f1c887d0fc7dc2bcdffa98a8fccc11f1",
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "current_state": "closed",
+                "draft": false,
+                "merged_at": "2026-10-27T22:09:00Z",
+                "merge_commit": "9a8eb237c918352dc5b671699799d45dd086e38b",
+                "current_base": "nightly",
+                "snapshot_note": "Live metadata only; source merge is not complete request acceptance."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                "number": 80,
+                "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/80",
+                "head": "e3147051977d71b066dae1d66721ceebb1cebf8e",
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "current_state": "closed",
+                "draft": false,
+                "merged_at": "2026-10-27T21:13:06Z",
+                "merge_commit": "008163ee39b3c962b2bcac3fc5c5b7fdd8898bca",
+                "current_base": "main",
+                "snapshot_note": "Live metadata only; source merge is not complete request acceptance."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "SCOPED_PROGRESS_REPORTED",
+                "summary": "Version 0.1.62 installation and exact readback are verified. Visual-stage documentation PR652 and site PR82 source merges are verified. The current task-integration text was re-read at 22:25 and contains the newer clauses; version 0.1.63 and 16-schedule effective outcomes remain reported, not independently proven. PR653 and PR654 remain unadopted proposals subject to exact existing-proof gates; no authority transfer.",
+                "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-27T22:36:00Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority.",
+            "history": [
+              {
+                "observed_at": "2026-10-25T10:29:45Z",
+                "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+                "previous": {
+                  "request_id": "LX-REQ-019",
+                  "title": "Canonical workflow, plugin and skill coherence",
+                  "owner": "Sole workflow integrator",
+                  "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
+                  "status": "TRIAL_ACCEPTED_DEFAULT_ADOPTION_PENDING",
+                  "priority": "P2",
+                  "next_action": "Reconcile stacked draft PR155 with intended protected target; synchronize authorized adapters/checkpoints and latest authority.",
+                  "dependencies": [],
+                  "related_requests": [],
+                  "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+                  "completion_criterion": "Canonical revision/hash and adapters agree; reviewed adoption recorded; no unauthorized waiver policies; accurate default status.",
+                  "known_source_references": [
+                    {
+                      "type": "pull_request",
+                      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                      "number": 155,
+                      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                      "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                      "observed_at": "2026-10-25T08:17:29Z",
+                      "snapshot_note": "Historical handoff reference; refresh before integration."
+                    }
+                  ],
+                  "evidence": {
+                    "source": {
+                      "state": "TRIAL_ACCEPTED_NOT_DEFAULT",
+                      "summary": "Plugin 0.1.54 trial pins e2482a5039527195e346925c751ac3e3a333ada9; ten tests/30 links reported; not default adoption. No firmware rebuild for unchanged compiled inputs."
+                    },
+                    "test": {
+                      "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                      "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+                    },
+                    "build": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "deployed": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "hardware": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    }
+                  },
+                  "updated_at": "2026-10-25T09:02:53Z",
+                  "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+                  "user_intent": "Latest approved workflow applied coherently without stale duplicate rules or extra authority."
+                }
+              },
+              {
+                "at": "2026-10-27T22:36:00Z",
+                "kind": "delivery_receipt_reconciliation",
+                "previous_status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
+                "previous_next_action": "Workflow integrator to preserve pinned contract/default-adoption limits and observe capability-aware handoffs; measure outcomes before throughput claims.",
+                "previous_source_summary": "Plugin 0.1.55 and coordinator skill saved with capability-aware role split. Existing trial/default-adoption distinctions remain; no proven throughput gain."
+              },
+              {
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "change_reason": "Refresh live PR facts and only directly evidenced stale status; preserve owner/history/outcome limits.",
+                "previous_ref": "f893a17cb179483fedf9c504dae273bc759dff64",
+                "previous": {
+                  "status": "PLUGIN_0_1_55_SAVED_DEFAULT_ADOPTION_NOT_ESTABLISHED",
+                  "next_action": "Workflow integrator to preserve pinned contract/default-adoption limits and observe capability-aware handoffs; measure outcomes before throughput claims.",
+                  "known_source_references": [
+                    {
+                      "type": "pull_request",
+                      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                      "number": 155,
+                      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                      "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                      "observed_at": "2026-10-25T08:17:29Z",
+                      "snapshot_note": "Historical handoff reference; refresh before integration."
+                    }
+                  ],
+                  "evidence": {
+                    "source": {
+                      "state": "SCOPED_PROGRESS_REPORTED",
+                      "summary": "Plugin 0.1.55 and coordinator skill saved with capability-aware role split. Existing trial/default-adoption distinctions remain; no proven throughput gain.",
+                      "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+                    },
+                    "test": {
+                      "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                      "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+                    },
+                    "build": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "deployed": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "hardware": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    }
+                  },
+                  "updated_at": "2026-10-25T10:29:45Z"
+                },
+                "added_fields": [
+                  "metadata_reconciliation",
+                  "status_as_of"
+                ]
+              },
+              {
+                "observed_at": "2026-10-27T22:49:20Z",
+                "change_reason": "Reconcile concurrent PR654 metadata proposal with the newer sole-writer checkpoint. Preserve newer owner status, next action, complete source assessment and timestamp; imported parallel-branch history retains its original observation time.",
+                "previous_ref": "87497129fed7621036933c82a7ad9a020f558f45",
+                "parallel_proposal_ref": "e4aa4bbfbfe0704fa0881637597978b52098adfa",
+                "previous": {
+                  "known_source_references": [
+                    {
+                      "type": "pull_request",
+                      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                      "number": 155,
+                      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                      "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                      "observed_at": "2026-10-25T08:17:29Z",
+                      "snapshot_note": "Historical handoff reference; refresh before integration."
+                    }
+                  ]
+                },
+                "added_fields": [
+                  "metadata_reconciliation",
+                  "status_as_of"
+                ]
+              }
+            ],
+            "status_as_of": "2026-10-27T22:36:00Z",
+            "metadata_reconciliation": {
+              "observed_at": "2026-10-27T22:17:33.283Z",
+              "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+              "source_nightly": "9a8eb237c918352dc5b671699799d45dd086e38b",
+              "current_prs": [
+                {
+                  "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/155",
+                  "head": "e2482a5039527195e346925c751ac3e3a333ada9",
+                  "state": "closed",
+                  "integration": "NOT_MERGED"
+                },
+                {
+                  "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/648",
+                  "head": "ad4f296baa92364f11177b60d4de8131e3e55b3c",
+                  "state": "closed",
+                  "integration": "FIRMWARE_NIGHTLY_SOURCE"
+                },
+                {
+                  "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/652",
+                  "head": "aec3f073f1c887d0fc7dc2bcdffa98a8fccc11f1",
+                  "state": "closed",
+                  "integration": "FIRMWARE_NIGHTLY_SOURCE"
+                },
+                {
+                  "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/80",
+                  "head": "e3147051977d71b066dae1d66721ceebb1cebf8e",
+                  "state": "closed",
+                  "integration": "WEBSITE_MAIN_SOURCE"
+                }
+              ],
+              "request_completion": "NOT_ESTABLISHED_BY_METADATA",
+              "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
+              "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+            },
+            "coordination_reconciled_at": "2026-10-27T22:49:20Z",
+            "newer_owner_checkpoint": {
+              "commit": "87497129fed7621036933c82a7ad9a020f558f45",
+              "observed_at": "2026-10-27T22:36:00Z",
+              "preserved": [
+                "status",
+                "next_action",
+                "evidence.source",
+                "updated_at",
+                "history"
+              ]
+            }
+          }
         }
       ],
-      "status_as_of": "2026-10-27T22:36:00Z",
+      "status_as_of": "2026-10-27T23:53:42.894553Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -7592,7 +7873,14 @@
         ],
         "request_completion": "NOT_ESTABLISHED_BY_METADATA",
         "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
-        "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+        "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation.",
+        "current_followup": {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "source_base": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+          "prior_fields_are_historical": true,
+          "request_completion": "PENDING_ACTUAL_ADAPTIVE_OUTCOME",
+          "owner_policy": "Original owner string retained; no canonical-writer transfer or inferred capacity."
+        }
       },
       "coordination_reconciled_at": "2026-10-27T22:49:20Z",
       "newer_owner_checkpoint": {
@@ -7604,7 +7892,50 @@
           "evidence.source",
           "updated_at",
           "history"
+        ],
+        "state": "HISTORICAL_CHECKPOINT_RECONCILED_BY_CURRENT_WORKFLOW_RECEIPTS",
+        "current_field_update": {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "meaning": "The preserved list describes the earlier 87497129 reconciliation. Current status, next_action and evidence.source are intentionally refreshed from later exact workflow receipts and the current owner request. The complete prior record, including this checkpoint, is archived verbatim in history."
+        }
+      },
+      "priority_assessment": {
+        "category": "ux_repair",
+        "severity": "major",
+        "reach": "Existing project workflow and accepted request continuations",
+        "confidence": "source_verified",
+        "readiness": "ready",
+        "effort": "complex",
+        "work_areas": [
+          "workflow",
+          "workflow-policy",
+          "installed-project-entrypoints"
+        ],
+        "rationale": "Current explicit owner continuation authorizes this bounded workflow repair. The listed areas are the actual assigned maintenance files/configuration, not a claim about available worker slots or other owners' liveness. Shared canonical writes stay with the existing accountable writer.",
+        "evidence_refs": [
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6456036641",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+          "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85#issuecomment-6455890219",
+          "requests.json#LX-REQ-019.bounded_maintenance"
         ]
+      },
+      "bounded_maintenance": {
+        "observed_at": "2026-10-27T23:53:42.894553Z",
+        "author": "Current owner-authorized root maintenance, with disjoint local delegate preparation and independent review",
+        "accepted_scope": [
+          "workflow",
+          "workflow-policy",
+          "installed-project-entrypoints"
+        ],
+        "stage": "LOCAL_ADAPTIVE_CONTRACT_AND_RECORD_PREPARATION",
+        "candidate_base": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+        "shared_state_owner": "Sole workflow integrator",
+        "ownership_transfer": false,
+        "capacity": "NOT_INFERRED; planner default is zero new worker slots",
+        "liveness_limit": "This is a direct observation of the current bounded maintenance. The retained historical ACTIVE_STAGE_REPORTED flag alone does not prove a scheduler or Dot is running.",
+        "overlap_policy": "The existing workflow area tag is shared with LX-REQ-031 and all three maintenance records, conservatively preventing new overlapping workflow claims. Leaf tags describe the actual local scope; they do not authorize concurrent shared-ledger writes or competing integration.",
+        "next_result_required": "Independent review, guarded source/configuration readback and actual existing-role adaptation result"
       }
     },
     {
@@ -7612,9 +7943,9 @@
       "title": "Productive schedulers and reduced request-to-install lead time",
       "owner": "Scheduler maintenance coordinator",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "TWELVE_PROMPT_UPDATES_SAVED_CADENCE_UNCHANGED",
+      "status": "SIXTEEN_PROMPTS_VERIFIED_ADAPTIVE_EXECUTION_IN_PROGRESS",
       "priority": "P1",
-      "next_action": "Scheduler maintenance coordinator to verify actual next-run intake/dispatch and gather outcome evidence; retain existing cadence.",
+      "next_action": "Existing scheduler maintenance owner completes the one-time reviewed stable bootstrap that reads the live central contract, role registry and current request/delivery data. Verify configuration readback and an existing role consuming a newly changed task or stage without another prompt edit; record its actual action/result. Preserve cadence, paused/enabled states, accepted owners and known action denials; no new competing scheduler or run cascade.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016",
@@ -7622,32 +7953,39 @@
         "LX-REQ-027"
       ],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
-      "completion_criterion": "Changed definitions read back and next delivery transitions observed; cadence/wording alone is not throughput/billing proof.",
+      "completion_criterion": "Changed definitions are read back and a real existing role advances changed accepted request/stage data through an appropriate verified action using an unchanged bootstrap. Reports alone, a launched run and wording changes are not sustained throughput or billing proof.",
       "known_source_references": [],
       "evidence": {
         "source": {
-          "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "Twelve scheduler prompt updates saved; capability-aware roles and existing Safe Merge prompt wiring verified. Cadence unchanged after latest prompt edits; no proven throughput gain. Actual live feature intake/dispatch remains unverified.",
-          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+          "state": "SCOPED_SOURCE_AND_CONFIGURATION_VERIFIED",
+          "summary": "Sixteen existing project automation prompts were updated and read back; original identity, cadence, enabled state and other non-prompt configuration were preserved. Throughput runs consumed final evidence, and existing Website Main Merger run7093c2e5-5818-8330-9705-004eb3e246bd actually adopted PR85. Completed one-off prefixes were removed with identical permanent role-tail readback. The historical twelve-prompt state is superseded; general unchanged-bootstrap adaptation is the remaining current stage.",
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6456036641",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85#issuecomment-6455890219"
+          ],
+          "provenance": "Exact existing publication, target-adoption, installed-version and automation readback receipts; no new runtime outcome inferred."
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "PRIOR_SCOPED_TESTS_VERIFIED_NEW_RUNTIME_ACCEPTANCE_PENDING",
+          "summary": "The adopted workflow/queue corrections have 84 scoped passing regression checks and separate native review. The current data-driven acceptance and live consumer transition require their own fresh receipt; old proof is reused only for unchanged executable inputs."
         },
         "build": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "PROMPT_UPDATES_SAVED_REPORTED",
-          "summary": "Prompt updates saved; existing cadence unchanged. Live execution effectiveness unverified."
+          "state": "PRIOR_SCOPED_DELIVERY_VERIFIED_ADAPTIVE_STAGE_PENDING",
+          "summary": "Sixteen prompt updates and later removal of two completed one-off prefixes are verified. Stable-bootstrap deployment and new-task/live-stage adaptation need their own exact current receipts; no throughput improvement is invented."
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:17:33.283Z",
+      "updated_at": "2026-10-27T23:53:42.894553Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Advance independent requested work and reduce stale integration waits.",
+      "user_intent": "Run accepted independent work automatically in parallel, adapting to new tasks and results through shared state without another user push or per-task automation instruction rewrite.",
       "history": [
         {
           "observed_at": "2026-10-25T09:01:30Z",
@@ -7711,9 +8049,131 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "change_reason": "Owner-requested adaptive continuation follow-up: reconcile directly verified completed workflow stages, retain the same durable request and ongoing owner, and record the actual bounded maintenance scope. Do not mark the persistent outcome complete before live evidence.",
+          "previous_ref": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+          "previous": {
+            "request_id": "LX-REQ-020",
+            "title": "Productive schedulers and reduced request-to-install lead time",
+            "owner": "Scheduler maintenance coordinator",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "TWELVE_PROMPT_UPDATES_SAVED_CADENCE_UNCHANGED",
+            "priority": "P1",
+            "next_action": "Scheduler maintenance coordinator to verify actual next-run intake/dispatch and gather outcome evidence; retain existing cadence.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-016",
+              "LX-REQ-019",
+              "LX-REQ-027"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Changed definitions read back and next delivery transitions observed; cadence/wording alone is not throughput/billing proof.",
+            "known_source_references": [],
+            "evidence": {
+              "source": {
+                "state": "SCOPED_PROGRESS_REPORTED",
+                "summary": "Twelve scheduler prompt updates saved; capability-aware roles and existing Safe Merge prompt wiring verified. Cadence unchanged after latest prompt edits; no proven throughput gain. Actual live feature intake/dispatch remains unverified.",
+                "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "PROMPT_UPDATES_SAVED_REPORTED",
+                "summary": "Prompt updates saved; existing cadence unchanged. Live execution effectiveness unverified."
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-27T22:17:33.283Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Advance independent requested work and reduce stale integration waits.",
+            "history": [
+              {
+                "observed_at": "2026-10-25T09:01:30Z",
+                "status": "READ_ONLY_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+                "next_action": "Assign authorized scoped prompt update and verify readback.",
+                "source_state": "UNKNOWN",
+                "note": "Earlier review performed no scheduler updates; subsequent supplied delta says repair underway, completion needs readback."
+              },
+              {
+                "observed_at": "2026-10-25T10:29:45Z",
+                "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+                "previous": {
+                  "request_id": "LX-REQ-020",
+                  "title": "Productive schedulers and reduced request-to-install lead time",
+                  "owner": "Scheduler maintenance coordinator",
+                  "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+                  "status": "PROMPT_REPAIR_UNDERWAY_READBACK_PENDING",
+                  "priority": "P1",
+                  "next_action": "Complete authorized scoped prompt repair and verify supported readback; exact-head queue, one integrator, bounded handoffs, obsolete waits removed.",
+                  "dependencies": [],
+                  "related_requests": [
+                    "LX-REQ-016",
+                    "LX-REQ-019",
+                    "LX-REQ-027"
+                  ],
+                  "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+                  "completion_criterion": "Changed definitions read back and next delivery transitions observed; cadence/wording alone is not throughput/billing proof.",
+                  "known_source_references": [],
+                  "evidence": {
+                    "source": {
+                      "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                      "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+                    },
+                    "test": {
+                      "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                      "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+                    },
+                    "build": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "deployed": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "hardware": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    }
+                  },
+                  "updated_at": "2026-10-25T09:02:53Z",
+                  "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+                  "user_intent": "Advance independent requested work and reduce stale integration waits."
+                }
+              },
+              {
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "change_reason": "Refresh live PR facts and only directly evidenced stale status; preserve owner/history/outcome limits.",
+                "previous_ref": "f893a17cb179483fedf9c504dae273bc759dff64",
+                "previous": {
+                  "updated_at": "2026-10-25T10:29:45Z"
+                },
+                "added_fields": [
+                  "metadata_reconciliation",
+                  "status_as_of"
+                ]
+              }
+            ],
+            "status_as_of": "2026-10-25T10:29:45Z",
+            "metadata_reconciliation": {
+              "observed_at": "2026-10-27T22:17:33.283Z",
+              "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+              "source_nightly": "9a8eb237c918352dc5b671699799d45dd086e38b",
+              "current_prs": [],
+              "request_completion": "NOT_ESTABLISHED_BY_METADATA",
+              "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
+              "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+            }
+          }
         }
       ],
-      "status_as_of": "2026-10-25T10:29:45Z",
+      "status_as_of": "2026-10-27T23:53:42.894553Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -7721,7 +8181,54 @@
         "current_prs": [],
         "request_completion": "NOT_ESTABLISHED_BY_METADATA",
         "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
-        "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+        "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation.",
+        "current_followup": {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "source_base": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+          "prior_fields_are_historical": true,
+          "request_completion": "PENDING_ACTUAL_ADAPTIVE_OUTCOME",
+          "owner_policy": "Original owner string retained; no canonical-writer transfer or inferred capacity."
+        }
+      },
+      "priority_assessment": {
+        "category": "ux_repair",
+        "severity": "major",
+        "reach": "Existing project workflow and accepted request continuations",
+        "confidence": "source_verified",
+        "readiness": "ready",
+        "effort": "complex",
+        "work_areas": [
+          "workflow",
+          "automation-role-map",
+          "automation-prompts",
+          "automation-runtime-contract"
+        ],
+        "rationale": "Current explicit owner continuation authorizes this bounded workflow repair. The listed areas are the actual assigned maintenance files/configuration, not a claim about available worker slots or other owners' liveness. Shared canonical writes stay with the existing accountable writer.",
+        "evidence_refs": [
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6456036641",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+          "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85#issuecomment-6455890219",
+          "requests.json#LX-REQ-020.bounded_maintenance"
+        ]
+      },
+      "bounded_maintenance": {
+        "observed_at": "2026-10-27T23:53:42.894553Z",
+        "author": "Current owner-authorized root maintenance, with disjoint local delegate preparation and independent review",
+        "accepted_scope": [
+          "workflow",
+          "automation-role-map",
+          "automation-prompts",
+          "automation-runtime-contract"
+        ],
+        "stage": "LOCAL_ADAPTIVE_CONTRACT_AND_RECORD_PREPARATION",
+        "candidate_base": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+        "shared_state_owner": "Scheduler maintenance coordinator",
+        "ownership_transfer": false,
+        "capacity": "NOT_INFERRED; planner default is zero new worker slots",
+        "liveness_limit": "This is a direct observation of the current bounded maintenance. The retained historical ACTIVE_STAGE_REPORTED flag alone does not prove a scheduler or Dot is running.",
+        "overlap_policy": "The existing workflow area tag is shared with LX-REQ-031 and all three maintenance records, conservatively preventing new overlapping workflow claims. Leaf tags describe the actual local scope; they do not authorize concurrent shared-ledger writes or competing integration.",
+        "next_result_required": "Independent review, guarded source/configuration readback and actual existing-role adaptation result"
       }
     },
     {
@@ -9171,37 +9678,45 @@
       "title": "Durable request/progress tracking and parallel continuity",
       "owner": "Sole request tracker writer",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "PRIOR_TRACKER_REMOTE_VERIFIED_DELTA_RECONCILIATION_ACTIVE",
+      "status": "CANONICAL_TRACKER_VERIFIED_DYNAMIC_CONTINUATION_IN_PROGRESS",
       "priority": "P1",
-      "next_action": "Sole request tracker writer to validate this bounded delta, obtain independent privacy/continuity review, push normally and verify remote SHA.",
+      "next_action": "Existing sole ledger writer reconciles this bounded reviewed metadata proposal against the current canonical ref and serializes adoption without overwriting newer owner facts. Use the existing feature_intake.py and task_priority.py with fresh data; preserve accepted continuations at zero new capacity and require actual capacity/known write scopes for new claims. Update the same request ID after each result, then the responsible existing role performs its next authorized action without a prompt rewrite.",
       "dependencies": [],
       "related_requests": [],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
-      "completion_criterion": "Stable IDs, owner/state/next action/dependencies/criteria and separated evidence; no history discarded or unknown treated done.",
+      "completion_criterion": "Stable request IDs, owners, current state/next action, dependencies and scoped evidence persist with full history. Changed accepted task/stage data drives the existing helper and responsible role without a competing planner or backlog. Actual receiver action is verified; source/configuration delivery alone does not close the persistent continuity outcome.",
       "known_source_references": [],
       "evidence": {
         "source": {
-          "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "Prior tracker ce8bfd4a40179590485ecf35e6bb0be2d652e602 freshly verified on coordination/merge-queue. All original IDs, histories, 79 unmatched branch records and existing queue files retained; this stage adds scoped requests and progress only.",
-          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+          "state": "SCOPED_SOURCE_AND_CONFIGURATION_VERIFIED",
+          "summary": "Current canonical coordination commit 1695d99e1db773a5d4fd147b3b28c2423e10e34e and its complete tree were verified after PR654/656/657. Existing helpers and 38 request IDs, 79 preserved branch records, prior histories and newer Dot facts remain. The old ce8bfd4 checkpoint is historical. This bounded proposal corrects only directly evidenced workflow records and their known maintenance write areas; it does not transfer the canonical writer or claim Dot runtime liveness.",
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6456036641",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85#issuecomment-6455890219"
+          ],
+          "provenance": "Exact existing publication, target-adoption, installed-version and automation readback receipts; no new runtime outcome inferred."
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "PRIOR_SCOPED_TESTS_VERIFIED_NEW_RUNTIME_ACCEPTANCE_PENDING",
+          "summary": "The adopted workflow/queue corrections have 84 scoped passing regression checks and separate native review. The current data-driven acceptance and live consumer transition require their own fresh receipt; old proof is reused only for unchanged executable inputs."
         },
         "build": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+          "state": "PRIOR_SCOPED_DELIVERY_VERIFIED_ADAPTIVE_STAGE_PENDING",
+          "summary": "Canonical helper/metadata source adoption is verified at 1695d99e. Live continued execution for the adaptive request remains separately observable and is not marked DONE by this proposal."
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:17:33.283Z",
+      "updated_at": "2026-10-27T23:53:42.894553Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "No request silently lost or treated done when source-ready.",
+      "user_intent": "Preserve every unfinished commitment and make the shared tracker drive automatic next-stage continuation as requests and evidence change.",
       "history": [
         {
           "observed_at": "2026-10-25T09:01:30Z",
@@ -9260,9 +9775,121 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "change_reason": "Owner-requested adaptive continuation follow-up: reconcile directly verified completed workflow stages, retain the same durable request and ongoing owner, and record the actual bounded maintenance scope. Do not mark the persistent outcome complete before live evidence.",
+          "previous_ref": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+          "previous": {
+            "request_id": "LX-REQ-027",
+            "title": "Durable request/progress tracking and parallel continuity",
+            "owner": "Sole request tracker writer",
+            "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+            "status": "PRIOR_TRACKER_REMOTE_VERIFIED_DELTA_RECONCILIATION_ACTIVE",
+            "priority": "P1",
+            "next_action": "Sole request tracker writer to validate this bounded delta, obtain independent privacy/continuity review, push normally and verify remote SHA.",
+            "dependencies": [],
+            "related_requests": [],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Stable IDs, owner/state/next action/dependencies/criteria and separated evidence; no history discarded or unknown treated done.",
+            "known_source_references": [],
+            "evidence": {
+              "source": {
+                "state": "SCOPED_PROGRESS_REPORTED",
+                "summary": "Prior tracker ce8bfd4a40179590485ecf35e6bb0be2d652e602 freshly verified on coordination/merge-queue. All original IDs, histories, 79 unmatched branch records and existing queue files retained; this stage adds scoped requests and progress only.",
+                "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-27T22:17:33.283Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "No request silently lost or treated done when source-ready.",
+            "history": [
+              {
+                "observed_at": "2026-10-25T09:01:30Z",
+                "status": "TRACKER_PREPARATION_ACTIVE",
+                "next_action": "Persist reviewed ledger through sole writer.",
+                "source_state": "UNKNOWN"
+              },
+              {
+                "observed_at": "2026-10-25T10:29:45Z",
+                "change_reason": "Bounded supplied progress delta; fresh PR metadata where linked, no new firmware qualification.",
+                "previous": {
+                  "request_id": "LX-REQ-027",
+                  "title": "Durable request/progress tracking and parallel continuity",
+                  "owner": "Sole request tracker writer",
+                  "owner_execution_state": "ACTIVE_STAGE_REPORTED",
+                  "status": "TRACKER_IMPLEMENTATION_ACTIVE",
+                  "priority": "P1",
+                  "next_action": "Persist reviewed ledger/index and validator; independent public-safety review; verify remote branch delivery; continue evidence updates through designated writer.",
+                  "dependencies": [],
+                  "related_requests": [],
+                  "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+                  "completion_criterion": "Stable IDs, owner/state/next action/dependencies/criteria and separated evidence; no history discarded or unknown treated done.",
+                  "known_source_references": [],
+                  "evidence": {
+                    "source": {
+                      "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
+                      "summary": "Initial tracker preparation; durable branch delivery remains pending until independently verified."
+                    },
+                    "test": {
+                      "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                      "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+                    },
+                    "build": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "deployed": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    },
+                    "hardware": {
+                      "state": "NOT_ESTABLISHED_FOR_REQUEST"
+                    }
+                  },
+                  "updated_at": "2026-10-25T09:02:53Z",
+                  "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+                  "user_intent": "No request silently lost or treated done when source-ready."
+                }
+              },
+              {
+                "observed_at": "2026-10-27T22:17:33.283Z",
+                "change_reason": "Refresh live PR facts and only directly evidenced stale status; preserve owner/history/outcome limits.",
+                "previous_ref": "f893a17cb179483fedf9c504dae273bc759dff64",
+                "previous": {
+                  "updated_at": "2026-10-25T10:29:45Z"
+                },
+                "added_fields": [
+                  "metadata_reconciliation",
+                  "status_as_of"
+                ]
+              }
+            ],
+            "status_as_of": "2026-10-25T10:29:45Z",
+            "metadata_reconciliation": {
+              "observed_at": "2026-10-27T22:17:33.283Z",
+              "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
+              "source_nightly": "9a8eb237c918352dc5b671699799d45dd086e38b",
+              "current_prs": [],
+              "request_completion": "NOT_ESTABLISHED_BY_METADATA",
+              "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
+              "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+            }
+          }
         }
       ],
-      "status_as_of": "2026-10-25T10:29:45Z",
+      "status_as_of": "2026-10-27T23:53:42.894553Z",
       "metadata_reconciliation": {
         "observed_at": "2026-10-27T22:17:33.283Z",
         "coordination_base": "f893a17cb179483fedf9c504dae273bc759dff64",
@@ -9270,7 +9897,52 @@
         "current_prs": [],
         "request_completion": "NOT_ESTABLISHED_BY_METADATA",
         "owner_policy": "Existing recorded owner retained; runtime admission is not inferred.",
-        "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation."
+        "next_action_policy": "Execute the existing applicable permitted next action; historical gates require current-scope validation.",
+        "current_followup": {
+          "observed_at": "2026-10-27T23:53:42.894553Z",
+          "source_base": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+          "prior_fields_are_historical": true,
+          "request_completion": "PENDING_ACTUAL_ADAPTIVE_OUTCOME",
+          "owner_policy": "Original owner string retained; no canonical-writer transfer or inferred capacity."
+        }
+      },
+      "priority_assessment": {
+        "category": "ux_repair",
+        "severity": "major",
+        "reach": "Existing project workflow and accepted request continuations",
+        "confidence": "source_verified",
+        "readiness": "ready",
+        "effort": "complex",
+        "work_areas": [
+          "workflow",
+          "coordination-ledger",
+          "coordination-request-evidence"
+        ],
+        "rationale": "Current explicit owner continuation authorizes this bounded workflow repair. The listed areas are the actual assigned maintenance files/configuration, not a claim about available worker slots or other owners' liveness. Shared canonical writes stay with the existing accountable writer.",
+        "evidence_refs": [
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/653#issuecomment-6455724575",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/654#issuecomment-6456036641",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/655",
+          "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/85#issuecomment-6455890219",
+          "requests.json#LX-REQ-027.bounded_maintenance"
+        ]
+      },
+      "bounded_maintenance": {
+        "observed_at": "2026-10-27T23:53:42.894553Z",
+        "author": "Current owner-authorized root maintenance, with disjoint local delegate preparation and independent review",
+        "accepted_scope": [
+          "workflow",
+          "coordination-ledger",
+          "coordination-request-evidence"
+        ],
+        "stage": "LOCAL_ADAPTIVE_CONTRACT_AND_RECORD_PREPARATION",
+        "candidate_base": "1695d99e1db773a5d4fd147b3b28c2423e10e34e",
+        "shared_state_owner": "Sole request tracker writer",
+        "ownership_transfer": false,
+        "capacity": "NOT_INFERRED; planner default is zero new worker slots",
+        "liveness_limit": "This is a direct observation of the current bounded maintenance. The retained historical ACTIVE_STAGE_REPORTED flag alone does not prove a scheduler or Dot is running.",
+        "overlap_policy": "The existing workflow area tag is shared with LX-REQ-031 and all three maintenance records, conservatively preventing new overlapping workflow claims. Leaf tags describe the actual local scope; they do not authorize concurrent shared-ledger writes or competing integration.",
+        "next_result_required": "Independent review, guarded source/configuration readback and actual existing-role adaptation result"
       }
     },
     {
