@@ -9821,6 +9821,149 @@
         "next_required_evidence": "Original authenticated tool/approval/control event or complete supported run/control trace for the observed Website Main Merger transition. The exposed result reader has no original cause/actor/trace field.",
         "execution_boundary": "Do not speculate about a prompt defect, rerun completed PR86, retry a known denied action, create another scheduler or run an automatic resume loop. Continue unrelated ready work with its existing owner.",
         "privacy": "Public checkpoint contains role identity, exact source URLs and observed state/times only; private run/chat/Library identifiers remain outside Git."
+      },
+      "event_replacement_rollout": {
+        "observed_at": "2026-10-28T01:25:00Z",
+        "state": "THREE_EXISTING_DOT_ROLE_REPLACEMENTS_REGISTERED_ACCEPTANCE_PENDING",
+        "implementation_owner": "Existing dot Orchestrator migration owner; shared writes remain serialized by the existing sole ledger writer",
+        "verification_owner": "Existing Classic workflow verifier via PR662; no competing source/configuration writer",
+        "scope": "Owner-authorized one-for-one replacement of standalone dot work timers only; not the sixteen maintenance identities.",
+        "evidence_refs": [
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6457803711",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6457950905"
+        ],
+        "roles": [
+          {
+            "role_id": "dot_documentation_consistency",
+            "automation_id": "6ae149297da48191ad414ada6ebdda09",
+            "predecessor_automation_id": "6ae10ec03d108191948d8efaf0714d46",
+            "registry_section": "standalone_roles",
+            "state": "REGISTERED_EVENT_ONLY_OPERATIONAL_ACCEPTANCE_PENDING",
+            "configured_at": "2026-10-28T01:00:26.227098+00:00",
+            "configuration_receipt": {
+              "enabled": true,
+              "timing_mode": "condition_watch",
+              "schedule": "BEGIN:VEVENT\nX-UNSCHEDULED:1\nEND:VEVENT",
+              "prompt_sha256": "5af12fddaeb8e9a281fa6b93d77db4c3aa4f414d420b5406658b83e2bdd755d3",
+              "prompt_lookup_clarification": "PREPARED_NOT_APPLIED"
+            },
+            "submitted_triggers": [
+              {
+                "connector_type": "github",
+                "webhook_name": "pull_request",
+                "params": {
+                  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                  "only_on_merge": true
+                }
+              },
+              {
+                "connector_type": "github",
+                "webhook_name": "pull_request",
+                "params": {
+                  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                  "only_on_merge": true
+                }
+              }
+            ],
+            "independent_trigger_readback": "NOT_EXPOSED_BY_CREATE_RESPONSE",
+            "event_delivery": "NOT_YET_ESTABLISHED",
+            "consumer_action": "NOT_YET_ESTABLISHED",
+            "predecessor_timer_retired": false
+          },
+          {
+            "role_id": "dot_finish_repairs",
+            "automation_id": "6ae14e9093e481919695228fb0631ba1",
+            "predecessor_automation_id": "6adf9af52c948191b0850f4ff26c4647",
+            "registry_section": "standalone_roles",
+            "state": "REGISTERED_EVENT_ONLY_OPERATIONAL_ACCEPTANCE_PENDING",
+            "configured_at": "2026-10-28T01:23:29.397292+00:00",
+            "configuration_receipt": {
+              "enabled": true,
+              "timing_mode": "condition_watch",
+              "schedule": "BEGIN:VEVENT\nX-UNSCHEDULED:1\nEND:VEVENT",
+              "prompt_sha256": "e21ff27ae8be9574ed7d403da1e71e8ca41db52bc4acc02b210379471955e6ea",
+              "prompt_lookup_clarification": "PREPARED_NOT_APPLIED"
+            },
+            "submitted_triggers": [
+              {
+                "connector_type": "github",
+                "webhook_name": "pull_request",
+                "params": {
+                  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                  "enable_reviews": true,
+                  "enable_comments": true,
+                  "enable_commit_updates": false,
+                  "only_on_merge": false
+                }
+              },
+              {
+                "connector_type": "github",
+                "webhook_name": "pull_request",
+                "params": {
+                  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                  "enable_reviews": true,
+                  "enable_comments": true,
+                  "enable_commit_updates": false,
+                  "only_on_merge": false
+                }
+              }
+            ],
+            "independent_trigger_readback": "NOT_EXPOSED_BY_CREATE_RESPONSE",
+            "event_delivery": "NOT_YET_ESTABLISHED",
+            "consumer_action": "NOT_YET_ESTABLISHED",
+            "predecessor_timer_retired": false
+          },
+          {
+            "role_id": "dot_exact_qa",
+            "automation_id": "6ae14e93100c81919054750f59228e4d",
+            "predecessor_automation_id": "6adf9b1253048191a33f0cbabf0ca85a",
+            "registry_section": "standalone_roles",
+            "state": "REGISTERED_EVENT_ONLY_OPERATIONAL_ACCEPTANCE_PENDING",
+            "configured_at": "2026-10-28T01:23:32.113778+00:00",
+            "configuration_receipt": {
+              "enabled": true,
+              "timing_mode": "condition_watch",
+              "schedule": "BEGIN:VEVENT\nX-UNSCHEDULED:1\nEND:VEVENT",
+              "prompt_sha256": "d850ade180461c663f27c71e4d7bda8a65b5c1482132b199b68a6d5774418902",
+              "prompt_lookup_clarification": "PREPARED_NOT_APPLIED"
+            },
+            "submitted_triggers": [
+              {
+                "connector_type": "github",
+                "webhook_name": "pull_request",
+                "params": {
+                  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                  "enable_reviews": false,
+                  "enable_comments": false,
+                  "enable_commit_updates": true,
+                  "only_on_merge": false
+                }
+              },
+              {
+                "connector_type": "github",
+                "webhook_name": "pull_request",
+                "params": {
+                  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+                  "enable_reviews": false,
+                  "enable_comments": false,
+                  "enable_commit_updates": true,
+                  "only_on_merge": false
+                }
+              }
+            ],
+            "independent_trigger_readback": "NOT_EXPOSED_BY_CREATE_RESPONSE",
+            "event_delivery": "NOT_YET_ESTABLISHED",
+            "consumer_action": "NOT_YET_ESTABLISHED",
+            "predecessor_timer_retired": false
+          }
+        ],
+        "next_action": "Resolve each exact standalone_roles identity, independently verify actual subscriptions where supported, and observe the first genuine matching event and scoped consumer action. Retire only its corresponding old work timer after operational acceptance; preserve timer history and existing progress/checkup schedules.",
+        "retirement_authorized": true,
+        "retirement_gate": "Supported event registration plus independent exact-filter evidence and matching actual delivery/consumption; no synthetic PR solely to create a trigger.",
+        "deduplication": "Repository, request/stage, relevant input closure, evidence revision and intended action; preserve one current writer/reviewer during overlap.",
+        "unchanged": "All sixteen existing role records, existing sole PR listener, source/review/merge owners, original standalone prompts and recurring control diagnosis.",
+        "control_diagnostic_separate": true,
+        "control_diagnostic_note": "The existing Website Main Merger empty-stop cause remains unexposed; new event registrations are not a causal fix, enable authorization or completed request."
       }
     },
     {

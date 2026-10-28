@@ -462,5 +462,82 @@
         "Verify the receiver's first real action where exposed; carry unresolved cases forward without new schedulers or repeated generic notifications."
       ]
     }
+  ],
+  "standalone_roles": [
+    {
+      "role_id": "dot_documentation_consistency",
+      "automation_id": "6ae149297da48191ad414ada6ebdda09",
+      "identity_class": "existing_standalone_dot_role_replacement",
+      "bootstrap_policy": "preserve_existing_standalone_prompt",
+      "request_id": "LX-REQ-020",
+      "responsibility": "Existing standalone documentation consistency repair; no source-feature, merge or publication ownership.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "replacement_history": {
+        "predecessor_automation_id": "6ae10ec03d108191948d8efaf0714d46",
+        "predecessor_timer_retirement": "PENDING_MATCHED_EVENT_AND_CONSUMPTION",
+        "predecessor_is_active_identity_alias": false
+      },
+      "selection": "Read the matching event_replacement_rollout record and current accepted stage/input/evidence. Preserve existing task owners; acquire any new scoped claim through the existing sole ledger writer. Duplicate or unrelated events create no work.",
+      "boundaries": [
+        "One logical role across replacement overlap; do not compete with predecessor work or any canonical specialist.",
+        "No new responsibility, authority, capacity, independent runtime, merge or publication grant from registration.",
+        "Consume existing independent review; no duplicate reviewer, round or unchanged test/build.",
+        "This standalone prompt is not generated or maintained by render_bootstrap.py; preserve it except separately authorized scoped control changes."
+      ],
+      "evidence_policy": "Configuration receipt is not exact subscription readback, actual event delivery, consumer action or timer retirement."
+    },
+    {
+      "role_id": "dot_finish_repairs",
+      "automation_id": "6ae14e9093e481919695228fb0631ba1",
+      "identity_class": "existing_standalone_dot_role_replacement",
+      "bootstrap_policy": "preserve_existing_standalone_prompt",
+      "request_id": "LX-REQ-020",
+      "responsibility": "Existing standalone accepted repair implementation and reviewed non-main source delivery; no specialist takeover, merge or publication.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "replacement_history": {
+        "predecessor_automation_id": "6adf9af52c948191b0850f4ff26c4647",
+        "predecessor_timer_retirement": "PENDING_MATCHED_EVENT_AND_CONSUMPTION",
+        "predecessor_is_active_identity_alias": false
+      },
+      "selection": "Read the matching event_replacement_rollout record and current accepted stage/input/evidence. Preserve existing task owners; acquire any new scoped claim through the existing sole ledger writer. Duplicate or unrelated events create no work.",
+      "boundaries": [
+        "One logical role across replacement overlap; do not compete with predecessor work or any canonical specialist.",
+        "No new responsibility, authority, capacity, independent runtime, merge or publication grant from registration.",
+        "Consume existing independent review; no duplicate reviewer, round or unchanged test/build.",
+        "This standalone prompt is not generated or maintained by render_bootstrap.py; preserve it except separately authorized scoped control changes."
+      ],
+      "evidence_policy": "Configuration receipt is not exact subscription readback, actual event delivery, consumer action or timer retirement."
+    },
+    {
+      "role_id": "dot_exact_qa",
+      "automation_id": "6ae14e93100c81919054750f59228e4d",
+      "identity_class": "existing_standalone_dot_role_replacement",
+      "bootstrap_policy": "preserve_existing_standalone_prompt",
+      "request_id": "LX-REQ-020",
+      "responsibility": "Existing standalone independent exact-input review and test role; no production source writes, merge or publication.",
+      "repositories": [
+        "gobbajogger/X0X37-for-Loopy-Pro",
+        "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+      ],
+      "replacement_history": {
+        "predecessor_automation_id": "6adf9b1253048191a33f0cbabf0ca85a",
+        "predecessor_timer_retirement": "PENDING_MATCHED_EVENT_AND_CONSUMPTION",
+        "predecessor_is_active_identity_alias": false
+      },
+      "selection": "Read the matching event_replacement_rollout record and current accepted stage/input/evidence. Preserve existing task owners; acquire any new scoped claim through the existing sole ledger writer. Duplicate or unrelated events create no work.",
+      "boundaries": [
+        "One logical role across replacement overlap; do not compete with predecessor work or any canonical specialist.",
+        "No new responsibility, authority, capacity, independent runtime, merge or publication grant from registration.",
+        "Consume existing independent review; no duplicate reviewer, round or unchanged test/build.",
+        "This standalone prompt is not generated or maintained by render_bootstrap.py; preserve it except separately authorized scoped control changes."
+      ],
+      "evidence_policy": "Configuration receipt is not exact subscription readback, actual event delivery, consumer action or timer retirement."
+    }
   ]
 }
