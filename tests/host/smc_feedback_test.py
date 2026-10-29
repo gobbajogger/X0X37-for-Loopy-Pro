@@ -49,6 +49,7 @@ static struct { int rec,part,view,overlay,help,sel[NKIT]; } ui;
 static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank,fx_down; uint16_t drum_solo[NKIT]; uint32_t beat_at,beat_period; float beat_internal; uint8_t beat_external; } smc_states[2];
 #define SMC_PEERS 2u
 static uint8_t smc_slot;
+static uint32_t smc_link_published=1, smc_link_seen=1;
 #define smc (smc_states[smc_slot])
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;

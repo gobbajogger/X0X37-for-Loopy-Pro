@@ -44,8 +44,8 @@ MUTANTS = {
         "kit >= 0 ? (ui.part == kit ? ui.sel[kit] - smc_drum_track(kit, 0) : -1) :",
     ),
     "main-mix-ignores-channel": (
-        "(cur_page() == 3 ? 7 : ui.mixsel)",
-        "(cur_page() == 3 ? 7 : ui.part)",
+        "(cur_page() == 3 ? 7 : part_position(ui.mixsel))",
+        "(cur_page() == 3 ? 7 : part_position(ui.part))",
     ),
     "duplicate-opens-overlay": (
         "    if (moved) {",

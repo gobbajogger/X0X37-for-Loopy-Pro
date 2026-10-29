@@ -47,6 +47,38 @@ uint32_t plat_buttons(void)
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
 
+#if X0X_ORIGINAL_SYNTH
+uint64_t plat_physical_keys(void)
+{
+#if BOARD_SMK37
+    uint32_t flags=irq_save();uint64_t keys=fm1_in.keys;irq_restore(flags);return keys;
+#else
+    return (uint64_t)plat_keys()<<5;
+#endif
+}
+int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                    uint32_t epoch,int enabled,int octave,int publish)
+{
+    int n=0;
+#if BOARD_SMK37
+    uint32_t flags=irq_save();
+    *keys=fm1_in.keys;*overflow=smk_extq_overflow;
+    if(publish || *overflow)smk_extq_r=smk_extq_w;
+    else while(smk_extq_r!=smk_extq_w && n<31) {
+        events[n].generation=smk_extq[smk_extq_r][0];events[n++].word=smk_extq[smk_extq_r][1];
+        smk_extq_r=(uint8_t)((smk_extq_r+1u)%SMK_EXTQ);
+    }
+    smk_extq_overflow=0;
+    if(publish){smk_ext_epoch=epoch;smk_ext_enabled=(uint8_t)!!enabled;smk_ext_oct=(int8_t)octave;}
+    irq_restore(flags);
+#else
+    (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;
+    *keys=plat_physical_keys();*overflow=0;
+#endif
+    return n;
+}
+#endif
+
 uint8_t plat_key_velocity(int key)
 {
 #if BOARD_SMK37
@@ -235,6 +267,7 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
 #if !X0X_BLE
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
+unsigned plat_ble_peer_names(char names[2][21]) { (void)names; return 0; }
 void plat_ble_set(int on) { (void)on; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }

@@ -115,7 +115,7 @@ Several held **S** buttons can solo several parts together. On strips 6–8, **M
 
 ## Target lock and beat feedback
 
-The target-capture mechanism retains fader, knob, drum-bank, pattern and song-bar destinations while keyboard navigation changes the visible page. The control screen still expires normally. SELECT, row Record and SMC target navigation stay parked while locked. Unlock follows the current UI and resets pickup. Clip mode refuses lock entry; a lock acquired outside clip mode survives subsequent keyboard clip navigation. Song structural edits invalidate captured song-bar knobs until unlock.
+The target-capture mechanism retains fader, knob, drum-bank, pattern and song-bar destinations while keyboard navigation changes the visible page. The control screen still expires normally. SELECT, row Record, drum sound selection and SMC navigation keep their normal actions while locked. Fader and knob destinations stay captured. Unlock follows the current UI and resets pickup. Clip mode refuses lock entry; a lock acquired outside clip mode survives subsequent keyboard clip navigation. Song structural edits invalidate captured song-bar knobs until unlock.
 
 The existing captured Pause route is Note `0x5D`. A press while following locks immediately. Unlock requires a separate press held for 900 ms; release before that point cancels it. Repeated press messages do not restart the timer, and the press that locked cannot also unlock. Disconnect/reconnect, project ownership, confirmation, performance testing and a lost Pause release cancel a pending hold. Pause never sends a transport action; User-preset MMC STOP and Play keep their separate behavior.
 
@@ -129,6 +129,12 @@ Fader 8's main-mixer master filter matches the keyboard's bank-B filter: low-pas
 
 Factory DAW mode: faders are pitch bend on MIDI channels 1–8; encoders are sign-magnitude relative CC 16–23 on channel 1; buttons are Mackie Control note presses. X0X returns note velocities 127/0 for button lights and pitch bend for fader pickup.
 
-The stock User preset sends faders as CC 40–47, encoders as relative CC 16–23, and its 43 buttons as six-byte MMC SysEx (`F0 7F 7F 06 01..2B F7`). On the direct SMC Bluetooth connection, X0X recognizes these messages regardless of MIDI channel because the connection identifies the controller.
+The stock User preset sends faders as CC 40–47, encoders as relative CC 16–23, and its 43 buttons as six-byte MMC SysEx (`F0 7F 7F 06 01..2B F7`). On a direct SMC Bluetooth connection, channel controls use channel 1 or User channel 16. Channels 2–15 are ignored, including on overflow. MMC uses its exact six-byte envelope. The peer slot identifies the physical controller; the preset is captured when each frame arrives.
 
 For an SMC routed through a computer or another Bluetooth MIDI host into X0X, choose **SMC PRESET → USER** and program its channel messages to **MIDI channel 16**. Only that channel's CC and note messages enter the host SMC mapping, so normal instrument and APC40 messages keep their existing behavior. The exact stock User MMC SysEx envelope is accepted from the USB or peripheral Bluetooth MIDI input when User preset is selected. This host route does not identify the physical sender; use a dedicated MIDI port or routing rule if another device sends the same MMC commands.
+
+## Reconnect and feedback boundaries
+
+Each peer publishes its link epoch together with lost-release watermarks. Old-link frames and old host Solo edges cannot replay into a new connection. Peer zero retains the historical USB/peripheral host association; peer one's disconnect does not clear that host's Solo. Preset changes clear held controls from the old mapping. Feedback is acknowledged only after the transmit queue accepts it in the same link epoch; rejected writes retry. Repeated saturated MMC STOP commands retain their separate FIFO boundaries on both host sources.
+
+The Bluetooth NAME row lists all connected central peers in slot order, separated by a comma, including identical advertised names. Each name is bounded to 20 bytes. Long names use a smaller native font; if necessary each peer is shortened separately with `..` so the other peer stays visible. Disconnected cached names are omitted. The existing Bluetooth state and About paths remain in use. Host checks do not establish physical radio, LCD or LED acceptance.

@@ -242,7 +242,10 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         return;
     case 65:                                        /* EXPORT BEGIN */
     case 67:                                        /* IMPORT BEGIN */
-#if X0X_BASS_TAGGED_SOUND
+#if X0X_ORIGINAL_SYNTH
+        if (op == 65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
+            engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) { rc=2; break; }
+#elif X0X_BASS_TAGGED_SOUND
         if(op==65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
            engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) {rc=2;break;}
 #elif X0X_BASS_PRESET_PREVIEW
