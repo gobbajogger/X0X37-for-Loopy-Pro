@@ -2,6 +2,34 @@
 
 Choose **GLOBAL → BLUETOOTH MIDI → BT ROLE → SMC HOST**, enable Bluetooth, then restart. Choose **SMC PRESET → DAW** for the mixer's factory DAW mode or **USER** for its editable User preset. A role change takes effect after restart; the preset setting takes effect immediately. The SMC connection is separate from the APC40/Loopy port.
 
+## Two direct Bluetooth mixers
+
+The development controller and application support two direct SMC links. Each
+link has its own input ring, reconnect epoch, captured targets, pickup history,
+held buttons, Solo targets and feedback cache. Pause locks only the controller
+that sent it. Keyboard navigation does not redirect either controller's captured
+targets. The temporary display shows the last controller used; it does not retain
+or restore a different underlying page.
+
+Solo is the union of both controllers' held targets. Releasing or disconnecting
+one does not release the other's Solo. Momentary FX holds also retain their
+owners. If both controllers hold different effects on the same engine bus, the
+first connection slot has priority until it releases; the second controller's
+still-held effect then becomes effective. The engine still has one effect per
+bus. Project reset clears both controllers' held state and old queued input.
+
+USB/peripheral User-preset input retains its historical association with the
+first direct-link slot; it is not a third independently identifiable controller.
+A shared host MIDI port cannot identify multiple physical senders. Use direct
+Bluetooth links for independent controller contexts.
+
+This change requires the matching two-link controller image as well as the app.
+The existing single-link hardware acceptance is not discarded, but it does not
+prove the changed controller or simultaneous links. Production host tests cover
+two-peer routing, overload, reconnect, HCI command arbitration and per-handle ACL
+credit conservation. Radio timing, simultaneous physical devices, actual lamps
+and device acceptance remain a separate authorized hardware stage.
+
 The eight faders use pickup. A fader starts changing a value when it reaches the X0X target (within two MIDI steps, or crossing it). The temporary SMC screen shows the actual destinations and values. **PICKUP: MOVE UP/DOWN TO TARGET** means the fader is waiting; the displayed value is the target, not a successful edit. **ACTIVE** means pickup is acquired. Changing the target or changing its value elsewhere resets pickup and discards the old crossing history. X0X sends the target position back to the SMC. A frame after the fader's own write preserves pickup.
 
 Fader, encoder and action feedback uses the full control screen instead of a yellow SMC header notice. The screen returns to the underlying UI after 1.2 seconds without control activity. Changed fader samples, nonzero encoder turns and action presses extend that interval. Unchanged absolute samples and zero encoder deltas do not open or extend it. Page/target feedback refresh is silent, including after navigation cancels an active screen. It does not change the underlying view, page, selection, menu or clip editor. Panel input and intentional SMC navigation dismiss it immediately; an old timeout cannot undo the new navigation. Help keeps its card while controls work underneath. Confirmation retains its input lock. Clip-editor feedback shows the field edited by the SMC; clip-grid encoders remain inactive. These behaviors have host coverage; physical LCD and controller behavior still require device testing.

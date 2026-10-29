@@ -44,6 +44,12 @@ uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 #ifndef SMC_UI_SEND_IMPLEMENTED
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
 #endif
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -97,7 +103,9 @@ static void setup(int view, int part)
     held_btn = held_keys = 0;
     memset(enc_acc, 0, sizeof enc_acc);
     memset(&ui, 0, sizeof ui);
-    memset(&smc, 0, sizeof smc);
+    smc_slot = 0;
+    memset(smc_states, 0, sizeof smc_states);
+    memset(smc_inputs, 0, sizeof smc_inputs);
     smc_ui_cancel();
     clip_grid_mode = clip_waiting = ck.pg = 0; clip_dirty = 1;
     memset(fields, 0, sizeof fields);
@@ -438,12 +446,12 @@ static void test_track_knob_align(void)
 #endif
     int tone = -1;
     for (int page = 0; page < pg.n; page++)
-        if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF))) tone = page;
+        if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, ORIGINAL_CHICAGO_CUTOFF))) tone = page;
     CHECK(tone == 0); /* selected B primary physical row */
-    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
-    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
-    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
-    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, BASS303_WAVE)));
+    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, ORIGINAL_CHICAGO_CUTOFF)));
+    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, 3)));
+    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, 4)));
+    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, 1)));
 #if X0X_BASS_PRESET_PREVIEW
     int sound = -1;
     for (int page = 0; page < pg.n; page++)

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* BREAK part: an 8-slice breakbeat player plus the BB Gen generator.
+/* BREAK part: a 4/8/16/32-slice breakbeat player plus the BB Gen generator.
  *
  * Generator ported from schwung-breakbeat (BB Gen) by mestela, used with the
  * author's permission. See breaks.c for what was kept and what was adapted.
  *
  * A loop is IMA ADPCM in flash (mono, low nibble first, initial state 0/0). It is
- * cut into 8 equal slices; the generator picks a slice on every trigger, and the
+ * cut into the loop's selected equal slices; the generator picks a slice on every trigger, and the
  * player resamples it so the loop's stated `bars` follow the current tempo (pitch
  * follows tempo, as in BB Gen), times the Pitch param.
  *
@@ -33,6 +33,7 @@ typedef struct {
     uint32_t nsamples;      /* decoded samples */
     uint32_t rate;          /* 22050 (or 44100) */
     uint8_t bars;           /* musical length of the loop in bars (the user states it; 1..8) */
+    uint8_t slices;         /* 0 = compatibility default 8; otherwise 4,8,16,32 */
 } brk_loop_t;
 
 /* indices of breaks_param() past the per-pattern settings */
@@ -47,13 +48,13 @@ typedef struct brk_bank {
     const uint8_t *adpcm;
     uint32_t n;                       /* samples */
     float sp16;                       /* source samples per 16th note: n / (bars * 16) */
-    uint32_t start[9];                /* slice starts, start[8] = n */
-    brk_ima_t at_start[8];            /* exact decoder state at each slice start */
+    uint32_t start[33];                /* exact max-32 boundaries, start[32] = n */
+    brk_ima_t at_start[32];            /* exact decoder state at each max-32 boundary */
     brk_ima_t ck[BRK_NCK];            /* decoder state every 1 << ck_shift samples */
     uint8_t ck_shift;
     volatile uint8_t valid;           /* 0 while this snapshot is being built; published only when 1 */
     uint8_t gen;                      /* bumped on every load of this snapshot */
-    uint8_t rsv;
+    uint8_t slices;                   /* immutable count for this snapshot */
 } brk_bank_t;
 
 typedef struct {
@@ -73,7 +74,7 @@ typedef struct {
 
 /* BB Gen's live performance state (perf.h), reduced to this part's keys */
 typedef struct {
-    int8_t stack[8];                  /* held A slices, most recent last */
+    int8_t stack[32];                  /* held A slices0..31, most recent last */
     uint8_t count;
     uint8_t reverse, half, stutter;   /* momentary macros held */
     float rate_mult;                  /* 0.5 while half speed is held */
@@ -114,7 +115,10 @@ typedef struct breaks {
     uint8_t quiet;                    /* X0X: the part cannot be heard (muted, no steps on): while the gate
                                        * is shut its voices stop; the next trigger starts them again */
 
-    /* live keys: written by breaks_live, applied by the ISR side */
+    /* Slice ownership and legacy macro bits are independent; applied by audio. */
+    volatile uint8_t local_guard; /* pin/live gesture count-change admission */
+    volatile uint32_t slices;
+    uint32_t slices_seen;
     volatile uint16_t keys;
     uint16_t keys_seen;
     brk_perf_t perf;
@@ -125,7 +129,8 @@ typedef struct breaks {
     uint8_t st_forced;
     int8_t pin;                       /* X0X: the next step's own slice of loop A (breaks_pin), -1 = the generator's */
     volatile uint8_t restart;         /* slice + 1: retrigger that held slice; 0 = none. Not a loop change. */
-    uint8_t rsv;
+    void (*accepted)(void *ctx, int slice, int bank, unsigned gen);
+    void *accepted_ctx;
 } breaks_t;
 
 void breaks_init(breaks_t *b);
@@ -134,10 +139,10 @@ void breaks_flush(breaks_t *b);                /* publish a loop change that wai
 void breaks_drop_range(breaks_t *b, const uint8_t *base, uint32_t nbytes); /* samples at base are going away */
 const brk_bank_t *breaks_bank(const breaks_t *b, int which); /* the published loop, for the screen */
 void breaks_step(breaks_t *b, int step16, int bar, float samples_per_16th, int enabled);
-void breaks_pin(breaks_t *b, int slice);           /* X0X: the next breaks_step plays loop A's slice (0-7), -1 = none */
+void breaks_pin(breaks_t *b, int slice);           /* next step: stored A slice0..31 resolved modulo count; -1 generator */
 void breaks_stop(breaks_t *b);
 void breaks_live(breaks_t *b, int key, int down);  /* 0-7 hold slice of A, 8 reverse, 9 half speed, 10 stutter */
-void breaks_slice_on(breaks_t *b, int slice); /* hold slice 0-7 and retrigger it; the sounding voice crossfades */
+void breaks_slice_on(breaks_t *b, int slice); /* hold slice0..31 and retrigger it; sounding voice crossfades */
 void breaks_render(breaks_t *b, float *out, int n);  /* WRITES mono, n <= 256 */
 void breaks_set_quiet(breaks_t *b, int quiet);
 int breaks_silent(const breaks_t *b);               /* the next render writes zeros */
@@ -145,3 +150,6 @@ int breaks_nparams(void);
 const x0x_param_t *breaks_param(int i);
 void breaks_set(breaks_t *b, int i, int value);
 int breaks_get(const breaks_t *b, int i);
+
+void breaks_slice_hold(breaks_t *b, int slice, int down);
+int breaks_count(const breaks_t *b, int bank);

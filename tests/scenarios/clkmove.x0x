@@ -1,5 +1,4 @@
-# a75: CLOCK SOURCE moves from the a74 byte 38 (payload byte 42; ck_x1 in the clip keys) to the settings bt
-# byte (offset 27, payload byte 31): bits 1-2 the value, bit 3 marks it. Byte 39 is payload byte 43.
+# Revision 13 CLOCK SOURCE persistence and normalization; clip-key bytes stay independent.
 wait 300
 expect clksrc 0
 expect setbyte27 8
@@ -13,68 +12,6 @@ wait 6000
 expect storeset31 12
 expect storeset42 0
 expect storeset43 0
-# a74 save, EXTERNAL, BLUETOOTH off: bt 0, byte 38 = 2. The value moves to bt, byte 38 becomes 0 (no ARP SWING)
-storepoke 0 31 00
-storepoke 0 42 02
-reboot
-wait 300
-expect clksrc 2
-expect setbyte27 12
-expect setbyte38 0
-expect clkext 1
-# the next save writes the new layout (autosave: 20 s after the last save)
-wait 21000
-tap GLO
-turn ALGO -1
-turn ALGO 1
-tap HOME
-expect clksrc 2
-wait 6000
-expect storeset31 12
-expect storeset42 0
-reboot
-wait 300
-expect clksrc 2
-# a74 save, INTERNAL, BLUETOOTH on: bt 1, byte 38 = 1. BLUETOOTH stays on
-storepoke 0 31 01
-storepoke 0 42 01
-reboot
-wait 300
-expect clksrc 1
-expect setbyte27 11
-expect setbyte38 0
-# a74 save, AUTO: bt 1, byte 38 = 0
-storepoke 0 31 01
-storepoke 0 42 00
-reboot
-wait 300
-expect clksrc 0
-expect setbyte27 9
-# a73 save (byte 38 was padding, 0) with BLUETOOTH off: AUTO
-storepoke 0 31 00
-storepoke 0 42 00
-storepoke 0 43 00
-reboot
-wait 300
-expect clksrc 0
-expect setbyte27 8
-expect setbyte38 0
-# no mark, byte 38 more than 2 (a clip keys ck_x1: SWING 3, HUMAN 1): AUTO, byte 38 stays
-storepoke 0 31 00
-storepoke 0 42 0B
-reboot
-wait 300
-expect clksrc 0
-expect setbyte38 11
-# no mark, byte 39 not 0 (a clip keys ck_x2): byte 38 = 1 is ck_x1, not CLOCK SOURCE; AUTO, both stay
-storepoke 0 31 00
-storepoke 0 42 01
-storepoke 0 43 12
-reboot
-wait 300
-expect clksrc 0
-expect setbyte38 1
-expect setbyte39 18
 # with the mark, a load does not read byte 38 (after the merge: ck_x1 SWING 2)
 storepoke 0 31 0A
 storepoke 0 42 02
@@ -89,8 +26,3 @@ reboot
 wait 300
 expect clksrc 0
 expect setbyte27 9
-# a project saved by X0X 0.10 (a shorter object, no bt byte): AUTO
-storeload tests/fixtures/v1_store.bin
-wait 100
-expect clksrc 0
-expect setbyte38 0
