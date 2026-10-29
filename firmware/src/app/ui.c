@@ -265,7 +265,12 @@ typedef struct {
     uint8_t outline_ok, outline_slot;
     uint8_t song_sel;                  /* the SONG screen's bar */
 } ui_t;
+#if X0X_ORIGINAL_SYNTH
+/* Original-profile control state uses the existing pool, zeroed at boot. */
+static ui_t ui X0X_POOL;
+#else
 static ui_t ui;
+#endif
 /* SMC is a presentation layer; its implementation follows this file in the unity build. */
 void smc_ui_cancel(void);
 int smc_ui_active(void);
@@ -1241,7 +1246,11 @@ typedef struct {
     pref_t more[MAXMORE];              /* the screen's other knobs: only in SEL's list, under MORE */
     int nmore;
 } pages_t;
+#if X0X_ORIGINAL_SYNTH
+static pages_t pg X0X_POOL;
+#else
 static pages_t pg;
+#endif
 static uint8_t pg_grp;                 /* the group pages added now belong to */
 static void more(pref_t r)
 {
@@ -6161,7 +6170,7 @@ static int matrix_value(pref_t r)
 #if X0X_ORIGINAL_SYNTH
 /* One selected-part cache. No new framebuffer, DSP state or audio-thread work.
  * Cache hits use byte comparisons only; projection runs on cell/preview change. */
-static ui_original_cache original_ui;
+static ui_original_cache original_ui X0X_POOL;
 static void original_ui_prepare(void)
 {
     if(ui.view!=V_PART || !is_303() || ui.overlay!=O_NONE || ui.help)return;
