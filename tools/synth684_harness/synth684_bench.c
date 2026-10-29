@@ -10,6 +10,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef X0X_SYNTH684_ICOUNT
+#include <valgrind/callgrind.h>
+#define REPEATS 1
+#else
+#define CALLGRIND_TOGGLE_COLLECT
+#define CALLGRIND_DUMP_STATS_AT(x) ((void)(x))
+#endif
 #ifdef X0X_SYNTH684_STUB_INPUTS
 #define VALIDITY "STUB-NOT-VALID"
 #else
@@ -75,7 +82,9 @@ static int run_once(FILE *f, unsigned kind, unsigned factory, unsigned fxchoice,
             if (apply(s, kind) != 1) fprintf(stderr, "%s p%u fx%u: event at block %u returned not OK\n",
                                             kind ? "miami" : "chicago", factory, fxchoice, b);
         double t0 = now_ns();
+        CALLGRIND_TOGGLE_COLLECT;
         int st = original_runtime_render(&part, &work, l, r, BLOCK);
+        CALLGRIND_TOGGLE_COLLECT;
         t[b] = now_ns() - t0;
         if (st != ORIGINAL_RUNTIME_OK) {
             fprintf(stderr, "%s p%u fx%u: render status %d at block %u\n", kind ? "miami" : "chicago", factory, fxchoice, st, b);
@@ -90,7 +99,9 @@ static int run_once(FILE *f, unsigned kind, unsigned factory, unsigned fxchoice,
     return 0;
 }
 
+#ifndef REPEATS
 #define REPEATS 15
+#endif
 static int scenario(const char *out, unsigned kind, unsigned factory, unsigned fxchoice, unsigned blocks, FILE *csv)
 {
     char name[512];
@@ -110,6 +121,7 @@ static int scenario(const char *out, unsigned kind, unsigned factory, unsigned f
         all_med[k] = t[blocks / 2]; all_p99[k] = t[blocks * 99 / 100];
     }
     fclose(f);
+    CALLGRIND_DUMP_STATS_AT(name);
     if (!rc) {
         qsort(mean, REPEATS, sizeof(double), cmp_d); qsort(all_med, REPEATS, sizeof(double), cmp_d);
         qsort(all_p99, REPEATS, sizeof(double), cmp_d);
