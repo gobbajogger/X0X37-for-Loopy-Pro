@@ -1090,7 +1090,11 @@ static float display_env_ms(pref_t r, int v)
         return low+(high-low)*n*n;
     }
 #endif
+#if X0X_ORIGINAL_SYNTH
+    (void)r; (void)v; return 0.0f; /* bass303.c is not linked in the original-synth build */
+#else
     return bass303_env_time_ms(display_env_param(r),v);
+#endif
 }
 
 static void display_ms(float ms,char *num,char *unit)
