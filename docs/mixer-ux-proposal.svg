@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="510" viewBox="0 0 240 255">
+<rect width="240" height="255" fill="#050a0d"/><g font-family="monospace" font-size="7" fill="#dfead6">
+<text x="5" y="10">PROPOSAL / NOT IMPLEMENTED</text><text x="5" y="25">Knobs PAN</text><text x="186" y="25">FADER 6</text>
+<path d="M0 30v138" stroke="#28383d"/>
+<text x="3" y="40">909</text>
+<text x="3" y="54">PAN</text>
+<circle cx="15" cy="70" r="8" fill="none" stroke="#8fbf79"/>
+<text x="9" y="93">64</text>
+<path d="M4 146v-35" stroke="#8fbf79" stroke-width="3"/>
+<path d="M1 111h6" stroke="#dfebe0"/>
+<text x="15" y="111">M</text>
+<text x="15" y="126">S</text>
+<text x="15" y="141">R</text>
+<path d="M30 30v138" stroke="#28383d"/>
+<text x="33" y="40">808</text>
+<text x="33" y="54">PAN</text>
+<circle cx="45" cy="70" r="8" fill="none" stroke="#8fbf79"/>
+<text x="39" y="93">64</text>
+<path d="M34 146v-35" stroke="#8fbf79" stroke-width="3"/>
+<path d="M31 111h6" stroke="#dfebe0"/>
+<text x="45" y="111">M</text>
+<text x="45" y="126">S</text>
+<text x="45" y="141">R</text>
+<path d="M60 30v138" stroke="#28383d"/>
+<text x="63" y="40">MIA</text>
+<text x="63" y="54">PAN</text>
+<circle cx="75" cy="70" r="8" fill="none" stroke="#8fbf79"/>
+<text x="69" y="93">64</text>
+<path d="M64 146v-35" stroke="#8fbf79" stroke-width="3"/>
+<path d="M61 111h6" stroke="#dfebe0"/>
+<text x="75" y="111">M</text>
+<text x="75" y="126">S</text>
+<text x="75" y="141">R</text>
+<path d="M90 30v138" stroke="#28383d"/>
+<text x="93" y="40">CHI</text>
+<text x="93" y="54">PAN</text>
+<circle cx="105" cy="70" r="8" fill="none" stroke="#8fbf79"/>
+<text x="99" y="93">64</text>
+<path d="M94 146v-35" stroke="#8fbf79" stroke-width="3"/>
+<path d="M91 111h6" stroke="#dfebe0"/>
+<text x="105" y="111">M</text>
+<text x="105" y="126">S</text>
+<text x="105" y="141">R</text>
+<path d="M120 30v138" stroke="#28383d"/>
+<text x="123" y="40">BRK</text>
+<text x="123" y="54">PAN</text>
+<circle cx="135" cy="70" r="8" fill="none" stroke="#8fbf79"/>
+<text x="129" y="93">64</text>
+<path d="M124 146v-35" stroke="#8fbf79" stroke-width="3"/>
+<path d="M121 111h6" stroke="#dfebe0"/>
+<text x="135" y="111">M</text>
+<text x="135" y="126">S</text>
+<text x="135" y="141">R</text>
+<path d="M150 30v138" stroke="#28383d"/>
+<text x="153" y="40">RVB</text>
+<text x="153" y="54">PAN</text>
+<circle cx="165" cy="70" r="8" fill="none" stroke="#c49b45"/>
+<text x="159" y="93">64</text>
+<path d="M154 146v-35" stroke="#c49b45" stroke-width="3"/>
+<path d="M151 111h6" stroke="#dfebe0"/>
+<text x="165" y="111">M</text>
+<text x="165" y="126">S</text>
+<text x="165" y="141">R</text>
+<path d="M180 30v138" stroke="#28383d"/>
+<text x="183" y="40">DLY</text>
+<text x="183" y="54">PAN</text>
+<circle cx="195" cy="70" r="8" fill="none" stroke="#c49b45"/>
+<text x="189" y="93">64</text>
+<path d="M184 146v-35" stroke="#c49b45" stroke-width="3"/>
+<path d="M181 111h6" stroke="#dfebe0"/>
+<text x="195" y="111">M</text>
+<text x="195" y="126">S</text>
+<text x="195" y="141">R</text>
+<path d="M210 30v138" stroke="#28383d"/>
+<text x="213" y="40">FLT</text>
+<text x="213" y="54">PAN</text>
+<circle cx="225" cy="70" r="8" fill="none" stroke="#c49b45"/>
+<text x="219" y="93">64</text>
+<path d="M214 146v-35" stroke="#c49b45" stroke-width="3"/>
+<path d="M211 111h6" stroke="#dfebe0"/>
+<text x="225" y="111">M</text>
+<text x="225" y="126">S</text>
+<text x="225" y="141">R</text>
+<text x="25" y="186">REVERB LEVEL</text><text x="83" y="210" font-size="18">75</text><text x="20" y="237">PICKUP: MOVE UP TO TARGET</text></g></svg>

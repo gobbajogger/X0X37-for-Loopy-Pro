@@ -35,6 +35,10 @@ static void message(int status, int a, int b)
     smc_poll();
     smc_frame();
     assert((smc_rx_diag() >> 24) == 0);
+    if (status==0x90 && b && a>=16 && a<24) {
+        const uint8_t up[3]={0x80,(uint8_t)a,0};
+        smc_ble_midi(up,3);smc_poll(); /* Separate mute clicks have release edges. */
+    }
 }
 
 static void setup(int mode, int bank)

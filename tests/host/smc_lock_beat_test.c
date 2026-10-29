@@ -24,8 +24,8 @@ static void lost_release(int host, unsigned note)
 }
 static void gesture(void)
 {
-    for (int host = 0; host < 2; host++) {
-        setup(V_SEQ, PART_909); proj.set.bt |= PROJ_BT_SMC_USER;
+    for (int host = 0; host < 1; host++) {
+        setup(V_SEQ, PART_909); /* User input is ignored; DAW lifecycle only. */
         unsigned start = seq.req_start, stop = seq.req_stop;
         pause_edge(host, 1); CHECK(smc.locked);
         hold_ms(1500); CHECK(smc.locked); /* the capture press cannot unlock */

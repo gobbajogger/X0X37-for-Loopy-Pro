@@ -78,12 +78,8 @@ static void test_drum_lock(void)
         CHECK(smc.drum_solo[kit] == (1u << (bank * 8)));
         message(0x80, 8, 0); CHECK(!smc_project_active());
         message(0x80, 8, 0); CHECK(!smc_project_active());
-        ui_before = screen_state();
-        const int parked[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
-        for (unsigned i = 0; i < sizeof parked / sizeof *parked; i++) {
-            message(0x90, parked[i], 127); navigation_unchanged(ui_before);
-            CHECK(smc_same(f[0], smc_target(0)));
-        }
+        message(0x90, 0, 127); message(0x80, 0, 0); CHECK(ui.rec);
+        CHECK(smc_same(f[0], smc_target(0))); /* REC works without redirecting captured controls. */
         CHECK(smc_lock_toggle());
         CHECK(smc_same(smc_target(0), smc_home_target(0)));
     }
@@ -304,20 +300,12 @@ static void test_physical_pause_input_and_output(void)
     message(0x91, 0x5D, 127); message(0x81, 0x5D, 0);
     CHECK(!smc.locked);
     proj.set.bt |= PROJ_BT_SMC_USER;
-    CHECK(!smc_midi_host(9u | 0x90u << 8 | 0x5Du << 16 | 127u << 24));
     CHECK(smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24)); smc_poll();
-    CHECK(smc.locked);
-    CHECK(smc_midi_host(8u | 0x8Fu << 8 | 0x5Du << 16)); smc_poll();
-    CHECK(smc.locked && !smc.lock_down);
-
-    /* The old User-preset MMC command has no captured press/release evidence. */
-    const uint8_t stop[6] = {0xF0, 0x7F, 0x7F, 6, 34, 0xF7};
-    smc_ble_midi(stop, sizeof stop); smc_poll();
-    CHECK(seq.req_stop && !seq.req_start); CHECK(smc.locked);
-    message(0x90, 0x5E, 127); CHECK(seq.req_start);
-    message(0x80, 0x5E, 0); CHECK(seq.req_start);
-    message(0x90, 0x5E, 127); CHECK(seq.req_stop);
-    message(0x80, 0x5E, 0); CHECK(smc.locked);
+    CHECK(!smc.locked); /* Ignored User input cannot capture or stop transport. */
+    const uint8_t stop[6] = {0xF0,0x7F,0x7F,6,34,0xF7};
+    smc_ble_midi(stop,sizeof stop); smc_poll(); CHECK(!seq.req_stop);
+    proj.set.bt &= (uint8_t)~PROJ_BT_SMC_USER;
+    message(0x90,0x5D,127); message(0x80,0x5D,0); CHECK(smc.locked);
 
     /* Existing output route only: NoteOn 90 5D, solid captured / blink following. */
     smc_frame(); reset_output();
@@ -380,7 +368,8 @@ static void test_select_and_play(void)
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
         screen_state_t before = screen_state();
-        press(24 + other); navigation_unchanged(before); CHECK(!smc_ui_active());
+        press(24 + other); CHECK(cur_page()==0); CHECK(!smc_ui_active());
+        (void)before; /* Context selection stays live while captured controls remain fixed. */
         CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
@@ -401,7 +390,7 @@ static void test_select_and_play(void)
 
 static void test_lost_edge_release(void)
 {
-    for (int host = 0; host < 2; host++) for (int edge = 0; edge < 3; edge++) for (int noteoff = 0; noteoff < 2; noteoff++) {
+    for (int host = 0; host < 1; host++) for (int edge = 0; edge < 3; edge++) for (int noteoff = 0; noteoff < 2; noteoff++) {
         setup(V_HOME, PART_303A);
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
@@ -431,7 +420,7 @@ static void test_lost_edge_release(void)
 
 static void test_dropped_pause_press(void)
 {
-    for (int host = 0; host < 2; host++) {
+    for (int host = 0; host < 1; host++) {
         setup(V_SEQ, PART_808);
         uint8_t filler[3] = {0xB0, 16, 0}, down[3] = {0x90, 0x5D, 127};
         if (host) {

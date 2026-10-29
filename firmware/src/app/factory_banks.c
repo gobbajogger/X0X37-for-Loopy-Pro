@@ -1,5 +1,15 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "factory_banks.h"
+#if X0X_ORIGINAL_SYNTH
+#include "original_sound.h"
+
+static const factory_bank_t factory_banks[FACTORY_BANK_COUNT] = {
+    { "chicago", "Chicago", FACTORY_BANK_CHICAGO, FACTORY_CHICAGO_NPARAMS,
+      FACTORY_CHICAGO_NPRESETS, 0, 0 },
+    { "miami", "Miami", FACTORY_BANK_MIAMI, FACTORY_MIAMI_NPARAMS,
+      FACTORY_MIAMI_NPRESETS, 0, 0 }
+};
+#else
 
 static const char *const chicago_param_names[22] = {
     "OSC Waveform",
@@ -168,6 +178,7 @@ static const factory_bank_t factory_banks[FACTORY_BANK_COUNT] = {
     { "miami", "Miami (Wobble)", FACTORY_BANK_MIAMI, FACTORY_MIAMI_NPARAMS,
       FACTORY_MIAMI_NPRESETS, miami_presets, miami_param_names },
 };
+#endif
 
 const factory_bank_t *factory_bank(int bank_id)
 {
@@ -179,15 +190,24 @@ int factory_bank_count(void) { return FACTORY_BANK_COUNT; }
 
 const factory_preset_t *factory_preset(int bank_id, int index)
 {
+#if X0X_ORIGINAL_SYNTH
+    (void)bank_id; (void)index;
+    return 0;
+#else
     const factory_bank_t *b = factory_bank(bank_id);
     if (!b || index < 0 || index >= (int)b->npresets) return 0;
     return &b->presets[index];
+#endif
 }
 
 const char *factory_preset_name(int bank_id, int index)
 {
+#if X0X_ORIGINAL_SYNTH
+    return bank_id < 0 || index < 0 ? 0 : original_sound_name((unsigned)bank_id, (unsigned)index);
+#else
     const factory_preset_t *p = factory_preset(bank_id, index);
     return p ? p->name : 0;
+#endif
 }
 
 void user_bank_clear(user_bank_t *ub)
@@ -202,6 +222,11 @@ void user_bank_clear(user_bank_t *ub)
 
 int user_bank_import(user_bank_t *ub, uint8_t bank_id, const factory_preset_t *preset)
 {
+#if X0X_ORIGINAL_SYNTH
+    /* This API accepts the retired rounded-byte record, not an OS patch cell. */
+    (void)ub; (void)bank_id; (void)preset;
+    return -1;
+#else
     int i;
     if (!ub || !preset || bank_id >= FACTORY_BANK_COUNT) return -1;
     for (i = 0; i < USER_BANK_SLOTS; i++)
@@ -212,6 +237,7 @@ int user_bank_import(user_bank_t *ub, uint8_t bank_id, const factory_preset_t *p
             return i;
         }
     return -7; /* full */
+#endif
 }
 
 int user_bank_used_count(const user_bank_t *ub)
@@ -224,9 +250,21 @@ int user_bank_used_count(const user_bank_t *ub)
 
 int factory_banks_intact(void)
 {
+#if X0X_ORIGINAL_SYNTH
+    for (unsigned bank = 0; bank < FACTORY_BANK_COUNT; ++bank) {
+        if (factory_banks[bank].npresets != original_sound_factories(bank) ||
+            factory_banks[bank].nparams != original_sound_count(bank)) return 0;
+        for (unsigned preset = 0; preset < original_sound_factories(bank); ++preset) {
+            const char *name = original_sound_name(bank, preset);
+            if (!name || !*name) return 0;
+        }
+    }
+    return 1;
+#else
     /* ROM tables are const; a caller comparing snapshots uses this as a stable gate. */
     return factory_banks[0].npresets == FACTORY_CHICAGO_NPRESETS
         && factory_banks[1].npresets == FACTORY_MIAMI_NPRESETS
         && factory_banks[0].presets[0].name[0] != 0
         && factory_banks[1].presets[0].name[0] != 0;
+#endif
 }

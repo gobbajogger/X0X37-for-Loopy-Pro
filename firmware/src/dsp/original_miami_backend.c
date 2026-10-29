@@ -1,0 +1,343 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+#include "original_miami_backend.h"
+#include "../../../experiments/original_synth/binary32_classify.h"
+#include "../../../experiments/original_synth/binary32_math.h"
+#include "../../../experiments/original_synth/motion_tables_private.h"
+#include <string.h>
+
+#define BACKEND_READY UINT32_C(0x4d424531)
+
+static int valid_bpm(float bpm)
+{
+    return original_binary32_isfinite(bpm) && bpm >= 20.0f && bpm <= 400.0f;
+}
+
+int original_miami_backend_status(const original_miami_backend *s)
+{
+    return s && s->ready == BACKEND_READY && s->status && s->voice_owner.status &&
+        s->note_context.status && s->control_owner.status;
+}
+
+static int completed(original_miami_backend *s, int result)
+{
+    if (!result || !s->voice_owner.status || !s->note_context.status || !s->control_owner.status) {
+        s->status = 0;
+        return 0;
+    }
+    return 1;
+}
+
+int original_miami_backend_init(original_miami_backend *s, unsigned factory, float bpm)
+{
+    original_miami_program program;
+    original_miami_voice_controls controls;
+    if (!s || !valid_bpm(bpm) || !original_miami_program_init(&program, factory) ||
+        !original_miami_voice_compile(&controls, &program)) return 0;
+
+    memset(s, 0, sizeof *s);
+    s->program = program;
+    s->controls = controls;
+    const original_ms20_tables filter = {
+        original_miami_a44100, original_miami_b44100, original_miami_r, original_miami_cap
+    };
+    if (!original_miami_voice_tables_bind_immutable(&s->tables, &filter, original_pitch44100) ||
+        !original_chicago_allocator_bind(&s->allocator, &s->keys, s->held, s->records,
+            ORIGINAL_MIAMI_BACKEND_VOICES, ORIGINAL_MIAMI_BACKEND_VOICES,
+            ORIGINAL_MIAMI_BACKEND_VOICES, 1, 0, 1)) return 0;
+    s->allocator.mg1_key_sync = s->allocator.mg2_key_sync = 1;
+    s->allocator.arp_range = 1;
+    s->allocator.scan_index = -1;
+    s->allocator.previous_index = 60;
+    s->allocator.octave = 1;
+    for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; ++i)
+        if (!original_miami_selected_voice_init(&s->voices[i], &s->tables, i, 60)) return 0;
+
+    float rate1, rate2;
+    if (!original_miami_program_native(&s->program, 44, &rate1) ||
+        !original_miami_program_native(&s->program, 50, &rate2)) return 0;
+    s->global_input = (original_chicago_global_mg_input){44100, 44100.0f,
+        rate1, rate2, controls.mg_shape[0], controls.mg_shape[1], 1, 1};
+    /* Both thresholds are prepared before any event can enter this owner. */
+    s->clock1.threshold = s->clock2.threshold = 1.0f;
+    original_miami_note_producers producers = original_miami_note_context_callbacks(&s->note_context);
+    if (!original_miami_voice_owner_bind(&s->voice_owner, s->voices, s->pending, s->extra,
+        ORIGINAL_MIAMI_BACKEND_VOICES, &s->allocator, &s->controls, &s->tables, &producers, bpm) ||
+        !original_miami_note_context_bind(&s->note_context, &s->voice_owner, &s->global,
+            &s->global_input, &s->clock1, &s->clock2, 0, 0, 1, 1)) return 0;
+    s->selector = (original_chicago_selector){-1, 60, 1, 0, 0x6d70};
+    s->clock_input = (chicago_arp_clock_input){bpm, 1};
+    s->callbacks = original_miami_note_context_scheduler_callbacks();
+    if (!original_chicago_scheduler_bind(&s->scheduler, &s->allocator, &s->selector,
+        &s->clock2, &s->clock_input, &s->control_input, &s->callbacks, &s->voice_owner)) return 0;
+    original_miami_output_init(&s->output);
+    if (!original_miami_control_owner_bind(&s->control_owner, &s->program, &s->controls,
+        &s->output, &s->scheduler, &s->global_input) ||
+        !original_miami_note_context_core_reset(&s->note_context) ||
+        !original_miami_output_apply(&s->output, &s->program, 10) ||
+        !original_chicago_scheduler_damper(&s->scheduler, controls.damper ? 127u : 0u) ||
+        !original_miami_control_owner_block_prepare(&s->control_owner, &s->clock1)) return 0;
+    s->ready = BACKEND_READY;
+    s->status = 1;
+    return 1;
+}
+
+int original_miami_backend_load_factory(original_miami_backend *s, unsigned factory)
+{
+    original_miami_program program;
+    original_miami_voice_controls controls;
+    if (!original_miami_backend_status(s) || !original_miami_program_init(&program, factory) ||
+        !original_miami_voice_compile(&controls, &program)) return 0;
+    s->program = program;
+    s->controls = controls;
+    s->global_input.waveform1 = controls.mg_shape[0];
+    s->global_input.waveform2 = controls.mg_shape[1];
+    if (!completed(s, original_miami_output_apply(&s->output, &s->program, 10))) return 0;
+    return completed(s, original_chicago_scheduler_damper(&s->scheduler, controls.damper ? 127u : 0u));
+}
+
+int original_miami_backend_set_macro(original_miami_backend *s, unsigned control, float normalized)
+{
+    if (!original_miami_backend_status(s) || control >= ORIGINAL_MIAMI_BACKEND_CONTROLS ||
+        !original_binary32_isfinite(normalized) || normalized < 0.0f || normalized > 1.0f) return 0;
+    return completed(s, original_miami_control_owner_edit(&s->control_owner, control, normalized));
+}
+
+const original_miami_program *original_miami_backend_program(const original_miami_backend *s)
+{
+    return original_miami_backend_status(s) ? &s->program : NULL;
+}
+
+int original_miami_backend_set_tempo(original_miami_backend *s, float bpm)
+{
+    if (!original_miami_backend_status(s) || !valid_bpm(bpm)) return 0;
+    s->voice_owner.bpm = bpm;
+    s->clock_input.bpm = bpm;
+    return 1;
+}
+
+int original_miami_backend_note_on(original_miami_backend *s, unsigned key, unsigned velocity)
+{
+    if (!original_miami_backend_status(s) || key > 127 || !velocity || velocity > 127) return 0;
+    return completed(s, original_chicago_scheduler_note(&s->scheduler, (int32_t)key, (int32_t)velocity));
+}
+
+int original_miami_backend_note_off(original_miami_backend *s, unsigned key)
+{
+    if (!original_miami_backend_status(s) || key > 127) return 0;
+    return completed(s, original_chicago_scheduler_note(&s->scheduler, (int32_t)key, 0));
+}
+
+int original_miami_backend_damper(original_miami_backend *s, unsigned value)
+{
+    if (!original_miami_backend_status(s) || value > 127) return 0;
+    return completed(s, original_chicago_scheduler_damper(&s->scheduler, value));
+}
+
+int original_miami_backend_all_off(original_miami_backend *s)
+{
+    if (!original_miami_backend_status(s)) return 0;
+    original_chicago_allocator_all_notes_off(&s->allocator, original_miami_voice_owner_callbacks(), &s->voice_owner);
+    return completed(s, 1);
+}
+
+int original_miami_backend_clear_keys(original_miami_backend *s)
+{
+    if (!original_miami_backend_status(s)) return 0;
+    original_chicago_allocator_clear_keys(&s->allocator, original_miami_voice_owner_callbacks(), &s->voice_owner);
+    return completed(s, 1);
+}
+
+int original_miami_backend_panic(original_miami_backend *s)
+{
+    if (!original_miami_backend_status(s)) return 0;
+    if (!completed(s, original_miami_note_context_core_reset(&s->note_context))) return 0;
+    original_miami_fx_reset(&s->output.fx);
+    return 1;
+}
+
+int original_miami_backend_transport(original_miami_backend *s, unsigned running)
+{
+    if (!original_miami_backend_status(s) || running > 1) return 0;
+    if (s->running && !running && !original_miami_backend_all_off(s)) return 0;
+    s->running = running;
+    return 1;
+}
+
+static int overlap(const void *a, size_t an, const void *b, size_t bn)
+{
+    uintptr_t x = (uintptr_t)a, y = (uintptr_t)b;
+    return x <= y ? y - x < an : x - y < bn;
+}
+
+static int words_valid(const original_miami_backend *s, const original_miami_fx_workspace *w,
+    const uint32_t *left, const uint32_t *right, uint32_t n)
+{
+    if (!w || n > ORIGINAL_MIAMI_BACKEND_MAX_BLOCK || n > w->capacity ||
+        overlap(w, sizeof *w, s, sizeof *s)) return 0;
+    const void *p[6] = {left, right, w->dryL, w->dryR, w->scratchL, w->scratchR};
+    for (unsigned i = 0; i < 6; ++i) {
+        size_t bytes = (size_t)n * (i < 4 ? sizeof(uint32_t) : sizeof(int16_t));
+        if (!p[i] || overlap(p[i], bytes, s, sizeof *s) || overlap(p[i], bytes, w, sizeof *w)) return 0;
+        for (unsigned j = 0; j < i; ++j)
+            if (overlap(p[i], bytes, p[j], (size_t)n * (j < 4 ? sizeof(uint32_t) : sizeof(int16_t)))) return 0;
+    }
+    return 1;
+}
+
+static int events_valid(const original_engine_event *events, uint32_t count, uint32_t frames)
+{
+    if (count && !events) return 0;
+    size_t bytes = (size_t)count * sizeof *events;
+    if (count && bytes / sizeof *events != count) return 0;
+    for (uint32_t i = 0; i < count; ++i) {
+        const original_engine_event *e = events + i;
+        if (e->frame >= frames || e->kind > ORIGINAL_EVENT_MUTE ||
+            (i && e->frame < events[i - 1].frame)) return 0;
+        switch (e->kind) {
+        case ORIGINAL_EVENT_NOTE:
+            if (e->parameter > 127 || e->value > 127) return 0;
+            break;
+        case ORIGINAL_EVENT_MACRO: {
+            float value = original_math_float(e->value);
+            if (e->parameter >= ORIGINAL_MIAMI_BACKEND_CONTROLS ||
+                !original_binary32_isfinite(value) || value < 0.0f || value > 1.0f) return 0;
+            break;
+        }
+        case ORIGINAL_EVENT_DAMPER:
+            if (e->parameter || e->value > 127) return 0;
+            break;
+        case ORIGINAL_EVENT_MUTE:
+            if (e->parameter || e->value > 255) return 0;
+            break;
+        default:
+            if (e->parameter || e->value) return 0;
+            break;
+        }
+    }
+    return 1;
+}
+
+static int event_apply(original_miami_backend *s, const original_engine_event *e)
+{
+    switch (e->kind) {
+    case ORIGINAL_EVENT_NOTE:
+        return e->value ? original_miami_backend_note_on(s, e->parameter, e->value) :
+            original_miami_backend_note_off(s, e->parameter);
+    case ORIGINAL_EVENT_MACRO:
+        return original_miami_backend_set_macro(s, e->parameter, original_math_float(e->value));
+    case ORIGINAL_EVENT_DAMPER:
+        return original_miami_backend_damper(s, e->value);
+    case ORIGINAL_EVENT_ALL_OFF:
+        return original_miami_backend_all_off(s);
+    case ORIGINAL_EVENT_CLEAR_KEYS:
+        return original_miami_backend_clear_keys(s);
+    case ORIGINAL_EVENT_MUTE:
+        original_master_mute(&s->output.master, (uint8_t)e->value);
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+int original_miami_backend_prepare(original_miami_backend *s)
+{
+    if (!original_miami_backend_status(s)) return 0;
+    if (s->block_prepared) return 1;
+    if (!completed(s, original_miami_control_owner_block_prepare(&s->control_owner, &s->clock1))) return 0;
+    s->block_prepared = 1;
+    return 1;
+}
+
+int original_miami_backend_render_event_words(original_miami_backend *s, original_miami_fx_workspace *w,
+    uint32_t *left, uint32_t *right, uint32_t frames, const original_engine_event *events, uint32_t count)
+{
+    if (!original_miami_backend_status(s) || !events_valid(events, count, frames)) return 0;
+    if (!frames) return 1;
+    if (!words_valid(s, w, left, right, frames)) return 0;
+    if (count) {
+        size_t event_bytes = (size_t)count * sizeof *events;
+        if (event_bytes / sizeof *events != count || overlap(events, event_bytes, s, sizeof *s) ||
+            overlap(events, event_bytes, w, sizeof *w)) return 0;
+        const void *p[6] = {left, right, w->dryL, w->dryR, w->scratchL, w->scratchR};
+        for (unsigned i = 0; i < 6; ++i)
+            if (overlap(events, event_bytes, p[i], (size_t)frames *
+                (i < 4 ? sizeof(uint32_t) : sizeof(int16_t)))) return 0;
+    }
+    if (!original_miami_backend_prepare(s)) return 0;
+    uint32_t cursor = 0;
+    for (uint32_t frame = 0; frame < frames; ++frame) {
+        while (cursor < count && events[cursor].frame == frame) {
+            if (!completed(s, event_apply(s, events + cursor))) return 0;
+            ++cursor;
+        }
+        if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler)) ||
+            !completed(s, original_miami_voice_owner_control_all(&s->voice_owner))) return 0;
+        float l = 0.0f, r = 0.0f;
+        for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
+            float x, y;
+            if (!completed(s, original_miami_selected_voice_render_frame(&s->voices[id], &s->controls, &x, &y))) return 0;
+            l = l + x;
+            r = r + y;
+        }
+        left[frame] = original_math_bits(l);
+        right[frame] = original_math_bits(r);
+    }
+    int result = completed(s, original_miami_output_process(&s->output, &s->program, w,
+        left, right, left, right, frames, 0, NULL, 0));
+    s->block_prepared = 0;
+    return result;
+}
+
+int original_miami_backend_render_events(original_miami_backend *s, original_miami_backend_workspace *w,
+    float *left, float *right, uint32_t frames, const original_engine_event *events, uint32_t count)
+{
+    if (!original_miami_backend_status(s) || !events_valid(events, count, frames)) return 0;
+    if (!frames) return 1;
+    if (!w || !left || !right || !words_valid(s, &w->fx, w->left, w->right, frames)) return 0;
+    const void *p[6] = {w->left, w->right, w->fx.dryL, w->fx.dryR, w->fx.scratchL, w->fx.scratchR};
+    size_t bytes = (size_t)frames * sizeof(float);
+    if (overlap(left, bytes, right, bytes) || overlap(left, bytes, s, sizeof *s) ||
+        overlap(right, bytes, s, sizeof *s) || overlap(left, bytes, w, sizeof *w) ||
+        overlap(right, bytes, w, sizeof *w)) return 0;
+    if (count && (overlap(left, bytes, events, (size_t)count * sizeof *events) ||
+        overlap(right, bytes, events, (size_t)count * sizeof *events))) return 0;
+    for (unsigned i = 0; i < 6; ++i) {
+        size_t n = (size_t)frames * (i < 4 ? sizeof(uint32_t) : sizeof(int16_t));
+        if (overlap(left, bytes, p[i], n) || overlap(right, bytes, p[i], n) ||
+            overlap(p[i], n, w, sizeof *w)) return 0;
+    }
+    if (!original_miami_backend_render_event_words(s, &w->fx, w->left, w->right, frames, events, count)) return 0;
+    memcpy(left, w->left, bytes);
+    memcpy(right, w->right, bytes);
+    return 1;
+}
+
+int original_miami_backend_render_words(original_miami_backend *s, original_miami_fx_workspace *w,
+    uint32_t *left, uint32_t *right, uint32_t frames)
+{
+    return original_miami_backend_render_event_words(s, w, left, right, frames, NULL, 0);
+}
+
+int original_miami_backend_render_stereo(original_miami_backend *s, original_miami_backend_workspace *w,
+    float *left, float *right, uint32_t frames)
+{
+    return original_miami_backend_render_events(s, w, left, right, frames, NULL, 0);
+}
+
+int original_miami_backend_active(const original_miami_backend *s)
+{
+    if (!original_miami_backend_status(s)) return 1;
+    /* Raw latched keys survive ordinary releases; only an enabled latch
+     * lets the selector schedule them again. */
+    if (s->keys.physical_count ||
+        (s->keys.committed_enable && s->keys.effective_latch && s->keys.latched_count) ||
+        s->allocator.held_active.count) return 1;
+    for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; ++i)
+        if (s->voices[i].active || s->voices[i].awaiting_restart) return 1;
+    return s->output.fx.decimator.kernel.held_left != 0 || s->output.fx.decimator.kernel.held_right != 0;
+}
+
+int original_miami_backend_idle(const original_miami_backend *s)
+{
+    return original_miami_backend_status(s) && !original_miami_backend_active(s);
+}

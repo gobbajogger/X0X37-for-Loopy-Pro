@@ -307,7 +307,7 @@ static void solo_transitions(void)
     press(10);                      /* hold an 808 bank2 drum beside the original 909s */
     CHECK(wire_led[10] == 127);
     release(8); release(9);
-    CHECK(smc_project_active() && wire_led[10] == 127);
+    CHECK(!smc_project_active() && !wire_led[10]);
     smc_view(V_HOME, 0);
     release(10);
     CHECK(!smc_project_active());
@@ -335,15 +335,15 @@ static void solo_transitions(void)
     }
 
     for (int route = -1; route < 2; route++) {
-        context = "User MMC drum Solo latch and transport routes";
+        context = "User MMC ignored for Solo, recording and transport";
         setup(1, 1);
         proj.set.bt |= PROJ_BT_SMC_USER;
         mmc(10, route);
-        CHECK(smc_project_active() && wire_led[10] == 127);
+        CHECK(!smc_project_active() && !wire_led[10]);
         mmc(10, route);
         CHECK(!smc_project_active() && !wire_led[10]);
         mmc(2, route);
-        CHECK(ui.part == 1 && ui.sel[1] == 10 && ui.rec);
+        CHECK(ui.part == 1 && ui.sel[1] == 8 && !ui.rec);
     }
 }
 
