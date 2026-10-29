@@ -33,12 +33,19 @@ function persist(){
  // Capture every revision before enqueueing; never serialize a later mutable draft
  // against an earlier transaction. A failed save stops all subsequent writes.
  const snapshot=copy(store.doc),token=++saveToken;
+ $('#draft-state').textContent='Local draft saving · device unavailable';
  const attempt=saveQueue.then(()=>{
   if(failedSaving)throw Error('A previous local save failed; export then reload to resume.');
   return draftStorage.save(snapshot);
  });
  saveQueue=attempt.then(
-  ()=>{if(token===saveToken)message('Local draft saved in browser storage. Nothing sent to the device.');},
+  ()=>{
+   if(token===saveToken){
+    $('#draft-state').textContent='Local draft saved · device unavailable';
+    // An earlier pending save must not erase a newer MIDI/validation error.
+    if($('#message').textContent.includes('saving locally'))message('Local draft saved in browser storage. Nothing sent to the device.');
+   }
+  },
   error=>{
    failedSaving=true;
    $('#draft-state').textContent='Local edits unsaved · export draft';
