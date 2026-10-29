@@ -4597,9 +4597,9 @@
       "title": "Unified clear installer and sample-management page",
       "owner": "Installer illustration implementation owner",
       "owner_execution_state": "ACTIVE_STAGE_REPORTED",
-      "status": "SCOPED_SOURCE_REVIEW_DELIVERY_AND_BROWSER_HOLD",
+      "status": "SCOPED_WEBSITE_REPAIR_PUBLISHED_RESIDUAL_ACCEPTANCE_SEPARATE",
       "priority": "P1",
-      "next_action": "Existing site/Project Workspace owners consume current scoped source receipts and preserve actual public-write denials. Qualify missing applicable browser/served-page gates through supported routes; no redundant owner-publication decision or alternate-route retry.",
+      "next_action": "Reuse the completed PR89/90/91/92 website and actual HTTPS/browser acceptance at the linked exact source and Pages pins. Do not repeat publication, old layout/slot-map repair or unchanged QA. Existing PR58/70/74 and firmware owners retain snapshot-capability and atomic-ownership work; reconcile only that remaining request scope against fresh evidence. No new source writer or hardware result is inferred.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-013"
@@ -4694,25 +4694,44 @@
       ],
       "evidence": {
         "source": {
-          "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "EC045 at source 785deb4 and tree 4ae5379 has scoped source approval and a passing full npm test. The first new public blob was denied before mutation. Browser and hardware remain UNRUN. Separate installer EC040 and SITE-INT012 dispositions are retained. Source-ready is not a delivered website.",
-          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+          "state": "SOURCE_VERIFIED",
+          "observed_at": "2026-10-29T06:47:57Z",
+          "summary": "Authenticated current source main a8205aff and Pages 821aa12e were read. Source/Pages build-status share blob 47622519 with 148 history entries; all nine retained DEV versions, eighteen model entries and package-version assignments are preserved.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+            "coordination/automation/evidence/workflow-audit-20261029-publication.json"
+          ]
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "SCOPED_EXISTING_ACCEPTANCE_REUSED",
+          "observed_at": "2026-10-29T06:47:57Z",
+          "summary": "Existing producer and independent reviewers report native build/full affected tests, actual mobile/desktop browser acceptance and all eighteen retained-package selections. This maintenance directly verifies Git identities and metadata, and reuses their attributed exact-input proof; no new product test or browser run is claimed.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/89#issuecomment-6488674146"
+          ]
         },
         "build": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "PR19_NOT_PUBLISHED_OWNER_DECISION_PENDING"
+          "state": "SCOPED_WEBSITE_PUBLISHED_AND_EXISTING_PUBLISHER_HTTPS_VERIFIED",
+          "observed_at": "2026-10-29T06:47:57Z",
+          "source_main": "a8205aff483dce09414093defdc19cf79d57b719",
+          "pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+          "summary": "Existing publisher verified eight exact HTTP 200 responses and all eighteen browser selections at 2026-10-29T05:31:25.589575Z. This is delivered website/R48 scope, not new firmware, atomic-ownership or hardware qualification.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+            "coordination/automation/evidence/workflow-audit-20261029-publication.json"
+          ]
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:36:00Z",
+      "updated_at": "2026-10-29T06:47:57Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Truthful firmware UI and unified install/sample workflow with responsive unambiguous controls.",
       "history": [
@@ -5014,6 +5033,52 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-29T06:47:57Z",
+          "previous_ref": "57a692d79e1c1253af649b10eb4d5922566fa567",
+          "change_reason": "Consume existing verified website publication receipts and remove obsolete pre-publication next actions; retain original owner and incomplete firmware/atomic-ownership scope.",
+          "previous": {
+            "status": "SCOPED_SOURCE_REVIEW_DELIVERY_AND_BROWSER_HOLD",
+            "next_action": "Existing site/Project Workspace owners consume current scoped source receipts and preserve actual public-write denials. Qualify missing applicable browser/served-page gates through supported routes; no redundant owner-publication decision or alternate-route retry.",
+            "evidence": {
+              "source": {
+                "state": "SCOPED_PROGRESS_REPORTED",
+                "summary": "EC045 at source 785deb4 and tree 4ae5379 has scoped source approval and a passing full npm test. The first new public blob was denied before mutation. Browser and hardware remain UNRUN. Separate installer EC040 and SITE-INT012 dispositions are retained. Source-ready is not a delivered website.",
+                "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "PR19_NOT_PUBLISHED_OWNER_DECISION_PENDING"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-27T22:36:00Z",
+            "priority_assessment": {
+              "category": "ux_repair",
+              "severity": "moderate",
+              "reach": "installer users",
+              "confidence": "reported",
+              "readiness": "ready",
+              "effort": "unknown",
+              "work_areas": [
+                "installer-ui"
+              ],
+              "rationale": "Install/sample workflow clarity is recurring user-facing friction; publication remains separately gated.",
+              "evidence_refs": [
+                "requests.json#LX-REQ-012.evidence.source",
+                "requests.json#LX-REQ-012.completion_criterion"
+              ]
+            }
+          }
         }
       ],
       "priority_assessment": {
@@ -5026,10 +5091,12 @@
         "work_areas": [
           "installer-ui"
         ],
-        "rationale": "Install/sample workflow clarity is recurring user-facing friction; publication remains separately gated.",
+        "rationale": "Website repair publication is evidenced. Preserve request and existing owner for remaining scoped acceptance; old pre-publication steps must not be redispatched.",
         "evidence_refs": [
           "requests.json#LX-REQ-012.evidence.source",
-          "requests.json#LX-REQ-012.completion_criterion"
+          "requests.json#LX-REQ-012.completion_criterion",
+          "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+          "coordination/automation/evidence/workflow-audit-20261029-publication.json"
         ]
       },
       "status_as_of": "2026-10-27T22:36:00Z",
@@ -5304,9 +5371,9 @@
       "title": "Accurate public catalog/history and retained installable builds",
       "owner": "Catalog producer and website QA",
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
-      "status": "PUBLISHED_CATALOG_RECONCILED_CURRENT_CANDIDATE_NOT_DELIVERED",
+      "status": "R48_HISTORY_PUBLISHED_CURRENT_FIRMWARE_DELIVERY_SEPARATE",
       "priority": "P2",
-      "next_action": "Existing catalog/publisher owners: consume a qualified exact candidate and verify served package/controller bytes through the authorized route; preserve retained installables and do not promote source labels alone.",
+      "next_action": "The 145-to-148 R48 history publication is complete. Retain all nine versions and eighteen package identities. Reuse the existing publisher HTTPS/selection proof; a new publication requires changed, qualified input assigned to the current publisher. Firmware-candidate delivery remains with LX-REQ-016 and is not closed by catalog parity. Do not prepare the superseded manifest-only publication again.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-013"
@@ -5387,27 +5454,44 @@
       ],
       "evidence": {
         "source": {
-          "state": "PUBLISHED_CATALOG_RECONCILED_CURRENT_CANDIDATE_NOT_DELIVERED",
-          "summary": "Pinned gh-pages c70a66d5a38c4397d3c93774c407f11cb8336acb has 9 DEV entries, latest nightly-0e77d923-dev; all hardware_tested=false. Source preview-catalog is intentionally empty. No fresh HTTPS-byte validation was executed by this reconciliation.",
-          "provenance": "Live exact PR metadata and the linked existing public receipts; no product tests rerun.",
-          "observed_at": "2026-10-27T22:17:33.283Z"
+          "state": "SOURCE_VERIFIED",
+          "observed_at": "2026-10-29T06:47:57Z",
+          "summary": "Authenticated current source main a8205aff and Pages 821aa12e were read. Source/Pages build-status share blob 47622519 with 148 history entries; all nine retained DEV versions, eighteen model entries and package-version assignments are preserved.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+            "coordination/automation/evidence/workflow-audit-20261029-publication.json"
+          ]
         },
         "test": {
-          "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
-          "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+          "state": "SCOPED_EXISTING_ACCEPTANCE_REUSED",
+          "observed_at": "2026-10-29T06:47:57Z",
+          "summary": "Existing producer and independent reviewers report native build/full affected tests, actual mobile/desktop browser acceptance and all eighteen retained-package selections. This maintenance directly verifies Git identities and metadata, and reuses their attributed exact-input proof; no new product test or browser run is claimed.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/89#issuecomment-6488674146"
+          ]
         },
         "build": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         },
         "deployed": {
-          "state": "SUPPLIED_LIVE_CATALOG_LABEL_BYTES_UNCHANGED",
-          "summary": "latestnightly-a03cfab3-dev; firmware bytes unchanged from F02; no fresh endpoint byte check in this ledger stage."
+          "state": "SCOPED_WEBSITE_PUBLISHED_AND_EXISTING_PUBLISHER_HTTPS_VERIFIED",
+          "observed_at": "2026-10-29T06:47:57Z",
+          "source_main": "a8205aff483dce09414093defdc19cf79d57b719",
+          "pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+          "summary": "Existing publisher verified eight exact HTTP 200 responses and all eighteen browser selections at 2026-10-29T05:31:25.589575Z. This is delivered website/R48 scope, not new firmware, atomic-ownership or hardware qualification.",
+          "evidence_refs": [
+            "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+            "coordination/automation/evidence/workflow-audit-20261029-publication.json"
+          ]
         },
         "hardware": {
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-27T22:17:33.283Z",
+      "updated_at": "2026-10-29T06:47:57Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Retain known-good installable builds and separate source/history from selectable firmware.",
       "history": [
@@ -5638,6 +5722,54 @@
             "metadata_reconciliation",
             "status_as_of"
           ]
+        },
+        {
+          "observed_at": "2026-10-29T06:47:57Z",
+          "previous_ref": "57a692d79e1c1253af649b10eb4d5922566fa567",
+          "change_reason": "Consume existing verified website publication receipts and remove obsolete pre-publication next actions; retain original owner and incomplete firmware/atomic-ownership scope.",
+          "previous": {
+            "status": "PUBLISHED_CATALOG_RECONCILED_CURRENT_CANDIDATE_NOT_DELIVERED",
+            "next_action": "Existing catalog/publisher owners: consume a qualified exact candidate and verify served package/controller bytes through the authorized route; preserve retained installables and do not promote source labels alone.",
+            "evidence": {
+              "source": {
+                "state": "PUBLISHED_CATALOG_RECONCILED_CURRENT_CANDIDATE_NOT_DELIVERED",
+                "summary": "Pinned gh-pages c70a66d5a38c4397d3c93774c407f11cb8336acb has 9 DEV entries, latest nightly-0e77d923-dev; all hardware_tested=false. Source preview-catalog is intentionally empty. No fresh HTTPS-byte validation was executed by this reconciliation.",
+                "provenance": "Live exact PR metadata and the linked existing public receipts; no product tests rerun.",
+                "observed_at": "2026-10-27T22:17:33.283Z"
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "SUPPLIED_LIVE_CATALOG_LABEL_BYTES_UNCHANGED",
+                "summary": "latestnightly-a03cfab3-dev; firmware bytes unchanged from F02; no fresh endpoint byte check in this ledger stage."
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-27T22:17:33.283Z",
+            "priority_assessment": {
+              "category": "safety_integrity",
+              "severity": "major",
+              "reach": "catalog users",
+              "confidence": "reported",
+              "readiness": "ready",
+              "effort": "unknown",
+              "work_areas": [
+                "release"
+              ],
+              "rationale": "Labels must match real source/bytes and retain safe installable history.",
+              "evidence_refs": [
+                "requests.json#LX-REQ-014.evidence.source",
+                "requests.json#LX-REQ-014.completion_criterion"
+              ]
+            }
+          }
         }
       ],
       "priority_assessment": {
@@ -5645,16 +5777,19 @@
         "severity": "major",
         "reach": "catalog users",
         "confidence": "reported",
-        "readiness": "ready",
+        "readiness": "blocked",
         "effort": "unknown",
         "work_areas": [
           "release"
         ],
-        "rationale": "Labels must match real source/bytes and retain safe installable history.",
+        "rationale": "Published metadata matches the retained catalog; preserve the existing catalog owner and wait for genuinely changed qualified input before another publication. Current firmware delivery is a separate request.",
         "evidence_refs": [
           "requests.json#LX-REQ-014.evidence.source",
-          "requests.json#LX-REQ-014.completion_criterion"
-        ]
+          "requests.json#LX-REQ-014.completion_criterion",
+          "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+          "coordination/automation/evidence/workflow-audit-20261029-publication.json"
+        ],
+        "readiness_note": "No new changed qualified catalog/package input is assigned. Completed R48 history publication must not become another worker claim; resume only for an actual new qualified input or new concrete catalog regression."
       },
       "status_as_of": "2026-10-27T22:17:33.283Z",
       "metadata_reconciliation": {
@@ -8686,9 +8821,9 @@
       "title": "Productive schedulers and reduced request-to-install lead time",
       "owner": "Scheduler maintenance coordinator",
       "owner_execution_state": "RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED",
-      "status": "ACCEPTED_CONTINUATION_HANDOFFS_READY_CONTROL_DIAGNOSIS_SEPARATE_NIGHTLY_PENDING",
+      "status": "ACCEPTED_WORKFLOW_REPAIR_AND_EXISTING_HANDOFF_RECONCILIATION_PENDING",
       "priority": "P1",
-      "next_action": "Existing accepted actions proceed from their current receipts without waiting for this ledger edit: the sole Website Publisher consumes PR83#issuecomment-6461056534, re-resolves Pages and prepares/checks only the 145-to-148 history/count delta while retaining all nine DEV versions and other installer/package bytes. In parallel, the existing LX-REQ-016 Dot sole integrator selects one current immutable combined compiler-input closure after reconciling newer candidate metadata; existing Build and assigned independent QA recover only the selected closure's missing application budgets/native proof and concrete remaining failure evidence. Reuse the completed 5f58 package checks as historical proof, not a current-candidate selection. The existing LX-REQ-011/PR58 installer producer repairs the three pinned target-binding refusal failures, followed by its assigned exact-fingerprint QA. Preserve the two baseline drum p-lock failures until their source owner resolves the exact cases. The Orchestrator retains existing dispatch and sole canonical writing; root's bounded ledger proposal/review creates no new owner or scheduler. Historical control diagnosis and incomplete fleet visibility do not block these accepted disjoint actions; new or overlapping claims still require verified owner/scope/capacity. NIGHTLY installer delivery remains open until actual qualified artifacts, lawful publication and served-byte/installer acceptance exist.",
+      "next_action": "The existing sole canonical writer consumes this independently checked bounded maintenance proposal and the already delivered publisher receipt; no publication rerun. Preserve the existing source, reviewer, merger and publisher owners. The existing Orchestrator resolves the authenticated result/control route for its inaccessible registered roles and the three event replacements, preserving unknown states and predecessor timers. Existing firmware integrator, Build and QA continue only their accepted pinned candidate/snapshot/atomic-ownership steps; partial fleet visibility does not block those disjoint actions. Prepared continuations must respect explicit unresolved dependencies and do not consume new-worker slots.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016",
@@ -8904,7 +9039,7 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-28T06:57:36Z",
+      "updated_at": "2026-10-29T06:47:57Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
       "user_intent": "Run accepted independent work automatically in parallel, adapting to new tasks and results through shared state without another user push or per-task automation instruction rewrite.",
       "history": [
@@ -9528,6 +9663,205 @@
             "event_replacement_rollout",
             "live_acceptance_plan"
           ]
+        },
+        {
+          "observed_at": "2026-10-29T06:47:57Z",
+          "previous_ref": "57a692d79e1c1253af649b10eb4d5922566fa567",
+          "change_reason": "Owner-requested workflow audit consumes the previously unadopted existing publisher handoff and records concrete planner/document/visibility findings without a new coordinator or lifecycle mutation.",
+          "previous": {
+            "status": "ACCEPTED_CONTINUATION_HANDOFFS_READY_CONTROL_DIAGNOSIS_SEPARATE_NIGHTLY_PENDING",
+            "next_action": "Existing accepted actions proceed from their current receipts without waiting for this ledger edit: the sole Website Publisher consumes PR83#issuecomment-6461056534, re-resolves Pages and prepares/checks only the 145-to-148 history/count delta while retaining all nine DEV versions and other installer/package bytes. In parallel, the existing LX-REQ-016 Dot sole integrator selects one current immutable combined compiler-input closure after reconciling newer candidate metadata; existing Build and assigned independent QA recover only the selected closure's missing application budgets/native proof and concrete remaining failure evidence. Reuse the completed 5f58 package checks as historical proof, not a current-candidate selection. The existing LX-REQ-011/PR58 installer producer repairs the three pinned target-binding refusal failures, followed by its assigned exact-fingerprint QA. Preserve the two baseline drum p-lock failures until their source owner resolves the exact cases. The Orchestrator retains existing dispatch and sole canonical writing; root's bounded ledger proposal/review creates no new owner or scheduler. Historical control diagnosis and incomplete fleet visibility do not block these accepted disjoint actions; new or overlapping claims still require verified owner/scope/capacity. NIGHTLY installer delivery remains open until actual qualified artifacts, lawful publication and served-byte/installer acceptance exist.",
+            "updated_at": "2026-10-28T06:57:36Z",
+            "priority_assessment": {
+              "category": "ux_repair",
+              "severity": "major",
+              "reach": "Existing project workflow and accepted request continuations",
+              "confidence": "source_verified",
+              "readiness": "ready",
+              "effort": "complex",
+              "work_areas": [
+                "workflow-recovery-existing-owner-handoff"
+              ],
+              "rationale": "Ready for coordination and consumption of the specific existing accepted publisher, candidate-selection and installer-repair actions in workflow_recovery_plan. Exact manifest and current failure evidence are available; completed historical-package checks are reusable. Ledger-edit review/adoption is separate from execution of these already accepted scopes. This readiness grants no new worker, free capacity, current-package selection, publication or hardware authority. The separate QA enabled observation does not prove a new run. Existing source, reviewer, publisher and sole state-writer owners remain.",
+              "evidence_refs": [
+                "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86#issuecomment-6457428020",
+                "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/664",
+                "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/97d336e96f11caf4844e94fc187f52827b973b65/coordination/merge-queue/current-delivery.json",
+                "requests.json#LX-REQ-020.control_diagnostic",
+                "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6461056534",
+                "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/12f3b3cd32851f55c4635c697568cbbbb9a29300/coordination/merge-queue/current-delivery.json"
+              ]
+            },
+            "bounded_maintenance": {
+              "observed_at": "2026-10-28T06:57:36Z",
+              "author": "Current owner-authorized root bounded local recovery proposal and review coordination; existing project roles retained",
+              "accepted_scope": [
+                "LX-REQ-020 current task-data recovery proposal and exact review"
+              ],
+              "stage": "CURRENT_RECOVERY_EVIDENCE_AND_EXISTING_OWNER_HANDOFFS_PREPARED",
+              "candidate_base": "12f3b3cd32851f55c4635c697568cbbbb9a29300",
+              "shared_state_owner": "Scheduler maintenance coordinator",
+              "ownership_transfer": false,
+              "capacity": "NOT_INFERRED; planner verification uses zero new worker slots",
+              "liveness_limit": "Actual root/native work is isolated proposal preparation and review coordination. No running scheduler, new admission or receiver consumption is inferred. The separately recorded exact QA enabled readback is a control-state fact only, not proof of a new run.",
+              "overlap_policy": "Existing Orchestrator/sole state writer serializes canonical adoption and dispatch. Existing source, review, integration and publication owners retain their scopes. No shared canonical write scope is claimed here.",
+              "next_result_required": "Existing publisher manifest-only candidate/check action, sole-integrator current compiler-input selection and missing-proof recovery, and existing PR58 producer/QA target-binding repair evidence, each with exact inputs and a real result or precise action-specific blocker. These accepted actions do not wait for this ledger edit's separate review/adoption.",
+              "active_write_areas": [],
+              "execution_scope_released": true
+            },
+            "workflow_recovery_plan": {
+              "observed_at": "2026-10-28T06:57:36Z",
+              "state": "EXISTING_ACCEPTED_CONTINUATIONS_READY_FINAL_NIGHTLY_PENDING",
+              "ledger_edit_rule": "Only this ledger edit requires its exact independent review and adoption by the existing sole canonical writer. Once the current canonical commit contains the reviewed delta, consume its actions without repeating proposal preparation or review. Existing accepted disjoint actions already proceed from their current receipts and do not depend on this edit, a fresh owner acknowledgment or full fleet inventory.",
+              "owner_instruction": {
+                "source": "Current owner instruction in this session, summarized by the root task assignment",
+                "summary": "Continue project and workflow improvement through problems toward an installable NIGHTLY. Partial fleet visibility must not globally block known authorized disjoint work. Preserve existing implementation/reviewer/merger ownership and let the existing Orchestrator dispatch without duplicates.",
+                "scope": "Record and independently review this bounded current-task-data recovery while accepted work continues to its existing next consumer. This is not permission to bypass an actual denial, create or enable workers, transfer ownership, infer capacity, publish unqualified outputs or operate hardware."
+              },
+              "input_pins": {
+                "canonical_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "canonical_ref": "coordination/merge-queue",
+                "canonical_commit": "12f3b3cd32851f55c4635c697568cbbbb9a29300",
+                "requests_blob": "41f075b58d5723a5961c5e9a3aacf712f5a8480f",
+                "current_delivery_blob": "4a0fbc2bc04c85e48555c1244bc84dc3d83000cd",
+                "receipt_refresh_rule": "Re-resolve actual current canonical and target refs before action. Record the existing accepted receipt and current input identity consumed. When this ledger update is adopted, record its actual containing commit; the baseline commit does not contain this later recovery record and adoption of that record is not a prerequisite for independently accepted work."
+              },
+              "ownership": {
+                "request_owner": "Scheduler maintenance coordinator",
+                "current_root_assignment": "Bounded isolated recovery proposal, evidence checks and independent review coordination",
+                "canonical_writer_and_dispatch": "Existing authenticated Orchestrator/sole state-writer and integrator route; no identity or ownership transfer is created by this data proposal",
+                "source_review_publication": "All existing per-candidate producer, independent reviewer, merger and publisher owners retained"
+              },
+              "recent_scoped_evidence": {
+                "live_https_readback": {
+                  "observed_at": "2026-10-28T06:57:07Z",
+                  "state": "THREE_SERVED_FILES_HTTP_200_AND_EXACT_GIT_BLOB_MATCH",
+                  "artifacts": [
+                    {
+                      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/build-status.json",
+                      "bytes": 268471,
+                      "sha256": "853a6ae893bd4c5486d7baf254f0087c3dddc1eb18884b73629993aae82cb596",
+                      "git_blob": "459452c6fc6eb587b820b5d88030ea48ceae0d84",
+                      "history_count": 145
+                    },
+                    {
+                      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/versions.json",
+                      "bytes": 20071,
+                      "sha256": "1862395fa364e185393bfe579928e5461fda5d0f01d2c7f45bd2472e0fc18ebc",
+                      "git_blob": "c7503b19c19de6c92892bdf8b3716d8801ef5262",
+                      "version_count": 9,
+                      "latest": "nightly-0e77d923-dev"
+                    },
+                    {
+                      "url": "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/index.html",
+                      "bytes": 503936,
+                      "sha256": "feb3355a0e35d58e9fc03efa894760b767345bc6f2c42fe66383e134aca23547",
+                      "git_blob": "f0799ae50e5f607360d556aa849db3b3aff6d1b2"
+                    }
+                  ],
+                  "meaning": "The earlier HTTP-unavailable observation is superseded for these exact current reads. Served history remains 145 and versions remain nine; no 148-row publisher adoption is inferred. The served installer matches the exact independently failing target-binding fingerprint."
+                },
+                "historical_package_checks": {
+                  "source": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9",
+                  "state": "PRIVATE_STOCK_OWNER_BUILD_ONLY_NOT_CURRENT_CANDIDATE",
+                  "actual_result": "Exact existing Elite and Pro package checks executed and exited 0; archive/hash/source-manifest checks passed",
+                  "reuse": "Reuse completed exact-byte package checks and the existing exact 12-case negative-check receipt; do not reretrieve or rebuild unchanged outputs",
+                  "limits": "No complete combined Git/compiler root or selected current candidate is established; exact application RAM/pool and full native application receipt remain unverified",
+                  "newer_candidate_metadata": "26ee2ace and e2f881b metadata exist; reconcile their exact identities/current ownership before selecting an older package. Metadata alone is not package or build acceptance."
+                },
+                "independent_qa_control_observation": {
+                  "automation_id": "6adafbbf54088191a86715d49e7dc6b0",
+                  "observed_at": "2026-10-28T06:52:26Z",
+                  "evidence_origin": "Current owner-authorized root exact control readback",
+                  "is_enabled": true,
+                  "prompt_and_schedule_preserved": true,
+                  "new_run_observed": false,
+                  "original_pause_cause": "UNKNOWN",
+                  "scope": "One exact identity's enabled readback only; no global runtime, capacity, new task, duplicate review or causal repair claim"
+                }
+              },
+              "parallel_existing_owner_steps": [
+                {
+                  "stage_id": "CATALOG_R48_MANIFEST_ONLY_EXISTING_PUBLISHER_CONSUMPTION",
+                  "state": "EXACT_HANDOFF_AVAILABLE_RECEIVER_ACTION_PENDING",
+                  "existing_package": "CATALOG-R48",
+                  "receiver_role_id": "website_publisher",
+                  "receiver_automation_id": "6ada674b477c819195394ec6797d7338",
+                  "evidence_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6461056534",
+                  "current_receiver_evidence": "At the authenticated 06:56 UTC read, the exact handoff had no publisher response or adoption; live HTTPS at 06:57:07 still has 145 history rows and nine versions",
+                  "inputs": {
+                    "website_main": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
+                    "source_manifest_blob": "47622519bba0c305f7997ec8093b8f08e0ba1285",
+                    "observed_pages": "c70a66d5a38c4397d3c93774c407f11cb8336acb",
+                    "observed_pages_manifest_blob": "459452c6fc6eb587b820b5d88030ea48ceae0d84",
+                    "preserved_versions_blob": "c7503b19c19de6c92892bdf8b3716d8801ef5262",
+                    "history_delta": "145 retained entries plus three noninstallable validation-evidence-only entries; total 148",
+                    "retained_versions": 9
+                  },
+                  "next_action": "The existing sole publisher independently re-resolves current gh-pages and consumes this exact manifest-only handoff. Reconcile any intervening change, prepare the isolated history/count-only candidate and run affected schema/history checks. Preserve nine DEV versions, installer behavior, all package/controller URLs and other existing safer Pages bytes. Do not copy empty source preview versions or the whole docs tree. Any later deployment uses that existing publisher's actual authority and normal gates, followed by actual hosted-byte qualification.",
+                  "bounded_acceptance": "Matching actual publisher evidence of consuming the existing exact handoff and checking the manifest-only candidate, or its precise action-specific blocker. This ledger update is not a start prerequisite. A sender comment/readback, registration or run request is not receiver consumption or publication approval.",
+                  "limits": "This changes source/history presentation only: no new firmware/package, hardware result or installable NIGHTLY is established. Current served-byte checks are verified in recent_scoped_evidence; a later publisher action still requires readback of its actual resulting HTTPS bytes."
+                },
+                {
+                  "stage_id": "CURRENT_COMBINED_CANDIDATE_SELECTION_AND_MISSING_PROOF",
+                  "state": "EXISTING_SOLE_INTEGRATOR_SELECTION_AND_SCOPED_QUALIFICATION_PENDING",
+                  "existing_request": "LX-REQ-016",
+                  "receiver": "Existing Dot sole source-selection integrator, followed by existing Build and the assigned exact-candidate independent reviewer; preserve current source owners and do not select another QA identity by title",
+                  "input_evidence_refs": [
+                    "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/12f3b3cd32851f55c4635c697568cbbbb9a29300/coordination/merge-queue/current-delivery.json",
+                    "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/638#issuecomment-6457666884"
+                  ],
+                  "next_action": "The existing sole integrator reconciles current accepted source/candidate receipts, including newer 26ee2ace/e2f881b metadata, and selects one immutable complete combined compiler-input closure. Do not promote or repeatedly qualify the older 5f58 owner bundle by default. Existing Build/QA reuse completed exact-input package/controller/host/native checks and recover the selected application's missing FLASH/RAM/pool budgets and full native evidence. Its existing source owner recovers the exact two drum p-lock failing expressions/logs and repairs or diagnoses the concrete cases while preserving both tests; rerun only affected changed or genuinely unrun proof. Record a usable exact-input result for the next existing consumer, with any remaining actual gate.",
+                  "bounded_acceptance": "Actual sole-integrator selection of the current immutable compiler/input root, followed by the existing Build/QA owner's first missing-proof or affected-check action on that root. Separate completed historical proof, exact failures, unrun checks and remaining admission/publication prerequisites. A private package, metadata prefix or source merge is not public installer delivery.",
+                  "preserved_limits": [
+                    "Two unchanged baseline drum p-lock assertions remain failed; do not report them as passes.",
+                    "Two-device hardware validation remains UNRUN; no device action is authorized by this proposal.",
+                    "The older 5f58 package excludes later Settings 2385 and all-glyph 26f923 changes; its passing package checks do not select it as the current candidate.",
+                    "Public NIGHTLY 21ce25dac3fef015dfd95f6b3b7371272c3fc5bd is a separate compiled closure.",
+                    "No restricted private inputs, unrelated private files or private storage/run identifiers enter public evidence."
+                  ]
+                },
+                {
+                  "stage_id": "PR58_EXISTING_INSTALLER_TARGET_BINDING_REPAIR",
+                  "state": "THREE_EXACT_FINGERPRINT_REFUSAL_FAILURES_REQUIRE_EXISTING_OWNER_REPAIR",
+                  "existing_request": "LX-REQ-011",
+                  "receiver": "Existing PR58 installer producer and its assigned independent reviewer; no new source or QA owner",
+                  "source_refs": [
+                    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58",
+                    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58#issuecomment-6453497814",
+                    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/blob/c70a66d5a38c4397d3c93774c407f11cb8336acb/install/index.html"
+                  ],
+                  "current_producer_snapshot": {
+                    "observed_at": "2026-10-28 06:56 UTC",
+                    "pr_state": "OPEN_DRAFT",
+                    "head": "11a07367174dbcfee414d0bae05c00b4c15d0a9c",
+                    "fm1ota_js_blob": "13e41552253c9c5e81e1376fd01dce7d4cab50fe",
+                    "matching_repair_or_acceptance": "NOT_OBSERVED; source still matches the failing QA pin"
+                  },
+                  "tested_fingerprint": {
+                    "pages_commit": "c70a66d5a38c4397d3c93774c407f11cb8336acb",
+                    "install_blob": "f0799ae50e5f607360d556aa849db3b3aff6d1b2"
+                  },
+                  "observed_result": "Independent source-window/syntax checks passed; 3 admission cases passed and 3 target-binding refusals failed. Foreign cross-model same-name replacement, same-model replacement and renamed sole-compatible loader each reached the write handoff. No real device write was performed.",
+                  "next_action": "The existing installer producer reconciles its current owned source against this tested fingerprint, repairs the demonstrated target-binding refusals and preserves the accepted checks/test union. Its assigned independent reviewer verifies the repaired exact fingerprint with the three refusal cases and affected positive paths. This host-only repair need not wait for historical control diagnosis, full worker enumeration, manifest-history publication or device testing.",
+                  "bounded_acceptance": "Actual owned repair evidence and independent exact-fingerprint pass/fail results, preserving known failures until repaired. No takeover, premature installer deployment or device action."
+                }
+              ],
+              "admission_and_diagnostics": {
+                "unchanged_input_handling": "Reuse the existing exact handoffs and completed checks. An unchanged handoff or absent response is not a reason for another comment, prompt rewrite, full test rerun or synthetic event. Each existing owner performs its concrete bounded action or records the actual action-specific unavailability; new evidence, changed input or a resolved prerequisite drives further work.",
+                "full_dot_inventory": "UNRESOLVED; keep inaccessible identities unknown, not deleted or available for replacement",
+                "new_or_overlapping_claims": "Require verified current owner mapping, disjoint scope and actual free capable capacity",
+                "known_accepted_disjoint_work": "The concrete existing-owner actions above may proceed under their existing authority independently of the unresolved fleet inventory and historical control-cause diagnosis. No read failure grants a configuration write, replacement worker or overlapping claim.",
+                "control_diagnostic": "Retain LX-REQ-020.control_diagnostic unchanged; original cause and actor remain UNKNOWN",
+                "event_rollout": "Retain LX-REQ-020.event_replacement_rollout unchanged. PR667 registry adoption does not prove lookup clarification applied, exact subscription readback, event consumption or old-timer retirement."
+              },
+              "acceptance": {
+                "ledger_edit": "Exact delta passes continuity/preservation checks and independent review for sole-writer canonical adoption; a matching adopted delta is not reviewed again by default",
+                "receiver": "An existing executor consumes a named accepted action from its exact current source/receipt and performs the scoped candidate/check/repair/qualification work. Record actual consumed inputs and request-data commit when applicable, result and next existing consumer, including first real downstream use when exposed. This ledger edit is not an execution prerequisite; another inventory or comment does not satisfy receiver acceptance.",
+                "overall_request": "OPEN. Final installable NIGHTLY remains pending until the accepted model-specific artifacts/controller, catalog/admission evidence, lawful publication and actual served-byte/installer acceptance are established. Manifest-history parity, this proposal, a scheduler invocation or private package availability alone cannot close it."
+              }
+            }
+          }
         }
       ],
       "status_as_of": "2026-10-28T06:57:36Z",
@@ -9558,30 +9892,36 @@
         "work_areas": [
           "workflow-recovery-existing-owner-handoff"
         ],
-        "rationale": "Ready for coordination and consumption of the specific existing accepted publisher, candidate-selection and installer-repair actions in workflow_recovery_plan. Exact manifest and current failure evidence are available; completed historical-package checks are reusable. Ledger-edit review/adoption is separate from execution of these already accepted scopes. This readiness grants no new worker, free capacity, current-package selection, publication or hardware authority. The separate QA enabled observation does not prove a new run. Existing source, reviewer, publisher and sole state-writer owners remain.",
+        "rationale": "Accepted same-owner coordination continuation: adopt checked dependency guard and current delivery evidence, then resolve the existing Orchestrator/result route. Completed website/R48 publication is reused, not dispatched again. Visibility gaps do not establish missing workers, free capacity, a pause cause or permission for replacement jobs.",
         "evidence_refs": [
           "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/86#issuecomment-6457428020",
           "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/664",
           "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/97d336e96f11caf4844e94fc187f52827b973b65/coordination/merge-queue/current-delivery.json",
           "requests.json#LX-REQ-020.control_diagnostic",
           "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6461056534",
-          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/12f3b3cd32851f55c4635c697568cbbbb9a29300/coordination/merge-queue/current-delivery.json"
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/12f3b3cd32851f55c4635c697568cbbbb9a29300/coordination/merge-queue/current-delivery.json",
+          "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+          "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/676#issuecomment-6486687491"
         ]
       },
       "bounded_maintenance": {
-        "observed_at": "2026-10-28T06:57:36Z",
-        "author": "Current owner-authorized root bounded local recovery proposal and review coordination; existing project roles retained",
+        "observed_at": "2026-10-29T06:47:57Z",
+        "author": "Current owner-requested bounded workflow audit and isolated maintenance proposal",
         "accepted_scope": [
-          "LX-REQ-020 current task-data recovery proposal and exact review"
+          "Prepared-continuation dependency guard and focused native regression tests",
+          "Current coordination README routing labels",
+          "Scoped LX-REQ-012/014/020 and CATALOG-R48 delivery reconciliation",
+          "Read-only exact-ID scheduler/role visibility audit"
         ],
-        "stage": "CURRENT_RECOVERY_EVIDENCE_AND_EXISTING_OWNER_HANDOFFS_PREPARED",
-        "candidate_base": "12f3b3cd32851f55c4635c697568cbbbb9a29300",
-        "shared_state_owner": "Scheduler maintenance coordinator",
+        "stage": "ISOLATED_REPAIR_PREPARED_CANONICAL_ADOPTION_PENDING",
+        "candidate_base": "57a692d79e1c1253af649b10eb4d5922566fa567",
+        "shared_state_owner": "Existing Orchestrator / sole canonical ledger writer",
         "ownership_transfer": false,
-        "capacity": "NOT_INFERRED; planner verification uses zero new worker slots",
-        "liveness_limit": "Actual root/native work is isolated proposal preparation and review coordination. No running scheduler, new admission or receiver consumption is inferred. The separately recorded exact QA enabled readback is a control-state fact only, not proof of a new run.",
-        "overlap_policy": "Existing Orchestrator/sole state writer serializes canonical adoption and dispatch. Existing source, review, integration and publication owners retain their scopes. No shared canonical write scope is claimed here.",
-        "next_result_required": "Existing publisher manifest-only candidate/check action, sole-integrator current compiler-input selection and missing-proof recovery, and existing PR58 producer/QA target-binding repair evidence, each with exact inputs and a real result or precise action-specific blocker. These accepted actions do not wait for this ledger edit's separate review/adoption.",
+        "capacity": "No scheduler capacity inferred; bounded local native subagents used disjoint audit/proposal scopes only",
+        "liveness_limit": "Two registered maintenance roles have fresh matched results; 21 other exact identities are inaccessible in this context. No global liveness or guaranteed deadline claim.",
+        "overlap_policy": "Existing Orchestrator retains dispatch and canonical adoption. Product source/integration/publication scopes are unchanged.",
+        "next_result_required": "Existing sole writer adopts checked maintenance, then the current owner consumes its next scoped action. An inaccessible exact-ID lookup must be reconciled in the existing owner context, without a replacement job.",
         "active_write_areas": [],
         "execution_scope_released": true
       },
@@ -10030,8 +10370,8 @@
         "control_diagnostic_note": "The existing Website Main Merger empty-stop cause remains unexposed; new event registrations are not a causal fix, enable authorization or completed request."
       },
       "workflow_recovery_plan": {
-        "observed_at": "2026-10-28T06:57:36Z",
-        "state": "EXISTING_ACCEPTED_CONTINUATIONS_READY_FINAL_NIGHTLY_PENDING",
+        "observed_at": "2026-10-29T06:47:57Z",
+        "state": "WEBSITE_PUBLISHER_CONSUMPTION_VERIFIED_WORKFLOW_REPAIR_AND_FIRMWARE_CONTINUATIONS_PENDING",
         "ledger_edit_rule": "Only this ledger edit requires its exact independent review and adoption by the existing sole canonical writer. Once the current canonical commit contains the reviewed delta, consume its actions without repeating proposal preparation or review. Existing accepted disjoint actions already proceed from their current receipts and do not depend on this edit, a fresh owner acknowledgment or full fleet inventory.",
         "owner_instruction": {
           "source": "Current owner instruction in this session, summarized by the root task assignment",
@@ -10041,8 +10381,8 @@
         "input_pins": {
           "canonical_repository": "gobbajogger/X0X37-for-Loopy-Pro",
           "canonical_ref": "coordination/merge-queue",
-          "canonical_commit": "12f3b3cd32851f55c4635c697568cbbbb9a29300",
-          "requests_blob": "41f075b58d5723a5961c5e9a3aacf712f5a8480f",
+          "canonical_commit": "57a692d79e1c1253af649b10eb4d5922566fa567",
+          "requests_blob": "e8007369cda1954c520c8da50622efa55d197e09",
           "current_delivery_blob": "4a0fbc2bc04c85e48555c1244bc84dc3d83000cd",
           "receipt_refresh_rule": "Re-resolve actual current canonical and target refs before action. Record the existing accepted receipt and current input identity consumed. When this ledger update is adopted, record its actual containing commit; the baseline commit does not contain this later recovery record and adoption of that record is not a prerequisite for independently accepted work."
         },
@@ -10079,7 +10419,8 @@
                 "git_blob": "f0799ae50e5f607360d556aa849db3b3aff6d1b2"
               }
             ],
-            "meaning": "The earlier HTTP-unavailable observation is superseded for these exact current reads. Served history remains 145 and versions remain nine; no 148-row publisher adoption is inferred. The served installer matches the exact independently failing target-binding fingerprint."
+            "meaning": "The earlier HTTP-unavailable observation is superseded for these exact current reads. Served history remains 145 and versions remain nine; no 148-row publisher adoption is inferred. The served installer matches the exact independently failing target-binding fingerprint.",
+            "scope": "Historical 2026-10-28 observation; superseded for the website/R48 stage by current_website_publication. Do not redispatch its old 145-row gap."
           },
           "historical_package_checks": {
             "source": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9",
@@ -10098,29 +10439,41 @@
             "new_run_observed": false,
             "original_pause_cause": "UNKNOWN",
             "scope": "One exact identity's enabled readback only; no global runtime, capacity, new task, duplicate review or causal repair claim"
+          },
+          "current_website_publication": {
+            "state": "VERIFIED_GIT_AND_ATTRIBUTED_EXISTING_PUBLISHER_HTTPS_BROWSER_ACCEPTANCE",
+            "evidence_ref": "coordination/automation/evidence/workflow-audit-20261029-publication.json",
+            "source_main": "a8205aff483dce09414093defdc19cf79d57b719",
+            "pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+            "history_count": 148,
+            "version_count": 9,
+            "model_selections": 18,
+            "publisher_receipt": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "sender_handoff": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+            "fresh_http_or_browser_execution_by_this_maintenance": false
           }
         },
         "parallel_existing_owner_steps": [
           {
             "stage_id": "CATALOG_R48_MANIFEST_ONLY_EXISTING_PUBLISHER_CONSUMPTION",
-            "state": "EXACT_HANDOFF_AVAILABLE_RECEIVER_ACTION_PENDING",
+            "state": "COMPLETED_BY_EXISTING_COMBINED_WEBSITE_PUBLICATION",
             "existing_package": "CATALOG-R48",
             "receiver_role_id": "website_publisher",
             "receiver_automation_id": "6ada674b477c819195394ec6797d7338",
-            "evidence_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6461056534",
-            "current_receiver_evidence": "At the authenticated 06:56 UTC read, the exact handoff had no publisher response or adoption; live HTTPS at 06:57:07 still has 145 history rows and nine versions",
+            "evidence_ref": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+            "current_receiver_evidence": "Existing publisher actually merged PR89/92 and verified all eight served responses plus all eighteen model/version selections; actual source/Pages and 148-row history independently read back during this audit.",
             "inputs": {
-              "website_main": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
+              "website_main": "a8205aff483dce09414093defdc19cf79d57b719",
               "source_manifest_blob": "47622519bba0c305f7997ec8093b8f08e0ba1285",
-              "observed_pages": "c70a66d5a38c4397d3c93774c407f11cb8336acb",
-              "observed_pages_manifest_blob": "459452c6fc6eb587b820b5d88030ea48ceae0d84",
+              "observed_pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+              "observed_pages_manifest_blob": "47622519bba0c305f7997ec8093b8f08e0ba1285",
               "preserved_versions_blob": "c7503b19c19de6c92892bdf8b3716d8801ef5262",
-              "history_delta": "145 retained entries plus three noninstallable validation-evidence-only entries; total 148",
+              "history_count": 148,
               "retained_versions": 9
             },
-            "next_action": "The existing sole publisher independently re-resolves current gh-pages and consumes this exact manifest-only handoff. Reconcile any intervening change, prepare the isolated history/count-only candidate and run affected schema/history checks. Preserve nine DEV versions, installer behavior, all package/controller URLs and other existing safer Pages bytes. Do not copy empty source preview versions or the whole docs tree. Any later deployment uses that existing publisher's actual authority and normal gates, followed by actual hosted-byte qualification.",
-            "bounded_acceptance": "Matching actual publisher evidence of consuming the existing exact handoff and checking the manifest-only candidate, or its precise action-specific blocker. This ledger update is not a start prerequisite. A sender comment/readback, registration or run request is not receiver consumption or publication approval.",
-            "limits": "This changes source/history presentation only: no new firmware/package, hardware result or installable NIGHTLY is established. Current served-byte checks are verified in recent_scoped_evidence; a later publisher action still requires readback of its actual resulting HTTPS bytes."
+            "next_action": "No action on this completed publication input. Reuse its immutable evidence; only a changed qualified candidate creates a new publisher transition.",
+            "bounded_acceptance": "Existing actual publication and independent destination acceptance observed; not merely this audit sender readback.",
+            "limits": "No new firmware or hardware qualification. PR58/70/74 residual firmware/atomic-ownership work remains open."
           },
           {
             "stage_id": "CURRENT_COMBINED_CANDIDATE_SELECTION_AND_MISSING_PROOF",
@@ -10143,42 +10496,44 @@
           },
           {
             "stage_id": "PR58_EXISTING_INSTALLER_TARGET_BINDING_REPAIR",
-            "state": "THREE_EXACT_FINGERPRINT_REFUSAL_FAILURES_REQUIRE_EXISTING_OWNER_REPAIR",
+            "state": "WEBSITE_REPAIR_DELIVERED_FIRMWARE_SNAPSHOT_AND_ATOMIC_OWNERSHIP_PENDING",
             "existing_request": "LX-REQ-011",
             "receiver": "Existing PR58 installer producer and its assigned independent reviewer; no new source or QA owner",
             "source_refs": [
-              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58",
-              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58#issuecomment-6453497814",
-              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/blob/c70a66d5a38c4397d3c93774c407f11cb8336acb/install/index.html"
+              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58#issuecomment-6488921898",
+              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/70",
+              "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/74"
             ],
             "current_producer_snapshot": {
-              "observed_at": "2026-10-28 06:56 UTC",
-              "pr_state": "OPEN_DRAFT",
+              "observed_at": "2026-10-29T06:47:57Z",
+              "pr_state": "OPEN_DRAFT_INTENTIONALLY_RETAINED",
               "head": "11a07367174dbcfee414d0bae05c00b4c15d0a9c",
-              "fm1ota_js_blob": "13e41552253c9c5e81e1376fd01dce7d4cab50fe",
-              "matching_repair_or_acceptance": "NOT_OBSERVED; source still matches the failing QA pin"
+              "matching_repair_or_acceptance": "Browser corrections delivered through PR90/91, not by changing the retained PR58 head; exact companion firmware still requires existing-owner reconciliation."
             },
             "tested_fingerprint": {
               "pages_commit": "c70a66d5a38c4397d3c93774c407f11cb8336acb",
               "install_blob": "f0799ae50e5f607360d556aa849db3b3aff6d1b2"
             },
-            "observed_result": "Independent source-window/syntax checks passed; 3 admission cases passed and 3 target-binding refusals failed. Foreign cross-model same-name replacement, same-model replacement and renamed sole-compatible loader each reached the write handoff. No real device write was performed.",
-            "next_action": "The existing installer producer reconciles its current owned source against this tested fingerprint, repairs the demonstrated target-binding refusals and preserves the accepted checks/test union. Its assigned independent reviewer verifies the repaired exact fingerprint with the three refusal cases and affected positive paths. This host-only repair need not wait for historical control diagnosis, full worker enumeration, manifest-history publication or device testing.",
-            "bounded_acceptance": "Actual owned repair evidence and independent exact-fingerprint pass/fail results, preserving known failures until repaired. No takeover, premature installer deployment or device action."
+            "observed_result": "Existing producer reports browser watch/one-shot COMMIT and queued OTA request preservation delivered. Firmware snapshot capability and EC035/EC039 cross-client atomic ownership remain unqualified.",
+            "next_action": "Existing Data Safety/Installer source owners reconcile companion firmware bda68b57bd9aef218f951a106c2ec4643634dbd8 with the current intended firmware candidate and deliver a complete pinned closure to the existing sole integrator. Build and independent QA consume that selected closure; do not duplicate delivered website repairs or claim firmware/runtime acceptance from browser publication.",
+            "bounded_acceptance": "Actual pinned firmware closure and existing consumer action, with applicable source/native/QA evidence and unresolved device/publication gates kept separate.",
+            "tested_fingerprint_scope": "The older tested_fingerprint retained below is historical failing website input, not the current published implementation."
           }
         ],
         "admission_and_diagnostics": {
           "unchanged_input_handling": "Reuse the existing exact handoffs and completed checks. An unchanged handoff or absent response is not a reason for another comment, prompt rewrite, full test rerun or synthetic event. Each existing owner performs its concrete bounded action or records the actual action-specific unavailability; new evidence, changed input or a resolved prerequisite drives further work.",
-          "full_dot_inventory": "UNRESOLVED; keep inaccessible identities unknown, not deleted or available for replacement",
+          "full_dot_inventory": "UNRESOLVED: 23 exact registered/historical identities checked; 2 accessible with matched completed results, 21 return not-found-or-inaccessible in this context. Unknown is neither paused nor deleted; no replacement/ownership transfer.",
           "new_or_overlapping_claims": "Require verified current owner mapping, disjoint scope and actual free capable capacity",
           "known_accepted_disjoint_work": "The concrete existing-owner actions above may proceed under their existing authority independently of the unresolved fleet inventory and historical control-cause diagnosis. No read failure grants a configuration write, replacement worker or overlapping claim.",
           "control_diagnostic": "Retain LX-REQ-020.control_diagnostic unchanged; original cause and actor remain UNKNOWN",
-          "event_rollout": "Retain LX-REQ-020.event_replacement_rollout unchanged. PR667 registry adoption does not prove lookup clarification applied, exact subscription readback, event consumption or old-timer retirement."
+          "event_rollout": "Retain LX-REQ-020.event_replacement_rollout unchanged. PR667 registry adoption does not prove lookup clarification applied, exact subscription readback, event consumption or old-timer retirement.",
+          "scheduler_evidence": "coordination/automation/evidence/workflow-audit-20261029-schedulers.json"
         },
         "acceptance": {
           "ledger_edit": "Exact delta passes continuity/preservation checks and independent review for sole-writer canonical adoption; a matching adopted delta is not reviewed again by default",
           "receiver": "An existing executor consumes a named accepted action from its exact current source/receipt and performs the scoped candidate/check/repair/qualification work. Record actual consumed inputs and request-data commit when applicable, result and next existing consumer, including first real downstream use when exposed. This ledger edit is not an execution prerequisite; another inventory or comment does not satisfy receiver acceptance.",
-          "overall_request": "OPEN. Final installable NIGHTLY remains pending until the accepted model-specific artifacts/controller, catalog/admission evidence, lawful publication and actual served-byte/installer acceptance are established. Manifest-history parity, this proposal, a scheduler invocation or private package availability alone cannot close it."
+          "overall_request": "OPEN: the served website and R48 publication stage is completed and must not be redispatched. Current firmware candidate/snapshot/atomic-ownership qualification and inaccessible control/event-consumption diagnosis remain distinct, owned pending steps. No guarantee of uninterrupted execution or deadline compliance follows from configuration or this maintenance."
         }
       }
     },

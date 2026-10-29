@@ -112,14 +112,15 @@ def first_seen(r):
     return min(parsed) if parsed else None
 
 
-def existing_commitment(record):
+def existing_commitment(record, completed=()):
     # Keep legacy ACTIVE reservation semantics. Prepared (not active) handoffs
-    # reserve scope only while their continuation remains open and authorized.
+    # reserve scope only while open, authorized and explicit dependencies accepted.
     return (record.get('owner_execution_state') in ACTIVE
             or record.get('status') == 'ACTIVE'
             or (record.get('owner_execution_state') in RETAINED_CONTINUATIONS
                 and record.get('status') not in CLOSED and not deferred(record)
-                and not str(record.get('status', '')).startswith('BLOCKED')))
+                and not str(record.get('status', '')).startswith('BLOCKED')
+                and all(d in completed for d in record.get('dependencies', []))))
 
 
 def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
@@ -154,7 +155,7 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             errors = validate_assessment(a)
             if errors:
                 assessment_problems[r['request_id']] = errors
-        if existing_commitment(r):
+        if existing_commitment(r, completed):
             areas = a.get('work_areas') if isinstance(a, dict) else None
             if (not isinstance(areas, list) or not areas or
                     any(not isinstance(area, str) or not area.strip() for area in areas)):
@@ -193,7 +194,14 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             correction = ('Read-only: inspect the recorded blocker and current action-specific evidence '
                           'with the existing owner. Do not execute the blocked action or infer its '
                           'release from retained ownership; independently accepted work keeps its own gates.')
-        elif existing_commitment(r):
+        elif (r.get('owner_execution_state') in RETAINED_CONTINUATIONS
+              and not existing_commitment(r, completed)):
+            reason = 'blocked dependency: ' + ', '.join(
+                d for d in r.get('dependencies', []) if d not in completed)
+            correction = ('Read-only: reconcile the unresolved dependency and its accepted '
+                          'completion evidence with the existing owner. Do not execute the '
+                          'dependent action; independently accepted work keeps its own gates.')
+        elif existing_commitment(r, completed):
             continuation = {'request_id': rid, 'implementation_owner': r['owner'],
                 'next_action': r['next_action'], 'reason': 'existing commitment; verify liveness, never auto-reassign'}
             if r.get('owner_execution_state') in RETAINED_CONTINUATIONS:

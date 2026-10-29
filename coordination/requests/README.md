@@ -1,6 +1,21 @@
 # Request progress
 
-## Current owner transfer — 2026-10-26
+## Current state and execution
+
+Resolve the live `coordination/merge-queue` ref to a full commit SHA. Read the
+[automation runtime contract](../automation/runtime-contract.md),
+[role registry](../automation/roles.json), [request ledger](requests.json) and
+[current delivery state](../merge-queue/current-delivery.json) at that same revision.
+Use those current records for request acceptance, accountable owners, next actions
+and matching evidence. Preserve the existing sole ledger and integration owners;
+a dated transfer or task label does not assign a current writer.
+
+The transfer, focus and request table below retain their historical observations.
+They do not override current request/delivery records, restore an old owner-response
+gate or establish present execution, delivery or permission. Current user
+instructions and actual action-specific gates continue to govern.
+
+## Historical owner transfer — 2026-10-26
 
 The owner transferred merge/integration responsibility from usage-exhausted Cursor to the **Task-6 Codex coordinator**. Cursor acknowledgment is not required. The independent bass audit/source owner remains in place. [Transfer receipt](../continuations/2026-10-26-task6/ownership-transfer.json) records the exact trusted direction, scope and gates; [open-PR snapshot](../continuations/2026-10-26-task6/open-pr-snapshot.json) records 27 firmware and one website PR observed during intake. It is review metadata, not qualification or a merge result.
 
@@ -11,7 +26,7 @@ This index preserves **all 30 initial requests and 8 appended requests** alongsi
 
 **Source-ready is not delivered.** Source, tests, builds, deployed bytes and hardware proof have separate fields. Role ownership does not establish active execution. `unassigned` is an explicit ownership gap.
 
-Current focus: PR168 physical Pause and UI source is implemented, with size recovery/package pending and latest-head delta unqualified. Website PR19 is reviewed but awaits the owner publication decision. PR188 combined sequencer/synth builds and tests are reported; PR189 cutoff fix awaits native/hardware checks. Feature intake is wired but live dispatch remains unverified. Presets and alternative engine work remain planning/research; no new engine or held-duration recording is implemented.
+Historical focus — 2026-10-25 10:29 UTC: PR168 physical Pause and UI source is implemented, with size recovery/package pending and latest-head delta unqualified. Website PR19 is reviewed but awaits the owner publication decision. PR188 combined sequencer/synth builds and tests are reported; PR189 cutoff fix awaits native/hardware checks. Feature intake is wired but live dispatch remains unverified. Presets and alternative engine work remain planning/research; no new engine or held-duration recording is implemented.
 
 Song workflow clarification: **LX-REQ-037 is active** installer import/export reuse; **LX-REQ-001 remains active** sample-preserving reset with arrangement/project scope distinguished. **LX-REQ-038 is owner-deferred idea only, not eligible for automatic intake or implementation.** [Source-stage reuse/gap handoff](song-workflows-handoff-20261025.md). Earlier status observations below retain their original evidence scope.
 
@@ -19,7 +34,7 @@ Song workflow clarification: **LX-REQ-037 is active** installer import/export re
 
 [Automatic priority policy and helper](PRIORITY.md) orders safety/integrity, UX repair, useful small improvements, then feature/research work. Separate evidence-backed assessments preserve existing owners, claims, legacy priorities and history. A bounded independent complex lane prevents starvation when capacity exists; quick work retains all QA/safety gates. LX-REQ-038 remains owner-deferred. Current effort estimates are mostly unknown, not guessed. Parent owns scheduler wiring.
 
-## Requests
+## Historical request snapshot — 2026-10-25 10:29 UTC
 
 | ID | Request | State | Owner / next step |
 |---|---|---|---|

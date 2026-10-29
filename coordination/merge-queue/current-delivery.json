@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T04:14:00Z",
+  "updated_at": "2026-10-29T06:47:57Z",
   "merge_ownership": {
     "owner": "dot existing sole PR monitor",
     "scope": "qualified source integration only",
@@ -115,10 +115,10 @@
       "review": "Independent native Sol APPROVE R1/3 on complete actual composed tree 17e8b0bdb11f1cd3c225d5e9d663cfea4ca6c687. Meaningful repaired native proof reused only by identical input closure; fresh actual-tree schema/provenance/parity/history proof passed. Browser remains UNRUN, not required anew for this unchanged-runtime source-history stage.",
       "native_qa": "Actual current-main composed checkout verified: all 547 tracked file identities and exact tree 17e8b0bdb11f1cd3c225d5e9d663cfea4ca6c687 match. Fresh parity, catalog schema/provenance and history-continuity checks exited 0; applicable prior 19-component native coverage/build reused by unchanged input closure. Independent native Sol APPROVE R1/3 consumed before normal source-main merge. No monolithic repaired-head npm rerun claimed; historical failure preserved. Browser UNRUN; publication, firmware installability and hardware acceptance remain separate.",
       "evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6460150503",
-      "next": "The existing sole publisher consumes the adopted source and reconciles the exact deployment scope against current gh-pages. Preserve retained catalog/packages; do not overwrite them with the empty source preview picker. Publication, actual served-byte qualification of any new deployment and applicable device gates remain separate. No repeated PR83 repair, full native suite, correctness review or source merge for unchanged inputs.",
-      "state": "EXACT_COMPOSED_SOURCE_APPROVED_AND_MERGED_PUBLICATION_PENDING",
+      "next": "R48 publication is complete. Retain all nine DEV versions and eighteen package identities; no repeated three-row or whole-site publication. A future changed qualified package uses the existing publisher and its actual gates. Firmware snapshot/atomic-ownership and current-candidate qualification remain with existing owners.",
+      "state": "SOURCE_AND_PAGES_ADOPTED_EXISTING_PUBLISHER_HTTPS_VERIFIED",
       "tree": "bace9b33574bdccac0be9b7348665a6baa1be559",
-      "observed_at": "2026-10-28T00:32:56Z",
+      "observed_at": "2026-10-29T06:47:57Z",
       "native_qa_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6455852524",
       "coordinator_recovery_evidence": {
         "request_id": "LX-REQ-020",
@@ -130,52 +130,19 @@
         "scope": "Consume the existing Throughput exact stale-row correction through the bounded canonical state writer. No source, QA, integration or ownership transfer is implied. Actual remote adoption is evidenced by the enclosing canonical commit and readback."
       },
       "source_input_handoff": {
-        "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
-        "created_at": "2026-10-28T00:26:31Z",
-        "updated_at": "2026-10-28T00:26:46Z",
-        "role_id": "catalog_sync",
-        "automation_id": "6ada67027c5c81918726324edd44cc3a",
-        "stage_id": "CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF",
-        "consumed_canonical_commit": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
-        "product_request": "LX-REQ-014",
-        "source": "5e575a614f27bb9dd40173fa355895f97d6193dd",
-        "source_tree": "bace9b33574bdccac0be9b7348665a6baa1be559",
-        "website_main": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
-        "website_main_tree": "7541572aba063ee90b35219c0d4e2551452b5c32",
-        "virtual_root": "d29868dacccfd13ecfb973969b4d663fa1acbcdb",
-        "virtual_docs_tree": "ea4ca80cfaa2b88984ba2bdaf1b0dc591428cf03",
-        "producer_verification": "Catalog reports independently recomputed matching Git SHA-1 for four remotely fetched input trees (old merge root/docs and current main root/docs), then normal Git tree serialization for the derived virtual root/docs hashes.",
-        "producer_source_checks": "Six PR83 catalog/history/test paths and seven current-main documentation paths are disjoint. Root/docs catalog blob 47622519bba0c305f7997ec8093b8f08e0ba1285, 148-row lock c245479301c0176e433cb1ff87235f46c18d009a and empty preview-catalog blob 01f9ec382878335ea9bb92d0bdf294483111de76 remain. All 145 earlier parsed rows are unchanged and three added rows are noninstallable; web/scripts/package/preview closure is unchanged versus the older merged candidate.",
-        "actual_remote_commit": null,
-        "actual_native_checkout": false,
-        "new_native_or_browser_pass": false,
-        "consumer_outcome": "PENDING_EXISTING_QA_RECONSTRUCTION_AND_ACTUAL_CHECKS; source producer handoff is delivered, not independent final acceptance."
+        "state": "HISTORICAL_HANDOFF_CONSUMED",
+        "original_source": "5e575a614f27bb9dd40173fa355895f97d6193dd",
+        "actual_publisher_receipt": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+        "previous_values": "Retained in current-delivery history at this reconciliation; old virtual-root QA and publisher waits are no longer current actions."
       },
       "current_main_qualification": {
-        "observed_at": "2026-10-28T00:32:56Z",
-        "verified_direct_ref": "refs/heads/main",
-        "verified_target_commit": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
-        "direct_ref_evidence": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/git/ref/heads/main",
-        "pr_base_metadata": {
-          "observed_at": "2026-10-28T00:28:38Z",
-          "base_ref": "main",
-          "base_sha": "008163ee39b3c962b2bcac3fc5c5b7fdd8898bca",
-          "interpretation": "The PR base SHA snapshot disagrees with the directly read main ref. It is not evidence that main advanced or reverted and is not the current target pin."
-        },
-        "older_combined_commit": "ac60e0307170ccc8e28431dc6396daab38a47e14",
-        "older_combined_tree": "554798e09c46631808c82b497369177adb4e3b96",
-        "older_combined_parents": [
-          "93d638b272bf789951553f9ff5437fd0a68d8cf1",
-          "5e575a614f27bb9dd40173fa355895f97d6193dd"
-        ],
-        "current_combined_root": "VERIFIED_VIRTUAL_SOURCE_MANIFEST_DELIVERED; actual consumer composed checkout/tree verification remains pending.",
-        "virtual_combined_root": "d29868dacccfd13ecfb973969b4d663fa1acbcdb",
-        "virtual_docs_tree": "ea4ca80cfaa2b88984ba2bdaf1b0dc591428cf03",
-        "virtual_source_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
-        "actual_composed_checkout_verified": false,
-        "independent_acceptance": "PENDING on the actual current composition and applicable uncovered native/build/browser scope. Reuse valid unchanged input evidence; do not invent a new full-command PASS.",
-        "pr_state": "OPEN_DRAFT; no ready/merge/publication claim",
-        "refresh_rule": "The existing QA consumer and sole Website Main Merger re-read live main and PR head before acting. If either changes, including a later PR86 documentation adoption, compare the actual affected closure and recompute/verify the appropriate composed tree while preserving valid unchanged evidence. Route only a demonstrated source discrepancy to the existing Catalog producer; do not repeat its already delivered manifest or blindly qualify an older tree."
+        "state": "CURRENT_PUBLISHED_WEBSITE_SOURCE_VERIFIED",
+        "observed_at": "2026-10-29T06:47:57Z",
+        "verified_target_commit": "a8205aff483dce09414093defdc19cf79d57b719",
+        "verified_target_tree": "75ac6de0061d62c5f93e66c02bf13938f8dc0c56",
+        "pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+        "acceptance_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+        "scope": "Reuse existing source/native/browser/destination proof on its verified bytes. This maintenance independently reads Git/metadata and does not claim a new product run."
       },
       "adoption": {
         "commit": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
@@ -183,7 +150,60 @@
         "merged_at": "2026-10-28T03:46:10Z",
         "target": "main"
       },
-      "publisher_consumption": "PENDING; public pointer readback is not receiver execution."
+      "publisher_consumption": "VERIFIED: actual PR89/92 publication and exact HTTPS/browser receipts, not this sender pointer alone.",
+      "publication": "VERIFIED_SCOPED_WEBSITE_HISTORY_DELIVERY",
+      "publication_evidence": {
+        "schema_version": 1,
+        "observed_at": "2026-10-29T06:47:57Z",
+        "request_id": "LX-REQ-020",
+        "coordination_base": "57a692d79e1c1253af649b10eb4d5922566fa567",
+        "firmware_nightly": "1e421386c055f11ae4c23f695e5431904fdb0f05",
+        "source_main": {
+          "commit": "a8205aff483dce09414093defdc19cf79d57b719",
+          "tree": "75ac6de0061d62c5f93e66c02bf13938f8dc0c56"
+        },
+        "pages": {
+          "commit": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+          "tree": "b9f7c52f3148bef64f66953bc4eb00ce5986593e"
+        },
+        "directly_verified_git": {
+          "history_count": 148,
+          "source_and_pages_history_blob": "47622519bba0c305f7997ec8093b8f08e0ba1285",
+          "versions_blob": "c7503b19c19de6c92892bdf8b3716d8801ef5262",
+          "version_count": 9,
+          "model_selections": 18,
+          "all_hardware_tested": false,
+          "package_version_assignments_blob": "c0cb0e85a25c45072fe1bb981a2e53cab740437f",
+          "open_website_prs": [
+            58,
+            70,
+            74
+          ],
+          "merged_source_prs": [
+            90,
+            91
+          ],
+          "merged_pages_prs": [
+            89,
+            92
+          ]
+        },
+        "existing_publisher_evidence": {
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+          "observed_at": "2026-10-29T05:31:25.589575Z",
+          "scope": "Eight actual HTTPS responses exactly matched approved artifact; all eighteen browser model/version selections completed verified downloads. Attribution to existing publisher and independent destination reviewer, not a fresh network/browser run by this maintenance task.",
+          "installer_sha256": "bdf50312a72450f6e6ae96f0c40c2182d305e9d169e0b1f146b8bd610c66b1cf",
+          "https_receipt_sha256": "0b857cf7429788f6b03236f1b291c0bfa769dd65bc97645a8e47a3fca3b5c9d8",
+          "browser_receipt_sha256": "57af460f0de600cfabf5a5d6a4fbfb1b10fbf850742025ebdc457c2eb43be838"
+        },
+        "existing_handoff_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+        "residual_dependency_url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58#issuecomment-6488921898",
+        "limits": [
+          "No firmware candidate selection, native build, hardware action or source-owner transfer by this maintenance.",
+          "Do not repeat the completed R48 publication or overwrite the retained catalog with the empty source preview.",
+          "EC035/EC039 and firmware snapshot capability remain with existing owners; source integration and package qualification are separate."
+        ]
+      }
     },
     {
       "key": "PROJECT-PARSER-SLICE",
@@ -251,13 +271,16 @@
     }
   ],
   "states": {
-    "firmware_nightly": "21ce25dac3fef015dfd95f6b3b7371272c3fc5bd",
+    "firmware_nightly": "1e421386c055f11ae4c23f695e5431904fdb0f05",
     "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
     "current_public_installable_delivery": "NOT_DONE",
     "hardware": "UNRUN",
-    "site_main": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
+    "site_main": "a8205aff483dce09414093defdc19cf79d57b719",
     "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
-    "website_main_observed": "909bb37c5afffd91fbb251d0dbd0a54293e413de"
+    "website_main_observed": "a8205aff483dce09414093defdc19cf79d57b719",
+    "website_pages": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+    "website_publication": "VERIFIED_SCOPED_EXISTING_PUBLISHER_RECEIPTS",
+    "observed_refs_at": "2026-10-29T06:47:57Z"
   },
   "evidence_policy": "Use each public PR's pinned independent-review receipt and current exact source; historical JSON/CSV rows are not current completion proof. One existing writer/reviewer per overlapping package; source merge is not package delivery.",
   "pending_workflow_proposal": {
@@ -491,6 +514,100 @@
         }
       },
       "scope": "Only completed source/review/merge stages reconciled. All unrelated packages, claims, requests, actual denials and lifecycle controls preserved. No registry mapping or publication."
+    },
+    {
+      "observed_at": "2026-10-29T06:47:57Z",
+      "previous_ref": "57a692d79e1c1253af649b10eb4d5922566fa567",
+      "change_reason": "Consume existing publisher delivery and refresh only observed current refs; preserve other package owners/states. No firmware acceptance or active-owner transfer.",
+      "previous": {
+        "updated_at": "2026-10-28T04:14:00Z",
+        "states": {
+          "firmware_nightly": "21ce25dac3fef015dfd95f6b3b7371272c3fc5bd",
+          "pr638_source_stack": "5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134",
+          "current_public_installable_delivery": "NOT_DONE",
+          "hardware": "UNRUN",
+          "site_main": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
+          "private_owner_delivery": "The exact 5f58 application with designated stock loops, matching Elite/Pro controller packages and accompanying source is owner-available with hash readback. It is not publicly published and does not include later Settings 2385 or all-glyph 26f923 changes.",
+          "website_main_observed": "909bb37c5afffd91fbb251d0dbd0a54293e413de"
+        },
+        "CATALOG-R48": {
+          "key": "CATALOG-R48",
+          "site_pr": 83,
+          "source": "5e575a614f27bb9dd40173fa355895f97d6193dd",
+          "review": "Independent native Sol APPROVE R1/3 on complete actual composed tree 17e8b0bdb11f1cd3c225d5e9d663cfea4ca6c687. Meaningful repaired native proof reused only by identical input closure; fresh actual-tree schema/provenance/parity/history proof passed. Browser remains UNRUN, not required anew for this unchanged-runtime source-history stage.",
+          "native_qa": "Actual current-main composed checkout verified: all 547 tracked file identities and exact tree 17e8b0bdb11f1cd3c225d5e9d663cfea4ca6c687 match. Fresh parity, catalog schema/provenance and history-continuity checks exited 0; applicable prior 19-component native coverage/build reused by unchanged input closure. Independent native Sol APPROVE R1/3 consumed before normal source-main merge. No monolithic repaired-head npm rerun claimed; historical failure preserved. Browser UNRUN; publication, firmware installability and hardware acceptance remain separate.",
+          "evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6460150503",
+          "next": "The existing sole publisher consumes the adopted source and reconciles the exact deployment scope against current gh-pages. Preserve retained catalog/packages; do not overwrite them with the empty source preview picker. Publication, actual served-byte qualification of any new deployment and applicable device gates remain separate. No repeated PR83 repair, full native suite, correctness review or source merge for unchanged inputs.",
+          "state": "EXACT_COMPOSED_SOURCE_APPROVED_AND_MERGED_PUBLICATION_PENDING",
+          "tree": "bace9b33574bdccac0be9b7348665a6baa1be559",
+          "observed_at": "2026-10-28T00:32:56Z",
+          "native_qa_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6455852524",
+          "coordinator_recovery_evidence": {
+            "request_id": "LX-REQ-020",
+            "stage_id": "CATALOG_R48_CHECKPOINT_RECOVERY",
+            "role_id": "pipeline_throughput",
+            "automation_id": "6adaf05c832c8191949d2f72b66a39f7",
+            "consumed_canonical_commit": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+            "handoff_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6457288397",
+            "scope": "Consume the existing Throughput exact stale-row correction through the bounded canonical state writer. No source, QA, integration or ownership transfer is implied. Actual remote adoption is evidenced by the enclosing canonical commit and readback."
+          },
+          "source_input_handoff": {
+            "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
+            "created_at": "2026-10-28T00:26:31Z",
+            "updated_at": "2026-10-28T00:26:46Z",
+            "role_id": "catalog_sync",
+            "automation_id": "6ada67027c5c81918726324edd44cc3a",
+            "stage_id": "CATALOG_R48_CURRENT_MAIN_SOURCE_HANDOFF",
+            "consumed_canonical_commit": "ca3ce71a59defdde2a634b1381d63367ca08b05d",
+            "product_request": "LX-REQ-014",
+            "source": "5e575a614f27bb9dd40173fa355895f97d6193dd",
+            "source_tree": "bace9b33574bdccac0be9b7348665a6baa1be559",
+            "website_main": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+            "website_main_tree": "7541572aba063ee90b35219c0d4e2551452b5c32",
+            "virtual_root": "d29868dacccfd13ecfb973969b4d663fa1acbcdb",
+            "virtual_docs_tree": "ea4ca80cfaa2b88984ba2bdaf1b0dc591428cf03",
+            "producer_verification": "Catalog reports independently recomputed matching Git SHA-1 for four remotely fetched input trees (old merge root/docs and current main root/docs), then normal Git tree serialization for the derived virtual root/docs hashes.",
+            "producer_source_checks": "Six PR83 catalog/history/test paths and seven current-main documentation paths are disjoint. Root/docs catalog blob 47622519bba0c305f7997ec8093b8f08e0ba1285, 148-row lock c245479301c0176e433cb1ff87235f46c18d009a and empty preview-catalog blob 01f9ec382878335ea9bb92d0bdf294483111de76 remain. All 145 earlier parsed rows are unchanged and three added rows are noninstallable; web/scripts/package/preview closure is unchanged versus the older merged candidate.",
+            "actual_remote_commit": null,
+            "actual_native_checkout": false,
+            "new_native_or_browser_pass": false,
+            "consumer_outcome": "PENDING_EXISTING_QA_RECONSTRUCTION_AND_ACTUAL_CHECKS; source producer handoff is delivered, not independent final acceptance."
+          },
+          "current_main_qualification": {
+            "observed_at": "2026-10-28T00:32:56Z",
+            "verified_direct_ref": "refs/heads/main",
+            "verified_target_commit": "132cbd140d5a11583096e8c1f8dda8c8f957a62d",
+            "direct_ref_evidence": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/git/ref/heads/main",
+            "pr_base_metadata": {
+              "observed_at": "2026-10-28T00:28:38Z",
+              "base_ref": "main",
+              "base_sha": "008163ee39b3c962b2bcac3fc5c5b7fdd8898bca",
+              "interpretation": "The PR base SHA snapshot disagrees with the directly read main ref. It is not evidence that main advanced or reverted and is not the current target pin."
+            },
+            "older_combined_commit": "ac60e0307170ccc8e28431dc6396daab38a47e14",
+            "older_combined_tree": "554798e09c46631808c82b497369177adb4e3b96",
+            "older_combined_parents": [
+              "93d638b272bf789951553f9ff5437fd0a68d8cf1",
+              "5e575a614f27bb9dd40173fa355895f97d6193dd"
+            ],
+            "current_combined_root": "VERIFIED_VIRTUAL_SOURCE_MANIFEST_DELIVERED; actual consumer composed checkout/tree verification remains pending.",
+            "virtual_combined_root": "d29868dacccfd13ecfb973969b4d663fa1acbcdb",
+            "virtual_docs_tree": "ea4ca80cfaa2b88984ba2bdaf1b0dc591428cf03",
+            "virtual_source_evidence": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/83#issuecomment-6457319958",
+            "actual_composed_checkout_verified": false,
+            "independent_acceptance": "PENDING on the actual current composition and applicable uncovered native/build/browser scope. Reuse valid unchanged input evidence; do not invent a new full-command PASS.",
+            "pr_state": "OPEN_DRAFT; no ready/merge/publication claim",
+            "refresh_rule": "The existing QA consumer and sole Website Main Merger re-read live main and PR head before acting. If either changes, including a later PR86 documentation adoption, compare the actual affected closure and recompute/verify the appropriate composed tree while preserving valid unchanged evidence. Route only a demonstrated source discrepancy to the existing Catalog producer; do not repeat its already delivered manifest or blindly qualify an older tree."
+          },
+          "adoption": {
+            "commit": "909bb37c5afffd91fbb251d0dbd0a54293e413de",
+            "tree": "17e8b0bdb11f1cd3c225d5e9d663cfea4ca6c687",
+            "merged_at": "2026-10-28T03:46:10Z",
+            "target": "main"
+          },
+          "publisher_consumption": "PENDING; public pointer readback is not receiver execution."
+        }
+      }
     }
   ],
   "metadata_reconciliation": {

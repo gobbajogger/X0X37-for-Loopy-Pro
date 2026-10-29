@@ -1,0 +1,499 @@
+{
+  "schema_version": 1,
+  "audit_collected_at": "2026-10-29T06:45:29.557Z",
+  "scope": "Read-only scheduler and Dot identity, visibility, liveness and exposed configuration audit; no creation, update, run-now, resume, pause or external message.",
+  "inputs": {
+    "coordination_pin": "57a692d79e1c1253af649b10eb4d5922566fa567",
+    "nightly_policy_pin": "1e421386c055f11ae4c23f695e5431904fdb0f05",
+    "request_id": "LX-REQ-020",
+    "registry_path": "coordination/automation/roles.json",
+    "contract_path": "coordination/automation/runtime-contract.md",
+    "bootstrap_path": "coordination/automation/bootstrap.txt",
+    "renderer_path": "coordination/automation/render_bootstrap.py"
+  },
+  "counts": {
+    "registry_maintenance": {
+      "total": 16,
+      "visible": 2,
+      "inaccessible": 14
+    },
+    "registry_standalone_replacements": {
+      "total": 3,
+      "visible": 0,
+      "inaccessible": 3
+    },
+    "predecessors": {
+      "total": 3,
+      "visible": 0,
+      "inaccessible": 3
+    },
+    "historical_progress_watchdog": {
+      "total": 1,
+      "visible": 0,
+      "inaccessible": 1
+    },
+    "distinct_exact_id_probes": 23,
+    "visible_exact_ids": 2,
+    "inaccessible_exact_ids": 21,
+    "context_list": {
+      "total": 5,
+      "enabled": 3,
+      "paused": 2,
+      "project_registered_visible": 2,
+      "unrelated_combined_limits_watch": 1,
+      "unrelated_paused_reset_watches": 2
+    }
+  },
+  "rows": [
+    {
+      "role_id": "catalog_sync",
+      "automation_id": "6ada67027c5c81918726324edd44cc3a",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:26.471Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "website_main_merger",
+      "automation_id": "6adafdf994788191a324d6c993581f31",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:26.472Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "safe_merge_intake",
+      "automation_id": "6ada629c94c481918f86193a912d080d",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:26.472Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "performance_engineering",
+      "automation_id": "6ada5eca5db48191bd29c53016ceb665",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:26.472Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "independent_qa",
+      "automation_id": "6adafbbf54088191a86715d49e7dc6b0",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:44:27.963Z",
+      "visibility": "VISIBLE",
+      "is_enabled": true,
+      "schedule": "BEGIN:VEVENT\nDTSTART:20261023T065200Z\nRRULE:FREQ=HOURLY\nEND:VEVENT",
+      "timing_mode": "exact_schedule",
+      "default_timezone": "Asia/Vladivostok",
+      "next_run_time": null,
+      "updated_at": "2026-10-29T05:57:40.237672+00:00",
+      "last_run": {
+        "recorded_status": "completed",
+        "scheduled_for": "2026-10-29T05:52:00Z",
+        "started_at": "2026-10-29T05:47:54.543821Z",
+        "completed_at": "2026-10-29T05:57:11.155526Z"
+      },
+      "latest_result": {
+        "matches_last_run_id": true,
+        "created_at": "2026-10-29T05:57:10.184448Z",
+        "created_after_last_run_start": true,
+        "completed_at": "2026-10-29T05:57:11.155526Z",
+        "scheduled_for": "2026-10-29T05:52:00Z",
+        "content_length": 2736,
+        "content_truncated": false,
+        "requires_user_action": false,
+        "is_failure_message": false
+      },
+      "delivery_status": "unknown",
+      "latency_seconds": {
+        "scheduled_to_start": -245.457,
+        "start_to_completion": 556.612,
+        "scheduled_to_completion": 311.155
+      },
+      "liveness_conclusion": "RECENT_COMPLETED_EXECUTION_WITH_MATCHED_RESULT; ongoing execution and future schedule delivery unverified"
+    },
+    {
+      "role_id": "independent_qa_historical",
+      "automation_id": "6adafb1f86d48191be9b3840e7c19a18",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:26.472Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "pipeline_throughput",
+      "automation_id": "6adaf05c832c8191949d2f72b66a39f7",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.135Z",
+      "visibility": "VISIBLE",
+      "is_enabled": true,
+      "schedule": "BEGIN:VEVENT\nDTSTART:20261023T075600Z\nRRULE:FREQ=HOURLY\nEND:VEVENT",
+      "timing_mode": "exact_schedule",
+      "default_timezone": "Asia/Vladivostok",
+      "next_run_time": null,
+      "updated_at": "2026-10-29T06:06:58.315660+00:00",
+      "last_run": {
+        "recorded_status": "completed",
+        "scheduled_for": "2026-10-29T05:56:00Z",
+        "started_at": "2026-10-29T06:00:14.940667Z",
+        "completed_at": "2026-10-29T06:06:28.322780Z"
+      },
+      "latest_result": {
+        "matches_last_run_id": true,
+        "created_at": "2026-10-29T06:06:26.802695Z",
+        "created_after_last_run_start": true,
+        "completed_at": "2026-10-29T06:06:28.322780Z",
+        "scheduled_for": "2026-10-29T05:56:00Z",
+        "content_length": 2636,
+        "content_truncated": false,
+        "requires_user_action": false,
+        "is_failure_message": false
+      },
+      "delivery_status": "unknown",
+      "latency_seconds": {
+        "scheduled_to_start": 254.94,
+        "start_to_completion": 373.382,
+        "scheduled_to_completion": 628.322
+      },
+      "liveness_conclusion": "RECENT_COMPLETED_EXECUTION_WITH_MATCHED_RESULT; ongoing execution and future schedule delivery unverified"
+    },
+    {
+      "role_id": "native_build",
+      "automation_id": "6ada68578b488191ac2ce427fd41cff4",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.135Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "data_safety",
+      "automation_id": "6adafb040a84819191805b475da77477",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.136Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "sequencer_clock",
+      "automation_id": "6adafae688a88191b41f7b351e278a38",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.136Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "bugfinder",
+      "automation_id": "6ada61c32714819198fd7b953078ad7b",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.136Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "smc_transport",
+      "automation_id": "6adafac89db88191b0707de1ba3d95d0",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.136Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "installer_improvements",
+      "automation_id": "6ada65fd16808191a5e86e5593e3250a",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.676Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "website_publisher",
+      "automation_id": "6ada674b477c819195394ec6797d7338",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.676Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "storage_safety",
+      "automation_id": "6adafba2367081918b3f5da273500e0c",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.676Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "edge_case_hunt",
+      "automation_id": "6ade70eb16fc8191a1d1ab31fdf8be0e",
+      "registry_section": "roles",
+      "observed_at": "2026-10-29T06:43:27.676Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "dot_documentation_consistency",
+      "automation_id": "6ae149297da48191ad414ada6ebdda09",
+      "registry_section": "standalone_roles",
+      "observed_at": "2026-10-29T06:43:27.676Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "dot_documentation_consistency_predecessor",
+      "automation_id": "6ae10ec03d108191948d8efaf0714d46",
+      "registry_section": "predecessors",
+      "observed_at": "2026-10-29T06:43:27.676Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "dot_finish_repairs",
+      "automation_id": "6ae14e9093e481919695228fb0631ba1",
+      "registry_section": "standalone_roles",
+      "observed_at": "2026-10-29T06:43:27.986Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "dot_finish_repairs_predecessor",
+      "automation_id": "6adf9af52c948191b0850f4ff26c4647",
+      "registry_section": "predecessors",
+      "observed_at": "2026-10-29T06:43:27.986Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "dot_exact_qa",
+      "automation_id": "6ae14e93100c81919054750f59228e4d",
+      "registry_section": "standalone_roles",
+      "observed_at": "2026-10-29T06:43:27.986Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "dot_exact_qa_predecessor",
+      "automation_id": "6adf9b1253048191a33f0cbabf0ca85a",
+      "registry_section": "predecessors",
+      "observed_at": "2026-10-29T06:43:27.986Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    },
+    {
+      "role_id": "progress_watchdog_historical_discovery",
+      "automation_id": "6ae1138363a481919718889436f6b6da",
+      "registry_section": "historical_owner_plan",
+      "observed_at": "2026-10-29T06:43:54.916Z",
+      "visibility": "INACCESSIBLE_IN_THIS_CONTEXT",
+      "live_enabled_state": "UNKNOWN",
+      "live_run_state": "UNKNOWN",
+      "provider_status": "ERROR",
+      "provider_error_code": null,
+      "provider_message": "This task was not found or is not accessible in the current context. List tasks in the current channel or conversation and use an ID from that result. Do not guess IDs or claim that an inaccessible task was deleted.",
+      "provider_user_message": "This task is no longer available."
+    }
+  ],
+  "prompt_comparison": {
+    "method": "Executed canonical render_all on unchanged local files fetched at the coordination pin; compared UTF-8 prompt bytes.",
+    "independent_qa": {
+      "equal_utf8_bytes": true,
+      "bytes": 1941,
+      "sha256": "77827969f8a45a4086463b8f5fe7f5c0ecdf02b94e90fde4f1bb690620046aa4"
+    },
+    "pipeline_throughput": {
+      "equal_utf8_bytes": true,
+      "bytes": 1951,
+      "sha256": "3b65e5f9129600156e5bdccac4275ceebf7c4ea6994cb27349743083ae960be5"
+    },
+    "remaining_roles": "Actual prompts inaccessible; no drift conclusion."
+  },
+  "actual_result_evidence": [
+    {
+      "role_id": "independent_qa",
+      "consumed_coordination_pin": "57a692d79e1c1253af649b10eb4d5922566fa567",
+      "reported_outcome": "Current-source EC035 and EC039 safety reviews NEEDS CHANGES; source-path simulations and 7/7 firmware predicate checks; reports handed to existing producers; subsequent repair consumption not observed.",
+      "public_receipts": [
+        "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/70#issuecomment-6489146400",
+        "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/74#issuecomment-6489187777"
+      ],
+      "qualification": "This audit read matched scheduler output. It did not rerun or independently verify those product tests or comment bodies."
+    },
+    {
+      "role_id": "pipeline_throughput",
+      "consumed_coordination_pin": "57a692d79e1c1253af649b10eb4d5922566fa567",
+      "reported_outcome": "Website publication and subsequent older-package correction verified through Git; 148 history rows, 9 DEV versions and 18 selections reported. Existing publisher's HTTP result is attributed. Handoff creation/readback reported; canonical consumption remains pending.",
+      "public_receipts": [
+        "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+        "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206"
+      ],
+      "qualification": "This audit read matched scheduler output. Root separately owns receipt/source readback and stale-ledger reconciliation."
+    }
+  ],
+  "control_diagnostic": {
+    "canonical_state": "BLOCKED_ORIGINAL_CONTROL_TRANSITION_CAUSE_UNKNOWN",
+    "role_id": "website_main_merger",
+    "current_exact_id_probe": "INACCESSIBLE_IN_THIS_CONTEXT",
+    "new_cause_or_actor_evidence": false,
+    "conclusion": "Historical pause and later enabled readback remain historical; fresh inaccessible state neither confirms nor disproves pause or causal repair."
+  },
+  "event_replacements": {
+    "canonical_state": "THREE_EXISTING_DOT_ROLE_REPLACEMENTS_REGISTERED_ACCEPTANCE_PENDING",
+    "exact_ids_checked": 3,
+    "predecessors_checked": 3,
+    "all_inaccessible": true,
+    "trigger_filter_readback": "NOT_EXPOSED_BY_PEEK_SCHEMA",
+    "actual_event_delivery": "UNVERIFIED",
+    "consumer_action": "UNVERIFIED",
+    "predecessor_retirement": "UNVERIFIED; canonical checkpoint records false for all three",
+    "duplicate_risk": "Potential overlap if predecessor timers and replacements both operate; no actual duplicate execution proven."
+  },
+  "orchestrator": {
+    "identity": "UNRESOLVED",
+    "search_scope": "Complete supplied coordination requests/current-delivery JSON and registry; historical Progress Watchdog ID supplied by root from authenticated personal context.",
+    "exact_automation_id_found_in_current_data": false,
+    "authenticated_direct_control_route": "NOT_ESTABLISHED",
+    "existing_public_fallback": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+    "consumer_action": "NOT_ESTABLISHED"
+  },
+  "capability_limits": [
+    "Current automations.peek exposes configuration and one recorded last_run/latest_result pair; no control actor, original pause cause, tool/approval trace or exact subscription/filter fields.",
+    "No current Orchestrator automation identity was supplied in scoped canonical data; titles cannot establish it.",
+    "Both visible roles return next_run_time=null despite preserved hourly schedules; this is not evidence of unscheduling.",
+    "One matched run per visible role is insufficient for availability, missed-run rate or deadline/SLA conclusions.",
+    "No model, reasoning-effort, service-tier, current-worker heartbeat, available-capacity, request-ready timestamp or downstream-consumption timestamp is exposed by this scheduler reader.",
+    "No separate cloud environment_status tool was exposed; no shell network/build operation was attempted."
+  ],
+  "recommendations": [
+    {
+      "priority": 1,
+      "owner": "Existing Orchestrator / sole canonical writer",
+      "action": "Adopt root's independently verified website completion and current product blockers into LX-REQ-020/current delivery once reviewed; reuse existing PR662 handoff.",
+      "reason": "Do not repeat completed publication because canonical request data is stale."
+    },
+    {
+      "priority": 1,
+      "owner": "Existing authenticated Orchestrator/control owner",
+      "action": "Resolve the exact existing Orchestrator and Progress Watchdog identities in their accessible context and retain supported control/result routing in the existing private owner checkpoint.",
+      "reason": "Current title-only ownership and inaccessible ID do not provide a verifiable control or result path; do not create replacements."
+    },
+    {
+      "priority": 2,
+      "owner": "Existing Dot migration owner",
+      "action": "For each existing replacement, read back exact supported subscriptions and the first real matching event plus scoped consumer action. Preserve predecessor timers until the existing retirement gate and pause authority are met.",
+      "reason": "Registry adoption/configuration receipts do not establish operational acceptance."
+    },
+    {
+      "priority": 2,
+      "owner": "Existing watchdog/control owner",
+      "action": "Keep the website-main-merger original control-cause incident open; refine only with new authenticated actor/error/trace evidence.",
+      "reason": "Current inaccessible read cannot establish cause or sustained repair; avoid automatic resume loops."
+    },
+    {
+      "priority": 3,
+      "owner": "Existing DocumentationConsistency owner",
+      "action": "Reuse the two byte-exact prompt comparisons; change no visible bootstrap or cadence on this evidence.",
+      "reason": "No prompt drift or scheduler settings defect was demonstrated."
+    }
+  ],
+  "privacy": "Sanitized evidence: no private run/chat/Library identifiers. The separate private-* probe files contain raw private IDs and must not be committed or copied to public evidence."
+}
