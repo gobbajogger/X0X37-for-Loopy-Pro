@@ -70,6 +70,7 @@ static drum808_t d808 POOL;
 #if X0X_ORIGINAL_SYNTH
 static volatile uint8_t project_hold;
 static original_runtime_part original_bass[NBASS] POOL;
+static uint16_t original_quiet_samples[NBASS];
 static original_runtime_workspace original_workspace POOL;
 static original_chicago_tuning original_tuning POOL;
 static original_chicago_fx2_compact original_fx[NBASS] POOL;
@@ -2572,6 +2573,11 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         /* Failed/unadmitted DSP is visible through engine_bass_status. No
          * fallback renderer, guessed silence-success or idle clock skipping. */
         if (status != ORIGINAL_RUNTIME_OK) continue;
+        for (i = 0; i < n; ++i) {
+            if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f)
+                original_quiet_samples[b] = 0;
+            else if (original_quiet_samples[b] < 512u) ++original_quiet_samples[b];
+        }
         bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
         mix_targets(p, mix_level[p], solo_parts);
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);

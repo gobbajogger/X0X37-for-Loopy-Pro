@@ -916,7 +916,7 @@ static int project_validate_for(const project_t *p)
     if(bass_status)return bass_status;
 #endif
     if (s->magic != PROJ_MAGIC || s->format != PROJ_FORMAT || s->stereo != PROJ_STEREO ||
-        s->snd_rev != PROJ_SND_REV || s->palette > 4 || s->keyled > 2 || s->clk_out > 1 ||
+        s->snd_rev != PROJ_SND_REV || s->palette > 5 || s->keyled > 2 || s->clk_out > 1 ||
         s->notes_out > 1 || s->bpm_x10 < 200 || s->bpm_x10 > 2750 || s->accent_q7 > 127 ||
         s->keysound > 1 || s->autosave_off > 1 || s->out_loud > 1 || s->usb_full > 1 ||
         (s->bt & 0xC0u) || !(s->bt & PROJ_BT_CLK_IN) || PROJ_CLK_SRC(s->bt) > SEQ_CLK_EXT ||

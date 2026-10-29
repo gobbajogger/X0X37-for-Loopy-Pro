@@ -119,7 +119,7 @@ int engine_bass_preset_pending(int v)
     if (!plat_midi_passed(request.midi) || (int32_t)(cq_r - request.cq) < 0) return 5;
     if (bass_has_locks(v)) return 4;
     if (bass_wheel_mask & (1u << v)) return 3;
-    if (original_runtime_active(&original_bass[v])) return 2;
+    if (original_runtime_active(&original_bass[v]) || original_quiet_samples[v] < 512u) return 2;
     return 1;
 }
 int engine_bass_requested_bank(int v)
@@ -142,7 +142,7 @@ int engine_bass_base_ready(unsigned mask, const bass_base_state_t *target)
         if (bass_tagged_cell_validate(target->cell[v], &target->tag[v], &bank)) return -5;
         if (!engine_bass_bank_available(v, bank)) return -2;
         if (bass_has_locks(v)) return -4;
-        if ((bass_wheel_mask & (1u << v)) || original_runtime_active(&original_bass[v])) return 2;
+        if ((bass_wheel_mask & (1u << v)) || original_runtime_active(&original_bass[v]) || original_quiet_samples[v] < 512u) return 2;
     }
     return cq_r != cq_w || live_key_r != live_key_w || live_key_cancel ||
         !plat_midi_passed(plat_midi_mark()) ? 2 : 0;
