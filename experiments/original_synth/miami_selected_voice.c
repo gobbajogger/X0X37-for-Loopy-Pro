@@ -84,9 +84,9 @@ static void mg_advance(original_miami_voice_mg *m,float base,float times,float b
  * Sustain subtraction for its bipolar output happens after both EG ticks. */
 static void vcf_tick(original_vca *e,uint32_t D){
  float q=e->level;
- if(e->state==0){q=q+((float)D*(1.2999999523162842f-q))/(44100.0f*ref_fma(0,13,.0010000000474974513f));if(q>=1){q=1;e->state=1;}}
- else if(e->state==1){if(q<1)q=1;else {float d=.5f;d=d*d;d=d*d;q=q+((float)D*(1.0f-q))/(ref_fma(d,25,.0010000000474974513f)*44100.0f);q=(q+1.0f)-1.0f;}}
- else if(e->state==3){if(q>=fl(0x3727c5ac)){float den=ref_fma(0,25,.0020000000949949026f)*44100.0f;q=q*(1.0f-(float)D/den);q=(q+1.0f)-1.0f;}else {q=0;e->state=6;}}
+ if(e->state==0){q=q+((float)D*(1.2999999523162842f-q))/(44100.0f*fl(0x3a83126fu));if(q>=1){q=1;e->state=1;}}
+ else if(e->state==1){if(q<1)q=1;else {q=q+((float)D*(1.0f-q))/(fl(0x3fc820c5u)*44100.0f);q=(q+1.0f)-1.0f;}}
+ else if(e->state==3){if(q>=fl(0x3727c5ac)){float den=fl(0x3b03126fu)*44100.0f;q=q*(1.0f-(float)D/den);q=(q+1.0f)-1.0f;}else {q=0;e->state=6;}}
  e->level=q;
 }
 #ifndef MIAMI_VOICE_CHECKED_TABLE_PREP
