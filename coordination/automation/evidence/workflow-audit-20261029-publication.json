@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-29T06:47:57Z",
+  "request_id": "LX-REQ-020",
+  "coordination_base": "57a692d79e1c1253af649b10eb4d5922566fa567",
+  "firmware_nightly": "1e421386c055f11ae4c23f695e5431904fdb0f05",
+  "source_main": {
+    "commit": "a8205aff483dce09414093defdc19cf79d57b719",
+    "tree": "75ac6de0061d62c5f93e66c02bf13938f8dc0c56"
+  },
+  "pages": {
+    "commit": "821aa12e6625dd6e7b3c5202d7d0838a420d0bdc",
+    "tree": "b9f7c52f3148bef64f66953bc4eb00ce5986593e"
+  },
+  "directly_verified_git": {
+    "history_count": 148,
+    "source_and_pages_history_blob": "47622519bba0c305f7997ec8093b8f08e0ba1285",
+    "versions_blob": "c7503b19c19de6c92892bdf8b3716d8801ef5262",
+    "version_count": 9,
+    "model_selections": 18,
+    "all_hardware_tested": false,
+    "package_version_assignments_blob": "c0cb0e85a25c45072fe1bb981a2e53cab740437f",
+    "open_website_prs": [
+      58,
+      70,
+      74
+    ],
+    "merged_source_prs": [
+      90,
+      91
+    ],
+    "merged_pages_prs": [
+      89,
+      92
+    ]
+  },
+  "existing_publisher_evidence": {
+    "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/92#issuecomment-6488870206",
+    "observed_at": "2026-10-29T05:31:25.589575Z",
+    "scope": "Eight actual HTTPS responses exactly matched approved artifact; all eighteen browser model/version selections completed verified downloads. Attribution to existing publisher and independent destination reviewer, not a fresh network/browser run by this maintenance task.",
+    "installer_sha256": "bdf50312a72450f6e6ae96f0c40c2182d305e9d169e0b1f146b8bd610c66b1cf",
+    "https_receipt_sha256": "0b857cf7429788f6b03236f1b291c0bfa769dd65bc97645a8e47a3fca3b5c9d8",
+    "browser_receipt_sha256": "57af460f0de600cfabf5a5d6a4fbfb1b10fbf850742025ebdc457c2eb43be838"
+  },
+  "existing_handoff_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/662#issuecomment-6489311630",
+  "residual_dependency_url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/58#issuecomment-6488921898",
+  "limits": [
+    "No firmware candidate selection, native build, hardware action or source-owner transfer by this maintenance.",
+    "Do not repeat the completed R48 publication or overwrite the retained catalog with the empty source preview.",
+    "EC035/EC039 and firmware snapshot capability remain with existing owners; source integration and package qualification are separate."
+  ]
+}

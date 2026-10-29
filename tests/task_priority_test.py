@@ -129,6 +129,92 @@ class PriorityTests(unittest.TestCase):
                         self.assertNotEqual(excluded['next_action'], held['next_action'])
                         self.assertIn('Read-only', excluded['next_action'])
 
+    def test_prepared_unfinished_dependency_preserves_independent_work_at_any_capacity(self):
+        for areas in (['32'], [], None):
+            for capacity in (0, 1, 2):
+                with self.subTest(areas=areas, capacity=capacity):
+                    dependency = record(16, status='REVIEW_PENDING')
+                    dependency['priority_assessment']['readiness'] = 'blocked'
+                    held = record(20, status='ACCEPTED_CONTINUATION_HANDOFFS_READY',
+                        dependencies=['LX-REQ-016'], next_action='Perform the dependent write.',
+                        owner_execution_state='RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                    held['priority_assessment']['work_areas'] = areas
+                    independent = record(12, owner=held['owner'],
+                        owner_execution_state='RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                    ledger = {'records': [held, dependency, independent, record(32)]}
+                    before = copy.deepcopy(ledger)
+                    result = p.plan(ledger, NOW, capacity, read_status='success')
+                    self.assertEqual(ledger, before)
+                    self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-012'])
+                    self.assertEqual(result['continue_existing'][0]['next_action'], independent['next_action'])
+                    self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                                     ['LX-REQ-032'] if capacity else [])
+                    self.assertEqual(result['recovery_actions'], [])
+                    self.assertEqual(result['claim_admission']['blocked_by'], [])
+                    excluded = next(r for r in result['excluded'] if r['request_id'] == 'LX-REQ-020')
+                    self.assertIn('blocked dependency: LX-REQ-016', excluded['reason'])
+                    self.assertIn('Read-only', excluded['next_action'])
+                    self.assertNotEqual(excluded['next_action'], held['next_action'])
+
+    def test_prepared_missing_cyclic_and_unaccepted_dependencies_do_not_continue(self):
+        negative = complete(record(16))
+        negative['evidence']['test']['state'] = 'FAIL'
+        stale = complete(record(16))
+        stale['evidence']['test']['receipt'] = 'fixture:changed-unaccepted-proof'
+        cases = [('missing', [], 'LX-REQ-016'),
+                 ('cancelled', [record(16, status='CANCELLED')], 'LX-REQ-016'),
+                 ('superseded', [record(16, status='SUPERSEDED')], 'LX-REQ-016'),
+                 ('bare_done', [record(16, status='DONE')], 'LX-REQ-016'),
+                 ('negative', [negative], 'LX-REQ-016'),
+                 ('stale', [stale], 'LX-REQ-016'),
+                 ('self', [], 'LX-REQ-020'),
+                 ('cycle', [record(16, dependencies=['LX-REQ-020'], owner_execution_state=
+                    'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')], 'LX-REQ-016')]
+        for label, dependencies, dependency_id in cases:
+            with self.subTest(case=label):
+                held = record(20, dependencies=[dependency_id], owner_execution_state=
+                    'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                independent = record(12, owner=held['owner'], owner_execution_state=
+                    'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                ledger = {'records': [held, *dependencies, independent, record(32)]}
+                before = copy.deepcopy(ledger)
+                result = p.plan(ledger, NOW, 2, read_status='success')
+                self.assertEqual(ledger, before)
+                self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-012'])
+                self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-032'])
+                excluded = next(r for r in result['excluded'] if r['request_id'] == 'LX-REQ-020')
+                self.assertIn('blocked dependency: ' + dependency_id, excluded['reason'])
+                self.assertIn('Read-only', excluded['next_action'])
+
+    def test_prepared_accepted_dependency_continues_without_spending_capacity(self):
+        for status in ('COMPLETED', 'DONE'):
+            for capacity in (0, 1, 2):
+                with self.subTest(status=status, capacity=capacity):
+                    dependency = complete(record(16))
+                    dependency['status'] = status
+                    existing = record(20, dependencies=['LX-REQ-016'], owner_execution_state=
+                        'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                    result = self.plan(existing, dependency, record(32), capacity=capacity)
+                    self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-020'])
+                    self.assertEqual(result['continue_existing'][0]['next_action'], existing['next_action'])
+                    self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                                     ['LX-REQ-032'] if capacity else [])
+
+    def test_reported_active_dependency_keeps_legacy_owner_and_scope_reservation(self):
+        for changes in ({'owner_execution_state': 'ACTIVE'},
+                        {'owner_execution_state': 'ACTIVE_STAGE_REPORTED'}, {'status': 'ACTIVE'},
+                        {'status': 'ACTIVE', 'owner_execution_state':
+                         'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED'}):
+            with self.subTest(changes=changes):
+                existing = record(20, dependencies=['LX-REQ-016'], **changes)
+                existing['priority_assessment']['work_areas'] = ['32']
+                dependency = record(16)
+                dependency['priority_assessment']['readiness'] = 'blocked'
+                result = self.plan(existing, dependency, record(32), record(33), capacity=2)
+                self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-020'])
+                self.assertEqual(result['continue_existing'][0]['next_action'], existing['next_action'])
+                self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-033'])
+
     def test_retained_continuation_obeys_deferral_completion_and_read_gates(self):
         existing = record(20, owner_execution_state=
             'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
