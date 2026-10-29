@@ -20,9 +20,15 @@ ap.add_argument("--elite", action="store_true",
                 help="also run tools/build.py --board smk37 --model elite (needs JIELI_TOOLCHAIN and AC79_SDK)")
 ap.add_argument("--icount", action="store_true",
                 help="also count instructions per block with callgrind (VALGRIND or ~/.local/vgenv/bin/valgrind)")
+ap.add_argument("--idle-icount", action="store_true",
+                help="with --icount, count only all 30 idle Miami programs after 64 warmup blocks at 217.5 BPM; render regular scenarios natively at -Os for comparison")
 ap.add_argument("--save-golden", type=Path, help="copy the renders to this directory")
 ap.add_argument("--golden", type=Path, help="byte-compare the renders with this golden directory")
 a = ap.parse_args()
+if a.idle_icount and not a.icount:
+    ap.error("--idle-icount requires --icount")
+if a.blocks < 1:
+    ap.error("--blocks must be positive")
 out = a.out.resolve(); out.mkdir(parents=True, exist_ok=True)
 spec = importlib.util.spec_from_file_location("x0x_build", ROOT / "tools/build.py")
 b = importlib.util.module_from_spec(spec); spec.loader.exec_module(b)
@@ -75,8 +81,16 @@ if a.icount:
     subprocess.run([cc, *osflags, "-DX0X_SYNTH684_ICOUNT", "-I" + vinc, str(HERE / "synth684_bench.c"),
                     *map(str, iobjs), "-lm", "-o", str(iexe)], check=True)
     (ic / "renders").mkdir()
+    counted_renders = ic / "renders"
+    if a.idle_icount:
+        # Keep the full regular -Os PCM proof without instrumenting its active
+        # software-FMA workload. Only idle scenarios need Valgrind counts.
+        subprocess.run([str(iexe), str(ic / "renders"), str(a.blocks)], check=True)
+        counted_renders = ic / "idle-renders"
+        counted_renders.mkdir()
     subprocess.run([vg, "--tool=callgrind", "--collect-atstart=no", "--callgrind-out-file=" + str(ic / "cg.out"),
-                    str(iexe), str(ic / "renders"), str(a.blocks)], check=True, stderr=subprocess.DEVNULL)
+                    str(iexe), str(counted_renders), str(a.blocks),
+                    *(["--miami-idle-only"] if a.idle_icount else [])], check=True, stderr=subprocess.DEVNULL)
     for f in sorted(ic.glob("cg.out*")):
         text = f.read_text(errors="replace")
         m = re.search(r"^desc: Trigger: Client Request: \S*/([\w.-]+)\.f32", text, re.M)
@@ -84,7 +98,8 @@ if a.icount:
         if m and t: icount[m.group(1)] = round(int(t.group(1)) / a.blocks)
     for n in sorted(icount): print(f"ICOUNT {n}: {icount[n]} instructions per block")
     for f in (ic / "renders").glob("*.f32"):
-        if f.read_bytes() != (renders / f.name).read_bytes(): print(f"WARNING: -Os render differs from -O2 render: {f.name}")
+        normal = renders / f.name
+        if normal.exists() and f.read_bytes() != normal.read_bytes(): print(f"WARNING: -Os render differs from -O2 render: {f.name}")
 
 def sizes(files, tool):
     total = {"text": 0, "data": 0, "bss": 0, "pool": 0}
@@ -106,6 +121,11 @@ def group(paths):
         g["chicago" if "chicago" in n and "miami" not in n else "miami" if "miami" in n else "shared"].append(p)
     return g
 report = {"validity": validity, "icount_per_block": icount, "host_objects": {k: sizes(v, "size") for k, v in group(objs).items()}}
+if a.idle_icount:
+    report["idle_icount_workload"] = {"engine": "miami", "programs": 30, "warmup_blocks": 64,
+                                       "measured_blocks": a.blocks, "frames_per_block": 256,
+                                       "bpm": 217.5, "counted_call": "original_runtime_render",
+                                       "only_idle_counted": True, "regular_os_render": "native, one pass"}
 if a.elite:
     subprocess.run([sys.executable, "tools/build.py", "--board", "smk37", "--model", "elite"], check=True,
                    stdout=subprocess.DEVNULL)
@@ -126,5 +146,11 @@ if a.golden:
     bad = [n for n in names if not (renders / n).exists() or (renders / n).read_bytes() != (a.golden / n).read_bytes()]
     print(f"GOLDEN COMPARE: {len(names) - len(bad)}/{len(names)} identical" + (f", DIFFERENT: {bad}" if bad else ""))
     golden_rc = 1 if bad or not names else 0
+    if a.icount:
+        os_bad = [n for n in names if not (ic / "renders" / n).exists() or
+                  (ic / "renders" / n).read_bytes() != (a.golden / n).read_bytes()]
+        print(f"GOLDEN COMPARE -Os: {len(names) - len(os_bad)}/{len(names)} identical" +
+              (f", DIFFERENT: {os_bad}" if os_bad else ""))
+        golden_rc = golden_rc or (1 if os_bad or not names else 0)
 if not real: print("REMINDER: STUB build. These numbers are NOT VALID.")
 sys.exit(run.returncode or golden_rc)

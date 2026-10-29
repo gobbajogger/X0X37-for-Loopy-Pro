@@ -132,6 +132,53 @@ static int scenario(const char *out, unsigned kind, unsigned factory, unsigned f
     return rc;
 }
 
+#ifdef X0X_SYNTH684_ICOUNT
+/* Idle counts include the public float-output/runtime bridge. Preparation,
+ * cold initialization and warmup are excluded, matching the active workload's
+ * counted call. No notes or parameter events are queued. */
+static int miami_idle_scenario(const char *out, unsigned factory, unsigned blocks, FILE *csv)
+{
+    const float bpm = 217.5f;
+    const unsigned warmup = 64;
+    uint8_t cell[ORIGINAL_SOUND_BYTES];
+    static float l[BLOCK], r[BLOCK], inter[2 * BLOCK];
+    char name[512];
+    CALLGRIND_STOP_INSTRUMENTATION;
+    if (!original_sound_init(cell, ORIGINAL_SOUND_MIAMI, factory)) return 1;
+    memset(&part, 0, sizeof part);
+    if (original_runtime_init(&part, cell, bpm, &tuning, &fx_owner) != ORIGINAL_RUNTIME_OK) return 1;
+    for (unsigned b = 0; b < warmup; ++b) {
+        if (original_runtime_prepare(&part, bpm) != ORIGINAL_RUNTIME_OK ||
+            original_runtime_render(&part, &work, l, r, BLOCK) != ORIGINAL_RUNTIME_OK) return 1;
+    }
+    snprintf(name, sizeof name, "%s/miami-idle-p%02u-fx0.f32", out, factory);
+    FILE *f = fopen(name, "wb"); if (!f) return 1;
+    CALLGRIND_START_INSTRUMENTATION;
+    CALLGRIND_ZERO_STATS;
+    uint64_t hash = UINT64_C(1469598103934665603);
+    for (unsigned b = 0; b < blocks; ++b) {
+        if (original_runtime_prepare(&part, bpm) != ORIGINAL_RUNTIME_OK) { fclose(f); return 1; }
+        CALLGRIND_TOGGLE_COLLECT;
+        int st = original_runtime_render(&part, &work, l, r, BLOCK);
+        CALLGRIND_TOGGLE_COLLECT;
+        if (st != ORIGINAL_RUNTIME_OK) { fclose(f); return 1; }
+        for (unsigned i = 0; i < BLOCK; ++i) { inter[2*i] = l[i]; inter[2*i+1] = r[i]; }
+        const uint8_t *p = (const uint8_t *)inter;
+        for (unsigned i = 0; i < sizeof inter; ++i) {
+            /* Require exact positive-zero PCM, independently of any golden. */
+            if (p[i]) { fprintf(stderr, "nonzero Miami idle PCM p%u block %u\n", factory, b); fclose(f); return 1; }
+            hash ^= p[i]; hash *= UINT64_C(1099511628211);
+        }
+        if (fwrite(inter, sizeof(float), 2 * BLOCK, f) != 2 * BLOCK) { fclose(f); return 1; }
+    }
+    if (fclose(f)) return 1;
+    CALLGRIND_DUMP_STATS_AT(name);
+    fprintf(csv, "%s,miami-idle,%u,0,%u,0,0,0,0,%016llx\n", VALIDITY, factory, blocks,
+            (unsigned long long)hash);
+    return original_runtime_retire(&part) == ORIGINAL_RUNTIME_OK ? 0 : 1;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     if (argc < 2) { fprintf(stderr, "usage: %s OUTDIR [blocks]\n", argv[0]); return 2; }
@@ -143,9 +190,21 @@ int main(int argc, char **argv)
     fprintf(csv, "validity,engine,program,fx,blocks,min_mean_ns_per_block,median_mean_ns_per_block,median_ns,p99_ns,fnv1a64\n");
     static const unsigned chicago_programs[] = {0, 7, 19, 33, 54}, miami_programs[] = {0, 9, 18, 29};
     int rc = 0;
+#ifdef X0X_SYNTH684_ICOUNT
+    int idle_only = argc > 3 && !strcmp(argv[3], "--miami-idle-only");
+    if (idle_only) goto miami_idle_counts;
+#endif
     for (unsigned i = 0; i < 5; ++i) rc |= scenario(argv[1], ORIGINAL_SOUND_CHICAGO, chicago_programs[i], 0, blocks, csv);
     for (unsigned c = 1; c < ORIGINAL_CHICAGO_FX_CHOICES; ++c) rc |= scenario(argv[1], ORIGINAL_SOUND_CHICAGO, 0, c, blocks, csv);
     for (unsigned i = 0; i < 4; ++i) rc |= scenario(argv[1], ORIGINAL_SOUND_MIAMI, miami_programs[i], 0, blocks, csv);
+#ifdef X0X_SYNTH684_ICOUNT
+miami_idle_counts:
+    if (idle_only || (argc > 3 && !strcmp(argv[3], "--miami-idle"))) {
+        for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_FACTORIES; ++i)
+            rc |= miami_idle_scenario(argv[1], i, blocks, csv);
+        fprintf(csv, "# idle_warmup_blocks=64 idle_bpm=217.5 idle_counted_call=original_runtime_render\n");
+    }
+#endif
     fprintf(csv, "# validity=%s block=%u bpm=%.1f sample_rate=44100 format=f32le-stereo-interleaved\n", VALIDITY, BLOCK, BPM);
     fclose(csv);
     printf("%s: results in %s\n", VALIDITY, path);

@@ -496,3 +496,42 @@ The direct Linux Elite build passes (`build/miami-step6-elite-linux-build.log`,
 Step 6 file list: `firmware/src/dsp/original_miami_backend.c` and
 `MIAMI-OPT.md`. Its instruction-count qualification follows with the
 measurement harness step below. No device was accessed.
+
+### Step 7: qualified Docker/Valgrind idle measurement
+
+`tools/synth684_harness/run.py --icount --idle-icount --golden
+build/synth684-golden-9d1cf9fb` now renders all 15 scripted scenarios at both
+`-O2` and `-Os`, then counts only idle Miami calls. Each of all 30 programs
+has 64 uninstrumented warmup blocks and 172 measured 256-frame blocks at
+217.5 BPM. Only `original_runtime_render()` is counted, including its float
+bridge and buffer validation. Preparation, initialization and file I/O are
+excluded. Every idle PCM byte must be positive zero. Both optimization levels
+must match all 15 goldens when `--golden` is requested.
+
+The runner is Docker/Colima x86-64, local image
+`x0x37-final-cache:dev-532d91f`, GCC 12.2.0 and Valgrind 3.19.0. Valgrind was
+installed successfully with apt. All compared engines use identical flags,
+including `-Os`, software FMA and strict floating-point contraction settings.
+The first counting attempts also instrumented irrelevant active scenarios;
+those were stopped and superseded by the idle-only collector. Exact previously
+compiled engine objects were reused after the benchmark-driver change; the
+new driver was compiled normally. No source or compiler flag changed for any
+reused engine object.
+
+Mean **idle instructions per 256-frame public render call**, all 30 programs:
+**168,948.867 before (`f9ffd12e`) → 10,612.767 at Step 5 → 10,349.033 at
+Step 6 (`16ee9453`)**. This is **93.874% fewer** than the unoptimized idle
+path. Baseline program means range 168,016–170,828; Step 6 means range
+10,322–10,421. All three runs use REAL pinned inputs and pass **15/15 goldens
+at both `-O2` and `-Os`**. Raw reports/logs are named
+`build/miami-qualified-{baseline,step5,step6}*`.
+
+A representative Step 6 Callgrind dump attributes about 5,120 instructions
+to zero-fill string operations and 2,048 to float-bridge copy operations per
+block. These are required buffer bytes, rather than per-sample DSP updates.
+The full public call is still above the older 1–3k instruction goal; the next
+step addresses this measured buffer cost. No AC79 CPU percentage is claimed,
+and the 12–20% device-load target remains for the authorized perf lane.
+
+Step 7 file list: `tools/synth684_harness/run.py`,
+`tools/synth684_harness/synth684_bench.c`, and `MIAMI-OPT.md`.
