@@ -4,6 +4,7 @@
  * TIMER5 only copies complete messages. All project, sequencer and display work is in the main loop. */
 #include "smc_protocol.h"
 #include "smc_fx_map.h"
+#include "smc_fx_caption.h"
 
 #define SMC_Q 32u
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
@@ -624,6 +625,7 @@ static void smc_fx_main_tick(void);
 static void smc_fx_clear(void);
 static void smc_fx_main_nav(int which);
 static int smc_fx_bus_now(uint8_t note);
+static int smc_home_held(void);
 #define SMC_FX_HOLD_MS 180u
 static int smc_lock_blocks(uint8_t note);
 /* Shared navigation descriptors: input dispatch and screen captions read these. */
@@ -649,13 +651,9 @@ static const char *smc_button_caption(int note)
     if (row == 3 && kit >= 0) return "SEL";
     if (row == 3 && kit < 0) {
         int bus = smc_fx_bus_now((uint8_t)note);
-        if (bus >= 0) {
-            if (!smc.fx_ready)
-                smc_fx_publish();
-            if (smc.fx_effect[bus] < SMCFX_NFX)
-                return SMCFX_SHORT[smc.fx_effect[bus]];
-        }
-        return strip < NPARTS ? "SEL" : "SEL";
+        if (bus >= 0)
+            return smcfx_select_caption(bus, smc_home_held());
+        return "SEL";
     }
     if (kit >= 0 || strip < NPARTS) return row ? "S" : "R";
     int key = smc_nav_key(note);
