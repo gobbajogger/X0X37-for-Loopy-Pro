@@ -37,7 +37,7 @@ static void multisegment_fixture(void) {
  REQUIRE(packed_len>(sizeof io_buf)-STREAM_HDR);
 }
 static void mixed_segment_storage(void) {
- for(unsigned format=4;format<=9;format++) {
+ for(unsigned format=1;format<13;format++) {
   if(stream_known(format)) continue;
   fresh("used unsupported continuation is preserved");multisegment_fixture();
   int n=plat_store_load(OBJ_PAT1,io_buf,sizeof io_buf);REQUIRE(n>4);
@@ -45,11 +45,10 @@ static void mixed_segment_storage(void) {
   snapshot();CHECK(project_load_stage()==-9);check_live_unchanged();
   CHECK(project_storage_unsupported());rejected_preserves_storage();
  }
- fresh("ordinary corrupt continuation retains fallback");multisegment_fixture();
+ fresh("format-zero continuation is unsupported");multisegment_fixture();
  int n=plat_store_load(OBJ_PAT1,io_buf,sizeof io_buf);REQUIRE(n>4);
  put32(io_buf,0);REQUIRE(plat_store_save(OBJ_PAT1,io_buf,(unsigned)n)==0);
- CHECK(project_load()==-1);CHECK(!project_storage_unsupported());
- project_defaults();CHECK(project_save()==0);
+ rejected_preserves_storage();
  fresh("unused stale unsupported tails are ignored");REQUIRE(project_save()==0);
  REQUIRE(packed_len<=(sizeof io_buf)-STREAM_HDR);
  for(unsigned k=1;k<NSTREAM;k++) {
@@ -62,7 +61,7 @@ static void mixed_segment_storage(void) {
 }
 int main(void) {
  mixed_segment_storage();
- fresh("stream6 endpoint roundtrip");
+ fresh("stream13 endpoint roundtrip");
  proj.pat[0].bass[0].step[0]=(bstep_t){60,G_NOTE|(5u<<BS_END_SHIFT),90};
  REQUIRE(project_save()==0);snapshot();
  CHECK(project_load_stage()==0);check_live_unchanged();
@@ -70,15 +69,10 @@ int main(void) {
  CHECK(project_stage.pat[0].bass[0].step[0].velocity==90);
  int n=plat_store_load(OBJ_PAT0,io_buf,sizeof io_buf);CHECK(n>=4 && get32(io_buf)==PROJ_STREAM);
  mark_stream(3);rejected_preserves_storage();
- for(unsigned format=4;format<=5;format++) {
+ for(unsigned format=1;format<13;format++) {
   fresh("frozen feature format rejected without rewrite");REQUIRE(project_save()==0);
   mark_stream(format);rejected_preserves_storage();
  }
- fresh("legacy3 no-endpoint bytes preserved");
- proj.pat[0].bass[0].step[0]=(bstep_t){62,G_NOTE|BS_ACCENT|BS_SLIDE,75};
- bpart_t prior=proj.pat[0].bass[0];REQUIRE(project_save()==0);mark_stream(3);
- CHECK(project_load()==0);CHECK(!memcmp(&prior,&proj.pat[0].bass[0],sizeof prior));
- REQUIRE(project_save()==0);n=plat_store_load(OBJ_PAT0,io_buf,sizeof io_buf);CHECK(n>=4&&get32(io_buf)==PROJ_STREAM);
  fresh("snapshot target is not reinterpreted as endpoint-only motion");REQUIRE(project_save()==0);
  proj.arr.lane[0].used=1;proj.arr.lane[0].t=0xFE;
  CHECK(project_save()==-9); /* reject even before settings/sound writes */

@@ -5,8 +5,14 @@
 #pragma once
 #include <stdint.h>
 
+#if defined(__clang__)
+#define CK_MINSIZE __attribute__((minsize))
+#else
+#define CK_MINSIZE
+#endif
+
 #ifndef CK_FN
-#define CK_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#define CK_FN CK_MINSIZE __attribute__((noinline, unused))   /* small code: the app area is almost full */
 #endif
 
 #define CK_NKEY 37u           /* keybed keys; key 0 = C3 = MIDI note 48 */

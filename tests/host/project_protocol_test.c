@@ -14,6 +14,10 @@ static uint8_t flash_image[0x100000];
 #define SMP_USER_XIP(k) (flash_image + SMP_USER_OFF(k))
 #include "../../firmware/src/app/slots.c"
 project_t proj, project_stage;
+int project_storage_unsupported(void) { return 0; }
+int engine_bass_sound_validate(const sound_t *sound) { (void)sound; return 0; }
+int engine_bass_preset_pending(int voice) { (void)voice; return 0; }
+
 static uint32_t fm1_ms, fm1_crash[2];
 static struct { uint32_t failed, pending; } bootguard;
 static struct { unsigned ota_req, uboot_req; } usb;
@@ -145,7 +149,7 @@ int main(void)
     uint32_t i, n;
     for (i = 0; i < sizeof data; i++) data[i] = (uint8_t)(i * 37 + 91);
     memset(&proj, 0x42, sizeof proj);
-    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == 1 && ed_u21(reply + 8) == sizeof data && !reply[11]);
+    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == 2 && ed_u21(reply + 8) == sizeof data && !reply[11]);
     u21(a, sizeof data - 1); op(67, a, 3, 1); assert(!held);
     held = 1; u21(a, sizeof data); op(67, a, 3, 2); held = 0;
     op(65, 0, 0, 0); assert(ed_project.mode == 1 && held);
@@ -171,7 +175,7 @@ int main(void)
     validation = -1; op(74, 0, 0, 5);
     int headers_before_validate = headers;
     validation = 0; op(74, 0, 0, 0); assert(!adopts && held && !ed_project_samples_locked());
-    assert(headers == headers_before_validate + 1); /* migrated bytes need a new CRC header */
+    assert(headers == headers_before_validate); /* validation keeps current-format bytes unchanged */
     op(69, confirm, 2, 0); assert(adopts == 1 && !held && !ed_project.mode);
     assert(!memcmp(&proj, data + PROJECT_FILE_HDR, sizeof proj));
     assert(!flash_writes && !flash_erases);

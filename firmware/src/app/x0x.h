@@ -3,6 +3,12 @@
  * Included by the unity build after gfx.c, so drawing helpers are in scope. */
 #pragma once
 #include <stdint.h>
+#ifndef X0X_ORIGINAL_SYNTH
+#define X0X_ORIGINAL_SYNTH 1
+#endif
+#if X0X_ORIGINAL_SYNTH != 1
+#error Only X0X_ORIGINAL_SYNTH=1 is supported
+#endif
 #include "plat.h"
 #include "engine.h"
 #include "../seq/pattern.h"
@@ -11,7 +17,7 @@
 #include "../seq/motion.h"
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
-#include "factory_banks.h"           /* Chicago / Miami faithful-303 factory + user banks */
+#include "factory_banks.h"           /* Chicago / Miami factory metadata */
 
 #ifndef X0X_VERSION                     /* a release build passes its numeric X.Y.Z (tools/build.py --release) */
 #define X0X_VERSION "DEV"
@@ -25,33 +31,17 @@
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u
-#if X0X_BASS_TAGGED_SOUND
-#define PROJ_SND_REV 11u
-#else
-#define PROJ_SND_REV 10u
-#endif
-/* Sound revision 11 appends two explicit engine/product-schema identities. */
-/* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
-                                          * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
-                                          * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
-                                          * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9);
-                                          * 5: sound cells widened 16→NPARAMS_MAX; 303 AmpMod (Env/Gate) at 16;
-                                          * 6: 303 Wave continuous morph (old 1 → 127); Gnaw pot at 17;
-                                          * 7: NPARAMS_MAX 20→24; 303 Bite at 18; amp Env A/D/S/R at 19..22;
-                                          * 8: NPARAMS_MAX 24→28; Chicago Arp Switch/Mode/Range/Speed at 23..26;
-                                          * 9: NPARAMS_MAX 28→32; Chicago SEND FX Type/Edit1/Edit2 at 27..29
-                                          *    (shared Mix/fxbus bridge — not insert FX; see chicago_fx.h);
-                                          * 10: Chicago pitch bend + damper at 30..31 (fills NPARAMS_MAX;
-                                          *     live ±2 st bend; damper sustains live/MIDI only) */
-/* settings_t.bt, bits 1-2: GLO > MIDI > CLOCK SOURCE (SEQ_CLK_*). Bit 3: bits 1-2 hold it (a75 and later). Without
- * bit 3 (a74 and older), project_load reads the a74 byte at offset 38 (padding then; ck_x1 in the clip keys). */
+#define PROJ_SND_REV 13u
+/* Revision 13 stores schema2 cells with 55 Chicago programs and seven FX choices.
+ * Earlier engine and project revisions are unsupported. */
+/* settings_t.bt, bits 1-2: GLO > MIDI > CLOCK SOURCE (SEQ_CLK_*).
+ * Bit 3 marks the current CLOCK SOURCE encoding. */
 #define PROJ_BT_CLK_MASK 6u
 #define PROJ_BT_CLK_IN 8u
 #define PROJ_BT_SMC_CENTRAL 16u  /* connect to an SMC-Mixer instead of advertising at next boot */
 #define PROJ_BT_SMC_USER 32u     /* SMC's editable User preset, rather than factory DAW mode */
 #define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
-#define PROJ_A74_CLK_OFF 38u
 
 typedef struct {
     uint32_t magic, format;
@@ -97,9 +87,6 @@ extern project_t project_stage;          /* exclusive staging, otherwise the UI 
 
 void project_defaults(void);
 int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
-#if X0X_BASS_TAGGED_SOUND
-int project_adopt_legacy_stage(int bank0,int bank1); /* explicit choices, no raw cell conversion */
-#endif
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
 int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */
 void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */
@@ -113,10 +100,6 @@ int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capa
 void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
-#if X0X_BASS_TAGGED_SOUND
-#define PROJECT_LEGACY_FILE_SIZE (PROJECT_FILE_SIZE-NBASS*BASS_SOUND_TAG_BYTES)
-int project_prepare_legacy_file(const uint8_t *header); /* exact rev10 layout; -10 explicit choice required */
-#endif
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 
