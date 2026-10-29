@@ -8,7 +8,9 @@ from pathlib import Path
 import re
 import subprocess
 
-STATUS = re.compile(r'^\s*(ok|FAIL|not-run)\s+([a-zA-Z0-9_][a-zA-Z0-9_.+-]*)\b')
+# The suite emits exactly two leading spaces. An indented compiler/assertion
+# tail in serial or .results mode is diagnostic text, never another test result.
+STATUS = re.compile(r'^ {2}(ok|FAIL|not-run) +([a-zA-Z0-9_][a-zA-Z0-9_.+-]*)\b')
 ERROR = re.compile(r'(?:fatal error:|error:|\bFAIL\b|AssertionError|assertion failed|Traceback|ModuleNotFoundError|undefined reference|ld:|No such file or directory|command not found|AddressSanitizer|UndefinedBehaviorSanitizer)', re.I)
 
 

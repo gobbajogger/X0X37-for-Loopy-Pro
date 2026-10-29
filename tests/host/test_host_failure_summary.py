@@ -67,6 +67,34 @@ class FailureSummaryTests(unittest.TestCase):
             self.assertEqual(report['comparison'], {
                 'new_failures': ['new'], 'preexisting_failures': ['kept'], 'cleared_failures': ['old']})
 
+
+    def test_nested_diagnostics_do_not_create_extra_failures(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            transcript = root / 'run.log'
+            transcript.write_text(
+                '  ok first\\n  FAIL actual (see build/host/actual.log)\\n'
+                '       FAIL fake-from-test-output\\n'
+                '       ok fake-pass\\n'
+                '       not-run fake-skip\\n'
+            .replace('\\n', '\n'))
+            (root / 'actual.log').write_text('AssertionError: real failure\\n'.replace('\\n', '\n'))
+            report = mod.build_summary(root, transcript)
+            self.assertEqual(report['counts'], {'ok': 1, 'FAIL': 1, 'not-run': 0})
+            self.assertEqual(set(report['failures']), {'actual'})
+
+    def test_parallel_results_ignore_indented_tail(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / '.results').mkdir()
+            (root / '.results/0001').write_text(
+                '  FAIL actual (see build/host/actual.log)\\n'
+                '       FAIL fake-from-diagnostic\\n'.replace('\\n', '\n'))
+            (root / 'actual.log').write_text('AssertionError: real failure\\n'.replace('\\n', '\n'))
+            report = mod.build_summary(root)
+            self.assertEqual(report['counts']['FAIL'], 1)
+            self.assertEqual(set(report['failures']), {'actual'})
+
     def test_no_status_is_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

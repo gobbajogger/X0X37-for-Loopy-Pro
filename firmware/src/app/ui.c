@@ -6159,7 +6159,9 @@ static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
     int q=d && d->max?(val*127+d->max/2)/d->max:0, left=cx-18, right=cx+18;
     if(q<0)q=0;
     if(q>127)q=127;
-    if(is_pan(r) || r.kind==R_BTRANS || (r.kind==R_ENG && r.a==T_BRK && r.c==1)) {
+    if(is_pan(r) || r.kind==R_BTRANS ||
+       (r.kind==R_ENG && ((r.a==T_BRK && r.c==1) ||
+                          (r.a==T_MST && r.c==MST_DJF)))) {
         int at=left+q*36/127;
         cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
         cv_rect(left,35,1,7,C_GRAY);cv_rect(right,35,1,7,C_GRAY);
