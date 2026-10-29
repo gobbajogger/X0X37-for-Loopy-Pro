@@ -1,8 +1,9 @@
 # Miami CPU optimization
 
 The inherited optimization at `f95e230e` is bit-exact in the checks below.
-Its AC79 Elite build passes. CPU qualification is **pending**: this session
-cannot run Valgrind, so there is no measured instruction-count reduction yet.
+Its AC79 Elite build passes. The earlier tooling restrictions and READY TO
+COMMIT notes below are historical; the full-access continuation records
+local commits and Docker/Valgrind qualification at the end of this file.
 The purpose is to reduce the work per audio block while preserving the sound
 and voice/FX state heard when playing Miami.
 
@@ -432,3 +433,66 @@ step's snapshot contains its own documentation version. Commit remains
 blocked by the same `index.lock` sandbox denial. No private header, plugin,
 firmware package or controller image was staged. There was no push, firmware
 installation or flashing; the connected SMK 37 Pro was not accessed.
+
+## Full-access continuation, 2026-10-30
+
+The saved source overlays and their SHA-256 records matched before committing.
+All five steps now have separate local commits on `codex/miami-opt2`:
+
+- Step 1: `b2d7accc`, exactly inactive voice blocks.
+- Step 2: `7076218b`, event-free control spans.
+- Step 3: `0b18f5d3`, immutable voice inputs validated at block entry.
+- Step 4: `5b133035`, exact clock batching and settled zero output.
+- Step 5: `d706977e`, exact selected global LFO arithmetic.
+
+Only documentation EOF whitespace was normalized while committing snapshots.
+The final source, host-proof records, golden logs/reports and all 15 golden
+render hashes match `build/miami-second-builder-proof.json`. Prior proof was
+reused for those exact sources. `f95e230e` remains an ancestor.
+
+### Step 6: retain only the final two synchronized global LFO ticks
+
+A selected synchronized phase is calculated from its clock ratio, and its
+waveform output uses the preceding phase. Thus two final global ticks replace
+all earlier phase/output writes in an idle block. The idle path now advances
+the prefix clocks directly, retains real tempo notifications in order, and
+updates the integer counter and helper-entry count in aggregate. It then
+evaluates only the final two ticks. This removes more idle work while keeping
+the sound and stored state identical when a player resumes a note.
+
+The admission guard still requires shapes 0–3, synchronization, empty keys,
+inactive voices, disabled ARP and no pending gate/restart. Global held/noise
+state and disabled ARP RNG state freeze exactly as before. Per-voice state
+also freezes in the reference. Moving float smoothers still use their scalar
+updates; only exactly settled output/master state uses the zero shortcut.
+There are no per-sample DSP loops in the settled idle branch. Buffer clearing
+remains necessary to return exact output and workspace bytes to callers.
+
+`python3 tests/host/miami_cpu_test.py --out build/miami-last-ticks-step6
+--compare-ref f9ffd12e` passes the original, long-idle and every-duration
+1–2000-block idle-then-note workloads for all 30 programs. All three trace
+sizes and SHA-256 values remain those recorded for Step 4. Independent
+read-only review found no intermediate phase/output consumer in the idle
+scheduler and no change to notification order or retained state.
+
+The separate `--sanitize` comparison also passes in
+`build/miami-last-ticks-step6-sanitized/` with the same three trace hashes.
+The complete native 172-block golden render is 15/15 identical.
+
+The first Elite attempt lacked Pillow in Python 3.12. Pillow was installed
+under ignored `build/miami-python-deps/`. The Mac Docker wrapper then exposed
+a separate path issue: standard include paths referred to the host toolchain
+location, while its container mounted that tree at `/opt/jieli`. The follow-up
+build runs directly in Linux with the SDK/toolchain mounted read-only at their
+matching absolute paths. Neither environment repair changes engine source.
+
+The direct Linux Elite build passes (`build/miami-step6-elite-linux-build.log`,
+`X0X_DEV_PADCAL=1`, JieLi Clang 4.0.1). Linked `.text` is **412,320 bytes**,
+**+112 bytes** from Step 5. Every allocated RAM section remains unchanged;
+`.pool` remains 328,880 bytes with 15,184 bytes free. The app image is
+416,048 bytes. Target ELF SHA-256:
+`e680a8b071b04329a0b5ac7a81026aec12e7d545e6310ac86d09c792e8c4f825`.
+
+Step 6 file list: `firmware/src/dsp/original_miami_backend.c` and
+`MIAMI-OPT.md`. Its instruction-count qualification follows with the
+measurement harness step below. No device was accessed.

@@ -306,38 +306,58 @@ static int advance_silent_global(original_miami_backend *s)
     return 1;
 }
 
+/* Advance the tempo clocks through real notification boundaries. Empty
+ * ARP-off keys leave the selector and all noise generators frozen. */
+static int advance_silent_clocks(original_miami_backend *s, uint32_t frames)
+{
+    uint32_t remaining = frames;
+    while (remaining) {
+        float a = s->clock1.accumulator, b = s->clock2.accumulator;
+        uint32_t na = original_miami_idle_clock_below(&a, s->voice_owner.bpm,
+            s->clock1.threshold, remaining);
+        uint32_t nb = original_miami_idle_clock_below(&b, s->clock_input.bpm,
+            s->clock2.threshold, remaining);
+        uint32_t n = na < nb ? na : nb;
+        if (na != n) {
+            a = s->clock1.accumulator;
+            (void)original_miami_idle_clock_below(&a, s->voice_owner.bpm, s->clock1.threshold, n);
+        }
+        if (nb != n) {
+            b = s->clock2.accumulator;
+            (void)original_miami_idle_clock_below(&b, s->clock_input.bpm, s->clock2.threshold, n);
+        }
+        s->clock1.accumulator = a;s->clock2.accumulator = b;
+        s->scheduler.dispatch_result = 1;
+        remaining -= n;
+        if (remaining) {
+            /* Original notification/ARP order on the threshold frame.
+             * Empty ARP-off keys leave selector/noise state frozen. */
+            if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+            --remaining;
+        }
+    }
+    return 1;
+}
+
 static int advance_silent_block(original_miami_backend *s, uint32_t frames)
 {
     if (!completed(s, original_miami_voice_owner_block_valid(&s->voice_owner))) return 0;
+    uint32_t ticks = ((uint32_t)s->global.counter + frames * 690u) / 44100u;
+    if (ticks > 2) {
+        /* Synced shapes 0..3 neither integrate phase nor consume noise. The
+         * final waveform uses the previous tick's phase; two final ticks
+         * overwrite every earlier phase/output. Notifications still run at
+         * their original clock frames, including any phase/output resets. */
+        uint32_t skip = (44100u * (ticks - 2u) - (uint32_t)s->global.counter + 689u) / 690u;
+        if (!advance_silent_clocks(s, skip)) return 0;
+        s->global.counter = (int32_t)(((uint32_t)s->global.counter + skip * 690u) % 44100u);
+        s->note_context.helper_entries += skip;
+        frames -= skip;
+    }
     while (frames) {
         uint32_t span = (44100u - 1u - (uint32_t)s->global.counter) / 690u + 1u;
         if (span > frames) span = frames;
-        uint32_t remaining = span;
-        while (remaining) {
-            float a = s->clock1.accumulator, b = s->clock2.accumulator;
-            uint32_t na = original_miami_idle_clock_below(&a, s->voice_owner.bpm,
-                s->clock1.threshold, remaining);
-            uint32_t nb = original_miami_idle_clock_below(&b, s->clock_input.bpm,
-                s->clock2.threshold, remaining);
-            uint32_t n = na < nb ? na : nb;
-            if (na != n) {
-                a = s->clock1.accumulator;
-                (void)original_miami_idle_clock_below(&a, s->voice_owner.bpm, s->clock1.threshold, n);
-            }
-            if (nb != n) {
-                b = s->clock2.accumulator;
-                (void)original_miami_idle_clock_below(&b, s->clock_input.bpm, s->clock2.threshold, n);
-            }
-            s->clock1.accumulator = a;s->clock2.accumulator = b;
-            s->scheduler.dispatch_result = 1;
-            remaining -= n;
-            if (remaining) {
-                /* Original notification/ARP order on the threshold frame.
-                 * Empty ARP-off keys leave selector/noise state frozen. */
-                if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
-                --remaining;
-            }
-        }
+        if (!advance_silent_clocks(s, span)) return 0;
         s->global.counter += (int32_t)(span - 1) * 690;
         s->note_context.helper_entries += span - 1;
         if (s->global.counter + 690 >= 44100) {
