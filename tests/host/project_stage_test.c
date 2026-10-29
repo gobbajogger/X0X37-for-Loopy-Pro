@@ -368,7 +368,7 @@ static void test_semantic_rejection(void)
         BAD8(pat[31].bass[1].gen.scale, TB3PO_NSCALES), BAD8(pat[31].bass[1].step[63].flags, 3),
         BAD8(pat[31].bass[1].step[63].flags, 16), BAD8(pat[31].bass[1].step[63].note, 128),
         BAD8(pat[31].bass[1].step[63].velocity, 128), BAD8(pat[31].brk.set[BRK_PHRASE], 255),
-        BAD8(pat[31].brk.slice[15], 33), BAD8(pat[31].brk.slice_mode, 16), BAD16(arr.song.len, NSONG + 1),
+        BAD8(pat[31].brk.slice[15], 9), BAD16(arr.song.len, NSONG + 1),
         BAD8(arr.song.bar[NSONG - 1].pat[PART_BRK], NPAT),
         BAD8(arr.lane[NLANE - 1].used, 2), BAD8(arr.lane[NLANE - 1].pat, NPAT),
         BAD8(arr.lane[NLANE - 1].part, NPARTS), BAD8(arr.lane[NLANE - 1].t, T_VEL + 1),
@@ -389,8 +389,7 @@ static void test_semantic_rejection(void)
         for (b = 0; b < invalid[k].bytes; b++)
             ((uint8_t *)&project_stage)[invalid[k].offset + b] = (uint8_t)(invalid[k].value >> (b * 8u));
         project_file_header(h);       /* correct CRC: this must be semantic rejection */
-        int invalid_rc = project_file_validate(h);
-        if (invalid_rc != -1 && invalid_rc != -9) {
+        if (project_file_validate(h) != -1) {
             fprintf(stderr, "unsafe case %u (offset %zu) was accepted\n", k, invalid[k].offset);
             CHECK(0);
         }

@@ -142,7 +142,7 @@ def explicit_backup_keeps():
 
 
 def downgrade():
-    """this X0X -> older X0X: skipping oversized slot 2 must not assign its LOOP index to slot 3"""
+    """this X0X -> older X0X: slot 2 > 80 KiB and slot 3 have no place; slot 3 goes to the free old slot 2"""
     fl = Flash()
     a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
     b = put(fl, SMK_MAP, 1, "BIG", 200000, 5)          # about 98 KiB: more than an old 80 KiB slot
@@ -160,10 +160,8 @@ def downgrade():
        "downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install")
     ok("slot 2 (BIG, 98 KiB), slot 3 (BR3, 30 KiB)" in out, "downgrade: the warning names the slots at risk")
     now = read(fl, SMK_OLD_MAP, ext=False)
-    ok(now == [a, None] and not any(cmd in (xs.CMD_BEGIN, xs.CMD_WRITE, xs.CMD_END, xs.CMD_ERASE)
-                                     for identity, cmd in dev.slot_cmds if identity == OLD_PKG)
-       and "LOOP menu order or indices" in out and "not written back: slot 2" in out,
-       "downgrade: kept slot unchanged, no restore writes before manual LOOP index reconciliation")
+    ok(now == [a, c] and "slot 3 written back to slot 2 and read back: ok" in out and "not written back: slot 2" in out,
+       "downgrade: slot 1 kept, slot 3 restored, oversized slot 2 reported")
     ok("x0x_slots.py restore before.x0xslots" in err and "not written back" in err,
        "downgrade: exit 7 exposes retained archive recovery instructions")
 

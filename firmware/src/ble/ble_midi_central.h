@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Two-peer HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
+/* One-link HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
 #pragma once
 #include <stdint.h>
 
@@ -22,8 +22,6 @@ typedef struct {
     /* TIMER5 owns this bounded reply queue. Entries contain code, identifier, reason. */
     uint8_t sig[4][3], sig_read, sig_count;
     uint8_t mtu_need, mtu_rsp, smp_reply; /* subscribe request, owed MTU answer, owed SMP refusal */
-    uint8_t command_retry; /* command rejected by shared mailbox/owner, retry in poll */
-    uint8_t inflight; /* controller ACL buffers owned by this handle */
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
@@ -43,9 +41,3 @@ void blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now_m
 void blec_poll(blec_t *c, uint32_t now_ms);
 int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n);
 static inline int blec_connected(const blec_t *c) { return c->state == BLEC_CONNECTED; }
-
-/* Pair binding is TIMER5-owned. The legacy unpaired API retains one-link behavior. */
-void blec_pair_bind(blec_t *a, blec_t *b);
-void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now);
-void blec_pair_poll(blec_t *a, blec_t *b, uint32_t now, int want);
-int blec_pair_stopped(const blec_t *a, const blec_t *b);

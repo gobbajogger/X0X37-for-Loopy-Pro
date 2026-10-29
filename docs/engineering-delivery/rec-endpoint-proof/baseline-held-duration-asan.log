@@ -1,9 +1,0 @@
-take clock=internal held=30 ms: replay_gate=58 ms, PCMbytes=370688 hash=08c19281 peak=0.000788, cell4 note=51 flags=1
-take clock=internal held=300 ms: replay_gate=58 ms, PCMbytes=370688 hash=45b4dd25 peak=0.000358, cell4 note=51 flags=1
-FAIL: different real held durations must survive into recorded pattern data
-FAIL: replay must preserve materially longer held-note duration instead of a fixed gate
-take clock=BLE-jitter held=30 ms: replay_gate=58 ms, PCMbytes=371712 hash=cd49097d peak=0.000338, cell4 note=51 flags=1
-take clock=BLE-jitter held=300 ms: replay_gate=58 ms, PCMbytes=370688 hash=573b12f9 peak=0.000358, cell4 note=51 flags=1
-FAIL: different real held durations must survive into recorded pattern data
-FAIL: replay must preserve materially longer held-note duration instead of a fixed gate
-rec_held_duration: FAIL_BEFORE_FIX

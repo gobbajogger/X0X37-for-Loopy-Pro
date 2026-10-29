@@ -23,15 +23,12 @@ The two programs share no code. The app calls only the image's two entry points:
 - `poll` runs on core 1 between audio jobs, with interrupts on. The controller's interrupts also run on core 1. X0X routes none of its own interrupts there.
 
 Everything else goes through the mailbox (in BLERAM): two byte rings of HCI packets
-(`[u16 length][u8 H4 type][bytes]`), one writer and one reader each. The app selects one of two BLE-MIDI roles. The default is the existing peripheral: it advertises, accepts one
+(`[u16 length][u8 H4 type][bytes]`), one writer and one reader each. At boot the app selects
+one of two BLE-MIDI roles. The default is the existing peripheral: it advertises, accepts one
 connection, and serves BLE-MIDI without pairing. The SMC-Mixer setting selects a central:
 it scans for an `SMC` advertising name, connects, discovers the BLE-MIDI GATT service,
 subscribes to notifications, and sends LED MIDI. The controller image contains both roles,
-and changing the role setting takes effect while the unit keeps running. The app stops the old
-role, drops its link and queued MIDI, then resets the HCI host and starts the selected role.
-A stop that does not finish within three seconds reports FAILED instead of reusing a busy radio.
-The controller must have been enabled at power-on; enabling it after an OFF boot still requires
-a restart.
+but the app uses one role per boot. A change to the role setting takes effect after reboot.
 If the mixer is absent, central mode keeps scanning; it does not fall back to peripheral mode.
 The one-link controller cannot use both roles at once.
 

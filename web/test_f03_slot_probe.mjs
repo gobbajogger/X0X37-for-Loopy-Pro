@@ -28,7 +28,7 @@ class FakeSMK {
     this.answerSlots = answerSlots; // "empty" | "mute" | "bad"
     this.upgrades = 0;
     this.access = { inputs: new Map(), outputs: new Map() };
-    this.boot(PRODUCT, "SMK-37 Pro"); // Current X0X must answer SMP_INFO; stock _016 has a separate exemption.
+    this.boot("SMK-37 Pro_016", "SMK-37 Pro");
   }
   boot(identity, name) {
     this.identity = identity;
@@ -62,16 +62,14 @@ class FakeSMK {
           this.tx([0xF0, 0x7D, 0x46, 0x4C, 15, 0xF7]); // short / unparsable
           return;
         }
-        // Valid empty layout: one 80 KiB slot with zero zones, empty name and zero used KiB.
-        this.tx([0xF0, 0x7D, 0x46, 0x4C, 15, 1, 80, 0, 0, 0, 0xF7]);
+        // empty successful layout: count=0, size=0
+        this.tx([0xF0, 0x7D, 0x46, 0x4C, 15, 0, 0, 0xF7]);
       }
       return;
     }
     if (eq(d, HS)) {
       const t = [...new TextEncoder().encode(this.identity)];
-      const payload = [...t, ...new Array(27 - t.length).fill(0)];
-      const body = [0, 0x59, 0x11, 27, 0, 0, ...payload, ~payload.reduce((sum, b) => sum + b, 0) & 255];
-      this.tx([0xF0, ...pack7(body), 0xF7]);
+      this.tx([0xF0, ...pack7([0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)]), 0xF7]);
     } else if (eq(d, UPGRADE)) {
       this.upgrades++;
       this.queue = this.identity.startsWith("ota-")
@@ -147,9 +145,9 @@ async function main() {
     const err = await installKeepingSlots(new Updater(dev.access), pkg.image, PRODUCT, "smk", {
       sameKeyboard,
     }).then(() => null, (e) => e);
-    ok(err && err.code === "slotlayout" && /Cannot verify the current sample layout before install/.test(err.message)
+    ok(err && err.code === "slots" && /did not provide its slot layout/.test(err.message)
        && dev.upgrades === 0,
-       "installKeepingSlots: mute probe -> slotlayout error, nothing written");
+       "installKeepingSlots: mute probe -> slots error, nothing written");
   }
 
   // Successful empty layout still installs.
@@ -168,8 +166,8 @@ async function main() {
     const err = await installKeepingSlots(new Updater(dev.access), pkg.image, PRODUCT, "smk", {
       sameKeyboard,
     }).then(() => null, (e) => e);
-    ok(err && err.code === "slotlayout" && /short SMP_INFO reply/.test(err.message) && dev.upgrades === 0,
-       "installKeepingSlots: bad layout parse -> slotlayout error, nothing written");
+    ok(err && err.code === "slots" && dev.upgrades === 0,
+       "installKeepingSlots: bad layout parse -> slots error, nothing written");
   }
 
   process.exit(bad ? 1 : 0);

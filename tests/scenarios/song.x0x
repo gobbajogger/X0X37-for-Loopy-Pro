@@ -11,7 +11,7 @@ turn SELECT -5
 release HOME
 expect tempo 120
 # PRESETS on 303 A's screen moves 303 A alone (stopped: at once)
-turn ALGO 4
+turn ALGO 2
 expect part 2
 turn PRESET 1
 expect ppat2 2

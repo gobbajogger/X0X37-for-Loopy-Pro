@@ -1,9 +1,0 @@
-In file included from tests/host/smc_select_mode_test.c:13:
-tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
-   11 | #define CK_FN __attribute__((unused))
-      |         ^
-tests/host/../../host/../firmware/src/app/smk_clip_keys.h:9:9: note: previous definition is here
-    9 | #define CK_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
-      |         ^
-1 warning generated.
-FAIL tests/host/smc_select_mode_test.c:19: smc_led(24 + strip) == !!on

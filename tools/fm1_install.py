@@ -170,13 +170,8 @@ class Identity:
 def parse_identity(pkt):
     if len(pkt) < 2 or pkt[0] != 0xF0 or pkt[-1] != 0xF7:
         return None
-    wire = bytes(pkt[1:-1])
-    if any(b & 0x80 for b in wire):
-        return None
-    d = unpack7(wire)
-    # ota_send_msg(0x11): 27 payload bytes, declared length, complement checksum.
-    if (len(d) != 34 or d[:6] != b"\x00\x59\x11\x1b\x00\x00"
-            or (~sum(d[6:33]) & 0xFF) != d[33] or pack7(d) != wire):
+    d = unpack7(pkt[1:-1])
+    if len(d) != 34 or d[:3] != b"\x00\x59\x11":
         return None
     txt = d[6:33].rstrip(b"\0").decode("latin-1")
     m = re.fullmatch(r"([^_]+)_(\d+)", txt)

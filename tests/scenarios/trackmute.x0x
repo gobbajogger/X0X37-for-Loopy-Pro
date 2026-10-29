@@ -7,7 +7,7 @@ tapkey b1
 release HOME
 expect vmute 2
 expect sel 0
-expect view 8
+expect view 1
 # the 808: its tracks are bits 11..21
 turn ALGO 1
 press HOME

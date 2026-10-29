@@ -34,7 +34,7 @@ key w0 down
 turn SELECT -10
 key w0 up
 expect laneval7.0.0.0 50
-turn ALGO 4
+turn ALGO 2
 tapkey w4
 key w4 down
 turn SELECT -4

@@ -74,7 +74,7 @@ python3 tools/dev_validate.py run --commit <commit> --model elite \
 
 Repeat with `--model pro`. Elite writes `x0x-smk37-elite.fwsc`. Pro writes `x0x-smk37.fwsc`. The runner builds that model in development configuration, checks budgets, builds the controller, and records hashes. Failed checks issue no record.
 
-Current SMK packages rewrite the controller block. Install with `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. Apply the same current-package guard in `BUILDING.md` and `tools/dev_validate.py`; a historical exception is not permission to omit a required controller.
+Current SMK packages rewrite the controller block. Install with `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
 
 Release gate, only after an explicit release request:
 
@@ -98,4 +98,4 @@ For each model: command and exit, source commit and root tree, toolchain and SDK
 
 ## Labels
 
-Use the evidence boundaries in [handoff.md](handoff.md). A compiler exit of 0 is `BUILD_SUCCEEDED_UNREVIEWED` until independent QA accepts that commit. `DEV CHECKED` is the `tools/dev_validate.py` record for those exact artifacts. It is local development evidence. It is not `QA_PASSED`, not a release gate, and not `DEVICE VERIFIED`. A successful compile stays a successful compile when QA or hosting is still pending. Hosting does not turn that exit into `BUILD_FAILED`. Neither label means the package is on the live installer.
+Use the glossary in [handoff.md](handoff.md). A compiler exit of 0 is `BUILD_SUCCEEDED_UNREVIEWED` until independent QA accepts that commit. `DEV CHECKED` is the `tools/dev_validate.py` record for those exact artifacts. It is local development evidence. It is not `QA_PASSED`, not a release gate, and not `DEVICE VERIFIED`. A successful compile stays a successful compile when QA or hosting is still pending. Hosting does not turn that exit into `BUILD_FAILED`. Neither label means the package is on the live installer.

@@ -10,7 +10,7 @@ tapkey w12
 turn ALGO 1
 tapkey w0
 tapkey w8
-turn ALGO 3
+turn ALGO 1
 tap ARP
 tap OCT+
 tap PLAY

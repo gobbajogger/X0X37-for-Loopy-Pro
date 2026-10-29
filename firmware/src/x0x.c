@@ -22,11 +22,6 @@
 #include "fm1_lcd_hw.h"
 #include "fm1_cpu1.h"
 #include "fm1_flash.h"
-/* Production admission wiring; standalone host modules default to no maintenance. */
-#define ST_MAINTENANCE_ADMIT() fm1_capture_pre_admit()
-#define OTA_MAINTENANCE_ADMIT() fm1_capture_pre_admit()
-#define ED_MAINTENANCE_ADMIT() fm1_capture_pre_admit()
-#define ED_MAINTENANCE_HELD() fm1_capture_maintenance_held()
 #include "fm1_xip.h"
 #include "fm1_perf.h"
 
@@ -193,7 +188,9 @@ static void ota_commit(const uint8_t *parm)
 
 #include "app/slots.c"
 #include "app/x0x.h"
+#if !X0X_ORIGINAL_SYNTH
 #include "app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
+#endif
 #include "app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
 #include "app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "app/factory_banks.c"       /* built-in Chicago/Miami factory banks + user import bank */
