@@ -863,7 +863,8 @@ static void smc_fader(int n, uint8_t v)
     smc.last[n] = v;
     smc.seen |= bit;
     if (!(smc.picked & bit)) {
-        if (!moved || !crossed)
+        /* Like the keyboard faders: a muted level takes over at once. */
+        if (!moved || (!crossed && !volume_muted(r)))
             goto show;
         smc.picked |= bit;
     } else crossed = 0;                /* acquisition must publish even an equal saved value */
