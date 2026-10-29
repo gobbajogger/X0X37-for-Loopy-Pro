@@ -1,10 +1,10 @@
 # Orchestrator lane — owner-approved split
 
-State: PLANNED; no implementation or tests claimed by this document.
+State: WIP; bounded item63 source candidate and extracted-handler checks; full UI/native acceptance pending.
 Repository: `gobbajogger/X0X37-for-Loopy-Pro`.
-Branch: `wip/orchestrator` (to be created after plan report and document review).
+Branch: `wip/orchestrator`.
 Base: `wip/fmb-guards-slots@4775ef9123c2e31d1ed9bbe39c3b77ece9c03bd8`, verified by producer preparation as the existing Chicago/Miami rev13 source. Preserve its ancestry and owner; never modify the base branch.
-PR: not created. Producer and independent QA are separate native subagents; root retains coordination.
+PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/693 (draft). Producer and independent QA are separate native subagents; root retains coordination.
 
 ## Scope and ownership
 
@@ -71,3 +71,22 @@ Mac qualification must use SDK1.2.1 and the exact candidate. Derive build/instal
 Chat only, at most six native subagents for the entire chain. Default Git author. Only Chicago/Miami in the 303/wobble slots, bit-exact behavior; rev13 only, no project migration. No private #684 headers, `state_codec_private.h`, SDK/toolchain or other binaries. No bootloader, BTIF0xC0000–0xC0FFF, USRTRIM0xC1000, efuse, key_mac, `fm1_rescue.py` or `--force` operations. No hardware operations, publication, merges or access changes. Preserve actual denials.
 
 Every report: state, branch, HEAD, PR, owner-only blocker and next step. Source/host/QA/native/package/publication/device states remain separate. No owner reply gate for routine authorized continuation.
+
+## Item63 bounded candidate
+
+The SELECT destination predicate now cycles existing MIX, FX and drum PART pages, retaining bass PART wrap. Other views retain their previous clamp behavior. No page content, renderer, parameter, sound, serialization, list or destructive-action code changed. This is partial item63 coverage, not all navigation surfaces.
+
+`python3 tests/host/ui_page_wrap_test.py` compiles the actual SELECT handler extracted from this candidate into an explicit state scaffold. GCC14.2.0 normal and ASan+UBSan runs each completed 122,880 checks with zero failures (exit0). With `UI_SOURCE` pointing to unchanged base4775ef9123c2e31d1ed9bbe39c3b77ece9c03bd8 ui.c, the same test produced329 failures (exit1). Covered: first/last/interior pages, counts1–14, repeated directions, bass retained wrap, unselected views retained clamp, zero input, held-step routing, HOME tempo bounds and list routing. Input sources and side-effect functions are spies: these are extracted-handler checks, not complete UI/data-integrity/DSP proof. O_ASK/performance early returns are checked structurally, not executed by this scaffold.
+
+Exact commands from repository root (also valid Mac host commands with an installed C compiler):
+
+```sh
+python3 tests/host/ui_page_wrap_test.py
+SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' ASAN_OPTIONS=detect_leaks=0 python3 tests/host/ui_page_wrap_test.py
+# Existing full UI harness: requires authorized original-engine/private input closure.
+sh tests/host/smc_ui_test.sh
+```
+
+Actual candidate render/interaction preview: NOT_RUN. Full original-engine UI, native SDK1.2.1 build, golden, performance and device/install qualification: NOT_RUN. The full UI harness uses `tests/host/original_build.sh`, whose current build contract requires original engine inputs; no private headers were fetched for this unit. Missing preview blocks rollout, not independently reviewed non-deploying source delivery. No firmware install command is guessed or executed.
+
+Existing #13 drum probability control and #43 silent context paths were found in source; no redundant repair made. Actual current public sequencer `bass_probability_midi_test.c` passed normal and ASan+UBSan callback-boundary checks, not full drum/UI/original DSP acceptance. #22 recorded legato source exists but full recorder proof remains NOT_RUN here. #7/#8 whole sound-state gaps require a separate admitted design; no legacy note-sound flag was enabled.

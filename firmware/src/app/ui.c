@@ -4318,7 +4318,8 @@ X0X_COLD static void input_body(void)
             list_move(e > 0 ? 1 : -1);
         } else {
             int p = cur_page() + (e > 0 ? 1 : -1);
-            if(ui.view==V_PART && is_303()) /* Matrix row arrows cycle both banks. */
+            if (ui.view == V_MIX || ui.view == V_FX ||
+                (ui.view == V_PART && (is_drum() || is_303()))) /* Safe page browsing cycles. */
                 *page_of(ui.view) = (uint8_t)(p < 0 ? pg.n-1 : p >= pg.n ? 0 : p);
             else
                 *page_of(ui.view) = (uint8_t)(p < 0 ? 0 : p >= pg.n ? pg.n - 1 : p);
