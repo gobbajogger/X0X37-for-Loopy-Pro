@@ -411,6 +411,41 @@ int original_chicago_backend_render(original_chicago_backend *s,
         return ORIGINAL_CHICAGO_BACKEND_INVALID;
     int result = original_chicago_backend_begin(s, w, events, count, frames);
     if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;
+    if (!count && !original_chicago_backend_active(s) &&
+        s->allocator.voice_active.head < 0 && s->allocator.capacity == 1 &&
+        s->voice.vca.state == 6 && !s->voice.awaiting_restart &&
+        s->global_input.sample_rate_integer == 44100 &&
+        s->global_input.sample_rate == 44100 && s->global_input.tempo_sync2 == 1 &&
+        healthy(s) == ORIGINAL_CHICAGO_BACKEND_OK) {
+        unsigned action;
+        if (!original_chicago_voice_control(&s->voice, &s->controls, &s->tables,
+                s->voice_owner.bpm, 0, &action) || action) return fault(s);
+        /* Disabled voices freeze oscillator/noise/ramp/filter state in the
+         * original path. Only clocks, gate and global MG continue. Split at
+         * each MG update so it sees the exact clocks of that sample. The
+         * output owner still drains every nonzero history or unsettled ramp. */
+        uint32_t remaining = frames;
+        while (remaining) {
+            uint32_t n = original_chicago_global_mg_quiet_frames(&s->global, &s->global_input);
+            if (n > remaining) n = remaining;
+            if (n) {
+                if (!original_chicago_scheduler_quiet(&s->scheduler, &s->clock1, n)) return fault(s);
+                s->global.counter += (int32_t)(690u * n);
+                s->global_stage.helper_entries += n;
+                remaining -= n;
+            }
+            if (remaining) {
+                if (original_chicago_scheduler_after_events(&s->scheduler) <= 0 ||
+                    !original_chicago_selected_global_exit(&s->global_stage)) return fault(s);
+                --remaining;
+            }
+        }
+        if (healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
+        memset(w->core_left, 0, sizeof *w->core_left * frames);
+        memset(w->core_right, 0, sizeof *w->core_right * frames);
+        s->events.next_frame = frames;
+        return original_chicago_backend_end(s, left, right);
+    }
     for (uint32_t i = 0; i < frames; ++i) {
         result = original_chicago_backend_frame(s);
         if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;

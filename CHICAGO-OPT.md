@@ -158,3 +158,9 @@ Colima Docker was attempted again: `docker info` cannot connect because the
 sandbox denies access to `/Users/mac/.colima/default/docker.sock`. This is a
 host permission failure, not a harness or audio failure. No Docker/Valgrind
 instruction measurement is available from this attempt.
+
+## Continuation 02-idle-core
+
+Skip disabled voice dispatch and preserve exact clock and global MG updates so notes after silence keep identical timing and sound with less idle CPU work.
+
+Proof: `build/chicago-opt-series/02-idle-core/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
