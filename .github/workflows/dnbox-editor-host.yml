@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: GPL-3.0-only
+name: DnBOX web editor host checks
+on:
+  pull_request:
+    branches: [nightly]
+    paths:
+      - 'web/offline-sequencer/**'
+      - '.github/workflows/dnbox-editor-host.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  editor-host:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check editor module syntax
+        run: |
+          node --check web/offline-sequencer/model.js
+          node --check web/offline-sequencer/editing.js
+          node --check web/offline-sequencer/smf.js
+          node --check web/offline-sequencer/editor.js
+          node --check web/offline-sequencer/draft-guards.js
+          node --check web/offline-sequencer/import-worker.js
+      - name: Run editor Node regressions
+        run: node --test web/offline-sequencer/*.test.mjs
+      - name: Run shared Web MIDI checks
+        run: node web/test_web.mjs
