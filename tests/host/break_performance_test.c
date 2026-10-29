@@ -25,7 +25,8 @@ static void encode(void)
         if(diff>=step>>1){code|=2;diff-=step>>1;vd+=step>>1;}
         if(diff>=step>>2){code|=1;vd+=step>>2;}
         pred+=(code&8)?-vd:vd;
-        if(pred>32767)pred=32767;if(pred< -32768)pred=-32768;
+        if (pred > 32767) pred = 32767;
+        if (pred < -32768) pred = -32768;
         idx+=IMA_IDX_T[code&7];if(idx<0)idx=0;if(idx>88)idx=88;
         data[i>>1]|=(uint8_t)(code<<((i&1)*4));
     }

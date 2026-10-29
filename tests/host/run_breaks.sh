@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")/../.."
 mkdir -p build
-CFLAGS="-DX0X_HOST -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
+CFLAGS="-DX0X_HOST -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -Wno-error=attributes"
 # the DSP file alone, strict C99 (define IMA tables: header is extern without it)
 ${CC:-cc} $CFLAGS -std=c99 -pedantic -DX0X_IMA_TABLES_DEFINE -Ifirmware/src -c firmware/src/dsp/breaks.c -o build/breaks_host.o
 ${CC:-cc} $CFLAGS tests/host/breaks_test.c -lm -o build/breaks_test
