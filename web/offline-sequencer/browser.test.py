@@ -11,10 +11,10 @@ with sync_playwright() as p:
   print('VIEWPORT',width,height,flush=True)
   ctx=browser.new_context(viewport={'width':width,'height':height},is_mobile=width<500,has_touch=width<1100,accept_downloads=True);errors=[];net=[]
   def route(r):
-   path=r.request.url.split('dnbox-editor.test/',1)[-1].split('?')[0] or 'index.html';f=(ROOT/path).resolve()
+   path=r.request.url.split('localhost/',1)[-1].split('?')[0] or 'index.html';f=(ROOT/path).resolve()
    if f.parent!=ROOT or not f.is_file():net.append(r.request.url);r.abort();return
    mime='text/javascript' if f.suffix=='.js' else mimetypes.guess_type(str(f))[0] or 'application/octet-stream';r.fulfill(body=f.read_bytes(),content_type=mime)
-  ctx.route('**/*',route);page=ctx.new_page();page.on('pageerror',lambda e:(errors.append(str(e)),print('PAGE_ERROR',str(e),flush=True)));page.add_init_script('window.midiCalls=0; navigator.requestMIDIAccess=()=>{window.midiCalls++;throw Error("Device API forbidden in offline test")};');page.goto('http://dnbox-editor.test/');page.wait_for_function('window.dnboxEditor && document.querySelector("#sound .sound-row")');page.wait_for_timeout(80)
+  ctx.route('**/*',route);page=ctx.new_page();page.on('pageerror',lambda e:(errors.append(str(e)),print('PAGE_ERROR',str(e),flush=True)));page.add_init_script('window.midiCalls=0; navigator.requestMIDIAccess=()=>{window.midiCalls++;throw Error("Device API forbidden in offline test")};');page.goto('http://localhost/');assert page.evaluate('typeof navigator.locks?.request === "function"'), 'Origin-wide Web Locks required for browser draft saving';page.wait_for_function('window.dnboxEditor && document.querySelector("#sound .sound-row")');page.wait_for_timeout(80)
   snapshot=lambda:page.evaluate('window.dnboxEditor.snapshot()');notes=lambda:page.evaluate('window.dnboxEditor.notes()');rev=lambda:page.evaluate('window.dnboxEditor.revision()');before=snapshot()
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   vp=page.locator('#viewport');vp.focus();page.keyboard.press('Enter');assert len(notes())==1;assert notes()[0]['pitch']==60

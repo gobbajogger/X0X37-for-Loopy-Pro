@@ -10,21 +10,43 @@ const STORAGE_KEY='dnbox-offline-draft-v2';
 const draftStorage=new SafeDraftStorage({
  getItem:key=>localStorage.getItem(key),
  setItem:(key,raw)=>localStorage.setItem(key,raw)
-},{parseDraft,validateDraft},STORAGE_KEY);
+},{parseDraft,validateDraft,locks:navigator.locks||null},STORAGE_KEY);
 let draftPick=new SelectionEpoch(),fullPartClipboard=null;
+let saveQueue=Promise.resolve(),saveToken=0,failedSaving=false;
 const vp=$('#viewport'),canvas=$('#canvas'),vel=$('#velocity'),vc=$('#velocity-canvas'),dialog=$('#dialog');
 const pattern=()=>patterns[part],current=()=>getPart(store.doc,pattern(),part),context=()=>`${part}:${pattern()}:${part<2?store.doc.engines[part]:''}`;
 function message(text,error=false){$('#message').textContent=text;$('#message').classList.toggle('error',error);}
 function canModify(){
- if(draftStorage.status==='ready')return true;
- message('Saved draft storage is locked. Recover the validated backup first, or export your local work. Saved bytes have not been overwritten.',true);
+ if(draftStorage.status==='ready'&&!failedSaving)return true;
+ message('Saved draft writes are locked. Recover a verified backup, or export unsent work and reload. No existing saved draft was overwritten.',true);
  return false;
 }
-function act(fn,text='Local draft changed · unsent'){if(!canModify())return false;try{const changed=store.edit(fn);if(changed){pending=null;const saved=persist();render();if(saved)message(text);}return changed;}catch(e){message(e.message,true);return false;}}
-function persist(){try{draftStorage.save(store.doc);return true;}catch(e){
- message(e.message+' No saved copy was overwritten by the failed save; export this tab if needed.',true);
- return false;
-}}
+function act(fn,text='Local draft changed · unsent'){
+ if(!canModify())return false;
+ try{
+  const changed=store.edit(fn);
+  if(changed){pending=null;persist();render();message(text+' · saving locally…');}
+  return changed;
+ }catch(e){message(e.message,true);return false;}
+}
+function persist(){
+ // Capture every revision before enqueueing; never serialize a later mutable draft
+ // against an earlier transaction. A failed save stops all subsequent writes.
+ const snapshot=copy(store.doc),token=++saveToken;
+ const attempt=saveQueue.then(()=>{
+  if(failedSaving)throw Error('A previous local save failed; export then reload to resume.');
+  return draftStorage.save(snapshot);
+ });
+ saveQueue=attempt.then(
+  ()=>{if(token===saveToken)message('Local draft saved in browser storage. Nothing sent to the device.');},
+  error=>{
+   failedSaving=true;
+   $('#draft-state').textContent='Local edits unsaved · export draft';
+   message('Local save blocked: '+error.message+' Export unsent edits before reloading.',true);
+  }
+ );
+ return saveQueue;
+}
 function button(label,fn,attrs={}){return E('button',{text:label,onclick:fn,...attrs});}
 function number(label,value,min,max,change){const input=E('input',{type:'number',min,max,value,'aria-label':label,onchange:()=>change(Number(input.value))});return E('label',{},[E('span',{text:label}),input]);}
 function modal(title,content){$('#dialog-title').textContent=title;$('#dialog-body').replaceChildren(...[].concat(content));if(!dialog.open)dialog.showModal();}
@@ -109,8 +131,8 @@ vp.addEventListener('keydown',e=>{
 $('#pattern').onchange=()=>{cancelGesture();closeModal();const n=Number($('#pattern').value);if(Number.isInteger(n)&&n>=1&&n<=32){patterns[part]=n-1;selected=null;}render();};$('#length').onchange=()=>act(d=>{getPart(d,pattern(),part).length=Number($('#length').value);});$('#rate').onchange=()=>act(d=>{getPart(d,pattern(),part).rate=Number($('#rate').value);});
 for(const id of ['direction','transpose'])$('#'+id).onchange=()=>{if(part>=2)return;act(d=>{getPart(d,pattern(),part)[id]=Number($('#'+id).value);});};
 for(const b of $('#tools').children)b.onclick=()=>{cancelGesture();tool=b.dataset.tool;render();};$('#zoom-in').onclick=()=>zoomTo(step*1.25);$('#zoom-out').onclick=()=>zoomTo(step/1.25);$('#fit').onclick=()=>{zoomTo((vp.clientWidth-48)/current().length);vp.scrollLeft=0;};$('#note-list').onclick=()=>showNotes();$('#close-dialog').onclick=closeModal;dialog.addEventListener('cancel',()=>{pending=null;uiEpoch++;});
-$('#undo').onclick=()=>{if(!canModify())return;cancelGesture();closeModal();if(store.undo()){const saved=persist();selected=null;render();if(saved)message('One local transaction undone.');}};
-$('#redo').onclick=()=>{if(!canModify())return;cancelGesture();closeModal();if(store.redo()){const saved=persist();selected=null;render();if(saved)message('One local transaction redone.');}};
+$('#undo').onclick=()=>{if(!canModify())return;cancelGesture();closeModal();if(store.undo()){persist();selected=null;render();message('One local transaction undone · saving locally…');}};
+$('#redo').onclick=()=>{if(!canModify())return;cancelGesture();closeModal();if(store.redo()){persist();selected=null;render();message('One local transaction redone · saving locally…');}};
 document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,[contenteditable]'))return;const key=e.key.toLowerCase();if((e.ctrlKey||e.metaKey)&&((key==='z'&&!e.shiftKey)||(key==='y'&&!e.shiftKey)||key==='z'&&e.shiftKey)){e.preventDefault();(key==='y'||e.shiftKey?$('#redo'):$('#undo')).click();}});
 $('#export').onclick=()=>download('dnbox-local-draft.json',JSON.stringify(store.doc,null,2));
 $('#open-draft').onchange=async e=>{
@@ -127,8 +149,8 @@ $('#open-draft').onchange=async e=>{
    button('Replace local draft',()=>{
     if(!draftPick.valid(token)||store.revision!==revision||key!==context())return message('Draft selection or contents changed; open again.',true);
     if(!canModify())return;
-    store.replace(candidate);const saved=persist();selected=null;closeModal();render();
-    if(saved)message('Local draft replaced. No device write.');
+    store.replace(candidate);persist();selected=null;closeModal();render();
+    message('Local draft replaced · saving locally. No device write.');
    })
   ]));
  }catch(err){if(draftPick.valid(token))message(err.message,true);}
@@ -150,9 +172,9 @@ $('#part-actions').onclick=()=>{
     if(!canModify())return;
      const changed=store.replace(candidate);
     if(clip&&changed)fullPartClipboard=clip;
-    const saved=changed?persist():true;
+    if(changed)persist();
     selected=null;closeModal();render();
-    if(saved)message(changed?label+' applied to local draft as one Undo transaction.':'No changes needed; local draft unchanged.');
+    message(changed?label+' applied locally · saving as one Undo transaction.':'No changes needed; local draft unchanged.');
    }),
    button('Cancel',closeModal)
   ]));
@@ -218,7 +240,7 @@ function reportPlan(plan,captured){
  if(plan.counts)body.append(E('p',{text:JSON.stringify(plan.counts)}));body.append(E('h3',{text:`Replacement: ${plan.changes.length} changed fields`}));
  const table=E('table',{class:'report-table'},[E('thead',{},E('tr',{},['Field','Before','After'].map(text=>E('th',{text}))))]);const tbody=E('tbody');for(const x of plan.changes.slice(0,200))tbody.append(E('tr',{},[E('td',{text:x.target+' / '+x.field}),E('td',{text:x.before}),E('td',{text:x.after})]));table.append(tbody);body.append(E('div',{class:'report-scroll'},table));if(plan.changes.length>200)body.append(E('p',{text:'First200 rows displayed; complete replacement/loss report is downloadable below.'}));
  body.append(E('h3',{text:`Losses / unsupported data (${plan.losses.length})`}));const loss=E('pre',{text:JSON.stringify(plan.losses.slice(0,100),null,2)});loss.style.whiteSpace='pre-wrap';body.append(loss);if(plan.losses.length>100)body.append(E('p',{text:'First100 loss entries displayed; complete report below.'}));
- const accept=E('input',{type:'checkbox','aria-label':'Accept reported replacements and losses'});body.append(E('label',{},[accept,E('span',{text:' I reviewed the replacement and all reported losses.'})]));const use=button('Use local preview',()=>{try{if(!pending||captured.key!==context())throw Error('Target changed. Preview again.');if(!accept.checked)throw Error('Accept the inspectable replacement/loss report first.');if(!canModify())return;applyPlan(store,plan);const saved=persist();closeModal();selected=null;render();if(saved)message('Local preview applied as one Undo transaction. No device write.');}catch(e){message(e.message,true);}},{disabled:plan.errors.length>0,'data-apply-plan':true});
+ const accept=E('input',{type:'checkbox','aria-label':'Accept reported replacements and losses'});body.append(E('label',{},[accept,E('span',{text:' I reviewed the replacement and all reported losses.'})]));const use=button('Use local preview',()=>{try{if(!pending||captured.key!==context())throw Error('Target changed. Preview again.');if(!accept.checked)throw Error('Accept the inspectable replacement/loss report first.');if(!canModify())return;applyPlan(store,plan);persist();closeModal();selected=null;render();message('Local preview applied as one Undo transaction · saving locally. No device write.');}catch(e){message(e.message,true);}},{disabled:plan.errors.length>0,'data-apply-plan':true});
  body.append(E('div',{class:'actions'},[use,button('Discard',()=>{closeModal();message('Preview discarded; draft unchanged.');}),button('Download full report',()=>download('dnbox-replacement-report.json',JSON.stringify({...plan,candidate:undefined},null,2)))]));modal('Review replacement / losses',body);
 }
 $('#generator').onclick=()=>{
@@ -256,9 +278,9 @@ $('#recover-draft').onclick=()=>{
  if(draftStorage.status!=='recovery')return;
  modal('Restore last validated local draft?',E('div',{},[
   E('p',{text:'The primary saved draft is damaged or missing. The separate last-good copy passed validation. Restoring replaces only the primary saved entry and keeps the validated backup. Export any unsent edits before restoring.'}),
-  button('Restore last good copy',()=>{
+  button('Restore last good copy',async()=>{
    try{
-    const recovered=draftStorage.restore();
+    const recovered=await draftStorage.restore();
     cancelGesture();store=new DraftStore(recovered);fullPartClipboard=null;selected=null;
     closeModal();$('#recover-draft').hidden=true;$('#draft-state').textContent='Recovered local draft · device unavailable';
     render();centerPitch();message('The validated last-good draft was restored. No device data changed.');
