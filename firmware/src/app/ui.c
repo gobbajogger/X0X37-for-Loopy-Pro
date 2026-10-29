@@ -16,7 +16,7 @@
 #include "../dsp/master.h"
 #if X0X_ORIGINAL_SYNTH
 #include "ui_original_controls.h"
-#endif
+#else
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
@@ -24,6 +24,7 @@
 #if X0X_DEV_WOBBLE
 #include "../../../experiments/wobble/wobble.h" /* W_ATTACK..W_RELEASE Miami amp ADSR */
 #endif
+#endif /* legacy sound controls */
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "note_names.h"                        /* X0X_NOTE_N: one C…B table with clip/chord */
 #include "undo.c"
@@ -1013,6 +1014,7 @@ static const char *pref_name(pref_t r)
         put_s(put_s(put_s(put_s(t, r.a == T_909 ? "909 " : "808 "), engine_voice_name(r.a, r.b)), " "), d ? d->name : "");
         return t;
     }
+#if !X0X_ORIGINAL_SYNTH
     if (r.kind == R_ENG && r.a == T_303) {
 #if X0X_DEV_WOBBLE
         if (engine_bass_is_wobble(r.b)) {
@@ -1049,6 +1051,7 @@ static const char *pref_name(pref_t r)
             }
         }
     }
+#endif
     if (r.kind == R_BRKSLOT)
         return r.a ? "LOOP B" : "LOOP A";
     return d ? d->name : "";
@@ -1069,6 +1072,7 @@ static int is_pan(pref_t r)
 
 static int matrix_value(pref_t r);
 
+#if !X0X_ORIGINAL_SYNTH
 /* Chicago Gate routes amp ADSR to the filter and therefore uses filter time laws. */
 static int display_env_param(pref_t r)
 {
@@ -1090,11 +1094,7 @@ static float display_env_ms(pref_t r, int v)
         return low+(high-low)*n*n;
     }
 #endif
-#if X0X_ORIGINAL_SYNTH
-    (void)r; (void)v; return 0.0f; /* bass303.c is not linked in the original-synth build */
-#else
     return bass303_env_time_ms(display_env_param(r),v);
-#endif
 }
 
 static void display_ms(float ms,char *num,char *unit)
@@ -1105,6 +1105,8 @@ static void display_ms(float ms,char *num,char *unit)
     } else put_i(num,(int)(ms+0.5f));
     put_s(unit,"ms");
 }
+#endif
+
 #if X0X_ORIGINAL_SYNTH
 static const char *original_status_name(int voice)
 {
@@ -4562,9 +4564,13 @@ static uint16_t matrix_col(void)
  * The first four rows and Miami's OUTPUT/DAMPER controls keep their layout. */
 static int matrix_three_rows(void)
 {
+#if X0X_ORIGINAL_SYNTH
+    return 0;
+#else
     return ui.view==V_PART && is_303() && cur_page()>=4 && pg.n==7 &&
            pg.r[4][0].kind==R_ENG && pg.r[4][0].c==CHI_ARP_SWITCH &&
            pg.r[6][0].kind==R_BENGINE;
+#endif
 }
 #define SOUND_BASE UI_N_BASE
 #define SOUND_FACE UI_N_FACE
@@ -5221,10 +5227,12 @@ static UI_DRAW int matrix_touch_matches(pref_t r, int i)
 static UI_DRAW const char *matrix_group(int page)
 {
     const char *t = pg.title[page];
+#if !X0X_ORIGINAL_SYNTH
     if (!strcmp_s(t,"FX")) {
         int ty=matrix_value(pg.r[page][0]);
         return ty==CHI_FX_OFF?"FX / OFF":ty==CHI_FX_COMP?"FX / MASTER":"FX / INSERT";
     }
+#endif
     if (!strcmp_s(t,"AMP ADSR")) return "AMP ENVELOPE";
     if (!strcmp_s(t,"FILTER ADSR")) return "FILTER ENVELOPE";
     if (!strcmp_s(t,"WOB / FILT")) return "WOBBLE / FILTER";
@@ -6320,6 +6328,10 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
  * saw and square; Miami's carrier, modulator and LFO are discrete choices. */
 static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
 {
+#if X0X_ORIGINAL_SYNTH
+    (void)r; (void)v; (void)mix;
+    return 0; /* Original controls use their own waveform presentation. */
+#else
     if (r.kind != R_ENG || r.a != T_303) return 0;
 #if X0X_DEV_WOBBLE
     if (engine_bass_is_wobble(r.b)) {
@@ -6332,6 +6344,7 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
 #endif
     if (r.c == BASS303_WAVE) { *mix = v; return 1; }
     return 0;
+#endif
 }
 
 static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col)
@@ -6352,6 +6365,7 @@ static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t 
 
 static UI_DRAW const char *matrix_name(pref_t r)
 {
+#if !X0X_ORIGINAL_SYNTH
 #if X0X_DEV_WOBBLE
     if (r.kind==R_ENG && r.a==T_303 && engine_bass_is_wobble(r.b)) {
         switch(r.c) {
@@ -6401,6 +6415,7 @@ static UI_DRAW const char *matrix_name(pref_t r)
         default: break;
         }
     }
+#endif
     return caps_of(pref_name(r));
 }
 
@@ -6532,12 +6547,16 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 {
     const x0x_param_t *d=pref_desc(r);
     char num[16],unit[8],value[24];
-    int cx=x+width/2,val,shape=0,mix=0,lv,discrete=0,glyph=GL_NONE,unused=0;
+    int cx=x+width/2,val,shape=0,mix=0,lv,glyph=GL_NONE,unused=0;
+#if !X0X_ORIGINAL_SYNTH
+    int discrete=0;
+#endif
     const felucca_font_t *font;
     uint16_t ink=night?(active?SOUND_INK:SOUND_WHITE):(active?C_BLACK:C_WHITE);
     int value_y=night?35:26, bar_y=height-4;
     if(!d) return;
     val=matrix_value(r);
+#if !X0X_ORIGINAL_SYNTH
     if(r.kind==R_ENG && r.a==T_303 && !engine_bass_is_wobble(r.b)) {
         if(r.c>=CHI_ARP_SWITCH && r.c<=CHI_ARP_SPEED) {
             discrete=1;
@@ -6555,6 +6574,7 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
                 {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
         }
     }
+#endif
     text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BPRESET) {
@@ -6572,7 +6592,9 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
         else if(glyph==GL_POWER || glyph==GL_PEDAL) put_s(num,val>=(glyph==GL_PEDAL?64:1)?"ON":"OFF");
+#if !X0X_ORIGINAL_SYNTH
         else if(discrete && r.c==CHI_ARP_RANGE) put_i(num,val+1);
+#endif
         else if(glyph==GL_DOWN || glyph==GL_UP || glyph==GL_BOTH) put_s(num,glyph==GL_DOWN?"DN":glyph==GL_UP?"UP":"UP/DN");
         put_s(put_s(put_s(value,num),unit[0]?" ":""),unit);
         int limit=glyph?39:54;
@@ -6591,6 +6613,7 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         cv_rect(x+53,y+24,2,2,night?SOUND_INK:(active?C_BLACK:lv>=0?C_AMB:C_HI));
 }
 
+#if !X0X_ORIGINAL_SYNTH
 /* Stage-normalised parameter preview, not a millisecond axis or an audio trace.
  * Chicago D/R are RC time constants: sample five tau, never quadratic easing.
  * Miami release uses a full-scale slope; its duration from sustain is s*R.
@@ -6692,6 +6715,10 @@ static UI_DRAW int draw_adsr_overlay(int band)
     cv_text(7,208-off,&FONT_T,lock_step()>=0?UI_CAP_ARROWS ": CHANCE  " UI_CAP_EDIT ": ROW":UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",C_GRAY);
     return 1;
 }
+
+#else
+static UI_DRAW int draw_adsr_overlay(int band) { (void)band; return 0; }
+#endif
 
 #if X0X_ORIGINAL_SYNTH
 static const felucca_font_t *original_value_font(const char *num, const char *unit, int width)

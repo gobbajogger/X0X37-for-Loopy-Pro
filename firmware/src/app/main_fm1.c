@@ -224,7 +224,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 #else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
 #endif
-#if X0X_DEV_WOBBLE
+#if !X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
@@ -969,7 +969,8 @@ static void smk_faders(void)
  * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
  * Pitch wheel = the selected engine's bend (Chicago CHI_PBEND / Miami W_PITCH_BEND).
  * Both span ±2 semitones; release restores that engine's own saved bend, never TUNE.
- * Mod wheel = Chicago cutoff on native303; Miami/WBL1 wobble depth on a live WBL1 voice.
+ * Mod wheel = Chicago cutoff or Miami wobble depth on the selected original engine.
+ * The reference profile keeps its native303/WBL1 parameter mapping.
  * Chicago: replaces the cutoff knob (BASS303_CUTOFF before master). Down closes (0); up opens (127).
  * Miami: writes W_WOBBLE_DEPTH the same way. High ADC is down; that sense is not inverted.
  * It does not write MST_CUTOFF or the saved pot. A gesture keeps its original 303 until the wheel
