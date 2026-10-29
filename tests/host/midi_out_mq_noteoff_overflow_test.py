@@ -43,6 +43,9 @@ chunk = re.sub(
 src = (
     "#include <stdint.h>\n#include <stdio.h>\n"
     "#define RING_PUBLISH() ((void)0)\n"
+    "#define FM1_IRQ_TIMER5 63u\n"
+    "static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }\n"
+    "static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }\n"
     "#define MQ 64u\n"
     "static uint32_t midi_out_q[MQ];\n"
     "static volatile uint32_t mo_w, mo_r;\n"
