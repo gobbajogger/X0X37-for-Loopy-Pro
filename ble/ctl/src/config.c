@@ -29,11 +29,11 @@ const uint64_t config_btctler_le_features = 0; /* SMC BLE-MIDI uses an unpaired 
 int config_btctler_mode = BT_NORMAL;
 int config_btctler_hci_standard = 1;
 
-/* LX-REQ-007: two central peers share five controller ACL buffers. */
+/* Two central peers share three TX credits; leave heap for both link objects. */
 const int config_btctler_le_hw_nums = 2;
 const int config_btctler_le_rx_nums = 5;
 const int config_btctler_le_acl_packet_length = 27;
-const int config_btctler_le_acl_total_nums = 5;
+const int config_btctler_le_acl_total_nums = 3;
 const int config_btctler_le_slave_conn_update_winden = 2500;
 const int config_btctler_le_afh_en = 0;
 const int config_btctler_le_master_multilink = 1;
