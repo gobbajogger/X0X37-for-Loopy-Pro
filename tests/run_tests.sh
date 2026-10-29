@@ -453,6 +453,7 @@ run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
+run dev-validate-composed python3 tests/host/test_dev_validate_composed.py ComposedValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
