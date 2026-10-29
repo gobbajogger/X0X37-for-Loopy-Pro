@@ -94,7 +94,7 @@ function occupiedScenario(model, mode) {
         const bytes = new Uint8Array(512 + samples.length);
         bytes.set(hdr); bytes.set(samples, 512);
         const part = addr < bytes.length ? bytes.subarray(addr, addr + len) : new Uint8Array(len);
-        return [0xF0, 0x7D, 0x46, 0x4C, 16, 0, 0, 0, 0, ...pack78(part), 0xF7];
+        return [0xF0, 0x7D, 0x46, 0x4C, 16, ...last.slice(5, 9), ...pack78(part), 0xF7];
       }
       throw Error("unexpected synthetic slot command " + cmd);
     },

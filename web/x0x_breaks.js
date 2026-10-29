@@ -1,3 +1,4 @@
+import { watchDeviceSession } from "./device_session.js";
 // SPDX-License-Identifier: GPL-3.0-only
 // X0X break loops in the browser: tools/upload_breaks.py and its helpers (tools/sampleio.py,
 // Felucca's encoder; tools/import_breaks.py's bar guess) as plain functions, so the page
@@ -405,6 +406,8 @@ export function parseHeader(b) {
 
 // layout: parseInfo(); images: per slot, Uint8Array or null -> the archive (x0x_slots.make_archive)
 export function makeArchive(layout, images, created) {
+  if (!layout || !Array.isArray(images) || images.length !== layout.count || layout.slots.length !== layout.count)
+    throw new Error("The sample backup is incomplete.");
   const entries = [], blobs = [];
   let off = 0;
   images.forEach((img, k) => {
@@ -441,20 +444,42 @@ export function makeArchive(layout, images, created) {
 // archive bytes -> {meta, images}; throws on any damage (x0x_slots.read_archive)
 export function readArchive(b) {
   const bad = (m) => { throw new Error(m); };
-  if (b.length < 20 || String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
+  const int = (n, lo, hi) => Number.isSafeInteger(n) && n >= lo && n <= hi;
+  if (!(b instanceof Uint8Array) || b.length < 20 || b.length > 4 * 1024 * 1024 ||
+      String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
   const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
   if (v.getUint32(b.length - 4, true) !== crc32(b.subarray(0, b.length - 4))) bad("The backup file is damaged (CRC).");
-  if (v.getUint16(8, true) !== 1) bad("This backup has a newer format.");
-  const n = v.getUint32(12, true), meta = JSON.parse(new TextDecoder().decode(b.subarray(16, 16 + n)));
-  const base = 16 + n, images = [];
-  for (const e of meta.slots) {
-    if (e.empty) { images.push(null); continue; }
-    const img = b.slice(base + e.offset, base + e.offset + e.length), h = parseHeader(img);
-    if (img.length !== e.length || crc32(img) !== e.crc32) bad(`Slot ${e.slot} in the backup is damaged.`);
-    if (!h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
-      bad(`Slot ${e.slot} in the backup is not a valid slot.`);
-    images.push(img);
+  if (v.getUint16(8, true) !== 1 || v.getUint16(10, true) !== 0) bad("This backup has an unsupported format.");
+  const n = v.getUint32(12, true), base = 16 + n;
+  if (n > 65536 || base > b.length - 4) bad("The backup metadata exceeds the file.");
+  const meta = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(b.subarray(16, base)));
+  if (!meta || meta.format !== "x0xslots" || meta.version !== 1 || !int(meta.count, 1, 16) ||
+      !Array.isArray(meta.slots) || meta.slots.length !== meta.count || !int(meta.size, 512, 4 * 1024 * 1024))
+    bad("The backup slot count or format is invalid.");
+  const images = [];
+  let used = 0;
+  for (let k = 0; k < meta.count; k++) {
+    const e = meta.slots[k];
+    if (!e || e.slot !== k + 1 || typeof e.empty !== "boolean" || !int(e.size, 512, 4 * 1024 * 1024))
+      bad(`Slot ${k + 1} is missing, reordered or invalid.`);
+    if (e.empty) {
+      if (["offset", "length", "crc32"].some((key) => Object.hasOwn(e, key))) bad(`Slot ${e.slot}: empty slot has image pointers.`);
+      images.push(null); continue;
+    }
+    if (e.offset !== used || !int(e.length, 512, Math.min(e.size, b.length - 4 - base - used)) || !int(e.crc32, 0, 0xFFFFFFFF))
+      bad(`Slot ${e.slot}: overlapping, missing or invalid image range.`);
+    const img = b.slice(base + used, base + used + e.length), h = parseHeader(img);
+    if (crc32(img) !== e.crc32 || !h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
+      bad(`Slot ${e.slot} in the backup is damaged or invalid.`);
+    const hv = new DataView(img.buffer);
+    for (let z = 0; z < h.nz; z++) {
+      const o = 32 + z * 28, rate = hv.getUint32(o + 16, true), zone = h.zones[z];
+      if (zone.off + Math.ceil(zone.n / 2) > h.dataLen || img[o + 24] > 88 || !rate || rate > 4 * 65536)
+        bad(`Slot ${e.slot}: invalid sample zone ${z + 1}.`);
+    }
+    images.push(img); used += img.length;
   }
+  if (base + used !== b.length - 4) bad("The backup contains unreferenced sample data.");
   return { meta, images };
 }
 
@@ -604,7 +629,14 @@ export async function slotReq(link, cmd, args, ms = 3000, tries = 3) {
     while (Date.now() < end) {
       const p = await link.read(end - Date.now());
       if (!p) break;
-      if (p.length > 5 && p[1] === ED[1] && p[2] === ED[2] && p[3] === ED[3] && p[4] === cmd) return p.slice(5, p.length - 1);
+      if (p.length > 5 && p[0] === 0xF0 && p.at(-1) === 0xF7 && p[1] === ED[1] && p[2] === ED[2] && p[3] === ED[3] && p[4] === cmd) {
+        const r = p.slice(5, -1);
+        if (r.some((v) => !Number.isInteger(v) || v < 0 || v > 127)) throw new Error("Malformed sample reply.");
+        if ([11, 13, 14].includes(cmd) && (r.length !== 2 || r[0] !== args[0])) continue;
+        if (cmd === 12 && (r.length !== 5 || !args.slice(0, 4).every((v, i) => v === r[i]))) continue;
+        if (cmd === 16 && (r.length < 5 || !args.slice(0, 4).every((v, i) => v === r[i]))) continue;
+        return r;
+      }
     }
   }
   throw new Error(`The keyboard did not answer (slot command ${cmd}).`);
@@ -616,7 +648,11 @@ async function readSlotBytes(link, k, off, n, onPart) {
   const out = new Uint8Array(n);
   for (let at = 0; at < n;) {
     const want = Math.min(224, n - at), adr = off + at;
-    const b = unpack78((await slotReq(link, 16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])).slice(4));
+    const packed = (await slotReq(link, 16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])).slice(4);
+    const b = unpack78(packed);
+    if (b.length < want || b.length > want + (want % 2) ||
+        !pack78(b).every((v, i) => v === packed[i]) || pack78(b).length !== packed.length)
+      throw new Error(`slot ${k + 1}: invalid sample read length or encoding`);
     if (!b.length) throw new Error(`slot ${k + 1}: no data`);
     out.set(b.subarray(0, Math.min(b.length, n - at)), at);
     at += Math.min(b.length, n - at);
@@ -674,7 +710,7 @@ export async function restoreMapped(link, todo, images, onPart) {
   const after = await readSlotLayout(link);
   for (const { k, j } of todo) {
     const got = await readSlotImage(link, j, after.slots[j].nz, undefined, after.slots[j].size);
-    if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
+    if (!got || got.length !== images[k].length || got.some((v, i) => v !== images[k][i]))
       throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
   }
 }
@@ -696,8 +732,11 @@ export function archiveStamp(t = new Date()) {
 export async function installKeepingSlots(up, image, product, board, hooks) {
   const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true }, hooks);
   const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
-  let move = null;
+  let move = null, checkedLayout = null, checkedSnapshot = null;
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
+  const session = dev && up.access && dev.link.input && dev.link.output
+    ? watchDeviceSession(up.access, dev.link.input, dev.link.output, () => {}) : null;
+  try {
   // Require a freshly detected device and an informed physical-model decision for published DEV.
   if (!dev && h.confirmModel) throw fail("notfound", "Verify the keyboard model before DEV installation.");
   if (dev) {
@@ -715,6 +754,7 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
         if (!knownStockNoReply)
           throw fail("slotlayout", "Cannot verify the current sample layout before install: " + (e && e.message || e));
       }
+      checkedLayout = layout;
       if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
@@ -724,6 +764,7 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
           try {
             saved = await backupSlots(dev.link, (k, d, n) => h.progress((k + d / n) / layout.count));
           } catch (e) { throw fail("slotbackup", e.message); }
+          checkedSnapshot = saved;
           const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
           readArchive(file);                                  // what was saved reads back
           // Do not start destructive OTA while an asynchronous backup export is
@@ -749,7 +790,27 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   // Repeat the selection check immediately before beginning destructive OTA.
   if (typeof h.beforeFirmwareWrite === "function" && !h.beforeFirmwareWrite())
     throw fail("selectionstale", "Firmware selection changed before writing; nothing was installed.");
-  const ran = await up.install(image, product, h.step);
+  const ran = await up.install(image, product, h.step, { beforeUpgrade: async (fresh) => {
+    // Names and model strings are shared across keyboards. Bind the fresh lookup
+    // to the exact preflight port objects, and re-read the saved bytes after the
+    // owner has reselected the durable backup. Refuse a changed target/snapshot.
+    session?.assert();
+    if (!dev || fresh.name !== dev.name || fresh.id.text !== dev.id.text ||
+        fresh.link.input !== dev.link.input || fresh.link.output !== dev.link.output)
+      throw fail("selectionstale", "The keyboard changed after backup. Reconnect and prepare again.");
+    if (checkedLayout) {
+      const current = checkedSnapshot ? await backupSlots(fresh.link) : { layout: await readSlotLayout(fresh.link) };
+      const expected = checkedSnapshot || { layout: checkedLayout };
+      if (JSON.stringify(current.layout) !== JSON.stringify(expected.layout) || checkedSnapshot &&
+          current.images.some((img, k) => (img === null) !== (expected.images[k] === null) || img &&
+            (img.length !== expected.images[k].length || img.some((v, i) => v !== expected.images[k][i]))))
+        throw fail("slotbackup", "Samples changed after backup. Nothing was installed; make a fresh backup.");
+    }
+    if (typeof h.beforeFirmwareWrite === "function" && !h.beforeFirmwareWrite())
+      throw fail("selectionstale", "Firmware selection changed before writing; nothing was installed.");
+    session?.assert();
+    session?.close(); // The intentional OTA transition starts only after this guard.
+  } });
   if (!move || !move.newMap.length) return { product: ran, move };
   h.say("slotback");
   // Same fail-closed rule as the post-write wait: reopen the port install just accepted, not another keyboard.
@@ -768,6 +829,7 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
     throw fail("slots", e.message, move.name);
   } finally { back.link.close(); }
   return { product: ran, move };
+  } finally { session?.close(); }
 }
 
 // A break pack: whole IMA ADPCM of each loop, from the first sample. tools/break_pack.py writes the same bytes.

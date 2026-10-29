@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync(new URL("./x0x_projects.html", import.meta.url), "utf8");
-const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .+;\s*$/m, "");
+const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .+;\s*$/gm, "");
 
 function environment() {
   const ids = {}, downloads = [], calls = [], blobs = new Map(), confirmations = [];
@@ -35,9 +35,10 @@ function environment() {
   } };
   const window = { confirm: (message) => { confirmations.push(message); return state.consent; } };
   const URL = { createObjectURL: (blob) => { const url = `blob:${blobs.size}`; blobs.set(url, blob); return url; }, revokeObjectURL() {} };
-  const projectBytes = new Uint8Array([1, 2, 3]), backupBytes = new Uint8Array([4, 5, 6]);
+  const projectBytes = new Uint8Array(36452); new DataView(projectBytes.buffer).setUint32(20,13,true); new DataView(projectBytes.buffer).setUint32(24,13,true);
+  const backupBytes = new Uint8Array([4, 5, 6]);
   const slot = (name) => ({ slot: 1, empty: false, name, zones: 2 });
-  const file = () => ({ bytes: projectBytes, portable: true, meta: { name: "A <literal> project", slots: [slot("NEW"), { slot: 2, empty: true }] } });
+  const file = () => ({ bytes: projectBytes, project: projectBytes, portable: true, meta: { name: "A <literal> project", slots: [slot("NEW"), { slot: 2, empty: true }] } });
   class ProjectMidiLink {
     constructor(i, o) { assert.equal(i, input); assert.equal(o, output); }
     close() { calls.push("close"); }
@@ -51,6 +52,7 @@ function environment() {
     async reset(c) { assert.equal(c, true); calls.push("reset"); }
   }
   const api = {
+    withDeviceOperation: async (action) => action(), watchDeviceSession: () => ({assert(){},close(){}}),
     PROJECT_MAX_FILE: 4 * 1024 * 1024, ProjectMidiLink, ProjectDevice,
     readProjectFile: async () => { if (state.invalidFile) throw new Error("The project file is damaged (CRC)."); return file(); },
     makeProjectFile: async (raw, snap, options) => { calls.push({ export: options }); return projectBytes; },
