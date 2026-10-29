@@ -4,7 +4,10 @@
 #pragma once
 #include <stdint.h>
 #ifndef X0X_ORIGINAL_SYNTH
-#define X0X_ORIGINAL_SYNTH 0
+#define X0X_ORIGINAL_SYNTH 1
+#endif
+#if X0X_ORIGINAL_SYNTH != 1
+#error Only X0X_ORIGINAL_SYNTH=1 is supported
 #endif
 #include "plat.h"
 #include "engine.h"

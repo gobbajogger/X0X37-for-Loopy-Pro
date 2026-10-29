@@ -1,5 +1,7 @@
 # Current owner change: revision 13 only
 
+Step 1: migration reverted in `b88e204e`. Step 2 removes `firmware/src/dsp/bass303.c` and both retired synth build entries. Target and host builders accept only `X0X_ORIGINAL_SYNTH=1`; direct app compilation rejects `=0`. Chicago/Miami keep their existing physical slots and presentation order 909, 808, BREAK, CHICAGO, MIAMI. All of `experiments/wobble/` is preserved, including the unbuilt reference `wobble.c`, pending clarification of the conflicting directory-preservation request. Build composition: 6 PASS; host setup: 9 PASS. Full current host/target proof follows after loader and test cleanup.
+
 The 2026-10-30 owner instruction supersedes the historical migration and `=0` plan below. Revert `d87e5b7b` because older projects were never supported. No migration remains authorized. This commit removes that implementation and its tests; subsequent steps remove legacy engines/builds and old loaders. Historical test and memory numbers below do not validate the new candidate.
 
 # FMB guards and slots

@@ -36,7 +36,10 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 /* The replacement profile owns a new project/patch format. It does not admit
  * legacy synth identities or their converters. */
 #ifndef X0X_ORIGINAL_SYNTH
-#define X0X_ORIGINAL_SYNTH 0
+#define X0X_ORIGINAL_SYNTH 1
+#endif
+#if X0X_ORIGINAL_SYNTH != 1
+#error Only X0X_ORIGINAL_SYNTH=1 is supported
 #endif
 #if X0X_ORIGINAL_SYNTH
 #undef X0X_BASS_PRESET_PREVIEW

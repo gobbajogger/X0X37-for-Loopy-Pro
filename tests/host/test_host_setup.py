@@ -106,14 +106,11 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
         self.assertEqual(self.run_builder().returncode, 0)
         self.assertTrue((self.root / "build/host/x0x_host").is_file())
 
-    def test_explicit_legacy_profile(self):
+    def test_explicit_legacy_profile_is_rejected(self):
         result = self.run_builder(X0X_ORIGINAL_SYNTH="0")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        argv = json.loads((self.root / "compile.json").read_text())["argv"]
-        self.assertIn("firmware/src/dsp/bass303.c", argv)
-        self.assertIn("experiments/wobble/wobble.c", argv)
-        self.assertNotIn("-DX0X_ORIGINAL_SYNTH=1", argv)
-        self.assertNotIn("original_fixture.c", argv)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("only 1 is supported", result.stderr)
+        self.assertFalse((self.root / "compile.json").exists())
 
     def test_original_input_failure_stops_compilation(self):
         result = self.run_builder(FAIL_ORIGINAL_INPUTS="1")
