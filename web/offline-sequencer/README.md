@@ -14,14 +14,16 @@ These files are not device backups. Probability/condition, motion/p-lock, per-no
 
 Validation:
 
-- `node --test web/offline-sequencer/model.test.mjs` from repository root.
+- `node --test web/offline-sequencer/*.test.mjs` from repository root runs all three editor Node suites (model, review, safety).
+- `node web/test_web.mjs` runs the existing host Web MIDI checks; any missing build-dependent package is reported as skipped.
+- `.github/workflows/dnbox-editor-host.yml` requests both checks on PRs targeting `nightly`. A workflow definition or unsuccessful startup is not a PASS.
 - `python3 web/offline-sequencer/browser.test.py` and `render_actual.py` use system Chromium/Playwright and an intercepted in-process HTTP fixture origin serving exact owned source bytes; no file navigation or public server.
-- Existing repository `npm run build` / `npm test` pass. The shared build does not integrate or publish this independent page.
+- **No shared bundler/website build is defined for this isolated firmware-repo page.** The shared website is maintained in a separate repository, and this source branch does not integrate or publish it. Earlier `npm run build` / `npm test` evidence applies only to the upstream website PR input.
 
 Keyboard: arrows move the grid cursor; Enter inserts; Shift+left/right changes selected-note length; Alt+up/down changes velocity; Delete removes; Escape cancels; Ctrl/Cmd+Z undoes; Ctrl+Y or Ctrl/Cmd+Shift+Z redoes. Space does not start any transport.
 
-Base909bb37c5afffd91fbb251d0dbd0a54293e413de, isolated feature/offline-sequencer-editor-stage2. Source is uncommitted and privately frozen for independent review. No source-delivery denial was retried.
+Provenance: website draft PR #93, source `7b962858d802588ed1733c07572429e91bb5639f` (separate site repository). This candidate is committed and pushed to the isolated firmware repository branch `codex/web-editor` targeting `nightly`. It has not been merged, built into the device firmware, routed to the public site, or device-tested.
 
 Recovered implementation review R1 corrections (2026-10-29): melodic MIDI import rejects a destination TIE crossing the replacement-window boundary before source mapping. It preserves the entire draft and offers no usable replacement candidate; choose a window covering the complete destination note. Direction/Transpose are visible and enabled only for Synth1/Synth2, and unsupported synthetic change events on909/808/BREAKS are ignored without changing the draft or Undo history. The complex-tie edit guard remains unchanged. TouchOSC continuous-layout review is resolved at design level; native Lua/runtime remains unrun.
 
-Affected checks: `node --test web/offline-sequencer/review-regression.test.mjs`, `node --test --test-name-pattern="SMF|sourcepolyphony|GM drum" web/offline-sequencer/model.test.mjs`, and `python3 web/offline-sequencer/review-browser.test.py`. Other unchanged generator/gesture tests and shared build receipts are retained, not claimed rerun.
+Affected checks: `node --test web/offline-sequencer/review-regression.test.mjs`, `node --test --test-name-pattern="SMF|sourcepolyphony|GM drum" web/offline-sequencer/model.test.mjs`, and `python3 web/offline-sequencer/review-browser.test.py`. Upstream browser test receipts belong to the separate website PR and are not re-attributed to this branch. When CI has no executed steps or logs, host Node tests are unverified until a real runner executes them.
