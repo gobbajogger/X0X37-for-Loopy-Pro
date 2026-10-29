@@ -25,6 +25,7 @@ typedef struct {
     uint8_t command_retry; /* command rejected by shared mailbox/owner, retry in poll */
     uint8_t inflight; /* controller ACL buffers owned by this handle */
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
+    uint8_t linked; /* conn holds a live handle; handle 0 is a valid handle */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
     /* Last rejected ACL header, zero-padded; bounded, no payload log or allocation. */
