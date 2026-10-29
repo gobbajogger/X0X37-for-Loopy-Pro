@@ -8,10 +8,11 @@
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
 #include "fused_reference.h"
+#include "miami_interpolation.h"
 #define ref_fma original_rne_fmaf
-/* Keep the original fused interpolation on the active audio path until the
- * reported target-only dull-sound regression is isolated against its golden. */
-#define interpolate original_rne_fmaf
+/* Exact optimized interpolation was previously qualified against the
+ * independent reference. Preserve the full software FMA elsewhere. */
+#define interpolate original_miami_interpolate_rne
 #else
 #define ref_fma fmaf
 #define interpolate fmaf

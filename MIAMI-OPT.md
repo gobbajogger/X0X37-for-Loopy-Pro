@@ -602,7 +602,7 @@ compiler configuration; report improvement or regression rather than
 substituting the standalone memory-store timing. The final executable
 candidate remains UNQUALIFIED until these runs succeed.
 
-## Step 9: reference active sound and exact MG/VCF work (2026-10-29)
+## Step 9: temporary reference-audio investigation (historical; superseded by Step 12)
 
 The owner reported that the locally built `c287cfe4` perf firmware (reported
 base `9d1cf9fb`) sounds muted/dull in Miami, despite approximately 0.2% idle
@@ -830,121 +830,137 @@ RMS. Preserve the first divergence and inspect the actual first mismatched
 DSP/mixer stage. Do not claim hardware audio fixed, new CPU percentages,
 a target firmware PASS or permission to integrate into `wip/one-build`.
 
-## Step 11: Miami device-only 27-30 dB gain forensics (2026-10-29)
+## Step 11: withdrawn device gain investigation (owner correction, 2026-10-30)
 
-### Owner evidence and a required distinction
+The earlier **-37.1 dBFS / -49 dBFS** Miami capture was **NOT** made
+with firmware OUTPUT=LOUD. The owner repeated the same device test with
+OUTPUT=LOUD and maximum volume: **peak -1.9 dBFS, sounding-part
+RMS -11.0 dBFS**. Miami's output level is acceptable. Therefore,
+the prior 27–30 dB device attenuation hypothesis, the mixer LEVEL=20
+and low-velocity explanations, and all proposed gain/shift/USB
+adjustments are withdrawn. **No gain adjustment was ever committed on
+this lane, so there is none to revert.** Do not ask for more mixer,
+velocity, knob or LOUD checks on this resolved point.
 
-Owner recorded Miami only, through the actual SMK-37 USB audio path on
-the local non-GitHub perf build `c287cfe4` (MIDI channel 2): peak
--37.1 dBFS, RMS approximately -49 dBFS. The internal p00 port golden
-has peak -9.6 dBFS, RMS -19.1 dBFS. The deltas are **-27.5 dB peak**
-(0.04217x amplitude) and **-29.9 dB RMS** (0.03199x). LOUD was ON and
-device volume was maximized; other engines on the device sound normal.
-Owner reports the **host Miami PCM is already bit-exact**.
+The obsolete exploratory `tools/miami_gain_audit.py` and its test
+are removed from this PR's current tree to avoid a misleading active
+diagnostic path. The historical 2026-10-29 commit and evidence remain
+in Git history for provenance only. `tools/synth684_harness/compare_pcm.py`
+remains for the actual **sound** parity task.
 
-**The internal p00 render is a *multi-note*, parameter-changing script**:
-`tools/synth684_harness/synth684_bench.c` sends notes 36, 43 and 48 at
-velocity 100, edits wobble depth and pitch bend, changes damper, and
-renders 172 blocks. A device recording of a single channel-2 note is
-*not* an identical test stimulus. Until MIDI note, velocity, timing,
-patch/edits, FX, mixer, master, LOUD and USB FULL state are matched, the
-two dB figures cannot prove one physical gain stage is broken.
+## Step 12: resume exact active CPU optimizations, no gain change
 
-### Read-only actual source trace
+**Source change:** restore two exact, previously qualified fastpaths from
+`wip/miami-opt2` that Step 9 temporarily disabled during the now
+withdrawn "dull/muted" report:
 
-- LOUD setting: `ui.c` R_OUTLOUD stores `proj.set.out_loud` and calls
-  `engine_out_loud(v)`. `project_apply_io()` reapplies it at boot and
-  project restore. `engine.c` selects 4,194,303 NORMAL or 8,388,607
-  LOUD, a **2x / 6.02 dB** global stage; *all* engine slots go through
-  it. The ALNK0 render uses `uac_tap` before post-tap `engine_volume`;
-  USB audio converts the shared 24-bit words by arithmetic `>>8` and
-  cubic resampling. There is no separate Miami LOUD flag or Miami
-  `>>8` exception. LOUD alone cannot explain a 27-30 dB Miami-only
-  difference.
-- Miami and Chicago share `render_sub` mixing. The original synth
-  profile sets **303 A and 303 B mixer LEVEL to 100 (unity) on factory
-  reset**. Real project `T_MIX` LEVEL is persisted and loaded from its
-  own cell. `apply_param` uses `(val/100)^2`: **LEVEL=20 produces
-  0.04x / -27.9588 dB**, almost exactly the reported peak loss.
-  A saved or motion-modulated low 303 A level would attenuate only Miami
-  and would survive a synth preset switch. The source itself does not
-  establish that the *live device* has LEVEL=20; overriding intentional
-  saved mixer settings would be a destructive regression.
-- The channel-2 MIDI handler forwards its 7-bit Note On velocity
-  unchanged into `original_runtime_key`. Miami voice gain deliberately
-  includes **velocity squared**. The internal p00 render uses velocity
-  100; a device Note On near velocity 20 likewise predicts **-27.96 dB**.
-  The recorded MIDI channel alone does *not* establish the transmitted
-  velocity. This is an equally strong alternate hypothesis, not a
-  demonstrated firmware gain error.
-- A low explicit Miami OUTPUT macro 14 edit can also reduce volume via
-  the selected program's native96/squared master gain. The live project's
-  edit mask and displayed OUTPUT byte must be checked; never infer the
-  actual native binary32 value from its rounded display byte alone.
-- Chicago goes through the same part mixer and LOUD/USB stages (303 B).
-  If Chicago remains normal, that argues against a global output scale
-  shift, not against a saved Miami slot level, MIDI velocity, or patch edit.
+1. In `experiments/original_synth/miami_ms20.c`, use
+   `original_miami_interpolate_rne` for nonlinear coefficient
+   interpolation in the selected software-FMA branch. Its guarded
+   integer-precision path is exactly round-to-nearest-even, with the
+   original full 18-limb `original_rne_fmaf` fallback outside the
+   guard. The public output and filter coefficients are unchanged.
+   Keep the independently checked MG/VCF optimizations from Step 9.
+2. Restore **byte-for-byte** the original
+   `experiments/original_synth/miami_fx_chain.c` from the pre-Step-9
+   lane (Git blob `651688c8c52ad1a0360c043459cf77d8fc19ca7d`).
+   Its FX2 settled-endpoint shortcut copies the original signed16
+   scratch data and applies the exact floor-shift attenuation
+   (for positive dry samples, dry-1; negatives unchanged) while
+   retaining the original state, gain and transition fallback.
+   No output-level multiplier is added.
+3. Chicago, Miami native gain, FX1, master volume, firmware part
+   mixer, LOUD, USB UAC, I2S, UI, preset/selector/pads, persistence
+   revision 13 and protected regions are all unchanged.
 
-### New checked source-safe forensic tool
+**Actually executed local independent host arithmetic proof:**
+- On Linux x86-64, GCC 14.2 and Clang 17, each at `-Os` and `-O2`,
+  **1,100,280 binary32 input triples** per run matched the independently
+  implemented exact 18-limb fused multiply-add oracle, including normal
+  guarded domains, arbitrary finite operands, tie cases, binade seams,
+  signed zero and subnormal cases. All four runs PASS.
+- FX2 direct shortcut vs exact source
+  `original_fixed_fx_process` (original Git blob
+  `6644ea5155f5c2e7790b1a9bf75fb9f5b265f796`):
+  **12,640 state/scratch/PCM comparisons** per compiler/config, including
+  settled gain endpoints, nonzero fractional remainders, transitions,
+  dirty states, positive/negative dry values and varied frame counts.
+  GCC/Clang `-Os`/`-O2` all PASS.
+- In one **isolated host-only** -O2 microbenchmark using original
+  nonlinear-table inputs (16,384 triples, 3,276,800 calls per side),
+  reference software FMA averaged **60.240 ns/call** and guarded
+  optimized interpolation averaged **21.943 ns/call** (**63.6%
+  reduction**). This is not whole-voice, target DSP, I2S, or real
+  device performance. No new idle Callgrind count is claimed.
+- New source still needs full exact candidate-vs-reference PCM/state
+  trace for all 30 programs, 15/15 internal real-input goldens, active
+  and idle Valgrind counts, original-AU selected waveform comparisons
+  under identical stimuli, and Elite/Pro builds on owner's Mac.
+  Reusing a pre-Step-9 blob is not proof those integrated runs passed
+  on this new commit.
 
-`tools/miami_gain_audit.py` calculates both measured dB ratios and
-the **equivalent** (not proven) 303 A mixer LEVEL and MIDI velocity.
-It optionally opens a **rev13-only**, CRC-validated raw `X0XP` project
-or portable `.x0xproject` export and reports the actual 303 A/303 B
-mixer LEVEL/PAN, Miami patch preset, explicit macro14 edit flag/byte,
-LOUD/USB FULL and MIDI channel configuration. It does NOT rewrite
-projects, touch samples, connect hardware, alter DSP or normalize PCM.
-Wrong revision, CRC, engine identity, malformed archives and impossible
-mixer settings fail closed. It outputs project SHA-256 as provenance.
-The tool does not falsely infer a changed *live* motion or source
-velocity from a saved project.
+**Additional authentic original waveform references were located:**
+personal Library `Miami-original-44100-reference-handoff-20261028.zip`
+contains **seven unique original Miami 3.1.6 stereo float WAVs** at
+44.1 kHz, with 16 documented same-input capture aliases, control
+settings and frame-exact events. This private archive is not an
+internal factory-p00 render; it is independent selected-waveform
+evidence and must never be committed or published. The owner-reported
+host 30-program parity remains a separate acceptance witness. Do
+not mistake equality to the internal port baseline for equality
+to all original proprietary AU behavior.
 
-Local Linux execution:
-- `python3 -B tests/host/miami_gain_audit_test.py -q`: **11 tests PASS**,
-  including a low level (20), low velocity equivalence (20 vs100),
-  unity defaults, edited Miami OUTPUT, valid raw/portable inputs,
-  malformed CRCs, wrong revision/identity and invalid mixer data.
-- `python3 -B -m py_compile tools/miami_gain_audit.py
-  tests/host/miami_gain_audit_test.py`: PASS.
-- `python3 -B tools/miami_gain_audit.py`: reports peak -27.5,
-  RMS -29.9, and potential mixer LEVEL and MIDI velocity in the
-  **18-21** range. No actual owner project/capture data was available
-  for a measured gain fix in this chat.
-
-### Mac validation and the smallest admissible correction
-
-From the owner Mac worktree, after exporting the **current device
-project** as `.x0xproject` without importing/replacing any content:
+### Mac verification from exact HEAD with pinned private inputs
 
 ```sh
 git fetch origin chat/miami-opt
 git switch chat/miami-opt
 git pull --ff-only origin chat/miami-opt
-python3 -B tests/host/miami_gain_audit_test.py -q
-python3 -B tools/miami_gain_audit.py
-PROJECT="$(find "$HOME/Downloads" -maxdepth 1 -type f -name '*.x0xproject' -print | sort | tail -n 1)"
-test -n "$PROJECT" && test -f "$PROJECT"
-python3 -B tools/miami_gain_audit.py --project "$PROJECT" \
-  --json build/miami-device-gain-audit.json
+git status --short
+python3 tools/check_original_inputs.py --scope all
+
+OUT="build/miami-exact-$(git rev-parse --short HEAD)-$(date +%Y%m%d-%H%M%S)"
+python3 tests/host/miami_cpu_test.py \
+  --compare-ref f9ffd12e --bench-rounds 5 --repeats 10 --out "$OUT"
+python3 tests/host/miami_cpu_test.py \
+  --compare-ref f9ffd12e --sanitize --out "$OUT-sanitize"
+python3 tests/host/miami_cpu_test.py \
+  --compare-ref f9ffd12e --native-fma --out "$OUT-native"
+python3 tools/synth684_harness/run.py \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-golden"
+python3 tools/synth684_harness/compare_pcm.py \
+  build/synth684-golden-9d1cf9fb "$OUT-golden/renders" \
+  --require-count 15 --rate 44100 \
+  --json "$OUT-golden/pcm-audit.json"
 ```
 
-If the verified **live** 303 A LEVEL is ~20, changing **MIX / 303 A /
-LEVEL** to 100 is a targeted reversible diagnostic (it does not
-alter Miami DSP). If the OUTPUT macro14 is explicitly edited low,
-selecting unedited factory p00 and checking its native output is the
-correct independent experiment. In all cases ensure MIDI Note On
-velocity **100**, matched note sequence and preset, and no motion,
-solo or master compressor changes. Only after a same-stimulus
-physical capture and comparison should a firmware source gain
-correction be made. Never bake a 24x multiplier into the mixer, USB,
-or Miami DSP as a response to non-matched screenshots/meters.
+Fail on **any** PCM/state difference; no normalization,
+threshold match, automatic gain or golden replacement. The
+`miami_cpu_test.py` scope also invokes the existing dedicated
+`miami_bypass_test.c` and `miami_interpolation_test.c` with
+the real 18-limb oracle and authenticated private input tables.
 
-The already documented full 30-program PCM/state differential, 15
-internal real-input port goldens, 16 original-AU captures and qualified
-Callgrind idle/active PERF commands remain mandatory on new sound
-changes, followed by Elite/Pro build under SDK V1.2.1 on the Mac.
-The current c287cfe4 source/build and its captured USB PCM were not
-available in this repository session, so the exact on-device gain
-fault remains **UNCONFIRMED**. No engine/USB/UI/slot DSP bytes were
-changed in Step 11; the regression tool is source-only and safe.
+Measure active AND idle CPU in the qualified x86-64 Linux
+Docker/Colima+Valgrind runner with the **same compiler, flags and
+goldens** as the saved baseline:
+
+```sh
+python3 tools/synth684_harness/run.py --icount \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out "$OUT-active-icount"
+python3 tools/synth684_harness/run.py --icount --idle-icount \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out "$OUT-idle-icount"
+X0X_DEV_PADCAL=1 python3 tools/synth684_harness/run.py --elite \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out "$OUT-elite"
+```
+
+The SDK V1.2.1, toolchain, the 12 pinned private #684 inputs and
+15 real-input golden files remain owner-Mac-only. Do not use the
+uploaded SDK V1.2.0 as a replacement. Run Pro build by the current
+`BUILDING.md` command under the same pinned configuration. Neither
+the local proof nor any PR means DEVICE VERIFIED or approval to
+merge/publish/flash. Until these runs pass, label it **SCOPED
+HOST-PARITY PASS / WHOLE-ENGINE & DEVICE PENDING**.
 

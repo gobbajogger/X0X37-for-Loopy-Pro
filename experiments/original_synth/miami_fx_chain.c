@@ -6,11 +6,20 @@ static void decimate(void *context,int16_t *l,int16_t *r,uint32_t n) {
  (void)miami_decimator_adapter_process(context,l,r,n,NULL,0);
 }
 static void bypass(void *context,int16_t *l,int16_t *r,uint32_t n) {(void)context;(void)l;(void)r;(void)n;}
-/* Reference FX2 wrapper during the target sound-regression investigation.
- * The original mixer always advances and rounds samples, even when the DSP
- * algorithm selected inside that wrapper is a no-op. Idle bypass still uses
- * the independent exact-zero output seam and does not enter this path. */
 void original_miami_fx_bypass_process(original_fixed_fx *s,original_miami_fx_workspace *w,uint32_t n) {
+ if(!s->dirty&&s->gain_state>=0&&(s->target==0||s->target==32767)&&s->gain_state/32768==s->target){
+  /* With a settled endpoint, one mixer product is zero and the other is
+   * floor(dry*32767/32768). FX1 guarantees |dry|<=32767, so this is exactly
+   * dry-1 for positive samples and dry otherwise. The bypass scratch still
+   * contains the original dry sample, before that rounding. The fractional
+   * gain-state remainder stays untouched, just as in the checked wrapper. */
+  for(uint32_t i=0;i<n;i++){
+   int32_t l=w->dryL[i],r=w->dryR[i];
+   w->scratchL[i]=(int16_t)l;w->scratchR[i]=(int16_t)r;
+   w->dryL[i]=l-(l>0);w->dryR[i]=r-(r>0);
+  }
+  return;
+ }
  (void)original_fixed_fx_process(s,w->dryL,w->dryR,w->scratchL,w->scratchR,w->dryL,w->dryR,n,bypass,NULL);
 }
 static void reset_decimator(void *context) {(void)miami_decimator_adapter_reset(context);}
