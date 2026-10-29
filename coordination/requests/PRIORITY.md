@@ -95,6 +95,14 @@ accepted publisher, installer and build actions retain their own authority and
 evidence. Completion, explicit deferral and authorization restrictions still win.
 Closed or deferred/unauthorized prepared continuations reserve no areas and cause
 no ownership-recovery hold. Existing reported-ACTIVE reservation rules are unchanged.
+An explicit `BLOCKED...` request status also prevents a prepared continuation
+from reserving areas or returning its recorded action as executable continuation.
+Return it in `excluded` with the literal blocker and a read-only inspection step;
+keep the original action/evidence in the unchanged input ledger. Retained ownership
+does not release a denied action or unmet dependency. Independently accepted records
+and continuations retain their own gates, including those with the same owner.
+The helper cannot infer an authorized subaction from a blocked record's free text;
+the existing owner must verify the specific scope and evidence before continuation.
 An owner display label, a historical/released owner, readiness alone or an unknown
 execution-state string does not establish retained ownership. The coordinator
 authenticates the supplied state and current scope; this helper never dispatches.

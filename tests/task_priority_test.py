@@ -104,6 +104,31 @@ class PriorityTests(unittest.TestCase):
                     self.assertEqual(result['claim_admission']['blocked_by'], [])
                     self.assertEqual(result['claim_admission']['state'], 'ELIGIBLE')
 
+    def test_blocked_prepared_action_is_excluded_without_blocking_independent_work(self):
+        for status in ('BLOCKED_KNOWN_PERMISSION_DENIAL', 'BLOCKED_DEPENDENCY_UNMET'):
+            for areas in (['32'], [], None):
+                for capacity in (0, 1, 2):
+                    with self.subTest(status=status, areas=areas, capacity=capacity):
+                        held = record(20, status=status, next_action='Perform the specifically blocked write.',
+                            owner_execution_state='RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                        held['priority_assessment']['work_areas'] = areas
+                        independent = record(12, owner=held['owner'],
+                            owner_execution_state='RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                        ledger = {'records': [held, independent, record(32)]}
+                        before = copy.deepcopy(ledger)
+                        result = p.plan(ledger, NOW, capacity, read_status='success')
+                        self.assertEqual(ledger, before)
+                        self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-012'])
+                        self.assertEqual(result['continue_existing'][0]['next_action'], independent['next_action'])
+                        self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                                         ['LX-REQ-032'] if capacity else [])
+                        self.assertEqual(result['recovery_actions'], [])
+                        self.assertEqual(result['claim_admission']['blocked_by'], [])
+                        excluded = next(r for r in result['excluded'] if r['request_id'] == 'LX-REQ-020')
+                        self.assertIn(status, excluded['reason'])
+                        self.assertNotEqual(excluded['next_action'], held['next_action'])
+                        self.assertIn('Read-only', excluded['next_action'])
+
     def test_retained_continuation_obeys_deferral_completion_and_read_gates(self):
         existing = record(20, owner_execution_state=
             'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')

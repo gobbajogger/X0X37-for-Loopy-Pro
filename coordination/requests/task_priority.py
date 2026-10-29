@@ -118,7 +118,8 @@ def existing_commitment(record):
     return (record.get('owner_execution_state') in ACTIVE
             or record.get('status') == 'ACTIVE'
             or (record.get('owner_execution_state') in RETAINED_CONTINUATIONS
-                and record.get('status') not in CLOSED and not deferred(record)))
+                and record.get('status') not in CLOSED and not deferred(record)
+                and not str(record.get('status', '')).startswith('BLOCKED')))
 
 
 def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
@@ -186,6 +187,12 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             reason = 'completion pending: ' + '; '.join(completion_problems[rid])
         elif r.get('status') in CLOSED:
             reason = 'closed request'
+        elif (r.get('owner_execution_state') in RETAINED_CONTINUATIONS
+              and str(r.get('status', '')).startswith('BLOCKED')):
+            reason = 'blocked prepared continuation: ' + r['status']
+            correction = ('Read-only: inspect the recorded blocker and current action-specific evidence '
+                          'with the existing owner. Do not execute the blocked action or infer its '
+                          'release from retained ownership; independently accepted work keeps its own gates.')
         elif existing_commitment(r):
             continuation = {'request_id': rid, 'implementation_owner': r['owner'],
                 'next_action': r['next_action'], 'reason': 'existing commitment; verify liveness, never auto-reassign'}
