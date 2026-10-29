@@ -9,6 +9,7 @@
 static uint8_t editor_flash[0x100000],editor_frame[640],reply[800];
 static uint32_t frame_n,reply_n,fm1_ms,fm1_crash[2],flash_writes,flash_erases;
 static struct {uint32_t failed,pending;} bootguard;
+static struct {unsigned ota_req,uboot_req;} usb;
 static int flash_ok=1;
 static void fm1_irq_off(void){} static void fm1_irq_on(void){} static void fm1_wdt_feed(void){}
 static void audio_silence(void){} static void fl_inval(uint32_t off,uint32_t n){(void)off;(void)n;}
@@ -147,8 +148,8 @@ static void note_schema(void)
  project_stage.arr.lane[k].i=2;rejected(-1);project_capture_stage();
  project_stage.arr.lane[1]=captured;rejected(-1);project_capture_stage();
  project_stage.pat[0].bass[0].step[0].flags=G_REST;rejected(-1);project_capture_stage();
- project_file_header(header);CHECK(get32(header+20)==7);CHECK(!project_file_validate(header));
- put32(header+20,6);CHECK(project_file_validate(header)==-9);put32(header+20,7);
+ project_file_header(header);CHECK(get32(header+20)==PROJ_STREAM);CHECK(!project_file_validate(header));
+ put32(header+20,6);CHECK(project_file_validate(header)==-9);put32(header+20,PROJ_STREAM);
  CHECK(!project_save());memset(&proj,0,sizeof proj);CHECK(!project_load());reset_runtime();
  k=bass_note_find(proj.arr.lane,0,0,0);CHECK(k>=0);CHECK(!memcmp(&captured,&proj.arr.lane[k],sizeof captured));
  /* Reuse a free slot whose reserved byte belongs to its previous owner. */
@@ -167,7 +168,7 @@ static void note_schema(void)
  for(int i=0;i<NLANE;i++)if(!proj.arr.lane[i].used){proj.arr.lane[i].used=1;proj.arr.lane[i].pat=31;proj.arr.lane[i].part=PART_808;}
  memcpy(&original,&proj,sizeof original);CHECK(engine_bass_note_capture(proj.arr.lane,2,0,0,&proj.sound)==-7);
  CHECK(!memcmp(&original,&proj,sizeof original));CHECK(copy_part(2,1,PART_303A)==-1);CHECK(!memcmp(&original,&proj,sizeof original));
- printf("PASS sparse stream7 note representation/storage/copy/clear/pool-full schema checks\n");
+ printf("PASS sparse current-stream note representation/storage/copy/clear/pool-full schema checks\n");
 }
 /* The old recorder can own a provisional tie on the newly quantized onset.
  * Its release rounds back to the previous step during the first 1/30 slot. */

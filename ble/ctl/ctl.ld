@@ -5,7 +5,7 @@
  * interface (firmware/hal/x0x_ble_abi.h): flash XB_FLASH_XIP 0x02087000, 64 KiB; RAM
  * XB_RAM_LO..XB_RAM_HI 0x01C01800..0x01C07F00. The app checks them again before it starts the
  * image. */
-CTL_HEAP_SIZE      = DEFINED(CTL_HEAP_SIZE)      ? CTL_HEAP_SIZE      : 0x2780;
+CTL_HEAP_SIZE      = DEFINED(CTL_HEAP_SIZE)      ? CTL_HEAP_SIZE      : 0x2980;
 CTL_ISR_STACK_SIZE = DEFINED(CTL_ISR_STACK_SIZE) ? CTL_ISR_STACK_SIZE : 0x800;
 CTL_RUN_STACK_SIZE = DEFINED(CTL_RUN_STACK_SIZE) ? CTL_RUN_STACK_SIZE : 0x800;
 

@@ -131,6 +131,7 @@ int plat_midi_in(uint32_t *pkt)
     return 1;
 }
 static uint32_t midi_out_count, clock_out_count, note_ons, transport_out_count;
+static unsigned host_cpu2_active, midi_pulse_crosscore;
 void plat_midi_out(uint32_t pkt)
 {
     midi_out_count++;
@@ -142,6 +143,14 @@ void plat_midi_out(uint32_t pkt)
         clock_out_count++;
     else if (midi_log)
         fprintf(midi_log, "%u ms: %02X %02X %02X\n", now_ms, (pkt >> 8) & 0xFF, (pkt >> 16) & 0xFF, (pkt >> 24) & 0xFF);
+}
+
+int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
+{
+    if (host_cpu2_active) midi_pulse_crosscore++;
+    plat_midi_out(9u | ((uint32_t)(0x90u | ch) << 8) | ((uint32_t)note << 16) | ((uint32_t)velocity << 24));
+    plat_midi_out(8u | ((uint32_t)(0x80u | ch) << 8) | ((uint32_t)note << 16));
+    return 1;
 }
 
 /* flash: one buffer per object, kept across a simulated reboot */
@@ -226,22 +235,27 @@ const uint8_t *plat_slot(int k, int z, uint32_t *ns, uint32_t *rate, char name[9
 static uint32_t cpu_pct, cpu_peak;
 static int load_force = -1;                      /* script "load N": the guard sees N%, -1 measured */
 /* the second core, simulated: a job runs at once, in order (the split path, the same sums) */
-static int cpu2_on;
+static int cpu2_on, cpu2_fail_once;
 int plat_cpu2_set(int on) { cpu2_on = on; return 0; }
 int plat_cpu2_on(void) { return cpu2_on; }
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg)
 {
     if (!cpu2_on)
         return 0;
+    host_cpu2_active = 1;
     fn(arg);
+    host_cpu2_active = 0;
     return 1;
 }
-int plat_cpu2_wait(void) { return 0; }
+int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return fail; }
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
 static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
 int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
+#ifndef X0X_HOST_BLE_NAME_IMPLEMENTED
 const char *plat_ble_name(void) { return ""; }
+unsigned plat_ble_peer_names(char names[2][21]) { (void)names; return 0; }
+#endif
 void plat_ble_set(int on) { ble_on = on; }
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
 uint32_t plat_xruns(void) { return 0; }
@@ -270,7 +284,9 @@ void plat_stalls_enable(int on) { (void)on; }
 
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/x0x.h"
+#if !X0X_ORIGINAL_SYNTH
 #include "../firmware/src/app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
+#endif
 #include "../firmware/src/app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
 #include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
@@ -940,6 +956,12 @@ int main(int argc, char **argv)
                 printf("line %d: no param %d %d %d\n", lineno, t, v, i);
                 return 2;
             }
+#if X0X_ORIGINAL_SYNTH
+            if (t == T_303) {
+                if ((unsigned)v >= NBASS || !original_sound_set(proj.sound.v[t][v], (unsigned)i, (unsigned)val)) return 2;
+                engine_bass_sound_refresh(&proj.sound, v);
+            } else
+#endif
             proj.sound.v[t][v][i] = (uint8_t)val;
             engine_set(t, v, i, val);
             run_ms(1);
@@ -996,13 +1018,14 @@ int main(int argc, char **argv)
                 return 2;
             }
             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
-        } else if (!strcmp(cmd, "brkwrap")) {      /* brkwrap 0|1: 8 SLICES off or on, current break pattern */
-            pattern_t *bp = &proj.pat[seq.ppat[TRK_BRK]];
-            uint8_t m = (uint8_t)(atoi(a) ? 1 : 0);
-            if (bp->brk.slice_mode != m) {
-                bp->brk.slice_mode = m;
-                engine_brk_slice_mode_reconcile();
-            }
+        } else if (!strcmp(cmd, "brkcount")) { /* brkcount A|B 4|8|16|32 */
+            unsigned count = (unsigned)atoi(b), code;
+            if (count != 4 && count != 8 && count != 16 && count != 32) return 2;
+            code = count == 4 ? 1 : count == 8 ? 0 : count == 16 ? 2 : 3;
+            unsigned shift = a[0] == 'B' ? 2 : 0;
+            brkpart_t *bp = &proj.pat[seq.ppat[TRK_BRK]].brk;
+            bp->slice_mode = (uint8_t)((bp->slice_mode & ~(3u << shift)) | (code << shift));
+            engine_brk_loops();
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */

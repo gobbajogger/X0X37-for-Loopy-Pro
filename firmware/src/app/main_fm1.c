@@ -219,7 +219,11 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
+#if X0X_ORIGINAL_SYNTH
+#include "app/original_sound.h"
+#else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
+#endif
 #if X0X_DEV_WOBBLE
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
@@ -1024,6 +1028,14 @@ static void smk_wheels(void)
         if (bend_part < 0 && bend && is_303())
             bend_part = (int8_t)bidx();
         if (bend_part >= 0) {
+#if X0X_ORIGINAL_SYNTH
+            int param = engine_bass_is_wobble(bend_part) ?
+                ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
+            if (bend)
+                engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
+            else
+                engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
+#else
             int param = CHI_PBEND;
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(bend_part))
@@ -1033,6 +1045,7 @@ static void smk_wheels(void)
             want = bend ? chi_pbend_from_wheel((int)bend)
                         : proj.sound.v[T_303][bend_part][param];
             engine_set(T_303, bend_part, param, (int)want);
+#endif
             if (!bend)
                 bend_part = -1;
         }
@@ -1044,12 +1057,17 @@ static void smk_wheels(void)
         if (cut_part >= 0) {
             /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
+#if X0X_ORIGINAL_SYNTH
+            engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
+                ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
+#else
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(cut_part))
                 engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
             else
 #endif
                 engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
+#endif
             if (!mw)
                 cut_part = -1;
         }
@@ -2064,8 +2082,18 @@ static void smk_clip_mode_poll(void)
 
 CK_FN static void smk_frame(void)
 {
+    extern void ui_brk_page_keys(unsigned keys, int allowed);
+    unsigned outer = (unsigned)((fm1_in.keys >> 1) & 1u) | (unsigned)((fm1_in.keys >> 2) & 2u) |
+        (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+    int allow_pages = !clip_grid_mode;
+#if X0X_DEV_PADCAL
+    allow_pages = allow_pages && !padcal.on;
+#endif
+    ui_brk_page_keys(outer, allow_pages);
+#if !X0X_ORIGINAL_SYNTH
     while (smk_extkey_take() >= 0)
         ;
+#endif
     if (ui_project_busy()) {
         smk_arrows();
         smk_faders();
@@ -2270,11 +2298,14 @@ static void safe_main(void)
         ota_service();
         if (usb.ota_req) {
             usb.ota_req = 0;
+            ed_install_forget();
             if (flash_ok)
                 ota_session();                      /* an install commits and resets; else back here */
         }
-        if (usb.uboot_req)
+        if (usb.uboot_req) {
+            ed_install_forget();
             enter_uboot("UBOOT (USB)");
+        }
     }
 }
 
@@ -2427,6 +2458,7 @@ static void fm1_main(void)
                     shown = left;
                 }
             } else if (fm1_ms - t0 > 5000u) {
+                ed_install_forget();
                 enter_uboot("UBOOT");
             }
         }
@@ -2436,9 +2468,18 @@ static void fm1_main(void)
             if (held || ui_project_busy()) {
                 usb.ota_req = 0;
                 usb.uboot_req = 0;
+                if (ed_install_pending) ed_install_forget();
             }
         }
+        if (ed_install_pending) {
+            /* A validated COMMIT owns this iteration. Drop legacy IRQ requests
+             * rather than inheriting one or running a reboot before admission. */
+            usb.ota_req = usb.uboot_req = 0;
+            ed_reboot_at = 0;
+            if (ed_install_pending != 1u) ed_install_pending = 0;
+        }
         if (!ui_project_busy() && ed_reboot_at && fm1_ms - ed_reboot_at > 200u) {
+            ed_install_forget();
             bootguard.pending = 0;                  /* intentional reset: not a failed boot */
             usb_detach();                           /* ED_BT_TEST restart: the reply had 200 ms */
             fm1_delay_ms(30);
@@ -2446,19 +2487,29 @@ static void fm1_main(void)
         }
         if (ota_pending && !ui_project_busy())
             ota_service();                          /* M-UPGRADE uses the same main-loop scratch as project staging */
-        if (!ui_project_busy() && usb.ota_req) {
+        if (!ui_project_busy() && (usb.ota_req || ed_install_pending)) {
+            int guarded = ed_install_pending;
+            ed_install_forget();                     /* consume before OTA; no editor/UI call may intervene */
             usb.ota_req = 0;
             seq_stop(&seq);
             if (flash_ok)
                 ota_session();                      /* returns only if nothing was committed */
+            ed_install_forget();
+            if (guarded) {
+                usb.ota_req = usb.uboot_req = 0;       /* no request received in the session may replay */
+                ed_reboot_at = 0;
+            }
             lcd_fill(0, 0, 240, 240, C_BLACK);
             ui_init();
         }
-        if (!ui_project_busy() && usb.uboot_req)
+        if (!ui_project_busy() && usb.uboot_req) {
+            ed_install_forget();
             enter_uboot("UBOOT (USB)");
+        }
 #if X0X_CDC
         cdc_task();
 #endif
+        if (!ui_project_busy()) engine_brk_flush(); /* main-loop completion after held notes/free snapshots */
         if (!ui_project_busy() && seq.ppat[TRK_BRK] != last_pat) { /* the break's new pattern may name other loops */
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
