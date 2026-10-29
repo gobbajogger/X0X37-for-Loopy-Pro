@@ -1,7 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #pragma once
 #include "original_sound.h"
+#ifdef X0X_HOST
 #include <string.h>
+#endif /* Native unity build supplies the freestanding memory routines. */
 
 /* Presentation only. These are original macro IDs, never legacy DSP IDs. */
 static const int8_t ui_original_chicago_rows[6][4] = {
