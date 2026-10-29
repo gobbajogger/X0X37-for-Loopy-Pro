@@ -170,3 +170,9 @@ Proof: `build/chicago-opt-series/02-idle-core/RESULT.json` (source hashes match,
 Remove repeated control dispatch while preserving sample-position envelope, portamento, MG and ARP operations, leaving more CPU headroom without changing sound.
 
 Proof: `build/chicago-opt-series/03-block-control/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+
+## Continuation 04-silent-chorus
+
+Jump the silent Chorus recurrence across proven integer spans so silent effects use less CPU while the next note remains sample-exact.
+
+Proof: `build/chicago-opt-series/04-silent-chorus/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
