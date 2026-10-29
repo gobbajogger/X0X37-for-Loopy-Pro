@@ -5057,18 +5057,22 @@ static UI_DRAW void draw_drum_mix(int band, int k)
         pref_t lv = find_ref(t, v, "Level"), pn = find_ref(t, v, "Pan");
         int l = lv.kind ? proj.sound.v[t][v][lv.c] : 0, pa = pn.kind ? proj.sound.v[t][v][pn.c] : 64;
         int muted = (seq.mute | seq.vmute) & (1u << (k * NDRUM + v)), fh = 96, f = l * fh / 127;
-        if (sel)
-            box(x, 0 - o, 19, 134, dim(col, 3));
-        rbox(x + 7, 4 - o, 5, fh, 2, C_LINE);
-        if (f)                                        /* the level, dim; a hit lights it up to the level */
-            rbox(x + 7, 4 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
+        /* Shared shallow material for both kits. Keep 96px level travel, independent
+         * transient brightness, mute, pan and all existing controller mappings. */
+        sound_slab(x, 0 - o, 19, 134, sel);
+        cv_rect(x + 1, 1 - o, 17, 12, sel ? col : SOUND_FACE);
+        text_c(x + 10, vc(&FONT_XS, 1, 12) - o, &FONT_XS,
+               engine_voice_name(t, v), sel ? C_BLACK : muted ? C_DIM : C_GRAY);
+        cv_rect(x + 6, 15 - o, 7, fh + 2, SOUND_SIDE);
+        rbox(x + 7, 16 - o, 5, fh, 2, C_LINE);
+        if (f)
+            rbox(x + 7, 16 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
         {
             int hf = f * eng_hit[k][v] / 255;
             if (hf > 1 && !muted)
-                rbox(x + 7, 4 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
+                rbox(x + 7, 16 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
         }
-        text_c(x + 10, vc(&FONT_XS, 104, 12) - o, &FONT_XS, engine_voice_name(t, v), sel ? C_WHITE : muted ? C_LINE : C_GRAY);
-        rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);          /* the pan, a mark from the middle */
+        rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);
         rbox(x + 3 + (pa * 10) / 127, 121 - o, 3, 7, 1, sel ? C_WHITE : C_GRAY);
     }
 }
