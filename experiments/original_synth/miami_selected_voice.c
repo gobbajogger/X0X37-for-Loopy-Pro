@@ -5,9 +5,12 @@
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
 #include "fused_reference.h"
+#include "miami_interpolation.h"
 #define ref_fma original_rne_fmaf
+#define table_fma original_miami_interpolate_rne
 #else
 #define ref_fma fmaf
+#define table_fma fmaf
 #endif
 #define TABLE_READY 0x4d565431u
 #define CONTROL_READY 0x4d564331u
@@ -90,7 +93,7 @@ static void vcf_tick(original_vca *e,uint32_t D){
  e->level=q;
 }
 #ifndef MIAMI_VOICE_CHECKED_TABLE_PREP
-static float lookup(const float t[129],float q){if(q<=fl(0x3727c5ac))return t[0];if(q>=128)return t[128];unsigned j=(unsigned)q;return ref_fma(t[j+1]-t[j],q-(float)j,t[j]);}
+static float lookup(const float t[129],float q){if(q<=fl(0x3727c5ac))return t[0];if(q>=128)return t[128];unsigned j=(unsigned)q;return table_fma(t[j+1]-t[j],q-(float)j,t[j]);}
 static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
 #endif
 /* Identical selected MS20 preparation arithmetic to the checked dependency.
@@ -103,7 +106,7 @@ static void ms20_prepare(original_miami_ms20 *s,const original_miami_voice_table
 #else
  float d=clamp(c->env_depth+0.0f,-1,1),z=ref_fma(env,d,c->cutoff),q=ref_fma(mc,128,z*128.0f);
  float a=lookup(t->filter.a,q),b=lookup(t->filter.b,q),cap=lookup(t->filter.cap,q),r=c->resonance+0.0f,R;
- if(r==1)R=t->filter.r[128];else {float rq=r*128.0f;unsigned j=(unsigned)rq;R=ref_fma(t->filter.r[j+1]-t->filter.r[j],rq-(float)j,t->filter.r[j]);}
+ if(r==1)R=t->filter.r[128];else {float rq=r*128.0f;unsigned j=(unsigned)rq;R=table_fma(t->filter.r[j+1]-t->filter.r[j],rq-(float)j,t->filter.r[j]);}
  float target=R<=fl(0x3727c5ac)?fl(0x3727c5ac):(R<cap?R:cap);
  float ng=clamp(c->noise+0.0f,0,1);ng=ng*ng+fl(0x3727c5ac);float reciprocal=1.0f/(float)D;
  stage(&s->a,a,reciprocal);stage(&s->resonance,target,reciprocal);stage(&s->noise_gain,ng,reciprocal);s->b=b;s->cap=cap;s->prepared=1;
