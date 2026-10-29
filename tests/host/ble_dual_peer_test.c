@@ -91,7 +91,7 @@ int main(void)
  {uint8_t p[]={0x0f,4,0,0,0x13,0x20};blec_pair_rx(&a,&b,4,p,sizeof p,1);}
  CHECK(!blec_command_owner && !blec_command_credit);
  CHECK(!blec_conn_update(&b,24,40,0,400) && cmds==1);
- {uint8_t p[]={0x0e,4,1,0,0,0};blec_pair_rx(&a,&b,4,p,sizeof p,2);}
+ {uint8_t p[]={0x0e,3,1,0,0};blec_pair_rx(&a,&b,4,p,sizeof p,2);}
  CHECK(blec_conn_update(&b,24,40,0,400) && cmds==2);
  setup(&a,&b);a.state=b.state=BLEC_OFF;blec_command_credit=0;
  CHECK(!blec_pair_stopped(&a,&b));blec_command_credit=1;CHECK(blec_pair_stopped(&a,&b));

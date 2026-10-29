@@ -727,10 +727,13 @@ void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n
         dest = a->conn && handle == a->conn ? a : b->conn && handle == b->conn ? b : 0;
     } else if (h4 == H4_EVT && n >= 2u && p[1] <= n - 2u) {
         unsigned pl = p[1];
-        if ((p[0] == 0x0e || p[0] == 0x0f) && pl >= 4u) {
+        if ((p[0] == 0x0e && pl >= 3u) || (p[0] == 0x0f && pl >= 4u)) {
             unsigned op = blec_rd16(p + (p[0] == 0x0e ? 3u : 4u));
+            /* Opcode zero is a credit announcement, not a command result.
+             * Command Complete then has no return Status: only three parameters. */
+            if (op && pl < 4u) return;
             blec_command_credit = (uint8_t)(p[p[0] == 0x0e ? 2u : 3u] != 0);
-            if (!blec_command_owner || op != blec_pair_op) return;
+            if (!op || !blec_command_owner || op != blec_pair_op) return;
             dest = blec_command_owner;
             /* Synchronous commands keep ownership through successful Status. */
             if (p[0] == 0x0f && !p[2] && op != COP_CREATE && op != COP_DISCONNECT && op != COP_UPDATE) return;
