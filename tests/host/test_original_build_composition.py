@@ -133,6 +133,41 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertNotIn("shape_pad_owner(", ui)
 
+    def test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates(self):
+        # The physical Free Play route was ported from 574f/6ae. No shape-pad
+        # functionality belongs to this lane. Verify press-time ownership and
+        # the eight original Miami divisions, not the retired WBL1 backend.
+        ui = (ROOT / "firmware/src/app/ui.c").read_text()
+        hal = (ROOT / "firmware/hal/smk_input.h").read_text()
+        plat = (ROOT / "firmware/src/app/plat_fm1.c").read_text()
+        for guard in ("!ui.freeplay[bidx()]",
+                      "engine_bass_bank(bidx()) != ORIGINAL_SOUND_MIAMI",
+                      "smk_clip_mode_on()", "smc_ui_active()", "project_busy",
+                      "perf_testing()", "ui.rec", "ui.help",
+                      "ui.overlay != O_NONE"):
+            with self.subTest(guard=guard):
+                self.assertIn(guard, ui)
+        self.assertIn("int pad = plat_division_pad((unsigned)owner)", ui)
+        self.assertIn("if (owner && pad >= 0 && pad < 8)", ui)
+        self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
+        self.assertIn("smk_div_held & owned", hal)
+        self.assertIn("if (!vel) smk_div_held &= (uint16_t)~owned", hal)
+        self.assertIn("if (vel && smk_div_owner && !smk_pad_note[pad])", hal)
+        self.assertIn("if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u)", hal)
+        self.assertIn("smk_div_pending = 0;", hal)
+        self.assertIn("smk_div_owner = (uint8_t)owner;", hal)
+        self.assertRegex(plat, r"(?s)uint32_t flags = irq_save\(\);"
+                              r"\s*int hit = smk__division_poll\(owner\);"
+                              r"\s*irq_restore\(flags\);")
+        for pad, name in enumerate(("1/2", "1/4", "1/8", "1/16",
+                                    "1/3", "1/6", "1/12", "1/24")):
+            with self.subTest(pad=pad, name=name):
+                value = (pad * 127 + 3) // 7
+                self.assertEqual((value * 7 + 63) // 127, pad)
+                self.assertIn('"PADS: RATE ' + name + '"', ui)
+        self.assertIn('say("WOBBLE ", division_pad_label() + 11)', ui)
+        self.assertNotIn("shape_pad_owner(", ui)
+
     def test_legacy_wobble_disable_still_works(self):
         for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
             _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0", **env})
