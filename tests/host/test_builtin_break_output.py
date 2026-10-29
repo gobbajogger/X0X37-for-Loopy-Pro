@@ -54,6 +54,19 @@ class BuiltinBreakOutput(unittest.TestCase):
             self.assertEqual((dirs[0] / name).read_bytes(), (dirs[1] / name).read_bytes())
             self.assertGreater((dirs[0] / name).stat().st_size, 0)
 
+    def test_current_factory_set_is_preserved(self):
+        directory = self.root / "stock-identity"
+        directory.mkdir()
+        result = self.invoke(directory / "bank.h", directory)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        header = (directory / "bank.h").read_text()
+        self.assertIn("#define X0X_NBREAKS 2", header)
+        for name in ["909 GR", "909 FL"]:
+            self.assertIn('"' + name + '"', header)
+            self.assertIn(name, (ROOT / "web/factory_break_pack.js").read_text().splitlines()[1])
+        self.assertEqual(len([line for line in (directory / "pack.txt").read_text().splitlines()
+                             if line and not line.startswith("#")]), 2)
+
     def test_missing_header_parent(self):
         self.assert_failure(self.invoke(self.root / "missing" / "bank.h"))
 
