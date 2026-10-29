@@ -234,13 +234,29 @@ static void stateful_sequences(void)
     }
     printf("PASS %u stateful input events: target edits, parked away/back plus edits while away, kit/bank/part, lock/unlock, reconnect, duplicates and feedback timing\n", packets);
 }
+static void mute_takeover(void)
+{
+    /* A muted level takes over on the first movement, like the keyboard. */
+    for (int drum = 0; drum < 2; drum++) {
+        prepare(drum ? V_SEQ : V_HOME, drum ? PART_909 : PART_303A, 0, 64);
+        pref_t r = smc_target(0);
+        mute_part(drum ? PART_909 : r.b); smc_frame(); CHECK(volume_muted(r));
+        writes = 0; fader(0, 0); CHECK(!writes || pref_get(r) == 0);
+        fader(0, 10); CHECK((smc.picked & 1) && pref_get(r) == 10 && writes);
+    }
+    /* Unmuted control still waits for pickup. */
+    prepare(V_HOME, PART_303A, 0, 64); writes = 0;
+    fader(0, 0); fader(0, 10); CHECK(!writes && !(smc.picked & 1));
+    puts("PASS muted levels take over at once; unmuted levels still wait for pickup");
+}
 int main(int argc, char **argv)
 {
     if (argc > 1 && !strcmp(argv[1], "stateful")) stateful_sequences();
     else if (argc > 1 && !strcmp(argv[1], "ramps")) monotonic_ramps();
     else if (argc > 1 && !strcmp(argv[1], "motion")) motion_acquisition();
     else if (argc > 1 && !strcmp(argv[1], "epochs")) routing_epochs();
-    else { crossing_matrix(); routing_epochs(); motion_acquisition(); monotonic_ramps(); stateful_sequences(); }
+    else if (argc > 1 && !strcmp(argv[1], "mute")) mute_takeover();
+    else { crossing_matrix(); mute_takeover(); routing_epochs(); motion_acquisition(); monotonic_ramps(); stateful_sequences(); }
     printf("smc_pickup_acceptance: PASS (%u assertions)\n", checks);
     return 0;
 }
