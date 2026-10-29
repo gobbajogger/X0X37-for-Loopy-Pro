@@ -22,6 +22,15 @@ with tempfile.TemporaryDirectory(prefix='site-retention-', dir=Path(__file__).re
     first=merge_version({'versions':[]}, '0.0.1', {'elite':meta})
     second=merge_version(first,'0.0.1', {'pro':{**meta,'product':'SMK-37 Pro_9001300'}})
     assert set(second['versions'][0]['models'])=={'elite','pro'}
+    # History and its version picker must rank 0.0.10 above 0.0.9,
+    # rather than treating numeric releases as ordinary strings.
+    numbered=second
+    for version in ('0.0.9', '0.0.10', '0.0.2'):
+        vmeta={**meta, 'file':f'v{version}.fwsc', 'pkg':f'../firmware/v{version}.fwsc'}
+        numbered=merge_version(numbered,version,{'elite':vmeta})
+    assert [v['version'] for v in numbered['versions']]==['0.0.10','0.0.9','0.0.2','0.0.1']
+    assert numbered['latest']=='0.0.2'  # Latest records explicit added release, not guessed from sort.
+    assert set(numbered['versions'][-1]['models'])=={'elite','pro'}
     refuses(lambda:merge_version(first,'0.0.1',{'elite':{**meta,'sha256':'0'*64}}))
     output=root/'site'; retained=output/'previous';(retained/'firmware').mkdir(parents=True)
     (retained/'firmware/old.fwsc').write_bytes(package.read_bytes())
@@ -32,4 +41,4 @@ with tempfile.TemporaryDirectory(prefix='site-retention-', dir=Path(__file__).re
     (retained/'firmware/old.fwsc').write_bytes(b'damaged')
     refuses(lambda:write_site(root/'fresh',first,{},retained))
     assert not (root/'fresh').exists()
-print('PASS immutable version/model identities, additive models, overlap and missing/changed retained package guards')
+print('PASS immutable version/model identities, numeric history order, additive models, overlap and missing/changed retained package guards')
