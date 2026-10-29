@@ -1067,9 +1067,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
                 }
                 return;
             case W_WOBBLE_RATE: {
-                static const uint8_t hz[7] = {1, 2, 3, 4, 6, 8, 12};
-                put_i(num, hz[(v * 6 + 63) / 127]);
-                put_s(unit, "Hz");
+                put_i(put_s(num, "1/"), (int)wobble_rate_division((float)v / 127.0f));
                 return;
             }
             case W_ATTACK: case W_DECAY: case W_RELEASE: {
@@ -4365,18 +4363,43 @@ static int steps_len(void)
 #else
 #define UI_DRAW
 #endif
-/* Shallow 2D panel: one-pixel lit top/left and shaded lower/right. No extra
- * framebuffer, blur, animation timer, allocation or trigonometry. */
+/* Shallow bevel stays entirely inside the existing rectangle. Four-pixel
+ * chamfers, inset dark lower edge, restrained local highlight: no tall teeth,
+ * extra buffer, animation, layout change or mutable render state. */
+static UI_DRAW void surface_panel(int x,int y,int w,int h,int active,uint16_t face,uint16_t edge,uint16_t side)
+{
+    int r=h>=18?4:h>=9?2:1, row;
+    if(w<2*r+3 || h<2*r+3) r=1;
+    for(row=0;row<h;row++) {
+        int inset=row<r?r-row:row>=h-r?row-(h-r)+1:0;
+        uint16_t shade=face;
+        if(active && h>=18 && row>0 && row<5)shade=blend(face,C_WHITE,5-row);
+        if(active && h>=18 && row>=h-4)shade=blend(face,C_BLACK,(row-(h-4)+1)*2);
+        cv_rect(x+inset,y+row,w-2*inset,1,shade);
+    }
+    cv_rect(x+r,y,w-2*r,1,edge);
+    cv_line(x,y+r,x+r,y,edge);
+    cv_rect(x,y+r,1,h-2*r,active?edge:UI_N_LEFT);
+    cv_line(x+w-r-1,y,x+w-1,y+r,edge);
+    cv_rect(x+w-1,y+r,1,h-2*r,side);
+    cv_line(x+w-1,y+h-r-1,x+w-r-1,y+h-1,side);
+    cv_rect(x+r,y+h-1,w-2*r,1,UI_N_SHADOW);
+    cv_line(x,y+h-r-1,x+r,y+h-1,side);
+    /* A short light catch, not a washed-out full-width glare band. */
+    if(w>24 && h>=18) cv_rect(x+r+2,y+1,w/4,1,active?edge:UI_N_LEFT);
+    if(active && h>=18) cv_rect(x+r+1,y+h-2,w-2*r-2,1,side);
+}
 static UI_DRAW void night_panel(int x,int y,int w,int h,int active)
 {
-    uint16_t edge=active?SOUND_SELECT_EDGE:SOUND_EDGE;
-    uint16_t side=active?SOUND_SELECT_SIDE:SOUND_SIDE;
-    cv_rect(x+1,y+h,w,1,UI_N_SHADOW);
-    cv_rect(x,y,w,h,active?SOUND_SELECT:SOUND_FACE);
-    cv_rect(x+1,y,w-2,1,edge);
-    cv_rect(x,y+1,1,h-2,active?edge:UI_N_LEFT);
-    cv_rect(x+1,y+h-1,w-1,1,side);
-    cv_rect(x+w-1,y+1,1,h-1,side);
+    surface_panel(x,y,w,h,active,active?SOUND_SELECT:SOUND_FACE,
+                  active?SOUND_SELECT_EDGE:SOUND_EDGE,active?SOUND_SELECT_SIDE:SOUND_SIDE);
+}
+static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uint16_t ink)
+{
+    int x=cx-tw(f,s)/2;
+    cv_text(x,y+1,f,s,UI_N_LEFT); /* shallow incised lower light */
+    cv_text(x,y-1,f,s,UI_N_SHADOW);
+    cv_text(x,y,f,s,ink);       /* retain the native face, metrics and ink */
 }
 #define sound_slab night_panel
 
@@ -4773,8 +4796,8 @@ static UI_DRAW void draw_part_sound(int band)
         char t[32];
         if (p>=pg.n || y+height<=0 || y>=(band==2?KNOB_H:BAND_H)) continue;
         if (night) sound_slab(3,y,234,height,active);
-        else if (active) box(3,y,234,height,col);
-        else cv_rect(6,y+height-1,228,1,C_LINE);
+        else surface_panel(3,y,234,height,active,active?col:SOUND_FACE,
+                           active?blend(col,C_WHITE,5):SOUND_EDGE,active?dim(col,8):SOUND_SIDE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
         cv_text(8,y,&FONT_T,t,label);
         if (active) {
@@ -5150,17 +5173,23 @@ static UI_DRAW void draw_drum_mix(int band, int k)
         pref_t lv = find_ref(t, v, "Level"), pn = find_ref(t, v, "Pan");
         int l = lv.kind ? proj.sound.v[t][v][lv.c] : 0, pa = pn.kind ? proj.sound.v[t][v][pn.c] : 64;
         int muted = (seq.mute | seq.vmute) & (1u << (k * NDRUM + v)), fh = 96, f = l * fh / 127;
-        if (sel)
-            box(x, 0 - o, 19, 134, dim(col, 3));
-        rbox(x + 7, 4 - o, 5, fh, 2, C_LINE);
+        /* Shallow strip well and top caption: preserve the 96px level travel,
+         * independent hit brightness and the original pan/control geometry. */
+        surface_panel(x, 0 - o, 19, 134, 0, SOUND_FACE,
+                      sel ? dim(col, 8) : SOUND_EDGE, SOUND_SIDE);
+        surface_panel(x + 1, 1 - o, 17, 12, sel,
+                      sel ? col : SOUND_FACE, sel ? col : SOUND_EDGE, SOUND_SIDE);
+        text_c(x + 10, vc(&FONT_XS, 1, 12) - o, &FONT_XS,
+               engine_voice_name(t, v), sel ? C_BLACK : muted ? C_DIM : C_GRAY);
+        cv_rect(x + 6, 15 - o, 7, fh + 2, UI_N_SHADOW);
+        rbox(x + 7, 16 - o, 5, fh, 2, C_LINE);
         if (f)                                        /* the level, dim; a hit lights it up to the level */
-            rbox(x + 7, 4 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
+            rbox(x + 7, 16 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
         {
             int hf = f * eng_hit[k][v] / 255;
             if (hf > 1 && !muted)
-                rbox(x + 7, 4 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
+                rbox(x + 7, 16 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
         }
-        text_c(x + 10, vc(&FONT_XS, 104, 12) - o, &FONT_XS, engine_voice_name(t, v), sel ? C_WHITE : muted ? C_LINE : C_GRAY);
         rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);          /* the pan, a mark from the middle */
         rbox(x + 3 + (pa * 10) / 127, 121 - o, 3, 7, 1, sel ? C_WHITE : C_GRAY);
     }
@@ -5794,6 +5823,8 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
         cv_text(x + 1, base_y(&FONT_B, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
 }
 
+#include "ui_waveform.h"
+
 /* A shape cue, not a sampled oscilloscope. Chicago Wave continuously crossfades
  * saw and square; Miami's carrier, modulator and LFO are discrete choices. */
 static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
@@ -5812,8 +5843,42 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     return 0;
 }
 
-static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col)
+enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
+/* One affine projection per supported range. The pulse zero is near its low
+ * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
+static float miami_wave_plot_y(int pulse, float v)
 {
+    return pulse ? 1.0f+16.0f*(1.0f-v)/(1.0f+1.0f/9.0f) :
+                   (float)MIAMI_WAVE_ZERO-(float)MIAMI_WAVE_GAIN*v;
+}
+static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col, uint16_t face)
+{
+    if(shape==2 || shape==3) {
+        /* Integrate line coverage in four horizontal subcolumns. Sample the
+         * actual periodic function, never blur/average its amplitude or duty.
+         * Tall transitions stay vertical; positive values are above the midline.
+         * Use the free value-cell height: 29x19, one cycle. A single
+         * affine scale preserves DC/asymmetry; never split the two polarities. */
+        int x,j,k,pulse=shape==3 && mix!=0;
+        int zero=(int)(miami_wave_plot_y(pulse,0)+.5f);
+        cv_rect(cx-14,y+zero,29,1,blend(face,col,3)); /* zero-amplitude reference */
+        for(x=0;x<29;x++) {
+            unsigned coverage[MIAMI_WAVE_HEIGHT]={0};
+            for(k=0;k<4;k++) {
+                float p0=((float)x+(float)k*.25f)/29.0f;
+                float p1=((float)x+(float)(k+1)*.25f)/29.0f;
+                float a=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p0));
+                float b=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p1));
+                float lo=fm_minf(a,b)-.5f,hi=fm_maxf(a,b)+.5f;
+                for(j=0;j<MIAMI_WAVE_HEIGHT;j++) {
+                    float overlap=fm_minf(hi,(float)j+.5f)-fm_maxf(lo,(float)j-.5f);
+                    if(overlap>0) coverage[j]+=(unsigned)(fm_minf(overlap,1.0f)*4.0f+.5f);
+                }
+            }
+            for(j=0;j<MIAMI_WAVE_HEIGHT;j++) if(coverage[j])px_blend(cx-14+x,y+j,col,coverage[j]);
+        }
+        return;
+    }
     int i,prev=0;
     for(i=0;i<29;i++) {
         int phase=i%14, saw=15-phase*30/13;
@@ -6033,7 +6098,14 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
                 {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
         }
     }
-    text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
+    if(night) night_label_c(cx,y+14,&FONT_T,matrix_name(r),unused?SOUND_DIM:active?SOUND_INK:SOUND_GRAY);
+    else {
+        int yy=y+11,xx=cx-tw(&FONT_T,matrix_name(r))/2;
+        uint16_t face=active?col:SOUND_FACE;
+        cv_text(xx,yy+1,&FONT_T,matrix_name(r),blend(face,C_WHITE,2));
+        cv_text(xx,yy-1,&FONT_T,matrix_name(r),blend(face,C_BLACK,6));
+        text_c(cx,yy,&FONT_T,matrix_name(r),unused?SOUND_DIM:active?C_BLACK:C_GRAY);
+    }
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BPRESET) {
         draw_preset_name(r.b,cx,y,height,ink);
@@ -6044,8 +6116,10 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
-        draw_wave_glyph(cx-10,y+28,shape,mix,ink);
-        put_i(num,val);text_c(cx+17,y+28,&FONT_T,num,ink);
+        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        if(shape==2 || shape==3)put_s(num,!val?"TRI":shape==3?"PUL":"SQR");
+        else put_i(num,val);
+        text_c(cx+17,y+28,&FONT_T,num,ink);
     } else {
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
@@ -6226,6 +6300,78 @@ static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
     return 1;
 }
 
+/* Shared parameter schematics from the owner-requested card vocabulary. These
+ * show control values, never measured audio; labels/units below stay authoritative.
+ * One dispatcher serves every ordinary knob strip. SOUND retains its matrix. */
+static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
+{
+    const x0x_param_t *d=pref_desc(r);
+    int q=d && d->max?(val*127+d->max/2)/d->max:0, left=cx-18, right=cx+18;
+    if(q<0)q=0;
+    if(q>127)q=127;
+    if(is_pan(r) || r.kind==R_BTRANS || (r.kind==R_ENG && r.a==T_BRK && r.c==1)) {
+        int at=left+q*36/127;
+        cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
+        cv_rect(left,35,1,7,C_GRAY);cv_rect(right,35,1,7,C_GRAY);
+        cv_rect(at-1,34,3,9,col);
+    } else if(r.kind==R_DLEN || r.kind==R_BLEN || r.kind==R_SLEN || r.kind==R_SBAR || r.kind==R_SPAT || r.kind==R_BRKSLOT) {
+        for(int j=0;j<8;j++) {
+            int x=left+(j%4)*10,y=30+(j/4)*10;
+            rbox(x,y,7,7,1,j<=q*7/127?col:C_LINE);
+        }
+    } else if(r.kind==R_DRATE || r.kind==R_BRATE) {
+        cv_rect(left,38,37,1,C_LINE);
+        static const uint8_t gaps[4]={12,8,6,16}; /* 1/16, 1/16T, 1/32, 1/8T */
+        int gap=gaps[(unsigned)val<4?(unsigned)val:0];
+        for(int x=left+1;x<=right;x+=gap)cv_rect(x,31,2,15,col);
+    } else if(r.kind==R_BDIR) {
+        if(val==3) { /* existing random direction, not an invented trajectory */
+            cv_line(left,43,cx-7,31,col);cv_line(cx-7,31,cx+7,44,col);cv_line(cx+7,44,right,33,col);
+        } else {
+            cv_rect(left,38,37,1,col);
+            if(val!=1){cv_line(right-6,32,right,38,col);cv_line(right,38,right-6,44,col);}
+            if(val!=0){cv_line(left+6,32,left,38,col);cv_line(left,38,left+6,44,col);}
+        }
+    } else if(r.kind==R_TAPE) {
+        for(int side=-1;side<=1;side+=2) {
+            int x=cx+side*10;
+            rbox(x-7,30,15,15,5,C_LINE);rbox(x-5,32,11,11,4,SOUND_FACE);
+            cv_line(x,37,x+q*4/127,33,col);cv_rect(x-1,36,3,3,col);
+        }
+        cv_rect(cx-10,46,21,1,col);
+    } else if(r.kind==R_SREP || (r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_DL_TIME || r.c==FX_DL_FDBK || r.c==FX_DL_LEVEL)) || (r.a==T_MIX && r.c==MX_DLY) || name_is(d,"Dly")))) {
+        for(int j=0;j<4;j++) {
+            int h=16-j*(4-q*3/127);
+            cv_rect(left+3+j*10,47-h,3,h,col);
+        }
+        cv_line(left+3,29,right,29,C_GRAY);cv_line(left+3,29,left+7,26,C_GRAY);
+    } else if(r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_RV_DECAY || r.c==FX_RV_LEVEL)) || (r.a==T_MIX && r.c==MX_REV) || name_is(d,"Rev"))) {
+        for(int j=0;j<7;j++) {int h=2+j*(q+32)/64;if(h>18)h=18;cv_rect(left+j*6,38-h/2,2,h,col);}
+    } else if(r.kind==R_ENG && r.a==T_FX && (r.c==FX_RV_TONE || r.c==FX_DL_TONE || r.c==FX_RV_HPF)) {
+        int pivot=left+7+q*20/127;
+        cv_rect(left,47,37,1,C_LINE);cv_line(left,32,pivot,32,col);cv_line(pivot,32,right,46,col);
+    } else if(r.kind==R_ENG && r.a==T_MST && r.c==MST_COMP1) {
+        cv_line(left,47,cx,36,col);cv_line(cx,36,right,36-q*8/127,col);
+        cv_rect(left,49,37,1,C_LINE);
+    } else if(r.kind==R_ENG && r.a==T_FX && r.c==FX_DRIVE) {
+        int flat=2+q*8/127;
+        cv_line(left,38,cx-flat,30,col);cv_line(cx-flat,30,cx-2,30,col);
+        cv_line(cx-2,30,cx+2,46,col);cv_line(cx+2,46,cx+flat,46,col);cv_line(cx+flat,46,right,38,col);
+    } else if(d && d->names && d->max<12) {
+        return 0; /* Named switches retain exact position pips. */
+    } else {
+        /* Neutral value scale for parameters without a dedicated schematic.
+         * No faux rotary knob, invented response curve, or new control. */
+        for(int j=0;j<7;j++) {
+            int h=3+j*2;
+            cv_rect(left+j*6,47-h,3,h,q && j*127/6<=q?col:C_LINE);
+        }
+        int at=left+q*36/127;
+        cv_rect(left,49,37,1,C_LINE);cv_rect(at,48,1,3,col);
+    }
+    return 1;
+}
+
 static uint32_t knobs_sig(void)
 {
     uint32_t h = 2166136261u, i;
@@ -6403,7 +6549,7 @@ static UI_DRAW void draw_knobs(void)
         if (!d)
             continue;
         /* Selected control keeps the shared raised face; value/lock semantics below are unchanged. */
-        text_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
+        night_label_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
         val = pref_get(r);
         if (lock_step() >= 0) {                        /* a held step: its own value (amber mark: locked) */
             int lv = lock_of(r, lock_step());
@@ -6417,15 +6563,12 @@ static UI_DRAW void draw_knobs(void)
             if (mv >= 0)
                 val = mv;
         }
-        if(perform_glyph(r,val,cx,col)) {
+        if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
             /* Its existing value/motion/lock path is retained below. */
         } else if (d->names && d->max < 12) {           /* a switch: positions as pips */
             int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;
             for (k = 0; k < n; k++)
                 box(cx - w0 / 2 + k * (pw + gap), 33, pw, 9, k == val ? col : C_LINE);
-        } else {
-            arc(cx, 38, 12, d->max ? (float)val / (float)d->max : 0.0f, C_LINE, col,
-                r.kind == R_BTRANS || is_pan(r) || (r.kind == R_ENG && r.a == T_MST && r.c == MST_DJF));   /* from the middle */
         }
         pref_value_of(r,val,num,unit);
         if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {

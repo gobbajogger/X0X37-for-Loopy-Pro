@@ -6,7 +6,8 @@
 #include <string.h>
 int main(void)
 {
-    const float rates[] = {1,2,3,4,6,8,12};
+    const float rates[] = {1,1.5f,2,3,4,6,8,12};
+    const unsigned divisions[] = {2,3,4,6,8,12,16,24};
     const float tempos[] = {20,60,90,120,180,240,300};
     const float sr[] = {44100,48000,96000};
     for (unsigned si=0;si<3;++si) for (unsigned rate=0;rate<128;++rate) {
@@ -14,8 +15,9 @@ int main(void)
         float l[256],r[256];
         wobble_init(&w,sr[si]);
         wobble_set(&w,W_WOBBLE_RATE,(float)rate/127);
-        unsigned bin=(unsigned)(((float)rate/127)*6+.5f);
-        assert(w.lfo_step==rates[bin]/sr[si]); /* Exact old 120 BPM value. */
+        unsigned bin=(unsigned)(((float)rate/127)*7+.5f);
+        assert(w.lfo_step==rates[bin]/sr[si]); /* Exact intended 120 BPM value. */
+        assert(wobble_rate_division((float)rate/127)==divisions[bin]);
         wobble_note_on(&w,48,100);
         wobble_render(&w,l,r,256);
         for (unsigned t=0;t<7;++t) {
@@ -39,5 +41,5 @@ int main(void)
         assert(wobble_set_tempo(&w,999) && w.tempo_bpm==300);
         wobble_reset(&w); assert(w.tempo_bpm==300 && !w.active);
     }
-    puts("PASS Miami tempo: 3 sample rates x128 controls x7 tempos; exact120BPM rates; phase, held state, bank and invalid-input preservation");
+    puts("PASS Miami tempo: 3 sample rates x128 controls x7 tempos; eight straight/triplet divisions; phase, held state, bank and invalid-input preservation");
 }
