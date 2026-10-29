@@ -2,6 +2,17 @@
 /* X0X platform on the FM-1: plat.h over Felucca's HAL, panel map, USB rings and storage.
  * Part of the unity build (x0x.c), after the HAL, usb.c, storage.c and panel.c. */
 
+/* Main-loop CQ producer and ALNK0 consumer share CPU0. Source masking leaves
+ * MIDI/clock IRQs alone and never changes the caller's global IRQ state. */
+uint32_t plat_cq_lock(void)
+{
+    return fm1_irq_mask_save(FM1_IRQ_ALNK0);
+}
+void plat_cq_unlock(uint32_t state)
+{
+    fm1_irq_mask_restore(FM1_IRQ_ALNK0, state);
+}
+
 uint32_t plat_ms(void) { return fm1_ms; }
 
 uint32_t plat_buttons(void)
@@ -32,6 +43,38 @@ uint32_t plat_buttons(void)
 }
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
+
+#if X0X_ORIGINAL_SYNTH
+uint64_t plat_physical_keys(void)
+{
+#if BOARD_SMK37
+    uint32_t flags=irq_save();uint64_t keys=fm1_in.keys;irq_restore(flags);return keys;
+#else
+    return (uint64_t)plat_keys()<<5;
+#endif
+}
+int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                    uint32_t epoch,int enabled,int octave,int publish)
+{
+    int n=0;
+#if BOARD_SMK37
+    uint32_t flags=irq_save();
+    *keys=fm1_in.keys;*overflow=smk_extq_overflow;
+    if(publish || *overflow)smk_extq_r=smk_extq_w;
+    else while(smk_extq_r!=smk_extq_w && n<31) {
+        events[n].generation=smk_extq[smk_extq_r][0];events[n++].word=smk_extq[smk_extq_r][1];
+        smk_extq_r=(uint8_t)((smk_extq_r+1u)%SMK_EXTQ);
+    }
+    smk_extq_overflow=0;
+    if(publish){smk_ext_epoch=epoch;smk_ext_enabled=(uint8_t)!!enabled;smk_ext_oct=(int8_t)octave;}
+    irq_restore(flags);
+#else
+    (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;
+    *keys=plat_physical_keys();*overflow=0;
+#endif
+    return n;
+}
+#endif
 
 uint8_t plat_key_velocity(int key)
 {
@@ -146,6 +189,21 @@ void plat_leds(uint32_t buttons, uint32_t keys)
 #endif
 
 /* MIDI: Felucca's rings carry 4-byte USB-MIDI event packets, byte 0 = cable / CIN */
+uint32_t plat_midi_mark(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_w;
+}
+int plat_midi_passed(uint32_t mark)
+{
+    __asm__ volatile("" ::: "memory");
+    return (int32_t)(mi_r-mark)>=0;
+}
+int plat_midi_pending(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_r != mi_w;
+}
 int plat_midi_in(uint32_t *pkt)
 {
     if (mi_r == mi_w)

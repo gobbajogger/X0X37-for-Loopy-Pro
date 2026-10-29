@@ -5,9 +5,16 @@
 #include "../x0x_cold.h"
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
+#if X0X_ORIGINAL_SYNTH
+#include "original_runtime.h"
+#include "../../../experiments/original_synth/chicago_fx2_compact.h"
+#else
 #include "../dsp/bass303.h"
-#if X0X_DEV_WOBBLE
+#endif
+#if !X0X_ORIGINAL_SYNTH && (X0X_DEV_WOBBLE || X0X_BASS_TAGGED_SOUND)
 #include "../dsp/synth_engine.h"
+#endif
+#if X0X_DEV_WOBBLE
 #include "../dsp/wobble_backend.h"
 #include "wobble_ui.h"
 #endif
@@ -18,6 +25,7 @@
 #include "../dsp/busfx.h"
 #include "smc_fx_map.h"
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
+#if !X0X_ORIGINAL_SYNTH
 #include "chicago_arp.h"
 #include "chicago_fx.h"
 #include "chicago_crush.h"
@@ -31,6 +39,10 @@
 #include "chicago_phaser.h"
 #include "chicago_gaterev.h"
 #include "chicago_aux.h"
+#endif
+#if X0X_BASS_PRESET_PREVIEW
+#include "bass_presets.h"
+#endif
 
 #define POOL X0X_POOL
 
@@ -55,11 +67,101 @@ volatile uint32_t eng_scope_w;
 
 static drum909_t d909 POOL;
 static drum808_t d808 POOL;
+#if X0X_ORIGINAL_SYNTH
+static volatile uint8_t project_hold;
+static original_runtime_part original_bass[NBASS] POOL;
+static original_runtime_workspace original_workspace POOL;
+static original_chicago_tuning original_tuning POOL;
+static original_chicago_fx2_compact original_fx[NBASS] POOL;
+static original_chicago_fx2_cold_owner original_fx_owner[NBASS];
+static uint8_t original_fx_ready;
+static uint8_t original_key_pitch[NBASS][38]; /* token -> pitch+1; zero is released */
+static uint8_t original_midi_channel[NBASS];
+static int16_t original_seq_note[NBASS];
+int engine_bass_status(int v) { return (unsigned)v < NBASS ? original_bass[v].status : 0; }
+static void original_prepare_all(void)
+{
+    for (int v = 0; v < NBASS; ++v) (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));
+}
+#ifdef X0X_HOST
+unsigned engine_original_keys(int v, int latched)
+{
+    if ((unsigned)v >= NBASS || original_bass[v].status != ORIGINAL_RUNTIME_OK) return 0;
+    const chicago_arp_control *keys = original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
+        &original_bass[v].dsp.miami.keys : &original_bass[v].dsp.chicago.keys;
+    return latched ? keys->latched_count : keys->physical_count;
+}
+uint32_t engine_original_value_bits(int v, unsigned parameter)
+{
+    if ((unsigned)v >= NBASS || parameter >= original_sound_count(original_bass[v].kind) ||
+        original_bass[v].status != ORIGINAL_RUNTIME_OK) return UINT32_MAX;
+    float value = original_bass[v].kind == ORIGINAL_SOUND_MIAMI ?
+        original_bass[v].dsp.miami.program.macro[parameter] : original_bass[v].dsp.chicago.program.macro[parameter];
+    uint32_t bits; __builtin_memcpy(&bits, &value, sizeof bits); return bits;
+}
+#endif
+#else
 static bass303_t b303[NBASS] POOL;
 /* Chicago Arp: live-keyboard only. Pattern sink (s_bon) never reads this. */
 static uint8_t chi_arp_on[NBASS] POOL, chi_arp_mode[NBASS] POOL, chi_arp_range[NBASS] POOL, chi_arp_speed[NBASS] POOL;
 static uint8_t chi_arp_accent[NBASS] POOL, chi_arp_vel[NBASS] POOL;
 static chi_arp_run_t chi_arp_run[NBASS] POOL;
+int engine_bass_status(int v) { return (unsigned)v < NBASS; }
+#endif
+static uint8_t bass_held[NBASS], bass_held_count[NBASS], bass_held_src[NBASS];
+/* Eligible physical Free Play has its own bounded FIFO. Epoch validation is
+ * audio-side: a queued old release cannot affect a newer gate or ARP mode. */
+#define LIVE_KEY_Q 32u
+typedef struct { uint32_t generation, word; } live_key_command_t;
+typedef struct { uint32_t generation, context; uint8_t gate, token, pitch, arp, blocked; } live_key_owner_t;
+static live_key_command_t live_key_q[LIVE_KEY_Q] POOL;
+static live_key_owner_t live_key_owner[NBASS] POOL;
+static volatile uint8_t live_key_w, live_key_r, live_key_cancel;
+static void live_key_retire(int voice,int release);
+static void live_key_context_retire(int voice,int release);
+static void live_key_drain(void);
+
+void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *context)
+{
+    if((unsigned)voice>=NBASS) { *generation=0;*arp=0;if(context)*context=0;return; }
+    uint32_t flags=plat_cq_lock();
+    *generation=live_key_owner[voice].generation;
+    if(context)*context=live_key_owner[voice].context;
+#if X0X_ORIGINAL_SYNTH
+    *arp=0; /* The original allocator owns ARP; UI submits every physical key. */
+#else
+    *arp=chi_arp_on[voice];
+#endif
+#if X0X_DEV_WOBBLE
+    if(bass_slot[voice].active.ops==&wobble_foundation_ops) *arp=0;
+#endif
+    if(live_key_owner[voice].blocked)*arp=-1; /* fail closed until cold boot */
+    plat_cq_unlock(flags);
+}
+void engine_live_key_cancel(int voice)
+{
+    if((unsigned)voice>=NBASS)return;
+    uint32_t flags=plat_cq_lock();
+    live_key_cancel|=(uint8_t)(1u<<voice);
+    plat_cq_unlock(flags);
+}
+int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide)
+{
+    if((unsigned)voice>=NBASS || token<1 || token>37 || pitch<1 || pitch>127 || velocity<0 || velocity>127)return 0;
+    uint32_t flags=plat_cq_lock();
+    if(live_key_owner[voice].blocked){plat_cq_unlock(flags);return 0;}
+    unsigned w=live_key_w,next=(w+1u)%LIVE_KEY_Q;
+    if(next==live_key_r) {
+        live_key_cancel|=(uint8_t)(1u<<voice);plat_cq_unlock(flags);return 0;
+    }
+    live_key_q[w].generation=generation;
+    live_key_q[w].word=(uint32_t)voice|((uint32_t)token<<1)|((uint32_t)pitch<<7)|
+        ((uint32_t)velocity<<14)|((uint32_t)!!accent<<21)|((uint32_t)!!slide<<22);
+    __asm__ volatile("" ::: "memory");live_key_w=(uint8_t)next;
+    plat_cq_unlock(flags);return 1;
+}
+
+#if !X0X_ORIGINAL_SYNTH
 /* Chicago SEND FX pots (sound_t) + one insert DSP per 303 voice.
  * Fx Type is mutually exclusive — keep one union slot (was ~43 KB of parallel structs). */
 static uint8_t chi_fx_type[NBASS] POOL, chi_fx_e1[NBASS] POOL, chi_fx_e2[NBASS] POOL;
@@ -140,6 +242,7 @@ static void __attribute__((noinline)) chi_fx_process(int b, float *buf, int n)
 /* Chicago damper: live/MIDI sustain. Pattern sink ignores it. */
 static uint8_t chi_damper[NBASS] POOL;
 static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper on */
+#endif
 static breaks_t brk POOL;
 static fxbus_t fx POOL;
 void engine_fx_mute(uint8_t mask) { fx.muted = mask & 7u; }
@@ -204,15 +307,16 @@ void engine_load(uint32_t pct, uint32_t frames)
 }
 static void guard_apply(void)
 {
-    int k;
     if (guard_on == guard_applied)
         return;
     guard_applied = guard_on;
-    for (k = 0; k < NBASS; k++)
+#if !X0X_ORIGINAL_SYNTH
+    for (int k = 0; k < NBASS; k++)
 #if X0X_DEV_WOBBLE
         synth_lite(&bass_slot[k], guard_on);
 #else
         bass303_set_lite(&b303[k], guard_on);
+#endif
 #endif
     drum808_quiet = guard_on ? 3.2e-3f : 3.2e-5f;
 }
@@ -287,37 +391,54 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* ------------------------------------------------------- command queue --- */
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
-enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP };
+enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_BASE };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
+
+/* The scan may be preempted after choosing a victim. Revalidate the slot only
+ * while the consumer source is masked, then publish exactly one aligned word.
+ * Scanning the 1024-entry queue never runs with the audio source masked. */
+static int cq_replace(uint32_t i, uint32_t w, uint32_t word)
+{
+    uint32_t state = plat_cq_lock();
+    uint32_t r = cq_r;
+    int live = (i - r < w - r);
+    if (live)
+        cq[i % CQ] = word;
+    plat_cq_unlock(state);
+    return live;
+}
 
 __attribute__((noinline)) static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
 {
     uint32_t w = cq_w;
     uint32_t word = (type << 28) | ((a & 0xFFu) << 20) | ((b & 0xFFu) << 12) | (c & 0xFFFu);
+retry:
     if (w - cq_r >= CQ) {
         /* Full: params may drop (mirror still has them). Never drop C_BON,
          * C_BOFF, C_BRK, or C_DRUM — missing a live drum hit or break press
          * under param flood is a silent loss; a retained release without its
          * press is rare but must not displace an already-queued release. */
-        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM);
+        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_BASE);
         if (!keep)
             return;
-        for (i = cq_r; i != w; i++) {
+        uint32_t r = cq_r;
+        for (i = r; i != w; i++) {
             uint32_t t = cq[i % CQ] >> 28;
             if (t < C_DRUM || t == C_DRUM) {
-                cq[i % CQ] = word;
-                return;
+                if (cq_replace(i, w, word)) return;
+                goto retry;
             }
         }
         for (i = cq_r; i != w; i++) {
             uint32_t tw = cq[i % CQ], t = tw >> 28, bb = (tw >> 12) & 0xFFu;
             if (t != C_BOFF && !(t == C_BRK && bb == 0u)) {
-                cq[i % CQ] = word;
-                return;
+                if (cq_replace(i, w, word)) return;
+                goto retry;
             }
         }
+        if (cq_r != r) goto retry; /* consumer freed room during the scan */
         return;
     }
     cq[w % CQ] = word;
@@ -348,7 +469,19 @@ int engine_nparams(int t, int v)
     switch (t) {
     case T_909: return drum909_nparams(v);
     case T_808: return drum808_nparams(v);
-    case T_303: return CHI_AUX_END;                      /* … + SEND FX 27..29 + PBend/Damp 30..31 */
+    case T_303:
+#if X0X_ORIGINAL_SYNTH
+        return (int)original_sound_count((unsigned)engine_bass_bank(v));
+#else
+#if X0X_BASS_PRESET_PREVIEW
+        return engine_bass_bank(v) == FACTORY_BANK_MIAMI ? WOBBLE_EXPERIMENT_NPARAMS : CHI_AUX_END;
+#endif
+#if X0X_DEV_WOBBLE
+        if (bass_wobble_voice(v))
+            return WOBBLE_EXPERIMENT_NPARAMS;           /* Miami controls only; no phantom Chicago pots */
+#endif
+        return CHI_AUX_END;                             /* Chicago Arp / FX / bend and damper */
+#endif
     case T_BRK: return 2;                                /* Level, Pitch (sends: the mixer's; the rest: the pattern's) */
     case T_FX: return fxbus_nparams();
     case T_MIX: return MX_NPARAMS;                       /* every part: Level, Rev send, Dly send */
@@ -364,12 +497,15 @@ X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
     case T_909: return drum909_param(v, i);
     case T_808: return drum808_param(v, i);
     case T_303:
+#if X0X_ORIGINAL_SYNTH
+        return original_sound_param((unsigned)engine_bass_bank(v), (unsigned)i);
+#else
+#if X0X_BASS_PRESET_PREVIEW
+        return engine_bass_bank_param(engine_bass_bank(v), i);
+#endif
 #if X0X_DEV_WOBBLE
-        if (bass_wobble_voice(v)) {
-            const x0x_param_t *p = wobble_param(i);
-            if (p)
-                return p;
-        }
+        if (bass_wobble_voice(v))
+            return wobble_param(i);                     /* Do not fall through into Chicago metadata */
 #endif
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             return &CHI_ARP_PARAMS[i - CHI_ARP_SWITCH];
@@ -378,6 +514,7 @@ X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
         if (i >= CHI_PBEND && i < CHI_AUX_END)
             return &CHI_AUX_PARAMS[i - CHI_PBEND];
         return bass303_param(i);
+#endif
     case T_BRK: return breaks_param(BRK_NSET + i);
     case T_FX: return fxbus_param(i);
     case T_MIX: return (i >= 0 && i < MX_NPARAMS) ? &MIX_P[i] : 0;
@@ -403,6 +540,10 @@ const char *engine_voice_name(int t, int v)
     }
 }
 
+#if X0X_ORIGINAL_SYNTH
+int engine_bass_is_wobble(int v)
+{ return (unsigned)v < NBASS && original_bass[v].kind == ORIGINAL_SOUND_MIAMI; }
+#endif
 #if X0X_DEV_WOBBLE
 int engine_bass_is_wobble(int voice) { return bass_wobble_voice(voice); }
 static void __attribute__((noinline)) bass_voice_note_on(int v, int note, int acc, int slide, int vel)
@@ -426,6 +567,20 @@ __attribute__((noinline)) static void chi_live_note_off(int v)
 {
     if ((unsigned)v >= NBASS)
         return;
+#if X0X_ORIGINAL_SYNTH
+    (void)original_runtime_release_source(&original_bass[v], ORIGINAL_INPUT_KEYS);
+    __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
+#else
+#if X0X_DEV_WOBBLE
+    if (bass_wobble_voice(v)) {
+        /* Only live/MIDI release may defer on Miami's own damper. Pattern
+         * s_boff and transport panic retain their unconditional gate-off. */
+        wobble_t *w = (wobble_t *)bass_slot[v].active.context;
+        chi_damp_latched[v] = 0;
+        wobble_note_off(w, w->note);
+        return;
+    }
+#endif
     if (chi_damper_on(chi_damper[v])) {
         chi_damp_latched[v] = 1;
         return;
@@ -436,8 +591,36 @@ __attribute__((noinline)) static void chi_live_note_off(int v)
 #else
     bass303_note_off(&b303[v]);
 #endif
+#endif
 }
 
+/* Called by audio only, before effective-mode changes or another source's
+ * gate write. Do not issue an old keyboard off against the new owner's gate. */
+static void live_key_retire(int v,int release)
+{
+    live_key_owner_t *o=&live_key_owner[v];
+    if(release && o->gate==1) chi_live_note_off(v);
+#if !X0X_ORIGINAL_SYNTH
+    if(o->arp) chi_arp_run_clear(&chi_arp_run[v]);
+#endif
+    if(o->token || o->arp) {
+        bass_held[v]=bass_held_count[v]=0;
+    }
+    o->gate=o->token=o->pitch=o->arp=0;
+    /* Never recycle a capability or discard another lane's queued release.
+     * Saturation blocks this lane until cold boot; warm reset does not rearm. */
+    if(o->generation==UINT32_MAX)o->blocked=1;
+    else o->generation++;
+}
+
+static void live_key_context_retire(int v,int release)
+{
+    live_key_retire(v,release);
+    if(live_key_owner[v].context==UINT32_MAX)live_key_owner[v].blocked=1;
+    else live_key_owner[v].context++;
+}
+
+#if !X0X_ORIGINAL_SYNTH
 static void chi_arp_gate_off(int v)
 {
     if ((unsigned)v >= NBASS)
@@ -545,6 +728,8 @@ static void chi_arp_apply_cfg(int v, int i, int val)
     }
 }
 
+#endif
+
 static void apply_param(int t, int v, int i, int val)    /* ISR */
 {
     switch (t) {
@@ -553,6 +738,24 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     case T_303:
         if (v < 0 || v >= NBASS)
             break;
+#if X0X_BASS_TAGGED_SOUND && !X0X_ORIGINAL_SYNTH
+        if(engine_bass_sound_bank(mot_base_snd,v)<0)break;
+#endif
+#if X0X_ORIGINAL_SYNTH
+        {
+            float value;
+            if (original_sound_control_value(original_bass[v].kind, (unsigned)i, (unsigned)val, &value))
+                (void)original_runtime_param(&original_bass[v], (unsigned)i, value);
+        }
+#else
+#if X0X_DEV_WOBBLE
+        if (bass_wobble_voice(v)) {
+            /* WBL1 indices overlap Chicago's private indices; never mutate
+             * dormant native303/arp/FX on a Miami pot write. */
+            wobble_foundation_set(bass_slot[v].active.context, i, val);
+            break;
+        }
+#endif
         if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END)
             chi_arp_apply_cfg(v, i, val);
         else if (i >= CHI_FX_TYPE && i < CHI_FX_END) {
@@ -569,12 +772,9 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             chi_fx_insert_program(v);
         } else if (i >= CHI_PBEND && i < CHI_AUX_END)
             chi_aux_apply(v, i, val);
-#if X0X_DEV_WOBBLE
-        else if (bass_wobble_voice(v))
-            wobble_foundation_set(bass_slot[v].active.context, i, val);
-#endif
         else
             bass303_set(&b303[v], i, val);
+#endif
         break;
     case T_BRK: breaks_set(&brk, BRK_NSET + i, val); break;
     case T_FX: fxbus_set(&fx, i, val); break;
@@ -598,6 +798,20 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
 }
 
 void engine_set(int t, int v, int i, int val) { cq_put((uint32_t)t, (uint32_t)v, (uint32_t)i, (uint32_t)val); }
+void engine_set_base(int t, int v, int i) { cq_put(C_BASE, (uint32_t)t, (uint32_t)v, (uint32_t)i); }
+static void apply_base(int t, int v, int i)
+{
+    if (!mot_base_snd || (unsigned)t >= NTARGETS || (unsigned)v >= NVOICES_MAX || (unsigned)i >= NPARAMS_MAX) return;
+#if X0X_ORIGINAL_SYNTH
+    if (t == T_303 && (unsigned)v < NBASS) {
+        float value;
+        if (original_sound_value(mot_base_snd->v[t][v], (unsigned)i, &value))
+            (void)original_runtime_param(&original_bass[v], (unsigned)i, value);
+        return;
+    }
+#endif
+    apply_param(t, v, i, mot_base_snd->v[t][v][i]);
+}
 
 /* the output's scale: Felucca's -6 dBFS ceiling of the 24-bit codec (2^22), or its full scale (LOUD); the
  * clamp keeps an over from wrapping (normal: the codec's own full scale, as before) */
@@ -635,6 +849,10 @@ void engine_volume(int32_t *out_lr, uint32_t n)
     vol_after = v;
 }
 
+#if X0X_BASS_TAGGED_SOUND
+static void bass_tag_set(sound_t *,int,int,int,int);
+static void bass_restore_sound(const sound_t *);
+#endif
 X0X_COLD void engine_sound_defaults(sound_t *s)
 {
     int t, v, i;
@@ -647,6 +865,20 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
                 const x0x_param_t *p = engine_param(t, v, i);
                 s->v[t][v][i] = p ? p->def : 0;
             }
+#if X0X_BASS_TAGGED_SOUND
+    for(v=0;v<NBASS;v++) {
+#if X0X_ORIGINAL_SYNTH
+        int bank = v == 0 ? ORIGINAL_SOUND_MIAMI : ORIGINAL_SOUND_CHICAGO;
+        (void)original_sound_init(s->v[T_303][v], (unsigned)bank, 0);
+        bass_tag_set(s, v, bank, 0, 0);
+#else
+        int bank=X0X_DEV_WOBBLE && v==0?1:0;
+        for(i=0;i<(int)(bank?WOBBLE_EXPERIMENT_NPARAMS:CHI_AUX_END);i++)
+            s->v[T_303][v][i]=engine_bass_bank_param(bank,i)->def;
+        bass_tag_set(s,v,bank,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
+#endif
+    }
+#endif
     /* the factory mix: big beat (Chemical Brothers, Fatboy Slim), balanced by tools/mix_report.py
      * against a funk break, a 909 kick under it and a 303 line. The break leads, the kick sits
      * under it, the 303 screams through its RAT; the master squeezes and pumps. Each engine's
@@ -662,6 +894,21 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
     s->v[T_MIX][PART_BRK][MX_LEVEL] = 120;
     s->v[T_MIX][PART_BRK][MX_REV] = 25;
     for (v = 0; v < NBASS; v++) {                    /* acid: low cutoff, high resonance, a long sweep, RAT */
+#if X0X_ORIGINAL_SYNTH
+        s->v[T_MIX][PART_303A + v][MX_LEVEL] = 100;
+        s->v[T_MIX][PART_303A + v][MX_DLY] = 0;
+        s->v[T_MIX][PART_303A + v][MX_REV] = 0;
+#else
+#if X0X_DEV_WOBBLE
+        /* Apply Chicago defaults only to the selected Chicago parameter bank. */
+        if (
+#if X0X_BASS_TAGGED_SOUND
+            engine_bass_sound_bank(s,v)==0
+#else
+            !bass_wobble_voice(v)
+#endif
+        ) {
+#endif
         s->v[T_303][v][BASS303_CUTOFF] = 48;
         s->v[T_303][v][BASS303_RESO] = 100;
         s->v[T_303][v][BASS303_ENVMOD] = 85;
@@ -669,9 +916,13 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
         s->v[T_303][v][BASS303_VOLUME] = 127;
         s->v[T_303][v][BASS303_DRIVE] = 45;
         s->v[T_303][v][BASS303_DRVTYPE] = 2;
+#if X0X_DEV_WOBBLE
+        }
+#endif
         s->v[T_MIX][PART_303A + v][MX_LEVEL] = 74;   /* the RAT makes it dense: -5 dB (square law) */
         s->v[T_MIX][PART_303A + v][MX_DLY] = v ? 60 : 80;
         s->v[T_MIX][PART_303A + v][MX_REV] = 12;
+#endif
     }
     s->v[T_909][DR_CP][5] = 50;                      /* the clap in the room (90 drowned it) */
     s->v[T_909][DR_LT][1] = 92;                      /* the toms: shorter than 9W9's (its low tom rang */
@@ -703,13 +954,22 @@ X0X_COLD void engine_sound_centre_drum_pans(sound_t *s)
 X0X_COLD void engine_apply_sound(const sound_t *s)
 {
     int t, v, i;
+#if X0X_BASS_TAGGED_SOUND
+    bass_restore_sound(s); /* called only at full-project initialization/adoption */
+#endif
     engine_set(T_MST, 0, MST_COMP1, s->v[T_MST][0][MST_COMP1]);   /* the macros first: the pots they set */
     engine_set(T_MST, 0, MST_DJF, s->v[T_MST][0][MST_DJF]);       /* follow as saved (a project's own sound) */
     for (t = 0; t < NTARGETS; t++)
         for (v = 0; v < engine_nvoices(t) && v < NVOICES_MAX; v++)
             for (i = 0; i < engine_nparams(t, v) && i < NPARAMS_MAX; i++)
-                if (t != T_MST || i < MST_COMP1)
-                    engine_set(t, v, i, s->v[t][v][i]);
+                if ((t != T_MST || i < MST_COMP1)
+#if X0X_ORIGINAL_SYNTH
+                    && t != T_303 /* already restored from exact factory + explicit edits */
+#endif
+#if X0X_BASS_TAGGED_SOUND
+                    && (t!=T_303 || engine_bass_sound_bank(s,v)>=0)
+#endif
+                    ) engine_set(t, v, i, s->v[t][v][i]);
 }
 
 void engine_drum(int kit, int voice, float vel)
@@ -779,7 +1039,28 @@ __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
 }
 static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
+    if ((unsigned)p >= NBASS) return 0;
+#if X0X_BASS_TAGGED_SOUND && !X0X_ORIGINAL_SYNTH
+    if(engine_bass_sound_bank(mot_base_snd,p)<0)return 0;
+#endif
     (void)x;
+#if X0X_ORIGINAL_SYNTH
+    (void)acc;
+    if (prob_skip(PART_303A + p, 0)) {
+        (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
+        original_seq_note[p] = -1;
+        return 0;
+    }
+    int previous = original_seq_note[p];
+    if (!sl && previous >= 0)
+        (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
+    int rc = original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)note, (unsigned)velocity);
+    if (sl && previous >= 0)
+        (void)original_runtime_key(&original_bass[p], ORIGINAL_INPUT_SEQUENCE, (unsigned)previous, 0);
+    original_seq_note[p] = (int16_t)note;
+    return rc == ORIGINAL_RUNTIME_OK;
+#else
+    live_key_retire(p,0);
     /* Pattern owns the gate: drop any live/MIDI damper latch so turning Damp
      * Off later cannot cut this step (Bugbot on #342). */
     if ((unsigned)p < NBASS)
@@ -798,16 +1079,24 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
 #endif
     return 1;
+#endif
 }
 static void s_boff(void *x, int p)
 {
     (void)x;
+#if X0X_ORIGINAL_SYNTH
+    if ((unsigned)p >= NBASS) return;
+    (void)original_runtime_release_source(&original_bass[p], ORIGINAL_INPUT_SEQUENCE);
+    original_seq_note[p] = -1;
+#else
+    live_key_retire(p,0);
     if ((unsigned)p < NBASS)
         chi_damp_latched[p] = 0; /* pattern gate wins over damper */
 #if X0X_DEV_WOBBLE
     bass_voice_note_off(p);
 #else
     bass303_note_off(&b303[p]);
+#endif
 #endif
 }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
@@ -843,6 +1132,13 @@ static void s_step(void *x, int t, int p)
 }
 
 /* --------------------------------------------------------------- motion --- */
+#if X0X_ORIGINAL_SYNTH
+static int original_motion_performance(int t, int v, int i)
+{
+    return t == T_303 && (unsigned)v < NBASS &&
+        original_sound_is_performance(original_bass[v].kind, (unsigned)i);
+}
+#endif
 static int mot_base(void *x, int t, int v, int i)
 {
     (void)x;
@@ -857,6 +1153,9 @@ static int mot_base(void *x, int t, int v, int i)
 static void mot_apply(void *x, int t, int v, int i, int val)
 {
     (void)x;
+#if X0X_ORIGINAL_SYNTH
+    if (original_motion_performance(t, v, i)) return;
+#endif
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
             prob[v >> 4][v & 15] = (uint8_t)val;
@@ -867,6 +1166,14 @@ static void mot_apply(void *x, int t, int v, int i, int val)
     } else if (t < NTARGETS)
         apply_param(t, v, i, val);
 }
+#if X0X_ORIGINAL_SYNTH
+static void mot_restore(void *x, int t, int v, int i)
+{
+    if (original_motion_performance(t, v, i)) return;
+    if (t < NTARGETS) apply_base(t, v, i);
+    else mot_apply(x, t, v, i, mot_base(x, t, v, i));
+}
+#endif
 
 int engine_motion_part(int t, int v)
 {
@@ -884,8 +1191,34 @@ int engine_motion_part(int t, int v)
 int engine_motion_value(int k) { return motion_value(&mot, k); }
 void engine_motion_rec(int k) { motion_req_rec(&mot, k); }
 void engine_motion_hold(int k) { motion_req_hold(&mot, k); }
-void engine_motion_clear(int k) { motion_clear(&mot, k); }
-static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0};
+void engine_motion_clear(int k)
+{
+#if X0X_ORIGINAL_SYNTH
+    /* Main-loop removal publishes unused BEFORE the queued restore. An IRQ
+     * between them can keep the old value for one block, but cannot run the
+     * removed ramp after the restoration or interleave DSP program writes. */
+    if (k < 0 || k >= NLANE || !mot.lane) return;
+    lane_t *lane = &mot.lane[k];
+    int restore = lane->used && lane->t != 0xfdu;
+    int t = lane->t, v = lane->v, i = lane->i;
+    if (original_motion_performance(t, v, i)) restore = 0;
+    lane->used = 0;
+    __asm__ volatile("" ::: "memory");
+    mot.rt[k].applied = MOT_NONE;
+    mot.rt[k].ramp = mot.rt[k].rec_req = mot.rt[k].hold_req = 0;
+    if (restore) engine_set_base(t, v, i);
+#else
+    motion_clear(&mot, k);
+#endif
+}
+#if X0X_ORIGINAL_SYNTH
+static void s_transport(void *, int);
+#endif
+static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0
+#if X0X_ORIGINAL_SYNTH
+    , s_transport
+#endif
+};
 
 #if BOARD_SMK37
 /* Called with audio interrupts disabled at both clip-mode boundaries. */
@@ -897,10 +1230,33 @@ void engine_clip_midi_flush(void)
 
 
 /* ---------------------------------------------------------------- MIDI in --- */
-static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
 static uint16_t src_held[3];           /* BLE-16: USB [0], Bluetooth [1], TRS [2]: bit k the 303 k, bit 8 + s the slice s */
 static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
 enum { MIDI_NSRC = 3 };
+#if X0X_ORIGINAL_SYNTH
+static void s_transport(void *ctx, int running)
+{
+    (void)ctx;
+    if (running) return;
+    /* Explicit firmware Stop policy: release existing notes, including pedal
+     * holds, through the original all-off lifecycle. New input after this
+     * event is accepted immediately; idle clocks and effect tails still run. */
+    for (int v = 0; v < NBASS; ++v) {
+        (void)original_runtime_all_off(&original_bass[v]);
+        /* Stop retires sounding keys, not the Free Play UI context. Its
+         * already accepted FIFO follows this transport boundary; changing
+         * generation here would discard the first new press after Stop.
+         * Modal/cancel boundaries still revoke generation separately. */
+        live_key_owner[v].gate = live_key_owner[v].token = 0;
+        live_key_owner[v].pitch = live_key_owner[v].arp = 0;
+        __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
+        original_seq_note[v] = -1;
+        bass_held[v] = bass_held_count[v] = 0;
+
+    }
+    src_held[0] = src_held[1] = src_held[2] = 0;
+}
+#endif
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -916,10 +1272,16 @@ X0X_COLD int engine_project_notes(void)
 {
     uint32_t r = cq_r;
     int k;
+    /* A physical strike is already accepted before the audio owner drains its
+     * FIFO. Do not start a project transfer in that publication window. */
+    if (live_key_r != live_key_w || live_key_cancel)
+        return 1;
     if (brk.keys || src_held[0] || src_held[1] || src_held[2])
         return 1;
     for (k = 0; k < NBASS; k++)
-#if X0X_DEV_WOBBLE
+#if X0X_ORIGINAL_SYNTH
+        if (original_runtime_active(&original_bass[k]))
+#elif X0X_DEV_WOBBLE
         if (synth_active(&bass_slot[k]) || bass_held[k])
 #else
         if (b303[k].gate || bass_held[k])
@@ -1042,17 +1404,42 @@ __attribute__((noinline)) static void brk_link_end(int src, uint16_t owned)
     brk.keys = (uint16_t)(brk.keys & ~(owned >> 8));
 }
 
+/* Retire only original-synth MIDI owners when their channel changes. */
+static void original_midi_context(void)
+{
+#if X0X_ORIGINAL_SYNTH
+    for (int v = 0; v < NBASS; ++v) if (original_midi_channel[v] != seq.ch[TRK_BASS0 + v]) {
+        for (unsigned source = 0; source < MIDI_NSRC; ++source) {
+            (void)original_runtime_release_source(&original_bass[v], source);
+            src_held[source] &= (uint16_t)~(1u << v);
+        }
+        if (bass_held_src[v] < MIDI_NSRC) bass_held[v] = bass_held_count[v] = 0;
+        original_midi_channel[v] = seq.ch[TRK_BASS0 + v];
+    }
+#endif
+}
+
 /* noinline: keeps GM_DRUM lookup out of engine_render when the map is shared with seq */
 __attribute__((noinline)) static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
     int k, v, src = (int)PLAT_MIDI_SRC(pkt);
+    if (src < 0 || src >= MIDI_NSRC) return; /* source 3 is internal keyboard ownership only */
     if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
         seq_clk_drop(&seq, (uint32_t)src);      /* MID-15: another input can get the clock at once */
-        if (src > 1)
+        if (src < 0 || src >= MIDI_NSRC)
             return;
         v = src_held[src];
+#if X0X_ORIGINAL_SYNTH
+        for (k = 0; k < NBASS; ++k) {
+            (void)original_runtime_release_source(&original_bass[k], (unsigned)src);
+            if ((v >> k) & 1) {
+
+                if (bass_held_src[k] == (uint8_t)src) bass_held[k] = bass_held_count[k] = 0;
+            }
+        }
+#else
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
             if ((v >> k) & 1) {
 #if X0X_DEV_WOBBLE
@@ -1060,8 +1447,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #else
                 bass303_note_off(&b303[k]);
 #endif
-                bass_held[k] = 0;
+
+                bass_held[k] = bass_held_count[k] = 0;
             }
+#endif
         brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
         return;
@@ -1141,6 +1530,49 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         if (kit_own && (ty == 0x90 || ty == 0x80))
             return;
     }
+    if ((ty == 0x90 || ty == 0x80) && (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont))
+        seq_advance(&seq, 0, &SINK);
+    for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
+        if (seq.ch[TRK_BASS0 + k] == ch) {
+#if X0X_BASS_TAGGED_SOUND && !X0X_ORIGINAL_SYNTH
+            if(engine_bass_sound_bank(mot_base_snd,k)<0)continue;
+#endif
+#if X0X_ORIGINAL_SYNTH
+            if (ty == 0x90 || ty == 0x80) {
+                unsigned velocity = ty == 0x90 ? d2 : 0;
+                if (original_runtime_key(&original_bass[k], (unsigned)src, d1, velocity) != ORIGINAL_RUNTIME_OK) continue;
+                if (velocity) {
+                    bass_held[k] = d1; bass_held_src[k] = (uint8_t)src;
+                    bass_held_count[k] = original_bass[k].keys[src][d1];
+                } else if (bass_held_src[k] == (uint8_t)src && bass_held[k] == d1) {
+                    bass_held_count[k] = original_bass[k].keys[src][d1];
+                    if (!bass_held_count[k]) {
+                        bass_held[k] = 0;
+                    }
+                }
+                int held = 0;
+                for (unsigned key = 0; key < 128; ++key) held |= original_bass[k].keys[src][key];
+                if (held) src_held[src] |= (uint16_t)(1u << k);
+                else src_held[src] &= (uint16_t)~(1u << k);
+            } else if (ty == 0xb0 && d1 == 64) {
+                unsigned parameter = original_sound_count(original_bass[k].kind) - 1;
+                (void)original_runtime_param(&original_bass[k], parameter, (float)d2 / 127.0f);
+            } else if (ty == 0xe0) {
+                unsigned bend = (unsigned)d1 | (unsigned)d2 << 7;
+                float value = bend < 8192 ? (float)bend / 16384.0f : 0.5f + (float)(bend - 8192) / 16382.0f;
+                unsigned parameter = original_sound_count(original_bass[k].kind) - 2;
+                (void)original_runtime_param(&original_bass[k], parameter, value);
+            }
+#else
+            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
+                for (v = 0; v < NDRUM; v++)
+                    if (GM_DRUM[k][v] == d1)
+                        s_drum(0, k, v, (float)d2 / 127.0f);
+            }
+        }
+        if (kit_own && (ty == 0x90 || ty == 0x80))
+            return;
+    }
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
@@ -1167,6 +1599,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 src_held[1] &= (uint16_t)~(1u << k);
                 src_held[2] &= (uint16_t)~(1u << k);
             }
+#endif
         }
 }
 #ifdef X0X_HOST
@@ -1174,7 +1607,9 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 {
     int k, r = brk.keys << 8 & 0xFF00;
     for (k = 0; k < NBASS; k++)
-#if X0X_DEV_WOBBLE
+#if X0X_ORIGINAL_SYNTH
+        r |= original_runtime_active(&original_bass[k]) ? 1 << k : 0;
+#elif X0X_DEV_WOBBLE
         r |= synth_active(&bass_slot[k]) ? 1 << k : 0;
 #else
         r |= b303[k].gate ? 1 << k : 0;
@@ -1183,19 +1618,36 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 }
 #endif
 
+#if X0X_ORIGINAL_SYNTH
+#include "original_presets.inc"
+#endif
+
 /* ---------------------------------------------------------------- render --- */
 static void drain(void)
 {
+    original_midi_context();
+#if X0X_ORIGINAL_SYNTH
+    /* A UI Stop precedes a newly queued manual press, just as a MIDI Stop
+     * precedes the following MIDI note. Retire old owners before CQ notes. */
+    if (seq.req_stop) seq_advance(&seq, 0, &SINK);
+#endif
     uint32_t r = cq_r, pkt;
     int guard = 64;
-    while (r != cq_w) {
+    unsigned budget = 128; /* bound parameter floods to this audio boundary */
+    while (r != cq_w && budget--) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
         r++;
         if (type < 8u)
             apply_param((int)type, (int)a, (int)b, (int)v);
-        else if (type == C_DRUM)
+        else if (type == C_BASE) {
+            if (a < NTARGETS) apply_base((int)a, (int)b, (int)v);
+            else mot_apply(0, (int)a, (int)b, (int)v, mot_base(0, (int)a, (int)b, (int)v));
+        } else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if (type == C_BON && a < NBASS) {
+#if X0X_ORIGINAL_SYNTH
+            (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
+#else
             chi_arp_accent[a] = (uint8_t)(v & 1u);
             chi_arp_vel[a] = (uint8_t)(v >> 2);
             if (chi_arp_on[a]) {
@@ -1221,8 +1673,18 @@ static void drain(void)
 #endif
             }
             chi_damp_latched[a] = 0;
+#endif
             bass_held[a] = (uint8_t)b;
+            bass_held_count[a] = 1; bass_held_src[a] = 3;
         } else if (type == C_BOFF && a < NBASS) {
+#if X0X_ORIGINAL_SYNTH
+            if (v) (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, 0);
+            else {
+                (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
+                __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
+            }
+            if (!v || b == bass_held[a]) bass_held[a] = bass_held_count[a] = 0;
+#else
             if (chi_arp_on[a] && v) {
                 uint8_t tmp[CHI_ARP_MAXN];
                 uint32_t n = 0, i;
@@ -1244,15 +1706,106 @@ static void drain(void)
                 chi_live_note_off((int)a);
                 bass_held[a] = 0;
             }
+#endif
         } else if (type == C_BRK)
             breaks_live(&brk, (int)a, (int)b);
     }
     cq_r = r;
-    while (guard-- && plat_midi_in(&pkt))
-        if (!project_midi_drop)
-            midi_in(pkt);
-    if (guard >= 0)                   /* the ring was empty; subsequent MIDI belongs to live operation */
-        project_midi_drop = 0;
+    while (guard-- > 0 && plat_midi_in(&pkt))
+        if (!project_midi_drop) midi_in(pkt);
+    if (guard >= 0) project_midi_drop = 0;
+}
+
+static void live_key_drain(void)
+{
+    for(;;) {
+        uint32_t flags=plat_cq_lock();
+        unsigned cancel=live_key_cancel;live_key_cancel=0;
+        plat_cq_unlock(flags);
+        for(int v=0;v<NBASS;v++)if(cancel&(1u<<v))live_key_context_retire(v,1);
+        if(live_key_r==live_key_w)break;
+        __asm__ volatile("" ::: "memory");
+        live_key_command_t c=live_key_q[live_key_r];
+        __asm__ volatile("" ::: "memory");
+        live_key_r=(uint8_t)((live_key_r+1u)%LIVE_KEY_Q);
+        unsigned v=c.word&1u,token=(c.word>>1)&63u,pitch=(c.word>>7)&127u;
+        unsigned velocity=(c.word>>14)&127u,accent=(c.word>>21)&1u,slide=(c.word>>22)&1u;
+        live_key_owner_t *o=&live_key_owner[v];
+        if(o->blocked || c.generation!=o->generation)continue;
+#if X0X_BASS_TAGGED_SOUND && !X0X_ORIGINAL_SYNTH
+        if(engine_bass_sound_bank(mot_base_snd,(int)v)<0)continue;
+#endif
+#if X0X_ORIGINAL_SYNTH
+        (void)accent; (void)slide;
+        uint8_t previous = original_key_pitch[v][token];
+        if (velocity) {
+            if (previous) (void)original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, previous - 1u, 0);
+            if (original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, pitch, velocity) != ORIGINAL_RUNTIME_OK) continue;
+            original_key_pitch[v][token] = (uint8_t)(pitch + 1u);
+            o->token = (uint8_t)token; o->pitch = (uint8_t)pitch; o->gate = 1;
+            bass_held[v] = (uint8_t)pitch; bass_held_count[v] = 1; bass_held_src[v] = 3;
+        } else if (previous == pitch + 1u) {
+            (void)original_runtime_key(&original_bass[v], ORIGINAL_INPUT_KEYS, pitch, 0);
+            original_key_pitch[v][token] = 0;
+            if (o->token == token) o->token = o->pitch = 0;
+            unsigned held = 0;
+            for (unsigned key = 1; key <= 37; ++key) held |= original_key_pitch[v][key];
+            o->gate = held != 0;
+            if (!held) bass_held[v] = bass_held_count[v] = 0;
+        }
+#else
+        int arp=chi_arp_on[v];
+#if X0X_DEV_WOBBLE
+        if(bass_wobble_voice((int)v))arp=0;
+#endif
+        if(velocity) {
+#if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)
+            extern void engine_live_key_accepted(int,int,int,int,int);
+            engine_live_key_accepted((int)v,(int)token,(int)pitch,(int)velocity,(int)slide);
+#endif
+            chi_arp_accent[v]=(uint8_t)accent;chi_arp_vel[v]=(uint8_t)velocity;
+            if(arp) {
+                uint8_t notes[CHI_ARP_MAXN];unsigned n=0,have=0;
+                if(o->arp) {
+                    n=chi_arp_run[v].n;
+                    for(unsigned i=0;i<n;i++){notes[i]=chi_arp_run[v].notes[i];have|=notes[i]==pitch;}
+                } else chi_arp_run_clear(&chi_arp_run[v]);
+                if(!have) {
+                    if(n>=CHI_ARP_MAXN)continue;
+                    notes[n++]=(uint8_t)pitch;
+                    chi_arp_run_set(&chi_arp_run[v],notes,n,chi_arp_mode[v],chi_arp_range[v],chi_arp_speed[v]);
+                }
+                o->arp=1;
+            } else {
+#if X0X_DEV_WOBBLE
+                bass_voice_note_on((int)v,(int)pitch,(int)accent,(int)slide,(int)velocity);
+#else
+                bass303_note_on_velocity(&b303[v],(int)pitch,(int)accent,(int)slide,(int)velocity);
+#endif
+                o->gate=1;
+            }
+            o->token=(uint8_t)token;o->pitch=(uint8_t)pitch;
+            bass_held[v]=(uint8_t)pitch;bass_held_count[v]=1;bass_held_src[v]=3;
+            chi_damp_latched[v]=0;
+            for(int i=0;i<3;i++)src_held[i]&=(uint16_t)~(1u<<v);
+        } else if(arp && o->arp) {
+            uint8_t notes[CHI_ARP_MAXN];unsigned n=0,found=0;
+            for(unsigned i=0;i<chi_arp_run[v].n;i++) {
+                uint8_t note=chi_arp_run[v].notes[i];
+                if(note==pitch)found=1;else notes[n++]=note;
+            }
+            if(!found)continue;
+            if(n)chi_arp_run_set(&chi_arp_run[v],notes,n,chi_arp_mode[v],chi_arp_range[v],chi_arp_speed[v]);
+            else {
+                chi_arp_halt((int)v);o->gate=o->token=o->pitch=o->arp=0;
+                bass_held[v]=bass_held_count[v]=0;
+            }
+        } else if(!arp && !o->arp && o->token==token && o->gate==1) {
+            chi_live_note_off((int)v);o->gate=o->token=o->pitch=0;
+            bass_held[v]=bass_held_count[v]=0;
+        }
+#endif
+    }
 }
 
 static float part_peak[NPARTS];
@@ -1455,7 +2008,10 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
 __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n)
 {
     float *bb[NBASS] = {out_l, out_r};
-    int idle[NBASS], b;
+    int b;
+#if !X0X_ORIGINAL_SYNTH
+    int idle[NBASS];
+#endif
     uint32_t solo = smc_solo_state;
     uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9, i, pt;
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
@@ -1484,7 +2040,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         PROF_ADD(PR_909, p9);
     }
-#if !X0X_DEV_WOBBLE
+#if !X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     for (b = 0; b < NBASS; b++) {
         PROF_T(pb);
         idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
@@ -1525,6 +2081,24 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
+#if X0X_ORIGINAL_SYNTH
+        PROF_T(pb);
+        (void)original_runtime_prepare(&original_bass[b], seq_tempo(&seq));
+        int status = original_runtime_render(&original_bass[b], &original_workspace, bb[b], bb[1-b], n);
+        PROF_ADD(2 + b, pb);
+        /* Failed/unadmitted DSP is visible through engine_bass_status. No
+         * fallback renderer, guessed silence-success or idle clock skipping. */
+        if (status != ORIGINAL_RUNTIME_OK) continue;
+        bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
+        mix_targets(p, mix_level[p], solo_parts);
+        add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
+        add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
+        meter(p, bb[b], mix_level[p], n);
+        meter(p, bb[1-b], mix_level[p], n);
+        for (i = 0; i < n; ++i) bb[b][i] = .5f * (bb[b][i] + bb[1-b][i]);
+        add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
+        add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
+#else
 #if X0X_DEV_WOBBLE
         PROF_T(pb);
         idle[b] = synth_idle(&bass_slot[b]);
@@ -1553,6 +2127,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
+#endif
     }
     if (!brk_silent_now) {
         float g = mix_level[PART_BRK];
@@ -1581,12 +2156,16 @@ void engine_render(int32_t *out_lr, uint32_t n)
     int p;
     if (n > 256u)
         n = 256u;
+    if (!n) return;
     if (project_hold) {
         for (i = 0; i < n * 2u; i++)
             out_lr[i] = 0;
         return;
     }
     eng_prof_frames += n;
+#if X0X_ORIGINAL_SYNTH
+    original_prepare_all(); /* precedes every serial frame-zero edit and key */
+#endif
     if ((mot_was_on && !mot_on) || mot_release_req) {   /* motion off, or its lanes replaced: knobs back */
         mot_release_req = 0;
         motion_release(&mot);
@@ -1596,10 +2175,21 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
+#if X0X_ORIGINAL_SYNTH
+        /* A final MIDI Stop may have no following MIDI note to consume it.
+         * Complete transport before the independent physical-key FIFO. */
+        if (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont)
+            seq_advance(&seq, 0, &SINK);
+#endif
+        live_key_drain();
+#if X0X_BASS_PRESET_PREVIEW
+        bass_preset_boundary();
+#endif
 #if X0X_DEV_WOBBLE
         for (p = 0; p < NBASS; ++p) {
             if (synth_boundary(&bass_slot[p])) {
-                bass_held[p] = 0;
+
+                bass_held[p] = bass_held_count[p] = 0;
                 src_held[0] &= (uint16_t)~(1u << p);
                 src_held[1] &= (uint16_t)~(1u << p);
                 src_held[2] &= (uint16_t)~(1u << p);
@@ -1618,10 +2208,15 @@ void engine_render(int32_t *out_lr, uint32_t n)
     }
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
+#if !X0X_ORIGINAL_SYNTH
         chi_arp_tick(k);
+#endif
         render_sub(out_l + done, out_r + done, k);
         {
             PROF_T(pt);
+#if X0X_ORIGINAL_SYNTH
+            original_prepare_all(); /* next actual sequencer stretch, before its events */
+#endif
             seq_advance(&seq, k, &SINK);
             PROF_ADD(7, pt);
         }
@@ -1873,6 +2468,12 @@ void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
 
 X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
 {
+#if X0X_BASS_PRESET_PREVIEW
+    bass_named_preset[0]=bass_named_preset[1]=-1;
+    bass_preview_dirty=bass_wheel_mask=0;
+    bass_request_serial=0;
+    for(int v=0;v<NBASS;v++) bass_request[v]=bass_applied[v]=bass_publish_seq[v]=bass_midi_mark[v]=bass_cq_mark[v]=0;
+#endif
     int p, g;
     cq_w = cq_r = 0;
     src_held[0] = src_held[1] = src_held[2] = 0;
@@ -1880,10 +2481,16 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         for (g = 0; g < 16; g++)
             brk_down[p][g] = 0;
     for (p = 0; p < NBASS; p++) {
-        bass_held[p] = 0;
+        bass_held[p] = bass_held_count[p] = bass_held_src[p] = 0;
+#if X0X_ORIGINAL_SYNTH
+        original_seq_note[p] = -1;
+        original_midi_channel[p] = 255;
+        __builtin_memset(original_key_pitch[p], 0, sizeof original_key_pitch[p]);
+#else
         chi_arp_on[p] = chi_arp_mode[p] = chi_arp_range[p] = chi_arp_speed[p] = 0;
         chi_arp_accent[p] = chi_arp_vel[p] = 0;
         chi_arp_run_clear(&chi_arp_run[p]);
+#endif
     }
     for (p = 0; p < BRK_NSET; p++)
         brk_applied[p] = 0xFFu;
@@ -1915,6 +2522,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         prob[p / NDRUM][p % NDRUM] = 100;             /* every step plays, until a lane says */
     drum909_init(&d909);
     drum808_init(&d808);
+#if !X0X_ORIGINAL_SYNTH
     bass303_init(&b303[0]);
     bass303_init(&b303[1]);
     chi_fx_type[0] = chi_fx_type[1] = CHI_FX_OFF;
@@ -1929,6 +2537,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     synth_request(&bass_slot[0], wobble_foundation_binding(&dev_wobble), 0);
     synth_boundary(&bass_slot[0]); /* Product Miami: 303A is WBL1 before first audio block. */
 #endif
+#endif
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);
@@ -1937,7 +2546,21 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     motion_init(&mot, lanes);
     mot.base = mot_base;
     mot.apply = mot_apply;
+#if X0X_ORIGINAL_SYNTH
+    mot.restore = mot_restore;
+#endif
     mot_base_snd = base;
+#if X0X_ORIGINAL_SYNTH
+    if (!original_tuning.ready) (void)original_chicago_tuning_bind(&original_tuning, 0, 0, NULL, 0x6d70);
+    if (!original_fx_ready) {
+        for (p = 0; p < NBASS; ++p) {
+            (void)original_chicago_fx2_compact_init(&original_fx[p]);
+            original_fx_owner[p] = original_chicago_fx2_compact_owner(&original_fx[p]);
+        }
+        original_fx_ready = 1;
+    }
+    bass_restore_sound(base);
+#endif
     for (p = 0; p < NPARTS; p++) {
         mix_level[p] = 1.0f;
         mix_rev[p] = mix_dly[p] = 0.0f;
@@ -1956,3 +2579,48 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         eng_scope[p] = 0;
     eng_scope_w = 0;
 }
+
+#if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)
+void engine_live_key_force_serial(int voice,uint32_t generation,uint32_t context)
+{live_key_owner[voice].generation=generation;live_key_owner[voice].context=context;}
+unsigned engine_live_key_probe(int voice,int field)
+{
+    if((unsigned)voice>=NBASS)return 0;
+    switch(field) {
+    case 0:return live_key_owner[voice].token;
+    case 1:return live_key_owner[voice].pitch;
+    case 2:return live_key_owner[voice].gate;
+#if X0X_ORIGINAL_SYNTH
+    case 3:return engine_original_keys(voice,0);
+    case 4:return 0;
+#else
+    case 3:return chi_arp_run[voice].n;
+    case 4:return chi_arp_vel[voice];
+#endif
+    case 5:return bass_held[voice];
+    case 7:
+#if X0X_ORIGINAL_SYNTH
+        return original_runtime_active(&original_bass[voice]);
+#else
+#if X0X_DEV_WOBBLE
+        if(bass_wobble_voice(voice))return (unsigned)dev_wobble.gate;
+#endif
+        return (unsigned)b303[voice].gate;
+#endif
+#if X0X_ORIGINAL_SYNTH
+    case 8:return 0;
+#else
+    case 8:return chi_arp_on[voice];
+#endif
+    case 6:return (unsigned)(sizeof live_key_q+sizeof live_key_owner+sizeof live_key_w+sizeof live_key_r+sizeof live_key_cancel);
+    default:return 0;
+    }
+}
+#endif
+
+#if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)
+void engine_live_key_motion_step(int voice,int step)
+{ motion_step(&mot,PART_303A+voice,seq.ppat[PART_303A+voice],step,(step+1)%16,16); }
+void engine_live_key_pattern_note(int voice,int note)
+{ if(note>=0)s_bon(0,voice,note,0,0,100);else s_boff(0,voice); }
+#endif

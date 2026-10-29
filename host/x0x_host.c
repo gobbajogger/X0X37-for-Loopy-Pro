@@ -108,6 +108,21 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 static uint32_t min_q[MQ], mi_w, mi_r;
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
 static FILE *midi_log;
+uint32_t plat_midi_mark(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_w;
+}
+int plat_midi_passed(uint32_t mark)
+{
+    __asm__ volatile("" ::: "memory");
+    return (int32_t)(mi_r-mark)>=0;
+}
+int plat_midi_pending(void)
+{
+    __asm__ volatile("" ::: "memory");
+    return mi_r != mi_w;
+}
 int plat_midi_in(uint32_t *pkt)
 {
     if (mi_r == mi_w)
@@ -255,7 +270,9 @@ void plat_stalls_enable(int on) { (void)on; }
 
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/x0x.h"
+#if !X0X_ORIGINAL_SYNTH
 #include "../firmware/src/app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
+#endif
 #include "../firmware/src/app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
 #include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
@@ -925,6 +942,12 @@ int main(int argc, char **argv)
                 printf("line %d: no param %d %d %d\n", lineno, t, v, i);
                 return 2;
             }
+#if X0X_ORIGINAL_SYNTH
+            if (t == T_303) {
+                if ((unsigned)v >= NBASS || !original_sound_set(proj.sound.v[t][v], (unsigned)i, (unsigned)val)) return 2;
+                engine_bass_sound_refresh(&proj.sound, v);
+            } else
+#endif
             proj.sound.v[t][v][i] = (uint8_t)val;
             engine_set(t, v, i, val);
             run_ms(1);
