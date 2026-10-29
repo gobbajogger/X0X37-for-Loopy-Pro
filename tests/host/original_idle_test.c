@@ -71,8 +71,11 @@ int __wrap_original_master_process(original_master *s,float v,const uint32_t *l,
 }
 static void work_report(const char *engine,unsigned id,const char *phase){
  static const char *names[]={"drive","fx2","fixed","decimator","master"};
- REQUIRE(work[0][WORK_MASTER].frames==work[1][WORK_MASTER].frames);
- REQUIRE(work[0][WORK_MASTER].calls==work[1][WORK_MASTER].calls);
+ /* Chicago may also skip a settled master on proved zero input. */
+ if(strcmp(engine,"Chicago")){
+  REQUIRE(work[0][WORK_MASTER].frames==work[1][WORK_MASTER].frames);
+  REQUIRE(work[0][WORK_MASTER].calls==work[1][WORK_MASTER].calls);
+ }
  for(unsigned k=0;k<WORK_COUNT;k++){
   REQUIRE(work[0][k].frames<=work[1][k].frames);
   printf("WORK %s %u %s %s calls %llu/%llu frames %llu/%llu\n",engine,id,phase,names[k],

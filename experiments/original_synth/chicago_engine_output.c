@@ -46,7 +46,16 @@ int original_chicago_engine_output_process(original_chicago_engine_output *s,ori
     ol[i]=left;orr[i]=right;
    }
   }
-  return original_master_process(&s->output.master,r->master_squared,ol,orr,ol,orr,n);
+  original_master *m=&s->output.master;
+  float target=m->desired_mute?0:r->master_squared*4;
+  if(!mixed[0]&&!mixed[1]&&m->desired_mute==m->committed_mute&&m->current==target){
+   /* zero_ready validated master and volume. With a settled nonnegative
+    * gain, positive-zero input stays positive zero after cleanup. Preserve
+    * all master writes, including the new zero step and signed-zero current.
+    * Keep this admission at the Chicago caller; other owners are unchanged. */
+   m->target=target;m->step=0;m->current=target;return 1;
+  }
+  return original_master_process(m,r->master_squared,ol,orr,ol,orr,n);
  }
  context c={&s->fx2,fxw,1};const original_chicago_fx2 callbacks={&c,process,reset};
  int ok=original_chicago_output_process(&s->output,w,&callbacks,r->master_squared,il,ir,ol,orr,n,fz);

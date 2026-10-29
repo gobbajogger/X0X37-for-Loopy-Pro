@@ -121,64 +121,230 @@ Baseline Elite ELF SHA-256:
 `99c0235a0de06df1eb1c9316afbf585192f336199ca3a18d154501e696b49898`.
 Full local digest receipt: `build/chicago-opt-sha256.json`.
 
-## Integration checkpoint
+## Second Builder continuation (2026-10-29)
 
-Primary owns implementation and local commits; a read-only helper reviews
-arithmetic and affected callers. No remote or hardware stage is authorized.
-Both changes are bit-exact and have real target flash/RAM proof. Final Linux
-host regressions pass. Instruction-count qualification remains pending
-Valgrind. Reproduce counts at baseline `40935bd1`, change 1 snapshot
-`build/chicago-opt-phase-src`, and the final tree with:
-`python3 tools/synth684_harness/run.py --elite --icount --golden build/synth684-golden-9d1cf9fb`.
-Do not claim a measured CPU reduction until those counts exist.
+The oscillator work was committed first by the orchestrator as
+`9621d6cc7be6c333462771a30bf8e98d0701f9fd`. Its recorded source and artifact
+hashes still match. Every following reference executable uses that commit's
+unchanged implementations. The five public patches below supersede the older
+combined continuation handoff. They preserve one local commit per ranked step.
 
-Local Git staging/commit was attempted after checking `git status`. The sandbox
-rejected creation of
-`/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/.git/worktrees/chicago-opt/index.lock`
-with `Operation not permitted`. No files were staged and no commit was made.
-Do not route around that restriction. Pending actions: obtain instruction
-counts and create local commits when the Git metadata is writable. Never push
-or install/flash these artifacts.
+### Exact idle advancement
 
-## Local continuation: oscillator checkpoint — READY TO COMMIT
+The idle core admits an event-free block only with no live keys, voice,
+assigned voice record or restart. The original disabled voice freezes its
+oscillator, voice MG, noise RNG, gain ramps and filter. The shortcut preserves
+those frozen values; advancing their RNGs would change the next note.
 
-The source hash still matches the recorded 15/15 golden and target proof.
-A fresh `git status --short` followed by explicit staging was rejected at
-`index.lock` by the sandbox on 2026-10-29. Nothing was staged. Commit this
-finished oscillator checkpoint first, using only:
+The two musical clocks now jump across ranges with a constant binary32 ULP
+increment. Literal additions resolve tie parity and exponent boundaries;
+integer arithmetic jumps only within the proven range, strictly before a
+clock edge. This reproduces sequential additions, including fractional BPM,
+without replacing them with `BPM * frames`. Gate expiry is advanced by the
+exact number of samples. Original callbacks still run at clock/key-reset
+edges. BPM and both thresholds remain stable during the admitted span.
 
-- `experiments/original_synth/oscillator_motion.c`
-- `tests/host/oscillator_phase_step_test.c`
-- `tests/host/oscillator_gain_validation_test.c`
-- `tests/host/run_oscillator_phase_step.sh`
-- `tests/host/run_oscillator_gain_validation.sh`
-- `CHICAGO-OPT.md` (oscillator proof sections)
+Global MG still updates at its exact 690/Fs counter crossings, normally four
+or five updates per 256-frame block. Its waveform, phase, noise and helper
+counter writes retain their original order. This bounded work preserves float
+rounding and sample-and-hold behavior. No approximate float smoother advance
+is used. Nonsettled smoothing or signal histories run their original path;
+a nonzero tail or EQ residue is never replaced by silence.
 
-Colima Docker was attempted again: `docker info` cannot connect because the
-sandbox denies access to `/Users/mac/.colima/default/docker.sock`. This is a
-host permission failure, not a harness or audio failure. No Docker/Valgrind
-instruction measurement is available from this attempt.
+Silent Chorus now jumps its integer phase/modulator recurrence. On a segment
+with constant phase direction and integer modulator delta, the rounding
+condition is affine in the sample index. Endpoint bounds prove every skipped
+sample, with literal updates at rounding, turning, wrapping and clipping
+boundaries. The zero-history scan uses alias-safe unrolled word loads.
+There are no new persistent fields, allocations or static DSP buffers.
 
-## Continuation 02-idle-core
+### Separate local commits
 
-Skip disabled voice dispatch and preserve exact clock and global MG updates so notes after silence keep identical timing and sound with less idle CPU work.
+Full-access continuation verified every source, patch and proof hash before
+committing. The oscillator checkpoint remains `9621d6cc`. Public source views
+were staged directly so each commit contains only its ranked step:
 
-Proof: `build/chicago-opt-series/02-idle-core/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+- Step 2: `a7fd84c9`.
+- Step 3: `026f1640`.
+- Step 4: `73f1d6b4`.
+- Step 5: `4d1a1051`.
+- Step 6: the local commit containing this section (see `git log`).
 
-## Continuation 03-block-control
+The older patches and receipts remain under `build/chicago-opt-series/`.
+No private inputs or binaries are staged. The earlier sandbox refusal no
+longer applies. Docker/Colima is accessible in this full-access run; the
+historical unavailable-count record below will be superseded by measurements.
 
-Remove repeated control dispatch while preserving sample-position envelope, portamento, MG and ARP operations, leaving more CPU headroom without changing sound.
+#### Step 2 — committed: exact idle core and clock spans
 
-Proof: `build/chicago-opt-series/03-block-control/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+Skip disabled voice dispatch and advance exact clock/gate/global state in bounded spans. The player hears identical notes after long silence with less idle work.
 
-## Continuation 04-silent-chorus
+Patch: `build/chicago-opt-series/02-idle-core.patch`.
+Proof: `build/chicago-opt-series/02-idle-core/RESULT.json`;
+golden log: `02-idle-core/golden.log`; differential receipt: `02-idle-core/idle/RESULT.json`
+(relative to `build/chicago-opt-series/`).
 
-Jump the silent Chorus recurrence across proven integer spans so silent effects use less CPU while the next note remains sample-exact.
+Files:
 
-Proof: `build/chicago-opt-series/04-silent-chorus/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+- `experiments/original_synth/chicago_clock_span.h`
+- `experiments/original_synth/chicago_global_mg.c`
+- `experiments/original_synth/chicago_global_mg.h`
+- `experiments/original_synth/chicago_scheduler.c`
+- `experiments/original_synth/chicago_scheduler.h`
+- `firmware/src/dsp/original_chicago_backend.c`
+- `tests/host/chicago_clock_span_test.c`
+- `tests/host/chicago_idle_then_note_test.c`
+- `tests/host/run_chicago_clock_span.sh`
+- `tests/host/run_chicago_idle_then_note.py`
 
-## Continuation 05-block-validation
+#### Step 3 — committed: event-free block control entry
 
-Admit serial whole-block resources once, preserving checked public frame APIs and invalid-input behavior while reducing CPU work during playback.
+Enter control/render ownership once per event-free block. Envelope, portamento, MG, ARP notes and restart operations keep their original sample positions. This reduces dispatch cost without changing musical timing.
 
-Proof: `build/chicago-opt-series/05-block-validation/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+Patch: `build/chicago-opt-series/03-block-control.patch`.
+Proof: `build/chicago-opt-series/03-block-control/RESULT.json`;
+golden log: `03-block-control/golden.log`; differential receipt: `03-block-control/idle/RESULT.json`
+(relative to `build/chicago-opt-series/`).
+
+Files:
+
+- `experiments/original_synth/chicago_voice_owner.c`
+- `experiments/original_synth/chicago_voice_owner.h`
+- `firmware/src/dsp/original_chicago_backend.c`
+
+#### Step 4 — committed: exact silent Chorus advance
+
+The existing exact Drive/output and FX blend skips remain in use. Add the bounded Chorus recurrence jump and faster zero-history proof so silent Chorus no longer runs its modulation loop once per sample. Nonzero histories and unsettled controls retain the plain path.
+
+Patch: `build/chicago-opt-series/04-silent-chorus.patch`.
+Proof: `build/chicago-opt-series/04-silent-chorus/RESULT.json`;
+golden log: `04-silent-chorus/golden.log`; differential receipt: `04-silent-chorus/idle/RESULT.json`
+(relative to `build/chicago-opt-series/`).
+
+Files:
+
+- `experiments/original_synth/chicago_chorus_span.h`
+- `experiments/original_synth/chicago_modulation.c`
+- `tests/host/chicago_chorus_span_test.c`
+- `tests/host/run_chicago_chorus_span.sh`
+
+#### Step 5 — committed: one serial block admission
+
+Admit stable voice/table/control/BPM inputs once per event-free block and remove duplicate workspace/output geometry checks from whole-block rendering. Public checked voice and split-frame begin/end APIs retain validation. This reduces repeated checks while preserving invalid-argument admission and audible behavior.
+
+Patch: `build/chicago-opt-series/05-block-validation.patch`.
+Proof: `build/chicago-opt-series/05-block-validation/RESULT.json`;
+golden log: `05-block-validation/golden.log`; differential receipt: `05-block-validation/idle/RESULT.json`
+(relative to `build/chicago-opt-series/`).
+
+Files:
+
+- `experiments/original_synth/chicago_voice.c`
+- `experiments/original_synth/chicago_voice.h`
+- `experiments/original_synth/chicago_voice_owner.c`
+- `experiments/original_synth/chicago_voice_owner.h`
+- `firmware/src/dsp/original_chicago_backend.c`
+
+#### Step 6 — committed: settled Chicago master on zero
+
+Skip master multiplication and cleanup after the existing output proof produces exact stereo zero and master gain/mute have settled. Preserve target/current/step writes. Ramps, mute transitions and nonzero FX residue still run the original master. This leaves more idle headroom with identical sound; master.c and Miami-specific code are unchanged.
+
+Patch: `build/chicago-opt-series/06-silent-master.patch`.
+Proof: `build/chicago-opt-series/06-silent-master/RESULT.json`;
+golden log: `06-silent-master/golden.log`; differential receipt: `06-silent-master/idle/RESULT.json`
+(relative to `build/chicago-opt-series/`).
+
+Files:
+
+- `experiments/original_synth/chicago_engine_output.c`
+- `tests/host/original_idle_test.c`
+- `tests/host/original_idle_test.sh`
+- `CHICAGO-OPT.md` (this final proof and local commit handoff)
+
+### Proof of every checkpoint
+
+- All five checkpoints separately pass **15/15 REAL golden renders** against
+  `build/synth684-golden-9d1cf9fb`, including all four unchanged Miami cases.
+- All five separately pass the normal/instrumented and ASan/UBSan
+  idle-then-note test against `9621d6cc`: every silence length **1 through 2000
+  blocks**, across eleven Chicago program/FX cases and all seven compact FX
+  choices. Every length forks a fresh note at a varying frame offset, asserts
+  audible output, then restores the untouched idle prefix at the same storage
+  addresses. Every PCM sample and pointer-free DSP state snapshot matches.
+- Each full comparison covers **136,400 render calls**, including the earlier
+  long-silence, release/tail, mute, Drive-edit and irregular-frame cases. Both
+  modes produce **1,107,861,392 identical transcript bytes**, SHA-256
+  `b57b4321aa6f170d6856519b45e264fe5d961011dfb72ad64a9055166116548c`.
+  Receipts record compiler flags, reference units, source views, complete input
+  hashes and source stability. Optional transcript cleanup runs only after
+  byte comparisons, mode comparison and source-closure verification pass.
+- `sh tests/host/run_chicago_clock_span.sh`: **414,240 exact comparisons PASS**
+  in normal and ASan/UBSan builds, including ties, exponent changes, fractional
+  BPM, threshold neighbors and accumulator stagnation.
+- `sh tests/host/run_chicago_chorus_span.sh`: **324,902 exact comparisons PASS**
+  in normal and ASan/UBSan builds, including signed phase wrap, triangle turns,
+  saturation, zero speed, negative speed and randomized spans.
+- Final idle-owner regression: **432,418 PCM/state checks PASS**, normal and
+  ASan/UBSan, PCM digest `35ca5fe82aea117f`. The test checks rejected shortcuts,
+  pending events, dirty controls, nonzero histories and constant EQ residue.
+- Read-only review found no blocking arithmetic, overflow, callback-order or
+  admission defect. `git diff --check` passes. No Miami-specific source or
+  private header changed.
+
+Reproduce a checkpoint with:
+
+```sh
+CHICAGO_CANDIDATE_SOURCE="$PWD/build/chicago-opt-series/02-idle-core/source" \
+CLEAN_TRANSCRIPTS=1 /opt/homebrew/bin/python3 \
+  tests/host/run_chicago_idle_then_note.py build/chicago-opt-step2-repeat
+```
+
+Use the other source views for the other steps. The ignored `cc-view` compiler
+wrapper applies the same public source view to the golden harness; its
+commands and complete evidence are retained under `build/chicago-opt-series/`.
+Reuse valid matching receipts rather than rerunning unchanged proven sources.
+
+### Historical sandbox work proxy (superseded by the full-access run)
+
+**Actual idle instructions per 256-frame block: before UNAVAILABLE; after
+UNAVAILABLE.** Valgrind is not installed on macOS. Docker/Colima was attempted
+again: `docker info` fails with permission denied on
+`/Users/mac/.colima/default/docker.sock`, before any container can start.
+The recorded `docker run --rm ubuntu:22.04 true` attempt failed for the same
+reason. Installing Valgrind inside Docker and running `--icount` are therefore
+impossible in this sandbox. No instruction count or CPU percentage is claimed.
+
+The best available deterministic proxy counts all compiled C function entries
+only during rendering of 704 settled idle blocks (64 per case, eleven cases,
+256 frames each). Reference and candidate use the same compiler and flags;
+normal instrumentation is also checked against the sanitized transcript.
+Static inline helper entries count too: these are work counts, not machine
+instructions, and relative results across different helpers have limits.
+
+- Unoptimized backend: **6,461,014 / 704 = 9177.58 entries/block**.
+- After 02-idle-core: **2,768,000 / 704 = 3931.82 entries/block**.
+- After 03-block-control: **2,768,000 / 704 = 3931.82 entries/block**.
+- After 04-silent-chorus: **2,113,280 / 704 = 3001.82 entries/block**.
+- After 05-block-validation: **2,080,192 / 704 = 2954.82 entries/block**.
+- After 06-silent-master: **275,840 / 704 = 391.82 entries/block**.
+- Final per-case means: **378.80–406.30 entries/block**, including Chorus.
+- Final versus reference: **95.7% fewer function entries**. Counted backend
+  frame calls **180,224 → 0**; master process calls **704 → 0**.
+
+The requested **1–3k instructions/block/part** and **12–20% AC79 idle CPU**
+remain **UNVERIFIED**. Function entries cannot establish either threshold.
+The source retains bounded global update/clock-edge work, zero-history scans
+and buffer writes; it does not claim literally zero instructions.
+
+The required `--elite --golden` harness run was attempted on the final source.
+Its host renders are **15/15 identical** (recorded separately), but the Elite
+build stops at missing `cpu/wl82/tools/uboot.boot` / `AC79_SDK`. Logs:
+`build/chicago-opt-exact-elite.log` and
+`build/chicago-opt-exact-golden-compare.log`. No new target flash/RAM/stack
+result is claimed. The oscillator Elite ELF above is stale for this backend
+continuation. Host GNU `size -A` failures are not target size measurements.
+
+All work remained local. No push, plugin/firmware binary staging, installation,
+flashing or device access occurred. Private inputs remain excluded. Final
+public-file, patch and proof hashes are in
+`build/chicago-opt-second-builder-receipt.json`.

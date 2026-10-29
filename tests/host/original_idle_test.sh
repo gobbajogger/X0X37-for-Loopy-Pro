@@ -82,9 +82,23 @@ try:
     for mode in ['normal','sanitized']:
         extra=[] if mode=='normal' else ['-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all']
         obj=out/(mode+'-reference.o');exe=out/mode
-        for cmd in [[cc,*flags,*extra,*rename,'-c',backend,'-o',str(obj)],
-                    [cc,*flags,*extra,'tests/host/original_idle_test.c',*sorted(src),str(obj),
-                     *['-Wl,--wrap='+name for name in wrapped],'-lm','-o',str(exe)]]:
+        build_commands=[[cc,*flags,*extra,*rename,'-c',backend,'-o',str(obj)]]
+        if sys.platform=='darwin':
+            # Mach-O ld has no --wrap. Rename definitions in their owning
+            # units, and expose the test wrappers under the public names.
+            # Same-unit calls remain direct, as with GNU --wrap.
+            objects=[];found=[]
+            for unit in sorted(src):
+                definitions=[name for name in wrapped if re.search(r'\bint\s+'+name+r'\s*\([^;{}]*\)\s*\{',Path(unit).read_text())]
+                found+=definitions;target=out/(mode+'-'+Path(unit).stem+'.o');objects.append(str(target))
+                build_commands.append([cc,*flags,*extra,*['-D'+name+'=__real_'+name for name in definitions],'-c',unit,'-o',str(target)])
+            assert sorted(found)==sorted(wrapped),found
+            build_commands.append([cc,*flags,*extra,*['-D__wrap_'+name+'='+name for name in wrapped],
+                'tests/host/original_idle_test.c',*objects,str(obj),'-lm','-o',str(exe)])
+        else:
+            build_commands.append([cc,*flags,*extra,'tests/host/original_idle_test.c',*sorted(src),str(obj),
+                *['-Wl,--wrap='+name for name in wrapped],'-lm','-o',str(exe)])
+        for cmd in build_commands:
             stage=mode+' compile';commands.append(cmd)
             (out/'commands.json').write_text(json.dumps(commands,indent=2)+'\n')
             with (out/(mode+'.compile.log')).open('a') as log:
