@@ -12,6 +12,10 @@ CONFIDENCE = ('source_verified', 'reported', 'unknown')
 COMPLETED = {'COMPLETED', 'DONE'}
 CLOSED = COMPLETED | {'CANCELLED', 'SUPERSEDED'}
 ACTIVE = {'ACTIVE', 'ACTIVE_STAGE_REPORTED'}
+# Retained ownership is not evidence of a running receiver or free capacity.
+# Recognize the maintained handoff state explicitly, not owner labels, readiness,
+# status substrings, or every unknown execution state.
+RETAINED_CONTINUATIONS = {'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED'}
 STARVATION_DAYS = 14
 EVIDENCE_LEVELS = {'source', 'test', 'build', 'deployed', 'hardware'}
 ACCEPTED_STATES = {'PASS', 'VERIFIED', 'ACCEPTED', 'DELIVERED', 'BUILD_ONLY_PASS',
@@ -108,6 +112,15 @@ def first_seen(r):
     return min(parsed) if parsed else None
 
 
+def existing_commitment(record):
+    # Keep legacy ACTIVE reservation semantics. Prepared (not active) handoffs
+    # reserve scope only while their continuation remains open and authorized.
+    return (record.get('owner_execution_state') in ACTIVE
+            or record.get('status') == 'ACTIVE'
+            or (record.get('owner_execution_state') in RETAINED_CONTINUATIONS
+                and record.get('status') not in CLOSED and not deferred(record)))
+
+
 def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
     """No writes/claims/delegation; caller authenticates readiness, evidence and liveness."""
     now = timestamp(as_of)
@@ -131,7 +144,7 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
     completed = {r['request_id'] for r in records if r.get('status') in COMPLETED
                  and not completion_problems[r['request_id']]}
     assessment_problems = {}
-    unknown_active_areas = {}
+    unknown_commitment_areas = {}
     rows = []
     occupied = set(busy_areas)
     for r in records:
@@ -140,24 +153,24 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             errors = validate_assessment(a)
             if errors:
                 assessment_problems[r['request_id']] = errors
-        if r.get('owner_execution_state') in ACTIVE or r.get('status') == 'ACTIVE':
+        if existing_commitment(r):
             areas = a.get('work_areas') if isinstance(a, dict) else None
             if (not isinstance(areas, list) or not areas or
                     any(not isinstance(area, str) or not area.strip() for area in areas)):
-                unknown_active_areas[r['request_id']] = {
+                unknown_commitment_areas[r['request_id']] = {
                     'request_id': r['request_id'], 'implementation_owner': r.get('owner'),
                     'action_kind': 'READ_ONLY_OWNERSHIP_RECONCILIATION',
-                    'next_action': 'Read the current owner checkpoint and supported execution records to verify liveness and occupied work areas; preserve the existing owner and action gates. Do not start or expand a write scope from unknown area metadata.'}
+                    'next_action': 'Read the current owner checkpoint and supported execution records to verify liveness and retained work areas; preserve the existing owner and action gates. Do not start or expand a write scope from unknown area metadata.'}
             else:
                 occupied.update(areas)
-    result['recovery_actions'] = list(unknown_active_areas.values())
+    result['recovery_actions'] = list(unknown_commitment_areas.values())
     result['claim_admission'] = {
-        'state': 'BLOCKED' if unknown_active_areas else 'ELIGIBLE' if capacity else 'NO_FREE_CAPACITY',
-        'blocked_by': list(unknown_active_areas),
-        'reason': ('unknown active writer work areas; reconcile ownership before new claims'
-                   if unknown_active_areas else 'recommendations still require verified capacity, disjoint scope and all item gates')}
-    if unknown_active_areas:
-        # Unknown overlap prevents every NEW claim, not already-owned continuation
+        'state': 'BLOCKED' if unknown_commitment_areas else 'ELIGIBLE' if capacity else 'NO_FREE_CAPACITY',
+        'blocked_by': list(unknown_commitment_areas),
+        'reason': ('unknown existing commitment work areas; reconcile ownership before new claims'
+                   if unknown_commitment_areas else 'recommendations still require verified capacity, disjoint scope and all item gates')}
+    if unknown_commitment_areas:
+        # Unknown retained scope prevents every NEW claim, not already-owned continuation
         # or read-only recovery. Preserve the latter in the returned decision.
         capacity = 0
     for r in records:
@@ -173,12 +186,16 @@ def plan(ledger, as_of, capacity=0, busy_areas=(), read_status='unknown'):
             reason = 'completion pending: ' + '; '.join(completion_problems[rid])
         elif r.get('status') in CLOSED:
             reason = 'closed request'
-        elif r.get('owner_execution_state') in ACTIVE or r.get('status') == 'ACTIVE':
+        elif existing_commitment(r):
             continuation = {'request_id': rid, 'implementation_owner': r['owner'],
                 'next_action': r['next_action'], 'reason': 'existing commitment; verify liveness, never auto-reassign'}
-            if rid in unknown_active_areas:
+            if r.get('owner_execution_state') in RETAINED_CONTINUATIONS:
+                continuation['owner_execution_state'] = r['owner_execution_state']
+                continuation['reason'] = ('existing accepted continuation; receiver execution unverified; '
+                                          'retain owner and action gates, never admit a new claim')
+            if rid in unknown_commitment_areas:
                 continuation['recorded_next_action'] = r['next_action']
-                continuation['next_action'] = unknown_active_areas[rid]['next_action']
+                continuation['next_action'] = unknown_commitment_areas[rid]['next_action']
                 continuation['scope_status'] = 'READ_ONLY_OWNERSHIP_RECONCILIATION_REQUIRED'
             result['continue_existing'].append(continuation)
             continue

@@ -82,6 +82,22 @@ merge, publication, device or security actions.
 
 Keep reported ACTIVE/ACTIVE_STAGE_REPORTED commitments with their existing owner
 and next action; verify actual liveness before continuing, never auto-reassign.
+The explicit execution state
+`RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED` also retains an
+already accepted same-owner continuation. It is **not ACTIVE** and does not prove
+receiver execution. Return it in `continue_existing`, with its unchanged execution
+state, owner and next action, at any free capacity. Do not put it in new-claim
+ordering or spend a free slot on it. Its known work areas remain reserved against
+overlapping new claims; unknown areas require the same read-only ownership
+reconciliation as other retained commitments. This reservation does not claim a
+running worker. Disjoint ready work still uses verified free capacity, and already
+accepted publisher, installer and build actions retain their own authority and
+evidence. Completion, explicit deferral and authorization restrictions still win.
+Closed or deferred/unauthorized prepared continuations reserve no areas and cause
+no ownership-recovery hold. Existing reported-ACTIVE reservation rules are unchanged.
+An owner display label, a historical/released owner, readiness alone or an unknown
+execution-state string does not establish retained ownership. The coordinator
+authenticates the supplied state and current scope; this helper never dispatches.
 Recommendations carry `implementation_owner` separately from rationale and
 `suggested_next_action`. Unassigned remains an explicit gap for the parent to resolve.
 Area tags are conservative overlap hints, not proof of independence; coordinator
