@@ -89,53 +89,6 @@ after an engine change.
 **pack7:** groups of up to 7 bytes, each preceded by one byte holding their top bits
 (bit j = bit 7 of byte j).
 
-### SMK-37 pad sensor snapshot (INLOG argument 6)
-
-Command 38 with argument 6 is read-only. It does not change input thresholds,
-calibration, mappings, LEDs or scan timing. Arguments 0-5 keep their existing
-format. `tools/ble_autotest.py --pad-inputs` requests this page only; unlike the
-tool's default Bluetooth test, it never clears the start guard or restarts the unit.
-An older firmware may return the argument-0 format; the sensor decoder rejects it.
-
-All words below use 7-bit chunks, least significant chunk first. `u16` has 3
-chunks, `u8` has 2, and `u32` has 5. Unused high bits must be zero.
-
-| Reply field | Bytes |
-| --- | --- |
-| Argument 6, version 1, status | 3 |
-| For status 1 (BUSY), the reply ends here; there are no measurements | 0 |
-| For status 0: pad count 16; flags (bit 0 grid, bit 1 piano); hit delta, release delta, peak sample count | 5 |
-| Time ms, scan frames, ADC completed count, ADC missed count, mapped pad-note bitmap (`pnotes`), each u32 | 25 |
-| Mux C context: four raw faders in fader order, two filtered wheels, pedal and battery, each u16 | 24 |
-| 16 pads in hardware order: raw u16, baseline u16, last-strike peak u16, state u8, last velocity, pressure, mapped note + 1 (0 = none), then five active curve points u16 | 16 × 29 |
-
-A successful payload has exactly 521 bytes (527 including SysEx framing); BUSY
-has 3 bytes (9 with framing). Both fit the existing 732-byte output buffer.
-State is 0 idle, 1-2 collecting a peak, or 128 held. Raw/base/peak are ADC-domain
-values, not MIDI velocities. Pressure is meaningful while held; peak and velocity
-can remain from a previous strike. Hardware indices 0-7 are the top row and 8-15
-the bottom row, left to right. The mapping flags and note identify routing, not
-the physical location. Active curves are copied from RAM; their factory/default
-origin is not reported and no factory flash bytes are exposed.
-
-The CPU0 main-loop reader copies 176 bytes of mutable telemetry to the existing
-call-scoped editor scratch, then serializes that copy and boot-immutable curves
-into the reply buffer. It checks the ISR-owned ADC and frame counters only around
-the short copy, not around serialization, with compiler barriers. The CPU0 timer ISR cannot execute concurrently with that main loop;
-each normal tick increments an ADC counter before updating the inputs. If a tick
-crosses the copy, it retries, at most three times, then returns BUSY. No interrupts
-are masked. Samples from different mux slots have different acquisition times;
-this is a consistent view of their latest values, not simultaneous ADC sampling.
-Counters wrap modulo 2^32. No counters are cleared by the read.
-
-This is telemetry, not a repair or an electrical diagnosis. Compare resting and
-pressed samples and counter progress before interpreting a silent pad. A changing
-raw value without a note can localize the problem to thresholds/state/routing;
-unchanged values do not identify a cable, sensor, mux, supply or mechanical cause.
-RGB pad calibration (arguments 2-5) is unrelated to sensor sensitivity. Device
-access, firmware installation, physical work and calibration writes need their
-own current authorization; the source/host tests perform none of them.
-
 **User sample slot** (80 KiB each, SAMPLE engine sets USR1..USR3): header at 0, ADPCM data at 512.
 The reference uploader is `tools/fm1_sample_upload.py`, and the slot builder is `sampleio.user_slot`.
 The retired Felucca web editor once carried a JS port checked by `web/test_web.mjs`; that

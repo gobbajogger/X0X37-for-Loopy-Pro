@@ -16,4 +16,4 @@
 #ifndef X0X_DEV_WOBBLE
 # define X0X_DEV_WOBBLE X0X_WOBBLE
 #endif
-#define WOBBLE_EXPERIMENT_NPARAMS 23u /* 16-byte AU bank + bend/damper + owner ADSR + Bass Split */
+#define WOBBLE_EXPERIMENT_NPARAMS 22u /* 16-byte AU bank + bend/damper + owner ADSR */

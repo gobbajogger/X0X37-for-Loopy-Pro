@@ -1,10 +1,5 @@
 # Orchestrator plan: X0X37 full-cycle loop
 
-> HISTORICAL RECORD - NOT AN ACTIVE WORKFLOW. This dated plan and its
-> thread-launch instructions are retained as provenance only. Use the current
-> [project workflow](../rules/workflow.md) and current request/owner checkpoint.
-> It grants no new execution, retry, integration, publication or device authority.
-
 You are the orchestrator. You do not implement, test, merge, or publish the firmware yourself. You start one owner-visible Cloud Agent per stage, record its URL, and start the next stage only after that agent pushes its handoff. The owner must be able to open every stage thread.
 
 Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro

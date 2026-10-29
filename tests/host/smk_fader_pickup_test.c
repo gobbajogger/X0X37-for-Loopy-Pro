@@ -5,9 +5,6 @@
 
 enum { R_ENG, T_MIX, T_FX, T_MST, MX_LEVEL, FX_RV_LEVEL = 1, FX_DL_LEVEL, MST_DJF = 3, PART_BRK = 4,
        SMK_BTN_FADER_BANK = 1 };
-enum { PART_909=0, PART_808=1, PART_303A=2, PART_303B=3, NPARTS=5 };
-#include "part_order.inc"
-static const char *part_s(int p) { static const char *const n[5]={"909","808","MIA","CHI","BRK"};return n[p]; }
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 static struct { uint32_t buttons, frames; uint8_t fader[4]; } fm1_in;
@@ -22,7 +19,7 @@ static char *put_i(char *d, int n) { return d + sprintf(d, "%d", n); }
 static void say(const char *a, const char *b) { snprintf(message, sizeof message, "%s%s", a, b ? b : ""); }
 static unsigned slot(pref_t r)
 {
-    if (r.a == T_MIX) { static const unsigned position[5]={0,1,4,3,2};return position[r.b]; }
+    if (r.a == T_MIX) return r.b == PART_BRK ? 4u : r.b;
     if (r.a == T_FX) return r.c == FX_RV_LEVEL ? 5u : 6u;
     return 7u;
 }
@@ -59,7 +56,7 @@ static void bank(void)
 int main(void)
 {
     val[0][0] = 100;              /* 909 level: distant from physical 10 */
-    val[1][0] = 80;               /* Miami A level, fifth displayed part */
+    val[1][0] = 80;               /* BREAK level */
     val[1][1] = 50;               /* REV return */
     val[1][3] = 64;               /* FILTER off at the centre */
     fm1_in.fader[0] = 10;
@@ -84,7 +81,7 @@ int main(void)
     check("bank B hints downward movement", strcmp(message, "PICK F1 DOWN") == 0);
     fm1_in.fader[0] = 79;
     smk_faders();
-    check("crossing fifth displayed part target takes over", val[1][0] == 79 && writes[1][0] == 1);
+    check("crossing BREAK target takes over", val[1][0] == 79 && writes[1][0] == 1);
     fm1_in.fader[1] = 48;
     smk_faders();
     check("equal-value tolerance takes over REV return", val[1][1] == 48 && writes[1][1] == 1);

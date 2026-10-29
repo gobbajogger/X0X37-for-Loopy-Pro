@@ -218,53 +218,12 @@ __attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t
     }
 }
 
-static uint32_t bass_slot_q8(const seq_t *s, int b, int p)
-{
-    int t = TRK_BASS0 + b;
-    uint32_t L = seq_step_q8(s, bpart(s, b)->rate);
-    uint32_t sw = swing_q8(s, bpart(s, b)->rate, L);
-    if (bpart(s, b)->dir == DIR_RANDOM)
-        return (s->t[t].mut_steps & RANDOM_SWING_ODD) ? L + sw : L - sw;
-    int np = next_pos((seq_t *)s, t, p, 0);
-    return !(np & 1) && !(p & 1) ? L : (np & 1) ? L + sw : L - sw;
-}
-
 __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, uint32_t skip, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
     bpart_t *bp = bpart(s, b);
     const bstep_t *st = &bp->step[p];
     int gate = bstep_gate(st), note, hold, nx;
-    seq_bass_rec_t *r = &s->rec_bass[b];
-    if (r->active && r->pat != s->ppat[TRK_BASS0 + b])
-        seq_rec_cancel(s, b);
-    if (r->active) {
-        if (r->entered == 2 || (r->entered && p == r->first)) {
-            r->entered = 2; /* periodic pattern cannot encode an extra loop count */
-            tr->to_off = 0;
-            return;
-        }
-        if (p == r->first && !r->entered) { r->entered = 1; r->at = s->ext_now; r->slot = bass_slot_q8(s, b, p); }
-        else if (r->entered) {
-            /* Across the loop, keep the onset but suppress its live retrigger. */
-            bp->step[r->last].flags &= 15u; /* continuation, not an endpoint */
-            if (p != r->first) {
-                bp->step[p].note = r->note;
-                bp->step[p].velocity = bp->step[r->first].velocity;
-                bp->step[p].flags = G_TIE | 0xF0u;
-#if X0X_BASS_NOTE_SOUND
-                seq_bass_sound_clear(s,b,s->ppat[TRK_BASS0+b],p);
-#endif
-            }
-            r->prev = r->last;
-            r->last = (uint8_t)p;
-            r->slot = bass_slot_q8(s, b, p);
-            r->at = s->ext_now;
-        }
-        if (!r->entered) { tr->to_off = 0; return; }
-        skip = 1; /* live input owns audio; reuse real MIDI echo/gate bookkeeping */
-        gate = bstep_gate(st);
-    }
     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
     if (s->mute & (1u << (MUTE_BASS0 + b)))
         gate = G_REST;
@@ -325,8 +284,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
     }
     hold = (st->flags & BS_SLIDE) || bstep_gate(&bp->step[nx]) == G_TIE;
     tr->held_note = (uint8_t)((note & 0x7F) | ((st->flags & BS_SLIDE) ? 0x80 : 0));
-    unsigned end = st->flags >> BS_END_SHIFT;
-    tr->to_off = r->active ? 0 : end ? carry + (bass_slot_q8(s, b, p) / 15u) * end : hold ? 0 : carry + step_q8 / 2u;
+    tr->to_off = hold ? 0 : carry + step_q8 / 2u;
 }
 
 int seq_part_muted(const seq_t *s, int p)
@@ -571,12 +529,11 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
         bar_end(s, 1);                                /* cues, or the song's start bar */
     for (t = 0; t < NTRACKS; t++)
         track_arm(s, t, from_top, 1);
-    if (from_top || !s->metro_period) {
-        s->metro_phase = s->metro_period = 0;
-        s->metro_tick = 24; /* waiting: next accepted clock is phase zero */
-    } /* Continue preserves musical position and the stopped visual phase. */
     s->clk_to_next = 0;
     s->playing = 1;
+#if X0X_ORIGINAL_SYNTH
+    if (o->transport) o->transport(o->ctx, 1);
+#endif
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
 }
 
@@ -585,6 +542,9 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
     int t;
     s->playing = 0;
     bass_and_brk_stop(s, o);
+#if X0X_ORIGINAL_SYNTH
+    if (o->transport) o->transport(o->ctx, 0);
+#endif
     for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
         s->t[t].ext_due = 0;
@@ -634,7 +594,6 @@ static void ext_ticks(seq_t *s)
         }
         if (!s->playing)
             continue;
-        s->metro_tick = s->metro_tick >= 23u ? 0 : (uint8_t)(s->metro_tick + 1u);
         for (t = 0; t < NTRACKS; t++) {
             seq_track_t *tr = &s->t[t];
             int rate = part_rate(s, t), tps = TICKS_PER_STEP[rate];
@@ -727,7 +686,6 @@ __attribute__((noinline)) static void switch_internal(seq_t *s)
 __attribute__((noinline)) static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
 {
     int t;
-    s->metro_tick = 24;
     for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
         s->t[t].ext_due = 0;
@@ -775,46 +733,10 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     }
 }
 
-/* Observe the same rendered sample clock that advances the sequencer. No
- * timer, per-track playhead or MIDI-output timer is involved. The CPU0 audio
- * owner publishes one byte; the UI cannot mix phase and transport epochs.
- * External motion advances only on accepted clocks (never predicts lost ticks).
- * Internal tempo edits preserve fractional phase. This observer never changes
- * event partitioning, transport, outgoing MIDI or audio state. */
-static void metro_advance(seq_t *s, uint32_t k)
-{
-    uint32_t period, phase;
-    if (!s->playing || seq_clock_waiting(s) || (s->ext && s->metro_tick == 24u)) {
-        s->metro_view = 0;
-        return;
-    }
-    period = s->metro_period;
-    if (!period || s->metro_bpm != seq_tempo(s)) {
-        uint32_t next = seq_step_q8(s, RATE_16) * 4u;
-        s->metro_phase = period ? (uint32_t)((float)s->metro_phase * (float)next / (float)period) : 0;
-        if (!period) k = 0; /* accepted fresh start begins here, not before */
-        s->metro_period = period = next;
-        s->metro_bpm = seq_tempo(s);
-    }
-    if (s->ext) {
-        phase = (uint32_t)s->metro_tick * period / 24u;
-    } else {
-        phase = s->metro_phase + (k << 8);
-        while (phase >= period) phase -= period;
-    }
-    s->metro_phase = phase;
-    s->metro_view = (uint8_t)(1u + phase * 32u / period);
-}
-
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 {
     int t, guard;
     uint32_t dq = k << 8;
-    for (t = 0; t < NBASS; t++)
-        if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
-            (!((s->rec_mask | s->rec_hold_mask) & (1u << t)) ||
-             s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t] || bpart(s, t)->dir >= DIR_PINGPONG)))
-            seq_rec_cancel(s, t);
     if (s->ext_since < 2u * FS)   /* all modes: long idle must not wrap into a fake short tick */
         s->ext_since += k;
     s->ext_now += k;
@@ -878,7 +800,6 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     s->midi_req = 0;                                  /* used only by the requests above */
     if (s->ext_pending)
         ext_ticks(s);
-    metro_advance(s, k);
     if (!s->playing) {
         if (!s->ext)
             s->clk_to_next = 0;
@@ -1084,111 +1005,4 @@ X0X_COLD void seq_chain(seq_t *s, int a, int b)
         return;
     s->chain_a = (uint8_t)a;
     s->chain_b = (uint8_t)b;
-}
-
-
-void seq_rec_cancel(seq_t *s, int b)
-{
-    seq_bass_rec_t *r = &s->rec_bass[b];
-    r->gen++;
-    r->own_ok = 0; /* the old press no longer owns a gate the sequencer may reopen */
-    if (r->active)
-        seq_rec_bass_end(s, b);
-}
-
-void seq_rec_bass_end(seq_t *s, int b)
-{
-    seq_bass_rec_t *r = &s->rec_bass[b];
-    if (!r->active) return;
-    bpart_t *bp = &s->pat[r->pat].bass[b];
-    seq_track_t *tr = &s->t[TRK_BASS0 + b];
-    uint32_t L = r->slot;
-    uint32_t elapsed = s->ext_now - r->at;
-    /* Clamp before Q8 conversion/multiply: stopped external clocks may be stale.
-     * Slowest slot (20 BPM,8 ticks,+50% swing) is <=16934400 Q8;
-     * slot*15+slot/2 fits uint32_t, so no 64-bit division helper is needed. */
-    unsigned end = !r->entered ? 1 : r->entered == 2 || elapsed >= (L >> 8) ? 15 :
-                   (unsigned)(((elapsed << 8) * 15u + L / 2u) / L);
-    if (!end && r->last != r->first) {
-        bp->step[r->last].flags = G_REST;
-#if X0X_BASS_NOTE_SOUND
-        seq_bass_sound_clear(s,b,r->pat,r->last);
-#endif
-        r->last = r->prev;
-        end = 15; /* boundary belongs to previous slot, including reverse/wrap */
-    }
-    if (end < 1) end = 1;
-    if (end > 15) end = 15;
-    bstep_t *st = &bp->step[r->last];
-    st->flags = (uint8_t)((st->flags & 15u) | (end << BS_END_SHIFT));
-    r->active = 0;
-    s->rec_dirty = 1;
-    tr->to_off = 1; /* flush sequencer MIDI output at the actual live release */
-}
-
-void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags)
-{
-    seq_bass_rec_t *r = &s->rec_bass[b];
-    if (!down) {
-        if (r->active && r->note == note && r->src == src)
-            seq_rec_bass_end(s, b);
-        return;
-    }
-    if (!s->playing || !(s->rec_mask & (1u << b))) return;
-    /* A cell may be visited repeatedly before the onset repeats. One endpoint
-     * nibble cannot identify that occurrence. Refuse before any pattern write;
-     * the accepted live edge still auditions through the engine. */
-    if (bpart(s, b)->dir >= DIR_PINGPONG) {
-        s->rec_refused = 1;
-        return;
-    }
-    /* The flag alone is not proof. A context cancel bumps gen and clears own_ok,
-     * so a later open DSP gate cannot slide from the cancelled note. */
-    int owned = r->own_ok && r->own_gen == r->gen && r->own_src == (uint8_t)src;
-    int overlap = (flags & SEQ_REC_LEGATO) && owned && r->active && r->src == src;
-    int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
-    int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
-#if X0X_BASS_NOTE_SOUND
-    if(seq_bass_sound_prepare(s,b,s->ppat[t],p)) {
-        s->rec_refused=2; /* sound pool full or sound identity unavailable */
-        return;
-    }
-    /* Preparation is the atomic admission check and already publishes sound.
-     * A just-entered provisional tail can round back to the previous slot on
-     * release. That tail is now the new onset: finalize the previous slot at
-     * its full length without clearing the sound we just admitted. */
-    if (r->active && r->pat == s->ppat[t] && r->last == p &&
-        r->last != r->first && r->entered == 1) {
-        uint32_t elapsed = s->ext_now - r->at, L = r->slot;
-        if (elapsed < (L >> 8) && ((elapsed << 8) * 15u + L / 2u) / L == 0) {
-            r->last = r->prev;
-            r->entered = 2;
-        }
-    }
-#endif
-    seq_rec_bass_end(s, b);
-    bpart_t *bp = bpart(s, b);
-    if (overlap && oldpat == s->ppat[t] && old != p)
-        bp->step[old].flags = (uint8_t)((bp->step[old].flags & 15u) | BS_SLIDE);
-    bp->step[p].note = (uint8_t)note;
-    bp->step[p].velocity = (uint8_t)velocity;
-    bp->step[p].flags = (uint8_t)(G_NOTE | (flags & (BS_ACCENT | BS_SLIDE)) | 0xF0u);
-    r->active = 1; r->pat = s->ppat[t]; r->first = r->last = r->prev = (uint8_t)p;
-    r->note = (uint8_t)note; r->src = (uint8_t)src;
-    s->rec_dirty = 1;
-    r->entered = s->t[t].started && p == s->t[t].pos;
-    r->at = s->ext_now; r->slot = bass_slot_q8(s, b, p);
-    if (r->entered) {
-        uint32_t L = bass_slot_q8(s, b, p), elapsed;
-        if (s->ext) {
-            elapsed = (uint32_t)s->t[t].ext_ticks * s->ext_period + (s->ext_since << 8);
-            uint32_t sw = (p & 1) ? swing_q8(s, bp->rate, seq_step_q8(s, bp->rate)) : 0;
-            elapsed = elapsed > sw ? elapsed - sw : 0;
-        } else elapsed = s->t[t].to_next <= L ? L - s->t[t].to_next : 0;
-        r->at -= elapsed >> 8;
-    }
-    seq_rec_skip(s, t, p, 0);
-    s->t[t].to_off = 0;
-    s->t[t].sounding = 1; /* tie/stop bookkeeping follows the live authoritative gate */
-    s->t[t].held_note = (uint8_t)(note | (((flags & BS_SLIDE) || overlap) ? 0x80u : 0));
 }

@@ -85,6 +85,9 @@ typedef struct {
     void (*midi)(void *ctx, uint8_t status, uint8_t d1, uint8_t d2);   /* clock / transport / notes out */
     void (*step)(void *ctx, int part, int step);                        /* UI playhead (optional) */
     void *ctx;
+#if X0X_ORIGINAL_SYNTH
+    void (*transport)(void *ctx, int running); /* ordered with following input */
+#endif
 } seq_sink_t;
 
 #define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */
@@ -120,16 +123,6 @@ typedef struct {                      /* one part's runtime */
 } seq_track_t;
 
 typedef struct {
-    uint32_t at, slot;
-    uint8_t active, pat, first, last, prev, note, src, entered;
-    uint8_t gen;       /* bumped on context cancel; a reopened DSP gate is not this generation */
-    uint8_t own_ok;    /* 1 = own_* is an accepted live press of own_gen */
-    uint8_t own_gen;   /* generation that accepted the live press */
-    uint8_t own_src;   /* route of that press */
-    uint8_t own_note;  /* pitch of that press */
-} seq_bass_rec_t;
-
-typedef struct {
     pattern_t *pat;                   /* NPAT patterns (the project's) */
     song_t *song;                     /* the project's song (may be 0) */
     volatile uint8_t playing;         /* 1 = running */
@@ -153,12 +146,6 @@ typedef struct {
     float bpm;                        /* internal tempo (UI writes; read per step) */
     float ext_bpm;                    /* tempo measured from the external clock */
     seq_track_t t[NTRACKS];           /* TRK_DRUM, TRK_BASS0.., TRK_BRK */
-    /* Audio-side visual observer. UI reads only metro_view (one atomic byte):
-     * 0 = stopped/waiting, 1..32 = quarter-note phase. Never schedules events. */
-    uint32_t metro_phase, metro_period; /* elapsed/period in sample Q8 */
-    float metro_bpm;
-    uint8_t metro_tick;               /* accepted external clocks, independent of tempo ring */
-    volatile uint8_t metro_view;
     uint32_t clk_to_next;             /* internal: samples to the next MIDI clock, Q8 */
     uint32_t ext_since;               /* samples since the last external clock (tempo estimate) */
     uint32_t ext_period;              /* smoothed samples per external clock, Q8 */
@@ -169,9 +156,6 @@ typedef struct {
     volatile uint32_t req_prior_ticks;/* ticks queued before latest Start/Continue request */
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
-    volatile uint8_t rec_epoch, rec_dirty, rec_mask, rec_refused; /* accepted audio-side recorder context */
-    volatile uint8_t rec_hold_mask;             /* finish an onset carried from SEQ into EDIT; no new onsets */
-    seq_bass_rec_t rec_bass[NBASS];
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
     uint8_t bass_out_valid[NBASS], bass_out_ch[NBASS]; /* note zero is valid; release on its original channel */
@@ -225,19 +209,3 @@ int seq_part_len(const seq_t *s, int t);         /* steps in part t's pattern */
 int seq_next_step(seq_t *s, int t, int p);       /* the step after p (direction; no commit) */
 int seq_rec_step(seq_t *s, int t);               /* the step a live hit now records on: the nearest */
 void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step does not sound it once */
-
-#define SEQ_REC_LEGATO 0x40u /* accepted live incoming transition; never stored in step flags */
-/* Live MIDI/keyboard edges, at the current audio clock. Last press owns the line;
- * older/different-route releases do not end it. Repeated identical presses count.
- * SEQ_REC_LEGATO is not ownership: overlap also needs the accepted note generation. */
-void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags);
-void seq_rec_bass_end(seq_t *s, int b);
-/* Context cancel, part or pattern change, REC off, bulk finalize: drop the accepted
- * generation and finish the open capture. Press membership stays with the engine. */
-void seq_rec_cancel(seq_t *s, int b);
-
-#if X0X_BASS_NOTE_SOUND
-/* Audio recorder storage transaction supplied by the product engine. */
-int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step);
-void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step);
-#endif

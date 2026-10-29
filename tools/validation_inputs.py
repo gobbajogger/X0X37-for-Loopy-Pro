@@ -197,8 +197,7 @@ def runtime(config, env=None):
         packages[name] = {'version': dist.version, 'sha256': digest(encoded(files))}
     settings = {k: v for k, v in env.items() if k.startswith(('X0X_DEV_', 'FELUCCA_')) or k in (
         'CC', 'CXX', 'CFLAGS', 'CXXFLAGS', 'CPPFLAGS', 'LDFLAGS', 'CPATH', 'LIBRARY_PATH',
-        'X0X_VERSION', 'X0X_BASS_PRESET_PREVIEW', 'X0X_BASS_TAGGED_SOUND',
-        'X0X_BASS_NOTE_SOUND',
+        'X0X_VERSION',
         'LD_LIBRARY_PATH', 'LD_PRELOAD', 'PYTHONPATH', 'NODE_PATH', 'NODE_OPTIONS',
         'X0X_CDC', 'X0X_DEBUG', 'X0X_BREAK_BANK', 'X0X_RAM_CANARY', 'X0X_SMK_LCD_BAUD',
         'X0X_FONTSET', 'X0X_FONT_DIRS', 'CTL_NATIVE', 'CTL_NO_CACHE', 'X0X_TEST_TIME_SCALE', 'BOARD', 'MODEL')}

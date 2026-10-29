@@ -13,8 +13,8 @@ The classic-build export names ChatGPT, Codex, and Work routes. In Cursor, use t
 | Hourly Dots or Codex scheduler | No scheduler is created by this skill. Git history and the pull request are the durable inbox. |
 | `skills__list` / plugin URI | This skill directory. Read a reference only when its stage is the next action. |
 | ChatGPT Library file IDs, `/mnt/data` | Environment variables and directories named in `BUILDING.md`. A missing path is a missing input, not a Library lookup. |
-| GitHub connector write APIs | Discover the actual supported Git, API and PR capabilities. Use only the route authorized for the exact destination/action. A CLI limitation is not proof all routes are absent; an actual denial is binding. |
-| Thread creation | Discover the actually exposed creation and result-reader tools. Prefer the current capable owner or a qualified relay when no new execution is needed. A saved prompt is not a launched worker. |
+| GitHub connector write APIs | `git` for the authorized branch. In a cloud agent, open and update pull requests with the session PR tool. The `gh` CLI is read-only there. |
+| `cloud_threads.create`, `codex_app.create_thread` | Not available. Deliver the handoff as a commit and pull request. |
 | Hosted computer use | The session browser or a `computerUse` subagent for a user-visible web change. |
 | Plugin Creator | Edit this skill in Git. |
 
@@ -30,9 +30,9 @@ Verify returned diffs, command exits, and hashes before accepting them. A subage
 
 Follow the branch name required by this run. A cloud agent uses `cursor/<description>-<suffix>` from its run instructions. Historical `lane/...` branches may still exist on the remote. Leave them untouched and do not create a new `lane/` branch when the run requires the `cursor/` prefix.
 
-Push the owned branch without force. Read back the remote commit, tree, and changed paths. A local commit is `GIT DELIVERY PENDING`. An actual permission, hook or policy refusal stays refused: do not switch API, encoding, destination or use force to get past it. A verified DNS/transport error is distinct; apply [connected source delivery](../../../../docs/connected-git-source-delivery.md) through an independently authorized supported route.
+Push the owned branch without force. Read back the remote commit, tree, and changed paths. A local commit is `GIT DELIVERY PENDING`. A refused write stays refused: do not switch API, encoding, destination, or use force to get past it.
 
-Open a pull request for a source-complete change. Put the evidence packet in the body. The default base is this run's base branch unless the user named `nightly` or another base. Merge, stack retargeting and shared-ref writes require current action authority and the existing assigned owner. Reuse applicable standing permission across runs; a stage change does not revoke it or grant another worker the owner's scope.
+Open a pull request for a source-complete change. Put the evidence packet in the body. The default base is this run's base branch unless the user named `nightly` or another base. Do not merge, retarget stacked pulls, or write `main`, `nightly`, or `gh-pages` unless this run's user request assigns that write.
 
 Scratch gate and quickcheck clones keep external push URLs disabled. That guard applies to those clones. It does not forbid pushing this run's feature branch.
 
@@ -59,9 +59,9 @@ Where bytes may go:
 
 | Destination | Firmware packages and `ctl.img` | Toolchain, SDK, private DSP, samples, backups, credentials |
 | --- | --- | --- |
-| Source branches, including `main`, `nightly`, and this run's branch | Leave firmware/controller binaries uncommitted unless an exact destination policy permits them; put hashes in evidence. | Keep restricted/private bytes uncommitted. An owner-designated stock-loop set needs its exact scoped permission and provenance. |
+| Source branches, including `main`, `nightly`, and this run's branch | Leave them uncommitted. Put hashes in the pull request. | Leave them uncommitted. |
 | This repository's `gh-pages` | The assigned publisher in `BUILDING.md` puts release `.fwsc` files on that branch. See [stages.md](stages.md). | Leave them out. |
-| `gobbajogger/x0x37-for-Loopy-Pro_nightly`, when that repository is the target | Leave them out. Record qualified hashes and links under that repo's current rules. | Keep restricted/private bytes out; only specifically authorized stock-loop material can enter its permitted scope. |
+| `gobbajogger/x0x37-for-Loopy-Pro_nightly`, when that repository is the target | Leave them out. Record hashes and links only. | Leave them out. |
 
 Hash manifests, command lines, exits, and log digests may be committed on a source branch when they contain none of the private bytes. The cloud agent store is run memory, not an artifact host and not a download URL.
 
@@ -71,7 +71,7 @@ Separate an unavailable method, a missing input, an unrun stage, and a reproduce
 
 - GitHub Actions is not the build or test runner. Do not dispatch it. A failed or empty workflow is not a firmware result. Run the applicable local check.
 - Absence of `/mnt/data` or a ChatGPT file ID is normal in Cursor.
-- Inspect the actual `gh` failure. A documented read-only CLI limitation can leave another authorized PR route available; a permission, protection or policy denial must not be bypassed.
+- A `gh` write failure in a cloud agent is that CLI's read-only mode. Use the session pull-request tool.
 - No attached SMK-37 does not block source, host, mock MIDI, or development-build work. It blocks only a `DEVICE_VERIFIED` claim and any install the user did not assign.
 - Shell DNS failure on one command does not erase a Git remote that already fetches. Prove the specific operation.
 - `tests/run_tests.sh` prints `all tests passed` whenever its failure counter is zero. Confirm the intended test name ran and reported `ok` before counting a pass. A 2026-10-23 run observed an unknown selector exit 0. Re-check the current script before relying on that observation.
@@ -83,4 +83,4 @@ A real blocker names the stage, commit, command, exit, alternatives tried, the m
 
 Do not create a Cursor Automation, a `/loop`, or a second scheduled owner from this skill. Create one only when the user asks for recurrence. Automations load project skills from this repository's `.cursor/skills/` directory; they do not load a personal skill that exists only on one machine. Preserve any automation the user already enabled. Do not change its clock or duplicate it.
 
-A configured schedule is not evidence that a future run happened. Continue executable authorized work after each report. At a real execution boundary, persist and verify the checkpoint and one supported successor or qualified existing relay; otherwise retain the precise pending dependency. Do not claim future execution from configuration alone.
+A configured schedule is not evidence that a future run happened. This invocation ends when it ends. Resume from Git.

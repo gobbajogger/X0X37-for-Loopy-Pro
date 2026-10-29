@@ -45,12 +45,6 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
     if (msg[0] == 0x90) wire_led[msg[1]] = msg[2];
     return 1;
 }
-#ifndef SMC_SLOT_SEND_IMPLEMENTED
-/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
-int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
-{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
-#endif
-
 #include SMC_MIXER_SOURCE
 
 #define SMK_KEY_F3 5

@@ -207,7 +207,7 @@ static void test_slice_select(void)
         CHECK(fabsf(brk_weight_at(i, 0.5f) - (0.5f + 0.5f * locked[i])) < 1e-5f, "weight_at(%d, .5)", i);
     }
     {
-        brk_sel_t in = {0, 0, 8, 0.5f, 0.7f, 0.3f, 1.0f, 0, 0};
+        brk_sel_t in = {0, 0, 0.5f, 0.7f, 0.3f, 1.0f, 0, 0};
         float c, a, r;
         brk_apply_phrase(&in, &c, &a, &r);
         CHECK(c == 0.5f && a == 0.7f && r == 0.3f, "phrase off: no modulation");
@@ -224,7 +224,7 @@ static void test_slice_select(void)
     breaks_init(&b);
     b.rng = 12345;
     {
-        brk_sel_t in = {3, 3, 8, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0};
+        brk_sel_t in = {3, 3, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0};
         CHECK(brk_select_next(&in, &b) == 3, "sequential: beat_position 3");
         in.current_slice = 7; in.beat_position = 7;
         CHECK(brk_select_next(&in, &b) == 7, "sequential: beat_position 7");
@@ -232,7 +232,7 @@ static void test_slice_select(void)
         CHECK(brk_select_next(&in, &b) == 5, "after a swap the beat plays its own slice");
     }
     {   /* Roll=1 Anchor=0 from 4: never 4, >= 80 % +-1 walks */
-        brk_sel_t in = {4, 4, 8, 0.5f, 0.0f, 1.0f, 0.0f, 0, 0};
+        brk_sel_t in = {4, 4, 0.5f, 0.0f, 1.0f, 0.0f, 0, 0};
         int rep = 0, walk = 0;
         b.rng = 0x1234abcd;
         for (int i = 0; i < 2000; i++) {
@@ -244,14 +244,14 @@ static void test_slice_select(void)
         CHECK(walk > 1600, "Roll=1 Anchor=0: >= 80 %% walks (%d/2000)", walk);
     }
     {   /* Roll=1 Anchor=1 slice 0: repeat >= 80 % */
-        brk_sel_t in = {0, 0, 8, 0.5f, 1.0f, 1.0f, 0.0f, 0, 0};
+        brk_sel_t in = {0, 0, 0.5f, 1.0f, 1.0f, 0.0f, 0, 0};
         int rep = 0;
         b.rng = 0xfacefeed;
         for (int i = 0; i < 2000; i++) rep += brk_select_next(&in, &b) == 0;
         CHECK(rep >= 1600, "Roll=1 Anchor=1 slice 0 repeats >= 80 %% (%d)", rep);
     }
     {   /* Complexity=1: uniform */
-        brk_sel_t in = {0, 0, 8, 1.0f, 0.0f, 0.0f, 0.0f, 0, 0};
+        brk_sel_t in = {0, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0, 0};
         int cnt[8] = {0}, ok = 1;
         b.rng = 0x55aa55aa;
         for (int i = 0; i < 8000; i++) cnt[brk_select_next(&in, &b)]++;
@@ -259,14 +259,14 @@ static void test_slice_select(void)
         CHECK(ok, "Complexity=1: uniform per slice");
     }
     {   /* fill bar releases the anchor lock */
-        brk_sel_t in = {0, 0, 8, 1.0f, 1.0f, 1.0f, 1.0f, 4, 3};
+        brk_sel_t in = {0, 0, 1.0f, 1.0f, 1.0f, 1.0f, 4, 3};
         int rep = 0;
         b.rng = 0xc0ffee;
         for (int i = 0; i < 2000; i++) rep += brk_select_next(&in, &b) == 0;
         CHECK(rep <= 400, "fill bar: anchor lock released (%d)", rep);
     }
     {   /* Anchor=1 Complexity=0 Roll=0 locks to the beat position */
-        brk_sel_t in = {0, 0, 8, 0.0f, 1.0f, 0.0f, 0.0f, 0, 0};
+        brk_sel_t in = {0, 0, 0.0f, 1.0f, 0.0f, 0.0f, 0, 0};
         int ok = 1;
         b.rng = 0xa11ce1;
         for (int bp = 0; bp < 8; bp++) {

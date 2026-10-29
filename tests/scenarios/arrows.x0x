@@ -3,7 +3,6 @@
 # A held arrow repeats: the first repeat after 400 ms, then one step each 80 ms. The value stops at its ends.
 # Action rows do not run. With no menu, the arrows move SELECT one detent for each press (GEN-29).
 wait 300
-tap EDIT
 expect setsize 40
 expect setbyte27 8
 # no menu, clip mode off: one SELECT detent for each press, no repeat

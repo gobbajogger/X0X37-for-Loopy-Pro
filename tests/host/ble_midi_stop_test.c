@@ -6,7 +6,7 @@
 #include <string.h>
 #include "ble_midi_central.h"
 static struct {
-    struct { blec_t c,c2; } host;
+    struct { blec_t c; } host;
     struct { unsigned state, polls, c2h; } mb;
     uint8_t fr[128];
 } ble_r;
@@ -16,12 +16,10 @@ static uint32_t fm1_ms, ble_alive[2], ble_ok_at;
 static struct { unsigned trying; } ble_guard;
 static unsigned attempts[4], accepted[4], pending_n, linked;
 static uint8_t pending[40];
-static int smc_ble_role_get(void) { return 1; }
 static void ble_record(void) { assert(0); }
 static void ble_fail(void) { assert(0); }
 static void ble_guard_ok(void *p) { (void)p; }
 static void ble_central_link_notify(int up) { linked = (unsigned)up; }
-static void ble_central_link_notify_slot(unsigned slot,int up) { (void)slot; ble_central_link_notify(up); }
 static int xb_frame_get(void *q, uint8_t *t, uint8_t *p, unsigned n)
 {
     (void)q;
@@ -72,7 +70,6 @@ static void setup(unsigned create, uint32_t at)
     memset(accepted, 0, sizeof accepted); pending_n = busy = linked = 0;
     ble_up = fm1_c1_on = ble_host_on = 1; ble_want = 1;
     ble_r.mb.state = XB_ST_READY; fm1_ms = at;
-    blec_pair_bind(0, 0); /* Retain legacy single-peer edge cases; dual lifecycle has its own suite. */
     blec_init(c, transport, 0, 0, addr); blec_start(c, at);
     response(0x0c03, 0, 1); response(0x0c01, 0, 1); response(0x2001, 0, 1);
     const uint8_t buf[] = {0x0e, 7, 1, 2, 0x20, 0, 27, 0, 5}; event(buf, sizeof buf);

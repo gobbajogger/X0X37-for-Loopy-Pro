@@ -1,7 +1,0 @@
-  ok   engine-cq-boff-overflow
-  ok   engine-cq-brk-overflow
-  ok   engine-cq-bon-overflow
-  ok   engine-cq-drum-overflow
-  ok   midi-mq-rt-overflow
-  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
-all tests passed

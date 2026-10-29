@@ -33,11 +33,10 @@ def function(name):
 
 
 prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
-helpers = ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot") if "smc_poll_peer" in source else ()
-functions = "\n".join(function(n) for n in helpers + (
+functions = "\n".join(function(n) for n in (
     "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link",
-    "smc_mmc_drain_stop",
-) + (("smc_poll_peer",) if helpers else ()) + ("smc_poll",))
+    "smc_mmc_drain_stop", "smc_poll"
+))
 harness = r'''
 #include <stdint.h>
 #include <stdio.h>
@@ -57,7 +56,6 @@ static int busy;
 static int perf_testing(void) { return 0; }
 static int ui_project_busy(void) { return busy; }
 static void engine_smc_solo(int mask) { (void)mask; }
-static void engine_smc_solo_targets(uint8_t p,uint16_t a,uint16_t b) { (void)a; (void)b; engine_smc_solo(p); }
 static void ui_say(const char *s, int unused) { (void)s; (void)unused; }
 static void smc_guarded_button(uint8_t n, int mmc, int allow)
 { (void)n; (void)mmc; (void)allow; mmc_count++; }

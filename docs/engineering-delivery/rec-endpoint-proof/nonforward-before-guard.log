@@ -1,7 +1,0 @@
-Historical endpoint-only adaptation before admission guard, actual product MIDI/sequence replay:
-nonforward direction=2 recorded_release=28000 replay_first_off=5880 flags=1,18,2,2
-FAIL: repeated-cell duration has an occurrence ambiguity
-nonforward direction=3 recorded_release=28000 replay_first_off=22050 flags=1,242,2,2
-FAIL: repeated-cell duration has an occurrence ambiguity
-
-Current guard rejects before capture; exact per-occurrence storage remains OPEN.

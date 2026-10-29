@@ -44,12 +44,6 @@ uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 #ifndef SMC_UI_SEND_IMPLEMENTED
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
 #endif
-#ifndef SMC_SLOT_SEND_IMPLEMENTED
-/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
-int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
-{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
-#endif
-
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -103,9 +97,7 @@ static void setup(int view, int part)
     held_btn = held_keys = 0;
     memset(enc_acc, 0, sizeof enc_acc);
     memset(&ui, 0, sizeof ui);
-    smc_slot = 0;
-    memset(smc_states, 0, sizeof smc_states);
-    memset(smc_inputs, 0, sizeof smc_inputs);
+    memset(&smc, 0, sizeof smc);
     smc_ui_cancel();
     clip_grid_mode = clip_waiting = ck.pg = 0; clip_dirty = 1;
     memset(fields, 0, sizeof fields);
@@ -325,7 +317,7 @@ static void test_distinct_maps(void)
 {
     setup(V_HOME, PART_303A);
     for (int n = 0; n < 8; n++) CHECK(smc_same(smc_target(n), smc_home_target(n)));
-    for (int n = 0; n < NPARTS; n++) CHECK(smc_same(smc_knob_target(n), PR(R_ENG,T_MIX,n==2?4:n==4?2:n,MX_CUT)));
+    for (int n = 0; n < NPARTS; n++) CHECK(smc_same(smc_knob_target(n), PR(R_ENG,T_MIX,n,MX_CUT)));
     CHECK(smc_same(smc_knob_target(5), PR(R_ENG,T_FX,0,FX_RV_DECAY)));
     CHECK(smc_same(smc_knob_target(6), PR(R_ENG,T_FX,0,FX_DL_FDBK)));
     CHECK(smc_same(smc_knob_target(7), PR(R_ENG,T_MST,0,MST_RESO)));
@@ -431,42 +423,18 @@ static void test_track_knob_align(void)
     CHECK(track_slot_of(T_909, 9, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Tune") == 0);
     CHECK(track_slot_of(T_808, 10, "Decay") == 1);
-    /* Owner-approved Chicago B primary row: Cutoff / Reso / EnvMod / Wave.
-     * Feature-on factory boot can be Miami, so establish engine identity first. */
+    /* 303 TONE stays Cutoff / Reso / EnvMod / Decay. */
     setup(V_PART, PART_303A);
-#if X0X_BASS_PRESET_PREVIEW
-    engine_bass_off(0); engine_bass_off(1);
-    CHECK(engine_bass_select_preset(0, FACTORY_BANK_CHICAGO, 0, &proj.sound) == 0);
-    for (int n = 0; n < 1024 && engine_bass_preset_pending(0); n++) {
-        int32_t audio[512]; engine_render(audio, 256);
-    }
-    CHECK(!engine_bass_preset_pending(0));
-    CHECK(engine_bass_bank(0) == FACTORY_BANK_CHICAGO);
-    build_pages();
-#endif
-    int tone = -1;
-    for (int page = 0; page < pg.n; page++)
-        if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF))) tone = page;
-    CHECK(tone == 0); /* selected B primary physical row */
-    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
-    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
-    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
-    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, BASS303_WAVE)));
-#if X0X_BASS_PRESET_PREVIEW
-    int sound = -1;
-    for (int page = 0; page < pg.n; page++)
-        if (pg.r[page][0].kind == R_BENGINE) sound = page;
-    CHECK(sound == pg.n - 1); /* SOUND follows the selected B parameter matrix. */
-    CHECK(smc_same(pg.r[sound][0], PR(R_BENGINE, 0, 0, 0)));
-    CHECK(smc_same(pg.r[sound][1], PR(R_BPRESET, 0, 0, 0)));
-    CHECK(pg.r[sound][2].kind == R_NONE); /* former physical K7 cancel is now empty */
-#endif
-    puts("PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity");
+    CHECK(smc_same(pg.r[0][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
+    CHECK(smc_same(pg.r[0][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
+    CHECK(smc_same(pg.r[0][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
+    CHECK(smc_same(pg.r[0][3], PR(R_ENG, T_303, 0, BASS303_DECAY)));
+    puts("PASS align: drum sound knobs share Tune/Decay ranks; 303 TONE unchanged");
 }
 
 /* Verify physical grouping in the real framebuffer, rather than accepting any
- * nonempty screen: eight encoders over eight faders, three M/S/R rows, and
- * SELECT represented only by the separately checked title highlight. */
+ * nonempty screen: eight encoders over eight faders, with M/S/R and the effect
+ * button to the right. */
 static void test_physical_geometry(void)
 {
     setup(V_HOME, PART_909); fader(0, 0); ui_frame();
@@ -474,9 +442,8 @@ static void test_physical_geometry(void)
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 36) * 240 + x + 8] != 0); /* encoder top */
         CHECK(fb[(MAIN_Y + 90) * 240 + x + 3] != 0);  /* vertical fader */
-        for (int row = 0; row < 3; row++)
+        for (int row = 0; row < 4; row++)
             CHECK(fb[(MAIN_Y + 62 + row * 12) * 240 + x + 18] != swap16(C_BLACK));
-        CHECK(fb[(MAIN_Y + 98) * 240 + x + 18] == swap16(C_BLACK)); /* no phantom fourth row */
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
@@ -485,7 +452,7 @@ static void test_physical_geometry(void)
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 36) * 240 + n * 30 + 8] != 0);
     shot("13-eight-strip-resonance");
-    puts("PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row");
+    puts("PASS physical layout: all eight knob/fader positions and four right-side button rows");
 }
 
 
@@ -493,15 +460,15 @@ static void check_selected(int selected)
 {
     for (int n = 0; n < 8; n++) {
         CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
-        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)); /* SELECT stays in the title */
+        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] != swap16(C_BLACK));
     }
 }
 static void test_selected_lane(void)
 {
-    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); check_selected(4);
+    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); check_selected(2);
     CHECK(smc_ui.kind == 1 && smc_ui.strip == 7);
     shot("14-selected-part-touched-filter");
-    setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(2);
+    setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(PART_BRK);
     setup(V_FX, PART_303A); knob(0, 1); ui_frame(); check_selected(5);
     *page_of(V_FX) = 1; build_pages(); knob(1, 1); ui_frame(); check_selected(6);
     setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages();

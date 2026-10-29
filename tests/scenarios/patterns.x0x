@@ -45,7 +45,7 @@ tap PLAY
 # a 303 step edit: hold a step and turn its note knob
 tap EDIT
 tapkey w2
-turn ALGO 4
+turn ALGO 2
 expect part 2
 key w0 down
 turn K1 3
