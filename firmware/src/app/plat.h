@@ -16,6 +16,17 @@
 #define X0X_POOL __attribute__((section(".pool")))
 #endif
 
+/* CQ replacement: exclude only its audio-ISR consumer, preserving an already
+ * disabled source. Host app simulation is single-threaded; interleaving tests
+ * supply a source-mask model when extracting the production queue. */
+#ifdef X0X_HOST
+static inline uint32_t plat_cq_lock(void) { return 0; }
+static inline void plat_cq_unlock(uint32_t state) { (void)state; }
+#else
+uint32_t plat_cq_lock(void);
+void plat_cq_unlock(uint32_t state);
+#endif
+
 /* panel controls, by printed label (Felucca's panel.c map turns these into matrix ids; Felucca
  * calls the second button SCL, the panel prints SEL) */
 enum { B_FX, B_SEL, B_ENV, B_LFO, B_EDIT, B_GLO, B_HOME, B_SAVE, B_ARP, B_SEQ, B_PLAY, B_REC,
@@ -27,6 +38,19 @@ enum { EN_SELECT, EN_ALGO, EN_PRESET, EN_K1, EN_K2, EN_K3, EN_K4, NE };
 uint32_t plat_ms(void);
 uint32_t plat_buttons(void);           /* held: bit B_* */
 uint32_t plat_keys(void);              /* held: bit k = key k (0 = F3) */
+/* Outer physical events retain their publication epoch and strike pitch.
+ * Snapshot/cutoff includes the complete physical bitmap under an IRQ guard. */
+typedef struct { uint32_t generation, word; } plat_outer_event_t;
+#if defined(X0X_HOST) && !defined(X0X_LIVE_KEY_TEST)
+static inline uint64_t plat_physical_keys(void) { return (uint64_t)plat_keys()<<5; }
+static inline int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                                  uint32_t epoch,int enabled,int octave,int publish)
+{ (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;*keys=plat_physical_keys();*overflow=0;return 0; }
+#else
+uint64_t plat_physical_keys(void);
+int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                    uint32_t epoch,int enabled,int octave,int publish);
+#endif
 uint8_t plat_key_velocity(int key);    /* last strike, 1..127; 100 without velocity sensing */
 int32_t plat_enc(int role);            /* detents since the last call, + = clockwise; EN_* */
 uint32_t plat_master(void);            /* MASTER pot, 0..4096 gain Q12 */
@@ -37,6 +61,9 @@ void plat_keys_dim(uint32_t keys);     /* these keys light dim (a second level; 
 void plat_play_red(int red);           /* PLAY lights green; red (its other LED) while recording (before plat_leds) */
 
 /* USB MIDI, 4-byte USB-MIDI event packets (cable 0) */
+uint32_t plat_midi_mark(void);        /* accepted input producer watermark, non-consuming */
+int plat_midi_passed(uint32_t mark);  /* consumer reached/passed mark; <2^31 outstanding */
+int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input ring query */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */

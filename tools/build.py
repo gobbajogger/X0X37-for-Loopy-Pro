@@ -18,6 +18,9 @@ so M-Vave's updater still takes that unit's factory package; build/x0x-smk37-eli
 
 The JieLi toolchain is Linux x86-64 only. JIELI_TOOLCHAIN points at it; on
 macOS (or with JIELI_DOCKER=1) each tool runs in a linux/amd64 container.
+
+X0X_ORIGINAL_SYNTH=1 is the default Chicago/Miami replacement, with the admitted
+seven-type Chicago FX policy. Explicit0 retains only a reference build lane.
 """
 import argparse
 import hashlib
@@ -39,6 +42,8 @@ sys.path.insert(0, str(SRC / "tools"))
 import fm1pkg_make  # noqa: E402
 import gen_cache  # noqa: E402
 import lz4blk  # noqa: E402
+import rom_guard  # noqa: E402
+import check_original_inputs  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
 APP_SLOT = fm1pkg_make.APP_SLOT
@@ -57,6 +62,70 @@ def clang_std_inc():
 # the DSP, the sequencer and the audio engine: separate units at -O2
 O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/bass303.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
             "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
+# Explicit compilation superset. The app's backend calls, not forced export roots,
+# decide which function/data sections survive the link. master_unmuted.c is an old
+# component reference; the original graph uses master.c and its real lifecycle.
+ORIGINAL_SYNTH_UNITS = [
+    "experiments/original_synth/chicago_allocator.c",
+    "experiments/original_synth/chicago_arp_control.c",
+    "experiments/original_synth/chicago_control_owner.c",
+    "experiments/original_synth/chicago_drive.c",
+    "experiments/original_synth/chicago_dynamics.c",
+    "experiments/original_synth/chicago_engine_output.c",
+    "experiments/original_synth/chicago_full_mg.c",
+    "experiments/original_synth/chicago_fx2_compact.c",
+    "experiments/original_synth/chicago_fx2_wrapper.c",
+    "experiments/original_synth/chicago_global_mg.c",
+    "experiments/original_synth/chicago_global_stage.c",
+    "experiments/original_synth/chicago_key_admission.c",
+    "experiments/original_synth/chicago_modulation.c",
+    "experiments/original_synth/chicago_mp4.c",
+    "experiments/original_synth/chicago_note_context.c",
+    "experiments/original_synth/chicago_output.c",
+    "experiments/original_synth/chicago_packed.c",
+    "experiments/original_synth/chicago_program.c",
+    "experiments/original_synth/chicago_program_output.c",
+    "experiments/original_synth/chicago_scheduler.c",
+    "experiments/original_synth/chicago_selector.c",
+    "experiments/original_synth/chicago_smallfx.c",
+    "experiments/original_synth/chicago_tuning.c",
+    "experiments/original_synth/chicago_voice.c",
+    "experiments/original_synth/chicago_voice_owner.c",
+    "experiments/original_synth/chicago_voice_snapshot.c",
+    "experiments/original_synth/control_math.c",
+    "experiments/original_synth/engine_events.c",
+    "experiments/original_synth/fixed_fx.c",
+    "experiments/original_synth/fused_reference.c",
+    "experiments/original_synth/lossless_table.c",
+    "experiments/original_synth/master.c",
+    "experiments/original_synth/miami_control_owner.c",
+    "experiments/original_synth/miami_fx_chain.c",
+    "experiments/original_synth/miami_geometry.c",
+    "experiments/original_synth/miami_ms20.c",
+    "experiments/original_synth/miami_note_context.c",
+    "experiments/original_synth/miami_output.c",
+    "experiments/original_synth/miami_pitch.c",
+    "experiments/original_synth/miami_program.c",
+    "experiments/original_synth/miami_selected_voice.c",
+    "experiments/original_synth/miami_startup.c",
+    "experiments/original_synth/miami_voice_owner.c",
+    "experiments/original_synth/miami_voice_snapshot.c",
+    "experiments/original_synth/oscillator_motion.c",
+    "experiments/original_synth/program_envelope.c",
+    "experiments/original_synth/state_codec.c",
+    "experiments/original_synth/voice_gain.c",
+    "experiments/wobble/miami_decimator_adapter.c",
+    "experiments/wobble/miami_decimator_component.c",
+    "experiments/wobble/miami_fx_conversion.c",
+]
+ORIGINAL_SYNTH_BACKENDS = [
+    "firmware/src/dsp/original_chicago_backend.c",
+    "firmware/src/dsp/original_miami_backend.c",
+    "firmware/src/app/original_runtime.c",
+    "firmware/src/app/original_sound.c",
+]
+ORIGINAL_SYNTH_FLAGS = ["-fno-fast-math", "-ffp-contract=off", "-DNDEBUG",
+                        "-DORIGINAL_USE_SOFT_FMA", "-DMIAMI_FX_NO_HOST_FENV"]
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
 # SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
@@ -244,7 +313,83 @@ def build_loader():
 
 # ---- app
 
+def synth_build_config(environ=None):
+    """Select one DSP implementation; an explicit legacy enable cannot mix them."""
+    env = os.environ if environ is None else environ
+    original = env.get("X0X_ORIGINAL_SYNTH", "1")
+    if original not in ("0", "1"):
+        raise SystemExit("X0X_ORIGINAL_SYNTH: 0 or 1")
+    if original == "1":
+        for flag in ("X0X_WOBBLE", "X0X_DEV_WOBBLE"):
+            if flag in env and env[flag] != "0":
+                raise SystemExit(f"X0X_ORIGINAL_SYNTH=1 requires {flag}=0 or unset")
+        return True, "0"
+    wobble = env.get("X0X_WOBBLE")
+    if wobble is None:
+        wobble = env.get("X0X_DEV_WOBBLE", "1")
+    if wobble not in ("0", "1"):
+        raise SystemExit("X0X_WOBBLE / X0X_DEV_WOBBLE: 0 or 1")
+    return False, wobble
+
+
+def require_original_synth_sources(root=None):
+    """Fail before invoking the compiler if source or exact inputs are missing."""
+    root = SRC if root is None else Path(root)
+    required = [*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS,
+                *(str(Path(u).with_suffix(".h")) for u in ORIGINAL_SYNTH_BACKENDS)]
+    missing = [u for u in required if not (root / u).is_file()]
+    if missing:
+        raise SystemExit("X0X_ORIGINAL_SYNTH=1: missing replacement sources: " + ", ".join(missing))
+    inputs = check_original_inputs.verify(
+        root, expected_manifest_sha256=check_original_inputs.MANIFEST_SHA256)
+    if not inputs["ok"]:
+        raise SystemExit("X0X_ORIGINAL_SYNTH=1: invalid external inputs: " +
+                         "; ".join(inputs["errors"]))
+
+
+def app_compile_commands(flags, original_synth, wobble):
+    """Return the exact app compile/link input plan without running tools."""
+    if original_synth:
+        if wobble != "0":
+            raise SystemExit("X0X_ORIGINAL_SYNTH=1 cannot compile legacy WBL")
+        # x0x.c and engine.c use this flag to select the matching UI/factory and
+        # backend code. The old factory tables are textual includes in x0x.c,
+        # not standalone units that can be removed from this list.
+        flags = [*flags, "-DX0X_ORIGINAL_SYNTH=1",
+                 "-Iexperiments/original_synth", "-Iexperiments/wobble"]
+    o2 = [f if f != "-Os" else "-O2" for f in flags]
+    units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
+             ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
+             ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
+             ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
+             ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
+    objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
+    if wobble == "1":
+        o = OUT / "o2" / "wobble.o"
+        units.append(("cc", *[f if f != "-O2" else "-Oz" for f in o2], "-c", Path("experiments/wobble/wobble.c"), "-o", o))
+        objs.append(o)
+    for u in O2_UNITS:
+        if original_synth and u == "dsp/bass303.c":
+            continue
+        o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
+        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
+        if original_synth and u == "app/engine.c":
+            unit_flags = [*unit_flags, *ORIGINAL_SYNTH_FLAGS]
+        units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
+        objs.append(o)
+    if original_synth:
+        original_flags = [*flags, *ORIGINAL_SYNTH_FLAGS]
+        for u in (*ORIGINAL_SYNTH_UNITS, *ORIGINAL_SYNTH_BACKENDS):
+            o = OUT / "original" / (Path(u).stem + ".o")
+            units.append(("cc", *original_flags, "-c", Path(u), "-o", o))
+            objs.append(o)
+    return units, objs
+
+
 def build_app():
+    original_synth, wobble = synth_build_config()
+    if original_synth:
+        require_original_synth_sources()
     flags = [*CFLAGS, *FPU, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
@@ -252,12 +397,21 @@ def build_app():
         v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
-    # Product Miami/WBL1: on unless explicitly X0X_WOBBLE=0 (or legacy X0X_DEV_WOBBLE=0 alone).
-    wobble = os.environ.get("X0X_WOBBLE")
-    if wobble is None:
-        wobble = os.environ.get("X0X_DEV_WOBBLE", "1")
-    if wobble not in ("0", "1"):
-        raise SystemExit("X0X_WOBBLE / X0X_DEV_WOBBLE: 0 or 1")
+    # Sound-selector previews use tagged storage but deliberately leave the
+    # separate per-note snapshot lifecycle disabled until it is qualified.
+    bass_flags = ("X0X_BASS_PRESET_PREVIEW", "X0X_BASS_TAGGED_SOUND", "X0X_BASS_NOTE_SOUND")
+    for flag in bass_flags:
+        v = os.environ.get(flag)
+        if v is not None:
+            if v not in ("0", "1"):
+                raise SystemExit(f"{flag}: 0 or 1")
+            flags.append(f"-D{flag}={v}")
+    if os.environ.get("X0X_BASS_NOTE_SOUND") == "1" and os.environ.get("X0X_BASS_TAGGED_SOUND") != "1":
+        raise SystemExit("X0X_BASS_NOTE_SOUND requires X0X_BASS_TAGGED_SOUND=1")
+    if os.environ.get("X0X_BASS_TAGGED_SOUND") == "1" and os.environ.get("X0X_BASS_PRESET_PREVIEW") != "1":
+        raise SystemExit("X0X_BASS_TAGGED_SOUND requires X0X_BASS_PRESET_PREVIEW=1")
+    # Product WBL is enabled in comparison builds unless explicitly disabled;
+    # the original replacement always disables both legacy selectors.
     if f"-DX0X_WOBBLE={wobble}" not in flags:
         flags.append(f"-DX0X_WOBBLE={wobble}")
     if f"-DX0X_DEV_WOBBLE={wobble}" not in flags:
@@ -281,23 +435,9 @@ def build_app():
         flags.append(f'-DX0X_VERSION="{VERSION}"')
     if RELEASE_LABEL:
         flags.append(f'-DX0X_RELEASE_LABEL="{RELEASE_LABEL}"')
-    o2 = [f if f != "-Os" else "-O2" for f in flags]
-    units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
-             ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
-             ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
-             ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
-             ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
-    objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
-    (OUT / "o2").mkdir(parents=True, exist_ok=True)
-    if wobble == "1":
-        o = OUT / "o2" / "wobble.o"
-        units.append(("cc", *[f if f != "-O2" else "-Oz" for f in o2], "-c", Path("experiments/wobble/wobble.c"), "-o", o))
-        objs.append(o)
-    for u in O2_UNITS:
-        o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
-        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
-        units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
-        objs.append(o)
+    units, objs = app_compile_commands(flags, original_synth, wobble)
+    for directory in {o.parent for o in objs}:
+        directory.mkdir(parents=True, exist_ok=True)
     tc_all(*units)
     elf = OUT / "x0x.elf"
     # unreferenced functions (each in its own section: -ffunction-sections) are dropped: the DSP keeps
@@ -356,14 +496,7 @@ def check(img, syms, dis, rt):
         errors.append(f".ram_text contains calls: {rt_calls[:3]}")
     else:
         notes.append(f".ram_text: {len([ln for ln in rt.splitlines() if LINE.match(ln)])} insns, no calls")
-    for ln in dis.splitlines():     # nothing may call or load an address in the chip ROM
-        mm = LINE.match(ln)
-        if not mm:
-            continue
-        for v in re.findall(r"= (-?\d+) <|call -?\d+ <[^:>]*: ([0-9a-f]+) >", mm.group(3)):
-            val = (int(v[0]) & 0xFFFFFFFF) if v[0] else int(v[1], 16) & 0xFFFFFFFF
-            if 0xFFC00000 <= val < 0xFFD00000:
-                errors.append(f"reference to ROM address {val:#010x}")
+    errors.extend(rom_guard.references(dis))  # no ROM calls, loads or escaping ROM addresses
     if len(img) > APP_CODE_MAX:
         errors.append(f"image {len(img)} B exceeds the app code area ({APP_CODE_MAX} B)")
     else:
@@ -466,6 +599,9 @@ def main():
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
+    original_synth, _ = synth_build_config()
+    if original_synth:
+        require_original_synth_sources()
     # regression guard: hardware-relevant settings must match tools/locked_settings.json
     if subprocess.run([sys.executable, str(SRC / "tools" / "check_locked_settings.py")]).returncode:
         raise SystemExit("build.py: locked settings differ (see above); the build stops")
