@@ -21,6 +21,12 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) {
         led_vel[msg[1]] = msg[2];
     return 1;
 }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -114,10 +120,10 @@ static void knob_accel_isolated(void) {
     assert(ui.enc_run[EN_K1] == panel_run);
 }
 /* Panel curve stays x8. SMC quick spins use a shorter curve. Same translation unit. */
-static int accel_at(int smc, uint32_t gap, int s, int range, uint8_t run)
+static int accel_at(int is_smc, uint32_t gap, int s, int range, uint8_t run)
 {
     int got;
-    accel_smc = (uint8_t)smc;
+    accel_smc = (uint8_t)is_smc;
     ui.enc_t[EN_K1] = now_ms;
     ui.enc_run[EN_K1] = run;
     now_ms += gap;
@@ -298,16 +304,16 @@ static void record_lamp_follows_part(void) {
     smc.rec_part = 0;
     smc_frame();
     assert(led_vel[0] == 127);
-    assert(led_vel[2] == 0);
+    assert(led_vel[4] == 0);
     ui.part = 2;                       /* panel SELECT / part change; no SMC Record press */
     for (int i = 0; i < 128; i++) smc.known[i] = 0;
     smc_frame();
     assert(led_vel[0] == 0);
-    assert(led_vel[2] == 127);
+    assert(led_vel[4] == 127);
     ui.rec = 0;
     for (int i = 0; i < 128; i++) smc.known[i] = 0;
     smc_frame();
-    assert(led_vel[2] == 0);
+    assert(led_vel[4] == 0);
 }
 /* Nav lamps on strips 6–8 must follow their own shortcut, not one shared page formula. */
 static void nav_strip_lamps(void) {
@@ -369,6 +375,7 @@ static void help_keeps_controls(void) {
     assert(!ui.help);
 }
 static void scenario(void) {
+    static const int expected_strip[5] = {0,1,4,3,2};
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
     memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
     boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
@@ -396,15 +403,15 @@ static void scenario(void) {
     for(int part=0;part<NPARTS;part++) {
         smc_select_part((part + 1) % NPARTS);
         smc_view(V_HOME,0);
-        press(24 + part);
+        press(24 + expected_strip[part]);
         assert(ui.part == part && ui.view == V_PART && !smc.fx_down);
         /* The same actual input is an assigned effect only in FX context.
          * DAW Note buttons own press/release; stock User MMC has toggle-only edges. */
         smc_view(V_FX,0);
-        message(0x90,24+part,127);
+        message(0x90,24+expected_strip[part],127);
         assert(ui.part == part && ui.view == V_FX && (smc.fx_down & (1u << part)));
-        if(user_route()) message(0x90,24+part,127);
-        else message(0x80,24+part,0);
+        if(user_route()) message(0x90,24+expected_strip[part],127);
+        else message(0x80,24+expected_strip[part],0);
         assert(ui.part == part && ui.view == V_FX && !(smc.fx_down & (1u << part)));
         smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {

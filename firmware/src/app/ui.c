@@ -230,6 +230,8 @@ typedef struct {
     uint8_t touch_kind, touch_a, touch_b, touch_c; /* exact edited ref for overlays */
     uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
     uint32_t hold_t0;                  /* when it went down (a tap takes an old step off) */
+    uint8_t brk_page, brk_count_target;
+    uint16_t brk_localkeys;
     uint16_t brk_pinkeys;              /* BREAK: black keys used to give a held step its slice (their release is not live) */
     uint8_t gen_stale[NBASS];          /* TB-3PO's knobs changed since the line was written */
     uint32_t btn, keys, btn_used;
@@ -460,7 +462,10 @@ static const x0x_param_t OUT_P = {"OUTPUT", 1, 0, OUT_N};
 static const char *const USBA_N[] = {"FOLLOWS KNOB", "FULL"};
 static const x0x_param_t USBA_P = {"USB AUDIO", 1, 0, USBA_N};
 static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
-static const x0x_param_t BRKSLICE_P = {"8 SLICES", 1, 0, ONOFF_N};
+static const char *const BRKSLICE_N[] = {"4", "8", "16", "32"};
+static const x0x_param_t BRKSLICE_P[2] = {
+    {"A SLICES", 3, 1, BRKSLICE_N}, {"B SLICES", 3, 1, BRKSLICE_N}
+};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
@@ -529,7 +534,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BRATE: return &SEQ_P[SQ_BRATE];
     case R_BDIR: return &SEQ_P[SQ_BDIR];
     case R_BTRANS: return &SEQ_P[SQ_BTRANS];
-    case R_BRKSLICE: return &BRKSLICE_P;
+    case R_BRKSLICE: return &BRKSLICE_P[r.a != 0];
     case R_BRKSLOT: {
         static x0x_param_t d = {"LOOP", 0, 0, 0};
         static const char *none[] = {"none"};
@@ -626,7 +631,7 @@ static int pref_get(pref_t r)
     }
     case R_BRKSET: return p->brk.set[r.c];
     case R_BRKSLOT: return r.a ? p->brk.slot_b : p->brk.slot_a;
-    case R_BRKSLICE: return p->brk.slice_mode ? 1 : 0;
+    case R_BRKSLICE: { int code = (p->brk.slice_mode >> (r.a * 2)) & 3; return code < 2 ? code ^ 1 : code; }
     case R_TEMPO: return (int)(seq.bpm + 0.5f) - 20;
     case R_ACCENT: return seq.accent_q7;
     case R_CLKOUT: return seq.send_clock;
@@ -746,14 +751,14 @@ X0X_COLD static void pref_set(pref_t r, int v)
     }
     case R_BRKSET: p->brk.set[r.c] = (uint8_t)v; break;
     case R_BRKSLICE: {
-        uint8_t m = (uint8_t)(v ? 1 : 0);
-        if (p->brk.slice_mode != m) {
-            p->brk.slice_mode = m;
-            engine_brk_slice_mode_reconcile();
-        }
+        ui.brk_count_target = (uint8_t)(r.a != 0);
+        unsigned shift = r.a * 2u, code = v < 2 ? (unsigned)v ^ 1u : (unsigned)v;
+        p->brk.slice_mode = (uint8_t)((p->brk.slice_mode & ~(3u << shift)) | (code << shift));
+        if (!r.b || p == pat_of(PART_BRK)) engine_brk_loops();
         break;
     }
     case R_BRKSLOT:
+        ui.brk_count_target = (uint8_t)(r.a != 0);
         if (r.a)
             p->brk.slot_b = (uint8_t)v;
         else
@@ -1422,6 +1427,7 @@ static void build_pages(void)
             add_page_refs("LOOPS", refs, 0, 0); } while (0);
             more(PR(R_ENG, T_BRK, 0, 0));
             more(PR(R_BRKSLICE, 0, 0, 0));
+            more(PR(R_BRKSLICE, 1, 0, 0));
         }
         break;
     case V_GEN:
@@ -3154,6 +3160,11 @@ static void mute_track(int km, int v)                /* one drum track on / off 
 #if BOARD_SMK37 || X0X_HOST
 void smk_clip_enter_cleanup(void)
 {
+    for (int k = 0; k < 11; k++)
+        if (ui.brk_localkeys & (1u << k))
+            engine_brk_live(k < 8 ? 32 + ui.brk_page * 8 + k : k, 0);
+    ui.brk_localkeys = ui.brk_pinkeys = 0;
+    engine_brk_edit_hold(0);
     bass_step_cancel();
     ui.chain_first = -1;
     ui.hold_step = -1;
@@ -3169,8 +3180,52 @@ void smk_clip_enter_cleanup(void)
 }
 #endif
 
+/* Outer C3/D3 count, C#3/D#3 page; E3 remains unassigned. use the authoritative bitmap, not lossy extq.
+ * Always update the edge baseline, including modal/clip/busy frames. */
+void ui_brk_page_keys(unsigned keys, int allowed)
+{
+    static unsigned previous;
+    static int eligible_before;
+    int eligible = allowed && !project_busy && !ui.help && ui.overlay == O_NONE &&
+        ui.part == PART_BRK && (ui.view == V_SEQ || ui.view == V_PART) && !ui.btn && !perf_testing();
+    unsigned pressed = keys & ~previous;
+    previous = keys;
+    if (!eligible || !eligible_before) { eligible_before = eligible; return; }
+    if (!pressed) return;
+    if ((pressed & 12u) == 4u || (pressed & 12u) == 8u) {
+        unsigned bank = ui.brk_count_target;
+        pref_t ref = PR(R_BRKSLICE, bank, 0, 0);
+        int value = pref_get(ref) + ((pressed & 4u) ? -1 : 1);
+        if (value < 0) value = 0;
+        if (value > 3) value = 3;
+        pref_set(ref, value);
+        mark_dirty();
+        ui.act_t = plat_ms();
+    }
+    pressed &= 3u;
+    if (!pressed) return;
+    if ((ui.brk_localkeys & 255u) || ui.brk_pinkeys) { say("RELEASE SLICES", 0); return; }
+    int pages = (engine_brk_count(0) + 7) / 8;
+    int page = ui.brk_page < pages ? ui.brk_page : pages - 1;
+    if (pressed == 1 && page > 0) page--;
+    if (pressed == 2 && page + 1 < pages) page++;
+    ui.brk_page = (uint8_t)page;
+    ui.act_t = plat_ms();
+}
+
 static void key_event(int k, int down)
 {
+    /* End the press-time BREAK owner before modal/view/clip dispatch can hide it.
+     * Paging is blocked while held, so its slice identity remains stable. */
+    int oldbl = KEY_BLACK[k];
+    if (!down && oldbl >= 0 && ((ui.brk_localkeys | ui.brk_pinkeys) & (1u << oldbl))) {
+        if (ui.brk_localkeys & (1u << oldbl))
+            engine_brk_live(oldbl < 8 ? 32 + ui.brk_page * 8 + oldbl : oldbl, 0);
+        ui.brk_localkeys &= (uint16_t)~(1u << oldbl);
+        ui.brk_pinkeys &= (uint16_t)~(1u << oldbl);
+        engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
+        return;
+    }
     if (!down) {
         for (int b = 0; b < NBASS; b++) {
             uint32_t i, j, hit = 0;
@@ -3343,24 +3398,32 @@ static void key_event(int k, int down)
             bass_step_key(w, down);
     } else {
         brkpart_t *bp = &cur_pat()->brk;
+        int count = engine_brk_count(0);
+        if (!(ui.brk_localkeys & 255u) && !ui.brk_pinkeys && ui.brk_page * 8 >= count)
+            ui.brk_page = (uint8_t)((count - 1) / 8);
+        int slot = ui.brk_page * 8 + bl;
+        if (bl >= 0 && bl < 8 && down && slot >= count) { say("UNUSED SLICE KEY", 0); return; }
         if (bl >= 0 && bl < 8 && down && ui.brk_held >= 0) {     /* a step held + black 1-8: its own slice */
             int st = ui.brk_held;
-            bp->slice[st] = (uint8_t)(bp->slice[st] == bl + 1 ? 0 : bl + 1);
+            bp->slice[st] = (uint8_t)(bp->slice[st] && (bp->slice[st] - 1) % count == slot ? 0 : slot + 1);
             bp->steps |= 1u << st;
             ui.hold_used = 1;                          /* its release keeps the step */
             ui.brk_pinkeys |= (uint16_t)(1u << bl);
+            engine_brk_edit_hold(1);
             mark_dirty();
             if (bp->slice[st]) {
                 char t[24];
-                put_i(put_s(put_i(put_s(t, "STEP "), st + 1), ": SLICE "), bl + 1);
+                put_i(put_s(put_i(put_s(t, "STEP "), st + 1), ": SLICE "), slot + 1);
                 say(t, 0);
             } else
                 say("STEP: THE GENERATOR'S SLICE", 0);
         } else if (bl >= 0 && !down && (ui.brk_pinkeys & (1u << bl))) {
             ui.brk_pinkeys &= (uint16_t)~(1u << bl);
-        } else if (bl >= 0)
-            engine_brk_live(bl, down);
-        else if (w >= 0 && down) {                     /* as the drums: empty on at once, a tap takes it off */
+        } else if (bl >= 0) {
+            if (down) ui.brk_localkeys |= (uint16_t)(1u << bl);
+            engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
+            engine_brk_live(bl < 8 ? 32 + slot : bl, down);
+        } else if (w >= 0 && down) {                     /* as the drums: empty on at once, a tap takes it off */
             ui.brk_held = (int8_t)w;
             ui.hold_used = 0;
             ui.hold_t0 = plat_ms();
@@ -3392,6 +3455,8 @@ static void list_move(int d)
         s = t;
     }
     ui.list_sel = (uint8_t)s;
+    if (list_rows[s].kind == R_BRKSLICE || list_rows[s].kind == R_BRKSLOT)
+        ui.brk_count_target = (uint8_t)(list_rows[s].a != 0);
     if (ui.list_sel < ui.list_top)
         ui.list_top = ui.list_sel;
     if (ui.list_sel >= ui.list_top + 6)
@@ -4011,20 +4076,20 @@ static int matrix_three_rows(void)
            pg.r[4][0].kind==R_ENG && pg.r[4][0].c==CHI_ARP_SWITCH &&
            pg.r[6][0].kind==R_BENGINE;
 }
-#define SOUND_BASE RGB(5,10,13)
-#define SOUND_FACE RGB(16,26,31)
-#define SOUND_EDGE RGB(38,56,61)
-#define SOUND_SIDE RGB(7,14,17)
-#define SOUND_SELECT RGB(37,59,45)
-#define SOUND_SELECT_EDGE RGB(62,92,64)
-#define SOUND_SELECT_SIDE RGB(21,39,27)
-#define SOUND_INK RGB(224,235,214)
-#define SOUND_WHITE RGB(222,231,223)
-#define SOUND_GRAY RGB(156,170,168)
-#define SOUND_DIM RGB(128,146,148)
-#define SOUND_LINE RGB(40,56,61)
-#define SOUND_GREEN RGB(143,191,121)
-#define SOUND_AMBER RGB(196,155,69)
+#define SOUND_BASE UI_N_BASE
+#define SOUND_FACE UI_N_FACE
+#define SOUND_EDGE UI_N_EDGE
+#define SOUND_SIDE UI_N_SIDE
+#define SOUND_SELECT UI_N_SELECT
+#define SOUND_SELECT_EDGE UI_N_SELECT_EDGE
+#define SOUND_SELECT_SIDE UI_N_SELECT_SIDE
+#define SOUND_INK UI_N_INK
+#define SOUND_WHITE UI_N_WHITE
+#define SOUND_GRAY UI_N_GRAY
+#define SOUND_DIM UI_N_DIM
+#define SOUND_LINE UI_N_LINE
+#define SOUND_GREEN UI_N_ACCENT
+#define SOUND_AMBER UI_N_AMBER
 
 static uint16_t dim(uint16_t c, int t) { return blend(C_BLACK, c, t); }
 
@@ -4300,17 +4365,20 @@ static int steps_len(void)
 #else
 #define UI_DRAW
 #endif
-static UI_DRAW void sound_slab(int x,int y,int w,int h,int active)
+/* Shallow 2D panel: one-pixel lit top/left and shaded lower/right. No extra
+ * framebuffer, blur, animation timer, allocation or trigonometry. */
+static UI_DRAW void night_panel(int x,int y,int w,int h,int active)
 {
     uint16_t edge=active?SOUND_SELECT_EDGE:SOUND_EDGE;
     uint16_t side=active?SOUND_SELECT_SIDE:SOUND_SIDE;
-    cv_rect(x+1,y+h,w,1,RGB(2,4,6));
+    cv_rect(x+1,y+h,w,1,UI_N_SHADOW);
     cv_rect(x,y,w,h,active?SOUND_SELECT:SOUND_FACE);
     cv_rect(x+1,y,w-2,1,edge);
-    cv_rect(x,y+1,1,h-2,active?edge:RGB(28,44,49));
+    cv_rect(x,y+1,1,h-2,active?edge:UI_N_LEFT);
     cv_rect(x+1,y+h-1,w-1,1,side);
     cv_rect(x+w-1,y+1,1,h-1,side);
 }
+#define sound_slab night_panel
 
 static UI_DRAW void draw_header(void)
 {
@@ -4323,7 +4391,7 @@ static UI_DRAW void draw_header(void)
     int pickup = ui.msg[0] == 'P' && ui.msg[1] == 'I' && ui.msg[2] == 'C' &&
                  ui.msg[3] == 'K' && ui.msg[4] == ' ';
     cv_begin(240, HDR_H, C_BLACK);
-    cv_rect(0, HDR_H - 1, 240, 1, C_LINE);
+    night_panel(0,0,240,HDR_H,0);
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
         box(0, 0, 240, HDR_H - 1, part_col());
         text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
@@ -4789,41 +4857,48 @@ static UI_DRAW void draw_break(int band)
     uint16_t col = part_col();
     uint32_t lmarks = lock_marks(-1, -1, 0);           /* (the break: its 16 steps) */
     engine_brk_state(&slice, &bank, &div, &running);
+    int audition = engine_brk_held() != 0, active = running || audition;
     if (!ui.outline_ok || ui.outline_slot != bp->slot_a) {
         ui.outline_ok = (uint8_t)engine_brk_outline(0, ui.outline, 232);
         ui.outline_slot = bp->slot_a;
     }
-    if (band == 0) {                                   /* loop A, its 8 slices, the one sounding */
-        int x;
+    if (band == 0) {                                   /* loop A: eight visible slice slots */
+        int x, count = engine_brk_count(0);
+        int page = ui.brk_page * 8 < count ? ui.brk_page : (count - 1) / 8;
+        night_panel(3,1,234,65,0);
         for (c = 0; c < 8; c++) {
-            int x0 = 4 + c * 29;
-            char t[2] = {(char)('1' + c), 0};
-            if (running && c == slice && bank == 0)
-                box(x0, 1, 28, 56, dim(col, 5));
-            text_c(x0 + 14, 59, &FONT_XS, t, running && c == slice && bank == 0 ? C_WHITE : C_DIM);
+            int x0 = 8 + c * 28, local = page * 8 + c;
+            char t[4];
+            if (local < count) put_i(t, local + 1); else put_s(t, "-");
+            if (active && local == slice && bank == 0)
+                cv_rect(x0,5,28,44,dim(col,5));
+            text_c(x0 + 14,53,&FONT_XS,t,active && local==slice && bank==0?C_WHITE:C_GRAY);
         }
-        for (x = 0; x < 232 && ui.outline_ok; x++) {
-            int h = ui.outline[x] * 26 / 255, sl = x / 29;
-            if (h)
-                cv_rect(4 + x, 29 - h, 1, 2 * h, running && sl == slice && bank == 0 ? C_WHITE : col);
+        cv_rect(8,27,224,1,C_LINE);
+        for (x=0;x<224 && ui.outline_ok;x++) {
+            int sl = page * 8 + x / 28;
+            int source_x = (page * 8 * 232 + x * 8 * 232 / 224) / count;
+            int h = sl < count && source_x < 232 ? ui.outline[source_x] * 21 / 255 : 0;
+            if(h) cv_rect(8+x,27-h,1,2*h+1,active && sl==slice && bank==0?C_WHITE:col);
         }
-        for (c = 1; c < 8; c++)
-            cv_rect(4 + c * 29, 1, 1, 56, C_LINE);
+        for(c=1;c<8;c++) cv_rect(8+c*28,5,1,44,C_LINE);
     } else {
         const char *const *sn = engine_brk_slot_names();
         int ns = engine_brk_nslots();
         char t[40], *q = t;
-        for (c = 0; c < 16; c++) {
-            int x = col_x(c), on = (bp->steps >> c) & 1u;
-            box(x, 2, 12, 10, on ? (c == ph ? C_WHITE : col) : (c == ph ? C_DIM : C_LINE));
+        night_panel(3,1,234,20,0);
+        for (c=0;c<16;c++) {
+            int x=8+c*14,on=(bp->steps>>c)&1u;
+            cv_rect(x,5,12,12,on?(c==ph?C_WHITE:col):(c==ph?C_DIM:UI_N_SIDE));
+            cv_rect(x,5,12,1,on?col:UI_N_EDGE);
             if (on && ((lmarks >> c) & 1u))            /* the step's own values (p-locks): a notch */
-                cv_rect(x + 8, 3, 3, 3, C_BLACK);
+                cv_rect(x+8,6,3,3,C_BLACK);
             if (bp->slice[c]) {                        /* the step's own slice */
-                char d[2] = {(char)('0' + bp->slice[c]), 0};
-                text_c(x + 6, vc(&FONT_XS, 2, 10), &FONT_XS, d, on ? C_BLACK : C_GRAY);
+                char d[4]; put_i(d, (bp->slice[c] - 1) % engine_brk_count(0) + 1);
+                text_c(x+6,vc(&FONT_XS,5,12),&FONT_XS,d,on?C_BLACK:C_GRAY);
             }
         }
-        cv_text(3, 1, &FONT_XS, "ON", C_GRAY);
+
         {
             char ta[16], tb[16];
             if (!ns) {
@@ -4833,15 +4908,27 @@ static UI_DRAW void draw_break(int band)
                 put_s(put_s(ta, "A  "), sn[bp->slot_a % ns]);
                 put_s(put_s(tb, "B  "), sn[bp->slot_b % ns]);
             }
-            segs(4, 18, &FONT_S, C_HI, 18, ta, tb, 0, 0);
+            night_panel(3,25,114,16,bank==0 && active);
+            night_panel(123,25,114,16,bank==1 && active);
+            text_c(60,28,&FONT_XS,ta,C_HI);text_c(180,28,&FONT_XS,tb,C_HI);
             (void)q;
         }
-        if (running) {
-            q = put_s(t, bank ? "PLAYING B" : "PLAYING A");
-            if (div > 1)
-                put_i(put_s(q, "   RETRIG X"), div);
-            cv_text(4, 36, &FONT_S, t, bank ? C_AMB : C_GRAY);
+        int count = engine_brk_count(0), page = ui.brk_page * 8 < count ? ui.brk_page : (count - 1) / 8;
+        q = put_i(put_s(t, "A KEYS "), page * 8 + 1);
+        q = put_i(put_s(q, "-"), count < 8 ? count : page * 8 + 8);
+        q = put_i(put_s(q, "/"), count);
+        if (count != (int)brk_slice_count(bp, 0)) put_s(q, " PENDING");
+        cv_text(8, 44, &FONT_XS, t, C_GRAY);
+        q = put_s(t, ui.brk_count_target ? "EDIT B " : "EDIT A ");
+        put_i(q, (int)brk_slice_count(bp, ui.brk_count_target));
+        cv_text(144, 44, &FONT_XS, t, C_GRAY);
+        q = put_s(t, "C/D COUNT C#/D# PAGE");
+        if (active) {
+            q = put_s(q, audition ? " | LIVE A" : bank ? " | PLAY B" : " | PLAY A");
+            put_i(put_s(q, ":"), slice + 1);
+
         }
+        cv_text(8, 58, &FONT_T, t, C_DIM);
     }
 }
 
@@ -4895,77 +4982,82 @@ static void pat_glyph_row(int32_t x, int32_t y, uint32_t bits16, uint16_t c)
     int i;
     for (i = 0; i < 8; i++)
         if ((bits16 >> (i * 2) & 3u) != 0u)
-            cv_rect(x + i, y, 1, 2, c);
+            cv_rect(x+i,y,1,3,c);
 }
 
-/* a part's lane on HOME: the 16 steps of the page its playhead is on (bits: those 16, from base) */
+/* HOME uses full instrument names and shallow lane plates. Display positions
+ * never become project/engine IDs; each lane still reads its own current pattern. */
 static void lane(int y, int p, uint32_t bits, int ph, int len, int base)
 {
     int c, muted = part_muted(p);
-    cv_text(3, y, &FONT_XS, part_s(p), muted ? C_DIM : PART_COL[p]);
+    uint16_t accent = muted ? C_DIM : PART_COL[p];
+    const char *name = part_display(p);
+    night_panel(3,y,234,18,0);
+    cv_rect(4,y+3,2,11,accent);
+    /* Full names fit the default engines. Same-engine A/B and unknown states
+     * retain the stable short lane names instead of colliding with the grid. */
+    if(tw(&FONT_T,name)>49) name=part_s(p);
+    cv_text(9,vc(&FONT_T,y+1,16),&FONT_T,name,accent);
     for (c = 0; c < 16 && base + c < len; c++) {
-        uint16_t fc = (bits >> c & 1u) ? (muted ? C_DIM : PART_COL[p]) : C_LINE;
-        box(col_x(c), y + 2, 12, 9, fc);
-        if (seq.playing && (ph & 15) == c)
-            rbox(col_x(c) + 2, y + 12, 8, 2, 1, C_WHITE);
+        int x=58+c*11+(c>>2);
+        int on=(bits>>c)&1u;
+        /* Eight-pixel cells have equal five-pixel margins in the 18px plate. */
+        cv_rect(x,y+5,9,8,UI_N_SIDE);
+        cv_rect(x,y+5,9,1,on?accent:UI_N_EDGE);
+        if(on) cv_rect(x+1,y+6,7,6,muted?C_DIM:dim(accent,11));
+        cv_rect(x,y+12,9,1,on?dim(accent,6):UI_N_EDGE);
+        if(seq.playing && (ph&15)==c) cv_rect(x+1,y+14,7,2,C_WHITE);
     }
 }
 
 static UI_DRAW void draw_home(int band)
 {
-    int p, c;
-    if (band == 0) {                                   /* the 16 patterns; in each, a bar per part playing it */
-        int cue = seq_cue_of(&seq, PART_909), c0 = ui.pbank * 16;
-        for (c = c0; c < c0 + 16; c++) {
-            int x = 4 + (c - c0) * 14 + (c - c0 >= 8 ? 4 : 0);
-            int in_chain = seq.chain_a != seq.chain_b &&
-                           c >= (seq.chain_a < seq.chain_b ? seq.chain_a : seq.chain_b) &&
-                           c <= (seq.chain_a < seq.chain_b ? seq.chain_b : seq.chain_a);
-            frame(x, 3, 12, 18, C_LINE);
-            for (int pos = 0; pos < NPARTS; pos++) {     /* display order, stable data lane */
-                p = part_at(pos);
-                int used = part_used(&proj.pat[c], p);   /* it plays now; assignment has a separate border tick */
-                uint32_t pb;
-                uint16_t fc;
-                if (!used && seq.ppat[p] != c)
-                    continue;
-                pb = pat_part_bits16(&proj.pat[c], p);
-                fc = seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4)) : dim(PART_COL[p], 7);
-                if (pb)
-                    pat_glyph_row(x + 2, 5 + pos * 3, pb, fc);
-                if (seq.ppat[p] == c)                  /* never invent content inside the eight columns */
-                    cv_rect(x, 5 + pos * 3, 1, 2, PART_COL[p]);
+    int p,c,off=band*BAND_H;
+    if(band==0) {
+        int cue=seq_cue_of(&seq,PART_909),c0=ui.pbank*16;
+        night_panel(3,1,234,33,0);
+        for(c=c0;c<c0+16;c++) {
+            int x=7+(c-c0)*14+(c-c0>=8?4:0);
+            int in_chain=seq.chain_a!=seq.chain_b &&
+                c>=(seq.chain_a<seq.chain_b?seq.chain_a:seq.chain_b) &&
+                c<=(seq.chain_a<seq.chain_b?seq.chain_b:seq.chain_a);
+            cv_rect(x,3,12,22,UI_N_SIDE);
+            cv_rect(x,3,12,1,UI_N_EDGE);
+            for(int pos=0;pos<NPARTS;pos++) {
+                p=part_at(pos);
+                int used=part_used(&proj.pat[c],p);
+                uint32_t pb; uint16_t fc;
+                /* Assignment is not content: an empty lane must leave no coloured mark. */
+                if(!used) continue;
+                pb=pat_part_bits16(&proj.pat[c],p);
+                fc=seq.ppat[p]==c?PART_COL[p]:dim(PART_COL[p],7);
+                if(pb)pat_glyph_row(x+2,4+pos*4,pb,fc);
+                if(seq.ppat[p]==c)cv_rect(x,4+pos*4,1,3,PART_COL[p]);
             }
-            if (c == cue && c != seq.ppat[PART_909] && (ui.frame & 16u))
-                frame(x - 1, 2, 14, 20, C_WHITE);
-            if (in_chain)
-                cv_rect(x, 30, 12, 2, C_AMB);
-            if ((c & 3) == 0) {                         /* every fourth: its number (and so the bank) */
-                char t[4];
-                put_i(t, c + 1);
-                cv_text(x + 1, 21, &FONT_XS, t, ui.pbank ? C_AMB : C_GRAY);
+            if(c==cue && c!=seq.ppat[PART_909] && (ui.frame&16u)) frame(x-1,1,14,25,C_WHITE);
+            if(in_chain)cv_rect(x,32,12,1,C_AMB);
+            if(c==seq.ppat[ui.part]) {
+                char t[4];put_i(t,c+1);int w=tw(&FONT_T,t),tx=x+6-w/2;
+                if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+                cv_text(tx,25,&FONT_T,t,ui.pbank?C_AMB:C_GRAY);
             }
         }
-        for (p = 0; p < 2; p++) {
-            const dpart_t *d = &pat_of(p)->drum[p];
-            uint32_t bits = 0;
-            int v, base = seq.playing ? (eng_step[TRK_DRUM + p] & ~15) : 0;
-            for (v = 0; v < NDRUM; v++)
-                bits |= d->hit[v][base >> 5] >> (base & 31);
-            lane(32 + p * 16, p, bits & 0xFFFFu, eng_step[TRK_DRUM + p], d->len, base);
-        }
-    } else {
-        for (int pos = 2; pos < NPARTS; pos++) {
-            p = part_at(pos);
-            uint32_t bits = 0;
-            if (p < PART_BRK) {
-                const bpart_t *bp = &pat_of(p)->bass[p - NKIT];
-                int base = seq.playing ? (eng_step[TRK_BASS0 + p - NKIT] & ~15) : 0;
-                bits = bass_content_bits16(bp, base);
-                lane((pos - 2) * 16 + 1, p, bits, eng_step[TRK_BASS0 + p - NKIT], bp->len, base);
-            } else {
-                lane((pos - 2) * 16 + 1, p, pat_of(p)->brk.steps, eng_step[TRK_BRK], 16, 0);
-            }
+    }
+    for(int pos=0;pos<NPARTS;pos++) {
+        int y=35+pos*20-off;
+        if(y+19<=0 || y>=BAND_H)continue;
+        p=part_at(pos);
+        uint32_t bits=0;
+        if(p<NKIT) {
+            const dpart_t *d=&pat_of(p)->drum[p];
+            int base=seq.playing?(eng_step[TRK_DRUM+p]&~15):0;
+            for(int v=0;v<NDRUM;v++)bits|=d->hit[v][base>>5]>>(base&31);
+            lane(y,p,bits&0xFFFFu,eng_step[TRK_DRUM+p],d->len,base);
+        } else if(p==PART_BRK) lane(y,p,pat_of(p)->brk.steps,eng_step[TRK_BRK],16,0);
+        else {
+            const bpart_t *bp=&pat_of(p)->bass[p-NKIT];
+            int base=seq.playing?(eng_step[TRK_BASS0+p-NKIT]&~15):0;
+            lane(y,p,bass_content_bits16(bp,base),eng_step[TRK_BASS0+p-NKIT],bp->len,base);
         }
     }
 }
@@ -5013,38 +5105,39 @@ static UI_DRAW void draw_song(int band)
     }
 }
 
+/* Continuous send track with an explicit setting thumb, including zero/max. */
+static UI_DRAW void night_send(int x,int y,int w,int value,uint16_t col)
+{
+    int at=x+value*(w-3)/127;
+    cv_rect(x,y+2,w,3,UI_N_SIDE);
+    if(value)cv_rect(x,y+3,at-x+2,1,dim(col,8));
+    cv_rect(at,y,3,7,col);
+}
+
 static UI_DRAW void draw_fx(int band)
 {
-    int p;
-    if (band == 0) {                                   /* five parts x reverb / delay */
-        cv_text(52, 0, &FONT_XS, "REVERB", C_GRAY);
-        cv_text(148, 0, &FONT_XS, "DELAY", C_GRAY);
-        for (int pos = 0; pos < NPARTS; pos++) {
-            p = part_at(pos);
-            int y = 14 + pos * 11, rv = proj.sound.v[T_MIX][p][1], dl = proj.sound.v[T_MIX][p][2];
-            cv_text(3, y - 2, &FONT_XS, part_s(p), PART_COL[p]);
-            rbox(52, y + 2, 88, 6, 3, C_LINE);
-            if (rv)
-                rbox(52, y + 2, 6 + rv * 82 / 127, 6, 3, PART_COL[p]);
-            rbox(148, y + 2, 88, 6, 3, C_LINE);
-            if (dl)
-                rbox(148, y + 2, 6 + dl * 82 / 127, 6, 3, PART_COL[p]);
-        }
-    } else {
-        char a[16], u[8], t[40], *q;
-        pref_value(PR(R_ENG, T_FX, 0, FX_DL_TIME), a, u);
-        q = put_s(put_s(t, "DELAY "), a);
-        pref_value(PR(R_ENG, T_FX, 0, FX_DL_TYPE), a, u);
-        put_s(put_s(q, "  "), a);
-        cv_text(4, 4, &FONT_B, t, C_HI);
-        {
-            char t2[20];
-            put_s(put_i(put_s(t, "FEEDBACK "), proj.sound.v[T_FX][0][FX_DL_FDBK] * 100 / 127), "%");
-            put_i(put_s(t2, "REVERB "), proj.sound.v[T_FX][0][FX_RV_DECAY] * 100 / 127);
-            segs(4, 24, &FONT_S, C_GRAY, 18, t, t2, 0, 0);
-            (void)q;
-        }
+    int off=band*BAND_H;
+    char a[16],u[8],t[40],*q;
+    text_c(98,1-off,&FONT_T,"REVERB",C_GRAY);text_c(192,1-off,&FONT_T,"DELAY",C_GRAY);
+    for(int pos=0;pos<NPARTS;pos++) {
+        int p=part_at(pos),y=14+pos*15-off;
+        night_panel(3,y,234,13,0);
+        const char *name=part_display(p);
+        if(tw(&FONT_T,name)>49)name=part_s(p);
+        cv_text(7,y+2,&FONT_T,name,PART_COL[p]);
+        night_send(60,y+3,76,proj.sound.v[T_MIX][p][1],PART_COL[p]);
+        night_send(154,y+3,76,proj.sound.v[T_MIX][p][2],PART_COL[p]);
     }
+    night_panel(3,92-off,234,20,0);
+    pref_value(PR(R_ENG,T_FX,0,FX_DL_TIME),a,u);
+    q=put_s(put_s(t,"DELAY "),a);
+    pref_value(PR(R_ENG,T_FX,0,FX_DL_TYPE),a,u);
+    put_s(put_s(q,"  "),a);cv_text(9,96-off,&FONT_S,t,C_HI);
+    night_panel(3,116-off,114,20,0);night_panel(123,116-off,114,20,0);
+    cv_text(9,121-off,&FONT_T,"FEEDBACK",C_GRAY);cv_text(129,121-off,&FONT_T,"RV DECAY",C_GRAY);
+    put_s(put_i(t,proj.sound.v[T_FX][0][FX_DL_FDBK]*100/127),"%");
+    text_r(111,121-off,&FONT_T,t,C_WHITE);
+    put_i(t,proj.sound.v[T_FX][0][FX_RV_DECAY]*100/127);text_r(231,121-off,&FONT_T,t,C_WHITE);
 }
 
 /* MIX, a drum machine's page: its eleven tracks' levels (and pans), the selected one lit */
@@ -5077,7 +5170,7 @@ static UI_DRAW void draw_drum_mix(int band, int k)
  * index unchanged so SPI stays calm (Baud Girl FM-1+VA scope policy). No second audio tap. */
 static UI_DRAW void draw_master_wave(void)
 {
-    enum { X0 = 4, W = 196, MID = 34, AMP = 30 };
+    enum { X0=8,W=188,MID=34,AMP=26 };
     static int16_t latched[SCOPE_N];
     static uint32_t last_ms, last_w, last_hash;
     static uint8_t have;
@@ -5097,7 +5190,8 @@ static UI_DRAW void draw_master_wave(void)
         }
         last_ms = now;
     }
-    cv_rect(X0, MID, W, 1, C_LINE);
+    night_panel(3,1,198,66,0);
+    cv_rect(X0,MID,W,1,C_LINE);
     y0 = MID - (int)latched[0] * AMP / 32768;
     if (y0 < 2)
         y0 = 2;
@@ -5166,13 +5260,29 @@ static UI_DRAW void draw_mix(int band)
         {
             int gr = (int)(engine_gr_db() * 64.0f / 24.0f);
             gr = gr > 64 ? 64 : gr;
-            rbox(206, 4, 8, 64, 4, C_LINE);
+            if(wave)night_panel(205,1,32,66,0);
+            rbox(208,5,7,61,3,C_LINE);
             if (gr > 1)
-                rbox(206, 4, 8, gr, 4, RGB(255, 80, 60));
-            cv_text(218, 2, &FONT_XS, "GR", C_GRAY);
+                rbox(208,5,7,gr>61?61:gr,3,RGB(255,80,60));
+            cv_text(218,4,&FONT_T,"GR",C_GRAY);
         }
     } else {
         char t[24], a[12], u[8], *q;
+        if(wave) {
+            night_panel(3,3,114,34,0);night_panel(123,3,114,34,0);
+            cv_text(9,6,&FONT_T,"COMP REDUCTION",C_GRAY);
+            cv_text(129,6,&FONT_T,"PUMP",C_GRAY);
+            if(engine_gr_db()>0.5f)put_s(put_i(put_s(t,"-"),(int)(engine_gr_db()+0.5f))," dB");
+            else put_s(t,"0 dB");
+            cv_text(9,20,&FONT_S,t,C_WHITE);
+            pref_value(PR(R_ENG,T_MST,0,MST_PUMP),a,u);put_s(put_s(t,a),u);
+            cv_text(129,20,&FONT_S,t,C_HI);
+            night_panel(3,42,234,24,0);
+            put_s(put_i(put_s(t,"AUDIO LOAD "),(int)plat_cpu_pct()),"%");
+            cv_text(9,49,&FONT_XS,t,plat_cpu_pct()>85u?C_AMB:C_GRAY);
+            if(engine_guard_active())text_r(229,49,&FONT_XS,"GUARD",C_AMB);
+            return;
+        }
         for (int pos = 0; pos < NPARTS && !master && !wave; pos++) { /* strip names */
             p = part_at(pos);
             text_c(6 + pos * 38 + 13, 0, &FONT_XS, part_s(p), part_muted(p) ? C_LINE : PART_COL[p]);
@@ -5752,14 +5862,14 @@ static UI_DRAW const char *matrix_name(pref_t r)
             /* Names describe the existing algorithms, not a universal send.
              * SHAPE is a coupled macro; raw 0..127 remains a pot, not percent. */
             int ty=matrix_value(PR(R_ENG,T_303,r.b,CHI_FX_TYPE));
-            if (ty==CHI_FX_OFF) return "UNUSED";
+            if(ty==CHI_FX_OFF)return r.c==CHI_FX_EDIT1?"EDIT 1":"EDIT 2";
             if (r.c==CHI_FX_EDIT1) {
                 if (ty==CHI_FX_EQ) return "TILT";
                 if (ty==CHI_FX_COMP || ty==CHI_FX_DECIM) return "AMOUNT";
                 if (ty==CHI_FX_RING) return "FREQ";
                 return "MIX";
             }
-            if (ty==CHI_FX_COMP || ty==CHI_FX_DECIM) return "UNUSED";
+            if(ty==CHI_FX_COMP || ty==CHI_FX_DECIM)return "EDIT 2";
             if (ty==CHI_FX_EQ || ty==CHI_FX_RING) return "MIX";
             if (ty==CHI_FX_SHORT_DLY) return "FEEDBACK";
             if (ty==CHI_FX_BPM_DLY) return "DIVISION";
@@ -5917,10 +6027,13 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         }
         if(r.c==CHI_DAMPER) {discrete=1;glyph=GL_PEDAL;}
         if(r.c==CHI_FX_TYPE) discrete=1;
-        if((r.c==CHI_FX_EDIT1 || r.c==CHI_FX_EDIT2) && !strcmp_s(matrix_name(r),"UNUSED"))
-            {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
+        if(r.c==CHI_FX_EDIT1 || r.c==CHI_FX_EDIT2) {
+            int ty=matrix_value(PR(R_ENG,T_303,r.b,CHI_FX_TYPE));
+            if(ty==CHI_FX_OFF || (r.c==CHI_FX_EDIT2 && (ty==CHI_FX_COMP || ty==CHI_FX_DECIM)))
+                {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
+        }
     }
-    text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
+    text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BPRESET) {
         draw_preset_name(r.b,cx,y,height,ink);
@@ -6060,6 +6173,59 @@ static UI_DRAW int draw_adsr_overlay(int band)
 
 /* what the knob strip shows, hashed: it is only redrawn when this changes (the arcs cost a
  * square root and an arctangent per pixel; most frames nothing in the strip moves) */
+/* Schematic filter response: real mode/cutoff/resonance, not an audio plot.
+ * Direct filter edits may legitimately leave the DJF macro pot unchanged. */
+static void filter_display(uint8_t *mode,uint8_t *cut,int *res)
+{
+    /* Motion lanes and macro writes can override one another. Read the applied
+     * pots rather than guessing precedence from stored project values. */
+    *mode=(uint8_t)engine_master_get(MST_MODE);
+    *cut=(uint8_t)engine_master_get(MST_CUTOFF);
+    *res=engine_master_get(MST_RESO);
+}
+static UI_DRAW void filter_glyph(int cx,int y,int mode,int cutoff,int resonance,uint16_t col)
+{
+    int left=cx-19,right=cx+19,pivot=left+7+cutoff*24/127;
+    int pass=y+8,floor=y+18,peak=pass-resonance*7/127;
+    cv_rect(left,floor,39,1,C_LINE);
+    if(!mode) {cv_rect(left,y+10,39,1,C_DIM);return;}
+    if(mode==1) {
+        cv_line(left,pass,pivot-4,pass,col);cv_line(pivot-4,pass,pivot,peak,col);
+        cv_line(pivot,peak,pivot+6,floor,col);cv_line(pivot+6,floor,right,floor,col);
+    } else if(mode==3) {
+        cv_line(left,floor,pivot-6,floor,col);cv_line(pivot-6,floor,pivot,peak,col);
+        cv_line(pivot,peak,pivot+4,pass,col);cv_line(pivot+4,pass,right,pass,col);
+    } else {
+        cv_line(left,floor,pivot-6,floor,col);cv_line(pivot-6,floor,pivot,peak,col);
+        cv_line(pivot,peak,pivot+6,floor,col);cv_line(pivot+6,floor,right,floor,col);
+    }
+}
+static uint8_t tempo_glyph_view; /* latched once for signature + complete knob strip */
+static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
+{
+    if(r.kind==R_TEMPO) {
+        cv_line(cx-10,47,cx-4,28,col);cv_line(cx-4,28,cx+4,28,col);cv_line(cx+4,28,cx+10,47,col);
+        int phase=tempo_glyph_view?tempo_glyph_view-1:0;
+        int arm=tempo_glyph_view?(phase<16?phase-8:24-phase):0;
+        cv_line(cx-10,47,cx+10,47,col);
+        cv_line(cx,43,cx+arm,30,tempo_glyph_view?C_WHITE:C_GRAY);
+        cv_rect(cx+arm*3/4-2,32,5,3,col);
+        if(tempo_glyph_view && phase<4) cv_rect(cx-2,45,5,2,C_WHITE);
+    } else if(r.kind==R_SWING) {
+        int middle=cx+val*7/127;
+        cv_rect(cx-18,43,37,1,C_LINE);
+        cv_rect(cx-18,30,3,14,col);cv_rect(middle,34,3,10,col);cv_rect(cx+16,30,3,14,col);
+    } else if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
+        uint8_t mode,cut;int res;filter_display(&mode,&cut,&res);filter_glyph(cx,28,mode,cut,res,col);
+    } else if(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP) {
+        int depth=val*14/127;
+        cv_line(cx-18,31,cx-9,31,col);cv_line(cx-9,31,cx-6,31+depth,col);
+        cv_line(cx-6,31+depth,cx+15,31,col);cv_rect(cx+15,31,4,1,col);
+        cv_rect(cx-18,48,37,1,C_LINE);
+    } else return 0;
+    return 1;
+}
+
 static uint32_t knobs_sig(void)
 {
     uint32_t h = 2166136261u, i;
@@ -6088,6 +6254,12 @@ static uint32_t knobs_sig(void)
         pref_t r = pg.r[pgi][i];
         MIXIN(r.kind | r.a << 8 | r.b << 16 | (uint32_t)r.c << 24);
         MIXIN(pref_get(r));
+        if(r.kind==R_TEMPO) MIXIN(tempo_glyph_view);
+        if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
+            MIXIN(engine_master_get(MST_MODE));
+            MIXIN(engine_master_get(MST_CUTOFF));
+            MIXIN(engine_master_get(MST_RESO));
+        }
         MIXIN(has_motion(r) | (motion_now(r) + 1) << 1);
         MIXIN(lock_of(r, lock_step()) + 1);
     }
@@ -6174,18 +6346,22 @@ static UI_DRAW void draw_knobs(void)
         last_sig = 0;
         return;
     }
+    tempo_glyph_view = seq.metro_view;
     sig = knobs_sig();
     if (sig == last_sig && blit_hash[3])
         return;
     last_sig = sig;
     cv_begin(240, KNOB_H, C_BLACK);
+    night_panel(3,0,234,11,0);
+    for(i=0;i<4;i++) night_panel(i*60+3,13,54,55,ui.touched==i);
+    night_panel(0,70,240,12,0);
     {   /* the rule; at its right end, where you are: the tag, then the page dots */
         char t[36];                    /* room for "303A P-LOCK STEP 16 · WBL1 (1/2)" */
         int dots = pg.n > 1 && ui.view != V_GLO;
         int32_t xd = 237 - (dots ? pg.n * 5 : 0), xt;
         knob_tag(t);
-        xt = xd - (dots ? 5 : 0) - tw(&FONT_XS, t);
-        cv_rect(0, 5, xt - 5, 1, C_LINE);
+        /* The context caption is a label, not an unexplained horizontal rail. */
+        xt=8;
         cv_text(xt, vc(&FONT_XS, 0, 11), &FONT_XS, t, C_HI);
         if (dots) {
             int k;
@@ -6226,9 +6402,8 @@ static UI_DRAW void draw_knobs(void)
             cv_rect(i * 60, 14, 1, 50, C_LINE);
         if (!d)
             continue;
-        if (touched)
-            box(i * 60 + 2, 11, 56, 56, dim(col, 4));
-        text_c(cx, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
+        /* Selected control keeps the shared raised face; value/lock semantics below are unchanged. */
+        text_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
         val = pref_get(r);
         if (lock_step() >= 0) {                        /* a held step: its own value (amber mark: locked) */
             int lv = lock_of(r, lock_step());
@@ -6242,7 +6417,9 @@ static UI_DRAW void draw_knobs(void)
             if (mv >= 0)
                 val = mv;
         }
-        if (d->names && d->max < 12) {                 /* a switch: its positions as pips (more: a ring) */
+        if(perform_glyph(r,val,cx,col)) {
+            /* Its existing value/motion/lock path is retained below. */
+        } else if (d->names && d->max < 12) {           /* a switch: positions as pips */
             int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;
             for (k = 0; k < n; k++)
                 box(cx - w0 / 2 + k * (pw + gap), 33, pw, 9, k == val ? col : C_LINE);
@@ -6250,8 +6427,14 @@ static UI_DRAW void draw_knobs(void)
             arc(cx, 38, 12, d->max ? (float)val / (float)d->max : 0.0f, C_LINE, col,
                 r.kind == R_BTRANS || is_pan(r) || (r.kind == R_ENG && r.a == T_MST && r.c == MST_DJF));   /* from the middle */
         }
-        pref_value_of(r, val, num, unit);
-        cell_value(cx, vc(&FONT_B, 53, 13), num, unit, touched ? C_WHITE : C_HI);
+        pref_value_of(r,val,num,unit);
+        if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
+            uint8_t mode,cut;int res;filter_display(&mode,&cut,&res);
+            pref_value_of(PR(R_ENG,T_MST,0,MST_MODE),mode,num,unit);
+        }
+        /* Barlow number/unit ink is 0.5–1px right of the PUMP card center. */
+        cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
+                   vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
     }
     cv_commit(3, 0, KNOB_Y);
 }

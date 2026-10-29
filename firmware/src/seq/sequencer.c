@@ -571,6 +571,10 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
         bar_end(s, 1);                                /* cues, or the song's start bar */
     for (t = 0; t < NTRACKS; t++)
         track_arm(s, t, from_top, 1);
+    if (from_top || !s->metro_period) {
+        s->metro_phase = s->metro_period = 0;
+        s->metro_tick = 24; /* waiting: next accepted clock is phase zero */
+    } /* Continue preserves musical position and the stopped visual phase. */
     s->clk_to_next = 0;
     s->playing = 1;
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
@@ -630,6 +634,7 @@ static void ext_ticks(seq_t *s)
         }
         if (!s->playing)
             continue;
+        s->metro_tick = s->metro_tick >= 23u ? 0 : (uint8_t)(s->metro_tick + 1u);
         for (t = 0; t < NTRACKS; t++) {
             seq_track_t *tr = &s->t[t];
             int rate = part_rate(s, t), tps = TICKS_PER_STEP[rate];
@@ -722,6 +727,7 @@ __attribute__((noinline)) static void switch_internal(seq_t *s)
 __attribute__((noinline)) static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
 {
     int t;
+    s->metro_tick = 24;
     for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
         s->t[t].ext_due = 0;
@@ -767,6 +773,37 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
             rephase(s);
         pause_sound(s, o);
     }
+}
+
+/* Observe the same rendered sample clock that advances the sequencer. No
+ * timer, per-track playhead or MIDI-output timer is involved. The CPU0 audio
+ * owner publishes one byte; the UI cannot mix phase and transport epochs.
+ * External motion advances only on accepted clocks (never predicts lost ticks).
+ * Internal tempo edits preserve fractional phase. This observer never changes
+ * event partitioning, transport, outgoing MIDI or audio state. */
+static void metro_advance(seq_t *s, uint32_t k)
+{
+    uint32_t period, phase;
+    if (!s->playing || seq_clock_waiting(s) || (s->ext && s->metro_tick == 24u)) {
+        s->metro_view = 0;
+        return;
+    }
+    period = s->metro_period;
+    if (!period || s->metro_bpm != seq_tempo(s)) {
+        uint32_t next = seq_step_q8(s, RATE_16) * 4u;
+        s->metro_phase = period ? (uint32_t)((float)s->metro_phase * (float)next / (float)period) : 0;
+        if (!period) k = 0; /* accepted fresh start begins here, not before */
+        s->metro_period = period = next;
+        s->metro_bpm = seq_tempo(s);
+    }
+    if (s->ext) {
+        phase = (uint32_t)s->metro_tick * period / 24u;
+    } else {
+        phase = s->metro_phase + (k << 8);
+        while (phase >= period) phase -= period;
+    }
+    s->metro_phase = phase;
+    s->metro_view = (uint8_t)(1u + phase * 32u / period);
 }
 
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
@@ -841,6 +878,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     s->midi_req = 0;                                  /* used only by the requests above */
     if (s->ext_pending)
         ext_ticks(s);
+    metro_advance(s, k);
     if (!s->playing) {
         if (!s->ext)
             s->clk_to_next = 0;
