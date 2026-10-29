@@ -601,3 +601,113 @@ Compare the new `-Os` idle program totals against
 compiler configuration; report improvement or regression rather than
 substituting the standalone memory-store timing. The final executable
 candidate remains UNQUALIFIED until these runs succeed.
+
+## Step 9: reference active sound and exact MG/VCF work (2026-10-29)
+
+The owner reported that the locally built `c287cfe4` perf firmware (reported
+base `9d1cf9fb`) sounds muted/dull in Miami, despite approximately 0.2% idle
+CPU. That commit is **not resolvable on this GitHub remote**, and neither its
+device PCM nor its complete build inputs are available in this Chat session.
+A target-specific cause therefore cannot be certified without the Mac
+comparison. This change must **not** be described as device sound FIXED or
+bit-exact for all programs until that comparison passes.
+
+To isolate both suspect original/optimized active paths, the selected
+`miami_ms20.c` software-FMA nonlinear interpolation now calls the same
+full-range `original_rne_fmaf` used by the baseline, and the selected
+`miami_fx_chain.c` FX2 bypass calls the original checked integer-mixer
+wrapper, including scratch, state and the exact floor/rounding behavior.
+These defensive reference restores are *active-audio only*. The already
+qualified settled-idle control/clock/output paths and their exact zero
+buffer stores are untouched. No filter topology, gains, presets, UI, pad
+routing, project revision or shared Chicago DSP path changes.
+
+As a separate exact active-control optimization, `miami_pow2_fma.h` replaces
+power-of-two synchronized MG shape FMAs only when the binary32 multiply is
+exact; tiny phase values retain the original fused fallback. Three VCF
+envelope FMA operations with constant operands are replaced by their exact
+round-to-nearest binary32 bit patterns, 0x3a83126f, 0x3fc820c5 and
+0x3b03126f, without changing recurrence order or update counts.
+
+**Host evidence in this chat:** a standalone 55,000,000-case original
+specialized nonlinear interpolation versus libc `fmaf` fuzz passed on
+Linux/GCC; it did *not* reproduce the reported dullness and does not
+qualify AC79 codegen. The new `miami_pow2_fma_test.c` passed 6,000,000 random
+phases plus 24 boundary phases with GCC and Clang at both `-Os` and `-O2`,
+in both native and software-FMA-stub variants; native ASan/UBSan variants
+also passed. Its software-FMA stub uses `fmaf` as the isolated oracle; the
+full 18-limb implementation and entire engine need the Mac regressions.
+An existing repository bypass unit test targets the original checked
+wrapper; whole-engine traces and Callgrind have **not** been run on the
+current Step 9 source. No measured active CPU improvement or device
+percentage is claimed. The sound outcome is **UNVERIFIED**.
+
+### Mac source-sound, full-state and performance acceptance
+
+The owner Mac must have the original local Git commits and the 12 pinned
+private #684 headers available outside Git (never stage/commit/push them),
+plus the existing 15-file golden directory. Run from the latest
+`chat/miami-opt` worktree, without switching any production or nightly
+branch, and keep generated outputs under the ignored `build/` tree.
+
+```sh
+git fetch origin chat/miami-opt
+git switch chat/miami-opt
+git pull --ff-only origin chat/miami-opt
+git cat-file -e 40935bd1^{commit}
+git cat-file -e f9ffd12e^{commit}
+git cat-file -e 9d1cf9fb^{commit}
+python3 tools/check_original_inputs.py --scope all
+mkdir -p build
+cc -std=c99 -Os -ffp-contract=off -fno-fast-math \
+  -Wall -Wextra -Werror -Iexperiments/original_synth \
+  tests/host/miami_pow2_fma_test.c -lm -o build/miami-pow2-fma-test
+./build/miami-pow2-fma-test
+OUT="build/miami-ref-active-$(date +%Y%m%d-%H%M%S)"
+python3 tests/host/miami_cpu_test.py --compare-ref 40935bd1 \
+  --bench-rounds 3 --repeats 5 --out "$OUT"
+python3 tests/host/miami_cpu_test.py --compare-ref 40935bd1 \
+  --sanitize --out "$OUT-sanitize"
+python3 tests/host/miami_cpu_test.py --compare-ref 40935bd1 \
+  --native-fma --out "$OUT-native-fma"
+python3 tests/host/miami_cpu_test.py --compare-ref f9ffd12e \
+  --out "$OUT-f9-diff"
+python3 tools/synth684_harness/run.py \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out "$OUT-goldens"
+```
+
+The 30-factory PCM/state equality includes all individual idle durations
+1..2000 blocks followed by a note, release/FX history, panic, note and
+transport events. A fail is a **sound blocker**, not a result to waive.
+The 15 real-input golden render files must match exactly; STUB-NOT-VALID
+renders are never proof.
+
+The same source must pass a qualified `-Os` active+idle instruction
+measurement and, separately, a real AC79 Elite/Pro target build with actual
+private inputs:
+
+```sh
+OUT="build/miami-perf-$(date +%Y%m%d-%H%M%S)"
+python3 tools/synth684_harness/run.py --icount \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-active"
+python3 tools/synth684_harness/run.py --icount --idle-icount \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-idle"
+X0X_DEV_PADCAL=1 python3 tools/synth684_harness/run.py --elite \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-elite"
+```
+
+The `--icount` runs require the Mac's qualified x86-64 Linux
+Docker/Colima runner with Valgrind and the same compiler/flags as the
+original measurement, not native macOS Valgrind. Compare per-scenario
+Callgrind instruction counts and the 30-program idle workload against the
+saved `build/miami-qualified-{baseline,step5,step6}*` records. The active
+regression's benchmark JSON reports per-factory host timing only, not AC79
+cycles. Check `c287cfe4` against the original Mac renders using its actual
+build/source receipt before attributing the owner's listening difference
+to either suspected optimization.
+
+Acceptance is sound-first: **30/30 full-state equality**, **15/15 real
+goldens**, target build, *then* measured active CPU change and owner device
+check. No merge into `wip/one-build` or `nightly` on the strength of these
+standalone arithmetic tests alone.

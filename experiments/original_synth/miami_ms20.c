@@ -4,12 +4,14 @@
 #include "miami_n513_private.h"
 #include <math.h>
 #include "binary32_math.h"
+#include "miami_pow2_fma.h"
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
 #include "fused_reference.h"
-#include "miami_interpolation.h"
 #define ref_fma original_rne_fmaf
-#define interpolate original_miami_interpolate_rne
+/* Keep the original fused interpolation on the active audio path until the
+ * reported target-only dull-sound regression is isolated against its golden. */
+#define interpolate original_rne_fmaf
 #else
 #define ref_fma fmaf
 #define interpolate fmaf
@@ -29,9 +31,9 @@ int original_miami_nonlinear(float x,float *out){
 int original_miami_mg_shape(unsigned ordinal,float phase,float *b,float *u){
  if(!b||!u||b==u||ordinal>3||!original_binary32_isfinite(phase)||phase< -1||phase>1)return 0;
  float bipolar,unipolar;
- if(ordinal==0){bipolar=phase<0?ref_fma(phase,2,1):ref_fma(-phase,2,1);unipolar=ref_fma(bipolar,.5f,.5f);}
- else if(ordinal==1){bipolar=-phase;unipolar=ref_fma(-phase,.5f,.5f);}
- else if(ordinal==2){bipolar=phase;unipolar=ref_fma(phase,.5f,.5f);}
+ if(ordinal==0){bipolar=original_miami_mg_twice_plus_one(phase<0?phase:-phase);unipolar=original_miami_mg_half_plus_half(bipolar);}
+ else if(ordinal==1){bipolar=-phase;unipolar=original_miami_mg_half_plus_half(-phase);}
+ else if(ordinal==2){bipolar=phase;unipolar=original_miami_mg_half_plus_half(phase);}
  else {bipolar=phase>=0?-1:1;unipolar=phase>=0?0:1;}
  *b=bipolar;*u=unipolar;return 1;
 }
