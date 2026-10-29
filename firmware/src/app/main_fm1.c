@@ -219,7 +219,11 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
+#if X0X_ORIGINAL_SYNTH
+#include "app/original_sound.h"
+#else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
+#endif
 #if X0X_DEV_WOBBLE
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
@@ -964,7 +968,8 @@ static void smk_faders(void)
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
  * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
  * Pitch wheel = the selected engine's bend (Chicago CHI_PBEND / Miami W_PITCH_BEND).
- * Both span ±2 semitones; release restores that engine's own saved bend, never TUNE.
+ * BREAK uses a transient +/-12 semitone offset and keeps its gesture across navigation.
+ * Both synths span ±2 semitones; release restores that engine's own saved bend, never TUNE.
  * Mod wheel = Chicago cutoff on native303; Miami/WBL1 wobble depth on a live WBL1 voice.
  * Chicago: replaces the cutoff knob (BASS303_CUTOFF before master). Down closes (0); up opens (127).
  * Miami: writes W_WOBBLE_DEPTH the same way. High ADC is down; that sense is not inverted.
@@ -974,7 +979,7 @@ static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
     static int32_t pc, plo, phi, mlo, mhi, rest;
-    static int8_t bend_part = -1, cut_part = -1;
+    static int8_t bend_part = -1, cut_part = -1; /* bend_part 2 = BREAK */
     static int16_t bend_now, mw_now;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
@@ -1023,7 +1028,20 @@ static void smk_wheels(void)
     if (bend != bend_now) {
         if (bend_part < 0 && bend && is_303())
             bend_part = (int8_t)bidx();
-        if (bend_part >= 0) {
+        if (bend_part < 0 && bend && ui.part == PART_BRK && !smk_clip_mode_on())
+            bend_part = 2;
+        if (bend_part == 2) {
+            engine_brk_bend(bend < 0 ? bend * 8192 / 63 : bend * 8191 / 63);
+            if (!bend) bend_part = -1;
+        } else if (bend_part >= 0) {
+#if X0X_ORIGINAL_SYNTH
+            int param = engine_bass_is_wobble(bend_part) ?
+                ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
+            if (bend)
+                engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
+            else
+                engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
+#else
             int param = CHI_PBEND;
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(bend_part))
@@ -1033,6 +1051,7 @@ static void smk_wheels(void)
             want = bend ? chi_pbend_from_wheel((int)bend)
                         : proj.sound.v[T_303][bend_part][param];
             engine_set(T_303, bend_part, param, (int)want);
+#endif
             if (!bend)
                 bend_part = -1;
         }
@@ -1044,19 +1063,24 @@ static void smk_wheels(void)
         if (cut_part >= 0) {
             /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
+#if X0X_ORIGINAL_SYNTH
+            engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
+                ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
+#else
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(cut_part))
                 engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
             else
 #endif
                 engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
+#endif
             if (!mw)
                 cut_part = -1;
         }
         mw_now = (int16_t)mw;
     }
 #if X0X_BASS_PRESET_PREVIEW
-    engine_bass_wheel_owners((uint8_t)((bend_part >= 0 ? 1u << bend_part : 0u) |
+    engine_bass_wheel_owners((uint8_t)((bend_part >= 0 && bend_part < NBASS ? 1u << bend_part : 0u) |
                                       (cut_part >= 0 ? 1u << cut_part : 0u)));
     engine_bass_edit_hold(0);
 #endif
@@ -2072,8 +2096,10 @@ CK_FN static void smk_frame(void)
     allow_pages = allow_pages && !padcal.on;
 #endif
     ui_brk_page_keys(outer, allow_pages);
+#if !X0X_ORIGINAL_SYNTH
     while (smk_extkey_take() >= 0)
         ;
+#endif
     if (ui_project_busy()) {
         smk_arrows();
         smk_faders();
