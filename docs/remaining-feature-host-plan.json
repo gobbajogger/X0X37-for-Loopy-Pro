@@ -1,0 +1,37 @@
+{
+  "inputs": [
+    "firmware/src/seq/pattern.h",
+    "firmware/src/seq/sequencer.h",
+    "firmware/src/seq/motion.h",
+    "firmware/src/dsp/drum808.h",
+    "firmware/src/dsp/drum909.h",
+    "firmware/src/dsp/drum909_dsp.h",
+    "firmware/src/dsp/x0x_param.h",
+    "firmware/src/dsp/fastmath.h",
+    "firmware/src/app/engine.h",
+    "tools/gen_drum_samples.py",
+    "tests/host/drum_kit_identity_test.c",
+    "tests/host/drum_kit_identity_test.sh",
+    "tools/remaining_feature_proof.py",
+    "tools/sampleio.py",
+    "assets/909/hh.wav",
+    "assets/909/ride.wav",
+    "assets/909/crash.wav"
+  ],
+  "checks": [
+    {
+      "name": "drum-kit-identity",
+      "argv": [
+        "sh",
+        "tests/host/drum_kit_identity_test.sh"
+      ]
+    },
+    {
+      "name": "feature-proof-selftest",
+      "argv": [
+        "python3",
+        "tests/host/remaining_feature_proof_test.py"
+      ]
+    }
+  ]
+}

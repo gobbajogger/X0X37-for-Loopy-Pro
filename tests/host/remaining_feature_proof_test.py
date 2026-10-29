@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Self-contained negative/positive tests for #115 host evidence identity."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+TOOL = Path(__file__).resolve().parents[2] / 'tools/remaining_feature_proof.py'
+
+
+def invoke(*args, cwd):
+    return subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, check=False)
+
+
+def must_run(*args, cwd):
+    p = invoke(*args, cwd=cwd)
+    assert p.returncode == 0, p.stdout.decode() + p.stderr.decode()
+    return p
+
+
+with tempfile.TemporaryDirectory() as tmp:
+    root = Path(tmp) / 'src'
+    root.mkdir()
+    must_run('git', 'init', '-q', str(root), cwd=root)
+    must_run('git', 'config', 'user.name', 'Regression', cwd=root)
+    must_run('git', 'config', 'user.email', 'regression@example.invalid', cwd=root)
+    (root / 'fixture.txt').write_text('original source\n')
+    must_run('git', 'add', 'fixture.txt', cwd=root)
+    must_run('git', 'commit', '-qm', 'source', cwd=root)
+    ok = {'inputs': ['fixture.txt'], 'checks': [{'name': 'sample',
+            'argv': [sys.executable, '-c', "print('PASS unit test')"]}]}
+    plan = Path(tmp) / 'plan.json'
+    plan.write_text(json.dumps(ok))
+    out = Path(tmp) / 'evidence'
+    must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+             '--out', str(out), cwd=root)
+    must_run(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
+    assert json.loads((out / 'receipt.json').read_text())['status'] == 'HOST_CHECKED'
+    (out / 'sample.log').write_bytes(b'forged PASS\n')
+    assert invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root).returncode
+    must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+             '--out', str(out), cwd=root)
+    (root / 'fixture.txt').write_text('modified source\n')
+    assert invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root).returncode
+    assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+                  '--out', str(out), cwd=root).returncode
+    (root / 'fixture.txt').write_text('original source\n')
+    # Verify source and toolchain env both belong to the same exact test run.
+    q = invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
+    assert q.returncode == 0, q.stderr.decode()
+    bad = {**ok, 'checks': [{'name': 'sample', 'argv': [sys.executable, '-c', 'raise SystemExit(3)']}]}
+    plan.write_text(json.dumps(bad))
+    assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+                  '--out', str(out), cwd=root).returncode
+    assert json.loads((out / 'receipt.json').read_text())['status'] == 'FAIL'
+    assert invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root).returncode
+    plan.write_text(json.dumps({**ok, 'inputs': ['../escape.txt']}))
+    assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+                  '--out', str(out), cwd=root).returncode
+print('PASS remaining_feature_proof: PASS, failed command, source/log mutation, unsafe path rejected')
