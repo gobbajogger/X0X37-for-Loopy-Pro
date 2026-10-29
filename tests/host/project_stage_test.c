@@ -177,6 +177,7 @@ static void fixture(const char *name)
     check_protected_flash();
 }
 
+#ifndef BREAK_PROJECT_FIXTURE
 static void test_defaults(void)
 {
     sound_t factory_sound;
@@ -751,3 +752,5 @@ int main(void)
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }
+
+#endif /* !BREAK_PROJECT_FIXTURE: reuse real storage/default helpers only */

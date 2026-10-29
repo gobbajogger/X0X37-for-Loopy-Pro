@@ -5,7 +5,8 @@
 Original PR621 head6f9090cf reproduced the pre-store loss on d633. This adapts
 its hook to the actual corrected synchronization, extracting target platform
 lock/unlock too. No threaded/device timing claim. C_REC is reserved exactly as
-in the separately reviewed REC unit, so its atomic word gets the same priority.
+in the separately reviewed REC unit, so its atomic word gets the same priority;
+C_BASE exact-restoration words receive the same retained-event priority.
 """
 import argparse
 from pathlib import Path
@@ -51,7 +52,7 @@ static int one(unsigned type,unsigned count,uint32_t offset,unsigned victim,unsi
     armed=pending=hooks=protected_probes=0;drains=count;site=at;
     for(unsigned k=0;k<16;k++)seen[k]=0;
     for(unsigned k=0;k<CQ;k++)cq_put(victim,0,60,k);
-    uint32_t a=type==C_REC?0xA5u:1u,b=type==C_BRK?0u:60u;
+    uint32_t a=(type==C_REC||type==C_BASE)?0xA5u:1u,b=type==C_BRK?0u:60u;
     expected_word=(type<<28)|(a<<20)|(b<<12)|0x345u;exact_deliveries=0;
     armed=1;cq_put(type,a,b,0x345);
     dispatch();consume(CQ+1u);
@@ -65,7 +66,7 @@ static int one(unsigned type,unsigned count,uint32_t offset,unsigned victim,unsi
 }
 int main(void)
 {
-    const unsigned types[]={C_DRUM,C_BON,C_BOFF,C_BRK,C_REC};
+    const unsigned types[]={C_DRUM,C_BON,C_BOFF,C_BRK,C_REC,C_BASE};
     const unsigned counts[]={0,1,CQ/2,CQ};
     const uint32_t starts[]={0,CQ-3u,UINT32_MAX-3u};
     const unsigned victims[]={C_PARAM_T0,C_NOP};
