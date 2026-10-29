@@ -1,50 +1,36 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #ifndef ORIGINAL_MIAMI_ZERO_H
 #define ORIGINAL_MIAMI_ZERO_H
+#include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
-/* Batch exact positive-zero stores. No byte-at-a-time libc loop is needed
- * for settled idle buffers. Signed scratch/dry arrays use the corresponding
- * unsigned type, which may alias them; float outputs retain their own type. */
-#define MIAMI_ZERO_2(p) do { (p)[0] = 0; (p)[1] = 0; } while (0)
-#define MIAMI_ZERO_4(p) do { MIAMI_ZERO_2(p); MIAMI_ZERO_2((p) + 2); } while (0)
-#define MIAMI_ZERO_8(p) do { MIAMI_ZERO_4(p); MIAMI_ZERO_4((p) + 4); } while (0)
-#define MIAMI_ZERO_16(p) do { MIAMI_ZERO_8(p); MIAMI_ZERO_8((p) + 8); } while (0)
-#define MIAMI_ZERO_32(p) do { MIAMI_ZERO_16(p); MIAMI_ZERO_16((p) + 16); } while (0)
+/* Idle buffers must contain actual positive-zero samples, including every
+ * scratch/workspace byte. Keep the caller-visible writes while letting the
+ * compiler choose its optimized bulk store rather than expanding a 32-sample
+ * scalar assignment tree per channel. Explicit builtins still optimize with
+ * the host proof's -fno-builtin flag. No DSP or floating-point math is done. */
+#if defined(__GNUC__) || defined(__clang__)
+#define MIAMI_ZERO_BYTES(p, n) __builtin_memset((p), 0, (n))
+#else
+#define MIAMI_ZERO_BYTES(p, n) memset((p), 0, (n))
+#endif
 
 static inline void original_miami_zero_words(uint32_t *p, uint32_t n)
 {
-    while (n >= 32) { MIAMI_ZERO_32(p); p += 32; n -= 32; }
-    if (n & 16) { MIAMI_ZERO_16(p); p += 16; }
-    if (n & 8) { MIAMI_ZERO_8(p); p += 8; }
-    if (n & 4) { MIAMI_ZERO_4(p); p += 4; }
-    if (n & 2) { MIAMI_ZERO_2(p); p += 2; }
-    if (n & 1) *p = 0;
+    if (n) MIAMI_ZERO_BYTES(p, (size_t)n * sizeof *p);
 }
 
 static inline void original_miami_zero_halves(uint16_t *p, uint32_t n)
 {
-    while (n >= 32) { MIAMI_ZERO_32(p); p += 32; n -= 32; }
-    if (n & 16) { MIAMI_ZERO_16(p); p += 16; }
-    if (n & 8) { MIAMI_ZERO_8(p); p += 8; }
-    if (n & 4) { MIAMI_ZERO_4(p); p += 4; }
-    if (n & 2) { MIAMI_ZERO_2(p); p += 2; }
-    if (n & 1) *p = 0;
+    if (n) MIAMI_ZERO_BYTES(p, (size_t)n * sizeof *p);
 }
 
 static inline void original_miami_zero_floats(float *p, uint32_t n)
 {
-    while (n >= 32) { MIAMI_ZERO_32(p); p += 32; n -= 32; }
-    if (n & 16) { MIAMI_ZERO_16(p); p += 16; }
-    if (n & 8) { MIAMI_ZERO_8(p); p += 8; }
-    if (n & 4) { MIAMI_ZERO_4(p); p += 4; }
-    if (n & 2) { MIAMI_ZERO_2(p); p += 2; }
-    if (n & 1) *p = 0;
+    /* The Miami runtime uses IEEE-754 binary32; all-zero bytes are +0.0f. */
+    if (n) MIAMI_ZERO_BYTES(p, (size_t)n * sizeof *p);
 }
-#undef MIAMI_ZERO_2
-#undef MIAMI_ZERO_4
-#undef MIAMI_ZERO_8
-#undef MIAMI_ZERO_16
-#undef MIAMI_ZERO_32
 
+#undef MIAMI_ZERO_BYTES
 #endif
