@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "chicago_scheduler.h"
+#include "chicago_clock_span.h"
 typedef struct {
  original_chicago_scheduler *owner;
  original_chicago_gate gate;
@@ -103,6 +104,30 @@ int original_chicago_scheduler_after_events(original_chicago_scheduler *s){
  s->clock->key_reset=a->mg2_key_reset;s->dispatch_result=1;
  chicago_arp_clock_tick(s->clock,s->clock_input,&clock_callbacks,s);
  a->mg2_key_reset=s->clock->key_reset;return s->dispatch_result;
+}
+int original_chicago_scheduler_quiet(original_chicago_scheduler *s,chicago_arp_clock *c1,uint32_t frames){
+ original_chicago_allocator *a=s->allocator;chicago_arp_clock *c2=s->clock;
+ float bpm=s->clock_input->bpm;
+ while(frames){
+  /* No callback observes interior frames. Jump exact rounded additions up
+   * to the first edge of either clock, then dispatch the original sample. */
+  uint32_t n=0;float x=c1->accumulator,y=c2->accumulator;
+  if(!a->mg1_key_reset&&!a->mg2_key_reset){
+   n=original_chicago_clock_span(&x,bpm,c1->threshold,frames);
+   uint32_t m=original_chicago_clock_span(&y,bpm,c2->threshold,n);
+   if(m<n){x=c1->accumulator;n=original_chicago_clock_span(&x,bpm,c1->threshold,m);}
+  }
+  if(n){
+   c1->accumulator=x;c2->accumulator=y;c1->key_reset=c2->key_reset=0;
+   if(a->gate_remaining>0){
+    if((uint32_t)a->gate_remaining<=n){a->gate_remaining=0;a->last_note=a->keys->current_note;}
+    else a->gate_remaining-=(int32_t)n;
+   }
+   s->dispatch_result=1;frames-=n;
+  }
+  if(frames){if(original_chicago_scheduler_after_events(s)<=0)return 0;--frames;}
+ }
+ return 1;
 }
 int original_chicago_scheduler_voice_action(original_chicago_scheduler *s,unsigned id,unsigned action){
  if(id>=s->allocator->storage_voices||action>2)return 0;
