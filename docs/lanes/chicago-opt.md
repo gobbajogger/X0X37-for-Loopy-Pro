@@ -510,3 +510,51 @@ baseline source view is `build/chicago-opt-linux-reference`; its checked
 compiler overlay is `build/chicago-opt-cc-view.py`. No private headers were
 copied into Git. All commits are local; no push, installation, flashing or
 SMK 37 Pro access occurred.
+
+
+## Isolated clock-span follow-up — 2026-10-30 (chat/chicago-opt)
+
+Purpose: reduce the remaining Chicago idle-clock CPU expense without changing
+the audio or any state transition. The existing exact binary32 clock-span proof
+had one unsigned division per stable binade jump. When the *entire* remaining
+range is provably inside the current exponent and before the threshold, the
+new path uses bounded 32-bit multiplication instead. It keeps the existing
+division for all large spans, large ULP steps and boundary cases; it never
+replaces sequential float32 additions with tempo times elapsed frames.
+
+- Touched only the shared Chicago clock-span inline header, its focused host
+  test and this lane record. No Miami source, private input or binary changed.
+- In an isolated Linux x86_64 C99 reconstruction of the exact fetched clock
+  helper and regression logic (GCC 14, strict FP, `-Os`; ASan/UBSan `-O1`):
+  `sh tests/host/run_chicago_clock_span.sh build/chicago-guard` passed
+  **416,330/416,330 exact comparisons** in each mode. The original 414,240
+  cases plus 2,090 new guard, long-span and borrowed-negative-state checks.
+- The previous measured **20,638.09 instructions/block** remains the
+  baseline for this new branch, NOT a newly measured result. The Mac must
+  repeat actual Callgrind, all 15 REAL golden renders and idle-then-note
+  differential proof before any 1–3k, target CPU, or bit-exact whole-engine
+  claim. A local focused arithmetic PASS is not hardware verification.
+- No firmware builds or proprietary headers were used in this ChatGPT
+  environment. A repository checkout and Git transport were unavailable to
+  its Linux shell, so only the exact focused C test was run here.
+
+Run the following from the current `chat/chicago-opt` checkout on the Mac,
+with its existing private #684 input kit and JieLi environment provisioned:
+
+```sh
+sh tests/host/run_chicago_clock_span.sh build/chicago-opt-chat-clock
+sh tests/host/run_chicago_chorus_span.sh build/chicago-opt-chat-chorus
+sh tests/host/original_idle_test.sh build/chicago-opt-chat-owner
+BASE_REF=9621d6cc7be6c333462771a30bf8e98d0701f9fd CLEAN_TRANSCRIPTS=1 python3 tests/host/run_chicago_idle_then_note.py build/chicago-opt-chat-idle-note
+python3 tools/synth684_harness/run.py --golden build/synth684-golden-9d1cf9fb --out build/chicago-opt-chat-golden
+docker exec chicago-opt-linux python3 tools/synth684_harness/run.py --icount --idle --warmup 1024 --blocks 64 --out build/chicago-opt-chat-icount
+BOARD=smk37 MODEL=elite sh build.sh
+BOARD=smk37 MODEL=pro sh build.sh
+```
+
+Do not accept a `STUB-NOT-VALID` harness report. Require 15/15 REAL PCM
+matches including Miami, normal/sanitized idle-then-note byte-for-byte
+state/PCM matches, positive Callgrind totals for every case, and real
+Elite/Pro budget/link results. Check the exact source SHA and package sizes
+before labeling anything DEV CHECKED. Nothing is authorized to flash or
+publish here.
