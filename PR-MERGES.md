@@ -1,8 +1,11 @@
-# PR merge trials — 2026-10-29
+# PR merge trials — 2026-10-29–30
 
-Status: in progress. This follow-up has writable Git metadata and a working
-Colima Docker worker. The earlier run made no merge or commit. Its permission
-failures are historical, not current blockers.
+Status: complete on 2026-10-30. PRs #651 and #650 are committed locally after
+clean trial merges, scoped host checks, independent source/render review and
+Elite development Docker builds. PRs #212 and #677 were aborted on conflicts.
+PRs #638, #635 and #636 were confirmed already included. No push or device
+action occurred. The earlier run made no merge or commit; its permission
+failures are historical and were resolved by the owner's follow-up environment.
 
 ## Inputs and boundaries
 
@@ -183,7 +186,9 @@ Evidence: `pr651-merge.log`; candidate renders under
 
 Fetched head: `a51b030d98e1400f697ba1fa7b5056a62f7399fc`.
 Trial: `git merge --no-commit --no-ff pr650` against `4087b79b`.
-Result: clean; four paths changed. Source tree before this report update:
+Result: clean; four paths changed. Local merge commit:
+`298af033f992b0430174fd4cb6b7365f9bf1b01f` (parents `4087b79b` and fetched
+PR head). Source tree before this report update:
 `0863234b67d99eea1fb8c6deda878f670d3d27f5`.
 
 The change applies the existing material surfaces to sequence marks, SONG/list
@@ -219,9 +224,10 @@ in isolated `build/pr-merges/pr650-ui-scratch` while the target build continued.
 All 1,141 copied source/asset files were verified byte-identical before execution
 (`pr650-ui-scratch-receipt.json`); no target generated header was overwritten.
 Actual corrected renders are under that scratch directory's
-`build/host/ui-main-material/`. Independent review confirmed the corrected mute image: 808 label and meter
-are dimmed, while the other parts retain their colours. No new finding remains. The original incorrectly named mute image is superseded by this
-corrected evidence.
+`build/host/ui-main-material/`. Independent review confirmed the corrected mute
+image: 808 label and meter are dimmed, while the other parts retain their
+colours. No new finding remains. The original incorrectly named mute image is
+superseded by this corrected evidence.
 
 Fresh Elite development compile/link/package: PASS, BUILD_ONLY, using the same
 Docker image, mounts and command as #651. Log: `pr650-elite-build.log`;
@@ -234,14 +240,53 @@ test bytes. Existing CK_FN and signedness warnings remain visible in its log.
 The unchanged math, generator and Miami-rate inputs retain #651's matching proof;
 this UI delta does not change those consumers.
 
-## Remaining trials
+## #638 — already included; no-op trial passed
 
-Fetched heads for #638 (`5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134`), #635
-(`0e2b6f32d28d3001e84a7810a91f67aafce03a21`) and #636
-(`92108efd743fb9fbadd665c361ee48e22b0e86e0`) are already ancestors of
-`4087b79b`. Actual no-op merge trials follow #650's local commit. No duplicate
-source commit or repeated validation is needed if those trials leave inputs
-unchanged.
+Fetched head: `5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134`.
+`git merge --no-commit --no-ff pr638` against `298af033` returned
+`Already up to date.` It is an ancestor through #651. No conflict or source
+change occurred; no duplicate merge commit was created.
+
+## #635 — already included; no-op trial passed
+
+Fetched head: `0e2b6f32d28d3001e84a7810a91f67aafce03a21`.
+`git merge --no-commit --no-ff pr635` against `298af033` returned
+`Already up to date.` It was already an ancestor of starting HEAD. No conflict
+or source change occurred; no duplicate merge commit was created.
+
+## #636 — already included; no-op trial passed
+
+Fetched head: `92108efd743fb9fbadd665c361ee48e22b0e86e0`.
+`git merge --no-commit --no-ff pr636` against `298af033` returned
+`Already up to date.` It was already an ancestor of starting HEAD. No conflict
+or source change occurred; no duplicate merge commit was created.
+
+For all three trials, HEAD, index tree and clean working state were verified
+unchanged after each actual merge command. They reuse #650's final build/host
+proof and #651's unchanged-input checks. No redundant build or test was run.
+Evidence: `pr638-merge.log`, `pr635-merge.log`, `pr636-merge.log`,
+`already-included-trials.json`.
+
+## Final local result and limits
+
+- Local merge commits: #651 `4087b79b`; #650 `298af033` (includes the documented
+  incoming test-fixture repair). This final report commit completes the record.
+- All seven requested refs were fetched with the requested commands and trialed
+  in order. #212 has 18 conflicted files; #677 has one. Neither was resolved or
+  committed. Their candidate builds/tests remain NOT_RUN after abort.
+- The 909/808/BREAK/CHICAGO/MIAMI order passed the final affected host checks.
+  Cumulative engine, SMC mixer and BLE source diffs against starting HEAD are
+  empty; current interaction tests passed. No SMC startup fix was removed.
+- No private header, plugin/package binary, `ctl.img` or `out/` path was staged
+  or committed by this work. Status and staged-path audits ran before each
+  commit. The pre-existing tracked Elite `ctl.img` is unchanged.
+- PR #684 was not fetched or merged. Origin was used only for reads. There was
+  no push, installation, flash, connected-device access or release/full gate.
+- Results are local source/build/host evidence. Elite builds are BUILD_ONLY;
+  no Pro build, controller qualification, DEV CHECKED or hardware PASS is claimed.
+  Existing warnings and the interrupted Linux simulator compile remain recorded.
+- No authorised work remains in this trial task. Resolving #212/#677 or promoting
+  these local commits is a separate next action; neither was performed here.
 
 ## Earlier baseline evidence
 
