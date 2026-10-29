@@ -11,7 +11,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Install · X0X</title>
+<title>Install · DnBOX</title>
 <style>
   :root {
     --bg: #f4f5f6; --fg: #1c1f23; --dim: #5b626a; --rule: #d9dde1; --accent: #c8700a;
@@ -89,8 +89,8 @@
 <body>
 <main>
   <button class="lang" id="lang" type="button"></button>
-  <a class="home" href="../">X0X</a>
-  <h1 data-t="title">Install X0X</h1>
+  <a class="home" href="../">DnBOX</a>
+  <h1 data-t="title">Install DnBOX</h1>
   <p data-t="intro"></p>
   <p class="small" data-t="direct"></p>
   <p class="small" data-t="beta"></p>
@@ -131,9 +131,9 @@
       <p class="small"><input type="file" id="loopfiles" accept=".wav,audio/wav" multiple></p>
     </fieldset>
     <p><button id="go" disabled data-t="install">Install</button></p>
-    <progress id="bar" max="100" value="0"></progress>
-    <p id="status"></p>
-    <pre id="log"></pre>
+    <progress id="bar" max="100" value="0" aria-label="Firmware transfer progress"></progress>
+    <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <pre id="log" role="log" aria-live="off" tabindex="0"></pre>
   </section>
 
   <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a><br>
@@ -327,7 +327,7 @@ const TEXT = {
     bootreadfail: "キーボードから起動画面を読めませんでした。",
   },
   en: {
-    title: "Install X0X",
+    title: "Install DnBOX",
     intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
     install: "Install", other: "日本語", connect: "Connect",
@@ -467,7 +467,7 @@ function applyLang() {
   refreshMeta();
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
-const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
+const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; window.DnBOXSite?.onStatus(k, t(k) + arg); };
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (txt) => { $("log").textContent += txt + "\n"; };
 
@@ -513,6 +513,7 @@ function setConnected(on, detail) {
   $("conn").textContent = on ? t("connected") : t("notconnected");
   $("connDetail").textContent = detail || t("connhelp");
   $("connbtn").textContent = t("connect");
+  window.DnBOXSite?.onConnection(on);
 }
 
 async function midiAccess() {
@@ -535,6 +536,7 @@ async function midiAccess() {
 let scanSerial = 0;
 async function scan(allowPostWrite = false) {
   if (writing && !allowPostWrite) return;
+  window.DnBOXSite?.onStage("scan");
   const requestId = ++scanSerial;
   const isCurrent = () => requestId === scanSerial && (!writing || allowPostWrite);
   led("busy");
@@ -1094,6 +1096,7 @@ async function run(img, product, opts = {}) {
     const total = 74 + 1167;
     const step = (k, a) => {
       log(`${k} ${a ?? ""}`);
+      window.DnBOXSite?.onStep(k);
       if (k === "start") sayK("start");
       if (k === "verify") { sayK("verify"); $("bar").value = (a / total) * 100; }
       if (k === "loader") sayK("loader");

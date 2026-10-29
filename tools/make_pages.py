@@ -9,6 +9,7 @@
   projects/index.html         project save/load/reset and portable files (JS modules beside it)
   manual/, new/               from docs/MANUAL.md and docs/NEW.md
   firmware/*.fwsc             packages for every published version/model kept on the site
+  history/index.html          read-only checksum-qualified package history
   versions.json               catalog the installer loads (also inlined into install/)
 
 Legacy (single package):
@@ -39,6 +40,7 @@ from pathlib import Path
 SRC = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SRC / "web"))
 from make_site import product_of, strip_module  # noqa: E402
+from dnbox_history import write_history  # noqa: E402
 
 REPO = "https://github.com/gobbajogger/X0X37-for-Loopy-Pro"
 PAGES = "https://gobbajogger.github.io/X0X37-for-Loopy-Pro"
@@ -196,7 +198,7 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     """Build OUT from catalog; copy_pkgs maps firmware filename -> source path for this publish."""
     if out.exists():
         shutil.rmtree(out)
-    for d in ("install", "manual", "firmware", "breaks", "projects", "new"):
+    for d in ("install", "manual", "firmware", "breaks", "projects", "new", "history"):
         (out / d).mkdir(parents=True)
 
     # Carry forward every firmware file still referenced, plus new packages.
@@ -211,10 +213,12 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     for name, src in copy_pkgs.items():
         shutil.copy2(src, out / "firmware" / name)
 
+    css = (SRC / "web" / "dnbox_site.css").read_text(encoding="utf-8")
     # Installer: inline libraries + catalog (paths relative to install/)
     page = (SRC / "web" / "x0x_installer.html").read_text(encoding="utf-8")
+    page = page.replace("</style>", css + "\n</style>", 1)
     lib = "\n".join(strip_module((SRC / "web" / f).read_text(encoding="utf-8"))
-                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js"))
+                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js", "dnbox_site.js"))
     cat_json = json.dumps(catalog, separators=(",", ":"))
     for mark, repl in (("/*LIB*/", lib), ("/*CATALOG*/", cat_json)):
         if page.count(mark) != 1:
@@ -231,14 +235,19 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
 
     # Breaks (sample importer)
     breaks = (SRC / "web" / "x0x_breaks.html").read_text(encoding="utf-8")
+    breaks = breaks.replace("</style>", css + "\n</style>", 1)
     breaks = breaks.replace("https://github.com/charlesvestal/fm1-x0x", REPO)
     if breaks.count("/*LIB*/") != 1:
         raise SystemExit("x0x_breaks.html must contain /*LIB*/ once")
-    lib = strip_module((SRC / "web" / "x0x_breaks.js").read_text(encoding="utf-8"))
+    lib = (strip_module((SRC / "web" / "x0x_breaks.js").read_text(encoding="utf-8")) + "\n" +
+           strip_module((SRC / "web" / "dnbox_site.js").read_text(encoding="utf-8")))
     (out / "breaks" / "index.html").write_text(breaks.replace("/*LIB*/", lib), encoding="utf-8")
     # The project page keeps its testable modules intact; it also runs from web/ on localhost.
-    shutil.copy(SRC / "web" / "x0x_projects.html", out / "projects" / "index.html")
-    for module in ("x0x_projects.js", "x0x_breaks.js"):
+    projects_html = (SRC / "web" / "x0x_projects.html").read_text(encoding="utf-8")
+    projects_html = projects_html.replace("</style>", css + "\n</style>", 1)
+    projects_html = projects_html.replace("</body>", '<script type="module" src="./dnbox_site.js"></script>\n</body>', 1)
+    (out / "projects" / "index.html").write_text(projects_html, encoding="utf-8")
+    for module in ("x0x_projects.js", "x0x_breaks.js", "dnbox_site.js"):
         shutil.copy(SRC / "web" / module, out / "projects" / module)
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
                     str(out / "manual" / "index.html")], check=True, capture_output=True)
@@ -249,6 +258,14 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     if (SRC / "docs" / "img" / "new").is_dir():
         shutil.copytree(SRC / "docs" / "img" / "new", out / "new" / "img" / "new")
 
+    # History records real catalog versions only and never offers unverified bytes.
+    write_history(out, catalog, SRC / "web" / "dnbox_site.css")
+    for section in ("manual", "new"):
+        document = out / section / "index.html"
+        original = document.read_text(encoding="utf-8")
+        if "</head>" in original:
+            document.write_text(original.replace("</head>", "<style>" + css + "</style></head>", 1), encoding="utf-8")
+
     latest = catalog.get("latest") or (catalog["versions"][0]["version"] if catalog["versions"] else "")
     ver_label = f" v{html.escape(str(latest))}" if latest else ""
     landing = (LANDING.replace("__VERSION_LABEL__", ver_label)
@@ -256,6 +273,10 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     if banner:
         landing = landing.replace("<div class=\"status\">",
                                   "<div class=\"status\">" + html.escape(banner) + " ", 1)
+    landing = landing.replace("<h1>X0X</h1>", "<h1>DnBOX</h1>", 1)
+    landing = landing.replace("X0X for the SMK-37 · Loopy Pro", "DnBOX for the SMK-37 · Loopy Pro", 1)
+    landing = landing.replace("</nav>", '<a href="history/"><strong>Firmware history</strong><span>Available packages and checksums from this site.</span></a></nav>', 1)
+    landing = landing.replace("</style>", css + "\n</style>", 1)
     (out / "index.html").write_text(landing, encoding="utf-8")
     (out / ".nojekyll").write_text("")
     models = ", ".join(sorted({k for v in catalog["versions"] for k in v.get("models", {})}))

@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: GPL-3.0-only. DnBOX shared visual system. */
+:root {
+  --bg:#101312; --card:#191e1b; --fg:#f0f2e9; --dim:#b2bdb3;
+  --rule:#3c493e; --accent:#b9e98e; --ok:#b9e98e; --err:#ff9d90;
+  color-scheme:dark;
+}
+:root[data-theme="light"] {
+  --bg:#f5f7f1; --card:#fff; --fg:#20291f; --dim:#445242;
+  --rule:#a1ada0; --accent:#426d18; --ok:#357e35; --err:#aa3028;
+  color-scheme:light;
+}
+body { background:var(--bg); color:var(--fg); font-family:"DejaVu Sans","Noto Sans",Arial,sans-serif; }
+main { max-width:800px; padding-inline:clamp(16px,4vw,32px); }
+h1,h2,h3 { font-family:"DejaVu Sans","Noto Sans",Arial,sans-serif; letter-spacing:-.02em; }
+a { text-underline-offset:3px; }
+.dnbox-site-nav { display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:0 0 28px; padding:10px 0 18px; border-bottom:1px solid var(--rule); }
+.dnbox-site-nav a { font-size:14px; font-weight:600; color:var(--fg); }
+.dnbox-site-nav .dnbox-brand { font-weight:800; font-size:24px; letter-spacing:-.06em; margin-right:auto; text-decoration:none; }
+.dnbox-workspace { margin:24px 0; padding:18px; background:var(--card); border:1px solid var(--rule); border-radius:10px; }
+.dnbox-workspace h2 { margin:0 0 12px; }
+.dnbox-stages { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; list-style:none; margin:0 0 20px; padding:0; }
+.dnbox-stages li { min-width:0; padding:12px 9px; border:1px solid var(--rule); border-radius:7px; color:var(--dim); font-size:12px; line-height:1.35; }
+.dnbox-stages li[data-state="current"] { border-color:var(--accent); color:var(--fg); box-shadow:inset 0 -3px var(--accent); }
+.dnbox-stages li[data-state="complete"] { border-color:var(--ok); color:var(--fg); }
+ .connect { flex-wrap:wrap; }
+.dnbox-browser { flex-basis:100%; width:100%; font-size:13px; line-height:1.5; margin:14px 0; color:var(--dim); }
+.dnbox-browser[data-state="unsupported"],.dnbox-browser[data-state="insecure"] { color:var(--err); }
+#dnbox-file-status[data-state="error"] { color:var(--err); }
+#dnbox-file-status[data-state="ok"] { color:var(--ok); }
+#dnbox-samples fieldset { border:1px solid var(--rule); margin:14px 0; padding:16px; }
+.dnbox-audio { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:8px 0; overflow-wrap:anywhere; }
+.dnbox-audio audio { max-width:100%; width:260px; }
+.dnbox-site-nav a:hover,.dnbox-site-nav a:focus-visible { color:var(--accent); }
+:is(button,a,input,select,summary,textarea,audio):focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+button,input[type=file],select { min-height:44px; }
+button,a,summary,input,select { touch-action:manipulation; }
+button { border-radius:6px; }
+input[type=checkbox],input[type=radio] { min-width:18px; min-height:18px; accent-color:var(--accent); }
+/* Keep the local firmware chooser keyboard focusable; display:none would hide it from Tab. */
+#stockdrop { position:relative; }
+#stockdrop input[type=file] { display:block; position:absolute; opacity:0; width:1px; height:1px; left:12px; top:12px; }
+#stockdrop:focus-within { outline:3px solid var(--accent); outline-offset:3px; }
+#stock,#pick { border-radius:10px; }
+progress { height:8px; accent-color:var(--accent); }
+@media (max-width:560px) {
+  .dnbox-stages { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .dnbox-site-nav { gap:8px 12px; }
+  .dnbox-site-nav .dnbox-brand { flex-basis:100%; }
+  main { padding-top:20px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation:none !important; scroll-behavior:auto !important; transition:none !important; }
+}
