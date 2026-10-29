@@ -446,12 +446,12 @@ static void test_track_knob_align(void)
 #endif
     int tone = -1;
     for (int page = 0; page < pg.n; page++)
-        if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF))) tone = page;
+        if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, ORIGINAL_CHICAGO_CUTOFF))) tone = page;
     CHECK(tone == 0); /* selected B primary physical row */
-    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
-    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
-    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
-    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, BASS303_WAVE)));
+    CHECK(smc_same(pg.r[tone][0], PR(R_ENG, T_303, 0, ORIGINAL_CHICAGO_CUTOFF)));
+    CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, 3)));
+    CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, 4)));
+    CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, 1)));
 #if X0X_BASS_PRESET_PREVIEW
     int sound = -1;
     for (int page = 0; page < pg.n; page++)

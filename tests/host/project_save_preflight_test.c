@@ -27,6 +27,8 @@ int plat_store_load(uint32_t obj, void *dst, uint32_t max)
     return (int)flash_len[obj];
 }
 
+int engine_bass_sound_validate(const sound_t *s) { (void)s; return 0; }
+int engine_bass_preset_pending(int v) { (void)v; return 0; }
 void engine_sound_defaults(sound_t *s) { memset(s, 0, sizeof *s); }
 void engine_sound_centre_drum_pans(sound_t *s) { (void)s; }
 int engine_nparams(int t, int v) { (void)t; (void)v; return 0; }

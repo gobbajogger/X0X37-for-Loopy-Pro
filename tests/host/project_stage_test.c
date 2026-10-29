@@ -73,6 +73,7 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
     saves++;
     return st_save(obj, src, len);
 }
+int plat_midi_passed(uint32_t mark) { (void)mark; return 1; }
 void plat_midi_out(uint32_t pkt)
 {
     (void)pkt;
@@ -166,6 +167,7 @@ static void fixture(const char *name)
     }
     memcpy(protected_flash, nor, sizeof nor);
     erases = programs = saves = 0;
+    project_incompatible = 0; /* fixture replaces the entire simulated storage image */
     memset(stored_known, 0, sizeof stored_known);
     memset(stored_hash, 0, sizeof stored_hash);
     memset(&proj, 0, sizeof proj);
