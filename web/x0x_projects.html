@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>X0X projects</title>
+<title>DnBOX · Projects</title>
 <style>
   :root { color-scheme: light dark; --bg: #f5f5f3; --card: #fff; --ink: #212321; --muted: #62685f; --line: #d7dbd2; --accent: #8a4b04; --error: #a32720; }
   @media (prefers-color-scheme: dark) {
@@ -46,11 +46,14 @@
   [hidden] { display: none !important; }
   @media (max-width: 500px) { main { padding-inline: 14px; } section { padding: 16px; } .ports { grid-template-columns: 1fr; } }
 </style>
+<link rel="stylesheet" href="../site.css">
 </head>
 <body>
 <main>
-  <nav aria-label="X0X"><a href="../">X0X</a><a href="../breaks/">Break loops</a><a href="../manual/">Manual</a></nav>
+  <nav aria-label="X0X"><a href="../">DnBOX</a><a href="../breaks/">Break loops</a><a href="../manual/">Manual</a></nav>
   <h1>Projects</h1>
+  <p class="browser-note" id="browsernotice" hidden>USB MIDI is unavailable here. Use Chrome or Edge over HTTPS or localhost. You can inspect project files without connecting.</p>
+  <p class="small">DnBOX uses project revision 13 with Chicago and Miami. Earlier projects can be inspected but are not converted or imported into this revision. Keep their original firmware and backups.</p>
   <p>Keep a project on your keyboard, start fresh, or take its patterns, sounds and original samples to another X0X.</p>
   <section aria-labelledby="connection-title">
     <h2 id="connection-title">Connect your keyboard</h2>
@@ -106,14 +109,16 @@
       <p class="small">Import replaces the live project. The firmware validates it before sample changes, verifies the samples after writing, then adopts the project. Use Save on keyboard to store it immediately; the keyboard’s autosave setting also applies.</p>
     </div>
     <div id="recovery" hidden>
-      <p class="small">The recovery backup from the interrupted import is still available, even if you close its preview or choose another file.</p>
-      <button id="recover-backup" class="quiet">Download interrupted import’s recovery backup</button>
+      <p class="small">The last prepared recovery backup remains available if you close its preview, reconnect or choose another file.</p>
+      <button id="recover-backup" class="quiet">Download retained recovery backup</button>
     </div>
   </section>
   <p class="small">Keep USB connected until the operation finishes. If a sample transfer fails, the page attempts to restore the previous samples and reports the result. The recovery file is also usable after reconnecting.</p>
 </main>
 <script type="module">
 import { PROJECT_MAX_FILE, ProjectDevice, ProjectMidiLink, readProjectFile, makeProjectFile, readProjectSnapshot, prepareProjectImport, applyProjectImport } from "./x0x_projects.js";
+
+import { withDeviceOperation, watchDeviceSession } from "./device_session.js";
 
 const $ = (id) => document.getElementById(id);
 let midi = null, link = null, device = null, selected = null, prepared = null, busy = false, downloaded = false, previewStale = false;
@@ -143,10 +148,10 @@ function controls() {
 function clearPreview() {
   prepared = null; downloaded = false; previewStale = false; $("preview").hidden = true; $("backup-saved").checked = false; controls();
 }
-async function run(message, action) {
+async function run(message, action, local = false) {
   if (busy) return;
   busy = true; controls(); say(message); $("progress").hidden = false; $("progress").removeAttribute("value");
-  try { await action(); }
+  try { if (local) await action(); else await withDeviceOperation(action); }
   catch (e) { say(e.message, true); }
   finally { busy = false; $("progress").hidden = true; controls(); }
 }
@@ -159,7 +164,22 @@ async function connectSelected() {
   device = null; clearPreview(); $("identity").textContent = "Not connected";
   const input = midi.inputs.get($("midi-input").value), output = midi.outputs.get($("midi-output").value);
   if (!input || !output) throw new Error("Choose the keyboard’s MIDI input and output ports.");
+  if (input.name !== output.name || [...midi.inputs.values()].filter((p) => p.state !== "disconnected" && p.name === input.name).length !== 1 ||
+      [...midi.outputs.values()].filter((p) => p.state !== "disconnected" && p.name === output.name).length !== 1)
+    throw new Error("Choose an unambiguous MIDI input/output pair with the same keyboard name.");
+  await input.open?.(); await output.open?.();
   link = new ProjectMidiLink(input, output);
+  const ownedLink = link;
+  link.session = watchDeviceSession(midi, input, output, () => {
+    ownedLink.close();
+    if (link !== ownedLink) return;
+    if (prepared?.backupBytes) {
+      recoveryBytes = prepared.backupBytes.slice(); recoveryName = `dnbox-before-reconnect-${stamp()}.x0xproject`; $("recovery").hidden = false;
+    }
+    device = null; previewStale = true; downloaded = false; $("backup-saved").checked = false;
+    $("identity").textContent = "Disconnected"; controls();
+    say("USB connection changed. Local files and recovery backups are retained. Reconnect and prepare a new preview before importing.", true);
+  });
   const next = new ProjectDevice(link);
   try {
     const info = await next.connect(); device = next; $("identity").textContent = info.identity;
@@ -178,7 +198,7 @@ $("find").onclick = () => run("Finding USB MIDI ports…", async () => {
   $("ports").hidden = false;
   if (!inputs.length || !outputs.length) throw new Error("No MIDI input/output pair was found. Connect the keyboard by USB, then find ports again.");
   const known = inputs.filter((i) => /x0x|smk-37|mke-p37|fm-1|felucca/i.test(i.name) && outputs.some((o) => o.name === i.name));
-  if (inputs.length === 1 && outputs.length === 1 || known.length === 1) {
+  if (inputs.length === 1 && outputs.length === 1 && inputs[0].name === outputs[0].name || known.length === 1) {
     const input = known.length === 1 ? known[0] : inputs[0], output = outputs.find((o) => o.name === input.name) || outputs[0];
     $("midi-input").value = input.id; $("midi-output").value = output.id; await connectSelected();
   } else say("Choose the keyboard’s MIDI input and output, then connect the selected ports.");
@@ -213,12 +233,20 @@ $("file").onchange = () => run("Checking the project file…", async () => {
   const n = selected.meta.slots.filter((s) => !s.empty).length;
   $("file-info").textContent = `${selected.meta.name} · ${selected.portable ? "Project + original samples" : "Project only"} · ${n} populated sample slots · ${human(file.size)}`;
   say(device ? "File checked. Prepare import to compare it with the keyboard." : "File checked. Connect the keyboard to prepare import.");
-});
+}, true);
 const slotText = (s) => s.unknown ? "Interrupted transfer" : s.empty ? "Empty" : `${s.name || "Unnamed"} · ${s.zones} zone${s.zones === 1 ? "" : "s"}`;
 $("prepare").onclick = () => run("Reading the current project and preparing its recovery backup…", async () => {
   previewStale = !!prepared;
+  const revision = new DataView(selected.project.buffer, selected.project.byteOffset, selected.project.byteLength);
+  if (revision.getUint32(20, true) !== 13 || revision.getUint32(24, true) !== 13)
+    throw new Error("This workspace imports revision 13 only. Use the original firmware for an earlier project; no migration was performed.");
   const next = await prepareProjectImport(device, selected.bytes, { progress });
   clearPreview(); prepared = next;
+  const recovery = prepared.backupBytes || (prepared.recovery ? prepared.file.bytes : null);
+  if (recovery) {
+    recoveryBytes = recovery.slice(); recoveryName = `dnbox-prepared-recovery-${stamp()}.x0xproject`;
+    $("recovery").hidden = false;
+  }
   $("preview-title").textContent = `${prepared.recovery ? "Recover" : "Import"} “${prepared.file.meta.name}”`;
   const changes = prepared.plan.changes.length, collisions = prepared.plan.collisions.length;
   $("preview-summary").textContent = prepared.recovery ? `Recovery restores all ${changes} sample slots from this file before adopting its project. Audio and controls stay held while samples are written and verified.` :
@@ -269,6 +297,10 @@ $("import").onclick = () => {
     }
   });
 };
+if (typeof location !== "undefined") {
+  $("browsernotice").hidden = !!navigator.requestMIDIAccess && globalThis.isSecureContext !== false;
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => window.parent?.postMessage({ type: "dnbox-height", height: document.querySelector("main").getBoundingClientRect().height }, location.origin)).observe(document.querySelector("main"));
+}
 controls();
 </script>
 </body>
