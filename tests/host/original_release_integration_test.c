@@ -23,6 +23,9 @@ static void select_miami(int v, unsigned factory)
 {
     CHECK(engine_bass_select_preset(v, ORIGINAL_SOUND_MIAMI, (int)factory, &proj.sound) == 0);
     settle();
+    /* A source-free voice can still own an audible insert tail. Wait for the
+     * measured quiet boundary rather than assuming twelve blocks is enough. */
+    for(unsigned i=0;i<4096 && engine_bass_preset_pending(v);i++) block(256);
     CHECK(engine_bass_preset_pending(v) == 0);
     CHECK(engine_bass_status(v) == 1 && engine_bass_bank(v) == ORIGINAL_SOUND_MIAMI);
     CHECK(engine_bass_preset_index(v) == (int)factory);
@@ -37,6 +40,9 @@ static void select_chicago(int v, unsigned factory)
 {
     CHECK(engine_bass_select_preset(v, ORIGINAL_SOUND_CHICAGO, (int)factory, &proj.sound) == 0);
     settle();
+    /* A source-free voice can still own an audible insert tail. Wait for the
+     * measured quiet boundary rather than assuming twelve blocks is enough. */
+    for(unsigned i=0;i<4096 && engine_bass_preset_pending(v);i++) block(256);
     CHECK(engine_bass_preset_pending(v) == 0);
     CHECK(engine_bass_status(v) == 1 && engine_bass_bank(v) == ORIGINAL_SOUND_CHICAGO);
     CHECK(engine_bass_preset_index(v) == (int)factory && !engine_bass_preset_edited(v));

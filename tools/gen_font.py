@@ -177,10 +177,10 @@ def render(ttf, px, scale, pixel, first, last):
 # X0X: the characters a face is ever drawn with, where that is fewer than its range: the others are
 # empty (no width, no bitmap). M shows knob values that are words (OFF, C#3, FWD, 1/16, LP 40%).
 KEEP = {"M": " #%+-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
-# X0X: the lower-case letters that the firmware's own texts use (units: Hz dB k ms bpm bar st x).
+# DnBOX keeps lowercase n in its wordmark, alongside the firmware units: Hz dB k ms bpm bar st x.
 # In XS, S and B every other lower-case letter (and `{|}~) draws with the upper-case bitmap and width,
 # as gfx.c glyph() does for a face without lower case. Identical bitmaps are stored once.
-LOWER_KEEP = set("abdkmprstxz")
+LOWER_KEEP = set("abdkmnprstxz")
 LOWER_FOLD = {"XS", "S", "B"}
 
 

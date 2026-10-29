@@ -70,6 +70,15 @@ static drum808_t d808 POOL;
 #if X0X_ORIGINAL_SYNTH
 static volatile uint8_t project_hold;
 static original_runtime_part original_bass[NBASS] POOL;
+static uint16_t original_quiet_samples[NBASS], original_switch_gain[NBASS];
+#ifdef X0X_HOST
+/* Read-only host diagnostics for the actual adoption boundary. */
+unsigned engine_original_tail_state(int v)
+{
+    return (unsigned)v < NBASS ? original_quiet_samples[v] |
+        (original_runtime_owned(&original_bass[v]) ? 0x10000u : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
+}
+#endif
 static original_runtime_workspace original_workspace POOL;
 static original_chicago_tuning original_tuning POOL;
 static original_chicago_fx2_compact original_fx[NBASS] POOL;
@@ -2572,6 +2581,19 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         /* Failed/unadmitted DSP is visible through engine_bass_status. No
          * fallback renderer, guessed silence-success or idle clock skipping. */
         if (status != ORIGINAL_RUNTIME_OK) continue;
+        /* One coherent request decision per sub-block. Once note ownership is
+         * gone, fade residual insert output over 512 samples. Cancellation or
+         * a fresh owner ramps back smoothly; DSP histories keep advancing. */
+        int fade = engine_bass_preset_pending(b) == 2 && !original_runtime_owned(&original_bass[b]);
+        for (i = 0; i < n; ++i) {
+            if (fade) { if (original_switch_gain[b]) --original_switch_gain[b]; }
+            else if (original_switch_gain[b] < 512u) ++original_switch_gain[b];
+            float gain = (float)original_switch_gain[b] * (1.0f/512.0f);
+            bb[b][i] *= gain; bb[1-b][i] *= gain;
+            if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f)
+                original_quiet_samples[b] = 0;
+            else if (original_quiet_samples[b] < 512u) ++original_quiet_samples[b];
+        }
         bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
         mix_targets(p, mix_level[p], solo_parts);
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
