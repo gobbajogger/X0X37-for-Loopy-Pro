@@ -18,3 +18,4 @@ releases/openbeta/*.json.tmp
 /experiments/wobble/miami_decimator_tables_private.h
 /experiments/original_synth/fx_tables.h
 /firmware/src/app/miami_factory_typed.h
+/experiments/original_synth/state_codec_private.h

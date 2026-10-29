@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* A's one-peer HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
 #pragma once
+#define BLEC_ONE_PEER_RECOVERY 1 /* one-SMC reference slice, not two-peer completion */
 #include <stdint.h>
 
 enum { BLEC_OFF, BLEC_STOPPING, BLEC_STARTING, BLEC_SCANNING, BLEC_CONNECTING,
@@ -23,6 +24,7 @@ typedef struct {
     uint8_t sig[4][3], sig_read, sig_count;
     uint8_t mtu_need, mtu_rsp, smp_reply; /* subscribe request, owed MTU answer, owed SMP refusal */
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
+    uint8_t command_credit, command_retry, quiet_pending; /* accepted HCI owner/retry */
     uint8_t linked; /* conn holds a live handle; handle 0 is a valid handle */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
