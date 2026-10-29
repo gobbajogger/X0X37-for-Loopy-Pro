@@ -24,7 +24,13 @@ static inline int32_t original_chicago_chorus_span(int32_t phase,int32_t speed,i
   int64_t lo=p<0?INT32_MIN:0,hi=p<0?-1:INT32_MAX;
   uint32_t k=n;
   int64_t end=p+step*k;
-  if(end<lo||end>hi)k=(uint32_t)(step>0?(hi-p)/step:(p-lo)/-step);
+  if(end<lo||end>hi){
+   /* A signed half-cycle is at most 2^31 samples wide. Both magnitudes
+    * fit uint32_t, including INT32_MIN speed; AC79 needs no 64-bit divide. */
+   uint32_t distance=(uint32_t)(step>0?hi-p:p-lo);
+   uint32_t stride=step>0?(uint32_t)speed:0u-(uint32_t)speed;
+   k=distance/stride;
+  }
   if(!k)continue;
   int64_t ey=(int64_t)y+(int64_t)delta*k;
   if(ey< -32767||ey>32767)k=(uint32_t)(delta>0?(32767-y)/delta:(y+32767)/-delta);
@@ -34,7 +40,13 @@ static inline int32_t original_chicago_chorus_span(int32_t phase,int32_t speed,i
   int64_t lower=(int64_t)16777216*delta,upper=lower+16777215;
   int64_t first=start+slope,last=start+slope*k;
   if(first<lower||first>upper)continue;
-  if(last<lower||last>upper)k=(uint32_t)(slope>0?(upper-start)/slope:(start-lower)/-slope);
+  if(last<lower||last>upper){
+   /* first is already inside the 24-bit rounding interval. Count further
+    * steps from there, so the dividend and any dividing stride fit 32 bits. */
+   uint32_t room=(uint32_t)(slope>0?upper-first:first-lower);
+   uint64_t stride=(uint64_t)(slope>0?slope:-slope);
+   k=1u+(stride>room?0u:room/(uint32_t)stride);
+  }
   phase=(int32_t)(p+step*k);y+=(int32_t)((int64_t)delta*k);n-=k;
  }
  return y;

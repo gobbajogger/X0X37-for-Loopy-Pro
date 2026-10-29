@@ -371,3 +371,45 @@ SHA-256 `b57b4321aa6f170d6856519b45e264fe5d961011dfb72ad64a9055166116548c`.
 Evidence: `build/chicago-opt-no-rescan-RESULT.json`,
 `build/chicago-opt-fullaccess-idle-note/RESULT.json`, and
 `build/chicago-opt-fullaccess-idle-owners/RESULT.json`.
+
+
+## Target link repair: exact 32-bit Chorus span divisions
+
+The first real AC79 link exposed an unavailable `__divdi3` runtime call in the
+Chorus span helper. The host proof had passed, but that candidate could not
+link on the device toolchain. The helper now computes the same quotient with
+bounded 32-bit unsigned divisions: phase distances fit 31 bits, and rounding
+room measured from the admitted first step fits 24 bits. Large 64-bit strides
+are compared before narrowing. No arithmetic approximation or new DSP state
+is introduced. This lets the player use the exact idle optimization in an
+actual Elite build.
+
+Proof after this repair:
+
+- `build/chicago-opt-target-span.log`: 324,902 exact comparisons in normal and
+  ASan/UBSan modes, both PASS.
+- `build/chicago-opt-target-golden.log`: REAL, 15/15 golden files identical.
+- `build/chicago-opt-target-idle-note/RESULT.json`: every gap 1–2000 blocks;
+  normal and ASan/UBSan PCM/state transcripts both byte-identical to
+  `9621d6cc`, SHA-256
+  `b57b4321aa6f170d6856519b45e264fe5d961011dfb72ad64a9055166116548c`.
+- `build/chicago-opt-target-idle-owners/RESULT.json`: 432,418 PCM/state checks
+  in normal and ASan/UBSan modes, PASS; digest `35ca5fe82aea117f`.
+- Real Elite build: PASS, including link, no soft double, RAM and code-area
+  checks. App image **415,792 B**, versus oscillator checkpoint **413,504 B**
+  (**+2,288 B**). `.data + .bss` **97,432 B**, pool **328,880 B**, both unchanged;
+  **15,184 B** of pool headroom. No package was installed or flashed.
+
+The local target environment needed Pillow and a toolchain include-path alias
+inside its Docker container. After repair, the same run's successful objects
+were retained and only failed/changed units were rebuilt. The final resume
+reused 72 matching compile outputs and recompiled `chicago_modulation.c`, then
+ran the ordinary link, image and build checks. Input and reused-object hashes
+are recorded in `build/chicago-opt-resume-elite-RESULT.json` (PASS). The selector
+was corrected to match the full source path before the final successful run.
+Build log: `build/chicago-opt-target-final-build2.log`.
+
+Final Elite ELF SHA-256:
+`6e94430ea405df17f2efe6a8cb75a2079fbdaa9fe4a734ce41510e77c29a30db`.
+Final app image SHA-256:
+`84479f7e6fc4da8c676e0b49bcdcb62f0b8b409d7b78400f849901d9411d7fb0`.
