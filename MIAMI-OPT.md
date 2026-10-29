@@ -376,3 +376,59 @@ these incremental files after Steps 1–3. The explicit `git add -- MIAMI-OPT.md
 again fails creating the worktree `index.lock` with `Operation not permitted`.
 No commit or staging occurred. The orchestrator can commit each saved step
 in order without private headers or ignored build artifacts.
+
+### Step 5: exact idle global LFO ticks — READY TO COMMIT
+
+The Miami idle path now evaluates its selected synchronized LFO waveforms
+without the general software FMA. The guard admits zero or phase magnitudes
+from `2*FLT_MIN` through 1, where multiplication by 1/2 is exact. The clock
+ratio is in [0,1], where multiplication by 2 is exact. The subsequent add or
+subtract therefore has the identical single rounding as the original FMA.
+Tiny/invalid phases or clocks outside that domain use the original global
+helper before any mutation. Old-phase waveform evaluation, new-phase order,
+wrapped/held/noise fields, counter remainder and helper-entry count survive
+unchanged. No Chicago source or shared DSP implementation was edited.
+
+- `python3 tests/host/miami_cpu_test.py --out build/miami-global-step5
+  --compare-ref f9ffd12e`: **PASS**, including every idle length 1–2000,
+  all 30 programs, both older PCM/state workloads and all unit oracles.
+- Separate Python 3.12 `--sanitize` (ASan/UBSan) and `--native-fma` runs:
+  **PASS** in `build/miami-global-step5-sanitized/` and
+  `build/miami-global-step5-native/`. All three runs retain exactly the same
+  three trace sizes/hashes as Step 4. No golden PCM changed.
+- `python3 tools/synth684_harness/run.py --elite --golden
+  build/synth684-golden-9d1cf9fb --out build/miami-global-step5-linux`:
+  **15/15 identical**, REAL inputs, Elite build PASS in the isolated Linux
+  guest. Log: `build/miami-global-step5-linux.log`.
+- Independent read-only review found no correctness defect in the clock,
+  output/master or global-LFO guards and ordering.
+- Final `.text`: **412,208 bytes**, +304 from Step 4, +2,080 from inherited
+  `f9ffd12e`. Every allocated RAM section is unchanged. Final target ELF
+  SHA-256: `36655661d47c5cd5ca873ba85c6fcd9193effe12184465c9b8e09594b30dfd9c`.
+
+Idle **instructions per 256-frame block before/after: NOT MEASURED**, for
+the Docker/Valgrind restrictions recorded in Step 4. Final deterministic
+Clang proxy: inherited **32,986.198 → 573.669 edges/block (98.26% fewer)**;
+Step 4 was 998.134. All 30 final program means range from 569.459 to 585.019.
+Raw data and exact compile commands: `build/miami-global-step5-proxy/`.
+This is substantial host execution-path reduction, but **does not prove
+1–3k instructions/block or 12–20% AC79 CPU load**. Those measurements require
+a qualified instruction-count runner and, for CPU percentage, device testing
+in another authorized session. No connected-device measurement is claimed.
+
+Incremental Step 5 file list:
+
+- `firmware/src/dsp/original_miami_backend.c`
+- `experiments/original_synth/miami_output.h` (clarifies the private seam's
+  already-enforced nonnull/nonzero call contract)
+- `MIAMI-OPT.md`
+
+`build/miami-global-step5-source/` saves the final public source overlay,
+source hashes, cumulative patch, target ELF and section sizes.
+`build/miami-second-builder-proof.json` binds both new golden runs, all final
+host comparison records, proxy counts, source hashes and artifact identities.
+Apply Steps 4 and 5 after the earlier three READY TO COMMIT overlays; each
+step's snapshot contains its own documentation version. Commit remains
+blocked by the same `index.lock` sandbox denial. No private header, plugin,
+firmware package or controller image was staged. There was no push, firmware
+installation or flashing; the connected SMK 37 Pro was not accessed.

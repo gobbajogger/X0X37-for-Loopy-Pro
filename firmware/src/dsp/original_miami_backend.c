@@ -275,6 +275,37 @@ static int silent_block_ready(const original_miami_backend *s)
         s->output.fx.decimator.kernel.held_right == 0;
 }
 
+/* Miami's selected global MGs are tempo-synced shapes 0..3. At their real
+ * 690 Hz ticks, multiplying a normal phase by 1/2 (or a [0,1] ratio by 2)
+ * is exact, so the following addition has the same rounding as software FMA.
+ * Keep the general helper for tiny phases, malformed clocks or other graphs.
+ * Inactive per-voice MG/noise/ramps and the disabled ARP RNG stay frozen. */
+static int advance_silent_global(original_miami_backend *s)
+{
+    original_chicago_global_mg_osc *mg[2] = {&s->global.mg1, &s->global.mg2};
+    const chicago_arp_clock *clock[2] = {&s->clock1, &s->clock2};
+    for (unsigned i = 0; i < 2; ++i) {
+        uint32_t magnitude = original_math_bits(mg[i]->phase) & 0x7fffffffu;
+        if ((magnitude && magnitude < 0x01000000u) || magnitude > 0x3f800000u ||
+            clock[i]->accumulator >= clock[i]->threshold)
+            return completed(s, s->voice_owner.producers.helper_exit(s->voice_owner.producers.context));
+    }
+    s->global.counter += 690 - 44100;
+    for (unsigned i = 0; i < 2; ++i) {
+        unsigned shape = i ? s->global_input.waveform2 : s->global_input.waveform1;
+        float phase = mg[i]->phase;
+        if (shape == 0) mg[i]->output = (phase >= 0 ? -phase : phase) + 1.0f;
+        else if (shape == 1) mg[i]->output = (-phase * 0.5f) + 0.5f;
+        else if (shape == 2) mg[i]->output = (phase * 0.5f) + 0.5f;
+        else mg[i]->output = phase >= 0 ? 0 : 1;
+        mg[i]->wrapped = 0;
+        float ratio = clock[i]->accumulator / clock[i]->threshold;
+        mg[i]->phase = (ratio * 2.0f) - 1.0f;
+    }
+    ++s->note_context.helper_entries;
+    return 1;
+}
+
 static int advance_silent_block(original_miami_backend *s, uint32_t frames)
 {
     if (!completed(s, original_miami_voice_owner_block_valid(&s->voice_owner))) return 0;
@@ -310,8 +341,7 @@ static int advance_silent_block(original_miami_backend *s, uint32_t frames)
         s->global.counter += (int32_t)(span - 1) * 690;
         s->note_context.helper_entries += span - 1;
         if (s->global.counter + 690 >= 44100) {
-            if (!completed(s, s->voice_owner.producers.helper_exit(
-                s->voice_owner.producers.context))) return 0;
+            if (!advance_silent_global(s)) return 0;
         } else {
             s->global.counter += 690;
             ++s->note_context.helper_entries;
