@@ -1982,18 +1982,22 @@ static void bfx_flt_shape(float *l, float *r, int n)
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
  * and the break into kbuf; arg bit 8: not timed (the cycle counter is the first core's). Nothing
  * here is mixed: the first core does that afterwards, in one core's order.
- * Bits 9..19 carry this stretch's audible 808 tracks. */
+ * Bits 9..19 carry this stretch's audible 808 tracks; bits 20..27 carry
+ * its output window offset. Under WBL1, completed windows in t0/tr remain
+ * live until the full-block master pass; only this job's window is writable. */
 static int brk_silent_now = 1;
 static uint8_t d808_was_active;
 static void core2_job(uint32_t arg)
 {
     uint32_t n = arg & 0xFFu ? arg & 0xFFu : 256u, i, timed = !(arg & 0x100u), pt = timed ? plat_cycles() : 0;
+    uint32_t offset = (arg >> 20) & 0xFFu;
+    float *left = t0 + offset, *right = tr + offset;
     d808_was_active = (uint8_t)drum808_active(&d808);
     if (d808_was_active) {                                /* silent, it does nothing (and is not mixed) */
         for (i = 0; i < n; i++)
-            t0[i] = t1[i] = t2[i] = tr[i] = 0.0f;
-        drum808_render_st_masked(&d808, t0, tr, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
-        bfx_shape(PART_808, t0, tr, t1, t2, 4, (int)n);
+            left[i] = t1[i] = t2[i] = right[i] = 0.0f;
+        drum808_render_st_masked(&d808, left, right, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+        bfx_shape(PART_808, left, right, t1, t2, 4, (int)n);
     } else
         drum808_pan_settle(&d808);
     if (timed) {
@@ -2019,12 +2023,14 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
 /* one stretch: the 909 (into the mix, in place) and the 303s here while the second core renders the
  * 808 and the break; then those are mixed in, in the order one core always used (909, 808, 303 A,
  * 303 B, break): the same sums either way */
-__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n)
+__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n, uint32_t offset)
 {
     float *bb[NBASS] = {out_l, out_r};
+    float *left808 = t0 + offset, *right808 = tr + offset;
     int idle[NBASS], b;
     uint32_t solo = smc_solo_state;
-    uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9, i, pt;
+    uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9 |
+                   (offset << 20), i, pt;
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
@@ -2082,13 +2088,13 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         PROF_ADD(PR_808, pt);                             /* what the first core waited for the second */
     if (d808_was_active) {
         mix_targets(PART_808, mix_level[PART_808], solo_parts);
-        add_glide(dry_l, t0, &mix_glide[PART_808][GL_L], n);
-        add_glide(dry_r, tr, &mix_glide[PART_808][GL_R], n);
+        add_glide(dry_l, left808, &mix_glide[PART_808][GL_L], n);
+        add_glide(dry_r, right808, &mix_glide[PART_808][GL_R], n);
         add_glide(rev, t1, &mix_glide[PART_808][GL_VREV], n);
         add_glide(dly, t2, &mix_glide[PART_808][GL_VDLY], n);
         for (i = 0; i < n; i++)
-            t0[i] = (t0[i] + tr[i]) * 0.5f;
-        kit_sends(PART_808, t0, n);
+            left808[i] = (left808[i] + right808[i]) * 0.5f;
+        kit_sends(PART_808, left808, n);
     }
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
@@ -2142,7 +2148,15 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 
 void engine_render(int32_t *out_lr, uint32_t n)
 {
+#if X0X_DEV_WOBBLE
+    /* The 808 owns only the current t0/tr window until CPU2 join and mixing.
+     * Bass rendering and final FX then replace that window. Earlier windows
+     * remain intact until master_process_st consumes the complete block.
+     * Do not alias these buffers on the legacy early-bass render path. */
+    float *out_l = t0, *out_r = tr;
+#else
     static float out_l[256], out_r[256];
+#endif
     uint32_t done = 0, i;
     float vol = usb_full ? 1.0f : (float)plat_master() / 4096.0f;   /* (FULL: engine_volume) */
     int p;
@@ -2190,7 +2204,11 @@ void engine_render(int32_t *out_lr, uint32_t n)
     while (done < n) {
         uint32_t k = seq_until_event(&seq, n - done);
         chi_arp_tick(k);
-        render_sub(out_l + done, out_r + done, k);
+#if X0X_DEV_WOBBLE
+        render_sub(out_l + done, out_r + done, k, done);
+#else
+        render_sub(out_l + done, out_r + done, k, 0);
+#endif
         {
             PROF_T(pt);
             seq_advance(&seq, k, &SINK);
