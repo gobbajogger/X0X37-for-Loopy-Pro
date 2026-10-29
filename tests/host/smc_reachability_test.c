@@ -545,7 +545,12 @@ int main(void) {
     smc_ble_link(1);smc_poll();proj.set.bt=0;
     smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==3);
     unsigned drops=(smc_rx_diag()>>8)&255;
+    /* Faders and encoders are held in the overflow mailbox, never dropped. */
     for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(m,3);
+    assert(((smc_rx_diag()>>8)&255)==drops);smc_poll();
+    /* Other messages are still counted when the ring is full. */
+    const uint8_t note[3]={0x90,0x70,127};
+    for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(note,3);
     assert(((smc_rx_diag()>>8)&255)==((drops+1)&255));smc_poll();
     return 0;
 }
