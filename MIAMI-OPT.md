@@ -240,3 +240,56 @@ two-voice capacity before bypassing any render checks.
 Incremental Step 2 file list: `firmware/src/dsp/original_miami_backend.c` and
 `MIAMI-OPT.md`. Commit remains pending because of the recorded `index.lock`
 sandbox denial. No private input or plugin/package binary is in that file list.
+
+### Step 3: validate at block entry — READY TO COMMIT
+
+Event-free blocks validate voice/control/table readiness and BPM once per
+voice at entry, then use internal prevalidated control/render seams. The
+serial backend keeps those inputs immutable until block exit. Dynamic pending
+restart checks and downstream DSP checks remain in the sample path, and all
+existing public note/event/scalar APIs retain their checked entry points.
+This removes repeated immutable checks without changing the sound or the
+time of a control update.
+
+- `python3 tests/host/miami_cpu_test.py --out build/miami-valid-step3
+  --compare-ref f9ffd12e`: both all-30-program PCM/state traces PASS.
+  Separate `--sanitize` and `--native-fma` runs also PASS, including the
+  long-idle/note workload and the interpolation/bypass unit checks. All three
+  retain the two exact trace hashes recorded for Step 1.
+- `python3 tools/synth684_harness/run.py --elite --golden
+  build/synth684-golden-9d1cf9fb --out build/miami-valid-step3-linux`:
+  **15/15 identical**, REAL inputs, Elite build PASS in the same Linux VM.
+- Idle instructions per block before and after: **NOT MEASURED**. Docker/
+  Colima access and Valgrind installation failed as recorded above. Final
+  deterministic Clang edge proxy: inherited **32,986.198 → 5,718.506 per
+  256-frame block (82.66% fewer)**, using the same compiler, flags and workload.
+  Logs and all 30 per-program counts: `build/miami-valid-step3-proxy/`.
+  These counts do not prove the requested **12–20% AC79 CPU load**. That
+  qualification remains pending; no connected-device runtime is measured.
+- Final linked `.text`: **411,312 bytes**, +336 from Step 2 and +1,184 from
+  inherited `f9ffd12e`. All allocated RAM section sizes remain unchanged.
+  Chicago/shared symbol flash remains 72,468/9,659 bytes. Approximate Miami
+  attribution is 22,731 flash bytes. Final target ELF SHA-256:
+  `227a632b8c66fe518475ded8608d85466570aeb040667c12405fd0ca31c08db9`.
+
+Incremental Step 3 file list:
+
+- `firmware/src/dsp/original_miami_backend.c`
+- `experiments/original_synth/miami_selected_voice.c`
+- `experiments/original_synth/miami_selected_voice.h`
+- `experiments/original_synth/miami_voice_owner.c`
+- `experiments/original_synth/miami_voice_owner.h`
+- `MIAMI-OPT.md`
+
+Commit remains pending because of the same `index.lock` sandbox denial.
+`build/miami-valid-step3-source/` saves the final public source overlay,
+cumulative patch, source hashes, target ELF and section sizes. For separate
+commits, apply only each step's listed source/docs files from its snapshot,
+in order on `f9ffd12e`. Do not stage the ignored snapshot directories or their
+binary artifacts. `build/miami-final-proof.json` binds the final source hashes,
+golden hashes, trace hashes and all three successful Elite/golden records.
+
+Final scope/whitespace and pinned-input checks PASS. `f95e230e` remains an
+ancestor. No Chicago-specific file was edited. The index is empty: no private
+headers, plugin binaries or firmware packages were staged. No push, firmware
+installation or flashing occurred. The temporary Linux VM was powered off.
