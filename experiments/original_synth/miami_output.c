@@ -14,7 +14,6 @@ typedef struct {miami_decimator_adapter_t *effect;const uint32_t *frames;uint32_
 static void decimate(void *context,int16_t *l,int16_t *r,uint32_t n){
  effect_context *c=context;(void)miami_decimator_adapter_process(c->effect,l,r,n,c->frames,c->count);
 }
-static void bypass(void *context,int16_t *l,int16_t *r,uint32_t n){(void)context;(void)l;(void)r;(void)n;}
 static int zero_ready(const original_miami_output *s,const uint32_t *il,const uint32_t *ir,uint32_t n){
  const original_fixed_fx *a=&s->fx.fx1,*b=&s->fx.fx2;
  if(a->dirty||b->dirty||a->gain_state/32768!=a->target||b->gain_state/32768!=b->target||
@@ -60,7 +59,7 @@ int original_miami_output_process(original_miami_output *s,const original_miami_
  }
  effect_context effect={&s->fx.decimator,events,ne};
  (void)original_fixed_fx_process(&s->fx.fx1,w->dryL,w->dryR,w->scratchL,w->scratchR,w->dryL,w->dryR,n,decimate,&effect);
- (void)original_fixed_fx_process(&s->fx.fx2,w->dryL,w->dryR,w->scratchL,w->scratchR,w->dryL,w->dryR,n,bypass,0);
+ original_miami_fx_bypass_process(&s->fx.fx2,w,n);
  for(uint32_t i=0;i<n;i++){ol[i]=miami_fx_output_rne((int16_t)w->dryL[i]);orr[i]=miami_fx_output_rne((int16_t)w->dryR[i]);}
  return original_master_process(&s->master,volume*volume,ol,orr,ol,orr,n);
 }
