@@ -36,7 +36,7 @@ prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_acti
 helpers = ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot") if "smc_poll_peer" in source else ()
 functions = "\n".join(function(n) for n in helpers + (
     "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link",
-    "smc_mmc_drain_stop",
+    "smc_mmc_drain_stop", "smc_spill_apply",
 ) + (("smc_poll_peer",) if helpers else ()) + ("smc_poll",))
 harness = r'''
 #include <stdint.h>
@@ -68,7 +68,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     observed[nobs++] = m[1];
     return 0;
 }
-''' + prefix + "\n" + functions + r'''
+''' + (lambda t: t[t.index('static inline int smc_relative'):t.index('}', t.index('static inline int smc_relative')) + 1])((ROOT / 'firmware/src/app/smc_protocol.h').read_text()) + "\n" + prefix + "\n" + functions + r'''
 static void reset_state(unsigned start)
 {
     memset(&smc, 0, sizeof smc);

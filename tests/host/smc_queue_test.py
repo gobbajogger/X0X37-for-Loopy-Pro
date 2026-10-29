@@ -108,7 +108,7 @@ static void interleave(int queue)
         smc_mmc_host(34, (uint8_t)mmc_src); /* STOP overflows after PLAY */
     } else enqueue(route == 2 ? 16 : SMC_Q);
 }
-''' + function("smc_mmc_drain_stop") + "\n" + poll + ("\n" + function("smc_poll") if "smc_poll_peer" in source else "") + r'''
+''' + function("smc_mmc_drain_stop") + "\n" + function("smc_spill_apply") + "\n" + poll + ("\n" + function("smc_poll") if "smc_poll_peer" in source else "") + r'''
 
 int main(int argc, char **argv)
 {
