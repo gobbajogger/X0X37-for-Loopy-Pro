@@ -41,6 +41,108 @@ def complete(r):
 
 
 class PriorityTests(unittest.TestCase):
+    def test_prepared_same_owner_continuation_is_not_a_new_claim(self):
+        existing = record(20, effort='complex', owner_execution_state=
+            'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+        ready = record(32, 'feature_research', 'complex', owner='unassigned')
+        for capacity in (0, 1, 2):
+            with self.subTest(capacity=capacity):
+                ledger = {'records': [existing, ready]}
+                before = copy.deepcopy(ledger)
+                result = p.plan(ledger, NOW, capacity, read_status='success')
+                self.assertEqual(ledger, before)
+                self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-020'])
+                self.assertEqual(result['continue_existing'][0]['next_action'], existing['next_action'])
+                self.assertEqual(result['continue_existing'][0]['owner_execution_state'], existing['owner_execution_state'])
+                self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                                 ['LX-REQ-032'] if capacity else [])
+                self.assertNotIn('LX-REQ-020', [r['request_id'] for r in result['delivery_order']])
+
+    def test_retained_scope_blocks_overlap_not_disjoint_work(self):
+        existing = record(20, owner_execution_state=
+            'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+        overlap = record(1)
+        overlap['priority_assessment']['work_areas'] = ['20']
+        for capacity in (0, 1, 2):
+            result = self.plan(existing, overlap, record(32), capacity=capacity)
+            self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                             ['LX-REQ-032'] if capacity else [])
+            self.assertEqual(len(result['continue_existing']), 1)
+        self.assertEqual(self.plan(existing, record(32), busy_areas=['32'])['claim_candidates'], [])
+        existing['priority_assessment']['work_areas'] = []
+        result = self.plan(existing, record(32))
+        self.assertEqual(result['claim_candidates'], [])
+        self.assertEqual(result['claim_admission']['blocked_by'], ['LX-REQ-020'])
+        self.assertEqual(result['continue_existing'][0]['recorded_next_action'], existing['next_action'])
+        self.assertEqual(result['recovery_actions'][0]['action_kind'], 'READ_ONLY_OWNERSHIP_RECONCILIATION')
+
+    def test_owner_labels_and_unknown_states_do_not_invent_retained_claims(self):
+        for owner, state in [('unassigned', None), ('previous owner', 'RELEASED'),
+                             ('historical label', 'UNKNOWN'), ('old owner', 'UNAVAILABLE')]:
+            with self.subTest(owner=owner, state=state):
+                result = self.plan(record(1, owner=owner, owner_execution_state=state))
+                self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-001'])
+                self.assertEqual(result['continue_existing'], [])
+
+    def test_closed_or_held_retained_continuation_reserves_no_scope(self):
+        for changes in ({'status': 'CANCELLED'}, {'status': 'SUPERSEDED'},
+                        {'status': 'COMPLETED'}, {'status': 'DONE'},
+                        {'priority': 'DEFERRED'}, {'status': 'OWNER_DEFERRED'},
+                        {'implementation_authorized': False}, {'intake_eligible': False}):
+            for areas in (['32'], [], None):
+                with self.subTest(changes=changes, areas=areas):
+                    held = record(20, owner_execution_state=
+                        'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED', **changes)
+                    held['priority_assessment']['work_areas'] = areas
+                    if held['status'] in p.COMPLETED:
+                        held = complete(held)
+                        held.update(changes)
+                    result = self.plan(held, record(32), capacity=1)
+                    self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-032'])
+                    self.assertEqual(result['continue_existing'], [])
+                    self.assertEqual(result['recovery_actions'], [])
+                    self.assertEqual(result['claim_admission']['blocked_by'], [])
+                    self.assertEqual(result['claim_admission']['state'], 'ELIGIBLE')
+
+    def test_blocked_prepared_action_is_excluded_without_blocking_independent_work(self):
+        for status in ('BLOCKED_KNOWN_PERMISSION_DENIAL', 'BLOCKED_DEPENDENCY_UNMET'):
+            for areas in (['32'], [], None):
+                for capacity in (0, 1, 2):
+                    with self.subTest(status=status, areas=areas, capacity=capacity):
+                        held = record(20, status=status, next_action='Perform the specifically blocked write.',
+                            owner_execution_state='RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                        held['priority_assessment']['work_areas'] = areas
+                        independent = record(12, owner=held['owner'],
+                            owner_execution_state='RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+                        ledger = {'records': [held, independent, record(32)]}
+                        before = copy.deepcopy(ledger)
+                        result = p.plan(ledger, NOW, capacity, read_status='success')
+                        self.assertEqual(ledger, before)
+                        self.assertEqual([r['request_id'] for r in result['continue_existing']], ['LX-REQ-012'])
+                        self.assertEqual(result['continue_existing'][0]['next_action'], independent['next_action'])
+                        self.assertEqual([r['request_id'] for r in result['claim_candidates']],
+                                         ['LX-REQ-032'] if capacity else [])
+                        self.assertEqual(result['recovery_actions'], [])
+                        self.assertEqual(result['claim_admission']['blocked_by'], [])
+                        excluded = next(r for r in result['excluded'] if r['request_id'] == 'LX-REQ-020')
+                        self.assertIn(status, excluded['reason'])
+                        self.assertNotEqual(excluded['next_action'], held['next_action'])
+                        self.assertIn('Read-only', excluded['next_action'])
+
+    def test_retained_continuation_obeys_deferral_completion_and_read_gates(self):
+        existing = record(20, owner_execution_state=
+            'RECOVERY_COORDINATION_PREPARED_RECEIVER_EXECUTION_UNVERIFIED')
+        for status in ('unknown', 'failed', 'stale', 'incomplete', 'unavailable', 'rejected'):
+            result = p.plan({'records': [existing, record(32)]}, NOW, 2, read_status=status)
+            self.assertEqual(result['state'], 'BLOCKED')
+            self.assertEqual(result['claim_candidates'], [])
+            self.assertEqual(result['continue_existing'], [])
+        for held in (dict(existing, implementation_authorized=False),
+                     dict(existing, priority='DEFERRED'), complete(copy.deepcopy(existing))):
+            result = self.plan(held, record(32))
+            self.assertEqual(result['continue_existing'], [])
+            self.assertEqual([r['request_id'] for r in result['claim_candidates']], ['LX-REQ-032'])
+
     def plan(self, *records, capacity=2, **kw):
         return p.plan({'records': list(records)}, NOW, capacity, read_status='success', **kw)
 
