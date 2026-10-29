@@ -13,7 +13,7 @@ static int send_h4(uint8_t t,const uint8_t *p,uint16_t n,void *x)
 static void got(const uint8_t *p,uint8_t n,void *x)
 { (void)x;assert(n<=sizeof last);memcpy(last,p,n);count++; }
 static void ready(blec_t *c)
-{ c->state=BLEC_CONNECTED;c->conn=1;c->midi_handle=6; }
+{ c->state=BLEC_CONNECTED;c->conn=1;c->linked=1;c->midi_handle=6; }
 static const uint8_t note[]={1,0,12,0,8,0,4,0,0x1b,6,0,0x80,0x81,0x90,24,127};
 static void feed(blec_t *c,const uint8_t *p,unsigned n)
 { blec_rx(c,2,p,(uint16_t)n,1); }

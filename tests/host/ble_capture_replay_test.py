@@ -45,7 +45,7 @@ static void got(const uint8_t *p, uint8_t n, void *x)
 int main(void) {
     uint8_t addr[6]={0}, b[512], header[2]; blec_t c;
     blec_init(&c,send_h4,got,0,addr);
-    c.state=BLEC_CONNECTED; c.conn=1; c.midi_handle=113;
+    c.state=BLEC_CONNECTED; c.conn=1;c.linked=1; c.midi_handle=113;
     unsigned rejected=0;
     while(fread(header,1,2,stdin)==2) {
         unsigned n=header[0] | (unsigned)header[1]<<8;
