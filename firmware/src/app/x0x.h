@@ -38,7 +38,7 @@
 /* Revision13 stores schema2 cells with55 Chicago programs and seven FX choices.
  * Revision12 stored diagnostic81-program OS cells with OCH1/OMI1 tags.
  * The original profile accepts no earlier engine or project revision.
-/* Revision11 appended two explicit engine/product-schema identities. */
+ * Revision11 appended two explicit engine/product-schema identities. */
 /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
                                           * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
