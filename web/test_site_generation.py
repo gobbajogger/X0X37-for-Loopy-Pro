@@ -15,7 +15,7 @@ def refuses(action):
         return
     raise AssertionError('unsafe catalog/output accepted')
 
-with tempfile.TemporaryDirectory(prefix='site-retention-', dir=Path(__file__).resolve().parents[1] / 'build/web-site') as td:
+with tempfile.TemporaryDirectory(prefix='site-retention-') as td:
     root=Path(td)
     package=root/'old.fwsc'; package.write_bytes(b'synthetic package, no firmware')
     meta={'product':'SMK-37 Elite_9001300','pkg':'../firmware/old.fwsc','file':'old.fwsc','size':package.stat().st_size,'sha256':hashlib.sha256(package.read_bytes()).hexdigest()}
