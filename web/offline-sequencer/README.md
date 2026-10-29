@@ -10,6 +10,8 @@ New/Mutate use the local TB-3PO port.432 exact seeded outputs match an isolated 
 
 Sound drafts use fixed source descriptor bounds. Original18 Miami/22 Chicago identities use human-facing labels; runtime extensions remain reachable separately. Miami missing original selector modes are disabled. Chicago amp/filter ADSRs remain independent, with no unified Env write. Pitch Bend software edits remain disabled. Either synth can select Miami/Chicago, subject to one Miami context. Shared FX/master controls have explicitly global keys.
 
+Full-part clipboard actions offer explicit copy, cut, paste and clear across same-type parts. They cover complete pattern-local settings and the entire stored tail, preserve unrelated parts and use one Undo frame for each confirmed mutation. They deliberately do not copy global sound drafts or synth engine assignments. Clipboard remains local to this open tab.
+
 These files are not device backups. Probability/condition, motion/p-lock, per-note sound, song/chain and live routing/clock/transport are not represented or implemented. No live triggering, playback, MIDI-port request, device read/transfer/update or sample-file operation exists. Unset values remain visibly unset; no real engine state is inferred from a draft.
 
 Validation:

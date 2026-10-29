@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {DraftStore,createDraft,parseDraft,copy,getPart,PARTS,KITS,RATES,gate,bit,setBit,pitchName,validateDraft} from './model.js';
+import {DraftStore,createDraft,parseDraft,copy,getPart,PARTS,KITS,RATES,gate,bit,setBit,pitchName,validateDraft,diffDraft} from './model.js';
 import {notesOf,putNote,removeNote,applyPlan} from './editing.js';
 import {StorageRevision,SelectionEpoch} from './draft-guards.js';
+import {partKind,takeFullPart,replaceFullPart,clearFullPart} from './part-operations.js';
 import {generatePlan} from './generator.js';
 const $=s=>document.querySelector(s), E=(tag,attrs={},children=[])=>{const x=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==='text')x.textContent=v;else if(k.startsWith('on'))x.addEventListener(k.slice(2),v);else if(k==='class')x.className=v;else if(v!==false&&v!=null)x.setAttribute(k,v===true?'':v);}for(const c of [].concat(children))x.append(c);return x;};
 let store=new DraftStore(),part=0,patterns=[0,0,0,0,0],selected=null,cursor={start:0,pitch:60},tool=matchMedia('(pointer:coarse)').matches?'pan':'select',step=40,row=28,gesture=null,pending=null,parsedSummary=null,worker=null,workerId=0,soundGroup='',soundSection='',catalog=null,uiEpoch=0;
 const STORAGE_KEY='dnbox-offline-draft-v2';
-let localRevision=new StorageRevision(),draftPick=new SelectionEpoch();
+let localRevision=new StorageRevision(),draftPick=new SelectionEpoch(),fullPartClipboard=null;
 const vp=$('#viewport'),canvas=$('#canvas'),vel=$('#velocity'),vc=$('#velocity-canvas'),dialog=$('#dialog');
 const pattern=()=>patterns[part],current=()=>getPart(store.doc,pattern(),part),context=()=>`${part}:${pattern()}:${part<2?store.doc.engines[part]:''}`;
 function message(text,error=false){$('#message').textContent=text;$('#message').classList.toggle('error',error);}
@@ -125,6 +126,55 @@ $('#open-draft').onchange=async e=>{
   ]));
  }catch(err){if(draftPick.valid(token))message(err.message,true);}
  finally{e.target.value='';}
+};
+// Full part operations retain all locally stored cells, length, rate and per-part settings.
+// Global sound drafts and engine assignments remain separate and never silently transfer.
+$('#part-actions').onclick=()=>{
+ cancelGesture();
+ const target={part,pattern:pattern(),key:context(),revision:store.revision};
+ const same=()=>target.key===context()&&target.revision===store.revision;
+ const confirm=(label,candidate,clip=null)=>{
+  if(!same())return message('Part changed; reopen part actions.',true);
+  const count=diffDraft(store.doc,candidate).length;
+  modal(label+' · confirm complete part',E('div',{},[
+   E('p',{text:`${PARTS[target.part]} / pattern ${target.pattern+1}: ${count} changed fields. Includes length, rate, all stored steps (including hidden tail) and pattern-local settings; excludes global sound and engine assignments. No device transfer.`}),
+   button('Confirm '+label,()=>{
+    if(!same())return message('Draft revision or part changed; reopen actions.',true);
+    const changed=store.replace(candidate);
+    if(clip&&changed)fullPartClipboard=clip;
+    const saved=changed?persist():true;
+    selected=null;closeModal();render();
+    if(saved)message(changed?label+' applied to local draft as one Undo transaction.':'No changes needed; local draft unchanged.');
+   }),
+   button('Cancel',closeModal)
+  ]));
+ };
+ const actions=E('div',{class:'actions'},[
+  button('Copy full part',()=>{
+   if(!same())return message('Target changed; reopen part actions.',true);
+   fullPartClipboard=takeFullPart(store.doc,target.pattern,target.part);
+   closeModal();message('Copied '+PARTS[target.part]+' / pattern '+(target.pattern+1)+' with full stored tail and part settings. No edit/Undo frame.');
+  }),
+  button('Paste full part',()=>{
+   try{if(!same())throw Error('Target changed; reopen actions.');
+    confirm('Paste full part',replaceFullPart(store.doc,target.pattern,target.part,fullPartClipboard));
+   }catch(e){message(e.message,true);}
+  },{disabled:!fullPartClipboard||fullPartClipboard.kind!==partKind(target.part)}),
+  button('Cut full part',()=>{
+   try{if(!same())throw Error('Target changed; reopen actions.');
+    confirm('Cut full part',clearFullPart(store.doc,target.pattern,target.part),takeFullPart(store.doc,target.pattern,target.part));
+   }catch(e){message(e.message,true);}
+  }),
+  button('Clear full part',()=>{
+   try{if(!same())throw Error('Target changed; reopen actions.');
+    confirm('Clear full part',clearFullPart(store.doc,target.pattern,target.part));
+   }catch(e){message(e.message,true);}
+  })
+ ]);
+ modal('Part actions · '+PARTS[target.part],E('div',{},[
+  E('p',{text:'Full-part copy/cut/paste/clear affects the complete saved local part, including hidden steps and its length/rate/settings. Same part type only. Does not include global sound or synth engine binding.'}),
+  actions
+ ]));
 };
 function soundKey(d){if(d.group==='Part mixer / each of5parts')return `mix/${part}/${d.parameter_index}`;if(d.group==='BREAKS'&&d.parameter_index>=14)return `mix/4/${d.parameter_index-13}`;return `${d.group==='Miami'||d.group.startsWith('Chicago')?'synth'+part+'/':''}${d.group}/${d.parameter_index}`;}
 const chicagoNames={Cutoff:'VCF Cutoff',Reso:'VCF Peak',EnvMod:'VCF Env Amt',Wave:'OSC Waveform',Slide:'Glide',Volume:'Amp Level',AmpMod:'Amp Mode',Gnaw:'VCF Gnaw',Bite:'VCF Bite',FAttack:'Env Attack · filter',Decay:'Env Decay · filter',FSustain:'Env Sustain · filter',FRelease:'Env Release · filter',AAtt:'Env Attack · amp',ADec:'Env Decay · amp',ASus:'Env Sustain · amp',ARel:'Env Release · amp',ArpSw:'Arp Switch',ArpMd:'Arp Mode',ArpRg:'Arp Range',ArpSp:'Arp Speed',FxTyp:'Fx Type',FxEd1:'Fx Edit 1',FxEd2:'Fx Edit 2',PBend:'Pitch Bend',Damp:'Damper'};
