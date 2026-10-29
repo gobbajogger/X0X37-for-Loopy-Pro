@@ -135,7 +135,7 @@ static void blec_disconnect(blec_t *c)
 /* A stop retains the original operation until its completion is known. */
 static void blec_stop_progress(blec_t *c)
 {
-    if (c->conn) { blec_disconnect(c); return; }
+    if (c->linked) { blec_disconnect(c); return; }
     if ((int32_t)(c->now_ms - c->deadline) >= 0) {
         c->state = BLEC_FAILED; c->waiting = 0; return;
     }
@@ -156,7 +156,7 @@ static void blec_fail(blec_t *c)
     blec_rx_reset(c);
     c->qr = c->qw;
     c->att_waiting = 0;
-    if (c->conn) {
+    if (c->linked) {
         c->waiting = 0;
         c->state = BLEC_DISCONNECTING;
         c->deadline = c->now_ms + 3000u;
@@ -203,7 +203,7 @@ static int blec_param_ok(unsigned min, unsigned max, unsigned lat, unsigned to)
 static int blec_conn_update(blec_t *c, unsigned min, unsigned max, unsigned lat, unsigned to)
 {
     uint8_t b[14];
-    if ((c->state != BLEC_CONNECTED && c->state != BLEC_DISCOVERING) || !c->conn)
+    if ((c->state != BLEC_CONNECTED && c->state != BLEC_DISCOVERING) || !c->linked)
         return 0;
     blec_wr16(b, c->conn);
     blec_wr16(b + 2, min); blec_wr16(b + 4, max);
@@ -299,7 +299,7 @@ void blec_start(blec_t *c, uint32_t now)
     blec_rx_reset(c);
     c->midi_handle = c->cccd_handle = c->svc_end = 0;
     c->now_ms = now;
-    c->waiting = c->att_waiting = c->conn = c->credits = 0;
+    c->waiting = c->att_waiting = c->conn = c->credits = c->linked = 0;
     c->disconnect_flags = 0;
     c->qr = c->qw = 0;
     c->state = BLEC_STARTING; c->step = S_RESET; c->query_start = 1;
@@ -309,7 +309,7 @@ void blec_stop(blec_t *c)
 {
     if (c->state == BLEC_OFF || (c->disconnect_flags & D_STOP)) return;
     c->disconnect_flags |= D_STOP;
-    if (c->state == BLEC_FAILED && c->conn) return;
+    if (c->state == BLEC_FAILED && c->linked) return;
     if (c->state != BLEC_DISCONNECTING && c->step != S_CANCEL)
         c->deadline = c->now_ms + 3000u;
     /* An automatic Cancel that was accepted must not be submitted again. */
@@ -510,7 +510,7 @@ static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
                 unsigned z, name_len = p[k] - 1u;
                 if (blec_paired(c)) {
                     const blec_t *other = blec_other(c);
-                    if (other->conn && blec_eq(other->target, p + i + 2u, 6)) continue;
+                    if (other->linked && blec_eq(other->target, p + i + 2u, 6)) continue;
                 }
                 c->target_type = p[i + 1u];
                 for (z = 0; z < 6; z++) c->target[z] = p[i + 2u + z];
@@ -554,20 +554,20 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
                 if (c->step != S_SCAN_ON) c->state = BLEC_OFF;
                 else if (c->state == BLEC_STOPPING) blec_stop_progress(c);
             } else if (op == COP_CREATE && c->state == BLEC_STOPPING) blec_stop_progress(c);
-        } else if (code == 0x05 && pl >= 4u && c->conn && !p[0] && blec_rd16(p + 1) == c->conn) {
+        } else if (code == 0x05 && pl >= 4u && c->linked && !p[0] && blec_rd16(p + 1) == c->conn) {
             blec_refund(c, c->inflight);
-            c->conn = 0;
+            c->conn = 0; c->linked = 0;
             c->disconnect_flags = 0;
             c->waiting = 0;
             c->state = BLEC_OFF;
-        } else if (code == 0x3e && pl >= 19u && (p[0] == 1u || p[0] == 0x0au) && !c->conn) {
+        } else if (code == 0x3e && pl >= 19u && (p[0] == 1u || p[0] == 0x0au) && !c->linked) {
             if (p[1]) {
                 if (c->step == S_CREATE || c->step == S_CANCEL) {
                     c->state = BLEC_OFF; c->waiting = 0;
                 }
             }
             else {
-                c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu);
+                c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu); c->linked = 1;
                 c->disconnect_flags = D_STOP;
                 c->state = BLEC_STOPPING;
                 blec_disconnect(c);
@@ -612,17 +612,17 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
             }
             blec_rx_reset(c);
             c->midi_handle = c->cccd_handle = c->svc_end = 0;
-            c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu);
+            c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu); c->linked = 1;
             c->disconnect_flags = 0;
             if (c->step == S_CANCEL) c->waiting = 0; /* connection won the cancel race */
             c->state = BLEC_DISCOVERING; c->step = S_SERVICE; c->query_start = 1; c->att_waiting = 0;
             c->deadline = now + 5000u; blec_progress(c);
         }
-    } else if (code == 0x05 && pl >= 4u && !p[0] && c->state != BLEC_OFF && blec_rd16(p + 1) == c->conn) {
+    } else if (code == 0x05 && pl >= 4u && !p[0] && c->state != BLEC_OFF && c->linked && blec_rd16(p + 1) == c->conn) {
         blec_rx_reset(c);
         /* HCI disconnection frees this sole link's outstanding controller buffers. */
         blec_refund(c, c->inflight);
-        c->conn = 0; c->qr = c->qw; c->att_waiting = c->waiting = 0;
+        c->conn = 0; c->linked = 0; c->qr = c->qw; c->att_waiting = c->waiting = 0;
         if (c->disconnect_flags & D_STOP) c->state = BLEC_OFF;
         else { blec_scan_again(c, now); blec_progress(c); }
         c->disconnect_flags = 0;
@@ -724,7 +724,7 @@ void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n
     if (!p) return;
     if (h4 == H4_ACL && n >= 2u) {
         unsigned handle = blec_rd16(p) & 0x0fffu;
-        dest = a->conn && handle == a->conn ? a : b->conn && handle == b->conn ? b : 0;
+        dest = a->linked && handle == a->conn ? a : b->linked && handle == b->conn ? b : 0;
     } else if (h4 == H4_EVT && n >= 2u && p[1] <= n - 2u) {
         unsigned pl = p[1];
         if ((p[0] == 0x0e && pl >= 3u) || (p[0] == 0x0f && pl >= 4u)) {
@@ -745,14 +745,14 @@ void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n
             blec_rx(a, h4, p, n, now); blec_rx(b, h4, p, n, now); return;
         } else if (p[0] == 0x05 && pl >= 4u) {
             unsigned handle = blec_rd16(p + 3) & 0x0fffu;
-            dest = a->conn && handle == a->conn ? a : b->conn && handle == b->conn ? b : 0;
+            dest = a->linked && handle == a->conn ? a : b->linked && handle == b->conn ? b : 0;
         } else if (p[0] == 0x3e && pl >= 2u) {
             if (p[2] == 2u) dest = a->state == BLEC_SCANNING ? a : b->state == BLEC_SCANNING ? b : 0;
             else if (p[2] == 1u || p[2] == 0x0au) {
-                if (!a->conn && (a->state == BLEC_CONNECTING || a->step == S_CANCEL ||
+                if (!a->linked && (a->state == BLEC_CONNECTING || a->step == S_CANCEL ||
                     ((a->state == BLEC_STOPPING || a->state == BLEC_FAILED) &&
                      (a->disconnect_flags & D_STOP) && a->step == S_CREATE))) dest = a;
-                else if (!b->conn && (b->state == BLEC_CONNECTING || b->step == S_CANCEL ||
+                else if (!b->linked && (b->state == BLEC_CONNECTING || b->step == S_CANCEL ||
                     ((b->state == BLEC_STOPPING || b->state == BLEC_FAILED) &&
                      (b->disconnect_flags & D_STOP) && b->step == S_CREATE))) dest = b;
             }
@@ -779,8 +779,8 @@ void blec_pair_poll(blec_t *a, blec_t *b, uint32_t now, int want)
     if (blec_command_owner || !a->acl_total) return;
     if (a->state == BLEC_STARTING || a->state == BLEC_SCANNING || a->state == BLEC_CONNECTING ||
         b->state == BLEC_STARTING || b->state == BLEC_SCANNING || b->state == BLEC_CONNECTING) return;
-    blec_t *idle = !a->conn && (a->state == BLEC_OFF || a->state == BLEC_FAILED) ? a :
-                   !b->conn && (b->state == BLEC_OFF || b->state == BLEC_FAILED) ? b : 0;
+    blec_t *idle = !a->linked && (a->state == BLEC_OFF || a->state == BLEC_FAILED) ? a :
+                   !b->linked && (b->state == BLEC_OFF || b->state == BLEC_FAILED) ? b : 0;
     if (idle && !(idle->disconnect_flags & D_STOP) &&
         (idle->state == BLEC_OFF || (int32_t)(now - idle->deadline) >= 0)) blec_join(idle, now);
 }
