@@ -830,3 +830,121 @@ RMS. Preserve the first divergence and inspect the actual first mismatched
 DSP/mixer stage. Do not claim hardware audio fixed, new CPU percentages,
 a target firmware PASS or permission to integrate into `wip/one-build`.
 
+## Step 11: Miami device-only 27-30 dB gain forensics (2026-10-29)
+
+### Owner evidence and a required distinction
+
+Owner recorded Miami only, through the actual SMK-37 USB audio path on
+the local non-GitHub perf build `c287cfe4` (MIDI channel 2): peak
+-37.1 dBFS, RMS approximately -49 dBFS. The internal p00 port golden
+has peak -9.6 dBFS, RMS -19.1 dBFS. The deltas are **-27.5 dB peak**
+(0.04217x amplitude) and **-29.9 dB RMS** (0.03199x). LOUD was ON and
+device volume was maximized; other engines on the device sound normal.
+Owner reports the **host Miami PCM is already bit-exact**.
+
+**The internal p00 render is a *multi-note*, parameter-changing script**:
+`tools/synth684_harness/synth684_bench.c` sends notes 36, 43 and 48 at
+velocity 100, edits wobble depth and pitch bend, changes damper, and
+renders 172 blocks. A device recording of a single channel-2 note is
+*not* an identical test stimulus. Until MIDI note, velocity, timing,
+patch/edits, FX, mixer, master, LOUD and USB FULL state are matched, the
+two dB figures cannot prove one physical gain stage is broken.
+
+### Read-only actual source trace
+
+- LOUD setting: `ui.c` R_OUTLOUD stores `proj.set.out_loud` and calls
+  `engine_out_loud(v)`. `project_apply_io()` reapplies it at boot and
+  project restore. `engine.c` selects 4,194,303 NORMAL or 8,388,607
+  LOUD, a **2x / 6.02 dB** global stage; *all* engine slots go through
+  it. The ALNK0 render uses `uac_tap` before post-tap `engine_volume`;
+  USB audio converts the shared 24-bit words by arithmetic `>>8` and
+  cubic resampling. There is no separate Miami LOUD flag or Miami
+  `>>8` exception. LOUD alone cannot explain a 27-30 dB Miami-only
+  difference.
+- Miami and Chicago share `render_sub` mixing. The original synth
+  profile sets **303 A and 303 B mixer LEVEL to 100 (unity) on factory
+  reset**. Real project `T_MIX` LEVEL is persisted and loaded from its
+  own cell. `apply_param` uses `(val/100)^2`: **LEVEL=20 produces
+  0.04x / -27.9588 dB**, almost exactly the reported peak loss.
+  A saved or motion-modulated low 303 A level would attenuate only Miami
+  and would survive a synth preset switch. The source itself does not
+  establish that the *live device* has LEVEL=20; overriding intentional
+  saved mixer settings would be a destructive regression.
+- The channel-2 MIDI handler forwards its 7-bit Note On velocity
+  unchanged into `original_runtime_key`. Miami voice gain deliberately
+  includes **velocity squared**. The internal p00 render uses velocity
+  100; a device Note On near velocity 20 likewise predicts **-27.96 dB**.
+  The recorded MIDI channel alone does *not* establish the transmitted
+  velocity. This is an equally strong alternate hypothesis, not a
+  demonstrated firmware gain error.
+- A low explicit Miami OUTPUT macro 14 edit can also reduce volume via
+  the selected program's native96/squared master gain. The live project's
+  edit mask and displayed OUTPUT byte must be checked; never infer the
+  actual native binary32 value from its rounded display byte alone.
+- Chicago goes through the same part mixer and LOUD/USB stages (303 B).
+  If Chicago remains normal, that argues against a global output scale
+  shift, not against a saved Miami slot level, MIDI velocity, or patch edit.
+
+### New checked source-safe forensic tool
+
+`tools/miami_gain_audit.py` calculates both measured dB ratios and
+the **equivalent** (not proven) 303 A mixer LEVEL and MIDI velocity.
+It optionally opens a **rev13-only**, CRC-validated raw `X0XP` project
+or portable `.x0xproject` export and reports the actual 303 A/303 B
+mixer LEVEL/PAN, Miami patch preset, explicit macro14 edit flag/byte,
+LOUD/USB FULL and MIDI channel configuration. It does NOT rewrite
+projects, touch samples, connect hardware, alter DSP or normalize PCM.
+Wrong revision, CRC, engine identity, malformed archives and impossible
+mixer settings fail closed. It outputs project SHA-256 as provenance.
+The tool does not falsely infer a changed *live* motion or source
+velocity from a saved project.
+
+Local Linux execution:
+- `python3 -B tests/host/miami_gain_audit_test.py -q`: **11 tests PASS**,
+  including a low level (20), low velocity equivalence (20 vs100),
+  unity defaults, edited Miami OUTPUT, valid raw/portable inputs,
+  malformed CRCs, wrong revision/identity and invalid mixer data.
+- `python3 -B -m py_compile tools/miami_gain_audit.py
+  tests/host/miami_gain_audit_test.py`: PASS.
+- `python3 -B tools/miami_gain_audit.py`: reports peak -27.5,
+  RMS -29.9, and potential mixer LEVEL and MIDI velocity in the
+  **18-21** range. No actual owner project/capture data was available
+  for a measured gain fix in this chat.
+
+### Mac validation and the smallest admissible correction
+
+From the owner Mac worktree, after exporting the **current device
+project** as `.x0xproject` without importing/replacing any content:
+
+```sh
+git fetch origin chat/miami-opt
+git switch chat/miami-opt
+git pull --ff-only origin chat/miami-opt
+python3 -B tests/host/miami_gain_audit_test.py -q
+python3 -B tools/miami_gain_audit.py
+PROJECT="$(find "$HOME/Downloads" -maxdepth 1 -type f -name '*.x0xproject' -print | sort | tail -n 1)"
+test -n "$PROJECT" && test -f "$PROJECT"
+python3 -B tools/miami_gain_audit.py --project "$PROJECT" \
+  --json build/miami-device-gain-audit.json
+```
+
+If the verified **live** 303 A LEVEL is ~20, changing **MIX / 303 A /
+LEVEL** to 100 is a targeted reversible diagnostic (it does not
+alter Miami DSP). If the OUTPUT macro14 is explicitly edited low,
+selecting unedited factory p00 and checking its native output is the
+correct independent experiment. In all cases ensure MIDI Note On
+velocity **100**, matched note sequence and preset, and no motion,
+solo or master compressor changes. Only after a same-stimulus
+physical capture and comparison should a firmware source gain
+correction be made. Never bake a 24x multiplier into the mixer, USB,
+or Miami DSP as a response to non-matched screenshots/meters.
+
+The already documented full 30-program PCM/state differential, 15
+internal real-input port goldens, 16 original-AU captures and qualified
+Callgrind idle/active PERF commands remain mandatory on new sound
+changes, followed by Elite/Pro build under SDK V1.2.1 on the Mac.
+The current c287cfe4 source/build and its captured USB PCM were not
+available in this repository session, so the exact on-device gain
+fault remains **UNCONFIRMED**. No engine/USB/UI/slot DSP bytes were
+changed in Step 11; the regression tool is source-only and safe.
+
