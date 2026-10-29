@@ -176,3 +176,9 @@ Proof: `build/chicago-opt-series/03-block-control/RESULT.json` (source hashes ma
 Jump the silent Chorus recurrence across proven integer spans so silent effects use less CPU while the next note remains sample-exact.
 
 Proof: `build/chicago-opt-series/04-silent-chorus/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+
+## Continuation 05-block-validation
+
+Admit serial whole-block resources once, preserving checked public frame APIs and invalid-input behavior while reducing CPU work during playback.
+
+Proof: `build/chicago-opt-series/05-block-validation/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).

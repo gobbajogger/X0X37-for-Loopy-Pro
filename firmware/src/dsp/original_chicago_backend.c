@@ -330,12 +330,10 @@ int original_chicago_backend_prepare(original_chicago_backend *s)
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
-int original_chicago_backend_begin(original_chicago_backend *s,
+static int begin_admitted(original_chicago_backend *s,
     original_chicago_backend_workspace *w, const original_engine_event *events,
     uint32_t count, uint32_t frames)
 {
-    if (!running(s)) return unavailable(s);
-    if (s->block_open || !workspace_valid(w, frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
     original_engine_events next;
     if (!original_engine_events_bind(&next, events, count, frames, NULL, &s->control_owner))
         return ORIGINAL_CHICAGO_BACKEND_INVALID;
@@ -362,6 +360,15 @@ int original_chicago_backend_begin(original_chicago_backend *s,
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
+int original_chicago_backend_begin(original_chicago_backend *s,
+    original_chicago_backend_workspace *w, const original_engine_event *events,
+    uint32_t count, uint32_t frames)
+{
+    if (!running(s)) return unavailable(s);
+    if (s->block_open || !workspace_valid(w, frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
+    return begin_admitted(s, w, events, count, frames);
+}
+
 int original_chicago_backend_frame(original_chicago_backend *s)
 {
     if (!running(s)) return unavailable(s);
@@ -379,11 +386,8 @@ int original_chicago_backend_frame(original_chicago_backend *s)
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
-int original_chicago_backend_end(original_chicago_backend *s, float *left, float *right)
+static int end_admitted(original_chicago_backend *s, float *left, float *right)
 {
-    if (!running(s)) return unavailable(s);
-    if (!s->block_open || s->events.next_frame != s->block_frames ||
-        !outputs_valid(s->workspace, left, right, s->block_frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
     original_chicago_backend_workspace *w = s->workspace;
     original_chicago_output_workspace ow = {w->converted_left,w->converted_right,
         w->scratch[0],w->scratch[1],w->capacity};
@@ -400,6 +404,14 @@ int original_chicago_backend_end(original_chicago_backend *s, float *left, float
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
+int original_chicago_backend_end(original_chicago_backend *s, float *left, float *right)
+{
+    if (!running(s)) return unavailable(s);
+    if (!s->block_open || s->events.next_frame != s->block_frames ||
+        !outputs_valid(s->workspace, left, right, s->block_frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
+    return end_admitted(s, left, right);
+}
+
 int original_chicago_backend_render(original_chicago_backend *s,
     original_chicago_backend_workspace *w, const original_engine_event *events,
     uint32_t count, float *left, float *right, uint32_t frames)
@@ -409,7 +421,9 @@ int original_chicago_backend_render(original_chicago_backend *s,
     if (!frames) return count ? ORIGINAL_CHICAGO_BACKEND_INVALID : ORIGINAL_CHICAGO_BACKEND_OK;
     if (!workspace_valid(w, frames) || !outputs_valid(w, left, right, frames))
         return ORIGINAL_CHICAGO_BACKEND_INVALID;
-    int result = original_chicago_backend_begin(s, w, events, count, frames);
+    /* The serial whole-block entry has already admitted workspace/output
+     * geometry. Public begin/end remain checked for split-frame callers. */
+    int result = begin_admitted(s, w, events, count, frames);
     if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;
     if (!count && !original_chicago_backend_active(s) &&
         s->allocator.voice_active.head < 0 && s->allocator.capacity == 1 &&
@@ -444,7 +458,7 @@ int original_chicago_backend_render(original_chicago_backend *s,
         memset(w->core_left, 0, sizeof *w->core_left * frames);
         memset(w->core_right, 0, sizeof *w->core_right * frames);
         s->events.next_frame = frames;
-        return original_chicago_backend_end(s, left, right);
+        return end_admitted(s, left, right);
     }
     if (!count && s->allocator.capacity == 1) {
         /* No event can edit controls or borrowed resources inside this call.
@@ -454,11 +468,11 @@ int original_chicago_backend_render(original_chicago_backend *s,
                 w->core_left, w->core_right, frames) ||
             healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
         s->events.next_frame = frames;
-        return original_chicago_backend_end(s, left, right);
+        return end_admitted(s, left, right);
     }
     for (uint32_t i = 0; i < frames; ++i) {
         result = original_chicago_backend_frame(s);
         if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;
     }
-    return original_chicago_backend_end(s, left, right);
+    return end_admitted(s, left, right);
 }
