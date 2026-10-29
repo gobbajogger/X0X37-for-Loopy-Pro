@@ -5916,7 +5916,7 @@ static UI_DRAW void draw_perf(int band)
 /* the readout: the knob being turned, large, across the bottom band */
 static UI_DRAW void draw_readout(void)
 {
-    char num[36], unit[8];
+    char num[64], unit[8];
     pref_t r;
     int32_t w, x;
     const char *nm;
@@ -5972,6 +5972,26 @@ static UI_DRAW void draw_readout(void)
     }
 }
 
+/* Fit each connected peer independently so a long first name cannot hide
+ * the second. The full names remain available in the platform snapshot. */
+static UI_DRAW void bt_peer_text(char out[43], int room)
+{
+    char peers[2][21];
+    unsigned count = plat_ble_peer_names(peers);
+    if (!count) { put_s(out, plat_ble_name()[0] ? plat_ble_name() : "-"); return; }
+    int share = count == 2 ? (room - tw(&FONT_T, ", ")) / 2 : room;
+    char *q = out;
+    for (unsigned p = 0; p < count; p++) {
+        if (p) q = put_s(q, ", ");
+        unsigned n = (unsigned)strlen(peers[p]);
+        if (tw(&FONT_T, peers[p]) > share) {
+            do { peers[p][--n] = 0; }
+            while (n && tw(&FONT_T, peers[p]) + tw(&FONT_T, "..") > share);
+            q = put_s(q, peers[p]); q = put_s(q, "..");
+        } else q = put_s(q, peers[p]);
+    }
+}
+
 /* Open-beta display to the left of the action arrow. Empty on an unversioned build.
  * The name and the arrow stay put; a label that would touch either one is not drawn. */
 static int release_label_box(const char *label, int selected, int32_t *x, int32_t *w)
@@ -5996,7 +6016,7 @@ static UI_DRAW void draw_list(int band)
     for (i = 0; i < 3; i++) {
         int row = ui.list_top + band * 3 + i, y = i * 23, sel = row == ui.list_sel;
         pref_t r;
-        char num[36], unit[8];
+        char num[64], unit[8];
         const x0x_param_t *d;
         if (row >= ui.list_n)
             break;
@@ -6042,6 +6062,11 @@ static UI_DRAW void draw_list(int band)
                 if (tw(nf,num) > room) nf = tw(&FONT_XS,num) <= room ? &FONT_XS : &FONT_T;
             }
 #endif
+            if (r.kind == R_BTNAME) {
+                int room = 226 - 8 - tw(sel ? &FONT_B : &FONT_S, "NAME") - 8;
+                bt_peer_text(num, room);
+                if (tw(nf, num) > room) nf = tw(&FONT_XS, num) <= room ? &FONT_XS : &FONT_T;
+            }
             int32_t ny = vc(nf, y + 1, 18), ux = 226 - tw(&FONT_XS, unit);
             cv_text(ux, base_y(nf, ny, &FONT_XS), &FONT_XS, unit, C_GRAY);
             text_r(unit[0] ? ux - 2 : 226, ny, nf, num, sel ? C_WHITE : C_HI);

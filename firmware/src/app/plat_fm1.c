@@ -267,6 +267,7 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity)
 #if !X0X_BLE
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
+unsigned plat_ble_peer_names(char names[2][21]) { (void)names; return 0; }
 void plat_ble_set(int on) { (void)on; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len) { (void)slot; (void)msg; (void)len; return 0; }
