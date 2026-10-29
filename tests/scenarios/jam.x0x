@@ -43,6 +43,8 @@ tapkey w14
 tapkey w15
 turn K3 20
 shot 20_break_amen.png
+# Set the tested send explicitly: original patches start dry; reference patches use an old factory send.
+param 5 2 2 80
 # sends: MIX's PARTS, a part picked with its black key: knob 3 its reverb, knob 4 its delay
 tap LFO
 tapkey b0

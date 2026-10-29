@@ -28,7 +28,7 @@ node tests/host/bass_tagged_browser_test.mjs "${BASS_TAG_OUTPUT_DIR:-$OUT}/v6-so
 # The ordinary Getting Started scenario still validates unflagged Chicago.
 # Exercise the same sequence, motion and SAVE assertions with tagged WBL1
 # preview enabled: SOUND > TONE, including the audio-boundary bank commit.
-X0X_HOST_DEFS="-DX0X_BASS_PRESET_PREVIEW=1 -DX0X_BASS_TAGGED_SOUND=1 -DX0X_BASS_NOTE_SOUND=0" \
+X0X_ORIGINAL_SYNTH=0 X0X_HOST_DEFS="-DX0X_BASS_PRESET_PREVIEW=1 -DX0X_BASS_TAGGED_SOUND=1 -DX0X_BASS_NOTE_SOUND=0" \
  X0X_HOST_OUT="$OUT/tutorial-host" sh host/build_host.sh >"$OUT/tutorial-build.log" 2>&1 || {
  cat "$OUT/tutorial-build.log"
  exit 1

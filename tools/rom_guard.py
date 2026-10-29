@@ -8,6 +8,8 @@ exports a value whose unsigned interval excludes ROM. Address uses, calls,
 opaque consumers, parallel hazards and live cycles fail closed. This is a
 deliberately small instruction model, not a general pointer analysis.
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
 import re
 

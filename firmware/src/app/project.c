@@ -63,7 +63,6 @@ static uint32_t packed_len;             /* the last save's (or load's) packed st
  * zeros there: the defaults. */
 static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
                      CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
-#if !X0X_ORIGINAL_SYNTH
 static void project_ck_check(project_t *pr, int force)
 {
     uint8_t *v = &pr->set.ck_ch;
@@ -72,7 +71,6 @@ static void project_ck_check(project_t *pr, int force)
     if (force || v[0] < 2)
         __builtin_memcpy(v, CK_DEF, 12);
 }
-#endif
 typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
 
 static void project_defaults_for(project_t *pr, uint8_t device_bt)
@@ -417,7 +415,6 @@ static void stream_from2(project_t *pr)
  * Streams 1/2/3 never assigned the upper flags nibble. */
 static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t format)
 {
-#if X0X_ORIGINAL_SYNTH
     int p, b, k;
     for (p = 0; p < NPAT; p++) {
         /* Validate old meanings before migration: old mode 1 is not count code 1. */
@@ -449,17 +446,6 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
 #endif
         }
     }
-#else
-    (void)format;
-    /* The release step layout remains unchanged. Reserved upper bits do not
-     * acquire recorder/snapshot semantics from another development branch. */
-    for (int p=0;p<NPAT;p++) for (int b=0;b<NBASS;b++) for (int k=0;k<NSTEPS;k++) {
-        unsigned flags=pat[p].bass[b].step[k].flags;
-        if ((flags & ~15u) || (flags & BS_GATE_MASK)>G_TIE) return 0;
-    }
-    for (int k=0;k<NLANE;k++)
-        if (arr->lane[k].used && (arr->lane[k].t==0xfdu || arr->lane[k].t==0xfeu)) return 0;
-#endif
     return 1;
 }
 static int stream_layout_ok(const project_t *pr,uint32_t format)
@@ -712,7 +698,6 @@ static void patterns_defaults(project_t *pr)
         pattern_init(&pr->pat[i], 0x3B0u + (uint32_t)i * 977u, 0x5A1u + (uint32_t)i * 613u);
 }
 
-#if !X0X_ORIGINAL_SYNTH
 /* CLOCK SOURCE (MID-13) is in bt bits 1-2. An object without PROJ_BT_CLK_IN comes from a74 or older. a74 kept
  * the value 0-2 in byte 38, and byte 39 was 0. Byte 38 is ck_x1 in the clip keys (ARP SWING and HUMAN), so the
  * value moves to bt, and byte 38 becomes 0 (no SWING, no HUMAN). Other bytes there stay, and CLOCK SOURCE is AUTO. */
@@ -731,8 +716,6 @@ static void project_clk_check(project_t *pr)
         b &= (uint8_t)~PROJ_BT_CLK_MASK;
     pr->set.bt = b;
 }
-
-#endif
 
 /* Objects are read into the candidate project; the original profile admits only
  * a completely validated candidate and leaves safe defaults on every failure. */
@@ -764,6 +747,7 @@ static int read_project(project_t *pr)
             bad = 1;
         }
     } else bad = 1;
+    if (!bad) { project_clk_check(pr); project_ck_check(pr, 0); }
     rc = bad ? -1 : project_validate_for(pr);
     if (!rc) return 0;
     goto failed;
