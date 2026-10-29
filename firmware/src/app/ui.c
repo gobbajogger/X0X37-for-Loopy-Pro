@@ -554,7 +554,7 @@ static void song_fill(int k)
     }
 }
 
-#if X0X_BASS_PRESET_PREVIEW
+#if X0X_BASS_PRESET_PREVIEW && !X0X_ORIGINAL_SYNTH
 static void build_pages(void);
 static const char *const BENGINE_N[]={"CHICAGO","MIAMI"};
 static const x0x_param_t BENGINE_P={"ENGINE",1,0,BENGINE_N};
@@ -762,6 +762,8 @@ X0X_COLD static void pref_set(pref_t r, int v)
                 rc == -5 ? "UNSUPPORTED SOUND" : "INVALID PRESET",0);
             return;
         }
+        mark_dirty(); build_pages(); return;
+    }
 #elif X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BENGINE || r.kind==R_BPRESET) {
         /* An unchanged navigation target is not an intentional factory reload.
