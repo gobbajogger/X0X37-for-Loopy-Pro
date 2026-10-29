@@ -40,7 +40,7 @@ static int hci_send(uint8_t t,const uint8_t *p,uint16_t n,void *ctx)
 static void hci_midi(const uint8_t *p,uint8_t n,void *ctx)
 { (void)ctx;smc_ble_midi(p,n); }
 static void receive_ready(void)
-{ receiver.conn=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
+{ receiver.conn=1;receiver.linked=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
 static void hci_input(const uint8_t *m,unsigned n,unsigned tail)
 {
     uint8_t b[32]={1,0,0,0,0,0,4,0,0x1b,6,0,0x80,0x81};
