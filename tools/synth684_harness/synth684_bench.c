@@ -90,7 +90,7 @@ static int run_once(FILE *f, unsigned kind, unsigned factory, unsigned fxchoice,
     return 0;
 }
 
-#define REPEATS 7
+#define REPEATS 15
 static int scenario(const char *out, unsigned kind, unsigned factory, unsigned fxchoice, unsigned blocks, FILE *csv)
 {
     char name[512];
@@ -113,8 +113,8 @@ static int scenario(const char *out, unsigned kind, unsigned factory, unsigned f
     if (!rc) {
         qsort(mean, REPEATS, sizeof(double), cmp_d); qsort(all_med, REPEATS, sizeof(double), cmp_d);
         qsort(all_p99, REPEATS, sizeof(double), cmp_d);
-        fprintf(csv, "%s,%s,%u,%u,%u,%.0f,%.0f,%.0f,%016llx\n", VALIDITY, kind ? "miami" : "chicago", factory, fxchoice,
-                blocks, mean[REPEATS/2], all_med[REPEATS/2], all_p99[REPEATS/2], (unsigned long long)hash0);
+        fprintf(csv, "%s,%s,%u,%u,%u,%.0f,%.0f,%.0f,%.0f,%016llx\n", VALIDITY, kind ? "miami" : "chicago", factory, fxchoice,
+                blocks, mean[0], mean[REPEATS/2], all_med[REPEATS/2], all_p99[REPEATS/2], (unsigned long long)hash0);
     }
     free(t);
     return rc;
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
     fx_owner = original_chicago_fx2_compact_owner(&fx);
     char path[512]; snprintf(path, sizeof path, "%s/results.csv", argv[1]);
     FILE *csv = fopen(path, "w"); if (!csv) return 1;
-    fprintf(csv, "validity,engine,program,fx,blocks,mean_ns_per_block,median_ns,p99_ns,fnv1a64\n");
+    fprintf(csv, "validity,engine,program,fx,blocks,min_mean_ns_per_block,median_mean_ns_per_block,median_ns,p99_ns,fnv1a64\n");
     static const unsigned chicago_programs[] = {0, 7, 19, 33, 54}, miami_programs[] = {0, 9, 18, 29};
     int rc = 0;
     for (unsigned i = 0; i < 5; ++i) rc |= scenario(argv[1], ORIGINAL_SOUND_CHICAGO, chicago_programs[i], 0, blocks, csv);
