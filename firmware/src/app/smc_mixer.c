@@ -652,7 +652,7 @@ static const char *smc_button_caption(int note)
     if (row == 3 && kit < 0) {
         int bus = smc_fx_bus_now((uint8_t)note);
         if (bus >= 0)
-            return smcfx_select_caption(bus, smc_home_held());
+            return smcfx_select_caption(bus, smc_home_held(), (smc.fx_down >> bus) & 1u);
         return "SEL";
     }
     if (kit >= 0 || strip < NPARTS) return row ? "S" : "R";
