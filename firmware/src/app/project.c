@@ -9,14 +9,15 @@
  * written if it would not fit: "MEMORY FULL") and once to write; an object whose bytes did not
  * change is not written again.
  *
- * Every object carries its format number. The original-engine profile accepts only
- * revision/stream 13. In the legacy profile, a project saved before the stream (format 1: 16
+ * Every object carries its format number. The original-engine profile saves
+ * revision/stream 13 and migrates known legacy music with default synth patches.
+ * A project saved before the stream (format 1: 16
  * patterns of 32 steps in OBJ_PAT0/1, the song and 32-step lanes in OBJ_SONG/OBJ_MOTION) is
  * converted as it loads: its steps land on steps 1-32, its patterns on 1-16. */
 #include "x0x.h"
-#if !X0X_ORIGINAL_SYNTH
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
+#if !X0X_ORIGINAL_SYNTH
 #include "../dsp/bass303.h"            /* BASS303_* (sound rev 5–7) */
 #include "chicago_arp.h"               /* CHI_ARP_* (snd rev 8) */
 #include "chicago_fx.h"                /* CHI_FX_* (snd rev 9) */
@@ -31,7 +32,8 @@ project_t project_stage X0X_POOL;
 
 #if X0X_ORIGINAL_SYNTH
 #define PROJ_STREAM 13u                 /* compact Chicago schema2; current raw patterns/arrangement */
-static int stream_known(uint32_t format) { return format == PROJ_STREAM; }
+static int stream_known(uint32_t format)
+{return format == PROJ_STREAM || format == 2u || format == 3u || format == 6u || format == 7u || format == 8u || format == 9u || format == 12u;}
 #else
 #if X0X_BASS_NOTE_SOUND
 #define PROJ_STREAM 9u                  /* adaptive BREAK counts plus tagged per-note product sounds */
@@ -155,8 +157,11 @@ static int load_settings(settings_t *dst)
     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
 #if X0X_ORIGINAL_SYNTH
     if (n < 0) return -1;
-    if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT ||
-        io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV) return -9;
+    if (n < 20 || (uint32_t)n > sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT) return -9;
+    uint8_t rev = (uint32_t)n > 4u + __builtin_offsetof(settings_t, snd_rev) ?
+        io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] : 0u;
+    if (rev != PROJ_SND_REV && rev > 12u) return -9;
+    if (rev == PROJ_SND_REV && (uint32_t)n != sizeof *dst + 4u) return -9;
 #endif
     if (n < 20 || (uint32_t)n > sizeof *dst + 4u || io_buf[0] != (uint8_t)PROJ_FORMAT || io_buf[1] || io_buf[2] || io_buf[3])
         return -1;
@@ -358,7 +363,6 @@ static int st_get(void *ctx)
 }
 
 /* 0 = loaded; -1 = not there or not good (proj's patterns and arrangement then hold garbage) */
-#if !X0X_ORIGINAL_SYNTH
 /* The old stream's 303 step was note+flags. Expand patterns back-to-front in
  * the already allocated new raw area; move the unchanged arrangement first. */
 typedef struct { uint8_t note, flags; } bstep2_t;
@@ -409,8 +413,6 @@ static void stream_from2(project_t *pr)
         stored_known[STREAM_OBJ[p]] = 0;             /* next save writes format 3 */
 }
 
-#endif
-
 /* No frozen snapshot layout is reinterpreted as ordinary motion or endpoints.
  * Streams 1/2/3 never assigned the upper flags nibble. */
 static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t format)
@@ -436,7 +438,13 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
         if(!l->used)continue;
         if(l->t==0xfeu)return 0; /* frozen historical contract remains unsupported */
         if(l->t==0xfdu) {
-#if X0X_BASS_NOTE_SOUND
+#if X0X_ORIGINAL_SYNTH
+            /* Known per-note sound trailers are discarded during migration;
+             * the referenced musical note remains in its original slot. */
+            if ((format!=7u && format!=9u) || l->used!=1 || l->pat>=NPAT ||
+                l->part<PART_303A || l->part>PART_303B || l->v>=NSTEPS ||
+                bstep_gate(&pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE) return 0;
+#elif X0X_BASS_NOTE_SOUND
             if((format!=7u && format!=9u) || engine_bass_note_validate(l) ||
                bstep_gate(&pat[l->pat].bass[l->part-PART_303A].step[l->v])!=G_NOTE)return 0;
             for(int j=0;j<k;j++)if(arr->lane[j].used && arr->lane[j].t==l->t &&
@@ -464,11 +472,7 @@ static int load_stream(project_t *pr, int n, uint32_t format)
 {
     uint8_t *raw = (uint8_t *)pr + RAW_OFF;
     uint32_t crc = get32(io_buf + 8), plen = get32(io_buf + 12);
-#if X0X_ORIGINAL_SYNTH
-    uint32_t raw_len = RAW_LEN;
-#else
     uint32_t raw_len = format == PROJ_STREAM_OLD ? RAW_LEN_2 : RAW_LEN;
-#endif
     st_in_t s = {0, n, STREAM_HDR, plen, format, 0};
     lz_src_t src = {st_get, &s};
     if (n < (int)STREAM_HDR || get32(io_buf + 4) != raw_len || plen > STREAM_CAP)
@@ -483,10 +487,8 @@ static int load_stream(project_t *pr, int n, uint32_t format)
         return -9;
     if (decode_rc || s.left || crc32_of(raw, raw_len) != crc)
         return -1;
-#if !X0X_ORIGINAL_SYNTH
     if (format == PROJ_STREAM_OLD)
         stream_from2(pr);
-#endif
     if (!stream_layout_ok(pr, format))
         return -9;
     migrate_break_counts(pr, format);
@@ -496,7 +498,6 @@ static int load_stream(project_t *pr, int n, uint32_t format)
     return 0;
 }
 
-#if !X0X_ORIGINAL_SYNTH
 /* ---- format 1: 16 patterns of 32 steps, 32-step lanes ---------------------------------------- */
 
 #define NSTEPS1 32
@@ -671,6 +672,7 @@ static void sound_bd_sends_lanes(project_t *pr, int t, int pan)
     }
 }
 
+#if !X0X_ORIGINAL_SYNTH
 /* PROJ_SND_REV 6: Wave became continuous 0..127. Remap discrete square (1) in the base
  * sound and in used T_303 / BASS303_WAVE motion lanes after the arrangement is loaded. */
 static void sound_rev6_wave_motion(project_t *pr)
@@ -717,6 +719,50 @@ static void project_clk_check(project_t *pr)
     pr->set.bt = b;
 }
 
+#if X0X_ORIGINAL_SYNTH
+/* Legacy cells carry incompatible synth pots. Copy only shared instruments;
+ * keep the default original patches installed by project_defaults_for. */
+static int load_legacy_sound(project_t *pr)
+{
+    int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
+    if (n < 4 || get32(io_buf) != PROJ_FORMAT) return -1;
+    unsigned body = (unsigned)n - 4u, cell;
+    if (body == SOUND_BYTES_V4) cell = SOUND_CELL_V4;
+    else if (body == SOUND_BYTES_V7) cell = SOUND_CELL_V7;
+    else if (body == SOUND_BYTES_V8) cell = SOUND_CELL_V8;
+    else if (body == SOUND_BYTES_V10 ||
+             (pr->set.snd_rev >= 11 && pr->set.snd_rev <= 12 && body == sizeof(sound_t))) cell = NPARAMS_MAX;
+    else return -9;
+    for (unsigned t = 0; t < NTARGETS; t++) if (t != T_303)
+        for (unsigned v = 0; v < NVOICES_MAX; v++)
+            for (unsigned i = 0; i < cell; i++)
+                pr->sound.v[t][v][i] = io_buf[4u + (t * NVOICES_MAX + v) * cell + i];
+    return 0;
+}
+static void migrate_legacy_project(project_t *pr)
+{
+    unsigned rev = pr->set.snd_rev;
+    engine_original_sound_defaults(&pr->sound);
+    if (rev < 1) sound_rev1(pr);
+    if (rev < 2) sound_rev2(pr);
+    if (rev < 3) { sound_bd_sends(pr, T_909, 8); sound_bd_sends_lanes(pr, T_909, 8); }
+    if (rev < 4) { sound_bd_sends(pr, T_808, 7); sound_bd_sends_lanes(pr, T_808, 7); }
+    if (pr->set.stereo < 1)
+        for (int i = 0; i < NPARTS; i++) pr->sound.v[T_MIX][i][MX_PAN] = 64;
+    if (pr->set.stereo < 2) engine_sound_centre_drum_pans(&pr->sound);
+    /* A legacy cutoff/arp/effect index cannot address an original macro.
+     * Keep note/probability/velocity data; reset only synth parameter lanes. */
+    for (int k = 0; k < NLANE; k++)
+        if (pr->arr.lane[k].used && (pr->arr.lane[k].t == T_303 || pr->arr.lane[k].t == 0xfdu))
+            __builtin_memset(&pr->arr.lane[k], 0, sizeof(lane_t));
+    project_clk_check(pr);
+    project_ck_check(pr, 0);
+    pr->set.stereo = PROJ_STEREO;
+    pr->set.snd_rev = PROJ_SND_REV;
+    __builtin_memset(stored_known, 0, sizeof stored_known);
+}
+#endif
+
 /* Objects are read into the candidate project; the original profile admits only
  * a completely validated candidate and leaves safe defaults on every failure. */
 static int read_project(project_t *pr)
@@ -726,19 +772,24 @@ static int read_project(project_t *pr)
     project_defaults_for(pr, device_bt);
     packed_len = 0;
     settings_t set = pr->set;
+    set.snd_rev = 0; /* absent fields in the earliest settings belong to revision 0 */
+    int legacy = 0;
     int bad = 0, rc = load_settings(&set);
     if (rc == -9) goto unsupported;
     if (!rc) {
         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
-            set.snd_rev != PROJ_SND_REV || set.stereo != PROJ_STEREO) goto unsupported;
+            (set.snd_rev == PROJ_SND_REV && set.stereo != PROJ_STEREO)) goto unsupported;
+        legacy = set.snd_rev != PROJ_SND_REV;
         pr->set = set;
     } else bad = 1;
-    rc = load_sound(&pr->sound);
+    rc = legacy ? load_legacy_sound(pr) : load_sound(&pr->sound);
     if (rc == -9) goto unsupported;
     if (rc) bad = 1;
     int n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 0 && (n < 4 || !stream_known(get32(io_buf)))) goto unsupported;
-    if (n >= 4) {
+    if (n >= 0 && (n < 4 || (!stream_known(get32(io_buf)) && !(legacy && get32(io_buf) == 1u)))) goto unsupported;
+    if (n >= 4 && stream_known(get32(io_buf))) {
+        if (!legacy && get32(io_buf) != PROJ_STREAM) goto unsupported;
+        if (legacy && get32(io_buf) == PROJ_STREAM) goto unsupported;
         rc = load_stream(pr, n, get32(io_buf));
         if (rc == -9) goto unsupported;
         if (rc) {
@@ -746,8 +797,12 @@ static int read_project(project_t *pr)
             arrange_defaults(pr);
             bad = 1;
         }
+    } else if (legacy && n >= 4 && get32(io_buf) == 1u) {
+        if (load_patterns1(pr) || load_arrange1(pr) < 0) bad = 1;
+        if (!stream_layout_ok(pr, 1u)) goto unsupported;
     } else bad = 1;
-    if (!bad) { project_clk_check(pr); project_ck_check(pr, 0); }
+    if (legacy && !bad) migrate_legacy_project(pr);
+    else if (!bad) { project_clk_check(pr); project_ck_check(pr, 0); }
     rc = bad ? -1 : project_validate_for(pr);
     if (!rc) return 0;
     goto failed;
@@ -1069,7 +1124,11 @@ int project_prepare_legacy_file(const uint8_t *h)
     uint8_t *raw=(uint8_t *)&project_stage;
     uint32_t stream=get32(h+20);
     if(get32(h)!=0x50583058u || get32(h+4)!=1 || get32(h+8)!=payload ||
-       get32(h+16)!=PROJ_FORMAT || (stream!=3 && stream!=6) || get32(h+24)!=10 || get32(h+28))return -9;
+       get32(h+16)!=PROJ_FORMAT || (stream!=3 && stream!=6
+#if X0X_ORIGINAL_SYNTH
+           && stream!=8
+#endif
+       ) || get32(h+24)!=10 || get32(h+28))return -9;
     if(get32(h+12)!=crc32_of(raw,payload))return -4;
     if(project_stage.set.magic!=PROJ_MAGIC || project_stage.set.format!=PROJ_FORMAT || project_stage.set.snd_rev!=10)return -1;
     const pattern_t *pat=(const pattern_t *)(raw+tail-shift);
@@ -1083,11 +1142,31 @@ int project_prepare_legacy_file(const uint8_t *h)
     }
     __builtin_memset(project_stage.sound.bass,0,sizeof project_stage.sound.bass);
     migrate_break_counts(&project_stage, stream);
+#if X0X_ORIGINAL_SYNTH
+    migrate_legacy_project(&project_stage);
+    return project_validate_stage();
+#else
     return -10; /* prepared and quarantined, not adopted or implicitly saved */
+#endif
 }
 #endif
 int project_file_validate(const uint8_t *h)
 {
+#if X0X_ORIGINAL_SYNTH
+    if (get32(h) == 0x50583058u && get32(h+4) == 1 &&
+        get32(h+8) == sizeof project_stage && get32(h+16) == PROJ_FORMAT &&
+        ((get32(h+24) == 11 && (get32(h+20) == 3 || get32(h+20) == 6 ||
+          get32(h+20) == 7 || get32(h+20) == 8 || get32(h+20) == 9)) ||
+         (get32(h+24) == 12 && get32(h+20) == 12)) && !get32(h+28)) {
+        if (get32(h+12) != crc32_of((const uint8_t *)&project_stage,sizeof project_stage)) return -4;
+        if (project_stage.set.magic != PROJ_MAGIC || project_stage.set.format != PROJ_FORMAT ||
+            project_stage.set.snd_rev != get32(h+24)) return -1;
+        if (!stream_layout_ok(&project_stage,get32(h+20))) return -9;
+        migrate_break_counts(&project_stage,get32(h+20));
+        migrate_legacy_project(&project_stage);
+        return project_validate_stage();
+    }
+#endif
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
         get32(h + 16) != PROJ_FORMAT ||
 #if X0X_ORIGINAL_SYNTH

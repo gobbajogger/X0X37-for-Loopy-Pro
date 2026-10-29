@@ -327,7 +327,19 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         if(ED_PROJECT_SIZE!=PROJECT_FILE_SIZE) {
             int result=project_prepare_legacy_file(ed_project.header);
             if(result==-10)ed_project.legacy_prepared=1;
-            rc=ed_project_rc(result);break;
+            rc=ed_project_rc(result);
+#if X0X_ORIGINAL_SYNTH
+            if (!rc) {
+                /* Migration expanded the staged payload; subsequent validation
+                 * uses revision 13 and the normal-sized canonical header. */
+                ed_project.size = PROJECT_FILE_SIZE;
+                ed_project.next = PROJECT_FILE_SIZE;
+                ed_project.valid = 1;
+                project_file_header(ed_project.header);
+                if (op == 69) ed_project_end(1);
+            }
+#endif
+            break;
         }
 #endif
         rc = ed_project_rc(project_file_validate(ed_project.header));

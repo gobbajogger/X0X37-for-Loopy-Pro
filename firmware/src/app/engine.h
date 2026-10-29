@@ -33,8 +33,8 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
 #define NPARAMS_MAX 32                 /* fixed sound cell, including original factory/edit metadata */
 
-/* The replacement profile owns a new project/patch format. It does not admit
- * legacy synth identities or their converters. */
+/* The replacement profile owns a new project/patch format. Legacy project
+ * music migrates with default patches; old synth pots are not reinterpreted. */
 #ifndef X0X_ORIGINAL_SYNTH
 #define X0X_ORIGINAL_SYNTH 0
 #endif
@@ -214,6 +214,9 @@ void engine_usb_full(int on);          /* 1: engine_render at full level, engine
 void engine_volume(int32_t *out_lr, uint32_t n);   /* ISR, after engine_render (and the USB tap) */
 void engine_apply_sound(const sound_t *s);                  /* queue every value (load, init) */
 void engine_sound_defaults(sound_t *s);                     /* each engine's power-on values */
+#if X0X_ORIGINAL_SYNTH
+void engine_original_sound_defaults(sound_t *s); /* default patches, shared instruments unchanged */
+#endif
 void engine_sound_centre_drum_pans(sound_t *s);             /* every drum voice's PAN (its last pot) to centre */
 void engine_drum(int kit, int voice, float vel);            /* play now (keys) */
 void engine_bass_on(int part, int note, int accent, int slide);
