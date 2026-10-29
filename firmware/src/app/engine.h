@@ -33,7 +33,20 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
 #define NPARAMS_MAX 32                 /* params per (target, voice); fills at Chicago aux PBend/Damp 30..31 */
 
-/* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
+/* The replacement profile owns a new project/patch format. It does not admit
+ * legacy synth identities or their converters. */
+#ifndef X0X_ORIGINAL_SYNTH
+#define X0X_ORIGINAL_SYNTH 0
+#endif
+#if X0X_ORIGINAL_SYNTH
+#undef X0X_BASS_PRESET_PREVIEW
+#define X0X_BASS_PRESET_PREVIEW 1
+#undef X0X_BASS_TAGGED_SOUND
+#define X0X_BASS_TAGGED_SOUND 1
+#undef X0X_BASS_NOTE_SOUND
+#define X0X_BASS_NOTE_SOUND 0
+#endif
+/* Separate optional storage features for the legacy build profile. */
 #ifndef X0X_BASS_PRESET_PREVIEW
 #define X0X_BASS_PRESET_PREVIEW 0
 #endif
@@ -59,6 +72,9 @@ int engine_bass_bank(int voice);
 int engine_bass_bank_available(int voice, int bank);
 int engine_bass_preset_index(int voice);
 int engine_bass_preset_edited(int voice);
+/* 1 ready, -1 original Chicago FX storage has not been admitted, -2 DSP fault.
+ * This is not an idle flag; ready original owners render every audio frame. */
+int engine_bass_status(int voice);
 int engine_bass_requested_bank(int voice);
 int engine_bass_requested_preset(int voice);
 /* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */
@@ -137,7 +153,7 @@ int engine_nvoices(int target);
 int engine_nparams(int target, int voice);
 const x0x_param_t *engine_param(int target, int voice, int i);
 const char *engine_voice_name(int target, int voice);
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE || X0X_ORIGINAL_SYNTH
 int engine_bass_is_wobble(int voice); /* live WBL1 backend on 303 A/B voice */
 #else
 static inline int engine_bass_is_wobble(int voice)
@@ -149,6 +165,13 @@ static inline int engine_bass_is_wobble(int voice)
 
 /* main loop -> ISR */
 void engine_set(int target, int voice, int i, int value);   /* queued; the sound_t mirror is the caller's */
+void engine_set_base(int target, int voice, int i);         /* exact patch value, after a temporary edit */
+#if X0X_ORIGINAL_SYNTH
+#ifdef X0X_HOST
+unsigned engine_original_keys(int voice, int latched);
+uint32_t engine_original_value_bits(int voice, unsigned parameter);
+#endif
+#endif
 void engine_out_loud(int on);          /* 1: the output at the codec's full scale (6 dB hotter than Felucca's) */
 void engine_usb_full(int on);          /* 1: engine_render at full level, engine_volume the MASTER knob after */
 void engine_volume(int32_t *out_lr, uint32_t n);   /* ISR, after engine_render (and the USB tap) */
@@ -181,3 +204,13 @@ int engine_brk_nslots(void);                                /* built-in loops + 
 const char *const *engine_brk_slot_names(void);
 
 /* Physical recording edges use the existing audio command queue. */
+
+/* Physical eligible Free Play only; velocity zero releases the captured token.
+ * state arp=-1 means serial-exhausted admission: fail closed until cold boot. */
+void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *context);
+void engine_live_key_cancel(int voice);
+int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide);
+
+#ifdef X0X_HOST
+int engine_bass_attacked(int part);                         /* host lifecycle observation */
+#endif

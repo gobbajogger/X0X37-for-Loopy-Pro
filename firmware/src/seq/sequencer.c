@@ -573,6 +573,9 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
         track_arm(s, t, from_top, 1);
     s->clk_to_next = 0;
     s->playing = 1;
+#if X0X_ORIGINAL_SYNTH
+    if (o->transport) o->transport(o->ctx, 1);
+#endif
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
 }
 
@@ -581,6 +584,9 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
     int t;
     s->playing = 0;
     bass_and_brk_stop(s, o);
+#if X0X_ORIGINAL_SYNTH
+    if (o->transport) o->transport(o->ctx, 0);
+#endif
     for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
         s->t[t].ext_due = 0;

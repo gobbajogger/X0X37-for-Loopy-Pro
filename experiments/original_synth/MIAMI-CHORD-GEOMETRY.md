@@ -1,0 +1,35 @@
+# Original Miami chord and geometry path
+
+This delta closes the engine-owned BFD0 learn, C184 restore, B1FF0 geometry and B2114 mode-commit value/reset path. It does not activate a selector, add a project format or admit complete mode0 audio. Candidate5319 remains immutable; this is a separate derived source lane with pending review and native costs.
+
+## Original facts and reason for the change
+
+The earlier five BFD0/Chicago99b4 differences were unqualified relocations, not observed differences in arithmetic. Three address-page differences resolve to the same `___stack_chk_guard` import. The16byte sentinel at Miami2261F0/Chicago226D70 is exactly(-128,0,-128,0). The external call resolves to the same `___stack_chk_fail`. Exact normalized operand/CFG proofs now match BFD0/99b4, C184/9b68, B1FF0/56150 and B2114/56274. Raw component images and instruction captures are excluded from delivery.
+
+The missing behavior was the caller/reset composition. BFD0 has one direct caller, B2158 in B2114. A nonempty held list overwrites the velocity map using last-record-wins (including marked or zero values), emits ascending nonzero pairs, fills unused pairs(-128,0), then tailcalls B1FF0 with force1. Empty held head preserves all chord data and causes no reset.
+
+B2114 is called at B1BF0 in B1A28. Mode3->0 learns only if held records still exist. It first performs the forced geometry/list/core reset under OLD mode3, then commits mode0, recomputes groups and resets lists/core again. The preceding B1AF4 inline geometry phase compares raw pending polyphony/unison against committed values before clamping; if it fires, it clears held records and suppresses that learn. Clamped raw129 versus committed128 therefore still triggers a repeated reset. Source-equivalent reset phases must not be coalesced.
+
+C184 is the other direct B1FF0 caller (C280,force1). Its five direct consumers are7B570/7B9A4/7C2DC/7D908/85060, with7C2DC in the existing7C030 restoration operation. A nonnull128byte velocity payload is sign-extended into the native32bit map/pairs. Every unsigned nonzero byte contributes a pair, including0x80..ff; an all-zero nonnull payload still forces geometry. NULL returns0 without mutation. This typed engine seam preserves those raw bytes without inventing their enclosing file or transport encoding.
+
+## Owned implementation
+
+`miami_geometry` reuses the now-qualified shared chord projection and geometry arithmetic. It performs the original list reset and checked core callback at each exact phase. `original_miami_note_context_geometry_reset` is the concrete direct B0738 owned projection. The existing `core_reset` keeps its D444 all-notes-off behavior. Reusing D444 for the geometry callback would additionally clear key arrays/counts; that is the concrete wrong-boundary counterexample. It was not an existing selected-audio regression or a reason to change the shared numerical chord algorithm.
+
+The new entry validates actions and available owned voice capacity before modifying data. It never clamps polyphony to the supplied resource count. Malformed cyclic list state and invalid requested modes fail before mutation. A checked reset-callback failure can follow real prior geometry/list effects; the progress object reports the incomplete phase rather than claiming rollback or success. The no-change fast path adds no list scan or reset. It is not a whole restored-state validator.
+
+All buffers/resources are caller-owned and disjoint. The value state adds no static pool or allocation. Logical chord storage remains128uint32 map cells plus128signed32 note/velocity pairs (1536bytes); descriptors/progress and actual target admission are separate. Pending polyphony/unison/mode inputs are already converted original runtime values, not UI bytes or guessed normalized conversion. No new helper/clock/audio entry is inserted. Direct B0738 preserves oscillator phases, normalized source arrays, clock residuals/thresholds, master and program while performing its recovered numeric reset. Geometry's D5E0 resets lists/current-last/gate but preserves physical/latched key arrays and counts. The original D444 wider reset still clears them.
+
+## Proof and compatibility
+
+1092 numerical fixtures interpret the actual original learn/restore/geometry/mode/inline-preparation bodies and actual D5E0, with B0738's numeric body an explicit boundary. They cover direct learn, all256 signed-byte values, null/all-zero restore, duplicate/marked/zero records, raw clamp comparisons, empty preservation, geometry-before-mode suppression and double resets. Normal and ASan/UBSan consumer tests match the complete value/list state and callback phase traces, with resource/cyclic-state/partial-failure negatives.
+
+The concrete numeric callback is separately exercised for all30 Miami programs in native/software FMA and normal/ASan/UBSan host builds. It preserves key arrays, phase, source/program and clocks, enters no extra helper/seed, retains signed restore semantics and the existing wider D444 clearing, and checks120 compatible130field snapshots (hash201c0db0369f392d). A deliberately wrong callback compiled against exact5319 returns the expected failure42 because it clears keys. This proves the entry-boundary distinction, not an old live caller bug.
+
+The retained selected30program/all18control graph remains276480stereo frames/hashd41eea1766a4bdbe in allfour modes, including12960 unchanged130field snapshots. Per-voice structures, snapshot schemas and wire version/size were not changed. Whole geometry/global/history state is still outside those per-voice envelopes; legacy file dispatch and complete state adoption remain with their existing owner.
+
+## Exact consumer boundary and remaining gates
+
+The existing engine prepare owner can consume `original_miami_geometry_prepare` at the B1AF4..B1BF4-equivalent point, after its pending parameter/waveform work and before B0C34 ARP maintenance. The restore owner can consume `restore_map` for its already validated128byte native chord payload at the corresponding C184 call, using CURRENT committed mode and the same converted pending controls. Preserve all surrounding restore/warmup/event order and the separate D444 input/controller clear. These shared files were not edited. A ready geometry adapter alone does not supply those callers, native88/89/58 conversion, cold defaults or a complete mode0 chord renderer.
+
+Dot remains the sole integrator and assigns the existing prepare/startup/persistence writer adoption. The complete original shared-history alias/reset/lifetime backend still lacks a qualified fit; the previous raw-page/residual/regeneration negative evidence is unchanged.31592B remains an optimistic host counterfactual with host-sized reclaim, not proven target availability. The native5319 receipt is reused only for unchanged source; this delta's target sections/layout/stack/runtime ownership and source review are pending. R1–R3 remain immutable, no R4 was started, and no runtime activation, publication or hardware action occurred.
