@@ -107,7 +107,9 @@ Evidence: `pr677-merge.log`, `pr677-conflict-detail.diff`.
 
 Fetched head: `c1f3f776b13ad8f4f56bcbdb8a8061924191b93d`.
 Trial: `git merge --no-commit --no-ff pr651` against starting HEAD.
-Result: clean; 29 changed paths. Candidate source tree before this report:
+Result: clean; 29 changed paths. Local merge commit:
+`4087b79b2334f9baff75007dc6888c560227fa50` (parents starting HEAD and fetched PR
+head). Candidate source tree before this report:
 `bb5576344100ded00cf7b3d286535907648cc623`.
 
 This is the complete #638 ancestry plus the host-proof repair, not only an
@@ -177,10 +179,69 @@ Staged-path and new-ancestry object-name audits found no excluded file.
 Evidence: `pr651-merge.log`; candidate renders under
 `build/host/night-ui`, `ui-depth-wave`, `ui-drum-mix-material`, `ui-shared-glyph`.
 
+## #650 — clean merge with fixture repair; build and host checks passed
+
+Fetched head: `a51b030d98e1400f697ba1fa7b5056a62f7399fc`.
+Trial: `git merge --no-commit --no-ff pr650` against `4087b79b`.
+Result: clean; four paths changed. Source tree before this report update:
+`0863234b67d99eea1fb8c6deda878f670d3d27f5`.
+
+The change applies the existing material surfaces to sequence marks, SONG/list
+rows and MIX wells. It keeps note lengths, accent/slide/tie/p-lock overlays,
+scrolling, meters and control paths. It changes presentation for players without
+changing their stored patterns or mappings. The host-linkage repair from #651
+remains; no conflicting hunk or private/binary input was introduced.
+
+Native checks with the same macOS environment as #651:
+
+```sh
+sh tests/run_tests.sh host-build part-order smc-ui smc-ui-bounds
+sh tests/host/night_ui_test.sh
+sh tests/host/ui_main_material_test.sh
+```
+
+All PASS. Evidence: `pr650-host-suite.log`, `pr650-night-ui.log`,
+`pr650-ui-main-material.log`; commands, exits and hashes in
+`pr650-host-summary.json`. The fixture checks mark clipping/centre ink, project
+nonmutation, populated sequence/song/mixer surfaces, settings and confirmation
+rendering without executing reset. Actual candidate renders:
+`build/host/ui-main-material/*.png` and refreshed `build/host/night-ui/*.png`.
+Independent review found no product blocker in source or 17 actual renders.
+It did find an incoming fixture error: `1u << PART_808` mutes a 909 voice, so
+`active-mix-muted.png` did not prove whole-808 mute. The local merge repairs the
+fixture to use `MUTE_MASK[PART_808]` and asserts 808 muted/909 unmuted before
+rendering. Product bytes are unchanged by this repair. The amended source tree
+before this report update is `74e5b801224e2c0d61ca9621c0b3476044478a02`;
+its firmware/tools/host diff from the original clean trial tree is empty.
+Corrected fixture rerun: PASS, 3,235,627 checks, log
+`pr650-ui-main-material-corrected.log`. It ran with the same native environment
+in isolated `build/pr-merges/pr650-ui-scratch` while the target build continued.
+All 1,141 copied source/asset files were verified byte-identical before execution
+(`pr650-ui-scratch-receipt.json`); no target generated header was overwritten.
+Actual corrected renders are under that scratch directory's
+`build/host/ui-main-material/`. Independent review confirmed the corrected mute image: 808 label and meter
+are dimmed, while the other parts retain their colours. No new finding remains. The original incorrectly named mute image is superseded by this
+corrected evidence.
+
+Fresh Elite development compile/link/package: PASS, BUILD_ONLY, using the same
+Docker image, mounts and command as #651. Log: `pr650-elite-build.log`;
+artifact sizes/hashes: `pr650-build-receipt.json`. Image 350,484 B;
+app code area has 202,188 B free; static RAM 92,856/98,304 B;
+pool 327,820/344,064 B (16,244 B free). No controller, Pro build, DEV CHECKED,
+release/full-gate or hardware result is claimed. The fixture-only repair does
+not change any firmware/build input; the native fixture consumes its amended
+test bytes. Existing CK_FN and signedness warnings remain visible in its log.
+The unchanged math, generator and Miami-rate inputs retain #651's matching proof;
+this UI delta does not change those consumers.
+
 ## Remaining trials
 
-#650, #638, #635 and #636 will be fetched and trialed after #651's validation and
-local commit or failure disposition. They have not yet been trialed in this run.
+Fetched heads for #638 (`5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134`), #635
+(`0e2b6f32d28d3001e84a7810a91f67aafce03a21`) and #636
+(`92108efd743fb9fbadd665c361ee48e22b0e86e0`) are already ancestors of
+`4087b79b`. Actual no-op merge trials follow #650's local commit. No duplicate
+source commit or repeated validation is needed if those trials leave inputs
+unchanged.
 
 ## Earlier baseline evidence
 
