@@ -168,6 +168,15 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn('say("WOBBLE ", division_pad_label() + 11)', ui)
         self.assertNotIn("shape_pad_owner(", ui)
 
+    def test_host_build_allows_original_rate_pad_flag_without_legacy_sources(self):
+        # The host app should accept the same UI-only build flag as firmware.
+        host = (ROOT / "host/build_host.sh").read_text()
+        self.assertIn('DEV_WOBBLE="${X0X_DEV_WOBBLE:-0}"', host)
+        self.assertIn('case "$DEV_WOBBLE" in 0|1)', host)
+        self.assertIn('-DX0X_ORIGINAL_SYNTH=1 -DX0X_WOBBLE=0 '
+                      '-DX0X_DEV_WOBBLE=$DEV_WOBBLE', host)
+        self.assertIn("*build.ORIGINAL_SYNTH_UNITS, *build.ORIGINAL_SYNTH_BACKENDS", host)
+
     def test_legacy_wobble_disable_still_works(self):
         for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
             _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0", **env})
