@@ -7,7 +7,7 @@ expect loops 5
 slotimg 1 build/test_upload/slot2.hdr build/test_upload/slot2.bin
 expect loops 6
 # BREAK part, LOOPS page: loop A = the first uploaded loop (index 2, after the 2 built-in)
-turn ALGO 2
+turn ALGO 4
 expect part 4
 tap EDIT
 tap EDIT

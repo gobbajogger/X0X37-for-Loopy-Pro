@@ -79,22 +79,10 @@ static void update_rates(wobble_t *s)
 {
     static const float rates[7] = {1, 2, 3, 4, 6, 8, 12};
     unsigned rate = (unsigned)(s->p[W_WOBBLE_RATE] * 6.0f + 0.5f);
-    /* Legacy seven rates at 120 BPM represent whole-note divisions
-     * 1/2, 1/4, 1/6, 1/8, 1/12, 1/16 and 1/24. Keep control bins stable. */
-    s->lfo_step = (rates[rate] * (s->tempo_bpm / 120.0f)) / s->sample_rate;
+    s->lfo_step = rates[rate] / s->sample_rate;
     s->glide_step = s->p[W_GLIDE] == 0.0f ? 1.0f
         : 1.0f - fm_expf(-1.0f / (s->sample_rate
                 * (0.002f + 0.998f * s->p[W_GLIDE] * s->p[W_GLIDE])));
-}
-int wobble_set_tempo(wobble_t *s, float bpm)
-{
-    if (!finite_value(bpm) || bpm <= 0.0f) return 0;
-    bpm = fm_clampf(bpm, 20.0f, 300.0f);
-    if (bpm != s->tempo_bpm) {
-        s->tempo_bpm = bpm;
-        update_rates(s);
-    }
-    return 1;
 }
 /* Map 0..1 pot to seconds (square law). Attack/Release defaults match legacy AR. */
 static float env_seconds(float pot, float min_s, float max_s)
@@ -134,7 +122,6 @@ void wobble_init(wobble_t *s, float sample_rate)
     };
     s->sample_rate = finite_value(sample_rate)
         ? fm_clampf(sample_rate, 8000.0f, 192000.0f) : 48000.0f;
-    s->tempo_bpm = 120.0f;
     for (unsigned i = 0; i < W_PARAMETER_COUNT; ++i) s->p[i] = defaults[i];
     update_rates(s);
     update_amp_env(s);
@@ -154,21 +141,14 @@ int wobble_set(wobble_t *s, unsigned parameter, float value)
 }
 void wobble_note_on(wobble_t *s, uint8_t note, uint8_t velocity)
 {
-    wobble_note_on_slide(s, note, velocity, 0);
-}
-void wobble_note_on_slide(wobble_t *s, uint8_t note, uint8_t velocity, int slide)
-{
     if (!velocity) { wobble_note_off(s, note); return; }
-    int legato = slide && s->active && s->gate;
     s->note = note > 127 ? 127 : note;
     update_pitch(s);
     if (!s->active || s->p[W_GLIDE] == 0.0f) s->hz = s->target_hz;
     s->velocity = (float)(velocity > 127 ? 127 : velocity) / 127.0f;
     s->gate = s->active = 1; s->deferred_off = 0;
-    if (!legato) {
-        s->envelope = 0.0f;
-        s->env_stage = 0;
-    }
+    s->envelope = 0.0f;
+    s->env_stage = 0;
 }
 void wobble_note_off(wobble_t *s, uint8_t note)
 {

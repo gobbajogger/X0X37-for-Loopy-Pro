@@ -1,5 +1,0 @@
-  ok   project-303-stream
-  ok   project-stage
-  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
-  ok   rec-endpoint-storage
-all tests passed

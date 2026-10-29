@@ -36,9 +36,8 @@ HOST = r'''
 #define PROJ_BT_SMC_USER 32u
 #define SMC_Q 32u
 static volatile uint8_t smc_host_w, smc_host_r;
-static struct { volatile uint32_t release_lost[4]; } smc_inputs[2];
-#define smc_host_solo_release_lost smc_inputs[0].release_lost[1]
-#define smc_pause_release_lost (smc_inputs[0].release_lost + 2)
+static volatile uint32_t smc_host_solo_release_lost;
+static volatile uint32_t smc_pause_release_lost[2];
 static uint8_t smc_host_q[SMC_Q][3];
 static struct { struct { uint8_t bt; } set; } proj;
 '''

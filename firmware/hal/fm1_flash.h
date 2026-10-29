@@ -12,7 +12,6 @@
 #pragma once
 #include <stdint.h>
 #include "fm1_xip.h"
-#include "fm1_capture_gate.h"
 
 #define RAMFN  __attribute__((section(".ram_text"), noinline, used))
 #define RAMINL static inline __attribute__((always_inline))
@@ -218,8 +217,6 @@ static int fl_erase4k(uint32_t off, uint32_t *took_us)
 {
     uint32_t f;
     int rc;
-    if (!fm1_capture_mutation_allowed())
-        return FM1_CAPTURE_BUSY;
     (void)FL_PARK();
     f = irq_save();
     rc = FL_FAR(fl_erase4k_ram)(off, took_us);
@@ -244,8 +241,6 @@ static inline int fl_read(uint32_t off, uint8_t *dst, uint32_t n)
 static int fl_write(uint32_t off, const uint8_t *src_ram, uint32_t n)
 {
     uint32_t took;
-    if (n && !fm1_capture_mutation_allowed())
-        return FM1_CAPTURE_BUSY;
     while (n) {
         uint32_t chunk = 256u - (off & 0xFFu);
         int rc;

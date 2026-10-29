@@ -21,14 +21,12 @@ enum { DIR_FWD, DIR_REV, DIR_PINGPONG, DIR_RANDOM, NDIRS };  /* 303 playback dir
 enum { G_REST, G_NOTE, G_TIE };                             /* 303 step gate */
 
 /* 303 step: velocity 1..127; zero means the legacy/default velocity (100). */
-/* 0 = legacy gate; 1..15 = captured release fraction of this playback slot. */
-#define BS_END_SHIFT 4u
 #define BS_GATE_MASK 0x03u
 #define BS_ACCENT 0x04u
 #define BS_SLIDE 0x08u                /* slide INTO the next step (303 semantics) */
 typedef struct {
     uint8_t note;                     /* MIDI note */
-    uint8_t flags;                    /* gate | BS_ACCENT | BS_SLIDE | endpoint << 4 */
+    uint8_t flags;                    /* gate | BS_ACCENT | BS_SLIDE */
     uint8_t velocity;
 } bstep_t;
 #define BASS_VELOCITY_DEFAULT 100u
@@ -72,19 +70,10 @@ typedef struct {
     uint32_t steps;                   /* bit s = the break may sound on 16th s of the bar */
     uint8_t set[BRK_NSET];            /* breaks.h param values, in BRK_* order */
     uint8_t slot_a, slot_b;           /* loop A / B: the built-in bank, then the user slots (engine_brk_slot_names) */
-    uint8_t slice_mode;               /* packed A/B count codes (2 bits each): 0=8,1=4,2=16,3=32 */
+    uint8_t slice_mode;               /* 0 = MIDI notes 36-43; 1 = every note, slice = note mod 8 */
     uint8_t rsv;
-    uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..32 = loop A's stored slice intent (resolved modulo count) */
+    uint8_t slice[16];                /* per 16th: 0 = the generator chooses, 1..8 = loop A's slice 1..8 */
 } brkpart_t;
-
-static inline unsigned brk_slice_code_count(unsigned code)
-{
-    return code == 0 ? 8u : code == 1 ? 4u : code == 2 ? 16u : 32u;
-}
-static inline unsigned brk_slice_count(const brkpart_t *p, unsigned which)
-{
-    return brk_slice_code_count((p->slice_mode >> (2u * which)) & 3u);
-}
 
 typedef struct {
     dpart_t drum[NKIT];

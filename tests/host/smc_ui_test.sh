@@ -12,8 +12,7 @@ test -s "$OUT/clip_smc.inc"
 sh host/build_host.sh --generate-only > "$OUT/generate.log" 2>&1 || { cat "$OUT/generate.log"; exit 1; }
 U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
-firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c
-firmware/src/app/factory_banks.c experiments/wobble/wobble.c"
+firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c"
 DARWIN=
 [ "$(uname -s)" != Darwin ] || DARWIN=-D_DARWIN_C_SOURCE
 # Linux host needs POSIX clock APIs from x0x_host.c under -std=c99.

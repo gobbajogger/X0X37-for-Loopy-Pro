@@ -6,9 +6,6 @@
  *    step 1, not to the step of the last run (a73).
  *  - 909: a live hit records on the nearest step; just before the loop start: step 1 (a73).
  * Build: see tests/run_tests.sh (needs build/gen from host/build_host.sh). */
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE 1 /* expose host libproc instrumentation under POSIX feature selection */
-#endif
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
 #undef main
@@ -183,7 +180,7 @@ static void test_303_key_release(void)
     key(10, 1);
     tick(10);
     CHECK(engine_midi_held() & 1, "303 A key sounds before part change");
-    enc_acc[EN_ALGO] -= 1;
+    enc_acc[EN_ALGO] += 1;
     tick(1);
     CHECK(ui.part == PART_303B, "ALGORITHM selects 303 B while A key is held");
     key(10, 0);
@@ -254,7 +251,7 @@ static void test_303_step_preview_lifecycle(void)
     key(white, 1);
     tick(10);
     CHECK(engine_midi_held() & 1, "303 A step preview starts while its key is held");
-    enc_acc[EN_ALGO] = -1;                             /* change A to B with the key still down */
+    enc_acc[EN_ALGO] = 1;                              /* change A to B with the key still down */
     tick(20);
     CHECK(ui.part == PART_303B, "ALGORITHM selected 303 B");
     CHECK(!(engine_midi_held() & 1), "303 A preview ended on part change");
@@ -385,24 +382,21 @@ static void test_303_auto_slide(void)
     btn(B_ENV, 0);
     at_step(TRK_BASS0, 5, 10);
     key(12, 1);
-    tick(8);
-    CHECK((bst(4)->flags & 15u) == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
-    CHECK((bst(5)->flags & 15u) == G_NOTE, "live destination has no outgoing slide");
+    CHECK(bst(4)->flags == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
+    CHECK(bst(5)->flags == G_NOTE, "live destination has no outgoing slide");
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 6, 10);
     key(14, 1); key(14, 0);
     CHECK(!(bst(5)->flags & BS_SLIDE), "live detached notes do not slide");
     at_step(TRK_BASS0, 8, 10);
     key(10, 1); key(12, 1);
-    tick(8);
-    CHECK((bst(8)->flags & 15u) == G_NOTE && bst(8)->note == kbd_note(12),
+    CHECK(bst(8)->flags == G_NOTE && bst(8)->note == kbd_note(12),
           "two live notes on one quantized step replace pitch without a self-slide");
     key(10, 0); key(12, 0);
     at_step(TRK_BASS0, 15, 10);
     key(10, 1);
     at_step(TRK_BASS0, 0, 10);
     key(12, 1);
-    tick(8);
     CHECK(bst(15)->flags & BS_SLIDE, "live overlap slides across loop boundary");
     key(10, 0); key(12, 0);
     btn(B_REC, 1); btn(B_REC, 0);

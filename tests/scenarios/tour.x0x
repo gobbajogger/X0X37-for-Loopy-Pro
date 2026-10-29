@@ -17,13 +17,13 @@ tapkey w12
 press ENV
 tapkey w0
 release ENV
-turn ALGO 4
+turn ALGO 2
 tap ARP
 tap OCT+
-turn ALGO -1
+turn ALGO 1
 tap ARP
 tap OCT+
-turn ALGO -1
+turn ALGO 1
 tapkey w0
 tapkey w2
 tapkey w4
@@ -32,7 +32,7 @@ tapkey w8
 tapkey w10
 tapkey w12
 tapkey w14
-turn ALGO -2
+turn ALGO -4
 tap PLAY
 wait 600
 shot t01_909.png
@@ -42,7 +42,7 @@ wait 1000
 turn ALGO 1
 tapkey b7
 shot t03_808.png
-turn ALGO 3
+turn ALGO 1
 # two ties by hand (TB-3PO writes none): on SEQ, hold a step, KNOB 2 to TIE; the manual's picture shows them
 tap SEQ
 key w5 down
@@ -63,7 +63,7 @@ shot t06_tb3po.png
 tap OCT+
 shot t07_new_line_msg.png
 wait 1500
-turn ALGO -2
+turn ALGO 2
 wait 300
 shot t08_break.png
 tap EDIT

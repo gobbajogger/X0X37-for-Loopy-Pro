@@ -79,13 +79,10 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
-    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    save-note-quiet) TEST_CLASS=G ;;
-    rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
-    bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smk-wheel-mode|smc-pickup-acceptance) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -122,8 +119,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in save-note-quiet) return 0 ;; esac
-    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -293,7 +289,6 @@ seq_test() {
     fi
     $OUT/seq_test
 }
-run home-tie-semantics sh tests/host/home_tie_semantics_test.sh
 run sequencer seq_test
 run bass-prob-midi sh -c "$CC -O2 -Wall -Wextra -Werror -o $OUT/bass_probability_midi_test tests/host/bass_probability_midi_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bass_probability_midi_test"
 run seq-tb3po-bars sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_tb3po_bar_test tests/host/seq_tb3po_bar_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_tb3po_bar_test"
@@ -306,15 +301,6 @@ run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_t
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
-for t in bass-presets-map bass-presets-live bass-legacy-display bass-tagged-storage; do
-    if [ "$PIL_SKIP" = 1 ]; then not_run "$t" Pillow; else
-        run "$t" sh "tests/host/$(echo "$t" | tr - _)_test.sh"
-    fi
-done
-if [ "$PIL_SKIP" = 1 ]; then not_run bass-presets-export Pillow; else
-    run bass-presets-export sh -c 'sh host/build_host.sh --generate-only && sh tests/host/bass_presets_export_test.sh'
-fi
-run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
@@ -330,17 +316,13 @@ run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
 run storage-scratch sh tests/host/run_storage_scratch.sh
 run project-stage sh tests/host/run_project_stage.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run save-note-quiet Pillow; else run save-note-quiet sh tests/host/save_note_quiet_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run font-pack Pillow; else run font-pack python3 tests/font_pack_test.py; fi
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
-run smc-select-mode sh tests/host/smc_select_mode_test.sh
 run smc-fx sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Ifirmware/src/dsp -Ifirmware/src/app -o $OUT/smc_fx_test tests/host/smc_fx_test.c firmware/src/app/smc_fx_map_tables.c -lm && $OUT/smc_fx_test"
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
-run engine-cq-rec-overflow python3 tests/host/engine_cq_rec_overflow_test.py   # atomic REC word retains critical priority
-run engine-cq-isr-preemption python3 tests/host/engine_cq_isr_preemption_test.py   # source-masked critical publication survives consumer ISR
 run engine-cq-boff-overflow python3 tests/host/engine_cq_boff_overflow_test.py   # full CQ must keep C_BOFF (displace param)
 run engine-cq-brk-overflow python3 tests/host/engine_cq_brk_overflow_test.py   # full CQ must keep C_BRK press+release (displace param)
 run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   # full CQ must keep C_BON (displace param)
@@ -349,8 +331,6 @@ run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py
 run midi-mq-rt-overflow python3 tests/host/midi_mq_rt_overflow_test.py   # full MIDI-in MQ must keep Start/Continue/Stop (displace CC)
 run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow_test.py   # full MIDI-out MQ must keep Note Off (displace CC)
 run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
-run ble-out-rt-overflow python3 tests/host/ble_out_rt_overflow_test.py   # full BLE out mirror must keep Start/Continue/Stop (displace CC)
-run usb-sxq-sticky-apc python3 tests/host/usb_sxq_sticky_apc_test.py   # full SXQ must sticky-retry APC inquiry/intro
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
 run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
 run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
@@ -358,9 +338,6 @@ run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
-run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
-run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
@@ -371,17 +348,11 @@ run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmwa
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reachability sh tests/host/smc_reachability_test.sh; fi
 run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-lock sh tests/host/smc_lock_test.sh
-run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
-run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
-run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
-run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
-run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
-run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-mutes Pillow; else run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh; fi
@@ -453,7 +424,6 @@ run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
-run dev-validate-composed python3 tests/host/test_dev_validate_composed.py ComposedValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
@@ -497,9 +467,7 @@ run installer-targets python3 tests/make_pages_test.py
 run diag-size python3 tests/diag_size_test.py           # a76: ED_DIAG stays in its buffers
 run smk-inlog sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_inlog_test tests/smk_inlog_test.c && $OUT/smk_inlog_test"   # a76: inbound recorder ring
 run ble-central-diag python3 -B tests/ble_central_diag_test.py
-if [ "$ASAN_SKIP" = 1 ]; then not_run ble-role-switch "ASan runtime"; else run ble-role-switch sh tests/host/ble_role_switch_test.sh; fi
 run inlog-tool python3 tests/inlog_tool_test.py      # a76: ED_INLOG dump text
-run smk-pad-inputs python3 tests/smk_pad_inputs_test.py   # read-only sensor snapshot and strict decoder
 run smk-clip-ble-notify sh -c "$CC -std=c99 -O2 -Wall -Wextra -Wno-unused-function -Werror -Ifirmware/src -Ifirmware/hal -Ifirmware/src/ble -o $OUT/smk_clip_ble_notify_test tests/smk_clip_ble_notify_test.c && $OUT/smk_clip_ble_notify_test"   # a76: no pad colour while notify is off
 run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED code: dark 10 s after Loopy goes away
 run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a link end clears only the cells of that link (real usb.c)
@@ -538,7 +506,6 @@ run break-pack python3 tests/break_pack_test.py   # optional factory-loop pack: 
 command -v node >/dev/null 2>&1 && run break-pack-web node web/test_break_pack.mjs
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device
-command -v node >/dev/null 2>&1 && run project-adoption-identities node --test web/test_project_adoption_identities.mjs
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
@@ -563,10 +530,6 @@ run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py 
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
-run rec-held-duration sh tests/host/rec_held_duration_test.sh
-run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh
-run rec-endpoint-storage sh tests/host/rec_endpoint_storage_test.sh
-run rec-nonforward-guard sh tests/host/rec_nonforward_guard_test.sh
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
 # Full generate-only: needs font + break bank (Pillow-gated above), not tables alone.
@@ -586,14 +549,6 @@ fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run home-overview Pillow; else run home-overview sh tests/host/home_overview_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix sh tests/host/sound_matrix_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run chicago-presentation Pillow; else run chicago-presentation sh tests/host/chicago_presentation_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run chicago-readout Pillow; else run chicago-readout sh tests/host/chicago_readout_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run matrix-knob-caption Pillow; else run matrix-knob-caption sh tests/host/matrix_knob_caption_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run preset-navigation-noop Pillow; else run preset-navigation-noop sh tests/host/preset_navigation_noop_test.sh; fi
-if [ "$PIL_SKIP" = 1 ]; then not_run ui-303-entry Pillow; elif [ "$ASAN_SKIP" = 1 ]; then not_run ui-303-entry ASan; else run ui-303-entry sh tests/host/pro_303_entry_crash_test.sh; fi
 # When X0X_TESTS selects scenarios alone, host-build is filtered out — build x0x_host here
 # (same pattern as perf-scratch) so filtered-alone runs do not fail on a missing binary.
 for s in tests/scenarios/*.x0x; do

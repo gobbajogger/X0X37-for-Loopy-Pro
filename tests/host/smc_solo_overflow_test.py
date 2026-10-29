@@ -17,8 +17,6 @@ def extract(name):
 prefix=s[s.index('#define SMC_Q'):s.index('int smc_project_active')]
 funcs=['smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press','smc_project_drop','smc_project_reset','smc_ble_midi','smc_ble_link','smc_ble_role_get','smc_connected','smc_midi_host','smc_mmc_host','smc_release','smc_mmc_drain_stop']
 # Include the MMC STOP FIFO-boundary helper so the regression covers the full current poll path.
-if 'smc_poll_peer' in s:
- funcs = ['smc_solo_union', 'smc_peer_drop', 'smc_ble_midi_slot', 'smc_ble_link_slot'] + funcs
 body='\n'.join(extract(n) for n in funcs)
 hdr=r'''
 #include <assert.h>
@@ -48,10 +46,6 @@ static void engine_smc_solo_targets(uint8_t parts,uint16_t a,uint16_t b)
 { output_solo=(int)parts | (int)(a!=0)<<8 | (int)(b!=0)<<9; }
 static void ui_say(const char *a,const char *b){(void)a;(void)b;}
 #define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
-/* This fixture dispatches Solo notes only, never opens an FX view, and already
- * substitutes all FX side effects. Full SELECT/mode ownership is exercised by
- * smc_select_mode_test.c through the production dispatch. */
-static int smc_fx_bus_now(uint8_t note) { (void)note; return -1; }
 static void smc_guarded_button(uint8_t note,int mmc,int allow);
 static int smc_lock_button(int pressed);
 '''
@@ -201,7 +195,7 @@ int main(void)
  return 0;
 }
 '''
-code=hdr+prefix+body+'\n'+stubs+(extract('smc_poll_peer') + '\n' if 'smc_poll_peer' in s else '') + extract('smc_poll')+'\n'+case
+code=hdr+prefix+body+'\n'+stubs+extract('smc_poll')+'\n'+case
 with tempfile.TemporaryDirectory(prefix='smc-r10-combined-') as t:
  f=Path(t)/'test.c';exe=Path(t)/'test';f.write_text(code)
  command=[os.environ.get('CC','gcc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror',*shlex.split(os.environ.get('SAN_FLAGS','')),'-I'+str(ROOT/'firmware/src'),'-I'+str(ROOT/'tests/host'),str(f),'-o',str(exe)]

@@ -14,7 +14,3 @@ static void __attribute__((unused)) smc_fx_main_tick(void) {}
 static void __attribute__((unused)) smc_fx_clear(void) {}
 static void __attribute__((unused)) smc_fx_release_note(uint8_t note) { (void)note; }
 static void __attribute__((unused)) smc_fx_load_page(int page) { (void)page; }
-
-/* These source-extracted queue fixtures do not exercise the lock gesture.
- * The production integration smc-lock-beat test owns its timer/loss coverage. */
-static void __attribute__((unused)) smc_lock_tick(void) {}

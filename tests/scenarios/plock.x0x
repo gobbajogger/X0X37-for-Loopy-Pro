@@ -51,7 +51,7 @@ spin K1 5
 key w4 up
 expect lanes 0
 # the 303 on EDIT: a held step's CUTOFF; on SEQ its NOTE, as before
-turn ALGO 4
+turn ALGO 2
 tap EDIT
 tapkey w2
 key w2 down

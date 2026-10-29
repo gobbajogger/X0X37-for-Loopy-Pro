@@ -26,7 +26,7 @@ turn SELECT 5
 expect help 0
 release HOME
 expect tempo 130
-expect view 8
+expect view 1
 # ENV held long, then a white key: the card goes and the key still works (an accent there)
 tapkey b0
 tapkey w0
@@ -38,7 +38,7 @@ expect help 0
 release ENV
 expect hit0.0.0 1
 # 303A on keyboard: OCT+ held
-turn ALGO 4
+turn ALGO 2
 tap SEQ
 press OCT+
 wait 1200

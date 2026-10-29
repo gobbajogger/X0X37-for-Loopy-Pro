@@ -126,9 +126,7 @@ class FakeX0X {
     }
     if (eq(d, HS)) {
       const t = [...new TextEncoder().encode(this.identity)];
-      const payload = [...t, ...new Array(27 - t.length).fill(0)];
-      const body = [0, 0x59, 0x11, 27, 0, 0, ...payload, ~payload.reduce((sum, b) => sum + b, 0) & 255];
-      this.tx([0xF0, ...pack7(body), 0xF7]);
+      this.tx([0xF0, ...pack7([0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)]), 0xF7]);
     } else if (eq(d, UPGRADE)) {
       this.upgrades++;
       this.queue = this.identity.startsWith("ota-") ? [...Array.from({ length: 6 }, (_, k) => [k * 512, 512]), [0xF0000000, 8]]
@@ -255,10 +253,9 @@ ok(packageSlotMap(packageOf(NEW_PKG, { map: NEW.map }).image).map((m) => [m.off,
   const before = r.dev.slotLog.filter(([id]) => id === NOW).map(([, c]) => c);
   ok(before.every((c) => c === 15 || c === 16) && before.includes(16), "downgrade: the backup sends SMP_INFO / SMP_READ only");
   const now = slotImages(r.flash, OLD);
-  ok(r.res && same(now[0], IMG[0]) && now[1] === null && r.res.move.todo.length === 0
-    && r.res.move.skipped.length === 2 && r.res.move.skipped.some(s => /LOOP menu order or indices/.test(s))
-    && r.dev.slotLog.filter(([id]) => id === OLD_PKG).every(([, cmd]) => cmd === 15 || cmd === 16),
-    "downgrade: skipped middle loop blocks all restore writes and preserves archive for reconciliation");
+  ok(r.res && same(now[0], IMG[0]) && same(now[1], IMG[2]) && r.res.move.todo.map((t) => `${t.k}>${t.j}`).join() === "2>1"
+    && r.res.move.skipped.length === 1 && /slot 2/.test(r.res.move.skipped[0]),
+    "downgrade: slot 1 kept, slot 3 -> slot 2 and read back, slot 2 reported");
   ok(r.said.some(([k, a]) => k === "slotsave" && a === "2, 3"), "downgrade: the page is told which slots are at risk");
 }
 

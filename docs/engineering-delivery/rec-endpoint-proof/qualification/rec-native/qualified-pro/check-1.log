@@ -1,1 +1,0 @@
-PASS actual reviewed REC proof:17 registered selectors total including4 new suites,4 additionally sanitized;96case/288check timing matrix;12024 physical-key/stale-epoch checks. Current storage1314ASan/UBSan + independentzero-write mixed-segment reproduction clear priorHOLD. Recorder source unchanged; PINGPONG/RANDOM and full snapshot/engine identity remain limited.

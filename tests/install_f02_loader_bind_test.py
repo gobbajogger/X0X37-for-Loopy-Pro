@@ -26,12 +26,11 @@ def ok(cond, what):
 
 def identity_packet(text):
     body = bytearray(34)
-    body[0:4] = b"\x00\x59\x11\x1b"
+    body[0:3] = b"\x00\x59\x11"
     raw = text.encode("latin-1")
     if len(raw) > 27:
         raise SystemExit("identity text does not fit the handshake")
     body[6:6 + len(raw)] = raw
-    body[33] = ~sum(body[6:33]) & 255
     return b"\xF0" + fi.pack7(bytes(body)) + b"\xF7"
 
 

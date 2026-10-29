@@ -113,8 +113,7 @@ class FakeSMK:
         # Do not answer [0,0]: parse_info rejects count/size 0 as malformed, not empty.
         if d == I.HS_QUERY:
             t = self.identity.encode()
-            payload = t + bytes(27 - len(t))
-            self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 27, 0, 0]) + payload + bytes([~sum(payload) & 255])) + b"\xF7")
+            self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(28 - len(t))) + b"\xF7")
         elif d == I.ED_HDR + bytes([I.xs.CMD_INFO, 0xF7]):
             if getattr(self, "answer_slots", True) and self.slot_info is not None:
                 self.tx(I.ED_HDR + bytes([I.xs.CMD_INFO]) + bytes(self.slot_info) + b"\xF7")

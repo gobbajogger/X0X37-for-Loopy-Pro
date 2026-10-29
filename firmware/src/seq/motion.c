@@ -22,10 +22,16 @@ __attribute__((noinline)) static void put(motion_t *m, const lane_t *l, lane_rt_
     }
 }
 
+static void restore_base(motion_t *m, const lane_t *l)
+{
+    if (m->restore) m->restore(m->ctx, l->t, l->v, l->i);
+    else m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+}
+
 __attribute__((noinline)) static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
 {
     if (r->applied != MOT_NONE)
-        m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+        restore_base(m, l);
     r->applied = MOT_NONE;
     r->ramp = 0;
 }
@@ -47,7 +53,7 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         int v, nv;
-        if (!l->used || l->t==0xfdu || l->part != part)
+        if (!l->used || l->part != part)
             continue;
         if (r->gen != l->gen) {                        /* a reused slot: a fresh runtime */
             r->gen = l->gen;
@@ -103,7 +109,8 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             continue;
         }
         v = l->val[step];
-        put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
+        if (v == MOT_NONE && m->restore) to_base(m, l, r);
+        else put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
         nv = l->val[next];
         r->ramp = (uint8_t)(v != MOT_NONE && nv != MOT_NONE && nv != v);
         r->from = (uint8_t)v;
@@ -121,7 +128,7 @@ void motion_tick(motion_t *m, uint32_t n)
         const lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         uint32_t L, a;
-        if (!r->ramp || !l->used || l->t==0xfdu || r->gen != l->gen || l->part >= MOT_PARTS)
+        if (!r->ramp || !l->used || r->gen != l->gen || l->part >= MOT_PARTS)
             continue;
         L = m->len[l->part][r->part_parity];
         if (!L)
@@ -138,7 +145,7 @@ void motion_release(motion_t *m)
     int k, p;
     for (k = 0; k < NLANE; k++) {
         lane_rt_t *r = &m->rt[k];
-        if (m->lane[k].used && m->lane[k].t!=0xfdu && r->gen == m->lane[k].gen)
+        if (m->lane[k].used && r->gen == m->lane[k].gen)
             to_base(m, &m->lane[k], r);
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
@@ -179,7 +186,6 @@ X0X_COLD int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
     L[k].t = (uint8_t)t;
     L[k].v = (uint8_t)v;
     L[k].i = (uint8_t)i;
-    L[k].rsv = 0;
     for (s = 0; s < NSTEPS; s++)
         L[k].val[s] = MOT_NONE;
     L[k].gen++;
@@ -191,13 +197,12 @@ X0X_COLD int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
 X0X_COLD void motion_clear(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE) {
-        if (m->lane[k].used && m->lane[k].t!=0xfdu && m->apply && m->base) {
+        if (m->lane[k].used && m->apply && m->base) {
             /* Restore the target before freeing the slot. T_VEL caches the last
              * applied strike in seq.drum_vel; skipping this leaves that override
              * sticky after the lane is gone (and after Stop), so later hits keep
              * the deleted velocity instead of the accent fallback. */
-            m->apply(m->ctx, m->lane[k].t, m->lane[k].v, m->lane[k].i,
-                     m->base(m->ctx, m->lane[k].t, m->lane[k].v, m->lane[k].i));
+            restore_base(m, &m->lane[k]);
             m->rt[k].applied = MOT_NONE;
             m->rt[k].ramp = 0;
         }

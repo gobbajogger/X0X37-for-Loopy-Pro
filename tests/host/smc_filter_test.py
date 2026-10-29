@@ -15,10 +15,6 @@ for name in ("smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_bloc
         continue
     assert match, name
     functions.append(match[0])
-ui_source = (root / 'firmware/src/app/ui.c').read_text()
-order_helpers = 'enum { PART_909=0, PART_808=1, PART_303A=2, PART_303B=3, PART_BRK=4 };\n'
-order_helpers += re.search(r'^static const uint8_t PART_ORDER.*?;', ui_source, re.M)[0] + '\n'
-order_helpers += re.search(r'^static int part_at\(.*', ui_source, re.M)[0] + '\n'
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -37,15 +33,14 @@ static int smk_clip_mode_on(void) { return 0; }
 #define is_drum() (ui.part < 2)
 static int drum_mix_page(void) { return -1; }
 static int cur_page(void) { return 0; }
-static int smc_beat_lit(void) { return 1; } /* This fixture checks master mute, not beat timing. */
+static uint32_t plat_ms(void) { return 0; } /* Fixed blink phase; this fixture checks master mute. */
 '''
-harness += order_helpers + "\n".join(functions)
+harness += "\n".join(functions)
 harness += r'''
 int main(void) {
-    const int expected[5]={0,1,4,3,2};
     for (int i = 0; i < 5; i++) {
         pref_t r = smc_home_target(i);
-        assert(r.a == T_MIX && r.b == expected[i] && r.c == MX_LEVEL);
+        assert(r.a == T_MIX && r.b == i && r.c == MX_LEVEL);
     }
     assert(smc_home_target(5).c == FX_RV_LEVEL);
     assert(smc_home_target(6).c == FX_DL_LEVEL);

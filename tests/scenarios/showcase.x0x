@@ -31,17 +31,17 @@ tapkey b5
 tapkey w6
 tapkey w13
 # ---- 303 A: a TB-3PO line; filter, envelope, drive, delay send
-turn ALGO 3
+turn ALGO 1
 tap ARP
 tap OCT+
 # ---- 303 B: a second, sparser line
-turn ALGO -1
+turn ALGO 1
 tap ARP
 turn K1 -20
 tap OCT+
 tap EDIT
 # ---- BREAK: on every step, a little more complexity and roll, some reverb
-turn ALGO -1
+turn ALGO 1
 tapkey w0
 tapkey w1
 tapkey w2
@@ -89,22 +89,22 @@ turn K2 -55
 shot s03_filter_sweep.png
 turn K2 55
 tap HOME
-tapkey b4
 tapkey b2
+tapkey b4
 tapkey b0
 wait 3700
 shot s04_breakdown.png
 tapkey b0
-tapkey b4
 tapkey b2
+tapkey b4
 wait 2000
-turn ALGO -2
+turn ALGO -4
 wait 800
 shot s05_909.png
-turn ALGO 4
+turn ALGO 2
 wait 800
 shot s06_303a.png
-turn ALGO -2
+turn ALGO 2
 wait 800
 shot s07_break.png
 tap FX

@@ -13,7 +13,6 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { logicalImage, productOf } from "./fm1pkg.js";
 import { Updater, pack7, unpack7 } from "./fm1ota.js";
-import { parseInfo, installKeepingSlots } from "./x0x_breaks.js";
 
 let failed = 0;
 const ok = (cond, what) => { console.log(`${what.padEnd(64)} ${cond ? "ok" : "FAIL"}`); if (!cond) failed++; };
@@ -62,8 +61,7 @@ class FakeFM1 {
   rx(d) {
     if (eq(d, HS)) {
       const t = [...new TextEncoder().encode(this.identity)];
-      const payload = [...t, ...new Array(27 - t.length).fill(0)];
-      const body = [0, 0x59, 0x11, 27, 0, 0, ...payload, ~payload.reduce((sum, b) => sum + b, 0) & 255];
+      const body = [0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)];
       this.tx([0xF0, ...pack7(body), 0xF7]);
     } else if (eq(d, UPGRADE)) {
       this.queue = this.identity.startsWith("ota-")
@@ -131,51 +129,7 @@ async function updater() {
   ok(r3 === true && elite.served > 0, "fm1ota.js: resume: the SMK models are one keyboard, as for install()");
 }
 
-
-/* Corrupt SMP_INFO must not disguise occupied samples as empty before OTA. */
-async function sampleInfoEmptyGuard() {
-  const empty = [1,80,0,0,0], occupied = [1,80,1,76,79,79,80,0,1];
-  const named = [1,80,0,76,79,79,80,0,1], used = [1,80,0,0,1];
-  const truncated = [1,80,0,0], extended = [1,80,0,0,0,88,1,66,1,20,0,0,0];
-  const refuses = (info) => { try { parseInfo(Uint8Array.from(info)); return false; } catch { return true; } };
-  ok(parseInfo(Uint8Array.from(empty)).slots[0].nz === 0, "SMP_INFO genuine empty");
-  ok(parseInfo(Uint8Array.from(occupied)).slots[0].nz === 1, "SMP_INFO genuine occupied");
-  ok(parseInfo(Uint8Array.from(extended)).ext, "SMP_INFO extended genuine empty");
-  ok(refuses(named), "SMP_INFO false empty with occupied name");
-  ok(refuses(used), "SMP_INFO false empty with nonzero used size");
-  ok(refuses(truncated), "SMP_INFO truncated empty descriptor");
-  ok(refuses([2,80,0,0,0,0,76,79,79,80,0,1]), "SMP_INFO second slot false empty");
-  const run = async (info) => {
-    let writes = 0, reads = 0, closed = 0;
-    const link = {
-      drain() {}, send(frame) { return frame[4] === 15; },
-      async read() { reads++; return Uint8Array.from([240,125,70,76,15,...info,247]); },
-      close() { closed++; },
-    };
-    const id = { model: "SMK-37 Pro_900", text: "SMK-37 Pro_900" };
-    const up = {
-      async find(pred) { return pred(id) ? { id, link } : null; },
-      async install() { writes++; return id.model; },
-    };
-    let error = null;
-    try {
-      await installKeepingSlots(up, new Uint8Array([0]), id.model, "smk", {
-        sameKeyboard: () => true, confirmModel: () => true, beforeFirmwareWrite: () => true,
-      });
-    } catch (e) { error = e; }
-    return { writes, reads, closed, error };
-  };
-  const good = await run(empty);
-  ok(good.writes === 1 && good.closed === 1 && !good.error, "preflash genuine empty remains usable");
-  for (const [name, info] of [["name",named],["used",used],["truncated",truncated]]) {
-    const x = await run(info);
-    ok(x.writes === 0 && x.reads === 1 && x.closed === 1 && x.error?.code === "slotlayout",
-      `preflash corrupt ${name} refuses OTA and closes MIDI`);
-  }
-}
-
 await packages();
 await updater();
-await sampleInfoEmptyGuard();
 console.log(failed ? `WEB TESTS FAILED (${failed})` : "web tests passed");
 process.exit(failed ? 1 : 0);

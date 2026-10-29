@@ -23,13 +23,14 @@ static void wobble_foundation_render(void *p, float *out, int n)
 }
 static void wobble_foundation_note(void *p, int note, int accent, int slide, int velocity)
 {
-    /* Held slides continue the amp envelope; W_GLIDE controls pitch slew. */
-    (void)accent;
+    /* Accent/slide do not import303 circuit semantics. Explicit velocity and
+     * existing glide control determine this original instrument's response. */
+    (void)accent; (void)slide;
     if (note < 0) note = 0;
     if (note > 127) note = 127;
     if (velocity < 0) velocity = 0;
     if (velocity > 127) velocity = 127;
-    wobble_note_on_slide(p, (uint8_t)note, (uint8_t)velocity, slide);
+    wobble_note_on(p, (uint8_t)note, (uint8_t)velocity);
 }
 static void wobble_foundation_off(void *p) { wobble_all_notes_off(p); }
 static void wobble_foundation_panic(void *p) { wobble_reset(p); }
@@ -38,13 +39,7 @@ static void wobble_foundation_set(void *p, int parameter, int value)
     if (parameter < 0 || parameter >= (int)W_PARAMETER_COUNT) return;
     if (value < 0) value = 0;
     if (value > 127) value = 127;
-    /* The Miami page stores switches as 0/1, while the DSP threshold is 0.5.
-     * Sending 1/127 left Wave, XMod Wave, Wobble Shape and Damper permanently OFF. */
-    float norm = (float)value / 127.0f;
-    if (parameter == W_CARRIER_WAVE || parameter == W_XMOD_WAVE ||
-        parameter == W_WOBBLE_SHAPE || parameter == W_DAMPER)
-        norm = value ? 1.0f : 0.0f;
-    wobble_set(p, (unsigned)parameter, norm);
+    wobble_set(p, (unsigned)parameter, (float)value/127.0f);
 }
 static void wobble_foundation_transport(void *p, int running) { (void)p; (void)running; }
 static int wobble_foundation_active(const void *p) { return ((const wobble_t *)p)->gate; }
@@ -74,10 +69,7 @@ static inline int wobble_bank_load(wobble_t *s, uint32_t id, unsigned schema,
 {
     if (!s || !bank || id != WOBBLE_EXPERIMENT_ENGINE || schema != 1 || n != 16) return 0;
     for (unsigned i=0; i<16; ++i) if (bank[i]>127) return 0;
-    /* Version-1 banks retain their original 7-bit values. Live Miami switches
-     * use 0/1 UI controls, but normalizing a legacy nonzero byte to 127 here
-     * would change the bank on save and silently change its old DSP meaning. */
-    for (unsigned i=0; i<16; ++i) wobble_set(s,i,(float)bank[i]/127.0f);
+    for (unsigned i=0; i<16; ++i) wobble_foundation_set(s,(int)i,bank[i]);
     return 1;
 }
 static inline void wobble_bank_save(const wobble_t *s, uint8_t bank[16])

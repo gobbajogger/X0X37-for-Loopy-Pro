@@ -1,4 +1,0 @@
-  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
-  ok   rec-live
-  ok   rec-live-smk
-all tests passed
