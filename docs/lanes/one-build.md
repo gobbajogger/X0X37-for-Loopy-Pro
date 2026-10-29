@@ -38,6 +38,25 @@ Historical rate-pad source test executed here (on 6ae0928 only):
 `sh tests/host/miami_freeplay_pads_test.sh` => PASS, 147 cases / 1710 assertions.
 This is historical-source proof, not a PASS for this integration tree.
 
+Latest rate-port verification added to this branch:
+- `tests/host/test_original_build_composition.py` checks rate-pad input ownership,
+  all eight macro13 LED-index round trips and UI/SMC guards.
+- `tests/host/test_freeplay_rate_pad_port.py` extracts the current pad HAL
+  and Free Play UI handlers, compiles the production functions into a small
+  host test and exercises eight choices, press/release transitions and guards.
+  A local staged-source excerpt run passed; the entire one-build checkout
+  has not been tested here.
+- `tests/run_tests.sh freeplay-rate-pads` admits the regression into the
+  standard host suite. `host/build_host.sh` now accepts
+  `X0X_DEV_WOBBLE=1` in original-engine mode without linking legacy WBL1.
+  Its full host compile must be checked on the Mac.
+- Full source comparisons of `smc_mixer.c`, `ble.c` and
+  `ble_midi_central.c` match `wip/smc-port@7840c039`. Older shared
+  engine/UI and aesthetic differences have not been overwritten.
+
+The `wip/one-build` rate-pad source dependency is pushed for the separate
+shape-pads feature thread. Shape pads are intentionally not added here.
+
 Missing source/proof, NOT_RUN:
 - Exact DSP commits 40935bd1, f95e230e, f9ffd12e are not found by the
   authenticated GitHub commit API in this repository.
@@ -61,6 +80,9 @@ Mac check sequence (read BUILDING.md for required installed private inputs):
 git fetch origin wip/one-build
 git switch --detach origin/wip/one-build
 python3 tests/host/test_original_build_composition.py
+python3 tests/host/test_freeplay_rate_pad_port.py
+sh tests/run_tests.sh freeplay-rate-pads
+X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 sh host/build_host.sh
 python3 tests/host/ui_page_wrap_test.py
 sh tests/host/ui_shared_glyph_test.sh
 sh tests/host/original_release_ui_test.sh
