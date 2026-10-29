@@ -3,6 +3,9 @@
  * Included by the unity build after gfx.c, so drawing helpers are in scope. */
 #pragma once
 #include <stdint.h>
+#ifndef X0X_ORIGINAL_SYNTH
+#define X0X_ORIGINAL_SYNTH 0
+#endif
 #include "plat.h"
 #include "engine.h"
 #include "../seq/pattern.h"
@@ -11,7 +14,7 @@
 #include "../seq/motion.h"
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
-#include "factory_banks.h"           /* Chicago / Miami faithful-303 factory + user banks */
+#include "factory_banks.h"           /* Chicago / Miami factory metadata */
 
 #ifndef X0X_VERSION                     /* a release build passes its numeric X.Y.Z (tools/build.py --release) */
 #define X0X_VERSION "DEV"
@@ -25,12 +28,17 @@
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u
-#if X0X_BASS_TAGGED_SOUND
+#if X0X_ORIGINAL_SYNTH
+#define PROJ_SND_REV 13u
+#elif X0X_BASS_TAGGED_SOUND
 #define PROJ_SND_REV 11u
 #else
 #define PROJ_SND_REV 10u
 #endif
-/* Sound revision 11 appends two explicit engine/product-schema identities. */
+/* Revision13 stores schema2 cells with55 Chicago programs and seven FX choices.
+ * Revision12 stored diagnostic81-program OS cells with OCH1/OMI1 tags.
+ * The original profile accepts no earlier engine or project revision.
+/* Revision11 appended two explicit engine/product-schema identities. */
 /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
                                           * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
