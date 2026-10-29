@@ -180,7 +180,8 @@ KEEP = {"M": " #%+-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 # X0X: the lower-case letters that the firmware's own texts use (units: Hz dB k ms bpm bar st x).
 # In XS, S and B every other lower-case letter (and `{|}~) draws with the upper-case bitmap and width,
 # as gfx.c glyph() does for a face without lower case. Identical bitmaps are stored once.
-LOWER_KEEP = set("abdkmprstxz")
+# Keep raw names and DnBOX case-exact; intentional menu casing comes from source strings.
+LOWER_KEEP = set("abcdefghijklmnopqrstuvwxyz")
 LOWER_FOLD = {"XS", "S", "B"}
 
 

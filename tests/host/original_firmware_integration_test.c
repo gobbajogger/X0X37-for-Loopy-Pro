@@ -110,7 +110,7 @@ static void compact_audio(void)
 
 static void compact_ui(const char *directory)
 {
-    static const char *const names[7]={"Bypass","Chorus","Phaser","Ring","Comp","Decim","EQ"};
+    static const char *const names[7]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ"};
     pref_t effect=PR(R_ENG,T_303,1,17), preset=PR(R_BPRESET,0,1,0);
     select_chicago(1,0);
     ui.view=V_PART; ui.part=PART_303B; ui.overlay=0; ui.help=0;
@@ -119,7 +119,7 @@ static void compact_ui(const char *directory)
     int page=-1;
     for(int p=0;p<pg.n;++p)
         if(pg.r[p][0].kind==R_ENG && pg.r[p][0].c==17) page=p;
-    CHECK(page==5 && pref_desc(effect)->max==6 && pref_desc(preset)->max==54);
+    CHECK(page==6 && pref_desc(effect)->max==6 && pref_desc(preset)->max==54);
     for(unsigned i=0;i<7;++i) {
         pref_set(effect,(int)i); block(256);
         char num[32],unit[16]; pref_value_of(effect,pref_get(effect),num,unit);

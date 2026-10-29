@@ -3,7 +3,7 @@
 #include <string.h>
 
 static const char *const original_sound_fx_names[ORIGINAL_CHICAGO_FX_CHOICES] = {
-    "Bypass", "Chorus", "Phaser", "Ring", "Comp", "Decim", "EQ"
+    "OFF", "CHO/FLG", "PHASER", "RING MOD", "COMPRESSOR", "DECIMATOR", "EQ"
 };
 static const x0x_param_t original_sound_chicago_params[22] = {
     {"Wave",127,0,0},{"Glide",127,0,0},{"Cutoff",127,0,0},{"Peak",127,0,0},
@@ -30,6 +30,22 @@ static const x0x_param_t original_sound_miami_params[18] = {
     {"PBend",127,0,0},{"Damper",127,0,0}
 };
 
+/* Only these original bipolar panel controls need an exact editable midpoint.
+ * The persisted byte still spans0..127; untouched factory floats bypass this
+ * editor conversion. Keep the two rounded upper-half operations explicit. */
+static int original_sound_centered(unsigned kind, unsigned parameter)
+{
+    return (kind == ORIGINAL_SOUND_CHICAGO && parameter == 4u) ||
+           (kind == ORIGINAL_SOUND_MIAMI && parameter == 7u);
+}
+static uint8_t original_sound_display_byte(unsigned kind, unsigned parameter, float value)
+{
+    float position = original_sound_centered(kind, parameter) ?
+        (value < 0.5f ? 128.0f * value : 64.0f + 126.0f * (value - 0.5f)) :
+        127.0f * value;
+    return (uint8_t)(position + 0.5f);
+}
+
 unsigned original_sound_count(unsigned kind)
 { return kind == ORIGINAL_SOUND_CHICAGO ? 22u : kind == ORIGINAL_SOUND_MIAMI ? 18u : 0u; }
 unsigned original_sound_factories(unsigned kind)
@@ -45,8 +61,12 @@ int original_sound_control_value(unsigned kind, unsigned parameter, unsigned con
 {
     const x0x_param_t *p = original_sound_param(kind, parameter);
     if (!value || !p || control > p->max) return 0;
-    *value = kind == ORIGINAL_SOUND_CHICAGO && parameter == ORIGINAL_CHICAGO_FX_TYPE ?
-        (float)original_sound_fx_macros[control] / 11.0f : (float)control / 127.0f;
+    if (kind == ORIGINAL_SOUND_CHICAGO && parameter == ORIGINAL_CHICAGO_FX_TYPE)
+        *value = (float)original_sound_fx_macros[control] / 11.0f;
+    else if (original_sound_centered(kind, parameter))
+        *value = control < 64u ? (float)control / 128.0f :
+            0.5f + (float)(control - 64u) / 126.0f;
+    else *value = (float)control / 127.0f;
     return 1;
 }
 uint32_t original_sound_engine_id(unsigned kind)
@@ -90,7 +110,7 @@ int original_sound_init(uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned kind, unsig
         original_chicago_program p;
         original_chicago_routing routing;
         if (!original_chicago_program_init(&p, (unsigned)source) || !original_chicago_program_routing(&p, &routing)) return 0;
-        for (unsigned i = 0; i < 22; ++i) next[i] = (uint8_t)(p.macro[i] * 127.0f + 0.5f);
+        for (unsigned i = 0; i < 22; ++i) next[i] = original_sound_display_byte(kind, i, p.macro[i]);
         unsigned choice = 0;
         while (choice < ORIGINAL_CHICAGO_FX_CHOICES && original_sound_fx_types[choice] != routing.fx[1][0]) ++choice;
         if (choice == ORIGINAL_CHICAGO_FX_CHOICES) return 0;
@@ -98,7 +118,7 @@ int original_sound_init(uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned kind, unsig
     } else {
         original_miami_program p;
         if (!original_miami_program_init(&p, (unsigned)source)) return 0;
-        for (unsigned i = 0; i < 18; ++i) next[i] = (uint8_t)(p.macro[i] * 127.0f + 0.5f);
+        for (unsigned i = 0; i < 18; ++i) next[i] = original_sound_display_byte(kind, i, p.macro[i]);
     }
     next[26] = 'O'; next[27] = 'S'; next[28] = ORIGINAL_SOUND_SCHEMA;
     next[29] = (uint8_t)kind; next[30] = (uint8_t)factory;
@@ -108,6 +128,7 @@ int original_sound_init(uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned kind, unsig
 int original_sound_set(uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned parameter, unsigned value)
 {
     if (!original_sound_valid(cell) || parameter >= original_sound_count(cell[29]) ||
+        original_sound_is_performance(cell[29], parameter) ||
         value > original_sound_param(cell[29], parameter)->max) return 0;
     uint32_t mask = original_sound_edit_mask(cell) | (UINT32_C(1) << parameter);
     cell[parameter] = (uint8_t)value;
@@ -120,8 +141,11 @@ int original_sound_restore_miami(original_miami_program *out, const uint8_t cell
     original_miami_program next;
     if (!original_miami_program_init(&next, (unsigned)original_sound_factory_source(cell[29], cell[30]))) return 0;
     uint32_t mask = original_sound_edit_mask(cell);
-    for (unsigned i = 0; i < 18; ++i)
-        if (mask & (UINT32_C(1) << i)) (void)original_miami_program_set(&next, i, (float)cell[i] / 127.0f);
+    for (unsigned i = 0; i < ORIGINAL_MIAMI_PITCH_BEND; ++i) if (mask & (UINT32_C(1) << i)) {
+        float value;
+        if (!original_sound_control_value(cell[29], i, cell[i], &value) ||
+            !original_miami_program_set(&next, i, value)) return 0;
+    }
     *out = next;
     return 1;
 }
@@ -131,7 +155,7 @@ int original_sound_restore_chicago(original_chicago_program *out, const uint8_t 
     original_chicago_program next;
     if (!original_chicago_program_init(&next, (unsigned)original_sound_factory_source(cell[29], cell[30]))) return 0;
     uint32_t mask = original_sound_edit_mask(cell);
-    for (unsigned i = 0; i < 22; ++i) if (mask & (UINT32_C(1) << i)) {
+    for (unsigned i = 0; i < ORIGINAL_CHICAGO_PITCH_BEND; ++i) if (mask & (UINT32_C(1) << i)) {
         float value;
         if (!original_sound_control_value(cell[29], i, cell[i], &value) ||
             !original_chicago_program_set(&next, i, value)) return 0;
@@ -142,6 +166,10 @@ int original_sound_restore_chicago(original_chicago_program *out, const uint8_t 
 int original_sound_value(const uint8_t cell[ORIGINAL_SOUND_BYTES], unsigned parameter, float *value)
 {
     if (!value || !original_sound_valid(cell) || parameter >= original_sound_count(cell[29])) return 0;
+    if (original_sound_is_performance(cell[29], parameter)) {
+        *value = parameter == original_sound_count(cell[29]) - 2u ? 0.5f : 0.0f;
+        return 1;
+    }
     float result;
     if (original_sound_edit_mask(cell) & (UINT32_C(1) << parameter)) {
         if (!original_sound_control_value(cell[29], parameter, cell[parameter], &result)) return 0;

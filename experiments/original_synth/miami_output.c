@@ -32,8 +32,14 @@ int original_miami_output_process(original_miami_output *s,const original_miami_
  float volume;if(!original_miami_program_native(p,96,&volume)||!original_binary32_isfinite(volume)||volume<0||volume>1)return 0;
  if(!original_binary32_isfinite(s->master.current)||s->master.current<0||s->master.current>4)return 0;
  for(uint32_t i=0;i<n;i++) {
-  uint32_t scaled;(void)miami_fx_scaled_rne(miami_fx_cleanup_rne(il[i]),fz,&scaled);w->dryL[i]=miami_fx_fcvtzs(scaled);
-  (void)miami_fx_scaled_rne(miami_fx_cleanup_rne(ir[i]),fz,&scaled);w->dryR[i]=miami_fx_fcvtzs(scaled);
+  /* Both binary32 zeros become int32 zero in either admitted FZ mode.
+   * Keep channel access order and the complete nonzero conversion; both FX
+   * wrappers, held decimator samples and master ramps still run below. */
+  uint32_t scaled;
+  if((il[i]&0x7fffffffu)==0)w->dryL[i]=0;
+  else {(void)miami_fx_scaled_rne(miami_fx_cleanup_rne(il[i]),fz,&scaled);w->dryL[i]=miami_fx_fcvtzs(scaled);}
+  if((ir[i]&0x7fffffffu)==0)w->dryR[i]=0;
+  else {(void)miami_fx_scaled_rne(miami_fx_cleanup_rne(ir[i]),fz,&scaled);w->dryR[i]=miami_fx_fcvtzs(scaled);}
  }
  effect_context effect={&s->fx.decimator,events,ne};
  (void)original_fixed_fx_process(&s->fx.fx1,w->dryL,w->dryR,w->scratchL,w->scratchR,w->dryL,w->dryR,n,decimate,&effect);

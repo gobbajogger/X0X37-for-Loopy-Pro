@@ -123,6 +123,7 @@ void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo 
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */
 void engine_fx_mute(uint8_t mask);                          /* runtime output gates, never edits intended pots or motion */
 uint8_t engine_fx_muted(void);
+uint8_t engine_tape_active(void); /* actual tape input/wet activity, <=80ms UI release; not transport */
 void engine_smc_busfx(uint8_t down, const uint8_t effect[8]); /* SMC momentary buses; effect may be null */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
@@ -199,6 +200,7 @@ void engine_motion_rec(int lane);                           /* record a pass fro
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
 void engine_motion_clear(int lane);                         /* free a motion lane (undo / bulk edit) */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */
+int engine_master_get(int i);                             /* read-only applied master pot */
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);

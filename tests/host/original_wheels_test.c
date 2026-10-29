@@ -13,8 +13,7 @@ static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
 static struct { sound_t sound; } proj;
 static sound_t saved_sound;
 static struct { int part; } ui;
-static uint32_t smk_diag_epoch, smk_boot_epoch;
-static int busy, diagnostic, kind[2];
+static int busy, kind[2];
 static unsigned hold_depth, hold_enter, hold_leave, owner_updates;
 static unsigned transaction_owner_updates, scan_should_publish;
 static uint8_t owners;
@@ -24,7 +23,6 @@ static command_t commands[64];
 static unsigned command_count, scans;
 
 static int ui_project_busy(void) { return busy; }
-static int ui_pad_diag_active(void) { return diagnostic; }
 static int is_303(void) { return ui.part == PART_303A || ui.part == PART_303B; }
 static int bidx(void) { assert(is_303()); return ui.part - PART_303A; }
 static int clamp(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -81,7 +79,7 @@ void engine_set_base(int target, int voice, int parameter)
 
 #include "smk_wheels.inc"
 
-enum { SCAN_NORMAL, SCAN_SUPPRESSED, SCAN_EARLY };
+enum { SCAN_NORMAL, SCAN_EARLY };
 static void scan(int pitch, int mod, uint8_t expected_owners, int mode)
 {
     unsigned enters = hold_enter, leaves = hold_leave, updates = owner_updates;
@@ -143,23 +141,13 @@ int main(int argc, char **argv)
     base[first][pitch_param] = live[first][pitch_param] = 0.5f;
     ui.part = PART_303A + first;
 
-    /* Readiness and diagnostic exits balance the publication hold. */
+    /* The current scanner's readiness exits do not enter the hold. */
     fm1_in.frames = 299;
     scan(550, 615, 0, SCAN_EARLY);
     fm1_in.frames = 400;
     busy = 1;
     scan(550, 615, 0, SCAN_EARLY);
     busy = 0;
-    scan(550, 615, 0, SCAN_NORMAL);
-    diagnostic = 1;
-    scan(630, 485, 0, SCAN_SUPPRESSED);
-    diagnostic = 0;
-    scan(550, 615, 0, SCAN_SUPPRESSED);
-    scan(550, 615, 0, SCAN_NORMAL);
-    smk_diag_epoch++;
-    scan(550, 615, 0, SCAN_SUPPRESSED);
-    smk_boot_epoch++;
-    scan(550, 615, 0, SCAN_SUPPRESSED);
     scan(550, 615, 0, SCAN_NORMAL);
     assert(command_count == 0);
 

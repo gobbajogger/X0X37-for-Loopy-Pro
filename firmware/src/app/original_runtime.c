@@ -24,7 +24,10 @@ int original_runtime_init(original_runtime_part *p, const uint8_t cell[32], floa
     p->status = (int8_t)rc;
     if (rc != ORIGINAL_RUNTIME_OK) return rc;
     uint32_t edits = original_sound_edit_mask(cell);
-    for (unsigned i = 0; i < original_sound_count(kind); ++i) if (edits & (UINT32_C(1) << i)) {
+    /* All admitted factories have neutral bend/damper. Archived performance
+     * edit bits never become inputs to a newly adopted runtime instance. */
+    for (unsigned i = 0; i < original_sound_count(kind); ++i)
+        if ((edits & (UINT32_C(1) << i)) && !original_sound_is_performance(kind, i)) {
         float value;
         if (!original_sound_value(cell, i, &value) ||
             original_runtime_param(p, i, value) != ORIGINAL_RUNTIME_OK)

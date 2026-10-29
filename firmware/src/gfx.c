@@ -28,8 +28,9 @@ static int32_t cv_oy;            /* y offset for graph drawing */
 static int32_t cv_y0, cv_y1;     /* X0X: the rows drawing may touch (cv_band) */
 
 #define RGB(r, g, b) ((uint16_t)((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3)))
-#define C_BLACK 0x0000u
-#define C_WHITE 0xFFFFu              /* accent only: what is being touched / where we are */
+#include "ui_theme.h"
+#define C_BLACK UI_N_BASE
+#define C_WHITE UI_N_WHITE           /* what is being touched / where we are */
 /* The screen's five steps, darkest to brightest, plus white; picked as THEME in GLOBAL. */
 typedef struct {
     const char *name;
@@ -38,7 +39,7 @@ typedef struct {
 /* X0X: the first three steps are neutral greys in every theme (structure: rules, empty cells,
  * labels); only the two brightest carry the theme's hue (values, highlights). Colour on the
  * screen then means something: a part, a value, an alarm. */
-#define NEUTRALS RGB(34, 34, 40), RGB(74, 74, 82), RGB(150, 150, 158)
+#define NEUTRALS UI_N_LINE, UI_N_DIM, UI_N_GRAY
 static const palette_t PALETTES[] = {
     {"GREEN", {NEUTRALS, RGB(80, 220, 120), RGB(150, 255, 175)}},
     {"AMBER", {NEUTRALS, RGB(232, 136, 30), RGB(255, 184, 70)}},
@@ -154,7 +155,7 @@ static uint32_t glyph(const felucca_font_t *f, uint32_t ch)
 
 /* text in colour c, each pixel's coverage blended over what is already on the canvas (an
  * anti-aliased face on a coloured box gets no dark fringe); returns the end x */
-static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+static int32_t cv_text_clip(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c, int32_t clip_left, int32_t clip_right)
 {
     uint32_t r = c >> 11, g = (c >> 5) & 63u, b = c & 31u;
     for (; *s; s++) {
@@ -194,7 +195,7 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
 #endif
                 int32_t px = x - f->pad + (int32_t)gx, py = y + (int32_t)gy + cv_oy;
                 a = (gx & 1u) ? (a & 15u) : (a >> 4);
-                if (!a || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
+                if (!a || px < clip_left || px >= clip_right || (uint32_t)px >= cv_w || py < cv_y0 || py >= cv_y1)
                     continue;
                 if (a == 15u) {
                     cv_px[(uint32_t)py * cv_w + (uint32_t)px] = swap16(c);
@@ -210,6 +211,9 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
     }
     return x;
 }
+
+static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+{ return cv_text_clip(x,y,f,s,c,0,(int32_t)cv_w); }
 
 static int32_t text_w(const felucca_font_t *f, const char *s)
 {

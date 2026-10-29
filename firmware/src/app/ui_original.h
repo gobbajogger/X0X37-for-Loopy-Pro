@@ -6,52 +6,70 @@
 #endif /* Native unity build supplies the freestanding memory routines. */
 
 /* Presentation only. These are original macro IDs, never legacy DSP IDs. */
-static const int8_t ui_original_chicago_rows[6][4] = {
-    {2,3,4,0}, {5,6,1,11}, {7,8,9,10}, {12,20,-1,-1},
-    {13,14,15,16}, {17,18,19,21}
+enum { UI_ORIGINAL_CHICAGO_PAGES=7, UI_ORIGINAL_MIAMI_PAGES=5 };
+static const int8_t ui_original_chicago_rows[UI_ORIGINAL_CHICAGO_PAGES][4] = {
+    {0,1,-1,-1}, {2,3,4,-1}, {5,6,-1,-1}, {7,8,9,10},
+    {11,12,-1,-1}, {13,15,14,16}, {17,18,19,-1}
 };
-static const int8_t ui_original_miami_rows[5][4] = {
-    {0,1,2,3}, {6,5,7,8}, {11,12,13,9}, {4,16,10,-1}, {14,15,-1,17}
+static const int8_t ui_original_miami_rows[UI_ORIGINAL_MIAMI_PAGES][4] = {
+    {0,1,2,3}, {6,5,7,8}, {9,10,12,-1}, {11,13,-1,-1}, {4,15,14,-1}
 };
 static const char *const ui_original_chicago_titles[] = {
-    "TONE / OSC", "CHARACTER", "ENVELOPE", "OUTPUT", "LIVE ARP", "FX / DAMPER"
+    "OSCILLATOR", "FILTER 1", "FILTER 2", "ENVELOPE", "AMPLIFIER", "ARPEGGIATOR", "EFFECT"
 };
 static const char *const ui_original_miami_titles[] = {
-    "CARRIER", "X-MOD", "WOB/FILTER", "PITCH / FX", "OUTPUT"
+    "CARRIER", "XMOD", "FILTER", "WOBBLE", "OUTPUT"
 };
-static const char *ui_original_name(unsigned kind,unsigned id,unsigned fx)
+/* Original panel lettering, not AU automation names or internal DSP fields.
+ * Bend and damper retain their engine IDs for performance input only. */
+static const char *ui_original_name(unsigned kind,unsigned id)
 {
     static const char *const chicago[] = {
-        "WAVE","GLIDE","CUTOFF","PEAK","ENV AMT","BITE","GNAW",
-        "ATTACK","DECAY","SUSTAIN","RELEASE","AMP MODE","LEVEL",
-        "ENABLE","DIRECTION","OCTAVES","RATE","TYPE","EDIT 1","EDIT 2","P.BEND","DAMPER"
+        "WAVE","GLIDE","CUTOFF","PEAK","ENV","BITE","GNAW",
+        "ATTACK","DECAY","SUSTAIN","RELEASE","ENV/GATE","LEVEL",
+        "ON","MODE","RANGE","SPEED","TYPE","EDIT 1","EDIT 2","P.BEND","DAMPER"
     };
     static const char *const miami[] = {
         "WAVE","LEVEL","SUB","PITCH","GLIDE","LEVEL","WAVE","TUNE",
-        "DEPTH","CUTOFF","CRUSH","SHAPE","DEPTH","RATE","OUTPUT","STEREO","P.BEND","DAMPER"
+        "DEPTH","CUTOFF","CRUSH","SHAPE","WOBBLE","RATE","OUTPUT","STEREO","P.BEND","DAMPER"
     };
-    /* Actual compact kernel setters. Chorus Edit2 couples feedback and wet;
-     * Comp Attack and Decim Mix are active original controls. */
-    static const char *const fx_names[7][2] = {
-        {"EDIT 1","EDIT 2"},{"RATE","FB/WET"},{"RATE","MOD DEPTH"},
-        {"FREQ","MIX"},{"SENS","ATTACK"},{"RATE","MIX"},{"FREQ","GAIN"}
-    };
-    if(kind==ORIGINAL_SOUND_CHICAGO && id<22)
-        return (id==18 || id==19) && fx<7 ? fx_names[fx][id-18] : chicago[id];
+    if(kind==ORIGINAL_SOUND_CHICAGO && id<22)return chicago[id];
     return kind==ORIGINAL_SOUND_MIAMI && id<18 ? miami[id] : "";
+}
+
+/* These controls are switches on the original panel. Keep the q127 patch and
+ * motion representation, but move one switch position for each encoder turn.
+ * FX type already has a seven-position descriptor and is not q127. */
+static unsigned ui_original_states(unsigned kind,unsigned id)
+{
+    if(kind==ORIGINAL_SOUND_CHICAGO){
+        if(id==11 || id==13)return 2;
+        if(id==14 || id==15)return 3;
+        if(id==16)return 10;
+    }else if(kind==ORIGINAL_SOUND_MIAMI){
+        if(id==0)return 3;
+        if(id==3)return 25;
+        if(id==6 || id==11)return 4;
+        if(id==13)return 8;
+    }
+    return 0;
 }
 
 enum { UI_ORIGINAL_WAVE_W=29, UI_ORIGINAL_WAVE_H=19 };
 /* Macro dependencies of every native field read by the display projection.
- * Chicago: gains3/11, cutoff24, peak25, gate107, arp62/61/60, damper108.
- * Miami: shapes1/5/43, cutoff24, peak25 (Crush), damper108.
+ * Chicago: gains3/11, cutoff24, peak25, env26, gate107, arp62/61/60,
+ * macro16 speed, damper108. Miami: shapes1/5/43, pitch2, tune80, macro13
+ * rate, cutoff24, peak25 (Crush), damper108.
  * Shape9 and pulse width22 are immutable base fields for Chicago; width22 is
  * also fixed for Miami. Other controls use matrix_value() directly. */
-#define UI_ORIGINAL_CHICAGO_PREVIEW ((1u<<0)|(1u<<2)|(1u<<3)|(1u<<11)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<21))
-#define UI_ORIGINAL_MIAMI_PREVIEW ((1u<<0)|(1u<<6)|(1u<<9)|(1u<<10)|(1u<<11)|(1u<<17))
+#define UI_ORIGINAL_CHICAGO_PREVIEW ((1u<<0)|(1u<<2)|(1u<<3)|(1u<<4)|(1u<<11)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<16)|(1u<<21))
+#define UI_ORIGINAL_MIAMI_PREVIEW ((1u<<0)|(1u<<3)|(1u<<6)|(1u<<7)|(1u<<9)|(1u<<10)|(1u<<11)|(1u<<13)|(1u<<17))
 typedef struct {
     uint8_t wave[3][UI_ORIGINAL_WAVE_W], zero[3], shape[3];
     uint8_t kind, arp_on, arp_mode, arp_range, amp_gate, damper, cutoff, peak;
+    uint8_t arp_speed, wobble_rate;
+    int8_t carrier_pitch, env_percent;
+    int16_t xmod_tune;
 } ui_original_view;
 typedef struct {
     uint8_t cell[ORIGINAL_SOUND_BYTES], preview[22], voice, valid;
@@ -136,9 +154,11 @@ static int ui_original_project(ui_original_view *out,const uint8_t cell[ORIGINAL
         out->arp_on=(uint8_t)ui_original_quant(CN(62),2);
         out->arp_mode=(uint8_t)ui_original_quant(CN(61),4);
         out->arp_range=(uint8_t)(1+ui_original_quant(CN(60),6));
+        out->arp_speed=(uint8_t)ui_original_quant(p->macro[16],10);
         out->amp_gate=(uint8_t)ui_original_quant(CN(107),2);
         out->damper=(uint8_t)(ui_original_quant(CN(108),128)>=64);
         out->cutoff=(uint8_t)ui_original_quant(CN(24),128);out->peak=(uint8_t)ui_original_quant(CN(25),128);
+        out->env_percent=(int8_t)((int)ui_original_quant(CN(26),201)-100);
         unsigned a=ui_original_quant(CN(1),5),b=ui_original_quant(CN(9),5);
         if(a>3 || b>3)return 0;
         out->shape[0]=(uint8_t)a;
@@ -160,10 +180,15 @@ static int ui_original_project(ui_original_view *out,const uint8_t cell[ORIGINAL
     }else{
         original_miami_program *p=&program.miami;
         if(!original_sound_restore_miami(p,cell))return 0;
-        for(unsigned i=0;i<n;i++)if(mask&(1u<<i))if(!original_miami_program_set(p,i,(float)preview[i]/127.0f))return 0;
+        for(unsigned i=0;i<n;i++)if(mask&(1u<<i)){
+            float x;if(!original_sound_control_value(kind,i,preview[i],&x) || !original_miami_program_set(p,i,x))return 0;
+        }
 #define MN(id) ui_original_miami_native(p,id)
         out->damper=(uint8_t)(ui_original_quant(MN(108),128)>=64);
         out->cutoff=(uint8_t)ui_original_quant(MN(24),128);out->peak=(uint8_t)ui_original_quant(MN(25),128);
+        out->carrier_pitch=(int8_t)((int)ui_original_quant(MN(2),49)-24);
+        out->xmod_tune=(int16_t)((int)ui_original_quant(MN(80),2001)-1000);
+        out->wobble_rate=(uint8_t)ui_original_quant(p->macro[13],8);
         const unsigned ids[3]={1,5,43};
         for(unsigned s=0;s<3;s++){
             unsigned shape=ui_original_quant(MN(ids[s]),5);if(shape>3)return 0;

@@ -156,6 +156,12 @@ typedef struct {
     float bpm;                        /* internal tempo (UI writes; read per step) */
     float ext_bpm;                    /* tempo measured from the external clock */
     seq_track_t t[NTRACKS];           /* TRK_DRUM, TRK_BASS0.., TRK_BRK */
+    /* Audio-side visual observer. UI reads only metro_view (one atomic byte):
+     * 0 = stopped/waiting, 1..32 = quarter-note phase. Never schedules events. */
+    uint32_t metro_phase, metro_period; /* elapsed/period in sample Q8 */
+    float metro_bpm;
+    uint8_t metro_tick;               /* accepted external clocks, independent of tempo ring */
+    volatile uint8_t metro_view;
     uint32_t clk_to_next;             /* internal: samples to the next MIDI clock, Q8 */
     uint32_t ext_since;               /* samples since the last external clock (tempo estimate) */
     uint32_t ext_period;              /* smoothed samples per external clock, Q8 */
