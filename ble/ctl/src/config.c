@@ -2,7 +2,7 @@
 // Copyright (C) 2026 M. Geisler (genkigenki/makkuro)
 /*
  * Controller configuration for a standalone LE-only controller image.
- * Supports a peripheral role or up to two direct SMC central links.
+ * Supports a peripheral role or one direct SMC central link.
  * Symbol names and meanings follow the JieLi AC79 SDK (Apache-2.0)
  * header btcontroller_modules.h. Values are chosen for this image.
  */
@@ -18,7 +18,7 @@
 #define LL_FEAT_ENCRYPTION ((uint64_t)1 << 0)
 #define BT_NORMAL     0x01
 
-/* Peripheral keyboard or direct SMC-Mixer central, selected by the app; up to two central links. */
+/* Peripheral keyboard or direct SMC-Mixer central, selected by the app; one central link in the A recovery candidate. */
 const int config_btctler_modules = BT_MODULE_LE;
 const int config_btctler_le_roles = LE_ADV | LE_SLAVE | LE_MASTER | LE_SCAN | LE_INIT;
 const uint64_t config_btctler_le_features = 0; /* SMC BLE-MIDI uses an unpaired link. */

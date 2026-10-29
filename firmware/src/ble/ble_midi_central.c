@@ -49,10 +49,17 @@ static void blec_command(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
     unsigned i;
     blec_wr16(b, op); b[2] = (uint8_t)n;
     for (i = 0; i < n; i++) b[3 + i] = p[i];
-    if (!c->send(H4_CMD, b, (uint16_t)(n + 3u), c->ctx)) {
-        c->cmd_op = (uint16_t)op;
-        c->waiting = 1;
+    /* A mailbox rejection or zero credit never accepts this HCI command.
+     * Keep the same step for the next poll within its existing deadline. */
+    if (!c->command_credit || c->quiet_pending ||
+        c->send(H4_CMD, b, (uint16_t)(n + 3u), c->ctx)) {
+        c->command_retry = 1;
+        return;
     }
+    c->cmd_op = (uint16_t)op;
+    c->waiting = 1;
+    c->command_credit = 0;
+    c->command_retry = 0;
 }
 /* Connection update must not occupy the discovery command slot or advance step. */
 static int blec_command_quiet(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
@@ -61,7 +68,13 @@ static int blec_command_quiet(blec_t *c, unsigned op, const uint8_t *p, unsigned
     unsigned i;
     blec_wr16(b, op); b[2] = (uint8_t)n;
     for (i = 0; i < n; i++) b[3 + i] = p[i];
-    return !c->send(H4_CMD, b, (uint16_t)(n + 3u), c->ctx);
+    /* A quiet update owns the single command slot until Status/Complete.
+     * An outstanding update must not steal a discovery/STOP command. */
+    if (!c->command_credit || c->quiet_pending || c->waiting ||
+        c->send(H4_CMD, b, (uint16_t)(n + 3u), c->ctx)) return 0;
+    c->quiet_pending = 1;
+    c->command_credit = 0;
+    return 1;
 }
 static int blec_acl_cid(blec_t *c, unsigned cid, const uint8_t *p, unsigned n)
 {
@@ -128,6 +141,7 @@ static void blec_fail(blec_t *c)
 static void blec_scan_again(blec_t *c, uint32_t now)
 {
     c->waiting = 0;
+    c->command_retry = 0;
     c->found = 0;
     c->state = BLEC_SCANNING;
     c->step = S_SCAN_ON;
@@ -245,6 +259,7 @@ void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const
     uint8_t *z = (uint8_t *)c;
     for (i = 0; i < sizeof *c; i++) z[i] = 0;
     c->send = send; c->midi = midi; c->ctx = ctx;
+    c->command_credit = 1; /* reset starts with one command allowance */
     for (i = 0; i < 6; i++) c->addr[i] = addr[i];
 }
 void blec_start(blec_t *c, uint32_t now)
@@ -256,6 +271,8 @@ void blec_start(blec_t *c, uint32_t now)
     c->now_ms = now;
     c->waiting = c->att_waiting = c->conn = c->credits = c->linked = 0;
     c->disconnect_flags = 0;
+    c->command_credit = 1;
+    c->command_retry = c->quiet_pending = 0;
     c->qr = c->qw = 0;
     c->state = BLEC_STARTING; c->step = S_RESET; c->query_start = 1;
     c->deadline = now + 3000u; blec_progress(c);
@@ -271,6 +288,7 @@ void blec_stop(blec_t *c)
     if (c->step == S_CANCEL && c->cmd_op == COP_CANCEL)
         c->disconnect_flags |= D_CONTROL;
     blec_rx_reset(c);
+    c->command_retry = 0; /* forget an unaccepted pre-stop command */
     c->state = BLEC_STOPPING;
     c->qr = c->qw;
     c->att_waiting = 0;
@@ -482,6 +500,23 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
     if (c->state == BLEC_OFF) return;
     if (n < 2u || p[1] > n - 2u) return;
     code = p[0]; pl = p[1]; p += 2;
+    /* Opcode-zero Command Complete has three parameters and no Status.
+     * Malformed HCI responses must not grant credits or clear ownership. */
+    if (code == 0x0e) {
+        if (pl < 3u) return;
+        op = blec_rd16(p + 1);
+        if (op && pl < 4u) return;
+        c->command_credit = (uint8_t)(p[0] != 0u);
+        if (!op) return;
+    } else if (code == 0x0f) {
+        if (pl < 4u) return;
+        op = blec_rd16(p + 2);
+        c->command_credit = (uint8_t)(p[1] != 0u);
+    }
+    if ((code == 0x0e || code == 0x0f) && op == COP_UPDATE) {
+        c->quiet_pending = 0;
+        return; /* an update never advances discovery */
+    }
     if ((c->state == BLEC_DISCONNECTING || c->state == BLEC_STOPPING) &&
         c->waiting && c->cmd_op == COP_DISCONNECT &&
         ((code == 0x0e && pl >= 4u && blec_rd16(p + 1) == COP_DISCONNECT) ||
@@ -526,11 +561,7 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
         }
         return;
     }
-    /* A connection-update status must not advance discovery or drop the link. */
-    if ((code == 0x0e || code == 0x0f) && pl >= 4u &&
-        blec_rd16(p + (code == 0x0e ? 1u : 2u)) == COP_UPDATE)
-        return;
-    if (code == 0x0e && pl >= 4u) {
+     if (code == 0x0e && pl >= 4u) {
         op = blec_rd16(p + 1); status = p[3];
         if (!c->waiting || op != c->cmd_op) return;
         c->waiting = 0;
@@ -630,6 +661,13 @@ void blec_poll(blec_t *c, uint32_t now)
             else { c->state = BLEC_FAILED; c->waiting = 0; } /* disconnect stalled */
         }
     }
+    /* Retry only unaccepted commands; do not replay an accepted command
+     * or submit one after the startup/STOP deadline. */
+    if (c->command_retry && !c->waiting &&
+        (int32_t)(now - c->deadline) < 0 &&
+        (c->state == BLEC_STARTING || c->state == BLEC_SCANNING ||
+         c->state == BLEC_CONNECTING))
+        blec_progress(c);
     if (c->state == BLEC_DISCOVERING) blec_progress(c);
     if (c->smp_reply) {
         uint8_t b[2] = {0x05, 0x05};
