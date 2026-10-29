@@ -99,6 +99,7 @@ def export_reference(ref, out):
 
 def unit_tests(cc, flags, out):
     groups = {
+        'zero': [],
         'idle_clock': [],
         'bypass': ['experiments/original_synth/miami_fx_chain.c',
                    'experiments/original_synth/fixed_fx.c',

@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "miami_output.h"
+#include "miami_zero.h"
 #include "binary32_classify.h"
 #include "../wobble/miami_fx_conversion.h"
 #include <math.h>
@@ -32,9 +33,9 @@ int original_miami_output_zero(original_miami_output *s,const original_miami_pro
     !original_binary32_isfinite(volume)||volume<0||volume>1||
     !original_binary32_isfinite(s->master.current)||s->master.current<0||s->master.current>4)return 0;
  (void)miami_decimator_advance_zero(&s->fx.decimator.kernel,n);
- memset(w->dryL,0,n*sizeof *w->dryL);memset(w->dryR,0,n*sizeof *w->dryR);
- memset(w->scratchL,0,n*sizeof *w->scratchL);memset(w->scratchR,0,n*sizeof *w->scratchR);
- memset(l,0,n*sizeof *l);memset(r,0,n*sizeof *r);
+ original_miami_zero_words((uint32_t *)w->dryL,n);original_miami_zero_words((uint32_t *)w->dryR,n);
+ original_miami_zero_halves((uint16_t *)w->scratchL,n);original_miami_zero_halves((uint16_t *)w->scratchR,n);
+ original_miami_zero_words(l,n);original_miami_zero_words(r,n);
  volume=volume*volume;
  float target=s->master.desired_mute?0:volume*4;
  if(s->master.desired_mute==s->master.committed_mute&&s->master.current==target){
@@ -66,9 +67,9 @@ int original_miami_output_process(original_miami_output *s,const original_miami_
  if(!ne&&zero_ready(s,il,ir,n)&&miami_decimator_advance_zero(&s->fx.decimator.kernel,n)){
   /* Held samples and signal input are zero; both settled fixed-FX mixers
    * are identities on zero. Phase/pending step and original master survive. */
-  memset(w->dryL,0,n*sizeof *w->dryL);memset(w->dryR,0,n*sizeof *w->dryR);
-  memset(w->scratchL,0,n*sizeof *w->scratchL);memset(w->scratchR,0,n*sizeof *w->scratchR);
-  memset(ol,0,n*sizeof *ol);memset(orr,0,n*sizeof *orr);
+  original_miami_zero_words((uint32_t *)w->dryL,n);original_miami_zero_words((uint32_t *)w->dryR,n);
+  original_miami_zero_halves((uint16_t *)w->scratchL,n);original_miami_zero_halves((uint16_t *)w->scratchR,n);
+  original_miami_zero_words(ol,n);original_miami_zero_words(orr,n);
   return original_master_process(&s->master,volume*volume,ol,orr,ol,orr,n);
  }
  for(uint32_t i=0;i<n;i++) {

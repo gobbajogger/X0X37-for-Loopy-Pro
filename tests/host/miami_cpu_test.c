@@ -55,8 +55,31 @@ static void snapshot(unsigned n){
      engine.note_context.owner==&engine.voice_owner && engine.scheduler.context==&engine.voice_owner &&
      engine.control_owner.program==&engine.program);
 }
+/* Exercise the public float bridge as well as its word workspace. Equal
+ * bytes catch signed-zero differences and incorrect known-zero signalling. */
+static void bridge(unsigned n,const original_engine_event *e,unsigned count){
+ static float l[256],r[256];
+ original_miami_backend_workspace w={left,right,workspace};
+ CHECK(original_miami_backend_render_events(&engine,&w,l,r,n,e,count));
+ CHECK(!memcmp(l,left,n*sizeof *left));CHECK(!memcmp(r,right,n*sizeof *right));
+}
+static void bridge_validation(void){
+ static float l[256],r[256];
+ CHECK(original_miami_backend_init(&engine,0,120));
+ original_miami_backend saved=engine;
+ original_miami_backend_workspace w={left,right,workspace};
+ CHECK(!original_miami_backend_render_events(&engine,&w,l,l,256,NULL,0));
+ CHECK(!original_miami_backend_render_events(&engine,&w,(float *)left,r,256,NULL,0));
+ CHECK(!original_miami_backend_render_events(&engine,&w,(float *)&engine,r,256,NULL,0));
+ w.fx.scratchR=(int16_t *)dry[0];
+ CHECK(!original_miami_backend_render_events(&engine,&w,l,r,256,NULL,0));
+ w.fx=workspace;w.fx.capacity=255;
+ CHECK(!original_miami_backend_render_events(&engine,&w,l,r,256,NULL,0));
+ CHECK(!memcmp(&engine,&saved,sizeof engine));
+ puts("PASS Miami float bridge alias/capacity rejection without mutation");
+}
 static void block(unsigned n,const original_engine_event *e,unsigned count){
- CHECK(original_miami_backend_render_event_words(&engine,&workspace,left,right,n,e,count));
+ bridge(n,e,count);
  if(n)sink^=left[n-1]^right[n-1];
  if(trace)snapshot(n);
 }
@@ -103,7 +126,8 @@ static void idle_blocks(unsigned blocks){
  for(unsigned k=0;k<blocks;k++){
   static const unsigned sizes[]={256,256,256,256,1,63,64,65,255};
   unsigned n=sizes[k%9];
-  CHECK(original_miami_backend_render_event_words(&engine,&workspace,left,right,n,NULL,0));
+  if(k&1)bridge(n,NULL,0);
+  else CHECK(original_miami_backend_render_event_words(&engine,&workspace,left,right,n,NULL,0));
   record(left,n*sizeof *left);record(right,n*sizeof *right);
   if(k%64==0||k+1==blocks)snapshot(n);
  }
@@ -142,7 +166,7 @@ static void idle_range_workload(unsigned factory){
  memset(dry,0,sizeof dry);memset(scratch,0,sizeof scratch);
  CHECK(original_miami_backend_init(&engine,factory,tempos[factory%4]));
  for(unsigned length=1;length<=2000;length++){
-  CHECK(original_miami_backend_render_words(&engine,&workspace,left,right,256));
+  bridge(256,NULL,0);
   record(left,sizeof left);record(right,sizeof right);
   if(length%64==0||length==1||length==2000)snapshot(256);
   memcpy(&saved,&engine,sizeof engine);
@@ -152,7 +176,7 @@ static void idle_range_workload(unsigned factory){
   /* Raw PCM is retained for direct byte comparison, not a digest/tolerance.
    * The other workload records the complete active PCM/state lifecycle. */
   for(unsigned k=0;k<2;k++){
-   CHECK(original_miami_backend_render_words(&engine,&workspace,left,right,256));
+   bridge(256,NULL,0);
    record(left,sizeof left);record(right,sizeof right);
   }
   memcpy(&engine,&saved,sizeof engine);
@@ -163,14 +187,17 @@ static void idle_range_workload(unsigned factory){
 int main(int argc,char **argv){
  CHECK(argc>=2);
  if(!strcmp(argv[1],"proof")){
+  bridge_validation();
   CHECK(argc==3);trace=fopen(argv[2],"wb");CHECK(trace);
   for(unsigned factory=0;factory<30;factory++)workload(factory,96,1);
   CHECK(!fclose(trace));puts("PASS Miami all30 PCM/state trace");
  }else if(!strcmp(argv[1],"idle-proof")){
+  bridge_validation();
   CHECK(argc==3);trace=fopen(argv[2],"wb");CHECK(trace);
   for(unsigned factory=0;factory<30;factory++)idle_workload(factory,1024);
   CHECK(!fclose(trace));puts("PASS Miami all30 long-idle/note PCM/state trace");
  }else if(!strcmp(argv[1],"idle-range-proof")){
+  bridge_validation();
   CHECK(argc==3);trace=fopen(argv[2],"wb");CHECK(trace);
   for(unsigned factory=0;factory<30;factory++)idle_range_workload(factory);
   CHECK(!fclose(trace));puts("PASS Miami all30 idle lengths 1..2000 then note PCM/state trace");

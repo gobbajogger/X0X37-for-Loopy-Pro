@@ -3,6 +3,7 @@
 #include "../../../experiments/original_synth/binary32_classify.h"
 #include "../../../experiments/original_synth/binary32_math.h"
 #include "../../../experiments/original_synth/miami_idle_clock.h"
+#include "../../../experiments/original_synth/miami_zero.h"
 #include "../../../experiments/original_synth/motion_tables_private.h"
 #include <string.h>
 
@@ -444,12 +445,11 @@ static int render_event_free_block(original_miami_backend *s,
     return 1;
 }
 
-int original_miami_backend_render_event_words(original_miami_backend *s, original_miami_fx_workspace *w,
+/* Inputs and workspace have been checked by the public entry point. Return
+ * 2 only when the settled-zero seam has produced exact positive-zero words. */
+static int render_event_words_validated(original_miami_backend *s, original_miami_fx_workspace *w,
     uint32_t *left, uint32_t *right, uint32_t frames, const original_engine_event *events, uint32_t count)
 {
-    if (!original_miami_backend_status(s) || !events_valid(events, count, frames)) return 0;
-    if (!frames) return 1;
-    if (!words_valid(s, w, left, right, frames)) return 0;
     if (count) {
         size_t event_bytes = (size_t)count * sizeof *events;
         if (event_bytes / sizeof *events != count || overlap(events, event_bytes, s, sizeof *s) ||
@@ -464,7 +464,7 @@ int original_miami_backend_render_event_words(original_miami_backend *s, origina
         if (!advance_silent_block(s, frames)) return 0;
         if (original_miami_output_zero(&s->output, &s->program, w, left, right, frames)) {
             s->block_prepared = 0;
-            return 1;
+            return 2;
         }
         memset(left, 0, frames * sizeof *left);
         memset(right, 0, frames * sizeof *right);
@@ -495,6 +495,15 @@ int original_miami_backend_render_event_words(original_miami_backend *s, origina
     return result;
 }
 
+int original_miami_backend_render_event_words(original_miami_backend *s, original_miami_fx_workspace *w,
+    uint32_t *left, uint32_t *right, uint32_t frames, const original_engine_event *events, uint32_t count)
+{
+    if (!original_miami_backend_status(s) || !events_valid(events, count, frames)) return 0;
+    if (!frames) return 1;
+    if (!words_valid(s, w, left, right, frames)) return 0;
+    return render_event_words_validated(s, w, left, right, frames, events, count) != 0;
+}
+
 int original_miami_backend_render_events(original_miami_backend *s, original_miami_backend_workspace *w,
     float *left, float *right, uint32_t frames, const original_engine_event *events, uint32_t count)
 {
@@ -513,7 +522,13 @@ int original_miami_backend_render_events(original_miami_backend *s, original_mia
         if (overlap(left, bytes, p[i], n) || overlap(right, bytes, p[i], n) ||
             overlap(p[i], n, w, sizeof *w)) return 0;
     }
-    if (!original_miami_backend_render_event_words(s, &w->fx, w->left, w->right, frames, events, count)) return 0;
+    int result = render_event_words_validated(s, &w->fx, w->left, w->right, frames, events, count);
+    if (!result) return 0;
+    if (result == 2) {
+        original_miami_zero_floats(left, frames);
+        original_miami_zero_floats(right, frames);
+        return 1;
+    }
     memcpy(left, w->left, bytes);
     memcpy(right, w->right, bytes);
     return 1;
