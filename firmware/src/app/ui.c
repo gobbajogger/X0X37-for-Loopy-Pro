@@ -21,7 +21,7 @@
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
 #include "chicago_aux.h"                       /* CHI_PBEND / CHI_DAMPER */
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 #include "../../../experiments/wobble/wobble.h" /* W_ATTACK..W_RELEASE Miami amp ADSR */
 #endif
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
@@ -1022,7 +1022,7 @@ static const char *pref_name(pref_t r)
         return t;
     }
     if (r.kind == R_ENG && r.a == T_303) {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (engine_bass_is_wobble(r.b)) {
             switch (r.c) {
             case W_CARRIER_WAVE: return "CR WAVE";
@@ -1090,7 +1090,7 @@ static int display_env_param(pref_t r)
 
 static float display_env_ms(pref_t r, int v)
 {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if(engine_bass_is_wobble(r.b)) {
         float n=(float)v/127.0f;
         float low=r.c==W_ATTACK?2.0f:r.c==W_DECAY?0.1f:4.75f;
@@ -1217,7 +1217,7 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     switch (r.kind) {
     case R_ENG:
 #if !X0X_ORIGINAL_SYNTH
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (r.a == T_303 && engine_bass_is_wobble(r.b)) {
             /* Miami shares T_303 indices with Chicago, but none of its pot
              * laws are Chicago's. Format the actual WBL1 controls first. */
@@ -1579,7 +1579,7 @@ static void build_pages(void)
             if (engine_bass_sound_bank(&proj.sound, b) >= 0)
 #endif
             {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             if (engine_bass_is_wobble(b)) {
                 do { static const pref_t refs[4] = {PR(R_ENG,T_303,0,W_CARRIER_WAVE), PR(R_ENG,T_303,0,W_CARRIER_LEVEL), PR(R_ENG,T_303,0,W_SUB_LEVEL), PR(R_ENG,T_303,0,W_CARRIER_PITCH)};
                     add_page_refs("CARRIER",refs,2,b); } while (0);
@@ -4613,7 +4613,7 @@ static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
 static uint16_t part_col(void) { return PART_COL[ui.part]; }
 static uint16_t matrix_col(void)
 {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if(is_303() && engine_bass_is_wobble(bidx())) return RGB(116,214,239);
 #endif
     return is_303()?(ui_theme_light?RGB(40,104,30):RGB(164,235,141)):part_col();
@@ -5004,7 +5004,7 @@ static UI_DRAW void draw_header(void)
             if(engine_bass_sound_bank(&proj.sound,bidx())<0) name="CHOOSE ENGINE";
             else
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             if(engine_bass_is_wobble(bidx())) name=bidx()?"MIAMI B":"MIAMI A";
             else
 #endif
@@ -6446,7 +6446,7 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     /* Numeric/text state comes from original metadata; never alias legacy IDs. */
     return 0;
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if (engine_bass_is_wobble(r.b)) {
         if (r.c == W_CARRIER_WAVE || r.c == W_XMOD_WAVE || r.c == W_WOBBLE_SHAPE) {
             *mix = v == 0 ? 0 : 127;
@@ -6480,7 +6480,7 @@ static UI_DRAW const char *matrix_name(pref_t r)
 #if X0X_ORIGINAL_SYNTH
     if (r.kind==R_ENG && r.a==T_303) return ui_original_name((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if (r.kind==R_ENG && r.a==T_303 && engine_bass_is_wobble(r.b)) {
         switch(r.c) {
         case W_CARRIER_WAVE: case W_XMOD_WAVE: return "WAVE";
@@ -6744,7 +6744,7 @@ static void adsr_values(ui_adsr_t *e)
         pref_t r=pg.r[p][i==2?3:i];
         *time[i]=display_env_ms(r,matrix_value(r));
     }
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if(engine_bass_is_wobble(bidx())) {
         e->release*=e->sustain;
         return;
@@ -7648,6 +7648,7 @@ void ui_frame(void)
     }
 #if BOARD_SMK37
     smc_frame();
+    division_pad_input(); /* Update pad owner after SMC may take the UI. */
 #endif
     if (!project_busy) {   /* GLO > MIDI > CLOCK SOURCE; clip mode always uses AUTO */
         static uint8_t waited;

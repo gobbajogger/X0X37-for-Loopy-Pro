@@ -224,7 +224,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 #else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
@@ -1037,7 +1037,7 @@ static void smk_wheels(void)
                 engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
 #else
             int param = CHI_PBEND;
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             if (engine_bass_is_wobble(bend_part))
                 param = W_PITCH_BEND;
 #endif
@@ -1061,7 +1061,7 @@ static void smk_wheels(void)
             engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
                 ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             if (engine_bass_is_wobble(cut_part))
                 engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
             else

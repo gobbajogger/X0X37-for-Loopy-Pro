@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Check replacement/legacy source and flag selection without invoking a compiler."""
 import importlib.util
+import re
 import os
 from pathlib import Path
 import sys
@@ -116,6 +117,21 @@ class OriginalBuildCompositionTests(unittest.TestCase):
             self.assertIn("-DX0X_WOBBLE=0", command)
             self.assertIn("-DX0X_DEV_WOBBLE=1", command)
         self.assertEqual(len(objects), len(set(objects)))
+
+    def test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources(self):
+        # X0X_DEV_WOBBLE=1 enables the ported *pad UI* for original Miami.
+        # Legacy WBL declarations and calls must all additionally require
+        # !X0X_ORIGINAL_SYNTH. The build-plan-only test cannot catch this.
+        for path in ("firmware/src/app/engine.c", "firmware/src/app/ui.c",
+                     "firmware/src/app/main_fm1.c"):
+            with self.subTest(path=path):
+                source = (ROOT / path).read_text()
+                self.assertNotRegex(source, r"(?m)^#(?:if|elif) X0X_DEV_WOBBLE\s*$")
+                self.assertRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
+        ui = (ROOT / "firmware/src/app/ui.c").read_text()
+        self.assertIn("static int division_pad_owner(void)", ui)
+        self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
+        self.assertNotIn("shape_pad_owner(", ui)
 
     def test_legacy_wobble_disable_still_works(self):
         for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):

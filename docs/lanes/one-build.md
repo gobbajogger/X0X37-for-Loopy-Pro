@@ -7,7 +7,7 @@ Status: SOURCE CANDIDATE / WIP, not DEV CHECKED and not installable.
 Plan: retain the base's DnBOX boot, two material themes and original Chicago/Miami DSP;
 carry source-only independent BLE/SMC and BREAK lane paths; port the original #63
 safe page wrap and the pre-existing freeplay physical wobble-rate route from
-6ae0928fe3264ee759c25c4f879eff4dc5dc3b20 / A/firmware/src/app/ui.c
+574f5329b764f275d8a35d3aeb7429bc87a21be3 / 6ae0928fe3264ee759c25c4f879eff4dc5dc3b20 / A/firmware/src/app/ui.c
 without implementing shape-pad selection. Port ca8299b6's missing semantic
 knob glyphs and time-based tape activity observer without replacing themes.
 
@@ -22,11 +22,21 @@ Included source groups:
   implementation already appears in a0279524 and is not reapplied.
 - ca8299b6bbf2f4ffaa3f10558b335e30a2c10914:
   semantic amount/tape glyph presentation only; original UI/theme and boot retained.
-- Freeplay rate pads: owner/poll/held-input path and call sites sourced from
-  6ae0928 / SMC-AB source handoff. Original Miami macro13 maps to native
-  eight-rate order; shape-pad behavior is out of scope.
+- Freeplay rate pads: exact existing owner/poll/held-input path and UI call sites
+  cross-checked against 574f-affected-source.jsonl, 6ae0928 and the SMC-AB A source.
+  Original Miami adapter selects the real macro13, preserving its native eight-rate
+  order (1/2, 1/4, 1/8, 1/16, 1/3, 1/6, 1/12, 1/24). The legacy 574f
+  W_WOBBLE_RATE UI's old label order is not a valid native Miami sound mapping.
+  No shape-pad handler exists in this lane.
 - X0X_DEV_WOBBLE=1 is UI-pad enabling only when X0X_ORIGINAL_SYNTH=1;
-  X0X_WOBBLE=0 and original backends remain selected. No wobble.c compiled.
+  X0X_WOBBLE=0 and original backends remain selected. Every old standalone
+  #if X0X_DEV_WOBBLE in engine/UI/main now also requires !X0X_ORIGINAL_SYNTH,
+  preventing the legacy bass_slot / wobble_t declarations from being compiled.
+  No wobble.c is selected by the build composition.
+
+Historical rate-pad source test executed here (on 6ae0928 only):
+`sh tests/host/miami_freeplay_pads_test.sh` => PASS, 147 cases / 1710 assertions.
+This is historical-source proof, not a PASS for this integration tree.
 
 Missing source/proof, NOT_RUN:
 - Exact DSP commits 40935bd1, f95e230e, f9ffd12e are not found by the
