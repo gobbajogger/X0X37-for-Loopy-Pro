@@ -210,3 +210,33 @@ Step 1 file list: `firmware/src/dsp/original_miami_backend.c`,
 worktree `index.lock` (`Operation not permitted`). No files were staged and no
 commit was created. The source snapshot above preserves this verified step
 for the orchestrator; later steps extend the working tree.
+
+### Step 2: event-free control spans — READY TO COMMIT
+
+Event-free, two-voice, ARP-off blocks now enter one block control dispatcher.
+It calls the original control graph at the first frame and at every voice or
+global 690 Hz boundary, and advances the intervening integer counters without
+re-entering that graph. The scheduler still runs before each frame. Events
+and ARP-enabled blocks retain the scalar dispatcher. This removes redundant
+control calls while preserving the envelope and modulation movement heard
+within a block. A literal single control **tick** per block is not exact and
+is deliberately not used. The idle guard also now requires the exact selected
+two-voice capacity before bypassing any render checks.
+
+- `build/miami-block-step2/`: original and long-idle/note all-30-program
+  PCM/state comparisons PASS against `f9ffd12e`, with the same two trace hashes
+  recorded for Step 1. Interpolation/bypass oracle unit checks PASS.
+- `python3 tools/synth684_harness/run.py --elite --golden
+  build/synth684-golden-9d1cf9fb --out build/miami-block-step2-linux`:
+  **15/15 identical**, REAL inputs, Elite build PASS in the same Linux VM.
+- Idle instructions/block before and after: **NOT MEASURED**, for the tooling
+  reasons above. `build/miami-block-step2-proxy/` confirms unchanged mean idle
+  proxy work: **5,722.506 edges/block**, versus inherited **32,986.198**.
+- Exact linked `.text`: inherited 410,128 bytes → Step 1 410,656 → Step 2
+  410,976. Every allocated RAM section is unchanged. Source snapshots, patches,
+  hashes, target ELF copies and section sizes are in
+  `build/miami-idle-step1-source/` and `build/miami-block-step2-source/`.
+
+Incremental Step 2 file list: `firmware/src/dsp/original_miami_backend.c` and
+`MIAMI-OPT.md`. Commit remains pending because of the recorded `index.lock`
+sandbox denial. No private input or plugin/package binary is in that file list.
