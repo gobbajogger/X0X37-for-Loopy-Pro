@@ -1,0 +1,195 @@
+{
+  "head": "baa6b6c2bcc84de57d93564966921391efa11080",
+  "scope": "Conservative authored-source publication route requested by root; data-bearing generated inputs are excluded pending separate distribution clearance. This is provenance classification, not a legal determination that every coefficient is copyrightable. Historical stage holds are not applied as permanent source holds.",
+  "excluded_data_inputs": [
+    {
+      "path": "experiments/original_synth/chicago_drive_private.h",
+      "bytes": 1563,
+      "sha256": "d0f132e768e11e2e5b62d1dc9e9f047e87b162b5018c0b1b1f69eb1899ac847b",
+      "git_blob": "695c2201be573ee541f7769cef1c8b8ab4239055",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_chicago_drive_private.py",
+      "input_sha256_pins": [
+        "bb0fcb9314a99135ea0c662af5dedd476021e9747a2489d8ce821b407393e9f6"
+      ],
+      "provenance": "Pinned functional Drive/Gain coefficients, 2x128 int16 values.",
+      "generator_sha256": "e2e59bb014166c9bfdc809c1e904736ecbc9d8bf2af887c482736aee256da614"
+    },
+    {
+      "path": "experiments/original_synth/chicago_dynamics_private.h",
+      "bytes": 8708,
+      "sha256": "f1d1ffd15d33001420227d57984e5f9c1373c1460a4ea78f9cec777f72d11f61",
+      "git_blob": "3cab126a9c5ce479d976fb3765a613d3130ba8dd",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": null,
+      "input_sha256_pins": [
+        "4aa18347043539f8a87813c46831bc451eb33aaca5c1cabcb036363b71b07009"
+      ],
+      "provenance": "Three 128-entry binary32 EQ coefficient tables derived with original macOS libm recipes; exact producer generator is saved outside the source tree, not currently a portable public generator."
+    },
+    {
+      "path": "experiments/original_synth/chicago_packed_private.h",
+      "bytes": 99941,
+      "sha256": "cd216647c0b9b4428f3d39e0167e5ee43bd51cf9d575ed3299b3d4af271ded00",
+      "git_blob": "3888079dec80247394e6e8d991bb8b8e999f2f98",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_chicago_second_delta_private.py",
+      "input_sha256_pins": [
+        "7a75b90b3e288586e7d15b22d53ebd78f4a839cc8ca07b9c95858461866f3aaa"
+      ],
+      "provenance": "Losslessly packed original A/E table bits; current generator uses --directory16. Older gen_chicago_lossless_private.py is not the current format.",
+      "generator_sha256": "10229e0039b344f7cdd8adeb23c98987fb3a38315f30ecefea985f119613c98b"
+    },
+    {
+      "path": "experiments/original_synth/chicago_program_private.h",
+      "bytes": 21311,
+      "sha256": "b95ed765e55886ed7d1e52ebb06b43d5026743ec6dd17d9a9cf6cc34e9dcc309",
+      "git_blob": "4f386aa0be5aee61744964bfa0c7214940b0b655",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_chicago_program_private.py",
+      "input_sha256_pins": [
+        "1b57d7550e3738ef43746cea34e31185092609d1a0983ddbf7ff70bd2f287b23"
+      ],
+      "provenance": "Original factory names, 81 macro22 contexts, mappings, normalized defaults and compressed exact macro values; runtime exposes 55 admitted contexts.",
+      "generator_sha256": "4362f234a81a7604f57b1c1dcba73b8a3b45aaa4cda6288fac0f1ec2ec1a76a8"
+    },
+    {
+      "path": "experiments/original_synth/chicago_tuning_private.h",
+      "bytes": 792,
+      "sha256": "835bb3f2b6fed61b14d5d4a63486aaa3c45686defe210028324076df71e85075",
+      "git_blob": "cd92d0fa4bd30d0d3c6b014d15a325dd2c4a2117",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": null,
+      "input_sha256_pins": [
+        "4aa18347043539f8a87813c46831bc451eb33aaca5c1cabcb036363b71b07009"
+      ],
+      "provenance": "Two exact 23-entry tuning lookup arrays including negative-remainder aliases; GPL source header does not independently establish redistribution authority for recovered lookup bytes. Saved lookup-functional.json provenance exists; no maintained generator found in repository."
+    },
+    {
+      "path": "experiments/original_synth/miami_n513_private.h",
+      "bytes": 6367,
+      "sha256": "352535f85afdfe0fc94e8ed9b650bba2f04b08b16564f61662e09f56c83f5c9e",
+      "git_blob": "72c236196f4df9d2696053d6a151f2982b63b5a2",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_miami_ms20_private.py",
+      "input_sha256_pins": [
+        "26bffc368d7bedba4bb5cb8df17dda9e2e18e13c2216a4affc5f5987704eef98"
+      ],
+      "provenance": "513 exact uint32 nonlinear-table bits. Expected LE numeric-data SHA256 4880416fdae25c3fef0c3885c358f65a5f42d4470f0f6e7d8d8922a115de800c.",
+      "generator_sha256": "b06e2f9c3b7776df8332d8754d5ccdee6d7dfa5e80c082bd2b057858cad10f19"
+    },
+    {
+      "path": "experiments/original_synth/miami_program_private.h",
+      "bytes": 15451,
+      "sha256": "5b950f6441f38e68c36d303a55361ce1d1e75c23ec05d7a5314fa2c32c3aa460",
+      "git_blob": "0e6589f19b24afee30ea2220f0dca0baee79534d",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_miami_program_private.py",
+      "input_sha256_pins": [
+        "2d800924fbee4649e9d5c91f1943ec9b020c05697db9338513feb963cf671e65",
+        "c6ea0896434fefdd62866ee0de350b736ed47436416a7332b8bb03aebec9fff7",
+        "955aa3e12f7d0a60b0890113fbbd27a3ae90f9dc001c049d874cb5abdc2e50af"
+      ],
+      "provenance": "Original 30 factory names/macro18 values, exact mappings and shared normalized defaults.",
+      "generator_sha256": "0fbbb7ac37a46d463f3074eaee345e346e36431854c96e556bf94c4fab55950a"
+    },
+    {
+      "path": "experiments/original_synth/modulation_private.h",
+      "bytes": 3978,
+      "sha256": "92c458c409830f95f06f6f0efd62f1b947fc234dc8adef279207da3588705609",
+      "git_blob": "6aa5131bfe6ec2ca14db17a5878872e621f002ac",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": null,
+      "input_sha256_pins": [
+        "4aa18347043539f8a87813c46831bc451eb33aaca5c1cabcb036363b71b07009"
+      ],
+      "provenance": "Recovered functional Chorus/Phaser/Ring integer coefficient tables. Exact producer generate_tables.py plus inspect.py retained in saved producer archive outside source; public tracked generator not found."
+    },
+    {
+      "path": "experiments/original_synth/motion_tables_private.h",
+      "bytes": 757674,
+      "sha256": "92c856c0fe1f7811ec938bbffd4f0cdcbe8b86630eaf537f63ab8ff3d32cb564",
+      "git_blob": "0abf5bc47632aa38b58e52dfc91d58c0e5ee0ca5",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_original_motion_private.py",
+      "input_sha256_pins": [
+        "e10e582845c017917243b6312a459375ca9873ae64b445f9a164a11239ef0815",
+        "2186eb1676f72402bd36ee000196f6db89cea2cab7839e122426fe24d33956d2",
+        "7a75b90b3e288586e7d15b22d53ebd78f4a839cc8ca07b9c95858461866f3aaa",
+        "26bffc368d7bedba4bb5cb8df17dda9e2e18e13c2216a4affc5f5987704eef98"
+      ],
+      "provenance": "Mixed data: generated Miami A/B/R coefficients plus copied corrected cap, Chicago A/E and pitch bits from pinned manifests. Not entirely derivable from unrestricted mathematical constants alone.",
+      "generator_sha256": "cfbaa992f1aad71c5800af057e028a14b79ca593b7d3705c801d19c9258ba1d7"
+    },
+    {
+      "path": "experiments/wobble/miami_decimator_tables_private.h",
+      "bytes": 2007,
+      "sha256": "d8ea0ccd02c5bfafcd4af9970f0107d5d4a679c26f6e7651d5c202072d4bea2c",
+      "git_blob": "b199b9e7eb789906e0098a232b09a87fb7904059",
+      "required_by_active_original_profile": true,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_miami_decimator_private_tables.py",
+      "input_sha256_pins": [
+        "e5cbbe1541fb8f963d6935c9dfb599dfe60e32d63a25bc10b310db5c9ddda490"
+      ],
+      "provenance": "Two exact 128-entry frequency/wet tables; original raw SHA256 fd33324fa771553c8c45e339c372526a1b160a623cf5e5e252e005ced09d472f and a7d0f57804777b16ea8d658964f84e29a9846084af4e9c145116ba9ba4daa903.",
+      "generator_sha256": "91000d35b277ee17320cfb99d8bb6546dd2aed618c794539d182fa649246f0d6"
+    },
+    {
+      "path": "experiments/original_synth/fx_tables.h",
+      "bytes": 12934,
+      "sha256": "4e5afd7519ac733dc3d028d1cc6cdca097a51876a1db65ac0cdcd5732c50cb00",
+      "git_blob": "95478af4367c6de74533c2861ce43ffa6645b726",
+      "required_by_active_original_profile": false,
+      "existing_current_remote": false,
+      "tracked_generator": null,
+      "input_sha256_pins": [
+        "4aa18347043539f8a87813c46831bc451eb33aaca5c1cabcb036363b71b07009"
+      ],
+      "provenance": "Additional original effect/history coefficient dump retained for full Chicago history owner. That owner is excluded from compact native objects. No tracked generator found."
+    },
+    {
+      "path": "firmware/src/app/miami_factory_typed.h",
+      "bytes": 13702,
+      "sha256": "e069b0fef9d44f605faa4691f1762166613ddfed1344d1ff14f885d181daeb17",
+      "git_blob": "44f137fff25e64870fdda230ab192d1de1026e69",
+      "required_by_active_original_profile": false,
+      "existing_current_remote": false,
+      "tracked_generator": "tools/gen_miami_typed_factory.py",
+      "input_sha256_pins": [
+        "17c5913d8902963364d0fbcbcd741f94720eb180e6eb9d8532430b0b6877a42f",
+        "652d3e92d4b22765f03cdccb8bc6f9b48a8ab41a415b20e1873f4394d904eb14"
+      ],
+      "provenance": "Legacy/experimental typed factory metadata with 30 exact original macro18 bit rows written in comments and converted cell rows; extra payload distinct from authored miami_factory_types.h.",
+      "generator_sha256": "ad948122d4e96432aea8735d91e13cb706bb7440f940023ea81f2b89b035086b"
+    }
+  ],
+  "keep_authored_internal_headers": [
+    "experiments/original_synth/state_codec_private.h",
+    "firmware/src/app/miami_factory_types.h"
+  ],
+  "non_payload_witnesses": [
+    "tests/host/original_chicago_arp_witnesses.h contains functional result hashes, not original audio/plugin bytes",
+    "experiments/original_synth/CHICAGO-PARAMETER-TRACE.json is authored control-to-code mapping and inventory hash, not factory numeric payload"
+  ],
+  "known_generator_gaps": [
+    "chicago_dynamics_private.h uses a saved macOS-specific producer generator with original binary verification and original libm semantics",
+    "modulation_private.h is generated by a saved producer script importing a binary reader; no corresponding tracked portable generator",
+    "chicago_tuning_private.h has saved lookup-functional.json and producer receipt but no tracked header generator",
+    "fx_tables.h is retained source data without a tracked generator found"
+  ],
+  "publication_contract": [
+    "Keep metadata hashes/expected paths and authored generator source; do not include pinned private manifests, original plugin binaries, raw captures or SDK archives.",
+    "Missing excluded data must fail explicitly; do not synthesize zeros, approximate tables, or claim exact build from public files alone.",
+    "Preserve current nightly source and notices, and integrate only scoped authored source; new source-only Git tree is not the same tree as native 87f12 proof."
+  ]
+}
