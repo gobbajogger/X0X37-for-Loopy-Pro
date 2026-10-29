@@ -445,6 +445,7 @@ run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13)
 run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
+run builtin-break-output python3 tests/host/test_builtin_break_output.py
 run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h
 run stereo-alone-gen sh tests/host/test_stereo_alone_gen.sh   # filtered stereo/drum-pan alone fills tables without host-build
 run runner-admission python3 tests/host/test_runner_admission.py
