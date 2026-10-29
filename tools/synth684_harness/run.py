@@ -18,6 +18,8 @@ ap.add_argument("--blocks", type=int, default=172)
 ap.add_argument("--out", type=Path, default=ROOT / "build/synth684-harness")
 ap.add_argument("--elite", action="store_true",
                 help="also run tools/build.py --board smk37 --model elite (needs JIELI_TOOLCHAIN and AC79_SDK)")
+ap.add_argument("--icount", action="store_true",
+                help="also count instructions per block with callgrind (VALGRIND or ~/.local/vgenv/bin/valgrind)")
 ap.add_argument("--save-golden", type=Path, help="copy the renders to this directory")
 ap.add_argument("--golden", type=Path, help="byte-compare the renders with this golden directory")
 a = ap.parse_args()
@@ -57,6 +59,33 @@ subprocess.run([cc, *flags, str(HERE / "synth684_bench.c"), *map(str, objs), "-l
 renders = out / "renders"; renders.mkdir(exist_ok=True)
 run = subprocess.run([str(exe), str(renders), str(a.blocks)])
 
+icount = {}
+if a.icount:
+    vg = os.environ.get("VALGRIND") or str(Path.home() / ".local/vgenv/bin/valgrind")
+    vinc = str(Path(vg).resolve().parents[1] / "include")
+    ic = out / "icount"; shutil.rmtree(ic, ignore_errors=True); ic.mkdir()
+    # -Os, as in the Elite build. Only original_runtime_render is counted.
+    osflags = [f if f != "-O2" else "-Os" for f in flags]
+    iobjs = []
+    for u in units:
+        o = ic / (u.replace("/", "_") + ".o")
+        subprocess.run([cc, *osflags, "-g", "-c", u, "-o", str(o)], check=True)
+        iobjs.append(o)
+    iexe = ic / "synth684_icount"
+    subprocess.run([cc, *osflags, "-DX0X_SYNTH684_ICOUNT", "-I" + vinc, str(HERE / "synth684_bench.c"),
+                    *map(str, iobjs), "-lm", "-o", str(iexe)], check=True)
+    (ic / "renders").mkdir()
+    subprocess.run([vg, "--tool=callgrind", "--collect-atstart=no", "--callgrind-out-file=" + str(ic / "cg.out"),
+                    str(iexe), str(ic / "renders"), str(a.blocks)], check=True, stderr=subprocess.DEVNULL)
+    for f in sorted(ic.glob("cg.out*")):
+        text = f.read_text(errors="replace")
+        m = re.search(r"^desc: Trigger: Client Request: \S*/([\w.-]+)\.f32", text, re.M)
+        t = re.search(r"^(?:summary|totals): (\d+)", text, re.M)
+        if m and t: icount[m.group(1)] = round(int(t.group(1)) / a.blocks)
+    for n in sorted(icount): print(f"ICOUNT {n}: {icount[n]} instructions per block")
+    for f in (ic / "renders").glob("*.f32"):
+        if f.read_bytes() != (renders / f.name).read_bytes(): print(f"WARNING: -Os render differs from -O2 render: {f.name}")
+
 def sizes(files, tool):
     total = {"text": 0, "data": 0, "bss": 0, "pool": 0}
     for f in files:
@@ -76,7 +105,7 @@ def group(paths):
         n = p.name
         g["chicago" if "chicago" in n and "miami" not in n else "miami" if "miami" in n else "shared"].append(p)
     return g
-report = {"validity": validity, "host_objects": {k: sizes(v, "size") for k, v in group(objs).items()}}
+report = {"validity": validity, "icount_per_block": icount, "host_objects": {k: sizes(v, "size") for k, v in group(objs).items()}}
 if a.elite:
     subprocess.run([sys.executable, "tools/build.py", "--board", "smk37", "--model", "elite"], check=True,
                    stdout=subprocess.DEVNULL)
