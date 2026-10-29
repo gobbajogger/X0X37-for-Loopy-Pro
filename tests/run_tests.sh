@@ -440,6 +440,7 @@ run prepush-allow sh tests/host/test_prepush_allow.sh   # tools/pre-push.hook pa
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13): the KILLED lines name the sender PID and cwd, SCRIPT CHANGED in gate.log
 run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
+run host-failure-summary python3 -B tests/host/test_host_failure_summary.py  # failure reporting must preserve FAIL and ignore stale results
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
 run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h
