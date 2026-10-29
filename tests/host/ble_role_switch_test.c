@@ -122,7 +122,7 @@ static void device_to_host(void)
 static void host_to_device(void)
 {
     setup(1); blec_t *c = &ble_r.host.c;
-    c->state = BLEC_CONNECTED; c->conn = 0x40; c->step = S_READY;
+    c->state = BLEC_CONNECTED; c->conn = 0x40;c->linked=1; c->step = S_READY;
     central_up = 1; desired = 0;
     ble_service(); assert(ble_central_role && ble_role_changing);
     assert(take_command() == COP_DISCONNECT && !reset_count);
@@ -197,7 +197,7 @@ static void startup_and_backlog(void)
 static void failed_stop(void)
 {
     setup(1); blec_t *c = &ble_r.host.c;
-    c->state = BLEC_CONNECTED; c->conn = 0x40; c->step = S_READY; desired = 0;
+    c->state = BLEC_CONNECTED; c->conn = 0x40;c->linked=1; c->step = S_READY; desired = 0;
     ble_service(); assert(take_command() == COP_DISCONNECT);
     uint8_t error[] = {0x0f, 4, 0x0c, 1, 6, 4};
     assert(xb_frame_put(&ble_r.mb.c2h, 4, error, sizeof error) == 0);
@@ -208,7 +208,7 @@ static void failed_stop(void)
 static void two_host_links_stop(void)
 {
     setup(1); blec_t *a=&ble_r.host.c,*b=&ble_r.host.c2;
-    a->state=b->state=BLEC_CONNECTED;a->step=b->step=S_READY;a->conn=0x40;b->conn=0x41;
+    a->state=b->state=BLEC_CONNECTED;a->step=b->step=S_READY;a->conn=0x40;a->linked=1;b->conn=0x41;b->linked=1;
     desired=0;ble_service();assert(take_command()==COP_DISCONNECT);
     complete(COP_DISCONNECT);ble_service();assert(take_command()==COP_DISCONNECT);
     disconnected();ble_service();assert(ble_central_role && b->conn==0x41);

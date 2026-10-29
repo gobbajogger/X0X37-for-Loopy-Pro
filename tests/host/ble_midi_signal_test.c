@@ -32,7 +32,7 @@ static void ready(blec_t *c)
 {
     static const uint8_t addr[6] = {0};
     blec_init(c, send_h4, midi, 0, addr);
-    c->state = BLEC_CONNECTED; c->step = 14; c->conn = 0x50;
+    c->state = BLEC_CONNECTED; c->step = 14; c->conn = 0x50;c->linked=1;
     c->midi_handle = 114; c->cccd_handle = 115;
     c->acl_total = c->credits = 5;
     sent = messages = busy = replies = cmd_n = 0; now = 100;
@@ -186,12 +186,12 @@ int main(int argc, char **argv)
     blec_poll(&c, now + 3000u); assert(c.state == BLEC_DISCONNECTING && c.errors == 1);
     /* Stop/start and disconnect cannot carry a reply or a fragment to the next link. */
     ready(&c); c.credits = 0; request(&c, 1); blec_stop(&c);
-    blec_start(&c, now); c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50; c.credits = 5;
+    blec_start(&c, now); c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50;c.linked=1; c.credits = 5;
     unsigned before = sent; blec_poll(&c, now); assert(sent == before);
     ready(&c); c.credits = 0; request(&c, 1);
     const uint8_t down[] = {5, 4, 0, 0x50, 0, 0x13};
     blec_rx(&c, 4, down, sizeof down, now);
-    c.state = BLEC_CONNECTED; c.step = 14; c.waiting = 0; c.conn = 0x51;
+    c.state = BLEC_CONNECTED; c.step = 14; c.waiting = 0; c.conn = 0x51;c.linked=1;
     before = sent; blec_poll(&c, now); assert(sent == before);
     /* Pairing is refused once. The link stays up and a later control still arrives. */
     ready(&c);
