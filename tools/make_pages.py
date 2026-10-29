@@ -135,7 +135,11 @@ def merge_version(catalog: dict, version: str, models: dict) -> dict:
     versions.sort(key=lambda v: version_sort_key(v["version"]), reverse=True)
     catalog = dict(catalog)
     catalog["versions"] = versions
-    catalog["latest"] = version
+    old_latest = catalog.get("latest")
+    catalog["latest"] = (old_latest if old_latest and
+                         any(v["version"] == old_latest for v in versions) and
+                         version_sort_key(old_latest) >= version_sort_key(version)
+                         else version)
     catalog["repo"] = REPO
     catalog["pages"] = PAGES
     return catalog
