@@ -77,6 +77,12 @@ def safe_version(version: str) -> str:
     return re.sub(r"[^A-Za-z0-9.-]", "-", version)
 
 
+def version_sort_key(version: str) -> tuple:
+    """Sort numeric versions naturally: 0.0.10 follows 0.0.9 in release history."""
+    return tuple((1, int(part)) if part.isdecimal() else (0, part.casefold())
+                 for part in re.split(r"(\d+)", str(version)))
+
+
 def pkg_entry(path: Path, version: str, key: str | None = None) -> tuple[str, dict]:
     raw = path.read_bytes()
     product = product_of(raw)
@@ -126,7 +132,7 @@ def merge_version(catalog: dict, version: str, models: dict) -> dict:
             "size": meta["size"],
         }
     versions.append(entry)
-    versions.sort(key=lambda v: str(v["version"]), reverse=True)
+    versions.sort(key=lambda v: version_sort_key(v["version"]), reverse=True)
     catalog = dict(catalog)
     catalog["versions"] = versions
     catalog["latest"] = version
