@@ -253,6 +253,18 @@ static uint8_t chi_damper[NBASS] POOL;
 static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper on */
 #endif
 static breaks_t brk POOL;
+/* Latest-value physical wheel mailbox: centre cannot be dropped by a full CQ.
+ * Only audio writes the DSP bend and the external MIDI owner. */
+static volatile int16_t brk_wheel;
+static int16_t brk_wheel_seen;
+static int8_t brk_bend_owner;
+void engine_brk_bend(int value)
+{
+    brk_wheel = (int16_t)(value < -8192 ? -8192 : value > 8191 ? 8191 : value);
+}
+#ifdef X0X_HOST
+int engine_brk_bend_value(void) { return brk.bend; }
+#endif
 static fxbus_t fx POOL;
 static volatile uint8_t tape_signal_seen;
 static volatile uint32_t tape_signal_at;
@@ -1452,6 +1464,9 @@ static void brk_channel_reconcile(void)
     if (channel == brk_input_channel) return;
     /* A channel edit retires external owners, not local keys or macros. */
     for (int src = 0; src < MIDI_NSRC; src++) brk_link_end(src, 0);
+    if (brk_bend_owner >= 0 && brk_bend_owner < MIDI_NSRC) {
+        breaks_bend(&brk, 0); brk_bend_owner = -1;
+    }
     brk_input_channel = channel;
 }
 
@@ -1502,6 +1517,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 bass_held[k] = bass_held_count[k] = 0;
             }
 #endif
+        if (brk_bend_owner == src) { breaks_bend(&brk, 0); brk_bend_owner = -1; }
         brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
         return;
@@ -1556,6 +1572,15 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
+    if (ty == 0xe0 && seq.ch[TRK_BRK] == ch) {
+        /* Physical gestures own bend until release, otherwise last external
+         * source wins. BREAK consumes its channel without live MIDI echo. */
+        if (!brk_wheel) {
+            breaks_bend(&brk, ((int)d1 | (int)d2 << 7) - 8192);
+            brk_bend_owner = brk.bend ? (int8_t)src : -1;
+        }
+        return;
+    }
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
         /* The break's channel owns the note. Drums and the 303s do not also play it. */
         brk_midi_wrap(src, ty == 0x90, d1);
@@ -2203,6 +2228,12 @@ static void drain(void)
             brk_local_event((int)a, (int)b);
     }
     cq_r = r;
+    int16_t wheel = brk_wheel;
+    if (wheel != brk_wheel_seen) {
+        breaks_bend(&brk, wheel);
+        brk_bend_owner = wheel ? 3 : -1;
+        brk_wheel_seen = wheel;
+    }
     while (guard-- > 0 && plat_midi_in(&pkt))
         if (!project_midi_drop) midi_in(pkt);
     if (guard >= 0) project_midi_drop = 0;
@@ -3082,6 +3113,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     synth_boundary(&bass_slot[0]); /* Product Miami: 303A is WBL1 before first audio block. */
 #endif
 #endif
+    brk_wheel = brk_wheel_seen = 0; brk_bend_owner = -1;
     breaks_init(&brk);
     brk.accepted = s_brk_accepted;
     fxbus_init(&fx, dly_buf, DLY_LEN);

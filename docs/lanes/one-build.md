@@ -73,3 +73,12 @@ X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 BOARD=smk37 MODEL=pro sh buil
 Build instructions above are unexecuted commands, not authorization to install.
 Build only with pinned AC79NN SDK V1.2.1 and checked private input closure. No
 sample writes or device operations. Never force, flash, or run fm1_rescue.py.
+
+## BREAK shared-handler continuation
+The pre-existing `wip/break-feat@953aa683` input ownership route was ported
+into the current original-engine application without replacing its newer
+engine/UI or revision-13 persistence. It wires the BREAK physical pitch wheel,
+MIDI pitch bend, link/channel ownership, runtime mailbox, and JUNGLE caption
+to the previously copied BREAK DSP and accepted-hit callback. This is a
+source-only candidate. Complete candidate host tests, audible comparisons,
+native builds, MIDI output, and device interaction remain NOT_RUN.

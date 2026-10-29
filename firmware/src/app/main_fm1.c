@@ -1027,7 +1027,12 @@ static void smk_wheels(void)
     if (bend != bend_now) {
         if (bend_part < 0 && bend && is_303())
             bend_part = (int8_t)bidx();
-        if (bend_part >= 0) {
+        if (bend_part < 0 && bend && ui.part == PART_BRK && !smk_clip_mode_on())
+            bend_part = 2;
+        if (bend_part == 2) {
+            engine_brk_bend(bend < 0 ? bend * 8192 / 63 : bend * 8191 / 63);
+            if (!bend) bend_part = -1;
+        } else if (bend_part >= 0) {
 #if X0X_ORIGINAL_SYNTH
             int param = engine_bass_is_wobble(bend_part) ?
                 ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
@@ -1074,7 +1079,7 @@ static void smk_wheels(void)
         mw_now = (int16_t)mw;
     }
 #if X0X_BASS_PRESET_PREVIEW
-    engine_bass_wheel_owners((uint8_t)((bend_part >= 0 ? 1u << bend_part : 0u) |
+    engine_bass_wheel_owners((uint8_t)((bend_part >= 0 && bend_part < NBASS ? 1u << bend_part : 0u) |
                                       (cut_part >= 0 ? 1u << cut_part : 0u)));
     engine_bass_edit_hold(0);
 #endif

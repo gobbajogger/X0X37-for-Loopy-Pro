@@ -222,6 +222,10 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 void engine_bass_record(int part, int note, int velocity, int flags); /* accepted live REC press, audio-owned */
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
+void engine_brk_bend(int value); /* transient -8192..8191, +/-12 semitones */
+#ifdef X0X_HOST
+int engine_brk_bend_value(void);
+#endif
 void engine_brk_live(int key, int down);
 void engine_brk_edit_hold(int held);
 uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
