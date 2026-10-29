@@ -47,7 +47,7 @@ test('features 93/95: file selection epochs guard stale asynchronous reads',asyn
  assert.ok(fileRead>=0&&tokenCheck>fileRead&&tokenCheck<modal,'draft picker token checked before confirmation');
 });
 
-test('real draft schema: corruption never replaces last good saved copy',()=>{
+test('real draft schema: corruption never replaces last good saved copy',async()=>{
  const key='dnbox-offline-draft-v2',backup=key+':last-good';
  const values=new Map(),writes=[];
  const storage={
@@ -56,28 +56,32 @@ test('real draft schema: corruption never replaces last good saved copy',()=>{
  };
  const fresh=createDraft(),first=JSON.stringify(fresh);
  values.set(key,first);
- const session=new SafeDraftStorage(storage,{parseDraft,validateDraft});
+ const locks={tail:Promise.resolve(),request(_name,opts,fn){
+  assert.equal(opts.mode,'exclusive');
+  const next=this.tail.then(()=>fn());this.tail=next.catch(()=>{});return next;
+ }};
+ const session=new SafeDraftStorage(storage,{parseDraft,validateDraft,locks});
  const loaded=session.load();
  assert.equal(loaded.status,'ready');
  assert.deepEqual(loaded.draft,fresh);
  assert.equal(values.get(key),first);
- assert.equal(values.get(backup),first);
+ assert.equal(values.has(backup),false,'loading does not write storage outside a lock');
  const bad=copy(fresh);bad.patterns[0].bass[0].length=65;
  const writesBefore=writes.length;
- assert.throws(()=>session.save(bad),/Invalid melodic settings/);
+ await assert.rejects(session.save(bad),/Invalid melodic settings/);
  assert.equal(writes.length,writesBefore);
  assert.equal(values.get(key),first);
  const updated=copy(fresh);updated.patterns[0].bass[0].length=17;
- assert.equal(session.save(updated),true);
+ assert.equal(await session.save(updated),true);
  assert.deepEqual(parseDraft(values.get(key)),updated);
  assert.equal(values.get(backup),first);
  values.set(key,'{broken');
- const recovered=new SafeDraftStorage(storage,{parseDraft,validateDraft});
+ const recovered=new SafeDraftStorage(storage,{parseDraft,validateDraft,locks});
  const countBefore=writes.length;
  assert.equal(recovered.load().status,'recovery');
  assert.equal(writes.length,countBefore,'loading corrupt data must not mutate storage');
- assert.throws(()=>recovered.save(fresh),/locked/);
+ await assert.rejects(recovered.save(fresh),/locked/);
  assert.equal(values.get(key),'{broken');
- assert.deepEqual(recovered.restore(),fresh);
+ assert.deepEqual(await recovered.restore(),fresh);
  assert.equal(values.get(backup),first,'explicit recovery retains last good copy');
 });

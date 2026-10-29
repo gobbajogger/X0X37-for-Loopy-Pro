@@ -13,10 +13,10 @@ with sync_playwright() as p:
  for w,h in ([(1440,1000)] if red else [(1440,1000),(1024,900),(390,844),(320,568)]):
   ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=w<500,has_touch=w<1100);page=ctx.new_page();errors=[];network=[]
   def route(r):
-   f=(ROOT/(r.request.url.split('dnbox-editor.test/',1)[-1].split('?')[0] or 'index.html')).resolve()
+   f=(ROOT/(r.request.url.split('localhost/',1)[-1].split('?')[0] or 'index.html')).resolve()
    if f.parent!=ROOT or not f.is_file():network.append(r.request.url);r.abort();return
    r.fulfill(body=f.read_bytes(),content_type='text/javascript' if f.suffix=='.js' else mimetypes.guess_type(str(f))[0] or 'application/octet-stream')
-  ctx.route('**/*',route);page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script('window.midiCalls=0;navigator.requestMIDIAccess=()=>{window.midiCalls++;throw Error("No device API authorized")};');page.goto('http://dnbox-editor.test/');page.wait_for_function('window.dnboxEditor && document.querySelector("#sound .sound-row")')
+  ctx.route('**/*',route);page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script('window.midiCalls=0;navigator.requestMIDIAccess=()=>{window.midiCalls++;throw Error("No device API authorized")};');page.goto('http://localhost/');assert page.evaluate('typeof navigator.locks?.request === "function"'), 'Origin-wide Web Locks required for browser draft saving';page.wait_for_function('window.dnboxEditor && document.querySelector("#sound .sound-row")')
   snapshot=lambda:page.evaluate('dnboxEditor.snapshot()');rev=lambda:page.evaluate('dnboxEditor.revision()');initial=snapshot();geometry=[]
   if not red:
    for part in [0,1]:

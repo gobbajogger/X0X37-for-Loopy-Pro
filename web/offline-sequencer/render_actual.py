@@ -9,10 +9,10 @@ with sync_playwright() as p:
  for w,h in [(1440,1000),(1024,900),(390,844),(320,568)]:
   c=b.new_context(viewport={'width':w,'height':h},is_mobile=w<500,has_touch=w<1100);page=c.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   def route(r):
-   f=ROOT/(r.request.url.split('dnbox-editor.test/',1)[-1] or 'index.html')
+   f=ROOT/(r.request.url.split('localhost/',1)[-1] or 'index.html')
    if f.parent!=ROOT or not f.is_file():r.abort();return
    r.fulfill(body=f.read_bytes(),content_type='text/javascript' if f.suffix=='.js' else mimetypes.guess_type(str(f))[0] or 'application/octet-stream')
-  c.route('**/*',route);page.goto('http://dnbox-editor.test/');page.wait_for_function('window.dnboxEditor&&document.querySelector("#sound .sound-row")')
+  c.route('**/*',route);page.goto('http://localhost/');assert page.evaluate('typeof navigator.locks?.request === "function"'), 'Origin-wide Web Locks required for browser draft saving';page.wait_for_function('window.dnboxEditor&&document.querySelector("#sound .sound-row")')
   page.locator('#pattern').fill('7');page.locator('#pattern').press('Tab');page.locator('#length').fill('32');page.locator('#length').press('Tab');page.locator('#generator').click();page.get_by_label('Octaves',exact=True).fill('1');page.get_by_label('Octaves',exact=True).press('Tab');page.get_by_role('button',name='Preview New',exact=True).click()
   page.screenshot(path=str(OUT/f'actual-preview-{w}.png'),full_page=True);page.get_by_label('Accept reported replacements and losses').check();page.locator('[data-apply-plan]').click();page.locator('#note-list').click();page.locator('.note-picker button').first.click();page.get_by_label('Filter Cutoff',exact=True).press('ArrowRight');page.evaluate('scrollTo(0,0)');page.screenshot(path=str(OUT/f'actual-piano-{w}.png'),full_page=True)
   page.locator('[data-part="1"]').click();page.locator('#pattern').fill('12');page.locator('#pattern').press('Tab');page.locator('#viewport').focus();page.keyboard.press('Enter');page.keyboard.press('Shift+ArrowRight');page.locator('#sound').get_by_role('button',name='Bite / Gnaw',exact=True).click();page.evaluate('scrollTo(0,0)');page.screenshot(path=str(OUT/f'actual-chicago-{w}.png'),full_page=True)
