@@ -574,11 +574,33 @@ int plat_ble_state(void)
         return PLAT_BLE_FAILED;
     return bleh_connected(&ble_r.host.h) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
 }
+unsigned plat_ble_peer_names(char names[2][21])
+{
+    unsigned n = 0;
+    uint32_t f = irq_save();
+    if (ble_central_role) for (unsigned slot = 0; slot < 2; slot++) {
+        const blec_t *c = slot ? &ble_r.host.c2 : &ble_r.host.c;
+        if (!blec_connected(c)) continue;
+        const char *name = c->link_name[0] ? (const char *)c->link_name : "SMC-Mixer";
+        unsigned i = 0;
+        for (; i < 20u && name[i]; i++) names[n][i] = name[i];
+        names[n++][i] = 0;
+    }
+    irq_restore(f);
+    return n;
+}
 const char *plat_ble_name(void)
 {
     if (!ble_central_role) return ble_r.nm;
-    const blec_t *c = blec_connected(&ble_r.host.c2) && !blec_connected(&ble_r.host.c) ? &ble_r.host.c2 : &ble_r.host.c;
-    return c->link_name[0] ? (const char *)c->link_name : "SMC-Mixer";
+    static char names[43];
+    char peers[2][21];
+    unsigned count = plat_ble_peer_names(peers), n = 0;
+    for (unsigned p = 0; p < count; p++) {
+        if (p) { names[n++] = ','; names[n++] = ' '; }
+        for (unsigned i = 0; peers[p][i]; i++) names[n++] = peers[p][i];
+    }
+    names[n] = 0;
+    return names;
 }
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len)
 {

@@ -103,6 +103,20 @@ static volatile uint8_t smk_pad_grid;   /* set by the UI: pads as a step grid, w
 static const int8_t SMK_PIANO_NOTE[SMK_NPAD] = {7, 9, 11, 12, 14, 16, 18, 19, 8, 10, -1, 13, 15, 17, -1, 20};
 static volatile uint8_t smk_pad_piano;
 static uint8_t smk_pad_note[SMK_NPAD];   /* the note key a pad pressed (+1; 0 = none): its release ends that one */
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+/* Press owner, pending hit and held-release ownership copied from 6ae0928. */
+static volatile uint8_t smk_div_owner, smk_div_pending;
+static uint16_t smk_div_held;
+static int smk__division_poll(unsigned owner)
+{
+    int hit = -1;
+    if (owner == smk_div_owner && smk_div_pending)
+        hit = (int)smk_div_pending - 1;
+    smk_div_pending = 0;
+    smk_div_owner = (uint8_t)owner;
+    return hit;
+}
+#endif
 #define SMK_WHITE_OF_PAD(p) (smk_pad_grid ? (p) : (p) < 8u ? (p) + 8u : (p) - 8u)
 
 #define SMK_TRIM_FLASH 0xC1000u   /* USRTRIM: the factory calibration record ("trimdat"), never written here */
@@ -456,6 +470,18 @@ static void fm1__frame(void)
 
 static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or release (0): its white key */
 {
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+    uint16_t owned = (uint16_t)(1u << pad);
+    if (smk_div_held & owned) {
+        if (!vel) smk_div_held &= (uint16_t)~owned;
+        return; /* release belongs to the press-time role */
+    }
+    if (vel && smk_div_owner && !smk_pad_note[pad]) {
+        smk_div_held |= owned;
+        if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u);
+        return; /* physical rate hit never creates note/keybed velocity */
+    }
+#endif
     int32_t n0 = smk_pad_piano ? SMK_PIANO_NOTE[pad] : (int32_t)SMK_WHITE_NOTE[SMK_WHITE_OF_PAD(pad)];
     uint32_t n, bit;
     if (vel) {

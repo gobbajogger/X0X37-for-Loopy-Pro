@@ -281,6 +281,9 @@ void smc_ui_clip_show(int n, const char *name, const char *value);
 static uint8_t any_button;             /* a button has been pressed since power-on (the footer's first line) */
 #define FOOT_GAP 7                     /* between the footer's parts */
 static uint16_t footer_text(const char **a, const char **b, const char **c);
+static int division_pad_owner(void);
+static int division_pad_index(void);
+static const char *division_pad_label(void);
 
 /* something the project keeps changed: SAVE (or the autosave) has work to do */
 static void mark_dirty(void) { ui.dirty = 1; }
@@ -4002,6 +4005,58 @@ X0X_COLD static void button_tap(int b)
     }
 }
 
+/* Physical Free Play rate pads, ported from 6ae0928's division_pad_* route.
+ * Original Miami keeps its native macro13/division order. Shape pads untouched. */
+static int division_pad_owner(void)
+{
+#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
+    extern uint8_t smk_clip_mode_on(void);
+    if (project_busy || perf_testing() || ui.rec || ui.help || ui.overlay != O_NONE ||
+        (ui.btn & ((1u << B_HOME) | (1u << B_SAVE))) ||
+        (ui.view != V_SEQ && ui.view != V_PART) || !is_303() ||
+        !ui.freeplay[bidx()] || engine_bass_bank(bidx()) != ORIGINAL_SOUND_MIAMI ||
+        smk_clip_mode_on() || smc_ui_active())
+        return 0;
+#if X0X_DEV_PADCAL
+    extern uint8_t smk_padcal_on(void);
+    if (smk_padcal_on()) return 0;
+#endif
+    return bidx() + 1;
+#else
+    return 0;
+#endif
+}
+static int division_pad_index(void)
+{
+#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
+    int v = pref_get(PR(R_ENG, T_303, bidx(), ORIGINAL_MIAMI_WOBBLE_RATE));
+    return v < 0 ? 0 : v > 127 ? 7 : (v * 7 + 63) / 127;
+#else
+    return 0;
+#endif
+}
+static const char *division_pad_label(void)
+{
+    static const char *const labels[8] = {"PADS: RATE 1/2", "PADS: RATE 1/4",
+        "PADS: RATE 1/8", "PADS: RATE 1/16", "PADS: RATE 1/3", "PADS: RATE 1/6",
+        "PADS: RATE 1/12", "PADS: RATE 1/24"};
+    return labels[division_pad_index()];
+}
+static void division_pad_input(void)
+{
+    int owner = division_pad_owner();
+    int pad = plat_division_pad((unsigned)owner);
+#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
+    if (owner && pad >= 0 && pad < 8) {
+        pref_set(PR(R_ENG, T_303, owner - 1, ORIGINAL_MIAMI_WOBBLE_RATE), (pad * 127 + 3) / 7);
+        mark_dirty(); ui.act_t = plat_ms();
+        say("WOBBLE ", division_pad_label() + 11);
+    }
+#else
+    (void)pad;
+#endif
+}
+
 #if X0X_ORIGINAL_SYNTH
 /* 37 physical identities, not indices into the legacy 27-key tables. */
 typedef struct {
@@ -4321,7 +4376,8 @@ X0X_COLD static void input_body(void)
             list_move(e > 0 ? 1 : -1);
         } else {
             int p = cur_page() + (e > 0 ? 1 : -1);
-            if(ui.view==V_PART && is_303()) /* Matrix row arrows cycle both banks. */
+            if (ui.view == V_MIX || ui.view == V_FX ||
+                (ui.view == V_PART && (is_drum() || is_303()))) /* #63 safe browsing. */
                 *page_of(ui.view) = (uint8_t)(p < 0 ? pg.n-1 : p >= pg.n ? 0 : p);
             else
                 *page_of(ui.view) = (uint8_t)(p < 0 ? 0 : p >= pg.n ? pg.n - 1 : p);
@@ -4958,6 +5014,11 @@ static UI_DRAW void draw_header(void)
         int night=matrix_three_rows() || X0X_ORIGINAL_SYNTH;
         if(night) sound_slab(0,0,240,20,0);
         cv_text(7,2,&FONT_B,name,night?SOUND_GREEN:matrix_col());
+        if (division_pad_owner()) {
+            int dx = 7 + tw(&FONT_B, name) + 8;
+            dx = cv_text(dx, 6, &FONT_T, "PADS ", C_AMB);
+            cv_text(dx, 6, &FONT_T, division_pad_label() + 11, C_AMB);
+        }
         {   /* Screen banks, not musical divisions or the selected control row. */
             int banks = (pg.n + 3) / 4;
             for (int i = 0; i < banks; i++) {
@@ -6257,6 +6318,8 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
     } else if (is_303() && ui.rec) {
         *a = UI_CAP_ENV "+" UI_CAP_OCT ": REST";
         *b = UI_CAP_LFO "+" UI_CAP_OCT ": TIE";
+    } else if (division_pad_owner()) {
+        *a = "KEYS: PLAY"; *b = division_pad_label();
     } else if (kbd_on()) {
         *a = "FREE PLAY: KEYS PLAY";
         *b = UI_CAP_OCT ": OCTAVE";
@@ -6813,6 +6876,19 @@ static UI_DRAW void filter_glyph(int cx,int y,int mode,int cutoff,int resonance,
         cv_line(pivot,peak,pivot+6,floor,col);cv_line(pivot+6,floor,right,floor,col);
     }
 }
+static uint8_t tape_glyph_phase, tape_glyph_running;
+static uint32_t tape_glyph_at;
+static void tape_glyph_tick(void)
+{
+    uint32_t now = plat_ms();
+    uint8_t active = engine_tape_active();
+    if (active && tape_glyph_running) {
+        uint32_t steps = (now - tape_glyph_at) / 80u;
+        tape_glyph_phase = (uint8_t)((tape_glyph_phase + steps) % 16u);
+        tape_glyph_at += steps * 80u;
+    } else tape_glyph_at = now;
+    tape_glyph_running = active;
+}
 static uint8_t tempo_glyph_view; /* latched once for signature + complete knob strip */
 static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
 {
@@ -6842,12 +6918,96 @@ static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
 /* Shared parameter schematics from the owner-requested card vocabulary. These
  * show control values, never measured audio; labels/units below stay authoritative.
  * One dispatcher serves every ordinary knob strip. SOUND retains its matrix. */
+static UI_DRAW float comp_glyph_output(int value,float input)
+{
+ uint8_t threshold,ratio,makeup;
+ static const float ratios[]={1,1.5f,2,3,4,6};
+ master_comp1_pots(value,&threshold,&ratio,&makeup);
+ float t=-48.0f+48.0f*threshold/127.0f,over=input-t,slope=1.0f-1.0f/ratios[ratio],gr=0;
+ if(over>=3)gr=slope*over;
+ else if(over>-3)gr=slope*(over+3)*(over+3)/12.0f;
+ return input-gr; /* Compression shape before makeup, not measured audio. */
+}
+static UI_DRAW int semantic_amount_glyph(pref_t r,int val,int cx,uint16_t col)
+{
+ const x0x_param_t *d=pref_desc(r);int q=d&&d->max?(val*127+d->max/2)/d->max:0,left=cx-18;
+ if(r.kind==R_ENG && r.a==T_MST && r.c==MST_COMP1) {
+  int py=48;
+  cv_line(left,48,cx+18,28,C_LINE);
+  for(int i=1;i<=36;i++) {
+   float input=-48.0f+48.0f*i/36.0f;
+   int y=48-(int)((comp_glyph_output(val,input)+48)*20/48+0.5f);
+   cv_line(left+i-1,py,left+i,y,col);py=y;
+  }
+ } else if(r.kind==R_ENG && r.a==T_FX && r.c==FX_DL_FDBK) {
+  float amp=10,feedback=(pref_get(PR(R_ENG,T_FX,0,FX_DL_TYPE))?1.15f:0.85f)*q/127.0f;
+  for(int j=0;j<4;j++) {int h=(int)(amp+0.5f);if(h)cv_rect(left+3+j*10,47-h,2,h,col);amp*=feedback;}
+  cv_rect(left,48,37,1,C_LINE);
+ } else if(r.kind==R_SREP) {
+  for(int j=0;j<8;j++)cv_rect(left+j*5,34,3,9,j<=val?col:C_LINE);
+ } else if(r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_RV_LEVEL || r.c==FX_DL_LEVEL)) || (r.a==T_MIX && (r.c==MX_REV || r.c==MX_DLY)) || name_is(d,"Rev") || name_is(d,"Dly"))) {
+  int delay=(r.a==T_FX && r.c==FX_DL_LEVEL)||(r.a==T_MIX && r.c==MX_DLY)||name_is(d,"Dly");
+  cv_rect(left,48,37,1,C_LINE);
+  if(delay)for(int j=0;j<4;j++){int h=((16-j*3)*q+126)/127;if(h)cv_rect(left+3+j*10,47-h,2,h,col);}
+  else for(int j=0;j<7;j++){int h=((2+j*2)*q+126)/127;if(h)cv_rect(left+j*6,38-h/2,2,h,col);}
+ } else return 0;
+ return 1;
+}
+
+static UI_DRAW int glyph_identity_index(int count,int val){if(count<=0)return -1;if(count<=8)return val;return val*7/(count-1);}
+static UI_DRAW void glyph_identity(int count,int val,int l,uint16_t col){int n=count>8?8:count,selected=glyph_identity_index(count,val);for(int j=0;j<n;j++)rbox(l+(j%4)*10,30+j/4*10,7,7,1,j==selected?col:C_LINE);if(!count)cv_rect(l+12,38,13,1,C_LINE);}
+
+/* Qualitative parameter schematics: ordinal TIME spacing, not a measured beat/ms axis. */
+/* Fixed-phase sinusoid progressively flattened toward square as stored DRIVE rises.
+ * Qualitative amount icon, not measured audio or selected distortion transfer. */
+static UI_DRAW void drive_amount_glyph(int val,int cx,uint16_t col){
+ static const int16_t wave[37]={0,5690,11207,16383,21062,25101,28377,30791,32269,32767,32269,30791,28377,25101,21062,16384,11207,5690,0,-5690,-11207,-16384,-21062,-25101,-28377,-30791,-32269,-32767,-32269,-30791,-28377,-25101,-21062,-16383,-11207,-5690,0};
+ int py=38,gain=18161/(143-val);
+ for(int x=0;x<=36;x++){
+  int a=wave[x]*gain/127;if(a>32767)a=32767;if(a< -32767)a=-32767;
+  int h=((a<0?-a:a)*8+16383)/32767;int y=38+(a<0?h:-h);
+  if(x)cv_line(cx-19+x,py,cx-18+x,y,col);
+  py=y;
+ }
+}
+static UI_DRAW void loop_identity_glyph(int count,int val,int cx,uint16_t col){
+ int n=count>8?8:count,selected=glyph_identity_index(count,val);
+ if(!count){cv_rect(cx-6,38,13,1,C_LINE);return;}
+ int rows=(n+3)/4;
+ for(int row=0;row<rows;row++){int nr=n-row*4;if(nr>4)nr=4;int left=cx-(nr*10-3)/2,y=rows==1?35:30+10*row;
+ for(int k=0;k<nr;k++)rbox(left+k*10,y,7,7,1,row*4+k==selected?col:C_LINE);}
+}
+
+static UI_DRAW int all_glyph_semantics(pref_t r,int val,int cx,uint16_t col){
+ const x0x_param_t*d=pref_desc(r);int q=d&&d->max?(val*127+d->max/2)/d->max:0,l=cx-18;
+ if(r.kind==R_ENG&&r.a==T_FX&&r.c==FX_DL_TIME){
+  static const int gap[13]={2,3,4,4,5,5,6,6,7,8,8,9,10};int g=gap[val<13?val:0];
+  cv_rect(l,48,37,1,C_LINE);cv_rect(l,29,2,18,col);
+  for(int x=l+g;x<=cx+18;x+=g)cv_rect(x,35,1,12,col);
+  cv_line(l,50,l+g,50,col);
+ }else if(r.kind==R_ENG&&r.a==T_FX&&r.c==FX_RV_DECAY){
+  float a=18,fb=.2f+.73f*q/127;
+  cv_rect(l,48,37,1,C_LINE);
+  for(int j=0;j<7;j++){int h=(int)(a+.5f);if(h)cv_rect(l+j*6,47-h,2,h,col);a*=fb;}
+ }else if(r.kind==R_SPAT||r.kind==R_BRKSLOT||r.kind==R_SBAR){
+  if(r.kind==R_BRKSLOT)loop_identity_glyph(engine_brk_nslots(),val,cx,col);
+  else glyph_identity(d->max+1,val,l,col);
+ }else if(r.kind==R_TAPE){
+  if(val<16){cv_line(l,43,l+8,43,col);cv_line(l+8,43,l+8,33,col);cv_line(l+8,33,l+18,33,col);cv_line(l+18,33,l+18,43,col);cv_line(l+18,43,l+28,43,col);cv_line(l+28,43,l+28,33,col);cv_line(l+28,33,l+36,33,col);}
+  else{for(int s=-1;s<=1;s+=2){int x=cx+s*10;rbox(x-7,30,15,15,5,C_LINE);rbox(x-5,32,11,11,4,SOUND_FACE);cv_rect(x-1,36,3,3,col);static const int8_t dx[16]={0,2,3,4,4,4,3,2,0,-2,-3,-4,-4,-4,-3,-2};static const int8_t dy[16]={-4,-4,-3,-2,0,2,3,4,4,4,3,2,0,-2,-3,-4};cv_line(x,37,x+dx[tape_glyph_phase],37+dy[tape_glyph_phase],col);}cv_rect(l+2,48,33,1,C_LINE);int wear=(val-16)*32/111;cv_rect(l+2,47,1+wear,2,col);}
+ }else if(r.kind==R_ENG&&r.a==T_FX&&r.c==FX_DRIVE){
+  drive_amount_glyph(val,cx,col);
+ }else return 0;return 1;
+}
+
 static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
 {
     const x0x_param_t *d=pref_desc(r);
     int q=d && d->max?(val*127+d->max/2)/d->max:0, left=cx-18, right=cx+18;
     if(q<0)q=0;
     if(q>127)q=127;
+    if(all_glyph_semantics(r,val,cx,col))return 1;
+    if(semantic_amount_glyph(r,val,cx,col))return 1;
     if(is_pan(r) || r.kind==R_BTRANS || (r.kind==R_ENG && r.a==T_BRK && r.c==1)) {
         int at=left+q*36/127;
         cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
@@ -6927,6 +7087,8 @@ static uint32_t knobs_sig(void)
 #endif
     MIXIN(ui.view);
     MIXIN(ui.part);
+    MIXIN(division_pad_owner());
+    if (division_pad_owner()) MIXIN(division_pad_index());
 #if X0X_BASS_PRESET_PREVIEW
     if(is_303()) MIXIN(engine_bass_preset_pending(bidx()));
 #endif
@@ -6949,6 +7111,11 @@ static uint32_t knobs_sig(void)
         MIXIN(r.kind | r.a << 8 | r.b << 16 | (uint32_t)r.c << 24);
         MIXIN(pref_get(r));
         if(r.kind==R_TEMPO) MIXIN(tempo_glyph_view);
+        if(r.kind==R_TAPE && pref_get(r)>=16) MIXIN(tape_glyph_phase);
+        if(r.kind==R_BRKSLOT) MIXIN(engine_brk_nslots());
+        if(r.kind==R_SBAR) MIXIN(pref_desc(r)->max);
+        if(r.kind==R_ENG && r.a==T_FX && r.c==FX_DL_FDBK)
+            MIXIN(pref_get(PR(R_ENG,T_FX,0,FX_DL_TYPE)));
         if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
             MIXIN(engine_master_get(MST_MODE));
             MIXIN(engine_master_get(MST_CUTOFF));
@@ -7040,6 +7207,7 @@ static UI_DRAW void draw_knobs(void)
         last_sig = 0;
         return;
     }
+    tape_glyph_tick();
     tempo_glyph_view = seq.metro_view;
     sig = knobs_sig();
     if (sig == last_sig && blit_hash[3])
@@ -7264,6 +7432,13 @@ static void leds(void)
         }
     }
     k |= ui.keys;
+    if (division_pad_owner()) {
+        k = d = 0; /* no fake keybed notes from physical pad LEDs */
+        if (proj.set.keyled) {
+            for (i = 0; i < 8; i++) d |= 1u << WHITE_KEY[i];
+            k = 1u << WHITE_KEY[division_pad_index()];
+        }
+    }
     plat_keys_dim(d & ~k);
     plat_glow(proj.set.keyled == 1);
     plat_play_red(ui.rec);                           /* PLAY green; red while recording */
@@ -7278,6 +7453,7 @@ X0X_COLD void ui_init(void)
 #endif
     int i;
     memset(&ui, 0, sizeof ui);
+    (void)plat_division_pad(0);
 #if X0X_ORIGINAL_SYNTH
     original_controls.valid = 0;
 #endif
@@ -7462,6 +7638,7 @@ void ui_frame(void)
 {
     uint32_t i;
     input();
+    division_pad_input();
     if (project_busy) {
 #if BOARD_SMK37
         smc_ui_cancel();
@@ -7521,6 +7698,6 @@ void ui_frame(void)
     ui.frame++;
 }
 
-void ui_input_only(void) { input(); }
+void ui_input_only(void) { input(); division_pad_input(); }
 int ui_dirty(void) { return ui.dirty != 0; }
 void ui_say(const char *a, const char *b) { say(a, b); }

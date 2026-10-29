@@ -17,8 +17,9 @@ SPEC.loader.exec_module(build)
 
 def compile_plan(env):
     original, wobble = build.synth_build_config(env)
+    dev_wobble = env.get("X0X_DEV_WOBBLE", wobble)
     flags = [*build.CFLAGS, *build.FPU, "-DBOARD_SMK37=1", "-DSMK_MODEL=1",
-             f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={wobble}"]
+             f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={dev_wobble}"]
     commands, objects = build.app_compile_commands(flags, original, wobble)
     sources = {}
     for command in commands:
@@ -89,16 +90,32 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("-Oz", sources["firmware/src/x0x.c"])
 
     def test_conflicting_or_invalid_selectors_fail(self):
-        for flag in ("X0X_WOBBLE", "X0X_DEV_WOBBLE"):
-            for value in ("1", "invalid"):
-                with self.subTest(flag=flag, value=value):
-                    with self.assertRaisesRegex(SystemExit, flag):
-                        compile_plan({"X0X_ORIGINAL_SYNTH": "1", flag: value})
+        for value in ("1", "invalid"):
+            with self.subTest(flag="X0X_WOBBLE", value=value):
+                with self.assertRaisesRegex(SystemExit, "X0X_WOBBLE"):
+                    compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_WOBBLE": value})
+        with self.assertRaisesRegex(SystemExit, "X0X_DEV_WOBBLE"):
+            compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "invalid"})
         with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: 0 or 1"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "invalid"})
         self.assertEqual(build.synth_build_config({"X0X_ORIGINAL_SYNTH": "1",
                                                   "X0X_WOBBLE": "0",
                                                   "X0X_DEV_WOBBLE": "0"}), (True, "0"))
+
+    def test_original_rate_pads_do_not_compile_legacy_wobble(self):
+        commands, objects, sources = compile_plan({
+            "X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "1"})
+        self.assertNotIn("experiments/wobble/wobble.c", sources)
+        self.assertNotIn("firmware/src/dsp/bass303.c", sources)
+        self.assertIn("firmware/src/dsp/original_miami_backend.c", sources)
+        self.assertIn("firmware/src/dsp/original_chicago_backend.c", sources)
+        for command in commands:
+            if "-c" not in command:
+                continue
+            self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+            self.assertIn("-DX0X_WOBBLE=0", command)
+            self.assertIn("-DX0X_DEV_WOBBLE=1", command)
+        self.assertEqual(len(objects), len(set(objects)))
 
     def test_legacy_wobble_disable_still_works(self):
         for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):

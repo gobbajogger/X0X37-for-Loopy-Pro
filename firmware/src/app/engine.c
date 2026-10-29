@@ -254,6 +254,14 @@ static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper o
 #endif
 static breaks_t brk POOL;
 static fxbus_t fx POOL;
+static volatile uint8_t tape_signal_seen;
+static volatile uint32_t tape_signal_at;
+/* The original ca8299b6 visual activity observer. No DSP output change. */
+uint8_t engine_tape_active(void)
+{
+    uint32_t at = tape_signal_at;
+    return tape_signal_seen && (uint32_t)(plat_ms() - at) < 80u;
+}
 void engine_fx_mute(uint8_t mask) { fx.muted = mask & 7u; }
 uint8_t engine_fx_muted(void) { return fx.muted; }
 static master_t mst POOL; /* was BSS; pool after Chicago-insert union frees headroom */
@@ -2652,6 +2660,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     {
         PROF_T(pf);
         fxbus_process_st(&fx, dry_l, dry_r, rev, dly, out_l, out_r, (int)n);
+        if (fx.dl_type != 1 || fx.dl_level <= 0.0f || (fx.muted & 2u)) tape_signal_seen = 0;
+        else if (fx.dl_signal) { tape_signal_at = plat_ms(); tape_signal_seen = 1; }
         PROF_ADD(5, pf);
     }
     bfx_flt_shape(out_l, out_r, (int)n);
@@ -2675,6 +2685,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
         n = 256u;
     if (!n) return;
     if (project_hold) {
+        tape_signal_seen = 0;
         for (i = 0; i < n * 2u; i++)
             out_lr[i] = 0;
         return;
@@ -3074,6 +3085,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     breaks_init(&brk);
     brk.accepted = s_brk_accepted;
     fxbus_init(&fx, dly_buf, DLY_LEN);
+    tape_signal_seen = 0;
     master_init(&mst);
     seq_init(&seq, patterns);
     seq.song = song;

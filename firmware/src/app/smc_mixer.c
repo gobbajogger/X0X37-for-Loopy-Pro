@@ -6,6 +6,9 @@
 #include "smc_fx_map.h"
 
 #define SMC_Q 32u
+/* Preserve the decoding preset in the spare event-length bits. */
+#define SMC_EVENT_USER 0x40u
+#define SMC_EVENT_LEN_MASK 0x3Fu
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len);
 #define SMC_PEERS 2u
@@ -22,6 +25,11 @@ typedef struct {
     volatile uint8_t qw, qr;
     volatile uint32_t link_published;
     uint32_t link_seen;
+    /* TIMER5 publishes the link, loss watermarks and host cutoff together.
+     * Only peer zero owns hosted input. Peer one never retires host events. */
+    volatile uint32_t link_loss_seq, link_release_boundary[4];
+    volatile uint8_t link_host_cutoff;
+    uint8_t host_cutoff, host_cutoff_pending;
     volatile uint8_t enqueued, dropped, dispatched, reason;
     volatile uint32_t release_lost[4];
     uint32_t release_seen[4];
@@ -50,13 +58,11 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
-/* MMC STOP must survive a saturated, per-source queue. The audio ISR only
- * publishes generations; the main loop acknowledges them after queued input. */
-static volatile uint32_t smc_mmc_stop_published[2];
-static uint32_t smc_mmc_stop_seen[2];
-/* ISR publishes the overflowed STOP only after its FIFO cutoff. The consumer
- * must drain all commands before that cutoff before applying STOP. */
-static volatile uint8_t smc_mmc_stop_boundary[2];
+/* Keep every distinct saturated STOP cutoff. A 16-command ring can have
+ * at most 17 outstanding cutoffs; duplicates at one cutoff coalesce. */
+#define SMC_STOP_Q 32u
+static volatile uint8_t smc_mmc_stop_q[2][SMC_STOP_Q];
+static volatile uint8_t smc_mmc_stop_w[2], smc_mmc_stop_r[2];
 /* Separate single-writer generation counters: TIMER5 (central), audio ISR
  * (host). Main-loop snapshots never clear a producer-owned flag. */
 /* Slots 0/2 belong to TIMER5; 1/3 belong to the host audio ISR. Each
@@ -80,7 +86,7 @@ static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 typedef struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
-    uint8_t up, fresh, solo, rec_part;
+    uint8_t up, fresh, solo, rec_part, preset_user_seen;
     uint8_t input_seen;                /* physical history survives target/pickup refresh */
     uint8_t solo_target[8];            /* physical S key: 1..5 parts, then 909/808 tracks; 0 released */
     uint16_t drum_solo[NKIT];
@@ -157,8 +163,9 @@ X0X_COLD static void smc_peer_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
-    smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
-    smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
+    smc_mmc_stop_r[0] = smc_mmc_stop_w[0];
+    smc_mmc_stop_r[1] = smc_mmc_stop_w[1];
+    smc_peer_input.host_cutoff_pending = 0;
     /* A reset has already cleared all held solos; do not carry stale
      * overflow releases into the new project's queued presses. */
     for (int i = 0; i < 4; i++) smc_release_seen[i] = smc_release_lost[i];
@@ -181,6 +188,7 @@ X0X_COLD void smc_project_reset(void)
     memset(smc_states, 0, sizeof smc_states);
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {
         smc.up = smc.fresh = up[smc_slot];
+        smc.preset_user_seen = !!(proj.set.bt & PROJ_BT_SMC_USER);
         smc.pending = 0xFFu;
         smc_fx_load_page(0);
     }
@@ -195,14 +203,15 @@ void smc_ble_midi_slot(unsigned slot, const uint8_t *msg, uint8_t len)
     uint8_t w = in->qw, i;
     if (!msg || !len || len > 6u) { in->dropped++; return; }
     if ((uint8_t)(w - in->qr) >= SMC_Q) {
-        if (len == 3u && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
-            (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER))) {
+        if (len == 3u && (proj.set.bt & PROJ_BT_SMC_CENTRAL) &&
+            (in->link_published & 1u) && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
+            (!(msg[0] & 15u) || ((proj.set.bt & PROJ_BT_SMC_USER) && (msg[0] & 15u) == 15u))) {
             in->release_lost[0]++;
             if (msg[1] == 0x5Du) in->release_lost[2]++;
         }
         in->dropped++; return;
     }
-    in->q[w % SMC_Q].n = len;
+    in->q[w % SMC_Q].n = (uint8_t)(len | ((proj.set.bt & PROJ_BT_SMC_USER) ? SMC_EVENT_USER : 0u));
     for (i = 0; i < len; i++) in->q[w % SMC_Q].b[i] = msg[i];
     __asm__ volatile("" ::: "memory");
     in->qw = (uint8_t)(w + 1u);
@@ -214,8 +223,14 @@ void smc_ble_link_slot(unsigned slot, int up)
 {
     if (slot >= SMC_PEERS) return;
     smc_input_t *in = &smc_inputs[slot];
+    in->link_loss_seq++;
+    __asm__ volatile("" ::: "memory");
+    for (int i = 0; i < 4; i++) in->link_release_boundary[i] = in->release_lost[i];
+    if (!slot) in->link_host_cutoff = smc_host_w;
     uint32_t next = (in->link_published + 0x200u) & ~0x1FFu;
     in->link_published = next | ((uint32_t)in->qw << 1) | (uint32_t)(up != 0);
+    __asm__ volatile("" ::: "memory");
+    in->link_loss_seq++;
 }
 void smc_ble_link(int up) { smc_ble_link_slot(0, up); }
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
@@ -250,15 +265,19 @@ int smc_midi_host(uint32_t pkt)
 void smc_mmc_host(uint8_t cmd, uint8_t src)
 {
     uint8_t w;
-    if (src > 1u || cmd < 1u || cmd > 43u)
+    if (!(proj.set.bt & PROJ_BT_SMC_USER) || src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
     if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
         /* User-preset MMC command 34 is STOP. Never drop it on overload. */
         if (cmd == 34u) {
-            smc_mmc_stop_boundary[src] = w;
-            __asm__ volatile("" ::: "memory");
-            smc_mmc_stop_published[src]++;
+            uint8_t stop_w = smc_mmc_stop_w[src];
+            if (stop_w == smc_mmc_stop_r[src] ||
+                smc_mmc_stop_q[src][(uint8_t)(stop_w - 1u) & (SMC_STOP_Q - 1u)] != w) {
+                smc_mmc_stop_q[src][stop_w & (SMC_STOP_Q - 1u)] = w;
+                __asm__ volatile("" ::: "memory");
+                smc_mmc_stop_w[src] = (uint8_t)(stop_w + 1u);
+            }
         }
         return;
     }
@@ -983,9 +1002,10 @@ static int smc_bank(uint8_t note)
 
 static int smc_lock_blocks(uint8_t note)
 {
-    return smc.locked && (note < 8u || (note >= 24u && note < 32u) ||
-        (note >= 0x2Eu && note <= 0x31u) || (note >= 0x60u && note <= 0x63u) ||
-        (!smc.lock_kit && note >= 13u && note <= 15u));
+    /* Pause captures fader/knob destinations. Buttons keep their normal
+     * navigation, recording and performance actions while targets stay bound. */
+    (void)note;
+    return 0;
 }
 
 static void smc_fx_publish(void)
@@ -1189,16 +1209,14 @@ static void smc_button_apply(uint8_t note, int mmc)
             button_tap(note == 5 ? B_SEL : B_HOME);
         return;
     }
-    /* Lock freezes row identity as well as faders. SMC navigation and row REC
-     * select a new context, so they wait for unlock. Global transport remains
-     * live; recording/motion follow the current sequencer exactly as before. */
+    /* Button navigation stays live while Pause holds fader/knob targets. */
     if (smc_lock_blocks(note)) {
         ui_say("SMC TARGETS LOCKED", 0);
         return;
     }
     if (smc_fx_try(note, mmc))
         return;
-    if (!smc.locked && ui.overlay == O_NONE && smk_ck_smc_nav(note))
+    if (ui.overlay == O_NONE && smk_ck_smc_nav(note))
         return;
     if (!mmc && note >= 8u && note < 16u && smc.solo_target[note - 8u])
         return;                        /* a held Solo's repeat cannot turn into a navigation shortcut */
@@ -1393,7 +1411,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
         smc_guarded_button(a, 1, allow);
         return !allow || perf_testing() ? 1 : 0;
     }
-    if (len < 3)
+    if (len != 3u)
         return 4;
     /* Never alias malformed BLE MIDI data bytes into SMC notes/CCs. */
     if ((m[1] | m[2]) & 0x80u)
@@ -1402,6 +1420,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
     b = m[2] & 0x7Fu;
+    if (user && ch != 0u && ch != 15u) return 4;
     if (!allow || perf_testing()) {
         if (type == 0x90u && b && (!ch || user))
             smc_guarded_button(a, 0, 0);
@@ -1426,10 +1445,13 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
  * otherwise a preceding PLAY can execute on the next poll after STOP. */
 static void smc_mmc_drain_stop(int src, int allow)
 {
-    uint32_t lost_stop = smc_mmc_stop_published[src];
-    if (lost_stop != smc_mmc_stop_seen[src] &&
-        smc_mmc_r[src] == smc_mmc_stop_boundary[src]) {
-        smc_mmc_stop_seen[src] = lost_stop;
+    while (smc_mmc_stop_r[src] != smc_mmc_stop_w[src]) {
+        uint8_t r = smc_mmc_stop_r[src];
+        __asm__ volatile("" ::: "memory");
+        uint8_t cutoff = smc_mmc_stop_q[src][r & (SMC_STOP_Q - 1u)];
+        if (smc_mmc_r[src] != cutoff) break;
+        __asm__ volatile("" ::: "memory");
+        smc_mmc_stop_r[src] = (uint8_t)(r + 1u);
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_guarded_button(0x5Du, 1, allow);
     }
@@ -1437,7 +1459,16 @@ static void smc_mmc_drain_stop(int src, int allow)
 
 static void smc_poll_peer(void)
 {
-    uint32_t link = smc_link_published;
+    uint32_t seq, link, link_loss[4];
+    uint8_t host_cutoff;
+    do {
+        seq = smc_peer_input.link_loss_seq;
+        __asm__ volatile("" ::: "memory");
+        link = smc_link_published;
+        for (int i = 0; i < 4; i++) link_loss[i] = smc_peer_input.link_release_boundary[i];
+        host_cutoff = smc_peer_input.link_host_cutoff;
+        __asm__ volatile("" ::: "memory");
+    } while ((seq & 1u) || seq != smc_peer_input.link_loss_seq);
     uint8_t r, count = 0;
     int allow = !perf_testing();
     smc_fx_main_tick();
@@ -1460,6 +1491,18 @@ static void smc_poll_peer(void)
         /* Never clear the ISR's publication: it may already contain a newer
          * link edge than this snapshot. The next poll must still see it. */
         smc_link_seen = link;
+        if (!smc_slot) {
+            smc_peer_input.host_cutoff = host_cutoff;
+            smc_peer_input.host_cutoff_pending = 1;
+        }
+        /* Retire only losses belonging to the old link. New-link losses
+         * still need to clear the presses queued after this boundary. */
+        for (int i = 0; i < 4; i++) {
+            if ((uint32_t)(link_loss[i] - release_seen[i]) < 0x80000000u) {
+                smc_release_seen[i] = link_loss[i];
+                release_seen[i] = link_loss[i];
+            }
+        }
         /* Skip pre-edge central packets without losing packets queued on the
          * newly connected link. Never rewind if another action already drained. */
         uint8_t cutoff = (uint8_t)(link >> 1);
@@ -1479,6 +1522,17 @@ static void smc_poll_peer(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
+    uint8_t preset_user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    if (smc.preset_user_seen != preset_user) {
+        smc.preset_user_seen = preset_user;
+        smc.picked = smc.seen = smc.input_seen = 0;
+        smc.knob_i = 0;
+        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        smc_fx_clear();
+        smc_solo_clear();
+        smc.pending = 0xFFu;
+        memset(smc.known, 0, sizeof smc.known);
+    }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
@@ -1491,6 +1545,8 @@ static void smc_poll_peer(void)
         r = smc_qr;
         __asm__ volatile("" ::: "memory");
         smc_event_t msg = smc_q[r % SMC_Q];
+        __asm__ volatile("" ::: "memory");
+        if (smc_link_published != link) break;
         /* The ISR may reuse a full ring's slot as soon as the read index moves.
          * Keep a private event before releasing it. Release before dispatch so
          * a project action can still discard the remaining queued input. */
@@ -1498,28 +1554,40 @@ static void smc_poll_peer(void)
         smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
+        else if (!!(msg.n & SMC_EVENT_USER) != !!(proj.set.bt & PROJ_BT_SMC_USER)) smc_reason = 4;
         else {
             if (allow && !perf_testing()) smc_dispatched++;
-            smc_reason = smc_message(msg.b, msg.n, allow);
+            smc_reason = smc_message(msg.b, (uint8_t)(msg.n & SMC_EVENT_LEN_MASK), allow);
         }
     }
     if (smc_slot == 0) {
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
+        if (smc_link_published != link) break;
         r = smc_host_r;
         uint8_t msg[3];
         __asm__ volatile("" ::: "memory");
         memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
         __asm__ volatile("" ::: "memory");
+        if (smc_link_published != link) break;
         smc_host_r = (uint8_t)(r + 1u);
+        /* Keep this boundary across polls if the BLE epoch changes mid-drain. */
+        if (smc_peer_input.host_cutoff_pending) {
+            uint8_t delta = (uint8_t)(smc_peer_input.host_cutoff - r);
+            if (!delta || delta > SMC_Q) smc_peer_input.host_cutoff_pending = 0;
+            else if (smc_is_solo_release(msg[0], msg[1], msg[2]) ||
+                     ((msg[0] & 0xF0u) == 0x90u && msg[1] >= 8u && msg[1] < 16u && msg[2]))
+                continue;
+        }
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_message(msg, sizeof msg, allow);
     }
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
-            smc_mmc_drain_stop(src, allow);
             r = smc_mmc_r[src];
+            smc_mmc_drain_stop(src, allow);
+            if (smc_mmc_r[src] != r) break;
             __asm__ volatile("" ::: "memory");
             uint8_t cmd = smc_mmc_q[src][r % 16u];
             __asm__ volatile("" ::: "memory");
@@ -1527,8 +1595,7 @@ static void smc_poll_peer(void)
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
-        /* The generation stays pending if an earlier queued command remains
-         * beyond this poll's budget, preserving STOP-before-next-PLAY order. */
+        /* Later cutoffs stay pending beyond this poll's command budget. */
         smc_mmc_drain_stop(src, allow);
     }
     }
@@ -1538,7 +1605,8 @@ static void smc_poll_peer(void)
      * project drop may already have advanced a cursor; do not rewind it. */
     uint8_t missed_solo = 0;
     for (int i = 0; i < 4; i++)
-        if (release_lost[i] != release_seen[i] && smc_release_seen[i] == release_seen[i]) {
+        if (smc_link_published == link && release_lost[i] != release_seen[i] &&
+            smc_release_seen[i] == release_seen[i]) {
             smc_release_seen[i] = release_lost[i];
             if (i < 2) missed_solo = 1;
             else smc.lock_down = 0;
@@ -1550,7 +1618,9 @@ static void smc_poll_peer(void)
         smc.play_down = smc.select_down = smc.home_down = 0;
         smc_fx_clear();
     }
-    smc_lock_tick();
+    /* A disconnect/reconnect during dispatch cancels the old physical hold
+     * on the next poll. Do not unlock its captured context in the meantime. */
+    if (smc_link_published == link) smc_lock_tick();
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
 }
@@ -1620,8 +1690,9 @@ static void smc_frame_peer(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
-    if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
-        return;
+    uint32_t link = smc_link_published;
+    if (ui_project_busy() || !smc.up || !(link & 1u) || link != smc_link_seen ||
+        !(proj.set.bt & PROJ_BT_SMC_CENTRAL)) return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {
         n = i < 32 ? i : global[i - 32];
@@ -1630,7 +1701,8 @@ static void smc_frame_peer(void)
         msg[0] = 0x90;
         msg[1] = (uint8_t)n;
         msg[2] = (uint8_t)(want ? 127 : 0);
-        if (!plat_ble_smc_send_slot(smc_slot, msg, 3)) return;
+        if (smc_link_published != link || !plat_ble_smc_send_slot(smc_slot, msg, 3)) return;
+        if (smc_link_published != link) return;
         smc.known[n] = 1;
         smc.lit[n] = (uint8_t)want;
     }
@@ -1639,7 +1711,8 @@ static void smc_frame_peer(void)
             msg[0] = (uint8_t)(0xE0u + i);
             msg[1] = smc.value[i];
             msg[2] = smc.value[i];
-            if (!plat_ble_smc_send_slot(smc_slot, msg, 3)) return;
+            if (smc_link_published != link || !plat_ble_smc_send_slot(smc_slot, msg, 3)) return;
+            if (smc_link_published != link) return;
             smc.pending &= (uint8_t)~(1u << i);
         }
 }

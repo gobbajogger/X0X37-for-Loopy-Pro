@@ -320,9 +320,11 @@ def synth_build_config(environ=None):
     if original not in ("0", "1"):
         raise SystemExit("X0X_ORIGINAL_SYNTH: 0 or 1")
     if original == "1":
-        for flag in ("X0X_WOBBLE", "X0X_DEV_WOBBLE"):
-            if flag in env and env[flag] != "0":
-                raise SystemExit(f"X0X_ORIGINAL_SYNTH=1 requires {flag}=0 or unset")
+        if env.get("X0X_WOBBLE", "0") != "0":
+            raise SystemExit("X0X_ORIGINAL_SYNTH=1 requires X0X_WOBBLE=0 or unset")
+        if env.get("X0X_DEV_WOBBLE", "0") not in ("0", "1"):
+            raise SystemExit("X0X_DEV_WOBBLE: 0 or 1")
+        # Pad-rate UI flag is independent of the prohibited legacy wobble DSP.
         return True, "0"
     wobble = env.get("X0X_WOBBLE")
     if wobble is None:
@@ -414,7 +416,7 @@ def build_app():
     # the original replacement always disables both legacy selectors.
     if f"-DX0X_WOBBLE={wobble}" not in flags:
         flags.append(f"-DX0X_WOBBLE={wobble}")
-    if f"-DX0X_DEV_WOBBLE={wobble}" not in flags:
+    if not any(f.startswith("-DX0X_DEV_WOBBLE=") for f in flags):
         flags.append(f"-DX0X_DEV_WOBBLE={wobble}")
     flags += clang_std_inc()
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
