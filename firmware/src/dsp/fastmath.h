@@ -20,7 +20,12 @@
 #pragma once
 #include <stdint.h>
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(X0X_HOST)
+/* Host C99 builds need a complete local definition when a call is not inlined.
+ * GNU extern-inline does not emit that body and rejects weak inline linkage.
+ * Keep the device's size-oriented linkage below unchanged. */
+#define FM_ONE static inline
+#elif defined(__GNUC__) || defined(__clang__)
 /* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
  * The body stays visible so a hot call can still be inlined. A unit that
  * does not inline emits a weak copy, and the link keeps one of them. */
