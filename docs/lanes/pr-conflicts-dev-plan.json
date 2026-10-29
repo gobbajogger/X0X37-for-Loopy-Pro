@@ -1,0 +1,27 @@
+{
+  "base": "66073c68dd80d51a7053432c2c161a8b720a1341",
+  "scope": "Shared Chicago/Miami source reconciliation of PR #677 MIDI queue order and Chicago FX behavior and PR #212 compatible adapter tests; revision 13 only; no device/release work.",
+  "checks": [
+    {
+      "reason": "PR #677 MIDI FIFO protected event order, counter rollover, TIMER5 boundaries",
+      "argv": [
+        "python3",
+        "tests/host/midi_overflow_order_test.py"
+      ]
+    },
+    {
+      "reason": "PR #677 Chicago runtime BPM Delay tempo, control updates and released FX tails",
+      "argv": [
+        "sh",
+        "tests/host/run_chicago_fx_runtime.sh"
+      ]
+    },
+    {
+      "reason": "PR #212 original adapter equivalence, backend identity and registry rejection",
+      "argv": [
+        "sh",
+        "tests/host/run_synth_engine.sh"
+      ]
+    }
+  ]
+}
