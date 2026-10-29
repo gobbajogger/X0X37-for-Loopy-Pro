@@ -26,10 +26,11 @@
 #define FM_WEAK
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__clang__)
 /* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
  * The body stays visible so a hot call can still be inlined. A unit that
- * does not inline emits a weak copy, and the link keeps one of them. */
+ * does not inline emits a weak copy, and the link keeps one of them.
+ * Host GCC (no weak on gnu_inline) uses static inline so -O0 links. */
 #define FM_ONE extern inline __attribute__((gnu_inline, unused)) FM_WEAK
 #else
 #define FM_ONE static inline
