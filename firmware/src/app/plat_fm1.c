@@ -327,5 +327,8 @@ int plat_stalls(uint32_t s[3])
 void plat_stalls_enable(int on)
 {
     perf_stalls_on = on;
-    fm1_perf_stalls_enable(on);
+    /* The counters share their enable bits. STALLS OFF must not stop CLOCK or
+     * change the units of the engine's running profiling totals. */
+    if (on || !perf_cyc_ok)
+        fm1_perf_stalls_enable(on);
 }
