@@ -65,7 +65,22 @@ def export_reference(ref, out):
     archive = subprocess.check_output(['git', 'archive', sha, 'experiments/original_synth',
                                       'experiments/wobble', 'firmware/src/dsp', 'tools/build.py'], cwd=ROOT)
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
-        tar.extractall(out, filter='data')
+        # These source scopes contain regular files and directories only. Copy
+        # them explicitly, including on Python versions without tar's data
+        # filter; never follow archive links or paths outside the fresh tree.
+        for member in tar:
+            path = Path(member.name)
+            if path.is_absolute() or '..' in path.parts:
+                raise SystemExit('Unsafe reference path: '+member.name)
+            destination = out/path
+            if member.isdir():
+                destination.mkdir(parents=True, exist_ok=True)
+            elif member.isfile():
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                with tar.extractfile(member) as src, destination.open('wb') as dst:
+                    shutil.copyfileobj(src, dst)
+            else:
+                raise SystemExit('Unsupported reference member: '+member.name)
     # Private bytes are read only after verifying the manifest and ignored
     # paths. The overlay itself is below build/, which must also be ignored.
     for item in json.loads((out/MANIFEST).read_text())['excluded_data_inputs']:
@@ -120,16 +135,16 @@ def main():
     cc, flags = build(source, out/'candidate', args)
     if source == ROOT:
         unit_tests(cc, flags, out/'candidate')
+    subprocess.run([str(out/'candidate/runner'), 'proof', str(out/'candidate/trace.bin')], check=True)
     if not args.compare_ref:
-        print(out/'candidate/runner')
+        print('Candidate PCM/state trace:', out/'candidate/trace.bin')
         return
     ref = export_reference(args.compare_ref, out/'reference-source')
     build(out/'reference-source', out/'reference', args)
     result = {'reference': ref, 'manifest_sha256': hashlib.sha256((ROOT/MANIFEST).read_bytes()).hexdigest(),
               'platform': platform.platform(), 'compiler': subprocess.check_output([*cc, '--version'], text=True),
               'sanitize': args.sanitize, 'native_fma': args.native_fma, 'profile': args.profile}
-    for side in ['reference', 'candidate']:
-        subprocess.run([str(out/side/'runner'), 'proof', str(out/side/'trace.bin')], check=True)
+    subprocess.run([str(out/'reference/runner'), 'proof', str(out/'reference/trace.bin')], check=True)
     if not filecmp.cmp(out/'reference/trace.bin', out/'candidate/trace.bin', shallow=False):
         raise SystemExit('FAIL: Miami PCM/state traces differ')
     result['trace_sha256'] = hashlib.sha256((out/'candidate/trace.bin').read_bytes()).hexdigest()
