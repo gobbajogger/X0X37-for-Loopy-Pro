@@ -136,9 +136,77 @@ The interpolation-only export is `f95e230e` with `miami_fx_chain.c`,
 `miami_fx_chain.h`, and `miami_output.c` restored from `40935bd1`. Its ignored
 local source is `build/miami-interpolation-only`.
 
-No push, firmware install, or flashing was performed. The prepared changes
-contain only this note and `tests/host/miami_cpu_test.py`; no private input
-header or plugin/package binary was staged. The local commit is also pending:
+That session performed no push, firmware install, or flashing. Its prepared
+changes contained only this note and `tests/host/miami_cpu_test.py`; no private
+input header or plugin/package binary was staged. Its local commit was pending:
 `git add` was denied when Git tried to create the worktree's `index.lock` at
 `/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/.git/worktrees/miami-opt2/index.lock`.
-No new commit was created in this session.
+No new commit was created in that session. The orchestrator subsequently
+committed those two files as `f9ffd12e`.
+
+## Miami idle/block follow-up, 2026-10-29
+
+This work continues `codex/miami-opt2` from `f9ffd12e` and keeps `f95e230e`.
+The goal is lower idle load on the 360 MHz AC79, with identical sound when
+playing again. No Chicago source changes, push, installation or flashing are
+part of this work.
+
+### Step 1: exactly inactive blocks
+
+The backend admits only event-free blocks with both voices inactive, no
+pending restart, no held or physical keys, no active allocator records, ARP
+disabled, no gate countdown/key reset, and zero held Decimator samples. This
+uses exact state predicates, with no amplitude threshold or tail truncation.
+Inactive voice histories remain frozen just as in the scalar path. Clocks
+retain **each** binary32 addition, including fractional BPM. At clock
+thresholds the original scheduler performs the notifications in order. The
+original global helper still runs at each due frame; its intervening integer
+counter increments and diagnostic entry count are preserved. FX, workspace,
+Decimator phase/pending commits and master state use the existing output path.
+
+Proof against the inherited `f9ffd12e` engine:
+
+- `python3 tests/host/miami_cpu_test.py --out build/miami-idle-step1
+  --compare-ref f9ffd12e`: PASS for the original all-30-program PCM/state
+  trace and the new all-30-program long-idle/note trace. The new workload
+  covers cold silence, silence after release/FX history, panic, explicit
+  preparation, interior/frame-zero note events, irregular block sizes, and
+  tempos 20/120/217.5/400 BPM. Every output sample is compared; periodic full
+  pointer-free state/workspace snapshots catch drift before note key-sync.
+- Long-idle trace: 152,416,080 bytes, SHA-256
+  `401cc4104a90e550ec36372a722248829b4afc620b3fb18d769c7ed1851b5e62`.
+  Original trace remains 31,020,360 bytes with SHA-256
+  `7f40bab46929807ab98de998f6ac151513759b6f6e5b74506c0d5a97dc985dd8`.
+- `python3 tools/synth684_harness/run.py --elite --golden
+  build/synth684-golden-9d1cf9fb --out build/miami-idle-step1-linux`:
+  **15/15 identical**, REAL inputs, Elite build PASS in an isolated x86-64
+  Linux VM, GCC 13.3 / JieLi Clang 4.0.1, `X0X_DEV_PADCAL=1`.
+- Python 3.12 host golden run: **15/15 identical**. The default Mac Python
+  3.9 cannot import the golden harness's existing `rom_guard.py` annotations;
+  no source workaround was used. The Miami host test above runs on Python 3.9.
+- Source snapshot and hashes: `build/miami-idle-step1-source/`.
+
+Idle CPU instructions per 256-frame block, before and after: **NOT MEASURED**.
+`docker info` is denied access to the Colima socket by the sandbox. A separate
+VM from a copy of the local Linux image can compile and render, but contains
+no Valgrind. `apt-get install valgrind` failed with Ubuntu mirror DNS errors
+(`build/miami-idle-valgrind-install.log`). No hardware CPU percentage is claimed.
+
+The deterministic fallback is Clang's executed coverage-edge count, using
+`-Os -fsanitize-coverage=trace-pc-guard,no-prune`, instrumenting the same host
+engine sources in both builds. `--idle-proxy --compare-ref f9ffd12e` records
+only render calls after 64 warmup blocks, then 1,024 idle blocks at 217.5 BPM
+for each of all 30 programs. Apple Clang 21 mean edges per block:
+**32,986.198 before → 5,722.506 after (82.65% fewer)**. This measures compiler
+instrumented execution paths, not retired instructions, cycles or device load.
+Raw per-program counts and compiler flags are in
+`build/miami-idle-step1-proxy/`. The 12–20% device-load target remains unverified.
+
+Step 1 file list: `firmware/src/dsp/original_miami_backend.c`,
+`firmware/src/dsp/original_miami_backend.h`, `tests/host/miami_cpu_test.c`,
+`tests/host/miami_cpu_test.py`, and `MIAMI-OPT.md`.
+
+**Step 1: READY TO COMMIT.** The explicit-file `git add` failed creating the
+worktree `index.lock` (`Operation not permitted`). No files were staged and no
+commit was created. The source snapshot above preserves this verified step
+for the orchestrator; later steps extend the working tree.

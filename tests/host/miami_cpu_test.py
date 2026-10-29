@@ -50,6 +50,8 @@ def build(source, out, args):
         flags += ['-O1', '-g', '-fsanitize=address,undefined', '-fno-sanitize-recover=all']
     if args.profile:
         flags += ['-g', '-fno-omit-frame-pointer']
+    if args.idle_proxy:
+        flags += ['-DMIAMI_CPU_COVERAGE', '-fsanitize-coverage=trace-pc-guard,no-prune']
     cc = shlex.split(os.environ.get('CC', 'cc'))
     command = [*cc, *flags, str(ROOT/'tests/host/miami_cpu_test.c'),
                *(str(source/u) for u in units),
@@ -120,6 +122,8 @@ def main():
     p.add_argument('--sanitize', action='store_true')
     p.add_argument('--native-fma', action='store_true', help='also qualify the host hardware-FMA route')
     p.add_argument('--profile', action='store_true', help='retain symbols and frame pointers')
+    p.add_argument('--idle-proxy', action='store_true',
+                   help='Clang instrumented edge counts, not CPU instructions; compare-ref required')
     p.add_argument('--compare-ref', help='local immutable baseline commit')
     p.add_argument('--bench-rounds', type=int, default=0)
     p.add_argument('--repeats', type=int, default=10)
@@ -129,13 +133,29 @@ def main():
         p.error('--out must be a fresh directory under this worktree build/')
     if args.bench_rounds < 0 or args.repeats < 1:
         p.error('benchmark rounds must be nonnegative and repeats positive')
+    if args.idle_proxy and not args.compare_ref:
+        p.error('--idle-proxy requires --compare-ref')
     subprocess.run(['git', 'check-ignore', '--quiet', str(out)], cwd=ROOT, check=True)
     out.mkdir(parents=True)
     verify(ROOT)
     cc, flags = build(source, out/'candidate', args)
+    if args.idle_proxy:
+        ref = export_reference(args.compare_ref, out/'reference-source')
+        build(out/'reference-source', out/'reference', args)
+        result = {'reference': ref, 'metric': 'Clang instrumented edges per 256-frame idle block',
+                  'not_cpu_instructions': True, 'blocks': 1024, 'warmup_blocks': 64,
+                  'bpm': 217.5, 'compiler': subprocess.check_output([*cc, '--version'], text=True)}
+        for side in ('reference', 'candidate'):
+            output = subprocess.check_output([str(out/side/'runner'), 'idle-count'], text=True)
+            (out/side/'idle-count.txt').write_text(output)
+            result[side+'_edges_per_block'] = [float(line.split()[-1]) for line in output.splitlines()]
+        (out/'result.json').write_text(json.dumps(result, indent=2)+'\n')
+        print(json.dumps(result, indent=2))
+        return
     if source == ROOT:
         unit_tests(cc, flags, out/'candidate')
     subprocess.run([str(out/'candidate/runner'), 'proof', str(out/'candidate/trace.bin')], check=True)
+    subprocess.run([str(out/'candidate/runner'), 'idle-proof', str(out/'candidate/idle-trace.bin')], check=True)
     if not args.compare_ref:
         print('Candidate PCM/state trace:', out/'candidate/trace.bin')
         return
@@ -145,11 +165,16 @@ def main():
               'platform': platform.platform(), 'compiler': subprocess.check_output([*cc, '--version'], text=True),
               'sanitize': args.sanitize, 'native_fma': args.native_fma, 'profile': args.profile}
     subprocess.run([str(out/'reference/runner'), 'proof', str(out/'reference/trace.bin')], check=True)
+    subprocess.run([str(out/'reference/runner'), 'idle-proof', str(out/'reference/idle-trace.bin')], check=True)
     if not filecmp.cmp(out/'reference/trace.bin', out/'candidate/trace.bin', shallow=False):
         raise SystemExit('FAIL: Miami PCM/state traces differ')
     result['trace_sha256'] = hashlib.sha256((out/'candidate/trace.bin').read_bytes()).hexdigest()
     result['trace_bytes'] = (out/'candidate/trace.bin').stat().st_size
     result['exact'] = True
+    if not filecmp.cmp(out/'reference/idle-trace.bin', out/'candidate/idle-trace.bin', shallow=False):
+        raise SystemExit('FAIL: Miami long-idle/note PCM/state traces differ')
+    result['idle_trace_sha256'] = hashlib.sha256((out/'candidate/idle-trace.bin').read_bytes()).hexdigest()
+    result['idle_trace_bytes'] = (out/'candidate/idle-trace.bin').stat().st_size
     print('PASS byte-exact baseline/candidate PCM, workspace and state')
     times = {'reference': [], 'candidate': []}
     for r in range(args.bench_rounds):

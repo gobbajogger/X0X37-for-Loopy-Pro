@@ -248,6 +248,65 @@ int original_miami_backend_prepare(original_miami_backend *s)
     return 1;
 }
 
+/* Only the selected Miami ARP-off, empty-key graph is eligible. Inactive
+ * voices freeze their oscillator/filter/envelope history in the scalar path;
+ * do not reset that history or decide silence from a small amplitude. */
+static int silent_block_ready(const original_miami_backend *s)
+{
+    if (s->keys.committed_enable || s->keys.physical_count ||
+        s->allocator.held_active.count || s->allocator.voice_active.count ||
+        s->allocator.gate_remaining || s->allocator.mg1_key_reset ||
+        s->allocator.mg2_key_reset || s->clock1.key_reset || s->clock2.key_reset ||
+        s->voice_owner.count != ORIGINAL_MIAMI_BACKEND_VOICES ||
+        s->allocator.capacity > s->voice_owner.count ||
+        s->global.counter < 0 || s->global.counter >= 44100 ||
+        s->global_input.sample_rate_integer != 44100 ||
+        s->global_input.tempo_sync1 != 1 || s->global_input.tempo_sync2 != 1 ||
+        s->global_input.waveform1 > 3 || s->global_input.waveform2 > 3 ||
+        !original_binary32_isfinite(s->clock1.accumulator) || s->clock1.accumulator < 0 ||
+        !original_binary32_isfinite(s->clock2.accumulator) || s->clock2.accumulator < 0 ||
+        !original_binary32_isfinite(s->clock1.threshold) || s->clock1.threshold <= 0 ||
+        !original_binary32_isfinite(s->clock2.threshold) || s->clock2.threshold <= 0)
+        return 0;
+    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id)
+        if (s->voices[id].active || s->voices[id].awaiting_restart) return 0;
+    return s->output.fx.decimator.kernel.held_left == 0 &&
+        s->output.fx.decimator.kernel.held_right == 0;
+}
+
+static int advance_silent_block(original_miami_backend *s, uint32_t frames)
+{
+    /* Validate the inactive voices once. Their control calls do not tick any
+     * voice state; the separate global helper still receives every frame. */
+    for (unsigned id = 0; id < s->allocator.capacity; ++id) {
+        unsigned action;
+        if (!completed(s, original_miami_selected_voice_control(&s->voices[id],
+            &s->controls, &s->tables, s->voice_owner.bpm, &action))) return 0;
+    }
+    for (uint32_t frame = 0; frame < frames; ++frame) {
+        /* Preserve EACH binary32 addition. Multiplying BPM by frames changes
+         * fractional-tempo residuals. Use the original scheduler at either
+         * threshold, so waveform notification and selector order stay exact. */
+        float a = s->clock1.accumulator + s->voice_owner.bpm;
+        float b = s->clock2.accumulator + s->clock_input.bpm;
+        if (a >= s->clock1.threshold || b >= s->clock2.threshold) {
+            if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+        } else {
+            s->clock1.accumulator = a;
+            s->clock2.accumulator = b;
+            s->scheduler.dispatch_result = 1;
+        }
+        if (s->global.counter + 690 >= 44100) {
+            if (!completed(s, s->voice_owner.producers.helper_exit(
+                s->voice_owner.producers.context))) return 0;
+        } else {
+            s->global.counter += 690;
+            ++s->note_context.helper_entries;
+        }
+    }
+    return 1;
+}
+
 int original_miami_backend_render_event_words(original_miami_backend *s, original_miami_fx_workspace *w,
     uint32_t *left, uint32_t *right, uint32_t frames, const original_engine_event *events, uint32_t count)
 {
@@ -264,6 +323,15 @@ int original_miami_backend_render_event_words(original_miami_backend *s, origina
                 (i < 4 ? sizeof(uint32_t) : sizeof(int16_t)))) return 0;
     }
     if (!original_miami_backend_prepare(s)) return 0;
+    if (!count && silent_block_ready(s)) {
+        if (!advance_silent_block(s, frames)) return 0;
+        memset(left, 0, frames * sizeof *left);
+        memset(right, 0, frames * sizeof *right);
+        int result = completed(s, original_miami_output_process(&s->output, &s->program, w,
+            left, right, left, right, frames, 0, NULL, 0));
+        s->block_prepared = 0;
+        return result;
+    }
     uint32_t cursor = 0;
     for (uint32_t frame = 0; frame < frames; ++frame) {
         while (cursor < count && events[cursor].frame == frame) {
