@@ -2,14 +2,14 @@
 # Only RD-CODE-01/02 from implementation-review-r1; same retained reviewer.
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import json,mimetypes,hashlib,subprocess,sys
-ROOT=Path(__file__).parent.resolve();OUT=Path('/workspace/dnbox-code-review-r1-corrections');OUT.mkdir(exist_ok=True)
+import json,mimetypes,hashlib,subprocess,sys,os,tempfile
+ROOT=Path(__file__).parent.resolve();OUT=Path(os.environ.get('DNBOX_EDITOR_TEST_OUTPUT_DIR',str(Path(tempfile.gettempdir())/'dnbox-code-review-r1-corrections')));OUT.mkdir(parents=True,exist_ok=True)
 red='--red-hidden-only' in sys.argv
 fixture=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import {DraftStore} from './model.js';import {putNote} from './editing.js';const s=new DraftStore();s.edit(d=>putNote(d,0,0,{start:0,pitch:72,slots:8,velocity:90}));console.log(JSON.stringify(s.doc));"],cwd=ROOT,text=True))
 tr=bytes([0,144,60,96,131,96,128,60,0,0,255,47,0]);midi=b'MThd'+(6).to_bytes(4,'big')+bytes([0,0,0,1,1,224])+b'MTrk'+len(tr).to_bytes(4,'big')+tr
 rows=[]
 with sync_playwright() as p:
- browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ browser=p.chromium.launch(executable_path=os.environ.get('DNBOX_CHROMIUM_EXECUTABLE') or None,headless=True,args=['--no-sandbox'])
  for w,h in ([(1440,1000)] if red else [(1440,1000),(1024,900),(390,844),(320,568)]):
   ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=w<500,has_touch=w<1100);page=ctx.new_page();errors=[];network=[]
   def route(r):

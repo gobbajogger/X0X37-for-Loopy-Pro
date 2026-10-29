@@ -2,10 +2,10 @@
 # Actual owned-source runtime captures through UI actions, not design HTML injection.
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import mimetypes,json,hashlib
-ROOT=Path(__file__).parent.resolve();OUT=Path('/workspace/dnbox-browser-stage2-validation');rows=[]
+import mimetypes,json,hashlib,os,tempfile
+ROOT=Path(__file__).parent.resolve();OUT=Path(os.environ.get('DNBOX_EDITOR_TEST_OUTPUT_DIR',str(Path(tempfile.gettempdir())/'dnbox-browser-stage2-validation')));OUT.mkdir(parents=True,exist_ok=True);rows=[]
 with sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ b=p.chromium.launch(executable_path=os.environ.get('DNBOX_CHROMIUM_EXECUTABLE') or None,headless=True,args=['--no-sandbox'])
  for w,h in [(1440,1000),(1024,900),(390,844),(320,568)]:
   c=b.new_context(viewport={'width':w,'height':h},is_mobile=w<500,has_touch=w<1100);page=c.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   def route(r):
