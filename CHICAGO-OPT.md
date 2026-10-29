@@ -1,5 +1,22 @@
 # Chicago CPU optimization
 
+## Full-access result — 2026-10-30
+
+All ranked steps are committed locally. The oscillator checkpoint is
+`9621d6cc`; the target-safe final DSP commit is `b079b95b`.
+
+- **Idle instructions per 256-frame block: 146,977.55 → 20,638.09
+  (mean of eleven Chicago cases), 85.96% fewer.** Actual Callgrind
+  totals from Docker/Colima replace the historical function-entry proxy.
+- **15/15 REAL golden renders are bit-exact.** Every idle length 1–2000 blocks
+  also gives identical note PCM and DSP state in normal and ASan/UBSan modes.
+- **Real Elite build PASS:** app 415,792 B (+2,288 B versus the oscillator
+  checkpoint), RAM/pool unchanged, pool headroom 15,184 B.
+- The **12–20% AC79 device CPU target remains unmeasured**. No device was
+  accessed. The earlier 1–3k instructions/block aspiration is not met by these
+  measurements. The settled path has no per-sample DSP/control loop; exact
+  clock/MG updates, admission, history checks and buffer writes remain.
+
 ## Scope and method
 
 Work starts at `40935bd153d86764913c5a317fbc4f10ddf2b600` on
@@ -168,7 +185,7 @@ were staged directly so each commit contains only its ranked step:
 - Step 3: `026f1640`.
 - Step 4: `73f1d6b4`.
 - Step 5: `4d1a1051`.
-- Step 6: the local commit containing this section (see `git log`).
+- Step 6: `e5985569`.
 
 The older patches and receipts remain under `build/chicago-opt-series/`.
 No private inputs or binaries are staged. The earlier sandbox refusal no
@@ -413,3 +430,83 @@ Final Elite ELF SHA-256:
 `6e94430ea405df17f2efe6a8cb75a2079fbdaa9fe4a734ce41510e77c29a30db`.
 Final app image SHA-256:
 `84479f7e6fc4da8c676e0b49bcdcb62f0b8b409d7b78400f849901d9411d7fb0`.
+
+
+## Actual idle instruction measurements
+
+Measured in `x0x37-final-cache:dev-532d91f`, Linux x86-64 under Colima on the
+Mac, using GCC 12.2.0 and Valgrind 3.18.1 Callgrind. Both executables use `-Os`,
+the same strict floating-point flags, real pinned private inputs, 120 BPM,
+44,100 Hz and 256-frame stereo blocks. Each case first runs 1024 uncounted
+settling blocks, then 64 measured blocks. Idle mode runs no note script and
+uses one timing pass; the default active golden mode retains its 15 passes.
+
+Collection covers `original_runtime_render` plus about 20 client-request
+boundary instructions per block. Initialization, prepare, warmup, retirement,
+clock reads and transcript I/O are excluded. The same boundary overhead is
+present before and after. These are host instructions, not AC79 cycles or a
+measured CPU percentage. The baseline is the committed oscillator checkpoint
+`9621d6cc`; the final source is `b079b95b`.
+
+Instructions per block, baseline → final:
+
+- `chicago-p00-fx0-idle`: **144,070 → 19,486**.
+- `chicago-p00-fx1-idle`: **159,882 → 22,358**.
+- `chicago-p00-fx2-idle`: **144,160 → 19,576**.
+- `chicago-p00-fx3-idle`: **144,115 → 19,531**.
+- `chicago-p00-fx4-idle`: **144,158 → 19,574**.
+- `chicago-p00-fx5-idle`: **144,092 → 19,508**.
+- `chicago-p00-fx6-idle`: **144,151 → 19,567**.
+- `chicago-p07-fx0-idle`: **144,056 → 19,452**.
+- `chicago-p19-fx0-idle`: **144,103 → 19,505**.
+- `chicago-p33-fx0-idle`: **144,117 → 19,533**.
+- `chicago-p54-fx0-idle`: **159,849 → 28,929**.
+
+The mean is **146,977.55 → 20,638.09 instructions/block**, a **85.96%
+reduction**. Final case means range from **19,452 to
+28,929**. The sum across the eleven alternative scenarios is
+**1,616,753 → 227,019**; that sum is not one device block.
+All four unchanged Miami idle counts match exactly between executables.
+All fifteen idle PCM files also match between baseline/final and `-O2`/`-Os`.
+
+The original parser selected `summary: 0` before a nonzero final `totals`
+line. It now prefers `totals` and refuses incomplete or zero count reports.
+The baseline's older running process used that parser; its completed raw
+Callgrind parts were reparsed and its size/count JSON was corrected from the
+actual totals. No zero count is treated as a measurement. The macOS target
+size reader now invokes the same Docker objdump used for the build; unsupported
+host `size -A` returns an explicit error instead of fictitious zero sizes.
+
+The final target size receipt reports Chicago **74,774 B**, shared **9,679 B**,
+and Miami **21,171 B** of attributed flash. ELF symbol attribution is approximate;
+the linked app image and RAM/pool totals above are the build's actual totals.
+
+Evidence:
+
+- `build/chicago-opt-fullaccess-RESULT.json`: source/artifact hashes, all raw
+  Callgrind hashes, paired counts and proof closure (PASS).
+- `build/chicago-opt-icount-before/sizes.json` and
+  `build/chicago-opt-icount-final/sizes.json`: corrected/final instruction reports.
+- `build/chicago-opt-icount-before-corrected.log` and
+  `build/chicago-opt-icount-final.log`: readable counts.
+- `build/chicago-opt-target-elite-sizes.json`: linked per-engine size receipt.
+- `build/chicago-opt-identical-tu-cache.jsonl`: baseline object reuse only
+  after byte-identical complete preprocessing under both header searches.
+- Final measurement reused unchanged same-compiler objects after verifying
+  source closure. Only `chicago_modulation.c` includes the changed Chorus span
+  header; that unit was rebuilt in both host optimization modes. All reused
+  objects are byte-identical to their recorded originals.
+
+Reproduce the final idle run in the prepared local container:
+
+```sh
+docker exec chicago-opt-linux python3 tools/synth684_harness/run.py \
+  --icount --idle --warmup 1024 --blocks 64 \
+  --out build/chicago-opt-icount-repeat
+```
+
+`VALGRIND` and `VALGRIND_LIB` are set on that container. The prepared public
+baseline source view is `build/chicago-opt-linux-reference`; its checked
+compiler overlay is `build/chicago-opt-cc-view.py`. No private headers were
+copied into Git. All commits are local; no push, installation, flashing or
+SMK 37 Pro access occurred.

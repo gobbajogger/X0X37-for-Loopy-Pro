@@ -15,6 +15,8 @@ HERE = Path(__file__).resolve().parent
 os.chdir(ROOT)
 ap = argparse.ArgumentParser()
 ap.add_argument("--blocks", type=int, default=172)
+ap.add_argument("--idle", action="store_true", help="measure event-free silence after warmup instead of the note script")
+ap.add_argument("--warmup", type=int, default=1024, help="uncounted settling blocks for --idle (default: 1024)")
 ap.add_argument("--out", type=Path, default=ROOT / "build/synth684-harness")
 ap.add_argument("--elite", action="store_true",
                 help="also run tools/build.py --board smk37 --model elite (needs JIELI_TOOLCHAIN and AC79_SDK)")
@@ -23,6 +25,8 @@ ap.add_argument("--icount", action="store_true",
 ap.add_argument("--save-golden", type=Path, help="copy the renders to this directory")
 ap.add_argument("--golden", type=Path, help="byte-compare the renders with this golden directory")
 a = ap.parse_args()
+if a.blocks <= 0 or a.warmup < 0:
+    ap.error("--blocks must be positive and --warmup must be nonnegative")
 out = a.out.resolve(); out.mkdir(parents=True, exist_ok=True)
 spec = importlib.util.spec_from_file_location("x0x_build", ROOT / "tools/build.py")
 b = importlib.util.module_from_spec(spec); spec.loader.exec_module(b)
@@ -57,7 +61,8 @@ for u in units:
 exe = out / "synth684_bench"
 subprocess.run([cc, *flags, str(HERE / "synth684_bench.c"), *map(str, objs), "-lm", "-o", str(exe)], check=True)
 renders = out / "renders"; renders.mkdir(exist_ok=True)
-run = subprocess.run([str(exe), str(renders), str(a.blocks)])
+bench_args = [str(a.blocks), str(int(a.idle)), str(a.warmup)]
+run = subprocess.run([str(exe), str(renders), *bench_args])
 
 icount = {}
 if a.icount:
@@ -75,13 +80,17 @@ if a.icount:
     subprocess.run([cc, *osflags, "-DX0X_SYNTH684_ICOUNT", "-I" + vinc, str(HERE / "synth684_bench.c"),
                     *map(str, iobjs), "-lm", "-o", str(iexe)], check=True)
     (ic / "renders").mkdir()
-    subprocess.run([vg, "--tool=callgrind", "--collect-atstart=no", "--callgrind-out-file=" + str(ic / "cg.out"),
-                    str(iexe), str(ic / "renders"), str(a.blocks)], check=True, stderr=subprocess.DEVNULL)
+    subprocess.run([vg, "--tool=callgrind", "--instr-atstart=no", "--collect-atstart=no", "--callgrind-out-file=" + str(ic / "cg.out"),
+                    str(iexe), str(ic / "renders"), *bench_args], check=True, stderr=subprocess.DEVNULL)
     for f in sorted(ic.glob("cg.out*")):
         text = f.read_text(errors="replace")
         m = re.search(r"^desc: Trigger: Client Request: \S*/([\w.-]+)\.f32", text, re.M)
-        t = re.search(r"^(?:summary|totals): (\d+)", text, re.M)
+        # Callgrind can write summary: 0 for a stopped instrumentation part
+        # while its final totals contain the collected render instructions.
+        t = re.search(r"^totals: (\d+)", text, re.M) or re.search(r"^summary: (\d+)", text, re.M)
         if m and t: icount[m.group(1)] = round(int(t.group(1)) / a.blocks)
+    if len(icount) != 15 or any(n <= 0 for n in icount.values()):
+        raise SystemExit("Callgrind did not provide 15 positive instruction counts; inspect cg.out files")
     for n in sorted(icount): print(f"ICOUNT {n}: {icount[n]} instructions per block")
     for f in (ic / "renders").glob("*.f32"):
         if f.read_bytes() != (renders / f.name).read_bytes(): print(f"WARNING: -Os render differs from -O2 render: {f.name}")
@@ -89,7 +98,9 @@ if a.icount:
 def sizes(files, tool):
     total = {"text": 0, "data": 0, "bss": 0, "pool": 0}
     for f in files:
-        r = subprocess.run([tool, "-A", str(f)], stdout=subprocess.PIPE, text=True)
+        r = subprocess.run([tool, "-A", str(f)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if r.returncode:
+            return {"error": r.stderr.strip() or f"{tool} -A failed"}
         for line in r.stdout.splitlines():
             m = re.match(r"^(\.\S+)\s+(\d+)", line)
             if not m: continue
@@ -105,7 +116,9 @@ def group(paths):
         n = p.name
         g["chicago" if "chicago" in n and "miami" not in n else "miami" if "miami" in n else "shared"].append(p)
     return g
-report = {"validity": validity, "icount_per_block": icount, "host_objects": {k: sizes(v, "size") for k, v in group(objs).items()}}
+report = {"validity": validity, "mode": "idle" if a.idle else "script", "blocks": a.blocks,
+          "warmup_blocks": a.warmup if a.idle else 0,
+          "icount_per_block": icount, "host_objects": {k: sizes(v, "size") for k, v in group(objs).items()}}
 if a.elite:
     subprocess.run([sys.executable, "tools/build.py", "--board", "smk37", "--model", "elite"], check=True,
                    stdout=subprocess.DEVNULL)
