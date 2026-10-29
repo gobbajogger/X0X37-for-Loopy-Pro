@@ -4,6 +4,7 @@
  * TIMER5 only copies complete messages. All project, sequencer and display work is in the main loop. */
 #include "smc_protocol.h"
 #include "smc_fx_map.h"
+#include "smc_mixer_edges.h"
 
 #define SMC_Q 32u
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
@@ -57,7 +58,7 @@ static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
     return !(note & 0x80u) && !(velocity & 0x80u) &&
-           (note == 6u || (note >= 8u && note < 16u) || (note >= 24u && note < 32u) ||
+           (note < 32u ||
             note == 0x5Du || note == 0x5Eu) &&
            (type == 0x80u || (type == 0x90u && !velocity));
 }
@@ -467,7 +468,7 @@ static uint8_t smc_scaled(pref_t r)
 #define SMC_UI_MS 1200u
 struct smc_ui_state {
     uint32_t until, context;
-    uint8_t on, kind, strip, action;
+    uint8_t on, kind, strip, action, held;
     char name[24], value[24];
 };
 /* Byte buffer (not a naked struct): IPA-SRA must not split fields into
@@ -494,7 +495,7 @@ void smc_ui_cancel(void)
 {
     if (!smc_ui.on)
         return;
-    smc_ui.on = 0;
+    smc_ui.on = smc_ui.held = 0;
     for (int i = 0; i < 4; i++) blit_hash[i] = 0;
 #if BOARD_SMK37
     { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
@@ -505,7 +506,7 @@ int smc_ui_active(void)
 {
     if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
         smc_ui.context != smc_ui_context() ||
-        (int32_t)(plat_ms() - smc_ui.until) >= 0))
+        !smc_ui_edge_alive(plat_ms(), smc_ui.until, smc_ui.held)))
         smc_ui_cancel();
     return smc_ui.on;
 }
@@ -517,6 +518,7 @@ static void smc_ui_begin(int n, int kind)
         return;                         /* Help keeps its card; confirmation keeps ownership. */
     }
     smc_ui.on = 1;
+    smc_ui.held = 0;
     smc_ui.strip = (uint8_t)n;
     smc_ui.kind = (uint8_t)kind;
     smc_ui.context = smc_ui_context();
@@ -780,6 +782,24 @@ static void smc_notice(int n)
         smc.picked &= (uint8_t)~bit;
         smc.pending |= bit;
     }
+}
+
+/* A muted SMC strip takes its own last observed physical fader at its MUTE
+ * release edge. Keyboard mute/level edits retain separate physical ownership. */
+static void smc_unmute_fader(int n)
+{
+    uint8_t bit = (uint8_t)(1u << n);
+    pref_t r = smc_target(n);
+    const x0x_param_t *d = pref_desc(r);
+    if (!(smc.input_seen & bit) || !smc_same(r, smc.target[n]) ||
+        !d || !d->max || r.kind != R_ENG)
+        return;
+    int value = (smc.last[n] * d->max + 63) / 127;
+    pref_set(r, value);
+    motion_touch(r);
+    smc.value[n] = smc_scaled(r);
+    smc.picked |= bit;
+    smc.pending |= bit;
 }
 
 static void smc_fader(int n, uint8_t v)
@@ -1152,6 +1172,7 @@ static void smc_button_apply(uint8_t note, int mmc)
                 break;
             case 2:
                 mute_track(kit, track);
+                if (!track_muted(kit, track)) smc_unmute_fader(note & 7);
                 break;
             default:
                 /* A different sound still selects it. Press its SELECT again
@@ -1191,8 +1212,10 @@ static void smc_button_apply(uint8_t note, int mmc)
             } else if (row == 1) {      /* SOLO */
                 smc_solo_press(strip, part + 1, mmc);
                 say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", PART_N[part]);
-            } else if (row == 2)       /* MUTE */
+            } else if (row == 2) {      /* MUTE */
                 mute_part(part);
+                if (!part_muted(part)) smc_unmute_fader(strip);
+            }
             else {                     /* SELECT */
                 int repeat_drum = part < NKIT && ui.part == part && ui.overlay == O_NONE;
                 smc_select_part(part);
@@ -1217,9 +1240,10 @@ static void smc_button_apply(uint8_t note, int mmc)
         break;
     case 0x5B: case 0x5C: {            /* rewind / forward: pattern */
         int part = smc.locked ? smc.lock_part : ui.part;
-        int next = seq.ppat[part] + (note == 0x5B ? -1 : 1);
-        if (next >= 0 && next < NPAT)
-            seq_cue_part(&seq, part, next);
+        int next = smc_pattern_delta(seq.ppat[part], seq_cue_of(&seq, part),
+                                     note == 0x5B ? -1 : 1, NPAT);
+        if (next == -1) seq.pcue[part] = 0xFFu; /* opposite press cancels without retrigger */
+        else if (next >= 0) seq_cue_part(&seq, part, next);
         break;
     }
     case 0x5D: seq_stop(&seq); break;
@@ -1290,10 +1314,17 @@ static void smc_button(uint8_t note, int mmc)
         smc_ui.action = note;
         smc_ui_begin(note < 32u ? note & 7u : 0, 3);
     }
+    /* The gesture that opened the action card owns its lifetime until key-up.
+     * MMC has no physical key-up and keeps the normal inactivity timeout. */
+    smc_ui.held = !mmc && smc_ui.on && smc_ui.kind == 3 && smc_ui.action == note;
 }
 
 static void smc_release(uint8_t note)
 {
+    if (smc_ui.on && smc_ui.held && smc_ui.kind == 3 && smc_ui.action == note) {
+        smc_ui.held = 0;
+        smc_ui.until = plat_ms() + SMC_UI_MS;
+    }
     if (note == 0x5Du) smc_lock_button(0);
     if (note == 6) smc.home_down = 0;
     if (note == 0x5Eu) smc.play_down = 0;
@@ -1479,6 +1510,7 @@ void smc_poll(void)
         /* The shared release-loss epoch also rearms edge-sensitive buttons.
          * Losing a key-up must never park PLAY, SELECT, or HOME until reconnect. */
         smc.play_down = smc.select_down = smc.home_down = 0;
+        if (smc_ui.held) { smc_ui.held = 0; smc_ui.until = plat_ms() + SMC_UI_MS; }
         smc_fx_clear();
     }
     smc_lock_tick();

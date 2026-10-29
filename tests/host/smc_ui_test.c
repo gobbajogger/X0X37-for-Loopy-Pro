@@ -247,6 +247,7 @@ static void test_actions_and_reset(void)
     message(0x90, 16, 127); CHECK(smc_ui_active()); CHECK(part_muted(0));
     unchanged(before); ui_frame(); shot("08-mute-action");
     CHECK(!strcmp(ui.msg, "PRIOR MESSAGE"));
+    message(0x80, 16, 0);
     expire(); unchanged(before);
     message(0x90, 8, 127); CHECK(smc_ui_active()); CHECK(smc.solo & 1);
     ui_frame(); memcpy(before_fb, fb, sizeof fb);
@@ -628,11 +629,67 @@ static void test_action_captions_and_knobs(void)
     puts("PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/locked; knob arc extremes and bipolar center");
 }
 
+static void test_pattern_queued_transport(void)
+{
+    setup(V_HOME, PART_303A);
+    int part = ui.part;
+    seq.playing = 1; seq.ppat[part] = 4; seq.pcue[part] = 0xFFu;
+    message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == 5);
+    message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == 6);
+    message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == 5);
+    message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == -1);
+    CHECK(seq.ppat[part] == 4);
+    message(0x90, 0x5B, 127); CHECK(seq_cue_of(&seq, part) == 3);
+    seq.ppat[part] = NPAT - 1; seq.pcue[part] = 0xFFu;
+    message(0x90, 0x5C, 127); CHECK(seq_cue_of(&seq, part) == -1);
+    puts("PASS queued SMC transport: successive, opposite, cancel, boundary");
+}
+
+static void test_held_action_lifetime(void)
+{
+    setup(V_HOME, PART_303A);
+    message(0x90, 16, 127);
+    CHECK(smc_ui_active() && smc_ui.held && smc_ui.action == 16);
+    now_ms += 4000; ui_frame(); CHECK(smc_ui_active());
+    message(0x80, 16, 0); CHECK(smc_ui_active() && !smc_ui.held);
+    now_ms += 1199; CHECK(smc_ui_active());
+    now_ms++; ui_frame(); CHECK(!smc_ui_active());
+    setup(V_HOME, PART_303A);
+    message(0x90, 8, 127); CHECK(smc_ui.held);
+    now_ms += 5000; CHECK(smc_ui_active());
+    message(0x80, 8, 0); CHECK(!smc_ui.held && !smc_project_active());
+    now_ms += 1200; CHECK(!smc_ui_active());
+    puts("PASS SMC held action: lifetime through hold, released 1200 ms idle, Solo release");
+}
+
+static void test_unmute_fader_epoch(void)
+{
+    setup(V_HOME, PART_303A);
+    int part = part_at(0);
+    pref_t target = smc_target(0);
+    pref_set(target, 120);
+    smc_frame();
+    fader(0, 0);
+    CHECK(!(smc.picked & 1u) && pref_get(target) == 120);
+    message(0x90, 16, 127); CHECK(part_muted(part));
+    message(0x80, 16, 0); message(0x90, 16, 127);
+    CHECK(!part_muted(part));
+    CHECK(pref_get(target) == 0 && (smc.picked & 1u));
+    CHECK(smc.value[0] == 0);
+    /* Keyboard Unmute retains its independent pickup/level owner. */
+    pref_set(target, 105);
+    mute_part(part); smc_frame(); CHECK(part_muted(part));
+    mute_part(part); smc_frame(); CHECK(!part_muted(part));
+    CHECK(pref_get(target) == 105);
+    puts("PASS SMC unmute: SMC physical position; keyboard owner isolated");
+}
+
 #ifndef SMC_UI_MAIN
 #define SMC_UI_MAIN main
 #endif
 int SMC_UI_MAIN(void)
 {
+    test_pattern_queued_transport(); test_held_action_lifetime(); test_unmute_fader_epoch();
     test_navigation_replay(); test_distinct_maps(); test_track_knob_align(); test_physical_geometry(); test_selected_lane(); test_drum_titles(); test_action_captions_and_knobs();
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
     test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();
