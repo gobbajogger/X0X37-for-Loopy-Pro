@@ -378,6 +378,7 @@ run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
+run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py   # original Miami: compile the existing physical-rate-pads route
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
