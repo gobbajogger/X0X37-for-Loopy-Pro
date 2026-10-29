@@ -956,6 +956,12 @@ X0X_DEV_PADCAL=1 python3 tools/synth684_harness/run.py --elite \
   --out "$OUT-elite"
 ```
 
+The 30-program host runner's unit-test preflight now also executes the
+existing `miami_pow2_fma_test.c` in native and software-FMA configurations;
+that isolated test was rerun locally with the runner's `-Os` compiler flags
+and passed 6,000,000 random plus 24 boundary cases in each mode. Whole-engine
+goldens and target performance remain Mac-only acceptance gates.
+
 The SDK V1.2.1, toolchain, the 12 pinned private #684 inputs and
 15 real-input golden files remain owner-Mac-only. Do not use the
 uploaded SDK V1.2.0 as a replacement. Run Pro build by the current
