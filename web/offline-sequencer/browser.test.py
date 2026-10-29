@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import json,mimetypes,hashlib
-ROOT=Path(__file__).parent.resolve();OUT=Path('/workspace/dnbox-browser-stage2-validation');OUT.mkdir(exist_ok=True);receipts=[]
+import json,mimetypes,hashlib,os,tempfile
+ROOT=Path(__file__).parent.resolve();OUT=Path(os.environ.get('DNBOX_EDITOR_TEST_OUTPUT_DIR',str(Path(tempfile.gettempdir())/'dnbox-browser-stage2-validation')));OUT.mkdir(parents=True,exist_ok=True);receipts=[]
 def midi(pitch=60):
  tr=bytes([0,144,pitch,96,131,96,128,pitch,0,0,255,47,0]);return b'MThd'+(6).to_bytes(4,'big')+bytes([0,0,0,1,1,224])+b'MTrk'+len(tr).to_bytes(4,'big')+tr
 with sync_playwright() as p:
- browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ browser=p.chromium.launch(executable_path=os.environ.get('DNBOX_CHROMIUM_EXECUTABLE') or None,headless=True,args=['--no-sandbox'])
  for width,height in [(1440,1000),(1024,900),(390,844),(320,568)]:
   print('VIEWPORT',width,height,flush=True)
   ctx=browser.new_context(viewport={'width':width,'height':height},is_mobile=width<500,has_touch=width<1100,accept_downloads=True);errors=[];net=[]
