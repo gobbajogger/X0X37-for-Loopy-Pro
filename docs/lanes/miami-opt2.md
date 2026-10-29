@@ -711,3 +711,122 @@ Acceptance is sound-first: **30/30 full-state equality**, **15/15 real
 goldens**, target build, *then* measured active CPU change and owner device
 check. No merge into `wip/one-build` or `nightly` on the strength of these
 standalone arithmetic tests alone.
+
+## Step 10: original-AU PCM equality gate (2026-10-29)
+
+**Corrected owner acceptance:** Match original Miami completely (level AND
+sound) with identical binary32 PCM, not merely matching RMS/peak or similar
+tone. Preserve idle/active CPU gains only when the 30-program PCM/state and
+the true original-source golden comparisons pass. Do not introduce a
+speculative gain boost, normalization, filter change or amplitude threshold.
+
+### Distinguish two independent reference datasets
+
+- `build/synth684-golden-9d1cf9fb` is a 15-file, 44.1-kHz **internal
+  port regression** collection, including Chicago scenarios. Exact parity
+  here catches port-source regressions, but is not original-Audio-Unit proof.
+- The independent **original Miami 3.1.6 Audio Unit** investigation, retained
+  in private Library `Miami-original-preset-findings-20261028.json`,
+  describes 16 stereo IEEE-float32 WAV captures: 44.1 kHz, 132300 frames
+  each, note 48 at velocity 80, note-on frame 4410, note-off frame 92610.
+  Eight waveform configurations have two fresh-instance takes each. The
+  Library report records their peak/RMS/PCM hashes, not actual playable
+  WAV bytes in this container. To compare them, produce candidate files
+  from IDENTICAL program, macro, sample rate, event timing and cold state.
+  Do not compare these 3-second captures directly with 172x256-frame
+  internal port golden files: stimuli and lengths differ.
+- The historical `tests/host/render_miami_au_compare.py` is NOT
+  a valid strict gate: it can skip, truncates mismatched lengths, scores
+  similarity, uses a 48-kHz scenario profile and its builder references
+  retired `wobble.c`. Do not run or revive that retired engine.
+
+### Verified observations and diagnostic gate
+
+Current source applies original voice and master volume controls, unison
+gain correction, FX1/FX2 fixed-point shifts, signed-int16 conversion,
+divide-by-32767 reconstitution and the firmware part mixer. No isolated
+multiplier has been demonstrated wrong. Independently run Linux host
+comparisons of the optimized interpolation against fmaf on 55,000,000
+inputs, and the settled FX2 endpoint mixer on 131,070 dry/endpoint
+combinations, all PASS. This does NOT establish source-to-original-AU
+parity or the cause of the reported low level. Previous Step 9 DSP edits
+remain on the branch; no additional unproven audio edits were made here.
+
+New `tools/synth684_harness/compare_pcm.py` is deliberately fail-closed:
+supports stereo IEEE-float WAV and stereo raw .f32; checks identical
+sample rate, names and frame count; compares each binary32 word including
+signed zero; reports per-channel peak, RMS, fitted gain, gain-residual,
+first divergence, mismatches and SHA256 for diagnosis ONLY. Peak/RMS
+equality or near-perfect correlation never changes a FAIL to PASS.
+New `tests/host/miami_pcm_compare_test.py` **8/8 tests PASS** under
+Linux Python, and both files compile through `python3 -m py_compile`.
+Tests cover exact matches, half-gain mismatch, altered waveform,
+signed-zero mismatch, unsupported lengths, WAV/rate mismatch,
+missing scenarios and correct failing exit status. This is a local
+standalone proof of the diagnostic, NOT a source engine golden PASS.
+
+### Exact Mac commands: internal port regression
+
+```sh
+git fetch origin chat/miami-opt
+git switch chat/miami-opt
+git pull --ff-only origin chat/miami-opt
+python3 tools/check_original_inputs.py --scope all
+python3 -B tests/host/miami_pcm_compare_test.py -q
+python3 -B tests/host/miami_cpu_test.py \
+  --compare-ref 40935bd1 --out build/miami-20261029-pcm-state
+python3 -B tests/host/miami_cpu_test.py \
+  --compare-ref 40935bd1 --sanitize --out build/miami-20261029-sanitize
+python3 -B tests/host/miami_cpu_test.py \
+  --compare-ref 40935bd1 --native-fma --out build/miami-20261029-native
+python3 tools/synth684_harness/run.py \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out build/miami-20261029-port-golden
+python3 tools/synth684_harness/compare_pcm.py \
+  build/synth684-golden-9d1cf9fb \
+  build/miami-20261029-port-golden/renders \
+  --require-count 15 --rate 44100 \
+  --json build/miami-20261029-port-golden/peak-rms-exact.json
+```
+
+### Exact Mac commands: original Audio Unit reference
+
+Set the environment variables to the ACTUAL, verified 16 original AU WAV
+directory and 16 matching 44.1-kHz current Miami .f32 render directory.
+The command refuses absent inputs or any discrepancy and does not assume
+such a candidate renderer has already been created:
+
+```sh
+test -n "$MIAMI_AU_REFS" && test -d "$MIAMI_AU_REFS"
+test -n "$MIAMI_AU_CAND" && test -d "$MIAMI_AU_CAND"
+python3 tools/synth684_harness/compare_pcm.py \
+  "$MIAMI_AU_REFS" "$MIAMI_AU_CAND" \
+  --require-count 16 --rate 44100 \
+  --json build/miami-20261029-original-au-peak-rms-exact.json
+```
+
+### PERF after exact render proof only
+
+Run the following in the qualified Linux x86-64 Docker/Colima Valgrind
+environment with the same compiler, flags and real pinned inputs; the
+Elite build additionally requires the owner's real JieLi SDK V1.2.1
+inputs (V1.2.0 cannot substitute).
+
+```sh
+python3 tools/synth684_harness/run.py --icount \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out build/miami-20261029-active-perf
+python3 tools/synth684_harness/run.py --icount --idle-icount \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out build/miami-20261029-idle-perf
+X0X_DEV_PADCAL=1 python3 tools/synth684_harness/run.py --elite \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out build/miami-20261029-elite
+```
+
+Acceptance remains PENDING until the owner Mac supplies exact reference
+bytes and qualified comparisons. A bit mismatch is not fixed by matching
+RMS. Preserve the first divergence and inspect the actual first mismatched
+DSP/mixer stage. Do not claim hardware audio fixed, new CPU percentages,
+a target firmware PASS or permission to integrate into `wip/one-build`.
+
