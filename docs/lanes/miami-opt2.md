@@ -535,3 +535,69 @@ and the 12–20% device-load target remains for the authorized perf lane.
 
 Step 7 file list: `tools/synth684_harness/run.py`,
 `tools/synth684_harness/synth684_bench.c`, and `MIAMI-OPT.md`.
+
+## Step 8: bulk zero-store follow-up (2026-10-30)
+
+The qualified Step 6 measurement above is the comparison baseline for this
+follow-up: 10,349.033 mean Callgrind instructions per public 256-frame idle
+render, versus 168,948.867 in `f9ffd12e`. About 5,120 of those Step 6
+instructions were attributed to necessary zero-buffer writes; this follow-up
+targets their implementation without removing any observable write.
+
+`experiments/original_synth/miami_zero.h` now uses an explicit compiler
+bulk-memory builtin (or the standard `memset` fallback) instead of manually
+expanding 32 individually addressed stores. It retains the zero-length/NULL
+no-op behavior and preserves every dry, scratch, intermediate word and public
+float output byte. Only IEEE-754 binary32 positive zero is admitted by the
+existing Miami path. The idle admission guards, frozen state, clocks, active
+DSP processing, master smoother and normal render bridge are unchanged.
+The public API still writes outputs on *every* call, so a zero-instruction
+block cannot honestly be claimed.
+
+New isolated source test: `tests/host/miami_zero_test.c`. On Linux x86-64,
+GCC and Clang at each of `-Os` and `-O2` pass 9,252 guard-tested
+length/offset/repetition combinations for each of three buffer types.
+GCC and Clang ASan/UBSan runs also pass. The deterministic test covers
+every frame count 0..256, offsets, random surrounding bytes and NULL/n=0.
+It imports no private synth source. An informal 256-word `-Os` host
+microbenchmark measured 37.66 -> 13.74 ns/block with GCC and 19.47 -> 14.35
+ns/block with Clang for the previous unrolled versus bulk-store helper.
+Those timings are not Callgrind counts, AC79 CPU utilization or proof of
+whole-engine improvement.
+
+**Still required on the Mac for this exact new header:** re-run all 30
+program PCM/state comparisons (including every 1..2000-block idle-then-note
+duration), native-FMA comparison, sanitizers, all 15 real-input golden renders,
+Elite build/size, and the matched 30-program Valgrind instruction count at
+both `-Os` and `-O2`. The private #684 headers and pinned golden directory
+are intentionally absent from public GitHub; this session does not claim those
+checks passed at Step 8. No hardware/device CPU percentage was measured.
+
+Run from the checked-out `chat/miami-opt` branch in the existing configured
+Mac build environment:
+
+```sh
+mkdir -p build
+cc -std=c99 -Os -fno-builtin -Wall -Wextra -Werror \
+  -Iexperiments/original_synth tests/host/miami_zero_test.c \
+  -o build/miami-zero-test
+./build/miami-zero-test
+python3 tests/host/miami_cpu_test.py \
+  --out build/miami-bulk-state --compare-ref f9ffd12e
+python3 tests/host/miami_cpu_test.py --sanitize \
+  --out build/miami-bulk-sanitize --compare-ref f9ffd12e
+python3 tests/host/miami_cpu_test.py --native-fma \
+  --out build/miami-bulk-native-fma --compare-ref f9ffd12e
+python3 tools/synth684_harness/run.py --elite \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out build/miami-bulk-elite
+python3 tools/synth684_harness/run.py --icount --idle-icount \
+  --golden build/synth684-golden-9d1cf9fb \
+  --out build/miami-bulk-icount
+```
+
+Compare the new `-Os` idle program totals against
+`build/miami-qualified-step6*` from the same qualified Docker/Valgrind
+compiler configuration; report improvement or regression rather than
+substituting the standalone memory-store timing. The final executable
+candidate remains UNQUALIFIED until these runs succeed.
