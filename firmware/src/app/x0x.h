@@ -37,7 +37,7 @@
 #endif
 /* Revision13 stores schema2 cells with55 Chicago programs and seven FX choices.
  * Revision12 stored diagnostic81-program OS cells with OCH1/OMI1 tags.
- * Known earlier project music migrates with default original synth patches.
+ * The original profile accepts no earlier engine or project revision.
  * Revision11 appended two explicit engine/product-schema identities. */
 /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
@@ -123,7 +123,7 @@ void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
 #if X0X_BASS_TAGGED_SOUND
 #define PROJECT_LEGACY_FILE_SIZE (PROJECT_FILE_SIZE-NBASS*BASS_SOUND_TAG_BYTES)
-int project_prepare_legacy_file(const uint8_t *header); /* rev10 file: original profile migrates; legacy profile returns -10 for choice */
+int project_prepare_legacy_file(const uint8_t *header); /* exact rev10 layout; -10 explicit choice required */
 #endif
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */

@@ -1,3 +1,7 @@
+# Current owner change: revision 13 only
+
+The 2026-10-30 owner instruction supersedes the historical migration and `=0` plan below. Revert `d87e5b7b` because older projects were never supported. No migration remains authorized. This commit removes that implementation and its tests; subsequent steps remove legacy engines/builds and old loaders. Historical test and memory numbers below do not validate the new candidate.
+
 # FMB guards and slots
 
 Current follow-up state: Step 1 is `674b3930`, its GCC FM_ONE fix is `457e7094`, Step 2 is `1811a341`, Step 3 is `16f660de`, and Step 5 is `d87e5b7b`. Fresh full host suites both have **265 PASS, 45 FAIL and 5 NOT_RUN**, with zero new failing selectors against the exact local `5ed2693d` baseline. GCC 15 fastmath and smk-clip-keys also compile, link and pass at `-O0`. The shipping Elite Docker build PASSes: flash free 115,680 bytes; static RAM free 3,936 bytes; pool free 10,328 bytes. The guard-only target comparison also PASSes: app, loader and package are byte-identical with the three guard files restored to `e888d046`. Step 4 is complete; its local commit contains this report only. The older sandbox blockers and READY checkpoints below are historical and are superseded by the current full-access owner instruction. No push, install, flash or connected-device access occurred.
@@ -155,12 +159,6 @@ Step 2 commit scope: `firmware/src/app/ui.c`, `firmware/src/app/main_fm1.c`, `FM
 Step 2 committed locally as `1811a341`. Step 3's `project.c` and `engine.c` repair hunks were staged with `git add -p`, excluding migration and default-helper code. Fresh Step 3-only shipping host proof: host-build, host-setup, scenario-clkmove, scenario-edit_midi_rec_guard and scenario-jam all PASS (5 PASS, 0 FAIL; `build/fmb-evidence/followup/step3-scoped.log`). This proves the regression commit independently of the migration.
 
 Step 3 commit scope: `firmware/src/app/project.c` (stream validation and settings normalization only), `firmware/src/app/engine.c` (MIDI recording only), `tools/rom_guard.py`, `tests/host/test_host_setup.py`, `tests/host/bass_tagged_storage_test.sh`, `tests/scenarios/jam.x0x`, `FMB-GUARDS-SLOTS.md`. These repairs restore recorded notes, legacy stream loading and clock/clip settings; fixtures use the explicit sound profile or starting send they need.
-
-Step 3 committed locally as `16f660de`. Fresh isolated `=0` bass-tagged-storage, rec-endpoint-storage and rec-endpoint-lifecycle checks also PASS (3 PASS, 0 FAIL; `build/fmb-evidence/followup/step3-legacy.log`).
-
-Step 5: fresh migration proof passes 1,076 assertions in both normal and ASan/UBSan runs, including stored formats 1/2/3/6/7/8/9/12, portable revisions 10/11/12, both default engine identities, exact pattern/arrangement preservation, save/reload, and real editor VALIDATE/COMMIT without storage writes. Logs: `build/fmb-evidence/followup/migration.log` and `migration-san.log`. Old synth pot and per-note sound data resets to default Chicago/Miami; musical note data remains in the same slots. Incompatible synth motion lanes are cleared; probability/velocity lanes survive.
-
-Step 5 commit scope: `firmware/src/app/project.c` (migration hunks), `firmware/src/app/engine.c` (default helper), `firmware/src/app/engine.h`, `firmware/src/app/editor.c`, `firmware/src/app/x0x.h`, `tests/host/project_original_migration_test.c`, `tests/host/project_original_migration_test.sh`, `tests/run_tests.sh`, `FMB-GUARDS-SLOTS.md`. The two shared source files were split with `git add -p`.
 
 ## Step 4 follow-up: fresh final proof
 

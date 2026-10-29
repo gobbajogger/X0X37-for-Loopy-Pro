@@ -854,16 +854,6 @@ void engine_volume(int32_t *out_lr, uint32_t n)
 static void bass_tag_set(sound_t *,int,int,int,int);
 static void bass_restore_sound(const sound_t *);
 #endif
-#if X0X_ORIGINAL_SYNTH
-void engine_original_sound_defaults(sound_t *s)
-{
-    for (int v = 0; v < NBASS; v++) {
-        int bank = v == 0 ? ORIGINAL_SOUND_MIAMI : ORIGINAL_SOUND_CHICAGO;
-        (void)original_sound_init(s->v[T_303][v], (unsigned)bank, 0);
-        bass_tag_set(s, v, bank, 0, 0);
-    }
-}
-#endif
 X0X_COLD void engine_sound_defaults(sound_t *s)
 {
     int t, v, i;
@@ -877,16 +867,18 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
                 s->v[t][v][i] = p ? p->def : 0;
             }
 #if X0X_BASS_TAGGED_SOUND
-#if X0X_ORIGINAL_SYNTH
-    engine_original_sound_defaults(s);
-#else
     for(v=0;v<NBASS;v++) {
+#if X0X_ORIGINAL_SYNTH
+        int bank = v == 0 ? ORIGINAL_SOUND_MIAMI : ORIGINAL_SOUND_CHICAGO;
+        (void)original_sound_init(s->v[T_303][v], (unsigned)bank, 0);
+        bass_tag_set(s, v, bank, 0, 0);
+#else
         int bank=X0X_DEV_WOBBLE && v==0?1:0;
         for(i=0;i<(int)(bank?WOBBLE_EXPERIMENT_NPARAMS:CHI_AUX_END);i++)
             s->v[T_303][v][i]=engine_bass_bank_param(bank,i)->def;
         bass_tag_set(s,v,bank,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
-    }
 #endif
+    }
 #endif
     /* the factory mix: big beat (Chemical Brothers, Fatboy Slim), balanced by tools/mix_report.py
      * against a funk break, a 909 kick under it and a 303 line. The break leads, the kick sits
