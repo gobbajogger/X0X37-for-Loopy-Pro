@@ -201,7 +201,9 @@ static void chicago_output_zeros(unsigned n,unsigned fz){
  original_chicago_output_workspace bw={cwb.converted[0],cwb.converted[1],cwb.scratch[0],cwb.scratch[1],256};
  original_chicago_fx2_workspace af={cwa.scratch[0],cwa.scratch[1],cwa.scratch[2],cwa.scratch[3],256};
  original_chicago_fx2_workspace bf={cwb.scratch[0],cwb.scratch[1],cwb.scratch[2],cwb.scratch[3],256};
- REQUIRE(original_chicago_engine_output_process(&ca.output,&aw,&af,&ca.controls.routing,cwa.core[0],cwa.core[1],cwa.core[0],cwa.core[1],n,fz));
+ /* The idle caller just supplied zero buffers. Compare its no-rescan entry
+  * against the ordinary checked entry, including unsettled controls/tails. */
+ REQUIRE(original_chicago_engine_output_process_zero(&ca.output,&aw,&af,&ca.controls.routing,cwa.core[0],cwa.core[1],cwa.core[0],cwa.core[1],n,fz));
  REQUIRE(original_chicago_engine_output_process(&cb.output,&bw,&bf,&cb.controls.routing,cwb.core[0],cwb.core[1],cwb.core[0],cwb.core[1],n,fz));
  for(unsigned ch=0;ch<2;ch++){
   memcpy(cwa.out[ch],cwa.core[ch],n*sizeof(float));memcpy(cwb.out[ch],cwb.core[ch],n*sizeof(float));

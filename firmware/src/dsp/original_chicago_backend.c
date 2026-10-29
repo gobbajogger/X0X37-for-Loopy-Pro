@@ -386,14 +386,18 @@ int original_chicago_backend_frame(original_chicago_backend *s)
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
-static int end_admitted(original_chicago_backend *s, float *left, float *right)
+static int end_admitted(original_chicago_backend *s, float *left, float *right, unsigned known_zero)
 {
     original_chicago_backend_workspace *w = s->workspace;
     original_chicago_output_workspace ow = {w->converted_left,w->converted_right,
         w->scratch[0],w->scratch[1],w->capacity};
     original_chicago_fx2_workspace fw = {w->scratch[0],w->scratch[1],
         w->scratch[2],w->scratch[3],w->capacity};
-    if (!original_chicago_engine_output_process(&s->output, &ow, &fw, &s->controls.routing,
+    int (*output)(original_chicago_engine_output *,original_chicago_output_workspace *,
+        original_chicago_fx2_workspace *,const original_chicago_routing *,const uint32_t *,
+        const uint32_t *,uint32_t *,uint32_t *,uint32_t,unsigned) = known_zero ?
+        original_chicago_engine_output_process_zero : original_chicago_engine_output_process;
+    if (!output(&s->output, &ow, &fw, &s->controls.routing,
         w->core_left, w->core_right, w->core_left, w->core_right, s->block_frames, s->fz)) return fault(s);
     memcpy(left, w->core_left, sizeof *left * s->block_frames);
     memcpy(right, w->core_right, sizeof *right * s->block_frames);
@@ -409,7 +413,7 @@ int original_chicago_backend_end(original_chicago_backend *s, float *left, float
     if (!running(s)) return unavailable(s);
     if (!s->block_open || s->events.next_frame != s->block_frames ||
         !outputs_valid(s->workspace, left, right, s->block_frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
-    return end_admitted(s, left, right);
+    return end_admitted(s, left, right, 0);
 }
 
 int original_chicago_backend_render(original_chicago_backend *s,
@@ -458,7 +462,7 @@ int original_chicago_backend_render(original_chicago_backend *s,
         memset(w->core_left, 0, sizeof *w->core_left * frames);
         memset(w->core_right, 0, sizeof *w->core_right * frames);
         s->events.next_frame = frames;
-        return end_admitted(s, left, right);
+        return end_admitted(s, left, right, 1);
     }
     if (!count && s->allocator.capacity == 1) {
         /* No event can edit controls or borrowed resources inside this call.
@@ -468,11 +472,11 @@ int original_chicago_backend_render(original_chicago_backend *s,
                 w->core_left, w->core_right, frames) ||
             healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
         s->events.next_frame = frames;
-        return end_admitted(s, left, right);
+        return end_admitted(s, left, right, 0);
     }
     for (uint32_t i = 0; i < frames; ++i) {
         result = original_chicago_backend_frame(s);
         if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;
     }
-    return end_admitted(s, left, right);
+    return end_admitted(s, left, right, 0);
 }

@@ -110,7 +110,7 @@ int original_chicago_output_suspend(original_chicago_output *s,unsigned slot,uns
 int original_chicago_output_enable(original_chicago_output *s,unsigned slot,unsigned enabled){if(!s||slot>1||enabled>1)return 0;s->enable_slot[slot]=(uint8_t)enabled;return 1;}
 void original_chicago_output_mute(original_chicago_output *s,uint8_t byte){if(s)original_master_mute(&s->master,byte);}
 static int crosses(int32_t count,uint32_t n){return count>0&&count<=(int32_t)n;}
-int original_chicago_output_zero_ready(const original_chicago_output *s,
+int original_chicago_output_zero_state_ready(const original_chicago_output *s,
  const original_chicago_output_workspace *w,float volume,const uint32_t *il,
  const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz){
  if(!s||!n||!w||!w->left||!w->right||!w->wet_left||!w->wet_right||
@@ -125,6 +125,12 @@ int original_chicago_output_zero_ready(const original_chicago_output *s,
  int32_t threshold=d->target_drive<19660?19660-d->target_drive:0;
  if(asr15(d->drive)!=d->target_drive||asr15(d->gain)!=d->target_gain||asr15(d->threshold)!=threshold||
     d->previous_driven[0]||d->previous_driven[1]||d->previous_nonlinear[0]||d->previous_nonlinear[1])return 0;
+ return 1;
+}
+int original_chicago_output_zero_ready(const original_chicago_output *s,
+ const original_chicago_output_workspace *w,float volume,const uint32_t *il,
+ const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz){
+ if(!original_chicago_output_zero_state_ready(s,w,volume,il,ir,ol,orr,n,fz))return 0;
  for(uint32_t i=0;i<n;i++)if((il[i]&0x7fffffffu)||(ir[i]&0x7fffffffu))return 0;
  return 1;
 }

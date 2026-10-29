@@ -348,3 +348,26 @@ All work remained local. No push, plugin/firmware binary staging, installation,
 flashing or device access occurred. Private inputs remain excluded. Final
 public-file, patch and proof hashes are in
 `build/chicago-opt-second-builder-receipt.json`.
+
+
+## Full-access follow-up: omit the idle zero-buffer rescan
+
+The backend now passes its immediately zero-filled core buffers through an
+explicit serial idle-owner entry. This removes the remaining per-sample input
+inspection in the settled zero output path. State and geometry admission are
+unchanged; unsettled smoothing and nonzero tails still run their original
+paths. The ordinary public output entry still checks arbitrary input buffers.
+The player gets identical output and more idle CPU headroom. No persistent
+state or RAM is added.
+
+The focused output regression compares this entry against the ordinary entry
+on signed-zero inputs, settling controls, transitions and tails. It passes
+432,418 PCM/state checks in normal and ASan/UBSan modes, with PCM digest
+`35ca5fe82aea117f`. All 15 REAL golden files are byte-identical. Every idle
+length 1–2000 blocks across eleven program/FX cases also passes the normal and
+ASan/UBSan PCM/state comparison against `9621d6cc`; both transcripts retain
+SHA-256 `b57b4321aa6f170d6856519b45e264fe5d961011dfb72ad64a9055166116548c`.
+
+Evidence: `build/chicago-opt-no-rescan-RESULT.json`,
+`build/chicago-opt-fullaccess-idle-note/RESULT.json`, and
+`build/chicago-opt-fullaccess-idle-owners/RESULT.json`.
