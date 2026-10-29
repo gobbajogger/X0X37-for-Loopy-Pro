@@ -198,8 +198,3 @@ storepoke 0 31 08
 reboot
 wait 300
 expect clksrc 0
-# older saves (a74 byte 38, a73, clip keys): tests/scenarios/clkmove.x0x
-# a project saved by X0X 0.10: AUTO
-storeload tests/fixtures/v1_store.bin
-wait 100
-expect clksrc 0
