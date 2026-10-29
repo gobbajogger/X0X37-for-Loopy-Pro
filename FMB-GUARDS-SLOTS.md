@@ -2,6 +2,8 @@
 
 Step 1: migration reverted in `b88e204e`. Step 2 removes `firmware/src/dsp/bass303.c` and both retired synth build entries. Target and host builders accept only `X0X_ORIGINAL_SYNTH=1`; direct app compilation rejects `=0`. Chicago/Miami keep their existing physical slots and presentation order 909, 808, BREAK, CHICAGO, MIAMI. All of `experiments/wobble/` is preserved, including the unbuilt reference `wobble.c`, pending clarification of the conflicting directory-preservation request. Build composition: 6 PASS; host setup: 9 PASS. Full current host/target proof follows after loader and test cleanup.
 
+Step 3: delete older stored-stream, sound-cell, clock-padding and portable-file conversion/adoption paths. Stored and portable projects accept revision/stream 13 only; the editor no longer offers opcode 75 adoption or short legacy imports. Remove old migration tests and legacy cases from retained staging/storage tests. Current original-engine integration passes **210,599 assertions** normally and under ASan/UBSan, with matching output/captures and audio hash `79d686b167ffdfef`. Added rejection proof covers every older sound revision 0–12 and stream 1–12 without storage writes, then successful revision 13 reload. Evidence: `build/fmb-current-integration/`.
+
 The 2026-10-30 owner instruction supersedes the historical migration and `=0` plan below. Revert `d87e5b7b` because older projects were never supported. No migration remains authorized. This commit removes that implementation and its tests; subsequent steps remove legacy engines/builds and old loaders. Historical test and memory numbers below do not validate the new candidate.
 
 # FMB guards and slots

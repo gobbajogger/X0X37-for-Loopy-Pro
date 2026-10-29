@@ -161,6 +161,32 @@ static void compact_project(void)
     CHECK(project_validate_stage()==0);
     CHECK(project_save()==0 && project_load_stage()==0);
     CHECK(!memcmp(&proj.sound,&project_stage.sound,sizeof proj.sound));
+    /* Only revision/stream 13 loads. Rejection must not rewrite stored bytes. */
+    uint8_t header[PROJECT_FILE_HDR];
+    project_file_header(header);
+    CHECK(project_file_validate(header)==0);
+    uint32_t writes=store_writes;
+    for (unsigned rev=0;rev<13;++rev) {
+        put32(header+24,rev);
+        CHECK(project_file_validate(header)!=0);
+        store[OBJ_SET][4u+__builtin_offsetof(settings_t,snd_rev)]=(uint8_t)rev;
+        CHECK(project_load_stage()==-9);
+        CHECK(store[OBJ_SET][4u+__builtin_offsetof(settings_t,snd_rev)]==rev);
+        CHECK(store_writes==writes);
+    }
+    store[OBJ_SET][4u+__builtin_offsetof(settings_t,snd_rev)]=13;
+    put32(header+24,13);
+    for (unsigned stream=1;stream<13;++stream) {
+        put32(header+20,stream);
+        CHECK(project_file_validate(header)!=0);
+        put32(store[OBJ_PAT0],stream);
+        CHECK(project_load_stage()==-9);
+        CHECK(get32(store[OBJ_PAT0])==stream && store_writes==writes);
+    }
+    put32(store[OBJ_PAT0],13);
+    CHECK(project_load_stage()==0);
+    project_file_header(header);
+    CHECK(project_file_validate(header)==0);
     engine_project_release();
 }
 
