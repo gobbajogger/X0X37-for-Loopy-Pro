@@ -446,6 +446,16 @@ int original_chicago_backend_render(original_chicago_backend *s,
         s->events.next_frame = frames;
         return original_chicago_backend_end(s, left, right);
     }
+    if (!count && s->allocator.capacity == 1) {
+        /* No event can edit controls or borrowed resources inside this call.
+         * Admit the serial block once; retain sample-position clock, VCA and
+         * MG ticks, including selector-driven notes and restart continuations. */
+        if (!original_chicago_voice_owner_render_block(&s->voice_owner, &s->scheduler,
+                w->core_left, w->core_right, frames) ||
+            healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
+        s->events.next_frame = frames;
+        return original_chicago_backend_end(s, left, right);
+    }
     for (uint32_t i = 0; i < frames; ++i) {
         result = original_chicago_backend_frame(s);
         if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;

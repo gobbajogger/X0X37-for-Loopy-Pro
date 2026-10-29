@@ -164,3 +164,9 @@ instruction measurement is available from this attempt.
 Skip disabled voice dispatch and preserve exact clock and global MG updates so notes after silence keep identical timing and sound with less idle CPU work.
 
 Proof: `build/chicago-opt-series/02-idle-core/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).
+
+## Continuation 03-block-control
+
+Remove repeated control dispatch while preserving sample-position envelope, portamento, MG and ARP operations, leaving more CPU headroom without changing sound.
+
+Proof: `build/chicago-opt-series/03-block-control/RESULT.json` (source hashes match, 15/15 golden renders; normal and ASan/UBSan idle-then-note comparison for every length 1–2000 blocks PASS).

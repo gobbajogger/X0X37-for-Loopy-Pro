@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "chicago_voice_owner.h"
 #include "binary32_classify.h"
+#include "binary32_math.h"
+#include "chicago_scheduler.h"
 #include <string.h>
 static unsigned enabled(void *p,unsigned id){original_chicago_voice_owner *s=p;return id<s->count?s->voices[id].active:0;}
 static unsigned vca(void *p,unsigned id){original_chicago_voice_owner *s=p;return id<s->count?s->voices[id].vca.state:6;}
@@ -76,4 +78,16 @@ int original_chicago_voice_owner_control_all(original_chicago_voice_owner *s){
  if(!s||!s->status||s->allocator->capacity>s->count)return 0;
  for(unsigned id=0;id<s->allocator->capacity;id++)if(!control(s,id))return 0;
  s->status=s->producers.helper_exit(s->producers.context);return s->status;
+}
+int original_chicago_voice_owner_render_block(original_chicago_voice_owner *s,original_chicago_scheduler *scheduler,uint32_t *left,uint32_t *right,uint32_t frames){
+ if(!s||!s->status||!scheduler||!left||!right||left==right||s->count!=1||s->allocator->capacity>1)return 0;
+ for(uint32_t i=0;i<frames;i++){
+  float l,r;
+  if(original_chicago_scheduler_after_events(scheduler)<=0||!s->status)return 0;
+  for(unsigned id=0;id<s->allocator->capacity;id++)if(!control(s,id))return 0;
+  s->status=s->producers.helper_exit(s->producers.context);
+  if(!s->status||!original_chicago_voice_render_frame(s->voices,s->controls,&l,&r))return 0;
+  left[i]=original_math_bits(l);right[i]=original_math_bits(r);
+ }
+ return 1;
 }
