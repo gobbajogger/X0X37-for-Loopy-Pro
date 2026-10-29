@@ -2,6 +2,7 @@
 #include "original_miami_backend.h"
 #include "../../../experiments/original_synth/binary32_classify.h"
 #include "../../../experiments/original_synth/binary32_math.h"
+#include "../../../experiments/original_synth/miami_idle_clock.h"
 #include "../../../experiments/original_synth/motion_tables_private.h"
 #include <string.h>
 
@@ -277,19 +278,37 @@ static int silent_block_ready(const original_miami_backend *s)
 static int advance_silent_block(original_miami_backend *s, uint32_t frames)
 {
     if (!completed(s, original_miami_voice_owner_block_valid(&s->voice_owner))) return 0;
-    for (uint32_t frame = 0; frame < frames; ++frame) {
-        /* Preserve EACH binary32 addition. Multiplying BPM by frames changes
-         * fractional-tempo residuals. Use the original scheduler at either
-         * threshold, so waveform notification and selector order stay exact. */
-        float a = s->clock1.accumulator + s->voice_owner.bpm;
-        float b = s->clock2.accumulator + s->clock_input.bpm;
-        if (a >= s->clock1.threshold || b >= s->clock2.threshold) {
-            if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
-        } else {
-            s->clock1.accumulator = a;
-            s->clock2.accumulator = b;
+    while (frames) {
+        uint32_t span = (44100u - 1u - (uint32_t)s->global.counter) / 690u + 1u;
+        if (span > frames) span = frames;
+        uint32_t remaining = span;
+        while (remaining) {
+            float a = s->clock1.accumulator, b = s->clock2.accumulator;
+            uint32_t na = original_miami_idle_clock_below(&a, s->voice_owner.bpm,
+                s->clock1.threshold, remaining);
+            uint32_t nb = original_miami_idle_clock_below(&b, s->clock_input.bpm,
+                s->clock2.threshold, remaining);
+            uint32_t n = na < nb ? na : nb;
+            if (na != n) {
+                a = s->clock1.accumulator;
+                (void)original_miami_idle_clock_below(&a, s->voice_owner.bpm, s->clock1.threshold, n);
+            }
+            if (nb != n) {
+                b = s->clock2.accumulator;
+                (void)original_miami_idle_clock_below(&b, s->clock_input.bpm, s->clock2.threshold, n);
+            }
+            s->clock1.accumulator = a;s->clock2.accumulator = b;
             s->scheduler.dispatch_result = 1;
+            remaining -= n;
+            if (remaining) {
+                /* Original notification/ARP order on the threshold frame.
+                 * Empty ARP-off keys leave selector/noise state frozen. */
+                if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+                --remaining;
+            }
         }
+        s->global.counter += (int32_t)(span - 1) * 690;
+        s->note_context.helper_entries += span - 1;
         if (s->global.counter + 690 >= 44100) {
             if (!completed(s, s->voice_owner.producers.helper_exit(
                 s->voice_owner.producers.context))) return 0;
@@ -297,6 +316,7 @@ static int advance_silent_block(original_miami_backend *s, uint32_t frames)
             s->global.counter += 690;
             ++s->note_context.helper_entries;
         }
+        frames -= span;
     }
     return 1;
 }
@@ -392,6 +412,10 @@ int original_miami_backend_render_event_words(original_miami_backend *s, origina
     if (!original_miami_backend_prepare(s)) return 0;
     if (!count && silent_block_ready(s)) {
         if (!advance_silent_block(s, frames)) return 0;
+        if (original_miami_output_zero(&s->output, &s->program, w, left, right, frames)) {
+            s->block_prepared = 0;
+            return 1;
+        }
         memset(left, 0, frames * sizeof *left);
         memset(right, 0, frames * sizeof *right);
         int result = completed(s, original_miami_output_process(&s->output, &s->program, w,

@@ -293,3 +293,86 @@ Final scope/whitespace and pinned-input checks PASS. `f95e230e` remains an
 ancestor. No Chicago-specific file was edited. The index is empty: no private
 headers, plugin binaries or firmware packages were staged. No push, firmware
 installation or flashing occurred. The temporary Linux VM was powered off.
+
+## Second builder: exact idle batching, 2026-10-29
+
+This continuation preserves `f95e230e` and the three verified overlays above.
+The remaining per-frame idle clock/output work is now removed. The reference
+for every new comparison is the unoptimized idle path at `f9ffd12e`.
+
+### Step 4: batch clocks and skip settled zero output — READY TO COMMIT
+
+`miami_idle_clock.h` advances repeated binary32 clock additions by integer
+significand strides within a binade. It takes scalar additions at exponent
+and tempo thresholds; equal successive strides handle ties-to-even. It never
+replaces a rounded float recurrence with `BPM * frames`. The backend visits
+only the actual global 690 Hz boundaries and tempo notifications. The original
+scheduler handles each notification, preserving ARP/selector ordering.
+
+Inactive voices freeze oscillator, filter, noise, LFO and ramp histories in
+the reference; the idle shortcut freezes those same values. Selected global
+LFO shapes 0–3 do not advance their noise seeds. Disabled ARP freezes its RNG.
+No held-key, pending-restart, gate-countdown or nonzero Decimator-held state
+is admitted. Active/releasing voices and ARP-enabled blocks keep their prior
+paths. There is no silence threshold or tail truncation.
+
+The backend now passes its known-zero input directly to a Miami-only output
+seam. Settled FX1/FX2 mixers, conversion, and output scanning disappear;
+Decimator phase and pending step advance with its existing integer formula.
+Workspace/output buffers still get their exact zeros. A settled master skips
+sample multiplication while retaining its exact target/current/step fields.
+Dirty or moving fixed FX and moving/mute-transition master state use the
+original scalar output path. No moving float smoother uses a closed form.
+
+New proof expands the prior workload: for all 30 factory programs it probes
+a note after **every integer idle duration 1 through 2000 blocks**, using
+full-precision fractional BPMs near 20/120/217.12346/400. Each probe retains
+the raw next 512 stereo samples for direct byte comparison, then restores
+the saved engine/workspace to continue the uninterrupted idle timeline.
+Periodic pre-note state snapshots catch drift that key-sync could hide.
+The prior long-idle/release/panic/irregular-block workload is retained.
+
+- `build/miami-zero-step4-complete/`: all three PCM/workspace/state traces
+  byte-identical to `f9ffd12e`. Original and long-idle hashes remain those
+  recorded above. New exhaustive-range trace: 377,165,880 bytes, SHA-256
+  `eb851def16340159318879c9658d9411417824f1bec3eb96fe044d0617fb54d6`.
+- `tests/host/miami_idle_clock_test.c`: **1,012,366** comparisons against
+  literal scalar additions, including all finite binade boundaries,
+  halfway/tie parity, arbitrary binary32 BPMs, threshold hits and lengths
+  0–256. Existing 902,199 interpolation and 3,968 bypass checks also PASS.
+- Isolated frozen Step 4 export: `python3 tools/synth684_harness/run.py
+  --elite --golden build/synth684-golden-9d1cf9fb --out
+  build/miami-zero-step4-linux`: **15/15 identical**, REAL inputs,
+  Elite build PASS. Log: `build/miami-zero-step4-full-linux.log`;
+  export/artifacts: `build/miami-zero-step4-full/`. Same GCC 13.3/JieLi
+  Clang 4.0.1 toolchain as above, with `X0X_DEV_PADCAL=1`.
+- Linked `.text`: **411,312 → 411,904 bytes (+592)** from Step 3.
+  All allocated RAM section sizes remain unchanged. Chicago/shared symbol
+  flash remains 72,468/9,659 bytes.
+
+Idle **instructions per 256-frame block before/after: NOT MEASURED**.
+Docker/Colima's socket again rejects access. A separate isolated QEMU Linux
+guest has no Valgrind; a fresh `apt-get install valgrind` also fails resolving
+Ubuntu mirrors (`build/miami-second-builder-valgrind.log`). The deterministic
+Clang edge proxy, same flags/workload as above, is **32,986.198 before →
+998.134 after (96.97% fewer)**; immediately before Step 4 it was 5,718.506.
+Raw counts: `build/miami-zero-step4-proxy/`. Edges are not instructions,
+cycles, or an AC79 CPU percentage; the 1–3k instruction and 12–20% load
+targets remain unqualified.
+
+Incremental Step 4 file list:
+
+- `experiments/original_synth/miami_idle_clock.h` (new)
+- `experiments/original_synth/miami_output.c`
+- `experiments/original_synth/miami_output.h`
+- `firmware/src/dsp/original_miami_backend.c`
+- `tests/host/miami_idle_clock_test.c` (new)
+- `tests/host/miami_cpu_test.c`
+- `tests/host/miami_cpu_test.py`
+- `MIAMI-OPT.md`
+
+Public source/hashes are saved in `build/miami-zero-step4-source/`; apply only
+these incremental files after Steps 1–3. The explicit `git add -- MIAMI-OPT.md`
+again fails creating the worktree `index.lock` with `Operation not permitted`.
+No commit or staging occurred. The orchestrator can commit each saved step
+in order without private headers or ignored build artifacts.

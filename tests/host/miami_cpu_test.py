@@ -99,6 +99,7 @@ def export_reference(ref, out):
 
 def unit_tests(cc, flags, out):
     groups = {
+        'idle_clock': [],
         'bypass': ['experiments/original_synth/miami_fx_chain.c',
                    'experiments/original_synth/fixed_fx.c',
                    'experiments/wobble/miami_decimator_adapter.c',
@@ -156,6 +157,7 @@ def main():
         unit_tests(cc, flags, out/'candidate')
     subprocess.run([str(out/'candidate/runner'), 'proof', str(out/'candidate/trace.bin')], check=True)
     subprocess.run([str(out/'candidate/runner'), 'idle-proof', str(out/'candidate/idle-trace.bin')], check=True)
+    subprocess.run([str(out/'candidate/runner'), 'idle-range-proof', str(out/'candidate/idle-range-trace.bin')], check=True)
     if not args.compare_ref:
         print('Candidate PCM/state trace:', out/'candidate/trace.bin')
         return
@@ -166,6 +168,7 @@ def main():
               'sanitize': args.sanitize, 'native_fma': args.native_fma, 'profile': args.profile}
     subprocess.run([str(out/'reference/runner'), 'proof', str(out/'reference/trace.bin')], check=True)
     subprocess.run([str(out/'reference/runner'), 'idle-proof', str(out/'reference/idle-trace.bin')], check=True)
+    subprocess.run([str(out/'reference/runner'), 'idle-range-proof', str(out/'reference/idle-range-trace.bin')], check=True)
     if not filecmp.cmp(out/'reference/trace.bin', out/'candidate/trace.bin', shallow=False):
         raise SystemExit('FAIL: Miami PCM/state traces differ')
     result['trace_sha256'] = hashlib.sha256((out/'candidate/trace.bin').read_bytes()).hexdigest()
@@ -175,6 +178,10 @@ def main():
         raise SystemExit('FAIL: Miami long-idle/note PCM/state traces differ')
     result['idle_trace_sha256'] = hashlib.sha256((out/'candidate/idle-trace.bin').read_bytes()).hexdigest()
     result['idle_trace_bytes'] = (out/'candidate/idle-trace.bin').stat().st_size
+    if not filecmp.cmp(out/'reference/idle-range-trace.bin', out/'candidate/idle-range-trace.bin', shallow=False):
+        raise SystemExit('FAIL: Miami exhaustive idle lengths 1..2000/note traces differ')
+    result['idle_range_trace_sha256'] = hashlib.sha256((out/'candidate/idle-range-trace.bin').read_bytes()).hexdigest()
+    result['idle_range_trace_bytes'] = (out/'candidate/idle-range-trace.bin').stat().st_size
     print('PASS byte-exact baseline/candidate PCM, workspace and state')
     times = {'reference': [], 'candidate': []}
     for r in range(args.bench_rounds):

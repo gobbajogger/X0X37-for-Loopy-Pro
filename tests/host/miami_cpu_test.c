@@ -129,6 +129,37 @@ static void idle_workload(unsigned factory,unsigned blocks){
  CHECK(original_miami_backend_note_on(&engine,48,127));
  for(unsigned k=0;k<32;k++)block(256,NULL,0);
 }
+/* Probe a note after EVERY integer idle length 1..2000, for every program.
+ * Restore the exact pre-note graph and workspace after each probe so the
+ * next checkpoint extends the same uninterrupted silent timeline. */
+static void idle_range_workload(unsigned factory){
+ static original_miami_backend saved;
+ static uint32_t saved_left[256],saved_right[256];
+ static int32_t saved_dry[2][256];
+ static int16_t saved_scratch[2][256];
+ static const float tempos[]={20.000001907348633f,119.99999237060547f,217.1234588623047f,399.9999694824219f};
+ memset(left,0,sizeof left);memset(right,0,sizeof right);
+ memset(dry,0,sizeof dry);memset(scratch,0,sizeof scratch);
+ CHECK(original_miami_backend_init(&engine,factory,tempos[factory%4]));
+ for(unsigned length=1;length<=2000;length++){
+  CHECK(original_miami_backend_render_words(&engine,&workspace,left,right,256));
+  record(left,sizeof left);record(right,sizeof right);
+  if(length%64==0||length==1||length==2000)snapshot(256);
+  memcpy(&saved,&engine,sizeof engine);
+  memcpy(saved_left,left,sizeof left);memcpy(saved_right,right,sizeof right);
+  memcpy(saved_dry,dry,sizeof dry);memcpy(saved_scratch,scratch,sizeof scratch);
+  CHECK(original_miami_backend_note_on(&engine,36+factory,101));
+  /* Raw PCM is retained for direct byte comparison, not a digest/tolerance.
+   * The other workload records the complete active PCM/state lifecycle. */
+  for(unsigned k=0;k<2;k++){
+   CHECK(original_miami_backend_render_words(&engine,&workspace,left,right,256));
+   record(left,sizeof left);record(right,sizeof right);
+  }
+  memcpy(&engine,&saved,sizeof engine);
+  memcpy(left,saved_left,sizeof left);memcpy(right,saved_right,sizeof right);
+  memcpy(dry,saved_dry,sizeof dry);memcpy(scratch,saved_scratch,sizeof scratch);
+ }
+}
 int main(int argc,char **argv){
  CHECK(argc>=2);
  if(!strcmp(argv[1],"proof")){
@@ -139,6 +170,10 @@ int main(int argc,char **argv){
   CHECK(argc==3);trace=fopen(argv[2],"wb");CHECK(trace);
   for(unsigned factory=0;factory<30;factory++)idle_workload(factory,1024);
   CHECK(!fclose(trace));puts("PASS Miami all30 long-idle/note PCM/state trace");
+ }else if(!strcmp(argv[1],"idle-range-proof")){
+  CHECK(argc==3);trace=fopen(argv[2],"wb");CHECK(trace);
+  for(unsigned factory=0;factory<30;factory++)idle_range_workload(factory);
+  CHECK(!fclose(trace));puts("PASS Miami all30 idle lengths 1..2000 then note PCM/state trace");
 #ifdef MIAMI_CPU_COVERAGE
  }else if(!strcmp(argv[1],"idle-count")){
   for(unsigned factory=0;factory<30;factory++){
