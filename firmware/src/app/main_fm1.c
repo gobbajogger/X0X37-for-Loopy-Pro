@@ -219,7 +219,11 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
+#if X0X_ORIGINAL_SYNTH
+#include "app/original_sound.h"
+#else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
+#endif
 #if X0X_DEV_WOBBLE
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
@@ -1024,6 +1028,14 @@ static void smk_wheels(void)
         if (bend_part < 0 && bend && is_303())
             bend_part = (int8_t)bidx();
         if (bend_part >= 0) {
+#if X0X_ORIGINAL_SYNTH
+            int param = engine_bass_is_wobble(bend_part) ?
+                ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
+            if (bend)
+                engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
+            else
+                engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
+#else
             int param = CHI_PBEND;
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(bend_part))
@@ -1033,6 +1045,7 @@ static void smk_wheels(void)
             want = bend ? chi_pbend_from_wheel((int)bend)
                         : proj.sound.v[T_303][bend_part][param];
             engine_set(T_303, bend_part, param, (int)want);
+#endif
             if (!bend)
                 bend_part = -1;
         }
@@ -1044,12 +1057,17 @@ static void smk_wheels(void)
         if (cut_part >= 0) {
             /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
+#if X0X_ORIGINAL_SYNTH
+            engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
+                ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
+#else
 #if X0X_DEV_WOBBLE
             if (engine_bass_is_wobble(cut_part))
                 engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
             else
 #endif
                 engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
+#endif
             if (!mw)
                 cut_part = -1;
         }
@@ -2072,8 +2090,10 @@ CK_FN static void smk_frame(void)
     allow_pages = allow_pages && !padcal.on;
 #endif
     ui_brk_page_keys(outer, allow_pages);
+#if !X0X_ORIGINAL_SYNTH
     while (smk_extkey_take() >= 0)
         ;
+#endif
     if (ui_project_busy()) {
         smk_arrows();
         smk_faders();
@@ -2173,7 +2193,7 @@ static void fm1_fault(const fm1_crash_t *c)
     uint32_t t0;
     fm1_audio_stop();
     lcd_fill(0, 0, 240, 240, RGB(160, 0, 0));
-    draw_text_box(0, 8, 240, &FONT_S, "X0X CRASH", C_WHITE, 1);
+    draw_text_box(0, 8, 240, &FONT_S, "DnBOX CRASH", C_WHITE, 1);
     hexs(b, c->vec);
     draw_text_box(10, 40, 220, &FONT_S, b, C_WHITE, 0);
     hexs(b, c->pc);
@@ -2228,7 +2248,7 @@ static void safe_main(void)
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);
-    draw_text_box(0, 18, 240, &FONT_B, "X0X SAFE MODE", C_HI, 1);
+    draw_text_box(0, 18, 240, &FONT_B, "DnBOX SAFE MODE", C_HI, 1);
     draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
@@ -2270,7 +2290,7 @@ static void safe_main(void)
         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
             bootguard.failed = 0;                   /* try X0X again, from scratch */
             bootguard.pending = 0;
-            draw_text_box(0, 172, 240, &FONT_S, "STARTING X0X...", C_HI, 1);
+            draw_text_box(0, 172, 240, &FONT_S, "STARTING DnBOX...", C_HI, 1);
             usb_detach();
             fm1_delay_ms(30);
             fm1_reboot();
@@ -2312,8 +2332,10 @@ static void fm1_main(void)
     }
     lcd_init();
     palette_set(1);
-    draw_text_box(0, 96, 240, &FONT_M, "X0X", C_HI, 1);
-    draw_text_box(0, 134, 240, &FONT_S, "909 808 303 303 BREAK", C_GRAY, 1);
+    {
+        const uint8_t *record = boot_shown();
+        draw_boot_screen(record ? record + BOOT_PAY_OFF : 0);
+    }
     if (x0x_dbg.magic != DBG_MAGIC) {
         memset(&x0x_dbg, 0, sizeof x0x_dbg);
         x0x_dbg.magic = DBG_MAGIC;
