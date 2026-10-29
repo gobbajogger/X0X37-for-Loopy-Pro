@@ -970,3 +970,112 @@ the local proof nor any PR means DEVICE VERIFIED or approval to
 merge/publish/flash. Until these runs pass, label it **SCOPED
 HOST-PARITY PASS / WHOLE-ENGINE & DEVICE PENDING**.
 
+
+## Step 13: guarded Miami filter-table interpolation (2026-10-29)
+
+Continue the owner-authorized active-voice CPU optimization with **no sound,
+gain, output, Chicago, UI, pads or slot change**. The selected Miami filter
+coefficient updates still invoked the complete software FMA for each of three
+MS20-table lookups and the resonance table, even though the same validated
+`original_miami_interpolate_rne` helper was already used for nonlinear audio
+interpolation.
+
+### Source change
+
+- `experiments/original_synth/miami_ms20.c`: reuse the existing
+  `interpolate` macro for the three filter-table coefficient lookups and
+  resonance interpolation during the checked control preparation. All other
+  arithmetic, table inputs, rounding, ramp writes and audio samples are
+  unchanged.
+- `experiments/original_synth/miami_selected_voice.c`: under
+  `ORIGINAL_USE_SOFT_FMA`, route only the three selected immutable-table
+  lookups and resonance interpolation to the existing exact helper. In the
+  native-FMA configuration, `table_fma=fmaf` and both code paths are
+  unchanged. Its compile-time `MIAMI_VOICE_CHECKED_TABLE_PREP` alternative
+  still delegates to the checked prepare function above.
+- The preexisting helper preserves exact round-to-nearest-even operation for
+  a positive normal base, a suitably small negative difference and a
+  fractional coordinate in [0,1). For other cases (ascending, negative,
+  zero/subnormal, seam or exponent boundary), it falls back to
+  `original_rne_fmaf`. This is an execution optimization, **not** a
+  resampler or table approximation. The fractional coordinate is still
+  calculated from the original rounded binary32 `q - (float)j`; no higher
+  precision, table quantization, changed threshold or reordered state update.
+- `tests/host/miami_table_interpolation_test.c`: self-contained public
+  test, no #684 private coefficient tables. It tests all 128 indexed
+  intervals with directed subnormal/tie/zero/normal table data and randomized
+  dynamic filter/resonance values against the full 18-limb FMA oracle. The
+  Miami CPU suite preflight now runs this test automatically in addition to
+  the existing interpolation, FX2, idle, zero and MG/VCF tests.
+
+### Actual host execution / what remains unverified
+
+Local Linux x86-64 compiler proof with the *exact public helper header*
+(Git blob `6258b044484a575d976109bd0a863274cccd041f`), the
+historical archived independent 18-limb oracle source, and new test:
+- GCC 14.2 and Clang 17 at both `-Os` and `-O2`: **PASS 408,412
+  cases each**, including **68,138 guarded and 340,274 fallback**
+  comparisons per run. Every observed result matched the full 18-limb
+  RNE oracle bit-for-bit.
+- GCC and Clang ASan+UBSan with halt-on-error: **PASS 408,412
+  cases each**.
+- Isolated 1,048,576-call `-Os` table-coordinate microbenchmark
+  on Linux with realistic positive descending coefficient values:
+  GCC full software FMA ~79–87 ns/call, guarded interpolation
+  ~5–9 ns/call; Clang reference ~63–172 ns/call (outlier variation),
+  helper ~7–11 ns/call. This is an isolated reference-vs-helper
+  microbenchmark, **not** whole-engine, AC79, voice load, or
+  reproducible target clock evidence. Whole-engine CPU improvement
+  is **not measured** here.
+
+The full Miami program/voice owner and proprietary table inputs were **not**
+rebuilt in this Linux shell, and no new original plugin WAV or golden PCM
+comparison was run; no claim of full-engine bit-exact PASS is made for
+this new HEAD. This preserves the requirement that active and idle CPU
+savings are retained only if the real 30-program state/PCM and 15-file
+golden gates pass on the owner's Mac. The seven archived KORG AU reference
+WAVs are an additional independently selected waveform proof, not a
+substitute for the complete pinned factory golden collection.
+
+### Owner Mac qualification (from this exact pushed source)
+
+```sh
+git fetch origin chat/miami-opt
+git switch chat/miami-opt
+git pull --ff-only origin chat/miami-opt
+git rev-parse HEAD
+python3 tools/check_original_inputs.py --scope all
+OUT="build/miami-table-$(git rev-parse --short HEAD)-$(date +%Y%m%d-%H%M%S)"
+python3 tests/host/miami_cpu_test.py --compare-ref f9ffd12e \
+  --bench-rounds 5 --repeats 10 --out "$OUT"
+python3 tests/host/miami_cpu_test.py --compare-ref f9ffd12e \
+  --sanitize --out "$OUT-sanitize"
+python3 tests/host/miami_cpu_test.py --compare-ref f9ffd12e \
+  --native-fma --out "$OUT-native"
+python3 tools/synth684_harness/run.py \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-golden"
+python3 tools/synth684_harness/compare_pcm.py \
+  build/synth684-golden-9d1cf9fb "$OUT-golden/renders" \
+  --require-count 15 --rate 44100 --json "$OUT-golden/exact-audio.json"
+```
+
+Run separately in the qualified x86-64 Linux Docker/Colima Valgrind
+environment, comparing **active and idle** instruction counts to the
+same pinned compiler, flags, input traces and baseline:
+
+```sh
+python3 tools/synth684_harness/run.py --icount \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-active-icount"
+python3 tools/synth684_harness/run.py --icount --idle-icount \
+  --golden build/synth684-golden-9d1cf9fb --out "$OUT-idle-icount"
+X0X_DEV_PADCAL=1 python3 tools/build.py --board smk37 --model elite
+X0X_DEV_PADCAL=1 python3 tools/build.py --board smk37 --model pro
+```
+
+The native build requires the owner's actual pinned JieLi SDK **V1.2.1**
+and excluded private #684 inputs. SDK V1.2.0 is not substitutable.
+Until these gates run at this HEAD, mark the optimization
+**scoped-host-PASS / full-golden-and-target-NOT_RUN**. Neither a
+branch push nor source-level equality is device approval, a merge
+instruction, or an installer publication.
+
