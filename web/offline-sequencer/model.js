@@ -62,8 +62,8 @@ export function diffDraft(a,b) {
   return rows;
 }
 export class DraftStore {
-  constructor(d=createDraft()) {this.doc=copy(validateDraft(d));this.revision=0;this.history=[];this.future=[];
-  replace(candidate) {validateDraft(candidate);if(!diffDraft(this.doc,candidate).length)return false;this.history.push(this.doc);if(this.history.length>32)this.history.shift();this.doc=copy(candidate);this.future.length=0;this.revision++;return true;
+  constructor(d=createDraft()) {this.doc=copy(validateDraft(d));this.revision=0;this.history=[];this.future=[];}
+  replace(candidate) {validateDraft(candidate);if(!diffDraft(this.doc,candidate).length)return false;this.history.push(this.doc);if(this.history.length>32)this.history.shift();this.doc=copy(candidate);this.future.length=0;this.revision++;return true;}
   edit(fn) {const next=copy(this.doc);fn(next);return this.replace(next);}
   undo() {if(!this.history.length)return false;this.future.push(this.doc);if(this.future.length>32)this.future.shift();this.doc=this.history.pop();this.revision++;return true;}
   redo() {if(!this.future.length)return false;this.history.push(this.doc);if(this.history.length>32)this.history.shift();this.doc=this.future.pop();this.revision++;return true;}
