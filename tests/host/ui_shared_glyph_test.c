@@ -28,9 +28,11 @@ int main(void)
    }
   }
  }
- /* Bipolar centre and endpoints must be exact, including even max=48. */
- pref_t pans[]={PR(R_ENG,T_MIX,0,MX_PAN),PR(R_BTRANS,0,0,0)};
- for(int i=0;i<2;i++)for(int j=0;j<3;j++) {
+ /* Bipolar centre and endpoints must be exact, including even max=48.
+  * The master DJ filter previously used a middle-origin arc. Its replacement
+  * must also preserve the central neutral point and both signed directions. */
+ pref_t pans[]={PR(R_ENG,T_MIX,0,MX_PAN),PR(R_BTRANS,0,0,0),PR(R_ENG,T_MST,0,MST_DJF)};
+ for(int i=0;i<3;i++)for(int j=0;j<3;j++) {
   const x0x_param_t *d=pref_desc(pans[i]);int v=j==0?0:j==1?(d->max+1)/2:d->max;
   cv_begin(240,KNOB_H,C_BLACK);CHECK(control_glyph(pans[i],v,30,C_HI));
   int x=j==0?12:j==1?30:48;CHECK(cv_px[34*240+x]==swap16(C_HI));
