@@ -12,13 +12,15 @@ Sound drafts use fixed source descriptor bounds. Original18 Miami/22 Chicago ide
 
 Full-part clipboard actions offer explicit copy, cut, paste and clear across same-type parts. They cover complete pattern-local settings and the entire stored tail, preserve unrelated parts and use one Undo frame for each confirmed mutation. They deliberately do not copy global sound drafts or synth engine assignments. Clipboard remains local to this open tab.
 
+Local draft persistence uses two browser-storage entries: the primary draft and a last-good copy. The editor validates schema and size **before** each new save, preserves the previous validated primary as the fallback before replacement, and seeds a fallback from a validated pre-existing single-copy save. Corrupt or unreadable saved data never triggers a silent overwrite with an empty draft. When only the fallback is valid, the editor shows an explicit **Restore last good draft** action; until recovery, writes are locked and both stored entries remain unchanged. When neither copy is readable, writes remain locked; the user can still export the in-memory draft. Browser storage errors and cross-tab conflicts fail closed. The backup is a local draft recovery copy, **not a device backup**.
+
 These files are not device backups. Probability/condition, motion/p-lock, per-note sound, song/chain and live routing/clock/transport are not represented or implemented. No live triggering, playback, MIDI-port request, device read/transfer/update or sample-file operation exists. Unset values remain visibly unset; no real engine state is inferred from a draft.
 
 Validation:
 
-- `node --test web/offline-sequencer/*.test.mjs` from repository root runs all three editor Node suites (model, review, safety).
+- `node --test web/offline-sequencer/*.test.mjs` from repository root runs all editor Node suites, including last-good-draft safety tests.
 - `node web/test_web.mjs` runs the existing host Web MIDI checks; any missing build-dependent package is reported as skipped.
-- `.github/workflows/dnbox-editor-host.yml` requests both checks on PRs targeting `nightly`. A workflow definition or unsuccessful startup is not a PASS.
+- No GitHub Actions workflow is delivered with this editor. Run the scoped checks locally on the Mac and record the outputs.
 - `python3 web/offline-sequencer/browser.test.py` and `render_actual.py` use system Chromium/Playwright and an intercepted in-process HTTP fixture origin serving exact owned source bytes; no file navigation or public server.
 - **No shared bundler/website build is defined for this isolated firmware-repo page.** The shared website is maintained in a separate repository, and this source branch does not integrate or publish it. Earlier `npm run build` / `npm test` evidence applies only to the upstream website PR input.
 

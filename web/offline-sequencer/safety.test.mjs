@@ -2,10 +2,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {DraftStore,createDraft,copy,getPart} from './model.js';
+import {DraftStore,createDraft,copy,getPart,parseDraft,validateDraft} from './model.js';
 import {putNote,notesOf} from './editing.js';
 import {parseSMF,makeImportPlan} from './smf.js';
-import {StorageRevision,SelectionEpoch} from './draft-guards.js';
+import {StorageRevision,SelectionEpoch,SafeDraftStorage} from './draft-guards.js';
 const vlq=n=>{const a=[n&127];while(n>>>=7)a.unshift((n&127)|128);return a;};
 function midi(ticks){const events=[0,144,60,96,...vlq(ticks),128,60,0,0,255,47,0];return new Uint8Array([77,84,104,100,0,0,0,6,0,0,0,1,1,224,77,84,114,107,0,0,0,events.length,...events]);}
 const map={pattern:0,part:0,track:0,channel:0,rate:0,startBeat:1,beats:1};
@@ -45,4 +45,39 @@ test('features 93/95: file selection epochs guard stale asynchronous reads',asyn
  const open=source.slice(source.indexOf("$('#open-draft').onchange="),source.indexOf('function soundKey'));
  const fileRead=open.indexOf('await f.text()'),tokenCheck=open.indexOf('draftPick.valid(token)',fileRead),modal=open.indexOf("modal('Replace complete");
  assert.ok(fileRead>=0&&tokenCheck>fileRead&&tokenCheck<modal,'draft picker token checked before confirmation');
+});
+
+test('real draft schema: corruption never replaces last good saved copy',()=>{
+ const key='dnbox-offline-draft-v2',backup=key+':last-good';
+ const values=new Map(),writes=[];
+ const storage={
+  getItem:k=>values.has(k)?values.get(k):null,
+  setItem(k,v){writes.push(k);values.set(k,v);}
+ };
+ const fresh=createDraft(),first=JSON.stringify(fresh);
+ values.set(key,first);
+ const session=new SafeDraftStorage(storage,{parseDraft,validateDraft});
+ const loaded=session.load();
+ assert.equal(loaded.status,'ready');
+ assert.deepEqual(loaded.draft,fresh);
+ assert.equal(values.get(key),first);
+ assert.equal(values.get(backup),first);
+ const bad=copy(fresh);bad.patterns[0].bass[0].length=65;
+ const writesBefore=writes.length;
+ assert.throws(()=>session.save(bad),/Invalid melodic settings/);
+ assert.equal(writes.length,writesBefore);
+ assert.equal(values.get(key),first);
+ const updated=copy(fresh);updated.patterns[0].bass[0].length=17;
+ assert.equal(session.save(updated),true);
+ assert.deepEqual(parseDraft(values.get(key)),updated);
+ assert.equal(values.get(backup),first);
+ values.set(key,'{broken');
+ const recovered=new SafeDraftStorage(storage,{parseDraft,validateDraft});
+ const countBefore=writes.length;
+ assert.equal(recovered.load().status,'recovery');
+ assert.equal(writes.length,countBefore,'loading corrupt data must not mutate storage');
+ assert.throws(()=>recovered.save(fresh),/locked/);
+ assert.equal(values.get(key),'{broken');
+ assert.deepEqual(recovered.restore(),fresh);
+ assert.equal(values.get(backup),first,'explicit recovery retains last good copy');
 });

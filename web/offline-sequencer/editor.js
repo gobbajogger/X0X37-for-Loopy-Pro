@@ -1,24 +1,30 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import {DraftStore,createDraft,parseDraft,copy,getPart,PARTS,KITS,RATES,gate,bit,setBit,pitchName,validateDraft,diffDraft} from './model.js';
 import {notesOf,putNote,removeNote,applyPlan} from './editing.js';
-import {StorageRevision,SelectionEpoch} from './draft-guards.js';
+import {SafeDraftStorage,SelectionEpoch} from './draft-guards.js';
 import {partKind,takeFullPart,replaceFullPart,clearFullPart} from './part-operations.js';
 import {generatePlan} from './generator.js';
 const $=s=>document.querySelector(s), E=(tag,attrs={},children=[])=>{const x=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==='text')x.textContent=v;else if(k.startsWith('on'))x.addEventListener(k.slice(2),v);else if(k==='class')x.className=v;else if(v!==false&&v!=null)x.setAttribute(k,v===true?'':v);}for(const c of [].concat(children))x.append(c);return x;};
 let store=new DraftStore(),part=0,patterns=[0,0,0,0,0],selected=null,cursor={start:0,pitch:60},tool=matchMedia('(pointer:coarse)').matches?'pan':'select',step=40,row=28,gesture=null,pending=null,parsedSummary=null,worker=null,workerId=0,soundGroup='',soundSection='',catalog=null,uiEpoch=0;
 const STORAGE_KEY='dnbox-offline-draft-v2';
-let localRevision=new StorageRevision(),draftPick=new SelectionEpoch(),fullPartClipboard=null;
+const draftStorage=new SafeDraftStorage({
+ getItem:key=>localStorage.getItem(key),
+ setItem:(key,raw)=>localStorage.setItem(key,raw)
+},{parseDraft,validateDraft},STORAGE_KEY);
+let draftPick=new SelectionEpoch(),fullPartClipboard=null;
 const vp=$('#viewport'),canvas=$('#canvas'),vel=$('#velocity'),vc=$('#velocity-canvas'),dialog=$('#dialog');
 const pattern=()=>patterns[part],current=()=>getPart(store.doc,pattern(),part),context=()=>`${part}:${pattern()}:${part<2?store.doc.engines[part]:''}`;
 function message(text,error=false){$('#message').textContent=text;$('#message').classList.toggle('error',error);}
-function act(fn,text='Local draft changed · unsent'){try{const changed=store.edit(fn);if(changed){pending=null;const saved=persist();render();if(saved)message(text);}return changed;}catch(e){message(e.message,true);return false;}}
-function persist(){try{
-  if(!localRevision.save(localStorage,STORAGE_KEY,store.doc)){
-    message('Another tab has saved a different draft. This tab remains unsent. Export a copy, then reload to inspect the saved draft.',true);
-    return false;
-  }
-  return true;
- }catch{message('Draft retained in this tab; browser storage unavailable. Export a copy.',true);return false;}}
+function canModify(){
+ if(draftStorage.status==='ready')return true;
+ message('Saved draft storage is locked. Recover the validated backup first, or export your local work. Saved bytes have not been overwritten.',true);
+ return false;
+}
+function act(fn,text='Local draft changed · unsent'){if(!canModify())return false;try{const changed=store.edit(fn);if(changed){pending=null;const saved=persist();render();if(saved)message(text);}return changed;}catch(e){message(e.message,true);return false;}}
+function persist(){try{draftStorage.save(store.doc);return true;}catch(e){
+ message(e.message+' No saved copy was overwritten by the failed save; export this tab if needed.',true);
+ return false;
+}}
 function button(label,fn,attrs={}){return E('button',{text:label,onclick:fn,...attrs});}
 function number(label,value,min,max,change){const input=E('input',{type:'number',min,max,value,'aria-label':label,onchange:()=>change(Number(input.value))});return E('label',{},[E('span',{text:label}),input]);}
 function modal(title,content){$('#dialog-title').textContent=title;$('#dialog-body').replaceChildren(...[].concat(content));if(!dialog.open)dialog.showModal();}
@@ -103,8 +109,8 @@ vp.addEventListener('keydown',e=>{
 $('#pattern').onchange=()=>{cancelGesture();closeModal();const n=Number($('#pattern').value);if(Number.isInteger(n)&&n>=1&&n<=32){patterns[part]=n-1;selected=null;}render();};$('#length').onchange=()=>act(d=>{getPart(d,pattern(),part).length=Number($('#length').value);});$('#rate').onchange=()=>act(d=>{getPart(d,pattern(),part).rate=Number($('#rate').value);});
 for(const id of ['direction','transpose'])$('#'+id).onchange=()=>{if(part>=2)return;act(d=>{getPart(d,pattern(),part)[id]=Number($('#'+id).value);});};
 for(const b of $('#tools').children)b.onclick=()=>{cancelGesture();tool=b.dataset.tool;render();};$('#zoom-in').onclick=()=>zoomTo(step*1.25);$('#zoom-out').onclick=()=>zoomTo(step/1.25);$('#fit').onclick=()=>{zoomTo((vp.clientWidth-48)/current().length);vp.scrollLeft=0;};$('#note-list').onclick=()=>showNotes();$('#close-dialog').onclick=closeModal;dialog.addEventListener('cancel',()=>{pending=null;uiEpoch++;});
-$('#undo').onclick=()=>{cancelGesture();closeModal();if(store.undo()){const saved=persist();selected=null;render();if(saved)message('One local transaction undone.');}};
-$('#redo').onclick=()=>{cancelGesture();closeModal();if(store.redo()){const saved=persist();selected=null;render();if(saved)message('One local transaction redone.');}};
+$('#undo').onclick=()=>{if(!canModify())return;cancelGesture();closeModal();if(store.undo()){const saved=persist();selected=null;render();if(saved)message('One local transaction undone.');}};
+$('#redo').onclick=()=>{if(!canModify())return;cancelGesture();closeModal();if(store.redo()){const saved=persist();selected=null;render();if(saved)message('One local transaction redone.');}};
 document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,[contenteditable]'))return;const key=e.key.toLowerCase();if((e.ctrlKey||e.metaKey)&&((key==='z'&&!e.shiftKey)||(key==='y'&&!e.shiftKey)||key==='z'&&e.shiftKey)){e.preventDefault();(key==='y'||e.shiftKey?$('#redo'):$('#undo')).click();}});
 $('#export').onclick=()=>download('dnbox-local-draft.json',JSON.stringify(store.doc,null,2));
 $('#open-draft').onchange=async e=>{
@@ -120,6 +126,7 @@ $('#open-draft').onchange=async e=>{
    E('p',{text:'This replaces all local parts and sound drafts, not a device project. One Undo restores this draft.'}),
    button('Replace local draft',()=>{
     if(!draftPick.valid(token)||store.revision!==revision||key!==context())return message('Draft selection or contents changed; open again.',true);
+    if(!canModify())return;
     store.replace(candidate);const saved=persist();selected=null;closeModal();render();
     if(saved)message('Local draft replaced. No device write.');
    })
@@ -140,7 +147,8 @@ $('#part-actions').onclick=()=>{
    E('p',{text:`${PARTS[target.part]} / pattern ${target.pattern+1}: ${count} changed fields. Includes length, rate, all stored steps (including hidden tail) and pattern-local settings; excludes global sound and engine assignments. No device transfer.`}),
    button('Confirm '+label,()=>{
     if(!same())return message('Draft revision or part changed; reopen actions.',true);
-    const changed=store.replace(candidate);
+    if(!canModify())return;
+     const changed=store.replace(candidate);
     if(clip&&changed)fullPartClipboard=clip;
     const saved=changed?persist():true;
     selected=null;closeModal();render();
@@ -210,7 +218,7 @@ function reportPlan(plan,captured){
  if(plan.counts)body.append(E('p',{text:JSON.stringify(plan.counts)}));body.append(E('h3',{text:`Replacement: ${plan.changes.length} changed fields`}));
  const table=E('table',{class:'report-table'},[E('thead',{},E('tr',{},['Field','Before','After'].map(text=>E('th',{text}))))]);const tbody=E('tbody');for(const x of plan.changes.slice(0,200))tbody.append(E('tr',{},[E('td',{text:x.target+' / '+x.field}),E('td',{text:x.before}),E('td',{text:x.after})]));table.append(tbody);body.append(E('div',{class:'report-scroll'},table));if(plan.changes.length>200)body.append(E('p',{text:'First200 rows displayed; complete replacement/loss report is downloadable below.'}));
  body.append(E('h3',{text:`Losses / unsupported data (${plan.losses.length})`}));const loss=E('pre',{text:JSON.stringify(plan.losses.slice(0,100),null,2)});loss.style.whiteSpace='pre-wrap';body.append(loss);if(plan.losses.length>100)body.append(E('p',{text:'First100 loss entries displayed; complete report below.'}));
- const accept=E('input',{type:'checkbox','aria-label':'Accept reported replacements and losses'});body.append(E('label',{},[accept,E('span',{text:' I reviewed the replacement and all reported losses.'})]));const use=button('Use local preview',()=>{try{if(!pending||captured.key!==context())throw Error('Target changed. Preview again.');if(!accept.checked)throw Error('Accept the inspectable replacement/loss report first.');applyPlan(store,plan);const saved=persist();closeModal();selected=null;render();if(saved)message('Local preview applied as one Undo transaction. No device write.');}catch(e){message(e.message,true);}},{disabled:plan.errors.length>0,'data-apply-plan':true});
+ const accept=E('input',{type:'checkbox','aria-label':'Accept reported replacements and losses'});body.append(E('label',{},[accept,E('span',{text:' I reviewed the replacement and all reported losses.'})]));const use=button('Use local preview',()=>{try{if(!pending||captured.key!==context())throw Error('Target changed. Preview again.');if(!accept.checked)throw Error('Accept the inspectable replacement/loss report first.');if(!canModify())return;applyPlan(store,plan);const saved=persist();closeModal();selected=null;render();if(saved)message('Local preview applied as one Undo transaction. No device write.');}catch(e){message(e.message,true);}},{disabled:plan.errors.length>0,'data-apply-plan':true});
  body.append(E('div',{class:'actions'},[use,button('Discard',()=>{closeModal();message('Preview discarded; draft unchanged.');}),button('Download full report',()=>download('dnbox-replacement-report.json',JSON.stringify({...plan,candidate:undefined},null,2)))]));modal('Review replacement / losses',body);
 }
 $('#generator').onclick=()=>{
@@ -244,8 +252,33 @@ function showImportSettings(captured,name){
  const fields=E('div',{class:'form-grid'},[E('label',{text:'Track'},tracks),E('label',{text:'Channel'},channels),number('Start beat',1,1,1000000,v=>settings.startBeat=v),number('Beats',settings.beats,1,64,v=>settings.beats=v),number('Rate index ·0=1/16,1=1/16T,2=1/32,3=1/8T',settings.rate,0,3,v=>settings.rate=v)]);
  modal('Import MIDI into one local part',E('div',{},[E('p',{text:`${name} · SMF${parsedSummary.format} · PPQN${parsedSummary.ppqn} · ${PARTS[captured.part]} / P${captured.pattern+1}`}),fields,E('p',{text:'No automatic polyphonic reduction, wrapping or cross-pattern splitting. Tempo/controllers/program/SysEx are reported, never sent.'}),button('Build replacement preview',async()=>{try{if((captured.key!==context()||captured.epoch!==uiEpoch))throw Error('Target changed; import again.');const reply=await workerRequest('preview',{doc:store.doc,revision:store.revision,settings});if((captured.key!==context()||captured.epoch!==uiEpoch))throw Error('Target changed; preview cancelled.');reportPlan(reply.plan,captured);}catch(e){message(e.message,true);}})]));
 }
-try{const saved=localStorage.getItem(STORAGE_KEY);localRevision=new StorageRevision(saved);if(saved)store=new DraftStore(parseDraft(saved));}catch(e){message('Saved local draft could not be loaded: '+e.message,true);}
-window.addEventListener('storage',e=>{if(e.key===STORAGE_KEY&&localRevision.changed(e.newValue))message('Another editor tab changed the saved draft. This tab will not overwrite it. Export local edits before reloading.',true);});
+$('#recover-draft').onclick=()=>{
+ if(draftStorage.status!=='recovery')return;
+ modal('Restore last validated local draft?',E('div',{},[
+  E('p',{text:'The primary saved draft is damaged or missing. The separate last-good copy passed validation. Restoring replaces only the primary saved entry and keeps the validated backup. Export any unsent edits before restoring.'}),
+  button('Restore last good copy',()=>{
+   try{
+    const recovered=draftStorage.restore();
+    cancelGesture();store=new DraftStore(recovered);fullPartClipboard=null;selected=null;
+    closeModal();$('#recover-draft').hidden=true;$('#draft-state').textContent='Recovered local draft · device unavailable';
+    render();centerPitch();message('The validated last-good draft was restored. No device data changed.');
+   }catch(e){message('Recovery failed: '+e.message+'. The last-good copy remains untouched.',true);}
+  }),
+  button('Cancel',closeModal)
+ ]));
+};
+const loadedDraft=draftStorage.load();
+if(loadedDraft.draft)store=new DraftStore(loadedDraft.draft);
+if(loadedDraft.status==='recovery'){
+ $('#recover-draft').hidden=false;
+ $('#draft-state').textContent='Validated backup found · restore required';
+}else if(loadedDraft.status==='locked'){
+ $('#draft-state').textContent='Saved draft unreadable · writes blocked';
+}
+if(loadedDraft.warning)message(loadedDraft.warning,true);
+window.addEventListener('storage',e=>{
+ if(draftStorage.changed(e.key,e.newValue))message('Another editor tab changed draft storage. This tab will not overwrite the newer saved copy. Export your work before reloading.',true);
+});
 render();centerPitch();fetch('./controls.json').then(r=>{if(!r.ok)throw Error('Control catalog unavailable.');return r.json();}).then(d=>{catalog=d;renderSound();}).catch(e=>message(e.message,true));
 // Read-only inspection for frozen-source browser validation; no test mutation hook.
 Object.defineProperty(window,'dnboxEditor',{value:Object.freeze({snapshot:()=>copy(store.doc),revision:()=>store.revision,context:()=>({part,pattern:pattern(),selected,tool}),notes:()=>part<2?notesOf(current()):[],pending:()=>pending?{revision:pending.plan.revision,errors:[...pending.plan.errors]}:null})});
