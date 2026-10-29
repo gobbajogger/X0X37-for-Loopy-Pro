@@ -17,7 +17,7 @@ export function initDnboxWorkspace({ $, t }) {
     document.querySelectorAll('#preplist audio').forEach((node) => node.pause());
     if (name !== 'install') {
       const frame = $(name + 'frame');
-      if (!frame.getAttribute('src')) frame.src = location.pathname.endsWith('.html') ? `./x0x_${name === 'samples' ? 'breaks' : 'projects'}.html` : frame.dataset.src;
+      if (!frame.getAttribute('src')) frame.src = location.pathname.endsWith('/x0x_installer.html') ? `./x0x_${name === 'samples' ? 'breaks' : 'projects'}.html` : frame.dataset.src;
     }
   }
   window.addEventListener('hashchange', view); view();
