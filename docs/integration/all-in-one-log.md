@@ -93,3 +93,8 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #732 | 90289b46 merges 106f2107; ce290925 merges 1e83f458 (AGENTS.md = #732 text). |
 | #690 | f099b2ab merges bc9a8b98 (local copy, genkigenki 5b7e7b7a re-authored, same tree 77a71376). Conflict web/x0x_installer.html: both sides kept. |
 | FMB | ea859a86 merges 9b72463c (568f340b), 2d321e42 (78701ef5). 064e1a55/4a858395 skipped (same function as 5ebcbf92). lane/mb-review-696 7b845a37: content already in. |
+| fix/batch-host-failures | 0849f2f4 merges 51355526 (host-test compile repair). |
+| #685 new head | 7eb20875 merges b471712a (brings wip/one-build 401ba15c). |
+| FMB ports | 7e5be72e merges 821e15c9 (#650 surfaces, no wobble.c, from 29a2a819), 285218de (#651 C99 linkage + fastmath.h, from 9dccb0aa; smk_clip_keys.h kept from the minsize guard), 18071009 (#687 two-peer central, from ae0a62e3). minsize-guard-r2 8cf66c64: same change as 69ba36f9, already in. |
+| Host suite | Base 70ec6074: 404 run, 64 fail. Head ea859a86: partial run (148 run, 19 fail). Full run on the final head is still open. |
+| Open | bass303 and wobble.c full removal: waits for the FMB base-fix PR on wip/one-build. state_codec.c type-limits fix: not pushed yet. |
