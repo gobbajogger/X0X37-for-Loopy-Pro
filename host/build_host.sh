@@ -29,7 +29,7 @@ U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_pa
 case "${X0X_ORIGINAL_SYNTH:-1}" in
     0) U="$U firmware/src/dsp/bass303.c experiments/wobble/wobble.c"
        SYNTH_DEFS='-DX0X_WOBBLE=1 -DX0X_DEV_WOBBLE=1' ;;
-    1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-0}"
+    1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-1}"
        case "$DEV_WOBBLE" in 0|1) ;; *) echo 'X0X_DEV_WOBBLE: 0 or 1' >&2; exit 2 ;; esac
        U="$U $(python3 - <<'PY'
 import importlib.util
