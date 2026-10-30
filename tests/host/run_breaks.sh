@@ -5,16 +5,16 @@
 set -e
 cd "$(dirname "$0")/../.."
 mkdir -p build
-CFLAGS="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
+CFLAGS="-DX0X_HOST -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -Wno-error=attributes"
 # the DSP file alone, strict C99 (define IMA tables: header is extern without it)
-cc $CFLAGS -std=c99 -pedantic -DX0X_IMA_TABLES_DEFINE -Ifirmware/src -c firmware/src/dsp/breaks.c -o build/breaks_host.o
-cc $CFLAGS tests/host/breaks_test.c -lm -o build/breaks_test
+${CC:-cc} $CFLAGS -std=c99 -pedantic -DX0X_IMA_TABLES_DEFINE -Ifirmware/src -c firmware/src/dsp/breaks.c -o build/breaks_host.o
+${CC:-cc} $CFLAGS tests/host/breaks_test.c -lm -o build/breaks_test
 ./build/breaks_test build/breaks_demo.wav
 # the same tests with a 44.1 kHz source loop (the default rate of the built-in and uploaded loops)
-cc $CFLAGS -DSRC_FS=44100 -DLOOP_N=176400 tests/host/breaks_test.c -lm -o build/breaks_test_44k
+${CC:-cc} $CFLAGS -DSRC_FS=44100 -DLOOP_N=176400 tests/host/breaks_test.c -lm -o build/breaks_test_44k
 ./build/breaks_test_44k
 # positive control: with the crossfade compiled out the click check must fire
-cc $CFLAGS -DBRK_FADE=1 -DBRK_CLICK_CONTROL tests/host/breaks_test.c -lm -o build/breaks_test_control
+${CC:-cc} $CFLAGS -DBRK_FADE=1 -DBRK_CLICK_CONTROL tests/host/breaks_test.c -lm -o build/breaks_test_control
 if ./build/breaks_test_control; then
     echo "FAIL: click check did not fire with the crossfade removed"; exit 1
 else

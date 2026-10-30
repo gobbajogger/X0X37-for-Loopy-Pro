@@ -39,6 +39,6 @@ ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -
     -D_POSIX_C_SOURCE=200809L -DX0X_HOST ${X0X_HOST_DEFS:-} \
     -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     "-DX0X_HOST_SOURCE=\"$SRC/host/x0x_host.c\"" \
-    "-DSMC_MIXER_SOURCE=\"$SRC/firmware/src/app/smc_mixer.c\"" \
+    "-DSMC_MIXER_SOURCE=\"${SMC_SOURCE_FILE:-$SRC/firmware/src/app/smc_mixer.c}\"" \
     "$TEST_ROOT/tests/host/smc_drum_rs_test.c" $U "$OUT/engine.o" -lm -o "$OUT/probe"
 "$OUT/probe"
