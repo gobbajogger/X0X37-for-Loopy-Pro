@@ -590,6 +590,10 @@ fi
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live-smk Pillow; else
 run rec-live-smk sh tests/host/run_rec_live.sh smk37
 fi
+if [ "$PIL_SKIP" = 1 ]; then not_run ext-midi-rec Pillow; else
+run ext-midi-rec sh tests/host/run_ext_midi_rec.sh fm1
+run ext-midi-rec-smk sh tests/host/run_ext_midi_rec.sh smk37
+fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
