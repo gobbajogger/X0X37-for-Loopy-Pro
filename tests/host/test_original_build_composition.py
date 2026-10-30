@@ -32,6 +32,14 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
+    def test_removed_engines_have_no_build_hook(self):
+        # Even a currently unreachable build branch can accidentally compile a
+        # deleted source after a later selector change. Keep the plan clean.
+        code = (ROOT / "tools/build.py").read_text()
+        plan = code.split("def app_compile_commands(", 1)[1].split("def build_app(", 1)[0]
+        self.assertNotIn("experiments/wobble/wobble.c", plan)
+        self.assertNotIn("dsp/bass303.c", plan)
+
     def test_default_is_original_and_zero_is_rejected(self):
         commands, objects, sources = compile_plan({})
         self.assertEqual((commands, objects), compile_plan({"X0X_ORIGINAL_SYNTH": "1"})[:2])
