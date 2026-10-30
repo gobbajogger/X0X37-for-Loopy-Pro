@@ -5,7 +5,9 @@ int original_miami_control_owner_bind(original_miami_control_owner *s,original_m
  *s=(original_miami_control_owner){p,c,out,scheduler,input,1};return 1;
 }
 int original_miami_control_owner_edit(original_miami_control_owner *s,unsigned id,float value){
- if(!s||!s->status)return 0;original_miami_program p=*s->program;original_miami_voice_controls c;
+ if(!s||!s->status)return 0;
+ original_miami_program p=*s->program;
+ original_miami_voice_controls c;
  if(!original_miami_program_set(&p,id,value)||!original_miami_voice_compile(&c,&p))return 0;
  *s->program=p;*s->controls=c;s->global_input->waveform1=c.mg_shape[0];s->global_input->waveform2=c.mg_shape[1];
  if(!original_miami_output_apply(s->output,s->program,id)){s->status=0;return 0;}

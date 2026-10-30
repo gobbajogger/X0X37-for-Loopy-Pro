@@ -30,14 +30,22 @@ static unsigned learned_count(const original_chicago_allocator *a){
 static int fits(const original_allocator_geometry *v,const original_chicago_allocator *a){return v->capacity>=1&&(uint32_t)v->capacity<=a->storage_voices;}
 static int phase(original_miami_geometry *g,original_chicago_allocator *a,const original_allocator_geometry *v,unsigned stage,original_miami_geometry_reset reset,void *context,original_miami_geometry_progress *p){
  g->value=*v;a->capacity=(uint32_t)v->capacity;a->unison_count=(uint32_t)v->unison;original_chicago_allocator_reset_lists(a);p->stage=stage;
- if(!reset(context))return 0;p->completed_resets++;return 1;
+ if(!reset(context))return 0;
+ p->completed_resets++;
+ return 1;
 }
 int original_miami_geometry_learn(original_miami_geometry *g,original_chicago_allocator *a,int32_t poly,int32_t unison,original_miami_geometry_reset reset,void *context,original_miami_geometry_progress *p){
  if(!basic(g,a,reset,p))return 0;
  if(a->held_active.head<0){*p=(original_miami_geometry_progress){ORIGINAL_MIAMI_GEOMETRY_COMPLETE,0,0,1};return 1;}
- if(!lists(a))return 0;unsigned count=learned_count(a);original_allocator_geometry v;original_chicago_allocator_geometry(&v,poly,unison,(int32_t)a->mode,(int32_t)count);if(!fits(&v,a))return 0;
+ if(!lists(a))return 0;
+ unsigned count=learned_count(a);
+ original_allocator_geometry v;
+ original_chicago_allocator_geometry(&v,poly,unison,(int32_t)a->mode,(int32_t)count);
+ if(!fits(&v,a))return 0;
  *p=(original_miami_geometry_progress){ORIGINAL_MIAMI_GEOMETRY_READY,0,0,0};unsigned actual;
- if(!original_chicago_allocator_chord_snapshot(a,g->by_key,g->pairs,&actual))return 0;g->chord_count=actual;p->learned_chord=1;
+ if(!original_chicago_allocator_chord_snapshot(a,g->by_key,g->pairs,&actual))return 0;
+ g->chord_count=actual;
+ p->learned_chord=1;
  if(!phase(g,a,&v,ORIGINAL_MIAMI_GEOMETRY_CHORD,reset,context,p))return 0;
  p->stage=ORIGINAL_MIAMI_GEOMETRY_COMPLETE;p->status=1;return 1;
 }

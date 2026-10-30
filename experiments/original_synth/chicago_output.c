@@ -10,7 +10,9 @@ static int32_t asr15(int32_t x){uint32_t u=(uint32_t)x;return signed32((u>>15)|(
 static int32_t product(int32_t a,int32_t b){return asr15(signed32((uint32_t)a*(uint32_t)b));}
 static int16_t mix(int16_t old,int16_t newer,int32_t new_weight){
  int32_t value=product(newer,new_weight)+product(old,32767-new_weight);
- if(value>32767)value=32767;if(value< -32767)value=-32767;return (int16_t)value;
+ if(value>32767)value=32767;
+ if(value< -32767)value=-32767;
+ return (int16_t)value;
 }
 int original_chicago_drive_wrapper_init(original_chicago_drive_wrapper *s,unsigned d,unsigned g,unsigned on){
  if(!s||d>127||g>127||on>1)return 0;
@@ -23,7 +25,8 @@ int original_chicago_drive_wrapper_set(original_chicago_drive_wrapper *s,unsigne
  if(p==0)return 1;
  if(p==1){s->switch_pending=(uint8_t)v;s->switch_dirty=1;return 1;}
  if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
- if(s->selected)return original_chicago_drive_set(&s->drive,p,v);return 1;
+ if(s->selected)return original_chicago_drive_set(&s->drive,p,v);
+ return 1;
 }
 int original_chicago_drive_wrapper_events(original_chicago_drive_wrapper *s,const original_chicago_drive_event *events,uint32_t count){
  if(!s||(count&&!events))return 0;
@@ -135,7 +138,8 @@ int original_chicago_output_zero_ready(const original_chicago_output *s,
  return 1;
 }
 int original_chicago_output_process(original_chicago_output *s,original_chicago_output_workspace *w,const original_chicago_fx2 *fx2,float volume,const uint32_t *il,const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz){
- if(!s)return 0;if(!n)return 1;
+ if(!s)return 0;
+ if(!n)return 1;
  if(!w||!w->left||!w->right||!w->wet_left||!w->wet_right||!il||!ir||!ol||!orr||ol==orr||n>w->capacity||w->capacity>4096||fz>1||!original_binary32_isfinite(volume)||volume<0||volume>1)return 0;
  if(s->enable_slot[1]&&((s->process_slot[1]&&(!fx2||!fx2->process))||(crosses(s->reset_countdown[1],n)&&(!fx2||!fx2->reset))))return 0;
  for(uint32_t i=0;i<n;i++){(void)miami_fx_input_rne(il[i],fz,&w->left[i]);(void)miami_fx_input_rne(ir[i],fz,&w->right[i]);}

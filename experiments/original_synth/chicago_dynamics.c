@@ -30,7 +30,8 @@ static int bind(original_chicago_dyn_queue *q,const original_chicago_drive_event
  *q=(original_chicago_dyn_queue){p,n,0};return 1;
 }
 int original_chicago_mastercomp_init(original_chicago_mastercomp *s){
- if(!s)return 0;memset(s,0,sizeof *s);
+ if(!s)return 0;
+ memset(s,0,sizeof *s);
  s->parameter[0]=50;s->parameter[1]=0;s->parameter[2]=100;
  s->target_sensitivity=212;s->sensitivity=6946816;s->attack=8;s->target_gain=32767;s->gain=1073709056;return 1;
 }
@@ -42,17 +43,22 @@ void original_chicago_mastercomp_reset(original_chicago_mastercomp *s){
  s->sensitivity=s32((uint32_t)s->target_sensitivity<<15);s->gain=s32((uint32_t)s->target_gain<<15);
 }
 int original_chicago_mastercomp_set(original_chicago_mastercomp *s,unsigned p,int32_t value){
- if(!s||p>2)return 0;unsigned v=(uint32_t)value&127u;s->parameter[p]=(uint8_t)v;
+ if(!s||p>2)return 0;
+ unsigned v=(uint32_t)value&127u;
+ s->parameter[p]=(uint8_t)v;
  if(p==0)s->target_sensitivity=(int32_t)(64u+((959u*curve(v))>>15));
  else if(p==1)s->attack=(int32_t)(8u+((3268u*curve(v))>>15));
- else s->target_gain=(int32_t)gain_table(v);return 1;
+ else s->target_gain=(int32_t)gain_table(v);
+ return 1;
 }
 static int32_t highpass(int16_t input,int32_t old_input,int32_t old_output){
  uint64_t v=((uint64_t)(int64_t)old_output<<32)-((uint64_t)(int64_t)old_output<<25);
  int64_t y=sar64(v,32);const int64_t k=INT64_C(-4294705152);
  y=sar64((uint64_t)y*(uint64_t)k,32);y=sar64((uint64_t)y*(uint64_t)k,32);
  y+=(int64_t)input*32768-old_input;
- if(y>1073741823)y=1073741823;if(y< -1073741823)y=-1073741823;return (int32_t)y;
+ if(y>1073741823)y=1073741823;
+ if(y< -1073741823)y=-1073741823;
+ return (int32_t)y;
 }
 static int16_t q9_clip(int32_t x){return x< -16776704?-32767:x>=16777216?32767:(int16_t)sar32(x,9);}
 static int16_t post_clip(int32_t x){return x< -1073709056?-32767:x>=1073741824?32767:(int16_t)sar32(x,15);}
@@ -67,7 +73,8 @@ static void master_frame(original_chicago_mastercomp *s,int16_t l,int16_t r,int1
  int32_t sens=sar32(s->sensitivity,15),div=sens?32768/sens:0;
  uint32_t inverted=((uint32_t)env^UINT32_C(0x7fff0000))>>16;
  int32_t control=s32((uint32_t)sar32(mul32((int32_t)inverted,s->control),15)+((uint32_t)div<<4));
- if(control>32767)control=32767;if(control< -32767)control=-32767;
+ if(control>32767)control=32767;
+ if(control< -32767)control=-32767;
  int32_t prod=mul32(control,sens);int64_t effective=sar32(prod,13); /* SBFX bit13,width19. */
  int32_t raw_l=s32((uint32_t)(((uint64_t)(int64_t)hl*(uint64_t)effective)>>15));
  int32_t raw_r=s32((uint32_t)(((uint64_t)(int64_t)hr*(uint64_t)effective)>>15));
@@ -92,11 +99,20 @@ static void eq_coefficients(original_chicago_peaking *s,unsigned refresh_alpha){
  s->coefficient[3]=s->coefficient[1];s->coefficient[4]=coefficient((1-cut)/den);
 }
 int original_chicago_peaking_init(original_chicago_peaking *s){
- if(!s)return 0;memset(s,0,sizeof *s);s->parameter[0]=61;s->parameter[1]=70;s->parameter[2]=64;eq_coefficients(s,1);return 1;
+ if(!s)return 0;
+ memset(s,0,sizeof *s);
+ s->parameter[0]=61;
+ s->parameter[1]=70;
+ s->parameter[2]=64;
+ eq_coefficients(s,1);
+ return 1;
 }
 void original_chicago_peaking_reset(original_chicago_peaking *s){if(s)memset(s->history,0,sizeof s->history);}
 int original_chicago_peaking_set(original_chicago_peaking *s,unsigned p,unsigned v){
- if(!s||p>2||v>127)return 0;s->parameter[p]=(uint8_t)v;eq_coefficients(s,p!=1);return 1;
+ if(!s||p>2||v>127)return 0;
+ s->parameter[p]=(uint8_t)v;
+ eq_coefficients(s,p!=1);
+ return 1;
 }
 void original_chicago_mastercomp_activity(original_chicago_mastercomp *s,uint8_t a){if(s)s->activity=a;}
 void original_chicago_peaking_activity(original_chicago_peaking *s,uint8_t a){if(s)s->activity=a;}
@@ -136,7 +152,8 @@ int original_chicago_mastercomp_advance_zero(original_chicago_mastercomp *s,uint
  int32_t sens=sar32(s->sensitivity,15),div=sens?32768/sens:0;
  uint32_t inverted=((uint32_t)env^UINT32_C(0x7fff0000))>>16;
  int32_t control=s32((uint32_t)sar32(mul32((int32_t)inverted,s->control),15)+((uint32_t)div<<4));
- if(control>32767)control=32767;if(control< -32767)control=-32767;
+ if(control>32767)control=32767;
+ if(control< -32767)control=-32767;
  return peak==s->peak&&env==s->envelope&&control==s->control;
 }
 int original_chicago_peaking_advance_zero(const original_chicago_peaking *s,uint32_t n,int16_t constant[2]){

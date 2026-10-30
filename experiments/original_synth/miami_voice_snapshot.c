@@ -148,5 +148,9 @@ int original_miami_voice_snapshot_capture(original_miami_voice_snapshot *out,con
 static const original_state_schema schema={fields,ORIGINAL_MIAMI_VOICE_SNAPSHOT_WORDS,sizeof(original_miami_voice_snapshot),1,{'L','X','V','S'}};
 int original_miami_voice_snapshot_encode(const original_miami_voice_snapshot *s,void *bytes,size_t capacity){return original_state_encode(&schema,s,bytes,capacity);}
 int original_miami_voice_snapshot_decode(original_miami_voice_snapshot *out,const void *bytes,size_t length){
- if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+ if(!out)return 0;
+ original_miami_voice_snapshot n;
+ if(!original_state_decode(&schema,&n,bytes,length))return 0;
+ *out=n;
+ return 1;
 }
