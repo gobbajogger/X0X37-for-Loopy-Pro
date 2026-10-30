@@ -2,7 +2,7 @@
 
 `tools/github_api_checkout.py` reconstructs a **clean, shallow Git checkout at the actual remote commit SHA and tree SHA**, even when native Git smart-HTTP transport is unavailable. It consumes the official GitHub Git Data REST API (commit, recursive tree, blobs). All blob Git hashes, declared sizes, root tree, original signed/unsigned commit object and final clean HEAD are verified before the checkout is exposed. The output is created atomically and only if its destination does not exist.
 
-Use an ordinary native Linux environment able to reach `https://api.github.com`, with Python 3 and Git. The public repository can be read without an API token, but authenticated `GH_TOKEN`/`GITHUB_TOKEN` provides reliable rate limits; do not put tokens in commands/logs. Use a clean historic Git checkout as a blob cache so only changed remote blobs are downloaded. No GitHub-hosted runner, Codex, Work or remote mutation is involved.
+Use an ordinary native Linux environment able to reach `https://api.github.com`, with Python 3 and Git. The public repository can be read without an API token, but authenticated `GH_TOKEN`/`GITHUB_TOKEN` provides reliable rate limits; do not put tokens in commands/logs. Use a clean historic Git checkout as a blob cache so only changed remote blobs are downloaded. No GitHub-hosted runner, Codex, Work or remote mutation is involved. In chats, follow rule 1m: no git over the network; use the GitHub plugin or API.
 
 ```bash
 python3 tools/github_api_checkout.py \
