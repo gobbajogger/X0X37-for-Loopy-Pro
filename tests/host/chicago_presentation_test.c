@@ -9,6 +9,7 @@
 #undef main
 #undef engine_bass_preset_pending
 #include <assert.h>
+#include "../../experiments/wobble/wobble.h" /* Miami control indices (match original_sound.h) */
 int engine_bass_preset_pending(int);
 static unsigned checks;
 #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)

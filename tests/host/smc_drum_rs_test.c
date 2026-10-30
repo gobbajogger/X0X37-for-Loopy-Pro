@@ -444,7 +444,11 @@ static void held_edit_context(void)
     int base = pref_get(r), old_pattern = seq.ppat[PART_909];
     CHECK(observed_909 && drum909_get(observed_909, r.b, r.c) == base);
     sm_set(pat_of(PART_909)->drum[PART_909].hit[0], 3);
+    /* 0a2eae49: steps are held on SEQ; the held step carries to EDIT's sound knobs. */
+    smc_view(V_SEQ, 0);
     pad(3, 1);
+    smc_view(V_PART, 0);
+    CHECK(ui.view == V_PART && pg.r[cur_page()][0].c == r.c);
     enc_acc[EN_K1] = 1;
     now_ms += 20;
     input();

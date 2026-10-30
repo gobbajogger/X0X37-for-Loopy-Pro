@@ -479,7 +479,7 @@ static void test_start_ext_running(void)
 {
     int s, n, stop_at, run_no;
     ui.part = PART_909;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     clear_909();
     tick(1500);
@@ -542,7 +542,7 @@ static void test_drum_record_velocity(void)
 {
     int s, lane, voice = 0 << 4 | 2; /* 909 tom / black key 3 */
     ui.part = PART_909;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     clear_909();
     tick(700);
@@ -588,7 +588,7 @@ static void test_drum_vel_clear_resets_runtime(void)
 {
     int lane, voice = PART_909 << 4 | 3;
     ui.part = PART_909;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     clear_909();
     tick(100);
@@ -620,7 +620,7 @@ static void test_drum_nearest(void)
     };
     int i, s, n;
     ui.part = PART_909;
-    set_view(V_PART);
+    set_view(V_SEQ);
     build_pages();
     clear_909();
     tick(700);

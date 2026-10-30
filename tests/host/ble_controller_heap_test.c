@@ -39,7 +39,7 @@ static void start(unsigned heap,unsigned hw,unsigned credits)
 }
 static int connect(unsigned heap,unsigned credits,unsigned peers,int reserve)
 {
- start(heap,2,credits);
+ start(heap,TEST_CTL_HW_NUMS,credits);
  unsigned before=free_bytes();
  void *scan=alloc_target(32);assert(scan); /* retained scanner handle */
  void *links[2]={0},*hardware[2]={0};
@@ -64,6 +64,13 @@ static int connect(unsigned heap,unsigned credits,unsigned peers,int reserve)
 }
 int main(void)
 {
+#if TEST_CTL_HW_NUMS == 1
+ /* One-peer recovery is the shipping controller. Exercise its real heap
+  * allocation and recovery rather than silently marking the test not run. */
+ assert(TEST_CTL_CREDITS == 5);
+ for(unsigned i=0;i<100;i++)assert(connect(TEST_CTL_HEAP,TEST_CTL_CREDITS,1,1));
+ puts("controller heap: shipping one-peer lifecycle x100 with transient reserve PASS");
+#else
  assert(!connect(10112,5,1,0)); /* exact B cannot establish even first peer */
  start(10112,1,5); /* A's controller has room for the one supported peer. */
  assert(alloc_target(32)&&alloc_target(32)&&alloc_target(52)&&alloc_target(40)&&alloc_target(416));
@@ -72,5 +79,6 @@ int main(void)
  assert(!connect(10112,3,2,1));
  for(unsigned i=0;i<100;i++)assert(connect(TEST_CTL_HEAP,TEST_CTL_CREDITS,2,1));
  puts("controller heap: A first-peer PASS; old B first-peer FAIL; both partial fixes FAIL reserve; corrected two-peer lifecycle x100 with 512-byte transient reserve PASS");
+#endif
  return 0;
 }

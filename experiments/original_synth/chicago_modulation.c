@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "chicago_modulation.h"
+#include "chicago_chorus_span.h"
 #ifndef ORIGINAL_MODULATION_COEFFICIENTS
 #define ORIGINAL_MODULATION_COEFFICIENTS "modulation_private.h"
 #endif
@@ -122,18 +123,19 @@ int original_chicago_ring_advance_zero(original_chicago_ring *s,uint32_t n){
 int original_chicago_chorus_advance_zero(original_chicago_chorus *s,uint32_t n){
  /* Do not pay a 4096-byte history scan for tiny event-split invocations. */
  if(n<64||!s||!s->left||!s->right||s->left==s->right||s->dirty||s->queue.cursor<s->queue.count||
-    asr(s->feedback_acc,15)!=s->feedback||asr(s->wet_acc,15)!=s->wet)return 0;
+    asr(s->feedback_acc,15)!=s->feedback||asr(s->wet_acc,15)!=s->wet||
+    s->modulator[0]< -32767||s->modulator[0]>32767||s->modulator[1]< -32767||s->modulator[1]>32767)return 0;
  /* One bounded history scan per admitted invocation, never per sample. */
- for(unsigned i=0;i<1024;i++)if(s->left[i]||s->right[i])return 0;
- if(!n)return 1;
- for(uint32_t i=0;i<n;i++){
-  s->phase=add(s->phase,s->speed);
-  for(unsigned c=0;c<2;c++){
-   uint32_t mag=magnitude(c?add(s->phase,208732160):s->phase);
-   int32_t z=add(mul(s->modulator[c],8160),(int32_t)(mag>>11));
-   s->modulator[c]=z< -268427264?-32767:z>=268435456?32767:(int32_t)low16(asr(z,13));
-  }
+ for(unsigned i=0;i<1024;i+=8){
+  /* memcpy keeps these word loads valid for int16-aligned borrowed arrays
+   * and strict aliasing. Unroll the zero proof instead of 1024 branches. */
+  uint32_t a[4],b[4];memcpy(a,s->left+i,sizeof a);memcpy(b,s->right+i,sizeof b);
+  if(a[0]|a[1]|a[2]|a[3]|b[0]|b[1]|b[2]|b[3])return 0;
  }
+ if(!n)return 1;
+ for(unsigned c=0;c<2;c++)s->modulator[c]=original_chicago_chorus_span(
+     c?add(s->phase,208732160):s->phase,s->speed,s->modulator[c],n);
+ s->phase=si((uint32_t)s->phase+(uint32_t)s->speed*n);
  s->head=(s->head+n)&1023u;return 1;
 }
 int original_chicago_phaser_advance_zero(original_chicago_phaser *s,uint32_t n){

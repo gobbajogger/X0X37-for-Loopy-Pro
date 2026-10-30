@@ -11,7 +11,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Install · DnBOX</title>
+<title>DnBOX · Install and data</title>
 <style>
   :root {
     --bg: #f4f5f6; --fg: #1c1f23; --dim: #5b626a; --rule: #d9dde1; --accent: #c8700a;
@@ -85,11 +85,32 @@
   #bootprev { width: 100%; height: auto; background: #000; border: 1px solid var(--rule); margin: 0 0 12px; }
   #bootstatus { min-height: 1.4em; }
 </style>
+<link rel="stylesheet" href="../site.css">
 </head>
 <body>
 <main>
-  <button class="lang" id="lang" type="button"></button>
-  <a class="home" href="../">DnBOX</a>
+  <a href="#workspace" class="small" data-t="skip">Skip to workspace</a>
+  <header class="site-header">
+    <a class="home" href="../">DnBOX</a>
+    <nav class="site-nav" aria-label="Documentation" data-aria="docsnav">
+      <a href="../manual/" data-t="manual">Manual</a>
+      <a href="../new/" data-t="whatsnew">What's new</a>
+      <a href="../history/" data-t="history">History</a>
+      <button class="quiet" id="lang" type="button"></button>
+    </nav>
+  </header>
+  <nav class="workspace-nav" aria-label="Workspace" id="workspace" data-aria="workspace">
+    <a href="#install" data-view="install" aria-current="page" data-t="installtab">Install</a>
+    <a href="#samples" data-view="samples" data-t="samplestab">Samples</a>
+    <a href="#projects" data-view="projects" data-t="projectstab">Projects</a>
+  </nav>
+  <p class="browser-note" id="browsernotice" role="status" hidden></p>
+  <div id="installview">
+  <ol class="steps" aria-label="Installation steps" data-aria="steps">
+    <li id="stepconnect" data-t="stepconnect">Connect USB</li>
+    <li id="stepchoose" data-t="stepchoose">Choose firmware</li>
+    <li id="stepinstall" data-t="stepinstall">Back up and install</li>
+  </ol>
   <h1 data-t="title">Install DnBOX</h1>
   <p data-t="intro"></p>
   <p class="small" data-t="direct"></p>
@@ -97,7 +118,7 @@
 
   <div class="connect" id="connectbar">
     <span class="led" id="led" aria-hidden="true"></span>
-    <div class="ctext">
+    <div class="ctext" role="status" aria-live="polite" aria-atomic="true">
       <b id="conn">Not connected</b>
       <span id="connDetail" data-t="connhelp"></span>
     </div>
@@ -105,64 +126,49 @@
   </div>
 
   <section class="panel" id="pick">
+    <h2 data-t="choosefirmware">Choose firmware</h2>
+    <h3 data-t="localfirmware">Local firmware file (.fwsc)</h3>
+    <label class="drop" id="stockdrop">
+      <input type="file" id="stockfile" accept=".fwsc" aria-describedby="localstatus dropmeta">
+      <span data-t="stockdrop"></span>
+    </label>
+    <p class="meta" id="dropmeta"></p>
+    <p id="localstatus" role="status" aria-live="polite" aria-atomic="true"></p>
+    <p class="small"><label><input type="checkbox" id="stockconfirm" disabled> <span data-t="stockconfirm"></span></label></p>
+    <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
+    <h3 data-t="publishedfirmware">Published firmware</h3>
     <p class="small" id="noversion" hidden data-t="noversion"></p>
     <p class="small" id="nightly" hidden></p>
     <div class="row" id="versionrow">
-      <label class="field">Version
-        <select id="version" aria-label="Firmware version"></select>
+      <label class="field"><span data-t="versionlabel">Version</span>
+        <select id="version" aria-label="Firmware version" data-aria="versionlabel"></select>
       </label>
     </div>
-    <p class="meta" id="pkgmeta"></p>
-    <details class="model" id="modeldetails">
+    <p class="meta" id="pkgmeta"></p><a id="download" hidden data-t="download">Download this package</a>
+    <details class="model" id="modeldetails" open>
       <summary data-t="flashother">Flash another keyboard version</summary>
-      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
+      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model" data-aria="modellabel"></div>
       <p data-t="modelwhy"></p>
     </details>
     <section id="ble" hidden>
       <p class="small" data-t="blewhy"></p>
       <p class="small"><label for="ctlfile" data-t="ctlchoose">Controller image (.img):</label> <input type="file" id="ctlfile" accept=".img"> <button class="quiet" id="ctlclear" type="button" data-t="ctlclear" disabled>Remove controller</button></p>
     </section>
-    <fieldset id="loops">
-      <legend data-t="loops">Built-in loops</legend>
-      <p class="small" data-t="loopswhy"></p>
-      <label class="small"><input type="radio" name="brkpack" value="none" checked> <span data-t="loopsnone"></span></label><br>
-      <label class="small"><input type="radio" name="brkpack" value="factory"> <span data-t="loopsfactory"></span></label><br>
-      <label class="small"><input type="radio" name="brkpack" value="mine"> <span data-t="loopsmine"></span></label>
-      <p class="small"><input type="file" id="loopfiles" accept=".wav,audio/wav" multiple></p>
-    </fieldset>
+
     <p><button id="go" disabled data-t="install">Install</button></p>
-    <progress id="bar" max="100" value="0"></progress>
-    <p id="status"></p>
-    <pre id="log"></pre>
+    <progress id="bar" max="100" value="0" aria-label="Firmware transfer progress" data-aria="transfer"></progress>
+    <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <details><summary data-t="techlog">Technical log</summary><pre id="log"></pre></details>
   </section>
 
   <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a><br>
   <span data-t="breakshint">Optional oldschool grit (light to max) and preview before you send — on the importer page.</span></p>
+  <p class="small"><a href="../projects/" data-t="projects">Projects &amp; songs: import or export</a><br>
+  <span data-t="projectshint">Export or import your song arrangements, patterns and sounds using the guarded project transfer.</span></p>
   <p class="small"><a href="../manual/" data-t="manual">The manual</a>
     · <a href="../new/" data-t="whatsnew">What's new</a>
     · <a id="download" hidden data-t="download">Download this package</a></p>
 
-  <section id="bootscreen">
-    <h2 data-t="booth">Boot screen</h2>
-    <p class="small" data-t="bootwhy"></p>
-    <label class="field" for="boottitle"><span data-t="boottitle"></span>
-      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="DnBOX">
-    </label>
-    <label class="field" for="bootsub"><span data-t="bootsub"></span>
-      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 CHICAGO MIAMI">
-    </label>
-    <label class="field" for="bootfile"><span data-t="bootpic"></span>
-      <input id="bootfile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,.png,.jpg,.jpeg,.gif,.webp,.bmp">
-    </label>
-    <canvas id="bootprev" width="240" height="96"></canvas>
-    <p>
-      <button type="button" id="bootsave" data-t="bootsave">Save boot screen</button>
-      <button type="button" class="quiet" id="bootfactory" data-t="bootfactorybtn">Original words</button>
-      <button type="button" class="quiet" id="bootread" data-t="bootread">Read from keyboard</button>
-      <button type="button" class="quiet" id="bootclear" data-t="bootclear">Remove picture</button>
-    </p>
-    <p class="small" id="bootstatus" role="status"></p>
-  </section>
 
   <section id="stock">
     <h2 data-t="stockh"></h2>
@@ -174,21 +180,68 @@
       <li data-t="stock2"></li>
       <li data-t="stock3"></li>
     </ol>
-    <label class="drop" id="stockdrop">
-      <input type="file" id="stockfile" accept=".fwsc">
-      <span data-t="stockdrop"></span>
-    </label>
-    <p class="meta" id="dropmeta"></p>
-    <p class="small"><label><input type="checkbox" id="stockconfirm" disabled> <span data-t="stockconfirm"></span></label></p>
-    <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
+
   </section>
 
   <p class="small" id="recovery"><span data-t="brick"></span>
     <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
   <p class="small" data-t="back"></p>
 
+  <section class="panel" id="sampleprep" aria-labelledby="preptitle">
+    <h2 id="preptitle" data-t="preptitle">Prepare and preview samples</h2>
+    <p class="small" data-t="prepwhy">Prepare audio here without connecting. Preview the encoded sound, then open Samples to import the original files with the same settings.</p>
+    <div class="prep-row">
+      <label><span data-t="prepaudio">Audio files</span><input id="prepaudio" type="file" accept="audio/*,.wav" multiple></label>
+      <label><span data-t="preprate">Storage rate</span><select id="preprate"><option value="44100">44.1 kHz</option><option value="22050">22.05 kHz</option></select></label>
+      <label><span data-t="prepspeed">Speed-up on import</span><select id="prepspeed"><option value="1">Off</option><option value="2">2×</option><option value="3">3×</option><option value="4">4×</option></select></label>
+    </div>
+    <p class="small" data-t="prepspeedwhy">Speed-up stores fewer samples at a lower playback rate. Duration stays the same; sound quality changes. Listen before importing.</p>
+    <p id="prepstatus" role="status" aria-live="polite"></p><div id="preplist"></div>
+    <a href="#samples" data-t="opensamples">Open Samples workspace</a>
+    <details><summary data-t="builtinoptions">Optional loops inside the firmware package</summary>
+    <fieldset id="loops">
+      <legend data-t="loops">Built-in loops</legend>
+      <p class="small" data-t="loopswhy"></p>
+      <label class="small"><input type="radio" name="brkpack" value="none" checked> <span data-t="loopsnone"></span></label><br>
+      <label class="small"><input type="radio" name="brkpack" value="factory"> <span data-t="loopsfactory"></span></label><br>
+      <label class="small"><input type="radio" name="brkpack" value="mine"> <span data-t="loopsmine"></span></label>
+      <p class="small"><input type="file" id="loopfiles" accept=".wav,audio/wav" multiple></p>
+    </fieldset>
+    </details>
+  </section>
+  <details><summary data-t="booth">Boot screen</summary>  <section id="bootscreen">
+    <h2 data-t="booth">Boot screen</h2>
+    <p class="small" data-t="bootwhy"></p>
+    <label class="field" for="boottitle"><span data-t="boottitle"></span>
+      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="DnBOX">
+    </label>
+    <label class="field" for="bootsub"><span data-t="bootsub"></span>
+      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 CHICAGO MIAMI">
+    </label>
+    <label class="field" for="bootfile"><span data-t="bootpic"></span>
+      <input id="bootfile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,.png,.jpg,.jpeg,.gif,.webp,.bmp">
+    </label>
+    <canvas id="bootprev" width="240" height="96" role="img" aria-label="Boot screen picture preview" data-aria="bootpreview"></canvas>
+    <p>
+      <button type="button" id="bootsave" data-t="bootsave">Save boot screen</button>
+      <button type="button" class="quiet" id="bootfactory" data-t="bootfactorybtn">Original words</button>
+      <button type="button" class="quiet" id="bootread" data-t="bootread">Read from keyboard</button>
+      <button type="button" class="quiet" id="bootclear" data-t="bootclear">Remove picture</button>
+    </p>
+    <p class="small" id="bootstatus" role="status"></p>
+  </section>
+</details>
+  </div>
+  <section id="samplesview" hidden aria-labelledby="samplesheading"><h1 id="samplesheading" tabindex="-1" data-t="samplestab">Samples</h1>
+    <p class="small" data-t="samplework">Read current slots before sending changes. Keep a complete backup; restore reports every skipped slot. Close other MIDI apps during transfers.</p>
+    <iframe class="workspace-frame" id="samplesframe" title="Sample workspace" data-title="sampleworktitle" data-src="../breaks/"></iframe>
+  </section>
+  <section id="projectsview" hidden aria-labelledby="projectsheading"><h1 id="projectsheading" tabindex="-1" data-t="projectstab">Projects</h1>
+    <p class="small" data-t="projectwork">Export a portable project with all original samples. This build uses revision 13; earlier engine projects require their original firmware. No migration is performed.</p>
+    <iframe class="workspace-frame" id="projectsframe" title="Project workspace" data-title="projectworktitle" data-src="../projects/"></iframe>
+  </section>
   <p class="small">DnBOX is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
-    with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
+    with the 909 from 9W9 and ER-99, the 808 from 8W8, Chicago and Miami, TB-3PO, and BB Gen's break generator.<br>
     <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
 </main>
 <script type="module">
@@ -220,6 +273,8 @@ const TEXT = {
     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
     breaks: "サンプル・インポーター：自分のブレイク・ループ",
     breakshint: "インポーター画面で、オプションのオールドスクール・グリット（軽い〜最大）と送信前プレビュー。",
+    projects: "プロジェクトとソング：書き出し・読み込み",
+    projectshint: "曲の構成・パターン・音色はプロジェクトに含まれます。読み込みには既存の安全な転送を使います。",
     untested: "DnBOX はベータ版です。",
     direct: "USB ケーブルはパソコンに直接つないでください。",
     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
@@ -348,6 +403,8 @@ const TEXT = {
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
     breaks: "Sample importer: your own break loops",
     breakshint: "Optional oldschool grit (light to max) and preview before you send — on the importer page.",
+    projects: "Projects & songs: import or export",
+    projectshint: "Export or import song arrangements, patterns and sounds with the existing guarded project transfer.",
     untested: "DnBOX is a beta.",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
@@ -455,19 +512,47 @@ const TEXT = {
     bootreadfail: "Could not read the boot screen from the keyboard.",
   },
 };
+const WORKSPACE_TEXT = {
+  en: {
+    versionlabel:"Firmware version", modellabel:"Keyboard model", bootpreview:"Boot screen picture preview", stockidentity:"Firmware transfer finished, but the returned identity differs from this package. Check the keyboard and retain its backup: ", manual:"Manual", skip:"Skip to workspace", docsnav:"Documentation", workspace:"Workspace", history:"History", installtab:"Install", samplestab:"Samples", projectstab:"Projects",
+    steps:"Installation steps", stepconnect:"Connect USB", stepchoose:"Choose firmware", stepinstall:"Back up and install",
+    choosefirmware:"Choose firmware", localfirmware:"Local firmware file (.fwsc)", publishedfirmware:"Published firmware", techlog:"Technical log", transfer:"Firmware transfer progress",
+    scanning:"Scanning…", retry:"Try again", rescan:"Rescan", unsupported:"Web MIDI with SysEx is unavailable here. Use a browser and platform with Web MIDI support, such as desktop Chrome or Edge, over HTTPS or localhost. You can still prepare samples and inspect local files. Some phones and browsers do not support USB MIDI.",
+    preptitle:"Prepare and preview samples", prepwhy:"Prepare audio here without connecting. Preview the encoded sound, then open Samples to import the original files with the same settings.", prepaudio:"Audio files", preprate:"Storage rate", prepspeed:"Speed-up on import", prepspeedwhy:"Speed-up stores fewer samples at a lower playback rate. Duration stays the same; sound quality changes. Listen before importing.", opensamples:"Open Samples workspace", builtinoptions:"Optional loops inside the firmware package", sampleworktitle:"Sample workspace", projectworktitle:"Project workspace",
+    samplework:"Read current slots before sending changes. Keep a complete backup; restore reports every skipped slot. Close other MIDI apps during transfers.", projectwork:"Export a portable project with all original samples. This build uses revision 13; earlier engine projects require their original firmware. No migration is performed.", prepqueued:"Samples is busy. Prepared audio is queued here until that operation finishes.", preptransferred:"Prepared audio received by Samples. Read the keyboard before sending.", prepdeclined:"Transfer cancelled. The prepared audio remains here; open Samples again to retry.", preparing:"Preparing audio…", prepfailed:"Could not prepare audio: ", prepsaved:"Encoded storage", prepplayback:"Playback rate", prepdownload:"Download prepared WAV", prepready:"Preview ready. Open Samples to keep this exact processing. Read the current slots there before sending."
+  },
+  ru: {
+    versionlabel:"Версия прошивки", modellabel:"Модель клавиатуры", bootpreview:"Изображение стартового экрана", stockidentity:"Передача прошивки завершилась, но устройство вернуло другой идентификатор. Проверьте клавиатуру и сохраните резервную копию: ", title:"Установка DnBOX", intro:"Подключите клавиатуру USB-кабелем и разрешите доступ к MIDI и SysEx.", other:"English", connect:"Подключить", connected:"Подключено", notconnected:"Не подключено", looking:"Поиск…", scanning:"Поиск…", retry:"Повторить", rescan:"Найти снова", connhelp:"Подключите клавиатуру USB-кабелем, закройте другие MIDI-редакторы и нажмите «Подключить».",
+    skip:"К рабочей области", docsnav:"Документация", workspace:"Рабочая область", manual:"Руководство", whatsnew:"Что нового", history:"История", installtab:"Установка", samplestab:"Сэмплы", projectstab:"Проекты", steps:"Этапы установки", stepconnect:"Подключить USB", stepchoose:"Выбрать прошивку", stepinstall:"Сохранить данные и установить", choosefirmware:"Выбор прошивки", localfirmware:"Файл прошивки (.fwsc)", publishedfirmware:"Опубликованные прошивки", techlog:"Технический журнал", transfer:"Передача прошивки", install:"Установить", stockdrop:"Выберите файл .fwsc или перетащите его сюда", stockconfirm:"Этот файл предназначен для моей модели клавиатуры", stockinstall:"Установить этот файл", stockloading:"Чтение и проверка файла…", stockloadfail:"Не удалось прочитать файл. Выберите его снова.", stockbad:"Некорректный файл .fwsc.", stockok:"Файл проверен. Подтвердите модель перед установкой.", localfilesize:"Файл пустой или превышает 16 МиБ.", unsupported:"В этом браузере недоступен Web MIDI с SysEx. Используйте совместимую платформу и браузер, например Chrome или Edge на компьютере, по HTTPS или localhost. Подготовка сэмплов и проверка файлов доступны без подключения. Не все телефоны поддерживают USB MIDI.",
+    preptitle:"Подготовка и прослушивание сэмплов", prepwhy:"Подготовьте звук без подключения клавиатуры. Прослушайте результат кодирования, затем откройте «Сэмплы» для переноса.", prepaudio:"Аудиофайлы", preprate:"Частота хранения", prepspeed:"Ускорение при импорте", prepspeedwhy:"Ускорение уменьшает число отсчётов и частоту воспроизведения. Длительность сохраняется, качество меняется. Сначала прослушайте результат.", opensamples:"Открыть сэмплы", builtinoptions:"Необязательные лупы внутри прошивки", sampleworktitle:"Рабочая область сэмплов", projectworktitle:"Рабочая область проектов", samplework:"Перед отправкой прочитайте текущие слоты. Сохраните полную резервную копию. Восстановление сообщает о каждом пропущенном слоте. Закройте другие MIDI-приложения.", projectwork:"Экспортируйте проект со всеми оригинальными сэмплами. Эта сборка использует ревизию 13. Для старых проектов нужна их исходная прошивка. Миграция не выполняется.", prepqueued:"В сэмплах идёт операция. Подготовленный звук сохранён и ждёт её завершения.", preptransferred:"Звук перенесён в сэмплы. Перед отправкой прочитайте клавиатуру.", prepdeclined:"Перенос отменён. Подготовленный звук сохранён здесь; можно повторить перенос.", preparing:"Подготовка звука…", prepfailed:"Не удалось подготовить звук: ", prepsaved:"Объём закодированного звука", prepplayback:"Частота воспроизведения", prepdownload:"Скачать подготовленный WAV", prepready:"Готово. Откройте «Сэмплы», чтобы перенести точный результат обработки. Перед отправкой прочитайте текущие слоты."
+  }
+};
+Object.assign(TEXT.en, WORKSPACE_TEXT.en);
+Object.assign(TEXT.ja, WORKSPACE_TEXT.en); // Retain all existing Japanese installer/safety translations.
+TEXT.ru = { ...TEXT.en, ...WORKSPACE_TEXT.ru };
 let lang = "en";
-const t = (k) => TEXT[lang][k];
-let lastKey = null, lastArg = "";
+const t = (k) => TEXT[lang][k] ?? TEXT.en[k] ?? k;
+let lastKey = null, lastArg = "", localKey = null, localArg = "";
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
-  $("lang").textContent = t("other");
-  $("conn").textContent = connected ? t("connected") : t("notconnected");
+  $("lang").textContent = lang === "en" ? "Русский" : lang === "ru" ? "日本語" : "English";
+  document.querySelectorAll("[data-aria]").forEach((e) => e.setAttribute("aria-label", t(e.dataset.aria)));
+  document.querySelectorAll("[data-title]").forEach((e) => e.title = t(e.dataset.title));
+  renderConnectionAction();
+  if ($("browsernotice")) $("browsernotice").textContent = t("unsupported");
+  if (localKey && $("localstatus")) $("localstatus").textContent = t(localKey) + localArg;
+  $("conn").textContent = connectionState === "scanning" ? t("scanning") : connected ? t("connected") : t("notconnected");
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
   refreshMeta();
 }
-$("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
-const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
+$("lang").addEventListener("click", () => { lang = lang === "en" ? "ru" : lang === "ru" ? "ja" : "en"; applyLang(); });
+const sayK = (k, arg = "") => {
+  if (["stockloading", "stockloadfail", "stockbad", "stockok", "model"].includes(k)) {
+    localKey = k; localArg = arg;
+    if ($("localstatus")) { $("localstatus").textContent = t(k) + arg; $("localstatus").classList.toggle("inline-error", ["stockloadfail", "stockbad", "model"].includes(k)); }
+  }
+  lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (txt) => { $("log").textContent += txt + "\n"; };
 
@@ -477,7 +562,7 @@ const repo = catalog.repo || "https://github.com/gobbajogger/X0X37-for-Loopy-Pro
 $("repolink").href = repo;
 $("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
 
-let midi = null, connected = false, lastId = null, writing = false;
+let midi = null, connected = false, lastId = null, writing = false, connectionState = "idle";
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
 let loadSerial = 0;
@@ -512,9 +597,33 @@ function setConnected(on, detail) {
   led(on ? "on" : (detail && detail.startsWith("No ") ? "err" : ""));
   $("conn").textContent = on ? t("connected") : t("notconnected");
   $("connDetail").textContent = detail || t("connhelp");
-  $("connbtn").textContent = t("connect");
+  connectionState = on ? "connected" : "error";
+  renderConnectionAction();
+  refreshJourney();
 }
 
+function renderConnectionAction() {
+  const button = $("connbtn");
+  button.disabled = connectionState === "scanning" || writing || !navigator.requestMIDIAccess || globalThis.isSecureContext === false;
+  button.textContent = t(connectionState === "scanning" ? "scanning" : connected ? "rescan" : connectionState === "error" ? "retry" : "connect");
+}
+function refreshJourney() {
+  const nodes = [$("stepconnect"), $("stepchoose"), $("stepinstall")];
+  const stage = writing ? 2 : connected ? 1 : 0;
+  nodes.forEach((node, i) => { if (node) { node.classList.toggle("done", i < stage); if (i === stage) node.setAttribute("aria-current", "step"); else node.removeAttribute("aria-current"); } });
+}
+async function ownedScan() {
+  try { await withDeviceOperation(() => scan()); }
+  catch (e) { setConnected(false, e.message); }
+}
+async function ownedRun(img, product, opts) {
+  try { await withDeviceOperation(() => run(img, product, opts)); }
+  catch (e) {
+    say(e.message); renderConnectionAction();
+    $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+  }
+}
 async function midiAccess() {
   if (midi) return midi;
   if (!navigator.requestMIDIAccess) throw Object.assign(new Error(t("nomidi")), { code: "nomidi" });
@@ -527,7 +636,13 @@ async function midiAccess() {
     const now = ports();
     if (now === midiAccess.ports) return;
     midiAccess.ports = now;
-    if (!writing) { clearTimeout(midiAccess.t); midiAccess.t = setTimeout(scan, 800); }
+    if (!writing) {
+      scanSerial++; stockLoadSerial++;
+      lastId = null; connected = false;
+      $("stockconfirm").checked = false; $("stockgo").disabled = true;
+      setConnected(false, t("connhelp"));
+    }
+    if (!writing) { clearTimeout(midiAccess.t); midiAccess.t = setTimeout(ownedScan, 800); }
   };
   return midi;
 }
@@ -537,6 +652,8 @@ async function scan(allowPostWrite = false) {
   if (writing && !allowPostWrite) return;
   const requestId = ++scanSerial;
   const isCurrent = () => requestId === scanSerial && (!writing || allowPostWrite);
+  connectionState = "scanning";
+  renderConnectionAction();
   led("busy");
   $("conn").textContent = t("looking");
   try {
@@ -564,6 +681,7 @@ async function scan(allowPostWrite = false) {
     setConnected(true, detail);
     if (inOta) led("busy");
     if (!allowPostWrite) suggestModel(bare);
+    else $("stockconfirm").checked = false;
     dev.link.close();
   } catch (e) {
     if (!isCurrent()) return;
@@ -572,7 +690,7 @@ async function scan(allowPostWrite = false) {
   }
 }
 
-$("connbtn").addEventListener("click", () => { scan(); });
+$("connbtn").addEventListener("click", ownedScan);
 
 // Only publisher-reviewed, immutable, independently checked per-model artifacts
 // may be offered for download OR for installation. Never trust remote catalog or
@@ -849,7 +967,7 @@ function fillVersions() {
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
     discardVerifiedDownload();
-    say(t("noversion"));
+    say("");
     refreshNightly();
     // Do not reintroduce unverified vendor firmware binaries on empty catalogs.
     // Keep the official manufacturer landing page and guarded local file picker.
@@ -1071,6 +1189,7 @@ async function run(img, product, opts = {}) {
   writing = true;
   scanSerial++; // Invalidate any pre-write lookup before Web MIDI/OTA operations.
   ctlLoadSerial++; // Ignore controller file reads pending before the write.
+  renderConnectionAction(); refreshJourney();
   $("ctlclear").disabled = true;
   $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
@@ -1078,6 +1197,7 @@ async function run(img, product, opts = {}) {
   try { access = await midiAccess(); }
   catch (e) {
     writing = false;
+    renderConnectionAction(); refreshJourney();
     sayK(e.code || "denied");
     $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
     $("stockgo").disabled = !stock || !$("stockconfirm").checked;
@@ -1087,7 +1207,7 @@ async function run(img, product, opts = {}) {
   led("busy");
   try {
     // Permission and loader discovery may outlive the verified selection.
-    const selectionValid = () => foreign ||
+    const selectionValid = () => foreign ? (!opts.localSelectionGuard || opts.localSelectionGuard()) :
       (typeof opts.selectionGuard === "function" && opts.selectionGuard());
     if (!selectionValid()) throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
     const up = new Updater(access, log);
@@ -1146,13 +1266,14 @@ async function run(img, product, opts = {}) {
     await scan(true); // Re-detect after reboot without releasing the single-writer lock.
   } catch (e) {
     // Stock / other custom firmware often reports a different identity string than the package marker.
-    if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
+    if (foreign && e && e.code === "mismatch") { sayK("stockidentity", e.detail || e.message); }
     else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
     led("err");
   }
   writing = false;
+  renderConnectionAction(); refreshJourney();
   $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
   $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
@@ -1200,7 +1321,7 @@ $("go").addEventListener("click", async () => {
     return;
   }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, product, { foreign: false, selectionGuard: guard });
+  ownedRun(img, product, { foreign: false, selectionGuard: guard });
 });
 function confirmNightlyModel(deviceModel, product) {
   const actual = String(deviceModel || "").replace(/^ota-/i, "");
@@ -1228,7 +1349,8 @@ $("stockgo").addEventListener("click", () => {
   if (!stock || !$("stockconfirm").checked || writing) return;
   if (!confirmStockModel(stock.product) || !confirmWrite(stock.product)) return;
   $("stockgo").disabled = true;
-  run(stock.image, stock.product, { foreign: true });
+  const selected = stock;
+  ownedRun(stock.image, stock.product, { foreign: true, localSelectionGuard: () => stock === selected && $("stockconfirm").checked });
 });
 
 let bootBits = null, bootOp = false;
@@ -1319,11 +1441,11 @@ $("bootclear").addEventListener("click", () => {
 $("bootsave").addEventListener("click", () => {
   const bytes = bootBytes();
   if (!bytes) return;
-  withRunningX0x(async (link) => showBootResult(await bootTransfer(link, bytes), "bootsaved"));
+  withDeviceOperation(() => withRunningX0x(async (link) => showBootResult(await bootTransfer(link, bytes), "bootsaved"))).catch((e) => bootSay("bootbusyinstall"));
 });
 $("bootfactory").addEventListener("click", () => {
   const packed = bootPack({ factory: true });
-  withRunningX0x(async (link) => {
+  withDeviceOperation(() => withRunningX0x(async (link) => {
     const r = await bootTransfer(link, packed.bytes);
     if (r.ok) {
       $("boottitle").value = "DnBOX";
@@ -1333,10 +1455,10 @@ $("bootfactory").addEventListener("click", () => {
       drawBootPreview(null);
     }
     showBootResult(r, "bootorig");
-  });
+  })).catch(() => bootSay("bootbusyinstall"));
 });
 $("bootread").addEventListener("click", () => {
-  withRunningX0x(async (link) => {
+  withDeviceOperation(() => withRunningX0x(async (link) => {
     try {
       const info = await bootRead(link);
       if (info.status === 2) { bootSay("bootnoflash"); return; }
@@ -1348,12 +1470,15 @@ $("bootread").addEventListener("click", () => {
     } catch (e) {
       bootSay("bootreadfail");
     }
-  });
+  })).catch(() => bootSay("bootbusyinstall"));
 });
 
 (async () => {
   applyLang();
   drawBootPreview(null);
+  if ($("browsernotice")) $("browsernotice").hidden = !!navigator.requestMIDIAccess && globalThis.isSecureContext !== false;
+  if (typeof initDnboxWorkspace === "function") initDnboxWorkspace({ $, t });
+  refreshJourney();
   await mergeGitHubReleases();
   fillVersions();
   if (navigator.requestMIDIAccess) {

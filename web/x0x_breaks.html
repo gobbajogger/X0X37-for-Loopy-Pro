@@ -11,7 +11,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>X0X break loops</title>
+<title>DnBOX · Samples</title>
 <style>
   :root { --bg: #fff; --fg: #000; --dim: #777; --rule: #ddd; --wave: #999; --accent: #c8700a; color-scheme: light; }
   @media (prefers-color-scheme: dark) {
@@ -56,18 +56,20 @@
   .preview-row { display: flex; gap: 8px; align-items: center; margin: 8px 0; font-size: 14px; }
   .preview-row .fname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
+<link rel="stylesheet" href="../site.css">
 </head>
 <body>
 <main>
-  <a class="home" href="../">X0X</a>
-  <h1>Break loops</h1>
+  <a class="home" href="../">DnBOX</a>
+  <h1>Samples</h1>
+  <p id="browsernotice" class="browser-note" hidden>USB MIDI is unavailable here. Use desktop Chrome or Edge over HTTPS or localhost. Offline audio preparation remains available.</p>
   <p>Your own loops for X0X's BREAK part. They appear on the device as BR1, BR2 and so on, after X0X's own
     loops, when you turn LOOP A or LOOP B (BREAK, then EDIT).</p>
   <p class="small">Connect the SMK-37 or FM-1 by USB with X0X running, and use Chrome or Edge.</p>
 
   <div class="bar">
     <button id="connect">Connect</button>
-    <span id="status"></span>
+    <span id="status" role="status" aria-live="polite"></span>
   </div>
 
   <div id="list"><div class="empty">Connect to see the loops on the FM-1.</div></div>
@@ -124,7 +126,8 @@
   <div class="bar" style="margin-top:24px">
     <button class="quiet" id="backup" disabled>Back up all slots</button>
     <button class="quiet" id="restore" disabled>Restore a backup</button>
-    <span class="small">A backup is a file with every slot as it is on the device. Restore writes it back.</span>
+    <span class="small">A backup includes every slot and its original encoded bytes. Restore reports all skipped slots. Close other MIDI applications; this firmware cannot exclude a second external writer atomically.</span>
+    <a id="recoverydownload" hidden>Download pre-write recovery backup</a>
   </div>
 
   <p class="small" style="margin-top:32px">New loops are stored at 44.1 kHz. A one-bar loop at 120 BPM takes
@@ -140,7 +143,7 @@
 const $ = (id) => document.getElementById(id);
 const HDR = [0x7D, 0x46, 0x4C];
 const KB = (b) => `${(b / 1024).toFixed(0)} KB`;
-let link = null, busy = false, readOk = false;
+let link = null, busy = false, readOk = false, midi = null, connectionEpoch = 0, recoveryUrl = null;
 // the device's slots (SMP_INFO): their count and sizes (one size each with X0X's extension, e.g. 80 and
 // 120 KB on the SMK-37); nothing here assumes a fixed slot count or size
 let lay = { count: 0, size: SLOT_SIZE, slots: [] };
@@ -149,7 +152,7 @@ const cap = () => Array.from({ length: nslot() }, (_, k) => slotMax(k)).reduce((
 
 // the loops in order, as the FM-1 numbers them: {adpcm, n, s, file, isNew} (adpcm, n: as stored, adpcm null for a
 // new one until it's encoded; s: the samples, for the picture), and the slots as read ({hdr, data} or null)
-let loops = [], dev = [], replaceAt = -1;
+let loops = [], dev = [], replaceAt = -1, queuedPrepared = null, audioSerial = 0;
 
 function say(t) { $("status").textContent = t; }
 const bytesOf = (l) => (l.n + 1) >> 1;
@@ -158,7 +161,7 @@ const bytesOf = (l) => (l.n + 1) >> 1;
 function render() {
   const list = $("list");
   list.textContent = "";
-  if (!readOk)
+  if (!readOk && !loops.length)
     list.innerHTML = `<div class="empty">${link ? "Reading…" : "Connect to see the loops on the FM-1."}</div>`;
   else if (!loops.length)
     list.innerHTML = '<div class="empty">No loops yet. Add some below.</div>';
@@ -191,7 +194,7 @@ function render() {
   $("send").disabled = busy || !changed;
   $("discard").hidden = !changed;
   $("discard").disabled = busy;
-  $("add").disabled = busy || !readOk;
+  $("add").disabled = busy;
   $("connect").disabled = busy;
   $("backup").disabled = busy || !readOk;
   $("restore").disabled = busy || !readOk;
@@ -291,7 +294,8 @@ function previewRows(parent, items, playFn) {
   items.forEach((it, i) => {
     const row = document.createElement("div");
     row.className = "preview-row";
-    row.innerHTML = `<span class="fname">${it.label}</span><button type="button" class="quiet">Play</button>`;
+    row.innerHTML = `<span class="fname"></span><button type="button" class="quiet">Play</button>`;
+    row.querySelector(".fname").textContent = it.label;
     row.querySelector("button").onclick = () => playFn(it, i);
     parent.appendChild(row);
   });
@@ -314,7 +318,8 @@ async function confirmAddPreview(candidates) {
 }
 
 async function addFiles(list, at = -1) {
-  if (busy || !readOk || !list.length) return;
+  if (busy || !list.length) return;
+  const epoch = connectionEpoch, request = ++audioSerial;
   const got = [], bad = [], preview = [];
   const gf = gritFactor();
   for (const f of at >= 0 ? list.slice(0, 1) : list) {
@@ -333,6 +338,8 @@ async function addFiles(list, at = -1) {
     render();
     return;
   }
+  if (request !== audioSerial) return;
+  if (epoch !== connectionEpoch) { say("Connection changed. Audio preparation was cancelled; the previous loop list is retained."); return; }
   got.push(...preview.map((p) => p.loop));
   if (!got.length) { render(); return; }
   if (at >= 0) loops[at] = got[0];
@@ -342,42 +349,51 @@ async function addFiles(list, at = -1) {
 
 // ---- the FM-1 ------------------------------------------------------------------
 class Link {
-  constructor(input, output) {
-    this.input = input; this.output = output; this.wait = null;
-    input.onmidimessage = (ev) => {
-      const d = ev.data;
-      if (d[0] !== 0xF0 || d[1] !== HDR[0] || d[2] !== HDR[1] || d[3] !== HDR[2] || !this.wait || d[4] !== this.wait.cmd) return;
-      const w = this.wait;
-      this.wait = null;
-      clearTimeout(w.timer);
-      w.resolve([...d.slice(5, d.length - 1)]);
-    };
-  }
-  req(cmd, args, ms = 3000) {
-    return new Promise((resolve, reject) => {
-      this.wait = { cmd, resolve, timer: setTimeout(() => { this.wait = null; reject(new Error("The FM-1 stopped answering.")); }, ms) };
-      this.output.send([0xF0, ...HDR, cmd, ...args, 0xF7]);
+  constructor(input, output, access) {
+    this.input = input; this.output = output; this.queue = []; this.pending = null; this.closed = false;
+    this.session = watchDeviceSession(access, input, output, () => {
+      this.close(); connectionEpoch++; readOk = false;
+      say("USB connection changed. Local audio and recovery downloads are retained. Reconnect and read the slots before writing."); render();
     });
+    this.listener = (ev) => {
+      const d = ev.data;
+      if (d[0] !== 0xF0 || d.at(-1) !== 0xF7 || d[1] !== HDR[0] || d[2] !== HDR[1] || d[3] !== HDR[2]) return;
+      if (this.pending) { const p = this.pending; this.pending = null; clearTimeout(p.timer); p.resolve(Array.from(d)); }
+      else { if (this.queue.length >= 64) this.queue.shift(); this.queue.push(Array.from(d)); }
+    };
+    if (input.addEventListener) input.addEventListener("midimessage", this.listener);
+    else input.onmidimessage = this.listener;
   }
-  async retry(cmd, args, ms, tries = 3) {
-    for (let k = 1; ; k++) { try { return await this.req(cmd, args, ms); } catch (e) { if (k >= tries) throw e; } }
+  drain() { this.queue.length = 0; }
+  send(data) { try { this.session.assert(); if (this.closed) return false; this.output.send(data); return true; } catch { return false; } }
+  read(ms) {
+    if (this.closed) return Promise.resolve(null);
+    if (this.queue.length) return Promise.resolve(this.queue.shift());
+    return new Promise((resolve) => { const timer = setTimeout(() => { this.pending = null; resolve(null); }, ms); this.pending = { resolve, timer }; });
   }
+  close() {
+    this.closed = true; this.session.close();
+    if (this.input.removeEventListener) this.input.removeEventListener("midimessage", this.listener);
+    else if (this.input.onmidimessage === this.listener) this.input.onmidimessage = null;
+    if (this.pending) { clearTimeout(this.pending.timer); this.pending.resolve(null); this.pending = null; }
+    this.queue.length = 0;
+  }
+  req(cmd, args, ms = 3000) { return slotReq(this, cmd, args, ms, 1); }
+  retry(cmd, args, ms, tries = 3) { return slotReq(this, cmd, args, ms, tries); }
 }
 
 async function connect() {
-  if (!navigator.requestMIDIAccess) throw new Error("This browser can't talk to MIDI devices. Use Chrome or Edge.");
-  const midi = await navigator.requestMIDIAccess({ sysex: true });
-  const outs = [...midi.outputs.values()];
-  for (const input of midi.inputs.values()) {
-    if (input.state === "disconnected" || !/x0x|felucca/i.test(input.name || "")) continue;
-    const output = outs.find((o) => o.name === input.name);
-    if (!output) continue;
-    await input.open();
-    await output.open();
-    const l = new Link(input, output);
-    try { await l.retry(1, [], 1000); return l; } catch (_) { /* not answering: the next */ }
-  }
-  throw new Error("No FM-1 running X0X found. Connect it by USB, and close other apps that use its MIDI port.");
+  if (!navigator.requestMIDIAccess) throw new Error("USB MIDI is unavailable here. Use Chrome or Edge over HTTPS or localhost.");
+  const access = await navigator.requestMIDIAccess({ sysex: true }); midi = access;
+  const inputs = [...access.inputs.values()].filter((p) => p.state !== "disconnected"), outputs = [...access.outputs.values()].filter((p) => p.state !== "disconnected");
+  const pairs = inputs.filter((input) => /x0x|felucca|smk|elite|mke-p37|fm-1/i.test(input.name || "") &&
+    inputs.filter((p) => p.name === input.name).length === 1 && outputs.filter((p) => p.name === input.name).length === 1);
+  if (pairs.length !== 1) throw new Error("Connect one keyboard with an unambiguous MIDI input/output pair, then try again.");
+  const input = pairs[0], output = outputs.find((p) => p.name === input.name);
+  await input.open(); await output.open();
+  const next = new Link(input, output, access);
+  try { await next.retry(1, [], 1000); return next; }
+  catch (e) { next.close(); throw e; }
 }
 
 function unpack7(a) {
@@ -390,43 +406,35 @@ function unpack7(a) {
 }
 
 // a slot's bytes from `off` (SMP_READ: up to 224 a request, asked for in pairs)
-async function readBytes(k, off, n, onPart) {
-  const out = new Uint8Array(n);
-  for (let at = 0; at < n;) {
-    const want = Math.min(224, n - at), adr = off + at;
-    const r = await link.retry(16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1], 3000);
-    const b = unpack7(r.slice(4));
-    if (!b.length) throw new Error("no data");
-    out.set(b.subarray(0, Math.min(b.length, n - at)), at);
-    at += Math.min(b.length, n - at);
-    if (onPart) onPart(at / n);
-  }
-  return out;
-}
-
-// every slot as it is on the device: {lay, dev: per slot {hdr, data, image} or null}. Reads only.
 async function readSlots() {
-  const l = parseInfo(await link.req(15, [])), d = [], bar = $("progress");
-  bar.hidden = false;
+  if (!link || link.closed) throw new Error("Reconnect and read the keyboard before continuing.");
+  const bar = $("progress"); bar.hidden = false;
   try {
-    for (let k = 0; k < l.count; k++) {
-      d.push(null);
-      if (!l.slots[k].nz) continue;
-      const area = await readBytes(k, 0, SLOT_DATA_OFF), hdr = area.slice(0, SLOT_HDR_LEN), h = parseSlot(hdr);
-      if (!h) continue;
-      const data = await readBytes(k, SLOT_DATA_OFF, h.dataLen, (f) => { bar.value = (k + f) / l.count * 100; });
-      if (crc32(data) !== new DataView(hdr.buffer).getUint32(20, true)) throw new Error("crc");
-      const image = new Uint8Array(SLOT_DATA_OFF + data.length);
-      image.set(area);
-      image.set(data, SLOT_DATA_OFF);
-      d[k] = { hdr, data, image };
-    }
-  } catch (_) {
-    bar.hidden = true;
-    throw new Error("This X0X can't send its loops back to the page. Update X0X, then connect again.");
-  }
-  bar.hidden = true;
-  return { lay: l, dev: d };
+    const snap = await backupSlots(link, (k, done, n) => { bar.value = (k + done / n) * 100 / Math.max(1, lay.count); });
+    return { lay: snap.layout, dev: snap.images.map((img) => img ? { hdr: img.slice(0, SLOT_HDR_LEN), data: img.slice(SLOT_DATA_OFF), image: img } : null) };
+  } finally { bar.hidden = true; }
+}
+function equalSnapshot(a, b) {
+  return JSON.stringify(a.lay) === JSON.stringify(b.lay) && a.dev.length === b.dev.length &&
+    a.dev.every((sl, k) => sl === null ? b.dev[k] === null : b.dev[k] && sl.image.length === b.dev[k].image.length && sl.image.every((v, i) => v === b.dev[k].image[i]));
+}
+async function stableSlots() {
+  const first = await readSlots(), second = await readSlots();
+  if (!equalSnapshot(first, second)) throw new Error("Samples changed during reading. Close other editors and read again; nothing was written.");
+  return first;
+}
+async function checkCurrent() {
+  const current = await stableSlots();
+  if (!equalSnapshot({ lay, dev }, current)) throw new Error("Samples changed since the last read. Reconnect and review the new slots; nothing was written.");
+  return current;
+}
+function keepRecovery(snapshot) {
+  const file = makeArchive(snapshot.lay, snapshot.dev.map((sl) => sl?.image || null), new Date().toISOString());
+  readArchive(file);
+  if (recoveryUrl) URL.revokeObjectURL(recoveryUrl);
+  recoveryUrl = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
+  const a = $("recoverydownload"); a.href = recoveryUrl; a.download = `dnbox-before-samples-${Date.now()}.x0xslots`; a.hidden = false;
+  a.click();
 }
 
 async function readAll() {
@@ -446,39 +454,28 @@ async function readAll() {
 
 // write one slot image (the 512-byte header area + data), or null: erase it. As Send does.
 async function writeImage(k, img, onPart) {
-  if (!img) {
-    const r = await link.req(14, [k], 30000);
-    if (r[1]) throw new Error("The FM-1 couldn't clear its memory.");
-    return;
-  }
-  const b = await link.req(11, [k], 10000);
-  if (b[1]) throw new Error("The FM-1 couldn't erase its memory.");
-  const data = img.subarray(SLOT_DATA_OFF);
-  for (let off = 0; off < data.length; off += 256) {
-    const adr = SLOT_DATA_OFF + off;
-    const r = await link.retry(12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack78(data.subarray(off, off + 256))], 3000);
-    if (r[4]) throw new Error("Writing to the FM-1 failed.");
-    if (onPart) onPart(Math.min(256, data.length - off));
-  }
-  const e = await link.req(13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
-  if (e[1]) throw new Error("The FM-1 didn't accept the loops.");
+  await writeSlotImage(link, k, img, onPart && ((done, total) => onPart(done)));
 }
 
 async function run(fn) {
-  busy = true;
-  render();
-  try { await fn(); } catch (e) { say(e.message || String(e)); }
-  busy = false;
-  render();
+  if (busy) return;
+  busy = true; render();
+  try { await withDeviceOperation(fn); }
+  catch (e) { readOk = false; say(e.message || String(e)); }
+  finally { busy = false; if (queuedPrepared) acceptPrepared(queuedPrepared); render(); }
 }
 
 async function readFromDevice() {
   say("Connecting…");
+  const draft = loops.filter((l) => l.isNew);
   readOk = false;
+  if (link) link.close();
+  connectionEpoch++;
   link = await connect();
   render();
   say("Reading the loops…");
   await readAll();
+  loops.push(...draft);
   $("connect").textContent = "Read again";
   say("");
 }
@@ -487,6 +484,9 @@ $("connect").onclick = () => run(readFromDevice);
 $("discard").onclick = () => run(readFromDevice);
 
 async function doSend() {
+  if (!readOk) throw new Error("Read the current keyboard slots before sending.");
+  const before = await checkCurrent();
+  keepRecovery(before);
   const todo = changedSlots(packLoops()), bar = $("progress");
   const total = todo.reduce((a, t) => a + (t.im ? t.im.data.length : 1), 0);
   let sent = 0;
@@ -508,6 +508,11 @@ async function doSend() {
   }
   bar.hidden = true;
   say("Reading back…");
+  const back = await readSlots();
+  for (const { k, im } of todo) {
+    const want = im ? image(k, packLoops()[k]) : null;
+    if (!same(want, back.dev[k])) throw new Error(`Slot ${k + 1}: readback differs. Keep the pre-write recovery backup.`);
+  }
   await readAll();
   say("Done. On the FM-1: BREAK, then EDIT, then LOOP A or LOOP B.");
 }
@@ -536,10 +541,11 @@ $("send").onclick = () => run(async () => {
 
 $("backup").onclick = () => run(async () => {
   say("Reading every slot…");
-  const r = await readSlots();
+  const r = await stableSlots();
   const t = new Date(), p = (v) => String(v).padStart(2, "0");
   const stamp = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
   const file = makeArchive(r.lay, r.dev.map((d) => (d ? d.image : null)), stamp);
+  readArchive(file);
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
   a.download = `x0x-slots-${stamp.replace(/[-:]/g, "").replace("T", "-")}.x0xslots`;
@@ -553,12 +559,16 @@ $("archive").onchange = (ev) => {
   ev.target.value = "";
   if (!f) return;
   run(async () => {
+    if (!readOk) throw new Error("Read the current keyboard slots before restoring.");
+    if (f.size > 4 * 1024 * 1024) throw new Error("The backup exceeds 4 MiB.");
     const { meta, images } = readArchive(new Uint8Array(await f.arrayBuffer()));
     const { todo, skipped } = planRestore(lay, images);
     const what = meta.slots.map((e) => `slot ${e.slot}: ${e.empty ? "empty" : `${e.name || "-"}, ${e.zones} loop(s)`}`).join("\n");
     if (!todo.length) throw new Error("Nothing in this backup fits this device.");
     if (!confirm(`Restore ${f.name} (saved ${meta.created})?\n${what}${skipped.length ? `\nSkipped: ${skipped.join("; ")}` : ""}\n\n` +
       `This replaces slot ${todo.map((t) => t.k + 1).join(", ")} on the device. Unsent changes on this page are lost.`)) return;
+    const before = await checkCurrent();
+    keepRecovery(before);
     const bar = $("progress"), total = todo.reduce((a, t) => a + (t.img ? t.img.length - SLOT_DATA_OFF : 1), 0);
     let sent = 0;
     bar.hidden = false;
@@ -572,11 +582,11 @@ $("archive").onchange = (ev) => {
     const back = await readSlots();
     for (const { k, img } of todo) {
       const got = back.dev[k] ? back.dev[k].image : null;
-      if ((got === null) !== (img === null) || (got && (got.length !== img.length || crc32(got) !== crc32(img))))
+      if ((got === null) !== (img === null) || (got && (got.length !== img.length || got.some((v, i) => v !== img[i]))))
         throw new Error(`Slot ${k + 1} reads back different from the backup.`);
     }
     await readAll();
-    say(`Restored${skipped.length ? ` (skipped ${skipped.join("; ")})` : ""}.`);
+    say(skipped.length ? `PARTIAL restore. NOT restored: ${skipped.join("; ")}. Keep both backups.` : `Complete restore: all ${todo.length} archive slots verified byte for byte.`);
   });
 };
 
@@ -586,6 +596,7 @@ document.body.ondragover = (ev) => { if (readOk) { ev.preventDefault(); $("list"
 document.body.ondragleave = (ev) => { if (!ev.relatedTarget) $("list").classList.remove("over"); };
 document.body.ondrop = (ev) => { ev.preventDefault(); $("list").classList.remove("over"); addFiles([...ev.dataTransfer.files]); };
 function recutNewLoops() {
+  audioSerial++;
   const gf = gritFactor();
   for (const l of loops)
     if (l.isNew) {
@@ -602,6 +613,30 @@ function recutNewLoops() {
   render();
 }
 $("bars").onchange = $("trim").onchange = $("half").onchange = $("grit").onchange = recutNewLoops;
+function acceptPrepared(incoming) {
+  queuedPrepared = null;
+  if (loops.some((l) => l.isNew) && !confirm("Replace the locally prepared loops? Current device samples are unchanged.")) {
+    window.parent.postMessage({type:"dnbox-prepared-declined"}, location.origin); return;
+  }
+  loops = loops.filter((l) => !l.isNew).concat(incoming);
+  window.parent.postMessage({type:"dnbox-prepared-received"}, location.origin);
+  say("Prepared audio received. Read the current slots before sending. The exact processed bytes are retained."); render();
+}
+globalThis.window?.addEventListener?.("message", (event) => {
+  if (event.source !== window.parent || event.origin !== location.origin || event.data?.type !== "dnbox-prepared") return;
+  const incoming = event.data.loops;
+  if (!Array.isArray(incoming) || incoming.length > 64 || incoming.some((l) => !(l.s instanceof Int16Array) || l.s.length > 6000000 || l.n !== l.s.length || !Number.isFinite(l.rate) || l.rate < 1 || l.rate > 44100)) return;
+  if (busy) {
+    queuedPrepared = incoming;
+    window.parent.postMessage({type:"dnbox-prepared-queued"}, location.origin); return;
+  }
+  acceptPrepared(incoming);
+});
+if (typeof location !== "undefined") {
+  $("browsernotice").hidden = !!navigator.requestMIDIAccess && globalThis.isSecureContext !== false;
+  window.parent?.postMessage({ type: "dnbox-samples-ready" }, location.origin);
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => window.parent?.postMessage({ type: "dnbox-height", height: document.querySelector("main").getBoundingClientRect().height }, location.origin)).observe(document.querySelector("main"));
+}
 render();
 </script>
 </body>

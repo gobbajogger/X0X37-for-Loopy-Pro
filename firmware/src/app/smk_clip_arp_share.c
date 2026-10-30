@@ -6,7 +6,14 @@
 
 const uint8_t CK_RATE_T[CK_NRATE] = {48, 36, 32, 24, 18, 16, 12, 9, 8, 6, 4, 3, 2};
 
-__attribute__((minsize, noinline)) int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order,
+#ifndef X0X_MINSIZE
+#if defined(__clang__)
+#define X0X_MINSIZE minsize,   /* clang (the firmware toolchain): small code */
+#else
+#define X0X_MINSIZE            /* gcc host tests: gcc has no minsize */
+#endif
+#endif
+__attribute__((X0X_MINSIZE noinline)) int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order,
                                                     uint32_t oct, uint32_t step, uint32_t rnd)
 {
     uint32_t len = n * oct, i = step % len, j;

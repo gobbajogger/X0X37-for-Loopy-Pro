@@ -15,7 +15,7 @@ static void setup(blec_t *a,blec_t *b)
  const uint8_t addr[6]={1,2,3,4,5,0xc0};
  blec_init(a,send_h4,midi,0,addr); blec_init(b,send_h4,midi,(void*)1,addr); blec_pair_bind(a,b);
  a->state=b->state=BLEC_CONNECTED; a->step=b->step=S_READY;
- a->conn=0x40;b->conn=0x41;a->credits=a->acl_total=5;
+ a->conn=0x40;a->linked=1;b->conn=0x41;b->linked=1;a->credits=a->acl_total=5;
  a->midi_handle=b->midi_handle=6; a->found=b->found=1;
  memset(a->target,1,6); memset(b->target,2,6);
  cmds=packets[0]=packets[1]=received[0]=received[1]=blocked=0;
@@ -48,7 +48,7 @@ int main(void)
  {uint8_t p[]={0x42,0,12,0,8,0,4,0,0x1b,6,0,0x80,0x81,0x90,0x18,127};blec_pair_rx(&a,&b,2,p,sizeof p,3);CHECK(received[0]==1 && received[1]==1);}
  /* Only accepted commands own completions; quiet updates never consume peer discovery. */
  setup(&a,&b);CHECK(blec_conn_update(&a,24,40,0,400));CHECK(cmds==1);
- b.state=BLEC_SCANNING;b.conn=0;b.step=S_SCAN_ON;b.deadline=10000;blec_progress(&b);
+ b.state=BLEC_SCANNING;b.conn=0;b.linked=0;b.step=S_SCAN_ON;b.deadline=10000;blec_progress(&b);
  CHECK(!b.waiting && b.command_retry && cmds==1);
  complete(&a,&b,COP_SCAN_ENABLE,0);CHECK(blec_command_owner==&a);
  {uint8_t p[]={0x0f,4,0,1,0x13,0x20};blec_pair_rx(&a,&b,4,p,sizeof p,4);}
@@ -76,7 +76,7 @@ int main(void)
  /* A stopped second initiation can still report a late connection. Retain
   * the handle and the original cutoff; never silently reuse it or reset peer A. */
  for(unsigned enhanced=0;enhanced<2;enhanced++) for(unsigned expired=0;expired<2;expired++) {
-  setup(&a,&b);b.conn=0;b.state=BLEC_CONNECTING;b.step=S_CREATE;b.deadline=7000;
+  setup(&a,&b);b.conn=0;b.linked=0;b.state=BLEC_CONNECTING;b.step=S_CREATE;b.deadline=7000;
   b.now_ms=100;blec_stop(&b);CHECK(b.state==BLEC_STOPPING && b.waiting);
   complete(&a,&b,COP_CANCEL,0);unsigned deadline=b.deadline;
   uint8_t p[33]={0x3e,enhanced?31:19,enhanced?0x0a:1,0,0x41,0,0};
@@ -96,7 +96,7 @@ int main(void)
  setup(&a,&b);a.state=b.state=BLEC_OFF;blec_command_credit=0;
  CHECK(!blec_pair_stopped(&a,&b));blec_command_credit=1;CHECK(blec_pair_stopped(&a,&b));
  /* Full fake discovery of both peers through production event routing. */
- setup(&a,&b); a.state=b.state=BLEC_OFF;a.conn=b.conn=0;a.credits=a.acl_total=0;
+ setup(&a,&b); a.state=b.state=BLEC_OFF;a.conn=b.conn=0;b.linked=0;a.credits=a.acl_total=0;
  blec_start(&a,0);
  complete(&a,&b,COP_RESET,0);complete(&a,&b,COP_EV_MASK,0);complete(&a,&b,COP_LE_MASK,0);
  {uint8_t p[]={0x0e,7,1,2,0x20,0,27,0,5};blec_pair_rx(&a,&b,4,p,sizeof p,1);}

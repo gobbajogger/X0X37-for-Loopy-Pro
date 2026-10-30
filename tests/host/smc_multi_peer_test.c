@@ -57,7 +57,9 @@ static void independent_targets(void)
 {
     pair_setup();
     smc_view(V_MIX,1); ui.sel[0]=0; build_pages(); peer_lock(0);
-    smc_view(V_MIX,2); ui.sel[1]=8; build_pages(); peer_lock(1);
+    /* Peer 0 is locked: its page buttons move only its own page. Move the
+     * shared keyboard page to 808 MIX before peer 1 captures it. */
+    smc_view(V_MIX,-1); *page_of(V_MIX)=2; ui.sel[1]=8; build_pages(); peer_lock(1);
     CHECK(smc_states[0].locked && smc_states[1].locked);
     CHECK(smc_states[0].lock_kit == 1 && smc_states[0].lock_bank == 0);
     CHECK(smc_states[1].lock_kit == 2 && smc_states[1].lock_bank == 8);
@@ -132,7 +134,10 @@ static void independent_fx(void)
     peer_msg(0,0x90,24,127);peer_msg(1,0x90,24,127);
     smc_states[1].fx_effect[0]=smcfx_cycle(0,smc_states[0].fx_effect[0]);
     smc_slot=1;smc_fx_publish();smc_slot=0;
+    /* A held FX SELECT plays the holding peer's assigned effect (574f5329,
+     * #741); the first holding peer wins and saved effects stay unchanged. */
     CHECK(fx_values[0]==smc_states[0].fx_effect[0]);
+    CHECK(smc_states[1].fx_effect[0]==smcfx_cycle(0,smc_states[0].fx_effect[0]));
     peer_msg(0,0x80,24,0);CHECK(fx_mask&1);CHECK(fx_values[0]==smc_states[1].fx_effect[0]);
     peer_msg(1,0x80,24,0);CHECK(!fx_mask);
     peer_msg(0,0x90,24,127);peer_msg(1,0x90,25,127);CHECK((fx_mask&3)==3);

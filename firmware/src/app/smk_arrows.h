@@ -5,7 +5,14 @@
 #include <stdint.h>
 
 #ifndef ARW_FN
-#define ARW_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#ifndef X0X_MINSIZE
+#if defined(__clang__)
+#define X0X_MINSIZE minsize,   /* clang (the firmware toolchain): small code */
+#else
+#define X0X_MINSIZE            /* gcc host tests: gcc has no minsize */
+#endif
+#endif
+#define ARW_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
 #endif
 
 /* Hold repeat in a menu: the first repeat 400 ms after the press, then one step each 80 ms.
@@ -56,3 +63,14 @@ ARW_FN static int32_t arw_frame(arw_t *a, uint32_t now, uint32_t route, uint32_t
     }
     return d;
 }
+
+/* Clip mode (CLP-82): the open menu list changed (another view or page) while the route stayed ARW_MENU.
+ * Stop the repeat. An arrow that was held already in the old list stays "pressed": it does not edit the
+ * new list. A fresh press in the same frame (now & ~prev) is kept and steps the new list. */
+static inline void arw_rearm(arw_t *a, uint32_t now)
+{
+    a->rep = 0;
+    a->prev = (uint8_t)(a->prev & now);
+}
+/* The identity of an open menu list for arw_rearm: the view and its page. */
+static inline uint32_t arw_menu_id(uint32_t view, uint32_t page) { return view << 8 | (page & 0xFFu); }

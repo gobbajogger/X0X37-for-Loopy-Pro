@@ -36,7 +36,7 @@ prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_acti
 helpers = ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot") if "smc_poll_peer" in source else ()
 functions = "\n".join(function(n) for n in helpers + (
     "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link",
-    "smc_mmc_drain_stop",
+    "smc_mmc_drain_stop", "smc_spill_apply",
 ) + (("smc_poll_peer",) if helpers else ()) + ("smc_poll",))
 harness = r'''
 #include <stdint.h>
@@ -44,6 +44,11 @@ harness = r'''
 #include <stdlib.h>
 #include <string.h>
 #include "smc_fx_harness_stubs.h"
+/* smc_poll_peer re-arms the SMC caption timer of its own peer after a lost
+ * release. The caption itself is exercised by smc_ui_test.c. */
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0; }
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -68,7 +73,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     observed[nobs++] = m[1];
     return 0;
 }
-''' + prefix + "\n" + functions + r'''
+''' + (lambda t: t[t.index('static inline int smc_relative'):t.index('}', t.index('static inline int smc_relative')) + 1])((ROOT / 'firmware/src/app/smc_protocol.h').read_text()) + "\n" + prefix + "\n" + functions + r'''
 static void reset_state(unsigned start)
 {
     memset(&smc, 0, sizeof smc);

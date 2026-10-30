@@ -9,7 +9,7 @@ root = Path(__file__).resolve().parents[2]
 source = (Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c').read_text()
 names = ('smc_same', 'smc_home_target', 'smc_page_target', 'smc_target', 'smc_fader_of', 'smc_knob_target', 'smc_bank', 'smc_notice')
 functions = []
-for helper in ('smc_drum_mix', 'smc_drum_track'):
+for helper in ('smc_page_now', 'smc_drum_mix', 'smc_drum_track'):
     match = re.search(r'^static [^\n]+ '+helper+r'\([^\n]*\)\n\{.*?^\}', source, re.M | re.S)
     if match:
         functions.append(match[0])
@@ -27,24 +27,24 @@ harness = r'''
 #include <string.h>
 #include "seq/pattern.h"
 enum { R_NONE, R_ENG, R_HDR, R_ACT, R_SPAT, R_SREP, T_909, T_808, T_MIX, T_FX, T_MST,
-       MX_LEVEL, MX_PAN, MX_CUT, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
+       MX_LEVEL, MX_PAN, MX_CUT, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, MX_REV, MX_DLY, V_HOME, V_MIX, V_PART, V_SEQ,
        O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 #define NONE PR(R_NONE,0,0,0)
 static struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui;
-static struct { pref_t r[1][4]; } pg;
+static struct { int n; pref_t r[1][4]; char title[1][16]; } pg;
 static pref_t list_rows[12];
 static int kit=-1, clip, stage;
 static struct { pref_t target[8],lock_fader[8],lock_knob[8];
-    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank;
+    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank,knob_bank;
+    uint8_t lock_part,lock_view,lock_page,lock_pages,lock_page_kit[1];
     uint32_t lock_song_revision; uint16_t lock_song_len; } smc;
 static uint32_t song_structure_revision;
 static struct song_fixture { unsigned len; } song_data;
 static const struct song_fixture *song(void) { return &song_data; }
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
 static int cur_page(void) { return 0; }
-static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
 static int smk_clip_mode_on(void) { return clip; }
 #define is_drum() (ui.part < 2)
 static pref_t find_ref(int t,int track,const char *name) {
@@ -52,6 +52,8 @@ static pref_t find_ref(int t,int track,const char *name) {
     return PR(R_ENG,t,track,!strcmp(name,"Pan"));
 }
 static void build_pages(void) {
+    /* smc_drum_mix reads the kit from the shown MIX page title. */
+    pg.n=1; strcpy(pg.title[0], kit<0 ? "" : kit ? "808 MIX" : "909 MIX");
     for(int n=0;n<4;n++) pg.r[0][n]=PR(R_ENG,kit ? T_808 : T_909,ui.sel[kit],n);
 }
 #define smc_select_drum(k,t) (ui.sel[k]=(t),build_pages())
@@ -78,6 +80,7 @@ int main(void) {
     ui.view=V_MIX; ui.overlay=O_NONE;
     for(int n=0;n<8;n++) assert(!smc_same(smc_knob_target(n),smc_home_target(n)));
     for(kit=0;kit<2;kit++) {
+        build_pages();
         unsigned seen=0;
         for(int bank=0;bank<2;bank++) {
             assert(smc_bank(bank ? 0x2F : 0x2E));

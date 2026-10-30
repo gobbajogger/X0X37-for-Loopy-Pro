@@ -158,15 +158,10 @@ static volatile struct {
 
 /* key events beyond the FM-1's 27 (keybed keys 0..4 and 32..36): key << 8 | velocity (0 = release) */
 #define SMK_EXTQ 32u
-#if X0X_ORIGINAL_SYNTH
 static volatile uint32_t smk_extq[SMK_EXTQ][2]; /* generation, physical/velocity/pitch */
 static volatile uint8_t smk_extq_w, smk_extq_r, smk_extq_overflow, smk_ext_enabled;
 static volatile uint32_t smk_ext_epoch;
 static volatile int8_t smk_ext_oct;
-#else
-static volatile uint16_t smk_extq[SMK_EXTQ];
-static volatile uint8_t smk_extq_w, smk_extq_r;
-#endif
 
 static uint8_t fm1_led[SMK_NLED];     /* 1 = lit (button LED i = button i) */
 static volatile uint32_t smk_ledw[2]; /* per LED group: 0xFFFF0000 | low half (LED lines active low) */
@@ -320,17 +315,11 @@ FM1_INLINE uint32_t smk__closed(uint32_t code) { return (fm1_in.raw[code >> 4] >
 static void smk__extq(uint32_t k, uint32_t vel)
 {
     uint8_t w = smk_extq_w;
-#if X0X_ORIGINAL_SYNTH
     if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r) {
         smk_extq_overflow=1;return;
     }
     smk_extq[w][0]=smk_ext_enabled?smk_ext_epoch:0;
     smk_extq[w][1]=k|(vel<<7)|((uint32_t)(36+(int)k+12*smk_ext_oct)<<14);
-#else
-    if ((uint8_t)(w + 1u) % SMK_EXTQ == smk_extq_r)
-        return;
-    smk_extq[w] = (uint16_t)(k << 8 | vel);
-#endif
     smk_extq_w = (uint8_t)((w + 1u) % SMK_EXTQ);
 }
 
@@ -679,17 +668,6 @@ static uint32_t fm1_input_note_edges(void)
 }
 
 /* the next outer-key event (keybed key << 8 | velocity, 0 = release), -1 if none */
-#if !X0X_ORIGINAL_SYNTH
-static int32_t smk_extkey_take(void)
-{
-    int32_t v = -1;
-    if (smk_extq_r != smk_extq_w) {
-        v = smk_extq[smk_extq_r];
-        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
-    }
-    return v;
-}
-#endif
 
 /* LED of button id (0..17); note keys have no LED on the SMK (the pads show the step grid) */
 static void fm1_led_key(uint32_t id, int on)

@@ -100,7 +100,7 @@ static void content_matrix(void)
         check("sparse-noncurrent", 1, p, 0x8043, 0x89);
         check("dense-noncurrent", 2, p, 0xffff, 0xff);
         check("alternating-noncurrent", 3, p, 0x5555, 0xff);
-        if (p != PART_BRK) check("later-only-noncurrent", 4, p, 0, 0);
+        if (p != PART_BRK) check("later-only-noncurrent", 4, p, 0, 0x04);
     }
     /* Exercise the production HOME white-key handler, not a separate selection implementation. */
     key_event(WHITE_KEY[1], 1); key_event(WHITE_KEY[1], 0);
@@ -115,7 +115,7 @@ static void content_matrix(void)
     run_ms(20);
     render("matrix-current-later-only");
     for (p = 0; p < NPARTS; ++p)
-        check("later-only-current", 4, p, 0, 0);
+        check("later-only-current", 4, p, 0, p == PART_BRK ? 0 : 0x04);
     key_event(WHITE_KEY[2], 1); key_event(WHITE_KEY[2], 0);
     run_ms(20);
     render("matrix-current-dense");

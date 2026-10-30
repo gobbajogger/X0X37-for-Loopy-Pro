@@ -6,7 +6,14 @@
 #include <stdint.h>
 
 #ifndef CK_FN
-#define CK_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#ifndef X0X_MINSIZE
+#if defined(__clang__)
+#define X0X_MINSIZE minsize,   /* clang (the firmware toolchain): small code */
+#else
+#define X0X_MINSIZE            /* gcc host tests: gcc has no minsize */
+#endif
+#endif
+#define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
 #endif
 
 #define CK_NKEY 37u           /* keybed keys; key 0 = C3 = MIDI note 48 */

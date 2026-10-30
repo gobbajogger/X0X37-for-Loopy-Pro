@@ -16,7 +16,7 @@
 #define CHICAGO_ENV_H
 
 #include <stdint.h>
-#include "../dsp/bass303.h"
+#include "../dsp/bass_param_ids.h"
 
 /* AU/factory 0..255 → 0..max_pot (matches chicago_au_map._pot_from_byte). */
 static inline uint8_t chi_env_pot_from_byte(uint8_t v, uint8_t max_pot)
