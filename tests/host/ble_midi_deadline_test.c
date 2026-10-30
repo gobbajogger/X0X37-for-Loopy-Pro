@@ -93,6 +93,10 @@ static void cancel_cutoff(uint32_t start, int offset, unsigned enhanced)
     uint32_t deadline = c.deadline;
     assert(c.state == BLEC_STOPPING && c.waiting && c.cmd_op == 0x200e);
     /* Count only Disconnect submissions after the accepted Cancel. */
+    /* The controller completes Cancel first; that event returns the command
+     * credit the per-link flow control (b26fb36e) needs for Disconnect. */
+    const uint8_t cancel_done[] = {0x0e, 4, 1, 0x0e, 0x20, 0};
+    blec_rx(&c, 4, cancel_done, sizeof cancel_done, deadline - 1u);
     sent = 0;
     const uint8_t event[] = {0x3e, 0x13, enhanced ? 0x0a : 1, 0, 0x50,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
