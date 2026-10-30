@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* BF-007: loading an older sound revision must remap Bass Drum PAN motion,
- * not just the stored static PAN parameter. Mock NOR, real compression/storage. */
+/* BF-007: Bass Drum PAN motion keeps its parameter through save/load. In the
+ * original-synth build an older sound revision is refused (-9), not migrated.
+ * Mock NOR, real compression/storage. */
 #define main project_stage_existing_main
 #include "project_stage_test.c"
 #undef main
@@ -30,6 +31,12 @@ static void legacy_case(uint8_t rev, uint8_t pan909, uint8_t pan808)
     b->val[0] = 81;
     REQUIRE(project_save() == 0);
     memset(stored_known, 0, sizeof stored_known);
+    if (rev != PROJ_SND_REV) {
+        /* The original-synth build loads only its own sound revision: an older
+         * one is refused as unsupported (-9), never half-migrated. */
+        CHECK(project_load_stage() == -9);
+        return;
+    }
     REQUIRE(project_load_stage() == 0);
     CHECK(project_stage.sound.v[T_909][0][10] == 73);
     CHECK(project_stage.sound.v[T_808][0][9] == 81);
