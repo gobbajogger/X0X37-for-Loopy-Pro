@@ -1,0 +1,69 @@
+{
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "candidate": "1249cc0f07ee405a7c6f847438046b83bedf8498",
+  "profile": "source-extracted transport and five exact-Git-blob host fixtures; not complete current checkout",
+  "environment": "Linux x86_64",
+  "scoped_tests": {
+    "gcc_fifo": {
+      "assertions": 1320,
+      "failures": 0,
+      "exit": 0,
+      "log_sha256": "76b613a27dfea2ee6114e28052cd77bf3cc5d56d6e2827e80893cb0749b9ae57"
+    },
+    "clang_asan_ubsan_fifo": {
+      "assertions": 1320,
+      "failures": 0,
+      "exit": 0,
+      "log_sha256": "dad34d628adae286cb0e2eb8b76bc5ee4b85940d43cc31556033b1acdc20b3e8"
+    },
+    "five_python_overflow": {
+      "passed": 5,
+      "failed": 0,
+      "exit": 0,
+      "tests": [
+        "ble_out_noteoff_overflow_test.py",
+        "ble_out_rt_overflow_test.py",
+        "midi_mq_noteoff_overflow_test.py",
+        "midi_mq_rt_overflow_test.py",
+        "midi_out_mq_noteoff_overflow_test.py"
+      ]
+    }
+  },
+  "sdk_input_subset": {
+    "pinned_v1_2_1_files_verified": 11,
+    "total": 11,
+    "status": "PASS"
+  },
+  "vendor_toolchain": {
+    "clang_version": "4.0.1",
+    "status": "AVAILABLE"
+  },
+  "full_host_exact_candidate": "NOT_RUN: complete source tree unavailable",
+  "elite_exact_candidate": "NOT_RUN: complete source tree unavailable",
+  "pro_exact_candidate": "NOT_RUN: complete source tree unavailable",
+  "historical_incomplete_archive": {
+    "source": "f550-SMC-source-closure.zip + source-at-7537a46.tar assets",
+    "original_synth_source_files": 0,
+    "elite_dev": {
+      "exit": 1,
+      "missing": "experiments/wobble/wobble.c, wobble.h"
+    },
+    "pro_dev": {
+      "exit": 1,
+      "missing": "experiments/wobble/wobble.c, wobble.h"
+    },
+    "full_host": {
+      "status": "INCOMPLETE; 90-second process limit, final output absent",
+      "partial_results": 139,
+      "failed_test_markers": 58
+    }
+  },
+  "excluded": [
+    "SDK files",
+    "private headers",
+    "compiled firmware binaries",
+    "controller images"
+  ],
+  "disposition": "DRAFT: do not merge or publish; full current-head tests and both native builds still require exact source closure"
+}
