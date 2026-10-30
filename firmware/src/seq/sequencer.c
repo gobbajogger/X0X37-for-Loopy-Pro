@@ -576,6 +576,7 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
         s->metro_tick = 24; /* waiting: next accepted clock is phase zero */
     } /* Continue preserves musical position and the stopped visual phase. */
     s->clk_to_next = 0;
+    s->run_gen++;
     s->playing = 1;
     if (o->transport) o->transport(o->ctx, 1);
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);

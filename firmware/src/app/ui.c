@@ -2877,12 +2877,31 @@ static void brk_slice_write(brkpart_t *bp, int st, int code)
  * channel, with its record step). REC on and playing: every part records on its own channel at once,
  * whatever part or view is selected (owner 2026-10-30).
  * The 303s record in the engine (seq_rec_bass). */
+/* The external REC context: REC, the transport run and the drum/BREAK patterns.
+ * Any change starts a new tag; onsets queued under an older tag are stale. */
+static void ext_rec_context(void)
+{
+    static uint8_t last[NKIT + 4], have;
+    uint8_t now[NKIT + 4];
+    int i, n = 0;
+    now[n++] = (uint8_t)(!!ui.rec | !!seq.playing << 1);
+    now[n++] = seq.run_gen;
+    now[n++] = seq.ppat[PART_BRK];
+    for (i = 0; i < NKIT; i++)
+        now[n++] = seq.ppat[i];
+    if (!have || memcmp(now, last, (size_t)n)) {
+        memcpy(last, now, (size_t)n);
+        have = 1;
+        seq.rec_ev_tag = (uint8_t)((seq.rec_ev_tag + 1u) & 127u);
+    }
+}
 static void ext_rec_drain(void)
 {
     uint32_t ev;
+    ext_rec_context();
     while (engine_rec_ev_get(&ev)) {
         int part = REC_EV_PART(ev), st = REC_EV_STEP(ev);
-        if (project_busy || !ui.rec || !seq.playing)
+        if (project_busy || !ui.rec || !seq.playing || REC_EV_TAG(ev) != seq.rec_ev_tag)
             continue;
         if (part == PART_BRK)
             brk_slice_write(&pat_of(PART_BRK)->brk, st & 15, REC_EV_VOICE(ev) + 1);
