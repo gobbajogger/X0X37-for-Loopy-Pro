@@ -1,5 +1,7 @@
 # Orchestrator handoff notes (2026-10-30)
 
+**Start here:** [Operating guide for the new orchestrator](OPERATING-GUIDE.md).
+
 This folder holds the old orchestrator's notes, so the new owner can continue the DnBOX work.
 
 ## Current state
