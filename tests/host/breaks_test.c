@@ -283,7 +283,6 @@ static void test_perf(void)
 {
     brk_perf_t p;
     memset(&p, 0, sizeof p);
-    p.rate_mult = 1.0f;
     perf_push(&p, 1); perf_push(&p, 2); perf_push(&p, 3);
     CHECK(p.count == 3 && perf_top(&p) == 3, "stack depth 3, top 3");
     perf_release(&p, 2);
@@ -299,21 +298,7 @@ static void test_perf(void)
     CHECK(p.count == 0, "one release clears it");
     perf_push(&p, 1); perf_push(&p, 2); perf_push(&p, 1);
     CHECK(p.count == 2 && perf_top(&p) == 1, "re-press moves to top");
-    perf_half(&p, 1); perf_half(&p, 1);
-    CHECK(p.rate_mult == 0.5f, "duplicate half stays 0.5");
-    {
-        int f[6];
-        p.trig_acc = 0.0f;
-        for (int i = 0; i < 6; i++) f[i] = perf_trigger_fires(&p);
-        CHECK(!f[0] && f[1] && !f[2] && f[3] && !f[4] && f[5], "half speed fires every other trigger");
-    }
-    perf_half(&p, 0);
-    CHECK(p.rate_mult == 1.0f, "release half -> 1.0");
-    {
-        int all = 1;
-        for (int i = 0; i < 5; i++) all &= perf_trigger_fires(&p);
-        CHECK(all, "1x fires every trigger");
-    }
+
 }
 
 /* 3. the generator through breaks_step */
@@ -635,12 +620,12 @@ static void test_live(void)
     for (int i = 0; i < n; i++) ok &= g_dec_log[i].slice == 2;
     breaks_live(&b, 2, 0);
     CHECK(ok, "held slices override the generator, last held wins, release falls back");
-    /* half speed: every other trigger; stutter: 4x on every trigger */
+    /* jungle stretch keeps every trigger; stutter: 4x on every trigger */
     setup(&b);
     breaks_set(&b, BRK_COMPLEX, 0);
     breaks_live(&b, 9, 1);
     n = run_steps(&b, 2);
-    CHECK(n == 8, "half speed: every other trigger fires (%d in 2 bars incl. the start)", n);
+    CHECK(n == 16, "jungle: unchanged trigger cadence (%d in 2 bars)", n);
     breaks_live(&b, 9, 0);
     breaks_live(&b, 10, 1);
     n = run_steps(&b, 1);

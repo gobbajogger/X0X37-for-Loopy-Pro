@@ -160,6 +160,7 @@ void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo 
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */
 void engine_fx_mute(uint8_t mask);                          /* runtime output gates, never edits intended pots or motion */
 uint8_t engine_fx_muted(void);
+uint8_t engine_tape_active(void); /* actual tape input/wet activity, presentation only */
 void engine_smc_busfx(uint8_t down, const uint8_t effect[8]); /* SMC momentary buses; effect may be null */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
@@ -221,6 +222,10 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 void engine_bass_record(int part, int note, int velocity, int flags); /* accepted live REC press, audio-owned */
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
+void engine_brk_bend(int value); /* transient -8192..8191, +/-12 semitones */
+#ifdef X0X_HOST
+int engine_brk_bend_value(void);
+#endif
 void engine_brk_live(int key, int down);
 void engine_brk_edit_hold(int held);
 uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */

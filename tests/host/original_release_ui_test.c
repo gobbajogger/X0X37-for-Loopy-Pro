@@ -218,7 +218,10 @@ static void image_cases(void)
     uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][1],32); button_tap(B_EDIT); block();
     CHECK(!engine_bass_preset_pending(1) && !memcmp(saved,proj.sound.v[T_303][1],32)); engine_bass_off(1);
 }
-int main(int argc,char **argv)
+#ifndef ORIGINAL_UI_MAIN
+#define ORIGINAL_UI_MAIN main
+#endif
+int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
     pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();

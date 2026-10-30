@@ -78,16 +78,17 @@ static void test_drum_lock(void)
         CHECK(smc.drum_solo[kit] == (1u << (bank * 8)));
         message(0x80, 8, 0); CHECK(!smc_project_active());
         message(0x80, 8, 0); CHECK(!smc_project_active());
-        ui_before = screen_state();
-        const int parked[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
-        for (unsigned i = 0; i < sizeof parked / sizeof *parked; i++) {
-            message(0x90, parked[i], 127); navigation_unchanged(ui_before);
+        /* Rec, Select and navigation remain live while captured destinations stay fixed. */
+        const int live[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
+        for (unsigned i = 0; i < sizeof live / sizeof *live; i++) {
+            message(0x90, live[i], 127); message(0x80, live[i], 0);
+            CHECK(smc.locked);
             CHECK(smc_same(f[0], smc_target(0)));
         }
         CHECK(smc_lock_toggle());
-        CHECK(smc_same(smc_target(0), smc_home_target(0)));
+        CHECK(!smc.locked);
     }
-    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, parked navigation");
+    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, live navigation");
 }
 static void test_engine_lock_and_clip(void)
 {
@@ -379,8 +380,10 @@ static void test_select_and_play(void)
         CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
-        screen_state_t before = screen_state();
-        press(24 + other); navigation_unchanged(before); CHECK(!smc_ui_active());
+        press(0); CHECK(ui.rec != rec); CHECK(ui.part == kit);
+        press(0); CHECK(ui.rec == rec);
+        press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit); CHECK(!smc_ui_active());
+        press(24 + other); CHECK(cur_page() == 0);
         CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());

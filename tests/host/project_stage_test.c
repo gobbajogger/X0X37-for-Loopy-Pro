@@ -356,7 +356,7 @@ typedef struct { size_t offset; unsigned bytes; uint32_t value; } invalid_t;
 static void test_semantic_rejection(void)
 {
     static const invalid_t invalid[] = {
-        BAD8(set.palette, 5), BAD8(set.keyled, 3), BAD8(set.clk_out, 2), BAD8(set.notes_out, 2),
+        BAD8(set.palette, 6), BAD8(set.keyled, 3), BAD8(set.clk_out, 2), BAD8(set.notes_out, 2),
         BAD16(set.bpm_x10, 199), BAD16(set.bpm_x10, 2751), BAD8(set.accent_q7, 128),
         BAD8(set.keysound, 2), BAD8(set.autosave_off, 2), BAD8(set.out_loud, 2), BAD8(set.usb_full, 2),
         BAD8(set.bt, 0), BAD8(set.bt, 0xC8), BAD8(set.bt, 14), BAD8(set.ck_ch, 1),

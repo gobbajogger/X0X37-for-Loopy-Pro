@@ -20,8 +20,8 @@
  *     in at the fill bar's start; A is always scheduled back for the first bar of the next phrase.
  *     (X0X: with Phrase off, B chance rolls at the start of every bar, for that bar.)
  *   - live layer: held slices on a last-note-priority stack (dedup on re-press), held slice beats
- *     the engine (the engine still draws), reverse wraps within the slice, half speed = rate * 0.5
- *     and only every other trigger fires, stutter forces a 4x retrigger on each trigger.
+ *     the engine (the engine still draws), reverse wraps within the slice, jungle repeats short grains at unchanged pitch
+ *     while sequencer timing stays unchanged; stutter forces a 4x retrigger on each trigger.
  *
  * What is adapted (the reasons are the FM-1's, see the design doc):
  *   - time comes from breaks_step (every 16th) instead of MIDI clock ticks; the 1/4-bar length's
@@ -180,28 +180,6 @@ __attribute__((noinline)) static void perf_push(brk_perf_t *p, int slice)
     p->stack[p->count++] = (int8_t)slice;
 }
 static int perf_top(const brk_perf_t *p) { return p->count ? p->stack[p->count - 1] : -1; }
-static void perf_half(brk_perf_t *p, int on)
-{
-    if (on && !p->half) {
-        p->half = 1;
-        p->rate_mult *= 0.5f;
-    } else if (!on && p->half) {
-        p->half = 0;
-        p->rate_mult *= 2.0f;
-    }
-}
-/* 1 = this clock trigger fires; half speed fires every other one */
-static int perf_trigger_fires(brk_perf_t *p)
-{
-    float m = p->rate_mult > 0.0f ? p->rate_mult : 1.0f;
-    p->trig_acc += m < 1.0f ? m : 1.0f;
-    if (p->trig_acc >= 0.999f) {
-        p->trig_acc -= 1.0f;
-        return 1;
-    }
-    return 0;
-}
-
 /* ---- ADPCM ------------------------------------------------------------------------------ */
 
 #if defined(X0X_HOST) || (defined(__GNUC__) && !defined(__clang__)) || __SIZEOF_POINTER__ != 4
@@ -461,7 +439,8 @@ __attribute__((noinline)) static float brk_inc(const breaks_t *b, const brk_bank
 {
     float sp16 = b->sp16 > 1.0f ? b->sp16 : (float)BRK_FS * 0.125f;   /* 120 BPM until told */
     float semi = (float)((int)b->set[BRK_PITCH] - 12);
-    return k->sp16 / sp16 * fm_exp2f(semi * (1.0f / 12.0f)) * b->perf.rate_mult;
+    float bend = (float)b->bend / (b->bend < 0 ? 8192.0f : 8191.0f);
+    return k->sp16 / sp16 * fm_exp2f(semi * (1.0f / 12.0f) + bend);
 }
 
 /* Only one decoder state is cached for the preceding reverse-cache block.
@@ -554,6 +533,7 @@ static int voice_start_on(breaks_t *b, const brk_bank_t *k, int bk, int sl, uint
     v->dg = 1.0f / (float)BRK_FADE;
     if (p >= k->n)
         p = 0;
+    b->grain_anchor = p;
     if (rev) {
         v->rvalid = 0;
         v->s0 = rev_fetch(v, k, p);
@@ -573,6 +553,8 @@ static int voice_start_on(breaks_t *b, const brk_bank_t *k, int bk, int sl, uint
         v->pred = pred;
         v->idx = idx;
     }
+    b->grain_left = BRK_GRAIN_HOP;
+    b->grain_distance = 0.0f;
     return 1;
 }
 
@@ -681,13 +663,12 @@ static void pin_trigger(breaks_t *b, int slice)
 
 void breaks_pin(breaks_t *b, int slice) { b->pin = (int8_t)(slice >= 0 && slice < 32 ? slice : -1); }
 
-/* a clock trigger: BB Gen counts it whether or not half speed lets it fire */
+/* Grains never change the sequencer trigger cadence. */
 __attribute__((noinline)) static void clock_trigger(breaks_t *b)
 {
     int bp = b->trigger_count % 8;
     b->trigger_count++;
-    if (perf_trigger_fires(&b->perf))
-        fire_trigger(b, bp, 0);
+    fire_trigger(b, bp, 0);
 }
 
 __attribute__((noinline)) static void gate_update(breaks_t *b)
@@ -702,7 +683,15 @@ static void perf_sync(breaks_t *b)
     uint32_t k = b->slices, d = k ^ b->slices_seen;
     uint16_t macro = b->keys;
     b->perf.reverse = (macro >> 8) & 1;
-    perf_half(&b->perf, (macro >> 9) & 1);
+    uint8_t jungle = (macro >> 9) & 1;
+    if (jungle != b->perf.jungle) {
+        brk_voice_t *v = &b->v[b->cur];
+        b->grain_anchor = v->rev ? v->pos : (v->pos ? v->pos - 1u : 0u);
+        if (b->grain_anchor < v->lo || b->grain_anchor >= v->hi) b->grain_anchor = v->lo;
+        b->grain_distance = 0.0f;
+        b->grain_left = BRK_GRAIN_HOP;
+    }
+    b->perf.jungle = jungle;
     b->perf.stutter = (macro >> 10) & 1;
     b->keys_seen = macro;
     int key, edged = -1;
@@ -786,7 +775,6 @@ void breaks_step(breaks_t *b, int step16, int bar, float samples_per_16th, int e
         b->current_slice = 0;
         b->engine_bank = 0;
         b->pending_bank = -1;
-        b->perf.trig_acc = 0.0f;
         forced = 1;
     }
     pb = PHRASE_BARS[b->set[BRK_PHRASE] % 5u];
@@ -859,12 +847,16 @@ X0X_COLD void breaks_init(breaks_t *b)
     b->pub[1] = 1;                                       /* A and B start on their own snapshots */
     b->rng = 0x2545F491u;
     b->pending_bank = -1;
-    b->perf.rate_mult = 1.0f;
     b->st_slice = -1;
     b->pin = -1;
 }
 
 /* ---- render ----------------------------------------------------------------------------- */
+
+void breaks_bend(breaks_t *b, int value)
+{
+    b->bend = (int16_t)(value < -8192 ? -8192 : value > 8191 ? 8191 : value);
+}
 
 void breaks_set_quiet(breaks_t *b, int quiet) { b->quiet = (uint8_t)(quiet != 0); }
 
@@ -925,6 +917,27 @@ void breaks_render(breaks_t *b, float *out, int n)
             }
             b->sub_elapsed++;
         }
+        /* Repeat 90 ms grains at unchanged playback pitch. Each next grain
+         * advances half the source distance, with the existing two-voice fade.
+         * A new sequencer/pin/stutter hit resets the grain origin and timer.
+         * Forward grain tails retain dry BREAK continuity across slice edges.
+         * Only origins wrap; all origin jumps crossfade. No grain emits MIDI. */
+        if (b->perf.jungle && b->v[b->cur].on) {
+            brk_voice_t *v = &b->v[b->cur];
+            if (!b->grain_left && v->hi > v->lo) {
+                const brk_bank_t *k = v->snap;
+                uint32_t span = v->hi - v->lo;
+                uint32_t advance = (uint32_t)b->grain_distance % span;
+                uint32_t off = b->grain_anchor - v->lo;
+                uint32_t pos = v->lo + (v->rev ? (off + span - advance) % span : (off + advance) % span);
+                int sl = 0;
+                while (sl + 1 < k->slices && k->start[(sl + 1) * (32 / k->slices)] <= v->lo) sl++;
+                if (voice_start_on(b, k, v->bank, sl, pos, v->rev, 0, 0, 0))
+                    inc[b->cur] = brk_inc(b, k);
+            }
+            if (b->grain_left) b->grain_left--;
+            b->grain_distance += inc[b->cur] * 0.5f;
+        }
         for (j = 0; j < 2; j++) {
             brk_voice_t *v = &b->v[j];
             const brk_bank_t *k;
@@ -973,7 +986,7 @@ void breaks_render(breaks_t *b, float *out, int n)
                         v->pos = rev_next(v, v->pos);
                         v->s1 = rev_fetch(v, k, v->pos);
                     } else {
-                        if (++v->pos >= k->n) {                /* BB Gen loops at the end; state 0/0 */
+                        if (++v->pos >= k->n) {           /* BB Gen loops at the end; state 0/0 */
                             v->pos = 0;
                             v->pred = 0;
                             v->idx = 0;
