@@ -1,0 +1,1172 @@
+diff --git a/docs/ui-drum-mix-material-20261027.md b/docs/ui-drum-mix-material-20261027.md
+new file mode 100644
+index 00000000..c34c3d3a
+--- /dev/null
++++ b/docs/ui-drum-mix-material-20261027.md
+@@ -0,0 +1,11 @@
++# Drum MIX material candidate
++
++The owner's requested 2.5D treatment now applies to the shared 909/808 MIX strip renderer. Voice captions move above the meters; the selected caption has a filled part-colour face. Shallow strip wells distinguish the rails without helper text. This is actual source, not a proposal image.
++
++The level rail remains 96 pixels tall. Eleven voices, including 808 CP, independent stored level / transient hit / mute display, pan geometry, selection, and all control mappings remain unchanged. No audio, storage, firmware package, boot or website code changes.
++
++Host proof: `sh tests/host/ui_drum_mix_material_test.sh`. The fixture covers both kits, zero/full/intermediate levels, pan endpoints/centre, hit zero/full, mute, selected first/CP/last voices, project nonmutation, inter-strip clipping, band boundary/rail endpoints and existing level/pan mappings in both banks. Synthetic engine telemetry is not hardware or audio validation.
++
++Exact before/after images and logs are in the sibling `ui-mix-material-evidence-20261027` directory. The original renderer passes state/mapping fixtures but fails the new top-caption material assertion, as expected for this requested presentation change. It is not represented as a pre-existing functional bug.
++
++Owner preview and independent review remain pending. No rollout, production/device acceptance, native build or final boot render is claimed.
+diff --git a/docs/ui-main-material-20261027.md b/docs/ui-main-material-20261027.md
+new file mode 100644
+index 00000000..1ac88699
+--- /dev/null
++++ b/docs/ui-main-material-20261027.md
+@@ -0,0 +1,9 @@
++# Shared main-area material continuation
++
++After the ordinary parameter cards were unified, sequence marks, arrangement/settings rows and remaining MIX wells still used the earlier flat surfaces. This applies the same shallow material vocabulary inside their existing geometry.
++
++Drum hits, captured synth note lengths, and the selected voice keep their existing colours and data positions. Compact marks retain their centre ink; p-lock notches, play indication, ties and slides are overlaid on the original paths. SONG keeps its dense row count and scrolling. GLOBAL/list rows keep their fonts, values, arrows and confirmations. MIX PARTS/MASTER keep exact meters, level positions, names, gain-reduction and load values. No control remapping, new feature, optional SONG density change, audio/storage work or boot geometry change.
++
++The affected host fixture renders populated drum/synth/song, a tie across the 16/17 page boundary, muted active MIX, MASTER and selected/scrolled settings rows. Reset confirmation is opened for rendering only; reset is not executed. Project bytes are asserted unchanged. Compact marks are checked across widths1..14 and heights4..10 for clipping and retained centre ink. Existing SMC UI and stable part-order suites cover original interaction mappings.
++
++Actual candidate previews, commands and receipts are in sibling `ui-main-material-evidence-20261027`. Independent review and owner preview remain separate pending stages; no native build, hardware, rollout or final boot render is claimed here.
+diff --git a/docs/ui-shared-glyph-20261027.md b/docs/ui-shared-glyph-20261027.md
+new file mode 100644
+index 00000000..53f9e859
+--- /dev/null
++++ b/docs/ui-shared-glyph-20261027.md
+@@ -0,0 +1,11 @@
++# Shared parameter-card integration
++
++The owner asked that remaining rotary controls use the common designed UI, not the old rotary arcs inside new panels. Existing proposal glyph families are now connected through one production `control_glyph` dispatcher used by `draw_knobs`.
++
++Affected ordinary strips: HOME, BREAK, drum and synth SEQ, generator, FX, all MIX banks, both SONG banks and GLOBAL's ordinary strip. The existing Chicago/Miami/drum SOUND matrix, clip-owned strip and held-step value display remain their existing specialized presentations, not overwritten by a generic control. Named switches retain their truthful position pips; unmapped cells stay empty. Continuous controls without a specific schematic use the existing graduated value-scale vocabulary instead of an invented response curve.
++
++The shared dispatcher covers pan/transpose, pattern/length/loop selection, actual rate spacing, direction, tape, delay/repeat, reverb, tone, master compression and drive. Existing metronome, swing, filter and pump glyphs remain. These are parameter schematics, not measured audio. All reference bindings, numeric units, motion values, p-locks and touch handling stay on their original path.
++
++Proof: `sh tests/host/ui_shared_glyph_test.sh` enumerates 93 pages / 337 mapped slots at zero/mid/max, verifies glyph bounds and project nonmutation, exact bipolar centre/endpoints and both-kit/bank control maps. `night_ui_test.sh` covers existing common card layout, blank cells and performance glyph behavior. Real native240 rendered caller sheets are in sibling `ui-shared-glyph-evidence-20261027`.
++
++This continues the requested integration; it is not blanket approval of every earlier proposal or a claim that all main-page design work is finished. In particular SONG density is unchanged. Independent review, applicable native build, and owner actual-preview acceptance are separate pending gates. No rollout, hardware or held boot rendering.
+diff --git a/firmware/src/app/boot_screen.h b/firmware/src/app/boot_screen.h
+index 9219766c..ac75a565 100644
+--- a/firmware/src/app/boot_screen.h
++++ b/firmware/src/app/boot_screen.h
+@@ -58,11 +58,11 @@
+ #define BOOT_SEC1 BOOT_FM1_SEC1
+ #endif
+ 
+-#define BOOT_FACTORY_0 "X0X"
+-#define BOOT_FACTORY_1 "909 808 303 303 BREAK"
++#define BOOT_FACTORY_0 "DnBOX"
++#define BOOT_FACTORY_1 "909 808 CHICAGO MIAMI"
+ 
+ _Static_assert(sizeof(BOOT_FACTORY_0) - 1u <= BOOT_LINE0_MAX, "factory title");
+-_Static_assert(sizeof(BOOT_FACTORY_1) - 1u == BOOT_LINE1_MAX, "factory subtitle");
++_Static_assert(sizeof(BOOT_FACTORY_1) - 1u <= BOOT_LINE1_MAX, "factory subtitle");
+ _Static_assert(BOOT_REC_MAX <= 3840u, "boot record fits the existing store buffer");
+ _Static_assert(BOOT_PAY_OFF + BOOT_REC_MAX <= 4096u, "boot record fits one sector");
+ _Static_assert(BOOT_PIC_W % 8u == 0u, "picture rows are whole bytes");
+diff --git a/firmware/src/app/engine.c b/firmware/src/app/engine.c
+index e671a063..a0856530 100644
+--- a/firmware/src/app/engine.c
++++ b/firmware/src/app/engine.c
+@@ -70,6 +70,7 @@ static drum808_t d808 POOL;
+ #if X0X_ORIGINAL_SYNTH
+ static volatile uint8_t project_hold;
+ static original_runtime_part original_bass[NBASS] POOL;
++static uint16_t original_quiet_samples[NBASS];
+ static original_runtime_workspace original_workspace POOL;
+ static original_chicago_tuning original_tuning POOL;
+ static original_chicago_fx2_compact original_fx[NBASS] POOL;
+@@ -2572,6 +2573,11 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
+         /* Failed/unadmitted DSP is visible through engine_bass_status. No
+          * fallback renderer, guessed silence-success or idle clock skipping. */
+         if (status != ORIGINAL_RUNTIME_OK) continue;
++        for (i = 0; i < n; ++i) {
++            if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f)
++                original_quiet_samples[b] = 0;
++            else if (original_quiet_samples[b] < 512u) ++original_quiet_samples[b];
++        }
+         bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
+         mix_targets(p, mix_level[p], solo_parts);
+         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
+diff --git a/firmware/src/app/main_fm1.c b/firmware/src/app/main_fm1.c
+index 2d7471c3..ce50c87d 100644
+--- a/firmware/src/app/main_fm1.c
++++ b/firmware/src/app/main_fm1.c
+@@ -2193,7 +2193,7 @@ static void fm1_fault(const fm1_crash_t *c)
+     uint32_t t0;
+     fm1_audio_stop();
+     lcd_fill(0, 0, 240, 240, RGB(160, 0, 0));
+-    draw_text_box(0, 8, 240, &FONT_S, "X0X CRASH", C_WHITE, 1);
++    draw_text_box(0, 8, 240, &FONT_S, "DnBOX CRASH", C_WHITE, 1);
+     hexs(b, c->vec);
+     draw_text_box(10, 40, 220, &FONT_S, b, C_WHITE, 0);
+     hexs(b, c->pc);
+@@ -2248,7 +2248,7 @@ static void safe_main(void)
+     char b[24];
+     uint32_t t0, play;
+     lcd_fill(0, 0, 240, 240, C_BLACK);
+-    draw_text_box(0, 18, 240, &FONT_B, "X0X SAFE MODE", C_HI, 1);
++    draw_text_box(0, 18, 240, &FONT_B, "DnBOX SAFE MODE", C_HI, 1);
+     draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
+     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
+     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
+@@ -2290,7 +2290,7 @@ static void safe_main(void)
+         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
+             bootguard.failed = 0;                   /* try X0X again, from scratch */
+             bootguard.pending = 0;
+-            draw_text_box(0, 172, 240, &FONT_S, "STARTING X0X...", C_HI, 1);
++            draw_text_box(0, 172, 240, &FONT_S, "STARTING DnBOX...", C_HI, 1);
+             usb_detach();
+             fm1_delay_ms(30);
+             fm1_reboot();
+@@ -2332,8 +2332,10 @@ static void fm1_main(void)
+     }
+     lcd_init();
+     palette_set(1);
+-    draw_text_box(0, 96, 240, &FONT_M, "X0X", C_HI, 1);
+-    draw_text_box(0, 134, 240, &FONT_S, "909 808 303 303 BREAK", C_GRAY, 1);
++    {
++        const uint8_t *record = boot_shown();
++        draw_boot_screen(record ? record + BOOT_PAY_OFF : 0);
++    }
+     if (x0x_dbg.magic != DBG_MAGIC) {
+         memset(&x0x_dbg, 0, sizeof x0x_dbg);
+         x0x_dbg.magic = DBG_MAGIC;
+diff --git a/firmware/src/app/original_presets.inc b/firmware/src/app/original_presets.inc
+index e556a5fe..15dfec83 100644
+--- a/firmware/src/app/original_presets.inc
++++ b/firmware/src/app/original_presets.inc
+@@ -119,7 +119,7 @@ int engine_bass_preset_pending(int v)
+     if (!plat_midi_passed(request.midi) || (int32_t)(cq_r - request.cq) < 0) return 5;
+     if (bass_has_locks(v)) return 4;
+     if (bass_wheel_mask & (1u << v)) return 3;
+-    if (original_runtime_active(&original_bass[v])) return 2;
++    if (original_runtime_active(&original_bass[v]) || original_quiet_samples[v] < 512u) return 2;
+     return 1;
+ }
+ int engine_bass_requested_bank(int v)
+@@ -142,7 +142,7 @@ int engine_bass_base_ready(unsigned mask, const bass_base_state_t *target)
+         if (bass_tagged_cell_validate(target->cell[v], &target->tag[v], &bank)) return -5;
+         if (!engine_bass_bank_available(v, bank)) return -2;
+         if (bass_has_locks(v)) return -4;
+-        if ((bass_wheel_mask & (1u << v)) || original_runtime_active(&original_bass[v])) return 2;
++        if ((bass_wheel_mask & (1u << v)) || original_runtime_active(&original_bass[v]) || original_quiet_samples[v] < 512u) return 2;
+     }
+     return cq_r != cq_w || live_key_r != live_key_w || live_key_cancel ||
+         !plat_midi_passed(plat_midi_mark()) ? 2 : 0;
+diff --git a/firmware/src/app/project.c b/firmware/src/app/project.c
+index 6e5ef8c8..52067128 100644
+--- a/firmware/src/app/project.c
++++ b/firmware/src/app/project.c
+@@ -916,7 +916,7 @@ static int project_validate_for(const project_t *p)
+     if(bass_status)return bass_status;
+ #endif
+     if (s->magic != PROJ_MAGIC || s->format != PROJ_FORMAT || s->stereo != PROJ_STEREO ||
+-        s->snd_rev != PROJ_SND_REV || s->palette > 4 || s->keyled > 2 || s->clk_out > 1 ||
++        s->snd_rev != PROJ_SND_REV || s->palette > 5 || s->keyled > 2 || s->clk_out > 1 ||
+         s->notes_out > 1 || s->bpm_x10 < 200 || s->bpm_x10 > 2750 || s->accent_q7 > 127 ||
+         s->keysound > 1 || s->autosave_off > 1 || s->out_loud > 1 || s->usb_full > 1 ||
+         (s->bt & 0xC0u) || !(s->bt & PROJ_BT_CLK_IN) || PROJ_CLK_SRC(s->bt) > SEQ_CLK_EXT ||
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index 98cdd7a0..4712bb1e 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -146,8 +146,11 @@ static const uint8_t BLACK_KEY[11] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25};
+ 
+ enum { V_HOME, V_PART, V_GEN, V_FX, V_MIX, V_GLO, V_SONG, V_PERF, V_SEQ, NVIEWS };
+ static const char *const VIEW_N[NVIEWS] = {"HOME", "", "TB-3PO", "FX", "MIX", "GLOBAL", "SONG", "PERF", "SEQ"};
+-static const uint16_t PART_COL[NPARTS] = {RGB(255, 150, 40), RGB(255, 72, 64), RGB(130, 240, 90), RGB(70, 205, 255),
+-                                          RGB(214, 120, 255)};
++static const uint16_t PART_COLOURS[2][NPARTS] = {
++    {RGB(255,150,40),RGB(255,72,64),RGB(130,240,90),RGB(70,205,255),RGB(214,120,255)},
++    {RGB(139,69,0),RGB(172,35,29),RGB(40,104,30),RGB(0,96,132),RGB(117,49,148)}
++};
++#define PART_COL PART_COLOURS[ui_theme_light]
+ static const char *const PART_N[NPARTS] = {"909", "808", "303A", "303B", "BREAK"};
+ /* Presentation only: drums together, then the default Chicago B / Miami A.
+  * Project lanes, MIDI channels, engine buses and all saved arrays keep their IDs.
+@@ -464,7 +467,7 @@ static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T"};
+ static const char *const DIR_N[] = {"FWD", "REV", "PING", "RND"};
+ static const char *const ONOFF_N[] = {"OFF", "ON"};
+ #define ROOT_N NOTE_N                       /* same twelve names as put_note */
+-static const char *const THEME_N[] = {"GREEN", "AMBER", "CYAN", "RED", "MONO"};
++static const char *const THEME_N[] = {"GREEN", "AMBER", "CYAN", "RED", "MONO", "LIGHT"};
+ enum { G_DENS, G_ACC, G_SLIDE, G_OCTS, G_ROOT, G_SCALE, G_BASE, G_MUT, NGEN };
+ static const x0x_param_t GEN_P[NGEN] = {
+     {"DENS", 100, 70, 0}, {"ACCENT", 100, 40, 0}, {"SLIDE", 100, 25, 0}, {"OCTS", 2, 1, 0},
+@@ -478,14 +481,14 @@ static const char *const LIGHTS_N[] = {"OFF", "ON", "KEYS"};   /* ON: the keys,
+ static const x0x_param_t SEQ_P[NSQ] = {
+     {"SWING", 100, 0, 0}, {"LENGTH", NSTEPS - 1, 15, 0}, {"RATE", 3, 0, RATE_N}, {"LENGTH", NSTEPS - 1, 15, 0},
+     {"RATE", 3, 0, RATE_N}, {"DIR", 3, 0, DIR_N}, {"TRANSP", 48, 24, 0}, {"TEMPO", 255, 105, 0},
+-    {"ACCENT", 127, 88, 0}, {"CLOCK OUT", 1, 1, ONOFF_N}, {"NOTES OUT", 1, 0, ONOFF_N}, {"THEME", 4, 1, THEME_N},
++    {"ACCENT", 127, 88, 0}, {"CLOCK OUT", 1, 1, ONOFF_N}, {"NOTES OUT", 1, 0, ONOFF_N}, {"THEME", 5, 1, THEME_N},
+     {"LIGHTS", 2, 1, LIGHTS_N}, {"KEY SOUND", 1, 0, KEYSOUND_N},
+     {"AUTOSAVE", 1, 1, ONOFF_N},
+ };
+ static const x0x_param_t ACT_P[] = {
+     {"", 0, 0, 0}, {"SAVE PROJECT", 0, 0, 0}, {"LOAD SAVED", 0, 0, 0},
+     {"CLEAR THIS PART", 0, 0, 0}, {"CLEAR PATTERN", 0, 0, 0},
+-    {"COPY PATTERN", 0, 0, 0}, {"RESET PROJECT", 0, 0, 0}, {"ABOUT X0X", 0, 0, 0}, {"INSERT BAR", 0, 0, 0},
++    {"COPY PATTERN", 0, 0, 0}, {"RESET PROJECT", 0, 0, 0}, {"ABOUT DnBOX", 0, 0, 0}, {"INSERT BAR", 0, 0, 0},
+     {"DELETE BAR", 0, 0, 0}, {"CLEAR SONG", 0, 0, 0}, {"PERFORMANCE", 0, 0, 0}, {"RUN PERF TEST", 0, 0, 0},
+ #if BOARD_SMK37 && X0X_DEV_PADCAL
+     {"PAD COLOURS", 0, 0, 0},
+@@ -2642,7 +2645,7 @@ X0X_COLD static void run_action(int act, int arg)
+         /* The header toast is 27 characters. DEV still uses the long form. A numeric
+          * version that does not fit uses a shorter form. The open-beta words are the
+          * settings-row label, not this line. */
+-        e = put_s(full, "X0X " X0X_VERSION "  MEM ");
++        e = put_s(full, "DnBOX " X0X_VERSION "  MEM ");
+         e = put_s(put_i(e, project_mem_pct()), "%  CPU ");
+         put_s(put_i(e, (int)plat_cpu_pct()), "%");
+         for (e = full; *e; e++)
+@@ -2651,7 +2654,7 @@ X0X_COLD static void run_action(int act, int arg)
+             say(full, 0);
+             break;
+         }
+-        e = put_s(t, "X0X ");
++        e = put_s(t, "DnBOX ");
+         {
+             const char *v = X0X_VERSION;
+             int n = 0;
+@@ -4555,13 +4558,16 @@ static uint16_t matrix_col(void)
+ #if X0X_DEV_WOBBLE
+     if(is_303() && engine_bass_is_wobble(bidx())) return RGB(116,214,239);
+ #endif
+-    return is_303()?RGB(164,235,141):part_col();
++    return is_303()?(ui_theme_light?RGB(40,104,30):RGB(164,235,141)):part_col();
+ }
+ 
+ /* Owner-approved Chicago second screen only; not a global theme or setting.
+  * The first four rows and Miami's OUTPUT/DAMPER controls keep their layout. */
+ static int matrix_three_rows(void)
+ {
++#if X0X_ORIGINAL_SYNTH
++    return 0; /* Original pages keep four rows per bank. */
++#endif
+     return ui.view==V_PART && is_303() && cur_page()>=4 && pg.n==7 &&
+            pg.r[4][0].kind==R_ENG && pg.r[4][0].c==CHI_ARP_SWITCH &&
+            pg.r[6][0].kind==R_BENGINE;
+@@ -4855,18 +4861,54 @@ static int steps_len(void)
+ #else
+ #define UI_DRAW
+ #endif
+-/* Shallow 2D panel: one-pixel lit top/left and shaded lower/right. No extra
+- * framebuffer, blur, animation timer, allocation or trigonometry. */
++/* Shallow bevel stays entirely inside the existing rectangle. Four-pixel
++ * chamfers, inset dark lower edge, restrained local highlight: no tall teeth,
++ * extra buffer, animation, layout change or mutable render state. */
++static UI_DRAW void surface_panel(int x,int y,int w,int h,int active,uint16_t face,uint16_t edge,uint16_t side)
++{
++    int r=h>=18?4:h>=9?2:1, row;
++    if(w<2*r+3 || h<2*r+3) r=1;
++    for(row=0;row<h;row++) {
++        int inset=row<r?r-row:row>=h-r?row-(h-r)+1:0;
++        uint16_t shade=face;
++        if(active && h>=18 && row>0 && row<5)shade=blend(face,C_WHITE,5-row);
++        if(active && h>=18 && row>=h-4)shade=blend(face,C_BLACK,(row-(h-4)+1)*2);
++        cv_rect(x+inset,y+row,w-2*inset,1,shade);
++    }
++    cv_rect(x+r,y,w-2*r,1,edge);
++    cv_line(x,y+r,x+r,y,edge);
++    cv_rect(x,y+r,1,h-2*r,active?edge:UI_N_LEFT);
++    cv_line(x+w-r-1,y,x+w-1,y+r,edge);
++    cv_rect(x+w-1,y+r,1,h-2*r,side);
++    cv_line(x+w-1,y+h-r-1,x+w-r-1,y+h-1,side);
++    cv_rect(x+r,y+h-1,w-2*r,1,UI_N_SHADOW);
++    cv_line(x,y+h-r-1,x+r,y+h-1,side);
++    /* A short light catch, not a washed-out full-width glare band. */
++    if(w>24 && h>=18) cv_rect(x+r+2,y+1,w/4,1,active?edge:UI_N_LEFT);
++    if(active && h>=18) cv_rect(x+r+1,y+h-2,w-2*r-2,1,side);
++}
+ static UI_DRAW void night_panel(int x,int y,int w,int h,int active)
+ {
+-    uint16_t edge=active?SOUND_SELECT_EDGE:SOUND_EDGE;
+-    uint16_t side=active?SOUND_SELECT_SIDE:SOUND_SIDE;
+-    cv_rect(x+1,y+h,w,1,UI_N_SHADOW);
+-    cv_rect(x,y,w,h,active?SOUND_SELECT:SOUND_FACE);
+-    cv_rect(x+1,y,w-2,1,edge);
+-    cv_rect(x,y+1,1,h-2,active?edge:UI_N_LEFT);
+-    cv_rect(x+1,y+h-1,w-1,1,side);
+-    cv_rect(x+w-1,y+1,1,h-1,side);
++    surface_panel(x,y,w,h,active,active?SOUND_SELECT:SOUND_FACE,
++                  active?SOUND_SELECT_EDGE:SOUND_EDGE,active?SOUND_SELECT_SIDE:SOUND_SIDE);
++}
++/* Compact steps/notes use the same shallow material inside their old bounds.
++ * Keep the centre ink (hit/mute/play semantics) and all overlay notches intact. */
++static UI_DRAW void night_mark(int x,int y,int w,int h,uint16_t ink,int raised)
++{
++    box(x,y,w,h,ink);
++    if(w>=4 && h>=5) {
++        cv_rect(x+1,y+1,w-2,1,raised?blend(ink,C_WHITE,3):UI_N_SHADOW);
++        cv_rect(x+1,y+h-2,w-2,1,raised?dim(ink,7):UI_N_LEFT);
++    }
++}
++
++static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uint16_t ink)
++{
++    int x=cx-tw(f,s)/2;
++    cv_text(x,y+1,f,s,UI_N_LEFT); /* shallow incised lower light */
++    cv_text(x,y-1,f,s,UI_N_SHADOW);
++    cv_text(x,y,f,s,ink);       /* retain the native face, metrics and ink */
+ }
+ #define sound_slab night_panel
+ 
+@@ -4897,6 +4939,9 @@ static UI_DRAW void draw_header(void)
+         ) {
+         const char *name=part_display(ui.part);
+         if(is_303()) {
++#if X0X_ORIGINAL_SYNTH
++            name=engine_bass_bank(bidx())==ORIGINAL_SOUND_MIAMI?(bidx()?"MIAMI B":"MIAMI A"):(bidx()?"CHICAGO B":"CHICAGO A");
++#else
+ #if X0X_BASS_TAGGED_SOUND
+             if(engine_bass_sound_bank(&proj.sound,bidx())<0) name="CHOOSE ENGINE";
+             else
+@@ -4906,8 +4951,9 @@ static UI_DRAW void draw_header(void)
+             else
+ #endif
+             name=bidx()?"CHICAGO B":"CHICAGO A";
++#endif
+         }
+-        int night=matrix_three_rows();
++        int night=matrix_three_rows() || X0X_ORIGINAL_SYNTH;
+         if(night) sound_slab(0,0,240,20,0);
+         cv_text(7,2,&FONT_B,name,night?SOUND_GREEN:matrix_col());
+         {   /* Screen banks, not musical divisions or the selected control row. */
+@@ -5051,7 +5097,7 @@ static UI_DRAW void draw_drum(int band)
+         if (y < -DROW || y >= BAND_H)
+             continue;
+         if (sel)
+-            box(0, y - 1, 24, DROW, col);
++            surface_panel(0,y-1,24,DROW,1,col,col,dim(col,5));
+         cv_text(5, vc(&FONT_XS, y - 1, DROW - 1), &FONT_XS, nm, sel ? C_BLACK : muted ? C_LINE : v < NDRUM ? C_GRAY : C_WHITE);
+         for (c = 0; c < 16; c++) {
+             int s = step_of(c), x = col_x(c), hit = s < NSTEPS && sm_get(bits, s);
+@@ -5061,12 +5107,12 @@ static UI_DRAW void draw_drum(int band)
+             }
+             if (v == NDRUM) {                          /* the accent row: white marks */
+                 if (hit)
+-                    box(x + 2, y + 1, 8, 6, C_WHITE);
++                    night_mark(x + 2, y + 1, 8, 6, C_WHITE,1);
+                 else
+                     rbox(x + 2, y + 3, 8, 2, 1, C_LINE);
+                 continue;
+             }
+-            box(x, y, 12, DROW - 2, hit ? (muted ? C_DIM : sel ? col : on_dim) : (s == ph ? C_DIM : C_LINE));
++            night_mark(x, y, 12, DROW - 2, hit ? (muted ? C_DIM : sel ? col : on_dim) : (s == ph ? C_DIM : C_LINE),hit);
+             if (hit && s == ph)
+                 box(x + 2, y + 2, 8, DROW - 6, C_WHITE);
+             if (hit && sel && ((lmarks >> c) & 1u))      /* the step's own values (p-locks): a notch */
+@@ -5142,7 +5188,7 @@ static UI_DRAW void draw_303(int band, int gen)
+             uint16_t fc = s == ui.held_step ? C_WHITE : (st->flags & BS_ACCENT) ? col : dim(col, 9);
+             int end = st->flags >> BS_END_SHIFT;
+             int width = end ? (end * 12 + 14) / 15 : 12;
+-            box(x, y, width, 5, fc); /* captured 1..15 release fraction of this step */
++            night_mark(x, y, width, 5, fc,1); /* captured 1..15 release fraction of this step */
+             if ((lmarks >> c) & 1u)                  /* the step's own values (p-locks): a notch */
+                 cv_rect(x + 5, y - 3, 2, 2, C_WHITE);
+             if (g == G_TIE) {
+@@ -5163,8 +5209,8 @@ static UI_DRAW void draw_303(int band, int gen)
+                 cv_line(x + 11, y + 2, x + 14, ny + 2, C_WHITE);
+             }
+         }
+-        rbox(x + 1, 101 - o, 10, 4, 2, g && (st->flags & BS_ACCENT) ? C_WHITE : C_LINE);   /* its accent, its slide */
+-        rbox(x + 1, 113 - o, 10, 4, 2, g && (st->flags & BS_SLIDE) ? col : C_LINE);
++        night_mark(x + 1, 101 - o, 10, 4, g && (st->flags & BS_ACCENT) ? C_WHITE : C_LINE,g && (st->flags & BS_ACCENT));   /* its accent, its slide */
++        night_mark(x + 1, 113 - o, 10, 4, g && (st->flags & BS_SLIDE) ? col : C_LINE,g && (st->flags & BS_SLIDE));
+     }
+     cv_text(3, vc(&FONT_XS, 99, 8) - o, &FONT_XS, "AC", C_GRAY);
+     cv_text(3, vc(&FONT_XS, 111, 8) - o, &FONT_XS, "SL", C_GRAY);
+@@ -5253,7 +5299,8 @@ static UI_DRAW void matrix_knob_caption(char *text, int page)
+ static UI_DRAW void draw_part_sound(int band)
+ {
+     int page=cur_page(), first=page/4*4, row, k, off=band*BAND_H;
+-    int night=matrix_three_rows(), rows=night?3:4, height=night?66:49, step=night?67:50;
++    int three=matrix_three_rows(), night=three || X0X_ORIGINAL_SYNTH;
++    int rows=three?3:4, height=three?66:49, step=three?67:50;
+     uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
+     if(night) cv_rect(0,0,240,band==2?KNOB_H:BAND_H,SOUND_BASE);
+     if (draw_adsr_overlay(band)) return;
+@@ -5281,7 +5328,7 @@ static UI_DRAW void draw_part_sound(int band)
+             draw_param_widget(pg.r[p][k],x,y,59,active,col,height,night);
+         }
+ #if X0X_BASS_PRESET_PREVIEW
+-        if (pg.r[p][0].kind==R_BENGINE) {
++        if (!X0X_ORIGINAL_SYNTH && pg.r[p][0].kind==R_BENGINE) {
+             int b=bidx(), pending=engine_bass_preset_pending(b), preset=engine_bass_preset_index(b);
+             int edited=engine_bass_preset_edited(b);
+             const char *status=pending?"WAIT":preset<0?"USER":edited?"EDITED":"ACTIVE";
+@@ -5570,8 +5617,8 @@ static UI_DRAW void draw_song(int band)
+         }
+         if (k > sg->len || k >= NSONG)
+             break;
+-        if (k == ui.song_sel)
+-            box(0, y, 236, 11, C_LINE);
++        surface_panel(0,y,236,11,k==ui.song_sel,k==ui.song_sel?C_LINE:SOUND_FACE,
++                      k==ui.song_sel?SOUND_SELECT_EDGE:SOUND_EDGE,SOUND_SIDE);
+         put_i(t, k + 1);
+         cv_text(4, vc(&FONT_XS, y, 11), &FONT_XS, t, k == ui.song_sel ? C_WHITE : C_GRAY);
+         if (seq.song_on && seq.playing && k == seq.song_pos)
+@@ -5640,17 +5687,23 @@ static UI_DRAW void draw_drum_mix(int band, int k)
+         pref_t lv = find_ref(t, v, "Level"), pn = find_ref(t, v, "Pan");
+         int l = lv.kind ? proj.sound.v[t][v][lv.c] : 0, pa = pn.kind ? proj.sound.v[t][v][pn.c] : 64;
+         int muted = (seq.mute | seq.vmute) & (1u << (k * NDRUM + v)), fh = 96, f = l * fh / 127;
+-        if (sel)
+-            box(x, 0 - o, 19, 134, dim(col, 3));
+-        rbox(x + 7, 4 - o, 5, fh, 2, C_LINE);
++        /* Shallow strip well and top caption: preserve the 96px level travel,
++         * independent hit brightness and the original pan/control geometry. */
++        surface_panel(x, 0 - o, 19, 134, 0, SOUND_FACE,
++                      sel ? dim(col, 8) : SOUND_EDGE, SOUND_SIDE);
++        surface_panel(x + 1, 1 - o, 17, 12, sel,
++                      sel ? col : SOUND_FACE, sel ? col : SOUND_EDGE, SOUND_SIDE);
++        text_c(x + 10, vc(&FONT_XS, 1, 12) - o, &FONT_XS,
++               engine_voice_name(t, v), sel ? C_BLACK : muted ? C_DIM : C_GRAY);
++        cv_rect(x + 6, 15 - o, 7, fh + 2, UI_N_SHADOW);
++        rbox(x + 7, 16 - o, 5, fh, 2, C_LINE);
+         if (f)                                        /* the level, dim; a hit lights it up to the level */
+-            rbox(x + 7, 4 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
++            rbox(x + 7, 16 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
+         {
+             int hf = f * eng_hit[k][v] / 255;
+             if (hf > 1 && !muted)
+-                rbox(x + 7, 4 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
++                rbox(x + 7, 16 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
+         }
+-        text_c(x + 10, vc(&FONT_XS, 104, 12) - o, &FONT_XS, engine_voice_name(t, v), sel ? C_WHITE : muted ? C_LINE : C_GRAY);
+         rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);          /* the pan, a mark from the middle */
+         rbox(x + 3 + (pa * 10) / 127, 121 - o, 3, 7, 1, sel ? C_WHITE : C_GRAY);
+     }
+@@ -5738,8 +5791,9 @@ static UI_DRAW void draw_mix(int band)
+         for (int pos = 0; pos < NPARTS; pos++) {
+             p = part_at(pos);
+             int x = 6 + pos * 38, lvl = proj.sound.v[T_MIX][p][0], pk = eng_peak[p] * 64 / 32768;
+-            if (cur_page() == 0 && p == ui.mixsel)       /* PARTS: the part the knobs set */
+-                box(x - 2, 0, 30, BAND_H, dim(PART_COL[p], 3));
++            int selected=cur_page()==0 && p==ui.mixsel;
++            surface_panel(x-2,0,30,BAND_H,selected,selected?dim(PART_COL[p],3):SOUND_FACE,
++                          selected?PART_COL[p]:SOUND_EDGE,SOUND_SIDE);
+             rbox(x + 10, 4, 6, 64, 3, C_LINE);
+             if (pk > 1)
+                 rbox(x + 10, 68 - pk, 6, pk, 3, part_muted(p) ? C_DIM : PART_COL[p]);
+@@ -5750,7 +5804,7 @@ static UI_DRAW void draw_mix(int band)
+         {
+             int gr = (int)(engine_gr_db() * 64.0f / 24.0f);
+             gr = gr > 64 ? 64 : gr;
+-            if(wave)night_panel(205,1,32,66,0);
++            night_panel(205,1,32,66,0);
+             rbox(208,5,7,61,3,C_LINE);
+             if (gr > 1)
+                 rbox(208,5,7,gr>61?61:gr,3,RGB(255,80,60));
+@@ -5777,6 +5831,8 @@ static UI_DRAW void draw_mix(int band)
+             p = part_at(pos);
+             text_c(6 + pos * 38 + 13, 0, &FONT_XS, part_s(p), part_muted(p) ? C_LINE : PART_COL[p]);
+         }
++        night_panel(0,14,118,31,0);night_panel(120,14,120,31,0);
++        night_panel(0,46,240,22,0);
+         if ((int)(engine_gr_db() + 0.5f))
+             put_s(put_i(put_s(t, "COMP -"), (int)(engine_gr_db() + 0.5f)), "dB");
+         else
+@@ -5979,7 +6035,7 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
+     int32_t name_w, lw, lx;
+     if (!label || !label[0])
+         return 0;
+-    name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT X0X");
++    name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT DnBOX");
+     lw = tw(&FONT_XS, label);
+     lx = 204 - lw;
+     if (lx < 8 + name_w + 4 || lx + lw > 206)
+@@ -6009,8 +6065,8 @@ static UI_DRAW void draw_list(int band)
+             continue;
+         }
+         d = pref_desc(r);
+-        if (sel)
+-            box(0, y + 1, 232, 21, dim(part_col(), 6));
++        surface_panel(3,y+1,229,21,sel,sel?dim(part_col(),6):SOUND_FACE,
++                      sel?part_col():SOUND_EDGE,SOUND_SIDE);
+         cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
+         if (r.kind == R_ACT) {                         /* an action: the return arrow */
+             uint16_t ac = sel ? C_WHITE : C_DIM;
+@@ -6321,6 +6377,10 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
+ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
+ {
+     if (r.kind != R_ENG || r.a != T_303) return 0;
++#if X0X_ORIGINAL_SYNTH
++    /* Numeric/text state comes from original metadata; never alias legacy IDs. */
++    return 0;
++#endif
+ #if X0X_DEV_WOBBLE
+     if (engine_bass_is_wobble(r.b)) {
+         if (r.c == W_CARRIER_WAVE || r.c == W_XMOD_WAVE || r.c == W_WOBBLE_SHAPE) {
+@@ -6352,6 +6412,9 @@ static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t
+ 
+ static UI_DRAW const char *matrix_name(pref_t r)
+ {
++#if X0X_ORIGINAL_SYNTH
++    if (r.kind==R_ENG && r.a==T_303) return ui_original_name((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
++#endif
+ #if X0X_DEV_WOBBLE
+     if (r.kind==R_ENG && r.a==T_303 && engine_bass_is_wobble(r.b)) {
+         switch(r.c) {
+@@ -6464,7 +6527,13 @@ static const char *matrix_preset_name(int voice)
+     if(!pending && engine_bass_sound_bank(&proj.sound,voice)<0) return "UNKNOWN";
+ #endif
+     int bank=engine_bass_requested_bank(voice), preset=engine_bass_requested_preset(voice);
+-    const char *name=preset>=0?factory_preset_name(bank,preset):"USER";
++    const char *name=preset>=0?
++#if X0X_ORIGINAL_SYNTH
++        original_sound_name((unsigned)bank,(unsigned)preset)
++#else
++        factory_preset_name(bank,preset)
++#endif
++        :"USER";
+     return name && name[0]?name:"UNKNOWN";
+ }
+ 
+@@ -6535,10 +6604,10 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
+     int cx=x+width/2,val,shape=0,mix=0,lv,discrete=0,glyph=GL_NONE,unused=0;
+     const felucca_font_t *font;
+     uint16_t ink=night?(active?SOUND_INK:SOUND_WHITE):(active?C_BLACK:C_WHITE);
+-    int value_y=night?35:26, bar_y=height-4;
++    int value_y=height>49?35:26, bar_y=height-4;
+     if(!d) return;
+     val=matrix_value(r);
+-    if(r.kind==R_ENG && r.a==T_303 && !engine_bass_is_wobble(r.b)) {
++    if(!X0X_ORIGINAL_SYNTH && r.kind==R_ENG && r.a==T_303 && !engine_bass_is_wobble(r.b)) {
+         if(r.c>=CHI_ARP_SWITCH && r.c<=CHI_ARP_SPEED) {
+             discrete=1;
+             if(r.c!=CHI_ARP_SWITCH && !matrix_value(PR(R_ENG,T_303,r.b,CHI_ARP_SWITCH)))
+@@ -6555,7 +6624,7 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
+                 {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
+         }
+     }
+-    text_c(cx,y+(night?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
++    text_c(cx,y+(height>49?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
+ #if X0X_BASS_PRESET_PREVIEW
+     if(r.kind==R_BPRESET) {
+         draw_preset_name(r.b,cx,y,height,ink);
+@@ -6643,6 +6712,9 @@ static float adsr_release(const ui_adsr_t *e,float u)
+ 
+ static UI_DRAW int draw_adsr_overlay(int band)
+ {
++#if X0X_ORIGINAL_SYNTH
++    return 0; /* Legacy envelope laws do not describe the original engines. */
++#endif
+     static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
+     ui_adsr_t e;
+     int off=band*BAND_H,p=cur_page(),edited=ui.touched,k;
+@@ -6765,6 +6837,78 @@ static UI_DRAW int perform_glyph(pref_t r,int val,int cx,uint16_t col)
+     return 1;
+ }
+ 
++/* Shared parameter schematics from the owner-requested card vocabulary. These
++ * show control values, never measured audio; labels/units below stay authoritative.
++ * One dispatcher serves every ordinary knob strip. SOUND retains its matrix. */
++static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
++{
++    const x0x_param_t *d=pref_desc(r);
++    int q=d && d->max?(val*127+d->max/2)/d->max:0, left=cx-18, right=cx+18;
++    if(q<0)q=0;
++    if(q>127)q=127;
++    if(is_pan(r) || r.kind==R_BTRANS || (r.kind==R_ENG && r.a==T_BRK && r.c==1)) {
++        int at=left+q*36/127;
++        cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
++        cv_rect(left,35,1,7,C_GRAY);cv_rect(right,35,1,7,C_GRAY);
++        cv_rect(at-1,34,3,9,col);
++    } else if(r.kind==R_DLEN || r.kind==R_BLEN || r.kind==R_SLEN || r.kind==R_SBAR || r.kind==R_SPAT || r.kind==R_BRKSLOT) {
++        for(int j=0;j<8;j++) {
++            int x=left+(j%4)*10,y=30+(j/4)*10;
++            rbox(x,y,7,7,1,j<=q*7/127?col:C_LINE);
++        }
++    } else if(r.kind==R_DRATE || r.kind==R_BRATE) {
++        cv_rect(left,38,37,1,C_LINE);
++        static const uint8_t gaps[4]={12,8,6,16}; /* 1/16, 1/16T, 1/32, 1/8T */
++        int gap=gaps[(unsigned)val<4?(unsigned)val:0];
++        for(int x=left+1;x<=right;x+=gap)cv_rect(x,31,2,15,col);
++    } else if(r.kind==R_BDIR) {
++        if(val==3) { /* existing random direction, not an invented trajectory */
++            cv_line(left,43,cx-7,31,col);cv_line(cx-7,31,cx+7,44,col);cv_line(cx+7,44,right,33,col);
++        } else {
++            cv_rect(left,38,37,1,col);
++            if(val!=1){cv_line(right-6,32,right,38,col);cv_line(right,38,right-6,44,col);}
++            if(val!=0){cv_line(left+6,32,left,38,col);cv_line(left,38,left+6,44,col);}
++        }
++    } else if(r.kind==R_TAPE) {
++        for(int side=-1;side<=1;side+=2) {
++            int x=cx+side*10;
++            rbox(x-7,30,15,15,5,C_LINE);rbox(x-5,32,11,11,4,SOUND_FACE);
++            cv_line(x,37,x+q*4/127,33,col);cv_rect(x-1,36,3,3,col);
++        }
++        cv_rect(cx-10,46,21,1,col);
++    } else if(r.kind==R_SREP || (r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_DL_TIME || r.c==FX_DL_FDBK || r.c==FX_DL_LEVEL)) || (r.a==T_MIX && r.c==MX_DLY) || name_is(d,"Dly")))) {
++        for(int j=0;j<4;j++) {
++            int h=16-j*(4-q*3/127);
++            cv_rect(left+3+j*10,47-h,3,h,col);
++        }
++        cv_line(left+3,29,right,29,C_GRAY);cv_line(left+3,29,left+7,26,C_GRAY);
++    } else if(r.kind==R_ENG && ((r.a==T_FX && (r.c==FX_RV_DECAY || r.c==FX_RV_LEVEL)) || (r.a==T_MIX && r.c==MX_REV) || name_is(d,"Rev"))) {
++        for(int j=0;j<7;j++) {int h=2+j*(q+32)/64;if(h>18)h=18;cv_rect(left+j*6,38-h/2,2,h,col);}
++    } else if(r.kind==R_ENG && r.a==T_FX && (r.c==FX_RV_TONE || r.c==FX_DL_TONE || r.c==FX_RV_HPF)) {
++        int pivot=left+7+q*20/127;
++        cv_rect(left,47,37,1,C_LINE);cv_line(left,32,pivot,32,col);cv_line(pivot,32,right,46,col);
++    } else if(r.kind==R_ENG && r.a==T_MST && r.c==MST_COMP1) {
++        cv_line(left,47,cx,36,col);cv_line(cx,36,right,36-q*8/127,col);
++        cv_rect(left,49,37,1,C_LINE);
++    } else if(r.kind==R_ENG && r.a==T_FX && r.c==FX_DRIVE) {
++        int flat=2+q*8/127;
++        cv_line(left,38,cx-flat,30,col);cv_line(cx-flat,30,cx-2,30,col);
++        cv_line(cx-2,30,cx+2,46,col);cv_line(cx+2,46,cx+flat,46,col);cv_line(cx+flat,46,right,38,col);
++    } else if(d && d->names && d->max<12) {
++        return 0; /* Named switches retain exact position pips. */
++    } else {
++        /* Neutral value scale for parameters without a dedicated schematic.
++         * No faux rotary knob, invented response curve, or new control. */
++        for(int j=0;j<7;j++) {
++            int h=3+j*2;
++            cv_rect(left+j*6,47-h,3,h,q && j*127/6<=q?col:C_LINE);
++        }
++        int at=left+q*36/127;
++        cv_rect(left,49,37,1,C_LINE);cv_rect(at,48,1,3,col);
++    }
++    return 1;
++}
++
+ static uint32_t knobs_sig(void)
+ {
+     uint32_t h = 2166136261u, i;
+@@ -6965,15 +7109,12 @@ static UI_DRAW void draw_knobs(void)
+             if (mv >= 0)
+                 val = mv;
+         }
+-        if(perform_glyph(r,val,cx,col)) {
++        if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
+             /* Its existing value/motion/lock path is retained below. */
+         } else if (d->names && d->max < 12) {           /* a switch: positions as pips */
+             int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;
+             for (k = 0; k < n; k++)
+                 box(cx - w0 / 2 + k * (pw + gap), 33, pw, 9, k == val ? col : C_LINE);
+-        } else {
+-            arc(cx, 38, 12, d->max ? (float)val / (float)d->max : 0.0f, C_LINE, col,
+-                r.kind == R_BTRANS || is_pan(r) || (r.kind == R_ENG && r.a == T_MST && r.c == MST_DJF));   /* from the middle */
+         }
+         pref_value_of(r,val,num,unit);
+         if(r.kind==R_ENG && r.a==T_MST && r.c==MST_DJF) {
+diff --git a/firmware/src/gfx.c b/firmware/src/gfx.c
+index bd93b7fa..4b9bb985 100644
+--- a/firmware/src/gfx.c
++++ b/firmware/src/gfx.c
+@@ -39,13 +39,14 @@ typedef struct {
+ /* X0X: the first three steps are neutral greys in every theme (structure: rules, empty cells,
+  * labels); only the two brightest carry the theme's hue (values, highlights). Colour on the
+  * screen then means something: a part, a value, an alarm. */
+-#define NEUTRALS UI_N_LINE, UI_N_DIM, UI_N_GRAY
++#define NEUTRALS RGB(40,56,61), RGB(128,146,148), RGB(156,170,168)
+ static const palette_t PALETTES[] = {
+     {"GREEN", {NEUTRALS, RGB(80, 220, 120), RGB(150, 255, 175)}},
+     {"AMBER", {NEUTRALS, RGB(232, 136, 30), RGB(255, 184, 70)}},
+     {"CYAN", {NEUTRALS, RGB(60, 180, 235), RGB(150, 225, 255)}},
+     {"RED", {NEUTRALS, RGB(232, 76, 60), RGB(255, 132, 112)}},
+     {"MONO", {NEUTRALS, RGB(196, 196, 202), RGB(236, 236, 240)}},
++    {"LIGHT", {RGB(180,193,180), RGB(80,97,77), RGB(64,81,62), RGB(130,84,14), RGB(36,91,43)}},
+ };
+ #define NPALETTES (sizeof(PALETTES) / sizeof(PALETTES[0]))
+ static uint16_t pal[5];
+@@ -58,6 +59,7 @@ static uint16_t pal[5];
+ static void palette_set(uint32_t i)
+ {
+     uint32_t k;
++    ui_theme_light = i % NPALETTES == 5u;
+     for (k = 0; k < 5u; k++)
+         pal[k] = PALETTES[i % NPALETTES].c[k];
+ }
+@@ -234,3 +236,24 @@ static void draw_text_box(uint32_t x, uint32_t y, uint32_t w, const felucca_font
+     cv_blit(x, y);
+     lcd_sync();                     /* one-shots (boot, crash, UBOOT, update) finish here */
+ }
++
++/* One static frame, using the existing validated still-picture record. */
++#include "app/boot_screen.h"
++static void draw_boot_screen(const uint8_t *pay)
++{
++    char title[13], subtitle[22];
++    int custom = pay && pay[0] == BOOT_KIND_CUSTOM;
++    int picture = custom && (pay[1] & BOOT_F_PIC);
++    boot_lines(pay,title,subtitle);
++    for (int band=0; band<2; ++band) {
++        cv_begin(240,120,C_BLACK);
++        if (picture) for (unsigned y=0; y<BOOT_PIC_H; ++y)
++            for (unsigned x=0; x<BOOT_PIC_W; ++x)
++                if (boot_pix(pay+BOOT_PAY_FIXED,x,y)) cv_pset((int)x,(int)y+20-band*120,C_HI);
++        cv_blit(0,(uint32_t)band*120u);
++    }
++    /* B supports lowercase; M deliberately contains capitals/numbers only. */
++    draw_text_box(0,picture?137:96,240,&FONT_B,title,C_HI,1);
++    draw_text_box(0,picture?164:134,240,&FONT_S,subtitle,C_GRAY,1);
++    if (!custom) draw_text_box(0,154,240,&FONT_S,"BREAK",C_DIM,1);
++}
+diff --git a/firmware/src/ui_theme.h b/firmware/src/ui_theme.h
+index 361a05c5..e4f931f9 100644
+--- a/firmware/src/ui_theme.h
++++ b/firmware/src/ui_theme.h
+@@ -1,23 +1,26 @@
+ /* SPDX-License-Identifier: GPL-3.0-only */
+ #ifndef X0X_UI_THEME_H
+ #define X0X_UI_THEME_H
+-/* Night materials: compile-time tokens, not another settings or storage format.
+- * Existing GLOBAL accent choices remain independent of the shared panel material.
+- * RGB565 and the existing strip renderer are the only rendering requirements. */
+-#define UI_N_BASE RGB(5,10,13)
+-#define UI_N_FACE RGB(16,26,31)
+-#define UI_N_EDGE RGB(38,56,61)
+-#define UI_N_LEFT RGB(28,44,49)
+-#define UI_N_SIDE RGB(7,14,17)
+-#define UI_N_SHADOW RGB(2,4,6)
+-#define UI_N_SELECT RGB(37,59,45)
+-#define UI_N_SELECT_EDGE RGB(62,92,64)
+-#define UI_N_SELECT_SIDE RGB(21,39,27)
+-#define UI_N_INK RGB(224,235,214)
+-#define UI_N_WHITE RGB(222,231,223)
+-#define UI_N_GRAY RGB(156,170,168)
+-#define UI_N_DIM RGB(128,146,148)
+-#define UI_N_LINE RGB(40,56,61)
+-#define UI_N_ACCENT RGB(143,191,121)
+-#define UI_N_AMBER RGB(196,155,69)
++/* Complete materials follow the existing revision-13 palette byte. */
++static uint8_t ui_theme_light;
++static const uint16_t ui_material[2][16] = {
++    {RGB(5,10,13),RGB(16,26,31),RGB(38,56,61),RGB(28,44,49),RGB(7,14,17),RGB(2,4,6),RGB(37,59,45),RGB(62,92,64),RGB(21,39,27),RGB(224,235,214),RGB(222,231,223),RGB(156,170,168),RGB(128,146,148),RGB(40,56,61),RGB(143,191,121),RGB(196,155,69)},
++    {RGB(236,239,232),RGB(250,252,246),RGB(180,193,180),RGB(210,220,206),RGB(166,181,163),RGB(146,161,144),RGB(205,223,196),RGB(88,121,74),RGB(147,176,133),RGB(24,41,31),RGB(24,41,31),RGB(64,81,62),RGB(80,97,77),RGB(180,193,180),RGB(36,91,43),RGB(130,84,14)}
++};
++#define UI_N_BASE ui_material[ui_theme_light][0]
++#define UI_N_FACE ui_material[ui_theme_light][1]
++#define UI_N_EDGE ui_material[ui_theme_light][2]
++#define UI_N_LEFT ui_material[ui_theme_light][3]
++#define UI_N_SIDE ui_material[ui_theme_light][4]
++#define UI_N_SHADOW ui_material[ui_theme_light][5]
++#define UI_N_SELECT ui_material[ui_theme_light][6]
++#define UI_N_SELECT_EDGE ui_material[ui_theme_light][7]
++#define UI_N_SELECT_SIDE ui_material[ui_theme_light][8]
++#define UI_N_INK ui_material[ui_theme_light][9]
++#define UI_N_WHITE ui_material[ui_theme_light][10]
++#define UI_N_GRAY ui_material[ui_theme_light][11]
++#define UI_N_DIM ui_material[ui_theme_light][12]
++#define UI_N_LINE ui_material[ui_theme_light][13]
++#define UI_N_ACCENT ui_material[ui_theme_light][14]
++#define UI_N_AMBER ui_material[ui_theme_light][15]
+ #endif
+diff --git a/tests/host/original_release_integration_test.sh b/tests/host/original_release_integration_test.sh
+index 34c279a6..21b6ee05 100644
+--- a/tests/host/original_release_integration_test.sh
++++ b/tests/host/original_release_integration_test.sh
+@@ -2,6 +2,8 @@
+ # SPDX-License-Identifier: GPL-3.0-only
+ set -eu
+ cd "$(dirname "$0")/../.."
++DARWIN=
++[ "$(uname -s)" != Darwin ] || DARWIN=-D_DARWIN_C_SOURCE
+ OUT=${1:?output directory}
+ mkdir -p "$OUT"
+ OUT=$(cd "$OUT" && pwd)
+@@ -24,7 +26,7 @@ for mode in normal sanitized; do
+     # Existing whole-app GCC weak-inline/attribute warnings remain visible.
+     # Focused new modules are separately checked with -Werror.
+     ${CC:-cc} -std=c99 $FLAGS -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
+-        -D_POSIX_C_SOURCE=200809L -DX0X_HOST -DX0X_ORIGINAL_SYNTH=1 -DX0X_DEV_WOBBLE=0 -DX0X_WOBBLE=0 \
++        -D_POSIX_C_SOURCE=200809L $DARWIN ${X0X_HOST_DEFS:-} -DX0X_HOST -DX0X_ORIGINAL_SYNTH=1 -DX0X_DEV_WOBBLE=0 -DX0X_WOBBLE=0 \
+         -DORIGINAL_USE_SOFT_FMA -DMIAMI_FX_NO_HOST_FENV -fno-fast-math -ffp-contract=off \
+         -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -Iexperiments/original_synth -Iexperiments/wobble \
+         tests/host/original_release_integration_test.c $U -lm -o "$OUT/$mode" > "$OUT/$mode.compile.log" 2>&1
+diff --git a/tests/host/original_release_ui_test.c b/tests/host/original_release_ui_test.c
+index c96436fb..8e0266c0 100644
+--- a/tests/host/original_release_ui_test.c
++++ b/tests/host/original_release_ui_test.c
+@@ -218,7 +218,10 @@ static void image_cases(void)
+     uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][1],32); button_tap(B_EDIT); block();
+     CHECK(!engine_bass_preset_pending(1) && !memcmp(saved,proj.sound.v[T_303][1],32)); engine_bass_off(1);
+ }
+-int main(int argc,char **argv)
++#ifndef ORIGINAL_UI_MAIN
++#define ORIGINAL_UI_MAIN main
++#endif
++int ORIGINAL_UI_MAIN(int argc,char **argv)
+ {
+     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
+     pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();
+diff --git a/tests/host/original_release_ui_test.sh b/tests/host/original_release_ui_test.sh
+index b07fcec2..d38511ff 100755
+--- a/tests/host/original_release_ui_test.sh
++++ b/tests/host/original_release_ui_test.sh
+@@ -3,6 +3,8 @@
+ # Actual released UI with original-control semantics: normal/sanitized + PNG equality.
+ set -eu
+ cd "$(dirname "$0")/../.."
++DARWIN=
++[ "$(uname -s)" != Darwin ] || DARWIN=-D_DARWIN_C_SOURCE
+ OUT=${1:?output directory}
+ mkdir -p "$OUT"
+ OUT=$(cd "$OUT" && pwd)
+@@ -22,10 +24,10 @@ for mode in normal sanitized; do
+     FLAGS='-O2 -fstack-usage'
+     [ "$mode" != sanitized ] || FLAGS='-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all'
+     ${CC:-cc} -std=c99 $FLAGS -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
+-        -D_POSIX_C_SOURCE=200809L -DX0X_HOST -DX0X_ORIGINAL_SYNTH=1 -DX0X_DEV_WOBBLE=0 -DX0X_WOBBLE=0 \
++        -D_POSIX_C_SOURCE=200809L $DARWIN ${X0X_HOST_DEFS:-} -DX0X_HOST -DX0X_ORIGINAL_SYNTH=1 -DX0X_DEV_WOBBLE=0 -DX0X_WOBBLE=0 \
+         -DORIGINAL_USE_SOFT_FMA -DMIAMI_FX_NO_HOST_FENV -fno-fast-math -ffp-contract=off \
+         -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -Iexperiments/original_synth -Iexperiments/wobble \
+-        tests/host/original_release_ui_test.c $U -lm -o "$OUT/$mode" > "$OUT/$mode.compile.log" 2>&1
++        ${ORIGINAL_UI_TEST_FILE:-tests/host/original_release_ui_test.c} $U -lm -o "$OUT/$mode" > "$OUT/$mode.compile.log" 2>&1
+     ASAN_OPTIONS=detect_leaks=0 "$OUT/$mode" "$OUT/$mode-images" > "$OUT/$mode.log" 2>&1
+ done
+ cmp "$OUT/normal.log" "$OUT/sanitized.log"
+diff --git a/tests/host/ui_drum_mix_material_test.c b/tests/host/ui_drum_mix_material_test.c
+new file mode 100644
+index 00000000..42042a0a
+--- /dev/null
++++ b/tests/host/ui_drum_mix_material_test.c
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#define SMC_UI_MAIN unused_smc_ui_main
++#include "smc_ui_test.c"
++/* Synthetic telemetry, actual production renderer. No audio or device claims. */
++int main(void)
++{
++ for(int kit=0;kit<2;kit++)for(int state=0;state<3;state++) {
++  setup(V_MIX,kit);*page_of(V_MIX)=kit+1;ui.sel[kit]=state==2?10:state==1?6:0;build_pages();
++  int t=kit?T_808:T_909;
++  for(int v=0;v<NDRUM;v++) {
++   pref_t lv=find_ref(t,v,"Level"),pn=find_ref(t,v,"Pan");
++   CHECK(lv.kind && pn.kind);CHECK(tw(&FONT_XS,engine_voice_name(t,v))<=17);
++   proj.sound.v[t][v][lv.c]=state==0?127:state==1?0:12*v;
++   proj.sound.v[t][v][pn.c]=state==0?0:state==1?64:127;
++   eng_hit[kit][v]=state==0?255:state==1?0:23*v;
++  }
++  if(state==2)seq.vmute=1u<<(kit*NDRUM+6);
++  project_t *copy=malloc(sizeof proj);CHECK(copy);memcpy(copy,&proj,sizeof proj);
++  ui_frame();CHECK(!memcmp(copy,&proj,sizeof proj));free(copy);
++  CHECK(NDRUM==11);if(kit)CHECK(!strcmp(engine_voice_name(t,6),"CP"));
++  char name[80];snprintf(name,sizeof name,"mix%d-%s",kit?808:909,state==0?"full-left-hit":state==1?"zero-center":"levels-right-muted");shot(name);
++ }
++ /* Direct production-band assertions: top captions, 96px rail, mute/hit
++  * separation, clipping, and no drawing into the spaces between strips. */
++ for(int kit=0;kit<2;kit++)for(int muted=0;muted<2;muted++)for(int hit=0;hit<2;hit++) {
++  setup(V_MIX,kit);*page_of(V_MIX)=kit+1;ui.sel[kit]=0;build_pages();
++  int t=kit?T_808:T_909;pref_t lv=find_ref(t,0,"Level");
++  proj.sound.v[t][0][lv.c]=127;eng_hit[kit][0]=hit?255:0;
++  seq.vmute=muted?(1u<<(kit*NDRUM)):0;
++  cv_begin(240,BAND_H,C_BLACK);draw_drum_mix(0,kit);
++  uint16_t ink=muted?C_DIM:hit?C_WHITE:dim(PART_COL[kit],6);
++  CHECK(cv_px[20*240+13]==swap16(ink));
++  CHECK(cv_px[60*240+13]==swap16(ink));
++  CHECK(cv_px[2*240+7]==swap16(PART_COL[kit])); /* selected caption face */
++  for(int y=0;y<BAND_H;y++)for(int v=0;v<NDRUM-1;v++)
++   CHECK(cv_px[y*240+4+v*21+19]==swap16(C_BLACK));
++  cv_begin(240,BAND_H,C_BLACK);draw_drum_mix(1,kit);
++  CHECK(cv_px[(111-BAND_H)*240+13]==swap16(ink));
++  CHECK(cv_px[(113-BAND_H)*240+13]!=swap16(ink));
++ }
++ test_distinct_maps(); /* Both kits, both banks: level and pan mapping unchanged. */
++ printf("drum_mix_material PASS (%u checks)\n",checks);return 0;
++}
+diff --git a/tests/host/ui_drum_mix_material_test.sh b/tests/host/ui_drum_mix_material_test.sh
+new file mode 100644
+index 00000000..14ee115f
+--- /dev/null
++++ b/tests/host/ui_drum_mix_material_test.sh
+@@ -0,0 +1,6 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++# Actual MIX909/808 renderer fixtures, state/band bounds and unchanged control maps.
++set -eu
++cd "$(dirname "$0")/../.."
++NIGHT_UI_TEST_FILE=tests/host/ui_drum_mix_material_test.c exec sh tests/host/night_ui_test.sh "${1:-build/host/ui-drum-mix-material}"
+diff --git a/tests/host/ui_main_material_test.c b/tests/host/ui_main_material_test.c
+new file mode 100644
+index 00000000..90efbe65
+--- /dev/null
++++ b/tests/host/ui_main_material_test.c
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#define SMC_UI_MAIN unused_smc_ui_main
++#include "smc_ui_test.c"
++static void snap(const char *name){project_t *b=malloc(sizeof proj);CHECK(b);memcpy(b,&proj,sizeof proj);ui_frame();CHECK(!memcmp(b,&proj,sizeof proj));free(b);shot(name);}
++int main(void){
++ const uint16_t bg=RGB(3,7,11);
++ for(int w=1;w<=14;w++)for(int h=4;h<=10;h++)for(int raised=0;raised<2;raised++) {
++  cv_begin(240,BAND_H,bg);night_mark(12,10,w,h,C_HI,raised);
++  for(int y=0;y<BAND_H;y++)for(int x=0;x<240;x++)
++   if(x<12||x>=12+w||y<10||y>=10+h)CHECK(cv_px[y*240+x]==swap16(bg));
++  if(w>=4 && h>=5)CHECK(cv_px[(10+h/2)*240+12+w/2]==swap16(C_HI));
++ }
++ setup(V_HOME,PART_909);open_global();snap("main-global-selected");
++ ui.list_sel=ui.list_n-1;ui.list_top=ui.list_sel>5?ui.list_sel-5:0;snap("main-global-last-row");
++ ask(ACT_RESET,0,"RESET PROJECT?","SAMPLES ARE KEPT");snap("main-reset-confirmation-no-action");
++ setup(V_MIX,PART_909);*page_of(V_MIX)=3;build_pages();snap("main-master-wells");
++ setup(V_SEQ,PART_303B);bpart_t *edge=&proj.pat[0].bass[1];edge->len=32;
++ edge->step[15].note=60;edge->step[15].flags=G_NOTE;edge->step[16].flags=G_TIE;
++ ui.spage=1;CHECK(note_start_of(edge,16)==15);snap("main-synth-page-tie");
++
++ setup(V_SEQ,PART_909);for(int v=0;v<NDRUM;v++)for(int s=v%4;s<16;s+=4)sm_set(proj.pat[0].drum[0].hit[v],s);sm_set(proj.pat[0].drum[0].accent,0);sm_set(proj.pat[0].drum[0].accent,8);seq.playing=1;eng_step[TRK_DRUM]=5;snap("populated-drum-playing");
++ setup(V_SEQ,PART_303B);bpart_t *b=&proj.pat[0].bass[1];b->len=32;for(int i=0;i<16;i++){b->step[i].note=48+(i%7);b->step[i].flags=i%4==3?G_TIE:G_NOTE;b->step[i].velocity=60+i*4;if(i%4==0)b->step[i].flags|=BS_ACCENT;if(i%5==0)b->step[i].flags|=BS_SLIDE;}seq.playing=1;eng_step[TRK_BASS0+1]=6;snap("populated-synth-playing");
++ setup(V_SONG,PART_909);song_fill(15);for(int i=0;i<16;i++){for(int p=0;p<NPARTS;p++)song()->bar[i].pat[p]=(i+p)%16;song()->bar[i].mute=(i%3==0?(1u<<PART_BRK):0)|((i%4)<<5);}ui.song_sel=10;seq.song_on=seq.playing=1;seq.song_pos=8;snap("populated-song-scroll");
++ setup(V_MIX,PART_909);for(int p=0;p<NPARTS;p++)eng_peak[p]=5000+p*5000;seq.mute=MUTE_MASK[PART_808];CHECK(part_muted(PART_808));CHECK(!part_muted(PART_909));snap("active-mix-muted");
++ setup(V_MIX,PART_909);*page_of(V_MIX)=1;build_pages();for(int v=0;v<NDRUM;v++)eng_hit[0][v]=20+20*v;snap("active-mix909");
++ setup(V_MIX,PART_303B);*page_of(V_MIX)=4;build_pages();now_ms=5000;for(int i=0;i<SCOPE_N;i++)eng_scope[i]=(int16_t)(20000*sinf(i*.12f));eng_scope_w+=SCOPE_N;snap("active-wave-fixture");
++ printf("main_material PASS %u checks; synthetic engine telemetry, no hardware\n",checks);return 0;
++}
+diff --git a/tests/host/ui_main_material_test.sh b/tests/host/ui_main_material_test.sh
+new file mode 100644
+index 00000000..afe67c4d
+--- /dev/null
++++ b/tests/host/ui_main_material_test.sh
+@@ -0,0 +1,6 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++# Populated actual render, compact-mark bounds, project nonmutation, no device I/O.
++set -eu
++cd "$(dirname "$0")/../.."
++NIGHT_UI_TEST_FILE=tests/host/ui_main_material_test.c exec sh tests/host/night_ui_test.sh "${1:-build/host/ui-main-material}"
+diff --git a/tests/host/ui_shared_glyph_test.c b/tests/host/ui_shared_glyph_test.c
+new file mode 100644
+index 00000000..7a4766c5
+--- /dev/null
++++ b/tests/host/ui_shared_glyph_test.c
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++#define SMC_UI_MAIN unused_smc_ui_main
++#include "smc_ui_test.c"
++int main(void)
++{
++ const int views[]={V_HOME,V_SEQ,V_GEN,V_FX,V_MIX,V_SONG,V_GLO,V_PART};
++ unsigned slots=0,pages=0;
++ for(unsigned vi=0;vi<sizeof views/sizeof views[0];vi++)for(int part=0;part<NPARTS;part++) {
++  setup(views[vi],part);
++  int count=pg.n;
++  for(int page=0;page<count;page++) {
++   *page_of(views[vi])=page;build_pages();
++   for(int i=0;i<4;i++) {
++    pref_t r=pg.r[cur_page()][i];const x0x_param_t *d=pref_desc(r);if(!d)continue;
++    slots++;
++    for(int edge=0;edge<3;edge++) {
++     int val=edge==0?0:edge==1?d->max/2:d->max;
++     cv_begin(240,KNOB_H,C_BLACK);
++     control_glyph(r,val,30,C_HI);
++     for(int y=0;y<KNOB_H;y++)for(int x=0;x<240;x++)
++      if(x<10 || x>50 || y<26 || y>50)CHECK(cv_px[y*240+x]==swap16(C_BLACK));
++    }
++   }
++   project_t *b=malloc(sizeof proj);CHECK(b);memcpy(b,&proj,sizeof proj);ui_frame();CHECK(!memcmp(b,&proj,sizeof proj));free(b);
++   pages++;
++   if((part==PART_909 && views[vi]!=V_PART) || (part==PART_BRK && views[vi]==V_PART) || (part==PART_303B && views[vi]==V_SEQ)) {
++    char name[80];snprintf(name,sizeof name,"shared-view%d-part%d-page%d",views[vi],part,page);shot(name);
++   }
++  }
++ }
++ /* Bipolar centre and endpoints must be exact, including even max=48. */
++ pref_t pans[]={PR(R_ENG,T_MIX,0,MX_PAN),PR(R_BTRANS,0,0,0)};
++ for(int i=0;i<2;i++)for(int j=0;j<3;j++) {
++  const x0x_param_t *d=pref_desc(pans[i]);int v=j==0?0:j==1?(d->max+1)/2:d->max;
++  cv_begin(240,KNOB_H,C_BLACK);CHECK(control_glyph(pans[i],v,30,C_HI));
++  int x=j==0?12:j==1?30:48;CHECK(cv_px[34*240+x]==swap16(C_HI));
++ }
++ cv_begin(240,KNOB_H,C_BLACK);CHECK(!control_glyph(PR(R_CLKOUT,0,0,0),0,30,C_HI));
++ test_distinct_maps();
++ printf("shared_glyph PASS (%u checks, %u mapped slots, %u pages)\n",checks,slots,pages);return 0;
++}
+diff --git a/tests/host/ui_shared_glyph_test.sh b/tests/host/ui_shared_glyph_test.sh
+new file mode 100644
+index 00000000..0687ab5d
+--- /dev/null
++++ b/tests/host/ui_shared_glyph_test.sh
+@@ -0,0 +1,6 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-3.0-only
++# Shared parameter schematics: every mapped page, endpoints, bounds and maps.
++set -eu
++cd "$(dirname "$0")/../.."
++NIGHT_UI_TEST_FILE=tests/host/ui_shared_glyph_test.c exec sh tests/host/night_ui_test.sh "${1:-build/host/ui-shared-glyph}"
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 0d211c47..28613e44 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -85,6 +85,7 @@ test_class() {
+     save-note-quiet) TEST_CLASS=G ;;
+     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
+     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
++    original-release-ui|original-release-integration|ui-theme) TEST_CLASS=G ;;
+     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
+     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
+     *) TEST_CLASS=P ;;
+@@ -379,6 +380,9 @@ run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
+ run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
+ run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
+ run corner-coverage python3 tests/host/corner_coverage_test.py
++run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
++run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
++run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
+ run part-order sh tests/host/part_order_test.sh
+ run smc-ui sh tests/host/smc_ui_test.sh
+ run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
+diff --git a/web/x0x_installer.html b/web/x0x_installer.html
+index 3f033b0c..877cc01d 100644
+--- a/web/x0x_installer.html
++++ b/web/x0x_installer.html
+@@ -1,7 +1,7 @@
+ <!doctype html>
+ <!-- SPDX-License-Identifier: GPL-3.0-only
+      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+-     X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
++     DnBOX installer for FM-1 and SMK-37 family release packages: pick any published version and
+      model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
+      saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
+      x0x_breaks.js and boot_screen.js at LIB and the release catalog at CATALOG.
+@@ -11,7 +11,7 @@
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+-<title>Install · X0X</title>
++<title>Install · DnBOX</title>
+ <style>
+   :root {
+     --bg: #f4f5f6; --fg: #1c1f23; --dim: #5b626a; --rule: #d9dde1; --accent: #c8700a;
+@@ -89,8 +89,8 @@
+ <body>
+ <main>
+   <button class="lang" id="lang" type="button"></button>
+-  <a class="home" href="../">X0X</a>
+-  <h1 data-t="title">Install X0X</h1>
++  <a class="home" href="../">DnBOX</a>
++  <h1 data-t="title">Install DnBOX</h1>
+   <p data-t="intro"></p>
+   <p class="small" data-t="direct"></p>
+   <p class="small" data-t="beta"></p>
+@@ -146,10 +146,10 @@
+     <h2 data-t="booth">Boot screen</h2>
+     <p class="small" data-t="bootwhy"></p>
+     <label class="field" for="boottitle"><span data-t="boottitle"></span>
+-      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="X0X">
++      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="DnBOX">
+     </label>
+     <label class="field" for="bootsub"><span data-t="bootsub"></span>
+-      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 303 303 BREAK">
++      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 CHICAGO MIAMI">
+     </label>
+     <label class="field" for="bootfile"><span data-t="bootpic"></span>
+       <input id="bootfile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,.png,.jpg,.jpeg,.gif,.webp,.bmp">
+@@ -187,7 +187,7 @@
+     <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
+   <p class="small" data-t="back"></p>
+ 
+-  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
++  <p class="small">DnBOX is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
+     with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
+     <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
+ </main>
+@@ -199,7 +199,7 @@ const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
+ const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
+ const TEXT = {
+   ja: {
+-    title: "X0X をインストール",
++    title: "DnBOX をインストール",
+     intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
+     warn: "書き込み中は USB を抜かないでください。",
+     install: "インストール", other: "English", connect: "接続",
+@@ -220,7 +220,7 @@ const TEXT = {
+     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
+     breaks: "サンプル・インポーター：自分のブレイク・ループ",
+     breakshint: "インポーター画面で、オプションのオールドスクール・グリット（軽い〜最大）と送信前プレビュー。",
+-    untested: "X0X はベータ版です。",
++    untested: "DnBOX はベータ版です。",
+     direct: "USB ケーブルはパソコンに直接つないでください。",
+     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
+     bricklink: "起動しない FM-1 の復旧（マニュアル）",
+@@ -277,7 +277,7 @@ const TEXT = {
+     slotsdone: "完了。スロットを書き戻して確認しました。",
+     slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
+     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
+-    slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
++    slotstock: "完了。純正ファームウェアには DnBOX のスロットがありません。サンプルは次のファイルにあります（DnBOX を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
+     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
+     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
+     slotlayout: "既存のサンプルスロット情報を確認できません。ファームウェアは書き込まれていません。接続し直し、バックアップを確認してから再試行してください。",
+@@ -312,7 +312,7 @@ const TEXT = {
+     bootshort: "2行とも入力するか、「元の文言」を選んでください。起動画面は変えていません。",
+     bootchars: "文字・数字・記号だけ使えます。起動画面は変えていません。",
+     bootbusyinstall: "インストールが終わるまで待ってください。起動画面は変えていません。",
+-    bootrun: "X0Xが起動している必要があります（更新ローダーではだめです）。起動画面は変えていません。",
++    bootrun: "DnBOXが起動している必要があります（更新ローダーではだめです）。起動画面は変えていません。",
+     bootrefuse: "キーボードがこの起動画面を拒否しました。前の画面のままです。",
+     bootnoflash: "キーボードに保存先がありません。前の起動画面のままです。",
+     bootflash: "キーボードは保存できませんでした。前の起動画面のままです。",
+@@ -327,7 +327,7 @@ const TEXT = {
+     bootreadfail: "キーボードから起動画面を読めませんでした。",
+   },
+   en: {
+-    title: "Install X0X",
++    title: "Install DnBOX",
+     intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
+     warn: "Do not unplug the USB cable while writing.",
+     install: "Install", other: "日本語", connect: "Connect",
+@@ -348,7 +348,7 @@ const TEXT = {
+     manual: "The manual", whatsnew: "What's new", download: "Download this package",
+     breaks: "Sample importer: your own break loops",
+     breakshint: "Optional oldschool grit (light to max) and preview before you send — on the importer page.",
+-    untested: "X0X is a beta.",
++    untested: "DnBOX is a beta.",
+     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
+     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
+     bricklink: "recovering an FM-1 that won't start (manual)",
+@@ -405,12 +405,12 @@ const TEXT = {
+     slotsdone: "Done. The slots were written back and checked.",
+     slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
+     slotskip: " Not written back (no room): ",
+-    slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
++    slotstock: "Done. The stock firmware has no DnBOX slots. Your samples are in this file (after you install DnBOX again, restore it with Restore on the break loops page): ",
+     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
+     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
+     slotlayout: "Cannot verify existing sample-slot information. Nothing was installed. Reconnect, check your backup and retry before flashing.",
+     license: "GPL-3.0, no warranty. Source:",
+-    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, X0X installs without Bluetooth.",
++    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, DnBOX installs without Bluetooth.",
+     ctlchoose: "Controller image (.img):", ctlclear: "Remove controller",
+     ctlcleared: "Controller image removed.",
+     ctlunapproved: "SHA-256 does not match the approved controller for this model. Select its matching ctl.img or remove the controller to install without Bluetooth.",
+@@ -440,7 +440,7 @@ const TEXT = {
+     bootshort: "Type both lines, or choose Original words. The boot screen was not changed.",
+     bootchars: "Use letters, numbers, and symbols only. The boot screen was not changed.",
+     bootbusyinstall: "Wait until the install finishes. The boot screen was not changed.",
+-    bootrun: "X0X has to be running, not the update loader. The boot screen was not changed.",
++    bootrun: "DnBOX has to be running, not the update loader. The boot screen was not changed.",
+     bootrefuse: "The keyboard refused this boot screen. The previous one is still there.",
+     bootnoflash: "The keyboard has no storage for this. The previous boot screen is still there.",
+     bootflash: "The keyboard could not store this. The previous boot screen is still there.",
+@@ -827,7 +827,7 @@ async function loadSelectedPackage() {
+     // already checked against the immutable package digest and model identity.
+     verifiedDownload = { pkg, model, version: ver.version,
+       href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
+-    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
++    say(`DnBOX ${ver.version} · ${MODELS[model] || model}`);
+     $("go").disabled = writing || ctlNeedsResolution ||
+       !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+     refreshMeta();
+@@ -940,7 +940,7 @@ async function acceptStock(raw, requestId) {
+     const hex = await sha256Hex(raw);
+     if (requestId !== stockLoadSerial || writing) return;
+     const isFm1Stock = hex === STOCK_SHA256_FM1;
+-    // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
++    // Accept SMK/FM-1 family packages (stock, DnBOX, Felucca, other ports). Refuse unrelated files.
+     if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
+       sayK("stockbad"); return;
+     }
+@@ -1326,8 +1326,8 @@ $("bootfactory").addEventListener("click", () => {
+   withRunningX0x(async (link) => {
+     const r = await bootTransfer(link, packed.bytes);
+     if (r.ok) {
+-      $("boottitle").value = "X0X";
+-      $("bootsub").value = "909 808 303 303 BREAK";
++      $("boottitle").value = "DnBOX";
++      $("bootsub").value = "909 808 CHICAGO MIAMI";
+       bootBits = null;
+       $("bootfile").value = "";
+       drawBootPreview(null);
