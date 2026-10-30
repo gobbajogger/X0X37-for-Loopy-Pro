@@ -133,21 +133,33 @@ static void visual_order(void)
     setup(V_HOME,PART_303B);
     CHECK(!strcmp(part_s(expected[3]),"CHI") && !strcmp(part_s(expected[4]),"MIA"));
     ui_frame();shot("home-drums-then-synths");
-    /* HOME assignment ticks use visual rows while pattern ownership stays internal. */
-    for(int p=0;p<NPARTS;p++)seq.ppat[p]=(uint8_t)(p+1);
+    /* HOME marks require real content; assignment alone must not invent it. */
+    for(int p=0;p<NPARTS;p++) {
+        seq.ppat[p]=(uint8_t)(p+1);
+        pattern_t *pat=&proj.pat[p+1];
+        if(p<NKIT)sm_set(pat->drum[p].hit[0],0);
+        else if(p==PART_BRK)pat->brk.steps=1;
+        else {pat->bass[p-NKIT].step[0].flags=G_NOTE;pat->bass[p-NKIT].step[0].note=48;}
+    }
     cv_begin(240,BAND_H,C_BLACK);draw_home(0);
     for(int pos=0;pos<NPARTS;pos++) {
-        int p=expected[pos],x=4+(p+1)*14;
-        CHECK(cv_px[(5+pos*3)*240+x]==swap16(PART_COL[p]));
+        int p=expected[pos],x=7+(p+1)*14;
+        CHECK(cv_px[(4+pos*4)*240+x]==swap16(PART_COL[p]));
     }
     for(int p=0;p<NPARTS;p++)seq.ppat[p]=0;
     cv_begin(240,BAND_H,C_BLACK);draw_home(1);
     uint16_t pixels[240*BAND_H];memcpy(pixels,cv_px,sizeof pixels);
     cv_begin(240,BAND_H,C_BLACK);
-    lane(1,PART_BRK,pat_of(PART_BRK)->brk.steps,eng_step[TRK_BRK],16,0);
-    for(int pos=3;pos<5;pos++) {
-        int p=expected[pos];const bpart_t *bp=&pat_of(p)->bass[p-NKIT];
-        lane((pos-2)*16+1,p,bass_content_bits16(bp,0),eng_step[TRK_BASS0+p-NKIT],bp->len,0);
+    /* The Night rows are20px high; compare all lower-band visible rows in fixed order. */
+    for(int pos=1;pos<5;pos++) {
+        int p=expected[pos],y=35+pos*20-BAND_H;
+        if(p<NKIT) {
+            uint32_t bits=0;const dpart_t *d=&pat_of(p)->drum[p];
+            for(int v=0;v<NDRUM;v++)bits|=d->hit[v][0];
+            lane(y,p,bits&65535u,eng_step[TRK_DRUM+p],d->len,0);
+        } else if(p==PART_BRK)lane(y,p,pat_of(p)->brk.steps,eng_step[TRK_BRK],16,0);
+        else {const bpart_t *bp=&pat_of(p)->bass[p-NKIT];
+            lane(y,p,bass_content_bits16(bp,0),eng_step[TRK_BASS0+p-NKIT],bp->len,0);}
     }
     CHECK(!memcmp(pixels,cv_px,sizeof pixels));
     set_view(V_MIX);*page_of(V_MIX)=0;build_pages();ui.mixsel=PART_BRK;ui_frame();shot("mix-drums-then-synths");

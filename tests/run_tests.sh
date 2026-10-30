@@ -47,6 +47,15 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OB
 [ $# -gt 0 ] && X0X_TESTS="$*"
 X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
+# Opt-in strict setup gate for zero-skip qualification; ordinary and scoped runs stay unchanged.
+if [ "${X0X_STRICT_PREFLIGHT:-0}" = 1 ]; then
+    if [ -n "$X0X_TESTS" ]; then
+        # The runner already treats X0X_TESTS as a whitespace-delimited list of names.
+        python3 -B tests/host/preflight_full_suite.py --tests $X0X_TESTS || exit 1
+    else
+        python3 -B tests/host/preflight_full_suite.py || exit 1
+    fi
+fi
 CC="${CC:-cc}"
 FAIL=0
 GEN_FAILED=0        # 1 after gen_nonfont actually ran and failed (host-build was not-run). Not a Pillow skip.
@@ -79,12 +88,13 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
-    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    original-release-ui|original-release-integration|ui-theme) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -358,6 +368,9 @@ run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
+run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
+run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
@@ -369,11 +382,18 @@ if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reach
 run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-lock sh tests/host/smc_lock_test.sh
 run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
+run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
+run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
+run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py   # original Miami: compile the existing physical-rate-pads route
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
+run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
+run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
+run boot-screen sh tests/host/boot_screen_test.sh
+run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
@@ -448,6 +468,7 @@ run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
+run dev-validate-composed python3 tests/host/test_dev_validate_composed.py ComposedValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
