@@ -20,9 +20,17 @@ static uint8_t smc_slot;
  * strip, then restore. One owner peer. Byte buffer: see smc_ui_raw. */
 #define SMC_PEEK_MS 1200u
 #define SMC_PEEK_MASTER (1 + NKIT)
+#define SMC_PEEK_CURSORS 4u
+struct smc_peek_cursor {
+    uint8_t view, part_slot, page;
+};
 struct smc_peek_state {
     uint8_t on, view, page, mixsel, peer, part;
     uint8_t saved_view, saved_page, saved_mixsel, saved_prev, saved_part;
+    /* Every mapped or locked PAGE preview must leave remembered pages intact,
+     * including a per-part cursor and repeated MIX/FX peeks. */
+    uint8_t n_cursors;
+    struct smc_peek_cursor cursors[SMC_PEEK_CURSORS];
     /* A peek is presentation only: preserve both peers' control destinations. */
     pref_t fader[2][8], knob[2][8];
     uint32_t until;
@@ -31,6 +39,30 @@ static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
 static struct smc_peek_state *const smc_peek =
     (struct smc_peek_state *)(void *)smc_peek_raw;
 static void smc_peek_cancel(void) { smc_peek->on = 0; }
+/* Record the first page stored at each touched (view, part) location. The
+ * same cursor may be previewed many times during one held peek. */
+static int smc_peek_save_cursor(int view, int part)
+{
+    uint8_t slot = view == V_PART || view == V_SEQ || view == V_GEN
+        ? (uint8_t)part : 0;
+    for (unsigned i = 0; i < smc_peek->n_cursors; i++)
+        if (smc_peek->cursors[i].view == view &&
+            smc_peek->cursors[i].part_slot == slot)
+            return 1;
+    if (smc_peek->n_cursors >= SMC_PEEK_CURSORS) return 0;
+    struct smc_peek_cursor *c = &smc_peek->cursors[smc_peek->n_cursors++];
+    c->view = (uint8_t)view;
+    c->part_slot = slot;
+    c->page = ui.page[view][slot];
+    return 1;
+}
+static void smc_peek_restore_cursors(void)
+{
+    for (unsigned i = 0; i < smc_peek->n_cursors; i++) {
+        const struct smc_peek_cursor *c = &smc_peek->cursors[i];
+        ui.page[c->view][c->part_slot] = c->page;
+    }
+}
 static void smc_peek_locked_page(void);
 static void smc_ui_off(void); /* locked PAGE calls this before its definition */
 extern uint8_t smk_clip_mode_on(void);
@@ -1081,6 +1113,7 @@ static __attribute__((noinline)) void smc_peek_page(int view, int page, int mix,
         smc_peek->saved_mixsel = ui.mixsel;
         smc_peek->saved_prev = ui.prev_view;
         smc_peek->saved_part = ui.part;
+        smc_peek->n_cursors = 0;
         /* Cache before changing the UI; both peers continue editing their
          * originally visible destinations even when the real peek page differs. */
         uint8_t saved_slot = smc_slot;
@@ -1095,6 +1128,9 @@ static __attribute__((noinline)) void smc_peek_page(int view, int page, int mix,
         smc_peek->peer = smc_slot;
         smc_peek->on = 1;
     }
+    /* Save before build_pages(), which can itself clamp the target cursor.
+     * If the small bounded snapshot fills, leave the current peek unchanged. */
+    if (!smc_peek_save_cursor(view, part)) return;
     ui.view = (uint8_t)view;
     ui.part = (uint8_t)part;
     ui.mixsel = (uint8_t)mix;
@@ -1108,6 +1144,7 @@ static __attribute__((noinline)) void smc_peek_page(int view, int page, int mix,
         build_pages();
         if (smc_peek->saved_page < pg.n)
             *page_of(ui.view) = smc_peek->saved_page;
+        smc_peek_restore_cursors();
         smc_peek_cancel();
         return;
     }
@@ -1150,6 +1187,7 @@ static __attribute__((noinline)) void smc_peek_tick(void)
     }
     if ((int32_t)(plat_ms() - smc_peek->until) < 0)
         return;
+    smc_peek_restore_cursors();  /* timeout, not intentional navigation */
     ui.view = smc_peek->saved_view;
     ui.part = smc_peek->saved_part;
     ui.mixsel = smc_peek->saved_mixsel;

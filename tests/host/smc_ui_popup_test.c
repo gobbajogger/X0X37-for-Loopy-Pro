@@ -347,6 +347,89 @@ int main(void)
     smc_poll();
     assert(!smc_peek->on && ui.view == V_MIX);
 
+    /* A peek is presentation only: returning to SEQ must not erase the
+     * independently remembered FX DELAY page. */
+    setup();
+    *page_of(V_FX) = 1;
+    fader(5, 0);                      /* strip 6 previews FX REVERB */
+    assert_peek(V_FX, 0, ui.mixsel);
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_SEQ && !smc_peek->on);
+    assert(*page_of(V_FX) == 1);
+
+    /* HOME->MIX PARTS must retain the user's MIX MASTER page. */
+    setup();
+    *page_of(V_MIX) = SMC_PEEK_MASTER;
+    set_view(V_HOME);
+    build_pages();
+    fader(0, 0);
+    assert_peek(V_MIX, 0, 0);
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_HOME && !smc_peek->on);
+    assert(*page_of(V_MIX) == SMC_PEEK_MASTER);
+
+    /* Repeated mixed-page peeks preserve the original cursor of EACH
+     * target view, not the temporary cursor left by the previous strip. */
+    setup();
+    *page_of(V_FX) = 1;
+    *page_of(V_MIX) = SMC_PEEK_MASTER;
+    fader(5, 0);
+    assert_peek(V_FX, 0, ui.mixsel);
+    fader(0, 0);
+    assert_peek(V_MIX, 0, 0);
+    fader(6, 0);
+    assert_peek(V_FX, 1, ui.mixsel);
+    fader(7, 0);
+    assert_peek(V_MIX, SMC_PEEK_MASTER, ui.mixsel);
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_SEQ && !smc_peek->on);
+    assert(*page_of(V_FX) == 1 && *page_of(V_MIX) == SMC_PEEK_MASTER);
+
+    /* Locked SMC PAGE peek must not replace a keyboard MIX page. */
+    setup();
+    set_view(V_MIX);
+    build_pages();
+    *page_of(V_MIX) = SMC_PEEK_MASTER;
+    assert(smc_lock_toggle());
+    set_view(V_SONG);
+    build_pages();
+    press(0x63);
+    assert(smc_peek->on && ui.view == V_MIX);
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_SONG && smc.locked);
+    assert(*page_of(V_MIX) == SMC_PEEK_MASTER);
+    smc_lock_toggle();
+
+    /* Per-part page slots are separate. Locked PAGE peeks into the original
+     * part even if the keyboard has since selected a different part. */
+    setup();
+    set_view(V_SEQ);
+    build_pages();
+    assert(pg.n > 1);
+    *page_of(V_SEQ) = 0;
+    uint8_t locked_part_for_page = ui.part;
+    assert(smc_lock_toggle());
+    ui.part = PART_808;
+    set_view(V_SONG);
+    build_pages();
+    uint8_t keyboard_part = ui.part;
+    press(0x63);
+    assert(smc_peek->on && ui.view == V_SEQ &&
+           ui.part == locked_part_for_page && cur_page() == 1);
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_SONG && ui.part == keyboard_part);
+    assert(ui.page[V_SEQ][locked_part_for_page] == 0);
+    smc_lock_toggle();
+
+    /* Cancellation cannot replay an old cursor after intentional navigation. */
+    setup();
+    *page_of(V_FX) = 1;
+    fader(5, 0);
+    assert_peek(V_FX, 0, ui.mixsel);
+    smc_ui_cancel();
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_FX && *page_of(V_FX) == 0);
+
     puts("PASS: SMC UI peek map, live meters, HOME knobs, locked PAGE, restore and guards");
     return 0;
 }
