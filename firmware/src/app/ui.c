@@ -6301,7 +6301,7 @@ static UI_DRAW void draw_preset_name(int voice,int cx,int y,int height,uint16_t 
 }
 #endif
 
-static UI_DRAW int orig_strip_glyph(pref_t r,int val,int cx,uint16_t col);
+static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col);
 static UI_DRAW int orig_strip_slot(pref_t r);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int active, uint16_t col, int height, int night)
 {
@@ -6366,9 +6366,9 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
     if(!shape && !unused && val>=0 && orig_strip_slot(r)) {
         /* Reuse the knob-strip control_glyph families (0e58b960/5f58a199) in the
          * wave-glyph layout: glyph left, original readout right, no extra bar. */
-        int saved=cv_oy; cv_oy+=y-7; orig_strip_glyph(r,val,x+19,ink); cv_oy=saved;
+        orig_strip_glyph(r,val,x+3,y+22,ink);   /* 26x19 box: x+3..x+28 */
         pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); }
-        text_c(x+48,y+28,&FONT_T,num,ink);
+        text_c(x+45,y+28,&FONT_T,num,ink);       /* starts >= x+32: 3 px clear of the glyph */
     } else
     if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
@@ -6782,32 +6782,96 @@ static UI_DRAW int orig_strip_slot(pref_t r)
     if(b==ORIGINAL_SOUND_MIAMI) return r.c>=1 && r.c<=15 && r.c!=6 && r.c!=11;
     return 0;
 }
-static UI_DRAW int orig_strip_glyph(pref_t r,int val,int cx,uint16_t col)
+/* Original-control glyphs, 26x19 at (gx,gy). Each one pictures what the control
+ * does and moves with the value. CUTOFF/PEAK follow filter_glyph and BITE
+ * follows drive_amount_glyph (the old knob-strip families), scaled to the cell. */
+#define OG_W 26
+#define OG_H 18
+static UI_DRAW void og_wave(int gx,int gy,float (*f)(float,float),float q,uint16_t col)
+{   /* f returns -1..1 (up positive) over t 0..1 */
+    int py=0;
+    for(int i=0;i<OG_W;i++) {
+        float v=f((float)i/(OG_W-1),q);
+        if(v>1)v=1; if(v<-1)v=-1;
+        int yy=gy+OG_H/2-(int)(v*(OG_H/2)+(v<0?-.5f:.5f));
+        if(i) cv_line(gx+i-1,py,gx+i,yy,col);
+        py=yy;
+    }
+}
+static float og_sin(float t,float k){return sinf(6.2831853f*t*k);}
+static float og_lfo_amp(float t,float q){return (.1f+.9f*q)*sinf(6.2831853f*t*2.0f);}
+static float og_lfo_rate(float t,float q){return sinf(6.2831853f*t*(1.0f+4.0f*q));}
+static float og_bite(float t,float q){float g=.3f+6.0f*q;return tanhf(g*og_sin(t,1.5f))/tanhf(g);}
+static float og_gnaw(float t,float q){float v=og_sin(t,1.5f)*(1.0f+3.0f*q);
+    while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+static float og_crush(float t,float q){int n=12-(int)(q*10+.5f);float v=og_sin((float)((int)(t*(26-q*20))) /(26-q*20),1.5f);
+    return (float)(int)(v*n+(v<0?-.5f:.5f))/(float)n;}       /* sample-rate + bit reduction */
+static float og_fm(float t,float q){return sinf(6.2831853f*(1.5f*t)+q*1.6f*sinf(6.2831853f*1.5f*t));}
+static UI_DRAW int og_states(pref_t r,int val,int *idx)
+{   /* number of distinct readouts and the index of val among them */
+    char a[16],u[8],prev[16]="";int n=0;*idx=0;
+    for(int v=0;v<=127;v++){pref_value_of(r,v,a,u);if(strcmp(a,prev)){n++;strcpy(prev,a);}if(v==val)*idx=n-1;}
+    return n;
+}
+static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
 {
     const x0x_param_t *d=pref_desc(r);
-    int q=d && d->max?(val*127+d->max/2)/d->max:0,left=cx-18,right=cx+18;
-    int chi=engine_bass_sound_bank(&proj.sound,r.b)==ORIGINAL_SOUND_CHICAGO;
-    if(q<0)q=0;
-    if(q>127)q=127;
-    if(r.c==(chi?2:9)) {                     /* CUTOFF: tone-lowpass family */
-        int pivot=left+7+q*20/127;
-        cv_rect(left,47,37,1,C_LINE);cv_line(left,32,pivot,32,col);cv_line(pivot,32,right,46,col);
-    } else if(chi && r.c==3) {               /* PEAK: DJF lowpass at the live CUTOFF */
-        pref_t cr=PR(R_ENG,T_303,r.b,2);const x0x_param_t *dc=pref_desc(cr);int c=matrix_value(cr);
-        if(dc && dc->max) c=(c*127+dc->max/2)/dc->max;
-        filter_glyph(cx,28,1,c<0?0:c>127?127:c,q,col);
-    } else if(chi?(r.c==5 || r.c==6):r.c==10) {
-        drive_amount_glyph(q,cx,col);        /* BITE, GNAW, CRUSH: drive family */
-    } else if(!chi && (r.c==3 || r.c==7)) {  /* PITCH, TUNE: bipolar family */
-        int at=left+q*36/127;
-        cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
-        cv_rect(left,35,1,7,C_GRAY);cv_rect(right,35,1,7,C_GRAY);
-        cv_rect(at-1,34,3,9,col);
-    } else if(d && d->max<12) {              /* named switch: position pips */
-        int n=d->max+1,pw=n>6?3:6,gap=2,w0=n*(pw+gap)-gap;
-        for(int k=0;k<n;k++) box(cx-w0/2+k*(pw+gap),33,pw,9,k==val?col:C_LINE);
-    } else control_glyph(r,val,cx,col);      /* neutral value scale */
-    return 1;
+    float q=d && d->max?(float)val/(float)d->max:0;
+    int chi=engine_bass_sound_bank(&proj.sound,r.b)==ORIGINAL_SOUND_CHICAGO,c=r.c;
+    int top=gy+3,bot=gy+OG_H,mid=gy+OG_H/2,right=gx+OG_W-1;
+    if(q<0)q=0; if(q>1)q=1;
+    if(c==(chi?2:9) || (chi && c==3)) {          /* CUTOFF / PEAK: lowpass response */
+        float cq=q,pq=0;
+        if(chi && c==3){pref_t cr=PR(R_ENG,T_303,r.b,2);const x0x_param_t *dc=pref_desc(cr);
+            cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0;pq=q;}
+        int pivot=gx+4+(int)(cq*14+.5f),peak=top+2-(int)(pq*5+.5f);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
+        cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
+        if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
+    } else if(chi && c==4) {                     /* ENV amount: env curve x signed amount */
+        float a=2*q-1; int py=mid;
+        cv_rect(gx,mid,OG_W,1,C_LINE);
+        for(int i=1;i<OG_W;i++){float t=(float)i/(OG_W-1),e=t<.15f?t/.15f:expf(-(t-.15f)*4);
+            int yy=mid-(int)(a*e*(OG_H/2)+(a<0?-.5f:.5f));cv_line(gx+i-1,py,gx+i,yy,col);py=yy;}
+    } else if(c==(chi?1:4)) {                    /* GLIDE: sloped pitch line, slope widens */
+        int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2;
+        cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col);
+    } else if(chi && c==5) og_wave(gx,gy,og_bite,q,col);       /* BITE: soft clip */
+    else if(chi && c==6) og_wave(gx,gy,og_gnaw,q,col);         /* GNAW: fold */
+    else if(!chi && c==10) og_wave(gx,gy,og_crush,q,col);      /* CRUSH: bit/rate crush */
+    else if(chi && c==11) {                      /* ENV/GATE toggle */
+        int idx; og_states(r,val,&idx);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        if(idx){cv_line(gx+2,bot,gx+2,top,col);cv_line(gx+2,top,gx+22,top,col);cv_line(gx+22,top,gx+22,bot,col);}
+        else{cv_line(gx+1,bot,gx+5,top,col);cv_line(gx+5,top,gx+10,mid,col);cv_line(gx+10,mid,gx+18,mid,col);cv_line(gx+18,mid,gx+24,bot,col);}
+    } else if(c==(chi?12:14) || (!chi && (c==1 || c==5))) {   /* LEVEL / OUTPUT: level wedge */
+        int fill=(int)(q*OG_W+.5f);
+        for(int i=0;i<OG_W;i+=2){int h=1+i*(OG_H-1)/(OG_W-1);cv_rect(gx+i,bot-h+1,1,h,i<fill?col:C_LINE);}
+    } else if(chi && c==15) {                    /* RANGE: octave stairs */
+        int idx,n=og_states(r,val,&idx),sw=OG_W/(n?n:1);
+        for(int k=0;k<n;k++){int h=3+k*(OG_H-3)/(n>1?n-1:1);cv_rect(gx+k*sw,bot-h+1,sw-2,h,k<=idx?col:C_LINE);}
+    } else if(chi && c==17) {                    /* FX TYPE: one pip per type */
+        int idx,n=og_states(r,val,&idx),pw=3;
+        for(int k=0;k<n;k++) cv_rect(gx+k*(pw+1),mid-4,pw,9,k==idx?col:C_LINE);
+    } else if(!chi && c==2) {                    /* SUB: osc square + sub-octave square */
+        int a=1+(int)(q*6+.5f);
+        for(int i=0;i<4;i++){int xx=gx+i*6;cv_line(xx,top,xx+3,top,C_LINE);cv_line(xx+3,top,xx+3,top+4,C_LINE);cv_line(xx+3,top+4,xx+6,top+4,C_LINE);cv_line(xx+6,top+4,xx+6,top,C_LINE);}
+        for(int i=0;i<2;i++){int xx=gx+i*12;cv_line(xx,bot-a,xx+6,bot-a,col);cv_line(xx+6,bot-a,xx+6,bot,col);cv_line(xx+6,bot,xx+12,bot,col);if(xx+12<right)cv_line(xx+12,bot,xx+12,bot-a,col);}
+    } else if(!chi && (c==3 || c==7)) {          /* PITCH / TUNE: centre needle */
+        float ang=(q*2-1)*1.05f; int px=gx+12,py=bot;
+        cv_rect(px,top-2,1,2,C_LINE);cv_rect(gx+1,bot,OG_W-2,1,C_LINE);
+        cv_line(px,py,px+(int)(sinf(ang)*14),py-(int)(cosf(ang)*14),col);
+    } else if(!chi && c==8) og_wave(gx,gy,og_fm,q,col);        /* XMOD DEPTH: FM wave */
+    else if(!chi && c==12) og_wave(gx,gy,og_lfo_amp,q,col);    /* WOBBLE depth: LFO amp */
+    else if(!chi && c==13) og_wave(gx,gy,og_lfo_rate,q,col);   /* RATE: LFO frequency */
+    else if(!chi && c==15) {                     /* STEREO: L/R spread */
+        int s=1+(int)(q*11+.5f),cx=gx+12;
+        cv_rect(cx,top,1,OG_H-3,C_LINE);
+        cv_rect(cx-s-1,mid-4,2,9,col);cv_rect(cx+s,mid-4,2,9,col);
+    } else {                                     /* last resort: 7-bar scale */
+        for(int j=0;j<7;j++){int h=3+j*2;cv_rect(gx+j*4,bot-h,2,h,q && j*127/6<=q*127?col:C_LINE);}
+    }
 }
 
 static uint32_t knobs_sig(void)
