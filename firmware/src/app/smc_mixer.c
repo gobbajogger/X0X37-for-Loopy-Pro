@@ -16,6 +16,55 @@ extern int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len
 #define SMC_PEERS 2u
 /* Main-loop context only. Interrupt producers always address their explicit slot. */
 static uint8_t smc_slot;
+/* Temporary mapped-page peek (SMC-07): show the real MIX/FX page of a home
+ * strip, then restore. One owner peer. Byte buffer: see smc_ui_raw. */
+#define SMC_PEEK_MS 1200u
+#define SMC_PEEK_MASTER (1 + NKIT)
+#define SMC_PEEK_CURSORS 4u
+struct smc_peek_cursor {
+    uint8_t view, part_slot, page;
+};
+struct smc_peek_state {
+    uint8_t on, view, page, mixsel, peer, part;
+    uint8_t saved_view, saved_page, saved_mixsel, saved_prev, saved_part;
+    /* Every mapped or locked PAGE preview must leave remembered pages intact,
+     * including a per-part cursor and repeated MIX/FX peeks. */
+    uint8_t n_cursors;
+    struct smc_peek_cursor cursors[SMC_PEEK_CURSORS];
+    /* A peek is presentation only: preserve both peers' control destinations. */
+    pref_t fader[2][8], knob[2][8];
+    uint32_t until;
+};
+static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
+static struct smc_peek_state *const smc_peek =
+    (struct smc_peek_state *)(void *)smc_peek_raw;
+static void smc_peek_cancel(void) { smc_peek->on = 0; }
+/* Record the first page stored at each touched (view, part) location. The
+ * same cursor may be previewed many times during one held peek. */
+static int smc_peek_save_cursor(int view, int part)
+{
+    uint8_t slot = view == V_PART || view == V_SEQ || view == V_GEN
+        ? (uint8_t)part : 0;
+    for (unsigned i = 0; i < smc_peek->n_cursors; i++)
+        if (smc_peek->cursors[i].view == view &&
+            smc_peek->cursors[i].part_slot == slot)
+            return 1;
+    if (smc_peek->n_cursors >= SMC_PEEK_CURSORS) return 0;
+    struct smc_peek_cursor *c = &smc_peek->cursors[smc_peek->n_cursors++];
+    c->view = (uint8_t)view;
+    c->part_slot = slot;
+    c->page = ui.page[view][slot];
+    return 1;
+}
+static void smc_peek_restore_cursors(void)
+{
+    for (unsigned i = 0; i < smc_peek->n_cursors; i++) {
+        const struct smc_peek_cursor *c = &smc_peek->cursors[i];
+        ui.page[c->view][c->part_slot] = c->page;
+    }
+}
+static void smc_peek_locked_page(void);
+static void smc_ui_off(void); /* locked PAGE calls this before its definition */
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
@@ -420,7 +469,8 @@ static void smc_page_set(int page)
         smc.pending = 0xFFu;
     }
     smc.knob_i = 0;
-    smc_ui_cancel();
+    /* PAGE while locked may extend the active peek. Other navigation cancels. */
+    if (smc.locked) smc_ui_off(); else smc_ui_cancel();
 }
 
 /* Only visible cells are targets. Empty positions never fall through to another
@@ -471,6 +521,7 @@ static pref_t smc_target(int n)
     if (ui.overlay == O_ASK)
         return NONE;
     if (smc.locked) return smc.lock_fader[n];
+    if (smc_peek->on) return smc_peek->fader[smc_slot][n];
     kit = smc_drum_mix();
     if (kit >= 0) {
         track = smc_drum_track(kit, n);
@@ -495,6 +546,8 @@ static pref_t smc_knob_target(int n)
     int kit = smc_drum_mix();
     if (ui.overlay == O_ASK)
         return NONE;
+    if (!smc.locked && smc_peek->on)
+        return smc_peek->knob[smc_slot][n];
     if (smc.locked) {
         r = smc.lock_knob[n];
         /* A song edit may remove the captured bar. Never alias the last bar or
@@ -711,7 +764,9 @@ static uint32_t smc_ui_context(void)
     return h;
 }
 
-void smc_ui_cancel(void)
+/* Hide the overlay only. Expiry and context change use this, so a held
+ * peek still restores. Navigation and blocks use smc_ui_cancel. */
+static void smc_ui_off(void)
 {
     if (!smc_ui.on)
         return;
@@ -720,6 +775,12 @@ void smc_ui_cancel(void)
 #if BOARD_SMK37
     { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
 #endif
+}
+
+void smc_ui_cancel(void)
+{
+    smc_peek_cancel();                  /* navigation or block: no restore */
+    smc_ui_off();
 }
 
 int smc_ui_active(void)
@@ -735,11 +796,12 @@ int smc_ui_active(void)
         smc_slot = peer;
         uint32_t context = smc_ui_context();
         smc_slot = saved;
-        if (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
-            smc_ui.context != context ||
+        if (ui_project_busy() || ui.help || ui.overlay == O_ASK)
+            smc_ui_cancel();            /* block: no peek restore */
+        else if (smc_ui.context != context ||
             !smc_ui_edge_alive(plat_ms(), smc_ui.until,
                 smc_held(&smc_states[peer])))
-            smc_ui_cancel();
+            smc_ui_off();               /* timeout: peek restores the view */
     }
     return smc_ui.on;
 }
@@ -1038,18 +1100,157 @@ static void smc_ui_draw_peer(void)
     text_c(120, 49, &FONT_XS, status, C_HI);
     cv_commit(3, 0, KNOB_Y);
 }
+/* Page-peek is a distinct presentation mode. Keep the full SMC overlay
+ * for every other view, but let the real page paint its live meters while a
+ * small control-feedback header remains visible during peek. */
 void smc_ui_draw(void)
 {
     uint8_t saved = smc_slot;
     smc_slot = smc_ui.peer < SMC_PEERS ? smc_ui.peer : 0;
-    smc_ui_draw_peer();
+    if (smc_peek->on) {
+        char label[24], value[32], unit[12], banner[96], *q;
+        pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) :
+                   smc_target(smc_ui.strip);
+        draw_header();
+        draw_main();
+        draw_knobs();
+        smc_ui_label(r, label);
+        q = put_i(put_s(banner, smc_ui.kind == 1 ? "SMC K" : "SMC F"),
+                  smc_ui.strip + 1);
+        q = put_s(put_s(q, " "), label);
+        if (r.kind != R_NONE) {
+            pref_value_of(r, pref_get(r), value, unit);
+            q = put_s(put_s(q, " "), value);
+        }
+        while (q > banner && tw(&FONT_XS, banner) > 232) *--q = 0;
+        cv_begin(240, HDR_H, C_BLACK);
+        cv_rect(0, 0, 240, HDR_H, C_BLACK);
+        text_c(120, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(banner), C_HI);
+        cv_commit(0, 0, 0);
+    } else smc_ui_draw_peer();
     smc_slot = saved;
 }
 
 
+/* Page peek is presentation only. The old keyboard context and both SMC
+ * peers' parameter targets survive while live meters and LEDs follow the page. */
+static __attribute__((noinline)) void smc_peek_page(int view, int page, int mix, int part)
+{
+    if (ui.overlay || ui.help || smk_clip_mode_on() || perf_testing() || ui_project_busy())
+        return;
+    if (smc_peek->on) {
+        if (smc_peek->peer != smc_slot) return;
+        if (smc_peek->view == view && smc_peek->page == page &&
+            smc_peek->mixsel == mix && smc_peek->part == part) {
+            smc_peek->until = plat_ms() + SMC_PEEK_MS;
+            return;
+        }
+    } else {
+        if (ui.view == view && cur_page() == page && ui.mixsel == mix && ui.part == part)
+            return;  /* already there; never create a nested restore point */
+        smc_peek->saved_view = ui.view;
+        smc_peek->saved_page = (uint8_t)cur_page();
+        smc_peek->saved_mixsel = ui.mixsel;
+        smc_peek->saved_prev = ui.prev_view;
+        smc_peek->saved_part = ui.part;
+        smc_peek->n_cursors = 0;
+        /* Cache before changing the UI; both peers continue editing their
+         * originally visible destinations even when the real peek page differs. */
+        uint8_t saved_slot = smc_slot;
+        for (unsigned peer = 0; peer < SMC_PEERS; peer++) {
+            smc_slot = (uint8_t)peer;
+            for (int i = 0; i < 8; i++) {
+                smc_peek->fader[peer][i] = smc_target(i);
+                smc_peek->knob[peer][i] = smc_knob_target(i);
+            }
+        }
+        smc_slot = saved_slot;
+        smc_peek->peer = smc_slot;
+        smc_peek->on = 1;
+    }
+    /* Save before build_pages(), which can itself clamp the target cursor.
+     * If the small bounded snapshot fills, leave the current peek unchanged. */
+    if (!smc_peek_save_cursor(view, part)) return;
+    ui.view = (uint8_t)view;
+    ui.part = (uint8_t)part;
+    ui.mixsel = (uint8_t)mix;
+    build_pages();
+    if (page < 0 || page >= pg.n) {
+        /* The locked page's captured layout may have been invalidated. */
+        ui.view = smc_peek->saved_view;
+        ui.part = smc_peek->saved_part;
+        ui.mixsel = smc_peek->saved_mixsel;
+        ui.prev_view = smc_peek->saved_prev;
+        build_pages();
+        if (smc_peek->saved_page < pg.n)
+            *page_of(ui.view) = smc_peek->saved_page;
+        smc_peek_restore_cursors();
+        smc_peek_cancel();
+        return;
+    }
+    *page_of(view) = (uint8_t)page;
+    smc_peek->view = (uint8_t)view;
+    smc_peek->page = (uint8_t)page;
+    smc_peek->mixsel = (uint8_t)mix;
+    smc_peek->part = (uint8_t)part;
+    smc_peek->until = plat_ms() + SMC_PEEK_MS;
+}
+
+/* Faders and HOME encoders open their real strip page, never the menu. */
+static void smc_peek_begin(int n)
+{
+    static const uint8_t map[8] = {
+        V_MIX, V_MIX, V_MIX, V_MIX, V_MIX,
+        V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
+    };
+    int mix = n < 5 ? n : ui.mixsel;
+    smc_peek_page(map[n] & 15u, map[n] >> 4, mix, ui.part);
+}
+
+static void smc_peek_locked_page(void)
+{
+    if (!smc.locked) return;
+    smc_peek_page(smc.lock_view, smc.lock_page,
+        smc.lock_view == V_MIX && !smc.lock_page && smc.lock_part < NPARTS
+            ? smc.lock_part : ui.mixsel, smc.lock_part);
+}
+
+/* Restore 1200 ms after the last move. A user page change drops the restore. */
+static __attribute__((noinline)) void smc_peek_tick(void)
+{
+    if (!smc_peek->on)
+        return;
+    if (ui.view != smc_peek->view || cur_page() != smc_peek->page ||
+        ui.part != smc_peek->part || ui.mixsel != smc_peek->mixsel) {
+        smc_peek->on = 0;
+        return;
+    }
+    if ((int32_t)(plat_ms() - smc_peek->until) < 0)
+        return;
+    smc_peek_restore_cursors();  /* timeout, not intentional navigation */
+    ui.view = smc_peek->saved_view;
+    ui.part = smc_peek->saved_part;
+    ui.mixsel = smc_peek->saved_mixsel;
+    ui.prev_view = smc_peek->saved_prev;
+    build_pages();
+    if (smc_peek->saved_page < pg.n)
+        *page_of(ui.view) = smc_peek->saved_page;
+    smc_peek->on = 0;
+    if (smc_ui.on) {                  /* a held control keeps its overlay */
+        uint8_t saved = smc_slot;
+        smc_slot = smc_ui.peer;
+        smc_ui.context = smc_ui_context();
+        smc_slot = saved;
+    }
+}
+
 static void smc_show(int n, int knob, pref_t r)
 {
-    (void)r;
+    if ((unsigned)n < 8u && r.kind != R_NONE &&
+        (smc_same(r, smc_home_target(n)) ||
+         (knob && (smc.locked ? smc.lock_view == V_HOME :
+                   smc_peek->on ? smc_peek->saved_view == V_HOME : ui.view == V_HOME))))
+        smc_peek_begin(n);            /* before the overlay: its context is the peek page */
     smc_ui_begin(n, knob);
 }
 
@@ -1151,6 +1352,7 @@ static void smc_knob(int n, int delta)
 
 static void smc_view(int v, int page)
 {
+    smc_peek_cancel();                /* intentional nav: no restore */
     set_view(v);
     build_pages();
     if (page >= 0 && page < pg.n)
@@ -1587,6 +1789,7 @@ static void smc_button_apply(uint8_t note, int mmc)
             smc_knob_bank(d);
         } else {
             smc_page_set(smc_page_now() + d);
+            if (smc.locked) smc_peek_locked_page();
         }
         break;
     }
@@ -1621,7 +1824,10 @@ static void smc_button(uint8_t note, int mmc)
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);
-    smc_ui_cancel();                     /* navigation owns its new screen immediately */
+    if (smc.locked && (note == 0x62 || note == 0x63) &&
+        ui.overlay == O_NONE && !smk_clip_mode_on() && !smc_home_held())
+        smc_ui_off();                   /* keep first restore point during locked PAGE */
+    else smc_ui_cancel();              /* other navigation owns its new screen */
     smc_button_apply(note, mmc);
     if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* queued SMC navigation also cancels holds */
     if (action) {
@@ -1775,6 +1981,7 @@ static void smc_poll_peer(void)
         smc_fx_clear();
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
+        smc_peek_cancel();
         return;
     }
     if (link != smc_link_seen) {
@@ -1810,6 +2017,7 @@ static void smc_poll_peer(void)
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
         if (!smc.up) {
+            smc_peek_cancel();
             ui_say("SMC LOST", 0);
         } else
             ui_say("SMC CONNECTED", 0);
@@ -1833,6 +2041,7 @@ static void smc_poll_peer(void)
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
+        smc_peek_cancel();            /* blocked controls keep the current page */
         if (smc_project_active()) smc_solo_clear();
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
@@ -1932,6 +2141,7 @@ void smc_poll(void)
     uint8_t saved = smc_slot;
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) smc_poll_peer();
     smc_slot = saved;
+    smc_peek_tick();
 }
 
 static int smc_led(int note)
