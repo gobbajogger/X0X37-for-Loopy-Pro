@@ -51,11 +51,22 @@ def check_commit(root, previous=None):
     return head, tree
 
 
-def toolchain_snapshot():
-    """Record the host execution closure; different tools require a new run."""
+def toolchain_snapshot(checks=()):
+    """Pin the compiler, host tools and every check executable (including Node)."""
     names = {'compiler': (shlex.split(os.environ.get('CC', 'cc')) or ['cc'])[0],
              'python3': 'python3', 'shell': 'sh'}
+    # Include the actual launcher for each declared check. Without this, a
+    # different Node or tool binary could reuse a previous HOST_CHECKED receipt.
+    # Missing executables are recorded as unavailable; run_checks records 127.
     tools = {}
+    for check in checks:
+        exe = check['argv'][0]
+        found = shutil.which(exe)
+        if not found:
+            tools['check:' + exe] = {'path': None, 'sha256': None}
+            continue
+        binary = Path(found).resolve(strict=True)
+        tools['check:' + exe] = {'path': str(binary), 'sha256': digest(binary.read_bytes())}
     for role, name in names.items():
         found = shutil.which(name)
         if not found:
@@ -93,7 +104,7 @@ def run_checks(root, plan, output):
     (output / 'receipt.json').unlink(missing_ok=True)
     validate_plan(plan)
     head, tree = check_commit(root)
-    toolchain = toolchain_snapshot()
+    toolchain = toolchain_snapshot(plan['checks'])
     inputs = source_snapshot(root, plan['inputs'])
     results = []
     failure = False
@@ -134,7 +145,7 @@ def verify(root, output):
     if receipt['repo'] != 'gobbajogger/X0X37-for-Loopy-Pro':
         raise ValueError('Unexpected repository')
     check_commit(root, receipt)
-    if toolchain_snapshot() != receipt['toolchain']:
+    if toolchain_snapshot(receipt['checks']) != receipt['toolchain']:
         raise ValueError('Host compiler/runtime/environment changed')
     if source_snapshot(root, [a['path'] for a in receipt['inputs']]) != receipt['inputs']:
         raise ValueError('Checked inputs changed')
