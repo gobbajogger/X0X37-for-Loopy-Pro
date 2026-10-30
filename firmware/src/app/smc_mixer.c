@@ -16,6 +16,19 @@ extern int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len
 #define SMC_PEERS 2u
 /* Main-loop context only. Interrupt producers always address their explicit slot. */
 static uint8_t smc_slot;
+/* Temporary mapped-page peek (SMC-07): show the real MIX/FX page of a home
+ * strip, then restore. One owner peer. Byte buffer: see smc_ui_raw. */
+#define SMC_PEEK_MS 1200u
+#define SMC_PEEK_MASTER (1 + NKIT)
+struct smc_peek_state {
+    uint8_t on, view, page, mixsel, peer;
+    uint8_t saved_view, saved_page, saved_mixsel, saved_prev;
+    uint32_t until;
+};
+static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
+static struct smc_peek_state *const smc_peek =
+    (struct smc_peek_state *)(void *)smc_peek_raw;
+static void smc_peek_cancel(void) { smc_peek->on = 0; }
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
@@ -715,7 +728,9 @@ static uint32_t smc_ui_context(void)
     return h;
 }
 
-void smc_ui_cancel(void)
+/* Hide the overlay only. Expiry and context change use this, so a held
+ * peek still restores. Navigation and blocks use smc_ui_cancel. */
+static void smc_ui_off(void)
 {
     if (!smc_ui.on)
         return;
@@ -726,13 +741,20 @@ void smc_ui_cancel(void)
 #endif
 }
 
+void smc_ui_cancel(void)
+{
+    smc_peek_cancel();                  /* navigation or block: no restore */
+    smc_ui_off();
+}
+
 int smc_ui_active(void)
 {
-    if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
-        smc_ui.context != smc_ui_context() ||
+    if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK))
+        smc_ui_cancel();
+    else if (smc_ui.on && (smc_ui.context != smc_ui_context() ||
         !smc_ui_edge_alive(plat_ms(), smc_ui.until,
             smc_hold_any(smc_states[smc_ui.peer].held))))
-        smc_ui_cancel();
+        smc_ui_off();
     return smc_ui.on;
 }
 
@@ -1007,9 +1029,77 @@ void smc_ui_draw(void)
 }
 
 
+/* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER). */
+static void smc_peek_begin(int n)
+{
+    static const uint8_t map[8] = {
+        V_MIX, V_MIX, V_MIX, V_MIX, V_MIX,
+        V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
+    };
+    uint8_t view = map[n] & 15u, page = map[n] >> 4;
+    uint8_t mix = n < 5 ? (uint8_t)n : ui.mixsel;
+    if (ui.overlay || ui.help || smk_clip_mode_on() || perf_testing() || ui_project_busy())
+        return;
+    if (smc_peek->on) {
+        if (smc_peek->peer != smc_slot)
+            return;                   /* the other peer owns the peek */
+        if (smc_peek->view == view && smc_peek->page == page &&
+            (n >= 5 || smc_peek->mixsel == mix)) {
+            smc_peek->until = plat_ms() + SMC_PEEK_MS;
+            return;
+        }
+    } else if (ui.view == view && cur_page() == page && (n >= 5 || ui.mixsel == mix)) {
+        return;                       /* already on the mapped page; no nested save */
+    } else {
+        smc_peek->saved_view = ui.view;
+        smc_peek->saved_page = (uint8_t)cur_page();
+        smc_peek->saved_mixsel = ui.mixsel;
+        smc_peek->saved_prev = ui.prev_view;
+        smc_peek->peer = smc_slot;
+        smc_peek->on = 1;
+    }
+    ui.view = view;
+    if (n < 5)
+        ui.mixsel = mix;
+    build_pages();
+    *page_of(view) = page;
+    smc_peek->view = view;
+    smc_peek->page = page;
+    smc_peek->mixsel = ui.mixsel;
+    smc_peek->until = plat_ms() + SMC_PEEK_MS;
+}
+
+/* Restore 1200 ms after the last move. A user page change drops the restore. */
+static __attribute__((noinline)) void smc_peek_tick(void)
+{
+    if (!smc_peek->on)
+        return;
+    if (ui.view != smc_peek->view || cur_page() != smc_peek->page ||
+        (smc_peek->view == V_MIX && !smc_peek->page && ui.mixsel != smc_peek->mixsel)) {
+        smc_peek->on = 0;
+        return;
+    }
+    if ((int32_t)(plat_ms() - smc_peek->until) < 0)
+        return;
+    ui.view = smc_peek->saved_view;
+    ui.mixsel = smc_peek->saved_mixsel;
+    ui.prev_view = smc_peek->saved_prev;
+    build_pages();
+    if (smc_peek->saved_page < pg.n)
+        *page_of(ui.view) = smc_peek->saved_page;
+    smc_peek->on = 0;
+    if (smc_ui.on) {                  /* a held control keeps its overlay */
+        uint8_t saved = smc_slot;
+        smc_slot = smc_ui.peer;
+        smc_ui.context = smc_ui_context();
+        smc_slot = saved;
+    }
+}
+
 static void smc_show(int n, int knob, pref_t r)
 {
-    (void)r;
+    if ((unsigned)n < 8u && r.kind != R_NONE && smc_same(r, smc_home_target(n)))
+        smc_peek_begin(n);            /* before the overlay: its context is the peek page */
     smc_ui_begin(n, knob);
 }
 
@@ -1111,6 +1201,7 @@ static void smc_knob(int n, int delta)
 
 static void smc_view(int v, int page)
 {
+    smc_peek_cancel();                /* intentional nav: no restore */
     set_view(v);
     build_pages();
     if (page >= 0 && page < pg.n)
@@ -1733,6 +1824,7 @@ static void smc_poll_peer(void)
         smc_fx_clear();
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
+        smc_peek_cancel();
         return;
     }
     if (link != smc_link_seen) {
@@ -1768,6 +1860,7 @@ static void smc_poll_peer(void)
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
         if (!smc.up) {
+            smc_peek_cancel();
             ui_say("SMC LOST", 0);
         } else
             ui_say("SMC CONNECTED", 0);
@@ -1791,6 +1884,7 @@ static void smc_poll_peer(void)
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
+        smc_peek_cancel();            /* blocked controls keep the current page */
         if (smc_project_active()) smc_solo_clear();
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
@@ -1890,6 +1984,7 @@ void smc_poll(void)
     uint8_t saved = smc_slot;
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) smc_poll_peer();
     smc_slot = saved;
+    smc_peek_tick();
 }
 
 static int smc_led(int note)
