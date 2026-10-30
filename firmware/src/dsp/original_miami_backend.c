@@ -559,6 +559,19 @@ int original_miami_backend_active(const original_miami_backend *s)
     return s->output.fx.decimator.kernel.held_left != 0 || s->output.fx.decimator.kernel.held_right != 0;
 }
 
+/* Like original_miami_backend_active, but ignores the decimator hold tail:
+ * true only while keys or voices still own the part. */
+int original_miami_backend_voice_active(const original_miami_backend *s)
+{
+    if (!original_miami_backend_status(s)) return 1;
+    if (s->keys.physical_count ||
+        (s->keys.committed_enable && s->keys.effective_latch && s->keys.latched_count) ||
+        s->allocator.held_active.count) return 1;
+    for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; ++i)
+        if (s->voices[i].active || s->voices[i].awaiting_restart) return 1;
+    return 0;
+}
+
 int original_miami_backend_idle(const original_miami_backend *s)
 {
     return original_miami_backend_status(s) && !original_miami_backend_active(s);
