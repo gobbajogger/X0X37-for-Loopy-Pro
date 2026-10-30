@@ -1181,6 +1181,15 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 }
 #ifdef X0X_HOST
 int engine_bass_attacked(int part) { return (unsigned)part < NBASS && bass_attacked[part]; }
+int engine_bass_keys_held(void) /* host test: bit k when 303 k holds any key (MIDI, pads or sequencer), not the DSP release tail */
+{
+    int k, r = 0;
+    for (k = 0; k < NBASS; k++)
+        for (unsigned input = 0; input < ORIGINAL_INPUT_COUNT && !(r >> k & 1); ++input)
+            for (unsigned key = 0; key < 128; ++key)
+                if (original_bass[k].keys[input][key]) { r |= 1 << k; break; }
+    return r;
+}
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
     int k, r = brk.keys << 8 & 0xFF00;
