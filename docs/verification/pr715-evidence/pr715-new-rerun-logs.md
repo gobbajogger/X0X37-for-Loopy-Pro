@@ -83,3 +83,23 @@ Kit checksums and all 11 pinned SDK inputs verified.
 26a7fec8d3d7b305d68ab322c0e96e9a9c1efb04fd7fc6d26ebf54004da43681  /mnt/data/x0x-work/pr715-stage-evidence/rate_pad_exact.c
 ccf855d9e545be49ffa72fa66b8604d60d0ebca29c2212abf1db10d918150d57  /mnt/data/x0x-work/pr715-stage-evidence/updated-test_freeplay_rate_pad_port.py
 ```
+
+## Exact repository regression script (fresh runs)
+
+The script is byte-identical to GitHub blob `50f3c477bbdfd7330a88b20cd99037b297e8995d`. Its source-inclusion files contain the six verified GitHub-extracted production routines from `smk_input.h@4baf29c88f38a08f4eeff3d8d963c776e2341ebb` and `ui.c@2e51cc1ffa6026c98eeaba76774b041982f5e7ac`. The extraction-only staging is not a complete repository checkout.
+
+### GCC (exit 0)
+
+```text
+PASS: physical Free Play rate pads: eight rates and opt-out note behavior
+PASS: physical Free Play rate pads: eight rates and opt-out note behavior
+```
+
+### Clang (exit 0)
+
+```text
+PASS: physical Free Play rate pads: eight rates and opt-out note behavior
+PASS: physical Free Play rate pads: eight rates and opt-out note behavior
+```
+
+**Full host suite and Elite/Pro builds: NOT_RUN on this complete PR tree.**
