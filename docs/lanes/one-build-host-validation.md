@@ -1,34 +1,68 @@
-# Integrated one-build host-validation plan
+# Integrated one-build Linux host verification
 
-Owner request: build and test in cloud without waiting for owner or Mac.
-Source: `gobbajogger/X0X37-for-Loopy-Pro`, `wip/one-build` at `094bb1a55c159aefb0e2bfa39790a1b4b74cee40`.
-Execution branch: `wip/one-build-host-validation`. This is not a firmware integration or release lane.
+## Exact source and ownership
 
-## Scope and stopping condition
+Repository: `gobbajogger/X0X37-for-Loopy-Pro`.
+Current integrated baseline: `wip/one-build@cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`, root tree `3e2a673f97a0ae4fc4e3fd5457952fb6e3f7d6e8`.
+Validation lane: `wip/one-build-host-validation` and its existing draft PR #704 against `wip/one-build`.
 
-1. Keep the exact integrated source unchanged until real host failures are known. Use an isolated GitHub-hosted Linux runner to test the complete current branch because this chat's shell has DNS disabled for GitHub and its mounted historical bootstrap is not this source.
-2. Run the integrated host simulator build, the original-engine composition test, the Free Play rate-pad compiled regression, and the full host suite. Record exact source commit, every exit code, logs and skips, without weakening assertions or hiding errors.
-3. Diagnose only failures in test harness/build integration that are not already owned by active Chicago, Miami, BLE/SMC, BREAK, UI or features lanes; add regressions and rerun affected tests. Leave the sole integrator in charge of shared firmware changes.
-4. If full current source and the required pinned private inputs become available on a verified Linux runner, run Elite/Pro development builds and record real package/model/budget/identity evidence. Until then, report firmware target builds NOT_RUN, not PASS.
-5. Use the GitHub API connector with default author for isolated commits. Verify branch HEAD and open a draft PR against `wip/one-build`. No merge, release, flash, force-push, binaries, private #684 headers, credentials, or publication.
+The combined source already contains ordered Free Play rate-pad changes #702 and #711. Exact-source independent QA for those changes is recorded on PR #698, and the independently owned regression work is in PR #715. **Do not duplicate or reimplement these changes.** PR #698 remains the sole one-build integration owner. This validation lane changes no audio, controller, firmware, user data, model-selection or persistence code.
 
-## Input evidence and limits
+## Measured cloud execution
 
-- Source root tree at starting commit: `ce0b0b9555e31ddd8d8ac54f6da385052e3565af` (4,582 entries, untruncated GitHub tree).
-- The mounted `source-at-7537a46.tar` is historical. Its successfully compiled host simulator is NOT evidence for the current integrated source.
-- Mounted JieLi toolchain ZIP passes CRC; mounted SDK archive is V1.2.0. Firmware target requires pinned V1.2.1, so do not substitute it.
-- Existing PR #698 owns integration, PR #700 owns SMC, PR #691 owns Miami, PR #701 owns Chicago/UI, and PR #702 owns spare-rate pads. Keep changes disjoint.
-- Cloud CI can prove host behavior, but does not by itself establish bit-exact reference output, target build, installer validity or device safety.
+On 2026-10-30 a Linux x86-64 cloud shell compiled and executed unchanged leaf host tests taken from the historical source archive, **only after verifying all eight consumed Git blobs exactly match the current combined baseline**. The source hash identity check uses local `git hash-object` (no network Git commands) against the connected GitHub API's root-tree entries.
 
-**Exit gate:** all affected host failures reproduced and repaired with validated source, and any required target builds actually passed. If an essential check cannot run, report the precise pending gate and keep the stage incomplete.
+| Existing regression | GCC + UBSan | Clang + UBSan | Extra |
+| --- | --- | --- | --- |
+| `tests/host/lz_test.c` + `firmware/src/app/lz.c` | PASS (0) | PASS (0) | GCC ASan + UBSan PASS (0) |
+| `tests/host/encoder_test.c` + `firmware/hal/fm1_input.h`, `fm1_time.h`, `fm1_gpio.h` | PASS (0) | PASS (0) | Not separately checked with ASan |
+| `tests/host/smc_protocol_test.c` + `firmware/src/app/smc_protocol.h` | PASS (0) | PASS (0) | Not separately checked with ASan |
 
-## Measured cloud and local results (2026-10-30 UTC)
+**Measured: 7 PASS, 0 FAIL**, across three existing regressions. All matched blobs are direct dependencies of those three checks, and no other historical-source contents are represented as current. The checks exercise project LZ round-trip/error handling, encoder quadrature interpretation, and the SMC protocol/mapping and pickup primitives. They do not prove the entire integrated firmware works.
 
-The first GitHub Actions execution was [run 41003193610](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/actions/runs/41003193610) for commit `32907755c013744ccb4991ba56fe29a3f0219067`. The workflow concluded **failure**, but its job contained **zero steps**. Job log download returned GitHub blob-not-found. Therefore **no host tests executed on that workflow**, and neither test failure nor PASS was established.
+Reproducible Linux commands from the repository root, when the eight source files match the above baseline:
 
-The chat's Linux x86-64 container actually compiled and executed these two isolated host regressions. Their full consumed source paths were compared by Git blob SHA against the pinned integration commit and were identical, even though they came from a historical local bootstrap. These scoped checks do not substitute for the complete current-tree build:
+```sh
+mkdir -p build/host
+for cc in gcc clang; do
+  "$cc" -O1 -std=c99 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all \
+    tests/host/lz_test.c -o "build/host/lz-$cc"
+  "build/host/lz-$cc"
+  "$cc" -O1 -std=c99 -Wall -Wextra -Wno-unused-function -Ifirmware/hal \
+    -fsanitize=undefined -fno-sanitize-recover=all \
+    tests/host/encoder_test.c -o "build/host/encoder-$cc"
+  "build/host/encoder-$cc"
+  "$cc" -O1 -std=c99 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all \
+    tests/host/smc_protocol_test.c -o "build/host/smc-protocol-$cc"
+  "build/host/smc-protocol-$cc"
+done
+```
 
-- **PASS** `gcc -O2 -w -Ifirmware/hal -o /mnt/data/work/proof/encoder_test tests/host/encoder_test.c && /mnt/data/work/proof/encoder_test` (exit 0, `encoder: ok`), using exact-matching `tests/host/encoder_test.c`, `firmware/hal/fm1_input.h`, `firmware/hal/fm1_time.h`, and `firmware/hal/fm1_gpio.h`.
-- **PASS** `gcc -std=c99 -O2 -Wall -Wextra -Werror -o /mnt/data/work/proof/smc_protocol_test tests/host/smc_protocol_test.c && /mnt/data/work/proof/smc_protocol_test` (exit 0, `SMC protocol: 43 buttons, pickup, encoders and host isolation ok`), using exact-matching `tests/host/smc_protocol_test.c` and `firmware/src/app/smc_protocol.h`.
+Full local log bundle in the owner's conversation: `one-build-cb5423-cloud-host-evidence.zip`, SHA-256 `f055ea66b0cfc37147d5a34f6abe1466b189b73c8e57bea14f1b472baa61e842`. It includes the complete eight Git blob identities, compiler versions, seven test exit files, and raw stdout/compile logs. No binary executable or proprietary source is in the ZIP.
 
-All required checked source closure for these two leaf tests matched the remote commit, but other files from the historical checkout were not assumed current. Full integrated host simulator: **NOT_RUN**. Full suite and compiled Free Play regression: **NOT_RUN**. AC79 SDK V1.2.1 target Elite/Pro builds: **NOT_RUN**. The uploaded SDK archive is V1.2.0 and cannot replace V1.2.1. No firmware, controller or installation package was produced.
+## Exact current-tree checks still required
+
+The full 4,582-entry combined Git tree has **not** been mounted locally. The source bootstrap at `7537a46` is older and cannot stand in for that tree. Tests which require the missing current source closure therefore remain **NOT_RUN**:
+
+```sh
+python3 tests/host/test_original_build_composition.py
+python3 tests/host/test_freeplay_rate_pad_port.py
+X0X_TEST_JOBS=1 sh tests/run_tests.sh freeplay-rate-pads
+X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 sh host/build_host.sh
+python3 tests/host/ui_page_wrap_test.py
+sh tests/host/ui_shared_glyph_test.sh
+sh tests/host/original_release_ui_test.sh
+sh tests/host/smc_port_regression_test.sh
+python3 tests/host/run_break_features.py
+X0X_TEST_JOBS=1 sh tests/run_tests.sh
+```
+
+Target Elite/Pro firmware and matching controller package builds are also **NOT_RUN** at this commit. The mounted JieLi toolchain works, but the available full SDK ZIP is AC79NN V1.2.0, not pinned **V1.2.1**. The build also needs the exact private pinned source/input closure. Do not substitute SDK 1.2.0, manufacture an installable package, or claim bit-exact golden renders/target memory results.
+
+## CI limitation and next gate
+
+Automatic GitHub Actions creation for this validation was declined by the existing project coordinator on PR #704. Accordingly, the earlier workflow file was **removed from this lane** on updating to the newest one-build source; it must not be restored without new explicit authorization. Two previous attempts, runs [41003193610](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/actions/runs/41003193610) and [41003484408](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/actions/runs/41003484408), ended with `runner_name` empty and **zero steps**; the logs were unavailable (GitHub `BlobNotFound`). Those outcomes are **CI STARTUP FAILURE**, not failed source tests or proof of a root cause.
+
+Next step for existing one-build build/QA owner: reconstruct and verify the **complete current** source tree at `cb5423c4...` through the connected GitHub API or a genuine runner with GitHub API access; execute the exact-source selected host tests, then independently validate firmware with SDK V1.2.1 and pinned private inputs. Repair only reproduced failures, without overwriting independent owners' work. No force-push, main/nightly merge, firmware binaries in Git, installer publication, or hardware operations are authorized by this document.
+
+**State: SCOPED HOST PASS; COMBINED BUILD INCOMPLETE; DEVICE NOT TESTED.**

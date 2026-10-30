@@ -18,7 +18,7 @@ SPEC.loader.exec_module(build)
 
 def compile_plan(env):
     original, wobble = build.synth_build_config(env)
-    dev_wobble = env.get("X0X_DEV_WOBBLE", wobble)
+    dev_wobble = env.get("X0X_DEV_WOBBLE", "1" if original else wobble)
     flags = [*build.CFLAGS, *build.FPU, "-DBOARD_SMK37=1", "-DSMK_MODEL=1",
              f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={dev_wobble}"]
     commands, objects = build.app_compile_commands(flags, original, wobble)
@@ -77,7 +77,7 @@ class OriginalBuildCompositionTests(unittest.TestCase):
             self.assertIn("-DSMK_MODEL=1", command)
             self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
             self.assertIn("-DX0X_WOBBLE=0", command)
-            self.assertIn("-DX0X_DEV_WOBBLE=0", command)
+            self.assertIn("-DX0X_DEV_WOBBLE=1", command)
             self.assertIn("-ffp-contract=off", command)
             self.assertNotIn("-ffast-math", command)
             if path.startswith("experiments/") or path.endswith("_backend.c"):
@@ -152,7 +152,7 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertIn("smk_div_held & owned", hal)
         self.assertIn("if (!vel) smk_div_held &= (uint16_t)~owned", hal)
-        self.assertIn("if (vel && smk_div_owner && !smk_pad_note[pad])", hal)
+        self.assertIn("if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])", hal)
         self.assertIn("if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u)", hal)
         self.assertIn("smk_div_pending = 0;", hal)
         self.assertIn("smk_div_owner = (uint8_t)owner;", hal)
@@ -171,11 +171,29 @@ class OriginalBuildCompositionTests(unittest.TestCase):
     def test_host_build_allows_original_rate_pad_flag_without_legacy_sources(self):
         # The host app should accept the same UI-only build flag as firmware.
         host = (ROOT / "host/build_host.sh").read_text()
-        self.assertIn('DEV_WOBBLE="${X0X_DEV_WOBBLE:-0}"', host)
+        self.assertIn('DEV_WOBBLE="${X0X_DEV_WOBBLE:-1}"', host)
         self.assertIn('case "$DEV_WOBBLE" in 0|1)', host)
         self.assertIn('-DX0X_ORIGINAL_SYNTH=1 -DX0X_WOBBLE=0 '
                       '-DX0X_DEV_WOBBLE=$DEV_WOBBLE', host)
         self.assertIn("*build.ORIGINAL_SYNTH_UNITS, *build.ORIGINAL_SYNTH_BACKENDS", host)
+
+    def test_original_rate_pad_default_and_explicit_opt_out(self):
+        for opts, enabled in (({}, "1"),
+                              ({"X0X_DEV_WOBBLE": "1"}, "1"),
+                              ({"X0X_DEV_WOBBLE": "0"}, "0")):
+            with self.subTest(options=opts):
+                commands, objects, sources = compile_plan(
+                    {"X0X_ORIGINAL_SYNTH": "1", **opts})
+                self.assertEqual(len(objects), len(set(objects)))
+                self.assertIn("firmware/src/dsp/original_miami_backend.c", sources)
+                self.assertNotIn("experiments/wobble/wobble.c", sources)
+                self.assertNotIn("firmware/src/dsp/bass303.c", sources)
+                for command in commands:
+                    if "-c" not in command:
+                        continue
+                    self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+                    self.assertIn("-DX0X_WOBBLE=0", command)
+                    self.assertIn(f"-DX0X_DEV_WOBBLE={enabled}", command)
 
     def test_legacy_wobble_disable_still_works(self):
         for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
