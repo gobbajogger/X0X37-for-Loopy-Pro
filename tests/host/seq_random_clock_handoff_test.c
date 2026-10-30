@@ -13,7 +13,7 @@ static void brk(void*c,int p,int b,float sp,int en){(void)c;(void)p;(void)b;(voi
 static void brk_stop(void*c){(void)c;}
 static void midi(void*c,uint8_t s,uint8_t n,uint8_t v){(void)c;(void)s;(void)n;(void)v;}
 static void step(void*c,int t,int p){(void)c;(void)p;if(t==TRK_BASS0)bass_fired++;}
-static const seq_sink_t sink={drum,bass_on,bass_off,brk,brk_stop,midi,step,0};
+static const seq_sink_t sink={drum,bass_on,bass_off,brk,brk_stop,midi,step,0, 0};
 static void check(int condition, const char*what,int dir,int len,int sw,int stage,uint32_t got,uint32_t want){
     checked++;
     if(!condition){errors++; if(errors<=16)fprintf(stderr,"FAIL %s dir=%d len=%d swing=%d stage=%d got=%u want=%u\n",what,dir,len,sw,stage,got,want);}

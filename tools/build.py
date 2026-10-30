@@ -57,8 +57,9 @@ CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wal
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
 
 def clang_std_inc():
-    """pi32v2 clang does not auto-add sibling include/; -idirafter keeps resource-dir first."""
-    return ["-idirafter", str(toolchain() / "pi32v2" / "include")]
+    """Resolve JieLi standard headers in the compiler's execution environment."""
+    include = "/opt/jieli/pi32v2/include" if use_docker() else str(toolchain() / "pi32v2" / "include")
+    return ["-idirafter", include]
 # the DSP, the sequencer and the audio engine: separate units at -O2
 O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
             "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]

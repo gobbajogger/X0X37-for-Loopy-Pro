@@ -118,8 +118,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("firmware/src/dsp/original_miami_backend.c", sources)
         self.assertIn("firmware/src/dsp/original_chicago_backend.c", sources)
         for command in commands:
-            if "-c" not in command:
-                continue
+            if "-c" not in command or Path(command[command.index("-c") + 1]).suffix == ".S":
+                continue  # startup assembly has no C preprocessor flags
             self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
             self.assertIn("-DX0X_WOBBLE=0", command)
             self.assertIn("-DX0X_DEV_WOBBLE=1", command)
@@ -127,15 +127,16 @@ class OriginalBuildCompositionTests(unittest.TestCase):
 
     def test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources(self):
         # X0X_DEV_WOBBLE=1 enables the ported *pad UI* for original Miami.
-        # Legacy WBL declarations and calls must all additionally require
-        # !X0X_ORIGINAL_SYNTH. The build-plan-only test cannot catch this.
+        # Only the original Miami rate-pad UI may use the DEV_WOBBLE
+        # selector. The retired WBL DSP is never selectable by this flag.
         for path in ("firmware/src/app/engine.c", "firmware/src/app/ui.c",
                      "firmware/src/app/main_fm1.c"):
             with self.subTest(path=path):
                 source = (ROOT / path).read_text()
                 self.assertNotRegex(source, r"(?m)^#(?:if|elif) X0X_DEV_WOBBLE\s*$")
-                self.assertRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
+                self.assertNotRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
         ui = (ROOT / "firmware/src/app/ui.c").read_text()
+        self.assertIn("#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH", ui)
         self.assertIn("static int division_pad_owner(void)", ui)
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertNotIn("shape_pad_owner(", ui)
@@ -196,8 +197,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                 self.assertNotIn("experiments/wobble/wobble.c", sources)
                 self.assertNotIn("firmware/src/dsp/bass303.c", sources)
                 for command in commands:
-                    if "-c" not in command:
-                        continue
+                    if "-c" not in command or Path(command[command.index("-c") + 1]).suffix == ".S":
+                        continue  # startup assembly is not compiled as C
                     self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
                     self.assertIn("-DX0X_WOBBLE=0", command)
                     self.assertIn(f"-DX0X_DEV_WOBBLE={enabled}", command)

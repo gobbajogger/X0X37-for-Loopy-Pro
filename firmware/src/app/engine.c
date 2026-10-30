@@ -42,10 +42,11 @@ static original_runtime_part original_bass[NBASS] POOL;
 static uint16_t original_quiet_samples[NBASS], original_switch_gain[NBASS];
 #ifdef X0X_HOST
 /* Read-only host diagnostics for the actual adoption boundary. */
+#define ENGINE_ORIGINAL_TAIL_OWNED (1u << 16)
 unsigned engine_original_tail_state(int v)
 {
     return (unsigned)v < NBASS ? original_quiet_samples[v] |
-        (original_runtime_owned(&original_bass[v]) ? 0x10000u : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
+        (original_runtime_owned(&original_bass[v]) ? ENGINE_ORIGINAL_TAIL_OWNED : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
 }
 #endif
 static original_runtime_workspace original_workspace POOL;
