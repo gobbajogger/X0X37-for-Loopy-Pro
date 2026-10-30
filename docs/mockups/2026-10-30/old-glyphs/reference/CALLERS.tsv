@@ -1,0 +1,675 @@
+engine_mode	view	part	page	page_title	ref_kind_a_b_c	name	max	actual_renderer_family	value_type
+0	0	0	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	0	0	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	0	0	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	0	0	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	0	1	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	0	1	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	0	1	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	0	1	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	0	2	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	0	2	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	0	2	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	0	2	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	0	3	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	0	3	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	0	3	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	0	3	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	0	4	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	0	4	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	0	4	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	0	4	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	8	0	0	SEQUENCE	3,0,0,0	LENGTH	63	length	numeric
+0	8	0	0	SEQUENCE	4,0,0,0	RATE	3	step-rate	named
+0	8	1	0	SEQUENCE	3,1,0,0	LENGTH	63	length	numeric
+0	8	1	0	SEQUENCE	4,1,0,0	RATE	3	step-rate	named
+0	8	2	0	SEQUENCE	5,0,0,0	LENGTH	63	length	numeric
+0	8	2	0	SEQUENCE	6,0,0,0	RATE	3	step-rate	named
+0	8	2	0	SEQUENCE	7,0,0,0	DIRECTION	3	direction	named
+0	8	2	0	SEQUENCE	8,0,0,0	TRANSP	48	bipolar	numeric
+0	8	2	1	KEYS	33,0,0,0	FREE PLAY	1	named-state	named
+0	8	3	0	SEQUENCE	5,1,0,0	LENGTH	63	length	numeric
+0	8	3	0	SEQUENCE	6,1,0,0	RATE	3	step-rate	named
+0	8	3	0	SEQUENCE	7,1,0,0	DIRECTION	3	direction	named
+0	8	3	0	SEQUENCE	8,1,0,0	TRANSP	48	bipolar	numeric
+0	8	3	1	KEYS	33,1,0,0	FREE PLAY	1	named-state	named
+0	8	4	0	GROOVE	10,0,0,0	Cmplx	100	neutral-amount	numeric
+0	8	4	0	GROOVE	10,0,0,1	Anchor	100	neutral-amount	numeric
+0	8	4	0	GROOVE	10,0,0,2	Roll	100	neutral-amount	numeric
+0	8	4	0	GROOVE	10,0,0,3	Fill	100	neutral-amount	numeric
+0	8	4	1	RETRIG	10,0,0,4	Rtg2x	100	neutral-amount	numeric
+0	8	4	1	RETRIG	10,0,0,5	Rtg3x	100	neutral-amount	numeric
+0	8	4	1	RETRIG	10,0,0,6	Rtg4x	100	neutral-amount	numeric
+0	8	4	1	RETRIG	10,0,0,7	Rtg8x	100	neutral-amount	numeric
+0	2	0	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+0	2	0	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+0	2	0	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+0	2	0	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+0	2	0	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+0	2	0	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+0	2	0	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+0	2	0	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+0	2	1	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+0	2	1	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+0	2	1	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+0	2	1	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+0	2	1	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+0	2	1	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+0	2	1	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+0	2	1	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+0	2	2	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+0	2	2	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+0	2	2	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+0	2	2	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+0	2	2	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+0	2	2	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+0	2	2	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+0	2	2	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+0	2	3	0	GENERATE	9,1,0,0	DENS	100	neutral-amount	numeric
+0	2	3	0	GENERATE	9,1,0,1	ACCENT	100	neutral-amount	numeric
+0	2	3	0	GENERATE	9,1,0,2	SLIDE	100	neutral-amount	numeric
+0	2	3	0	GENERATE	9,1,0,3	OCTS	2	neutral-amount	numeric
+0	2	3	1	SCALE	9,1,0,4	ROOT	11	named-state	named
+0	2	3	1	SCALE	9,1,0,5	SCALE	5	named-state	named
+0	2	3	1	SCALE	9,1,0,6	OCTAVE	4	neutral-amount	numeric
+0	2	3	1	SCALE	9,1,0,7	MUTATE	16	neutral-amount	numeric
+0	2	4	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+0	2	4	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+0	2	4	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+0	2	4	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+0	2	4	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+0	2	4	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+0	2	4	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+0	2	4	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+0	3	0	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+0	3	0	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+0	3	0	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+0	3	0	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+0	3	0	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+0	3	0	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+0	3	1	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+0	3	1	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+0	3	1	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+0	3	1	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+0	3	1	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+0	3	1	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+0	3	2	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+0	3	2	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+0	3	2	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+0	3	2	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+0	3	2	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+0	3	2	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+0	3	3	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+0	3	3	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+0	3	3	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+0	3	3	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+0	3	3	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+0	3	3	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+0	3	4	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+0	3	4	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+0	3	4	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+0	3	4	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+0	3	4	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+0	3	4	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+0	4	0	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+0	4	0	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+0	4	0	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+0	4	0	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+0	4	0	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+0	4	0	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+0	4	0	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+0	4	0	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+0	4	0	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+0	4	0	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+0	4	0	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+0	4	0	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+0	4	0	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+0	4	0	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+0	4	0	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+0	4	0	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+0	4	0	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+0	4	0	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+0	4	0	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+0	4	0	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+0	4	1	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+0	4	1	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+0	4	1	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+0	4	1	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+0	4	1	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+0	4	1	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+0	4	1	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+0	4	1	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+0	4	1	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+0	4	1	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+0	4	1	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+0	4	1	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+0	4	1	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+0	4	1	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+0	4	1	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+0	4	1	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+0	4	1	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+0	4	1	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+0	4	1	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+0	4	1	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+0	4	2	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+0	4	2	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+0	4	2	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+0	4	2	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+0	4	2	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+0	4	2	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+0	4	2	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+0	4	2	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+0	4	2	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+0	4	2	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+0	4	2	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+0	4	2	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+0	4	2	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+0	4	2	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+0	4	2	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+0	4	2	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+0	4	2	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+0	4	2	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+0	4	2	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+0	4	2	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+0	4	3	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+0	4	3	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+0	4	3	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+0	4	3	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+0	4	3	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+0	4	3	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+0	4	3	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+0	4	3	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+0	4	3	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+0	4	3	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+0	4	3	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+0	4	3	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+0	4	3	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+0	4	3	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+0	4	3	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+0	4	3	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+0	4	3	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+0	4	3	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+0	4	3	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+0	4	3	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+0	4	4	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+0	4	4	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+0	4	4	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+0	4	4	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+0	4	4	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+0	4	4	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+0	4	4	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+0	4	4	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+0	4	4	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+0	4	4	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+0	4	4	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+0	4	4	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+0	4	4	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+0	4	4	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+0	4	4	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+0	4	4	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+0	4	4	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+0	4	4	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+0	4	4	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+0	4	4	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+0	6	0	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	0	0	BAR	23,0,0,0	909	31	identity-position	numeric
+0	6	0	0	BAR	23,1,0,0	808	31	identity-position	numeric
+0	6	0	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+0	6	0	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	0	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+0	6	0	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+0	6	0	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+0	6	1	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	1	0	BAR	23,0,0,0	909	31	identity-position	numeric
+0	6	1	0	BAR	23,1,0,0	808	31	identity-position	numeric
+0	6	1	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+0	6	1	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	1	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+0	6	1	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+0	6	1	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+0	6	2	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	2	0	BAR	23,0,0,0	909	31	identity-position	numeric
+0	6	2	0	BAR	23,1,0,0	808	31	identity-position	numeric
+0	6	2	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+0	6	2	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	2	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+0	6	2	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+0	6	2	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+0	6	3	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	3	0	BAR	23,0,0,0	909	31	identity-position	numeric
+0	6	3	0	BAR	23,1,0,0	808	31	identity-position	numeric
+0	6	3	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+0	6	3	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	3	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+0	6	3	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+0	6	3	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+0	6	4	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	4	0	BAR	23,0,0,0	909	31	identity-position	numeric
+0	6	4	0	BAR	23,1,0,0	808	31	identity-position	numeric
+0	6	4	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+0	6	4	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+0	6	4	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+0	6	4	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+0	6	4	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+0	5	0	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	5	0	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	5	0	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	5	0	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	5	1	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	5	1	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	5	1	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	5	1	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	5	2	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	5	2	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	5	2	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	5	2	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	5	3	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	5	3	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	5	3	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	5	3	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	5	4	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+0	5	4	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+0	5	4	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+0	5	4	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+0	1	0	0	BD	1,0,0,0	Tune	127	SOUND-MATRIX	numeric
+0	1	0	0	BD	1,0,0,1	Attack	127	SOUND-MATRIX	numeric
+0	1	0	0	BD	1,0,0,2	Decay	127	SOUND-MATRIX	numeric
+0	1	0	0	BD	1,0,0,4	P.Dpth	127	SOUND-MATRIX	numeric
+0	1	0	1	BD	1,0,0,5	Pitch	127	SOUND-MATRIX	numeric
+0	1	0	2	KIT	1,0,11,1	ACCENT	127	SOUND-MATRIX	numeric
+0	1	1	0	BD	1,1,0,3	Tune	127	SOUND-MATRIX	numeric
+0	1	1	0	BD	1,1,0,1	Tone	127	SOUND-MATRIX	numeric
+0	1	1	0	BD	1,1,0,4	Attack	127	SOUND-MATRIX	numeric
+0	1	1	0	BD	1,1,0,2	Decay	127	SOUND-MATRIX	numeric
+0	1	1	1	KIT	1,1,11,1	ACCENT	127	SOUND-MATRIX	numeric
+0	1	2	0	TONE / OSC	1,2,0,0	Cutoff	127	SOUND-MATRIX	numeric
+0	1	2	0	TONE / OSC	1,2,0,1	Reso	127	SOUND-MATRIX	numeric
+0	1	2	0	TONE / OSC	1,2,0,2	EnvMod	127	SOUND-MATRIX	numeric
+0	1	2	0	TONE / OSC	1,2,0,5	Wave	127	SOUND-MATRIX	numeric
+0	1	2	1	CHARACTER	1,2,0,4	Accent	127	SOUND-MATRIX	numeric
+0	1	2	1	CHARACTER	1,2,0,8	Drive	127	SOUND-MATRIX	numeric
+0	1	2	1	CHARACTER	1,2,0,17	Gnaw	127	SOUND-MATRIX	numeric
+0	1	2	1	CHARACTER	1,2,0,18	Bite	127	SOUND-MATRIX	numeric
+0	1	2	2	FILTER ADSR	1,2,0,12	F ATTACK	127	SOUND-MATRIX	numeric
+0	1	2	2	FILTER ADSR	1,2,0,3	Decay	127	SOUND-MATRIX	numeric
+0	1	2	2	FILTER ADSR	1,2,0,13	F SUSTAIN	127	SOUND-MATRIX	numeric
+0	1	2	2	FILTER ADSR	1,2,0,14	F RELEASE	127	SOUND-MATRIX	numeric
+0	1	2	3	AMP ADSR	1,2,0,19	ATTACK	127	SOUND-MATRIX	numeric
+0	1	2	3	AMP ADSR	1,2,0,20	DECAY	127	SOUND-MATRIX	numeric
+0	1	2	3	AMP ADSR	1,2,0,21	SUSTAIN	127	SOUND-MATRIX	numeric
+0	1	2	3	AMP ADSR	1,2,0,22	RELEASE	127	SOUND-MATRIX	numeric
+0	1	2	4	LIVE ARP	1,2,0,23	ArpSw	1	SOUND-MATRIX	named
+0	1	2	4	LIVE ARP	1,2,0,24	ArpMd	2	SOUND-MATRIX	named
+0	1	2	4	LIVE ARP	1,2,0,25	ArpRg	2	SOUND-MATRIX	named
+0	1	2	4	LIVE ARP	1,2,0,26	ArpSp	9	SOUND-MATRIX	named
+0	1	2	5	FX / DAMPER	1,2,0,27	FxTyp	11	SOUND-MATRIX	named
+0	1	2	5	FX / DAMPER	1,2,0,28	FxEd1	127	SOUND-MATRIX	numeric
+0	1	2	5	FX / DAMPER	1,2,0,29	FxEd2	127	SOUND-MATRIX	numeric
+0	1	2	5	FX / DAMPER	1,2,0,31	Damp	127	SOUND-MATRIX	numeric
+0	1	2	6	SOUND	41,0,0,0	ENGINE	1	SOUND-MATRIX	named
+0	1	2	6	SOUND	42,0,0,0	PRESET	80	SOUND-MATRIX	numeric
+0	1	3	0	TONE / OSC	1,2,1,0	Cutoff	127	SOUND-MATRIX	numeric
+0	1	3	0	TONE / OSC	1,2,1,1	Reso	127	SOUND-MATRIX	numeric
+0	1	3	0	TONE / OSC	1,2,1,2	EnvMod	127	SOUND-MATRIX	numeric
+0	1	3	0	TONE / OSC	1,2,1,5	Wave	127	SOUND-MATRIX	numeric
+0	1	3	1	CHARACTER	1,2,1,4	Accent	127	SOUND-MATRIX	numeric
+0	1	3	1	CHARACTER	1,2,1,8	Drive	127	SOUND-MATRIX	numeric
+0	1	3	1	CHARACTER	1,2,1,17	Gnaw	127	SOUND-MATRIX	numeric
+0	1	3	1	CHARACTER	1,2,1,18	Bite	127	SOUND-MATRIX	numeric
+0	1	3	2	FILTER ADSR	1,2,1,12	F ATTACK	127	SOUND-MATRIX	numeric
+0	1	3	2	FILTER ADSR	1,2,1,3	Decay	127	SOUND-MATRIX	numeric
+0	1	3	2	FILTER ADSR	1,2,1,13	F SUSTAIN	127	SOUND-MATRIX	numeric
+0	1	3	2	FILTER ADSR	1,2,1,14	F RELEASE	127	SOUND-MATRIX	numeric
+0	1	3	3	AMP ADSR	1,2,1,19	ATTACK	127	SOUND-MATRIX	numeric
+0	1	3	3	AMP ADSR	1,2,1,20	DECAY	127	SOUND-MATRIX	numeric
+0	1	3	3	AMP ADSR	1,2,1,21	SUSTAIN	127	SOUND-MATRIX	numeric
+0	1	3	3	AMP ADSR	1,2,1,22	RELEASE	127	SOUND-MATRIX	numeric
+0	1	3	4	LIVE ARP	1,2,1,23	ArpSw	1	SOUND-MATRIX	named
+0	1	3	4	LIVE ARP	1,2,1,24	ArpMd	2	SOUND-MATRIX	named
+0	1	3	4	LIVE ARP	1,2,1,25	ArpRg	2	SOUND-MATRIX	named
+0	1	3	4	LIVE ARP	1,2,1,26	ArpSp	9	SOUND-MATRIX	named
+0	1	3	5	FX / DAMPER	1,2,1,27	FxTyp	11	SOUND-MATRIX	named
+0	1	3	5	FX / DAMPER	1,2,1,28	FxEd1	127	SOUND-MATRIX	numeric
+0	1	3	5	FX / DAMPER	1,2,1,29	FxEd2	127	SOUND-MATRIX	numeric
+0	1	3	5	FX / DAMPER	1,2,1,31	Damp	127	SOUND-MATRIX	numeric
+0	1	3	6	SOUND	41,0,1,0	ENGINE	1	SOUND-MATRIX	named
+0	1	3	6	SOUND	42,0,1,0	PRESET	80	SOUND-MATRIX	numeric
+0	1	4	0	LOOPS	12,0,0,0	LOOP A	1	identity-position	named
+0	1	4	0	LOOPS	12,1,0,0	LOOP B	1	identity-position	named
+0	1	4	0	LOOPS	10,0,0,9	B CHANCE	100	neutral-amount	numeric
+0	1	4	0	LOOPS	1,3,0,1	Pitch	24	bipolar	named
+1	0	0	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	0	0	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	0	0	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	0	0	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	0	1	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	0	1	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	0	1	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	0	1	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	0	2	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	0	2	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	0	2	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	0	2	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	0	3	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	0	3	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	0	3	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	0	3	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	0	4	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	0	4	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	0	4	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	0	4	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	8	0	0	SEQUENCE	3,0,0,0	LENGTH	63	length	numeric
+1	8	0	0	SEQUENCE	4,0,0,0	RATE	3	step-rate	named
+1	8	1	0	SEQUENCE	3,1,0,0	LENGTH	63	length	numeric
+1	8	1	0	SEQUENCE	4,1,0,0	RATE	3	step-rate	named
+1	8	2	0	SEQUENCE	5,0,0,0	LENGTH	63	length	numeric
+1	8	2	0	SEQUENCE	6,0,0,0	RATE	3	step-rate	named
+1	8	2	0	SEQUENCE	7,0,0,0	DIRECTION	3	direction	named
+1	8	2	0	SEQUENCE	8,0,0,0	TRANSP	48	bipolar	numeric
+1	8	2	1	KEYS	33,0,0,0	FREE PLAY	1	named-state	named
+1	8	3	0	SEQUENCE	5,1,0,0	LENGTH	63	length	numeric
+1	8	3	0	SEQUENCE	6,1,0,0	RATE	3	step-rate	named
+1	8	3	0	SEQUENCE	7,1,0,0	DIRECTION	3	direction	named
+1	8	3	0	SEQUENCE	8,1,0,0	TRANSP	48	bipolar	numeric
+1	8	3	1	KEYS	33,1,0,0	FREE PLAY	1	named-state	named
+1	8	4	0	GROOVE	10,0,0,0	Cmplx	100	neutral-amount	numeric
+1	8	4	0	GROOVE	10,0,0,1	Anchor	100	neutral-amount	numeric
+1	8	4	0	GROOVE	10,0,0,2	Roll	100	neutral-amount	numeric
+1	8	4	0	GROOVE	10,0,0,3	Fill	100	neutral-amount	numeric
+1	8	4	1	RETRIG	10,0,0,4	Rtg2x	100	neutral-amount	numeric
+1	8	4	1	RETRIG	10,0,0,5	Rtg3x	100	neutral-amount	numeric
+1	8	4	1	RETRIG	10,0,0,6	Rtg4x	100	neutral-amount	numeric
+1	8	4	1	RETRIG	10,0,0,7	Rtg8x	100	neutral-amount	numeric
+1	2	0	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+1	2	0	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+1	2	0	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+1	2	0	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+1	2	0	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+1	2	0	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+1	2	0	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+1	2	0	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+1	2	1	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+1	2	1	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+1	2	1	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+1	2	1	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+1	2	1	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+1	2	1	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+1	2	1	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+1	2	1	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+1	2	2	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+1	2	2	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+1	2	2	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+1	2	2	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+1	2	2	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+1	2	2	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+1	2	2	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+1	2	2	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+1	2	3	0	GENERATE	9,1,0,0	DENS	100	neutral-amount	numeric
+1	2	3	0	GENERATE	9,1,0,1	ACCENT	100	neutral-amount	numeric
+1	2	3	0	GENERATE	9,1,0,2	SLIDE	100	neutral-amount	numeric
+1	2	3	0	GENERATE	9,1,0,3	OCTS	2	neutral-amount	numeric
+1	2	3	1	SCALE	9,1,0,4	ROOT	11	named-state	named
+1	2	3	1	SCALE	9,1,0,5	SCALE	5	named-state	named
+1	2	3	1	SCALE	9,1,0,6	OCTAVE	4	neutral-amount	numeric
+1	2	3	1	SCALE	9,1,0,7	MUTATE	16	neutral-amount	numeric
+1	2	4	0	GENERATE	9,0,0,0	DENS	100	neutral-amount	numeric
+1	2	4	0	GENERATE	9,0,0,1	ACCENT	100	neutral-amount	numeric
+1	2	4	0	GENERATE	9,0,0,2	SLIDE	100	neutral-amount	numeric
+1	2	4	0	GENERATE	9,0,0,3	OCTS	2	neutral-amount	numeric
+1	2	4	1	SCALE	9,0,0,4	ROOT	11	named-state	named
+1	2	4	1	SCALE	9,0,0,5	SCALE	5	named-state	named
+1	2	4	1	SCALE	9,0,0,6	OCTAVE	4	neutral-amount	numeric
+1	2	4	1	SCALE	9,0,0,7	MUTATE	16	neutral-amount	numeric
+1	3	0	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+1	3	0	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+1	3	0	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+1	3	0	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+1	3	0	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+1	3	0	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+1	3	1	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+1	3	1	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+1	3	1	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+1	3	1	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+1	3	1	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+1	3	1	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+1	3	2	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+1	3	2	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+1	3	2	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+1	3	2	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+1	3	2	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+1	3	2	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+1	3	3	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+1	3	3	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+1	3	3	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+1	3	3	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+1	3	3	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+1	3	3	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+1	3	4	0	REVERB	1,4,0,4	DECAY	127	reverb-decay	numeric
+1	3	4	0	REVERB	1,4,0,5	TONE	127	tone-lowpass	numeric
+1	3	4	1	DELAY	1,4,0,8	TIME	12	delay-time	named
+1	3	4	1	DELAY	1,4,0,9	FEEDBACK	127	feedback	numeric
+1	3	4	1	DELAY	1,4,0,10	TONE	127	tone-lowpass	numeric
+1	3	4	1	DELAY	27,0,0,0	TAPE	127	tape	numeric
+1	4	0	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+1	4	0	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+1	4	0	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+1	4	0	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+1	4	0	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+1	4	0	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+1	4	0	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+1	4	0	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+1	4	0	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+1	4	0	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+1	4	0	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+1	4	0	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+1	4	0	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+1	4	0	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+1	4	0	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+1	4	0	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+1	4	0	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+1	4	0	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+1	4	0	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+1	4	0	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+1	4	1	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+1	4	1	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+1	4	1	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+1	4	1	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+1	4	1	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+1	4	1	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+1	4	1	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+1	4	1	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+1	4	1	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+1	4	1	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+1	4	1	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+1	4	1	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+1	4	1	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+1	4	1	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+1	4	1	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+1	4	1	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+1	4	1	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+1	4	1	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+1	4	1	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+1	4	1	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+1	4	2	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+1	4	2	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+1	4	2	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+1	4	2	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+1	4	2	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+1	4	2	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+1	4	2	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+1	4	2	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+1	4	2	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+1	4	2	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+1	4	2	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+1	4	2	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+1	4	2	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+1	4	2	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+1	4	2	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+1	4	2	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+1	4	2	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+1	4	2	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+1	4	2	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+1	4	2	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+1	4	3	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+1	4	3	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+1	4	3	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+1	4	3	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+1	4	3	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+1	4	3	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+1	4	3	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+1	4	3	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+1	4	3	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+1	4	3	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+1	4	3	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+1	4	3	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+1	4	3	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+1	4	3	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+1	4	3	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+1	4	3	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+1	4	3	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+1	4	3	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+1	4	3	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+1	4	3	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+1	4	4	0	PARTS	1,5,0,0	LEVEL	127	neutral-amount	numeric
+1	4	4	0	PARTS	1,5,0,3	PAN	127	bipolar	numeric
+1	4	4	0	PARTS	1,5,0,1	REV	127	send-return-level	numeric
+1	4	4	0	PARTS	1,5,0,2	DLY	127	send-return-level	numeric
+1	4	4	1	909 MIX	1,0,0,3	Level	127	neutral-amount	numeric
+1	4	4	1	909 MIX	1,0,0,10	Pan	127	bipolar	numeric
+1	4	4	1	909 MIX	1,0,0,8	Rev	127	send-return-level	numeric
+1	4	4	1	909 MIX	1,0,0,9	Dly	127	send-return-level	numeric
+1	4	4	2	808 MIX	1,1,0,0	Level	127	neutral-amount	numeric
+1	4	4	2	808 MIX	1,1,0,9	Pan	127	bipolar	numeric
+1	4	4	2	808 MIX	1,1,0,7	Rev	127	send-return-level	numeric
+1	4	4	2	808 MIX	1,1,0,8	Dly	127	send-return-level	numeric
+1	4	4	3	MASTER	1,4,0,2	Drive	127	drive	numeric
+1	4	4	3	MASTER	1,6,0,12	COMP	127	compression	numeric
+1	4	4	3	MASTER	1,6,0,6	PUMP	127	pump	numeric
+1	4	4	3	MASTER	1,6,0,13	FILTER	127	filter	numeric
+1	4	4	4	WAVE	1,4,0,2	Drive	127	drive	numeric
+1	4	4	4	WAVE	1,6,0,12	COMP	127	compression	numeric
+1	4	4	4	WAVE	1,6,0,6	PUMP	127	pump	numeric
+1	4	4	4	WAVE	1,6,0,13	FILTER	127	filter	numeric
+1	6	0	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	0	0	BAR	23,0,0,0	909	31	identity-position	numeric
+1	6	0	0	BAR	23,1,0,0	808	31	identity-position	numeric
+1	6	0	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+1	6	0	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	0	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+1	6	0	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+1	6	0	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+1	6	1	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	1	0	BAR	23,0,0,0	909	31	identity-position	numeric
+1	6	1	0	BAR	23,1,0,0	808	31	identity-position	numeric
+1	6	1	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+1	6	1	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	1	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+1	6	1	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+1	6	1	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+1	6	2	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	2	0	BAR	23,0,0,0	909	31	identity-position	numeric
+1	6	2	0	BAR	23,1,0,0	808	31	identity-position	numeric
+1	6	2	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+1	6	2	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	2	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+1	6	2	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+1	6	2	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+1	6	3	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	3	0	BAR	23,0,0,0	909	31	identity-position	numeric
+1	6	3	0	BAR	23,1,0,0	808	31	identity-position	numeric
+1	6	3	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+1	6	3	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	3	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+1	6	3	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+1	6	3	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+1	6	4	0	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	4	0	BAR	23,0,0,0	909	31	identity-position	numeric
+1	6	4	0	BAR	23,1,0,0	808	31	identity-position	numeric
+1	6	4	0	BAR	23,4,0,0	BREAK	31	identity-position	numeric
+1	6	4	1	BAR	22,0,0,0	BAR	0	identity-position	numeric
+1	6	4	1	BAR	23,3,0,0	303B	31	identity-position	numeric
+1	6	4	1	BAR	23,2,0,0	303A	31	identity-position	numeric
+1	6	4	1	BAR	30,0,0,0	REPEAT	7	repeat-count	numeric
+1	5	0	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	5	0	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	5	0	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	5	0	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	5	1	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	5	1	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	5	1	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	5	1	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	5	2	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	5	2	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	5	2	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	5	2	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	5	3	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	5	3	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	5	3	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	5	3	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	5	4	0	PERFORM	13,0,0,0	TEMPO	255	tempo	numeric
+1	5	4	0	PERFORM	2,0,0,0	SWING	100	swing	numeric
+1	5	4	0	PERFORM	1,6,0,13	FILTER	127	filter	numeric
+1	5	4	0	PERFORM	1,6,0,6	PUMP	127	pump	numeric
+1	1	0	0	BD	1,0,0,0	Tune	127	SOUND-MATRIX	numeric
+1	1	0	0	BD	1,0,0,1	Attack	127	SOUND-MATRIX	numeric
+1	1	0	0	BD	1,0,0,2	Decay	127	SOUND-MATRIX	numeric
+1	1	0	0	BD	1,0,0,4	P.Dpth	127	SOUND-MATRIX	numeric
+1	1	0	1	BD	1,0,0,5	Pitch	127	SOUND-MATRIX	numeric
+1	1	0	2	KIT	1,0,11,1	ACCENT	127	SOUND-MATRIX	numeric
+1	1	1	0	BD	1,1,0,3	Tune	127	SOUND-MATRIX	numeric
+1	1	1	0	BD	1,1,0,1	Tone	127	SOUND-MATRIX	numeric
+1	1	1	0	BD	1,1,0,4	Attack	127	SOUND-MATRIX	numeric
+1	1	1	0	BD	1,1,0,2	Decay	127	SOUND-MATRIX	numeric
+1	1	1	1	KIT	1,1,11,1	ACCENT	127	SOUND-MATRIX	numeric
+1	1	2	0	CARRIER	1,2,0,0	CR WAVE	1	SOUND-MATRIX	named
+1	1	2	0	CARRIER	1,2,0,1	CR LEVEL	127	SOUND-MATRIX	numeric
+1	1	2	0	CARRIER	1,2,0,2	Sub	127	SOUND-MATRIX	numeric
+1	1	2	0	CARRIER	1,2,0,3	CR PITCH	127	SOUND-MATRIX	numeric
+1	1	2	1	X-MOD	1,2,0,6	XM WAVE	1	SOUND-MATRIX	named
+1	1	2	1	X-MOD	1,2,0,5	XM LEVEL	127	SOUND-MATRIX	numeric
+1	1	2	1	X-MOD	1,2,0,7	XM TUNE	127	SOUND-MATRIX	numeric
+1	1	2	1	X-MOD	1,2,0,8	XM DEPTH	127	SOUND-MATRIX	numeric
+1	1	2	2	WOB / FILT	1,2,0,11	WOB SHAPE	1	SOUND-MATRIX	named
+1	1	2	2	WOB / FILT	1,2,0,12	WOB DEPTH	127	SOUND-MATRIX	numeric
+1	1	2	2	WOB / FILT	1,2,0,13	WOB RATE	127	SOUND-MATRIX	numeric
+1	1	2	2	WOB / FILT	1,2,0,9	Cutoff	127	SOUND-MATRIX	numeric
+1	1	2	3	AMP ADSR	1,2,0,18	ATTACK	127	SOUND-MATRIX	numeric
+1	1	2	3	AMP ADSR	1,2,0,19	DECAY	127	SOUND-MATRIX	numeric
+1	1	2	3	AMP ADSR	1,2,0,20	SUSTAIN	127	SOUND-MATRIX	numeric
+1	1	2	3	AMP ADSR	1,2,0,21	RELEASE	127	SOUND-MATRIX	numeric
+1	1	2	4	PITCH / FX	1,2,0,4	Glide	127	SOUND-MATRIX	numeric
+1	1	2	4	PITCH / FX	1,2,0,10	Crush	127	SOUND-MATRIX	numeric
+1	1	2	5	OUTPUT	1,2,0,14	Output	127	SOUND-MATRIX	numeric
+1	1	2	5	OUTPUT	1,2,0,15	Stereo	127	SOUND-MATRIX	numeric
+1	1	2	5	OUTPUT	1,2,0,22	BASS SPLIT	127	SOUND-MATRIX	numeric
+1	1	2	5	OUTPUT	1,2,0,17	Damper	1	SOUND-MATRIX	named
+1	1	2	6	SOUND	41,0,0,0	ENGINE	1	SOUND-MATRIX	named
+1	1	2	6	SOUND	42,0,0,0	PRESET	29	SOUND-MATRIX	numeric
+1	1	3	0	CARRIER	1,2,1,0	CR WAVE	1	SOUND-MATRIX	named
+1	1	3	0	CARRIER	1,2,1,1	CR LEVEL	127	SOUND-MATRIX	numeric
+1	1	3	0	CARRIER	1,2,1,2	Sub	127	SOUND-MATRIX	numeric
+1	1	3	0	CARRIER	1,2,1,3	CR PITCH	127	SOUND-MATRIX	numeric
+1	1	3	1	X-MOD	1,2,1,6	XM WAVE	1	SOUND-MATRIX	named
+1	1	3	1	X-MOD	1,2,1,5	XM LEVEL	127	SOUND-MATRIX	numeric
+1	1	3	1	X-MOD	1,2,1,7	XM TUNE	127	SOUND-MATRIX	numeric
+1	1	3	1	X-MOD	1,2,1,8	XM DEPTH	127	SOUND-MATRIX	numeric
+1	1	3	2	WOB / FILT	1,2,1,11	WOB SHAPE	1	SOUND-MATRIX	named
+1	1	3	2	WOB / FILT	1,2,1,12	WOB DEPTH	127	SOUND-MATRIX	numeric
+1	1	3	2	WOB / FILT	1,2,1,13	WOB RATE	127	SOUND-MATRIX	numeric
+1	1	3	2	WOB / FILT	1,2,1,9	Cutoff	127	SOUND-MATRIX	numeric
+1	1	3	3	AMP ADSR	1,2,1,18	ATTACK	127	SOUND-MATRIX	numeric
+1	1	3	3	AMP ADSR	1,2,1,19	DECAY	127	SOUND-MATRIX	numeric
+1	1	3	3	AMP ADSR	1,2,1,20	SUSTAIN	127	SOUND-MATRIX	numeric
+1	1	3	3	AMP ADSR	1,2,1,21	RELEASE	127	SOUND-MATRIX	numeric
+1	1	3	4	PITCH / FX	1,2,1,4	Glide	127	SOUND-MATRIX	numeric
+1	1	3	4	PITCH / FX	1,2,1,10	Crush	127	SOUND-MATRIX	numeric
+1	1	3	5	OUTPUT	1,2,1,14	Output	127	SOUND-MATRIX	numeric
+1	1	3	5	OUTPUT	1,2,1,15	Stereo	127	SOUND-MATRIX	numeric
+1	1	3	5	OUTPUT	1,2,1,22	BASS SPLIT	127	SOUND-MATRIX	numeric
+1	1	3	5	OUTPUT	1,2,1,17	Damper	1	SOUND-MATRIX	named
+1	1	3	6	SOUND	41,0,1,0	ENGINE	1	SOUND-MATRIX	named
+1	1	3	6	SOUND	42,0,1,0	PRESET	29	SOUND-MATRIX	numeric
+1	1	4	0	LOOPS	12,0,0,0	LOOP A	1	identity-position	named
+1	1	4	0	LOOPS	12,1,0,0	LOOP B	1	identity-position	named
+1	1	4	0	LOOPS	10,0,0,9	B CHANCE	100	neutral-amount	numeric
+1	1	4	0	LOOPS	1,3,0,1	Pitch	24	bipolar	named
