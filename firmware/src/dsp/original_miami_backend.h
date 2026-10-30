@@ -122,6 +122,7 @@ int original_miami_backend_render_events(original_miami_backend *, original_miam
  * Failed owners are never reported idle. */
 int original_miami_backend_status(const original_miami_backend *);
 int original_miami_backend_active(const original_miami_backend *);
+int original_miami_backend_voice_active(const original_miami_backend *);
 int original_miami_backend_idle(const original_miami_backend *);
 
 #endif
