@@ -171,11 +171,56 @@ static void history_without_factory_request(void)
     do_undo(1);CHECK(!undo_wait && proj.sound.v[T_303][1][12]==32);
 }
 
+/* Candidate-pinned production captures for every firmware screen family.
+ * Navigation, values and pixel geometry remain owned by ui.c.  This is a
+ * render regression, not an invented graphical mockup or a DSP test. */
+static void capture_all_screen_families(void)
+{
+    static const struct {
+        const char *name;
+        int view, part, page;
+    } cases[] = {
+        {"home",V_HOME,PART_909,0},
+        {"sound-909",V_PART,PART_909,0},
+        {"sound-808",V_PART,PART_808,0},
+        {"sound-chicago",V_PART,PART_303B,0},
+        {"sound-chicago-selector",V_PART,PART_303B,7},
+        {"sound-miami",V_PART,PART_303A,0},
+        {"sound-miami-selector",V_PART,PART_303A,5},
+        {"break",V_PART,PART_BRK,0},
+        {"seq-909",V_SEQ,PART_909,0},
+        {"seq-808",V_SEQ,PART_808,0},
+        {"seq-chicago",V_SEQ,PART_303B,0},
+        {"seq-miami",V_SEQ,PART_303A,0},
+        {"seq-break",V_SEQ,PART_BRK,0},
+        {"generate",V_GEN,PART_303A,0},
+        {"fx",V_FX,PART_909,0},
+        {"mix-parts",V_MIX,PART_909,0},
+        {"mix-909",V_MIX,PART_909,1},
+        {"mix-808",V_MIX,PART_808,2},
+        {"mix-master",V_MIX,PART_909,3},
+        {"song",V_SONG,PART_909,0},
+        {"global",V_GLO,PART_909,0},
+        {"performance",V_PERF,PART_909,0},
+    };
+    choose(0, ORIGINAL_SOUND_MIAMI, 0);
+    choose(1, ORIGINAL_SOUND_CHICAGO, 0);
+    for (unsigned theme = 0; theme < 6; ++theme) {
+        proj.set.palette = (uint8_t)theme;
+        palette_set(theme);
+        for (unsigned i = 0; i < sizeof cases/sizeof cases[0]; ++i) {
+            char name[100];
+            CHECK(snprintf(name,sizeof name,"theme%u-all-%s",theme,cases[i].name)>0);
+            theme_capture(name,cases[i].view,cases[i].part,cases[i].page);
+        }
+    }
+}
+
 int main(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0;load_force=0;boot();settle();
     projection_cases();pages_and_edits();selector_cases();locks_and_undo();
-    themes();glyph_bounds();switch_tail();history_without_factory_request();
+    themes();glyph_bounds();capture_all_screen_families();switch_tail();history_without_factory_request();
     printf("PASS ui_theme checks=%u captures=%u; production SMK renderer, no hardware\n",checks,captures);
     return 0;
 }

@@ -56,3 +56,7 @@ unsigned original_chicago_global_mg_after_voices(original_chicago_global_mg *s,c
  if(phase(&s->mg2,clock2,in->tempo_sync2,in->rate2,frames,in->sample_rate))step(context);
  return 1;
 }
+uint32_t original_chicago_global_mg_quiet_frames(const original_chicago_global_mg *s,const original_chicago_global_mg_input *in){
+ if(s->counter<0||s->counter>=in->sample_rate_integer)return 0;
+ return (uint32_t)(in->sample_rate_integer-1-s->counter)/690u;
+}

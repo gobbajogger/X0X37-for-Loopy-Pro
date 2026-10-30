@@ -147,8 +147,11 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
  for(unsigned i=0;i<4;i++)if(s->activation[i]>0)s->activation[i]--;
  s->last_duration=D;s->control_updates++;return 1;
 }
-int original_miami_selected_voice_control(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
- if(!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;
+int original_miami_selected_voice_block_valid(const original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm){
+ return valid(s,c,t,bpm)&&!s->awaiting_restart;
+}
+int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
+ if(s->awaiting_restart)return 0;
  *action=0;if(!s->active||s->vca.state==6)return 1;
  uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
  s->previous_vca=s->vca.level;s->previous_mg1=s->mg[0].bipolar;
@@ -171,6 +174,10 @@ int original_miami_selected_voice_control(original_miami_selected_voice *s,const
   * cleared levels/states, recompute E-S and continue the preparation tail.
   * State5 returns earlier and resumes this tail only after D8F0 parts. */
  return preparation_tail(s,c,t,D);
+}
+int original_miami_selected_voice_control(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,float bpm,unsigned *action){
+ if(!action||!valid(s,c,t,bpm))return 0;
+ return original_miami_selected_voice_control_prevalidated(s,c,t,bpm,action);
 }
 static int note_values(unsigned key,unsigned velocity,float pitch){return key<=127&&velocity>=1&&velocity<=127&&original_binary32_isfinite(pitch)&&pitch>=0&&pitch<=127;}
 static int full_mask(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_voice_note *note,unsigned mask,float bpm){
@@ -206,6 +213,10 @@ int original_miami_selected_voice_sample(original_miami_selected_voice *s,const 
 }
 int original_miami_selected_voice_render_frame(original_miami_selected_voice *s,const original_miami_voice_controls *c,float *left,float *right){
  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ return original_miami_selected_voice_render_prevalidated(s,c,left,right);
+}
+int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *s,const original_miami_voice_controls *c,float *left,float *right){
+ if(s->awaiting_restart)return 0;
  if(!s->active){*left=0;*right=0;return 1;}
  float mix,filtered,L,R;
  if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,0,&mix)||!original_miami_ms20_sample(&s->filter,mix,c->vco_gain,&filtered)||!original_voice_gain_stereo(&s->gain,filtered,&L,&R))return 0;

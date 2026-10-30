@@ -95,4 +95,11 @@ int original_chicago_output_zero_ready(const original_chicago_output *,
  const original_chicago_output_workspace *,float master_squared,
  const uint32_t *in_left,const uint32_t *in_right,
  uint32_t *out_left,uint32_t *out_right,uint32_t frames,unsigned fz);
+/* Same state/geometry admission without reading input samples. The serial
+ * owner must have just filled both inputs with zero and must prevent edits
+ * until processing completes. This does not prove arbitrary buffers silent. */
+int original_chicago_output_zero_state_ready(const original_chicago_output *,
+ const original_chicago_output_workspace *,float master_squared,
+ const uint32_t *in_left,const uint32_t *in_right,
+ uint32_t *out_left,uint32_t *out_right,uint32_t frames,unsigned fz);
 #endif

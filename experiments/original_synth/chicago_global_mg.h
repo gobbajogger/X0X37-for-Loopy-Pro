@@ -40,4 +40,7 @@ void original_chicago_global_mg2_notify(original_chicago_global_mg_osc *,uint32_
  * qualified finite original snapshot. Compile strictly (-ffp-contract=off).
  */
 unsigned original_chicago_global_mg_after_voices(original_chicago_global_mg *,const original_chicago_global_mg_input *,const chicago_arp_clock *mg1_clock,const chicago_arp_clock *mg2_clock,void (*selector_step)(void *),void *);
+/* Number of entries before the next waveform/phase update. Qualified selected
+ * Chicago counters are nonnegative; a seeded or due counter returns zero. */
+uint32_t original_chicago_global_mg_quiet_frames(const original_chicago_global_mg *,const original_chicago_global_mg_input *);
 #endif

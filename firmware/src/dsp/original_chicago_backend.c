@@ -330,12 +330,10 @@ int original_chicago_backend_prepare(original_chicago_backend *s)
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
-int original_chicago_backend_begin(original_chicago_backend *s,
+static int begin_admitted(original_chicago_backend *s,
     original_chicago_backend_workspace *w, const original_engine_event *events,
     uint32_t count, uint32_t frames)
 {
-    if (!running(s)) return unavailable(s);
-    if (s->block_open || !workspace_valid(w, frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
     original_engine_events next;
     if (!original_engine_events_bind(&next, events, count, frames, NULL, &s->control_owner))
         return ORIGINAL_CHICAGO_BACKEND_INVALID;
@@ -362,6 +360,15 @@ int original_chicago_backend_begin(original_chicago_backend *s,
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
+int original_chicago_backend_begin(original_chicago_backend *s,
+    original_chicago_backend_workspace *w, const original_engine_event *events,
+    uint32_t count, uint32_t frames)
+{
+    if (!running(s)) return unavailable(s);
+    if (s->block_open || !workspace_valid(w, frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
+    return begin_admitted(s, w, events, count, frames);
+}
+
 int original_chicago_backend_frame(original_chicago_backend *s)
 {
     if (!running(s)) return unavailable(s);
@@ -379,17 +386,18 @@ int original_chicago_backend_frame(original_chicago_backend *s)
     return ORIGINAL_CHICAGO_BACKEND_OK;
 }
 
-int original_chicago_backend_end(original_chicago_backend *s, float *left, float *right)
+static int end_admitted(original_chicago_backend *s, float *left, float *right, unsigned known_zero)
 {
-    if (!running(s)) return unavailable(s);
-    if (!s->block_open || s->events.next_frame != s->block_frames ||
-        !outputs_valid(s->workspace, left, right, s->block_frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
     original_chicago_backend_workspace *w = s->workspace;
     original_chicago_output_workspace ow = {w->converted_left,w->converted_right,
         w->scratch[0],w->scratch[1],w->capacity};
     original_chicago_fx2_workspace fw = {w->scratch[0],w->scratch[1],
         w->scratch[2],w->scratch[3],w->capacity};
-    if (!original_chicago_engine_output_process(&s->output, &ow, &fw, &s->controls.routing,
+    int (*output)(original_chicago_engine_output *,original_chicago_output_workspace *,
+        original_chicago_fx2_workspace *,const original_chicago_routing *,const uint32_t *,
+        const uint32_t *,uint32_t *,uint32_t *,uint32_t,unsigned) = known_zero ?
+        original_chicago_engine_output_process_zero : original_chicago_engine_output_process;
+    if (!output(&s->output, &ow, &fw, &s->controls.routing,
         w->core_left, w->core_right, w->core_left, w->core_right, s->block_frames, s->fz)) return fault(s);
     memcpy(left, w->core_left, sizeof *left * s->block_frames);
     memcpy(right, w->core_right, sizeof *right * s->block_frames);
@@ -398,6 +406,14 @@ int original_chicago_backend_end(original_chicago_backend *s, float *left, float
     s->block_frames = 0;
     s->workspace = NULL;
     return ORIGINAL_CHICAGO_BACKEND_OK;
+}
+
+int original_chicago_backend_end(original_chicago_backend *s, float *left, float *right)
+{
+    if (!running(s)) return unavailable(s);
+    if (!s->block_open || s->events.next_frame != s->block_frames ||
+        !outputs_valid(s->workspace, left, right, s->block_frames)) return ORIGINAL_CHICAGO_BACKEND_INVALID;
+    return end_admitted(s, left, right, 0);
 }
 
 int original_chicago_backend_render(original_chicago_backend *s,
@@ -409,11 +425,58 @@ int original_chicago_backend_render(original_chicago_backend *s,
     if (!frames) return count ? ORIGINAL_CHICAGO_BACKEND_INVALID : ORIGINAL_CHICAGO_BACKEND_OK;
     if (!workspace_valid(w, frames) || !outputs_valid(w, left, right, frames))
         return ORIGINAL_CHICAGO_BACKEND_INVALID;
-    int result = original_chicago_backend_begin(s, w, events, count, frames);
+    /* The serial whole-block entry has already admitted workspace/output
+     * geometry. Public begin/end remain checked for split-frame callers. */
+    int result = begin_admitted(s, w, events, count, frames);
     if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;
+    if (!count && !original_chicago_backend_active(s) &&
+        s->allocator.voice_active.head < 0 && s->allocator.capacity == 1 &&
+        s->voice.vca.state == 6 && !s->voice.awaiting_restart &&
+        s->global_input.sample_rate_integer == 44100 &&
+        s->global_input.sample_rate == 44100 && s->global_input.tempo_sync2 == 1 &&
+        healthy(s) == ORIGINAL_CHICAGO_BACKEND_OK) {
+        unsigned action;
+        if (!original_chicago_voice_control(&s->voice, &s->controls, &s->tables,
+                s->voice_owner.bpm, 0, &action) || action) return fault(s);
+        /* Disabled voices freeze oscillator/noise/ramp/filter state in the
+         * original path. Only clocks, gate and global MG continue. Split at
+         * each MG update so it sees the exact clocks of that sample. The
+         * output owner still drains every nonzero history or unsettled ramp. */
+        uint32_t remaining = frames;
+        while (remaining) {
+            uint32_t n = original_chicago_global_mg_quiet_frames(&s->global, &s->global_input);
+            if (n > remaining) n = remaining;
+            if (n) {
+                if (!original_chicago_scheduler_quiet(&s->scheduler, &s->clock1, n)) return fault(s);
+                s->global.counter += (int32_t)(690u * n);
+                s->global_stage.helper_entries += n;
+                remaining -= n;
+            }
+            if (remaining) {
+                if (original_chicago_scheduler_after_events(&s->scheduler) <= 0 ||
+                    !original_chicago_selected_global_exit(&s->global_stage)) return fault(s);
+                --remaining;
+            }
+        }
+        if (healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
+        memset(w->core_left, 0, sizeof *w->core_left * frames);
+        memset(w->core_right, 0, sizeof *w->core_right * frames);
+        s->events.next_frame = frames;
+        return end_admitted(s, left, right, 1);
+    }
+    if (!count && s->allocator.capacity == 1) {
+        /* No event can edit controls or borrowed resources inside this call.
+         * Admit the serial block once; retain sample-position clock, VCA and
+         * MG ticks, including selector-driven notes and restart continuations. */
+        if (!original_chicago_voice_owner_render_block(&s->voice_owner, &s->scheduler,
+                w->core_left, w->core_right, frames) ||
+            healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
+        s->events.next_frame = frames;
+        return end_admitted(s, left, right, 0);
+    }
     for (uint32_t i = 0; i < frames; ++i) {
         result = original_chicago_backend_frame(s);
         if (result != ORIGINAL_CHICAGO_BACKEND_OK) return result;
     }
-    return original_chicago_backend_end(s, left, right);
+    return end_admitted(s, left, right, 0);
 }

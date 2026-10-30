@@ -1,0 +1,98 @@
+{
+  "base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "scope": "Source-only Chicago/Miami optimized DSP convergence with original-profile DnBOX UI, six themes, native engine/preset selector and shared glyphs. Affected host render, state, slot controls, original DSP; Pro and Elite development target builds. No migration or legacy synth. Existing PR branch integrates the current base (verified ancestor) by exact-blob composition onto newest integrated wip/one-build at cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21; preserves existing rate pad ownership, BREAK/SMC and shared UI, adds the reviewed Chicago/Miami optimization blobs only.",
+  "checks": [
+    {
+      "reason": "Fail closed on exact approved UI and optimized DSP blobs, selector compilation, required glyphs and restricted files",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_engines_ui_source_closure.py"
+      ]
+    },
+    {
+      "reason": "Confirm current integrated original synth build routing excludes retired bass303/wobble engine objects",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_original_build_composition.py"
+      ]
+    },
+    {
+      "reason": "Retain all eight Miami Free Play RATE pad owners and held press/release handoff from PR #702 and #711",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_freeplay_rate_pad_port.py"
+      ]
+    },
+    {
+      "reason": "Verify 300,308 exact Miami idle clock cases and 8,193 guarded zero-store sizes using current source",
+      "argv": [
+        "sh",
+        "tests/host/run_miami_idle_helper_test.sh",
+        "build/engines-ui-miami-idle-helper"
+      ]
+    },
+    {
+      "reason": "Native Chicago/Miami original-profile renderer, 55/30 factories, engine/preset selection, undo and image equivalence in normal/sanitized runs",
+      "argv": [
+        "sh",
+        "tests/host/original_release_ui_test.sh",
+        "build/engines-ui-original-ui"
+      ]
+    },
+    {
+      "reason": "Six themes and 22 screen types, all original profile: view frames, glyph bounds, pending selector, boot and no project mutation",
+      "argv": [
+        "env",
+        "ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c",
+        "sh",
+        "tests/host/original_release_ui_test.sh",
+        "build/engines-ui-six-theme"
+      ]
+    },
+    {
+      "reason": "Full original-engine host integration against real production runtime and event/control paths",
+      "argv": [
+        "sh",
+        "tests/host/original_release_integration_test.sh",
+        "build/engines-ui-integration"
+      ]
+    },
+    {
+      "reason": "Chicago exact 32-bit ULP clock spans across random and corner-case tempos",
+      "argv": [
+        "sh",
+        "tests/host/run_chicago_clock_span.sh",
+        "build/engines-ui-clock"
+      ]
+    },
+    {
+      "reason": "Chicago exact chorus zero-span arithmetic including wrap and rounding conditions",
+      "argv": [
+        "sh",
+        "tests/host/run_chicago_chorus_span.sh",
+        "build/engines-ui-chorus"
+      ]
+    },
+    {
+      "reason": "Chicago and Miami output/FX zero idle state and negative-path PCM/state tests",
+      "argv": [
+        "sh",
+        "tests/host/original_idle_test.sh",
+        "build/engines-ui-idle"
+      ]
+    },
+    {
+      "reason": "Miami all 30 programs, FX bypass and nonlinear FMA oracle in standalone mode",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/miami_cpu_test.py",
+        "--out",
+        "build/engines-ui-miami-all30"
+      ]
+    }
+  ]
+}

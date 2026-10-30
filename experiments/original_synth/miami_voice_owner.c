@@ -55,10 +55,19 @@ int original_miami_voice_owner_bind(original_miami_voice_owner *s,original_miami
  if(!s||!v||!p||!e||!count||!a||count!=a->storage_voices||!c||!t||!producer||!producer->tune||!producer->full_mg||!producer->full_helper_seed||!producer->helper_exit||!original_binary32_isfinite(bpm)||bpm<20||bpm>400)return 0;
  *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1};return 1;
 }
-int original_miami_voice_owner_control_all(original_miami_voice_owner *s){
+static int control_all(original_miami_voice_owner *s,unsigned prevalidated){
  if(!s||!s->status||s->allocator->capacity>s->count)return 0;
  for(unsigned i=0;i<s->allocator->capacity;i++){
-  unsigned result;if(!original_miami_selected_voice_control(s->voices+i,s->controls,s->tables,s->bpm,&result)||!action(s,i,result)){s->status=0;return 0;}
+  unsigned result;
+  int ok=prevalidated?original_miami_selected_voice_control_prevalidated(s->voices+i,s->controls,s->tables,s->bpm,&result):original_miami_selected_voice_control(s->voices+i,s->controls,s->tables,s->bpm,&result);
+  if(!ok||!action(s,i,result)){s->status=0;return 0;}
  }
  s->status=s->producers.helper_exit(s->producers.context);return s->status;
+}
+int original_miami_voice_owner_control_all(original_miami_voice_owner *s){return control_all(s,0);}
+int original_miami_voice_owner_control_prevalidated(original_miami_voice_owner *s){return control_all(s,1);}
+int original_miami_voice_owner_block_valid(const original_miami_voice_owner *s){
+ if(!s||!s->status||s->allocator->capacity>s->count)return 0;
+ for(unsigned i=0;i<s->count;i++)if(!original_miami_selected_voice_block_valid(s->voices+i,s->controls,s->tables,s->bpm))return 0;
+ return 1;
 }

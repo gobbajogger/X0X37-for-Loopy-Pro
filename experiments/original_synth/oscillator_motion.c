@@ -15,8 +15,15 @@
 static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
 static float fl(uint32_t u){return original_math_float(u);}
 static uint32_t bits(float f){return original_math_bits(f);}
+/* Nonnegative finite binary32 values have the same integer ordering. Accept
+ * negative zero explicitly, as the original floating comparisons do. */
+static int oscillator_gain_valid(float gain){uint32_t u=bits(gain);return u<=bits(ORIGINAL_OSCILLATOR_GAIN_MAX)||u==UINT32_C(0x80000000);}
 static int32_t signed32(uint32_t u){return u<=INT32_MAX?(int32_t)u:(int32_t)((int64_t)u-4294967296LL);}
 static float phase_float(uint32_t u){return (float)signed32(u)*0x1p-31f;}
+/* Prepared controls and finite waveforms bound this to [-2^31, 2^31].
+ * The positive endpoint must saturate before the C cast; every other value
+ * is representable after truncation, including the negative endpoint. */
+static int32_t phase_step_int(float step){return step>=0x1p31f?INT32_MAX:(int32_t)step;}
 static float saw(float p,float correction){return p-clamp((p*correction)*128.0f,-1,1);}
 static void coefficients(uint32_t D,float *correction,float *triangle){
  *correction=1;
@@ -47,7 +54,7 @@ static int sample_gains(original_oscillators *s,const original_prepared_oscillat
   uint32_t old=next.phase[i];next.phase[i]-=c->increment[i];
   w[i]=prepared_wave(c->shape[i],phase_float(next.phase[i]),c->width[i],prepared->correction[i],prepared->triangle[i]);
   float a=w[i]*c->xmod,b=(float)c->increment[i+1]*0x1p-31f;float step=clamp(a+b,-1,1)*0x1p31f;
-  next.phase[i+1]-=(uint32_t)miami_fx_fcvtzs(bits(step));
+  next.phase[i+1]-=(uint32_t)phase_step_int(step);
   if(sync&&signed32(next.phase[i])>signed32(old))next.phase[i+1]=0x7fffffffu;
   w[i+1]=prepared_wave(c->shape[i+1],phase_float(next.phase[i+1]),c->width[i+1],prepared->correction[i+1],prepared->triangle[i+1]);
  }
@@ -60,7 +67,7 @@ int original_oscillator_sample_prepared(original_oscillators *s,const original_p
 }
 int original_oscillator_sample_gains(original_oscillators *s,const original_prepared_oscillators *prepared,const float gain[4],unsigned sync,float *output){
  if(!gain)return 0;
- for(unsigned i=0;i<4;i++)if(!original_binary32_isfinite(gain[i])||gain[i]<0||gain[i]>ORIGINAL_OSCILLATOR_GAIN_MAX)return 0;
+ for(unsigned i=0;i<4;i++)if(!oscillator_gain_valid(gain[i]))return 0;
  return sample_gains(s,prepared,gain,sync,output);
 }
 int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output){
