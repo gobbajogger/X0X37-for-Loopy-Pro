@@ -119,6 +119,24 @@ int main(void) {
     }
     assert(note_down==0 && note_up==0); /* rate hits never play notes */
 
+    /* The eight unused physical pads are ordinary notes, not silent rate hits.
+     * Releasing after the UI changes owner must still end those notes. */
+    for (int pad=8;pad<16;pad++) {
+        smk__padq((uint32_t)pad,80);
+        assert(smk_pad_note[pad]!=0);
+        assert(smk_div_pending==0);
+        assert(!(smk_div_held & (uint16_t)(1u<<pad)));
+    }
+    project_busy=1;division_pad_input();
+    assert(smk_div_owner==0);
+    for (int pad=8;pad<16;pad++) {
+        smk__padq((uint32_t)pad,0);
+        assert(smk_pad_note[pad]==0);
+    }
+    assert(note_down==8 && note_up==8);
+    project_busy=0;division_pad_input();
+    note_down=note_up=0; /* keep later mixed ownership tests independent */
+
     /* Existing press retains its original release owner across mode change. */
     division_pad_input();smk__padq(0,80);project_busy=1;
     division_pad_input();assert(smk_div_owner==0);
