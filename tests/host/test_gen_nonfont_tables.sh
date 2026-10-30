@@ -33,8 +33,14 @@ out=$(PYTHONUSERBASE="$T/nopil" X0X_BREAK_BANK="$T/bank" X0X_TEST_JOBS=1 \
     echo "FAIL: host-build/stereo under samples-only + X0X_BREAK_BANK" >&2
     exit 1
 }
-printf '%s\n' "$out" | grep -q 'not-run host-build (Pillow)' || {
-    echo "FAIL: expected host-build Pillow not-run" >&2
+# A system-wide Pillow is not hidden by PYTHONUSERBASE; then host-build runs.
+if PYTHONUSERBASE="$T/nopil" python3 -c 'import PIL' 2>/dev/null; then
+    want='ok   host-build'
+else
+    want='not-run host-build (Pillow)'
+fi
+printf '%s\n' "$out" | grep -q "$want" || {
+    echo "FAIL: expected $want" >&2
     printf '%s\n' "$out" | sed 's/^/       /' >&2
     exit 1
 }
