@@ -35,7 +35,7 @@ end = "/* PRODUCTION_FUNCTIONS_END */"
 if template.count(begin) != 1 or template.count(end) != 1:
     raise RuntimeError("action smoke template must mark one replaceable source slot")
 body = "\n\n".join(extract(name) for name in (
-    "smc_is_solo_release", "smc_ui_active", "smc_button", "smc_release"))
+    "smc_is_solo_release", "smc_held", "smc_ui_active", "smc_button", "smc_release"))
 combined = template.replace(begin + "\n" + end, begin + "\n" + body + "\n" + end)
 
 out = Path(os.environ.get("SMC_ACTION_OUT", ROOT / "build/host/smc-action-source"))

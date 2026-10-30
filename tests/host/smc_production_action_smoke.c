@@ -5,9 +5,10 @@
 #include <stdio.h>
 #include "app/smc_mixer_edges.h"
 
+#define SMC_PEERS 2u
 enum { O_NONE=0, O_ASK=1, NPARTS=5, SMC_UI_MS=1200 };
 typedef struct { uint8_t held[16],home_down,select_down,play_down,solo_target[8]; } smc_state_t;
-static smc_state_t smc_states[2];
+static smc_state_t smc_states[SMC_PEERS];
 static uint8_t smc_slot;
 #define smc (smc_states[smc_slot])
 static struct {char msg[32]; uint32_t msg_until;uint8_t help,overlay;} ui;
