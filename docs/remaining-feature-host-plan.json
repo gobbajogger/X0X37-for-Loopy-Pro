@@ -18,7 +18,14 @@
     "assets/909/ride.wav",
     "assets/909/crash.wav",
     "tests/host/remaining_feature_proof_test.py",
-    "docs/remaining-feature-host-plan.json"
+    "docs/remaining-feature-host-plan.json",
+    "firmware/src/app/home_pattern_glyph.h",
+    "firmware/src/app/ui.c",
+    "tests/host/home_pattern_glyph_test.c",
+    "tests/host/home_pattern_glyph_test.sh",
+    "tests/host/home_overview_test.c",
+    "tests/run_tests.sh",
+    "docs/notes/remaining-home-overview-evidence.md"
   ],
   "checks": [
     {
@@ -33,6 +40,20 @@
       "argv": [
         "python3",
         "tests/host/remaining_feature_proof_test.py"
+      ]
+    },
+    {
+      "name": "home-pattern-glyph",
+      "argv": [
+        "sh",
+        "tests/host/home_pattern_glyph_test.sh"
+      ]
+    },
+    {
+      "name": "home-overview",
+      "argv": [
+        "sh",
+        "tests/host/home_overview_test.sh"
       ]
     }
   ]

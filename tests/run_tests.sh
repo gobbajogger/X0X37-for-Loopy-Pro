@@ -580,6 +580,7 @@ fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
+run home-pattern-glyph sh tests/host/home_pattern_glyph_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run home-overview Pillow; else run home-overview sh tests/host/home_overview_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix sh tests/host/sound_matrix_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
