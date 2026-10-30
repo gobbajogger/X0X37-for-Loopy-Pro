@@ -1,7 +1,14 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* A's one-peer HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
+/* Two-peer HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
 #pragma once
+/* Two-peer mode (#687) needs controller config_btctler_le_hw_nums = 2.
+ * The locked controller config has one LE link, so the default is one peer. */
+#ifndef BLEC_TWO_PEER
+#define BLEC_TWO_PEER 0
+#endif
+#if !BLEC_TWO_PEER
 #define BLEC_ONE_PEER_RECOVERY 1 /* one-SMC reference slice, not two-peer completion */
+#endif
 #include <stdint.h>
 
 enum { BLEC_OFF, BLEC_STOPPING, BLEC_STARTING, BLEC_SCANNING, BLEC_CONNECTING,
@@ -26,6 +33,7 @@ typedef struct {
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     uint8_t command_credit, command_retry, quiet_pending; /* accepted HCI owner/retry */
     uint8_t linked; /* conn holds a live handle; handle 0 is a valid handle */
+    uint8_t inflight; /* controller ACL buffers owned by this handle */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
     /* Last rejected ACL header, zero-padded; bounded, no payload log or allocation. */
@@ -45,7 +53,7 @@ void blec_poll(blec_t *c, uint32_t now_ms);
 int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n);
 static inline int blec_connected(const blec_t *c) { return c->state == BLEC_CONNECTED; }
 
-/* Existing application signatures retained; only peer 0 owns the HCI link. */
+/* Pair binding is TIMER5-owned. An unpaired central keeps one-link behavior. */
 void blec_pair_bind(blec_t *a, blec_t *b);
 void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now);
 void blec_pair_poll(blec_t *a, blec_t *b, uint32_t now, int want);
