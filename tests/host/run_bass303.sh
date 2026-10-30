@@ -108,7 +108,7 @@ for OS in 1 2 4; do
     if [ -s "$WARN" ]; then echo "warnings (BASS303_OS=$OS):"; cat "$WARN"; FAIL=1; fi
     # the same port with the control rate at every sample, symbols renamed k1_*
     K1=""
-    for f in env_time_ms init set note_on note_on_velocity note_off all_off render set_lite nparams param get; do K1="$K1 -Dbass303_$f=k1_bass303_$f"; done
+    for f in env_time_ms init set note_on note_on_velocity note_off all_off render set_lite set_bend nparams param get; do K1="$K1 -Dbass303_$f=k1_bass303_$f"; done
     $CC $CFLAGS -DBASS303_OS=$OS -DBASS303_CTRL=1 $K1 -c firmware/src/dsp/bass303.c -o "$OUT/bass303_k1_$OS.o"
     rm -f "$OUT/bass303_test_$OS"     # macOS kills a binary relinked in place
     $CXX "$OUT/test_$OS.o" "$OUT/bass303_$OS.o" "$OUT/bass303_k1_$OS.o" "$OUT"/ref/*.o -o "$OUT/bass303_test_$OS"
