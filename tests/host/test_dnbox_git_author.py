@@ -15,7 +15,7 @@ import unittest
 from unittest.mock import patch
 
 SOURCE = Path(os.environ.get('DNBOX_PUBLISH_SOURCE', 'tools/publish_nightly.py'))
-METHODS = {'_destination', '_local_only_git_remote', '_remote_tip', '_overlay', '_push'}
+METHODS = {'_destination', '_local_only_git_remote', '_remote_tip', '_overlay', '_push', 'publish_valid_nightly'}
 
 
 def load_scoped_functions():
@@ -27,6 +27,7 @@ def load_scoped_functions():
     scope = {'os': os, 'Path': Path, 're': re, 'shutil': shutil,
              'subprocess': subprocess, 'tempfile': tempfile,
              'FORBIDDEN': {'gh-pages', 'main', 'master', 'nightly'},
+             'BRANCH': 'nightly-pages',
              'NightlyPublishError': type('NightlyPublishError', (ValueError,), {})}
     exec(compile(ast.Module(body=methods, type_ignores=[]), str(SOURCE), 'exec'), scope)
     return scope
@@ -115,6 +116,27 @@ class DefaultAuthorTests(unittest.TestCase):
         with patch.object(subprocess, 'run') as invoked:
             with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'UTF-8 text files only'):
                 self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+            invoked.assert_not_called()
+
+    def test_all_legacy_push_entry_paths_fail_closed(self):
+        for label, remote, branch in (
+            ('default', str(self.remote), 'nightly-pages'),
+            ('explicit-canonical', 'https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git', 'chat/fixture'),
+            ('explicit-other', 'https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git', 'chat/fixture'),
+            ('local', str(self.remote), 'chat/fixture'),
+        ):
+            with self.subTest(label=label), patch.object(subprocess, 'run') as invoked:
+                output = self.root / ('blocked-' + label)
+                with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'DnBOX legacy Git push disabled'):
+                    self.methods['publish_valid_nightly'](
+                        None, None, None, None, None, output, remote=remote, push=True, branch=branch)
+                self.assertFalse(output.exists())
+                invoked.assert_not_called()
+        os.environ['X0X_NIGHTLY_REMOTE'] = str(self.remote)
+        with patch.object(subprocess, 'run') as invoked:
+            with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'DnBOX legacy Git push disabled'):
+                self.methods['publish_valid_nightly'](
+                    None, None, None, None, None, self.root / 'blocked-env', push=True, branch='chat/fixture')
             invoked.assert_not_called()
 
     def test_no_default_identity_does_not_forge_one(self):
