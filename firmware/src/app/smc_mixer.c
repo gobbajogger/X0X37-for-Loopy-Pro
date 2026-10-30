@@ -4,6 +4,8 @@
  * TIMER5 only copies complete messages. All project, sequencer and display work is in the main loop. */
 #include "smc_protocol.h"
 #include "smc_fx_map.h"
+#include "smc_mixer_edges.h"
+#include "smc_fx_caption.h"
 
 #define SMC_Q 32u
 /* Preserve the decoding preset in the spare event-length bits. */
@@ -73,14 +75,16 @@ static volatile uint8_t smc_mmc_stop_w[2], smc_mmc_stop_r[2];
 #define smc_host_solo_release_seen smc_release_seen[1]
 #define smc_pause_release_lost (smc_release_lost + 2)
 #define smc_pause_release_seen (smc_release_seen + 2)
-/* Full-ring drop must still publish key-ups that clear edge-held UI state:
- * Solo 8–15, HOME 6, SELECT 24–31, Pause 0x5D, Play 0x5E. */
+/* Also recognize held REC/MUTE and transport releases when a queue overflows.
+ * The latest lost key-up must never hold a button or its temporary UI forever. */
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
+    /* Keep this function self-contained: the isolated queue test extracts it
+     * without the application's C header include block. */
     return !(note & 0x80u) && !(velocity & 0x80u) &&
-           (note == 6u || (note >= 8u && note < 16u) || (note >= 24u && note < 32u) ||
-            note == 0x5Du || note == 0x5Eu) &&
+           (note < 32u || (note >= 0x2Eu && note <= 0x31u) ||
+            (note >= 0x5Bu && note <= 0x63u)) &&
            (type == 0x80u || (type == 0x90u && !velocity));
 }
 typedef struct {
@@ -94,6 +98,7 @@ typedef struct {
     uint8_t fx_restore[3];
     uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
     uint8_t knob_run, knob_i, play_down, select_down;
+    uint8_t held[16];                /* per-peer note-down ownership; clear on lost release */
     uint8_t home_down, fx_down, fx_owned, fx_page, fx_ready, fx_effect[SMCFX_N];
     uint8_t fx_main_wait;              /* main SELECT: waiting for hold vs tap (bits 0..2) */
     uint32_t fx_main_t0[3];
@@ -569,7 +574,8 @@ int smc_ui_active(void)
 {
     if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
         smc_ui.context != smc_ui_context() ||
-        (int32_t)(plat_ms() - smc_ui.until) >= 0))
+        !smc_ui_edge_alive(plat_ms(), smc_ui.until,
+            smc_hold_any(smc_states[smc_ui.peer].held))))
         smc_ui_cancel();
     return smc_ui.on;
 }
@@ -631,6 +637,7 @@ static void smc_fx_main_tick(void);
 static void smc_fx_clear(void);
 static void smc_fx_main_nav(int which);
 static int smc_fx_bus_now(uint8_t note);
+static int smc_home_held(void);
 #define SMC_FX_HOLD_MS 180u
 static int smc_lock_blocks(uint8_t note);
 /* Shared navigation descriptors: input dispatch and screen captions read these. */
@@ -658,10 +665,11 @@ static const char *smc_button_caption(int note)
         if (bus >= 0) {
             if (!smc.fx_ready)
                 smc_fx_publish();
-            if (smc.fx_effect[bus] < SMCFX_NFX)
-                return SMCFX_SHORT[smc.fx_effect[bus]];
+            return smcfx_select_caption(bus, smc_home_held(),
+                                        (smc.fx_down >> bus) & 1u,
+                                        smc.fx_effect[bus]);
         }
-        return strip < NPARTS ? "SEL" : "SEL";
+        return "SEL";
     }
     if (kit >= 0 || strip < NPARTS) return row ? "S" : "R";
     int key = smc_nav_key(note);
@@ -1302,9 +1310,10 @@ static void smc_button_apply(uint8_t note, int mmc)
         break;
     case 0x5B: case 0x5C: {            /* rewind / forward: pattern */
         int part = smc.locked ? smc.lock_part : ui.part;
-        int next = seq.ppat[part] + (note == 0x5B ? -1 : 1);
-        if (next >= 0 && next < NPAT)
-            seq_cue_part(&seq, part, next);
+        int next = smc_pattern_delta(seq.ppat[part], seq_cue_of(&seq, part),
+                                     note == 0x5B ? -1 : 1, NPAT);
+        if (next == -1) seq.pcue[part] = 0xFFu; /* cancel instead of retriggering the playing pattern */
+        else if (next >= 0) seq_cue_part(&seq, part, next);
         break;
     }
     case 0x5D: seq_stop(&seq); break;
@@ -1344,6 +1353,9 @@ static void smc_button_apply(uint8_t note, int mmc)
 
 static void smc_button(uint8_t note, int mmc)
 {
+    /* A second NoteOn without its NoteOff is a repeat, not another toggle.
+     * Each peer retains its own physical key owner across UI navigation. */
+    if (!mmc && !smc_hold_press(smc.held, note)) return;
     if (!mmc && note == 0x5Du) {
         smc_lock_button(1);
         return;                         /* no transport action card for target lock */
@@ -1379,6 +1391,10 @@ static void smc_button(uint8_t note, int mmc)
 
 static void smc_release(uint8_t note)
 {
+    int was_held = smc_hold_release(smc.held, note);
+    if (was_held && smc_ui.on && smc_ui.peer == smc_slot &&
+        !smc_hold_any(smc.held))
+        smc_ui.until = plat_ms() + SMC_UI_MS;
     if (note == 0x5Du) smc_lock_button(0);
     if (note == 6) smc.home_down = 0;
     if (note == 0x5Eu) smc.play_down = 0;
@@ -1482,6 +1498,7 @@ static void smc_poll_peer(void)
     }
     if (ui_project_busy()) {
         smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
@@ -1511,6 +1528,7 @@ static void smc_poll_peer(void)
         smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
         smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0; /* reconnect clears physical press edges */
+        memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         smc.picked = smc.seen = smc.input_seen = 0;
         smc.knob_i = 0;
@@ -1528,6 +1546,7 @@ static void smc_poll_peer(void)
         smc.picked = smc.seen = smc.input_seen = 0;
         smc.knob_i = 0;
         smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         smc_solo_clear();
         smc.pending = 0xFFu;
@@ -1536,6 +1555,7 @@ static void smc_poll_peer(void)
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
@@ -1616,6 +1636,9 @@ static void smc_poll_peer(void)
         /* The shared release-loss epoch also rearms edge-sensitive buttons.
          * Losing a key-up must never park PLAY, SELECT, or HOME until reconnect. */
         smc.play_down = smc.select_down = smc.home_down = 0;
+        memset(smc.held, 0, sizeof smc.held);
+        if (smc_ui.on && smc_ui.peer == smc_slot)
+            smc_ui.until = plat_ms() + SMC_UI_MS;
         smc_fx_clear();
     }
     /* A disconnect/reconnect during dispatch cancels the old physical hold
