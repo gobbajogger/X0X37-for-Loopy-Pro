@@ -77,3 +77,19 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 - Kept bass303 (src/dsp/bass303.c/.h and its tests): engine.c, ui.c, project.c, chicago_env.h and synth_engine.h use it as the Chicago voice. To remove it, we must change feature code. The owner must decide.
 - Kept experiments/wobble/wobble.c: tools/build.py and about 25 host tests link it (Miami engine). The owner must decide.
 - No .github/workflows files are in the tree.
+
+## Round 3 (2026-10-30, gobbajogger)
+| Step | Result |
+|---|---|
+| Re-author | old head cbd373d3 -> new head 70ec6074 (force-push with lease). Tree 7271e81c on both (identical). Merge-base with wip/one-build 8ac1ed62 (unchanged). Backup ref backup/all-in-one-pre-reauthor-20261030 = cbd373d3. 82 genkigenki + 6 Merge Integrator commits now gobbajogger; 129 gobba.jogger + 2 gobbajogger kept. |
+| Cleanup | 8857cc88: removes ctl.img, capture logs, environment-values.env. bass303 and wobble.c kept (firmware and host tests link them; owner decision needed). |
+| clip tests | 7fa177aa merges 9d6ddbcc (cherry-pick of 9c251ff5). |
+| minsize guard | f1fbabcd merges 05457e02 (cherry-pick of 69ba36f9). |
+| .gitignore | 67a79002: removes the 'never Git payload' private-header lines of 102ab543. |
+| Goldens | 6f505cf4: adds 15 .f32 goldens in tests/golden/synth684-f9ffd12e (SHA256 = bb21d7eb evidence). Harness: GOLDEN COMPARE 15/15 identical. |
+| mb-ci-fix-721-724 | 756f2375 merges 1d2031d8, 11eaf324 (cherry-picks of ef16395c, 5ebcbf92). Fixes undeclared original_miami_backend_voice_active in original_runtime.c. |
+| #726 | 67510006 merges 781da974. |
+| #685 | ca1a14c5 merges 9bb208f8. |
+| #732 | 90289b46 merges 106f2107; ce290925 merges 1e83f458 (AGENTS.md = #732 text). |
+| #690 | f099b2ab merges bc9a8b98 (local copy, genkigenki 5b7e7b7a re-authored, same tree 77a71376). Conflict web/x0x_installer.html: both sides kept. |
+| FMB | ea859a86 merges 9b72463c (568f340b), 2d321e42 (78701ef5). 064e1a55/4a858395 skipped (same function as 5ebcbf92). lane/mb-review-696 7b845a37: content already in. |
