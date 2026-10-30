@@ -42,7 +42,7 @@ expect playing 0
 expect tempo 120
 expect mute 4194304
 expect hit0.0.8 1
-expect sound2.0.0 48
+expect sound2.0.0 127
 # run it again and stop it halfway with HOME: everything back as well
 expect view 7
 tap SEL
