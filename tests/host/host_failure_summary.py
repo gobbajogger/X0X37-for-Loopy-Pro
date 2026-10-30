@@ -73,9 +73,9 @@ def plan_hash(states):
     return hashlib.sha256(('\n'.join(sorted(states)) + '\n').encode('utf-8')).hexdigest()
 
 
-def git_head():
+def git_head(root=None):
     try:
-        return subprocess.check_output(['git', 'rev-parse', 'HEAD'],
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root,
                                        stderr=subprocess.DEVNULL, text=True).strip()
     except (OSError, subprocess.CalledProcessError):
         return None
@@ -104,11 +104,15 @@ def validate_run_record(record, states, transcript):
     head = record.get('head', '')
     if not re.fullmatch('[0-9a-f]{40}', head):
         raise ValueError('Invalid run-record source commit')
-    if git_head() != head:
+    root = record.get('root')
+    if not isinstance(root, str) or not Path(root).is_absolute() or not Path(root).is_dir():
+        raise ValueError('Run record has no valid source root')
+    # Check the repository that ran the suite, not the current directory.
+    if git_head(root) != head:
         raise ValueError('Run record was created at a different Git HEAD')
     if record.get('source_clean_before_after') is not True:
         raise ValueError('Missing clean-source pre/post-run proof')
-    assert_clean_source()
+    assert_clean_source(root)
     actual_sha = hashlib.sha256(transcript.read_bytes()).hexdigest()
     if record.get('transcript_sha256') != actual_sha:
         raise ValueError('Run-record transcript SHA-256 mismatch')
