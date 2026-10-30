@@ -5,12 +5,14 @@
 #pragma once
 #include "smc_fx_map.h"
 
-static inline const char *smcfx_select_caption(int bus, int home_held)
+static inline const char *smcfx_select_caption(int bus, int home_held, int fx_active)
 {
     if (bus < 0 || bus >= SMCFX_N)
         return "--";
     if (home_held)
         return "CYC";
+    if (fx_active)
+        return SMCFX_SHORT[SMCFX_LP];
     if (bus == SMCFX_RVB)
         return "RVB";
     if (bus == SMCFX_MDLY)
