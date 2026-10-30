@@ -108,6 +108,10 @@ BAS-04. With REC on, all 27 keys are a keyboard. A key that you play while you h
 BAS-05. FREE PLAY = ON lets the keys play the 303 without writing notes. Both 303s have FREE PLAY OFF at power-on. [MANUAL §6] [CODE app/ui.c:128]
 BAS-06. A 303 line has a LENGTH of 1 to 64 steps, and a DIRECTION of forward, reverse, ping-pong or random. [MANUAL §6]
 
+BAS-07. The 303 parts use only the Chicago and Miami engines. The bass303 engine and the legacy wobble DSP are removed. The BASS303_* parameter numbers stay as legacy IDs (dsp/bass_param_ids.h). [USER 2026-10-30] [CODE dsp/bass_param_ids.h]
+BAS-08. A project saved by the bass303 engine loads safely. X0X does not crash, the 303 part gets the Chicago power-on sound, and X0X does not write over the old project. [USER 2026-10-30] [TEST tests/host/legacy_303_project_test.sh]
+BAS-09. The host build needs the private original-synth inputs. Without them it stops with a clear error. There is no public fallback engine. [USER 2026-10-30] [CODE host/build_host.sh]
+
 ## 5. TB-3PO
 
 TB3-01. TB-3PO writes 303 lines. Select a 303 and press ARP. [MANUAL §7]
