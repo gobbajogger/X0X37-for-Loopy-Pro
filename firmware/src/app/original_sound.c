@@ -35,8 +35,10 @@ static const x0x_param_t original_sound_miami_params[18] = {
  * editor conversion. Keep the two rounded upper-half operations explicit. */
 static int original_sound_centered(unsigned kind, unsigned parameter)
 {
-    return (kind == ORIGINAL_SOUND_CHICAGO && parameter == 4u) ||
-           (kind == ORIGINAL_SOUND_MIAMI && parameter == 7u);
+    /* Pitch bend is centred too: control 64 is exactly 0.5 (no bend), as the
+     * saved rest value in original_sound_value. */
+    return (kind == ORIGINAL_SOUND_CHICAGO && (parameter == 4u || parameter == ORIGINAL_CHICAGO_PITCH_BEND)) ||
+           (kind == ORIGINAL_SOUND_MIAMI && (parameter == 7u || parameter == ORIGINAL_MIAMI_PITCH_BEND));
 }
 static uint8_t original_sound_display_byte(unsigned kind, unsigned parameter, float value)
 {
