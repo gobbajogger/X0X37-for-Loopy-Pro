@@ -65,3 +65,7 @@ This scope is #23's standalone host test plus the proof helper's own selftest, *
 ## Next accountable integration step
 
 The host regression, scoped receipt helper and tests were committed to the isolated `chat/remaining-features` branch using the connected GitHub account default author. Run `sh tests/host/drum_kit_identity_test.sh` on the candidate's complete exact-source checkout (GCC/Clang if available). Independent QA must review that exact commit/tree and each further affected feature. A PR to `nightly` stays open until its required host proofs and feature scope are complete. Use the connected GitHub account default author; do not set a custom commit author. No main merge, firmware flash, native package, gh-pages or production promotion follows from this document.
+
+## HOME source candidate: #57 and #58
+
+The existing 8-column visual footprint is retained. `home_pattern_glyph.h` now summarizes all saved steps, rather than presenting steps 17–64 as blank, and uses the strongest real event velocity per column. A bounded host regression passed on GCC and Clang UBSan with historical header inputs; current-HEAD HOME framebuffer validation is **NOT_RUN**, so these items remain pending visual acceptance. See `docs/notes/remaining-home-overview-evidence.md`.
