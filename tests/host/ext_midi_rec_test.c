@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Live recording on the whole app (the host simulator, host/x0x_host.c without its script main):
 /* External MIDI recording for 909, 808 and BREAK (the whole app on the host simulator):
  *  - REC on, playing, the part selected in SEQ: a Note On on the part's own channel writes a step
  *    (drums: the GM_DRUM voice with its velocity in T_VEL; BREAK: the step on, with that slice).
  *  - a note on another channel writes nothing; with REC off nothing is written.
- * Build: tests/host/run_ext_midi_rec.sh [fm1|smk37]. */
+ *  - owner 2026-10-30: REC on and playing, EVERY part (909, 808, BREAK, Chicago/Miami A and B)
+ *    records its own channel at the same time, whatever part or view is selected.
+ * Build: tests/host/run_ext_midi_rec.sh (SMK-37). */
 #ifdef __APPLE__
 #define _DARWIN_C_SOURCE 1 /* expose host libproc instrumentation under POSIX feature selection */
 #endif
@@ -158,6 +159,42 @@ static void test_break(void)
     printf("  BREAK external MIDI record: own channel writes, other channel and REC off do not: checked\n");
 }
 
+static int bass_notes(int b)
+{
+    int n = 0;
+    const bpart_t *bp = &proj.pat[seq.ppat[PART_303A + b]].bass[b];
+    for (int s = 0; s < NSTEPS; s++) n += (bp->step[s].flags & BS_GATE_MASK) != 0;
+    return n;
+}
+static void test_all_parts(const char *bank)
+{
+    select_part(PART_303A);
+    set_view(V_HOME); build_pages(); tick(50);
+    clear_drum(0); clear_drum(1);
+    memset(&proj.pat[seq.ppat[PART_BRK]].brk, 0, sizeof proj.pat[0].brk);
+    for (int b = 0; b < 2; b++) memset(proj.pat[seq.ppat[PART_303A + b]].bass[b].step, 0, sizeof proj.pat[0].bass[0].step);
+    int b0 = bass_notes(0), b1 = bass_notes(1);
+    set_rec(1); set_play(1);
+    CHECK(ui.rec && seq.playing && ui.view == V_HOME, "%s all parts: REC on, playing, HOME view", bank);
+    int c909 = seq.ch[TRK_DRUM], c808 = seq.ch[TRK_DRUM + 1], cbrk = seq.ch[TRK_BRK];
+    int ca = seq.ch[TRK_BASS0], cb = seq.ch[TRK_BASS0 + 1];
+    for (int i = 0; i < 4; i++) {
+        midi3(0x90 | c909, GM_DRUM[0][2], 90); midi3(0x90 | c808, GM_DRUM[1][2], 90);
+        midi3(0x90 | cbrk, 14, 100); midi3(0x90 | ca, 48 + i, 90); midi3(0x90 | cb, 55 + i, 90);
+        tick(60);
+        midi3(0x80 | c909, GM_DRUM[0][2], 0); midi3(0x80 | c808, GM_DRUM[1][2], 0);
+        midi3(0x80 | cbrk, 14, 0); midi3(0x80 | ca, 48 + i, 0); midi3(0x80 | cb, 55 + i, 0);
+        tick(200);
+    }
+    CHECK(drum_hits(0, 2) > 0, "%s all parts: 909 records while 303A is selected on HOME", bank);
+    CHECK(drum_hits(1, 2) > 0, "%s all parts: 808 records at the same time", bank);
+    CHECK(proj.pat[seq.ppat[PART_BRK]].brk.steps != 0, "%s all parts: BREAK records at the same time", bank);
+    CHECK(bass_notes(0) > b0, "%s all parts: 303A records its channel off SEQ", bank);
+    CHECK(bass_notes(1) > b1, "%s all parts: 303B records at the same time", bank);
+    set_play(0); set_rec(0);
+    printf("  %s: every part records its own channel at once (909, 808, BREAK, A, B): checked\n", bank);
+}
+
 int main(void)
 {
     boot();
@@ -166,6 +203,12 @@ int main(void)
     test_drum(0, "909");
     test_drum(1, "808");
     test_break();
+    for (int bank = 0; bank < 2; bank++) {   /* Chicago A + B, then Chicago A + Miami B */
+        CHECK(!engine_bass_select_preset(0, 0, 0, &proj.sound), "Chicago on A");
+        CHECK(!engine_bass_select_preset(1, bank, 0, &proj.sound), "bank on B");
+        tick(100);
+        test_all_parts(bank ? "Chicago+Miami" : "Chicago+Chicago");
+    }
     printf("ext_midi_rec: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }
