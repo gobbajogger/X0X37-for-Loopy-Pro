@@ -1,0 +1,10 @@
+Factory breaks (909GR, 909FL)
+
+These files are generated. Do not edit them by hand.
+Generator: tools/export_factory_breaks.sh
+Sound source: firmware/src/dsp/drum909.c (port of 9W9, https://github.com/athousanddetails/schwung-9W9)
+License: GPL-3.0
+
+The hi-hat, ride and crash samples come from ER-99 by Matthew Cieplak
+(https://github.com/matthewcieplak/er-99). License: GPL-3.0.
+See LICENSING.md and assets/909/README.txt.
