@@ -6082,7 +6082,7 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     if (!o) return 0;
     unsigned q = o->shape[r.c == 0 ? 0 : r.c == 6 ? 1 : 2];
     if (r.c == 11) { /* TRI, DOWN, UP, SQR */
-        if (q == 1 || q == 2) { *mix = 0; return q == 1 ? 1 : 4; }
+        if (q == 1 || q == 2) { *mix = 0; return q == 1 ? 4 : 1; } /* 4 falls, 1 rises */
         *mix = q == 3 ? 127 : 0; return 2;
     }
     if (q == 1) { *mix = 0; return 1; }                      /* SAW */
@@ -6465,6 +6465,24 @@ static float adsr_original_level(const ui_adsr_t *e,int stage,float t)
     if(stage==1) return e->sustain+(1.0f-e->sustain)*fm_expf(-t/e->decay);
     return e->sustain*fm_expf(-t/e->release);
 }
+/* Segment widths follow the real stage durations: attack to full scale,
+ * decay to within 1% of sustain, release to the 0.04 cutoff. The sustain
+ * plateau has a fixed illustrative width; it is not a time. */
+static void adsr_layout(const ui_adsr_t *e,int x0,int width,int xs[5],float dur[3])
+{
+    float sum=0.0f;
+    int k,hold=42,span=width-hold;
+    dur[0]=e->attack*1.466337f;                            /* ln(1.3/0.3) */
+    dur[1]=e->decay*4.6051702f;                            /* ln(100) */
+    dur[2]=e->sustain>0.04f?e->release*fm_logf(e->sustain/0.04f):0.0f;
+    for(k=0;k<3;k++) sum+=dur[k];
+    /* Each timed stage keeps 3 px so a short stage never vanishes. */
+    int w[3],free=span-9,used=0;
+    for(k=0;k<3;k++) { w[k]=3+(sum>0.0f?(int)((float)free*dur[k]/sum+.5f):free/3); used+=w[k]; }
+    w[1]+=span-used;                                       /* rounding remainder */
+    if(w[1]<3) { w[2]-=3-w[1]; w[1]=3; }
+    xs[0]=x0; xs[1]=x0+w[0]; xs[2]=xs[1]+w[1]; xs[3]=xs[2]+hold; xs[4]=x0+width;
+}
 static UI_DRAW void draw_adsr_inline(int y,int h,int off)
 {
     static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
@@ -6473,21 +6491,9 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
         (int32_t)(ui.touch_until-plat_ms())>0?ui.touched:-1;
     int x0=13,y0=y+h-5,top=y+14,xs[5];
     uint16_t col=matrix_col(),hi=SOUND_INK;
+    float dur[3];
     adsr_values(&e);
-    /* Segment widths follow the real stage durations: attack to full scale,
-     * decay to within 1% of sustain, release to the 0.04 cutoff. The sustain
-     * plateau has a fixed illustrative width; it is not a time. */
-    float dur[3],sum=0.0f;
-    dur[0]=e.attack*1.466337f;                             /* ln(1.3/0.3) */
-    dur[1]=e.decay*4.6051702f;                             /* ln(100) */
-    dur[2]=e.sustain>0.04f?e.release*fm_logf(e.sustain/0.04f):0.0f;
-    for(k=0;k<3;k++) sum+=dur[k];
-    int hold=42,span=214-hold;
-    xs[0]=x0;
-    xs[1]=xs[0]+(sum>0.0f?(int)(span*dur[0]/sum+.5f):0);
-    xs[2]=xs[1]+(sum>0.0f?(int)(span*dur[1]/sum+.5f):0);
-    xs[3]=xs[2]+hold;
-    xs[4]=x0+214;
+    adsr_layout(&e,x0,214,xs,dur);
     int ys=y0-(int)(e.sustain*(y0-top)+0.5f);
     if(edited>=0) { /* the selected or turned stage and its live value */
         char num[16],unit[8],t[32];
