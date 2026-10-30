@@ -7,13 +7,16 @@
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
 #include "fused_reference.h"
+#include "miami_interpolation.h"
 #define ref_fma original_rne_fmaf
+#define table_fma original_miami_interpolate_rne
 #else
 #define ref_fma fmaf
+#define table_fma fmaf
 #endif
 static float fl(uint32_t u){return original_math_float(u);}
 static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
-static float lookup(const float *t,float q){if(q<=fl(0x3727c5ac))return t[0];if(q>=128)return t[128];unsigned j=(unsigned)q;return ref_fma(t[j+1]-t[j],q-(float)j,t[j]);}
+static float lookup(const float *t,float q){if(q<=fl(0x3727c5ac))return t[0];if(q>=128)return t[128];unsigned j=(unsigned)q;return table_fma(t[j+1]-t[j],q-(float)j,t[j]);}
 static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
 static float advance(const original_ramp *r){float q=r->current+r->delta;if(r->delta>0){if(q>=r->target)q=r->target;}else if(r->delta<0){if(q<=r->target)q=r->target;}else q=r->target;return q;}
 int original_miami_nonlinear(float x,float *out){
@@ -50,7 +53,7 @@ int original_miami_ms20_prepare(original_miami_ms20 *s,const original_ms20_table
  float d=clamp(depth+md,-1,1),z=ref_fma(env,d,cutoff),q=ref_fma(mc,128,z*128.0f);
  if(!original_binary32_isfinite(q))return 0;
  float a=lookup(t->a,q),b=lookup(t->b,q),cap=lookup(t->cap,q),R;
- if(r==1)R=t->r[128];else{float rq=r*128.0f;unsigned j=(unsigned)rq;R=ref_fma(t->r[j+1]-t->r[j],rq-(float)j,t->r[j]);}
+ if(r==1)R=t->r[128];else{float rq=r*128.0f;unsigned j=(unsigned)rq;R=table_fma(t->r[j+1]-t->r[j],rq-(float)j,t->r[j]);}
  float target=R<=fl(0x3727c5ac)?fl(0x3727c5ac):(R<cap?R:cap);
  float ng=clamp(noise+mn,0,1);ng=ng*ng+fl(0x3727c5ac);float reciprocal=1.0f/(float)duration;
  stage(&s->a,a,reciprocal);stage(&s->resonance,target,reciprocal);stage(&s->noise_gain,ng,reciprocal);s->b=b;s->cap=cap;s->prepared=1;return 1;
