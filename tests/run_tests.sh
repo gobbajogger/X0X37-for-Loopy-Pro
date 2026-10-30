@@ -392,6 +392,9 @@ run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-lock sh tests/host/smc_lock_test.sh
 run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
 run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
+run ui-peer-names sh tests/host/ui_peer_names_test.sh   # BT NAME row: joined connected peer names, 700 ms hold, 24 px/s scroll
+run ble-device-setting-flow python3 tests/host/ble_device_setting_flow_test.py   # BLUETOOTH row: independent bit-0 save, BT SAVE PENDING, retry
+run ble-toggle-persistence-gate python3 tests/host/ble_toggle_persistence_gate_test.py
 run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh

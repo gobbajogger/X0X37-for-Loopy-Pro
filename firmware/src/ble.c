@@ -606,6 +606,17 @@ unsigned plat_ble_peer_names(char names[2][21])
     irq_restore(f);
     return n;
 }
+/* Snapshot of the connected SMC peers under one interrupt guard; no live pointer escapes. */
+void plat_ble_peers(plat_ble_peers_t *out)
+{
+    char names[PLAT_BLE_PEER_CAP][PLAT_BLE_PEER_NAME_MAX + 1u];
+    __builtin_memset(out, 0, sizeof *out);
+    out->state = plat_ble_state();
+    out->central = ble_central_role && smc_ble_role_get();
+    if (!out->central || out->state != PLAT_BLE_CONNECTED) return;
+    out->count = plat_ble_peer_names(names);
+    __builtin_memcpy(out->name, names, sizeof names);
+}
 const char *plat_ble_name(void)
 {
     if (!ble_central_role) return ble_r.nm;
