@@ -32,6 +32,7 @@ static struct smc_peek_state *const smc_peek =
     (struct smc_peek_state *)(void *)smc_peek_raw;
 static void smc_peek_cancel(void) { smc_peek->on = 0; }
 static void smc_peek_locked_page(void);
+static void smc_ui_off(void); /* locked PAGE calls this before its definition */
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
