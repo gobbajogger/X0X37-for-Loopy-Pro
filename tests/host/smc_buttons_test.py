@@ -35,7 +35,7 @@ static struct { int len; } song_data;
 static struct { int n; } pg;
 static uint8_t page;
 static const char *const PART_N[] = {"909","808","A","B","BREAK"};
-static int last_view,last_page,fx,moved,edited,tap;
+static int last_view,last_page,fx,moved,edited,tap,knob_bank;
 static void button_tap(int b) { tap=b; }
 static int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
 static int drum_mix_page(void) { return -1; }
@@ -52,6 +52,11 @@ static void smc_record_toggle(void) {}
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
 static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
+#define smc_unmute_level(...) ((void)0)
+#define track_muted(k,t) ((void)(k),(void)(t),0)
+#define part_muted(p) ((void)(p),0)
+static void smc_knob_bank(int d) { knob_bank += d; }
+static int seq_cue_of(const void *s, int p) { (void)s; return seq.pcue[p] < NPAT ? seq.pcue[p] : -1; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }
@@ -69,7 +74,7 @@ static uint8_t *page_of(int v) { (void)v; return &page; }
 '''+ order_helpers + '\n'.join(helpers) + f + r'''
 int main(void) {
     const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
-    const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{0,1,3}};
+    const int pages[4][3]={{0,1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,0}};
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
         last_view=last_page=fx=-1;
         int note=row*8+strip; tap=-1; smc_button(note,0);
@@ -83,10 +88,11 @@ int main(void) {
     for(int note=0x60;note<=0x63;note++) {
         int d=(note&1)?1:-1;
         ui.overlay=O_NONE; ui.view=V_PART; page=1; smc_button(note,0);
-        if(note<0x62) assert(last_view==(d<0?V_HOME:V_SEQ));
+        if(note<0x62) assert(knob_bank==d);
         else { assert(page==1+d); page=d<0?0:3; smc_button(note,0); assert(page==(d<0?0:3)); }
-        ui.overlay=O_LIST; moved=edited=0; smc_button(note,0);
-        assert(note<0x62 ? moved==d && edited==0 : moved==0 && edited==d);
+        ui.overlay=O_LIST; moved=edited=0; knob_bank=0; smc_button(note,0);
+        assert(note<0x62 ? knob_bank==d && moved==0 && edited==0 : moved==0 && edited==d);
+        knob_bank=0;
     }
     return 0;
 }

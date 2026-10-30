@@ -19,7 +19,7 @@ POSIX_DEFS=-D_POSIX_C_SOURCE=200809L
 SOURCE=${SMC_UI_SOURCE_FILE:-$PWD/firmware/src/app/smc_mixer.c}
 # shellcheck disable=SC2086
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
-    -DX0X_HOST $POSIX_DEFS $DARWIN ${X0X_HOST_DEFS:-} ${SAN_FLAGS:-} \
+    -DX0X_HOST $SYNTH_DEFS $POSIX_DEFS $DARWIN ${X0X_HOST_DEFS:-} ${SAN_FLAGS:-} \
     -DSMC_SOURCE_FILE=\"$SOURCE\" -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     ${SMC_UI_TEST_FILE:-tests/host/smc_ui_test.c} $ORIGINAL_FLAGS $U -lm -o "$OUT/test"
 SMC_UI_SHOTS="$OUT" "$OUT/test"

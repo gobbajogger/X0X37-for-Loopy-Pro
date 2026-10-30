@@ -116,9 +116,9 @@ static void independent_feedback(void)
      * peer left selected by an interrupt or the last physical control. */
     proj.set.bt|=PROJ_BT_SMC_USER;
     peer_msg(1,0x90,0x5D,127); peer_msg(1,0x80,0x5D,0);
-    CHECK(smc_states[1].locked);
+    CHECK(!smc_states[1].locked); /* User preset cannot capture either peer. */
     CHECK(smc_midi_host(9u|0x9Fu<<8|0x5Du<<16|127u<<24)); smc_poll();
-    CHECK(smc_states[0].lock_down==2 && !smc_states[1].lock_down);
+    CHECK(!smc_states[0].lock_down && !smc_states[1].lock_down);
 }
 static void independent_fx(void)
 {
@@ -164,7 +164,7 @@ static void queue_wrap_matrix(void)
     }
     smc_project_reset();proj.set.bt|=PROJ_BT_SMC_USER;
     smc_slot=1;CHECK(smc_midi_host(9u|0x9Fu<<8|8u<<16|127u<<24));smc_slot=0;smc_poll();
-    CHECK(smc_states[0].solo_target[0] && !smc_states[1].solo_target[0]);
+    CHECK(!smc_states[0].solo_target[0] && !smc_states[1].solo_target[0]); /* User is ignored. */
 }
 int main(void)
 {

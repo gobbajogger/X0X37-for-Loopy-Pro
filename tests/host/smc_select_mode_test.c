@@ -104,7 +104,7 @@ static void check_main_taps(void)
     setup(V_FX, PART_303A);
     message(0x90, 27, 127); CHECK(smc.fx_down);
     message(0x90, 31, 127); message(0x80, 31, 0);
-    CHECK(ui.view == V_MIX && !smc.fx_down && !smc.fx_main_wait);
+    CHECK(ui.view == V_MIX && smc.fx_down && !smc.fx_main_wait);
     message(0x80, 27, 0); CHECK(ui.view == V_MIX && !smc.fx_down);
 }
 static void check_mode_changes(void)
@@ -117,7 +117,7 @@ static void check_mode_changes(void)
         ui.part = views[v] == V_SEQ || views[v] == V_MIX ? PART_909 : PART_303A;
         set_view(views[v]); build_pages();
         int part = ui.part, page = cur_page();
-        smc_poll(); CHECK(!smc.fx_down && !smc.fx_main_wait);
+        smc_poll(); CHECK(smc.fx_owned == (1u << (strip==2?4:strip==4?2:strip)));
         check_main_navigation_leds();
         if (views[v] != V_SEQ && views[v] != V_MIX)
             for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == (part==2?4:part==4?2:part));

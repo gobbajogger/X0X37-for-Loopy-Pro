@@ -380,6 +380,12 @@ static void scenario(void) {
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
     memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
     boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    if(user_route()) {
+        int part=ui.part;pref_t r=smc_target(0);int value=pref_get(r);
+        press(24);fader(0,0);assert(ui.part==part && pref_get(r)==value && !smc.solo);
+        puts("PASS ignored User route");return;
+    }
+
     knob_accel_isolated();
     knob_quick_spin_slower();
     record_lamp_follows_part();
@@ -431,16 +437,16 @@ static void scenario(void) {
                 assert(ui.overlay==O_LIST && ui.list_sel==selected);
             }
         }
-        int previous=-1;
-        for(int i=0;i<LIST_MAX && ui.list_sel!=previous;i++) {
-            previous=ui.list_sel; pref_t r=list_rows[previous];
-            const x0x_param_t *d=pref_desc(r);
-            if(d && d->max && r.kind!=R_ACT && r.kind!=R_HDR) {
-                int old=pref_get(r); press(old==d->max?0x62:0x63); assert(pref_get(r)!=old);
+        int selected=ui.list_sel;
+        int banks=(ui.list_n-ui.list_top+7)/8;
+        for(int bank=0;bank<banks;bank++) {
+            for(int n=0;n<8;n++) {
+                pref_t r=smc_knob_target(n);const x0x_param_t *d=pref_desc(r);
+                if(d && d->max && r.kind!=R_ACT && r.kind!=R_HDR) edit(r,n);
             }
-            press(0x61);
+            press(0x61);assert(ui.list_sel==selected);
         }
-        assert(ui.list_sel==ui.list_n-1); press(6); assert(ui.overlay==O_NONE);
+        press(6); assert(ui.overlay==O_NONE);
     }
     /* Both kits: all eleven tracks, sound pages then mix pan and sends. */
     for(int kit=0;kit<2;kit++) {
@@ -522,7 +528,7 @@ pickup: ;
     clip_grid_mode=1; ck.pg=0; old=pref_get(pg.r[cur_page()][0]); turn(0,1);
     assert(pref_get(pg.r[cur_page()][0])==old);
     for(int p=1;p<=3;p++) {
-        press(0x61); assert((ck.pg&3)==p);
+        press(7); assert((ck.pg&3)==p);
         int count=p==3?9:4;
         for(int i=0;i<count;i++) {
             int f=CK_PAGE_FIELDS[p-1][i]; assert((ck.pg>>4)==f);
@@ -530,8 +536,8 @@ pickup: ;
             press(0x2F);
         }
     }
-    press(0x61); assert(!(ck.pg&3));
-    press(0x61); press(5); assert(ui.view==V_GLO && ui.overlay==O_LIST);
+    press(7); assert(!(ck.pg&3));
+    press(7); press(5); assert(ui.view==V_GLO && ui.overlay==O_LIST);
     int clip_field=fields[CK_E_ON]; turn(0,1); assert(fields[CK_E_ON]==clip_field);
     press(6); assert(ui.overlay==O_NONE && (ck.pg&3)==1);
     press(6); assert(!(ck.pg&3));

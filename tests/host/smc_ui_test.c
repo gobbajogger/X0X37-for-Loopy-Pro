@@ -125,7 +125,12 @@ static void message(int st, int a, int b)
 }
 static void fader(int n, int value) { message(0xE0 + n, 0, value); }
 static void knob(int n, int delta) { message(0xB0, 16 + n, delta > 0 ? delta : 64 - delta); }
-static void expire(void) { now_ms += 1200; ui_frame(); CHECK(!smc_ui_active()); }
+static void expire(void) {
+    /* Idle starts after physical release. Hold-duration checks use the
+     * production fixture in mixer_ux_test without this convenience helper. */
+    for (int n=0;n<128;n++) if (smc.held[n>>3] & (1u<<(n&7))) message(0x80,n,0);
+    now_ms += 1200; ui_frame(); CHECK(!smc_ui_active());
+}
 static uint16_t before_fb[240 * 240], active_fb[240 * 240];
 static unsigned changed_rows(int lo, int hi, const uint16_t *a, const uint16_t *b)
 {
@@ -219,7 +224,8 @@ static void test_overlays(void)
     saved = screen_state(); fader(0, 0); unchanged(saved);
     now_ms += 1500; ui_frame(); unchanged(saved);
     fader(0, 1); CHECK(smc_ui_active());
-    message(0x90, 0x61, 127); CHECK(ui.overlay == O_LIST && !smc_ui_active());
+    message(0x90, 0x61, 127); CHECK(ui.overlay == O_LIST && smc_ui_active());
+    message(0x80,0x61,0);
     saved = screen_state(); now_ms += 1500; ui_frame(); unchanged(saved);
     setup(V_SEQ, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui.help = 1; held_btn = ui.btn = 1u << (ui.help - 1);
@@ -527,7 +533,7 @@ static void test_selected_lane(void)
 
 
 /* Compare the actual native title pixels with independently specified sound
- * names. MIX retains its numbered strips even when ui.part is another kit. */
+ * names. MIX and SEQ both use authoritative short voice names. */
 static void check_drum_titles(int kit, int bank, int names)
 {
     static const char *const voices[2][11] = {
@@ -539,7 +545,7 @@ static void check_drum_titles(int kit, int bank, int names)
     cv_begin(240, 13, C_BLACK); cv_band(0, 13);
     for (int n = 0; n < 8; n++) {
         char number[8]; int track = bank * 8 + n;
-        const char *label = track >= NDRUM ? "--" : names ? voices[kit][track] :
+        const char *label = track >= NDRUM ? "--" : (names || ui.view == V_MIX) ? voices[kit][track] :
             (put_i(number, track + 1), number);
         int selected = ui.sel[kit] == track;
         if (n) cv_rect(n * 30, 0, 1, 13, C_LINE);
@@ -565,14 +571,14 @@ static void test_drum_titles(void)
         setup(V_MIX, 1 - kit); *page_of(V_MIX) = kit + 1; ui.sel[kit] = bank * 8; build_pages(); smc_page_set(kit + 1);
         knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 0);
     }
-    puts("PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged");
+    puts("PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX uses the same voice names");
 }
 
 static void test_action_captions_and_knobs(void)
 {
     setup(V_HOME, PART_303A);
     CHECK(!strcmp(smc_button_caption(15), "PART"));
-    CHECK(!strcmp(smc_button_caption(7), "HOME"));
+    CHECK(!strcmp(smc_button_caption(7), "SONG"));
     CHECK(!strcmp(smc_button_caption(13), "MIX"));
     CHECK(!strcmp(smc_button_caption(14), "GLOB"));
     CHECK(!strcmp(smc_button_caption(5), "LIST"));

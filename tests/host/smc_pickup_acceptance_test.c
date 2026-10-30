@@ -47,7 +47,7 @@ static void sample(int strip, int value, int user)
 }
 static void crossing_matrix(void)
 {
-    for (int user = 0; user < 2; user++)
+    for (int user = 0; user < 1 /* User preset is ignored; negative coverage in mixer_ux_test. */; user++)
     for (int drum = 0; drum < 3; drum++)
     for (int strip = 0; strip < 8; strip++)
     for (int down = 0; down < 2; down++)

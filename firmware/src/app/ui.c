@@ -5130,8 +5130,9 @@ static UI_DRAW void draw_header(void)
         put_i(b, shown);
     }
     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
+    { uint8_t phase = seq.metro_view;  /* audio-owned phase, neutral in STOP/WAIT */
+      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
+    }
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
