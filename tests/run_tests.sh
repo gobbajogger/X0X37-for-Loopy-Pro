@@ -373,6 +373,7 @@ run ble-central-first-notification python3 tests/host/ble_central_first_notifica
 # Verify the normal firmware configuration, not a test-only -DBLEC_TWO_PEER override.
 # The #700 single-peer command-credit fallback remains exercised explicitly.
 run ble-active-peer-contract python3 tests/host/ble_active_peer_contract_test.py
+run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
 run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
 run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
 run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
