@@ -1,0 +1,33 @@
+PR #691 golden set, 2026-10-30
+Reference source: f9ffd12e8c254015d61e89dab647b8466b67b0fd (the reference that the PR names).
+Candidate: chat/miami-opt bc47c97cbbc26030b583d03cd73029e2a8931f2b.
+The 15 .f32 files are binary and contain output of private inputs. They are not in Git. They stay in build/ (ignored).
+
+How to make the golden set:
+1. Put the 12 external inputs at their paths. Run: python3 tools/check_original_inputs.py --scope all (PASS, manifest 9c7ac9b0).
+2. Put experiments/original_synth/state_codec_private.h at its path. This branch does not have it (see note).
+3. git worktree add ../ref f9ffd12e; copy the same inputs into ../ref.
+4. In ../ref: python3 tools/synth684_harness/run.py --save-golden build/synth684-golden-f9ffd12e
+5. In the candidate: python3 tools/synth684_harness/run.py --golden <golden dir> --out build/h691
+
+Result: GOLDEN COMPARE: 15/15 identical (-O2, validity=REAL, block 256, 44100 Hz, f32le stereo).
+
+Note: state_codec_private.h is an authored interface (EXTERNAL-INPUTS.md) but it is not in this branch.
+chicago_voice_snapshot.c does not compile without it. The integrator must decide to add it to the source.
+
+SHA256 of the 15 golden files:
+893d819a33026206a65a6779f74435be0c5c096fbb806042aefa0f5cd3300213  chicago-p00-fx0.f32
+893d819a33026206a65a6779f74435be0c5c096fbb806042aefa0f5cd3300213  chicago-p00-fx1.f32
+a55b511e231b05fe9a62e9fc0582422ea1301d48485e466a7032eea1fd152400  chicago-p00-fx2.f32
+b3e170587022dcc79d3ab41d8d62409ca5172157878cbff34d1f0e2dfa31ba89  chicago-p00-fx3.f32
+a35fa06898e03fec2ae73d8e0cbafdf1c9e5cd6ff982470faccb143f59629717  chicago-p00-fx4.f32
+2258b8b69fac77f540e576767ac1317a18db19bbac57d3d8a42a1903181210a0  chicago-p00-fx5.f32
+b11513afce749884257bb8e33531584f45071c1e70de6b05bf3c522683dffadc  chicago-p00-fx6.f32
+31f6a59c551bf954bc6f0e4e5a23431df5ce7a28002e1ff6e3ff12675ad91cef  chicago-p07-fx0.f32
+c6da1cd5a139be45847a9c403213f50a83d7176c001c5b94bedfd32cf3f979c4  chicago-p19-fx0.f32
+e0079955a78c63e8db24b0f5babf0e73a6e11bb50411e75039ece99e6687df6f  chicago-p33-fx0.f32
+5ef9d1eaa0aad518ab245daa48e1fd16b25ab1f6628cbb60959ed9e42eaaa65f  chicago-p54-fx0.f32
+bff43de1f26edc0eaf1876277c0e759c4c9cc785d9e4cf66778c10582c6c9edd  miami-p00-fx0.f32
+e8a7dd2c09e7353d1f46ef7468fe0c111d8202108b5d72aebe57b94dfa8e6622  miami-p09-fx0.f32
+002bec7fc326717809e205e116998491ee9ecdf8d5e13135f5b676f0cb02efe3  miami-p18-fx0.f32
+2f106ade9f913a7845ca6e68019e4033bc988f7ada1f3e6e17f9ee78173e5826  miami-p29-fx0.f32
