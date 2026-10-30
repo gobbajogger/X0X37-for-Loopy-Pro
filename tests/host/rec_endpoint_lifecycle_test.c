@@ -400,6 +400,39 @@ static void test_timestamped_live_duration(void)
     CHECK(engine_bass_keys_held() & 1, "same-pitch count keeps the new press through the stale off");
     capture_midi(capture_clock + 200, 0, 48, 0);
     CHECK(!(engine_bass_keys_held() & 1), "same-pitch count releases on the new press's own off");
+    /* The cancelled press's off can be LOST. A fresh same-pitch off must
+     * recover after a bounded grace, including the REC endpoint/cache. */
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90);
+    capture_frames(6000);
+    ui.rec = 0; input(); capture_frames(1);
+    CHECK(!(engine_bass_keys_held() & 1), "cancel retires the original external gate");
+    ui.rec = 1; input();
+    capture_midi(capture_clock + 200, 0, 48, 80);
+    capture_midi(capture_clock + 200, 0, 48, 0); /* fresh off; original off never arrives */
+    CHECK(engine_bass_keys_held() & 1, "ambiguous same-pitch off uses short grace");
+    capture_frames(4608);
+    CHECK(!(engine_bass_keys_held() & 1), "lost old Note Off cannot strand fresh press");
+    CHECK(!seq.rec_bass[0].active && !seq.rec_bass[0].own_ok,
+          "lost-release recovery closes the current REC endpoint");
+    capture_midi(capture_clock + 200, 0, 48, 0); /* very late old off */
+    CHECK(!(engine_bass_keys_held() & 1), "late orphan off cannot resurrect gate");
+
+    /* With both offs arriving promptly, the old off must NOT end the new
+     * same-pitch press, and the new off must end it without a timeout. */
+    capture_reset(16, 0);
+    capture_midi(441, 0, 48, 90);
+    capture_frames(6000);
+    ui.rec = 0; input(); capture_frames(1);
+    ui.rec = 1; input();
+    capture_midi(capture_clock + 200, 0, 48, 80);
+    capture_midi(capture_clock + 200, 0, 48, 0); /* old off */
+    CHECK(engine_bass_keys_held() & 1, "delayed old off preserves fresh note");
+    capture_midi(capture_clock + 200, 0, 48, 0); /* fresh off */
+    CHECK(!(engine_bass_keys_held() & 1), "fresh off releases without waiting for timeout");
+    capture_frames(4608);
+    CHECK(!(engine_bass_keys_held() & 1), "expired grace cannot create a ghost hold");
+
     capture_reset(16, 0);
     engine_bass_record(0, 48, 90, 0); capture_frames(1);
     capture_midi(2000, 0, 55, 90);
