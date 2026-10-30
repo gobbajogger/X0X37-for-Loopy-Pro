@@ -6301,6 +6301,8 @@ static UI_DRAW void draw_preset_name(int voice,int cx,int y,int height,uint16_t 
 }
 #endif
 
+static UI_DRAW int orig_strip_glyph(pref_t r,int val,int cx,uint16_t col);
+static UI_DRAW int orig_strip_slot(pref_t r);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int active, uint16_t col, int height, int night)
 {
     const x0x_param_t *d=pref_desc(r);
@@ -6361,6 +6363,13 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
     }
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
+    if(!shape && !unused && val>=0 && orig_strip_slot(r)) {
+        /* Reuse the knob-strip control_glyph families (0e58b960/5f58a199) in the
+         * wave-glyph layout: glyph left, original readout right, no extra bar. */
+        int saved=cv_oy; cv_oy+=y-7; orig_strip_glyph(r,val,x+19,ink); cv_oy=saved;
+        pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); }
+        text_c(x+48,y+28,&FONT_T,num,ink);
+    } else
     if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
         pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); } /* original readout text */
@@ -6759,6 +6768,45 @@ static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
         int at=left+q*36/127;
         cv_rect(left,49,37,1,C_LINE);cv_rect(at,48,1,3,col);
     }
+    return 1;
+}
+
+/* Original Chicago/Miami controls without a PART glyph reuse the existing
+ * knob-strip families: tone-lowpass, DJF filter peak, drive, bipolar, pips
+ * and the neutral value scale. Strip coordinates (y 28..50); caller offsets. */
+static UI_DRAW int orig_strip_slot(pref_t r)
+{
+    if(r.kind!=R_ENG || r.a!=T_303) return 0;
+    int b=engine_bass_sound_bank(&proj.sound,r.b);
+    if(b==ORIGINAL_SOUND_CHICAGO) return r.c>=1 && (r.c<=6 || r.c==11 || r.c==12 || r.c==15 || r.c==17);
+    if(b==ORIGINAL_SOUND_MIAMI) return r.c>=1 && r.c<=15 && r.c!=6 && r.c!=11;
+    return 0;
+}
+static UI_DRAW int orig_strip_glyph(pref_t r,int val,int cx,uint16_t col)
+{
+    const x0x_param_t *d=pref_desc(r);
+    int q=d && d->max?(val*127+d->max/2)/d->max:0,left=cx-18,right=cx+18;
+    int chi=engine_bass_sound_bank(&proj.sound,r.b)==ORIGINAL_SOUND_CHICAGO;
+    if(q<0)q=0;
+    if(q>127)q=127;
+    if(r.c==(chi?2:9)) {                     /* CUTOFF: tone-lowpass family */
+        int pivot=left+7+q*20/127;
+        cv_rect(left,47,37,1,C_LINE);cv_line(left,32,pivot,32,col);cv_line(pivot,32,right,46,col);
+    } else if(chi && r.c==3) {               /* PEAK: DJF lowpass at the live CUTOFF */
+        pref_t cr=PR(R_ENG,T_303,r.b,2);const x0x_param_t *dc=pref_desc(cr);int c=matrix_value(cr);
+        if(dc && dc->max) c=(c*127+dc->max/2)/dc->max;
+        filter_glyph(cx,28,1,c<0?0:c>127?127:c,q,col);
+    } else if(chi?(r.c==5 || r.c==6):r.c==10) {
+        drive_amount_glyph(q,cx,col);        /* BITE, GNAW, CRUSH: drive family */
+    } else if(!chi && (r.c==3 || r.c==7)) {  /* PITCH, TUNE: bipolar family */
+        int at=left+q*36/127;
+        cv_rect(left,38,37,1,C_LINE);cv_rect(cx,32,1,13,C_GRAY);
+        cv_rect(left,35,1,7,C_GRAY);cv_rect(right,35,1,7,C_GRAY);
+        cv_rect(at-1,34,3,9,col);
+    } else if(d && d->max<12) {              /* named switch: position pips */
+        int n=d->max+1,pw=n>6?3:6,gap=2,w0=n*(pw+gap)-gap;
+        for(int k=0;k<n;k++) box(cx-w0/2+k*(pw+gap),33,pw,9,k==val?col:C_LINE);
+    } else control_glyph(r,val,cx,col);      /* neutral value scale */
     return 1;
 }
 
