@@ -47,3 +47,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #705 | fc2eba78 | merged | 4c934f11 | - | round 2: new head commits |
 | #712 | bb030fe1 | merged | ce8be67f | - | round 2: new head commits |
 | #696 | 340dfd09 | merged | e71ff698 | - | round 2: new head commits |
+| lane/mb-review-696 | 35261cf3 | merged | 4f656827 | – | 238c88b0 came via #696 |
