@@ -53,6 +53,7 @@ def capture(root, destination, jobs, selection):
     record = {
         'schema': RUN_SCHEMA,
         'head': head,
+        'root': str(root),
         'source_clean_before_after': True,
         'command': command,
         'runner_env': {'X0X_TEST_JOBS': str(jobs), 'X0X_TESTS': selection},
