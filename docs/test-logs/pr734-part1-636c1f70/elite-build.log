@@ -1,0 +1,24 @@
+check_locked_settings: 20 settings ok
+experiments/wobble/miami_decimator_adapter.c:7:39: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+    miami_decimator_adapter_t next = {0};
+                                      ^
+                                      {}
+1 warning generated.
+font renderer: Pillow has no libraqm; using centered tabular-digit metrics
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 2312 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 3296 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 8, 4278 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 4370 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 4844 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 17, 3615 B
+font set barlow: 23190 B (approx)
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+break bank: none (factory loops are an optional install)
+loader: image 8412 B at 0x1c0a800, bss end 0x1c0f700
+loader: ota.bin 7341 B
+  ok    .ram_text: 844 insns, no calls
+  ok    app code area 552672 B, 100736 B free (Bluetooth block at app.bin 0x86ee0)
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 451936 B; RAM .data+.bss 94960 B of 98304; pool 333772 B of 344064
+  FAIL  src/app/engine.c:48: register/window address outside hal/ (0x10000u); add a hal/ helper
+build: checks failed
