@@ -57,3 +57,15 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #716 | e81404eb | merged | 1e368c68 | - |  |
 | #713 | ca59579a | merged | 41cacf08 | AGENTS.md (union) |  |
 | #703 | d9ca3319 | merged | 95d0f7cd | reference/recovered-ui/MANIFEST.json, README.md (kept text-only subset from base) | base already has the text-only subset of #703; 19 PNG mocks left out (no-binaries rule) |
+
+## Round 2 notes
+- #712 vs #691 overlap (6 Miami files: miami_ms20.c, miami_zero.h, miami_cpu_test.py, synth684_harness elite_sizes.py/run.py/synth684_bench.c): #691 side kept as main Miami version. #712 UI and Chicago parts kept.
+- #709 vs #700: #700 code kept where both changed the same lines (main_fm1.c, project.c had identical logic); #709 unique test smc-boot-saved-roles kept.
+- #707: superseded by #691 (same table fast path); merge records ancestry only.
+- #714 vs #717/#725: #714 button/pattern fixes kept; caption API takes #714's 4th arg, but shows LPF on SELECT to match #725 audio.
+- #687 vs #700 (#700 kept, nothing ported). #687 has that #700 lacks: two-peer HCI central (BLEC_ONE_PEER_RECOVERY off), per-handle ACL `inflight` credits, per-peer `command_retry` in poll, `conn_zero` handle-0 flag (#700 has `linked` for the same case), TIMER5-owned pair binding, plus smc_mixer.c two-peer changes and ble.c edits; tests ble_zero_conn, smc_peer_names, smc_clip_visibility, smc_port_regression versions.
+- Scratch merge probes (not merged; port plan):
+  - #650: conflicts ui.c, test_builtin_break_output.py, ui_main_material_test.c, ui_shared_glyph_test.c; also brings experiments/wobble/wobble.c (forbidden).
+  - #651: conflicts ui.c, test_builtin_break_output.py, ui_shared_glyph_test.c, run_tests.sh; brings wobble.c (forbidden).
+  - #638: conflicts ui.c, test_builtin_break_output.py, ui_shared_glyph_test.c; brings wobble.c (forbidden).
+  - cursor/smc-mixer-ui-popup-stage6-blocked-8e03: conflicts BEHAVIOR.md, smc_mixer.c, smc_drum_rs_test.c, smc_feedback_test.py, smc_reachability_test.c, run_tests.sh.
