@@ -3,9 +3,6 @@
  * Included by the unity build after gfx.c, so drawing helpers are in scope. */
 #pragma once
 #include <stdint.h>
-#ifndef X0X_ORIGINAL_SYNTH
-#define X0X_ORIGINAL_SYNTH 0
-#endif
 #include "plat.h"
 #include "engine.h"
 #include "../seq/pattern.h"
@@ -28,13 +25,7 @@
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u
-#if X0X_ORIGINAL_SYNTH
 #define PROJ_SND_REV 13u
-#elif X0X_BASS_TAGGED_SOUND
-#define PROJ_SND_REV 11u
-#else
-#define PROJ_SND_REV 10u
-#endif
 /* Revision13 stores schema2 cells with55 Chicago programs and seven FX choices.
  * Revision12 stored diagnostic81-program OS cells with OCH1/OMI1 tags.
  * The original profile accepts no earlier engine or project revision.

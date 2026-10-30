@@ -11,7 +11,7 @@ ${CC:-cc} -std=c99 -Wall -Wextra -Werror -I"$OUT" \
     tests/host/project_update_guard_test.c -o "$OUT/project_update_guard"
 "$OUT/project_update_guard"
 sh host/build_host.sh --generate-only
-U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
+U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/breaks.c
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
 firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c"
 for test in project_runtime project_smc_runtime; do

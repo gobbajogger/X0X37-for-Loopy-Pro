@@ -281,9 +281,6 @@ void plat_stalls_enable(int on) { (void)on; }
 
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/x0x.h"
-#if !X0X_ORIGINAL_SYNTH
-#include "../firmware/src/app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
-#endif
 #include "../firmware/src/app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
 #include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
@@ -953,12 +950,10 @@ int main(int argc, char **argv)
                 printf("line %d: no param %d %d %d\n", lineno, t, v, i);
                 return 2;
             }
-#if X0X_ORIGINAL_SYNTH
             if (t == T_303) {
                 if ((unsigned)v >= NBASS || !original_sound_set(proj.sound.v[t][v], (unsigned)i, (unsigned)val)) return 2;
                 engine_bass_sound_refresh(&proj.sound, v);
             } else
-#endif
             proj.sound.v[t][v][i] = (uint8_t)val;
             engine_set(t, v, i, val);
             run_ms(1);

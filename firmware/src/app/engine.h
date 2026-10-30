@@ -35,17 +35,12 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 
 /* The replacement profile owns a new project/patch format. It does not admit
  * legacy synth identities or their converters. */
-#ifndef X0X_ORIGINAL_SYNTH
-#define X0X_ORIGINAL_SYNTH 0
-#endif
-#if X0X_ORIGINAL_SYNTH
 #undef X0X_BASS_PRESET_PREVIEW
 #define X0X_BASS_PRESET_PREVIEW 1
 #undef X0X_BASS_TAGGED_SOUND
 #define X0X_BASS_TAGGED_SOUND 1
 #undef X0X_BASS_NOTE_SOUND
 #define X0X_BASS_NOTE_SOUND 0
-#endif
 /* Separate optional storage features for the legacy build profile. */
 #ifndef X0X_BASS_PRESET_PREVIEW
 #define X0X_BASS_PRESET_PREVIEW 0
@@ -191,24 +186,14 @@ int engine_nvoices(int target);
 int engine_nparams(int target, int voice);
 const x0x_param_t *engine_param(int target, int voice, int i);
 const char *engine_voice_name(int target, int voice);
-#if X0X_DEV_WOBBLE || X0X_ORIGINAL_SYNTH
 int engine_bass_is_wobble(int voice); /* live WBL1 backend on 303 A/B voice */
-#else
-static inline int engine_bass_is_wobble(int voice)
-{
-    (void)voice;
-    return 0;
-}
-#endif
 
 /* main loop -> ISR */
 void engine_set(int target, int voice, int i, int value);   /* queued; the sound_t mirror is the caller's */
 void engine_set_base(int target, int voice, int i);         /* exact patch value, after a temporary edit */
-#if X0X_ORIGINAL_SYNTH
 #ifdef X0X_HOST
 unsigned engine_original_keys(int voice, int latched);
 uint32_t engine_original_value_bits(int voice, unsigned parameter);
-#endif
 #endif
 void engine_out_loud(int on);          /* 1: the output at the codec's full scale (6 dB hotter than Felucca's) */
 void engine_usb_full(int on);          /* 1: engine_render at full level, engine_volume the MASTER knob after */

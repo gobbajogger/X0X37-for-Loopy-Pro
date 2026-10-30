@@ -169,7 +169,6 @@ optional_ref() {
     case "$1" in
     drum909) f="${NINEW9_DIR:-../schwung-9W9}/src/dsp/er99_engine.c" ;;
     drum808) f="${EIGHTW8_DIR:-../schwung-8W8}/src/dsp/sc808_engine.cpp" ;;
-    bass303) f="${SCHWUNG303:-../schwung-303}/src/dsp/open303/rosic_Open303.cpp" ;;
     *) return 1 ;;
     esac
     [ -f "$f" ] && return 1
@@ -314,8 +313,6 @@ run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 l
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
 run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_tie_lookahead_test tests/host/seq_random_tie_lookahead_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_random_tie_lookahead_test"   # BAS-03/06 RANDOM TIE gate prediction
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
-run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
-run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
 for t in bass-presets-map bass-presets-live bass-legacy-display bass-tagged-storage; do
     if [ "$PIL_SKIP" = 1 ]; then not_run "$t" Pillow; else
         run "$t" sh "tests/host/$(echo "$t" | tr - _)_test.sh"
@@ -412,7 +409,7 @@ run drum-pan sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] ||
 run stereo sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
-for t in drum909 drum808 bass303 breaks; do
+for t in drum909 drum808 breaks; do
     [ -f "tests/host/run_$t.sh" ] || continue
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
     else run "$t" sh "tests/host/run_$t.sh"; fi
@@ -420,9 +417,6 @@ done
 run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test.py   # no brk_hold mute; engine_brk_loops flushes deferred bank publish (#354)
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
 run brk-outline-gate python3 -B tests/host/engine_brk_outline_gate_test.py   # engine_brk_outline stores through brk_outline_peak_u8 clamp
-run bass303-ampmode sh tests/host/run_bass303_ampmode.sh   # Chicago AmpMod Env/Gate on native303 (no schwung ref)
-run bass303-wave-gnaw sh tests/host/run_bass303_wave_gnaw.sh   # Chicago Wave morph + VCF Gnaw on native303
-run bass303-amp-adsr sh tests/host/run_bass303_amp_adsr.sh   # Chicago Bite + amp Env A/D/S/R on native303
 run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Range/Speed (live held-note)
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (+ Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert flags)
 run chicago-crush sh tests/host/run_chicago_crush.sh   # Chicago Crush/Decimator insert quantize+hold on native303
@@ -444,7 +438,6 @@ run chicago-au-battery python3 tests/host/test_chicago_au_battery.py   # scenari
 if [ -z "${CHICAGO_AU_REFS:-}" ]; then not_run chicago-au-compare CHICAGO_AU_REFS
 else run chicago-au-compare python3 tests/host/render_chicago_au_compare.py; fi   # Acid AU spectral battery (C-SND-1); refs gitignored
 run au-compare-battery python3 tests/host/test_au_compare_battery.py   # preset vs matrix modes + quick/full timing
-run miami-au-render sh tests/host/run_miami_au_render.sh   # wobble offline renderer for Miami factory preset battery
 run miami-au-battery python3 tests/host/test_miami_au_battery.py   # one preset render + aligned self F_agg
 if [ -z "${MIAMI_AU_REFS:-}" ]; then not_run miami-au-compare MIAMI_AU_REFS
 else run miami-au-compare python3 tests/host/render_miami_au_compare.py; fi   # Miami preset (default) or matrix diagnostic; refs gitignored
@@ -587,14 +580,14 @@ if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
 # Full generate-only: needs font + break bank (Pillow-gated above), not tables alone.
 run rec-live sh -c "sh host/build_host.sh --generate-only >/dev/null && $CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c \
-    firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
+    firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_test"
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live-smk Pillow; else
 run rec-live-smk sh -c "sh host/build_host.sh --generate-only >/dev/null && $CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD_SMK37=1 -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_smk_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c \
-    firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
+    firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_smk_test"
 fi

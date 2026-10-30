@@ -219,14 +219,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 }
 #include "app/smk_clip_keys.h"
 #include "app/smk_arrows.h"
-#if X0X_ORIGINAL_SYNTH
 #include "app/original_sound.h"
-#else
-#include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
-#endif
-#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
-#include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
-#endif
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint8_t knob_bank_prev;
@@ -1033,24 +1026,12 @@ static void smk_wheels(void)
             engine_brk_bend(bend < 0 ? bend * 8192 / 63 : bend * 8191 / 63);
             if (!bend) bend_part = -1;
         } else if (bend_part >= 0) {
-#if X0X_ORIGINAL_SYNTH
             int param = engine_bass_is_wobble(bend_part) ?
                 ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
             if (bend)
                 engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
             else
                 engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
-#else
-            int param = CHI_PBEND;
-#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
-            if (engine_bass_is_wobble(bend_part))
-                param = W_PITCH_BEND;
-#endif
-            /* A held gesture belongs to its original voice across page navigation. */
-            want = bend ? chi_pbend_from_wheel((int)bend)
-                        : proj.sound.v[T_303][bend_part][param];
-            engine_set(T_303, bend_part, param, (int)want);
-#endif
             if (!bend)
                 bend_part = -1;
         }
@@ -1062,17 +1043,8 @@ static void smk_wheels(void)
         if (cut_part >= 0) {
             /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
-#if X0X_ORIGINAL_SYNTH
             engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
                 ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
-#else
-#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
-            if (engine_bass_is_wobble(cut_part))
-                engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
-            else
-#endif
-                engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
-#endif
             if (!mw)
                 cut_part = -1;
         }
@@ -2095,10 +2067,6 @@ CK_FN static void smk_frame(void)
     allow_pages = allow_pages && !padcal.on;
 #endif
     ui_brk_page_keys(outer, allow_pages);
-#if !X0X_ORIGINAL_SYNTH
-    while (smk_extkey_take() >= 0)
-        ;
-#endif
     if (ui_project_busy()) {
         smk_arrows();
         smk_faders();
