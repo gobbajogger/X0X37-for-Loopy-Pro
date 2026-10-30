@@ -63,20 +63,33 @@ Task 2. LOCKED mixer owns its page while keeping captured targets
 4. Touch SMC fader 1 and encoder 1 again. They must still edit the captured
    targets even though the mixer page/mapping display moved. This mixer navigation
    updates `lock_page`; it must not release or retarget the lock.
-5. If a second SMC is available, repeat S-LOCK on the other peer with a different
+5. While still LOCKED, switch the keyboard VIEW (not only its page or part) to
+   a view with fewer pages, or no pages, than the captured mixer view. Verify
+   that the SMC keeps its own page, page label and fader-button LED mapping.
+   Open the SMC's own page/mapping popup and change its page/mapping again:
+   its page controls and labels must still work, moving `lock_page` despite
+   the keyboard's different view. Touch fader 1 and encoder 1: both must still
+   edit the original captured targets.
+6. If a second SMC is available, repeat S-LOCK on the other peer with a different
    part/page/bank. Change pages from each mixer in turn. Each peer must keep its
    own locked context and must not move the other peer's page or captured targets.
-6. Unlock the first mixer with the normal long-Pause gesture. It must return to
-   following the keyboard's current page.
-- Expected: keyboard navigation cannot move a locked mixer. Mixer navigation remains
-  available and changes the mixer's own page/mapping and LEDs, while the captured
-  fader/knob targets stay fixed. The saved lock context is scoped per peer and part:
-  `lock_part`, `lock_view`, `lock_page`, `lock_bank`, and `lock_kit` do not leak
-  between peers or parts.
-- Stop if: keyboard navigation moves the locked mixer; mixer navigation is blocked;
-  changing the mixer page retargets a captured fader/knob; the LEDs follow the
-  keyboard instead of the locked mixer page; one peer changes another peer's lock
-  context; or unlock does not resume keyboard-page following.
+7. Unlock the first mixer with the normal long-Pause gesture while the keyboard
+   is still on the different view. It must return to following that live keyboard
+   view/page. Return the keyboard to a multi-page view and change its page; the
+   unlocked mixer must follow with matching labels, targets and fader-button LEDs.
+- Expected: keyboard page, part and VIEW changes cannot move a locked mixer.
+  Mixer navigation remains available, even when the keyboard view has fewer or
+  no pages. The mixer keeps its own page labels and fader-button LEDs, and the
+  SMC's own popup changes its page/mapping while the captured fader/knob targets
+  stay fixed. Unlock resumes following the keyboard's live view and page. The
+  saved lock context is scoped per peer and part: `lock_part`, `lock_view`,
+  `lock_page`, `lock_bank`, and `lock_kit` do not leak between peers or parts.
+- Stop if: keyboard page, part or VIEW navigation moves or clamps the locked
+  mixer page or label; the SMC popup/page controls stop working on a smaller or
+  no-page keyboard view; its fader-button LEDs follow the keyboard instead of
+  the mixer; a page change retargets a captured fader/knob; one peer changes
+  another peer's lock context; or unlock fails to resume following the live
+  keyboard view and page.
 
 ## 4. Rollback
 
