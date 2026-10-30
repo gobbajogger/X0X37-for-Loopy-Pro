@@ -1,6 +1,6 @@
 {
-  "base": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40",
-  "scope": "Source-only Chicago/Miami optimized DSP convergence with original-profile DnBOX UI, six themes, native engine/preset selector and shared glyphs. Affected host render, state, slot controls, original DSP; Pro and Elite development target builds. No migration or legacy synth. Branch rebased by exact-blob composition onto newest integrated wip/one-build at 094bb1a55c159aefb0e2bfa39790a1b4b74cee40; preserves existing rate pad ownership, BREAK/SMC and shared UI, adds the reviewed Chicago/Miami optimization blobs only.",
+  "base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "scope": "Source-only Chicago/Miami optimized DSP convergence with original-profile DnBOX UI, six themes, native engine/preset selector and shared glyphs. Affected host render, state, slot controls, original DSP; Pro and Elite development target builds. No migration or legacy synth. Existing PR branch integrates the current base (verified ancestor) by exact-blob composition onto newest integrated wip/one-build at cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21; preserves existing rate pad ownership, BREAK/SMC and shared UI, adds the reviewed Chicago/Miami optimization blobs only.",
   "checks": [
     {
       "reason": "Fail closed on exact approved UI and optimized DSP blobs, selector compilation, required glyphs and restricted files",
@@ -8,6 +8,30 @@
         "python3",
         "-B",
         "tests/host/test_engines_ui_source_closure.py"
+      ]
+    },
+    {
+      "reason": "Confirm current integrated original synth build routing excludes retired bass303/wobble engine objects",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_original_build_composition.py"
+      ]
+    },
+    {
+      "reason": "Retain all eight Miami Free Play RATE pad owners and held press/release handoff from PR #702 and #711",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_freeplay_rate_pad_port.py"
+      ]
+    },
+    {
+      "reason": "Verify 300,308 exact Miami idle clock cases and 8,193 guarded zero-store sizes using current source",
+      "argv": [
+        "sh",
+        "tests/host/run_miami_idle_helper_test.sh",
+        "build/engines-ui-miami-idle-helper"
       ]
     },
     {

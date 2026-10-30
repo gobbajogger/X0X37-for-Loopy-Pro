@@ -96,7 +96,7 @@ def main():
     # The legacy web/EDITOR_PROTOCOL.md G_ENGSEL / PRESET / RELOAD messages
     # are not implemented by firmware/src/app/editor.c. Local panel control
     # runs through R_BENGINE/R_BPRESET, not an invented SysEx migration.
-    changed = git("diff", "--name-only", "094bb1a55c159aefb0e2bfa39790a1b4b74cee40", "HEAD").splitlines()
+    changed = git("diff", "--name-only", "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21", "HEAD").splitlines()
     forbidden = (".fwsc", ".img", ".component", ".vst3")
     for path in changed:
         if path.endswith(forbidden) or path.endswith("_private.h") or "/private/" in path:
