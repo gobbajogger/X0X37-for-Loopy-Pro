@@ -47,6 +47,15 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OB
 [ $# -gt 0 ] && X0X_TESTS="$*"
 X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
+# Opt-in strict setup gate for zero-skip qualification; ordinary and scoped runs stay unchanged.
+if [ "${X0X_STRICT_PREFLIGHT:-0}" = 1 ]; then
+    if [ -n "$X0X_TESTS" ]; then
+        # The runner already treats X0X_TESTS as a whitespace-delimited list of names.
+        python3 -B tests/host/preflight_full_suite.py --tests $X0X_TESTS || exit 1
+    else
+        python3 -B tests/host/preflight_full_suite.py || exit 1
+    fi
+fi
 CC="${CC:-cc}"
 FAIL=0
 GEN_FAILED=0        # 1 after gen_nonfont actually ran and failed (host-build was not-run). Not a Pillow skip.
