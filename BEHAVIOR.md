@@ -573,6 +573,8 @@ SMC-11. SMC mixer page lock. While unlocked, the mixer follows the keyboard's cu
 
 SMC-11A. Unlock is a plain 900 ms hold of Pause while locked (snapshot 574f5329). Key-up at or after the deadline unlocks at once; a key still held unlocks in the next lock tick once SMC input and lost-release counts are drained. Key-up before 900 ms keeps the lock. There is no extra wait state after key-up. The hold does not complete while a project operation, performance test or confirmation is active. [USER 2026-10-30] [CODE firmware/src/app/smc_mixer.c smc_lock_button smc_lock_tick] [TEST tests/host/smc_lock_test.c test_plain_unlock]
 
+SMC-11B. A held SMC FX SELECT plays the bus's assigned effect (ROOM, TIGHT, ECHO or the HOME+SELECT choice), not a forced low-pass (snapshot 574f5329, PR #741). Its caption and status text are unchanged here; the caption change waits for an approved mockup. [USER 2026-10-30] [CODE firmware/src/app/smc_mixer.c smc_fx_publish] [TEST tests/host/smc_fx_preset_preserve_test.py]
+
 ## 18. Open questions
 
 These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.
