@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 548" role="img" aria-labelledby="title desc">
+<title id="title">DnBOX SMC mapped-page popup, current and proposed</title>
+<desc id="desc">Source-derived conceptual illustration, not a device screenshot: current full SMC control grid on the left, proposed mapped MIX PARTS native page on the right. Only the proposal changes the screen; both retain the original page for timed restoration.</desc>
+<defs>
+<linearGradient id="bg" x2="1" y2="1"><stop stop-color="#141922"/><stop offset="1" stop-color="#0b1119"/></linearGradient>
+<linearGradient id="hi" x2="0" y2="1"><stop stop-color="#29e9bb"/><stop offset="1" stop-color="#167d80"/></linearGradient>
+</defs>
+<rect width="1040" height="548" fill="url(#bg)"/>
+<g font-family="Arial, sans-serif">
+<text x="42" y="45" fill="#f1f5f9" font-size="24" font-weight="700">SMC MIXER: MAPPED-PAGE PEEK</text>
+<text x="42" y="69" fill="#9aaaba" font-size="14">Visual proposal based on the native 240 px UI; not a firmware capture or test result.</text>
+<text x="42" y="108" fill="#d8e1e8" font-size="18" font-weight="700">BEFORE  /  Current SMC control screen</text>
+<text x="550" y="108" fill="#d8e1e8" font-size="18" font-weight="700">AFTER  /  Proposed native MIX PARTS page</text>
+<rect x="42" y="132" width="436" height="338" rx="14" fill="#222936" stroke="#435367" stroke-width="2"/>
+<rect x="550" y="132" width="436" height="338" rx="14" fill="#222936" stroke="#435367" stroke-width="2"/>
+<g transform="translate(68 152) scale(1.60)">
+<rect width="240" height="180" fill="#090e13" stroke="#78899c" stroke-width="0.7"/>
+<rect width="240" height="18" fill="#171f28"/>
+<text x="5" y="12" fill="#a6b8c9" font-size="7.5">HOME / PARTS</text><text x="188" y="12" fill="#25dbbb" font-size="7.5">FADER 2</text>
+<g fill="none" stroke="#2c3e4c" stroke-width="0.8"><path d="M30 18v121M60 18v121M90 18v121M120 18v121M150 18v121M180 18v121M210 18v121"/></g>
+<rect x="31" y="18" width="28" height="13" fill="#e6ecef"/><text x="45" y="27" fill="#0b141c" font-size="7" text-anchor="middle">909</text>
+<g font-size="7" text-anchor="middle" fill="#d7e3ec"><text x="15" y="27">808</text><text x="75" y="27">CH</text><text x="105" y="27">MI</text><text x="135" y="27">BRK</text><text x="165" y="27">RVB</text><text x="195" y="27">DLY</text><text x="225" y="27">FLT</text></g>
+<g fill="#93a9b7" font-size="6.5" text-anchor="middle"><text x="15" y="44">CUT</text><text x="45" y="44">PAN</text><text x="75" y="44">PAN</text><text x="105" y="44">PAN</text><text x="135" y="44">PAN</text><text x="165" y="44">DEC</text><text x="195" y="44">FDBK</text><text x="225" y="44">RES</text></g>
+<g stroke="#5a7b83" stroke-width="4" fill="none"><circle cx="15" cy="61" r="8"/><circle cx="45" cy="61" r="8"/><circle cx="75" cy="61" r="8"/><circle cx="105" cy="61" r="8"/><circle cx="135" cy="61" r="8"/><circle cx="165" cy="61" r="8"/><circle cx="195" cy="61" r="8"/><circle cx="225" cy="61" r="8"/></g>
+<g stroke="#26d7b7" stroke-width="3" fill="none"><path d="M45 53 A8 8 0 0 1 53 61"/></g>
+<g fill="#d3dde7" font-size="7" text-anchor="middle"><text x="15" y="80">43</text><text x="45" y="80">64</text><text x="75" y="80">55</text><text x="105" y="80">67</text><text x="135" y="80">81</text><text x="165" y="80">40</text><text x="195" y="80">60</text><text x="225" y="80">49</text></g>
+<g stroke="#55616e" stroke-width="2"><path d="M5 89v32M35 89v32M65 89v32M95 89v32M125 89v32M155 89v32M185 89v32M215 89v32"/></g>
+<rect x="31" y="99" width="8" height="4" fill="#26d7b7"/><rect x="1" y="107" width="8" height="4" fill="#87929f"/><rect x="61" y="102" width="8" height="4" fill="#87929f"/>
+<g fill="#c6d5df" font-size="6.5" text-anchor="middle"><text x="15" y="131">R S M</text><text x="45" y="131">R S M</text><text x="75" y="131">R S M</text><text x="105" y="131">R S M</text><text x="135" y="131">R S M</text><text x="165" y="131">R S M</text><text x="195" y="131">R S M</text><text x="225" y="131">R S M</text></g>
+<rect y="141" width="240" height="39" fill="#141e26"/>
+<text x="120" y="154" fill="#a7b8c7" font-size="8" text-anchor="middle">909 LEVEL  •  PICKUP: MOVE UP</text>
+<text x="120" y="174" fill="#2fe8c7" font-size="15" font-weight="700" text-anchor="middle">64</text>
+</g>
+<g transform="translate(576 152) scale(1.60)">
+<rect width="240" height="180" fill="#090e13" stroke="#78899c" stroke-width="0.7"/>
+<rect width="240" height="20" fill="#172b2c"/>
+<text x="8" y="13" fill="#dce5ee" font-size="11" font-weight="700">MIX PARTS</text>
+<text x="179" y="13" fill="#29e9bb" font-size="7.5">PICK F2</text>
+<g stroke="#293846" stroke-width="0.8"><path d="M4 42H236M4 79H236M4 116H236M4 153H236"/></g>
+<g font-size="10" fill="#e0ebf0"><text x="12" y="36">808</text><text x="12" y="73" fill="#25e6b8">909</text><text x="12" y="110">CHICAGO</text><text x="12" y="147">MIAMI</text></g>
+<g fill="#2f414b"><rect x="82" y="29" width="130" height="12" rx="3"/><rect x="82" y="66" width="130" height="12" rx="3"/><rect x="82" y="103" width="130" height="12" rx="3"/><rect x="82" y="140" width="130" height="12" rx="3"/></g>
+<rect x="82" y="29" width="79" height="12" rx="3" fill="#5099b5"/><rect x="82" y="66" width="97" height="12" rx="3" fill="url(#hi)"/><rect x="82" y="103" width="65" height="12" rx="3" fill="#5099b5"/><rect x="82" y="140" width="72" height="12" rx="3" fill="#5099b5"/>
+<g font-size="8" fill="#b3c9d7" text-anchor="end"><text x="230" y="38">61</text><text x="230" y="75" fill="#29e9bb">75</text><text x="230" y="112">50</text><text x="230" y="149">55</text></g>
+<rect x="6" y="59" width="228" height="23" rx="3" fill="none" stroke="#29e9bb" stroke-width="1"/>
+<text x="120" y="172" fill="#87a4b2" font-size="7" text-anchor="middle">Auto restore: 1.2 s after last move</text>
+</g>
+<text x="42" y="494" font-size="14" fill="#b6c6d2">Current: control grid appears over the previous SEQ / PART / SONG page.</text>
+<text x="42" y="520" font-size="14" fill="#b6c6d2">Proposed: show mapped MIX/FX, refresh on movement, restore saved view; navigation cancels.</text>
+</g></svg>
