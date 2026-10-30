@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+/* This single-unit test owns the shared lookup tables (drum909.c does on the device). */
+#define X0X_DRUM_TABLES_DEFINE
 #include "../../firmware/src/seq/pattern.h"
 #include "../../firmware/src/dsp/drum909.h"
 #include "../../firmware/src/dsp/drum808.h"
