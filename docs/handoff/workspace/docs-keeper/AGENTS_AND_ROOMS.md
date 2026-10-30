@@ -1,3 +1,5 @@
+Rule 1 (owner, explicit, 2026-10-31): Don't do stupid work. Only do work that moves the build forward.
+
 # x0x37 Agents and Rooms
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
