@@ -127,15 +127,16 @@ class OriginalBuildCompositionTests(unittest.TestCase):
 
     def test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources(self):
         # X0X_DEV_WOBBLE=1 enables the ported *pad UI* for original Miami.
-        # Legacy WBL declarations and calls must all additionally require
-        # !X0X_ORIGINAL_SYNTH. The build-plan-only test cannot catch this.
+        # Only the original Miami rate-pad UI may use the DEV_WOBBLE
+        # selector. The retired WBL DSP is never selectable by this flag.
         for path in ("firmware/src/app/engine.c", "firmware/src/app/ui.c",
                      "firmware/src/app/main_fm1.c"):
             with self.subTest(path=path):
                 source = (ROOT / path).read_text()
                 self.assertNotRegex(source, r"(?m)^#(?:if|elif) X0X_DEV_WOBBLE\s*$")
-                self.assertRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
+                self.assertNotRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
         ui = (ROOT / "firmware/src/app/ui.c").read_text()
+        self.assertIn("#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH", ui)
         self.assertIn("static int division_pad_owner(void)", ui)
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertNotIn("shape_pad_owner(", ui)
