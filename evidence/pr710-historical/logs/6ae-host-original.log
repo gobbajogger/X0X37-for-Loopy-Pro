@@ -1,0 +1,556 @@
+In file included from host/x0x_host.c:301:
+host/../firmware/src/app/ui.c: In function 'pref_set':
+host/../firmware/src/app/ui.c:865:57: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+  865 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+host/../firmware/src/app/ui.c: In function 'prob_turn':
+host/../firmware/src/app/ui.c:2852:43: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+ 2852 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+host/../firmware/src/app/ui.c: In function 'draw_home':
+host/../firmware/src/app/ui.c:5588:17: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+ 5588 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+host/../firmware/src/app/ui.c:5588:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+ 5588 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+host/../firmware/src/app/ui.c: In function 'drive_amount_glyph':
+host/../firmware/src/app/ui.c:7004:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+ 7004 |   if(x)cv_line(cx-19+x,py,cx-18+x,y,col);py=y;
+      |   ^~
+host/../firmware/src/app/ui.c:7004:42: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+ 7004 |   if(x)cv_line(cx-19+x,py,cx-18+x,y,col);py=y;
+      |                                          ^~
+host/../firmware/src/app/ui.c: In function 'ui_frame':
+host/../firmware/src/app/ui.c:7698:26: warning: this 'for' clause does not guard... [-Wmisleading-indentation]
+ 7698 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+host/../firmware/src/app/ui.c:7700:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'for'
+ 7700 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+host/x0x_host.c: In function 'main':
+host/x0x_host.c:1029:44: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+ 1029 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+host/../firmware/src/app/ui.c: At top level:
+host/../firmware/src/app/ui.c:3204:38: warning: 'smk_mute_known' defined but not used [-Wunused-variable]
+ 3204 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+In file included from firmware/src/dsp/drum909_dsp.h:23,
+                 from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:153:13: warning: inline function 'd9_biquad_set' declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:203:14: warning: inline function 'd9_tanh' declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:229:13: warning: inline function 'd9_shape_prep' declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/dsp/drum808.c:25:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/dsp/breaks.c:57:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/dsp/drum909_dsp.h:23,
+                 from firmware/src/dsp/fxbus.h:26,
+                 from firmware/src/dsp/fxbus.c:4:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:153:13: warning: inline function 'd9_biquad_set' declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:203:14: warning: inline function 'd9_tanh' declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:229:13: warning: inline function 'd9_shape_prep' declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/dsp/master.c:17:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/app/../dsp/drum909_dsp.h:23,
+                 from firmware/src/app/../dsp/drum909.h:19,
+                 from firmware/src/app/engine.c:6:
+firmware/src/app/../dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/app/../dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:153:13: warning: inline function 'd9_biquad_set' declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:203:14: warning: inline function 'd9_tanh' declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:229:13: warning: inline function 'd9_shape_prep' declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+experiments/original_synth/chicago_dynamics.c: In function 'original_chicago_mastercomp_init':
+experiments/original_synth/chicago_dynamics.c:33:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   33 |  if(!s)return 0;memset(s,0,sizeof *s);
+      |  ^~
+experiments/original_synth/chicago_dynamics.c:33:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   33 |  if(!s)return 0;memset(s,0,sizeof *s);
+      |                 ^~~~~~
+experiments/original_synth/chicago_dynamics.c: In function 'original_chicago_mastercomp_set':
+experiments/original_synth/chicago_dynamics.c:45:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   45 |  if(!s||p>2)return 0;unsigned v=(uint32_t)value&127u;s->parameter[p]=(uint8_t)v;
+      |  ^~
+experiments/original_synth/chicago_dynamics.c:45:22: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   45 |  if(!s||p>2)return 0;unsigned v=(uint32_t)value&127u;s->parameter[p]=(uint8_t)v;
+      |                      ^~~~~~~~
+experiments/original_synth/chicago_dynamics.c:48:2: warning: this 'else' clause does not guard... [-Wmisleading-indentation]
+   48 |  else s->target_gain=(int32_t)gain_table(v);return 1;
+      |  ^~~~
+experiments/original_synth/chicago_dynamics.c:48:45: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'else'
+   48 |  else s->target_gain=(int32_t)gain_table(v);return 1;
+      |                                             ^~~~~~
+experiments/original_synth/chicago_dynamics.c: In function 'highpass':
+experiments/original_synth/chicago_dynamics.c:55:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   55 |  if(y>1073741823)y=1073741823;if(y< -1073741823)y=-1073741823;return (int32_t)y;
+      |  ^~
+experiments/original_synth/chicago_dynamics.c:55:31: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   55 |  if(y>1073741823)y=1073741823;if(y< -1073741823)y=-1073741823;return (int32_t)y;
+      |                               ^~
+experiments/original_synth/chicago_dynamics.c: In function 'master_frame':
+experiments/original_synth/chicago_dynamics.c:70:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   70 |  if(control>32767)control=32767;if(control< -32767)control=-32767;
+      |  ^~
+experiments/original_synth/chicago_dynamics.c:70:33: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   70 |  if(control>32767)control=32767;if(control< -32767)control=-32767;
+      |                                 ^~
+experiments/original_synth/chicago_dynamics.c: In function 'original_chicago_peaking_init':
+experiments/original_synth/chicago_dynamics.c:95:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   95 |  if(!s)return 0;memset(s,0,sizeof *s);s->parameter[0]=61;s->parameter[1]=70;s->parameter[2]=64;eq_coefficients(s,1);return 1;
+      |  ^~
+experiments/original_synth/chicago_dynamics.c:95:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   95 |  if(!s)return 0;memset(s,0,sizeof *s);s->parameter[0]=61;s->parameter[1]=70;s->parameter[2]=64;eq_coefficients(s,1);return 1;
+      |                 ^~~~~~
+experiments/original_synth/chicago_dynamics.c: In function 'original_chicago_peaking_set':
+experiments/original_synth/chicago_dynamics.c:99:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   99 |  if(!s||p>2||v>127)return 0;s->parameter[p]=(uint8_t)v;eq_coefficients(s,p!=1);return 1;
+      |  ^~
+experiments/original_synth/chicago_dynamics.c:99:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   99 |  if(!s||p>2||v>127)return 0;s->parameter[p]=(uint8_t)v;eq_coefficients(s,p!=1);return 1;
+      |                             ^
+experiments/original_synth/chicago_engine_output.c: In function 'original_chicago_engine_output_process':
+experiments/original_synth/chicago_engine_output.c:21:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   21 |  if(!s||!r)return 0;if(!n)return 1;
+      |  ^~
+experiments/original_synth/chicago_engine_output.c:21:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   21 |  if(!s||!r)return 0;if(!n)return 1;
+      |                     ^~
+experiments/original_synth/chicago_fx2_bank.c: In function 'original_chicago_fx2_bank_events':
+experiments/original_synth/chicago_fx2_bank.c:74:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   74 |  if(!s||(count&&!e))return 0;for(uint32_t i=1;i<count;i++)if(e[i-1].offset>e[i].offset)return 0;
+      |  ^~
+experiments/original_synth/chicago_fx2_bank.c:74:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   74 |  if(!s||(count&&!e))return 0;for(uint32_t i=1;i<count;i++)if(e[i-1].offset>e[i].offset)return 0;
+      |                              ^~~
+experiments/original_synth/chicago_fx2_bank.c:79:2: warning: this 'for' clause does not guard... [-Wmisleading-indentation]
+   79 |  for(unsigned i=0;i<4;i++)s->history_queue[i]=(original_chicago_drive_queue){e,count,0};s->history_event_origin=origin;return 1;
+      |  ^~~
+experiments/original_synth/chicago_fx2_bank.c:79:89: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'for'
+   79 |  for(unsigned i=0;i<4;i++)s->history_queue[i]=(original_chicago_drive_queue){e,count,0};s->history_event_origin=origin;return 1;
+      |                                                                                         ^
+experiments/original_synth/chicago_fx2_bank.c: In function 'original_chicago_fx2_bank_direct_event':
+experiments/original_synth/chicago_fx2_bank.c:82:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   82 |  if(!s)return;original_chicago_ring_direct_event(&s->ring,type);original_chicago_chorus_direct_event(&s->chorus,type);original_chicago_phaser_direct_event(&s->phaser,type);original_chicago_ensemble_direct_event(&s->ensemble,type);original_chicago_mastercomp_direct_event(&s->mastercomp,type);original_chicago_peaking_direct_event(&s->peaking,type);original_chicago_decimator_direct_event(&s->decimator,type);chfx_short_event(&s->short_delay,type);chfx_bpm_event(&s->bpm_delay,type);chfx_gate_event(&s->gate,type);chfx_hall_event(&s->hall,type);
+      |  ^~
+experiments/original_synth/chicago_fx2_bank.c:82:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   82 |  if(!s)return;original_chicago_ring_direct_event(&s->ring,type);original_chicago_chorus_direct_event(&s->chorus,type);original_chicago_phaser_direct_event(&s->phaser,type);original_chicago_ensemble_direct_event(&s->ensemble,type);original_chicago_mastercomp_direct_event(&s->mastercomp,type);original_chicago_peaking_direct_event(&s->peaking,type);original_chicago_decimator_direct_event(&s->decimator,type);chfx_short_event(&s->short_delay,type);chfx_bpm_event(&s->bpm_delay,type);chfx_gate_event(&s->gate,type);chfx_hall_event(&s->hall,type);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+experiments/original_synth/chicago_fx2_wrapper.c: In function 'original_chicago_fx2_wrapper_set':
+experiments/original_synth/chicago_fx2_wrapper.c:22:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   22 |  if(s->active)s->active->parameter(s->active->context,p,v);return 1;
+      |  ^~
+experiments/original_synth/chicago_fx2_wrapper.c:22:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   22 |  if(s->active)s->active->parameter(s->active->context,p,v);return 1;
+      |                                                            ^~~~~~
+experiments/original_synth/chicago_fx2_wrapper.c: In function 'original_chicago_fx2_wrapper_tempo':
+experiments/original_synth/chicago_fx2_wrapper.c:25:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   25 |  if(!s||tempo<200||tempo>4000)return 0;s->tempo_times10=tempo;
+      |  ^~
+experiments/original_synth/chicago_fx2_wrapper.c:25:40: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   25 |  if(!s||tempo<200||tempo>4000)return 0;s->tempo_times10=tempo;
+      |                                        ^
+experiments/original_synth/chicago_fx2_wrapper.c:26:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   26 |  if(s->active)s->active->tempo(s->active->context,tempo);return 1;
+      |  ^~
+experiments/original_synth/chicago_fx2_wrapper.c:26:58: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   26 |  if(s->active)s->active->tempo(s->active->context,tempo);return 1;
+      |                                                          ^~~~~~
+experiments/original_synth/chicago_fx2_wrapper.c: In function 'original_chicago_fx2_wrapper_reset':
+experiments/original_synth/chicago_fx2_wrapper.c:29:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   29 |  if(!s)return;s->transitioning=0;s->switch_current=s->switch_pending;
+      |  ^~
+experiments/original_synth/chicago_fx2_wrapper.c:29:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   29 |  if(!s)return;s->transitioning=0;s->switch_current=s->switch_pending;
+      |               ^
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_ring_init':
+experiments/original_synth/chicago_modulation.c:33:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   33 |  if(!s)return;memset(s,0,sizeof *s);s->edit1=s->edit2=64;s->dirty=1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:33:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   33 |  if(!s)return;memset(s,0,sizeof *s);s->edit1=s->edit2=64;s->dirty=1;
+      |               ^~~~~~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_ring_process':
+experiments/original_synth/chicago_modulation.c:43:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   43 |  if(!s||(n&&(!l||!r||l==r)))return 0;if(!n)return 1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:43:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   43 |  if(!s||(n&&(!l||!r||l==r)))return 0;if(!n)return 1;
+      |                                      ^~
+experiments/original_synth/chicago_modulation.c: At top level:
+experiments/original_synth/chicago_modulation.c:58:70: warning: argument 2 of type 'int16_t *' {aka 'short int *'} declared as a pointer [-Warray-parameter=]
+   58 | int original_chicago_chorus_init(original_chicago_chorus *s,int16_t *l,int16_t *r){
+      |                                                             ~~~~~~~~~^
+In file included from experiments/original_synth/chicago_modulation.c:2:
+experiments/original_synth/chicago_modulation.h:32:68: note: previously declared as an array 'int16_t[1024]' {aka 'short int[1024]'}
+   32 | int original_chicago_chorus_init(original_chicago_chorus *,int16_t left[1024],int16_t right[1024]);
+      |                                                            ~~~~~~~~^~~~~~~~~~
+experiments/original_synth/chicago_modulation.c:58:81: warning: argument 3 of type 'int16_t *' {aka 'short int *'} declared as a pointer [-Warray-parameter=]
+   58 | int original_chicago_chorus_init(original_chicago_chorus *s,int16_t *l,int16_t *r){
+      |                                                                        ~~~~~~~~~^
+experiments/original_synth/chicago_modulation.h:32:87: note: previously declared as an array 'int16_t[1024]' {aka 'short int[1024]'}
+   32 | int original_chicago_chorus_init(original_chicago_chorus *,int16_t left[1024],int16_t right[1024]);
+      |                                                                               ~~~~~~~~^~~~~~~~~~~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_chorus_init':
+experiments/original_synth/chicago_modulation.c:59:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   59 |  if(!s||!l||!r||l==r)return 0;memset(s,0,sizeof *s);s->left=l;s->right=r;s->dirty=1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:59:31: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   59 |  if(!s||!l||!r||l==r)return 0;memset(s,0,sizeof *s);s->left=l;s->right=r;s->dirty=1;
+      |                               ^~~~~~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_chorus_reset':
+experiments/original_synth/chicago_modulation.c:63:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   63 |  if(!s)return;memset(s->left,0,1024*sizeof *s->left);memset(s->right,0,1024*sizeof *s->right);s->modulator[0]=s->modulator[1]=0;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:63:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   63 |  if(!s)return;memset(s->left,0,1024*sizeof *s->left);memset(s->right,0,1024*sizeof *s->right);s->modulator[0]=s->modulator[1]=0;
+      |               ^~~~~~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_chorus_set':
+experiments/original_synth/chicago_modulation.c:67:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   67 |  if(!s||v>127||(p!=2&&p!=3))return 0;if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:67:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   67 |  if(!s||v>127||(p!=2&&p!=3))return 0;if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
+      |                                      ^~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_chorus_process':
+experiments/original_synth/chicago_modulation.c:72:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   72 |  if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;if(!n)return 1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:72:59: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   72 |  if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;if(!n)return 1;
+      |                                                           ^~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_phaser_init':
+experiments/original_synth/chicago_modulation.c:91:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   91 |  if(!s)return;memset(s,0,sizeof *s);s->edit1=30;s->edit2=63;s->speed=mod_speed[30];s->modulation=asr(mul(mod_linear[63],16102),15);
+      |  ^~
+experiments/original_synth/chicago_modulation.c:91:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   91 |  if(!s)return;memset(s,0,sizeof *s);s->edit1=30;s->edit2=63;s->speed=mod_speed[30];s->modulation=asr(mul(mod_linear[63],16102),15);
+      |               ^~~~~~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_phaser_reset':
+experiments/original_synth/chicago_modulation.c:95:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   95 |  if(!s)return;memset(s->history,0,sizeof s->history);s->depth_acc=shl(s->depth,15);s->modulation_acc=shl(s->modulation,15);s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:95:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   95 |  if(!s)return;memset(s->history,0,sizeof s->history);s->depth_acc=shl(s->depth,15);s->modulation_acc=shl(s->modulation,15);s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;
+      |               ^~~~~~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_phaser_set':
+experiments/original_synth/chicago_modulation.c:98:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   98 |  if(!s||v>127||(p!=2&&p!=3))return 0;if(p==2){s->edit1=(uint8_t)v;s->speed=mod_speed[v];}else{s->edit2=(uint8_t)v;s->modulation=asr(mul(mod_linear[v],16102),15);}return 1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:98:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   98 |  if(!s||v>127||(p!=2&&p!=3))return 0;if(p==2){s->edit1=(uint8_t)v;s->speed=mod_speed[v];}else{s->edit2=(uint8_t)v;s->modulation=asr(mul(mod_linear[v],16102),15);}return 1;
+      |                                      ^~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_phaser_process':
+experiments/original_synth/chicago_modulation.c:101:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  101 |  if(!s||(n&&(!l||!r||l==r)))return 0;if(!n)return 1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:101:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  101 |  if(!s||(n&&(!l||!r||l==r)))return 0;if(!n)return 1;
+      |                                      ^~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_ensemble_reset':
+experiments/original_synth/chicago_modulation.c:125:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  125 |  if(!s)return;s->head=0;s->written=0;s->depth=44100.0f*fl(0x3ad1b717);s->spread=1;ensemble_phases(s);
+      |  ^~
+experiments/original_synth/chicago_modulation.c:125:15: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  125 |  if(!s)return;s->head=0;s->written=0;s->depth=44100.0f*fl(0x3ad1b717);s->spread=1;ensemble_phases(s);
+      |               ^
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_ensemble_set':
+experiments/original_synth/chicago_modulation.c:128:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  128 |  if(!s||value>127||(p!=2&&p!=3))return 0;if(p==2)s->edit1=(uint8_t)value;else s->edit2=(uint8_t)value;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:128:42: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  128 |  if(!s||value>127||(p!=2&&p!=3))return 0;if(p==2)s->edit1=(uint8_t)value;else s->edit2=(uint8_t)value;
+      |                                          ^~
+experiments/original_synth/chicago_modulation.c: In function 'original_chicago_ensemble_process':
+experiments/original_synth/chicago_modulation.c:169:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  169 |  if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;if(!n)return 1;
+      |  ^~
+experiments/original_synth/chicago_modulation.c:169:59: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  169 |  if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;if(!n)return 1;
+      |                                                           ^~
+experiments/original_synth/chicago_output.c: In function 'mix':
+experiments/original_synth/chicago_output.c:13:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   13 |  if(value>32767)value=32767;if(value< -32767)value=-32767;return (int16_t)value;
+      |  ^~
+experiments/original_synth/chicago_output.c:13:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   13 |  if(value>32767)value=32767;if(value< -32767)value=-32767;return (int16_t)value;
+      |                             ^~
+experiments/original_synth/chicago_output.c: In function 'original_chicago_drive_wrapper_set':
+experiments/original_synth/chicago_output.c:26:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   26 |  if(s->selected)return original_chicago_drive_set(&s->drive,p,v);return 1;
+      |  ^~
+experiments/original_synth/chicago_output.c:26:66: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   26 |  if(s->selected)return original_chicago_drive_set(&s->drive,p,v);return 1;
+      |                                                                  ^~~~~~
+experiments/original_synth/chicago_output.c: In function 'original_chicago_output_process':
+experiments/original_synth/chicago_output.c:104:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  104 |  if(!s)return 0;if(!n)return 1;
+      |  ^~
+experiments/original_synth/chicago_output.c:104:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  104 |  if(!s)return 0;if(!n)return 1;
+      |                 ^~
+experiments/original_synth/chicago_smallfx.c: In function 'original_chicago_decimator_bind_events':
+experiments/original_synth/chicago_smallfx.c:8:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+    8 |  if(!s||(n&&!p))return 0;for(uint32_t i=1;i<n;i++)if(p[i].offset<p[i-1].offset)return 0;
+      |  ^~
+experiments/original_synth/chicago_smallfx.c:8:26: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+    8 |  if(!s||(n&&!p))return 0;for(uint32_t i=1;i<n;i++)if(p[i].offset<p[i-1].offset)return 0;
+      |                          ^~~
+experiments/original_synth/chicago_tuning.c: In function 'original_chicago_tuning_target':
+experiments/original_synth/chicago_tuning.c:45:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   45 |   if(!s->custom_offsets)return 0;offset=s->custom_offsets[((unsigned)s->scale-4)*12+(unsigned)(raw%12)];
+      |   ^~
+experiments/original_synth/chicago_tuning.c:45:34: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   45 |   if(!s->custom_offsets)return 0;offset=s->custom_offsets[((unsigned)s->scale-4)*12+(unsigned)(raw%12)];
+      |                                  ^~~~~~
+experiments/original_synth/chicago_voice.c: In function 'original_chicago_voice_control':
+experiments/original_synth/chicago_voice.c:113:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  113 |  if(!action||!valid(s,c,t,bpm)||kick>1||s->awaiting_restart)return 0;*action=0;if(!s->active||s->vca.state==6)return 1;
+      |  ^~
+experiments/original_synth/chicago_voice.c:113:70: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  113 |  if(!action||!valid(s,c,t,bpm)||kick>1||s->awaiting_restart)return 0;*action=0;if(!s->active||s->vca.state==6)return 1;
+      |                                                                      ^
+experiments/original_synth/chicago_voice.c: In function 'original_chicago_voice_render_frame':
+experiments/original_synth/chicago_voice.c:159:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  159 |  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;if(!s->active){*left=0;*right=0;return 1;}
+      |  ^~
+experiments/original_synth/chicago_voice.c:159:118: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  159 |  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;if(!s->active){*left=0;*right=0;return 1;}
+      |                                                                                                                      ^~
+experiments/original_synth/chicago_voice.c: In function 'original_chicago_voice_sample':
+experiments/original_synth/chicago_voice.c:167:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  167 |  if(!original_chicago_voice_control(s,c,t,bpm,0,action))return 0;if(*action==2)return 2;
+      |  ^~
+experiments/original_synth/chicago_voice.c:167:66: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  167 |  if(!original_chicago_voice_control(s,c,t,bpm,0,action))return 0;if(*action==2)return 2;
+      |                                                                  ^~
+experiments/original_synth/chicago_voice_owner.c: In function 'state':
+experiments/original_synth/chicago_voice_owner.c:9:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+    9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+      |  ^~
+experiments/original_synth/chicago_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+    9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+      |                                     ^~
+experiments/original_synth/miami_control_owner.c: In function 'original_miami_control_owner_edit':
+experiments/original_synth/miami_control_owner.c:8:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+    8 |  if(!s||!s->status)return 0;original_miami_program p=*s->program;original_miami_voice_controls c;
+      |  ^~
+experiments/original_synth/miami_control_owner.c:8:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+    8 |  if(!s||!s->status)return 0;original_miami_program p=*s->program;original_miami_voice_controls c;
+      |                             ^~~~~~~~~~~~~~~~~~~~~~
+experiments/original_synth/miami_geometry.c: In function 'phase':
+experiments/original_synth/miami_geometry.c:33:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   33 |  if(!reset(context))return 0;p->completed_resets++;return 1;
+      |  ^~
+experiments/original_synth/miami_geometry.c:33:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   33 |  if(!reset(context))return 0;p->completed_resets++;return 1;
+      |                              ^
+experiments/original_synth/miami_geometry.c: In function 'original_miami_geometry_learn':
+experiments/original_synth/miami_geometry.c:38:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   38 |  if(!lists(a))return 0;unsigned count=learned_count(a);original_allocator_geometry v;original_chicago_allocator_geometry(&v,poly,unison,(int32_t)a->mode,(int32_t)count);if(!fits(&v,a))return 0;
+      |  ^~
+experiments/original_synth/miami_geometry.c:38:24: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   38 |  if(!lists(a))return 0;unsigned count=learned_count(a);original_allocator_geometry v;original_chicago_allocator_geometry(&v,poly,unison,(int32_t)a->mode,(int32_t)count);if(!fits(&v,a))return 0;
+      |                        ^~~~~~~~
+experiments/original_synth/miami_geometry.c:40:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   40 |  if(!original_chicago_allocator_chord_snapshot(a,g->by_key,g->pairs,&actual))return 0;g->chord_count=actual;p->learned_chord=1;
+      |  ^~
+experiments/original_synth/miami_geometry.c:40:87: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   40 |  if(!original_chicago_allocator_chord_snapshot(a,g->by_key,g->pairs,&actual))return 0;g->chord_count=actual;p->learned_chord=1;
+      |                                                                                       ^
+experiments/original_synth/miami_note_context.c: In function 'original_miami_note_context_core_reset':
+experiments/original_synth/miami_note_context.c:77:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   77 |  if(!reset_ready(s))return 0;original_miami_voice_owner *owner=s->owner;
+      |  ^~
+experiments/original_synth/miami_note_context.c:77:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   77 |  if(!reset_ready(s))return 0;original_miami_voice_owner *owner=s->owner;
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+experiments/original_synth/miami_selected_voice.c: In function 'original_miami_selected_voice_pedal':
+experiments/original_synth/miami_selected_voice.c:129:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  129 |  if(!c->damper&&s->damper_deferred)release(s);return 1;
+      |  ^~
+experiments/original_synth/miami_selected_voice.c:129:47: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  129 |  if(!c->damper&&s->damper_deferred)release(s);return 1;
+      |                                               ^~~~~~
+experiments/original_synth/miami_selected_voice.c: In function 'preparation_tail':
+experiments/original_synth/miami_selected_voice.c:142:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  142 |   if(!original_oscillator_prepare(&s->prepared,&oc))return 0;s->wave_preparations++;
+      |   ^~
+experiments/original_synth/miami_selected_voice.c:142:62: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  142 |   if(!original_oscillator_prepare(&s->prepared,&oc))return 0;s->wave_preparations++;
+      |                                                              ^
+experiments/original_synth/miami_selected_voice.c: In function 'original_miami_selected_voice_stage_raw':
+experiments/original_synth/miami_selected_voice.c:219:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  219 |  if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;s->vca.state=5;return 1;
+      |  ^~
+experiments/original_synth/miami_selected_voice.c:219:78: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  219 |  if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;s->vca.state=5;return 1;
+      |                                                                              ^
+experiments/original_synth/miami_selected_voice.c: In function 'original_miami_selected_voice_stop_raw':
+experiments/original_synth/miami_selected_voice.c:222:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  222 |  if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;s->key_down=0;s->vca.state=4;return 1;
+      |  ^~
+experiments/original_synth/miami_selected_voice.c:222:78: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  222 |  if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;s->key_down=0;s->vca.state=4;return 1;
+      |                                                                              ^
+experiments/original_synth/miami_voice_owner.c: In function 'state':
+experiments/original_synth/miami_voice_owner.c:9:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+    9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+      |  ^~
+experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+    9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+      |                                     ^~
+experiments/original_synth/miami_voice_snapshot.c: In function 'original_miami_voice_snapshot_decode':
+experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+      |  ^~
+experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+experiments/original_synth/state_codec.c: In function 'original_state_encode':
+experiments/original_synth/state_codec.c:22:56: warning: comparison is always false due to limited range of data type [-Wtype-limits]
+   22 |  if(!object||!bytes||!schema_valid(s)||(size_t)s->count>(SIZE_MAX-16u)/4u||capacity<16u+(size_t)s->count*4u)return 0;
+      |                                                        ^
+experiments/original_synth/state_codec.c: In function 'original_state_decode':
+experiments/original_synth/state_codec.c:29:57: warning: comparison is always false due to limited range of data type [-Wtype-limits]
+   29 |  if(!staging||!bytes||!schema_valid(s)||(size_t)s->count>(SIZE_MAX-16u)/4u||length!=16u+(size_t)s->count*4u)return 0;
+      |                                                         ^
+experiments/original_synth/voice_gain.c: In function 'original_voice_gain_oscillator':
+experiments/original_synth/voice_gain.c:58:2: warning: this 'for' clause does not guard... [-Wmisleading-indentation]
+   58 |  for(unsigned i=0;i<4;i++)(void)advance(&s->oscillator[i]);return 1;
+      |  ^~~
+experiments/original_synth/voice_gain.c:58:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'for'
+   58 |  for(unsigned i=0;i<4;i++)(void)advance(&s->oscillator[i]);return 1;
+      |                                                            ^~~~~~
+host: build/host/x0x_host

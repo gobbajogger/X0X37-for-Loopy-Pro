@@ -1,0 +1,34 @@
+  ok   host-build
+  FAIL project-stage (see build/host/project-stage.log)
+          45 | FM_ONE float fm_floorf(float x)
+             |              ^~~~~~~~~
+       firmware/src/dsp/fastmath.h:156:14: error: inline function 'fm_sin_pi' declared weak [-Werror=attributes]
+         156 | FM_ONE float fm_sin_pi(float x)
+             |              ^~~~~~~~~
+       firmware/src/dsp/fastmath.h:169:14: error: inline function 'fm_wrap_pi' declared weak [-Werror=attributes]
+         169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+             |              ^~~~~~~~~~
+       firmware/src/dsp/fastmath.h:175:14: error: inline function 'fm_sinf' declared weak [-Werror=attributes]
+         175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+             |              ^~~~~~~
+       firmware/src/dsp/fastmath.h:176:14: error: inline function 'fm_cosf' declared weak [-Werror=attributes]
+         176 | FM_ONE float fm_cosf(float x)
+             |              ^~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL project-runtime (see build/host/project-runtime.log)
+       firmware/src/app/chicago_ens.h:57:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+          57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+             |                                       ^~~
+       firmware/src/app/../dsp/drum909_dsp.h: At top level:
+       firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       project_runtime: tests/host/project_runtime_test.c:36: open_action: Assertion `row >= 0' failed.
+       Aborted
+  ok   miami-freeplay-pads

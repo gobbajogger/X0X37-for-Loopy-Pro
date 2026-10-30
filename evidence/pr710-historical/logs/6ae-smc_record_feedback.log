@@ -1,0 +1,277 @@
+In file included from tests/host/../../host/x0x_host.c:301,
+                 from tests/host/smc_record_feedback_test.c:7:
+tests/host/../../host/../firmware/src/app/ui.c: In function 'pref_set':
+tests/host/../../host/../firmware/src/app/ui.c:865:57: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+  865 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function 'prob_turn':
+tests/host/../../host/../firmware/src/app/ui.c:2852:43: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+ 2852 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function 'draw_home':
+tests/host/../../host/../firmware/src/app/ui.c:5588:17: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+ 5588 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5588:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+ 5588 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function 'drive_amount_glyph':
+tests/host/../../host/../firmware/src/app/ui.c:7004:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+ 7004 |   if(x)cv_line(cx-19+x,py,cx-18+x,y,col);py=y;
+      |   ^~
+tests/host/../../host/../firmware/src/app/ui.c:7004:42: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+ 7004 |   if(x)cv_line(cx-19+x,py,cx-18+x,y,col);py=y;
+      |                                          ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function 'ui_frame':
+tests/host/../../host/../firmware/src/app/ui.c:7698:26: warning: this 'for' clause does not guard... [-Wmisleading-indentation]
+ 7698 |     else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+      |                          ^~~
+tests/host/../../host/../firmware/src/app/ui.c:7700:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'for'
+ 7700 |         if(!visible)peer_scroll.active=0; }
+      |         ^~
+tests/host/../../host/x0x_host.c: In function 'simulator_main':
+tests/host/../../host/x0x_host.c:1029:44: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+ 1029 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3204:38: warning: 'smk_mute_known' defined but not used [-Wunused-variable]
+ 3204 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+In file included from firmware/src/dsp/drum909_dsp.h:23,
+                 from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:153:13: warning: inline function 'd9_biquad_set' declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:203:14: warning: inline function 'd9_tanh' declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:229:13: warning: inline function 'd9_shape_prep' declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/dsp/drum808.c:25:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/dsp/bass303.c:10:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/dsp/breaks.c:57:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/dsp/drum909_dsp.h:23,
+                 from firmware/src/dsp/fxbus.h:26,
+                 from firmware/src/dsp/fxbus.c:4:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:153:13: warning: inline function 'd9_biquad_set' declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:203:14: warning: inline function 'd9_tanh' declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/dsp/drum909_dsp.h:229:13: warning: inline function 'd9_shape_prep' declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/dsp/master.c:17:
+firmware/src/dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+In file included from firmware/src/app/../dsp/drum909_dsp.h:23,
+                 from firmware/src/app/../dsp/drum909.h:19,
+                 from firmware/src/app/engine.c:6:
+firmware/src/app/../dsp/fastmath.h:45:14: warning: inline function 'fm_floorf' declared weak [-Wattributes]
+   45 | FM_ONE float fm_floorf(float x)
+      |              ^~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:156:14: warning: inline function 'fm_sin_pi' declared weak [-Wattributes]
+  156 | FM_ONE float fm_sin_pi(float x)
+      |              ^~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:169:14: warning: inline function 'fm_wrap_pi' declared weak [-Wattributes]
+  169 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+      |              ^~~~~~~~~~
+firmware/src/app/../dsp/fastmath.h:175:14: warning: inline function 'fm_sinf' declared weak [-Wattributes]
+  175 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+      |              ^~~~~~~
+firmware/src/app/../dsp/fastmath.h:176:14: warning: inline function 'fm_cosf' declared weak [-Wattributes]
+  176 | FM_ONE float fm_cosf(float x)
+      |              ^~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:153:13: warning: inline function 'd9_biquad_set' declared weak [-Wattributes]
+  153 | D9_ONE void d9_biquad_set(d9_biquad_t *f, int type, float freq, float q)
+      |             ^~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:203:14: warning: inline function 'd9_tanh' declared weak [-Wattributes]
+  203 | D9_ONE float d9_tanh(float u)
+      |              ^~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:229:13: warning: inline function 'd9_shape_prep' declared weak [-Wattributes]
+  229 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+      |             ^~~~~~~~~~~~~
+In file included from firmware/src/app/chicago_arp.h:16,
+                 from firmware/src/app/engine.c:28:
+firmware/src/app/smk_clip_keys.h:57:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+   57 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:66:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+   66 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:73:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+   73 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:82:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+   82 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:122:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  122 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:128:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  128 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:147:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  147 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:158:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  158 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:175:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  175 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:191:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  191 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:199:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  199 | {
+      | ^
+firmware/src/app/smk_clip_keys.h:207:1: warning: 'minsize' attribute directive ignored [-Wattributes]
+  207 | {
+      | ^
+In file included from firmware/src/app/engine.c:37:
+firmware/src/app/chicago_ens.h: In function 'chi_ens_q15':
+firmware/src/app/chicago_ens.h:23:5: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |     ^~
+firmware/src/app/chicago_ens.h:23:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |                             ^~
+firmware/src/app/chicago_ens.h: In function 'chi_ens_set':
+firmware/src/app/chicago_ens.h:29:5: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |     ^~
+firmware/src/app/chicago_ens.h:29:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |                     ^~
+firmware/src/app/chicago_ens.h: In function 'chi_ens_process':
+firmware/src/app/chicago_ens.h:57:5: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |     ^~
+firmware/src/app/chicago_ens.h:57:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |                                       ^~~
+firmware/src/app/../dsp/drum909_dsp.h: At top level:
+firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: 'x0x_tanh_value' is static but used in inline function 'd9_tanh' which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: 'fm_fabsf' is static but used in inline function 'd9_tanh' which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+PASS actual recording: panel REC on 303A writes 303A step=1 note=41; other bass unchanged
+PASS actual recording: SMC SELECT changes active recorder to 303B writes 303B step=1 note=43; other bass unchanged
+PASS actual recording: SMC strip REC on 303A writes 303A step=1 note=45; other bass unchanged
+PASS actual recording: panel selection changes active recorder to 303B writes 303B step=2 note=46; other bass unchanged
+PASS: 4 real pattern writes, 7 emitted Record projections, 0 failures

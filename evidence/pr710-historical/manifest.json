@@ -1,0 +1,92 @@
+{
+  "description": "LoopyX0X37 historical source native/host proof, plus exact current one-build GitHub repair receipts",
+  "created_utc": "2026-10-30T05:12:36+00:00",
+  "github_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "integration_branch": "wip/one-build",
+  "integration_head_observed": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40",
+  "integration_tree_sha": "ce0b0b9555e31ddd8d8ac54f6da385052e3565af",
+  "test_source_baseline": "6ae0928fe3264ee759c25c4f879eff4dc5dc3b20",
+  "test_source_tree": "987ef7257ec9026c4ad2bcbf9fdbdf214ee928cb",
+  "repair_branch": "fix/host-project-stage-clang",
+  "repair_pushed_commit": "7383a6d27d968cb9b7bd1e3133cf3ce66c2cc383",
+  "repair_pull_request": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/710",
+  "integration_notice": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/698#issuecomment-6515513460",
+  "historical_native_build": {
+    "elite": {
+      "artifact_filename": "x0x-smk37-elite.fwsc",
+      "artifact_bytes": 651455,
+      "artifact_sha256": "3bc6a7017a278e53217bf29014f895ebf12b96cf98c1aa93c94a164fc0823829",
+      "result": "PASS",
+      "output_not_in_zip": true
+    },
+    "pro": {
+      "artifact_filename": "x0x-smk37.fwsc",
+      "artifact_bytes": 651455,
+      "artifact_sha256": "8da63e9457e3be7bcd5c3774245308faa90bda88976fae0aa55b40c98b2e24cc",
+      "result": "PASS",
+      "output_not_in_zip": true
+    }
+  },
+  "historical_tests": {
+    "original_host_build": "PASS",
+    "elite_native_sdk_1_2_1": "PASS",
+    "pro_native_sdk_1_2_1": "PASS",
+    "project_stage_clang_30320_checks": "PASS",
+    "project_stage_changed_default_30320_checks": "PASS",
+    "project_stage_standard_selector": "PASS",
+    "miami_freeplay_pads_147_cases_1710_assertions": "PASS",
+    "smc_record_feedback": "PASS",
+    "freeplay_live_keys_703_checks": "PASS",
+    "broad_affected_test_suite": "INTERRUPTED after project-stage GCC compile failure and project-runtime row>=0 assertion failure"
+  },
+  "exact_integration_native_build": "NOT_RUN",
+  "exact_integration_host_suite": "NOT_RUN",
+  "exact_integration_golden_audio_bit_equality": "NOT_RUN",
+  "exact_integration_device_QA": "NOT_RUN",
+  "installable_claim": false,
+  "reason": "Full exact 094bb1a5 GitHub tree not materialized in native shell; GitHub API source file/commit/tree reads work but source archive transit unavailable. Historical 6ae code tests cannot qualify current source.",
+  "excluded_from_zip": "Firmware .fwsc, SDK/toolchain bytes, private #684 headers, user backups, raw captures",
+  "patch": "host-project-stage-clang.patch",
+  "log_files": {
+    "logs/6ae-host-original.log": {
+      "bytes": 47442,
+      "sha256": "05ecee9754822aa07acd89ee1782d560491987eaf3fa7f6cddbbfbdb33bea26c"
+    },
+    "logs/6ae-smc_record_feedback.log": {
+      "bytes": 18356,
+      "sha256": "ec32c3b3e38dca350c961382095bec2365b406093c21e5fd9661ecf78505859f"
+    },
+    "logs/6ae-stage-clang.log": {
+      "bytes": 86,
+      "sha256": "27b398bea08f7df3e3078381eebd5cfd1a42061404e467735b7dcbc65bd48bd5"
+    },
+    "logs/6ae-pro-build.log": {
+      "bytes": 996,
+      "sha256": "b1bf441c4dd970f653acb8b96321928b3458d8e2a6125b7e469e0ae47e68c8e1"
+    },
+    "logs/6ae-project-stage-regression.log": {
+      "bytes": 144,
+      "sha256": "4dbfc357c283697955010c8dde025e7a586d06bf82941205831e4366ebf48b3c"
+    },
+    "logs/6ae-miami_freeplay_pads.log": {
+      "bytes": 50,
+      "sha256": "79304b7a087ef5e830682c6c635607a6019cb1d9913cbb65b4b7a8e4f7bac58e"
+    },
+    "logs/6ae-elite-build.log": {
+      "bytes": 1649,
+      "sha256": "cc0c2ab0e62c232233d36f1ca1a82e02579dcbf80d91d9a359e93d097d66871a"
+    },
+    "logs/6ae-affected-host-tests.log": {
+      "bytes": 2445,
+      "sha256": "d9dbcab2edc8949dc64184473fe2b7406d9eeb8eb80bbb887ccc6595c55c20d7"
+    },
+    "logs/6ae-freeplay_live_keys.log": {
+      "bytes": 120,
+      "sha256": "34c820f6847330f7142982dcf510bdc34001fa2cd4c5b17d47b0c1bfc735b717"
+    },
+    "logs/6ae-stage-patched-default.log": {
+      "bytes": 86,
+      "sha256": "27b398bea08f7df3e3078381eebd5cfd1a42061404e467735b7dcbc65bd48bd5"
+    }
+  }
+}

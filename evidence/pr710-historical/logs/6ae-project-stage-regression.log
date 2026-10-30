@@ -1,0 +1,3 @@
+  ok   project-stage
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
