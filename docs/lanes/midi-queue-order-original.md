@@ -45,3 +45,19 @@ X0X_TEST_JOBS=1 sh tests/run_tests.sh
 For an actual DEV qualification use `tools/dev_validate.py` with a plan at the exact HEAD, the full pinned source and correct model/toolchain/SDK/reference paths. Do not treat a historical build, a source-extracted host test or a GitHub API write as a completed current-HEAD native build. Independent QA and SMC/Chicago/Miami integrated runtime validation remain pending. Keep the PR draft; never merge into nightly or main without separate authority.
 
 Cloud verification update: Clang ASan+UBSan on the repaired source-extracted transport functions passed 1320/1320 assertions (exit 0). JieLi Clang 4.0.1 compiled the same freestanding transport code to a pi32v2 ELF32 object (exit 0). These scoped results do not qualify a complete firmware build; the latter remains NOT_RUN.
+
+
+## 2026-10-30 cloud scoped retest
+
+Source branch at the time of the retest: `da16ff754b655642cee7124edadb6fc50c80d14e`, based on `wip/one-build@094bb1a55c159aefb0e2bfa39790a1b4b74cee40`. Native environment: Linux x86-64, GCC 14.2, Clang 17 and JieLi pi32v2 Clang 4.0.1.
+
+- Source-extracted queue regression: **1,320/1,320 PASS** with GCC, GCC UBSan and Clang ASan+UBSan. Each invocation returned exit code 0.
+- A nine-selector host run returned **9 PASS, 0 FAIL**, exit code 0: `midi-mq-noteoff-overflow`, `midi-mq-rt-overflow`, `midi-out-mq-noteoff-overflow`, `ble-out-noteoff-overflow`, `ble-out-rt-overflow`, `trs`, `uac`, `smk-clip-knob`, and `smk-clip-usb-clear`.
+- The tested `firmware/src/usb.c` has the **exact Git blob** `3df6f132ce984a0397116801efaa6d1fd93fd9c8`; the nine host fixture inputs' blob SHAs also matched the GitHub PR #705 paths. The current `ble_out`, `plat_midi_in` and `smk_ck_poll` function bodies were compared against the API-fetched source using deterministic FNV64 fingerprints.
+- Verified pinned SDK V1.2.1 input subset: **11/11 PASS**. JieLi compiled a standalone transport USB translation-unit probe successfully. This is **not** a linked firmware application.
+- A locally combined historical `f550` source closure plus bootstrap assets failed both `host/build_host.sh` and the Elite native build because that historical archive lacks `experiments/wobble` sources. Its first clip-knob fixture also failed due an outdated UI stub; the same fixture and polling function were restored to the current GitHub versions and passed. These are **historical source-closure problems**, not evidence that the current original Chicago/Miami runtime fails.
+- The cloud shell cannot resolve the GitHub API hostname for a complete checkout; the connected authenticated GitHub API can inspect and update the repo but cannot mount the complete tree in this native shell. A separate GitHub Actions integration lane had two runs on 2026-10-30 with **zero executed job steps**, hence no usable host results.
+
+**Qualification limit:** full current-HEAD host suite, original Chicago/Miami audio golden renders, target Elite DEV build, RAM/pool budgets and device behavior remain **NOT_RUN / NOT_VERIFIED**. The historical PR #695 Mac result (208 pass / 101 fail) remains a separate unresolved result on a different source profile.
+
+**Evidence:** local read-only ZIP `current-transport-evidence-20261030.zip`, 50,572 bytes, SHA-256 `63be403e6eeb0f8952c228a8fb25dde3fe70d3de074e98dd4f558b22da28cc0e`. It contains only sanitized test logs, source fixtures and scripts, with no firmware binaries, SDK, private headers or credentials. The ZIP is available in the project's ChatGPT conversation, not committed to Git.
