@@ -1,0 +1,12 @@
+FAIL: 1880 SMC feedback expectations, 5 failures; navigation, main/drum banks, transport and emitted MIDI
+FAIL main SELECT: note=24 view=0 page=0 got=1 expected=0
+FAIL main SELECT: note=25 view=0 page=0 got=1 expected=0
+FAIL main SELECT: note=26 view=0 page=0 got=1 expected=0
+FAIL main SELECT: note=28 view=0 page=0 got=1 expected=0
+FAIL 909 effect held: note=24 view=0 page=0 got=0 expected=1
+Traceback (most recent call last):
+  File "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/repo/tests/host/smc_feedback_test.py", line 218, in <module>
+    subprocess.run([str(binary)], check=True)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-feedback-dxev75ur/feedback']' returned non-zero exit status 1.

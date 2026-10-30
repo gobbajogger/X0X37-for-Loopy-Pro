@@ -1,0 +1,18 @@
+check_locked_settings: 20 settings ok
+local cpu/wl82/liba/btctrler.a
+local cpu/wl82/liba/wl_rf_common.a
+local cpu/wl82/liba/crypto_toolbox_Osize.a
+local cpu/wl82/liba/lib_ccm_aes.a
+local include_lib/newlib/pi32v2-lib/libc.a
+local include_lib/newlib/pi32v2-lib/libcompiler_rt.a
+local apps/common/net/wifi_conf.c
+local LICENSE
+rf_tables.c: 294 lines
+ld exit 0, undefined symbols: 0
+  load 02087000  vma 02087000      68 B
+  load 02087044  vma 02087044   53772 B
+  load 02094250  vma 02094250    6328 B
+  load 02095b08  vma 01c01800    3512 B
+  load 020968c0  vma 01c025b8    1812 B
+/tmp/dev-check-rpu0ca1k/source/ble/ctl/out/ctl.img: 65492 B of 65536, crc32 77b7a496, RAM 0x1c01800..0x1c07ce0 (25824 B of 26368)
+Done: /tmp/dev-check-rpu0ca1k/source/ble/ctl/out/ctl.img

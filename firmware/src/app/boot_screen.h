@@ -58,11 +58,11 @@
 #define BOOT_SEC1 BOOT_FM1_SEC1
 #endif
 
-#define BOOT_FACTORY_0 "X0X"
-#define BOOT_FACTORY_1 "909 808 303 303 BREAK"
+#define BOOT_FACTORY_0 "DnBOX"
+#define BOOT_FACTORY_1 "909 808 CHICAGO MIAMI"
 
 _Static_assert(sizeof(BOOT_FACTORY_0) - 1u <= BOOT_LINE0_MAX, "factory title");
-_Static_assert(sizeof(BOOT_FACTORY_1) - 1u == BOOT_LINE1_MAX, "factory subtitle");
+_Static_assert(sizeof(BOOT_FACTORY_1) - 1u <= BOOT_LINE1_MAX, "factory subtitle");
 _Static_assert(BOOT_REC_MAX <= 3840u, "boot record fits the existing store buffer");
 _Static_assert(BOOT_PAY_OFF + BOOT_REC_MAX <= 4096u, "boot record fits one sector");
 _Static_assert(BOOT_PIC_W % 8u == 0u, "picture rows are whole bytes");

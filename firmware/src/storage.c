@@ -12,6 +12,10 @@
  * Flash access goes through three hooks (also used by the host test):
  *   st_read(off, dst, n)   st_erase(off)   st_prog(off, src, n)
  */
+#ifndef ST_MAINTENANCE_ADMIT
+#define ST_MAINTENANCE_ADMIT() 1
+#endif
+
 #define ST_MAGIC 0x30583058u                   /* "X0X0": never mistaken for a Felucca object */
 #define ST_SECTOR 4096u
 #define ST_PAYLOAD_OFF 256u
@@ -117,6 +121,8 @@ static uint8_t st_stage_hold;             /* boot screen is filling st_buf; save
  * would not fit. While held, load and save fail and leave the bytes alone. */
 uint8_t *store_stage_lock(uint32_t *cap)
 {
+    if (!ST_MAINTENANCE_ADMIT())
+        return 0;
     if (st_stage_hold)
         return 0;
     st_stage_hold = 1;
@@ -216,6 +222,8 @@ static int st_pick(uint32_t obj, uint32_t *seq)
 static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
     st_hdr_t h;
+    if (!ST_MAINTENANCE_ADMIT())
+        return -1;
     if (st_stage_hold)                            /* do not wipe a boot record being built */
         return -1;
     if (st_current(obj, &h) < 0)
@@ -231,6 +239,8 @@ static int st_save(uint32_t obj, const void *src, uint32_t len)
     uint32_t seq = 0, base, off;
     int cur, rc;
     st_hdr_t h;
+    if (!ST_MAINTENANCE_ADMIT())
+        return -8;
     if (st_stage_hold)                            /* refuse; the previous object stays on flash */
         return -8;
     if (len > ST_PAYLOAD_MAX)

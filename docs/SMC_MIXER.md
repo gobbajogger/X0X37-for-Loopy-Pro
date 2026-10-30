@@ -2,6 +2,34 @@
 
 Choose **GLOBAL → BLUETOOTH MIDI → BT ROLE → SMC HOST**, enable Bluetooth, then restart. Choose **SMC PRESET → DAW** for the mixer's factory DAW mode or **USER** for its editable User preset. A role change takes effect after restart; the preset setting takes effect immediately. The SMC connection is separate from the APC40/Loopy port.
 
+## Two direct Bluetooth mixers
+
+The development controller and application support two direct SMC links. Each
+link has its own input ring, reconnect epoch, captured targets, pickup history,
+held buttons, Solo targets and feedback cache. Pause locks only the controller
+that sent it. Keyboard navigation does not redirect either controller's captured
+targets. The temporary display shows the last controller used; it does not retain
+or restore a different underlying page.
+
+Solo is the union of both controllers' held targets. Releasing or disconnecting
+one does not release the other's Solo. Momentary FX holds also retain their
+owners. If both controllers hold different effects on the same engine bus, the
+first connection slot has priority until it releases; the second controller's
+still-held effect then becomes effective. The engine still has one effect per
+bus. Project reset clears both controllers' held state and old queued input.
+
+USB/peripheral User-preset input retains its historical association with the
+first direct-link slot; it is not a third independently identifiable controller.
+A shared host MIDI port cannot identify multiple physical senders. Use direct
+Bluetooth links for independent controller contexts.
+
+This change requires the matching two-link controller image as well as the app.
+The existing single-link hardware acceptance is not discarded, but it does not
+prove the changed controller or simultaneous links. Production host tests cover
+two-peer routing, overload, reconnect, HCI command arbitration and per-handle ACL
+credit conservation. Radio timing, simultaneous physical devices, actual lamps
+and device acceptance remain a separate authorized hardware stage.
+
 The eight faders use pickup. A fader starts changing a value when it reaches the X0X target (within two MIDI steps, or crossing it). The temporary SMC screen shows the actual destinations and values. **PICKUP: MOVE UP/DOWN TO TARGET** means the fader is waiting; the displayed value is the target, not a successful edit. **ACTIVE** means pickup is acquired. Changing the target or changing its value elsewhere resets pickup and discards the old crossing history. X0X sends the target position back to the SMC. A frame after the fader's own write preserves pickup.
 
 Fader, encoder and action feedback uses the full control screen instead of a yellow SMC header notice. The screen returns to the underlying UI after 1.2 seconds without control activity. Changed fader samples, nonzero encoder turns and action presses extend that interval. Unchanged absolute samples and zero encoder deltas do not open or extend it. Page/target feedback refresh is silent, including after navigation cancels an active screen. It does not change the underlying view, page, selection, menu or clip editor. Panel input and intentional SMC navigation dismiss it immediately; an old timeout cannot undo the new navigation. Help keeps its card while controls work underneath. Confirmation retains its input lock. Clip-editor feedback shows the field edited by the SMC; clip-grid encoders remain inactive. These behaviors have host coverage; physical LCD and controller behavior still require device testing.
@@ -85,11 +113,15 @@ Each part's knob, including 303B, is that part's cutoff. It is applied on the bu
 
 Several held **S** buttons can solo several parts together. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY** toggles play/pause using the sequencer's existing start/stop operations, including a queued start; **STOP** stops and **REC** controls recording. Rewind and fast-forward move the selected part's pattern. Holding a DAW PLAY or SELECT Note does not repeat the action; release enables the next press. Stock User MMC has no release and retains one action per command. These actions do not send APC40 clip commands. Performance tests own the controls, clear temporary Solo and drain SMC input without editing.
 
-## Prepared target lock and physical identification limit
+## Target lock and beat feedback
 
-The reviewed PR150 target-capture mechanism is adapted to the distinct current knob mappings. Its neutral press/release API captures fader, knob, drum-bank, pattern and song-bar targets; keyboard navigation then leaves those targets stable. The control screen still expires normally. SELECT, row Record and SMC target navigation are parked while locked, so a repeated SELECT cannot silently redirect controls. Unlock follows the current UI and resets pickup. Clip mode refuses lock entry; a lock acquired outside clip mode survives subsequent keyboard clip navigation. Song structural edits invalidate captured song-bar knobs until unlock.
+The target-capture mechanism retains fader, knob, drum-bank, pattern and song-bar destinations while keyboard navigation changes the visible page. The control screen still expires normally. SELECT, row Record, drum sound selection and SMC navigation keep their normal actions while locked. Fader and knob destinations stay captured. Unlock follows the current UI and resets pickup. Clip mode refuses lock entry; a lock acquired outside clip mode survives subsequent keyboard clip navigation. Song structural edits invalidate captured song-bar knobs until unlock.
 
-This source API has no physical Pause binding. The current replacement SMC's Pause event and light have not been identified by labelled project evidence. Historical note53/CC53 remains unconfirmed. Existing STOP `0x5D` is preserved. No Pause LED address or blink command is guessed; the requested blinking-follow/steady-lock indication remains pending that evidence. Host API tests and native rendering do not establish physical availability or hardware validation.
+The existing captured Pause route is Note `0x5D`. A press while following locks immediately. Unlock requires a separate press held for 900 ms; release before that point cancels it. Repeated press messages do not restart the timer, and the press that locked cannot also unlock. Disconnect/reconnect, project ownership, confirmation, performance testing and a lost Pause release cancel a pending hold. Pause never sends a transport action; User-preset MMC STOP and Play keep their separate behavior.
+
+The existing NoteOn feedback route is steady while locked. While following, it shows the lit first half of each beat from the sequencer's accepted external clock, including clock pickup while stopped. Clock loss keeps the last measured visual BPM and phase; Stop does not stop this visual beat. A new external-clock pickup rephases it. With no external clock history, feedback follows the internal tempo; a manual internal-tempo edit starts the new visual period. Project reset clears the lock and the local visual state.
+
+These behaviors implement the preserved LX-REQ-006/022 owner contract. Production host tests check input queues, hold/cancel/loss edges, clock phase and emitted MIDI bytes. They do not establish the physical light identity, controller timing, device behavior or hardware acceptance. No new note/CC mapping or transport binding is inferred.
 
 Fader 8's main-mixer master filter matches the keyboard's bank-B filter: low-pass below the middle, neutral in the middle, and high-pass above it. Strip 8's M button toggles master output, and its light reflects that output mute. Drum MIX and drum SEQ assign fader 8 to track 8 in the first bank and leave it inactive in the second bank.
 
@@ -97,6 +129,12 @@ Fader 8's main-mixer master filter matches the keyboard's bank-B filter: low-pas
 
 Factory DAW mode: faders are pitch bend on MIDI channels 1–8; encoders are sign-magnitude relative CC 16–23 on channel 1; buttons are Mackie Control note presses. X0X returns note velocities 127/0 for button lights and pitch bend for fader pickup.
 
-The stock User preset sends faders as CC 40–47, encoders as relative CC 16–23, and its 43 buttons as six-byte MMC SysEx (`F0 7F 7F 06 01..2B F7`). On the direct SMC Bluetooth connection, X0X recognizes these messages regardless of MIDI channel because the connection identifies the controller.
+The stock User preset sends faders as CC 40–47, encoders as relative CC 16–23, and its 43 buttons as six-byte MMC SysEx (`F0 7F 7F 06 01..2B F7`). On a direct SMC Bluetooth connection, channel controls use channel 1 or User channel 16. Channels 2–15 are ignored, including on overflow. MMC uses its exact six-byte envelope. The peer slot identifies the physical controller; the preset is captured when each frame arrives.
 
 For an SMC routed through a computer or another Bluetooth MIDI host into X0X, choose **SMC PRESET → USER** and program its channel messages to **MIDI channel 16**. Only that channel's CC and note messages enter the host SMC mapping, so normal instrument and APC40 messages keep their existing behavior. The exact stock User MMC SysEx envelope is accepted from the USB or peripheral Bluetooth MIDI input when User preset is selected. This host route does not identify the physical sender; use a dedicated MIDI port or routing rule if another device sends the same MMC commands.
+
+## Reconnect and feedback boundaries
+
+Each peer publishes its link epoch together with lost-release watermarks. Old-link frames and old host Solo edges cannot replay into a new connection. Peer zero retains the historical USB/peripheral host association; peer one's disconnect does not clear that host's Solo. Preset changes clear held controls from the old mapping. Feedback is acknowledged only after the transmit queue accepts it in the same link epoch; rejected writes retry. Repeated saturated MMC STOP commands retain their separate FIFO boundaries on both host sources.
+
+The Bluetooth NAME row lists all connected central peers in slot order, separated by a comma, including identical advertised names. Each name is bounded to 20 bytes. Long names use a smaller native font; if necessary each peer is shortened separately with `..` so the other peer stays visible. Disconnected cached names are omitted. The existing Bluetooth state and About paths remain in use. Host checks do not establish physical radio, LCD or LED acceptance.

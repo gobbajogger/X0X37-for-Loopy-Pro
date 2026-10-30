@@ -33,9 +33,14 @@ src = (
     "#define BLE_OQ 56u\n"
     "static uint32_t ble_oq[BLE_OQ];\n"
     "static struct { volatile uint32_t ow, orr; union { int h; } host; } ble_r;\n"
-    "static int ble_central_role, ble_host_on = 1;\n"
+    "static int ble_central_role, ble_host_on = 1, ble_want = 1;\n"
+    "static int smc_ble_role_get(void) { return 0; }\n"
     "static int bleh_notifying(void *h) { (void)h; return 1; }\n"
     + function(b, "ble_out_is_note_off")
+    + "\n"
+    + function(b, "ble_out_is_rt_transport")
+    + "\n"
+    + function(b, "ble_out_pkt_is_keep")
     + "\n"
     + function(b, "ble_out")
     + r"""

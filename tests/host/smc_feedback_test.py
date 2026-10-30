@@ -36,6 +36,7 @@ harness = r'''
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "app/engine.h"
 #include "dsp/master.h"
@@ -45,13 +46,15 @@ typedef struct { int kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 seq_t seq;
 static struct { int rec,part,view,overlay,help,sel[NKIT]; } ui;
-static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank,fx_down; uint16_t drum_solo[NKIT]; } smc;
+static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank,fx_down; uint16_t drum_solo[NKIT]; uint32_t beat_at,beat_period; float beat_internal; uint8_t beat_external; } smc_states[2];
+#define SMC_PEERS 2u
+static uint8_t smc_slot;
+static uint32_t smc_link_published=1, smc_link_seen=1;
+#define smc (smc_states[smc_slot])
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
 static unsigned checks,failures,tx_count;
-static uint32_t now_ms;
-static uint32_t plat_ms(void) { return now_ms; }
 static uint8_t tx[128][3];
 static int pref_get(pref_t r) {
     if(r.a==T_MST) return filter;
@@ -73,9 +76,14 @@ int plat_ble_smc_send(const uint8_t *msg,uint8_t len) {
     assert(len==3 && tx_count<128);memcpy(tx[tx_count++],msg,3);return 1;
 }
 '''
+harness += re.search(r"^static const uint8_t PART_ORDER.*?;", ui_source, re.M)[0] + "\n"
+harness += re.search(r"^static int part_at\(.*", ui_source, re.M)[0] + "\n"
+harness += 'int plat_ble_smc_send_slot(unsigned p,const uint8_t *m,uint8_t n) { assert(p==0); return plat_ble_smc_send(m,n); }\n'
 harness += "\n".join(function(name) for name in (
-    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
+    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_beat_lit", "smc_led", "smc_frame_peer", "smc_frame"))
 harness += r'''
+static const int expected_bus[5]={PART_909,PART_808,PART_BRK,PART_303B,PART_303A};
+static int expected_strip(int part) { for(int n=0;n<5;n++) if(expected_bus[n]==part) return n; abort(); }
 static void expect(const char *label,int note,int expected) {
     int got=smc_led(note)!=0;checks++;
     if(got!=expected) {
@@ -112,19 +120,28 @@ static void main_strips(void) {
         /* Panel REC and part changes need not update the last SMC REC cache. */
         part_mutes=smc.solo=1u<<selected;
         for(int strip=0;strip<NPARTS;strip++) {
-            expect("main REC",strip,strip==selected);
-            expect("main SOLO",8+strip,strip==selected);
-            expect("main MUTE",16+strip,strip==selected);
-            expect("main SELECT",24+strip,strip==3 && strip==selected);
+            expect("main REC",strip,expected_bus[strip]==selected);
+            expect("main SOLO",8+strip,expected_bus[strip]==selected);
+            expect("main MUTE",16+strip,expected_bus[strip]==selected);
+            expect("main SELECT",24+strip,expected_bus[strip]==selected);
         }
     }
     ui.rec=smc.solo=part_mutes=0;
     for(int strip=0;strip<NPARTS;strip++) {
         expect("main REC off",strip,0);expect("main SOLO off",8+strip,0);expect("main MUTE off",16+strip,0);
     }
-    smc.fx_down=1u<<0; expect("909 effect held",24,1);
-    smc.fx_down=1u<<3; expect("break effect held",28,1); expect("909 effect released",24,0);
+    /* Assigned source effects own these lamps only in the FX view. Each bus
+     * uses its actual strip bit, including 303B (3) and BREAK (4). */
+    ui.view=V_FX;
+    for(int held=0;held<NPARTS;held++) {
+        smc.fx_down=(uint8_t)(1u<<held);
+        for(int strip=0;strip<NPARTS;strip++)
+            expect("FX source held",24+strip,expected_bus[strip]==held);
+    }
     smc.fx_down=0;
+    for(int strip=0;strip<NPARTS;strip++) expect("FX sources released",24+strip,0);
+    ui.view=V_HOME;
+    for(int strip=0;strip<NPARTS;strip++) expect("ordinary selection returns",24+strip,expected_bus[strip]==ui.part);
     for(int which=0;which<3;which++) {
         fx[which]=0;expect("FX/master muted",21+which,1);
         fx[which]=100;expect("FX/master audible",21+which,0);
@@ -157,8 +174,8 @@ static void drums(void) {
     for(int owner=0;owner<2;owner++) {
         ui.overlay=owner?O_NONE:O_LIST;clip=owner;
         for(int strip=0;strip<NPARTS;strip++) {
-            expect("overlay/clip main MUTE",16+strip,strip==3);
-            expect("overlay/clip main SELECT",24+strip,strip==3);
+            expect("overlay/clip main MUTE",16+strip,expected_bus[strip]==3);
+            expect("overlay/clip main SELECT",24+strip,expected_bus[strip]==3);
         }
     }
     clip=0;ui.overlay=O_NONE;part_mutes=0;
@@ -167,32 +184,45 @@ static void transport(void) {
     for(int mode=0;mode<3;mode++) for(int playing=0;playing<2;playing++) for(int rec=0;rec<2;rec++) {
         ui.view=mode?V_MIX:V_HOME;page=mode;seq.playing=playing;ui.rec=rec;
         for(int captured=0;captured<2;captured++) for(int phase=0;phase<2;phase++) {
-            smc.locked=captured;now_ms=(uint32_t)phase*512u;
-            expect("Pause lock/follow lamp",0x5d,captured||phase);
+            smc.locked=captured;seq.ext_now=(uint32_t)phase*10584u;
+            expect("Pause lock/follow lamp",0x5d,captured||!phase);
         }
         smc.locked=0;
         expect("shared PLAY",0x5e,playing);expect("shared REC",0x5f,rec);
     }
-    ui.rec=seq.playing=0;now_ms=0;
+    ui.rec=seq.playing=0;seq.ext_now=0;
 }
 static void wire_value(const char *label,int note,int expected) {
     int found=-1;for(unsigned i=0;i<tx_count;i++) if(tx[i][0]==0x90 && tx[i][1]==note) found=tx[i][2];
     checks++;if(found!=expected) { failures++;fprintf(stderr,"FAIL %s: wire note=%d got=%d expected=%d\n",label,note,found,expected); }
 }
 static void frames(void) {
-    memset(&smc,0,sizeof smc);ui.view=V_HOME;page=0;ui.overlay=O_NONE;ui.help=0;ui.rec=0;seq.playing=0;
+    memset(&smc,0,sizeof smc);ui.part=PART_909;ui.view=V_HOME;page=0;ui.overlay=O_NONE;ui.help=0;ui.rec=0;seq.playing=0;
     proj.set.bt=PROJ_BT_SMC_CENTRAL;smc.up=1;tx_count=0;smc_frame();
     assert(tx_count==43);wire_value("HOME active",7,127);wire_value("MIX inactive",13,0);wire_value("PART inactive",15,0);
+    wire_value("selected 909 lights",24+expected_strip(PART_909),127);
+    tx_count=0;smc_frame();assert(tx_count==0);
+    ui.part=PART_BRK;smc_frame();assert(tx_count==2);
+    wire_value("old source selection extinguishes",24+expected_strip(PART_909),0);
+    wire_value("selected BREAK lights",24+expected_strip(PART_BRK),127);
+    tx_count=0;ui.view=V_FX;smc.fx_down=1u<<PART_303B;smc_frame();
+    wire_value("FX view removes ordinary source selection",24+expected_strip(PART_BRK),0);
+    wire_value("303B FX hold lights its own strip",24+expected_strip(PART_303B),127);
+    tx_count=0;smc.fx_down=0;smc_frame();
+    wire_value("303B FX release extinguishes",24+expected_strip(PART_303B),0);
+    tx_count=0;ui.view=V_HOME;smc_frame();
+    wire_value("leaving FX restores selected source",24+expected_strip(PART_BRK),127);
     tx_count=0;smc_frame();assert(tx_count==0);
     ui.view=V_MIX;page=0;smc_frame();
     wire_value("HOME extinguishes",7,0);wire_value("MIX lights",13,127);
     tx_count=0;seq.playing=1;smc_frame();assert(tx_count==1);
     wire_value("PLAY lights",0x5e,127);
-    tx_count=0;now_ms=512;smc_frame();assert(tx_count==1);wire_value("following blink on",0x5d,127);
-    tx_count=0;now_ms=1024;smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
+    tx_count=0;seq.ext_now=10584u;smc_frame();assert(tx_count==1);wire_value("following beat off",0x5d,0);
+    tx_count=0;seq.ext_now=21168u;smc_frame();assert(tx_count==1);wire_value("following beat on",0x5d,127);
+    tx_count=0;seq.ext_now=31752u;smc_frame();assert(tx_count==1);wire_value("following blink off",0x5d,0);
     tx_count=0;smc.locked=1;smc_frame();wire_value("locked steady on",0x5d,127);
-    tx_count=0;now_ms=1536;smc_frame();assert(tx_count==0);
-    tx_count=0;now_ms=2048;smc_frame();assert(tx_count==0);
+    tx_count=0;seq.ext_now=42336u;smc_frame();assert(tx_count==0);
+    tx_count=0;seq.ext_now=52920u;smc_frame();assert(tx_count==0);
     smc.locked=0;tx_count=0;smc_frame();wire_value("unlock resumes blink off",0x5d,0);
     tx_count=0;locked=1;seq.playing=0;smc_frame();assert(tx_count==0);locked=0;
     smc.up=0;smc_frame();assert(tx_count==0);smc.up=1;
@@ -204,7 +234,7 @@ static void frames(void) {
     assert(tx[1][0]==0xe7 && tx[1][1]==120 && tx[1][2]==120);
 }
 int main(void) {
-    navigation();main_strips();drums();transport();frames();
+    seq.bpm=125;navigation();main_strips();drums();transport();frames();
     printf("%s: %u SMC feedback expectations, %u failures; navigation, main/drum banks, transport and emitted MIDI\n",failures?"FAIL":"PASS",checks,failures);
     return failures?1:0;
 }

@@ -1,11 +1,11 @@
-Publish the site only when the owner authorizes publication (docs/rules/install.md rule 6).
+Publish only with current action-specific authority through the assigned publisher under [the active workflow](docs/rules/workflow.md). Reuse applicable standing permission; a build or source push does not grant publication or device access.
 
 # Building X0X
 
 Default to development builds and installs (`X0X_DEV_PADCAL=1`). Build a release
 configuration only after the user explicitly requests a release build for the
 current work. Until then, always skip the full gate, including trial runs. See
-[rule 11](docs/rules/integration.md).
+[the active release boundary](docs/rules/workflow.md).
 
 Maintained targets are SMK-37 Elite and Pro. The gate builds and tests both in dev
 and release configurations. FM-1 source is reference-only for porting; its target
@@ -52,14 +52,16 @@ and Linux signal support. macOS can run docs checks and supported host checks.
 Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
 
 Install Pillow in the agent environment when you can (`bash tools/agent_env_install.sh`).
-Missing optional host tooling (Pillow, ASan, missing reference repos) is not a cycle
-blocker and not a firmware failure: those checks stay not-run and the loop continues.
+Missing optional host tooling (Pillow, ASan, missing reference repos) does not stop
+independent ready work. Its dependent checks stay NOT_RUN; a missing required check
+blocks only its dependent qualification, merge or publication claim.
 A generation step that actually ran and failed still fails the suite.
 
-For docs and rules work, run the affected checks without a firmware build:
+For docs and rules work, read current `AGENTS.md` and the selected maintained
+workflow. Do not require removed preference files. Run the affected checks without
+a firmware build:
 
 ```
-python3 tools/prefs_lint.py docs/USER_PREFERENCES.md
 X0X_QUICK_ONLY=ste X0X_QC_BASE=<base-commit> bash tools/quickcheck.sh "$PWD"
 ```
 
@@ -91,7 +93,7 @@ compiler options in the runner's supported flags.
 
 Use checks scoped to the change and development validation by default.
 Only after an explicit user request for a release build may the full gate run
-under [rule 11](docs/rules/integration.md). Generic full-validation, build or
+under [the active release boundary](docs/rules/workflow.md). Generic full-validation, build or
 install requests do not authorize a release build. Reuse matching evidence.
 
 For a development install, prepare a JSON plan with `base` (the reviewed base
@@ -192,13 +194,16 @@ labels are diagnostic hints, not task completion gates. Configure the actual cur
 docs branch through `X0X_DOCS_BRANCH`. For a hook in a local bare server, configure
 its quickcheck, work, lock and skip-log paths before receiving integration pushes.
 
-External push destinations remain blocked. Scratch gate and quickcheck clones
-keep external push URLs disabled.
+Scratch gate and quickcheck clones keep external push URLs disabled. This local
+validation guard does not prohibit separately authorized source delivery from an
+owned lane. An actual installed hook or policy refusal remains binding; do not
+remove it or switch routes to bypass it. See [connected source delivery](docs/connected-git-source-delivery.md).
 
-Finish a local task when its authorized change and affected checks are complete.
-Report each missing dependency and each unrun check. Do useful independent work
-before handing off a real blocker. An unavailable device does not reopen completed
-local work. Development installs need scoped validation; release installs need
+Report the completed local stage and its affected checks, then continue the next
+authorized delivery action under the existing owner. Local proof alone does not
+close a requested remote delivery. Record missing dependencies and unrun checks;
+continue independent ready work. An unavailable device does not reopen completed
+source-only work or block unrelated delivery. Development installs need scoped validation; release installs need
 the full gate. Exact model/package checks, flash and RAM budgets, slot backup
 and readback, and device evidence still apply at their respective steps. A selected test pass is not a full gate or a hardware PASS.
 
@@ -235,10 +240,11 @@ Gate logs are retained per run. Keep `validation-inputs.json` with transferred g
 logs; `sync_results_to_mac.sh` includes it. Install consumers verify the recorded
 identity and exact artifacts without needing the producer's SDK on the installer.
 
-For docs and rules work, run the affected checks without a firmware build:
+For docs and rules work, read current `AGENTS.md` and the selected maintained
+workflow. Do not require removed preference files. Run the affected checks without
+a firmware build:
 
 ```
-python3 tools/prefs_lint.py docs/USER_PREFERENCES.md
 X0X_QUICK_ONLY=ste X0X_QC_BASE=<base-commit> bash tools/quickcheck.sh "$PWD"
 ```
 
@@ -270,7 +276,7 @@ compiler options in the runner's supported flags.
 
 Use checks scoped to the change and development validation by default.
 Only after an explicit user request for a release build may the full gate run
-under [rule 11](docs/rules/integration.md). Generic full-validation, build or
+under [the active release boundary](docs/rules/workflow.md). Generic full-validation, build or
 install requests do not authorize a release build. Reuse matching evidence.
 
 For a development install, prepare a JSON plan with `base` (the reviewed base
@@ -290,9 +296,11 @@ Use `--model pro` for Pro (package `x0x-smk37.fwsc`). Run validation inside Linu
 and installation also work on macOS. Plan commands must be synchronous native
 processes, without detached jobs or nested containers. The runner builds only that
 model in development configuration, checks code/RAM/pool budgets, builds the
-controller, and records selected test logs and artifact hashes. If the intended
-install needs no controller, use `--no-controller` when validating and `--no-ctl`
-when installing. An unchecked cached controller is not accepted on this path.
+controller, and records selected test logs and artifact hashes. Current SMK
+packages rewrite the controller block: validate and supply the exact matching
+controller with `--ctl`. `--no-controller` / `--no-ctl` apply only to a package that
+already embeds a valid controller or an old package whose application owns that
+range. An empty current package or unchecked cached controller is not accepted.
 Reuse the record for the same source tree and exact artifacts; no repeat gate or
 validation run is needed for another install of them. Failed checks issue no
 record. DEV CHECKED is local development evidence, not release or device PASS.
@@ -341,13 +349,16 @@ labels are diagnostic hints, not task completion gates. Configure the actual cur
 docs branch through `X0X_DOCS_BRANCH`. For a hook in a local bare server, configure
 its quickcheck, work, lock and skip-log paths before receiving integration pushes.
 
-External push destinations remain blocked. Scratch gate and quickcheck clones
-keep external push URLs disabled.
+Scratch gate and quickcheck clones keep external push URLs disabled. This local
+validation guard does not prohibit separately authorized source delivery from an
+owned lane. An actual installed hook or policy refusal remains binding; do not
+remove it or switch routes to bypass it. See [connected source delivery](docs/connected-git-source-delivery.md).
 
-Finish a local task when its authorized change and affected checks are complete.
-Report each missing dependency and each unrun check. Do useful independent work
-before handing off a real blocker. An unavailable device does not reopen completed
-local work. Development installs need scoped validation; release installs need
+Report the completed local stage and its affected checks, then continue the next
+authorized delivery action under the existing owner. Local proof alone does not
+close a requested remote delivery. Record missing dependencies and unrun checks;
+continue independent ready work. An unavailable device does not reopen completed
+source-only work or block unrelated delivery. Development installs need scoped validation; release installs need
 the full gate. Exact model/package checks, flash and RAM budgets, slot backup
 and readback, and device evidence still apply at their respective steps. A selected test pass is not a full gate or a hardware PASS.
 
@@ -489,6 +500,10 @@ script (the command list is at the top of `host/x0x_host.c`).
 
 ## Install
 
+These command examples are not device authorization. Apply current model- and
+action-specific permission, validated exact artifacts and the designated installer
+under [the active workflow](docs/rules/workflow.md) before any hardware command.
+
 X0X's web installer for this repo is
 <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/> (version + model picker, sample
 importer at `/breaks/`). Felucca's own installer is on hugelton.github.io. To install your own
@@ -523,13 +538,19 @@ Troubleshooting). Otherwise, recovery needs [FM-1-transporter](https://github.co
 
 ## Publishing a release
 
+These commands describe a separately authorized release. Inspect the exact current
+publisher, preserve prior catalog/assets and use its authorized nonforced route.
+Required production hardware, review, rights and action gates remain in effect.
+A CI workflow is not local validation or proof of live publication.
+
 1. `tools/build_smk_release.sh X.Y` (or `./build.sh --release X.Y` for a single target). Release
    identities are what the installers check (`SMK-37 Pro_9…`, `SMK-37 Elite_9…`, `MKE-P37_9…`).
 2. `tools/publish_pages.sh X.Y`: builds the site (landing, installer with every kept version,
    sample importer, manual, firmware) via `tools/make_pages.py`, merges older packages already on
    `gh-pages`, and pushes the branch. The site is
-   <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/>. Publishing a GitHub Release with the
-   `.fwsc` assets also runs `.github/workflows/pages.yml` to rebuild Pages the same way.
+   <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/>. The current `.github/workflows/pages.yml` only displays manual workflow
+   instructions; it neither deploys on source pushes nor publishes Release assets.
+   A source push or Release upload is not evidence of updated served Pages bytes.
 3. `gh release create vX.Y build/x0x-smk37-X.Y.fwsc build/x0x-smk37-elite-X.Y.fwsc build/x0x-smk37-mke-X.Y.fwsc --prerelease`
    for command-line downloads (the installer can also pick these up from the Releases API).
 4. Attach `LICENSE`, `LICENSING.md` and the `LICENSES/` folder to the release. Each package

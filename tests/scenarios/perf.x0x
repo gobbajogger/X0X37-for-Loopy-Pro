@@ -9,7 +9,7 @@ turn SELECT -5
 release HOME
 expect tempo 120
 tap HOME
-tapkey b2
+tapkey b4
 expect mute 4194304
 # GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
 tap GLO
