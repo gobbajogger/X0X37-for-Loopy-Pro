@@ -65,6 +65,33 @@ int main(void)
     CHECK(smc_drum_mix() == PART_808 && !smc_led(24) && smc_led(25));
     CHECK(smc_same(held_fader, smc_target(0)));
     CHECK(smc_same(held_knob, smc_knob_target(0)));
+    /* A keyboard-only view change to PART/FX/GEN cannot replace the
+     * locked MIX page's count, kit map, SELECT LED, or captured targets. */
+    const int other_views[] = {V_PART, V_FX, V_GEN};
+    for (unsigned vi = 0; vi < sizeof other_views / sizeof *other_views; vi++) {
+        ui.part = PART_303A;
+        set_view(other_views[vi]); build_pages();
+        CHECK(smc_page_now() == 2 && smc.lock_pages > 3);
+        CHECK(smc_drum_mix() == PART_808 && smc_led(25) && !smc_led(24));
+        smc_page_set(3);
+        CHECK(smc_page_now() == 3 && smc_led(31));
+        CHECK(smc_same(held_fader, smc_target(0)));
+        CHECK(smc_same(held_knob, smc_knob_target(0)));
+        smc_page_set(2);
+        CHECK(smc_page_now() == 2 && smc_led(25));
+        /* Even an empty live page table must not strand the locked mixer. */
+        int keyboard_pages = pg.n;
+        pg.n = 0;
+        CHECK(smc_page_now() == 2 && smc_led(25));
+        smc_page_set(3);
+        CHECK(smc_page_now() == 3 && smc_led(31));
+        smc_page_set(2);
+        pg.n = keyboard_pages;
+        CHECK(smc_same(held_fader, smc_target(0)));
+    }
+    ui.part = PART_909;
+    set_view(V_MIX); build_pages();
+    CHECK(smc_page_now() == 2 && smc_led(25));
     /* Peers can lock different pages and never overwrite one another's lock. */
     smc_slot = 1;
     CHECK(smc_lock_toggle() && smc.locked && smc.lock_page == 3);

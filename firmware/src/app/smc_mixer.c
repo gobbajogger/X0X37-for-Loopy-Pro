@@ -110,6 +110,8 @@ typedef struct {
     uint8_t beat_external;
     uint16_t lock_song_len;
     uint8_t locked, lock_down, unlock_wait, lock_kit, lock_bank, lock_part, lock_view, lock_page;
+    /* Page metadata belongs to the locked peer, not the keyboard's live pg. */
+    uint8_t lock_pages, lock_page_kit[MAXPAGES];
     /* Zero initializes every mixer page. Never capture a keyboard page. */
     uint8_t mixer_page[NVIEWS][NPARTS];
 } smc_state_t;
@@ -323,8 +325,8 @@ static uint8_t smc_page_part(int view, int part)
 
 static int smc_page_now(void)
 {
+    if (smc.locked) return smc.lock_page < smc.lock_pages ? smc.lock_page : 0;
     if (pg.n <= 0) return 0;
-    if (smc.locked) return smc.lock_page < pg.n ? smc.lock_page : 0;
     /* Unlocked SMC and keyboard are two surfaces for the same page. */
     int page = cur_page();
     return page >= 0 && page < pg.n ? page : 0;
@@ -332,7 +334,10 @@ static int smc_page_now(void)
 
 static void smc_page_set(int page)
 {
-    if (page < 0 || page >= pg.n) return;
+    /* A keyboard-only view switch may shrink pg.n to one or zero; it must
+     * never limit the independent locked mixer page or its navigation. */
+    int count = smc.locked ? smc.lock_pages : pg.n;
+    if (page < 0 || page >= count) return;
     if (smc.locked) smc.lock_page = (uint8_t)page;
     else {
         /* Mixer-side navigation changes the shared page only while unlocked. */
@@ -359,11 +364,15 @@ static pref_t smc_page_target(int n)
 
 static int smc_drum_mix(void)
 {
-    /* A locked page switch can change the mixer's UI/button mapping, but
-     * captured fader/knob targets still use lock_kit and lock_bank. */
-    if (smc.locked && ui.view != V_MIX) return (int)smc.lock_kit - 1;
-    if (smc.locked && (ui.overlay != O_NONE || smk_clip_mode_on()))
-        return (int)smc.lock_kit - 1;
+    /* Locked mixer buttons/SELECT LEDs use the captured view's page-to-kit
+     * map. The live keyboard view and pg.title are not authoritative. */
+    if (smc.locked) {
+        if (smc.lock_view == V_SEQ && smc.lock_part < NKIT)
+            return smc.lock_part;
+        if (smc.lock_view == V_MIX && smc.lock_page < smc.lock_pages)
+            return (int)smc.lock_page_kit[smc.lock_page] - 1;
+        return -1;
+    }
     if (ui.overlay != O_NONE || smk_clip_mode_on()) return -1;
     /* SEQ follows its selected drum part; MIX follows the kit actually shown. */
     if (ui.view == V_SEQ && is_drum()) return ui.part;
@@ -477,6 +486,16 @@ int smc_lock_toggle(void)
         smc.lock_bank = smc.lock_kit ? (uint8_t)(ui.sel[smc.lock_kit - 1u] / 8u * 8u) : 0;
         smc.lock_part = ui.part; smc.lock_view = ui.view;
         smc.lock_page = (uint8_t)smc_page_now();
+        /* Capture this view's page count and kit mapping before keyboard UI
+         * navigation rebuilds pg for an unrelated view or selected part. */
+        smc.lock_pages = (uint8_t)pg.n;
+        memset(smc.lock_page_kit, 0, sizeof smc.lock_page_kit);
+        if (ui.view == V_MIX)
+            for (int page = 0; page < pg.n && page < MAXPAGES; page++) {
+                const char *t = pg.title[page];
+                if (t[4] == 'M' && t[5] == 'I' && t[6] == 'X')
+                    smc.lock_page_kit[page] = t[0] == '8' ? PART_808 + 1 : PART_909 + 1;
+            }
         smc.lock_song_revision = song_structure_revision; smc.lock_song_len = song()->len;
         for (int i = 0; i < 8; i++) {
             smc.lock_fader[i] = smc_target(i); /* levels/returns/filter are engine refs, never pattern refs */
@@ -610,7 +629,9 @@ static uint32_t smc_ui_context(void)
 {
     uint32_t h = 2166136261u;
 #define SMC_CTX(v) (h = (h ^ (uint32_t)(v)) * 16777619u)
-    SMC_CTX(ui.view); SMC_CTX(ui.part); SMC_CTX(cur_page());
+    SMC_CTX(smc.locked ? smc.lock_view : ui.view);
+    SMC_CTX(smc.locked ? smc.lock_part : ui.part);
+    SMC_CTX(smc.locked ? smc.lock_page : cur_page());
     SMC_CTX(smc_page_now()); SMC_CTX(smc.knob_bank); SMC_CTX(smc.locked);
     SMC_CTX(ui.mixsel); SMC_CTX(ui.sel[0]); SMC_CTX(ui.sel[1]);
     SMC_CTX(ui.overlay); SMC_CTX(ui.help); SMC_CTX(ui.list_sel); SMC_CTX(ui.list_top);
@@ -765,12 +786,13 @@ static UI_DRAW void smc_ui_grid(void)
     /* Strips 0..4 = part_s (PART_N / BRK); 5..7 = send/master FX. */
     static const char *const MAIN_FX[3] = {"RVB", "DLY", "FLT"};
     int kit = smc_drum_mix();
+    int view = smc.locked ? smc.lock_view : ui.view;
     /* Selection follows the keyboard UI, independently of the touched control.
      * A locked bank can differ: no lane is selected if it is outside this bank.
      * LOCK in the header describes captured targets, never the title highlight. */
     int selected = kit >= 0 ? ui.sel[kit] - smc_drum_track(kit, 0) :
-        ui.view == V_FX ? 5 + smc_page_now() :
-        ui.view == V_MIX ? (smc_page_now() == 3 ? 7 : part_position(ui.mixsel)) : part_position(ui.part);
+        view == V_FX ? 5 + smc_page_now() :
+        view == V_MIX ? (smc_page_now() == 3 ? 7 : part_position(ui.mixsel)) : part_position(smc.locked ? smc.lock_part : ui.part);
     for (int n = 0; n < 8; n++) {
         pref_t f = smc_target(n), k = smc_knob_target(n);
         char name[24];
@@ -1022,10 +1044,12 @@ static void smc_view(int v, int page)
 static void smc_knob_bank(int delta)
 {
     int kit = smc_drum_mix();
+    int view = smc.locked ? smc.lock_view : ui.view;
+    int pages = smc.locked ? smc.lock_pages : pg.n;
     int count = kit >= 0 ? 3 : ui.overlay == O_LIST ?
         (ui.list_n - ui.list_top + 7) / 8 :
-        (ui.view == V_HOME || (ui.view == V_MIX && smc_page_now() == 0)) ?
-        4 : (pg.n + 1) / 2;
+        (view == V_HOME || (view == V_MIX && smc_page_now() == 0)) ?
+        4 : (pages + 1) / 2;
     if (count < 1) count = 1;
     smc.knob_bank = (uint8_t)((smc.knob_bank + count + delta) % count);
     smc.knob_i = 0;
@@ -1743,6 +1767,8 @@ void smc_poll(void)
 static int smc_led(int note)
 {
     int strip = note & 7, row = note >> 3;
+    int view = smc.locked ? smc.lock_view : ui.view;
+    int part_selected = smc.locked ? smc.lock_part : ui.part;
     if (smc_lock_blocks((uint8_t)note)) return 0;
     if (note < 32) {
         int kit = smc_drum_mix();
@@ -1757,30 +1783,30 @@ static int smc_led(int note)
     }
     if (note == 5) return ui.overlay != O_NONE;
     if (note == 6) return 0;
-    if (note == 7) return ui.view == V_HOME || ui.view == V_SONG;
-    if (note == 13) return ui.view == V_MIX;
-    if (note == 14) return ui.view == V_GLO;
-    if (note == 15) return ui.view == V_PART;
+    if (note == 7) return view == V_HOME || view == V_SONG;
+    if (note == 13) return view == V_MIX;
+    if (note == 14) return view == V_GLO;
+    if (note == 15) return view == V_PART;
     if (note < 32) {
         if (strip < NPARTS) {
             int part = part_at(strip);
             /* Panel REC and part changes update ui.part / ui.rec without smc.rec_part. */
-            if (row == 0) return ui.rec && ui.part == part;
+            if (row == 0) return ui.rec && part_selected == part;
             if (row == 1) return !!(smc.solo & (1u << part));
             if (row == 2) return part_muted(part);
             /* SELECT feedback follows the same mode as its press action. Source
              * bus identity follows the presentation mapping, not the strip index. */
-            if (row == 3 && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())
+            if (row == 3 && view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())
                 return (smc.fx_down >> part) & 1;
-            return ui.part == part;
+            return part_selected == part;
         }
         /* Strips 6–8: M = mute/zero. R8/S6/S7/S8 are handled above; SELECT 6/7/8
          * open reverb, delay and master (drum SELECT was handled above). */
         if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
                                      smc_home_target(strip)) == 0;
-        return (strip == 5 && ui.view == V_FX && smc_page_now() == 0) ||
-               (strip == 6 && ui.view == V_FX && smc_page_now() == 1) ||
-               (strip == 7 && ui.view == V_MIX && smc_page_now() == 3);
+        return (strip == 5 && view == V_FX && smc_page_now() == 0) ||
+               (strip == 6 && view == V_FX && smc_page_now() == 1) ||
+               (strip == 7 && view == V_MIX && smc_page_now() == 3);
     }
     /* Existing Mackie NoteOn feedback route; physical LED identity still
      * needs native owner verification for the captured preset. */
