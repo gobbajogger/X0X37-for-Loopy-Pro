@@ -465,13 +465,14 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
 static int stream_layout_ok(const project_t *pr,uint32_t format)
 {return stream_parts_ok(pr->pat,&pr->arr,format);}
 
-/* Call only after checking the original bytes' CRC and old semantic ranges.
- * The packed count's zero means A8/B8; the reserved byte and pin intent survive. */
+#if !X0X_ORIGINAL_SYNTH
+/* The retired project profile only. Revision 13 needs no migration. */
 static void migrate_break_counts(project_t *pr, uint32_t format)
 {
     if (format < 8u)
         for (int p = 0; p < NPAT; p++) pr->pat[p].brk.slice_mode = 0;
 }
+#endif
 
 
 static int load_stream(project_t *pr, int n, uint32_t format)
@@ -503,7 +504,9 @@ static int load_stream(project_t *pr, int n, uint32_t format)
 #endif
     if (!stream_layout_ok(pr, format))
         return -9;
+#if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(pr, format);
+#endif
     if (format != PROJ_STREAM)
         for (int k = 0; k < NSTREAM; k++) stored_known[STREAM_OBJ[k]] = 0;
     packed_len = plen;
@@ -1074,7 +1077,9 @@ int project_file_validate(const uint8_t *h)
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
+#if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(&project_stage, get32(h+20));
+#endif
     return project_validate_stage();
 }
 
