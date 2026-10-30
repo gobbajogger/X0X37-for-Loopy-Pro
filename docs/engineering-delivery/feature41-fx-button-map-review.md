@@ -21,6 +21,39 @@ The owner's original **`DnBOX-LoopyX0X37-full-feature-list-20261029.docx`**, ite
 
 Only a source-backed matching implementation should be ported after the actual map has been approved. Do not assign REC or SOLO to a guessed effect.
 
+## Recovered remapping shortcut and bus-suited FX banks (owner clarification, 23:54/23:56 UTC+10)
+
+The owner's two subsequent clarifications identify **(1) a shortcut for changing which effect a momentary button is assigned to** and **(2) multiple pages of effects chosen for each bus**. These are not proposals: the GitHub source includes implementations that can be reused.
+
+| Operation | Owner-control combination in existing code | Exact source |
+| --- | --- | --- |
+| Select the effect for one bus | **Hold HOME + press that bus's SELECT key** (MIDI Notes 24–31, in the FX view) | `smc_fx_try()` calls `smcfx_cycle(bus, smc.fx_effect[bus])` |
+| Select preset bank | **Hold HOME + Left/Right** (MIDI Notes 0x62/0x63) | `smc_fx_try()` calls `smc_fx_load_page()`; `SMCFX_NPAGE = 3` |
+| Optional cutoff preset utility | **Hold HOME + Up/Down** (0x60/0x61) | `smc_fx_save_preset()` / `smc_fx_reset_cuts()`; these do **not** save the FX assignment map |
+
+These exact combinations originate in [#366](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/366) `cursor/smc-fx-buttons-73de@08ccbdb18b4b139d9ab0b2dad56623ae958d5131` and its per-bus fixes [#368](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/368) `@e595bb380ac8f93cc145d2734eb988d0d76c9bf1`, [#369](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/369) `@80e6b60e105fb146939f2c61b7127f5eace1d76c`, [#372](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/372) `@d984b63cec2cd89d4a194b8fab491fae07e257ff`; the map was deduplicated in [#440](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/440) `@4d34df0ddd30315d4b5e92a03d8105678703c1f7`. Historical source and host tests are in `firmware/src/app/smc_mixer.c`, `firmware/src/app/smc_fx_map.h`, `firmware/src/app/smc_fx_map_tables.c`, and `tests/host/smc_fx_test.c`.
+
+The **three preset FX pages in the exact #734 source** select the following effects for each bus:
+
+| Bus | ROOM | TIGHT | ECHO |
+| --- | --- | --- | --- |
+| 909 | Reverb throw | Delay throw | Delay throw |
+| 808 | Delay throw | Reverb throw | Reverb throw |
+| 303A | High-pass | High-pass | Reverb throw |
+| 303B | Low-pass | Delay throw | Reverb throw |
+| BREAK | Decay gate | High-pass | Delay throw |
+| Reverb bus | Reverb throw | 16th gate | Stutter |
+| Delay bus | Delay throw | Stutter | Shuffler |
+| Master | 16th gate | Trance gate | 8th gate |
+
+**Source verification:** `SMCFX_PAGE` and `SMCFX_SUIT` in `firmware/src/app/smc_fx_map_tables.c` at [#734 `713dfd03`](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/734) are byte-identical to the table source tested in the existing #736 workspace (Git blob `fed6a46d14fca9361d934a65668d059fc8fce6f9`). Read-only table validation checked **24 of 24 preset cells** against their actual bus's curated suit list; all match. The ordered suit-choice counts are `[4, 4, 7, 6, 4, 7, 5, 7]` for 909, 808, 303A, 303B, BREAK, Reverb, Delay and Master.
+
+**Critical implementation gap on frozen #734 `713dfd03`:** The shortcut and tables are **in source**. However, the current `smc_fx_try()` marks an ordinary held FX SELECT as `fx_lp_hold`, and `smc_fx_publish()` always passes `SMCFX_LP` for that held bus instead of `smc.fx_effect[bus]`. Consequently, changing the assignment or FX preset page does **not** select the effect heard during the SELECT hold. This is a source-path finding, not a physical device measurement. Switching pages also overwrites the current in-memory per-bus assignment with that page's preset. Existing REC and SOLO rows still run normal record/solo handling, not additional user-approved momentary FX, and the exact new row allocations remain unspecified. None of those behaviors has been changed in this review branch.
+
+**Search scope:** repository registry `docs/FEATURE-REGISTRY.md`, audit [#739](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/739), 122-item plan [#699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699), relevant historical #366/#368/#369/#372/#440/#620/#688/#725/#736, all 823 live branch names (GitHub branches API, 9 pages including backups), related FX/SMC branch source, and available Mac snapshots of #736/#738. No second independent complete REC/SOLO remapping implementation was established. To avoid a duplicate feature implementation, reuse the existing tables and shortcuts after owner approval of the missing mapping and after #734 unfreezes.
+
+**Focused host evidence (not a full qualification):** On the existing #736 native workspace, `sh tests/run_tests.sh smc-fx` completed exit **0** and reported `ok smc-fx`; its package test was explicitly **skipped**. The full host suite and Elite/Pro target builds are **NOT_RUN for this review-only change**. No sound/bit-exact or device claim follows.
+
 ## Real framebuffer provenance
 
 The two **240 × 240** screen areas come from the real firmware `smc_ui_draw()` host renderer. They are pasted at 2× nearest-neighbour, pixel-for-pixel unchanged; all title, provenance and gaps are **outside** the captures. No SVG substitute or synthesized firmware interface was used.
