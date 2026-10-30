@@ -1,0 +1,13 @@
+Mixer FX page peer-context correction. Scoped RED/GREEN evidence.
+Repository: gobbajogger/X0X37-for-Loopy-Pro
+Branch: chat/mixer-fx-page-port
+Before: 18f04579abe83719e5822a7698459e00e10f0b6c, C blob 26519585aaea88151d56d31694b3c7164dc4244b
+Bug: Peer 2 opens temporary screen while smc_slot=1; smc_poll() restores smc_slot=0.
+smc_ui_active previously hashes context through smc_slot=0, causing a false cancel if knob bank or lock differs.
+Fix: Evaluate smc_ui_context() under smc_ui.peer, always restore smc_slot, and reject out-of-range peer. smc_held() still evaluates the originating peer's held[16].
+RED baseline: GCC and Clang -std=c99 -Wall -Wextra -Werror -pedantic -fsanitize=undefined source-excerpt reproduction EXIT 1, expected failure at assertion 2: smc_ui_active() == 1.
+GREEN corrected: GCC and Clang source-excerpt -fsanitize=undefined EXIT 0, PASS 18/18 each. Separate production-function extraction harness with identical verified excerpts: baseline EXIT 1; fixed EXIT 0, PASS 17/17.
+Previous unchanged focused cases rerun in this cloud: gcc 67/67, clang 67/67, gcc UBSan 67/67, GCC ASan+UBSan 67/67, caption 76/76: all exit 0. Isolated checks are not full embedded firmware execution.
+Full current-source host suite: NOT_RUN. Elite firmware: NOT_RUN. Pro firmware: NOT_RUN. Original required external /workspace/steers/preflight.txt is missing from this execution environment; a local scope/safety preflight was recorded, not represented as the original external steering file.
+No UI geometry or audio DSP changes; reuse existing before/after SVGs in PR #736. No .github changes, protected branch merges, force pushes, SDK or firmware binaries, or device operations.
+FREEZE: Keep draft PR #736 separate until PR #734 proves full host + Elite + Pro PASS with zero fail and zero skip on one exact HEAD.

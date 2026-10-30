@@ -1,0 +1,23 @@
+Mixer FX port: remote source and preview static checks
+Candidate: 41e9d73cb7b6ead95cb7bfcdefb6613e297de846
+Owner-corrected integration base: c54d9f9b4262709bb4ea5852ae4ed008fa100996
+Method: read the candidate's exact UTF-8 files through the connected GitHub API and inspect the resulting code/source artifacts; no hardware or compiler proof is claimed by this static check.
+
+Source checks (10 PASS / 0 FAIL):
+PASS smc_held() wraps the existing smc_hold_any() press-ownership helper
+PASS temp mixer screen uses smc_held(&smc_states[smc_ui.peer])
+PASS temp-screen timeout keeps smc_ui_edge_alive(plat_ms(), smc_ui.until, ...)
+PASS production mixer header contains current encoder bank label
+PASS production mixer fader renders colored target travel
+PASS original physical pickup marker remains present
+PASS source's existing FX-page SELECT captions remain integrated
+PASS focused new regression is registered in tests/run_tests.sh
+PASS new regression's class includes smc-fx-page-port
+PASS firmware/src/app/ui.c Git blob 4d2d660caa77f282001acc581e52a17c9f30f03b preserved byte-identically from c54d9f9b.
+
+SVG mockup checks:
+Before: Git blob e2632050ea2544e4c6d28dc18824a165f202c2fe; 13,194 UTF-8 code units, <svg> opening + closing, 8 fader rails, 62 text labels.
+After: Git blob 78affe843657c57b140000a65be1555d75b003e6; 13,765 UTF-8 code units, <svg> opening + closing, 8 fader rails, 62 text labels.
+The SVGs are illustrative proposed screens, not device captures. Counts are structural checks, not validation of visual pixels or the production framebuffer.
+
+No .github/ files changed. No SDK firmware binary, engine file, rev 13 migration or protected device area touched.
