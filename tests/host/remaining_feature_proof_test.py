@@ -37,7 +37,9 @@ with tempfile.TemporaryDirectory() as tmp:
     must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
              '--out', str(out), cwd=root)
     must_run(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
-    assert json.loads((out / 'receipt.json').read_text())['status'] == 'HOST_CHECKED'
+    first = json.loads((out / 'receipt.json').read_text())
+    assert first['status'] == 'HOST_CHECKED'
+    assert 'check:' + sys.executable in first['toolchain']['tools']
     (out / 'sample.log').write_bytes(b'forged PASS\n')
     assert invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root).returncode
     must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
@@ -53,6 +55,19 @@ with tempfile.TemporaryDirectory() as tmp:
     assert q.returncode != 0
     must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root), '--out', str(out), cwd=root)
     must_run(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
+    # A working external launcher whose bytes change must invalidate proof,
+    # even when the committed input files and command arguments stay fixed.
+    helper = Path(tmp) / 'host-helper.sh'
+    helper.write_text('#!/bin/sh\necho original\n')
+    helper.chmod(0o755)
+    custom = {**ok, 'checks': [{'name': 'sample', 'argv': [str(helper)]}]}
+    plan.write_text(json.dumps(custom))
+    must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root), '--out', str(out), cwd=root)
+    must_run(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
+    helper.write_text('#!/bin/sh\necho changed\n')
+    assert invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root).returncode
+    helper.unlink()
+    plan.write_text(json.dumps(ok))
     # A command that cannot be launched is recorded as FAIL (127) with no
     # reusable passing receipt from this or any earlier run in that folder.
     missing = {**ok, 'checks': [{'name': 'sample', 'argv': ['missing-x0x37-executable-that-does-not-exist']}]}
@@ -82,4 +97,4 @@ with tempfile.TemporaryDirectory() as tmp:
     plan.write_text(json.dumps({**ok, 'inputs': ['../escape.txt']}))
     assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
                   '--out', str(out), cwd=root).returncode
-print('PASS remaining_feature_proof: source/log mutations, failed/absent command, stale receipt and invalid plan rejected')
+print('PASS remaining_feature_proof: source/log/runner mutations, failed/absent command, stale receipt and invalid plan rejected')
