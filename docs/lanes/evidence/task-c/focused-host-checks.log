@@ -1,0 +1,29 @@
+candidate_full_commit=2a66c6ddac69f1a553283d8546aa30cf54cce8e4
+source=GitHub helper-range byte-equal to remote candidate, normalized final blank line
+host=Linux x86_64
+gcc=14.2.0
+clang=clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)
+
+RUN gcc O0 and O2
+extracted 7 SMC production helpers (3131 UTF-8 chars)
+PASS: extracted native SMC mapped-page routing and restore checks
+assertions=27, failures=0
+PASS: extracted native SMC mapped-page routing and restore checks
+assertions=27, failures=0
+
+RUN clang O0 and O2
+extracted 7 SMC production helpers (3131 UTF-8 chars)
+PASS: extracted native SMC mapped-page routing and restore checks
+assertions=27, failures=0
+PASS: extracted native SMC mapped-page routing and restore checks
+assertions=27, failures=0
+
+RUN gcc ASan and UBSan
+PASS: extracted native SMC mapped-page routing and restore checks
+assertions=27, failures=0
+
+RUN pure state GCC O0 and O2
+PASS: SMC mapped-page preview state: 31 checks, 0 failed
+PASS: SMC mapped-page preview state: 31 checks, 0 failed
+
+RESULT=FOCUSED_PASS; full_suite=NOT_RUN; Elite=NOT_RUN; Pro=NOT_RUN

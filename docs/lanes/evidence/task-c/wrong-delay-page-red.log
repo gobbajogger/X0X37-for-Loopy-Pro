@@ -1,0 +1,2 @@
+extracted 7 SMC production helpers (3033 UTF-8 chars)
+FAIL line 97: ui.view==V_FX&&cur_page()==1

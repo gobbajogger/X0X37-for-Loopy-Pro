@@ -1,0 +1,2 @@
+extracted 7 SMC production helpers (3033 UTF-8 chars)
+FAIL line 137: !smc_peek.on&&ui.view==V_SEQ&&cur_page()==2&&overlay_count==1
