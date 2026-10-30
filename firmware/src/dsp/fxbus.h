@@ -76,5 +76,6 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
                       float *out_l, float *out_r, int n);
 int fxbus_nparams(void);
 const x0x_param_t *fxbus_param(int i);
+int fxbus_param_si(int i, int pot, float *val);
 void fxbus_set(fxbus_t *f, int i, int value);
 int fxbus_get(const fxbus_t *f, int i);

@@ -57,6 +57,25 @@ const x0x_param_t *fxbus_param(int i)
     return i >= 0 && i < FX_NPARAMS ? &fx_p[i].ui : 0;
 }
 
+/* UI readout: a pot's engine value and unit (X0X_U_*). RvDec is a feedback
+ * coefficient and Drive a gain curve: no confirmed unit. */
+X0X_COLD int fxbus_param_si(int i, int pot, float *val)
+{
+    if (i < 0 || i >= FX_NPARAMS)
+        return X0X_U_NONE;
+    const fx_pspec_t *s = &fx_p[i];
+    if (s->curve == CV_SW)
+        return X0X_U_NONE;
+    float v = s->curve == CV_EXP ? x0x_pot_exp_value(s->exp, pot) : s->lo + (s->hi - s->lo) * (float)pot / 127.0f;
+    *val = v;
+    switch (i) {
+    case FX_VOLUME: case FX_RV_LEVEL: case FX_DL_LEVEL: return X0X_U_GAIN;
+    case FX_COMP: case FX_RV_TONE: case FX_DL_TONE: case FX_DL_WEAR: case FX_DL_FDBK: *val = v * 100.0f; return X0X_U_PCT;
+    case FX_RV_HPF: case FX_DL_HPF: return X0X_U_HZ;
+    default: return X0X_U_NONE;
+    }
+}
+
 int fxbus_get(const fxbus_t *f, int i)
 {
     return i >= 0 && i < FX_NPARAMS ? f->pots[i] : 0;

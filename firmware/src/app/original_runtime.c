@@ -133,6 +133,12 @@ int original_runtime_owned(const original_runtime_part *p)
         original_chicago_backend_active(&p->dsp.chicago);
 }
 
+int original_runtime_filter_view(const original_runtime_part *p, float *eg, float *depth)
+{
+    if (!p || p->status != ORIGINAL_RUNTIME_OK || p->kind != ORIGINAL_SOUND_CHICAGO) return 0;
+    return original_chicago_backend_filter_view(&p->dsp.chicago, eg, depth);
+}
+
 int original_runtime_active(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;

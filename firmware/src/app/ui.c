@@ -980,7 +980,7 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
         if (id == 0 || id == 6) { put_s(num,shape[v->shape[id == 0 ? 0 : 1]]); return 1; }
         if (id == 11) { put_s(num,wobble[v->shape[2]]); return 1; }
         if (id == 13) { put_s(num,rate[v->wobble_rate]); return 1; }
-        if (id == 3) { put_i(v->carrier_pitch > 0 ? put_s(num,"+") : num,v->carrier_pitch); return 1; }
+        if (id == 3) { put_i(v->carrier_pitch > 0 ? put_s(num,"+") : num,v->carrier_pitch); put_s(unit,"st"); return 1; }
         if (id == 7) {
             int amount = v->xmod_tune; char *q = num;
             if (amount < 0) { q = put_s(q,"-"); amount = -amount; }
@@ -990,6 +990,40 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
         }
     }
     put_i(num,(value*100+63)/127); put_s(unit,"%"); return 1;
+}
+
+/* signed number with one decimal below 10 (|x|), else whole */
+static char *put_d1(char *q, float x, int sign)
+{
+    int t = (int)(x * 10.0f + (x < 0 ? -0.5f : 0.5f));
+    if (t < 0) { *q++ = '-'; t = -t; } else if (sign && t > 0) *q++ = '+';
+    if (t < 100) { q = put_i(q, t / 10); *q++ = '.'; *q++ = (char)('0' + t % 10); *q = 0; return q; }
+    return put_i(q, (t + 5) / 10);
+}
+/* an engine value in its unit (X0X_U_*), short enough for a 60 px cell */
+static void unit_value(int u, float x, char *num, char *unit)
+{
+    switch (u) {
+    case X0X_U_PCT: put_i(num, (int)(x + 0.5f)); put_s(unit, "%"); return;
+    case X0X_U_GAIN:
+        if (x <= 0.0f) { put_s(num, "OFF"); return; }
+        put_d1(num, 6.0206f * fm_log2f(x), 1); put_s(unit, "dB"); return;
+    case X0X_U_HZ:
+        if (x < 999.5f) { put_i(num, (int)(x + 0.5f)); put_s(unit, "Hz"); }
+        else { put_d1(num, x / 1000.0f, 0); put_s(unit, "kHz"); }
+        return;
+    case X0X_U_MS:
+        if (x < 999.5f) { put_i(num, (int)(x + 0.5f)); put_s(unit, "ms"); }
+        else { put_d1(num, x / 1000.0f, 0); put_s(unit, "s"); }
+        return;
+    case X0X_U_S:
+        if (x < 0.9995f) { put_i(num, (int)(x * 1000.0f + 0.5f)); put_s(unit, "ms"); }
+        else { put_d1(num, x, 0); put_s(unit, "s"); }
+        return;
+    case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+    case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+    default: return;
+    }
 }
 
 /* the value, as a number and a unit ("-6" "dB"); a switch gives its name and no unit */
@@ -1008,6 +1042,8 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     if (d->names) {
         /* Retained or incompatible sound data must not become a pointer lookup. */
         put_s(num, v >= 0 && v <= d->max ? d->names[v] : "INVALID");
+        if (r.kind == R_ENG && r.a == T_BRK && r.c == 1 && v >= 0 && v <= d->max)
+            put_s(unit, "st");                           /* breaks.c: semi = Pitch - 12 */
         return;
     }
     if (r.kind == R_TAPE) {
@@ -1064,6 +1100,8 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
             put_s(unit, "%");
             return;
         }
+        { float x = 0.0f; int u = engine_param_si(r.a, r.b, r.c, v, &x);
+          if (u != X0X_U_NONE) { unit_value(u, x, num, unit); return; } }
         put_i(num, v);
         return;
     case R_DLEN:
@@ -6303,6 +6341,15 @@ static UI_DRAW void draw_preset_name(int voice,int cx,int y,int height,uint16_t 
 
 static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col);
 static UI_DRAW int orig_strip_slot(pref_t r);
+/* glyph-strip readout: "%" stays in the caps FONT_T run; a letter unit (st, ms,
+ * Hz) is drawn lowercase in FONT_XS grey after it, as cell_value does */
+static UI_DRAW void strip_value(int cx, int y, char *num, const char *unit, uint16_t ink)
+{
+    if (!unit[0] || unit[0] == '%') { char *q = num; while (*q) q++; put_s(q, unit); text_c(cx, y, &FONT_T, num, ink); return; }
+    int w = tw(&FONT_T, num) + tw(&FONT_XS, unit) + 1;
+    int x = cv_text(cx - w / 2, y, &FONT_T, num, ink);
+    cv_text(x + 1, base_y(&FONT_T, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
+}
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int active, uint16_t col, int height, int night)
 {
     const x0x_param_t *d=pref_desc(r);
@@ -6367,13 +6414,13 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         /* Reuse the knob-strip control_glyph families (0e58b960/5f58a199) in the
          * wave-glyph layout: glyph left, original readout right, no extra bar. */
         orig_strip_glyph(r,val,x+3,y+22,ink);   /* 26x19 box: x+3..x+28 */
-        pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); }
-        text_c(x+45,y+28,&FONT_T,num,ink);       /* starts >= x+32: 3 px clear of the glyph */
+        pref_value_of(r,val,num,unit);
+        strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */
     } else
     if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
-        pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); } /* original readout text */
-        text_c(cx+17,y+28,&FONT_T,num,ink);
+        pref_value_of(r,val,num,unit);           /* original readout text */
+        strip_value(cx+17,y+28,num,unit,ink);
     } else {
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
@@ -6829,11 +6876,22 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
         cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
         if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
-    } else if(chi && c==4) {                     /* ENV amount: env curve x signed amount */
-        float a=2*q-1; int py=mid;
-        cv_rect(gx,mid,OG_W,1,C_LINE);
-        for(int i=1;i<OG_W;i++){float t=(float)i/(OG_W-1),e=t<.15f?t/.15f:expf(-(t-.15f)*4);
-            int yy=mid-(int)(a*e*(OG_H/2)+(a<0?-.5f:.5f));cv_line(gx+i-1,py,gx+i,yy,col);py=yy;}
+    } else if(chi && c==4) {                     /* ENV: the lowpass peak the filter EG sweeps */
+        /* chicago_voice.c mp4_prepare: z = cutoff + vcf.level * env_depth. The peak
+         * sits at the live CUTOFF, moves with the live filter EG on every note and
+         * decays back with it; a dim tick marks where a full EG would take it. */
+        pref_t cr=PR(R_ENG,T_303,r.b,2),pr=PR(R_ENG,T_303,r.b,3);
+        const x0x_param_t *dc=pref_desc(cr),*dp=pref_desc(pr);
+        float cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0,pq=dp&&dp->max?(float)matrix_value(pr)/dp->max:0;
+        float depth=2*q-1,eg=0,dd; if(engine_bass_filter_view(r.b,&eg,&dd)) depth=dd;
+        if(eg<0)eg=0; if(eg>1)eg=1;
+        float z=cq+eg*depth,zt=cq+depth; z=z<0?0:z>1?1:z; zt=zt<0?0:zt>1?1:zt;
+        int pivot=gx+4+(int)(z*14+.5f),tgt=gx+4+(int)(zt*14+.5f),peak=top+2-(int)(pq*5+.5f);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        if(tgt!=pivot) cv_rect(tgt,bot-3,1,3,C_LINE);
+        cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
+        cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
+        if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
     } else if(c==(chi?1:4)) {                    /* GLIDE: sloped pitch line, slope widens */
         int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2;
         cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col);
@@ -6883,6 +6941,7 @@ static uint32_t knobs_sig(void)
         const uint8_t *cell=proj.sound.v[T_303][bidx()];
         for (unsigned byte=0; byte<ORIGINAL_SOUND_BYTES; byte++) MIXIN(cell[byte]);
         MIXIN(engine_bass_status(bidx()));
+        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN((int)(eg*dd*28.0f)); } /* ENV glyph motion */
         MIXIN(engine_bass_preset_pending(bidx()));
         MIXIN(engine_bass_requested_bank(bidx())); MIXIN(engine_bass_requested_preset(bidx()));
     }
