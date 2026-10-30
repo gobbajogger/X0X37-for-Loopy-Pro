@@ -104,3 +104,45 @@ MIDI pitch bend, link/channel ownership, runtime mailbox, and JUNGLE caption
 to the previously copied BREAK DSP and accepted-hit callback. This is a
 source-only candidate. Complete candidate host tests, audible comparisons,
 native builds, MIDI output, and device interaction remain NOT_RUN.
+
+## October 30: integrated Miami Free Play RATE pads
+
+The owner requested these two changes be applied **in order** on the existing
+`wip/one-build` branch, starting at `094bb1a55c159aefb0e2bfa39790a1b4b74cee40`:
+
+1. PR #702: `c95b6785776ecf391efde571b6dbbcf8b7ce9948` fixes
+   physical pad ownership so pads 0-7 select rate and pads 8-15 retain ordinary
+   note press/release, including when ownership changes while notes are held.
+2. PR #711: `1eb56ce34841bd6574b41ea4db7fbbfb53e4a5ca` enables the
+   existing original Miami rate-pad UI by default in the app and host build;
+   `X0X_DEV_WOBBLE=0` explicitly disables it. The original Chicago/Miami DSP
+   selection remains intact; legacy `wobble.c` is not added to the build.
+
+Both commits were integrated by non-force GitHub API fast-forward with exact
+remote SHA readback. Shape-pad behavior is still excluded. No private headers,
+firmware binaries, device writes, or production/nightly merges were made.
+
+Cloud test evidence for the integration:
+- GCC 14.2 and Clang 17, UBSan, extracted **real production** rate-pad HAL/UI
+  functions at the integrated GitHub blobs: PASS in four configurations,
+  117 checks with `X0X_DEV_WOBBLE=1` and four with `=0` per compiler.
+  The five production function fingerprints and pad 8-15 guard were rechecked
+  against GitHub at `1eb56ce3` before this documentation update.
+- Full recovered **historical** source `6ae0928fe3264ee759c25c4f879eff4dc5dc3b20`:
+  `X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=0 sh host/build_host.sh`
+  PASS; `sh tests/host/freeplay_live_keys_test.sh` PASS (703 checks);
+  historical build-composition Python tests PASS (6 tests). Original
+  `miami_freeplay_pads_test.sh` passed 147 cases / 1710 assertions in the
+  earlier fresh run; a later repeat timed out, so that repeat is INCOMPLETE.
+- Full current integrated-HEAD host build, entire host suite, golden DSP
+  comparisons and native Elite/Pro packages: **NOT_RUN**. The historical source
+  is **not** an exact checkout of this GitHub head. A full Github API tarball
+  could not be downloaded to this cloud runner (GitHub DNS unavailable).
+  The private pinned SDK V1.2.1 input kit and compiler are present and verified;
+  the separate V1.2.0 archive is not a substitute.
+
+The branch remains **WIP / NOT DEV CHECKED**. On an exact complete source tree,
+run the existing Mac check sequence above, including the compiled
+`freeplay-rate-pads` test and both Elite/Pro builds. Independent QA and real
+hardware acceptance remain separate. See PRs #698, #702 and #711 for source
+and review histories.
