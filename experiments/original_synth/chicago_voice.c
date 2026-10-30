@@ -109,8 +109,9 @@ int original_chicago_voice_note_off(original_chicago_voice *s,const original_chi
 int original_chicago_voice_pedal(original_chicago_voice *s,const original_chicago_voice_controls *c){if(!s||!c||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;if(c->routing.damper<64&&s->damper_deferred)release(s);return 1;}
 int original_chicago_voice_stop(original_chicago_voice *s){if(!s||s->ready!=VOICE_READY||s->awaiting_restart)return 0;if(s->active){s->key_down=0;s->vca.state=4;}return 1;}
 int original_chicago_voice_defer_restart(original_chicago_voice *s){if(!s||s->ready!=VOICE_READY||s->awaiting_restart||!s->active)return 0;s->vca.state=5;return 1;}
-int original_chicago_voice_control(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,unsigned kick,unsigned *action){
- if(!action||!valid(s,c,t,bpm)||kick>1||s->awaiting_restart)return 0;*action=0;if(!s->active||s->vca.state==6)return 1;
+int original_chicago_voice_block_ready(const original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm){return valid(s,c,t,bpm)&&!s->awaiting_restart;}
+int original_chicago_voice_control_admitted(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,unsigned kick,unsigned *action){
+ *action=0;if(!s->active||s->vca.state==6)return 1;
  uint32_t D=0;int due=original_control_tick(&s->counter,44100,&D);if(due<0)return 0;if(!due)return 1;
  s->previous_vcf=s->vcf.level;s->previous_vca=s->vca.level;s->previous_mg[0]=s->mg[0].bipolar;s->previous_mg[1]=s->mg[1].bipolar;
  s->mod_cutoff=clamp(s->previous_vcf*c->patch_cutoff+0.0f,-1,1);s->mod_gain=clamp(s->keyboard_source*c->patch_gain+0.0f,-1,1);s->mod_slave=clamp(s->previous_vca*c->patch_slave+0.0f,-1,1);
@@ -123,6 +124,10 @@ int original_chicago_voice_control(original_chicago_voice *s,const original_chic
   for(unsigned i=0;i<4;i++)s->activation[i]=0;
  }
  return tail(s,c,t,D,kick);
+}
+int original_chicago_voice_control(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,unsigned kick,unsigned *action){
+ if(!action||!original_chicago_voice_block_ready(s,c,t,bpm)||kick>1)return 0;
+ return original_chicago_voice_control_admitted(s,c,t,bpm,kick,action);
 }
 static int note_valid(const original_chicago_voice_note *n){if(!n||n->raw_note<0||n->raw_note>187||n->velocity>127||n->unison_flag>2||!original_binary32_isfinite(n->tuned_pitch)||!original_binary32_isfinite(n->last_pitch)||!original_binary32_isfinite(n->unison_coordinate))return 0;for(unsigned i=0;i<2;i++)if(!original_binary32_isfinite(n->mg[i].phase)||n->mg[i].phase< -1||n->mg[i].phase>1||!original_binary32_isfinite(n->mg[i].hold))return 0;return 1;}
 static int full_note_mask(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,const original_chicago_voice_note *note,unsigned mask,float bpm){
@@ -156,7 +161,8 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  *s=n;return 1;
 }
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right){
- if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;if(!s->active){*left=0;*right=0;return 1;}
+ if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ if(!s->active){*left=0;*right=0;return 1;}
  float mix,filtered;if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,1,&mix))return 0;
  float ng=advance(&s->noise_gain);unsigned choose=(s->noise&0x40000000u)==0;s->noise=(s->noise+s->noise)^(choose?8393u:0);float input=ng*(choose?.5f:-.5f)+mix;input=c->vco_gain*input;
  if(!original_chicago_mp4_sample(&s->filter,input,&filtered))return 0;
@@ -164,7 +170,8 @@ int original_chicago_voice_render_frame(original_chicago_voice *s,const original
 }
 int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
  if(!left||!right||left==right||!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;
- if(!original_chicago_voice_control(s,c,t,bpm,0,action))return 0;if(*action==2)return 2;
+ if(!original_chicago_voice_control(s,c,t,bpm,0,action))return 0;
+ if(*action==2)return 2;
  return original_chicago_voice_render_frame(s,c,left,right);
 }
 static int source_note_valid(const original_chicago_voice_note *n){return n&&n->raw_note>=0&&n->raw_note<=187&&n->velocity<=127&&n->unison_flag<=2&&original_binary32_isfinite(n->unison_coordinate);}

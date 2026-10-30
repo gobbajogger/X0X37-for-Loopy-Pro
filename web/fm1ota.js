@@ -265,15 +265,19 @@ export class Updater {
   }
 
   // full install: running firmware -> loader -> new firmware
-  async install(image, product, onStep) {
+  async install(image, product, onStep, { beforeUpgrade } = {}) {
     const step = onStep || (() => {});
     const dev = await this.find((id) => !IS_OTA(id));
     if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
     if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
     const beforeLoaders = await this.matchingPorts(IS_OTA, dev.name);
+    try {
+      if (beforeUpgrade) await beforeUpgrade(dev);
+      if (dev.link.lost) throw fail("lost", "The keyboard connection changed before OTA. Nothing was written.");
+    } catch (e) { dev.link.close(); throw e; }
     step("start", dev.id.text);
-    dev.link.send(UPGRADE);
+    if (!dev.link.send(UPGRADE)) { dev.link.close(); throw fail("lost", "The USB connection was lost before OTA."); }
     await sleep(2000);
     const s1 = await this.serve(dev.link, image, 0xE0000000, 8000, (n) => step("verify", n));
     dev.link.close();

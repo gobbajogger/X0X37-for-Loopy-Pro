@@ -97,6 +97,9 @@ int original_runtime_key(original_runtime_part *p, unsigned source, unsigned key
         ++*held;
         return runtime_note(p, key, velocity);
     }
+    /* Offs owed by a cut press come first: they end nothing, so a stale
+     * off arriving after a new same-pitch press cannot cut that press. */
+    if (source < ORIGINAL_INPUT_KEYS && p->stale[source][key]) { --p->stale[source][key]; return ORIGINAL_RUNTIME_OK; }
     if (!*held) return ORIGINAL_RUNTIME_OK;
     --*held;
     return key_held(p, key) ? ORIGINAL_RUNTIME_OK : runtime_note(p, key, 0);
@@ -106,7 +109,26 @@ int original_runtime_release_source(original_runtime_part *p, unsigned source)
 {
     if (!p || source >= ORIGINAL_INPUT_COUNT) return 0;
     if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
+    if (source < ORIGINAL_INPUT_KEYS) memset(p->stale[source], 0, sizeof p->stale[source]);
     for (unsigned key = 0; key < 128; ++key) if (p->keys[source][key]) {
+        p->keys[source][key] = 0;
+        if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK) return p->status;
+    }
+    return ORIGINAL_RUNTIME_OK;
+}
+
+/* End the voice of every key this external source holds. Its pending offs
+ * are kept as stale counts, so the off of a cut press cannot end a newer
+ * press of the same pitch. */
+int original_runtime_cut_source(original_runtime_part *p, unsigned source)
+{
+    if (!p || source >= ORIGINAL_INPUT_COUNT) return 0;
+    if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
+    for (unsigned key = 0; key < 128; ++key) if (p->keys[source][key]) {
+        if (source < ORIGINAL_INPUT_KEYS) {
+            unsigned owed = (unsigned)p->stale[source][key] + p->keys[source][key];
+            p->stale[source][key] = (uint8_t)(owed > UINT8_MAX ? UINT8_MAX : owed);
+        }
         p->keys[source][key] = 0;
         if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK) return p->status;
     }
@@ -123,6 +145,7 @@ int original_runtime_all_off(original_runtime_part *p)
         ok = original_chicago_backend_all_off(&p->dsp.chicago) == ORIGINAL_CHICAGO_BACKEND_OK;
     }
     memset(p->keys, 0, sizeof p->keys);
+    memset(p->stale, 0, sizeof p->stale);
     return runtime_result(p, ok);
 }
 

@@ -4,10 +4,7 @@ Apply the current [delivery workflow](../../x0x37-workflow/SKILL.md),
 [continuation contract](../../x0x37-workflow/references/handoff.md) and
 [owner decisions](../../x0x37-owner-decisions/SKILL.md).
 
-Use the actual authorized Git identity configured for this execution. Do not
-replace it with a historical agent's author identity. Preserve authorship when
-replaying another contributor's commits. Group related repairs into coherent
-commits with relevant validation.
+Use **only** connected GitHub access for `gobbajogger/X0X37-for-Loopy-Pro` and its **default commit author/committer**. Do not set or require a custom Git `user.name`, `user.email`, environment author, `--author`, or connector author override, including historical `genkigenki` instructions. Original source copyright notices and test-only fixture identities remain unchanged; neither configures a project commit. Do not rewrite existing commits to change attribution. Group related repairs into coherent commits with relevant validation.
 
 Check the base, existing edits and current owner. Use an isolated branch in the
 assigned lane; branch names describe the current owner and topic, not a fixed

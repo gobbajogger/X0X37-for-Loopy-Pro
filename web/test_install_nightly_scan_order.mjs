@@ -38,8 +38,8 @@ function setup() {
     setConnected: (on, detail) => { state.connected = on; state.changes.push({ on, detail }); },
     suggestModel: model => state.selected.push(model),
   };
-  const ctx = createContext(env);
-  new Script('let writing = false, lastId = null, scanSerial = 0;\n' + code + '\nglobalThis.start=scan; globalThis.setWriting = v => { writing = v; if (v) scanSerial++; }; globalThis.getLastId = () => lastId;').runInContext(ctx);
+  const ctx = createContext({renderConnectionAction(){},refreshJourney(){},...env});
+  new Script('let connectionState="idle",writing = false, lastId = null, scanSerial = 0;\n' + code + '\nglobalThis.start=scan; globalThis.setWriting = v => { writing = v; if (v) scanSerial++; }; globalThis.getLastId = () => lastId;').runInContext(ctx);
   const device = (model='SMK-37 Pro') => ({ id: { model, text: model }, name: model + ' MIDI',
     link: { close() { state.closed.push(model); } } });
   const tick = async () => { for (let i=0; i<8; i++) await Promise.resolve(); };

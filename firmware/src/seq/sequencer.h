@@ -85,9 +85,7 @@ typedef struct {
     void (*midi)(void *ctx, uint8_t status, uint8_t d1, uint8_t d2);   /* clock / transport / notes out */
     void (*step)(void *ctx, int part, int step);                        /* UI playhead (optional) */
     void *ctx;
-#if X0X_ORIGINAL_SYNTH
     void (*transport)(void *ctx, int running); /* ordered with following input */
-#endif
 } seq_sink_t;
 
 #define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */
@@ -173,6 +171,8 @@ typedef struct {
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     volatile uint8_t rec_epoch, rec_dirty, rec_mask, rec_refused; /* accepted audio-side recorder context */
+    volatile uint32_t rec_ev_gen;              /* external REC boundary generation; UI advances only with audio held */
+    volatile uint8_t rec_ext_mask;              /* REC on: every 303 records external MIDI (src<3) on its channel */
     volatile uint8_t rec_hold_mask;             /* finish an onset carried from SEQ into EDIT; no new onsets */
     seq_bass_rec_t rec_bass[NBASS];
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */

@@ -80,9 +80,16 @@ int main(void)
 '''
 
 
+def spill_block(text):
+    """Production overflow mailbox for continuous controls."""
+    return text[text.index('/* SMC spill begin'):text.index('/* SMC spill end */')]
+
+
 def main():
     production = SOURCE.read_text()
     src = (HOST + function(PROTOCOL.read_text(), 'smc_host_accept') + '\n'
+           + function(PROTOCOL.read_text(), 'smc_relative') + '\n'
+           + spill_block(SOURCE.read_text()) + '\n'
            + function(production, 'smc_is_solo_release') + '\n'
            + function(production, 'smc_midi_host') + '\n' + TEST)
     with tempfile.TemporaryDirectory(prefix='smc-host-data7-') as td:

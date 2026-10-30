@@ -9,5 +9,5 @@ CC="${CC:-cc}"
 CFLAGS="-std=c99 -O2 -Wall -Wextra -Wno-unused-function -lm"
 $CC $CFLAGS -I firmware/src -I firmware/src/app -I firmware/src/dsp \
   tests/host/chicago_aux_test.c firmware/src/app/chicago_param_tables.c \
-  firmware/src/dsp/bass303.c -o "$OUT/chicago_aux" -lm
+  -o "$OUT/chicago_aux" -lm
 "$OUT/chicago_aux"

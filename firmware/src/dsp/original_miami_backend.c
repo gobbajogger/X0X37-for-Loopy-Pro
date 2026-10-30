@@ -2,6 +2,8 @@
 #include "original_miami_backend.h"
 #include "../../../experiments/original_synth/binary32_classify.h"
 #include "../../../experiments/original_synth/binary32_math.h"
+#include "../../../experiments/original_synth/miami_idle_clock.h"
+#include "../../../experiments/original_synth/miami_zero.h"
 #include "../../../experiments/original_synth/motion_tables_private.h"
 #include <string.h>
 
@@ -248,12 +250,206 @@ int original_miami_backend_prepare(original_miami_backend *s)
     return 1;
 }
 
-int original_miami_backend_render_event_words(original_miami_backend *s, original_miami_fx_workspace *w,
+/* Only the selected Miami ARP-off, empty-key graph is eligible. Inactive
+ * voices freeze their oscillator/filter/envelope history in the scalar path;
+ * do not reset that history or decide silence from a small amplitude. */
+static int silent_block_ready(const original_miami_backend *s)
+{
+    if (s->keys.committed_enable || s->keys.physical_count ||
+        s->allocator.held_active.count || s->allocator.voice_active.count ||
+        s->allocator.gate_remaining || s->allocator.mg1_key_reset ||
+        s->allocator.mg2_key_reset || s->clock1.key_reset || s->clock2.key_reset ||
+        s->voice_owner.count != ORIGINAL_MIAMI_BACKEND_VOICES ||
+        s->allocator.capacity != ORIGINAL_MIAMI_BACKEND_VOICES ||
+        s->global.counter < 0 || s->global.counter >= 44100 ||
+        s->global_input.sample_rate_integer != 44100 ||
+        s->global_input.tempo_sync1 != 1 || s->global_input.tempo_sync2 != 1 ||
+        s->global_input.waveform1 > 3 || s->global_input.waveform2 > 3 ||
+        !original_binary32_isfinite(s->clock1.accumulator) || s->clock1.accumulator < 0 ||
+        !original_binary32_isfinite(s->clock2.accumulator) || s->clock2.accumulator < 0 ||
+        !original_binary32_isfinite(s->clock1.threshold) || s->clock1.threshold <= 0 ||
+        !original_binary32_isfinite(s->clock2.threshold) || s->clock2.threshold <= 0)
+        return 0;
+    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id)
+        if (s->voices[id].active || s->voices[id].awaiting_restart) return 0;
+    return s->output.fx.decimator.kernel.held_left == 0 &&
+        s->output.fx.decimator.kernel.held_right == 0;
+}
+
+/* Miami's selected global MGs are tempo-synced shapes 0..3. At their real
+ * 690 Hz ticks, multiplying a normal phase by 1/2 (or a [0,1] ratio by 2)
+ * is exact, so the following addition has the same rounding as software FMA.
+ * Keep the general helper for tiny phases, malformed clocks or other graphs.
+ * Inactive per-voice MG/noise/ramps and the disabled ARP RNG stay frozen. */
+static int advance_silent_global(original_miami_backend *s)
+{
+    original_chicago_global_mg_osc *mg[2] = {&s->global.mg1, &s->global.mg2};
+    const chicago_arp_clock *clock[2] = {&s->clock1, &s->clock2};
+    for (unsigned i = 0; i < 2; ++i) {
+        uint32_t magnitude = original_math_bits(mg[i]->phase) & 0x7fffffffu;
+        if ((magnitude && magnitude < 0x01000000u) || magnitude > 0x3f800000u ||
+            clock[i]->accumulator >= clock[i]->threshold)
+            return completed(s, s->voice_owner.producers.helper_exit(s->voice_owner.producers.context));
+    }
+    s->global.counter += 690 - 44100;
+    for (unsigned i = 0; i < 2; ++i) {
+        unsigned shape = i ? s->global_input.waveform2 : s->global_input.waveform1;
+        float phase = mg[i]->phase;
+        if (shape == 0) mg[i]->output = (phase >= 0 ? -phase : phase) + 1.0f;
+        else if (shape == 1) mg[i]->output = (-phase * 0.5f) + 0.5f;
+        else if (shape == 2) mg[i]->output = (phase * 0.5f) + 0.5f;
+        else mg[i]->output = phase >= 0 ? 0 : 1;
+        mg[i]->wrapped = 0;
+        float ratio = clock[i]->accumulator / clock[i]->threshold;
+        mg[i]->phase = (ratio * 2.0f) - 1.0f;
+    }
+    ++s->note_context.helper_entries;
+    return 1;
+}
+
+/* Advance the tempo clocks through real notification boundaries. Empty
+ * ARP-off keys leave the selector and all noise generators frozen. */
+static int advance_silent_clocks(original_miami_backend *s, uint32_t frames)
+{
+    uint32_t remaining = frames;
+    while (remaining) {
+        float a = s->clock1.accumulator, b = s->clock2.accumulator;
+        uint32_t na = original_miami_idle_clock_below(&a, s->voice_owner.bpm,
+            s->clock1.threshold, remaining);
+        uint32_t nb = original_miami_idle_clock_below(&b, s->clock_input.bpm,
+            s->clock2.threshold, remaining);
+        uint32_t n = na < nb ? na : nb;
+        if (na != n) {
+            a = s->clock1.accumulator;
+            (void)original_miami_idle_clock_below(&a, s->voice_owner.bpm, s->clock1.threshold, n);
+        }
+        if (nb != n) {
+            b = s->clock2.accumulator;
+            (void)original_miami_idle_clock_below(&b, s->clock_input.bpm, s->clock2.threshold, n);
+        }
+        s->clock1.accumulator = a;s->clock2.accumulator = b;
+        s->scheduler.dispatch_result = 1;
+        remaining -= n;
+        if (remaining) {
+            /* Original notification/ARP order on the threshold frame.
+             * Empty ARP-off keys leave selector/noise state frozen. */
+            if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+            --remaining;
+        }
+    }
+    return 1;
+}
+
+static int advance_silent_block(original_miami_backend *s, uint32_t frames)
+{
+    if (!completed(s, original_miami_voice_owner_block_valid(&s->voice_owner))) return 0;
+    uint32_t ticks = ((uint32_t)s->global.counter + frames * 690u) / 44100u;
+    if (ticks > 2) {
+        /* Synced shapes 0..3 neither integrate phase nor consume noise. The
+         * final waveform uses the previous tick's phase; two final ticks
+         * overwrite every earlier phase/output. Notifications still run at
+         * their original clock frames, including any phase/output resets. */
+        uint32_t skip = (44100u * (ticks - 2u) - (uint32_t)s->global.counter + 689u) / 690u;
+        if (!advance_silent_clocks(s, skip)) return 0;
+        s->global.counter = (int32_t)(((uint32_t)s->global.counter + skip * 690u) % 44100u);
+        s->note_context.helper_entries += skip;
+        frames -= skip;
+    }
+    while (frames) {
+        uint32_t span = (44100u - 1u - (uint32_t)s->global.counter) / 690u + 1u;
+        if (span > frames) span = frames;
+        if (!advance_silent_clocks(s, span)) return 0;
+        s->global.counter += (int32_t)(span - 1) * 690;
+        s->note_context.helper_entries += span - 1;
+        if (s->global.counter + 690 >= 44100) {
+            if (!advance_silent_global(s)) return 0;
+        } else {
+            s->global.counter += 690;
+            ++s->note_context.helper_entries;
+        }
+        frames -= span;
+    }
+    return 1;
+}
+
+static int render_voice_frame(original_miami_backend *s, uint32_t *left, uint32_t *right)
+{
+    float l = 0.0f, r = 0.0f;
+    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
+        float x, y;
+        if (!completed(s, original_miami_selected_voice_render_frame(&s->voices[id],
+            &s->controls, &x, &y))) return 0;
+        l = l + x;
+        r = r + y;
+    }
+    *left = original_math_bits(l);
+    *right = original_math_bits(r);
+    return 1;
+}
+
+static int render_prevalidated_frame(original_miami_backend *s, uint32_t *left, uint32_t *right)
+{
+    float l = 0.0f, r = 0.0f;
+    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
+        float x, y;
+        if (!completed(s, original_miami_selected_voice_render_prevalidated(&s->voices[id],
+            &s->controls, &x, &y))) return 0;
+        l = l + x;
+        r = r + y;
+    }
+    *left = original_math_bits(l);
+    *right = original_math_bits(r);
+    return 1;
+}
+
+/* No queued events and ARP off means scheduler clock notifications cannot
+ * spawn/replace a voice inside these spans. Run the control graph at its
+ * genuine 690 Hz boundaries, retaining the original scheduler before each
+ * sample. A single control update for an entire 256-frame block would lose
+ * roughly four envelope/modulation updates and would not be bit-exact. */
+static int render_event_free_block(original_miami_backend *s,
+    uint32_t *left, uint32_t *right, uint32_t frames)
+{
+    if (!completed(s, original_miami_voice_owner_block_valid(&s->voice_owner))) return 0;
+    uint32_t offset = 0;
+    while (offset < frames) {
+        if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler)) ||
+            !completed(s, original_miami_voice_owner_control_prevalidated(&s->voice_owner))) return 0;
+        uint32_t span = frames - offset;
+        for (unsigned id = 0; id < s->allocator.capacity; ++id) {
+            const original_miami_selected_voice *v = &s->voices[id];
+            if (v->active && v->vca.state != 6) {
+                uint32_t n = 1 + (44100u - 1 - v->counter) / 690u;
+                if (n < span) span = n;
+            }
+        }
+        if (s->global.counter < 0 || s->global.counter >= 44100) span = 1;
+        else {
+            uint32_t n = 1 + (44100u - 1 - (uint32_t)s->global.counter) / 690u;
+            if (n < span) span = n;
+        }
+        for (uint32_t j = 0; j < span; ++j) {
+            if (j) {
+                if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+                for (unsigned id = 0; id < s->allocator.capacity; ++id) {
+                    original_miami_selected_voice *v = &s->voices[id];
+                    if (v->active && v->vca.state != 6) v->counter += 690;
+                }
+                s->global.counter += 690;
+                ++s->note_context.helper_entries;
+            }
+            if (!render_prevalidated_frame(s, left + offset + j, right + offset + j)) return 0;
+        }
+        offset += span;
+    }
+    return 1;
+}
+
+/* Inputs and workspace have been checked by the public entry point. Return
+ * 2 only when the settled-zero seam has produced exact positive-zero words. */
+static int render_event_words_validated(original_miami_backend *s, original_miami_fx_workspace *w,
     uint32_t *left, uint32_t *right, uint32_t frames, const original_engine_event *events, uint32_t count)
 {
-    if (!original_miami_backend_status(s) || !events_valid(events, count, frames)) return 0;
-    if (!frames) return 1;
-    if (!words_valid(s, w, left, right, frames)) return 0;
     if (count) {
         size_t event_bytes = (size_t)count * sizeof *events;
         if (event_bytes / sizeof *events != count || overlap(events, event_bytes, s, sizeof *s) ||
@@ -264,28 +460,48 @@ int original_miami_backend_render_event_words(original_miami_backend *s, origina
                 (i < 4 ? sizeof(uint32_t) : sizeof(int16_t)))) return 0;
     }
     if (!original_miami_backend_prepare(s)) return 0;
-    uint32_t cursor = 0;
-    for (uint32_t frame = 0; frame < frames; ++frame) {
-        while (cursor < count && events[cursor].frame == frame) {
-            if (!completed(s, event_apply(s, events + cursor))) return 0;
-            ++cursor;
+    if (!count && silent_block_ready(s)) {
+        if (!advance_silent_block(s, frames)) return 0;
+        if (original_miami_output_zero(&s->output, &s->program, w, left, right, frames)) {
+            s->block_prepared = 0;
+            return 2;
         }
-        if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler)) ||
-            !completed(s, original_miami_voice_owner_control_all(&s->voice_owner))) return 0;
-        float l = 0.0f, r = 0.0f;
-        for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
-            float x, y;
-            if (!completed(s, original_miami_selected_voice_render_frame(&s->voices[id], &s->controls, &x, &y))) return 0;
-            l = l + x;
-            r = r + y;
+        memset(left, 0, frames * sizeof *left);
+        memset(right, 0, frames * sizeof *right);
+        int result = completed(s, original_miami_output_process(&s->output, &s->program, w,
+            left, right, left, right, frames, 0, NULL, 0));
+        s->block_prepared = 0;
+        return result;
+    }
+    if (!count && !s->keys.committed_enable &&
+        s->voice_owner.count == ORIGINAL_MIAMI_BACKEND_VOICES &&
+        s->allocator.capacity == ORIGINAL_MIAMI_BACKEND_VOICES) {
+        if (!render_event_free_block(s, left, right, frames)) return 0;
+    } else {
+        uint32_t cursor = 0;
+        for (uint32_t frame = 0; frame < frames; ++frame) {
+            while (cursor < count && events[cursor].frame == frame) {
+                if (!completed(s, event_apply(s, events + cursor))) return 0;
+                ++cursor;
+            }
+            if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler)) ||
+                !completed(s, original_miami_voice_owner_control_all(&s->voice_owner))) return 0;
+            if (!render_voice_frame(s, left + frame, right + frame)) return 0;
         }
-        left[frame] = original_math_bits(l);
-        right[frame] = original_math_bits(r);
     }
     int result = completed(s, original_miami_output_process(&s->output, &s->program, w,
         left, right, left, right, frames, 0, NULL, 0));
     s->block_prepared = 0;
     return result;
+}
+
+int original_miami_backend_render_event_words(original_miami_backend *s, original_miami_fx_workspace *w,
+    uint32_t *left, uint32_t *right, uint32_t frames, const original_engine_event *events, uint32_t count)
+{
+    if (!original_miami_backend_status(s) || !events_valid(events, count, frames)) return 0;
+    if (!frames) return 1;
+    if (!words_valid(s, w, left, right, frames)) return 0;
+    return render_event_words_validated(s, w, left, right, frames, events, count) != 0;
 }
 
 int original_miami_backend_render_events(original_miami_backend *s, original_miami_backend_workspace *w,
@@ -306,7 +522,13 @@ int original_miami_backend_render_events(original_miami_backend *s, original_mia
         if (overlap(left, bytes, p[i], n) || overlap(right, bytes, p[i], n) ||
             overlap(p[i], n, w, sizeof *w)) return 0;
     }
-    if (!original_miami_backend_render_event_words(s, &w->fx, w->left, w->right, frames, events, count)) return 0;
+    int result = render_event_words_validated(s, &w->fx, w->left, w->right, frames, events, count);
+    if (!result) return 0;
+    if (result == 2) {
+        original_miami_zero_floats(left, frames);
+        original_miami_zero_floats(right, frames);
+        return 1;
+    }
     memcpy(left, w->left, bytes);
     memcpy(right, w->right, bytes);
     return 1;
@@ -324,7 +546,7 @@ int original_miami_backend_render_stereo(original_miami_backend *s, original_mia
     return original_miami_backend_render_events(s, w, left, right, frames, NULL, 0);
 }
 
-int original_miami_backend_voice_active(const original_miami_backend *s)
+int original_miami_backend_active(const original_miami_backend *s)
 {
     if (!original_miami_backend_status(s)) return 1;
     /* Raw latched keys survive ordinary releases; only an enabled latch
@@ -334,13 +556,20 @@ int original_miami_backend_voice_active(const original_miami_backend *s)
         s->allocator.held_active.count) return 1;
     for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; ++i)
         if (s->voices[i].active || s->voices[i].awaiting_restart) return 1;
-    return 0;
+    return s->output.fx.decimator.kernel.held_left != 0 || s->output.fx.decimator.kernel.held_right != 0;
 }
 
-int original_miami_backend_active(const original_miami_backend *s)
+/* Like original_miami_backend_active, but ignores the decimator hold tail:
+ * true only while keys or voices still own the part. */
+int original_miami_backend_voice_active(const original_miami_backend *s)
 {
-    return original_miami_backend_voice_active(s) ||
-        s->output.fx.decimator.kernel.held_left != 0 || s->output.fx.decimator.kernel.held_right != 0;
+    if (!original_miami_backend_status(s)) return 1;
+    if (s->keys.physical_count ||
+        (s->keys.committed_enable && s->keys.effective_latch && s->keys.latched_count) ||
+        s->allocator.held_active.count) return 1;
+    for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; ++i)
+        if (s->voices[i].active || s->voices[i].awaiting_restart) return 1;
+    return 0;
 }
 
 int original_miami_backend_idle(const original_miami_backend *s)

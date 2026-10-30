@@ -57,10 +57,11 @@ CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wal
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
 
 def clang_std_inc():
-    """pi32v2 clang does not auto-add sibling include/; -idirafter keeps resource-dir first."""
-    return ["-idirafter", str(toolchain() / "pi32v2" / "include")]
+    """Resolve JieLi standard headers in the compiler's execution environment."""
+    include = "/opt/jieli/pi32v2/include" if use_docker() else str(toolchain() / "pi32v2" / "include")
+    return ["-idirafter", include]
 # the DSP, the sequencer and the audio engine: separate units at -O2
-O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/bass303.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
+O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
             "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
 # Explicit compilation superset. The app's backend calls, not forced export roots,
 # decide which function/data sections survive the link. master_unmuted.c is an old
@@ -317,21 +318,13 @@ def synth_build_config(environ=None):
     """Select one DSP implementation; an explicit legacy enable cannot mix them."""
     env = os.environ if environ is None else environ
     original = env.get("X0X_ORIGINAL_SYNTH", "1")
-    if original not in ("0", "1"):
-        raise SystemExit("X0X_ORIGINAL_SYNTH: 0 or 1")
-    if original == "1":
-        if env.get("X0X_WOBBLE", "0") != "0":
-            raise SystemExit("X0X_ORIGINAL_SYNTH=1 requires X0X_WOBBLE=0 or unset")
-        if env.get("X0X_DEV_WOBBLE", "0") not in ("0", "1"):
-            raise SystemExit("X0X_DEV_WOBBLE: 0 or 1")
-        # Pad-rate UI flag is independent of the prohibited legacy wobble DSP.
-        return True, "0"
-    wobble = env.get("X0X_WOBBLE")
-    if wobble is None:
-        wobble = env.get("X0X_DEV_WOBBLE", "1")
-    if wobble not in ("0", "1"):
-        raise SystemExit("X0X_WOBBLE / X0X_DEV_WOBBLE: 0 or 1")
-    return False, wobble
+    if original != "1":
+        raise SystemExit("X0X_ORIGINAL_SYNTH: only 1 is supported")
+    if env.get("X0X_WOBBLE", "0") != "0":
+        raise SystemExit("X0X_ORIGINAL_SYNTH=1 requires X0X_WOBBLE=0 or unset")
+    if env.get("X0X_DEV_WOBBLE", "1") not in ("0", "1"):
+        raise SystemExit("X0X_DEV_WOBBLE: 0 or 1 (original Miami rate-pad UI only)")
+    return True, "0"
 
 
 def require_original_synth_sources(root=None):
@@ -351,6 +344,8 @@ def require_original_synth_sources(root=None):
 
 def app_compile_commands(flags, original_synth, wobble):
     """Return the exact app compile/link input plan without running tools."""
+    if not original_synth:
+        raise SystemExit("X0X_ORIGINAL_SYNTH: only 1 is supported")
     if original_synth:
         if wobble != "0":
             raise SystemExit("X0X_ORIGINAL_SYNTH=1 cannot compile legacy WBL")
@@ -366,17 +361,11 @@ def app_compile_commands(flags, original_synth, wobble):
              ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
              ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
     objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
-    if wobble == "1":
-        o = OUT / "o2" / "wobble.o"
-        units.append(("cc", *[f if f != "-O2" else "-Oz" for f in o2], "-c", Path("experiments/wobble/wobble.c"), "-o", o))
-        objs.append(o)
+    # Every admitted build is Chicago/Miami only. Keep the obsolete engine
+    # units out of the compilation plan, not behind unreachable switches.
     for u in O2_UNITS:
-        if original_synth and u == "dsp/bass303.c":
-            continue
         o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
-        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
-        if original_synth and u == "app/engine.c":
-            unit_flags = [*unit_flags, *ORIGINAL_SYNTH_FLAGS]
+        unit_flags = [*o2, *ORIGINAL_SYNTH_FLAGS] if u == "app/engine.c" else o2
         units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
         objs.append(o)
     if original_synth:
@@ -412,8 +401,8 @@ def build_app():
         raise SystemExit("X0X_BASS_NOTE_SOUND requires X0X_BASS_TAGGED_SOUND=1")
     if os.environ.get("X0X_BASS_TAGGED_SOUND") == "1" and os.environ.get("X0X_BASS_PRESET_PREVIEW") != "1":
         raise SystemExit("X0X_BASS_TAGGED_SOUND requires X0X_BASS_PRESET_PREVIEW=1")
-    # The original replacement always disables legacy WBL, but enables the
-    # independent physical Miami Free Play rate-pad UI unless explicitly disabled.
+    # The original replacement never links Wobble DSP. X0X_DEV_WOBBLE=1
+    # enables only Miami's physical Free Play rate-pad UI by default.
     if f"-DX0X_WOBBLE={wobble}" not in flags:
         flags.append(f"-DX0X_WOBBLE={wobble}")
     if not any(f.startswith("-DX0X_DEV_WOBBLE=") for f in flags):

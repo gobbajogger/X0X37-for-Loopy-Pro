@@ -112,6 +112,7 @@ static void mute_regression(int mode, int bank, int strip)
     smc_frame();
     uint32_t expected = track < NDRUM ? 1u << (kit * NDRUM + track) : 0;
     message(0x90, 16 + strip, 127);
+    message(0x80, 16 + strip, 0);           /* release: a repeat NoteOn is not a toggle (d06b6c96) */
     assert(seq.vmute == expected);
     assert(seq.mute == 0);
     assert(smc.lit[16 + strip] == (track < NDRUM));
@@ -148,6 +149,7 @@ static void main_regression(void)
         int before = strip < NPARTS ? 0 : pref_get(fx);
         assert(strip < NPARTS || before > 0);
         message(0x90, 16 + strip, 127);
+        message(0x80, 16 + strip, 0);       /* release: a repeat NoteOn is not a toggle (d06b6c96) */
         assert(seq.vmute == 0 && smc.lit[16 + strip] == 1);
         if (strip < NPARTS) {
             static const int expected_part[5] = {PART_909, PART_808, PART_BRK, PART_303B, PART_303A};

@@ -32,18 +32,25 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
-    def test_default_is_replacement_and_explicit_zero_is_reference_only(self):
+    def test_removed_engines_have_no_build_hook(self):
+        # Even a currently unreachable build branch can accidentally compile a
+        # deleted source after a later selector change. Keep the plan clean.
+        code = (ROOT / "tools/build.py").read_text()
+        plan = code.split("def app_compile_commands(", 1)[1].split("def build_app(", 1)[0]
+        self.assertNotIn("experiments/wobble/wobble.c", plan)
+        self.assertNotIn("dsp/bass303.c", plan)
+
+    def test_default_is_original_and_zero_is_rejected(self):
         commands, objects, sources = compile_plan({})
         self.assertEqual((commands, objects), compile_plan({"X0X_ORIGINAL_SYNTH": "1"})[:2])
         self.assertNotIn("firmware/src/dsp/bass303.c", sources)
         self.assertNotIn("experiments/wobble/wobble.c", sources)
-        commands, objects, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0"})
-        self.assertIn("firmware/src/dsp/bass303.c", sources)
-        self.assertIn("experiments/wobble/wobble.c", sources)
-        self.assertFalse(any("original_synth/" in p or "_backend.c" in p for p in sources))
-        for command in commands:
-            self.assertNotIn("-DX0X_ORIGINAL_SYNTH=1", command)
-            self.assertNotIn("-DORIGINAL_USE_SOFT_FMA", command)
+        for unsupported in ("0", "invalid"):
+            with self.subTest(unsupported=unsupported):
+                with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+                    compile_plan({"X0X_ORIGINAL_SYNTH": unsupported})
+        with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+            build.app_compile_commands([], False, "0")
 
     def test_replacement_is_exclusive_and_preserves_independent_sources(self):
         commands, objects, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
@@ -97,7 +104,7 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                     compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_WOBBLE": value})
         with self.assertRaisesRegex(SystemExit, "X0X_DEV_WOBBLE"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "invalid"})
-        with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: 0 or 1"):
+        with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: only 1 is supported"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "invalid"})
         self.assertEqual(build.synth_build_config({"X0X_ORIGINAL_SYNTH": "1",
                                                   "X0X_WOBBLE": "0",
@@ -111,8 +118,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("firmware/src/dsp/original_miami_backend.c", sources)
         self.assertIn("firmware/src/dsp/original_chicago_backend.c", sources)
         for command in commands:
-            if "-c" not in command:
-                continue
+            if "-c" not in command or Path(command[command.index("-c") + 1]).suffix == ".S":
+                continue  # startup assembly has no C preprocessor flags
             self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
             self.assertIn("-DX0X_WOBBLE=0", command)
             self.assertIn("-DX0X_DEV_WOBBLE=1", command)
@@ -120,15 +127,16 @@ class OriginalBuildCompositionTests(unittest.TestCase):
 
     def test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources(self):
         # X0X_DEV_WOBBLE=1 enables the ported *pad UI* for original Miami.
-        # Legacy WBL declarations and calls must all additionally require
-        # !X0X_ORIGINAL_SYNTH. The build-plan-only test cannot catch this.
+        # Only the original Miami rate-pad UI may use the DEV_WOBBLE
+        # selector. The retired WBL DSP is never selectable by this flag.
         for path in ("firmware/src/app/engine.c", "firmware/src/app/ui.c",
                      "firmware/src/app/main_fm1.c"):
             with self.subTest(path=path):
                 source = (ROOT / path).read_text()
                 self.assertNotRegex(source, r"(?m)^#(?:if|elif) X0X_DEV_WOBBLE\s*$")
-                self.assertRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
+                self.assertNotRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
         ui = (ROOT / "firmware/src/app/ui.c").read_text()
+        self.assertIn("#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH", ui)
         self.assertIn("static int division_pad_owner(void)", ui)
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertNotIn("shape_pad_owner(", ui)
@@ -189,17 +197,17 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                 self.assertNotIn("experiments/wobble/wobble.c", sources)
                 self.assertNotIn("firmware/src/dsp/bass303.c", sources)
                 for command in commands:
-                    if "-c" not in command:
-                        continue
+                    if "-c" not in command or Path(command[command.index("-c") + 1]).suffix == ".S":
+                        continue  # startup assembly is not compiled as C
                     self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
                     self.assertIn("-DX0X_WOBBLE=0", command)
                     self.assertIn(f"-DX0X_DEV_WOBBLE={enabled}", command)
 
-    def test_legacy_wobble_disable_still_works(self):
-        for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
-            _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0", **env})
-            self.assertNotIn("experiments/wobble/wobble.c", sources)
-            self.assertIn("firmware/src/dsp/bass303.c", sources)
+    def test_legacy_profile_never_builds_even_with_wobble_disabled(self):
+        for selector in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
+            with self.subTest(selector=selector):
+                with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+                    compile_plan({"X0X_ORIGINAL_SYNTH": "0", **selector})
 
     def test_missing_replacement_fails_before_any_tool_is_called(self):
         with tempfile.TemporaryDirectory() as directory:

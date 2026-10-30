@@ -13,6 +13,7 @@ tapkey w1
 expect pattern 2
 tap EDIT
 tapkey b1
+tap SEQ
 tapkey w4
 expect hit0.1.4 1
 # play pattern 2, cue 1: it changes on the bar, not before
@@ -43,7 +44,7 @@ expect pattern 1
 shot 11_chain.png
 tap PLAY
 # a 303 step edit: hold a step and turn its note knob
-tap EDIT
+tap SEQ
 tapkey w2
 turn ALGO 4
 expect part 2

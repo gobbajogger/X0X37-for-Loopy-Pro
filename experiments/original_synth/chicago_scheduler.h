@@ -56,6 +56,11 @@ int original_chicago_scheduler_select(original_chicago_scheduler *);
  * No NoteOff is added on gate expiry. Clock inputs stay live through callbacks.
  * Compile with no fast-math and -ffp-contract=off. */
 int original_chicago_scheduler_after_events(original_chicago_scheduler *);
+/* Event-free, disabled-voice span. Jumps exact rounded clock additions and
+ * dispatches the original callbacks on clock edges. Caller must exclude live
+ * physical/latched keys and voice/restart activity for the entire span, and
+ * keep BPM and both thresholds unchanged through those callbacks. */
+int original_chicago_scheduler_quiet(original_chicago_scheduler *,chicago_arp_clock *mg1_clock,uint32_t frames);
 /* Voice control action0 leaves ownership; action1 performs A818 by voice ID;
  * action2 validates and retains active ownership. Caller handles action2's
  * exact pending full/partial initializers and same-frame render. No global

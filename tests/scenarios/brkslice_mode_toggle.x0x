@@ -1,28 +1,31 @@
-# Slice-mode toggle must release MIDI-held break slices (LX-151 / #355 follow-up).
+# A break input-channel edit must release MIDI-held break slices (LX-151 / #355 follow-up).
+# The old 8 SLICES toggle is gone (adaptive slices); the channel edit now retires external owners.
 wait 300
 expect midiheld 0
 
-# Legacy: note 36 holds slice 0.
+# note 36 holds slice 0.
 midi 93 24 64 0
 wait 20
 expect midiheld 0x100
 
-# Toggle 8 SLICES on without a matching Note Off — stale hold must clear.
-brkwrap 1
+# Move BREAK to channel 5 without a matching Note Off: the stale hold must clear.
+partch 4 5
+midi 94 7F 00 0
 wait 20
 expect midiheld 0
 
-# Wrap: note 8 holds slice 0.
-midi 93 08 64 0
+# The new channel works: note 37 holds slice 1.
+midi 94 25 64 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x200
 
-# Toggle back to legacy — must clear wrap hold.
-brkwrap 0
+# Back to channel 4: the channel-5 hold clears.
+partch 4 4
+midi 93 7F 00 0
 wait 20
 expect midiheld 0
 
-# Legacy map still works after toggle.
+# The map still works after the edits.
 midi 93 24 64 0
 wait 20
 expect midiheld 0x100

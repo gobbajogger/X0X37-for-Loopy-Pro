@@ -1,48 +1,74 @@
-# A project saved by 0.10.2-beta (tests/fixtures/v0102_store.bin, made in its simulator: drums, motion, a 303 line, a song, and a value in every sound place that has moved since) loads as it was, and saves again in today's format.
-wait 100
+# Revision 13 deliberately rejects v0102_store.bin; it never migrates or overwrites it.
+wait 300
 storeload tests/fixtures/v0102_store.bin
 wait 300
-# the patterns and the song
-expect hit0.0.0 1
-expect hit0.0.4 1
-expect hit0.0.12 1
-expect hit0.1.4 1
-expect hit0.1.12 1
-expect hit0.1.0 0
-expect songlen 2
-expect tempo 120
-expect lanes 1
-# the 909 kick: its pan 8 -> 10, the sends at none
-expect sound0.0.10 30
-expect sound0.0.8 0
-expect sound0.0.9 0
-# the 909 snare: DECAY in at 3 (its default), the rest up one
-expect sound0.1.4 70
-expect sound0.1.7 50
-expect sound0.1.9 90
+expect pattern 1
+expect tempo 125
+expect hit0.0.0 0
+expect hit0.0.31 0
+expect hit0.0.63 0
+expect gate0.0 0
+expect lanes 0
+expect songlen 0
+expect clksrc 0
 expect sound0.1.3 41
-# the 808 kick: its pan 7 -> 9, the sends at none
-expect sound1.0.0 100
-expect sound1.0.9 20
-expect sound1.0.7 0
-expect sound1.0.8 0
-# the master: COMP and FILTER from the details (ratio on: COMP > 0; low-pass: FILTER < 60)
-expect sound6.0.0 40
-expect sound6.0.12 >0
-expect sound6.0.13 <60
-# the delay's TAPE from its type and wear
-expect sound4.1.0 >16
-# it plays, and saves again in the new format
-tap PLAY
-wait 2000
-tap PLAY
+expect sound0.1.4 58
+expect store_writes 0
+# Neither idle autosave nor explicit SAVE may replace the unsupported store.
+wait 25000
+expect store_writes 0
 tap SAVE
 wait 300
+expect savestate 3
+expect store_writes 0
 reboot
 wait 300
-expect sound0.0.10 30
-expect sound0.1.4 70
-expect sound1.0.9 20
+expect tempo 125
+expect lanes 0
+expect songlen 0
+expect hit0.0.0 0
+expect store_writes 0
+# Explicit RESET PROJECT is the supported adoption boundary (SET-07).
+tap GLO
+turn SELECT 17
+expect listsel 21
+tap SEL
+expect overlay 2
+tap SEL
+wait 100
+expect overlay 0
+expect playing 0
+expect rec 0
+# Author a current project from panel controls and check its save/reload.
+tap SEQ
+tapkey b0
+tapkey w0
+tapkey w12
+expect hit0.0.0 1
+expect hit0.0.12 1
+press HOME
+turn SELECT -5
+release HOME
+expect tempo 120
+tap HOME
+tap HOME
+expect view 6
+tapkey w0
+tapkey w15
 expect songlen 2
-expect lanes 1
-expect hit0.1.12 1
+expect songbar2.0 16
+tap SAVE
+wait 300
+expect savestate 0
+expect store_writes 6
+expect storeset23 13
+reboot
+wait 300
+expect tempo 120
+expect hit0.0.0 1
+expect hit0.0.12 1
+expect hit0.0.31 0
+expect lanes 0
+expect songlen 2
+expect songbar2.0 16
+expect store_writes 6

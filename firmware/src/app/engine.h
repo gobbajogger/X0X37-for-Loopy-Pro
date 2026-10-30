@@ -36,7 +36,10 @@ enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 /* The replacement profile owns a new project/patch format. It does not admit
  * legacy synth identities or their converters. */
 #ifndef X0X_ORIGINAL_SYNTH
-#define X0X_ORIGINAL_SYNTH 0
+#define X0X_ORIGINAL_SYNTH 1
+#endif
+#if X0X_ORIGINAL_SYNTH != 1
+#error Only X0X_ORIGINAL_SYNTH=1 is supported
 #endif
 #if X0X_ORIGINAL_SYNTH
 #undef X0X_BASS_PRESET_PREVIEW
@@ -85,6 +88,9 @@ void engine_bass_edit_hold(int hold);
 int engine_bass_preview_changed(void);
 void engine_bass_wheel_owners(uint8_t mask);
 #endif
+void engine_bass_mod(int v, int val);       /* mod wheel: Chicago cutoff / Miami wobble depth, recordable */
+int engine_bass_mod_param(int v);
+int engine_bass_ext_touch(int v);           /* bit0 bend, bit1 mod moved by ext MIDI since last call */
 
 /* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
 #ifndef X0X_BASS_PRESET_PREVIEW
@@ -229,6 +235,15 @@ int engine_brk_bend_value(void);
 void engine_brk_live(int key, int down);
 void engine_brk_edit_hold(int held);
 uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+/* External MIDI record events (engine midi_in -> UI). One writer (midi_in), one reader (ui_frame).
+ * Packing: bits 0..3 part (PART_909, PART_808, PART_BRK), 4..9 voice (drum) or slice (break),
+ * 10..16 velocity, 17..24 the record step (seq_rec_step at the note). */
+#define REC_EV(part, voice, vel, step) ((uint32_t)(part) | (uint32_t)(voice) << 4 | (uint32_t)(vel) << 10 | (uint32_t)(step) << 17)
+#define REC_EV_PART(e) ((int)((e) & 15u))
+#define REC_EV_VOICE(e) ((int)(((e) >> 4) & 63u))
+#define REC_EV_VEL(e) ((int)(((e) >> 10) & 127u))
+#define REC_EV_STEP(e) ((int)(((e) >> 17) & 255u))
+int engine_rec_ev_get(uint32_t *ev);   /* 1 = a current-generation event was taken; stale entries are dropped */
 int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */

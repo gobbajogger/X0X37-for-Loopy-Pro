@@ -1,12 +1,16 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "chicago_voice_owner.h"
 #include "binary32_classify.h"
+#include "binary32_math.h"
+#include "chicago_scheduler.h"
 #include <string.h>
 static unsigned enabled(void *p,unsigned id){original_chicago_voice_owner *s=p;return id<s->count?s->voices[id].active:0;}
 static unsigned vca(void *p,unsigned id){original_chicago_voice_owner *s=p;return id<s->count?s->voices[id].vca.state:6;}
 static void state(void *p,unsigned id,int key,int filter,int amp){
  original_chicago_voice_owner *s=p;if(id>=s->count){s->status=0;return;}original_chicago_voice *v=s->voices+id;
- if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+ if(key>=0)v->key_down=(uint8_t)key;
+ if(filter>=0)v->vcf.state=(uint8_t)filter;
+ if(amp>=0)v->vca.state=(uint8_t)amp;
 }
 static int inputs(original_chicago_voice_owner *s,unsigned id,const original_voice_record *record,unsigned full,unsigned mask,int32_t anchor,original_chicago_voice_note *out){
  original_chicago_voice *v=s->voices+id;original_chicago_voice_note n;memset(&n,0,sizeof n);
@@ -62,18 +66,31 @@ int original_chicago_voice_owner_bind(original_chicago_voice_owner *s,original_c
  if(!s||!v||!p||!count||!allocator||count!=allocator->storage_voices||!c||!t||!producers||!producers->tune||!producers->full_mg||!producers->sources||!producers->full_helper_seed||!producers->helper_exit||!original_binary32_isfinite(bpm)||bpm<20||bpm>400)return 0;
  *s=(original_chicago_voice_owner){v,p,count,allocator,c,t,*producers,bpm,1};return 1;
 }
-static int control(original_chicago_voice_owner *s,unsigned id){
- unsigned result;int done=original_chicago_voice_control(s->voices+id,s->controls,s->tables,s->bpm,0,&result);
+static int control(original_chicago_voice_owner *s,unsigned id,unsigned admitted){
+ unsigned result;int done=admitted?original_chicago_voice_control_admitted(s->voices+id,s->controls,s->tables,s->bpm,0,&result):original_chicago_voice_control(s->voices+id,s->controls,s->tables,s->bpm,0,&result);
  if(!done||!action(s,id,result)){s->status=0;return 0;}
  if(result==2&&!resume(s,id)){s->status=0;return 0;}
  return 1;
 }
 int original_chicago_voice_owner_sample(original_chicago_voice_owner *s,unsigned id,float *left,float *right){
  if(!s||!s->status||id>=s->count||!left||!right||left==right)return 0;
- return control(s,id)&&original_chicago_voice_render_frame(s->voices+id,s->controls,left,right);
+ return control(s,id,0)&&original_chicago_voice_render_frame(s->voices+id,s->controls,left,right);
 }
 int original_chicago_voice_owner_control_all(original_chicago_voice_owner *s){
  if(!s||!s->status||s->allocator->capacity>s->count)return 0;
- for(unsigned id=0;id<s->allocator->capacity;id++)if(!control(s,id))return 0;
+ for(unsigned id=0;id<s->allocator->capacity;id++)if(!control(s,id,0))return 0;
  s->status=s->producers.helper_exit(s->producers.context);return s->status;
+}
+int original_chicago_voice_owner_render_block(original_chicago_voice_owner *s,original_chicago_scheduler *scheduler,uint32_t *left,uint32_t *right,uint32_t frames){
+ if(!s||!s->status||!scheduler||!left||!right||left==right||s->count!=1||s->allocator->capacity>1)return 0;
+ if(!original_chicago_voice_block_ready(s->voices,s->controls,s->tables,s->bpm))return 0;
+ for(uint32_t i=0;i<frames;i++){
+  float l,r;
+  if(original_chicago_scheduler_after_events(scheduler)<=0||!s->status)return 0;
+  for(unsigned id=0;id<s->allocator->capacity;id++)if(!control(s,id,1))return 0;
+  s->status=s->producers.helper_exit(s->producers.context);
+  if(!s->status||!original_chicago_voice_render_frame(s->voices,s->controls,&l,&r))return 0;
+  left[i]=original_math_bits(l);right[i]=original_math_bits(r);
+ }
+ return 1;
 }
