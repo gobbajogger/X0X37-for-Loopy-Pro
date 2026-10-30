@@ -15,6 +15,7 @@ typedef union {
 typedef struct {
     original_runtime_backend dsp;
     uint8_t keys[ORIGINAL_INPUT_COUNT][128];
+    uint8_t stale[ORIGINAL_INPUT_KEYS][128]; /* offs still owed by cut external presses */
     uint8_t kind;
     int8_t status;
 } original_runtime_part;
@@ -35,6 +36,7 @@ int original_runtime_prepare(original_runtime_part *, float bpm);
 int original_runtime_param(original_runtime_part *, unsigned parameter, float value);
 int original_runtime_key(original_runtime_part *, unsigned source, unsigned key, unsigned velocity);
 int original_runtime_release_source(original_runtime_part *, unsigned source);
+int original_runtime_cut_source(original_runtime_part *p, unsigned source);
 int original_runtime_all_off(original_runtime_part *);
 /* Source/voice ownership excludes residual insert output; selector fades that output separately. */
 int original_runtime_owned(const original_runtime_part *);

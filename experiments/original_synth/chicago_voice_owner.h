@@ -55,4 +55,8 @@ int original_chicago_voice_owner_sample(original_chicago_voice_owner *,unsigned 
  * group/sum order. Forced note/pending entries run their global tails inside
  * the actual note callback, never once per arbitrary sampled voice. */
 int original_chicago_voice_owner_control_all(original_chicago_voice_owner *);
+/* Selected single-voice, event-free serial block. Resources are validated
+ * once; scheduler callbacks and every due control/global tick retain their
+ * sample order. No direct API call may interleave this operation. */
+int original_chicago_voice_owner_render_block(original_chicago_voice_owner *,original_chicago_scheduler *,uint32_t *left,uint32_t *right,uint32_t frames);
 #endif

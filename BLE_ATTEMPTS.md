@@ -340,3 +340,21 @@ and one command owner serializes HCI commands across both peers. Native mock
 transport tests are not physical radio evidence. Fresh corresponding controller
 and application builds and exact resource checks are required before a package
 qualifies. No hardware observation, flash, RF claim or publication is recorded here.
+
+
+## One-peer SMC recovery controller declaration — 2026-10-29
+
+The isolated `smc-a-port-20261029` A-recovery source already sets one central
+link: `config_btctler_le_hw_nums` 2 -> 1, shared ACL TX buffers
+`config_btctler_le_acl_total_nums` 3 -> 5 and
+`config_btctler_le_master_multilink` 1 -> 0. This commit updates the three
+corresponding `tools/locked_settings.json` declarations without disabling or
+weakening the locked-settings verifier. RX buffers (5), ACL packet length (27),
+flash guards and sample locations remain unchanged.
+
+This one-SMC recovery slice intentionally does not complete the project goal of
+two independent mixers. Historical dual-peer regression fixtures are retained
+but marked not applicable to the one-peer controller. The active one-peer native
+host tests cover unaccepted HCI writes, delayed command credits, STOP/cancel
+cutoffs and saved Bluetooth setup. No firmware, controller or device PASS is
+claimed here; Elite/Pro SDK V1.2.1 and physical connection checks remain pending.

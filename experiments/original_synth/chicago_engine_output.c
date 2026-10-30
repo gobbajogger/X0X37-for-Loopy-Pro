@@ -24,11 +24,15 @@ int original_chicago_engine_output_apply(original_chicago_engine_output *s,const
 typedef struct {original_chicago_fx2_wrapper *wrapper;original_chicago_fx2_workspace *workspace;int status;} context;
 static void process(void *p,int16_t *l,int16_t *r,uint32_t n){context *c=p;c->status=original_chicago_fx2_wrapper_process(c->wrapper,c->workspace,l,r,n);}
 static void reset(void *p){context *c=p;original_chicago_fx2_wrapper_reset(c->wrapper);}
-int original_chicago_engine_output_process(original_chicago_engine_output *s,original_chicago_output_workspace *w,original_chicago_fx2_workspace *fxw,const original_chicago_routing *r,const uint32_t *il,const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz){
- if(!s||!r)return 0;if(!n)return 1;
+static int process_core(original_chicago_engine_output *s,original_chicago_output_workspace *w,original_chicago_fx2_workspace *fxw,const original_chicago_routing *r,const uint32_t *il,const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz,unsigned known_zero){
+ if(!s||!r)return 0;
+ if(!n)return 1;
  if(!fxw||n>fxw->capacity||fxw->capacity>4096||!fxw->new_left||!fxw->new_right||!fxw->old_left||!fxw->old_right)return 0;
  int16_t kernel[2],mixed[2];
- if(original_chicago_output_zero_ready(&s->output,w,r->master_squared,il,ir,ol,orr,n,fz)&&
+ int zero_ready=known_zero?
+    original_chicago_output_zero_state_ready(&s->output,w,r->master_squared,il,ir,ol,orr,n,fz):
+    original_chicago_output_zero_ready(&s->output,w,r->master_squared,il,ir,ol,orr,n,fz);
+ if(zero_ready&&
     original_chicago_fx2_wrapper_advance_zero(&s->fx2,n,kernel,mixed)){
   /* Drive is exactly zero. FX2 is a proved constant, possibly the original
    * nonzero EQ residue. Keep used scratch writes and the original master. */
@@ -46,9 +50,24 @@ int original_chicago_engine_output_process(original_chicago_engine_output *s,ori
     ol[i]=left;orr[i]=right;
    }
   }
-  return original_master_process(&s->output.master,r->master_squared,ol,orr,ol,orr,n);
+  original_master *m=&s->output.master;
+  float target=m->desired_mute?0:r->master_squared*4;
+  if(!mixed[0]&&!mixed[1]&&m->desired_mute==m->committed_mute&&m->current==target){
+   /* zero_ready validated master and volume. With a settled nonnegative
+    * gain, positive-zero input stays positive zero after cleanup. Preserve
+    * all master writes, including the new zero step and signed-zero current.
+    * Keep this admission at the Chicago caller; other owners are unchanged. */
+   m->target=target;m->step=0;m->current=target;return 1;
+  }
+  return original_master_process(m,r->master_squared,ol,orr,ol,orr,n);
  }
  context c={&s->fx2,fxw,1};const original_chicago_fx2 callbacks={&c,process,reset};
  int ok=original_chicago_output_process(&s->output,w,&callbacks,r->master_squared,il,ir,ol,orr,n,fz);
  return ok&&c.status;
+}
+int original_chicago_engine_output_process(original_chicago_engine_output *s,original_chicago_output_workspace *w,original_chicago_fx2_workspace *fxw,const original_chicago_routing *r,const uint32_t *il,const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz){
+ return process_core(s,w,fxw,r,il,ir,ol,orr,n,fz,0);
+}
+int original_chicago_engine_output_process_zero(original_chicago_engine_output *s,original_chicago_output_workspace *w,original_chicago_fx2_workspace *fxw,const original_chicago_routing *r,const uint32_t *il,const uint32_t *ir,uint32_t *ol,uint32_t *orr,uint32_t n,unsigned fz){
+ return process_core(s,w,fxw,r,il,ir,ol,orr,n,fz,1);
 }

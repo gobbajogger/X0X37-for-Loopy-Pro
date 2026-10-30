@@ -1,0 +1,332 @@
+Project: X0X37-for-Loopy-Pro / PR #705
+Historical source: 6ae0928fe3264ee759c25c4f879eff4dc5dc3b20 (NOT CURRENT CANDIDATE)
+Candidate at recovery: a6050fabac9df535dd48c6f32090a4777e82b0f3
+Base: cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21
+Real historical-source Linux full test invocation: X0X_TEST_JOBS=8 sh tests/run_tests.sh
+Exit code: 1
+Result records: 319, PASS 229, FAIL 84, NOT_RUN 5, SKIP 1
+Historical Elite development native build: exit 0, source commit 6ae0928
+Historical Pro development native build: exit 0, source commit 6ae0928
+Both builds: JieLi toolchain and 11 pinned AC79NN SDK V1.2.1 inputs verified.
+Current PR HEAD full host, Elite and Pro: NOT RUN, because candidate checkout is incomplete.
+Only sanitized result titles follow; no raw captures, source, SDK or binaries.
+
+FAIL FAIL fastmath (see build/host/fastmath.log)
+FAIL FAIL fastmath-ubsan (see build/host/fastmath-ubsan.log)
+PASS ok   home-tie-semantics
+PASS ok   sequencer
+PASS ok   bass-prob-midi
+PASS ok   seq-tb3po-bars
+PASS ok   seq-random-swing
+PASS ok   seq-random-clock-handoff
+PASS ok   seq-long-notes
+PASS ok   seq-pingpong-resize
+PASS ok   clk-lock
+PASS ok   seq-random-tie-preview
+PASS ok   encoder
+PASS ok   bass303_lite
+FAIL FAIL bass303-sustain (see build/host/bass303-sustain.log)
+PASS ok   bass-presets-map
+PASS ok   bass-presets-live
+PASS ok   bass-legacy-display
+FAIL FAIL bass-tagged-storage (see build/host/bass-tagged-storage.log)
+FAIL FAIL bass-presets-export (see build/host/bass-presets-export.log)
+PASS ok   bass-midi-pending-native
+PASS ok   uac
+PASS ok   trs
+PASS ok   undo
+PASS ok   undo-capacity
+PASS ok   lz
+PASS ok   motion
+PASS ok   host-build
+FAIL FAIL project-303-stream (see build/host/project-303-stream.log)
+FAIL FAIL wave-motion-migrate (see build/host/wave-motion-migrate.log)
+FAIL FAIL project-protocol (see build/host/project-protocol.log)
+FAIL FAIL project-save-preflight (see build/host/project-save-preflight.log)
+FAIL FAIL editor-ota-dispatch (see build/host/editor-ota-dispatch.log)
+FAIL FAIL storage-scratch (see build/host/storage-scratch.log)
+FAIL FAIL project-stage (see build/host/project-stage.log)
+FAIL FAIL project-runtime (see build/host/project-runtime.log)
+PASS ok   save-note-quiet
+PASS ok   font-pack
+PASS ok   smc-protocol
+PASS ok   smc-fader
+PASS ok   smc-buttons
+PASS ok   smc-select-mode
+PASS ok   smc-fx
+FAIL FAIL smc-queue (see build/host/smc-queue.log)
+FAIL FAIL smc-solo-overflow (see build/host/smc-solo-overflow.log)
+PASS ok   engine-cq-rec-overflow
+PASS ok   engine-cq-isr-preemption
+PASS ok   engine-cq-boff-overflow
+PASS ok   engine-cq-brk-overflow
+PASS ok   engine-cq-bon-overflow
+PASS ok   engine-cq-drum-overflow
+PASS ok   midi-mq-noteoff-overflow
+PASS ok   midi-mq-rt-overflow
+PASS ok   midi-out-mq-noteoff-overflow
+PASS ok   ble-out-noteoff-overflow
+PASS ok   ble-out-rt-overflow
+PASS ok   usb-sxq-sticky-apc
+PASS ok   smc-host-data7
+PASS ok   smc-host-overflow-data7
+PASS ok   smc-sender-isolation
+PASS ok   smc-ble-payload
+PASS ok   smc-link
+PASS ok   smc-reconnect-epoch
+PASS ok   ble-central-first-notification
+PASS ok   ble-dual-peer
+PASS ok   ble-midi-receive
+PASS ok   ble-capture-replay
+PASS ok   ble-acl-start-flags
+PASS ok   ble-hci-completed
+PASS ok   ble-acl-zero-credit
+PASS ok   ble-link-epoch-reset
+PASS ok   ble-disconnect-status
+PASS ok   smc-reachability
+PASS ok   smc-pickup-acceptance
+PASS ok   smc-lock
+PASS ok   smc-lock-beat
+PASS ok   smc-multi-peer
+PASS ok   smc-multi-peer-negative
+PASS ok   smc-pause-loss
+FAIL FAIL smk-wheel-mode (see build/host/smk-wheel-mode.log)
+FAIL FAIL miami-mw-wobble (see build/host/miami-mw-wobble.log)
+PASS ok   miami-freeplay-pads
+PASS ok   freeplay-live-keys
+PASS ok   smc-interaction-negative
+PASS ok   corner-coverage
+FAIL FAIL part-order (see build/host/part-order.log)
+PASS ok   smc-ui
+PASS ok   smc-ui-bounds
+FAIL FAIL smc-ui-negative (see build/host/smc-ui-negative.log)
+PASS ok   smc-mapping
+PASS ok   smc-drum-mutes
+FAIL FAIL smc-drum-rs (see build/host/smc-drum-rs.log)
+PASS ok   smc-performance-abort
+FAIL FAIL smc-filter (see build/host/smc-filter.log)
+FAIL FAIL smc-feedback (see build/host/smc-feedback.log)
+PASS ok   smc-record-feedback
+PASS ok   smc-part-select
+FAIL FAIL smc-clip-visibility (see build/host/smc-clip-visibility.log)
+PASS ok   drum-pan
+PASS ok   stereo
+FAIL FAIL master (see build/host/master.log)
+FAIL FAIL drum909-adpcm (see build/host/drum909-adpcm.log)
+NOT_RUN not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+NOT_RUN not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+NOT_RUN not-run bass303 (../schwung-303/src/dsp/open303/rosic_Open303.cpp)
+FAIL FAIL breaks (see build/host/breaks.log)
+PASS ok   brk-loops-seamless
+PASS ok   brk-outline
+PASS ok   brk-outline-gate
+PASS ok   bass303-ampmode
+PASS ok   bass303-wave-gnaw
+PASS ok   bass303-amp-adsr
+PASS ok   chicago-arp
+PASS ok   chicago-fx-bridge
+PASS ok   chicago-crush
+PASS ok   chicago-ring
+PASS ok   chicago-eq
+PASS ok   chicago-cho
+PASS ok   chicago-ens
+PASS ok   chicago-phaser
+PASS ok   chicago-sdly
+PASS ok   chicago-bpmdly
+PASS ok   chicago-hall
+PASS ok   chicago-gaterev
+PASS ok   chicago-aux
+PASS ok   chicago-env
+PASS ok   au-compare-align
+PASS ok   chicago-au-render
+PASS ok   chicago-au-map
+PASS ok   chicago-au-battery
+NOT_RUN not-run chicago-au-compare (CHICAGO_AU_REFS)
+PASS ok   au-compare-battery
+FAIL FAIL miami-au-render (see build/host/miami-au-render.log)
+FAIL FAIL miami-au-battery (see build/host/miami-au-battery.log)
+NOT_RUN not-run miami-au-compare (MIAMI_AU_REFS)
+PASS ok   install-gate-guard
+PASS ok   queue-guard
+PASS ok   install-guards
+PASS ok   install-head
+PASS ok   release-tree
+PASS ok   prepush-trim
+PASS ok   prepush-allow
+PASS ok   gate-configs
+PASS ok   gate-trap
+PASS ok   quickcheck-plan
+FAIL FAIL ctl-compile (see build/host/ctl-compile.log)
+PASS ok   host-setup
+PASS ok   builtin-break-output
+FAIL FAIL gen-nonfont-tables (see build/host/gen-nonfont-tables.log)
+PASS ok   stereo-alone-gen
+FAIL FAIL runner-admission (see build/host/runner-admission.log)
+PASS ok   update-names
+PASS ok   gate-reason
+PASS ok   validation-inputs
+PASS ok   stage-handoff
+PASS ok   dev-validate
+PASS ok   nightly-publish
+PASS ok   gen-cache
+PASS ok   smk-update-contract
+PASS ok   gen-order
+PASS ok   quickcheck-devbug
+PASS ok   status-lanes
+PASS ok   status-isolation
+PASS ok   loop-bars
+PASS ok   installer
+PASS ok   installer-f02-bind
+PASS ok   installer-f02-bind-web
+PASS ok   locked-settings
+PASS ok   smk-flash
+PASS ok   smk-storage
+PASS ok   smk-apc40-map
+PASS ok   smk-apc40
+PASS ok   smk-clip-ble-clear
+FAIL FAIL smk-clip-keys (see build/host/smk-clip-keys.log)
+PASS ok   smk-chord-recognize
+FAIL FAIL smk-clip-chord-display (see build/host/smk-clip-chord-display.log)
+PASS ok   smk-ck-page-layout
+PASS ok   smk-arrows
+FAIL FAIL smk-arrows-owner (see build/host/smk-arrows-owner.log)
+PASS ok   apc40-tables
+PASS ok   smk-clip-idle
+PASS ok   smk-clip-idle-pad
+PASS ok   apc40-pad-owner
+PASS ok   smk-padcal
+PASS ok   padcal-view
+PASS ok   smk-padcal-export
+FAIL FAIL smk-padcal-wiring (see build/host/smk-padcal-wiring.log)
+PASS ok   pad-placement-doc
+FAIL FAIL padcal-flag (see build/host/padcal-flag.log)
+PASS ok   apc40-lcd565-csv
+PASS ok   apc-palette
+PASS ok   installer-targets
+PASS ok   diag-size
+PASS ok   smk-inlog
+PASS ok   ble-central-diag
+PASS ok   ble-role-switch
+PASS ok   inlog-tool
+PASS ok   smk-pad-inputs
+FAIL FAIL pad-diagnostics-scanner (see build/host/pad-diagnostics-scanner.log)
+PASS ok   pad-diagnostics
+PASS ok   smc-pad-diag-gate
+PASS ok   smc-daw-only-ui
+PASS ok   smk-clip-ble-notify
+PASS ok   smk-clip-dark
+PASS ok   smk-clip-usb-clear
+FAIL FAIL smk-clip-isolation (see build/host/smk-clip-isolation.log)
+FAIL FAIL smk-clip-knob (see build/host/smk-clip-knob.log)
+FAIL FAIL smk-fader-pickup (see build/host/smk-fader-pickup.log)
+PASS ok   smk-clip-wait
+PASS ok   smk-apc40-violet
+SKIP skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+PASS ok   ble-sysex-bounds
+PASS ok   ble
+PASS ok   upload-images
+PASS ok   upload-tools
+PASS ok   break-pack
+PASS ok   break-pack-web
+PASS ok   breaks-web
+PASS ok   breaks-page
+PASS ok   project-adoption-identities
+PASS ok   projects-web
+PASS ok   projects-page
+PASS ok   install-slots-web
+PASS ok   installer-backup-selection
+PASS ok   slot-build-safe
+PASS ok   wav-import-integrity
+PASS ok   slot-backup
+PASS ok   slot-begin-cancel
+FAIL FAIL smp-begin-cancel (see build/host/smp-begin-cancel.log)
+PASS ok   slot-backup-durable
+PASS ok   slot-archive-zone
+PASS ok   slot-verify-order
+PASS ok   slot-read-reply
+PASS ok   slot-ack-integrity
+PASS ok   slot-echo-7bit
+PASS ok   slot-migration-matching
+PASS ok   slot-break-menu-migration
+PASS ok   installer-slots
+PASS ok   installer-restore-status
+PASS ok   installer-ota-finish-ack
+PASS ok   installer-backup-snapshot
+PASS ok   installer-ctl
+PASS ok   ctl-read-framing
+PASS ok   ctl-publish-atomic
+PASS ok   rec-held-duration
+PASS ok   rec-endpoint-lifecycle
+FAIL FAIL rec-endpoint-storage (see build/host/rec-endpoint-storage.log)
+PASS ok   rec-nonforward-guard
+FAIL FAIL rec-live (see build/host/rec-live.log)
+FAIL FAIL rec-live-smk (see build/host/rec-live-smk.log)
+PASS ok   copy-semantics
+FAIL FAIL song-actions (see build/host/song-actions.log)
+FAIL FAIL ui-feedback (see build/host/ui-feedback.log)
+FAIL FAIL home-overview (see build/host/home-overview.log)
+FAIL FAIL sound-matrix (see build/host/sound-matrix.log)
+FAIL FAIL sound-layout (see build/host/sound-layout.log)
+FAIL FAIL chicago-presentation (see build/host/chicago-presentation.log)
+FAIL FAIL chicago-readout (see build/host/chicago-readout.log)
+FAIL FAIL matrix-knob-caption (see build/host/matrix-knob-caption.log)
+FAIL FAIL preset-navigation-noop (see build/host/preset-navigation-noop.log)
+PASS ok   ui-303-entry
+FAIL FAIL scenario-arrows (see build/host/scenario-arrows.log)
+FAIL FAIL scenario-autosave (see build/host/scenario-autosave.log)
+PASS ok   scenario-bleclock
+FAIL FAIL scenario-blenotes (see build/host/scenario-blenotes.log)
+FAIL FAIL scenario-brkslice (see build/host/scenario-brkslice.log)
+FAIL FAIL scenario-brkslice_mode_toggle (see build/host/scenario-brkslice_mode_toggle.log)
+FAIL FAIL scenario-brkslice_trs_overlap (see build/host/scenario-brkslice_trs_overlap.log)
+FAIL FAIL scenario-clklock (see build/host/scenario-clklock.log)
+FAIL FAIL scenario-clkmove (see build/host/scenario-clkmove.log)
+FAIL FAIL scenario-clocksrc (see build/host/scenario-clocksrc.log)
+PASS ok   scenario-drum_bass_ch_consume
+PASS ok   scenario-edit_midi_rec_guard
+PASS ok   scenario-edit_oct_no_hidden
+PASS ok   scenario-extclock
+PASS ok   scenario-freeplay
+FAIL FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+PASS ok   scenario-groove
+FAIL FAIL scenario-guard (see build/host/scenario-guard.log)
+PASS ok   scenario-help
+PASS ok   scenario-jam
+PASS ok   scenario-keysound
+PASS ok   scenario-knobs
+FAIL FAIL scenario-midiowner (see build/host/scenario-midiowner.log)
+PASS ok   scenario-migrate
+PASS ok   scenario-migrate0102
+FAIL FAIL scenario-patterns (see build/host/scenario-patterns.log)
+FAIL FAIL scenario-perf (see build/host/scenario-perf.log)
+FAIL FAIL scenario-perfsave (see build/host/scenario-perfsave.log)
+FAIL FAIL scenario-plock (see build/host/scenario-plock.log)
+PASS ok   scenario-prob
+FAIL FAIL scenario-probcond (see build/host/scenario-probcond.log)
+FAIL FAIL scenario-probreset (see build/host/scenario-probreset.log)
+PASS ok   scenario-roll_continuation
+PASS ok   scenario-roll_short_tie
+PASS ok   scenario-savefeedback
+PASS ok   scenario-savewait
+PASS ok   scenario-showcase
+FAIL FAIL scenario-slices (see build/host/scenario-slices.log)
+FAIL FAIL scenario-song (see build/host/scenario-song.log)
+PASS ok   scenario-song_live_mute_save
+PASS ok   scenario-songrep
+FAIL FAIL scenario-sound_matrix_chicago (see build/host/scenario-sound_matrix_chicago.log)
+FAIL FAIL scenario-sound_matrix_chicago_idle (see build/host/scenario-sound_matrix_chicago_idle.log)
+PASS ok   scenario-sound_matrix_drum
+FAIL FAIL scenario-sound_matrix_lock (see build/host/scenario-sound_matrix_lock.log)
+FAIL FAIL scenario-sound_matrix_miami (see build/host/scenario-sound_matrix_miami.log)
+PASS ok   scenario-sound_page_split
+PASS ok   scenario-step303
+FAIL FAIL scenario-steps64 (see build/host/scenario-steps64.log)
+PASS ok   scenario-stereo
+PASS ok   scenario-tb3po
+FAIL FAIL scenario-tour (see build/host/scenario-tour.log)
+PASS ok   scenario-trackmute
+FAIL FAIL scenario-undo (see build/host/scenario-undo.log)
+FAIL FAIL scenario-upload (see build/host/scenario-upload.log)
+FAIL FAIL scenario-upload44 (see build/host/scenario-upload44.log)
+FAIL FAIL scenario-usbnotes (see build/host/scenario-usbnotes.log)
+FAIL FAIL perf-scratch (see build/host/perf-scratch.log)

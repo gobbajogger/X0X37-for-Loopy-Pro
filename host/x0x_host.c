@@ -35,6 +35,9 @@
  *                                to the simulated flash and booted, as if it had been made here
  */
 #define X0X_HOST 1
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE 1   /* libproc / task instruction-count APIs require Darwin types */
+#endif
 #define _POSIX_C_SOURCE 200809L                 /* clock_gettime, CLOCK_MONOTONIC (glibc <time.h>) */
 #include <stdio.h>
 #include <stdlib.h>
@@ -107,6 +110,8 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 #define MQ 256
 static uint32_t min_q[MQ], mi_w, mi_r;
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
+int engine_bass_perf(int v, int which, int live); /* engine.c (X0X_HOST): 0 bend 1 damper 2 mod */
+int engine_bass_keys_held(void);         /* engine.c (X0X_HOST): bit k when 303 k holds a key, not the release tail */
 static FILE *midi_log;
 uint32_t plat_midi_mark(void)
 {
@@ -281,9 +286,6 @@ void plat_stalls_enable(int on) { (void)on; }
 
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/x0x.h"
-#if !X0X_ORIGINAL_SYNTH
-#include "../firmware/src/app/chicago_param_tables.c" /* one Chicago Arp/FX/aux pot table for engine + UI */
-#endif
 #include "../firmware/src/app/smk_clip_arp_share.c"   /* one ck_arp_pick + CK_RATE_T for engine + clip MIDI */
 #include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
@@ -301,8 +303,14 @@ static uint32_t arrows_held, clip_on, arrow_steps;
 static arw_t host_arw;
 static void host_arrows(void)
 {
+    static uint32_t menu_id;
     uint32_t route = arw_route((uint32_t)ui_menu_open(), clip_on, (held_btn >> B_HOME) & 1u);
-    int32_t d = arw_frame(&host_arw, arrows_held, route, now_ms);
+    uint32_t id = arw_menu_id(ui.view, (uint32_t)cur_page());
+    int32_t d;
+    if (clip_on && route == ARW_MENU && id != menu_id)
+        arw_rearm(&host_arw, arrows_held);           /* CLP-82, as main_fm1.c smk_arrows */
+    menu_id = id;
+    d = arw_frame(&host_arw, arrows_held, route, now_ms);
     if (!d)
         return;
     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
@@ -953,12 +961,10 @@ int main(int argc, char **argv)
                 printf("line %d: no param %d %d %d\n", lineno, t, v, i);
                 return 2;
             }
-#if X0X_ORIGINAL_SYNTH
             if (t == T_303) {
                 if ((unsigned)v >= NBASS || !original_sound_set(proj.sound.v[t][v], (unsigned)i, (unsigned)val)) return 2;
                 engine_bass_sound_refresh(&proj.sound, v);
             } else
-#endif
             proj.sound.v[t][v][i] = (uint8_t)val;
             engine_set(t, v, i, val);
             run_ms(1);

@@ -110,6 +110,11 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  * returns2 with action2 and untouched outputs when restart resolution is
  * required; otherwise returns1. It returns0 for invalid call preconditions. */
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right);
+/* Internal serial block owner: admit stable resources once, then preserve
+ * every original control tick. No external edits or restored-state writes
+ * may interleave admitted calls. Checked public entries remain unchanged. */
+int original_chicago_voice_block_ready(const original_chicago_voice *,const original_chicago_voice_controls *,const original_chicago_voice_tables *,float bpm);
+int original_chicago_voice_control_admitted(original_chicago_voice *,const original_chicago_voice_controls *,const original_chicago_voice_tables *,float bpm,unsigned kick,unsigned *action);
 int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action);
 enum { ORIGINAL_CHICAGO_REQUEST_FULL=1, ORIGINAL_CHICAGO_REQUEST_PARTIAL=2, ORIGINAL_CHICAGO_REQUEST_STAGE=3 };
 /* A088 decision tests full then VCAstate only, never the enabled lane bit.

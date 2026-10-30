@@ -6,7 +6,8 @@
  * native303 while BPM Delay only stole the shared Mix delay bus.
  *
  * Edit1 → wet (floor 0.5; former Mix send amount). Edit2 → note division 0..12
- * at CHI_BPMDLY_BPM (default 170, AU compare tempo). Compact int16 ring; longer
+ * at the current sequencer tempo. The offline helper keeps CHI_BPMDLY_BPM
+ * (default 170, AU compare tempo). Compact int16 ring; longer
  * divisions half until they fit (same law as fxbus). No libm. */
 #pragma once
 #include <stdint.h>
@@ -53,7 +54,7 @@ static inline float chi_bpmdly_beats(uint8_t div)
     return beats[div];
 }
 
-static inline void chi_bpmdly_set(chi_bpmdly_t *d, uint8_t e1, uint8_t e2, float sr)
+static inline void chi_bpmdly_set_bpm(chi_bpmdly_t *d, uint8_t e1, uint8_t e2, float sr, float bpm)
 {
     float send, ms, samp, max_ms;
     uint8_t div;
@@ -61,8 +62,12 @@ static inline void chi_bpmdly_set(chi_bpmdly_t *d, uint8_t e1, uint8_t e2, float
         return;
     if (sr < 1.0f)
         sr = CHI_BPMDLY_SR;
+    if (bpm < 20.0f)
+        bpm = 20.0f;
+    if (bpm > 300.0f)
+        bpm = 300.0f;
     div = (uint8_t)((uint32_t)e2 * 12u / 127u);
-    ms = chi_bpmdly_beats(div) * (60000.0f / CHI_BPMDLY_BPM);
+    ms = chi_bpmdly_beats(div) * (60000.0f / bpm);
     max_ms = (float)(CHI_BPMDLY_MAX - 1) * 1000.0f / sr;
     while (ms > max_ms)
         ms *= 0.5f;
@@ -75,6 +80,12 @@ static inline void chi_bpmdly_set(chi_bpmdly_t *d, uint8_t e1, uint8_t e2, float
     send = (float)e1 * (1.0f / 127.0f);
     d->wet = send < 0.5f ? 0.5f : send;
     d->fb = 0.35f + send * 0.5f;
+}
+
+/* Keep the fixed-tempo offline render/compare API unchanged. */
+static inline void chi_bpmdly_set(chi_bpmdly_t *d, uint8_t e1, uint8_t e2, float sr)
+{
+    chi_bpmdly_set_bpm(d, e1, e2, sr, CHI_BPMDLY_BPM);
 }
 
 static inline void chi_bpmdly_init(chi_bpmdly_t *d)

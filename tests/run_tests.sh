@@ -88,13 +88,13 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
-    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    save-note-quiet) TEST_CLASS=G ;;
+    rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
-    original-release-ui|original-release-integration|ui-theme) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-preset-preserve|smc-reachability|smc-ui|ui-shared-glyph|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -121,7 +121,7 @@ run_one() {             # key name command...: the result goes to $RES/key (and 
     echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
 }
 GLOCK="${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}"
-install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) case "$1" in rec-live|rec-live-smk) return 1 ;; *) return 0 ;; esac ;; *) return 1 ;; esac; }
+install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) case "$1" in rec-live-smk) return 1 ;; *) return 0 ;; esac ;; *) return 1 ;; esac; }
 lk() {                  # name command...: start the command. An install-path test holds the shared gate lock while it runs
     n_="$1"; shift
     if install_path "$n_" && [ "${X0X_GATE_HOLDS_LOCK:-0}" != 1 ] && [ -w "$GLOCK" ] && command -v flock >/dev/null 2>&1; then
@@ -133,7 +133,7 @@ lk() {                  # name command...: start the command. An install-path te
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
     case "$1" in save-note-quiet) return 0 ;; esac
-    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -288,7 +288,8 @@ if [ "$ASAN_CHECKED" != 1 ]; then
     asan_links || ASAN_SKIP=1
 fi
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
-run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
+run dsp-host-linkage sh tests/host/run_dsp_host_linkage.sh
+run fastmath sh -c "$CC -DX0X_HOST -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
 run fastmath-ubsan sh tests/host/run_fastmath_ubsan.sh  # negative exponent shifts must be defined
 TB3PO_REF="${TB3PO_REF:-../schwung-tb3po/src/dsp/tb3po.c}"
 seq_test() {
@@ -314,16 +315,6 @@ run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 l
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
 run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_tie_lookahead_test tests/host/seq_random_tie_lookahead_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_random_tie_lookahead_test"   # BAS-03/06 RANDOM TIE gate prediction
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
-run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
-run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
-for t in bass-presets-map bass-presets-live bass-legacy-display bass-tagged-storage; do
-    if [ "$PIL_SKIP" = 1 ]; then not_run "$t" Pillow; else
-        run "$t" sh "tests/host/$(echo "$t" | tr - _)_test.sh"
-    fi
-done
-if [ "$PIL_SKIP" = 1 ]; then not_run bass-presets-export Pillow; else
-    run bass-presets-export sh -c 'sh host/build_host.sh --generate-only && sh tests/host/bass_presets_export_test.sh'
-fi
 run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
@@ -332,8 +323,12 @@ run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
-run project-303-stream sh tests/host/run_project_303_stream.sh
-run wave-motion-migrate sh tests/host/run_wave_motion_migrate.sh   # snd rev 6: Wave motion/snapshot 1→127
+run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
+run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
+run original-build python3 tests/host/test_original_build_composition.py
+run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py
+run boot-screen sh tests/host/boot_screen_test.sh
+run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
 run project-protocol sh tests/host/run_project_protocol.sh
 run project-save-preflight sh tests/host/run_project_save_preflight.sh   # BF-021 memory-full + FNV32 sound collision
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
@@ -347,6 +342,10 @@ run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-select-mode sh tests/host/smc_select_mode_test.sh
 run smc-fx sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Ifirmware/src/dsp -Ifirmware/src/app -o $OUT/smc_fx_test tests/host/smc_fx_test.c firmware/src/app/smc_fx_map_tables.c -lm && $OUT/smc_fx_test"
+run smc-mixer-edges sh tests/host/smc_mixer_edges_test.sh
+run smc-action-source python3 tests/host/smc_action_source_test.py
+run smc-fx-caption sh tests/host/smc_fx_caption_test.sh
+run smc-fx-preset-preserve python3 tests/host/smc_fx_preset_preserve_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
 run engine-cq-rec-overflow python3 tests/host/engine_cq_rec_overflow_test.py   # atomic REC word retains critical priority
@@ -357,6 +356,7 @@ run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   #
 run engine-cq-drum-overflow python3 tests/host/engine_cq_drum_overflow_test.py   # full CQ must keep C_DRUM (displace param)
 run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py   # full MIDI-in MQ must keep Note Off (displace CC)
 run midi-mq-rt-overflow python3 tests/host/midi_mq_rt_overflow_test.py   # full MIDI-in MQ must keep Start/Continue/Stop (displace CC)
+run midi-overflow-order python3 tests/host/midi_overflow_order_test.py   # FIFO under full MIDI/BLE queues, rollover and TIMER5 boundaries
 run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow_test.py   # full MIDI-out MQ must keep Note Off (displace CC)
 run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
 run ble-out-rt-overflow python3 tests/host/ble_out_rt_overflow_test.py   # full BLE out mirror must keep Start/Continue/Stop (displace CC)
@@ -367,10 +367,22 @@ run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
 run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
+run smc-boot-saved-roles python3 tests/host/test_smc_boot_saved_roles.py
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
-run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
-run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
+# The one-peer recovery port cannot satisfy two-peer B transport/controller
+# fixtures. Keep those tests intact for the future two-SMC integration.
+if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central.h; then
+    run ble-one-peer-command sh tests/host/ble_one_peer_command_retry_test.sh
+    run ble-one-peer-contract python3 tests/host/ble_single_peer_contract_test.py
+    # The two-peer source stays; test it with BLEC_TWO_PEER=1.
+    run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
+    run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
+    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
+else
+    run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
+    run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
+fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
@@ -386,16 +398,17 @@ run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
 run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
-run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
-run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py   # original Miami: compile the existing physical-rate-pads route
+run miami-table-interpolation sh tests/host/run_miami_table_interpolation.sh
+run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 projects load as the Chicago default, no crash, no save
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
-run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
-run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
-run boot-screen sh tests/host/boot_screen_test.sh
-run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
+run smc-mode-page sh tests/host/smc_mode_page_test.sh
+run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
+run ui-shared-glyph sh tests/host/ui_shared_glyph_test.sh  # shared glyphs across live UI pages
+run ui-drum-mix-material sh tests/host/ui_drum_mix_material_test.sh  # 808/909 captions, rails and pan
+run ui-waveform-truth sh tests/host/ui_waveform_truth_test.sh  # Miami TRI/SQR/PUL value-cell shapes
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
@@ -411,43 +424,27 @@ run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 run drum-pan sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c -lm && $OUT/drum_pan_test"
 run stereo sh -c "mkdir -p build/gen && ([ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null) && $CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
+run drum-kit-identity sh tests/host/drum_kit_identity_test.sh   # independent 909 and 808 voices
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
-for t in drum909 drum808 bass303 breaks; do
+for t in drum909 drum808 breaks; do
     [ -f "tests/host/run_$t.sh" ] || continue
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
     else run "$t" sh "tests/host/run_$t.sh"; fi
 done
+# Keep the restored adaptive BREAK, MIDI and GCC-portable performance gates in the full suite.
+run break-suite-registration python3 tests/host/test_break_suite_registration.py
+run adaptive-break-dsp sh tests/host/run_adaptive_break_dsp.sh
+run adaptive-break-controls sh tests/host/run_adaptive_break_controls.sh
+run adaptive-break-storage sh tests/host/run_adaptive_break_storage.sh
+run adaptive-break-midi-pair python3 tests/host/run_adaptive_break_midi_pair.py
+run break-performance sh tests/host/run_break_performance.sh
 run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test.py   # no brk_hold mute; engine_brk_loops flushes deferred bank publish (#354)
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
 run brk-outline-gate python3 -B tests/host/engine_brk_outline_gate_test.py   # engine_brk_outline stores through brk_outline_peak_u8 clamp
-run bass303-ampmode sh tests/host/run_bass303_ampmode.sh   # Chicago AmpMod Env/Gate on native303 (no schwung ref)
-run bass303-wave-gnaw sh tests/host/run_bass303_wave_gnaw.sh   # Chicago Wave morph + VCF Gnaw on native303
-run bass303-amp-adsr sh tests/host/run_bass303_amp_adsr.sh   # Chicago Bite + amp Env A/D/S/R on native303
-run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Range/Speed (live held-note)
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (+ Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert flags)
-run chicago-crush sh tests/host/run_chicago_crush.sh   # Chicago Crush/Decimator insert quantize+hold on native303
-run chicago-ring sh tests/host/run_chicago_ring.sh   # Chicago Ring Mod insert sidebands on native303
-run chicago-eq sh tests/host/run_chicago_eq.sh   # Chicago EQ insert tilt shelf on native303
-run chicago-cho sh tests/host/run_chicago_cho.sh   # Chicago Cho/Flg insert modulated delay on native303
-run chicago-ens sh tests/host/run_chicago_ens.sh   # Chicago Ens insert multi-voice detune on native303
-run chicago-phaser sh tests/host/run_chicago_phaser.sh   # Chicago Phaser insert moving-notch allpass on native303
-run chicago-sdly sh tests/host/run_chicago_sdly.sh   # Chicago Short Delay insert regenerative slap on native303
-run chicago-bpmdly sh tests/host/run_chicago_bpmdly.sh   # Chicago BPM Delay insert tempo-synced slap on native303
-run chicago-hall sh tests/host/run_chicago_hall.sh   # Chicago Hall insert compact Schroeder on native303
-run chicago-gaterev sh tests/host/run_chicago_gaterev.sh   # Chicago GateRev insert gated reverb on native303
-run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
-run chicago-env sh tests/host/run_chicago_env.sh   # Chicago AU Env → filter EG dual-drive + Gate DSP
+# chicago-fx-runtime is retired: it probed the bass303 chi_fx_process insert path that 18481a63 removed.
 run au-compare-align python3 tests/host/test_au_compare_align.py   # lag search law for Chicago/Miami AU compares
-run chicago-au-render sh tests/host/run_chicago_au_render.sh   # native303 offline renderer for Chicago AU battery
-run chicago-au-map python3 tests/host/test_chicago_au_map.py   # AU factory tuple → bass303 pots
-run chicago-au-battery python3 tests/host/test_chicago_au_battery.py   # scenario render + aligned self F_agg
-if [ -z "${CHICAGO_AU_REFS:-}" ]; then not_run chicago-au-compare CHICAGO_AU_REFS
-else run chicago-au-compare python3 tests/host/render_chicago_au_compare.py; fi   # Acid AU spectral battery (C-SND-1); refs gitignored
 run au-compare-battery python3 tests/host/test_au_compare_battery.py   # preset vs matrix modes + quick/full timing
-run miami-au-render sh tests/host/run_miami_au_render.sh   # wobble offline renderer for Miami factory preset battery
-run miami-au-battery python3 tests/host/test_miami_au_battery.py   # one preset render + aligned self F_agg
-if [ -z "${MIAMI_AU_REFS:-}" ]; then not_run miami-au-compare MIAMI_AU_REFS
-else run miami-au-compare python3 tests/host/render_miami_au_compare.py; fi   # Miami preset (default) or matrix diagnostic; refs gitignored
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time
@@ -458,6 +455,7 @@ run prepush-allow sh tests/host/test_prepush_allow.sh   # tools/pre-push.hook pa
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13): the KILLED lines name the sender PID and cwd, SCRIPT CHANGED in gate.log
 run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
+run host-failure-summary python3 -B tests/host/test_host_failure_summary.py  # fail-closed source-bound results
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
 run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h
@@ -549,12 +547,14 @@ run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops 
     python3 tools/upload_breaks.py --rate 22050 --nslots 2 --dry-run build/test_upload build/test_loops/loop*.wav && \
     python3 tools/upload_breaks.py --dry-run build/test_upload44 --slot-kb 80,120 build/test_loops/loop*.wav"   # 22.05 kHz (2 x 80), the 44.1 kHz default (80/120)
 run upload-tools python3 tests/upload_tools_test.py   # upload_breaks.py on a mocked device; one-shot trim
+run builtin-break-output python3 tests/host/test_builtin_break_output.py
 run break-pack python3 tests/break_pack_test.py   # optional factory-loop pack: full ADPCM, free tail, C parser
 command -v node >/dev/null 2>&1 && run break-pack-web node web/test_break_pack.mjs
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device
 command -v node >/dev/null 2>&1 && run project-adoption-identities node --test web/test_project_adoption_identities.mjs
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
+command -v node >/dev/null 2>&1 && run installer-project-handoff node web/test_installer_project_handoff.mjs
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 command -v node >/dev/null 2>&1 && run installer-backup-selection node web/test_install_backup_selection.mjs   # recheck approval after backup before OTA write
@@ -583,27 +583,22 @@ run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh
 run rec-endpoint-storage sh tests/host/rec_endpoint_storage_test.sh
 run rec-nonforward-guard sh tests/host/rec_nonforward_guard_test.sh
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
-if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
-# Full generate-only: needs font + break bank (Pillow-gated above), not tables alone.
-run rec-live sh -c "sh host/build_host.sh --generate-only >/dev/null && $CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
-    -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c \
-    firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
-    firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
-    firmware/src/app/engine.c -lm && $OUT/rec_live_test"
-fi
+# SMK-37 only (owner 2026-10-30: FM-1 is no longer a target). Full generate-only: needs Pillow.
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live-smk Pillow; else
-run rec-live-smk sh -c "sh host/build_host.sh --generate-only >/dev/null && $CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD_SMK37=1 -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
-    -o $OUT/rec_live_smk_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c \
-    firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
-    firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
-    firmware/src/app/engine.c -lm && $OUT/rec_live_smk_test"
+run rec-live-smk sh tests/host/run_rec_live.sh smk37
+fi
+if [ "$PIL_SKIP" = 1 ]; then not_run ext-midi-rec Pillow; else
+run ext-midi-rec-smk sh tests/host/run_ext_midi_rec.sh smk37
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
+run remaining-feature-proof-selftest python3 -B tests/host/remaining_feature_proof_test.py
+run home-pattern-glyph sh tests/host/home_pattern_glyph_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run home-overview Pillow; else run home-overview sh tests/host/home_overview_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix sh tests/host/sound_matrix_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
+run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-presentation Pillow; else run chicago-presentation sh tests/host/chicago_presentation_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-readout Pillow; else run chicago-readout sh tests/host/chicago_readout_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run matrix-knob-caption Pillow; else run matrix-knob-caption sh tests/host/matrix_knob_caption_test.sh; fi

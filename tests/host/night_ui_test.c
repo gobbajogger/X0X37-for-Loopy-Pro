@@ -180,8 +180,13 @@ static void mini_centering(void)
 {
     setup(V_HOME,PART_909);ui_frame();
     int first=-1,last=-1;
-    for(int x=4;x<236;x++)if(fb[(MAIN_Y+3)*240+x]==swap16(UI_N_EDGE)) {
-        if(first<0)first=x;last=x;
+    /* Identify full12px cell edges, not the new short chamfer edge which
+     * shares their colour. Cell coordinates and equal margins do not change. */
+    for(int x=4;x<236;) {
+        int start=x;
+        while(x<236 && fb[(MAIN_Y+3)*240+x]==swap16(UI_N_EDGE))x++;
+        if(x-start>=12) {if(first<0)first=start;last=x-1;}
+        if(x==start)x++;
     }
     CHECK(first==7);CHECK(last==232);CHECK(first-3==236-last);
     for(int c=0;c<16;c++) {

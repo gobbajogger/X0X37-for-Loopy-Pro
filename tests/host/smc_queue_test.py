@@ -47,6 +47,11 @@ harness = r'''
 #include <string.h>
 #include "app/smc_protocol.h"
 #include "smc_fx_harness_stubs.h"
+/* smc_poll_peer re-arms the SMC caption timer of its own peer after a lost
+ * release. The caption itself is exercised by smc_ui_test.c. */
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0; }
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -108,7 +113,7 @@ static void interleave(int queue)
         smc_mmc_host(34, (uint8_t)mmc_src); /* STOP overflows after PLAY */
     } else enqueue(route == 2 ? 16 : SMC_Q);
 }
-''' + function("smc_mmc_drain_stop") + "\n" + poll + ("\n" + function("smc_poll") if "smc_poll_peer" in source else "") + r'''
+''' + function("smc_mmc_drain_stop") + "\n" + function("smc_spill_apply") + "\n" + poll + ("\n" + function("smc_poll") if "smc_poll_peer" in source else "") + r'''
 
 int main(int argc, char **argv)
 {

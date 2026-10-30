@@ -2,21 +2,22 @@
 wait 300
 turn ALGO 4
 tap EDIT
-turn SELECT 6
-expect page 6
+turn SELECT 5
+expect page 5
 spin K1 -1
 wait 30
-expect page 6
-turn SELECT -6
+expect page 7
+expect sound2.0.29 0
+turn SELECT -7
 expect page 0
 shot chicago_sound.png
-param 2 0 5 0
+param 2 0 0 0
 wait 30
 shot chicago_saw.png
-param 2 0 5 64
+param 2 0 0 64
 wait 30
 shot chicago_mix.png
-param 2 0 5 127
+param 2 0 0 127
 wait 30
 shot chicago_square.png
 turn SELECT 3

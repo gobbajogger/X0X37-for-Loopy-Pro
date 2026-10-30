@@ -56,7 +56,6 @@ int plat_division_pad(unsigned owner)
 }
 #endif
 
-#if X0X_ORIGINAL_SYNTH
 uint64_t plat_physical_keys(void)
 {
 #if BOARD_SMK37
@@ -86,7 +85,6 @@ int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
 #endif
     return n;
 }
-#endif
 
 uint8_t plat_key_velocity(int key)
 {
@@ -218,11 +216,16 @@ int plat_midi_pending(void)
 }
 int plat_midi_in(uint32_t *pkt)
 {
-    if (mi_r == mi_w)
-        return 0;
-    *pkt = midi_in_q[mi_r % MQ];
-    mi_r++;
-    return 1;
+    /* Ingress overflow can compact the live ring in TIMER5. Keep its slot
+     * read and consume together so an interrupted read cannot skip a note. */
+    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+    int found = mi_r != mi_w;
+    if (found) {
+        *pkt = midi_in_q[mi_r % MQ];
+        mi_r++;
+    }
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
+    return found;
 }
 void plat_midi_out(uint32_t pkt)
 {

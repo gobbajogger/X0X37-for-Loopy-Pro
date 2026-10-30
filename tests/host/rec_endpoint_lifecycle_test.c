@@ -98,7 +98,7 @@ static void capture_reset(int len, int swing)
 int engine_bass_attacked(int part);
 static void capture_until_gate(unsigned limit)
 {
-    while (capture_clock < limit && !(engine_midi_held() & 1))
+    while (capture_clock < limit && !(engine_bass_keys_held() & 1))
         capture_frames(64);
 }
 static void capture_rt(unsigned at, int st)
@@ -153,10 +153,10 @@ static void test_timestamped_live_duration(void)
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); /* press 10 ms after step zero */
     capture_frames(14000);
-    CHECK(engine_midi_held() & 1, "live MIDI remains gated beyond multiple legacy half-step cutoffs");
+    CHECK(engine_bass_keys_held() & 1, "live MIDI remains gated beyond multiple legacy half-step cutoffs");
     CHECK(capture_energy > 0, "held MIDI renders nonzero continuous audio without reinitializing voice");
     capture_midi(15435, 0, 48, 0); /* actual release at 350 ms */
-    CHECK(!(engine_midi_held() & 1), "actual MIDI release ends live voice");
+    CHECK(!(engine_bass_keys_held() & 1), "actual MIDI release ends live voice");
     CHECK(bstep_gate(&bp->step[0]) == G_NOTE && !(bp->step[0].flags >> 4), "onset plus continuation has no premature endpoint");
     CHECK(bstep_gate(&bp->step[1]) == G_TIE && !(bp->step[1].flags >> 4), "middle tie sustains whole cell");
     CHECK(bstep_gate(&bp->step[2]) == G_TIE && (bp->step[2].flags >> 4) == 12, "release captured at 12/15 terminal cell");
@@ -170,9 +170,9 @@ static void test_timestamped_live_duration(void)
     capture_midi(441, 0, 48, 90);
     capture_midi(6000, 0, 55, 90); /* overlap -> outgoing slide on previous NOTE */
     capture_midi(6200, 0, 48, 0); /* old release cannot truncate newest */
-    CHECK(engine_midi_held() & 1, "older note release preserves active last-press gate");
+    CHECK(engine_bass_keys_held() & 1, "older note release preserves active last-press gate");
     capture_midi(7000, 1, 55, 0); /* foreign route same note must not release */
-    CHECK(engine_midi_held() & 1, "foreign route same-pitch release isolated");
+    CHECK(engine_bass_keys_held() & 1, "foreign route same-pitch release isolated");
     capture_midi(10000, 0, 55, 0);
     CHECK(bp->step[0].flags & BS_SLIDE, "overlap stores source slide");
     capture_playback(15000);
@@ -192,9 +192,9 @@ static void test_timestamped_live_duration(void)
     capture_reset(16, 0);
     capture_midi(441, 0, 0, 90); capture_midi(6000, 0, 0, 90);
     capture_midi(6500, 0, 0, 0);
-    CHECK(engine_midi_held() & 1, "MIDI note zero and repeated press count survive first off");
+    CHECK(engine_bass_keys_held() & 1, "MIDI note zero and repeated press count survive first off");
     capture_midi(9000, 0, 0, 0);
-    CHECK(!(engine_midi_held() & 1), "repeated note zero releases on last matching off");
+    CHECK(!(engine_bass_keys_held() & 1), "repeated note zero releases on last matching off");
     CHECK(bstep_gate(&bp->step[0]) == G_NOTE && bstep_gate(&bp->step[1]) == G_NOTE && !(bp->step[0].flags & BS_SLIDE),
           "overlapping same pitch stores separate retrigger events");
 
@@ -214,14 +214,35 @@ static void test_timestamped_live_duration(void)
 
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); capture_frames(6000);
+    bpart_t before_selection = *bp;
+    bpart_t other_bass = proj.pat[0].bass[1];
     ui.part = PART_303B; input(); capture_frames(1);
-    CHECK(!seq.rec_bass[0].active, "selection change finalizes original destination");
+    /* REC-07B: external MIDI follows its channel, independently of selection. */
+    CHECK(seq.rec_bass[0].active, "selection change preserves original external capture");
+    CHECK(seq.rec_bass[0].pat == 0 && seq.rec_bass[0].first == 0 &&
+          seq.rec_bass[0].note == 48 && seq.rec_bass[0].src == 0,
+          "selection change preserves original pattern, onset, note and source");
+    CHECK(!memcmp(bp, &before_selection, sizeof before_selection),
+          "selection change does not finalize or rewrite original captured duration");
+    CHECK(engine_bass_keys_held() & 1, "selection change preserves original live gate");
     capture_midi(9000, 0, 48, 0);
-    CHECK(bstep_gate(&proj.pat[0].bass[1].step[0]) == G_REST, "release after selection does not write new part");
+    CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1),
+          "own note-off after selection ends original capture and live gate");
+    CHECK(bstep_gate(&bp->step[0]) == G_NOTE && bp->step[0].note == 48 &&
+          !(bp->step[0].flags >> 4) && bstep_gate(&bp->step[1]) == G_TIE &&
+          (bp->step[1].flags >> 4) == 9 && bstep_gate(&bp->step[2]) == G_REST,
+          "own note-off stores original note with the later terminal endpoint");
+    CHECK(!seq.rec_bass[1].active && !memcmp(&proj.pat[0].bass[1], &other_bass, sizeof other_bass),
+          "selection and release leave the other bass capture and pattern untouched");
+    capture_playback(12000);
+    /* At 120 BPM/44.1 kHz, 9000 is nearest to step one's 9/15 endpoint:
+     * 5512.5 + 9/15 * 5512.5 = 8820, within half a 367.5-sample bin. */
+    CHECK(abs((int)capture_first_off() - 9000) <= 185,
+          "selection preserves playback duration until own note-off within half endpoint bin (off=%u)", capture_first_off());
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); capture_frames(6000);
     seq_stop(&seq); capture_frames(1);
-    CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "stop while held finalizes recording and live gate");
+    CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1), "stop while held finalizes recording and live gate");
     capture_midi(9000, 0, 48, 0);
 
 
@@ -258,20 +279,20 @@ static void test_timestamped_live_duration(void)
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); capture_frames(6000);
     ui.rec = 0; input(); capture_frames(1);
-    CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "REC off finalizes original capture and releases voice");
+    CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1), "REC off finalizes original capture and releases voice");
     ui.rec = 1; input();
     capture_midi(7000, 0, 48, 90);
     capture_midi(7500, 0, 48, 0); /* old membership off, after new attack */
-    CHECK(engine_midi_held() & 1, "stale old same-pitch off after context end cannot cut new press");
+    CHECK(engine_bass_keys_held() & 1, "stale old same-pitch off after context end cannot cut new press");
     capture_midi(9000, 0, 48, 0);
-    CHECK(!(engine_midi_held() & 1), "new same-pitch press ends on its final off");
+    CHECK(!(engine_bass_keys_held() & 1), "new same-pitch press ends on its final off");
     capture_reset(16, 0);
     capture_midi(441, 0, 48, 90); capture_frames(6000);
     run_action(ACT_CLEAR_PART, PART_303A); input();
     capture_midi(7000, 0, 55, 90); /* new press shares drain with pending context off */
-    CHECK(engine_midi_held() & 1, "pending context gate-off is consumed before successor press");
+    CHECK(engine_bass_keys_held() & 1, "pending context gate-off is consumed before successor press");
     capture_midi(7500, 0, 48, 0);
-    CHECK(engine_midi_held() & 1, "old different-pitch off cannot cut successor after clear");
+    CHECK(engine_bass_keys_held() & 1, "old different-pitch off cannot cut successor after clear");
     capture_midi(9000, 0, 55, 0);
     /* Exact release boundary and its adjacent samples share one nearest bin. */
     for (int jitter = -1; jitter <= 1; jitter++) {
@@ -321,8 +342,11 @@ static void test_timestamped_live_duration(void)
     CHECK(project_save() == 0, "legacy-shaped stream generated");
     for (int i = 0; i < NSTREAM; i++) put32(store[STREAM_OBJ[i]], 3);
     memset(bp->step, 0, sizeof bp->step);
-    CHECK(project_load() == 0 && bp->step[0].flags == G_NOTE && bp->step[0].velocity == 90,
-          "actual legacy format3 loads unchanged with zero endpoint");
+    /* The shipping original-synth build knows only stream format 13 (project.c
+     * stream_known). A format3 line is refused as unsupported, never as
+     * corruption that the boot-default autosave may overwrite. */
+    CHECK(project_load() == -9, "legacy format3 is refused as unsupported by the original-synth build");
+    CHECK(get32(store[STREAM_OBJ[0]]) == 3, "refused legacy stream is kept unchanged");
 
     capture_reset(16, 0);
     engine_bass_record(0, 48, 90, 0); /* admitted edge, not drained yet */
@@ -341,11 +365,11 @@ static void test_timestamped_live_duration(void)
     capture_midi(441, 0, 48, 90);
     capture_frames(6000);
     ui.rec = 0; input(); capture_frames(1);
-    CHECK(!seq.rec_bass[0].active && !(engine_midi_held() & 1), "context cancel releases the cancelled voice");
+    CHECK(!seq.rec_bass[0].active && !(engine_bass_keys_held() & 1), "context cancel releases the cancelled voice");
     CHECK(!(bp->step[0].flags & BS_SLIDE) && !(bp->step[1].flags & BS_SLIDE),
           "cancel finalizes the held note without a slide");
     capture_until_gate(capture_clock + 50000);
-    CHECK(engine_midi_held() & 1, "sequencer reopened a DSP gate after context cancel");
+    CHECK(engine_bass_keys_held() & 1, "sequencer reopened a DSP gate after context cancel");
     ui.rec = 1; input();
     capture_midi(capture_clock + 200, 0, 55, 80);
     CHECK(!(bp->step[0].flags & BS_SLIDE) && !(bp->step[1].flags & BS_SLIDE),
@@ -353,11 +377,11 @@ static void test_timestamped_live_duration(void)
           bp->step[0].flags, bp->step[1].flags);
     CHECK(!(seq.t[TRK_BASS0].held_note & 0x80u), "reopened gate is not accepted legato ownership");
     CHECK(engine_bass_attacked(0), "new press after cancel attacks");
-    CHECK(engine_midi_held() & 1, "new press is gated");
+    CHECK(engine_bass_keys_held() & 1, "new press is gated");
     capture_midi(capture_clock + 200, 0, 48, 0);
-    CHECK(engine_midi_held() & 1, "stale cancelled-note off does not cut the new press");
+    CHECK(engine_bass_keys_held() & 1, "stale cancelled-note off does not cut the new press");
     capture_midi(capture_clock + 200, 0, 55, 0);
-    CHECK(!(engine_midi_held() & 1), "new press ends on its own off");
+    CHECK(!(engine_bass_keys_held() & 1), "new press ends on its own off");
 
     capture_reset(16, 0);
     bp->step[8].note = 60;
@@ -367,30 +391,30 @@ static void test_timestamped_live_duration(void)
     capture_frames(6000);
     ui.rec = 0; input(); capture_frames(1);
     capture_until_gate(capture_clock + 50000);
-    CHECK(engine_midi_held() & 1, "sequencer reopened the gate before a same-pitch press");
+    CHECK(engine_bass_keys_held() & 1, "sequencer reopened the gate before a same-pitch press");
     ui.rec = 1; input();
     capture_midi(capture_clock + 200, 0, 48, 80);
     CHECK(!(bp->step[0].flags & BS_SLIDE), "same pitch after a reopened gate does not slide");
     CHECK(engine_bass_attacked(0), "same pitch after cancel still attacks");
     capture_midi(capture_clock + 200, 0, 48, 0); /* the cancelled press's off */
-    CHECK(engine_midi_held() & 1, "same-pitch count keeps the new press through the stale off");
+    CHECK(engine_bass_keys_held() & 1, "same-pitch count keeps the new press through the stale off");
     capture_midi(capture_clock + 200, 0, 48, 0);
-    CHECK(!(engine_midi_held() & 1), "same-pitch count releases on the new press's own off");
+    CHECK(!(engine_bass_keys_held() & 1), "same-pitch count releases on the new press's own off");
     capture_reset(16, 0);
     engine_bass_record(0, 48, 90, 0); capture_frames(1);
     capture_midi(2000, 0, 55, 90);
     engine_bass_off(0); capture_frames(1); /* older keyboard release, external input owns new note */
-    CHECK(engine_midi_held() & 1, "old keyboard off cannot cut the external successor");
+    CHECK(engine_bass_keys_held() & 1, "old keyboard off cannot cut the external successor");
     CHECK(seq.rec_bass[0].active && seq.rec_bass[0].src == 0, "external successor retains recording ownership");
     capture_midi(4000, 0, 55, 0);
-    CHECK(!(engine_midi_held() & 1), "external successor ends on its own release");
+    CHECK(!(engine_bass_keys_held() & 1), "external successor ends on its own release");
 
     for (unsigned src = 0; src < 3; src++) {
         capture_reset(16, 0);
         capture_midi(441, src, 48, 90);
         min_q[mi_w++ % MQ] = src << 4; capture_frames(1); /* actual source-disconnect packet */
         CHECK(!seq.rec_bass[0].active && !seq.rec_bass[0].own_ok, "input disconnect finalizes and invalidates captured press");
-        CHECK(!(engine_midi_held() & 1), "input disconnect releases its actual voice");
+        CHECK(!(engine_bass_keys_held() & 1), "input disconnect releases its actual voice");
     }
     capture_reset(16, 0);
     capture_midi(441, 3, 48, 90);

@@ -1,5 +1,0 @@
-PASS exact recorded payloads / simulated HCI: 1271 payloads, 2616 MIDI, 3 size rejections
-PASS exact recorded payloads / simulated fragmented HCI tails 1-8: 1271 payloads, 2616 MIDI, 3 size rejections
-PASS resegmented MTU-23 / simulated fragmented HCI: 1347 payloads, 2711 MIDI, 0 size rejections
-Capture SHA-256: a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a
-Physical device behavior: NOT TESTED

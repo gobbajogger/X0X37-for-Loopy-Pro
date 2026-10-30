@@ -153,6 +153,14 @@ int original_miami_selected_voice_resume_part(original_miami_selected_voice *,co
 /* Normal native preparation visits all configured voice IDs first. A caller
  * can now render each lane without adding another690 control/helper entry. */
 int original_miami_selected_voice_render_frame(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
+/* Internal event-free backend seams. Validate each voice at block entry, then
+ * retain the same voice readiness, immutable controls/tables and BPM until
+ * block exit. Prevalidated calls require nonnull, disjoint output/action
+ * pointers and exclusive serial ownership; they retain dynamic restart and
+ * downstream DSP checks. Event/note APIs remain checked. */
+int original_miami_selected_voice_block_valid(const original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm);
+int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action);
+int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
 /* B0738 owned-state projection. Preserve oscillator phases and the separate
  * normalized velocity source (core42c8), while resetting current raw velocity
  * (voice20), local DSP/envelopes/MGs/cache/counter. Current pitches60,target0,

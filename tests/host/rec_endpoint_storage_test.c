@@ -45,11 +45,10 @@ static void mixed_segment_storage(void) {
   snapshot();CHECK(project_load_stage()==-9);check_live_unchanged();
   CHECK(project_storage_unsupported());rejected_preserves_storage();
  }
- fresh("ordinary corrupt continuation retains fallback");multisegment_fixture();
+ fresh("unknown continuation is protected against autosave");multisegment_fixture();
  int n=plat_store_load(OBJ_PAT1,io_buf,sizeof io_buf);REQUIRE(n>4);
  put32(io_buf,0);REQUIRE(plat_store_save(OBJ_PAT1,io_buf,(unsigned)n)==0);
- CHECK(project_load()==-1);CHECK(!project_storage_unsupported());
- project_defaults();CHECK(project_save()==0);
+ rejected_preserves_storage(); /* revision 13 rejects every unknown stream */
  fresh("unused stale unsupported tails are ignored");REQUIRE(project_save()==0);
  REQUIRE(packed_len<=(sizeof io_buf)-STREAM_HDR);
  for(unsigned k=1;k<NSTREAM;k++) {
@@ -74,11 +73,10 @@ int main(void) {
   fresh("frozen feature format rejected without rewrite");REQUIRE(project_save()==0);
   mark_stream(format);rejected_preserves_storage();
  }
- fresh("legacy3 no-endpoint bytes preserved");
+ fresh("legacy3 is rejected even without endpoint bytes");
  proj.pat[0].bass[0].step[0]=(bstep_t){62,G_NOTE|BS_ACCENT|BS_SLIDE,75};
- bpart_t prior=proj.pat[0].bass[0];REQUIRE(project_save()==0);mark_stream(3);
- CHECK(project_load()==0);CHECK(!memcmp(&prior,&proj.pat[0].bass[0],sizeof prior));
- REQUIRE(project_save()==0);n=plat_store_load(OBJ_PAT0,io_buf,sizeof io_buf);CHECK(n>=4&&get32(io_buf)==PROJ_STREAM);
+ REQUIRE(project_save()==0);mark_stream(3);
+ rejected_preserves_storage(); /* no legacy data migration, no silent rewrite */
  fresh("snapshot target is not reinterpreted as endpoint-only motion");REQUIRE(project_save()==0);
  proj.arr.lane[0].used=1;proj.arr.lane[0].t=0xFE;
  CHECK(project_save()==-9); /* reject even before settings/sound writes */

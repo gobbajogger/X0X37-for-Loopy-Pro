@@ -25,6 +25,7 @@ static int pref_get(pref_t r) { (void)r; return value; }
 static void pref_set(pref_t r,int v) { (void)r; value=v; writes++; }
 static uint8_t smc_scaled(pref_t r) { (void)r; return value; }
 static void motion_touch(pref_t r) { (void)r; motions++; }
+static int volume_muted(pref_t r) { (void)r; return 0; }
 static void smc_show(int n,int knob,pref_t r) { (void)n;(void)knob;(void)r; shows++;shown=value; }
 static uint32_t plat_ms(void) { return 1234; }
 '''+f+r'''

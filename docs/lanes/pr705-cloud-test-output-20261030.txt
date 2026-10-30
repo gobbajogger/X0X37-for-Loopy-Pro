@@ -1,0 +1,29 @@
+# PR705 source-extracted cloud validation logs (sanitized)
+Base: cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21
+Candidate: 1249cc0f07ee405a7c6f847438046b83bedf8498
+No test or native application build against a complete candidate checkout occurred.
+
+GCC FIFO:
+source-extracted queue regression: 1320 checks, 0 failures (BLE_OQ=64)
+Clang ASan/UBSan FIFO:
+source-extracted queue regression: 1320 checks, 0 failures (BLE_OQ=64)
+
+Five exact test-script blobs (BLE function window and full USB source):
+ble_out_noteoff_overflow_test.py: ok (exit 0)
+ble_out_rt_overflow_test.py: ok (exit 0)
+midi_mq_noteoff_overflow_test.py: ok (exit 0)
+midi_mq_rt_overflow_test.py: ok (exit 0)
+midi_out_mq_noteoff_overflow_test.py: ok (exit 0)
+
+Pinned V1.2.1 SDK subset:
+Kit checksums and all 11 pinned SDK inputs verified.
+
+Historical archive only (not current source):
+Elite native build: exit 1, missing experiments/wobble/wobble.c and wobble.h
+Pro native build: exit 1, missing experiments/wobble/wobble.c and wobble.h
+Historical full host suite: incomplete after 90-second cap; 139 partial results and 58 fail markers; host/build_host.sh and original runtime missing.
+
+Exact current-source full host suite: NOT_RUN (missing full source closure).
+Exact current-source Elite native build: NOT_RUN (missing full source closure).
+Exact current-source Pro native build: NOT_RUN (missing full source closure).
+No firmware, controller or proprietary files are included in these logs.

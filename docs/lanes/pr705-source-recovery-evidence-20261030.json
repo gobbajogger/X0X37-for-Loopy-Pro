@@ -1,0 +1,101 @@
+{
+  "status": "SOURCE-CLOSURE-PARTIAL; CURRENT CANDIDATE FULL TESTS AND BOTH BUILDS NOT_RUN",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "integration_base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "review_branch": "fix/midi-queue-order",
+  "candidate_head_at_source_recovery": "a6050fabac9df535dd48c6f32090a4777e82b0f3",
+  "historical_source": {
+    "commit": "6ae0928fe3264ee759c25c4f879eff4dc5dc3b20",
+    "bundle_sha256": "b2d09e9eb4e0f9d921f03110610aa55690232b05885fef09709824a914fa6f1b",
+    "is_current_head": false
+  },
+  "source_reconstruction": {
+    "remote_tree_blobs": 4227,
+    "matched_old_git_object_ids": 3991,
+    "new_or_changed_blobs_still_missing": 236,
+    "missing_bytes": 2925926,
+    "full_candidate_tree_verified_locally": false
+  },
+  "toolchain_sdk": {
+    "jieli_pi32v2_clang": "4.0.1",
+    "sdk_revision": "AC79NN V1.2.1 pinned input subset",
+    "sdk_verified_files": 11,
+    "sdk_verifier_exit": 0,
+    "sdk_verifier_stdout": "Kit checksums and all 11 pinned SDK inputs verified.",
+    "full_sdk_tree_is_local": false
+  },
+  "historical_native_development_builds": {
+    "elite": {
+      "exit": 0,
+      "artifacts": {
+        "x0x.bin": {
+          "bytes": 398516,
+          "sha256": "c95549fd1b5177da8e45071d2ca55dcdc32bd4b3550a7ed706ee082bdab1b9cb"
+        },
+        "ota.bin": {
+          "bytes": 7339,
+          "sha256": "f72f60d1e48f09781e7d73e6e1cbe1f916aec1f0f0297f0190b88d1d9c0db5cc"
+        },
+        "x0x-smk37-elite.fwsc": {
+          "bytes": 651455,
+          "sha256": "4f2f589473b09d82e21e1a15d8c700bd7dab1a2fa6904bee362c2b5309bbe886"
+        }
+      },
+      "budget_line": "ok    image 398516 B; RAM .data+.bss 95160 B of 98304; pool 328856 B of 344064",
+      "flash_line": "ok    app code area 552672 B, 154156 B free (Bluetooth block at app.bin 0x86ee0)",
+      "src_sha": "6ae0928fe3264ee759c25c4f879eff4dc5dc3b20"
+    },
+    "pro": {
+      "exit": 0,
+      "artifacts": {
+        "x0x.bin": {
+          "bytes": 398500,
+          "sha256": "15b5ebe8dc60ec0630101a1d8184d3bcc2508e82795dbbbaa11aeb6d7d4e4f33"
+        },
+        "ota.bin": {
+          "bytes": 7339,
+          "sha256": "cbcc1dd80e1d665fe1a75e93f6139a378d69970b3902bcfeadd9439d3649fb04"
+        },
+        "x0x-smk37.fwsc": {
+          "bytes": 651455,
+          "sha256": "38780f9f60c88054e363cbe296f96aaea0be38b8db4d453f8ece5c8eb9635053"
+        }
+      },
+      "budget_line": "ok    image 398500 B; RAM .data+.bss 95160 B of 98304; pool 328856 B of 344064",
+      "flash_line": "ok    app code area 552672 B, 154172 B free (Bluetooth block at app.bin 0x86ee0)",
+      "src_sha": "6ae0928fe3264ee759c25c4f879eff4dc5dc3b20"
+    }
+  },
+  "historical_full_host_suite": {
+    "source_commit": "6ae0928fe3264ee759c25c4f879eff4dc5dc3b20",
+    "exit_code": 1,
+    "test_result_records": 319,
+    "counts": {
+      "FAIL": 84,
+      "PASS": 229,
+      "NOT_RUN": 5,
+      "SKIP": 1
+    },
+    "current_candidate_test": false
+  },
+  "current_candidate_full_host_suite": {
+    "status": "NOT_RUN",
+    "reason": "236 verified GitHub blob contents not materialized into the native checkout"
+  },
+  "current_candidate_elite_build": {
+    "status": "NOT_RUN",
+    "reason": "candidate checkout not byte-complete"
+  },
+  "current_candidate_pro_build": {
+    "status": "NOT_RUN",
+    "reason": "candidate checkout not byte-complete"
+  },
+  "prohibited_uploads": [
+    "firmware binaries",
+    "controller images",
+    "private #684 headers",
+    "SDK and toolchain bytes",
+    "user secrets"
+  ],
+  "next_action": "Reconstruct and verify all missing GitHub blobs in native checkout; then run full current-HEAD host suite and both native DEV builds with full budget and artifact checks; keep PR draft until completion."
+}

@@ -102,7 +102,7 @@ static void test_engine_lock_and_clip(void)
     for (int page = 0; page < pg.n; page++) for (int k = 0; k < 4; k++)
         if (smc_same(pg.r[page][k], r)) { cutoff_page = page; cutoff_knob = k; }
     CHECK(cutoff_page >= 0 && cutoff_knob >= 0);
-    *page_of(V_PART) = (uint8_t)cutoff_page; build_pages();
+    *page_of(V_PART) = (uint8_t)cutoff_page; build_pages(); smc_page_set(cutoff_page);
     CHECK(smc_same(smc_knob_target(cutoff_knob), r));
     CHECK(pref_desc(r)->max >= 85 && pref_desc(other)->max >= 85);
     pref_set(r, 40); pref_set(other, 85);
@@ -185,7 +185,7 @@ static void test_song_lock(void)
     knob(1, 1); CHECK(song()->bar[3].pat[0] == pat_before);
     CHECK(smc_lock_toggle());
     setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 3;
-    *page_of(V_SONG) = 1; build_pages(); song()->bar[3].mute = 2u << 5;
+    *page_of(V_SONG) = 1; build_pages(); smc_page_set(1); song()->bar[3].mute = 2u << 5;
     CHECK(smc_knob_target(3).kind == R_SREP); CHECK(smc_lock_toggle());
     ui.song_sel = 0; run_action(ACT_SONG_INS, 0);
     CHECK(smc_knob_target(3).kind == R_NONE);
@@ -368,7 +368,7 @@ static void test_select_and_play(void)
         press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
         CHECK(!smc_ui_active() && !smc.fx_down);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
-        setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
+        setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages(); smc_page_set(kit + 1);
         CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
         unsigned selected = ui.sel[kit];
         unsigned other = selected == 0 ? 1 : 0;
@@ -376,14 +376,16 @@ static void test_select_and_play(void)
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); CHECK(!smc_ui_active());
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); /* held repeat is one gesture */
         message(0x80, 24 + other, 0);
-        *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
+        *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages(); smc_page_set(kit + 1);
         CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
         press(0); CHECK(ui.rec != rec); CHECK(ui.part == kit);
         press(0); CHECK(ui.rec == rec);
         press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit); CHECK(!smc_ui_active());
-        press(24 + other); CHECK(cur_page() == 0);
+        /* Locked: the repeat SELECT returns the SMC's own captured page to the
+         * main mixer; the keyboard page stays where it was. */
+        press(24 + other); CHECK(smc_page_now() == 0); CHECK(cur_page() == kit + 1);
         CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
@@ -452,8 +454,25 @@ static void test_dropped_pause_press(void)
     puts("PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures");
 }
 
+/* 574f5329 unlock: a plain hold. Key-up after the 900 ms deadline unlocks at
+ * once; key-up before it does nothing; a held key unlocks in lock_tick. */
+static void test_plain_unlock(void)
+{
+    setup(V_SEQ, PART_909); build_pages();
+    CHECK(smc_lock_toggle()); CHECK(smc.locked);
+    CHECK(!smc_lock_button(1)); now_ms += 899; CHECK(!smc_lock_button(0)); CHECK(smc.locked);
+    CHECK(!smc_lock_button(1)); now_ms += 900; CHECK(smc_lock_button(0)); CHECK(!smc.locked);
+    CHECK(smc.lock_down == 0);
+    CHECK(smc_lock_toggle()); CHECK(smc.locked);
+    CHECK(!smc_lock_button(1)); now_ms += 899; smc_poll(); CHECK(smc.locked);
+    now_ms += 1; smc_poll(); CHECK(!smc.locked);
+    CHECK(!smc_lock_button(0)); CHECK(!smc.locked); /* key-up after the tick unlock does not relock */
+    CHECK(smc_lock_button(1)); CHECK(smc.locked); CHECK(!smc_lock_button(0)); /* a new press while following locks at once */
+    puts("PASS plain unlock: key-up after 900 ms or lock_tick; early key-up stays locked");
+}
 int main(void)
 {
+    test_plain_unlock();
     test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
     test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
     test_physical_pause_input_and_output(); test_guard_reset();

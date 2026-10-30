@@ -105,7 +105,8 @@ int original_miami_backend_transport(original_miami_backend *, unsigned running)
  * not overlap. Shape/rate/precision and effect conversion are unchanged.
  * All public input errors return0 before mutation. A downstream graph failure
  * returns0 with sticky status; already advanced state is not rolled back and
- * must not be reported as successful silence. No voice-idle render skipping. */
+ * must not be reported as successful silence. Exactly inactive event-free
+ * blocks may skip voice work while preserving clocks, global MG and FX. */
 int original_miami_backend_render_words(original_miami_backend *, original_miami_fx_workspace *,
     uint32_t *left, uint32_t *right, uint32_t frames);
 int original_miami_backend_render_stereo(original_miami_backend *, original_miami_backend_workspace *,
@@ -120,8 +121,8 @@ int original_miami_backend_render_events(original_miami_backend *, original_miam
  * clocks, global MG and effect state must still receive every audio frame.
  * Failed owners are never reported idle. */
 int original_miami_backend_status(const original_miami_backend *);
-int original_miami_backend_voice_active(const original_miami_backend *s);
 int original_miami_backend_active(const original_miami_backend *);
+int original_miami_backend_voice_active(const original_miami_backend *);
 int original_miami_backend_idle(const original_miami_backend *);
 
 #endif

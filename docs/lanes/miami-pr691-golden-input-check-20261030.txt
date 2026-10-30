@@ -1,0 +1,27 @@
+PR #691 evidence, 2026-10-30
+Base cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21.
+Starting head 6b28fd3986e2a85065f0ca5f0e88de9fbf2a1022.
+SDK V1.2.1 verification: PASS, 11/11 files.
+Verified local dependency files against PR #721: 13/13 Git blobs matched.
+Current exact-source Miami table interpolation and idle clock regressions: PASS, GCC and Clang at -Os and -O2.
+PCM comparator unit tests: PASS 8/8.
+Golden comparison: FAIL_MISSING_REFERENCE, exit 2, no .f32/.wav captures.
+Expected reference source f9ffd12e8c254015d61e89dab647b8466b67b0fd.
+Required scenario names:
+chicago-p00-fx0.f32
+chicago-p07-fx0.f32
+chicago-p19-fx0.f32
+chicago-p33-fx0.f32
+chicago-p54-fx0.f32
+chicago-p00-fx1.f32
+chicago-p00-fx2.f32
+chicago-p00-fx3.f32
+chicago-p00-fx4.f32
+chicago-p00-fx5.f32
+chicago-p00-fx6.f32
+miami-p00-fx0.f32
+miami-p09-fx0.f32
+miami-p18-fx0.f32
+miami-p29-fx0.f32
+Full exact-HEAD suite, Elite/Pro builds, reference renders and CPU counts: NOT_RUN.
+No source, model or device changes.

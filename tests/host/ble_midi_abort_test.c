@@ -61,6 +61,9 @@ static void recovered(unsigned overflow, uint32_t start, unsigned delay, unsigne
     assert(c.state == BLEC_DISCONNECTING && c.conn == 0x50 && !c.credits);
     down_event(&c, 0, 0x50);
     assert(c.state == BLEC_SCANNING && !c.conn && c.credits == 5);
+    /* Two-peer contract: the rescan's Set Scan Enable holds the HCI command
+     * credit until its Command Complete returns it. */
+    { const uint8_t scan_done[] = {0x0e, 4, 1, 0x0c, 0x20, 0}; blec_rx(&c, 4, scan_done, sizeof scan_done, c.now_ms); }
     assert(!c.sig_count && !c.rx_need && !c.rx_have);
     /* Reconnect without completion credits from the old link. */
     const uint8_t conn[] = {0x3e, 0x13, 1, 0, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -88,6 +91,9 @@ static void failed(unsigned overflow, unsigned accepted, unsigned complete)
     assert(attempts == before); /* No late submission or renewed deadline. */
     down_event(&c, 0, 0x50);
     assert(c.state == BLEC_SCANNING && !c.conn && c.credits == 5);
+    /* Two-peer contract: the rescan's Set Scan Enable holds the HCI command
+     * credit until its Command Complete returns it. */
+    { const uint8_t scan_done[] = {0x0e, 4, 1, 0x0c, 0x20, 0}; blec_rx(&c, 4, scan_done, sizeof scan_done, c.now_ms); }
 }
 static void accepted_timeout(void)
 {
@@ -132,10 +138,11 @@ static void lifecycle_abort(void)
     assert(c.state == BLEC_FAILED && c.deadline == deadline && !sent && c.conn == 0x50);
     down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && c.credits == 5 && !c.conn);
     blec_start(&c, deadline + 10001u);
-    c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50; c.waiting = 0;
+    /* The forced connected state includes the returned HCI command credit. */
+    c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50;c.linked=1; c.waiting = 0; c.command_credit = 1;
     unsigned before = attempts; blec_stop(&c); assert(attempts == before + 1);
     /* A connection can win the cancellation race during stop. */
-    abort_ready(&c); c.conn = 0; c.state = BLEC_STOPPING; c.deadline = now + 3000; busy = 1;
+    abort_ready(&c); c.conn = 0; c.linked = 0; c.state = BLEC_STOPPING; c.deadline = now + 3000; busy = 1;
     const uint8_t conn[] = {0x3e, 0x13, 1, 0, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     blec_rx(&c, 4, conn, sizeof conn, now);
     assert(c.conn == 0x50 && !sent && attempts == 1);

@@ -1,0 +1,93 @@
+# CLP-82 (NS008, NS010): clip mode, a held "<" or ">" and a change of the open menu list.
+# The repeat of the old list must not edit the first value of the new list. A new press steps it.
+# Action rows never run from the arrows.
+wait 300
+clipmode 1
+tap EDIT
+tap SEL
+expect overlay 1
+# hold ">" in a page list (it repeats), then open GLO directly: the list changes, the arrow stays down
+arrow R down
+wait 600
+tap GLO
+expect view 5
+expect overlay 1
+expect listsel 1
+wait 1500
+expect clksrc 0
+arrow R up
+wait 50
+expect clksrc 0
+# a new press steps the value, as GEN-56; the repeat still works in the new list
+arrow R tap
+expect clksrc 1
+arrow L down
+wait 1000
+arrow L up
+wait 50
+expect clksrc 0
+# "<" held while GLO closes and a page list opens: no edit there either
+arrow L down
+tap GLO
+expect overlay 0
+tap SEL
+expect overlay 1
+wait 1500
+arrow L up
+wait 50
+expect clksrc 0
+# QA (PR #719): the arrow is up, the list changes (a page list to GLO) and a NEW press of ">" comes in
+# the same frame. The fresh press must step the value of the new list (it is not swallowed).
+expect overlay 1
+expect view 1
+press GLO
+wait 20
+release GLO
+arrow R down
+wait 30
+expect view 5
+expect overlay 1
+expect listsel 1
+expect clksrc 1
+arrow R up
+wait 50
+expect clksrc 1
+arrow L tap
+expect clksrc 0
+# repeated switches with ">" held all the time (pressed with no menu open, where the clip keys page
+# has it): a page list, GLO, no menu, a page list, GLO. No list gets an edit, no repeat.
+tap GLO
+expect overlay 0
+arrow R down
+wait 30
+tap SEL
+expect overlay 1
+wait 600
+tap GLO
+expect view 5
+wait 600
+tap GLO
+expect overlay 0
+tap SEL
+expect overlay 1
+wait 600
+tap GLO
+expect view 5
+wait 1500
+arrow R up
+wait 50
+expect clksrc 0
+# first open of a menu with a fresh press in the same frame: GLO from no menu
+tap GLO
+expect overlay 0
+press GLO
+wait 20
+release GLO
+arrow R down
+wait 30
+expect view 5
+expect clksrc 1
+arrow R up
+wait 50
+arrow L tap
+expect clksrc 0

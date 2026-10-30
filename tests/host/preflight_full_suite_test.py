@@ -16,7 +16,9 @@ class PreflightTests(unittest.TestCase):
     def test_missing_full_references_fail_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             checks = preflight.reference_checks(Path(directory), [])
-            self.assertEqual(4, len(checks))
+            self.assertEqual(3, len(checks))
+            self.assertEqual({"reference drum909", "reference drum808", "reference sequencer"},
+                             {check[0] for check in checks})
             self.assertTrue(all(not result[1] for result in checks))
 
     def test_selected_reference_checks_only_what_is_requested(self):

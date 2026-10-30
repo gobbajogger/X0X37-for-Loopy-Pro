@@ -74,7 +74,8 @@ int original_miami_note_context_geometry_reset(void *context){
  original_miami_note_context *s=context;return reset_ready(s)&&reset_owned(s);
 }
 int original_miami_note_context_core_reset(original_miami_note_context *s){
- if(!reset_ready(s))return 0;original_miami_voice_owner *owner=s->owner;
+ if(!reset_ready(s))return 0;
+ original_miami_voice_owner *owner=s->owner;
  original_chicago_allocator_all_notes_off(owner->allocator,original_miami_voice_owner_callbacks(),owner);
  return owner->status&&reset_owned(s);
 }

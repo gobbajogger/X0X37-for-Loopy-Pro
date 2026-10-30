@@ -4,7 +4,7 @@
 # rules forbid: calls into soft-double routines (__*df*), libm, malloc/free, and any
 # undefined symbol outside an allow list. Also prints the instruction count of each
 # function (a rough cost signal; tests/target_budget.py does the loop-weighted one).
-#   tools/target_obj_check.sh firmware/src/dsp/bass303.c [extra cflags...]
+#   tools/target_obj_check.sh firmware/src/dsp/drum909.c [extra cflags...]
 # Needs JIELI_TOOLCHAIN (tools/get_toolchain.sh) and docker or podman.
 set -e
 cd "$(dirname "$0")/.."

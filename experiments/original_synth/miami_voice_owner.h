@@ -44,4 +44,8 @@ const original_allocator_callbacks *original_miami_voice_owner_callbacks(void);
  * Render assigned lanes afterward using render_frame, without another helper.
  * Every forced/pending initializer has its own exact helper/global entry. */
 int original_miami_voice_owner_control_all(original_miami_voice_owner *);
+/* Internal backend: admit the event-free block once, then preserve controls,
+ * tables, BPM and ready tokens through all prevalidated control/render calls. */
+int original_miami_voice_owner_block_valid(const original_miami_voice_owner *);
+int original_miami_voice_owner_control_prevalidated(original_miami_voice_owner *);
 #endif
