@@ -1147,6 +1147,9 @@ static int smc_fx_try(uint8_t note, int mmc)
         smc_fx_show(note);
         return 1;                         /* assign only; the effect stays as it was */
     }
+    /* #688: the agreed FX-page SELECT action is low-pass. Keep the
+     * existing peer-owned press, bus tap navigation and release paths. */
+    smc.fx_effect[bus] = SMCFX_LP;
     if (!mmc) smc.fx_owned |= (uint8_t)(1u << bus);
     if (smcfx_is_main(bus)) {
         int which = bus - SMCFX_RVB;
