@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <string.h>
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
+#define FM1_IRQ_TIMER5 63u
+static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
+static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define BOARD_SMK37 1
 #define X0X_BLE 0
 #define SMK_BIG
@@ -28,6 +31,8 @@ static struct { settings_t set; } proj;
 static struct { uint16_t bpm; uint8_t playing, req_start, req_cont, req_stop; } seq;
 static uint8_t project_busy;
 static int ui_project_busy(void) { return project_busy; }
+/* This clip/MIDI fixture has no active boot capture or maintenance lease. */
+int ui_boot_flash_busy(void) { return 0; }
 #include "fm1_opt.h"
 #define SMK_KEY_F3 5u
 #define SMK_BTN_KNOB_BANK 0

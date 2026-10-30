@@ -164,21 +164,28 @@ static int midi_pkt_is_keep(uint32_t pkt)
     return midi_pkt_is_note_off(pkt) || midi_pkt_is_rt_transport(pkt);
 }
 
-/* When a MIDI ring is full, CC floods may drop; never drop Note Off or
- * Start/Continue/Stop — displace a CC first, then any non-keep
- * (same class as engine cq_put C_BOFF). */
+/* When a MIDI ring is full, displace a CC first, then any non-keep.
+ * Append the protected event after retained events: replacing a CC in place
+ * could send Note Off before its queued Note On, or reverse Start/Stop.
+ * TIMER5 owns ingress and drains egress; exclude it while moving live slots.
+ * The loader polls USB with IRQs off and has no concurrent consumer. */
 static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile uint32_t *r,
                                   uint32_t pkt)
 {
+#ifndef FELUCCA_LOADER
+    uint32_t irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
+#endif
     uint32_t i, pass, ww = *w, rr = *r;
+    int accepted = 0;
     if (ww - rr < MQ) {
         q[ww % MQ] = pkt;
         RING_PUBLISH();
         *w = ww + 1u;
-        return 1;
+        accepted = 1;
+        goto done;
     }
     if (!midi_pkt_is_keep(pkt))
-        return 0;
+        goto done;
     for (pass = 0; pass < 2u; pass++) {
         for (i = rr; i != ww; i++) {
             uint32_t p = q[i % MQ];
@@ -186,12 +193,19 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
+            for (; i + 1u != ww; i++)
+                q[i % MQ] = q[(i + 1u) % MQ];
             q[i % MQ] = pkt;
             RING_PUBLISH();
-            return 1;
+            accepted = 1;
+            goto done;
         }
     }
-    return 0;
+done:
+#ifndef FELUCCA_LOADER
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
+#endif
+    return accepted;
 }
 
 /* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off or Start/Continue/Stop. */
