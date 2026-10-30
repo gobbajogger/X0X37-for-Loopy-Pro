@@ -745,10 +745,11 @@ X0X_COLD static void pref_set(pref_t r, int v)
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_CLK_MASK) | (uint8_t)v << 1 | PROJ_BT_CLK_IN);
         break;
     case R_BT:
-        proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
+        project_device_bt_set(v > 0);
         plat_ble_set(v > 0);
         if (plat_ble_state() == PLAT_BLE_RESTART)
             say("RESTART TO TURN ON", 0);             /* the controller starts only at power-on */
+        else if (project_device_bt_pending()) say("BT SAVE PENDING", 0);
         break;
     case R_SMC_ROLE:
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));
@@ -5847,6 +5848,40 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
     return 1;
 }
 
+/* BT NAME row (restored from 0e58b960): the connected peers joined with ", ",
+ * held 700 ms at each end and moved at 24 px/s when wider than the row. */
+#define PEER_TEXT_CAP (PLAT_BLE_PEER_CAP*(PLAT_BLE_PEER_NAME_MAX+2u)-1u)
+static struct { char text[PEER_TEXT_CAP]; unsigned count; int state, central, active, travel; uint32_t start; } peer_scroll;
+static void peer_join(char out[PEER_TEXT_CAP], const plat_ble_peers_t *peers)
+{
+    unsigned k=0,count=peers->count<PLAT_BLE_PEER_CAP?peers->count:PLAT_BLE_PEER_CAP;
+    for(unsigned i=0;i<count;i++) {
+        if(i){out[k++]=',';out[k++]=' ';}
+        unsigned n=0;while(n<PLAT_BLE_PEER_NAME_MAX && peers->name[i][n]) {
+            unsigned char ch=(unsigned char)peers->name[i][n++];out[k++]=(char)(ch>=32&&ch<=126?ch:'?');
+        }
+    }
+    if(!k)out[k++]='-';
+    out[k]=0;
+}
+static int peer_offset(const char *text,const plat_ble_peers_t *peers,int travel,uint32_t now)
+{
+    if(!peer_scroll.active || strcmp_s(text,peer_scroll.text) || peers->count!=peer_scroll.count ||
+       peers->state!=peer_scroll.state || peers->central!=peer_scroll.central || travel!=peer_scroll.travel) {
+        put_s(peer_scroll.text,text);peer_scroll.count=peers->count;peer_scroll.state=peers->state;
+        peer_scroll.central=peers->central;peer_scroll.travel=travel;peer_scroll.start=now;peer_scroll.active=1;
+    }
+    if(travel<=0)return 0;
+    uint32_t move=((uint32_t)travel*1000u+23u)/24u, phase=(now-peer_scroll.start)%(2u*(700u+move));
+    if(phase<700u)return 0;
+    phase-=700u;
+    if(phase<move)return (int)(phase*24u/1000u);
+    phase-=move;
+    if(phase<700u)return travel;
+    phase-=700u;
+    return travel-(int)(phase*24u/1000u);
+}
+
 /* a list over the main area: six rows of 24 px */
 static UI_DRAW void draw_list(int band)
 {
@@ -5882,6 +5917,13 @@ static UI_DRAW void draw_list(int band)
             }
             text_r(226,vc(&FONT_XS,y+1,18),&FONT_XS,action_key_cue(),ac);
             continue;
+        }
+        if(r.kind==R_BTNAME) {                       /* connected peers: one line, scrolls when long */
+            plat_ble_peers_t peers;char shown[PEER_TEXT_CAP];const felucca_font_t *nf=sel?&FONT_B:&FONT_S;
+            plat_ble_peers(&peers);peer_join(shown,&peers);
+            int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
+            int offset=peer_offset(shown,&peers,travel,plat_ms());
+            cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
         }
         pref_value(r, num, unit);
         if (r.kind == R_BPRESET) {
@@ -7843,6 +7885,28 @@ X0X_COLD int ui_project_reset(void)
     return 0;
 }
 
+/* Device Bluetooth intent bypasses project autosave (restored from 0e58b960).
+ * No erase during notes, transport, capture or staged flash use. Reject busy
+ * audio before acquiring a hold; recheck after the hold for a queued Start.
+ * A failed write retries after 1 s. Reset/load must not drop this request. */
+static void device_bt_save(void)
+{
+    int rc;
+    static uint32_t retry_at;
+    if (!project_device_bt_pending() || project_busy || perf_testing() ||
+        (retry_at && (int32_t)(plat_ms() - retry_at) < 0)) return;
+#ifndef X0X_HOST
+    { extern int store_stage_held(void); if (store_stage_held()) return; }
+#endif
+    if (ui_boot_flash_busy()) return;
+    engine_project_hold(1);
+    if (ui_boot_flash_busy()) { engine_project_hold(0); return; }
+    rc = project_device_bt_save();
+    engine_project_hold(0);
+    retry_at = rc ? plat_ms() + 1000u : 0;
+    say(rc ? "BT SAVE FAILED: RETRYING" : "BLUETOOTH SAVED", 0);
+}
+
 /* AUTOSAVE: changes are saved by themselves while the pattern is stopped and nothing has been touched
  * for AUTOSAVE_QUIET ms, at most every AUTOSAVE_GAP ms. Stopped only: a flash erase silences the
  * audio. Only the objects that changed are written (project.c), usually one or two sectors. */
@@ -7933,7 +7997,12 @@ void ui_frame(void)
         else do_undo(direction);
     }
 #endif
+    if(ui.overlay!=O_LIST || ui.help) peer_scroll.active=0;
+    else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+        if(list_rows[row].kind==R_BTNAME)visible=1;
+        if(!visible)peer_scroll.active=0; }
     undo_tick();
+    device_bt_save();
     autosave();
     if (!project_busy)
         perf_test_tick();
