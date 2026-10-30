@@ -110,8 +110,8 @@ typedef struct {
     uint8_t beat_external;
     uint16_t lock_song_len;
     uint8_t locked, lock_down, unlock_wait, lock_kit, lock_bank, lock_part, lock_view, lock_page;
-    /* Each mixer retains independent pages across keyboard navigation. */
-    uint8_t mixer_page[NVIEWS][NPARTS], mixer_page_seen[NVIEWS][NPARTS];
+    /* Zero initializes every mixer page. Never capture a keyboard page. */
+    uint8_t mixer_page[NVIEWS][NPARTS];
 } smc_state_t;
 static smc_state_t smc_states[SMC_PEERS];
 #define smc (smc_states[smc_slot])
@@ -326,12 +326,8 @@ static int smc_page_now(void)
     if (pg.n <= 0) return 0;
     if (smc.locked) return smc.lock_page < pg.n ? smc.lock_page : 0;
     int part = smc_page_part(ui.view, ui.part);
-    uint8_t *page = &smc.mixer_page[ui.view][part];
-    if (!smc.mixer_page_seen[ui.view][part]) {
-        *page = (uint8_t)(cur_page() < pg.n ? cur_page() : 0);
-        smc.mixer_page_seen[ui.view][part] = 1;
-    }
-    return *page < pg.n ? *page : 0;
+    uint8_t page = smc.mixer_page[ui.view][part];
+    return page < pg.n ? page : 0;
 }
 
 static void smc_page_set(int page)
@@ -341,7 +337,6 @@ static void smc_page_set(int page)
     else {
         int part = smc_page_part(ui.view, ui.part);
         smc.mixer_page[ui.view][part] = (uint8_t)page;
-        smc.mixer_page_seen[ui.view][part] = 1;
         smc.picked = 0;           /* new destinations require physical pickup */
         smc.pending = 0xFFu;
     }
@@ -486,7 +481,6 @@ int smc_lock_toggle(void)
         /* Commit mixer navigation back to its own page only at unlock. */
         int part = smc_page_part(smc.lock_view, smc.lock_part);
         smc.mixer_page[smc.lock_view][part] = smc.lock_page;
-        smc.mixer_page_seen[smc.lock_view][part] = 1;
     }
     smc.locked ^= 1u;
     smc.unlock_wait = 0;
