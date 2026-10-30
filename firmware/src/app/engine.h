@@ -80,6 +80,10 @@ int engine_bass_preset_edited(int voice);
 int engine_bass_status(int voice);
 /* Chicago only, UI: live filter EG level 0..1 and env depth; 0 when not available */
 int engine_bass_filter_view(int voice, float *eg, float *depth);
+/* Chicago native compiled envelope controls (including macro scaling). */
+int engine_bass_adsr_view(int voice, float values[4], unsigned *gate);
+/* UI-only snapshot of the real amplitude EG and first modulator. */
+int engine_bass_voice_view(int voice, float *level, float *modulation, unsigned *state, unsigned *key_down);
 /* drums, UI: ms since the track's last hit, its live amp envelope 0..1; 0 when silent */
 int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
 /* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */

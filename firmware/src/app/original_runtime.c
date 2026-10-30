@@ -139,6 +139,36 @@ int original_runtime_filter_view(const original_runtime_part *p, float *eg, floa
     return original_chicago_backend_filter_view(&p->dsp.chicago, eg, depth);
 }
 
+int original_runtime_voice_view(const original_runtime_part *p, float *level, float *modulation,
+    unsigned *state, unsigned *key_down)
+{
+    if (!p || p->status != ORIGINAL_RUNTIME_OK || !level || !modulation || !state || !key_down) return 0;
+    *level=0; *modulation=0; *state=6; *key_down=0;
+    if (p->kind == ORIGINAL_SOUND_CHICAGO) {
+        const original_chicago_voice *v=&p->dsp.chicago.voice;
+        if (v->active) { *level=v->vca.level; *modulation=v->mg[0].unipolar;
+            *state=v->vca.state; *key_down=v->key_down; }
+    } else if (p->kind == ORIGINAL_SOUND_MIAMI) {
+        int selected=-1;
+        for (unsigned i=0;i<ORIGINAL_MIAMI_BACKEND_VOICES;i++) {
+            const original_miami_selected_voice *v=&p->dsp.miami.voices[i];
+            if (v->active && (selected<0 || v->vca.level>*level)) {
+                selected=(int)i; *level=v->vca.level; *modulation=v->mg[0].unipolar;
+                *state=v->vca.state; *key_down=v->key_down;
+            }
+        }
+    } else return 0;
+    return 1;
+}
+
+int original_runtime_adsr_view(const original_runtime_part *p, float values[4], unsigned *gate)
+{
+    if (!p || p->status != ORIGINAL_RUNTIME_OK || p->kind != ORIGINAL_SOUND_CHICAGO || !values || !gate) return 0;
+    for (unsigned i=0;i<4;i++) values[i]=p->dsp.chicago.controls.vca[i];
+    *gate=p->dsp.chicago.controls.routing.vca_eg_mode;
+    return 1;
+}
+
 int original_runtime_active(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
