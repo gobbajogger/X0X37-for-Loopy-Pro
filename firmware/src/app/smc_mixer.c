@@ -425,6 +425,7 @@ static pref_t smc_knob_target(int n)
         (ui.view == V_HOME || (ui.view == V_MIX && smc_page_now() == 0))) {
         static const uint8_t params[] = {MX_CUT, MX_PAN, MX_REV, MX_DLY};
         if (n < NPARTS) return PR(R_ENG, T_MIX, part_at(n), params[smc.knob_bank % 4u]);
+        if (smc.knob_bank) return NONE; /* only bank one owns the 3 main FX tail controls */
         static const pref_t tail[3] = {
             PR(R_ENG, T_FX, 0, FX_RV_DECAY), PR(R_ENG, T_FX, 0, FX_DL_FDBK),
             PR(R_ENG, T_MST, 0, MST_RESO)

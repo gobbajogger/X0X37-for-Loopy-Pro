@@ -18,6 +18,13 @@ static void page_tap(int note)
 int main(void)
 {
     setup(V_MIX, PART_909);
+    /* The very first mixer read never captures an already moved keyboard page. */
+    *page_of(V_MIX) = 3; build_pages();
+    CHECK(cur_page() == 3 && smc_page_now() == 0);
+    smc_page_set(3);
+    *page_of(V_MIX) = 0; build_pages();
+    CHECK(smc_page_now() == 3 && smc_led(31)); /* MIX SELECT LED is mixer-owned */
+    CHECK(cur_page() == 0);
     ui.sel[PART_909] = 0;
     ui.sel[PART_808] = 1;
     build_pages();
