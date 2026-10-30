@@ -122,8 +122,22 @@ static void test_none(void)
     assert(hold(&a, R, ARW_MENU, 2000, 3000, 0) == 0);
 }
 
+/* CLP-82: a list change with an arrow held: no step, no repeat, until a new press */
+static void test_rearm(void)
+{
+    arw_t a = {0};
+    assert(arw_frame(&a, R, ARW_MENU, 1000) == 1);
+    assert(hold(&a, R, ARW_MENU, 1016, 1500, 0) > 0);     /* repeating in the old list */
+    arw_rearm(&a, R);
+    assert(hold(&a, R, ARW_MENU, 1500, 4000, 0) == 0);
+    assert(arw_frame(&a, 0, ARW_MENU, 4016) == 0);
+    assert(arw_frame(&a, L, ARW_MENU, 4032) == -1);       /* a new press steps */
+    assert(arw_menu_id(5, 1) != arw_menu_id(5, 2) && arw_menu_id(5, 1) != arw_menu_id(6, 1));
+}
+
 int main(void)
 {
+    test_rearm();
     test_route();
     test_menu_step();
     test_repeat_timing();
