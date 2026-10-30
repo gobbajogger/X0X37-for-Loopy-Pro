@@ -1,0 +1,273 @@
+From 7a8156f78a9dbfa01427d282eb03d66f090ad97c Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:11:41 +1000
+Subject: [PATCH 1/4] Drop unused lower-case glyphs from fonts XS, S and B.
+
+The firmware texts keep only the lower-case letters they use.
+Other lower-case letters draw with the upper-case bitmap.
+This frees 4816 B of flash.
+---
+ tools/gen_font.py | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/tools/gen_font.py b/tools/gen_font.py
+index a565431..55723fc 100755
+--- a/tools/gen_font.py
++++ b/tools/gen_font.py
+@@ -175,6 +175,11 @@ def render(ttf, px, scale, pixel, first, last):
+ # X0X: the characters a face is ever drawn with, where that is fewer than its range: the others are
+ # empty (no width, no bitmap). M shows knob values that are words (OFF, C#3, FWD, 1/16, LP 40%).
+ KEEP = {"M": " #%+-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
++# X0X: the lower-case letters that the firmware's own texts use (units: Hz dB k ms bpm bar st x).
++# In XS, S and B every other lower-case letter (and `{|}~) draws with the upper-case bitmap and width,
++# as gfx.c glyph() does for a face without lower case. Identical bitmaps are stored once.
++LOWER_KEEP = set("abdkmprstxz")
++LOWER_FOLD = {"XS", "S", "B"}
+ 
+ 
+ def main(out):
+@@ -186,8 +191,18 @@ def main(out):
+         h, glyphs = render(ttf, px, scale, pixel, first, last)
+         if name in KEEP:
+             glyphs = [g if chr(first + i) in KEEP[name] else (0, 0, []) for i, g in enumerate(glyphs)]
+-        data, offs = [], []
++        if name in LOWER_FOLD:
++            fold = {"`": "?", "{": "?", "|": "?", "}": "?", "~": "?"}
++            glyphs = [glyphs[ord(fold.get(chr(first + i), chr(first + i).upper())) - first]
++                      if (chr(first + i).islower() and chr(first + i) not in LOWER_KEEP) or chr(first + i) in fold
++                      else g for i, g in enumerate(glyphs)]
++        data, offs, seen = [], [], {}
+         for adv, bw, g in glyphs:
++            key = (bw, tuple(g))
++            if key in seen:                                # the same bitmap: store it once
++                offs.append(seen[key])
++                continue
++            seen[key] = len(data)
+             offs.append(len(data))
+             for y in range(h):
+                 row = g[y * bw:(y + 1) * bw] + [0]
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 15789aa13b9b292c405e45bbbf00eec099078ea8 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:11:43 +1000
+Subject: [PATCH 2/4] Share one 4 KiB main-loop scratch between ota_stage and
+ lz_head.
+
+ota.c and lz.c never run at the same time in the main loop.
+The decoded update message also uses that scratch.
+This frees 2688 B of static RAM.
+---
+ firmware/src/app/lz.c |  4 ++++
+ firmware/src/ota.c    | 12 ++++++++++--
+ firmware/src/x0x.c    |  9 +++++++++
+ 3 files changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/firmware/src/app/lz.c b/firmware/src/app/lz.c
+index 78a94ee..df4b668 100644
+--- a/firmware/src/app/lz.c
++++ b/firmware/src/app/lz.c
+@@ -30,7 +30,11 @@ typedef struct {
+     void *ctx;
+ } lz_src_t;
+ 
++#ifdef LZ_SCRATCH                      /* the app: a main-loop scratch that it shares (4 KiB) */
++#define lz_head LZ_SCRATCH
++#else
+ static uint16_t lz_head[1u << LZ_HBITS];
++#endif
+ 
+ static uint32_t lz_hash(const uint8_t *p)
+ {
+diff --git a/firmware/src/ota.c b/firmware/src/ota.c
+index e1effa7..b03c568 100644
+--- a/firmware/src/ota.c
++++ b/firmware/src/ota.c
+@@ -117,7 +117,11 @@ static uint32_t ota_unpack7(const uint8_t *in, uint32_t n, uint8_t *out, uint32_
+ }
+ 
+ static uint8_t ota_msg[8 + 32], ota_wire[2 + 48];
++#ifdef OTA_SCRATCH                               /* the app: after the session buffers in the scratch */
++#define ota_dec (OTA_SCRATCH + 0x800)
++#else
+ static uint8_t ota_dec[OTA_FRAME_MAX];           /* decoded host message */
++#endif
+ 
+ static int ota_send_msg(uint32_t cmd, const uint8_t *body, uint32_t n)   /* n <= 32 */
+ {
+@@ -156,9 +160,9 @@ static uint32_t ota_take(void)
+     uint32_t n, d, s = 0, i;
+     if (!ota_frame_get(&p, &n))
+         return 0;
+-    d = ota_unpack7(p, n, ota_dec, sizeof ota_dec);
++    d = ota_unpack7(p, n, ota_dec, OTA_FRAME_MAX);
+     ota_frame_done();
+-    if (d < 7u || d > sizeof ota_dec || ota_dec[0] != 0 || ota_dec[1] != 0x59 || ota_rd24(ota_dec + 3) + 7u != d)
++    if (d < 7u || d > OTA_FRAME_MAX || ota_dec[0] != 0 || ota_dec[1] != 0x59 || ota_rd24(ota_dec + 3) + 7u != d)
+         return 0;
+     for (i = 6; i + 1u < d; i++)
+         s += ota_dec[i];
+@@ -270,7 +274,11 @@ static int ota_ufw(uint8_t *hdr, uint32_t *fl_off, uint32_t *fl_len, uint32_t *o
+ 
+ static int ota_stage(void)                       /* steps 1..6; 0 = host said success */
+ {
++#ifdef OTA_SCRATCH                     /* the app: a main-loop scratch that it shares (2 KiB used) */
++    uint8_t *const hdr = OTA_SCRATCH, *const b = hdr + 0x400, *const mine = b + 512;
++#else
+     static uint8_t hdr[0x400], b[512], mine[512];
++#endif
+     uint32_t i, n, ota_off, ota_len, fl_off, fl_len, c, len, own, official;
+     int rc;
+     /* 1. UFW header + entry list */
+diff --git a/firmware/src/x0x.c b/firmware/src/x0x.c
+index a4fea6d..7fe41c5 100644
+--- a/firmware/src/x0x.c
++++ b/firmware/src/x0x.c
+@@ -106,6 +106,15 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
+ 
+ struct bootguard_s { uint32_t magic, failed, pending; };
+ extern struct bootguard_s bootguard;
++/* One 4 KiB scratch for two main-loop jobs that never run at the same time: the LZ hash table of a
++ * project save (lz.c) and the read buffers of an update session (ota.c). Both run only from the
++ * main loop, to completion, and neither calls the other. ota.c uses 0x000-0x7FF for its session
++ * buffers and 0x800-0xA7F for the decoded host message (OTA_FRAME_MAX); a save may overwrite
++ * that message, which is only read in the call that decoded it. */
++_Static_assert(0x800 + 640 <= 4096, "scratch");
++static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
++#define OTA_SCRATCH ((uint8_t *)x0x_main_scratch)
++#define LZ_SCRATCH x0x_main_scratch
+ #include "ota.c"
+ static uint32_t ota_now_ms(void) { return fm1_ms; }
+ static void ota_idle(void) { fm1_wdt_feed(); }
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 2142a7484c4715fc77537a12bae4e9009346ca7e Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:11:43 +1000
+Subject: [PATCH 3/4] Put corner_fill and corner_ring in flash as packed
+ constant tables.
+
+The tables hold the same coverage values as the old start-up loop.
+This frees 1152 B of static RAM.
+---
+ firmware/src/app/ui.c | 55 ++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 27 deletions(-)
+
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index 3aa9675..db6b88c 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -2790,31 +2790,33 @@ static void px_blend(int32_t x, int32_t y, uint16_t c, uint32_t a)
+ }
+ 
+ /* corner coverage of a radius-r quarter circle, pixel (x, y) of the r x r corner square,
+- * 4 x 4 supersampled; and of its 1-px ring (for outlines). Built once. */
++ * 4 x 4 supersampled; and of its 1-px ring (for outlines). Constant data in flash, packed: the
++ * r x r square of radius r starts at CORNER_OFF[r]. The values are those that the old start-up
++ * loop (corners_init) calculated, to the byte. */
+ #define RMAX 8
+-static uint8_t corner_fill[RMAX + 1][RMAX][RMAX], corner_ring[RMAX + 1][RMAX][RMAX];
+-static void corners_init(void)
+-{
+-    int r, x, y, sx, sy;
+-    for (r = 1; r <= RMAX; r++)
+-        for (y = 0; y < r; y++)
+-            for (x = 0; x < r; x++) {
+-                int in = 0, ring = 0;
+-                for (sy = 0; sy < 4; sy++)
+-                    for (sx = 0; sx < 4; sx++) {
+-                        float dx = (float)r - ((float)x + (sx + 0.5f) / 4.0f);
+-                        float dy = (float)r - ((float)y + (sy + 0.5f) / 4.0f);
+-                        float d2 = dx * dx + dy * dy;
+-                        if (d2 <= (float)(r * r)) {
+-                            in++;
+-                            if (d2 >= (float)((r - 1) * (r - 1)))
+-                                ring++;
+-                        }
+-                    }
+-                corner_fill[r][y][x] = (uint8_t)in;
+-                corner_ring[r][y][x] = (uint8_t)ring;
+-            }
+-}
++static const uint8_t CORNER_OFF[RMAX + 1] = {0, 0, 1, 5, 14, 30, 55, 91, 140};
++static const uint8_t CORNER_FILL[204] = {
++    13,   /* r 1 */
++    6, 15, 15, 16,   /* r 2 */
++    0, 9, 15, 9, 16, 16, 15, 16, 16,   /* r 3 */
++    0, 3, 11, 16, 3, 15, 16, 16, 11, 16, 16, 16, 16, 16, 16, 16,   /* r 4 */
++    0, 0, 5, 12, 16, 0, 10, 16, 16, 16, 5, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 5 */
++    0, 0, 0, 7, 13, 16, 0, 1, 13, 16, 16, 16, 0, 13, 16, 16, 16, 16, 7, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 6 */
++    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 16, 16, 16, 0, 6, 16, 16, 16, 16, 16, 2, 15, 16, 16, 16, 16, 16, 9, 16, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 7 */
++    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 16, 16, 16, 16, 0, 1, 13, 16, 16, 16, 16, 16, 0, 9, 16, 16, 16, 16, 16, 16, 3, 16, 16, 16, 16, 16, 16, 16, 10, 16, 16, 16, 16, 16, 16, 16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 8 */
++};
++static const uint8_t CORNER_RING[204] = {
++    13,   /* r 1 */
++    6, 15, 15, 3,   /* r 2 */
++    0, 9, 15, 9, 10, 1, 15, 1, 0,   /* r 3 */
++    0, 3, 11, 16, 3, 15, 7, 1, 11, 7, 0, 0, 16, 1, 0, 0,   /* r 4 */
++    0, 0, 5, 12, 16, 0, 10, 13, 5, 0, 5, 13, 1, 0, 0, 12, 5, 0, 0, 0, 16, 0, 0, 0, 0,   /* r 5 */
++    0, 0, 0, 7, 13, 16, 0, 1, 13, 11, 4, 0, 0, 13, 6, 0, 0, 0, 7, 11, 0, 0, 0, 0, 13, 4, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0,   /* r 6 */
++    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 9, 3, 0, 0, 6, 15, 3, 0, 0, 0, 2, 15, 3, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 13, 3, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0,   /* r 7 */
++    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 14, 7, 3, 0, 0, 1, 13, 10, 1, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 3, 14, 1, 0, 0, 0, 0, 0, 10, 7, 0, 0, 0, 0, 0, 0, 14, 3, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0,   /* r 8 */
++};
++#define corner_fill_at(r, j, i) CORNER_FILL[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
++#define corner_ring_at(r, j, i) CORNER_RING[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
+ 
+ /* a filled rounded rectangle; r is clamped to fit */
+ static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c)
+@@ -2837,7 +2839,7 @@ static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t
+     cv_rect(x + w - r, y + r, r, h - 2 * r, c);
+     for (j = 0; j < r; j++)
+         for (i = 0; i < r; i++) {
+-            uint32_t a = corner_fill[r][j][i];
++            uint32_t a = corner_fill_at(r, j, i);
+             px_blend(x + i, y + j, c, a);
+             px_blend(x + w - 1 - i, y + j, c, a);
+             px_blend(x + i, y + h - 1 - j, c, a);
+@@ -2863,7 +2865,7 @@ static void rframe(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16
+     cv_rect(x + w - 1, y + r, 1, h - 2 * r, c);
+     for (j = 0; j < r; j++)
+         for (i = 0; i < r; i++) {
+-            uint32_t a = corner_ring[r][j][i];
++            uint32_t a = corner_ring_at(r, j, i);
+             px_blend(x + i, y + j, c, a);
+             px_blend(x + w - 1 - i, y + j, c, a);
+             px_blend(x + i, y + h - 1 - j, c, a);
+@@ -4196,7 +4198,6 @@ void ui_init(void)
+         if (KEY_BLACK[i] >= 0)
+             BLACK_KEY[KEY_BLACK[i]] = (uint8_t)i;
+     }
+-    corners_init();
+     ui.view = V_PART;
+     ui.prev_view = V_PART;
+     ui.part = PART_909;
+-- 
+2.54.0 (Apple Git-157)
+
+
+From a1d8ea1d708db02887ae4e87906f0f881842a84c Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:17:31 +1000
+Subject: [PATCH 4/4] a68-opt: ledger row for Optimizer B1-B3.
+
+The build is on branch ble-a68-opt. It is not installed.
+---
+ BLE_ATTEMPTS.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/BLE_ATTEMPTS.md b/BLE_ATTEMPTS.md
+index a4f3568..92be985 100644
+--- a/BLE_ATTEMPTS.md
++++ b/BLE_ATTEMPTS.md
+@@ -217,3 +217,4 @@ Next: install a64 and do the iPhone connect test. Read DIAG with `tools/ble_auto
+ | 67 (TX power 6 + crystal trim 11/11) | 2026-10-16 | From a66. Change: fixed crystal trim 11/11 (0x0B, 0x0B) in the boot parameters (firmware/hal/fm1_ble.h fm1_ble_boot_fill), as the working SMK-37 Oscuro firmware (wifi_get_xosc gives {11, 11}). Before, the trim came from WLA_CON12 at boot: the a65 DIAG (xosc 0x099A61FF -> 0x0598625F) decodes to 3/3 on the user's unit. Reason: a wrong trim moves the 24 MHz crystal, so the carrier and the link timing drift, and 7.5 ms has little margin. DIAG still reads WLA_CON12 before and after the start. ctl.img does not change (crc32 eb742dd2). Package a67-x0x-smk37-elite.fwsc crc32 6711ba82. Build: app code 268 B free, RAM 98288 of 98304 B, pool 8196 B free. Tests: 64 ok, drum909, drum808, bass303 fail as before. BEHAVIOR.md BLE-03 updated. Also checked, not built: btctrler V1.2.8 (SDK 88931831). btctrler.a and wl_rf_common.a change (the other 4 libs are the same). The trial link has 3 undefined symbols (config_btctler_le_slave_multilink, usr_timeout_add, usr_timeout_del) and the image is 4052 B too large for the 64 KiB block. Image RAM: static +108 B, then the heap ends at the CRAM end (0 B spare). NOT installed. | Built only. |
+ | guard (locked settings) | 2026-10-16 | Regression guard, no firmware change (a67 package and ctl.img are byte for byte the same: 6711ba82, eb742dd2). tools/locked_settings.json locks 20 settings with their file and reason: pwr_ble 6, pwr_max 8, osc_type 0, crystal trim 0x0B/0x0B and no WLA_CON12 copy, PA trim, RF clocks, advertising interval 0x40-0x80 with ADV_IND and channel map 7, ATT MTU 23, 0 calls of bleh_conn_update (no connection parameter request), every assignment in ble/ctl/src/config.c, CTL_BLE_IRQ_PRIO 7, X0X_RAM_CANARY 0, pool headroom 8192, slot offsets and sizes (slots.c and the package slot map), the Bluetooth block, every FL_ define in fm1_flash_map.h. tools/check_locked_settings.py reads them from the source and exits 1 on any difference. build.py, build_ctl.sh and run_tests.sh run it. Reason: on 2026-10-15 pwr_ble went 11 -> 5 (7f3208b) and silently back to 11 inside the unrelated commit 9070c21. The JSON history notes a66 (de06fd1, pwr_ble 11 -> 6) and a67 (94285b5, crystal trim fixed 11/11): those commits came before the guard. Checked: a changed pwr_ble, config.c value, slot 3 offset or an added bleh_conn_update call each stop the build. | Done. |
+ | 67 (installed) | 2026-10-16 | Installed 19:00 via Mac (a67-x0x-smk37-elite.fwsc crc32 6711ba82 + --ctl a65-ctl.img crc32 eb742dd2, commit 94285b5). Installer exit 0, foreground. This installer does not read back the image CRC. Slots before slots-before-a67-20261016-1859 and after slots-after-a67-20261016-1900 (copies in slot_backups/): slot 1 data 05fb6e99 (archive 961626d5), slot 2 data 6bb165f0 (archive 9a09fdb9), before = after; slot 3 empty (44 KiB at 0xB0000). DIAG (a67-diag-after-install.txt): READY, mailbox READY, host step 8, controller took 9 gave 9, no crash, guard fails 0, parameter request not sent. Crystal trim: WLA_CON12 0x099A61FF (boot, 3/3) -> 0x05D9625F (after the RF init, 11/11). In a65 it was 0x0598625F (3/3). TX power: this DIAG does not read it back; the source and the locked settings give pwr_ble 6. Next: the iPhone connect test with Loopy Pro at 7.5 ms. | Installed. Owner notified 18:58 (+10) before install: commit 94285b5 (branch ble-a65). |
++| a68-opt: Optimizer B1-B3, no BLE change, not installed | 2026-10-16 | Branch ble-a68-opt from ble-a65 HEAD 99954d9. Three Optimizer changes (owner approved 19:10 +10): B3 drop unused lower-case glyphs in fonts XS, S and B (flash -4816 B); B1 share one 4 KiB main-loop scratch between ota_stage and lz_head (RAM -2688 B); B2 put corner_fill and corner_ring in flash as packed constant tables (RAM -1152 B). Commits 7a8156f, 15789aa, 2142a74. Build: app code 4780 B free (a67: 268 B), RAM .data+.bss 94448 of 98304 B (a67: 98288 B), pool 335868 of 344064 B (8196 B free, same as a67). Package a68opt-x0x-smk37-elite.fwsc crc32 58a2dfb1. Guard: 20 settings ok. Tests: all passed (drum909, drum808, bass303 ok with schwung refs). No BLE change. NOT installed. | Built only. |
+-- 
+2.54.0 (Apple Git-157)
+

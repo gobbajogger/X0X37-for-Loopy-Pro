@@ -1,0 +1,1200 @@
+From c2fd058d8f224ede79038fc7fd80f458e6923c0d Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:18:31 +1000
+Subject: [PATCH 01/10] Ledger: a67 iPhone test 1 passed.
+
+---
+ BLE_ATTEMPTS.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/BLE_ATTEMPTS.md b/BLE_ATTEMPTS.md
+index a4f3568..b14c4c8 100644
+--- a/BLE_ATTEMPTS.md
++++ b/BLE_ATTEMPTS.md
+@@ -217,3 +217,4 @@ Next: install a64 and do the iPhone connect test. Read DIAG with `tools/ble_auto
+ | 67 (TX power 6 + crystal trim 11/11) | 2026-10-16 | From a66. Change: fixed crystal trim 11/11 (0x0B, 0x0B) in the boot parameters (firmware/hal/fm1_ble.h fm1_ble_boot_fill), as the working SMK-37 Oscuro firmware (wifi_get_xosc gives {11, 11}). Before, the trim came from WLA_CON12 at boot: the a65 DIAG (xosc 0x099A61FF -> 0x0598625F) decodes to 3/3 on the user's unit. Reason: a wrong trim moves the 24 MHz crystal, so the carrier and the link timing drift, and 7.5 ms has little margin. DIAG still reads WLA_CON12 before and after the start. ctl.img does not change (crc32 eb742dd2). Package a67-x0x-smk37-elite.fwsc crc32 6711ba82. Build: app code 268 B free, RAM 98288 of 98304 B, pool 8196 B free. Tests: 64 ok, drum909, drum808, bass303 fail as before. BEHAVIOR.md BLE-03 updated. Also checked, not built: btctrler V1.2.8 (SDK 88931831). btctrler.a and wl_rf_common.a change (the other 4 libs are the same). The trial link has 3 undefined symbols (config_btctler_le_slave_multilink, usr_timeout_add, usr_timeout_del) and the image is 4052 B too large for the 64 KiB block. Image RAM: static +108 B, then the heap ends at the CRAM end (0 B spare). NOT installed. | Built only. |
+ | guard (locked settings) | 2026-10-16 | Regression guard, no firmware change (a67 package and ctl.img are byte for byte the same: 6711ba82, eb742dd2). tools/locked_settings.json locks 20 settings with their file and reason: pwr_ble 6, pwr_max 8, osc_type 0, crystal trim 0x0B/0x0B and no WLA_CON12 copy, PA trim, RF clocks, advertising interval 0x40-0x80 with ADV_IND and channel map 7, ATT MTU 23, 0 calls of bleh_conn_update (no connection parameter request), every assignment in ble/ctl/src/config.c, CTL_BLE_IRQ_PRIO 7, X0X_RAM_CANARY 0, pool headroom 8192, slot offsets and sizes (slots.c and the package slot map), the Bluetooth block, every FL_ define in fm1_flash_map.h. tools/check_locked_settings.py reads them from the source and exits 1 on any difference. build.py, build_ctl.sh and run_tests.sh run it. Reason: on 2026-10-15 pwr_ble went 11 -> 5 (7f3208b) and silently back to 11 inside the unrelated commit 9070c21. The JSON history notes a66 (de06fd1, pwr_ble 11 -> 6) and a67 (94285b5, crystal trim fixed 11/11): those commits came before the guard. Checked: a changed pwr_ble, config.c value, slot 3 offset or an added bleh_conn_update call each stop the build. | Done. |
+ | 67 (installed) | 2026-10-16 | Installed 19:00 via Mac (a67-x0x-smk37-elite.fwsc crc32 6711ba82 + --ctl a65-ctl.img crc32 eb742dd2, commit 94285b5). Installer exit 0, foreground. This installer does not read back the image CRC. Slots before slots-before-a67-20261016-1859 and after slots-after-a67-20261016-1900 (copies in slot_backups/): slot 1 data 05fb6e99 (archive 961626d5), slot 2 data 6bb165f0 (archive 9a09fdb9), before = after; slot 3 empty (44 KiB at 0xB0000). DIAG (a67-diag-after-install.txt): READY, mailbox READY, host step 8, controller took 9 gave 9, no crash, guard fails 0, parameter request not sent. Crystal trim: WLA_CON12 0x099A61FF (boot, 3/3) -> 0x05D9625F (after the RF init, 11/11). In a65 it was 0x0598625F (3/3). TX power: this DIAG does not read it back; the source and the locked settings give pwr_ble 6. Next: the iPhone connect test with Loopy Pro at 7.5 ms. | Installed. Owner notified 18:58 (+10) before install: commit 94285b5 (branch ble-a65). |
++| 67 (iPhone test 1: PASS) | 2026-10-16 | The owner tested a67 (94285b5) with Loopy Pro on the iPhone at 19:18 (+10). Result: PASS, "working flawlessly". DIAG at 19:19 (a67-diag-iphone-pass.txt): status CONNECTED, host state 3. The interval is 7.5 ms, latency 0. The asked MTU is 185. The last end reason is 0x00, so no link ended since the boot at 19:00. The controller took 33 frames and gave 224. Drops are 0. Pairing refused is 0. No new crash. The crystal trim is 11/11 (WLA_CON12 0x05D9625F). The TX power is 6. Cause of the a65 supervision timeout (0x08): crystal trim 3/3 and TX power 11. Tag last-good-hw moved from 33af6c7 to 94285b5. |
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 4d1608a2ea60ab2d1c931458ace271ded52aa4a3 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:19:17 +1000
+Subject: [PATCH 02/10] AGENTS.md: add the agent rules. Rule 5 gives the JieLi
+ toolchain and SDK paths on the box.
+
+---
+ AGENTS.md | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+ create mode 100644 AGENTS.md
+
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..ead3088
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1,12 @@
++# Agent rules for this project
++
++These rules are for every agent that works on X0X.
++
++1. If the Mac seems offline, retry for 5 minutes before you call it offline.
++2. Keep a copy of the project on the box. Build, test and analyze there. Use the Mac only for installs and for device access. Copy the built files to the Mac just before an install.
++3. Keep two copies of the project files, one on the box and one on the Mac. Keep them in sync: the git commits and the docs.
++4. The shared repo on the box is the bare repo /workspace/x0x37.git. Each agent folder has it as the remote "box". Push your branch there after each commit. Do not push to anything outside the box.
++5. JieLi files stay local on the box and on the Mac. Never commit them and never bundle them. On the box, the JieLi toolchain is in /home/box/.jieli/toolchain and the AC79 SDK is in /home/box/fw-AC79_AIoT_SDK.
++6. Commit only to local repos.
++7. Sync the Mac with git bundles, never with git am, so the hashes on the box and on the Mac are the same.
++8. Never drop notes, pad colour updates or the BLE connection. No drop fallbacks on low memory. Size the queues and the pool from a measured stress test peak.
+-- 
+2.54.0 (Apple Git-157)
+
+
+From b41073f2a4644d726a74187e8717df724d76be25 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:11:41 +1000
+Subject: [PATCH 03/10] Drop unused lower-case glyphs from fonts XS, S and B.
+
+The firmware texts keep only the lower-case letters they use.
+Other lower-case letters draw with the upper-case bitmap.
+This frees 4816 B of flash.
+---
+ tools/gen_font.py | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/tools/gen_font.py b/tools/gen_font.py
+index a565431..55723fc 100755
+--- a/tools/gen_font.py
++++ b/tools/gen_font.py
+@@ -175,6 +175,11 @@ def render(ttf, px, scale, pixel, first, last):
+ # X0X: the characters a face is ever drawn with, where that is fewer than its range: the others are
+ # empty (no width, no bitmap). M shows knob values that are words (OFF, C#3, FWD, 1/16, LP 40%).
+ KEEP = {"M": " #%+-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
++# X0X: the lower-case letters that the firmware's own texts use (units: Hz dB k ms bpm bar st x).
++# In XS, S and B every other lower-case letter (and `{|}~) draws with the upper-case bitmap and width,
++# as gfx.c glyph() does for a face without lower case. Identical bitmaps are stored once.
++LOWER_KEEP = set("abdkmprstxz")
++LOWER_FOLD = {"XS", "S", "B"}
+ 
+ 
+ def main(out):
+@@ -186,8 +191,18 @@ def main(out):
+         h, glyphs = render(ttf, px, scale, pixel, first, last)
+         if name in KEEP:
+             glyphs = [g if chr(first + i) in KEEP[name] else (0, 0, []) for i, g in enumerate(glyphs)]
+-        data, offs = [], []
++        if name in LOWER_FOLD:
++            fold = {"`": "?", "{": "?", "|": "?", "}": "?", "~": "?"}
++            glyphs = [glyphs[ord(fold.get(chr(first + i), chr(first + i).upper())) - first]
++                      if (chr(first + i).islower() and chr(first + i) not in LOWER_KEEP) or chr(first + i) in fold
++                      else g for i, g in enumerate(glyphs)]
++        data, offs, seen = [], [], {}
+         for adv, bw, g in glyphs:
++            key = (bw, tuple(g))
++            if key in seen:                                # the same bitmap: store it once
++                offs.append(seen[key])
++                continue
++            seen[key] = len(data)
+             offs.append(len(data))
+             for y in range(h):
+                 row = g[y * bw:(y + 1) * bw] + [0]
+-- 
+2.54.0 (Apple Git-157)
+
+
+From f554549cfd8e3da84c18bd86439e0939ecdfaeda Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:11:43 +1000
+Subject: [PATCH 04/10] Share one 4 KiB main-loop scratch between ota_stage and
+ lz_head.
+
+ota.c and lz.c never run at the same time in the main loop.
+The decoded update message also uses that scratch.
+This frees 2688 B of static RAM.
+---
+ firmware/src/app/lz.c |  4 ++++
+ firmware/src/ota.c    | 12 ++++++++++--
+ firmware/src/x0x.c    |  9 +++++++++
+ 3 files changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/firmware/src/app/lz.c b/firmware/src/app/lz.c
+index 78a94ee..df4b668 100644
+--- a/firmware/src/app/lz.c
++++ b/firmware/src/app/lz.c
+@@ -30,7 +30,11 @@ typedef struct {
+     void *ctx;
+ } lz_src_t;
+ 
++#ifdef LZ_SCRATCH                      /* the app: a main-loop scratch that it shares (4 KiB) */
++#define lz_head LZ_SCRATCH
++#else
+ static uint16_t lz_head[1u << LZ_HBITS];
++#endif
+ 
+ static uint32_t lz_hash(const uint8_t *p)
+ {
+diff --git a/firmware/src/ota.c b/firmware/src/ota.c
+index e1effa7..b03c568 100644
+--- a/firmware/src/ota.c
++++ b/firmware/src/ota.c
+@@ -117,7 +117,11 @@ static uint32_t ota_unpack7(const uint8_t *in, uint32_t n, uint8_t *out, uint32_
+ }
+ 
+ static uint8_t ota_msg[8 + 32], ota_wire[2 + 48];
++#ifdef OTA_SCRATCH                               /* the app: after the session buffers in the scratch */
++#define ota_dec (OTA_SCRATCH + 0x800)
++#else
+ static uint8_t ota_dec[OTA_FRAME_MAX];           /* decoded host message */
++#endif
+ 
+ static int ota_send_msg(uint32_t cmd, const uint8_t *body, uint32_t n)   /* n <= 32 */
+ {
+@@ -156,9 +160,9 @@ static uint32_t ota_take(void)
+     uint32_t n, d, s = 0, i;
+     if (!ota_frame_get(&p, &n))
+         return 0;
+-    d = ota_unpack7(p, n, ota_dec, sizeof ota_dec);
++    d = ota_unpack7(p, n, ota_dec, OTA_FRAME_MAX);
+     ota_frame_done();
+-    if (d < 7u || d > sizeof ota_dec || ota_dec[0] != 0 || ota_dec[1] != 0x59 || ota_rd24(ota_dec + 3) + 7u != d)
++    if (d < 7u || d > OTA_FRAME_MAX || ota_dec[0] != 0 || ota_dec[1] != 0x59 || ota_rd24(ota_dec + 3) + 7u != d)
+         return 0;
+     for (i = 6; i + 1u < d; i++)
+         s += ota_dec[i];
+@@ -270,7 +274,11 @@ static int ota_ufw(uint8_t *hdr, uint32_t *fl_off, uint32_t *fl_len, uint32_t *o
+ 
+ static int ota_stage(void)                       /* steps 1..6; 0 = host said success */
+ {
++#ifdef OTA_SCRATCH                     /* the app: a main-loop scratch that it shares (2 KiB used) */
++    uint8_t *const hdr = OTA_SCRATCH, *const b = hdr + 0x400, *const mine = b + 512;
++#else
+     static uint8_t hdr[0x400], b[512], mine[512];
++#endif
+     uint32_t i, n, ota_off, ota_len, fl_off, fl_len, c, len, own, official;
+     int rc;
+     /* 1. UFW header + entry list */
+diff --git a/firmware/src/x0x.c b/firmware/src/x0x.c
+index a4fea6d..7fe41c5 100644
+--- a/firmware/src/x0x.c
++++ b/firmware/src/x0x.c
+@@ -106,6 +106,15 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
+ 
+ struct bootguard_s { uint32_t magic, failed, pending; };
+ extern struct bootguard_s bootguard;
++/* One 4 KiB scratch for two main-loop jobs that never run at the same time: the LZ hash table of a
++ * project save (lz.c) and the read buffers of an update session (ota.c). Both run only from the
++ * main loop, to completion, and neither calls the other. ota.c uses 0x000-0x7FF for its session
++ * buffers and 0x800-0xA7F for the decoded host message (OTA_FRAME_MAX); a save may overwrite
++ * that message, which is only read in the call that decoded it. */
++_Static_assert(0x800 + 640 <= 4096, "scratch");
++static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
++#define OTA_SCRATCH ((uint8_t *)x0x_main_scratch)
++#define LZ_SCRATCH x0x_main_scratch
+ #include "ota.c"
+ static uint32_t ota_now_ms(void) { return fm1_ms; }
+ static void ota_idle(void) { fm1_wdt_feed(); }
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 8045d30052f3594dd432ddf488fc71c0919bc74c Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:11:43 +1000
+Subject: [PATCH 05/10] Put corner_fill and corner_ring in flash as packed
+ constant tables.
+
+The tables hold the same coverage values as the old start-up loop.
+This frees 1152 B of static RAM.
+---
+ firmware/src/app/ui.c | 55 ++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 27 deletions(-)
+
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index 3aa9675..db6b88c 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -2790,31 +2790,33 @@ static void px_blend(int32_t x, int32_t y, uint16_t c, uint32_t a)
+ }
+ 
+ /* corner coverage of a radius-r quarter circle, pixel (x, y) of the r x r corner square,
+- * 4 x 4 supersampled; and of its 1-px ring (for outlines). Built once. */
++ * 4 x 4 supersampled; and of its 1-px ring (for outlines). Constant data in flash, packed: the
++ * r x r square of radius r starts at CORNER_OFF[r]. The values are those that the old start-up
++ * loop (corners_init) calculated, to the byte. */
+ #define RMAX 8
+-static uint8_t corner_fill[RMAX + 1][RMAX][RMAX], corner_ring[RMAX + 1][RMAX][RMAX];
+-static void corners_init(void)
+-{
+-    int r, x, y, sx, sy;
+-    for (r = 1; r <= RMAX; r++)
+-        for (y = 0; y < r; y++)
+-            for (x = 0; x < r; x++) {
+-                int in = 0, ring = 0;
+-                for (sy = 0; sy < 4; sy++)
+-                    for (sx = 0; sx < 4; sx++) {
+-                        float dx = (float)r - ((float)x + (sx + 0.5f) / 4.0f);
+-                        float dy = (float)r - ((float)y + (sy + 0.5f) / 4.0f);
+-                        float d2 = dx * dx + dy * dy;
+-                        if (d2 <= (float)(r * r)) {
+-                            in++;
+-                            if (d2 >= (float)((r - 1) * (r - 1)))
+-                                ring++;
+-                        }
+-                    }
+-                corner_fill[r][y][x] = (uint8_t)in;
+-                corner_ring[r][y][x] = (uint8_t)ring;
+-            }
+-}
++static const uint8_t CORNER_OFF[RMAX + 1] = {0, 0, 1, 5, 14, 30, 55, 91, 140};
++static const uint8_t CORNER_FILL[204] = {
++    13,   /* r 1 */
++    6, 15, 15, 16,   /* r 2 */
++    0, 9, 15, 9, 16, 16, 15, 16, 16,   /* r 3 */
++    0, 3, 11, 16, 3, 15, 16, 16, 11, 16, 16, 16, 16, 16, 16, 16,   /* r 4 */
++    0, 0, 5, 12, 16, 0, 10, 16, 16, 16, 5, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 5 */
++    0, 0, 0, 7, 13, 16, 0, 1, 13, 16, 16, 16, 0, 13, 16, 16, 16, 16, 7, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 6 */
++    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 16, 16, 16, 0, 6, 16, 16, 16, 16, 16, 2, 15, 16, 16, 16, 16, 16, 9, 16, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 7 */
++    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 16, 16, 16, 16, 0, 1, 13, 16, 16, 16, 16, 16, 0, 9, 16, 16, 16, 16, 16, 16, 3, 16, 16, 16, 16, 16, 16, 16, 10, 16, 16, 16, 16, 16, 16, 16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 8 */
++};
++static const uint8_t CORNER_RING[204] = {
++    13,   /* r 1 */
++    6, 15, 15, 3,   /* r 2 */
++    0, 9, 15, 9, 10, 1, 15, 1, 0,   /* r 3 */
++    0, 3, 11, 16, 3, 15, 7, 1, 11, 7, 0, 0, 16, 1, 0, 0,   /* r 4 */
++    0, 0, 5, 12, 16, 0, 10, 13, 5, 0, 5, 13, 1, 0, 0, 12, 5, 0, 0, 0, 16, 0, 0, 0, 0,   /* r 5 */
++    0, 0, 0, 7, 13, 16, 0, 1, 13, 11, 4, 0, 0, 13, 6, 0, 0, 0, 7, 11, 0, 0, 0, 0, 13, 4, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0,   /* r 6 */
++    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 9, 3, 0, 0, 6, 15, 3, 0, 0, 0, 2, 15, 3, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 13, 3, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0,   /* r 7 */
++    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 14, 7, 3, 0, 0, 1, 13, 10, 1, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 3, 14, 1, 0, 0, 0, 0, 0, 10, 7, 0, 0, 0, 0, 0, 0, 14, 3, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0,   /* r 8 */
++};
++#define corner_fill_at(r, j, i) CORNER_FILL[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
++#define corner_ring_at(r, j, i) CORNER_RING[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
+ 
+ /* a filled rounded rectangle; r is clamped to fit */
+ static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c)
+@@ -2837,7 +2839,7 @@ static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t
+     cv_rect(x + w - r, y + r, r, h - 2 * r, c);
+     for (j = 0; j < r; j++)
+         for (i = 0; i < r; i++) {
+-            uint32_t a = corner_fill[r][j][i];
++            uint32_t a = corner_fill_at(r, j, i);
+             px_blend(x + i, y + j, c, a);
+             px_blend(x + w - 1 - i, y + j, c, a);
+             px_blend(x + i, y + h - 1 - j, c, a);
+@@ -2863,7 +2865,7 @@ static void rframe(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16
+     cv_rect(x + w - 1, y + r, 1, h - 2 * r, c);
+     for (j = 0; j < r; j++)
+         for (i = 0; i < r; i++) {
+-            uint32_t a = corner_ring[r][j][i];
++            uint32_t a = corner_ring_at(r, j, i);
+             px_blend(x + i, y + j, c, a);
+             px_blend(x + w - 1 - i, y + j, c, a);
+             px_blend(x + i, y + h - 1 - j, c, a);
+@@ -4196,7 +4198,6 @@ void ui_init(void)
+         if (KEY_BLACK[i] >= 0)
+             BLACK_KEY[KEY_BLACK[i]] = (uint8_t)i;
+     }
+-    corners_init();
+     ui.view = V_PART;
+     ui.prev_view = V_PART;
+     ui.part = PART_909;
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 191b9f6443d2376415d8989bf60a760bef7ba26a Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:19:51 +1000
+Subject: [PATCH 06/10] BLE attempt 69: the installer reads ctl.img back from
+ the unit and compares the CRC32.
+
+The editor has the new command 37 CTL_READ. It reads only the Bluetooth block (0x8B000, 64 KiB, FL_BLE).
+CTL_READ does not write. An offset outside the block gets no reply. The count stops at the block end.
+A static assert makes sure that XB_FLASH_OFF and XB_FLASH_SIZE are the same as FL_BLE_LO and FL_BLE_HI.
+The command 36 (ABI 3 CTL2_READ) is not used. Thus an ABI 3 tool gets no reply.
+ED_SMP_READ and CTL_READ use one packer, ed_put7. This keeps the app code small.
+After the install, fm1_install.py reads the image back and prints the unit CRC32 and the file CRC32.
+If the two CRC32 values are different or the unit does not answer, the installer stops with exit 8.
+The installer reads back only if it added a ctl.img to the package.
+The read-back comes after the slot restore. Thus a CRC32 error does not stop the slot restore.
+tests/install_ctl_test.py checks the read-back, one changed bit, no reply and the bounds on a fake unit.
+The flash map and tools/locked_settings.json do not change.
+Not installed. Not tested on the unit.
+---
+ firmware/src/app/editor.c |  51 +++++++++++---
+ tests/install_ctl_test.py | 138 ++++++++++++++++++++++++++++++++++++++
+ tests/run_tests.sh        |   1 +
+ tools/fm1_install.py      |  52 +++++++++++++-
+ web/EDITOR_PROTOCOL.md    |   1 +
+ 5 files changed, 231 insertions(+), 12 deletions(-)
+ create mode 100755 tests/install_ctl_test.py
+
+diff --git a/firmware/src/app/editor.c b/firmware/src/app/editor.c
+index 0e04436..8fd1e54 100644
+--- a/firmware/src/app/editor.c
++++ b/firmware/src/app/editor.c
+@@ -10,7 +10,12 @@
+ #define ED_HDR1 0x46
+ #define ED_HDR2 0x4C
+ enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
+-       ED_DIAG = 33, ED_BT_TEST = 34 };
++       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37 };
++/* ED_CTL_READ (SMK-37 with Bluetooth, for tools/fm1_install.py; read only): the Bluetooth block
++ * (x0x_ble_abi.h XB_FLASH_OFF, XB_FLASH_SIZE = fm1_flash_map.h FL_BLE_LO..FL_BLE_HI). Offset (3 x 7 bits,
++ * from the block start), count (pairs, 7 bits) -> offset, the bytes packed 7 to 8 (as ED_SMP_READ).
++ * An offset outside the block gets no reply; the count stops at the block end. 36 (ABI 3 CTL2_READ,
++ * piece 2) is not used, so an ABI 3 tool gets no reply. */
+ /* ED_BT_TEST (SMK-37 with Bluetooth, for tools/ble_autotest.py): op 0 = query, 1 = clear the start
+  * block (as BLUETOOTH OFF), 2 = restart the unit (a chip reset, as fm1_reboot; never the update
+  * loader). Reply: op, BLUETOOTH setting, guard blocked, plat_ble_state(). */
+@@ -58,6 +63,19 @@ static uint32_t ed_unpack7(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t
+     }
+     return n;
+ }
++/* n bytes packed 7 to 8: a byte of high bits, then up to 7 low 7-bit bytes (ED_SMP_READ, ED_CTL_READ) */
++static void ed_put7(const uint8_t *src, uint32_t n)
++{
++    uint32_t k, j;
++    for (k = 0; k < n; k += 7) {
++        uint32_t m = 0;
++        for (j = 0; j < 7u && k + j < n; j++)
++            m |= (uint32_t)(src[k + j] >> 7) << j;
++        ed_b(m);
++        for (j = 0; j < 7u && k + j < n; j++)
++            ed_b(src[k + j]);
++    }
++}
+ static uint8_t ed_smp_buf[512] __attribute__((aligned(4)));
+ static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
+ static void ed_smp_inval(uint32_t k)
+@@ -249,7 +267,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
+     case ED_SMP_READ: {                              /* X0X: slot, offset (3 x 7 bits, from the slot's start,
+                                                       * its header included), count -> slot, offset, the bytes
+                                                       * packed 7 to 8 (as WRITE takes them) */
+-        uint32_t off, n, k, j;
++        uint32_t off, n;
+         const uint8_t *src;
+         if (na < 5u || a[0] >= SMP_USER_SLOTS)
+             return;
+@@ -264,14 +282,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
+         ed_b(off);
+         ed_b(off >> 7);
+         ed_b(off >> 14);
+-        for (k = 0; k < n; k += 7) {
+-            uint32_t m = 0;
+-            for (j = 0; j < 7u && k + j < n; j++)
+-                m |= (uint32_t)(src[k + j] >> 7) << j;
+-            ed_b(m);
+-            for (j = 0; j < 7u && k + j < n; j++)
+-                ed_b(src[k + j]);
+-        }
++        ed_put7(src, n);
+         break;
+     }
+     case ED_SMP_INFO: {                              /* count, size (KiB, 7 bits: the SMALLEST slot, so an older
+@@ -347,6 +358,26 @@ static void ed_handle(const uint8_t *f, uint32_t n)
+         ed_b((uint32_t)plat_ble_state());
+         break;
+     }
++    case ED_CTL_READ: {
++        uint32_t off, n;
++        const uint8_t *src;
++        _Static_assert(XB_FLASH_OFF == FL_BLE_LO && XB_FLASH_SIZE == FL_BLE_HI - FL_BLE_LO,
++                       "ED_CTL_READ: the Bluetooth block is FL_BLE");
++        if (na < 4u)
++            return;
++        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
++        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
++        if (off >= XB_FLASH_SIZE)
++            return;
++        if (n > XB_FLASH_SIZE - off)
++            n = XB_FLASH_SIZE - off;
++        src = fm1_xip_ptr(XB_FLASH_OFF) + off;     /* the app area: reads decrypted, as core 1 runs it */
++        ed_b(off);
++        ed_b(off >> 7);
++        ed_b(off >> 14);
++        ed_put7(src, n);
++        break;
++    }
+ #endif
+     default:
+         return;                                       /* not ours: no reply */
+diff --git a/tests/install_ctl_test.py b/tests/install_ctl_test.py
+new file mode 100755
+index 0000000..76c68d9
+--- /dev/null
++++ b/tests/install_ctl_test.py
+@@ -0,0 +1,138 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-3.0-only
++"""tools/fm1_install.py: the Bluetooth controller image read-back after an SMK-37 install (no hardware).
++The fake unit answers editor command 37 CTL_READ as firmware/src/app/editor.c does: only the 64 KiB
++Bluetooth block, an offset outside it gets no reply, the count stops at the block end. The test checks
++that the tool reads the image back, prints the unit CRC32, and stops with exit 8 if the CRC32 is not
++the file CRC32 or the unit does not answer. Run from the repo root:
++  python3 tests/install_ctl_test.py"""
++import io
++import sys
++import zlib
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE))
++import install_test as T  # noqa: E402  (FakeFM1, package, cli; its tests run only as __main__)
++import x0x_slots as xs  # noqa: E402
++
++I = T.I
++ok = T.ok
++I.CTL_READ.update(timeout=0.2, tries=2)
++BLOCK = 0x10000                                   # x0x_ble_abi.h XB_FLASH_SIZE = FL_BLE_HI - FL_BLE_LO
++ELITE = "SMK-37 Elite_900"
++
++
++def ctl_read(block, args):
++    """editor.c ED_CTL_READ -> the reply args, or None (no reply)"""
++    if len(args) < 4:
++        return None
++    off = args[0] | args[1] << 7 | args[2] << 14
++    n = 224 if args[3] > 112 else args[3] * 2
++    if off >= BLOCK:
++        return None
++    n = min(n, BLOCK - off)
++    return [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F] + xs.pack7(block[off:off + n])
++
++
++class FakeBT(T.FakeFM1):
++    """an SMK-37 with X0X: the Bluetooth block after the install is `block` (None: no CTL_READ, an older X0X)"""
++
++    def __init__(self, image, block, **kw):
++        self.block, self.reads = block, []
++        super().__init__(image, identity=ELITE, name="SMK-37 Elite", after_write=ELITE, **kw)
++
++    def rx(self, d):
++        if d[:4] == I.ED_HDR and d[-1] == 0xF7:
++            if d[4] == I.ED_CTL_READ and self.block is not None and not self.identity.startswith("ota-"):
++                r = ctl_read(self.block, list(d[5:-1]))
++                self.reads.append(list(d[5:-1]))
++                if r is not None:
++                    self.tx(I.ED_HDR + bytes([d[4]]) + bytes(r) + b"\xF7")
++            return
++        super().rx(d)
++
++
++def make_ctl(n=64984):
++    return bytes((i * 131 + (i >> 8) * 7 + 0x3C) & 0xFF for i in range(n))
++
++
++def block_of(ctl):
++    return ctl + b"\xFF" * (BLOCK - len(ctl))
++
++
++def bounds():
++    blk = bytes(range(256)) * (BLOCK // 256)
++    ok(ctl_read(blk, [0x00, 0x00, 0x04, 112]) is None, "mock CTL_READ: offset 0x10000 (outside the block): no reply")
++    r = ctl_read(blk, [0x7E, 0x7F, 0x03, 112])          # offset 0xFFFE: 2 bytes left
++    ok(xs.unpack7(r[3:]) == blk[0xFFFE:], "mock CTL_READ: the count stops at the block end")
++
++
++def unit_side():
++    ctl = make_ctl()
++    want = zlib.crc32(ctl)
++    dev = FakeBT(b"", block_of(ctl))
++    link = dev.open("SMK-37 Elite", None)
++    out = io.StringIO()
++    got = I.check_ctl(link, ctl, out)
++    ok(got == want and f"unit CRC32 {want:08x}" in out.getvalue() and len(dev.reads) == (len(ctl) + 223) // 224,
++       f"read-back: {len(ctl)} B in {len(dev.reads)} reads, unit CRC32 = file CRC32 {want:08x}")
++    ok(all(r[3] <= 112 and (r[0] | r[1] << 7 | r[2] << 14) + 2 * r[3] <= BLOCK for r in dev.reads),
++       "read-back: every request stays inside the Bluetooth block")
++    bad = bytearray(block_of(ctl))
++    bad[40000] ^= 0x80
++    dev = FakeBT(b"", bytes(bad))
++    out = io.StringIO()
++    try:
++        I.check_ctl(dev.open("SMK-37 Elite", None), ctl, out)
++        ok(False, "one changed bit: the read-back stops with an error")
++    except I.InstallError as e:
++        unit = zlib.crc32(bytes(bad[:len(ctl)]))
++        ok(e.code == "ctlcrc" and f"{unit:08x}" in str(e) and f"{want:08x}" in str(e)
++           and f"unit CRC32 {unit:08x}" in out.getvalue(),
++           f"one changed bit: error, unit CRC32 {unit:08x} printed, file {want:08x}")
++    dev = FakeBT(b"", None)
++    try:
++        I.check_ctl(dev.open("SMK-37 Elite", None), ctl, io.StringIO())
++        ok(False, "no CTL_READ on the unit: the read-back stops with an error")
++    except I.InstallError as e:
++        ok(e.code == "ctlcrc" and "not read back" in str(e), "no CTL_READ on the unit: error, no CRC claimed")
++
++
++def install():
++    """the whole install: with_ctl gives the image (as --ctl), then the read-back after the restart"""
++    ctl = make_ctl()
++    raw = T.package(ELITE)
++    image = I.logical_image(raw)
++    p = T.pkgfile("elite.fwsc", raw)
++    real = I.with_ctl
++
++    def fake_with_ctl(a, product, img, out, cache=None):
++        a.ctl_bytes = ctl
++        return img
++    I.with_ctl = fake_with_ctl
++    try:
++        dev = FakeBT(image, block_of(ctl))
++        rc, out, err = T.cli([p, "--yes", "--no-slots"], dev)
++        ok(rc == 0 and "done:" in out and f"unit CRC32 {zlib.crc32(ctl):08x}" in out,
++           "install with a ctl.img: installed, read back, CRC32 ok, exit 0")
++        bad = bytearray(block_of(ctl))
++        bad[0] ^= 1
++        dev = FakeBT(image, bytes(bad))
++        rc, out, err = T.cli([p, "--yes", "--no-slots"], dev)
++        ok(rc == 8 and "done:" in out and "is not the file CRC32" in err, "install, the unit block differs: exit 8, error")
++        dev = FakeBT(image, None)
++        rc, out, err = T.cli([p, "--yes", "--no-slots"], dev)
++        ok(rc == 8 and "not read back" in err, "install, the unit has no CTL_READ: exit 8")
++    finally:
++        I.with_ctl = real
++    dev = FakeBT(image, None)
++    rc, out, err = T.cli([p, "--yes", "--no-slots", "--no-ctl"], dev)
++    ok(rc == 0 and not dev.reads, "install without a ctl.img: no read-back")
++
++
++bounds()
++unit_side()
++install()
++print(f"INSTALL CTL TESTS FAILED ({T.failed})" if T.failed else "install ctl tests passed")
++sys.exit(1 if T.failed else 0)
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 6c6a698..6de8365 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -108,6 +108,7 @@ command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs
+ command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
+ run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
+ run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
++run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
+ run host-build sh host/build_host.sh
+ if command -v emcc >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then   # the browser build, when it can be built
+     printf 'wav emu_ref.wav\nwait 500\ntapkey b0\ntapkey w0\ntapkey w8\ntap PLAY\nwait 2960\nwavstop\n' > build/host/emu_ref.x0x
+diff --git a/tools/fm1_install.py b/tools/fm1_install.py
+index b0b52ff..cb665ce 100755
+--- a/tools/fm1_install.py
++++ b/tools/fm1_install.py
+@@ -28,12 +28,15 @@ tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flas
+ Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
+ 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
+ loader / no restart), 6 wrong model, or another identity after the install,
+-7 installed, but the slots were not written back (the backup file stays).
++7 installed, but the slots were not written back (the backup file stays),
++8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32.
+ 
+ Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
+ computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
+ so without it the unit has no Bluetooth after the install. build_ctl.sh also keeps a copy in
+ ~/.config/x0x/ctl.img: an SMK-37 install uses that copy by itself (and says so); --no-ctl skips it.
++After the install, the tool reads the image back from the unit's Bluetooth block (editor command 37
++CTL_READ, read only) and prints the unit CRC32. If it is not the file CRC32, the tool stops with exit 8.
+ 
+ Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
+ v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
+@@ -45,6 +48,7 @@ import queue
+ import re
+ import sys
+ import time
++import zlib
+ from pathlib import Path
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+@@ -66,7 +70,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
+          "wait_loader": 30.0, "wait_reboot": 40.0}
+ 
+ EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
+-        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7}
++        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8}
+ 
+ 
+ class InstallError(Exception):
+@@ -639,12 +643,47 @@ def with_ctl(a, product, image, out, cache=None):
+         if (p := add_ctl.ctl_problem(ctl)):
+             raise add_ctl.PkgError(f"{path}: {p}")
+         image = add_ctl.insert(image, ctl)
++        a.ctl_bytes = ctl                   # read back from the unit after the install (check_ctl)
+     except add_ctl.PkgError as e:
+         raise InstallError("badpkg", f"Bluetooth controller image: {e}")
+     print(f"Bluetooth controller image: {path} (added to the package)", file=out)
+     return image
+ 
+ 
++ED_CTL_READ = 37                    # editor.c: read only, the Bluetooth block (0x8B000, 64 KiB) only
++CTL_READ_N = 224                    # bytes a reply (editor.c ED_READ_MAX)
++CTL_READ = {"timeout": 3.0, "tries": 3}   # a lost reply is asked for again (the read changes nothing)
++
++
++def read_ctl(ed, size):
++    """the first size bytes of the unit's Bluetooth block (ED_CTL_READ)"""
++    got = bytearray()
++    while len(got) < size:
++        off, n = len(got), min(CTL_READ_N, size - len(got))
++        r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
++                   CTL_READ["timeout"], CTL_READ["tries"])
++        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
++            raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
++        d = xs.unpack7(r[3:])
++        if len(d) < n:
++            raise TimeoutError(f"short ED_CTL_READ reply at {off:#x} ({len(d)} of {n} B)")
++        got += d[:n]
++    return bytes(got)
++
++
++def check_ctl(link, ctl, out):
++    """read the Bluetooth controller image back from the unit; stop the install if its CRC32 is not the file's"""
++    want = zlib.crc32(ctl) & 0xFFFFFFFF
++    try:
++        got = zlib.crc32(read_ctl(EditorLink(link), len(ctl))) & 0xFFFFFFFF
++    except TimeoutError as e:
++        raise InstallError("ctlcrc", f"installed, but the Bluetooth controller image was not read back ({e})")
++    print(f"Bluetooth controller image read back: {len(ctl)} B, unit CRC32 {got:08x}, file CRC32 {want:08x}", file=out)
++    if got != want:
++        raise InstallError("ctlcrc", f"Bluetooth controller image: unit CRC32 {got:08x} is not the file CRC32 {want:08x}")
++    return got
++
++
+ def run(a, backend, out, ask):
+     up = Updater(backend, a.port)
+     if a.info:
+@@ -701,6 +740,15 @@ def run(a, backend, out, ask):
+             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
+     elif move:
+         print(move.help(), file=out)
++    ctl = getattr(a, "ctl_bytes", None)
++    if ctl:
++        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
++        if not back:
++            raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
++        try:
++            check_ctl(back.link, ctl, out)
++        finally:
++            back.link.close()
+     return 0
+ 
+ 
+diff --git a/web/EDITOR_PROTOCOL.md b/web/EDITOR_PROTOCOL.md
+index dbcd658..4a6bfa4 100644
+--- a/web/EDITOR_PROTOCOL.md
++++ b/web/EDITOR_PROTOCOL.md
+@@ -79,6 +79,7 @@ after an engine change.
+ | 32 TRACK_CHANGED (push) | — | track, id, v14: `P_LEVEL`, `P_PAN` or `P_MUTE` of a track that is not selected changed on the device (only while `WATCH` was sent with bit 1) |
+ | 33 DIAG (X0X, read only) | — | count, then count 32-bit words, each 5 × 7 bits LSB first: the crash record (17 words: magic, count, vector, PC, RETS, EMU status, DBG status, SP, PSR, ICFG, uptime ms, 4 trace words, early, core), boot guard failed, pending, then on an SMK-37 with Bluetooth the start record (BEHAVIOR.md BLE-12 and BLE-13, 22 words) and 11 live state words (firmware/src/ble.c ble_diag); at most 54 words |
+ | 34 BT_TEST (X0X SMK-37 with Bluetooth) | op: 0 query, 1 clear the Bluetooth start block (as BLUETOOTH OFF), 2 restart the unit 200 ms after the reply (chip reset, never the update loader) | op, BLUETOOTH setting (0/1), start blocked (0/1), Bluetooth state (firmware/src/app/plat.h PLAT_BLE_*) |
++| 37 CTL_READ (X0X SMK-37 with Bluetooth, read only) | offset (3 × 7 bits, from the Bluetooth block start, flash 0x8B000), count (pairs, 7 bits; at most 224 bytes) | offset, the bytes (pack7). Only the 64 KiB Bluetooth block: an offset outside it gets no reply, the count stops at the block end. tools/fm1_install.py compares the CRC32 with ctl.img |
+ 
+ **pack7:** groups of up to 7 bytes, each preceded by one byte holding their top bits
+ (bit j = bit 7 of byte j).
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 1632c05eaa1badc49fa860c27bb78c6632cd8dc6 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:27:03 +1000
+Subject: [PATCH 07/10] Clip mode: show the Loopy violet as violet on the pads.
+
+The violet group of APC40_RGB (velocities 48-51) now has red = 0.6 x blue.
+Reason: the protocol values (for example 0x5400FF) have little red, and the WS2812 pads showed them as blue.
+The ratio 0.6 comes from the Live violet 0x886CE4 at velocity 80 in the APC40 mkII protocol v1.2.
+The other 124 palette entries do not change.
+tests/smk_apc40_test.py makes sure that the pad hue of velocities 48-51 is violet and that blue and magenta do not change.
+BEHAVIOR.md CLP-13 gives the exception.
+---
+ BEHAVIOR.md                 |  2 +-
+ firmware/src/app/main_fm1.c |  4 +++-
+ tests/smk_apc40_test.py     | 14 ++++++++++++++
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/BEHAVIOR.md b/BEHAVIOR.md
+index 608fb7b..c74c678 100644
+--- a/BEHAVIOR.md
++++ b/BEHAVIOR.md
+@@ -249,7 +249,7 @@ CLP-05. LCD clip colours: a lit cell is a filled square. The firmware maps the b
+ CLP-10. The firmware stores APC clip colour feedback (notes 0-39) and transport feedback (notes 91 = PLAY, 93 = RECORD) at all times, also when clip mode is off. [USER] [APC] [CODE app/main_fm1.c:250-270]
+ CLP-11. While clip mode is on, or after an APC40 host (Loopy Pro) did the identity handshake on USB or Bluetooth, the APC40 LED feedback does not go to the sound engine: note-on and note-off for notes 0-98 on all MIDI channels (clip colours, blink and pulse channels, track, scene and transport LEDs) and the knob ring CCs 16-31 and 48-63. The handshake state ends when the USB host is lost. [USER] [CODE app/main_fm1.c smk_apc_usb_event] (Changed 2026-10-15, test 35: was notes 0-39, 91, 93 in clip mode only.)
+ CLP-12. While clip mode is off and no APC40 host did the handshake, these notes and CCs go to the sound engine as before. [USER] [CODE app/engine.c]
+-CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. [APC]
++CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. Exception: in the violet group (velocities 48-51), red is 0.6 x blue. The palette values of the protocol showed blue on the pads. [APC] [CODE app/main_fm1.c APC40_RGB] (Changed 2026-10-16, a71.)
+ CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is the truth. [APC 1.4-apc40]
+ CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]
+ CLP-16. Two off-to-on toggles within 256 ms set the queued state. The queued state stops 384 ms after the last flash message. [APC 1.4-apc40] [CODE app/smk_apc40.h:101-102]
+diff --git a/firmware/src/app/main_fm1.c b/firmware/src/app/main_fm1.c
+index 3ffbcba..8819e57 100644
+--- a/firmware/src/app/main_fm1.c
++++ b/firmware/src/app/main_fm1.c
+@@ -244,6 +244,8 @@ static void smk_apc_burst_close(void)
+     }
+ }
+ #define SMK_APC40_LAYOUT_SETTLE_MS 250u
++/* APC40 mkII palette (protocol v1.2). Exception: the violet group 48-51 has red = 0.6 x blue
++ * (the ratio of the Live violet 0x886CE4 at velocity 80). The spec values showed blue on the pads. */
+ static const uint32_t APC40_RGB[128] = {
+     0x000000,0x1E1E1E,0x7F7F7F,0xFFFFFF,0xFF4C4C,0xFF0000,0x590000,0x190000,
+     0xFFBD6C,0xFF5400,0x591D00,0x271B00,0xFFFF4C,0xFFFF00,0x595900,0x191900,
+@@ -251,7 +253,7 @@ static const uint32_t APC40_RGB[128] = {
+     0x4CFF5E,0x00FF19,0x00590D,0x001902,0x4CFF88,0x00FF55,0x00591D,0x001F12,
+     0x4CFFB7,0x00FF99,0x005935,0x001912,0x4CC3FF,0x00A9FF,0x004152,0x001019,
+     0x4C88FF,0x0055FF,0x001D59,0x000819,0x4C4CFF,0x0000FF,0x000059,0x000019,
+-    0x874CFF,0x5400FF,0x190064,0x0F0030,0xFF4CFF,0xFF00FF,0x590059,0x190019,
++    0x994CFF,0x9900FF,0x3C0064,0x1D0030,0xFF4CFF,0xFF00FF,0x590059,0x190019,
+     0xFF4C87,0xFF0054,0x59001D,0x220013,0xFF1500,0x993500,0x795100,0x436400,
+     0x033900,0x005735,0x00547F,0x0000FF,0x00454F,0x2500CC,0x7F7F7F,0x202020,
+     0xFF0000,0xBDFF2D,0xAFED06,0x64FF09,0x108B00,0x00FF87,0x00A9FF,0x002AFF,
+diff --git a/tests/smk_apc40_test.py b/tests/smk_apc40_test.py
+index 876de7b..fa578d6 100644
+--- a/tests/smk_apc40_test.py
++++ b/tests/smk_apc40_test.py
+@@ -20,6 +20,20 @@ assert palette[0] == 0x000000 and palette[3] == 0xFFFFFF
+ assert palette[5] == 0xFF0000 and palette[21] == 0x00FF00 and palette[127] == 0x4B1502
+ print("PASS APC40 RGB palette (128 entries)")
+ 
++# Bug a67: Loopy violet showed blue on the pads. The pad LED value of the violet group 48-51
++# must have a violet hue (265-290 degrees), not blue (240). Blue and magenta do not change.
++def pad_hue(rgb):
++    r, g, b = ((rgb >> 16) * 255 // 510, ((rgb >> 8) & 0xFF) * 255 // 510, (rgb & 0xFF) * 255 // 510)
++    mx, mn = max(r, g, b), min(r, g, b)
++    assert mx == b and mx > mn, hex(rgb)
++    return 240.0 + 60.0 * (r - g) / (mx - mn)
++for v in range(48, 52):
++    h = pad_hue(palette[v])
++    assert 265.0 <= h <= 290.0, f"velocity {v} {palette[v]:06X}: pad hue {h:.1f} is not violet"
++assert palette[44:48] == [0x4C4CFF, 0x0000FF, 0x000059, 0x000019]
++assert palette[52:56] == [0xFF4CFF, 0xFF00FF, 0x590059, 0x190019]
++print("PASS violet palette group 48-51 shows violet on the pads")
++
+ # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
+ assert "apc40_device_inquiry" in usb
+ assert "msg[1] = 0x7E" in usb and "msg[5] = 0x47" in usb and "msg[6] = 0x29" in usb
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 271681dd5d94b5ae97fddff38e9f4662ad5d0219 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:27:03 +1000
+Subject: [PATCH 08/10] Clip mode: a queued clip blinks at the beat rate from
+ the first blink.
+
+Loopy flashes a queued clip itself (colour, then off, about every 100 ms).
+The firmware sets the queued state only after two off-to-on toggles.
+Before that, each off cleared the cell, so the pad showed the first Loopy flashes at 100 ms.
+Now an off less than SMK_APC40_TOGGLE_TICKS (256 ms) after an on keeps the colour.
+smk_apc40_cells_age clears the cell if no on comes in that time.
+An off after a long steady colour, or an off after an off, clears the cell at once as before.
+tests/smk_apc40_map_test.c makes sure that the first blink period is one beat at 120 and 90 BPM, and 500 ms with no clock.
+BEHAVIOR.md CLP-14 gives the exception.
+---
+ BEHAVIOR.md                  |  2 +-
+ firmware/src/app/smk_apc40.h | 18 ++++++++++++++--
+ tests/smk_apc40_map_test.c   | 42 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 59 insertions(+), 3 deletions(-)
+
+diff --git a/BEHAVIOR.md b/BEHAVIOR.md
+index c74c678..3bf1e98 100644
+--- a/BEHAVIOR.md
++++ b/BEHAVIOR.md
+@@ -250,7 +250,7 @@ CLP-10. The firmware stores APC clip colour feedback (notes 0-39) and transport
+ CLP-11. While clip mode is on, or after an APC40 host (Loopy Pro) did the identity handshake on USB or Bluetooth, the APC40 LED feedback does not go to the sound engine: note-on and note-off for notes 0-98 on all MIDI channels (clip colours, blink and pulse channels, track, scene and transport LEDs) and the knob ring CCs 16-31 and 48-63. The handshake state ends when the USB host is lost. [USER] [CODE app/main_fm1.c smk_apc_usb_event] (Changed 2026-10-15, test 35: was notes 0-39, 91, 93 in clip mode only.)
+ CLP-12. While clip mode is off and no APC40 host did the handshake, these notes and CCs go to the sound engine as before. [USER] [CODE app/engine.c]
+ CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. Exception: in the violet group (velocities 48-51), red is 0.6 x blue. The palette values of the protocol showed blue on the pads. [APC] [CODE app/main_fm1.c APC40_RGB] (Changed 2026-10-16, a71.)
+-CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is the truth. [APC 1.4-apc40]
++CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is the truth. Exception: an off less than 256 ms after an on can be the first flash of a queued clip. The cell keeps its colour. If no on comes in 256 ms, the cell clears. Thus a queued clip does not blink fast before it gets the queued state (CLP-16). [APC 1.4-apc40] [CODE app/smk_apc40.h smk_apc40_cell_event smk_apc40_cells_age] (Changed 2026-10-16, a71.)
+ CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]
+ CLP-16. Two off-to-on toggles within 256 ms set the queued state. The queued state stops 384 ms after the last flash message. [APC 1.4-apc40] [CODE app/smk_apc40.h:101-102]
+ CLP-17. A feedback burst is a page snapshot only if it touches 8 or more cells, has no cue state, touches at least half of the lit cells, and covers 3 or more rows and 3 or more columns. A snapshot clears the cells that it does not touch. [APC 0.9-apc40] [APC 1.0-apc40] [CODE app/smk_apc40.h:224-232]
+diff --git a/firmware/src/app/smk_apc40.h b/firmware/src/app/smk_apc40.h
+index f9fd856..1be5bb4 100644
+--- a/firmware/src/app/smk_apc40.h
++++ b/firmware/src/app/smk_apc40.h
+@@ -114,10 +114,14 @@ static inline uint8_t smk_apc40_cell_event(volatile uint8_t velocity[SMK_APC40_C
+     vel &= 0x7Fu;
+     f = flags[note];
+     if (!vel) {
++        /* An off less than SMK_APC40_TOGGLE_TICKS after an on can be the first flash of a
++         * queued clip. Keep the color: smk_apc40_cells_age clears it if no on follows. */
++        uint8_t hold = (uint8_t)(!(f & SMK_APC40_CELL_OFF) &&
++                                 (uint8_t)(now - tick[note]) < SMK_APC40_TOGGLE_TICKS);
+         f |= SMK_APC40_CELL_OFF;
+         flags[note] = f;
+         tick[note] = now;
+-        if (f & SMK_APC40_CELL_QUEUED)
++        if ((f & SMK_APC40_CELL_QUEUED) || hold)
+             return 0u;                      /* flash off phase: keep the color */
+         if (!velocity[note])
+             return 0u;
+@@ -155,7 +159,17 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
+     uint8_t note, changed = 0u;
+     for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++) {
+         uint8_t f = flags[note];
+-        if (!(f & SMK_APC40_CELL_QUEUED) || (uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
++        if (!(f & SMK_APC40_CELL_QUEUED)) {
++            /* A held off (smk_apc40_cell_event) with no on after it: clear the cell now. */
++            if ((f & SMK_APC40_CELL_OFF) && velocity[note] &&
++                (uint8_t)(now - tick[note]) >= SMK_APC40_TOGGLE_TICKS) {
++                velocity[note] = 0u;
++                channel[note] = 0u;
++                changed = 1u;
++            }
++            continue;
++        }
++        if ((uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
+             continue;
+         if (f & SMK_APC40_CELL_OFF) {
+             velocity[note] = 0u;
+diff --git a/tests/smk_apc40_map_test.c b/tests/smk_apc40_map_test.c
+index 59d0b86..5a7b6f8 100644
+--- a/tests/smk_apc40_map_test.c
++++ b/tests/smk_apc40_map_test.c
+@@ -454,8 +454,50 @@ static void test_loopy_history_packets(void)
+     assert(SMK_APC40_UNDO_NOTE > 0x66u && SMK_APC40_REDO_NOTE > 0x66u);
+ }
+ 
++/* Bug a67: the first blinks of a queued clip followed the Loopy 100 ms flash. Model of
++ * main_fm1.c smk_pads and smk_apc_led_brightness: with clock, half a beat on and half off
++ * (phase from the clock count); with no clock, 250 ms on and 250 ms off. Return the time
++ * between the first two dark-to-lit edges after the flash starts at 1000 ms. */
++static uint32_t first_pending_blink_period(uint32_t bpm)
++{
++    uint8_t vel[SMK_APC40_CLIP_COUNT] = {0}, ch[SMK_APC40_CLIP_COUNT] = {0};
++    uint8_t flags[SMK_APC40_CLIP_COUNT] = {0}, tick[SMK_APC40_CLIP_COUNT] = {0};
++    uint8_t prev = 1u, last16 = 0u, lit;
++    uint32_t ms, edge[2] = {0u, 0u}, edges = 0u;
++    smk_apc40_cell_event(vel, ch, flags, tick, 0x20u, 0u, 0x37u, 0u);   /* idle clip */
++    for (ms = 1u; ms < 4000u && edges < 2u; ms++) {
++        if (ms >= 1000u && ms < 3500u && (ms - 1000u) % 100u == 0u)    /* Loopy flash */
++            smk_apc40_cell_event(vel, ch, flags, tick, 0x20u, 0u,
++                                 ((ms - 1000u) / 100u) % 2u ? 0u : 0x39u, (uint8_t)(ms >> 4));
++        if ((uint8_t)(ms >> 4) != last16) {                            /* smk_apc_usb_tick */
++            last16 = (uint8_t)(ms >> 4);
++            smk_apc40_cells_age(vel, ch, flags, tick, last16);
++        }
++        lit = vel[0x20] != 0u;
++        if (lit && ((flags[0x20] & SMK_APC40_CELL_QUEUED) || smk_apc40_is_queued(ch[0x20])))
++            lit = bpm ? smk_apc40_beat_phase(ms * bpm * 24u / 60000u) < 128u : !((ms / 250u) & 1u);
++        if (ms >= 1000u && lit && !prev)
++            edge[edges++] = ms;
++        prev = lit;
++    }
++    assert(edges == 2u);
++    return edge[1] - edge[0];
++}
++
++static void test_first_pending_blink_has_beat_period(void)
++{
++    uint32_t p;
++    p = first_pending_blink_period(120u);
++    assert(p >= 498u && p <= 502u);             /* 120 BPM: 500 ms, not 200 ms */
++    p = first_pending_blink_period(90u);
++    assert(p >= 664u && p <= 669u);             /* 90 BPM: 667 ms */
++    p = first_pending_blink_period(0u);
++    assert(p == 500u);                          /* no clock: the 250/250 ms default */
++}
++
+ int main(void)
+ {
++    test_first_pending_blink_has_beat_period();
+     test_loopy_history_packets();
+     test_lcd_map_fits_used_area();
+     test_loopy_refresh_keeps_last_colors();
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 6a1955bb59f5149546cf3b0d5e115bb805af2071 Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:28:46 +1000
+Subject: [PATCH 09/10] Clip mode: clear the clip feedback when Loopy goes away
+ on Bluetooth.
+
+ble_service gives the link state to smk_apc_ble_link after each event poll.
+If the link ended or the central wrote 0 to the MIDI CCCD, smk_apc_ble_link clears the clip feedback.
+It clears the cell colours, the queued state, the PLAY and REC feedback, and the latched layout.
+Reason: after Loopy closed, the pads kept the old colours and blinks.
+Clip mode, the keybed and the sequencer do not change.
+The BLE host, the link, the timing and the radio do not change.
+tests/smk_clip_ble_clear_test.c runs the real BLE-MIDI host with a disconnect, a CCCD write 0 and a reconnect.
+BEHAVIOR.md CLP-18 gives the rule.
+---
+ BEHAVIOR.md                     |   1 +
+ firmware/src/app/main_fm1.c     |  14 ++++
+ firmware/src/app/smk_apc40.h    |  22 ++++++
+ firmware/src/ble.c              |   2 +
+ tests/run_tests.sh              |   1 +
+ tests/smk_apc40_test.py         |  10 +++
+ tests/smk_clip_ble_clear_test.c | 114 ++++++++++++++++++++++++++++++++
+ 7 files changed, 164 insertions(+)
+ create mode 100644 tests/smk_clip_ble_clear_test.c
+
+diff --git a/BEHAVIOR.md b/BEHAVIOR.md
+index 3bf1e98..a3c39e1 100644
+--- a/BEHAVIOR.md
++++ b/BEHAVIOR.md
+@@ -254,6 +254,7 @@ CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is
+ CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]
+ CLP-16. Two off-to-on toggles within 256 ms set the queued state. The queued state stops 384 ms after the last flash message. [APC 1.4-apc40] [CODE app/smk_apc40.h:101-102]
+ CLP-17. A feedback burst is a page snapshot only if it touches 8 or more cells, has no cue state, touches at least half of the lit cells, and covers 3 or more rows and 3 or more columns. A snapshot clears the cells that it does not touch. [APC 0.9-apc40] [APC 1.0-apc40] [CODE app/smk_apc40.h:224-232]
++CLP-18. If the Bluetooth link ends or the central turns notify off (CCCD write 0), the firmware clears all clip feedback: the cell colours, the queued state, the PLAY and REC feedback and the latched layout. The pads and the LCD cells go dark. Clip mode, the keybed and the sequencer do not change. New feedback from Loopy shows the colours again. [USER] [CODE ble.c ble_service] [CODE app/main_fm1.c smk_apc_ble_link] (Added 2026-10-16, a71.)
+ 
+ ### 15.3 Layout and pads
+ 
+diff --git a/firmware/src/app/main_fm1.c b/firmware/src/app/main_fm1.c
+index 8819e57..cb13148 100644
+--- a/firmware/src/app/main_fm1.c
++++ b/firmware/src/app/main_fm1.c
+@@ -408,6 +408,20 @@ void smk_apc_host_lost(void)
+         apc_cell_tick[i] = 0u;
+     }
+ }
++/* ble.c ble_service calls this after each event poll (the same interrupt context as the cell
++ * stores). If the Bluetooth link ended or the central turned notify off, clear the clip feedback:
++ * the pads and the LCD cells go dark and no clip blinks. Clip mode and the sequencer do not change. */
++void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
++{
++    static uint8_t link;
++    if (!smk_apc40_link_lost(&link, connected, notifying))
++        return;
++    smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick);
++    apc_play_feedback = apc_record_feedback = 0u;
++    apc_burst_mask = 0u;
++    apc_burst_count = 0u;
++    apc_layout_locked = apc_layout_pending = 0u;   /* new feedback latches the layout again */
++}
+ /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
+  * cells: lit cells in the color from Loopy (dark shades lifted, see SMK_CLIP_LCD_FLOOR), unlit cells dim, queued cells with a white
+  * dot. A white frame marks each cell that is on the 16 pads now (the OCT view, or the
+diff --git a/firmware/src/app/smk_apc40.h b/firmware/src/app/smk_apc40.h
+index 1be5bb4..8a62a29 100644
+--- a/firmware/src/app/smk_apc40.h
++++ b/firmware/src/app/smk_apc40.h
+@@ -181,6 +181,28 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
+     return changed;
+ }
+ 
++/* Bluetooth link state for the clip feedback. Bit 0: the link is up. Bit 1: notify is on.
++ * Return 1 when a bit went from 1 to 0: the link ended, or the central turned notify off
++ * (CCCD write 0). Then Loopy is gone and its feedback is not true any more. */
++static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint8_t notifying)
++{
++    uint8_t now = (uint8_t)((connected ? 1u : 0u) | (notifying ? 2u : 0u));
++    uint8_t lost = (uint8_t)((*prev & (uint8_t)~now) != 0u);
++    *prev = now;
++    return lost;
++}
++
++/* Clear all clip cells: no colour, no queued state. */
++static inline void smk_apc40_cells_clear(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
++                                         volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
++                                         volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
++                                         volatile uint8_t tick[SMK_APC40_CLIP_COUNT])
++{
++    uint8_t note;
++    for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++)
++        velocity[note] = channel[note] = flags[note] = tick[note] = 0u;
++}
++
+ /* Beat phase 0..255 from the 24 PPQN clock count: one cycle per quarter note. */
+ static inline uint8_t smk_apc40_beat_phase(uint32_t clock_count)
+ {
+diff --git a/firmware/src/ble.c b/firmware/src/ble.c
+index c1fa70a..2601237 100644
+--- a/firmware/src/ble.c
++++ b/firmware/src/ble.c
+@@ -97,6 +97,7 @@ static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
+  * usb.c does on USB. Other SysEx from Bluetooth is not taken (counted). */
+ extern uint8_t smk_apc_usb_event(uint32_t pkt);
+ extern void smk_apc_host_seen(void);
++extern void smk_apc_ble_link(uint8_t connected, uint8_t notifying);
+ static uint8_t ble_sx[16], ble_sx_n, ble_sx_over, ble_sx_reply, ble_sx_ch;
+ static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
+ {
+@@ -359,6 +360,7 @@ static void ble_service(void)
+             bleh_rx(h, t, ble_r.fr, (uint16_t)n);
+         }
+     }
++    smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));   /* a71: Loopy gone: clip feedback off */
+     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
+         uint8_t b[3];
+         uint32_t len = ble_msg_of_usb(ble_oq[ble_r.orr % BLE_OQ], b);
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 6de8365..96fb778 100755
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -75,6 +75,7 @@ run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmwa
+ run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
+ run smk-apc40-map sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_apc40_map_test tests/smk_apc40_map_test.c && $OUT/smk_apc40_map_test"
+ run smk-apc40 python3 tests/smk_apc40_test.py
++run smk-clip-ble-clear sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/ble -o $OUT/smk_clip_ble_clear_test tests/smk_clip_ble_clear_test.c && $OUT/smk_clip_ble_clear_test"
+ run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
+ run installer-targets python3 tests/make_pages_test.py
+ if [ -f build/x0x.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
+diff --git a/tests/smk_apc40_test.py b/tests/smk_apc40_test.py
+index fa578d6..5f65720 100644
+--- a/tests/smk_apc40_test.py
++++ b/tests/smk_apc40_test.py
+@@ -167,3 +167,13 @@ assert ui_src.index("smk_clip_history_button((uint8_t)i") < ui_src.index("smk_cl
+ assert "ui.btn_used |= m | 1u << B_HOME;" in ui_src
+ assert "if (!clip_grid_mode || !patch_held)" in main and 'say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);' in main
+ print("PASS Loopy undo/redo: PATCH + SEQ REC / SEQ PLAY in clip mode only")
++# a71: Loopy gone on Bluetooth (link end or CCCD 0): ble.c gives the link state to the clip feedback
++# after each event poll, and main_fm1.c clears the cells (tests/smk_clip_ble_clear_test.c runs the logic).
++ble = (ROOT / "firmware/src/ble.c").read_text()
++assert "smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));" in ble
++assert ble.index("bleh_rx(h, t, ble_r.fr") < ble.index("smk_apc_ble_link((uint8_t)") < ble.index("bleh_midi_next(h, &m)")
++link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
++assert "smk_apc40_link_lost(&link, connected, notifying)" in link
++assert "smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick)" in link
++assert "smk_ck" not in link and "clip_grid_mode" not in link and "seq" not in link
++print("PASS Bluetooth link end or notify off clears the clip feedback")
+diff --git a/tests/smk_clip_ble_clear_test.c b/tests/smk_clip_ble_clear_test.c
+new file mode 100644
+index 0000000..44abaf8
+--- /dev/null
++++ b/tests/smk_clip_ble_clear_test.c
+@@ -0,0 +1,114 @@
++/* SPDX-License-Identifier: GPL-3.0-only */
++/* Clip mode (a71): when Loopy goes away on Bluetooth, the clip feedback clears. The real BLE-MIDI host
++ * (src/ble/ble_midi_host.c) gets HCI events and ATT writes; the cell model is app/smk_apc40.h; the glue
++ * is the same as main_fm1.c smk_apc_ble_link (called by ble.c ble_service after each event poll).
++ *   cc -std=c99 -O2 -Wall -Ifirmware/src -Ifirmware/src/ble tests/smk_clip_ble_clear_test.c */
++#include <assert.h>
++#include <stdio.h>
++#include <string.h>
++#include "ble_midi_host.c"
++#include "app/smk_apc40.h"
++
++static uint8_t vel[SMK_APC40_CLIP_COUNT], ch[SMK_APC40_CLIP_COUNT];
++static uint8_t flags[SMK_APC40_CLIP_COUNT], tick[SMK_APC40_CLIP_COUNT];
++static uint8_t link, now16;
++
++static int fake_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx) { (void)t; (void)p; (void)n; (void)ctx; return 0; }
++static void evt(bleh_t *h, const uint8_t *e, unsigned n) { bleh_rx(h, BLEH_H4_EVT, e, (uint16_t)n); }
++static void cc(bleh_t *h, unsigned op)
++{
++    uint8_t e[9] = {0x0E, 4, 1, (uint8_t)op, (uint8_t)(op >> 8), 0, 0, 0, 0};
++    if (op == 0x2002) { e[1] = 7; e[6] = 27; e[7] = 0; e[8] = 4; }
++    evt(h, e, 2u + e[1]);
++}
++static void acl(bleh_t *h, const uint8_t *d, unsigned n)   /* ATT on handle 0x040 */
++{
++    uint8_t b[64] = {0x40, 0x20, (uint8_t)(4 + n), 0, (uint8_t)n, 0, 4, 0};
++    memcpy(b + 8, d, n);
++    bleh_rx(h, BLEH_H4_ACL, b, (uint16_t)(8 + n));
++}
++static void cccd(bleh_t *h, uint8_t on) { uint8_t r[5] = {18, 7, 0, on, 0}; acl(h, r, 5); }
++static void connect(bleh_t *h)
++{
++    static const uint8_t cmplt[21] = {0x3E, 19, 0x01, 0x00, 0x40, 0x00, 0x01};
++    evt(h, cmplt, 21);
++    assert(bleh_connected(h) && !bleh_notifying(h));
++}
++static void disconnect(bleh_t *h)
++{
++    static const uint8_t e[] = {0x05, 4, 0, 0x40, 0, 0x13};   /* the central ended the link */
++    evt(h, e, sizeof e);
++    assert(!bleh_connected(h));
++}
++/* ble.c ble_service: events first, then the link check, then MIDI in to the cells */
++static void service(bleh_t *h)
++{
++    bleh_msg_t m;
++    if (smk_apc40_link_lost(&link, (uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h)))
++        smk_apc40_cells_clear(vel, ch, flags, tick);
++    while (bleh_midi_next(h, &m))
++        if ((m.b[0] & 0xE0u) == 0x80u)
++            smk_apc40_cell_event(vel, ch, flags, tick, m.b[1], m.b[0] & 0x0Fu,
++                                 (m.b[0] & 0xF0u) == 0x80u ? 0u : m.b[2], now16);
++}
++/* Loopy feedback: note 0x20 violet 0x31 (ch 0), note 0x21 queued (blink channel 14, 0x39) */
++static void feedback(bleh_t *h)
++{
++    const uint8_t d[] = {0x80, 0x80, 0x90, 0x20, 0x31, 0x80, 0x9E, 0x21, 0x39};
++    uint8_t b[40] = {0x52, 6, 0};
++    memcpy(b + 3, d, sizeof d);
++    acl(h, b, 3 + sizeof d);
++    service(h);
++}
++static unsigned lit(void)
++{
++    unsigned n, k = 0;
++    for (n = 0; n < SMK_APC40_CLIP_COUNT; n++)
++        k += vel[n] != 0u || flags[n] != 0u;
++    return k;
++}
++
++int main(void)
++{
++    static bleh_t h;
++    static const uint8_t addr[6] = {1, 2, 3, 4, 5, 6};
++    static const unsigned ops[] = {0x0C03, 0x0C01, 0x2001, 0x2002, 0x2005, 0x2006, 0x2008, 0x2009};
++    unsigned i;
++    bleh_init(&h, fake_send, 0, "X0X-TEST", addr);
++    bleh_start(&h);
++    for (i = 0; i < 8u; i++)
++        cc(&h, ops[i]);
++    assert(h.state == BLEH_ADVERTISING);
++    service(&h);
++
++    /* 1. The link ends: the pads clear (no colour, no queued blink). */
++    connect(&h); cccd(&h, 1); service(&h);
++    feedback(&h);
++    assert(vel[0x20] == 0x31u && vel[0x21] == 0x39u && smk_apc40_is_queued(ch[0x21]) && lit() == 2u);
++    disconnect(&h); service(&h);
++    assert(lit() == 0u);
++    printf("PASS disconnect clears the clip pads\n");
++
++    /* 2. A reconnect with new feedback shows the colours again. */
++    connect(&h); service(&h);
++    assert(lit() == 0u);
++    cccd(&h, 1); service(&h);
++    feedback(&h);
++    assert(vel[0x20] == 0x31u && vel[0x21] == 0x39u && lit() == 2u);
++    printf("PASS reconnect with new feedback shows the colours again\n");
++
++    /* 3. The central turns notify off (CCCD 0), the link stays up: the pads clear. */
++    cccd(&h, 0); service(&h);
++    assert(bleh_connected(&h) && !bleh_notifying(&h) && lit() == 0u);
++    cccd(&h, 1); service(&h);
++    feedback(&h);
++    assert(lit() == 2u);
++    printf("PASS CCCD 0 clears the clip pads; notify on again with feedback shows them\n");
++
++    /* 4. No false clear: a link that stays up keeps the feedback. */
++    for (i = 0; i < 100u; i++)
++        service(&h);
++    assert(lit() == 2u);
++    printf("PASS a steady link keeps the clip feedback\n");
++    return 0;
++}
+-- 
+2.54.0 (Apple Git-157)
+
+
+From 9ef7bc2ef4714105a2015c8866be1fe266f2388e Mon Sep 17 00:00:00 2001
+From: genkigenki <3080081+genkigenki@users.noreply.github.com>
+Date: Fri, 16 Oct 2026 19:35:36 +1000
+Subject: [PATCH 10/10] BLE attempt 71: ledger row with the build and the
+ tests.
+
+---
+ BLE_ATTEMPTS.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/BLE_ATTEMPTS.md b/BLE_ATTEMPTS.md
+index b14c4c8..286af39 100644
+--- a/BLE_ATTEMPTS.md
++++ b/BLE_ATTEMPTS.md
+@@ -218,3 +218,4 @@ Next: install a64 and do the iPhone connect test. Read DIAG with `tools/ble_auto
+ | guard (locked settings) | 2026-10-16 | Regression guard, no firmware change (a67 package and ctl.img are byte for byte the same: 6711ba82, eb742dd2). tools/locked_settings.json locks 20 settings with their file and reason: pwr_ble 6, pwr_max 8, osc_type 0, crystal trim 0x0B/0x0B and no WLA_CON12 copy, PA trim, RF clocks, advertising interval 0x40-0x80 with ADV_IND and channel map 7, ATT MTU 23, 0 calls of bleh_conn_update (no connection parameter request), every assignment in ble/ctl/src/config.c, CTL_BLE_IRQ_PRIO 7, X0X_RAM_CANARY 0, pool headroom 8192, slot offsets and sizes (slots.c and the package slot map), the Bluetooth block, every FL_ define in fm1_flash_map.h. tools/check_locked_settings.py reads them from the source and exits 1 on any difference. build.py, build_ctl.sh and run_tests.sh run it. Reason: on 2026-10-15 pwr_ble went 11 -> 5 (7f3208b) and silently back to 11 inside the unrelated commit 9070c21. The JSON history notes a66 (de06fd1, pwr_ble 11 -> 6) and a67 (94285b5, crystal trim fixed 11/11): those commits came before the guard. Checked: a changed pwr_ble, config.c value, slot 3 offset or an added bleh_conn_update call each stop the build. | Done. |
+ | 67 (installed) | 2026-10-16 | Installed 19:00 via Mac (a67-x0x-smk37-elite.fwsc crc32 6711ba82 + --ctl a65-ctl.img crc32 eb742dd2, commit 94285b5). Installer exit 0, foreground. This installer does not read back the image CRC. Slots before slots-before-a67-20261016-1859 and after slots-after-a67-20261016-1900 (copies in slot_backups/): slot 1 data 05fb6e99 (archive 961626d5), slot 2 data 6bb165f0 (archive 9a09fdb9), before = after; slot 3 empty (44 KiB at 0xB0000). DIAG (a67-diag-after-install.txt): READY, mailbox READY, host step 8, controller took 9 gave 9, no crash, guard fails 0, parameter request not sent. Crystal trim: WLA_CON12 0x099A61FF (boot, 3/3) -> 0x05D9625F (after the RF init, 11/11). In a65 it was 0x0598625F (3/3). TX power: this DIAG does not read it back; the source and the locked settings give pwr_ble 6. Next: the iPhone connect test with Loopy Pro at 7.5 ms. | Installed. Owner notified 18:58 (+10) before install: commit 94285b5 (branch ble-a65). |
+ | 67 (iPhone test 1: PASS) | 2026-10-16 | The owner tested a67 (94285b5) with Loopy Pro on the iPhone at 19:18 (+10). Result: PASS, "working flawlessly". DIAG at 19:19 (a67-diag-iphone-pass.txt): status CONNECTED, host state 3. The interval is 7.5 ms, latency 0. The asked MTU is 185. The last end reason is 0x00, so no link ended since the boot at 19:00. The controller took 33 frames and gave 224. Drops are 0. Pairing refused is 0. No new crash. The crystal trim is 11/11 (WLA_CON12 0x05D9625F). The TX power is 6. Cause of the a65 supervision timeout (0x08): crystal trim 3/3 and TX power 11. Tag last-good-hw moved from 33af6c7 to 94285b5. |
++| 71 (clip mode: violet, first blink, Loopy gone) | 2026-10-16 | Branch ble-a71 from ble-a70 191b9f6. Three clip-mode fixes, one commit each. 1632c05: APC40_RGB velocities 48-51 have red = 0.6 x blue (0x994CFF, 0x9900FF, 0x3C0064, 0x1D0030). The protocol values (0x874CFF, 0x5400FF, 0x190064, 0x0F0030) have little red, so the WS2812 pads showed violet as blue. The other 124 entries do not change. The exact velocity that Loopy sends for violet is not in a capture. 271681d: an off less than 256 ms (SMK_APC40_TOGGLE_TICKS) after an on keeps the cell colour, and smk_apc40_cells_age clears it if no on follows. Before, the first two Loopy flashes (100 ms) went to the pads before the queued state started. 6a1955b: ble_service gives bleh_connected and bleh_notifying to smk_apc_ble_link after each event poll. A link end or a CCCD write 0 clears the cells, the queued state, the PLAY and REC feedback and the latched layout. The BLE host, the link, the timing and the radio do not change. New host tests: smk_apc40_map_test (first blink period one beat at 120 and 90 BPM, 500 ms with no clock), smk_apc40_test.py (pad hue of 48-51 is violet), smk_clip_ble_clear_test.c (disconnect, CCCD 0, reconnect). Build (6a1955b): app code 4460 B free (a70: 4700 B), RAM .data+.bss 94448 of 98304 B, pool 8196 B free. a71-x0x-smk37-elite.fwsc 651396 B crc32 d240f90b, a71-x0x-smk37-elite-ble.fwsc 651396 B crc32 0cafa48b, ctl.img 64984 B crc32 eb742dd2 (not changed). check_locked_settings: 20 settings ok. run_tests.sh: 70 ok, 0 FAIL. Runner gate run_full.sh (elite, FM-1, ctl, tests): 78 ok, 0 FAIL. install_test, install_slots_test, install_ctl_test: pass. NOT installed. | Built only. |
+-- 
+2.54.0 (Apple Git-157)
+
