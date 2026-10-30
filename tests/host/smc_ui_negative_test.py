@@ -26,7 +26,8 @@ MUTANTS = {
         'else if (ui.view == V_SEQ)',
     ),
     "filter-shows-false-solo": (
-        'view == V_PART ? "PART"', 'view == V_PART ? "S"',
+        # Strip 8 row 2 now resolves before the SMC_VIEW table (its V_PART entry is unreachable).
+        'is_303() ? "GEN" : "PART";', 'is_303() ? "GEN" : "S";',
     ),
     "static-knob-arc": (
         '(float)smc_scaled(k) / 127.0f', '0.5f',
@@ -44,8 +45,8 @@ MUTANTS = {
         "kit >= 0 ? (ui.part == kit ? ui.sel[kit] - smc_drum_track(kit, 0) : -1) :",
     ),
     "main-mix-ignores-channel": (
-        "(cur_page() == 3 ? 7 : part_position(ui.mixsel))",
-        "(cur_page() == 3 ? 7 : part_position(ui.part))",
+        "(smc_page_now() == 3 ? 7 : part_position(ui.mixsel))",
+        "(smc_page_now() == 3 ? 7 : part_position(ui.part))",
     ),
     "duplicate-opens-overlay": (
         "    if (moved) {",
