@@ -46,6 +46,15 @@ uint32_t plat_buttons(void)
 }
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
+#if BOARD_SMK37 && X0X_ORIGINAL_SYNTH && X0X_DEV_WOBBLE
+int plat_division_pad(unsigned owner)
+{
+    uint32_t flags = irq_save();
+    int hit = smk__division_poll(owner);
+    irq_restore(flags);
+    return hit;
+}
+#endif
 
 #if X0X_ORIGINAL_SYNTH
 uint64_t plat_physical_keys(void)

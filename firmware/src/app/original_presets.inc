@@ -78,6 +78,7 @@ static int bass_restore_part(const sound_t *sound, int v)
     if (original_runtime_retire(&original_bass[v]) != ORIGINAL_RUNTIME_OK) return 0;
     int rc = original_runtime_init(&original_bass[v], sound->v[T_303][v], seq_tempo(&seq),
         &original_tuning, &original_fx_owner[v]);
+    original_switch_gain[v] = 512u; original_quiet_samples[v] = 0;
     bass_named_preset[v] = sound->v[T_303][v][30];
     original_seq_note[v] = -1;
     __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
@@ -119,7 +120,7 @@ int engine_bass_preset_pending(int v)
     if (!plat_midi_passed(request.midi) || (int32_t)(cq_r - request.cq) < 0) return 5;
     if (bass_has_locks(v)) return 4;
     if (bass_wheel_mask & (1u << v)) return 3;
-    if (original_runtime_active(&original_bass[v])) return 2;
+    if (original_runtime_owned(&original_bass[v]) || original_quiet_samples[v] < 512u) return 2;
     return 1;
 }
 int engine_bass_requested_bank(int v)
@@ -142,6 +143,8 @@ int engine_bass_base_ready(unsigned mask, const bass_base_state_t *target)
         if (bass_tagged_cell_validate(target->cell[v], &target->tag[v], &bank)) return -5;
         if (!engine_bass_bank_available(v, bank)) return -2;
         if (bass_has_locks(v)) return -4;
+        /* Typed history restore retains its existing admission contract. Only
+         * factory requests own the measured fade/quiescence transition. */
         if ((bass_wheel_mask & (1u << v)) || original_runtime_active(&original_bass[v])) return 2;
     }
     return cq_r != cq_w || live_key_r != live_key_w || live_key_cancel ||
@@ -193,6 +196,7 @@ static void bass_preset_boundary(void)
             bass_applied[v] = token;
             continue;
         }
+        original_switch_gain[v] = 512u; original_quiet_samples[v] = 0;
         sound_t *sound = (sound_t *)mot_base_snd;
         __builtin_memcpy(sound->v[T_303][v], next, sizeof next);
         bass_tag_set(sound, v, bank, preset, 0);
