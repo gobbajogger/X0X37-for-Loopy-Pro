@@ -40,3 +40,8 @@ Expected PR diff from corrected base: 8 files, only docs/engineering-delivery/, 
 
 MERGE BAR: NOT MET, because full host suite and both target builds were NOT_RUN.
 Next step: reconstruct exact source via GitHub tree/blob using a container-compatible transfer, resolve the real complete V1.2.1 SDK path, then run full suite and both builds with logs and artifact hashes.
+
+Additional independently executed scoped sanitizer check (same unchanged source):
+Command: gcc -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -std=c99 -Wall -Wextra -Werror -pedantic -O1 -g -Ifirmware/src tests/host/smc_fx_page_port_test.c firmware/src/app/smc_fx_map_tables.c -o build/host/mixer-fx-asan && ASAN_OPTIONS=detect_leaks=1 build/host/mixer-fx-asan
+Result: EXIT 0, PASS 67 assertions; FAIL 0; no ASan/UBSan/leak report.
+Scoped total after this run: five successful runs, 67 new distinct assertions plus 76 existing = 143 distinct, not a full-suite pass.
