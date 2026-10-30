@@ -319,6 +319,7 @@ X0X_COLD void bass303_set(bass303_t *b, int i, int v)
 __attribute__((noinline)) static void clear_audio_state(bass303_t *b)
 {
     int i;
+    (void)i;                 /* used only when BASS303_OS >= 2 */
     b->dc.x1 = b->dc.x2 = b->dc.y1 = b->dc.y2 = 0.0f;
     b->hp1_x1 = b->hp1_y1 = 0.0f;
     b->f_y1 = b->f_y2 = b->f_y3 = b->f_y4 = b->fb_x1 = b->fb_y1 = 0.0f;
