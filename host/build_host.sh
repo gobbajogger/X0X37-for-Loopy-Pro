@@ -28,8 +28,8 @@ U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_pa
    firmware/src/app/factory_banks.c"
 case "${X0X_ORIGINAL_SYNTH:-1}" in
     0) echo "X0X_ORIGINAL_SYNTH: only 1 is supported" >&2; exit 2 ;;
-    1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-0}"
-       case "$DEV_WOBBLE" in 0) ;; *) echo 'X0X_DEV_WOBBLE: only 0 is supported' >&2; exit 2 ;; esac
+    1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-1}"
+       case "$DEV_WOBBLE" in 0|1) ;; *) echo 'X0X_DEV_WOBBLE: 0 or 1' >&2; exit 2 ;; esac
        U="$U $(python3 - <<'PY'
 import importlib.util
 spec = importlib.util.spec_from_file_location('x0x_build', 'tools/build.py')

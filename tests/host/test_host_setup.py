@@ -91,6 +91,7 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
                                   "-Wno-unused-parameter", "-DX0X_HOST"])
         self.assertIn("-DX0X_ORIGINAL_SYNTH=1", argv)
         self.assertIn("-DX0X_WOBBLE=0", argv)
+        self.assertIn("-DX0X_DEV_WOBBLE=1", argv)
         self.assertIn("original_fixture.c", argv)
         self.assertIn("original_backend_fixture.c", argv)
         self.assertNotIn("firmware/src/dsp/bass303.c", argv)
@@ -110,6 +111,22 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
         result = self.run_builder(X0X_ORIGINAL_SYNTH="0")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("only 1 is supported", result.stderr)
+        self.assertFalse((self.root / "compile.json").exists())
+
+    def test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp(self):
+        result = self.run_builder(X0X_DEV_WOBBLE="0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        argv = json.loads((self.root / "compile.json").read_text())["argv"]
+        self.assertIn("-DX0X_ORIGINAL_SYNTH=1", argv)
+        self.assertIn("-DX0X_WOBBLE=0", argv)
+        self.assertIn("-DX0X_DEV_WOBBLE=0", argv)
+        self.assertNotIn("firmware/src/dsp/bass303.c", argv)
+        self.assertNotIn("experiments/wobble/wobble.c", argv)
+
+    def test_invalid_original_rate_pad_flag_is_rejected(self):
+        result = self.run_builder(X0X_DEV_WOBBLE="2")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("X0X_DEV_WOBBLE: 0 or 1", result.stderr)
         self.assertFalse((self.root / "compile.json").exists())
 
     def test_original_input_failure_stops_compilation(self):
