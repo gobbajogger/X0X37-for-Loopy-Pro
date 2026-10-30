@@ -44,7 +44,8 @@ void original_chicago_mastercomp_reset(original_chicago_mastercomp *s){
 }
 int original_chicago_mastercomp_set(original_chicago_mastercomp *s,unsigned p,int32_t value){
  if(!s||p>2)return 0;
- unsigned v=(uint32_t)value&127u;s->parameter[p]=(uint8_t)v;
+ unsigned v=(uint32_t)value&127u;
+ s->parameter[p]=(uint8_t)v;
  if(p==0)s->target_sensitivity=(int32_t)(64u+((959u*curve(v))>>15));
  else if(p==1)s->attack=(int32_t)(8u+((3268u*curve(v))>>15));
  else s->target_gain=(int32_t)gain_table(v);
@@ -99,12 +100,19 @@ static void eq_coefficients(original_chicago_peaking *s,unsigned refresh_alpha){
 }
 int original_chicago_peaking_init(original_chicago_peaking *s){
  if(!s)return 0;
- memset(s,0,sizeof *s);s->parameter[0]=61;s->parameter[1]=70;s->parameter[2]=64;eq_coefficients(s,1);return 1;
+ memset(s,0,sizeof *s);
+ s->parameter[0]=61;
+ s->parameter[1]=70;
+ s->parameter[2]=64;
+ eq_coefficients(s,1);
+ return 1;
 }
 void original_chicago_peaking_reset(original_chicago_peaking *s){if(s)memset(s->history,0,sizeof s->history);}
 int original_chicago_peaking_set(original_chicago_peaking *s,unsigned p,unsigned v){
  if(!s||p>2||v>127)return 0;
- s->parameter[p]=(uint8_t)v;eq_coefficients(s,p!=1);return 1;
+ s->parameter[p]=(uint8_t)v;
+ eq_coefficients(s,p!=1);
+ return 1;
 }
 void original_chicago_mastercomp_activity(original_chicago_mastercomp *s,uint8_t a){if(s)s->activity=a;}
 void original_chicago_peaking_activity(original_chicago_peaking *s,uint8_t a){if(s)s->activity=a;}

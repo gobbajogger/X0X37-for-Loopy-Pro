@@ -41,7 +41,8 @@ int original_chicago_fx2_wrapper_tempo(original_chicago_fx2_wrapper *s,int32_t t
 }
 void original_chicago_fx2_wrapper_reset(original_chicago_fx2_wrapper *s){
  if(!s)return;
- s->transitioning=0;s->switch_current=s->switch_pending;
+ s->transitioning=0;
+ s->switch_current=s->switch_pending;
  s->wet_target=s->switch_current?32767:0;s->wet_accumulator=s->wet_target*32768;
  if(s->cold_policy){if(s->active)s->active->reset(s->active->context);}
  else s->owner.reset_all(s->owner.context);

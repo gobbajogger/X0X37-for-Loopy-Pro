@@ -32,7 +32,9 @@ int original_mod_events(original_mod_queue *q,const original_mod_event *e,uint32
 }
 void original_chicago_ring_init(original_chicago_ring *s){
  if(!s)return;
- memset(s,0,sizeof *s);s->edit1=s->edit2=64;s->dirty=1;
+ memset(s,0,sizeof *s);
+ s->edit1=s->edit2=64;
+ s->dirty=1;
  s->pending_frequency=asr(mod_linear[64]*3,3);s->pending_wet=mod_linear[64];
 }
 void original_chicago_ring_reset(original_chicago_ring *s){if(s){s->frequency_acc=shl(s->frequency,15);s->wet_acc=shl(s->wet,15);s->phase=0;}}
@@ -60,17 +62,23 @@ int original_chicago_ring_process(original_chicago_ring *s,int16_t *l,int16_t *r
 }
 int original_chicago_chorus_init(original_chicago_chorus *s,int16_t l[1024],int16_t r[1024]){
  if(!s||!l||!r||l==r)return 0;
- memset(s,0,sizeof *s);s->left=l;s->right=r;s->dirty=1;
+ memset(s,0,sizeof *s);
+ s->left=l;
+ s->right=r;
+ s->dirty=1;
  memset(l,0,1024*sizeof *l);memset(r,0,1024*sizeof *r);return 1;
 }
 void original_chicago_chorus_reset(original_chicago_chorus *s){
  if(!s)return;
- memset(s->left,0,1024*sizeof *s->left);memset(s->right,0,1024*sizeof *s->right);s->modulator[0]=s->modulator[1]=0;
+ memset(s->left,0,1024*sizeof *s->left);
+ memset(s->right,0,1024*sizeof *s->right);
+ s->modulator[0]=s->modulator[1]=0;
  s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;/* original head is preserved */
 }
 int original_chicago_chorus_set(original_chicago_chorus *s,unsigned p,unsigned v){
  if(!s||v>127||(p!=2&&p!=3))return 0;
- if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
+ if(p==2)s->edit1=(uint8_t)v;
+ else s->edit2=(uint8_t)v;
  s->pending_speed=mod_speed[s->edit1];s->pending_feedback=mod_feedback[s->edit2];s->pending_wet=mod_wet[s->edit2];s->dirty=1;return 1;
 }
 static int32_t feedback_twice(int32_t y){int32_t a=sub(shl(y,1),shl(y,15));for(unsigned j=0;j<2;j++)a=sub(shl(asr(a,15),1),si((uint32_t)a&0xffff8000u));return asr(a,15);}
@@ -96,16 +104,26 @@ int original_chicago_chorus_process(original_chicago_chorus *s,int16_t *l,int16_
 }
 void original_chicago_phaser_init(original_chicago_phaser *s){
  if(!s)return;
- memset(s,0,sizeof *s);s->edit1=30;s->edit2=63;s->speed=mod_speed[30];s->modulation=asr(mul(mod_linear[63],16102),15);
+ memset(s,0,sizeof *s);
+ s->edit1=30;
+ s->edit2=63;
+ s->speed=mod_speed[30];
+ s->modulation=asr(mul(mod_linear[63],16102),15);
  int32_t x=asr(sub(shl(mod_linear[120],15),mod_linear[120]),15);s->depth=(int32_t)((uint32_t)mul(x,x)>>15);s->feedback=asr(mul(mod_ph_feedback[40],32440),15);s->wet=mod_linear[64];
 }
 void original_chicago_phaser_reset(original_chicago_phaser *s){
  if(!s)return;
- memset(s->history,0,sizeof s->history);s->depth_acc=shl(s->depth,15);s->modulation_acc=shl(s->modulation,15);s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;
+ memset(s->history,0,sizeof s->history);
+ s->depth_acc=shl(s->depth,15);
+ s->modulation_acc=shl(s->modulation,15);
+ s->feedback_acc=shl(s->feedback,15);
+ s->wet_acc=shl(s->wet,15);
+ s->phase=0;
 }
 int original_chicago_phaser_set(original_chicago_phaser *s,unsigned p,unsigned v){
  if(!s||v>127||(p!=2&&p!=3))return 0;
- if(p==2){s->edit1=(uint8_t)v;s->speed=mod_speed[v];}else{s->edit2=(uint8_t)v;s->modulation=asr(mul(mod_linear[v],16102),15);}return 1;
+ if(p==2){s->edit1=(uint8_t)v;s->speed=mod_speed[v];}else{s->edit2=(uint8_t)v;s->modulation=asr(mul(mod_linear[v],16102),15);}
+ return 1;
 }
 int original_chicago_phaser_process(original_chicago_phaser *s,int16_t *l,int16_t *r,uint32_t n){
  if(!s||(n&&(!l||!r||l==r)))return 0;
@@ -166,11 +184,16 @@ int original_chicago_ensemble_init(original_chicago_ensemble *s,float *l,float *
 }
 void original_chicago_ensemble_reset(original_chicago_ensemble *s){
  if(!s)return;
- s->head=0;s->written=0;s->depth=44100.0f*fl(0x3ad1b717);s->spread=1;ensemble_phases(s);
+ s->head=0;
+ s->written=0;
+ s->depth=44100.0f*fl(0x3ad1b717);
+ s->spread=1;
+ ensemble_phases(s);
 }
 int original_chicago_ensemble_set(original_chicago_ensemble *s,unsigned p,unsigned value){
  if(!s||value>127||(p!=2&&p!=3))return 0;
- if(p==2)s->edit1=(uint8_t)value;else s->edit2=(uint8_t)value;
+ if(p==2)s->edit1=(uint8_t)value;
+ else s->edit2=(uint8_t)value;
  s->pending_depth=(float)s->edit1/127.0f;s->pending_spread=(float)s->edit2/127.0f;s->dirty=1;return 1;
 }
 static int ensemble_history(const original_chicago_ensemble *s,unsigned channel,uint32_t index,unsigned current,float *out){
