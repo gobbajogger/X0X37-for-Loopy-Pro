@@ -25,3 +25,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #693 | 4f039829 | cherry-pick 573b11b5+4f039829 | f60a2d8e | firmware/src/app/ui.c (same logic already in base; kept ours) | 3rd commit 4775ef91 NOT taken: 284-file guards-slots lane snapshot that re-adds dsp/bass303.c + wobble/bass303 tests; its useful content already came via #708 |
 | #696 | 7d313427 | merged | 3bbbe81a | tests/run_tests.sh | .github/workflows/pr696-ci-qualification.yml not brought in |
 | #694 | 7b07eaf3 | merged | b6b367cb | - | merged all non-CI parts; .github/workflows/remaining-features-host.yml not brought in (plan names no item subset) |
+| #689 | e0d9460a | merged | ce63fd54 | tests/run_tests.sh |  |
