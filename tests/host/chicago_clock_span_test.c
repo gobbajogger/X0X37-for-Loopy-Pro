@@ -23,6 +23,23 @@ int main(void){
   compare(x,b,original_math_float(0x7f7fffffu),256);
   float edge=x+b*(float)(k+1);if(edge>0&&original_math_bits(edge)<0x7f800000u)compare(x,b,edge,4096);
  }
+ /* The fast path is admitted only when the entire span fits the same
+  * exponent/threshold interval without a 32-bit multiplication overflow.
+  * Cover both sides of the 4096-frame and 20-bit ULP-delta guards. */
+ const uint32_t lengths[]={0,1,2,63,64,255,256,257,4096,4097,65535};
+ const float starts[]={0,20,120,200,2000,65536,8388608,33554432,1073741824};
+ for(unsigned j=0;j<sizeof bpms/sizeof bpms[0];j++)
+  for(unsigned k=0;k<sizeof starts/sizeof starts[0];k++)
+   for(unsigned h=0;h<sizeof lengths/sizeof lengths[0];h++){
+    float x=starts[k],b=bpms[j];uint32_t frames=lengths[h];
+    compare(x,b,original_math_float(0x7f7fffffu),frames);
+    compare(x,b,x+b*64,frames);
+    compare(x,b,x+b*4096,frames);
+   }
+ /* Some callers can expose a negative accumulator before reset. These
+  * values must still take the literal-addition path, without changed bits. */
+ for(unsigned i=0;i<sizeof lengths/sizeof lengths[0];i++)
+  compare(-120,123.456f,240,lengths[i]);
  for(unsigned i=0;i<300000;i++){
   float bpm=20+(float)(random32()&0xffffffu)*(380.0f/16777216.0f);
   uint32_t u=random32()%0x55000000u;
