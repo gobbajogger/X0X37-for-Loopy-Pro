@@ -1,0 +1,8 @@
+{
+  "result": "PASS",
+  "preserved_ast": "All native input helper functions except runtime, all dev_validate top-level functions except LinuxWorker exactly match acceptedcadeae0.",
+  "runtime": "Retired settings ignored; native compiler/tools and Python package byte identity unchanged; explicitly declared command still captured.",
+  "worker": "Only active forwarded inputs retained; Linux PATH/defaults and controller-native/no-cache development flags preserved.",
+  "dependencies": "Declared external input mutation invalidates captured identity.",
+  "limits": "Forwarding uses fake Docker protocol replies; separate real worker provenance check covers actual execution. No target/controller build."
+}

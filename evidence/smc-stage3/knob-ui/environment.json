@@ -1,0 +1,29 @@
+{
+  "image": "x0x37-validation:local",
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "network": "none",
+  "host_compiler": "cc (Debian 12.2.0-14+deb12u1) 12.2.0",
+  "workspace_mount": "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+  "sdk_mount": "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+  "working_directory": "/Users/mac/Documents/x0x37/smc_stage3_20261021",
+  "environment": {
+    "CC": "cc",
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_POSIX_C_SOURCE=200809L",
+    "AC79_SDK": "/sdk",
+    "X0X_DEV_PADCAL": "1"
+  },
+  "run_argv": [
+    "python3",
+    "evidence/smc-stage3/knob-ui/run-checks.py"
+  ],
+  "additional_argv": [
+    "python3",
+    "evidence/smc-stage3/knob-ui/paired-knob-pickup.py"
+  ],
+  "candidate_original": "3d7b1999a245e84d6d9faf1241dd1078ef335d31",
+  "candidate_metadata_corrected": "3fc770dcde261a23556f6c3749ebd4bc5911f1c3",
+  "exact_git_tree_for_both": "854b4d97bdac0a6941ab1dd83ae26b9c1535cdec",
+  "metadata_correction": "Root added missing Trigger:/Check: commit-message lines. No tree change; independently verified git trees match and source/test/docs diff is empty."
+}

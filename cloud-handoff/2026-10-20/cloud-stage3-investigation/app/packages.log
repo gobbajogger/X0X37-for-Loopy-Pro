@@ -1,0 +1,10 @@
+  ok   installer
+  ok   smk-package
+  ok   smk-ota-entry
+  ok   smk-ota-entry-model1
+  ok   smk-ota-entry-model2
+  ok   smk-update-loader
+  ok   smk-build-package
+  ok   smk-build-package-elite
+  ok   ble-package
+all tests passed

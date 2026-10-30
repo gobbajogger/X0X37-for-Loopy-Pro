@@ -1,0 +1,2 @@
+tests/host/ble_midi_central_test.c:23:31: runtime error: null pointer passed as argument 2, which is declared to never be null
+PASS: HCI fragments 1-8, malformed assembly, bounds, rejection and lifecycle

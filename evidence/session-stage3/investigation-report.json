@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "scope": "Independent stage-3 investigation.",
+  "candidate": "28d0fc230f60bc823c1e5e73d3aed61e68a8e32f",
+  "lane": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021",
+  "owner": "/root/central_investigation",
+  "result": "FAIL",
+  "source_repair_required": true,
+  "next_stage": 2,
+  "source_sha256": {
+    "firmware/src/ble/ble_midi_central.c": "601a29d9f5ad94518a21ac2e4279b6cd4b20fa35da628874a065a6d35f863ef5",
+    "firmware/src/ble/ble_midi_central.h": "858be9c6246329884deaa18eb82f61f3695af61e56c864c50146bdbd1d73d7b6",
+    "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+    "firmware/hal/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+    "firmware/src/app/smc_mixer.c": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+    "tests/host/ble_midi_signal_test.c": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f",
+    "evidence/session-stage3/investigation-abort-probe.c": "8d0f79c597591d4694eb227fde5bda486cf0bc1fe6786de4d97311628fa90394"
+  },
+  "environment": {
+    "host": "Darwin arm64",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)"
+  },
+  "compile": [
+    "cc",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "evidence/session-stage3/investigation-abort-probe.c",
+    "firmware/src/ble/ble_midi_central.c",
+    "-o",
+    "/private/tmp/x0x37-investigation-abort-probe"
+  ],
+  "probe_results": {
+    "overflow": {
+      "command": [
+        "/private/tmp/x0x37-investigation-abort-probe",
+        "overflow"
+      ],
+      "returncode": -6,
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/investigation-overflow.log",
+      "stdout": "Recovered transport before deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nBefore deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nAt deadline: state=8 conn=80 attempts=1 accepted_disconnects=0\n",
+      "stderr": "Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.\n"
+    },
+    "timeout": {
+      "command": [
+        "/private/tmp/x0x37-investigation-abort-probe",
+        "timeout"
+      ],
+      "returncode": -6,
+      "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/investigation-timeout.log",
+      "stdout": "Recovered transport before deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nBefore deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nAt deadline: state=8 conn=80 attempts=1 accepted_disconnects=0\n",
+      "stderr": "Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.\n"
+    }
+  },
+  "findings": [
+    {
+      "id": "CENTRAL-ABORT-01",
+      "priority": 1,
+      "status": "CONFIRMED",
+      "title": "A busy transport can discard the required disconnect command.",
+      "location": "firmware/src/ble/ble_midi_central.c:68-80,487-511",
+      "trigger": "A signaling queue overflow or timeout occurs while the send callback returns busy.",
+      "cause": "blec_fail calls blec_command once. A failed send does not set waiting or preserve the command. BLEC_DISCONNECTING does not retry.",
+      "observed": "The transport recovers after 1 ms. No disconnect command reaches it before the 3-second deadline. The host changes to BLEC_FAILED and retains conn=0x50.",
+      "first_failed_invariant": "The abort must send one disconnect command when the transport recovers before the deadline.",
+      "failure": "Both overflow and timeout probes fail assert(disconnects == 1). Each process returns -6. Each probe records one rejected attempt and zero accepted disconnects.",
+      "impact": "The new reply queue cannot guarantee its stated abort behavior under the backpressure condition that it supports. The controller can retain its link while the host reports failure.",
+      "provenance_limit": "The one-shot blec_fail helper also exists on the base. The new signaling paths call it. This is an exposed dependency defect, not proof of a new original-input regression.",
+      "production_transport": "ble_send returns xb_frame_put directly. The ring API can return -1 when space is unavailable. The probe substitutes this return condition.",
+      "physical_limit": "The test does not prove saturation of the physical 1024-byte h2c ring. It does not establish how often this condition occurs.",
+      "disposition": "Block stage 4. Use one fresh stage 2 for a bounded disconnect retry. Then use a fresh stage 3 for affected checks.",
+      "acceptance_criteria": [
+        "Both overflow and timeout must preserve the pending abort if its first command send fails.",
+        "When the transport recovers before the deadline, send exactly one accepted COP_DISCONNECT for the active handle.",
+        "Do not repeat an accepted command on later polls.",
+        "Do not extend the bounded deadline on each rejected send.",
+        "A successful disconnect event must clear pending fragments and replies, restore credits, and permit reconnection.",
+        "Keep failed-disconnect events and permanent transport failure distinct from successful disconnection.",
+        "Preserve identifiers, reply ordering, ATT limits, MIDI receive behavior, model guards, features, licensing, and budgets."
+      ]
+    }
+  ],
+  "protocol_review": {
+    "result": "No additional confirmed defect in the selected signaling policy.",
+    "observations": [
+      "CID 5 carries LE signaling. One signaling packet is permitted per C-frame.",
+      "Responses retain the request identifier. Identifier zero is invalid.",
+      "An unsolicited identified response can be discarded without a reply.",
+      "A parameter-update refusal is permitted. Acceptance would require delivery of the parameters to the controller.",
+      "The 64-byte signaling MTU exceeds the 23-byte minimum. An oversized request receives the supported MTU.",
+      "HCI disconnection frees unacknowledged packets for that handle. The sole-link credit reset follows this rule."
+    ],
+    "sources": [
+      {
+        "url": "https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-62/out/en/host/logical-link-control-and-adaptation-protocol-specification.html",
+        "sections": [
+          "4",
+          "4.1",
+          "4.20",
+          "4.21"
+        ],
+        "retrieval": "Opened and read with web tool."
+      },
+      {
+        "url": "https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host-controller-interface/host-controller-interface-functional-specification.html",
+        "sections": [
+          "4.3"
+        ],
+        "retrieval": "Full open exceeded the web limit. The primary-domain search returned section 4.3."
+      }
+    ]
+  },
+  "shared_state_review": {
+    "result": "No additional confirmed race in the new fields.",
+    "observations": [
+      "ble_central_service calls blec_rx, blec_poll, blec_start and blec_stop in TIMER5.",
+      "The new signaling queue has four entries. Its indices, counters, deadline and ACL assembly fields stay in that context.",
+      "The main loop produces the existing MIDI feedback queue through blec_midi_send. It does not write the new signaling fields.",
+      "The queue gates ATT and feedback sends until pending signaling replies drain.",
+      "ACL assembly retains at most 64 bytes. The uint16_t counters can drain a 65535-byte signaling PDU without a proportional allocation.",
+      "Completed-packet addition saturates before uint8_t conversion. A failed disconnect event does not restore credits."
+    ],
+    "limit": "Source ownership review does not emulate target interrupt timing, stack execution, radio execution or cache behavior."
+  },
+  "original_input_failure": {
+    "status": "UNRESOLVED",
+    "cause": "UNKNOWN",
+    "physical_result": "NOT TESTED",
+    "owner_evidence": "ALL SMC controls fail while light feedback works. The owner confirmed Controls now work and and smc drives them too on reference 53d5654c9bbaec10b64c55fb60d0e7d857ba8156.",
+    "observations": [
+      "The working reference lacks both signaling replies and disconnect-credit reclamation.",
+      "The prior idle trace is CONNECTED with handles 114/115, five credits, no pending ATT, no mailbox drops, and continued polling.",
+      "Its rejected header is 50 20 10 00 0c 00 05 00. No signaling command or identifier survives.",
+      "Zero idle input counters do not prove input loss.",
+      "The credit defect reproduces reconnect discovery starvation. That result does not match the CONNECTED observation.",
+      "The recorded notification capture contains no correlated session negotiation or physical input transmission during the failure.",
+      "Prior target inspection shows PB=2 starts, PB=1 continuations and exact callback lengths for the inspected controller routine.",
+      "Prior host comparisons decode the supported unchanged payload stream through startup and the production callback. They do not test physical delivery."
+    ],
+    "reused_replay": {
+      "capture_sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+      "packets": 1268,
+      "decoded_messages": 2616,
+      "feedback_messages": 513,
+      "excluded_oversized_ATT_packets": 3,
+      "payload_resegmentation": false,
+      "peer_HCI_schedule": "Simulated.",
+      "saved_project": "Synthetic."
+    },
+    "reused_evidence": [
+      "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-audit/audit.json",
+      "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage2/checks.json",
+      "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage2/replay.json",
+      "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/COMPARISON.txt",
+      "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/CHECKS.json",
+      "/Users/mac/Documents/x0x37/smc_input_functional_repair_evidence_20261021/investigation-state.json",
+      "/Users/mac/Documents/x0x37/smc_input_functional_repair_evidence_20261021/live-diag.log",
+      "/Users/mac/Documents/x0x37/smc_stage6_evidence_20261021/install-record.json"
+    ],
+    "disposition": "Carry the unresolved physical failure forward. Do not infer a complete cure from the abort repair, replay, build, or install."
+  },
+  "check_setup_notes": [
+    "A Git status command first ran in the workspace root, which has no .git. It failed before a repository check. The command then ran in the exact stage-3 lane.",
+    "No sanitizer error preceded the two intended invariant assertions. These are failing behavior checks, not passing sanitizer suites."
+  ],
+  "production_diff": "",
+  "production_edits": false,
+  "device_write": false,
+  "controller_write": false,
+  "target_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "successor_created": false
+}

@@ -1,0 +1,22 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage4",
+  "source_chat": "01a15a82-82cb-75a1-9aff-9bbc76a3d482",
+  "status": "started",
+  "prompt": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-prompt.txt",
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "attempts": [
+    {
+      "attempt": 1,
+      "tool": "create_thread",
+      "result": "created",
+      "threadId": "01a15a87-298e-7d21-b004-b78d5beafd89",
+      "hostId": "local"
+    }
+  ],
+  "permission_source": "workflow18 and owner: Make sure that they automatically allow to do that without my intervention",
+  "threadId": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "hostId": "local",
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-startup.json",
+  "turnId": "01a15a87-2a71-7480-be61-c466cba2a4cf"
+}

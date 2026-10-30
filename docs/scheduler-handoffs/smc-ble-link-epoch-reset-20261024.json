@@ -1,0 +1,89 @@
+{
+  "schema": "loopyx0x37-git-handoff-v1",
+  "date": "2026-10-24",
+  "role": "SMC Transport",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+  "consumed": {
+    "sha": "8cb39637c60200ff2e4a3339c7ec3731092fb80d",
+    "full_root_tree": "60321e7a28b68b1d8c30f1861ada1891c7ce9c30",
+    "firmware_tree": "6a37e40671e77e75c1c4e1109c80855b4e5c87b3",
+    "ble_c_blob": "4313ac30e4051f28b52c2b8cc6c303e8a1a3487f",
+    "runner_blob": "4e9adc6de7959793874ddeb1749d709a7e09c67c"
+  },
+  "finding": "accepted new BLE link can replay stale MIDI Note Off and outgoing SysEx when a previous disconnect event is absent",
+  "repair": "reset q_r=q_w, sx_on=sx_len=sx_pos=0 in link_reset",
+  "test": {
+    "scope": "source-matched event/link-reset projection, not complete linked source",
+    "command": "sh replay.sh",
+    "environment": "Linux x86_64",
+    "matrix": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "before": {
+      "compile_exit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exit": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "checks": 20,
+      "failures": 5
+    },
+    "after": {
+      "compile_exit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "checks": 20,
+      "failures": 0
+    },
+    "tested_test_blob": "2d496297f2767405e5a8a9a07b53c932228865ed",
+    "tested_test_sha256": "4d7a0fda4196eab0af6abb22814d4fd59a260d5110a1e548af7cdda4e5310dbf",
+    "baseline_fixture_sha256": "a96babf445e01b47398b3554b2c1cd62cddf950c5721f4cdc85325ec5c915a56",
+    "repaired_fixture_sha256": "b506ed0f03d0949ee813cb7089f77936e4be5034a4524524f10af4ee1878b78f",
+    "full_source_test": "NOT_RUN",
+    "target_builds": "NOT_RUN"
+  },
+  "separate_stack": {
+    "pr89": "ca777a056e7de0075aac30927a4f6b158d55c465",
+    "pr94": "9083dc35a5e270930323b44dde7bdc5916f826f1",
+    "combined": "NO"
+  },
+  "disposition": "PRODUCER_SCOPED_PASS_FULL_SOURCE_QA_PENDING",
+  "next_owners": {
+    "Build": "compile new HEAD BUILD_ONLY",
+    "QA": "run actual full source and negative tests",
+    "SafeMerge": "reconcile #50 + #89 -> #94 into distinct integration lane",
+    "Catalog": "maintain NO-GO until full software safety and HTTP gates"
+  },
+  "installable": false,
+  "device_verified": false
+}

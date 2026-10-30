@@ -1,0 +1,39 @@
+You are the new stage-7 publish thread in the X0X37 full-cycle loop (F04 after stage-5 merge). Do not resume the stage-5 thread bc-53d982c6-2d09-50b5-a24b-19a82e0ab4bc, the stage-4 thread bc-5cbf81ce-9d35-5c9f-8919-36e1f7b2a870, the stage-3 thread bc-ead74ca6-9020-58cf-9542-8b8091a1c878, the stage-2 thread bc-d910ead2-0c33-5313-adea-956b263a6fae, the stage-1 thread bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012, the earlier stage-7 thread bc-b413a138-39ce-508e-bee4-893900ed93d1, the earlier stage-5 thread bc-612598eb-d3fa-5382-8448-3bd7e18b0901, the earlier stage-4 thread bc-16eff7cf-f278-524a-8fd3-c45a34488945, the earlier stage-3 thread bc-21ba0310-0c10-5552-a8e2-35032c15b732, the earlier stage-2 thread bc-94c505d8-1ca0-5d88-b61f-049933c106b9, the earlier stage-1 thread bc-2e0f6b6e-50b2-506d-92f4-e19a81d6cfac, the Mac gh-pages push agent bc-3f7a599b-afeb-52c0-8f2a-84c20ba806e6, or any earlier F02/F03 thread. Do not continue any internal probe; this cloud agent is the only Stage 7 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly pages repository: https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly
+Nightly installer: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited SHA: a03cfab3a423ab5c65a6546afd4993fe51754ee7
+Validated source SHA (publish this candidate; do not substitute an older or diverged nightly tip): 0d79d63485dc6585800a71ef716d095445f5a1fc
+Content tree: 1b067cadd1e7887415354c4f384a51f93d6437c367574e2cee52b0b44d829479
+Audited firmware reference / content tree (unchanged package bytes): a03cfab3a423ab5c65a6546afd4993fe51754ee7 / 1755a2dd6d8b79e7405ab58919cc4d60a69ca11a4ae6601030b0f5de963f170e
+BF-001 repair commit: d11b74fc
+Repair commit already in tip (F03; not re-opened): 4f18983a
+Evidence-bearing branch tip: start from the remote tip of cursor/f04-bf001-stage5-fb90 that contains evidence/f04-stage5/SUCCESSOR-STAGE7.txt, HANDOFF.md, CHECKS.md, and the stage-6 local install prompt. The evidence tip is not the package source tree; packages authenticate 0d79d634.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f04-stage5/HANDOFF.md and CHECKS.md. Follow the nightly repo docs/nightly-first-development-gate.md and docs/qualified-nightly-candidate.md. You are stage 7 only.
+
+Scope: publish the valid Elite and Pro development packages for validated source SHA 0d79d634 to the nightly installer page. Label DEV / HARDWARE TEST — DEVICE NOT TESTED. hardware_tested stays false. Link immutable hosted package bytes; fetch again and require size and SHA-256 match. Do not wait for stage 6. Do not flash a device. Do not implement deferred items in evidence/f04-stage2/DEFERRED.md (BF-002, BF-003 still needs retire-versus-restore decision, withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets). Do not merge production main or publish production GitHub Pages. Leave .fwsc and ctl.img out of both Git repositories.
+
+Packages (DEV CHECKED at stage 4 for tree 1b067cad…):
+- Elite: x0x-smk37-elite.fwsc sha256 d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8324; identity SMK-37 Elite_900
+- Pro: x0x-smk37.fwsc sha256 0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8324; identity SMK-37 Pro_900
+Evidence: evidence/f04-stage4/CHECKS.md, elite/record.json, pro/record.json; evidence/f04-stage5/CHECKS.md (nightly FF REFUSED non-fast-forward; no force-push; nightly remains 08d3164a…). Stage-3 ALL_PASS in evidence/f04-stage3/CHECKS.md. Stage-6 local prompt: evidence/f04-stage5/SUCCESSOR-STAGE6.txt and stage6-install-prompt.json.
+
+Firmware nightly could not fast-forward to 0d79d634 (diverged history: 13 commits on validated not in nightly, 160 on nightly not in validated). Stage 7 and the next audit still use validated source SHA 0d79d634, not the older/diverged nightly commit.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Branch from the pushed stage-5 tip as cursor/<slug>-stage7-fb90 (required prefix cursor/ and suffix -fb90). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not use a local helper as the successor.
+
+When the live page serves this candidate with matching package hashes, hand off before you stop. Push SUCCESSOR-STAGE1.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-1 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 7. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 1 if the pod has no CURSOR_API_KEY.
+
+If this thread cannot update the live page for a candidate that already passed applicable gates, save the qualified handoff and start one fresh stage-7 retry of that same candidate; do not start stage 1 yet.
+
+Completion condition: live nightly installer serves Elite and Pro packages with the hashes above for validated source SHA 0d79d634, labeled for hardware test, and one owner-visible stage-1 successor id pushed on the handoff (or a stage-7 retry successor if the page did not update).
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent for Stage 1 fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent Stage 1 and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval. After opening any PR, ask the Project coordinator to subscribe and trigger @codex review (coordinator integration cannot always comment).

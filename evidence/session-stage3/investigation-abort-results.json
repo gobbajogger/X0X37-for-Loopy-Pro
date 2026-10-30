@@ -1,0 +1,22 @@
+{
+  "overflow": {
+    "command": [
+      "/private/tmp/x0x37-investigation-abort-probe",
+      "overflow"
+    ],
+    "returncode": -6,
+    "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/investigation-overflow.log",
+    "stdout": "Recovered transport before deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nBefore deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nAt deadline: state=8 conn=80 attempts=1 accepted_disconnects=0\n",
+    "stderr": "Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.\n"
+  },
+  "timeout": {
+    "command": [
+      "/private/tmp/x0x37-investigation-abort-probe",
+      "timeout"
+    ],
+    "returncode": -6,
+    "log": "/Users/mac/Documents/x0x37/smc_central_session_stage3_20261021/evidence/session-stage3/investigation-timeout.log",
+    "stdout": "Recovered transport before deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nBefore deadline: state=7 conn=80 attempts=1 accepted_disconnects=0\nAt deadline: state=8 conn=80 attempts=1 accepted_disconnects=0\n",
+    "stderr": "Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.\n"
+  }
+}

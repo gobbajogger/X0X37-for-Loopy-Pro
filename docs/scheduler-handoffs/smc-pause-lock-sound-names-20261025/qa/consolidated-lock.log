@@ -1,0 +1,13 @@
+PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures
+PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues
+PASS Select/Play: first select, same-part drum mixer, same-sound return, held edges, frozen lock and Play toggle
+PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, parked navigation
+PASS engine/clip boundaries: original part target survives navigation; unlocked clip fields resume
+PASS pattern identity: GEN, BRK and bass sequence fields stay on captured pattern slots
+PASS song identity: captured bar, parked cursor and trimmed-bar invalidation
+PASS Solo boundaries: bank-one Solo6–8 remain valid; key-up clears original bank before/after lock
+PASS edge/global scope: held duplicates, release/reconnect, captured-part pattern cues, current-part global REC
+PASS pickup/display: invalidated transitions, frozen edit, remote edit invalidation, exact 1200ms return
+PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route
+PASS guards/reset: confirmation and project ownership reject capture; project reset releases context
+smc_lock: PASS (703 checks; captured Pause input route; physical LED identity unverified)

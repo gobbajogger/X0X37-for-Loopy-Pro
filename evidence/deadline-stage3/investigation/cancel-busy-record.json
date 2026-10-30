@@ -1,0 +1,32 @@
+[
+  {
+    "name": "cancel-busy-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/investigation/cancel-busy-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-cancel-busy-whnhqcp0/probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "log": "cancel-busy-compile.log"
+  },
+  {
+    "name": "cancel-busy-run",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-cancel-busy-whnhqcp0/probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "log": "cancel-busy-run.log"
+  }
+]
