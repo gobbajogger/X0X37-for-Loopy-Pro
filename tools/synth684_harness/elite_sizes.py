@@ -10,27 +10,16 @@ original_tuning, original_fx) are listed separately. Static symbols with the
 same name in two objects go to the first owner, so the split is approximate.
 The totals per section are exact.
 """
-import json, os, platform, re, subprocess, sys
+import json, os, re, subprocess, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 B = ROOT / "build/smk37-elite"
 TC = Path(os.environ.get("JIELI_TOOLCHAIN", "/home/box/.jieli/jieli-linux-toolchains-20260730.1"))
 OBJDUMP = TC / "pi32v2/bin/objdump"
 LINE = re.compile(r"^([0-9a-f]{8})\s.*?\s(\.\S+)\s+([0-9a-f]{8})\s(\S+)$")
-_tool_runner = None
 
 def symbols(path):
-    global _tool_runner
-    if platform.system() != "Linux":
-        # Use the build's toolchain container on macOS too; objdump is an
-        # x86 Linux executable, just like the compiler used for this ELF.
-        if _tool_runner is None:
-            sys.path.insert(0, str(ROOT / "tools"))
-            import build
-            _tool_runner = build.tc
-        out = _tool_runner("pi32v2/bin/objdump", "-t", path)
-    else:
-        out = subprocess.run([str(OBJDUMP), "-t", str(path)], stdout=subprocess.PIPE, text=True, check=True).stdout
+    out = subprocess.run([str(OBJDUMP), "-t", str(path)], stdout=subprocess.PIPE, text=True, check=True).stdout
     for line in out.splitlines():
         m = LINE.match(line.replace("\t", " "))
         if m: yield m.group(2), int(m.group(3), 16), m.group(4)

@@ -16,8 +16,6 @@
 #else
 #define CALLGRIND_TOGGLE_COLLECT
 #define CALLGRIND_DUMP_STATS_AT(x) ((void)(x))
-#define CALLGRIND_START_INSTRUMENTATION
-#define CALLGRIND_STOP_INSTRUMENTATION
 #endif
 #ifdef X0X_SYNTH684_STUB_INPUTS
 #define VALIDITY "STUB-NOT-VALID"
@@ -32,7 +30,6 @@ static original_runtime_workspace work;
 static original_chicago_tuning tuning;
 static original_chicago_fx2_compact fx;
 static original_chicago_fx2_cold_owner fx_owner;
-static unsigned idle_mode, warmup_blocks;
 
 typedef struct { unsigned block, kind; int key, vel; int param; float value; int damper; } step;
 #define NOTE(b,k,v) {b,0,k,v,-1,0,-1}
@@ -77,18 +74,11 @@ static int run_once(FILE *f, unsigned kind, unsigned factory, unsigned fxchoice,
         fprintf(stderr, "runtime_init fail kind %u factory %u status %d\n", kind, factory, part.status); return 1; }
     const step *s = kind ? miami_script : chicago_script;
     static float l[BLOCK], r[BLOCK], inter[2 * BLOCK];
-    /* Settle the original smoothers literally; warmup is outside collection.
-     * Use the same prepare/render boundary as measured firmware blocks. */
-    for (unsigned b = 0; idle_mode && b < warmup_blocks; ++b) {
-        if (original_runtime_prepare(&part, BPM) != ORIGINAL_RUNTIME_OK ||
-            original_runtime_render(&part, &work, l, r, BLOCK) != ORIGINAL_RUNTIME_OK) return 1;
-    }
     uint64_t hash = UINT64_C(1469598103934665603);
-    CALLGRIND_START_INSTRUMENTATION;
     for (unsigned b = 0; b < blocks; ++b) {
         /* As in engine.c: prepare the block first, then queue its events, then render. */
         (void)original_runtime_prepare(&part, BPM);
-        for (; !idle_mode && s->block == b; ++s)
+        for (; s->block == b; ++s)
             if (apply(s, kind) != 1) fprintf(stderr, "%s p%u fx%u: event at block %u returned not OK\n",
                                             kind ? "miami" : "chicago", factory, fxchoice, b);
         double t0 = now_ns();
@@ -104,7 +94,6 @@ static int run_once(FILE *f, unsigned kind, unsigned factory, unsigned fxchoice,
         const uint8_t *p = (const uint8_t *)inter;
         for (unsigned i = 0; i < sizeof inter; ++i) { hash ^= p[i]; hash *= UINT64_C(1099511628211); }
     }
-    CALLGRIND_STOP_INSTRUMENTATION;
     (void)original_runtime_retire(&part);
     *hash_out = hash;
     return 0;
@@ -116,14 +105,12 @@ static int run_once(FILE *f, unsigned kind, unsigned factory, unsigned fxchoice,
 static int scenario(const char *out, unsigned kind, unsigned factory, unsigned fxchoice, unsigned blocks, FILE *csv)
 {
     char name[512];
-    snprintf(name, sizeof name, "%s/%s-p%02u-fx%u%s.f32", out, kind ? "miami" : "chicago", factory, fxchoice,
-             idle_mode ? "-idle" : "");
+    snprintf(name, sizeof name, "%s/%s-p%02u-fx%u.f32", out, kind ? "miami" : "chicago", factory, fxchoice);
     FILE *f = fopen(name, "wb"); if (!f) return 1;
     double *t = malloc(sizeof(double) * blocks), mean[REPEATS], all_med[REPEATS], all_p99[REPEATS];
     uint64_t hash0 = 0, hash;
     int rc = 0;
-    unsigned repeats = idle_mode ? 1 : REPEATS;
-    for (unsigned k = 0; k < repeats && !rc; ++k) {
+    for (unsigned k = 0; k < REPEATS && !rc; ++k) {
         rc = run_once(k ? NULL : f, kind, factory, fxchoice, blocks, t, &hash);
         if (rc) break;
         if (!k) hash0 = hash;
@@ -136,22 +123,66 @@ static int scenario(const char *out, unsigned kind, unsigned factory, unsigned f
     fclose(f);
     CALLGRIND_DUMP_STATS_AT(name);
     if (!rc) {
-        qsort(mean, repeats, sizeof(double), cmp_d); qsort(all_med, repeats, sizeof(double), cmp_d);
-        qsort(all_p99, repeats, sizeof(double), cmp_d);
+        qsort(mean, REPEATS, sizeof(double), cmp_d); qsort(all_med, REPEATS, sizeof(double), cmp_d);
+        qsort(all_p99, REPEATS, sizeof(double), cmp_d);
         fprintf(csv, "%s,%s,%u,%u,%u,%.0f,%.0f,%.0f,%.0f,%016llx\n", VALIDITY, kind ? "miami" : "chicago", factory, fxchoice,
-                blocks, mean[0], mean[repeats/2], all_med[repeats/2], all_p99[repeats/2], (unsigned long long)hash0);
+                blocks, mean[0], mean[REPEATS/2], all_med[REPEATS/2], all_p99[REPEATS/2], (unsigned long long)hash0);
     }
     free(t);
     return rc;
 }
 
+#ifdef X0X_SYNTH684_ICOUNT
+/* Idle counts include the public float-output/runtime bridge. Preparation,
+ * cold initialization and warmup are excluded, matching the active workload's
+ * counted call. No notes or parameter events are queued. */
+static int miami_idle_scenario(const char *out, unsigned factory, unsigned blocks, FILE *csv)
+{
+    const float bpm = 217.5f;
+    const unsigned warmup = 64;
+    uint8_t cell[ORIGINAL_SOUND_BYTES];
+    static float l[BLOCK], r[BLOCK], inter[2 * BLOCK];
+    char name[512];
+    CALLGRIND_STOP_INSTRUMENTATION;
+    if (!original_sound_init(cell, ORIGINAL_SOUND_MIAMI, factory)) return 1;
+    memset(&part, 0, sizeof part);
+    if (original_runtime_init(&part, cell, bpm, &tuning, &fx_owner) != ORIGINAL_RUNTIME_OK) return 1;
+    for (unsigned b = 0; b < warmup; ++b) {
+        if (original_runtime_prepare(&part, bpm) != ORIGINAL_RUNTIME_OK ||
+            original_runtime_render(&part, &work, l, r, BLOCK) != ORIGINAL_RUNTIME_OK) return 1;
+    }
+    snprintf(name, sizeof name, "%s/miami-idle-p%02u-fx0.f32", out, factory);
+    FILE *f = fopen(name, "wb"); if (!f) return 1;
+    CALLGRIND_START_INSTRUMENTATION;
+    CALLGRIND_ZERO_STATS;
+    uint64_t hash = UINT64_C(1469598103934665603);
+    for (unsigned b = 0; b < blocks; ++b) {
+        if (original_runtime_prepare(&part, bpm) != ORIGINAL_RUNTIME_OK) { fclose(f); return 1; }
+        CALLGRIND_TOGGLE_COLLECT;
+        int st = original_runtime_render(&part, &work, l, r, BLOCK);
+        CALLGRIND_TOGGLE_COLLECT;
+        if (st != ORIGINAL_RUNTIME_OK) { fclose(f); return 1; }
+        for (unsigned i = 0; i < BLOCK; ++i) { inter[2*i] = l[i]; inter[2*i+1] = r[i]; }
+        const uint8_t *p = (const uint8_t *)inter;
+        for (unsigned i = 0; i < sizeof inter; ++i) {
+            /* Require exact positive-zero PCM, independently of any golden. */
+            if (p[i]) { fprintf(stderr, "nonzero Miami idle PCM p%u block %u\n", factory, b); fclose(f); return 1; }
+            hash ^= p[i]; hash *= UINT64_C(1099511628211);
+        }
+        if (fwrite(inter, sizeof(float), 2 * BLOCK, f) != 2 * BLOCK) { fclose(f); return 1; }
+    }
+    if (fclose(f)) return 1;
+    CALLGRIND_DUMP_STATS_AT(name);
+    fprintf(csv, "%s,miami-idle,%u,0,%u,0,0,0,0,%016llx\n", VALIDITY, factory, blocks,
+            (unsigned long long)hash);
+    return original_runtime_retire(&part) == ORIGINAL_RUNTIME_OK ? 0 : 1;
+}
+#endif
+
 int main(int argc, char **argv)
 {
-    if (argc < 2) { fprintf(stderr, "usage: %s OUTDIR [blocks [idle [warmup]]]\n", argv[0]); return 2; }
+    if (argc < 2) { fprintf(stderr, "usage: %s OUTDIR [blocks]\n", argv[0]); return 2; }
     unsigned blocks = argc > 2 ? (unsigned)atoi(argv[2]) : 172u; /* about 1 s */
-    idle_mode = argc > 3 ? (unsigned)atoi(argv[3]) : 0;
-    warmup_blocks = argc > 4 ? (unsigned)atoi(argv[4]) : 1024u;
-    if (!blocks || idle_mode > 1) return 2;
     if (!original_chicago_tuning_bind(&tuning, 0, 0, NULL, 0x6d70) || !original_chicago_fx2_compact_init(&fx)) return 1;
     fx_owner = original_chicago_fx2_compact_owner(&fx);
     char path[512]; snprintf(path, sizeof path, "%s/results.csv", argv[1]);
@@ -159,11 +190,22 @@ int main(int argc, char **argv)
     fprintf(csv, "validity,engine,program,fx,blocks,min_mean_ns_per_block,median_mean_ns_per_block,median_ns,p99_ns,fnv1a64\n");
     static const unsigned chicago_programs[] = {0, 7, 19, 33, 54}, miami_programs[] = {0, 9, 18, 29};
     int rc = 0;
+#ifdef X0X_SYNTH684_ICOUNT
+    int idle_only = argc > 3 && !strcmp(argv[3], "--miami-idle-only");
+    if (idle_only) goto miami_idle_counts;
+#endif
     for (unsigned i = 0; i < 5; ++i) rc |= scenario(argv[1], ORIGINAL_SOUND_CHICAGO, chicago_programs[i], 0, blocks, csv);
     for (unsigned c = 1; c < ORIGINAL_CHICAGO_FX_CHOICES; ++c) rc |= scenario(argv[1], ORIGINAL_SOUND_CHICAGO, 0, c, blocks, csv);
     for (unsigned i = 0; i < 4; ++i) rc |= scenario(argv[1], ORIGINAL_SOUND_MIAMI, miami_programs[i], 0, blocks, csv);
-    fprintf(csv, "# validity=%s block=%u bpm=%.1f sample_rate=44100 format=f32le-stereo-interleaved mode=%s warmup=%u\n",
-            VALIDITY, BLOCK, BPM, idle_mode ? "idle" : "script", idle_mode ? warmup_blocks : 0);
+#ifdef X0X_SYNTH684_ICOUNT
+miami_idle_counts:
+    if (idle_only || (argc > 3 && !strcmp(argv[3], "--miami-idle"))) {
+        for (unsigned i = 0; i < ORIGINAL_MIAMI_BACKEND_FACTORIES; ++i)
+            rc |= miami_idle_scenario(argv[1], i, blocks, csv);
+        fprintf(csv, "# idle_warmup_blocks=64 idle_bpm=217.5 idle_counted_call=original_runtime_render\n");
+    }
+#endif
+    fprintf(csv, "# validity=%s block=%u bpm=%.1f sample_rate=44100 format=f32le-stereo-interleaved\n", VALIDITY, BLOCK, BPM);
     fclose(csv);
     printf("%s: results in %s\n", VALIDITY, path);
     printf("host sizeof: chicago_backend %zu, miami_backend %zu, runtime_part %zu, workspace %zu, fx2_compact %zu\n",
