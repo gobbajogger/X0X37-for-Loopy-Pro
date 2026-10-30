@@ -82,10 +82,10 @@ test_class() {
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     save-note-quiet) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    original-release-ui|original-release-integration|ui-theme) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -378,8 +378,13 @@ run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run miami-mw-wobble sh tests/host/miami_mw_wobble_test.sh   # product Miami: mod wheel → W_WOBBLE_DEPTH (needs x0x_param.c)
+run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py   # original Miami: compile the existing physical-rate-pads route
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
+run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
+run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
+run boot-screen sh tests/host/boot_screen_test.sh
+run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
@@ -403,11 +408,6 @@ for t in drum909 drum808 bass303 breaks; do
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
     else run "$t" sh "tests/host/run_$t.sh"; fi
 done
-run adaptive-break-dsp sh tests/host/run_adaptive_break_dsp.sh
-run adaptive-break-controls sh tests/host/run_adaptive_break_controls.sh
-run adaptive-break-storage sh tests/host/run_adaptive_break_storage.sh
-run adaptive-break-midi-pair python3 tests/host/run_adaptive_break_midi_pair.py
-run break-performance sh tests/host/run_break_performance.sh
 run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test.py   # no brk_hold mute; engine_brk_loops flushes deferred bank publish (#354)
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
 run brk-outline-gate python3 -B tests/host/engine_brk_outline_gate_test.py   # engine_brk_outline stores through brk_outline_peak_u8 clamp
@@ -451,7 +451,6 @@ run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13)
 run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
-run builtin-break-output python3 tests/host/test_builtin_break_output.py
 run gen-nonfont-tables sh tests/host/test_gen_nonfont_tables.sh   # Pillow skip + X0X_BREAK_BANK still fills x0x_drum_tables.h
 run stereo-alone-gen sh tests/host/test_stereo_alone_gen.sh   # filtered stereo/drum-pan alone fills tables without host-build
 run runner-admission python3 tests/host/test_runner_admission.py

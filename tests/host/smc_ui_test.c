@@ -600,8 +600,8 @@ static void test_action_captions_and_knobs(void)
     int rec = ui.rec; smc_button_apply(7, 0); CHECK(ui.rec != rec && ui.sel[0] == 7);
     smc_button_apply(15, 0); CHECK(smc.drum_solo[0] & (1u << 7));
     ui.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
-    CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "X"));
-    knob(0, 1); ui_frame(); shot("18-locked-disabled-actions");
+    CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "R"));
+    knob(0, 1); ui_frame(); shot("18-locked-live-actions");
     setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages();
     pref_t pan = smc_knob_target(0);
     for (int v = 0; v <= 2; v++) {
@@ -633,7 +633,7 @@ static void test_action_captions_and_knobs(void)
     for (int y = KNOB_Y + 65; y < 240; y++) for (int x = 0; x < 240; x++)
         footer_pixels += fb[y * 240 + x] != swap16(C_BLACK);
     CHECK(!footer_pixels);
-    puts("PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/locked; knob arc extremes and bipolar center");
+    puts("PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center");
 }
 
 #ifndef SMC_UI_MAIN

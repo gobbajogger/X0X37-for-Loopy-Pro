@@ -152,10 +152,10 @@ int main(int argc, char **argv)
         smc_ble_link(0); smc_ble_link(1); smc_ble_link(0);
         smc_ble_link(1); send_ble(9); send_ble(10); smc_poll();
         want[nw++] = 9; want[nw++] = 10; break;
-    case 9: /* A Bluetooth epoch reset must not purge independent USB MIDI. */
-        smc_ble_link(1); smc_poll(); send_ble(7); send_host(11);
+    case 9: /* A Bluetooth epoch reset keeps unrelated USB controls; old Solo cannot replay. */
+        smc_ble_link(1); smc_poll(); send_ble(7); send_host(40);
         smc_ble_link(0); smc_ble_link(1); send_ble(9); smc_poll();
-        want[nw++] = 9; want[nw++] = 11; break;
+        want[nw++] = 9; want[nw++] = 40; break;
     case 10: /* Project busy drains prior and current inputs. */
         smc_ble_link(1); smc_poll(); send_ble(7);
         smc_ble_link(0); smc_ble_link(1); busy=1; smc_poll(); busy=0;

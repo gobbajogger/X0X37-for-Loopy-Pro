@@ -38,6 +38,12 @@ enum { EN_SELECT, EN_ALGO, EN_PRESET, EN_K1, EN_K2, EN_K3, EN_K4, NE };
 uint32_t plat_ms(void);
 uint32_t plat_buttons(void);           /* held: bit B_* */
 uint32_t plat_keys(void);              /* held: bit k = key k (0 = F3) */
+/* Physical pad division input, from 6ae0928. Host/non-Miami builds keep no-op. */
+#if defined(X0X_HOST) || !BOARD_SMK37 || !X0X_ORIGINAL_SYNTH || !X0X_DEV_WOBBLE
+static inline int plat_division_pad(unsigned owner) { (void)owner; return -1; }
+#else
+int plat_division_pad(unsigned owner);
+#endif
 /* Outer physical events retain their publication epoch and strike pitch.
  * Snapshot/cutoff includes the complete physical bitmap under an IRQ guard. */
 typedef struct { uint32_t generation, word; } plat_outer_event_t;

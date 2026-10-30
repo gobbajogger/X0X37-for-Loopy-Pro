@@ -36,6 +36,8 @@ int original_runtime_param(original_runtime_part *, unsigned parameter, float va
 int original_runtime_key(original_runtime_part *, unsigned source, unsigned key, unsigned velocity);
 int original_runtime_release_source(original_runtime_part *, unsigned source);
 int original_runtime_all_off(original_runtime_part *);
+/* Source/voice ownership excludes residual insert output; selector fades that output separately. */
+int original_runtime_owned(const original_runtime_part *);
 int original_runtime_active(const original_runtime_part *);
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
