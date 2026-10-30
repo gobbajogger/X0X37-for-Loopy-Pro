@@ -4934,7 +4934,8 @@ static UI_DRAW void draw_303(int band, int gen)
 static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col, int height, int night);
 static UI_DRAW int adsr_touch_active(void);
-static UI_DRAW int draw_adsr_overlay(int band);
+static UI_DRAW int adsr_inline_page(void);
+static UI_DRAW void draw_adsr_inline(int y,int h,int off);
 enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
 static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg);
 
@@ -4995,7 +4996,7 @@ static UI_DRAW void draw_part_sound(int band)
     int rows=three?3:4, height=three?66:49, step=three?67:50;
     uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
     if(night) cv_rect(0,0,240,band==2?KNOB_H:BAND_H,SOUND_BASE);
-    if (draw_adsr_overlay(band)) return;
+    int graph=adsr_inline_page();
     for (row=0;row<rows;row++) {
         int p=first+row, y=4+row*step-off, active=p==page;
         uint16_t label=night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY);
@@ -5006,6 +5007,7 @@ static UI_DRAW void draw_part_sound(int band)
                            active?blend(col,C_WHITE,5):SOUND_EDGE,active?dim(col,8):SOUND_SIDE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
         cv_text(8,y,&FONT_T,t,label);
+        if (graph && active) { draw_adsr_inline(y+off,height,off); continue; } /* graph replaces A/D/S/R boxes */
         if (active) {
             char knobs[20];matrix_knob_caption(knobs,p);
             text_r(232,y,&FONT_T,knobs,label);
@@ -6065,10 +6067,23 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
 static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
 {
     if (r.kind != R_ENG || r.a != T_303) return 0;
-    /* Numeric/text state comes from original metadata; never alias legacy IDs. */
-    return 0;
-    if (r.c == BASS303_WAVE) { *mix = v; return 1; }
-    return 0;
+    /* Original control slots (ui_original_controls.h), never legacy IDs:
+     * Chicago 0 WAVE; Miami 0/6 WAVE (TRI/SAW/SQR/PUL), 11 wobble SHAPE. */
+    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    if (kind == ORIGINAL_SOUND_CHICAGO) {
+        if (r.c == 0) { *mix = v; return 1; }
+        return 0;
+    }
+    if (kind != ORIGINAL_SOUND_MIAMI || (r.c != 0 && r.c != 6 && r.c != 11)) return 0;
+    const ui_original_control_view *o = original_text_view(r,v);
+    if (!o) return 0;
+    unsigned q = o->shape[r.c == 0 ? 0 : r.c == 6 ? 1 : 2];
+    if (r.c == 11) { /* TRI, DOWN, UP, SQR */
+        if (q == 1 || q == 2) { *mix = 0; return q == 1 ? 1 : 4; }
+        *mix = q == 3 ? 127 : 0; return 2;
+    }
+    if (q == 1) { *mix = 0; return 1; }                      /* SAW */
+    *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */
 }
 
 enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
@@ -6113,7 +6128,7 @@ static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t 
         int square=phase<7?15:-15;
         int tri=phase<7?15-phase*30/6:-15+(phase-7)*30/6;
         int pulse=phase<2?-15:15; /* small cue for Miami's 10% pulse, not an oscilloscope */
-        int a=shape==1?(saw*(127-mix)+square*mix)/127:
+        int a=shape==4?-saw:shape==1?(saw*(127-mix)+square*mix)/127:
               shape==3?(tri*(127-mix)+pulse*mix)/127:(tri*(127-mix)+square*mix)/127;
         int py=y+(a+15)*8/30;
         if(i) cv_line(cx-14+i-1,prev,cx-14+i,py,col);
@@ -6290,13 +6305,26 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 {
     const x0x_param_t *d=pref_desc(r);
     char num[16],unit[8],value[24];
-    int cx=x+width/2,val,shape=0,mix=0,lv,discrete=0,glyph=GL_NONE,unused=0;
+    int cx=x+width/2,val,shape=0,mix=0,lv,discrete=0,glyph=GL_NONE,unused=0,orig_glyph=0;
     const felucca_font_t *font;
     uint16_t ink=night?(active?SOUND_INK:SOUND_WHITE):(active?C_BLACK:C_WHITE);
     int value_y=height>49?35:26, bar_y=height-4;
     if(!d) return;
     val=matrix_value(r);
-    if(!X0X_ORIGINAL_SYNTH && r.kind==R_ENG && r.a==T_303 && !engine_bass_is_wobble(r.b)) {
+    if(r.kind==R_ENG && r.a==T_303 &&
+       engine_bass_sound_bank(&proj.sound,r.b)==ORIGINAL_SOUND_CHICAGO) {
+        /* Original Chicago slots: 13 ON, 14 MODE, 16 SPEED; readout text stays original. */
+        if(r.c>=13 && r.c<=16) {
+            const ui_original_control_view *o=original_text_view(PR(R_ENG,T_303,r.b,13),matrix_value(PR(R_ENG,T_303,r.b,13)));
+            discrete=orig_glyph=1;
+            if(r.c!=13 && o && !o->arp_on) ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);
+            if(r.c==13) glyph=GL_POWER;
+            if(r.c==14) { const ui_original_control_view *m=original_text_view(r,val);
+                glyph=m && m->arp_mode==1?GL_DOWN:m && m->arp_mode==2?GL_UP:GL_BOTH; }
+            if(r.c==16) glyph=GL_CLOCK;
+        }
+    }
+    if(0) {
         if(r.c>=CHI_ARP_SWITCH && r.c<=CHI_ARP_SPEED) {
             discrete=1;
             if(r.c!=CHI_ARP_SWITCH && !matrix_value(PR(R_ENG,T_303,r.b,CHI_ARP_SWITCH)))
@@ -6335,12 +6363,12 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
-        if(shape==2 || shape==3)put_s(num,!val?"TRI":shape==3?"PUL":"SQR");
-        else put_i(num,val);
+        pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); } /* original readout text */
         text_c(cx+17,y+28,&FONT_T,num,ink);
     } else {
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
+        else if(orig_glyph) {}
         else if(glyph==GL_POWER || glyph==GL_PEDAL) put_s(num,val>=(glyph==GL_PEDAL?64:1)?"ON":"OFF");
         else if(discrete && r.c==CHI_ARP_RANGE) put_i(num,val+1);
         else if(glyph==GL_DOWN || glyph==GL_UP || glyph==GL_BOTH) put_s(num,glyph==GL_DOWN?"DN":glyph==GL_UP?"UP":"UP/DN");
@@ -6376,6 +6404,18 @@ static void adsr_values(ui_adsr_t *e)
     float *time[3]={&e->attack,&e->decay,&e->release};
     e->sustain=(float)matrix_value(pg.r[p][2])/127.0f;
     e->curved=e->release_curve=e->gate=0;e->enabled=1;
+    if(engine_bass_sound_bank(&proj.sound,bidx())==ORIGINAL_SOUND_CHICAGO) {
+        /* Original Chicago ENVELOPE slots 7..10 (A, D, S, R): stage-normalised
+         * q127 controls; D/R are RC (five tau). No legacy millisecond law. */
+        /* Time constants of original_vca_tick (control_math.c), seconds:
+         * A 13a^4+.001 toward 1.3, D 25d^4+.001 toward S, R 25r^4+.002. */
+        for(i=0;i<3;i++) {
+            float x=(float)matrix_value(pg.r[p][i==2?3:i])/127.0f; x*=x; x*=x;
+            *time[i]=i==0?13.0f*x+.001f:i==1?25.0f*x+.001f:25.0f*x+.002f;
+        }
+        e->curved=1; e->release_curve=1; e->enabled=2; /* 2: original exponential laws */
+        return;
+    }
     for(i=0;i<3;i++) {
         pref_t r=pg.r[p][i==2?3:i];
         *time[i]=display_env_ms(r,matrix_value(r));
@@ -6405,57 +6445,74 @@ static float adsr_release(const ui_adsr_t *e,float u)
     return adsr_fall(e->release_curve,e->sustain,0.0f,u);
 }
 
-static UI_DRAW int draw_adsr_overlay(int band)
+/* The envelope graph lives on the PART page itself, above the envelope row,
+ * and follows the live control values. Original Chicago ENVELOPE only. */
+static UI_DRAW int adsr_inline_page(void)
 {
-    return 0; /* Legacy envelope laws do not describe the original engines. */
+    int p=cur_page();
+    return ui.view==V_PART && is_303() && p>=0 && p<pg.n &&
+           engine_bass_sound_bank(&proj.sound,bidx())==ORIGINAL_SOUND_CHICAGO &&
+           !strcmp_s(pg.title[p],"ENVELOPE");
+}
+/* Level of one original stage at time t (s): attack toward 1.3 clipped at 1,
+ * decay toward sustain, release toward zero (original_vca_tick). */
+static float adsr_original_level(const ui_adsr_t *e,int stage,float t)
+{
+    if(stage==0) return fm_minf(1.0f,1.3f-1.3f*fm_expf(-t/e->attack));
+    if(stage==1) return e->sustain+(1.0f-e->sustain)*fm_expf(-t/e->decay);
+    return e->sustain*fm_expf(-t/e->release);
+}
+static UI_DRAW void draw_adsr_inline(int y,int h,int off)
+{
     static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
     ui_adsr_t e;
-    int off=band*BAND_H,p=cur_page(),edited=ui.touched,k;
-    int x0=13,x1=55,x2=111,x3=158,x4=227,y0=130,top=58,ys;
-    uint16_t col=matrix_col();
-    char num[16],unit[8],t[32];
-    if(!adsr_touch_active()) return 0;
+    int p=cur_page(),k,edited=ui.touched>=0 && ui.touched<4 &&
+        (int32_t)(ui.touch_until-plat_ms())>0?ui.touched:-1;
+    int x0=13,y0=y+h-5,top=y+14,xs[5];
+    uint16_t col=matrix_col(),hi=SOUND_INK;
     adsr_values(&e);
-    if(!e.attack) x1=x0;
-    if(!e.release) x4=x3;
-    ys=y0-(int)(e.sustain*(y0-top)+0.5f);
-    cv_text(8,8-off,&FONT_S,e.gate && pg.r[p][0].c==BASS303_AATTACK?"FILTER ENV / GATE":matrix_group(p),col);
-    pref_value_of(pg.r[p][edited],matrix_value(pg.r[p][edited]),num,unit);
-    put_s(put_s(put_s(put_s(t,names[edited])," "),num),unit);
-    cv_text(8,27-off,&FONT_B,t,col);
-    text_c(x3,42-off,&FONT_T,"OFF",C_GRAY);
-    cv_line(x3,53-off,x3,ys-4-off,C_DIM);
-    cv_rect(x0,y0-off,215,1,C_LINE);
-    cv_line(x0,y0-off,x1,top-off,edited==0?C_WHITE:col);
-    for(k=0;k<2;k++) {
-        int xa=k?x3:x1,xb=k?x4:x2,i,px=xa,py=k?ys:top;
-        float from=k?e.sustain:1.0f,to=k?0.0f:e.sustain;
-        for(i=1;i<=24;i++) {
-            int nx=xa+(xb-xa)*i/24;
-            float level=k?adsr_release(&e,(float)i/24.0f):adsr_fall(e.curved,from,to,(float)i/24.0f);
+    /* Segment widths follow the real stage durations: attack to full scale,
+     * decay to within 1% of sustain, release to the 0.04 cutoff. The sustain
+     * plateau has a fixed illustrative width; it is not a time. */
+    float dur[3],sum=0.0f;
+    dur[0]=e.attack*1.466337f;                             /* ln(1.3/0.3) */
+    dur[1]=e.decay*4.6051702f;                             /* ln(100) */
+    dur[2]=e.sustain>0.04f?e.release*fm_logf(e.sustain/0.04f):0.0f;
+    for(k=0;k<3;k++) sum+=dur[k];
+    int hold=42,span=214-hold;
+    xs[0]=x0;
+    xs[1]=xs[0]+(sum>0.0f?(int)(span*dur[0]/sum+.5f):0);
+    xs[2]=xs[1]+(sum>0.0f?(int)(span*dur[1]/sum+.5f):0);
+    xs[3]=xs[2]+hold;
+    xs[4]=x0+214;
+    int ys=y0-(int)(e.sustain*(y0-top)+0.5f);
+    if(edited>=0) { /* the selected or turned stage and its live value */
+        char num[16],unit[8],t[32];
+        pref_value_of(pg.r[p][edited],matrix_value(pg.r[p][edited]),num,unit);
+        put_s(put_s(put_s(put_s(t,names[edited])," "),num),unit);
+        text_r(232,y-off,&FONT_T,t,hi);
+    }
+    cv_rect(x0,y0-off,215,1,SOUND_SELECT_SIDE);
+    cv_line(xs[3],top-off,xs[3],ys-2-off,SOUND_DIM);       /* note-off */
+    for(k=0;k<3;k++) {
+        int stage=k==2?3:k, xa=xs[k==2?3:k], xb=xs[k==2?4:k+1], i, px=xa, py;
+        float d=dur[k];
+        float l0=stage==0?0.0f:stage==1?1.0f:e.sustain;
+        py=y0-(int)(l0*(y0-top)+0.5f);
+        int n=xb-xa; if(n<1) n=1;
+        for(i=1;i<=n;i++) {
+            float level=adsr_original_level(&e,k,d*(float)i/(float)n);
+            if(k==2 && i==n) level=0.0f;
             int ny=y0-(int)(level*(y0-top)+0.5f);
-            cv_line(px,py-off,nx,ny-off,edited==(k?3:1)?C_WHITE:col);px=nx;py=ny;
+            cv_line(px,py-off,xa+i,ny-off,edited==stage?hi:col);px=xa+i;py=ny;
         }
     }
-    cv_line(x2,ys-off,x3,ys-off,edited==2?C_WHITE:col);
-    cv_text(13,133-off,&FONT_T,"A",C_GRAY);cv_text(79,133-off,&FONT_T,"D",C_GRAY);
-    text_c(132,133-off,&FONT_T,"HOLD",C_GRAY);cv_text(205,133-off,&FONT_T,"R",C_GRAY);
-    if(!e.enabled) cv_text(8,148-off,&FONT_T,e.gate?"INACTIVE: GATE USES AMP ADSR":"FILTER ADSR OFF",C_AMB);
-    else if(lock_step()>=0) {
-        put_i(put_s(t,"P-LOCK STEP "),lock_step()+1);cv_text(8,148-off,&FONT_T,t,C_AMB);
+    cv_line(xs[2],ys-off,xs[3],ys-off,edited==2?hi:col);
+    if(edited>=0) { /* underline the highlighted segment */
+        int xa=xs[edited],xb=xs[edited+1];
+        if(xb<=xa) xb=xa+1;
+        cv_rect(xa,y0+2-off,xb-xa+1,2,hi);
     }
-    for(k=0;k<4;k++) {
-        int x=3+k*59,active=k==edited;
-        pref_t r=pg.r[p][k];
-        const felucca_font_t *f;
-        box(x,165-off,57,35,active?col:C_LINE);
-        text_c(x+28,167-off,&FONT_T,names[k],active?C_BLACK:C_GRAY);
-        pref_value_of(r,matrix_value(r),num,unit);put_s(put_s(t,num),unit);
-        f=tw(&FONT_XS,t)<=54?&FONT_XS:&FONT_T;
-        text_c(x+28,181-off,f,t,active?C_BLACK:C_HI);
-    }
-    cv_text(7,208-off,&FONT_T,lock_step()>=0?UI_CAP_ARROWS ": CHANCE  " UI_CAP_EDIT ": ROW":UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",C_GRAY);
-    return 1;
 }
 
 static const felucca_font_t *original_value_font(const char *num, const char *unit, int width)
