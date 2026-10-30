@@ -20,8 +20,8 @@ ERROR = re.compile(
     r'(?:fatal error:|error:|\bFAIL\b|AssertionError|assertion failed|Traceback|'
     r'ModuleNotFoundError|undefined reference|ld:|No such file or directory|'
     r'command not found|AddressSanitizer|UndefinedBehaviorSanitizer)', re.I)
-RUN_SCHEMA = 'x0x37-host-run-record-v1'
-REPORT_SCHEMA = 'x0x37-host-failure-summary-v2'
+RUN_SCHEMA = 'x0x37-host-run-record-v2'
+REPORT_SCHEMA = 'x0x37-host-failure-summary-v3'
 
 
 def parse_status(lines):
@@ -81,6 +81,21 @@ def git_head():
         return None
 
 
+def assert_clean_source(root=None):
+    """Fail closed on staged, tracked or non-ignored untracked source edits."""
+    try:
+        result = subprocess.run(
+            ['git', 'status', '--porcelain=v1', '--untracked-files=all',
+             '--ignore-submodules=none'],
+            cwd=root if root is not None else Path.cwd(),
+            capture_output=True, text=True, check=True)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError('Cannot verify source cleanliness: ' + str(exc)) from exc
+    if result.stdout:
+        raise ValueError('Source worktree/index is dirty: ' +
+                         result.stdout.splitlines()[0])
+
+
 def validate_run_record(record, states, transcript):
     if transcript is None:
         raise ValueError('A run record requires the exact full transcript')
@@ -91,6 +106,9 @@ def validate_run_record(record, states, transcript):
         raise ValueError('Invalid run-record source commit')
     if git_head() != head:
         raise ValueError('Run record was created at a different Git HEAD')
+    if record.get('source_clean_before_after') is not True:
+        raise ValueError('Missing clean-source pre/post-run proof')
+    assert_clean_source()
     actual_sha = hashlib.sha256(transcript.read_bytes()).hexdigest()
     if record.get('transcript_sha256') != actual_sha:
         raise ValueError('Run-record transcript SHA-256 mismatch')
@@ -118,7 +136,8 @@ def compare_baseline(report, baseline):
     unresolved_unselected = sorted(n for n in old_failed if n not in current)
     if not (report['source_verified'] and baseline.get('source_verified') is True
             and re.fullmatch('[0-9a-f]{40}', baseline.get('head') or '')
-            and re.fullmatch('[0-9a-f]{64}', baseline.get('transcript_sha256') or '')):
+            and re.fullmatch('[0-9a-f]{64}', baseline.get('transcript_sha256') or '')
+            and baseline.get('source_clean_before_after') is True):
         return {'status': 'UNVERIFIED_PROVENANCE', 'cleared_failures': [],
                 'unresolved_not_run': unresolved_skipped,
                 'unresolved_not_selected': unresolved_unselected}
@@ -156,6 +175,7 @@ def build_summary(logdir, transcript=None, baseline=None, run_record=None):
         'schema': REPORT_SCHEMA,
         'head': run_record['head'] if sha is not None else None,
         'source_verified': sha is not None,
+        'source_clean_before_after': sha is not None,
         'transcript_sha256': sha,
         'plan_sha256': plan_hash(states),
         'status_source': source,
