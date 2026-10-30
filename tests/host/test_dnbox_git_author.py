@@ -100,7 +100,7 @@ class DefaultAuthorTests(unittest.TestCase):
                          'fx_tables.h', 'miami_factory_typed.h'):
             with self.subTest(filename=filename):
                 payload = self.site / filename
-                payload.write_bytes(b'binary\\x00blob')
+                payload.write_bytes(b'binary\x00blob')
                 try:
                     with patch.object(subprocess, 'run') as invoked:
                         with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'binary or private'):
@@ -111,7 +111,7 @@ class DefaultAuthorTests(unittest.TestCase):
 
     def test_non_utf8_payload_refused_before_git(self):
         payload = self.site / 'bad.txt'
-        payload.write_bytes(b'\\xff\\xfe')
+        payload.write_bytes(b'\xff\xfe')
         with patch.object(subprocess, 'run') as invoked:
             with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'UTF-8 text files only'):
                 self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
