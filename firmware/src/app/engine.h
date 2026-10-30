@@ -235,6 +235,15 @@ int engine_brk_bend_value(void);
 void engine_brk_live(int key, int down);
 void engine_brk_edit_hold(int held);
 uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+/* External MIDI record events (engine midi_in -> UI). One writer (midi_in), one reader (ui_frame).
+ * Packing: bits 0..3 part (PART_909, PART_808, PART_BRK), 4..9 voice (drum) or slice (break),
+ * 10..16 velocity, 17..24 the record step (seq_rec_step at the note). */
+#define REC_EV(part, voice, vel, step) ((uint32_t)(part) | (uint32_t)(voice) << 4 | (uint32_t)(vel) << 10 | (uint32_t)(step) << 17)
+#define REC_EV_PART(e) ((int)((e) & 15u))
+#define REC_EV_VOICE(e) ((int)(((e) >> 4) & 63u))
+#define REC_EV_VEL(e) ((int)(((e) >> 10) & 127u))
+#define REC_EV_STEP(e) ((int)(((e) >> 17) & 255u))
+int engine_rec_ev_get(uint32_t *ev);   /* 1 = an event was taken */
 int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
