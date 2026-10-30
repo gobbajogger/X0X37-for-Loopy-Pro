@@ -483,9 +483,10 @@ def _push(site, remote, branch, expected):
         _overlay(work, site)
         subprocess.run(["git", "add", "-A"], cwd=work, check=True)
         message = f"Nightly handoff {branch}"
+        # Use the executing account's existing default Git identity.
+        # DnBOX Rule 3 forbids synthetic publish authors or email overrides.
         subprocess.run(
-            ["git", "-c", "user.name=Nightly publish", "-c", "user.email=nightly@localhost",
-             "commit", "-q", "--allow-empty", "-m", message],
+            ["git", "commit", "-q", "--allow-empty", "-m", message],
             cwd=work, check=True)
         if tip:
             parent = subprocess.check_output(["git", "rev-parse", "HEAD^"], cwd=work, text=True).strip()
