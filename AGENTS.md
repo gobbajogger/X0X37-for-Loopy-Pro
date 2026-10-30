@@ -1,5 +1,7 @@
 # x0x37 project instructions
 
+Before you call any feature missing or start a feature, check [docs/FEATURE-REGISTRY.md](docs/FEATURE-REGISTRY.md) first.
+
 Read [x0x37-task](skills/x0x37-task/SKILL.md) at task start and [x0x37-writing](.agents/skills/x0x37-writing/SKILL.md) for output. Load only the project skill relevant to the current step. [x0x37-workflow](skills/x0x37-workflow/SKILL.md) routes code and PR work through an explicitly selected tstack mode; installing a skill selects no mode. Current owner instructions take precedence over saved handoffs and older checkout text.
 
 Keep firmware source integration with the assigned integrator. Firmware `nightly` is the development integration branch; `main` is production and requires same-byte, matching-model hardware validation plus current action-specific authority. Review exact source and artifact evidence and use [scoped checks](skills/x0x37-check/SKILL.md). A documentation-only workflow change does not start a firmware build or automatic successor loop.
@@ -7,6 +9,18 @@ Keep firmware source integration with the assigned integrator. Firmware `nightly
 Determine device permission for the exact model and action from the latest owner instruction. Do not infer a device write or recovery grant from a workflow mode, a connected device, or an old standing instruction. Do not force push, bypass a protected merge, or treat an incomplete check as PASS.
 
 Optional host tooling gaps may be recorded as NOT_RUN while independent work continues. A check that actually runs and fails remains FAIL. GitHub Actions, billing errors, and review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
+
+## Where work runs (owner rules)
+
+- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
+- The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
+- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
+- If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
+- Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
+- `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
+- Merge bar: a full cloud pass (the full host suite plus the Elite and Pro builds, 0 fail and 0 skip), or the box result `Box host-suite check: PASS` plus a PR comment that the firmware builds pass.
+- The Mac is only for hardware installs and device checks.
+- Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
 
 ## Public development context
 
