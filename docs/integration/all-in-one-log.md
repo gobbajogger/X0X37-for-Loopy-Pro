@@ -9,3 +9,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #721 | e189819d | merged | 63e1e749 | - | 13 private headers included (owner approved 20:50 VLAT) |
 | #724 | 689737d5 | merged | 91d53652 | - |  |
 | #710 | 7383a6d2 | merged | 21c4d11c | - |  |
+| #708 | 1ff346ee | merged | fba3c2aa | - | dsp/bass303.c change (deletion) excluded; base version kept |
