@@ -18,7 +18,7 @@ static int trial(int old_count) {
     pattern_t patterns[NPAT];
     seq_t seq;
     int steps = 0;
-    const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi_out, stepped, &steps};
+    const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi_out, stepped, &steps, 0};
     for (int i = 0; i < NPAT; i++) pattern_init(&patterns[i], (unsigned)(i + 1), (unsigned)(i + 11));
     seq_init(&seq, patterns);
     seq.clk_src = SEQ_CLK_EXT;
@@ -46,7 +46,7 @@ static int non_owner_drop(void) {
     pattern_t patterns[NPAT];
     seq_t seq;
     int steps = 0;
-    const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi_out, stepped, &steps};
+    const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi_out, stepped, &steps, 0};
     for (int i = 0; i < NPAT; i++) pattern_init(&patterns[i], (unsigned)(i + 1), (unsigned)(i + 11));
     seq_init(&seq, patterns);
     seq.clk_src = SEQ_CLK_EXT;

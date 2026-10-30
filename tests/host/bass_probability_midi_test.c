@@ -41,7 +41,7 @@ static void midi(void *ctx, uint8_t st, uint8_t d1, uint8_t d2)
     if ((st & 0xF0u) == 0x90u) midi_on[d1]++;
     if ((st & 0xF0u) == 0x80u) midi_off[d1]++;
 }
-static const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi, 0, 0};
+static const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi, 0, 0, 0};
 static seq_t seq;
 static pattern_t patterns[NPAT];
 static void reset(void)

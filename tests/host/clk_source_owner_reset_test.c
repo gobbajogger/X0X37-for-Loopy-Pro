@@ -19,7 +19,7 @@ static void brk(void *x, int s, int b, float f, int en)
 static void brk_stop(void *x) { (void)x; }
 static void midi_out(void *x, uint8_t s, uint8_t n, uint8_t v)
 { (void)x; (void)s; (void)n; (void)v; }
-static const seq_sink_t SINK = {drum, bass_on, bass_off, brk, brk_stop, midi_out, 0, 0};
+static const seq_sink_t SINK = {drum, bass_on, bass_off, brk, brk_stop, midi_out, 0, 0, 0};
 static pattern_t pat[NPAT];
 
 static void test_owner_release(unsigned next_mode)

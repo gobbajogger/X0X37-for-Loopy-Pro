@@ -23,7 +23,7 @@ os.chdir(src)
 spec = importlib.util.spec_from_file_location('wheel_build', src/'tools/build.py')
 b = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(b)
-production = ['firmware/src/'+q for q in b.O2_UNITS if q != 'dsp/bass303.c']
+production = ['firmware/src/'+q for q in b.O2_UNITS]
 production += ['firmware/src/app/factory_banks.c', *b.ORIGINAL_SYNTH_UNITS, *b.ORIGINAL_SYNTH_BACKENDS]
 assert len(production) == len(set(production))
 units = [str(out/'engine-observer.c') if q == 'firmware/src/app/engine.c' else q for q in production]

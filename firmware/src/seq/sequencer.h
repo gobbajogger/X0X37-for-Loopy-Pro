@@ -85,9 +85,7 @@ typedef struct {
     void (*midi)(void *ctx, uint8_t status, uint8_t d1, uint8_t d2);   /* clock / transport / notes out */
     void (*step)(void *ctx, int part, int step);                        /* UI playhead (optional) */
     void *ctx;
-#if X0X_ORIGINAL_SYNTH
     void (*transport)(void *ctx, int running); /* ordered with following input */
-#endif
 } seq_sink_t;
 
 #define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */

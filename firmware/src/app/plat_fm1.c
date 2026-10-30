@@ -47,7 +47,6 @@ uint32_t plat_buttons(void)
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
 
-#if X0X_ORIGINAL_SYNTH
 uint64_t plat_physical_keys(void)
 {
 #if BOARD_SMK37
@@ -77,7 +76,6 @@ int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
 #endif
     return n;
 }
-#endif
 
 uint8_t plat_key_velocity(int key)
 {

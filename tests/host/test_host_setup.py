@@ -34,6 +34,13 @@ out.write_text(name)
 if name == "gen_drum_samples.py":
     (out.parent / "x0x_drum_tables.h").write_text(name)
 '''
+        # The original Chicago/Miami engines are the only profile; a stub build.py
+        # names their units without the private inputs.
+        (self.root / "tools/build.py").write_text(
+            'ORIGINAL_SYNTH_UNITS = ["fixture/original.c"]\n'
+            'ORIGINAL_SYNTH_BACKENDS = []\n'
+            'def synth_build_config(environ=None):\n    return True, "0"\n'
+            'def require_original_synth_sources(root=None):\n    pass\n')
         for name in ("gen_font.py", "gen_drum_samples.py", "gen_break_bank.py"):
             (self.root / "tools" / name).write_text(generator)
         (self.root / "tools/gen_builtin_break.sh").write_text(

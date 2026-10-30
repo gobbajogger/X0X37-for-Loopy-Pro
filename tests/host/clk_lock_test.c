@@ -15,7 +15,7 @@ static void s_off(void *x, int p) { (void)x; (void)p; }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; (void)s16; (void)bar; (void)spb; (void)en; }
 static void s_brkstop(void *x) { (void)x; }
 static void s_midi(void *x, uint8_t st, uint8_t d1, uint8_t d2) { (void)x; (void)st; (void)d1; (void)d2; }
-static const seq_sink_t SINK = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, 0, 0};
+static const seq_sink_t SINK = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, 0, 0, 0};
 static seq_t S;
 static pattern_t P[NPAT];
 static uint32_t ticks;                         /* clocks that the sequencer took */

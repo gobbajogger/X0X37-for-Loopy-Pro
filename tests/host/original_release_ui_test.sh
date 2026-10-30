@@ -11,7 +11,7 @@ U=$(python3 - <<'PY'
 import importlib.util
 s=importlib.util.spec_from_file_location('build','tools/build.py')
 b=importlib.util.module_from_spec(s);s.loader.exec_module(b)
-u=['firmware/src/'+p for p in b.O2_UNITS if p!='dsp/bass303.c']
+u=['firmware/src/'+p for p in b.O2_UNITS]
 u+=['firmware/src/app/factory_banks.c',*b.ORIGINAL_SYNTH_UNITS,*b.ORIGINAL_SYNTH_BACKENDS]
 print(' '.join(u))
 PY

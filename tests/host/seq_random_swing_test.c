@@ -14,7 +14,7 @@ static void brk(void*c,int p,int b,float sp,int en){(void)c;(void)p;(void)b;(voi
 static void brk_stop(void*c){(void)c;}
 static void midi(void*c,uint8_t s,uint8_t n,uint8_t v){(void)c;(void)s;(void)n;(void)v;}
 static void step(void*c,int part,int index){(void)c;(void)index; if (part==TRK_BASS0) bass_fired++;}
-static const seq_sink_t sink={drum,bass_on,bass_off,brk,brk_stop,midi,step,0};
+static const seq_sink_t sink={drum,bass_on,bass_off,brk,brk_stop,midi,step,0, 0};
 static unsigned checks, bad;
 static void verify(int b,const char *name,int dir,int idx,int pos,uint32_t got,uint32_t expected){
     checks++; if(!b){bad++; if(bad<20)fprintf(stderr,"FAIL %s dir=%d step=%d pos=%d intervalQ8=%u expected=%u\n",name,dir,idx,pos,got,expected);}

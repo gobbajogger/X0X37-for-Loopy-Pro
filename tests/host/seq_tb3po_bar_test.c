@@ -16,7 +16,7 @@ static void on_brk(void*ctx,int st,int b,float per,int en){(void)ctx;(void)st;(v
 static void off_brk(void*ctx){(void)ctx;}
 static void out_midi(void*ctx,uint8_t s,uint8_t a,uint8_t b){(void)ctx;(void)s;(void)a;(void)b;}
 static void on_step(void*ctx,int part,int step){(void)ctx;(void)step;if(part==TRK_BASS0)++played;}
-static const seq_sink_t sink={on_drum,on_bass,off_bass,on_brk,off_brk,out_midi,on_step,0};
+static const seq_sink_t sink={on_drum,on_bass,off_bass,on_brk,off_brk,out_midi,on_step,0, 0};
 
 static void setup(seq_t *s, int dir, int len)
 {
