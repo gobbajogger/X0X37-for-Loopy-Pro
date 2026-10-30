@@ -37,6 +37,12 @@ Scoped GCC/Clang execution log (local source-exact leaf tests): SHA-256 `d920f0a
 
 `python3 tests/host/preflight_full_suite.py --root <historical source directory>` returned exit 1: **10 PASS / 7 FAIL**. Missing: 9W9, 8W8, schwung-303 and TB3PO reference trees, `build/smk37/x0x.bin`, `build/smk37/loader/ota.bin`, and configured `AC79_SDK`. This check deliberately exposes the runner's otherwise uncounted SMK package skip. Recheck against the reconstructed exact source and real SDK inputs before using it as acceptance evidence.
 
+## Newly archived external base-run evidence (not measured in this cloud)
+
+The integration branch now contains owner-box receipts at `docs/handoff/hosttest-results/base.summary` and `base.fails`, pinned to historical `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`. The summary reports **429 PASS result lines, 154 FAIL result lines, six not-run, exit 1**. The deduplicated `base.fails` inventory contains **69 different failing test names**. Multiple result lines must not be mistaken for distinct tests. These are **box-reported records**, not a reproduction on this PR or the current moving integration tip. The full underlying per-test logs were not in that archive.
+
+The same archived comparison lists `pr705` at **432 PASS / 152 FAIL / six not-run**, and `pr710` at **429 PASS / 154 FAIL / six not-run**, also anchored to `cb5423c4`. They must not be used as evidence that PR #724 repairs those failures.
+
 ## Full-suite and builds
 
 - Full `X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=8 sh tests/run_tests.sh` on this PR head: **NOT_RUN**; exact checkout has not been reconstructed in the cloud runner.
