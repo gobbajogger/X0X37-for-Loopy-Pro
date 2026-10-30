@@ -120,3 +120,73 @@ Reference versus optimized selected-voice and stereo-graph binary output/state
 traces remain identical after the correction. Pro/Elite native DEV rebuilds
 in the same archived-source compatibility checkout PASS after these edits.
 Exact latest-tree target build and complete golden/CPU gates remain NOT_RUN.
+
+
+## Latest integrated FMA oracle retest (2026-10-30)
+
+The recovery snapshot's FMA source was 22 bytes shorter than the
+current GitHub integrated FMA source. We patched ONLY the local
+untracked build checkout to match the actual `wip/one-build` file
+`experiments/original_synth/fused_reference.c`. Git blob hash was
+verified **exactly**:
+`625899e0c818a295a9eb673a9ff25087c425393d`.
+The recovered local compiled Miami source blob IDs also match the
+PR's current tested files exactly:
+- `miami_ms20.c` `514a055c99fbb4fd8828198f8d3cb57cb6a1cbb5`
+- `miami_selected_voice.c`
+  `0f53534be461b5c30b192079a922df64f6dc9bdf`
+- `voice_gain.c`
+  `f64e3277ae02d6f02f7ee2f892f9e2ed7d99224d`
+
+**Fresh retest with those exact components, not previous oracle
+results** on the recovered source checkout:
+- `CC=gcc|clang sh tests/host/run_miami_table_interpolation.sh`:
+  **PASS**, each at `-Os` and `-O2`, 408,412 bit-for-bit
+  comparisons against the newest complete 18-limb oracle.
+- Separate GCC and Clang `-fsanitize=address,undefined` builds:
+  **PASS**, 408,412 cases each; ASAN leak scanning disabled and
+  UBSAN halt-on-error.
+- `X0X_TEST_JOBS=1 X0X_TESTS=miami-table-interpolation
+  CC=clang sh tests/run_tests.sh`: **PASS**.
+- `CC=gcc|clang` selected voice host suite: **PASS** all nine
+  reference/native/sanitizer cases per compiler.
+- `CC=gcc|clang` original Miami joined stereo graph suite:
+  **PASS** all four cases per compiler. A combined initial rerun
+  timed out before the final Clang graph test; that one was rerun
+  independently and **PASS**. Do not report timeout as a pass.
+- `original_miami_backend_test.sh`: **PASS** all 30 factories,
+  314,580 stereo frames, 1,470 blocks, reported hash
+  `cbc19169bf6599d4`.
+- `miami_ms20_transaction_test.sh`: **PASS** all four
+  reference/native/ASan configurations, 260,632 exact output,
+  state, status and FP-flag cases each.
+- Native JieLi Clang 4.0.1 SDK V1.2.1 DEV **Pro and Elite
+  compile/link/package PASS** with this corrected FMA source and
+  exact modified Miami blobs overlaid onto the older archived
+  `6ae0928` surrounding source. Each model: 463,560-byte app,
+  89,112 bytes free in app area, .data+.bss 95,408/98,304 and
+  pool 324,212/344,064. The Pro local package SHA256 was
+  `17ddca709244c655513f0ae2bbb006ea747cf439155419494a60357f5817a6e9`
+  and Elite
+  `418522d3c55e091e11e0475df8e03cbd4d8ea3af26a958f37a82d058c2f77027`.
+  These are **local compatibility artifacts**, not firmware
+  binaries of the complete GitHub HEAD; they are **not uploaded
+  to GitHub**, not installed and not distributed.
+- The archived checkout lacks `tools/check_original_inputs.py`,
+  so its direct script invocation was **NOT_RUN**. The already
+  verified ten active private input files have exact SHA256s
+  matching the integrated manifest, and the pinned JieLi SDK
+  input-kit verification passed separately.
+
+**Remaining precise boundary:** Only the changed public DSP files,
+shared FMA source and focused independent tests are byte-identical
+with the GitHub latest-base inputs. The *whole* surrounding source
+checkout remains archived `6ae0928`, not `wip/one-build` or this
+PR HEAD. Therefore the complete latest-tree Pro/Elite DEV
+qualification, full host suite, golden 15/15, 30-program current-head
+PCM/state trace, Valgrind active/idle instruction count and
+physical hardware proof remain **NOT_RUN**, not fake PASS. No sound
+boost or output-level change was made. The user explicitly requested
+source and regression delivery without waiting for the owner;
+the prepared branch and draft PR contain the exact GitHub-source
+patch and honest proof scope.
