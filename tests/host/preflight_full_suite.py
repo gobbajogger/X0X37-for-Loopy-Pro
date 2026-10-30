@@ -36,6 +36,19 @@ def reference_checks(root, names, environ=None):
     return checks
 
 
+def package_checks(root, names, environ=None):
+    """Detect the runner's otherwise uncounted SMK package skip."""
+    environ = os.environ if environ is None else environ
+    if names and "smk-package" not in names:
+        return []
+    sdk = environ.get("AC79_SDK", "")
+    return [
+        ("SMK app", (root / "build/smk37/x0x.bin").is_file(), "build/smk37/x0x.bin"),
+        ("SMK loader", (root / "build/smk37/loader/ota.bin").is_file(), "build/smk37/loader/ota.bin"),
+        ("AC79_SDK", bool(sdk) and Path(sdk).is_dir(), sdk or "not configured"),
+    ]
+
+
 def sanitizer_check(command):
     """Match the suite's ASan+UBSan link requirement, without running firmware."""
     with tempfile.TemporaryDirectory(prefix="x0x37-asan-preflight-") as directory:
@@ -82,6 +95,7 @@ def main(argv=None):
             ok, detail = sanitizer_check(cc)
             checks.append(("ASan+UBSan link", ok, detail or "compiler linked sanitizer probe"))
     checks.extend(reference_checks(root, selected))
+    checks.extend(package_checks(root, selected))
     failures = 0
     for label, passed, detail in checks:
         print("PASS" if passed else "FAIL", label + ":", detail)
