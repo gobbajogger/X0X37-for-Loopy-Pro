@@ -108,3 +108,15 @@ plus both active and idle CPU counts in the qualified Valgrind
 environment, and compare against matching original Miami reference
 events. Mark device parity, integrated CPU improvement, and
 installer readiness **PENDING** until that exact evidence exists.
+
+## Follow-up: strict GCC compile repair
+
+The initial GCC selected-voice/stereo-graph tests failed on five pre-existing
+misleading-indentation warnings. Five formatting-only statement splits
+in miami_selected_voice.c and voice_gain.c remove the warning without
+changing any DSP operations. All nine strict GCC selected-voice variants
+and four strict GCC stereo-graph variants now PASS; Clang also PASS.
+Reference versus optimized selected-voice and stereo-graph binary output/state
+traces remain identical after the correction. Pro/Elite native DEV rebuilds
+in the same archived-source compatibility checkout PASS after these edits.
+Exact latest-tree target build and complete golden/CPU gates remain NOT_RUN.
