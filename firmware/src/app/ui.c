@@ -963,7 +963,10 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     }
     if (kind == ORIGINAL_SOUND_CHICAGO) {
         static const char *const speed[] = {"1/2","1/4D","1/2T","1/4","1/8D","1/4T","1/8","1/8T","1/16","1/32"};
-        if (id == 4) { put_i(num,v->env_percent); put_s(unit,"%"); return 1; }
+        if (id == 4) { /* bipolar: 0 at the engine centre, signed either side */
+            if (v->env_percent > 0) { char b[8]; snprintf(b,sizeof b,"+%d",v->env_percent); put_s(num,b); }
+            else put_i(num,v->env_percent);
+            put_s(unit,"%"); return 1; }
         if (id == 11) { put_s(num,v->amp_gate ? "GATE" : "ENV"); return 1; }
         if (id == 13) { put_s(num,v->arp_on ? "ON" : "OFF"); return 1; }
         if (id == 14) { put_s(num,v->arp_mode == 1 ? "DOWN" : v->arp_mode == 2 ? "UP" : "UP/DN"); return 1; }
@@ -6891,7 +6894,8 @@ static UI_DRAW int og_states(pref_t r,int val,int *idx)
  * travels gx+2..gx+OG_W-1-ENV_FALL (19 of 26 px), so a full EG is clear to see. */
 #define ENV_FALL 4
 static int env_knee_x(int gx,float z)
-{ z=z<0?0:z>1?1:z; return gx+2+(int)(z*(OG_W-3-ENV_FALL)+.5f); }
+{ z=(z+.5f)*.5f; /* bipolar: cutoff+EG*ENV spans -0.5..1.5, CUTOFF 50% sits mid-cell */
+  z=z<0?0:z>1?1:z; return gx+2+(int)(z*(OG_W-3-ENV_FALL)+.5f); }
 static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
 {
     const x0x_param_t *d=pref_desc(r);
