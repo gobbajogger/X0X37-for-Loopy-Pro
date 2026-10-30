@@ -822,7 +822,8 @@ static const char *smc_button_caption(int note)
             if (!smc.fx_ready)
                 smc_fx_publish();
             return smcfx_select_caption(bus, smc_home_held(),
-                                        (smc.fx_down >> bus) & 1u);
+                                        (smc.fx_down >> bus) & 1u,
+                                        smc.fx_effect[bus]);
         }
         return "SEL";
     }
