@@ -2826,6 +2826,19 @@ static void drum_vel_set_step(int k, int v, int s, uint8_t vel)
     l->val[s] = vel;
 }
 
+/* A live drum hit recorded on step s: black keys and external MIDI (ext_rec_drain). */
+static void drum_rec_write(int k, int v, int s, int accent, uint8_t vel)
+{
+    if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
+        return;
+    sm_set(cur_pat()->drum[k].hit[v], s);
+    if (accent)
+        sm_set(cur_pat()->drum[k].accent, s);
+    drum_vel_set_step(k, v, s, vel);
+    seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
+    mark_dirty();
+}
+
 static void drum_key(int v, int down, int step_record)
 {
     int k = ui.part;
@@ -2845,14 +2858,34 @@ static void drum_key(int v, int down, int step_record)
         engine_drum(k, v, accent ? 1.0f : (float)kv / 127.0f);
     if (accent)
         ui.btn_used |= 1u << B_ENV;
-    if (step_record && ui.rec && seq.playing) {
-        int s = rec_step(TRK_DRUM + k);
-        sm_set(cur_pat()->drum[k].hit[v], s);
-        if (accent)
-            sm_set(cur_pat()->drum[k].accent, s);
-        drum_vel_set_step(k, v, s, accent ? 127u : kv);
-        seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
-        mark_dirty();
+    if (step_record && ui.rec && seq.playing)
+        drum_rec_write(k, v, rec_step(TRK_DRUM + k), accent, accent ? 127u : kv);
+}
+
+/* BREAK step st: on, with its own slice code (0 = the generator's, 1..32 = slot + 1). */
+static void brk_slice_write(brkpart_t *bp, int st, int code)
+{
+    if ((unsigned)st >= 16u)
+        return;
+    bp->slice[st] = (uint8_t)code;
+    bp->steps |= 1u << st;
+    mark_dirty();
+}
+
+/* External MIDI recording for 909, 808 and BREAK (engine midi_in queues the note, on the part's own
+ * channel, with its record step). Same rule as the keys: REC on, playing, the part selected, SEQ view.
+ * The 303s record in the engine (seq_rec_bass). */
+static void ext_rec_drain(void)
+{
+    uint32_t ev;
+    while (engine_rec_ev_get(&ev)) {
+        int part = REC_EV_PART(ev), st = REC_EV_STEP(ev);
+        if (project_busy || !ui.rec || !seq.playing || ui.view != V_SEQ || ui.part != part)
+            continue;
+        if (part == PART_BRK)
+            brk_slice_write(&cur_pat()->brk, st & 15, REC_EV_VOICE(ev) + 1);
+        else if (part < NKIT)
+            drum_rec_write(part, REC_EV_VOICE(ev), st, 0, (uint8_t)REC_EV_VEL(ev));
     }
 }
 
@@ -3371,12 +3404,10 @@ static void key_event(int k, int down)
         if (bl >= 0 && bl < 8 && down && slot >= count) { say("UNUSED SLICE KEY", 0); return; }
         if (bl >= 0 && bl < 8 && down && ui.brk_held >= 0) {     /* a step held + black 1-8: its own slice */
             int st = ui.brk_held;
-            bp->slice[st] = (uint8_t)(bp->slice[st] && (bp->slice[st] - 1) % count == slot ? 0 : slot + 1);
-            bp->steps |= 1u << st;
+            brk_slice_write(bp, st, bp->slice[st] && (bp->slice[st] - 1) % count == slot ? 0 : slot + 1);
             ui.hold_used = 1;                          /* its release keeps the step */
             ui.brk_pinkeys |= (uint16_t)(1u << bl);
             engine_brk_edit_hold(1);
-            mark_dirty();
             if (bp->slice[st]) {
                 char t[24];
                 put_i(put_s(put_i(put_s(t, "STEP "), st + 1), ": SLICE "), slot + 1);
@@ -7325,6 +7356,7 @@ void ui_frame(void)
     uint32_t i;
     input();
     division_pad_input();
+    ext_rec_drain();
     if (project_busy) {
 #if BOARD_SMK37
         smc_ui_cancel();

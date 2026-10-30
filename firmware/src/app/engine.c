@@ -940,6 +940,27 @@ static void live_rec_accept(int part, int src, int note)
 }
 static uint16_t src_held[3];           /* USB/Bluetooth/TRS: bass owners only; BREAK has independent raw-note owners. */
 static uint32_t brk_local;
+/* External MIDI record events: lock-free single-producer (midi_in) / single-consumer (ui_frame) ring,
+ * as midi_in_q. Full: the event is dropped (the note still sounds). */
+#define REC_Q 16u
+static uint32_t rec_q[REC_Q];
+static volatile uint32_t rec_w, rec_r;
+static void rec_ev_put(uint32_t ev)
+{
+    if (!seq.playing || rec_w - rec_r >= REC_Q) return;   /* stopped: nothing records */
+    rec_q[rec_w % REC_Q] = ev;
+    __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
+    rec_w++;
+}
+int engine_rec_ev_get(uint32_t *ev)
+{
+    if (rec_r == rec_w) return 0;
+    __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
+    *ev = rec_q[rec_r % REC_Q];
+    __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
+    rec_r++;
+    return 1;
+}
 static uint8_t brk_input_channel;
 static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
 enum { MIDI_NSRC = 3 };
@@ -1050,6 +1071,7 @@ static void brk_midi_wrap(int src, int on, int note)
     } else {
         brk_note_set(src, note, 1);
         breaks_slice_on(&brk, slice);
+        rec_ev_put(REC_EV(PART_BRK, slice, 127, seq_rec_step(&seq, TRK_BRK)));
     }
 }
 static void brk_local_event(int key, int on)
@@ -1213,8 +1235,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             kit_own = 1;
             if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
-                    if (GM_DRUM[k][v] == d1)
+                    if (GM_DRUM[k][v] == d1) {
                         s_drum(0, k, v, (float)d2 / 127.0f);
+                        rec_ev_put(REC_EV(k, v, d2, seq_rec_step(&seq, TRK_DRUM + k)));
+                    }
             }
         }
         if (kit_own && (ty == 0x90 || ty == 0x80))
