@@ -1,49 +1,60 @@
-# Web-site lane status
+# ui-theme progress
 
-Owner: web-site. Branch: codex/web-site. Base: e888d046bd16d7f9f64e9c824ca4027570bb38fe. Scope: web/, tools/make_pages.py and matching web checks. Local commits only; no push, publication or connected-device access.
+Lane: `codex/ui-theme`. Base: `e888d046`. Scope: local source commits, host checks and one `X0X_ORIGINAL_SYNTH=1` Elite Docker build. No push or device access.
 
-## Evidence and progress
+## Current checkpoint
 
-- Read ../feature-audit/FEATURE-MAP.md and original descriptions for all 14 assigned items.
-- Checked firmware PR #34 at 1d7561c6b3c6ed3b042e8d8b4eaa727b8a9beee4 and #66 at 923ad3c0824b41f50ec48706aa60e2e87fee9ed1, including review findings. Their single-writer/reconnect and strict archive successors are retained in the base; no whole-PR replay.
-- Checked site PR #90 at 9df2dfb7afe172f75d1ca8866edffc72657beb12. It records merged workspace repairs and byte-bound version assignments, and explicitly retains EC035 (cross-client write race). It is evidence, not proof that this firmware worktree contains that separate site.
-- Other lane scopes are taken from the current owner instruction and git worktree inventory. No project-chat reader is available. No other lane is edited.
-- Ordinary local workflow selected; no PR or merge mode requested.
-- Design proposal in preparation. Next: independent review, implementation, Node/headless tests and requested host/build validation.
+- Read the feature audit and pr-merges record. No supported project-chat reader is available; lane records provide the available ownership evidence. Other lanes remain read-only.
+- Fetched #647 (`e6eb8267`) and #650 (`a51b030d`). #650 is a clean trial in pr-merges but has no result commit yet. Recheck before porting it.
+- Reuse the approved matrix B presentation and the reviewed #647/#650 material. Prepare the missing Light/global material and static DnBOX boot proposal for independent review before implementation.
 
-## Feature acceptance
+## Feature outcomes
 
-- 75 partial: unified install/data workspace pending.
-- 77 partial: DnBOX shared Cyrillic/Latin font and styling pending.
-- 78 partial: actual manual/news exist; shared navigation/history pending.
-- 79 partial: retained scan serial and write-lock guards; visible stages/states pending.
-- 80 partial: retained local-file serial/model/size checks; prominent chooser and adjacent errors pending.
-- 81 partial: early unsupported state pending.
-- 82 partial: responsive/focus/live status/reduced-motion validation pending.
-- 84 partial: preserve catalog/package retention; honest history pending. No invented package numbers or publication claims.
-- 85 partial: retained OTA and slot migration guards; fresh-target and snapshot checks pending. Atomic cross-client snapshot-to-OTA needs firmware support.
-- 87 partial: sample preparation under install/recovery pending.
-- 89 partial: existing speed-up/storage-rate algorithm retained; integration and memory disclosure pending.
-- 51 partial: strict archive checks retained; complete fresh snapshot and target checks pending.
-- 53 partial: projects/sample connection epochs pending.
-- 55 blocked for personal-data acceptance: no owner backup selected and device access is forbidden. Synthetic completeness checks remain authorized.
+- 56: done for the requested agreed presentation — #647 shared glyph/drum MIX material and #650 sequence/list/song/mixer material, reconciled with the original-engine matrix. Existing HOME/BREAK/FX/settings use the common surfaces. Actual candidate renders are tested and independently reviewed; this does not approve unspecified future layouts.
+- 68: done — filled active row, four rows per bank, sparse unmapped cells, original parameter names and physical SMK K5–K8 captions. All original page targets and read-only performance indicators are checked.
+- 70: done — six persisted palettes including Light, complete material/part colours and revision-13 admission/save/load. No format migration.
+- 71: done for the current spelling/style request — mixed-case DnBOX on default boot, About/crash captions and installer; lowercase n retained in generated fonts; common visual material. No supplied bilingual-font or raster-logo reference is claimed as implemented; the code-native wordmark is shown in the reviewed proposal and actual render.
+- 72: done — one static default boot frame and validated custom still picture/text rendering; no video/player. Actual startup selects Amber; Light boot is a renderer variant.
+- 3: done for the original panel contract — 22 Chicago / 18 Miami controls/indicators, native selector states, musical rates, native unitless tune and exact neutral values. Legacy enum/ADSR/wave aliases cannot relabel original controls. No old engine is reintroduced.
+- 6: done — original compact 55 Chicago / 30 Miami factory selection, real names and browser, both independent slots. Exact external input hashes are verified.
+- 10: done in host proof — source/voice-owned notes block replacement; residual insert output fades for 512 samples, followed by 512 quiet samples below 1/65536 before factory adoption. Actual tested boundary is within one 16-bit LSB. Cancellation ramps back; typed history retains its prior contract. No audible hardware result is claimed.
 
 ## Validation
 
-Not yet run on a changed candidate. Firmware is unchanged (Chicago/Miami only; project revision 13 retained). Requested X0X_ORIGINAL_SYNTH=1 Docker build and tests/run_tests.sh will be recorded with actual flash/RAM margins. No flash or device test is authorized.
+Host tests: NOT_RUN. Target build: NOT_RUN. Flash/RAM free: not measured. Local commits: none.
 
-## Commits
+## #650 result integration
 
-None yet.
+pr-merges completed #650 as `298af033f992b0430174fd4cb6b7365f9bf1b01f`. Cherry-picked its first-parent UI delta with `git cherry-pick -m 1 --no-commit 298af033`; excluded its lane-owned PR-MERGES.md. Reconciled the missing inherited surface helper from #650's reviewed head. Preserved the corrected whole-808 mute fixture. The temporary uncommitted #650 port was stashed before this operation.
 
-Design proposal: web/workspace-proposal.html. Palette: #eaf0f5 ground, #192c40 ink, #465d73 muted, #ffffff paper, #234ea0 action, #b5c5d6 boundaries. The shared Cyrillic/Latin face is Golos Text (OFL). Actual ordered connection steps supply the visual hierarchy; the proposal avoids decorative device states. It preserves existing safety paths and makes unsupported/offline behavior explicit.
+`PATH=/opt/homebrew/bin:$PATH CC=cc CXX=c++ X0X_HOST_DEFS=-D_DARWIN_C_SOURCE sh tests/host/ui_main_material_test.sh`: PASS, 3,235,627 checks. Log: `build/ui-theme/pr650-main-material.log`. This is host renderer proof, not original-engine target or device proof. Final original-engine validation follows the remaining changes.
 
-Independent design review identified narrow-screen file-input overflow and small header link targets. The proposal now constrains file inputs and gives header links 44px targets; these become actual headless acceptance checks.
+## Implementation and independent review
 
-## Implementation checkpoint
+Local #650 result port: `6ba2085e`. #647 is ported on top of that result with its shared dispatcher and drum MIX geometry. The labelled proposal is `docs/ui-theme-proposal-20261030.svg`; independent design review accepted it after requiring full Light material/admission, original-control mapping, mixed-case font coverage and actual tail quiescence. No additional aesthetic approval gate is pending.
 
-The unified DnBOX workspace, shared self-hosted Golos Text font (OFL), current Manual/What's New and catalog History are implemented. Sample preparation remains below install/recovery and transfers exact processed PCM/ADPCM to Samples. Same-version catalog updates retain older models; missing or changed historical package bytes refuse generation.
+Implemented all six palettes including Light, matching material/part colours and revision-13 Light admission. Original matrix rows use original names/values and real factory names, physical SMK K5–K8 captions, sparse cells and filled active rows. Legacy ADSR/wave aliases cannot reinterpret original controls. The static default/custom still renderer uses the existing boot record and has no video player. Installer captions/defaults use DnBOX. The font generator retains lowercase n, including About/boot branding.
 
-Initial validation: make_pages_test.py PASS; test_breaks.mjs PASS; test_projects.mjs 34/34 PASS; test_projects_page.mjs 7/7 PASS. Required independent generated-browser review PASS at 320/390/1440 with MIDI disabled (build/web-site/review-browser.json). Mocked sample page initially failed its old success-caption expectation; actual source now reports complete versus partial restore. The test expectation was updated and remains under rerun.
+Original preset adoption now requires 512 consecutive rendered samples below 1/65536 in both channels in addition to source ownership. A numeric regression observed seven tail blocks after voice activity ended, then a tested adoption boundary within one 16-bit LSB. Original 55/30 tables and revision 13 remain intact. All twelve external headers were copied untracked from chicago-opt and hash-verified against EXTERNAL-INPUTS.json.
 
-Independent correctness review found two real issues: CRC-only comparison did not justify a byte-for-byte restore claim (fixed to compare bytes), and reused MIDI port objects could bypass reconnect detection (a latched session watcher is being added and regression-tested). These findings are not marked PASS yet. Firmware build is still running in x0x37-web-site-build-20261030. No device was accessed.
+Validation checkpoint: original-release UI normal + ASan/UBSan PASS (22,949 checks, 36 equal PNGs). Initial SMK theme suite normal + sanitizer PASS (23,775 checks, 127 equal PNGs), before subsequent font and glyph-bounds checks. Actual Light, matrix, settings and HOME renders were inspected; that review found the generator's lowercase folding, now repaired.
+
+The first wider runner is FAIL, not PASS: original integration assumed every tail ended within twelve blocks; ui-theme correctly rejected stale generated font data. Logs: `build/ui-theme/host-suite-initial.log`, `original-integration-initial-fail.log`, `theme-initial-fail.log`. Integration now has a bounded 4,096-block wait for the actual quiet boundary. Fonts were regenerated. A supported Python 3.12 plus Pillow was prepared entirely under `build/ui-theme/`; the first runner's host-build was NOT_RUN for missing Pillow. Corrected affected checks are running in `build/ui-theme/host-suite-final.log`.
+
+Target build remains NOT_RUN. No device or publication action occurred.
+
+## Tail-switch follow-up
+
+The wider integration still found a held small insert residual after a 4,096-block wait. That check remains FAIL in `build/ui-theme/host-suite-tail-investigation.log`; it caused a product repair. Audio-owned gain now fades residual insert output over 512 samples only after note/source ownership ends; cancellation or renewed activity ramps back over 512 samples. DSP histories continue advancing. Miami source/voice activity is separated from retained decimator output, while its existing general activity predicate keeps the same semantics.
+
+After that repair, `tests/run_tests.sh host-build original-release-integration ui-theme project-stage` is PASS (`build/ui-theme/host-suite-final2.log`). Original integration: 210,508 checks, normal/sanitizer equality, all 55/30 factories in both parts, seven Chicago FX, audio rendering, revision-13 project round trip, keys/MIDI/Stop and motion restoration. SMK UI/theme: 14,854,730 checks, 127 PNGs with normal/sanitizer equality. Project-stage invalid palette now uses 6; Light 5 is valid. Actual final THEME/LIGHT and mixed-case DnBOX boot screenshots were inspected.
+
+Additional cancellation and Miami-tail regression coverage is running before the target build. Simulated boot-record test initially had a missing compiler include path; that wrapper is repaired. Web boot tests PASS. No target build has run yet.
+
+## Source candidate checkpoint
+
+Independent source and actual-render review has no remaining blocker. The factory fade is deliberately separate from typed undo/redo, whose baseline admission guard is restored; the regression covers immediate redo with zero quiet samples and no factory fade owner.
+
+Final affected runner: PASS, `build/ui-theme/host-suite-final5.log` (`original-release-integration ui-theme boot-screen`). Integration: 210,508 checks, normal/ASan/UBSan equality. SMK theme/UI: 14,855,263 checks, 127 identical normal/sanitized PNGs. Chicago tail: three post-voice blocks, nine total switch blocks, smooth cancellation verified. The chosen Miami factory had no post-voice tail: zero natural tail blocks, four switch blocks; a separately seeded real decimator-held state proves signal history is not note ownership. The adoption output bound is at most one 16-bit LSB for both tested transitions. `project-stage` and `host-build` PASS in runner final2; `part-order` PASS in the initial runner. Web boot tests PASS. Earlier failed attempts remain failures in their logs; they are superseded only by the repaired affected checks.
+
+Target build is the next authorized action. Source commit will identify the candidate; flash/RAM figures remain unmeasured until that build completes.

@@ -102,6 +102,7 @@ static void prepare(void)
  smc_qr=smc_qw=smc_host_r=smc_host_w=0;
  smc_mmc_r[0]=smc_mmc_w[0]=smc_mmc_r[1]=smc_mmc_w[1]=0;
  refill_armed=refill_route=refill_cross=refill_calls=0;
+ smc_ble_link(1); smc_poll();
 }
 static void emit(int route,uint8_t st,uint8_t note,uint8_t vel)
 {
@@ -169,9 +170,9 @@ int main(void)
  assert(!smc_midi_host(packet(0x8f,8,0x80)));
  smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
  prepare();press(0);saturate(0);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- assert(!smc_midi_host(packet(0x8f,8,0)));smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ assert(!smc_midi_host(packet(0x8f,8,0)));smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(1);saturate(1);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- emit(1,0x8f,8,0);smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ emit(1,0x8f,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(0);saturate(0);saturate(1);
  emit(0,0x80,8,0);emit(1,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(1);saturate(1);emit(1,0x80,8,0);smc_ble_link(0);smc_poll();

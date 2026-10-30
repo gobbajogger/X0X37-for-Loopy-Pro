@@ -21,6 +21,7 @@
 #include "x0x_param.h"
 #include "../seq/pattern.h"           /* BRK_* settings order */
 
+#define BRK_GRAIN_HOP 3969u            /* 90 ms grains; half-rate source progression */
 #define BRK_FS 44100                  /* output sample rate */
 #define BRK_NCK 480                   /* ADPCM checkpoints per loop (4 bytes each); bounded reverse-state reuse */
 #define BRK_RCH 512                   /* reverse playback decodes this many samples at a time */
@@ -76,9 +77,7 @@ typedef struct {
 typedef struct {
     int8_t stack[32];                  /* held A slices0..31, most recent last */
     uint8_t count;
-    uint8_t reverse, half, stutter;   /* momentary macros held */
-    float rate_mult;                  /* 0.5 while half speed is held */
-    float trig_acc;                   /* half-speed trigger gate accumulator */
+    uint8_t reverse, jungle, stutter; /* momentary macros held */
 } brk_perf_t;
 
 typedef struct breaks {
@@ -122,6 +121,10 @@ typedef struct breaks {
     volatile uint16_t keys;
     uint16_t keys_seen;
     brk_perf_t perf;
+    int16_t bend;                    /* transient -8192..8191, +/-12 semitones; never saved */
+    uint16_t grain_left;
+    uint32_t grain_anchor;
+    float grain_distance;            /* half of source distance travelled during this grain */
 
     /* status of the latest trigger (the UI's readout, and the tests' probe) */
     uint32_t st_trigs;                /* triggers fired since init */
@@ -141,7 +144,7 @@ const brk_bank_t *breaks_bank(const breaks_t *b, int which); /* the published lo
 void breaks_step(breaks_t *b, int step16, int bar, float samples_per_16th, int enabled);
 void breaks_pin(breaks_t *b, int slice);           /* next step: stored A slice0..31 resolved modulo count; -1 generator */
 void breaks_stop(breaks_t *b);
-void breaks_live(breaks_t *b, int key, int down);  /* 0-7 hold slice of A, 8 reverse, 9 half speed, 10 stutter */
+void breaks_live(breaks_t *b, int key, int down);  /* 0-7 hold slice of A, 8 reverse, 9 jungle stretch, 10 stutter */
 void breaks_slice_on(breaks_t *b, int slice); /* hold slice0..31 and retrigger it; sounding voice crossfades */
 void breaks_render(breaks_t *b, float *out, int n);  /* WRITES mono, n <= 256 */
 void breaks_set_quiet(breaks_t *b, int quiet);
@@ -153,3 +156,5 @@ int breaks_get(const breaks_t *b, int i);
 
 void breaks_slice_hold(breaks_t *b, int slice, int down);
 int breaks_count(const breaks_t *b, int bank);
+
+void breaks_bend(breaks_t *b, int value); /* runtime offset; saved BRK_PITCH is unchanged */
