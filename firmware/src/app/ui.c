@@ -11,6 +11,7 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+#include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -5552,7 +5553,7 @@ static uint32_t bass_content_bits16(const bpart_t *bp, int base)
 }
 
 /* first 16 steps of one part in a pattern (drums: any voice; 303: gates; break: steps) */
-static uint32_t pat_part_bits16(const pattern_t *pt, int part)
+static __attribute__((unused)) uint32_t pat_part_bits16(const pattern_t *pt, int part)
 {
     int s, len;
     uint32_t bits = 0;
@@ -5577,12 +5578,12 @@ static uint32_t pat_part_bits16(const pattern_t *pt, int part)
 }
 
 /* 8 px wide row in a pattern glyph: each column is on when either of two 16th steps hits */
-static void pat_glyph_row(int32_t x, int32_t y, uint32_t bits16, uint16_t c)
+static void pat_glyph_row(int32_t x, int32_t y, const uint8_t strength[8], uint16_t c, int current)
 {
     int i;
     for (i = 0; i < 8; i++)
-        if ((bits16 >> (i * 2) & 3u) != 0u)
-            cv_rect(x+i,y,1,3,c);
+        if (strength[i])
+            cv_rect(x+i,y,1,3,dim(c,home_glyph_brightness(strength[i],current)));
 }
 
 /* HOME uses full instrument names and shallow lane plates. Display positions
@@ -5626,12 +5627,12 @@ static UI_DRAW void draw_home(int band)
             for(int pos=0;pos<NPARTS;pos++) {
                 p=part_at(pos);
                 int used=part_used(&proj.pat[c],p);
-                uint32_t pb; uint16_t fc;
+                uint8_t strength[8];
                 /* Assignment is not content: an empty lane must leave no coloured mark. */
                 if(!used) continue;
-                pb=pat_part_bits16(&proj.pat[c],p);
-                fc=seq.ppat[p]==c?PART_COL[p]:dim(PART_COL[p],7);
-                if(pb)pat_glyph_row(x+2,4+pos*4,pb,fc);
+                home_pattern_strength8(&proj.pat[c],proj.arr.lane,c,p,
+                                       proj.set.accent_q7,T_VEL,strength);
+                pat_glyph_row(x+2,4+pos*4,strength,PART_COL[p],seq.ppat[p]==c);
                 if(seq.ppat[p]==c)cv_rect(x,4+pos*4,1,3,PART_COL[p]);
             }
             if(c==cue && c!=seq.ppat[PART_909] && (ui.frame&16u)) frame(x-1,1,14,25,C_WHITE);
