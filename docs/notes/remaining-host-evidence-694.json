@@ -1,0 +1,143 @@
+{
+  "branch": "chat/remaining-features",
+  "checks": [
+    {
+      "closure": "mixed-source: exact current model headers and new test, historical generator and downstream headers",
+      "command": [
+        "sh",
+        "tests/host/drum_kit_identity_test.sh"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "DRUM_IDENTITY_OUT": "build/host/drum-id-694-gcc"
+      },
+      "exit_code": 0,
+      "log_path": "drum-kit-identity-gcc.log",
+      "log_sha256": "cf7509b1c67f3c8ea6de19bed80da4d738376e64a246dae4a17f65009cf7a510",
+      "name": "drum-kit-identity-gcc"
+    },
+    {
+      "closure": "mixed-source: exact current model headers and new test, historical generator and downstream headers",
+      "command": [
+        "sh",
+        "tests/host/drum_kit_identity_test.sh"
+      ],
+      "environment": {
+        "CC": "clang -fsanitize=undefined -fno-sanitize-recover=all",
+        "DRUM_IDENTITY_OUT": "build/host/drum-id-694-clangubsan"
+      },
+      "exit_code": 0,
+      "log_path": "drum-kit-identity-clang-ubsan.log",
+      "log_sha256": "cf7509b1c67f3c8ea6de19bed80da4d738376e64a246dae4a17f65009cf7a510",
+      "name": "drum-kit-identity-clang-ubsan"
+    },
+    {
+      "closure": "exact current standalone HOME projection headers and test",
+      "command": [
+        "sh",
+        "tests/host/home_pattern_glyph_test.sh"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "HOME_GLYPH_OUT": "build/host/home-glyph-694-gcc"
+      },
+      "exit_code": 0,
+      "log_path": "home-pattern-glyph-gcc.log",
+      "log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe",
+      "name": "home-pattern-glyph-gcc"
+    },
+    {
+      "closure": "exact current standalone HOME projection headers and test",
+      "command": [
+        "sh",
+        "tests/host/home_pattern_glyph_test.sh"
+      ],
+      "environment": {
+        "CC": "clang -fsanitize=undefined -fno-sanitize-recover=all",
+        "HOME_GLYPH_OUT": "build/host/home-glyph-694-clangubsan"
+      },
+      "exit_code": 0,
+      "log_path": "home-pattern-glyph-clang-ubsan.log",
+      "log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe",
+      "name": "home-pattern-glyph-clang-ubsan"
+    },
+    {
+      "closure": "exact current proof tool and its self-test, isolated synthetic Git fixture",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/remaining_feature_proof_test.py"
+      ],
+      "environment": {},
+      "exit_code": 0,
+      "log_path": "remaining-feature-proof.log",
+      "log_sha256": "7ffda15959781bbeb74d2c9ce9c4733de3476eef648354bb85a78ce6d9366e2e",
+      "name": "remaining-feature-proof"
+    },
+    {
+      "closure": "new exact-source link test with historical web page dependencies",
+      "command": [
+        "node",
+        "web/test_installer_project_handoff.mjs"
+      ],
+      "environment": {},
+      "exit_code": 0,
+      "log_path": "installer-project-handoff.log",
+      "log_sha256": "a0004abb0fbfaae32c936b3b5894625d9d17081a53713ec9c0081f12141353d7",
+      "name": "installer-project-handoff"
+    },
+    {
+      "closure": "historical web project transfer source; not current-HEAD qualified",
+      "command": [
+        "node",
+        "web/test_projects.mjs"
+      ],
+      "environment": {},
+      "exit_code": 0,
+      "log_path": "projects-transport.log",
+      "log_sha256": "991aa1be792bcb4c9bea9923d566cc02e4f175e7de54ca8608ba8cd4332b525c",
+      "name": "projects-transport"
+    },
+    {
+      "closure": "historical web project page; not current-HEAD qualified",
+      "command": [
+        "node",
+        "web/test_projects_page.mjs"
+      ],
+      "environment": {},
+      "exit_code": 0,
+      "log_path": "projects-page.log",
+      "log_sha256": "d2b88b50af4fe994f381aafde5580adf44c9b56f1b4fe93108a3b15756a15ce8",
+      "name": "projects-page"
+    }
+  ],
+  "format": "x0x37-scoped-host-evidence-v1",
+  "host": "Linux x86_64",
+  "limitations": [
+    "The local Git worktree is a historical source snapshot with selected current-header/new-feature overlays. It is not an exact whole-tree checkout of the target branch.",
+    "Exact current-HEAD firmware UI/framebuffer build, whole host suite, generated site and browser interaction were not executed.",
+    "This is not a native Elite/Pro build, a release, an installer publication or hardware acceptance."
+  ],
+  "local_file_git_blobs": {
+    "firmware/src/app/engine.h": "07a630f4c35046a211e523f185136272bd6133be",
+    "firmware/src/app/home_pattern_glyph.h": "065933fc65074b196aa70c97cd24d937fe1ec515",
+    "firmware/src/dsp/drum808.h": "569a5cd2047581b6d07a1f3a20cc3472c599bbd5",
+    "firmware/src/dsp/drum909.h": "7c2190465689d98919edb8c12807885f73f81899",
+    "firmware/src/dsp/x0x_param.h": "48f9ceb96d3bca43b8aab605330740c38109f8c6",
+    "firmware/src/seq/motion.h": "157b43e9ef0dbbbbd18fbf3ec205963814bb2cfd",
+    "firmware/src/seq/pattern.h": "19dc003c8bc3e43d94dd4b4e9c1c068030a84cd2",
+    "tests/host/drum_kit_identity_test.c": "33f2da2b2f7ec4702966a80fd193b89949dd6844",
+    "tests/host/home_pattern_glyph_test.c": "237b2bb6a921cf4c46a5d4c23c6da75dd1319d65",
+    "tests/host/remaining_feature_proof_test.py": "75717de6d4aff78c9e40925fdd258e3660cd3eaa",
+    "tools/remaining_feature_proof.py": "91e3368d76d5ba1488d63e43b1b488f45f8c1be8"
+  },
+  "source_safety": "No SDK/private #684 headers/firmware binaries included in this receipt.",
+  "target_head": "4eb6824f823e900c529e1f18b0400812bb4c2716",
+  "target_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "tools": {
+    "clang": "clang version 17.0.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+    "node": "v22.16.0",
+    "python": "3.13.5"
+  }
+}
