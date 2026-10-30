@@ -42,7 +42,7 @@ static void complete(blec_t *a,blec_t *b,unsigned op,unsigned status)
 { uint8_t p[]={0x0e,4,1,op,op>>8,status};blec_pair_rx(a,b,4,p,sizeof p,3); }
 int main(void){blec_t a,b;
  /* Full fake discovery of both peers through production event routing. */
- setup(&a,&b); a.state=b.state=BLEC_OFF;a.conn=b.conn=0;a.credits=a.acl_total=0;
+ setup(&a,&b); a.state=b.state=BLEC_OFF;a.conn=b.conn=0;a.linked=b.linked=0;a.credits=a.acl_total=0;
  blec_start(&a,0);
  complete(&a,&b,COP_RESET,0);complete(&a,&b,COP_EV_MASK,0);complete(&a,&b,COP_LE_MASK,0);
  {uint8_t p[]={0x0e,7,1,2,0x20,0,27,0,TEST_ACL_CREDITS};blec_pair_rx(&a,&b,4,p,sizeof p,1);}
