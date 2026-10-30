@@ -375,8 +375,9 @@ run ble-central-first-notification python3 tests/host/ble_central_first_notifica
 if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central.h; then
     run ble-one-peer-command sh tests/host/ble_one_peer_command_retry_test.sh
     run ble-one-peer-contract python3 tests/host/ble_single_peer_contract_test.py
-    not_run ble-dual-peer 'single-peer recovery; two-peer source removed'
-    not_run ble-command-credit 'single-peer recovery; B command-owner model removed'
+    # The two-peer source stays; test it with BLEC_TWO_PEER=1.
+    run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
+    run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
     not_run ble-controller-heap 'single-peer recovery; B two-link heap assumption removed'
 else
     run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
