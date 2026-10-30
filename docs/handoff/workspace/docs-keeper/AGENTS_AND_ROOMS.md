@@ -4,6 +4,8 @@ Rule 2 (owner, explicit, 2026-10-31): Always start a new Codex/ChatGPT thread fo
 
 Rule 3 (owner, explicit, 2026-10-31): Speed first. Fix blockers (like forbidden files) first, run tests and builds in parallel, and cut anything the build does not need.
 
+Rule 4 (owner, explicit, 2026-10-31): Don't overcomplicate it. Keep work and messages simple.
+
 # x0x37 Agents and Rooms
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
