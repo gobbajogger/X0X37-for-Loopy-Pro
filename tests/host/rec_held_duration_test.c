@@ -8,6 +8,7 @@
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
 #undef main
+int unlink(const char *path); /* POSIX; -std=c99 hides it in <unistd.h> */
 #if BOARD_SMK37
 static uint8_t test_clip_mode, test_clip_busy;
 uint8_t smk_clip_mode_on(void) { return test_clip_mode; }
