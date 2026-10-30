@@ -120,3 +120,35 @@ test('sequential stale-tab save also fails without a hidden overwrite',async()=>
   await assert.rejects(b.save(draft(11)),/Another tab/);
   assert.equal(s.getItem(key),good(10));assert.equal(s.getItem(fallback),good(9));
 });
+test('same-tab overlapping saves preserve commit order and last-good rollback',async()=>{
+  const locks=new FakeLocks(),s=storage({[key]:good(21),[fallback]:good(20)}),d=create(s,locks);
+  assert.equal(d.load().status,'ready');
+  const [first,second]=await Promise.allSettled([d.save(draft(22)),d.save(draft(23))]);
+  assert.equal(first.status,'fulfilled');assert.equal(second.status,'fulfilled');
+  assert.equal(s.getItem(key),good(23));assert.equal(s.getItem(fallback),good(22));
+  assert.equal(locks.maxActive,1);
+});
+test('external corruption after load rejects without rotating backup into corruption',async()=>{
+  const locks=new FakeLocks(),s=storage({[key]:good(41),[fallback]:good(40)}),d=create(s,locks);
+  assert.equal(d.load().status,'ready');
+  s.setItem(key,'{invalid');const before=s.written.length;
+  await assert.rejects(d.save(draft(42)),/Another tab/);
+  assert.equal(s.written.length,before);
+  assert.equal(s.getItem(key),'{invalid');assert.equal(s.getItem(fallback),good(40));
+});
+test('repeated contested saves never silently confirm more than one stale writer',async()=>{
+  const locks=new FakeLocks(),s=storage({[key]:good(30),[fallback]:good(29)});
+  for(let round=0;round<12;round++){
+    const first=create(s,locks),second=create(s,locks),third=create(s,locks);
+    first.load();second.load();third.load();
+    const stateBefore=s.getItem(key);
+    const attempts=await Promise.allSettled([
+      first.save(draft(40+round)),second.save(draft(70+round)),third.save(draft(100+round))
+    ]);
+    assert.equal(attempts.filter(x=>x.status==='fulfilled').length,1);
+    assert.equal(attempts.filter(x=>x.status==='rejected').length,2);
+    assert.equal(s.getItem(key),good(40+round));
+    assert.equal(s.getItem(fallback),stateBefore);
+  }
+  assert.equal(locks.maxActive,1);
+});
