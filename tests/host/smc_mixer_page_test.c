@@ -18,56 +18,72 @@ static void page_tap(int note)
 int main(void)
 {
     setup(V_MIX, PART_909);
-    /* The very first mixer read never captures an already moved keyboard page. */
+    /* The unlocked mixer follows keyboard-only page changes from first use. */
     *page_of(V_MIX) = 3; build_pages();
-    CHECK(cur_page() == 3 && smc_page_now() == 0);
-    smc_page_set(3);
-    *page_of(V_MIX) = 0; build_pages();
-    CHECK(smc_page_now() == 3 && smc_led(31)); /* MIX SELECT LED is mixer-owned */
-    CHECK(cur_page() == 0);
+    CHECK(cur_page() == 3 && smc_page_now() == 3 && smc_led(31));
+    smc_page_set(0);
+    CHECK(cur_page() == 0 && smc_page_now() == 0 && !smc_led(31));
     ui.sel[PART_909] = 0;
     ui.sel[PART_808] = 1;
     build_pages();
     smc_page_set(1);
-    CHECK(smc_page_now() == 1);
-    CHECK(smc_drum_mix() == PART_909);
-    CHECK(smc_led(24)); /* SELECT LED owns the chosen 909 track */
-    pref_t first = smc_target(0);
-    *page_of(V_MIX) = 2;
-    build_pages();
-    CHECK(cur_page() == 2 && smc_page_now() == 1);
+    CHECK(cur_page() == 1 && smc_page_now() == 1);
     CHECK(smc_drum_mix() == PART_909 && smc_led(24));
-    CHECK(smc_same(first, smc_target(0)));
-    /* The other peer can control 808 without redirecting this peer. */
+    pref_t first = smc_target(0);
+    *page_of(V_MIX) = 2; build_pages();
+    CHECK(cur_page() == 2 && smc_page_now() == 2);
+    CHECK(smc_drum_mix() == PART_808 && !smc_led(24) && smc_led(25));
+    CHECK(!smc_same(first, smc_target(0)));
+    /* Both unlocked peers read the keyboard page, including mixer-side moves. */
     smc_slot = 1;
-    smc_page_set(2);
     CHECK(smc_page_now() == 2);
-    CHECK(smc_drum_mix() == PART_808);
-    CHECK(!smc_led(24));
+    smc_page_set(1);
+    CHECK(cur_page() == 1 && smc_page_now() == 1 && smc_led(24));
     smc_slot = 0;
     CHECK(smc_page_now() == 1 && smc_led(24));
-    /* Mixer PAGE+ changes only the mixer's page, not the keyboard page. */
     page_tap(0x63);
-    CHECK(smc_page_now() == 2 && cur_page() == 2);
-    CHECK(smc_drum_mix() == PART_808 && !smc_led(24));
+    CHECK(cur_page() == 2 && smc_page_now() == 2 && smc_led(25));
     page_tap(0x62);
-    CHECK(smc_page_now() == 1 && cur_page() == 2);
-    /* A lock holds the exact physical targets while mixer navigation moves
-     * lock_page; unlock then adopts that independent page. */
+    CHECK(cur_page() == 1 && smc_page_now() == 1 && smc_led(24));
+
+    /* Pause locks the physical targets AND the peer's own display page.
+     * Mixer PAGE+ changes lock_page, not the keyboard page or saved targets. */
     page_tap(0x5D);
-    CHECK(smc.locked);
+    CHECK(smc.locked && smc.lock_view == V_MIX &&
+          smc.lock_part == PART_909 && smc.lock_page == 1);
+    CHECK(smc.lock_kit == PART_909 + 1 && smc.lock_bank == 0);
     pref_t held_fader = smc_target(0), held_knob = smc_knob_target(0);
-    page_tap(0x63);
-    CHECK(smc.lock_page == 2 && smc_page_now() == 2);
+    smc_slot = 1;
+    smc_page_set(3);
+    CHECK(cur_page() == 3 && smc_page_now() == 3 && smc_led(31));
+    smc_slot = 0;
+    CHECK(smc_page_now() == 1 && smc_led(24));
     CHECK(smc_same(held_fader, smc_target(0)));
     CHECK(smc_same(held_knob, smc_knob_target(0)));
-    *page_of(V_MIX) = 3;
-    build_pages();
-    CHECK(smc_page_now() == 2 && cur_page() == 3);
+    page_tap(0x63);
+    CHECK(smc.lock_page == 2 && smc_page_now() == 2 && cur_page() == 3);
+    CHECK(smc_drum_mix() == PART_808 && !smc_led(24) && smc_led(25));
     CHECK(smc_same(held_fader, smc_target(0)));
-    CHECK(smc_lock_toggle());
-    CHECK(smc_page_now() == 2 && smc_drum_mix() == PART_808);
+    CHECK(smc_same(held_knob, smc_knob_target(0)));
+    /* Peers can lock different pages and never overwrite one another's lock. */
+    smc_slot = 1;
+    CHECK(smc_lock_toggle() && smc.locked && smc.lock_page == 3);
+    smc_slot = 0;
+    CHECK(smc.locked && smc.lock_page == 2);
+    *page_of(V_MIX) = 0; build_pages();
+    CHECK(cur_page() == 0 && smc_page_now() == 2);
+    CHECK(smc_same(held_fader, smc_target(0)));
+    smc_slot = 1;
+    CHECK(smc_page_now() == 3 && smc.lock_page == 3);
+    CHECK(smc_lock_toggle() && smc_page_now() == 0);
+    smc_slot = 0;
+    CHECK(smc_lock_toggle() && smc_page_now() == 0);
     CHECK(!smc_same(held_fader, smc_target(0)));
+    /* After unlock, changing the mixer's page changes the keyboard page. */
+    smc_page_set(1);
+    CHECK(smc_page_now() == 1 && cur_page() == 1);
+    CHECK(smc_drum_mix() == PART_909 && smc_led(24));
+
     /* Proven drum banks are independent and never collide with a fader. */
     for (int bank = 0; bank < 3; bank++) {
         page_tap(0x61);

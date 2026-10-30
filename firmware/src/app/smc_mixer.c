@@ -314,8 +314,8 @@ static __attribute__((noinline)) pref_t smc_home_target(int n)
     return r;
 }
 
-/* The physical mixer owns its page by view and part, independently of the keyboard.
- * Lock selects lock_page without changing captured fader or knob destinations. */
+/* Unlocked mixer navigation uses the keyboard's page. A locked peer retains
+ * its own lock_page while its fader and knob destinations stay captured. */
 static uint8_t smc_page_part(int view, int part)
 {
     return view == V_PART || view == V_SEQ || view == V_GEN ? (uint8_t)part : 0u;
@@ -325,9 +325,9 @@ static int smc_page_now(void)
 {
     if (pg.n <= 0) return 0;
     if (smc.locked) return smc.lock_page < pg.n ? smc.lock_page : 0;
-    int part = smc_page_part(ui.view, ui.part);
-    uint8_t page = smc.mixer_page[ui.view][part];
-    return page < pg.n ? page : 0;
+    /* Unlocked SMC and keyboard are two surfaces for the same page. */
+    int page = cur_page();
+    return page >= 0 && page < pg.n ? page : 0;
 }
 
 static void smc_page_set(int page)
@@ -335,8 +335,8 @@ static void smc_page_set(int page)
     if (page < 0 || page >= pg.n) return;
     if (smc.locked) smc.lock_page = (uint8_t)page;
     else {
-        int part = smc_page_part(ui.view, ui.part);
-        smc.mixer_page[ui.view][part] = (uint8_t)page;
+        /* Mixer-side navigation changes the shared page only while unlocked. */
+        *page_of(ui.view) = (uint8_t)page;
         smc.picked = 0;           /* new destinations require physical pickup */
         smc.pending = 0xFFu;
     }
@@ -359,7 +359,11 @@ static pref_t smc_page_target(int n)
 
 static int smc_drum_mix(void)
 {
-    if (smc.locked) return (int)smc.lock_kit - 1;
+    /* A locked page switch can change the mixer's UI/button mapping, but
+     * captured fader/knob targets still use lock_kit and lock_bank. */
+    if (smc.locked && ui.view != V_MIX) return (int)smc.lock_kit - 1;
+    if (smc.locked && (ui.overlay != O_NONE || smk_clip_mode_on()))
+        return (int)smc.lock_kit - 1;
     if (ui.overlay != O_NONE || smk_clip_mode_on()) return -1;
     /* SEQ follows its selected drum part; MIX follows the kit actually shown. */
     if (ui.view == V_SEQ && is_drum()) return ui.part;
@@ -479,7 +483,8 @@ int smc_lock_toggle(void)
             smc.lock_knob[i] = smc_bind(smc_knob_target(i));
         }
     } else {
-        /* Commit mixer navigation back to its own page only at unlock. */
+        /* Unlock resumes the live keyboard page; do not push the locked
+         * peer's navigation into the keyboard's page. */
         int part = smc_page_part(smc.lock_view, smc.lock_part);
         smc.mixer_page[smc.lock_view][part] = smc.lock_page;
     }
