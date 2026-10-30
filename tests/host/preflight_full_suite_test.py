@@ -41,6 +41,26 @@ class PreflightTests(unittest.TestCase):
             checks = preflight.reference_checks(root, ["drum909"], {"NINEW9_DIR": str(ref.parents[2])})
             self.assertTrue(checks[0][1])
 
+    def test_package_skip_is_detected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checks = preflight.package_checks(root, [], {})
+            self.assertEqual(3, len(checks))
+            self.assertTrue(all(not c[1] for c in checks))
+            self.assertEqual([], preflight.package_checks(root, ["fastmath"], {}))
+
+    def test_package_inputs_are_accepted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for filename in ("build/smk37/x0x.bin", "build/smk37/loader/ota.bin"):
+                path = root / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"fixture")
+            sdk = root / "sdk"
+            sdk.mkdir()
+            checks = preflight.package_checks(root, ["smk-package"], {"AC79_SDK": str(sdk)})
+            self.assertTrue(all(c[1] for c in checks))
+
     def test_tb3po_reference_is_file_not_directory(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "repo"
