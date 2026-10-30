@@ -1,0 +1,4 @@
+#!/bin/sh
+# Box-local cc wrapper. GCC 14 rejects clang-only attributes (minsize, weak inline) under -Werror,
+# and glibc hides POSIX calls (unlink, fdopen) under strict -std=c99/c11. Repo code is not changed.
+exec /usr/bin/gcc "$@" -Wno-attributes -Wno-error=attributes -D_DEFAULT_SOURCE -D_POSIX_C_SOURCE=200809L
