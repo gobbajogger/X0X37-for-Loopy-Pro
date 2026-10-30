@@ -1,0 +1,182 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 77f5da4..f74f063 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,3 +1,15 @@
++<!-- x0x37-current-rules -->
++# Current x0x37 skills
++
++In the x0x37 workspace, use [current skill entry points](../AGENTS.md) before work.
++Apply [chat routing](.agents/skills/x0x37-task/references/routing.md) before any new task or handoff.
++Initialize the matching `SKILL.md` when its step begins. These skills supersede
++older workflow text here. For a standalone checkout, use `docs/agent-rules.md`
++and its skill links; recover missing sources
++from the maintained project. Unrelated checkout instructions below still apply.
++
++<!-- /x0x37-current-rules -->
++
+ # x0x37 agent entry point
+ 
+ Read [docs/agent-rules.md](docs/agent-rules.md), then
+diff --git a/docs/SKILLS.md b/docs/SKILLS.md
+index 56a9a8b..0156f93 100644
+--- a/docs/SKILLS.md
++++ b/docs/SKILLS.md
+@@ -1,3 +1,12 @@
++<!-- x0x37-current-rules -->
++# Current skill discovery
++
++Inside the x0x37 workspace use [maintained skill status](../../x0x37/docs/SKILLS.md). The older
++status below is retained as history and is superseded there. Outside the
++workspace use the local installed skills and verify their source/status.
++
++<!-- /x0x37-current-rules -->
++
+ # Writing skills: recovery status
+ 
+ The owner requires plain, correct English and concise caveman style for every project agent and subagent, at all times. Apply [the writing rule](rules/style.md) to owner replies, agent messages, task prompts, docs, logs, commits, and handoffs. Preserve exact code, paths, commands, identifiers, quotes, and technical meaning.
+diff --git a/firmware/src/app/main_fm1.c b/firmware/src/app/main_fm1.c
+index 239fd5c..4539f34 100644
+--- a/firmware/src/app/main_fm1.c
++++ b/firmware/src/app/main_fm1.c
+@@ -1293,6 +1293,29 @@ static uint32_t ck_page_on(void)
+ }
+ /* SMC encoders follow the visible clip keys editor's two columns (up to eight
+  * fields). The SMC faders keep the five part levels and three returns here. */
++static const x0x_param_t *smk_ck_field_desc(int field)
++{
++    static x0x_param_t d;
++    if (field < 0 || field >= CK_NE)
++        return 0;
++    d.name = ck_nm(CK_FLD_N, (uint32_t)field);
++    d.max = CK_FMAX[field];
++    d.names = 0;
++    return &d;
++}
++
++static int smk_ck_field_get(int field) { return (int)ck_get((uint32_t)field); }
++static void smk_ck_field_set(int field, int value) { ck_set((uint32_t)field, (uint32_t)value); }
++static int smk_ck_smc_page(void) { return clip_grid_mode && ck_page_on(); }
++
++static pref_t smk_ck_smc_ref(int n)
++{
++    uint32_t page = (ck.pg & 3u) - 1u;
++    if (!smk_ck_smc_page() || n < 0 || n >= (page == 2u ? 8 : 4))
++        return NONE;
++    return PR(R_CKFIELD, CK_PAGE_FIELDS[page][n], page, 0);
++}
++
+ int smk_ck_smc_turn(int n, int delta)
+ {
+     uint32_t pg, f;
+diff --git a/firmware/src/app/smc_mixer.c b/firmware/src/app/smc_mixer.c
+index 449adea..847ab64 100644
+--- a/firmware/src/app/smc_mixer.c
++++ b/firmware/src/app/smc_mixer.c
+@@ -8,6 +8,8 @@
+ extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+ extern uint8_t smk_clip_mode_on(void);
+ extern int smk_ck_smc_turn(int n, int delta);
++static int smk_ck_smc_page(void);
++static pref_t smk_ck_smc_ref(int n);
+ static struct {
+     uint8_t n, b[6];
+ } smc_q[SMC_Q];
+@@ -88,21 +90,24 @@ static pref_t smc_home_target(int n)
+     return PR(R_ENG, T_MST, 0, MST_DJF);
+ }
+ 
+-/* Every page owns eight faders: its four visible cells, followed by the next page's
+- * four cells. A one-page view uses the selected part's mixer strip for faders 5-8. */
++/* Only visible cells are targets. Empty positions never fall through to another
++ * page or to the selected part's mixer, which can duplicate visible controls. */
+ static pref_t smc_page_target(int n)
+ {
+-    int p = cur_page();
+-    if (n < 4)
+-        return pg.r[p][n];
+-    if (p + 1 < pg.n)
+-        return pg.r[p + 1][n - 4];
+-    return PR(R_ENG, T_MIX, ui.part, n - 4);
++    if (n < 0 || n >= 8 || ui.help || ui.overlay == O_ASK)
++        return NONE;
++    if (ui.overlay == O_LIST)
++        return n < 6 && ui.list_top + n < ui.list_n ? list_rows[ui.list_top + n] : NONE;
++    return n < 4 ? pg.r[cur_page()][n] : NONE;
+ }
+ 
+ static pref_t smc_target(int n)
+ {
+-    if (smk_clip_mode_on() || ui.view == V_HOME || ui.view == V_GLO)
++    if (ui.help || ui.overlay != O_NONE)
++        return smc_page_target(n);
++    if (smk_ck_smc_page())
++        return smk_ck_smc_ref(n);
++    if (smk_clip_mode_on() || ui.view == V_HOME)
+         return smc_home_target(n);
+     return smc_page_target(n);
+ }
+@@ -183,9 +188,9 @@ static void smc_fader(int n, uint8_t v)
+ 
+ static void smc_knob(int n, int delta)
+ {
+-    if (ui.overlay != O_NONE || ui.help)
+-        return;                          /* a menu/help card covers both clip and X0X fields */
+-    if (smk_ck_smc_turn(n, delta))
++    if (ui.overlay == O_ASK || ui.help)
++        return;
++    if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
+         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
+     pref_t r = smc_page_target(n);
+     if (r.kind == R_NONE || r.kind == R_HDR || r.kind == R_ACT)
+diff --git a/firmware/src/app/ui.c b/firmware/src/app/ui.c
+index 0899842..d04492a 100644
+--- a/firmware/src/app/ui.c
++++ b/firmware/src/app/ui.c
+@@ -219,10 +219,15 @@ static void say(const char *a, const char *b)
+ enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
+        R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
+        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
+-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
++       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_CKFIELD };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+ typedef struct { uint8_t kind, a, b, c; } pref_t;
+ #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
+ #define NONE PR(R_NONE, 0, 0, 0)
++#if BOARD_SMK37
++static const x0x_param_t *smk_ck_field_desc(int field);
++static int smk_ck_field_get(int field);
++static void smk_ck_field_set(int field, int value);
++#endif
+ 
+ static const char *const RATE_N[] = {"1/16", "1/16T", "1/32", "1/8T"};
+ static const char *const DIR_N[] = {"FWD", "REV", "PING", "RND"};
+@@ -305,6 +310,9 @@ static void song_fill(int k)
+ static const x0x_param_t *pref_desc(pref_t r)
+ {
+     switch (r.kind) {
++#if BOARD_SMK37
++    case R_CKFIELD: return smk_ck_field_desc(r.a);
++#endif
+     case R_ENG: return engine_param(r.a, r.b, r.c);
+     case R_GEN: return &GEN_P[r.c % NGEN];
+     case R_BRKSET: return breaks_param(r.c);
+@@ -368,6 +376,9 @@ static int pref_get(pref_t r)
+ {
+     pattern_t *p = cur_pat();
+     switch (r.kind) {
++#if BOARD_SMK37
++    case R_CKFIELD: return smk_ck_field_get(r.a);
++#endif
+     case R_ENG: return proj.sound.v[r.a][r.b][r.c];
+     case R_SWING: return pat_of(PART_909)->swing;
+     case R_DLEN: return pat_of(r.a)->drum[r.a].len - 1;
+@@ -433,6 +444,9 @@ X0X_COLD static void pref_set(pref_t r, int v)
+     v = v < 0 ? 0 : v > d->max ? d->max : v;
+     mark_dirty();
+     switch (r.kind) {
++#if BOARD_SMK37
++    case R_CKFIELD: smk_ck_field_set(r.a, v); break;
++#endif
+     case R_ENG:
+         proj.sound.v[r.a][r.b][r.c] = (uint8_t)v;
+         engine_set(r.a, r.b, r.c, v);
