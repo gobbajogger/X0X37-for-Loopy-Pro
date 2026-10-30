@@ -42,3 +42,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | Item | Source sha | Result | Commit | Conflicts resolved | Notes |
 |---|---|---|---|---|---|
 | wip/one-build | 8ac1ed62 | merged | 8733807b | – | includes 981f3c66; base deletes 3 workflow files |
+| rule fix | – | done | a9f02e59 | – | removed pr715-sanitized-evidence.zip.b64.txt; restored 13 .gitignore guard lines (headers stay tracked) |
