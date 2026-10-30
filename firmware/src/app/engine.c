@@ -58,6 +58,8 @@ static uint8_t original_key_pitch[NBASS][38]; /* token -> pitch+1; zero is relea
 static uint8_t original_midi_channel[NBASS];
 static int16_t original_seq_note[NBASS];
 int engine_bass_status(int v) { return (unsigned)v < NBASS ? original_bass[v].status : 0; }
+int engine_bass_filter_view(int v, float *eg, float *depth)
+{ return (unsigned)v < NBASS && original_runtime_filter_view(&original_bass[v], eg, depth); }
 static void original_prepare_all(void)
 {
     for (int v = 0; v < NBASS; ++v) (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));
@@ -381,6 +383,19 @@ X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
     case T_MIX: return (i >= 0 && i < MX_NPARAMS) ? &MIX_P[i] : 0;
     case T_MST: return master_param(i);
     default: return 0;
+    }
+}
+
+X0X_COLD int engine_param_si(int t, int v, int i, int pot, float *val)
+{
+    switch (t) {
+    case T_909: return drum909_param_si(v, i, pot, val);
+    case T_808: return drum808_param_si(v, i, pot, val);
+    case T_FX: return fxbus_param_si(i, pot, val);
+    case T_BRK:                                      /* breaks.c: lvl = set/127 */
+        if (i == 0) { *val = (float)pot / 127.0f; return X0X_U_GAIN; }
+        return X0X_U_NONE;
+    default: return X0X_U_NONE;
     }
 }
 

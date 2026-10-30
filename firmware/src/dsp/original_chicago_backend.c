@@ -268,6 +268,14 @@ int original_chicago_backend_all_off(original_chicago_backend *s)
     return healthy(s);
 }
 
+int original_chicago_backend_filter_view(const original_chicago_backend *s, float *eg, float *depth)
+{
+    if (!s || s->ready != BACKEND_READY) return 0;
+    *eg = s->voice.active ? s->voice.vcf.level : 0.0f;
+    *depth = s->controls.env_depth;
+    return 1;
+}
+
 int original_chicago_backend_active(const original_chicago_backend *s)
 {
     /* Raw latched keys survive ordinary releases; only an enabled latch

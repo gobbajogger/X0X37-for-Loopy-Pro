@@ -240,6 +240,29 @@ static float d9_pot_value(const d9_pspec_t *s, int pot)
     return s->lo + (s->hi - s->lo) * t;
 }
 
+/* UI readout: the engine value of a pot and its unit (X0X_U_*). BD Tune is a
+ * sweep time constant whose unit is not confirmed, so it stays unitless. */
+X0X_COLD int drum909_param_si(int voice, int i, int pot, float *val)
+{
+    if (voice < 0 || voice > DR_KIT || i < 0 || i >= d9_nspec[voice])
+        return X0X_U_NONE;
+    const d9_pspec_t *s = d9_spec(voice, i);
+    if (s->curve == CV_SW || voice == DR_KIT)
+        return X0X_U_NONE;
+    float v = d9_pot_value(s, pot);
+    *val = v;
+    switch (s->field) {
+    case F_LEVEL: return X0X_U_GAIN;
+    case F_REV: case F_DLY: case F_ATTACK: case F_PDEPTH: case F_SNAPPY: *val = v * 100.0f; return X0X_U_PCT;
+    case F_DECAY: case F_TAIL: return X0X_U_MS;
+    case F_TONE: return s->curve == CV_EXP ? X0X_U_HZ : X0X_U_NONE;
+    case F_TUNE:
+        if (s->curve != CV_EXP) return X0X_U_NONE;
+        return s->exp == X0X_EXP_SMP_PITCH ? X0X_U_RATIO : X0X_U_HZ;
+    default: return X0X_U_NONE;
+    }
+}
+
 /* ===================================================================== */
 /* Rim and clap filter setup (er99_rim909_retune, er99_clap909_retune)    */
 /* ===================================================================== */

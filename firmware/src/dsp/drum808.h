@@ -208,6 +208,7 @@ void drum808_pan_settle(drum808_t *d);   /* every pan to its target at once (the
      /* ADDS this block (mono, n <= 256) into the dry bus and the reverb / delay send buses */
 int drum808_nparams(int track);                           /* D8_KIT = kit-wide */
 const x0x_param_t *drum808_param(int track, int i);
+int drum808_param_si(int track, int i, int pot, float *val);
 void drum808_set(drum808_t *d, int track, int i, int value);
 int drum808_get(const drum808_t *d, int track, int i);
 

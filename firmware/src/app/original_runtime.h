@@ -39,5 +39,7 @@ int original_runtime_all_off(original_runtime_part *);
 /* Source/voice ownership excludes residual insert output; selector fades that output separately. */
 int original_runtime_owned(const original_runtime_part *);
 int original_runtime_active(const original_runtime_part *);
+/* Chicago only: live filter EG level and env depth for the ENV glyph. */
+int original_runtime_filter_view(const original_runtime_part *, float *eg, float *depth);
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
