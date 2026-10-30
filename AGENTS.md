@@ -8,6 +8,18 @@ Determine device permission for the exact model and action from the latest owner
 
 Optional host tooling gaps may be recorded as NOT_RUN while independent work continues. A check that actually runs and fails remains FAIL. GitHub Actions, billing errors, and review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
 
+## Where work runs (owner rules)
+
+- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
+- The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
+- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
+- If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
+- Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
+- `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
+- Merge bar: a full cloud pass (the full host suite plus the Elite and Pro builds, 0 fail and 0 skip), or the box result `Box host-suite check: PASS` plus a PR comment that the firmware builds pass.
+- The Mac is only for hardware installs and device checks.
+- Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
+
 ## Public development context
 
 Both `gobbajogger/X0X37-for-Loopy-Pro` and `gobbajogger/x0x37-for-Loopy-Pro_nightly` are public project repositories. **Closed DEV means the owner is the sole tester; it does not mean private source.** Project source, documentation, sanitized test/review evidence and nonsecret provenance may be delivered to their authorized public destinations. Internal creation or temporary private Library storage does not itself make those materials confidential or prohibit later authorized delivery. Credentials, unrelated private samples/backups, and proprietary or license-restricted third-party bytes remain excluded. Owner-designated personal samples selected as stock loops may be included in their authorized stock distribution after verifying the exact selection, provenance and intended destination; this does not authorize other personal files. Preserve copyright notices and applicable distribution obligations.
