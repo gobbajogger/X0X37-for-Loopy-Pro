@@ -1,0 +1,37 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 77f5da4..f74f063 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,3 +1,15 @@
++<!-- x0x37-current-rules -->
++# Current x0x37 skills
++
++In the x0x37 workspace, use [current skill entry points](../AGENTS.md) before work.
++Apply [chat routing](.agents/skills/x0x37-task/references/routing.md) before any new task or handoff.
++Initialize the matching `SKILL.md` when its step begins. These skills supersede
++older workflow text here. For a standalone checkout, use `docs/agent-rules.md`
++and its skill links; recover missing sources
++from the maintained project. Unrelated checkout instructions below still apply.
++
++<!-- /x0x37-current-rules -->
++
+ # x0x37 agent entry point
+ 
+ Read [docs/agent-rules.md](docs/agent-rules.md), then
+diff --git a/docs/SKILLS.md b/docs/SKILLS.md
+index 56a9a8b..0156f93 100644
+--- a/docs/SKILLS.md
++++ b/docs/SKILLS.md
+@@ -1,3 +1,12 @@
++<!-- x0x37-current-rules -->
++# Current skill discovery
++
++Inside the x0x37 workspace use [maintained skill status](../../x0x37/docs/SKILLS.md). The older
++status below is retained as history and is superseded there. Outside the
++workspace use the local installed skills and verify their source/status.
++
++<!-- /x0x37-current-rules -->
++
+ # Writing skills: recovery status
+ 
+ The owner requires plain, correct English and concise caveman style for every project agent and subagent, at all times. Apply [the writing rule](rules/style.md) to owner replies, agent messages, task prompts, docs, logs, commits, and handoffs. Preserve exact code, paths, commands, identifiers, quotes, and technical meaning.
