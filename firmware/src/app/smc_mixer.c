@@ -1321,7 +1321,7 @@ static int smc_fx_try(uint8_t note, int mmc)
     int bus;
     smc_fx_publish();
     if (smc_home_held() && ui.overlay == O_NONE && !smk_clip_mode_on() &&
-        note >= 0x62 && note <= 0x63) {
+        note >= 0x60 && note <= 0x63) {
         if (note >= 0x62)
             smc_fx_load_page((int)smc.fx_page + ((note & 1) ? 1 : -1));
         else if (note == 0x60)
@@ -1417,7 +1417,7 @@ static void smc_button_apply(uint8_t note, int mmc)
         ui_say("SMC TARGETS LOCKED", 0);
         return;
     }
-    if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
+    if (ui.overlay == O_NONE && !smk_clip_mode_on() && !smc_home_held() &&
         (note == 0x60u || note == 0x61u)) {
         smc_knob_bank(note == 0x60u ? -1 : 1);
         return;
