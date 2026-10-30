@@ -39,7 +39,10 @@ helpers = (
 src = (
     "#include <stdint.h>\n#include <stdio.h>\n"
     "#define RING_PUBLISH() ((void)0)\n"
-    "#define BLE_OQ 56u\n"
+    "#define FM1_IRQ_TIMER5 63u\n"
+    "static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }\n"
+    "static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }\n"
+    "#define BLE_OQ " + re.search(r"^#define BLE_OQ (\d+)u", b, re.M).group(1) + "u\n"
     "static uint32_t ble_oq[BLE_OQ];\n"
     "static struct { volatile uint32_t ow, orr; union { int h; } host; } ble_r;\n"
     "static int ble_central_role, ble_host_on = 1, ble_want = 1;\n"
