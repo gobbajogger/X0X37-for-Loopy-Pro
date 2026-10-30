@@ -20,3 +20,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #725 | 8dfb42be | merged | b36c9b9a | firmware/src/app/smc_mixer.c, tests/run_tests.sh | smc_mixer.c: kept #717 struct/caption + #725 fx_lp_hold and preset-preserving SELECT |
 | fix | – | fix commit | 2cf4303c | firmware/src/app/engine.c | #677 tempo loop guarded for original-synth builds |
 | #712 | 82b31252 | merged | 062d86fa | - |  |
+| #691 | bc47c97c | merged | 7c3a70f6 | experiments/original_synth/miami_ms20.c, experiments/original_synth/miami_zero.h, tests/host/miami_cpu_test.py, tests/run_tests.sh, tools/synth684_harness/{elite_sizes.py,run.py,synth684_bench.c} | took #691 side for Miami DSP/harness (newer than #712); dropped miami-mw-wobble run line (test removed by #708); plan notes 15 .f32 goldens missing |
