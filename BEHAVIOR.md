@@ -571,6 +571,8 @@ SMC-10. An SMC knob's quick spin travels less far than the panel knob curve. A s
 
 SMC-11. SMC mixer page lock. While unlocked, the mixer follows the keyboard's current page; mixer-side PAGE navigation changes that shared page. While locked, each SMC peer retains its captured mixer page when the keyboard page changes. Mixer-side navigation and its own UI popup remain available during lock and move lock_page without moving the saved fader/knob targets. Fader-button SELECT LEDs follow the mixer page, including locked page changes. Lock stores lock_part, lock_view, lock_page, lock_bank and lock_kit independently for each peer; a saved part's controls remain bound until unlock, when the mixer again follows the keyboard page. [USER 2026-10-29] [USER 2026-10-30]
 
+SMC-11A. Unlock is a plain 900 ms hold of Pause while locked (snapshot 574f5329). Key-up at or after the deadline unlocks at once; a key still held unlocks in the next lock tick once SMC input and lost-release counts are drained. Key-up before 900 ms keeps the lock. There is no extra wait state after key-up. The hold does not complete while a project operation, performance test or confirmation is active. [USER 2026-10-30] [CODE firmware/src/app/smc_mixer.c smc_lock_button smc_lock_tick] [TEST tests/host/smc_lock_test.c test_plain_unlock]
+
 ## 18. Open questions
 
 These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.

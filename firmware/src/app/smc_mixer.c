@@ -172,7 +172,7 @@ typedef struct {
     float beat_internal;
     uint8_t beat_external;
     uint16_t lock_song_len;
-    uint8_t locked, lock_down, unlock_wait, lock_kit, lock_bank, lock_part, lock_view, lock_page;
+    uint8_t locked, lock_down, lock_kit, lock_bank, lock_part, lock_view, lock_page;
     /* Page metadata belongs to the locked peer, not the keyboard's live pg. */
     uint8_t lock_pages, lock_page_kit[MAXPAGES];
     /* Zero initializes every mixer page. Never capture a keyboard page. */
@@ -582,7 +582,6 @@ int smc_lock_toggle(void)
         smc.mixer_page[smc.lock_view][part] = smc.lock_page;
     }
     smc.locked ^= 1u;
-    smc.unlock_wait = 0;
     if (smc.lock_down) smc.lock_down = 1; /* consume a hold, including a programmatic toggle */
     /* Rearm acceptance for this routing epoch, keeping the last physical
      * sample so the next move can cross the real target in either direction. */
@@ -606,18 +605,14 @@ static int smc_lock_ready(void)
 int smc_lock_button(int pressed)
 {
     if (!pressed) {
-        /* Carry a completed hold across the key-up until lost releases settle. */
-        int ready = smc.unlock_wait == 1u && smc_lock_ready();
+        /* The first poll after the deadline can contain the actual key-up. */
+        int changed = smc_lock_ready() ? smc_lock_toggle() : 0;
         smc.lock_down = 0;
-        smc.unlock_wait = ready ? 2u : 0u;
-        return 0;
-    }
-    if (!smc.lock_down) {
+        return changed;
+    } else if (!smc.lock_down) {
         smc.lock_down = 1;
-        smc.unlock_wait = 0;
         if (!smc.locked) return smc_lock_toggle();
         smc.lock_down = 2;
-        smc.unlock_wait = 1;
         smc.lock_t0 = plat_ms();
     }
     return 0;
@@ -625,13 +620,9 @@ int smc_lock_button(int pressed)
 
 static void smc_lock_tick(void)
 {
-    /* Input, queue boundaries and loss acknowledgments must settle first. */
-    int settled = smc_pause_release_lost[0] == smc_pause_release_seen[0] &&
-        smc_pause_release_lost[1] == smc_pause_release_seen[1];
-    if (smc_qr == smc_qw && (smc_slot || smc_host_r == smc_host_w) &&
-        settled && !ui_project_busy() && !perf_testing() && ui.overlay != O_ASK &&
-        ((smc.unlock_wait == 2u && !smc.lock_down) ||
-         (smc.unlock_wait == 1u && smc_lock_ready())))
+    /* Drain input/loss first. A producer may have published a newer release
+     * during this poll; defer rather than unlock before its cancellation. */
+    if (smc_qr == smc_qw && (smc_slot || smc_host_r == smc_host_w) && smc_lock_ready())
         smc_lock_toggle();
 }
 
@@ -1728,7 +1719,7 @@ static void smc_poll_peer(void)
         release_seen[i] = smc_release_seen[i];
     }
     if (ui_project_busy()) {
-        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
         memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         if (smc_project_active()) smc_solo_clear();
@@ -1758,7 +1749,7 @@ static void smc_poll_peer(void)
             smc_qr = cutoff;
         smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
-        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0; /* reconnect clears physical press edges */
+        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0; /* reconnect clears physical press edges */
         memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         smc_spill_drop(&smc_peer_input.spill); /* pre-edge samples never apply to the new link */
@@ -1777,7 +1768,7 @@ static void smc_poll_peer(void)
         smc.preset_user_seen = preset_user;
         smc.picked = smc.seen = smc.input_seen = 0;
         smc.knob_i = 0;
-        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
         memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         smc_solo_clear();
@@ -1786,7 +1777,7 @@ static void smc_poll_peer(void)
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.unlock_wait = smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
+        smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0;
         memset(smc.held, 0, sizeof smc.held);
         smc_fx_clear();
         smc.picked = smc.seen = 0;
@@ -1866,7 +1857,7 @@ static void smc_poll_peer(void)
             smc_release_seen[i] == release_seen[i]) {
             smc_release_seen[i] = release_lost[i];
             if (i < 2) missed_solo = 1;
-            else smc.unlock_wait = smc.lock_down = 0;
+            else smc.lock_down = 0;
         }
     if (missed_solo) {
         if (smc_project_active()) smc_solo_clear();

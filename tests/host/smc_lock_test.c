@@ -454,8 +454,25 @@ static void test_dropped_pause_press(void)
     puts("PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures");
 }
 
+/* 574f5329 unlock: a plain hold. Key-up after the 900 ms deadline unlocks at
+ * once; key-up before it does nothing; a held key unlocks in lock_tick. */
+static void test_plain_unlock(void)
+{
+    setup(V_SEQ, PART_909); build_pages();
+    CHECK(smc_lock_toggle()); CHECK(smc.locked);
+    CHECK(!smc_lock_button(1)); now_ms += 899; CHECK(!smc_lock_button(0)); CHECK(smc.locked);
+    CHECK(!smc_lock_button(1)); now_ms += 900; CHECK(smc_lock_button(0)); CHECK(!smc.locked);
+    CHECK(smc.lock_down == 0);
+    CHECK(smc_lock_toggle()); CHECK(smc.locked);
+    CHECK(!smc_lock_button(1)); now_ms += 899; smc_poll(); CHECK(smc.locked);
+    now_ms += 1; smc_poll(); CHECK(!smc.locked);
+    CHECK(!smc_lock_button(0)); CHECK(!smc.locked); /* key-up after the tick unlock does not relock */
+    CHECK(smc_lock_button(1)); CHECK(smc.locked); CHECK(!smc_lock_button(0)); /* a new press while following locks at once */
+    puts("PASS plain unlock: key-up after 900 ms or lock_tick; early key-up stays locked");
+}
 int main(void)
 {
+    test_plain_unlock();
     test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
     test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
     test_physical_pause_input_and_output(); test_guard_reset();
