@@ -1,7 +1,8 @@
-# P-locks: on EDIT, hold a step that is on and turn a sound knob: that step gets its own value (one
-# step of the knob's lane); a tap still toggles. SAVE + the knob, holding the step, clears it.
+# P-locks (sound/step split, 0a2eae49): on SEQ, hold a step that is on, open EDIT and turn a sound knob:
+# that step gets its own value (one step of the knob's lane); a tap still toggles. SAVE + the knob,
+# holding the step, clears it.
 wait 300
-expect view 1
+expect view 8
 expect part 0
 expect sound0.0.0 34
 # the 909 kick on steps 1 and 5 (taps on empty steps: on at once)
@@ -9,10 +10,14 @@ tapkey w0
 tapkey w4
 expect hit0.0.0 1
 expect hit0.0.4 1
-# hold step 5 (on already), turn KNOB 1 (TUNE): step 5's own tune; the knob's own stays
+# hold step 5 (on already), EDIT, turn KNOB 1 (TUNE): step 5's own tune; the knob's own stays
 key w4 down
+tap EDIT
+expect view 1
 spin K1 20
 key w4 up
+tap SEQ
+expect view 8
 expect hit0.0.4 1
 expect sound0.0.0 34
 expect lanes 1
@@ -34,31 +39,36 @@ expect playhead0 5
 expect motion0.0.0 54
 wait 160
 expect playhead0 6
-expect motion0.0.0 34
+# no lock on this step: no lane value applies (-1), the knob's own 34 plays
+expect motion0.0.0 -1
+expect sound0.0.0 34
 tap PLAY
 # SAVE + the knob, holding the step: the lock goes (the lane with it)
 key w4 down
+tap EDIT
 press SAVE
 spin K1 1
 release SAVE
 key w4 up
+tap SEQ
 expect lanes 0
 expect hit0.0.4 1
-# SEQ: holding a drum step and turning a knob locks nothing
-tap SEQ
+# SEQ: holding a drum step and turning a knob there locks nothing
 key w4 down
 spin K1 5
 key w4 up
 expect lanes 0
-# the 303 on EDIT: a held step's CUTOFF; on SEQ its NOTE, as before
+# the 303 slot (MIAMI A): a held SEQ step, then EDIT: KNOB 2 is the carrier LEVEL (factory 115);
+# on SEQ its NOTE, as before
 turn ALGO 4
-tap EDIT
+expect part 2
 tapkey w2
 key w2 down
-spin K1 -20
+tap EDIT
+turn K2 -20
 key w2 up
-expect laneval2.0.0.2 28
-expect sound2.0.0 48
+expect laneval2.0.1.2 95
+expect sound2.0.1 115
 tap SEQ
 key w2 down
 turn K1 2
