@@ -118,8 +118,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("firmware/src/dsp/original_miami_backend.c", sources)
         self.assertIn("firmware/src/dsp/original_chicago_backend.c", sources)
         for command in commands:
-            if "-c" not in command:
-                continue
+            if "-c" not in command or Path(command[command.index("-c") + 1]).suffix == ".S":
+                continue  # startup assembly has no C preprocessor flags
             self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
             self.assertIn("-DX0X_WOBBLE=0", command)
             self.assertIn("-DX0X_DEV_WOBBLE=1", command)
@@ -197,8 +197,8 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                 self.assertNotIn("experiments/wobble/wobble.c", sources)
                 self.assertNotIn("firmware/src/dsp/bass303.c", sources)
                 for command in commands:
-                    if "-c" not in command:
-                        continue
+                    if "-c" not in command or Path(command[command.index("-c") + 1]).suffix == ".S":
+                        continue  # startup assembly is not compiled as C
                     self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
                     self.assertIn("-DX0X_WOBBLE=0", command)
                     self.assertIn(f"-DX0X_DEV_WOBBLE={enabled}", command)
