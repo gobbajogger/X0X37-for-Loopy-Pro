@@ -17,5 +17,10 @@ Status: IN PROGRESS, scoped implementation owned by this Classic thread.
 5. Run full `tests/run_tests.sh` and `BOARD=smk37 MODEL=elite/pro sh build.sh` with exact local SDK V1.2.1 when possible. Preserve exact logs, exit statuses, pass/fail/skip totals, and build artifact hashes. Test evidence must never claim an unexecuted check passed.
 6. Push incremental source/tests/evidence commits via the GitHub connector, read back the remote SHA, open one draft PR, and post verified outcomes. No main/nightly merge or release.
 
+## Verified source inventory
+- GitHub tree API read at commit `82acc31e21b81b0d66399c02134aac2a6eebdab2`: **5,035 entries / 4,612 blobs**, `truncated=false`. This verifies the reachable remote tree index, **not** a fully reconstructed native source checkout.
+- Relevant C files were read directly from their exact GitHub blob paths on the same branch. Existing caption, FX table and multi-peer edge helpers were found already integrated.
+- Reuse the newer integrated `ui.c` unchanged rather than copying historical PR #688's 7,385-line UI code over the 7,756-line live version.
+
 ## Exit
 Draft PR exists with scoped diff, source identifiers, mockups, test/build reports and an explicit PASS/FAIL/NOT_RUN for each required check. Test/build failures keep the stage incomplete and actionable.
