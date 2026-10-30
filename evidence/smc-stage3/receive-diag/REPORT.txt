@@ -1,0 +1,9 @@
+Receive/DIAG stage-3 scope: PASS with supported host fallback.
+
+Candidate 3d7b199 and metadata-only successor 3fc770d have identical tree 854b4d97bdac0a6941ab1dd83ae26b9c1535cdec. All 7 relevant stage2 source hashes match. DIAG old/new decoding and bounds pass; 77 words fit exactly and INLOG remains 732/732 bytes. Exact-base decoder regression fails at the intended h_step assertion.
+
+Public receive and capture replay pass with address/undefined sanitizers on supported macOS after one bounded Linux retry. Linux startup DEADLYSIGNAL also occurs in trivial main (1/10); deeper runtime cause unproven. Retained logs and report.json distinguish these infrastructure failures from source results. No source repair indicated.
+
+Replay: 1271 exact recorded notification payloads through simulated whole and fragmented HCI yield 2616 supported MIDI events; 3 ATT packets above 64 bytes rejected equally. Separate resegmented MTU23 simulation yields 2711 events with 0 rejections. Capture SHA-256 a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+
+Hardware NOT TESTED. Simulated connected state/CCCD/HCI and capture payload replay do not prove physical delivery. Live silence remains unresolved; new trace has not been installed, so live rejected packet shape and discovered handles are unknown. No control movement/capture requested. No target build, controller change, install, full gate, release, FM1 target test or push.

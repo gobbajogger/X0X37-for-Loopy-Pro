@@ -1,0 +1,31 @@
+# Slice-mode toggle must release MIDI-held break slices (LX-151 / #355 follow-up).
+wait 300
+expect midiheld 0
+
+# Legacy: note 36 holds slice 0.
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+
+# Toggle 8 SLICES on without a matching Note Off — stale hold must clear.
+brkwrap 1
+wait 20
+expect midiheld 0
+
+# Wrap: note 8 holds slice 0.
+midi 93 08 64 0
+wait 20
+expect midiheld 0x100
+
+# Toggle back to legacy — must clear wrap hold.
+brkwrap 0
+wait 20
+expect midiheld 0
+
+# Legacy map still works after toggle.
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 83 24 00 0
+wait 20
+expect midiheld 0

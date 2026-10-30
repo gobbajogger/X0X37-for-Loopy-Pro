@@ -1,0 +1,12 @@
+# Queue (test fixture for check 1: open lines with no commit)
+
+Installed: c6bf44a rel.
+
+## Open: no commit yet (these lines block the install)
+
+- [ ] pending Knob regression fix (Firmware Main Builder). No commit yet. This line blocks the install.
+- [ ] The mode latch (Second Builder). No commit yet.
+
+## Pending: no commit yet
+
+- Pending: a lane that is not ready. A line without a check box is a note.

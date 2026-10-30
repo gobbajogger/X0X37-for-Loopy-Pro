@@ -1,0 +1,11 @@
+PASS
+record_id: 5f32e52e93056553
+identity: SMK-37 Elite_900
+port: X0X FM-1
+validated_source: b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+package_sha256: 4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376
+controller_sha256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+controller_crc32_readback: 4a400899
+gate: DEV OK (elite + pro records)
+install_exit: 0
+pro: DEV OK gated; not flashed (hardware Elite)

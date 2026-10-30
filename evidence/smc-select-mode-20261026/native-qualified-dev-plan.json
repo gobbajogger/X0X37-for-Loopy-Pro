@@ -1,0 +1,31 @@
+{
+  "base": "d633833ac369f8466bc2563791614206070e87d1",
+  "scope": "Current SMC SELECT qualification at94061cf after independently reviewed mode-owned repair and corrected harnesses. Actual29 Linux SMC selectors proven via15 unchanged-closure results plus14 corrected/unfinished PASS; immutable receipt/log/closure mapping is verified as a selected check. Both models build and controller pairing remain required. No release/device qualification.",
+  "checks": [
+    {
+      "reason": "Qualify actual compiler Clang4.0.1 and pinned current controller SDK input bytes before build, record application SDK file digests.",
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess, pathlib, hashlib, json, re, os\nclang=pathlib.Path(os.environ['JIELI_TOOLCHAIN'])/'pi32v2/bin/clang'\ns=subprocess.check_output([str(clang),'--version'],text=True); print(s); assert 'clang version 4.0.1' in s\nsdk=pathlib.Path(os.environ['AC79_SDK'])\nprint('SDK_HEAD_FILE', (sdk/'.git/HEAD').read_text().strip())\nrows=re.findall(r'^([0-9a-f]{64}) (.+)$',pathlib.Path('ble/ctl/fetch_sdk.sh').read_text(),re.M)\nfor expected,rel in rows:\n actual=hashlib.sha256((sdk/rel).read_bytes()).hexdigest(); print(actual,rel); assert actual==expected\nfor rel in ['cpu/wl82/tools/uboot.boot','cpu/wl82/tools/cfg_tool.bin','cpu/wl82/tools/cfg/eq_cfg_hw.bin']:\n print(hashlib.sha256((sdk/rel).read_bytes()).hexdigest(),rel)\n"
+      ]
+    },
+    {
+      "reason": "Verify exact-source actualLinux29selector evidence reuse without repeating proven test closures or relabeling original failures.",
+      "argv": [
+        "python3",
+        "-B",
+        "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/verify_regression_reuse.py"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/verify_regression_reuse.py",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/regression-reuse.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/elite-v3/check-1.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/elite-v3-run.log",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/linux-94061cf-v2/receipt.json",
+    "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-native/linux-94061cf-v2/checks.log"
+  ]
+}

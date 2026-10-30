@@ -1,0 +1,16 @@
+F14 Stage-7 tip packages (BF-013 already on nightly; DEV CHECK on b48cd800; blank MATCH prerelease; page serves bundled)
+validated_source=b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+content_tree=4eef581e267c582897df5910196671be2a04ac24a1d0a11acd6086fe583f3e60
+git_source_tree=16b3caf29fc3548c290ce97afaed9f44214c1ab5
+firmware_tree=1924e2cff82c4f1737fbe7a8188af1a3b229ae01
+host=artifacts/nightly-dev@646631f5a8b534a483f2fe484054440ea03c8228
+dir=artifacts/nightly/dev-20261025-b48cd800
+
+elite-blank.fwsc	651396	4dc49bad6e8b555aefaf3a70f0ccb1579638d2b0e35c30a5f5fee043124f7376
+pro-blank.fwsc	651392	3f3b5c00148347d2dec8fdaf5933e606cd1755c6c55f80f550d5ef915f5a2980
+elite-bundled.fwsc	651396	81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2
+pro-bundled.fwsc	651392	e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a
+ctl.img	65492	956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+
+pkg elite: https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/646631f5a8b534a483f2fe484054440ea03c8228/artifacts/nightly/dev-20261025-b48cd800/81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2/x0x37-elite-dev.fwsc
+pkg pro: https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/646631f5a8b534a483f2fe484054440ea03c8228/artifacts/nightly/dev-20261025-b48cd800/e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a/x0x37-pro-dev.fwsc

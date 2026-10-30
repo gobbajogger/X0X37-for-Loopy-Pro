@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "helper": "/root/investigation",
+  "result": "PASS",
+  "scope": "Independent source review of signaling, reconnect, credits, Disconnect retry, deadlines and CENTRAL-STOP-01.",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "lane_base": "40899e1a47ca704b0d3f63bbd0372ed27b7a5e45",
+  "source_identity": "source-identity.json",
+  "actionable_findings": [],
+  "source_repair_required": false,
+  "review": [
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:69-105,227-244,425-467,546-551",
+      "result": "The stop helper keeps refused Cancel and Scan Disable pending. D_CONTROL records acceptance. Accepted commands do not repeat.",
+      "detail": "Pending original responses remain distinct from stop acceptance. Successful Command Status cannot complete a synchronous command. Failed responses set FAILED."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:69-98,214-244,425-467",
+      "result": "Each Disconnect entry uses the original cutoff. Repeated stop and direct start cannot erase an unresolved stop.",
+      "detail": "A late successful connection retains its handle. At or after the cutoff, Disconnect is not submitted. A duplicate event cannot replace an active handle."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:430-467,512-529",
+      "result": "Command acceptance and status do not release the link. A matching successful Disconnection Complete restores the sole-link credits.",
+      "detail": "Wrong handles and failed disconnection events do not release the retained handle. Credit arithmetic saturates before uint8_t conversion."
+    },
+    {
+      "locations": "firmware/src/ble.c:100-104,208-219,378-423; firmware/src/app/main_fm1.c:150-172",
+      "result": "The actual service supplies fm1_ms before stop, receive and poll. TIMER5 owns this service and its clock update.",
+      "detail": "The service drains old events before a fresh Reset. It continues the bounded stop when Bluetooth is off. A failed unresolved stop does not restart."
+    },
+    {
+      "locations": "firmware/src/ble/ble_midi_central.c:21-25,124-160,352-399,546-581; firmware/src/ble/ble_midi_central.h:17-33",
+      "result": "The four-entry signaling queue preserves identifiers and reply priority. ACL storage remains bounded at 64 bytes.",
+      "detail": "Oversized signaling uses bounded storage and uint16_t drain counters. Lifecycle resets clear replies, fragments, running status and SysEx state."
+    },
+    {
+      "locations": "firmware/src/ble.c:100-104,208-219,511-516; firmware/src/app/smc_mixer.c:35-49; firmware/hal/x0x_ble_abi.h:118-143",
+      "result": "The send callback retains mailbox acceptance semantics. The receive callback still queues complete MIDI messages for the main loop.",
+      "detail": "No mapping or controller source changed in this stage. Notes, pad colours, controls and the normal MIDI path retain their existing source."
+    }
+  ],
+  "new_probe": {
+    "reason": "The saved stop cases duplicate the same successful connection handle. They do not combine a different successful handle with STOPPING or FAILED.",
+    "source": "different-handle-probe.c",
+    "runner": "run-different-handle.py",
+    "command": "python3 -B evidence/stop-stage3/investigation/run-different-handle.py",
+    "commands": "probe-commands.json",
+    "inputs": "probe-inputs.json",
+    "service_hash": "service-sha256.txt",
+    "log": "probe.log",
+    "cases": 16,
+    "result": "PASS",
+    "sanitizers": ["ASan", "UBSan"],
+    "sanitizer_errors": false,
+    "coverage": "Legacy and enhanced connection events, timer wrap, accepted and refused Disconnect, STOPPING and FAILED, a different handle, wrong disconnection, Bluetooth on and fresh startup.",
+    "observation": "The host retains handle 0x50 after a successful event for handle 0x51. Stop intent and the original cutoff survive. Accepted Disconnect does not repeat.",
+    "completion": "The matching successful disconnection permits a fresh Reset. A different handle and direct start cannot erase the unresolved stop.",
+    "limits": "The probe uses public startup helpers and the exact extracted production service. The mailbox, peer, clock and schedule are simulated.",
+    "failures": []
+  },
+  "reused_evidence": [
+    {
+      "record": "evidence/stop-stage2/stop-checks.json",
+      "source": "evidence/stop-stage2/run-stop-checks.py",
+      "result": "The four public stop controls fail on exact f080d1a5 and pass after repair. All five saved production service cases pass after repair.",
+      "disposition": "The source and scope match. These checks were not repeated. The test helper owns the complete evidence identity audit."
+    },
+    {
+      "record": "evidence/stop-stage2/saved-probes.json",
+      "source": "evidence/stop-stage2/run-saved-probes.py",
+      "result": "The four realistic Cancel variants and all 12 saved event-order cases pass after repair.",
+      "disposition": "The source and scope match. These checks were not repeated."
+    },
+    {
+      "record": "evidence/deadline-stage3/investigation/service-stop-record.json",
+      "inputs": "evidence/deadline-stage3/investigation/service-stop-inputs.json",
+      "result": "The 18 historical commands reproduce refused Cancel, refused Scan Disable and failed Scan Disable status on three exact revisions. Accepted controls pass.",
+      "disposition": "The failures establish the inherited CENTRAL-STOP-01 defect. They are historical broken-source controls, not current candidate failures."
+    },
+    {
+      "record": "evidence/deadline-stage3/investigation/report.json",
+      "result": "The four stale-service examples retain the old caller order. The old-caller mutation remains an expected negative control.",
+      "disposition": "These examples do not execute the repaired production service. They do not invalidate its matching passing service checks."
+    }
+  ],
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "physical_cause": "UNKNOWN",
+  "physical_limits": [
+    "The owner reports that all SMC controls failed while light feedback operated. The owner states that the messages did not change.",
+    "The idle trace has CONNECTED, handles 114/115, five credits and continued polling. Zero idle counters do not prove input loss.",
+    "The rejected header contains no signaling command or identifier. Credit starvation reproduces discovery failure, which differs from the CONNECTED observation.",
+    "Recorded payload replay retains its simulated HCI framing, mailbox, clock and schedule. Three oversized ATT packets remain excluded. No payload resegmentation occurs.",
+    "The synthetic store and host probes do not test target interrupts or physical radio execution. This result does not establish the cause of the physical failure."
+  ],
+  "production_edits": false,
+  "public_test_edits": false,
+  "target_build": false,
+  "device_write": false,
+  "controller_write": false,
+  "release_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "successor_created": false,
+  "next_action": "The task agent must combine both independent helper results before it selects the stage disposition."
+}

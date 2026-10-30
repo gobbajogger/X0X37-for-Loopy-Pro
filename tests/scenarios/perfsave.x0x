@@ -1,0 +1,37 @@
+# PERF TEST after a SAVE that waits for the stop. The save runs when the test stops the sequencer.
+# The test patterns must be the same as without the save (the device keeps them in the save scratch).
+wait 300
+tapkey w0
+tap PLAY
+wait 500
+expect store_writes 0
+tap SAVE
+wait 300
+expect store_writes 0
+# GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
+tap GLO
+turn SELECT 18
+expect listsel 23
+tap SEL
+expect view 7
+# SEL > RUN PERF TEST: it stops the sequencer, the save runs, then the test plays
+tap SEL
+turn SELECT 1
+tap SEL
+wav perfsave.wav
+peakreset
+wait 300
+expect store_writes >0
+expect perftest 0
+expect patptr 0
+wait 16000
+expect perftest 3
+expect perfres0 >0
+expect perfres1 >0
+expect perfres2 >0
+expect patptr 1
+expect playing 0
+expect hit0.0.0 1
+wavstop
+expect peak_db_max <0
+expect peak_db_min -30

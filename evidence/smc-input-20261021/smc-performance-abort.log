@@ -1,0 +1,15 @@
+In file included from tests/host/../../host/x0x_host.c:259,
+                 from tests/host/smc_performance_abort_test.c:9:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:511:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  511 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2043:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2043 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+PASS: DAW STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: direct User MMC STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: host User note STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: host User MMC0 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: host User MMC1 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort

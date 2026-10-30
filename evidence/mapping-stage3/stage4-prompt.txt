@@ -1,0 +1,53 @@
+Begin stage4 NOW. This is the one fresh LOCAL build/package-validation chat for smc-mapping-20261021-confirmed-defects-stage4. Do not create another copy of this stage4.
+
+SOURCE AND CURRENT ENTRY
+Source stage3 chat: 01a15a82-82cb-75a1-9aff-9bbc76a3d482. Stage2 source chat: 01a15a7a-1348-7f10-b837-43a8ca22d62a. Original owner chat: 01a15a69-9907-72a3-a5de-c1514a97b836.
+Read current /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md. Initialize x0x37-task, x0x37-workflow, x0x37-writing, x0x37-check, x0x37-shared-work, x0x37-integrate, x0x37-install, and x0x37-owner-decisions. Use /Users/mac/Documents/x0x37/.agents/skills/<name>/SKILL.md. Load each when its stage4 step begins. Apply workflow17-18. Current owner instructions win over old checkout rules.
+Read this COMPLETE saved handoff and /Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/result.json.
+
+EXACT INPUT
+Candidate: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Tree: 56a78830c67477684e1ec114274ae204acb81296.
+Base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+SMC blob: fa885dad6c721f413da64ab78a2f7439b51d29d7.
+SMC SHA256: ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a.
+Stage3 lane: /Users/mac/Documents/x0x37/smc_mapping_stage3_20261021, branch lane/mb-smc-mapping-stage3-20261021.
+Stage2 lane: /Users/mac/Documents/x0x37/smc_mapping_fix_20261021.
+Git administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021. Common Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Create your own isolated stage4 lane at the candidate. Do not edit another lane or change firmware in stage4.
+
+APPROVED SCOPE
+The owner requested broken SMC mapping repairs and subagents. The owner said 'Fix?' after the confirmed drum mute/light mismatches and missing performance abort. Stage2 changed only firmware/src/app/smc_mixer.c plus regression fixtures and evidence.
+Drum M actions and LED feedback use the visible kit and bank. Active strips use keyboard mute_track behavior. Bank2 M4-M8 stay inert and unlit. Main, individual909 and individual808 mixer modes and knobs remain available. Main part/FX behavior and help/confirmation/menu/clip priorities remain intact. R/S per-track policy remains deferred. R2/S2 retain whole-part behavior.
+STOP, PLAY and back use the existing performance abort/restore lifecycle. Other queued events remain guarded until restoration. Normal input resumes after restoration.
+There are no missing owner decisions within these approved fixes.
+
+STAGE3 RESULTS
+Separate independent test and investigation helpers completed their scopes. All ten affected host checks passed on the exact candidate: mapping, fader, buttons, filter, part-select, reachability, clip visibility, drum mutes, performance abort and protocol. Both regressions failed on the exact base at intended assertions: seq.vmute exit134 and DAW STOP phase0 exit1. Actual selected tests/run_tests.sh dispatch passed for reachability, drum-mutes and performance-abort. Class G registration passed. The dispatcher prints a package-test skip because the stage3 host lane has no target app/loader/SDK. This is a stage4 dependency.
+The independent helper/LED probe passed 4400 cases. Source review found no actionable firmware defect. Stage3 made no tracked source edits.
+One documentation discrepancy is non-blocking and deferred: docs/SMC_MIXER.md:47 omits the drum M exception and new performance abort controls. Preserve this finding. Do not silently change firmware to match stale documentation.
+Evidence root: /Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/.
+Read input.json, result.json, dependency-review.json, test/result.json, test/input-identity.json, investigation/result.json, and evidence-sha256.json. All test commands and logs are linked there. The investigation recorded two incorrect source-query paths and then used exact paths. No candidate test failed.
+
+STAGE4 WORK
+Validate the complete candidate for SMK-37 Elite and Pro in DEV configuration with X0X_DEV_PADCAL=1. Read BUILDING.md and runner headers. Use tools/dev_validate.py run for each model. Include the exact controller build. Do not use --no-controller or --no-ctl for the current install set.
+Proposed scoped plan: /Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-dev-plan.json. Review it against your complete validation input. It selects the two production regressions. Stage3 already passed the affected compatibility checks. Reuse matching evidence where valid. Do not expand to an unrelated full suite or formal gate.
+Stage2 final DEV builds passed both targets. Code free was1912B Elite and1928B Pro. RAM free was524B. Pool free was8364B. Stage2 result.json records app, loader and package SHA256. Those raw build logs do not replace stage4 dev_validate records. The controller source did not change and was not rebuilt in stage2.
+Local Linux image: x0x37-validation:local, platform linux/amd64, network none, user501:20. Host toolchain /Users/mac/.jieli/toolchain. SDK host /Users/mac/fw-AC79_AIoT_SDK, container /sdk. Mount the actual absolute workspace path and linked Git metadata. Never change HOME. Stage2 evidence/mapping-stage2/environment.json and run-builds.sh contain toolchain/compiler hashes, SDK pin and reference pins. The SDK pin is d179b4484759423312073f5fbb232501aa491047. The four DSP references retain their exact pins. dev_validate sets SDK_LOCAL from AC79_SDK and uses isolated controller output. The local SDK supplies the pinned controller files. Do not commit or bundle proprietary SDK/toolchain files.
+Record commit/tree, source/configuration/toolchain/dependency identity, plan, logs, budgets, package and controller hashes. Verify records against the exact artifacts. Pool free must stay >=8192B. RAM free must stay >=0B. Preserve features, licensing, sample quality and both models. FM-1 is reference-only.
+Record each failed attempt, cause and disposition. A source repair requires the earliest affected fresh workflow stage. Do not advance a failed check as success.
+
+COORDINATION AND LIMITS
+The complete physical input-silence cause remains unresolved. Recorded receive evidence remains separate. Host simulated sends and extracted-function probes are not a physical-device PASS. Do not request another hands-on capture, movement or setup repetition. Idle zero-packet diagnostics do not prove receive failure.
+A separate authorized central-session workflow originates in chat01a15a73-c90c-7862-a6a4-2caa85154e41. Its stage2 owner is chat01a15a7c-126f-7f22-b8d3-0bad5a77306a, lane /Users/mac/Documents/x0x37/smc_central_session_repair_20261021. It owns ble_midi_central.c/.h signaling replies and disconnect credit handling. The signaling omission predates the working reference. That lane also has no proven cure for all-input silence.
+Central stage3 is now active in chat01a15a85-2fb6-7683-a11e-72faeecd3a8e, lane /Users/mac/Documents/x0x37/smc_central_session_stage3_20261021, candidate28d0fc230f60bc823c1e5e73d3aed61e68a8e32f. Its owner sent a coordination notice. It will create one central stage4 after its checks pass. The mapping workflow retains selection of the sole stage5 owner. The central owner confirmed that it will not create a competing integrator. Send the selected stage5 ID to the central stage3/stage4 owner through the permitted handoff notice. Read its stage2 handoff at /Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-stage2/stage3-prompt.txt. Its stage2 margins are1640/1656B code,524B RAM and8364B pool. These are separate candidate results, not combined-build evidence. Check current project activity and saved records before any coordination change. Request context/completion under task rule2. Do not assign new execution work to old chats.
+Exactly one stage5 integrator must receive ALL contributing validated lanes before merging the complete install set. Coordinate with the central-session stage4 owner. Select one stage5 receiving owner. If one already exists, hand off to it under workflow18 and record the authorized coordination. Do not create a competing integrator. Before creation, inspect active, idle and setup chats and their saved records. If this mapping stage4 owns successor creation, save the prompt/record, create exactly one fresh LOCAL stage5, record IDs immediately, and verify actual assistant/tool startup before ending. Do not create later stages in advance or wait for stage5 to finish.
+After merge, changed checked inputs require a fresh chat for the earliest affected validation. A new commit ID alone does not invalidate matching evidence. The installer must use the merged revision and matching artifacts.
+
+PERMISSION
+Automatic successor launch, recovery, startup checks and completion notices are authorized by workflow18 and the owner: 'Make sure that they automatically allow to do that without my intervention'. Carry this source into every successor prompt.
+Standing owner permission covers the complete validated DEV install under owner-decisions14 and install5-7. The installer sends a notice, then applies native guards and data backup/readback. Do not ask again solely because the stage, chat, commit or artifact changed. Missing hardware blocks only device-dependent work. Do not skip pending installation to push.
+No release/full gate, trial, force, publication, fallback, unspecified external destination or external push is authorized. A stage change does not expand this scope.
+
+COMPLETION
+Complete both scoped DEV validations with exact controller/package identities. Save truthful results and gaps. Coordinate one sole stage5 integration for all contributing lanes. Apply workflow18 to the selected successor. Then end stage4.

@@ -1,0 +1,190 @@
+{
+  "schema": "loopyx0x37.data-safety.restore-status.producer-evidence.v1",
+  "date_utc": "2026-10-24",
+  "role": "Data Safety (exclusive host installer sample-preservation source producer)",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+  "consumed": {
+    "commit": "577d24aebd51db42adb551d79315ac546f884e12",
+    "root_tree": "39b5aa7a7f8aaed82d140f7b31702f4176405eeb",
+    "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "qa": {
+      "pr": 96,
+      "comment_id": 6372197027,
+      "revision": "independent-qa-pr96-skip-restore-20261024-r1",
+      "disposition": "NEEDS_CHANGES",
+      "failure": "run() previously ignored restore() (todo, skipped), returned exit 0 even if part/all samples not written back"
+    }
+  },
+  "source_commits": [
+    "307ce285dd0dffd349355dc93c6856406cc2021a",
+    "1ff27a8d1b9852fd633453b119da38fa36056ea3",
+    "fc4bc786322f3232255f19e0d315246dd684ab56",
+    "89e0d8796a65782fc3162676362b18b868f52c1e"
+  ],
+  "source_blobs": {
+    "tools/fm1_install.py": "e73b230a6e51366f9ee93c6830690c83027b7566",
+    "tools/x0x_slots.py": "2d62f8aa3ab5615fc2680b7a9de858e895ed81f6",
+    "tests/fm1_install_restore_status_test.py": "1e35b5e12dce18cf053c2ef0ad9aa023810e57b1",
+    "tests/run_tests.sh": "24e0a84944afa22389dfea5c37282bbd57307307",
+    "tests/install_slots_test.py": "5fba7eb12bd68ec407285d0354f539d4758f9a94"
+  },
+  "checked_source_windows": {
+    "tools/fm1_install.py:run": {
+      "characters": 3786,
+      "fnv1a64": "603b1cd70009b0fa",
+      "same_bytes_as_local_pass_fixture": true
+    },
+    "tools/x0x_slots.py:plan_migration": {
+      "characters": 941,
+      "fnv1a64": "7c5794b9533dc60b",
+      "same_bytes_as_local_pass_fixture": true
+    },
+    "tests/fm1_install_restore_status_test.py": {
+      "git_blob_matches_locally_executed_test": true
+    }
+  },
+  "change_summary": [
+    "After installing, restore() skipped list is checked; any skipped user sample produces existing InstallError('slots')/CLI exit 7, with retained archive and recovery instructions.",
+    "If new firmware has no sample slot map, backing up alone is no longer reported as successful restoration; CLI exit 7.",
+    "Preserves all-restored exit 0, explicit user --no-slots optout, backup-before-write, no-risk install and CRC/readback error path.",
+    "Adds source-function host test and registers installer-restore-status in tests/run_tests.sh.",
+    "Adjusts existing install_slots_test.py downgrade/stock-package expected exit from success 0 to incomplete 7, consistent with documented exit-code contract."
+  ],
+  "local_checks": [
+    {
+      "argv": [
+        "python3",
+        "fm1_install_restore_status_test.py",
+        "-v"
+      ],
+      "inputs": "previous source-matched run(), exact plan_migration()",
+      "exit_code": 1,
+      "passed": 7,
+      "failed": 3,
+      "total": 10,
+      "log_sha256": "77efb20a2aa910fc7fa760765b6100ae7ce17ba4bc51393acb9c466b9c0b125f",
+      "expected_negative": true
+    },
+    {
+      "argv": [
+        "python3",
+        "fm1_install_restore_status_test.py",
+        "-v"
+      ],
+      "inputs": "modified source-matched run() 3786 chars/FNV 603b1cd70009b0fa + exact plan_migration()",
+      "exit_code": 0,
+      "passed": 10,
+      "failed": 0,
+      "total": 10,
+      "log_sha256": "9858b7099ae840cf17de08951ee7c8d5737754c37b754b67995ee69b86b6e2fd"
+    },
+    {
+      "argv": [
+        "python3",
+        "fm1_install_slot_probe_failclosed_test.py",
+        "-v"
+      ],
+      "inputs": "patched source but old prechange expectation for no target sample map",
+      "exit_code": 1,
+      "passed": 13,
+      "failed": 1,
+      "total": 14,
+      "log_sha256": "7a1a22916a7db8209e0686f98370b945d2eadb79d7bd65d2cb845f2720d8eef5",
+      "interpretation": "obsolete success expectation explicitly identified; not concealed"
+    },
+    {
+      "argv": [
+        "python3",
+        "fm1_install_slot_probe_failclosed_test_updated_expected.py",
+        "-v"
+      ],
+      "inputs": "same patched source; no-new-map must exit 7, backup before write unchanged",
+      "exit_code": 0,
+      "passed": 14,
+      "failed": 0,
+      "total": 14,
+      "log_sha256": "6ecfe995118fbf8abac5803a9e8bb0f7ed4c9b6ae609c9603d3cd7be8933b83a"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "fm1_install_restore_status_test.py",
+        "fm1_install_window_after.py",
+        "qa_exact_plan_migration.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "X0X_FM1_INSTALL_SOURCE=$PWD/fm1_install_window_after.py",
+        "X0X_X0X_SLOTS_SOURCE=$PWD/qa_exact_plan_migration.py",
+        "python3 -O fm1_install_restore_status_test.py -v"
+      ],
+      "exit_code": 0,
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "log_sha256": "3455ad90c306693c2dc7453f59270c8ccbc97f0b7c7d300882aa691965f1a7b5"
+    },
+    {
+      "argv": [
+        "X0X_FM1_INSTALL_SOURCE=$PWD/fm1_install_window_after.py",
+        "X0X_X0X_SLOTS_SOURCE=$PWD/qa_exact_plan_migration.py",
+        "python3 fm1_install_restore_status_test.py -v"
+      ],
+      "exit_code": 0,
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "log_sha256": "f7606d7c844704fcb90f7c3fb3872b7e5664788db3e74ad8e5f8c182c86527f4",
+      "notes": "Fresh execution replay after Git commit using same source-window and exact Git-matched test blob"
+    },
+    {
+      "argv": [
+        "X0X_FM1_INSTALL_SOURCE=$PWD/fm1_install_before_restore.py",
+        "X0X_X0X_SLOTS_SOURCE=$PWD/qa_exact_plan_migration.py",
+        "python3 fm1_install_restore_status_test.py -v"
+      ],
+      "exit_code": 1,
+      "total": 10,
+      "passed": 7,
+      "failed": 3,
+      "log_sha256": "771a4326c61e2cdc4c691d043a129896875e8a0e4e6bee11df77ae13e64db023",
+      "notes": "Fresh baseline negative replay"
+    },
+    {
+      "argv": [
+        "X0X_TEST_FM1_SOURCE=$PWD/fm1_install_window_after.py",
+        "python3 fm1_install_slot_probe_failclosed_test_updated_expected.py -v"
+      ],
+      "exit_code": 0,
+      "total": 14,
+      "passed": 14,
+      "failed": 0,
+      "log_sha256": "9174cb430e7f3d28cfe251a0aa6539250ba7d9de06818e4877669e152b2c4535",
+      "notes": "Fresh updated expectation regression replay"
+    }
+  ],
+  "verification_scope": "Real exact function bodies extracted/compiled from GitHub source with simulated updater, storage and links. No hardware, whole checkout or firmware build executed in this run.",
+  "disposition": "SOURCE REPAIR PRODUCER-SCOPED PASS; READY FOR INDEPENDENT REVIEW; FULL-ROOT/INTEGRATED NEGATIVE QA PENDING; BUILD_ONLY ELIGIBLE; PUBLIC INSTALLABILITY NO-GO",
+  "next": {
+    "independent_qa": "Reproduce on exact complete Git root: registered installer-restore-status and installer-slots, then full backup/restore/OTA interruption/corruption/readback, CRC, models, controller, recovery and preflash failures; review non-X0X stock/no-map exit contract.",
+    "hourly_build": "May compile Elite, Pro and controller from this draft exact source immediately BUILD_ONLY; compiler evidence is independent of QA, merge, public HTTP and physical keyboard.",
+    "safe_merge": "Review source and exact stacked Data Safety dependencies #81 -> #91 -> #96; sole NIGHTLY integrator; no direct protected branch updates.",
+    "catalog_publisher": "No public installable NIGHTLY selection until independent prehardware safety, model/controller/integrity/source/license and immutable hosted HTTP gates are checked.",
+    "owner_device": "No device flash performed; attributable model/firmware-specific observations remain UNKNOWN."
+  },
+  "compiled_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "build": "NOT RUN IN THIS DATA SAFETY TASK; BUILD_ONLY ELIGIBLE",
+  "qa": "NOT INDEPENDENT COMPLETE-ROOT PASS",
+  "device": "DEVICE NOT TESTED",
+  "published": false,
+  "evidence_bundle": {
+    "name": "LoopyX0X37-DataSafety-RestoreStatus-CloseLoop-20261024.zip",
+    "sha256": "4551582596278a56f2693d862375bdd2f48bf8059bf8e2751dcee12817e3a3f6",
+    "notes": "Temporary sandbox bundle of source-matched executable regression and logs, not a distributed firmware package or durable Git attachment. GitHub manifest identifies check evidence."
+  }
+}

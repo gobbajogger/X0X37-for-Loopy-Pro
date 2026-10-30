@@ -1,0 +1,7 @@
+{
+  "result": "REFUSED before target build",
+  "log": "elite/check-0.log",
+  "cause": "Evidence check invoked Git inside native worker scratch tree without a usable worktree. No DEV record issued.",
+  "disposition": "Use documented direct Linux x86-64 validation, running as checkout owner with entire workspace and shared Git metadata mounted at actual paths. Scope check also distinguishes later accepted rule-tool changes from build-tool changes.",
+  "firmware_changes": false
+}

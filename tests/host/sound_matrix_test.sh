@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Exact production renderer + independent time-law/target/geometry checks.
+set -eu
+cd "$(dirname "$0")/../.."
+OUT=${1:-build/ui-b-evidence}
+mkdir -p "$OUT"
+sh host/build_host.sh --generate-only >"$OUT/assets.log" 2>&1
+. tests/host/original_build.sh
+U=$ORIGINAL_SOURCES
+# shellcheck disable=SC2086
+${CC:-cc} -O0 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter ${SAN_FLAGS:-} \
+ -DX0X_HOST -DX0X_SMK_CAPTIONS=1   -DX0X_BASS_PRESET_PREVIEW=1 -DX0X_BASS_TAGGED_SOUND=1 \
+ -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen tests/host/sound_matrix_test.c $ORIGINAL_FLAGS $U -lm -o "$OUT/test"
+"$OUT/test" "$OUT"
