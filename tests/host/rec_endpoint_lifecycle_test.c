@@ -321,8 +321,11 @@ static void test_timestamped_live_duration(void)
     CHECK(project_save() == 0, "legacy-shaped stream generated");
     for (int i = 0; i < NSTREAM; i++) put32(store[STREAM_OBJ[i]], 3);
     memset(bp->step, 0, sizeof bp->step);
-    CHECK(project_load() == 0 && bp->step[0].flags == G_NOTE && bp->step[0].velocity == 90,
-          "actual legacy format3 loads unchanged with zero endpoint");
+    /* The shipping original-synth build knows only stream format 13 (project.c
+     * stream_known). A format3 line is refused as unsupported, never as
+     * corruption that the boot-default autosave may overwrite. */
+    CHECK(project_load() == -9, "legacy format3 is refused as unsupported by the original-synth build");
+    CHECK(get32(store[STREAM_OBJ[0]]) == 3, "refused legacy stream is kept unchanged");
 
     capture_reset(16, 0);
     engine_bass_record(0, 48, 90, 0); /* admitted edge, not drained yet */
