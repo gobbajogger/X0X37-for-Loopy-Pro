@@ -19,7 +19,7 @@ static void ble_service(void)
     if (!ble_up) return;
     if (next == ble_central_role) { ble_role_changing = 0; return; }
     if (ble_central_role)
-        stopped = ble_r.host.c.state == BLEC_OFF;
+        stopped = blec_pair_stopped(&ble_r.host.c, &ble_r.host.c2);
     else
         stopped = !ble_link_st && !ble_r.host.h.cmd_wait &&
                   (ble_r.host.h.state == BLEH_IDLE ||
@@ -35,9 +35,12 @@ static void ble_service(void)
     smk_apc_ble_link(0, 0);
     ble_r.orr = ble_r.ow;
     ble_sx_n = ble_sx_over = ble_sx_reply = ble_sx_ch = 0;
-    if (next)
+    if (next) {
         blec_init(&ble_r.host.c, ble_send, ble_central_midi, 0, addr);
-    else {
+        blec_init(&ble_r.host.c2, ble_send, ble_central_midi, (void *)1, addr);
+        blec_pair_bind(&ble_r.host.c, &ble_r.host.c2);
+    } else {
+        blec_pair_bind(0, 0);
         bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, addr);
         bleh_set_sysex(&ble_r.host.h, ble_sysex_in);
     }

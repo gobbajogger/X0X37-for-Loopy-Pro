@@ -54,6 +54,7 @@ int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input 
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
+int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 only: atomic matched pair or drop both */
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
@@ -94,6 +95,7 @@ const char *plat_ble_name(void);
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len);
 
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;

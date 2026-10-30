@@ -11,7 +11,7 @@ static int deadline_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
     return send_h4(t, p, n, ctx);
 }
 static struct {
-    struct { blec_t c; } host;
+    struct { blec_t c,c2; } host;
     struct { unsigned state, polls, c2h; } mb;
     uint8_t fr[128];
 } ble_r;
@@ -24,6 +24,7 @@ static void ble_record(void) { assert(0); }
 static void ble_fail(void) { assert(0); }
 static void ble_guard_ok(void *p) { (void)p; }
 static void ble_central_link_notify(int up) { assert(!up); }
+static void ble_central_link_notify_slot(unsigned slot,int up) { (void)slot; ble_central_link_notify(up); }
 static int xb_frame_get(void *q, uint8_t *t, uint8_t *p, unsigned n)
 { (void)q; (void)t; (void)p; (void)n; return 0; }
 static unsigned xb_ring_used(void *q) { (void)q; return 0; }

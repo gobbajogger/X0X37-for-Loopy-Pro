@@ -28,11 +28,14 @@ int main(void)
         old.bass[0].step[15].flags = G_TIE | BS_SLIDE | BS_ACCENT;
         old.bass[0].len = 16;
         old.bass[0].gen.seed = (uint32_t)(9000 + p);
+        old.brk.slice_mode = p & 1; old.brk.rsv = (uint8_t)(128 + p);
+        old.brk.slice[15] = 8;
         old.swing = (uint8_t)p;
         memcpy(raw + (uint32_t)p * sizeof old, &old, sizeof old);
     }
     memcpy(raw + NPAT * sizeof(pattern2_t), &arr, sizeof arr);
     stream_from2(&proj);
+    migrate_break_counts(&proj, 2);
     for (p = 0; p < NPAT; p++)
         if (proj.pat[p].drum[0].hit[0][0] != (uint32_t)p + 1u ||
             proj.pat[p].bass[0].step[0].note != 36 + p ||
@@ -43,7 +46,8 @@ int main(void)
             proj.pat[p].bass[0].step[15].flags != (G_TIE | BS_SLIDE | BS_ACCENT) ||
             bstep_velocity(&proj.pat[p].bass[0].step[0]) != BASS_VELOCITY_DEFAULT ||
             proj.pat[p].bass[0].gen.seed != (uint32_t)(9000 + p) ||
-            proj.pat[p].swing != p) {
+            proj.pat[p].brk.slice_mode != 0 || proj.pat[p].brk.rsv != 128 + p ||
+            proj.pat[p].brk.slice[15] != 8 || proj.pat[p].swing != p) {
             printf("format-2 migration failed at pattern %d\n", p);
             return 1;
         }

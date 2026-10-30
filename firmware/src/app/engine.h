@@ -162,7 +162,9 @@ void engine_bass_record(int part, int note, int velocity, int flags); /* accepte
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
 void engine_brk_live(int key, int down);
-void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
+void engine_brk_edit_hold(int held);
+uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes);
@@ -176,6 +178,7 @@ void engine_motion_rec(int lane);                           /* record a pass fro
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
 void engine_motion_clear(int lane);                         /* free a motion lane (undo / bulk edit) */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */
+int engine_master_get(int i);                             /* read-only applied master pot */
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);

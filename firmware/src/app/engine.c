@@ -916,12 +916,42 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     breaks_pin(&brk, (int)bp->slice[s16 & 15] - 1);   /* the step's own slice, if it has one */
     breaks_step(&brk, s16, bar, spb, en);
 }
-static void s_brkstop(void *x) { (void)x; breaks_stop(&brk); }
+static void brk_midi_discard(void);
+static void s_brkstop(void *x) { (void)x; breaks_stop(&brk); brk_midi_discard(); }
 static void s_midi(void *x, uint8_t st, uint8_t d1, uint8_t d2)
 {
     uint32_t cin = st >= 0xF0 ? 0x0Fu : (uint32_t)(st >> 4);
     (void)x;
     plat_midi_out(cin | ((uint32_t)st << 8) | ((uint32_t)d1 << 16) | ((uint32_t)d2 << 24));
+}
+/* Accepted hits can originate on CPU1 during its BREAK render job. Append
+ * descriptors only: transport rings belong exclusively to CPU0. CPU0 sequencing
+ * and CPU1 rendering are serialized by plat_cpu2_run/wait, whose native CSYNC
+ * job/done handoff already publishes the audio buffers. No spin/IRQ change here. */
+enum { BRK_MIDI_EVENTS = 8 };
+typedef struct { uint8_t note, channel, bank, generation; } brk_midi_event_t;
+static brk_midi_event_t brk_midi_events[BRK_MIDI_EVENTS];
+static volatile uint8_t brk_midi_count;
+static void brk_midi_discard(void) { brk_midi_count = 0; }
+static void s_brk_accepted(void *ctx, int slice, int bank, unsigned gen)
+{
+    (void)ctx;
+    if (seq.send_notes && seq.ch[TRK_BRK] != SEQ_CH_OFF && seq.playing &&
+        !(seq.mute & (1u << MUTE_BRK))) {
+        unsigned n = brk_midi_count;
+        if (n >= BRK_MIDI_EVENTS) return; /* bounded overload: drop the whole pulse */
+        brk_midi_events[n] = (brk_midi_event_t){(uint8_t)(12 + slice), seq.ch[TRK_BRK],
+                                             (uint8_t)bank, (uint8_t)gen};
+        brk_midi_count = (uint8_t)(n + 1u);
+    }
+}
+/* CPU0 only, after the render job's full synchronization or local fallback. */
+static void brk_midi_drain(void)
+{
+    unsigned n = brk_midi_count;
+    for (unsigned i = 0; i < n; i++)
+        (void)plat_midi_pulse(brk_midi_events[i].channel, brk_midi_events[i].note, 100);
+    brk_midi_count = 0;
 }
 static void s_step(void *x, int t, int p)
 {
@@ -1004,7 +1034,9 @@ static void live_rec_accept(int part, int src, int note)
     r->own_ok = 1; r->own_gen = r->gen;
     r->own_src = (uint8_t)src; r->own_note = (uint8_t)note;
 }
-static uint16_t src_held[3];           /* BLE-16: USB [0], Bluetooth [1], TRS [2]: bit k the 303 k, bit 8 + s the slice s */
+static uint16_t src_held[3];           /* USB/Bluetooth/TRS: bass owners only; BREAK has independent raw-note owners. */
+static uint32_t brk_local;
+static uint8_t brk_input_channel;
 static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
 enum { MIDI_NSRC = 3 };
 #if BOARD_SMK37
@@ -1022,7 +1054,7 @@ X0X_COLD int engine_project_notes(void)
 {
     uint32_t r = cq_r;
     int k;
-    if (brk.keys || src_held[0] || src_held[1] || src_held[2])
+    if (brk.keys || brk.slices || src_held[0] || src_held[1] || src_held[2])
         return 1;
     for (k = 0; k < NBASS; k++)
 #if X0X_DEV_WOBBLE
@@ -1062,90 +1094,68 @@ static void brk_note_set(int src, int note, int on)
     else
         brk_down[src][note >> 3] &= (uint8_t)~m;
 }
-/* 8 SLICES: slice = note mod 8, so several notes can hold one slice */
+/* The applied snapshot, not the requested count, owns the held MIDI identity. */
+static int brk_note_slice(int note)
+{
+    int count = breaks_count(&brk, 0);
+    return (note + 128 - 12) % count;
+}
 __attribute__((noinline)) static int brk_src_slice(int src, int slice)
 {
-    int n;
-    for (n = slice; n < 128; n += 8)
-        if (brk_note_down(src, n))
-            return 1;
+    for (int n = 0; n < 128; n++)
+        if (brk_note_down(src, n) && brk_note_slice(n) == slice) return 1;
     return 0;
 }
 static int brk_any_slice(int slice)
 {
-    int src;
-    for (src = 0; src < MIDI_NSRC; src++)
-        if (brk_src_slice(src, slice))
-            return 1;
+    if (brk_local & (1u << slice)) return 1;
+    for (int src = 0; src < MIDI_NSRC; src++)
+        if (brk_src_slice(src, slice)) return 1;
     return 0;
 }
-/* Default map: notes 36-43, one note per slice. A stale Note Off from the other input does nothing. */
-static void brk_midi_legacy(int src, int on, int slice)
-{
-    int v = 1 << (8 + slice);
-    if (src < 0 || src >= MIDI_NSRC)
-        return;
-    if (!on && !(src_held[src] & (uint16_t)v))
-        return;
-    breaks_live(&brk, slice, on);
-    src_held[0] &= (uint16_t)~v;
-    src_held[1] &= (uint16_t)~v;
-    src_held[2] &= (uint16_t)~v;
-    if (on)
-        src_held[src] |= (uint16_t)v;
-}
-/* 8 SLICES: every note. Note Off releases the slice only when no note of that slice remains.
- * USB, Bluetooth, and TRS share the same per-note refcount — a foreign Note Off must not
- * clear another input's hold (same ownership rule as midiowner / BF-004). */
 static void brk_midi_wrap(int src, int on, int note)
 {
-    int slice = note & 7, v = 1 << (8 + slice);
-    if (src < 0 || src >= MIDI_NSRC)
-        return;
+    int slice = brk_note_slice(note);
+    if ((unsigned)src >= MIDI_NSRC) return;
     if (!on) {
-        if (!brk_note_down(src, note))
-            return;                         /* stale Note Off: this input does not hold the note */
+        if (!brk_note_down(src, note)) return;
         brk_note_set(src, note, 0);
-        if (!brk_src_slice(src, slice))
-            src_held[src] &= (uint16_t)~v;
-        if (!brk_any_slice(slice))
-            breaks_live(&brk, slice, 0);
-        return;
+        if (!brk_any_slice(slice)) breaks_slice_hold(&brk, slice, 0);
+    } else {
+        brk_note_set(src, note, 1);
+        breaks_slice_on(&brk, slice);
     }
-    brk_note_set(src, note, 1);
-    src_held[src] |= (uint16_t)v;
-    breaks_slice_on(&brk, slice);           /* retrigger; the voice that is playing crossfades */
 }
-/* 8 SLICES map change: legacy note numbers and wrap (note mod 8) disagree, so MIDI
- * holds tracked in src_held / brk_down must not survive a mode toggle. */
-/* UI / pref path when 8 SLICES toggles — not the audio or MIDI ISR (X0X_COLD) */
-X0X_COLD void engine_brk_slice_mode_reconcile(void)
+static void brk_local_event(int key, int on)
 {
-    int src, s, g;
-    for (s = 0; s < 8; s++) {
-        uint16_t mask = (uint16_t)(1u << (8 + s));
-        if ((src_held[0] | src_held[1] | src_held[2]) & mask)
-            breaks_live(&brk, s, 0);
-    }
-    for (src = 0; src < MIDI_NSRC; src++) {
-        src_held[src] &= 0xFFu;
-        for (g = 0; g < 16; g++)
-            brk_down[src][g] = 0;
+    /* Legacy physical macro numbers stay8..10. Paged slices use32..63. */
+    if ((unsigned)(key - 8) < 3u) { breaks_live(&brk, key, on); return; }
+    int slice = key >= 32 ? key - 32 : key;
+    if ((unsigned)slice >= 32u) return;
+    if (on) {
+        if (slice >= breaks_count(&brk, 0)) return;
+        brk_local |= 1u << slice;
+        breaks_slice_on(&brk, slice);
+    } else {
+        brk_local &= ~(1u << slice);
+        if (!brk_any_slice(slice)) breaks_slice_hold(&brk, slice, 0);
     }
 }
-
 __attribute__((noinline)) static void brk_link_end(int src, uint16_t owned)
 {
-    int s, n;
-    if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1) {
-        for (n = 0; n < 128; n++)
-            brk_note_set(src, n, 0);
-        for (s = 0; s < 8; s++)
-            if ((owned & (uint16_t)(1u << (8 + s))) && !brk_any_slice(s))
-                brk.keys = (uint16_t)(brk.keys & ~(uint16_t)(1u << s));
-        return;
-    }
-    brk.keys = (uint16_t)(brk.keys & ~(owned >> 8));
+    (void)owned;
+    for (int n = 0; n < 16; n++) brk_down[src][n] = 0;
+    for (int sl = 0; sl < 32; sl++)
+        if (!brk_any_slice(sl)) breaks_slice_hold(&brk, sl, 0);
+}
+
+static void brk_channel_reconcile(void)
+{
+    uint8_t channel = seq.ch[TRK_BRK];
+    if (channel == brk_input_channel) return;
+    /* A channel edit retires external owners, not local keys or macros. */
+    for (int src = 0; src < MIDI_NSRC; src++) brk_link_end(src, 0);
+    brk_input_channel = channel;
 }
 
 /* noinline: keeps GM_DRUM lookup out of engine_render when the map is shared with seq */
@@ -1226,10 +1236,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         ty = 0x80;
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
         /* The break's channel owns the note. Drums and the 303s do not also play it. */
-        if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1)
-            brk_midi_wrap(src, ty == 0x90, d1);
-        else if (d1 >= 36 && d1 <= 43)
-            brk_midi_legacy(src, ty == 0x90, d1 - 36);
+        brk_midi_wrap(src, ty == 0x90, d1);
         return;
     }
     /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
@@ -1724,6 +1731,7 @@ static void drain(void)
 {
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    brk_channel_reconcile();
     /* Finish old contexts before a queued new press can acquire note ownership. */
     for (int k = 0; k < NBASS; k++) {
         const seq_bass_rec_t *rec = &seq.rec_bass[k];
@@ -1812,7 +1820,7 @@ static void drain(void)
                 bass_held[a] = 0;
             }
         } else if (type == C_BRK)
-            breaks_live(&brk, (int)a, (int)b);
+            brk_local_event((int)a, (int)b);
     }
     cq_r = r;
     while (guard-- && plat_midi_in(&pkt))
@@ -2035,6 +2043,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
     bfx_snapshot();                                   /* before the second core reads the holds */
+    uint8_t brk_event_mark = brk_midi_count;
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
@@ -2070,22 +2079,23 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
 #endif
     pt = plat_cycles();
+    int failed;
 #if X0X_DEBUG
     eng_dbg_nsub++;
-    {
-        uint32_t w0 = plat_ticks24();
-        int failed = on2 && plat_cpu2_wait();
-        eng_dbg_wait += plat_ticks24() - w0;
-        if (failed)
-            on2 = 0;
-    }
-    if (!on2)
-#else
-    if (!on2 || plat_cpu2_wait())
+    uint32_t w0 = plat_ticks24();
 #endif
-        core2_job(arg);                                   /* one core (or the second failed): here */
-    else
-        PROF_ADD(PR_808, pt);                             /* what the first core waited for the second */
+    failed = on2 && plat_cpu2_wait();
+#if X0X_DEBUG
+    eng_dbg_wait += plat_ticks24() - w0;
+#endif
+    if (!on2 || failed) {
+        /* Discard descriptors from a failed/partial remote job before fallback.
+         * CPU0 step events queued before dispatch remain valid. */
+        brk_midi_count = brk_event_mark;
+        core2_job(arg);
+    } else
+        PROF_ADD(PR_808, pt);
+    brk_midi_drain();
     if (d808_was_active) {
         mix_targets(PART_808, mix_level[PART_808], solo_parts);
         add_glide(dry_l, left808, &mix_glide[PART_808][GL_L], n);
@@ -2100,6 +2110,10 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         int p = PART_303A + b;
 #if X0X_DEV_WOBBLE
         PROF_T(pb);
+        /* Use the accepted internal/measured external clock, including free play.
+         * Tempo changes do not retrigger notes or reset the wobble phase. */
+        if (bass_wobble_voice(b))
+            wobble_set_tempo(bass_slot[b].active.context, seq_tempo(&seq));
         idle[b] = synth_idle(&bass_slot[b]);
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
@@ -2197,6 +2211,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #endif
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
+        brk_midi_drain();
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
         PROF_ADD(7, pt);
@@ -2212,6 +2227,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
         {
             PROF_T(pt);
             seq_advance(&seq, k, &SINK);
+            brk_midi_drain();
             PROF_ADD(7, pt);
         }
         done += k;
@@ -2381,8 +2397,8 @@ int engine_brk_slice(void) { return brk.running ? brk.st_slice : -1; }
 
 void engine_brk_state(int *slice, int *bank, int *div, int *running)
 {
-    *slice = brk.st_slice;
-    *bank = brk.st_bank;
+    *slice = brk.perf.count ? brk.current_slice : brk.st_slice;
+    *bank = brk.perf.count ? 0 : brk.st_bank;
     *div = brk.st_div;
     *running = brk.running;
 }
@@ -2422,6 +2438,7 @@ X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
     return 1;
 }
 float engine_gr_db(void) { return mst.gr_view; }
+int engine_master_get(int i) { return master_get(&mst, i); }
 void engine_master_format(int i, char *buf) { master_format(&mst, i, buf); }
 
 X0X_COLD void engine_brk_loops(void)
@@ -2446,14 +2463,20 @@ X0X_COLD void engine_brk_loops(void)
             L[w].nsamples = ns;
             L[w].rate = rate;
             L[w].bars = loop_bars(ns, rate);
-            breaks_set_loop(&brk, w, &L[w]);
         } else {
-            breaks_set_loop(&brk, w, brk_builtin(slot < nb ? slot : 0));   /* built-in, or the first if the slot is empty */
+            const brk_loop_t *builtin = brk_builtin(slot < nb ? slot : 0);
+            if (builtin) L[w] = *builtin;
+            else L[w] = (brk_loop_t){0};
         }
+        L[w].slices = (uint8_t)brk_slice_count(bp, (unsigned)w);
+        breaks_set_loop(&brk, w, &L[w]);
     }
 }
 
+uint32_t engine_brk_held(void) { return brk.slices; }
 void engine_brk_flush(void) { breaks_flush(&brk); }
+void engine_brk_edit_hold(int held) { brk.local_guard = (uint8_t)(held != 0); }
+int engine_brk_count(int bank) { return breaks_count(&brk, bank); }
 
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
 {
@@ -2470,6 +2493,9 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
+    brk_local = 0;
+    brk_midi_count = 0;
+    brk_input_channel = 255;
     src_held[0] = src_held[1] = src_held[2] = 0;
     for (p = 0; p < MIDI_NSRC; p++)
         for (g = 0; g < 16; g++)
@@ -2525,6 +2551,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     synth_boundary(&bass_slot[0]); /* Product Miami: 303A is WBL1 before first audio block. */
 #endif
     breaks_init(&brk);
+    brk.accepted = s_brk_accepted;
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);
     seq_init(&seq, patterns);
