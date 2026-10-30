@@ -159,7 +159,7 @@ int main(void)
     char l0[16], l1[24];
     int w;
 
-    check("factory subtitle is 21 characters", (int)strlen(BOOT_FACTORY_1) == 21);
+    check("factory subtitle fits the record", strlen(BOOT_FACTORY_1) <= BOOT_LINE1_MAX);
     check("sectors differ and are 4 KiB", BOOT_SMK_SEC0 + 0x1000u == BOOT_SMK_SEC1 && BOOT_FM1_SEC0 != BOOT_FM1_SEC1);
     check("FM-1 boot sectors are not the settings pair", BOOT_FM1_SEC0 != 0xFC000u && BOOT_FM1_SEC1 != 0xFC000u &&
           BOOT_FM1_SEC0 != 0xFD000u && BOOT_FM1_SEC1 != 0xFD000u);
@@ -215,7 +215,7 @@ int main(void)
     check("end of a bad record does not touch flash", boot_end(&s, &io, BOOT_SMK_SEC0, BOOT_SMK_SEC1, 12) == BOOT_BAD && erases == er0);
     check("blank flash shows the original words", boot_pick(nor[0], nor[1]) < 0);
     boot_lines(0, l0, l1);
-    check("original words are X0X and the engine line", !strcmp(l0, "X0X") && !strcmp(l1, BOOT_FACTORY_1));
+    check("factory words are DnBOX and the engine line", !strcmp(l0, "DnBOX") && !strcmp(l1, BOOT_FACTORY_1));
 
     n = build(rec, "MORN", "SHIFT", 0);
     check("a skipped chunk is refused and disarms", boot_begin(&s, 20) == BOOT_OK && boot_write(&s, 10, rec, 4, 21) == BOOT_BAD && !s.armed);

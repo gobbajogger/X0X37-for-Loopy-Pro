@@ -224,7 +224,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 #else
 #include "app/chicago_aux.h"     /* pitch wheel → CHI_PBEND, not TUNE */
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 #include "app/wobble_ui.h"       /* W_WOBBLE_DEPTH for Miami mod wheel */
 #endif
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
@@ -968,8 +968,7 @@ static void smk_faders(void)
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
  * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
  * Pitch wheel = the selected engine's bend (Chicago CHI_PBEND / Miami W_PITCH_BEND).
- * BREAK uses a transient +/-12 semitone offset and keeps its gesture across navigation.
- * Both synths span ±2 semitones; release restores that engine's own saved bend, never TUNE.
+ * Both span ±2 semitones; release restores that engine's own saved bend, never TUNE.
  * Mod wheel = Chicago cutoff on native303; Miami/WBL1 wobble depth on a live WBL1 voice.
  * Chicago: replaces the cutoff knob (BASS303_CUTOFF before master). Down closes (0); up opens (127).
  * Miami: writes W_WOBBLE_DEPTH the same way. High ADC is down; that sense is not inverted.
@@ -979,7 +978,7 @@ static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
     static int32_t pc, plo, phi, mlo, mhi, rest;
-    static int8_t bend_part = -1, cut_part = -1; /* bend_part 2 = BREAK */
+    static int8_t bend_part = -1, cut_part = -1;
     static int16_t bend_now, mw_now;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
@@ -1043,7 +1042,7 @@ static void smk_wheels(void)
                 engine_set_base(T_303, bend_part, param); /* exact factory value, including 0.5 */
 #else
             int param = CHI_PBEND;
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             if (engine_bass_is_wobble(bend_part))
                 param = W_PITCH_BEND;
 #endif
@@ -1067,7 +1066,7 @@ static void smk_wheels(void)
             engine_set(T_303, cut_part, engine_bass_is_wobble(cut_part) ?
                 ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF, (int)want);
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             if (engine_bass_is_wobble(cut_part))
                 engine_set(T_303, cut_part, W_WOBBLE_DEPTH, (int)want);
             else
@@ -2199,7 +2198,7 @@ static void fm1_fault(const fm1_crash_t *c)
     uint32_t t0;
     fm1_audio_stop();
     lcd_fill(0, 0, 240, 240, RGB(160, 0, 0));
-    draw_text_box(0, 8, 240, &FONT_S, "X0X CRASH", C_WHITE, 1);
+    draw_text_box(0, 8, 240, &FONT_S, "DnBOX CRASH", C_WHITE, 1);
     hexs(b, c->vec);
     draw_text_box(10, 40, 220, &FONT_S, b, C_WHITE, 0);
     hexs(b, c->pc);
@@ -2254,7 +2253,7 @@ static void safe_main(void)
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);
-    draw_text_box(0, 18, 240, &FONT_B, "X0X SAFE MODE", C_HI, 1);
+    draw_text_box(0, 18, 240, &FONT_B, "DnBOX SAFE MODE", C_HI, 1);
     draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
@@ -2296,7 +2295,7 @@ static void safe_main(void)
         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
             bootguard.failed = 0;                   /* try X0X again, from scratch */
             bootguard.pending = 0;
-            draw_text_box(0, 172, 240, &FONT_S, "STARTING X0X...", C_HI, 1);
+            draw_text_box(0, 172, 240, &FONT_S, "STARTING DnBOX...", C_HI, 1);
             usb_detach();
             fm1_delay_ms(30);
             fm1_reboot();
@@ -2338,8 +2337,10 @@ static void fm1_main(void)
     }
     lcd_init();
     palette_set(1);
-    draw_text_box(0, 96, 240, &FONT_M, "X0X", C_HI, 1);
-    draw_text_box(0, 134, 240, &FONT_S, "909 808 303 303 BREAK", C_GRAY, 1);
+    {
+        const uint8_t *record = boot_shown();
+        draw_boot_screen(record ? record + BOOT_PAY_OFF : 0);
+    }
     if (x0x_dbg.magic != DBG_MAGIC) {
         memset(&x0x_dbg, 0, sizeof x0x_dbg);
         x0x_dbg.magic = DBG_MAGIC;
