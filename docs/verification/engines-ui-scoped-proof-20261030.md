@@ -42,6 +42,21 @@ The uploaded JieLi archive SHA-256 was verified as `ed379c483468c44f10cf3be7db32
 
 The separate private-input archive SHA-256 `2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805` was checked. `kit.py verify` passed **all 11 pinned V1.2.1 SDK inputs**. The attached large V1.2.0 SDK is not substituted for V1.2.1.
 
+## Additional current-source checks
+
+A second independent host compiler, LLVM Clang in the same Linux runtime, was used at `-Os` with `-std=c99 -Wall -Wextra -Werror -fno-fast-math -ffp-contract=off`. These exact source/test blobs again returned **PASS** for Chicago clock (414,240 cases), Chicago chorus (324,902 cases) and Miami clock/zero stores (300,308 / 8,193 cases). No Golden PCM or native application was linked.
+
+The newest integrated build also contains the original previously ported Free Play rate-pad logic. To validate it without reconstructing an imaginary UI model, five **exact function bodies** were extracted from GitHub blobs at candidate `77be40162e72ea30f59610ac06b88c42e0d4ab98`:
+- `firmware/src/app/ui.c`: `division_pad_owner` (FNV-1a `ba0f2918`), `division_pad_index` (`553c62a8`), `division_pad_label` (`a8508092`), `division_pad_input` (`fad57fe4`);
+- `firmware/hal/smk_input.h`: `smk__division_poll` (`f877c9bf`) and the actual `smk__padq` rate-ownership preprocessor branch (`268c7cb7`).
+
+Only platform/runtime dependencies were stubbed around the **unaltered production function bodies**. This source-scoped harness was compiled using Linux GCC with `-std=c11 -O1 -Wall -Wextra -Werror -Wno-unused-function -fsanitize=undefined -fno-sanitize-recover=all`. It ran and returned:
+```text
+PASS: exact current Free Play rate-pad source: 8 divisions, held release, handoff, overlays
+```
+
+Coverage includes all eight Miami rate pads, retained press/release ownership across mode changes, switching selected engine/voice without stale edits, and preventing rate selection under save/home, recording, help/overlay, SMC, clip and other guards. This confirms the preserved handler logic, **not** production host-build linkage, physical pad scanning, saved project sound or real-device LEDs. The existing canonical full-checkout regression remains `python3 tests/host/test_freeplay_rate_pad_port.py`; it is **NOT RUN** in this scope and has not been relabeled as passed.
+
 ## Remaining candidate qualification: NOT RUN
 
 A complete *current* GitHub source checkout, exact factory/preset/private DSP input closure and full V1.2.1 SDK build environment are not established in this container. The available offline source TAR is an older `a7082231` checkpoint and cannot serve as a `wip/one-build` source tree. GitHub DNS is unavailable to the sandbox; all branch/file writes and readback therefore used the authenticated GitHub connector, not Git network commands. No tests from the old TAR are reported as tests of this commit.
