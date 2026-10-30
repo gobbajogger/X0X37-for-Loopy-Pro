@@ -36,8 +36,8 @@ out=$(PYTHONPATH="$T/nopil${PYTHONPATH:+:$PYTHONPATH}" PYTHONUSERBASE="$T/nopil"
     echo "FAIL: host-build/stereo under samples-only + X0X_BREAK_BANK" >&2
     exit 1
 }
-# A system-wide Pillow is not hidden by PYTHONUSERBASE; then host-build runs.
-if PYTHONUSERBASE="$T/nopil" python3 -c 'import PIL' 2>/dev/null; then
+# Use the same masks as the nested run: PYTHONPATH hides a system-wide Pillow too.
+if PYTHONPATH="$T/nopil${PYTHONPATH:+:$PYTHONPATH}" PYTHONUSERBASE="$T/nopil" python3 -c 'import PIL' 2>/dev/null; then
     want='ok   host-build'
 else
     want='not-run host-build (Pillow)'

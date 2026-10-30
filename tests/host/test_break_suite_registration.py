@@ -29,7 +29,7 @@ def main() -> int:
         source_path = ROOT / command.split()[-1]
         if not source_path.is_file():
             errors.append(f"{name}: missing executable input {source_path.relative_to(ROOT)}")
-    cls_match = re.search(r"(?m)^\s*adaptive-break-controls\|adaptive-break-storage\|[^\n]*\) TEST_CLASS=G ;;$", source)
+    cls_match = re.search(r"(?m)^\s*adaptive-break-controls\|adaptive-break-storage(?:\|[^\n]*)?\) TEST_CLASS=G ;;$", source)
     if not cls_match:
         errors.append("BREAK controls/storage must share generated host inputs in class G")
     if errors:

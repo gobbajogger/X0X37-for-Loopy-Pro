@@ -550,7 +550,7 @@ static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
 }
 static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
 {
-    unsigned code, pl, op, status;
+    unsigned code, pl, op = 0u, status = 0u;
     if (c->state == BLEC_OFF) return;
     if (n < 2u || p[1] > n - 2u) return;
     code = p[0]; pl = p[1]; p += 2;
