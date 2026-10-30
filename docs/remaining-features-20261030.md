@@ -69,3 +69,7 @@ The host regression, scoped receipt helper and tests were committed to the isola
 ## HOME source candidate: #57 and #58
 
 The existing 8-column visual footprint is retained. `home_pattern_glyph.h` now summarizes all saved steps, rather than presenting steps 17–64 as blank, and uses the strongest real event velocity per column. A bounded host regression passed on GCC and Clang UBSan with historical header inputs; current-HEAD HOME framebuffer validation is **NOT_RUN**, so these items remain pending visual acceptance. See `docs/notes/remaining-home-overview-evidence.md`.
+
+## Installer song/project entry: #76
+
+The existing installer now links directly to `/projects/`, which already exports and imports the versioned `.x0xproject` file containing song arrangements, patterns and sounds. The project page retains its existing preflight, sample identity and recovery behavior; no second song format or transport was introduced. English and Japanese link/help strings are provided. The scoped Node host test passed against the feature fragment and existing historical project page; current-HEAD browser navigation and exact generated-site rendering are **NOT_RUN**. This is project-inclusive song transfer, not a new song-only file format.
