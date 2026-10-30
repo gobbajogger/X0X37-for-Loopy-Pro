@@ -733,11 +733,23 @@ void smc_ui_cancel(void)
 
 int smc_ui_active(void)
 {
-    if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
-        smc_ui.context != smc_ui_context() ||
-        !smc_ui_edge_alive(plat_ms(), smc_ui.until,
-            smc_held(&smc_states[smc_ui.peer]))))
-        smc_ui_cancel();
+    if (smc_ui.on) {
+        uint8_t saved = smc_slot, peer = smc_ui.peer;
+        if (peer >= SMC_PEERS) {
+            smc_ui_cancel(); /* stale or corrupt peer must fail closed */
+            return 0;
+        }
+        /* smc_poll() restores smc_slot to its caller. This context belongs
+         * to the peer that opened the temporary screen, not that caller. */
+        smc_slot = peer;
+        uint32_t context = smc_ui_context();
+        smc_slot = saved;
+        if (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
+            smc_ui.context != context ||
+            !smc_ui_edge_alive(plat_ms(), smc_ui.until,
+                smc_held(&smc_states[peer])))
+            smc_ui_cancel();
+    }
     return smc_ui.on;
 }
 
