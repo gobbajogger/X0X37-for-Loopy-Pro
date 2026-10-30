@@ -43,3 +43,5 @@ X0X_TEST_JOBS=1 sh tests/run_tests.sh
 ```
 
 For an actual DEV qualification use `tools/dev_validate.py` with a plan at the exact HEAD, the full pinned source and correct model/toolchain/SDK/reference paths. Do not treat a historical build, a source-extracted host test or a GitHub API write as a completed current-HEAD native build. Independent QA and SMC/Chicago/Miami integrated runtime validation remain pending. Keep the PR draft; never merge into nightly or main without separate authority.
+
+Cloud verification update: Clang ASan+UBSan on the repaired source-extracted transport functions passed 1320/1320 assertions (exit 0). JieLi Clang 4.0.1 compiled the same freestanding transport code to a pi32v2 ELF32 object (exit 0). These scoped results do not qualify a complete firmware build; the latter remains NOT_RUN.
