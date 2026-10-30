@@ -56,3 +56,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #693 | 4f039829 | already in (round 1 cherry-picks) | f60a2d8e | – | 4775ef91 is the 284-file snapshot: skipped |
 | #716 | e81404eb | merged | 1e368c68 | - |  |
 | #713 | ca59579a | merged | 41cacf08 | AGENTS.md (union) |  |
+| #703 | d9ca3319 | merged | 95d0f7cd | reference/recovered-ui/MANIFEST.json, README.md (kept text-only subset from base) | base already has the text-only subset of #703; 19 PNG mocks left out (no-binaries rule) |
