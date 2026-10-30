@@ -48,11 +48,12 @@ static void check_plain_select(void)
     for (unsigned v = 0; v < sizeof views / sizeof *views; v++) for (int strip = 0; strip < 8; strip++) {
         setup(views[v], strip == PART_BRK ? PART_303A : PART_BRK);
         if (views[v] == V_GEN) { ui.part = PART_303A; build_pages(); }
-        int rec = ui.rec;
+        int rec = ui.rec, was_mix = ui.view == V_MIX, prev_page = smc_page_now();
         message(0x90, 24 + strip, 127);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
         if (strip < NPARTS) { CHECK(ui.part == (strip==2?4:strip==4?2:strip)); CHECK(ui.view == V_PART); check_select_led(strip, 1); }
-        else { CHECK(ui.view == (strip == 7 ? V_MIX : V_FX)); CHECK(smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)); }
+        else { CHECK(ui.view == (strip == 7 ? V_MIX : V_FX)); /* SELECT 7 opens the mixer on page 0; on the mixer it steps to the next page. */
+               CHECK(smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : was_mix ? (prev_page + 1) % pg.n : 0)); }
         int view = ui.view, page = cur_page(), part = ui.part;
         message(0x90, 24 + strip, 127); /* repeat cannot acquire FX after navigation */
         now_ms += 200; smc_poll();
