@@ -218,13 +218,65 @@ static void image_cases(void)
     uint8_t saved[32]; memcpy(saved,proj.sound.v[T_303][1],32); button_tap(B_EDIT); block();
     CHECK(!engine_bass_preset_pending(1) && !memcmp(saved,proj.sound.v[T_303][1],32)); engine_bass_off(1);
 }
+/* Restored from ca8299b6: engine waveform, ADSR schematic, PERF uint16. */
+static void restored_cases(void)
+{
+    const int edge[]={0,64,127};
+    for(int a=0;a<3;a++)for(int d=0;d<3;d++)for(int s=0;s<3;s++)for(int r=0;r<3;r++){
+        int v[]={edge[a],edge[d],edge[s],edge[r]},x[5],sy; original_adsr_points(v,x,&sy);
+        CHECK(x[0]==13 && x[4]==227 && sy>=58 && sy<=130);
+        for(int k=1;k<5;k++) CHECK(x[k]>=x[k-1]);
+        if(!v[0]) CHECK(x[1]==x[0]);
+        if(!v[3]) CHECK(x[3]==x[4]);
+        if(!v[2]) CHECK(sy==130);
+        if(v[2]==127) CHECK(sy==58);
+    }
+    CHECK(tw(&FONT_T,"SCHEMATIC / CONTROL AMOUNTS (%)")<=214);
+    choose(1,0,0);
+    for(int k=0;k<4;k++){
+        screen(V_PART,PART_303B,3); now_ms+=1000;
+        int value=pref_get(pg.r[3][k]); enc_acc[EN_K1+k]=value==127?-1:1; ui_input_only(); block(); ui_frame();
+        CHECK(original_adsr_touch_active());
+        char name[64]; snprintf(name,sizeof name,"restored-envelope-touch-%d",k); shot(name);
+        now_ms=ui.touch_until+1; ui_frame(); CHECK(!original_adsr_touch_active());
+    }
+    screen(V_PART,PART_303B,3); shot("restored-envelope-idle");
+    choose(0,1,0);
+    for(int page=0;page<5;page++){
+        screen(V_PART,PART_303A,page); now_ms+=1000; enc_acc[EN_K1]=1; ui_input_only(); block(); ui_frame();
+        CHECK(!original_adsr_touch_active());
+    }
+    /* Wave slots: every masked control gets a slot, nothing else. */
+    unsigned waves=0;
+    for(unsigned kind=0;kind<2;kind++){
+        unsigned voice=kind?0:1; choose(voice,kind,0);
+        for(int id=0;id<32;id++){
+            int slot=original_wave_slot(kind,id),want=id==0?0:kind&&id==6?1:kind&&id==11?2:-1;
+            CHECK(slot==want); waves+=slot>=0;
+            if(slot>=0){ const ui_original_wave_cache *v=original_wave_view(PR(R_ENG,T_303,voice,id),pref_get(PR(R_ENG,T_303,voice,id)));
+                CHECK(v); for(int i=0;i<UI_ORIGINAL_WAVE_W;i++) CHECK(v->wave[slot][i]<UI_ORIGINAL_WAVE_H); }
+        }
+    }
+    CHECK(waves==4);
+    choose(1,0,0); capture("restored-chicago-wave",V_PART,PART_303B,0);
+    choose(0,1,0); capture("restored-miami-wave",V_PART,PART_303A,0);
+    static const uint32_t raw[]={120,255,256,300,511,65535,65536,UINT32_MAX};
+    for(unsigned i=0;i<sizeof raw/sizeof raw[0];i++){
+        uint16_t expected=(uint16_t)(i<6?raw[i]:65535); CHECK(perf_percent(raw[i])==expected);
+        cpu_pct=raw[i]; cpu_peak=raw[i]; perf.have=1; perf.frames=eng_prof_frames-1u; perf_window(1);
+        CHECK(perf.load==expected && perf.peak==expected);
+    }
+    cpu_pct=300; cpu_peak=511; perf.have=1; perf.frames=eng_prof_frames-1u; perf_window(1);
+    CHECK(perf.load==300 && perf.peak==511); cpu_pct=cpu_peak=0;
+    printf("RESTORED adsr/wave=%u/perf PASS\n",waves);
+}
 #ifndef ORIGINAL_UI_MAIN
 #define ORIGINAL_UI_MAIN main
 #endif
 int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();
+    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_cases();
     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
     return 0;

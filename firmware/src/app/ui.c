@@ -16,6 +16,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
+#include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
@@ -275,7 +276,8 @@ enum { PT_IDLE = -1, PT_DONE = 3 };
 static struct {
     uint32_t t_ms, ticks, cyc, frames, prof[ENG_PROF_N], st[3];
     uint16_t mhz10;                    /* the CPU clock x 10; 0 = not known (no cycle counter) */
-    uint8_t load, peak, stalls_on, have;
+    uint16_t load, peak;               /* % (above 255 % on an overload; perf_percent) */
+    uint8_t stalls_on, have;
     uint16_t stage[ENG_PROF_N];        /* each stage's share of the CPU, x 10 (%) */
     uint16_t cps;                      /* the render's cycles per sample (cycle counter only) */
     uint8_t stall[3];                  /* fetch / read / write stall cycles, % */
@@ -283,7 +285,7 @@ static struct {
                                         * phase: 0 stop, 1 settle, 2 measure, 3 put back, 4 done */
     uint32_t test_t0;
     uint16_t res_load[3], res_cps[3];  /* per scenario: the render's share x 10, cycles per sample */
-    uint8_t res_peak[3];
+    uint16_t res_peak[3];
     pattern_t *pat;                    /* what the test changes, to put back */
     uint8_t ppat[NPARTS], song_on, ca, cb;
     uint32_t mute;
@@ -372,6 +374,7 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
 static ui_original_control_cache original_controls X0X_POOL;
+static ui_original_wave_cache original_wave X0X_POOL;   /* engine waveform cue (ca8299b6) */
 static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
 static const ui_original_control_view *original_text_view(pref_t r, int value);
@@ -2056,6 +2059,10 @@ static const char *const PT_N[3] = {"FACTORY LOOP", "ALL FIVE", "WORST CASE"};
 static pattern_t perf_bench[3];
 #endif
 
+/* Display storage only (restored from ca8299b6): keep a load above 255 %
+ * instead of wrapping it in a byte. */
+static uint16_t perf_percent(uint32_t raw) { return (uint16_t)(raw>65535u?65535u:raw); }
+
 static void perf_window(int force)
 {
     uint32_t now = plat_ms(), t = plat_ticks24(), c = plat_cycles(), f = eng_prof_frames, st[3];
@@ -2075,8 +2082,8 @@ static void perf_window(int force)
             perf.stage[k] = (uint16_t)((float)d * 1000.0f / ((float)df * ups) + 0.5f);
         }
         perf.cps = plat_cycles_cpu() ? (uint16_t)(sum / df) : 0;
-        perf.load = (uint8_t)plat_cpu_pct();
-        perf.peak = (uint8_t)plat_cpu_peak_pct();
+        perf.load = perf_percent(plat_cpu_pct());
+        perf.peak = perf_percent(plat_cpu_peak_pct());
         if (plat_stalls(st) == 0 && dc)
             for (k = 0; k < 3; k++)
                 perf.stall[k] = (uint8_t)((float)(st[k] - perf.st[k]) * 100.0f / (float)dc + 0.5f);
@@ -2576,6 +2583,23 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
     }
     if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
     return ui_original_controls_update(&original_controls,r.b,cell,preview,mask) ? &original_controls.view : 0;
+}
+
+/* The engine waveform of an oscillator control, with the same lock/motion
+ * preview as the text readout. 0 when the slot has no waveform. */
+static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
+{
+    const uint8_t *cell = proj.sound.v[T_303][r.b];
+    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
+    uint8_t preview[22] = {0}; uint32_t mask = 0;
+    for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
+        pref_t ref = PR(R_ENG,T_303,r.b,id);
+        int q = lock_step() >= 0 ? lock_of(ref,lock_step()) : motion_now(ref);
+        if (q >= 0) { preview[id] = (uint8_t)q; mask |= 1u<<id; }
+    }
+    if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
+    return ui_original_wave_update(&original_wave,r.b,cell,preview,mask) ? &original_wave : 0;
 }
 
 static void lock_turn(pref_t r, int e, int role)
@@ -4992,6 +5016,7 @@ static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col, int height, int night);
 static UI_DRAW int adsr_touch_active(void);
 static UI_DRAW int adsr_inline_page(void);
+static UI_DRAW int draw_original_adsr_overlay(int band);
 static UI_DRAW void draw_adsr_inline(int y,int h,int off);
 enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
 static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg);
@@ -5053,6 +5078,7 @@ static UI_DRAW void draw_part_sound(int band)
     int rows=three?3:4, height=three?66:49, step=three?67:50;
     uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
     if(night) cv_rect(0,0,240,band==2?KNOB_H:BAND_H,SOUND_BASE);
+    if (draw_original_adsr_overlay(band)) return;
     int graph=adsr_inline_page();
     for (row=0;row<rows;row++) {
         int p=first+row, y=4+row*step-off, active=p==page;
@@ -6184,6 +6210,21 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */
 }
 
+/* Engine waveform cue (restored from ca8299b6): slot 0 is the Chicago
+ * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
+static int original_wave_slot(unsigned kind,int p)
+{
+    if(p==0)return 0;
+    if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
+    return -1;
+}
+static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_wave_cache *v,int slot,uint16_t ink,uint16_t face)
+{
+    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));
+    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)
+        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);
+}
+
 enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
 /* One affine projection per supported range. The pulse zero is near its low
  * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
@@ -6296,6 +6337,69 @@ static UI_DRAW int adsr_touch_active(void)
          strcmp_s(pg.title[page], "FILTER ADSR"))) return 0;
     r = pg.r[page][i];
     return matrix_touch_matches(r, i);
+}
+
+/* Chicago ENVELOPE page (original IDs 7..10) while a stage is being turned. */
+static UI_DRAW int original_adsr_touch_active(void)
+{
+#if X0X_ORIGINAL_SYNTH
+    int page=cur_page(),i=ui.touched;
+    if(ui.view!=V_PART || !is_303() || i<0 || i>3 || ui.help ||
+       (int32_t)(ui.touch_until-plat_ms())<=0 ||
+       engine_bass_sound_bank(&proj.sound,bidx())!=ORIGINAL_SOUND_CHICAGO)return 0;
+    for(int k=0;k<4;k++) {
+        pref_t r=pg.r[page][k];
+        if(r.kind!=R_ENG || r.a!=T_303 || r.b!=bidx() || r.c!=7+k)return 0;
+    }
+    return matrix_touch_matches(pg.r[page][i],i);
+#else
+    return 0;
+#endif
+}
+/* ADSR control schematic (restored from ca8299b6): not an audio envelope or
+ * a time axis. A/D/R amounts share the width, sustain sets the height, and
+ * the HOLD part between D and R is illustrative. */
+static void original_adsr_points(const int amount[4],int x[5],int *sustain_y)
+{
+    int total=amount[0]+amount[1]+64+amount[3];
+    x[0]=13;x[4]=227;
+    x[1]=13+(214*amount[0]+total/2)/total;
+    x[2]=13+(214*(amount[0]+amount[1])+total/2)/total;
+    x[3]=13+(214*(amount[0]+amount[1]+64)+total/2)/total;
+    *sustain_y=130-(72*amount[2]+63)/127;
+}
+static UI_DRAW int draw_original_adsr_overlay(int band)
+{
+    static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
+    int off=band*BAND_H,p=cur_page(),edited=ui.touched,amount[4],x[5],ys;
+    uint16_t col=matrix_col();char num[16],unit[8],t[32];
+    if(!original_adsr_touch_active())return 0;
+    for(int k=0;k<4;k++)amount[k]=matrix_value(pg.r[p][k]);
+    original_adsr_points(amount,x,&ys);
+    cv_text(8,8-off,&FONT_S,"ENVELOPE",col);
+    pref_value_of(pg.r[p][edited],amount[edited],num,unit);
+    put_s(put_s(put_s(put_s(t,names[edited])," "),num),unit);
+    cv_text(8,27-off,&FONT_B,t,col);
+    cv_rect(x[0],130-off,215,1,C_LINE);
+    cv_line(x[0],130-off,x[1],58-off,edited==0?C_WHITE:col);
+    cv_line(x[1],58-off,x[2],ys-off,edited==1?C_WHITE:col);
+    cv_line(x[2],ys-off,x[3],ys-off,edited==2?C_WHITE:col);
+    cv_line(x[3],ys-off,x[4],130-off,edited==3?C_WHITE:col);
+    cv_text(13,133-off,&FONT_T,"SCHEMATIC / CONTROL AMOUNTS (%)",C_GRAY);
+    if(lock_step()>=0) {
+        put_i(put_s(t,"P-LOCK STEP "),lock_step()+1);cv_text(8,148-off,&FONT_T,t,C_AMB);
+    }
+    for(int k=0;k<4;k++) {
+        int xx=3+k*59,active=k==edited;
+        box(xx,165-off,57,35,active?col:C_LINE);
+        text_c(xx+28,167-off,&FONT_T,names[k],active?C_BLACK:C_GRAY);
+        pref_value_of(pg.r[p][k],amount[k],num,unit);
+        put_s(put_s(t,num),unit);
+        const felucca_font_t *f=tw(&FONT_XS,t)<=54?&FONT_XS:&FONT_T;
+        text_c(xx+28,181-off,f,t,active?C_BLACK:C_HI);
+    }
+    cv_text(7,208-off,&FONT_T,lock_step()>=0?UI_CAP_ARROWS ": CHANCE  " UI_CAP_EDIT ": ROW":UI_CAP_ARROWS ": ROW  " UI_CAP_EDIT ": NEXT",C_GRAY);
+    return 1;
 }
 
 static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg)
@@ -6459,7 +6563,16 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
     }
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
-    if(shape) {
+    const ui_original_wave_cache *ow=0;int wave_slot=-1;
+    if(shape && r.a==T_303) {
+        wave_slot=original_wave_slot((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
+        if(wave_slot>=0) ow=original_wave_view(r,val);
+    }
+    if(ow) {
+        draw_original_wave(cx-10,y+25,ow,wave_slot,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); }
+        text_c(cx+17,y+28,&FONT_T,num,ink);
+    } else if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
         pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); } /* original readout text */
         text_c(cx+17,y+28,&FONT_T,num,ink);
