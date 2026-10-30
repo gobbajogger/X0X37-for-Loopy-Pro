@@ -1,0 +1,1 @@
+label=pr705 base=cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21 head=92ec7f62b7cb1c020dd49542d845491755d7e281 clean=yes rc=1 pass=432 fail=152 notrun=6 first_fail=  FAIL bass-tagged-storage (see build/host/bass-tagged-storage.log)
