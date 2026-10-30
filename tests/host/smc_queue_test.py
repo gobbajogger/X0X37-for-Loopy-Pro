@@ -54,6 +54,9 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;
 enum { O_NONE, O_ASK, NKIT = 2 };
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; } ui;
+#define SMC_UI_MS 1200u /* smc_poll_peer refreshes the temporary screen owner. */
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0u; }
 static int locked, testing, inject, route, mmc_src, reset_on_first;
 static unsigned count;
 static uint8_t observed[64][7];
