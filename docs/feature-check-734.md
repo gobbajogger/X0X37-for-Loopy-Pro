@@ -2,6 +2,97 @@
 
 This document contains independently maintained `part1` and `part2` sections. Preserve both when editing.
 
+## part1: features 1–61
+
+**Exact audited source:** [PR #734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/734) `integration/all-in-one@8f5999712998fb7a88d08e9d4ea5ae019338d523` (Git tree `332d43ec29c41100e5ad5e536cb7737a2ddd9597`). **Owner list:** [PR #699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699) / `docs/lanes/missing-features-plan.md`; **latest lineage base seen:** `wip/one-build@675d75fbd323635f8e3536838c7394924a30ea64`.
+
+**61/61 source classifications:** IN #734 **43**; BUILT ELSEWHERE **8**; NOT BUILT **10**. An IN label establishes a located code path, **not** end-to-end acceptance, audio parity, live MIDI, screen or hardware PASS.
+
+| ID | Requirement from #699 | Classification | Source or external branch, and unresolved integration / test work |
+| ---: | --- | --- | --- |
+| 1 | Два полноценных выбираемых движка Chicago и Miami | **IN #734** | `firmware/src/app/engine.c:original_runtime_*` and `ui.c` selectable Chicago/Miami. Source integrated; builds/audio not qualified. |
+| 2 | Достоверный звук оригинальных движков | **IN #734** | `engine.c:original_runtime_render`, original DSP backends. Bit-exact goldens/reference sound NOT_RUN; source does not establish audible parity. |
+| 3 | Полное и правильное управление Chicago и Miami | **NOT BUILT** | `original_sound.c` has 22 Chicago/18 Miami parameters; `ui_original_controls.h:ui_original_name` exposes only 20/16 names. Full accessible control/range acceptance missing; #712 already integrated. |
+| 4 | Pitch Bend и педаль на своих физических органах | **IN #734** | `engine.c` original-input ownership and bend/damper path, #693 subset. Test actual physical wheel/pedal to intended engine and values. |
+| 5 | Все согласованные эффекты без скрытого урезания | **IN #734** | `original_sound.c` seven admitted Chicago FX choices and `chicago_fx2_compact.h`/`chicago_bpmdly.h`. Sound parity untested. #695@72db66d8ddcc2ccbffc667f5578175f668df85f2 is a zero-file diff, not an extra integrated fix. |
+| 6 | Заводские пресеты и удобный выбор звука | **IN #734** | `original_sound.c:original_sound_name` and factory selectors, 55 Chicago/30 Miami. Validate labels/preset switch with device audio. |
+| 7 | Привязка звука и движка к паттерну | **IN #734** | `engine.h:engine_bass_note_capture`, pattern/sound state and partially adopted #693. Pattern engine/preset recall on rev13 save/load still unqualified. |
+| 8 | Полный sound lock на отдельной ноте | **NOT BUILT** | Per-note capture scaffolding exists, but complete per-note 22/18-param sound lock and safe morph not found in #734 or qualified external PR; new regression/implementation required. |
+| 9 | Честная замена старых движков | **IN #734** | `engine.c` original Chicago/Miami runtime initialization and rendering. Target exclusion of old engines and parity not demonstrated. |
+| 10 | Реальные имена пресетов и переключение без щелчков | **IN #734** | `original_sound.c:original_sound_name`; `engine.c:engine_bass_preset_pending` with 512-sample gain ramp. Click-free real audio not qualified. |
+| 11 | Ноты длиннее одного шага | **IN #734** | `seq/sequencer.c` TIE gate, multi-step duration, slide and NoteOff timer. Exact playback tests pending. |
+| 12 | Запись фактической длительности удержания | **IN #734** | `seq/sequencer.c:seq_rec_bass_end` measures actual elapsed time, `engine.c:seq_rec_bass` receives release. Verify device timing. |
+| 13 | Музыкально корректная вероятность | **IN #734** | `seq/sequencer.c` probability skipping suppresses MIDI and respects cycles; drum-step UI routing and exact run untested. |
+| 14 | RANDOM без расхождения с предпросмотром | **IN #734** | `seq/sequencer.c` RANDOM preview without advancing committed RNG; preview/playback regression on #734 NOT_RUN. |
+| 15 | Сохранение cutoff locks при навигации | **NOT BUILT** | Motion and step-lock source exist, but no verified cutoff-lock persistence across navigation/current selection was found. #693 owner should supply exact save/restore proof. |
+| 16 | Жест принадлежит исходной партии до отпускания | **BUILT ELSEWHERE** | External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` captures held SMC Solo/FX gestures. Port only missing ownership-through-release to #734; retain per-peer queue; #736 is partial. |
+| 17 | Безопасный жизненный цикл motion и записи | **IN #734** | `seq/motion.c` rec/hold request lifecycle and stop/load reset; #693 subset integrated. Final concurrent event tests missing. |
+| 18 | Единые внутренние и внешние часы | **IN #734** | `seq/sequencer.c:seq_midi_rt`, `engine.c:seq_clk_drop` source ownership. Verify internal/external clock handover and exact phase. |
+| 19 | Правильные Start Stop Continue и очереди MIDI | **IN #734** | `seq/sequencer.c:seq_midi_rt`, ordered MIDI queue logic, #705 adopted. Full Stop/Continue multi-input replay missing. |
+| 20 | Визуальный метроном от настоящих часов | **IN #734** | `smc_mixer.c:smc_beat_lit` tracks sampled audio clock even when stopped. Real LED/LCD metronome NOT_RUN. |
+| 21 | Синхронные доли Miami и удобный выбор на пэдах | **IN #734** | `ui.c:division_pad_owner`, `division_pad_input`, 8 Miami RATE pads (#702/#711). Four separate SHAPE-pad choices remain absent; test Free Play. |
+| 22 | Legato при записи превращается в slide | **IN #734** | `engine.c:seq_rec_bass` passes `SEQ_REC_LEGATO`; `seq/sequencer.c` slide recorder. External MIDI/real overlap untested. |
+| 23 | Сохранить отдельные модели 909 и 808 | **IN #734** | `engine.h` distinct `T_909`/`T_808`, 11-voice kit identities; #694 guard already adopted. DSP/device proof pending. |
+| 24 | Независимая адаптивная нарезка двух лупов | **IN #734** | `dsp/breaks.c` independent dual-loop adaptive slicing (#689 integrated). Confirm audio and independent slice targets. |
+| 25 | Понятная клавиатурная навигация по срезам | **IN #734** | `ui.c` BREAK slice-navigation physical-key route from #689. Keyboard A/B paging needs real-device test. |
+| 26 | Правильный MIDI выход BREAKS | **IN #734** | `engine.c:brk_midi_events` transmits accepted BREAK hits. Confirm actual MIDI channel and NoteOff paths. |
+| 27 | Pitch Bend для BREAKS | **IN #734** | `engine.c:engine_brk_bend` pitch-bend mailbox to BREAK DSP. Physical bend behavior unverified. |
+| 28 | Jungle stretch вместо HALFTIME | **IN #734** | `dsp/breaks.c` Jungle grain/stretch instead of HALFTIME. Audition and source parity still needed. |
+| 29 | Три выбранных владельцем штатных брейка | **NOT BUILT** | #699 refers to three owner-chosen stock loops, not a qualified byte-matched public set. Requires lawful/authorized sample input and stock bank acceptance; do not invent replacements. |
+| 30 | Читаемый восьмиполосный микшер | **IN #734** | `smc_mixer.c:smc_ui_grid` eight-strip renderer, drum banks. Source exists; screen/device readability unverified. |
+| 31 | Осознанный выбор полосы и режима | **BUILT ELSEWHERE** | External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` holds explicit strip/mode cues (`smc_capture_bank`). Port only missing cues on current SMC code after freeze; do not duplicate #736. |
+| 32 | Физический Pause как context lock с LED | **IN #734** | `smc_mixer.c:smc_lock_button`, `smc_lock_toggle` and LED state. Pause lock exists; locked PAGE real-page peek is external #737. |
+| 33 | Два независимых SMC по Bluetooth | **BUILT ELSEWHERE** | External #735 `chat/enable-two-peer-ble-central@a2e805402292a07ccea464f84309951d06ee267b` enables two links and second peer output. #734 has #687 stack but normal build config is one-peer; port #735 then validate hardware. |
+| 34 | Безопасные отключение и возврат SMC | **IN #734** | `ble/ble_midi_central.c` per-peer reconnect state, `smc_mixer.c:smc_ble_link_slot`. Normal dual-link activation still needs #735. |
+| 35 | Разведение SMC и других контроллеров | **IN #734** | `smc_mixer.c:smc_inputs[SMC_PEERS]` isolates SMC queues and host input. Two-SMC/APC40 overlap and overflow not tested. |
+| 36 | Названия peer и сведения о подключении | **IN #734** | `smc_mixer.c:smc_ui_draw_peer` displays peer labels/status. Requires #735 and actual two devices to certify names. |
+| 37 | Страницы восьмой полосой, банки ручек только Up/Down | **BUILT ELSEWHERE** | External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` has full Page-8 vs encoder-bank Up/Down UX; #734 partial `smc_page_set`/`smc_knob_bank`. Port missing semantics, preserve #717 and #737. |
+| 38 | Индивидуальный drum mixer вторым нажатием Select | **IN #734** | `smc_mixer.c` repeat Select drum routing with `smc_drum_track`. Confirm second press enters correct individual kit mixer. |
+| 39 | Ручки не дублируют фейдеры | **IN #734** | `smc_mixer.c:smc_knob_target` checks `smc_fader_of` to avoid duplicate destination. Physical knob banks/FX path need test. |
+| 40 | Контекст Select и исключение User mode | **BUILT ELSEWHERE** | External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` has context Select/User-mode distinctions; #734 contains baseline Select. Port only missing distinctions, test lock and users. |
+| 41 | Отдельная страница эффектов на микшере | **NOT BUILT** | `smc_mixer.c:smc_fx_load_page` / `smc_fx_caption.h`, #725/#736 cover ROOM/TIGHT/ECHO and LPF/RVB/DLY/MIX/CYC. Owner-approved FX-specific REC/SOLO/other-row map missing even in #688/#736; must recover spec, not invent. |
+| 42 | Полноценный временный SMC экран вместо жёлтой полосы | **IN #734** | `smc_mixer.c:smc_ui_begin`, `smc_ui_draw`, `SMC_UI_MS=1200`: complete temporary eight-strip control screen instead of yellow header. Real page peek separate #737. |
+| 43 | Тихая смена связанного SMC контекста с прибора | **IN #734** | `smc_mixer.c:smc_page_set`, `smc_ui_cancel` adjust destinations silently. Full no-popup keyboard context regression unrun. |
+| 44 | Накопление и отмена ожидаемой смены паттерна | **IN #734** | `smc_mixer.c:smc_pattern_delta` and rewind/forward cue-or-cancel. Additional #688 cue graphics are external but basic behavior in #734. |
+| 45 | Единый pickup и правильный уровень после Unmute | **BUILT ELSEWHERE** | External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` has `smc_unmute_level`; #734 has only base pickup crossing. Port mute-safe restoration/intent, run fader regression. |
+| 46 | Pickup и lock feedback в музыкальном времени | **BUILT ELSEWHERE** | External #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` adds musical-time pickup/lock cues; #734 baseline `smc_beat_lit` only. Port missing feedback without rewriting lock, verify clock wraps. |
+| 47 | Явное надёжное Save Project | **IN #734** | `ui.c` SAVE PROJECT action and `project.c:project_save`. Rev13 readback/atomic integrity tests on current SHA pending. |
+| 48 | Явное безопасное Load Project | **IN #734** | `ui.c` LOAD SAVED confirmation and `project.c:project_load`, `project_file_validate`. Test reject/cancel/unsaved-state safety. |
+| 49 | Раздельные Clear Song и Reset Project | **IN #734** | `ui.c` separate CLEAR SONG and RESET PROJECT; reset warns `SAMPLES ARE KEPT`. Verify saved sample survival. |
+| 50 | Полный переносимый экспорт и импорт проекта | **NOT BUILT** | `web/x0x_projects.js:parseProject` **now accepts 13/13**, `project.c:project_file_validate` enforces it. Full portable rev13 firmware→web→firmware import/export/CRC/atomic roundtrip NOT BUILT/qualified. |
+| 51 | Надёжный backup и restore сэмплов | **IN #734** | `web/x0x_installer.html` slots backup/reselection/verification, `web/x0x_breaks.js`. #690 contains other site-only changes. Device sample restore tests pending. |
+| 52 | Атомарные операции при нескольких клиентах | **NOT BUILT** | `web/device_session.js:withDeviceLock` only locks cooperating browser tabs and explicitly cannot lock unrelated apps. Full multi-client atomic firmware protocol not implemented/proven. |
+| 53 | Не терять данные при смене соединения | **IN #734** | `web/device_session.js:watchDeviceSession` rejects stale connection; local backups retained. Device-side interrupted transfer proof outstanding. |
+| 54 | Явно решить совместимость старого формата проекта | **NOT BUILT** | `project.c:stream_known` permits only revision 13; `web/x0x_projects.js:parseProject` still allows legacy 3/6/7/8/9 schemas at lines 44–46. Remove legacy browser acceptance (no migration), test negatives. |
+| 55 | Полнота восстановления всех прежних сэмплов | **NOT BUILT** | Historical full owner samples absent from public source; #51 backup tool is not restoration of all original sample slots. Requires authorized inventory and byte-complete restore proof. |
+| 56 | Довести именно новый согласованный UI | **NOT BUILT** | #734 has #696 shared UI material, but reviewed full Night composition #638 `lane/opt-reviewed-composition-20261027@5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134` remains unported. Integrate only accepted visuals after freeze; screen acceptance incomplete. |
+| 57 | Обзор реального содержимого всех паттернов | **IN #734** | `app/home_pattern_glyph.h:home_pattern_strength8` and `ui.c` HOME caller from #694 are already in #734. Verify all saved pattern glyphs on actual framebuffer. |
+| 58 | Показывать velocity без потери сильных шагов | **IN #734** | `home_pattern_glyph.h:home_glyph_put` preserves maximum velocity per bin, `ui.c:pat_glyph_row`. Real contrast/legibility still unchecked. |
+| 59 | Больше места музыкальным шагам | **BUILT ELSEWHERE** | External #638 `lane/opt-reviewed-composition-20261027@5f6121cb1f50aedcf72dc93fc33ff8e6c26ab134` checked Night row geometry; port only relevant extra 16-step space, not older BREAK or engine paths; screenshot validation. |
+| 60 | Осмысленные waveform и morph glyphs | **IN #734** | `ui_waveform.h:ui_miami_wave_value` and `ui.c` waveform/morph glyph callers from #696. Raw shape cue is not audio oscilloscope; confirm meaning/ranges. |
+| 61 | Правдивые глифы огибающих и эффектов | **IN #734** | `ui.c` envelope/FX glyph mapping and #696 shared UI material integrated; verify semantic accuracy and all framebuffer states. |
+
+### SMC mixer coverage, including required peeks
+
+| Capability | Fixed #734 code | What exists elsewhere / what remains |
+| --- | --- | --- |
+| Two direct Bluetooth SMCs | Two-peer central/peer state code exists, but the normal compiled target is still one-peer. | #735 `chat/enable-two-peer-ble-central@a2e805402292a07ccea464f84309951d06ee267b` activates link 2 and output slot; real two-device RF/device acceptance NOT_RUN. |
+| Mixer FX page mapping | Three banks ROOM/TIGHT/ECHO; captions LPF/RVB/DLY/MIX/CYC from #725; not full owner mapping. | #688 `wip/mixer-ux@7b2d1726f3515b319d5edcab34529007d33ab3a8` and #736 `chat/mixer-fx-page-port@18f04579abe83719e5822a7698459e00e10f0b6c` provide partial FX UI/held behavior. Correct REC/SOLO/other FX row assignments remain NOT BUILT. |
+| Mixer page vs keyboard page | `smc_page_set`, `smc_page_now`, `smc_knob_bank` and locked independent captured pages exist. | #688 has additional page/bank UX; #737 adds page peeks. Preserve #717 integrated lock behavior. |
+| Pause lock | `smc_lock_toggle`, `smc_lock_button`, captured fader/knob/page targets and LED. | Lock does not temporarily reveal a real page while changing SMC PAGE on current #734. #737 implements that. |
+| Fader real-page peek | 1200-ms temporary **full-strip** feedback, NOT the real FX/MIX page. | #737 `lane/mb-smc-peek-734@2f97c31abb72577380b73b621dd4c8f834e248ac` reveals mapped real page, with compact feedback and live meters. |
+| Knob and HOME-knob peek | Same temporary full-strip feedback; no real mapped-page reveal on HOME knob. | #737 provides real page on HOME knob turn and refresh on further reverb/delay/master turns. |
+| Locked SMC PAGE left/right peek | Captured page can advance while locked, but full-screen feedback is cancelled; no 1200-ms real-page preview. | #737 briefly shows the captured real page and restores the original keyboard page/selection after 1200 ms; lock and targets persist. |
+| Peer guards / restore | Existing queue, UI help/confirmation, navigation and peer guards; no new real-page peek composed here. | #737 scoped contract assertions exist, but full host/Elite/Pro/current framebuffer/device proof still NOT_RUN. |
+
+### Search scope, exclusions and freeze
+
+- Enumerated all **34 open PRs** at intake and paginated branch results for **all `lane/`, `wip/`, `fix/`, `feat/`, `cursor/` names**; inspected relevant GitHub source blobs/PR descriptions. Cross-checked `docs/FEATURE-REGISTRY.md`, prior 122-item `docs/one-build-feature-coverage.md`, and #734 integration log. Enumerating branches does not constitute full bytewise review of every historic tree. Closed #688 is valid source provenance; #638 is a distinct old-base composition.
+- Reuse existing #687 two-peer logic, #717 lock, #725 FX caption, #694 HOME glyphs, selected #693 and website source already integrated. Port only absent behavior from #688/#735/#736/#737/#638 after freeze; never duplicate existing implementation.
+- **FREEZE:** Do not add or merge features into #734 until a single fixed #734 HEAD has full host suite + SDK V1.2.1 Elite + Pro results with **0 FAIL / 0 SKIP**. Source presence in this table is not test PASS. Full tests, both builds, exact DSP goldens, UI framebuffer, two-SMC hardware, restore/install: **NOT_RUN** here.
+- **Read-only code:** no firmware, UI, original/private headers, protected flash, installer/site publication or workflows changed. Excluded retired engines, controller images, raw captures, `.env`, workflow files, binaries. All existing `*_private.h` left untouched. The other auditor's `part2` below is preserved byte-for-byte.
+
+
 ## part2: features 62–122
 
 **Audit source:** [PR #699](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/699) exactly numbered 122-item owner register, `docs/lanes/missing-features-plan.md`. **Target snapshot:** [PR #734](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/734) `integration/all-in-one@8f5999712998fb7a88d08e9d4ea5ae019338d523` (tree `332d43ec29c41100e5ad5e536cb7737a2ddd9597`). Base `wip/one-build@675d75fbd323635f8e3536838c7394924a30ea64` observed separately; #734 may include newer independent fixes not yet on the base. **Feature rows:** 62–122 inclusive, 61 unique IDs. **Totals:** IN #734 41, BUILT ELSEWHERE 1, NOT BUILT 19.
