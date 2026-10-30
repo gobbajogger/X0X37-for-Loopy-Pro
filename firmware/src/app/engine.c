@@ -1325,7 +1325,7 @@ static void drain(void)
     for (int k = 0; k < NBASS; k++) {
         const seq_bass_rec_t *rec = &seq.rec_bass[k];
         if (seq.req_stop || ((seq.req_start || seq.req_cont) && seq.rec_mask) || (rec->active &&
-            (!(seq.rec_mask & (1u << k)) || rec->pat != seq.ppat[TRK_BASS0 + k])) ||
+            (!((seq.rec_mask | (rec->src < 3 ? seq.rec_ext_mask : 0u)) & (1u << k)) || rec->pat != seq.ppat[TRK_BASS0 + k])) ||
             (seq.t[TRK_BASS0 + k].to_off == 1 && bass_held_count[k])) {
             seq_advance(&seq, 0, &SINK);
             break;
