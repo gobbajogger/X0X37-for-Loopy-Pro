@@ -1892,7 +1892,7 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
  * brief, covers state finalization only, and never reinitializes a voice. */
 static void record_finish(void)
 {
-    seq.rec_mask = 0;
+    seq.rec_mask = seq.rec_ext_mask = 0;
     engine_project_hold(1);
     seq.rec_epoch++;
     for (int b = 0; b < NBASS; b++) seq_rec_cancel(&seq, b);
@@ -2443,6 +2443,7 @@ static void set_view(int v)
     /* EDIT may complete a note recorded on SEQ, but accepts no new recorded
      * MIDI/key onset. Keep the two recorder contexts distinct across pages. */
     seq.rec_mask = ui.rec && is_303() && v == V_SEQ ? (uint8_t)(1u << bidx()) : 0;
+    seq.rec_ext_mask = ui.rec ? (uint8_t)((1u << NBASS) - 1u) : 0;
     seq.rec_hold_mask = ui.rec && is_303() && v == V_PART ? (uint8_t)(1u << bidx()) : 0;
     ui.brk_held = -1;
     ui.overlay = O_NONE;
@@ -2831,9 +2832,9 @@ static void drum_rec_write(int k, int v, int s, int accent, uint8_t vel)
 {
     if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
         return;
-    sm_set(cur_pat()->drum[k].hit[v], s);
+    sm_set(pat_of(k)->drum[k].hit[v], s);
     if (accent)
-        sm_set(cur_pat()->drum[k].accent, s);
+        sm_set(pat_of(k)->drum[k].accent, s);
     drum_vel_set_step(k, v, s, vel);
     seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
     mark_dirty();
@@ -2873,17 +2874,18 @@ static void brk_slice_write(brkpart_t *bp, int st, int code)
 }
 
 /* External MIDI recording for 909, 808 and BREAK (engine midi_in queues the note, on the part's own
- * channel, with its record step). Same rule as the keys: REC on, playing, the part selected, SEQ view.
+ * channel, with its record step). REC on and playing: every part records on its own channel at once,
+ * whatever part or view is selected (owner 2026-10-30).
  * The 303s record in the engine (seq_rec_bass). */
 static void ext_rec_drain(void)
 {
     uint32_t ev;
     while (engine_rec_ev_get(&ev)) {
         int part = REC_EV_PART(ev), st = REC_EV_STEP(ev);
-        if (project_busy || !ui.rec || !seq.playing || ui.view != V_SEQ || ui.part != part)
+        if (project_busy || !ui.rec || !seq.playing)
             continue;
         if (part == PART_BRK)
-            brk_slice_write(&cur_pat()->brk, st & 15, REC_EV_VOICE(ev) + 1);
+            brk_slice_write(&pat_of(PART_BRK)->brk, st & 15, REC_EV_VOICE(ev) + 1);
         else if (part < NKIT)
             drum_rec_write(part, REC_EV_VOICE(ev), st, 0, (uint8_t)REC_EV_VEL(ev));
     }
@@ -3967,6 +3969,7 @@ X0X_COLD static void input_body(void)
     }
     seq.rec_mask = ui.rec && is_303() && ui.view == V_SEQ && ui.overlay == O_NONE ?
                    (uint8_t)(1u << bidx()) : 0;
+    seq.rec_ext_mask = ui.rec && ui.overlay != O_ASK ? (uint8_t)((1u << NBASS) - 1u) : 0;
     seq.rec_hold_mask = ui.rec && is_303() && ui.view == V_PART && ui.overlay == O_NONE ?
                         (uint8_t)(1u << bidx()) : 0;
     for (i = 0; i < NBASS; i++)
