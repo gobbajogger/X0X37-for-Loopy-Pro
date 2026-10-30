@@ -943,25 +943,33 @@ static uint32_t brk_local;
 /* External MIDI record events: lock-free single-producer (midi_in) / single-consumer (ui_frame) ring,
  * as midi_in_q. Full: the event is dropped (the note still sounds). */
 #define REC_Q 16u
-static uint32_t rec_q[REC_Q];
+static struct { uint32_t event, generation; } rec_q[REC_Q];
 static volatile uint32_t rec_w, rec_r;
 static void rec_ev_put(uint32_t ev)
 {
-    /* Stopped or REC off at the event time: nothing records. The onset keeps
-     * the REC context it arrived in; the UI drops it if that context ended. */
+    /* Keep the actual audio/UI boundary generation, not a display-frame tag.
+     * New-run and new-pattern onsets can arrive before the next UI drain. */
     if (!seq.playing || !seq.rec_ext_mask || rec_w - rec_r >= REC_Q) return;
-    rec_q[rec_w % REC_Q] = (ev & 0x01ffffffu) | (uint32_t)(seq.rec_ev_tag & 127u) << 25;
+    rec_q[rec_w % REC_Q].event = ev;
+    rec_q[rec_w % REC_Q].generation = seq.rec_ev_gen;
     __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
     rec_w++;
 }
 int engine_rec_ev_get(uint32_t *ev)
 {
-    if (rec_r == rec_w) return 0;
-    __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
-    *ev = rec_q[rec_r % REC_Q];
-    __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
-    rec_r++;
-    return 1;
+    while (rec_r != rec_w) {
+        uint32_t event, generation;
+        __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
+        event = rec_q[rec_r % REC_Q].event;
+        generation = rec_q[rec_r % REC_Q].generation;
+        __asm__ volatile("" ::: "memory");
+        rec_r++;
+        if (generation == seq.rec_ev_gen) {
+            *ev = event;
+            return 1;
+        }
+    }
+    return 0;
 }
 static uint8_t brk_input_channel;
 static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
@@ -1213,6 +1221,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
+    /* Transport packets precede the next note for every part, including kits
+     * whose dispatch returns before the bass path below. */
+    if ((ty == 0x90 || ty == 0x80) && (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont))
+        seq_advance(&seq, 0, &SINK);
     if (ty == 0xe0 && seq.ch[TRK_BRK] == ch) {
         /* Physical gestures own bend until release, otherwise last external
          * source wins. BREAK consumes its channel without live MIDI echo. */
@@ -1246,8 +1258,6 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         if (kit_own && (ty == 0x90 || ty == 0x80))
             return;
     }
-    if ((ty == 0x90 || ty == 0x80) && (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont))
-        seq_advance(&seq, 0, &SINK);
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90 || ty == 0x80) {
@@ -2069,6 +2079,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
+    rec_w = rec_r = 0;
     brk_local = 0;
     brk_midi_count = 0;
     brk_input_channel = 255;

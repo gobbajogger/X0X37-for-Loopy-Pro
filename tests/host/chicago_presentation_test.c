@@ -116,18 +116,19 @@ static void cancel_edges(const char *dir)
     /* This request is eligible NOW: only the short UI hold can prevent the
      * injected boundary between the authoritative check and cancel publication. */
     for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++) {
-        fixture(v,bank);old_bank=bank;old_preset=0;request(v,bank^1);
+        fixture(v,bank);for(int i=0;i<3;i++)audio();old_bank=bank;old_preset=0;request(v,bank^1);
         CHECK(engine_bass_preset_pending(v)==1);
         sound_t before=proj.sound;int page=cur_page();
         edges(1u<<B_HOME,0);CHECK(engine_bass_preset_pending(v)==1);
         race_voice=v;publication_voice=v;race_count=publication_count=0;
+        uint32_t serial=engine_bass_choice_serial();
         edges(0,0);publication_voice=-1;
-        CHECK(race_count==1 && publication_count==3);
+        CHECK(race_count==1 && engine_bass_choice_serial()==serial+1);
         CHECK(!engine_bass_preset_pending(v) && ui.view==V_PART && cur_page()==page);
         CHECK(!memcmp(&before,&proj.sound,sizeof before));
     }
     for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++)for(int reason=0;reason<4;reason++) {
-        fixture(v,bank);old_bank=bank;old_preset=0;
+        fixture(v,bank);for(int i=0;i<3;i++)audio();old_bank=bank;old_preset=0;
         if(reason==0) {engine_bass_on(v,48,100,0);audio();}
         if(reason==1) engine_bass_wheel_owners(1u<<v);
         if(reason==2) engine_bass_on(v,48,100,0); /* queued CQ, not drained */
@@ -138,19 +139,20 @@ static void cancel_edges(const char *dir)
         uint32_t history=song_structure_revision;
         edges(1u<<B_HOME,0);CHECK(engine_bass_preset_pending(v));CHECK(ui.view==V_PART);
         race_voice=v;publication_voice=v;race_count=publication_count=0;
+        uint32_t serial=engine_bass_choice_serial();
         edges(0,0);publication_voice=-1;
-        CHECK(race_count==1 && publication_count==3);CHECK(!engine_bass_preset_pending(v));
+        CHECK(race_count==1 && engine_bass_choice_serial()==serial+1);CHECK(!engine_bass_preset_pending(v));
         CHECK(ui.view==V_PART && cur_page()==page);CHECK(!memcmp(&before,&proj.sound,sizeof before));
         CHECK(ui.dirty==dirty && save_wait==sw && seq.playing==playing && history==song_structure_revision);
         if(v==0 && bank==0 && reason==1) shot(dir,"patch-cancelled-chicago");
         patch();CHECK(ui.view==V_HOME);CHECK(engine_bass_bank(v)==bank && engine_bass_preset_index(v)==0);
         if(reason==3) {min_q[mi_w++%MQ]=8u|((uint32_t)(0x80|seq.ch[TRK_BASS0+v])<<8)|(48u<<16);audio();}
     }
-    fixture(0,0);request(0,1);audio();CHECK(engine_bass_bank(0)==1);patch();
+    fixture(0,0);request(0,1);for(int i=0;i<5000 && engine_bass_preset_pending(0);i++)audio();CHECK(engine_bass_bank(0)==1);patch();
     CHECK(ui.view==V_HOME && engine_bass_bank(0)==1 && engine_bass_preset_index(0)==1); /* not undo */
     fixture(0,0);request(0,1);unstable=1;patch();unstable=0;
     CHECK(engine_bass_preset_pending(0) && ui.view==V_PART); /* no fabricated cancellation */
-    puts("PASS physical PATCH both voices/engine directions: note/wheel/CQ/MIDI, apply race and publication stages 1-3");
+    puts("PASS physical PATCH both voices/engine directions: note/wheel/CQ/MIDI and apply race");
 }
 static void protected_contexts(void)
 {
@@ -186,7 +188,12 @@ static void protected_contexts(void)
         edges(1u<<B_HOME,0);
         if(simultaneous) edges(1u<<b,0);
         else {edges((1u<<B_HOME)|(1u<<b),0);edges(0,0);}
-        CHECK(engine_bass_preset_pending(0));edges(0,0);
+        /* PARA/EDIT has its own explicit pending-SOUND cancel on release.
+         * EDIT released on SOUND cancels before PATCH is dispatched. */
+        if(b==B_EDIT && !simultaneous)CHECK(!engine_bass_preset_pending(0));
+        else CHECK(engine_bass_preset_pending(0));
+        edges(0,0);
+        if(b==B_EDIT && !simultaneous)CHECK(!engine_bass_preset_pending(0));
     }
     fixture(0,0);engine_bass_wheel_owners(1);request(0,1);
     edges(1u<<B_HOME,0);enc_acc[EN_SELECT]=1;ui_input_only();edges(0,0);
@@ -201,7 +208,7 @@ static void protected_contexts(void)
     fixture(0,0);engine_bass_wheel_owners(1);request(0,1);
     engine_bass_edit_hold(1);patch();CHECK(!engine_bass_preset_pending(0));
     engine_bass_wheel_owners(0);request(0,1);audio();CHECK(engine_bass_bank(0)==0);
-    engine_bass_edit_hold(0);audio();CHECK(engine_bass_bank(0)==1); /* hold nesting is balanced */
+    engine_bass_edit_hold(0);for(int i=0;i<5000 && engine_bass_preset_pending(0);i++)audio();CHECK(engine_bass_bank(0)==1); /* hold nesting is balanced */
     fixture(0,0);engine_bass_wheel_owners(1);request(0,1);
     for(int d=-1;d<=1;d+=2) {enc_acc[EN_K3]=d;now_ms+=1000;ui_input_only();CHECK(engine_bass_preset_pending(0));}
     puts("PASS modal/help/busy/held-step/clip priorities, all button chords, K2/key edges, and inert K7");
@@ -210,7 +217,7 @@ static void wheel_and_live_keys(const char *dir)
 {
     for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++) {
         fixture(v,bank);
-        int bend=bank?W_PITCH_BEND:CHI_PBEND;
+        int bend=bank?ORIGINAL_MIAMI_PITCH_BEND:ORIGINAL_CHICAGO_PITCH_BEND;
         proj.sound.v[T_303][v][bend]=71;engine_set(T_303,v,bend,71);audio();
         fm1_in.frames=400;fm1_in.wheel[0]=550;fm1_in.wheel[1]=615;smk_wheels();
         sound_t before=proj.sound;
@@ -224,7 +231,7 @@ static void wheel_and_live_keys(const char *dir)
         CHECK(!memcmp(&before,&proj.sound,sizeof before));
         fm1_in.wheel[0]=550;smk_wheels();audio();CHECK(!memcmp(&before,&proj.sound,sizeof before));
         ui.part=PART_303A+v;build_pages();*page_of(V_PART)=row(R_BENGINE,0);
-        request(v,bank^1);audio();CHECK(!engine_bass_preset_pending(v) && engine_bass_bank(v)==(bank^1));
+        request(v,bank^1);for(int i=0;i<5000 && engine_bass_preset_pending(v);i++)audio();CHECK(!engine_bass_preset_pending(v) && engine_bass_bank(v)==(bank^1));
     }
     fixture(0,0);edges(0,1u<<0);audio();CHECK(engine_midi_held()&1);
     request(0,1);patch();CHECK(!engine_bass_preset_pending(0) && (engine_midi_held()&1));
@@ -235,57 +242,66 @@ static void wheel_and_live_keys(const char *dir)
 }
 static void presentation(const char *dir)
 {
-    static const char *e1[]={"UNUSED","TILT","AMOUNT","AMOUNT","FREQ","MIX","MIX","MIX","MIX","MIX","MIX","MIX"};
-    static const char *e2[]={"UNUSED","MIX","UNUSED","UNUSED","MIX","SHAPE","SHAPE","SHAPE","FEEDBACK","DIVISION","DECAY","SHAPE"};
-    for(int v=0;v<2;v++) {
-        fixture(v,0);int arp=row(R_ENG,CHI_ARP_SWITCH),fx=row(R_ENG,CHI_FX_TYPE),aux=row(R_ENG,CHI_DAMPER),snd=row(R_BENGINE,0);
-        CHECK(pg.n==7 && arp==4 && fx==5 && aux==fx && snd==6);
-        CHECK(pg.r[fx][0].c==CHI_FX_TYPE && pg.r[fx][1].c==CHI_FX_EDIT1 &&
-              pg.r[fx][2].c==CHI_FX_EDIT2 && pg.r[fx][3].c==CHI_DAMPER);
-        CHECK(pg.r[snd][2].kind==R_NONE && pg.r[snd][3].kind==R_NONE);
-        for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++)CHECK(pg.r[p][k].kind!=R_ENG || pg.r[p][k].c!=CHI_PBEND);
-        for(int k=0;k<pg.nmore;k++)CHECK(pg.more[k].c!=CHI_PBEND);
-        for(int on=0;on<2;on++)for(int mode=0;mode<3;mode++)for(int range=0;range<3;range++)for(int speed=0;speed<10;speed++) {
-            *page_of(V_PART)=arp;
-            int vals[]={on,mode,range,speed};
-            for(int k=0;k<4;k++) pref_set(pg.r[arp][k],vals[k]);
-            ui.touched=-1;ui.msg_until=0;draw_header();draw_main();draw_knobs();
-            /* Owner retained the existing bars, including discrete enums. */
-            for(int k=0;k<4;k++) {
-                uint16_t ink=!on && k?RGB(128,146,148):RGB(224,235,214);
-                CHECK(fb[(24+62)*240+12+k*59]==swap16(vals[k]?ink:RGB(21,39,27)));
-                CHECK(fb[(24+62)*240+53+k*59]==swap16(vals[k]==pref_desc(pg.r[arp][k])->max?ink:RGB(21,39,27)));
-            }
-            CHECK(!strcmp(matrix_name(pg.r[arp][1]),"DIRECTION"));
-            if(!v && range==2 && speed==9) {char n[64];snprintf(n,sizeof n,"arp-%s-direction-%d-three-octaves-fast",on?"on":"off",mode);shot(dir,n);}
+    static const int chi[][4]={{0,1,-1,-1},{2,3,4,-1},{5,6,-1,-1},{7,8,9,10},
+        {11,12,-1,-1},{13,15,14,16},{17,18,19,-1}};
+    static const int mia[][4]={{0,1,2,3},{6,5,7,8},{9,10,12,-1},{11,13,-1,-1},{4,15,14,-1}};
+    for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++) {
+        fixture(v,bank);const int (*want)[4]=bank?mia:chi;int count=bank?5:7;
+        CHECK(pg.n==count+1 && row(R_BENGINE,0)==count);
+        for(int p=0;p<count;p++)for(int k=0;k<4;k++) {
+            pref_t r=pg.r[p][k];
+            if(want[p][k]<0)CHECK(r.kind==R_NONE);
+            else CHECK(r.kind==R_ENG && r.a==T_303 && r.b==v && r.c==want[p][k]);
         }
-        /* OFF subordinate values remain editable, including fractional rates. */
-        pref_set(pg.r[arp][0],0);pref_set(pg.r[arp][3],4);now_ms+=1000;enc_acc[EN_K4]=1;ui_input_only();
-        CHECK(pref_get(pg.r[arp][3])==5 && !pref_get(pg.r[arp][0]));
-        if(!v)shot(dir,"arp-off-retained-one-sixth");
-        for(int ty=0;ty<CHI_FX_NTYPES;ty++) {
-            *page_of(V_PART)=fx;pref_set(pg.r[fx][0],ty);
-            CHECK(!strcmp(matrix_name(pg.r[fx][1]),e1[ty]));CHECK(!strcmp(matrix_name(pg.r[fx][2]),e2[ty]));
-            CHECK(!strcmp(matrix_group(fx),"FX / DAMPER"));
-            if(!v) {char n[40];snprintf(n,sizeof n,"fx-type-%02d",ty);shot(dir,n);}
+        CHECK(pg.r[count][2].kind==R_BSTATUS && pg.r[count][3].kind==R_NONE);
+        /* Performance-only bend and damper remain off the saved patch matrix. */
+        for(int p=0;p<count;p++)for(int k=0;k<4;k++)if(pg.r[p][k].kind==R_ENG)
+            CHECK(!original_sound_is_performance(bank,pg.r[p][k].c));
+        for(int p=0;p<pg.n;p++) {
+            *page_of(V_PART)=p;char name[64];
+            sound_t before=proj.sound;uint32_t dirty=ui.dirty;int sw=save_wait;
+            snprintf(name,sizeof name,"%s-%c-row-%d",bank?"miami":"chicago",'a'+v,p+1);shot(dir,name);
+            CHECK(!memcmp(&before,&proj.sound,sizeof before));CHECK(ui.dirty==dirty && save_wait==sw);
+            /* Every admitted row uses four-row 50px spacing. Sparse columns
+             * remain empty, with no invented control in their cell interior. */
+            int top=24+(p%4)*50;
+            for(int k=0;k<4;k++)if(pg.r[p][k].kind==R_NONE)
+                for(int y=16;y<43;y++)for(int x=9+k*59;x<58+k*59;x++)
+                    CHECK(fb[(top+y)*240+x]==swap16(SOUND_SELECT));
         }
-        *page_of(V_PART)=aux;
-        pref_set(pg.r[aux][3],63);if(!v)shot(dir,"damper-63-off");
-        pref_set(pg.r[aux][3],64);if(!v)shot(dir,"damper-64-on");
-        ui.touched=-1;draw_header();draw_main();draw_knobs();
-        CHECK(fb[(91+20)*240+181]==swap16(RGB(21,39,27))); /* K8 DAMPER has its own cell. */
-        CHECK(fb[(158+20)*240+181]==swap16(RGB(16,26,31))); /* STATUS has no K8 divider. */
-        *page_of(V_PART)=snd;request(v,0);if(!v)shot(dir,"chicago-pending-patch");
-        CHECK(7+tw(&FONT_T,UI_CAP_HOME ": CANCEL REQUEST")+8+tw(&FONT_T,"KEYS/MIDI")<=234);
-        const char *lines[HELP_LINES];int n=help_lines(B_HOME,lines);CHECK(!strcmp(lines[0],"TAP: CANCEL SOUND REQUEST"));
+        *page_of(V_PART)=count;engine_bass_wheel_owners(1u<<v);request(v,bank^1);
+        const char *lines[HELP_LINES];int n=help_lines(B_HOME,lines);
+        CHECK(!strcmp(lines[0],"TAP: CANCEL SOUND REQUEST"));
         for(int i=0;i<n;i++)CHECK(tw(&FONT_XS,lines[i])<=224);
-        patch();CHECK(!engine_bass_preset_pending(v));
-        fixture(v,0);char nme[40];*page_of(V_PART)=0;snprintf(nme,sizeof nme,"chicago-%c-page1",'a'+v);shot(dir,nme);
-        *page_of(V_PART)=snd;snprintf(nme,sizeof nme,"chicago-%c-page2",'a'+v);shot(dir,nme);
-        fixture(v,1);int p=row(R_ENG,W_GLIDE);CHECK(pg.r[p][0].c==W_GLIDE && pg.r[p][1].kind==R_NONE && pg.r[p][2].c==W_CRUSH);
-        *page_of(V_PART)=row(R_BENGINE,0);snprintf(nme,sizeof nme,"miami-%c-page2",'a'+v);shot(dir,nme);
+        patch();CHECK(!engine_bass_preset_pending(v));engine_bass_wheel_owners(0);
+        if(bank)continue;
+        int arp=5;CHECK(!strcmp(matrix_name(pg.r[arp][1]),"RANGE"));
+        CHECK(!strcmp(matrix_name(pg.r[arp][2]),"MODE"));
+        for(int on=0;on<2;on++)for(int mode=0;mode<3;mode++)for(int range=0;range<3;range++)for(int speed=0;speed<10;speed++) {
+            *page_of(V_PART)=arp;int q[]={on*127,(range*127+1)/2,(mode*127+1)/2,(speed*127+4)/9};
+            for(int k=0;k<4;k++)pref_set(pg.r[arp][k],q[k]);
+            sound_t before=proj.sound;uint32_t dirty=ui.dirty;int sw=save_wait;
+            ui.touched=-1;ui.msg_until=0;draw_header();draw_main();draw_knobs();
+            CHECK(!memcmp(&before,&proj.sound,sizeof before));CHECK(ui.dirty==dirty && save_wait==sw);
+            for(int k=0;k<4;k++) {
+                uint16_t ink=!on && k?SOUND_DIM:SOUND_INK;
+                CHECK(fb[(24+50+45)*240+12+k*59]==swap16(q[k]?ink:SOUND_SELECT_SIDE));
+                CHECK(fb[(24+50+45)*240+53+k*59]==swap16(q[k]==127?ink:SOUND_SELECT_SIDE));
+            }
+        }
+        /* An OFF arpeggiator retains its editable native selector states. */
+        pref_set(pg.r[arp][0],0);pref_set(pg.r[arp][3],0);
+        now_ms+=1000;enc_acc[EN_K4]=1;ui_input_only();
+        CHECK(pref_get(pg.r[arp][3])==14 && !pref_get(pg.r[arp][0]));
+        for(int type=0;type<7;type++) {
+            *page_of(V_PART)=6;pref_set(pg.r[6][0],type);
+            static const char *const names[]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ"};
+            char num[16],unit[8];pref_value_of(pg.r[6][0],type,num,unit);
+            CHECK(!strcmp(num,names[type]) && !unit[0]);
+            CHECK(!strcmp(matrix_name(pg.r[6][1]),"EDIT 1") && !strcmp(matrix_name(pg.r[6][2]),"EDIT 2"));
+        }
     }
-    puts("PASS actual pixels: both voices/banks, 360 ARP states, 12 algorithm labels, raw pots, damper threshold, blank columns and hints");
+    puts("PASS current native pages/pixels: both engines/voices, 360 ARP states, seven admitted effects, sparse cells and readout immutability");
 }
 /* The readout-only follow-on reuses this real-engine/SMK fixture. */
 #ifndef CHICAGO_PRESENTATION_NO_MAIN

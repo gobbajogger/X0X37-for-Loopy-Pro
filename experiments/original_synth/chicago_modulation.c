@@ -31,7 +31,8 @@ int original_mod_events(original_mod_queue *q,const original_mod_event *e,uint32
  *q=(original_mod_queue){e,n,0};return 1;
 }
 void original_chicago_ring_init(original_chicago_ring *s){
- if(!s)return;memset(s,0,sizeof *s);s->edit1=s->edit2=64;s->dirty=1;
+ if(!s)return;
+ memset(s,0,sizeof *s);s->edit1=s->edit2=64;s->dirty=1;
  s->pending_frequency=asr(mod_linear[64]*3,3);s->pending_wet=mod_linear[64];
 }
 void original_chicago_ring_reset(original_chicago_ring *s){if(s){s->frequency_acc=shl(s->frequency,15);s->wet_acc=shl(s->wet,15);s->phase=0;}}
@@ -41,7 +42,8 @@ int original_chicago_ring_set(original_chicago_ring *s,unsigned p,unsigned v){
  s->pending_frequency=asr(mod_linear[s->edit1]*3,3);s->pending_wet=mod_linear[s->edit2];s->dirty=1;return 1;
 }
 int original_chicago_ring_process(original_chicago_ring *s,int16_t *l,int16_t *r,uint32_t n){
- if(!s||(n&&(!l||!r||l==r)))return 0;if(!n)return 1;
+ if(!s||(n&&(!l||!r||l==r)))return 0;
+ if(!n)return 1;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_ring_reset(s);s->queue.cursor++;}
   if(!(i&63u)&&s->dirty){s->frequency=s->pending_frequency;s->wet=s->pending_wet;s->dirty=0;}
@@ -56,21 +58,25 @@ int original_chicago_ring_process(original_chicago_ring *s,int16_t *l,int16_t *r
   l[i]=out[0];r[i]=out[1];
  }return 1;
 }
-int original_chicago_chorus_init(original_chicago_chorus *s,int16_t *l,int16_t *r){
- if(!s||!l||!r||l==r)return 0;memset(s,0,sizeof *s);s->left=l;s->right=r;s->dirty=1;
+int original_chicago_chorus_init(original_chicago_chorus *s,int16_t l[1024],int16_t r[1024]){
+ if(!s||!l||!r||l==r)return 0;
+ memset(s,0,sizeof *s);s->left=l;s->right=r;s->dirty=1;
  memset(l,0,1024*sizeof *l);memset(r,0,1024*sizeof *r);return 1;
 }
 void original_chicago_chorus_reset(original_chicago_chorus *s){
- if(!s)return;memset(s->left,0,1024*sizeof *s->left);memset(s->right,0,1024*sizeof *s->right);s->modulator[0]=s->modulator[1]=0;
+ if(!s)return;
+ memset(s->left,0,1024*sizeof *s->left);memset(s->right,0,1024*sizeof *s->right);s->modulator[0]=s->modulator[1]=0;
  s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;/* original head is preserved */
 }
 int original_chicago_chorus_set(original_chicago_chorus *s,unsigned p,unsigned v){
- if(!s||v>127||(p!=2&&p!=3))return 0;if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
+ if(!s||v>127||(p!=2&&p!=3))return 0;
+ if(p==2)s->edit1=(uint8_t)v;else s->edit2=(uint8_t)v;
  s->pending_speed=mod_speed[s->edit1];s->pending_feedback=mod_feedback[s->edit2];s->pending_wet=mod_wet[s->edit2];s->dirty=1;return 1;
 }
 static int32_t feedback_twice(int32_t y){int32_t a=sub(shl(y,1),shl(y,15));for(unsigned j=0;j<2;j++)a=sub(shl(asr(a,15),1),si((uint32_t)a&0xffff8000u));return asr(a,15);}
 int original_chicago_chorus_process(original_chicago_chorus *s,int16_t *l,int16_t *r,uint32_t n){
- if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;if(!n)return 1;
+ if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;
+ if(!n)return 1;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_chorus_reset(s);s->queue.cursor++;}
   if(!(i&63u)&&s->dirty){s->speed=s->pending_speed;s->feedback=s->pending_feedback;s->wet=s->pending_wet;s->dirty=0;}
@@ -89,17 +95,21 @@ int original_chicago_chorus_process(original_chicago_chorus *s,int16_t *l,int16_
  }return 1;
 }
 void original_chicago_phaser_init(original_chicago_phaser *s){
- if(!s)return;memset(s,0,sizeof *s);s->edit1=30;s->edit2=63;s->speed=mod_speed[30];s->modulation=asr(mul(mod_linear[63],16102),15);
+ if(!s)return;
+ memset(s,0,sizeof *s);s->edit1=30;s->edit2=63;s->speed=mod_speed[30];s->modulation=asr(mul(mod_linear[63],16102),15);
  int32_t x=asr(sub(shl(mod_linear[120],15),mod_linear[120]),15);s->depth=(int32_t)((uint32_t)mul(x,x)>>15);s->feedback=asr(mul(mod_ph_feedback[40],32440),15);s->wet=mod_linear[64];
 }
 void original_chicago_phaser_reset(original_chicago_phaser *s){
- if(!s)return;memset(s->history,0,sizeof s->history);s->depth_acc=shl(s->depth,15);s->modulation_acc=shl(s->modulation,15);s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;
+ if(!s)return;
+ memset(s->history,0,sizeof s->history);s->depth_acc=shl(s->depth,15);s->modulation_acc=shl(s->modulation,15);s->feedback_acc=shl(s->feedback,15);s->wet_acc=shl(s->wet,15);s->phase=0;
 }
 int original_chicago_phaser_set(original_chicago_phaser *s,unsigned p,unsigned v){
- if(!s||v>127||(p!=2&&p!=3))return 0;if(p==2){s->edit1=(uint8_t)v;s->speed=mod_speed[v];}else{s->edit2=(uint8_t)v;s->modulation=asr(mul(mod_linear[v],16102),15);}return 1;
+ if(!s||v>127||(p!=2&&p!=3))return 0;
+ if(p==2){s->edit1=(uint8_t)v;s->speed=mod_speed[v];}else{s->edit2=(uint8_t)v;s->modulation=asr(mul(mod_linear[v],16102),15);}return 1;
 }
 int original_chicago_phaser_process(original_chicago_phaser *s,int16_t *l,int16_t *r,uint32_t n){
- if(!s||(n&&(!l||!r||l==r)))return 0;if(!n)return 1;
+ if(!s||(n&&(!l||!r||l==r)))return 0;
+ if(!n)return 1;
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_phaser_reset(s);s->queue.cursor++;}
   int32_t k=s->activity?32767:102;s->depth_acc=smooth(s->depth_acc,s->depth,k);s->modulation_acc=smooth(s->modulation_acc,s->modulation,k);s->feedback_acc=smooth(s->feedback_acc,s->feedback,k);s->wet_acc=smooth(s->wet_acc,s->wet,k);s->phase=add(s->phase,s->speed);
@@ -155,10 +165,12 @@ int original_chicago_ensemble_init(original_chicago_ensemble *s,float *l,float *
  memset(s,0,sizeof *s);s->left=l;s->right=r;s->slots=slots;s->spread=1;s->dirty=1;ensemble_phases(s);return 1;
 }
 void original_chicago_ensemble_reset(original_chicago_ensemble *s){
- if(!s)return;s->head=0;s->written=0;s->depth=44100.0f*fl(0x3ad1b717);s->spread=1;ensemble_phases(s);
+ if(!s)return;
+ s->head=0;s->written=0;s->depth=44100.0f*fl(0x3ad1b717);s->spread=1;ensemble_phases(s);
 }
 int original_chicago_ensemble_set(original_chicago_ensemble *s,unsigned p,unsigned value){
- if(!s||value>127||(p!=2&&p!=3))return 0;if(p==2)s->edit1=(uint8_t)value;else s->edit2=(uint8_t)value;
+ if(!s||value>127||(p!=2&&p!=3))return 0;
+ if(p==2)s->edit1=(uint8_t)value;else s->edit2=(uint8_t)value;
  s->pending_depth=(float)s->edit1/127.0f;s->pending_spread=(float)s->edit2/127.0f;s->dirty=1;return 1;
 }
 static int ensemble_history(const original_chicago_ensemble *s,unsigned channel,uint32_t index,unsigned current,float *out){
@@ -199,7 +211,8 @@ static void ensemble_latch(original_chicago_ensemble *s){
  s->delta_depth=a*fl(0x3b03126f);float b=s->pending_spread*s->pending_spread;b=b+1.0f;s->delta_spread=b*fl(0x3b03126f);s->dirty=0;
 }
 int original_chicago_ensemble_process(original_chicago_ensemble *s,int16_t *l,int16_t *r,uint32_t n){
- if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;if(!n)return 1;
+ if(!s||(n&&(!l||!r||l==r||!s->left||!s->right)))return 0;
+ if(!n)return 1;
  const float inc[2]={0x1.ee91040000000p-12f,0x1.9adee00000000p-16f};/* generated actual float32(20.8/Fs),float32(1.08/Fs), checked by producer */
  for(uint32_t i=0;i<n;i++){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=i){if(s->queue.events[s->queue.cursor].type==4)original_chicago_ensemble_reset(s);s->queue.cursor++;}

@@ -1138,8 +1138,11 @@ static void smc_toggle_fx(int which)
 
 static void smc_record_toggle(void)
 {
+    record_finish();                  /* queued external notes must not cross a REC boundary */
     bass_step_cancel();                /* panel REC does this before key-up changes from step to note */
     ui.rec = !ui.rec;
+    /* SMC may toggle after input() has already published this frame's mask. */
+    seq.rec_ext_mask = ui.rec && !project_busy && ui.overlay != O_ASK ? (uint8_t)((1u << NBASS) - 1u) : 0;
     if (ui.rec && is_303())
         ui.wpos[bidx()] = 0;
     smc.rec_part = ui.part;

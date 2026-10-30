@@ -1895,6 +1895,7 @@ static void record_finish(void)
     seq.rec_mask = seq.rec_ext_mask = 0;
     engine_project_hold(1);
     seq.rec_epoch++;
+    seq.rec_ev_gen++;
     for (int b = 0; b < NBASS; b++) seq_rec_cancel(&seq, b);
     engine_project_hold(0);
 }
@@ -2138,6 +2139,7 @@ static void perf_build(void)
 static void perf_restore(void)
 {
     int p;
+    record_finish();
     seq.pat = perf.pat;
     for (p = 0; p < NPARTS; p++) {
         seq.ppat[p] = perf.ppat[p];
@@ -2193,6 +2195,7 @@ static void perf_test_tick(void)
     case 0:                                           /* stopped: swap in the test's patterns and sound */
         if (seq.playing || seq.req_stop)              /* (a pending stop would cancel the start below) */
             return;
+        record_finish();
         perf_build();                                 /* here, after the last save that can run (PERF_SCRATCH) */
         for (p = 0; p < NPARTS; p++) {
             seq.ppat[p] = 0;
@@ -2877,36 +2880,23 @@ static void brk_slice_write(brkpart_t *bp, int st, int code)
  * channel, with its record step). REC on and playing: every part records on its own channel at once,
  * whatever part or view is selected (owner 2026-10-30).
  * The 303s record in the engine (seq_rec_bass). */
-/* The external REC context: REC, the transport run and the drum/BREAK patterns.
- * Any change starts a new tag; onsets queued under an older tag are stale. */
-static void ext_rec_context(void)
-{
-    static uint8_t last[NKIT + 4], have;
-    uint8_t now[NKIT + 4];
-    int i, n = 0;
-    now[n++] = (uint8_t)(!!ui.rec | !!seq.playing << 1);
-    now[n++] = seq.run_gen;
-    now[n++] = seq.ppat[PART_BRK];
-    for (i = 0; i < NKIT; i++)
-        now[n++] = seq.ppat[i];
-    if (!have || memcmp(now, last, (size_t)n)) {
-        memcpy(last, now, (size_t)n);
-        have = 1;
-        seq.rec_ev_tag = (uint8_t)((seq.rec_ev_tag + 1u) & 127u);
-    }
-}
 static void ext_rec_drain(void)
 {
-    uint32_t ev;
-    ext_rec_context();
-    while (engine_rec_ev_get(&ev)) {
-        int part = REC_EV_PART(ev), st = REC_EV_STEP(ev);
-        if (project_busy || !ui.rec || !seq.playing || REC_EV_TAG(ev) != seq.rec_ev_tag)
-            continue;
-        if (part == PART_BRK)
-            brk_slice_write(&pat_of(PART_BRK)->brk, st & 15, REC_EV_VOICE(ev) + 1);
-        else if (part < NKIT)
-            drum_rec_write(part, REC_EV_VOICE(ev), st, 0, (uint8_t)REC_EV_VEL(ev));
+    if (project_busy) return;
+    for (;;) {
+        uint32_t ev, state = plat_cq_lock();
+        int have = engine_rec_ev_get(&ev);
+        /* Audio owns pattern/transport changes. Keep validation and this one
+         * pattern write in the same source-mask transaction, without muting. */
+        if (have && ui.rec && seq.playing) {
+            int part = REC_EV_PART(ev), st = REC_EV_STEP(ev);
+            if (part == PART_BRK)
+                brk_slice_write(&pat_of(PART_BRK)->brk, st & 15, REC_EV_VOICE(ev) + 1);
+            else if (part < NKIT)
+                drum_rec_write(part, REC_EV_VOICE(ev), st, 0, (uint8_t)REC_EV_VEL(ev));
+        }
+        plat_cq_unlock(state);
+        if (!have) break;
     }
 }
 
@@ -4207,6 +4197,7 @@ static void input(void)
 {
     live_boundary(1);
     input_body();
+    seq.rec_ext_mask = ui.rec && !project_busy && ui.overlay != O_ASK ? (uint8_t)((1u << NBASS) - 1u) : 0;
     live_boundary(0);
 }
 

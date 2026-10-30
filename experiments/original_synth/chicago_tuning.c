@@ -42,7 +42,8 @@ int original_chicago_tuning_target(original_chicago_tuning *s,int32_t raw,float 
   int32_t index=(raw-(int32_t)s->tonic)%12;
   offset=fl((s->scale==2?original_chicago_scale2_bits:original_chicago_scale3_bits)[index+11]);
  }else if(s->scale>=4){
-  if(!s->custom_offsets)return 0;offset=s->custom_offsets[((unsigned)s->scale-4)*12+(unsigned)(raw%12)];
+  if(!s->custom_offsets)return 0;
+  offset=s->custom_offsets[((unsigned)s->scale-4)*12+(unsigned)(raw%12)];
  }
  *out=(float)raw+offset;return 1;
 }

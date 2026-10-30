@@ -243,8 +243,7 @@ uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
 #define REC_EV_VOICE(e) ((int)(((e) >> 4) & 63u))
 #define REC_EV_VEL(e) ((int)(((e) >> 10) & 127u))
 #define REC_EV_STEP(e) ((int)(((e) >> 17) & 255u))
-#define REC_EV_TAG(e) ((unsigned)((e) >> 25) & 127u)   /* the REC context at the event (seq.rec_ev_tag) */
-int engine_rec_ev_get(uint32_t *ev);   /* 1 = an event was taken */
+int engine_rec_ev_get(uint32_t *ev);   /* 1 = a current-generation event was taken; stale entries are dropped */
 int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */

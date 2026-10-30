@@ -17,7 +17,6 @@ import tempfile
 REFERENCE_INPUTS = (
     ("drum909", "NINEW9_DIR", "../schwung-9W9", "src/dsp/er99_engine.c"),
     ("drum808", "EIGHTW8_DIR", "../schwung-8W8", "src/dsp/sc808_engine.cpp"),
-    ("bass303", "SCHWUNG303", "../schwung-303", "src/dsp/open303/rosic_Open303.cpp"),
     ("sequencer", "TB3PO_REF", "../schwung-tb3po/src/dsp/tb3po.c", ""),
 )
 
