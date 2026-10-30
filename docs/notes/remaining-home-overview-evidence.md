@@ -36,3 +36,14 @@ No decorative or hypothetical hits are inserted.
 - An actual candidate-pinned HOME framebuffer preview and current-source
   renderer build are required before declaring full visual acceptance. Neither
   historical screenshots nor these pure host tests replace that proof.
+
+## Exact-header host recheck
+
+The host test source `tests/host/home_pattern_glyph_test.c` and helper header are identical to the pushed Git blobs (`237b2bb6a921cf4c46a5d4c23c6da75dd1319d65` and `065933fc65074b196aa70c97cd24d937fe1ec515`). GitHub's live `nightly` headers `pattern.h` (`19dc003c8bc3e43d94dd4b4e9c1c068030a84cd2`) and `motion.h` (`157b43e9ef0dbbbbd18fbf3ec205963814bb2cfd`) were reconstructed locally and confirmed by `git hash-object` before running:
+
+```sh
+CC=gcc HOME_GLYPH_OUT=build/host/home-glyph-exact-headers-gcc sh tests/host/home_pattern_glyph_test.sh
+CC='clang -fsanitize=undefined -fno-sanitize-recover=all' HOME_GLYPH_OUT=build/host/home-glyph-exact-headers-clangubsan sh tests/host/home_pattern_glyph_test.sh
+```
+
+Both returned exit 0 and printed `PASS home_pattern_glyph`. The test reads only those exact headers and uses the actual new helper. This is **scoped host PASS** for the data projection, not proof of the full current firmware, current-HEAD UI framebuffer output, animation or physical rendering. Those are still **NOT_RUN**.
