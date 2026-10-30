@@ -20,12 +20,14 @@ if [ "$(uname -s)" = Darwin ]; then HOST_DEFS="$HOST_DEFS -D_DARWIN_C_SOURCE"; f
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -DX0X_HOST $HOST_DEFS \
     -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen $ORIGINAL_FLAGS \
     -Dengine_set=wheel_real_engine_set -Dengine_set_base=wheel_real_engine_set_base \
+    -Dengine_bass_mod=wheel_real_engine_bass_mod -Dengine_bass_mod_param=wheel_real_engine_bass_mod_param \
     -c firmware/src/app/engine.c -o "$OUT/engine.o"
 # shellcheck disable=SC2086
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra \
     -Wno-unused-function -Wno-unused-parameter -DX0X_HOST $HOST_DEFS \
     -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     -Dengine_set=wheel_test_engine_set -Dengine_set_base=wheel_test_engine_set_base \
+    -Dengine_bass_mod=wheel_test_engine_bass_mod -Dengine_bass_mod_param=wheel_real_engine_bass_mod_param \
     "-DX0X_HOST_SOURCE=\"$SRC/host/x0x_host.c\"" \
     "-DSMC_MIXER_SOURCE=\"$SRC/firmware/src/app/smc_mixer.c\"" \
     "$TEST_ROOT/tests/host/smk_wheel_mode_test.c" $ORIGINAL_FLAGS $U "$OUT/engine.o" -lm -o "$OUT/probe"
