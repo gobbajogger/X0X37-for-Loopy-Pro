@@ -69,3 +69,11 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
   - #651: conflicts ui.c, test_builtin_break_output.py, ui_shared_glyph_test.c, run_tests.sh; brings wobble.c (forbidden).
   - #638: conflicts ui.c, test_builtin_break_output.py, ui_shared_glyph_test.c; brings wobble.c (forbidden).
   - cursor/smc-mixer-ui-popup-stage6-blocked-8e03: conflicts BEHAVIOR.md, smc_mixer.c, smc_drum_rs_test.c, smc_feedback_test.py, smc_reachability_test.c, run_tests.sh.
+
+## Cleanup 2026-10-30 (removed binaries and logs)
+- Removed evidence/final-wbl1-tip-packages/elite/ctl.img: sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a, size 65492 bytes.
+- Removed capture logs: evidence/smc-stage2/capture.log, evidence/smc-stage3/receive-diag/*capture.log, cloud-handoff/**/capture-replay*.log.
+- Removed cloud-handoff/2026-10-20/cloud_setup_20261020/environment-values.env.
+- Kept bass303 (src/dsp/bass303.c/.h and its tests): engine.c, ui.c, project.c, chicago_env.h and synth_engine.h use it as the Chicago voice. To remove it, we must change feature code. The owner must decide.
+- Kept experiments/wobble/wobble.c: tools/build.py and about 25 host tests link it (Miami engine). The owner must decide.
+- No .github/workflows files are in the tree.
