@@ -11,8 +11,8 @@
 #define ORIGINAL_SOUND_CHICAGO_ID UINT32_C(0x4f434831)
 #define ORIGINAL_SOUND_MIAMI_ID UINT32_C(0x4f4d4931)
 #define ORIGINAL_SOUND_SCHEMA 2u
-#define ORIGINAL_CHICAGO_FACTORIES 55u
-#define ORIGINAL_CHICAGO_FX_CHOICES 7u
+#define ORIGINAL_CHICAGO_FACTORIES 81u
+#define ORIGINAL_CHICAGO_FX_CHOICES 12u
 
 /* Public control positions used by the physical performance wheels. */
 enum { ORIGINAL_CHICAGO_CUTOFF = 2, ORIGINAL_CHICAGO_FX_TYPE = 17, ORIGINAL_CHICAGO_PITCH_BEND = 20,
@@ -31,7 +31,8 @@ static inline int original_sound_is_performance(unsigned kind, unsigned paramete
 /* New firmware patch representation, not a legacy bank decoder:
  * [0..21] macro display bytes; [22..25] LE edit mask; [26..27] 'OS'; [28] version;
  * [29] engine kind; [30] selected factory index; [31] reserved zero.
- * Chicago indexes55 admitted programs and FxType stores a seven-choice index.
+ * Chicago indexes all 81 programs (the 55 compact ones first, then the 26
+ * restored-insert ones) and FxType stores a twelve-choice index.
  * Both map explicitly to the original program/selector; schema1 is refused.
  * Untouched controls come from the immutable binary32 factory data, never
  * their rounded display bytes. Edits represent the firmware's 7-bit controls.

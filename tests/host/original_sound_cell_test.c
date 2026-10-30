@@ -5,8 +5,8 @@
 #include <string.h>
 
 static unsigned factories, edits, failures, performance_refusals, stale_restores;
-static const unsigned fx_types[7] = {0,4,5,10,18,22,24};
-static const unsigned fx_macro[7] = {0,5,7,4,2,3,1};
+static const unsigned fx_types[12] = {0,4,5,10,18,22,24,3,12,13,15,16};
+static const unsigned fx_macro[12] = {0,5,7,4,2,3,1,6,8,9,10,11};
 static float edited_value(unsigned kind, unsigned parameter, unsigned value)
 {
     if ((kind==ORIGINAL_SOUND_CHICAGO && parameter==4) ||
@@ -40,7 +40,7 @@ static void compare(unsigned kind, unsigned factory)
         assert(original_sound_restore_chicago(&c,cell) && !memcmp(&c,&cr,sizeof c));
         original_chicago_routing routing;
         assert(original_chicago_program_routing(&c,&routing));
-        assert(cell[17] < 7 && routing.fx[1][0] == fx_types[cell[17]]);
+        assert(cell[17] < 12 && routing.fx[1][0] == fx_types[cell[17]]);
     }
     unsigned n=original_sound_count(kind);
     unsigned centered=kind==ORIGINAL_SOUND_MIAMI?7:4;
@@ -51,7 +51,7 @@ static void compare(unsigned kind, unsigned factory)
         float untouched=-1, expected=kind==ORIGINAL_SOUND_MIAMI?mr.macro[parameter]:cr.macro[parameter];
         assert(original_sound_value(cell,parameter,&untouched) && !memcmp(&untouched,&expected,sizeof expected));
         const x0x_param_t *metadata=original_sound_param(kind,parameter);
-        assert(metadata && metadata->max==(kind==ORIGINAL_SOUND_CHICAGO && parameter==17?6:127) && strlen(metadata->name)<=6);
+        assert(metadata && metadata->max==(kind==ORIGINAL_SOUND_CHICAGO && parameter==17?11:127) && strlen(metadata->name)<=6);
         for (unsigned value=0;value<=metadata->max;++value) {
             memcpy(cell,saved,sizeof cell);
             if (parameter >= n-2) {
@@ -148,7 +148,7 @@ static void compare(unsigned kind, unsigned factory)
     assert(!original_sound_valid(cell));
     memcpy(cell,saved,sizeof cell);
     if (kind==ORIGINAL_SOUND_CHICAGO) {
-        for (unsigned value=7;value<256;++value) {
+        for (unsigned value=12;value<256;++value) {
             assert(!original_sound_set(cell,17,value) && !memcmp(cell,saved,sizeof cell));
             cell[17]=(uint8_t)value;
             assert(!original_sound_valid(cell));
@@ -169,29 +169,36 @@ int main(void)
     assert(!original_sound_valid(0) && !original_sound_set(0,0,0) && !original_sound_init(0,0,0));
     assert(!original_sound_count(2) && !original_sound_factories(2) && !original_sound_engine_id(2));
     assert(!original_sound_param(2,0) && !original_sound_name(2,0));
-    assert(!original_sound_fx_name(7));
-    static const char *const fx_names[7]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ"};
-    for(unsigned i=0;i<7;i++)assert(!strcmp(original_sound_fx_name(i),fx_names[i]));
+    assert(!original_sound_fx_name(12));
+    static const char *const fx_names[12]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ",
+        "ENSEMBLE","SHORT DLY","BPM DELAY","HALL","GATE REV"};
+    for(unsigned i=0;i<12;i++)assert(!strcmp(original_sound_fx_name(i),fx_names[i]));
     assert(!original_sound_is_performance(2,16) && !original_sound_is_performance(0,99));
-    assert(original_sound_factory_source(2,0)==-1 && original_sound_factory_source(0,55)==-1);
-    /* Independently enumerate all original factory routings. The selected bank
-     * contains exactly every admitted program in source order, with no changed
-     * name, skipped supported program, duplicated base or substituted effect. */
-    unsigned compact=0;
+    assert(original_sound_factory_source(2,0)==-1 && original_sound_factory_source(0,81)==-1);
+    /* Independently enumerate all original factory routings. Visible 0..54
+     * are the compact-policy programs in source order (unchanged stored
+     * indexes); 55..80 are the restored-insert programs in source order.
+     * Every original program appears exactly once, with its own name. */
+    unsigned compact=0,restored=0,seen[81]={0};
+    for (unsigned pass=0;pass<2;++pass)
     for (unsigned raw=0;raw<81;++raw) {
         original_chicago_program p; original_chicago_routing r;
         assert(original_chicago_program_init(&p,raw) && original_chicago_program_routing(&p,&r));
-        int supported=0;
-        for(unsigned i=0;i<7;++i) supported|=r.fx[1][0]==fx_types[i];
-        if(supported) {
-            assert(original_sound_factory_source(0,compact)==(int)raw);
-            assert(!strcmp(original_sound_name(0,compact),original_chicago_program_name(raw)));
-            ++compact;
+        int old=0,known=0;
+        for(unsigned i=0;i<7;++i) old|=r.fx[1][0]==fx_types[i];
+        for(unsigned i=0;i<12;++i) known|=r.fx[1][0]==fx_types[i];
+        assert(known);
+        if((pass==0)==!!old) {
+            unsigned visible=pass?55+restored++:compact++;
+            assert(original_sound_factory_source(0,visible)==(int)raw);
+            assert(!strcmp(original_sound_name(0,visible),original_chicago_program_name(raw)));
+            seen[raw]++;
         }
     }
-    assert(compact==55 && compact==original_sound_factories(0));
+    for(unsigned raw=0;raw<81;++raw) assert(seen[raw]==1);
+    assert(compact==55 && restored==26 && original_sound_factories(0)==81);
     float refused=-7;
-    assert(!original_sound_control_value(0,17,7,&refused) && refused==-7);
+    assert(!original_sound_control_value(0,17,12,&refused) && refused==-7);
     assert(!original_sound_control_value(2,0,0,&refused) && refused==-7);
     for(unsigned kind=0;kind<2;kind++) {
         unsigned parameter=kind?7:4;
@@ -208,6 +215,6 @@ int main(void)
     }
     for(unsigned kind=0;kind<2;++kind)
         for(unsigned factory=0;factory<original_sound_factories(kind);++factory) compare(kind,factory);
-    printf("PASS compact32-byte patch cell: %u exact factory programs, %u single-control edits, %u malformed transactions; %u performance edits refused and %u stale performance restores neutral; seven FX and55/81 factory selection; schema1 rejected; no factory float round-trip\n",factories,edits,failures,performance_refusals,stale_restores);
+    printf("PASS compact32-byte patch cell: %u exact factory programs, %u single-control edits, %u malformed transactions; %u performance edits refused and %u stale performance restores neutral; twelve FX and all 81 factory programs (55 compact + 26 restored inserts); schema1 rejected; no factory float round-trip\n",factories,edits,failures,performance_refusals,stale_restores);
     return 0;
 }

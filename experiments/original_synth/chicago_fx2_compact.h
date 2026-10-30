@@ -5,11 +5,38 @@
 #include "chicago_modulation.h"
 #include "chicago_dynamics.h"
 #include "chicago_smallfx.h"
+/* Restored wip/one-build Chicago inserts (mono float DSP, owner 2026-10-30). */
+#include "../../firmware/src/app/chicago_ens.h"
+#include "../../firmware/src/app/chicago_sdly.h"
+#include "../../firmware/src/app/chicago_bpmdly.h"
+#include "../../firmware/src/app/chicago_hall.h"
+#include "../../firmware/src/app/chicago_gaterev.h"
 
 enum {
-    ORIGINAL_CHICAGO_FX2_COMPACT_TYPES = 7,
-    ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES = 2048
+    ORIGINAL_CHICAGO_FX2_COMPACT_TYPES = 12,
+    ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES = 2048,
+    /* BPM Delay keeps the wip 4096-sample (93 ms) reach in a half-rate ring. */
+    ORIGINAL_CHICAGO_FX2_COMPACT_BPM_SLOTS = CHI_BPMDLY_MAX / 2
 };
+
+/* Half-rate ring for the restored BPM Delay. Timing (delay/feedback/wet law)
+ * comes from chi_bpmdly_set_bpm(); only the storage rate is halved. */
+typedef struct {
+    int16_t ring[ORIGINAL_CHICAGO_FX2_COMPACT_BPM_SLOTS];
+    uint16_t w, delay;
+    float fb, wet, pair, last;
+    uint8_t phase;
+} original_chicago_fx2_compact_bpm;
+
+/* Selected-algorithm arena: Chorus history or one restored insert. */
+typedef union {
+    int16_t history[ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES];
+    chi_ens_t ensemble;
+    chi_sdly_t short_delay;
+    original_chicago_fx2_compact_bpm bpm_delay;
+    chi_hall_t hall;
+    chi_gaterev_t gate_reverb;
+} original_chicago_fx2_compact_arena;
 
 typedef union {
     original_chicago_chorus chorus;
@@ -21,16 +48,18 @@ typedef union {
 } original_chicago_fx2_compact_state;
 
 /* One stable, caller-owned object per part. The selected scalar union is 96 B
- * on pi32v2; the stereo Chorus arena is 4096 B. Every part owns disjoint storage.
+ * on pi32v2; the arena (Chorus history or one restored insert) is the size of
+ * its largest member (Hall). Every part owns disjoint storage.
  * No heap, global scratch, history compression or reduced control range.
  * The original all 30/shared-arena owner cannot be obtained from this object. */
 typedef struct {
     original_chicago_fx2_compact_state state;
-    int16_t history[ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES];
+    original_chicago_fx2_compact_arena arena;
     original_chicago_fx2_kernel kernel;
     original_mod_queue queue;
     uint32_t ready;
-    uint8_t selected_type, selected;
+    int32_t tempo_times10;
+    uint8_t selected_type, selected, edit1, edit2;
 } original_chicago_fx2_compact;
 
 /* Initialize once before borrowing the owner. Do not move/copy a live object.

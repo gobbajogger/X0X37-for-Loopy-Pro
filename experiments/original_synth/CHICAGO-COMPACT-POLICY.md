@@ -19,8 +19,13 @@ contracts. A compact owner cannot be passed as a complete original owner.
 Initialize each compact object once, obtain its
 `original_chicago_fx2_compact_owner` descriptor, and pass that descriptor to
 `original_chicago_backend_init_compact`. Factories retain their raw original
-IDs 0..80. The compact backend admits the 55 factories whose exact converted FX2
-type is supported. The other 26 fail before either backend or FX state changes.
+IDs 0..80. Since 2026-10-30 the compact backend admits all 81 factories. Types
+3 (Ensemble), 12 (Short Delay), 13 (BPM Delay), 15 (Hall) and 16 (Gate Reverb)
+are mono approximations from firmware/src/app/chi_*.h (wip/one-build), run on
+the L/R mid signal in 64-sample chunks; they are not bit-exact to the original.
+BPM Delay uses a half-rate 4 KB ring (93 ms reach) and follows the tempo
+callback. Visible factory indexes 0..54 are unchanged; the 26 restored programs
+are appended as 55..80.
 The caller owns the visible factory mapping and preserves the original float
 values. There is no omitted-type substitution.
 

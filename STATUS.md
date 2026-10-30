@@ -16,7 +16,7 @@ Lane: `codex/ui-theme`. Base: `e888d046`. Scope: local source commits, host chec
 - 71: done for the current spelling/style request — mixed-case DnBOX on default boot, About/crash captions and installer; lowercase n retained in generated fonts; common visual material. No supplied bilingual-font or raster-logo reference is claimed as implemented; the code-native wordmark is shown in the reviewed proposal and actual render.
 - 72: done — one static default boot frame and validated custom still picture/text rendering; no video/player. Actual startup selects Amber; Light boot is a renderer variant.
 - 3: done for the original panel contract — 22 Chicago / 18 Miami controls/indicators, native selector states, musical rates, native unitless tune and exact neutral values. Legacy enum/ADSR/wave aliases cannot relabel original controls. No old engine is reintroduced.
-- 6: done — original compact 55 Chicago / 30 Miami factory selection, real names and browser, both independent slots. Exact external input hashes are verified.
+- 6: done — original compact 81 Chicago (all 12 FX inserts, 2026-10-30) / 30 Miami factory selection, real names and browser, both independent slots. Exact external input hashes are verified.
 - 10: done in host proof — source/voice-owned notes block replacement; residual insert output fades for 512 samples, followed by 512 quiet samples below 1/65536 before factory adoption. Actual tested boundary is within one 16-bit LSB. Cancellation ramps back; typed history retains its prior contract. No audible hardware result is claimed.
 
 ## Validation
