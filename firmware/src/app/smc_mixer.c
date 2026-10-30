@@ -1097,7 +1097,10 @@ static void smc_peek_tick(void)
 static void smc_show(int n, int knob, pref_t r)
 {
     if (smc_peek_eligible(n, knob, r)) smc_peek_begin(n);
-    else smc_ui_begin(n, knob);
+    else {
+        smc_peek_finish();  /* retire the old screen before a new full overlay */
+        smc_ui_begin(n, knob);
+    }
 }
 
 static void smc_notice(int n)

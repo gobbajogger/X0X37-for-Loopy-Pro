@@ -127,6 +127,15 @@ int main(void) {
     CHECK(!smc_peek.on&&ui.view==V_PART&&cur_page()==1);
     ticks+=2000;smc_peek_tick();CHECK(ui.view==V_PART);
 
+    /* A different peer/locked control must replace, not inherit, an old
+     * native page peek. Otherwise the old timeout steals its new overlay. */
+    reset(V_SEQ,2,3,V_HOME);
+    smc_show(0,0,smc_home_target(0));
+    CHECK(smc_peek.on && ui.view==V_MIX);
+    smc.locked=1;
+    smc_show(0,0,smc_home_target(0));
+    CHECK(!smc_peek.on&&ui.view==V_SEQ&&cur_page()==2&&overlay_count==1);
+
     reset(V_SEQ,2,3,V_HOME);smc_show(0,0,smc_home_target(0));
     ui.help=1;smc_peek_tick();CHECK(!smc_peek.on&&ui.view==V_SEQ&&ui.mixsel==3);
 
