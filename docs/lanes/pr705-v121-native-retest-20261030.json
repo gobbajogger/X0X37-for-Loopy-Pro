@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "project": "LoopyX0X37",
+  "scope": "PR #705 MIDI queue order",
+  "date": "2026-10-30",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "review_branch": "fix/midi-queue-order",
+  "observed_remote_head": "70df88f71f5f954f3fecae38b8c504a6b626a256",
+  "base": "cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21",
+  "source_api": {
+    "recursive_tree_metadata": {
+      "complete": true,
+      "truncated": false,
+      "entries": 4588,
+      "blobs": 4229,
+      "git_commit_tree_sha": "8f5d0c96e30ece1a8983afb23f63fad239ce7c59"
+    },
+    "old_local_git_bundle": {
+      "sha": "6ae0928fe3264ee759c25c4f879eff4dc5dc3b20",
+      "tree": "987ef7257ec9026c4ad2bcbf9fdbdf214ee928cb",
+      "git_fsck": "PASS",
+      "identical_target_blobs": 3991
+    },
+    "changes_from_old_source": {
+      "changed_or_added": 238,
+      "bytes": 2945509,
+      "deleted": 216
+    },
+    "github_connector_changed_blob_retrieval": {
+      "retrieved": 238,
+      "advertised_sha_matching_tree": 238,
+      "errors": 0,
+      "mode": "18 paths per batch after 35-request limit",
+      "native_filesystem_materialization": false
+    },
+    "native_checkout_progress": {
+      "verified_deletions_applied": 216,
+      "verified_changed_blobs_applied": 1,
+      "missing_current_changed_blobs": 237,
+      "whole_tree_verified": false
+    },
+    "zipball_error": "INVALID_ARGUMENT: Error code: INVALID_ARGUMENT; Error: HTTPError: 400: GitHub Fetch URL is not an allowed public GitHub repository or search endpoint. (Response: None)",
+    "native_api_dns_error": "URLError(gaierror(-3, 'Temporary failure in name resolution'))",
+    "finding": "Source bytes can be read in connector V8 but are not automatically mounted in the native Linux runner. A complete Git tree hash match has not been achieved."
+  },
+  "pinned_build_inputs": {
+    "sdk": "AC79NN_SDK_V1.2.1 pinned input subset",
+    "sdk_files_verified": "11/11",
+    "kit_zip_sha256": "2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805",
+    "toolchain": "JieLi pi32v2 clang 4.0.1 Linux x86_64",
+    "toolchain_zip_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19"
+  },
+  "linux_mixed_source": {
+    "warning": "NOT PR-head full source. Locally based on 6ae0928 historical Git bundle; 3 MIDI production transports and 5 host test fixtures overlaid from #705. USB C file exact current Git blob; BLE and platform surrounding source differ.",
+    "scoped_midi_host": {
+      "command": "X0X_TEST_JOBS=1 X0X_TESTS='midi-mq-noteoff-overflow midi-mq-rt-overflow midi-out-mq-noteoff-overflow ble-out-noteoff-overflow ble-out-rt-overflow' sh tests/run_tests.sh",
+      "exit": 0,
+      "pass": 5,
+      "fail": 0,
+      "skip_note": "SMK package check skipped by legacy runner",
+      "log_sha256": "8a19d8bc2c658eb2ebef94a28e94c6ed62606966274afac975501e076f6b71df"
+    },
+    "elite": {
+      "command": "JIELI_TOOLCHAIN=<verified> AC79_SDK=<verified V1.2.1> BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit": 0,
+      "app_bytes": 398596,
+      "fwsc_bytes": 651496,
+      "fwsc_sha256": "dc11af74e36ec7a2c2210d2310589623cbcb7b4573b349d003c1b8e3ca52cb12",
+      "log_sha256": "da1257c5b14bd1d4620cbf57e518c9d76ca6e912a66a36a60016f52a33e15675",
+      "model_identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "command": "JIELI_TOOLCHAIN=<verified> AC79_SDK=<verified V1.2.1> BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit": 0,
+      "app_bytes": 398596,
+      "fwsc_bytes": 651497,
+      "fwsc_sha256": "c9aafe53c27a56032c0dc369af72a1a38520f8f8c7b4202cfcecc9ff6f3aa6f4",
+      "log_sha256": "f9352ae8fbd17709dee9a2fef825dd7e47af5ec9459c484c26e7f8435f5974e4",
+      "model_identity": "SMK-37 Pro_900"
+    },
+    "budget": "Both mixed-source builds: app code area 552672 bytes, 154076 free; RAM .data+.bss 95160/98304; pool 328888/344064; no soft-double; register-access checks PASS",
+    "installed_or_published": false,
+    "expanded_nine_selector_run": {
+      "source_profile": "Same historical 6ae0928 runtime overlaid with #705 MIDI changes and nine updated host fixture mocks, NOT current PR HEAD",
+      "pass": 8,
+      "fail": 1,
+      "not_run": 0,
+      "skip": 1,
+      "exit": 1,
+      "failed_selector": "smk-clip-knob",
+      "failure": "Old main_fm1.c extracted smk_ck_poll references ui_pad_diag_active() but the historical fixture has no declaration. Current GitHub test fixture/current source differs; not evidence of a PR #705 introduced regression.",
+      "log_sha256": "ee28edac7a3ed7196e500827952418ed3c4c1cf3e75041f730a53d46955b9e84"
+    },
+    "partial_full_host_attempt": {
+      "command": "X0X_GATE_LOCK=<local> X0X_TEST_JOBS=1 sh tests/run_tests.sh",
+      "execution_limit_seconds": 420,
+      "completed_whole_suite": false,
+      "final_exit_status": "TIMEOUT (no final suite exit receipt)",
+      "observed_result_markers": {
+        "pass": 60,
+        "fail": 17,
+        "not_run": 0,
+        "skip": 0
+      },
+      "observed_failures": [
+        "fastmath",
+        "fastmath-ubsan",
+        "bass303-sustain",
+        "bass-tagged-storage",
+        "bass-presets-export",
+        "uac",
+        "trs",
+        "project-303-stream",
+        "wave-motion-migrate",
+        "project-protocol",
+        "project-save-preflight",
+        "editor-ota-dispatch",
+        "storage-scratch",
+        "project-stage",
+        "project-runtime",
+        "smc-queue",
+        "smc-solo-overflow"
+      ],
+      "historic_base_overlap": "Failing subjects appeared in prior 6ae0928-era suite reports. The uac/trs mocks in this historical source had not received #705 updates. This cannot serve as current cb5423c4-vs-PR differential.",
+      "log_sha256": "005eedad2386066353cec049cfe6f11df8d85201823f270f509d8c0efa2fce72"
+    }
+  },
+  "current_exact_source_required": {
+    "full_host_suite": "NOT_RUN",
+    "base_full_host_suite": "NOT_RUN",
+    "elite": "NOT_RUN",
+    "pro": "NOT_RUN",
+    "sdk": "VERIFIED",
+    "toolchain": "VERIFIED",
+    "reason": "Unmaterialized 237 changed/added text blobs prevent whole-tree/source-commit attestation. Historical mixed-source builds are NOT exact-head results."
+  },
+  "prior_evidence": "PR #705 older receipt contains 205971/205971 transport source-extracted checks (GCC and Clang/UBSan); do not duplicate or mistake for full suite.",
+  "disposition": "DRAFT, no merge, no installer publication, no device operation, no binaries or SDK committed",
+  "next_step": "Transfer the remaining 237 current tree blobs into native checkout, prove Git write-tree equals 8f5d0c96e30ece1a8983afb23f63fad239ce7c59, then full host suites at cb5423c4 and #705 head and Elite/Pro V1.2.1 builds on exact HEAD."
+}
