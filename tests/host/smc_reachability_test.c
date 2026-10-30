@@ -40,7 +40,7 @@ static int hci_send(uint8_t t,const uint8_t *p,uint16_t n,void *ctx)
 static void hci_midi(const uint8_t *p,uint8_t n,void *ctx)
 { (void)ctx;smc_ble_midi(p,n); }
 static void receive_ready(void)
-{ receiver.conn=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
+{ receiver.conn=1;receiver.linked=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
 static void hci_input(const uint8_t *m,unsigned n,unsigned tail)
 {
     uint8_t b[32]={1,0,0,0,0,0,4,0,0x1b,6,0,0x80,0x81};
@@ -545,7 +545,12 @@ int main(void) {
     smc_ble_link(1);smc_poll();proj.set.bt=0;
     smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==3);
     unsigned drops=(smc_rx_diag()>>8)&255;
+    /* Faders and encoders are held in the overflow mailbox, never dropped. */
     for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(m,3);
+    assert(((smc_rx_diag()>>8)&255)==drops);smc_poll();
+    /* Other messages are still counted when the ring is full. */
+    const uint8_t note[3]={0x90,0x70,127};
+    for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(note,3);
     assert(((smc_rx_diag()>>8)&255)==((drops+1)&255));smc_poll();
     return 0;
 }

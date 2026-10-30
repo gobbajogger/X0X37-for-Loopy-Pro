@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory() as d:
  cmd=[os.getenv('CC','cc'),'-std=c11','-fno-pie','-no-pie','-O1','-g','-Wall','-Wextra','-Werror',f'-DTEST_CTL_HEAP={heap}',f'-DTEST_CTL_CREDITS={credits}',str(root/'tests/host/ble_controller_heap_test.c'),'-o',str(exe)]+shlex.split(os.getenv('SAN_FLAGS',''))
  subprocess.run(cmd,check=True); subprocess.run([str(exe)],check=True)
 
- # This older public host lacks the separate private handle-zero repair.
- for handle in (1,64):
+ # Handle 0 is a legal controller handle; the pair router must still route it.
+ for handle in (0,1,64):
   subprocess.run([os.getenv('CC','cc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-function',f'-DTEST_ACL_CREDITS={credits}',f'-DTEST_HANDLE_BASE={handle}','-I'+str(root/'firmware/src/ble'),str(root/'tests/host/ble_discovery_replay_test.c'),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True)
