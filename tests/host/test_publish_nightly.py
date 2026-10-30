@@ -104,7 +104,7 @@ def main():
     # Isolated test fixture: supply a default Git identity for the temporary
     # local repositories, not a custom author for a project commit.
     default_git = tmp / "fixture-gitconfig"
-    default_git.write_text("[user]\\n name = DnBOX Fixture Default\\n email = fixture@example.invalid\\n")
+    default_git.write_text("[user]\n name = DnBOX Fixture Default\n email = fixture@example.invalid\n")
     os.environ["GIT_CONFIG_GLOBAL"] = str(default_git)
     os.environ["GIT_CONFIG_NOSYSTEM"] = "1"
     for key in ("GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"):
