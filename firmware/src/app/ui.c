@@ -5374,8 +5374,8 @@ static UI_DRAW void draw_part_sound(int band)
         char t[32];
         if (p>=pg.n || y+height<=0 || y>=(band==2?KNOB_H:BAND_H)) continue;
         if (night) sound_slab(3,y,234,height,active);
-        else if (active) box(3,y,234,height,col);
-        else cv_rect(6,y+height-1,228,1,C_LINE);
+        else surface_panel(3,y,234,height,active,active?col:SOUND_FACE,
+                           active?blend(col,C_WHITE,5):SOUND_EDGE,active?dim(col,8):SOUND_SIDE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
         cv_text(8,y,&FONT_T,t,label);
         if (active) {
@@ -6438,6 +6438,8 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
         cv_text(x + 1, base_y(&FONT_B, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
 }
 
+#include "ui_waveform.h"
+
 /* A shape cue, not a sampled oscilloscope. Chicago Wave continuously crossfades
  * saw and square; Miami's carrier, modulator and LFO are discrete choices. */
 static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
@@ -6460,8 +6462,42 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     return 0;
 }
 
-static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col)
+enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
+/* One affine projection per supported range. The pulse zero is near its low
+ * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
+static float miami_wave_plot_y(int pulse, float v)
 {
+    return pulse ? 1.0f+16.0f*(1.0f-v)/(1.0f+1.0f/9.0f) :
+                   (float)MIAMI_WAVE_ZERO-(float)MIAMI_WAVE_GAIN*v;
+}
+static UI_DRAW void draw_wave_glyph(int cx, int y, int shape, int mix, uint16_t col, uint16_t face)
+{
+    if(shape==2 || shape==3) {
+        /* Integrate line coverage in four horizontal subcolumns. Sample the
+         * actual periodic function, never blur/average its amplitude or duty.
+         * Tall transitions stay vertical; positive values are above the midline.
+         * Use the free value-cell height: 29x19, one cycle. A single
+         * affine scale preserves DC/asymmetry; never split the two polarities. */
+        int x,j,k,pulse=shape==3 && mix!=0;
+        int zero=(int)(miami_wave_plot_y(pulse,0)+.5f);
+        cv_rect(cx-14,y+zero,29,1,blend(face,col,3)); /* zero-amplitude reference */
+        for(x=0;x<29;x++) {
+            unsigned coverage[MIAMI_WAVE_HEIGHT]={0};
+            for(k=0;k<4;k++) {
+                float p0=((float)x+(float)k*.25f)/29.0f;
+                float p1=((float)x+(float)(k+1)*.25f)/29.0f;
+                float a=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p0));
+                float b=miami_wave_plot_y(pulse,ui_miami_wave_value(shape==3,mix!=0,p1));
+                float lo=fm_minf(a,b)-.5f,hi=fm_maxf(a,b)+.5f;
+                for(j=0;j<MIAMI_WAVE_HEIGHT;j++) {
+                    float overlap=fm_minf(hi,(float)j+.5f)-fm_maxf(lo,(float)j-.5f);
+                    if(overlap>0) coverage[j]+=(unsigned)(fm_minf(overlap,1.0f)*4.0f+.5f);
+                }
+            }
+            for(j=0;j<MIAMI_WAVE_HEIGHT;j++) if(coverage[j])px_blend(cx-14+x,y+j,col,coverage[j]);
+        }
+        return;
+    }
     int i,prev=0;
     for(i=0;i<29;i++) {
         int phase=i%14, saw=15-phase*30/13;
@@ -6690,7 +6726,17 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
                 {unused=discrete=1;ink=night?SOUND_DIM:(active?dim(col,4):C_GRAY);}
         }
     }
-    text_c(cx,y+(height>49?14:11),&FONT_T,matrix_name(r),unused?SOUND_DIM:night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY));
+    {
+        int yy=y+(height>49?14:11);
+        if(night) night_label_c(cx,yy,&FONT_T,matrix_name(r),unused?SOUND_DIM:active?SOUND_INK:SOUND_GRAY);
+        else {
+            int xx=cx-tw(&FONT_T,matrix_name(r))/2;
+            uint16_t face=active?col:SOUND_FACE;
+            cv_text(xx,yy+1,&FONT_T,matrix_name(r),blend(face,C_WHITE,2));
+            cv_text(xx,yy-1,&FONT_T,matrix_name(r),blend(face,C_BLACK,6));
+            text_c(cx,yy,&FONT_T,matrix_name(r),unused?SOUND_DIM:active?C_BLACK:C_GRAY);
+        }
+    }
 #if X0X_BASS_PRESET_PREVIEW
     if(r.kind==R_BPRESET) {
         draw_preset_name(r.b,cx,y,height,ink);
@@ -6701,8 +6747,10 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
-        draw_wave_glyph(cx-10,y+28,shape,mix,ink);
-        put_i(num,val);text_c(cx+17,y+28,&FONT_T,num,ink);
+        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        if(shape==2 || shape==3)put_s(num,!val?"TRI":shape==3?"PUL":"SQR");
+        else put_i(num,val);
+        text_c(cx+17,y+28,&FONT_T,num,ink);
     } else {
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
@@ -7268,7 +7316,7 @@ static UI_DRAW void draw_knobs(void)
         if (!d)
             continue;
         /* Selected control keeps the shared raised face; value/lock semantics below are unchanged. */
-        text_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
+        night_label_c(cx-1, vc(&FONT_XS, 13, 10), &FONT_XS, caps_of(pref_name(r)), touched ? C_WHITE : C_GRAY);
         val = pref_get(r);
         if (lock_step() >= 0) {                        /* a held step: its own value (amber mark: locked) */
             int lv = lock_of(r, lock_step());

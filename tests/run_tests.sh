@@ -93,7 +93,7 @@ test_class() {
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-preset-preserve|smc-reachability|smc-ui|ui-shared-glyph|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-preset-preserve|smc-reachability|smc-ui|ui-shared-glyph|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     chicago-fx-runtime) TEST_CLASS=G ;;
@@ -134,7 +134,7 @@ lk() {                  # name command...: start the command. An install-path te
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
     case "$1" in save-note-quiet) return 0 ;; esac
-    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -289,7 +289,8 @@ if [ "$ASAN_CHECKED" != 1 ]; then
     asan_links || ASAN_SKIP=1
 fi
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
-run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
+run dsp-host-linkage sh tests/host/run_dsp_host_linkage.sh
+run fastmath sh -c "$CC -DX0X_HOST -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
 run fastmath-ubsan sh tests/host/run_fastmath_ubsan.sh  # negative exponent shifts must be defined
 TB3PO_REF="${TB3PO_REF:-../schwung-tb3po/src/dsp/tb3po.c}"
 seq_test() {
@@ -374,8 +375,9 @@ run ble-central-first-notification python3 tests/host/ble_central_first_notifica
 if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central.h; then
     run ble-one-peer-command sh tests/host/ble_one_peer_command_retry_test.sh
     run ble-one-peer-contract python3 tests/host/ble_single_peer_contract_test.py
-    not_run ble-dual-peer 'single-peer recovery; two-peer source removed'
-    not_run ble-command-credit 'single-peer recovery; B command-owner model removed'
+    # The two-peer source stays; test it with BLEC_TWO_PEER=1.
+    run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
+    run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
     not_run ble-controller-heap 'single-peer recovery; B two-link heap assumption removed'
 else
     run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
@@ -406,6 +408,7 @@ run smc-mode-page sh tests/host/smc_mode_page_test.sh
 run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
 run ui-shared-glyph sh tests/host/ui_shared_glyph_test.sh  # shared glyphs across live UI pages
 run ui-drum-mix-material sh tests/host/ui_drum_mix_material_test.sh  # 808/909 captions, rails and pan
+run ui-waveform-truth sh tests/host/ui_waveform_truth_test.sh  # Miami TRI/SQR/PUL value-cell shapes
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
