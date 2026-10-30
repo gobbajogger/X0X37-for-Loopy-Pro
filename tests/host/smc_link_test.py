@@ -80,7 +80,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t n, int allow)
 }
 static void smc_guarded_button(uint8_t n, int mmc, int allow)
 { (void)n; (void)mmc; (void)allow; abort(); }
-''' + function(source, "smc_mmc_drain_stop") + "\n" + ((function(source, "smc_poll_peer") + "\n") if "smc_poll_peer" in source else "") + function(source, "smc_poll") + r'''
+''' + function(source, "smc_mmc_drain_stop") + "\n" + function(source, "smc_spill_apply") + "\n" + ((function(source, "smc_poll_peer") + "\n") if "smc_poll_peer" in source else "") + function(source, "smc_poll") + r'''
 
 static int check_input(int up)
 {

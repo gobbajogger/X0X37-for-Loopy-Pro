@@ -20,8 +20,71 @@ extern int smk_ck_smc_nav(uint8_t note);
 typedef struct {
     uint8_t n, b[6];
 } smc_event_t;
+/* SMC spill begin: shared by host harnesses that extract the input rings. */
+/* Overflow mailbox for continuous controls. A full ring used to discard the
+ * newest fader sample, so a fast move stopped short of the hand's position,
+ * and to discard encoder detents. Once a strip overflows, that strip's later
+ * samples bypass the ring until the consumer has applied the mailbox, so a
+ * strip's own order is kept. One producer and one consumer per mailbox. */
+typedef struct {
+    uint8_t fader[8][3];               /* newest absolute fader message */
+    volatile uint8_t fader_pub[8], fader_cut[8];
+    uint8_t fader_ack[8];
+    uint8_t knob_st[8];                /* status byte (channel) of the turns */
+    volatile uint16_t knob_sum[8];     /* running sum of signed detents */
+    volatile uint8_t knob_pub[8], knob_cut[8];
+    uint8_t knob_ack[8];
+    uint16_t knob_sum_ack[8];
+} smc_spill_t;
+/* Discard a mailbox's contents (link edge or project drop). */
+static __attribute__((unused)) void smc_spill_drop(smc_spill_t *s)
+{
+    for (int n = 0; n < 8; n++) {
+        s->fader_ack[n] = s->fader_pub[n];
+        s->knob_ack[n] = s->knob_pub[n];
+        s->knob_sum_ack[n] = s->knob_sum[n];
+    }
+}
+/* Strip index of a continuous control, or -1. Fader 0..7, knob 8..15.
+ * Preset rules are applied later by smc_message; this only classifies. */
+static __attribute__((unused)) int smc_spill_strip(const uint8_t *m, uint8_t len)
+{
+    if (len != 3u || ((m[1] | m[2]) & 0x80u)) return -1;
+    if ((m[0] & 0xF0u) == 0xE0u && (m[0] & 15u) < 8u) return m[0] & 7u;
+    if ((m[0] & 0xF0u) == 0xB0u && m[1] >= 40u && m[1] < 48u) return m[1] - 40u;
+    if ((m[0] & 0xF0u) == 0xB0u && m[1] >= 16u && m[1] < 24u) return 8 + m[1] - 16u;
+    return -1;
+}
+/* Producer side. Returns 1 when the message is held in the mailbox. */
+static __attribute__((unused)) int smc_spill_put(smc_spill_t *s, const uint8_t *m, uint8_t len, uint8_t w, int full)
+{
+    int n = smc_spill_strip(m, len);
+    if (n < 0) return 0;
+    if (n < 8) {
+        int pending = s->fader_pub[n] != s->fader_ack[n];
+        if (!pending && !full) return 0;
+        if (!pending) s->fader_cut[n] = w;
+        s->fader[n][0] = m[0]; s->fader[n][1] = m[1]; s->fader[n][2] = m[2];
+        __asm__ volatile("" ::: "memory");
+        s->fader_pub[n] = (uint8_t)(s->fader_pub[n] + 1u);
+        return 1;
+    }
+    n -= 8;
+    if (s->knob_pub[n] == s->knob_ack[n]) {
+        if (!full) return 0;
+        s->knob_cut[n] = w;
+        s->knob_st[n] = m[0];
+    }
+    s->knob_sum[n] = (uint16_t)(s->knob_sum[n] + (uint16_t)smc_relative(m[2]));
+    __asm__ volatile("" ::: "memory");
+    s->knob_pub[n] = (uint8_t)(s->knob_pub[n] + 1u);
+    return 1;
+}
+static __attribute__((unused)) smc_spill_t smc_host_spill;     /* audio-ISR producer, like smc_host_q */
+/* SMC spill end */
 typedef struct {
     smc_event_t q[SMC_Q];
+    smc_spill_t spill;
     volatile uint8_t qw, qr;
     volatile uint32_t link_published;
     uint32_t link_seen;
@@ -161,6 +224,8 @@ X0X_COLD static void smc_peer_drop(void)
 {
     smc_qr = smc_qw;
     smc_host_r = smc_host_w;
+    smc_spill_drop(&smc_peer_input.spill);
+    if (smc_slot == 0) smc_spill_drop(&smc_host_spill);
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
     smc_mmc_stop_r[0] = smc_mmc_stop_w[0];
@@ -202,6 +267,10 @@ void smc_ble_midi_slot(unsigned slot, const uint8_t *msg, uint8_t len)
     smc_input_t *in = &smc_inputs[slot];
     uint8_t w = in->qw, i;
     if (!msg || !len || len > 6u) { in->dropped++; return; }
+    if (smc_spill_put(&in->spill, msg, len, w, (uint8_t)(w - in->qr) >= SMC_Q)) {
+        in->enqueued++;
+        return;
+    }
     if ((uint8_t)(w - in->qr) >= SMC_Q) {
         if (len == 3u && (proj.set.bt & PROJ_BT_SMC_CENTRAL) &&
             (in->link_published & 1u) && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
@@ -249,6 +318,11 @@ int smc_midi_host(uint32_t pkt)
         return 0;
     if (!smc_host_accept(st, a, proj.set.bt & PROJ_BT_SMC_USER))
         return 0;
+    {
+        uint8_t m[3] = {st, a, b};
+        if (smc_spill_put(&smc_host_spill, m, 3, w, (uint8_t)(w - smc_host_r) >= SMC_Q))
+            return 1;
+    }
     if ((uint8_t)(w - smc_host_r) < SMC_Q) {
         smc_host_q[w % SMC_Q][0] = st;
         smc_host_q[w % SMC_Q][1] = a;
@@ -882,7 +956,8 @@ static void smc_fader(int n, uint8_t v)
     smc.last[n] = v;
     smc.seen |= bit;
     if (!(smc.picked & bit)) {
-        if (!moved || !crossed)
+        /* Like the keyboard faders: a muted level takes over at once. */
+        if (!moved || (!crossed && !volume_muted(r)))
             goto show;
         smc.picked |= bit;
     } else crossed = 0;                /* acquisition must publish even an equal saved value */
@@ -1457,6 +1532,36 @@ static void smc_mmc_drain_stop(int src, int allow)
     }
 }
 
+/* Apply held samples once the ring has passed the point where each strip
+ * overflowed. qr is the consumer's ring read index. */
+static void smc_spill_apply(smc_spill_t *s, uint8_t qr, int allow)
+{
+    for (int n = 0; n < 8; n++) {
+        uint8_t pub = s->fader_pub[n];
+        if (pub != s->fader_ack[n] && (uint8_t)(qr - s->fader_cut[n]) < 0x80u) {
+            uint8_t m[3];
+            __asm__ volatile("" ::: "memory");
+            m[0] = s->fader[n][0]; m[1] = s->fader[n][1]; m[2] = s->fader[n][2];
+            s->fader_ack[n] = pub;   /* a newer sample during the copy reapplies next poll */
+            smc_message(m, 3, allow);
+        }
+        pub = s->knob_pub[n];
+        if (pub != s->knob_ack[n] && (uint8_t)(qr - s->knob_cut[n]) < 0x80u) {
+            __asm__ volatile("" ::: "memory");
+            uint16_t sum = s->knob_sum[n];
+            int d = (int16_t)(uint16_t)(sum - s->knob_sum_ack[n]);
+            s->knob_sum_ack[n] = sum;
+            s->knob_ack[n] = pub;
+            while (d) {                /* re-encode as sign-magnitude turns of at most 63 */
+                int step = d > 63 ? 63 : d < -63 ? -63 : d;
+                uint8_t m[3] = {s->knob_st[n], (uint8_t)(16 + n),
+                                (uint8_t)(step < 0 ? 0x40 | -step : step)};
+                smc_message(m, 3, allow);
+                d -= step;
+            }
+        }
+    }
+}
 static void smc_poll_peer(void)
 {
     uint32_t seq, link, link_loss[4];
@@ -1512,6 +1617,7 @@ static void smc_poll_peer(void)
         smc.fresh = smc.up;
         smc.lock_down = smc.play_down = smc.select_down = smc.home_down = 0; /* reconnect clears physical press edges */
         smc_fx_clear();
+        smc_spill_drop(&smc_peer_input.spill); /* pre-edge samples never apply to the new link */
         smc.picked = smc.seen = smc.input_seen = 0;
         smc.knob_i = 0;
         smc.pending = 0xFFu;
@@ -1560,6 +1666,9 @@ static void smc_poll_peer(void)
             smc_reason = smc_message(msg.b, (uint8_t)(msg.n & SMC_EVENT_LEN_MASK), allow);
         }
     }
+    if (smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
+        smc_spill_apply(&smc_peer_input.spill, smc_qr, allow);
+    else smc_spill_drop(&smc_peer_input.spill);
     if (smc_slot == 0) {
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
@@ -1582,6 +1691,8 @@ static void smc_poll_peer(void)
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_message(msg, sizeof msg, allow);
     }
+    if (proj.set.bt & PROJ_BT_SMC_USER) smc_spill_apply(&smc_host_spill, smc_host_r, allow);
+    else smc_spill_drop(&smc_host_spill);
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
