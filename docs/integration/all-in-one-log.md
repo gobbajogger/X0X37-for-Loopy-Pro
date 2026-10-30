@@ -55,3 +55,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #688 | 7b2d1726 | SKIPPED | – | – | caption commits 04650d51/7b2d1726 already covered (#714/#725 caption contract). The rest is lane snapshot abe3fb9a (187 files, mixer-ux items 31,37-46): ui.c and smc_mixer.c conflict on 3-way apply; needs a real port (new funcs item31, item37_39, item40_16, item42_67, item44..46, smc_capture_bank, smc_mode_cleanup, smc_unmute_level, mixer_ux_test) |
 | #693 | 4f039829 | already in (round 1 cherry-picks) | f60a2d8e | – | 4775ef91 is the 284-file snapshot: skipped |
 | #716 | e81404eb | merged | 1e368c68 | - |  |
+| #713 | ca59579a | merged | 41cacf08 | AGENTS.md (union) |  |
