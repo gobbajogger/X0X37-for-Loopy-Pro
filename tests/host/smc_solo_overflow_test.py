@@ -27,6 +27,7 @@ hdr=r'''
 #include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#include "app/smc_mixer_edges.h"
 #include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
@@ -39,6 +40,9 @@ hdr=r'''
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0u; }
 static int is_busy, is_testing, clear_calls, output_solo;
 static int refill_armed, refill_route, refill_cross, refill_calls;
 static int perf_testing(void) { return is_testing; }
