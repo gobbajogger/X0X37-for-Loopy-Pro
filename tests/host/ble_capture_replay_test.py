@@ -1,27 +1,43 @@
 #!/usr/bin/env python3
-"""Replay preserved SMC notification payloads through simulated HCI, no device.
+"""Replay synthetic SMC-style notification payloads through simulated HCI, no device.
 
-Exact payloads retain their bytes; HCI headers and link/handle are simulated.
-The separate MTU-23 case resegments messages and is not exact-wire evidence.
+The raw device capture was removed from the repository (e22920a9). This
+fixture is synthetic: a fixed seed builds payloads with the captured shape
+(one BLE-MIDI header + timestamp, one channel status, then running-status
+data pairs). It is not exact-wire evidence. HCI headers and link/handle are
+simulated. The MTU-23 case resegments messages.
 Run from any directory with Python 3 and a host C compiler (CC).
 """
 import hashlib
-import json
 import os
 from pathlib import Path
+import random
 import struct
 import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-CAPTURE = ROOT / 'cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json'
-raw = CAPTURE.read_bytes()
-packets = [bytes.fromhex(row['hex']) for row in json.loads(raw)]
-assert len(packets) == 1271
+
+
+def synthetic_packets():
+    rng = random.Random(0x5EC)
+    out = []
+    for i in range(240):
+        status = (0x90, 0xB0, 0xE0)[i % 3] | rng.randrange(16)
+        # 1..40 pairs: payloads above 61 bytes exercise the size rejection.
+        pairs = 40 if i % 80 == 79 else rng.randrange(1, 29)
+        data = [rng.randrange(128) for _ in range(2 * pairs)]
+        out.append(bytes((0x80 | rng.randrange(64), 0x80 | rng.randrange(128), status, *data)))
+    return out
+
+
+packets = synthetic_packets()
+raw = b''.join(packets)
+assert len(packets) == 240
 
 
 def messages(payload):
-    # This recorded corpus has one explicit channel status followed by pairs of
+    # This corpus has one explicit channel status followed by pairs of
     # running-status data bytes, with no further timestamps or system messages.
     # Assert that premise before using this independent, corpus-specific oracle.
     assert payload[0] & 0xc0 == 0x80 and payload[1] & 0x80
@@ -32,7 +48,6 @@ def messages(payload):
 
 
 decoded = [messages(payload) for payload in packets]
-assert sum(map(len, decoded)) == 2711
 HARNESS = r'''
 #include <assert.h>
 #include <stdio.h>
@@ -88,9 +103,10 @@ with tempfile.TemporaryDirectory() as scratch:
         print(f'PASS {label}: {len(payloads)} payloads, {len(expected)} MIDI, {rejects} size rejections')
 
     supported = [message for payload, group in zip(packets, decoded) if len(payload) + 3 <= 64 for message in group]
-    assert len(supported) == 2616
-    check('exact recorded payloads / simulated HCI', packets, supported, 3)
-    check('exact recorded payloads / simulated fragmented HCI tails 1-8', packets, supported, 3, True)
+    oversized = sum(len(payload) + 3 > 64 for payload in packets)
+    assert oversized == 3 and supported
+    check('synthetic payloads / simulated HCI', packets, supported, oversized)
+    check('synthetic payloads / simulated fragmented HCI tails 1-8', packets, supported, oversized, True)
     # Explicitly preserve header/timestamp and status when starting each new
     # notification, then retain running status within each <=20-byte payload.
     mtu23 = [payload[:3] + payload[offset:offset + 16]
@@ -98,5 +114,5 @@ with tempfile.TemporaryDirectory() as scratch:
     assert all(len(payload) + 3 <= 23 for payload in mtu23)
     check('resegmented MTU-23 / simulated fragmented HCI', mtu23,
           [message for group in decoded for message in group], 0, True)
-print('Capture SHA-256:', hashlib.sha256(raw).hexdigest())
+print('Synthetic fixture SHA-256:', hashlib.sha256(raw).hexdigest())
 print('Physical device behavior: NOT TESTED')
