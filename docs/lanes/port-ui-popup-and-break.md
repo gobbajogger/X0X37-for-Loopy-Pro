@@ -24,3 +24,6 @@ No `.github/`, GitHub Actions, zipball source transport, device flash, `main`/`n
 
 ## Completion criteria
 PR has only approved changes, actual readable mockups and logs, a verified remote HEAD, and exact test/build results. A failed or unrun required check is reported as such and prevents a false green or merge-ready claim. No hardware or publication claims.
+
+## Owner freeze (2026-10-30, supersedes any earlier merge wording)
+Do **not** merge, retarget or push feature changes to `integration/all-in-one` / #734. Keep this PR draft and all edits on the isolated Task C branch. The integrator may reconsider only after one immutable #734 head SHA has a posted **full host suite plus Elite and Pro firmware builds, 0 failures and 0 skips**. Our isolated 31-check state test does not satisfy that integration bar, and no result on a moving head does. A draft PR does not authorize merging. Continue scoped tests here, report unavailable checks as NOT_RUN, and do not claim the freeze is lifted until its exact evidence exists.
