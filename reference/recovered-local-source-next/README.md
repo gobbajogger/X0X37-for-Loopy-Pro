@@ -1,0 +1,9 @@
+# Additional recovered tooling reference — NOT integrated
+
+These five exact text blobs originate from locally verified commit `0241e95a4f1b7cd858d83b770b93937e303147bb` (`lane/tools-history-residual-20261028`). They preserve quickcheck planning, runner-admission and logical-key velocity test work without changing production paths. They are not a complete source tree or a claim that the old runner should replace the current runner.
+
+Read-only assessment of other attributed firmware heads identified 175 unique candidate source blobs after reuse of current one-build, [PR #703](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/703) and the separate frozen 81-blob source archive. Direct GitHub blob API checks found 170 already present; none were recopied. These five alone returned NOT_FOUND. Full original histories contain excluded material and are not being published unchanged. Other heads whose objects were unavailable remain pending; website-only heads are not copied into this repository.
+
+All files retain GPL-3.0-only SPDX notices under the repository [LICENSE](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/094bb1a55c159aefb0e2bfa39790a1b4b74cee40/LICENSE). No headers, binaries, raw captures, private quotations, credentials or third-party SDK assets are included. MANIFEST.json records exact original Git blob hashes, SHA-256, byte counts and modes.
+
+Checks: four Python AST parses, `sh -n` on the preserved runner, text/hash and credential/private-reference screening passed. No source behavior, fixtures, Git subprocesses, native builds, Mac, golden, performance, controller or hardware tests were run. These scripts may invoke Git, builds or other tools when executed; they were only inspected and syntax-checked here. Reuse only after a current scoped review and retain current source ownership and test union.
