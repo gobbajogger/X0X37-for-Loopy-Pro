@@ -79,7 +79,51 @@
       "model_identity": "SMK-37 Pro_900"
     },
     "budget": "Both mixed-source builds: app code area 552672 bytes, 154076 free; RAM .data+.bss 95160/98304; pool 328888/344064; no soft-double; register-access checks PASS",
-    "installed_or_published": false
+    "installed_or_published": false,
+    "expanded_nine_selector_run": {
+      "source_profile": "Same historical 6ae0928 runtime overlaid with #705 MIDI changes and nine updated host fixture mocks, NOT current PR HEAD",
+      "pass": 8,
+      "fail": 1,
+      "not_run": 0,
+      "skip": 1,
+      "exit": 1,
+      "failed_selector": "smk-clip-knob",
+      "failure": "Old main_fm1.c extracted smk_ck_poll references ui_pad_diag_active() but the historical fixture has no declaration. Current GitHub test fixture/current source differs; not evidence of a PR #705 introduced regression.",
+      "log_sha256": "ee28edac7a3ed7196e500827952418ed3c4c1cf3e75041f730a53d46955b9e84"
+    },
+    "partial_full_host_attempt": {
+      "command": "X0X_GATE_LOCK=<local> X0X_TEST_JOBS=1 sh tests/run_tests.sh",
+      "execution_limit_seconds": 420,
+      "completed_whole_suite": false,
+      "final_exit_status": "TIMEOUT (no final suite exit receipt)",
+      "observed_result_markers": {
+        "pass": 60,
+        "fail": 17,
+        "not_run": 0,
+        "skip": 0
+      },
+      "observed_failures": [
+        "fastmath",
+        "fastmath-ubsan",
+        "bass303-sustain",
+        "bass-tagged-storage",
+        "bass-presets-export",
+        "uac",
+        "trs",
+        "project-303-stream",
+        "wave-motion-migrate",
+        "project-protocol",
+        "project-save-preflight",
+        "editor-ota-dispatch",
+        "storage-scratch",
+        "project-stage",
+        "project-runtime",
+        "smc-queue",
+        "smc-solo-overflow"
+      ],
+      "historic_base_overlap": "Failing subjects appeared in prior 6ae0928-era suite reports. The uac/trs mocks in this historical source had not received #705 updates. This cannot serve as current cb5423c4-vs-PR differential.",
+      "log_sha256": "005eedad2386066353cec049cfe6f11df8d85201823f270f509d8c0efa2fce72"
+    }
   },
   "current_exact_source_required": {
     "full_host_suite": "NOT_RUN",
