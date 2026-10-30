@@ -6,7 +6,9 @@ Status: IN PROGRESS, scoped implementation owned by this Classic thread.
 - Repository: `gobbajogger/X0X37-for-Loopy-Pro`.
 - Source: PR #688, `wip/mixer-ux` at `7b2d1726f3515b319d5edcab34529007d33ab3a8` (closed, unmerged).
 - Handoff base: `integration/all-in-one@ea859a8639f7448fb53196f6feb8c8c761b114d9`.
-- Live integration HEAD at entry: `64ed879fc5358229e5febfafa95a22b4580ad2a1`, 13 commits later. Use the *live newer head* to avoid dropping concurrent UI changes. No edits to integration branch.
+- Entry integration HEAD: `64ed879fc5358229e5febfafa95a22b4580ad2a1`.
+- Owner-corrected port base: `c54d9f9b4262709bb4ea5852ae4ed008fa100996` (#650/#651/#687 work already integrated). This commit includes the 873479c7 HOME caption test fix. The correction is handled by a no-force, two-parent merge-forward tree using this base plus the previously pushed scoped port; no source or history is discarded.
+- Current integration branch has since advanced beyond this pin; the draft PR still targets the moving `integration/all-in-one` ref and must be checked against its live head before completion. No edits to integration branch.
 - Target: draft PR from `chat/mixer-fx-page-port` into `integration/all-in-one`.
 
 ## Scope
