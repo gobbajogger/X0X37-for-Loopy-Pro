@@ -7,7 +7,15 @@
 static void lcd_sync(void) {}
 static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *p)
 { (void)x; (void)y; (void)w; (void)h; (void)p; }
+/* The firmware's JieLi .pool section name is not a Mach-O section;
+ * this rendering-only test does not verify linker pool placement. */
+#ifdef __APPLE__
+#define __attribute__(x)
+#endif
 #include "../../firmware/src/gfx.c"
+#ifdef __APPLE__
+#undef __attribute__
+#endif
 #include "font_raw.h"
 
 static int32_t raw_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t colour)
