@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Check the DnBOX default-author and local-only Git contract with local fixtures.
+
+The Git commands below operate on a temporary *local* bare repository only.
+The fixture identity is not used for commits to the project repository.
+"""
+import ast
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import patch
+
+SOURCE = Path(os.environ.get('DNBOX_PUBLISH_SOURCE', 'tools/publish_nightly.py'))
+METHODS = {'_destination', '_local_only_git_remote', '_remote_tip', '_overlay', '_push'}
+
+
+def load_scoped_functions():
+    source = SOURCE.read_text(encoding='utf-8')
+    tree = ast.parse(source, filename=str(SOURCE))
+    methods = [x for x in tree.body if isinstance(x, ast.FunctionDef) and x.name in METHODS]
+    if {x.name for x in methods} != METHODS:
+        raise AssertionError('one or more publisher Git functions missing')
+    scope = {'os': os, 'Path': Path, 're': re, 'shutil': shutil,
+             'subprocess': subprocess, 'tempfile': tempfile,
+             'FORBIDDEN': {'gh-pages', 'main', 'master', 'nightly'},
+             'NightlyPublishError': type('NightlyPublishError', (ValueError,), {})}
+    exec(compile(ast.Module(body=methods, type_ignores=[]), str(SOURCE), 'exec'), scope)
+    return scope
+
+
+class DefaultAuthorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.methods = load_scoped_functions()
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory(prefix='dnbox-default-author-')
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.remote = self.root / 'fixture.git'
+        self.site = self.root / 'site'
+        self.site.mkdir()
+        subprocess.run(['git', 'init', '-q', '--bare', str(self.remote)], check=True)
+        cfg = self.root / 'fixture-gitconfig'
+        cfg.write_text('[user]\n name = DnBOX Fixture Default\n email = fixture@example.invalid\n')
+        env = os.environ.copy()
+        self.addCleanup(lambda: (os.environ.clear(), os.environ.update(env)))
+        os.environ.update({'HOME': str(self.root), 'GIT_CONFIG_GLOBAL': str(cfg), 'GIT_CONFIG_NOSYSTEM': '1'})
+        for key in ('GIT_AUTHOR_NAME', 'GIT_AUTHOR_EMAIL', 'GIT_COMMITTER_NAME', 'GIT_COMMITTER_EMAIL'):
+            os.environ.pop(key, None)
+
+    def local_git(self, *args):
+        return subprocess.check_output(['git', '--git-dir', str(self.remote), *args], text=True).strip()
+
+    def test_default_author_and_fast_forward(self):
+        (self.site / 'index.html').write_text('first')
+        first = self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+        self.assertEqual(self.local_git('show', '-s', '--format=%an <%ae>|%cn <%ce>', first),
+                         'DnBOX Fixture Default <fixture@example.invalid>|DnBOX Fixture Default <fixture@example.invalid>')
+        (self.site / 'index.html').write_text('second')
+        second = self.methods['_push'](self.site, str(self.remote), 'chat/fixture', first)
+        self.assertEqual(self.local_git('rev-parse', f'{second}^'), first)
+        self.assertEqual(self.local_git('rev-parse', 'refs/heads/chat/fixture'), second)
+
+    def test_network_git_refused_before_git_execution(self):
+        for remote in ('https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git',
+                       'git@github.com:gobbajogger/X0X37-for-Loopy-Pro.git',
+                       'file:///tmp/fixture.git', 'relative/fixture.git'):
+            with self.subTest(remote=remote), patch.object(subprocess, 'run') as invoked:
+                with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'Git network transport disabled'):
+                    self.methods['_push'](self.site, remote, 'chat/fixture', None)
+                invoked.assert_not_called()
+
+    def test_protected_targets_refused(self):
+        for target in ('main', 'nightly', 'gh-pages', 'refs/heads/main'):
+            with self.subTest(target=target):
+                with self.assertRaises(self.methods['NightlyPublishError']):
+                    self.methods['_push'](self.site, str(self.remote), target, None)
+
+    def test_stale_remote_head_does_not_change_commit(self):
+        (self.site / 'index.html').write_text('first')
+        first = self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+        with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'remote handoff moved'):
+            self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+        self.assertEqual(self.local_git('rev-parse', 'refs/heads/chat/fixture'), first)
+
+    def test_no_default_identity_does_not_forge_one(self):
+        os.environ['GIT_CONFIG_GLOBAL'] = '/dev/null'
+        (self.site / 'index.html').write_text('first')
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.local_git('rev-parse', 'refs/heads/chat/fixture')
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
