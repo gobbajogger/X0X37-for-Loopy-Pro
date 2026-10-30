@@ -17,7 +17,7 @@ class HostSetupTest(unittest.TestCase):
     def setUp(self):
         self.scratch = tempfile.TemporaryDirectory(prefix="x0x-host-setup-")
         self.addCleanup(self.scratch.cleanup)
-        self.root = Path(self.scratch.name)
+        self.root = Path(self.scratch.name).resolve()
         for directory in ("host", "tools"):
             (self.root / directory).mkdir()
         shutil.copy2(ROOT / "host/build_host.sh", self.root / "host/build_host.sh")
