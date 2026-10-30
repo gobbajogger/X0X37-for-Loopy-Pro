@@ -1146,7 +1146,8 @@ static void smc_show(int n, int knob, pref_t r)
 {
     if ((unsigned)n < 8u && r.kind != R_NONE &&
         (smc_same(r, smc_home_target(n)) ||
-         (knob && (smc.locked ? smc.lock_view == V_HOME : ui.view == V_HOME))))
+         (knob && (smc.locked ? smc.lock_view == V_HOME :
+                   smc_peek->on ? smc_peek->saved_view == V_HOME : ui.view == V_HOME))))
         smc_peek_begin(n);            /* before the overlay: its context is the peek page */
     smc_ui_begin(n, knob);
 }
