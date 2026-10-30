@@ -159,14 +159,62 @@ int main(void)
     advance(SMC_PEEK_MS + 50);
     assert(ui.view == V_SONG && !smc_peek->on);
 
-    /* HOME knobs edit CUT/PAN/REV/DLY banks, not the home strip targets:
-     * the overlay shows, no peek. */
+    /* HOME encoders also peek; the controlled parameter remains on HOME
+     * during the live-page preview, including a second turn on an FX tail. */
     setup();
     set_view(V_HOME);
     build_pages();
+    pref_t cut = smc_knob_target(0);
     turn(0, 1);
     assert(smc_ui_active());
+    assert_peek(V_MIX, 0, 0);
+    assert(smc_same(smc_knob_target(0), cut));
+    advance(SMC_PEEK_MS + 50);
     assert(!smc_peek->on && ui.view == V_HOME);
+    setup();
+    set_view(V_HOME);
+    build_pages();
+    pref_t rv = smc_knob_target(5);
+    assert(rv.kind != R_NONE);
+    turn(5, 1);
+    assert_peek(V_FX, 0, ui.mixsel);
+    assert(smc_same(smc_knob_target(5), rv));
+    uint32_t first_until = smc_peek->until;
+    turn(5, 1);
+    assert(smc_peek->until > first_until);
+    assert(smc_same(smc_knob_target(5), rv));
+    advance(SMC_PEEK_MS + 50);
+    assert(!smc_peek->on && ui.view == V_HOME);
+
+    /* Page +/- on a locked SMC opens the captured real page for 1200ms,
+     * preserving the first keyboard restore point and all locked refs. */
+    setup();
+    set_view(V_MIX);
+    build_pages();
+    *page_of(V_MIX) = 0;
+    assert(smc_lock_toggle());
+    assert(smc.locked && smc.lock_pages >= 3);
+    pref_t locked_fader = smc_target(0);
+    set_view(V_SONG);              /* keyboard navigates independently */
+    build_pages();
+    uint8_t original_part = ui.part, original_mix = ui.mixsel;
+    uint8_t original_prev = ui.prev_view;
+    press(0x63);                   /* SMC PAGE NEXT while locked */
+    assert(smc.locked && smc.lock_page == 1);
+    assert_peek(V_MIX, 1, original_mix);
+    assert(smc_same(smc_target(0), locked_fader));
+    uint32_t first_page_until = smc_peek->until;
+    press(0x63);                   /* second page extends the same peek */
+    assert(smc.locked && smc.lock_page == 2);
+    assert_peek(V_MIX, 2, original_mix);
+    assert(smc_peek->saved_view == V_SONG);
+    assert(smc_peek->until > first_page_until);
+    advance(SMC_PEEK_MS + 50);
+    assert(smc.locked && smc.lock_page == 2);
+    assert(!smc_peek->on && ui.view == V_SONG);
+    assert(ui.part == original_part && ui.mixsel == original_mix && ui.prev_view == original_prev);
+    assert(smc_same(smc_target(0), locked_fader));
+    smc_lock_toggle();
 
     /* Guards: help, ASK, clip, perf — no peek; header may still update where allowed. */
     setup();

@@ -25,7 +25,7 @@ $STAGE_CC -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-unused-funct
     firmware/src/app/engine.c firmware/src/app/chicago_param_tables.c \
     firmware/src/seq/pattern.c firmware/src/seq/tb3po.c \
     firmware/src/seq/sequencer.c firmware/src/seq/motion.c \
-    firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c firmware/src/dsp/bass303.c \
+    firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_param.c \
     firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     "$GC" -lm -o build/host/project_stage_test
 build/host/project_stage_test
