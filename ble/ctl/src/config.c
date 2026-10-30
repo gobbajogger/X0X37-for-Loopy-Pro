@@ -2,7 +2,7 @@
 // Copyright (C) 2026 M. Geisler (genkigenki/makkuro)
 /*
  * Controller configuration for a standalone LE-only controller image.
- * Supports a peripheral role or one direct SMC central link.
+ * Supports a peripheral role or two direct SMC central links.
  * Symbol names and meanings follow the JieLi AC79 SDK (Apache-2.0)
  * header btcontroller_modules.h. Values are chosen for this image.
  */
@@ -18,7 +18,7 @@
 #define LL_FEAT_ENCRYPTION ((uint64_t)1 << 0)
 #define BT_NORMAL     0x01
 
-/* Peripheral keyboard or direct SMC-Mixer central, selected by the app; one central link in the A recovery candidate. */
+/* Peripheral keyboard or direct SMC-Mixer central, selected by the app; two central links in SMC host mode. */
 const int config_btctler_modules = BT_MODULE_LE;
 const int config_btctler_le_roles = LE_ADV | LE_SLAVE | LE_MASTER | LE_SCAN | LE_INIT;
 const uint64_t config_btctler_le_features = 0; /* SMC BLE-MIDI uses an unpaired link. */
@@ -29,14 +29,14 @@ const uint64_t config_btctler_le_features = 0; /* SMC BLE-MIDI uses an unpaired 
 int config_btctler_mode = BT_NORMAL;
 int config_btctler_hci_standard = 1;
 
-/* A: one SMC central link, five controller ACL transmit buffers. */
-const int config_btctler_le_hw_nums = 1;
+/* B: two SMC central links share three ACL TX buffers, with room for link objects. */
+const int config_btctler_le_hw_nums = 2;
 const int config_btctler_le_rx_nums = 5;
 const int config_btctler_le_acl_packet_length = 27;
-const int config_btctler_le_acl_total_nums = 5;
+const int config_btctler_le_acl_total_nums = 3;
 const int config_btctler_le_slave_conn_update_winden = 2500;
 const int config_btctler_le_afh_en = 0;
-const int config_btctler_le_master_multilink = 0;
+const int config_btctler_le_master_multilink = 1;
 const int config_btctler_le_tws = 0;
 const int config_btctler_single_carrier_en = 0;
 const uint32_t config_vendor_le_bb = 0;
