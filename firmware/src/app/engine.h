@@ -80,6 +80,10 @@ int engine_bass_preset_edited(int voice);
 int engine_bass_status(int voice);
 /* Chicago only, UI: live filter EG level 0..1 and env depth; 0 when not available */
 int engine_bass_filter_view(int voice, float *eg, float *depth);
+/* drums, UI: ms since the track's last hit, its live amp envelope 0..1; 0 when silent */
+int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
+/* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */
+float engine_bd909_hz(float tau, float depth, float pitch, float t_ms);
 int engine_bass_requested_bank(int voice);
 int engine_bass_requested_preset(int voice);
 /* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */

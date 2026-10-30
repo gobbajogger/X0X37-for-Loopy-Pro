@@ -161,6 +161,7 @@ typedef struct {
     float hit, cg, cstep, crush[2];
     float pk;                         /* X0X: the hit's peak so far; the tail ends 60 dB under it */
     int32_t qn;                       /* samples in a row under that */
+    float now;                        /* X0X UI: the last block's output peak (glyph motion) */
     uint8_t snd;
 } d8_lane_t;
 
@@ -207,6 +208,8 @@ void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *r
 void drum808_pan_settle(drum808_t *d);   /* every pan to its target at once (the kit is silent: no zipper) */
      /* ADDS this block (mono, n <= 256) into the dry bus and the reverb / delay send buses */
 int drum808_nparams(int track);                           /* D8_KIT = kit-wide */
+/* UI glyph motion: the track's live output level over its hit peak, 0..1; -1 unknown */
+float drum808_env(const drum808_t *d, int track);
 const x0x_param_t *drum808_param(int track, int i);
 int drum808_param_si(int track, int i, int pot, float *val);
 void drum808_set(drum808_t *d, int track, int i, int value);

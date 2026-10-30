@@ -263,6 +263,35 @@ X0X_COLD int drum909_param_si(int voice, int i, int pot, float *val)
     }
 }
 
+/* UI: the 909 kick's pitch t ms after a hit, from its pot values (Tune = sweep
+ * time constant ms, P.Dpth, Pitch), the same formula d9_bt_trigger/d9_render_bd use. */
+X0X_COLD float drum909_bd_hz(float tau, float m, float pm, float t_ms)
+{
+    tau = tau < 6.0f ? 6.0f : (tau > 32.0f ? 32.0f : tau);
+    m = m < 0.0f ? 0.0f : (m > 1.0f ? 1.0f : m);
+    if (!(pm > 0.0f)) pm = 1.0f;
+    float base = D9_BD_BASE_HZ * (1.0f + m * (pm - 1.0f)), df = D9_BD_DF_PER_MS * tau * (1.0f + 1.2f * m);
+    t_ms -= D9_BD_PHOLD_MS;
+    return base + (t_ms > 0.0f ? df * fm_expf(-t_ms / tau) : df);
+}
+
+/* UI glyph motion: the voice's own amplitude envelope now (the value its last
+ * render tick returned), before level/velocity. 0 when the voice is idle. */
+X0X_COLD float drum909_env(const drum909_t *d, int voice)
+{
+    float e;
+    switch (voice) {
+    case DR_BD: case DR_SD: e = d->bt[voice].amp.cur; break;
+    case DR_LT: case DR_MT: case DR_HT: e = d->tom[voice - DR_LT].env[0].cur; break;
+    case DR_RS: e = d->rim.amp.cur; break;
+    case DR_CP: e = d->clap.burst.cur + d->clap.tail.cur; break;
+    case DR_CH: case DR_OH: case DR_CR: case DR_RD:
+        e = d->smp[voice - DR_CH].playing ? d->smp[voice - DR_CH].out.cur : 0.0f; break;
+    default: return 0.0f;
+    }
+    return e > 0.0f ? e : 0.0f;
+}
+
 /* ===================================================================== */
 /* Rim and clap filter setup (er99_rim909_retune, er99_clap909_retune)    */
 /* ===================================================================== */
