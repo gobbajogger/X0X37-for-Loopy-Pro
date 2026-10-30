@@ -159,6 +159,25 @@ int main(void)
     advance(SMC_PEEK_MS + 50);
     assert(ui.view == V_SONG && !smc_peek->on);
 
+    /* Live engine peaks must affect MIX PARTS pixels even when SMC feedback
+     * remains active. The old full-screen overlay hid these real-page meters. */
+    setup();
+    fader(0, 0);
+    assert(smc_peek->on && smc_ui_active());
+    eng_peak[0] = 0;
+    ui_frame();
+    uint16_t empty_meter[BAND_H * 240];
+    memcpy(empty_meter, fb + MAIN_Y * 240, sizeof empty_meter);
+    eng_peak[0] = 32000;
+    ui_frame();
+    unsigned live_meter_pixels = 0;
+    for (int yy = 0; yy < BAND_H; yy++)
+        for (int xx = 0; xx < 190; xx++)
+            live_meter_pixels += empty_meter[yy * 240 + xx] !=
+                                 fb[(MAIN_Y + yy) * 240 + xx];
+    assert(live_meter_pixels > 0);
+    assert(smc_ui_active());            /* compact control feedback still active */
+
     /* HOME encoders also peek; the controlled parameter remains on HOME
      * during the live-page preview, including a second turn on an FX tail. */
     setup();
@@ -328,6 +347,6 @@ int main(void)
     smc_poll();
     assert(!smc_peek->on && ui.view == V_MIX);
 
-    puts("PASS: SMC UI peek map, hold refresh, restore and guards");
+    puts("PASS: SMC UI peek map, live meters, HOME knobs, locked PAGE, restore and guards");
     return 0;
 }

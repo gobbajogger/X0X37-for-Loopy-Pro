@@ -1028,11 +1028,34 @@ static void smc_ui_draw_peer(void)
     text_c(120, 49, &FONT_XS, status, C_HI);
     cv_commit(3, 0, KNOB_Y);
 }
+/* Page-peek is a distinct presentation mode. Keep the full SMC overlay
+ * for every other view, but let the real page paint its live meters while a
+ * small control-feedback header remains visible during peek. */
 void smc_ui_draw(void)
 {
     uint8_t saved = smc_slot;
     smc_slot = smc_ui.peer < SMC_PEERS ? smc_ui.peer : 0;
-    smc_ui_draw_peer();
+    if (smc_peek->on) {
+        char label[24], value[32], unit[12], banner[96], *q;
+        pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) :
+                   smc_target(smc_ui.strip);
+        draw_header();
+        draw_main();
+        draw_knobs();
+        smc_ui_label(r, label);
+        q = put_i(put_s(banner, smc_ui.kind == 1 ? "SMC K" : "SMC F"),
+                  smc_ui.strip + 1);
+        q = put_s(put_s(q, " "), label);
+        if (r.kind != R_NONE) {
+            pref_value_of(r, pref_get(r), value, unit);
+            q = put_s(put_s(q, " "), value);
+        }
+        while (q > banner && tw(&FONT_XS, banner) > 232) *--q = 0;
+        cv_begin(240, HDR_H, C_BLACK);
+        cv_rect(0, 0, 240, HDR_H, C_BLACK);
+        text_c(120, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(banner), C_HI);
+        cv_commit(0, 0, 0);
+    } else smc_ui_draw_peer();
     smc_slot = saved;
 }
 
