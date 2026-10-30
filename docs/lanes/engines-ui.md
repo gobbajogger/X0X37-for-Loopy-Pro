@@ -1,6 +1,6 @@
 ## Continuation on the latest integrated build (2026-10-30)
 
-**Current candidate parent:** `wip/one-build` at `094bb1a55c159aefb0e2bfa39790a1b4b74cee40`. This is newer than the original `a0279524` UI base and already contains the existing freeplay Miami rate-pad source, SMC and BREAK integration, wrap fixes and approved UI. The original base and PR #701 below remain historical provenance, not this candidate's parent. The exact 51-file PR #701 delta is grafted without collision onto the `one-build` tree. No production `ui.c`, HAL, engine management, sound metadata, font, boot or controller file from the current integrated base is overwritten. The source-closure check pins the *current* UI and selector blobs and computes safety diff relative to `094bb1a55c159aefb0e2bfa39790a1b4b74cee40`.
+**Current candidate integration base (merge parent):** `wip/one-build` at `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`. This is newer than the original `a0279524` UI base and already contains the existing freeplay Miami rate-pad source, SMC and BREAK integration, wrap fixes and approved UI. The original base and PR #701 below remain historical provenance, not this candidate's parent. The exact 51-file PR #701 delta is grafted without collision onto the `one-build` tree. No production `ui.c`, HAL, engine management, sound metadata, font, boot or controller file from the current integrated base is overwritten. The source-closure check pins the *current* UI and selector blobs and computes the safety diff relative to `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`.
 
 Preserved current integrated base features: existing eight freeplay wobble rate-pad selectors, engine and preset SOUND row, original program names, all six palettes/glyph families, SMC and BREAK source. The separately owned shape-pad implementation is not present and is not claimed. Active-voice CPU improvement beyond already imported optimizations is deferred to independent bit-exact work; this composition only integrates the proven optimization source.
 
@@ -14,7 +14,7 @@ Preserved current integrated base features: existing eight freeplay wobble rate-
 
 ## Scope and immutable ownership
 
-Owner-confirmed base: `wip/ui-theme` at `a0279524decd54d2840474883fefa5882b15fb4d`, directly continued on `wip/engines-ui`.
+Owner-confirmed base: `wip/ui-theme` at `a0279524decd54d2840474883fefa5882b15fb4d`, directly continued on `wip/engines-ui-one-build`.
 Use the base's **existing** `firmware/src/app/ui.c`, `main_fm1.c`, `boot_screen.h`, fonts, six palettes, original-control metadata, and matrix-B styling without replacing them with the older performance-build UI. The full approved glyph/screen material remains from the UI lane. No UI behavior is reimplemented from scratch.
 
 Import the existing optimized Chicago files **as complete Git blobs** from `wip/chicago-opt` at `dd735533eaceae5856f5b657fe617667e7cc5b6e`; import the optimized Miami files from `wip/miami-opt2` at `c305351b73b8821ded0b59277648cb0191f10a2f`. Every executable import must be the exact original blob. The source gate pins the affected engine files, selector, approved UI, and original-profile backend. `chicago_selector.c` is already selected by `ORIGINAL_SYNTH_UNITS` in `tools/build.py`, and `engine.h` enables tagged sound / preset preview in original mode. Engine/preset editing in the device renderer uses `R_BENGINE`/`R_BPRESET`, `engine_bass_select_preset()`, `build_pages()` and requested/active/pending state. The `G_ENGSEL`, `PRESET` and `RELOAD` names in `web/EDITOR_PROTOCOL.md` document an older Felucca/web protocol; they are **not** proof that the corresponding SysEx commands are answered by this device's `app/editor.c`.
@@ -45,12 +45,12 @@ Active-voice CPU improvements beyond these **already implemented** Chicago and M
 
 ## Required Mac proof on this source commit
 
-All commands start in the clean checkout of the **pushed full `wip/engines-ui` SHA**, with the owner's exact private build inputs installed locally and **never committed**. Keep the same golden render directory used by the established original-engine lanes. Stop if the active-input check reports missing inputs or generated stubs.
+All commands start in the clean checkout of the **pushed full `wip/engines-ui-one-build` SHA**, with the owner's exact private build inputs installed locally and **never committed**. Keep the same golden render directory used by the established original-engine lanes. Stop if the active-input check reports missing inputs or generated stubs.
 
 ```sh
-git fetch origin wip/engines-ui
-git checkout wip/engines-ui
-git pull --ff-only origin wip/engines-ui
+git fetch origin wip/engines-ui-one-build
+git checkout wip/engines-ui-one-build
+git pull --ff-only origin wip/engines-ui-one-build
 git rev-parse HEAD
 python3 -B tests/host/test_engines_ui_source_closure.py
 python3 tools/check_original_inputs.py --scope active --json
@@ -84,8 +84,8 @@ The `--icount` command must execute **inside a Linux worker with Valgrind**. Rec
 The Mac needs SDK **AC79NN V1.2.1** and the pinned JieLi compiler. V1.2.0 is not an acceptable substitute. The normal native target build commands, once the exact current source and private inputs are available:
 
 ```sh
-export JIELI_TOOLCHAIN=/Users/mac/.jieli/toolchain
-export AC79_SDK=/Users/mac/fw-AC79_AIoT_SDK
+export JIELI_TOOLCHAIN="$HOME/.jieli/toolchain"
+export AC79_SDK="$HOME/fw-AC79_AIoT_SDK"
 X0X_DEV_PADCAL=1 BOARD=smk37 MODEL=elite sh build.sh
 X0X_DEV_PADCAL=1 BOARD=smk37 MODEL=pro sh build.sh
 ```
