@@ -268,7 +268,7 @@ function attemptedNightlyWrite({selection=good.version, cached=pkg,
       version:cachedVersion,href:cachedHref};
     let writing=false,ctlNeedsResolution=false,ctl=null,ctlHash=null;
     const confirmWrite=()=>true;
-    const run=(raw,prod)=>{calls.push({product:prod,byte:raw[0]});};
+    const ownedRun=(raw,prod)=>{calls.push({product:prod,byte:raw[0]});};
     const insertCtl=(raw)=>raw;
     const sayK=()=>{},t=()=>"?";
     ${publisherAdmission}
