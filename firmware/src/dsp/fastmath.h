@@ -24,7 +24,11 @@
 /* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
  * The body stays visible so a hot call can still be inlined. A unit that
  * does not inline emits a weak copy, and the link keeps one of them. */
+#if defined(__clang__)
 #define FM_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#else   /* GCC 14 rejects weak on an inline function (host builds) */
+#define FM_ONE static inline __attribute__((unused))
+#endif
 #else
 #define FM_ONE static inline
 #endif
