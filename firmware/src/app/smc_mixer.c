@@ -6,6 +6,7 @@
 #include "smc_fx_map.h"
 #include "smc_mixer_edges.h"
 #include "smc_fx_caption.h"
+#include "smc_page_peek.h"
 
 #define SMC_Q 32u
 /* Preserve the decoding preset in the spare event-length bits. */
@@ -180,6 +181,10 @@ typedef struct {
 } smc_state_t;
 static smc_state_t smc_states[SMC_PEERS];
 #define smc (smc_states[smc_slot])
+/* One physical display, shared by the two SMC peers. Physical input and
+ * capture/lock ownership remain per peer. */
+static smc_page_peek_t smc_peek;
+static void smc_peek_cancel(void) { smc_page_peek_cancel(&smc_peek); }
 
 int smc_project_active(void)
 {
@@ -255,6 +260,7 @@ X0X_COLD void smc_project_reset(void)
 {
     uint8_t saved = smc_slot, up[SMC_PEERS];
     smc_ui_cancel();
+    smc_peek_cancel();
     smc_project_drop();
     for (unsigned i = 0; i < SMC_PEERS; i++) up[i] = smc_states[i].up;
     /* Clear every owner before the first FX publication. Otherwise initializing
@@ -421,6 +427,7 @@ static void smc_page_set(int page)
     }
     smc.knob_i = 0;
     smc_ui_cancel();
+    smc_peek_cancel();
 }
 
 /* Only visible cells are targets. Empty positions never fall through to another
@@ -1006,10 +1013,91 @@ void smc_ui_draw(void)
 }
 
 
+/* The ordinary SMC UI is a temporary overlay. The mapped-page preview
+ * instead shows the native MIX/FX screen without changing prev_view. */
+static smc_page_peek_screen_t smc_peek_screen(void)
+{
+    smc_page_peek_screen_t s = {
+        (uint8_t)ui.view, (uint8_t)cur_page(),
+        (uint8_t)ui.mixsel, (uint8_t)ui.prev_view
+    };
+    return s;
+}
+
+static void smc_peek_apply(smc_page_peek_screen_t s)
+{
+    ui.view = s.view;
+    ui.mixsel = s.mixsel;
+    ui.prev_view = s.prev_view;
+    build_pages();
+    if (pg.n > 0 && s.page < pg.n) *page_of(ui.view) = s.page;
+    for (int i = 0; i < 4; i++) blit_hash[i] = 0;
+#if BOARD_SMK37
+    { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
+#endif
+}
+
+static int smc_peek_eligible(int n, int knob, pref_t r)
+{
+    if ((unsigned)n >= 8u || smc.locked || ui.help || ui.overlay != O_NONE ||
+        ui_project_busy() || perf_testing() || smk_clip_mode_on() ||
+        smc_drum_mix() >= 0) return 0;
+    if (!knob) return smc_same(r, smc_home_target(n));
+    /* A knob editing a sequencer, clip or visible parameter keeps its page.
+     * Only HOME/PARTS mixer bank controls preview a different native page. */
+    if (ui.view != V_HOME && !(ui.view == V_MIX && smc_page_now() == 0))
+        return 0;
+    if (n < NPARTS)
+        return r.kind == R_ENG && r.a == T_MIX && r.b == part_at(n) &&
+            (r.c == MX_CUT || r.c == MX_PAN || r.c == MX_REV || r.c == MX_DLY);
+    return (n == 5 && r.kind == R_ENG && r.a == T_FX && r.c == FX_RV_DECAY) ||
+           (n == 6 && r.kind == R_ENG && r.a == T_FX && r.c == FX_DL_FDBK) ||
+           (n == 7 && r.kind == R_ENG && r.a == T_MST && r.c == MST_RESO);
+}
+
+static void smc_peek_begin(int n)
+{
+    smc_page_peek_screen_t now = smc_peek_screen(), target = now;
+    target.view = n == 5 || n == 6 ? V_FX : V_MIX;
+    target.page = n == 6 ? 1u : n == 7 ? (uint8_t)(1 + NKIT) : 0u;
+    if (n < NPARTS) target.mixsel = (uint8_t)part_at(n);
+    if (smc_peek.on) target.prev_view = smc_peek.saved.prev_view;
+    smc_ui_cancel();
+    if (!smc_page_peek_start(&smc_peek, now, target, plat_ms()))
+        return;
+    if (!smc_page_peek_equal(now, target))
+        smc_peek_apply(target);
+    /* build_pages() can clamp a page. Compare subsequent navigation against
+     * the page actually displayed rather than an invalid target index. */
+    smc_peek.shown = smc_peek_screen();
+}
+
+static void smc_peek_finish(void)
+{
+    smc_page_peek_screen_t previous;
+    if (smc_page_peek_finish(&smc_peek, smc_peek_screen(), &previous))
+        smc_peek_apply(previous);
+}
+
+static void smc_peek_tick(void)
+{
+    smc_page_peek_screen_t previous;
+    int status;
+    if (!smc_peek.on) return;
+    if (ui_project_busy()) { smc_peek_cancel(); return; }
+    if (ui.help || ui.overlay != O_NONE || perf_testing() || smk_clip_mode_on()) {
+        smc_peek_finish();
+        return;
+    }
+    status = smc_page_peek_step(&smc_peek, smc_peek_screen(),
+                                plat_ms(), &previous);
+    if (status == 1) smc_peek_apply(previous);
+}
+
 static void smc_show(int n, int knob, pref_t r)
 {
-    (void)r;
-    smc_ui_begin(n, knob);
+    if (smc_peek_eligible(n, knob, r)) smc_peek_begin(n);
+    else smc_ui_begin(n, knob);
 }
 
 static void smc_notice(int n)
@@ -1074,6 +1162,10 @@ static void smc_knob(int n, int delta)
 {
     uint32_t saved_t;
     uint8_t saved_run;
+    /* The preview is visual only. Route a new knob turn using the owner's
+     * original view, never the temporarily displayed MIX/FX page. */
+    if (smc_peek.on && ui.overlay == O_NONE && !ui.help && !ui_project_busy())
+        smc_peek_finish();
     if (ui.overlay == O_ASK)
         return;
     if (!smc.locked && ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
@@ -1110,6 +1202,7 @@ static void smc_knob(int n, int delta)
 
 static void smc_view(int v, int page)
 {
+    smc_peek_cancel();
     set_view(v);
     build_pages();
     if (page >= 0 && page < pg.n)
@@ -1130,6 +1223,7 @@ static void smc_knob_bank(int delta)
     smc.knob_bank = (uint8_t)((smc.knob_bank + count + delta) % count);
     smc.knob_i = 0;
     smc_ui_cancel();
+    smc_peek_cancel();
 }
 
 static void smc_toggle_fx(int which)
@@ -1578,6 +1672,7 @@ static void smc_button(uint8_t note, int mmc)
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);
+    smc_peek_cancel();                   /* intentional navigation wins over timed return */
     smc_ui_cancel();                     /* navigation owns its new screen immediately */
     smc_button_apply(note, mmc);
     if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* queued SMC navigation also cancels holds */
@@ -1981,6 +2076,7 @@ static void smc_frame_peer(void)
 void smc_frame(void)
 {
     uint8_t saved = smc_slot;
+    smc_peek_tick();
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) smc_frame_peer();
     smc_slot = saved;
 }
