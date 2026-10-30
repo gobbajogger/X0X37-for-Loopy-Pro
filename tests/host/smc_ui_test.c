@@ -489,7 +489,12 @@ static void test_track_knob_align(void)
  * SELECT represented only by the separately checked title highlight. */
 static void test_physical_geometry(void)
 {
-    setup(V_HOME, PART_909); fader(0, 0); ui_frame();
+    /* Approved #737: a HOME fader move peeks the real MIX page with the
+     * SMC banner and pickup/ACTIVE line. The physical strip overlay below
+     * is the non-peek SMC screen, so drop the peek to check its geometry. */
+    setup(V_HOME, PART_909); fader(0, 0);
+    CHECK(smc_peek->on && ui.view == V_MIX);
+    smc_peek_cancel(); ui_frame();
     for (int n = 0; n < 8; n++) {
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 36) * 240 + x + 8] != 0); /* encoder top */
@@ -500,7 +505,7 @@ static void test_physical_geometry(void)
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
-    knob(7, 1); ui_frame();
+    knob(7, 1); smc_peek_cancel(); ui_frame();
     CHECK(smc_ui.kind == 1 && smc_ui.strip == 7);
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 36) * 240 + n * 30 + 8] != 0);
