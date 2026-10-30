@@ -28,7 +28,11 @@
 #define D9_NOINLINE static __attribute__((noinline, unused))   /* not every includer uses every helper */
 /* One link-wide body. The text stays here so a call can still be inlined.
  * Each unit may emit a weak copy; the link keeps a single one. */
+#if defined(__clang__)
 #define D9_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#else   /* GCC 14 rejects weak on an inline function (host builds) */
+#define D9_ONE static inline __attribute__((unused))
+#endif
 #define D9_ONE_OUT __attribute__((weak, noinline, unused))
 #else
 #define D9_INLINE static inline
