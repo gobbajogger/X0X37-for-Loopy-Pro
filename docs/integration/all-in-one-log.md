@@ -51,3 +51,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | restore | – | done | fe8267f1 | – | owner 21:37 VLAT: miami_decimator_tables_private.h restored (removal a7697514 reverted by new commit) |
 | #714 | 8ff23cff | merged | bbfa53d1 | smc_fx_caption.h, smc_mixer.c, smc_fx_caption_test.c, run_tests.sh | kept #717/#725 state + #714 button fixes; caption takes #714 4-arg API but shows LPF on SELECT to match #725 audio (#714 'show assigned FX' caption not kept) |
 | #707 | 58136bc2 | merged | d56c40c4 | miami_ms20.c, run_miami_table_interpolation.sh, run_tests.sh (kept #691 side) | content already in via #691 (same fast path, newer); merge records ancestry only |
+| lane/mb-golden-691 | bb21d7eb | merged | c079f049 | – | only an evidence text file; the 15 .f32 goldens are binaries and are not in the branch |
