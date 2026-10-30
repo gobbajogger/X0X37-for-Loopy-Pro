@@ -1,0 +1,1094 @@
+  ok   dsp-host-linkage
+  ok   fastmath
+  ok   fastmath-ubsan
+  ok   home-tie-semantics
+  ok   sequencer
+  ok   bass-prob-midi
+  ok   seq-tb3po-bars
+  ok   seq-random-swing
+  ok   seq-random-clock-handoff
+  ok   seq-long-notes
+  ok   seq-pingpong-resize
+  ok   clk-lock
+  ok   seq-random-tie-preview
+  ok   encoder
+  ok   bass-midi-pending-native
+  ok   uac
+  ok   trs
+  ok   undo
+  ok   undo-capacity
+  ok   lz
+  ok   motion
+  ok   host-build
+  ok   original-release-integration
+  ok   original-release-ui
+  ok   original-build
+  ok   freeplay-rate-pads
+  ok   boot-screen
+  ok   ui-theme
+  ok   project-protocol
+  ok   project-save-preflight
+  ok   editor-ota-dispatch
+  ok   storage-scratch
+  FAIL project-stage (see build/host/project-stage.log)
+       experiments/original_synth/miami_voice_owner.c:9:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       cc1: all warnings being treated as errors
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL project-runtime (see build/host/project-runtime.log)
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       project_runtime: tests/host/project_runtime_test.c:166: invalid_load_and_undo: Assertion `proj.sound.v[T_303][0][BASS303_CUTOFF] == cutoff' failed.
+       Aborted
+  ok   save-note-quiet
+  ok   font-pack
+  ok   smc-protocol
+  ok   smc-fader
+  FAIL smc-buttons (see build/host/smc-buttons.log)
+          17 | static int drum_mix_page(void) { return -1; }
+             |            ^~~~~~~~~~~~~
+       cc1: all warnings being treated as errors
+       Traceback (most recent call last):
+         File "/workspace/dnbox-local/repo/tests/host/smc_buttons_test.py", line 96, in <module>
+           subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           str(c),'-o',str(exe)],check=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-I/workspace/dnbox-local/repo/firmware/src', '-I/workspace/dnbox-local/repo/tests/host', '/workspace/dnbox-local/repo/build/host/iso/smc-buttons/tmp/tmpcsy25esl/test.c', '-o', '/workspace/dnbox-local/repo/build/host/iso/smc-buttons/tmp/tmpcsy25esl/test']' returned non-zero exit status 1.
+  FAIL smc-select-mode (see build/host/smc-select-mode.log)
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       FAIL tests/host/smc_select_mode_test.c:55: smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)
+  ok   smc-fx
+  ok   smc-mixer-edges
+  ok   smc-action-source
+  ok   smc-fx-caption
+  ok   smc-fx-preset-preserve
+  ok   smc-queue
+  ok   smc-solo-overflow
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-isr-preemption
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  ok   midi-mq-noteoff-overflow
+  ok   midi-mq-rt-overflow
+  ok   midi-overflow-order
+  ok   midi-out-mq-noteoff-overflow
+  ok   ble-out-noteoff-overflow
+  ok   ble-out-rt-overflow
+  ok   usb-sxq-sticky-apc
+  ok   smc-host-data7
+  ok   smc-host-overflow-data7
+  ok   smc-sender-isolation
+  ok   smc-ble-payload
+  ok   smc-link
+  ok   smc-reconnect-epoch
+  FAIL smc-boot-saved-roles (see build/host/smc-boot-saved-roles.log)
+       Traceback (most recent call last):
+         File "/workspace/dnbox-local/repo/tests/host/test_smc_boot_saved_roles.py", line 33, in <module>
+           original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*#if X0X_ORIGINAL_SYNTH\s*\n', PROJECT, 'revision-13 loader')
+         File "/workspace/dnbox-local/repo/tests/host/test_smc_boot_saved_roles.py", line 23, in unique
+           assert len(matches) == 1, f'{label}: expected once, found {len(matches)}'
+                  ^^^^^^^^^^^^^^^^^
+       AssertionError: revision-13 loader: expected once, found 0
+  ok   ble-central-first-notification
+  ok   ble-one-peer-command
+  ok   ble-one-peer-contract
+  ok   ble-dual-peer
+  ok   ble-command-credit
+  not-run ble-controller-heap (single-peer recovery; B two-link heap assumption removed)
+  FAIL ble-midi-receive (see build/host/ble-midi-receive.log)
+       ble_midi_central: tests/host/ble_midi_central_test.c:94: main: Assertion `c.state == BLEC_SCANNING && tx[0] == 0x0c' failed.
+       Aborted
+  FAIL ble-capture-replay (see build/host/ble-capture-replay.log)
+       Traceback (most recent call last):
+         File "/workspace/dnbox-local/repo/tests/host/ble_capture_replay_test.py", line 18, in <module>
+           raw = CAPTURE.read_bytes()
+         File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+           with self.open(mode='rb') as f:
+                ~~~~~~~~~^^^^^^^^^^^
+         File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+           return io.open(self, mode, buffering, encoding, errors, newline)
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       FileNotFoundError: [Errno 2] No such file or directory: '/workspace/dnbox-local/repo/cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json'
+  ok   ble-acl-start-flags
+  ok   ble-hci-completed
+  ok   ble-acl-zero-credit
+  ok   ble-link-epoch-reset
+  ok   ble-disconnect-status
+  FAIL smc-reachability (see build/host/smc-reachability.log)
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       test: tests/host/smc_reachability_test.c:86: edit: Assertion `d && d->max' failed.
+       Aborted
+  ok   smc-pickup-acceptance
+  FAIL smc-lock (see build/host/smc-lock.log)
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       FAIL tests/host/smc_lock_test.c:386: cur_page() == 0
+       PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures
+       PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues
+  ok   smc-lock-beat
+  FAIL smc-multi-peer (see build/host/smc-multi-peer.log)
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       FAIL tests/host/smc_multi_peer_test.c:63: smc_states[1].lock_kit == 2 && smc_states[1].lock_bank == 8
+  ok   smc-multi-peer-negative
+  ok   smc-pause-loss
+  FAIL smk-wheel-mode (see build/host/smk-wheel-mode.log)
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       probe: /workspace/dnbox-local/repo/tests/host/smk_wheel_mode_test.c:225: main: Assertion `commands == edge + 1 && last_kind == 2' failed.
+       Aborted
+  ok   miami-table-interpolation
+  ok   legacy-303-project
+  FAIL smc-interaction-negative (see build/host/smc-interaction-negative.log)
+       PASS rejected runtime mutation: pause-unbound
+       PASS rejected runtime mutation: pause-no-release
+       Traceback (most recent call last):
+         File "/workspace/dnbox-local/repo/tests/host/smc_interaction_negative_test.py", line 27, in <module>
+           assert source.count(before) == 1, name
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: pause-no-drop-recovery
+  ok   corner-coverage
+  ok   part-order
+  ok   smc-ui
+  ok   smc-mode-page
+  ok   smc-mixer-page
+  ok   ui-shared-glyph
+  ok   ui-drum-mix-material
+  FAIL ui-waveform-truth (see build/host/ui-waveform-truth.log)
+       tests/host/ui_waveform_truth_test.c:7:10: fatal error: ../../experiments/wobble/wobble.c: No such file or directory
+           7 | #include "../../experiments/wobble/wobble.c"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+  ok   smc-ui-bounds
+  FAIL smc-ui-negative (see build/host/smc-ui-negative.log)
+       PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+       PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+       PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+       PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+       PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+       PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+       PASS restore: eight views preserve complete navigation state and exact framebuffer
+       PASS activity: pickup, live values, repeated controls, exact boundary and wrap
+       PASS feedback: existing header message and local knob readout survive temporary UI
+       PASS navigation: physical buttons, encoder, key and SMC navigation cancel
+       PASS overlays: confirmation blocks input; menu/help state survives activity and timeout
+       PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI
+       PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset
+       smc_ui: PASS (8967 checks)
+       
+  ok   smc-mapping
+  FAIL smc-drum-mutes (see build/host/smc-drum-mutes.log)
+       tests/host/../../host/x0x_host.c:1021:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+        1021 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+             |                                            ^~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3073:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3073 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       cc1: fatal error: firmware/src/dsp/bass303.c: No such file or directory
+       compilation terminated.
+       In file included from firmware/src/app/original_runtime.h:4,
+                        from firmware/src/app/engine.c:8:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+  FAIL smc-drum-rs (see build/host/smc-drum-rs.log)
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       FAIL pattern cue during held p-lock restores the original drum sound line 452: ui.hold_used && drum909_get(observed_909, r.b, r.c) != base
+       FAIL pattern cue during held p-lock restores the original drum sound line 458: drum909_get(observed_909, r.b, r.c) == base
+       FAIL drum Solo suppresses 303 and release restores it line 487: peak(2) == 0
+       Simulated DAW/MMC, production SMC/UI/SMK pad mapping/engine; no physical-device result.
+       Normal stereo audio fingerprints: 909=2b1a2725 808=a0999a81
+       FAIL: 44 active drum destinations, 20 inactive positions, 88 pad writes, 88 audio cases; 124992 checks, 3 failures
+  FAIL smc-performance-abort (see build/host/smc-performance-abort.log)
+       tests/host/../../host/x0x_host.c:1021:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+        1021 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+             |                                            ^~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3073:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3073 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       cc1: fatal error: firmware/src/dsp/bass303.c: No such file or directory
+       compilation terminated.
+       In file included from firmware/src/app/original_runtime.h:4,
+                        from firmware/src/app/engine.c:8:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+  ok   smc-filter
+  ok   smc-feedback
+  FAIL smc-record-feedback (see build/host/smc-record-feedback.log)
+       tests/host/../../host/x0x_host.c:1021:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+        1021 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+             |                                            ^~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3073:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3073 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       cc1: fatal error: firmware/src/dsp/bass303.c: No such file or directory
+       compilation terminated.
+       In file included from firmware/src/app/original_runtime.h:4,
+                        from firmware/src/app/engine.c:8:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+  ok   smc-part-select
+  ok   smc-clip-visibility
+  ok   drum-pan
+  ok   stereo
+  FAIL master (see build/host/master.log)
+          50 | FM_ONE float fm_floorf(float x)
+             |              ^~~~~~~~~
+       firmware/src/dsp/fastmath.h:161:14: error: inline function ‘fm_sin_pi’ declared weak [-Werror=attributes]
+         161 | FM_ONE float fm_sin_pi(float x)
+             |              ^~~~~~~~~
+       firmware/src/dsp/fastmath.h:174:14: error: inline function ‘fm_wrap_pi’ declared weak [-Werror=attributes]
+         174 | FM_ONE float fm_wrap_pi(float x)                       /* to [-pi, pi), 2pi in three parts */
+             |              ^~~~~~~~~~
+       firmware/src/dsp/fastmath.h:180:14: error: inline function ‘fm_sinf’ declared weak [-Werror=attributes]
+         180 | FM_ONE float fm_sinf(float x) { return fm_sin_pi(fm_wrap_pi(x)); }
+             |              ^~~~~~~
+       firmware/src/dsp/fastmath.h:181:14: error: inline function ‘fm_cosf’ declared weak [-Werror=attributes]
+         181 | FM_ONE float fm_cosf(float x)
+             |              ^~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL drum-kit-identity (see build/host/drum-kit-identity.log)
+         208 | D9_ONE float d9_tanh(float u)
+             |              ^~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:234:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+         234 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+             |             ^~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:218:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         218 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:217:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         217 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:210:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         210 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL drum909-adpcm (see build/host/drum909-adpcm.log)
+         208 | D9_ONE float d9_tanh(float u)
+             |              ^~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:234:13: error: inline function ‘d9_shape_prep’ declared weak [-Werror=attributes]
+         234 | D9_ONE void d9_shape_prep(d9_shape_t *s, float drive, int type)
+             |             ^~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:218:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         218 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:217:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         217 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:210:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         210 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+  not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+  ok   breaks
+  FAIL break-suite-registration (see build/host/break-suite-registration.log)
+       BREAK suite registration FAIL:
+       BREAK controls/storage must share generated host inputs in class G
+  ok   adaptive-break-dsp
+  ok   adaptive-break-controls
+  ok   adaptive-break-storage
+  ok   adaptive-break-midi-pair
+  ok   break-performance
+  ok   brk-loops-seamless
+  ok   brk-outline
+  ok   brk-outline-gate
+  FAIL chicago-fx-bridge (see build/host/chicago-fx-bridge.log)
+       tests/host/chicago_fx_bridge_test.c:7:10: fatal error: bass303.h: No such file or directory
+           7 | #include "bass303.h"
+             |          ^~~~~~~~~~~
+       compilation terminated.
+       firmware/src/app/chicago_param_tables.c:18:1: warning: ‘minsize’ attribute directive ignored [-Wattributes]
+          18 | {
+             | ^
+  FAIL chicago-fx-runtime (see build/host/chicago-fx-runtime.log)
+       tests/host/chicago_fx_runtime_test.c:7:10: fatal error: ../../firmware/src/dsp/bass303.h: No such file or directory
+           7 | #include "../../firmware/src/dsp/bass303.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+       In file included from tests/host/../../firmware/src/app/original_runtime.h:4,
+                        from tests/host/../../firmware/src/app/engine.c:8,
+                        from tests/host/chicago_fx_runtime_engine.c:3:
+       tests/host/../../firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+       cc1: fatal error: firmware/src/dsp/bass303.c: No such file or directory
+       compilation terminated.
+       cc1: fatal error: experiments/wobble/wobble.c: No such file or directory
+       compilation terminated.
+  ok   au-compare-align
+  ok   au-compare-battery
+  ok   install-gate-guard
+  ok   queue-guard
+  ok   install-guards
+  ok   install-head
+  ok   release-tree
+  ok   prepush-trim
+  ok   prepush-allow
+  ok   gate-configs
+  ok   gate-trap
+  ok   quickcheck-plan
+  ok   host-failure-summary
+  FAIL ctl-compile (see build/host/ctl-compile.log)
+           stdout, stderr = self._communicate(input, endtime, timeout)
+                            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+           self._check_timeout(endtime, orig_timeout, stdout, stderr)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+           raise TimeoutExpired(
+           ...<2 lines>...
+                   stderr=b''.join(stderr_seq) if stderr_seq else None)
+       subprocess.TimeoutExpired: Command '['sh', '/workspace/dnbox-local/repo/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+       
+       ----------------------------------------------------------------------
+       Ran 10 tests in 23.090s
+       
+       FAILED (errors=2)
+  FAIL host-setup (see build/host/host-setup.log)
+       ======================================================================
+       FAIL: test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp (__main__.HostSetupTest.test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "/workspace/dnbox-local/repo/tests/host/test_host_setup.py", line 118, in test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp
+           self.assertEqual(result.returncode, 0, result.stderr)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: 2 != 0 : host: ERROR: private original-synth inputs missing (Chicago and Miami need them).
+       host: run python3 tools/check_original_inputs.py for the list; no public fallback exists.
+       
+       
+       ----------------------------------------------------------------------
+       Ran 11 tests in 0.878s
+       
+       FAILED (failures=7)
+  FAIL gen-nonfont-tables (see build/host/gen-nonfont-tables.log)
+       FAIL: expected ok   host-build
+                not-run host-build (Pillow)
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              all tests passed
+  ok   stereo-alone-gen
+  ok   runner-admission
+  ok   update-names
+  ok   gate-reason
+  ok   validation-inputs
+  ok   stage-handoff
+  ok   dev-validate
+  ok   dev-validate-composed
+  ok   nightly-publish
+  ok   gen-cache
+  ok   smk-update-contract
+  ok   gen-order
+  ok   quickcheck-devbug
+  ok   status-lanes
+  ok   status-isolation
+  ok   loop-bars
+  ok   installer
+  ok   installer-f02-bind
+  ok   installer-f02-bind-web
+  ok   locked-settings
+  ok   smk-flash
+  ok   smk-storage
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   smk-clip-ble-clear
+  ok   smk-clip-keys
+  ok   smk-chord-recognize
+  ok   smk-clip-chord-display
+  ok   smk-ck-page-layout
+  ok   smk-arrows
+  ok   smk-arrows-owner
+  ok   apc40-tables
+  ok   smk-clip-idle
+  ok   smk-clip-idle-pad
+  ok   apc40-pad-owner
+  ok   smk-padcal
+  ok   padcal-view
+  ok   smk-padcal-export
+  ok   smk-padcal-wiring
+  ok   pad-placement-doc
+  ok   padcal-flag
+  ok   apc40-lcd565-csv
+  ok   apc-palette
+  ok   installer-targets
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  FAIL ble-role-switch (see build/host/ble-role-switch.log)
+       role: /workspace/dnbox-local/repo/tests/host/ble_role_switch_test.c:88: take_command: Assertion `n >= 3 && t == 1' failed.
+       Traceback (most recent call last):
+         File "/workspace/dnbox-local/repo/tests/host/ble_role_switch_test.py", line 25, in <module>
+           subprocess.run([str(binary)], check=True)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['/workspace/dnbox-local/repo/build/host/iso/ble-role-switch/tmp/ble-role-oo6noarg/role']' died with <Signals.SIGABRT: 6>.
+  ok   inlog-tool
+  ok   smk-pad-inputs
+  ok   smk-clip-ble-notify
+  ok   smk-clip-dark
+  ok   smk-clip-usb-clear
+  ok   smk-clip-isolation
+  ok   smk-clip-knob
+  ok   smk-fader-pickup
+  ok   smk-clip-wait
+  ok   smk-apc40-violet
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   ble-sysex-bounds
+  ok   ble
+  ok   upload-images
+  ok   upload-tools
+  ok   builtin-break-output
+  ok   break-pack
+  ok   break-pack-web
+  ok   breaks-web
+  ok   breaks-page
+  ok   project-adoption-identities
+  ok   projects-web
+  ok   installer-project-handoff
+  ok   projects-page
+  ok   install-slots-web
+  ok   installer-backup-selection
+  ok   slot-build-safe
+  ok   wav-import-integrity
+  ok   slot-backup
+  ok   slot-begin-cancel
+  ok   smp-begin-cancel
+  ok   slot-backup-durable
+  ok   slot-archive-zone
+  ok   slot-verify-order
+  ok   slot-read-reply
+  ok   slot-ack-integrity
+  ok   slot-echo-7bit
+  ok   slot-migration-matching
+  ok   slot-break-menu-migration
+  ok   installer-slots
+  ok   installer-restore-status
+  ok   installer-ota-finish-ack
+  ok   installer-backup-snapshot
+  ok   installer-ctl
+  ok   ctl-read-framing
+  ok   ctl-publish-atomic
+  ok   rec-held-duration
+  FAIL rec-endpoint-lifecycle (see build/host/rec-endpoint-lifecycle.log)
+       FAIL line 286: hold beyond full loop saturates one traversal without deleting onset
+       FAIL line 289: saturated periodic pattern ends after one full loop
+       FAIL line 295: reverse recording fills actual traversal
+       FAIL line 298: reverse boundary has no orphan continuation
+       FAIL line 324: actual legacy format3 loads unchanged with zero endpoint
+       FAIL line 344: context cancel releases the cancelled voice
+       FAIL line 360: new press ends on its own off
+       FAIL line 378: same-pitch count releases on the new press's own off
+       FAIL line 384: external successor retains recording ownership
+       FAIL line 386: external successor ends on its own release
+       FAIL line 393: input disconnect releases its actual voice
+       FAIL line 393: input disconnect releases its actual voice
+       FAIL line 393: input disconnect releases its actual voice
+         timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection, stop and cancelled-gate ownership checked
+       rec_endpoint_lifecycle: 535739 checks 36 failures
+  FAIL rec-endpoint-storage (see build/host/rec-endpoint-storage.log)
+       experiments/original_synth/miami_voice_owner.c:9:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       cc1: all warnings being treated as errors
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL rec-nonforward-guard (see build/host/rec-nonforward-guard.log)
+       FAIL line 160: unsupported mode states its actual limitation
+       FAIL line 160: unsupported mode states its actual limitation
+       rec_nonforward_guard: 112036 checks 2 failures
+  FAIL rec-live (see build/host/rec-live.log)
+       sh: 0: cannot open tests/host/run_rec_live.sh: No such file
+  FAIL rec-live-smk (see build/host/rec-live-smk.log)
+       sh: 0: cannot open tests/host/run_rec_live.sh: No such file
+  ok   copy-semantics
+  ok   song-actions
+  FAIL ui-feedback (see build/host/ui-feedback.log)
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       test: tests/host/ui_feedback_test.c:170: home_pattern_glyph_content: Assertion `lit0 == 2' failed.
+       Aborted
+  ok   remaining-feature-proof-selftest
+  ok   home-pattern-glyph
+  FAIL home-overview (see build/host/home-overview.log)
+       assignment tick mismatch: valid-note-and-hold-current part 2
+       valid-note-and-hold-current part=3 current=1 used=1 bits16=0038 pixels=ff/ff expected=0038,06
+       HOME bass lane mismatch: valid-note-and-hold-current bits=0000 expected=0038
+       assignment tick mismatch: valid-note-and-hold-current part 3
+       valid-wrap-hold-current part=2 current=1 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+       HOME bass lane mismatch: valid-wrap-hold-current bits=0000 expected=0003
+       assignment tick mismatch: valid-wrap-hold-current part 2
+       valid-wrap-hold-current part=3 current=1 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+       HOME bass lane mismatch: valid-wrap-hold-current bits=0000 expected=0003
+       assignment tick mismatch: valid-wrap-hold-current part 3
+       all-tie-editor-created-current part=2 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+       assignment tick mismatch: all-tie-editor-created-current part 2
+       all-tie-editor-created-current part=3 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+       assignment tick mismatch: all-tie-editor-created-current part 3
+       HOME CONTENT CONTRACT FAIL: failures=91
+  FAIL sound-matrix (see build/host/sound-matrix.log)
+             |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  FAIL sound-layout (see build/host/sound-layout.log)
+             |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  FAIL chicago-presentation (see build/host/chicago-presentation.log)
+             |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  FAIL chicago-readout (see build/host/chicago-readout.log)
+             |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  FAIL matrix-knob-caption (see build/host/matrix-knob-caption.log)
+             |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  FAIL preset-navigation-noop (see build/host/preset-navigation-noop.log)
+          14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+             |                  ^~
+       tests/host/preset_navigation_noop_test.c:44:41: note: in expansion of macro ‘CHECK’
+          44 |             for(int i=0;i<3;i++)audio();CHECK(!memcmp(&before,&proj.sound,sizeof before));
+             |                                         ^~~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3073:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3073 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       In file included from firmware/src/app/original_runtime.h:4,
+                        from firmware/src/app/engine.c:8:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: chicago_note_context.h: No such file or directory
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       compilation terminated.
+  FAIL ui-303-entry (see build/host/ui-303-entry.log)
+       experiments/original_synth/miami_voice_owner.c: In function ‘state’:
+       experiments/original_synth/miami_voice_owner.c:9:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |  ^~
+       experiments/original_synth/miami_voice_owner.c:9:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+           9 |  if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+             |                                     ^~
+       experiments/original_synth/miami_voice_snapshot.c: In function ‘original_miami_voice_snapshot_decode’:
+       experiments/original_synth/miami_voice_snapshot.c:151:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |  ^~
+       experiments/original_synth/miami_voice_snapshot.c:151:19: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+         151 |  if(!out)return 0;original_miami_voice_snapshot n;if(!original_state_decode(&schema,&n,bytes,length))return 0;*out=n;return 1;
+             |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Segmentation fault
+  ok   scenario-arrows
+  ok   scenario-autosave
+  ok   scenario-bleclock
+  FAIL scenario-blenotes (see build/host/scenario-blenotes.log)
+         ok midiheld == 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0x303, got 3
+       FAIL expect midiheld == 0x202, got 2
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0x8001, got 1
+         ok midiheld == 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0xFF03, got 3
+         ok midiheld == 0
+       host: 1340 ms simulated, 10 blits, render 1.0% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-brkslice (see build/host/scenario-brkslice.log)
+         ok midiheld == 0
+         ok noteons == 0
+       FAIL expect midiheld == 0x100, got 0
+       FAIL expect midiheld == 0x100, got 0
+       FAIL expect midiheld == 0x100, got 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0x100, got 0
+         ok midiheld == 0
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 0
+       line 50: unknown command brkwrap
+  FAIL scenario-brkslice_mode_toggle (see build/host/scenario-brkslice_mode_toggle.log)
+         ok midiheld == 0
+       FAIL expect midiheld == 0x100, got 0
+       line 11: unknown command brkwrap
+  FAIL scenario-brkslice_trs_overlap (see build/host/scenario-brkslice_trs_overlap.log)
+         ok midiheld == 0
+       line 7: unknown command brkwrap
+  ok   scenario-clip-arrow-menu
+  ok   scenario-clklock
+  FAIL scenario-clkmove (see build/host/scenario-clkmove.log)
+         ok clksrc == 0
+         ok setbyte27 == 8
+         ok setbyte38 == 0
+         ok clksrc == 0
+       FAIL expect setbyte38 == 11, got 0
+         ok clksrc == 0
+       FAIL expect setbyte38 == 1, got 0
+       FAIL expect setbyte39 == 18, got 0
+         ok clksrc == 1
+         ok setbyte38 == 2
+         ok clksrc == 0
+         ok setbyte27 == 9
+         ok clksrc == 0
+         ok setbyte38 == 0
+       host: 36740 ms simulated, 56 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-clocksrc
+  ok   scenario-drum_bass_ch_consume
+  FAIL scenario-edit_midi_rec_guard (see build/host/scenario-edit_midi_rec_guard.log)
+         ok view == 1
+         ok gate0.0 == 0
+         ok gate0.1 == 0
+         ok view == 8
+         ok view == 1
+       FAIL expect gate0.4 == 1, got 0
+       FAIL expect gate0.5 == 2, got 0
+       FAIL expect gate0.7 == 2, got 0
+         ok gate0.9 == 0
+         ok gate0.10 == 0
+       host: 1930 ms simulated, 25 blits, render 0.7% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-edit_oct_no_hidden
+  ok   scenario-extclock
+  ok   scenario-freeplay
+  FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+         ok view == 2
+         ok view == 1
+       FAIL expect sound2.0.0 == 58, got 127
+       FAIL expect sound2.0.1 == 90, got 105
+         ok part == 4
+         ok brk0 == 1
+         ok brk15 == 1
+         ok view == 0
+         ok mute == 16777216
+         ok mute == 0
+         ok part == 2
+         ok view == 1
+         ok lanes == 1
+         ok store_writes == 6
+       host: 8330 ms simulated, 184 blits, render 0.9% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-groove
+  ok   scenario-guard
+  ok   scenario-help
+  FAIL scenario-jam (see build/host/scenario-jam.log)
+         ok part == 4
+       FAIL expect sound5.2.2 == 70, got 0
+         ok sound5.4.1 == 55
+         ok tempo == 135
+         ok peak -7.9 dBFS
+       host: 30714 ms simulated, 580 blits, render 1.0% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-keysound
+  ok   scenario-knobs
+  FAIL scenario-midiowner (see build/host/scenario-midiowner.log)
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 1
+         ok midiheld == 0
+       host: 720 ms simulated, 3 blits, render 0.8% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate (see build/host/scenario-migrate.log)
+       FAIL expect laneval0.1.4.3 == 102, got -1
+       FAIL expect laneval0.1.4.5 == 105, got -1
+       FAIL expect laneval0.1.4.40 == 255, got -1
+       FAIL expect songlen == 2, got 0
+       FAIL expect songbar2.0 == 16, got 1
+         ok pattern == 16
+       FAIL expect hit0.0.1 == 1, got 0
+         ok pattern == 1
+       FAIL expect hit0.0.31 == 1, got 0
+         ok hit0.0.1 == 0
+       FAIL expect laneval0.1.4.5 == 105, got -1
+       FAIL expect hit0.0.1 == 1, got 0
+       FAIL expect sound0.1.4 == 105, got 58
+       FAIL expect songbar2.0 == 16, got 1
+       host: 720 ms simulated, 14 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate0102 (see build/host/scenario-migrate0102.log)
+       FAIL expect sound1.0.0 == 100, got 64
+       FAIL expect sound1.0.9 == 20, got 64
+         ok sound1.0.7 == 0
+         ok sound1.0.8 == 0
+       FAIL expect sound6.0.0 == 40, got 64
+         ok sound6.0.12 == 95 (>0)
+       FAIL expect sound6.0.13 <60, got 64
+         ok sound4.1.0 == 71 (>16)
+       FAIL expect sound0.0.10 == 30, got 64
+       FAIL expect sound0.1.4 == 70, got 58
+       FAIL expect sound1.0.9 == 20, got 64
+       FAIL expect songlen == 2, got 0
+       FAIL expect lanes == 1, got 0
+       FAIL expect hit0.1.12 == 1, got 0
+       host: 3240 ms simulated, 37 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-patterns (see build/host/scenario-patterns.log)
+         ok tempo == 120
+         ok cue == 1
+         ok pattern == 2
+         ok pattern == 1
+         ok pattern == 1
+         ok pattern == 2
+         ok pattern == 1
+         ok part == 2
+       FAIL expect gate0.0 == 1, got 0
+         ok store_writes == 6
+         ok pattern == 1
+         ok hit0.0.0 == 1
+         ok hit0.0.8 == 1
+       FAIL expect hit0.1.4 == 1, got 0
+       host: 11400 ms simulated, 570 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-perf (see build/host/scenario-perf.log)
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+         ok hit0.0.8 == 1
+       FAIL expect sound2.0.0 == 48, got 127
+         ok view == 7
+         ok perftest == 0
+         ok patptr == 0
+         ok perftest == -1
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+       host: 28864 ms simulated, 173 blits, render 1.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-perfsave
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+       FAIL expect laneval0.0.0.0 == 255, got -1
+         ok hit0.0.0 == 1
+         ok hit0.0.0 == 0
+         ok hit0.0.0 == 1
+         ok playhead0 == 5
+       FAIL expect motion0.0.0 == 54, got -1
+         ok playhead0 == 6
+       FAIL expect motion0.0.0 == 34, got -1
+         ok lanes == 0
+         ok hit0.0.4 == 1
+         ok lanes == 0
+       FAIL expect laneval2.0.0.2 == 28, got -1
+       FAIL expect sound2.0.0 == 48, got 64
+       FAIL expect lanes == 1, got 0
+       host: 2872 ms simulated, 49 blits, render 0.3% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-prob
+  ok   scenario-probcond
+  ok   scenario-probreset
+  ok   scenario-roll_continuation
+  ok   scenario-roll_short_tie
+  ok   scenario-savefeedback
+  ok   scenario-savewait
+  ok   scenario-showcase
+  ok   scenario-slices
+  FAIL scenario-song (see build/host/scenario-song.log)
+         ok laneval2.0.0.1 == 255
+         ok laneval2.0.0.9 == 255
+       FAIL expect motion2.0.0 <29, got 127
+         ok motion2.0.0 == 127 (>17)
+         ok motion2.0.0 == -1
+         ok sound2.0.0 == 64
+         ok lanes == 0
+         ok sound2.0.0 == 64
+         ok lanes == 1
+         ok store_writes == 6
+         ok lanes == 1
+         ok songlen == 3
+         ok songbar2.3 == 5
+         ok songbar3.5 == 2
+       host: 14626 ms simulated, 129 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-song_live_mute_save
+  ok   scenario-songrep
+  FAIL scenario-sound_matrix_chicago (see build/host/scenario-sound_matrix_chicago.log)
+       FAIL expect page == 6, got 0
+       FAIL expect page == 6, got 0
+         ok page == 0
+       host: 3055 ms simulated, 56 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-sound_matrix_chicago_idle (see build/host/scenario-sound_matrix_chicago_idle.log)
+       FAIL expect page == 6, got 0
+         ok page == 3
+       host: 2421 ms simulated, 42 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-sound_matrix_drum
+  FAIL scenario-sound_matrix_lock (see build/host/scenario-sound_matrix_lock.log)
+         ok page == 3
+         ok lanes == 1
+       FAIL expect sound2.0.19 == 51, got 0
+       FAIL expect laneval2.0.19.0 == 61, got -1
+       host: 3126 ms simulated, 61 blits, render 0.7% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-sound_matrix_miami (see build/host/scenario-sound_matrix_miami.log)
+         ok page == 0
+         ok page == 1
+         ok page == 2
+         ok page == 3
+         ok page == 4
+       FAIL expect page == 6, got 0
+       FAIL expect page == 0, got 1
+       host: 3008 ms simulated, 41 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-sound_page_split
+  ok   scenario-step303
+  FAIL scenario-steps64 (see build/host/scenario-steps64.log)
+         ok hit0.0.32 == 1
+         ok playhead0 == 64
+         ok pattern == 20
+       FAIL expect hit0.0.2 == 1, got 0
+         ok pattern == 31
+       FAIL expect hit0.0.2 == 1, got 0
+         ok pattern == 20
+       FAIL expect hit0.0.2 == 1, got 0
+         ok pattern == 1
+         ok hit0.0.63 == 1
+         ok hit0.0.32 == 1
+         ok pattern == 1
+         ok hit0.0.63 == 1
+         ok hit0.0.32 == 1
+       host: 11195 ms simulated, 49 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-stereo (see build/host/scenario-stereo.log)
+         ok sound5.0.3 == 24
+         ok sound5.2.3 == 94
+         ok part == 0
+       FAIL expect sound0.0.10 == 40, got 64
+         ok part == 1
+         ok part == 2
+       host: 11870 ms simulated, 232 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-tb3po
+  ok   scenario-tour
+  ok   scenario-trackmute
+  FAIL scenario-undo (see build/host/scenario-undo.log)
+         ok rec == 0
+         ok hit0.0.0 == 0
+         ok hit0.0.12 == 0
+         ok sound0.0.0 == 34
+         ok tempo == 125
+         ok hit0.0.0 == 0
+         ok hit0.0.12 == 0
+         ok playing == 0
+         ok hit0.0.0 == 1
+         ok hit0.0.0 == 0
+         ok hit0.0.0 == 1
+         ok hit0.0.12 == 0
+         ok sound0.0.0 == 34
+         ok tempo == 125
+       host: 9018 ms simulated, 89 blits, render 0.2% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-upload
+  ok   scenario-upload44
+  FAIL scenario-usbnotes (see build/host/scenario-usbnotes.log)
+         ok midiheld == 0
+       FAIL expect midiheld == 0x303, got 3
+       FAIL expect midiheld == 0x202, got 2
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+       FAIL expect midiheld == 0x401, got 1
+         ok midiheld == 0
+       FAIL expect midiheld == 0xFF03, got 3
+         ok midiheld == 0
+         ok midiheld == 0
+       host: 1300 ms simulated, 10 blits, render 1.1% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL perf-scratch (see build/host/perf-scratch.log)
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+         ok hit0.0.8 == 1
+       FAIL expect sound2.0.0 == 48, got 127
+         ok view == 7
+         ok perftest == 0
+         ok patptr == 0
+         ok perftest == -1
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+       host: 28864 ms simulated, 173 blits, render 1.4% of real time (host CPU), EXPECTATIONS FAILED
+TESTS FAILED
