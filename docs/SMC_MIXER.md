@@ -8,8 +8,10 @@ The development controller and application support two direct SMC links. Each
 link has its own input ring, reconnect epoch, captured targets, pickup history,
 held buttons, Solo targets and feedback cache. Pause locks only the controller
 that sent it. Keyboard navigation does not redirect either controller's captured
-targets. The temporary display shows the last controller used; it does not retain
-or restore a different underlying page.
+targets. The temporary display shows the last controller used. Unlocked main-mixer
+faders and HOME/PARTS knobs can briefly preview their real mapped MIX/FX
+page; that preview saves and restores the prior screen. SMC control target
+lock is still per peer, and a preview never changes locked targets.
 
 Solo is the union of both controllers' held targets. Releasing or disconnecting
 one does not release the other's Solo. Momentary FX holds also retain their
@@ -32,7 +34,7 @@ and device acceptance remain a separate authorized hardware stage.
 
 The eight faders use pickup. A fader starts changing a value when it reaches the X0X target (within two MIDI steps, or crossing it). The temporary SMC screen shows the actual destinations and values. **PICKUP: MOVE UP/DOWN TO TARGET** means the fader is waiting; the displayed value is the target, not a successful edit. **ACTIVE** means pickup is acquired. Changing the target or changing its value elsewhere resets pickup and discards the old crossing history. X0X sends the target position back to the SMC. A frame after the fader's own write preserves pickup.
 
-Fader, encoder and action feedback uses the full control screen instead of a yellow SMC header notice. The screen returns to the underlying UI after 1.2 seconds without control activity. Changed fader samples, nonzero encoder turns and action presses extend that interval. Unchanged absolute samples and zero encoder deltas do not open or extend it. Page/target feedback refresh is silent, including after navigation cancels an active screen. It does not change the underlying view, page, selection, menu or clip editor. Panel input and intentional SMC navigation dismiss it immediately; an old timeout cannot undo the new navigation. Help keeps its card while controls work underneath. Confirmation retains its input lock. Clip-editor feedback shows the field edited by the SMC; clip-grid encoders remain inactive. These behaviors have host coverage; physical LCD and controller behavior still require device testing.
+Fader, encoder and action feedback normally uses the full control screen instead of a yellow SMC header notice. On unlocked main-mixer faders and HOME/PARTS mixer knobs, a 1.2-second mapped-page preview shows the native MIX PARTS, FX REVERB, FX DELAY or MIX MASTER page instead. The preview keeps the original view, page, MIX selection and back-navigation context and restores them on expiry; SMC or panel navigation cancels the restore. On unrelated sound, drum, clip and locked controls the full SMC control screen remains. The screen returns to the underlying UI after 1.2 seconds without control activity. Changed fader samples, nonzero encoder turns and action presses extend that interval. Unchanged absolute samples and zero encoder deltas do not open or extend it. Page/target feedback refresh is silent, including after navigation cancels an active screen. It does not change the underlying view, page, selection, menu or clip editor. Panel input and intentional SMC navigation dismiss it immediately; an old timeout cannot undo the new navigation. Help keeps its card while controls work underneath. Confirmation retains its input lock. Clip-editor feedback shows the field edited by the SMC; clip-grid encoders remain inactive. These behaviors have host coverage; physical LCD and controller behavior still require device testing.
 
 | Screen | Faders | Encoders |
 | --- | --- | --- |
@@ -138,3 +140,27 @@ For an SMC routed through a computer or another Bluetooth MIDI host into X0X, ch
 Each peer publishes its link epoch together with lost-release watermarks. Old-link frames and old host Solo edges cannot replay into a new connection. Peer zero retains the historical USB/peripheral host association; peer one's disconnect does not clear that host's Solo. Preset changes clear held controls from the old mapping. Feedback is acknowledged only after the transmit queue accepts it in the same link epoch; rejected writes retry. Repeated saturated MMC STOP commands retain their separate FIFO boundaries on both host sources.
 
 The Bluetooth NAME row lists all connected central peers in slot order, separated by a comma, including identical advertised names. Each name is bounded to 20 bytes. Long names use a smaller native font; if necessary each peer is shortened separately with `..` so the other peer stays visible. Disconnected cached names are omitted. The existing Bluetooth state and About paths remain in use. Host checks do not establish physical radio, LCD or LED acceptance.
+
+
+## Native mapped-page preview (Task C development)
+
+This is a **development-branch proposal**, not an installed or device-tested feature.
+While the SMC is unlocked, movement of a main-mixer fader can show the real
+destination screen: strips 1–5 show MIX PARTS and select the corresponding
+part, strip 6 shows FX REVERB, strip 7 shows FX DELAY, and strip 8 shows
+MIX MASTER. HOME/PARTS mixer knobs use the same mapping; other knobs keep
+their original visible-field editing context.
+
+A changed sample extends the 1200 ms hold even during pickup. The first
+peek saves the existing view, page, mixer selection and previous-view
+navigation. Further mapped controls change the preview without replacing
+that save point. At expiry, the original screen returns if there was no
+navigation. User navigation, confirmation, clip mode, help and project
+actions prevent a stale restore. A new knob turn is routed from its
+original screen context, never a temporary MIX/FX preview. Locked peer
+targets and drum controls are not changed by this port.
+
+Before/after illustration: [SMC mapped-page peek proposal](mockups/smc-mapped-page-peek-before-after.svg).
+This is an illustration, not an actual LCD capture. Real framebuffer,
+full-host, Elite, Pro and physical-device validation must be recorded
+separately before integration.
