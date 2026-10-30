@@ -1,0 +1,226 @@
+name: PR696 exact-head full host and DEV builds
+
+on:
+  push:
+    branches: [chat/ui-theme]
+    paths: [.github/workflows/pr696-ci-qualification.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-host:
+    name: Exact-source full host suite
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - name: Download exact source with GitHub REST API, no network git
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source "$RUNNER_TEMP/source-archive"
+          curl -fsSL --retry 3 -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/zipball/$GITHUB_SHA" \
+            -o "$RUNNER_TEMP/source.zip"
+          unzip -q "$RUNNER_TEMP/source.zip" -d "$RUNNER_TEMP/source-archive"
+          root=$(find "$RUNNER_TEMP/source-archive" -mindepth 1 -maxdepth 1 -type d -print -quit)
+          test -n "$root"
+          cp -a "$root"/. source/
+          test -f source/tests/run_tests.sh
+          mkdir -p source/build/ci
+          printf 'repository=%s\nsource_SHA=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" | tee source/build/ci/source-identity.log
+      - name: Restore approved original-engine headers from the pinned PR721 commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            'https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/zipball/e189819d817dd3c59b4a1d219bf93be9f065d8d7' \
+            -o "$RUNNER_TEMP/pr721-headers.zip"
+          python3 - "$RUNNER_TEMP/pr721-headers.zip" <<'PY'
+          import hashlib, json, pathlib, sys, zipfile
+          root = pathlib.Path('source')
+          pins = json.loads((root / 'experiments/original_synth/EXTERNAL-INPUTS.json').read_text())['excluded_data_inputs']
+          with zipfile.ZipFile(sys.argv[1]) as archive:
+              names = archive.namelist()
+              for item in pins:
+                  path = item['path']
+                  found = [name for name in names if name.endswith('/' + path)]
+                  assert len(found) == 1, (path, len(found))
+                  data = archive.read(found[0])
+                  assert len(data) == item['bytes'] and hashlib.sha256(data).hexdigest() == item['sha256'], path
+                  dest = root / path
+                  dest.parent.mkdir(parents=True, exist_ok=True)
+                  dest.write_bytes(data)
+              path = 'experiments/original_synth/state_codec_private.h'
+              found = [name for name in names if name.endswith('/' + path)]
+              assert len(found) == 1, (path, len(found))
+              raw = archive.read(found[0]); blob = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
+              assert blob == '8df3640fb7cd6a0547f26f3543cb8af0c502a0f9'
+              dest = root / path; dest.parent.mkdir(parents=True, exist_ok=True); dest.write_bytes(raw)
+          print('Approved external header pins verified: 12/12 and state codec blob', flush=True)
+          PY
+          (cd source && python3 tools/check_original_inputs.py --scope all) | tee source/build/ci/original-inputs-check.log
+      - name: Install host Python dependency
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pr696-venv"
+          "$RUNNER_TEMP/pr696-venv/bin/pip" install --disable-pip-version-check Pillow
+          echo "$RUNNER_TEMP/pr696-venv/bin" >> "$GITHUB_PATH"
+      - name: Build actual host simulator
+        working-directory: source
+        shell: bash
+        run: |
+          set -o pipefail
+          X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 sh host/build_host.sh 2>&1 | tee build/ci/host-build.log
+      - name: Run entire host suite and report exact counts
+        if: always()
+        working-directory: source
+        shell: bash
+        run: |
+          mkdir -p build/ci
+          set +e
+          X0X_TEST_JOBS=4 X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 sh tests/run_tests.sh > build/ci/full-host-suite.log 2>&1
+          rc=$?
+          set -e
+          tail -n 50 build/ci/full-host-suite.log
+          awk '/^  ok   /{p++} /^  FAIL /{f++;print} /^  not-run /{s++} END{printf "FULL_HOST ok=%d fail=%d skip=%d\n",p,f,s}' build/ci/full-host-suite.log | tee build/ci/summary.log
+          printf 'source_SHA=%s\nexit=%s\n' "$GITHUB_SHA" "$rc" >> build/ci/summary.log
+          exit "$rc"
+      - name: Upload text-only host logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr696-host-text-logs
+          path: |
+            source/build/ci/*.log
+            source/build/host/*.log
+            source/build/host/.results/*
+          if-no-files-found: warn
+          retention-days: 7
+
+  native-dev:
+    name: Elite and Pro SDK V1.2.1 DEV builds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - name: Download same source via GitHub REST API
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source "$RUNNER_TEMP/source-archive"
+          curl -fsSL --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/zipball/$GITHUB_SHA" -o "$RUNNER_TEMP/source.zip"
+          unzip -q "$RUNNER_TEMP/source.zip" -d "$RUNNER_TEMP/source-archive"
+          root=$(find "$RUNNER_TEMP/source-archive" -mindepth 1 -maxdepth 1 -type d -print -quit)
+          cp -a "$root"/. source/
+          mkdir -p source/build/ci
+          printf 'repository=%s\nsource_SHA=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" | tee source/build/ci/source-identity.log
+      - name: Restore exact approved source headers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            'https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/zipball/e189819d817dd3c59b4a1d219bf93be9f065d8d7' \
+            -o "$RUNNER_TEMP/pr721-headers.zip"
+          python3 - "$RUNNER_TEMP/pr721-headers.zip" <<'PY'
+          import hashlib, json, pathlib, sys, zipfile
+          root=pathlib.Path('source')
+          entries=json.loads((root/'experiments/original_synth/EXTERNAL-INPUTS.json').read_text())['excluded_data_inputs']
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              names=z.namelist()
+              for item in entries:
+                  matches=[n for n in names if n.endswith('/'+item['path'])]
+                  assert len(matches)==1, item['path']
+                  data=z.read(matches[0]); assert len(data)==item['bytes'] and hashlib.sha256(data).hexdigest()==item['sha256'], item['path']
+                  dest=root/item['path']; dest.parent.mkdir(parents=True,exist_ok=True); dest.write_bytes(data)
+              path='experiments/original_synth/state_codec_private.h'
+              matches=[n for n in names if n.endswith('/'+path)]; assert len(matches)==1
+              data=z.read(matches[0]); assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()=='8df3640fb7cd6a0547f26f3543cb8af0c502a0f9'
+              dest=root/path; dest.parent.mkdir(parents=True,exist_ok=True); dest.write_bytes(data)
+          PY
+          (cd source && python3 tools/check_original_inputs.py --scope all) | tee source/build/ci/original-inputs-check.log
+      - name: Obtain and verify SDK V1.2.1 and pinned JieLi compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk="$RUNNER_TEMP/AC79NN-SDK-V1.2.1"
+          tool="$RUNNER_TEMP/jieli"
+          mkdir -p "$sdk" "$tool"
+          base='https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK/raw/d179b4484759423312073f5fbb232501aa491047'
+          while read -r hash file; do
+            test -n "$file" || continue
+            mkdir -p "$sdk/$(dirname "$file")"
+            curl -fsSL --retry 3 "$base/$file" -o "$sdk/$file"
+            echo "$hash  $sdk/$file" | sha256sum --check --status
+            echo "verified SDK V1.2.1 $file" >> source/build/ci/sdk-provenance.log
+          done <<'PINS'
+          4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4 cpu/wl82/tools/uboot.boot
+          276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b cpu/wl82/tools/cfg_tool.bin
+          41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d cpu/wl82/tools/cfg/eq_cfg_hw.bin
+          9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de cpu/wl82/liba/btctrler.a
+          ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2 cpu/wl82/liba/wl_rf_common.a
+          373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e cpu/wl82/liba/crypto_toolbox_Osize.a
+          bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c cpu/wl82/liba/lib_ccm_aes.a
+          1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4 include_lib/newlib/pi32v2-lib/libc.a
+          141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009 include_lib/newlib/pi32v2-lib/libcompiler_rt.a
+          697c798b6a9c992c75ee3959aa58d121d4eb3015474250ad8f9156a9a22fe6bb apps/common/net/wifi_conf.c
+          c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4 LICENSE
+          PINS
+          curl -fsSL --retry 3 'https://pkgman.jieliapp.com/s/linux-toolchain' -o "$RUNNER_TEMP/jieli-toolchain.tar.xz"
+          echo "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd  $RUNNER_TEMP/jieli-toolchain.tar.xz" | sha256sum --check
+          tar -xJf "$RUNNER_TEMP/jieli-toolchain.tar.xz" -C "$tool"
+          export JIELI_TOOLCHAIN="$tool/jieli-linux-toolchains-20260730.1"
+          echo 'c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f  '"$JIELI_TOOLCHAIN/pi32v2/bin/clang" | sha256sum --check
+          "$JIELI_TOOLCHAIN/pi32v2/bin/clang" --version | head -1 | tee source/build/ci/compiler-version.log
+          echo "JIELI_TOOLCHAIN=$JIELI_TOOLCHAIN" >> "$GITHUB_ENV"
+          echo "AC79_SDK=$sdk" >> "$GITHUB_ENV"
+          echo "SDK_LOCAL=$sdk" >> "$GITHUB_ENV"
+      - name: Prepare Python Pillow
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pr696-native-venv"
+          "$RUNNER_TEMP/pr696-native-venv/bin/pip" install --disable-pip-version-check Pillow
+          echo "$RUNNER_TEMP/pr696-native-venv/bin" >> "$GITHUB_PATH"
+      - name: Build Elite DEV without installing
+        if: always()
+        working-directory: source
+        shell: bash
+        run: |
+          mkdir -p build/ci
+          set +e
+          BOARD=smk37 MODEL=elite X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 sh build.sh > build/ci/elite-build.log 2>&1
+          rc=$?
+          set -e
+          tail -n 30 build/ci/elite-build.log
+          echo "ELITE_DEV exit=$rc source=$GITHUB_SHA" | tee build/ci/elite-summary.log
+          exit "$rc"
+      - name: Build Pro DEV without installing
+        if: always()
+        working-directory: source
+        shell: bash
+        run: |
+          mkdir -p build/ci
+          set +e
+          BOARD=smk37 MODEL=pro X0X_ORIGINAL_SYNTH=1 X0X_WOBBLE=0 X0X_DEV_WOBBLE=1 sh build.sh > build/ci/pro-build.log 2>&1
+          rc=$?
+          set -e
+          tail -n 30 build/ci/pro-build.log
+          echo "PRO_DEV exit=$rc source=$GITHUB_SHA" | tee build/ci/pro-summary.log
+          exit "$rc"
+      - name: Upload text-only native build logs, never firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr696-native-dev-text-logs
+          path: source/build/ci/*.log
+          if-no-files-found: warn
+          retention-days: 7
