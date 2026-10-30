@@ -27,18 +27,22 @@ harness = r'''
 #include <stdint.h>
 #include "app/smc_mixer_edges.h"
 #include "smc_fx_harness_stubs.h"
-enum { NKIT=2, NPARTS=5, NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
+#define NKIT 2
+enum { NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
-static struct { int solo,locked,lock_kit,lock_bank,lock_part; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
+static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
 static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
-static struct { int n; } pg;
+static struct { int n; const char *title[MAXPAGES]; } pg;
 static uint8_t page;
 static const char *const PART_N[] = {"909","808","A","B","BREAK"};
-static int last_view,last_page,fx,moved,edited,tap;
+static int last_view,last_page,fx,moved,edited,tap,knob_bank,home_held;
+static int smc_home_held(void) { return home_held; }
+static void smc_knob_bank(int d) { knob_bank+=d; }
+static int smc_page_now(void) { return page; }
+static void smc_page_set(int p) { page=(uint8_t)p; }
 static void button_tap(int b) { tap=b; }
 static int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
-static int drum_mix_page(void) { return -1; }
 static int smk_clip_mode_on(void) { return 0; }
 static int is_drum(void) { return 0; }
 static int is_303(void) { return 1; }
@@ -64,14 +68,15 @@ static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own 
 #define seq_start(s) ((s)->playing=1)
 static void list_move(int d) { moved+=d; }
 static void ui_menu_arrow(int d) { edited+=d; }
-static int cur_page(void) { return page; }
-static uint8_t *page_of(int v) { (void)v; return &page; }
 '''+ order_helpers + '\n'.join(helpers) + f + r'''
 int main(void) {
-    const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
-    const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{0,1,3}};
+    /* Current production map: R5/R6 tap SELECT/HOME, R14 taps GLOBAL; strip 7
+     * toggles HOME/SONG (row 0), PART/SEQ (row 1) and opens the mixer (row 3). */
+    const int views[4][3]={{-1,-1,V_HOME},{V_MIX,-1,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
+    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,0}};
+    pg.n=4;
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
-        last_view=last_page=fx=-1;
+        last_view=last_page=fx=-1; ui.view=0;
         int note=row*8+strip; tap=-1; smc_button(note,0);
         if(note==5 || note==6 || note==14) {
             assert(tap==(note==5?B_SEL:note==6?B_HOME:B_GLO)); continue;
@@ -79,14 +84,14 @@ int main(void) {
         if(row==2) assert(fx==strip-5 && last_view==-1);
         else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
     }
-    pg.n=4;
     for(int note=0x60;note<=0x63;note++) {
         int d=(note&1)?1:-1;
-        ui.overlay=O_NONE; ui.view=V_PART; page=1; smc_button(note,0);
-        if(note<0x62) assert(last_view==(d<0?V_HOME:V_SEQ));
-        else { assert(page==1+d); page=d<0?0:3; smc_button(note,0); assert(page==(d<0?0:3)); }
-        ui.overlay=O_LIST; moved=edited=0; smc_button(note,0);
+        ui.overlay=O_NONE; ui.view=V_PART; page=1; knob_bank=0; smc_button(note,0);
+        if(note<0x62) assert(knob_bank==d && page==1);
+        else assert(knob_bank==0 && page==1+d);
+        ui.overlay=O_LIST; moved=edited=0; knob_bank=0; smc_button(note,0);
         assert(note<0x62 ? moved==d && edited==0 : moved==0 && edited==d);
+        assert(knob_bank==0);
     }
     return 0;
 }
@@ -97,4 +102,4 @@ with tempfile.TemporaryDirectory() as tmp:
                     '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
                     str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
-print('PASS: strip shortcuts and page/menu arrows use explicit view/page/menu mappings')
+print('PASS: strip shortcuts, knob-bank arrows and page/menu arrows use explicit view/page/menu mappings')
