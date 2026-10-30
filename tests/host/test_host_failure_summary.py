@@ -34,7 +34,7 @@ class FailureSummaryTests(unittest.TestCase):
         return path
 
     def record(self, transcript, states, head=HEAD_A, rc=0):
-        return {'schema': mod.RUN_SCHEMA, 'head': head,
+        return {'schema': mod.RUN_SCHEMA, 'head': head, 'root': str(self.root),
                 'source_clean_before_after': True,
                 'command': ['sh', 'tests/run_tests.sh'],
                 'exit_code': rc,
@@ -185,9 +185,42 @@ class FailureSummaryTests(unittest.TestCase):
         t = self.transcript('  ok smc-ui\n')
         record = self.record(t, {'smc-ui': 'ok'})
         with patch.object(mod, 'assert_clean_source',
-                          side_effect=lambda: REAL_SOURCE_CHECK(repo)):
+                          side_effect=lambda root=None: REAL_SOURCE_CHECK(repo)):
             with self.assertRaisesRegex(ValueError, 'Source worktree/index is dirty'):
                 mod.build_summary(self.root, t, run_record=record)
+
+    def test_missing_source_root_rejected(self):
+        t = self.transcript('  ok smc-ui\n')
+        record = self.record(t, {'smc-ui': 'ok'})
+        del record['root']
+        with self.assertRaisesRegex(ValueError, 'valid source root'):
+            mod.build_summary(self.root, t, run_record=record)
+
+    def test_dirty_record_root_rejected_from_clean_cwd(self):
+        # The check must use the recorded root, not the current directory.
+        repo = self.root / 'fixture-root'
+        (repo / 'tests').mkdir(parents=True)
+        tracked = repo / 'tests' / 'host_test.py'
+        tracked.write_text('print("committed")\n')
+        subprocess.run(['git', '-C', str(repo), 'init', '-q'], check=True)
+        subprocess.run(['git', '-C', str(repo), 'add', '.'], check=True)
+        subprocess.run(['git', '-C', str(repo), '-c', 'user.name=Fixture',
+                        '-c', 'user.email=fixture@example.invalid',
+                        'commit', '-qm', 'Create fixture'], check=True)
+        head = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'],
+                                       text=True).strip()
+        tracked.write_text('print("uncommitted change")\n')
+        t = self.transcript('  ok smc-ui\n')
+        record = self.record(t, {'smc-ui': 'ok'}, head=head)
+        record['root'] = str(repo)
+        self.git.stop()
+        self.clean.stop()
+        try:
+            with self.assertRaisesRegex(ValueError, 'Source worktree/index is dirty'):
+                mod.build_summary(self.root, t, run_record=record)
+        finally:
+            self.git.start()
+            self.clean.start()
 
     def test_untracked_host_test_rejected_by_real_git_status(self):
         repo = self.root / 'fixture-untracked'
