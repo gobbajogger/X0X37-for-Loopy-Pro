@@ -31,7 +31,12 @@ if block.count("ed_service()") != 1 or block.count("ota_service()") != 1:
 # Stop before boot_screen.h: that header is for ED_BOOT_* handlers, not this
 # dispatch fixture. Ending at BOARD_SMK37 used to work; boot-screen install
 # commands put the include inside that window and broke the host compile.
-definitions = editor[editor.index("#define ED_HDR0"):editor.index('#include "boot_screen.h"')]
+# Start at the ED_MAINTENANCE_* fallbacks when editor.c has them; the
+# service body calls those macros.
+def_begin = editor.find("#ifndef ED_MAINTENANCE_ADMIT")
+if def_begin < 0 or def_begin > editor.index("#define ED_HDR0"):
+    def_begin = editor.index("#define ED_HDR0")
+definitions = editor[def_begin:editor.index('#include "boot_screen.h"')]
 with tempfile.TemporaryDirectory(prefix="editor-ota-dispatch-") as td:
     out = Path(td)
     (out / "editor_service.inc").write_text(service)
