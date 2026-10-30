@@ -7,13 +7,15 @@ This guide tells you how to act for the owner. You act fully on the owner's beha
 - You are fully autonomous. Bots and chats decide and go on. They do not ask for approval.
 - Stop only for a real security issue: credentials or tokens, binaries, raw captures, or protected flash areas.
 - Never stop because the owner or the Mac does not answer.
-- You may do hardware installs and real-device sound or Bluetooth checks yourself, through the Mac. Do not ask the owner first. Only a Mac that is offline makes installs wait. Follow these safeguards every time:
+- You may do hardware installs yourself, through the Mac. Do not ask the owner first. Only a Mac that is offline makes installs wait. Follow these safeguards every time:
   - Make a full backup first.
   - Check the slot and the CRC before and after the install.
   - Only revision 13 loads.
   - Never touch BTIF, USRTRIM, efuse or key_mac.
   - Change the bootloader only through the approved m-bootloader plan.
   - Never use `fm1_rescue.py` or `--force`.
+- You may run hardware tests on the device without the owner, wherever they can be automated. Examples: scripted USB, MIDI and Bluetooth checks, reading back device state, CRC and version checks, and automated test scripts on the Mac. The install safeguards above still apply.
+- Only checks that truly need a human wait for the owner. Examples: listening to the sound, or pressing physical keys and faders.
 - Never ask the owner before you start helper bots.
 - Standing approvals:
   - In ChatGPT, click Allow on any "Allow GitHub to create a blob, tree, commit or ref" card for this repo.
