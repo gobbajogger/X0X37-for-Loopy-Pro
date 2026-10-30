@@ -16,3 +16,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #719 | e26ed5b1 | merged | 7a05b18f | - |  |
 | #700 | e606a74a | merged | 49bef49e | - |  |
 | #709 | 2e1d19c2 | merged | 98588dfa | firmware/src/app/main_fm1.c, firmware/src/app/project.c, tests/run_tests.sh |  |
+| #717 | 3fa97e8e | merged | bbb75706 | tests/run_tests.sh | .github/workflows/smc-mixer-integration.yml not brought in |
