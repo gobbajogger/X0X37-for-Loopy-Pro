@@ -36,3 +36,9 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 - #708: dsp/bass303.c change excluded.
 - No .github/workflows changes from any PR (#717, #696, #694 workflow files dropped).
 - On hold for owner, not merged: #730, #727, #722.
+
+## Round 2 (2026-10-30 21:35 VLAT)
+
+| Item | Source sha | Result | Commit | Conflicts resolved | Notes |
+|---|---|---|---|---|---|
+| wip/one-build | 8ac1ed62 | merged | 8733807b | – | includes 981f3c66; base deletes 3 workflow files |
