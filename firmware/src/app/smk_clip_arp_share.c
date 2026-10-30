@@ -3,10 +3,15 @@
  * engine.c (-O2) and x0x.c (main_fm1 / -Os) both used smk_clip_keys.h statics;
  * Chicago Arp and clip MIDI share the same helpers — keep a single definition. */
 #include "smk_clip_keys.h"
+#if defined(__clang__)
+#define X0X_MINSIZE_NOINLINE __attribute__((minsize, noinline))
+#else
+#define X0X_MINSIZE_NOINLINE __attribute__((noinline))   /* host GCC has no minsize */
+#endif
 
 const uint8_t CK_RATE_T[CK_NRATE] = {48, 36, 32, 24, 18, 16, 12, 9, 8, 6, 4, 3, 2};
 
-__attribute__((minsize, noinline)) int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order,
+X0X_MINSIZE_NOINLINE int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order,
                                                     uint32_t oct, uint32_t step, uint32_t rnd)
 {
     uint32_t len = n * oct, i = step % len, j;

@@ -10,7 +10,11 @@
 
 #ifndef CK_CD_FN
 #ifdef __clang__
+#if defined(__clang__)
 #define CK_CD_FN __attribute__((minsize, noinline, unused))
+#else
+#define CK_CD_FN __attribute__((noinline, unused))   /* host GCC has no minsize */
+#endif
 #else
 #define CK_CD_FN __attribute__((noinline, unused))
 #endif

@@ -5,7 +5,11 @@
 #include <stdint.h>
 
 #ifndef ARW_FN
+#if defined(__clang__)
 #define ARW_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#else
+#define ARW_FN __attribute__((noinline, unused))   /* host GCC has no minsize */
+#endif
 #endif
 
 /* Hold repeat in a menu: the first repeat 400 ms after the press, then one step each 80 ms.

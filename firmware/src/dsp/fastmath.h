@@ -20,11 +20,15 @@
 #pragma once
 #include <stdint.h>
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__clang__)
 /* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
  * The body stays visible so a hot call can still be inlined. A unit that
  * does not inline emits a weak copy, and the link keeps one of them. */
 #define FM_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#elif defined(__GNUC__)
+/* Host GCC rejects weak on an inline function. Use a plain weak
+ * definition: inline functions can still call it, and the link keeps one. */
+#define FM_ONE __attribute__((weak, unused))
 #else
 #define FM_ONE static inline
 #endif

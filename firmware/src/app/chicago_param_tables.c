@@ -6,8 +6,13 @@
 #include "chicago_arp.h"
 #include "chicago_fx.h"
 #include "chicago_aux.h"
+#if defined(__clang__)
+#define X0X_MINSIZE_NOINLINE __attribute__((minsize, noinline))
+#else
+#define X0X_MINSIZE_NOINLINE __attribute__((noinline))   /* host GCC has no minsize */
+#endif
 
-__attribute__((minsize, noinline)) void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes,
+X0X_MINSIZE_NOINLINE void chi_arp_run_set(chi_arp_run_t *r, const uint8_t *notes,
                                                         uint32_t n, uint8_t mode, uint8_t range,
                                                         uint8_t speed)
 {
