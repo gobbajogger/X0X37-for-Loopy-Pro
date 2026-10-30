@@ -46,10 +46,12 @@ static uint8_t smk_pad_note[16];
 static uint32_t clip_pad_keys;
 static uint8_t clip_pad_note[SMK_APC40_PAD_COUNT], clip_pad_active, project_busy;
 static int ui_project_busy(void) {return project_busy;}
+void ui_brk_page_keys(unsigned keys, int allowed) {(void)keys; (void)allowed;}   /* BREAK page keys (ui.c): not under test */
 static const uint8_t SMK_WHITE_NOTE[16] = {0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26};
 static const int8_t SMK_PIANO_NOTE[16] = {7,9,11,12,14,16,18,19,8,10,-1,13,15,17,-1,20};
 static struct {
  uint32_t buttons,pnotes,knotes,notes,notes_pressed;
+ uint64_t keys;               /* as firmware/hal/smk_input.h: all 37 keybed keys */
  uint8_t key_vel[37],pad_vel[16];
 } fm1_in;
 static unsigned failed, irq, require_lock, usb_n, ble_n, flush_n, flush_mode[8];
