@@ -31,7 +31,10 @@ def function(name):
     return source[match.start():end]
 
 
-prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix = strip_peek(source[source.index("#define SMC_Q"):source.index("int smc_project_active")])
 poll = function("smc_poll_peer" if "smc_poll_peer" in source else "smc_poll")
 for index, name in enumerate(("smc_qr", "smc_host_r", "smc_mmc_r[src]")):
     statement = re.escape(name) + r" = \(uint8_t\)\(r \+ 1u\);"

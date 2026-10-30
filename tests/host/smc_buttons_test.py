@@ -38,6 +38,10 @@ static uint8_t page;
 static const char *const PART_N[] = {"909","808","A","B","BREAK"};
 static int last_view,last_page,fx,moved,edited,tap,knob_bank,home_held;
 static int smc_home_held(void) { return home_held; }
+/* Locked PAGE previews the captured page (#737 peek); count the calls. */
+static int peek_locked;
+static __attribute__((unused)) void smc_peek_locked_page(void) { peek_locked++; }
+static __attribute__((unused)) void smc_ui_off(void) {}
 static void smc_knob_bank(int d) { knob_bank+=d; }
 static int smc_page_now(void) { return page; }
 static void smc_page_set(int p) { page=(uint8_t)p; }

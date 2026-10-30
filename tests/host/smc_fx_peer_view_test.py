@@ -41,8 +41,10 @@ struct smc_ui_state {
 };
 static uint8_t smc_ui_raw[sizeof(struct smc_ui_state)] __attribute__((aligned(4)));
 #define smc_ui (*((struct smc_ui_state *)(void *)smc_ui_raw))
+/* No page peek (#737) in this harness: smc_ui_cancel() cancels nothing more. */
+static void smc_peek_cancel(void) {}
 """]
-for name in ['smc_held','smc_ui_context','smc_ui_cancel','smc_ui_active','smc_ui_begin']:
+for name in ['smc_held','smc_ui_context']+(['smc_ui_off'] if re.search(r'(?m)^static void smc_ui_off\(void\)$', src) else [])+['smc_ui_cancel','smc_ui_active','smc_ui_begin']:
     out.append(function(name)+'\n')
 (OUT/'smc_fx_ui_extract.inc').write_text('\n'.join(out))
 cmd = [os.environ.get('CC','cc'),'-std=c99','-O1','-g','-Wall','-Wextra',

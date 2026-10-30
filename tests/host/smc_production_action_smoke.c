@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include "app/smc_mixer_edges.h"
 
-enum { O_NONE=0, O_ASK=1, NPARTS=5, SMC_UI_MS=1200 };
-typedef struct { uint8_t held[16],home_down,select_down,play_down,solo_target[8]; } smc_state_t;
+enum { O_NONE=0, O_ASK=1, NPARTS=5, SMC_UI_MS=1200, SMC_PEERS=2 };
+typedef struct { uint8_t held[16],home_down,select_down,play_down,solo_target[8],locked; } smc_state_t;
 static smc_state_t smc_states[2];
 static uint8_t smc_slot;
 #define smc (smc_states[smc_slot])
@@ -18,6 +18,11 @@ static uint32_t plat_ms(void){return now;}
 static int ui_project_busy(void){return 0;}
 static uint32_t smc_ui_context(void){return 9u;}
 static void smc_ui_cancel(void){smc_ui.on=0;}
+/* Page peek (#737): off restores a peek, cancel does not. No peek here. */
+static void smc_ui_off(void){smc_ui.on=0;}
+static int smc_held(const smc_state_t *state){return smc_hold_any(state->held);}
+static uint8_t smk_clip_mode_on(void){return 0;}
+static int smc_home_held(void){return 0;}
 static void smc_ui_begin(int strip,int kind){smc_ui.on=1;smc_ui.strip=(uint8_t)strip;smc_ui.kind=(uint8_t)kind;smc_ui.peer=smc_slot;smc_ui.until=now+SMC_UI_MS;smc_ui.context=9u;}
 static int smc_lock_button(int down){if(down)lock_down_count++;else lock_up_count++;return 1;}
 static int smc_drum_mix(void){return -1;}

@@ -14,7 +14,10 @@ def extract(name):
  while depth:
   depth += (s[i]=='{')-(s[i]=='}'); i+=1
  return s[m.start():i]
-prefix=s[s.index('#define SMC_Q'):s.index('int smc_project_active')]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix=strip_peek(s[s.index('#define SMC_Q'):s.index('int smc_project_active')])
 funcs=['smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press','smc_project_drop','smc_project_reset','smc_ble_midi','smc_ble_link','smc_ble_role_get','smc_connected','smc_midi_host','smc_mmc_host','smc_release','smc_mmc_drain_stop','smc_spill_apply']
 # Include the MMC STOP FIFO-boundary helper so the regression covers the full current poll path.
 if 'smc_poll_peer' in s:
