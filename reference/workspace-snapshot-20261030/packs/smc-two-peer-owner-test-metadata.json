@@ -1,0 +1,21 @@
+{
+  "kind": "owner-test package metadata only; firmware binaries excluded",
+  "candidate": "008672a3500d72c67c004a5a8e2dd937899a56db",
+  "documentation_successor": "cb45d438aefe93d2f07b9f142fbdeed3ded1b053",
+  "controller_sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+  "controller_bytes": 61088,
+  "packages": {
+    "pro": {
+      "sha256": "e01b4905362b583b479e15b240b1bdbf433b0e10a597ecd32eeae94c7a14fde3",
+      "bytes": 651455,
+      "omitted_binary": true
+    },
+    "elite": {
+      "sha256": "8693f5d644873b21542d78d8bd8d2b70d1df196b59534cf8d896892aa111b8c3",
+      "bytes": 651455,
+      "omitted_binary": true
+    }
+  },
+  "physical_device_accepted": false,
+  "host_build_validated_by_this_audit": false
+}
