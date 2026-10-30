@@ -88,6 +88,35 @@ class DefaultAuthorTests(unittest.TestCase):
             self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
         self.assertEqual(self.local_git('rev-parse', 'refs/heads/chat/fixture'), first)
 
+    def test_default_legacy_branch_refused(self):
+        for branch in ('nightly-pages', 'refs/heads/nightly-pages', 'feature/other'):
+            with self.subTest(branch=branch):
+                with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'wip/ or chat/'):
+                    self.methods['_push'](self.site, str(self.remote), branch, None)
+
+    def test_firmware_binaries_and_private_headers_refused_before_git(self):
+        for filename in ('package.fwsc', 'ctl.img', 'plugin.vst3',
+                         'module.component', 'state_codec_private.h',
+                         'fx_tables.h', 'miami_factory_typed.h'):
+            with self.subTest(filename=filename):
+                payload = self.site / filename
+                payload.write_bytes(b'binary\\x00blob')
+                try:
+                    with patch.object(subprocess, 'run') as invoked:
+                        with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'binary or private'):
+                            self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+                        invoked.assert_not_called()
+                finally:
+                    payload.unlink()
+
+    def test_non_utf8_payload_refused_before_git(self):
+        payload = self.site / 'bad.txt'
+        payload.write_bytes(b'\\xff\\xfe')
+        with patch.object(subprocess, 'run') as invoked:
+            with self.assertRaisesRegex(self.methods['NightlyPublishError'], 'UTF-8 text files only'):
+                self.methods['_push'](self.site, str(self.remote), 'chat/fixture', None)
+            invoked.assert_not_called()
+
     def test_no_default_identity_does_not_forge_one(self):
         os.environ['GIT_CONFIG_GLOBAL'] = '/dev/null'
         (self.site / 'index.html').write_text('first')
