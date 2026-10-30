@@ -175,6 +175,8 @@ int main(void) {
 #else
     /* Explicit opt-out restores ordinary note presses on all physical pads. */
     assert(division_pad_owner()==0);
+    division_pad_input(); /* disabled selector must not claim the HAL owner */
+    assert(smk_div_owner==0 && smk_div_pending==0);
     for (int pad=0;pad<16;pad++) {
         smk__padq((uint32_t)pad,80);
         assert(smk_pad_note[pad]!=0);
