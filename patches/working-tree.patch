@@ -1,0 +1,37 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 4adcc67..966c9e7 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,3 +1,15 @@
++<!-- x0x37-current-rules -->
++# Current x0x37 skills
++
++In the x0x37 workspace, use [current skill entry points](../AGENTS.md) before work.
++Apply [chat routing](.agents/skills/x0x37-task/references/routing.md) before any new task or handoff.
++Initialize the matching `SKILL.md` when its step begins. These skills supersede
++older workflow text here. For a standalone checkout, use `docs/agent-rules.md`
++and its skill links; recover missing sources
++from the maintained project. Unrelated checkout instructions below still apply.
++
++<!-- /x0x37-current-rules -->
++
+ # x0x37
+ 
+ Read [docs/agent-rules.md](docs/agent-rules.md) before work. It routes to core
+diff --git a/docs/SKILLS.md b/docs/SKILLS.md
+index eb7107f..3aea3ae 100644
+--- a/docs/SKILLS.md
++++ b/docs/SKILLS.md
+@@ -1,3 +1,12 @@
++<!-- x0x37-current-rules -->
++# Current skill discovery
++
++Inside the x0x37 workspace use [maintained skill status](../../x0x37/docs/SKILLS.md). The older
++status below is retained as history and is superseded there. Outside the
++workspace use the local installed skills and verify their source/status.
++
++<!-- /x0x37-current-rules -->
++
+ # Writing skills: load on demand
+ 
+ The short default in [core](rules/core.md) applies to all output. Read only the
