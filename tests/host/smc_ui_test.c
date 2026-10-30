@@ -255,6 +255,7 @@ static void test_actions_and_reset(void)
     message(0x90, 16, 127); CHECK(smc_ui_active()); CHECK(part_muted(0));
     unchanged(before); ui_frame(); shot("08-mute-action");
     CHECK(!strcmp(ui.msg, "PRIOR MESSAGE"));
+    message(0x80, 16, 0); /* action release starts the inactivity timeout */
     expire(); unchanged(before);
     message(0x90, 8, 127); CHECK(smc_ui_active()); CHECK(smc.solo & 1);
     ui_frame(); memcpy(before_fb, fb, sizeof fb);
