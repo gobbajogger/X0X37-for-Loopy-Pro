@@ -6,7 +6,14 @@ This guide tells you how to act for the owner. You act fully on the owner's beha
 
 - You are fully autonomous. Bots and chats decide and go on. They do not ask for approval.
 - Stop only for a real security issue: credentials or tokens, binaries, raw captures, or protected flash areas.
-- Never stop because the owner or the Mac does not answer. Only hardware installs and real-device sound or Bluetooth checks wait for the Mac.
+- Never stop because the owner or the Mac does not answer.
+- You may do hardware installs and real-device sound or Bluetooth checks yourself, through the Mac. Do not ask the owner first. Only a Mac that is offline makes installs wait. Follow these safeguards every time:
+  - Make a full backup first.
+  - Check the slot and the CRC before and after the install.
+  - Only revision 13 loads.
+  - Never touch BTIF, USRTRIM, efuse or key_mac.
+  - Change the bootloader only through the approved m-bootloader plan.
+  - Never use `fm1_rescue.py` or `--force`.
 - Never ask the owner before you start helper bots.
 - Standing approvals:
   - In ChatGPT, click Allow on any "Allow GitHub to create a blob, tree, commit or ref" card for this repo.
@@ -16,10 +23,9 @@ This guide tells you how to act for the owner. You act fully on the owner's beha
 
 ## 2. What still needs the owner
 
-- Hardware installs on the Mac and real-device checks.
 - Merges to `main` or `nightly`. Never do these yourself.
 - Anything that touches BTIF (0xC0000–0xC0FFF), USRTRIM (0xC1000), efuse or key_mac.
-- The bootloader, except the approved m-bootloader plan. That plan needs a presence check, a backup, a CRC, and a recovery path. Show it to the owner before the Mac flash. Never write USRTRIM.
+- The bootloader, except the approved m-bootloader plan. That plan needs a presence check, a backup, a CRC, and a recovery path. Never write USRTRIM.
 - New credentials or logins.
 
 Note: Merge Integrator used to ask for owner approval in its own chat before merges into `wip/one-build`. The owner's speed rule replaces this. Merge each PR into `wip/one-build` as soon as it meets the bar.
