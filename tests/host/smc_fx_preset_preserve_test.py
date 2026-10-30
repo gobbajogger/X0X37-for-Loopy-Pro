@@ -190,6 +190,27 @@ int main(void)
         smc.select_down &= (uint8_t)~bit;
     }
 
+    /* A lost main-bus key-up must publish an immediate FX-off state. */
+    for (int bus = SMCFX_RVB; bus < SMCFX_N; bus++) {
+        memset(smc_states, 0, sizeof smc_states);
+        smc_slot = 0; now = 1000; navigation = home = 0;
+        ui.view = V_FX; ui.overlay = O_NONE;
+        smc_fx_load_page(0);
+        save_assignments(before);
+        uint8_t bit = (uint8_t)(1u << bus);
+        smc.select_down |= bit;
+        CHECK(smc_fx_try(SMCFX_NOTE[bus], 0) == 1);
+        now += SMC_FX_HOLD_MS + 1u;
+        smc_fx_main_tick();
+        CHECK(published_down & bit);
+        smc.select_down &= (uint8_t)~bit; /* lost release event */
+        smc_fx_main_tick();
+        CHECK(!(published_down & bit));
+        CHECK(!(smc.fx_down & bit));
+        CHECK(!(smc.fx_lp_hold & bit));
+        CHECK(all_assignments_match(before));
+    }
+
     /* MMC toggles LPF only while active, without changing the stored bank. */
     memset(smc_states, 0, sizeof smc_states);
     smc_slot = 0; smc_fx_load_page(0); save_assignments(before);

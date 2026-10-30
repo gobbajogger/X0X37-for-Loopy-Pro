@@ -1101,7 +1101,7 @@ static void smc_fx_main_nav(int which)
 
 static void smc_fx_main_tick(void)
 {
-    int i;
+    int i, cleared = 0;
     if (smc_fx_bus_now(24u) < 0) {
         smc_fx_clear();                 /* keyboard navigation cancels the original FX gesture */
         return;
@@ -1113,6 +1113,7 @@ static void smc_fx_main_tick(void)
             continue;
         if (!(smc.select_down & sel)) {
             uint8_t bit = (uint8_t)(1u << (SMCFX_RVB + i));
+            cleared |= !!(smc.fx_down & bit);
             smc.fx_main_wait &= (uint8_t)~(1u << i);
             smc.fx_lp_hold &= (uint8_t)~bit;
             smc.fx_down &= (uint8_t)~bit;
@@ -1121,7 +1122,7 @@ static void smc_fx_main_tick(void)
         if ((uint32_t)(plat_ms() - smc.fx_main_t0[i]) >= SMC_FX_HOLD_MS)
             smc.fx_down |= (uint8_t)(1u << (SMCFX_RVB + i));
     }
-    if (smc.fx_down)
+    if (smc.fx_down || cleared)
         smc_fx_publish();
 }
 
