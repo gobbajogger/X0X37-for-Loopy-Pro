@@ -378,7 +378,7 @@ if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central
     # The two-peer source stays; test it with BLEC_TWO_PEER=1.
     run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
     run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
-    not_run ble-controller-heap 'single-peer recovery; B two-link heap assumption removed'
+    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 else
     run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
     run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
