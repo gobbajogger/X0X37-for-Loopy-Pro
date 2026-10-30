@@ -45,3 +45,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | rule fix | – | done | a9f02e59 | – | removed pr715-sanitized-evidence.zip.b64.txt; restored 13 .gitignore guard lines (headers stay tracked) |
 | rule fix | – | done | 177af5b9 | – | untracked experiments/wobble/miami_decimator_tables_private.h (kept ignored locally) |
 | #705 | fc2eba78 | merged | 4c934f11 | - | round 2: new head commits |
+| #712 | bb030fe1 | merged | ce8be67f | - | round 2: new head commits |
