@@ -61,3 +61,26 @@ Source branch at the time of the retest: `da16ff754b655642cee7124edadb6fc50c80d1
 **Qualification limit:** full current-HEAD host suite, original Chicago/Miami audio golden renders, target Elite DEV build, RAM/pool budgets and device behavior remain **NOT_RUN / NOT_VERIFIED**. The historical PR #695 Mac result (208 pass / 101 fail) remains a separate unresolved result on a different source profile.
 
 **Evidence:** local read-only ZIP `current-transport-evidence-20261030.zip`, 50,572 bytes, SHA-256 `63be403e6eeb0f8952c228a8fb25dde3fe70d3de074e98dd4f558b22da28cc0e`. It contains only sanitized test logs, source fixtures and scripts, with no firmware binaries, SDK, private headers or credentials. The ZIP is available in the project's ChatGPT conversation, not committed to Git.
+
+## Latest integration-base reconciliation (2026-10-30)
+
+This branch now incorporates the newer original-runtime `wip/one-build` integration SHA `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21` as a second merge parent. The former tested queue-fix HEAD is `5a75197afa47a5ee47f0fbe9cc5d84e75055ec65` (first merge parent). This is an **isolated branch synchronization only**, not an integration into protected `nightly` or `main`. New integrated source changed only `docs/lanes/one-build.md`, `firmware/hal/smk_input.h`, `host/build_host.sh`, `tests/host/test_freeplay_rate_pad_port.py`, `tests/host/test_original_build_composition.py`, and `tools/build.py`; **none overlaps the 15 repair paths**.
+
+### This session's local Linux evidence
+
+- Pinned queue source-extracted C test: `python3 test_fifo.py --root <exact archived source>`, **1,320/1,320 PASS**, exit 0, GCC.
+- Same test with `CC=clang --sanitize --asan` and `ASAN_OPTIONS` controlled inside the runner, **1,320/1,320 PASS**, exit 0.
+- Five individual Python host regressions run against the exact `usb.c` blob `3df6f132ce984a0397116801efaa6d1fd93fd9c8` and matching exact test blobs: `midi_mq_noteoff_overflow_test.py`, `midi_mq_rt_overflow_test.py`, `midi_out_mq_noteoff_overflow_test.py`, `ble_out_noteoff_overflow_test.py`, `ble_out_rt_overflow_test.py`. Each had exit 0. The BLE source is a captured function window, **not** a full authenticated checkout.
+- JieLi vendor `pi32v2` Clang 4.0.1 compiled the exact transport-function object fixture to ELF32, **exit 0**. This does not test the full firmware, pool budget, or sound.
+- Current latest full `wip/one-build` source could not be mounted in this native sandbox: available historical ZIP archives omit the original Chicago/Miami source integration, and direct GitHub API DNS resolution from the shell fails. The authenticated GitHub connector was used to verify the complete remote tree and create this merge. No native git network command was used.
+- Historical Mac report from PR #695 (`208 PASS / 101 FAIL`) relates to a different obsolete engine source profile, not this current merged branch.
+
+**Still NOT RUN at this merged HEAD:** full host suite, genuine current-source Elite/Pro SDK V1.2.1 app build, linker/RAM/pool validation, original Chicago/Miami bit-exact audio proof, independent review and device tests. The development PR remains draft.
+
+**Re-run on the full, matching source:**
+```sh
+git rev-parse HEAD
+sh host/build_host.sh
+X0X_TEST_JOBS=1 X0X_TESTS='midi-overflow-order midi-mq-noteoff-overflow midi-mq-rt-overflow midi-out-mq-noteoff-overflow ble-out-noteoff-overflow ble-out-rt-overflow' sh tests/run_tests.sh
+X0X_TEST_JOBS=1 sh tests/run_tests.sh
+```
