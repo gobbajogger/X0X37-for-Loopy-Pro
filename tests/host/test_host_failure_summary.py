@@ -3,6 +3,7 @@
 """Regression tests for truthful host status, comparisons and source identity."""
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -12,6 +13,7 @@ import host_failure_summary as mod
 
 HEAD_A = 'a' * 40
 HEAD_B = 'b' * 40
+REAL_SOURCE_CHECK = mod.assert_clean_source
 
 
 class FailureSummaryTests(unittest.TestCase):
@@ -22,6 +24,9 @@ class FailureSummaryTests(unittest.TestCase):
         self.git = patch.object(mod, 'git_head', return_value=HEAD_A)
         self.git.start()
         self.addCleanup(self.git.stop)
+        self.clean = patch.object(mod, 'assert_clean_source')
+        self.clean.start()
+        self.addCleanup(self.clean.stop)
 
     def transcript(self, statuses):
         path = self.root / 'full.log'
@@ -30,6 +35,7 @@ class FailureSummaryTests(unittest.TestCase):
 
     def record(self, transcript, states, head=HEAD_A, rc=0):
         return {'schema': mod.RUN_SCHEMA, 'head': head,
+                'source_clean_before_after': True,
                 'command': ['sh', 'tests/run_tests.sh'],
                 'exit_code': rc,
                 'selected_tests': sorted(states),
@@ -144,6 +150,52 @@ class FailureSummaryTests(unittest.TestCase):
         proof = self.record(t, {'smc-ui': 'ok'}, head=HEAD_B)
         with self.assertRaisesRegex(ValueError, 'different Git HEAD'):
             mod.build_summary(self.root, t, run_record=proof)
+
+    def test_missing_clean_source_attestation_rejected(self):
+        t = self.transcript('  ok smc-ui\n')
+        record = self.record(t, {'smc-ui': 'ok'})
+        del record['source_clean_before_after']
+        with self.assertRaisesRegex(ValueError, 'clean-source pre/post-run'):
+            mod.build_summary(self.root, t, run_record=record)
+
+    def test_dirty_source_report_rejected(self):
+        t = self.transcript('  ok smc-ui\n')
+        record = self.record(t, {'smc-ui': 'ok'})
+        with patch.object(mod, 'assert_clean_source',
+                          side_effect=ValueError('Source worktree/index is dirty')):
+            with self.assertRaisesRegex(ValueError, 'dirty'):
+                mod.build_summary(self.root, t, run_record=record)
+
+    def test_changed_tracked_host_test_rejected_by_real_git_status(self):
+        repo = self.root / 'fixture'
+        repo.mkdir()
+        tests = repo / 'tests'
+        tests.mkdir()
+        tracked = tests / 'host_test.py'
+        tracked.write_text('print("committed")\n')
+        subprocess.run(['git', '-C', str(repo), 'init', '-q'], check=True)
+        subprocess.run(['git', '-C', str(repo), 'add', '.'], check=True)
+        subprocess.run(['git', '-C', str(repo), '-c', 'user.name=Fixture',
+                        '-c', 'user.email=fixture@example.invalid',
+                        'commit', '-qm', 'Create fixture'], check=True)
+        REAL_SOURCE_CHECK(repo)
+        tracked.write_text('print("uncommitted change")\n')
+        with self.assertRaisesRegex(ValueError, 'Source worktree/index is dirty'):
+            REAL_SOURCE_CHECK(repo)
+        t = self.transcript('  ok smc-ui\n')
+        record = self.record(t, {'smc-ui': 'ok'})
+        with patch.object(mod, 'assert_clean_source',
+                          side_effect=lambda: REAL_SOURCE_CHECK(repo)):
+            with self.assertRaisesRegex(ValueError, 'Source worktree/index is dirty'):
+                mod.build_summary(self.root, t, run_record=record)
+
+    def test_untracked_host_test_rejected_by_real_git_status(self):
+        repo = self.root / 'fixture-untracked'
+        repo.mkdir()
+        subprocess.run(['git', '-C', str(repo), 'init', '-q'], check=True)
+        (repo / 'unexpected_test.py').write_text('print("untracked")\n')
+        with self.assertRaisesRegex(ValueError, 'Source worktree/index is dirty'):
+            REAL_SOURCE_CHECK(repo)
 
     def test_modified_transcript_rejected(self):
         t = self.transcript('  ok smc-ui\n')
