@@ -383,6 +383,8 @@ def _destination(branch):
             or any(part in {"", ".", ".."} for part in parts)
             or not re.fullmatch(r"[A-Za-z0-9._/-]{1,80}", name)):
         raise NightlyPublishError(f"refusing to publish a nightly onto {branch}")
+    if not name.startswith(("wip/", "chat/")):
+        raise NightlyPublishError("DnBOX source handoff branch must start with wip/ or chat/")
     return name
 
 
@@ -480,6 +482,22 @@ def _push(site, remote, branch, expected):
     if not remote:
         raise NightlyPublishError("nightly remote is not set; production pages are not a nightly destination")
     remote = _local_only_git_remote(remote)
+    site = Path(site)
+    if not site.is_dir():
+        raise NightlyPublishError("local Git fixture source directory is missing")
+    # DnBOX Rule 8: never stage firmware/product binaries or private headers.
+    forbidden_suffixes = {".fwsc", ".img", ".vst3", ".component"}
+    forbidden_private = {"state_codec_private.h", "fx_tables.h", "miami_factory_typed.h"}
+    for entry in site.rglob("*"):
+        if entry.is_symlink():
+            raise NightlyPublishError("symlink source is forbidden in DnBOX Git handoff")
+        if entry.is_file():
+            if entry.suffix.lower() in forbidden_suffixes or entry.name in forbidden_private:
+                raise NightlyPublishError("DnBOX forbids binary or private source in Git handoff")
+            try:
+                entry.read_text(encoding="utf-8")
+            except (UnicodeError, OSError) as exc:
+                raise NightlyPublishError("DnBOX Git handoff permits UTF-8 text files only") from exc
     work = Path(tempfile.mkdtemp(prefix=".nightly-commit-"))
     try:
         tip = _remote_tip(remote, branch)
@@ -537,14 +555,15 @@ def _handoff_record():
 def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
                           elite_ctl=None, pro_ctl=None, remote=None, push=False,
                           branch=BRANCH, merge=None, ledger=None):
-    """Record a validated nightly page. A push is a handoff, not a live deploy.
+    """Record a validated local nightly preview, never push firmware to Git.
 
-    Returns the page directory. Raises NightlyPublishError without writing `out`
-    and without pushing when either build is missing, failed, or not the matching
-    development package. `push` fast-forwards `branch` on `remote` to a descendant
-    commit and keeps candidates already stored on that branch.
+    DnBOX RULES 3, 8 and 1m retire the legacy --push entry point because page
+    outputs include .fwsc packages. Source delivery uses connected GitHub API
+    on the canonical repository; local preview with push=False remains supported.
     """
-    branch_name = _destination(branch) if push else None
+    if push:
+        raise NightlyPublishError("DnBOX legacy Git push disabled: no firmware binaries in Git; use connected GitHub API for text-only source delivery")
+    branch_name = None
     if push:
         remote = remote or os.environ.get("X0X_NIGHTLY_REMOTE")
         if not remote:
