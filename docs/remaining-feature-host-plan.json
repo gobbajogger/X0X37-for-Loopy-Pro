@@ -25,7 +25,11 @@
     "tests/host/home_pattern_glyph_test.sh",
     "tests/host/home_overview_test.c",
     "tests/run_tests.sh",
-    "docs/notes/remaining-home-overview-evidence.md"
+    "docs/notes/remaining-home-overview-evidence.md",
+    "web/x0x_installer.html",
+    "web/x0x_projects.html",
+    "web/x0x_projects.js",
+    "web/test_installer_project_handoff.mjs"
   ],
   "checks": [
     {
@@ -54,6 +58,13 @@
       "argv": [
         "sh",
         "tests/host/home_overview_test.sh"
+      ]
+    },
+    {
+      "name": "installer-project-handoff",
+      "argv": [
+        "node",
+        "web/test_installer_project_handoff.mjs"
       ]
     }
   ]

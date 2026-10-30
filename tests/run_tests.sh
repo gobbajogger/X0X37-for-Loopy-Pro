@@ -535,6 +535,7 @@ command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs
 command -v node >/dev/null 2>&1 && run project-adoption-identities node --test web/test_project_adoption_identities.mjs
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
+command -v node >/dev/null 2>&1 && run installer-project-handoff node web/test_installer_project_handoff.mjs   # link to existing song/project transfer
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 command -v node >/dev/null 2>&1 && run installer-backup-selection node web/test_install_backup_selection.mjs   # recheck approval after backup before OTA write
 run slot-build-safe python3 -B tests/host/sample_slot_build_safety_test.py tools/fm1_sample_upload.py   # no-clobber pair; owner inspects unidentified files rather than risk foreign deletion
