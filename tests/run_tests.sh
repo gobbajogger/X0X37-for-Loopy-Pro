@@ -369,20 +369,14 @@ run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
 run smc-boot-saved-roles python3 tests/host/test_smc_boot_saved_roles.py
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
-# The one-peer recovery port cannot satisfy two-peer B transport/controller
-# fixtures. Keep those tests intact for the future two-SMC integration.
-if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central.h; then
-    run ble-one-peer-command sh tests/host/ble_one_peer_command_retry_test.sh
-    run ble-one-peer-contract python3 tests/host/ble_single_peer_contract_test.py
-    # The two-peer source stays; test it with BLEC_TWO_PEER=1.
-    run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
-    run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
-    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
-else
-    run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-    run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
-    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
-fi
+# Verify the normal firmware configuration, not a test-only -DBLEC_TWO_PEER override.
+# The #700 single-peer command-credit fallback remains exercised explicitly.
+run ble-active-peer-contract python3 tests/host/ble_active_peer_contract_test.py
+run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
+run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
+run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
+run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
