@@ -60,7 +60,7 @@ def clang_std_inc():
     """pi32v2 clang does not auto-add sibling include/; -idirafter keeps resource-dir first."""
     return ["-idirafter", str(toolchain() / "pi32v2" / "include")]
 # the DSP, the sequencer and the audio engine: separate units at -O2
-O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/bass303.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
+O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
             "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
 # Explicit compilation superset. The app's backend calls, not forced export roots,
 # decide which function/data sections survive the link. master_unmuted.c is an old
@@ -317,21 +317,12 @@ def synth_build_config(environ=None):
     """Select one DSP implementation; an explicit legacy enable cannot mix them."""
     env = os.environ if environ is None else environ
     original = env.get("X0X_ORIGINAL_SYNTH", "1")
-    if original not in ("0", "1"):
-        raise SystemExit("X0X_ORIGINAL_SYNTH: 0 or 1")
-    if original == "1":
-        if env.get("X0X_WOBBLE", "0") != "0":
-            raise SystemExit("X0X_ORIGINAL_SYNTH=1 requires X0X_WOBBLE=0 or unset")
-        if env.get("X0X_DEV_WOBBLE", "0") not in ("0", "1"):
-            raise SystemExit("X0X_DEV_WOBBLE: 0 or 1")
-        # Pad-rate UI flag is independent of the prohibited legacy wobble DSP.
-        return True, "0"
-    wobble = env.get("X0X_WOBBLE")
-    if wobble is None:
-        wobble = env.get("X0X_DEV_WOBBLE", "1")
-    if wobble not in ("0", "1"):
-        raise SystemExit("X0X_WOBBLE / X0X_DEV_WOBBLE: 0 or 1")
-    return False, wobble
+    if original != "1":
+        raise SystemExit("X0X_ORIGINAL_SYNTH: only 1 is supported")
+    for flag in ("X0X_WOBBLE", "X0X_DEV_WOBBLE"):
+        if flag in env and env[flag] != "0":
+            raise SystemExit(f"X0X_ORIGINAL_SYNTH=1 requires {flag}=0 or unset")
+    return True, "0"
 
 
 def require_original_synth_sources(root=None):
@@ -351,6 +342,8 @@ def require_original_synth_sources(root=None):
 
 def app_compile_commands(flags, original_synth, wobble):
     """Return the exact app compile/link input plan without running tools."""
+    if not original_synth:
+        raise SystemExit("X0X_ORIGINAL_SYNTH: only 1 is supported")
     if original_synth:
         if wobble != "0":
             raise SystemExit("X0X_ORIGINAL_SYNTH=1 cannot compile legacy WBL")
