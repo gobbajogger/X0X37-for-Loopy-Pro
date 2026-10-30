@@ -41,6 +41,18 @@ if name == "gen_drum_samples.py":
             '[ "${FAIL_GENERATOR:-}" != builtin ] || exit 23\n'
             'echo builtin > "$1/x0x_break_bank.h"\n'
         )
+        # This fixture tests shell dispatch and asset setup. The real build
+        # composition and private-input verification have separate unit tests.
+        (self.root / "tools/build.py").write_text('''
+import os
+ORIGINAL_SYNTH_UNITS = ["original_fixture.c"]
+ORIGINAL_SYNTH_BACKENDS = ["original_backend_fixture.c"]
+def synth_build_config():
+    return True, "0"
+def require_original_synth_sources():
+    if os.environ.get("FAIL_ORIGINAL_INPUTS"):
+        raise SystemExit(31)
+''')
         compiler = self.root / "compiler"
         compiler.write_text('''#!/usr/bin/env python3
 import json, os, pathlib, sys
@@ -77,6 +89,12 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
         self.assertEqual(argv[:8], ["-O2", "-ffp-contract=off", "-std=c99", "-Wall",
                                   "-Wextra", "-Wno-unused-function",
                                   "-Wno-unused-parameter", "-DX0X_HOST"])
+        self.assertIn("-DX0X_ORIGINAL_SYNTH=1", argv)
+        self.assertIn("-DX0X_WOBBLE=0", argv)
+        self.assertIn("-DX0X_DEV_WOBBLE=1", argv)
+        self.assertIn("original_fixture.c", argv)
+        self.assertIn("original_backend_fixture.c", argv)
+        self.assertNotIn("firmware/src/dsp/bass303.c", argv)
         self.assertIn("-DFIXTURE=1", argv)
         self.assertIn("-DSECOND=2", argv)
         self.assertIn("host/x0x_host.c", argv)
@@ -88,6 +106,33 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
     def test_default_output(self):
         self.assertEqual(self.run_builder().returncode, 0)
         self.assertTrue((self.root / "build/host/x0x_host").is_file())
+
+    def test_explicit_legacy_profile_is_rejected(self):
+        result = self.run_builder(X0X_ORIGINAL_SYNTH="0")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("only 1 is supported", result.stderr)
+        self.assertFalse((self.root / "compile.json").exists())
+
+    def test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp(self):
+        result = self.run_builder(X0X_DEV_WOBBLE="0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        argv = json.loads((self.root / "compile.json").read_text())["argv"]
+        self.assertIn("-DX0X_ORIGINAL_SYNTH=1", argv)
+        self.assertIn("-DX0X_WOBBLE=0", argv)
+        self.assertIn("-DX0X_DEV_WOBBLE=0", argv)
+        self.assertNotIn("firmware/src/dsp/bass303.c", argv)
+        self.assertNotIn("experiments/wobble/wobble.c", argv)
+
+    def test_invalid_original_rate_pad_flag_is_rejected(self):
+        result = self.run_builder(X0X_DEV_WOBBLE="2")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("X0X_DEV_WOBBLE: 0 or 1", result.stderr)
+        self.assertFalse((self.root / "compile.json").exists())
+
+    def test_original_input_failure_stops_compilation(self):
+        result = self.run_builder(FAIL_ORIGINAL_INPUTS="1")
+        self.assertEqual(result.returncode, 31)
+        self.assertFalse((self.root / "compile.json").exists())
 
     def test_custom_bank(self):
         result = self.run_builder("--generate-only", X0X_BREAK_BANK="bank with spaces")

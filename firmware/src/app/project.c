@@ -465,13 +465,14 @@ static int stream_parts_ok(const pattern_t *pat,const arrange_t *arr,uint32_t fo
 static int stream_layout_ok(const project_t *pr,uint32_t format)
 {return stream_parts_ok(pr->pat,&pr->arr,format);}
 
-/* Call only after checking the original bytes' CRC and old semantic ranges.
- * The packed count's zero means A8/B8; the reserved byte and pin intent survive. */
+#if !X0X_ORIGINAL_SYNTH
+/* The retired project profile only. Revision 13 needs no migration. */
 static void migrate_break_counts(project_t *pr, uint32_t format)
 {
     if (format < 8u)
         for (int p = 0; p < NPAT; p++) pr->pat[p].brk.slice_mode = 0;
 }
+#endif
 
 
 static int load_stream(project_t *pr, int n, uint32_t format)
@@ -503,7 +504,9 @@ static int load_stream(project_t *pr, int n, uint32_t format)
 #endif
     if (!stream_layout_ok(pr, format))
         return -9;
+#if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(pr, format);
+#endif
     if (format != PROJ_STREAM)
         for (int k = 0; k < NSTREAM; k++) stored_known[STREAM_OBJ[k]] = 0;
     packed_len = plen;
@@ -1023,22 +1026,7 @@ static int project_validate_for(const project_t *p)
 
 int project_validate_stage(void) { return project_validate_for(&project_stage); }
 
-#if X0X_BASS_TAGGED_SOUND
-int project_adopt_legacy_stage(int bank0,int bank1)
-{
-    /* This is an explicit whole-project identity choice, not a preset change.
-     * Only the exact rev10 product surface is admitted in this first unit. */
-    if(project_stage.set.snd_rev!=10)return -9;
-    bass_sound_tag_t old[NBASS];uint8_t rev=project_stage.set.snd_rev;
-    __builtin_memcpy(old,project_stage.sound.bass,sizeof old);
-    int rc=engine_bass_sound_adopt(&project_stage.sound,bank0,bank1);
-    if(rc)return rc;
-    project_stage.set.snd_rev=PROJ_SND_REV;
-    rc=project_validate_stage();
-    if(rc) {project_stage.set.snd_rev=rev;__builtin_memcpy(project_stage.sound.bass,old,sizeof old);}
-    return rc;
-}
-#endif
+
 int project_load_stage(void)
 {
     uint32_t live_length = packed_len;
@@ -1046,9 +1034,6 @@ int project_load_stage(void)
     if (rc == -9) project_incompatible = 1;
     packed_len = live_length;
     rc=rc?rc:project_validate_stage();
-#if X0X_BASS_TAGGED_SOUND
-    if(rc==-10)project_incompatible=1;
-#endif
     return rc;
 }
 
@@ -1076,32 +1061,7 @@ void project_file_header(uint8_t *h)
     put32(h + 28, 0);
 }
 
-#if X0X_BASS_TAGGED_SOUND
-int project_prepare_legacy_file(const uint8_t *h)
-{
-    const uint32_t payload=sizeof(project_stage)-NBASS*BASS_SOUND_TAG_BYTES;
-    const uint32_t shift=NBASS*BASS_SOUND_TAG_BYTES;
-    const uint32_t tail=__builtin_offsetof(project_t,pat);
-    uint8_t *raw=(uint8_t *)&project_stage;
-    uint32_t stream=get32(h+20);
-    if(get32(h)!=0x50583058u || get32(h+4)!=1 || get32(h+8)!=payload ||
-       get32(h+16)!=PROJ_FORMAT || (stream!=3 && stream!=6) || get32(h+24)!=10 || get32(h+28))return -9;
-    if(get32(h+12)!=crc32_of(raw,payload))return -4;
-    if(project_stage.set.magic!=PROJ_MAGIC || project_stage.set.format!=PROJ_FORMAT || project_stage.set.snd_rev!=10)return -1;
-    const pattern_t *pat=(const pattern_t *)(raw+tail-shift);
-    const arrange_t *arr=(const arrange_t *)(raw+__builtin_offsetof(project_t,arr)-shift);
-    if(!stream_parts_ok(pat,arr,stream))return -9; /* no 4/5/snapshot guessing */
-    /* Move toward higher addresses from the end. The empty compiler barrier
-     * prevents a libc memmove call, which the firmware cannot link. */
-    for(uint32_t i=sizeof project_stage-tail;i>0;i--){
-        __asm__ volatile("" ::: "memory");
-        raw[tail+i-1u]=raw[tail-shift+i-1u];
-    }
-    __builtin_memset(project_stage.sound.bass,0,sizeof project_stage.sound.bass);
-    migrate_break_counts(&project_stage, stream);
-    return -10; /* prepared and quarantined, not adopted or implicitly saved */
-}
-#endif
+
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
@@ -1117,7 +1077,9 @@ int project_file_validate(const uint8_t *h)
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
+#if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(&project_stage, get32(h+20));
+#endif
     return project_validate_stage();
 }
 

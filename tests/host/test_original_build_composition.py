@@ -32,18 +32,17 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
-    def test_default_is_replacement_and_explicit_zero_is_reference_only(self):
+    def test_default_is_original_and_zero_is_rejected(self):
         commands, objects, sources = compile_plan({})
         self.assertEqual((commands, objects), compile_plan({"X0X_ORIGINAL_SYNTH": "1"})[:2])
         self.assertNotIn("firmware/src/dsp/bass303.c", sources)
         self.assertNotIn("experiments/wobble/wobble.c", sources)
-        commands, objects, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0"})
-        self.assertIn("firmware/src/dsp/bass303.c", sources)
-        self.assertIn("experiments/wobble/wobble.c", sources)
-        self.assertFalse(any("original_synth/" in p or "_backend.c" in p for p in sources))
-        for command in commands:
-            self.assertNotIn("-DX0X_ORIGINAL_SYNTH=1", command)
-            self.assertNotIn("-DORIGINAL_USE_SOFT_FMA", command)
+        for unsupported in ("0", "invalid"):
+            with self.subTest(unsupported=unsupported):
+                with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+                    compile_plan({"X0X_ORIGINAL_SYNTH": unsupported})
+        with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+            build.app_compile_commands([], False, "0")
 
     def test_replacement_is_exclusive_and_preserves_independent_sources(self):
         commands, objects, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
@@ -97,7 +96,7 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                     compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_WOBBLE": value})
         with self.assertRaisesRegex(SystemExit, "X0X_DEV_WOBBLE"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "invalid"})
-        with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: 0 or 1"):
+        with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: only 1 is supported"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "invalid"})
         self.assertEqual(build.synth_build_config({"X0X_ORIGINAL_SYNTH": "1",
                                                   "X0X_WOBBLE": "0",
@@ -195,11 +194,11 @@ class OriginalBuildCompositionTests(unittest.TestCase):
                     self.assertIn("-DX0X_WOBBLE=0", command)
                     self.assertIn(f"-DX0X_DEV_WOBBLE={enabled}", command)
 
-    def test_legacy_wobble_disable_still_works(self):
-        for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
-            _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0", **env})
-            self.assertNotIn("experiments/wobble/wobble.c", sources)
-            self.assertIn("firmware/src/dsp/bass303.c", sources)
+    def test_legacy_profile_never_builds_even_with_wobble_disabled(self):
+        for selector in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
+            with self.subTest(selector=selector):
+                with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+                    compile_plan({"X0X_ORIGINAL_SYNTH": "0", **selector})
 
     def test_missing_replacement_fails_before_any_tool_is_called(self):
         with tempfile.TemporaryDirectory() as directory:
