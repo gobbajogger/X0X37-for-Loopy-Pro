@@ -286,7 +286,7 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
 /* C_REC reservation/priority matches the separately reviewed atomic REC unit; C_BASE is #684's exact base restore. */
-enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC, C_BASE };
+enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC, C_BASE, C_MOD };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
@@ -315,7 +315,7 @@ retry:
          * C_BOFF, C_BRK, or C_DRUM — missing a live drum hit or break press
          * under param flood is a silent loss; a retained release without its
          * press is rare but must not displace an already-queued release. */
-        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_REC) || (type == C_BASE);
+        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_REC) || (type == C_BASE) || (type == C_MOD);
         if (!keep)
             return;
         uint32_t r = cq_r;
@@ -437,6 +437,18 @@ static void live_key_context_retire(int v,int release)
 }
 
 
+static void perf_apply(int v, int i, int val, int live);
+static uint8_t perf_ctl[NBASS][2];
+#ifdef X0X_HOST
+static uint8_t perf_seen[NBASS][3] = {{64, 0, 0}, {64, 0, 0}};
+#endif
+/* Mod wheel / CC1 (owner 2026-10-30): Chicago cutoff, Miami wobble depth. While the
+ * wheel owns the param, mod_ctl is its value so a REC lane records the wheel, not the
+ * saved knob; a knob edit of that param gives it back (-1). */
+static int16_t mod_ctl[NBASS] = {-1, -1};
+static volatile uint8_t ext_touch[NBASS];           /* ISR -> UI: bit0 bend, bit1 mod moved by ext MIDI */
+static int mod_param(int v)
+{ return original_bass[v].kind == ORIGINAL_SOUND_MIAMI ? ORIGINAL_MIAMI_WOBBLE_DEPTH : ORIGINAL_CHICAGO_CUTOFF; }
 static void apply_param(int t, int v, int i, int val)    /* ISR */
 {
     switch (t) {
@@ -445,6 +457,13 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     case T_303:
         if (v < 0 || v >= NBASS)
             break;
+        if (original_sound_is_performance(original_bass[v].kind, (unsigned)i)) { perf_apply(v, i, val, 1); break; }
+        if (i == mod_param(v)) {
+            mod_ctl[v] = -1;
+#ifdef X0X_HOST
+            perf_seen[v][2] = (uint8_t)val;
+#endif
+        }
         {
             float value;
             if (original_sound_control_value(original_bass[v].kind, (unsigned)i, (unsigned)val, &value))
@@ -479,6 +498,10 @@ static void apply_base(int t, int v, int i)
     if (!mot_base_snd || (unsigned)t >= NTARGETS || (unsigned)v >= NVOICES_MAX || (unsigned)i >= NPARAMS_MAX) return;
     if (t == T_303 && (unsigned)v < NBASS) {
         float value;
+        if (original_sound_is_performance(original_bass[v].kind, (unsigned)i)) {
+            perf_apply(v, i, (unsigned)i == original_sound_count(original_bass[v].kind) - 2u ? 64 : 0, 1);
+            return;
+        }
         if (original_sound_value(mot_base_snd->v[t][v], (unsigned)i, &value))
             (void)original_runtime_param(&original_bass[v], (unsigned)i, value);
         return;
@@ -771,6 +794,46 @@ static void s_step(void *x, int t, int p)
 }
 
 /* --------------------------------------------------------------- motion --- */
+/* Pitch bend and damper are runtime performance inputs, not patch edits.
+ * Port of the bass303-era chi_aux_apply: clamp the 0..127 control and hand
+ * it to the runtime. perf_ctl keeps the live wheel/MIDI position, which a
+ * motion lane records and returns to when it ends. */
+static uint8_t perf_ctl[NBASS][2] = {{64, 0}, {64, 0}};
+static void apply_param(int t, int v, int i, int val);
+static void mod_apply(int v, int val)              /* ISR */
+{
+    if ((unsigned)v >= NBASS) return;
+    val = val < 0 ? 0 : val > 127 ? 127 : val;
+    apply_param(T_303, v, mod_param(v), val);      /* the knob's own path */
+    mod_ctl[v] = (int16_t)val;                     /* after: apply_param from a knob clears it */
+}
+void engine_bass_mod(int v, int val) { cq_put(C_MOD, (uint32_t)v, 0, (uint32_t)val); }
+int engine_bass_ext_touch(int v)                   /* UI: take the ext-MIDI bend/mod moves */
+{ if ((unsigned)v >= NBASS) return 0; int t = ext_touch[v]; ext_touch[v] = 0; return t; }
+int engine_bass_mod_param(int v) { return (unsigned)v < NBASS ? mod_param(v) : -1; }
+#ifdef X0X_HOST
+int engine_bass_perf(int v, int which, int live) /* host test: 0 bend, 1 damper, 2 mod; last applied or live */
+{
+    if ((unsigned)v >= NBASS || (unsigned)which > 2) return -1;
+    if (which == 2) return live ? mod_ctl[v] : perf_seen[v][2];
+    return live ? perf_ctl[v][which] : perf_seen[v][which];
+}
+#endif
+static void perf_apply(int v, int i, int val, int live)
+{
+    float value;
+    if ((unsigned)v >= NBASS) return;
+    unsigned first = original_sound_count(original_bass[v].kind) - 2u;
+    if ((unsigned)i < first || (unsigned)i > first + 1u) return;
+    if (val < 0) val = 0;
+    if (val > 127) val = 127;
+    if (live) perf_ctl[v][(unsigned)i - first] = (uint8_t)val;
+#ifdef X0X_HOST
+    perf_seen[v][(unsigned)i - first] = (uint8_t)val;
+#endif
+    if (original_sound_control_value(original_bass[v].kind, (unsigned)i, (unsigned)val, &value))
+        (void)original_runtime_param(&original_bass[v], (unsigned)i, value);
+}
 static int original_motion_performance(int t, int v, int i)
 {
     return t == T_303 && (unsigned)v < NBASS &&
@@ -785,12 +848,16 @@ static int mot_base(void *x, int t, int v, int i)
         return 0;                                     /* legacy accent / accent_q7 */
     if (t >= NTARGETS)
         return 100;
+    if (t == T_303 && (unsigned)v < NBASS && i == mod_param(v) && mod_ctl[v] >= 0)
+        return mod_ctl[v];
+    if (original_motion_performance(t, v, i))
+        return perf_ctl[v][(unsigned)i - (original_sound_count(original_bass[v].kind) - 2u)];
     return mot_base_snd ? mot_base_snd->v[t][v][i] : 0;
 }
 static void mot_apply(void *x, int t, int v, int i, int val)
 {
     (void)x;
-    if (original_motion_performance(t, v, i)) return;
+    if (original_motion_performance(t, v, i)) { perf_apply(v, i, val, 0); return; }
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
             prob[v >> 4][v & 15] = (uint8_t)val;
@@ -803,7 +870,7 @@ static void mot_apply(void *x, int t, int v, int i, int val)
 }
 static void mot_restore(void *x, int t, int v, int i)
 {
-    if (original_motion_performance(t, v, i)) return;
+    if (original_motion_performance(t, v, i)) { perf_apply(v, i, mot_base(x, t, v, i), 0); return; }
     if (t < NTARGETS) apply_base(t, v, i);
     else mot_apply(x, t, v, i, mot_base(x, t, v, i));
 }
@@ -1182,13 +1249,18 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 for (unsigned key = 0; key < 128; ++key) held |= original_bass[k].keys[src][key];
                 if (held) src_held[src] |= (uint16_t)(1u << k);
                 else src_held[src] &= (uint16_t)~(1u << k);
+            } else if (ty == 0xb0 && d1 == 1) {
+                mod_apply(k, d2);                      /* mod wheel CC1: cutoff / wobble depth */
+                ext_touch[k] |= 2u;
             } else if (ty == 0xb0 && d1 == 64) {
-                unsigned parameter = original_sound_count(original_bass[k].kind) - 1;
-                (void)original_runtime_param(&original_bass[k], parameter, (float)d2 / 127.0f);
+                /* damper: sustain pedal CC64 (no wheel mapping) */
+                perf_apply(k, (int)original_sound_count(original_bass[k].kind) - 1, d2, 1);
             } else if (ty == 0xe0) {
                 unsigned bend = (unsigned)d1 | (unsigned)d2 << 7;
                 float value = bend < 8192 ? (float)bend / 16384.0f : 0.5f + (float)(bend - 8192) / 16382.0f;
                 unsigned parameter = original_sound_count(original_bass[k].kind) - 2;
+                perf_ctl[k][0] = (uint8_t)(bend >> 7);
+                ext_touch[k] |= 1u;
                 (void)original_runtime_param(&original_bass[k], parameter, value);
             }
         }
@@ -1243,6 +1315,8 @@ static void drain(void)
         if (type == C_REC) a &= 1u;
         if (type < 8u)
             apply_param((int)type, (int)a, (int)b, (int)v);
+        else if (type == C_MOD)
+            mod_apply((int)a, (int)v);
         else if (type == C_BASE) {
             if (a < NTARGETS) apply_base((int)a, (int)b, (int)v);
             else mot_apply(0, (int)a, (int)b, (int)v, mot_base(0, (int)a, (int)b, (int)v));

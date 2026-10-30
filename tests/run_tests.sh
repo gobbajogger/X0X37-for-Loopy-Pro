@@ -93,7 +93,7 @@ test_class() {
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-preset-preserve|smc-reachability|smc-ui|ui-shared-glyph|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-preset-preserve|smc-reachability|smc-ui|ui-shared-glyph|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -598,6 +598,7 @@ run home-pattern-glyph sh tests/host/home_pattern_glyph_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run home-overview Pillow; else run home-overview sh tests/host/home_overview_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix sh tests/host/sound_matrix_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
+run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-presentation Pillow; else run chicago-presentation sh tests/host/chicago_presentation_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-readout Pillow; else run chicago-readout sh tests/host/chicago_readout_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run matrix-knob-caption Pillow; else run matrix-knob-caption sh tests/host/matrix_knob_caption_test.sh; fi
