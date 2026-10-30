@@ -45,3 +45,12 @@ Unless the cloud suite with the real SDK compiler is clean, `cb5423c4` needs a f
 - `features.txt` (220 KB): large raw dump.
 - `dnbox-private-inputs/`: the headers are already in #721.
 - Builder working copies (`x0x37-*` folders, `gh-x0x37*`, `x0x37.git`): clones of this repo.
+
+## Backup branches from the box (2026-10-30)
+
+Work that existed only on the orchestrator's box was pushed as `backup/*` branches. Original commits are kept. Nothing here is merged.
+
+- `backup/gh-x0x37-fmb-pr684-ui`, `backup/gh-x0x37-synth684-harness`, `backup/gh-x0x37-trial-638-650-651`: local branches that were never pushed.
+- `backup/fmb-pr684-wip`, `backup/gh-x0x37-merge-wip` (staged bass303 removal on merge-trial-20261029), `backup/smcfix-wip`: uncommitted changes.
+- 98 `backup/bundle-*` branches: commits found only in bundles (Mac codex-tasks backup, x0x37-inner, codex-lanes). Full list: `git ls-remote origin 'refs/heads/backup/bundle-*'`.
+- Not pushed: bundle commits that contain binaries, PNGs, WAVs or capture logs (45 tips), two wobble.c experiment branches, and two incomplete SMC bundles.
