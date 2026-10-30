@@ -1,0 +1,281 @@
+{
+  "intake": "SETTINGS-IA-20261027",
+  "source": "9d3528acf592b050f375f5325b898ff7a9161cb9",
+  "delivered_pr650": "a51b030d98e1400f697ba1fa7b5056a62f7399fc",
+  "status": "APPROVE_DESIGN_ROUND3",
+  "rows": [
+    {
+      "ref": "R_CLKSRC",
+      "label": "CLOCK SOURCE",
+      "group": "MIDI + CLOCK",
+      "fixture": "AUTO",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_CLKOUT",
+      "label": "CLOCK OUT",
+      "group": "MIDI + CLOCK",
+      "fixture": "ON",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_NOTEOUT",
+      "label": "NOTES OUT",
+      "group": "MIDI + CLOCK",
+      "fixture": "OFF",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_MIDICH:0",
+      "label": "909 MIDI CH",
+      "group": "MIDI + CLOCK",
+      "fixture": "10",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_MIDICH:1",
+      "label": "808 MIDI CH",
+      "group": "MIDI + CLOCK",
+      "fixture": "11",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_MIDICH:4",
+      "label": "BREAK MIDI CH",
+      "group": "MIDI + CLOCK",
+      "fixture": "4",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_MIDICH:3",
+      "label": "303B MIDI CH",
+      "group": "MIDI + CLOCK",
+      "fixture": "3",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_MIDICH:2",
+      "label": "303A MIDI CH",
+      "group": "MIDI + CLOCK",
+      "fixture": "2",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_CKCH",
+      "label": "CLIP KEYS CH",
+      "group": "MIDI + CLOCK",
+      "fixture": "2",
+      "condition": "BOARD_SMK37",
+      "read_only": false
+    },
+    {
+      "ref": "R_BT",
+      "label": "BLUETOOTH",
+      "group": "BLUETOOTH",
+      "fixture": "ON",
+      "condition": "BOARD_SMK37",
+      "read_only": false
+    },
+    {
+      "ref": "R_SMC_ROLE",
+      "label": "BT ROLE",
+      "group": "BLUETOOTH",
+      "fixture": "DEVICE",
+      "condition": "BOARD_SMK37",
+      "read_only": false
+    },
+    {
+      "ref": "R_SMC_MAP",
+      "label": "SMC PRESET",
+      "group": "BLUETOOTH",
+      "fixture": "DAW",
+      "condition": "BOARD_SMK37",
+      "read_only": false
+    },
+    {
+      "ref": "R_BTSTAT",
+      "label": "STATUS",
+      "group": "BLUETOOTH",
+      "fixture": "READY",
+      "condition": "BOARD_SMK37",
+      "read_only": true
+    },
+    {
+      "ref": "R_BTNAME",
+      "label": "NAME",
+      "group": "BLUETOOTH",
+      "fixture": "X0X37",
+      "condition": "BOARD_SMK37",
+      "read_only": true
+    },
+    {
+      "ref": "R_OUTLOUD",
+      "label": "OUTPUT",
+      "group": "AUDIO",
+      "fixture": "NORMAL",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_USBFULL",
+      "label": "USB AUDIO",
+      "group": "AUDIO",
+      "fixture": "FOLLOWS KNOB",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_KEYLED",
+      "label": "LIGHTS",
+      "group": "KEYS + SCREEN",
+      "fixture": "KEYS",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_KEYSOUND",
+      "label": "KEY SOUND",
+      "group": "KEYS + SCREEN",
+      "fixture": "STOPPED",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_PALETTE",
+      "label": "THEME",
+      "group": "KEYS + SCREEN",
+      "fixture": "AMBER",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_ACT:ACT_SAVE",
+      "label": "SAVE PROJECT",
+      "group": "PROJECT",
+      "fixture": "ENTER",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_ACT:ACT_LOAD",
+      "label": "LOAD SAVED",
+      "group": "PROJECT",
+      "fixture": "ENTER",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_AUTOSAVE",
+      "label": "AUTOSAVE",
+      "group": "PROJECT",
+      "fixture": "ON",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_ACT:ACT_CLEAR_PAT",
+      "label": "CLEAR PATTERN",
+      "group": "PROJECT",
+      "fixture": "ASK",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_ACT:ACT_RESET",
+      "label": "RESET PROJECT",
+      "group": "PROJECT",
+      "fixture": "ASK",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_ACT:ACT_PERF",
+      "label": "PERFORMANCE",
+      "group": "SYSTEM",
+      "fixture": "ENTER",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_ACT:ACT_ABOUT",
+      "label": "ABOUT X0X",
+      "group": "SYSTEM",
+      "fixture": "ENTER",
+      "condition": "always",
+      "read_only": false
+    },
+    {
+      "ref": "R_BATT",
+      "label": "BATTERY",
+      "group": "SYSTEM",
+      "fixture": "USB POWER",
+      "condition": "always",
+      "read_only": true
+    },
+    {
+      "ref": "R_ACT:ACT_PADCAL",
+      "label": "PAD COLOURS",
+      "group": "SYSTEM",
+      "fixture": "ENTER",
+      "condition": "BOARD_SMK37 && X0X_DEV_PADCAL && !clip_mode",
+      "read_only": false
+    }
+  ],
+  "frames": [
+    [
+      "01-global-sections",
+      "Six sections; no endless global list"
+    ],
+    [
+      "02-midi-clock",
+      "MIDI + CLOCK"
+    ],
+    [
+      "03-midi-channels-scroll",
+      "Channels: preserved part order"
+    ],
+    [
+      "03-bluetooth",
+      "BLUETOOTH"
+    ],
+    [
+      "04-audio",
+      "AUDIO"
+    ],
+    [
+      "05-keys-screen",
+      "KEYS + SCREEN"
+    ],
+    [
+      "06-project",
+      "PROJECT"
+    ],
+    [
+      "07-system",
+      "SYSTEM"
+    ],
+    [
+      "09-reset-confirmation",
+      "Existing confirmation retained"
+    ],
+    [
+      "10-bt-long-name",
+      "20-character name: display-only ellipsis"
+    ],
+    [
+      "11-audio-long-enum",
+      "Longest USB enum: readable and complete"
+    ]
+  ],
+  "native_text_bounds_checks": 145,
+  "review_evidence": "evidence/ROUND3-RECHECK.json",
+  "glyph_source": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9"
+}
