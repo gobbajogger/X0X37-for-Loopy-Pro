@@ -1,0 +1,50 @@
+# Four rows, four physical knob columns; the first bank has sixteen controls.
+wait 300
+turn ALGO 4
+tap EDIT
+expect page 0
+shot miami_sound.png
+param 2 0 0 0
+wait 30
+shot miami_triangle.png
+param 2 0 0 1
+wait 30
+shot miami_square.png
+tap EDIT
+expect page 1
+param 2 0 6 0
+wait 30
+shot miami_xmod_triangle.png
+param 2 0 6 1
+wait 30
+shot miami_xmod_pulse.png
+tap EDIT
+expect page 2
+param 2 0 11 0
+wait 30
+shot miami_wobble_triangle.png
+param 2 0 11 1
+wait 30
+shot miami_wobble_square.png
+tap EDIT
+expect page 3
+shot miami_adsr_idle.png
+spin K1 10
+wait 30
+shot miami_adsr_active.png
+wait 500
+shot miami_adsr_grace.png
+spin K3 -20
+wait 30
+shot miami_adsr_sustain.png
+wait 1000
+shot miami_adsr_done.png
+tap EDIT
+expect page 4
+shot miami_page2.png
+turn SELECT 2
+expect page 6
+shot miami_presets.png
+tap EDIT
+expect page 0
+shot miami_wrap.png

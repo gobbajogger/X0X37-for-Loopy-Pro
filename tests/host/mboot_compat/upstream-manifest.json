@@ -1,0 +1,27 @@
+{
+  "repository": "jvitkauskas/m-bootloader",
+  "commit": "64b74d009e6d21fe85ca60754b7c01d438214804",
+  "files": {
+    "src/core.c": {
+      "git_blob": "7e473df3bb828876ba50701f86977ccaf654df6b"
+    },
+    "src/contract.c": {
+      "git_blob": "1d29f436294a6324dd6b6a68e49e3a744b739d08"
+    },
+    "include/core.h": {
+      "git_blob": "542f8493b4a0babdbbdf3db66ad95216ca0127ed"
+    },
+    "include/contract.h": {
+      "git_blob": "ab48ff380a59275f736b9344b11486acb9f97b8b"
+    },
+    "tools/bankcb.py": {
+      "git_blob": "a616a553626f2e9cfc4292eb9a00ee57c465d812"
+    },
+    "LICENSE": {
+      "git_blob": "f887cce0d4623c4056db0e9927066085e51fc0a5"
+    },
+    "NOTICE.md": {
+      "git_blob": "de471d03e997c3a13ddf5fbcf2361e5b1efed9ad"
+    }
+  }
+}

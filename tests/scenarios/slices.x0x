@@ -1,7 +1,7 @@
 # BREAK: a step held + black key 1-8 gives that 16th its own slice of loop A, which plays there in
 # place of the generator's choice; the same key again gives it back to the generator.
 wait 300
-turn ALGO 4
+turn ALGO 2
 expect part 4
 tapkey w0
 tapkey w1

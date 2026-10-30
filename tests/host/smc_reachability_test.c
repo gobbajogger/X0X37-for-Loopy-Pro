@@ -21,6 +21,12 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) {
         led_vel[msg[1]] = msg[2];
     return 1;
 }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -114,10 +120,10 @@ static void knob_accel_isolated(void) {
     assert(ui.enc_run[EN_K1] == panel_run);
 }
 /* Panel curve stays x8. SMC quick spins use a shorter curve. Same translation unit. */
-static int accel_at(int smc, uint32_t gap, int s, int range, uint8_t run)
+static int accel_at(int is_smc, uint32_t gap, int s, int range, uint8_t run)
 {
     int got;
-    accel_smc = (uint8_t)smc;
+    accel_smc = (uint8_t)is_smc;
     ui.enc_t[EN_K1] = now_ms;
     ui.enc_run[EN_K1] = run;
     now_ms += gap;
@@ -298,16 +304,16 @@ static void record_lamp_follows_part(void) {
     smc.rec_part = 0;
     smc_frame();
     assert(led_vel[0] == 127);
-    assert(led_vel[2] == 0);
+    assert(led_vel[4] == 0);
     ui.part = 2;                       /* panel SELECT / part change; no SMC Record press */
     for (int i = 0; i < 128; i++) smc.known[i] = 0;
     smc_frame();
     assert(led_vel[0] == 0);
-    assert(led_vel[2] == 127);
+    assert(led_vel[4] == 127);
     ui.rec = 0;
     for (int i = 0; i < 128; i++) smc.known[i] = 0;
     smc_frame();
-    assert(led_vel[2] == 0);
+    assert(led_vel[4] == 0);
 }
 /* Nav lamps on strips 6–8 must follow their own shortcut, not one shared page formula. */
 static void nav_strip_lamps(void) {
@@ -369,6 +375,7 @@ static void help_keeps_controls(void) {
     assert(!ui.help);
 }
 static void scenario(void) {
+    static const int expected_strip[5] = {0,1,4,3,2};
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
     memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
     boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
@@ -384,11 +391,11 @@ static void scenario(void) {
         const uint8_t down[]={5,4,0,1,0,0x13};
         blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
         receive_ready();smc_ble_link(1);smc_poll();
-        /* The first fader, knob and SELECT after an interrupted SysEx reach UI.
-         * Source-strip SELECT keys are momentary FX, not part navigation. */
+        /* The first fader, knob and ordinary SELECT after interrupted SysEx reach UI. */
+        smc_select_part(PART_303A); smc_view(V_HOME,0);
         fader(0,0);assert(smc_ui_active());
-        { int part0=ui.part, view0=ui.view; press(24); assert(ui.part==part0 && ui.view==view0); }
-        { int part0=ui.part, view0=ui.view; press(24+PART_303B); assert(ui.part==part0 && ui.view==view0); }
+        press(24); assert(ui.part==PART_909 && ui.view==V_PART && !smc.fx_down);
+        press(24+PART_303B); assert(ui.part==PART_303B && ui.view==V_PART && !smc.fx_down);
         edit(smc_knob_target(0),0);smc_view(V_HOME,0);
     }
     if(getenv("SMC_PICKUP_ONLY")) goto pickup;
@@ -396,12 +403,16 @@ static void scenario(void) {
     for(int part=0;part<NPARTS;part++) {
         smc_select_part((part + 1) % NPARTS);
         smc_view(V_HOME,0);
-        if (part <= PART_BRK) {
-            int stayed = ui.part;
-            press(24 + part);
-            assert(ui.part == stayed && ui.view == V_HOME);
-        }
-        smc_select_part(part);
+        press(24 + expected_strip[part]);
+        assert(ui.part == part && ui.view == V_PART && !smc.fx_down);
+        /* The same actual input is an assigned effect only in FX context.
+         * DAW Note buttons own press/release; stock User MMC has toggle-only edges. */
+        smc_view(V_FX,0);
+        message(0x90,24+expected_strip[part],127);
+        assert(ui.part == part && ui.view == V_FX && (smc.fx_down & (1u << part)));
+        if(user_route()) message(0x90,24+expected_strip[part],127);
+        else message(0x80,24+expected_strip[part],0);
+        assert(ui.part == part && ui.view == V_FX && !(smc.fx_down & (1u << part)));
         smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {
             assert(cur_page()==p);
@@ -501,7 +512,7 @@ pickup: ;
     fader(0,127); turn(0,1); press(24);
     assert(pref_get(r)==old && smc_qr==smc_qw && smc_host_r==smc_host_w);
     perf.test=saved_test; perf.phase=saved_phase;
-    ui.help=1; { int part=ui.part, view_now=ui.view; press(24); assert(ui.help && ui.part==part && ui.view==view_now); }
+    ui.help=1; press(24); assert(ui.help && ui.part==PART_909 && ui.view==V_PART && !smc.fx_down);
     old=pref_get(smc_knob_target(0)); turn(0,1);
     assert(ui.help && pref_get(smc_knob_target(0))!=old); /* card stays; knob still edits */
     press(6); assert(!ui.help);

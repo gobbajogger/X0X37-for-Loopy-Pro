@@ -14,7 +14,7 @@
 #if !X0X_ORIGINAL_SYNTH && (X0X_DEV_WOBBLE || X0X_BASS_TAGGED_SOUND)
 #include "../dsp/synth_engine.h"
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 #include "../dsp/wobble_backend.h"
 #include "wobble_ui.h"
 #endif
@@ -46,7 +46,7 @@
 
 #define POOL X0X_POOL
 
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 static wobble_t dev_wobble POOL;
 static synth_slot_t bass_slot[NBASS] POOL;
 #endif
@@ -70,6 +70,15 @@ static drum808_t d808 POOL;
 #if X0X_ORIGINAL_SYNTH
 static volatile uint8_t project_hold;
 static original_runtime_part original_bass[NBASS] POOL;
+static uint16_t original_quiet_samples[NBASS], original_switch_gain[NBASS];
+#ifdef X0X_HOST
+/* Read-only host diagnostics for the actual adoption boundary. */
+unsigned engine_original_tail_state(int v)
+{
+    return (unsigned)v < NBASS ? original_quiet_samples[v] |
+        (original_runtime_owned(&original_bass[v]) ? 0x10000u : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
+}
+#endif
 static original_runtime_workspace original_workspace POOL;
 static original_chicago_tuning original_tuning POOL;
 static original_chicago_fx2_compact original_fx[NBASS] POOL;
@@ -132,7 +141,7 @@ void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *con
 #else
     *arp=chi_arp_on[voice];
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if(bass_slot[voice].active.ops==&wobble_foundation_ops) *arp=0;
 #endif
     if(live_key_owner[voice].blocked)*arp=-1; /* fail closed until cold boot */
@@ -244,7 +253,27 @@ static uint8_t chi_damper[NBASS] POOL;
 static uint8_t chi_damp_latched[NBASS] POOL; /* note-off deferred while damper on */
 #endif
 static breaks_t brk POOL;
+/* Latest-value physical wheel mailbox: centre cannot be dropped by a full CQ.
+ * Only audio writes the DSP bend and the external MIDI owner. */
+static volatile int16_t brk_wheel;
+static int16_t brk_wheel_seen;
+static int8_t brk_bend_owner;
+void engine_brk_bend(int value)
+{
+    brk_wheel = (int16_t)(value < -8192 ? -8192 : value > 8191 ? 8191 : value);
+}
+#ifdef X0X_HOST
+int engine_brk_bend_value(void) { return brk.bend; }
+#endif
 static fxbus_t fx POOL;
+static volatile uint8_t tape_signal_seen;
+static volatile uint32_t tape_signal_at;
+/* The original ca8299b6 visual activity observer. No DSP output change. */
+uint8_t engine_tape_active(void)
+{
+    uint32_t at = tape_signal_at;
+    return tape_signal_seen && (uint32_t)(plat_ms() - at) < 80u;
+}
 void engine_fx_mute(uint8_t mask) { fx.muted = mask & 7u; }
 uint8_t engine_fx_muted(void) { return fx.muted; }
 static master_t mst POOL; /* was BSS; pool after Chicago-insert union frees headroom */
@@ -312,7 +341,7 @@ static void guard_apply(void)
     guard_applied = guard_on;
 #if !X0X_ORIGINAL_SYNTH
     for (int k = 0; k < NBASS; k++)
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         synth_lite(&bass_slot[k], guard_on);
 #else
         bass303_set_lite(&b303[k], guard_on);
@@ -391,7 +420,8 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* ------------------------------------------------------- command queue --- */
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
-enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_BASE };
+/* C_REC reservation/priority matches the separately reviewed atomic REC unit; C_BASE is #684's exact base restore. */
+enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_REC, C_BASE };
 #define CQ 1024u
 static uint32_t cq[CQ];
 static volatile uint32_t cq_w, cq_r;
@@ -420,7 +450,7 @@ retry:
          * C_BOFF, C_BRK, or C_DRUM — missing a live drum hit or break press
          * under param flood is a silent loss; a retained release without its
          * press is rare but must not displace an already-queued release. */
-        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_BASE);
+        uint32_t i, keep = (type == C_BON) || (type == C_BOFF) || (type == C_BRK) || (type == C_DRUM) || (type == C_REC) || (type == C_BASE);
         if (!keep)
             return;
         uint32_t r = cq_r;
@@ -447,7 +477,7 @@ retry:
 }
 
 /* ------------------------------------------------------------ params --- */
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 static int bass_wobble_voice(int v)
 {
     return (unsigned)v < NBASS && bass_slot[v].active.ops == &wobble_foundation_ops;
@@ -476,7 +506,7 @@ int engine_nparams(int t, int v)
 #if X0X_BASS_PRESET_PREVIEW
         return engine_bass_bank(v) == FACTORY_BANK_MIAMI ? WOBBLE_EXPERIMENT_NPARAMS : CHI_AUX_END;
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (bass_wobble_voice(v))
             return WOBBLE_EXPERIMENT_NPARAMS;           /* Miami controls only; no phantom Chicago pots */
 #endif
@@ -503,7 +533,7 @@ X0X_COLD const x0x_param_t *engine_param(int t, int v, int i)
 #if X0X_BASS_PRESET_PREVIEW
         return engine_bass_bank_param(engine_bass_bank(v), i);
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (bass_wobble_voice(v))
             return wobble_param(i);                     /* Do not fall through into Chicago metadata */
 #endif
@@ -544,7 +574,7 @@ const char *engine_voice_name(int t, int v)
 int engine_bass_is_wobble(int v)
 { return (unsigned)v < NBASS && original_bass[v].kind == ORIGINAL_SOUND_MIAMI; }
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
 int engine_bass_is_wobble(int voice) { return bass_wobble_voice(voice); }
 static void __attribute__((noinline)) bass_voice_note_on(int v, int note, int acc, int slide, int vel)
 {
@@ -571,7 +601,7 @@ __attribute__((noinline)) static void chi_live_note_off(int v)
     (void)original_runtime_release_source(&original_bass[v], ORIGINAL_INPUT_KEYS);
     __builtin_memset(original_key_pitch[v], 0, sizeof original_key_pitch[v]);
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     if (bass_wobble_voice(v)) {
         /* Only live/MIDI release may defer on Miami's own damper. Pattern
          * s_boff and transport panic retain their unconditional gate-off. */
@@ -586,7 +616,7 @@ __attribute__((noinline)) static void chi_live_note_off(int v)
         return;
     }
     chi_damp_latched[v] = 0;
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     bass_voice_note_off(v);
 #else
     bass303_note_off(&b303[v]);
@@ -656,7 +686,7 @@ static void chi_aux_apply(int v, int i, int val)
         /* Pedal up releases only a live/MIDI deferred note — latch is cleared
          * on every pattern/arp note-on so this cannot cut a sequencer gate. */
         if (chi_damper_on(was) && !chi_damper_on((uint8_t)val) && chi_damp_latched[v]) {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
             synth_off(&bass_slot[v]);
 #else
             bass303_note_off(&b303[v]);
@@ -748,7 +778,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
                 (void)original_runtime_param(&original_bass[v], (unsigned)i, value);
         }
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (bass_wobble_voice(v)) {
             /* WBL1 indices overlap Chicago's private indices; never mutate
              * dormant native303/arp/FX on a Miami pot write. */
@@ -899,7 +929,7 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
         s->v[T_MIX][PART_303A + v][MX_DLY] = 0;
         s->v[T_MIX][PART_303A + v][MX_REV] = 0;
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         /* Apply Chicago defaults only to the selected Chicago parameter bank. */
         if (
 #if X0X_BASS_TAGGED_SOUND
@@ -916,7 +946,7 @@ X0X_COLD void engine_sound_defaults(sound_t *s)
         s->v[T_303][v][BASS303_VOLUME] = 127;
         s->v[T_303][v][BASS303_DRIVE] = 45;
         s->v[T_303][v][BASS303_DRVTYPE] = 2;
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         }
 #endif
         s->v[T_MIX][PART_303A + v][MX_LEVEL] = 74;   /* the RAT makes it dense: -5 dB (square law) */
@@ -986,6 +1016,13 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
     if (velocity > 127) velocity = 127;
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
            (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
+}
+void engine_bass_record(int part, int note, int velocity, int flags)
+{
+    if (velocity < 1) velocity = 1;
+    if (velocity > 127) velocity = 127;
+    cq_put(C_REC, (uint32_t)(part | ((seq.rec_epoch & 127u) << 1)), (uint32_t)note,
+           (uint32_t)((flags & BS_ACCENT ? 1 : 0) | (velocity << 2) | (flags & BS_SLIDE ? 512 : 0)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 void engine_bass_off_note(int part, int note)
@@ -1066,14 +1103,14 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     if ((unsigned)p < NBASS)
         chi_damp_latched[p] = 0;
     if (prob_skip(PART_303A + p, 0)) {                /* skipped: a rest for audio AND MIDI */
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         synth_off(&bass_slot[p]);
 #else
         bass303_note_off(&b303[p]);
 #endif
         return 0;
     }
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     bass_voice_note_on(p, note, acc, sl, velocity);
 #else
     bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
@@ -1092,7 +1129,7 @@ static void s_boff(void *x, int p)
     live_key_retire(p,0);
     if ((unsigned)p < NBASS)
         chi_damp_latched[p] = 0; /* pattern gate wins over damper */
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     bass_voice_note_off(p);
 #else
     bass303_note_off(&b303[p]);
@@ -1116,12 +1153,42 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     breaks_pin(&brk, (int)bp->slice[s16 & 15] - 1);   /* the step's own slice, if it has one */
     breaks_step(&brk, s16, bar, spb, en);
 }
-static void s_brkstop(void *x) { (void)x; breaks_stop(&brk); }
+static void brk_midi_discard(void);
+static void s_brkstop(void *x) { (void)x; breaks_stop(&brk); brk_midi_discard(); }
 static void s_midi(void *x, uint8_t st, uint8_t d1, uint8_t d2)
 {
     uint32_t cin = st >= 0xF0 ? 0x0Fu : (uint32_t)(st >> 4);
     (void)x;
     plat_midi_out(cin | ((uint32_t)st << 8) | ((uint32_t)d1 << 16) | ((uint32_t)d2 << 24));
+}
+/* Accepted hits can originate on CPU1 during its BREAK render job. Append
+ * descriptors only: transport rings belong exclusively to CPU0. CPU0 sequencing
+ * and CPU1 rendering are serialized by plat_cpu2_run/wait, whose native CSYNC
+ * job/done handoff already publishes the audio buffers. No spin/IRQ change here. */
+enum { BRK_MIDI_EVENTS = 8 };
+typedef struct { uint8_t note, channel, bank, generation; } brk_midi_event_t;
+static brk_midi_event_t brk_midi_events[BRK_MIDI_EVENTS];
+static volatile uint8_t brk_midi_count;
+static void brk_midi_discard(void) { brk_midi_count = 0; }
+static void s_brk_accepted(void *ctx, int slice, int bank, unsigned gen)
+{
+    (void)ctx;
+    if (seq.send_notes && seq.ch[TRK_BRK] != SEQ_CH_OFF && seq.playing &&
+        !(seq.mute & (1u << MUTE_BRK))) {
+        unsigned n = brk_midi_count;
+        if (n >= BRK_MIDI_EVENTS) return; /* bounded overload: drop the whole pulse */
+        brk_midi_events[n] = (brk_midi_event_t){(uint8_t)(12 + slice), seq.ch[TRK_BRK],
+                                             (uint8_t)bank, (uint8_t)gen};
+        brk_midi_count = (uint8_t)(n + 1u);
+    }
+}
+/* CPU0 only, after the render job's full synchronization or local fallback. */
+static void brk_midi_drain(void)
+{
+    unsigned n = brk_midi_count;
+    for (unsigned i = 0; i < n; i++)
+        (void)plat_midi_pulse(brk_midi_events[i].channel, brk_midi_events[i].note, 100);
+    brk_midi_count = 0;
 }
 static void s_step(void *x, int t, int p)
 {
@@ -1230,7 +1297,25 @@ void engine_clip_midi_flush(void)
 
 
 /* ---------------------------------------------------------------- MIDI in --- */
-static uint16_t src_held[3];           /* BLE-16: USB [0], Bluetooth [1], TRS [2]: bit k the 303 k, bit 8 + s the slice s */
+#ifdef X0X_HOST
+static uint8_t bass_attacked[NBASS];
+#endif
+/* Accepted physical edges, not the DSP gate, decide recorder legato. */
+static int live_rec_legato(int part, int src)
+{
+    const seq_bass_rec_t *r = &seq.rec_bass[part];
+    return r->own_ok && r->own_gen == r->gen && r->own_src == (uint8_t)src &&
+           r->own_note == bass_held[part] && bass_held_count[part] && bass_held_src[part] == (uint8_t)src;
+}
+static void live_rec_accept(int part, int src, int note)
+{
+    seq_bass_rec_t *r = &seq.rec_bass[part];
+    r->own_ok = 1; r->own_gen = r->gen;
+    r->own_src = (uint8_t)src; r->own_note = (uint8_t)note;
+}
+static uint16_t src_held[3];           /* USB/Bluetooth/TRS: bass owners only; BREAK has independent raw-note owners. */
+static uint32_t brk_local;
+static uint8_t brk_input_channel;
 static uint8_t brk_down[3][16];        /* 8 SLICES: bit n of source 0/1/2 is MIDI note n held */
 enum { MIDI_NSRC = 3 };
 #if X0X_ORIGINAL_SYNTH
@@ -1276,12 +1361,12 @@ X0X_COLD int engine_project_notes(void)
      * FIFO. Do not start a project transfer in that publication window. */
     if (live_key_r != live_key_w || live_key_cancel)
         return 1;
-    if (brk.keys || src_held[0] || src_held[1] || src_held[2])
+    if (brk.keys || brk.slices || src_held[0] || src_held[1] || src_held[2])
         return 1;
     for (k = 0; k < NBASS; k++)
 #if X0X_ORIGINAL_SYNTH
         if (original_runtime_active(&original_bass[k]))
-#elif X0X_DEV_WOBBLE
+#elif X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (synth_active(&bass_slot[k]) || bass_held[k])
 #else
         if (b303[k].gate || bass_held[k])
@@ -1289,7 +1374,7 @@ X0X_COLD int engine_project_notes(void)
             return 1;
     while (r != cq_w) {
         uint32_t c = cq[r++ % CQ], t = c >> 28;
-        if (t == C_DRUM || t == C_BON || (t == C_BRK && ((c >> 12) & 0xFFu)))
+        if (t == C_DRUM || t == C_BON || t == C_REC || (t == C_BRK && ((c >> 12) & 0xFFu)))
             return 1;
     }
     return 0;
@@ -1318,90 +1403,71 @@ static void brk_note_set(int src, int note, int on)
     else
         brk_down[src][note >> 3] &= (uint8_t)~m;
 }
-/* 8 SLICES: slice = note mod 8, so several notes can hold one slice */
+/* The applied snapshot, not the requested count, owns the held MIDI identity. */
+static int brk_note_slice(int note)
+{
+    int count = breaks_count(&brk, 0);
+    return (note + 128 - 12) % count;
+}
 __attribute__((noinline)) static int brk_src_slice(int src, int slice)
 {
-    int n;
-    for (n = slice; n < 128; n += 8)
-        if (brk_note_down(src, n))
-            return 1;
+    for (int n = 0; n < 128; n++)
+        if (brk_note_down(src, n) && brk_note_slice(n) == slice) return 1;
     return 0;
 }
 static int brk_any_slice(int slice)
 {
-    int src;
-    for (src = 0; src < MIDI_NSRC; src++)
-        if (brk_src_slice(src, slice))
-            return 1;
+    if (brk_local & (1u << slice)) return 1;
+    for (int src = 0; src < MIDI_NSRC; src++)
+        if (brk_src_slice(src, slice)) return 1;
     return 0;
 }
-/* Default map: notes 36-43, one note per slice. A stale Note Off from the other input does nothing. */
-static void brk_midi_legacy(int src, int on, int slice)
-{
-    int v = 1 << (8 + slice);
-    if (src < 0 || src >= MIDI_NSRC)
-        return;
-    if (!on && !(src_held[src] & (uint16_t)v))
-        return;
-    breaks_live(&brk, slice, on);
-    src_held[0] &= (uint16_t)~v;
-    src_held[1] &= (uint16_t)~v;
-    src_held[2] &= (uint16_t)~v;
-    if (on)
-        src_held[src] |= (uint16_t)v;
-}
-/* 8 SLICES: every note. Note Off releases the slice only when no note of that slice remains.
- * USB, Bluetooth, and TRS share the same per-note refcount — a foreign Note Off must not
- * clear another input's hold (same ownership rule as midiowner / BF-004). */
 static void brk_midi_wrap(int src, int on, int note)
 {
-    int slice = note & 7, v = 1 << (8 + slice);
-    if (src < 0 || src >= MIDI_NSRC)
-        return;
+    int slice = brk_note_slice(note);
+    if ((unsigned)src >= MIDI_NSRC) return;
     if (!on) {
-        if (!brk_note_down(src, note))
-            return;                         /* stale Note Off: this input does not hold the note */
+        if (!brk_note_down(src, note)) return;
         brk_note_set(src, note, 0);
-        if (!brk_src_slice(src, slice))
-            src_held[src] &= (uint16_t)~v;
-        if (!brk_any_slice(slice))
-            breaks_live(&brk, slice, 0);
-        return;
+        if (!brk_any_slice(slice)) breaks_slice_hold(&brk, slice, 0);
+    } else {
+        brk_note_set(src, note, 1);
+        breaks_slice_on(&brk, slice);
     }
-    brk_note_set(src, note, 1);
-    src_held[src] |= (uint16_t)v;
-    breaks_slice_on(&brk, slice);           /* retrigger; the voice that is playing crossfades */
 }
-/* 8 SLICES map change: legacy note numbers and wrap (note mod 8) disagree, so MIDI
- * holds tracked in src_held / brk_down must not survive a mode toggle. */
-/* UI / pref path when 8 SLICES toggles — not the audio or MIDI ISR (X0X_COLD) */
-X0X_COLD void engine_brk_slice_mode_reconcile(void)
+static void brk_local_event(int key, int on)
 {
-    int src, s, g;
-    for (s = 0; s < 8; s++) {
-        uint16_t mask = (uint16_t)(1u << (8 + s));
-        if ((src_held[0] | src_held[1] | src_held[2]) & mask)
-            breaks_live(&brk, s, 0);
-    }
-    for (src = 0; src < MIDI_NSRC; src++) {
-        src_held[src] &= 0xFFu;
-        for (g = 0; g < 16; g++)
-            brk_down[src][g] = 0;
+    /* Legacy physical macro numbers stay8..10. Paged slices use32..63. */
+    if ((unsigned)(key - 8) < 3u) { breaks_live(&brk, key, on); return; }
+    int slice = key >= 32 ? key - 32 : key;
+    if ((unsigned)slice >= 32u) return;
+    if (on) {
+        if (slice >= breaks_count(&brk, 0)) return;
+        brk_local |= 1u << slice;
+        breaks_slice_on(&brk, slice);
+    } else {
+        brk_local &= ~(1u << slice);
+        if (!brk_any_slice(slice)) breaks_slice_hold(&brk, slice, 0);
     }
 }
-
 __attribute__((noinline)) static void brk_link_end(int src, uint16_t owned)
 {
-    int s, n;
-    if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1) {
-        for (n = 0; n < 128; n++)
-            brk_note_set(src, n, 0);
-        for (s = 0; s < 8; s++)
-            if ((owned & (uint16_t)(1u << (8 + s))) && !brk_any_slice(s))
-                brk.keys = (uint16_t)(brk.keys & ~(uint16_t)(1u << s));
-        return;
+    (void)owned;
+    for (int n = 0; n < 16; n++) brk_down[src][n] = 0;
+    for (int sl = 0; sl < 32; sl++)
+        if (!brk_any_slice(sl)) breaks_slice_hold(&brk, sl, 0);
+}
+
+static void brk_channel_reconcile(void)
+{
+    uint8_t channel = seq.ch[TRK_BRK];
+    if (channel == brk_input_channel) return;
+    /* A channel edit retires external owners, not local keys or macros. */
+    for (int src = 0; src < MIDI_NSRC; src++) brk_link_end(src, 0);
+    if (brk_bend_owner >= 0 && brk_bend_owner < MIDI_NSRC) {
+        breaks_bend(&brk, 0); brk_bend_owner = -1;
     }
-    brk.keys = (uint16_t)(brk.keys & ~(owned >> 8));
+    brk_input_channel = channel;
 }
 
 /* Retire only original-synth MIDI owners when their channel changes. */
@@ -1442,15 +1508,16 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #else
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
             if ((v >> k) & 1) {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
                 synth_off(&bass_slot[k]);
 #else
                 bass303_note_off(&b303[k]);
 #endif
-
+                seq_rec_cancel(&seq, k);
                 bass_held[k] = bass_held_count[k] = 0;
             }
 #endif
+        if (brk_bend_owner == src) { breaks_bend(&brk, 0); brk_bend_owner = -1; }
         brk_link_end(src, (uint16_t)v);   /* slices this input held; the other input's slices stay */
         src_held[src] = 0;
         return;
@@ -1505,12 +1572,18 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
 #endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
+    if (ty == 0xe0 && seq.ch[TRK_BRK] == ch) {
+        /* Physical gestures own bend until release, otherwise last external
+         * source wins. BREAK consumes its channel without live MIDI echo. */
+        if (!brk_wheel) {
+            breaks_bend(&brk, ((int)d1 | (int)d2 << 7) - 8192);
+            brk_bend_owner = brk.bend ? (int8_t)src : -1;
+        }
+        return;
+    }
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
         /* The break's channel owns the note. Drums and the 303s do not also play it. */
-        if (seq.pat[seq.ppat[TRK_BRK]].brk.slice_mode == 1)
-            brk_midi_wrap(src, ty == 0x90, d1);
-        else if (d1 >= 36 && d1 <= 43)
-            brk_midi_legacy(src, ty == 0x90, d1 - 36);
+        brk_midi_wrap(src, ty == 0x90, d1);
         return;
     }
     /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
@@ -1532,12 +1605,9 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     if ((ty == 0x90 || ty == 0x80) && (seq.ext_pending || seq.req_start || seq.req_stop || seq.req_cont))
         seq_advance(&seq, 0, &SINK);
+#if X0X_ORIGINAL_SYNTH
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
-#if X0X_BASS_TAGGED_SOUND && !X0X_ORIGINAL_SYNTH
-            if(engine_bass_sound_bank(mot_base_snd,k)<0)continue;
-#endif
-#if X0X_ORIGINAL_SYNTH
             if (ty == 0x90 || ty == 0x80) {
                 unsigned velocity = ty == 0x90 ? d2 : 0;
                 if (original_runtime_key(&original_bass[k], (unsigned)src, d1, velocity) != ORIGINAL_RUNTIME_OK) continue;
@@ -1563,53 +1633,62 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 unsigned parameter = original_sound_count(original_bass[k].kind) - 2;
                 (void)original_runtime_param(&original_bass[k], parameter, value);
             }
-#else
-            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
-                for (v = 0; v < NDRUM; v++)
-                    if (GM_DRUM[k][v] == d1)
-                        s_drum(0, k, v, (float)d2 / 127.0f);
-            }
         }
-        if (kit_own && (ty == 0x90 || ty == 0x80))
-            return;
-    }
+#else
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
+#if X0X_BASS_TAGGED_SOUND
+            if(engine_bass_sound_bank(mot_base_snd,k)<0)continue;
+#endif
             if (ty == 0x90) {
-#if X0X_DEV_WOBBLE
-                bass_voice_note_on(k, d1, d2 >= 100, bass_held[k] != 0, d2);
+                int slide = live_rec_legato(k, src) && bass_held[k] != d1;
+#ifdef X0X_HOST
+                bass_attacked[k] = (uint8_t)!slide;
+#endif
+                seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+                bass_voice_note_on(k, d1, d2 >= 100, slide, d2);
 #else
-                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, slide, d2);
 #endif
                 chi_damp_latched[k] = 0;
+                if (bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == (uint8_t)src) {
+                    if (bass_held_count[k] < 255u) bass_held_count[k]++;
+                } else bass_held_count[k] = 1;
+                bass_held_src[k] = (uint8_t)src;
                 bass_held[k] = d1;
+                live_rec_accept(k, src, d1);
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
                 src_held[1] &= (uint16_t)~v;
                 src_held[2] &= (uint16_t)~v;
                 if (src >= 0 && src < MIDI_NSRC)
                     src_held[src] |= (uint16_t)v;
-            } else if (ty == 0x80 && bass_held[k] == d1) {
+            } else if (ty == 0x80 && bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == (uint8_t)src) {
                 v = 1 << k;
                 if (src < 0 || src >= MIDI_NSRC || !(src_held[src] & (uint16_t)v))
                     continue;
+                if (--bass_held_count[k]) continue;
+                seq_rec_bass(&seq, k, d1, 0, 0, src, 0);
+                seq.rec_bass[k].own_ok = 0;
                 chi_live_note_off(k);
                 bass_held[k] = 0;
                 src_held[0] &= (uint16_t)~(1u << k);
                 src_held[1] &= (uint16_t)~(1u << k);
                 src_held[2] &= (uint16_t)~(1u << k);
             }
-#endif
         }
+#endif
 }
 #ifdef X0X_HOST
+int engine_bass_attacked(int part) { return (unsigned)part < NBASS && bass_attacked[part]; }
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
     int k, r = brk.keys << 8 & 0xFF00;
     for (k = 0; k < NBASS; k++)
 #if X0X_ORIGINAL_SYNTH
         r |= original_runtime_active(&original_bass[k]) ? 1 << k : 0;
-#elif X0X_DEV_WOBBLE
+#elif X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         r |= synth_active(&bass_slot[k]) ? 1 << k : 0;
 #else
         r |= b303[k].gate ? 1 << k : 0;
@@ -1620,6 +1699,413 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 
 #if X0X_ORIGINAL_SYNTH
 #include "original_presets.inc"
+#elif X0X_BASS_PRESET_PREVIEW
+static int16_t bass_named_preset[NBASS] = {-1, -1};
+static volatile uint8_t bass_preview_dirty, bass_wheel_mask;
+static volatile uint32_t bass_request[NBASS], bass_applied[NBASS];
+static uint32_t bass_request_serial;
+static volatile uint32_t bass_publish_seq[NBASS],bass_midi_mark[NBASS],bass_cq_mark[NBASS];
+typedef struct {uint32_t token,midi,cq;} bass_request_t;
+static int bass_request_snapshot(int voice,bass_request_t *r)
+{
+    uint32_t seq=bass_publish_seq[voice];
+    if(seq&1u) return 0; /* ISR interrupted producer: defer, never spin. */
+    __asm__ volatile("" ::: "memory");
+    r->token=bass_request[voice];r->midi=bass_midi_mark[voice];r->cq=bass_cq_mark[voice];
+    __asm__ volatile("" ::: "memory");
+    return seq==bass_publish_seq[voice];
+}
+#if defined(X0X_HOST) && defined(X0X_BASS_PUBLISH_TEST)
+extern void bass_publish_test_hook(int voice,int stage);
+#define BASS_PUBLISH_HOOK(v,s) bass_publish_test_hook(v,s)
+#else
+#define BASS_PUBLISH_HOOK(v,s) ((void)0)
+#endif
+static void bass_publish_request(int voice,uint32_t token)
+{
+    bass_publish_seq[voice]++;
+    __asm__ volatile("" ::: "memory");
+    BASS_PUBLISH_HOOK(voice,1);
+    bass_midi_mark[voice]=plat_midi_mark();bass_cq_mark[voice]=cq_w;
+    BASS_PUBLISH_HOOK(voice,2);
+    bass_request[voice]=token;
+    BASS_PUBLISH_HOOK(voice,3);
+    __asm__ volatile("" ::: "memory");
+    bass_publish_seq[voice]++;
+}
+static int bass_has_locks(int voice)
+{
+    if(mot.lane) for(int k=0;k<NLANE;k++) if(mot.lane[k].used &&
+       ((mot.lane[k].t==T_303 && mot.lane[k].v==voice) ||
+        (mot.lane[k].t==T_MIX && mot.lane[k].v==PART_303A+voice &&
+         (mot.lane[k].i==MX_REV || mot.lane[k].i==MX_DLY)) ||
+        (mot.lane[k].t==T_FX && mot.lane[k].v==0 && mot.lane[k].i==FX_COMP) ||
+        ((mot.lane[k].t==0xfd || mot.lane[k].t==0xfe) && mot.lane[k].part==PART_303A+voice))) return 1;
+    return 0;
+}
+int engine_bass_preset_pending(int voice)
+{
+    bass_request_t request;
+    if((unsigned)voice>=NBASS) return 0;
+    if(!bass_request_snapshot(voice,&request)) return 6;
+    if(!(request.token&0x80000000u) || request.token==bass_applied[voice]) return 0;
+    if(!plat_midi_passed(request.midi) || (int32_t)(cq_r-request.cq)<0) return 5;
+    if(bass_has_locks(voice)) return 4;
+    if(bass_wheel_mask & (1u<<voice)) return 3;
+    if(bass_held[voice] || ((src_held[0]|src_held[1]|src_held[2])&(1u<<voice))) return 2;
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+    if(!synth_idle(&bass_slot[voice])) return 2;
+#else
+    if(!b303[voice].idle) return 2;
+#endif
+    return 1;
+}
+int engine_bass_requested_bank(int voice)
+{ bass_request_t r;return (unsigned)voice<NBASS && bass_request_snapshot(voice,&r) && engine_bass_preset_pending(voice)?(int)((r.token>>7)&1):engine_bass_bank(voice); }
+int engine_bass_requested_preset(int voice)
+{ bass_request_t r;return (unsigned)voice<NBASS && bass_request_snapshot(voice,&r) && engine_bass_preset_pending(voice)?(int)(r.token&127):engine_bass_preset_index(voice); }
+void engine_bass_cancel_preset(int voice)
+{
+    if((unsigned)voice<NBASS) bass_publish_request(voice,0x40000000u|((++bass_request_serial&0x3fffffu)<<8));
+}
+const x0x_param_t *engine_bass_bank_param(int bank, int i)
+{
+    if (i < 0) return 0;
+    if (bank == FACTORY_BANK_MIAMI) {
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+        return wobble_param(i);
+#else
+        return 0;
+#endif
+    }
+    if (bank != FACTORY_BANK_CHICAGO) return 0;
+    if (i >= CHI_ARP_SWITCH && i < CHI_ARP_NPARAMS_END) return &CHI_ARP_PARAMS[i-CHI_ARP_SWITCH];
+    if (i >= CHI_FX_TYPE && i < CHI_FX_END) return &CHI_FX_PARAMS[i-CHI_FX_TYPE];
+    if (i >= CHI_PBEND && i < CHI_AUX_END) return &CHI_AUX_PARAMS[i-CHI_PBEND];
+    return bass303_param(i);
+}
+#if X0X_BASS_TAGGED_SOUND
+static const bass_identity_entry_t BASS_SOUND_REGISTRY[2]={
+    {SYNTH_ENGINE_303,BASS_IDENTITY_PRODUCT_SCHEMA,CHI_AUX_END,1},
+    {0x57424c31u,BASS_IDENTITY_PRODUCT_SCHEMA,WOBBLE_EXPERIMENT_NPARAMS,X0X_DEV_WOBBLE}
+};
+static int bass_tag_read(const sound_t *sound,int voice,bass_sound_info_t *info)
+{
+    if(!sound || (unsigned)voice>=NBASS)return BASS_IDENTITY_INVALID;
+    return bass_sound_tag_decode(info,&sound->bass[voice],BASS_SOUND_REGISTRY,2);
+}
+static void bass_tag_set(sound_t *sound,int voice,int bank,int preset,int edited)
+{
+    bass_sound_info_t info={{BASS_SOUND_REGISTRY[bank].engine,BASS_IDENTITY_PRODUCT_SCHEMA,
+        BASS_SOUND_REGISTRY[bank].count,BASS_IDENTITY_KNOWN},(uint16_t)preset,(uint8_t)edited};
+    (void)bass_sound_tag_encode(&sound->bass[voice],&info,BASS_SOUND_REGISTRY,2);
+}
+int engine_bass_sound_bank(const sound_t *sound,int voice)
+{
+    bass_sound_info_t info;
+    if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return -1;
+    return info.identity.engine==SYNTH_ENGINE_303?0:1;
+}
+static int bass_values_valid(const uint8_t *cell,int bank)
+{
+    const bass_identity_entry_t *entry=&BASS_SOUND_REGISTRY[bank];
+    if(!entry->available)return -9;
+    for(int i=0;i<entry->count;i++) {
+        const x0x_param_t *d=engine_bass_bank_param(bank,i);
+        if(!d || cell[i]>d->max)return -1;
+    }
+    return 0;
+}
+static int bass_cell_valid(const sound_t *sound,int voice,int bank)
+{return bass_values_valid(sound->v[T_303][voice],bank);}
+static int bass_tagged_cell_validate(const uint8_t *cell,const bass_sound_tag_t *tag,int *bank)
+{
+    bass_sound_info_t info;
+    int rc=bass_sound_tag_decode(&info,tag,BASS_SOUND_REGISTRY,2);
+    if(rc==BASS_IDENTITY_CHOICE_REQUIRED)return -10;
+    if(rc==BASS_IDENTITY_UNSUPPORTED || rc==BASS_IDENTITY_UNAVAILABLE)return -9;
+    if(rc!=BASS_IDENTITY_READY)return -1;
+    *bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+    if(bass_values_valid(cell,*bank))return -1;
+    if(info.preset!=BASS_SOUND_NO_PRESET) {
+        uint8_t named[NPARAMS_MAX];
+        if(bass_preset_decode(*bank,info.preset,engine_bass_bank_param,named))return -1;
+        if((__builtin_memcmp(named,cell,NPARAMS_MAX)!=0)!=!!(info.flags&BASS_SOUND_EDITED))return -1;
+    }
+    return 0;
+}
+int engine_bass_sound_validate(const sound_t *sound)
+{
+    int unknown=0,miami=0;
+    for(int voice=0;voice<NBASS;voice++) {
+        int bank=0,rc=bass_tagged_cell_validate(sound->v[T_303][voice],&sound->bass[voice],&bank);
+        if(rc==-10){unknown=1;continue;}
+        if(rc)return rc;
+        if(bank && ++miami>1)return -9;
+    }
+    return unknown?-10:0;
+}
+#if X0X_BASS_NOTE_SOUND
+int engine_bass_note_validate(const lane_t *l)
+{
+    int bank;
+    if(l->used!=1 || l->t!=BASS_NOTE_TARGET || l->pat>=NPAT ||
+       l->part<PART_303A || l->part>PART_303B || l->v>=NSTEPS ||
+       l->i!=BASS_NOTE_VERSION || l->rsv)return -1;
+    for(int i=BASS_NOTE_USED;i<NSTEPS;i++)if(l->val[i])return -1;
+    int rc=bass_tagged_cell_validate(l->val,(const bass_sound_tag_t *)(l->val+BASS_NOTE_TAG),&bank);
+    if(rc)return rc;
+    for(int i=0;i<MX_NPARAMS;i++)if(l->val[BASS_NOTE_MIX+i]>engine_param(T_MIX,l->part,i)->max)return -1;
+    return 0;
+}
+static int bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound,int effective)
+{
+    if(!lanes || sound!=mot_base_snd || (unsigned)pat>=NPAT ||
+       (unsigned)voice>=NBASS || (unsigned)step>=NSTEPS || engine_bass_sound_bank(sound,voice)<0)return -1;
+    int k=bass_note_find(lanes,pat,voice,step);
+    if(k<0)for(int j=0;j<NLANE;j++)if(!lanes[j].used){k=j;break;}
+    if(k<0)return -7;
+    lane_t next={0};
+    next.used=1;next.gen=(uint8_t)(lanes[k].gen+1);next.t=BASS_NOTE_TARGET;
+    next.pat=(uint8_t)pat;next.part=(uint8_t)(PART_303A+voice);next.v=(uint8_t)step;next.i=BASS_NOTE_VERSION;
+    __builtin_memcpy(next.val,sound->v[T_303][voice],NPARAMS_MAX);
+    __builtin_memcpy(next.val+BASS_NOTE_TAG,&sound->bass[voice],BASS_SOUND_TAG_BYTES);
+    __builtin_memcpy(next.val+BASS_NOTE_MIX,sound->v[T_MIX][PART_303A+voice],MX_NPARAMS);
+    if(effective) {
+        /* Audio owns motion runtime. Capture what this accepted edge hears,
+         * including an in-flight ramp, without rewriting the selected base. */
+        for(int j=0;j<NLANE;j++) {
+            const lane_t *l=&mot.lane[j];
+            int value=motion_value(&mot,j);
+            if(value<0 || l->part!=PART_303A+voice)continue;
+            if(l->t==T_303 && l->v==voice && l->i<NPARAMS_MAX)next.val[l->i]=(uint8_t)value;
+            if(l->t==T_MIX && l->v==PART_303A+voice && l->i<MX_NPARAMS)
+                next.val[BASS_NOTE_MIX+l->i]=(uint8_t)value;
+        }
+        bass_sound_info_t info;
+        if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return -1;
+        /* Motion can restore an edited base to the exact named sound. Describe
+         * the complete captured cell, rather than inheriting the base flag. */
+        uint8_t named[NPARAMS_MAX];
+        int edited=info.preset==BASS_SOUND_NO_PRESET;
+        if(!edited) {
+            int bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+            if(bass_preset_decode(bank,info.preset,engine_bass_bank_param,named))return -1;
+            edited=__builtin_memcmp(next.val,named,NPARAMS_MAX)!=0;
+        }
+        info.flags=(uint8_t)((info.flags&~BASS_SOUND_EDITED)|(edited?BASS_SOUND_EDITED:0));
+        if(bass_sound_tag_encode((bass_sound_tag_t *)(next.val+BASS_NOTE_TAG),&info,
+                                BASS_SOUND_REGISTRY,2)!=BASS_IDENTITY_READY)return -1;
+    }
+    if(engine_bass_note_validate(&next))return -1;
+    lanes[k].used=0;
+    __asm__ volatile("" ::: "memory");
+    __builtin_memcpy((uint8_t *)&lanes[k]+1,(const uint8_t *)&next+1,sizeof next-1);
+    __asm__ volatile("" ::: "memory");
+    lanes[k].used=1;
+    return 0;
+}
+int engine_bass_note_capture(lane_t *lanes,int pat,int voice,int step,const sound_t *sound)
+{return bass_note_capture(lanes,pat,voice,step,sound,0);}
+/* Sequencer calls these only for actual recorder writes, before changing notes.
+ * A refusal affects storage only: the accepted live note still auditions. */
+int seq_bass_sound_prepare(seq_t *s,int voice,int pat,int step)
+{
+    if(s!=&seq || !mot.lane)return -1;
+    return bass_note_capture(mot.lane,pat,voice,step,mot_base_snd,1);
+}
+void seq_bass_sound_clear(seq_t *s,int voice,int pat,int step)
+{if(s==&seq && mot.lane)bass_note_clear(mot.lane,pat,voice,step);}
+#endif
+int engine_bass_sound_adopt(sound_t *sound,int bank0,int bank1)
+{
+    if(!sound)return -1;
+    for(int voice=0;voice<NBASS;voice++) {
+        bass_sound_info_t info;
+        if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_CHOICE_REQUIRED)return -9;
+    }
+    if((unsigned)bank0>1 || (unsigned)bank1>1 || (bank0 && bank1))return -9;
+    int rc=bass_cell_valid(sound,0,bank0);if(rc)return rc;
+    rc=bass_cell_valid(sound,1,bank1);if(rc)return rc;
+    bass_tag_set(sound,0,bank0,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
+    bass_tag_set(sound,1,bank1,BASS_SOUND_NO_PRESET,BASS_SOUND_EDITED);
+    return 0;
+}
+uint32_t engine_bass_choice_serial(void) { return bass_request_serial; }
+int engine_bass_base_ready(unsigned mask,const bass_base_state_t *target)
+{
+    int miami=0;
+    for(int v=0;v<NBASS;v++) {
+        int bank=0;
+        int rc=bass_tagged_cell_validate(target->cell[v],&target->tag[v],&bank);
+        if(rc)return -5;
+        if(bank && ++miami>1)return -2;
+        if(!(mask&(1u<<v)))continue;
+        if(bass_has_locks(v))return -4;
+        if(bass_wheel_mask&(1u<<v))return 2;
+        if(bass_held[v] || ((src_held[0]|src_held[1]|src_held[2])&(1u<<v)))return 2;
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+        if(!synth_idle(&bass_slot[v]))return 2;
+#else
+        if(!b303[v].idle)return 2;
+#endif
+        if(bank && !(mask&(1u<<(1-v))) && !engine_bass_bank_available(v,bank))return -2;
+    }
+    if(cq_r!=cq_w || !plat_midi_passed(plat_midi_mark()))return 2;
+    return 0;
+}
+void engine_bass_base_restore(unsigned mask)
+{
+    /* UI holds audio around the complete identity/value transaction. Target
+     * voices are idle; no unrelated voice, clock, FX processor or mixer resets. */
+    for(int v=0;v<NBASS;v++)if(mask&(1u<<v)) {
+        engine_bass_cancel_preset(v);
+        int bank=engine_bass_sound_bank(mot_base_snd,v);
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+        synth_binding_t binding=bank?wobble_foundation_binding(&dev_wobble):synth303_binding(&b303[v]);
+        (void)synth_request(&bass_slot[v],binding,0);synth_boundary(&bass_slot[v]);
+#endif
+        chi_arp_on[v]=0;chi_arp_run_clear(&chi_arp_run[v]);
+        chi_damper[v]=chi_damp_latched[v]=0;
+        chi_fx_type[v]=CHI_FX_OFF;chi_fx_insert_program(v);
+        int count=bank?WOBBLE_EXPERIMENT_NPARAMS:CHI_AUX_END;
+        for(int i=0;i<count;i++)apply_param(T_303,v,i,mot_base_snd->v[T_303][v][i]);
+        for(int i=0;i<MX_NPARAMS;i++)apply_param(T_MIX,PART_303A+v,i,mot_base_snd->v[T_MIX][PART_303A+v][i]);
+        bass_sound_info_t info;
+        bass_named_preset[v]=bass_tag_read(mot_base_snd,v,&info)==BASS_IDENTITY_READY &&
+            info.preset!=BASS_SOUND_NO_PRESET?(int16_t)info.preset:-1;
+    }
+}
+void engine_bass_sound_refresh(sound_t *sound,int voice)
+{
+    bass_sound_info_t info;uint8_t cell[NPARAMS_MAX];
+    if(bass_tag_read(sound,voice,&info)!=BASS_IDENTITY_READY)return;
+    int bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+    int edited=info.preset==BASS_SOUND_NO_PRESET || bass_preset_decode(bank,info.preset,engine_bass_bank_param,cell) ||
+        __builtin_memcmp(cell,sound->v[T_303][voice],NPARAMS_MAX);
+    bass_tag_set(sound,voice,bank,info.preset,edited?BASS_SOUND_EDITED:0);
+}
+static void bass_restore_sound(const sound_t *sound)
+{
+    for(int voice=0;voice<NBASS;voice++) {
+        int bank=engine_bass_sound_bank(sound,voice);
+        bass_sound_info_t info;
+        bass_named_preset[voice]=-1;
+        if(bank<0)continue; /* unknown bytes are quarantined, never applied */
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+        synth_binding_t binding=bank?wobble_foundation_binding(&dev_wobble):synth303_binding(&b303[voice]);
+        if(!synth_request(&bass_slot[voice],binding,0))continue;
+        synth_boundary(&bass_slot[voice]);
+#endif
+        if(bass_tag_read(sound,voice,&info)==BASS_IDENTITY_READY && info.preset!=BASS_SOUND_NO_PRESET)
+            bass_named_preset[voice]=(int16_t)info.preset;
+    }
+}
+#endif
+int engine_bass_bank(int voice)
+{
+    return engine_bass_is_wobble(voice) ? FACTORY_BANK_MIAMI : FACTORY_BANK_CHICAGO;
+}
+int engine_bass_bank_available(int voice, int bank)
+{
+    if ((unsigned)voice >= NBASS) return 0;
+    if (bank == FACTORY_BANK_CHICAGO) return 1;
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+    /* There is one actual WBL1 context; never bind it to two voices. */
+    if (bank == FACTORY_BANK_MIAMI) return !bass_wobble_voice(1-voice) &&
+        !(bass_publish_seq[1-voice]&1u) &&
+        !(bass_request[1-voice]!=bass_applied[1-voice] && (bass_request[1-voice]&0x80000000u) && ((bass_request[1-voice]>>7)&1));
+#endif
+    return 0;
+}
+int engine_bass_preview_changed(void) { return bass_preview_dirty; }
+void engine_bass_wheel_owners(uint8_t mask) { bass_wheel_mask = mask; }
+int engine_bass_preset_index(int voice)
+{
+    return (unsigned)voice < NBASS ? bass_named_preset[voice] : -1;
+}
+int engine_bass_preset_edited(int voice)
+{
+    uint8_t values[NPARAMS_MAX];
+    if ((unsigned)voice >= NBASS || bass_named_preset[voice] < 0 || !mot_base_snd) return 1;
+    if (bass_preset_decode(engine_bass_bank(voice),bass_named_preset[voice],engine_bass_bank_param,values)) return 1;
+    for (int i=0;i<NPARAMS_MAX;i++) if(values[i]!=mot_base_snd->v[T_303][voice][i]) return 1;
+    return 0;
+}
+int engine_bass_select_preset(int voice, int bank, int preset, sound_t *sound)
+{
+    uint8_t values[NPARAMS_MAX];
+    if((unsigned)voice>=NBASS || !sound || sound!=mot_base_snd) return -1;
+#if X0X_BASS_TAGGED_SOUND
+    if(engine_bass_sound_bank(sound,voice)<0)return -5; /* explicit legacy adoption first */
+#endif
+    if(!engine_bass_bank_available(voice,bank)) return -2;
+    if(bass_has_locks(voice)) return -4;
+    if(bass_preset_decode(bank,preset,engine_bass_bank_param,values)) return -1;
+    /* One aligned publication, no project/audio hold or MIDI consumption.
+     * Rapid browsing explicitly replaces the not-yet-applied request. */
+    uint32_t token=0x80000000u|((++bass_request_serial&0x3fffffu)<<8)|((uint32_t)bank<<7)|(uint32_t)preset;
+    bass_preview_dirty=1;
+    __asm__ volatile("" ::: "memory");
+    bass_publish_request(voice,token);
+    return 0;
+}
+static volatile uint8_t bass_edit_depth;
+void engine_bass_edit_hold(int hold)
+{
+    __asm__ volatile("" ::: "memory");
+    if (hold) bass_edit_depth++;
+    else if (bass_edit_depth) bass_edit_depth--;
+    __asm__ volatile("" ::: "memory");
+}
+static void bass_preset_boundary(void)
+{
+    /* Called only by audio, after CQ+MIDI drain, before new sequence triggers.
+     * Old accepted notes retain their complete sound through release/legato. */
+    if (bass_edit_depth) return;
+    for(int voice=0;voice<NBASS;voice++) {
+    bass_request_t request;
+    if(!bass_request_snapshot(voice,&request)) continue;
+    uint32_t token=request.token;
+    if(!(token&0x80000000u)) {bass_applied[voice]=token;continue;}
+    if(engine_bass_preset_pending(voice)!=1) continue;
+    int bank=(token>>7)&1, preset=token&127;
+    uint8_t values[NPARAMS_MAX];
+    sound_t *sound=(sound_t *)mot_base_snd;
+    uint8_t *cell=sound->v[T_303][voice];
+    if(!engine_bass_bank_available(voice,bank) || bass_preset_decode(bank,preset,engine_bass_bank_param,values)) continue;
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+    synth_binding_t binding=bank==FACTORY_BANK_MIAMI?
+        wobble_foundation_binding(&dev_wobble):synth303_binding(&b303[voice]);
+    if(!synth_request(&bass_slot[voice],binding,0)) continue;
+    synth_boundary(&bass_slot[voice]);
+#else
+    bass303_all_off(&b303[voice]);
+#endif
+    chi_arp_on[voice]=0; chi_arp_run_clear(&chi_arp_run[voice]);
+    chi_damper[voice]=chi_damp_latched[voice]=0;
+    chi_fx_type[voice]=CHI_FX_OFF; chi_fx_insert_program(voice);
+    int count = bank == FACTORY_BANK_CHICAGO ? CHI_AUX_END : WOBBLE_EXPERIMENT_NPARAMS;
+    for (int i=0;i<NPARAMS_MAX;i++) cell[i]=values[i];
+#if X0X_BASS_TAGGED_SOUND
+    bass_tag_set(sound,voice,bank,preset,0);
+#endif
+    for (int i=0;i<count;i++) apply_param(T_303,voice,i,values[i]);
+    /* Existing Chicago bridge has only Comp as a shared master effect;
+     * inserts and Off clear the selected lane sends on explicit selection. */
+    sound->v[T_MIX][PART_303A+voice][MX_REV]=0;
+    sound->v[T_MIX][PART_303A+voice][MX_DLY]=0;
+    apply_param(T_MIX,PART_303A+voice,MX_REV,0);
+    apply_param(T_MIX,PART_303A+voice,MX_DLY,0);
+    if(bank==FACTORY_BANK_CHICAGO && values[CHI_FX_TYPE]==CHI_FX_COMP) {
+        sound->v[T_FX][0][FX_COMP]=values[CHI_FX_EDIT1];
+        apply_param(T_FX,0,FX_COMP,values[CHI_FX_EDIT1]);
+    }
+    bass_named_preset[voice]=(int16_t)preset;
+    __asm__ volatile("" ::: "memory");
+    bass_applied[voice]=token;
+    }
+}
 #endif
 
 /* ---------------------------------------------------------------- render --- */
@@ -1633,10 +2119,23 @@ static void drain(void)
 #endif
     uint32_t r = cq_r, pkt;
     int guard = 64;
+    brk_channel_reconcile();
+    /* Finish old contexts before a queued new press can acquire note ownership. */
+    for (int k = 0; k < NBASS; k++) {
+        const seq_bass_rec_t *rec = &seq.rec_bass[k];
+        if (seq.req_stop || ((seq.req_start || seq.req_cont) && seq.rec_mask) || (rec->active &&
+            (!(seq.rec_mask & (1u << k)) || rec->pat != seq.ppat[TRK_BASS0 + k])) ||
+            (seq.t[TRK_BASS0 + k].to_off == 1 && bass_held_count[k])) {
+            seq_advance(&seq, 0, &SINK);
+            break;
+        }
+    }
     unsigned budget = 128; /* bound parameter floods to this audio boundary */
     while (r != cq_w && budget--) {
         uint32_t c = cq[r % CQ], type = c >> 28, a = (c >> 20) & 0xFFu, b = (c >> 12) & 0xFFu, v = c & 0xFFFu;
         r++;
+        uint32_t rec_epoch = a >> 1;
+        if (type == C_REC) a &= 1u;
         if (type < 8u)
             apply_param((int)type, (int)a, (int)b, (int)v);
         else if (type == C_BASE) {
@@ -1644,7 +2143,18 @@ static void drain(void)
             else mot_apply(0, (int)a, (int)b, (int)v, mot_base(0, (int)a, (int)b, (int)v));
         } else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
-        else if (type == C_BON && a < NBASS) {
+        else if ((type == C_BON || type == C_REC) && a < NBASS) {
+#if X0X_BASS_TAGGED_SOUND && !X0X_ORIGINAL_SYNTH
+            if(engine_bass_sound_bank(mot_base_snd,(int)a)<0)continue;
+#endif
+            int slide = type == C_REC ? live_rec_legato((int)a, 3) && bass_held[a] != b : (int)((v >> 1) & 1u);
+#ifdef X0X_HOST
+            bass_attacked[a] = (uint8_t)!slide;
+#endif
+            if (type == C_REC && rec_epoch == (seq.rec_epoch & 127u))
+                seq_rec_bass(&seq, (int)a, (int)b, (int)((v >> 2) & 127u), 1, 3,
+                    ((v & 1u) ? BS_ACCENT : 0) | ((v & 512u) ? BS_SLIDE : 0) | (slide ? SEQ_REC_LEGATO : 0));
+            v &= 511u; /* the outgoing manual-slide flag is recorder metadata only */
 #if X0X_ORIGINAL_SYNTH
             (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, v >> 2);
 #else
@@ -1666,17 +2176,24 @@ static void drain(void)
                     chi_arp_run_hold(&chi_arp_run[a], (uint8_t)b, chi_arp_mode[a], chi_arp_range[a],
                                      chi_arp_speed[a]);
             } else {
-#if X0X_DEV_WOBBLE
-                bass_voice_note_on((int)a, (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+                bass_voice_note_on((int)a, (int)b, (int)(v & 1u), slide, (int)(v >> 2));
 #else
-                bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+                bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), slide, (int)(v >> 2));
 #endif
             }
             chi_damp_latched[a] = 0;
 #endif
             bass_held[a] = (uint8_t)b;
             bass_held_count[a] = 1; bass_held_src[a] = 3;
-        } else if (type == C_BOFF && a < NBASS) {
+            src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a); src_held[2] &= (uint16_t)~(1u << a);
+            live_rec_accept((int)a, 3, (int)b);
+        } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
+            if ((!v || b == bass_held[a]) && seq.rec_bass[a].own_src == 3) {
+                seq_rec_bass(&seq, (int)a, seq.rec_bass[a].own_note, 0, 0, 3, 0);
+                seq.rec_bass[a].own_ok = 0;
+                bass_held_count[a] = 0;
+            }
 #if X0X_ORIGINAL_SYNTH
             if (v) (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, 0);
             else {
@@ -1708,9 +2225,15 @@ static void drain(void)
             }
 #endif
         } else if (type == C_BRK)
-            breaks_live(&brk, (int)a, (int)b);
+            brk_local_event((int)a, (int)b);
     }
     cq_r = r;
+    int16_t wheel = brk_wheel;
+    if (wheel != brk_wheel_seen) {
+        breaks_bend(&brk, wheel);
+        brk_bend_owner = wheel ? 3 : -1;
+        brk_wheel_seen = wheel;
+    }
     while (guard-- > 0 && plat_midi_in(&pkt))
         if (!project_midi_drop) midi_in(pkt);
     if (guard >= 0) project_midi_drop = 0;
@@ -1755,7 +2278,7 @@ static void live_key_drain(void)
         }
 #else
         int arp=chi_arp_on[v];
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if(bass_wobble_voice((int)v))arp=0;
 #endif
         if(velocity) {
@@ -1777,7 +2300,7 @@ static void live_key_drain(void)
                 }
                 o->arp=1;
             } else {
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
                 bass_voice_note_on((int)v,(int)pitch,(int)accent,(int)slide,(int)velocity);
 #else
                 bass303_note_on_velocity(&b303[v],(int)pitch,(int)accent,(int)slide,(int)velocity);
@@ -1968,18 +2491,22 @@ static void bfx_flt_shape(float *l, float *r, int n)
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
  * and the break into kbuf; arg bit 8: not timed (the cycle counter is the first core's). Nothing
  * here is mixed: the first core does that afterwards, in one core's order.
- * Bits 9..19 carry this stretch's audible 808 tracks. */
+ * Bits 9..19 carry this stretch's audible 808 tracks; bits 20..27 carry
+ * its output window offset. Under WBL1, completed windows in t0/tr remain
+ * live until the full-block master pass; only this job's window is writable. */
 static int brk_silent_now = 1;
 static uint8_t d808_was_active;
 static void core2_job(uint32_t arg)
 {
     uint32_t n = arg & 0xFFu ? arg & 0xFFu : 256u, i, timed = !(arg & 0x100u), pt = timed ? plat_cycles() : 0;
+    uint32_t offset = (arg >> 20) & 0xFFu;
+    float *left = t0 + offset, *right = tr + offset;
     d808_was_active = (uint8_t)drum808_active(&d808);
     if (d808_was_active) {                                /* silent, it does nothing (and is not mixed) */
         for (i = 0; i < n; i++)
-            t0[i] = t1[i] = t2[i] = tr[i] = 0.0f;
-        drum808_render_st_masked(&d808, t0, tr, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
-        bfx_shape(PART_808, t0, tr, t1, t2, 4, (int)n);
+            left[i] = t1[i] = t2[i] = right[i] = 0.0f;
+        drum808_render_st_masked(&d808, left, right, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+        bfx_shape(PART_808, left, right, t1, t2, 4, (int)n);
     } else
         drum808_pan_settle(&d808);
     if (timed) {
@@ -2005,19 +2532,22 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
 /* one stretch: the 909 (into the mix, in place) and the 303s here while the second core renders the
  * 808 and the break; then those are mixed in, in the order one core always used (909, 808, 303 A,
  * 303 B, break): the same sums either way */
-__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n)
+__attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uint32_t n, uint32_t offset)
 {
     float *bb[NBASS] = {out_l, out_r};
     int b;
 #if !X0X_ORIGINAL_SYNTH
     int idle[NBASS];
 #endif
+    float *left808 = t0 + offset, *right808 = tr + offset;
     uint32_t solo = smc_solo_state;
-    uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9, i, pt;
+    uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9 |
+                   (offset << 20), i, pt;
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
     bfx_snapshot();                                   /* before the second core reads the holds */
+    uint8_t brk_event_mark = brk_midi_count;
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
@@ -2053,31 +2583,32 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     }
 #endif
     pt = plat_cycles();
+    int failed;
 #if X0X_DEBUG
     eng_dbg_nsub++;
-    {
-        uint32_t w0 = plat_ticks24();
-        int failed = on2 && plat_cpu2_wait();
-        eng_dbg_wait += plat_ticks24() - w0;
-        if (failed)
-            on2 = 0;
-    }
-    if (!on2)
-#else
-    if (!on2 || plat_cpu2_wait())
+    uint32_t w0 = plat_ticks24();
 #endif
-        core2_job(arg);                                   /* one core (or the second failed): here */
-    else
-        PROF_ADD(PR_808, pt);                             /* what the first core waited for the second */
+    failed = on2 && plat_cpu2_wait();
+#if X0X_DEBUG
+    eng_dbg_wait += plat_ticks24() - w0;
+#endif
+    if (!on2 || failed) {
+        /* Discard descriptors from a failed/partial remote job before fallback.
+         * CPU0 step events queued before dispatch remain valid. */
+        brk_midi_count = brk_event_mark;
+        core2_job(arg);
+    } else
+        PROF_ADD(PR_808, pt);
+    brk_midi_drain();
     if (d808_was_active) {
         mix_targets(PART_808, mix_level[PART_808], solo_parts);
-        add_glide(dry_l, t0, &mix_glide[PART_808][GL_L], n);
-        add_glide(dry_r, tr, &mix_glide[PART_808][GL_R], n);
+        add_glide(dry_l, left808, &mix_glide[PART_808][GL_L], n);
+        add_glide(dry_r, right808, &mix_glide[PART_808][GL_R], n);
         add_glide(rev, t1, &mix_glide[PART_808][GL_VREV], n);
         add_glide(dly, t2, &mix_glide[PART_808][GL_VDLY], n);
         for (i = 0; i < n; i++)
-            t0[i] = (t0[i] + tr[i]) * 0.5f;
-        kit_sends(PART_808, t0, n);
+            left808[i] = (left808[i] + right808[i]) * 0.5f;
+        kit_sends(PART_808, left808, n);
     }
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
@@ -2089,6 +2620,19 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         /* Failed/unadmitted DSP is visible through engine_bass_status. No
          * fallback renderer, guessed silence-success or idle clock skipping. */
         if (status != ORIGINAL_RUNTIME_OK) continue;
+        /* One coherent request decision per sub-block. Once note ownership is
+         * gone, fade residual insert output over 512 samples. Cancellation or
+         * a fresh owner ramps back smoothly; DSP histories keep advancing. */
+        int fade = engine_bass_preset_pending(b) == 2 && !original_runtime_owned(&original_bass[b]);
+        for (i = 0; i < n; ++i) {
+            if (fade) { if (original_switch_gain[b]) --original_switch_gain[b]; }
+            else if (original_switch_gain[b] < 512u) ++original_switch_gain[b];
+            float gain = (float)original_switch_gain[b] * (1.0f/512.0f);
+            bb[b][i] *= gain; bb[1-b][i] *= gain;
+            if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f)
+                original_quiet_samples[b] = 0;
+            else if (original_quiet_samples[b] < 512u) ++original_quiet_samples[b];
+        }
         bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
         mix_targets(p, mix_level[p], solo_parts);
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
@@ -2099,8 +2643,12 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         PROF_T(pb);
+        /* Use the accepted internal/measured external clock, including free play.
+         * Tempo changes do not retrigger notes or reset the wobble phase. */
+        if (bass_wobble_voice(b))
+            wobble_set_tempo(bass_slot[b].active.context, seq_tempo(&seq));
         idle[b] = synth_idle(&bass_slot[b]);
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
@@ -2112,7 +2660,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (idle[b])
             continue;
         mix_targets(p, mix_level[p], solo_parts);
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if (bass_slot[b].active.ops == &wobble_foundation_ops) {
             add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
             add_glide(dry_r, bb[1 - b], &mix_glide[p][GL_R], n);
@@ -2143,6 +2691,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     {
         PROF_T(pf);
         fxbus_process_st(&fx, dry_l, dry_r, rev, dly, out_l, out_r, (int)n);
+        if (fx.dl_type != 1 || fx.dl_level <= 0.0f || (fx.muted & 2u)) tape_signal_seen = 0;
+        else if (fx.dl_signal) { tape_signal_at = plat_ms(); tape_signal_seen = 1; }
         PROF_ADD(5, pf);
     }
     bfx_flt_shape(out_l, out_r, (int)n);
@@ -2150,7 +2700,15 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 
 void engine_render(int32_t *out_lr, uint32_t n)
 {
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+    /* The 808 owns only the current t0/tr window until CPU2 join and mixing.
+     * Bass rendering and final FX then replace that window. Earlier windows
+     * remain intact until master_process_st consumes the complete block.
+     * Do not alias these buffers on the legacy early-bass render path. */
+    float *out_l = t0, *out_r = tr;
+#else
     static float out_l[256], out_r[256];
+#endif
     uint32_t done = 0, i;
     float vol = usb_full ? 1.0f : (float)plat_master() / 4096.0f;   /* (FULL: engine_volume) */
     int p;
@@ -2158,6 +2716,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
         n = 256u;
     if (!n) return;
     if (project_hold) {
+        tape_signal_seen = 0;
         for (i = 0; i < n * 2u; i++)
             out_lr[i] = 0;
         return;
@@ -2185,10 +2744,10 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #if X0X_BASS_PRESET_PREVIEW
         bass_preset_boundary();
 #endif
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         for (p = 0; p < NBASS; ++p) {
             if (synth_boundary(&bass_slot[p])) {
-
+                seq_rec_cancel(&seq, p);
                 bass_held[p] = bass_held_count[p] = 0;
                 src_held[0] &= (uint16_t)~(1u << p);
                 src_held[1] &= (uint16_t)~(1u << p);
@@ -2202,6 +2761,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #endif
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
+        brk_midi_drain();
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
         PROF_ADD(7, pt);
@@ -2211,13 +2771,18 @@ void engine_render(int32_t *out_lr, uint32_t n)
 #if !X0X_ORIGINAL_SYNTH
         chi_arp_tick(k);
 #endif
-        render_sub(out_l + done, out_r + done, k);
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
+        render_sub(out_l + done, out_r + done, k, done);
+#else
+        render_sub(out_l + done, out_r + done, k, 0);
+#endif
         {
             PROF_T(pt);
 #if X0X_ORIGINAL_SYNTH
             original_prepare_all(); /* next actual sequencer stretch, before its events */
 #endif
             seq_advance(&seq, k, &SINK);
+            brk_midi_drain();
             PROF_ADD(7, pt);
         }
         done += k;
@@ -2387,8 +2952,8 @@ int engine_brk_slice(void) { return brk.running ? brk.st_slice : -1; }
 
 void engine_brk_state(int *slice, int *bank, int *div, int *running)
 {
-    *slice = brk.st_slice;
-    *bank = brk.st_bank;
+    *slice = brk.perf.count ? brk.current_slice : brk.st_slice;
+    *bank = brk.perf.count ? 0 : brk.st_bank;
     *div = brk.st_div;
     *running = brk.running;
 }
@@ -2428,6 +2993,7 @@ X0X_COLD int engine_brk_outline(int which, uint8_t *peaks, int n)
     return 1;
 }
 float engine_gr_db(void) { return mst.gr_view; }
+int engine_master_get(int i) { return master_get(&mst, i); }
 void engine_master_format(int i, char *buf) { master_format(&mst, i, buf); }
 
 X0X_COLD void engine_brk_loops(void)
@@ -2452,14 +3018,20 @@ X0X_COLD void engine_brk_loops(void)
             L[w].nsamples = ns;
             L[w].rate = rate;
             L[w].bars = loop_bars(ns, rate);
-            breaks_set_loop(&brk, w, &L[w]);
         } else {
-            breaks_set_loop(&brk, w, brk_builtin(slot < nb ? slot : 0));   /* built-in, or the first if the slot is empty */
+            const brk_loop_t *builtin = brk_builtin(slot < nb ? slot : 0);
+            if (builtin) L[w] = *builtin;
+            else L[w] = (brk_loop_t){0};
         }
+        L[w].slices = (uint8_t)brk_slice_count(bp, (unsigned)w);
+        breaks_set_loop(&brk, w, &L[w]);
     }
 }
 
+uint32_t engine_brk_held(void) { return brk.slices; }
 void engine_brk_flush(void) { breaks_flush(&brk); }
+void engine_brk_edit_hold(int held) { brk.local_guard = (uint8_t)(held != 0); }
+int engine_brk_count(int bank) { return breaks_count(&brk, bank); }
 
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes)
 {
@@ -2476,6 +3048,9 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
 #endif
     int p, g;
     cq_w = cq_r = 0;
+    brk_local = 0;
+    brk_midi_count = 0;
+    brk_input_channel = 255;
     src_held[0] = src_held[1] = src_held[2] = 0;
     for (p = 0; p < MIDI_NSRC; p++)
         for (g = 0; g < 16; g++)
@@ -2530,7 +3105,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     chi_fx_e2[0] = chi_fx_e2[1] = CHI_FX_PARAMS[2].def;
     chi_fx_insert_program(0);
     chi_fx_insert_program(1);
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     synth_init(&bass_slot[0], synth303_binding(&b303[0]));
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));
     wobble_foundation_init(&dev_wobble);
@@ -2538,8 +3113,11 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     synth_boundary(&bass_slot[0]); /* Product Miami: 303A is WBL1 before first audio block. */
 #endif
 #endif
+    brk_wheel = brk_wheel_seen = 0; brk_bend_owner = -1;
     breaks_init(&brk);
+    brk.accepted = s_brk_accepted;
     fxbus_init(&fx, dly_buf, DLY_LEN);
+    tape_signal_seen = 0;
     master_init(&mst);
     seq_init(&seq, patterns);
     seq.song = song;
@@ -2602,7 +3180,7 @@ unsigned engine_live_key_probe(int voice,int field)
 #if X0X_ORIGINAL_SYNTH
         return original_runtime_active(&original_bass[voice]);
 #else
-#if X0X_DEV_WOBBLE
+#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
         if(bass_wobble_voice(voice))return (unsigned)dev_wobble.gate;
 #endif
         return (unsigned)b303[voice].gate;

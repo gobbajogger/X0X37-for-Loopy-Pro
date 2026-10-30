@@ -86,6 +86,43 @@ int engine_bass_preview_changed(void);
 void engine_bass_wheel_owners(uint8_t mask);
 #endif
 
+/* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
+#ifndef X0X_BASS_PRESET_PREVIEW
+#define X0X_BASS_PRESET_PREVIEW 0
+#endif
+#ifndef X0X_BASS_TAGGED_SOUND
+#define X0X_BASS_TAGGED_SOUND 0
+#endif
+#ifndef X0X_BASS_NOTE_SOUND
+#define X0X_BASS_NOTE_SOUND 0
+#endif
+#if X0X_BASS_NOTE_SOUND && !X0X_BASS_TAGGED_SOUND
+#error Note sounds require tagged bass storage
+#endif
+#if X0X_BASS_TAGGED_SOUND && !X0X_BASS_PRESET_PREVIEW
+#error Tagged bass unit requires the reviewed runtime preset unit
+#endif
+#if X0X_BASS_TAGGED_SOUND
+#include "bass_identity.h"
+#endif
+#if X0X_BASS_PRESET_PREVIEW
+#include "factory_banks.h"
+const x0x_param_t *engine_bass_bank_param(int bank, int param);
+int engine_bass_bank(int voice);
+int engine_bass_bank_available(int voice, int bank);
+int engine_bass_preset_index(int voice);
+int engine_bass_preset_edited(int voice);
+int engine_bass_requested_bank(int voice);
+int engine_bass_requested_preset(int voice);
+/* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */
+int engine_bass_preset_pending(int voice);
+void engine_bass_cancel_preset(int voice);
+/* Main-loop edit/undo snapshots defer preset application without muting audio. */
+void engine_bass_edit_hold(int hold);
+int engine_bass_preview_changed(void);
+void engine_bass_wheel_owners(uint8_t mask);
+#endif
+
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {
     uint8_t v[NTARGETS][NVOICES_MAX][NPARAMS_MAX];
@@ -123,6 +160,7 @@ void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo 
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */
 void engine_fx_mute(uint8_t mask);                          /* runtime output gates, never edits intended pots or motion */
 uint8_t engine_fx_muted(void);
+uint8_t engine_tape_active(void); /* actual tape input/wet activity, presentation only */
 void engine_smc_busfx(uint8_t down, const uint8_t effect[8]); /* SMC momentary buses; effect may be null */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
@@ -181,10 +219,17 @@ void engine_sound_centre_drum_pans(sound_t *s);             /* every drum voice'
 void engine_drum(int kit, int voice, float vel);            /* play now (keys) */
 void engine_bass_on(int part, int note, int accent, int slide);
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity);
+void engine_bass_record(int part, int note, int velocity, int flags); /* accepted live REC press, audio-owned */
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
+void engine_brk_bend(int value); /* transient -8192..8191, +/-12 semitones */
+#ifdef X0X_HOST
+int engine_brk_bend_value(void);
+#endif
 void engine_brk_live(int key, int down);
-void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
+void engine_brk_edit_hold(int held);
+uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes);
@@ -198,6 +243,7 @@ void engine_motion_rec(int lane);                           /* record a pass fro
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
 void engine_motion_clear(int lane);                         /* free a motion lane (undo / bulk edit) */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */
+int engine_master_get(int i);                             /* read-only applied master pot */
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);

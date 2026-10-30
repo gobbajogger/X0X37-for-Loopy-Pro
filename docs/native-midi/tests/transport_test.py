@@ -20,7 +20,8 @@ PRODUCT = "SMK-37 Elite_900"
 
 def identity(text):
     raw = text.encode()
-    return b"\xf0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + raw + bytes(28 - len(raw))) + b"\xf7"
+    payload = raw + bytes(27 - len(raw))
+    return b"\xf0" + I.pack7(bytes([0, 0x59, 0x11, 27, 0, 0]) + payload + bytes([~sum(payload) & 255])) + b"\xf7"
 
 
 def request(address, size=8):

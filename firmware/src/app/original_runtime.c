@@ -126,6 +126,13 @@ int original_runtime_all_off(original_runtime_part *p)
     return runtime_result(p, ok);
 }
 
+int original_runtime_owned(const original_runtime_part *p)
+{
+    if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
+    return p->kind == ORIGINAL_SOUND_MIAMI ? original_miami_backend_voice_active(&p->dsp.miami) :
+        original_chicago_backend_active(&p->dsp.chicago);
+}
+
 int original_runtime_active(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;

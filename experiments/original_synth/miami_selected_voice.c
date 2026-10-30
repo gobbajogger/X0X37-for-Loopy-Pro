@@ -129,7 +129,8 @@ int original_miami_selected_voice_note_off(original_miami_selected_voice *s,cons
 }
 int original_miami_selected_voice_pedal(original_miami_selected_voice *s,const original_miami_voice_controls *c){
  if(!s||!c||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
- if(!c->damper&&s->damper_deferred)release(s);return 1;
+ if(!c->damper&&s->damper_deferred)release(s);
+ return 1;
 }
 static int preparation_tail(original_miami_selected_voice *s,const original_miami_voice_controls *c,const original_miami_voice_tables *t,uint32_t D){
  s->vcf_bipolar=s->vcf.level-1.0f;s->vca_bipolar=s->vca.level-1.0f;
@@ -142,7 +143,8 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
  }
  oc.xmod=c->xmod;
  if(!s->prepared.ready||memcmp(&s->prepared.controls,&oc,sizeof oc)){
-  if(!original_oscillator_prepare(&s->prepared,&oc))return 0;s->wave_preparations++;
+  if(!original_oscillator_prepare(&s->prepared,&oc))return 0;
+  s->wave_preparations++;
  }
  original_voice_gain_controls gc=c->gain;gc.envelope=s->vca.level;gc.mod_gain=s->mod_gain;gc.velocity=s->velocity;gc.unison_flag=s->unison_flag;
  if(!original_voice_gain_prepare(&s->gain,&gc,s->activation,D))return 0;
@@ -230,10 +232,12 @@ unsigned original_miami_selected_voice_request_kind(const original_miami_selecte
  return full?(s->vca.state==6?ORIGINAL_MIAMI_REQUEST_FULL:ORIGINAL_MIAMI_REQUEST_STAGE):ORIGINAL_MIAMI_REQUEST_PARTIAL;
 }
 int original_miami_selected_voice_stage_raw(original_miami_selected_voice *s){
- if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;s->vca.state=5;return 1;
+ if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;
+ s->vca.state=5;return 1;
 }
 int original_miami_selected_voice_stop_raw(original_miami_selected_voice *s){
- if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;s->key_down=0;s->vca.state=4;return 1;
+ if(!s||s->ready!=VOICE_READY||s->awaiting_restart||s->vca.state>=6)return 0;
+ s->key_down=0;s->vca.state=4;return 1;
 }
 static int raw_note_valid(const original_miami_voice_note *n,unsigned full){
  if(!n||n->note_key>127||n->velocity>127||n->unison_flag>2||!original_binary32_isfinite(n->tuned_pitch)||n->tuned_pitch<0||n->tuned_pitch>127||!original_binary32_isfinite(n->unison_coordinate))return 0;

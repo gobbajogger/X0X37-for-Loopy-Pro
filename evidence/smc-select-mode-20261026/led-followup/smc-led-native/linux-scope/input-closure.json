@@ -1,0 +1,176 @@
+{
+  "source_commit": "5a7c1df58c0e09fa553a9ab3a750c2754208a29e",
+  "source_tree": "2cf4f9604dc982272985433e461578c33eefc638",
+  "selectors": [
+    "smc-select-mode",
+    "smc-filter",
+    "smc-reachability",
+    "smc-lock",
+    "smc-ui"
+  ],
+  "purpose": "LED-focused five registered selectors plus named new interaction mutation; Linux-native private clone permits runner FIFO on owned overlay filesystem. Not a firmware build or DEV CHECKED record.",
+  "result": "PENDING",
+  "previous_passes": "Historical94061cf proof only; current function closure mapping in function-closure-map.json. Feedback current5a7 FAIL awaits fixture repair; not counted as PASS.",
+  "qualified": false,
+  "worker": {
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "environment": {
+      "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "HOSTNAME": "f37ed4f05438",
+      "HOME": "/root",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "CPATH": "/usr/local/include",
+      "LIBRARY_PATH": "/usr/local/lib",
+      "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+      "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+      "CC": "cc",
+      "CXX": "c++",
+      "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+      "MODEL": "elite",
+      "BOARD": "smk37",
+      "X0X_DEV_PADCAL": "1",
+      "CTL_NO_CACHE": "1",
+      "CTL_NATIVE": "1"
+    },
+    "mounts": {
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/repo": true,
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/repo/.git": true,
+      "/Users/mac/Documents/Codex/2026-10-26/task-6/smc-led-native/repo/tools": true,
+      "/Users/mac/.jieli/toolchain": true,
+      "/Users/mac/fw-AC79_AIoT_SDK": true,
+      "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+    },
+    "orchestrator_platform": [
+      "Darwin",
+      "arm64",
+      "27.2.0"
+    ],
+    "orchestrator_tools": {
+      "docker": {
+        "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+        "executable": true
+      },
+      "python": {
+        "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+        "executable": true
+      },
+      "git": {
+        "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+        "executable": true
+      }
+    }
+  },
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "879ffa35d535998a9c0166636d68886a55c0ba53e530c0f54f4dc61cce98c306",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "75cffb54d6c3084392e129e74f024a205b64bd938db8143a040933c5d49d6645",
+      "configuration": {
+        "purpose": "LED-focused five registered selectors plus named new interaction mutation; Linux-native private clone permits runner FIFO on owned overlay filesystem. Not a firmware build or DEV CHECKED record.",
+        "source_commit": "5a7c1df58c0e09fa553a9ab3a750c2754208a29e",
+        "selectors": [
+          "smc-select-mode",
+          "smc-filter",
+          "smc-reachability",
+          "smc-lock",
+          "smc-ui"
+        ]
+      },
+      "environment": {
+        "BOARD": "smk37",
+        "CC": "cc",
+        "CPATH": "/usr/local/include",
+        "CTL_NATIVE": "1",
+        "CTL_NO_CACHE": "1",
+        "CXX": "c++",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "MODEL": "elite",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "39c5956f49de3ca9aa6aa3edab43aa9a481264136ed0dbb029ae377de3c965a6",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+          "executable": true
+        },
+        "make": {
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+          "executable": true
+        },
+        "node": {
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+          "executable": true
+        },
+        "python": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": null,
+        "pillow": {
+          "version": "9.4.0",
+          "sha256": "c6d6f5bc403396868ad18dad0b1d84a003b0837ece68e7f144d88fec9ea358b2"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        }
+      },
+      "references": {}
+    }
+  }
+}

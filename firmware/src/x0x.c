@@ -22,6 +22,11 @@
 #include "fm1_lcd_hw.h"
 #include "fm1_cpu1.h"
 #include "fm1_flash.h"
+/* Production admission wiring; standalone host modules default to no maintenance. */
+#define ST_MAINTENANCE_ADMIT() fm1_capture_pre_admit()
+#define OTA_MAINTENANCE_ADMIT() fm1_capture_pre_admit()
+#define ED_MAINTENANCE_ADMIT() fm1_capture_pre_admit()
+#define ED_MAINTENANCE_HELD() fm1_capture_maintenance_held()
 #include "fm1_xip.h"
 #include "fm1_perf.h"
 

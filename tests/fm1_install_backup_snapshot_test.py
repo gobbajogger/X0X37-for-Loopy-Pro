@@ -132,6 +132,22 @@ class BackupSnapshotTest(unittest.TestCase):
         self.assertEqual(2, len({new for _, new in todo}))
         self.assertEqual(todo, self.mock.restored)
 
+    def test_skipped_middle_slot_never_reaches_restore_writes(self):
+        self.mock.backup_layout = layout(used=(1, 1, 1), offs=(0x1000, 0x20000, 0x40000))
+        self.mock.backup_layout['slots'][1]['nz'] = 2
+        self.mock.images = [b'A' * 40000, b'B' * 100000, b'C' * 30000]
+        self.mock.post_install_layout = layout(used=(1, 0), offs=(0x1000, 0x50000))
+        for sl in self.mock.post_install_layout['slots']:
+            sl['size'] = 80000
+        self.move.new_map = [(0x1000, 80000), (0x50000, 80000)]
+        self.move.backup(object(), self.path, io.StringIO())
+        todo, skipped = self.move.restore(object(), io.StringIO())
+        self.assertEqual([], todo)
+        self.assertEqual([], self.mock.restored)
+        self.assertTrue(self.path.exists())
+        self.assertEqual(self.mock.images, self.mock.archive_images)
+        self.assertTrue(any('LOOP menu' in message for message in skipped))
+
     def test_slot_emptied_before_backup_is_not_rewritten(self):
         self.mock.backup_layout = layout(used=(0,1))
         self.mock.images = [None,b'sampleB']
