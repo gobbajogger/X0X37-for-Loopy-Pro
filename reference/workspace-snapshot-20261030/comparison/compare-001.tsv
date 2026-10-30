@@ -1,0 +1,224 @@
+source_archive	worktree	local_branch	base_commit	stage	file_path	git_blob_sha1	bytes	in_734	in_739
+part1	ui-loop-capacity-host-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	head	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-loop-capacity-host-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	index	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-loop-capacity-host-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	working	firmware/src/app/ui.c	16b076f3df2cbb1fe050901f0afa83f163080a29	297922	D	D
+part1	ui-loop-capacity-host-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	working	tests/host/ui_loop_capacity_test.c	7a9e42051f67db83558f1b9b3789da5657de5647	1583	R	R
+part1	ui-settings-action-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	head	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-settings-action-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	index	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-settings-action-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	working	firmware/src/app/ui.c	18fff236f9a6f0e30d77f08a818b91da9a98169c	296862	D	D
+part1	metro-baseline-proof-20261027	(detached)	2cf05642f3d98e32a67e12362dc224c4d4b2b87b	working	tests/host/clocked_metronome_trace.c	9396cdcb6cc8d03765ed08cb6c597cd8a31de343	1382	I	I
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	head	firmware/src/app/engine.c	962177b7aa84b606afd36d341f3f88460d08307f	101170	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	index	firmware/src/app/engine.c	962177b7aa84b606afd36d341f3f88460d08307f	101170	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	working	firmware/src/app/engine.c	6d2780704047620dcc8079149051e39f876ddc79	101601	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	head	firmware/src/app/engine.h	19651dd3f962f35b956faf3099c81db75668d8dc	11253	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	index	firmware/src/app/engine.h	19651dd3f962f35b956faf3099c81db75668d8dc	11253	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	working	firmware/src/app/engine.h	1239ad0934f8e67c5ee1fc96f75e843458623caf	11358	R	R
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	head	firmware/src/app/ui.c	704474b0027e0483fdf976d23fd38ad9c5e82e6f	298318	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	index	firmware/src/app/ui.c	704474b0027e0483fdf976d23fd38ad9c5e82e6f	298318	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	working	firmware/src/app/ui.c	bd8ae26aabafd2ef6f210de5a33de02ba0426216	298656	R	R
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	head	firmware/src/dsp/fxbus.c	fa7abdf08774ad582772ca139efd90911d5c1869	18998	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	index	firmware/src/dsp/fxbus.c	fa7abdf08774ad582772ca139efd90911d5c1869	18998	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	working	firmware/src/dsp/fxbus.c	0da80feb42d60222754b05b5e5f0aee62e36d09f	19152	I	I
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	head	firmware/src/dsp/fxbus.h	28f2f7a0456b8aee18752ea3ebe51a4d926808ba	3664	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	index	firmware/src/dsp/fxbus.h	28f2f7a0456b8aee18752ea3ebe51a4d926808ba	3664	D	D
+part1	ui-tape-activity-mock-20261027	(detached)	26ee2ace1ca6dfc8dfa617d92e1267ebb80d215d	working	firmware/src/dsp/fxbus.h	9540d3934c09f3bdaddc3e8c8f39d82769bc328e	3757	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	experiments/wobble/wobble.h	1a6e9344ca8e3362a4d05d539f748c49c44a1d25	2575	I	I
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	experiments/wobble/wobble.h	1a6e9344ca8e3362a4d05d539f748c49c44a1d25	2575	I	I
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	experiments/wobble/wobble.h	a78ae16369c68ed2c0b2cb7b2b7ae3b52cf08c69	2653	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	firmware/src/app/engine.c	962177b7aa84b606afd36d341f3f88460d08307f	101170	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	firmware/src/app/engine.c	962177b7aa84b606afd36d341f3f88460d08307f	101170	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	firmware/src/app/engine.c	ab1164357bcef486fd45878ce918f730f7bcf71c	101907	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	firmware/src/app/engine.h	19651dd3f962f35b956faf3099c81db75668d8dc	11253	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	firmware/src/app/engine.h	19651dd3f962f35b956faf3099c81db75668d8dc	11253	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	firmware/src/app/engine.h	1498da8e4cb60b3d28acd14e48428c214ae2c9c3	11382	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	firmware/src/app/project.c	e13e92c2ac5f23576f0d5ef9eb0eb14c328614ad	43651	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	firmware/src/app/project.c	e13e92c2ac5f23576f0d5ef9eb0eb14c328614ad	43651	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	firmware/src/app/project.c	fff8a169114ae377771f1a7e3bd982f900f05be0	44037	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	firmware/src/app/wobble_ui.h	11ec430c87625334763deaced73ce0ef3188eea0	1369	I	I
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	firmware/src/app/wobble_ui.h	11ec430c87625334763deaced73ce0ef3188eea0	1369	I	I
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	firmware/src/app/wobble_ui.h	4cf3293c980fc7aaebdf1ec68ad03096f59a3561	1513	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	firmware/src/dsp/wobble_backend.h	687dcf501b413d01323a69ad553bfc05b426d2bc	4326	A	A
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	firmware/src/dsp/wobble_backend.h	687dcf501b413d01323a69ad553bfc05b426d2bc	4326	A	A
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	firmware/src/dsp/wobble_backend.h	173c444be0fe20e0af5ecdbcb6ae3add7df17932	4675	A	A
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	firmware/src/dsp/wobble_config.h	3dd6c078aa5d31649f8106d33cd9752615c2d94e	640	I	I
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	firmware/src/dsp/wobble_config.h	3dd6c078aa5d31649f8106d33cd9752615c2d94e	640	I	I
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	firmware/src/dsp/wobble_config.h	37535783b7d3ad33bd049c66c749d4fccb43d705	901	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	head	tests/host/miami_mw_wobble_test.c	f8aa82acacf6551b4fbae361aae9c8ea452cce83	5517	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	index	tests/host/miami_mw_wobble_test.c	f8aa82acacf6551b4fbae361aae9c8ea452cce83	5517	D	D
+part1	miami-third-20261027	lane/sb-miami-third-20261027	0f9ebcecc24d52c958a43a1a86f13cad0c62b1a8	working	tests/host/miami_mw_wobble_test.c	f424b49b8c12579dc8bc6d7946795d31a24d174c	5541	D	D
+part1	ui-tape-motion-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	head	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-tape-motion-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	index	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-tape-motion-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	working	firmware/src/app/ui.c	5a20743949bde4ed9b5bdfc2dafb6819b4abfdcc	297278	D	D
+part1	ui-filter-neutral-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	head	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-filter-neutral-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	index	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-filter-neutral-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	working	firmware/src/app/ui.c	6b6c8e901a6460818789f47676014fd145c2b05d	296882	D	D
+part1	ui-settings-case-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	head	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-settings-case-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	index	firmware/src/app/ui.c	994314aa6d0aa1ebf27bcd34902a289a6f940f97	296882	D	D
+part1	ui-settings-case-mock-20261027	(detached)	7769ae63cdf5b0103a64049b36fdfe60afe219a5	working	firmware/src/app/ui.c	18fff236f9a6f0e30d77f08a818b91da9a98169c	296862	D	D
+part1	adaptive-break-baseline-20261027	(detached)	16a794ecd8811c09f058defe8ec7c5571d6096e8	head	tests/host/breaks_renderer_equivalence_test.c	bff3aeb9cb2d3428923818a58e7f821127da5407	3882	D	D
+part1	adaptive-break-baseline-20261027	(detached)	16a794ecd8811c09f058defe8ec7c5571d6096e8	index	tests/host/breaks_renderer_equivalence_test.c	bff3aeb9cb2d3428923818a58e7f821127da5407	3882	D	D
+part1	adaptive-break-baseline-20261027	(detached)	16a794ecd8811c09f058defe8ec7c5571d6096e8	working	tests/host/breaks_renderer_equivalence_test.c	fbd862a71f811f7b6014ce08f650c58b206f27ee	3903	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/build_ctl.sh	72739d02157c3bcd00823486601f32e17c793ffd	2107	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/build_ctl.sh	72739d02157c3bcd00823486601f32e17c793ffd	2107	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/build_in_container.sh	54cc9c5cbb3ca4691de92d9e4ccec969586e852f	4856	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/build_in_container.sh	54cc9c5cbb3ca4691de92d9e4ccec969586e852f	4856	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/ctl.ld	d1c743fe50f3e0e631ce4299832a6d1792770b00	2555	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/ctl.ld	d1c743fe50f3e0e631ce4299832a6d1792770b00	2555	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/fetch_sdk.sh	739e1581b0fe933a571612372040d23b0d07325f	1946	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/fetch_sdk.sh	739e1581b0fe933a571612372040d23b0d07325f	1946	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/gen_rf_tables.py	0c35ff7b03f2b4ff2ad7f9d0ea88dc42f794d9a9	1608	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/gen_rf_tables.py	0c35ff7b03f2b4ff2ad7f9d0ea88dc42f794d9a9	1608	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/mkimage.py	6a3ca63844961e690dc1cc4d0a57bd5420223236	3998	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/mkimage.py	6a3ca63844961e690dc1cc4d0a57bd5420223236	3998	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/config.c	a46714db98225ff4cc584fa805febc8a141ee56c	3035	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/config.c	a46714db98225ff4cc584fa805febc8a141ee56c	3035	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_heap.c	da63514fd9f42af90834e8e00b164fc0d085c0b6	2344	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_heap.c	da63514fd9f42af90834e8e00b164fc0d085c0b6	2344	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_main.c	b32e790f6e9e3f13ca2fe38da6f563617a279dc5	8926	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_main.c	b32e790f6e9e3f13ca2fe38da6f563617a279dc5	8926	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_os.c	1128dba7448ed0adbb8d936caf276a113ddbdcdd	6590	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_os.c	1128dba7448ed0adbb8d936caf276a113ddbdcdd	6590	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_platform.c	14f2166c622873959223953abb76232e0d7384b3	5989	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_platform.c	14f2166c622873959223953abb76232e0d7384b3	5989	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_port.c	a7cc5b5f4e3e83507b2d5f1b8280e94d3ff9e0ca	3835	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_port.c	a7cc5b5f4e3e83507b2d5f1b8280e94d3ff9e0ca	3835	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_port.h	16ec64b3daf7ac4015337a8b3faa3d3f613681de	3321	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_port.h	16ec64b3daf7ac4015337a8b3faa3d3f613681de	3321	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_port_asm.S	227b4d8c81a48fb4a4d5717a9858e018259599bb	1311	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_port_asm.S	227b4d8c81a48fb4a4d5717a9858e018259599bb	1311	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_syscfg.c	4b730b0384029f3f19fe3a1acdeb373b26409535	1352	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_syscfg.c	4b730b0384029f3f19fe3a1acdeb373b26409535	1352	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/ctl_timer.c	b0e8cd26524ecfa4f1e653908ae36b075a510c75	3706	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/ctl_timer.c	b0e8cd26524ecfa4f1e653908ae36b075a510c75	3706	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	ble/ctl/src/log_tags.c	b153ac35792f761aa76769717940ddef4272b03a	6784	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	ble/ctl/src/log_tags.c	b153ac35792f761aa76769717940ddef4272b03a	6784	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/blep.h	8bd438f8a1cc09aca3653509d9d4ae029e0cea67	636	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/blep.h	8bd438f8a1cc09aca3653509d9d4ae029e0cea67	636	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/compare.py	10d4f97c68b8f81ef35c6a756df5000a0f4e5c0e	9666	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/compare.py	10d4f97c68b8f81ef35c6a756df5000a0f4e5c0e	9666	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/compare_history.py	1547e6ed05d858bab22f9dbf8197107401980a6e	1938	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/compare_history.py	1547e6ed05d858bab22f9dbf8197107401980a6e	1938	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/foundation_adapter.h	a1a1e787605c2daa821c5ca6911433001f5f0521	2962	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/foundation_adapter.h	a1a1e787605c2daa821c5ca6911433001f5f0521	2962	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/render.c	eae91b2a4e7a0c5ce34fe46e7003d02f49a09421	3267	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/render.c	eae91b2a4e7a0c5ce34fe46e7003d02f49a09421	3267	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/run.sh	dd604b9332126fb461e783c4e70c38b7bf32ce9e	759	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/run.sh	dd604b9332126fb461e783c4e70c38b7bf32ce9e	759	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/test_compare.py	16f6ff40cc34529f4b977969c28061d96852f7e5	1310	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/test_compare.py	16f6ff40cc34529f4b977969c28061d96852f7e5	1310	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/test_foundation.c	95050f3d14728b2abf52ec5b07cb60d2cc5f293b	1978	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/test_foundation.c	95050f3d14728b2abf52ec5b07cb60d2cc5f293b	1978	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/test_wobble.c	dc44f12e1c92dd8e29c76324f00763928ad40ae2	8850	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/test_wobble.c	dc44f12e1c92dd8e29c76324f00763928ad40ae2	8850	A	A
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	experiments/wobble/wobble.h	b3dcd0f9452310ccb2663f4195315a2c424676f0	2357	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	experiments/wobble/wobble.h	b3dcd0f9452310ccb2663f4195315a2c424676f0	2357	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/app.ld	a7c859343fc5f1bf218cf5330dbd3553239a92ee	2632	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/app.ld	a7c859343fc5f1bf218cf5330dbd3553239a92ee	2632	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/crt0.S	5176548c94e58be9dd6f09327a5309686281d6b2	798	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/crt0.S	5176548c94e58be9dd6f09327a5309686281d6b2	798	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_adc.h	19b253640c2aebe24dfb6acc37fe53d5596e54b4	1380	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_adc.h	19b253640c2aebe24dfb6acc37fe53d5596e54b4	1380	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_audio.h	02e2cc32dd1cd9f00aad1e92fc87cb45771bc40a	3267	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_audio.h	02e2cc32dd1cd9f00aad1e92fc87cb45771bc40a	3267	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_ble.h	63ea9e64fbe9f0f59289be90043ae4e611917d1e	3105	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_ble.h	63ea9e64fbe9f0f59289be90043ae4e611917d1e	3105	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_capture_gate.h	23ca34033683cf5be23e491bdf6f53211e041718	3905	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_capture_gate.h	23ca34033683cf5be23e491bdf6f53211e041718	3905	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_cc.h	7243d70064bae9001e0eedd88565b84da76b6e69	1139	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_cc.h	7243d70064bae9001e0eedd88565b84da76b6e69	1139	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_cpu1.S	c040c2c7ac27ae351ee1b4d25a1d09ae2d7412d2	1158	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_cpu1.S	c040c2c7ac27ae351ee1b4d25a1d09ae2d7412d2	1158	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_cpu1.h	cc12ec832ba83cc1141b95f106cda81496f38441	17729	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_cpu1.h	cc12ec832ba83cc1141b95f106cda81496f38441	17729	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_debug.h	235a3a001d0f560f6642a199b61ba785d4d215fe	1674	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_debug.h	235a3a001d0f560f6642a199b61ba785d4d215fe	1674	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_flash.h	748cec341b049b899d49174e809137376f51b06e	9182	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_flash.h	748cec341b049b899d49174e809137376f51b06e	9182	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_flash_map.h	47212f63dc2412454cdfc41a9f52a14e44ffe188	8953	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_flash_map.h	47212f63dc2412454cdfc41a9f52a14e44ffe188	8953	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_gpio.h	cb7db8cc0cacf9878d997cfb00d6fe38780f5e63	644	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_gpio.h	cb7db8cc0cacf9878d997cfb00d6fe38780f5e63	644	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_guard.h	4a23dfedab625b7880bad42a0448ba3180e155f7	11463	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_guard.h	4a23dfedab625b7880bad42a0448ba3180e155f7	11463	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_input.h	b4c015e2124f1c50f71636aba42ac5f961bc0d9e	13613	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_input.h	b4c015e2124f1c50f71636aba42ac5f961bc0d9e	13613	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_irq.h	e7f23b8fa9c48b73275d217e752d6a3530c675cd	7732	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_irq.h	e7f23b8fa9c48b73275d217e752d6a3530c675cd	7732	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_isr.S	56e42599950023245397b234ac42e0f4b112f549	894	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_isr.S	56e42599950023245397b234ac42e0f4b112f549	894	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_lcd_hw.h	199550ad7d43e689ed88438651b4116d1b3f0f44	5163	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_lcd_hw.h	199550ad7d43e689ed88438651b4116d1b3f0f44	5163	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_opt.h	ec1f7957e11f3ebfd892b17abd82c9edcda8d36f	299	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_opt.h	ec1f7957e11f3ebfd892b17abd82c9edcda8d36f	299	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_perf.h	74b60d3f5f52da57c1810b1f1831c3eb2419a239	1885	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_perf.h	74b60d3f5f52da57c1810b1f1831c3eb2419a239	1885	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_supply.h	29dfa2123bfb7de32167be18a4febeabf6064b6e	2926	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_supply.h	29dfa2123bfb7de32167be18a4febeabf6064b6e	2926	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_sync.h	dd407a3992bdc83551a8acc3f8fa2ad0a91a93f0	216	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_sync.h	dd407a3992bdc83551a8acc3f8fa2ad0a91a93f0	216	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_sys.h	994b394016da2211b7d0b91b79ffa88910d96a89	6783	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_sys.h	994b394016da2211b7d0b91b79ffa88910d96a89	6783	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_time.h	d62920d5a72ed30e4876ea39af87db0a86ce98aa	1478	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_time.h	d62920d5a72ed30e4876ea39af87db0a86ce98aa	1478	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_timer.h	c20e10fee980481b6292782e755f95ddcee40e10	996	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_timer.h	c20e10fee980481b6292782e755f95ddcee40e10	996	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_uart.h	3642b0fe66780d0e16af1d73719ca75ac7abcd3d	2865	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_uart.h	3642b0fe66780d0e16af1d73719ca75ac7abcd3d	2865	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_usb.h	ec004f7a51ccd4e16dbf0f1c51ff9e96e8cadcee	4867	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_usb.h	ec004f7a51ccd4e16dbf0f1c51ff9e96e8cadcee	4867	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_vec.S	a0a76430bfd8d8c047a92fe7a64af85e2ea3cf46	713	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_vec.S	a0a76430bfd8d8c047a92fe7a64af85e2ea3cf46	713	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/fm1_xip.h	45830c04bb8463ee27d40ccda2d5317757723872	580	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/fm1_xip.h	45830c04bb8463ee27d40ccda2d5317757723872	580	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/smk_input.h	0d9605f3df5a5551066c08718257beeb027023d1	29836	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/smk_input.h	0d9605f3df5a5551066c08718257beeb027023d1	29836	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/hal/x0x_ble_abi.h	8716949b32a1bb11fb3bf5f338f0265dffae9de9	9245	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/hal/x0x_ble_abi.h	8716949b32a1bb11fb3bf5f338f0265dffae9de9	9245	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/loader/crt0_ldr.S	3d8876630b66d30451525cf8f09a9eb89705d3d9	558	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/loader/crt0_ldr.S	3d8876630b66d30451525cf8f09a9eb89705d3d9	558	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/loader/ldr_core.c	6a36ae8a0ad6fb804c8f0cae88446dcfeb0a9aeb	6072	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/loader/ldr_core.c	6a36ae8a0ad6fb804c8f0cae88446dcfeb0a9aeb	6072	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/loader/loader.c	1b256b3901d1b67e67657c5dff723e7fadbbc94f	4663	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/loader/loader.c	1b256b3901d1b67e67657c5dff723e7fadbbc94f	4663	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/loader/loader.ld	acadd26f556107d8e43125bc929278db2e31cca3	855	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/loader/loader.ld	acadd26f556107d8e43125bc929278db2e31cca3	855	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/apc40_lcd565.h	5632c6325889199aaf8a909214c1fd6aeb37c5bc	1345	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/apc40_lcd565.h	5632c6325889199aaf8a909214c1fd6aeb37c5bc	1345	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/apc40_lcd_idle.h	9e27fae868cf3442b72779ee894c4d027b09a62b	613	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/apc40_lcd_idle.h	9e27fae868cf3442b72779ee894c4d027b09a62b	613	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/apc40_pad_default.h	4d017b641493c870d7d9c38d82274d8a57c94a31	2221	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/apc40_pad_default.h	4d017b641493c870d7d9c38d82274d8a57c94a31	2221	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/apc40_pad_gamma.h	327fbbebfc53de46c777101b50c935d4c39e4ef7	654	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/apc40_pad_gamma.h	327fbbebfc53de46c777101b50c935d4c39e4ef7	654	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/apc40_pad_names.h	250036b55e97ba0d659b63a3673e1d32a706af7d	1208	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/apc40_pad_names.h	250036b55e97ba0d659b63a3673e1d32a706af7d	1208	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/apc40_pad_owner.h	32fcec5b945d7d3d96e5191a2c2f1e31d36ae356	2305	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/apc40_pad_owner.h	32fcec5b945d7d3d96e5191a2c2f1e31d36ae356	2305	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/bass_identity.h	72373890147c73f090a8312daa3a7f8ea2001b12	6578	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/bass_identity.h	72373890147c73f090a8312daa3a7f8ea2001b12	6578	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/bass_note_sound.h	41bdf43c4bb21d62485676fd74c867ed5eb047fb	1009	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/bass_note_sound.h	41bdf43c4bb21d62485676fd74c867ed5eb047fb	1009	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/bass_presets.h	a00840686105273b11715697083be05a5b00053c	2835	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/bass_presets.h	a00840686105273b11715697083be05a5b00053c	2835	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/boot_screen.h	9219766c96d36838b528e590346d56502f90aa9f	12124	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/boot_screen.h	9219766c96d36838b528e590346d56502f90aa9f	12124	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/brk_pack.h	8bfe75df9c0a42f0890cdbc7c68df8e1e9203f54	3484	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/brk_pack.h	8bfe75df9c0a42f0890cdbc7c68df8e1e9203f54	3484	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_arp.h	d313b54540c5a6da738c04ca508d59bdc8e60657	6269	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_arp.h	d313b54540c5a6da738c04ca508d59bdc8e60657	6269	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_aux.h	54e4e0866c3787508f1de229dc05abe783b35397	2174	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_aux.h	54e4e0866c3787508f1de229dc05abe783b35397	2174	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_bpmdly.h	24f6ee2c8396b78db38ab9e6b53c616889110613	3522	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_bpmdly.h	24f6ee2c8396b78db38ab9e6b53c616889110613	3522	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_cho.h	bccb6be8d306710ae4c6d355e86a36f23af02539	4576	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_cho.h	bccb6be8d306710ae4c6d355e86a36f23af02539	4576	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_crush.h	c3d7a489dd8aae52bd6d5221b1d214f06336a86f	2758	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_crush.h	c3d7a489dd8aae52bd6d5221b1d214f06336a86f	2758	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_ens.h	96583322f30b97ac1c83e97d1d592e4b85be2734	3518	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_ens.h	96583322f30b97ac1c83e97d1d592e4b85be2734	3518	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_env.h	c8db57f48b9edd6c1616c302b27e2b871652d8fe	2265	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_env.h	c8db57f48b9edd6c1616c302b27e2b871652d8fe	2265	D	D
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_eq.h	cf1e0832086a0356cc9569b444f7b22a6e98dd35	2540	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_eq.h	cf1e0832086a0356cc9569b444f7b22a6e98dd35	2540	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		index	firmware/src/app/chicago_fx.h	dadd5dd7f57c0dbd442f715cd5402284630b4253	5989	I	I
+part2	smc-live-toggle-review-r1-20261028-source-82117eb2	master		working	firmware/src/app/chicago_fx.h	dadd5dd7f57c0dbd442f715cd5402284630b4253	5989	I	I
