@@ -19,14 +19,14 @@ static int valid_word(uint32_t u,unsigned kind){
  return 1;
 }
 int original_state_encode(const original_state_schema *s,const void *object,void *bytes,size_t capacity){
- if(!object||!bytes||!schema_valid(s)||(size_t)s->count>(SIZE_MAX-16u)/4u||capacity<16u+(size_t)s->count*4u)return 0;
+ if(!object||!bytes||!schema_valid(s)||s->count>(UINT32_MAX-16u)/4u||capacity<16u+(size_t)s->count*4u)return 0;
  for(uint32_t i=0;i<s->count;i++){uint16_t d=descriptor(s,i);if(!valid_word(field(object,d),d&7u))return 0;}
  unsigned char *p=bytes;memcpy(p,s->magic,4);p[4]=1;p[5]=s->backend;p[6]=p[7]=0;put(p+8,4u*s->count);
  for(uint32_t i=0;i<s->count;i++)put(p+16+4u*i,field(object,descriptor(s,i)));
  put(p+12,checksum(p+16,4u*s->count));return 1;
 }
 int original_state_decode(const original_state_schema *s,void *staging,const void *bytes,size_t length){
- if(!staging||!bytes||!schema_valid(s)||(size_t)s->count>(SIZE_MAX-16u)/4u||length!=16u+(size_t)s->count*4u)return 0;
+ if(!staging||!bytes||!schema_valid(s)||s->count>(UINT32_MAX-16u)/4u||length!=16u+(size_t)s->count*4u)return 0;
  const unsigned char *p=bytes;if(memcmp(p,s->magic,4)||p[4]!=1||p[5]!=s->backend||p[6]||p[7]||get(p+8)!=4u*s->count||get(p+12)!=checksum(p+16,4u*s->count))return 0;
  for(uint32_t i=0;i<s->count;i++)if(!valid_word(get(p+16+4u*i),descriptor(s,i)&7u))return 0;
  memset(staging,0,s->size);
