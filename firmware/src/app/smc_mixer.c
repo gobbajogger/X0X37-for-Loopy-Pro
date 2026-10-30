@@ -1203,8 +1203,7 @@ static void smc_fx_publish(void)
         for (unsigned peer = 0; peer < SMC_PEERS; peer++)
             if (smc_states[peer].fx_down & (1u << bus)) {
                 down |= (uint8_t)(1u << bus);
-                effects[bus] = (smc_states[peer].fx_lp_hold & (1u << bus)) ?
-                    SMCFX_LP : smc_states[peer].fx_effect[bus];
+                effects[bus] = smc_states[peer].fx_effect[bus];
                 break;
             }
     }
