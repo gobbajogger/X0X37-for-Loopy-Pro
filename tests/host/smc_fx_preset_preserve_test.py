@@ -208,6 +208,7 @@ int main(void)
         CHECK(!(published_down & bit));
         CHECK(!(smc.fx_down & bit));
         CHECK(!(smc.fx_lp_hold & bit));
+        CHECK(!(smc.fx_owned & bit));
         CHECK(all_assignments_match(before));
     }
 
