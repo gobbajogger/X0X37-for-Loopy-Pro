@@ -1,12 +1,32 @@
 # Authorized project delivery
 
+This file is the only authoritative rules file for this checkout. Root
+`AGENTS.md` points here and does not name another rules file.
+`docs/agent-rules.md` and `docs/rules/core.md` were removed. They are not
+rules sources.
+
 This is the active workflow for this production checkout. It applies the same
 continuation, ownership and evidence contract as the maintained development
 workflow. Resolve development `nightly` to its full SHA before reading its
-`skills/x0x37-workflow/SKILL.md` and relevant references. Read the actual target
-repository's rules too. Adopting workflow instructions does not promote firmware.
-Current owner instructions, actual permissions and action-specific denials govern.
+`skills/x0x37-workflow/SKILL.md` and relevant references. On another checkout,
+read that checkout's `docs/rules/workflow.md`. Adopting workflow instructions
+does not promote firmware. Current owner instructions, actual permissions and
+action-specific denials govern.
 [Historical records](workflow-history.md) provide evidence, not active routing.
+
+## Feature ownership and open work
+
+The feature registry in pull request
+[#723](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/723)
+is the only record of who owns each feature. That pull request added
+`docs/FEATURE-REGISTRY.md` on `wip/one-build`.
+
+Each builder keeps at most one open pull request at a time.
+
+Feature merges stay stopped until CI is green. Progress is tracked in
+`docs/workflow/velocity-metrics.md` when that file is in the checkout.
+The current baseline is
+[velocity-metrics.md on pull request #727](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/docs/bottleneck-audit-20261030/docs/workflow/velocity-metrics.md).
 
 For recurring work, resolve the live `coordination/merge-queue` ref and read the
 [automation runtime contract](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/coordination/merge-queue/coordination/automation/runtime-contract.md),
@@ -14,6 +34,15 @@ For recurring work, resolve the live `coordination/merge-queue` ref and read the
 at that same revision. Keep the role bootstrap stable: new authorized work updates
 the existing request and acceptance data. Task-specific proof, permissions and
 existing owners still govern.
+
+## Documents this file selects
+
+These companions do not replace this file:
+
+- Output wording: [x0x37-writing](../../.agents/skills/x0x37-writing/SKILL.md)
+- Evidence selection: [local proof](local-proof.md)
+- Build commands: [BUILDING.md](../../BUILDING.md)
+- Distribution: [LICENSING.md](../../LICENSING.md)
 
 ## Start from the existing outcome
 

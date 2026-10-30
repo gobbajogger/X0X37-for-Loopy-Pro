@@ -1,7 +1,8 @@
 # Historical instruction boundaries
 
-The active entrypoints are root `AGENTS.md`, `docs/rules/workflow.md`, the maintained
-skills it selects, and `docs/rules/local-proof.md` for evidence selection. Read
+The only authoritative rules file is `docs/rules/workflow.md`. Root `AGENTS.md`
+points at that file and at no other rules file. The rules file selects the
+maintained skills and `docs/rules/local-proof.md` for evidence selection. Read
 `BUILDING.md` for commands and `LICENSING.md` for distribution terms. Runtime
 adapters in `skills/classic-thread-build-to-git/` or
 `.cursor/skills/loopyx0x37-classic-build/` do not override them.
@@ -15,8 +16,10 @@ launcher policy, ownership transfer or authorization:
 - Dated device sessions in `BLE_ATTEMPTS.md`, prior PR bodies and old rule revisions.
 - The retained `loopyx0x37-classic-build-skill.zip` export archive, which is not an
   active installation source; use the maintained unpacked adapter and current rules.
-- The v0.1.47 Cursor export provenance and removed `docs/agent-rules.md` or
-  `docs/rules/{core,install,integration,...}.md` pointers in historical records.
+- The v0.1.47 Cursor export provenance. Historical records may still name
+  `docs/agent-rules.md`, `docs/rules/core.md`, or other removed
+  `docs/rules/{install,integration,...}.md` paths. Those files are not current
+  rules. The only authoritative rules file is `docs/rules/workflow.md`.
 - Numbered successor-thread tooling such as `tools/stage_handoff.py` and historical
   stage-specific fixtures. Their schema checks do not activate that retired loop.
 

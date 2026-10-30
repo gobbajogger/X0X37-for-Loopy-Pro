@@ -18,7 +18,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 |---|---|---|
 | Clip mode | APC40 mkII emulation for Loopy Pro. The pads send and receive MIDI and show the clip colours. The screen shows the clip view. OCT- and OCT+ move the view down and up. | smk37 branch |
 | Clip mode | Fixes: the firmware drops notes only in clip mode. Loopy Start does not echo back. The screen clip view is not too dark (LCD floor). | 0fbfe07 ... be6fc1d |
-| Docs | BEHAVIOR.md (intended behavior, 200+ items), agent-rules.md, BREAK mode guide, README, licences | 4046fe9, 7269951, c24899f |
+| Docs | BEHAVIOR.md (intended behavior, 200+ items), BREAK mode guide, README, licences. The former `docs/agent-rules.md` was removed; the rules file is `docs/rules/workflow.md`. | 4046fe9, 7269951, c24899f |
 | Colours | Colour tool that calculates the real pad and screen colours from the APC40 palette | 07eb709 |
 | Step 1 | The installer backs up the loop slots and restores them automatically | 39eafa9 ... bd6f9f3 |
 | Step 2 | The firmware stores the 909 ride, crash and hi-hat as IMA ADPCM at 44.1 kHz (no audible difference, about 166 KB free after the change) | 241bd15 ... 936f155 |
