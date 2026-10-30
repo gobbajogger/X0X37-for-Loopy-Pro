@@ -26,8 +26,8 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define D9_INLINE static inline __attribute__((always_inline))
 #define D9_NOINLINE static __attribute__((noinline, unused))   /* not every includer uses every helper */
-#if defined(X0X_HOST)
-/* Match fastmath: strict host C99 uses complete translation-unit-local bodies. */
+#if defined(X0X_HOST) || !defined(__clang__)
+/* Match fastmath: strict host C99 and GCC host tests use translation-unit-local bodies. */
 #define D9_ONE static inline
 #else
 /* One link-wide body. The text stays here so a call can still be inlined.
