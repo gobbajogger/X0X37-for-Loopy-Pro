@@ -1,5 +1,0 @@
-{
-  "status": "ERROR",
-  "bit_exact": false,
-  "error": "/mnt/data/pr691-new-tests-20261030/missing-reference: no .f32/.wav captures"
-}
