@@ -1,0 +1,1352 @@
+PR #734 Part 2 / 636c1f7013a1cf02e34b8d23031086777d898e7b
+80 failed cases, diagnostic excerpt (up to 22 lines per case). No raw captures.
+
+===== status-lanes =====
+  FAIL status-lanes (see build/host/status-lanes.log)
+       FAIL status.sh rc=0: [pr734-part2]/host/tools/status.sh: line 65: declare: -A: invalid option
+       declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
+       [pr734-part2]/host/tools/status.sh: line 68: integration: unbound variable
+       FAIL Firmware Main Builder: no (lane/mb-x) in the row: 
+       FAIL Second Builder: no (lane/sb-x) in the row: 
+       FAIL Optimizer: no (lane/opt-x) in the row: 
+       FAIL Build and Test Runner: no (lane/btr-x) in the row: 
+       FAIL Docs Keeper: no (lane/dk-rules-x) in the row: 
+       status lanes: 0 of 6 ok
+
+===== status-isolation =====
+  FAIL status-isolation (see build/host/status-isolation.log)
+       ok   test run, no output folder: refused, exit 4
+       FAIL --out DIR: rc=0 .status-tmp  live= [pr734-part2]/host/tools/status.sh: line 65: declare: -A: invalid option
+       declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
+       [pr734-part2]/host/tools/status.sh: line 68: integration: unbound variable
+       FAIL X0X_STATUS_OUT: rc=0 live= [pr734-part2]/host/tools/status.sh: line 65: declare: -A: invalid option
+       declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
+       [pr734-part2]/host/tools/status.sh: line 68: integration: unbound variable
+       ok   unknown argument: exit 2
+       ok   scan flags the bad fixture: [pr734-part2]/host/tests/host/fixtures/status/leaky_status_test.sh:6: X0X_REPO=/tmp/none bash "$TOP/tools/status.sh"
+       ok   scan: each status test gives an output folder
+       ok   live folder /workspace/x0x37-orchestrator not on this machine: case 6 not needed
+       status-isolation: 5 of 7 ok
+
+===== ble-role-switch =====
+  FAIL ble-role-switch (see build/host/ble-role-switch.log)
+       Assertion failed: (n >= 3 && t == 1), function take_command, file ble_role_switch_test.c, line 88.
+       Traceback (most recent call last):
+         File "[pr734-part2]/host/tests/host/ble_role_switch_test.py", line 25, in <module>
+           subprocess.run([str(binary)], check=True)
+         File "/opt/homebrew/Cellar/python@3.12/3.12.15_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['[pr734-part2]/host/build/host/iso/ble-role-switch/tmp/ble-role-2t2rx4co/role']' died with <Signals.SIGABRT: 6>.
+
+===== builtin-break-output =====
+  FAIL builtin-break-output (see build/host/builtin-break-output.log)
+           self.fail("/dev/full unavailable: required output-failure proof cannot run")
+       AssertionError: /dev/full unavailable: required output-failure proof cannot run
+       
+       ======================================================================
+       FAIL: test_header_write_failure (__main__.BuiltinBreakOutput.test_header_write_failure)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "[pr734-part2]/host/tests/host/test_builtin_break_output.py", line 81, in test_header_write_failure
+           self.fail("/dev/full unavailable: required output-failure proof cannot run")
+       AssertionError: /dev/full unavailable: required output-failure proof cannot run
+       
+       ----------------------------------------------------------------------
+       Ran 7 tests in 0.705s
+       
+       FAILED (failures=2)
+
+===== rec-held-duration =====
+  FAIL rec-held-duration (see build/host/rec-held-duration.log)
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== rec-endpoint-lifecycle =====
+  FAIL rec-endpoint-lifecycle (see build/host/rec-endpoint-lifecycle.log)
+       FAIL line 287: hold beyond full loop saturates one traversal without deleting onset
+       FAIL line 289: saturated periodic pattern ends after one full loop
+       FAIL line 296: reverse recording fills actual traversal
+       FAIL line 298: reverse boundary has no orphan continuation
+       FAIL line 325: actual legacy format3 loads unchanged with zero endpoint
+       FAIL line 344: context cancel releases the cancelled voice
+       FAIL line 360: new press ends on its own off
+       FAIL line 378: same-pitch count releases on the new press's own off
+       FAIL line 384: external successor retains recording ownership
+       FAIL line 386: external successor ends on its own release
+       FAIL line 393: input disconnect releases its actual voice
+       FAIL line 393: input disconnect releases its actual voice
+       FAIL line 393: input disconnect releases its actual voice
+         timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection, stop and cancelled-gate ownership checked
+       rec_endpoint_lifecycle: 535739 checks 36 failures
+
+===== rec-endpoint-storage =====
+  FAIL rec-endpoint-storage (see build/host/rec-endpoint-storage.log)
+             |                                                           ^~~~~~
+       tests/host/project_stage_test.c:552:34: error: use of undeclared identifier 'NSTEPS1'
+         552 |     proj.arr.lane[NLANE - 1].val[NSTEPS1 - 1] = 53;
+             |                                  ^~~~~~~
+       tests/host/project_stage_test.c:558:49: error: use of undeclared identifier 'NSTEPS1'
+         558 |     CHECK(project_stage.arr.lane[NLANE - 1].val[NSTEPS1 - 1] == 53);
+             |                                                 ^~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       20 errors generated.
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== rec-nonforward-guard =====
+  FAIL rec-nonforward-guard (see build/host/rec-nonforward-guard.log)
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== rec-live =====
+  FAIL rec-live (see build/host/rec-live.log)
+       sh: tests/host/run_rec_live.sh: No such file or directory
+
+===== rec-live-smk =====
+  FAIL rec-live-smk (see build/host/rec-live-smk.log)
+       sh: tests/host/run_rec_live.sh: No such file or directory
+
+===== copy-semantics =====
+  FAIL copy-semantics (see build/host/copy-semantics.log)
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== song-actions =====
+  FAIL song-actions (see build/host/song-actions.log)
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== ui-feedback =====
+  FAIL ui-feedback (see build/host/ui-feedback.log)
+       Assertion failed: (lit0 == 2), function home_pattern_glyph_content, file ui_feedback_test.c, line 170.
+       tests/host/ui_feedback_test.sh: line 19: 56010 Abort trap: 6           "$OUT/test" "$@"
+
+===== home-overview =====
+  FAIL home-overview (see build/host/home-overview.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       tests/host/../../host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       tests/host/../../host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== sound-matrix =====
+  FAIL sound-matrix (see build/host/sound-matrix.log)
+             |            ^
+       tests/host/../../host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       tests/host/sound_matrix_test.c:45:8: error: use of undeclared identifier 'W_CARRIER_WAVE'
+          45 |       {W_CARRIER_WAVE,W_CARRIER_LEVEL,W_SUB_LEVEL,W_CARRIER_PITCH,W_XMOD_WAVE,W_XMOD_LEVEL,W_XMOD_TUNE,W_XMOD_DEPTH,
+             |        ^~~~~~~~~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       20 errors generated.
+
+===== sound-layout =====
+  FAIL sound-layout (see build/host/sound-layout.log)
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       In file included from tests/host/sound_layout_test.c:4:
+       tests/host/chicago_presentation_test.c:143:23: warning: comparison of integers of different signs: 'uint32_t' (aka 'unsigned int') and 'int' [-Wsign-compare]
+         143 |         CHECK(ui.dirty==dirty && save_wait==sw && seq.playing==playing && history==song_structure_revision);
+             |               ~~~~~~~~^ ~~~~~
+       tests/host/chicago_presentation_test.c:14:38: note: expanded from macro 'CHECK'
+          14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+             |                                      ^
+       tests/host/chicago_presentation_test.c:212:23: error: use of undeclared identifier 'W_PITCH_BEND'
+         212 |         int bend=bank?W_PITCH_BEND:CHI_PBEND;
+             |                       ^~~~~~~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       1 warning and 20 errors generated.
+
+===== chicago-presentation =====
+  FAIL chicago-presentation (see build/host/chicago-presentation.log)
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       tests/host/chicago_presentation_test.c:143:23: warning: comparison of integers of different signs: 'uint32_t' (aka 'unsigned int') and 'int' [-Wsign-compare]
+         143 |         CHECK(ui.dirty==dirty && save_wait==sw && seq.playing==playing && history==song_structure_revision);
+             |               ~~~~~~~~^ ~~~~~
+       tests/host/chicago_presentation_test.c:14:38: note: expanded from macro 'CHECK'
+          14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+             |                                      ^
+       tests/host/chicago_presentation_test.c:212:23: error: use of undeclared identifier 'W_PITCH_BEND'
+         212 |         int bend=bank?W_PITCH_BEND:CHI_PBEND;
+             |                       ^~~~~~~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       1 warning and 20 errors generated.
+
+===== chicago-readout =====
+  FAIL chicago-readout (see build/host/chicago-readout.log)
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       In file included from tests/host/chicago_readout_test.c:5:
+       tests/host/chicago_presentation_test.c:143:23: warning: comparison of integers of different signs: 'uint32_t' (aka 'unsigned int') and 'int' [-Wsign-compare]
+         143 |         CHECK(ui.dirty==dirty && save_wait==sw && seq.playing==playing && history==song_structure_revision);
+             |               ~~~~~~~~^ ~~~~~
+       tests/host/chicago_presentation_test.c:14:38: note: expanded from macro 'CHECK'
+          14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+             |                                      ^
+       tests/host/chicago_presentation_test.c:212:23: error: use of undeclared identifier 'W_PITCH_BEND'
+         212 |         int bend=bank?W_PITCH_BEND:CHI_PBEND;
+             |                       ^~~~~~~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       1 warning and 20 errors generated.
+
+===== matrix-knob-caption =====
+  FAIL matrix-knob-caption (see build/host/matrix-knob-caption.log)
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       In file included from tests/host/matrix_knob_caption_test.c:4:
+       tests/host/chicago_presentation_test.c:143:23: warning: comparison of integers of different signs: 'uint32_t' (aka 'unsigned int') and 'int' [-Wsign-compare]
+         143 |         CHECK(ui.dirty==dirty && save_wait==sw && seq.playing==playing && history==song_structure_revision);
+             |               ~~~~~~~~^ ~~~~~
+       tests/host/chicago_presentation_test.c:14:38: note: expanded from macro 'CHECK'
+          14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+             |                                      ^
+       tests/host/chicago_presentation_test.c:212:23: error: use of undeclared identifier 'W_PITCH_BEND'
+         212 |         int bend=bank?W_PITCH_BEND:CHI_PBEND;
+             |                       ^~~~~~~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       1 warning and 20 errors generated.
+
+===== preset-navigation-noop =====
+  FAIL preset-navigation-noop (see build/host/preset-navigation-noop.log)
+             |               ~~~~~~~~^ ~~~~~
+       tests/host/chicago_presentation_test.c:14:38: note: expanded from macro 'CHECK'
+          14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+             |                                      ^
+       tests/host/chicago_presentation_test.c:212:23: error: use of undeclared identifier 'W_PITCH_BEND'
+         212 |         int bend=bank?W_PITCH_BEND:CHI_PBEND;
+             |                       ^~~~~~~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       1 warning and 20 errors generated.
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== ui-303-entry =====
+  FAIL ui-303-entry (see build/host/ui-303-entry.log)
+       tests/host/pro_303_entry_crash_test.sh: line 20: 59014 Segmentation fault: 11  ASAN_OPTIONS=detect_leaks=0 "$OUT/$mode" "$scenario" >> "$OUT/$mode.log"
+
+===== scenario-arrows =====
+  FAIL scenario-arrows (see build/host/scenario-arrows.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-autosave =====
+  FAIL scenario-autosave (see build/host/scenario-autosave.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-bleclock =====
+  FAIL scenario-bleclock (see build/host/scenario-bleclock.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-blenotes =====
+  FAIL scenario-blenotes (see build/host/scenario-blenotes.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-brkslice_mode_toggle =====
+  FAIL scenario-brkslice_mode_toggle (see build/host/scenario-brkslice_mode_toggle.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-brkslice_trs_overlap =====
+  FAIL scenario-brkslice_trs_overlap (see build/host/scenario-brkslice_trs_overlap.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-brkslice =====
+  FAIL scenario-brkslice (see build/host/scenario-brkslice.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-clip-arrow-menu =====
+  FAIL scenario-clip-arrow-menu (see build/host/scenario-clip-arrow-menu.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-clklock =====
+  FAIL scenario-clklock (see build/host/scenario-clklock.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-clkmove =====
+  FAIL scenario-clkmove (see build/host/scenario-clkmove.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-clocksrc =====
+  FAIL scenario-clocksrc (see build/host/scenario-clocksrc.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-drum_bass_ch_consume =====
+  FAIL scenario-drum_bass_ch_consume (see build/host/scenario-drum_bass_ch_consume.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-edit_midi_rec_guard =====
+  FAIL scenario-edit_midi_rec_guard (see build/host/scenario-edit_midi_rec_guard.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-edit_oct_no_hidden =====
+  FAIL scenario-edit_oct_no_hidden (see build/host/scenario-edit_oct_no_hidden.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-extclock =====
+  FAIL scenario-extclock (see build/host/scenario-extclock.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-freeplay =====
+  FAIL scenario-freeplay (see build/host/scenario-freeplay.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-getting_started =====
+  FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-groove =====
+  FAIL scenario-groove (see build/host/scenario-groove.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-guard =====
+  FAIL scenario-guard (see build/host/scenario-guard.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-help =====
+  FAIL scenario-help (see build/host/scenario-help.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-jam =====
+  FAIL scenario-jam (see build/host/scenario-jam.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-keysound =====
+  FAIL scenario-keysound (see build/host/scenario-keysound.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-knobs =====
+  FAIL scenario-knobs (see build/host/scenario-knobs.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-midiowner =====
+  FAIL scenario-midiowner (see build/host/scenario-midiowner.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-migrate =====
+  FAIL scenario-migrate (see build/host/scenario-migrate.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-migrate0102 =====
+  FAIL scenario-migrate0102 (see build/host/scenario-migrate0102.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-patterns =====
+  FAIL scenario-patterns (see build/host/scenario-patterns.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-perf =====
+  FAIL scenario-perf (see build/host/scenario-perf.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-perfsave =====
+  FAIL scenario-perfsave (see build/host/scenario-perfsave.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-plock =====
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-prob =====
+  FAIL scenario-prob (see build/host/scenario-prob.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-probcond =====
+  FAIL scenario-probcond (see build/host/scenario-probcond.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-probreset =====
+  FAIL scenario-probreset (see build/host/scenario-probreset.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-roll_continuation =====
+  FAIL scenario-roll_continuation (see build/host/scenario-roll_continuation.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-roll_short_tie =====
+  FAIL scenario-roll_short_tie (see build/host/scenario-roll_short_tie.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-savefeedback =====
+  FAIL scenario-savefeedback (see build/host/scenario-savefeedback.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-savewait =====
+  FAIL scenario-savewait (see build/host/scenario-savewait.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-showcase =====
+  FAIL scenario-showcase (see build/host/scenario-showcase.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-slices =====
+  FAIL scenario-slices (see build/host/scenario-slices.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-song_live_mute_save =====
+  FAIL scenario-song_live_mute_save (see build/host/scenario-song_live_mute_save.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-song =====
+  FAIL scenario-song (see build/host/scenario-song.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-songrep =====
+  FAIL scenario-songrep (see build/host/scenario-songrep.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-sound_matrix_chicago_idle =====
+  FAIL scenario-sound_matrix_chicago_idle (see build/host/scenario-sound_matrix_chicago_idle.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-sound_matrix_chicago =====
+  FAIL scenario-sound_matrix_chicago (see build/host/scenario-sound_matrix_chicago.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-sound_matrix_drum =====
+  FAIL scenario-sound_matrix_drum (see build/host/scenario-sound_matrix_drum.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-sound_matrix_lock =====
+  FAIL scenario-sound_matrix_lock (see build/host/scenario-sound_matrix_lock.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-sound_matrix_miami =====
+  FAIL scenario-sound_matrix_miami (see build/host/scenario-sound_matrix_miami.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-sound_page_split =====
+  FAIL scenario-sound_page_split (see build/host/scenario-sound_page_split.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-step303 =====
+  FAIL scenario-step303 (see build/host/scenario-step303.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-steps64 =====
+  FAIL scenario-steps64 (see build/host/scenario-steps64.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-stereo =====
+  FAIL scenario-stereo (see build/host/scenario-stereo.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-tb3po =====
+  FAIL scenario-tb3po (see build/host/scenario-tb3po.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-tour =====
+  FAIL scenario-tour (see build/host/scenario-tour.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-trackmute =====
+  FAIL scenario-trackmute (see build/host/scenario-trackmute.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-undo =====
+  FAIL scenario-undo (see build/host/scenario-undo.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-upload =====
+  FAIL scenario-upload (see build/host/scenario-upload.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-upload44 =====
+  FAIL scenario-upload44 (see build/host/scenario-upload44.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== scenario-usbnotes =====
+  FAIL scenario-usbnotes (see build/host/scenario-usbnotes.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== perf-scratch =====
+  FAIL perf-scratch (see build/host/perf-scratch.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.

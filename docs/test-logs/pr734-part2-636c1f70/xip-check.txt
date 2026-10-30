@@ -1,0 +1,15 @@
+PR #734 Part 2 Pro XIP and memory measurements
+Head: 636c1f7013a1cf02e34b8d23031086777d898e7b
+SDK: AC79NN_SDK_V1.2.1_2023-12-13, local SDK commit d179b448
+Model: SMK-37 Pro
+Command: BOARD=smk37 MODEL=pro sh build.sh
+App XIP maximum: 552672 bytes
+Image length from generated x0x.bin: 451936 bytes
+Image length from native build log: 451936 bytes
+Free app XIP: 100736 bytes
+XIP SIZE CHECK: PASS
+Image SHA-256 (provenance only, binary NOT published): 2f3c435e52fcb9b3bd0fb8bd9bc82a4ec36d1e226aca7a40a8ad90b164325278
+RAM: 94960/98304 bytes; free 3344
+Pool: 333772/344064 bytes; free 10292
+Full Pro build: FAIL (safety guard at firmware/src/app/engine.c:48, 0x10000u)
+Flashable package: NOT QUALIFIED, no image published

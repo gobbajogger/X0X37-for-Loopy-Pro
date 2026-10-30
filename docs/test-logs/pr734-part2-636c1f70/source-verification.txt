@@ -1,0 +1,6 @@
+Repository: gobbajogger/X0X37-for-Loopy-Pro
+Head: 636c1f7013a1cf02e34b8d23031086777d898e7b
+Git root tree: 2a6a68b4c7515a757f07af12f2c6f59335b5c7a0
+Recovered source: reused #726 GitHub API tree/blob, no network refetch
+Paths verified: 4579/4579 in host and 4579/4579 in pro
+Selected tests: 158 unique, suite indices 159–316
