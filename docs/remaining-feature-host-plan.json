@@ -16,7 +16,9 @@
     "tools/sampleio.py",
     "assets/909/hh.wav",
     "assets/909/ride.wav",
-    "assets/909/crash.wav"
+    "assets/909/crash.wav",
+    "tests/host/remaining_feature_proof_test.py",
+    "docs/remaining-feature-host-plan.json"
   ],
   "checks": [
     {
