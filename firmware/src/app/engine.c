@@ -1192,7 +1192,7 @@ int engine_bass_keys_held(void) /* host test: bit k when 303 k holds any key (MI
 }
 int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
 {
-    int k, r = brk.keys << 8 & 0xFF00;
+    int k, r = (int)((brk.keys | brk.slices) << 8 & 0xFF00u);   /* held slices 0..7 (adaptive slicing keeps them in brk.slices) */
     for (k = 0; k < NBASS; k++)
         r |= original_runtime_active(&original_bass[k]) ? 1 << k : 0;
     return r;
