@@ -101,6 +101,14 @@ def refused(message, fn):
 
 def main():
     tmp = Path(tempfile.mkdtemp(prefix="nightly-publish-"))
+    # Isolated test fixture: supply a default Git identity for the temporary
+    # local repositories, not a custom author for a project commit.
+    default_git = tmp / "fixture-gitconfig"
+    default_git.write_text("[user]\\n name = DnBOX Fixture Default\\n email = fixture@example.invalid\\n")
+    os.environ["GIT_CONFIG_GLOBAL"] = str(default_git)
+    os.environ["GIT_CONFIG_NOSYSTEM"] = "1"
+    for key in ("GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"):
+        os.environ.pop(key, None)
     repo = tmp / "repo"
     repo.mkdir()
     subprocess.check_call(["git", "init", "-q", "-b", "main"], cwd=repo)
@@ -169,6 +177,9 @@ def main():
     publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, pushed,
                           remote=str(bare), push=True)
     published = git(bare, "rev-parse", "nightly-pages")
+    require(git(bare, "show", "-s", "--format=%an <%ae>", published)
+            == "DnBOX Fixture Default <fixture@example.invalid>",
+            "handoff Git author is not the account's default fixture identity")
     clone = tmp / "clone"
     subprocess.check_call(["git", "clone", "-q", "-b", "nightly-pages", str(bare), str(clone)])
     require((clone / "install" / "index.html").is_file(), "pushed installer")
