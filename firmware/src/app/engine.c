@@ -62,6 +62,8 @@ int engine_bass_filter_view(int v, float *eg, float *depth)
 { return (unsigned)v < NBASS && original_runtime_filter_view(&original_bass[v], eg, depth); }
 int engine_bass_motion_view(int v, float *phase, float *bipolar, float *current, float *target, int *active)
 { return (unsigned)v < NBASS && original_runtime_motion_view(&original_bass[v], phase, bipolar, current, target, active); }
+int engine_bass_env_view(int v, float adsr[4], float *level, int *state)
+{ return (unsigned)v < NBASS && original_runtime_env_view(&original_bass[v], adsr, level, state); }
 static void original_prepare_all(void)
 {
     for (int v = 0; v < NBASS; ++v) (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));
