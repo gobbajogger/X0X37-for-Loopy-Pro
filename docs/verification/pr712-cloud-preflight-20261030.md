@@ -63,3 +63,7 @@ Prior source-scoped exact-Git-blob regressions for Chicago clock, Chicago chorus
 **Next:** the source-transfer/executor owner completes an exact SHA-verified 325-blob delta transfer or supplies a directly materializable GitHub source archive, preserving unchanged 3,925 Git-identical files. Then run `tests/run_tests.sh` to completion, fix candidate-specific failures, run both model builds against the full tree with SDK V1.2.1, verify memory/package/controller and original bit-exact golden results. Keep PR draft; no merges, releases or installs.
 
 No credentials, private headers, restricted SDK/toolchain files, firmware images, samples or raw captures are committed.
+
+## Later integrated-base update
+
+After this preflight, `wip/one-build` advanced from `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21` to `b982c1eebc2ef731e0379103506aecb3df0b85e5`. GitHub comparison shows 31 incoming commits changing **only 20 documentation/routing/registry paths**, with **zero overlap** against PR #712's 55 changed paths; no changed firmware source, tests, SDK pins, or target bytes. The current branch takes that exact new base as an additional parent in its next source-preserving documentation merge. The measured archive smoke and transfer attempts still refer to their original inputs; no current-head firmware build is implied.
