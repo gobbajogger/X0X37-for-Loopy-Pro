@@ -18,3 +18,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #709 | 2e1d19c2 | merged | 98588dfa | firmware/src/app/main_fm1.c, firmware/src/app/project.c, tests/run_tests.sh |  |
 | #717 | 3fa97e8e | merged | bbb75706 | tests/run_tests.sh | .github/workflows/smc-mixer-integration.yml not brought in |
 | #725 | 8dfb42be | merged | b36c9b9a | firmware/src/app/smc_mixer.c, tests/run_tests.sh | smc_mixer.c: kept #717 struct/caption + #725 fx_lp_hold and preset-preserving SELECT |
+| fix | – | fix commit | 2cf4303c | firmware/src/app/engine.c | #677 tempo loop guarded for original-synth builds |
