@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Check replacement/legacy source and flag selection without invoking a compiler."""
 import importlib.util
-import re
 import os
 from pathlib import Path
 import sys
@@ -18,9 +17,8 @@ SPEC.loader.exec_module(build)
 
 def compile_plan(env):
     original, wobble = build.synth_build_config(env)
-    dev_wobble = env.get("X0X_DEV_WOBBLE", wobble)
     flags = [*build.CFLAGS, *build.FPU, "-DBOARD_SMK37=1", "-DSMK_MODEL=1",
-             f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={dev_wobble}"]
+             f"-DX0X_WOBBLE={wobble}", f"-DX0X_DEV_WOBBLE={wobble}"]
     commands, objects = build.app_compile_commands(flags, original, wobble)
     sources = {}
     for command in commands:
@@ -32,18 +30,15 @@ def compile_plan(env):
 
 
 class OriginalBuildCompositionTests(unittest.TestCase):
-    def test_default_is_replacement_and_explicit_zero_is_reference_only(self):
+    def test_default_is_original_and_zero_is_rejected(self):
         commands, objects, sources = compile_plan({})
         self.assertEqual((commands, objects), compile_plan({"X0X_ORIGINAL_SYNTH": "1"})[:2])
         self.assertNotIn("firmware/src/dsp/bass303.c", sources)
         self.assertNotIn("experiments/wobble/wobble.c", sources)
-        commands, objects, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0"})
-        self.assertIn("firmware/src/dsp/bass303.c", sources)
-        self.assertIn("experiments/wobble/wobble.c", sources)
-        self.assertFalse(any("original_synth/" in p or "_backend.c" in p for p in sources))
-        for command in commands:
-            self.assertNotIn("-DX0X_ORIGINAL_SYNTH=1", command)
-            self.assertNotIn("-DORIGINAL_USE_SOFT_FMA", command)
+        with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+            compile_plan({"X0X_ORIGINAL_SYNTH": "0"})
+        with self.assertRaisesRegex(SystemExit, "only 1 is supported"):
+            build.app_compile_commands([], False, "0")
 
     def test_replacement_is_exclusive_and_preserves_independent_sources(self):
         commands, objects, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "1"})
@@ -91,97 +86,16 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("-Oz", sources["firmware/src/x0x.c"])
 
     def test_conflicting_or_invalid_selectors_fail(self):
-        for value in ("1", "invalid"):
-            with self.subTest(flag="X0X_WOBBLE", value=value):
-                with self.assertRaisesRegex(SystemExit, "X0X_WOBBLE"):
-                    compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_WOBBLE": value})
-        with self.assertRaisesRegex(SystemExit, "X0X_DEV_WOBBLE"):
-            compile_plan({"X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "invalid"})
-        with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: 0 or 1"):
+        for flag in ("X0X_WOBBLE", "X0X_DEV_WOBBLE"):
+            for value in ("1", "invalid"):
+                with self.subTest(flag=flag, value=value):
+                    with self.assertRaisesRegex(SystemExit, flag):
+                        compile_plan({"X0X_ORIGINAL_SYNTH": "1", flag: value})
+        with self.assertRaisesRegex(SystemExit, "X0X_ORIGINAL_SYNTH: only 1 is supported"):
             compile_plan({"X0X_ORIGINAL_SYNTH": "invalid"})
         self.assertEqual(build.synth_build_config({"X0X_ORIGINAL_SYNTH": "1",
                                                   "X0X_WOBBLE": "0",
                                                   "X0X_DEV_WOBBLE": "0"}), (True, "0"))
-
-    def test_original_rate_pads_do_not_compile_legacy_wobble(self):
-        commands, objects, sources = compile_plan({
-            "X0X_ORIGINAL_SYNTH": "1", "X0X_DEV_WOBBLE": "1"})
-        self.assertNotIn("experiments/wobble/wobble.c", sources)
-        self.assertNotIn("firmware/src/dsp/bass303.c", sources)
-        self.assertIn("firmware/src/dsp/original_miami_backend.c", sources)
-        self.assertIn("firmware/src/dsp/original_chicago_backend.c", sources)
-        for command in commands:
-            if "-c" not in command:
-                continue
-            self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
-            self.assertIn("-DX0X_WOBBLE=0", command)
-            self.assertIn("-DX0X_DEV_WOBBLE=1", command)
-        self.assertEqual(len(objects), len(set(objects)))
-
-    def test_original_ui_rate_flag_does_not_activate_legacy_dsp_sources(self):
-        # X0X_DEV_WOBBLE=1 enables the ported *pad UI* for original Miami.
-        # Legacy WBL declarations and calls must all additionally require
-        # !X0X_ORIGINAL_SYNTH. The build-plan-only test cannot catch this.
-        for path in ("firmware/src/app/engine.c", "firmware/src/app/ui.c",
-                     "firmware/src/app/main_fm1.c"):
-            with self.subTest(path=path):
-                source = (ROOT / path).read_text()
-                self.assertNotRegex(source, r"(?m)^#(?:if|elif) X0X_DEV_WOBBLE\s*$")
-                self.assertRegex(source, r"(?m)^#if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH$")
-        ui = (ROOT / "firmware/src/app/ui.c").read_text()
-        self.assertIn("static int division_pad_owner(void)", ui)
-        self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
-        self.assertNotIn("shape_pad_owner(", ui)
-
-    def test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates(self):
-        # The physical Free Play route was ported from 574f/6ae. No shape-pad
-        # functionality belongs to this lane. Verify press-time ownership and
-        # the eight original Miami divisions, not the retired WBL1 backend.
-        ui = (ROOT / "firmware/src/app/ui.c").read_text()
-        hal = (ROOT / "firmware/hal/smk_input.h").read_text()
-        plat = (ROOT / "firmware/src/app/plat_fm1.c").read_text()
-        for guard in ("!ui.freeplay[bidx()]",
-                      "engine_bass_bank(bidx()) != ORIGINAL_SOUND_MIAMI",
-                      "smk_clip_mode_on()", "smc_ui_active()", "project_busy",
-                      "perf_testing()", "ui.rec", "ui.help",
-                      "ui.overlay != O_NONE"):
-            with self.subTest(guard=guard):
-                self.assertIn(guard, ui)
-        self.assertIn("int pad = plat_division_pad((unsigned)owner)", ui)
-        self.assertIn("if (owner && pad >= 0 && pad < 8)", ui)
-        self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
-        self.assertIn("smk_div_held & owned", hal)
-        self.assertIn("if (!vel) smk_div_held &= (uint16_t)~owned", hal)
-        self.assertIn("if (vel && smk_div_owner && !smk_pad_note[pad])", hal)
-        self.assertIn("if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u)", hal)
-        self.assertIn("smk_div_pending = 0;", hal)
-        self.assertIn("smk_div_owner = (uint8_t)owner;", hal)
-        self.assertRegex(plat, r"(?s)uint32_t flags = irq_save\(\);"
-                              r"\s*int hit = smk__division_poll\(owner\);"
-                              r"\s*irq_restore\(flags\);")
-        for pad, name in enumerate(("1/2", "1/4", "1/8", "1/16",
-                                    "1/3", "1/6", "1/12", "1/24")):
-            with self.subTest(pad=pad, name=name):
-                value = (pad * 127 + 3) // 7
-                self.assertEqual((value * 7 + 63) // 127, pad)
-                self.assertIn('"PADS: RATE ' + name + '"', ui)
-        self.assertIn('say("WOBBLE ", division_pad_label() + 11)', ui)
-        self.assertNotIn("shape_pad_owner(", ui)
-
-    def test_host_build_allows_original_rate_pad_flag_without_legacy_sources(self):
-        # The host app should accept the same UI-only build flag as firmware.
-        host = (ROOT / "host/build_host.sh").read_text()
-        self.assertIn('DEV_WOBBLE="${X0X_DEV_WOBBLE:-0}"', host)
-        self.assertIn('case "$DEV_WOBBLE" in 0|1)', host)
-        self.assertIn('-DX0X_ORIGINAL_SYNTH=1 -DX0X_WOBBLE=0 '
-                      '-DX0X_DEV_WOBBLE=$DEV_WOBBLE', host)
-        self.assertIn("*build.ORIGINAL_SYNTH_UNITS, *build.ORIGINAL_SYNTH_BACKENDS", host)
-
-    def test_legacy_wobble_disable_still_works(self):
-        for env in ({"X0X_WOBBLE": "0"}, {"X0X_DEV_WOBBLE": "0"}):
-            _, _, sources = compile_plan({"X0X_ORIGINAL_SYNTH": "0", **env})
-            self.assertNotIn("experiments/wobble/wobble.c", sources)
-            self.assertIn("firmware/src/dsp/bass303.c", sources)
 
     def test_missing_replacement_fails_before_any_tool_is_called(self):
         with tempfile.TemporaryDirectory() as directory:
