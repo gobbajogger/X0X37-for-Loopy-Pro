@@ -1114,6 +1114,7 @@ static void smc_fx_main_tick(void)
         if (!(smc.select_down & sel)) {
             uint8_t bit = (uint8_t)(1u << (SMCFX_RVB + i));
             cleared |= !!(smc.fx_down & bit);
+            smc.fx_owned &= (uint8_t)~bit;
             smc.fx_main_wait &= (uint8_t)~(1u << i);
             smc.fx_lp_hold &= (uint8_t)~bit;
             smc.fx_down &= (uint8_t)~bit;
