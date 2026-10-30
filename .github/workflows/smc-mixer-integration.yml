@@ -1,0 +1,41 @@
+name: SMC mixer integration validation
+on:
+  push:
+    branches:
+      - wip/smc-mixer-integration
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  focused:
+    name: SMC integration host tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare host test dependencies
+        run: |
+          python3 -m pip install --user Pillow
+      - name: Execute production SMC regression tests
+        shell: bash
+        run: |
+          set -o pipefail
+          X0X_TEST_JOBS=1 sh tests/run_tests.sh \
+            smc-mixer-edges smc-action-source smc-fx-caption \
+            smc-buttons smc-solo-overflow smc-ui smc-mixer-page \
+            smc-lock smc-pause-loss smc-multi-peer smc-select-mode \
+            smc-drum-rs smc-drum-mutes smc-feedback smc-filter \
+            smc-reachability smc-pickup-acceptance \
+            2>&1 | tee smc-integration-host.log
+      - name: Preserve logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smc-integration-host-logs
+          path: |
+            smc-integration-host.log
+            build/host/smc-*.log
+          if-no-files-found: warn
