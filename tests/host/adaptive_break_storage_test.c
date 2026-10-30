@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Actual object/LZ/project code. Synthetic project only; no hardware. */
+#define BREAK_PROJECT_FIXTURE 1
 #define main project_stage_fixture_main
 #include "project_stage_test.c"
 #undef main
@@ -20,10 +21,16 @@ static void legacy_header(uint8_t *header,unsigned mode,unsigned stream) {
 int main(void) {
  uint8_t h[32];
  fresh_counts();
+#if X0X_ORIGINAL_SYNTH
+ CHECK(PROJ_STREAM == 13); CHECK(PROJ_SND_REV == 13);
+ CHECK(stream_known(13));
+ for(unsigned stream=1;stream<13;stream++) CHECK(!stream_known(stream));
+#else
  CHECK(stream_known(6)); CHECK(stream_known(8));
  CHECK(stream_known(7)==!!X0X_BASS_NOTE_SOUND);
  CHECK(stream_known(9)==!!X0X_BASS_NOTE_SOUND);
  CHECK(!stream_known(4) && !stream_known(5) && !stream_known(10));
+#endif
  for(unsigned code=0;code<16;code++) {
   proj.pat[0].brk.slice_mode=(uint8_t)code;proj.pat[0].brk.rsv=0xA5;
   for(unsigned s=0;s<16;s++)proj.pat[0].brk.slice[s]=(uint8_t)(s+17);
@@ -35,6 +42,7 @@ int main(void) {
   project_file_header(h);CHECK(get32(h+20)==PROJ_STREAM);CHECK(project_file_validate(h)==0);
  }
  fresh_counts();
+#if !X0X_ORIGINAL_SYNTH
  for(unsigned stream=6;stream<=(X0X_BASS_NOTE_SOUND ? 7u : 6u);stream++)
  for(unsigned mode=0;mode<=1;mode++) {
   legacy_header(h,mode,stream);project_t original=project_stage;
@@ -66,6 +74,11 @@ int main(void) {
  }
  snapshot();CHECK(project_load_stage()==0);check_live_unchanged();
  CHECK(project_stage.pat[0].brk.slice_mode==0);CHECK(project_stage.pat[0].brk.rsv==0xB7);
+#endif
+ project_stage=proj;project_stage.pat[0].brk.slice_mode=16;project_file_header(h);
+ CHECK(project_file_validate(h)==-9);
+ project_stage=proj;project_stage.pat[0].brk.slice[0]=33;project_file_header(h);
+ CHECK(project_file_validate(h)==-9);
  check_protected_flash();
  printf("adaptive_break_storage: %u checks, %u failures\n",checks,failures);
  return failures!=0;

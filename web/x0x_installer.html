@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
-     X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
+     DnBOX installer for FM-1 and SMK-37 family release packages: pick any published version and
      model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
      saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
      x0x_breaks.js and boot_screen.js at LIB and the release catalog at CATALOG.
@@ -206,10 +206,10 @@
     <h2 data-t="booth">Boot screen</h2>
     <p class="small" data-t="bootwhy"></p>
     <label class="field" for="boottitle"><span data-t="boottitle"></span>
-      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="X0X">
+      <input id="boottitle" type="text" maxlength="12" spellcheck="false" autocomplete="off" value="DnBOX">
     </label>
     <label class="field" for="bootsub"><span data-t="bootsub"></span>
-      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 303 303 BREAK">
+      <input id="bootsub" type="text" maxlength="21" spellcheck="false" autocomplete="off" value="909 808 CHICAGO MIAMI">
     </label>
     <label class="field" for="bootfile"><span data-t="bootpic"></span>
       <input id="bootfile" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,.png,.jpg,.jpeg,.gif,.webp,.bmp">
@@ -233,7 +233,7 @@
     <p class="small" data-t="projectwork">Export a portable project with all original samples. This build uses revision 13; earlier engine projects require their original firmware. No migration is performed.</p>
     <iframe class="workspace-frame" id="projectsframe" title="Project workspace" data-title="projectworktitle" data-src="../projects/"></iframe>
   </section>
-  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
+  <p class="small">DnBOX is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
     with the 909 from 9W9 and ER-99, the 808 from 8W8, Chicago and Miami, TB-3PO, and BB Gen's break generator.<br>
     <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
 </main>
@@ -266,7 +266,7 @@ const TEXT = {
     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
     breaks: "サンプル・インポーター：自分のブレイク・ループ",
     breakshint: "インポーター画面で、オプションのオールドスクール・グリット（軽い〜最大）と送信前プレビュー。",
-    untested: "X0X はベータ版です。",
+    untested: "DnBOX はベータ版です。",
     direct: "USB ケーブルはパソコンに直接つないでください。",
     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
     bricklink: "起動しない FM-1 の復旧（マニュアル）",
@@ -323,7 +323,7 @@ const TEXT = {
     slotsdone: "完了。スロットを書き戻して確認しました。",
     slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
-    slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
+    slotstock: "完了。純正ファームウェアには DnBOX のスロットがありません。サンプルは次のファイルにあります（DnBOX を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
     slotlayout: "既存のサンプルスロット情報を確認できません。ファームウェアは書き込まれていません。接続し直し、バックアップを確認してから再試行してください。",
@@ -358,7 +358,7 @@ const TEXT = {
     bootshort: "2行とも入力するか、「元の文言」を選んでください。起動画面は変えていません。",
     bootchars: "文字・数字・記号だけ使えます。起動画面は変えていません。",
     bootbusyinstall: "インストールが終わるまで待ってください。起動画面は変えていません。",
-    bootrun: "X0Xが起動している必要があります（更新ローダーではだめです）。起動画面は変えていません。",
+    bootrun: "DnBOXが起動している必要があります（更新ローダーではだめです）。起動画面は変えていません。",
     bootrefuse: "キーボードがこの起動画面を拒否しました。前の画面のままです。",
     bootnoflash: "キーボードに保存先がありません。前の起動画面のままです。",
     bootflash: "キーボードは保存できませんでした。前の起動画面のままです。",
@@ -394,7 +394,7 @@ const TEXT = {
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
     breaks: "Sample importer: your own break loops",
     breakshint: "Optional oldschool grit (light to max) and preview before you send — on the importer page.",
-    untested: "X0X is a beta.",
+    untested: "DnBOX is a beta.",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
     bricklink: "recovering an FM-1 that won't start (manual)",
@@ -451,12 +451,12 @@ const TEXT = {
     slotsdone: "Done. The slots were written back and checked.",
     slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
     slotskip: " Not written back (no room): ",
-    slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
+    slotstock: "Done. The stock firmware has no DnBOX slots. Your samples are in this file (after you install DnBOX again, restore it with Restore on the break loops page): ",
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
     slotlayout: "Cannot verify existing sample-slot information. Nothing was installed. Reconnect, check your backup and retry before flashing.",
     license: "GPL-3.0, no warranty. Source:",
-    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, X0X installs without Bluetooth.",
+    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, DnBOX installs without Bluetooth.",
     ctlchoose: "Controller image (.img):", ctlclear: "Remove controller",
     ctlcleared: "Controller image removed.",
     ctlunapproved: "SHA-256 does not match the approved controller for this model. Select its matching ctl.img or remove the controller to install without Bluetooth.",
@@ -486,7 +486,7 @@ const TEXT = {
     bootshort: "Type both lines, or choose Original words. The boot screen was not changed.",
     bootchars: "Use letters, numbers, and symbols only. The boot screen was not changed.",
     bootbusyinstall: "Wait until the install finishes. The boot screen was not changed.",
-    bootrun: "X0X has to be running, not the update loader. The boot screen was not changed.",
+    bootrun: "DnBOX has to be running, not the update loader. The boot screen was not changed.",
     bootrefuse: "The keyboard refused this boot screen. The previous one is still there.",
     bootnoflash: "The keyboard has no storage for this. The previous boot screen is still there.",
     bootflash: "The keyboard could not store this. The previous boot screen is still there.",
@@ -934,7 +934,7 @@ async function loadSelectedPackage() {
     // already checked against the immutable package digest and model identity.
     verifiedDownload = { pkg, model, version: ver.version,
       href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
-    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
+    say(`DnBOX ${ver.version} · ${MODELS[model] || model}`);
     $("go").disabled = writing || ctlNeedsResolution ||
       !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
     refreshMeta();
@@ -1047,7 +1047,7 @@ async function acceptStock(raw, requestId) {
     const hex = await sha256Hex(raw);
     if (requestId !== stockLoadSerial || writing) return;
     const isFm1Stock = hex === STOCK_SHA256_FM1;
-    // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
+    // Accept SMK/FM-1 family packages (stock, DnBOX, Felucca, other ports). Refuse unrelated files.
     if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
       sayK("stockbad"); return;
     }
@@ -1437,8 +1437,8 @@ $("bootfactory").addEventListener("click", () => {
   withDeviceOperation(() => withRunningX0x(async (link) => {
     const r = await bootTransfer(link, packed.bytes);
     if (r.ok) {
-      $("boottitle").value = "X0X";
-      $("bootsub").value = "909 808 303 303 BREAK";
+      $("boottitle").value = "DnBOX";
+      $("bootsub").value = "909 808 CHICAGO MIAMI";
       bootBits = null;
       $("bootfile").value = "";
       drawBootPreview(null);

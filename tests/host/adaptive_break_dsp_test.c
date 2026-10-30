@@ -50,8 +50,8 @@ int main(void)
         render(&b,256);breaks_flush(&b);
         // Macro bits are independent of highest slice bit.
         breaks_slice_on(&b,31);breaks_live(&b,8,1);breaks_live(&b,9,1);breaks_live(&b,10,1);render(&b,2);
-        CHECK(b.perf.reverse && b.perf.half && b.perf.stutter);CHECK(b.slices==(1u<<31));
-        breaks_slice_hold(&b,31,0);render(&b,2);CHECK(b.perf.reverse && b.perf.half && b.perf.stutter);
+        CHECK(b.perf.reverse && b.perf.jungle && b.perf.stutter);CHECK(b.slices==(1u<<31));
+        breaks_slice_hold(&b,31,0);render(&b,2);CHECK(b.perf.reverse && b.perf.jungle && b.perf.stutter);
     }
     {breaks_t b;breaks_init(&b);b.accepted=accepted;brk_loop_t a={data,8193,22050,1,4},z={other,8193,22050,1,32};
      breaks_set_loop(&b,0,&a);breaks_set_loop(&b,1,&z);breaks_set(&b,BRK_COMPLEX,100);breaks_set(&b,BRK_ROLL,100);

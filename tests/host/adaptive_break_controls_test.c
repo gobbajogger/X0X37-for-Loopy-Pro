@@ -49,6 +49,10 @@ void smc_ui_clip_show(int n, const char *name, const char *value)
 { (void)n; (void)name; (void)value; }
 #endif
 
+/* Compile the real native wheel function, substituting only ADC readings. */
+static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
+static int clamp(int value,int lo,int hi) { return value < lo ? lo : value > hi ? hi : value; }
+#include "break_smk_wheels.inc"
 #include "adaptive_native_brk_service.h"
 static unsigned checks, fails;
 #define CHECK(c) do {checks++;if(!(c)){fails++;fprintf(stderr,"FAIL %d: %s\n",__LINE__,#c);}}while(0)
@@ -64,11 +68,12 @@ static void reset(void) {
     slot_nz[0]=1;slot_data[0][0]=synthetic;slot_n[0][0]=8193;slot_rate[0][0]=22050;
     engine_brk_loops();ui_brk_page_keys(0,1);ui_brk_page_keys(0,1);
 }
-static unsigned output_run(int stutter, int core2)
+static unsigned output_run(int stutter, int core2, int jungle)
 {
     reset();plat_cpu2_set(core2);midi_pulse_crosscore=0;count_set(32,0);seq.mute=~(1u<<MUTE_BRK);seq.send_notes=1;
     proj.pat[0].brk.steps=65535;proj.pat[0].brk.set[BRK_COMPLEX]=0;proj.pat[0].brk.set[BRK_ALEN]=0;
     if(stutter) {engine_brk_live(10,1);audio();}
+    if(jungle) {engine_brk_live(9,1);audio();}
     midi_log=tmpfile();CHECK(midi_log!=0);unsigned before=note_ons;seq.req_start=1;
     for(int i=0;i<200;i++){if(core2==2 && i==10)cpu2_fail_once=1;audio();}
     unsigned hits=note_ons-before;CHECK(hits>0);
@@ -146,7 +151,7 @@ int main(void)
     count_set(8,0);count_set(32,1);ui.brk_count_target=1;ui.brk_page=0;ui.msg_until=0;ui_frame();png_write("build/host/adaptive-A8-B32-editB.png");
     count_set(32,0);count_set(4,1);ui.brk_count_target=1;ui.brk_page=3;ui.msg_until=0;ui_frame();png_write("build/host/adaptive-A32-B4-editB.png");
     key_event(black(2),1);audio();int sl,bk,dv,running;engine_brk_state(&sl,&bk,&dv,&running);CHECK(!running&&sl==26&&bk==0);ui.msg_until=0;ui_frame();png_write("build/host/adaptive-stopped-live-A27.png");key_event(black(2),0);audio();CHECK(!engine_brk_held());
-    unsigned plain=output_run(0,0),remote=output_run(0,1),stutter=output_run(1,1);CHECK(plain==remote&&plain==stutter);unsigned fallback=output_run(0,2);CHECK(fallback>0&&fallback<=plain);
+    unsigned plain=output_run(0,0,0),remote=output_run(0,1,0),stutter=output_run(1,1,0);CHECK(plain==remote&&plain==stutter);CHECK(plain==output_run(0,1,1));unsigned fallback=output_run(0,2,0);CHECK(fallback>0&&fallback<=plain);
     // AS-001 native caller: no unrelated edit/pattern change after release.
     reset();count_set(32,0);key_event(black(0),1);audio();page(4);CHECK(engine_brk_count(0)==32);
     key_event(black(0),0);audio();project_busy=1;
@@ -154,5 +159,35 @@ int main(void)
     project_busy=0;for(int i=0;i<100;i++){ui_input_only();ui_frame();audio();native_break_service();}
     CHECK(engine_brk_count(0)==16);CHECK(!engine_brk_held());
     composed_geometry();
+    reset();
+    any_button=1;const char *a,*b,*c;footer_text(&a,&b,&c);CHECK(strstr(b,"JUNGLE")!=0);
+    CHECK(8+tw(&FONT_T,b)<236);ui_frame();png_write("build/host/break-jungle-hint.png");
+    uint8_t saved_pitch=proj.sound.v[T_BRK][0][1];
+    fm1_in.frames=400;fm1_in.wheel[0]=550;fm1_in.wheel[1]=615;smk_wheels();audio();
+    fm1_in.wheel[0]=630;smk_wheels();audio();CHECK(engine_brk_bend_value()==8191);
+    ui.part=PART_303A;smk_wheels();audio();CHECK(engine_brk_bend_value()==8191);
+    fm1_in.wheel[0]=470;smk_wheels();audio();CHECK(engine_brk_bend_value()==-8192);
+    // Parameter flood cannot drop the latest centre update.
+    for(int i=0;i<1000;i++)engine_set(T_BRK,0,1,i%25);
+    fm1_in.wheel[0]=550;smk_wheels();audio();CHECK(engine_brk_bend_value()==0);
+    CHECK(proj.sound.v[T_BRK][0][1]==saved_pitch);CHECK(PROJ_SND_REV==13);
+    // External pitch bend consumes only BREAK's channel. Link/channel lifecycle
+    // releases that source; another source cannot clear a physical gesture.
+    reset();
+    for(int src=0;src<3;src++) {
+        min_q[mi_w++%MQ]=14u|((unsigned)src<<4)|((0xe0u|seq.ch[TRK_BRK])<<8)|(127u<<16)|(127u<<24);audio();
+        CHECK(engine_brk_bend_value()==8191);
+        min_q[mi_w++%MQ]=PLAT_MIDI_LINK_END((src+1)%3);audio();CHECK(engine_brk_bend_value()==8191);
+        min_q[mi_w++%MQ]=PLAT_MIDI_LINK_END(src);audio();CHECK(engine_brk_bend_value()==0);
+    }
+    min_q[mi_w++%MQ]=14u|((0xe0u|seq.ch[TRK_BRK])<<8);audio();CHECK(engine_brk_bend_value()==-8192);
+    seq.ch[TRK_BRK]=(seq.ch[TRK_BRK]+1)&15;audio();CHECK(engine_brk_bend_value()==0);
+    engine_brk_bend(4096);audio();
+    min_q[mi_w++%MQ]=14u|((0xe0u|seq.ch[TRK_BRK])<<8);audio();CHECK(engine_brk_bend_value()==4096);
+    min_q[mi_w++%MQ]=PLAT_MIDI_LINK_END(0);audio();CHECK(engine_brk_bend_value()==4096);
+    engine_brk_bend(0);audio();CHECK(engine_brk_bend_value()==0);
+    // Clip keyboard does not acquire a new BREAK wheel gesture.
+    reset();ui.part=PART_BRK;test_clip_mode=1;fm1_in.wheel[0]=630;smk_wheels();audio();
+    CHECK(engine_brk_bend_value()==0);fm1_in.wheel[0]=550;smk_wheels();audio();test_clip_mode=0;
     printf("adaptive controls: %u checks, %u failures\n",checks,fails);return fails?1:0;
 }
