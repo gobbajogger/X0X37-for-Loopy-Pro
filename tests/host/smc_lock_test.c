@@ -78,34 +78,46 @@ static void test_drum_lock(void)
         CHECK(smc.drum_solo[kit] == (1u << (bank * 8)));
         message(0x80, 8, 0); CHECK(!smc_project_active());
         message(0x80, 8, 0); CHECK(!smc_project_active());
-        ui_before = screen_state();
-        const int parked[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
-        for (unsigned i = 0; i < sizeof parked / sizeof *parked; i++) {
-            message(0x90, parked[i], 127); navigation_unchanged(ui_before);
+        /* Rec, Select and navigation remain live while captured destinations stay fixed. */
+        const int live[] = {0, 24, 0x2E, 0x2F, 0x30, 0x31, 0x60, 0x61, 0x62, 0x63};
+        for (unsigned i = 0; i < sizeof live / sizeof *live; i++) {
+            message(0x90, live[i], 127); message(0x80, live[i], 0);
+            CHECK(smc.locked);
             CHECK(smc_same(f[0], smc_target(0)));
         }
         CHECK(smc_lock_toggle());
-        CHECK(smc_same(smc_target(0), smc_home_target(0)));
+        CHECK(!smc.locked);
     }
-    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, parked navigation");
+    puts("PASS lock drum identity: both kits/banks, empty strips, frozen edits/mute/Solo, live navigation");
 }
 static void test_engine_lock_and_clip(void)
 {
     setup(V_PART, PART_303A);
-    pref_t r = smc_knob_target(0);
-    pref_t other = PR(R_ENG, T_303, 1, r.c);
+    /* Capture the actual Cutoff identity regardless of SOUND page order;
+     * Engine selectors have a different range and cannot prove this edit. */
+    pref_t r = find_ref(T_303, 0, "Cutoff");
+    pref_t other = find_ref(T_303, 1, "Cutoff");
+    CHECK(r.kind == R_ENG && other.kind == R_ENG);
+    int cutoff_page = -1, cutoff_knob = -1;
+    for (int page = 0; page < pg.n; page++) for (int k = 0; k < 4; k++)
+        if (smc_same(pg.r[page][k], r)) { cutoff_page = page; cutoff_knob = k; }
+    CHECK(cutoff_page >= 0 && cutoff_knob >= 0);
+    *page_of(V_PART) = (uint8_t)cutoff_page; build_pages();
+    CHECK(smc_same(smc_knob_target(cutoff_knob), r));
+    CHECK(pref_desc(r)->max >= 85 && pref_desc(other)->max >= 85);
     pref_set(r, 40); pref_set(other, 85);
+    CHECK(pref_get(r) == 40 && pref_get(other) == 85);
     CHECK(smc_lock_toggle());
     navigate(V_PART, PART_303B);
     ui.sel[0] = 10; ui.sel[1] = 9; ui.pbank = ui.spage = 1;
     screen_state_t ui_before = screen_state();
-    knob(0, 1); CHECK(pref_get(r) > 40); CHECK(pref_get(other) == 85); unchanged(ui_before);
+    knob(cutoff_knob, 1); CHECK(pref_get(r) > 40); CHECK(pref_get(other) == 85); unchanged(ui_before);
     clip_grid_mode = 1; ck.pg = 1; clip_dirty = 1;
-    unsigned field = CK_PAGE_FIELDS[0][0]; fields[field] = 0;
-    int v = pref_get(r); knob(0, 1);
+    unsigned field = CK_PAGE_FIELDS[0][cutoff_knob]; fields[field] = 0;
+    int v = pref_get(r); knob(cutoff_knob, 1);
     CHECK(pref_get(r) > v); CHECK(fields[field] == 0);
     CHECK(smc_lock_toggle()); /* release always works, including from clip context */
-    knob(0, 1); CHECK(fields[field] == 1);
+    knob(cutoff_knob, 1); CHECK(fields[field] == 1);
     CHECK(!smc_lock_toggle()); /* no global clip-stage identity is guessed */
     clip_grid_mode = 0;
     puts("PASS engine/clip boundaries: original part target survives navigation; unlocked clip fields resume");
@@ -215,13 +227,15 @@ static void test_edges_and_global_scope(void)
     CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(1));
     CHECK(smc_same(frozen, smc_target(0)));
     CHECK(!smc_lock_button(0)); CHECK(!smc_lock_button(0));
-    CHECK(smc_lock_button(1)); CHECK(smc_same(smc_target(0), smc_home_target(0)));
+    CHECK(!smc_lock_button(1)); now_ms += 900; smc_poll();
+    CHECK(!smc.locked); CHECK(smc_same(smc_target(0), smc_home_target(0)));
     CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(0));
     CHECK(smc_lock_button(1)); /* lock HOME targets while UI is on a sound page */
     navigate(V_SEQ, PART_808);
     smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
     CHECK(smc_same(smc_target(0), smc_home_target(0)));
-    CHECK(smc_lock_button(1)); /* reconnect releases stale physical held edge */
+    CHECK(!smc_lock_button(1)); now_ms += 900; smc_poll(); /* reconnect rearms a new hold */
+    CHECK(!smc.locked);
     CHECK(smc_target(0).a == T_808);
 
     setup(V_SEQ, PART_909); seq.ppat[PART_909] = 1;
@@ -283,7 +297,7 @@ static void test_physical_pause_input_and_output(void)
     CHECK(smc.locked); CHECK(smc_same(r, smc_target(0))); CHECK(!seq.req_stop);
     message(0x90, 0x5D, 0); message(0x80, 0x5D, 0);
     CHECK(smc.locked && !smc.lock_down); CHECK(!smc_ui_active());
-    message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!seq.req_stop);
+    message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += 900; smc_poll(); CHECK(!smc.locked); CHECK(!seq.req_stop);
     message(0x80, 0x5D, 0); CHECK(!smc.locked);
 
     /* Unrelated controls and unselected DAW channels cannot capture a target. */
@@ -315,12 +329,12 @@ static void test_physical_pause_input_and_output(void)
     smc_ble_link(1); smc_poll(); CHECK(smc.locked);
     reset_output(); smc_frame(); CHECK(led_count == 43); CHECK(led_transport_count == 3);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!smc_ui_active());
+    message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += 900; smc_poll(); CHECK(!smc.locked); CHECK(!smc_ui_active());
     message(0x90, 0x5D, 0);
-    now_ms = 1024; smc_frame(); reset_output();
-    now_ms = 1536; smc_frame();
+    seq.ext_now = smc.beat_at + smc.beat_period / 2u; smc_frame(); reset_output();
+    seq.ext_now = smc.beat_at + smc.beat_period; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 127);
-    reset_output(); now_ms = 2048; smc_frame();
+    reset_output(); seq.ext_now += smc.beat_period / 2u; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 0);
     reset_output(); smc_frame(); CHECK(send_count == 0);
     puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
@@ -345,11 +359,14 @@ static void press(unsigned note)
 }
 static void test_select_and_play(void)
 {
+    setup(V_FX, PART_303A);
+    message(0x90, 27, 127); CHECK(smc.fx_down == (1u << SMCFX_303B));
+    message(0x80, 27, 0); CHECK(!smc.fx_down);
     for (int kit = 0; kit < NKIT; kit++) {
         setup(V_HOME, PART_303A);
         int rec = ui.rec;
-        press(24 + kit); CHECK(ui.part == PART_303A); CHECK(ui.view == V_HOME);
-        CHECK(smc_ui_active() && smc_ui.strip == kit);
+        press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
+        CHECK(!smc_ui_active() && !smc.fx_down);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
         CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
@@ -363,8 +380,10 @@ static void test_select_and_play(void)
         CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
-        screen_state_t before = screen_state();
-        press(24 + other); navigation_unchanged(before); CHECK(!smc_ui_active());
+        press(0); CHECK(ui.rec != rec); CHECK(ui.part == kit);
+        press(0); CHECK(ui.rec == rec);
+        press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit); CHECK(!smc_ui_active());
+        press(24 + other); CHECK(cur_page() == 0);
         CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
@@ -390,7 +409,7 @@ static void test_lost_edge_release(void)
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
         press(note); /* settle into ordinary selected/playing request state */
-        if (select) CHECK(ui.part == PART_303A); /* 909 SELECT is the momentary effect */
+        if (select) CHECK(ui.part == PART_909); /* ordinary SELECT outside FX chooses its source */
         else if (!pause) { seq.req_start = 0; seq.playing = 1; }
         message(0x90, note, 127); /* leave held */
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
@@ -405,7 +424,8 @@ static void test_lost_edge_release(void)
         }
         smc_poll();
         CHECK(pause ? smc.lock_down == 0 : select ? smc.select_down == 0 : smc.play_down == 0);
-        if (pause) { int locked = smc.locked; press(note); CHECK(smc.locked != locked); }
+        if (pause) { CHECK(smc.locked); message(0x90, note, 127);
+            now_ms += 900; smc_poll(); CHECK(!smc.locked); message(0x80, note, 0); }
         else if (select) { press(note); CHECK(cur_page() == 0); }
         else { seq.req_stop = 0; seq.playing = 1; press(note); CHECK(seq.req_stop); }
     }

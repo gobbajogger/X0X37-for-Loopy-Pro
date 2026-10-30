@@ -1,0 +1,14 @@
+# A release 1/15 into a tied step must show only its captured fraction.
+wait 300
+turn ALGO 4
+tap REC
+tap PLAY
+key w0 down
+wait 170
+key w0 up
+tap PLAY
+tap REC
+wait 1300
+shot fractional_tie.png
+expect gate0.1 1
+expect gate0.2 2

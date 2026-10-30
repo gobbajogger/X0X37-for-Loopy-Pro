@@ -15,14 +15,14 @@ tapkey b6
 tapkey w4
 tapkey w12
 # 303 A and B: TB-3PO lines
-turn ALGO 2
+turn ALGO 4
 tap ARP
 tap OCT+
-turn ALGO 1
+turn ALGO -1
 tap ARP
 tap OCT+
 # BREAK: every step on, loop A = AMEN (the bank's first), a little more roll
-turn ALGO 1
+turn ALGO -1
 expect part 4
 tap EDIT
 tapkey w0
@@ -47,12 +47,12 @@ shot 20_break_amen.png
 tap LFO
 tapkey b0
 turn K3 25
-tapkey b2
+tapkey b4
 turn K4 -10
 tapkey b3
 turn K4 30
 shot 21_sends_303.png
-tapkey b4
+tapkey b2
 turn K3 30
 shot 22_sends_break.png
 # the delay's TAPE (FX, the DELAY page, knob 4): tape already (the factory's), a touch more worn

@@ -291,6 +291,7 @@ __attribute__((noinline)) static float dl_tap(const int16_t *buf, int32_t len, f
  * line holds both, so PING needs twice the time to fit (a 2 s line: 1 s); past that it plays centred. */
 static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int n)
 {
+    f->dl_signal = 0;
     const float target = f->dl_time_ms * 0.001f * D9_SR;
     const int32_t len = f->dlen;
     const int tape = f->dl_type == 1;
@@ -325,6 +326,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     const int ping = out_r && f->dl_ping && 2.0f * fm_maxf(f->dcur, target) + 4.0f < flen;
     const float lvl = f->muted & 2u ? 0.0f : f->dl_level;
     int32_t quiet = f->dl_quiet;
+    unsigned signal = 0;
     int32_t w = f->w;
     float dcur = f->dcur, lp = f->lp;
 
@@ -363,6 +365,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
         }
         const float y = dl_tap(buf, len, flen, w, d);
         const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * d) : y;
+        signal |= in[i] != 0.0f || y != 0.0f || (out_r && y2 != 0.0f);
         lp += (y2 * fdbk - lp) * tc;
         if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
         float write = lp;
@@ -388,6 +391,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     f->dcur = dcur;
     f->lp = lp;
     f->dl_quiet = quiet;
+    f->dl_signal = (uint8_t)signal;
 }
 
 /* Soft-knee glue gain reduction — one body for mono + stereo (same pattern as

@@ -1,0 +1,113 @@
+{
+  "result": "DEV CHECKED",
+  "source_commit": "2ed626fcb0cb2c1ce1d7ff85ecfbe4e6acb6b1ca",
+  "source_tree": "78aeb867d2dc70fa670d4d63759ff163bd3d3059",
+  "production_blob": "36d8018012e0c38fd79a0bf0e333d33c1435fb60",
+  "scoped_linux_proof": {
+    "registered_selectors": [
+      "smc-select-mode",
+      "smc-filter",
+      "smc-reachability",
+      "smc-lock",
+      "smc-ui"
+    ],
+    "named_interaction_mutation": "select-led-fx-only PASS; prior8 targeted mutation closures unchanged",
+    "feedback": "1919 assertions PASS at final2ed; original1880/5FAIL preserved",
+    "scope_source": "5a7c1df58c0e09fa553a9ab3a750c2754208a29e",
+    "final_delta": "feedback test only; production source unchanged",
+    "mapping": "function-closure-map.json",
+    "scope_receipt": "linux-scope/receipt.json",
+    "feedback_receipt": "linux-feedback/receipt.json",
+    "verifier": "verify_led_scope.py"
+  },
+  "models": {
+    "elite": {
+      "record": "qualified-elite/record.json",
+      "record_sha256": "63279388c4d8834d0793892f0e3df8552628e27133a68b3039db30093eb132d6",
+      "budgets": {
+        "code_free": 230508,
+        "ram_free": 352,
+        "pool_free": 21092
+      },
+      "product": "SMK-37 Elite_900",
+      "display_label": "X0X37 Unversioned legacy DEV \u00b7 SMK-37 Elite \u00b7 DEV \u00b7 DEVICE NOT TESTED",
+      "validation_inputs_sha256": "84826ddc414f460d878de91a758c6f5776c527f5464bf02766fb438657b72f46",
+      "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "artifacts": {
+        "package": {
+          "file": "x0x-smk37-elite.fwsc",
+          "sha256": "e6609a4c16064630a0ca3b31dc5d776bea440e398440ff96c36b7561bbe3609f",
+          "bytes": 651455,
+          "whole_file_crc32": "e58c7dba"
+        },
+        "controller": {
+          "file": "ctl.img",
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "bytes": 65492,
+          "whole_file_crc32": "9c07ae67",
+          "controller_header_crc32": "77b7a496",
+          "maintained_header_ABI_bounds_CRC_check": "PASS"
+        },
+        "app": {
+          "file": "app-from-package.bin",
+          "bytes": 322164,
+          "sha256": "ccda2659c9d0d39b1a91e2a8b5f36ad2abc094accd5c4277fe8874d92eec63de",
+          "whole_file_crc32": "51c0becd"
+        },
+        "loader": {
+          "bytes": 7339,
+          "sha256": "f72f60d1e48f09781e7d73e6e1cbe1f916aec1f0f0297f0190b88d1d9c0db5cc",
+          "whole_file_crc32": "d1b84637"
+        }
+      },
+      "controller_unchanged_from_prior_qualified_closure": true
+    },
+    "pro": {
+      "record": "qualified-pro/record.json",
+      "record_sha256": "a28a31efd904715345a8ab1b137f4957aa301d9ff657639c5a449fd42993d8bd",
+      "budgets": {
+        "code_free": 230524,
+        "ram_free": 352,
+        "pool_free": 21092
+      },
+      "product": "SMK-37 Pro_900",
+      "display_label": "X0X37 Unversioned legacy DEV \u00b7 SMK-37 Pro \u00b7 DEV \u00b7 DEVICE NOT TESTED",
+      "validation_inputs_sha256": "91f891798be43e09937a3f1e67d90d9e5e8974737352b5ee49d89c3bb89e8991",
+      "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "artifacts": {
+        "package": {
+          "file": "x0x-smk37.fwsc",
+          "sha256": "4a8720077c96e118586cdaaf44277291fd7b40ed10beff2e219af64e89cc8ae4",
+          "bytes": 651455,
+          "whole_file_crc32": "8529c00d"
+        },
+        "controller": {
+          "file": "ctl.img",
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "bytes": 65492,
+          "whole_file_crc32": "9c07ae67",
+          "controller_header_crc32": "77b7a496",
+          "maintained_header_ABI_bounds_CRC_check": "PASS"
+        },
+        "app": {
+          "file": "app-from-package.bin",
+          "bytes": 322148,
+          "sha256": "9486f623406e3d35e1282280b06694ce6ab9d3447dc6e62afc88f51be9ac2239",
+          "whole_file_crc32": "0e0b4f91"
+        },
+        "loader": {
+          "bytes": 7339,
+          "sha256": "cbcc1dd80e1d665fe1a75e93f6139a378d69970b3902bcfeadd9439d3649fb04",
+          "whole_file_crc32": "62d49a0b"
+        }
+      },
+      "controller_unchanged_from_prior_qualified_closure": true
+    }
+  },
+  "limits": [
+    "Unversioned legacy DEV; no numeric allocation",
+    "DEVICE NOT TESTED; no physical LED proof",
+    "No flash, GUI, source edits/commits, merge or publication by executor",
+    "SMC branch qualification only; separate bass/legacy compatibility integration not covered"
+  ]
+}

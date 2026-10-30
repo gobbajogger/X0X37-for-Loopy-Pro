@@ -6,19 +6,28 @@
  * INFO (1), PING (25) and the sample-slot commands SMP_BEGIN .. SMP_INFO (11..15), so
  * tools/fm1_sample_upload.py loads break loops into the user slots unchanged. The
  * parameter / preset / track commands are Felucca's instrument and are not answered. */
+#ifndef ED_MAINTENANCE_ADMIT
+#define ED_MAINTENANCE_ADMIT() 1
+#endif
+#ifndef ED_MAINTENANCE_HELD
+#define ED_MAINTENANCE_HELD() 0
+#endif
+
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
        ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_BOOT_INFO = 39,
-       ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT };
+       ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT,
+       ED_INSTALL = 48 };
 #include "boot_screen.h"
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
  * count, fm1_ms now, then 2 words for each entry (the oldest first), each word 5 x 7 bits, low bits
  * first. Then the 40 stored clip velocities and the 40 stored clip channels (one byte each).
  * Arg 1: 1, padled_dirty, then 16 GRB words of padled_rgb (the colour to send) and 16 GRB words of the
- * last frame sent to the pads (padled_buf), each word 4 x 7 bits, low bits first. */
+ * last frame sent to the pads (padled_buf), each word 4 x 7 bits, low bits first.
+ * Arg 6: versioned read-only pad sensor snapshot, or BUSY; see web/EDITOR_PROTOCOL.md. */
 static void smk_inlog_reply(uint32_t arg);   /* main_fm1.c */
 #endif
 /* ED_CTL_READ (SMK-37 with Bluetooth, for tools/fm1_install.py; read only): the Bluetooth block
@@ -56,10 +65,33 @@ static void ed_str(const char *s, uint32_t max)
         ed_b((uint8_t)s[i] & 0x7Fu);
     ed_b(0);
 }
-static void ed_send(void)
+static int ed_send(void)
 {
     ed_out[ed_n++] = 0xF7;
-    ota_wire_send(ed_out, ed_n);
+    return ota_wire_send(ed_out, ed_n);
+}
+
+/* EC-026: a volatile mutation watch, not a lock or authentication mechanism.
+ * No project/OTA scratch is retained. A START retry cannot clear dirty state.
+ * The per-boot ticket defeats A -> B -> delayed A / old COMMIT interleaving.
+ * Full hostile START+COMMIT replay across reboot is not authenticated here. */
+#define ED_INSTALL_TOKEN 16u
+#define ED_INSTALL_TICKET_MAX 0x0FFFFFFFu
+static struct {
+    uint32_t serial, ticket;
+    uint8_t token[ED_INSTALL_TOKEN], state; /* 0 none, 1 watching, 2 dirty, 3 consumed */
+} ed_install;
+static uint8_t ed_install_pending; /* 1 authorize, 2 discard legacy requests after failed COMMIT */
+static void ed_install_dirty(void)
+{
+    if (ed_install.state == 1u)
+        ed_install.state = 2u;
+}
+static void ed_install_forget(void)
+{
+    if (ed_install.state)
+        ed_install.state = 3u;
+    ed_install_pending = 0;
 }
 
 static uint32_t ed_unpack7(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t max)
@@ -123,9 +155,18 @@ static uint32_t ed_unpack_exact(const uint8_t *a, uint32_t na, uint8_t *out, uin
  * A browser restores sample slots only while mode 2 holds this lock, after VALIDATE. */
 static struct {
     uint32_t at, next;
+#if X0X_BASS_TAGGED_SOUND
+    uint32_t size;
+    uint8_t legacy_prepared;
+#endif
     uint32_t sample_len[SMP_USER_SLOTS], sample_crc[SMP_USER_SLOTS];
     uint8_t mode, valid, changed, recovery, header[PROJECT_FILE_HDR];
 } ed_project;
+#if X0X_BASS_TAGGED_SOUND
+#define ED_PROJECT_SIZE ed_project.size
+#else
+#define ED_PROJECT_SIZE PROJECT_FILE_SIZE
+#endif
 
 static uint32_t ed_project_sample_len(uint32_t k)
 {
@@ -183,7 +224,7 @@ static int ed_project_end(int apply)
 }
 static uint32_t ed_project_rc(int rc)
 {
-    return rc == 0 ? 0u : rc == UI_PROJECT_BUSY ? 2u : rc == -4 ? 4u : rc == -7 ? 6u : 5u;
+    return rc == 0 ? 0u : rc == UI_PROJECT_BUSY ? 2u : rc == -4 ? 4u : rc == -7 ? 6u : rc == -10 ? 9u : 5u;
 }
 static void ed_project_handle(const uint8_t *a, uint32_t na)
 {
@@ -197,15 +238,24 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
     switch (op) {
     case 64:                                        /* QUERY / keepalive */
         if (na) { rc = 1; break; }
-        ed_b(0); ed_b(1); ed_w21(PROJECT_FILE_SIZE); ed_b(ed_project.recovery ? 3 : ed_project.mode);
+        ed_b(0); ed_b(X0X_BASS_TAGGED_SOUND?2:1); ed_w21(PROJECT_FILE_SIZE); ed_b(ed_project.recovery ? 3 : ed_project.mode);
         return;
     case 65:                                        /* EXPORT BEGIN */
     case 67:                                        /* IMPORT BEGIN */
 #if X0X_ORIGINAL_SYNTH
         if (op == 65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
             engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) { rc=2; break; }
+#elif X0X_BASS_TAGGED_SOUND
+        if(op==65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
+           engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) {rc=2;break;}
+#elif X0X_BASS_PRESET_PREVIEW
+        if(op==65 && engine_bass_preview_changed()) { rc=2; break; }
 #endif
-        if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
+        if ((op == 65 && na) || (op == 67 && (na != 3 || (ed_u21(a) != PROJECT_FILE_SIZE
+#if X0X_BASS_TAGGED_SOUND
+            && ed_u21(a)!=PROJECT_LEGACY_FILE_SIZE
+#endif
+            )))) {
             rc = 1; break;
         }
         if (op == 67 && ed_project.recovery) {
@@ -216,6 +266,10 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
             if (op == 67)
                 ed_project_sample_snapshot();
         }
+#if X0X_BASS_TAGGED_SOUND
+        ed_project.size=op==65?PROJECT_FILE_SIZE:ed_u21(a);
+        ed_project.legacy_prepared=0;
+#endif
         ed_project.mode = (uint8_t)(op == 65 ? 1 : 2);
         ed_project.at = fm1_ms;
         ed_project.next = 0;
@@ -231,7 +285,7 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         if (ed_project.mode != 1) { rc = 2; break; }
         if (na != 5) { rc = 1; break; }
         off = ed_u21(a); n = (uint32_t)a[3] | (uint32_t)a[4] << 7;
-        if (!n || n > ED_READ_MAX || off > PROJECT_FILE_SIZE || n > PROJECT_FILE_SIZE - off) {
+        if (!n || n > ED_READ_MAX || off > ED_PROJECT_SIZE || n > ED_PROJECT_SIZE - off) {
             rc = 1; break;
         }
         for (i = 0; i < n; i++)
@@ -240,10 +294,13 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         return;
     case 68:                                        /* sequential WRITE, exact retries are idempotent */
         if (ed_project.mode != 2) { rc = 2; break; }
+#if X0X_BASS_TAGGED_SOUND
+        if(ed_project.legacy_prepared) {rc=2;break;} /* representation is now staged/quarantined */
+#endif
         if (na < 5) { rc = 1; break; }
         off = ed_u21(a);
         n = ed_unpack_exact(a + 3, na - 3, ed_smp_buf, ED_READ_MAX);
-        if (!n || off > PROJECT_FILE_SIZE || n > PROJECT_FILE_SIZE - off) { rc = 1; break; }
+        if (!n || off > ED_PROJECT_SIZE || n > ED_PROJECT_SIZE - off) { rc = 1; break; }
         if (off > ed_project.next || (off < ed_project.next && n > ed_project.next - off)) {
             rc = 3; break;
         }
@@ -264,12 +321,35 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         if (ed_project.mode != 2) { rc = 2; break; }
         if (op == 69 && (na != 2 || a[0] != 0x58 || a[1] != 0x30)) { rc = 8; break; }
         if (op == 74 && na) { rc = 1; break; }
-        if (ed_project.next != PROJECT_FILE_SIZE) { rc = 3; break; }
+        if (ed_project.next != ED_PROJECT_SIZE) { rc = 3; break; }
+#if X0X_BASS_TAGGED_SOUND
+        if(ed_project.legacy_prepared) {rc=9;break;}
+        if(ED_PROJECT_SIZE!=PROJECT_FILE_SIZE) {
+            int result=project_prepare_legacy_file(ed_project.header);
+            if(result==-10)ed_project.legacy_prepared=1;
+            rc=ed_project_rc(result);break;
+        }
+#endif
         rc = ed_project_rc(project_file_validate(ed_project.header));
         ed_project.valid = rc == 0;
+        /* Validation may migrate a legacy BREAK mode byte. Canonicalize the
+         * header so a later VALIDATE/COMMIT checks the migrated bytes' CRC. */
+        if (!rc) project_file_header(ed_project.header);
         if (!rc && op == 69)
             ed_project_end(1);
         break;
+#if X0X_BASS_TAGGED_SOUND
+    case 75: /* Explicit legacy identity adoption: bankA,bankB,0x58,0x30; COMMIT remains separate. */
+        if(ed_project.mode!=2 || !ed_project.legacy_prepared) {rc=2;break;}
+        if(na!=4 || a[2]!=0x58 || a[3]!=0x30) {rc=8;break;}
+        rc=ed_project_rc(project_adopt_legacy_stage(a[0],a[1]));
+        if(!rc) {
+            ed_project.legacy_prepared=0;ed_project.size=PROJECT_FILE_SIZE;
+            ed_project.next=PROJECT_FILE_SIZE;ed_project.valid=1;
+            project_file_header(ed_project.header);
+        }
+        break;
+#endif
     case 70:                                        /* ABORT, including an already expired session */
         if (na) { rc = 1; break; }
         rc = (uint32_t)ed_project_end(0);
@@ -707,13 +787,90 @@ static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
     ed_b(BOOT_BAD);
 }
 
+static int ed_install_busy(void)
+{
+    uint32_t k;
+    if (!flash_ok || ed_project.mode || ui_project_busy() || bst.armed ||
+        store_stage_held() || ed_reboot_at || usb.ota_req || usb.uboot_req)
+        return 1;
+    for (k = 0; k < SMP_USER_SLOTS; k++)
+        if (smp_importing[k] || smp_sec0_erased[k])
+            return 1;
+    return 0;
+}
+
+/* START=1 token[16]; CANCEL=2 / COMMIT=3 token[16], ticket[4 x 7 bits].
+ * Reply op, rc, token[16], ticket[4]; malformed envelopes reply only op, 1.
+ * rc: 0 ok, 1 format, 2 busy, 3 stale/consumed, 4 changed, 5 exhausted.
+ * Return true only for a consumed, valid COMMIT; caller must also enqueue its
+ * entire ACK successfully before publishing the main-loop request. */
+static int ed_install_handle(const uint8_t *a, uint32_t na)
+{
+    uint32_t op = na ? a[0] : 0, k, ticket = 0, rc = 0, any = 0;
+    int same, start = 0;
+    ed_b(op);
+    if ((op != 1u && op != 2u && op != 3u) ||
+        na != 1u + ED_INSTALL_TOKEN + (op == 1u ? 0u : 4u)) {
+        ed_b(1); return 0;
+    }
+    for (k = 1; k < na; k++) {
+        if (a[k] & 0x80u) { ed_b(1); return 0; }
+        if (k <= ED_INSTALL_TOKEN) any |= a[k];
+    }
+    if (!any) { ed_b(1); return 0; }
+    if (op != 1u)
+        for (k = 0; k < 4u; k++) ticket |= (uint32_t)a[1u + ED_INSTALL_TOKEN + k] << (7u * k);
+    same = ed_install.state && !memcmp(ed_install.token, a + 1, ED_INSTALL_TOKEN);
+    if (op == 1u) {
+        if (same) {
+            ticket = ed_install.ticket;
+            rc = ed_install.state == 2u ? 4u : ed_install.state == 3u ? 3u :
+                 ed_install_busy() ? 2u : 0u;
+        } else if (ed_install_busy()) rc = 2;
+        else if (ed_install.serial == ED_INSTALL_TICKET_MAX) rc = 5;
+        else {
+            memcpy(ed_install.token, a + 1, ED_INSTALL_TOKEN);
+            ticket = ed_install.ticket = ++ed_install.serial;
+            ed_install.state = 1;
+        }
+    } else if (!same || ticket != ed_install.ticket || ed_install.state == 3u) rc = 3;
+    else if (op == 2u) ed_install_forget();
+    else if (ed_install.state == 2u) { rc = 4; ed_install_forget(); }
+    else if (ed_install_busy()) { rc = 2; ed_install_forget(); }
+    else {
+        ed_install_forget();                         /* consume even if ACK enqueue fails */
+        start = 1;
+    }
+    ed_b(rc);
+    for (k = 0; k < ED_INSTALL_TOKEN; k++) ed_b(a[k + 1u]);
+    for (k = 0; k < 4u; k++) ed_b(ticket >> (7u * k));
+    return start;
+}
+
 static void ed_handle(const uint8_t *f, uint32_t n)
 {
     uint32_t cmd = f[3], i;
     const uint8_t *a = f + 4;
     uint32_t na = n - 4u;
+    if (!ED_MAINTENANCE_ADMIT())
+        return; /* no synthetic success/busy payload in an unrelated command format */
     ed_begin(cmd);
+    /* Before validation: BEGIN and even failed END may restore a shadow. This
+     * also covers empty-slot writes and malformed mutation attempts. Startup
+     * recovery runs before any watch can exist. No other runtime path writes
+     * user-slot bytes. A read or INFO must never reset this state. */
+    if (cmd >= ED_SMP_BEGIN && cmd <= ED_SMP_ERASE)
+        ed_install_dirty();
     switch (cmd) {
+    case ED_INSTALL: {
+        int start = ed_install_handle(a, na);
+        int sent = ed_send();
+        if (na && a[0] == 3u)
+            ed_install_pending = sent == 0 && start ? 1u : 2u;
+        /* Even a refused/uncertain COMMIT cannot inherit a legacy IRQ request
+         * that arrived while the response was being queued. */
+        return;
+    }
     case ED_PROJECT:
         ed_project_handle(a, na);
         break;
@@ -725,6 +882,8 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(NSTEPS);
         ed_b(0);
         ed_b(0);
+        ed_b(0x58); ed_b(0x53); ed_b(0x47);           /* XSG: atomic sample snapshot admission */
+        ed_b(1); ed_b(ED_INSTALL);
         break;
     case ED_PING:
         ed_b(0);
@@ -946,6 +1105,16 @@ static int ed_service(void)
 {
     const uint8_t *p;
     uint32_t n;
+    if (ED_MAINTENANCE_HELD()) {
+        /* No project timeout, boot housekeeping or editor dispatch while held.
+         * Future capture transport must have its own qualified dispatcher; all
+         * currently supported frames are refused, never replayed on release. */
+        if (ota_frame_get(&p, &n)) {
+            (void)ED_MAINTENANCE_ADMIT();
+            ota_frame_done();
+        }
+        return 0;
+    }
     if (ed_project.mode && !ed_project.recovery && fm1_ms - ed_project.at >= 15000u)
         ed_project_end(0);
     boot_housekeep();

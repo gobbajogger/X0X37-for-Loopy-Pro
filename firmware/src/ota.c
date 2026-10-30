@@ -54,6 +54,10 @@ static int ota_fread(uint32_t off, void *p, uint32_t n);
 static void ota_show(uint32_t step, int32_t code);
 static void ota_commit(const uint8_t *parm);
 
+#ifndef OTA_MAINTENANCE_ADMIT
+#define OTA_MAINTENANCE_ADMIT() 1
+#endif
+
 static uint32_t ota_rd16(const uint8_t *p) { return (uint32_t)p[0] | (uint32_t)p[1] << 8; }
 static uint32_t ota_rd24(const uint8_t *p) { return ota_rd16(p) | (uint32_t)p[2] << 16; }
 static uint32_t ota_rd32(const uint8_t *p) { return ota_rd24(p) | (uint32_t)p[3] << 24; }
@@ -174,7 +178,12 @@ static uint32_t ota_take(void)
 /* main loop, outside a session: answer handshakes */
 static void ota_service(void)
 {
-    uint32_t d = ota_take();
+    uint32_t d;
+    if (!OTA_MAINTENANCE_ADMIT()) {
+        ota_frame_done();  /* discard, do not queue a handshake across release */
+        return;
+    }
+    d = ota_take();
     if (d == 7u && ota_dec[2] == 0x11)
         ota_reply_identity();
 }
@@ -367,6 +376,8 @@ static int ota_session(void)
     uint8_t back[112];
     uint32_t i;
     int rc;
+    if (!OTA_MAINTENANCE_ADMIT())
+        return -20; /* before staging, cleanup, UI feedback or reset */
     ota_deadline = ota_now_ms() + 120000u;          /* step 1 normally takes ~5 s; a stalled host gives up after 2 min */
     rc = ota_stage();
     if (rc) {

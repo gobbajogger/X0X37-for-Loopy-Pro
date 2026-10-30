@@ -18,6 +18,12 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
     if (msg[0] == 0x90) wire_led[msg[1]] = msg[2];
     return 1;
 }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_MIXER_SOURCE
 #define SMC_MIXER_SOURCE "app/smc_mixer.c"
 #endif
@@ -39,10 +45,11 @@ static void panel_button(int button)
     panel_input();
 }
 
+static const int display_position[5] = {0,1,4,3,2};
 static void panel_select(int part)
 {
     for (int i = 0; ui.part != part && i < NPARTS; i++) {
-        enc_acc[EN_ALGO] = ui.part < part ? 1 : -1;
+        enc_acc[EN_ALGO] = display_position[ui.part] < display_position[part] ? 1 : -1;
         panel_input();
     }
     assert(ui.part == part);
@@ -61,7 +68,7 @@ static void smc_press(int note)
 static void record_feedback(const char *label)
 {
     unsigned actual = 0;
-    unsigned expected = ui.rec ? 1u << ui.part : 0;
+    unsigned expected = ui.rec ? 1u << display_position[ui.part] : 0;
     smc_frame();
     for (int part = 0; part < NPARTS; part++) {
         assert(wire_led[part] == 0 || wire_led[part] == 127);
@@ -77,7 +84,7 @@ static void record_feedback(const char *label)
 
 static void record_note(const char *label, int key)
 {
-    assert(ui.rec && is_303() && !seq.playing && ui.view == V_PART);
+    assert(ui.rec && is_303() && !seq.playing && ui.view == V_SEQ);
     int bass = bidx(), other = bass ^ 1;
     bpart_t *destination = &proj.pat[seq.ppat[ui.part]].bass[bass];
     bpart_t *untouched = &proj.pat[seq.ppat[PART_303A + other]].bass[other];
@@ -112,18 +119,22 @@ int main(void)
     /* Panel REC must report the real destination even before any SMC REC. */
     panel_button(B_EDIT);
     panel_select(PART_303A);
+    panel_button(B_SEQ); /* recording onsets belong to the visible SEQ page */
+    assert(ui.view == V_SEQ);
     panel_button(B_REC);
     record_note("panel REC on 303A", 0);
 
     /* SMC SELECT changes the actual recorder while REC remains enabled. */
-    smc_press(24 + PART_303B);
+    smc_press(24 + display_position[PART_303B]);
+    assert(ui.view == V_PART); /* SMC SELECT intentionally opens EDIT */
+    panel_button(B_SEQ);      /* return to SEQ to make a pattern write */
     record_note("SMC SELECT changes active recorder to 303B", 2);
     smc_press(0x5F);
     assert(!ui.rec);
     record_feedback("SMC global REC off");
 
     /* Conversely, panel selection must replace the target of SMC-started REC. */
-    smc_press(PART_303A);
+    smc_press(display_position[PART_303A]);
     record_note("SMC strip REC on 303A", 4);
     panel_select(PART_303B);
     record_note("panel selection changes active recorder to 303B", 5);

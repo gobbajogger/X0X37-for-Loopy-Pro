@@ -74,17 +74,7 @@ int original_chicago_drive_wrapper_process(original_chicago_drive_wrapper *s,int
   }else if(s->selected)drive_invocation(s,wet_left+offset,wet_right+offset,chunk);
   offset+=chunk;
  }
- int32_t settled=asr15(s->wet_accumulator);
- if(settled==s->wet_target&&(settled==0||settled==32767)){
-  /* A settled weight does not change in this block. With a weight of 0 or
-   * 32767, one of the two products in mix() is product(x,0)==0, so only
-   * the other product is needed. The result is the same. */
-  const int16_t *src_l=settled?wet_left:left,*src_r=settled?wet_right:right;
-  for(uint32_t i=0;i<n;i++){
-   int32_t a=product(src_l[i],32767),b=product(src_r[i],32767);
-   left[i]=(int16_t)(a< -32767?-32767:a);right[i]=(int16_t)(b< -32767?-32767:b);
-  }
- }else for(uint32_t i=0;i<n;i++){
+ for(uint32_t i=0;i<n;i++){
   int32_t g=asr15(s->wet_accumulator);
   if(g!=s->wet_target){s->wet_accumulator=signed32((uint32_t)s->wet_accumulator+(uint32_t)(s->wet_target-g)*102u);g=asr15(s->wet_accumulator);}
   left[i]=mix(left[i],wet_left[i],g);right[i]=mix(right[i],wet_right[i],g);

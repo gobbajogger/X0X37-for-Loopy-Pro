@@ -1,0 +1,2 @@
+FAIL event=8 drain=1 offset=0 delivered=0 expected=1 hook=1
+Original strict-red exit: 1
