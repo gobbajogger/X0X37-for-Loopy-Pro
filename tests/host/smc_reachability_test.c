@@ -417,7 +417,7 @@ static void scenario(void) {
         smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {
             assert(smc_page_now()==p);
-            for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE) edit(r,n); }
+            for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE && !pref_read_only(r)) edit(r,n); } /* the 303 STATUS row is read-only */
             for(int n=4;n<8;n++) assert(smc_knob_target(n).kind==R_NONE ||
                 !smc_same(smc_knob_target(n),smc_target(n)));
             if(p+1<pg.n) press(0x63);
