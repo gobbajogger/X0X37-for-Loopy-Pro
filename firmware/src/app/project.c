@@ -37,6 +37,7 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
 static void arrange_defaults(project_t *pr);
 static int project_validate_for(const project_t *pr);
 static uint8_t project_incompatible; /* retain unsupported stored bytes until explicit staged adoption */
+static uint8_t device_bt_pending;       /* independent of UI dirty/autosave and project reset/load */
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
 /* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
@@ -47,24 +48,30 @@ static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
                      CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
 typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
 
+static void project_settings_defaults(settings_t *s, uint8_t device_bt)
+{
+    __builtin_memset(s, 0, sizeof *s);
+    s->magic = PROJ_MAGIC;
+    s->format = PROJ_FORMAT;
+    s->palette = 1;                /* amber */
+    s->keyled = 1;
+    s->keysound = 0;
+    s->autosave_off = 0;
+    s->clk_out = 1;
+    s->bt = (uint8_t)((device_bt & PROJ_DEVICE_BT) | PROJ_BT_CLK_IN);   /* CLOCK SOURCE AUTO */
+    s->notes_out = 0;
+    s->bpm_x10 = 1250;
+    s->accent_q7 = 88;
+    s->stereo = PROJ_STEREO;
+    s->snd_rev = PROJ_SND_REV;
+    __builtin_memcpy(&s->ck_ch, CK_DEF, sizeof CK_DEF);
+}
+
 static void project_defaults_for(project_t *pr, uint8_t device_bt)
 {
     int i;
     __builtin_memset(pr, 0, sizeof *pr);
-    pr->set.magic = PROJ_MAGIC;
-    pr->set.format = PROJ_FORMAT;
-    pr->set.palette = 1;                /* amber */
-    pr->set.keyled = 1;
-    pr->set.keysound = 0;
-    pr->set.autosave_off = 0;
-    pr->set.clk_out = 1;
-    pr->set.bt = (uint8_t)((device_bt & PROJ_DEVICE_BT) | PROJ_BT_CLK_IN);   /* CLOCK SOURCE AUTO */
-    pr->set.notes_out = 0;
-    pr->set.bpm_x10 = 1250;
-    pr->set.accent_q7 = 88;
-    pr->set.stereo = PROJ_STEREO;
-    pr->set.snd_rev = PROJ_SND_REV;
-    __builtin_memcpy(&pr->set.ck_ch, CK_DEF, sizeof CK_DEF);
+    project_settings_defaults(&pr->set, device_bt);
     engine_sound_defaults(&pr->sound);
     arrange_defaults(pr);
     /* the 303 lines start empty, like the drums: OCT+ on TB-3PO (or keyboard mode) writes one */
@@ -147,6 +154,43 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
     put32(io_buf, PROJ_FORMAT);
     __builtin_memcpy(io_buf + 4u, src, len);
     return save_buf(obj, len + 4u);
+}
+
+/* Device intent is live immediately. Persistence changes only bit 0 in the saved
+ * settings, preserving unsaved project edits and every other payload byte.
+ * The UI calls the flush only after holding the engine and admitting safe flash.
+ * (Restored from 0e58b960.) */
+void project_device_bt_set(int on)
+{
+    uint8_t next = (uint8_t)((proj.set.bt & ~1u) | (on ? 1u : 0u));
+    if (next != proj.set.bt) {
+        proj.set.bt = next;
+        device_bt_pending = 1;
+    }
+}
+int project_device_bt_pending(void) { return device_bt_pending; }
+int project_device_bt_save(void)
+{
+    int n, rc;
+    if (!device_bt_pending) return 0;
+    if (project_incompatible) return -9;
+    n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
+    if (n < 0) {
+        settings_t defaults;                /* no settings object yet: write the defaults with this bit */
+        project_settings_defaults(&defaults, proj.set.bt & 1u);
+        rc = save_obj(OBJ_SET, &defaults, sizeof defaults);
+    } else {
+        /* Do not normalize or migrate a payload as a side effect of a toggle:
+         * only the exact layout load_settings accepts is patched. */
+        if ((uint32_t)n != sizeof(settings_t) + 4u || get32(io_buf) != PROJ_FORMAT ||
+            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV)
+            return -9;
+        io_buf[4u + __builtin_offsetof(settings_t, bt)] =
+            (uint8_t)((io_buf[4u + __builtin_offsetof(settings_t, bt)] & ~1u) | (proj.set.bt & 1u));
+        rc = save_buf(OBJ_SET, (uint32_t)n);
+    }
+    if (!rc) device_bt_pending = 0;
+    return rc;
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
