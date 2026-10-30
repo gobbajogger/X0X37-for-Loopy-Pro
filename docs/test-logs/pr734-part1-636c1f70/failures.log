@@ -1,0 +1,531 @@
+PR734 Part1 exact source 636c1f7013a1cf02e34b8d23031086777d898e7b
+
+===== bass-prob-midi =====
+  FAIL bass-prob-midi (see build/host/bass-prob-midi.log)
+       tests/host/bass_probability_midi_test.c:44:83: error: missing field 'transport' initializer [-Werror,-Wmissing-field-initializers]
+          44 | static const seq_sink_t sink = {drum, bass_on, bass_off, brk, brk_stop, midi, 0, 0};
+             |                                                                                   ^
+       1 error generated.
+
+===== seq-tb3po-bars =====
+  FAIL seq-tb3po-bars (see build/host/seq-tb3po-bars.log)
+       tests/host/seq_tb3po_bar_test.c:19:89: error: missing field 'transport' initializer [-Werror,-Wmissing-field-initializers]
+          19 | static const seq_sink_t sink={on_drum,on_bass,off_bass,on_brk,off_brk,out_midi,on_step,0};
+             |                                                                                         ^
+       1 error generated.
+
+===== seq-random-swing =====
+  FAIL seq-random-swing (see build/host/seq-random-swing.log)
+       tests/host/seq_random_swing_test.c:17:77: error: missing field 'transport' initializer [-Werror,-Wmissing-field-initializers]
+          17 | static const seq_sink_t sink={drum,bass_on,bass_off,brk,brk_stop,midi,step,0};
+             |                                                                             ^
+       1 error generated.
+
+===== seq-random-clock-handoff =====
+  FAIL seq-random-clock-handoff (see build/host/seq-random-clock-handoff.log)
+       tests/host/seq_random_clock_handoff_test.c:16:77: error: missing field 'transport' initializer [-Werror,-Wmissing-field-initializers]
+          16 | static const seq_sink_t sink={drum,bass_on,bass_off,brk,brk_stop,midi,step,0};
+             |                                                                             ^
+       1 error generated.
+
+===== clk-lock =====
+  FAIL clk-lock (see build/host/clk-lock.log)
+       tests/host/clk_lock_test.c:18:84: error: missing field 'transport' initializer [-Werror,-Wmissing-field-initializers]
+          18 | static const seq_sink_t SINK = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, 0, 0};
+             |                                                                                    ^
+       1 error generated.
+
+===== host-build =====
+  FAIL host-build (see build/host/host-build.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== original-build =====
+  FAIL original-build (see build/host/original-build.log)
+           self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+       AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('host/firmware/crt0.S'), '-o', PosixPath('host/build/crt0.o'))
+       
+       ======================================================================
+       FAIL: test_original_rate_pads_do_not_compile_legacy_wobble (__main__.OriginalBuildCompositionTests.test_original_rate_pads_do_not_compile_legacy_wobble)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "host/tests/host/test_original_build_composition.py", line 123, in test_original_rate_pads_do_not_compile_legacy_wobble
+           self.assertIn("-DX0X_ORIGINAL_SYNTH=1", command)
+       AssertionError: '-DX0X_ORIGINAL_SYNTH=1' not found in ('cc', '-c', PosixPath('host/firmware/crt0.S'), '-o', PosixPath('host/build/crt0.o'))
+       
+       ----------------------------------------------------------------------
+       Ran 13 tests in 0.021s
+       
+       FAILED (failures=4)
+
+===== project-protocol =====
+  FAIL project-protocol (see build/host/project-protocol.log)
+       Undefined symbols for architecture arm64:
+         "_engine_bass_preset_pending", referenced from:
+             _ed_handle in project_protocol_test-6e56e2.o
+             _ed_handle in project_protocol_test-6e56e2.o
+         "_engine_bass_sound_validate", referenced from:
+             _ed_handle in project_protocol_test-6e56e2.o
+         "_project_storage_unsupported", referenced from:
+             _ed_handle in project_protocol_test-6e56e2.o
+       ld: symbol(s) not found for architecture arm64
+       clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+===== project-save-preflight =====
+  FAIL project-save-preflight (see build/host/project-save-preflight.log)
+             _project_save in project_save_preflight_test-e6d4cc.o
+             _main in project_save_preflight_test-e6d4cc.o
+             _load_sound in project_save_preflight_test-e6d4cc.o
+         "_engine_nvoices", referenced from:
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             _project_validate_for in project_save_preflight_test-e6d4cc.o
+             ...
+       ld: symbol(s) not found for architecture arm64
+       clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+===== storage-scratch =====
+  FAIL storage-scratch (see build/host/storage-scratch.log)
+       fatal: not a git repository (or any of the parent directories): .git
+
+===== project-stage =====
+  FAIL project-stage (see build/host/project-stage.log)
+             |                                                           ^~~~~~
+       tests/host/project_stage_test.c:552:34: error: use of undeclared identifier 'NSTEPS1'
+         552 |     proj.arr.lane[NLANE - 1].val[NSTEPS1 - 1] = 53;
+             |                                  ^~~~~~~
+       tests/host/project_stage_test.c:558:49: error: use of undeclared identifier 'NSTEPS1'
+         558 |     CHECK(project_stage.arr.lane[NLANE - 1].val[NSTEPS1 - 1] == 53);
+             |                                                 ^~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       20 errors generated.
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== project-runtime =====
+  FAIL project-runtime (see build/host/project-runtime.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       tests/host/../../host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       tests/host/../../host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== save-note-quiet =====
+  FAIL save-note-quiet (see build/host/save-note-quiet.log)
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+       In file included from firmware/src/app/engine.c:8:
+       In file included from firmware/src/app/original_runtime.h:4:
+       firmware/src/app/../dsp/original_chicago_backend.h:4:10: fatal error: 'chicago_note_context.h' file not found
+           4 | #include "chicago_note_context.h"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== font-pack =====
+  FAIL font-pack (see build/host/font-pack.log)
+       font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+       font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5715 B
+       font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 8, 6960 B
+       font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7120 B
+       font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+       font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 17, 7808 B
+       font set barlow: 40527 B (approx)
+       Traceback (most recent call last):
+         File "host/tests/font_pack_test.py", line 62, in <module>
+           main()
+         File "host/tests/font_pack_test.py", line 54, in main
+           subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-Wall", "-Wextra", "-Werror",
+         File "/opt/homebrew/Cellar/python@3.12/3.12.15_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Ihost/build/host/iso/font-pack/tmp/x0x-font-jqfycd8y', 'host/tests/host/font_pack_test.c', '-o', 'host/build/host/iso/font-pack/tmp/x0x-font-jqfycd8y/font_pack_test']' returned non-zero exit status 1.
+
+===== smc-buttons =====
+  FAIL smc-buttons (see build/host/smc-buttons.log)
+         241 |             smc_knob_bank(d);
+             |             ^
+       host/build/host/iso/smc-buttons/tmp/tmp_vsv71m8/test.c:243:13: error: call to undeclared function 'smc_page_set'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+         243 |             smc_page_set(smc_page_now() + d);
+             |             ^
+       host/build/host/iso/smc-buttons/tmp/tmp_vsv71m8/test.c:243:26: error: call to undeclared function 'smc_page_now'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+         243 |             smc_page_set(smc_page_now() + d);
+             |                          ^
+       15 errors generated.
+       Traceback (most recent call last):
+         File "host/tests/host/smc_buttons_test.py", line 96, in <module>
+           subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',
+         File "/opt/homebrew/Cellar/python@3.12/3.12.15_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-Wall', '-Wextra', '-Werror', '-Ihost/firmware/src', '-Ihost/tests/host', 'host/build/host/iso/smc-buttons/tmp/tmp_vsv71m8/test.c', '-o', 'host/build/host/iso/smc-buttons/tmp/tmp_vsv71m8/test']' returned non-zero exit status 1.
+
+===== smc-select-mode =====
+  FAIL smc-select-mode (see build/host/smc-select-mode.log)
+       In file included from tests/host/smc_select_mode_test.c:13:
+       tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+          11 | #define CK_FN __attribute__((unused))
+             |         ^
+       tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+          16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+             |         ^
+       1 warning generated.
+       FAIL tests/host/smc_select_mode_test.c:55: smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)
+
+===== smc-boot-saved-roles =====
+  FAIL smc-boot-saved-roles (see build/host/smc-boot-saved-roles.log)
+       Traceback (most recent call last):
+         File "host/tests/host/test_smc_boot_saved_roles.py", line 33, in <module>
+           original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*#if X0X_ORIGINAL_SYNTH\s*\n', PROJECT, 'revision-13 loader')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "host/tests/host/test_smc_boot_saved_roles.py", line 23, in unique
+           assert len(matches) == 1, f'{label}: expected once, found {len(matches)}'
+                  ^^^^^^^^^^^^^^^^^
+       AssertionError: revision-13 loader: expected once, found 0
+
+===== ble-midi-receive =====
+  FAIL ble-midi-receive (see build/host/ble-midi-receive.log)
+       Assertion failed: (c.state == BLEC_SCANNING && tx[0] == 0x0c), function main, file ble_midi_central_test.c, line 94.
+       tests/host/ble_midi_receive_test.sh: line 7: 38212 Abort trap: 6           "$OUT/$test"
+
+===== ble-capture-replay =====
+  FAIL ble-capture-replay (see build/host/ble-capture-replay.log)
+       Traceback (most recent call last):
+         File "host/tests/host/ble_capture_replay_test.py", line 18, in <module>
+           raw = CAPTURE.read_bytes()
+                 ^^^^^^^^^^^^^^^^^^^^
+         File "/opt/homebrew/Cellar/python@3.12/3.12.15_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+           with self.open(mode='rb') as f:
+                ^^^^^^^^^^^^^^^^^^^^
+         File "/opt/homebrew/Cellar/python@3.12/3.12.15_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+           return io.open(self, mode, buffering, encoding, errors, newline)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       FileNotFoundError: [Errno 2] No such file or directory: 'host/cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json'
+
+===== smc-reachability =====
+  FAIL smc-reachability (see build/host/smc-reachability.log)
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       tests/host/smc_reachability_test.c:9:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+           9 | #define CK_FN __attribute__((unused))
+             |         ^
+       tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+          16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+             |         ^
+       1 warning and 18 errors generated.
+
+===== smc-lock =====
+  FAIL smc-lock (see build/host/smc-lock.log)
+       In file included from tests/host/smc_lock_test.c:22:
+       tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+          11 | #define CK_FN __attribute__((unused))
+             |         ^
+       tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+          16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+             |         ^
+       1 warning generated.
+       FAIL tests/host/smc_lock_test.c:386: cur_page() == 0
+       PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures
+       PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues
+
+===== smc-multi-peer =====
+  FAIL smc-multi-peer (see build/host/smc-multi-peer.log)
+       In file included from tests/host/smc_multi_peer_test.c:24:
+       tests/host/smc_ui_test.c:11:9: warning: 'CK_FN' macro redefined [-Wmacro-redefined]
+          11 | #define CK_FN __attribute__((unused))
+             |         ^
+       tests/host/../../host/../firmware/src/app/smk_clip_keys.h:16:9: note: previous definition is here
+          16 | #define CK_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
+             |         ^
+       1 warning generated.
+       FAIL tests/host/smc_multi_peer_test.c:63: smc_states[1].lock_kit == 2 && smc_states[1].lock_bank == 8
+
+===== smk-wheel-mode =====
+  FAIL smk-wheel-mode (see build/host/smk-wheel-mode.log)
+       Assertion failed: (commands == edge + 1 && last_kind == 2), function main, file smk_wheel_mode_test.c, line 225.
+       tests/host/smk_wheel_mode_test.sh: line 33: 46031 Abort trap: 6           "$OUT/probe" 0 "$play" "$locks" "$smc" "$part" "$gesture" > "$OUT/control"
+
+===== legacy-303-project =====
+  FAIL legacy-303-project (see build/host/legacy-303-project.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       tests/host/../../host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       tests/host/../../host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       tests/host/../../host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== smc-interaction-negative =====
+  FAIL smc-interaction-negative (see build/host/smc-interaction-negative.log)
+       PASS rejected runtime mutation: pause-unbound
+       PASS rejected runtime mutation: pause-no-release
+       Traceback (most recent call last):
+         File "host/tests/host/smc_interaction_negative_test.py", line 27, in <module>
+           assert source.count(before) == 1, name
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: pause-no-drop-recovery
+
+===== ui-waveform-truth =====
+  FAIL ui-waveform-truth (see build/host/ui-waveform-truth.log)
+       tests/host/ui_waveform_truth_test.c:7:10: fatal error: '../../experiments/wobble/wobble.c' file not found
+           7 | #include "../../experiments/wobble/wobble.c"
+             |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       1 error generated.
+
+===== smc-ui-negative =====
+  FAIL smc-ui-negative (see build/host/smc-ui-negative.log)
+       PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
+       PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
+       PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
+       PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank
+       PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged
+       PASS action captions: filter PART/HOME/MIX/MENU, drum solo/record dispatch, inactive/live-locked; knob arc extremes and bipolar center
+       PASS restore: eight views preserve complete navigation state and exact framebuffer
+       PASS activity: pickup, live values, repeated controls, exact boundary and wrap
+       PASS feedback: existing header message and local knob readout survive temporary UI
+       PASS navigation: physical buttons, encoder, key and SMC navigation cancel
+       PASS overlays: confirmation blocks input; menu/help state survives activity and timeout
+       PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI
+       PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset
+       smc_ui: PASS (8967 checks)
+       
+
+===== smc-drum-mutes =====
+  FAIL smc-drum-mutes (see build/host/smc-drum-mutes.log)
+       clang: error: no such file or directory: 'firmware/src/dsp/bass303.c'
+
+===== smc-drum-rs =====
+  FAIL smc-drum-rs (see build/host/smc-drum-rs.log)
+         452 |     struct rusage_info_v4 ri;
+             |                           ^
+       host/host/x0x_host.c:452:12: note: forward declaration of 'struct rusage_info_v4'
+         452 |     struct rusage_info_v4 ri;
+             |            ^
+       host/host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                    ^~~~~~~~~~~~~~
+       host/host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                     ^~~~~~~~~~~~~
+       host/host/x0x_host.c:453:68: error: expected expression
+         453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+             |                                                                    ^
+       18 errors generated.
+
+===== smc-performance-abort =====
+  FAIL smc-performance-abort (see build/host/smc-performance-abort.log)
+       clang: error: no such file or directory: 'firmware/src/dsp/bass303.c'
+
+===== smc-record-feedback =====
+  FAIL smc-record-feedback (see build/host/smc-record-feedback.log)
+       clang: error: no such file or directory: 'firmware/src/dsp/bass303.c'
+
+===== drum-kit-identity =====
+  FAIL drum-kit-identity (see build/host/drum-kit-identity.log)
+       Undefined symbols for architecture arm64:
+         "_x0x_tanh_run_end", referenced from:
+             _d9_tanh in drum_kit_identity_test-f12951.o
+         "_x0x_tanh_runs", referenced from:
+             _d9_tanh in drum_kit_identity_test-f12951.o
+         "_x0x_tanh_words", referenced from:
+             _d9_tanh in drum_kit_identity_test-f12951.o
+       ld: symbol(s) not found for architecture arm64
+       clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+===== break-suite-registration =====
+  FAIL break-suite-registration (see build/host/break-suite-registration.log)
+       BREAK suite registration FAIL:
+       BREAK controls/storage must share generated host inputs in class G
+
+===== adaptive-break-storage =====
+  FAIL adaptive-break-storage (see build/host/adaptive-break-storage.log)
+             |                                                           ^~~~~~
+       tests/host/project_stage_test.c:552:34: error: use of undeclared identifier 'NSTEPS1'
+         552 |     proj.arr.lane[NLANE - 1].val[NSTEPS1 - 1] = 53;
+             |                                  ^~~~~~~
+       tests/host/project_stage_test.c:558:49: error: use of undeclared identifier 'NSTEPS1'
+         558 |     CHECK(project_stage.arr.lane[NLANE - 1].val[NSTEPS1 - 1] == 53);
+             |                                                 ^~~~~~~
+       fatal error: too many errors emitted, stopping now [-ferror-limit=]
+       20 errors generated.
+       Traceback (most recent call last):
+         File "host/tests/host/run_break_features.py", line 39, in <module>
+           subprocess.run(flags + ['tests/host/adaptive_break_' + fixture + '_test.c', *units,
+         File "/opt/homebrew/Cellar/python@3.12/3.12.15_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+           raise CalledProcessError(retcode, process.args,
+       subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-ffp-contract=off', '-fno-fast-math', '-DX0X_HOST', '-DBOARD_SMK37=1', '-DX0X_ORIGINAL_SYNTH=1', '-DX0X_WOBBLE=0', '-DX0X_DEV_WOBBLE=0', '-D_POSIX_C_SOURCE=200809L', '-D_DARWIN_C_SOURCE', '-DORIGINAL_USE_SOFT_FMA', '-DMIAMI_FX_NO_HOST_FENV', '-Wno-unused-function', '-Ifirmware/src', '-Ifirmware/src/dsp', '-Ibuild/gen', '-Ibuild/host', '-Iexperiments/original_synth', '-Iexperiments/wobble', '-ffunction-sections', '-fdata-sections', 'tests/host/adaptive_break_storage_test.c', 'firmware/src/dsp/drum909.c', 'firmware/src/dsp/drum808.c', 'firmware/src/dsp/breaks.c', 'firmware/src/dsp/fxbus.c', 'firmware/src/dsp/master.c', 'firmware/src/dsp/x0x_param.c', 'firmware/src/seq/sequencer.c', 'firmware/src/seq/tb3po.c', 'firmware/src/seq/pattern.c', 'firmware/src/seq/motion.c', 'firmware/src/app/engine.c', 'firmware/src/app/factory_banks.c', 'experiments/original_synth/chicago_allocator.c', 'experiments/original_synth/chicago_arp_control.c', 'experiments/original_synth/chicago_control_owner.c', 'experiments/original_synth/chicago_drive.c', 'experiments/original_synth/chicago_dynamics.c', 'experiments/original_synth/chicago_engine_output.c', 'experiments/original_synth/chicago_full_mg.c', 'experiments/original_synth/chicago_fx2_compact.c', 'experiments/original_synth/chicago_fx2_wrapper.c', 'experiments/original_synth/chicago_global_mg.c', 'experiments/original_synth/chicago_global_stage.c', 'experiments/original_synth/chicago_key_admission.c', 'experiments/original_synth/chicago_modulation.c', 'experiments/original_synth/chicago_mp4.c', 'experiments/original_synth/chicago_note_context.c', 'experiments/original_synth/chicago_output.c', 'experiments/original_synth/chicago_packed.c', 'experiments/original_synth/chicago_program.c', 'experiments/original_synth/chicago_program_output.c', 'experiments/original_synth/chicago_scheduler.c', 'experiments/original_synth/chicago_selector.c', 'experiments/original_synth/chicago_smallfx.c', 'experiments/original_synth/chicago_tuning.c', 'experiments/original_synth/chicago_voice.c', 'experiments/original_synth/chicago_voice_owner.c', 'experiments/original_synth/chicago_voice_snapshot.c', 'experiments/original_synth/control_math.c', 'experiments/original_synth/engine_events.c', 'experiments/original_synth/fixed_fx.c', 'experiments/original_synth/fused_reference.c', 'experiments/original_synth/lossless_table.c', 'experiments/original_synth/master.c', 'experiments/original_synth/miami_control_owner.c', 'experiments/original_synth/miami_fx_chain.c', 'experiments/original_synth/miami_geometry.c', 'experiments/original_synth/miami_ms20.c', 'experiments/original_synth/miami_note_context.c', 'experiments/original_synth/miami_output.c', 'experiments/original_synth/miami_pitch.c', 'experiments/original_synth/miami_program.c', 'experiments/original_synth/miami_selected_voice.c', 'experiments/original_synth/miami_startup.c', 'experiments/original_synth/miami_voice_owner.c', 'experiments/original_synth/miami_voice_snapshot.c', 'experiments/original_synth/oscillator_motion.c', 'experiments/original_synth/program_envelope.c', 'experiments/original_synth/state_codec.c', 'experiments/original_synth/voice_gain.c', 'experiments/wobble/miami_decimator_adapter.c', 'experiments/wobble/miami_decimator_component.c', 'experiments/wobble/miami_fx_conversion.c', 'firmware/src/dsp/original_chicago_backend.c', 'firmware/src/dsp/original_miami_backend.c', 'firmware/src/app/original_runtime.c', 'firmware/src/app/original_sound.c', '-Wl,-dead_strip', '-lm', '-o', 'host/build/host/break_features_storage']' returned non-zero exit status 1.
+
+===== chicago-fx-bridge =====
+  FAIL chicago-fx-bridge (see build/host/chicago-fx-bridge.log)
+       tests/host/chicago_fx_bridge_test.c:7:10: fatal error: 'bass303.h' file not found
+           7 | #include "bass303.h"
+             |          ^~~~~~~~~~~
+       1 error generated.
+
+===== chicago-fx-runtime =====
+  FAIL chicago-fx-runtime (see build/host/chicago-fx-runtime.log)
+       clang: error: no such file or directory: 'firmware/src/dsp/bass303.c'
+       clang: error: no such file or directory: 'experiments/wobble/wobble.c'
+
+===== gate-trap =====
+  FAIL gate-trap (see build/host/gate-trap.log)
+       tests/host/test_gate_trap.sh: line 23: kill: (59768) - No such process
+       FAIL wrapper: rc=1 sender=59835 out=Traceback (most recent call last):
+         File "host/tools/gate_sigwrap.py", line 69, in <module>
+           sys.exit(main(sys.argv))
+                    ^^^^^^^^^^^^^^
+         File "host/tools/gate_sigwrap.py", line 43, in main
+           info = signal.sigwaitinfo(waitset)
+                  ^^^^^^^^^^^^^^^^^^
+       AttributeError: module 'signal' has no attribute 'sigwaitinfo' file=ls: host/build/gatetrap.1hB9XK/sig1: No such file or directory
+       FAIL gate 2 did not reach the builds: VOID 6378abd setup: use Linux x86-64 or the local Linux container (BUILDING.md)
+       FAIL gate 3 did not reach the builds: VOID 6378abd setup: use Linux x86-64 or the local Linux container (BUILDING.md)
+       gate trap: 0 of 3 ok
+
+===== host-setup =====
+  FAIL host-setup (see build/host/host-setup.log)
+       
+       ======================================================================
+       FAIL: test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp (__main__.HostSetupTest.test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "host/tests/host/test_host_setup.py", line 118, in test_original_miami_rate_pad_flag_can_be_disabled_without_legacy_dsp
+           self.assertEqual(result.returncode, 0, result.stderr)
+       AssertionError: 2 != 0 : host: ERROR: private original-synth inputs missing (Chicago and Miami need them).
+       host: run python3 tools/check_original_inputs.py for the list; no public fallback exists.
+       
+       
+       ----------------------------------------------------------------------
+       Ran 11 tests in 1.398s
+       
+       FAILED (failures=7)
+
+===== gen-nonfont-tables =====
+  FAIL gen-nonfont-tables (see build/host/gen-nonfont-tables.log)
+       FAIL: expected ok   host-build
+                not-run host-build (Pillow)
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              all tests passed
+
+===== update-names =====
+  FAIL update-names (see build/host/update-names.log)
+       ok   new branch archives/x: update hook: REJECTED refs/heads/archives/x: a new branch must be lane/<mb|sb|opt|btr|dk>-<topic>, integration
+       ok   an old branch (ble-old) moves: 
+       ok   an old branch (ble-old) is deleted: 
+       ok   integration with no push option: update hook: REJECTED refs/heads/integration: only Merge Integrator moves integration: push with git push -o b
+       ok   integration with -o by=second-builder: update hook: REJECTED refs/heads/integration: only Merge Integrator moves integration: push with git push -o b
+       FAIL integration with -o by=merge-integrator (want accept, rc=1)
+            remote: hooks/update: line 93: flock: command not found        
+            remote: update hook: REJECTED refs/heads/integration: another integration push holds host/build/host/iso/update-names/tmp/updnames.Ihnm7p/wd/.lock for 600 s. Push again later.        
+            remote: error: hook declined to update refs/heads/integration        
+            To host/build/host/iso/update-names/tmp/updnames.Ihnm7p/box.git
+             ! [remote rejected] integration -> integration (hook declined)
+            error: failed to push some refs to 'host/build/host/iso/update-names/tmp/updnames.Ihnm7p/box.git'
+       ok   integration with only a skip option: update hook: REJECTED refs/heads/integration: only Merge Integrator moves integration: push with git push -o b
+       ok   integration with -o by=merge-integrator and a skip: update hook: quick check SKIPPED for 010f5c8 (push option): test (logged in /Users/mac/Documents/x0x37/pr734-p
+       update names: 22 of 23 ok
+
+===== dev-validate-composed =====
+  FAIL dev-validate-composed (see build/host/dev-validate-composed.log)
+       FAIL: test_real_record_and_guard_preserve_queue_release_and_hash_guards (__main__.ComposedValidation.test_real_record_and_guard_preserve_queue_release_and_hash_guards)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "host/tests/host/test_dev_validate_composed.py", line 81, in test_real_record_and_guard_preserve_queue_release_and_hash_guards
+           self.ready()
+         File "host/tests/host/test_dev_validate_composed.py", line 78, in ready
+           r=self.run_it();self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: 3 != 0 : REFUSED: native Linux x86_64 required
+       
+       
+       ----------------------------------------------------------------------
+       Ran 11 tests in 2.854s
+       
+       FAILED (failures=1)
+
+===== gen-order =====
+  FAIL gen-order (see build/host/gen-order.log)
+                     host/x0x_host.c:453:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+                       453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+                           |                                    ^~~~~~~~~~~~~~
+                     host/x0x_host.c:453:53: error: use of undeclared identifier 'rusage_info_t'
+                       453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+                           |                                                     ^~~~~~~~~~~~~
+                     host/x0x_host.c:453:68: error: expected expression
+                       453 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+                           |                                                                    ^
+                     18 errors generated.
+                ok   drum-pan
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              TESTS FAILED
+       gen order: 6 FAILED
+
+===== quickcheck-devbug =====
+  FAIL quickcheck-devbug (see build/host/quickcheck-devbug.log)
+       FAIL device bug, owner INLOG skip (want PASS, rc=1)
+            QUICK FAIL 56bb446 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       FAIL device bug, test passes on the parent (want FAIL, rc=1)
+            QUICK FAIL 6f45b7f 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       FAIL device bug, inlog file that no test uses (want FAIL, rc=1)
+            QUICK FAIL 6b809da 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       FAIL device bug, inlog log read by a test (want PASS, rc=1)
+            QUICK FAIL 28364dc 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       FAIL source-proven bug with regression (want PASS, rc=1)
+            QUICK FAIL e0e528b 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       FAIL source evidence is not a test (want FAIL, rc=1)
+            QUICK FAIL 2a2e5ac 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       FAIL no device bug (want PASS, rc=1)
+            QUICK FAIL 3781821 0 s setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks
+       quickcheck device bug: 0 of 9 ok
