@@ -79,7 +79,7 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
-    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
@@ -354,9 +354,19 @@ run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
-run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
-run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
+# The one-peer recovery port cannot satisfy two-peer B transport/controller
+# fixtures. Keep those tests intact for the future two-SMC integration.
+if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central.h; then
+    run ble-one-peer-command sh tests/host/ble_one_peer_command_retry_test.sh
+    run ble-one-peer-contract python3 tests/host/ble_single_peer_contract_test.py
+    not_run ble-dual-peer 'single-peer recovery; two-peer source removed'
+    not_run ble-command-credit 'single-peer recovery; B command-owner model removed'
+    not_run ble-controller-heap 'single-peer recovery; B two-link heap assumption removed'
+else
+    run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
+    run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
+fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
@@ -376,6 +386,7 @@ run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
+run smc-mode-page sh tests/host/smc_mode_page_test.sh
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
