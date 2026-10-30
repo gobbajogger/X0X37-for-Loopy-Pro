@@ -24,6 +24,16 @@ void wheel_test_engine_set(int t, int v, int i, int value)
     last_param = i; last_value = value;
     wheel_real_engine_set(t, v, i, value);
 }
+/* 8401fc23 (BAS-11): the mod wheel is the engine's mod controller, an absolute
+ * CUTOFF / WOBBLE DEPTH value (rest = 0), not a sound-parameter write. */
+void wheel_real_engine_bass_mod(int, int);
+int wheel_real_engine_bass_mod_param(int);
+void wheel_test_engine_bass_mod(int v, int value)
+{
+    ++commands; last_kind = 3; last_target = T_303; last_voice = v;
+    last_param = wheel_real_engine_bass_mod_param(v); last_value = value;
+    wheel_real_engine_bass_mod(v, value);
+}
 void wheel_test_engine_set_base(int t, int v, int i)
 {
     ++commands; last_kind = 2; last_target = t; last_voice = v;
@@ -149,7 +159,7 @@ int main(int argc, char **argv)
     fm1_in.wheel[0] = (gesture & 2) ? 580 : 550;
     smk_wheels(); render();
     if (gesture & 1) {
-        assert(last_kind == 1 && last_target == T_303 && last_voice == part);
+        assert(last_kind == 3 && last_target == T_303 && last_voice == part);
         assert(last_param == mod_param(part) && last_value == 57);
         assert(engine_original_value_bits(part, (unsigned)mod_param(part)) ==
             edited_bits(part, mod_param(part), 57));
@@ -197,8 +207,9 @@ int main(int argc, char **argv)
     fm1_in.wheel[1] = 615; fm1_in.wheel[0] = 550; smk_wheels();
     assert(commands == before + !!(gesture & 1) + !!(gesture & 2));
     render();
-    if (!playing && (gesture & 1))
-        assert(engine_original_value_bits(part, (unsigned)mod_param(part)) == base_bits);
+    if (!playing && (gesture & 1))      /* the wheel at rest is mod 0 (BAS-11) */
+        assert(engine_original_value_bits(part, (unsigned)mod_param(part)) ==
+            edited_bits(part, mod_param(part), 0));
 
     /* A physical knob edit is authoritative while a stationary wheel is held. */
     seq_stop(&seq); render();
@@ -222,7 +233,7 @@ int main(int argc, char **argv)
     assert(last_value != 64);
     unsigned edge = commands;
     fm1_in.wheel[1] = 615; smk_wheels();
-    assert(commands == edge + 1 && last_kind == 2);
+    assert(commands == edge + 1 && last_kind == 3 && last_value == 0);
     assert(last_voice == part && last_param == mod_param(part));
     fm1_in.wheel[0] = 550; smk_wheels();
     assert(commands == edge + 2 && last_kind == 2);
