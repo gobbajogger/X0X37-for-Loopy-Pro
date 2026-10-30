@@ -954,8 +954,11 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     }
     if (r.kind == R_BSTATUS) { put_s(num,original_status_name(r.b)); return 1; }
     if (r.kind != R_ENG || r.a != T_303) return 0;
-    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b), id = r.c;
+    int bank = engine_bass_sound_bank(&proj.sound,r.b);
+    unsigned kind = (unsigned)bank, id = r.c;
     const ui_original_control_view *v = 0;
+    /* a corrupt patch has no bank: never index a name table through a null view */
+    if (bank != ORIGINAL_SOUND_CHICAGO && bank != ORIGINAL_SOUND_MIAMI) { put_s(num,"INVALID"); return 1; }
     if (ui_original_states(kind,id) || (kind == ORIGINAL_SOUND_CHICAGO && id == 4) ||
         (kind == ORIGINAL_SOUND_MIAMI && id == 7)) {
         v = original_text_view(r,value);

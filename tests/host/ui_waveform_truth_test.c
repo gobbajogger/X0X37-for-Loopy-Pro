@@ -3,8 +3,8 @@
 #include <assert.h>
 #include <math.h>
 #include "../../firmware/src/app/ui_waveform.h"
-/* Actual private DSP evaluator, compiled unchanged in this test only. */
-#include "../../experiments/wobble/wobble.c"
+/* Reference evaluator of the Miami value-cell shapes (removed wobble DSP). */
+#include "fixtures/miami_waveform_ref.h"
 int main(void)
 {
  unsigned checks=0;float maxerr=0;

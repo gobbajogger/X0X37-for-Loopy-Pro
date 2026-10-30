@@ -1020,9 +1020,23 @@ static void brk_channel_reconcile(void)
     brk_input_channel = channel;
 }
 
+/* A cancelled external-MIDI capture (REC off, stop, pattern change) also
+ * ends the voice it was recording; key counts stay for the later release. */
+static uint8_t rec_seen_gen[NBASS], rec_seen_src[NBASS] = {0xFF, 0xFF};
+static void original_rec_cancel_cut(void)
+{
+    for (int v = 0; v < NBASS; ++v) {
+        const seq_bass_rec_t *r = &seq.rec_bass[v];
+        if (r->gen != rec_seen_gen[v] && rec_seen_src[v] < MIDI_NSRC)
+            (void)original_runtime_cut_source(&original_bass[v], rec_seen_src[v]);
+        rec_seen_gen[v] = r->gen;
+        rec_seen_src[v] = r->active ? r->src : 0xFF;
+    }
+}
 /* Retire only original-synth MIDI owners when their channel changes. */
 static void original_midi_context(void)
 {
+    original_rec_cancel_cut();
     for (int v = 0; v < NBASS; ++v) if (original_midi_channel[v] != seq.ch[TRK_BASS0 + v]) {
         for (unsigned source = 0; source < MIDI_NSRC; ++source) {
             (void)original_runtime_release_source(&original_bass[v], source);
@@ -1260,6 +1274,14 @@ static void drain(void)
                 __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
             }
             if (!v || b == bass_held[a]) bass_held[a] = bass_held_count[a] = 0;
+        } else if (type == C_BOFF && a < NBASS) {
+            /* another input owns the voice: still drop the keyboard's own keys,
+             * which never ends the owner's note (counts are per source) */
+            if (v) (void)original_runtime_key(&original_bass[a], ORIGINAL_INPUT_KEYS, b, 0);
+            else {
+                (void)original_runtime_release_source(&original_bass[a], ORIGINAL_INPUT_KEYS);
+                __builtin_memset(original_key_pitch[a], 0, sizeof original_key_pitch[a]);
+            }
         } else if (type == C_BRK)
             brk_local_event((int)a, (int)b);
     }
@@ -1575,6 +1597,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
             left808[i] = (left808[i] + right808[i]) * 0.5f;
         kit_sends(PART_808, left808, n);
     }
+    original_rec_cancel_cut();
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
         PROF_T(pb);
@@ -1588,6 +1611,9 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
          * gone, fade residual insert output over 512 samples. Cancellation or
          * a fresh owner ramps back smoothly; DSP histories keep advancing. */
         int fade = engine_bass_preset_pending(b) == 2 && !original_runtime_owned(&original_bass[b]);
+        /* A part that was silent when Solo excluded it must not leak a new
+         * note through the 10 ms mix glide-out: start its glides at zero. */
+        int solo_out = solo_parts && !(solo_parts & (1u << p)) && original_quiet_samples[b] >= 512u;
         for (i = 0; i < n; ++i) {
             if (fade) { if (original_switch_gain[b]) --original_switch_gain[b]; }
             else if (original_switch_gain[b] < 512u) ++original_switch_gain[b];
@@ -1599,6 +1625,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         }
         bfx_shape(p, bb[b], bb[1-b], 0, 0, 2, (int)n);
         mix_targets(p, mix_level[p], solo_parts);
+        if (solo_out) for (i = 0; i < GL_N; ++i) mix_glide[p][i].cur = 0.0f;
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
         add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
         meter(p, bb[b], mix_level[p], n);
