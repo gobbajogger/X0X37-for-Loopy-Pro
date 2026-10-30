@@ -5,8 +5,10 @@
 #pragma once
 #include "smc_fx_map.h"
 
-static inline const char *smcfx_select_caption(int bus, int home_held, int fx_active)
+static inline const char *smcfx_select_caption(int bus, int home_held, int fx_active,
+                                               unsigned assigned)
 {
+    (void)assigned; /* #714 passes the assignment; SELECT plays low-pass (#725), so show that. */
     if (bus < 0 || bus >= SMCFX_N)
         return "--";
     if (home_held)
