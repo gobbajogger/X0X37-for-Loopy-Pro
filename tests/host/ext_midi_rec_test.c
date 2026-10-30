@@ -195,6 +195,45 @@ static void test_all_parts(const char *bank)
     printf("  %s: every part records its own channel at once (909, 808, BREAK, A, B): checked\n", bank);
 }
 
+/* QA #734 (a8d9019f): an onset queued in rec_q keeps the REC context it came in.
+ * Audio runs alone here (no UI frame), so the onset waits in the queue while
+ * the context changes; the next UI frame must not write it. */
+static void audio_only(void)
+{
+    static int32_t b[512];
+    engine_render(b, 256);
+}
+static void test_stale_onsets(void)
+{
+    int k = 0, v = 2, note = GM_DRUM[k][v], ch = seq.ch[TRK_DRUM + k], old, other;
+    /* 1. REC off at the event, REC on before the drain */
+    select_part(k); clear_drum(k);
+    set_play(1); tick(100);
+    midi3(0x90 | ch, note, 90); audio_only(); midi3(0x80 | ch, note, 0);
+    set_rec(1); tick(20);
+    CHECK(drum_hits(k, v) == 0, "stale: onset before REC on is not written (steps %d)", drum_hits(k, v));
+    /* control: the same onset with REC on is written */
+    midi3(0x90 | ch, note, 90); tick(5); midi3(0x80 | ch, note, 0); tick(20);
+    CHECK(drum_hits(k, v) == 1, "stale control: REC on onset writes one step (steps %d)", drum_hits(k, v));
+    /* 2. pattern change before the drain */
+    old = seq.ppat[k]; other = (old + 1) % NPAT;
+    memset(proj.pat[other].drum[k].hit, 0, sizeof proj.pat[0].drum[0].hit);
+    midi3(0x90 | ch, note, 90); audio_only(); midi3(0x80 | ch, note, 0);
+    seq.ppat[k] = (uint8_t)other;
+    tick(20);
+    CHECK(drum_hits(k, v) == 0, "stale: onset of P%d not written to P%d (steps %d)", old + 1, other + 1, drum_hits(k, v));
+    seq.ppat[k] = (uint8_t)old; tick(20);
+    /* 3. STOP then START before the drain */
+    clear_drum(k);
+    midi3(0x90 | ch, note, 90); audio_only(); midi3(0x80 | ch, note, 0);
+    seq.req_stop = 1; audio_only(); seq.req_start = 1; audio_only();
+    tick(20);
+    CHECK(seq.playing, "stale: playing again after STOP and START");
+    CHECK(drum_hits(k, v) == 0, "stale: onset of the old run not written in the new run (steps %d)", drum_hits(k, v));
+    set_rec(0); set_play(0);
+    printf("  external MIDI REC queue: REC on, pattern change and STOP/START drop stale onsets: checked\n");
+}
+
 int main(void)
 {
     boot();
@@ -203,6 +242,7 @@ int main(void)
     test_drum(0, "909");
     test_drum(1, "808");
     test_break();
+    test_stale_onsets();
     for (int bank = 0; bank < 2; bank++) {   /* Chicago A + B, then Chicago A + Miami B */
         CHECK(!engine_bass_select_preset(0, 0, 0, &proj.sound), "Chicago on A");
         CHECK(!engine_bass_select_preset(1, bank, 0, &proj.sound), "bank on B");

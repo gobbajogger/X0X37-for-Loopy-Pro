@@ -947,8 +947,10 @@ static uint32_t rec_q[REC_Q];
 static volatile uint32_t rec_w, rec_r;
 static void rec_ev_put(uint32_t ev)
 {
-    if (!seq.playing || rec_w - rec_r >= REC_Q) return;   /* stopped: nothing records */
-    rec_q[rec_w % REC_Q] = ev;
+    /* Stopped or REC off at the event time: nothing records. The onset keeps
+     * the REC context it arrived in; the UI drops it if that context ended. */
+    if (!seq.playing || !seq.rec_ext_mask || rec_w - rec_r >= REC_Q) return;
+    rec_q[rec_w % REC_Q] = (ev & 0x01ffffffu) | (uint32_t)(seq.rec_ev_tag & 127u) << 25;
     __asm__ volatile("" ::: "memory");   /* compiler barrier, as midi_in_q */
     rec_w++;
 }
