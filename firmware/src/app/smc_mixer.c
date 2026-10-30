@@ -662,7 +662,7 @@ int smc_lock_button(int pressed)
         int changed = smc_lock_ready() ? smc_lock_toggle() : 0;
         /* A short Pause press shows the locked page for SMC_PEEK_MS, the
          * same as a locked PAGE press. A long press that unlocked does not. */
-        if (!changed && smc.lock_down && smc.locked)
+        if (!changed && smc.lock_down == 2 && smc.locked)
             smc_peek_locked_page();
         smc.lock_down = 0;
         return changed;
