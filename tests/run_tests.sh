@@ -409,6 +409,7 @@ for t in drum909 drum808 bass303 breaks; do
     else run "$t" sh "tests/host/run_$t.sh"; fi
 done
 # Keep the restored adaptive BREAK, MIDI and GCC-portable performance gates in the full suite.
+run break-suite-registration python3 tests/host/test_break_suite_registration.py
 run adaptive-break-dsp sh tests/host/run_adaptive_break_dsp.sh
 run adaptive-break-controls sh tests/host/run_adaptive_break_controls.sh
 run adaptive-break-storage sh tests/host/run_adaptive_break_storage.sh
