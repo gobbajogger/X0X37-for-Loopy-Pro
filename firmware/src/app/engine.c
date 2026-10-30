@@ -93,6 +93,10 @@ X0X_COLD int engine_drum_view(int kit, int v, uint32_t *age_ms, float *env)
 X0X_COLD float engine_bd909_hz(float tau, float m, float pm, float t_ms) { return drum909_bd_hz(tau, m, pm, t_ms); }
 int engine_bass_filter_view(int v, float *eg, float *depth)
 { return (unsigned)v < NBASS && original_runtime_filter_view(&original_bass[v], eg, depth); }
+int engine_bass_voice_view(int v, float *level, float *modulation, unsigned *state, unsigned *key_down)
+{ return (unsigned)v < NBASS && original_runtime_voice_view(&original_bass[v],level,modulation,state,key_down); }
+int engine_bass_adsr_view(int v, float values[4], unsigned *gate)
+{ return (unsigned)v < NBASS && original_runtime_adsr_view(&original_bass[v],values,gate); }
 static void original_prepare_all(void)
 {
     for (int v = 0; v < NBASS; ++v) (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));

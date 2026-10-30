@@ -39,6 +39,9 @@ static void test_dispatch(void)
         for (int p = 0; p < pg.n; p++) for (int k = 0; k < 4; k++)
             if (pg.r[p][k].kind != R_NONE && strcmp(pg.title[p], "KNOBS 5-8")) CHECK(role_of(p, k, NULL) || orig_strip_slot(pg.r[p][k]));
     }
+    setup(V_MIX, PART_909); build_pages();
+    CHECK(drum_strip_role(find_ref(T_909,0,"Level")) != DG_NONE);
+    CHECK(drum_strip_role(find_ref(T_808,0,"Level")) != DG_NONE);
     setup(V_PART, PART_BRK); build_pages();
     for (int p = 0; p < pg.n; p++) for (int k = 0; k < 4; k++) CHECK(!role_of(p, k, NULL));
     setup(V_FX, PART_909); build_pages();
@@ -60,4 +63,68 @@ static void test_motion(int part)
     CHECK(!engine_drum_view(part, 0, &a, &e)); CHECK(cell_hash(3) == idle);   /* idle again */
     printf("PASS motion %s: hit animates the decay cell, then it rests\n", part == PART_909 ? "909" : "808");
 }
-int main(void) { test_dispatch(); test_motion(PART_909); test_motion(PART_808); printf("PASS ui-drum-glyph (%u checks)\n", checks); return 0; }
+static uint32_t direct_drum(pref_t r,int value)
+{
+ cv_begin(240,KNOB_H,C_BLACK);drum_strip_glyph(r,value,10,10,C_HI);
+ uint32_t h=2166136261u;
+ for(int y=0;y<KNOB_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK)){
+  if(!(x>=10 && x<36 && y>=10 && y<=28))fprintf(stderr,"drum bounds kit=%u voice=%u control=%u value=%d xy=%d,%d\n",r.a,r.b,r.c,value,x,y);
+  CHECK(x>=10 && x<36 && y>=10 && y<=28);
+ }
+ for(int y=10;y<=28;y++)for(int x=10;x<36;x++)h=(h^cv_px[y*240+x])*16777619u;
+ return h;
+}
+/* Pitch motion occupies rows1..5; a two-row blank gutter keeps the lower
+ * amplitude waveform readable at both high TUNE values and throughout a hit. */
+static uint32_t tune_wave_band(pref_t r,int value)
+{
+ direct_drum(r,value);
+ for(int y=16;y<=17;y++)for(int x=10;x<36;x++)CHECK(cv_px[y*240+x]==swap16(C_BLACK));
+ uint32_t h=2166136261u;
+ for(int y=18;y<=26;y++)for(int x=10;x<36;x++)h=(h^cv_px[y*240+x])*16777619u;
+ return h;
+}
+static void test_tune_band_separation(void)
+{
+ const int pots[2]={96,127};
+ for(unsigned i=0;i<2;i++){
+  setup(V_PART,PART_808);pref_t r=find_ref(T_808,0,"Tune");CHECK(drum_strip_role(r)==DG_TUNE);
+  pref_set(r,pots[i]);drain_ms(300);tune_wave_band(r,pots[i]);
+  engine_drum(PART_808,0,1.0f);drain_ms(20);
+  uint32_t age;float first,late;CHECK(engine_drum_view(PART_808,0,&age,&first));
+  uint32_t early=tune_wave_band(r,pots[i]);drain_ms(150);
+  CHECK(engine_drum_view(PART_808,0,&age,&late));CHECK(late<first);
+  CHECK(tune_wave_band(r,pots[i])!=early); /* Lower band still follows the real EG. */
+ }
+ puts("PASS TUNE pitch/wave gutter at75/100%, idle and real hit decay");
+}
+
+static void test_value_motion_bounds(void)
+{
+ for(int part=PART_909;part<=PART_808;part++)for(int voice=0;voice<NDRUM;voice++){
+  setup(V_PART,part);ui.sel[part]=(uint8_t)voice;build_pages();if(part==PART_909 && voice==0)pref_set(PR(R_ENG,T_909,0,4),64);drain_ms(300);
+  for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++){
+   pref_t r=pg.r[p][k];int role=drum_strip_role(r);if(!role)continue;
+   uint32_t previous=0;const x0x_param_t *d=pref_desc(r);
+   for(int v=0;v<5;v++){uint32_t h=direct_drum(r,v*d->max/4);if(v && role!=DG_SOUND){if(h==previous)fprintf(stderr,"drum value collision kit=%u voice=%u ctrl=%u role=%d value=%d\n",r.a,r.b,r.c,role,v*d->max/4);CHECK(h!=previous);}previous=h;}
+  }
+  engine_drum(part,voice,1.0f);drain_ms(8);
+  for(int f=0;f<14;f++){
+   for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++){pref_t r=pg.r[p][k];if(drum_strip_role(r))direct_drum(r,matrix_value(r));}
+   drain_ms(7);
+  }
+ }
+ for(int part=PART_909;part<=PART_808;part++){
+  setup(V_MIX,part);pref_t r=find_ref(part==PART_909?T_909:T_808,0,"Level");CHECK(drum_strip_role(r)==DG_LEVEL);
+  int page=-1;for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++)if(pg.r[p][k].kind==R_ENG && pg.r[p][k].a==r.a && pg.r[p][k].b==r.b && pg.r[p][k].c==r.c)page=p;
+  CHECK(page>=0);*page_of(V_MIX)=(uint8_t)page;build_pages();drain_ms(300);ui_frame();
+  uint32_t idle=direct_drum(r,100),sig=knobs_sig(),strip=2166136261u;
+  for(int y=KNOB_Y+28;y<KNOB_Y+52;y++)for(int x=10;x<52;x++)strip=(strip^fb[y*240+x])*16777619u;
+  engine_drum(part,0,1.0f);drain_ms(12);ui_frame();CHECK(direct_drum(r,100)!=idle);CHECK(knobs_sig()!=sig);
+  uint32_t live_strip=2166136261u;
+  for(int y=KNOB_Y+28;y<KNOB_Y+52;y++)for(int x=10;x<52;x++)live_strip=(live_strip^fb[y*240+x])*16777619u;
+  CHECK(live_strip!=strip); /* Real LEVEL knob cell must use live dispatch too. */
+ }
+ puts("PASS drum continuous values, native bounds, real live roles and MIX level cache");
+}
+int main(void) { test_dispatch(); test_motion(PART_909); test_motion(PART_808); test_tune_band_separation(); test_value_motion_bounds(); printf("PASS ui-drum-glyph (%u checks)\n", checks); return 0; }

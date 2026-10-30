@@ -147,7 +147,7 @@ static void selector_cases(void)
         pref_t r=PR(R_ENG,T_303,0,cases[c].id); pref_set(r,0); block();
         for (int direction=1;direction>=-1;direction-=2) for (unsigned i=0;i<cases[c].n;i++) {
             unsigned state=direction>0?i:cases[c].n-i-1; char actual[24],expected[24]; text_of(r,actual);
-            if (cases[c].id==3 && cases[c].kind) snprintf(expected,sizeof expected,"%s%d",state>12?"+":"",(int)state-12);
+            if (cases[c].id==3 && cases[c].kind) snprintf(expected,sizeof expected,"%s%dst",state>12?"+":"",(int)state-12);
             else snprintf(expected,sizeof expected,"%s",cases[c].text[state]);
             CHECK(!strcmp(actual,expected)); now_ms+=500; turn_ref(r,direction,EN_K1); block();
             if (i+1==cases[c].n) CHECK(pref_get(r)==(direction>0?127:0));
@@ -157,7 +157,7 @@ static void selector_cases(void)
         choose(0,kind,0); screen(V_PART,PART_303A,1); pref_t r=PR(R_ENG,T_303,0,kind?7:4);
         for (unsigned q=63;q<=65;q++) {
             pref_set(r,(int)q); block(); char text[24]; text_of(r,text);
-            CHECK(!strcmp(text,kind?(q==63?"-0.08":q==64?"0.00":"+0.08"):(q==63?"-2%":q==64?"0%":"2%")));
+            CHECK(!strcmp(text,kind?(q==63?"-0.08":q==64?"0.00":"+0.08"):(q==63?"-2%":q==64?"0%":"+2%")));
         }
         pref_set(r,64); block(); float exact; CHECK(original_sound_value(proj.sound.v[T_303][0],r.c,&exact) && exact==.5f);
     }
