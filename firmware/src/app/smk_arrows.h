@@ -5,7 +5,14 @@
 #include <stdint.h>
 
 #ifndef ARW_FN
-#define ARW_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
+#ifndef X0X_MINSIZE
+#if defined(__clang__)
+#define X0X_MINSIZE minsize,   /* clang (the firmware toolchain): small code */
+#else
+#define X0X_MINSIZE            /* gcc host tests: gcc has no minsize */
+#endif
+#endif
+#define ARW_FN __attribute__((X0X_MINSIZE noinline, unused))   /* small code: the app area is almost full */
 #endif
 
 /* Hold repeat in a menu: the first repeat 400 ms after the press, then one step each 80 ms.
