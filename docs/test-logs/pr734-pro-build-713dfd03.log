@@ -1,0 +1,25 @@
+check_locked_settings: 20 settings ok
+In file included from firmware/src/x0x.c:212:
+firmware/src/app/editor.c:249:27: error: use of undeclared identifier 'PROJECT_LEGACY_FILE_SIZE'
+            && ed_u21(a)!=PROJECT_LEGACY_FILE_SIZE
+                          ^
+firmware/src/app/editor.c:321:24: warning: implicit declaration of function 'project_prepare_legacy_file' is invalid in C99 [-Wimplicit-function-declaration]
+            int result=project_prepare_legacy_file(ed_project.header);
+                       ^
+firmware/src/app/editor.c:338:26: warning: implicit declaration of function 'project_adopt_legacy_stage' is invalid in C99 [-Wimplicit-function-declaration]
+        rc=ed_project_rc(project_adopt_legacy_stage(a[0],a[1]));
+                         ^
+2 warnings and 1 error generated.
+font renderer: Pillow has no libraqm; using centered tabular-digit metrics
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 2312 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 3296 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 8, 4278 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 4370 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 4844 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 17, 3615 B
+font set barlow: 23190 B (approx)
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+break bank: none (factory loops are an optional install)
+loader: image 8412 B at 0x1c0a800, bss end 0x1c0f700
+loader: ota.bin 7341 B
+build: pi32v2/bin/clang failed
