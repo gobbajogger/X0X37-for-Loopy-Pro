@@ -4,8 +4,12 @@
 The Git commands below operate on a temporary *local* bare repository only.
 The fixture identity is not used for commits to the project repository.
 """
+import argparse
 import ast
+import contextlib
+import io
 import os
+import sys
 from pathlib import Path
 import re
 import shutil
@@ -15,7 +19,7 @@ import unittest
 from unittest.mock import patch
 
 SOURCE = Path(os.environ.get('DNBOX_PUBLISH_SOURCE', 'tools/publish_nightly.py'))
-METHODS = {'_destination', '_local_only_git_remote', '_remote_tip', '_overlay', '_push', 'publish_valid_nightly'}
+METHODS = {'_destination', '_local_only_git_remote', '_remote_tip', '_overlay', '_push', 'publish_valid_nightly', 'main'}
 
 
 def load_scoped_functions():
@@ -25,6 +29,7 @@ def load_scoped_functions():
     if {x.name for x in methods} != METHODS:
         raise AssertionError('one or more publisher Git functions missing')
     scope = {'os': os, 'Path': Path, 're': re, 'shutil': shutil,
+             'argparse': argparse, 'sys': sys, '__doc__': '',
              'subprocess': subprocess, 'tempfile': tempfile,
              'FORBIDDEN': {'gh-pages', 'main', 'master', 'nightly'},
              'BRANCH': 'nightly-pages',
@@ -138,6 +143,24 @@ class DefaultAuthorTests(unittest.TestCase):
                 self.methods['publish_valid_nightly'](
                     None, None, None, None, None, self.root / 'blocked-env', push=True, branch='chat/fixture')
             invoked.assert_not_called()
+
+    def test_cli_push_flags_return_error_without_git(self):
+        required = ['--elite-record', str(self.root / 'elite.json'),
+                    '--elite-fwsc', str(self.root / 'elite.fwsc'),
+                    '--pro-record', str(self.root / 'pro.json'),
+                    '--pro-fwsc', str(self.root / 'pro.fwsc'),
+                    '--out', str(self.root / 'blocked-cli')]
+        for flags in (['--push'], ['--push', '--remote', str(self.remote)],
+                      ['--push', '--branch', 'chat/fixture',
+                       '--remote', 'https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git']):
+            with self.subTest(flags=flags), patch.object(subprocess, 'run') as invoked:
+                captured = io.StringIO()
+                with contextlib.redirect_stderr(captured):
+                    result = self.methods['main'](required + flags)
+                self.assertEqual(result, 2)
+                self.assertIn('DnBOX legacy Git push disabled', captured.getvalue())
+                self.assertFalse((self.root / 'blocked-cli').exists())
+                invoked.assert_not_called()
 
     def test_no_default_identity_does_not_forge_one(self):
         os.environ['GIT_CONFIG_GLOBAL'] = '/dev/null'
