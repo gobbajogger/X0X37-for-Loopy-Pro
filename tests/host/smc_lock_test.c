@@ -102,7 +102,7 @@ static void test_engine_lock_and_clip(void)
     for (int page = 0; page < pg.n; page++) for (int k = 0; k < 4; k++)
         if (smc_same(pg.r[page][k], r)) { cutoff_page = page; cutoff_knob = k; }
     CHECK(cutoff_page >= 0 && cutoff_knob >= 0);
-    *page_of(V_PART) = (uint8_t)cutoff_page; build_pages();
+    *page_of(V_PART) = (uint8_t)cutoff_page; build_pages(); smc_page_set(cutoff_page);
     CHECK(smc_same(smc_knob_target(cutoff_knob), r));
     CHECK(pref_desc(r)->max >= 85 && pref_desc(other)->max >= 85);
     pref_set(r, 40); pref_set(other, 85);
@@ -185,7 +185,7 @@ static void test_song_lock(void)
     knob(1, 1); CHECK(song()->bar[3].pat[0] == pat_before);
     CHECK(smc_lock_toggle());
     setup(V_SONG, PART_303A); song_fill(6); ui.song_sel = 3;
-    *page_of(V_SONG) = 1; build_pages(); song()->bar[3].mute = 2u << 5;
+    *page_of(V_SONG) = 1; build_pages(); smc_page_set(1); song()->bar[3].mute = 2u << 5;
     CHECK(smc_knob_target(3).kind == R_SREP); CHECK(smc_lock_toggle());
     ui.song_sel = 0; run_action(ACT_SONG_INS, 0);
     CHECK(smc_knob_target(3).kind == R_NONE);
@@ -368,7 +368,7 @@ static void test_select_and_play(void)
         press(24 + kit); CHECK(ui.part == kit); CHECK(ui.view == V_PART);
         CHECK(!smc_ui_active() && !smc.fx_down);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
-        setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
+        setup(V_MIX, kit); *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages(); smc_page_set(kit + 1);
         CHECK(drum_mix_page() == kit); CHECK(ui.rec == rec);
         unsigned selected = ui.sel[kit];
         unsigned other = selected == 0 ? 1 : 0;
@@ -376,7 +376,7 @@ static void test_select_and_play(void)
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); CHECK(!smc_ui_active());
         message(0x90, 24 + other, 127); CHECK(cur_page() == 0); /* held repeat is one gesture */
         message(0x80, 24 + other, 0);
-        *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages();
+        *page_of(V_MIX) = (uint8_t)(kit + 1); build_pages(); smc_page_set(kit + 1);
         CHECK(drum_mix_page() == kit);
         CHECK(smc_lock_toggle());
         pref_t frozen = smc_target(0), knob_target = smc_knob_target(0);
