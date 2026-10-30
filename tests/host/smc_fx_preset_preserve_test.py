@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile the real SMC FX functions against a model of two mixer peers.
 
-Regression for a short FX SELECT tap destroying a ROOM/TIGHT/ECHO assignment.
+Regression that held FX SELECT publishes the chosen effect across banks and peers.
 This does not build the full UI, BLE subsystem or original synthesis engines.
 """
 from __future__ import annotations
@@ -151,7 +151,7 @@ int main(void)
                 smc.select_down &= (uint8_t)~bit;
             } else {
                 CHECK(!!(published_down & bit));
-                CHECK(published_fx[bus] == SMCFX_LP);
+                CHECK(published_fx[bus] == before[bus]);
                 smc_fx_release_note(note);
             }
             CHECK(!(published_down & bit));
@@ -163,11 +163,26 @@ int main(void)
             CHECK(smc_fx_try(note, 0) == 1);
             CHECK(smc.fx_effect[bus] == smcfx_cycle(bus, before[bus]));
             CHECK(smcfx_suit_ok(bus, smc.fx_effect[bus]));
+            const uint8_t chosen = smc.fx_effect[bus];
             home = 0;
+            /* Play a re-assigned bus FX, not the stale low-pass hold flag. */
+            if (smcfx_is_main(bus)) smc.select_down |= bit;
+            CHECK(smc_fx_try(note, 0) == 1);
+            if (smcfx_is_main(bus)) {
+                CHECK(!(published_down & bit));
+                now += SMC_FX_HOLD_MS + 1u;
+                smc_fx_main_tick();
+            }
+            CHECK(!!(published_down & bit));
+            CHECK(published_fx[bus] == chosen);
+            smc_fx_release_note(note);
+            CHECK(!(published_down & bit));
+            CHECK(smc.fx_effect[bus] == chosen);
+            if (smcfx_is_main(bus)) smc.select_down &= (uint8_t)~bit;
         }
     }
 
-    /* Long main-bus hold emits LPF, then restores the saved effect on release. */
+    /* Long main-bus hold must publish the chosen effect, not forced LPF. */
     for (int bus = SMCFX_RVB; bus < SMCFX_N; bus++) {
         memset(smc_states, 0, sizeof smc_states);
         smc_slot = 0; now = 30; navigation = home = 0;
@@ -180,7 +195,7 @@ int main(void)
         now += SMC_FX_HOLD_MS + 1u;
         smc_fx_main_tick();
         CHECK(published_down & bit);
-        CHECK(published_fx[bus] == SMCFX_LP);
+        CHECK(published_fx[bus] == before[bus]);
         CHECK(all_assignments_match(before));
         smc_fx_release_note(SMCFX_NOTE[bus]);
         CHECK(!navigation);
@@ -212,19 +227,19 @@ int main(void)
         CHECK(all_assignments_match(before));
     }
 
-    /* MMC toggles LPF only while active, without changing the stored bank. */
+    /* MMC toggles the chosen effect, without changing the stored bank. */
     memset(smc_states, 0, sizeof smc_states);
     smc_slot = 0; smc_fx_load_page(0); save_assignments(before);
     CHECK(smc_fx_try(24, 1) == 1);
     CHECK(published_down & 1u);
-    CHECK(published_fx[0] == SMCFX_LP);
+    CHECK(published_fx[0] == before[0]);
     CHECK(all_assignments_match(before));
     CHECK(smc_fx_try(24, 1) == 1);
     CHECK(!(published_down & 1u));
     CHECK(!(smc.fx_lp_hold & 1u));
     CHECK(all_assignments_match(before));
 
-    /* A captured press cannot leave its transient LPF bit after clear. */
+    /* A captured press cannot leave a stale held bit after clear. */
     CHECK(smc_fx_try(24, 0) == 1);
     smc_fx_clear();
     CHECK(!smc.fx_lp_hold && !smc.fx_down && !smc.fx_owned);
@@ -235,12 +250,12 @@ int main(void)
     smc_slot = 0; smc_fx_load_page(0);
     smc_slot = 1; smc_fx_load_page(1);
     smc_slot = 1; CHECK(smc_fx_try(24, 0) == 1);
-    CHECK(published_fx[0] == SMCFX_LP);
+    CHECK(published_fx[0] == SMCFX_PAGE[1][0]); /* peer 1: TIGHT delay */
     smc_slot = 0; CHECK(smc_fx_try(24, 0) == 1);
-    CHECK(published_fx[0] == SMCFX_LP);
+    CHECK(published_fx[0] == SMCFX_PAGE[0][0]); /* peer 0 wins: ROOM reverb */
     smc_fx_release_note(24);
     CHECK(published_down & 1u); /* peer 1 is still held */
-    CHECK(published_fx[0] == SMCFX_LP);
+    CHECK(published_fx[0] == SMCFX_PAGE[1][0]);
     smc_slot = 1; smc_fx_release_note(24);
     CHECK(!(published_down & 1u));
     CHECK(smc_states[0].fx_effect[0] == SMCFX_PAGE[0][0]);
