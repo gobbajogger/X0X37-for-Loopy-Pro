@@ -8,7 +8,7 @@ Keep firmware source integration with the assigned integrator. `wip/one-build` i
 
 Determine device permission for the exact model and action from the latest owner instruction. Do not infer a device write or recovery grant from a workflow mode, a connected device, or an old standing instruction. Do not force push, bypass a protected merge, or treat an incomplete check as PASS.
 
-The bar for every change is the full host test suite plus the Elite and Pro builds, with 0 fail. NOT_RUN does not meet the bar. A check that runs and fails is FAIL. Review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
+For firmware integration and packaging qualification, require the full host test suite plus the Elite and Pro builds with 0 fail / 0 skip. NOT_RUN does not meet this bar for required checks. Documentation-only changes require content, link and policy checks, not firmware builds. A check that runs and fails remains FAIL. Review comments are evidence to inspect, not substitutes for local proof. Follow [local proof](docs/rules/local-proof.md) where it applies.
 
 ## Where work runs (owner rules)
 
@@ -18,7 +18,7 @@ The bar for every change is the full host test suite plus the Elite and Pro buil
 - If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
 - Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
 - `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
-- Merge bar: the full host test suite plus the Elite and Pro builds, 0 fail.
+- Merge bar for firmware integration and packaging qualification: the full host test suite plus the Elite and Pro builds, 0 fail / 0 skip.
 - Never change `.github/`. Do not add or edit GitHub Actions.
 - The Mac is only for hardware installs and device checks.
 - Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
@@ -33,7 +33,7 @@ Use the latest action-specific owner authorization. A completed stage's read-onl
 
 For queued work and handoffs, apply the [continuation contract](skills/x0x37-workflow/references/handoff.md). Consume the existing request and checkpoint, then perform the next authorized action. A bounded unit limits ownership and concurrency; its report does not end an unfinished outcome. Preserve current delegated owners and continue independent ready work without waiting for owner acknowledgment. Use the maintained development policy at the verified `nightly` revision; older production-main instructions do not reinstate retired stage loops or authorize firmware promotion.
 
-Historical: the `coordination/merge-queue` branch, its `coordination/automation/runtime-contract.md` and `coordination/automation/roles.json` are historical records. Do not use them to plan or route new work. `roles.json` stays unchanged because tools parse it.
+For recurring and queued work, resolve the live `coordination/merge-queue` ref and read the [shared automation contract](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/coordination/merge-queue/coordination/automation/runtime-contract.md), `coordination/automation/roles.json` and relevant request/delivery records at that same commit. New authorized work updates the existing request and acceptance data; keep each role bootstrap stable. Actual permissions, role ownership and action-specific denials still govern.
 
 ## Autonomous visual stages
 
