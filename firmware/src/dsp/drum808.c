@@ -1697,6 +1697,7 @@ void drum808_trigger(drum808_t *d, int track, float vel)
     }
     d->lane[lane].hit = vgain;
     d->lane[lane].pk = 0.0f;
+    d->lane[lane].now = 0.0f;
     d->lane[lane].qn = 0;
     d->lane[lane].cg = 1.0f;
     d->lane[lane].cstep = 0.0f;
@@ -1811,9 +1812,12 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
     d8_lane_t *ln = &d->lane[l];
     float pk = ln->pk;
     int32_t qn = ln->qn;
+    float now = 0.0f;
     int i;
     for (i = 0; i < m; i++) {
         float a = buf[i] < 0.0f ? -buf[i] : buf[i];
+        if (a > now)
+            now = a;
         if (a > pk)
             pk = a;
         if (a > pk * D8_TAIL_K)
@@ -1823,12 +1827,35 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
     }
     ln->pk = pk;
     ln->qn = qn;
+    ln->now = now;
     if (qn > D8_TAIL_N && pk > D8_TAIL_FLOOR)       /* (a metal voice opens late: it has to have sounded) */
         voice_stop(d, l);
 }
 #endif
 
 __attribute__((noinline)) static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
+
+X0X_COLD float drum808_env(const drum808_t *d, int track)
+{
+#if D8_TAIL_DB
+    int l;
+    if (track < 0 || track >= D8_NUM) return 0.0f;
+    switch (track) {
+    case D8_LT: case D8_MT: case D8_HT: l = L_T0 + (track - D8_LT); break;
+    case D8_RS: l = track_sound(d, track) == D8S_CL ? L_CL : L_RS; break;
+    case D8_CP: l = track_sound(d, track) == D8S_MA ? L_MA : L_CP; break;
+    case D8_CB: l = L_CB; break;
+    case D8_CY: l = L_CY; break;
+    case D8_OH: l = L_OH; break;
+    case D8_CH: l = L_CH; break;
+    default: l = track; break;
+    }
+    if (!voice_active(d, l) || !(d->lane[l].pk > 0.0f)) return 0.0f;
+    return d->lane[l].now / d->lane[l].pk;
+#else
+    (void)d; (void)track; return -1.0f;
+#endif
+}
 
 int drum808_active(const drum808_t *d)
 {
