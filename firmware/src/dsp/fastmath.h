@@ -20,12 +20,13 @@
 #pragma once
 #include <stdint.h>
 
-#if defined(X0X_HOST)
+#if defined(X0X_HOST) || !defined(__clang__)
 /* Host C99 builds need a complete local definition when a call is not inlined.
  * GNU extern-inline does not emit that body and rejects weak inline linkage.
- * Keep the device's size-oriented linkage below unchanged. */
+ * GCC also rejects it in a host test that does not set X0X_HOST.
+ * The device (clang) keeps the size-oriented linkage below unchanged. */
 #define FM_ONE static inline
-#elif defined(__GNUC__) || defined(__clang__)
+#elif defined(__clang__)
 /* Outlined helpers (floor, sin, cos, wrap) were emitted once per unit.
  * The body stays visible so a hot call can still be inlined. A unit that
  * does not inline emits a weak copy, and the link keeps one of them. */
