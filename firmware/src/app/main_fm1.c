@@ -1097,6 +1097,7 @@ static void smk_wheels(void)
 static void smk_arrows(void)
 {
     static arw_t arw;
+    static uint32_t menu_id;
     uint32_t now = fm1_in.buttons >> SMK_BTN_LEFT & 3u, i, route;
     int32_t d;
     if (ui_project_busy()) {
@@ -1107,6 +1108,10 @@ static void smk_arrows(void)
         if (panel.btn[i] == SMK_BTN_LEFT || panel.btn[i] == SMK_BTN_RIGHT)
             now &= ~(1u << (panel.btn[i] - SMK_BTN_LEFT));
     route = arw_route((uint32_t)ui_menu_open(), clip_grid_mode, (plat_buttons() >> B_HOME) & 1u);
+    i = arw_menu_id(ui.view, (uint32_t)cur_page());
+    if (clip_grid_mode && route == ARW_MENU && i != menu_id)
+        arw_rearm(&arw, now);                     /* CLP-82: a held arrow does not edit the new list */
+    menu_id = i;
     d = arw_frame(&arw, now, route, fm1_ms);
     if (!d)
         return;
@@ -2381,8 +2386,11 @@ static void fm1_main(void)
     project_apply_io();                             /* clock and notes out, the MIDI channels, the output */
     engine_brk_loops();
 #if X0X_BLE
-    ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
-    ble_start();                                    /* its init on core 0, before core 1 starts (about 0.6 s) */
+    /* Initialize the checked controller at boot even if the saved radio setting is OFF.
+     * Keep the image/boot-loop guards: an OFF-to-ON toggle later needs no restart. */
+    ble_prepare(1);
+    ble_start();
+    plat_ble_set(proj.set.bt & 1u);                 /* OFF stays idle until explicitly enabled */
 #endif
     plat_cpu2_set(1);                               /* the second core: at power-on, before the audio and the
                                                      * timers, as Melodee starts it (started later, it does not

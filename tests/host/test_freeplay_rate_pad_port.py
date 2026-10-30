@@ -60,7 +60,9 @@ def compile_and_run():
 #include <string.h>
 #define BOARD_SMK37 1
 #define X0X_ORIGINAL_SYNTH 1
+#ifndef X0X_DEV_WOBBLE
 #define X0X_DEV_WOBBLE 1
+#endif
 #define X0X_DEV_PADCAL 0
 #define ORIGINAL_SOUND_MIAMI 1
 #define V_SEQ 1
@@ -102,6 +104,7 @@ static int plat_division_pad(unsigned owner) {return smk__division_poll(owner);}
 ''' + owner + '\n' + index + '\n' + label + '\n' + handler + r'''
 int main(void) {
     ui.view=V_PART; ui.part=0; ui.freeplay[0]=1;
+#if X0X_DEV_WOBBLE
     assert(division_pad_owner()==1);
     for(int pad=0;pad<8;pad++) {
         division_pad_input();             /* register the owner before input ISR */
@@ -169,17 +172,35 @@ int main(void) {
     ui.freeplay[0]=0;assert(!division_pad_owner());ui.freeplay[0]=1;
     ui.view=0;assert(!division_pad_owner());ui.view=V_SEQ;
     assert(division_pad_owner()==1);
-    puts("PASS: physical Free Play rate pads: 8 rates, owner transition, release, UI guards");
+#else
+    /* Explicit opt-out restores ordinary note presses on all physical pads. */
+    assert(division_pad_owner()==0);
+    division_pad_input(); /* disabled selector must not claim the HAL owner */
+    assert(smk_div_owner==0 && smk_div_pending==0);
+    for (int pad=0;pad<16;pad++) {
+        smk__padq((uint32_t)pad,80);
+        assert(smk_pad_note[pad]!=0);
+        smk__padq((uint32_t)pad,0);
+        assert(smk_pad_note[pad]==0);
+    }
+    assert(note_down==16 && note_up==16);
+    assert(rate_edits==0 && smk_div_pending==0 && smk_div_held==0);
+    assert(!ui.dirty && !ui.act_t);
+    (void)names;
+    (void)project_busy;
+#endif
+    puts("PASS: physical Free Play rate pads: eight rates and opt-out note behavior");
     return 0;
 }
 '''
     compiler = os.environ.get("CC", "cc")
     with tempfile.TemporaryDirectory(prefix="x0x-rate-pad-") as temp:
         c = Path(temp)/"rate_pad.c"
-        exe = Path(temp)/"rate_pad"
         c.write_text(cpp)
-        subprocess.run([compiler,"-std=c11","-O1","-Wall","-Wextra","-Werror", "-Wno-unused-function", "-fsanitize=undefined","-fno-sanitize-recover=all", str(c),"-o",str(exe)],check=True)
-        subprocess.run([str(exe)],check=True)
+        for enabled in ("1", "0"):
+            exe = Path(temp)/f"rate_pad_{enabled}"
+            subprocess.run([compiler,"-std=c11","-O1","-Wall","-Wextra","-Werror", "-Wno-unused-function", "-fsanitize=undefined","-fno-sanitize-recover=all", f"-DX0X_DEV_WOBBLE={enabled}",str(c),"-o",str(exe)],check=True)
+            subprocess.run([str(exe)],check=True)
 
 
 if __name__ == "__main__":

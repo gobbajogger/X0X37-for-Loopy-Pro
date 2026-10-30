@@ -301,8 +301,14 @@ static uint32_t arrows_held, clip_on, arrow_steps;
 static arw_t host_arw;
 static void host_arrows(void)
 {
+    static uint32_t menu_id;
     uint32_t route = arw_route((uint32_t)ui_menu_open(), clip_on, (held_btn >> B_HOME) & 1u);
-    int32_t d = arw_frame(&host_arw, arrows_held, route, now_ms);
+    uint32_t id = arw_menu_id(ui.view, (uint32_t)cur_page());
+    int32_t d;
+    if (clip_on && route == ARW_MENU && id != menu_id)
+        arw_rearm(&host_arw, arrows_held);           /* CLP-82, as main_fm1.c smk_arrows */
+    menu_id = id;
+    d = arw_frame(&host_arw, arrows_held, route, now_ms);
     if (!d)
         return;
     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */

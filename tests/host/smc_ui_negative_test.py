@@ -52,7 +52,7 @@ MUTANTS = {
         "    if (1) { /* negative: duplicates reopen */",
     ),
     "timeout-disabled": (
-        "(int32_t)(plat_ms() - smc_ui.until) >= 0",
+        "!smc_ui_edge_alive(plat_ms(), smc_ui.until,\n            smc_hold_any(smc_states[smc_ui.peer].held))",
         "0 /* negative control: no inactivity timeout */",
     ),
     "cancel-disabled": (

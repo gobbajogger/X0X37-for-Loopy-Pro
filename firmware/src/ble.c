@@ -19,7 +19,7 @@
 
 /* All of it in BLERAM (main RAM is full): not cleared at boot, so ble_start sets every field it
  * reads, and nothing reads them before (ble_host_on, in .bss, stays 0 until then). */
-#define BLE_OQ 56u                              /* MIDI out to mirror: USB-MIDI packets (SMK pool floor) */
+#define BLE_OQ 64u                              /* power of two: uint32_t index rollover stays contiguous */
 typedef struct {
     xb_mbox_t mb;                               /* first: 64-byte aligned (the rings' cache lines) */
     union { bleh_t h; struct { blec_t c, c2; }; } host;
@@ -383,22 +383,23 @@ static int ble_out_pkt_is_keep(uint32_t pkt)
 /* the audio ISR (single producer): mirror one MIDI out packet */
 static void ble_out(uint32_t pkt)
 {
-    uint32_t i, pass, ww, rr;
+    uint32_t i, pass, ww, rr, irq;
     if (ble_central_role || smc_ble_role_get() || !ble_want ||
         !ble_host_on || !bleh_notifying(&ble_r.host.h))
         return;
+    irq = fm1_irq_mask_save(FM1_IRQ_TIMER5);
     ww = ble_r.ow;
     rr = ble_r.orr;
     if (ww - rr < BLE_OQ) {
         ble_oq[ww % BLE_OQ] = pkt;
         RING_PUBLISH();
         ble_r.ow = ww + 1u;
-        return;
+        goto done;
     }
     /* Full BLE out mirror: drop CCs under notify backpressure; never drop Note Off
      * or Start/Continue/Stop (stuck note / sticky transport into Loopy over BLE). */
     if (!ble_out_pkt_is_keep(pkt))
-        return;
+        goto done;
     for (pass = 0; pass < 2u; pass++) {
         for (i = rr; i != ww; i++) {
             uint32_t p = ble_oq[i % BLE_OQ];
@@ -406,11 +407,17 @@ static void ble_out(uint32_t pkt)
                 continue;
             if (pass == 0u && (p & 0xFu) != 0xBu)
                 continue;
+            /* Preserve arrival order among retained events. TIMER5 cannot
+             * consume a partially shifted ring while this source is masked. */
+            for (; i + 1u != ww; i++)
+                ble_oq[i % BLE_OQ] = ble_oq[(i + 1u) % BLE_OQ];
             ble_oq[i % BLE_OQ] = pkt;
             RING_PUBLISH();
-            return;
+            goto done;
         }
     }
+done:
+    fm1_irq_mask_restore(FM1_IRQ_TIMER5, irq);
 }
 
 static void ble_fail(void)
@@ -604,10 +611,10 @@ const char *plat_ble_name(void)
 }
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len)
 {
-    if (slot >= 2u) return 0;
+    if (slot >= 1u) return 0; /* A: peer zero is the sole SMC central */
     uint32_t f = irq_save();
     int sent = ble_central_role && smc_ble_role_get() && ble_up && ble_host_on && ble_want &&
-               blec_midi_send(slot ? &ble_r.host.c2 : &ble_r.host.c, msg, len);
+               blec_midi_send(&ble_r.host.c, msg, len);
     irq_restore(f);                             /* TIMER5 must not replace the host union mid-enqueue */
     return sent;
 }

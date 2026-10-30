@@ -15,7 +15,7 @@ def extract(name):
   depth += (s[i]=='{')-(s[i]=='}'); i+=1
  return s[m.start():i]
 prefix=s[s.index('#define SMC_Q'):s.index('int smc_project_active')]
-funcs=['smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press','smc_project_drop','smc_project_reset','smc_ble_midi','smc_ble_link','smc_ble_role_get','smc_connected','smc_midi_host','smc_mmc_host','smc_release','smc_mmc_drain_stop']
+funcs=['smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press','smc_project_drop','smc_project_reset','smc_ble_midi','smc_ble_link','smc_ble_role_get','smc_connected','smc_midi_host','smc_mmc_host','smc_release','smc_mmc_drain_stop','smc_spill_apply']
 # Include the MMC STOP FIFO-boundary helper so the regression covers the full current poll path.
 if 'smc_poll_peer' in s:
  funcs = ['smc_solo_union', 'smc_peer_drop', 'smc_ble_midi_slot', 'smc_ble_link_slot'] + funcs
@@ -27,6 +27,7 @@ hdr=r'''
 #include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#include "app/smc_mixer_edges.h"
 #include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
@@ -37,8 +38,12 @@ hdr=r'''
 #define O_NONE 0
 #define O_ASK 1
 typedef struct { uint8_t kind,a,b,c; } pref_t;
+static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow);
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0u; }
 static int is_busy, is_testing, clear_calls, output_solo;
 static int refill_armed, refill_route, refill_cross, refill_calls;
 static int perf_testing(void) { return is_testing; }

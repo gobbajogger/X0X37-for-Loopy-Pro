@@ -187,38 +187,38 @@ typedef union {
     chi_gaterev_t gaterev;
 } chi_fx_insert_t;
 static chi_fx_insert_t chi_fx[NBASS] POOL;
-static void chi_fx_insert_program(int v)
+static void chi_fx_insert_program(int v, int reset)
 {
     uint8_t t = chi_fx_type[v], e1 = chi_fx_e1[v], e2 = chi_fx_e2[v];
     if (chi_fx_is_crush_insert(t)) {
-        chi_crush_init(&chi_fx[v].crush);
+        if (reset) chi_crush_init(&chi_fx[v].crush);
         chi_crush_set(&chi_fx[v].crush, e1, e2);
     } else if (chi_fx_is_ring_insert(t)) {
-        chi_ring_init(&chi_fx[v].ring);
+        if (reset) chi_ring_init(&chi_fx[v].ring);
         chi_ring_set(&chi_fx[v].ring, e1, e2, BASS303_SR);
     } else if (chi_fx_is_eq_insert(t)) {
-        chi_eq_init(&chi_fx[v].eq);
+        if (reset) chi_eq_init(&chi_fx[v].eq);
         chi_eq_set(&chi_fx[v].eq, e1, e2, BASS303_SR);
     } else if (chi_fx_is_cho_insert(t)) {
-        chi_cho_init(&chi_fx[v].cho);
+        if (reset) chi_cho_init(&chi_fx[v].cho);
         chi_cho_set(&chi_fx[v].cho, e1, e2, BASS303_SR);
     } else if (chi_fx_is_ens_insert(t)) {
-        chi_ens_init(&chi_fx[v].ens);
+        if (reset) chi_ens_init(&chi_fx[v].ens);
         chi_ens_set(&chi_fx[v].ens, e1, e2, BASS303_SR);
     } else if (chi_fx_is_phaser_insert(t)) {
-        chi_phaser_init(&chi_fx[v].phaser);
+        if (reset) chi_phaser_init(&chi_fx[v].phaser);
         chi_phaser_set(&chi_fx[v].phaser, e1, e2, BASS303_SR);
     } else if (chi_fx_is_sdly_insert(t)) {
-        chi_sdly_init(&chi_fx[v].sdly);
+        if (reset) chi_sdly_init(&chi_fx[v].sdly);
         chi_sdly_set(&chi_fx[v].sdly, e1, e2, BASS303_SR);
     } else if (chi_fx_is_bpmdly_insert(t)) {
-        chi_bpmdly_init(&chi_fx[v].bpmdly);
-        chi_bpmdly_set(&chi_fx[v].bpmdly, e1, e2, BASS303_SR);
+        if (reset) chi_bpmdly_init(&chi_fx[v].bpmdly);
+        chi_bpmdly_set_bpm(&chi_fx[v].bpmdly, e1, e2, BASS303_SR, seq_tempo(&seq));
     } else if (chi_fx_is_hall_insert(t)) {
-        chi_hall_init(&chi_fx[v].hall);
+        if (reset) chi_hall_init(&chi_fx[v].hall);
         chi_hall_set(&chi_fx[v].hall, e1, e2, BASS303_SR);
     } else if (chi_fx_is_gaterev_insert(t)) {
-        chi_gaterev_init(&chi_fx[v].gaterev);
+        if (reset) chi_gaterev_init(&chi_fx[v].gaterev);
         chi_gaterev_set(&chi_fx[v].gaterev, e1, e2, BASS303_SR);
     }
 }
@@ -790,6 +790,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             chi_arp_apply_cfg(v, i, val);
         else if (i >= CHI_FX_TYPE && i < CHI_FX_END) {
             /* sound_t mirror + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert coeffs; Mix/fxbus via UI map. */
+            uint8_t previous_type = chi_fx_type[v];
             if (i == CHI_FX_TYPE) {
                 if (val >= CHI_FX_NTYPES)
                     val = CHI_FX_OFF;
@@ -799,7 +800,9 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             } else if (i == CHI_FX_EDIT2) {
                 chi_fx_e2[v] = (uint8_t)val;
             }
-            chi_fx_insert_program(v);
+            /* A pot edit changes coefficients, not the running effect's history.
+             * Only an algorithm transition gives the shared union a new owner. */
+            chi_fx_insert_program(v, chi_fx_type[v] != previous_type);
         } else if (i >= CHI_PBEND && i < CHI_AUX_END)
             chi_aux_apply(v, i, val);
         else
@@ -1967,7 +1970,7 @@ void engine_bass_base_restore(unsigned mask)
 #endif
         chi_arp_on[v]=0;chi_arp_run_clear(&chi_arp_run[v]);
         chi_damper[v]=chi_damp_latched[v]=0;
-        chi_fx_type[v]=CHI_FX_OFF;chi_fx_insert_program(v);
+        chi_fx_type[v]=CHI_FX_OFF;chi_fx_insert_program(v,1);
         int count=bank?WOBBLE_EXPERIMENT_NPARAMS:CHI_AUX_END;
         for(int i=0;i<count;i++)apply_param(T_303,v,i,mot_base_snd->v[T_303][v][i]);
         for(int i=0;i<MX_NPARAMS;i++)apply_param(T_MIX,PART_303A+v,i,mot_base_snd->v[T_MIX][PART_303A+v][i]);
@@ -2084,7 +2087,7 @@ static void bass_preset_boundary(void)
 #endif
     chi_arp_on[voice]=0; chi_arp_run_clear(&chi_arp_run[voice]);
     chi_damper[voice]=chi_damp_latched[voice]=0;
-    chi_fx_type[voice]=CHI_FX_OFF; chi_fx_insert_program(voice);
+    chi_fx_type[voice]=CHI_FX_OFF; chi_fx_insert_program(voice,1);
     int count = bank == FACTORY_BANK_CHICAGO ? CHI_AUX_END : WOBBLE_EXPERIMENT_NPARAMS;
     for (int i=0;i<NPARAMS_MAX;i++) cell[i]=values[i];
 #if X0X_BASS_TAGGED_SOUND
@@ -2573,7 +2576,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 #if !X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     for (b = 0; b < NBASS; b++) {
         PROF_T(pb);
-        idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
+        /* An idle oscillator writes zeros; an enabled insert can still have a tail. */
+        idle[b] = b303[b].idle && !chi_fx_is_insert(chi_fx_type[b]);
         bass303_render(&b303[b], bb[b], (int)n);
         if (!idle[b])
             chi_fx_process(b, bb[b], (int)n);
@@ -2653,8 +2657,12 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1 - b], (int)n))
             synth_render(&bass_slot[b], bb[b], (int)n);
         /* Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev inserts are Chicago/native303 only — never on WBL1. */
-        if (!idle[b] && bass_slot[b].active.ops != &wobble_foundation_ops)
-            chi_fx_process(b, bb[b], (int)n);
+        if (bass_slot[b].active.ops != &wobble_foundation_ops) {
+            if (chi_fx_is_insert(chi_fx_type[b]))
+                idle[b] = 0; /* keep processing and mixing the insert's zero-input tail */
+            if (!idle[b])
+                chi_fx_process(b, bb[b], (int)n);
+        }
         PROF_ADD(2 + b, pb);
 #endif
         if (idle[b])
@@ -2762,6 +2770,12 @@ void engine_render(int32_t *out_lr, uint32_t n)
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
         brk_midi_drain();
+#if !X0X_ORIGINAL_SYNTH
+        for (p = 0; p < NBASS; ++p)
+            if (chi_fx_is_bpmdly_insert(chi_fx_type[p]))
+                chi_bpmdly_set_bpm(&chi_fx[p].bpmdly, chi_fx_e1[p], chi_fx_e2[p],
+                                  BASS303_SR, seq_tempo(&seq));
+#endif
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
         PROF_ADD(7, pt);
@@ -3103,8 +3117,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     chi_fx_type[0] = chi_fx_type[1] = CHI_FX_OFF;
     chi_fx_e1[0] = chi_fx_e1[1] = CHI_FX_PARAMS[1].def;
     chi_fx_e2[0] = chi_fx_e2[1] = CHI_FX_PARAMS[2].def;
-    chi_fx_insert_program(0);
-    chi_fx_insert_program(1);
+    chi_fx_insert_program(0,1);
+    chi_fx_insert_program(1,1);
 #if X0X_DEV_WOBBLE && !X0X_ORIGINAL_SYNTH
     synth_init(&bass_slot[0], synth303_binding(&b303[0]));
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));

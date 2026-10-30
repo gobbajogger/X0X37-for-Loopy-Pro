@@ -19,4 +19,7 @@ int original_chicago_engine_output_apply(original_chicago_engine_output *,const 
  * FX2 scratch channels must remain disjoint from converted L/R and each other.
  * Routing/master comes from the same immutable snapshot as the voices. */
 int original_chicago_engine_output_process(original_chicago_engine_output *,original_chicago_output_workspace *,original_chicago_fx2_workspace *,const original_chicago_routing *,const uint32_t *,const uint32_t *,uint32_t *,uint32_t *,uint32_t frames,unsigned fz);
+/* Serial idle-owner entry: both input buffers were just zero-filled by the
+ * caller. Retains all state/geometry checks and the unsettled-state fallback. */
+int original_chicago_engine_output_process_zero(original_chicago_engine_output *,original_chicago_output_workspace *,original_chicago_fx2_workspace *,const original_chicago_routing *,const uint32_t *,const uint32_t *,uint32_t *,uint32_t *,uint32_t frames,unsigned fz);
 #endif
