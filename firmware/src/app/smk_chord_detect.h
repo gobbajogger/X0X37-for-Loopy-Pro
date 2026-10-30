@@ -10,7 +10,14 @@
 
 #ifndef CK_CD_FN
 #ifdef __clang__
-#define CK_CD_FN __attribute__((minsize, noinline, unused))
+#ifndef X0X_MINSIZE
+#if defined(__clang__)
+#define X0X_MINSIZE minsize,   /* clang (the firmware toolchain): small code */
+#else
+#define X0X_MINSIZE            /* gcc host tests: gcc has no minsize */
+#endif
+#endif
+#define CK_CD_FN __attribute__((X0X_MINSIZE noinline, unused))
 #else
 #define CK_CD_FN __attribute__((noinline, unused))
 #endif
