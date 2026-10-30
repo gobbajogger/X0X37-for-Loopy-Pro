@@ -87,11 +87,14 @@ def validate_plan(plan):
 
 
 def run_checks(root, plan, output):
+    # A later unsuccessful attempt must never leave a previous PASS reusable.
+    # Invalidate before validating the plan, input tree or host executables.
+    output.mkdir(parents=True, exist_ok=True)
+    (output / 'receipt.json').unlink(missing_ok=True)
     validate_plan(plan)
     head, tree = check_commit(root)
     toolchain = toolchain_snapshot()
     inputs = source_snapshot(root, plan['inputs'])
-    output.mkdir(parents=True, exist_ok=True)
     results = []
     failure = False
     for check in plan['checks']:
@@ -102,6 +105,10 @@ def run_checks(root, plan, output):
             data, code = p.stdout, p.returncode
         except subprocess.TimeoutExpired as e:
             data, code = (e.stdout or b'') + b'\nTIMEOUT\n', 124
+        except OSError as e:
+            # Missing or unlaunchable executable is a failed check, not an
+            # exception that can strand a previous HOST_CHECKED receipt.
+            data, code = f'FAILED TO LAUNCH: {type(e).__name__}: {e}\n'.encode(), 127
         log.write_bytes(data)
         failure |= code != 0
         results.append({'name': check['name'], 'argv': check['argv'], 'exit_code': code,
@@ -156,6 +163,10 @@ def main():
             raise ValueError('Not an exact Git working-tree root')
         output = args.out.resolve()
         if args.mode == 'run':
+            # Invalidate even if the JSON cannot be read or parsed. A run that
+            # did not begin is still not authority to reuse a stale PASS.
+            output.mkdir(parents=True, exist_ok=True)
+            (output / 'receipt.json').unlink(missing_ok=True)
             if not args.plan:
                 raise ValueError('--plan required for run')
             code = run_checks(root, json.loads(args.plan.read_text()), output)

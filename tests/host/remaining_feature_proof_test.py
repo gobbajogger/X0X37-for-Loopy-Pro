@@ -47,9 +47,32 @@ with tempfile.TemporaryDirectory() as tmp:
     assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
                   '--out', str(out), cwd=root).returncode
     (root / 'fixture.txt').write_text('original source\n')
-    # Verify source and toolchain env both belong to the same exact test run.
+    # A failed rerun invalidates earlier passing evidence, even if the source
+    # is restored later. Only a successful new run can establish a PASS.
     q = invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
-    assert q.returncode == 0, q.stderr.decode()
+    assert q.returncode != 0
+    must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root), '--out', str(out), cwd=root)
+    must_run(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
+    # A command that cannot be launched is recorded as FAIL (127) with no
+    # reusable passing receipt from this or any earlier run in that folder.
+    missing = {**ok, 'checks': [{'name': 'sample', 'argv': ['missing-x0x37-executable-that-does-not-exist']}]}
+    plan.write_text(json.dumps(missing))
+    assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+                  '--out', str(out), cwd=root).returncode
+    failed = json.loads((out / 'receipt.json').read_text())
+    assert failed['status'] == 'FAIL' and failed['checks'][0]['exit_code'] == 127
+    assert b'FAILED TO LAUNCH' in (out / 'sample.log').read_bytes()
+    assert invoke(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root).returncode
+    plan.write_text(json.dumps(ok))
+    must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root), '--out', str(out), cwd=root)
+    must_run(sys.executable, str(TOOL), 'verify', '--repo', str(root), '--out', str(out), cwd=root)
+    # Invalid plan cannot preserve a previously passed receipt either.
+    plan.write_text('{ not valid JSON')
+    assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
+                  '--out', str(out), cwd=root).returncode
+    assert not (out / 'receipt.json').exists()
+    plan.write_text(json.dumps(ok))
+    must_run(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root), '--out', str(out), cwd=root)
     bad = {**ok, 'checks': [{'name': 'sample', 'argv': [sys.executable, '-c', 'raise SystemExit(3)']}]}
     plan.write_text(json.dumps(bad))
     assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
@@ -59,4 +82,4 @@ with tempfile.TemporaryDirectory() as tmp:
     plan.write_text(json.dumps({**ok, 'inputs': ['../escape.txt']}))
     assert invoke(sys.executable, str(TOOL), 'run', '--plan', str(plan), '--repo', str(root),
                   '--out', str(out), cwd=root).returncode
-print('PASS remaining_feature_proof: PASS, failed command, source/log mutation, unsafe path rejected')
+print('PASS remaining_feature_proof: source/log mutations, failed/absent command, stale receipt and invalid plan rejected')
