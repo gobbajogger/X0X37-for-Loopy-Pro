@@ -107,6 +107,7 @@ BAS-03. A tie holds the previous note through the step. The note does not play a
 BAS-04. With REC on, all 27 keys are a keyboard. A key that you play while you hold another key slides. [MANUAL §6]
 BAS-05. FREE PLAY = ON lets the keys play the 303 without writing notes. Both 303s have FREE PLAY OFF at power-on. [MANUAL §6] [CODE app/ui.c:128]
 BAS-06. A 303 line has a LENGTH of 1 to 64 steps, and a DIRECTION of forward, reverse, ping-pong or random. [MANUAL §6]
+BAS-07. On the Miami SOUND matrix, a WAVE or SHAPE cell shows one cycle of the selected shape and the name TRI, SQR or PUL. The cycle comes from the real wave function, not from measured audio. The SOUND rows and the parameter labels have a raised face. [CODE app/ui.c draw_wave_glyph] [CODE app/ui_waveform.h] (Added 2026-10-30: port of #650.)
 
 ## 5. TB-3PO
 

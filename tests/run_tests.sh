@@ -406,6 +406,7 @@ run smc-mode-page sh tests/host/smc_mode_page_test.sh
 run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
 run ui-shared-glyph sh tests/host/ui_shared_glyph_test.sh  # shared glyphs across live UI pages
 run ui-drum-mix-material sh tests/host/ui_drum_mix_material_test.sh  # 808/909 captions, rails and pan
+run ui-waveform-truth sh tests/host/ui_waveform_truth_test.sh  # Miami TRI/SQR/PUL value-cell shapes
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
