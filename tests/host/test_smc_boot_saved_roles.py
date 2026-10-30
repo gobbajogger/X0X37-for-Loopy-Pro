@@ -30,8 +30,9 @@ boot_body = MAIN[boot_marker.end():boot_end]
 assert 'ble_prepare(' in boot_body and 'ble_start();' in boot_body
 assert '#if' not in boot_body and '#endif' not in boot_body
 
-original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*#if X0X_ORIGINAL_SYNTH\s*\n', PROJECT, 'revision-13 loader')
-section = PROJECT[original.end():PROJECT.index('\n#else', original.end())]
+# One revision-13 loader remains after the legacy-engine removal (18481a63).
+original = unique(r'static int read_project\(project_t \*pr\)\s*\{\s*\n', PROJECT, 'revision-13 loader')
+section = PROJECT[original.end():PROJECT.index('\nunsupported:', original.end())]
 assert 'uint8_t device_bt = proj.set.bt;' in section
 start = section.index('    int bad = 0, rc = load_settings(&set);')
 end = section.index('    rc = load_sound(&pr->sound);', start)
