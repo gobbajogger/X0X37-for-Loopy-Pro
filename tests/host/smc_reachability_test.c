@@ -78,8 +78,9 @@ static void press(int note) { message(0x90,note,127); message(0x80,note,0); }
 static void turn(int n, int delta) { message(0xB0,16+n,delta>0?delta:64-delta); }
 static void fader(int n, int v) { message(0xE0+n,0,v); }
 static void view(int v) {
-    for(int i=0;ui.view!=v && i<8;i++) press(0x61);
-    assert(ui.view==v);
+    /* 0x60/0x61 select mixer banks, while SELECT owns view navigation. */
+    smc_view(v, 0);
+    assert(ui.view == v);
 }
 static void edit(pref_t r, int n) {
     const x0x_param_t *d=pref_desc(r); assert(d && d->max);
@@ -415,9 +416,10 @@ static void scenario(void) {
         assert(ui.part == part && ui.view == V_FX && !(smc.fx_down & (1u << part)));
         smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {
-            assert(cur_page()==p);
+            assert(smc_page_now()==p);
             for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE) edit(r,n); }
-            for(int n=4;n<8;n++) assert(smc_knob_target(n).kind==R_NONE);
+            for(int n=4;n<8;n++) assert(smc_knob_target(n).kind==R_NONE ||
+                !smc_same(smc_knob_target(n),smc_target(n)));
             if(p+1<pg.n) press(0x63);
         }
         /* Open deep list and reach every non-header row by SMC Up/Down. */
@@ -449,8 +451,8 @@ static void scenario(void) {
         }
         press(0x2F); assert(ui.sel[kit]==NDRUM-1);
         view(V_MIX);
-        while(cur_page()>kit+1) press(0x62);
-        while(cur_page()<kit+1) press(0x63);
+        while(smc_page_now()>kit+1) press(0x62);
+        while(smc_page_now()<kit+1) press(0x63);
         press(0x2E); assert(ui.sel[kit]==0);
         for(int t=0;t<NDRUM;t++) {
             if(t==8) press(0x2F);

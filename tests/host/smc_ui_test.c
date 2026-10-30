@@ -333,7 +333,7 @@ static void test_distinct_maps(void)
     knob(0, 1); ui_frame(); shot("09-part-pan");
     for (int kit = 0; kit < 2; kit++) for (int view = 0; view < 2; view++) {
         setup(view ? V_SEQ : V_MIX, kit);
-        if (!view) *page_of(V_MIX) = kit + 1;
+        if (!view) { *page_of(V_MIX) = kit + 1; smc_page_set(kit + 1); }
         for (int bank = 0; bank < 2; bank++) {
             ui.sel[kit] = bank * 8; build_pages(); check_distinct();
             for (int n = 0; n < 8; n++) {
@@ -350,11 +350,11 @@ static void test_distinct_maps(void)
     for (unsigned v = 0; v < sizeof views/sizeof *views; v++) for (int part = 0; part < NPARTS; part++) {
         setup(views[v], part);
         for (int page = 0; page < pg.n; page++) {
-            *page_of(ui.view) = page; build_pages(); check_distinct();
+            *page_of(ui.view) = page; build_pages(); smc_page_set(page); check_distinct();
         }
     }
     setup(V_GLO, PART_303A); CHECK(smc_same(smc_knob_target(2), PR(R_ENG,T_MST,0,MST_RESO)));
-    setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages();
+    setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages(); smc_page_set(3);
     CHECK(smc_same(smc_knob_target(3), PR(R_ENG,T_MST,0,MST_RESO)));
     /* Cross-strip duplicates must park, without substituting an unrelated field. */
     ui.overlay = O_LIST; ui.list_top = 0; ui.list_n = 6; put_s(list_title, "MASTER");
@@ -504,23 +504,23 @@ static void test_selected_lane(void)
     shot("14-selected-part-touched-filter");
     setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(2);
     setup(V_FX, PART_303A); knob(0, 1); ui_frame(); check_selected(5);
-    *page_of(V_FX) = 1; build_pages(); knob(1, 1); ui_frame(); check_selected(6);
-    setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages();
+    *page_of(V_FX) = 1; build_pages(); smc_page_set(1); knob(1, 1); ui_frame(); check_selected(6);
+    setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages(); smc_page_set(3);
     knob(3, 1); ui_frame(); check_selected(7);
     for (int kit = 0; kit < 2; kit++) for (int view = 0; view < 2; view++)
         for (int track = 0; track < NDRUM; track++) {
             setup(view ? V_SEQ : V_MIX, kit);
-            if (!view) *page_of(V_MIX) = kit + 1;
+            if (!view) { *page_of(V_MIX) = kit + 1; smc_page_set(kit + 1); }
             ui.sel[kit] = track; build_pages(); knob(0, 1); ui_frame(); check_selected(track % 8);
         }
-    setup(V_MIX, PART_808); *page_of(V_MIX) = 2; ui.sel[1] = 9; build_pages();
+    setup(V_MIX, PART_808); *page_of(V_MIX) = 2; ui.sel[1] = 9; build_pages(); smc_page_set(2);
     CHECK(smc_lock_toggle()); ui.sel[1] = 10; knob(0, 1); ui_frame(); check_selected(2);
     CHECK(smc_drum_track(1, 0) == 8);
     shot("15-locked-bank-selected-other-drum");
     ui.sel[1] = 0; knob(0, 1); ui_frame(); check_selected(-1);
     shot("16-locked-bank-selection-outside");
     ui.part = PART_909; ui.sel[1] = 9; knob(0, 1); ui_frame(); check_selected(1);
-    setup(V_MIX, PART_303A); *page_of(V_MIX) = 2; ui.sel[1] = 4; build_pages();
+    setup(V_MIX, PART_303A); *page_of(V_MIX) = 2; ui.sel[1] = 4; build_pages(); smc_page_set(2);
     knob(0, 1); ui_frame(); check_selected(4);
     puts("PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank");
 }
@@ -562,7 +562,7 @@ static void test_drum_titles(void)
         CHECK(smc_lock_toggle());
         ui.part = 1 - kit; ui.sel[kit] = bank ? 0 : 8; set_view(V_HOME); build_pages();
         knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 1);
-        setup(V_MIX, 1 - kit); *page_of(V_MIX) = kit + 1; ui.sel[kit] = bank * 8; build_pages();
+        setup(V_MIX, 1 - kit); *page_of(V_MIX) = kit + 1; ui.sel[kit] = bank * 8; build_pages(); smc_page_set(kit + 1);
         knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 0);
     }
     puts("PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged");
@@ -595,7 +595,7 @@ static void test_action_captions_and_knobs(void)
     clip_grid_mode = 1; ui.overlay = O_NONE; ck.pg = 2;
     CHECK(!strcmp(smc_button_caption(6), "GRID"));
     smc_button_apply(6, 0); CHECK(ck.pg == 0);
-    setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages();
+    setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages(); smc_page_set(1);
     CHECK(!strcmp(smc_button_caption(7), "R"));
     CHECK(!strcmp(smc_button_caption(15), "S"));
     int rec = ui.rec; smc_button_apply(7, 0); CHECK(ui.rec != rec && ui.sel[0] == 7);
@@ -603,7 +603,7 @@ static void test_action_captions_and_knobs(void)
     ui.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
     CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "R"));
     knob(0, 1); ui_frame(); shot("18-locked-live-actions");
-    setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages();
+    setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages(); smc_page_set(1);
     pref_t pan = smc_knob_target(0);
     for (int v = 0; v <= 2; v++) {
         pref_set(pan, v == 0 ? 0 : v == 1 ? 64 : 127);
