@@ -1,6 +1,6 @@
 # Remaining DnBOX feature intake and proof contract
 
-Source: 29 October 2026 DnBOX 122-item feature register. Code baseline: `nightly` at `66073c68dd80d51a7053432c2c161a8b720a1341` (tree `31d0f14508437766bf20e2ec44444ada79127ff2`). Work lane: `chat/remaining-features`. This is an implementation queue, **not a claim of completion**.
+Source: 29 October 2026 DnBOX 122-item feature register. Original implementation baseline: `nightly` at `66073c68dd80d51a7053432c2c161a8b720a1341`. Integrated target: `wip/one-build` at `cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21`, descendant of owner-specified `094bb1a55c159aefb0e2bfa39790a1b4b74cee40`. Work lane: `chat/remaining-features`. This is an implementation queue, **not a claim of completion**.
 
 ## Scope and exact constraints
 
@@ -73,3 +73,9 @@ The existing 8-column visual footprint is retained. `home_pattern_glyph.h` now s
 ## Installer song/project entry: #76
 
 The existing installer now links directly to `/projects/`, which already exports and imports the versioned `.x0xproject` file containing song arrangements, patterns and sounds. The project page retains its existing preflight, sample identity and recovery behavior; no second song format or transport was introduced. English and Japanese link/help strings are provided. The scoped Node host test passed against the feature fragment and existing historical project page; current-HEAD browser navigation and exact generated-site rendering are **NOT_RUN**. This is project-inclusive song transfer, not a new song-only file format.
+
+## Integration onto current one-build
+
+The existing PR #694 branch cannot be history-rewritten without force-push. The integration commit uses two parents (the prior #694 head and the current one-build head), preserving a fast-forward update of the feature branch. It is a source-level port and merge, **not a literal history rebase**. Retarget PR #694 to `wip/one-build`; do not merge it automatically.
+
+The HOME renderer preserves the newer unified UI geometry and only ports complete-pattern/velocity glyph semantics. Prior `nightly` test receipts refer to older source and must not be reported as exact integrated-head PASS. This task requires local host checks and an explicit source closure receipt before claiming final integration proof.

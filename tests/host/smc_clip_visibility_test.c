@@ -43,6 +43,8 @@ static uint8_t perf_testing(void) { return 0; }
 static int ui_project_busy(void) { return 0; }
 static void button_tap(int button) { (void)button; }
 static void engine_smc_solo(uint8_t solo) { (void)solo; }
+static void engine_smc_solo_targets(uint8_t solo,uint16_t a,uint16_t b)
+{ (void)a; (void)b; engine_smc_solo(solo); }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
 static void smc_release(uint8_t note) { (void)note; }
 static void smc_fader(int n, uint8_t value) { (void)n; (void)value; }

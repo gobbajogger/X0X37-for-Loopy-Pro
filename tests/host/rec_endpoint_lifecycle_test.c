@@ -313,7 +313,7 @@ static void test_timestamped_live_duration(void)
     CHECK(project_load() == 0 && !memcmp(bp, &recorded, sizeof recorded), "current stream6 save/load preserves exact capture bytes");
 
 
-    CHECK(get32(store[OBJ_PAT0]) == 6, "new save names endpoint-only format6");
+    CHECK(get32(store[OBJ_PAT0]) == PROJ_STREAM, "new save names current endpoint-compatible stream");
     /* Valid format3 has the identical layout but no endpoint bits. Rewrite only
      * format words on a newly saved all-legacy line to exercise actual loader. */
     for (int p = 0; p < NPAT; p++) for (int b = 0; b < NBASS; b++)
