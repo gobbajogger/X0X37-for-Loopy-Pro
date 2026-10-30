@@ -14,3 +14,4 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #705 | 70df88f7 | merged | 0a358e56 | - |  |
 | #677 | 2d555bee | cherry-pick e74b16dd | 9268bed7 | firmware/src/app/engine.c, tests/run_tests.sh | FX-state commit only; MIDI-order commits skipped (covered by #705) |
 | #719 | e26ed5b1 | merged | 7a05b18f | - |  |
+| #700 | e606a74a | merged | 49bef49e | - |  |
