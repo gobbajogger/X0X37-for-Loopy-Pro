@@ -383,7 +383,9 @@ static void test_select_and_play(void)
         press(0); CHECK(ui.rec != rec); CHECK(ui.part == kit);
         press(0); CHECK(ui.rec == rec);
         press(24 + other); CHECK(ui.sel[kit] == other); CHECK(drum_mix_page() == kit); CHECK(!smc_ui_active());
-        press(24 + other); CHECK(cur_page() == 0);
+        /* Locked: the repeat SELECT returns the SMC's own captured page to the
+         * main mixer; the keyboard page stays where it was. */
+        press(24 + other); CHECK(smc_page_now() == 0); CHECK(cur_page() == kit + 1);
         CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
