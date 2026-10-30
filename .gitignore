@@ -5,16 +5,3 @@ __pycache__/
 releases/openbeta/*.lock
 releases/openbeta/*.json.tmp
 
-# Exact external original-engine inputs are provisioned locally, never Git payload.
-/experiments/original_synth/chicago_drive_private.h
-/experiments/original_synth/chicago_dynamics_private.h
-/experiments/original_synth/chicago_packed_private.h
-/experiments/original_synth/chicago_program_private.h
-/experiments/original_synth/chicago_tuning_private.h
-/experiments/original_synth/miami_n513_private.h
-/experiments/original_synth/miami_program_private.h
-/experiments/original_synth/modulation_private.h
-/experiments/original_synth/motion_tables_private.h
-/experiments/wobble/miami_decimator_tables_private.h
-/experiments/original_synth/fx_tables.h
-/firmware/src/app/miami_factory_typed.h
