@@ -660,6 +660,10 @@ int smc_lock_button(int pressed)
     if (!pressed) {
         /* The first poll after the deadline can contain the actual key-up. */
         int changed = smc_lock_ready() ? smc_lock_toggle() : 0;
+        /* A short Pause press shows the locked page for SMC_PEEK_MS, the
+         * same as a locked PAGE press. A long press that unlocked does not. */
+        if (!changed && smc.lock_down && smc.locked)
+            smc_peek_locked_page();
         smc.lock_down = 0;
         return changed;
     } else if (!smc.lock_down) {
@@ -1123,10 +1127,23 @@ void smc_ui_draw(void)
             q = put_s(put_s(q, " "), value);
         }
         while (q > banner && tw(&FONT_XS, banner) > 232) *--q = 0;
-        cv_begin(240, HDR_H, C_BLACK);
-        cv_rect(0, 0, 240, HDR_H, C_BLACK);
-        text_c(120, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(banner), C_HI);
-        cv_commit(0, 0, 0);
+        /* Second header line: the same pickup / ACTIVE status as the full
+         * overlay, so a fader that has not caught its target says so. */
+        {
+            const char *status = "ACTIVE";
+            uint16_t sc = C_GRAY;
+            if (smc_ui.kind == 0 && r.kind != R_NONE &&
+                !(smc.picked & (1u << smc_ui.strip))) {
+                status = smc.last[smc_ui.strip] < smc_scaled(r) ?
+                         "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
+                sc = C_HI;
+            }
+            cv_begin(240, HDR_H, C_BLACK);
+            cv_rect(0, 0, 240, HDR_H, C_BLACK);
+            text_c(120, vc(&FONT_XS, 0, 10), &FONT_XS, caps_of(banner), C_HI);
+            text_c(120, vc(&FONT_T, 10, 10), &FONT_T, status, sc);
+            cv_commit(0, 0, 0);
+        }
     } else smc_ui_draw_peer();
     smc_slot = saved;
 }
