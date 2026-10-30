@@ -7,9 +7,12 @@
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
 #include "fused_reference.h"
+#include "miami_interpolation.h"
 #define ref_fma original_rne_fmaf
+#define interpolate original_miami_interpolate_rne
 #else
 #define ref_fma fmaf
+#define interpolate fmaf
 #endif
 static float fl(uint32_t u){return original_math_float(u);}
 static float clamp(float x,float lo,float hi){return x<lo?lo:x>hi?hi:x;}
@@ -19,7 +22,7 @@ static float advance(const original_ramp *r){float q=r->current+r->delta;if(r->d
 int original_miami_nonlinear(float x,float *out){
  if(!out||!original_binary32_isfinite(x))return 0;
  float u=512.0f*original_binary32_abs(x),result;
- if(u<512){unsigned j=(unsigned)u;float a=fl(original_miami_n513_bits[j]),b=fl(original_miami_n513_bits[j+1]);float g=ref_fma(b-a,u-(float)j,a);result=x*g;}
+ if(u<512){unsigned j=(unsigned)u;float a=fl(original_miami_n513_bits[j]),b=fl(original_miami_n513_bits[j+1]);float g=interpolate(b-a,u-(float)j,a);result=x*g;}
  else result=clamp(x,-1,1)*fl(original_miami_n513_bits[512]);
  *out=result;return 1;
 }
