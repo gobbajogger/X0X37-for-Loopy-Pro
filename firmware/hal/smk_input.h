@@ -476,7 +476,7 @@ static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or rele
         if (!vel) smk_div_held &= (uint16_t)~owned;
         return; /* release belongs to the press-time role */
     }
-    if (vel && smk_div_owner && !smk_pad_note[pad]) {
+    if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad]) {
         smk_div_held |= owned;
         if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u);
         return; /* physical rate hit never creates note/keybed velocity */

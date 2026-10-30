@@ -412,12 +412,12 @@ def build_app():
         raise SystemExit("X0X_BASS_NOTE_SOUND requires X0X_BASS_TAGGED_SOUND=1")
     if os.environ.get("X0X_BASS_TAGGED_SOUND") == "1" and os.environ.get("X0X_BASS_PRESET_PREVIEW") != "1":
         raise SystemExit("X0X_BASS_TAGGED_SOUND requires X0X_BASS_PRESET_PREVIEW=1")
-    # Product WBL is enabled in comparison builds unless explicitly disabled;
-    # the original replacement always disables both legacy selectors.
+    # The original replacement always disables legacy WBL, but enables the
+    # independent physical Miami Free Play rate-pad UI unless explicitly disabled.
     if f"-DX0X_WOBBLE={wobble}" not in flags:
         flags.append(f"-DX0X_WOBBLE={wobble}")
     if not any(f.startswith("-DX0X_DEV_WOBBLE=") for f in flags):
-        flags.append(f"-DX0X_DEV_WOBBLE={wobble}")
+        flags.append(f"-DX0X_DEV_WOBBLE={'1' if original_synth else wobble}")
     flags += clang_std_inc()
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
     if BOARD == "smk37":            # SMK store owner (storage.c st_owner_check): X0X's own family, untagged data cleared
