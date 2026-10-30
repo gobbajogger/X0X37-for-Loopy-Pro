@@ -1,28 +1,32 @@
-# Mixer FX page port from PR #688
+# PR #736: preserve the original mixer FX UI
 
-Status: IN PROGRESS, scoped implementation owned by this Classic thread.
+Status: corrected against original PR #688; source changes frozen pending complete qualification.
 
-## Immutable inputs and base
+## Exact source and integration constraints
+
 - Repository: `gobbajogger/X0X37-for-Loopy-Pro`.
-- Source: PR #688, `wip/mixer-ux` at `7b2d1726f3515b319d5edcab34529007d33ab3a8` (closed, unmerged).
-- Handoff base: `integration/all-in-one@ea859a8639f7448fb53196f6feb8c8c761b114d9`.
-- Entry integration HEAD: `64ed879fc5358229e5febfafa95a22b4580ad2a1`.
-- Owner-corrected port base: `c54d9f9b4262709bb4ea5852ae4ed008fa100996` (#650/#651/#687 work already integrated). This commit includes the 873479c7 HOME caption test fix. The correction is handled by a no-force, two-parent merge-forward tree using this base plus the previously pushed scoped port; no source or history is discarded.
-- Current integration branch has since advanced beyond this pin; the draft PR still targets the moving `integration/all-in-one` ref and must be checked against its live head before completion. No edits to integration branch.
-- Target: draft PR from `chat/mixer-fx-page-port` into `integration/all-in-one`.
+- Original feature: closed/unmerged PR #688 at `7b2d1726f3515b319d5edcab34529007d33ab3a8`.
+- Corrected PR: #736, `chat/mixer-fx-page-port`, input HEAD `2c8fb7d5f975958bd0ef8c41b4ff44e39d5b0c6b`.
+- Renderer baseline: live target `integration/all-in-one@a73882485f867d3ffeaea2c872f312fe4319295a`.
+- Source read through the GitHub tree/blob API; both baseline and candidate archives fetched through the authenticated GitHub API, never git network.
+- Scope: retain only the #688 mixer/FX controls and captions, adapted to the already-integrated multi-peer and UI behavior. No other new screen/preview or new feature. Do not replace integrated `ui.c` with the historical implementation.
+- Retain peer-local timeout/context correctness and current source protections; do not change Chicago/Miami audio, project revision 13, `.github/`, protected flash or other branches.
 
-## Scope
-1. Inspect live `AGENTS.md`, feature registry, affected SMC and UI sources, #688 mapping, and live test contracts.
-2. Reuse the **minimal** #688 FX-page controls/captions and related host regression only; resolve `smc_mixer.c` and `ui.c` conflicts, preserving the live integration code and changing hold checks to `smc_held()`.
-3. Deliver clearly labeled, visually reviewed **before and after** screen mockups alongside the PR (not represented as screenshots of actual hardware).
-4. Preserve existing Chicago/Miami engine behavior, project revision 13, other UI features and existing private header files. No `.github/` changes, third-party SDK files, firmware binaries, or platform/device writes.
-5. Run full `tests/run_tests.sh` and `BOARD=smk37 MODEL=elite/pro sh build.sh` with exact local SDK V1.2.1 when possible. Preserve exact logs, exit statuses, pass/fail/skip totals, and build artifact hashes. Test evidence must never claim an unexecuted check passed.
-6. Push incremental source/tests/evidence commits via the GitHub connector, read back the remote SHA, open one draft PR, and post verified outcomes. No main/nightly merge or release.
+## Verified #688 UI parity
 
-## Verified source inventory
-- GitHub tree API read at commit `82acc31e21b81b0d66399c02134aac2a6eebdab2`: **5,035 entries / 4,612 blobs**, `truncated=false`. This verifies the reachable remote tree index, **not** a fully reconstructed native source checkout.
-- Relevant C files were read directly from their exact GitHub blob paths on the same branch. Existing caption, FX table and multi-peer edge helpers were found already integrated.
-- Reuse the newer integrated `ui.c` unchanged rather than copying historical PR #688's 7,385-line UI code over the 7,756-line live version.
+`firmware/src/app/smc_mixer.c` at #688 Git blob `d3c5c7ad60e08aaa1db8f24227e6a6d34c30ee0a` already contains:
+- encoder-bank captions, including `CUT+FX` and `LOCKED BANK`;
+- colored fader destination travel, without replacing the physical pickup marker;
+- eight-strip screen, FX captions, and prior UI behavior.
 
-## Exit
-Draft PR exists with scoped diff, source identifiers, mockups, test/build reports and an explicit PASS/FAIL/NOT_RUN for each required check. Test/build failures keep the stage incomplete and actionable.
+The present #736 port retains those existing features; do **not** remove them merely because they appeared in the #736 diff relative to a newer integration base. No unrelated new UI is permitted.
+
+## Real framebuffer evidence
+
+The initial SVG proposals have been **deleted**. Replacements are paired PNG captures from the actual `smc_ui_draw()` implementation, not hand-illustrated mockups: `mixer-fx-home-framebuffer-before-after.png` and `mixer-fx-page-framebuffer-before-after.png`. The renderer uses `tests/host/smc_fx_framebuffer_capture.c`, included production engine/UI code and the original `smc_ui_test.sh` build path. See `mixer-fx-preview-review.md` for input SHAs, exact commands, renderer evidence, pixel comparisons and the displayed images. The only added text is the BEFORE/AFTER label **outside** the raw 240 × 240 framebuffer images.
+
+## Qualification and delivery
+
+Required before integration: full host suite plus both `BOARD=smk37 MODEL=elite` and `MODEL=pro` native firmware builds on verified full SDK V1.2.1, with 0 failures and 0 skips for the owner merge gate. Record actual PASS/FAIL/NOT_RUN results, not assumptions. Keep #736 a draft and #734 frozen; do not merge to integration or change distribution or devices.
+
+All changes to this task stay on `chat/mixer-fx-page-port`; GitHub commits have no custom author fields.
