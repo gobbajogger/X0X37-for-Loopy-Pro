@@ -591,7 +591,8 @@ static void test_action_captions_and_knobs(void)
 {
     setup(V_HOME, PART_303A);
     CHECK(!strcmp(smc_button_caption(15), "PART"));
-    CHECK(!strcmp(smc_button_caption(7), "HOME"));
+    /* SMC-04: a caption names the dispatched action. On HOME, strip 8 R opens SONG. */
+    CHECK(!strcmp(smc_button_caption(7), "SONG"));
     CHECK(!strcmp(smc_button_caption(13), "MIX"));
     CHECK(!strcmp(smc_button_caption(14), "GLOB"));
     CHECK(!strcmp(smc_button_caption(5), "LIST"));
