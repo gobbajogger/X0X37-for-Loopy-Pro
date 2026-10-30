@@ -1,0 +1,18 @@
+# PR #734 Part 2: Pro build and XIP evidence
+
+Checked integration HEAD: 713dfd0308dbfa26c6c7c8788f5e41f381ef9c8b
+Git tree: d65ed35ac9d0c95711b89fcc4aeaf14a5e3fef3c
+Source integrity: 4,579/4,579 Git blob paths verified by exact-source recovery.
+Machine: Mac-mini.local, isolated copied source; no source modifications.
+JieLi AC79 SDK: AC79NN_SDK_V1.2.1_2023-12-13.
+JieLi toolchain: /Users/mac/.jieli/toolchain.
+Python environment: Python 3.12.15, Pillow 12.3.0.
+Command: BOARD=smk37 MODEL=pro sh build.sh (PYTHON set to Python 3.12 venv).
+Pro build: FAIL. Compiler errors:
+- firmware/src/app/editor.c:249: PROJECT_LEGACY_FILE_SIZE undeclared (error).
+- firmware/src/app/editor.c:321: project_prepare_legacy_file implicitly declared (warning).
+- firmware/src/app/editor.c:338: project_adopt_legacy_stage implicitly declared (warning).
+Pro build aborts at pi32v2/bin/clang, before firmware application link.
+XIP size: NOT_RUN: no complete linked Pro application ELF, map or final firmware package to measure. A successfully built loader-only ELF is not an application XIP size measurement.
+No firmware binary, private header content, SDK bytes, or hardware capture was exported.
+Full compiler log: docs/test-logs/pr734-pro-build-713dfd03.log
