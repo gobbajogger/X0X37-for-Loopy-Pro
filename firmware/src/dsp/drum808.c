@@ -1508,6 +1508,36 @@ __attribute__((noinline)) static int track_sound(const drum808_t *d, int t)
 
 int drum808_nparams(int track) { return track >= 0 && track <= D8_KIT ? d8_nspec[track] : 0; }
 
+/* UI readout: a pot's engine value and unit (X0X_U_*). Tune is semitones
+ * (lane_hz adds it to the MIDI note; TUM is a pitch ratio); Level is a gain;
+ * tom ring time is seconds; BD/SD X1/X2 reach the voice as pot/127. Other
+ * decays and Drive have no confirmed unit and stay unitless. */
+X0X_COLD int drum808_param_si(int track, int i, int pot, float *val)
+{
+    static const uint8_t snd[D8_NUM] = {D8S_BD, D8S_SD, D8S_LT, D8S_MT, D8S_HT, D8S_RS, D8S_CP, D8S_CB, D8S_CY, D8S_OH, D8S_CH};
+    if (track < 0 || track >= D8_NUM || i < 0 || i >= d8_nspec[track])
+        return X0X_U_NONE;
+    d8_pmap_t m = d8_pmap_at(track, i);
+    if (m.kind != K_POT)
+        return X0X_U_NONE;
+    int s = snd[track];
+    float v = pot_value(s, m.slot, pot);
+    *val = v;
+    switch (m.slot) {
+    case D8P_LEVEL: return X0X_U_GAIN;
+    case D8P_TUNE: return d8_kspec(s, m.slot)->exp ? X0X_U_RATIO : X0X_U_ST;
+    case D8P_REV: case D8P_DLY: *val = v * 100.0f; return X0X_U_PCT;
+    case D8P_DECAY: return track == D8_LT || track == D8_MT || track == D8_HT ? X0X_U_S : X0X_U_NONE;
+    case D8P_X1: case D8P_X2:
+        if (s == D8S_SD && m.slot == D8P_X2)
+            *val = 100.0f * (pot <= 64 ? (float)pot * (1.0f / 128.0f) : 0.5f + (float)(pot - 64) * (0.5f / 63.0f));
+        else
+            *val = (float)pot * (100.0f / 127.0f);
+        return s == D8S_BD || s == D8S_SD ? X0X_U_PCT : X0X_U_NONE;
+    default: return X0X_U_NONE;
+    }
+}
+
 /* UI / MIDI pot metadata — not the 808 audio render (X0X_COLD) */
 X0X_COLD const x0x_param_t *drum808_param(int track, int i)
 {
