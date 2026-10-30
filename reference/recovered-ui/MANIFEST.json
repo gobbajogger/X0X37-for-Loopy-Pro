@@ -1,0 +1,624 @@
+{
+  "schema": 1,
+  "status": "TEXT_ONLY_REFERENCE_SUBSET_NOT_ACTIVE_FIRMWARE",
+  "full_reviewed_reference": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/64575f86375e7daa9a939de25e6eb2f5047e0665/reference/recovered-ui",
+  "source_archive_pr": 703,
+  "source_archive_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+  "source_archive_file_count": 76,
+  "omitted_png_count": 19,
+  "original_readme_and_manifest_replaced": true,
+  "included_original_text_files": 55,
+  "additional_smc_files": 4,
+  "files": [
+    {
+      "path": "reference/recovered-ui/BUILD-EVIDENCE.json",
+      "bytes": 2495,
+      "sha256": "1b6f9d4d3a3435c7ee3ea9f4c6678fc00add1beac6a5b994c48564ec22134c69",
+      "git_blob_sha1": "c9bcbf79721f7b6ce78fb51a26b053ca522d3b20",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/BUILD-EVIDENCE.json",
+      "earlier_origin": "Historical build-evidence text within reviewed archive",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/TEST-PLAN.md",
+      "bytes": 6301,
+      "sha256": "1181034a839f609c2f427a04a5bddd272966cc9bbb165972dc05872bb930e38a",
+      "git_blob_sha1": "af91d8f87297e4ffc7d09506809cc67d073c8aa4",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/TEST-PLAN.md",
+      "earlier_origin": "Recovery acceptance plan; current command source verified at094bb1a55c159aefb0e2bfa39790a1b4b74cee40; historical origins retained in other entries",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/glyphs/CALLERS.tsv",
+      "bytes": 36301,
+      "sha256": "6475c9304d92790dec6f64954cfd3741ead894d3d4913bf52c5a9b2e26ef104a",
+      "git_blob_sha1": "331f3068baea1f85bf585b7319adf73199e305e4",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/mocks/glyphs/CALLERS.tsv",
+      "earlier_origin": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9; design review round2",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/glyphs/DRUM-CALLERS.tsv",
+      "bytes": 3412,
+      "sha256": "4f9e0332a3fe5457daee2fb04cd16815cdc93b089f456796419afbb3cac030ea",
+      "git_blob_sha1": "4f3b8d3bed714a71bac00dbae99a2503141ea0a3",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/mocks/glyphs/DRUM-CALLERS.tsv",
+      "earlier_origin": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9; design review round2",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/glyphs/mockup.c",
+      "bytes": 10429,
+      "sha256": "e6aa3a2a106cecd844119cee6016f52d46b4202a66a7c88f787ad96c0e2b70a7",
+      "git_blob_sha1": "8b01de1740e86137cb6c5b51d092efcd07b1dcbd",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/mocks/glyphs/mockup.c",
+      "earlier_origin": "5f58a199e4b9f95ae51ca0be4cb57ec94c06d2b9; design review round2",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/settings/design-interaction-test.py",
+      "bytes": 1031,
+      "sha256": "7311b04640d26c4cd9c674cd445775d6349fe09861c8f9baa321494c1f9f8df3",
+      "git_blob_sha1": "0e20de5909dda3f5c37b9f2f162e729154217b70",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/mocks/settings/design-interaction-test.py",
+      "earlier_origin": "9d3528acf592b050f375f5325b898ff7a9161cb9",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/settings/mapping.json",
+      "bytes": 6118,
+      "sha256": "f5d40d9ecbf52423ebfe4f95b65856e6d1f7e9bf411c9f6f44dac6797290fd5b",
+      "git_blob_sha1": "394f3abbc61d13d8a90b4def11bab3387f96745d",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/mocks/settings/mapping.json",
+      "earlier_origin": "9d3528acf592b050f375f5325b898ff7a9161cb9",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/mocks/settings/native-strip-render.c",
+      "bytes": 566,
+      "sha256": "fefd7f10b5caa19babf27c215f451dbfc3b81f54d7016aa54efc2ef22e914e7c",
+      "git_blob_sha1": "00819c7542e3a2a32698105027f00f11b30172d1",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/mocks/settings/native-strip-render.c",
+      "earlier_origin": "9d3528acf592b050f375f5325b898ff7a9161cb9",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/LICENSE",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "git_blob_sha1": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/LICENSE",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/Barlow-OFL.txt",
+      "bytes": 4377,
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f",
+      "git_blob_sha1": "2f22ba6ca4dbc12145ae40b14c3368f387cba0e2",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/Barlow-OFL.txt",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/Terminus-LICENSE.txt",
+      "bytes": 4448,
+      "sha256": "0a18785a674c0061da0fa1eb1bbdfe2d7db383b3f2e64c73454540e9cc3ae33d",
+      "git_blob_sha1": "d65472b9ec0421b5be370847a54a6fcfb2b25150",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/Terminus-LICENSE.txt",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u12n.bdf",
+      "bytes": 164741,
+      "sha256": "9e942cad8173fddf34fc8a784e9ec6d2d4cfb8b82363faf65f43b236fe2f5a99",
+      "git_blob_sha1": "ed4ea2a35e0ce51ab2e9fb48616f76ed1998fb1d",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u12n.bdf",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u16b.bdf",
+      "bytes": 181009,
+      "sha256": "92861fecd6f94c5ecc764fc43df5a69eb000ae13a75f652c6525db0495274f0a",
+      "git_blob_sha1": "ca0c45aba124750720dc9c36adc1fb68dc6d20a5",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u16b.bdf",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u16n.bdf",
+      "bytes": 181013,
+      "sha256": "5197662b22bf9f3e68d4af9f969a7fefa3edae40dd82ae969a147381130fb4ae",
+      "git_blob_sha1": "18839c62744e4cb714afa1e9127eda6b6f2557bb",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u16n.bdf",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u24b.bdf",
+      "bytes": 281357,
+      "sha256": "759e0dbbd137d0132cee5d83b681cea1c8a656f161e04f83e121525ea4eb1824",
+      "git_blob_sha1": "7bf02a9b730058d65c74c23ee5ea051512db19a0",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u24b.bdf",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u32b.bdf",
+      "bytes": 335597,
+      "sha256": "f6295e92ebbf95afbb6274f4621608d255c1287ec90d3fefbc50f077bf09dab4",
+      "git_blob_sha1": "a0e2f890a22b6538135114cb7926467ca2c43701",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/assets/fonts/ter-u32b.bdf",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/docs/qa/settings-peer-identity-20261027.md",
+      "bytes": 1809,
+      "sha256": "1a7998714e8be677dcae5aab02ff624225c203e977a6700fc07b5ba984db5019",
+      "git_blob_sha1": "d69fb1dc9355b6684ea7794f51b3eee7be249b37",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/docs/qa/settings-peer-identity-20261027.md",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/docs/qa/ui-tape-activity-20261028.md",
+      "bytes": 1073,
+      "sha256": "00f0b0ecd793fb08d637988e2463643763382fca3285f4014509bbe4bd8f662d",
+      "git_blob_sha1": "b1e3aab95e3373ae5c4e7c1d6fe38bd82078a4c0",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/docs/qa/ui-tape-activity-20261028.md",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/docs/qa/ui-visual-feedback-20261027.md",
+      "bytes": 1819,
+      "sha256": "374234ecc1a7fabf86062b781414057c5783e51e938c805ddceb04cfe9e038f9",
+      "git_blob_sha1": "258531c8b235e1fd924fb1bf9c8a9a257d31258d",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/docs/qa/ui-visual-feedback-20261027.md",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/firmware/src/app/ui.c",
+      "bytes": 321593,
+      "sha256": "96ad04f5dc0c2439c83dc97de70476a4d915c3d30207fbaebd7d0a9bc869bc2b",
+      "git_blob_sha1": "c96dbc72fb9ec94298c803576c581405c226b4c5",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/firmware/src/app/ui.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/firmware/src/app/ui_waveform.h",
+      "bytes": 1433,
+      "sha256": "0f374a2cbc2d617fad0ff60a0c475de749aa2ce1e111efd945536c590f1bc865",
+      "git_blob_sha1": "19e9e7b4dcc0daefce39b1743ac31442d58bad29",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/firmware/src/app/ui_waveform.h",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/firmware/src/gfx.c",
+      "bytes": 9199,
+      "sha256": "e2e4b9c8cec0bd6f26ed4d39e5d39fbee1090d809987e0fb1b8ca7153c610604",
+      "git_blob_sha1": "eed2a719a2131f64075f9e3ebb59d3fd4f8dac43",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/firmware/src/gfx.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/firmware/src/ui_theme.h",
+      "bytes": 887,
+      "sha256": "d5d98953ce1fe25d705e3599f20be3c3dba8a6e74cb775f095f63686128bdc54",
+      "git_blob_sha1": "361a05c5a0e3c1cb0235d40005db86a0c0ca849b",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/firmware/src/ui_theme.h",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/night_ui_test.c",
+      "bytes": 9807,
+      "sha256": "99cfe4bb1ae0f602661e6d9f9144146de2a8352a6eef0dfbf5e022039ac07683",
+      "git_blob_sha1": "5b07f818f2a4d066fc0f7bd33013f4fdb1297626",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/night_ui_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/night_ui_test.sh",
+      "bytes": 474,
+      "sha256": "473a442aa874756464a8d562aae8ac20041187d0fa03920bad9ac0015ed27c3f",
+      "git_blob_sha1": "ca031d847a0e742ab44ef4970a0d59fd1de8f04f",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/night_ui_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/smc_ui_test.c",
+      "bytes": 31392,
+      "sha256": "02d0221a66b2b5d2bcc60913e10e2294c5447aea8416016800faae80470cee54",
+      "git_blob_sha1": "f6cbdf7b135b7b300fb3c91434b13f906161eadc",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/smc_ui_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/smc_ui_test.sh",
+      "bytes": 1652,
+      "sha256": "810c6902351caface1d86e4f9de9078f4a0fa8fdd3dc95f8dfe836c3b6f8956b",
+      "git_blob_sha1": "31bfcb8609fcf64cc593a17ea1cd9c2b9d5834a8",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/smc_ui_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_action_header_test.c",
+      "bytes": 1249,
+      "sha256": "6da1df99399b5bf7a92d7e87af8e70c4c19e2552096db103953197feaed15cd9",
+      "git_blob_sha1": "f55de5102df7e3083396f6af5e3c6370232bd200",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_action_header_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_all_glyph_test.c",
+      "bytes": 3302,
+      "sha256": "077c13325b51bc7e632d6a6c44a3ddcf9b17dee83540867cb6e56bef1c14252d",
+      "git_blob_sha1": "fc0f44085536cf9f8f1ffb1d573c081030aeff93",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_all_glyph_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_all_glyph_test.sh",
+      "bytes": 203,
+      "sha256": "09103b52d5469810c0f908038d52905a8de11fa864db7f7962283059c3cd85ae",
+      "git_blob_sha1": "aa034564b2616641104539bc462a9c7399771b48",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_all_glyph_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_depth_wave_test.c",
+      "bytes": 4211,
+      "sha256": "ddb82fd7b9b74399f7808e73d1477e033b330fc42d7efe64fb4ec0cec6c97224",
+      "git_blob_sha1": "36e827504c606e71c7ff8c5350cf9133b60540c5",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_depth_wave_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_depth_wave_test.sh",
+      "bytes": 366,
+      "sha256": "0703a4ed35c4e30ee6a544303f66a8e522504c6f0302fabde4a525f9990b5406",
+      "git_blob_sha1": "9dcf448bddc6a38ff38a4fb22a9c8aec054f9b23",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_depth_wave_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_drive_loop_test.c",
+      "bytes": 1700,
+      "sha256": "70a2554f679a74bb765a14140cb6702e36250061d572a22edf8719fa7d292455",
+      "git_blob_sha1": "92ac3dbcbc8f5599608c3498aceb4fd5c68506e1",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_drive_loop_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_drum_mix_material_test.c",
+      "bytes": 2273,
+      "sha256": "c965cb7a6e3e0c7ceb015cead480a48434a36bd87cfc1d5f9120aa4f29af8cc8",
+      "git_blob_sha1": "42042a0ab3afd20fc5727f53e42bd1bbe60dfb1f",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_drum_mix_material_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_drum_mix_material_test.sh",
+      "bytes": 304,
+      "sha256": "4a3ecf3f5b144e0253f1fe7d72177803311fda513fa3e162a0405742b448e086",
+      "git_blob_sha1": "14ee115f6d634960c608fe6a505bc89417e9251d",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_drum_mix_material_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_feedback_test.c",
+      "bytes": 6569,
+      "sha256": "42f2fe5fbbcae13aac78597d109dd59c1de7b0df0409c02762bed08795dea57b",
+      "git_blob_sha1": "c6cf383ca6f579da3aec626955a15e425416f39f",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_feedback_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_feedback_test.sh",
+      "bytes": 1015,
+      "sha256": "5e533009ef4532ab5399ed9c187747d6e0ae572c4c8ed77ba2aa0fece1fa5831",
+      "git_blob_sha1": "4fa635cf215d2985187fae812d88b54feb5c5269",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_feedback_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_filter_motion_test.c",
+      "bytes": 533,
+      "sha256": "72f607182f0863390ec871e37b2a1aa28c6cd6b9de6b0660c29ff888b33f76cd",
+      "git_blob_sha1": "480d1f1ff89cb3432436efd03403d0869fad3559",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_filter_motion_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_glyph_semantics_test.c",
+      "bytes": 2786,
+      "sha256": "7b1c647c9cd2c90c08c991c5147ba5d9f0b446236a51b7a7b24e55f7ab2907d3",
+      "git_blob_sha1": "45c92eab9a0a9473b96bae3c302408d969e249bd",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_glyph_semantics_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_glyph_semantics_test.sh",
+      "bytes": 215,
+      "sha256": "b386096c3753be28b349698b804b2a42e17524d10772233c8c014cd5b1935a29",
+      "git_blob_sha1": "bfb6126903212f3672e7f9265e2833c2120334a5",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_glyph_semantics_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_loop_capacity_test.c",
+      "bytes": 1583,
+      "sha256": "dc87b29d9c7d3fb00b118fdb61d5e34b679d5936f84ae3ddea5e478144ec8589",
+      "git_blob_sha1": "7a9e42051f67db83558f1b9b3789da5657de5647",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_loop_capacity_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_main_material_test.c",
+      "bytes": 2603,
+      "sha256": "fe6a03c927e69677350fde137b2fea841da9c3ad76df2857d8c6190ffd4bca5e",
+      "git_blob_sha1": "3157024c716ddd841fc647fe4b4031bb2dcc2ae2",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_main_material_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_main_material_test.sh",
+      "bytes": 295,
+      "sha256": "098b067956f14ffca22ef93c0ea3cd800a73495ac5a85dad5e7cd6404dbf5486",
+      "git_blob_sha1": "afe67c4d3afc86831c4400bfb51290b4d12c8dbc",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_main_material_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_peer_names_test.c",
+      "bytes": 3514,
+      "sha256": "c4e7069c8a4ff17b1cd51b3aad7d67de4e1306d90866a16b06aa707450c02f47",
+      "git_blob_sha1": "0cc8e9f382f1b9ee3196bd24829f0f366d7e9c3a",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_peer_names_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_peer_names_test.sh",
+      "bytes": 205,
+      "sha256": "87a843dd2f4767b8d25fdd8fe132714478c390caeb17d292eaced040f14e9a57",
+      "git_blob_sha1": "42421ffb4dab39c101eb13a3d5a6bb3c54d0d6f5",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_peer_names_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_settings_sections_test.c",
+      "bytes": 2466,
+      "sha256": "4442ec834212f35eda01232cd6ff941517bb8cdd32751c7d4ba7ff52263f614f",
+      "git_blob_sha1": "0aa546e10ef8ce5a73502541d8b70a81f324c597",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_settings_sections_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_settings_sections_test.sh",
+      "bytes": 219,
+      "sha256": "f35058f93ee2dd73cc66d6d49b16a7c83a40fc2bb19d6f8bdf0ed85215ea2e1d",
+      "git_blob_sha1": "62af2b00bdd0096c4b01bcc449ad1060590dc76f",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_settings_sections_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_shared_glyph_test.c",
+      "bytes": 1856,
+      "sha256": "0edcdd12bf69f7d2f9606cced997e9fc008d02c56bc94bfe587b8e247dd00506",
+      "git_blob_sha1": "7a4766c5a3a72a518fcd2b6f3ecb9ef7af1b96f2",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_shared_glyph_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_shared_glyph_test.sh",
+      "bytes": 287,
+      "sha256": "7944aa3b818a309fbfdb30473547a586198379d8ea0f8327d8d93253cb49ce66",
+      "git_blob_sha1": "0687ab5d3028bd455424887a7961d7b941700090",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_shared_glyph_test.sh",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_tape_activity_test.c",
+      "bytes": 1876,
+      "sha256": "a8fdbbd91b0a72abd052be84fc42d9e6a6e741851c12d98a5291309c251ada00",
+      "git_blob_sha1": "4f5623896d86b8087c5166bdc2eb8225212b715a",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_tape_activity_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_tape_motion_test.c",
+      "bytes": 3130,
+      "sha256": "7c06b20c9ba63d9c404a00c7b579f5a47b805a3494ac93ca38b6fd1a127ef24e",
+      "git_blob_sha1": "e8dd110a572987cf4fd5e7c473c120e24844cb5c",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_tape_motion_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_tape_signal_test.c",
+      "bytes": 1859,
+      "sha256": "832a2482c3b3e5d919bb4e845da94ac541eff9cabeb2e42c6a7018aedd44b0d8",
+      "git_blob_sha1": "1a14ebade65c11047e0d2240da8e246edca703d5",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_tape_signal_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tests/host/ui_waveform_truth_test.c",
+      "bytes": 1260,
+      "sha256": "e12aab6ad5520a53f258732fbf28c98237f94161d18c339fc1e9add2b6524c86",
+      "git_blob_sha1": "c5de54f1a8f8782d55764f4a0f0840db9b561b17",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tests/host/ui_waveform_truth_test.c",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/0e58b960/tools/gen_font.py",
+      "bytes": 13286,
+      "sha256": "c89d1a1420406f60354d40a38fbdef2a34df76b5ec74168e26f08d61f6e9cb74",
+      "git_blob_sha1": "06682292a45e74aa74fb293119550004a00fdc7c",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/0e58b960/tools/gen_font.py",
+      "earlier_origin": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-ui/source/e2f881b0/firmware/src/app/ui.c",
+      "bytes": 298656,
+      "sha256": "7ec7ee0e6476440bf9f039eea7e06071e412cb9d50097d1ddb2cc6ac54fbece3",
+      "git_blob_sha1": "bd8ae26aabafd2ef6f210de5a33de02ba0426216",
+      "immutable_origin_commit": "64575f86375e7daa9a939de25e6eb2f5047e0665",
+      "immutable_origin_path": "reference/recovered-ui/source/e2f881b0/firmware/src/app/ui.c",
+      "earlier_origin": "e2f881b0b0d5fbde8b4e352ab03c8ae2adc46058",
+      "status": "historical-reference-only; no current implementation or execution claim"
+    },
+    {
+      "path": "reference/recovered-smc/source/0e58b960/firmware/src/app/smc_mixer.c",
+      "origin_path": "firmware/src/app/smc_mixer.c",
+      "origin_source_receipt": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "origin_tree_receipt": "aa9273145360c1e9583ec293240a1ecb4f58e65c",
+      "provenance_limit": "Source/tree attributed by existing local delivery receipt; direct current local bytes match Elite and Pro copies. No local Git object read or remote origin-commit verification performed.",
+      "sha256": "7ca15e96dd1913ea2bc0aa2c916a2e884435e6fba46fa7e1eeae874d7ad419f8",
+      "git_blob_sha1": "91e75789dc2430b506d811497c319fa45e966cd9",
+      "bytes": 64993,
+      "one_build_094bb_blob": "0867629e4d2cb4b0e85228d312fa609487d797a2",
+      "license": "GPL-3.0-only explicit source SPDX; repository LICENSE retained for test files without SPDX",
+      "status": "historical-reference-only; not implemented, tested or approved as current behavior"
+    },
+    {
+      "path": "reference/recovered-smc/source/0e58b960/tests/host/smc_locked_actions_test.py",
+      "origin_path": "tests/host/smc_locked_actions_test.py",
+      "origin_source_receipt": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "origin_tree_receipt": "aa9273145360c1e9583ec293240a1ecb4f58e65c",
+      "provenance_limit": "Source/tree attributed by existing local delivery receipt; direct current local bytes match Elite and Pro copies. No local Git object read or remote origin-commit verification performed.",
+      "sha256": "ec45a6af4b0df085d11102fa5580495d71d30a30b94145a9c03885be11ebe1c0",
+      "git_blob_sha1": "88afd214f46e8e09403c02cec998fea66a688ba2",
+      "bytes": 11609,
+      "one_build_094bb_blob": null,
+      "license": "GPL-3.0-only explicit source SPDX; repository LICENSE retained for test files without SPDX",
+      "status": "historical-reference-only; not implemented, tested or approved as current behavior"
+    },
+    {
+      "path": "reference/recovered-smc/source/0e58b960/tests/host/smc_fx_actions_test.py",
+      "origin_path": "tests/host/smc_fx_actions_test.py",
+      "origin_source_receipt": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "origin_tree_receipt": "aa9273145360c1e9583ec293240a1ecb4f58e65c",
+      "provenance_limit": "Source/tree attributed by existing local delivery receipt; direct current local bytes match Elite and Pro copies. No local Git object read or remote origin-commit verification performed.",
+      "sha256": "2e81419863778a876e78b2d9adb6074efbef7f7bc218b40477ddba723a8df4a1",
+      "git_blob_sha1": "b655acc3bed908bbc473dda0db6785def0a06ce8",
+      "bytes": 10196,
+      "one_build_094bb_blob": null,
+      "license": "GPL-3.0-only explicit source SPDX; repository LICENSE retained for test files without SPDX",
+      "status": "historical-reference-only; not implemented, tested or approved as current behavior"
+    },
+    {
+      "path": "reference/recovered-smc/source/0e58b960/LICENSE",
+      "origin_path": "LICENSE",
+      "origin_source_receipt": "0e58b960faa25a3c43d342cd923f5f14425ab2ba",
+      "origin_tree_receipt": "aa9273145360c1e9583ec293240a1ecb4f58e65c",
+      "provenance_limit": "Source/tree attributed by existing local delivery receipt; direct current local bytes match Elite and Pro copies. No local Git object read or remote origin-commit verification performed.",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "git_blob_sha1": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "bytes": 35149,
+      "one_build_094bb_blob": null,
+      "license": "GPL-3.0-only explicit source SPDX; repository LICENSE retained for test files without SPDX",
+      "status": "historical-reference-only; not implemented, tested or approved as current behavior"
+    }
+  ],
+  "limits": [
+    "Only the files enumerated here are included. This is not the full 76-file archive.",
+    "No PNG/TTF or product binaries are added. Historical source/mock generators may reference omitted assets or dependencies.",
+    "Original source/test/license bytes are preserved; their old paths/includes are historical context, not instructions to fetch private inputs.",
+    "Local SMC origin attribution relies on existing source/tree delivery receipts and identical Elite/Pro local copies; not newly proven by Git-object retrieval.",
+    "Current Chicago/Miami and revision13 constraints apply; historical source is not a production replacement.",
+    "All current runtime/build/golden/performance/hardware checks NOT_RUN."
+  ]
+}

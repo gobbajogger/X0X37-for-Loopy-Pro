@@ -1,0 +1,187 @@
+{
+  "source": "094bb1a55c159aefb0e2bfa39790a1b4b74cee40",
+  "public_blobs_verified": 400,
+  "manifest_external_inputs_verified": 12,
+  "additional_local_private_input_required": true,
+  "original_runner_exit": 0,
+  "normal_checks": 22949,
+  "sanitized_checks": 22949,
+  "capture_calls": 36,
+  "log_and_png_equality": true,
+  "leak_checking": "disabled by current runner",
+  "artifacts": [
+    {
+      "path": "build/host/original-release-ui-driver.log",
+      "sha256": "83e83b496ec3d9924ab0744b47476aafbfc4c595fba1aeb81f0f784f0d332af6",
+      "bytes": 97
+    },
+    {
+      "path": "build/host/original-release-ui/normal.log",
+      "sha256": "83e83b496ec3d9924ab0744b47476aafbfc4c595fba1aeb81f0f784f0d332af6",
+      "bytes": 97
+    },
+    {
+      "path": "build/host/original-release-ui/sanitized.log",
+      "sha256": "83e83b496ec3d9924ab0744b47476aafbfc4c595fba1aeb81f0f784f0d332af6",
+      "bytes": 97
+    },
+    {
+      "path": "build/host/original-release-ui/sources.txt",
+      "sha256": "890f7858ead243f61db782395f6d6b274cf9ab24aba33ff036307fefe5bb9a1d",
+      "bytes": 2806
+    },
+    {
+      "path": "build/host/original-release-ui/assets.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "images": [
+    {
+      "name": "chicago-env-0.png",
+      "sha256": "59ee37f0661db8232b2a11dc0c37201227dfebe16f1b71e22fa7fe9838702e80"
+    },
+    {
+      "name": "chicago-env-127.png",
+      "sha256": "484c08e67c33f3736471f135177ee64dc30858a0f8cb02821df18de95a4784f4"
+    },
+    {
+      "name": "chicago-env-64.png",
+      "sha256": "a18e511964d1fedeaa2db9400a89ca1d89306de457e8a5926907ea63b1e796f5"
+    },
+    {
+      "name": "chicago-fx0.png",
+      "sha256": "6a11b2313f3d2d5642de6627d35be52cac75c75e63e457a36a3ea1b852bebce6"
+    },
+    {
+      "name": "chicago-fx1.png",
+      "sha256": "1a5011fe32c50ea99a165dccecd07c80252540ebb9333f5dd6baab67ffbb3472"
+    },
+    {
+      "name": "chicago-fx2.png",
+      "sha256": "5e45dece66db2f0f890de436700f2c406eb1171bb31bdb324242fde49dea5377"
+    },
+    {
+      "name": "chicago-fx3.png",
+      "sha256": "ffad3c80a9be5e4d16a7dda8bdd2902a342914aa153393e4c2836d96a31c6096"
+    },
+    {
+      "name": "chicago-fx4.png",
+      "sha256": "bf17251acd8f683bbf6dc12b53373030303004107b35bcdf37dd4e72f3fad456"
+    },
+    {
+      "name": "chicago-fx5.png",
+      "sha256": "5acfe8db3076c4ad324e75f36aa5cc4e8f79120e6d29a7c07e45f52c20df86b5"
+    },
+    {
+      "name": "chicago-fx6.png",
+      "sha256": "9d0e87a3ee0348b04e66c117b72fcb8a89fa3d5239d0a463586cd2e4913824f3"
+    },
+    {
+      "name": "chicago-last-preset.png",
+      "sha256": "47071e8a014e530284a6f983cbdd0f5a42f0c38b11f2d7331185cde7bb859cd8"
+    },
+    {
+      "name": "chicago-page0.png",
+      "sha256": "c6aada97a9ca351e812491d8307f8fa662688155096ae3db62bd59dc1529c98b"
+    },
+    {
+      "name": "chicago-page1.png",
+      "sha256": "49c8c3cb541c30b0c00fc410be1434801e6ac6ab9ae3e4b07c707ad6d24cd1d5"
+    },
+    {
+      "name": "chicago-page2.png",
+      "sha256": "e5cf9871847d4fef4d35f1621bb040c5ccfc050bcf4d07d671f2b080e931cebd"
+    },
+    {
+      "name": "chicago-page3.png",
+      "sha256": "a84e6348983f1974cf4ed9f6834386b5956c0e4f06d403569300aba7cef6e6b1"
+    },
+    {
+      "name": "chicago-page4.png",
+      "sha256": "f8ea8bbfb394fb5cf0aa32b3660b0d6be1b76075cc272b31c85feb2894f5b607"
+    },
+    {
+      "name": "chicago-page5.png",
+      "sha256": "459d1d0364f40f237886a25f2608837ae592a2e2776c666c7b6e71fed0a221dc"
+    },
+    {
+      "name": "chicago-page6.png",
+      "sha256": "6a11b2313f3d2d5642de6627d35be52cac75c75e63e457a36a3ea1b852bebce6"
+    },
+    {
+      "name": "chicago-page7.png",
+      "sha256": "2207f2e3da01c610e6bd34db56846388bc893eae9ecebc418d3250f5ae28ddef"
+    },
+    {
+      "name": "chicago-preset-list.png",
+      "sha256": "6cd11e3001bb8092e297d2550ae0d1aa53c47e10a494018d3c4448c02e6d26a4"
+    },
+    {
+      "name": "drum-909.png",
+      "sha256": "7db27cdecc3e8cae5ea72edc383c5b4a222d0386a9dd3dc9bb8a68f25be525ec"
+    },
+    {
+      "name": "home.png",
+      "sha256": "24c02a9099ed77dc9e420462863832c1f164ddd04707258f8b7a965a3f004149"
+    },
+    {
+      "name": "miami-last-preset.png",
+      "sha256": "9ab6d4f305eea350dc3d707f0fffa25a04ff92556c7f8fcc970b6ade236eb67f"
+    },
+    {
+      "name": "miami-page0.png",
+      "sha256": "4bbbfe529056dfd192d9cd6c34ffea22298e48a5813ec884af397236e25bdf07"
+    },
+    {
+      "name": "miami-page1.png",
+      "sha256": "9369d23cf0586b35f2dae49b00e240986fa2f936cb3794819847119859651915"
+    },
+    {
+      "name": "miami-page2.png",
+      "sha256": "0e9a37f7a38f5d63cf7169c689212f8d4acfb08d29a099b184273bb33a6e9a90"
+    },
+    {
+      "name": "miami-page3.png",
+      "sha256": "09791f63ed9641011a4b101878c858efb00672791decb4873e49fadf06197d33"
+    },
+    {
+      "name": "miami-page4.png",
+      "sha256": "adf7fb1bd330eea35e692511882241f5f1503b74c7882c2ce002393510523de8"
+    },
+    {
+      "name": "miami-page5.png",
+      "sha256": "0e76b36fe959fde032ccf01584c112349d9344fedc1e198cacedb650bc840fdb"
+    },
+    {
+      "name": "miami-preset-list.png",
+      "sha256": "0233c8141cd1232f6520db2459512aa58952c7016013245224cb2d8d4d6ade66"
+    },
+    {
+      "name": "miami-tune-0.png",
+      "sha256": "36523ff6049a7afed4321fd0e1f373af8f0d12e368cde63c6060726db496a429"
+    },
+    {
+      "name": "miami-tune-127.png",
+      "sha256": "29d9fcec727d1d460eae57530756c4647b4d619437ee7c58f33214e940b1701f"
+    },
+    {
+      "name": "miami-tune-64.png",
+      "sha256": "25b1336cac70b03ea83f0ebca2b88686f5e6d7db79ba70a0f2f318f43a0cbefd"
+    },
+    {
+      "name": "mix-master.png",
+      "sha256": "c654bba7d52c75e20b37e397705c791b07700a57145cd04cec4c6f0e97d6be35"
+    },
+    {
+      "name": "mix-parts.png",
+      "sha256": "e56d825fcc1381c77a04afcfed85d532e9b95f3389f207c1837d91e9d2183f2d"
+    },
+    {
+      "name": "sound-requested-miami-held-chicago.png",
+      "sha256": "b5b4d816465d46c03a277dce13e17a194027e71db320b1d0f7ce539725f6fc7c"
+    }
+  ],
+  "named_png_outputs": 36,
+  "unique_image_hashes": 35
+}
