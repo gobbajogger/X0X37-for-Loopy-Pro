@@ -80,6 +80,8 @@ int engine_bass_preset_edited(int voice);
 int engine_bass_status(int voice);
 /* Chicago only, UI: live filter EG level 0..1 and env depth; 0 when not available */
 int engine_bass_filter_view(int voice, float *eg, float *depth);
+/* UI: live MG1 phase/output (Miami) and osc pitch glide (both); 0 when not available */
+int engine_bass_motion_view(int voice, float *phase, float *bipolar, float *current, float *target, int *active);
 int engine_bass_requested_bank(int voice);
 int engine_bass_requested_preset(int voice);
 /* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */

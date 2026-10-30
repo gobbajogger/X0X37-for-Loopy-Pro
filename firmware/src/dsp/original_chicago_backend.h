@@ -121,6 +121,8 @@ int original_chicago_backend_active(const original_chicago_backend *);
 /* UI only: the live filter EG level (0..1) and the compiled env depth. Plain
  * float reads of audio-owned state; a torn frame is a one-frame glyph glitch. */
 int original_chicago_backend_filter_view(const original_chicago_backend *, float *eg, float *depth);
+/* UI: live oscillator-1 pitch (current, glide target, semitones); active voice flag */
+int original_chicago_backend_pitch_view(const original_chicago_backend *, float *current, float *target, int *active);
 
 /* Validate the complete immutable queue and workspace before block prepare.
  * Queue events run before each frame's gate/MG/control/audio. begin() prepares
