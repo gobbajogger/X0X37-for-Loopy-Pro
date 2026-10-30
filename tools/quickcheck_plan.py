@@ -18,7 +18,7 @@ TEST_ROUTES = [
     ('firmware/src/dsp/drum808', 'drum808 drum-pan'),
     ('firmware/src/dsp/breaks', 'breaks'),
     ('firmware/src/dsp/', 'master stereo fastmath'),
-    ('firmware/src/seq/', 'sequencer motion loop-bars rec-live'),
+    ('firmware/src/seq/', 'sequencer motion loop-bars rec-live-smk'),
     ('firmware/src/storage', 'smk-storage'),
     ('firmware/hal/fm1_flash_map.h', 'smk-flash smk-storage'),
     ('firmware/src/ble', 'ble smk-clip-ble-clear smk-clip-ble-notify diag-size'),
