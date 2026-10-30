@@ -53,6 +53,9 @@ def require_original_synth_sources():
     if os.environ.get("FAIL_ORIGINAL_INPUTS"):
         raise SystemExit(31)
 ''')
+        # build_host.sh asks this checker for the private original-synth inputs first.
+        (self.root / "tools/check_original_inputs.py").write_text(
+            'import os, sys\nsys.exit(1 if os.environ.get("FAIL_INPUT_CHECK") else 0)\n')
         compiler = self.root / "compiler"
         compiler.write_text('''#!/usr/bin/env python3
 import json, os, pathlib, sys
@@ -132,6 +135,12 @@ pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_text("simulator")
     def test_original_input_failure_stops_compilation(self):
         result = self.run_builder(FAIL_ORIGINAL_INPUTS="1")
         self.assertEqual(result.returncode, 31)
+        self.assertFalse((self.root / "compile.json").exists())
+
+    def test_input_check_failure_stops_compilation(self):
+        result = self.run_builder(FAIL_INPUT_CHECK="1")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("private original-synth inputs missing", result.stderr)
         self.assertFalse((self.root / "compile.json").exists())
 
     def test_custom_bank(self):

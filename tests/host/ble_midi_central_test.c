@@ -90,6 +90,8 @@ int main(void)
     c.state = BLEC_DISCOVERING; c.step = 10; c.conn = 1;c.linked=1;
     { const uint8_t error[] = {1,0x10,1,0,0x0a}; att(&c, error, sizeof error); }
     assert(c.state == BLEC_DISCONNECTING && tx_type == 1 && tx[0] == 0x06);
+    /* The controller answers Disconnect with Command Status; it returns the command credit. */
+    { const uint8_t st[] = {0x0f,4,0,1,0x06,0x04}; blec_rx(&c,4,st,sizeof st,115); }
     { const uint8_t down[] = {5,4,0,1,0,0x13}; blec_rx(&c,4,down,sizeof down,120); }
     assert(c.state == BLEC_SCANNING && tx[0] == 0x0c);
     /* OFF→ON waits for scan disable completion, then starts with a fresh Reset. */
