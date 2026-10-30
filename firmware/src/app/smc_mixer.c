@@ -678,6 +678,11 @@ static uint8_t smc_scaled(pref_t r)
 /* Temporary presentation only: the underlying ui/clip state is never replaced or
  * restored. A navigation edge cancels this owner rather than scheduling a write. */
 #define SMC_UI_MS 1200u
+/* Peer-local press ownership outlives a popup's idle deadline. */
+static int smc_held(const smc_state_t *state)
+{
+    return smc_hold_any(state->held);
+}
 struct smc_ui_state {
     uint32_t until, context;
     uint8_t on, kind, strip, action, peer;
@@ -719,11 +724,23 @@ void smc_ui_cancel(void)
 
 int smc_ui_active(void)
 {
-    if (smc_ui.on && (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
-        smc_ui.context != smc_ui_context() ||
-        !smc_ui_edge_alive(plat_ms(), smc_ui.until,
-            smc_hold_any(smc_states[smc_ui.peer].held))))
-        smc_ui_cancel();
+    if (smc_ui.on) {
+        uint8_t saved = smc_slot, peer = smc_ui.peer;
+        if (peer >= SMC_PEERS) {
+            smc_ui_cancel(); /* stale or corrupt peer must fail closed */
+            return 0;
+        }
+        /* smc_poll() restores smc_slot to its caller. This context belongs
+         * to the peer that opened the temporary screen, not that caller. */
+        smc_slot = peer;
+        uint32_t context = smc_ui_context();
+        smc_slot = saved;
+        if (ui_project_busy() || ui.help || ui.overlay == O_ASK ||
+            smc_ui.context != context ||
+            !smc_ui_edge_alive(plat_ms(), smc_ui.until,
+                smc_held(&smc_states[peer])))
+            smc_ui_cancel();
+    }
     return smc_ui.on;
 }
 
@@ -898,6 +915,11 @@ static UI_DRAW void smc_ui_grid(void)
         cv_rect(x + 3, 64, 2, 51, f.kind == R_NONE ? C_LINE : C_DIM);
         if (f.kind != R_NONE) {
             int target = 111 - smc_scaled(f) * 45 / 127;
+            /* Source #688: color the fader's destination travel, without
+             * replacing its physical pickup marker or newer UI materials. */
+            uint16_t travel = kit >= 0 ? PART_COL[kit] :
+                n < NPARTS ? PART_COL[part_at(n)] : C_AMB;
+            cv_rect(x + 3, target, 2, 115 - target, travel);
             cv_rect(x + 1, target, 6, 4, fc);
             /* A fine white marker is physical position until pickup is acquired. */
             if (!(smc.picked & (1u << n)))
@@ -931,6 +953,33 @@ static void smc_ui_draw_peer(void)
     else if (ui.view == V_HOME) put_s(tag, "HOME / PARTS");
     else if (pg.n > 0) put_s(tag, pg.title[smc_page_now()]);
     else knob_tag(tag);
+    /* Source #688: identify the encoder bank. Preserve the newer
+     * smc_page_now() selection and safe handling of an empty page list. */
+    {
+        char context[80];
+        const char *bank;
+        static const char *const main_bank[] = {"CUT+FX", "PAN+FX", "RVB+FX", "DLY+FX"};
+        static const char *const drum_bank[] = {"PAN", "REVERB", "DELAY"};
+        put_s(context, tag);
+        if (kit >= 0) {
+            put_i(put_s(put_s(context, PART_N[kit]),
+                        smc.locked ? " LOCK B" : " B"),
+                  (smc.locked ? smc.lock_bank / 8 : ui.sel[kit] / 8) + 1);
+            bank = drum_bank[smc.knob_bank % 3u];
+        } else if (smc.locked) bank = "LOCKED BANK";
+        else if (ui.view == V_HOME || (ui.view == V_MIX && cur_page() == 0))
+            bank = main_bank[smc.knob_bank % 4u];
+        else bank = pg.n > 0 ? pg.title[(smc_page_now() + smc.knob_bank * 2u) % pg.n] : "--";
+        char *end;
+        if (kit >= 0 || smc.locked)
+            end = put_s(put_s(put_s(tag, context), " / Knobs "), bank);
+        else {
+            end = put_s(put_s(put_s(tag, "Knobs "), bank), " / ");
+            for (int i = 0; context[i] && end < tag + sizeof tag - 1; i++)
+                *end++ = context[i];
+        }
+        *end = 0;
+    }
     { char *end = tag;
       while (*end) end++;
       while (tw(&FONT_XS, tag) > 165) *--end = 0;
