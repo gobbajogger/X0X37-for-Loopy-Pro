@@ -76,7 +76,7 @@ static uint16_t original_quiet_samples[NBASS], original_switch_gain[NBASS];
 unsigned engine_original_tail_state(int v)
 {
     return (unsigned)v < NBASS ? original_quiet_samples[v] |
-        (original_runtime_owned(&original_bass[v]) ? 0x10000u : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
+        (original_runtime_owned(&original_bass[v]) ? (1u << 16) : 0u) | ((unsigned)original_switch_gain[v] << 17) : UINT32_MAX;
 }
 #endif
 static original_runtime_workspace original_workspace POOL;
