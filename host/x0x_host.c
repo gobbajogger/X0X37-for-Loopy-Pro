@@ -35,6 +35,9 @@
  *                                to the simulated flash and booted, as if it had been made here
  */
 #define X0X_HOST 1
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE 1   /* libproc / task instruction-count APIs require Darwin types */
+#endif
 #define _POSIX_C_SOURCE 200809L                 /* clock_gettime, CLOCK_MONOTONIC (glibc <time.h>) */
 #include <stdio.h>
 #include <stdlib.h>

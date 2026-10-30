@@ -14,6 +14,11 @@ static uint8_t flash_image[0x100000];
 #define SMP_USER_XIP(k) (flash_image + SMP_USER_OFF(k))
 #include "../../firmware/src/app/slots.c"
 project_t proj, project_stage;
+/* Drive the real editor's revision-13 export preflight without a DSP/storage link. */
+static int host_storage_unsupported, host_sound_invalid, host_preset_pending;
+int project_storage_unsupported(void) { return host_storage_unsupported; }
+int engine_bass_sound_validate(const sound_t *sound) { (void)sound; return host_sound_invalid; }
+int engine_bass_preset_pending(int voice) { (void)voice; return host_preset_pending; }
 static uint32_t fm1_ms, fm1_crash[2];
 static struct { uint32_t failed, pending; } bootguard;
 static struct { unsigned ota_req, uboot_req; } usb;
@@ -145,9 +150,15 @@ int main(void)
     uint32_t i, n;
     for (i = 0; i < sizeof data; i++) data[i] = (uint8_t)(i * 37 + 91);
     memset(&proj, 0x42, sizeof proj);
-    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == 1 && ed_u21(reply + 8) == sizeof data && !reply[11]);
+    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == (X0X_BASS_TAGGED_SOUND ? 2 : 1) && ed_u21(reply + 8) == sizeof data && !reply[11]);
     u21(a, sizeof data - 1); op(67, a, 3, 1); assert(!held);
     held = 1; u21(a, sizeof data); op(67, a, 3, 2); held = 0;
+    host_storage_unsupported = 1; op(65, 0, 0, 2); assert(!held);
+    host_storage_unsupported = 0;
+    host_sound_invalid = 1; op(65, 0, 0, 2); assert(!held);
+    host_sound_invalid = 0;
+    host_preset_pending = 1; op(65, 0, 0, 2); assert(!held);
+    host_preset_pending = 0;
     op(65, 0, 0, 0); assert(ed_project.mode == 1 && held);
     u21(a, 20); a[3] = 100; a[4] = 0; op(66, a, 5, 0);
     assert(ed_u21(reply + 7) == 20 && ed_unpack_exact(reply + 10, reply_n - 11, decoded, sizeof decoded) == 100);
