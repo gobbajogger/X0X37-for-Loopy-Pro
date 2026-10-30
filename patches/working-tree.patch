@@ -1,0 +1,23 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 05c09a5..3c59783 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1 +1,17 @@
+-Rules: see docs/agent-rules.md (smk37).
++<!-- x0x37-current-rules -->
++# Current x0x37 skills
++
++In the x0x37 workspace, use [current skill entry points](../../AGENTS.md) before work.
++Apply [chat routing](.agents/skills/x0x37-task/references/routing.md) before any new task or handoff.
++Initialize the matching `SKILL.md` when its step begins. These skills supersede
++older workflow text here. For a standalone checkout, use `docs/agent-rules.md`
++and its skill links; recover missing sources
++from the maintained project. Unrelated checkout instructions below still apply.
++
++<!-- /x0x37-current-rules -->
++
++# x0x37 workspace rules
++
++Read [../../AGENTS.md](../../AGENTS.md) before work; its current rules supersede old checkout
++instructions. Outside this workspace, recover current `docs/agent-rules.md`
++and its linked rules/skill status before work. Never fall back to stale rules.
