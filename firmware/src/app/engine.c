@@ -2770,10 +2770,12 @@ void engine_render(int32_t *out_lr, uint32_t n)
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
         brk_midi_drain();
+#if !X0X_ORIGINAL_SYNTH
         for (p = 0; p < NBASS; ++p)
             if (chi_fx_is_bpmdly_insert(chi_fx_type[p]))
                 chi_bpmdly_set_bpm(&chi_fx[p].bpmdly, chi_fx_e1[p], chi_fx_e2[p],
                                   BASS303_SR, seq_tempo(&seq));
+#endif
         if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
         PROF_ADD(7, pt);
