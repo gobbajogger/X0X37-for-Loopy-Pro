@@ -10,13 +10,13 @@ source = (root / 'firmware/src/app/smc_mixer.c').read_text()
 mutants = {
     'pause-unbound': ('if (!mmc && note == 0x5Du) {', 'if (0) {'),
     'pause-no-release': ('if (note == 0x5Du) smc_lock_button(0);', 'if (0) smc_lock_button(0);'),
-    'pause-no-drop-recovery': ('            else smc.lock_down = 0;', '            else /* negative: lost Pause release stays parked */;'),
+    'pause-no-drop-recovery': ('            else smc.unlock_wait = smc.lock_down = 0;', '            else /* negative: lost Pause release stays parked */;'),
     'pause-old-stop-led': ('return smc.locked || beat;', 'return !seq.playing;'),
     'play-no-pause': ('if ((seq.playing || seq.req_start || seq.req_cont) && !seq.req_stop)', 'if (0)'),
     'fx-button-navigates': ('if (smc_fx_try(note, mmc))\n        return;', 'if (0 && smc_fx_try(note, mmc))\n        return;'),
     'lock-redirect-fader': ('if (smc.locked) return smc.lock_fader[n];', 'if (smc.locked) return smc_home_target(n);'),
     'lock-redirect-knob': ('r = smc.lock_knob[n];', 'r = NONE;'),
-    'select-led-fx-only': ('if (row == 3 && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())', 'if (row == 3)'),
+    'select-led-fx-only': ('if (row == 3 && view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())', 'if (row == 3)'),
 }
 selected = sys.argv[1:] or list(mutants)
 if any(name not in mutants for name in selected):
