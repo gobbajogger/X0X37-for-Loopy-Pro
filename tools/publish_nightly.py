@@ -386,8 +386,22 @@ def _destination(branch):
     return name
 
 
+def _local_only_git_remote(remote):
+    """Never perform Git network operations; use connected GitHub API for remote delivery.
+
+    The local bare-repository path is retained solely for offline fixture tests.
+    """
+    if not isinstance(remote, (str, os.PathLike)):
+        raise NightlyPublishError("Git network transport disabled; use connected GitHub API")
+    path = Path(remote)
+    if not path.is_absolute() or not path.is_dir() or not (path / "HEAD").is_file():
+        raise NightlyPublishError("Git network transport disabled; use connected GitHub API")
+    return str(path)
+
+
 def _remote_tip(remote, branch):
-    """SHA currently stored on the handoff branch, or None when the branch is absent."""
+    """SHA currently stored on the LOCAL handoff branch, or None when absent."""
+    remote = _local_only_git_remote(remote)
     listed = subprocess.run(
         ["git", "ls-remote", remote, f"refs/heads/{branch}"],
         capture_output=True, text=True, check=True)
@@ -399,6 +413,7 @@ def _remote_tip(remote, branch):
 
 def _materialize(remote, branch, dest):
     """Copy the handoff branch's tree. The caller keeps prior candidates from it."""
+    remote = _local_only_git_remote(remote)
     scratch = Path(tempfile.mkdtemp(prefix=".nightly-fetch-"))
     try:
         subprocess.run(["git", "init", "-q"], cwd=scratch, check=True)
@@ -464,6 +479,7 @@ def _push(site, remote, branch, expected):
     branch = _destination(branch)
     if not remote:
         raise NightlyPublishError("nightly remote is not set; production pages are not a nightly destination")
+    remote = _local_only_git_remote(remote)
     work = Path(tempfile.mkdtemp(prefix=".nightly-commit-"))
     try:
         tip = _remote_tip(remote, branch)
