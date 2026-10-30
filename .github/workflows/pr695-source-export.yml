@@ -1,0 +1,39 @@
+name: PR 695 source export
+
+on:
+  push:
+    branches:
+      - chat/pr-conflicts
+    paths:
+      - .github/workflows/pr695-source-export.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    name: Export exact public checkout
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact PR source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Verify checkout and pack source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git config --local --get-regexp 'http\\..*extraheader|url\\..*insteadof' || true)"
+          tar --exclude='./pr695-source.tar.gz' -czf pr695-source.tar.gz .
+
+      - name: Upload source transport
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr695-source-${{ github.sha }}
+          path: pr695-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
