@@ -1,5 +1,9 @@
 # Full-source fetch over the connected GitHub API
 
+**Current update (2026-10-30):** A newer exact source inventory and SHA-based differential recovery tool are now in [FULL-SOURCE-FETCH-DELTA.md](FULL-SOURCE-FETCH-DELTA.md). The pinned `wip/one-build` checkpoint `b982c1eebc2ef731e0379103506aecb3df0b85e5` has root tree `44c17cf99617adce274c0a57156cf7a9c4176c7b` and a [4,239-blob manifest](manifests/one-build-b982c1ee.tsv). `tools/source_tree_delta.py` and `tests/test_source_tree_delta.py` have **8/8 measured local focused tests passing**. Three live connector reads of symlink, shell script, and binary matched SHA/size metadata. The pinned V1.2.1 **subset** checked 11/11. None of this is a complete source checkout, host-suite PASS or Elite/Pro build.
+
+**The remainder of this document is a historical, independently pinned `cb5423c4` recovery report**, kept for its tested GitHub connector calls and explicit error messages. Do not follow its older branch SHA as though it were today's integration HEAD. To recover a newer commit, generate and verify its root-tree manifest, transfer every missing blob (or use a verified older checkout as a SHA-keyed cache), and run the applicable checks against that exact tree.
+
 Status: **PARTIAL / NOT A COMPLETE CHECKOUT** (2026-10-30). This records actual connector calls, a reproducible byte-transfer protocol, a locally checked reconstruction tool, and the still-unmet source/test requirements. It must not be cited as a full-suite PASS.
 
 ## Frozen source and exact inventory
