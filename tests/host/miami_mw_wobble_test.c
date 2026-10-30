@@ -44,6 +44,12 @@ uint8_t smk_padcal_on(void) { return 0; }
 void smk_padcal_enter(void) {}
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 1; }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #include SMC_MIXER_SOURCE
 
 static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;

@@ -32,7 +32,7 @@ def function(name):
 
 
 prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
-poll = function("smc_poll")
+poll = function("smc_poll_peer" if "smc_poll_peer" in source else "smc_poll")
 for index, name in enumerate(("smc_qr", "smc_host_r", "smc_mmc_r[src]")):
     statement = re.escape(name) + r" = \(uint8_t\)\(r \+ 1u\);"
     poll, matches = re.subn(statement, lambda m: m[0] + f" interleave({index});", poll)
@@ -60,9 +60,10 @@ static uint8_t observed[64][7];
 static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return locked; }
 static void engine_smc_solo(int n) { (void)n; }
+static void engine_smc_solo_targets(uint8_t p,uint16_t a,uint16_t b) { (void)a; (void)b; engine_smc_solo(p); }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; }
 ''' + prefix + "\n" + "\n".join(function(name) for name in
-    ("smc_project_active", "smc_solo_clear") if "smc_solo_clear" in source) + "\n" + "\n".join(function(name) for name in (
+    (name for name in ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_project_active", "smc_solo_clear") if re.search(r"\b" + name + r"\(", source))) + "\n" + "\n".join(function(name) for name in (
     "smc_project_drop", "smc_ble_midi", "smc_midi_host", "smc_mmc_host")) + r'''
 
 static void record(const uint8_t *m, uint8_t n)
@@ -107,7 +108,7 @@ static void interleave(int queue)
         smc_mmc_host(34, (uint8_t)mmc_src); /* STOP overflows after PLAY */
     } else enqueue(route == 2 ? 16 : SMC_Q);
 }
-''' + function("smc_mmc_drain_stop") + "\n" + poll + r'''
+''' + function("smc_mmc_drain_stop") + "\n" + poll + ("\n" + function("smc_poll") if "smc_poll_peer" in source else "") + r'''
 
 int main(int argc, char **argv)
 {
