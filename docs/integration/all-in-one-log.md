@@ -7,7 +7,7 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 |---|---|---|---|---|---|
 | #704 | d8b45d4b | already in wip/one-build | – | – | skipped (contained) |
 | #721 | e189819d | merged | 63e1e749 | - | 13 private headers included (owner approved 20:50 VLAT) |
-| #724 | 689737d5 | merged | 91d53652 | - |  |
+| #724 | 689737d5 (final PR head 2833a81c, merged into wip/one-build as b00b460a) | merged | 91d53652 | - |  |
 | #710 | 7383a6d2 | merged | 21c4d11c | - |  |
 | #708 | 1ff346ee | merged | fba3c2aa | - | dsp/bass303.c change (deletion) excluded; base version kept |
 | #715 | cb73230c | merged | 09bb88e6 | - |  |
@@ -26,7 +26,7 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #696 | 7d313427 | merged | 3bbbe81a | tests/run_tests.sh | .github/workflows/pr696-ci-qualification.yml not brought in |
 | #694 | 7b07eaf3 | merged | b6b367cb | - | merged all non-CI parts; .github/workflows/remaining-features-host.yml not brought in (plan names no item subset) |
 | #689 | e0d9460a | merged | ce63fd54 | tests/run_tests.sh |  |
-| wip/one-build | b00b460a | merged base update | 5448eb0d | – | brings #724 merge; wip/one-build itself now also carries #722 and #727/#729 docs (came via base, not merged separately) |
+| wip/one-build | b00b460a | merged base update | 5448eb0d | – | brings #724 merge; wip/one-build carries #722 (merged, squash d4498d09) and the #727/#729 docs files (c1a8f9db, 13b505b6, b982c1ee); PR #727 itself is still open, not merged |
 
 ## Skipped / partial
 - #704: already contained in wip/one-build.
@@ -35,7 +35,7 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 - #693: only 573b11b5 + 4f039829; 4775ef91 not taken (284-file snapshot re-adding dsp/bass303.c and wobble/bass303 tests).
 - #708: dsp/bass303.c change excluded.
 - No .github/workflows changes from any PR (#717, #696, #694 workflow files dropped).
-- On hold for owner, not merged: #730, #727, #722.
+- On hold for owner, not merged here: #730, #727 (open). #722 is merged in wip/one-build (squash d4498d09) and reaches this branch through the base.
 
 ## Round 2 (2026-10-30 21:35 VLAT)
 
