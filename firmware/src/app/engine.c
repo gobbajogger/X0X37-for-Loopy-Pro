@@ -32,6 +32,9 @@ seq_t seq;
 volatile uint8_t eng_step[NTRACKS];
 volatile uint16_t eng_peak[NPARTS];
 volatile uint8_t eng_hit[NKIT][NDRUM];
+static volatile uint32_t eng_hit_ms[NKIT][NDRUM];     /* UI glyph motion: when each track last hit */
+static float eng_hit_pk[NKIT][NDRUM];                 /* the envelope's peak since that hit (UI side) */
+static uint32_t eng_hit_seen[NKIT][NDRUM];
 int16_t eng_scope[SCOPE_N] X0X_POOL;
 volatile uint32_t eng_scope_w;
 
@@ -58,6 +61,36 @@ static uint8_t original_key_pitch[NBASS][38]; /* token -> pitch+1; zero is relea
 static uint8_t original_midi_channel[NBASS];
 static int16_t original_seq_note[NBASS];
 int engine_bass_status(int v) { return (unsigned)v < NBASS ? original_bass[v].status : 0; }
+/* UI glyph motion: ms since the track's last hit and its live amplitude envelope
+ * (909: the voice's EG; 808: lane output over the hit peak), 0..1 of that hit's
+ * peak. 0 when it has never hit or the tail has ended. */
+static float eng_hit_e[NDRUM];
+static uint32_t eng_hit_e_at[NDRUM], eng_hit_e_t[NDRUM];
+X0X_COLD int engine_drum_view(int kit, int v, uint32_t *age_ms, float *env)
+{
+    if ((unsigned)kit >= NKIT || (unsigned)v >= NDRUM) return 0;
+    uint32_t at = eng_hit_ms[kit][v];
+    if (!at) return 0;
+    float e = kit == 0 ? drum909_env(&d909, v) : drum808_env(&d808, v);
+    if (at != eng_hit_seen[kit][v]) { eng_hit_seen[kit][v] = at; eng_hit_pk[kit][v] = 0.0f; }
+    if (e < 0.0f) return 0;                          /* 808 without the lane meter */
+    if (e > eng_hit_pk[kit][v]) eng_hit_pk[kit][v] = e;
+    e = eng_hit_pk[kit][v] > 0.0f ? e / eng_hit_pk[kit][v] : 0.0f;
+    if (kit == 1) {   /* the 808 lane peak is per audio block and ripples with the wave: follow it
+                       * up at once and down no faster than -6 dB per 20 ms, so the glyph moves smoothly */
+        uint32_t t = plat_ms();
+        float p = eng_hit_e[v];
+        if (at != eng_hit_e_at[v]) { eng_hit_e_at[v] = at; p = e; }
+        else p *= fm_exp2f(-(float)(t - eng_hit_e_t[v]) / 20.0f);
+        if (e < p) e = p;
+        eng_hit_e[v] = e; eng_hit_e_t[v] = t;
+    }
+    if (e > 1.0f) e = 1.0f;
+    *age_ms = plat_ms() - at;
+    *env = e;
+    return e > 0.001f || *age_ms < 40u;
+}
+X0X_COLD float engine_bd909_hz(float tau, float m, float pm, float t_ms) { return drum909_bd_hz(tau, m, pm, t_ms); }
 int engine_bass_filter_view(int v, float *eg, float *depth)
 { return (unsigned)v < NBASS && original_runtime_filter_view(&original_bass[v], eg, depth); }
 static void original_prepare_all(void)
@@ -691,7 +724,10 @@ __attribute__((noinline)) static void s_drum(void *x, int kit, int v, float vel)
     if (v == 0)                          /* BD (both kits' track 1): the master's PUMP key */
         master_key(&mst, kit, vel);
     if ((unsigned)kit < NKIT && (unsigned)v < NDRUM)   /* MIX's drum pages: the track's meter jumps */
+    {
         eng_hit[kit][v] = (uint8_t)(vel >= 1.0f ? 255 : (int)(vel * 255.0f));
+        eng_hit_ms[kit][v] = plat_ms() | 1u;          /* 0 = never hit */
+    }
     if (kit == 0)
         drum909_trigger(&d909, v, vel);
     else                                 /* the 808's unaccented hit sits at D8_VEL_NORMAL, not at our 909 level */
