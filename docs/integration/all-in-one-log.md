@@ -26,3 +26,13 @@ Rules: no dsp/bass303.c, no wobble.c, no refs-oscuro (babd349), no JieLi SDK fil
 | #696 | 7d313427 | merged | 3bbbe81a | tests/run_tests.sh | .github/workflows/pr696-ci-qualification.yml not brought in |
 | #694 | 7b07eaf3 | merged | b6b367cb | - | merged all non-CI parts; .github/workflows/remaining-features-host.yml not brought in (plan names no item subset) |
 | #689 | e0d9460a | merged | ce63fd54 | tests/run_tests.sh |  |
+| wip/one-build | b00b460a | merged base update | 5448eb0d | – | brings #724 merge; wip/one-build itself now also carries #722 and #727/#729 docs (came via base, not merged separately) |
+
+## Skipped / partial
+- #704: already contained in wip/one-build.
+- #677: only e74b16dd (Chicago FX state); MIDI-order commits 89b96d66, 2d555bee not taken (#705 covers MIDI order).
+- #692: only f055d79f; lane snapshot dd735533 not taken (765-file old-base snapshot).
+- #693: only 573b11b5 + 4f039829; 4775ef91 not taken (284-file snapshot re-adding dsp/bass303.c and wobble/bass303 tests).
+- #708: dsp/bass303.c change excluded.
+- No .github/workflows changes from any PR (#717, #696, #694 workflow files dropped).
+- On hold for owner, not merged: #730, #727, #722.
