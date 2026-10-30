@@ -55,7 +55,8 @@ int original_voice_gain_oscillator(original_voice_gain *s,original_oscillators *
  if(!s)return 0;
  float gain[4];for(unsigned i=0;i<4;i++)gain[i]=s->oscillator[i].current;
  if(!original_oscillator_sample_gains(phase,p,gain,sync,out))return 0;
- for(unsigned i=0;i<4;i++)(void)advance(&s->oscillator[i]);return 1;
+ for(unsigned i=0;i<4;i++)(void)advance(&s->oscillator[i]);
+ return 1;
 }
 int original_voice_gain_stereo(original_voice_gain *s,float filtered,float *left,float *right){
  if(!s||!left||!right||left==right||!original_binary32_isfinite(filtered))return 0;
