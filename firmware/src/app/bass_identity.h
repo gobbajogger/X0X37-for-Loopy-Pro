@@ -6,9 +6,7 @@
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
-#if X0X_ORIGINAL_SYNTH
 #include "original_sound.h"
-#endif
 
 #define BASS_IDENTITY_BYTES 8u
 #define BASS_IDENTITY_PRODUCT_SCHEMA 1u
@@ -41,14 +39,12 @@ static inline int bass_identity_check(const bass_identity_t *tag,
     const bass_identity_entry_t *match = NULL;
     size_t i;
     if (!tag || (!registry && n)) return BASS_IDENTITY_INVALID;
-#if X0X_ORIGINAL_SYNTH
     if (tag->state == BASS_IDENTITY_UNKNOWN) return BASS_IDENTITY_UNSUPPORTED;
     if (tag->engine != ORIGINAL_SOUND_CHICAGO_ID && tag->engine != ORIGINAL_SOUND_MIAMI_ID)
         return BASS_IDENTITY_UNSUPPORTED;
     if (tag->schema != ORIGINAL_SOUND_SCHEMA) return BASS_IDENTITY_UNSUPPORTED;
     if (tag->count != original_sound_count(tag->engine == ORIGINAL_SOUND_MIAMI_ID))
         return BASS_IDENTITY_INVALID;
-#endif
     if (tag->state == BASS_IDENTITY_UNKNOWN)
         return !tag->engine && !tag->schema && !tag->count ?
             BASS_IDENTITY_CHOICE_REQUIRED : BASS_IDENTITY_INVALID;
@@ -103,17 +99,8 @@ static inline int bass_identity_encode(uint8_t *wire, size_t bytes, const bass_i
  * owns a separate tag output; the original sound/export is not an argument. */
 static inline int bass_identity_legacy(unsigned sound_revision, bass_identity_t *out)
 {
-#if X0X_ORIGINAL_SYNTH
     (void)sound_revision; (void)out;
     return BASS_IDENTITY_UNSUPPORTED;
-#else
-    bass_identity_t unknown = {0, 0, 0, BASS_IDENTITY_UNKNOWN};
-    if (!out) return BASS_IDENTITY_INVALID;
-    if (sound_revision > BASS_IDENTITY_LAST_UNTAGGED_SOUND_REV)
-        return BASS_IDENTITY_UNSUPPORTED;
-    *out = unknown;
-    return BASS_IDENTITY_CHOICE_REQUIRED;
-#endif
 }
 
 /* Eight canonical identity bytes, LE preset index, flags, reserved zero.
@@ -139,10 +126,8 @@ static inline int bass_sound_tag_decode(bass_sound_info_t *out,const bass_sound_
     info.preset=(uint16_t)(wire->bytes[8]|((uint16_t)wire->bytes[9]<<8));
     info.flags=wire->bytes[10];
     if(wire->bytes[11] || (info.flags&~BASS_SOUND_EDITED))return BASS_IDENTITY_INVALID;
-#if X0X_ORIGINAL_SYNTH
     if (info.preset >= original_sound_factories(info.identity.engine == ORIGINAL_SOUND_MIAMI_ID))
         return BASS_IDENTITY_INVALID;
-#endif
     if(rc==BASS_IDENTITY_CHOICE_REQUIRED) {
         if(info.preset || info.flags)return BASS_IDENTITY_INVALID;
     } else if(info.preset==BASS_SOUND_NO_PRESET && info.flags!=BASS_SOUND_EDITED)return BASS_IDENTITY_INVALID;

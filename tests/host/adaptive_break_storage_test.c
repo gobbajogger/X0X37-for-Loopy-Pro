@@ -4,10 +4,6 @@
 #define main project_stage_fixture_main
 #include "project_stage_test.c"
 #undef main
-#if X0X_BASS_PRESET_PREVIEW
-int plat_midi_passed(uint32_t mark) { (void)mark; return 1; }
-#endif
-
 static void fresh_counts(void) { project_incompatible=0; fixture("adaptive BREAK persistence"); }
 static void legacy_header(uint8_t *header,unsigned mode,unsigned stream) {
  project_stage=proj;

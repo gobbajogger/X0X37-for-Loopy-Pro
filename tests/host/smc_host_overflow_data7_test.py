@@ -88,8 +88,11 @@ int main(void)
     scenario("home-off-full", 0x8F, 6, 0, 1, 32, 0, 1, 32, 1);
     scenario("home-vel0-full", 0x9F, 6, 0, 1, 32, 0, 1, 32, 1);
     scenario("home-on-full", 0x9F, 6, 127, 1, 32, 0, 1, 32, 0);
-    scenario("non-solo-off-full", 0x8F, 7, 0, 1, 32, 0, 1, 32, 0);
-    scenario("non-solo-boundary-full", 0x8F, 16, 0, 1, 32, 0, 1, 32, 0);
+    /* Every held SMC button needs a key-up, not just Solo. A dropped key-up
+     * must advance the shared generation so poll clears its retained press. */
+    scenario("non-solo-off-full", 0x8F, 7, 0, 1, 32, 0, 1, 32, 1);
+    scenario("non-solo-boundary-full", 0x8F, 16, 0, 1, 32, 0, 1, 32, 1);
+    scenario("select-off-full", 0x8F, 24, 0, 1, 32, 0, 1, 32, 1);
     scenario("solo-end-full", 0x8F, 15, 0, 1, 32, 0, 1, 32, 1);
     scenario("user-cc-full", 0xBF, 40, 127, 1, 32, 0, 1, 32, 0);
     scenario("malformed-solo-note-full", 0x8F, 0x88, 0, 1, 32, 0, 0, 32, 0);

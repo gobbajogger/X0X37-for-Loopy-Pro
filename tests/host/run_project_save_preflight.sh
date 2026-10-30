@@ -12,5 +12,6 @@ mkdir -p build/host build/gen
 ${CC:-cc} -std=c99 -O2 -Wall -Wextra -Werror -ffunction-sections -fdata-sections \
     -DX0X_HOST -Ibuild/gen -Ifirmware/src -Ifirmware/src/dsp -Ifirmware/src/app \
     tests/host/project_save_preflight_test.c \
+    firmware/src/seq/pattern.c firmware/src/seq/tb3po.c \
     "$GC" -lm -o build/host/project_save_preflight_test
 build/host/project_save_preflight_test

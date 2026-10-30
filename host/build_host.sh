@@ -26,12 +26,14 @@ U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_pa
    firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
    firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c
    firmware/src/app/factory_banks.c"
-if [ -z "${X0X_ORIGINAL_SYNTH:-}" ] && ! python3 tools/check_original_inputs.py >/dev/null 2>&1; then
-    echo 'host: private original-synth inputs missing; using X0X_ORIGINAL_SYNTH=0' >&2
-    X0X_ORIGINAL_SYNTH=0
+# Only Chicago and Miami ship (the bass303 engine is removed). Both need the
+# private original-synth inputs; there is no public-safe fallback.
+if ! python3 tools/check_original_inputs.py >/dev/null 2>&1; then
+    echo 'host: ERROR: private original-synth inputs missing (Chicago and Miami need them).' >&2
+    echo 'host: run python3 tools/check_original_inputs.py for the list; no public fallback exists.' >&2
+    exit 2
 fi
 case "${X0X_ORIGINAL_SYNTH:-1}" in
-    0) echo "X0X_ORIGINAL_SYNTH: only 1 is supported" >&2; exit 2 ;;
     1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-1}"
        case "$DEV_WOBBLE" in 0|1) ;; *) echo 'X0X_DEV_WOBBLE: 0 or 1' >&2; exit 2 ;; esac
        U="$U $(python3 - <<'PY'
@@ -45,7 +47,7 @@ print(' '.join([*build.ORIGINAL_SYNTH_UNITS, *build.ORIGINAL_SYNTH_BACKENDS]))
 PY
 )"
        SYNTH_DEFS="-DX0X_ORIGINAL_SYNTH=1 -DX0X_WOBBLE=0 -DX0X_DEV_WOBBLE=$DEV_WOBBLE -fno-fast-math -DORIGINAL_USE_SOFT_FMA -DMIAMI_FX_NO_HOST_FENV -Iexperiments/original_synth -Iexperiments/wobble" ;;
-    *) echo 'X0X_ORIGINAL_SYNTH: only 1 is supported' >&2; exit 2 ;;
+    *) echo 'X0X_ORIGINAL_SYNTH: only 1 is supported (bass303 is removed)' >&2; exit 2 ;;
 esac
 # shellcheck disable=SC2086
 $CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \

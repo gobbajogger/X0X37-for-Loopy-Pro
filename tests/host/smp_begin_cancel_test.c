@@ -79,6 +79,12 @@ int ui_project_save(void) { return 0; }
 int ui_project_load(void) { return 0; }
 int ui_project_reset(void) { return 0; }
 void project_capture_stage(void) {}
+/* The sample-loader scenario does not exercise project export. Supplying
+ * the real editor's new compatibility/preset admission dependencies keeps
+ * the fixture linked without bypassing those checks in production. */
+int project_storage_unsupported(void) { return 0; }
+int engine_bass_sound_validate(const sound_t *sound) { (void)sound; return 0; }
+int engine_bass_preset_pending(int voice) { (void)voice; return 0; }
 void project_file_header(uint8_t *h) { memset(h, 0, PROJECT_FILE_HDR); }
 int project_file_validate(const uint8_t *h) { (void)h; return 0; }
 static int ota_wire_send(const uint8_t *p, uint32_t n)

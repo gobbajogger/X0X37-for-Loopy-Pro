@@ -58,6 +58,8 @@ static void turn_ref(pref_t r, int delta, int enc)
     page_value += delta;
 }
 static uint32_t plat_ms(void) { return 1234u; }
+#define SMC_UI_MS 1200u /* smc_poll_peer refreshes the temporary screen owner. */
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
 static void smc_show(int n, int knob, pref_t r) { (void)n; (void)knob; (void)r; notices++; }
 #include "smc_input.inc"
 #include "smc_turn.inc"

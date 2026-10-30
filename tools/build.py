@@ -57,8 +57,9 @@ CFLAGS = ["-Os", "-ffunction-sections", "-fdata-sections", "-fno-builtin", "-Wal
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
 
 def clang_std_inc():
-    """pi32v2 clang does not auto-add sibling include/; -idirafter keeps resource-dir first."""
-    return ["-idirafter", str(toolchain() / "pi32v2" / "include")]
+    """Resolve JieLi standard headers in the compiler's execution environment."""
+    include = "/opt/jieli/pi32v2/include" if use_docker() else str(toolchain() / "pi32v2" / "include")
+    return ["-idirafter", include]
 # the DSP, the sequencer and the audio engine: separate units at -O2
 O2_UNITS = ["dsp/drum909.c", "dsp/drum808.c", "dsp/breaks.c", "dsp/fxbus.c", "dsp/master.c",
             "dsp/x0x_param.c", "seq/sequencer.c", "seq/tb3po.c", "seq/pattern.c", "seq/motion.c", "app/engine.c"]
@@ -360,17 +361,11 @@ def app_compile_commands(flags, original_synth, wobble):
              ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
              ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
     objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
-    if wobble == "1":
-        o = OUT / "o2" / "wobble.o"
-        units.append(("cc", *[f if f != "-O2" else "-Oz" for f in o2], "-c", Path("experiments/wobble/wobble.c"), "-o", o))
-        objs.append(o)
+    # Every admitted build is Chicago/Miami only. Keep the obsolete engine
+    # units out of the compilation plan, not behind unreachable switches.
     for u in O2_UNITS:
-        if original_synth and u == "dsp/bass303.c":
-            continue
         o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
-        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
-        if original_synth and u == "app/engine.c":
-            unit_flags = [*unit_flags, *ORIGINAL_SYNTH_FLAGS]
+        unit_flags = [*o2, *ORIGINAL_SYNTH_FLAGS] if u == "app/engine.c" else o2
         units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
         objs.append(o)
     if original_synth:

@@ -18,3 +18,17 @@ static void __attribute__((unused)) smc_fx_load_page(int page) { (void)page; }
 /* These source-extracted queue fixtures do not exercise the lock gesture.
  * The production integration smc-lock-beat test owns its timer/loss coverage. */
 static void __attribute__((unused)) smc_lock_tick(void) {}
+
+/* smc_state_t sizes its lock and mixer-page arrays with these UI sizes
+ * (ui.c MAXPAGES and NVIEWS, engine.h NPARTS). The extracted harnesses do not
+ * include ui.c, so they get the same values here. A harness that defines its
+ * own value keeps it. */
+#ifndef MAXPAGES
+#define MAXPAGES 14
+#endif
+#ifndef NVIEWS
+#define NVIEWS 9
+#endif
+#ifndef NPARTS
+#define NPARTS 5
+#endif

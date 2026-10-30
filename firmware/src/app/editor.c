@@ -158,6 +158,7 @@ static struct {
     uint32_t sample_len[SMP_USER_SLOTS], sample_crc[SMP_USER_SLOTS];
     uint8_t mode, valid, changed, recovery, header[PROJECT_FILE_HDR];
 } ed_project;
+/* Revision 13 is the only admitted project representation. */
 #define ED_PROJECT_SIZE PROJECT_FILE_SIZE
 
 static uint32_t ed_project_sample_len(uint32_t k)
@@ -234,15 +235,8 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         return;
     case 65:                                        /* EXPORT BEGIN */
     case 67:                                        /* IMPORT BEGIN */
-#if X0X_ORIGINAL_SYNTH
         if (op == 65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
             engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) { rc=2; break; }
-#elif X0X_BASS_TAGGED_SOUND
-        if(op==65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
-           engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) {rc=2;break;}
-#elif X0X_BASS_PRESET_PREVIEW
-        if(op==65 && engine_bass_preview_changed()) { rc=2; break; }
-#endif
         if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
             rc = 1; break;
         }
@@ -305,7 +299,8 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         if (ed_project.next != ED_PROJECT_SIZE) { rc = 3; break; }
         rc = ed_project_rc(project_file_validate(ed_project.header));
         ed_project.valid = rc == 0;
-        /* Only the current revision-13 project header is accepted. */
+        /* Recompute the staged header after validation so subsequent
+         * VALIDATE/COMMIT operations check the current bytes' CRC. */
         if (!rc) project_file_header(ed_project.header);
         if (!rc && op == 69)
             ed_project_end(1);

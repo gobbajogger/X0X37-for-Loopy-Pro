@@ -29,17 +29,28 @@ int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 
 void engine_sound_defaults(sound_t *s) { memset(s, 0, sizeof *s); }
 void engine_sound_centre_drum_pans(sound_t *s) { (void)s; }
+/* Storage-only fixture: engine/parameter policy has separate real-DSP tests.
+ * Keep the revision-13 project.c symbols wired without linking audio engines. */
+int engine_nvoices(int t) { (void)t; return 0; }
+int engine_bass_sound_bank(const sound_t *s, int voice) { (void)s; (void)voice; return 0; }
+int engine_bass_sound_validate(const sound_t *s) { (void)s; return 0; }
+int engine_bass_preset_pending(int voice) { (void)voice; return 0; }
+const x0x_param_t *engine_bass_bank_param(int bank, int param)
+{
+    static const x0x_param_t unused;
+    (void)bank; (void)param; return &unused;
+}
+const x0x_param_t *breaks_param(int param)
+{
+    static const x0x_param_t unused = {.max = 127};
+    (void)param; return &unused;
+}
 int engine_nparams(int t, int v) { (void)t; (void)v; return 0; }
 const x0x_param_t *engine_param(int t, int v, int i)
 {
     static const x0x_param_t unused;
     (void)t; (void)v; (void)i;
     return &unused;
-}
-void pattern_init(pattern_t *p, uint32_t a, uint32_t b)
-{
-    (void)a; (void)b;
-    memset(p, 0, sizeof *p);
 }
 
 /* BF-021: different full-size sound objects can share a legacy 32-bit FNV-1a
@@ -117,6 +128,17 @@ int main(void)
         rng ^= rng << 5;
         raw[i] = (uint8_t)rng;
     }
+    /* Keep the current stream schema intact; arbitrary flags/steps now fail
+     * revision-13 layout validation before reaching the capacity preflight. */
+    for (int pat = 0; pat < NPAT; ++pat) {
+        proj.pat[pat].brk.slice_mode = 0;
+        memset(proj.pat[pat].brk.slice, 0, sizeof proj.pat[pat].brk.slice);
+        for (int bass = 0; bass < NBASS; ++bass)
+            for (int step = 0; step < NSTEPS; ++step)
+                proj.pat[pat].bass[bass].step[step].flags = G_NOTE;
+    }
+    for (int lane = 0; lane < NLANE; ++lane)
+        proj.arr.lane[lane].used = 0;
     proj.set.palette = 2;
     proj.sound.v[T_303][0][0] = 99;
     seq.bpm = 140.0f;
