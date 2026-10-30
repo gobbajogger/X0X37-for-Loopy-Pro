@@ -1,0 +1,63 @@
+# Host-only validation for the isolated DnBOX remaining-features integration.
+# No firmware build, release, credentials, flash, force-push or deployment.
+name: Remaining features host regression
+on:
+  pull_request:
+    branches: [wip/one-build]
+    paths:
+      - .github/workflows/remaining-features-host.yml
+      - firmware/src/app/ui.c
+      - firmware/src/app/home_pattern_glyph.h
+      - tests/run_tests.sh
+      - tests/host/drum_kit_identity_test.*
+      - tests/host/home_pattern_glyph_test.*
+      - tests/host/home_overview_test.c
+      - tests/host/remaining_feature_proof_test.py
+      - tools/remaining_feature_proof.py
+      - web/x0x_installer.html
+      - web/test_installer_project_handoff.mjs
+permissions:
+  contents: read
+jobs:
+  host-regression:
+    if: github.event.pull_request.head.ref == 'chat/remaining-features'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact pull request candidate
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install host-only Pillow dependency
+        run: python3 -m pip install Pillow
+      - name: Compile the complete host simulator
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/ci
+          sh host/build_host.sh 2>&1 | tee build/ci/host-build.log
+      - name: Run scoped host regressions
+        shell: bash
+        run: |
+          set -o pipefail
+          X0X_TEST_JOBS=1 sh tests/run_tests.sh \
+            drum-kit-identity remaining-feature-proof-selftest \
+            home-pattern-glyph home-overview \
+            installer-project-handoff projects-web projects-page \
+            2>&1 | tee build/ci/remaining-features-host.log
+      - name: Preserve logs only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remaining-features-host-logs
+          path: build/ci/*.log
+          if-no-files-found: warn
+          retention-days: 7
