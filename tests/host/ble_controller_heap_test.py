@@ -19,6 +19,7 @@ with tempfile.TemporaryDirectory() as d:
  subprocess.run(cmd,check=True); subprocess.run([str(exe)],check=True)
 
  # Handle 0 is a legal controller handle; the pair router must still route it.
+ # The pair router is the two-peer source (BLEC_TWO_PEER=1), as ble-dual-peer tests it.
  for handle in (0,1,64):
-  subprocess.run([os.getenv('CC','cc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-function',f'-DTEST_ACL_CREDITS={credits}',f'-DTEST_HANDLE_BASE={handle}','-I'+str(root/'firmware/src/ble'),str(root/'tests/host/ble_discovery_replay_test.c'),'-o',str(exe)],check=True)
+  subprocess.run([os.getenv('CC','cc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-function','-DBLEC_TWO_PEER=1',f'-DTEST_ACL_CREDITS={credits}',f'-DTEST_HANDLE_BASE={handle}','-I'+str(root/'firmware/src/ble'),str(root/'tests/host/ble_discovery_replay_test.c'),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True)

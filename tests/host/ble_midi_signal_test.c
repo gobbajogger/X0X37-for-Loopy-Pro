@@ -154,7 +154,14 @@ int main(int argc, char **argv)
     assert(!sent && c.rx_reason == BLEC_RX_FRAGMENT && !c.rx_need); notification(&c);
     /* The queue survives no credits and a busy transport; feedback waits. */
     ready(&c); c.credits = 0;
-    for (unsigned id = 1; id <= 4; id++) request(&c, (uint8_t)id);
+    /* Two-peer contract: each LE Connection Update holds the HCI command credit
+     * until its Command Status returns it. */
+    for (unsigned id = 1; id <= 4; id++) {
+        const uint8_t status[] = {0x0f, 4, 0, 1, 0x13, 0x20};
+        request(&c, (uint8_t)id);
+        assert(sent == id && last_type == 1);
+        blec_rx(&c, 4, status, sizeof status, now);
+    }
     assert(sent == 4 && last_type == 1); notification(&c);
     const uint8_t feedback[] = {0x90, 60, 127}; assert(blec_midi_send(&c, feedback, 3));
     unsigned held = sent;
@@ -176,10 +183,17 @@ int main(int argc, char **argv)
     done(&c, 0x50, 1); blec_poll(&c, now);
     assert(sent == 3 && c.att_waiting && last[6] == 4 && last[8] == 0x10);
     /* Duplicate in-range requests each get an update command and an acceptance. */
-    ready(&c); request(&c, 7); request(&c, 7); assert(sent == 4); reply(0x13, 7, 0, 0);
+    ready(&c); request(&c, 7);
+    { const uint8_t status[] = {0x0f, 4, 0, 1, 0x13, 0x20}; blec_rx(&c, 4, status, sizeof status, now); }
+    request(&c, 7); assert(sent == 4); reply(0x13, 7, 0, 0);
     /* Queue overflow and stalled credits abort the link, with an error. */
     ready(&c); c.credits = 0;
-    for (unsigned id = 1; id <= 5; id++) request(&c, (uint8_t)id);
+    for (unsigned id = 1; id <= 5; id++) {
+        const uint8_t status[] = {0x0f, 4, 0, 1, 0x13, 0x20};
+        request(&c, (uint8_t)id);
+        blec_rx(&c, 4, status, sizeof status, now);
+    }
+    blec_poll(&c, now); /* Disconnect waits for the returned command credit. */
     assert(c.state == BLEC_DISCONNECTING && c.errors == 1 && last_type == 1 && last[0] == 6);
     ready(&c); c.credits = 0; now = 0xfffffff0u; request(&c, 1);
     blec_poll(&c, now + 2999u); assert(blec_connected(&c));
