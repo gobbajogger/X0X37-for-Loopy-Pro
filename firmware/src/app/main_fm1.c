@@ -2381,8 +2381,9 @@ static void fm1_main(void)
     project_apply_io();                             /* clock and notes out, the MIDI channels, the output */
     engine_brk_loops();
 #if X0X_BLE
-    ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
-    ble_start();                                    /* its init on core 0, before core 1 starts (about 0.6 s) */
+    ble_prepare(1);                                /* prepare controller at boot; saved OFF is applied below */
+    ble_start();                                    /* guarded init on core 0, before core 1 starts */
+    plat_ble_set(proj.set.bt & 1u);                 /* preserve saved OFF and enable later without restart */
 #endif
     plat_cpu2_set(1);                               /* the second core: at power-on, before the audio and the
                                                      * timers, as Melodee starts it (started later, it does not
