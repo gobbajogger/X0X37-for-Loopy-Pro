@@ -445,6 +445,19 @@ static void test_track_knob_align(void)
     CHECK(engine_bass_bank(0) == FACTORY_BANK_CHICAGO);
     build_pages();
 #endif
+#if X0X_ORIGINAL_SYNTH
+    /* The original Chicago engine has its own parameter IDs. Its pages
+     * follow ui_original_chicago_rows. Cutoff, Peak and Env are FILTER 1. */
+    CHECK(engine_bass_bank(0) == ORIGINAL_SOUND_CHICAGO);
+    for (int row = 0; row < UI_ORIGINAL_CHICAGO_PAGES; row++)
+        for (int col = 0; col < 4; col++) {
+            int id = ui_original_chicago_rows[row][col];
+            CHECK(id < 0 ? pg.r[row][col].kind == R_NONE
+                         : smc_same(pg.r[row][col], PR(R_ENG, T_303, 0, id)));
+        }
+    CHECK(ui_original_chicago_rows[1][0] == 2 && ui_original_chicago_rows[1][1] == 3 &&
+          ui_original_chicago_rows[1][2] == 4); /* CUTOFF, PEAK, ENV */
+#else
     int tone = -1;
     for (int page = 0; page < pg.n; page++)
         if (smc_same(pg.r[page][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF))) tone = page;
@@ -453,6 +466,7 @@ static void test_track_knob_align(void)
     CHECK(smc_same(pg.r[tone][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
     CHECK(smc_same(pg.r[tone][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
     CHECK(smc_same(pg.r[tone][3], PR(R_ENG, T_303, 0, BASS303_WAVE)));
+#endif
 #if X0X_BASS_PRESET_PREVIEW
     int sound = -1;
     for (int page = 0; page < pg.n; page++)
@@ -460,7 +474,12 @@ static void test_track_knob_align(void)
     CHECK(sound == pg.n - 1); /* SOUND follows the selected B parameter matrix. */
     CHECK(smc_same(pg.r[sound][0], PR(R_BENGINE, 0, 0, 0)));
     CHECK(smc_same(pg.r[sound][1], PR(R_BPRESET, 0, 0, 0)));
+#if X0X_ORIGINAL_SYNTH
+    /* The original engines show a read-only engine status here. */
+    CHECK(smc_same(pg.r[sound][2], PR(R_BSTATUS, 0, 0, 0)) && pref_read_only(pg.r[sound][2]));
+#else
     CHECK(pg.r[sound][2].kind == R_NONE); /* former physical K7 cancel is now empty */
+#endif
 #endif
     puts("PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity");
 }

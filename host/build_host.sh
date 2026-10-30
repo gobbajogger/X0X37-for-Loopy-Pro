@@ -26,6 +26,10 @@ U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/x0x_pa
    firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
    firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c
    firmware/src/app/factory_banks.c"
+if [ -z "${X0X_ORIGINAL_SYNTH:-}" ] && ! python3 tools/check_original_inputs.py >/dev/null 2>&1; then
+    echo 'host: private original-synth inputs missing; using X0X_ORIGINAL_SYNTH=0' >&2
+    X0X_ORIGINAL_SYNTH=0
+fi
 case "${X0X_ORIGINAL_SYNTH:-1}" in
     0) echo "X0X_ORIGINAL_SYNTH: only 1 is supported" >&2; exit 2 ;;
     1) DEV_WOBBLE="${X0X_DEV_WOBBLE:-1}"

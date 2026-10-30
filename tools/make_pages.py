@@ -77,6 +77,12 @@ def safe_version(version: str) -> str:
     return re.sub(r"[^A-Za-z0-9.-]", "-", version)
 
 
+def version_sort_key(version: str) -> tuple:
+    """Sort numeric versions naturally: 0.0.10 follows 0.0.9 in release history."""
+    return tuple((1, int(part)) if part.isdecimal() else (0, part.casefold())
+                 for part in re.split(r"(\d+)", str(version)))
+
+
 def pkg_entry(path: Path, version: str, key: str | None = None) -> tuple[str, dict]:
     raw = path.read_bytes()
     product = product_of(raw)
@@ -98,67 +104,6 @@ def pkg_entry(path: Path, version: str, key: str | None = None) -> tuple[str, di
     }
 
 
-LANDING = """<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>X0X for the SMK-37 · Loopy Pro</title>
-<meta name="description" content="Groovebox firmware for the M-VAVE SMK-37 (and FM-1): install any version in the browser, import your own break samples.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
-<style>
-:root { --ground: #f4f5f6; --ink: #1c1f23; --muted: #5b626a; --rule: #d9dde1; --accent: #c8700a; --card: #fff; color-scheme: light; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --ground: #131518; --ink: #e6e8eb; --muted: #9aa1a9; --rule: #2d3137; --accent: #f0a043; --card: #1a1d21; color-scheme: dark; }
-}
-:root[data-theme="dark"] { --ground: #131518; --ink: #e6e8eb; --muted: #9aa1a9; --rule: #2d3137; --accent: #f0a043; --card: #1a1d21; color-scheme: dark; }
-body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 48px 64px;
-       font: 400 17px/1.6 "Barlow", "Helvetica Neue", Arial, sans-serif; }
-main { max-width: 40rem; margin: 0 auto; }
-h1 { font: 700 2.6rem/1.1 "Barlow Semi Condensed", "Barlow", sans-serif; margin: 0 0 .4rem; }
-.lede { color: var(--muted); margin: 0 0 1.6rem; max-width: 34rem; }
-.status { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; padding: 12px 16px; margin: 0 0 2rem; }
-.ways { display: grid; gap: 12px; margin: 0 0 2rem; }
-.ways a { display: block; text-decoration: none; color: var(--ink); background: var(--card); border: 1px solid var(--rule);
-          border-radius: 10px; padding: 14px 18px; }
-.ways a:hover, .ways a:focus-visible { border-color: var(--accent); outline: none; }
-.ways .card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 18px; }
-.ways .card a { color: var(--accent); text-decoration: none; border: 0; padding: 0; background: none; display: inline; }
-.ways .card a:hover, .ways .card a:focus-visible { text-decoration: underline; }
-.ways .card a.new { font: 400 .95rem "Barlow", sans-serif; margin-left: .5rem; }
-.ways strong { font: 600 1.25rem "Barlow Semi Condensed", "Barlow", sans-serif; color: var(--accent); display: block; }
-.ways span { color: var(--muted); font-size: .95rem; }
-p.small { color: var(--muted); font-size: .9rem; }
-a { color: var(--accent); }
-</style>
-</head>
-<body>
-<main>
-<h1>X0X</h1>
-<p class="lede">Groovebox firmware for the M-VAVE SMK-37 (Pro, Elite, MKE-P37) and the FM-1.
-A 909, an 808, two 303s with TB-3PO, and a breakbeat player — with an APC40-style clip launcher
-for Loopy Pro on the SMK-37.</p>
-<div class="status">Install any published version from Chrome or Edge over USB. The sample importer
-puts your own loops into the BREAK slots (optional oldschool grit, with preview before you write).
-Installing is at your own risk; packages keep the keyboard's model name so M-UPGRADE still works.</div>
-<nav class="ways" aria-label="Get X0X">
-  <div class="card"><strong><a href="install/">Install__VERSION_LABEL__</a> <a class="new" href="new/">What's new?</a></strong><span>Upgrade, downgrade, or switch: pick a published version and model, or drop any .fwsc (stock / other custom). Nothing to install on the computer.</span></div>
-  <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part. Off by default: optional oldschool grit (light to max) and listen-before-send preview. Chrome or Edge.</span></a>
-  <a href="projects/"><strong>Projects</strong><span>Save, load and reset on the keyboard, or export a project with its original samples.</span></a>
-  <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
-  <a href="__REPO__/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
-  <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments.</span></a>
-</nav>
-<p class="small">SMK-37 control map: see <a href="__REPO__/blob/main/SMK37.md">SMK37.md</a>.
-To go back to the official firmware, use M-VAVE's M-UPGRADE from
-<a href="https://www.m-vave.com/download">m-vave.com/download</a>, or drop the stock .fwsc on the install page.
-M-VAVE, FM-1 and SMK-37 are trademarks of their owners. Loopy Pro is a product of A Tasty Pixel.</p>
-</main>
-</body>
-</html>
-"""
 
 
 def load_catalog(path: Path | None) -> dict:
@@ -174,8 +119,12 @@ def load_catalog(path: Path | None) -> dict:
 def merge_version(catalog: dict, version: str, models: dict) -> dict:
     """Insert or replace one version entry; keep other versions' packages."""
     versions = [v for v in catalog.get("versions", []) if v.get("version") != version]
-    entry = {"version": version, "models": {}}
+    previous = next((v for v in catalog.get("versions", []) if v.get("version") == version), {})
+    entry = {**previous, "version": version, "models": dict(previous.get("models", {}))}
     for key, meta in models.items():
+        old = entry["models"].get(key)
+        if old and any(old.get(field) != meta.get(field) for field in ("sha256", "size", "product")):
+            raise SystemExit(f"version {version}/{key} already identifies different package bytes; assign a new version")
         entry["models"][key] = {
             "product": meta["product"],
             "pkg": f"../firmware/{meta['file']}" if not str(meta["pkg"]).startswith("http") else meta["pkg"],
@@ -183,10 +132,14 @@ def merge_version(catalog: dict, version: str, models: dict) -> dict:
             "size": meta["size"],
         }
     versions.append(entry)
-    versions.sort(key=lambda v: str(v["version"]), reverse=True)
+    versions.sort(key=lambda v: version_sort_key(v["version"]), reverse=True)
     catalog = dict(catalog)
     catalog["versions"] = versions
-    catalog["latest"] = version
+    old_latest = catalog.get("latest")
+    catalog["latest"] = (old_latest if old_latest and
+                         any(v["version"] == old_latest for v in versions) and
+                         version_sort_key(old_latest) >= version_sort_key(version)
+                         else version)
     catalog["repo"] = REPO
     catalog["pages"] = PAGES
     return catalog
@@ -194,9 +147,30 @@ def merge_version(catalog: dict, version: str, models: dict) -> dict:
 
 def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from: Path | None, banner=None):
     """Build OUT from catalog; copy_pkgs maps firmware filename -> source path for this publish."""
+    if out.resolve() == SRC.resolve() or out.resolve() in SRC.resolve().parents:
+        raise SystemExit("site output cannot replace the source worktree or its parents")
+    if merge_from and (out.resolve() == merge_from.resolve() or out.resolve() in merge_from.resolve().parents):
+        raise SystemExit("site output must not contain the retained site")
+    if any(out.resolve() == src.resolve() or out.resolve() in src.resolve().parents for src in copy_pkgs.values()):
+        raise SystemExit("site output must not contain input firmware packages")
+    # Validate retention before deleting/replacing an output. Missing historical bytes
+    # must fail, rather than publish a catalog whose older packages disappeared.
+    for version in catalog.get("versions", []):
+        for pkg in version.get("models", {}).values():
+            path = str(pkg.get("pkg", ""))
+            if path.startswith("http"):
+                continue
+            name = path.split("/")[-1]
+            source = copy_pkgs.get(name) or (merge_from / "firmware" / name if merge_from else None)
+            if not name.endswith(".fwsc") or not source or not source.is_file():
+                raise SystemExit(f"retained firmware is missing: {name}")
+            if pkg.get("sha256") and sha256_file(source) != pkg["sha256"]:
+                raise SystemExit(f"retained firmware digest mismatch: {name}")
+            if pkg.get("size") and source.stat().st_size != pkg["size"]:
+                raise SystemExit(f"retained firmware size mismatch: {name}")
     if out.exists():
         shutil.rmtree(out)
-    for d in ("install", "manual", "firmware", "breaks", "projects", "new"):
+    for d in ("install", "manual", "firmware", "breaks", "projects", "new", "history"):
         (out / d).mkdir(parents=True)
 
     # Carry forward every firmware file still referenced, plus new packages.
@@ -214,7 +188,7 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     # Installer: inline libraries + catalog (paths relative to install/)
     page = (SRC / "web" / "x0x_installer.html").read_text(encoding="utf-8")
     lib = "\n".join(strip_module((SRC / "web" / f).read_text(encoding="utf-8"))
-                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js"))
+                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js", "device_session.js", "workspace.js"))
     cat_json = json.dumps(catalog, separators=(",", ":"))
     for mark, repl in (("/*LIB*/", lib), ("/*CATALOG*/", cat_json)):
         if page.count(mark) != 1:
@@ -234,28 +208,54 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     breaks = breaks.replace("https://github.com/charlesvestal/fm1-x0x", REPO)
     if breaks.count("/*LIB*/") != 1:
         raise SystemExit("x0x_breaks.html must contain /*LIB*/ once")
-    lib = strip_module((SRC / "web" / "x0x_breaks.js").read_text(encoding="utf-8"))
+    lib = "\n".join(strip_module((SRC / "web" / name).read_text(encoding="utf-8")) for name in ("x0x_breaks.js", "device_session.js"))
     (out / "breaks" / "index.html").write_text(breaks.replace("/*LIB*/", lib), encoding="utf-8")
     # The project page keeps its testable modules intact; it also runs from web/ on localhost.
     shutil.copy(SRC / "web" / "x0x_projects.html", out / "projects" / "index.html")
-    for module in ("x0x_projects.js", "x0x_breaks.js"):
+    for module in ("x0x_projects.js", "x0x_breaks.js", "device_session.js"):
         shutil.copy(SRC / "web" / module, out / "projects" / module)
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
-                    str(out / "manual" / "index.html")], check=True, capture_output=True)
+                    str(out / "manual" / "legacy.html")], check=True, capture_output=True)
     shutil.copy(SRC / "docs" / "PROJECT_FILES.md", out / "manual" / "PROJECT_FILES.md")
     shutil.copytree(SRC / "docs" / "img", out / "manual" / "img")
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "NEW.md"),
-                    str(out / "new" / "index.html")], check=True, capture_output=True)
+                    str(out / "new" / "legacy.html")], check=True, capture_output=True)
     if (SRC / "docs" / "img" / "new").is_dir():
         shutil.copytree(SRC / "docs" / "img" / "new", out / "new" / "img" / "new")
 
-    latest = catalog.get("latest") or (catalog["versions"][0]["version"] if catalog["versions"] else "")
-    ver_label = f" v{html.escape(str(latest))}" if latest else ""
-    landing = (LANDING.replace("__VERSION_LABEL__", ver_label)
-                      .replace("__REPO__", REPO))
+    shutil.copy(SRC / "web" / "site.css", out / "site.css")
+    shutil.copytree(SRC / "web" / "assets", out / "assets")
+    for section, source in (("manual", "MANUAL.md"), ("new", "NEW.md")):
+        subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "web" / source),
+                        str(out / section / "index.html")], check=True, capture_output=True)
+    # Real documentation and history share the workspace typography/navigation.
+    nav = '<nav class="site-nav" aria-label="DnBOX"><a href="../">DnBOX</a><a href="../manual/">Manual</a><a href="../new/">What’s new</a><a href="../history/">History</a></nav>'
+    for section in ("manual", "new"):
+        for doc in (out / section).glob("*.html"):
+            content = doc.read_text(encoding="utf-8").replace("</head>", '<link rel="stylesheet" href="../site.css"></head>')
+            content = content.replace("<body>", "<body>" + nav)
+            doc.write_text(content, encoding="utf-8")
+    entries = []
+    for v in catalog.get("versions", []):
+        models = v.get("models", {})
+        rows = []
+        for model, pkg in models.items():
+            rows.append('<li><strong>' + html.escape(str(model)) + '</strong>: ' + html.escape(str(pkg.get("product", "Unknown product"))) +
+                        '<br>Package: <code>' + html.escape(str(pkg.get("pkg", "No package"))) + '</code>' +
+                        '<br>SHA-256: <code>' + html.escape(str(pkg.get("sha256", "Not recorded"))) + '</code>' +
+                        '<br>Bytes: ' + html.escape(str(pkg.get("size", "Not recorded"))) + '</li>')
+        entries.append('<section><h2>' + html.escape(str(v.get("version", "Unversioned history entry"))) + '</h2><p>' +
+                       html.escape(str(v.get("label") or v.get("status") or "Catalog entry; installation requires independent publisher admission")) +
+                       '</p><p>Source: <code>' + html.escape(str(v.get("source_commit", "Not recorded"))) + '</code></p><ul>' + ''.join(rows) + '</ul></section>')
+    history = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DnBOX · History</title><link rel="stylesheet" href="../site.css"></head><body><main>' + nav + '<h1>Firmware history</h1><p>Retained catalog records. Only packages admitted by the installer’s independent publisher checks are installable there. A history record does not grant that approval. No package numbers or checksums are invented.</p>' + (''.join(entries) or '<p>This generated site has no package catalog yet. Use a verified local firmware file. No earlier package history was supplied to this build.</p>') + '</main></body></html>'
+    (out / "history" / "index.html").write_text(history, encoding="utf-8")
+    # The root is the same install/data workspace, with paths rebased once.
+    landing = page.replace('../site.css', 'site.css').replace('href="../"', 'href="./"')
+    for section in ("manual", "new", "history", "breaks", "projects"):
+        landing = landing.replace(f'../{section}/', f'{section}/')
+    landing = landing.replace('../firmware/', 'firmware/')
     if banner:
-        landing = landing.replace("<div class=\"status\">",
-                                  "<div class=\"status\">" + html.escape(banner) + " ", 1)
+        landing = landing.replace('<div id="installview">', '<div id="installview"><p class="browser-note">' + html.escape(banner) + '</p>', 1)
     (out / "index.html").write_text(landing, encoding="utf-8")
     (out / ".nojekyll").write_text("")
     models = ", ".join(sorted({k for v in catalog["versions"] for k in v.get("models", {})}))
