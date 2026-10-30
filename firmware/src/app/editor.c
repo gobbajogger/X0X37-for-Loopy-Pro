@@ -155,18 +155,11 @@ static uint32_t ed_unpack_exact(const uint8_t *a, uint32_t na, uint8_t *out, uin
  * A browser restores sample slots only while mode 2 holds this lock, after VALIDATE. */
 static struct {
     uint32_t at, next;
-#if X0X_BASS_TAGGED_SOUND
-    uint32_t size;
-    uint8_t legacy_prepared;
-#endif
     uint32_t sample_len[SMP_USER_SLOTS], sample_crc[SMP_USER_SLOTS];
     uint8_t mode, valid, changed, recovery, header[PROJECT_FILE_HDR];
 } ed_project;
-#if X0X_BASS_TAGGED_SOUND
-#define ED_PROJECT_SIZE ed_project.size
-#else
+/* Revision 13 is the only admitted project representation. */
 #define ED_PROJECT_SIZE PROJECT_FILE_SIZE
-#endif
 
 static uint32_t ed_project_sample_len(uint32_t k)
 {
@@ -244,11 +237,7 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
     case 67:                                        /* IMPORT BEGIN */
         if (op == 65 && (project_storage_unsupported() || engine_bass_sound_validate(&proj.sound) ||
             engine_bass_preset_pending(0) || engine_bass_preset_pending(1))) { rc=2; break; }
-        if ((op == 65 && na) || (op == 67 && (na != 3 || (ed_u21(a) != PROJECT_FILE_SIZE
-#if X0X_BASS_TAGGED_SOUND
-            && ed_u21(a)!=PROJECT_LEGACY_FILE_SIZE
-#endif
-            )))) {
+        if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
             rc = 1; break;
         }
         if (op == 67 && ed_project.recovery) {
@@ -259,10 +248,6 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
             if (op == 67)
                 ed_project_sample_snapshot();
         }
-#if X0X_BASS_TAGGED_SOUND
-        ed_project.size=op==65?PROJECT_FILE_SIZE:ed_u21(a);
-        ed_project.legacy_prepared=0;
-#endif
         ed_project.mode = (uint8_t)(op == 65 ? 1 : 2);
         ed_project.at = fm1_ms;
         ed_project.next = 0;
@@ -287,9 +272,6 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         return;
     case 68:                                        /* sequential WRITE, exact retries are idempotent */
         if (ed_project.mode != 2) { rc = 2; break; }
-#if X0X_BASS_TAGGED_SOUND
-        if(ed_project.legacy_prepared) {rc=2;break;} /* representation is now staged/quarantined */
-#endif
         if (na < 5) { rc = 1; break; }
         off = ed_u21(a);
         n = ed_unpack_exact(a + 3, na - 3, ed_smp_buf, ED_READ_MAX);
@@ -315,34 +297,14 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         if (op == 69 && (na != 2 || a[0] != 0x58 || a[1] != 0x30)) { rc = 8; break; }
         if (op == 74 && na) { rc = 1; break; }
         if (ed_project.next != ED_PROJECT_SIZE) { rc = 3; break; }
-#if X0X_BASS_TAGGED_SOUND
-        if(ed_project.legacy_prepared) {rc=9;break;}
-        if(ED_PROJECT_SIZE!=PROJECT_FILE_SIZE) {
-            int result=project_prepare_legacy_file(ed_project.header);
-            if(result==-10)ed_project.legacy_prepared=1;
-            rc=ed_project_rc(result);break;
-        }
-#endif
         rc = ed_project_rc(project_file_validate(ed_project.header));
         ed_project.valid = rc == 0;
-        /* Validation may migrate a legacy BREAK mode byte. Canonicalize the
-         * header so a later VALIDATE/COMMIT checks the migrated bytes' CRC. */
+        /* Recompute the staged header after validation so subsequent
+         * VALIDATE/COMMIT operations check the current bytes' CRC. */
         if (!rc) project_file_header(ed_project.header);
         if (!rc && op == 69)
             ed_project_end(1);
         break;
-#if X0X_BASS_TAGGED_SOUND
-    case 75: /* Explicit legacy identity adoption: bankA,bankB,0x58,0x30; COMMIT remains separate. */
-        if(ed_project.mode!=2 || !ed_project.legacy_prepared) {rc=2;break;}
-        if(na!=4 || a[2]!=0x58 || a[3]!=0x30) {rc=8;break;}
-        rc=ed_project_rc(project_adopt_legacy_stage(a[0],a[1]));
-        if(!rc) {
-            ed_project.legacy_prepared=0;ed_project.size=PROJECT_FILE_SIZE;
-            ed_project.next=PROJECT_FILE_SIZE;ed_project.valid=1;
-            project_file_header(ed_project.header);
-        }
-        break;
-#endif
     case 70:                                        /* ABORT, including an already expired session */
         if (na) { rc = 1; break; }
         rc = (uint32_t)ed_project_end(0);
