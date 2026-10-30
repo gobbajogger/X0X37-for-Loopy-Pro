@@ -1050,6 +1050,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             if ((v >> k) & 1) {
 
                 if (bass_held_src[k] == (uint8_t)src) bass_held[k] = bass_held_count[k] = 0;
+                seq_rec_cancel(&seq, k);
             }
         }
         if (brk_bend_owner == src) { breaks_bend(&brk, 0); brk_bend_owner = -1; }
@@ -1144,13 +1145,22 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90 || ty == 0x80) {
                 unsigned velocity = ty == 0x90 ? d2 : 0;
+                /* External MIDI recording: accepted physical edges, as the pads do. */
+                int slide = velocity && live_rec_legato(k, src) && bass_held[k] != d1;
                 if (original_runtime_key(&original_bass[k], (unsigned)src, d1, velocity) != ORIGINAL_RUNTIME_OK) continue;
                 if (velocity) {
+#ifdef X0X_HOST
+                    bass_attacked[k] = (uint8_t)!slide;
+#endif
+                    seq_rec_bass(&seq, k, d1, d2, 1, src, (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
                     bass_held[k] = d1; bass_held_src[k] = (uint8_t)src;
                     bass_held_count[k] = original_bass[k].keys[src][d1];
+                    live_rec_accept(k, src, d1);
                 } else if (bass_held_src[k] == (uint8_t)src && bass_held[k] == d1) {
                     bass_held_count[k] = original_bass[k].keys[src][d1];
                     if (!bass_held_count[k]) {
+                        seq_rec_bass(&seq, k, d1, 0, 0, src, 0);
+                        seq.rec_bass[k].own_ok = 0;
                         bass_held[k] = 0;
                     }
                 }
