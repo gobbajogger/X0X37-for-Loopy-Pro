@@ -15,7 +15,8 @@ import sys
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from host_failure_summary import RUN_SCHEMA, parse_status, plan_hash  # noqa: E402
+from host_failure_summary import (RUN_SCHEMA, assert_clean_source, parse_status,
+                                  plan_hash)  # noqa: E402
 
 
 def checked_head(root):
@@ -29,8 +30,9 @@ def checked_head(root):
 def capture(root, destination, jobs, selection):
     if destination.resolve().is_relative_to((root / 'firmware').resolve()):
         raise ValueError('Output must not be inside firmware source')
-    destination.mkdir(parents=True, exist_ok=True)
     head = checked_head(root)
+    assert_clean_source(root)
+    destination.mkdir(parents=True, exist_ok=True)
     transcript = destination / 'full-host.log'
     command = ['sh', 'tests/run_tests.sh']
     env = os.environ.copy()
@@ -44,12 +46,14 @@ def capture(root, destination, jobs, selection):
                             stderr=subprocess.STDOUT, check=False).returncode
     if checked_head(root) != head:
         raise ValueError('Repository HEAD changed during host run')
+    assert_clean_source(root)
     statuses = parse_status(transcript.read_text(encoding='utf-8', errors='replace').splitlines())
     if not statuses:
         raise ValueError('Host run generated no test statuses; inspect full-host.log')
     record = {
         'schema': RUN_SCHEMA,
         'head': head,
+        'source_clean_before_after': True,
         'command': command,
         'runner_env': {'X0X_TEST_JOBS': str(jobs), 'X0X_TESTS': selection},
         'exit_code': rc,
