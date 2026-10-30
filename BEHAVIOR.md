@@ -176,6 +176,7 @@ REC-05. On the SMK-37 with clip mode on, SEQ REC does not toggle X0X recording. 
 REC-06. With REC on and the pattern in play, a drum hit or a 303 key records on the nearest step. In the first half of a step, it records on that step. After half of the step, it records on the next step. On an external clock, half of the step is half of its ticks.
   - Before the first step after PLAY or Start, it records on the first step. If the step did not play yet on this pass, it does not sound that hit again on this pass, because the key sounded it. The next pass plays it. The MIDI note out of that step still goes out.
   - [USER] [CODE seq/sequencer.c seq_rec_step seq_rec_skip] [CODE app/ui.c drum_key bass_kbd] (New 2026-10-16, a73. The owner approved it at 20:11. Before, a hit recorded on the step that played.)
+REC-07. External MIDI (USB, Bluetooth, TRS) on a 303 part's channel records like the 303 keys when REC is on: the note-on stores the step (accent at velocity 100 or more, legato overlap slides), its own note-off ends it, and a source disconnect cancels that source's capture. [USER] [CODE app/engine.c midi_in] [TEST host/rec_nonforward_guard_test.c host/rec_endpoint_lifecycle_test.c] (Restored 2026-10-30 on owner decision; 18481a63 had removed it with the bass303 engine.)
 
 ## 9. Knob motion, p-locks and probability
 
