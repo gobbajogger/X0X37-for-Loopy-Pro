@@ -134,11 +134,11 @@ static void independent_fx(void)
     peer_msg(0,0x90,24,127);peer_msg(1,0x90,24,127);
     smc_states[1].fx_effect[0]=smcfx_cycle(0,smc_states[0].fx_effect[0]);
     smc_slot=1;smc_fx_publish();smc_slot=0;
-    /* A held FX SELECT plays the temporary low-pass on every peer; the
-     * saved bank effects stay unchanged (3f35de0f). */
-    CHECK(fx_values[0]==SMCFX_LP);
+    /* A held FX SELECT plays the holding peer's assigned effect (574f5329,
+     * #741); the first holding peer wins and saved effects stay unchanged. */
+    CHECK(fx_values[0]==smc_states[0].fx_effect[0]);
     CHECK(smc_states[1].fx_effect[0]==smcfx_cycle(0,smc_states[0].fx_effect[0]));
-    peer_msg(0,0x80,24,0);CHECK(fx_mask&1);CHECK(fx_values[0]==SMCFX_LP);
+    peer_msg(0,0x80,24,0);CHECK(fx_mask&1);CHECK(fx_values[0]==smc_states[1].fx_effect[0]);
     peer_msg(1,0x80,24,0);CHECK(!fx_mask);
     peer_msg(0,0x90,24,127);peer_msg(1,0x90,25,127);CHECK((fx_mask&3)==3);
     require_zero_fx=1;smc_project_reset();require_zero_fx=0;CHECK(!fx_mask);
