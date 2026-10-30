@@ -1,0 +1,6 @@
+FAIL line 311: captured endpoint project saves
+FAIL line 313: current stream6 save/load preserves exact capture bytes
+FAIL line 316: new save names current endpoint-compatible stream
+FAIL line 324: actual legacy format3 loads unchanged with zero endpoint
+  timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection, stop and cancelled-gate ownership checked
+rec_endpoint_lifecycle: 686525 checks 4 failures

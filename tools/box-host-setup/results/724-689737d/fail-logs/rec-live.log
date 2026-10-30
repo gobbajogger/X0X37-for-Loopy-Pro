@@ -1,0 +1,42 @@
+  303 keyboard: octave and part changes release the original key; later key owns gate: checked
+  FAIL tests/host/rec_live_test.c:260: 303 A preview ended on part change
+  FAIL tests/host/rec_live_test.c:272: FX closes the held step preview
+  FAIL tests/host/rec_live_test.c:290: REC closes the old step preview
+  FAIL tests/host/rec_live_test.c:300: pattern change closes the old step preview
+  FAIL tests/host/rec_live_test.c:309: ordinary tap still turns an existing step off
+  303 step preview: part, view and clip transitions release sound; taps keep their meaning: checked
+  FAIL tests/host/rec_live_test.c:334: step REC overlap marks source slide
+  FAIL tests/host/rec_live_test.c:335: step REC destination has no outgoing slide
+  FAIL tests/host/rec_live_test.c:338: released key does not create a slide
+  FAIL tests/host/rec_live_test.c:341: step REC slide wraps to step zero
+  FAIL tests/host/rec_live_test.c:365: 303 B also records automatic slides
+  FAIL tests/host/rec_live_test.c:389: live overlap slides source and retains accent
+  FAIL tests/host/rec_live_test.c:390: live destination has no outgoing slide
+  FAIL tests/host/rec_live_test.c:398: two live notes on one quantized step replace pitch without a self-slide
+  FAIL tests/host/rec_live_test.c:406: live overlap slides across loop boundary
+  303 automatic REC slides: overlap, release, wrap, same step, accent, rest and REC restart checked
+  FAIL tests/host/rec_live_test.c:440: LFO + key: step 11 note 30, want 68
+  FAIL tests/host/rec_live_test.c:441: LFO + key: step 11 has no slide (flags 0x01)
+  FAIL tests/host/rec_live_test.c:443: LFO released after LFO + key: view 4, want V_PART 1 (V_MIX 4)
+  FAIL tests/host/rec_live_test.c:448: plain key after LFO + key: step 14 note 30 flags 0x01, want note 75, no slide
+  FAIL tests/host/rec_live_test.c:456: ENV + key: step 3 note 30 flags 0x01, want note 67, accent
+  FAIL tests/host/rec_live_test.c:458: ENV released after ENV + key: view 4, want V_PART 1
+  FAIL tests/host/rec_live_test.c:462: plain key after ENV + key: step 6 note 30, want 63
+  303 live record: LFO + key slides, ENV + key accents, the keys record after the release: checked
+  FAIL tests/host/rec_live_test.c:526: run 0: the hit before the first tick after Start: step 1 0, steps set 0, the old run stopped at step 7 (set 0)
+  FAIL tests/host/rec_live_test.c:526: run 1: the hit before the first tick after Start: step 1 0, steps set 0, the old run stopped at step 9 (set 0)
+  FAIL tests/host/rec_live_test.c:526: run 2: the hit before the first tick after Start: step 1 0, steps set 0, the old run stopped at step 11 (set 0)
+  Start with the clock running, a hit before the first tick: step 1: checked
+  FAIL tests/host/rec_live_test.c:563: soft hit recorded a step
+  FAIL tests/host/rec_live_test.c:565: T_VEL lane allocated for the recorded voice
+  FAIL tests/host/rec_live_test.c:566: recorded velocity -1, want 37
+  FAIL tests/host/rec_live_test.c:576: hard hit stored velocity 110 on its step
+  909 live record: black-key strike velocity in T_VEL lane: checked
+  909 T_VEL clear restores seq.drum_vel to accent fallback: checked
+  FAIL tests/host/rec_live_test.c:643: hit 105 ms after step 4: step 5 set 0, steps set 0
+  FAIL tests/host/rec_live_test.c:643: hit 20 ms after step 9: step 9 set 0, steps set 0
+  FAIL tests/host/rec_live_test.c:643: hit 50 ms after step 12: step 12 set 0, steps set 0
+  FAIL tests/host/rec_live_test.c:643: hit 80 ms after step 13: step 14 set 0, steps set 0
+  FAIL tests/host/rec_live_test.c:643: hit 105 ms after step 16: step 1 set 0, steps set 0
+  909 live record: the nearest step, step 1 for a hit just before the loop start: checked
+rec_live: FAIL

@@ -1,0 +1,42 @@
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 1
+FAIL expect sound0.0.0 == 39, got 34
+  ok sound0.0.0 == 34
+  ok hit0.0.8 == 0
+  ok hit0.0.4 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.4 == 0
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.8 == 1
+  ok sound0.0.0 == 34
+  ok playing == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.8 == 0
+  ok hit0.0.12 == 1
+FAIL expect sound0.0.0 == 41, got 34
+  ok tempo == 130
+  ok listsel == 21
+  ok overlay == 2
+  ok overlay == 0
+  ok hit0.0.0 == 0
+  ok hit0.0.12 == 0
+  ok sound0.0.0 == 34
+  ok tempo == 125
+  ok playing == 0
+  ok rec == 0
+  ok hit0.0.0 == 0
+  ok hit0.0.12 == 0
+  ok sound0.0.0 == 34
+  ok tempo == 125
+  ok hit0.0.0 == 0
+  ok hit0.0.12 == 0
+  ok playing == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.0 == 0
+  ok hit0.0.0 == 1
+  ok hit0.0.12 == 0
+  ok sound0.0.0 == 34
+  ok tempo == 125
+host: 9018 ms simulated, 89 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED

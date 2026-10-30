@@ -1,0 +1,31 @@
+FAIL expect hit0.0.0 == 1, got 0
+FAIL expect hit0.0.4 == 1, got 0
+FAIL expect hit0.0.12 == 1, got 0
+FAIL expect hit0.1.4 == 1, got 0
+FAIL expect hit0.1.12 == 1, got 0
+  ok hit0.1.0 == 0
+FAIL expect songlen == 2, got 0
+FAIL expect tempo == 120, got 125
+FAIL expect lanes == 1, got 0
+FAIL expect sound0.0.10 == 30, got 64
+  ok sound0.0.8 == 0
+  ok sound0.0.9 == 0
+FAIL expect sound0.1.4 == 70, got 58
+FAIL expect sound0.1.7 == 50, got 0
+FAIL expect sound0.1.9 == 90, got 64
+  ok sound0.1.3 == 41
+FAIL expect sound1.0.0 == 100, got 64
+FAIL expect sound1.0.9 == 20, got 64
+  ok sound1.0.7 == 0
+  ok sound1.0.8 == 0
+FAIL expect sound6.0.0 == 40, got 64
+  ok sound6.0.12 == 95 (>0)
+FAIL expect sound6.0.13 <60, got 64
+  ok sound4.1.0 == 71 (>16)
+FAIL expect sound0.0.10 == 30, got 64
+FAIL expect sound0.1.4 == 70, got 58
+FAIL expect sound1.0.9 == 20, got 64
+FAIL expect songlen == 2, got 0
+FAIL expect lanes == 1, got 0
+FAIL expect hit0.1.12 == 1, got 0
+host: 3240 ms simulated, 37 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED

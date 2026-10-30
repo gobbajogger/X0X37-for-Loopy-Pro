@@ -1,0 +1,46 @@
+  ok tempo == 120
+  ok part == 2
+  ok ppat2 == 2
+  ok ppat0 == 1
+  ok ppat3 == 1
+  ok ppat2 == 1
+  ok view == 6
+  ok songlen == 3
+  ok songbar2.0 == 2
+  ok songbar3.0 == 1
+  ok songbar3.5 == 2
+  ok songbar2.3 == 5
+  ok songon == 1
+  ok songpos == 1
+  ok ppat0 == 1
+  ok songpos == 2
+  ok ppat0 == 2
+  ok ppat3 == 5
+  ok songpos == 3
+  ok mute == 4192256
+  ok songpos == 1
+  ok mute == 0
+  ok songon == 1
+  ok songon == 0
+  ok part == 2
+FAIL expect sound2.0.0 == 48, got 127
+  ok lanes == 1
+FAIL expect sound2.0.0 == 68, got 127
+FAIL expect laneval2.0.0.2 == 8, got 64
+FAIL expect laneval2.0.0.5 == 38, got 127
+FAIL expect laneval2.0.0.8 == 68, got 127
+  ok laneval2.0.0.1 == 255
+  ok laneval2.0.0.9 == 255
+FAIL expect motion2.0.0 <29, got 127
+  ok motion2.0.0 == 127 (>17)
+  ok motion2.0.0 == -1
+  ok sound2.0.0 == 64
+  ok lanes == 0
+  ok sound2.0.0 == 64
+  ok lanes == 1
+  ok store_writes == 6
+  ok lanes == 1
+  ok songlen == 3
+  ok songbar2.3 == 5
+  ok songbar3.5 == 2
+host: 14626 ms simulated, 129 blits, render 0.6% of real time (host CPU), EXPECTATIONS FAILED

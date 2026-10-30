@@ -1,0 +1,38 @@
+F.FF...
+======================================================================
+FAIL: test_compile_failure_propagates (__main__.HostSetupTest.test_compile_failure_propagates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr721-e189819d/tests/host/test_host_setup.py", line 120, in test_compile_failure_propagates
+    self.assertEqual(result.returncode, 29)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 29
+
+======================================================================
+FAIL: test_default_build_and_environment (__main__.HostSetupTest.test_default_build_and_environment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr721-e189819d/tests/host/test_host_setup.py", line 74, in test_default_build_and_environment
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "<frozen importlib._bootstrap_external>", line 1022, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1159, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1217, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/scratch-build/pr721-e189819d/build/host/iso/host-setup/tmp/x0x-host-setup-ow21vrmt/tools/build.py'
+
+
+======================================================================
+FAIL: test_default_output (__main__.HostSetupTest.test_default_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr721-e189819d/tests/host/test_host_setup.py", line 89, in test_default_output
+    self.assertEqual(self.run_builder().returncode, 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.785s
+
+FAILED (failures=3)

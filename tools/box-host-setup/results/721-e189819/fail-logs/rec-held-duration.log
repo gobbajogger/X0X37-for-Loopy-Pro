@@ -1,0 +1,4 @@
+tests/host/rec_held_duration_test.c: In function ‘probe_tmp’:
+tests/host/rec_held_duration_test.c:87:20: error: implicit declaration of function ‘unlink’ [-Wimplicit-function-declaration]
+   87 |  f=fdopen(fd,"w+");unlink(path);if(!f) {perror("probe fdopen");exit(2);}
+      |                    ^~~~~~

@@ -1,0 +1,6 @@
+/usr/bin/ld: build/drum808_test/drum808.o: in function `d8_render':
+drum808.c:(.text+0x546c): undefined reference to `x0x_glide_block'
+/usr/bin/ld: drum808.c:(.text+0x5486): undefined reference to `x0x_glide_block'
+/usr/bin/ld: build/drum808_test/drum808.o: in function `drum808_set':
+drum808.c:(.text+0x596f): undefined reference to `x0x_pan_gains'
+collect2: error: ld returned 1 exit status

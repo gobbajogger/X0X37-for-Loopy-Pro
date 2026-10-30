@@ -1,0 +1,11 @@
+  ok view == 1
+  ok gate0.0 == 0
+  ok gate0.1 == 0
+  ok view == 8
+  ok view == 1
+FAIL expect gate0.4 == 1, got 0
+FAIL expect gate0.5 == 2, got 0
+FAIL expect gate0.7 == 2, got 0
+  ok gate0.9 == 0
+  ok gate0.10 == 0
+host: 1930 ms simulated, 25 blits, render 1.1% of real time (host CPU), EXPECTATIONS FAILED

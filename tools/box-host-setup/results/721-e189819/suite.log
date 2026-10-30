@@ -1,0 +1,1011 @@
+  ok   fastmath
+  ok   fastmath-ubsan
+  ok   home-tie-semantics
+  ok   sequencer
+  ok   bass-prob-midi
+  ok   seq-tb3po-bars
+  ok   seq-random-swing
+  ok   seq-random-clock-handoff
+  ok   seq-long-notes
+  ok   seq-pingpong-resize
+  ok   clk-lock
+  ok   seq-random-tie-preview
+  ok   encoder
+  ok   bass303_lite
+  ok   bass303-sustain
+  ok   bass-presets-map
+  ok   bass-presets-live
+  ok   bass-legacy-display
+  FAIL bass-tagged-storage (see build/host/bass-tagged-storage.log)
+             |                       ^~~~
+       firmware/src/app/engine.c:1828:51: warning: ‘info.identity.engine’ may be used uninitialized [-Wmaybe-uninitialized]
+        1828 |     *bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+             |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+       firmware/src/app/engine.c:1823:23: note: ‘info.identity.engine’ was declared here
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       firmware/src/app/engine.c:1830:7: warning: ‘info.preset’ may be used uninitialized [-Wmaybe-uninitialized]
+        1830 |     if(info.preset!=BASS_SOUND_NO_PRESET) {
+             |       ^
+       firmware/src/app/engine.c:1823:23: note: ‘info.preset’ was declared here
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       FAIL tag line75: project_prepare_legacy_file(header)==-10
+       PASS BASE identity/value undo/redo, held-note retry, stale-choice cancellation and touched motion ownership
+  ok   bass-presets-export
+  ok   bass-midi-pending-native
+  ok   uac
+  ok   trs
+  ok   undo
+  ok   undo-capacity
+  ok   lz
+  ok   motion
+  ok   host-build
+  FAIL project-303-stream (see build/host/project-303-stream.log)
+       In file included from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                        from tests/host/../../firmware/src/app/x0x.h:16,
+                        from tests/host/../../firmware/src/app/project.c:16,
+                        from tests/host/project_303_stream_test.c:5:
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL wave-motion-migrate (see build/host/wave-motion-migrate.log)
+       In file included from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                        from tests/host/../../firmware/src/app/x0x.h:16,
+                        from tests/host/../../firmware/src/app/project.c:16,
+                        from tests/host/wave_motion_migrate_test.c:6:
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL project-protocol (see build/host/project-protocol.log)
+       In file included from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                        from tests/host/../../firmware/src/app/x0x.h:16,
+                        from tests/host/project_protocol_test.c:11:
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL project-save-preflight (see build/host/project-save-preflight.log)
+       In file included from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                        from tests/host/../../firmware/src/app/x0x.h:16,
+                        from tests/host/../../firmware/src/app/project.c:16,
+                        from tests/host/project_save_preflight_test.c:5:
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL editor-ota-dispatch (see build/host/editor-ota-dispatch.log)
+       /workspace/scratch-build/pr721-e189819d/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-ji46t1e5/editor_service.inc:5:9: error: implicit declaration of function ‘ED_MAINTENANCE_HELD’ [-Wimplicit-function-declaration]
+           5 |     if (ED_MAINTENANCE_HELD()) {
+             |         ^~~~~~~~~~~~~~~~~~~
+       /workspace/scratch-build/pr721-e189819d/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-ji46t1e5/editor_service.inc:10:19: error: implicit declaration of function ‘ED_MAINTENANCE_ADMIT’; did you mean ‘OTA_MAINTENANCE_ADMIT’? [-Wimplicit-function-declaration]
+          10 |             (void)ED_MAINTENANCE_ADMIT();
+             |                   ^~~~~~~~~~~~~~~~~~~~
+             |                   OTA_MAINTENANCE_ADMIT
+       Traceback (most recent call last):
+         File "/workspace/scratch-build/pr721-e189819d/tests/host/editor_ota_dispatch_test.py", line 53, in <module>
+           subprocess.run(argv, check=True)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['/workspace/x0x37-build-and-test-runner/pr-runner/bin/cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-Wno-unused-variable', '-Wno-sign-compare', '-DBOARD_SMK37=1', '-DT_MODEL=1', '-DED_SERVICE_RETURNS_PENDING=1', '-I', '/workspace/scratch-build/pr721-e189819d/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-ji46t1e5', '/workspace/scratch-build/pr721-e189819d/tests/host/editor_ota_dispatch_test.c', '-o', '/workspace/scratch-build/pr721-e189819d/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-ji46t1e5/test']' returned non-zero exit status 1.
+  ok   storage-scratch
+  FAIL project-stage (see build/host/project-stage.log)
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+       In file included from firmware/src/dsp/fxbus.h:26,
+                        from firmware/src/dsp/fxbus.c:4:
+       firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  ok   project-runtime
+  ok   save-note-quiet
+  ok   font-pack
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   smc-select-mode
+  ok   smc-fx
+  ok   smc-queue
+  ok   smc-solo-overflow
+  ok   engine-cq-rec-overflow
+  ok   engine-cq-isr-preemption
+  ok   engine-cq-boff-overflow
+  ok   engine-cq-brk-overflow
+  ok   engine-cq-bon-overflow
+  ok   engine-cq-drum-overflow
+  ok   midi-mq-noteoff-overflow
+  ok   midi-mq-rt-overflow
+  ok   midi-out-mq-noteoff-overflow
+  ok   ble-out-noteoff-overflow
+  ok   ble-out-rt-overflow
+  ok   usb-sxq-sticky-apc
+  ok   smc-host-data7
+  ok   smc-host-overflow-data7
+  ok   smc-sender-isolation
+  ok   smc-ble-payload
+  ok   smc-link
+  ok   smc-reconnect-epoch
+  ok   ble-central-first-notification
+  ok   ble-dual-peer
+  ok   ble-command-credit
+  ok   ble-controller-heap
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   ble-acl-start-flags
+  ok   ble-hci-completed
+  ok   ble-acl-zero-credit
+  ok   ble-link-epoch-reset
+  ok   ble-disconnect-status
+  ok   smc-reachability
+  ok   smc-pickup-acceptance
+  ok   smc-lock
+  ok   smc-lock-beat
+  ok   smc-multi-peer
+  ok   smc-multi-peer-negative
+  ok   smc-pause-loss
+  ok   smk-wheel-mode
+  ok   miami-mw-wobble
+  ok   freeplay-rate-pads
+  ok   smc-interaction-negative
+  ok   corner-coverage
+  ok   original-release-ui
+  ok   original-release-integration
+  ok   boot-screen
+  ok   ui-theme
+  ok   part-order
+  ok   smc-ui
+  ok   smc-ui-bounds
+  ok   smc-ui-negative
+  ok   smc-mapping
+  ok   smc-drum-mutes
+  FAIL smc-drum-rs (see build/host/smc-drum-rs.log)
+                        from firmware/src/dsp/fxbus.c:4:
+       firmware/src/dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       FAIL pattern cue during held p-lock restores the original drum sound line 452: ui.hold_used && drum909_get(observed_909, r.b, r.c) != base
+       FAIL pattern cue during held p-lock restores the original drum sound line 458: drum909_get(observed_909, r.b, r.c) == base
+       Simulated DAW/MMC, production SMC/UI/SMK pad mapping/engine; no physical-device result.
+       Normal stereo audio fingerprints: 909=2b1a2725 808=a0999a81
+       FAIL: 44 active drum destinations, 20 inactive positions, 88 pad writes, 88 audio cases; 124992 checks, 2 failures
+  ok   smc-performance-abort
+  ok   smc-filter
+  ok   smc-feedback
+  ok   smc-record-feedback
+  ok   smc-part-select
+  ok   smc-clip-visibility
+  ok   drum-pan
+  ok   stereo
+  ok   master
+  FAIL drum909-adpcm (see build/host/drum909-adpcm.log)
+       cymbal references: own decoder (no A/B study found)
+       In file included from tests/host/../../firmware/src/dsp/drum909.h:19,
+                        from tests/host/../../firmware/src/dsp/drum909.c:9,
+                        from tests/host/drum909_adpcm_test.c:16:
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       tests/host/../../firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL drum909 (see build/host/drum909.log)
+       gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+       In file included from firmware/src/dsp/drum909.h:19,
+                        from firmware/src/dsp/drum909.c:9:
+       firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  FAIL drum808 (see build/host/drum808.log)
+       /usr/bin/ld: build/drum808_test/drum808.o: in function `d8_render':
+       drum808.c:(.text+0x546c): undefined reference to `x0x_glide_block'
+       /usr/bin/ld: drum808.c:(.text+0x5486): undefined reference to `x0x_glide_block'
+       /usr/bin/ld: build/drum808_test/drum808.o: in function `drum808_set':
+       drum808.c:(.text+0x596f): undefined reference to `x0x_pan_gains'
+       collect2: error: ld returned 1 exit status
+  FAIL bass303 (see build/host/bass303.log)
+       warnings (BASS303_OS=1):
+       firmware/src/dsp/bass303.c: In function ‘clear_audio_state’:
+       firmware/src/dsp/bass303.c:321:9: warning: unused variable ‘i’ [-Wunused-variable]
+         321 |     int i;
+             |         ^
+       firmware/src/dsp/bass303.c: In function ‘clear_audio_state’:
+       firmware/src/dsp/bass303.c:321:9: warning: unused variable ‘i’ [-Wunused-variable]
+         321 |     int i;
+             |         ^
+       /usr/bin/ld: build/bass303_host/bass303_k1_1.o: in function `bass303_set_bend':
+       bass303.c:(.text+0x1aa0): multiple definition of `bass303_set_bend'; build/bass303_host/bass303_1.o:bass303.c:(.text+0x1af0): first defined here
+       collect2: error: ld returned 1 exit status
+  ok   breaks
+  ok   brk-loops-seamless
+  ok   brk-outline
+  ok   brk-outline-gate
+  ok   bass303-ampmode
+  ok   bass303-wave-gnaw
+  ok   bass303-amp-adsr
+  ok   chicago-arp
+  ok   chicago-fx-bridge
+  ok   chicago-crush
+  ok   chicago-ring
+  ok   chicago-eq
+  ok   chicago-cho
+  ok   chicago-ens
+  ok   chicago-phaser
+  ok   chicago-sdly
+  ok   chicago-bpmdly
+  ok   chicago-hall
+  ok   chicago-gaterev
+  ok   chicago-aux
+  ok   chicago-env
+  ok   au-compare-align
+  ok   chicago-au-render
+  ok   chicago-au-map
+  ok   chicago-au-battery
+  not-run chicago-au-compare (CHICAGO_AU_REFS)
+  ok   au-compare-battery
+  ok   miami-au-render
+  ok   miami-au-battery
+  not-run miami-au-compare (MIAMI_AU_REFS)
+  ok   install-gate-guard
+  ok   queue-guard
+  ok   install-guards
+  ok   install-head
+  ok   release-tree
+  ok   prepush-trim
+  ok   prepush-allow
+  ok   gate-configs
+  ok   gate-trap
+  ok   quickcheck-plan
+  FAIL ctl-compile (see build/host/ctl-compile.log)
+           stdout, stderr = self._communicate(input, endtime, timeout)
+                            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+           self._check_timeout(endtime, orig_timeout, stdout, stderr)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+           raise TimeoutExpired(
+           ...<2 lines>...
+                   stderr=b''.join(stderr_seq) if stderr_seq else None)
+       subprocess.TimeoutExpired: Command '['sh', '/workspace/scratch-build/pr721-e189819d/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+       
+       ----------------------------------------------------------------------
+       Ran 10 tests in 25.483s
+       
+       FAILED (errors=2)
+  FAIL host-setup (see build/host/host-setup.log)
+       
+       
+       ======================================================================
+       FAIL: test_default_output (__main__.HostSetupTest.test_default_output)
+       ----------------------------------------------------------------------
+       Traceback (most recent call last):
+         File "/workspace/scratch-build/pr721-e189819d/tests/host/test_host_setup.py", line 89, in test_default_output
+           self.assertEqual(self.run_builder().returncode, 0)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       AssertionError: 1 != 0
+       
+       ----------------------------------------------------------------------
+       Ran 7 tests in 0.785s
+       
+       FAILED (failures=3)
+  FAIL gen-nonfont-tables (see build/host/gen-nonfont-tables.log)
+       FAIL: expected host-build Pillow not-run
+                ok   host-build
+                ok   stereo
+                skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+              all tests passed
+  ok   stereo-alone-gen
+  ok   runner-admission
+  ok   update-names
+  ok   gate-reason
+  ok   validation-inputs
+  ok   stage-handoff
+  ok   dev-validate
+  ok   dev-validate-composed
+  ok   nightly-publish
+  ok   gen-cache
+  ok   smk-update-contract
+  ok   gen-order
+  ok   quickcheck-devbug
+  ok   status-lanes
+  ok   status-isolation
+  ok   loop-bars
+  ok   installer
+  ok   installer-f02-bind
+  ok   installer-f02-bind-web
+  ok   locked-settings
+  ok   smk-flash
+  ok   smk-storage
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   smk-clip-ble-clear
+  ok   smk-clip-keys
+  ok   smk-chord-recognize
+  FAIL smk-clip-chord-display (see build/host/smk-clip-chord-display.log)
+       font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 2316 B
+       font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 3288 B
+       font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 4280 B
+       font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 4374 B
+       font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 4863 B
+       font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 3584 B
+       font set barlow: 23179 B (approx)
+       In file included from tests/host/smk_clip_knob_test.c:108,
+                        from tests/host/smk_clip_chord_display_test.c:4:
+       build/host/clip_chord/autosave.inc: In function ‘autosave’:
+       build/host/clip_chord/autosave.inc:12:25: error: implicit declaration of function ‘ui_boot_flash_busy’ [-Wimplicit-function-declaration]
+          12 |     if (project_busy || ui_boot_flash_busy())
+             |                         ^~~~~~~~~~~~~~~~~~
+       At top level:
+       cc1: note: unrecognized command-line option ‘-Wno-unknown-attributes’ may have been intended to silence earlier diagnostics
+  ok   smk-ck-page-layout
+  ok   smk-arrows
+  ok   smk-arrows-owner
+  ok   apc40-tables
+  ok   smk-clip-idle
+  ok   smk-clip-idle-pad
+  ok   apc40-pad-owner
+  ok   smk-padcal
+  ok   padcal-view
+  ok   smk-padcal-export
+  ok   smk-padcal-wiring
+  ok   pad-placement-doc
+  FAIL padcal-flag (see build/host/padcal-flag.log)
+       PASS app/x0x.h: the default is 1 (dev build)
+       FAIL tools/build.py: X0X_DEV_PADCAL=0 or 1 from the environment goes to the compiler
+       PASS BUILDING.md: the release build command, the dev value and the tag padcal-v1
+       PASS app/apc40_pad_owner.h (generated): the owner-calibrated pad table is the pad table of both builds
+       PASS main_fm1.c, flag 0: no pad calibration code ([])
+       PASS main_fm1.c, flag 1: all the pad calibration code stays
+       PASS ui.c, flag 0: no pad calibration code ([])
+       PASS ui.c, flag 1: all the pad calibration code stays
+       PASS plat_fm1.c, flag 0: no pad calibration code ([])
+       PASS plat_fm1.c, flag 1: all the pad calibration code stays
+       PASS main_fm1.c, flag 0: INLOG has args 0 and 1 only (args 2-5 get the entries reply)
+       PASS ui.c, flag 0: key_event keeps the clip mode guard
+       PASS plat_fm1.c, flag 0: the clip mode knob and button paths stay
+       padcal_flag_test: 1 FAIL
+  ok   apc40-lcd565-csv
+  ok   apc-palette
+  ok   installer-targets
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  ok   ble-role-switch
+  ok   inlog-tool
+  ok   smk-pad-inputs
+  ok   smk-clip-ble-notify
+  ok   smk-clip-dark
+  ok   smk-clip-usb-clear
+  FAIL smk-clip-isolation (see build/host/smk-clip-isolation.log)
+         174 |         (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+             |                           ^
+       /workspace/scratch-build/pr721-e189819d/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-bo23yo1_/test.c:174:65: error: ‘struct <anonymous>’ has no member named ‘keys’
+         174 |         (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+             |                                                                 ^
+       Traceback (most recent call last):
+         File "/workspace/scratch-build/pr721-e189819d/tests/host/smk_clip_isolation_test.py", line 203, in <module>
+           subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Wno-unused-function",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           f"-DX0X_BLE={ble}", "-I", str(SRC), str(source), "-o", str(binary)], check=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         File "/usr/lib/python3.13/subprocess.py", line 577, in run
+           raise CalledProcessError(retcode, process.args,
+                                    output=stdout, stderr=stderr)
+       subprocess.CalledProcessError: Command '['/workspace/x0x37-build-and-test-runner/pr-runner/bin/cc', '-std=c99', '-Wall', '-Wextra', '-Wno-unused-function', '-DX0X_BLE=0', '-I', '/workspace/scratch-build/pr721-e189819d/firmware/src', '/workspace/scratch-build/pr721-e189819d/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-bo23yo1_/test.c', '-o', '/workspace/scratch-build/pr721-e189819d/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-bo23yo1_/test-0']' returned non-zero exit status 1.
+  FAIL smk-clip-knob (see build/host/smk-clip-knob.log)
+       In file included from tests/host/smk_clip_knob_test.c:108:
+       build/host/clip_knob/autosave.inc: In function ‘autosave’:
+       build/host/clip_knob/autosave.inc:12:25: error: implicit declaration of function ‘ui_boot_flash_busy’ [-Wimplicit-function-declaration]
+          12 |     if (project_busy || ui_boot_flash_busy())
+             |                         ^~~~~~~~~~~~~~~~~~
+  ok   smk-fader-pickup
+  ok   smk-clip-wait
+  ok   smk-apc40-violet
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   ble-sysex-bounds
+  ok   ble
+  ok   upload-images
+  ok   upload-tools
+  ok   break-pack
+  ok   break-pack-web
+  ok   breaks-web
+  ok   breaks-page
+  ok   project-adoption-identities
+  ok   projects-web
+  ok   projects-page
+  ok   install-slots-web
+  ok   installer-backup-selection
+  ok   slot-build-safe
+  ok   wav-import-integrity
+  ok   slot-backup
+  ok   slot-begin-cancel
+  ok   smp-begin-cancel
+  ok   slot-backup-durable
+  ok   slot-archive-zone
+  ok   slot-verify-order
+  ok   slot-read-reply
+  ok   slot-ack-integrity
+  ok   slot-echo-7bit
+  ok   slot-migration-matching
+  ok   slot-break-menu-migration
+  ok   installer-slots
+  ok   installer-restore-status
+  ok   installer-ota-finish-ack
+  ok   installer-backup-snapshot
+  ok   installer-ctl
+  ok   ctl-read-framing
+  ok   ctl-publish-atomic
+  FAIL rec-held-duration (see build/host/rec-held-duration.log)
+       tests/host/rec_held_duration_test.c: In function ‘probe_tmp’:
+       tests/host/rec_held_duration_test.c:87:20: error: implicit declaration of function ‘unlink’ [-Wimplicit-function-declaration]
+          87 |  f=fdopen(fd,"w+");unlink(path);if(!f) {perror("probe fdopen");exit(2);}
+             |                    ^~~~~~
+  FAIL rec-endpoint-lifecycle (see build/host/rec-endpoint-lifecycle.log)
+       FAIL line 311: captured endpoint project saves
+       FAIL line 313: current stream6 save/load preserves exact capture bytes
+       FAIL line 316: new save names current endpoint-compatible stream
+       FAIL line 324: actual legacy format3 loads unchanged with zero endpoint
+         timestamped MIDI recording: duration, gate replay, slide, retrigger, route isolation, note zero, wrap, swing, selection, stop and cancelled-gate ownership checked
+       rec_endpoint_lifecycle: 686525 checks 4 failures
+  FAIL rec-endpoint-storage (see build/host/rec-endpoint-storage.log)
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+       In file included from firmware/src/dsp/fxbus.h:26,
+                        from firmware/src/dsp/fxbus.c:4:
+       firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       cc1: all warnings being treated as errors
+  ok   rec-nonforward-guard
+  FAIL rec-live (see build/host/rec-live.log)
+         FAIL tests/host/rec_live_test.c:526: run 2: the hit before the first tick after Start: step 1 0, steps set 0, the old run stopped at step 11 (set 0)
+         Start with the clock running, a hit before the first tick: step 1: checked
+         FAIL tests/host/rec_live_test.c:563: soft hit recorded a step
+         FAIL tests/host/rec_live_test.c:565: T_VEL lane allocated for the recorded voice
+         FAIL tests/host/rec_live_test.c:566: recorded velocity -1, want 37
+         FAIL tests/host/rec_live_test.c:576: hard hit stored velocity 110 on its step
+         909 live record: black-key strike velocity in T_VEL lane: checked
+         909 T_VEL clear restores seq.drum_vel to accent fallback: checked
+         FAIL tests/host/rec_live_test.c:643: hit 105 ms after step 4: step 5 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 20 ms after step 9: step 9 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 50 ms after step 12: step 12 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 80 ms after step 13: step 14 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 105 ms after step 16: step 1 set 0, steps set 0
+         909 live record: the nearest step, step 1 for a hit just before the loop start: checked
+       rec_live: FAIL
+  FAIL rec-live-smk (see build/host/rec-live-smk.log)
+         FAIL tests/host/rec_live_test.c:526: run 2: the hit before the first tick after Start: step 1 0, steps set 0, the old run stopped at step 11 (set 0)
+         Start with the clock running, a hit before the first tick: step 1: checked
+         FAIL tests/host/rec_live_test.c:563: soft hit recorded a step
+         FAIL tests/host/rec_live_test.c:565: T_VEL lane allocated for the recorded voice
+         FAIL tests/host/rec_live_test.c:566: recorded velocity -1, want 37
+         FAIL tests/host/rec_live_test.c:576: hard hit stored velocity 110 on its step
+         909 live record: black-key strike velocity in T_VEL lane: checked
+         909 T_VEL clear restores seq.drum_vel to accent fallback: checked
+         FAIL tests/host/rec_live_test.c:643: hit 105 ms after step 4: step 5 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 20 ms after step 9: step 9 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 50 ms after step 12: step 12 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 80 ms after step 13: step 14 set 0, steps set 0
+         FAIL tests/host/rec_live_test.c:643: hit 105 ms after step 16: step 1 set 0, steps set 0
+         909 live record: the nearest step, step 1 for a hit just before the loop start: checked
+       rec_live: FAIL
+  ok   copy-semantics
+  ok   song-actions
+  FAIL ui-feedback (see build/host/ui-feedback.log)
+             |                                       ^~~
+       In file included from firmware/src/app/../dsp/drum909.h:19,
+                        from firmware/src/app/engine.c:6:
+       firmware/src/app/../dsp/drum909_dsp.h: At top level:
+       firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       test: tests/host/ui_feedback_test.c:170: home_pattern_glyph_content: Assertion `lit0 == 2' failed.
+       Aborted
+  FAIL home-overview (see build/host/home-overview.log)
+       assignment tick mismatch: valid-note-and-hold-current part 2
+       valid-note-and-hold-current part=3 current=1 used=1 bits16=0038 pixels=ff/ff expected=0038,06
+       HOME bass lane mismatch: valid-note-and-hold-current bits=0000 expected=0038
+       assignment tick mismatch: valid-note-and-hold-current part 3
+       valid-wrap-hold-current part=2 current=1 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+       HOME bass lane mismatch: valid-wrap-hold-current bits=0000 expected=0003
+       assignment tick mismatch: valid-wrap-hold-current part 2
+       valid-wrap-hold-current part=3 current=1 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+       HOME bass lane mismatch: valid-wrap-hold-current bits=0000 expected=0003
+       assignment tick mismatch: valid-wrap-hold-current part 3
+       all-tie-editor-created-current part=2 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+       assignment tick mismatch: all-tie-editor-created-current part 2
+       all-tie-editor-created-current part=3 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+       assignment tick mismatch: all-tie-editor-created-current part 3
+       HOME CONTENT CONTRACT FAIL: failures=91
+  FAIL sound-matrix (see build/host/sound-matrix.log)
+       In file included from firmware/src/app/../dsp/drum909.h:19,
+                        from firmware/src/app/engine.c:6:
+       firmware/src/app/../dsp/drum909_dsp.h: At top level:
+       firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       FAIL 131: fb[3 * 240 + 237] == swap16(dirty)
+       PASS Chicago all controls, blanks, widths and navigation
+       PASS Miami all controls, blanks, widths and navigation
+  ok   sound-layout
+  FAIL chicago-presentation (see build/host/chicago-presentation.log)
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       firmware/src/app/engine.c:1828:51: warning: ‘info.identity.engine’ may be used uninitialized [-Wmaybe-uninitialized]
+        1828 |     *bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+             |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+       firmware/src/app/engine.c:1823:23: note: ‘info.identity.engine’ was declared here
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       firmware/src/app/engine.c:1830:7: warning: ‘info.preset’ may be used uninitialized [-Wmaybe-uninitialized]
+        1830 |     if(info.preset!=BASS_SOUND_NO_PRESET) {
+             |       ^
+       firmware/src/app/engine.c:1823:23: note: ‘info.preset’ was declared here
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       FAIL 267: !strcmp(matrix_name(pg.r[fx][1]),e1[ty])
+  FAIL chicago-readout (see build/host/chicago-readout.log)
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       firmware/src/app/engine.c:1828:51: warning: ‘info.identity.engine’ may be used uninitialized [-Wmaybe-uninitialized]
+        1828 |     *bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+             |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+       firmware/src/app/engine.c:1823:23: note: ‘info.identity.engine’ was declared here
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       firmware/src/app/engine.c:1830:7: warning: ‘info.preset’ may be used uninitialized [-Wmaybe-uninitialized]
+        1830 |     if(info.preset!=BASS_SOUND_NO_PRESET) {
+             |       ^
+       firmware/src/app/engine.c:1823:23: note: ‘info.preset’ was declared here
+        1823 |     bass_sound_info_t info;
+             |                       ^~~~
+       FAIL 50: fb[(top+y)*240+x]==cv_px[y*240+x]
+  FAIL matrix-knob-caption (see build/host/matrix-knob-caption.log)
+          57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+             |                                       ^~~
+       In file included from firmware/src/app/../dsp/drum909.h:19,
+                        from firmware/src/app/engine.c:6:
+       firmware/src/app/../dsp/drum909_dsp.h: At top level:
+       firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+         212 |         const float t0 = x0x_tanh_value((unsigned)i);
+             |                          ^~~~~~~~~~~~~~
+       firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+         205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+             |                     ^~~~~~~~
+       FAIL 23: fb[(top+y)*240+x]==cv_px[y*240+x]
+  ok   preset-navigation-noop
+  ok   ui-303-entry
+  ok   scenario-arrows
+  ok   scenario-autosave
+  ok   scenario-bleclock
+  FAIL scenario-blenotes (see build/host/scenario-blenotes.log)
+         ok midiheld == 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0x303, got 3
+       FAIL expect midiheld == 0x202, got 2
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0x8001, got 1
+         ok midiheld == 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0xFF03, got 3
+         ok midiheld == 0
+       host: 1340 ms simulated, 10 blits, render 0.8% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-brkslice (see build/host/scenario-brkslice.log)
+         ok midiheld == 0
+         ok noteons == 0
+       FAIL expect midiheld == 0x100, got 0
+       FAIL expect midiheld == 0x100, got 0
+       FAIL expect midiheld == 0x100, got 0
+         ok midiheld == 0
+       FAIL expect midiheld == 0x100, got 0
+         ok midiheld == 0
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 0
+       line 50: unknown command brkwrap
+  FAIL scenario-brkslice_mode_toggle (see build/host/scenario-brkslice_mode_toggle.log)
+         ok midiheld == 0
+       FAIL expect midiheld == 0x100, got 0
+       line 11: unknown command brkwrap
+  FAIL scenario-brkslice_trs_overlap (see build/host/scenario-brkslice_trs_overlap.log)
+         ok midiheld == 0
+       line 7: unknown command brkwrap
+  ok   scenario-clklock
+  FAIL scenario-clkmove (see build/host/scenario-clkmove.log)
+         ok clksrc == 0
+         ok setbyte27 == 8
+         ok setbyte38 == 0
+         ok clksrc == 0
+       FAIL expect setbyte38 == 11, got 0
+         ok clksrc == 0
+       FAIL expect setbyte38 == 1, got 0
+       FAIL expect setbyte39 == 18, got 0
+         ok clksrc == 1
+         ok setbyte38 == 2
+         ok clksrc == 0
+       FAIL expect setbyte27 == 9, got 8
+         ok clksrc == 0
+         ok setbyte38 == 0
+       host: 36740 ms simulated, 56 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-clocksrc
+  ok   scenario-drum_bass_ch_consume
+  FAIL scenario-edit_midi_rec_guard (see build/host/scenario-edit_midi_rec_guard.log)
+         ok view == 1
+         ok gate0.0 == 0
+         ok gate0.1 == 0
+         ok view == 8
+         ok view == 1
+       FAIL expect gate0.4 == 1, got 0
+       FAIL expect gate0.5 == 2, got 0
+       FAIL expect gate0.7 == 2, got 0
+         ok gate0.9 == 0
+         ok gate0.10 == 0
+       host: 1930 ms simulated, 25 blits, render 1.1% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-edit_oct_no_hidden
+  ok   scenario-extclock
+  ok   scenario-freeplay
+  FAIL scenario-getting_started (see build/host/scenario-getting_started.log)
+         ok view == 2
+         ok view == 1
+       FAIL expect sound2.0.0 == 58, got 127
+       FAIL expect sound2.0.1 == 90, got 105
+         ok part == 4
+         ok brk0 == 1
+         ok brk15 == 1
+         ok view == 0
+         ok mute == 16777216
+         ok mute == 0
+         ok part == 2
+         ok view == 1
+         ok lanes == 1
+         ok store_writes == 6
+       host: 8330 ms simulated, 184 blits, render 1.6% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-groove
+  ok   scenario-guard
+  ok   scenario-help
+  FAIL scenario-jam (see build/host/scenario-jam.log)
+         ok part == 4
+       FAIL expect sound5.2.2 == 70, got 0
+         ok sound5.4.1 == 55
+         ok tempo == 135
+         ok peak -8.0 dBFS
+       host: 30714 ms simulated, 580 blits, render 1.3% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-keysound
+  ok   scenario-knobs
+  FAIL scenario-midiowner (see build/host/scenario-midiowner.log)
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 1
+         ok midiheld == 0
+       host: 720 ms simulated, 3 blits, render 1.0% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate (see build/host/scenario-migrate.log)
+       FAIL expect laneval0.1.4.3 == 102, got -1
+       FAIL expect laneval0.1.4.5 == 105, got -1
+       FAIL expect laneval0.1.4.40 == 255, got -1
+       FAIL expect songlen == 2, got 0
+       FAIL expect songbar2.0 == 16, got 1
+         ok pattern == 16
+       FAIL expect hit0.0.1 == 1, got 0
+         ok pattern == 1
+       FAIL expect hit0.0.31 == 1, got 0
+         ok hit0.0.1 == 0
+       FAIL expect laneval0.1.4.5 == 105, got -1
+       FAIL expect hit0.0.1 == 1, got 0
+       FAIL expect sound0.1.4 == 105, got 58
+       FAIL expect songbar2.0 == 16, got 1
+       host: 720 ms simulated, 14 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-migrate0102 (see build/host/scenario-migrate0102.log)
+       FAIL expect sound1.0.0 == 100, got 64
+       FAIL expect sound1.0.9 == 20, got 64
+         ok sound1.0.7 == 0
+         ok sound1.0.8 == 0
+       FAIL expect sound6.0.0 == 40, got 64
+         ok sound6.0.12 == 95 (>0)
+       FAIL expect sound6.0.13 <60, got 64
+         ok sound4.1.0 == 71 (>16)
+       FAIL expect sound0.0.10 == 30, got 64
+       FAIL expect sound0.1.4 == 70, got 58
+       FAIL expect sound1.0.9 == 20, got 64
+       FAIL expect songlen == 2, got 0
+       FAIL expect lanes == 1, got 0
+       FAIL expect hit0.1.12 == 1, got 0
+       host: 3240 ms simulated, 37 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-patterns (see build/host/scenario-patterns.log)
+         ok tempo == 120
+         ok cue == 1
+         ok pattern == 2
+         ok pattern == 1
+         ok pattern == 1
+         ok pattern == 2
+         ok pattern == 1
+         ok part == 2
+       FAIL expect gate0.0 == 1, got 0
+         ok store_writes == 6
+         ok pattern == 1
+         ok hit0.0.0 == 1
+         ok hit0.0.8 == 1
+       FAIL expect hit0.1.4 == 1, got 0
+       host: 11400 ms simulated, 570 blits, render 0.6% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-perf (see build/host/scenario-perf.log)
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+         ok hit0.0.8 == 1
+       FAIL expect sound2.0.0 == 48, got 127
+         ok view == 7
+         ok perftest == 0
+         ok patptr == 0
+         ok perftest == -1
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+       host: 28864 ms simulated, 172 blits, render 1.8% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-perfsave
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+       FAIL expect laneval0.0.0.0 == 255, got -1
+         ok hit0.0.0 == 1
+         ok hit0.0.0 == 0
+         ok hit0.0.0 == 1
+         ok playhead0 == 5
+       FAIL expect motion0.0.0 == 54, got -1
+         ok playhead0 == 6
+       FAIL expect motion0.0.0 == 34, got -1
+         ok lanes == 0
+         ok hit0.0.4 == 1
+         ok lanes == 0
+       FAIL expect laneval2.0.0.2 == 28, got -1
+       FAIL expect sound2.0.0 == 48, got 64
+       FAIL expect lanes == 1, got 0
+       host: 2872 ms simulated, 49 blits, render 0.6% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-prob
+  ok   scenario-probcond
+  ok   scenario-probreset
+  ok   scenario-roll_continuation
+  ok   scenario-roll_short_tie
+  ok   scenario-savefeedback
+  ok   scenario-savewait
+  ok   scenario-showcase
+  FAIL scenario-slices (see build/host/scenario-slices.log)
+         ok part == 4
+         ok brk0 == 1
+         ok brk0 == 1
+         ok brkslice0 == 5
+         ok brkslice4 == 3
+         ok brk8 == 1
+         ok brkslice8 == 2
+       FAIL expect brknow == 5, got 1
+       FAIL expect brknow == 3, got 5
+         ok brkslice4 == 0
+         ok brk4 == 1
+         ok brkslice6 == 0
+         ok brkslice0 == 5
+         ok brkslice8 == 2
+       host: 2726 ms simulated, 40 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-song (see build/host/scenario-song.log)
+         ok laneval2.0.0.1 == 255
+         ok laneval2.0.0.9 == 255
+       FAIL expect motion2.0.0 <29, got 127
+         ok motion2.0.0 == 127 (>17)
+         ok motion2.0.0 == -1
+         ok sound2.0.0 == 64
+         ok lanes == 0
+         ok sound2.0.0 == 64
+         ok lanes == 1
+         ok store_writes == 6
+         ok lanes == 1
+         ok songlen == 3
+         ok songbar2.3 == 5
+         ok songbar3.5 == 2
+       host: 14626 ms simulated, 129 blits, render 0.6% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-song_live_mute_save
+  ok   scenario-songrep
+  FAIL scenario-sound_matrix_chicago (see build/host/scenario-sound_matrix_chicago.log)
+       FAIL expect page == 6, got 0
+       FAIL expect page == 6, got 0
+         ok page == 0
+       host: 3055 ms simulated, 56 blits, render 0.6% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-sound_matrix_chicago_idle (see build/host/scenario-sound_matrix_chicago_idle.log)
+       FAIL expect page == 6, got 0
+         ok page == 3
+       host: 2421 ms simulated, 42 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-sound_matrix_drum
+  FAIL scenario-sound_matrix_lock (see build/host/scenario-sound_matrix_lock.log)
+         ok page == 3
+         ok lanes == 1
+       FAIL expect sound2.0.19 == 51, got 0
+       FAIL expect laneval2.0.19.0 == 61, got -1
+       host: 3126 ms simulated, 61 blits, render 0.9% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-sound_matrix_miami (see build/host/scenario-sound_matrix_miami.log)
+         ok page == 0
+         ok page == 1
+         ok page == 2
+         ok page == 3
+         ok page == 4
+       FAIL expect page == 6, got 0
+       FAIL expect page == 0, got 1
+       host: 3008 ms simulated, 41 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-sound_page_split
+  ok   scenario-step303
+  FAIL scenario-steps64 (see build/host/scenario-steps64.log)
+         ok hit0.0.32 == 1
+         ok playhead0 == 64
+         ok pattern == 20
+       FAIL expect hit0.0.2 == 1, got 0
+         ok pattern == 31
+       FAIL expect hit0.0.2 == 1, got 0
+         ok pattern == 20
+       FAIL expect hit0.0.2 == 1, got 0
+         ok pattern == 1
+         ok hit0.0.63 == 1
+         ok hit0.0.32 == 1
+         ok pattern == 1
+         ok hit0.0.63 == 1
+         ok hit0.0.32 == 1
+       host: 11195 ms simulated, 49 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-stereo (see build/host/scenario-stereo.log)
+         ok sound5.0.3 == 24
+         ok sound5.2.3 == 94
+         ok part == 0
+       FAIL expect sound0.0.10 == 40, got 64
+         ok part == 1
+         ok part == 2
+       host: 11870 ms simulated, 232 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED
+  ok   scenario-tb3po
+  ok   scenario-tour
+  ok   scenario-trackmute
+  FAIL scenario-undo (see build/host/scenario-undo.log)
+         ok rec == 0
+         ok hit0.0.0 == 0
+         ok hit0.0.12 == 0
+         ok sound0.0.0 == 34
+         ok tempo == 125
+         ok hit0.0.0 == 0
+         ok hit0.0.12 == 0
+         ok playing == 0
+         ok hit0.0.0 == 1
+         ok hit0.0.0 == 0
+         ok hit0.0.0 == 1
+         ok hit0.0.12 == 0
+         ok sound0.0.0 == 34
+         ok tempo == 125
+       host: 9018 ms simulated, 89 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-upload (see build/host/scenario-upload.log)
+       FAIL expect loops == 2, got 0
+         slot 0: 3 zone(s) from the image
+       FAIL expect loops == 5, got 3
+         slot 1: 1 zone(s) from the image
+       FAIL expect loops == 6, got 4
+         ok part == 4
+         ok loop_a == 2
+         ok peak -7.9 dBFS
+       host: 6000 ms simulated, 92 blits, render 1.2% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-upload44 (see build/host/scenario-upload44.log)
+       FAIL expect loops == 2, got 0
+         slot 0: 1 zone(s) from the image
+       FAIL expect loops == 3, got 1
+         slot 1: 2 zone(s) from the image
+       FAIL expect loops == 5, got 3
+         ok part == 4
+         ok loop_a == 2
+         ok peak -7.9 dBFS
+       host: 6000 ms simulated, 92 blits, render 1.5% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL scenario-usbnotes (see build/host/scenario-usbnotes.log)
+         ok midiheld == 0
+       FAIL expect midiheld == 0x303, got 3
+       FAIL expect midiheld == 0x202, got 2
+         ok midiheld == 0
+         ok midiheld == 1
+         ok midiheld == 0
+       FAIL expect midiheld == 0x401, got 1
+         ok midiheld == 0
+       FAIL expect midiheld == 0xFF03, got 3
+         ok midiheld == 0
+         ok midiheld == 0
+       host: 1300 ms simulated, 10 blits, render 0.8% of real time (host CPU), EXPECTATIONS FAILED
+  FAIL perf-scratch (see build/host/perf-scratch.log)
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+         ok hit0.0.8 == 1
+       FAIL expect sound2.0.0 == 48, got 127
+         ok view == 7
+         ok perftest == 0
+         ok patptr == 0
+         ok perftest == -1
+         ok patptr == 1
+         ok playing == 0
+         ok tempo == 120
+         ok mute == 4194304
+       host: 28864 ms simulated, 172 blits, render 1.5% of real time (host CPU), EXPECTATIONS FAILED
+TESTS FAILED

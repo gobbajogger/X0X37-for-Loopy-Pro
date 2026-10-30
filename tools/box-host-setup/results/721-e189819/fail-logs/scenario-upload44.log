@@ -1,0 +1,9 @@
+FAIL expect loops == 2, got 0
+  slot 0: 1 zone(s) from the image
+FAIL expect loops == 3, got 1
+  slot 1: 2 zone(s) from the image
+FAIL expect loops == 5, got 3
+  ok part == 4
+  ok loop_a == 2
+  ok peak -7.9 dBFS
+host: 6000 ms simulated, 92 blits, render 1.5% of real time (host CPU), EXPECTATIONS FAILED

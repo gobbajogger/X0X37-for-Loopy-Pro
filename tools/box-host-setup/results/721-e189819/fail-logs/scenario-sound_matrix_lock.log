@@ -1,0 +1,5 @@
+  ok page == 3
+  ok lanes == 1
+FAIL expect sound2.0.19 == 51, got 0
+FAIL expect laneval2.0.19.0 == 61, got -1
+host: 3126 ms simulated, 61 blits, render 0.9% of real time (host CPU), EXPECTATIONS FAILED

@@ -1,0 +1,35 @@
+  ok clksrc == 0
+  ok setbyte27 == 8
+  ok setbyte38 == 0
+  ok clksrc == 2
+  ok storeset31 == 12
+  ok storeset42 == 0
+  ok storeset43 == 0
+FAIL expect clksrc == 2, got 0
+FAIL expect setbyte27 == 12, got 8
+  ok setbyte38 == 0
+FAIL expect clkext == 1, got 0
+FAIL expect clksrc == 2, got 1
+FAIL expect storeset31 == 12, got 10
+  ok storeset42 == 0
+FAIL expect clksrc == 2, got 1
+FAIL expect clksrc == 1, got 0
+FAIL expect setbyte27 == 11, got 8
+  ok setbyte38 == 0
+  ok clksrc == 0
+FAIL expect setbyte27 == 9, got 8
+  ok clksrc == 0
+  ok setbyte27 == 8
+  ok setbyte38 == 0
+  ok clksrc == 0
+FAIL expect setbyte38 == 11, got 0
+  ok clksrc == 0
+FAIL expect setbyte38 == 1, got 0
+FAIL expect setbyte39 == 18, got 0
+  ok clksrc == 1
+  ok setbyte38 == 2
+  ok clksrc == 0
+FAIL expect setbyte27 == 9, got 8
+  ok clksrc == 0
+  ok setbyte38 == 0
+host: 36740 ms simulated, 56 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED

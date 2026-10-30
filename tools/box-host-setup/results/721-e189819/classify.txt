@@ -1,0 +1,60 @@
+REAL bass-tagged-storage | build/host/bass-tagged-storage.log | FAIL tag line75: project_prepare_legacy_file(header)==-10
+REAL project-303-stream | build/host/project-303-stream.log | tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL wave-motion-migrate | build/host/wave-motion-migrate.log | tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL project-protocol | build/host/project-protocol.log | tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL project-save-preflight | build/host/project-save-preflight.log | tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL editor-ota-dispatch | build/host/editor-ota-dispatch.log | /workspace/scratch-build/pr721-e189819d/build/host/iso/editor-ota-dispatch/tmp/editor-ota-dispatch-ji46t1e5/editor_service.inc:5:9: error: implicit declaration of function ‘ED_MAINTENANCE_HELD’ [-
+REAL project-stage | build/host/project-stage.log | tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL smc-drum-rs | build/host/smc-drum-rs.log | FAIL pattern cue during held p-lock restores the original drum sound line 452: ui.hold_used && drum909_get(observed_909, r.b, r.c) != base
+REAL drum909-adpcm | build/host/drum909-adpcm.log | tests/host/../../firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL drum909 | build/host/drum909.log | firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL drum808 | build/host/drum808.log | collect2: error: ld returned 1 exit status
+REAL bass303 | build/host/bass303.log | collect2: error: ld returned 1 exit status
+REAL ctl-compile | build/host/ctl-compile.log | ERROR: test_signal_after_successful_batch_stops_children (__main__.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGHUP: 1>)
+REAL host-setup | build/host/host-setup.log | FAIL: test_compile_failure_propagates (__main__.HostSetupTest.test_compile_failure_propagates)
+REAL gen-nonfont-tables | build/host/gen-nonfont-tables.log | FAIL: expected host-build Pillow not-run
+REAL smk-clip-chord-display | build/host/smk-clip-chord-display.log | build/host/clip_chord/autosave.inc:12:25: error: implicit declaration of function ‘ui_boot_flash_busy’ [-Wimplicit-function-declaration]
+REAL padcal-flag | build/host/padcal-flag.log | FAIL tools/build.py: X0X_DEV_PADCAL=0 or 1 from the environment goes to the compiler
+REAL smk-clip-isolation | build/host/smk-clip-isolation.log | /workspace/scratch-build/pr721-e189819d/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-bo23yo1_/test.c:173:40: error: ‘struct <anonymous>’ has no member named ‘keys’
+REAL smk-clip-knob | build/host/smk-clip-knob.log | build/host/clip_knob/autosave.inc:12:25: error: implicit declaration of function ‘ui_boot_flash_busy’ [-Wimplicit-function-declaration]
+REAL rec-held-duration | build/host/rec-held-duration.log | tests/host/rec_held_duration_test.c:87:20: error: implicit declaration of function ‘unlink’ [-Wimplicit-function-declaration]
+REAL rec-endpoint-lifecycle | build/host/rec-endpoint-lifecycle.log | FAIL line 311: captured endpoint project saves
+REAL rec-endpoint-storage | build/host/rec-endpoint-storage.log | tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+REAL rec-live | build/host/rec-live.log |   FAIL tests/host/rec_live_test.c:260: 303 A preview ended on part change
+REAL rec-live-smk | build/host/rec-live-smk.log |   FAIL tests/host/rec_live_test.c:260: 303 A preview ended on part change
+REAL ui-feedback | build/host/ui-feedback.log | test: tests/host/ui_feedback_test.c:170: home_pattern_glyph_content: Assertion `lit0 == 2' failed.
+REAL home-overview | build/host/home-overview.log | empty-current part=0 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+REAL sound-matrix | build/host/sound-matrix.log | FAIL 131: fb[3 * 240 + 237] == swap16(dirty)
+REAL chicago-presentation | build/host/chicago-presentation.log |    14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s
+",__LINE__,#x);exit(1);} } while(0)
+REAL chicago-readout | build/host/chicago-readout.log |    14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s
+",__LINE__,#x);exit(1);} } while(0)
+REAL matrix-knob-caption | build/host/matrix-knob-caption.log |    14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s
+",__LINE__,#x);exit(1);} } while(0)
+REAL scenario-blenotes | build/host/scenario-blenotes.log | FAIL expect midiheld == 0x303, got 3
+REAL scenario-brkslice | build/host/scenario-brkslice.log | FAIL expect midiheld == 0x100, got 0
+REAL scenario-brkslice_mode_toggle | build/host/scenario-brkslice_mode_toggle.log | FAIL expect midiheld == 0x100, got 0
+REAL scenario-brkslice_trs_overlap | build/host/scenario-brkslice_trs_overlap.log | 
+REAL scenario-clkmove | build/host/scenario-clkmove.log | FAIL expect clksrc == 2, got 0
+REAL scenario-edit_midi_rec_guard | build/host/scenario-edit_midi_rec_guard.log | FAIL expect gate0.4 == 1, got 0
+REAL scenario-getting_started | build/host/scenario-getting_started.log | FAIL expect sound2.0.0 == 58, got 127
+REAL scenario-jam | build/host/scenario-jam.log | FAIL expect sound5.2.2 == 70, got 0
+REAL scenario-midiowner | build/host/scenario-midiowner.log | FAIL expect midiheld == 0x100, got 0
+REAL scenario-migrate | build/host/scenario-migrate.log | FAIL expect hit0.0.0 == 1, got 0
+REAL scenario-migrate0102 | build/host/scenario-migrate0102.log | FAIL expect hit0.0.0 == 1, got 0
+REAL scenario-patterns | build/host/scenario-patterns.log | FAIL expect hit0.1.4 == 1, got 0
+REAL scenario-perf | build/host/scenario-perf.log | FAIL expect sound2.0.0 == 48, got 127
+REAL scenario-plock | build/host/scenario-plock.log | FAIL expect view == 1, got 8
+REAL scenario-slices | build/host/scenario-slices.log | FAIL expect brknow == 5, got 1
+REAL scenario-song | build/host/scenario-song.log | FAIL expect sound2.0.0 == 48, got 127
+REAL scenario-sound_matrix_chicago | build/host/scenario-sound_matrix_chicago.log | FAIL expect page == 6, got 0
+REAL scenario-sound_matrix_chicago_idle | build/host/scenario-sound_matrix_chicago_idle.log | FAIL expect page == 6, got 0
+REAL scenario-sound_matrix_lock | build/host/scenario-sound_matrix_lock.log | FAIL expect sound2.0.19 == 51, got 0
+REAL scenario-sound_matrix_miami | build/host/scenario-sound_matrix_miami.log | FAIL expect page == 6, got 0
+REAL scenario-steps64 | build/host/scenario-steps64.log | FAIL expect hit0.0.2 == 1, got 0
+REAL scenario-stereo | build/host/scenario-stereo.log | FAIL expect sound0.0.10 == 40, got 64
+REAL scenario-undo | build/host/scenario-undo.log | FAIL expect sound0.0.0 == 39, got 34
+REAL scenario-upload | build/host/scenario-upload.log | FAIL expect loops == 2, got 0
+REAL scenario-upload44 | build/host/scenario-upload44.log | FAIL expect loops == 2, got 0
+REAL scenario-usbnotes | build/host/scenario-usbnotes.log | FAIL expect midiheld == 0x303, got 3
+REAL perf-scratch | build/host/perf-scratch.log | FAIL expect sound2.0.0 == 48, got 127

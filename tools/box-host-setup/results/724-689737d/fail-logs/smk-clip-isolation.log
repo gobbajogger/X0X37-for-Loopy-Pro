@@ -1,0 +1,23 @@
+/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test.c: In function ‘smk_frame’:
+/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test.c:173:40: error: ‘struct <anonymous>’ has no member named ‘keys’
+  173 |     unsigned outer = (unsigned)((fm1_in.keys >> 1) & 1u) | (unsigned)((fm1_in.keys >> 2) & 2u) |
+      |                                        ^
+/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test.c:173:78: error: ‘struct <anonymous>’ has no member named ‘keys’
+  173 |     unsigned outer = (unsigned)((fm1_in.keys >> 1) & 1u) | (unsigned)((fm1_in.keys >> 2) & 2u) |
+      |                                                                              ^
+/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test.c:174:27: error: ‘struct <anonymous>’ has no member named ‘keys’
+  174 |         (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+      |                           ^
+/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test.c:174:65: error: ‘struct <anonymous>’ has no member named ‘keys’
+  174 |         (unsigned)((fm1_in.keys << 2) & 4u) | (unsigned)((fm1_in.keys << 1) & 8u);
+      |                                                                 ^
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/smk_clip_isolation_test.py", line 203, in <module>
+    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Wno-unused-function",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    f"-DX0X_BLE={ble}", "-I", str(SRC), str(source), "-o", str(binary)], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/workspace/x0x37-build-and-test-runner/pr-runner/bin/cc', '-std=c99', '-Wall', '-Wextra', '-Wno-unused-function', '-DX0X_BLE=0', '-I', '/workspace/scratch-build/pr724-689737d5/firmware/src', '/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test.c', '-o', '/workspace/scratch-build/pr724-689737d5/build/host/iso/smk-clip-isolation/tmp/smk-clip-isolation-83ltjk5z/test-0']' returned non-zero exit status 1.

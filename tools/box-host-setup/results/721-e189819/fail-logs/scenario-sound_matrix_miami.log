@@ -1,0 +1,8 @@
+  ok page == 0
+  ok page == 1
+  ok page == 2
+  ok page == 3
+  ok page == 4
+FAIL expect page == 6, got 0
+FAIL expect page == 0, got 1
+host: 3008 ms simulated, 41 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED

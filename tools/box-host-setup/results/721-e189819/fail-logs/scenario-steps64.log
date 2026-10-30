@@ -1,0 +1,18 @@
+  ok hit0.0.63 == 1
+  ok hit0.0.0 == 1
+  ok hit0.0.62 == 1
+  ok hit0.0.32 == 1
+  ok playhead0 == 64
+  ok pattern == 20
+FAIL expect hit0.0.2 == 1, got 0
+  ok pattern == 31
+FAIL expect hit0.0.2 == 1, got 0
+  ok pattern == 20
+FAIL expect hit0.0.2 == 1, got 0
+  ok pattern == 1
+  ok hit0.0.63 == 1
+  ok hit0.0.32 == 1
+  ok pattern == 1
+  ok hit0.0.63 == 1
+  ok hit0.0.32 == 1
+host: 11195 ms simulated, 49 blits, render 0.5% of real time (host CPU), EXPECTATIONS FAILED

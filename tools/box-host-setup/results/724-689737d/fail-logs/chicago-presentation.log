@@ -1,0 +1,108 @@
+In file included from tests/host/../../host/x0x_host.c:290,
+                 from tests/host/chicago_presentation_test.c:8:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:879:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  879 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:3019:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 3019 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5641:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5641 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5641:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5641 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1017:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1017 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/chicago_presentation_test.c: In function ‘cancel_edges’:
+tests/host/chicago_presentation_test.c:143:23: warning: comparison of integer expressions of different signedness: ‘uint32_t’ {aka ‘unsigned int’} and ‘int’ [-Wsign-compare]
+  143 |         CHECK(ui.dirty==dirty && save_wait==sw && seq.playing==playing && history==song_structure_revision);
+      |                       ^~
+tests/host/chicago_presentation_test.c:14:38: note: in definition of macro ‘CHECK’
+   14 | #define CHECK(x) do { checks++; if(!(x)) {fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+      |                                      ^
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3384:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3384 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+In file included from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/dsp/fxbus.h:26,
+                 from firmware/src/dsp/fxbus.c:4:
+firmware/src/dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/app/engine.c:38:
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_q15’:
+firmware/src/app/chicago_ens.h:23:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |     ^~
+firmware/src/app/chicago_ens.h:23:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |                             ^~
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_set’:
+firmware/src/app/chicago_ens.h:29:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |     ^~
+firmware/src/app/chicago_ens.h:29:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |                     ^~
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_process’:
+firmware/src/app/chicago_ens.h:57:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |     ^~
+firmware/src/app/chicago_ens.h:57:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |                                       ^~~
+In file included from firmware/src/app/../dsp/drum909.h:19,
+                 from firmware/src/app/engine.c:6:
+firmware/src/app/../dsp/drum909_dsp.h: At top level:
+firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+firmware/src/app/engine.c: In function ‘bass_tagged_cell_validate’:
+firmware/src/app/engine.c:1833:57: warning: ‘info.flags’ may be used uninitialized [-Wmaybe-uninitialized]
+ 1833 |         if((__builtin_memcmp(named,cell,NPARAMS_MAX)!=0)!=!!(info.flags&BASS_SOUND_EDITED))return -1;
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+firmware/src/app/engine.c:1823:23: note: ‘info.flags’ was declared here
+ 1823 |     bass_sound_info_t info;
+      |                       ^~~~
+firmware/src/app/engine.c:1828:51: warning: ‘info.identity.engine’ may be used uninitialized [-Wmaybe-uninitialized]
+ 1828 |     *bank=info.identity.engine==SYNTH_ENGINE_303?0:1;
+      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+firmware/src/app/engine.c:1823:23: note: ‘info.identity.engine’ was declared here
+ 1823 |     bass_sound_info_t info;
+      |                       ^~~~
+firmware/src/app/engine.c:1830:7: warning: ‘info.preset’ may be used uninitialized [-Wmaybe-uninitialized]
+ 1830 |     if(info.preset!=BASS_SOUND_NO_PRESET) {
+      |       ^
+firmware/src/app/engine.c:1823:23: note: ‘info.preset’ was declared here
+ 1823 |     bass_sound_info_t info;
+      |                       ^~~~
+FAIL 267: !strcmp(matrix_name(pg.r[fx][1]),e1[ty])

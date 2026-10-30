@@ -1,0 +1,13 @@
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+In file included from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors

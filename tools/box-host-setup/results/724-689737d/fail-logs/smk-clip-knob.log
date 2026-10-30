@@ -1,0 +1,5 @@
+In file included from tests/host/smk_clip_knob_test.c:108:
+build/host/clip_knob/autosave.inc: In function ‘autosave’:
+build/host/clip_knob/autosave.inc:12:25: error: implicit declaration of function ‘ui_boot_flash_busy’ [-Wimplicit-function-declaration]
+   12 |     if (project_busy || ui_boot_flash_busy())
+      |                         ^~~~~~~~~~~~~~~~~~

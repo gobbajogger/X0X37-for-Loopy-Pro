@@ -1,0 +1,13 @@
+  ok midiheld == 0
+  ok noteons == 0
+FAIL expect midiheld == 0x100, got 0
+FAIL expect midiheld == 0x100, got 0
+FAIL expect midiheld == 0x100, got 0
+  ok midiheld == 0
+FAIL expect midiheld == 0x100, got 0
+  ok midiheld == 0
+  ok midiheld == 0
+  ok midiheld == 1
+  ok midiheld == 0
+  ok midiheld == 0
+line 50: unknown command brkwrap

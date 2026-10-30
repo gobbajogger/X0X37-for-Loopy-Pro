@@ -1,0 +1,74 @@
+In file included from tests/host/../../firmware/src/app/../dsp/fxbus.h:26,
+                 from tests/host/../../firmware/src/app/x0x.h:16,
+                 from tests/host/../../firmware/src/app/project.c:16,
+                 from tests/host/project_stage_test.c:63,
+                 from tests/host/rec_endpoint_storage_test.c:4:
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/app/engine.c:38:
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_q15’:
+firmware/src/app/chicago_ens.h:23:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |     ^~
+firmware/src/app/chicago_ens.h:23:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |                             ^~
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_set’:
+firmware/src/app/chicago_ens.h:29:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |     ^~
+firmware/src/app/chicago_ens.h:29:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |                     ^~
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_process’:
+firmware/src/app/chicago_ens.h:57:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |     ^~
+firmware/src/app/chicago_ens.h:57:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |                                       ^~~
+In file included from firmware/src/app/../dsp/drum909.h:19,
+                 from firmware/src/app/engine.c:6:
+firmware/src/app/../dsp/drum909_dsp.h: At top level:
+firmware/src/app/../dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors
+In file included from firmware/src/dsp/fxbus.h:26,
+                 from firmware/src/dsp/fxbus.c:4:
+firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors

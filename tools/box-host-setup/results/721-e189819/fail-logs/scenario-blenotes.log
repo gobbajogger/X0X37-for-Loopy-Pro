@@ -1,0 +1,14 @@
+  ok midiheld == 0
+  ok midiheld == 0
+FAIL expect midiheld == 0x303, got 3
+FAIL expect midiheld == 0x202, got 2
+  ok midiheld == 0
+  ok midiheld == 1
+  ok midiheld == 0
+  ok midiheld == 0
+FAIL expect midiheld == 0x8001, got 1
+  ok midiheld == 0
+  ok midiheld == 0
+FAIL expect midiheld == 0xFF03, got 3
+  ok midiheld == 0
+host: 1340 ms simulated, 10 blits, render 0.8% of real time (host CPU), EXPECTATIONS FAILED

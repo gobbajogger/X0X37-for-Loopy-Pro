@@ -1,0 +1,14 @@
+cymbal references: own decoder (no A/B study found)
+In file included from tests/host/../../firmware/src/dsp/drum909.h:19,
+                 from tests/host/../../firmware/src/dsp/drum909.c:9,
+                 from tests/host/drum909_adpcm_test.c:16:
+tests/host/../../firmware/src/dsp/drum909_dsp.h:213:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/dsp/drum909_dsp.h:212:26: error: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+tests/host/../../firmware/src/dsp/drum909_dsp.h:205:21: error: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static [-Werror]
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+cc1: all warnings being treated as errors

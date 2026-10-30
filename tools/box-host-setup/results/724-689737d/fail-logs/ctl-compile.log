@@ -1,0 +1,118 @@
+.......EEEEE..
+======================================================================
+ERROR: test_signal_after_successful_batch_stops_children (__main__.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGHUP: 1>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/test_ctl_compile.py", line 319, in test_signal_after_successful_batch_stops_children
+    stdout, stderr = p.communicate(timeout=5)
+                     ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['sh', '/workspace/scratch-build/pr724-689737d5/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+
+======================================================================
+ERROR: test_signal_after_successful_batch_stops_children (__main__.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGHUP: 1>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/test_ctl_compile.py", line 319, in test_signal_after_successful_batch_stops_children
+    stdout, stderr = p.communicate(timeout=5)
+                     ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['sh', '/workspace/scratch-build/pr724-689737d5/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+
+======================================================================
+ERROR: test_signal_after_successful_batch_stops_children (__main__.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGINT: 2>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/test_ctl_compile.py", line 314, in test_signal_after_successful_batch_stops_children
+    self.assertLess(time.monotonic(), deadline, 'later compiler did not start')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 26375.042227126 not less than 26374.950604126 : later compiler did not start
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/test_ctl_compile.py", line 326, in test_signal_after_successful_batch_stops_children
+    p.communicate(timeout=5)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['sh', '/workspace/scratch-build/pr724-689737d5/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+
+======================================================================
+ERROR: test_signal_after_successful_batch_stops_children (__main__.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGTERM: 15>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/test_ctl_compile.py", line 314, in test_signal_after_successful_batch_stops_children
+    self.assertLess(time.monotonic(), deadline, 'later compiler did not start')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 26386.814322726 not less than 26386.696085397 : later compiler did not start
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch-build/pr724-689737d5/tests/host/test_ctl_compile.py", line 326, in test_signal_after_successful_batch_stops_children
+    p.communicate(timeout=5)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 2129, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1269, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['sh', '/workspace/scratch-build/pr724-689737d5/ble/ctl/build_in_container.sh']' timed out after 5 seconds
+
+======================================================================
+ERROR: test_signal_after_successful_batch_stops_children (__main__.ControllerCompile.test_signal_after_successful_batch_stops_children)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/tempfile.py", line 1145, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1125, in _rmtree
+    _rmtree(name, onexc=onexc)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 763, in rmtree
+    _rmtree_safe_fd(stack, onexc)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 707, in _rmtree_safe_fd
+    onexc(func, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 658, in _rmtree_safe_fd
+    os.rmdir(name, dir_fd=dirfd)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 39] Directory not empty: '/workspace/scratch-build/pr724-689737d5/build/host/iso/ctl-compile/tmp/tmpp6xb9ron'
+
+----------------------------------------------------------------------
+Ran 10 tests in 153.062s
+
+FAILED (errors=5)

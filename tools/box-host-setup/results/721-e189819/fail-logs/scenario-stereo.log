@@ -1,0 +1,7 @@
+  ok sound5.0.3 == 24
+  ok sound5.2.3 == 94
+  ok part == 0
+FAIL expect sound0.0.10 == 40, got 64
+  ok part == 1
+  ok part == 2
+host: 11870 ms simulated, 232 blits, render 0.4% of real time (host CPU), EXPECTATIONS FAILED

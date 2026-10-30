@@ -1,0 +1,4 @@
+ok   wrapper: the child gets the sender (pid 25572, cwd sender1), exit 143, sender file removed
+FAIL gate 2 did not reach the builds: 
+ok   no wrapper: sender unknown, no SCRIPT CHANGED
+gate trap: 2 of 3 ok

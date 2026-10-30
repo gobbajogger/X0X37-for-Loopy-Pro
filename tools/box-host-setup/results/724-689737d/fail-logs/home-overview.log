@@ -1,0 +1,188 @@
+In file included from tests/host/../../host/x0x_host.c:290,
+                 from tests/host/home_overview_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:879:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  879 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:3019:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 3019 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘draw_home’:
+tests/host/../../host/../firmware/src/app/ui.c:5641:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+ 5641 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                 ^~
+tests/host/../../host/../firmware/src/app/ui.c:5641:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 5641 |                 if(tx<4)tx=4;if(tx+w>236)tx=236-w;
+      |                              ^~
+tests/host/../../host/x0x_host.c: In function ‘simulator_main’:
+tests/host/../../host/x0x_host.c:1017:44: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 1017 |             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
+      |                                            ^~~~~~~
+tests/host/../../host/../firmware/src/app/ui.c: At top level:
+tests/host/../../host/../firmware/src/app/ui.c:3384:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+ 3384 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+      |                                      ^~~~~~~~~~~~~~
+In file included from firmware/src/dsp/drum909.h:19,
+                 from firmware/src/dsp/drum909.c:9:
+firmware/src/dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/dsp/fxbus.h:26,
+                 from firmware/src/dsp/fxbus.c:4:
+firmware/src/dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+In file included from firmware/src/app/engine.c:38:
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_q15’:
+firmware/src/app/chicago_ens.h:23:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |     ^~
+firmware/src/app/chicago_ens.h:23:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   23 |     if (x > 1.0f) x = 1.0f; if (x < -1.0f) x = -1.0f;
+      |                             ^~
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_set’:
+firmware/src/app/chicago_ens.h:29:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |     ^~
+firmware/src/app/chicago_ens.h:29:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   29 |     if (!e) return; if (sr < 1.0f) sr = CHI_ENS_SR;
+      |                     ^~
+firmware/src/app/chicago_ens.h: In function ‘chi_ens_process’:
+firmware/src/app/chicago_ens.h:57:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |     ^~
+firmware/src/app/chicago_ens.h:57:39: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   57 |     if (!e || !buf || n <= 0) return; wet = e->wet; if (wet <= 0.0f) return;
+      |                                       ^~~
+In file included from firmware/src/app/../dsp/drum909.h:19,
+                 from firmware/src/app/engine.c:6:
+firmware/src/app/../dsp/drum909_dsp.h: At top level:
+firmware/src/app/../dsp/drum909_dsp.h:213:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  213 |         const float t1 = x0x_tanh_value((unsigned)i + 1u);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:212:26: warning: ‘x0x_tanh_value’ is static but used in inline function ‘d9_tanh’ which is not static
+  212 |         const float t0 = x0x_tanh_value((unsigned)i);
+      |                          ^~~~~~~~~~~~~~
+firmware/src/app/../dsp/drum909_dsp.h:205:21: warning: ‘fm_fabsf’ is static but used in inline function ‘d9_tanh’ which is not static
+  205 |     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
+      |                     ^~~~~~~~
+empty-current part=0 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: empty-current part 0
+empty-noncurrent part=0 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-noncurrent part=0 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+dense-noncurrent part=0 current=0 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+alternating-noncurrent part=0 current=0 used=1 bits16=5555 pixels=ff/ff expected=5555,ff
+later-only-noncurrent part=0 current=0 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+empty-current part=1 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: empty-current part 1
+empty-noncurrent part=1 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-noncurrent part=1 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+dense-noncurrent part=1 current=0 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+alternating-noncurrent part=1 current=0 used=1 bits16=5555 pixels=ff/ff expected=5555,ff
+later-only-noncurrent part=1 current=0 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+empty-current part=2 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: empty-current part 2
+empty-noncurrent part=2 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-noncurrent part=2 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+dense-noncurrent part=2 current=0 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+alternating-noncurrent part=2 current=0 used=1 bits16=5555 pixels=ff/ff expected=5555,ff
+later-only-noncurrent part=2 current=0 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+empty-current part=3 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: empty-current part 3
+empty-noncurrent part=3 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-noncurrent part=3 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+dense-noncurrent part=3 current=0 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+alternating-noncurrent part=3 current=0 used=1 bits16=5555 pixels=ff/ff expected=5555,ff
+later-only-noncurrent part=3 current=0 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+empty-current part=4 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: empty-current part 4
+empty-noncurrent part=4 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-noncurrent part=4 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+dense-noncurrent part=4 current=0 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+alternating-noncurrent part=4 current=0 used=1 bits16=5555 pixels=ff/ff expected=5555,ff
+sparse-current part=0 current=1 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+assignment tick mismatch: sparse-current part 0
+empty-no-longer-current part=0 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-current part=1 current=1 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+assignment tick mismatch: sparse-current part 1
+empty-no-longer-current part=1 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-current part=2 current=1 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+HOME bass lane mismatch: sparse-current bits=0000 expected=8043
+assignment tick mismatch: sparse-current part 2
+empty-no-longer-current part=2 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-current part=3 current=1 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+HOME bass lane mismatch: sparse-current bits=0000 expected=8043
+assignment tick mismatch: sparse-current part 3
+empty-no-longer-current part=3 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+sparse-current part=4 current=1 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+assignment tick mismatch: sparse-current part 4
+empty-no-longer-current part=4 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+later-only-current part=0 current=1 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: later-only-current part 0
+later-only-current part=1 current=1 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: later-only-current part 1
+later-only-current part=2 current=1 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: later-only-current part 2
+later-only-current part=3 current=1 used=1 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: later-only-current part 3
+later-only-current part=4 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: later-only-current part 4
+dense-current part=0 current=1 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+assignment tick mismatch: dense-current part 0
+dense-current part=1 current=1 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+assignment tick mismatch: dense-current part 1
+dense-current part=2 current=1 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+HOME bass lane mismatch: dense-current bits=0000 expected=ffff
+assignment tick mismatch: dense-current part 2
+dense-current part=3 current=1 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+HOME bass lane mismatch: dense-current bits=0000 expected=ffff
+assignment tick mismatch: dense-current part 3
+dense-current part=4 current=1 used=1 bits16=ffff pixels=ff/ff expected=ffff,ff
+assignment tick mismatch: dense-current part 4
+cue-frame-does-not-fill part=0 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+cue-frame-does-not-fill part=1 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+cue-frame-does-not-fill part=2 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+cue-frame-does-not-fill part=3 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+cue-frame-does-not-fill part=4 current=0 used=1 bits16=8043 pixels=ff/ff expected=8043,89
+all-tie-silent-noncurrent part=2 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+single-orphan-tie-noncurrent part=2 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+valid-note-and-hold-noncurrent part=2 current=0 used=1 bits16=0038 pixels=ff/ff expected=0038,06
+valid-wrap-hold-noncurrent part=2 current=0 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+all-tie-silent-noncurrent part=3 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+single-orphan-tie-noncurrent part=3 current=0 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+valid-note-and-hold-noncurrent part=3 current=0 used=1 bits16=0038 pixels=ff/ff expected=0038,06
+valid-wrap-hold-noncurrent part=3 current=0 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+all-tie-silent-current part=2 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: all-tie-silent-current part 2
+all-tie-silent-current part=3 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: all-tie-silent-current part 3
+valid-note-and-hold-current part=2 current=1 used=1 bits16=0038 pixels=ff/ff expected=0038,06
+HOME bass lane mismatch: valid-note-and-hold-current bits=0000 expected=0038
+assignment tick mismatch: valid-note-and-hold-current part 2
+valid-note-and-hold-current part=3 current=1 used=1 bits16=0038 pixels=ff/ff expected=0038,06
+HOME bass lane mismatch: valid-note-and-hold-current bits=0000 expected=0038
+assignment tick mismatch: valid-note-and-hold-current part 3
+valid-wrap-hold-current part=2 current=1 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+HOME bass lane mismatch: valid-wrap-hold-current bits=0000 expected=0003
+assignment tick mismatch: valid-wrap-hold-current part 2
+valid-wrap-hold-current part=3 current=1 used=1 bits16=0003 pixels=ff/ff expected=0003,01
+HOME bass lane mismatch: valid-wrap-hold-current bits=0000 expected=0003
+assignment tick mismatch: valid-wrap-hold-current part 3
+all-tie-editor-created-current part=2 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: all-tie-editor-created-current part 2
+all-tie-editor-created-current part=3 current=1 used=0 bits16=0000 pixels=ff/ff expected=0000,00
+assignment tick mismatch: all-tie-editor-created-current part 3
+HOME CONTENT CONTRACT FAIL: failures=91

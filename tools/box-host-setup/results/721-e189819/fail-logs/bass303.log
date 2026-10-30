@@ -1,0 +1,12 @@
+warnings (BASS303_OS=1):
+firmware/src/dsp/bass303.c: In function ‘clear_audio_state’:
+firmware/src/dsp/bass303.c:321:9: warning: unused variable ‘i’ [-Wunused-variable]
+  321 |     int i;
+      |         ^
+firmware/src/dsp/bass303.c: In function ‘clear_audio_state’:
+firmware/src/dsp/bass303.c:321:9: warning: unused variable ‘i’ [-Wunused-variable]
+  321 |     int i;
+      |         ^
+/usr/bin/ld: build/bass303_host/bass303_k1_1.o: in function `bass303_set_bend':
+bass303.c:(.text+0x1aa0): multiple definition of `bass303_set_bend'; build/bass303_host/bass303_1.o:bass303.c:(.text+0x1af0): first defined here
+collect2: error: ld returned 1 exit status
