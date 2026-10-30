@@ -1,0 +1,107 @@
+diff --git a/.agents/skills/x0x37-check b/.agents/skills/x0x37-check
+index 5ee1dfb..49a46ca 120000
+--- a/.agents/skills/x0x37-check
++++ b/.agents/skills/x0x37-check
+@@ -1 +1 @@
+-../../skills/x0x37-check
+\ No newline at end of file
++../../../x0x37/skills/x0x37-check
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-device-bug b/.agents/skills/x0x37-device-bug
+index 9bcd249..fafa85f 120000
+--- a/.agents/skills/x0x37-device-bug
++++ b/.agents/skills/x0x37-device-bug
+@@ -1 +1 @@
+-../../skills/x0x37-device-bug
+\ No newline at end of file
++../../../x0x37/skills/x0x37-device-bug
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-docs b/.agents/skills/x0x37-docs
+index 277864f..7ca5202 120000
+--- a/.agents/skills/x0x37-docs
++++ b/.agents/skills/x0x37-docs
+@@ -1 +1 @@
+-../../skills/x0x37-docs
+\ No newline at end of file
++../../../x0x37/skills/x0x37-docs
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-install b/.agents/skills/x0x37-install
+index fe6bc72..88da048 120000
+--- a/.agents/skills/x0x37-install
++++ b/.agents/skills/x0x37-install
+@@ -1 +1 @@
+-../../skills/x0x37-install
+\ No newline at end of file
++../../../x0x37/skills/x0x37-install
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-integrate b/.agents/skills/x0x37-integrate
+index 4495fef..c0e535a 120000
+--- a/.agents/skills/x0x37-integrate
++++ b/.agents/skills/x0x37-integrate
+@@ -1 +1 @@
+-../../skills/x0x37-integrate
+\ No newline at end of file
++../../../x0x37/skills/x0x37-integrate
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-owner-decisions b/.agents/skills/x0x37-owner-decisions
+index a9f8196..82ac526 120000
+--- a/.agents/skills/x0x37-owner-decisions
++++ b/.agents/skills/x0x37-owner-decisions
+@@ -1 +1 @@
+-../../skills/x0x37-owner-decisions
+\ No newline at end of file
++../../../x0x37/skills/x0x37-owner-decisions
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-shared-work b/.agents/skills/x0x37-shared-work
+index 61c10a0..753b86d 120000
+--- a/.agents/skills/x0x37-shared-work
++++ b/.agents/skills/x0x37-shared-work
+@@ -1 +1 @@
+-../../skills/x0x37-shared-work
+\ No newline at end of file
++../../../x0x37/skills/x0x37-shared-work
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-task b/.agents/skills/x0x37-task
+index 514f371..95ad8c7 120000
+--- a/.agents/skills/x0x37-task
++++ b/.agents/skills/x0x37-task
+@@ -1 +1 @@
+-../../skills/x0x37-task
+\ No newline at end of file
++../../../x0x37/skills/x0x37-task
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-workflow b/.agents/skills/x0x37-workflow
+index a9379e7..341a476 120000
+--- a/.agents/skills/x0x37-workflow
++++ b/.agents/skills/x0x37-workflow
+@@ -1 +1 @@
+-../../skills/x0x37-workflow
+\ No newline at end of file
++../../../x0x37/skills/x0x37-workflow
+\ No newline at end of file
+diff --git a/.agents/skills/x0x37-writing b/.agents/skills/x0x37-writing
+index e8ef153..6f09ab1 120000
+--- a/.agents/skills/x0x37-writing
++++ b/.agents/skills/x0x37-writing
+@@ -1 +1 @@
+-../../skills/x0x37-writing
+\ No newline at end of file
++../../../x0x37/skills/x0x37-writing
+\ No newline at end of file
+diff --git a/docs/SKILLS.md b/docs/SKILLS.md
+index f4adc76..c617d55 100644
+--- a/docs/SKILLS.md
++++ b/docs/SKILLS.md
+@@ -1,3 +1,12 @@
++<!-- x0x37-current-rules -->
++# Current skill discovery
++
++Inside the x0x37 workspace use [maintained skill status](../../x0x37/docs/SKILLS.md). The older
++status below is retained as history and is superseded there. Outside the
++workspace use the local installed skills and verify their source/status.
++
++<!-- /x0x37-current-rules -->
++
+ # Skill sources and discovery
+ 
+ Use [project skill triggers](agent-rules.md) to initialize workflow skills when needed.
