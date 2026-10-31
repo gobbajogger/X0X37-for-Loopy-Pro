@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = Path(os.environ.get("SMC_FX_SOURCE", str(ROOT / "firmware/src/app/smc_mixer.c")))
 NAMES = (
     "smc_fx_publish", "smc_fx_load_page", "smc_fx_main_tick", "smc_fx_try",
-    "smc_fx_release_note", "smc_fx_clear",
+    "smc_fx_release_note", "smc_fx_clear", "smc_fx_step_note",
 )
 
 
@@ -81,13 +81,16 @@ static unsigned checks;
 
 static int smk_clip_mode_on(void) { return clip; }
 static int smc_drum_mix(void) { return drum; }
-static int smc_fx_bus(uint8_t note) { return note < 32u ? (note & 7u) : -1; }
+static int smc_fx_bus(uint8_t note) { return note < 32u ? (int)(note & 7u) : -1; }
 static int smc_fx_bus_now(uint8_t note)
 {
     return ui.view != V_FX || ui.overlay != O_NONE ||
            smk_clip_mode_on() || smc_drum_mix() >= 0 ? -1 : smc_fx_bus(note);
 }
 static int smc_home_held(void) { return home; }
+/* Full arrow priority/physical-hold routing is covered by smc-remainder. */
+static int smc_fx_arrow(int d) { (void)d; return 0; }
+static int smc_fx_nav_index(uint8_t note) { (void)note; return -1; }
 static uint32_t plat_ms(void) { return now; }
 static uint32_t plat_buttons(void) { return 0; }
 static void say(const char *left, const char *right) { (void)left; (void)right; }
@@ -107,6 +110,7 @@ static void smc_fx_load_page(int page);
 static void smc_fx_main_tick(void);
 static int smc_fx_try(uint8_t note, int mmc);
 static void smc_fx_release_note(uint8_t note);
+static void smc_fx_step_note(uint8_t note, int d);
 '''
 
 C_TEST = r'''
@@ -147,10 +151,10 @@ int main(void)
             CHECK(smc_fx_try(note, 0) == 1);
             CHECK(all_assignments_match(before)); /* an ordinary tap cannot rewrite the preset */
             if (smcfx_is_main(bus)) {
-                CHECK(!(published_down & bit)); /* navigation pending, no FX yet */
+                CHECK(!!(published_down & bit) == !page_select_empty); /* owner: tap FX is immediate */
                 now += SMC_FX_HOLD_MS - 1u;
                 smc_fx_main_tick();
-                CHECK(!(published_down & bit));
+                CHECK(!!(published_down & bit) == !page_select_empty);
                 int old_navigation = navigation;
                 smc_fx_release_note(note);
                 CHECK(navigation == old_navigation + 1);
@@ -165,18 +169,22 @@ int main(void)
             CHECK(all_assignments_match(before));
             CHECK(valid_assignments());
             CHECK(!(smc.fx_lp_hold & bit));
-            /* Cycling must use the original selected effect, not a stale LPF. */
+            /* The held-button mapping step changes only its stored assignment. */
             home = 1;
             CHECK(smc_fx_try(note, 0) == 1);
-            CHECK(smc.fx_effect[bus] == smcfx_cycle(bus, before[bus]));
+            CHECK(all_assignments_match(before)); /* HOME alone no longer remaps */
+            uint8_t assigned = smcfx_strip_get(&smc.fx_strip, pg, bus, SMCFX_SELECT);
+            smc_fx_step_note(note, 1);
+            CHECK(smc.fx_effect[bus] == smcfx_cycle(bus, assigned));
             CHECK(smcfx_suit_ok(bus, smc.fx_effect[bus]));
             const uint8_t chosen = smc.fx_effect[bus];
             home = 0;
+            smc_fx_release_note(note);
             /* Play a re-assigned bus FX, not the stale low-pass hold flag. */
             if (smcfx_is_main(bus)) smc.select_down |= bit;
             CHECK(smc_fx_try(note, 0) == 1);
             if (smcfx_is_main(bus)) {
-                CHECK(!(published_down & bit));
+                CHECK(published_down & bit);
                 now += SMC_FX_HOLD_MS + 1u;
                 smc_fx_main_tick();
             }
@@ -207,7 +215,7 @@ int main(void)
                 smc_fx_release_note(note);
                 CHECK(!(published_down & bit));
             }
-    /* A page-two blank does not trigger FX or replace the popup while
+    /* A page-two blank shows its own unassigned target without triggering FX while
      * another active FX is still held on that same bus. */
     memset(smc_states, 0, sizeof smc_states);
     smc_slot = 0; home = 0; ui.view = V_FX; ui.overlay = O_NONE;
@@ -216,7 +224,7 @@ int main(void)
     CHECK(published_fx[SMCFX_303A] == SMCFX_GATE8);
     int before_blank = shows;
     CHECK(smc_fx_try(26, 0) == 1); /* 303A SELECT page 2 = -- */
-    CHECK(shows == before_blank);
+    CHECK(shows == before_blank + 1); /* held target must be visible before mapping */
     CHECK(published_fx[SMCFX_303A] == SMCFX_GATE8);
     smc_fx_release_note(26);
     CHECK(published_down & (1u << SMCFX_303A));
@@ -304,7 +312,9 @@ int main(void)
     memset(smc_states, 0, sizeof smc_states);
     smc_slot = 0; smc_fx_load_page(0);
     smc_slot = 1; smc_fx_load_page(1);
-    home = 1; CHECK(smc_fx_try(24, 0) == 1); /* fill empty SELECT on page 2 */
+    CHECK(smc_fx_try(24, 0) == 1); /* own empty SELECT on page 2 */
+    smc_fx_step_note(24, 1);
+    smc_fx_release_note(24);
     home = 0;
     uint8_t peer_one_fx = smc_states[1].fx_effect[0];
     smc_slot = 1; CHECK(smc_fx_try(24, 0) == 1);

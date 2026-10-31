@@ -1,0 +1,80 @@
+{
+  "status": "complete",
+  "run_id": "f4-rebase-789",
+  "artifact_path": "docs/engineering-delivery/f4-smc-mixer-remainder/review/rebase-789",
+  "verdict": "Not ready",
+  "scope": {
+    "mode": "explicit local base with three-code-file scope plus inherited transport integration inspection",
+    "base": "80729a61f435f274ed4126f9c039f52b3b61d956",
+    "upstream": "bff24bbd21636df6201ce3a59ad9d4ddad1ff8bd",
+    "files": [
+      "firmware/src/app/smc_mixer.c",
+      "tests/host/smc_production_action_smoke.c",
+      "tests/host/smc_remainder_test.c"
+    ]
+  },
+  "intent": "Retain latest #789 PLAY/no-popup and RW/FF top-notification mapping, consume arrows without edits whenever several FX keys are held, preserve prior F4 quick-tap behavior.",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "resolved_during_review": [
+    {
+      "#": 1,
+      "title": "Cover controller arrows with only another peer holding FX",
+      "severity": "P2",
+      "resolution": "Caller added peer-zero controller input while peer one alone holds FX, map/slot assertions, and retained the keyboard edit assertion.",
+      "independent_static_validation": true,
+      "runtime_verification": "NOT_RUN"
+    }
+  ],
+  "coverage": {
+    "source_review": "complete; no remaining supported source finding",
+    "scope_helper": {
+      "status": "complete",
+      "exec_lines": 64,
+      "test_files_changed": true,
+      "lite_eligible": false,
+      "uncounted_files": 4,
+      "note": "Parent-owned documentation changes counted by helper but excluded from this three-code-file reviewer ownership."
+    },
+    "standards": "Root AGENTS.md instruction fallback; no CODING_STANDARDS/CLAUDE or declared CE packs in verified source.",
+    "plan": "Current owner brief plus caller integration handoff; no formal unified-plan requirements check.",
+    "cross_model": {
+      "status": "not run",
+      "reason": "Only Codex CLI installed; no different-provider route found. Local adversarial fallback completed.",
+      "independence_verified": false,
+      "egress": false
+    },
+    "mechanics": {
+      "malformed_findings": 0,
+      "malformed_returns": 0,
+      "suppressed_findings": 0,
+      "retained_candidates_before_fix": 1
+    },
+    "validator": "One fresh independent batch confirmed original coverage gap and source-only closure.",
+    "fast_pass": "No urgent findings.",
+    "simplification": {
+      "reviewers": [
+        "code-reuse",
+        "code-quality",
+        "efficiency"
+      ],
+      "findings": 0,
+      "applied": 0,
+      "skipped": 0,
+      "result": "No worthwhile behavior-preserving change identified."
+    },
+    "quicktap": "Five production helper bodies exactly match prior published F4 head 0ec0e213397fbaf595a914f65e16d999a21ed99a.",
+    "execution": "No builds/tests/compilers/lint/framebuffer execution or previews.",
+    "no_visual_approval_wait": true
+  },
+  "residual_risks": [
+    "Exact-head host suite, optional two-peer fixture, Elite/Pro SDK1.2.1 X0X_DEV_PADCAL=0 builds, native RAM/flash and UI verification remain NOT_RUN and belong to the Orchestrator box."
+  ],
+  "testing_gaps": []
+}

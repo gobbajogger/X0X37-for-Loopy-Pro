@@ -26,16 +26,20 @@ static void order_navigation(void)
     for(int i=0;i<NPARTS;i++)CHECK(midi[i]==seq.ch[i]); free(before);
     for (int pos = 0; pos < NPARTS; pos++) {
         setup(V_HOME, expected[pos]);
-        smc_button_apply(0x2F, 0); CHECK(ui.part == expected[pos == 4 ? 4 : pos+1]);
+        /* #789: the SMC part context is independent; the keyboard part stays. */
+        smc_button_apply(0x2F, 0); CHECK(smc.part == expected[pos == 4 ? 4 : pos+1]);
+        CHECK(ui.part == expected[pos]);
         setup(V_HOME, expected[pos]);
-        smc_button_apply(0x2E, 0); CHECK(ui.part == expected[pos ? pos-1 : 0]);
+        smc_button_apply(0x2E, 0); CHECK(smc.part == expected[pos ? pos-1 : 0]);
+        CHECK(ui.part == expected[pos]);
     }
     setup(V_SEQ,PART_303A);
     bstep_t *a_step=&proj.pat[0].bass[0].step[0], *b_step=&proj.pat[0].bass[1].step[0];
     a_step->flags=G_NOTE;a_step->note=48;b_step->flags=G_NOTE;b_step->note=55;
     key_event(WHITE_KEY[0],1);CHECK(ui.held_step==0);
     enc_acc[EN_ALGO]=-1;ui_input_only();CHECK(ui.part==PART_303A && ui.held_step==0); /* held-step velocity, not navigation */
-    smc_button_apply(27,0);CHECK(ui.part==PART_303B && ui.held_step<0);
+    /* #789: SMC SELECT moves only the SMC context; the keyboard held step stays its own. */
+    smc_button_apply(27,0);CHECK(smc.part==PART_303B && ui.part==PART_303A && ui.held_step==0);
     key_event(WHITE_KEY[0],0);CHECK(a_step->flags==G_NOTE && b_step->flags==G_NOTE && b_step->note==55);
     /* Both synth engine choices may change; a physical lane must not move. */
     for (int a=0;a<2;a++) for(int b=0;b<2;b++) {
@@ -82,9 +86,9 @@ static void surface_maps(void)
         for(int i=0;i<NPARTS;i++)if(i!=p)CHECK(proj.sound.v[T_MIX][i][MX_LEVEL]==old[i]);
         smc_button_apply(16+pos,0);CHECK(seq.mute==MUTE_MASK[p] && smc_led(16+pos));
         setup(V_HOME,PART_909);smc_button_apply(pos,0);
-        CHECK(ui.part==p && ui.rec && smc_led(pos));
+        CHECK(smc.part==p && ui.part==PART_909 && ui.rec && smc_led(pos)); /* #789 independent SMC part */
         for(int i=0;i<NPARTS;i++)CHECK(smc_led(i)==(i==pos));
-        setup(V_HOME,PART_909);smc_button_apply(24+pos,0);CHECK(ui.part==p && smc_led(24+pos));
+        setup(V_HOME,PART_909);smc_button_apply(24+pos,0);CHECK(smc.part==p && ui.part==PART_909 && smc_led(24+pos));
         setup(V_HOME,PART_909);smc_button_apply(8+pos,0);
         CHECK(smc.solo==(1u<<p) && smc_led(8+pos));smc_release(8+pos);CHECK(!smc.solo);
         setup(V_FX,PART_909);smc_button_apply(24+pos,0);
