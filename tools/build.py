@@ -234,13 +234,14 @@ def generate():
     if failed:
         raise SystemExit(f"build: {', '.join(failed)} failed")
     # The default image has no built-in loops: that flash is code room. X0X_FACTORY_BREAKS=1
-    # puts the 909 loops back in the image. X0X_BREAK_BANK=DIR uses another bank instead.
+    # puts the designated stock loops in the image. X0X_BREAK_BANK=DIR uses another bank instead.
     import break_pack
     bank = os.environ.get("X0X_BREAK_BANK")
     factory = os.environ.get("X0X_FACTORY_BREAKS") == "1"
     if bank or factory:
         cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
-               else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
+               else [sys.executable, str(tools / "break_pack.py"), "--from-export",
+                     str(SRC / "assets" / "factory-breaks"), "--header", str(GEN / "x0x_break_bank.h")])
         r = subprocess.run(cmd, capture_output=True, text=True)
         sys.stdout.write(r.stdout)
         if r.returncode:
