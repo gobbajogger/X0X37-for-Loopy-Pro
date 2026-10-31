@@ -588,6 +588,10 @@ command -v node >/dev/null 2>&1 && run break-pack-web node web/test_break_pack.m
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device
 command -v node >/dev/null 2>&1 && run project-adoption-identities node --test web/test_project_adoption_identities.mjs
+run offline-sequencer node --test web/offline-sequencer/*.test.mjs
+run offline-sequencer-browser python3 web/offline-sequencer/f6b-browser.test.py
+run offline-touchosc-pack python3 web/offline-sequencer/touchosc/pack.test.py
+run offline-touchosc-lua lua5.1 web/offline-sequencer/touchosc/controller.test.lua
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
 command -v node >/dev/null 2>&1 && run installer-project-handoff node web/test_installer_project_handoff.mjs
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
