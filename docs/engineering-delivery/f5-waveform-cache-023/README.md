@@ -5,7 +5,9 @@ It does not close all F5 rows or establish visual, build or hardware acceptance.
 
 Owner picture-first follow-up: [pictures, regressions and capture fixture](PICTURES.md).
 This replaces suitable status/navigation words with existing glyph families on
-the affected screens. Real-framebuffer before/after approval remains pending.
+the affected screens. Latest owner instruction: no previews or separate visual
+approval wait for this change. Finish source delivery; the Orchestrator verifies
+on the box.
 
 ## Base and plan
 
@@ -107,19 +109,13 @@ Then run the full host suite and both Elite/Pro SDK V1.2.1 builds with
 `X0X_DEV_PADCAL=0`, and report static RAM and pool free for each. Use package
 identity/model ID, never the USB name. No FM-1 target or `main_fm1.c` edit.
 
-## Framebuffer and owner gate
+## Owner disposition and box verification
 
-BEFORE/AFTER 240x240 PNGs are **NOT_CAPTURED**. Do not substitute the archived
-mockups or claim generated images already exist. Capture the same four waveform
-states on the pinned parent and candidate with the actual host renderer; the
-test names are `restored-chicago-wave`, `restored-miami-wave`,
-`restored-miami-xmod-wave` and `restored-miami-wobble-wave`. The candidate test
-writes them under `build/ui-theme/original-ui/normal-images/` and
-`sanitized-images/`; use the same scenario on the parent through a separate
-capture-only fixture. Archive the 240x240 before/after files with source pins.
-
-Keep the PR draft until exact-head tests, Elite/Pro builds, RAM measurements,
-real framebuffer evidence and owner visual approval are recorded. Do not merge.
+The latest owner instruction supersedes the earlier screenshot/approval workflow
+for this change: **no previews and no visual approval wait**. Source work is
+finished and pushed to #807. The Orchestrator verifies the exact delivered head
+on the box, including the existing host, Elite/Pro V1.2.1 and RAM requirements.
+No builds or tests run in Codex. No merge or auto-merge is performed here.
 
 No main, .github, Actions, BTIF, USRTRIM, efuse, key_mac, bootloader, installer,
 controller or device changes belong to this delivery.

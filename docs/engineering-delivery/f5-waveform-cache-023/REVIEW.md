@@ -35,9 +35,11 @@ set is not claimed complete.
 
 ## Verdict
 
-Source review complete; **not ready to merge**. Keep the requested PR draft.
-Exact-head host tests, Elite/Pro SDK V1.2.1 builds with `X0X_DEV_PADCAL=0`, RAM
-measurements, real 240x240 BEFORE/AFTER PNGs and owner visual approval are pending.
+Source review complete. Source delivery is handed off to the Orchestrator for
+exact-head box verification: host tests, Elite/Pro SDK V1.2.1 builds with
+`X0X_DEV_PADCAL=0` and RAM measurements. The latest owner instruction removes
+previews and the visual approval wait for this change. Keep the requested draft;
+no merge or auto-merge is performed here.
 
 ## Picture-first follow-up source review
 
@@ -59,7 +61,16 @@ adversarial review is not represented as cross-model corroboration.
 Actionable Findings: none. Coverage limits: physical-caption execution,
 pending-preset back hints, division-pad-owned headers, composed readability and
 frame timing. No builds, tests, compiler probes, mutation tests or actual renders
-ran in Codex. A parent-compatible capture fixture and exact commands are in
-PICTURES.md. Actual before/after PNGs remain NOT_CAPTURED. Verdict: source review
-complete; PR remains draft and not ready to merge pending qualification and owner
-visual approval.
+ran in Codex. Verdict: source review complete; finish and push, with verification
+owned by the Orchestrator on the box. The latest owner instruction supersedes
+the earlier preview/visual-approval requirement for this change. No previews or
+visual approval wait. Existing test and target qualification requirements remain.
+
+## Owner disposition follow-up
+
+The owner expressly directed: "No previews or visual approval wait" and "Finish
+and push; the Orchestrator verifies on the box." This documentation-only follow-up
+propagates that instruction; it changes no code, tests, assertions or build checks.
+Code review: skipped (mechanical diff) — direct propagation of the current owner
+instruction into the handoff documents. Static diff/content inspection only;
+no builds or tests run in Codex.

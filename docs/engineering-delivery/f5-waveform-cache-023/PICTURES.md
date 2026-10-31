@@ -2,7 +2,9 @@
 
 Owner direction: use pictures, glyphs and small activity-based animations wherever
 they communicate the on-screen action clearly. Keep the existing #807 branch and
-owner approval gate. No builds or tests in Codex.
+same PR. Latest owner instruction: no previews and no visual approval wait for
+this change. Finish and push; the Orchestrator verifies on the box. No builds or
+tests in Codex.
 
 ## Design and implementation plan
 
@@ -26,66 +28,22 @@ remain where pictures alone would be ambiguous.
   pictures. Suppress their duplicate FWD/REV/PING/RND value text on the normal
   knob strip; retain precise text in lists and Help. Do not invent REW/FWD inputs.
 
-## Regression and capture work
+## Verification handoff
 
-Extend the registered `original-release-ui` test before changing production:
-check literal real-content badge pixels, last-slot bounds, absent/equal cues,
-stopped stability, real-step response, transport shape bounds, row/page hint
-bounds and state preservation. Add a capture-only fixture using existing host
-APIs so the identical scenarios can run on the previous #807 head and candidate.
-No test or fixture execution is authorized in Codex.
+The registered `original-release-ui` selector includes the real-content badge,
+last-slot, absent/equal cue, stopped stability, actual-step response, transport,
+composed row/page hint, state-preservation and direction-picture assertions.
+No tests or builds have run in Codex; no runtime PASS is claimed.
 
-Source-review the incremental diff through `ce-code-review`, then push a normal
-fast-forward update to #807. BEFORE/AFTER 240x240 host PNGs remain NOT_CAPTURED
-until the authorized box stage runs the fixture. Keep the PR draft for owner
-visual approval, full host/Elite/Pro qualification and RAM measurements.
+The candidate reuses the existing content and transport painters and adds no
+persistent state, timer, framebuffer, image atlas or pool allocation. The original
+waveform cache's expected 156-byte pool cost is unchanged. Elite/Pro RAM remains
+NOT_MEASURED and is part of the Orchestrator's exact-head box verification.
 
-## Actual source and pending captures
+The prior preview-image production and owner visual-approval steps are removed
+for this change by the latest owner instruction. Do not wait for previews or
+visual approval. The existing capture-only utility is not a delivery prerequisite.
 
-The candidate reuses the existing content and transport painters. Only bounded
-primitive strokes for the arrow/row/page badges are added. No persistent state,
-timer, framebuffer, image atlas or pool allocation is added by this follow-up.
-The original waveform cache's expected 156-byte pool cost is unchanged; target
-RAM is still NOT_MEASURED for both Elite and Pro.
-
-`tests/host/original_release_ui_test.c:picture_rule_cases` extends the existing
-registered selector with the cases above, dark/Light palettes and all four
-direction glyphs. The exact direction value text remains available to lists.
-`tests/host/ui_picture_capture.c` is a capture-only fixture, not a new test suite.
-It uses APIs that already exist at previous head
-`de80f7b67e0a6ec8d97d42b166bb373de4582504`. Copy that identical fixture into a
-clean checkout of each source pin on the box; do not use the candidate renderer
-to create a purported BEFORE.
-
-For each pin on the authorized box:
-
-```sh
-ORIGINAL_UI_TEST_FILE=tests/host/ui_picture_capture.c sh tests/host/original_release_ui_test.sh build/ui-pictures
-```
-
-That existing harness writes `build/ui-pictures/{normal,sanitized}-images/`.
-Expected 240x240 files, each in both dark and Light variants:
-
-- `home-stopped-queued.png`
-- `chicago-oscillator-playing-queued.png`
-- `miami-carrier-stopped-queued.png`
-- `miami-xmod-playing.png`
-- `miami-wobble-playing.png`
-- `chicago-envelope-playing.png`
-- `sequencer-direction-{0,1,2,3}.png`
-
-The filenames have `dark-` / `light-` prefixes. Actual BEFORE/AFTER PNG paths:
-**none yet, NOT_CAPTURED**. No framebuffer execution occurred in Codex, and the
-capture paths above are reproduction instructions, not existing evidence.
-
-Run the registered assertions again with physical SMK captions enabled as well
-as their default host configuration:
-
-```sh
-X0X_HOST_DEFS=-DX0X_SMK_CAPTIONS=1 X0X_TEST_JOBS=1 X0X_TESTS=original-release-ui sh tests/run_tests.sh
-```
-
-The tests inspect the composed page/held-step row footer, queued/absent/equal
-sound-header cues, and the blank region where direction words used to appear.
-Pending-preset back hints and the division-pad-owned header still need composed
-framebuffer coverage on the authorized box. These are coverage limits, not PASS.
+The Orchestrator verifies on the box, including the physical-caption configuration
+(`X0X_SMK_CAPTIONS=1`), pending-preset/back hints, division-pad-owned headers and
+composed layout bounds. Keep the existing source review and test checks intact.
