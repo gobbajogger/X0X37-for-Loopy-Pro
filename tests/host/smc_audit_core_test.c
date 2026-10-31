@@ -46,10 +46,12 @@ int main(void)
     uint8_t effect=smcfx_strip_get(&smc.fx_strip,smc.fx_page,SMCFX_MDLY,SMCFX_REC);
     message(0x90,6,127);
     CHECK(smc_home_held());
-    CHECK(smcfx_strip_get(&smc.fx_strip,smc.fx_page,SMCFX_MDLY,SMCFX_REC)==smcfx_cycle(SMCFX_MDLY,effect));
-    CHECK(!smc.fx_down);
+    /* F4 (#800) replaced HOME remapping with held-FX + arrow remapping
+     * (smc_remainder_test held_fx_arrows); HOME + an FX key no longer remaps. */
+    CHECK(smcfx_strip_get(&smc.fx_strip,smc.fx_page,SMCFX_MDLY,SMCFX_REC)==effect);
+    CHECK(smc.fx_down==(1u<<SMCFX_MDLY)); /* the key plays its FX like any other tap */
     message(0x80,6,0);held_btn=0;
-    CHECK(!smc_home_held());
+    CHECK(!smc_home_held() && !smc.fx_down);
     printf("smc_audit_core: PASS (%u checks)\n", checks);
     return 0;
 }

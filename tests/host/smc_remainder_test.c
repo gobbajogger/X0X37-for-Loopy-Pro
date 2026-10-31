@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Focused #688/#788 port checks against #789's independent mixer context.
  * Production queue, UI, renderer, sequencer and engine; no device I/O. */
+/* Firmware order is ui.c, smc_mixer.c, then main_fm1.c's smk_arrows.h, so the
+ * held-FX arrow hook is live there. x0x_host.c includes smk_arrows.h before
+ * smc_mixer.c; declare the same hook first so arw_frame() matches firmware. */
+static int smc_fx_keyboard_arrow(int d);
+#define ARW_HELD_FX_STEP(d) smc_fx_keyboard_arrow(d)
 #define SMC_UI_MAIN remainder_legacy_main
 #include "smc_ui_test.c"
 #undef SMC_UI_MAIN
@@ -361,8 +366,8 @@ static void held_fx_header(void)
 static void footer_toggle_is(int on)
 {
     smc_ui_draw_peer();
-    CHECK((fb[(KNOB_Y+32)*240+129]!=0)==!on);
-    CHECK((fb[(KNOB_Y+32)*240+140]!=0)==!!on);
+    CHECK((fb[(KNOB_Y+32)*240+129]!=swap16(C_BLACK))==!on);
+    CHECK((fb[(KNOB_Y+32)*240+140]!=swap16(C_BLACK))==!!on);
 }
 static void pictured_action_states(void)
 {
@@ -385,14 +390,14 @@ static void pictured_action_states(void)
 static void composed_header_cues(void)
 {
     setup(V_SEQ,PART_303B);
-    seq.bpm=120; seq.ext=0; seq.ppat[PART_303B]=63;
-    proj.pat[63].bass[PART_303B-PART_303A].len=64;
+    seq.bpm=120; seq.ext=0; seq.ppat[PART_303B]=NPAT-1;
+    proj.pat[NPAT-1].bass[PART_303B-PART_303A].len=64;
     ui.spage=3; seq.chain_a=seq.chain_b=0; seq.pcue[PART_303B]=0xff;
     ui.msg_until=0; ui.frame=16; draw_header(); memcpy(before_fb,fb,sizeof fb);
     seq.chain_b=1; draw_header();
     for(int y=0;y<HDR_H;y++)
         CHECK(!memcmp(before_fb+y*240+191,fb+y*240+191,22*sizeof *fb));
-    seq.pcue[PART_303B]=62; draw_header(); memcpy(active_fb,fb,sizeof fb);
+    seq.pcue[PART_303B]=NPAT-2; draw_header(); memcpy(active_fb,fb,sizeof fb);
     ui.spage=0; seq.chain_b=0; draw_header();
     CHECK(!memcmp(active_fb,fb,HDR_H*240*sizeof *fb)); /* Pending cue owns annotation space. */
     for(int y=0;y<HDR_H;y++)
@@ -406,16 +411,16 @@ static void pictogram_rendering(void)
         cv_begin(240,HDR_H,C_BLACK); ui_pictogram(20,4,g,1,C_WHITE); cv_commit(0,0,0);
         unsigned ink=0;
         for(int y=0;y<HDR_H;y++) for(int x=0;x<240;x++) {
-            if(x>=20 && x<29 && y>=4 && y<13) ink+=fb[y*240+x]!=0;
-            else CHECK(!fb[y*240+x]);
+            if(x>=20 && x<29 && y>=4 && y<13) ink+=fb[y*240+x]!=swap16(C_BLACK);
+            else CHECK(fb[y*240+x]==swap16(C_BLACK));
         }
         CHECK(ink>0);
     }
     cv_begin(240,HDR_H,C_BLACK); ui_state_toggle(30,4,0,C_WHITE); cv_commit(0,0,0);
-    CHECK(fb[8*240+33]!=0 && fb[8*240+44]==0);
+    CHECK(fb[8*240+33]!=swap16(C_BLACK) && fb[8*240+44]==swap16(C_BLACK));
     memcpy(before_fb,fb,sizeof fb);
     cv_begin(240,HDR_H,C_BLACK); ui_state_toggle(30,4,1,C_WHITE); cv_commit(0,0,0);
-    CHECK(fb[8*240+33]==0 && fb[8*240+44]!=0);
+    CHECK(fb[8*240+33]==swap16(C_BLACK) && fb[8*240+44]!=swap16(C_BLACK));
     CHECK(memcmp(before_fb,fb,sizeof fb));
     clip_grid_mode=1;
     CHECK(smc_button_symbol(7)==UI_G_NEXT && smc_button_symbol(15)==UI_G_PREV);
@@ -428,7 +433,7 @@ static void pictogram_rendering(void)
         cv_begin(240,HDR_H,C_BLACK);
         int end=ui_position_badge(UI_G_PATTERN,p,NPAT,C_WHITE,C_GRAY);
         cv_commit(0,0,0); CHECK(end<=185);
-        for(int y=0;y<HDR_H;y++) for(int x=185;x<240;x++) CHECK(!fb[y*240+x]);
+        for(int y=0;y<HDR_H;y++) for(int x=185;x<240;x++) CHECK(fb[y*240+x]==swap16(C_BLACK));
     }
     cv_begin(240,HDR_H,C_BLACK);
     CHECK(ui_position_badge(UI_G_SONG,192,0,C_AMB,C_GRAY)<=185);

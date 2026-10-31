@@ -965,6 +965,7 @@ static const char *smc_button_caption(int note)
                                         (smc.fx_down >> bus) & 1u,
                                         smc.fx_effect[bus]);
         }
+        if (strip == 7) return "MIX";   /* strip-8 MIX cycle, as smc_button_apply routes it */
         return "SEL";
     }
     if (kit >= 0 || strip < NPARTS) return row ? "S" : "R";
