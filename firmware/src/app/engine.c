@@ -589,14 +589,21 @@ void engine_volume(int32_t *out_lr, uint32_t n)
         vol_after = -1.0f;
         return;
     }
-    for (i = 0; i < n; i++) {
-        if (v != vol) {
-            v += (vol - v) * 0.0022651f;
-            if (fm_fabsf(vol - v) < 1e-5f)
-                v = vol;
+    if (v == vol) {
+        for (i = 0; i < n; i++) {
+            out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
+            out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
         }
-        out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
-        out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
+    } else {
+        for (i = 0; i < n; i++) {
+            if (v != vol) {
+                v += (vol - v) * 0.0022651f;
+                if (fm_fabsf(vol - v) < 1e-5f)
+                    v = vol;
+            }
+            out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
+            out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
+        }
     }
     vol_after = v;
 }
