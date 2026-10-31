@@ -216,8 +216,10 @@ def publish(fd, source, dest, owned):
 def retain_capture(transport, core, parent, name):
     """Consume an explicitly injected read-only session; no production transport.
 
-    Adapter contract: acquire() either returns a held lease or safely releases its
-    provisional resources before raising. All other calls are owner-bound and
+    Adapter contract: acquire() returns a held lease or records provisional ownership
+    for release(None). If acquisition or release cannot be reconciled, release must
+    raise: the caller reports unresolved ownership, never a clean exit.
+    All other calls are owner-bound and
     fail closed. release(binding) must be idempotent and release only that owner; None means
     release this transport instance's provisional acquisition, never another owner.
     No interface authorizes device acquisition merely by setting supported=True.
