@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# Compare SMC Record lamps with real panel/SMC-selected recording destinations.
+# Check independent SMC Record lamps and real keyboard-selected note recording.
 # No target build or hardware access. SMC_SOURCE selects the negative-control source.
 set -eu
 cd "$(dirname "$0")/../.."

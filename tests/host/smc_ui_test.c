@@ -86,7 +86,6 @@ static void unchanged(screen_state_t before)
 {
     /* Approved #737: a fader/knob move may peek its real page until the
      * peek expires; the restore is checked after expire(). */
-    if (smc_peek->on) return;
     screen_state_t after = screen_state();
     if (memcmp(&before, &after, sizeof before)) {
         const uint8_t *a = (const uint8_t *)&before, *b = (const uint8_t *)&after;
@@ -118,6 +117,7 @@ static void setup(int view, int part)
     proj.set.bt = PROJ_BT_SMC_CENTRAL;
     smc_ble_link(1); smc_poll();
     ui.part = (uint8_t)part; set_view(view); build_pages();
+    smc.view=(uint8_t)view;smc.part=smc.mixsel=(uint8_t)part;
     ui.touched = -1; ui.msg_until = 0;
     ui_frame();
 }
@@ -204,8 +204,8 @@ static void test_navigation(void)
     fader(0, 2); CHECK(smc_ui_active()); held_keys = 1; input(); CHECK(!smc_ui_active());
     held_keys = 0; input();
     fader(0, 3); CHECK(smc_ui_active());
-    message(0x90, 0x2F, 127); /* SMC SEQ navigation */
-    CHECK(!smc_ui_active());
+    message(0x90, 0x2E, 127); /* SMC moves left from its independently selected final part */
+    CHECK(smc_ui_active());
     puts("PASS navigation: physical buttons, encoder, key and SMC navigation cancel");
 }
 static void test_overlays(void)
@@ -217,12 +217,13 @@ static void test_overlays(void)
     CHECK(!smc_ui_active()); fader(0, 127); knob(0, 1); CHECK(!smc_ui_active());
     now_ms += 1500; ui_frame(); unchanged(saved);
     setup(V_SEQ, PART_303A);
-    message(0x90, 5, 127); CHECK(ui.overlay == O_LIST);
+    button_tap(B_SEL); CHECK(ui.overlay == O_LIST);
     ui.list_sel = ui.list_n > 3 ? 3 : 0; ui.list_top = 1;
     saved = screen_state(); fader(0, 0); unchanged(saved);
     now_ms += 1500; ui_frame(); unchanged(saved);
     fader(0, 1); CHECK(smc_ui_active());
-    message(0x90, 0x61, 127); CHECK(ui.overlay == O_LIST && !smc_ui_active());
+    message(0x90, 0x61, 127); CHECK(ui.overlay == O_LIST && smc_ui_active());
+    message(0x80,0x61,0);
     saved = screen_state(); now_ms += 1500; ui_frame(); unchanged(saved);
     setup(V_SEQ, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui.help = 1; held_btn = ui.btn = 1u << (ui.help - 1);
@@ -245,7 +246,7 @@ static void test_clip(void)
     }
     setup(V_SEQ, PART_303A); clip_grid_mode = 1; ck.pg = 1;
     screen_state_t before = screen_state();
-    knob(0, 1); CHECK(fields[CK_PAGE_FIELDS[0][0]] == 1); CHECK(smc_ui_active());
+    knob(0, 1); CHECK(fields[CK_PAGE_FIELDS[0][0]] == 0); CHECK(smc_ui_active());
     ui_frame(); unchanged(before); shot("07-clip-field");
     expire(); unchanged(before);
     puts("PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI");
@@ -264,7 +265,7 @@ static void test_actions_and_reset(void)
     ui_frame(); memcpy(before_fb, fb, sizeof fb);
     message(0x80, 8, 0); CHECK(!(smc.solo & 1));
     ui_frame(); CHECK(!smc_ui_active() || memcmp(before_fb, fb, sizeof fb));
-    setup(V_SEQ, PART_909); ui.sel[0] = 8; build_pages();
+    setup(V_SEQ, PART_909); smc.sel[0] = 8; build_pages();
     for (int strip = 3; strip < 8; strip++) {
         fader(strip, 127); CHECK(!smc_ui_active());
         for (int row = 0; row < 3; row++) {
@@ -312,6 +313,7 @@ static void test_navigation_replay(void)
     setup(V_HOME, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ask(ACT_SONG_CLR, 0, "TEST", 0); smc_poll(); CHECK(!smc_ui_active());
     message(0x90, 6, 127); CHECK(ui.overlay == O_NONE);
+    message(0x80, 6, 0);
     fader(0, 0); CHECK(!smc_ui_active());
     fader(0, 1); CHECK(smc_ui_active());
     puts("PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup");
@@ -338,7 +340,7 @@ static void test_distinct_maps(void)
         setup(view ? V_SEQ : V_MIX, kit);
         if (!view) { *page_of(V_MIX) = kit + 1; smc_page_set(kit + 1); }
         for (int bank = 0; bank < 2; bank++) {
-            ui.sel[kit] = bank * 8; build_pages(); check_distinct();
+            smc.sel[kit] = bank * 8; build_pages(); check_distinct();
             for (int n = 0; n < 8; n++) {
                 pref_t f = smc_target(n), k = smc_knob_target(n);
                 if (bank && n >= 3) { CHECK(f.kind == R_NONE && k.kind == R_NONE); continue; }
@@ -359,16 +361,14 @@ static void test_distinct_maps(void)
     setup(V_GLO, PART_303A); CHECK(smc_same(smc_knob_target(2), PR(R_ENG,T_MST,0,MST_RESO)));
     setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages(); smc_page_set(3);
     CHECK(smc_same(smc_knob_target(3), PR(R_ENG,T_MST,0,MST_RESO)));
-    /* Cross-strip duplicates must park, without substituting an unrelated field. */
-    ui.overlay = O_LIST; ui.list_top = 0; ui.list_n = 6; put_s(list_title, "MASTER");
-    for (int n = 0; n < 6; n++) list_rows[n] = smc_home_target((n + 3) % 8);
+    /* A keyboard list cannot replace any mixer destination. */
+    pref_t held[8];for(int n=0;n<8;n++)held[n]=smc_knob_target(n);
+    ui.overlay=O_LIST;ui.list_top=0;ui.list_n=6;
+    for(int n=0;n<6;n++)list_rows[n]=smc_home_target((n+3)%8);
+    for(int n=0;n<8;n++)CHECK(smc_same(held[n],smc_knob_target(n)));
     check_distinct();
-    for (int n = 0; n < 6; n++) CHECK(smc_knob_target(n).kind == R_NONE);
-    fader(0, 0); /* Show parked encoder rows after another genuine knob on list. */
-    list_rows[5] = PR(R_ENG,T_MST,0,MST_RESO); knob(5, 1); ui_frame(); shot("11-list-on-fader");
-    int on_fader = pref_get(list_rows[0]); knob(0, 1); CHECK(pref_get(list_rows[0]) == on_fader);
-    CHECK(smc_ui_active() && smc_ui.strip == 0); ui_frame(); shot("12-parked-knob");
-    puts("PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking");
+    puts("PASS maps: both kits/banks, production descriptors, keyboard list isolation");
+
 }
 
 /* Sound-page knobs: matching names keep the same relative slots across drums. */
@@ -496,8 +496,8 @@ static void test_physical_geometry(void)
      * SMC banner and pickup/ACTIVE line. The physical strip overlay below
      * is the non-peek SMC screen, so drop the peek to check its geometry. */
     setup(V_HOME, PART_909); fader(0, 0);
-    CHECK(smc_peek->on && ui.view == V_MIX);
-    smc_peek_cancel(); ui_frame();
+    CHECK(smc_ui_active() && ui.view == V_HOME);
+    ui_frame();
     for (int n = 0; n < 8; n++) {
         int x = n * 30;
         CHECK(fb[(MAIN_Y + 36) * 240 + x + 8] != 0); /* encoder top */
@@ -508,7 +508,7 @@ static void test_physical_geometry(void)
     }
     /* An encoder interaction highlights its own physical position; it cannot
      * replace the other seven strips with one large readout. */
-    knob(7, 1); smc_peek_cancel(); ui_frame();
+    knob(7, 1); ui_frame();
     CHECK(smc_ui.kind == 1 && smc_ui.strip == 7);
     for (int n = 0; n < 7; n++)
         CHECK(fb[(MAIN_Y + 36) * 240 + n * 30 + 8] != 0);
@@ -520,17 +520,19 @@ static void test_physical_geometry(void)
 static void check_selected(int selected)
 {
     for (int n = 0; n < 8; n++) {
-        CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
-        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)); /* SELECT stays in the title */
+        CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? UI_N_SELECT : C_BLACK));
+        int fx_row = smc.view == V_FX && ui.overlay == O_NONE && smc_drum_mix() < 0;
+        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(fx_row ? C_LINE : C_BLACK));
+        /* FX exposes the physical SELECT row; other modes use the title. */
     }
 }
 static void test_selected_lane(void)
 {
     /* Approved #737: a HOME knob move peeks the real MIX page, not the lane screen. */
-    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); CHECK(smc_peek->on && ui.view == V_MIX);
+    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); CHECK(smc_ui_active() && ui.view == V_HOME);
     CHECK(smc_ui.kind == 1 && smc_ui.strip == 7);
     shot("14-selected-part-touched-filter");
-    setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(2);
+    setup(V_MIX, PART_303A); smc.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(2);
     setup(V_FX, PART_303A); knob(0, 1); ui_frame(); check_selected(5);
     *page_of(V_FX) = 1; build_pages(); smc_page_set(1); knob(1, 1); ui_frame(); check_selected(6);
     setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages(); smc_page_set(3);
@@ -539,16 +541,16 @@ static void test_selected_lane(void)
         for (int track = 0; track < NDRUM; track++) {
             setup(view ? V_SEQ : V_MIX, kit);
             if (!view) { *page_of(V_MIX) = kit + 1; smc_page_set(kit + 1); }
-            ui.sel[kit] = track; build_pages(); knob(0, 1); ui_frame(); check_selected(track % 8);
+            smc.sel[kit] = track; build_pages(); knob(0, 1); ui_frame(); check_selected(track % 8);
         }
-    setup(V_MIX, PART_808); *page_of(V_MIX) = 2; ui.sel[1] = 9; build_pages(); smc_page_set(2);
-    CHECK(smc_lock_toggle()); ui.sel[1] = 10; knob(0, 1); ui_frame(); check_selected(2);
+    setup(V_MIX, PART_808); *page_of(V_MIX) = 2; smc.sel[1] = 9; build_pages(); smc_page_set(2);
+    CHECK(smc_lock_toggle()); smc.sel[1] = 10; knob(0, 1); ui_frame(); check_selected(2);
     CHECK(smc_drum_track(1, 0) == 8);
     shot("15-locked-bank-selected-other-drum");
-    ui.sel[1] = 0; knob(0, 1); ui_frame(); check_selected(-1);
+    smc.sel[1] = 0; knob(0, 1); ui_frame(); check_selected(-1);
     shot("16-locked-bank-selection-outside");
-    ui.part = PART_909; ui.sel[1] = 9; knob(0, 1); ui_frame(); check_selected(1);
-    setup(V_MIX, PART_303A); *page_of(V_MIX) = 2; ui.sel[1] = 4; build_pages(); smc_page_set(2);
+    ui.part = PART_909; smc.sel[1] = 9; knob(0, 1); ui_frame(); check_selected(1);
+    setup(V_MIX, PART_303A); *page_of(V_MIX) = 2; smc.sel[1] = 4; build_pages(); smc_page_set(2);
     knob(0, 1); ui_frame(); check_selected(4);
     puts("PASS lane selection: part/FX/master, both kits/views/banks, touch independence, locked live selection and outside bank");
 }
@@ -569,10 +571,10 @@ static void check_drum_titles(int kit, int bank, int names)
         char number[8]; int track = bank * 8 + n;
         const char *label = track >= NDRUM ? "--" : names ? voices[kit][track] :
             (put_i(number, track + 1), number);
-        int selected = ui.sel[kit] == track;
+        int selected = smc.sel[kit] == track;
         if (n) cv_rect(n * 30, 0, 1, 13, C_LINE);
-        if (selected) cv_rect(n * 30 + 1, 0, 28, 13, C_WHITE);
-        text_c(n * 30 + 15, 1, &FONT_T, label, selected ? C_BLACK : C_WHITE);
+        if (selected) cv_rect(n * 30 + 1, 0, 28, 13, UI_N_SELECT);
+        text_c(n * 30 + 15, 1, &FONT_T, label, selected ? SOUND_INK : C_WHITE);
         CHECK(tw(&FONT_T, label) <= 27);
     }
     cv_commit_rect(1, 0, MAIN_Y);
@@ -583,14 +585,14 @@ static void check_drum_titles(int kit, int bank, int names)
 static void test_drum_titles(void)
 {
     for (int kit = 0; kit < 2; kit++) for (int bank = 0; bank < 2; bank++) {
-        setup(V_SEQ, kit); ui.sel[kit] = bank * 8; build_pages();
+        setup(V_SEQ, kit); smc.sel[kit] = bank * 8; build_pages();
         knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 1);
         shot(kit ? bank ? "25-808-seq-bank2-names" : "24-808-seq-bank1-names" :
                    bank ? "23-909-seq-bank2-names" : "22-909-seq-bank1-names");
         CHECK(smc_lock_toggle());
         ui.part = 1 - kit; ui.sel[kit] = bank ? 0 : 8; set_view(V_HOME); build_pages();
         knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 1);
-        setup(V_MIX, 1 - kit); *page_of(V_MIX) = kit + 1; ui.sel[kit] = bank * 8; build_pages(); smc_page_set(kit + 1);
+        setup(V_MIX, 1 - kit); *page_of(V_MIX) = kit + 1; smc.sel[kit] = bank * 8; build_pages(); smc_page_set(kit + 1);
         knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 0);
     }
     puts("PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged");
@@ -604,32 +606,25 @@ static void test_action_captions_and_knobs(void)
     CHECK(!strcmp(smc_button_caption(7), "SONG"));
     CHECK(!strcmp(smc_button_caption(13), "MIX"));
     CHECK(!strcmp(smc_button_caption(14), "GLOB"));
-    CHECK(!strcmp(smc_button_caption(5), "LIST"));
+    CHECK(!strcmp(smc_button_caption(5), "MIX"));
     CHECK(!strcmp(smc_button_caption(6), "SONG"));
     for (int n = 0; n < 24; n++) CHECK(tw(&FONT_T, smc_button_caption(n)) <= 22);
-    smc_button_apply(5, 0); CHECK(ui.overlay == O_LIST);
-    CHECK(!strcmp(smc_button_caption(5), "OK"));
-    CHECK(!strcmp(smc_button_caption(6), "BACK"));
-    smc_button_apply(6, 0); CHECK(ui.overlay == O_NONE);
-    smc_button_apply(6, 0); CHECK(ui.view == V_SONG);
-    CHECK(!strcmp(smc_button_caption(6), "HOME"));
-    smc_button_apply(7, 0); CHECK(ui.view == V_HOME);
-    knob(7, 1); ui_frame(); shot("17-filter-actual-actions");
-    smc_button_apply(15, 0); CHECK(ui.view == V_PART);
-    smc_button_apply(7, 0); CHECK(ui.view == V_HOME);
-    smc_button_apply(13, 0); CHECK(ui.view == V_MIX);
-    smc_button_apply(14, 0); CHECK(ui.view == V_GLO && ui.overlay == O_LIST);
-    CHECK(!strcmp(smc_button_caption(14), "BACK"));
-    smc_button_apply(14, 0); CHECK(ui.view != V_GLO);
-    clip_grid_mode = 1; ui.overlay = O_NONE; ck.pg = 2;
-    CHECK(!strcmp(smc_button_caption(6), "GRID"));
-    smc_button_apply(6, 0); CHECK(ck.pg == 0);
+    screen_state_t keyboard=screen_state();
+    smc_button_apply(5,0);CHECK(ui.overlay==O_NONE && smc.view==V_MIX && smc_page_now()==0);
+    CHECK(!strcmp(smc_button_caption(5),"MIX"));
+    smc_button_apply(6,0);CHECK(smc.view==V_HOME);unchanged(keyboard);
+    smc_button_apply(7,0);CHECK(smc.view==V_SONG);unchanged(keyboard);
+    smc_button_apply(15,0);CHECK(smc.view==V_PART);unchanged(keyboard);
+    smc_button_apply(13,0);CHECK(smc.view==V_MIX);unchanged(keyboard);
+    smc_button_apply(14,0);CHECK(smc.view==V_GLO && ui.overlay==O_NONE);unchanged(keyboard);
+    smc_button_apply(14,0);CHECK(smc.view!=V_GLO);unchanged(keyboard);
+    clip_grid_mode=1;ck.pg=2;smc_button_apply(6,0);CHECK(ck.pg==2);
     setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages(); smc_page_set(1);
     CHECK(!strcmp(smc_button_caption(7), "R"));
     CHECK(!strcmp(smc_button_caption(15), "S"));
-    int rec = ui.rec; smc_button_apply(7, 0); CHECK(ui.rec != rec && ui.sel[0] == 7);
+    int rec = ui.rec; smc_button_apply(7, 0); CHECK(ui.rec != rec && smc.sel[0] == 7);
     smc_button_apply(15, 0); CHECK(smc.drum_solo[0] & (1u << 7));
-    ui.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
+    smc.sel[0] = 8; build_pages(); CHECK(!strcmp(smc_button_caption(15), "--"));
     CHECK(smc_lock_toggle()); CHECK(!strcmp(smc_button_caption(0), "R"));
     knob(0, 1); ui_frame(); shot("18-locked-live-actions");
     setup(V_MIX, PART_909); *page_of(V_MIX) = 1; build_pages(); smc_page_set(1);

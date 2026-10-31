@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * The SMK-37 "<" and ">" buttons: the route and the hold repeat. Pure functions, no hardware access.
+ * The SMK-37 "<" and ">" buttons: route/repeat policy, with an optional unity-build FX owner hook.
  * main_fm1.c (smk_arrows) and the host simulator use this file. tests/smk_arrows_test.c tests it. */
 #pragma once
 #include <stdint.h>
@@ -46,6 +46,14 @@ ARW_FN static int32_t arw_frame(arw_t *a, uint32_t now, uint32_t route, uint32_t
     uint32_t pr = now & ~(uint32_t)a->prev;
     int32_t d = (int32_t)(pr >> 1 & 1u) - (int32_t)(pr & 1u);
     a->prev = (uint8_t)now;
+#ifdef ARW_HELD_FX_STEP
+    /* Optional unity-build owner: a held FX button consumes fresh arrow edges
+     * before SELECT/menu routing. No repeat or queued detent may escape it. */
+    if (route != ARW_NONE && ARW_HELD_FX_STEP(d)) {
+        a->rep = 0;
+        return 0;
+    }
+#endif
     if (route != ARW_MENU || now != a->rep)
         a->rep = 0;
     if (route == ARW_NONE)
