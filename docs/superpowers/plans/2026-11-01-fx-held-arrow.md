@@ -13,8 +13,8 @@
 ## Global constraints
 
 - Same draft PR #800 and branch, based on af1a3a5e6ab9d4442977ed283072ded3a034ddee; author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
-- No builds, test execution, framebuffer driver execution or compilers in Codex. Write tests first; RED/GREEN, actual 240x240 before/after PNGs, SDK V1.2.1 Elite/Pro X0X_DEV_PADCAL=0 and static RAM are NOT_RUN here.
-- No main_fm1.c, FM-1 target, .github, Actions, protected storage, identity or ADSR changes. Owner approves real visuals before merge.
+- No builds, test execution, framebuffer driver execution or compilers in Codex. Write tests first; RED/GREEN, box UI verification, SDK V1.2.1 Elite/Pro X0X_DEV_PADCAL=0 and static RAM are NOT_RUN here.
+- No main_fm1.c, FM-1 target, .github, Actions, protected storage, identity or ADSR changes. Latest owner instruction (2026-11-01): no previews or visual-approval wait; the Orchestrator verifies on the box.
 - Existing source is reused: smcfx_cycle, strip press/release, arw_frame, smc_ui_draw_peer. No replacement router or renderer.
 
 ## Review focus
@@ -38,6 +38,6 @@
 - [ ] Proposal: reserve x182..199,y1..18 of the 240x20 SMC header for an 18x18 effect glyph. Use room waves, echo blocks, filter curves, gate rhythms, stutter chunks, shuffled beats, and an explicit unassigned mark; existing glyph style and renderer. Context text ends by x178; control glyph remains x209 and strip number at235. No new animation clock.
 - [x] Independent static design review before implementation: original bus/page, empty ownership, multi-key safety and header bounds reviewed; no unresolved blocker.
 - [x] Add real-framebuffer assertions and deterministic before/after capture scenes to the existing registered fixture.
-- [ ] Run captures on af1a3a5e and the candidate on the qualified box; attach actual PNGs to PR #800 before owner approval.
+- [x] Owner removed the preview/capture-attachment and visual-approval wait. The Orchestrator verifies on the box; the capture driver remains available for optional internal diagnostics.
 - [x] Compound Engineering review before commit; resolve retained defects, record static-only limits and exact source hashes.
-- [ ] Push the reviewed source/tests/docs to PR #800, verify remote author, parent, tree, head and draft status. Do not merge.
+- [x] Push the reviewed source/tests/docs to PR #800, verify remote author, parent, tree, head and draft status. Do not merge.

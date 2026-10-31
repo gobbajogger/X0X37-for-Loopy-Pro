@@ -1,6 +1,6 @@
 # F4 SMC/mixer remainder
 
-Source candidate only. Tests, native builds, static RAM measurements and new framebuffer captures are **NOT_RUN** because the target `AGENTS.md` forbids builds and tests in Codex. The owner's brief assigns those runs to the Orchestrator's box. Keep the PR draft; owner visual approval is required before merge.
+Source candidate only. Tests, native builds, static RAM measurements and new framebuffer captures are **NOT_RUN** because the target `AGENTS.md` forbids builds and tests in Codex. The owner's brief assigns those runs to the Orchestrator's box. The owner's 2026-11-01 instruction removes previews and any visual-approval wait for this change. Finish source delivery; the Orchestrator verifies the exact head on the box. Draft status reflects pending box qualification only.
 
 The later [row 41 held-FX arrow rule](FX_HELD_ARROW.md) supersedes HOME+button remapping and the main SELECT activation delay. It records the existing arrow conflicts, held-effect top-bar glyph, changed test expectations, additional capture pairs and the written reason for a 4 B per-peer original-page ownership mask. It also supersedes earlier claims of no mutable-state increase for this follow-up; actual Elite/Pro RAM remains NOT_RUN.
 
@@ -62,7 +62,7 @@ X0X_DEV_PADCAL=0 MODEL=pro ./build.sh --board smk37
 
 Use SDK V1.2.1 and capture separate Elite/Pro logs and link maps before the second build overwrites outputs. Baseline reference requested by the owner: 2352 B free. #789 historically reports 2432 B free for both models; #788 reports a different development configuration at 1920 B and must not be substituted. Candidate free static RAM: **Elite NOT_RUN; Pro NOT_RUN**. The later row 41 amendment adds a 4 B per-peer original-page ownership mask for safe held edits; see its written RAM reason in FX_HELD_ARROW.md. Any other measured decline requires an explanation and review before qualification.
 
-Capture base and candidate using `smc_remainder_capture.c`, a separate driver that draws the same production scenes without changing test assertions. The base checkout needs copies of the three new remainder fixture files from the candidate. Set an absolute evidence directory; from each checkout run:
+Optional box diagnostics only: capture base and candidate using `smc_remainder_capture.c`, a separate driver that draws the same production scenes without changing test assertions. The base checkout needs copies of the three new remainder fixture files from the candidate. Set an absolute evidence directory; from each checkout run:
 
 ```sh
 SMC_UI_TEST_FILE=tests/host/smc_remainder_capture.c \
@@ -81,10 +81,10 @@ Expected real 240x240 PNG paths under `docs/engineering-delivery/f4-smc-mixer-re
 - `clip-strip8.png`, `clip-knob-bank.png`
 - `select8-mix.png`
 
-These are **expected paths, not existing captures**. Attach all actual before/after files to this PR after the authorized box run. The approved #688 visual proposal and historical #788/#789 captures are provenance only, not candidate evidence.
+These are **optional diagnostic paths, not existing captures**. The owner requests no previews for this change; generating or attaching images is not a source-delivery or approval gate. The approved #688 visual proposal and historical #788/#789 captures are provenance only, not candidate evidence.
 
 ## Review and stopping condition
 
-Independent pre-implementation design review completed without running tests. It caught redundant Up/Down code and the locked-context SELECT8 hazard; both are addressed in this scoped port. Compound Engineering review `ce-20261101-f4` completed with four source reviewers and an independent static validator batch. Its two P2 findings received one coupled source/test fix batch: clip-stage navigation is excluded from drum action cards, and both headers have real transport-transition pixel assertions. See [review receipt](review/ce-20261101-f4/review.json), [reviewed source hashes](review/ce-20261101-f4/source-manifest.json) and [follow-up](CODE_REVIEW.md). Execution of the fixes remains NOT_RUN. Source review, build/test PASS, framebuffer validation, owner visual approval and merge readiness remain separate.
+Independent pre-implementation design review completed without running tests. It caught redundant Up/Down code and the locked-context SELECT8 hazard; both are addressed in this scoped port. Compound Engineering review `ce-20261101-f4` completed with four source reviewers and an independent static validator batch. Its two P2 findings received one coupled source/test fix batch: clip-stage navigation is excluded from drum action cards, and both headers have real transport-transition pixel assertions. See [review receipt](review/ce-20261101-f4/review.json), [reviewed source hashes](review/ce-20261101-f4/source-manifest.json) and [follow-up](CODE_REVIEW.md). Execution of the fixes remains NOT_RUN. Source review, box verification and merge readiness remain separate. Historical review receipts retain the earlier approval constraint as recorded; the latest owner instruction supersedes that constraint.
 
-No merge, auto-merge, target install, device write or firmware binary publication is authorized here. The Orchestrator owns full-source execution and evidence collection; the owner approves the actual visuals before any merge.
+No merge, auto-merge, target install, device write or firmware binary publication is authorized here. The Orchestrator owns full-source execution and box verification. No preview or owner visual-approval wait applies to this change.
