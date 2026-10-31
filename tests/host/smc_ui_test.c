@@ -86,7 +86,7 @@ static void unchanged(screen_state_t before)
 {
     /* Approved #737: a fader/knob move may peek its real page until the
      * peek expires; the restore is checked after expire(). */
-    if (smc_peek->on) return;
+    if (SMC_PEEK_ON) return;
     screen_state_t after = screen_state();
     if (memcmp(&before, &after, sizeof before)) {
         const uint8_t *a = (const uint8_t *)&before, *b = (const uint8_t *)&after;
@@ -496,7 +496,7 @@ static void test_physical_geometry(void)
      * SMC banner and pickup/ACTIVE line. The physical strip overlay below
      * is the non-peek SMC screen, so drop the peek to check its geometry. */
     setup(V_HOME, PART_909); fader(0, 0);
-    CHECK(smc_peek->on && ui.view == V_MIX);
+    CHECK(SMC_PEEK_ON && ui.view == V_MIX);
     smc_peek_cancel(); ui_frame();
     for (int n = 0; n < 8; n++) {
         int x = n * 30;
@@ -527,7 +527,7 @@ static void check_selected(int selected)
 static void test_selected_lane(void)
 {
     /* Approved #737: a HOME knob move peeks the real MIX page, not the lane screen. */
-    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); CHECK(smc_peek->on && ui.view == V_MIX);
+    setup(V_HOME, PART_303A); knob(7, 1); ui_frame(); CHECK(SMC_PEEK_ON && ui.view == V_MIX);
     CHECK(smc_ui.kind == 1 && smc_ui.strip == 7);
     shot("14-selected-part-touched-filter");
     setup(V_MIX, PART_303A); ui.mixsel = PART_BRK; knob(0, 1); ui_frame(); check_selected(2);

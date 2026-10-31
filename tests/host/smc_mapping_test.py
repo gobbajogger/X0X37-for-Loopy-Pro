@@ -45,6 +45,7 @@ static uint32_t song_structure_revision;
 static uint8_t smc_slot;
 static struct { uint8_t on; pref_t fader[2][8], knob[2][8]; } smc_peek_stub;
 #define smc_peek (&smc_peek_stub)
+#define SMC_PEEK_ON (smc_peek_stub.on)
 static struct song_fixture { unsigned len; } song_data;
 static const struct song_fixture *song(void) { return &song_data; }
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }

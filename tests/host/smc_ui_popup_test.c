@@ -93,7 +93,7 @@ static void setup(void)
 }
 static void assert_peek(uint8_t view, int page, uint8_t mixsel)
 {
-    assert(smc_peek->on);
+    assert(SMC_PEEK_ON);
     assert(ui.view == view);
     assert(cur_page() == page);
     if (view == V_MIX && page == 0)
@@ -127,14 +127,14 @@ int main(void)
         uint32_t until = smc_peek->until;
         now_ms += 400;
         fader(0, 10);                 /* same peek refreshes hold */
-        assert(smc_peek->on && smc_peek->until > until);
+        assert(SMC_PEEK_ON && smc_peek->until > until);
         assert_peek(V_MIX, 0, 0);
     }
     fader(2, 0);                      /* switch strip keeps original restore point */
     assert_peek(V_MIX, 0, 2);
     assert(smc_peek->saved_view == V_SEQ);
     advance(SMC_PEEK_MS + 50);
-    assert(!smc_peek->on);
+    assert(!SMC_PEEK_ON);
     assert(ui.view == V_SEQ && ui.mixsel == saved_mix && ui.prev_view == saved_prev);
 
     /* Strip 6 → FX REVERB; strip 7 → FX DELAY; strip 8 → MIX MASTER. */
@@ -157,13 +157,13 @@ int main(void)
     assert_peek(V_MIX, master_page, ui.mixsel);
     assert(!strcmp(pg.title[cur_page()], "MASTER"));
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_SONG && !smc_peek->on);
+    assert(ui.view == V_SONG && !SMC_PEEK_ON);
 
     /* Live engine peaks must affect MIX PARTS pixels even when SMC feedback
      * remains active. The old full-screen overlay hid these real-page meters. */
     setup();
     fader(0, 0);
-    assert(smc_peek->on && smc_ui_active());
+    assert(SMC_PEEK_ON && smc_ui_active());
     eng_peak[0] = 0;
     ui_frame();
     uint16_t empty_meter[BAND_H * 240];
@@ -189,7 +189,7 @@ int main(void)
     assert_peek(V_MIX, 0, 0);
     assert(smc_same(smc_knob_target(0), cut));
     advance(SMC_PEEK_MS + 50);
-    assert(!smc_peek->on && ui.view == V_HOME);
+    assert(!SMC_PEEK_ON && ui.view == V_HOME);
     setup();
     set_view(V_HOME);
     build_pages();
@@ -203,7 +203,7 @@ int main(void)
     assert(smc_peek->until > first_until);
     assert(smc_same(smc_knob_target(5), rv));
     advance(SMC_PEEK_MS + 50);
-    assert(!smc_peek->on && ui.view == V_HOME);
+    assert(!SMC_PEEK_ON && ui.view == V_HOME);
 
     /* Page +/- on a locked SMC opens the captured real page for 1200ms,
      * preserving the first keyboard restore point and all locked refs. */
@@ -233,7 +233,7 @@ int main(void)
     assert(smc_peek->until > first_page_until);
     advance(SMC_PEEK_MS + 50);
     assert(smc.locked && smc.lock_page == 2);
-    assert(!smc_peek->on && ui.view == V_SONG);
+    assert(!SMC_PEEK_ON && ui.view == V_SONG);
     assert(ui.part == original_part && ui.mixsel == original_mix && ui.prev_view == original_prev);
     assert(smc_same(smc_target(0), page_fader[2]));
     smc_lock_toggle();
@@ -242,27 +242,27 @@ int main(void)
     setup();
     ui.help = 1;
     fader(0, 127);
-    assert(!smc_peek->on && ui.view == V_SEQ);
+    assert(!SMC_PEEK_ON && ui.view == V_SEQ);
     ui.help = 0;
 
     setup();
     ask(ACT_SONG_CLR, 0, "TEST", 0);
     assert(ui.overlay == O_ASK);
     fader(0, 127);
-    assert(!smc_peek->on && ui.overlay == O_ASK && ui.view == V_SEQ);
+    assert(!SMC_PEEK_ON && ui.overlay == O_ASK && ui.view == V_SEQ);
     press(6);                         /* cancel */
 
     setup();
     press(5);                         /* deep menu on SEQ */
     assert(ui.overlay == O_LIST);
     fader(0, 0);
-    assert(!smc_peek->on && ui.overlay == O_LIST && ui.view == V_SEQ);
+    assert(!SMC_PEEK_ON && ui.overlay == O_LIST && ui.view == V_SEQ);
     press(6);
 
     setup();
     clip_grid_mode = 1;
     fader(0, 0);
-    assert(!smc_peek->on && ui.view == V_SEQ);
+    assert(!SMC_PEEK_ON && ui.view == V_SEQ);
     assert(smc_ui_active());       /* the control overlay shows */
     clip_grid_mode = 0;
 
@@ -273,7 +273,7 @@ int main(void)
         perf.phase = 0;
         assert(perf_testing());
         fader(0, 127);
-        assert(!smc_peek->on && ui.view == V_SEQ);
+        assert(!SMC_PEEK_ON && ui.view == V_SEQ);
         perf.test = saved_test;
         perf.phase = saved_phase;
     }
@@ -285,7 +285,7 @@ int main(void)
     build_pages();
     *page_of(V_MIX) = 0;
     fader(1, 0);
-    assert(!smc_peek->on);
+    assert(!SMC_PEEK_ON);
     assert(ui.view == V_MIX && cur_page() == 0 && ui.mixsel == 1);
 
     /* Navigation while peeking abandons restore. */
@@ -293,7 +293,7 @@ int main(void)
     fader(0, 0);
     assert_peek(V_MIX, 0, 0);
     press(0x61);                      /* Down: leave MIX via smc_view */
-    assert(!smc_peek->on);
+    assert(!SMC_PEEK_ON);
     assert(ui.view != V_SEQ);         /* navigated forward, not restored to SEQ */
 
     /* The control overlay stays beside the peek and in menus. */
@@ -305,34 +305,34 @@ int main(void)
     press(5);
     assert(ui.overlay == O_LIST);
     fader(0, 0);
-    assert(!smc_peek->on && smc_ui_active());
+    assert(!SMC_PEEK_ON && smc_ui_active());
     press(6);
     setup();
     clip_grid_mode = 1;
     fader(0, 0);
-    assert(!smc_peek->on && smc_ui_active());
+    assert(!SMC_PEEK_ON && smc_ui_active());
     clip_grid_mode = 0;
 
     /* Overlay expiry alone does not drop the restore. */
     setup();
     fader(0, 0);
     smc_ui_off();
-    assert(smc_peek->on);
+    assert(SMC_PEEK_ON);
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_SEQ && !smc_peek->on);
+    assert(ui.view == V_SEQ && !SMC_PEEK_ON);
 
     /* Navigation edge (smc_ui_cancel) drops the restore. */
     setup();
     fader(0, 0);
     smc_ui_cancel();
-    assert(!smc_peek->on && ui.view == V_MIX);
+    assert(!SMC_PEEK_ON && ui.view == V_MIX);
 
     /* Two peers: the first peer owns the peek. */
     setup();
     smc_ble_link_slot(1, 1);
     smc_poll();
     fader(0, 0);
-    assert(smc_peek->on && smc_peek->peer == 0);
+    assert(SMC_PEEK_ON && smc_peek->peer == 0);
     {
         uint8_t m[3] = {0xE5, 0, 0};
         now_ms += 100;
@@ -341,14 +341,14 @@ int main(void)
     }
     assert_peek(V_MIX, 0, 0);
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_SEQ && !smc_peek->on);
+    assert(ui.view == V_SEQ && !SMC_PEEK_ON);
 
     /* SMC lost cancels without restore. */
     setup();
     fader(0, 0);
     smc_ble_link(0);
     smc_poll();
-    assert(!smc_peek->on && ui.view == V_MIX);
+    assert(!SMC_PEEK_ON && ui.view == V_MIX);
 
     /* A peek is presentation only: returning to SEQ must not erase the
      * independently remembered FX DELAY page. */
@@ -357,7 +357,7 @@ int main(void)
     fader(5, 0);                      /* strip 6 previews FX REVERB */
     assert_peek(V_FX, 0, ui.mixsel);
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_SEQ && !smc_peek->on);
+    assert(ui.view == V_SEQ && !SMC_PEEK_ON);
     assert(*page_of(V_FX) == 1);
 
     /* HOME->MIX PARTS must retain the user's MIX MASTER page. */
@@ -368,7 +368,7 @@ int main(void)
     fader(0, 0);
     assert_peek(V_MIX, 0, 0);
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_HOME && !smc_peek->on);
+    assert(ui.view == V_HOME && !SMC_PEEK_ON);
     assert(*page_of(V_MIX) == SMC_PEEK_MASTER);
 
     /* Repeated mixed-page peeks preserve the original cursor of EACH
@@ -385,7 +385,7 @@ int main(void)
     fader(7, 0);
     assert_peek(V_MIX, SMC_PEEK_MASTER, ui.mixsel);
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_SEQ && !smc_peek->on);
+    assert(ui.view == V_SEQ && !SMC_PEEK_ON);
     assert(*page_of(V_FX) == 1 && *page_of(V_MIX) == SMC_PEEK_MASTER);
 
     /* Locked SMC PAGE peek must not replace a keyboard MIX page. */
@@ -397,7 +397,7 @@ int main(void)
     set_view(V_SONG);
     build_pages();
     press(0x63);
-    assert(smc_peek->on && ui.view == V_MIX);
+    assert(SMC_PEEK_ON && ui.view == V_MIX);
     advance(SMC_PEEK_MS + 50);
     assert(ui.view == V_SONG && smc.locked);
     assert(*page_of(V_MIX) == SMC_PEEK_MASTER);
@@ -417,7 +417,7 @@ int main(void)
     build_pages();
     uint8_t keyboard_part = ui.part;
     press(0x63);
-    assert(smc_peek->on && ui.view == V_SEQ &&
+    assert(SMC_PEEK_ON && ui.view == V_SEQ &&
            ui.part == locked_part_for_page && cur_page() == 1);
     advance(SMC_PEEK_MS + 50);
     assert(ui.view == V_SONG && ui.part == keyboard_part);

@@ -4,7 +4,7 @@
 Input-path harnesses copy smc_mixer.c from '#define SMC_Q' onwards. Since #737
 that range holds the page peek, which needs the full ui struct (ui.page,
 V_PART/V_SEQ/V_GEN). These harnesses test input, not the peek, so the block
-becomes an inactive peek: smc_peek->on stays 0 and the peek calls do nothing.
+becomes an inactive peek: SMC_PEEK_ON stays 0 and the peek calls do nothing.
 The peek itself is tested by smc_ui_popup_test.c.
 
 As a filter: python3 tests/host/smc_peek_stub.py < in.inc > out.inc
