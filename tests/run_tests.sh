@@ -363,6 +363,7 @@ run engine-cq-boff-overflow python3 tests/host/engine_cq_boff_overflow_test.py  
 run engine-cq-brk-overflow python3 tests/host/engine_cq_brk_overflow_test.py   # full CQ must keep C_BRK press+release (displace param)
 run engine-cq-bon-overflow python3 tests/host/engine_cq_bon_overflow_test.py   # full CQ must keep C_BON (displace param)
 run engine-cq-drum-overflow python3 tests/host/engine_cq_drum_overflow_test.py   # full CQ must keep C_DRUM (displace param)
+run engine-808-scratch-alias sh tests/host/engine_808_scratch_alias_test.sh   # 808 scratch in the out window: bit-identical to separate t0/tr
 run midi-mq-noteoff-overflow python3 tests/host/midi_mq_noteoff_overflow_test.py   # full MIDI-in MQ must keep Note Off (displace CC)
 run midi-mq-rt-overflow python3 tests/host/midi_mq_rt_overflow_test.py   # full MIDI-in MQ must keep Start/Continue/Stop (displace CC)
 run midi-overflow-order python3 tests/host/midi_overflow_order_test.py   # FIFO under full MIDI/BLE queues, rollover and TIMER5 boundaries
