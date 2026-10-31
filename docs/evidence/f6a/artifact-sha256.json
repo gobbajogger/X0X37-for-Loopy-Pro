@@ -32,8 +32,8 @@
     "sha256": "6834a713d8746e68fd1fbb113b6a1e25c3f609d517c8fb2406b57c2711f691c0"
   },
   "README.md": {
-    "bytes": 9801,
-    "sha256": "2ce46cb3c8a0f7867fee6948ce3fc5358bac598017cacb3cebe3b2a4fd139780"
+    "bytes": 10390,
+    "sha256": "7beb80dc4c0e44d416c40ab73c25e781f50d22d634cf435e071c001afa976136"
   },
   "after-samples-1440.png": {
     "bytes": 126689,
@@ -83,6 +83,10 @@
     "bytes": 1586,
     "sha256": "e492e1a691aa0ac1818058f67ff72a9f2477ce05c241558c0cbae337c8f55829"
   },
+  "full-host.log": {
+    "bytes": 63469,
+    "sha256": "9ad804e57ba20ac6d051c697a9ff5810f93e4f5cebea7370371046e4b94fede7"
+  },
   "revision13-red.log": {
     "bytes": 7587,
     "sha256": "770fc456ca89ad5ea2e0477916dcc7078c3f2d7f16f0e1b5acd30d685bb567ea"
@@ -98,6 +102,10 @@
   "after-projects-390.png": {
     "bytes": 153040,
     "sha256": "b0a43075ce2650a8b890c43e3dceaa56a797fef60eae46d39e347d0611a2a140"
+  },
+  "full-host-summary.json": {
+    "bytes": 42784,
+    "sha256": "b74a14da831bd0d6d67fbad05c728838e66b213f47b4668eba51e12a09cebbf7"
   },
   "focused-final.log": {
     "bytes": 7988,

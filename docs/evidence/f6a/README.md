@@ -1,6 +1,6 @@
 # F6a site and data evidence — 1 November 2026
 
-The F6a source repairs are implemented and independently reviewed. Full feature acceptance remains blocked by the cross-application atomicity limitation, the absent historical owner archive/device readback, and the failing full host gate. No merge, deployment, install or device write is part of this delivery.
+The F6a source repairs are implemented and independently reviewed. Full feature acceptance remains blocked by the cross-application atomicity limitation, the absent historical owner archive/device readback, and the failing full host gate (23 FAIL / 3 NOT_RUN). No merge, deployment, install or device write is part of this delivery.
 
 ## Source and reuse
 
@@ -15,6 +15,8 @@ The font is an exact component port from `5b7e7b7ab76df1b7a2ca7ea27b94690dd91574
 - Samples-page writes retain all 512 original header bytes, including the reserved area. The shared write helper keeps its 480-byte default for the existing installer flow.
 - Every project import boundary admits revision 13 only, including direct staging, prepared-file revalidation, recovery and rollback. Earlier files remain readable for inspection and exact backup. Even explicit legacy engine choices cannot send adoption opcode 75.
 - Generated pages actually load the existing licensed Golos typeface. A positive shell-generation regression now runs as host selector `site-generation-web`.
+
+The installer still uses the preserved 480-byte default. This PR does not certify its restore of non-erased reserved header bytes; that path remains with B1. The 512-byte proof here applies to the Samples page, not to a changed installer sequence.
 
 ## Requirement disposition
 
@@ -43,7 +45,7 @@ The font is an exact component port from `5b7e7b7ab76df1b7a2ca7ea27b94690dd91574
 - Font/render validation: **14 PASS**, covering seven routes in light/dark at 320 pixels, actual font load, shared headings and no horizontal overflow — [receipt](font-browser-validation.json).
 - Syntax and whitespace: JavaScript parsing, `sh -n tests/run_tests.sh`, and `git diff --check` pass.
 - Independent Compound Engineering core review completed with no production defects. Its regression-coverage finding and additional backup-guard test gap were fixed and independently rechecked. [Core review](../../reviews/2026-10-31-f6a-core-review.md), [follow-up](../../reviews/20261031-f6a-followup.md). Font proposal independently passed before implementation: [design review](font-proposal-review.md).
-- Full host suite: **RUNNING / FAILURES ALREADY OBSERVED**. The final count and full selector list will be recorded in `full-host-summary.json` after collection. The runner began before the new additive site selector; that selector was independently run through the updated host registry.
+- Full host suite: **318 PASS, 23 FAIL, 3 NOT_RUN**, exit 1. [Every selector and failed name](full-host-summary.json), [complete sanitized output](full-host.log). The missing checks are drum909/drum808 reference comparisons and smk-package (the full runner started without AC79_SDK configured); the passing sequencer also omitted its absent TB-3PO reference comparison. The native builds used verified SDK inputs separately. The runner began before the additive site selector; that selector passed independently through the updated host registry. This does not meet the required zero-failure/zero-skip bar.
 - Broader existing web regressions exposed an installer-local-file test failure. It reproduces on both untouched base files with `ReferenceError: t is not defined`; [base reproduction](b1-base-reproduction.log). The actual generated-page chooser/error browser checks pass. B1 files and checks were not weakened or changed.
 
 Test changes intentionally replace positive legacy-import/adoption expectations with rejection, as required by the current revision policy. All historical inspection/export, corrupt-container, stale-session, rollback and acknowledgement checks remain. The Samples peer now accepts either 480 or 512 header bytes to match the verified current firmware contract; the new full-byte assertion detects header truncation.

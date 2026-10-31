@@ -1,0 +1,1773 @@
+{
+  "command": "X0X_TEST_JOBS=6 X0X_GATE_LOCK=<repo>/build/gate.lock sh tests/run_tests.sh",
+  "exit": 1,
+  "base": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "code_source_commit": "47a0fbf92b350333e44003be1f59a9af90ac4e1c",
+  "source_note": "Working F6a source bytes matched this reviewed commit. Initial runner definition predated the additive site-generation-web selector, which passed separately through the updated registry. No full-suite zero-failure qualification is claimed.",
+  "counts": {
+    "PASS": 318,
+    "FAIL": 23,
+    "NOT_RUN": 3
+  },
+  "total": 344,
+  "failed_selectors": [
+    "original-release-ui",
+    "original-build",
+    "ui-theme",
+    "editor-ota-dispatch",
+    "smc-select-mode",
+    "smc-action-source",
+    "smc-fx-preset-preserve",
+    "smc-queue",
+    "smc-solo-overflow",
+    "engine-808-scratch-alias",
+    "smc-link",
+    "smc-reconnect-epoch",
+    "smc-boot-saved-roles",
+    "smc-lock",
+    "smc-multi-peer",
+    "ui-peer-names",
+    "smc-ui",
+    "smc-clip-visibility",
+    "builtin-break-output",
+    "sound-matrix",
+    "chicago-presentation",
+    "ui-glyph-polish",
+    "scenario-plock"
+  ],
+  "not_run_selectors": [
+    "drum909",
+    "drum808",
+    "smk-package"
+  ],
+  "skip_notes": [
+    "not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)",
+    "not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)",
+    "skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)"
+  ],
+  "sequencer_subtest_notes": [
+    "(no schwung-tb3po checkout at ../schwung-tb3po/src/dsp/tb3po.c: the TB-3PO comparison is skipped)"
+  ],
+  "cases": [
+    {
+      "selector": "dsp-host-linkage",
+      "status": "PASS",
+      "receipt": "ok   dsp-host-linkage"
+    },
+    {
+      "selector": "fastmath",
+      "status": "PASS",
+      "receipt": "ok   fastmath"
+    },
+    {
+      "selector": "fastmath-ubsan",
+      "status": "PASS",
+      "receipt": "ok   fastmath-ubsan"
+    },
+    {
+      "selector": "home-tie-semantics",
+      "status": "PASS",
+      "receipt": "ok   home-tie-semantics"
+    },
+    {
+      "selector": "sequencer",
+      "status": "PASS",
+      "receipt": "ok   sequencer"
+    },
+    {
+      "selector": "bass-prob-midi",
+      "status": "PASS",
+      "receipt": "ok   bass-prob-midi"
+    },
+    {
+      "selector": "seq-tb3po-bars",
+      "status": "PASS",
+      "receipt": "ok   seq-tb3po-bars"
+    },
+    {
+      "selector": "seq-random-swing",
+      "status": "PASS",
+      "receipt": "ok   seq-random-swing"
+    },
+    {
+      "selector": "seq-random-clock-handoff",
+      "status": "PASS",
+      "receipt": "ok   seq-random-clock-handoff"
+    },
+    {
+      "selector": "seq-long-notes",
+      "status": "PASS",
+      "receipt": "ok   seq-long-notes"
+    },
+    {
+      "selector": "seq-pingpong-resize",
+      "status": "PASS",
+      "receipt": "ok   seq-pingpong-resize"
+    },
+    {
+      "selector": "clk-lock",
+      "status": "PASS",
+      "receipt": "ok   clk-lock"
+    },
+    {
+      "selector": "seq-random-tie-preview",
+      "status": "PASS",
+      "receipt": "ok   seq-random-tie-preview"
+    },
+    {
+      "selector": "encoder",
+      "status": "PASS",
+      "receipt": "ok   encoder"
+    },
+    {
+      "selector": "bass-midi-pending-native",
+      "status": "PASS",
+      "receipt": "ok   bass-midi-pending-native"
+    },
+    {
+      "selector": "usb-product-names",
+      "status": "PASS",
+      "receipt": "ok   usb-product-names"
+    },
+    {
+      "selector": "uac",
+      "status": "PASS",
+      "receipt": "ok   uac"
+    },
+    {
+      "selector": "uac-out",
+      "status": "PASS",
+      "receipt": "ok   uac-out"
+    },
+    {
+      "selector": "usb-audio-descriptors",
+      "status": "PASS",
+      "receipt": "ok   usb-audio-descriptors"
+    },
+    {
+      "selector": "trs",
+      "status": "PASS",
+      "receipt": "ok   trs"
+    },
+    {
+      "selector": "undo",
+      "status": "PASS",
+      "receipt": "ok   undo"
+    },
+    {
+      "selector": "undo-capacity",
+      "status": "PASS",
+      "receipt": "ok   undo-capacity"
+    },
+    {
+      "selector": "lz",
+      "status": "PASS",
+      "receipt": "ok   lz"
+    },
+    {
+      "selector": "motion",
+      "status": "PASS",
+      "receipt": "ok   motion"
+    },
+    {
+      "selector": "host-build",
+      "status": "PASS",
+      "receipt": "ok   host-build"
+    },
+    {
+      "selector": "original-release-integration",
+      "status": "PASS",
+      "receipt": "ok   original-release-integration"
+    },
+    {
+      "selector": "original-release-ui",
+      "status": "FAIL",
+      "receipt": "FAIL original-release-ui (see build/host/original-release-ui.log)"
+    },
+    {
+      "selector": "original-build",
+      "status": "FAIL",
+      "receipt": "FAIL original-build (see build/host/original-build.log)"
+    },
+    {
+      "selector": "freeplay-rate-pads",
+      "status": "PASS",
+      "receipt": "ok   freeplay-rate-pads"
+    },
+    {
+      "selector": "freeplay-live-keys",
+      "status": "PASS",
+      "receipt": "ok   freeplay-live-keys"
+    },
+    {
+      "selector": "freeplay-latency",
+      "status": "PASS",
+      "receipt": "ok   freeplay-latency"
+    },
+    {
+      "selector": "pads-in-settings",
+      "status": "PASS",
+      "receipt": "ok   pads-in-settings"
+    },
+    {
+      "selector": "boot-screen",
+      "status": "PASS",
+      "receipt": "ok   boot-screen"
+    },
+    {
+      "selector": "ui-theme",
+      "status": "FAIL",
+      "receipt": "FAIL ui-theme (see build/host/ui-theme.log)"
+    },
+    {
+      "selector": "project-protocol",
+      "status": "PASS",
+      "receipt": "ok   project-protocol"
+    },
+    {
+      "selector": "project-save-preflight",
+      "status": "PASS",
+      "receipt": "ok   project-save-preflight"
+    },
+    {
+      "selector": "editor-ota-dispatch",
+      "status": "FAIL",
+      "receipt": "FAIL editor-ota-dispatch (see build/host/editor-ota-dispatch.log)"
+    },
+    {
+      "selector": "storage-scratch",
+      "status": "PASS",
+      "receipt": "ok   storage-scratch"
+    },
+    {
+      "selector": "project-stage",
+      "status": "PASS",
+      "receipt": "ok   project-stage"
+    },
+    {
+      "selector": "project-runtime",
+      "status": "PASS",
+      "receipt": "ok   project-runtime"
+    },
+    {
+      "selector": "save-note-quiet",
+      "status": "PASS",
+      "receipt": "ok   save-note-quiet"
+    },
+    {
+      "selector": "font-pack",
+      "status": "PASS",
+      "receipt": "ok   font-pack"
+    },
+    {
+      "selector": "smc-protocol",
+      "status": "PASS",
+      "receipt": "ok   smc-protocol"
+    },
+    {
+      "selector": "smc-fader",
+      "status": "PASS",
+      "receipt": "ok   smc-fader"
+    },
+    {
+      "selector": "smc-buttons",
+      "status": "PASS",
+      "receipt": "ok   smc-buttons"
+    },
+    {
+      "selector": "smc-select-mode",
+      "status": "FAIL",
+      "receipt": "FAIL smc-select-mode (see build/host/smc-select-mode.log)"
+    },
+    {
+      "selector": "smc-fx",
+      "status": "PASS",
+      "receipt": "ok   smc-fx"
+    },
+    {
+      "selector": "smc-mixer-edges",
+      "status": "PASS",
+      "receipt": "ok   smc-mixer-edges"
+    },
+    {
+      "selector": "smc-action-source",
+      "status": "FAIL",
+      "receipt": "FAIL smc-action-source (see build/host/smc-action-source.log)"
+    },
+    {
+      "selector": "smc-fx-caption",
+      "status": "PASS",
+      "receipt": "ok   smc-fx-caption"
+    },
+    {
+      "selector": "smc-fx-page-port",
+      "status": "PASS",
+      "receipt": "ok   smc-fx-page-port"
+    },
+    {
+      "selector": "smc-fx-two-page-strip",
+      "status": "PASS",
+      "receipt": "ok   smc-fx-two-page-strip"
+    },
+    {
+      "selector": "smc-fx-peer-view",
+      "status": "PASS",
+      "receipt": "ok   smc-fx-peer-view"
+    },
+    {
+      "selector": "smc-fx-preset-preserve",
+      "status": "FAIL",
+      "receipt": "FAIL smc-fx-preset-preserve (see build/host/smc-fx-preset-preserve.log)"
+    },
+    {
+      "selector": "smc-queue",
+      "status": "FAIL",
+      "receipt": "FAIL smc-queue (see build/host/smc-queue.log)"
+    },
+    {
+      "selector": "smc-solo-overflow",
+      "status": "FAIL",
+      "receipt": "FAIL smc-solo-overflow (see build/host/smc-solo-overflow.log)"
+    },
+    {
+      "selector": "engine-cq-rec-overflow",
+      "status": "PASS",
+      "receipt": "ok   engine-cq-rec-overflow"
+    },
+    {
+      "selector": "engine-cq-isr-preemption",
+      "status": "PASS",
+      "receipt": "ok   engine-cq-isr-preemption"
+    },
+    {
+      "selector": "engine-cq-boff-overflow",
+      "status": "PASS",
+      "receipt": "ok   engine-cq-boff-overflow"
+    },
+    {
+      "selector": "engine-cq-brk-overflow",
+      "status": "PASS",
+      "receipt": "ok   engine-cq-brk-overflow"
+    },
+    {
+      "selector": "engine-cq-bon-overflow",
+      "status": "PASS",
+      "receipt": "ok   engine-cq-bon-overflow"
+    },
+    {
+      "selector": "engine-cq-drum-overflow",
+      "status": "PASS",
+      "receipt": "ok   engine-cq-drum-overflow"
+    },
+    {
+      "selector": "engine-808-scratch-alias",
+      "status": "FAIL",
+      "receipt": "FAIL engine-808-scratch-alias (see build/host/engine-808-scratch-alias.log)"
+    },
+    {
+      "selector": "midi-mq-noteoff-overflow",
+      "status": "PASS",
+      "receipt": "ok   midi-mq-noteoff-overflow"
+    },
+    {
+      "selector": "midi-mq-rt-overflow",
+      "status": "PASS",
+      "receipt": "ok   midi-mq-rt-overflow"
+    },
+    {
+      "selector": "midi-overflow-order",
+      "status": "PASS",
+      "receipt": "ok   midi-overflow-order"
+    },
+    {
+      "selector": "midi-out-mq-noteoff-overflow",
+      "status": "PASS",
+      "receipt": "ok   midi-out-mq-noteoff-overflow"
+    },
+    {
+      "selector": "ble-out-noteoff-overflow",
+      "status": "PASS",
+      "receipt": "ok   ble-out-noteoff-overflow"
+    },
+    {
+      "selector": "ble-out-rt-overflow",
+      "status": "PASS",
+      "receipt": "ok   ble-out-rt-overflow"
+    },
+    {
+      "selector": "usb-sxq-sticky-apc",
+      "status": "PASS",
+      "receipt": "ok   usb-sxq-sticky-apc"
+    },
+    {
+      "selector": "smc-host-data7",
+      "status": "PASS",
+      "receipt": "ok   smc-host-data7"
+    },
+    {
+      "selector": "smc-host-overflow-data7",
+      "status": "PASS",
+      "receipt": "ok   smc-host-overflow-data7"
+    },
+    {
+      "selector": "smc-sender-isolation",
+      "status": "PASS",
+      "receipt": "ok   smc-sender-isolation"
+    },
+    {
+      "selector": "ble-ctl-fail-return",
+      "status": "PASS",
+      "receipt": "ok   ble-ctl-fail-return"
+    },
+    {
+      "selector": "smc-ble-payload",
+      "status": "PASS",
+      "receipt": "ok   smc-ble-payload"
+    },
+    {
+      "selector": "smc-link",
+      "status": "FAIL",
+      "receipt": "FAIL smc-link (see build/host/smc-link.log)"
+    },
+    {
+      "selector": "smc-reconnect-epoch",
+      "status": "FAIL",
+      "receipt": "FAIL smc-reconnect-epoch (see build/host/smc-reconnect-epoch.log)"
+    },
+    {
+      "selector": "smc-boot-saved-roles",
+      "status": "FAIL",
+      "receipt": "FAIL smc-boot-saved-roles (see build/host/smc-boot-saved-roles.log)"
+    },
+    {
+      "selector": "ble-central-first-notification",
+      "status": "PASS",
+      "receipt": "ok   ble-central-first-notification"
+    },
+    {
+      "selector": "ble-active-peer-contract",
+      "status": "PASS",
+      "receipt": "ok   ble-active-peer-contract"
+    },
+    {
+      "selector": "ble-smc-outbound-slots",
+      "status": "PASS",
+      "receipt": "ok   ble-smc-outbound-slots"
+    },
+    {
+      "selector": "ble-one-peer-command",
+      "status": "PASS",
+      "receipt": "ok   ble-one-peer-command"
+    },
+    {
+      "selector": "ble-single-peer-status",
+      "status": "PASS",
+      "receipt": "ok   ble-single-peer-status"
+    },
+    {
+      "selector": "ble-dual-peer",
+      "status": "PASS",
+      "receipt": "ok   ble-dual-peer"
+    },
+    {
+      "selector": "ble-command-credit",
+      "status": "PASS",
+      "receipt": "ok   ble-command-credit"
+    },
+    {
+      "selector": "ble-controller-heap",
+      "status": "PASS",
+      "receipt": "ok   ble-controller-heap"
+    },
+    {
+      "selector": "ble-midi-receive",
+      "status": "PASS",
+      "receipt": "ok   ble-midi-receive"
+    },
+    {
+      "selector": "ble-capture-replay",
+      "status": "PASS",
+      "receipt": "ok   ble-capture-replay"
+    },
+    {
+      "selector": "ble-acl-start-flags",
+      "status": "PASS",
+      "receipt": "ok   ble-acl-start-flags"
+    },
+    {
+      "selector": "ble-hci-completed",
+      "status": "PASS",
+      "receipt": "ok   ble-hci-completed"
+    },
+    {
+      "selector": "ble-acl-zero-credit",
+      "status": "PASS",
+      "receipt": "ok   ble-acl-zero-credit"
+    },
+    {
+      "selector": "ble-zero-conn",
+      "status": "PASS",
+      "receipt": "ok   ble-zero-conn"
+    },
+    {
+      "selector": "ble-link-epoch-reset",
+      "status": "PASS",
+      "receipt": "ok   ble-link-epoch-reset"
+    },
+    {
+      "selector": "ble-disconnect-status",
+      "status": "PASS",
+      "receipt": "ok   ble-disconnect-status"
+    },
+    {
+      "selector": "smc-reachability",
+      "status": "PASS",
+      "receipt": "ok   smc-reachability"
+    },
+    {
+      "selector": "smc-pickup-acceptance",
+      "status": "PASS",
+      "receipt": "ok   smc-pickup-acceptance"
+    },
+    {
+      "selector": "smc-lock",
+      "status": "FAIL",
+      "receipt": "FAIL smc-lock (see build/host/smc-lock.log)"
+    },
+    {
+      "selector": "smc-lock-beat",
+      "status": "PASS",
+      "receipt": "ok   smc-lock-beat"
+    },
+    {
+      "selector": "smc-multi-peer",
+      "status": "FAIL",
+      "receipt": "FAIL smc-multi-peer (see build/host/smc-multi-peer.log)"
+    },
+    {
+      "selector": "ui-peer-names",
+      "status": "FAIL",
+      "receipt": "FAIL ui-peer-names (see build/host/ui-peer-names.log)"
+    },
+    {
+      "selector": "ble-device-setting-flow",
+      "status": "PASS",
+      "receipt": "ok   ble-device-setting-flow"
+    },
+    {
+      "selector": "ble-toggle-persistence-gate",
+      "status": "PASS",
+      "receipt": "ok   ble-toggle-persistence-gate"
+    },
+    {
+      "selector": "smc-multi-peer-negative",
+      "status": "PASS",
+      "receipt": "ok   smc-multi-peer-negative"
+    },
+    {
+      "selector": "smc-pause-loss",
+      "status": "PASS",
+      "receipt": "ok   smc-pause-loss"
+    },
+    {
+      "selector": "smk-wheel-mode",
+      "status": "PASS",
+      "receipt": "ok   smk-wheel-mode"
+    },
+    {
+      "selector": "miami-table-interpolation",
+      "status": "PASS",
+      "receipt": "ok   miami-table-interpolation"
+    },
+    {
+      "selector": "legacy-303-project",
+      "status": "PASS",
+      "receipt": "ok   legacy-303-project"
+    },
+    {
+      "selector": "smc-interaction-negative",
+      "status": "PASS",
+      "receipt": "ok   smc-interaction-negative"
+    },
+    {
+      "selector": "corner-coverage",
+      "status": "PASS",
+      "receipt": "ok   corner-coverage"
+    },
+    {
+      "selector": "part-order",
+      "status": "PASS",
+      "receipt": "ok   part-order"
+    },
+    {
+      "selector": "smc-ui",
+      "status": "FAIL",
+      "receipt": "FAIL smc-ui (see build/host/smc-ui.log)"
+    },
+    {
+      "selector": "smc-ui-popup",
+      "status": "PASS",
+      "receipt": "ok   smc-ui-popup"
+    },
+    {
+      "selector": "smc-mode-page",
+      "status": "PASS",
+      "receipt": "ok   smc-mode-page"
+    },
+    {
+      "selector": "smc-mixer-page",
+      "status": "PASS",
+      "receipt": "ok   smc-mixer-page"
+    },
+    {
+      "selector": "ui-shared-glyph",
+      "status": "PASS",
+      "receipt": "ok   ui-shared-glyph"
+    },
+    {
+      "selector": "ui-drum-mix-material",
+      "status": "PASS",
+      "receipt": "ok   ui-drum-mix-material"
+    },
+    {
+      "selector": "ui-waveform-truth",
+      "status": "PASS",
+      "receipt": "ok   ui-waveform-truth"
+    },
+    {
+      "selector": "smc-ui-bounds",
+      "status": "PASS",
+      "receipt": "ok   smc-ui-bounds"
+    },
+    {
+      "selector": "smc-ui-negative",
+      "status": "PASS",
+      "receipt": "ok   smc-ui-negative"
+    },
+    {
+      "selector": "smc-mapping",
+      "status": "PASS",
+      "receipt": "ok   smc-mapping"
+    },
+    {
+      "selector": "smc-drum-mutes",
+      "status": "PASS",
+      "receipt": "ok   smc-drum-mutes"
+    },
+    {
+      "selector": "smc-drum-rs",
+      "status": "PASS",
+      "receipt": "ok   smc-drum-rs"
+    },
+    {
+      "selector": "smc-performance-abort",
+      "status": "PASS",
+      "receipt": "ok   smc-performance-abort"
+    },
+    {
+      "selector": "smc-filter",
+      "status": "PASS",
+      "receipt": "ok   smc-filter"
+    },
+    {
+      "selector": "smc-feedback",
+      "status": "PASS",
+      "receipt": "ok   smc-feedback"
+    },
+    {
+      "selector": "smc-record-feedback",
+      "status": "PASS",
+      "receipt": "ok   smc-record-feedback"
+    },
+    {
+      "selector": "smc-part-select",
+      "status": "PASS",
+      "receipt": "ok   smc-part-select"
+    },
+    {
+      "selector": "smc-clip-visibility",
+      "status": "FAIL",
+      "receipt": "FAIL smc-clip-visibility (see build/host/smc-clip-visibility.log)"
+    },
+    {
+      "selector": "drum-pan",
+      "status": "PASS",
+      "receipt": "ok   drum-pan"
+    },
+    {
+      "selector": "stereo",
+      "status": "PASS",
+      "receipt": "ok   stereo"
+    },
+    {
+      "selector": "master",
+      "status": "PASS",
+      "receipt": "ok   master"
+    },
+    {
+      "selector": "drum-kit-identity",
+      "status": "PASS",
+      "receipt": "ok   drum-kit-identity"
+    },
+    {
+      "selector": "drum909-adpcm",
+      "status": "PASS",
+      "receipt": "ok   drum909-adpcm"
+    },
+    {
+      "selector": "drum909",
+      "status": "NOT_RUN",
+      "receipt": "not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)"
+    },
+    {
+      "selector": "drum808",
+      "status": "NOT_RUN",
+      "receipt": "not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)"
+    },
+    {
+      "selector": "breaks",
+      "status": "PASS",
+      "receipt": "ok   breaks"
+    },
+    {
+      "selector": "break-suite-registration",
+      "status": "PASS",
+      "receipt": "ok   break-suite-registration"
+    },
+    {
+      "selector": "adaptive-break-dsp",
+      "status": "PASS",
+      "receipt": "ok   adaptive-break-dsp"
+    },
+    {
+      "selector": "adaptive-break-controls",
+      "status": "PASS",
+      "receipt": "ok   adaptive-break-controls"
+    },
+    {
+      "selector": "adaptive-break-storage",
+      "status": "PASS",
+      "receipt": "ok   adaptive-break-storage"
+    },
+    {
+      "selector": "adaptive-break-midi-pair",
+      "status": "PASS",
+      "receipt": "ok   adaptive-break-midi-pair"
+    },
+    {
+      "selector": "break-performance",
+      "status": "PASS",
+      "receipt": "ok   break-performance"
+    },
+    {
+      "selector": "brk-loops-seamless",
+      "status": "PASS",
+      "receipt": "ok   brk-loops-seamless"
+    },
+    {
+      "selector": "brk-outline",
+      "status": "PASS",
+      "receipt": "ok   brk-outline"
+    },
+    {
+      "selector": "brk-outline-gate",
+      "status": "PASS",
+      "receipt": "ok   brk-outline-gate"
+    },
+    {
+      "selector": "chicago-fx-bridge",
+      "status": "PASS",
+      "receipt": "ok   chicago-fx-bridge"
+    },
+    {
+      "selector": "au-compare-align",
+      "status": "PASS",
+      "receipt": "ok   au-compare-align"
+    },
+    {
+      "selector": "au-compare-battery",
+      "status": "PASS",
+      "receipt": "ok   au-compare-battery"
+    },
+    {
+      "selector": "install-gate-guard",
+      "status": "PASS",
+      "receipt": "ok   install-gate-guard"
+    },
+    {
+      "selector": "queue-guard",
+      "status": "PASS",
+      "receipt": "ok   queue-guard"
+    },
+    {
+      "selector": "install-guards",
+      "status": "PASS",
+      "receipt": "ok   install-guards"
+    },
+    {
+      "selector": "install-head",
+      "status": "PASS",
+      "receipt": "ok   install-head"
+    },
+    {
+      "selector": "release-tree",
+      "status": "PASS",
+      "receipt": "ok   release-tree"
+    },
+    {
+      "selector": "prepush-trim",
+      "status": "PASS",
+      "receipt": "ok   prepush-trim"
+    },
+    {
+      "selector": "prepush-allow",
+      "status": "PASS",
+      "receipt": "ok   prepush-allow"
+    },
+    {
+      "selector": "gate-configs",
+      "status": "PASS",
+      "receipt": "ok   gate-configs"
+    },
+    {
+      "selector": "gate-trap",
+      "status": "PASS",
+      "receipt": "ok   gate-trap"
+    },
+    {
+      "selector": "quickcheck-plan",
+      "status": "PASS",
+      "receipt": "ok   quickcheck-plan"
+    },
+    {
+      "selector": "host-failure-summary",
+      "status": "PASS",
+      "receipt": "ok   host-failure-summary"
+    },
+    {
+      "selector": "ctl-compile",
+      "status": "PASS",
+      "receipt": "ok   ctl-compile"
+    },
+    {
+      "selector": "host-setup",
+      "status": "PASS",
+      "receipt": "ok   host-setup"
+    },
+    {
+      "selector": "gen-nonfont-tables",
+      "status": "PASS",
+      "receipt": "ok   gen-nonfont-tables"
+    },
+    {
+      "selector": "stereo-alone-gen",
+      "status": "PASS",
+      "receipt": "ok   stereo-alone-gen"
+    },
+    {
+      "selector": "runner-admission",
+      "status": "PASS",
+      "receipt": "ok   runner-admission"
+    },
+    {
+      "selector": "update-names",
+      "status": "PASS",
+      "receipt": "ok   update-names"
+    },
+    {
+      "selector": "gate-reason",
+      "status": "PASS",
+      "receipt": "ok   gate-reason"
+    },
+    {
+      "selector": "validation-inputs",
+      "status": "PASS",
+      "receipt": "ok   validation-inputs"
+    },
+    {
+      "selector": "stage-handoff",
+      "status": "PASS",
+      "receipt": "ok   stage-handoff"
+    },
+    {
+      "selector": "dev-validate",
+      "status": "PASS",
+      "receipt": "ok   dev-validate"
+    },
+    {
+      "selector": "dev-validate-composed",
+      "status": "PASS",
+      "receipt": "ok   dev-validate-composed"
+    },
+    {
+      "selector": "nightly-publish",
+      "status": "PASS",
+      "receipt": "ok   nightly-publish"
+    },
+    {
+      "selector": "gen-cache",
+      "status": "PASS",
+      "receipt": "ok   gen-cache"
+    },
+    {
+      "selector": "smk-update-contract",
+      "status": "PASS",
+      "receipt": "ok   smk-update-contract"
+    },
+    {
+      "selector": "gen-order",
+      "status": "PASS",
+      "receipt": "ok   gen-order"
+    },
+    {
+      "selector": "quickcheck-devbug",
+      "status": "PASS",
+      "receipt": "ok   quickcheck-devbug"
+    },
+    {
+      "selector": "status-lanes",
+      "status": "PASS",
+      "receipt": "ok   status-lanes"
+    },
+    {
+      "selector": "status-isolation",
+      "status": "PASS",
+      "receipt": "ok   status-isolation"
+    },
+    {
+      "selector": "loop-bars",
+      "status": "PASS",
+      "receipt": "ok   loop-bars"
+    },
+    {
+      "selector": "installer",
+      "status": "PASS",
+      "receipt": "ok   installer"
+    },
+    {
+      "selector": "installer-f02-bind",
+      "status": "PASS",
+      "receipt": "ok   installer-f02-bind"
+    },
+    {
+      "selector": "installer-f02-bind-web",
+      "status": "PASS",
+      "receipt": "ok   installer-f02-bind-web"
+    },
+    {
+      "selector": "ota-request-guards-web",
+      "status": "PASS",
+      "receipt": "ok   ota-request-guards-web"
+    },
+    {
+      "selector": "installer-six-stage-web",
+      "status": "PASS",
+      "receipt": "ok   installer-six-stage-web"
+    },
+    {
+      "selector": "locked-settings",
+      "status": "PASS",
+      "receipt": "ok   locked-settings"
+    },
+    {
+      "selector": "smk-flash",
+      "status": "PASS",
+      "receipt": "ok   smk-flash"
+    },
+    {
+      "selector": "smk-storage",
+      "status": "PASS",
+      "receipt": "ok   smk-storage"
+    },
+    {
+      "selector": "smk-apc40-map",
+      "status": "PASS",
+      "receipt": "ok   smk-apc40-map"
+    },
+    {
+      "selector": "smk-apc40",
+      "status": "PASS",
+      "receipt": "ok   smk-apc40"
+    },
+    {
+      "selector": "smk-clip-ble-clear",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-ble-clear"
+    },
+    {
+      "selector": "smk-clip-keys",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-keys"
+    },
+    {
+      "selector": "smk-chord-recognize",
+      "status": "PASS",
+      "receipt": "ok   smk-chord-recognize"
+    },
+    {
+      "selector": "smk-clip-chord-display",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-chord-display"
+    },
+    {
+      "selector": "smk-ck-page-layout",
+      "status": "PASS",
+      "receipt": "ok   smk-ck-page-layout"
+    },
+    {
+      "selector": "smk-arrows",
+      "status": "PASS",
+      "receipt": "ok   smk-arrows"
+    },
+    {
+      "selector": "smk-arrows-owner",
+      "status": "PASS",
+      "receipt": "ok   smk-arrows-owner"
+    },
+    {
+      "selector": "apc40-tables",
+      "status": "PASS",
+      "receipt": "ok   apc40-tables"
+    },
+    {
+      "selector": "smk-clip-idle",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-idle"
+    },
+    {
+      "selector": "smk-clip-idle-pad",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-idle-pad"
+    },
+    {
+      "selector": "apc40-pad-owner",
+      "status": "PASS",
+      "receipt": "ok   apc40-pad-owner"
+    },
+    {
+      "selector": "smk-padcal",
+      "status": "PASS",
+      "receipt": "ok   smk-padcal"
+    },
+    {
+      "selector": "padcal-view",
+      "status": "PASS",
+      "receipt": "ok   padcal-view"
+    },
+    {
+      "selector": "smk-padcal-export",
+      "status": "PASS",
+      "receipt": "ok   smk-padcal-export"
+    },
+    {
+      "selector": "smk-padcal-wiring",
+      "status": "PASS",
+      "receipt": "ok   smk-padcal-wiring"
+    },
+    {
+      "selector": "pad-placement-doc",
+      "status": "PASS",
+      "receipt": "ok   pad-placement-doc"
+    },
+    {
+      "selector": "padcal-flag",
+      "status": "PASS",
+      "receipt": "ok   padcal-flag"
+    },
+    {
+      "selector": "apc40-lcd565-csv",
+      "status": "PASS",
+      "receipt": "ok   apc40-lcd565-csv"
+    },
+    {
+      "selector": "apc-palette",
+      "status": "PASS",
+      "receipt": "ok   apc-palette"
+    },
+    {
+      "selector": "installer-targets",
+      "status": "PASS",
+      "receipt": "ok   installer-targets"
+    },
+    {
+      "selector": "diag-size",
+      "status": "PASS",
+      "receipt": "ok   diag-size"
+    },
+    {
+      "selector": "smk-inlog",
+      "status": "PASS",
+      "receipt": "ok   smk-inlog"
+    },
+    {
+      "selector": "ble-central-diag",
+      "status": "PASS",
+      "receipt": "ok   ble-central-diag"
+    },
+    {
+      "selector": "ble-role-switch",
+      "status": "PASS",
+      "receipt": "ok   ble-role-switch"
+    },
+    {
+      "selector": "inlog-tool",
+      "status": "PASS",
+      "receipt": "ok   inlog-tool"
+    },
+    {
+      "selector": "smk-pad-inputs",
+      "status": "PASS",
+      "receipt": "ok   smk-pad-inputs"
+    },
+    {
+      "selector": "smk-clip-ble-notify",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-ble-notify"
+    },
+    {
+      "selector": "smk-clip-dark",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-dark"
+    },
+    {
+      "selector": "smk-clip-usb-clear",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-usb-clear"
+    },
+    {
+      "selector": "smk-clip-isolation",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-isolation"
+    },
+    {
+      "selector": "smk-clip-knob",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-knob"
+    },
+    {
+      "selector": "smk-fader-pickup",
+      "status": "PASS",
+      "receipt": "ok   smk-fader-pickup"
+    },
+    {
+      "selector": "smk-clip-wait",
+      "status": "PASS",
+      "receipt": "ok   smk-clip-wait"
+    },
+    {
+      "selector": "smk-apc40-violet",
+      "status": "PASS",
+      "receipt": "ok   smk-apc40-violet"
+    },
+    {
+      "selector": "smk-package",
+      "status": "NOT_RUN",
+      "receipt": "skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)"
+    },
+    {
+      "selector": "smk-build-package",
+      "status": "PASS",
+      "receipt": "ok   smk-build-package"
+    },
+    {
+      "selector": "smk-build-package-elite",
+      "status": "PASS",
+      "receipt": "ok   smk-build-package-elite"
+    },
+    {
+      "selector": "ble-sysex-bounds",
+      "status": "PASS",
+      "receipt": "ok   ble-sysex-bounds"
+    },
+    {
+      "selector": "ble",
+      "status": "PASS",
+      "receipt": "ok   ble"
+    },
+    {
+      "selector": "ble-package",
+      "status": "PASS",
+      "receipt": "ok   ble-package"
+    },
+    {
+      "selector": "upload-images",
+      "status": "PASS",
+      "receipt": "ok   upload-images"
+    },
+    {
+      "selector": "upload-tools",
+      "status": "PASS",
+      "receipt": "ok   upload-tools"
+    },
+    {
+      "selector": "builtin-break-output",
+      "status": "FAIL",
+      "receipt": "FAIL builtin-break-output (see build/host/builtin-break-output.log)"
+    },
+    {
+      "selector": "break-pack",
+      "status": "PASS",
+      "receipt": "ok   break-pack"
+    },
+    {
+      "selector": "break-pack-web",
+      "status": "PASS",
+      "receipt": "ok   break-pack-web"
+    },
+    {
+      "selector": "breaks-web",
+      "status": "PASS",
+      "receipt": "ok   breaks-web"
+    },
+    {
+      "selector": "breaks-page",
+      "status": "PASS",
+      "receipt": "ok   breaks-page"
+    },
+    {
+      "selector": "project-adoption-identities",
+      "status": "PASS",
+      "receipt": "ok   project-adoption-identities"
+    },
+    {
+      "selector": "projects-web",
+      "status": "PASS",
+      "receipt": "ok   projects-web"
+    },
+    {
+      "selector": "installer-project-handoff",
+      "status": "PASS",
+      "receipt": "ok   installer-project-handoff"
+    },
+    {
+      "selector": "projects-page",
+      "status": "PASS",
+      "receipt": "ok   projects-page"
+    },
+    {
+      "selector": "installer-backup-selection",
+      "status": "PASS",
+      "receipt": "ok   installer-backup-selection"
+    },
+    {
+      "selector": "slot-build-safe",
+      "status": "PASS",
+      "receipt": "ok   slot-build-safe"
+    },
+    {
+      "selector": "wav-import-integrity",
+      "status": "PASS",
+      "receipt": "ok   wav-import-integrity"
+    },
+    {
+      "selector": "slot-backup",
+      "status": "PASS",
+      "receipt": "ok   slot-backup"
+    },
+    {
+      "selector": "slot-begin-cancel",
+      "status": "PASS",
+      "receipt": "ok   slot-begin-cancel"
+    },
+    {
+      "selector": "smp-begin-cancel",
+      "status": "PASS",
+      "receipt": "ok   smp-begin-cancel"
+    },
+    {
+      "selector": "slot-backup-durable",
+      "status": "PASS",
+      "receipt": "ok   slot-backup-durable"
+    },
+    {
+      "selector": "slot-archive-zone",
+      "status": "PASS",
+      "receipt": "ok   slot-archive-zone"
+    },
+    {
+      "selector": "slot-verify-order",
+      "status": "PASS",
+      "receipt": "ok   slot-verify-order"
+    },
+    {
+      "selector": "slot-read-reply",
+      "status": "PASS",
+      "receipt": "ok   slot-read-reply"
+    },
+    {
+      "selector": "slot-ack-integrity",
+      "status": "PASS",
+      "receipt": "ok   slot-ack-integrity"
+    },
+    {
+      "selector": "slot-echo-7bit",
+      "status": "PASS",
+      "receipt": "ok   slot-echo-7bit"
+    },
+    {
+      "selector": "slot-migration-matching",
+      "status": "PASS",
+      "receipt": "ok   slot-migration-matching"
+    },
+    {
+      "selector": "slot-break-menu-migration",
+      "status": "PASS",
+      "receipt": "ok   slot-break-menu-migration"
+    },
+    {
+      "selector": "installer-slots",
+      "status": "PASS",
+      "receipt": "ok   installer-slots"
+    },
+    {
+      "selector": "installer-restore-status",
+      "status": "PASS",
+      "receipt": "ok   installer-restore-status"
+    },
+    {
+      "selector": "installer-ota-finish-ack",
+      "status": "PASS",
+      "receipt": "ok   installer-ota-finish-ack"
+    },
+    {
+      "selector": "installer-backup-snapshot",
+      "status": "PASS",
+      "receipt": "ok   installer-backup-snapshot"
+    },
+    {
+      "selector": "installer-ctl",
+      "status": "PASS",
+      "receipt": "ok   installer-ctl"
+    },
+    {
+      "selector": "ctl-read-framing",
+      "status": "PASS",
+      "receipt": "ok   ctl-read-framing"
+    },
+    {
+      "selector": "ctl-publish-atomic",
+      "status": "PASS",
+      "receipt": "ok   ctl-publish-atomic"
+    },
+    {
+      "selector": "rec-held-duration",
+      "status": "PASS",
+      "receipt": "ok   rec-held-duration"
+    },
+    {
+      "selector": "original-stale-release",
+      "status": "PASS",
+      "receipt": "ok   original-stale-release"
+    },
+    {
+      "selector": "rec-endpoint-lifecycle",
+      "status": "PASS",
+      "receipt": "ok   rec-endpoint-lifecycle"
+    },
+    {
+      "selector": "rec-endpoint-storage",
+      "status": "PASS",
+      "receipt": "ok   rec-endpoint-storage"
+    },
+    {
+      "selector": "rec-nonforward-guard",
+      "status": "PASS",
+      "receipt": "ok   rec-nonforward-guard"
+    },
+    {
+      "selector": "rec-live-smk",
+      "status": "PASS",
+      "receipt": "ok   rec-live-smk"
+    },
+    {
+      "selector": "ext-midi-rec-smk",
+      "status": "PASS",
+      "receipt": "ok   ext-midi-rec-smk"
+    },
+    {
+      "selector": "copy-semantics",
+      "status": "PASS",
+      "receipt": "ok   copy-semantics"
+    },
+    {
+      "selector": "song-actions",
+      "status": "PASS",
+      "receipt": "ok   song-actions"
+    },
+    {
+      "selector": "ui-feedback",
+      "status": "PASS",
+      "receipt": "ok   ui-feedback"
+    },
+    {
+      "selector": "remaining-feature-proof-selftest",
+      "status": "PASS",
+      "receipt": "ok   remaining-feature-proof-selftest"
+    },
+    {
+      "selector": "home-pattern-glyph",
+      "status": "PASS",
+      "receipt": "ok   home-pattern-glyph"
+    },
+    {
+      "selector": "home-overview",
+      "status": "PASS",
+      "receipt": "ok   home-overview"
+    },
+    {
+      "selector": "sound-matrix",
+      "status": "FAIL",
+      "receipt": "FAIL sound-matrix (see build/host/sound-matrix.log)"
+    },
+    {
+      "selector": "sound-layout",
+      "status": "PASS",
+      "receipt": "ok   sound-layout"
+    },
+    {
+      "selector": "perf-wheel-motion",
+      "status": "PASS",
+      "receipt": "ok   perf-wheel-motion"
+    },
+    {
+      "selector": "perf-wheel-noise",
+      "status": "PASS",
+      "receipt": "ok   perf-wheel-noise"
+    },
+    {
+      "selector": "chicago-presentation",
+      "status": "FAIL",
+      "receipt": "FAIL chicago-presentation (see build/host/chicago-presentation.log)"
+    },
+    {
+      "selector": "chicago-readout",
+      "status": "PASS",
+      "receipt": "ok   chicago-readout"
+    },
+    {
+      "selector": "ui-drum-glyph",
+      "status": "PASS",
+      "receipt": "ok   ui-drum-glyph"
+    },
+    {
+      "selector": "ui-glyph-polish",
+      "status": "FAIL",
+      "receipt": "FAIL ui-glyph-polish (see build/host/ui-glyph-polish.log)"
+    },
+    {
+      "selector": "ui-chicago-env-motion",
+      "status": "PASS",
+      "receipt": "ok   ui-chicago-env-motion"
+    },
+    {
+      "selector": "matrix-knob-caption",
+      "status": "PASS",
+      "receipt": "ok   matrix-knob-caption"
+    },
+    {
+      "selector": "preset-navigation-noop",
+      "status": "PASS",
+      "receipt": "ok   preset-navigation-noop"
+    },
+    {
+      "selector": "ui-303-entry",
+      "status": "PASS",
+      "receipt": "ok   ui-303-entry"
+    },
+    {
+      "selector": "scenario-arrows",
+      "status": "PASS",
+      "receipt": "ok   scenario-arrows"
+    },
+    {
+      "selector": "scenario-autosave",
+      "status": "PASS",
+      "receipt": "ok   scenario-autosave"
+    },
+    {
+      "selector": "scenario-bleclock",
+      "status": "PASS",
+      "receipt": "ok   scenario-bleclock"
+    },
+    {
+      "selector": "scenario-blenotes",
+      "status": "PASS",
+      "receipt": "ok   scenario-blenotes"
+    },
+    {
+      "selector": "scenario-brkslice",
+      "status": "PASS",
+      "receipt": "ok   scenario-brkslice"
+    },
+    {
+      "selector": "scenario-brkslice_mode_toggle",
+      "status": "PASS",
+      "receipt": "ok   scenario-brkslice_mode_toggle"
+    },
+    {
+      "selector": "scenario-brkslice_trs_overlap",
+      "status": "PASS",
+      "receipt": "ok   scenario-brkslice_trs_overlap"
+    },
+    {
+      "selector": "scenario-clip-arrow-menu",
+      "status": "PASS",
+      "receipt": "ok   scenario-clip-arrow-menu"
+    },
+    {
+      "selector": "scenario-clklock",
+      "status": "PASS",
+      "receipt": "ok   scenario-clklock"
+    },
+    {
+      "selector": "scenario-clkmove",
+      "status": "PASS",
+      "receipt": "ok   scenario-clkmove"
+    },
+    {
+      "selector": "scenario-clocksrc",
+      "status": "PASS",
+      "receipt": "ok   scenario-clocksrc"
+    },
+    {
+      "selector": "scenario-drum_bass_ch_consume",
+      "status": "PASS",
+      "receipt": "ok   scenario-drum_bass_ch_consume"
+    },
+    {
+      "selector": "scenario-edit_midi_rec_guard",
+      "status": "PASS",
+      "receipt": "ok   scenario-edit_midi_rec_guard"
+    },
+    {
+      "selector": "scenario-edit_oct_no_hidden",
+      "status": "PASS",
+      "receipt": "ok   scenario-edit_oct_no_hidden"
+    },
+    {
+      "selector": "scenario-extclock",
+      "status": "PASS",
+      "receipt": "ok   scenario-extclock"
+    },
+    {
+      "selector": "scenario-freeplay",
+      "status": "PASS",
+      "receipt": "ok   scenario-freeplay"
+    },
+    {
+      "selector": "scenario-getting_started",
+      "status": "PASS",
+      "receipt": "ok   scenario-getting_started"
+    },
+    {
+      "selector": "scenario-groove",
+      "status": "PASS",
+      "receipt": "ok   scenario-groove"
+    },
+    {
+      "selector": "scenario-guard",
+      "status": "PASS",
+      "receipt": "ok   scenario-guard"
+    },
+    {
+      "selector": "scenario-help",
+      "status": "PASS",
+      "receipt": "ok   scenario-help"
+    },
+    {
+      "selector": "scenario-jam",
+      "status": "PASS",
+      "receipt": "ok   scenario-jam"
+    },
+    {
+      "selector": "scenario-keysound",
+      "status": "PASS",
+      "receipt": "ok   scenario-keysound"
+    },
+    {
+      "selector": "scenario-knobs",
+      "status": "PASS",
+      "receipt": "ok   scenario-knobs"
+    },
+    {
+      "selector": "scenario-midiowner",
+      "status": "PASS",
+      "receipt": "ok   scenario-midiowner"
+    },
+    {
+      "selector": "scenario-migrate",
+      "status": "PASS",
+      "receipt": "ok   scenario-migrate"
+    },
+    {
+      "selector": "scenario-migrate0102",
+      "status": "PASS",
+      "receipt": "ok   scenario-migrate0102"
+    },
+    {
+      "selector": "scenario-patterns",
+      "status": "PASS",
+      "receipt": "ok   scenario-patterns"
+    },
+    {
+      "selector": "scenario-perf",
+      "status": "PASS",
+      "receipt": "ok   scenario-perf"
+    },
+    {
+      "selector": "scenario-perfsave",
+      "status": "PASS",
+      "receipt": "ok   scenario-perfsave"
+    },
+    {
+      "selector": "scenario-plock",
+      "status": "FAIL",
+      "receipt": "FAIL scenario-plock (see build/host/scenario-plock.log)"
+    },
+    {
+      "selector": "scenario-prob",
+      "status": "PASS",
+      "receipt": "ok   scenario-prob"
+    },
+    {
+      "selector": "scenario-probcond",
+      "status": "PASS",
+      "receipt": "ok   scenario-probcond"
+    },
+    {
+      "selector": "scenario-probreset",
+      "status": "PASS",
+      "receipt": "ok   scenario-probreset"
+    },
+    {
+      "selector": "scenario-roll_continuation",
+      "status": "PASS",
+      "receipt": "ok   scenario-roll_continuation"
+    },
+    {
+      "selector": "scenario-roll_short_tie",
+      "status": "PASS",
+      "receipt": "ok   scenario-roll_short_tie"
+    },
+    {
+      "selector": "scenario-savefeedback",
+      "status": "PASS",
+      "receipt": "ok   scenario-savefeedback"
+    },
+    {
+      "selector": "scenario-savewait",
+      "status": "PASS",
+      "receipt": "ok   scenario-savewait"
+    },
+    {
+      "selector": "scenario-showcase",
+      "status": "PASS",
+      "receipt": "ok   scenario-showcase"
+    },
+    {
+      "selector": "scenario-slices",
+      "status": "PASS",
+      "receipt": "ok   scenario-slices"
+    },
+    {
+      "selector": "scenario-song",
+      "status": "PASS",
+      "receipt": "ok   scenario-song"
+    },
+    {
+      "selector": "scenario-song_live_mute_save",
+      "status": "PASS",
+      "receipt": "ok   scenario-song_live_mute_save"
+    },
+    {
+      "selector": "scenario-songrep",
+      "status": "PASS",
+      "receipt": "ok   scenario-songrep"
+    },
+    {
+      "selector": "scenario-sound_matrix_chicago",
+      "status": "PASS",
+      "receipt": "ok   scenario-sound_matrix_chicago"
+    },
+    {
+      "selector": "scenario-sound_matrix_chicago_idle",
+      "status": "PASS",
+      "receipt": "ok   scenario-sound_matrix_chicago_idle"
+    },
+    {
+      "selector": "scenario-sound_matrix_drum",
+      "status": "PASS",
+      "receipt": "ok   scenario-sound_matrix_drum"
+    },
+    {
+      "selector": "scenario-sound_matrix_lock",
+      "status": "PASS",
+      "receipt": "ok   scenario-sound_matrix_lock"
+    },
+    {
+      "selector": "scenario-sound_matrix_miami",
+      "status": "PASS",
+      "receipt": "ok   scenario-sound_matrix_miami"
+    },
+    {
+      "selector": "scenario-sound_page_split",
+      "status": "PASS",
+      "receipt": "ok   scenario-sound_page_split"
+    },
+    {
+      "selector": "scenario-step303",
+      "status": "PASS",
+      "receipt": "ok   scenario-step303"
+    },
+    {
+      "selector": "scenario-steps64",
+      "status": "PASS",
+      "receipt": "ok   scenario-steps64"
+    },
+    {
+      "selector": "scenario-stereo",
+      "status": "PASS",
+      "receipt": "ok   scenario-stereo"
+    },
+    {
+      "selector": "scenario-tb3po",
+      "status": "PASS",
+      "receipt": "ok   scenario-tb3po"
+    },
+    {
+      "selector": "scenario-tour",
+      "status": "PASS",
+      "receipt": "ok   scenario-tour"
+    },
+    {
+      "selector": "scenario-trackmute",
+      "status": "PASS",
+      "receipt": "ok   scenario-trackmute"
+    },
+    {
+      "selector": "scenario-undo",
+      "status": "PASS",
+      "receipt": "ok   scenario-undo"
+    },
+    {
+      "selector": "scenario-upload",
+      "status": "PASS",
+      "receipt": "ok   scenario-upload"
+    },
+    {
+      "selector": "scenario-upload44",
+      "status": "PASS",
+      "receipt": "ok   scenario-upload44"
+    },
+    {
+      "selector": "scenario-usbnotes",
+      "status": "PASS",
+      "receipt": "ok   scenario-usbnotes"
+    },
+    {
+      "selector": "perf-scratch",
+      "status": "PASS",
+      "receipt": "ok   perf-scratch"
+    }
+  ]
+}
