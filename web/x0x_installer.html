@@ -84,6 +84,11 @@
   #bootscreen input[type=text] { font: inherit; font-size: 16px; width: 100%; padding: 6px 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--fg); }
   #bootprev { width: 100%; height: auto; background: #000; border: 1px solid var(--rule); margin: 0 0 12px; }
   #bootstatus { min-height: 1.4em; }
+  /* Six-stage flow: stage list, preparation notes and the separate result line. */
+  .flow-note { border-left: 3px solid var(--accent); padding-left: 16px; }
+  .flow-state { padding: 12px 16px; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); color: var(--dim); }
+  .flow-state:empty { display: none; }
+  .flow-backup-links a { display: inline-flex; align-items: center; min-height: 44px; }
 </style>
 <link rel="stylesheet" href="../site.css">
 </head>
@@ -106,15 +111,27 @@
   </nav>
   <p class="browser-note" id="browsernotice" role="status" hidden></p>
   <div id="installview">
-  <ol class="steps" aria-label="Installation steps" data-aria="steps">
+  <!-- Six-stage DnBOX installer: presentation only, protocol guards remain authoritative. -->
+  <ol class="steps" id="installer-flow" aria-label="Installation steps" data-aria="steps">
+    <li id="stepbrowser" data-t="flow1">Your browser</li>
+    <li id="stepready" data-t="flow2">Get ready</li>
     <li id="stepconnect" data-t="stepconnect">Connect USB</li>
     <li id="stepchoose" data-t="stepchoose">Choose firmware</li>
     <li id="stepinstall" data-t="stepinstall">Back up and install</li>
+    <li id="stepdone" data-t="flow6">Done</li>
   </ol>
   <h1 data-t="title">Install DnBOX</h1>
   <p data-t="intro"></p>
   <p class="small" data-t="direct"></p>
   <p class="small" data-t="beta"></p>
+
+  <section class="flow-ready" id="flowready" aria-labelledby="flowreadyheading">
+    <h2 id="flowreadyheading" data-t="flow2">Get ready</h2>
+    <p class="flow-note" data-t="flowFirst"></p>
+    <p class="small" data-t="flowPrepare"></p>
+    <p class="flow-backup-links"><a href="#samples" data-t="flowBackup">Back up samples</a> · <a href="#projects" data-t="flowExport">Export projects</a></p>
+    <p class="small" data-t="flowBackupProof"></p>
+  </section>
 
   <div class="connect" id="connectbar">
     <span class="led" id="led" aria-hidden="true"></span>
@@ -158,6 +175,8 @@
     <p><button id="go" disabled data-t="install">Install</button></p>
     <progress id="bar" max="100" value="0" aria-label="Firmware transfer progress" data-aria="transfer"></progress>
     <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <p id="flow-result" class="flow-state" role="status" aria-live="polite"></p>
+    <p class="small" data-t="flowResultHelp"></p>
     <details><summary data-t="techlog">Technical log</summary><pre id="log"></pre></details>
   </section>
 
@@ -529,6 +548,8 @@ const WORKSPACE_TEXT = {
 };
 Object.assign(TEXT.en, WORKSPACE_TEXT.en);
 Object.assign(TEXT.ja, WORKSPACE_TEXT.en); // Retain all existing Japanese installer/safety translations.
+Object.assign(TEXT.en, {"flow1": "Your browser", "flow2": "Get ready", "flow6": "Done", "flowFirst": "First installation can replace existing working data. Export important projects and back up samples before switching firmware.", "flowPrepare": "Use desktop Chrome or Edge. Connect directly by USB. Close music apps, other editors and extra installer tabs.", "flowBackup": "Back up samples", "flowExport": "Export projects", "flowBackupProof": "Opening the backup tool does not prove that a file was saved. If this installation needs a recovery backup, you must still save and confirm that file before any firmware write.", "flowResultHelp": "Firmware readback and sample restoration are separate results. Development firmware is not hardware-qualified by this installer.", "flowWaiting": "", "flowBusy": "Installation is in progress. Keep USB connected; completion is not confirmed.", "flowComplete": "Firmware application readback completed. Sample restoration is reported separately above.", "flowIncomplete": "Installation is not fully complete. Check the message above and the technical log for the exact result and any sample restoration issues.", "overflow": "MIDI receive overflow. Reconnect before retrying the update.", "badreq": "The keyboard sent an invalid update request. Nothing more was sent. Replug and try again."});
+Object.assign(TEXT.ja, {"flow1": "ブラウザー", "flow2": "準備", "flow6": "完了", "flowFirst": "初回インストールで既存データが置き換わる可能性があります。変更前に重要なプロジェクトとサンプルを保存してください。", "flowPrepare": "PCのChromeまたはEdgeを使い、USBで直接接続し、音楽アプリ、他のエディター、インストーラーの別タブを閉じてください。", "flowBackup": "サンプルのバックアップ", "flowExport": "プロジェクトを書き出す", "flowBackupProof": "バックアップ画面を開いても保存の証明にはなりません。復旧用バックアップが必要な場合は、書き込み前にファイルを保存して確認してください。", "flowResultHelp": "ファームウェアの読み戻しとサンプル復元は別の結果です。このインストーラーは開発版の実機検証を証明しません。", "flowWaiting": "", "flowBusy": "インストール中です。USBを抜かないでください。完了はまだ確認されていません。", "flowComplete": "アプリの読み戻しが完了しました。サンプル復元の結果は上のメッセージで確認してください。", "flowIncomplete": "インストールは完全には完了していません。上のメッセージと技術ログを確認してください。", "overflow": "MIDI受信があふれました。もう一度接続してからやり直してください。", "badreq": "キーボードから不正な更新要求が届きました。送信を止めました。挿し直してやり直してください。"});
 TEXT.ru = { ...TEXT.en, ...WORKSPACE_TEXT.ru };
 let lang = "en";
 const t = (k) => TEXT[lang][k] ?? TEXT.en[k] ?? k;
@@ -607,9 +628,29 @@ function renderConnectionAction() {
   button.disabled = connectionState === "scanning" || writing || !navigator.requestMIDIAccess || globalThis.isSecureContext === false;
   button.textContent = t(connectionState === "scanning" ? "scanning" : connected ? "rescan" : connectionState === "error" ? "retry" : "connect");
 }
+let flowOutcome = "waiting";   // waiting | complete | incomplete; set only by run()
+// BEGIN SIX_STAGE_PROJECTION
+function flowResultKey(outcome, busy) {
+  return busy ? "flowBusy" : outcome === "complete" ? "flowComplete" : outcome === "incomplete" ? "flowIncomplete" : "flowWaiting";
+}
+function flowStage(s) {
+  // Projection of guarded state only; it never enables or starts a write.
+  if (!s.capable) return 0;
+  if (s.writing) return 4;
+  if (s.outcome === "complete") return 5;
+  if (!s.connected) return s.scanning ? 2 : 1;
+  return s.selected ? 4 : 3;
+}
 function refreshJourney() {
-  const nodes = [$("stepconnect"), $("stepchoose"), $("stepinstall")];
-  const stage = writing ? 2 : connected ? 1 : 0;
+  const nodes = ["stepbrowser", "stepready", "stepconnect", "stepchoose", "stepinstall", "stepdone"].map((id) => $(id));
+  const v = typeof currentVersion === "function" ? currentVersion() : null;
+  const stage = flowStage({
+    capable: typeof navigator.requestMIDIAccess === "function" && globalThis.isSecureContext !== false,
+    writing, connected, scanning: connectionState === "scanning", outcome: flowOutcome,
+    selected: !!(image && selectedProduct && v && hasVerifiedNightlySelection(v, v.models?.[chosenModel])),
+  });
+  const result = $("flow-result");
+  if (result) result.textContent = t(flowResultKey(flowOutcome, writing));
   nodes.forEach((node, i) => { if (node) { node.classList.toggle("done", i < stage); if (i === stage) node.setAttribute("aria-current", "step"); else node.removeAttribute("aria-current"); } });
 }
 async function ownedScan() {
@@ -910,7 +951,7 @@ async function readApprovedPackage(response, expectedSize, isLatest) {
 async function loadSelectedPackage() {
   const requestId = ++loadSerial;
   discardVerifiedDownload();
-  image = null; selectedProduct = null;
+  image = null; selectedProduct = null; if (typeof refreshJourney === "function") refreshJourney();
   $("go").disabled = true;
   refreshMeta();
   const ver = currentVersion();
@@ -941,6 +982,7 @@ async function loadSelectedPackage() {
     if (product !== pkg.product) { sayK("badpkg"); return; }
     image = logicalImage(raw);
     selectedProduct = product;
+    if (typeof refreshJourney === "function") refreshJourney();
     // Never hand out the unverified remote URL: this Blob contains the bytes
     // already checked against the immutable package digest and model identity.
     verifiedDownload = { pkg, model, version: ver.version,
@@ -963,7 +1005,7 @@ function fillVersions() {
   $("modeldetails").hidden = list.length === 0;
   $("go").hidden = list.length === 0;
   if (!list.length) {
-    image = null; selectedProduct = null;
+    image = null; selectedProduct = null; if (typeof refreshJourney === "function") refreshJourney();
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
     discardVerifiedDownload();
@@ -1189,6 +1231,7 @@ async function run(img, product, opts = {}) {
   writing = true;
   scanSerial++; // Invalidate any pre-write lookup before Web MIDI/OTA operations.
   ctlLoadSerial++; // Ignore controller file reads pending before the write.
+  flowOutcome = "waiting";
   renderConnectionAction(); refreshJourney();
   $("ctlclear").disabled = true;
   $("go").disabled = $("stockgo").disabled = true;
@@ -1237,6 +1280,7 @@ async function run(img, product, opts = {}) {
         throw Object.assign(new Error(t("otabackup")), { code: "otabackup" });
       }
       const ok = await up.resume(img, step, product);
+      flowOutcome = ok ? "complete" : "incomplete";
       $("bar").value = ok ? 100 : $("bar").value;
       sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
     } else {
@@ -1252,6 +1296,8 @@ async function run(img, product, opts = {}) {
           return true;
         },
       });
+      // Final stage follows the complete install/restore promise, never updater step(done).
+      flowOutcome = r.move && r.move.skipped && r.move.skipped.length ? "incomplete" : "complete";
       if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
       else if (r.move) {
         $("bar").value = 100;
@@ -1271,6 +1317,7 @@ async function run(img, product, opts = {}) {
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
     led("err");
+    flowOutcome = "incomplete";
   }
   writing = false;
   renderConnectionAction(); refreshJourney();
@@ -1485,6 +1532,8 @@ $("bootread").addEventListener("click", () => {
     // Soft probe without prompting until Connect, unless the browser already granted MIDI.
   }
 })();
+// Six-stage projection: show the starting stage before any connection.
+refreshJourney();
 </script>
 </body>
 </html>
