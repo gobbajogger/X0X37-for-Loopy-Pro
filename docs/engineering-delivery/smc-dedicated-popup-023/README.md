@@ -5,6 +5,9 @@ keyboard screen. No new screen or renderer. Each peer owns its routing context.
 Normal SMC navigation leaves keyboard view/part/mixer selection/pages unchanged.
 Explicit dialog answers and Help dismissal retain their keyboard-owned actions.
 
+[Transport correction and fresh proof](TRANSPORT.md): PLAY and MMC Play/Stop open
+no popup; Rewind/Forward show the cued pattern in the existing action popup.
+
 Outside keyboard clip stages, note5 opens the SMC main-parts mixer (MIX page0);
 in a clip stage it is the SMC GLOBAL/BACK shortcut. Note6 is HOME/SONG and dismisses
 Help. Inside a confirmation, note5 accepts and note6 cancels. Panel HOME remains
@@ -13,14 +16,14 @@ SMC BANK/PAGE controls still retarget within that context, and unlock keeps its 
 
 | Model | Static RAM used | Free RAM | Base free | Pool free | App bytes |
 |---|---:|---:|---:|---:|---:|
-| Elite | 95872 B | 2432 B | 2352 B | 8536 B | 497692 B |
-| Pro | 95872 B | 2432 B | 2352 B | 8536 B | 497676 B |
+| Elite | 95872 B | 2432 B | 2352 B | 8536 B | 497868 B |
+| Pro | 95872 B | 2432 B | 2352 B | 8536 B | 497852 B |
 
 Both native builds PASS, SDK V1.2.1, `X0X_DEV_PADCAL=0`. The bounded descriptor
-cache and captured context cost 64 B versus the previous PR head (2496 B free),
+cache and captured context cost 64 B versus the pre-audit PR head (2496 B free),
 while retaining 80 B more free RAM than 0.0.23. Firmware binaries are not included.
 
-SMC/mixer aggregate: **38 PASS / 9 FAIL / 0 selected NOT_RUN**, 47 selectors.
+Earlier audit at `02c5224d`: SMC/mixer aggregate: **38 PASS / 9 FAIL / 0 selected NOT_RUN**, 47 selectors.
 [Results and remaining failures](TESTS.md). Popup 3718 checks, engine 21, core audit 25,
 held-step/song contracts 12, mixer pages 485, peer context 30 and fourteen mutation
 checks PASS. Full host suite and device validation NOT_RUN. This remains DRAFT.

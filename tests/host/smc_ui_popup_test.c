@@ -79,8 +79,98 @@ static void test_locked_bass_identity(void)
     CHECK(!engine_bass_preset_pending(0) && engine_bass_bank(0)==bank);
 }
 
+/* DAW notes, User MMC and host routes all use the real production queues. */
+static void transport_event(int route, int note, int down)
+{
+    if (route == 1 || route >= 3) {
+        if (!down) return; /* MMC has no physical release. */
+        int command = 33;
+        while (command <= 43 && smc_mmc_note(command) != note) command++;
+        CHECK(command <= 43);
+        if (route >= 3) smc_mmc_host((uint8_t)command, route == 4);
+        else {
+            uint8_t m[6] = {0xf0,0x7f,0x7f,6,(uint8_t)command,0xf7};
+            smc_ble_midi(m,sizeof m);
+        }
+    } else if (route == 2) {
+        CHECK(smc_midi_host((down ? 0x09u : 0x08u) |
+            (down ? 0x9fu : 0x8fu) << 8 | (uint32_t)note << 16 | (down ? 127u << 24 : 0)));
+    } else {
+        message(down ? 0x90 : 0x80,note,down ? 127 : 0);
+        return;
+    }
+    smc_poll();
+}
+
+static void transport_setup(int route, int locked)
+{
+    setup(V_SEQ,PART_909);
+    if (route) proj.set.bt |= PROJ_BT_SMC_USER;
+    seq.ppat[PART_909]=3;seq.pcue[PART_909]=0xff;
+    if (locked) { CHECK(smc_lock_toggle());smc_select_part(PART_808); }
+    smc_ui_cancel();
+    ui.part=PART_303B;set_view(V_FX);*page_of(V_FX)=1;build_pages();
+}
+
+static void test_transport_without_popup(void)
+{
+    for(int route=0;route<5;route++) {
+        transport_setup(route,0);screen_state_t keyboard=screen_state();
+        transport_event(route,0x5e,1);
+        CHECK(seq.req_start && !seq.req_stop);CHECK(!smc_ui_active());
+        transport_event(route,0x5e,0);keyboard_unchanged(keyboard);
+        transport_event(route,0x5e,1);
+        CHECK(seq.req_stop && !seq.req_start);CHECK(!smc_ui_active());
+        transport_event(route,0x5e,0);keyboard_unchanged(keyboard);
+        if(route==1 || route>=3) {
+            seq_start(&seq);transport_event(route,0x5d,1);
+            CHECK(seq.req_stop && !seq.req_start);CHECK(!smc.locked && !smc_ui_active());
+            keyboard_unchanged(keyboard);
+        }
+    }
+}
+
+static void pattern_footer(const char *number,const char *status)
+{
+    ui_frame();memcpy(active_fb,fb,sizeof fb);
+    /* Independently specified expected pixels in the existing action readout. */
+    cv_begin(240,KNOB_H,C_BLACK);cv_rect(0,0,240,1,C_LINE);
+    text_c(120,4,&FONT_S,"909 PATTERN",C_WHITE);
+    text_c(120,22,&FONT_M,number,C_HI);
+    text_c(120,49,&FONT_XS,status,C_HI);cv_commit(3,0,KNOB_Y);
+    CHECK(!memcmp(active_fb+KNOB_Y*240,fb+KNOB_Y*240,KNOB_H*240*sizeof *fb));
+}
+
+static void test_pattern_popup(void)
+{
+    for(int route=0;route<5;route++) for(int locked=0;locked<2;locked++) {
+        transport_setup(route,locked);screen_state_t keyboard=screen_state();
+        unsigned forces=clip_forces;
+        transport_event(route,0x5c,1);
+        CHECK(seq_cue_of(&seq,PART_909)==4 && seq_cue_of(&seq,PART_808)==-1);
+        CHECK(smc_ui_active() && smc_ui.kind==3 && smc_ui.action==0x5c);
+        CHECK(clip_forces==forces); /* Pattern input must not dismiss the overlay. */
+        pattern_footer("P5","CUED");keyboard_unchanged(keyboard);
+        if(!route && !locked) { ui_frame();shot("after-pattern-cue"); }
+        transport_event(route,0x5c,0);
+        transport_event(route,0x5c,1);CHECK(seq_cue_of(&seq,PART_909)==5);
+        pattern_footer("P6","CUED");transport_event(route,0x5c,0);
+        transport_event(route,0x5b,1);CHECK(seq_cue_of(&seq,PART_909)==4);
+        pattern_footer("P5","CUED");transport_event(route,0x5b,0);
+        transport_event(route,0x5b,1);CHECK(seq_cue_of(&seq,PART_909)==-1);
+        pattern_footer("P4","CURRENT");transport_event(route,0x5b,0);
+        seq.ppat[PART_909]=0;transport_event(route,0x5b,1);
+        CHECK(seq_cue_of(&seq,PART_909)==-1);pattern_footer("P1","CURRENT");
+        transport_event(route,0x5b,0);keyboard_unchanged(keyboard);
+        CHECK(!seq.playing && !seq.req_start && !seq.req_stop);
+        now_ms+=1200;CHECK(!smc_ui_active());
+    }
+}
+
 int main(void)
 {
+    test_transport_without_popup();
+    test_pattern_popup();
     test_locked_bank_recapture();
     test_help_musical_buttons();
     test_locked_bass_identity();

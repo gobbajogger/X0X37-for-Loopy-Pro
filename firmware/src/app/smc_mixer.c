@@ -1121,7 +1121,13 @@ static void smc_ui_draw_peer(void)
     } else if (smc_ui.kind == 3) {
         int note = smc_ui.action;
         int bus = smc_fx_bus_now((uint8_t)note);
-        if (bus >= 0) {
+        if (note == 0x5B || note == 0x5C) {
+            int part = smc.locked ? smc.lock_part : smc.part;
+            int cue = seq_cue_of(&seq, part);
+            put_s(put_s(name, part_s(part)), " PATTERN");
+            put_i(put_s(num, "P"), (cue >= 0 ? cue : seq.ppat[part]) + 1);
+            status = cue >= 0 ? "CUED" : "CURRENT";
+        } else if (bus >= 0) {
             smc_fx_publish();
             put_s(name, SMCFX_BUS_NAME[bus]);
             uint8_t fx = smcfx_strip_live_fx(&smc.fx_strip, bus);
@@ -1832,14 +1838,15 @@ static void smc_button(uint8_t note, int mmc)
     uint32_t until = ui.msg_until;
     int kit = smc_drum_mix();
     int action = !smc_lock_blocks(note) && smc_fx_bus_now(note) < 0 &&
-        (note == 0x5Du || note == 0x5Eu || note == 0x5Fu ||
+        (note == 0x5Bu || note == 0x5Cu || note == 0x5Fu ||
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);
     if (smc.locked && (note == 0x62 || note == 0x63) &&
         ui.overlay == O_NONE && !smk_clip_mode_on() && !smc_home_held())
         smc_ui_off();                   /* hide the previous routing epoch */
-    else smc_ui_cancel();              /* other navigation owns its new screen */
+    else if (note != 0x5B && note != 0x5C)
+        smc_ui_cancel();              /* other navigation owns its new screen */
     smc_button_apply(note, mmc);
     if (smc_fx_bus_now(24u) < 0) smc_fx_clear(); /* queued SMC navigation also cancels holds */
     if (action) {

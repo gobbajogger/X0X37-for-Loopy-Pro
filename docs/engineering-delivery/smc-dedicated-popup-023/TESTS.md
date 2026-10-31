@@ -1,5 +1,8 @@
 # SMC and mixer results
 
+This is the audit at `02c5224d`, before the transport correction.
+[Fresh transport checks](TRANSPORT.md) are reported separately.
+
 Aggregate: **38 PASS / 9 FAIL / 0 selected NOT_RUN**, 47 selectors.
 The full selected runner exited 1 (36 PASS/11 FAIL before fixture follow-ups).
 Fresh final checks supersede the peer fixture and Help-card drum expectations;
