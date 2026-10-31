@@ -19,6 +19,10 @@ int main(void){
  /* Physical > entry consumes the held repeat until release, including clip mode. */
  clip_grid_mode=clip_on=1;memset(&host_arw,0,sizeof host_arw);arrows_held=2;host_arrows();CHECK(ui.glo_section==0);int value=pref_get(list_rows[0]);
  for(int t=0;t<20;t++){now_ms+=80;host_arrows();CHECK(pref_get(list_rows[0])==value);}arrows_held=0;host_arrows();arrows_held=2;host_arrows();CHECK(pref_get(list_rows[0])==value+1);arrows_held=0;host_arrows();
+ /* Physical < leaves a section like HOME; the held repeat never edits a row. */
+ enter_group(3);ui.list_sel=1;int v3=pref_get(list_rows[1]);memset(&host_arw,0,sizeof host_arw);arrows_held=1;host_arrows();CHECK(ui.glo_section==-1&&ui.list_sel==3);
+ for(int t=0;t<20;t++){now_ms+=80;host_arrows();CHECK(ui.glo_section==-1&&ui.list_sel==3);}arrows_held=0;host_arrows();ui_frame();shot("back-arrow");
+ list_enter();CHECK(ui.glo_section==3&&ui.list_sel==1&&pref_get(list_rows[1])==v3);
  enter_group(5);CHECK(ui.list_n==3);clip_grid_mode=clip_on=0;
  enter_group(4);ui.list_sel=4;list_enter();CHECK(ui.overlay==O_ASK&&ui.ask_act==ACT_RESET);ui_frame();shot("reset-confirmation");button_tap(B_HOME);CHECK(ui.overlay==O_LIST&&ui.glo_section==4&&ui.list_sel==4);
  /* Connected-name bounds and marquee are covered by ui_peer_names_test.c. */

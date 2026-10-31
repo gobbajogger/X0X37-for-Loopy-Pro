@@ -3556,6 +3556,10 @@ static int ui_menu_arrow(int d)
     smc_ui_cancel();
 #endif
     pref_t r = list_rows[ui.list_sel];
+    if (d < 0 && ui.view == V_GLO && ui.glo_section >= 0) {
+        global_back();                                /* "<" leaves a settings section, as HOME */
+        return 1;                                     /* the held "<" must not edit the section index */
+    }
     if (list_sub_arrow(r, d))
         return d > 0;                                 /* the caller consumes this held category-entry arrow */
     turn_ref(r, d, EN_ALGO);
