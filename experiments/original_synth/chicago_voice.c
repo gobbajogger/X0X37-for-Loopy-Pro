@@ -46,10 +46,14 @@ int original_chicago_voice_tables_bind(original_chicago_voice_tables *out,origin
  float a,e;if(!read(context,0,&a,&e)||!original_binary32_isfinite(a)||a<0||a>1||!original_binary32_isfinite(e)||e< -1||e>1)return 0;
  original_chicago_voice_tables t;memset(&t,0,sizeof t);t.read=read;t.context=context;t.pitch=pitch;t.a0=a;t.e0=e;t.ready=TABLE_READY;*out=t;return 1;
 }
-int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *p){
- if(!out||!p)return 0;
+static int program_valid(const original_chicago_program *p){
  for(unsigned i=0;i<22;i++)if(!original_binary32_isfinite(p->macro[i])||p->macro[i]<0||p->macro[i]>1)return 0;
  for(unsigned i=0;i<29;i++)if(!original_binary32_isfinite(p->target[i])||p->target[i]<0||p->target[i]>1)return 0;
+ return 1;
+}
+int original_chicago_voice_compile(original_chicago_voice_controls *out,const original_chicago_program *p){
+ if(!out||!p)return 0;
+ if(!program_valid(p))return 0;
  original_chicago_voice_controls c;memset(&c,0,sizeof c);
  c.pitch.master_tune=bipolar(native(p,0));c.pitch.unison_detune=native(p,90);c.pitch.bend_range=24.0f*native(p,55);c.pitch.transpose=(int)Q(native(p,18),49)-24;c.pitch.detune=native(p,17);c.pitch.portamento=native(p,16);
  for(unsigned i=0;i<4;i++){unsigned j=i*4;c.shape[i]=(uint8_t)Q(native(p,j+1),5);if(c.shape[i]>3)return 0;c.pitch.semitone[i]=(int)Q(native(p,j+2),49)-24;c.pitch.fine_tune[i]=i?bipolar(native(p,j)):0;c.gain.level[i]=native(p,j+3);c.vcf[i]=native(p,28+i);c.vca[i]=native(p,32+i);}
@@ -63,6 +67,18 @@ int original_chicago_voice_compile(original_chicago_voice_controls *out,const or
  static const float base[10]={96,48,36,24,16,12,8,6,4,3};
  for(unsigned i=0;i<2;i++){c.mg_shape[i]=(uint8_t)Q(native(p,i?49:43),5);if(c.mg_shape[i]>3)return 0;c.mg_frequency[i]=native(p,i?50:44);c.mg_tempo[i]=(uint8_t)Q(native(p,i?52:46),2);c.mg_base[i]=base[Q(native(p,i?53:47),10)];c.mg_times[i]=(float)(16-Q(native(p,i?54:48),16));}
  c.revision=p->revision;c.ready=CONTROL_READY;*out=c;return 1;
+}
+/* The serial control owner supplies a corresponding preceding snapshot and
+ * exactly one mapped edit. Keep validation; reuse only unaffected conversions.
+ * Any other macro or uncertain cache takes the complete compiler above. */
+int original_chicago_voice_recompile(original_chicago_voice_controls *out,const original_chicago_program *p,unsigned macro){
+ if(!out||!p)return 0;
+ if((macro!=20&&macro!=2)||out->ready!=CONTROL_READY||p->revision!=out->revision+UINT32_C(1))
+  return original_chicago_voice_compile(out,p);
+ if(!program_valid(p))return 0;
+ if(macro==20)out->routing.bend_bipolar=bipolar(native(p,105));
+ else out->cutoff=native(p,24);
+ out->revision=p->revision;return 1;
 }
 static int mg_output(original_chicago_voice_mg *m,unsigned shape){if(!original_miami_mg_shape(shape,m->phase,&m->bipolar,&m->unipolar))return 0;m->wrapped=0;return 1;}
 static int mg_advance(original_chicago_voice_mg *m,const original_chicago_voice_controls *c,unsigned i,float bpm,uint32_t D){

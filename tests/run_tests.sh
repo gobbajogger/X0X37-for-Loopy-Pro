@@ -614,6 +614,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix 
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
 run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
 run perf-wheel-noise sh tests/host/perf_wheel_noise_test.sh
+run control-recompile sh tests/host/control_recompile_test.sh
 run audio-stress sh tests/host/audio_stress_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-presentation Pillow; else run chicago-presentation sh tests/host/chicago_presentation_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-readout Pillow; else run chicago-readout sh tests/host/chicago_readout_test.sh; fi
