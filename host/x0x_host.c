@@ -256,8 +256,16 @@ int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
 static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
-int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
+#ifndef X0X_HOST_BLE_STATE
+#define X0X_HOST_BLE_STATE (PLAT_BLE_NOIMG + 0 * ble_on)
+#endif
+int plat_ble_state(void) { return X0X_HOST_BLE_STATE; }
 const char *plat_ble_name(void) { return ""; }
+#ifndef X0X_HOST_BLE_PEERS
+void plat_ble_peers(plat_ble_peers_t *out) { memset(out,0,sizeof *out); out->state=PLAT_BLE_NOIMG; }
+#else
+void plat_ble_peers(plat_ble_peers_t *out) { X0X_HOST_BLE_PEERS(out); }
+#endif
 void plat_ble_set(int on) { ble_on = on; }
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
 uint32_t plat_xruns(void) { return 0; }

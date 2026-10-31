@@ -5827,6 +5827,38 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
     return 1;
 }
 
+#define PEER_TEXT_CAP (PLAT_BLE_PEER_CAP*(PLAT_BLE_PEER_NAME_MAX+2u)-1u)
+static struct { char text[PEER_TEXT_CAP]; unsigned count; int state, central, active, travel; uint32_t start; } peer_scroll;
+static void peer_join(char out[PEER_TEXT_CAP], const plat_ble_peers_t *peers)
+{
+    unsigned k=0,count=peers->count<PLAT_BLE_PEER_CAP?peers->count:PLAT_BLE_PEER_CAP;
+    for(unsigned i=0;i<count;i++) {
+        if(i){out[k++]=',';out[k++]=' ';}
+        unsigned n=0;while(n<PLAT_BLE_PEER_NAME_MAX && peers->name[i][n]) {
+            unsigned char c=(unsigned char)peers->name[i][n++];out[k++]=(char)(c>=32&&c<=126?c:'?');
+        }
+    }
+    if(!k)out[k++]='-';
+    out[k]=0;
+}
+static int peer_offset(const char *text,const plat_ble_peers_t *peers,int travel,uint32_t now)
+{
+    if(!peer_scroll.active || strcmp_s(text,peer_scroll.text) || peers->count!=peer_scroll.count ||
+       peers->state!=peer_scroll.state || peers->central!=peer_scroll.central || travel!=peer_scroll.travel) {
+        put_s(peer_scroll.text,text);peer_scroll.count=peers->count;peer_scroll.state=peers->state;
+        peer_scroll.central=peers->central;peer_scroll.travel=travel;peer_scroll.start=now;peer_scroll.active=1;
+    }
+    if(travel<=0)return 0;
+    uint32_t move=((uint32_t)travel*1000u+23u)/24u, phase=(now-peer_scroll.start)%(2u*(700u+move));
+    if(phase<700u)return 0;
+    phase-=700u;
+    if(phase<move)return (int)(phase*24u/1000u);
+    phase-=move;
+    if(phase<700u)return travel;
+    phase-=700u;
+    return travel-(int)(phase*24u/1000u);
+}
+
 /* a list over the main area: six rows of 24 px */
 static UI_DRAW void draw_list(int band)
 {
@@ -5862,6 +5894,13 @@ static UI_DRAW void draw_list(int band)
             cv_line(212, y + 13, 216, y + 9, ac);
             cv_line(212, y + 13, 216, y + 17, ac);
             continue;
+        }
+        if(r.kind==R_BTNAME) {                     /* read only: connected peers, a marquee when too wide */
+            plat_ble_peers_t peers;char shown[PEER_TEXT_CAP];const felucca_font_t *nf=sel?&FONT_B:&FONT_S;
+            plat_ble_peers(&peers);peer_join(shown,&peers);
+            int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
+            int offset=peer_offset(shown,&peers,travel,plat_ms());
+            cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
         }
         pref_value(r, num, unit);
         if (r.kind == R_BPRESET) {
@@ -7913,6 +7952,10 @@ void ui_frame(void)
         else do_undo(direction);
     }
 #endif
+    if(ui.overlay!=O_LIST || ui.help) peer_scroll.active=0;
+    else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+        if(list_rows[row].kind==R_BTNAME)visible=1;
+        if(!visible)peer_scroll.active=0; }
     undo_tick();
     autosave();
     if (!project_busy)
