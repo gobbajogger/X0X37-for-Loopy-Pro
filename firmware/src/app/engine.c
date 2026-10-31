@@ -1132,6 +1132,29 @@ static void original_rec_cancel_cut(void)
         rec_seen_src[v] = r->active ? r->src : 0xFF;
     }
 }
+/* A pending ambiguous off may time out during rendering rather than MIDI
+ * input. Keep the recorder's endpoint/cache and disconnect ownership in sync.
+ * REC's own generation and source/pitch ownership rules stay authoritative. */
+static void original_rec_recover_off(int voice)
+{
+    unsigned src = bass_held_src[voice];
+    if (src >= MIDI_NSRC || !bass_held_count[voice]) return;
+    unsigned pitch = bass_held[voice];
+    uint8_t now = original_bass[voice].keys[src][pitch];
+    if (now == bass_held_count[voice]) return;
+    bass_held_count[voice] = now;
+    if (now) return;
+    seq_bass_rec_t *r = &seq.rec_bass[voice];
+    if (r->own_ok && r->own_gen == r->gen && r->own_src == src && r->own_note == pitch) {
+        seq_rec_bass(&seq, voice, pitch, 0, 0, src, 0);
+        r->own_ok = 0;
+    }
+    bass_held[voice] = 0;
+    unsigned any = 0;
+    for (unsigned key = 0; key < 128; ++key) any |= original_bass[voice].keys[src][key];
+    if (!any) src_held[src] &= (uint16_t)~(1u << voice);
+}
+
 /* Retire only original-synth MIDI owners when their channel changes. */
 static void original_midi_context(void)
 {
@@ -1714,6 +1737,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         (void)original_runtime_prepare(&original_bass[b], seq_tempo(&seq));
         int status = original_runtime_render(&original_bass[b], &original_workspace, bb[b], bb[1-b], n);
         PROF_ADD(2 + b, pb);
+        if (status == ORIGINAL_RUNTIME_OK) original_rec_recover_off(b);
         /* Failed/unadmitted DSP is visible through engine_bass_status. No
          * fallback renderer, guessed silence-success or idle clock skipping. */
         if (status != ORIGINAL_RUNTIME_OK) continue;
