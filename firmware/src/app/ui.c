@@ -7063,7 +7063,8 @@ static UI_DRAW int og_states(pref_t r,int val,int *idx)
  * travels gx+2..gx+OG_W-1-ENV_FALL (19 of 26 px), so a full EG is clear to see. */
 #define ENV_FALL 4
 static int env_knee_x(int gx,float z)
-{ z=z<0?0:z>1?1:z; return gx+2+(int)(z*(OG_W-3-ENV_FALL)+.5f); }
+{ z=(z+.5f)*.5f; /* bipolar: cutoff+EG*ENV spans -0.5..1.5, CUTOFF 50% sits mid-cell */
+  z=z<0?0:z>1?1:z; return gx+2+(int)(z*(OG_W-3-ENV_FALL)+.5f); }
 static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
 {
     const x0x_param_t *d=pref_desc(r);
