@@ -1,0 +1,130 @@
+{
+  "after-install-390.png": {
+    "bytes": 295123,
+    "sha256": "60a0e8b8f74990a2b19ade6033ace1e7ffb5999d7d803b1bb0019b67656b4ec2"
+  },
+  "before-projects-390.png": {
+    "bytes": 141225,
+    "sha256": "0dc0c07f18d850c9c4743219ae0cb93c83ecf74d017b83c85778089407c77093"
+  },
+  "native-builds.json": {
+    "bytes": 1675,
+    "sha256": "6fc2d1578da4630bad4c155a0e8b3e73b834221f2175ff7e1cba3038f106fe6c"
+  },
+  "after-samples-390.png": {
+    "bytes": 113337,
+    "sha256": "f6fe8a5c11db9e457160d0477f79c082b3e36813a4701d6b07ac702a5d72cd32"
+  },
+  "sample-restore-red.log": {
+    "bytes": 1181,
+    "sha256": "0c5a5cf534ab8df02edf2ea85f45a8f8afa9a09ffdf14fd9632baebaac3483c2"
+  },
+  "font-browser-validation.json": {
+    "bytes": 1665,
+    "sha256": "98d08a8f77caae09661035a64f7a8e19b30478301cc07c862becf52cf0cf5ce8"
+  },
+  "before-install-1440.png": {
+    "bytes": 314684,
+    "sha256": "8a048ed710ab99a7159e925e3ffb2fc0e612f86796193bf8a1e26535bc161666"
+  },
+  "before-projects-1440.png": {
+    "bytes": 163455,
+    "sha256": "6834a713d8746e68fd1fbb113b6a1e25c3f609d517c8fb2406b57c2711f691c0"
+  },
+  "README.md": {
+    "bytes": 10390,
+    "sha256": "7beb80dc4c0e44d416c40ab73c25e781f50d22d634cf435e071c001afa976136"
+  },
+  "after-samples-1440.png": {
+    "bytes": 126689,
+    "sha256": "f293c9f7dd773e4a7910820fed4c4591f6e4f4e2318c8a199b09be1a90e40f39"
+  },
+  "b1-base-reproduction.log": {
+    "bytes": 998,
+    "sha256": "d990af5693bcbd3ef116ad3f3184416df1c74b5ecf02ef1b796816436f0b9973"
+  },
+  "before-samples-1440.png": {
+    "bytes": 123563,
+    "sha256": "e65152588cbb2515722f13e68ae558bd27a6aa1c3dff066d0589275fc013202c"
+  },
+  "browser-acceptance.json": {
+    "bytes": 1437,
+    "sha256": "5fcf49a5eb5829678b6a059e29ce0ea4daf1a4f6bf447629cd439ee415881191"
+  },
+  "before-install-390.png": {
+    "bytes": 277703,
+    "sha256": "9424a8f2dd60be0fcb2434c9ab9ada80d7cc32c28c7880658f2b7c3ed41d3c63"
+  },
+  "font-red.log": {
+    "bytes": 362,
+    "sha256": "f003a05823b5ba0e5cebb781b4fbdc18b11ce3bce25edf62233dbdf69a67e7da"
+  },
+  "after-projects-1440.png": {
+    "bytes": 171548,
+    "sha256": "e7b40f31bf5fff1c626e54abcc6f2566d9f35c2f49995663b2a7effface3845c"
+  },
+  "font-green.log": {
+    "bytes": 225,
+    "sha256": "b1c80735dd83b90f9133b9855db526990f28fe2caaf29e189e85d9a53f28ed07"
+  },
+  "provenance.json": {
+    "bytes": 8176,
+    "sha256": "2a9c2b916df80c3f531b96ccd5c236280121223385d5dbefd5b808df99ae0b39"
+  },
+  "revision13-guard-mutation.log": {
+    "bytes": 2437,
+    "sha256": "ee716059e8e6bc2873337ab60b8339658a412c78536edb698b794c615c0de949"
+  },
+  "site-generation-registered.log": {
+    "bytes": 44,
+    "sha256": "546cc169410125fa9f348fcd6f0925eb3f37b30ed950fc22d6b824680d34fb28"
+  },
+  "elite-build.log": {
+    "bytes": 1586,
+    "sha256": "e492e1a691aa0ac1818058f67ff72a9f2477ce05c241558c0cbae337c8f55829"
+  },
+  "full-host.log": {
+    "bytes": 63469,
+    "sha256": "9ad804e57ba20ac6d051c697a9ff5810f93e4f5cebea7370371046e4b94fede7"
+  },
+  "revision13-red.log": {
+    "bytes": 7587,
+    "sha256": "770fc456ca89ad5ea2e0477916dcc7078c3f2d7f16f0e1b5acd30d685bb567ea"
+  },
+  "revision13-final.log": {
+    "bytes": 4192,
+    "sha256": "95fc6e32c7074221f8b015d6da1ed08c0ec09a422267d9fc5b9da6055b9f8158"
+  },
+  "before-samples-390.png": {
+    "bytes": 105470,
+    "sha256": "8954448b3b4544b3a09b4b1dc64be4e79466a4bc56110544b6e340682f9e056d"
+  },
+  "after-projects-390.png": {
+    "bytes": 153040,
+    "sha256": "b0a43075ce2650a8b890c43e3dceaa56a797fef60eae46d39e347d0611a2a140"
+  },
+  "full-host-summary.json": {
+    "bytes": 42784,
+    "sha256": "b74a14da831bd0d6d67fbad05c728838e66b213f47b4668eba51e12a09cebbf7"
+  },
+  "focused-final.log": {
+    "bytes": 7988,
+    "sha256": "9d5c87a4da8a49b12384b6e6f5b63a44d7db793443fb30e02b7beec8bd909e02"
+  },
+  "font-proposal-review.md": {
+    "bytes": 2286,
+    "sha256": "6062f38cd8b9253ed6af7c76c7b7d40f676f0435e1f87c6e12d810328b23fdc7"
+  },
+  "after-install-1440.png": {
+    "bytes": 327122,
+    "sha256": "8d2af99501269676aa27e70c887c3a3b1660fe94cb846ac7f0b8481397556dba"
+  },
+  "pro-build.log": {
+    "bytes": 933,
+    "sha256": "80846ce6a7995e07977c86c9592e62490f6d52bdfdec53d04e62bbdfb1922446"
+  },
+  "sample-restore-green.log": {
+    "bytes": 1252,
+    "sha256": "88f39096dd0cc57c96c72dcef27a27c95b78b63f2030641071f1aa39416ad3fb"
+  }
+}
