@@ -12,6 +12,8 @@ import statistics
 FRAMES = 512
 SAMPLE_RATE = 44100
 DEADLINE_NS = FRAMES * 1e9 / SAMPLE_RATE
+# Owner explicitly requests fractions of 11.6 ms, slightly below 512/44100.
+OWNER_BUDGET_NS = 11_600_000
 
 
 def file_sha256(path):
@@ -46,14 +48,17 @@ def summarize(rows):
             'peak_deadline_percent': peak / DEADLINE_NS * 100,
             'margin_ns': DEADLINE_NS - peak,
             'limit_fraction': fraction,
-            'over_limit_blocks': sum(v > DEADLINE_NS * fraction for v in samples),
+            'limit_ns': OWNER_BUDGET_NS * fraction,
+            'limit_margin_ns': OWNER_BUDGET_NS * fraction - peak,
+            'over_limit_blocks': sum(v > OWNER_BUDGET_NS * fraction for v in samples),
             'over_deadline_blocks': sum(v > DEADLINE_NS for v in samples),
         }
 
     result = {
         'measurement': 'host; instrumented application, not a hardware ISR',
         'frames_per_half': FRAMES, 'sample_rate': SAMPLE_RATE,
-        'deadline_ns': DEADLINE_NS, 'blocks': len(rows),
+        'deadline_ns': DEADLINE_NS, 'owner_budget_ns': OWNER_BUDGET_NS,
+        'blocks': len(rows),
         'render_cpu': metric('cpu_ns', .60),
         'render_wall': metric('wall_ns', .60),
         'chicago_cpu': metric('chicago_cpu_ns', .15),

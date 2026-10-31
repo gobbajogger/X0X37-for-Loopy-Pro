@@ -1,28 +1,68 @@
 {
-  "selected_host_suite": {
-    "command": "X0X_TEST_JOBS=1 X0X_STRESS_BLOCKS=64 sh tests/run_tests.sh audio-stress runner-admission",
-    "selectors": [
-      "audio-stress",
-      "runner-admission"
-    ],
+  "source_commit": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+  "compiler_differential": {
+    "checks": 379667,
+    "fast_profile": "PASS",
+    "exact_profile": "PASS",
+    "ASan_UBSan_fast": "PASS",
+    "baseline_negative": "FAIL as expected: four width computations where zero required",
+    "production_path": "original_runtime_param -> backend -> control_owner, both synths"
+  },
+  "report_tests": {
+    "count": 6,
     "result": "PASS",
+    "strict_11_6_budget_red_green": "observed"
+  },
+  "selected_host_suite": {
+    "result": "PASS",
+    "selectors": [
+      "original-release-integration",
+      "original-stale-release",
+      "perf-wheel-motion",
+      "perf-wheel-noise",
+      "control-recompile",
+      "audio-stress"
+    ],
     "full_suite": false,
-    "runner_note": "Pro package tests unconditionally noted skipped; separate native Pro build passed"
+    "runner_note": "Pro package skip note printed; separate native Elite and Pro builds passed"
   },
-  "sanitizers": {
-    "ASan_UBSan": "PASS",
-    "blocks_each": 64,
-    "cases": 3,
-    "negative_control": "PASS"
-  },
-  "controlled_measurements": {
+  "whole_app_comparison": {
     "runs": 18,
     "blocks_each": 1024,
-    "workload_coverage": "PASS",
-    "PCM_identical": true,
+    "PCM_equal": true,
+    "workload_checks": "PASS",
     "peak_limits": "FAIL"
   },
-  "product_native_input_diff": "empty",
+  "exact_synth_PCM": {
+    "host_only": true,
+    "sample_rate": 44100,
+    "render_frames": 256,
+    "dma_frames": 512,
+    "dma_deadline_ns": 11609977.324263038,
+    "rounds": 3,
+    "exact_fma": true,
+    "sanitized": false,
+    "pcm_equal": true,
+    "pcm_bytes_per_round": 20447232,
+    "pcm_sha256": "6d9ad20ca43cc3e81ba962df8a922d6d419487666150c69d0fc3c2f6da854404",
+    "limits": "Synth closure only. No AC79 timing, ISR contention, drums, mixer, UI, flash, USB, or DMA execution.",
+    "scenarios": 72
+  },
   "target": "NOT_RUN",
-  "visual_mockups": "N/A"
+  "visual_mockups": "N/A",
+  "apple_host": {
+    "result": "PASS measured host limits",
+    "rounds": 3,
+    "blocks_per_round_case_side": 4096,
+    "total_halves_per_side": 36864,
+    "all_18_coverage_logs": "PASS",
+    "six_report_tests": "PASS",
+    "PCM_identical": true,
+    "source_driver_hashes": "verified against current checkout",
+    "target_acceptance": "NOT_RUN",
+    "production_control_regression": {
+      "result": "PASS",
+      "checks": 379667
+    }
+  }
 }

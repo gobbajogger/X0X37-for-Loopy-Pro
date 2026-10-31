@@ -18,7 +18,7 @@
 - No main/nightly merge, `.github`/Actions edits, FM-1 target, Miami ADSR, bootloader, BTIF, USRTRIM, efuse or key_mac operation. Exclude feature rows 73 and 120.
 - No sound change. Any proposed inaudible difference requires proof and explicit disclosure; prefer byte-identical output.
 - No firmware flashing is authorized by this task. Target acceptance requires exact installed candidate identity and a qualified, available test route.
-- At 44100 Hz, 512 frames allow 11.609977 ms: 60% = 6.965986 ms; 15% = 1.741497 ms. Report observed maximum first, mean second, and remaining deadline margin.
+- At 44100 Hz, 512 frames allow 11.609977 ms: owner's conservative 11.6 ms goals: 60% = 6.960 ms; 15% = 1.740 ms. Report observed maximum first, mean second, and remaining deadline margin.
 
 ## Review focus
 
@@ -39,6 +39,6 @@ Simultaneous note starts; edited preset adoption; FX state clearing and tails; q
 
 The implementation and evidence satisfy the owner's combined workload, unchanged sound, target CPU limits, zero observed target dropouts, native budgets and review requirements. A host pass, build-only result, or open draft PR alone does not close B2.
 
-## Diagnostic-stage outcome
+## Current outcome
 
-Native budgets and registered functional coverage pass. No optimization was justified or performed; target profiling and full B2 acceptance remain blocked. Before/after values are repeat controls of unchanged firmware. See `docs/perf/b2-stress-023/README.md`.
+Incremental bend/cutoff compilation removes verified redundant work with byte-identical snapshots and PCM. Baseline regression fails; current fast/exact/sanitizer and selected integration tests pass. Both native model builds retain 2352 B static RAM free. Shared Linux maxima still fail; an isolated Apple M4 host comparison passes strict owner limits across 36,864 halves per side with identical PCM. Exact-target acceptance remains blocked. See `docs/perf/b2-stress-023/README.md`.

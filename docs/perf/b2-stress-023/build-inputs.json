@@ -9,21 +9,23 @@
   "models": {
     "elite": {
       "result": "PASS",
-      "image_bytes": 499004,
+      "source_commit": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+      "image_bytes": 499628,
       "static_ram_used": 95952,
       "static_ram_free": 2352,
       "pool_free": 8536,
-      "log_sha256": "2ce39bf1eec167eccdc759ab44835dc4f877575452e411e53724e10acecdec5a",
-      "evidence": "actual native compile/link/package; no device operation"
+      "log_sha256": "35e11fa6e01b32f60188579654062e1402bdbb4b721b791a4152d9caa5dd4629",
+      "evidence": "actual isolated native compile/link/package; no device operation"
     },
     "pro": {
       "result": "PASS",
-      "image_bytes": 498988,
+      "source_commit": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+      "image_bytes": 499612,
       "static_ram_used": 95952,
       "static_ram_free": 2352,
       "pool_free": 8536,
-      "log_sha256": "3ff374e48f811c818b9e59f81a0c69721dd1820a03aadbabd6178acf8211ed7c",
-      "evidence": "actual native compile/link/package; no device operation"
+      "log_sha256": "46e90322db6fab77be00be69b14ce2dbf727844106ccdf1202c9b53e954b262b",
+      "evidence": "actual isolated native compile/link/package; no device operation"
     }
   },
   "sdk_inputs": {
@@ -47,5 +49,34 @@
     "observed": "MIDI inputs: (none)",
     "hardware_dropouts": null,
     "installed_identity": null
+  },
+  "baseline_models": {
+    "elite": {
+      "result": "PASS",
+      "image_bytes": 499004,
+      "static_ram_used": 95952,
+      "static_ram_free": 2352,
+      "pool_free": 8536,
+      "log_sha256": "2ce39bf1eec167eccdc759ab44835dc4f877575452e411e53724e10acecdec5a",
+      "evidence": "actual native compile/link/package; no device operation"
+    },
+    "pro": {
+      "result": "PASS",
+      "image_bytes": 498988,
+      "static_ram_used": 95952,
+      "static_ram_free": 2352,
+      "pool_free": 8536,
+      "log_sha256": "3ff374e48f811c818b9e59f81a0c69721dd1820a03aadbabd6178acf8211ed7c",
+      "evidence": "actual native compile/link/package; no device operation"
+    }
+  },
+  "candidate_source_commit": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
+  "candidate_source_files": {
+    "experiments/original_synth/chicago_control_owner.c": "75a9e30c026609a9bf449025490db4184e367cf27c24977e7d32f153ab0d7765",
+    "experiments/original_synth/chicago_voice.c": "bb539c7446b8a57823e6114b392ed62c6f7ff28155ff8d29dbb428229be5593e",
+    "experiments/original_synth/chicago_voice.h": "c72035c8586d58e97ea34e68ac448ffe71b50bc0dfc6b3dedc2e78eb261aab8b",
+    "experiments/original_synth/miami_control_owner.c": "d8c6945a689d4e651eaf7c8c13c5b6c8587dee55420cb1e4ec3c13c3f8365c57",
+    "experiments/original_synth/miami_selected_voice.c": "b27cf89ad5357b79a566fcd86f891f2f8702a3c788f4d755a8d898dec647f70b",
+    "experiments/original_synth/miami_selected_voice.h": "97894801e53a3ce807356446b8539332e078cbe6e86a8365b2f2a61e85c8cd72"
   }
 }

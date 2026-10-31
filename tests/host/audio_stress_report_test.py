@@ -38,6 +38,15 @@ class StressReportTest(unittest.TestCase):
         self.assertEqual(result['chicago_cpu']['over_limit_blocks'], 1)
         self.assertEqual(result['miami_cpu']['over_limit_blocks'], 0)
 
+    def test_owner_uses_the_stricter_eleven_point_six_ms_budget(self):
+        rows = self.rows()[:1]
+        rows[0].update(cpu_ns='6960001', wall_ns='6960001',
+                       chicago_cpu_ns='1740001', miami_cpu_ns='1740001')
+        result = report.summarize(rows)
+        for key in ('render_cpu', 'render_wall', 'chicago_cpu', 'miami_cpu'):
+            self.assertEqual(result[key]['over_limit_blocks'], 1)
+        self.assertFalse(result['host_timing_within_requested_limits'])
+
     def test_no_host_result_is_target_or_dropout_evidence(self):
         rows = self.rows()[:1]
         rows[0]['miami_cpu_ns'] = '0'

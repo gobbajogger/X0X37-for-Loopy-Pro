@@ -1,22 +1,25 @@
 {
   "review": "ce-code-review",
-  "status": "completed diagnostic review; B2 not ready",
+  "status": "completed source review; B2 peak acceptance not ready",
+  "source_commit": "e6aefdf78317a0a27ce32d5137d4b8f55479fac1",
   "reviewers": [
-    "correctness",
+    "correctness (independent validator agent)",
     "testing",
     "maintainability",
     "project-standards",
     "adversarial"
   ],
-  "independent_validator": true,
-  "resolved_findings": [
-    "Assert every burst reaches the synth consumers",
-    "Provide portable instrumentation for the registered Mac host test",
-    "Include sequencer release work in synth CPU accounting"
+  "findings": [
+    {
+      "severity": "P2",
+      "title": "Verify bounded work through production control owners",
+      "resolution": "Added runtime-param/backend/control-owner assertions for zero width conversions on bend/cutoff and four on ordinary edits; full program/controls comparisons. Testing reviewer independently confirmed resolution."
+    }
   ],
-  "followup": "Correctness and testing reviewers independently confirmed fixes against current source and smoke evidence",
-  "simplification": "Three-persona review; stream PCM hash fixed",
+  "unresolved_source_findings": [],
+  "simplification": "Quality/reuse/efficiency read-only review: no changes warranted",
   "cross_provider_review": "NOT_RUN: unavailable",
   "hardware_acceptance": "NOT_RUN",
-  "apple_toolchain_execution": "NOT_RUN"
+  "apple_toolchain_execution": "PASS: before/after stress and all 18 coverage logs; limits met, no target implication",
+  "strict_report_followup": "Testing reviewer independently checked strict11.6ms thresholds, one-ns boundary regression, and explicit Linux FAIL / target NOT_RUN handling"
 }
