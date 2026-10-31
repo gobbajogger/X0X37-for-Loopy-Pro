@@ -3824,6 +3824,18 @@ static const char *division_pad_label(void)
         "PADS: RATE 1/12", "PADS: RATE 1/24"};
     return labels[division_pad_index()];
 }
+/* Free Play bottom row: pads 9-12 pick the wobble SHAPE (control 11: TRI, DOWN,
+ * UP, SQR); pads 13-16 are empty: dark, and a press does nothing. */
+enum { DIVISION_SHAPE_PADS = 4 };
+static int division_shape_index(void)
+{
+#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
+    int v = pref_get(PR(R_ENG, T_303, bidx(), ORIGINAL_MIAMI_WOBBLE_SHAPE));
+    return v < 0 ? 0 : v > 127 ? 3 : (v * 3 + 63) / 127;
+#else
+    return 0;
+#endif
+}
 static void division_pad_input(void)
 {
     int owner = division_pad_owner();
@@ -3833,7 +3845,12 @@ static void division_pad_input(void)
         pref_set(PR(R_ENG, T_303, owner - 1, ORIGINAL_MIAMI_WOBBLE_RATE), (pad * 127 + 3) / 7);
         mark_dirty(); ui.act_t = plat_ms();
         say("WOBBLE ", division_pad_label() + 11);
-    }
+    } else if (owner && pad >= 8 && pad < 8 + DIVISION_SHAPE_PADS) {
+        static const char *const shape[DIVISION_SHAPE_PADS] = {"SHAPE TRI","SHAPE DOWN","SHAPE UP","SHAPE SQR"};
+        pref_set(PR(R_ENG, T_303, owner - 1, ORIGINAL_MIAMI_WOBBLE_SHAPE), ((pad - 8) * 127 + 1) / 3);
+        mark_dirty(); ui.act_t = plat_ms();
+        say("WOBBLE ", shape[pad - 8]);
+    }   /* pads 13-16: empty, nothing */
 #else
     (void)pad;
 #endif
@@ -7794,8 +7811,8 @@ static void leds(void)
     if (division_pad_owner()) {
         k = d = 0; /* no fake keybed notes from physical pad LEDs */
         if (proj.set.keyled) {
-            for (i = 0; i < 8; i++) d |= 1u << WHITE_KEY[i];
-            k = 1u << WHITE_KEY[division_pad_index()];
+            for (i = 0; i < 8 + DIVISION_SHAPE_PADS; i++) d |= 1u << WHITE_KEY[i];
+            k = 1u << WHITE_KEY[division_pad_index()] | 1u << WHITE_KEY[8 + division_shape_index()];
         }
     }
     plat_keys_dim(d & ~k);
