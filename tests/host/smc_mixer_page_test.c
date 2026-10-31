@@ -61,10 +61,9 @@ int main(void)
     CHECK(smc_same(held_fader, smc_target(0)));
     CHECK(smc_same(held_knob, smc_knob_target(0)));
     page_tap(0x63);
-    /* Approved #737 peek: locked PAGE+ briefly shows the locked page on the
-     * keyboard screen, then the timeout restores the keyboard page. */
+    /* Owner rule: locked PAGE+ never drives the keyboard page/menu. */
     CHECK(smc.lock_page == 2 && smc_page_now() == 2);
-    CHECK(smc_peek->on && cur_page() == 2);
+    CHECK(!smc_peek->on && cur_page() == 3);
     now_ms += SMC_PEEK_MS + 1; smc_poll();
     CHECK(!smc_peek->on && cur_page() == 3);
     CHECK(smc_drum_mix() == PART_808 && !smc_led(24) && smc_led(25));
@@ -129,8 +128,7 @@ int main(void)
                 CHECK(!smc_same(k, smc_knob_target(j)));
         }
     }
-    /* Short Pause press while locked: show the locked page for
-     * SMC_PEEK_MS, then restore the keyboard page. Lock stays on. */
+    /* Short Pause press while locked keeps the lock and the keyboard page. */
     setup(V_MIX, PART_909);
     *page_of(V_MIX) = 1; build_pages();
     page_tap(0x5D);
@@ -139,11 +137,10 @@ int main(void)
     *page_of(V_MIX) = 3; build_pages(); smc_peek_cancel();
     CHECK(cur_page() == 3 && !smc_peek->on);
     page_tap(0x5D);
-    CHECK(smc.locked && smc_peek->on && ui.view == V_MIX && cur_page() == 1);
+    /* Owner rule: no keyboard page change on a locked Pause tap. */
+    CHECK(smc.locked && !smc_peek->on && ui.view == V_MIX && cur_page() == 3);
     ui_frame();
-    now_ms += SMC_PEEK_MS - 100; smc_poll();
-    CHECK(smc_peek->on && cur_page() == 1);
-    now_ms += 101; smc_poll();
+    now_ms += SMC_PEEK_MS + 1; smc_poll();
     CHECK(smc.locked && !smc_peek->on && cur_page() == 3);
     /* Long Pause press still unlocks and shows no peek. */
     page_note(0x90, 0x5D, 127);
