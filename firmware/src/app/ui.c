@@ -16,6 +16,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
+#include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
@@ -385,6 +386,7 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;
 
 static const char *const GLOBAL_SECTIONS[6] = {"MIDI + CLOCK", "BLUETOOTH", "AUDIO", "KEYS + SCREEN", "PROJECT", "SYSTEM"};
 static ui_original_control_cache original_controls X0X_POOL;
+static ui_original_wave_cache original_wave X0X_POOL;   /* engine waveform cue (ca8299b6 / 9e237cce) */
 static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
 static const ui_original_control_view *original_text_view(pref_t r, int value);
@@ -2703,6 +2705,23 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
     }
     if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
     return ui_original_controls_update(&original_controls,r.b,cell,preview,mask) ? &original_controls.view : 0;
+}
+
+/* The engine waveform of an oscillator control, with the same lock/motion
+ * preview as the text readout. 0 when the slot has no waveform. */
+static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
+{
+    const uint8_t *cell = proj.sound.v[T_303][r.b];
+    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
+    uint8_t preview[22] = {0}; uint32_t mask = 0;
+    for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
+        pref_t ref = PR(R_ENG,T_303,r.b,id);
+        int q = lock_step() >= 0 ? lock_of(ref,lock_step()) : motion_now(ref);
+        if (q >= 0) { preview[id] = (uint8_t)q; mask |= 1u<<id; }
+    }
+    if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
+    return ui_original_wave_update(&original_wave,r.b,cell,preview,mask) ? &original_wave : 0;
 }
 
 static void lock_turn(pref_t r, int e, int role)
@@ -6349,6 +6368,21 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */
 }
 
+/* Engine waveform cue (restored from ca8299b6): slot 0 is the Chicago
+ * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
+static int original_wave_slot(unsigned kind,int p)
+{
+    if(p==0)return 0;
+    if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
+    return -1;
+}
+static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_wave_cache *v,int slot,uint16_t ink,uint16_t face)
+{
+    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));
+    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)
+        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);
+}
+
 enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
 /* One affine projection per supported range. The pulse zero is near its low
  * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
@@ -6670,7 +6704,11 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         else strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */
     } else
     if(shape) {
-        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        int slot=original_wave_slot((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
+        const ui_original_wave_cache *wave=slot>=0?original_wave_view(r,val):0;
+        uint16_t face=night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE);
+        if(wave) draw_original_wave(cx-10,y+25,wave,slot,ink,face);
+        else draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,face);
         pref_value_of(r,val,num,unit);           /* original readout text */
         strip_value(cx+17,y+28,num,unit,ink);
     } else {
@@ -7924,6 +7962,7 @@ X0X_COLD void ui_init(void)
     memset(&ui, 0, sizeof ui);
     (void)plat_division_pad(0);
     original_controls.valid = 0;
+    original_wave.valid = 0;
     memset(kbd_held_note, 0, sizeof kbd_held_note);
     memset(kbd_held_key, 0, sizeof kbd_held_key);
     memset(kbd_arp_n, 0, sizeof kbd_arp_n);

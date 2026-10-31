@@ -95,6 +95,7 @@ test_class() {
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|smc-popup-engine|smc-audit-core|smc-audit-contract|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
+    chicago-adsr-graph|ui-settings-sections) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -423,6 +424,9 @@ run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
 run ui-shared-glyph sh tests/host/ui_shared_glyph_test.sh  # shared glyphs across live UI pages
 run ui-drum-mix-material sh tests/host/ui_drum_mix_material_test.sh  # 808/909 captions, rails and pan
 run ui-waveform-truth sh tests/host/ui_waveform_truth_test.sh  # Miami TRI/SQR/PUL value-cell shapes
+run ui-page-wrap python3 tests/host/ui_page_wrap_test.py  # production SELECT handler; no generated inputs
+run chicago-adsr-graph sh tests/host/chicago_adsr_graph_test.sh
+run ui-settings-sections sh tests/host/ui_settings_sections_test.sh
 run smc-ui-bounds sh tests/host/smc_ui_bounds_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
