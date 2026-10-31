@@ -11,6 +11,13 @@ static int32_t block[512];
 static uint32_t sample_crc;
 
 static void render(void) { engine_render(block, 256); }
+/* Change one 303 sound byte and keep it in range: an out-of-range cell is an
+ * invalid sound, and project_save refuses it (-9). */
+static void bump_cutoff(void)
+{
+    uint8_t *c = &proj.sound.v[T_303][0][BASS303_CUTOFF];
+    *c = (uint8_t)(*c < 127 ? *c + 1 : *c - 1);
+}
 static void check_samples(void)
 {
     assert(st_crc32(slot_img, sizeof slot_img) == sample_crc);
@@ -152,7 +159,7 @@ static void invalid_load_and_undo(void)
 {
     undo_start();
     uint8_t cutoff = proj.sound.v[T_303][0][BASS303_CUTOFF];
-    proj.sound.v[T_303][0][BASS303_CUTOFF]++;
+    bump_cutoff();
     mark_dirty();
     before = proj; seq_before = seq;
     uint32_t writes = store_writes;
@@ -163,6 +170,11 @@ static void invalid_load_and_undo(void)
     assert(ui.dirty && !ui_project_busy() && store_writes == writes && undo.n == 1);
     assert(!memcmp(undo_shadow, (uint8_t *)&proj + UNDO_OFF, UNDO_BYTES));
     do_undo(0);
+#if X0X_BASS_TAGGED_SOUND
+    /* A 303 sound undo waits for the engine boundary; ui_frame retries it. */
+    for (int i = 0; i < 64 && undo_wait; i++) { render(); ui_frame(); }
+    assert(!undo_wait);
+#endif
     assert(proj.sound.v[T_303][0][BASS303_CUTOFF] == cutoff);
     store[OBJ_PAT0][16] = old;
     check_samples();
@@ -235,7 +247,7 @@ static void busy_and_save_status(void)
     render();
     ui_frame();
     assert(!save_wait && !ui.dirty && store_writes > writes);
-    proj.sound.v[T_303][0][BASS303_CUTOFF]++;
+    bump_cutoff();
     mark_dirty();
     store_fail = 1;
     assert(ui_project_save() == -2);                 /* sound-storage failure is distinct from busy */
@@ -248,7 +260,7 @@ static void busy_and_save_status(void)
 static void performance_save_window(void)
 {
     seq.bpm = 171.0f;
-    proj.sound.v[T_303][0][BASS303_CUTOFF]++;
+    bump_cutoff();
     mark_dirty();
     seq_start(&seq);
     render();
@@ -267,7 +279,7 @@ static void performance_save_window(void)
     render();
     assert(seq.playing);
 
-    proj.sound.v[T_303][0][BASS303_CUTOFF]++;
+    bump_cutoff();
     mark_dirty();
     save_project();
     assert(save_wait);

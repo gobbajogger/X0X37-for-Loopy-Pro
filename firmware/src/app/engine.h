@@ -80,6 +80,10 @@ int engine_bass_preset_edited(int voice);
 int engine_bass_status(int voice);
 /* Chicago only, UI: live filter EG level 0..1 and env depth; 0 when not available */
 int engine_bass_filter_view(int voice, float *eg, float *depth);
+/* Chicago native compiled envelope controls (including macro scaling). */
+int engine_bass_adsr_view(int voice, float values[4], unsigned *gate);
+/* UI-only snapshot of the real amplitude EG and first modulator. */
+int engine_bass_voice_view(int voice, float *level, float *modulation, unsigned *state, unsigned *key_down);
 /* drums, UI: ms since the track's last hit, its live amp envelope 0..1; 0 when silent */
 int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
 /* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */
@@ -94,6 +98,9 @@ void engine_bass_edit_hold(int hold);
 int engine_bass_preview_changed(void);
 void engine_bass_wheel_owners(uint8_t mask);
 #endif
+void engine_bass_mod(int v, int val);       /* mod wheel: Chicago cutoff / Miami wobble depth, recordable */
+int engine_bass_mod_param(int v);
+int engine_bass_ext_touch(int v);           /* bit0 bend, bit1 mod moved by ext MIDI since last call */
 
 /* Review-only runtime and separately guarded tagged-storage units; defaults OFF. */
 #ifndef X0X_BASS_PRESET_PREVIEW
@@ -240,6 +247,15 @@ int engine_brk_bend_value(void);
 void engine_brk_live(int key, int down);
 void engine_brk_edit_hold(int held);
 uint32_t engine_brk_held(void); /* aggregate slice ownership, macros excluded */
+/* External MIDI record events (engine midi_in -> UI). One writer (midi_in), one reader (ui_frame).
+ * Packing: bits 0..3 part (PART_909, PART_808, PART_BRK), 4..9 voice (drum) or slice (break),
+ * 10..16 velocity, 17..24 the record step (seq_rec_step at the note). */
+#define REC_EV(part, voice, vel, step) ((uint32_t)(part) | (uint32_t)(voice) << 4 | (uint32_t)(vel) << 10 | (uint32_t)(step) << 17)
+#define REC_EV_PART(e) ((int)((e) & 15u))
+#define REC_EV_VOICE(e) ((int)(((e) >> 4) & 63u))
+#define REC_EV_VEL(e) ((int)(((e) >> 10) & 127u))
+#define REC_EV_STEP(e) ((int)(((e) >> 17) & 255u))
+int engine_rec_ev_get(uint32_t *ev);   /* 1 = a current-generation event was taken; stale entries are dropped */
 int engine_brk_count(int bank); /* currently applied snapshot count; requested changes may wait for release */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */

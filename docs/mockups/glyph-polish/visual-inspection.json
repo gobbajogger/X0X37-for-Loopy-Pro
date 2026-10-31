@@ -1,0 +1,341 @@
+{
+  "reviewer": "root",
+  "coverage": "Every sampled source frame in all 52 animated sheets and six static atlases (1987 frames per phase); supplementary mono atlases and selected native full-screen value sheets inspected.",
+  "status": "PASS",
+  "images": {
+    "chicago-env-frames-01.png": {
+      "sha256": "d31f186c642513576bd8a6d7c667b254b0c95a7c9e2a681dde3087080627bb49",
+      "reviewer": "root",
+      "notes": "All frames inspected. Bite retains recognizable clipping contour with native VCA pips, margin clear. ENV peak fixed height, all signed distances/directions distinct, centre stationary and return correct. Chicago level uses pulsing real-EG segments and readable setpoint."
+    },
+    "chicago-env-frames-02.png": {
+      "sha256": "7fc8d873891ac1d15db6320deb214d37a0c8793aae1cc262df63f7ff31621244",
+      "reviewer": "root",
+      "notes": "All frames inspected. Bite retains recognizable clipping contour with native VCA pips, margin clear. ENV peak fixed height, all signed distances/directions distinct, centre stationary and return correct. Chicago level uses pulsing real-EG segments and readable setpoint."
+    },
+    "chicago-env-values.png": {
+      "sha256": "f489c23ef7f4206c6a655ffc607a57138a5d6e33c84c3c020e82cd5601e9c807",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "Inspected actual framebuffer comparison. Primary glyph shapes remain distinct; stacked drum number/unit readout stays outside decay glyph; ADSR labels and live stage rail are separated; bipolar ENV readouts and horizontal differences are clear. One-bit masks are supplementary threshold diagnostics."
+    },
+    "808-accent-frames-01.png": {
+      "sha256": "5a0bf1dca0e47549f5fa4424f30918e4749f2a009bd42b02803321a7d063f8ed",
+      "reviewer": "root",
+      "notes": "All frames and values inspected. Accent paired peaks pulse distinctly by depth; attack click/body remains clear; decay remaining tail fades with hit and recovers to distinct idle lengths. Bounds clear."
+    },
+    "808-accent-frames-02.png": {
+      "sha256": "5579d1c0e8fb2b7dcae6456d7a5e662369c735c71b9c93957989b6e19db39a5c",
+      "reviewer": "root",
+      "notes": "All frames and values inspected. Accent paired peaks pulse distinctly by depth; attack click/body remains clear; decay remaining tail fades with hit and recovers to distinct idle lengths. Bounds clear."
+    },
+    "808-attack-frames-01.png": {
+      "sha256": "679f4af0cfff829a2a15364d07a3296f9c3d803424a4a3e64c5541763d9d76aa",
+      "reviewer": "root",
+      "notes": "All frames and values inspected. Accent paired peaks pulse distinctly by depth; attack click/body remains clear; decay remaining tail fades with hit and recovers to distinct idle lengths. Bounds clear."
+    },
+    "808-attack-frames-02.png": {
+      "sha256": "34ef54af0a58d12e46c0deae47c57365098b5e67b66f3527e60d4af1e2b716b9",
+      "reviewer": "root",
+      "notes": "All frames and values inspected. Accent paired peaks pulse distinctly by depth; attack click/body remains clear; decay remaining tail fades with hit and recovers to distinct idle lengths. Bounds clear."
+    },
+    "808-decay-frames-01.png": {
+      "sha256": "8a406a74c7ec5c27863987d6851c449d9b100580d86be00c0e450e3f4dd0a2db",
+      "reviewer": "root",
+      "notes": "All frames and values inspected. Accent paired peaks pulse distinctly by depth; attack click/body remains clear; decay remaining tail fades with hit and recovers to distinct idle lengths. Bounds clear."
+    },
+    "808-decay-frames-02.png": {
+      "sha256": "1586eb24b99991a7ffcecddb7d24a0acf73c81266591515d009c5e008de2e699",
+      "reviewer": "root",
+      "notes": "All frames and values inspected. Accent paired peaks pulse distinctly by depth; attack click/body remains clear; decay remaining tail fades with hit and recovers to distinct idle lengths. Bounds clear."
+    },
+    "808-level-frames-01.png": {
+      "sha256": "9a9c5d1557d6ef3379043293aba20dbbf0be59296e94ad87e2eccba6d9152786",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Level segments pulse from white active fill toward configured ceiling, zero stable. Shell-tone clearly shifts low/high peak balance and decays. Snappy is irregular noise fading per hit; zero remains quiet; idle preview returns. No clipping."
+    },
+    "808-level-frames-02.png": {
+      "sha256": "c8f50e57f2180924ff0df5ea4dd08af5e6c524b40e9b98f01abe6ccd23ec78d5",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Level segments pulse from white active fill toward configured ceiling, zero stable. Shell-tone clearly shifts low/high peak balance and decays. Snappy is irregular noise fading per hit; zero remains quiet; idle preview returns. No clipping."
+    },
+    "808-shell-tone-frames-01.png": {
+      "sha256": "09e7737aeebfcb48a36b554969d3d1bfff31a81ad4778f1fa1f04abcef9137ab",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Level segments pulse from white active fill toward configured ceiling, zero stable. Shell-tone clearly shifts low/high peak balance and decays. Snappy is irregular noise fading per hit; zero remains quiet; idle preview returns. No clipping."
+    },
+    "808-shell-tone-frames-02.png": {
+      "sha256": "a3b8eed2563c8647dd5955a8a4c5b066175698a9c05e59633865bda686ccbc67",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Level segments pulse from white active fill toward configured ceiling, zero stable. Shell-tone clearly shifts low/high peak balance and decays. Snappy is irregular noise fading per hit; zero remains quiet; idle preview returns. No clipping."
+    },
+    "808-snappy-frames-01.png": {
+      "sha256": "a1aaacb14a00cd1fab713fb26765cdb531cc8c5b0470036b3fe4fee5948c3d0a",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Level segments pulse from white active fill toward configured ceiling, zero stable. Shell-tone clearly shifts low/high peak balance and decays. Snappy is irregular noise fading per hit; zero remains quiet; idle preview returns. No clipping."
+    },
+    "808-snappy-frames-02.png": {
+      "sha256": "31891bef35437b36c46abbe4212b1feaaf9fcb83e3dfd0cf307b7b90cd7ed2d1",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Level segments pulse from white active fill toward configured ceiling, zero stable. Shell-tone clearly shifts low/high peak balance and decays. Snappy is irregular noise fading per hit; zero remains quiet; idle preview returns. No clipping."
+    },
+    "808-sound-frames-01.png": {
+      "sha256": "3d5b8797a76e3bd89865d307c67d96de2a00c0c8d58be9e21012424fcef32456",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. SOUND discrete positions intentionally repeat knob samples but selected pip pulses; corrected live pip bounds clear. LPF-tone knee moves right with value and live spectrum fades high bins first; idle stable."
+    },
+    "808-sound-frames-02.png": {
+      "sha256": "8753c7e1f586ed2cd796b8d4f261cfd925181b4085a9b408c2d87c9946d9488a",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. SOUND discrete positions intentionally repeat knob samples but selected pip pulses; corrected live pip bounds clear. LPF-tone knee moves right with value and live spectrum fades high bins first; idle stable."
+    },
+    "808-tone-frames-01.png": {
+      "sha256": "f602141ec9bd32bab99a448b29f4994e9db4905df171b9a71a51b2f6ab147975",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. SOUND discrete positions intentionally repeat knob samples but selected pip pulses; corrected live pip bounds clear. LPF-tone knee moves right with value and live spectrum fades high bins first; idle stable."
+    },
+    "808-tone-frames-02.png": {
+      "sha256": "decf81fdbbd285977090e4b091919031f28a9a05b5171f995cf497f330cdf12e",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. SOUND discrete positions intentionally repeat knob samples but selected pip pulses; corrected live pip bounds clear. LPF-tone knee moves right with value and live spectrum fades high bins first; idle stable."
+    },
+    "808-tune-frames-01.png": {
+      "sha256": "c6d4bf2a6f40a404dd473757c8bb4184e419a8e24d4916e06e6779728d51aa70",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All frames/values re-inspected after fix. Distinct pitch-drop and wave bands retain two blank rows; actual-envelope waveform shrinks and idle returns; all five tune values clearly distinct. Prior overlap resolved."
+    },
+    "808-tune-frames-02.png": {
+      "sha256": "58b36c2686b5d18bb7c4f6ebb2ee9777cea4547e57a669b4428ccc9927ae8552",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All frames/values re-inspected after fix. Distinct pitch-drop and wave bands retain two blank rows; actual-envelope waveform shrinks and idle returns; all five tune values clearly distinct. Prior overlap resolved."
+    },
+    "909-accent-frames-01.png": {
+      "sha256": "c620bbbe91ed1670ffd05c78cef45aa1738b487f86a39dc80d809bf714837a97",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. 909 paired accent peaks and click/body are clear; real decay shrinks and returns. Wide readout no longer intrudes into decay glyph. Different decay values retain distinct lengths."
+    },
+    "909-accent-frames-02.png": {
+      "sha256": "fa32f3915507ddd1b1445c91a7d09b7d79001b9704046f70d0f22245b8611368",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. 909 paired accent peaks and click/body are clear; real decay shrinks and returns. Wide readout no longer intrudes into decay glyph. Different decay values retain distinct lengths."
+    },
+    "909-attack-frames-01.png": {
+      "sha256": "4c387132fbfce0cd50388c399bf5c1880738a4a85268a2cf58763d29d259bb3b",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. 909 paired accent peaks and click/body are clear; real decay shrinks and returns. Wide readout no longer intrudes into decay glyph. Different decay values retain distinct lengths."
+    },
+    "909-attack-frames-02.png": {
+      "sha256": "f6c8ef8f9d559ed45ed27bb55bc34c4cb874766b8f405b88556beae381136cfc",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. 909 paired accent peaks and click/body are clear; real decay shrinks and returns. Wide readout no longer intrudes into decay glyph. Different decay values retain distinct lengths."
+    },
+    "909-decay-frames-01.png": {
+      "sha256": "fe7a15bd737eca4f290f17fed1a1778e0f4601e883327e8d22cd18c91ce5047c",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. 909 paired accent peaks and click/body are clear; real decay shrinks and returns. Wide readout no longer intrudes into decay glyph. Different decay values retain distinct lengths."
+    },
+    "909-decay-frames-02.png": {
+      "sha256": "827e90110fc850c3877eaf3a79118b20f4372ba534d82c7de5df5ab5a77ab21e",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. 909 paired accent peaks and click/body are clear; real decay shrinks and returns. Wide readout no longer intrudes into decay glyph. Different decay values retain distinct lengths."
+    },
+    "909-level-frames-01.png": {
+      "sha256": "91df4929d3137846f5494173147dd881de009e5331601ea610f58ec99ff6a9d1",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Live LEVEL segments pulse and fade; zero remains stable. Corrected kick depth has distinct contour heights at all five values and engine-driven dot traverses descent; PITCH differences clear. No clipping."
+    },
+    "909-level-frames-02.png": {
+      "sha256": "34a20b74785c80dbae40e03f071a5ecebf0ba60540ac1db36599a774a78cf617",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Live LEVEL segments pulse and fade; zero remains stable. Corrected kick depth has distinct contour heights at all five values and engine-driven dot traverses descent; PITCH differences clear. No clipping."
+    },
+    "909-pitch-depth-frames-01.png": {
+      "sha256": "6dd365aa76b494c770b1030c142b91e0896d3ed4615b22791c86b82e23bb4ef5",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Live LEVEL segments pulse and fade; zero remains stable. Corrected kick depth has distinct contour heights at all five values and engine-driven dot traverses descent; PITCH differences clear. No clipping."
+    },
+    "909-pitch-depth-frames-02.png": {
+      "sha256": "c019ba6e0343ac22207e2ea5e432cf67ac1497707b5f9f3ad3ee3106e8c541cc",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Live LEVEL segments pulse and fade; zero remains stable. Corrected kick depth has distinct contour heights at all five values and engine-driven dot traverses descent; PITCH differences clear. No clipping."
+    },
+    "909-pitch-frames-01.png": {
+      "sha256": "e906d96cedc67c8ad70a965b1b3484e2adba2f4431e4104db552511b62f9a9f0",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Live LEVEL segments pulse and fade; zero remains stable. Corrected kick depth has distinct contour heights at all five values and engine-driven dot traverses descent; PITCH differences clear. No clipping."
+    },
+    "909-pitch-frames-02.png": {
+      "sha256": "0925d8afd7ed90fea27f74dd9b7608a392c3444c88db713c662db6058b1defd3",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Live LEVEL segments pulse and fade; zero remains stable. Corrected kick depth has distinct contour heights at all five values and engine-driven dot traverses descent; PITCH differences clear. No clipping."
+    },
+    "909-snappy-frames-01.png": {
+      "sha256": "158ba91a0467c5d86fa7380777dfdbbd9cc517296124c01fa85bd98c3e16774d",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Snappy irregular noise declines with actual hit; zero silent. 909 snare Tone truthfully depicts its noise-tail time, with distinct lengths and no readout overlap. Kick TUNE follows actual pitch descent and decay with value-dependent shape, no clipping."
+    },
+    "909-snappy-frames-02.png": {
+      "sha256": "7bd41bc4002eb0a1a055dda452d0dfc33df40b08c40e5f1c7820851bfc0aae1e",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Snappy irregular noise declines with actual hit; zero silent. 909 snare Tone truthfully depicts its noise-tail time, with distinct lengths and no readout overlap. Kick TUNE follows actual pitch descent and decay with value-dependent shape, no clipping."
+    },
+    "909-tone-frames-01.png": {
+      "sha256": "597fc83e53d192e3dd643210ca69afe5b02593d32cb2591359aad71aac408d1c",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Snappy irregular noise declines with actual hit; zero silent. 909 snare Tone truthfully depicts its noise-tail time, with distinct lengths and no readout overlap. Kick TUNE follows actual pitch descent and decay with value-dependent shape, no clipping."
+    },
+    "909-tone-frames-02.png": {
+      "sha256": "98afaa497cad8ad01d50f22397581dada0d7bdbef4036e85efdd4af2a23292af",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Snappy irregular noise declines with actual hit; zero silent. 909 snare Tone truthfully depicts its noise-tail time, with distinct lengths and no readout overlap. Kick TUNE follows actual pitch descent and decay with value-dependent shape, no clipping."
+    },
+    "909-tune-frames-01.png": {
+      "sha256": "805a810a9731cb2e21d92694bc183bd56c5f2b2370b70718c861b5fd94f2d76b",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Snappy irregular noise declines with actual hit; zero silent. 909 snare Tone truthfully depicts its noise-tail time, with distinct lengths and no readout overlap. Kick TUNE follows actual pitch descent and decay with value-dependent shape, no clipping."
+    },
+    "909-tune-frames-02.png": {
+      "sha256": "aa6d37237d563a9784ba320fda1fa6096a57f9c1b784b19e19253e93ce6b8112",
+      "reviewer": "root",
+      "notes": "All frames/values inspected. Snappy irregular noise declines with actual hit; zero silent. 909 snare Tone truthfully depicts its noise-tail time, with distinct lengths and no readout overlap. Kick TUNE follows actual pitch descent and decay with value-dependent shape, no clipping."
+    },
+    "chicago-adsr-frames-01.png": {
+      "sha256": "5184a1d5bb9a510470e7e38709133dcd9049c784e731dac8905150f6aa771da9",
+      "reviewer": "root",
+      "notes": "All 18 frames at five decay values inspected. Legend stays clear above curve; stage/level rail progresses through actual attack/decay/hold/release and disappears in silence. Graph shapes visibly differ; interrupted release gauge remains distinct from schematic curve. No overlap."
+    },
+    "chicago-adsr-frames-02.png": {
+      "sha256": "be0072dd6e9f24445f32c395224e20b07468b0c46359bf3b6bbdffd30fb027ff",
+      "reviewer": "root",
+      "notes": "All 18 frames at five decay values inspected. Legend stays clear above curve; stage/level rail progresses through actual attack/decay/hold/release and disappears in silence. Graph shapes visibly differ; interrupted release gauge remains distinct from schematic curve. No overlap."
+    },
+    "chicago-adsr-frames-03.png": {
+      "sha256": "16487cf7986f08c7382a84fe4ee8dbaeb5630d07d9fa71de5e61bfbe56718037",
+      "reviewer": "root",
+      "notes": "All 18 frames at five decay values inspected. Legend stays clear above curve; stage/level rail progresses through actual attack/decay/hold/release and disappears in silence. Graph shapes visibly differ; interrupted release gauge remains distinct from schematic curve. No overlap."
+    },
+    "chicago-adsr-frames-04.png": {
+      "sha256": "cd9851867e940a63d3ccfd8a03477c3df8ebdd2c1774b7ab3fec8b4001d4e095",
+      "reviewer": "root",
+      "notes": "All 18 frames at five decay values inspected. Legend stays clear above curve; stage/level rail progresses through actual attack/decay/hold/release and disappears in silence. Graph shapes visibly differ; interrupted release gauge remains distinct from schematic curve. No overlap."
+    },
+    "chicago-adsr-frames-05.png": {
+      "sha256": "02d8198e4ad05509ed4b1f5dadfd77a67c49566a993262e129c5a5f661352263",
+      "reviewer": "root",
+      "notes": "All 18 frames at five decay values inspected. Legend stays clear above curve; stage/level rail progresses through actual attack/decay/hold/release and disappears in silence. Graph shapes visibly differ; interrupted release gauge remains distinct from schematic curve. No overlap."
+    },
+    "chicago-adsr-frames-06.png": {
+      "sha256": "f35c286ce24cc2a32f662c2e52efc5b2a659617f333978793ef62053b49d6224",
+      "reviewer": "root",
+      "notes": "All 18 frames at five decay values inspected. Legend stays clear above curve; stage/level rail progresses through actual attack/decay/hold/release and disappears in silence. Graph shapes visibly differ; interrupted release gauge remains distinct from schematic curve. No overlap."
+    },
+    "chicago-bite-frames-01.png": {
+      "sha256": "d183f79057da0da77bb3d57167d4a679988e38ba68d5e8e8f9c4bc7b574434b3",
+      "reviewer": "root",
+      "notes": "All frames inspected. Bite retains recognizable clipping contour with native VCA pips, margin clear. ENV peak fixed height, all signed distances/directions distinct, centre stationary and return correct. Chicago level uses pulsing real-EG segments and readable setpoint."
+    },
+    "chicago-bite-frames-02.png": {
+      "sha256": "5de75f01e4420ba78c567ed46cd41e7069df8345129a85bfd86913d776fecd5a",
+      "reviewer": "root",
+      "notes": "All frames inspected. Bite retains recognizable clipping contour with native VCA pips, margin clear. ENV peak fixed height, all signed distances/directions distinct, centre stationary and return correct. Chicago level uses pulsing real-EG segments and readable setpoint."
+    },
+    "chicago-level-frames-01.png": {
+      "sha256": "d40a65cf51daf318b967a1ab12a85c29115d5680309b618461ddbf7c79b87061",
+      "reviewer": "root",
+      "notes": "All frames inspected. Bite retains recognizable clipping contour with native VCA pips, margin clear. ENV peak fixed height, all signed distances/directions distinct, centre stationary and return correct. Chicago level uses pulsing real-EG segments and readable setpoint."
+    },
+    "chicago-level-frames-02.png": {
+      "sha256": "59563d21c7f60106e2d072a11712490d8d11f6d311090a68c2227c4dde1a0c84",
+      "reviewer": "root",
+      "notes": "All frames inspected. Bite retains recognizable clipping contour with native VCA pips, margin clear. ENV peak fixed height, all signed distances/directions distinct, centre stationary and return correct. Chicago level uses pulsing real-EG segments and readable setpoint."
+    },
+    "miami-level-frames-01.png": {
+      "sha256": "77e733d1da60f121aec613c7c7a186b148ffa38709931ad8789979b9504cc5f1",
+      "reviewer": "root",
+      "notes": "All frames inspected. Miami level switches real active meter illumination on gate state; wobble native-MG cursor visibly travels while envelope activity pips follow note. Idle stable; no clipping."
+    },
+    "miami-level-frames-02.png": {
+      "sha256": "e3c975a6705b9f3a1abd4acb0be543f64b4985b964410571241ec24c4fb0bee4",
+      "reviewer": "root",
+      "notes": "All frames inspected. Miami level switches real active meter illumination on gate state; wobble native-MG cursor visibly travels while envelope activity pips follow note. Idle stable; no clipping."
+    },
+    "miami-wobble-frames-01.png": {
+      "sha256": "ac600d975685c77168aea9b962aebd39411f1f8acce221d467ddbd80c8164eac",
+      "reviewer": "root",
+      "notes": "All frames inspected. Miami level switches real active meter illumination on gate state; wobble native-MG cursor visibly travels while envelope activity pips follow note. Idle stable; no clipping."
+    },
+    "miami-wobble-frames-02.png": {
+      "sha256": "315ea69666138bf027314ec00fb0527d373019000f73a2af70387a7e2eb6457d",
+      "reviewer": "root",
+      "notes": "All frames inspected. Miami level switches real active meter illumination on gate state; wobble native-MG cursor visibly travels while envelope activity pips follow note. Idle stable; no clipping."
+    },
+    "original-controls-atlas-01.png": {
+      "sha256": "02ad4a4bf9e8eb2d054d548a2a4b4e068ad572fefbdc8a999422690f9b7f2d8e",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All five representative settings for each static control inspected on this atlas. Wave, filter and modulation schematics remain legible; discrete switch settings intentionally repeat where quantized."
+    },
+    "original-controls-atlas-02.png": {
+      "sha256": "0eb79007864b767285665b591095b469a914e2d76a9cf615e2028a3661671464",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All five representative settings for each static control inspected on this atlas. Wave, filter and modulation schematics remain legible; discrete switch settings intentionally repeat where quantized."
+    },
+    "original-controls-atlas-03.png": {
+      "sha256": "72c7e6e19521e1ea0197ac5cffaef8a946cf4ab7f40caad058316080e17ab7ae",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All five representative settings for each static control inspected on this atlas. Wave, filter and modulation schematics remain legible; discrete switch settings intentionally repeat where quantized."
+    },
+    "original-controls-atlas-04.png": {
+      "sha256": "bb869406d31a917d8de01e9d43302c5b8e04fbddbd656f11dcbe82d251deed92",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All five representative settings for each static control inspected on this atlas. Wave, filter and modulation schematics remain legible; discrete switch settings intentionally repeat where quantized."
+    },
+    "original-controls-atlas-05.png": {
+      "sha256": "ccf39952af9e90bfeccc9f35480b2589293e4142ba148c76e7a7c0c8b5edc21c",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All five representative settings for each static control inspected on this atlas. Wave, filter and modulation schematics remain legible; discrete switch settings intentionally repeat where quantized."
+    },
+    "original-controls-atlas-06.png": {
+      "sha256": "ff4d0487ac7fb7c0bec6c64ed26c2d9261dd66473a6ae1a9d9f9d5be2b33b231",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "All five representative settings for each static control inspected on this atlas. Wave, filter and modulation schematics remain legible; discrete switch settings intentionally repeat where quantized."
+    },
+    "mono-role-atlas-01.png": {
+      "sha256": "b27ae0dd242a7efd8f1a2c660f82e1dcd09c096a8210425e0bf7c9f6fbdf60d0",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "Inspected actual framebuffer comparison. Primary glyph shapes remain distinct; stacked drum number/unit readout stays outside decay glyph; ADSR labels and live stage rail are separated; bipolar ENV readouts and horizontal differences are clear. One-bit masks are supplementary threshold diagnostics."
+    },
+    "mono-role-atlas-02.png": {
+      "sha256": "46c3edace1f209e5def83d972671ed9d11ecdad8f73c2dd236e74e7184f3c7e4",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "Inspected actual framebuffer comparison. Primary glyph shapes remain distinct; stacked drum number/unit readout stays outside decay glyph; ADSR labels and live stage rail are separated; bipolar ENV readouts and horizontal differences are clear. One-bit masks are supplementary threshold diagnostics."
+    },
+    "mono-role-atlas-03.png": {
+      "sha256": "8675fbdd856856314b26cdbf255b869eb45e022728b6bea7ff65c6810bcb7f7d",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "Inspected actual framebuffer comparison. Primary glyph shapes remain distinct; stacked drum number/unit readout stays outside decay glyph; ADSR labels and live stage rail are separated; bipolar ENV readouts and horizontal differences are clear. One-bit masks are supplementary threshold diagnostics."
+    },
+    "909-decay-values.png": {
+      "sha256": "79fe56838d61a8ef2f708802e94908ce7c1d9620547a5b1072ee256736c4cc09",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "Inspected actual framebuffer comparison. Primary glyph shapes remain distinct; stacked drum number/unit readout stays outside decay glyph; ADSR labels and live stage rail are separated; bipolar ENV readouts and horizontal differences are clear. One-bit masks are supplementary threshold diagnostics."
+    },
+    "chicago-adsr-values.png": {
+      "sha256": "d422f73fa14745d31bc447b3f7128f5d788237991454827c7d1630d64abe9097",
+      "reviewer": "root",
+      "status": "pass",
+      "notes": "Inspected actual framebuffer comparison. Primary glyph shapes remain distinct; stacked drum number/unit readout stays outside decay glyph; ADSR labels and live stage rail are separated; bipolar ENV readouts and horizontal differences are clear. One-bit masks are supplementary threshold diagnostics."
+    }
+  }
+}

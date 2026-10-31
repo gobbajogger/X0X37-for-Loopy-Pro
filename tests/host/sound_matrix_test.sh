@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# Exact production renderer + independent time-law/target/geometry checks.
+# Original Chicago/Miami graph: controls, persisted edits, envelope laws and geometry.
 set -eu
 cd "$(dirname "$0")/../.."
 OUT=${1:-build/ui-b-evidence}

@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Two-peer HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
 #pragma once
-/* Two-peer mode (#687) needs controller config_btctler_le_hw_nums = 2.
- * The locked controller config has one LE link, so the default is one peer. */
+/* The controller and locked settings reserve two LE connections. Preserve an
+ * explicit one-peer mode for isolated #700 retry/handle-zero host tests only. */
 #ifndef BLEC_TWO_PEER
-#define BLEC_TWO_PEER 0
+#define BLEC_TWO_PEER 1
 #endif
 #if !BLEC_TWO_PEER
-#define BLEC_ONE_PEER_RECOVERY 1 /* one-SMC reference slice, not two-peer completion */
+#define BLEC_ONE_PEER_RECOVERY 1 /* compile-time fallback, not firmware default */
 #endif
 #include <stdint.h>
 

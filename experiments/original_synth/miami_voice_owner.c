@@ -6,7 +6,9 @@ static unsigned enabled(void *p,unsigned id){original_miami_voice_owner *s=p;ret
 static unsigned vca(void *p,unsigned id){original_miami_voice_owner *s=p;return id<s->count?s->voices[id].vca.state:6;}
 static void state(void *p,unsigned id,int key,int filter,int amp){
  original_miami_voice_owner *s=p;if(id>=s->count){s->status=0;return;}original_miami_selected_voice *v=s->voices+id;
- if(key>=0)v->key_down=(uint8_t)key;if(filter>=0)v->vcf.state=(uint8_t)filter;if(amp>=0)v->vca.state=(uint8_t)amp;
+ if(key>=0)v->key_down=(uint8_t)key;
+ if(filter>=0)v->vcf.state=(uint8_t)filter;
+ if(amp>=0)v->vca.state=(uint8_t)amp;
 }
 static int inputs(original_miami_voice_owner *s,unsigned id,const original_voice_record *r,unsigned full,unsigned mask,int32_t anchor,original_miami_voice_note *n){
  if(r->note<0||r->note>127||r->velocity<0||r->velocity>127||r->unison_flag>2||anchor<0||anchor>127||!original_binary32_isfinite(r->coordinate))return 0;

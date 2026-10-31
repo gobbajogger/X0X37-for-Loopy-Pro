@@ -86,6 +86,43 @@ static int key_held(const original_runtime_part *p, unsigned key)
     return 0;
 }
 
+/* Same-source, same-pitch MIDI offs carry no note identity. For a cancelled
+ * press followed by a retrigger, keep the first ambiguous off pending for at
+ * most 16 x 256 rendered frames (about 93 ms at 44.1 kHz). Another off within
+ * that window releases the live press. If it never arrives, release the live
+ * press at expiry instead of leaving a stuck note. An unusually late OLD off
+ * cannot be distinguished from an early NEW off: expiry favors recovery. */
+#define ORIGINAL_STALE_GRACE_TICKS 16u
+static int runtime_stale_tick(original_runtime_part *p, unsigned frames)
+{
+    if (!p->stale_timers) return ORIGINAL_RUNTIME_OK;
+    unsigned elapsed = (unsigned)p->stale_tick_frames + frames;
+    unsigned ticks = elapsed / 256u;
+    p->stale_tick_frames = (uint16_t)(elapsed % 256u);
+    if (!ticks) return ORIGINAL_RUNTIME_OK;
+    for (unsigned source = 0; source < ORIGINAL_INPUT_KEYS; ++source) {
+        for (unsigned key = 0; key < 128; ++key) {
+            uint8_t *ttl = &p->stale_ttl[source][key];
+            if (!*ttl) continue;
+            if (*ttl > ticks) { *ttl -= (uint8_t)ticks; continue; }
+            *ttl = 0;
+            --p->stale_timers;
+            p->stale[source][key] = 0;
+            unsigned lane = key >> 5;
+            uint32_t mask = UINT32_C(1) << (key & 31u);
+            if (p->stale_pending[source][lane] & mask) {
+                p->stale_pending[source][lane] &= ~mask;
+                if (p->keys[source][key]) {
+                    --p->keys[source][key];
+                    if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK)
+                        return p->status;
+                }
+            }
+        }
+    }
+    return ORIGINAL_RUNTIME_OK;
+}
+
 int original_runtime_key(original_runtime_part *p, unsigned source, unsigned key, unsigned velocity)
 {
     if (!p || source >= ORIGINAL_INPUT_COUNT || key > 127 || velocity > 127) return 0;
@@ -94,11 +131,24 @@ int original_runtime_key(original_runtime_part *p, unsigned source, unsigned key
     if (velocity) {
         /* Saturation is an explicit fault: never wrap a count and lose an off. */
         if (*held == UINT8_MAX) return runtime_result(p, 0);
+        if (source < ORIGINAL_INPUT_KEYS && p->stale[source][key] && !p->stale_ttl[source][key]) {
+            /* Start the window on the fresh press, never on the REC cancel. */
+            if (!p->stale_timers) p->stale_tick_frames = 0;
+            p->stale_ttl[source][key] = ORIGINAL_STALE_GRACE_TICKS;
+            ++p->stale_timers;
+        }
         ++*held;
         return runtime_note(p, key, velocity);
     }
+    if (source < ORIGINAL_INPUT_KEYS && p->stale[source][key]) {
+        --p->stale[source][key];
+        if (*held) p->stale_pending[source][key >> 5] |= UINT32_C(1) << (key & 31u);
+        return ORIGINAL_RUNTIME_OK;
+    }
     if (!*held) return ORIGINAL_RUNTIME_OK;
     --*held;
+    if (source < ORIGINAL_INPUT_KEYS)
+        p->stale_pending[source][key >> 5] &= ~(UINT32_C(1) << (key & 31u));
     return key_held(p, key) ? ORIGINAL_RUNTIME_OK : runtime_note(p, key, 0);
 }
 
@@ -106,7 +156,35 @@ int original_runtime_release_source(original_runtime_part *p, unsigned source)
 {
     if (!p || source >= ORIGINAL_INPUT_COUNT) return 0;
     if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
+    if (source < ORIGINAL_INPUT_KEYS) {
+        for (unsigned key = 0; key < 128; ++key)
+            if (p->stale_ttl[source][key]) --p->stale_timers;
+        memset(p->stale[source], 0, sizeof p->stale[source]);
+        memset(p->stale_ttl[source], 0, sizeof p->stale_ttl[source]);
+        memset(p->stale_pending[source], 0, sizeof p->stale_pending[source]);
+    }
     for (unsigned key = 0; key < 128; ++key) if (p->keys[source][key]) {
+        p->keys[source][key] = 0;
+        if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK) return p->status;
+    }
+    return ORIGINAL_RUNTIME_OK;
+}
+
+/* End the voice of every key this external source holds. Its pending offs
+ * are kept as stale counts, so the off of a cut press cannot end a newer
+ * press of the same pitch. */
+int original_runtime_cut_source(original_runtime_part *p, unsigned source)
+{
+    if (!p || source >= ORIGINAL_INPUT_COUNT) return 0;
+    if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
+    for (unsigned key = 0; key < 128; ++key) if (p->keys[source][key]) {
+        if (source < ORIGINAL_INPUT_KEYS) {
+            unsigned owed = (unsigned)p->stale[source][key] + p->keys[source][key];
+            p->stale[source][key] = (uint8_t)(owed > UINT8_MAX ? UINT8_MAX : owed);
+            if (p->stale_ttl[source][key]) --p->stale_timers;
+            p->stale_ttl[source][key] = 0;
+            p->stale_pending[source][key >> 5] &= ~(UINT32_C(1) << (key & 31u));
+        }
         p->keys[source][key] = 0;
         if (!key_held(p, key) && runtime_note(p, key, 0) != ORIGINAL_RUNTIME_OK) return p->status;
     }
@@ -123,6 +201,10 @@ int original_runtime_all_off(original_runtime_part *p)
         ok = original_chicago_backend_all_off(&p->dsp.chicago) == ORIGINAL_CHICAGO_BACKEND_OK;
     }
     memset(p->keys, 0, sizeof p->keys);
+    memset(p->stale, 0, sizeof p->stale);
+    memset(p->stale_ttl, 0, sizeof p->stale_ttl);
+    memset(p->stale_pending, 0, sizeof p->stale_pending);
+    p->stale_tick_frames = p->stale_timers = 0;
     return runtime_result(p, ok);
 }
 
@@ -139,6 +221,36 @@ int original_runtime_filter_view(const original_runtime_part *p, float *eg, floa
     return original_chicago_backend_filter_view(&p->dsp.chicago, eg, depth);
 }
 
+int original_runtime_voice_view(const original_runtime_part *p, float *level, float *modulation,
+    unsigned *state, unsigned *key_down)
+{
+    if (!p || p->status != ORIGINAL_RUNTIME_OK || !level || !modulation || !state || !key_down) return 0;
+    *level=0; *modulation=0; *state=6; *key_down=0;
+    if (p->kind == ORIGINAL_SOUND_CHICAGO) {
+        const original_chicago_voice *v=&p->dsp.chicago.voice;
+        if (v->active) { *level=v->vca.level; *modulation=v->mg[0].unipolar;
+            *state=v->vca.state; *key_down=v->key_down; }
+    } else if (p->kind == ORIGINAL_SOUND_MIAMI) {
+        int selected=-1;
+        for (unsigned i=0;i<ORIGINAL_MIAMI_BACKEND_VOICES;i++) {
+            const original_miami_selected_voice *v=&p->dsp.miami.voices[i];
+            if (v->active && (selected<0 || v->vca.level>*level)) {
+                selected=(int)i; *level=v->vca.level; *modulation=v->mg[0].unipolar;
+                *state=v->vca.state; *key_down=v->key_down;
+            }
+        }
+    } else return 0;
+    return 1;
+}
+
+int original_runtime_adsr_view(const original_runtime_part *p, float values[4], unsigned *gate)
+{
+    if (!p || p->status != ORIGINAL_RUNTIME_OK || p->kind != ORIGINAL_SOUND_CHICAGO || !values || !gate) return 0;
+    for (unsigned i=0;i<4;i++) values[i]=p->dsp.chicago.controls.vca[i];
+    *gate=p->dsp.chicago.controls.routing.vca_eg_mode;
+    return 1;
+}
+
 int original_runtime_active(const original_runtime_part *p)
 {
     if (!p || p->status != ORIGINAL_RUNTIME_OK) return 0;
@@ -151,6 +263,7 @@ int original_runtime_render(original_runtime_part *p, original_runtime_workspace
 {
     if (!p || !w || !left || !right || frames > 256) return 0;
     if (p->status != ORIGINAL_RUNTIME_OK) return p->status;
+    if (runtime_stale_tick(p, frames) != ORIGINAL_RUNTIME_OK) return p->status;
     int ok;
     if (p->kind == ORIGINAL_SOUND_MIAMI) {
         original_miami_backend_workspace workspace = {w->miami.left, w->miami.right,

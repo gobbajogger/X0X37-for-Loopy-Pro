@@ -41,6 +41,10 @@ static struct { pref_t target[8],lock_fader[8],lock_knob[8];
     uint8_t lock_part,lock_view,lock_page,lock_pages,lock_page_kit[1];
     uint32_t lock_song_revision; uint16_t lock_song_len; } smc;
 static uint32_t song_structure_revision;
+/* No page peek (#737) here: smc_ui_popup_test.c covers it. */
+static uint8_t smc_slot;
+static struct { uint8_t on; pref_t fader[2][8], knob[2][8]; } smc_peek_stub;
+#define smc_peek (&smc_peek_stub)
 static struct song_fixture { unsigned len; } song_data;
 static const struct song_fixture *song(void) { return &song_data; }
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }

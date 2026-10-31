@@ -954,8 +954,11 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     }
     if (r.kind == R_BSTATUS) { put_s(num,original_status_name(r.b)); return 1; }
     if (r.kind != R_ENG || r.a != T_303) return 0;
-    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b), id = r.c;
+    int bank = engine_bass_sound_bank(&proj.sound,r.b);
+    unsigned kind = (unsigned)bank, id = r.c;
     const ui_original_control_view *v = 0;
+    /* a corrupt patch has no bank: never index a name table through a null view */
+    if (bank != ORIGINAL_SOUND_CHICAGO && bank != ORIGINAL_SOUND_MIAMI) { put_s(num,"INVALID"); return 1; }
     if (ui_original_states(kind,id) || (kind == ORIGINAL_SOUND_CHICAGO && id == 4) ||
         (kind == ORIGINAL_SOUND_MIAMI && id == 7)) {
         v = original_text_view(r,value);
@@ -963,7 +966,7 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     }
     if (kind == ORIGINAL_SOUND_CHICAGO) {
         static const char *const speed[] = {"1/2","1/4D","1/2T","1/4","1/8D","1/4T","1/8","1/8T","1/16","1/32"};
-        if (id == 4) { put_i(num,v->env_percent); put_s(unit,"%"); return 1; }
+        if (id == 4) { put_i(v->env_percent>0?put_s(num,"+"):num,v->env_percent); put_s(unit,"%"); return 1; }
         if (id == 11) { put_s(num,v->amp_gate ? "GATE" : "ENV"); return 1; }
         if (id == 13) { put_s(num,v->arp_on ? "ON" : "OFF"); return 1; }
         if (id == 14) { put_s(num,v->arp_mode == 1 ? "DOWN" : v->arp_mode == 2 ? "UP" : "UP/DN"); return 1; }
@@ -1927,9 +1930,10 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
  * brief, covers state finalization only, and never reinitializes a voice. */
 static void record_finish(void)
 {
-    seq.rec_mask = 0;
+    seq.rec_mask = seq.rec_ext_mask = 0;
     engine_project_hold(1);
     seq.rec_epoch++;
+    seq.rec_ev_gen++;
     for (int b = 0; b < NBASS; b++) seq_rec_cancel(&seq, b);
     engine_project_hold(0);
 }
@@ -2173,6 +2177,7 @@ static void perf_build(void)
 static void perf_restore(void)
 {
     int p;
+    record_finish();
     seq.pat = perf.pat;
     for (p = 0; p < NPARTS; p++) {
         seq.ppat[p] = perf.ppat[p];
@@ -2228,6 +2233,7 @@ static void perf_test_tick(void)
     case 0:                                           /* stopped: swap in the test's patterns and sound */
         if (seq.playing || seq.req_stop)              /* (a pending stop would cancel the start below) */
             return;
+        record_finish();
         perf_build();                                 /* here, after the last save that can run (PERF_SCRATCH) */
         for (p = 0; p < NPARTS; p++) {
             seq.ppat[p] = 0;
@@ -2478,6 +2484,7 @@ static void set_view(int v)
     /* EDIT may complete a note recorded on SEQ, but accepts no new recorded
      * MIDI/key onset. Keep the two recorder contexts distinct across pages. */
     seq.rec_mask = ui.rec && is_303() && v == V_SEQ ? (uint8_t)(1u << bidx()) : 0;
+    seq.rec_ext_mask = ui.rec ? (uint8_t)((1u << NBASS) - 1u) : 0;
     seq.rec_hold_mask = ui.rec && is_303() && v == V_PART ? (uint8_t)(1u << bidx()) : 0;
     ui.brk_held = -1;
     ui.overlay = O_NONE;
@@ -2861,6 +2868,19 @@ static void drum_vel_set_step(int k, int v, int s, uint8_t vel)
     l->val[s] = vel;
 }
 
+/* A live drum hit recorded on step s: black keys and external MIDI (ext_rec_drain). */
+static void drum_rec_write(int k, int v, int s, int accent, uint8_t vel)
+{
+    if ((unsigned)k >= NKIT || (unsigned)v >= NDRUM || (unsigned)s >= NSTEPS)
+        return;
+    sm_set(pat_of(k)->drum[k].hit[v], s);
+    if (accent)
+        sm_set(pat_of(k)->drum[k].accent, s);
+    drum_vel_set_step(k, v, s, vel);
+    seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
+    mark_dirty();
+}
+
 static void drum_key(int v, int down, int step_record)
 {
     int k = ui.part;
@@ -2880,14 +2900,41 @@ static void drum_key(int v, int down, int step_record)
         engine_drum(k, v, accent ? 1.0f : (float)kv / 127.0f);
     if (accent)
         ui.btn_used |= 1u << B_ENV;
-    if (step_record && ui.rec && seq.playing) {
-        int s = rec_step(TRK_DRUM + k);
-        sm_set(cur_pat()->drum[k].hit[v], s);
-        if (accent)
-            sm_set(cur_pat()->drum[k].accent, s);
-        drum_vel_set_step(k, v, s, accent ? 127u : kv);
-        seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
-        mark_dirty();
+    if (step_record && ui.rec && seq.playing)
+        drum_rec_write(k, v, rec_step(TRK_DRUM + k), accent, accent ? 127u : kv);
+}
+
+/* BREAK step st: on, with its own slice code (0 = the generator's, 1..32 = slot + 1). */
+static void brk_slice_write(brkpart_t *bp, int st, int code)
+{
+    if ((unsigned)st >= 16u)
+        return;
+    bp->slice[st] = (uint8_t)code;
+    bp->steps |= 1u << st;
+    mark_dirty();
+}
+
+/* External MIDI recording for 909, 808 and BREAK (engine midi_in queues the note, on the part's own
+ * channel, with its record step). REC on and playing: every part records on its own channel at once,
+ * whatever part or view is selected (owner 2026-10-30).
+ * The 303s record in the engine (seq_rec_bass). */
+static void ext_rec_drain(void)
+{
+    if (project_busy) return;
+    for (;;) {
+        uint32_t ev, state = plat_cq_lock();
+        int have = engine_rec_ev_get(&ev);
+        /* Audio owns pattern/transport changes. Keep validation and this one
+         * pattern write in the same source-mask transaction, without muting. */
+        if (have && ui.rec && seq.playing) {
+            int part = REC_EV_PART(ev), st = REC_EV_STEP(ev);
+            if (part == PART_BRK)
+                brk_slice_write(&pat_of(PART_BRK)->brk, st & 15, REC_EV_VOICE(ev) + 1);
+            else if (part < NKIT)
+                drum_rec_write(part, REC_EV_VOICE(ev), st, 0, (uint8_t)REC_EV_VEL(ev));
+        }
+        plat_cq_unlock(state);
+        if (!have) break;
     }
 }
 
@@ -3406,12 +3453,10 @@ static void key_event(int k, int down)
         if (bl >= 0 && bl < 8 && down && slot >= count) { say("UNUSED SLICE KEY", 0); return; }
         if (bl >= 0 && bl < 8 && down && ui.brk_held >= 0) {     /* a step held + black 1-8: its own slice */
             int st = ui.brk_held;
-            bp->slice[st] = (uint8_t)(bp->slice[st] && (bp->slice[st] - 1) % count == slot ? 0 : slot + 1);
-            bp->steps |= 1u << st;
+            brk_slice_write(bp, st, bp->slice[st] && (bp->slice[st] - 1) % count == slot ? 0 : slot + 1);
             ui.hold_used = 1;                          /* its release keeps the step */
             ui.brk_pinkeys |= (uint16_t)(1u << bl);
             engine_brk_edit_hold(1);
-            mark_dirty();
             if (bp->slice[st]) {
                 char t[24];
                 put_i(put_s(put_i(put_s(t, "STEP "), st + 1), ": SLICE "), slot + 1);
@@ -3971,6 +4016,7 @@ X0X_COLD static void input_body(void)
     }
     seq.rec_mask = ui.rec && is_303() && ui.view == V_SEQ && ui.overlay == O_NONE ?
                    (uint8_t)(1u << bidx()) : 0;
+    seq.rec_ext_mask = ui.rec && ui.overlay != O_ASK ? (uint8_t)((1u << NBASS) - 1u) : 0;
     seq.rec_hold_mask = ui.rec && is_303() && ui.view == V_PART && ui.overlay == O_NONE ?
                         (uint8_t)(1u << bidx()) : 0;
     for (i = 0; i < NBASS; i++)
@@ -4189,6 +4235,7 @@ static void input(void)
 {
     live_boundary(1);
     input_body();
+    seq.rec_ext_mask = ui.rec && !project_busy && ui.overlay != O_ASK ? (uint8_t)((1u << NBASS) - 1u) : 0;
     live_boundary(0);
 }
 
@@ -5432,9 +5479,16 @@ static UI_DRAW void draw_drum_mix(int band, int k)
         if (f)                                        /* the level, dim; a hit lights it up to the level */
             rbox(x + 7, 16 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
         {
-            int hf = f * eng_hit[k][v] / 255;
-            if (hf > 1 && !muted)
-                rbox(x + 7, 16 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
+            uint32_t age=0; float envelope=0;
+            int live=engine_drum_view(k,v,&age,&envelope);
+            int hf=live?(int)((float)f*envelope+.5f):0;
+            /* Existing MIX travel and level remain; real voice EG lights separate
+             * 6px segments. This is the track LEVEL control, not a new PART slot. */
+            for(int sy=0;sy<fh;sy+=8) {
+                uint16_t ink=sy<hf && !muted?(sel?C_WHITE:col):
+                    sy<f?(muted?C_DIM:dim(col,sel?6:4)):C_LINE;
+                cv_rect(x+7,16+fh-sy-6-o,5,6,ink);
+            }
         }
         rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);          /* the pan, a mark from the middle */
         rbox(x + 3 + (pa * 10) / 127, 121 - o, 3, 7, 1, sel ? C_WHITE : C_GRAY);
@@ -6359,6 +6413,13 @@ static UI_DRAW void strip_value_fit(int x, int y, char *num, const char *unit, u
     const felucca_font_t *f = &FONT_T;
     int wu = unit[0] && unit[0] != '%' ? tw(&FONT_XS, unit) + 1 : unit[0] ? tw(&FONT_T, unit) : 0;
     if (tw(f, num) + wu > 27) f = &FONT_XS;
+    if (tw(f, num) + wu > 27 && unit[0]) {
+        /* Retain full precision/unit when a horizontal pair cannot fit. The
+         * two short lines stay within the original readout's right-hand lane. */
+        text_c(x+44,y-5,f,num,ink);
+        text_c(x+44,y+6,&FONT_XS,unit,C_GRAY);
+        return;
+    }
     if (unit[0] == '%') { char *q = num; while (*q) q++; put_s(q, unit); wu = 0; }
     int w = tw(f, num) + wu, l = x + 44 - w / 2;
     if (l < x + 30) l = x + 30;
@@ -6482,11 +6543,14 @@ static void adsr_values(ui_adsr_t *e)
     e->curved=e->release_curve=e->gate=0;e->enabled=1;
     if(engine_bass_sound_bank(&proj.sound,bidx())==ORIGINAL_SOUND_CHICAGO) {
         /* Original Chicago ENVELOPE slots 7..10 (A, D, S, R): stage-normalised
-         * q127 controls; D/R are RC (five tau). No legacy millisecond law. */
+         * compiled native controls include each macro's scaling; D/R are RC. */
         /* Time constants of original_vca_tick (control_math.c), seconds:
          * A 13a^4+.001 toward 1.3, D 25d^4+.001 toward S, R 25r^4+.002. */
+        float native[4]={0,0,0,0};unsigned gate=0;
+        (void)engine_bass_adsr_view(bidx(),native,&gate);
+        e->sustain=native[2];e->gate=(int)gate;
         for(i=0;i<3;i++) {
-            float x=(float)matrix_value(pg.r[p][i==2?3:i])/127.0f; x*=x; x*=x;
+            float x=native[i==2?3:i]; x*=x; x*=x;
             *time[i]=i==0?13.0f*x+.001f:i==1?25.0f*x+.001f:25.0f*x+.002f;
         }
         e->curved=1; e->release_curve=1; e->enabled=2; /* 2: original exponential laws */
@@ -6562,7 +6626,7 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
     ui_adsr_t e;
     int p=cur_page(),k,edited=ui.touched>=0 && ui.touched<4 &&
         (int32_t)(ui.touch_until-plat_ms())>0?ui.touched:-1;
-    int x0=13,y0=y+h-5,top=y+14,xs[5];
+    int x0=13,y0=y+h-5,top=y+22,xs[5];
     uint16_t col=matrix_col(),hi=SOUND_INK;
     float dur[3];
     adsr_values(&e);
@@ -6590,6 +6654,33 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
         }
     }
     cv_line(xs[2],ys-off,xs[3],ys-off,edited==2?hi:col);
+    for(k=0;k<4;k++) {
+        /* Keep A/D/S/R percentage visible at rest as well as during K5-K8
+         * turns. Same quantisation as the native Chicago value readout. */
+        char label[20];
+        char *end=put_i(put_s(label,"K"),UI_FIRST_KNOB+k);
+        end=put_s(end,k==0?" A ":k==1?" D ":k==2?" S ":" R ");
+        end=put_i(end,(matrix_value(pg.r[p][k])*100+63)/127);
+        put_s(end,"%");
+        text_c(31+k*59,y+8-off,&FONT_T,label,edited==k?hi:SOUND_GRAY);
+    }
+    {   /* Native state1 contains both decay and sustain. Classify within 1% of S.
+         * Cursor level is always the live EG; the horizontal axis names stages. */
+        float level=0,mod=0; unsigned state=6,held=0;
+        if(engine_bass_voice_view(bidx(),&level,&mod,&state,&held) && state!=6) {
+            if(level<0)level=0; if(level>1)level=1;
+            int stage=state==0?0:state==3?3:((e.gate && held) ||
+                (level-e.sustain<=.01f && e.sustain-level<=.01f))?2:1;
+            /* A stage/level gauge, separate from the preview's time curve:
+             * Gate mode or release during attack can differ from the schematic.
+             * Dotted vertical rail names the stage; the crossbar is actual level. */
+            int x=(xs[stage]+xs[stage+1])/2;
+            for(int yy=top;yy<=y0;yy+=3) cv_rect(x,yy-off,1,1,SOUND_DIM);
+            int yy=y0-(int)(level*(y0-top)+.5f)-off;
+            cv_rect(x-2,yy,5,1,hi);
+            cv_rect(x,yy-1,1,3,hi);
+        }
+    }
     if(edited>=0) { /* underline the highlighted segment */
         int xa=xs[edited],xb=xs[edited+1];
         if(xb<=xa) xb=xa+1;
@@ -6857,10 +6948,11 @@ static UI_DRAW int orig_strip_slot(pref_t r)
 static UI_DRAW void og_wave(int gx,int gy,float (*f)(float,float),float q,uint16_t col)
 {   /* f returns -1..1 (up positive) over t 0..1 */
     int py=0;
+    cv_rect(gx,gy+OG_H,OG_W,1,C_LINE);
     for(int i=0;i<OG_W;i++) {
         float v=f((float)i/(OG_W-1),q);
         if(v>1)v=1; if(v<-1)v=-1;
-        int yy=gy+OG_H/2-(int)(v*(OG_H/2)+(v<0?-.5f:.5f));
+        int yy=gy+OG_H/2-(int)(v*6.0f+(v<0?-.5f:.5f));
         if(i) cv_line(gx+i-1,py,gx+i,yy,col);
         py=yy;
     }
@@ -6885,8 +6977,12 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
     const x0x_param_t *d=pref_desc(r);
     float q=d && d->max?(float)val/(float)d->max:0;
     int chi=engine_bass_sound_bank(&proj.sound,r.b)==ORIGINAL_SOUND_CHICAGO,c=r.c;
+    int level_role=c==(chi?12:14) || (!chi && (c==1 || c==5));
     int top=gy+3,bot=gy+OG_H,mid=gy+OG_H/2,right=gx+OG_W-1;
     if(q<0)q=0; if(q>1)q=1;
+    float amp=0,mod=0; unsigned state=6,held=0;
+    int sounding=engine_bass_voice_view(r.b,&amp,&mod,&state,&held) && state!=6;
+    if(amp<0)amp=0; if(amp>1)amp=1;
     if(c==(chi?2:9) || (chi && c==3)) {          /* CUTOFF / PEAK: lowpass response */
         float cq=q,pq=0;
         if(chi && c==3){pref_t cr=PR(R_ENG,T_303,r.b,2);const x0x_param_t *dc=pref_desc(cr);
@@ -6897,16 +6993,21 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
         if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
     } else if(chi && c==4) {                     /* ENV: the lowpass peak the filter EG sweeps */
-        /* chicago_voice.c mp4_prepare: z = cutoff + vcf.level * env_depth. The peak
-         * sits at the live CUTOFF, moves with the live filter EG on every note and
-         * decays back with it; a dim tick marks where a full EG would take it. */
+        /* Horizontal schematic of cutoff + native filter EG * signed depth.
+         * A dim target tick marks full EG; reserved travel preserves either sign. */
         pref_t cr=PR(R_ENG,T_303,r.b,2),pr=PR(R_ENG,T_303,r.b,3);
         const x0x_param_t *dc=pref_desc(cr),*dp=pref_desc(pr);
         float cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0,pq=dp&&dp->max?(float)matrix_value(pr)/dp->max:0;
-        float depth=2*q-1,eg=0,dd; if(engine_bass_filter_view(r.b,&eg,&dd)) depth=dd;
+        float depth=0,eg=0;
+        (void)engine_bass_filter_view(r.b,&eg,&depth); /* exact compiled bipolar law; pot64 is zero */
         if(eg<0)eg=0; if(eg>1)eg=1;
-        float z=cq+eg*depth,zt=cq+depth; z=z<0?0:z>1?1:z; zt=zt<0?0:zt>1?1:zt;
-        int pivot=gx+4+(int)(z*14+.5f),tgt=gx+4+(int)(zt*14+.5f),peak=top+2-(int)(pq*5+.5f);
+        /* Schematic, not clipped filter Hz: cutoff reserves origin columns 10..14;
+         * either depth sign has 7px travel. Knee stays in 3..21 at cutoff extremes. */
+        float origin=10.0f+cq*4.0f;
+        int pivot=gx+(int)(origin+eg*depth*7.0f+.5f);
+        int tgt=gx+(int)(origin+depth*7.0f+.5f),peak=top+2-(int)(pq*5+.5f);
+        int energy=(int)(eg*(depth<0?-depth:depth)*6.0f+.5f);
+        col=depth<0?blend(C_LINE,col,16-energy):blend(col,C_WHITE,energy);
         cv_rect(gx,bot,OG_W,1,C_LINE);
         if(tgt!=pivot) cv_rect(tgt,bot-3,1,3,C_LINE);
         cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
@@ -6923,15 +7024,19 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_rect(gx,bot,OG_W,1,C_LINE);
         if(idx){cv_line(gx+2,bot,gx+2,top,col);cv_line(gx+2,top,gx+22,top,col);cv_line(gx+22,top,gx+22,bot,col);}
         else{cv_line(gx+1,bot,gx+5,top,col);cv_line(gx+5,top,gx+10,mid,col);cv_line(gx+10,mid,gx+18,mid,col);cv_line(gx+18,mid,gx+24,bot,col);}
-    } else if(c==(chi?12:14) || (!chi && (c==1 || c==5))) {   /* LEVEL / OUTPUT: level wedge */
-        int fill=(int)(q*OG_W+.5f);
-        for(int i=0;i<OG_W;i+=2){int h=1+i*(OG_H-1)/(OG_W-1);cv_rect(gx+i,bot-h+1,1,h,i<fill?col:C_LINE);}
+    } else if(level_role) {                     /* LEVEL / OUTPUT: live segmented meter */
+        int ceiling=(int)(q*6.0f+.5f),lit=sounding?(int)(q*amp*6.0f+.5f):0;
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        for(int i=0;i<6;i++) {
+            uint16_t ink=i<lit?C_WHITE:i<ceiling?(sounding?blend(C_LINE,col,6):col):C_LINE;
+            cv_rect(gx+i*4,bot-3-i*2,3,2,ink);
+        }
     } else if(chi && c==15) {                    /* RANGE: octave stairs */
         int idx,n=og_states(r,val,&idx),sw=OG_W/(n?n:1);
         for(int k=0;k<n;k++){int h=3+k*(OG_H-3)/(n>1?n-1:1);cv_rect(gx+k*sw,bot-h+1,sw-2,h,k<=idx?col:C_LINE);}
     } else if(chi && c==17) {                    /* FX TYPE: one pip per type */
-        int idx,n=og_states(r,val,&idx),pw=3;
-        for(int k=0;k<n;k++) cv_rect(gx+k*(pw+1),mid-4,pw,9,k==idx?col:C_LINE);
+        int idx,n=og_states(r,val,&idx),step=OG_W/(n?n:1),pw=step>1?step-1:1;
+        for(int k=0;k<n;k++) cv_rect(gx+k*step,mid-4,pw,9,k==idx?col:C_LINE);
     } else if(!chi && c==2) {                    /* SUB: osc square + sub-octave square */
         int a=1+(int)(q*6+.5f);
         for(int i=0;i<4;i++){int xx=gx+i*6;cv_line(xx,top,xx+3,top,C_LINE);cv_line(xx+3,top,xx+3,top+4,C_LINE);cv_line(xx+3,top+4,xx+6,top+4,C_LINE);cv_line(xx+6,top+4,xx+6,top,C_LINE);}
@@ -6939,16 +7044,26 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
     } else if(!chi && (c==3 || c==7)) {          /* PITCH / TUNE: centre needle */
         float ang=(q*2-1)*1.05f; int px=gx+12,py=bot;
         cv_rect(px,top-2,1,2,C_LINE);cv_rect(gx+1,bot,OG_W-2,1,C_LINE);
-        cv_line(px,py,px+(int)(fm_sinf(ang)*14),py-(int)(fm_cosf(ang)*14),col);
+        cv_line(px,py,px+(int)(fm_sinf(ang)*12),py-(int)(fm_cosf(ang)*14),col);
     } else if(!chi && c==8) og_wave(gx,gy,og_fm,q,col);        /* XMOD DEPTH: FM wave */
     else if(!chi && c==12) og_wave(gx,gy,og_lfo_amp,q,col);    /* WOBBLE depth: LFO amp */
     else if(!chi && c==13) og_wave(gx,gy,og_lfo_rate,q,col);   /* RATE: LFO frequency */
     else if(!chi && c==15) {                     /* STEREO: L/R spread */
-        int s=1+(int)(q*11+.5f),cx=gx+12;
+        int s=1+(int)(q*10+.5f),cx=gx+12;
         cv_rect(cx,top,1,OG_H-3,C_LINE);
         cv_rect(cx-s-1,mid-4,2,9,col);cv_rect(cx+s,mid-4,2,9,col);
     } else {                                     /* last resort: 7-bar scale */
         for(int j=0;j<7;j++){int h=3+j*2;cv_rect(gx+j*4,bot-h,2,h,q && j*127/6<=q*127?col:C_LINE);}
+    }
+    if(sounding && !(chi && c==4) && !level_role) {
+        /* Three sparse level pips follow actual VCA; a separate modulator cursor
+         * follows the native MG, never wall-clock phase. */
+        int n=(int)(amp*3.0f+.5f);
+        for(int i=0;i<n;i++) cv_rect(gx+2+i*4,bot-1,2,1,C_WHITE);
+        if(!chi && (c==8 || c==12 || c==13)) {
+            if(mod<0)mod=0; if(mod>1)mod=1;
+            cv_rect(gx+1+(int)(mod*23.0f+.5f),gy+1,1,2,C_WHITE);
+        }
     }
 }
 
@@ -6958,13 +7073,15 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
  * drum_live() reads the track's real amplitude envelope (909: the voice EG;
  * 808: the lane's output over its hit peak) and the ms since the hit. Same
  * 26x19 cell as orig_strip_glyph; the caller draws the readout right of it. */
-enum { DG_NONE, DG_DECAY, DG_NTAIL, DG_TUNE, DG_BDSWEEP, DG_ATTACK, DG_LPF, DG_SHELLS, DG_SNAPPY, DG_SOUND, DG_ACCENT };
+enum { DG_NONE, DG_DECAY, DG_NTAIL, DG_TUNE, DG_BDSWEEP, DG_ATTACK, DG_LPF, DG_SHELLS, DG_SNAPPY, DG_SOUND, DG_ACCENT, DG_LEVEL };
 static UI_DRAW int drum_strip_role(pref_t r)
 {
-    if(r.kind!=R_ENG || (r.a!=T_909 && r.a!=T_808) || ui.view!=V_PART) return DG_NONE;
+    if(r.kind!=R_ENG || (r.a!=T_909 && r.a!=T_808)) return DG_NONE;
     const x0x_param_t *d=pref_desc(r);
     int k9=r.a==T_909;
     if(!d) return DG_NONE;
+    if((ui.view==V_MIX || ui.view==V_PART) && r.b<NDRUM && name_is(d,"Level")) return DG_LEVEL;
+    if(ui.view!=V_PART) return DG_NONE;
     if(r.b==NDRUM) return name_is(d,"Accent")||name_is(d,"Veloc")?DG_ACCENT:DG_NONE;
     if(k9 && r.b==0 /* BD */ && (name_is(d,"Tune")||name_is(d,"P.Dpth")||name_is(d,"Pitch"))) return DG_BDSWEEP;
     if(name_is(d,"Decay")||name_is(d,"Tail")) return DG_DECAY;
@@ -7025,7 +7142,10 @@ static UI_DRAW void dg_tail(int gx,int gy,int xe,int live,float e,int noisy,uint
         float a=fm_exp2f(-9.966f*((float)x+sh)/(float)xe);
         int h=(int)(a*H+.5f);
         if(noisy) h=h*(40+dg_rnd((x+(int)sh)*7+(int)seed))/140;
-        if(h>0) cv_rect(gx+x,bot-h,1,h,x?col:C_WHITE);
+        if(h>0) {
+            cv_rect(gx+x,bot-h,1,1,col);
+            if(x==0 || (noisy && x%5==0)) cv_rect(gx+x,bot-h,1,h,x?col:C_WHITE);
+        }
     }
 }
 static UI_DRAW int dg_tail_px(float ms){if(ms<0)ms=0;if(ms>4000)ms=4000;return 2+(int)(23.0f*fm_sqrtf(ms/4000.0f)+.5f);}
@@ -7061,15 +7181,22 @@ static UI_DRAW void drum_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
     } break;
     case DG_TUNE: {                              /* TUNE: a wave whose cycles follow the real pitch; rings on a hit */
         /* 808 TUNE and the 909 cymbal TUNE are bipolar semitones (pot 64 = 0 st):
-         * a centre mark shows 0, the tick moves both ways and 3 cycles = no shift */
-        float p=dg_pos(r,val),cyc=1.0f+p*4.0f,amp=live?(1.0f+6.0f*e):(1.0f+6.0f*back),ph=live?(float)age*0.004f*cyc:0;
-        int py=mid; char n0[16],u0[8];
+         * a centre mark shows 0, the tick moves both ways and 2 cycles = no shift.
+         * Pitch occupies rows1..5; the wave stays in rows8..16, with a clear
+         * two-row gutter even at maximum live amplitude. Baseline remains18. */
+        float p=dg_pos(r,val),cyc=1.0f+p*2.0f,amp=live?(1.0f+3.0f*e):(1.0f+3.0f*back),ph=0;
+        int wave_mid=gy+12,py=wave_mid; char n0[16],u0[8];
         pref_value_of(r,0,n0,u0);
         cv_rect(gx,bot,OG_W,1,C_LINE);
         if(n0[0]=='-') cv_rect(gx+OG_W/2,bot-3,1,3,C_GRAY);
         cv_rect(gx+(int)(p*(OG_W-1)+.5f),bot-1,1,2,col);
+        /* A pitch contour is schematic on non-kick voices; only BD909 claims
+         * the measured Hz/time law. It descends toward the tuned floor. */
+        cv_line(gx,top,gx+8,top+3,col);
+        cv_line(gx+8,top+3,right,top+4,col);
+        if(live) {int x=(int)((1.0f-e)*24.0f+.5f);cv_rect(gx+x,top+3,1,2,C_WHITE);}
         for(int i=0;i<OG_W;i++){
-            int yy=mid-(int)(amp*fm_sinf(6.2831853f*((float)i*cyc/(OG_W-1)+ph))+(.5f));
+            int yy=wave_mid-(int)(amp*fm_sinf(6.2831853f*((float)i*cyc/(OG_W-1)+ph))+(.5f));
             if(i) cv_line(gx+i-1,py,gx+i,yy,col);
             py=yy;
         }
@@ -7080,7 +7207,7 @@ static UI_DRAW void drum_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
          * 40..400 Hz log. Live: a dot rides the curve at the real time since the hit. */
         int c0=0,c4=4,c5=5;
         float tau=dg_si(r,c0,r.c==c0?val:matrix_value(PR(R_ENG,T_909,0,c0)));
-        float m=dg_si(r,c4,r.c==c4?val:matrix_value(PR(R_ENG,T_909,0,c4)));
+        float m=.01f*dg_si(r,c4,r.c==c4?val:matrix_value(PR(R_ENG,T_909,0,c4))); /* readout percent -> engine 0..1 */
         float pm=dg_si(r,c5,r.c==c5?val:matrix_value(PR(R_ENG,T_909,0,c5)));
         int py=0,H=OG_H-2;
         cv_rect(gx,bot,OG_W,1,C_LINE);
@@ -7094,6 +7221,7 @@ static UI_DRAW void drum_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         }
         if(live && age<100u){
             int i=(int)((float)age*(OG_W-1)/100.0f+.5f);
+            if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
             float y=fm_log2f(engine_bd909_hz(tau,m,pm,(float)age)/40.0f)/3.32f; if(y<0)y=0; if(y>1)y=1;
             int yy=bot-1-(int)(y*H+.5f);
             cv_rect(gx+i-1,yy-1,3,3,C_WHITE);
@@ -7150,15 +7278,27 @@ static UI_DRAW void drum_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         int n=d->max+1,w=(OG_W-2)/n;
         for(int k=0;k<n;k++){
             int x=gx+1+k*w,h=9;
-            if(k==val){ if(live) h+=(int)(e*6+.5f); cv_rect(x,mid+4-h,w-3,h,col); }
+            if(k==val){ if(live) h+=(int)(e*4+.5f); cv_rect(x,mid+4-h,w-3,h,col); }
             else rbox(x,mid-5,w-3,9,1,C_LINE);
+        }
+    } break;
+    case DG_LEVEL: {                            /* value is ceiling, real envelope pulses segments */
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        int ceiling=(int)(q*6.0f+.5f),lit=live?(int)(q*e*6.0f+.5f):0;
+        for(int i=0;i<6;i++) {
+            int h=3+i*2;
+            cv_rect(gx+i*4,bot-h,3,2,i<lit?C_WHITE:i<ceiling?col:C_LINE);
         }
     } break;
     case DG_ACCENT: {                            /* ACCENT: a plain hit next to an accented one, the gap is the depth */
         float k=live?(0.6f+0.4f*e):0.6f;           /* a hit in the kit pulses the bars up */
         int H=OG_H-2,hn=(int)(H*(1.0f-0.7f*q)*k+.5f),ha=(int)(H*k+.5f);
         cv_rect(gx,bot,OG_W,1,C_LINE);
-        for(int j=0;j<4;j++){int h=j&1?ha:hn;if(h<1)h=1;cv_rect(gx+1+j*6,bot-h,4,h,j&1?col:C_GRAY);}
+        for(int j=0;j<2;j++){
+            int x=gx+3+j*13,h=j?ha:hn;if(h<1)h=1;
+            cv_line(x-3,bot,x,bot-h,col);cv_line(x,bot-h,x+4,bot,col);
+            if(live)cv_rect(x,bot-h,1,2,C_WHITE);
+        }
         cv_line(gx+7,top,gx+9,top+2,col);cv_line(gx+9,top+2,gx+7,top+4,col);   /* ">" accent marks */
         cv_line(gx+19,top,gx+21,top+2,col);cv_line(gx+21,top+2,gx+19,top+4,col);
     } break;
@@ -7175,7 +7315,12 @@ static uint32_t knobs_sig(void)
         const uint8_t *cell=proj.sound.v[T_303][bidx()];
         for (unsigned byte=0; byte<ORIGINAL_SOUND_BYTES; byte++) MIXIN(cell[byte]);
         MIXIN(engine_bass_status(bidx()));
-        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN((int)(eg*dd*28.0f)); } /* ENV glyph motion */
+        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN((int)(eg*dd*7.0f+.5f)); }
+        { float a=0,m=0;unsigned s=6,key=0;
+          if(engine_bass_voice_view(bidx(),&a,&m,&s,&key)) {
+              MIXIN((int)(a*32.0f)); MIXIN((int)(m*24.0f)); MIXIN(s); MIXIN(key);
+          }
+        }
         MIXIN(engine_bass_preset_pending(bidx()));
         MIXIN(engine_bass_requested_bank(bidx())); MIXIN(engine_bass_requested_preset(bidx()));
     }
@@ -7204,6 +7349,10 @@ static uint32_t knobs_sig(void)
         pref_t r = pg.r[pgi][i];
         MIXIN(r.kind | r.a << 8 | r.b << 16 | (uint32_t)r.c << 24);
         MIXIN(pref_get(r));
+        if(r.kind==R_ENG && (r.a==T_909 || r.a==T_808)) {
+            uint32_t age=0;float e=0;int live=drum_live(r,&age,&e);
+            MIXIN(live);if(live){MIXIN((int)(e*32.0f));MIXIN(age/40u);}
+        }
         if(r.kind==R_TEMPO) MIXIN(tempo_glyph_view);
         if(r.kind==R_TAPE && pref_get(r)>=16) MIXIN(tape_glyph_phase);
         if(r.kind==R_BRKSLOT) MIXIN(engine_brk_nslots());
@@ -7373,7 +7522,9 @@ static UI_DRAW void draw_knobs(void)
             if (mv >= 0)
                 val = mv;
         }
-        if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
+        if(drum_strip_role(r)==DG_LEVEL) {
+            drum_strip_glyph(r,val,cx-13,28,col);
+        } else if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
             /* Its existing value/motion/lock path is retained below. */
         } else if (d->names && d->max < 12) {           /* a switch: positions as pips */
             int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;
@@ -7727,6 +7878,7 @@ void ui_frame(void)
     uint32_t i;
     input();
     division_pad_input();
+    ext_rec_drain();
     if (project_busy) {
 #if BOARD_SMK37
         smc_ui_cancel();

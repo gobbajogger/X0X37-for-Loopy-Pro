@@ -417,6 +417,7 @@ static uint32_t bar_end(seq_t *s, int start)
     }
     for (t = 0; t < NTRACKS; t++)
         if (next[t] != s->ppat[t]) {
+            if (t < NKIT || t == TRK_BRK) s->rec_ev_gen++;
             s->ppat[t] = next[t];
             changed |= 1u << t;
         }
@@ -576,6 +577,7 @@ __attribute__((noinline)) static void do_start(seq_t *s, int from_top, const seq
         s->metro_tick = 24; /* waiting: next accepted clock is phase zero */
     } /* Continue preserves musical position and the stopped visual phase. */
     s->clk_to_next = 0;
+    s->rec_ev_gen++;
     s->playing = 1;
     if (o->transport) o->transport(o->ctx, 1);
     seq_send_rt(s, o, remote, from_top ? 0xFA : 0xFB);
@@ -585,6 +587,7 @@ __attribute__((noinline)) static void do_stop(seq_t *s, const seq_sink_t *o, uin
 {
     int t;
     s->playing = 0;
+    s->rec_ev_gen++;
     bass_and_brk_stop(s, o);
     if (o->transport) o->transport(o->ctx, 0);
     for (t = 0; t < NTRACKS; t++) {
@@ -814,7 +817,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     uint32_t dq = k << 8;
     for (t = 0; t < NBASS; t++)
         if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
-            (!((s->rec_mask | s->rec_hold_mask) & (1u << t)) ||
+            (!((s->rec_mask | s->rec_hold_mask | (s->rec_bass[t].src < 3 ? s->rec_ext_mask : 0u)) & (1u << t)) ||
              s->rec_bass[t].pat != s->ppat[TRK_BASS0 + t] || bpart(s, t)->dir >= DIR_PINGPONG)))
             seq_rec_cancel(s, t);
     if (s->ext_since < 2u * FS)   /* all modes: long idle must not wrap into a fake short tick */
@@ -886,6 +889,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             s->clk_to_next = 0;
         for (t = 0; t < NTRACKS; t++)                /* stopped: a cue takes effect at once */
             if (s->pcue[t] < NPAT) {
+                if (s->ppat[t] != s->pcue[t] && (t < NKIT || t == TRK_BRK)) s->rec_ev_gen++;
                 s->ppat[t] = s->pcue[t];
                 s->pcue[t] = 0xFF;
             }
@@ -1136,7 +1140,7 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
             seq_rec_bass_end(s, b);
         return;
     }
-    if (!s->playing || !(s->rec_mask & (1u << b))) return;
+    if (!s->playing || !((s->rec_mask | (src < 3 ? s->rec_ext_mask : 0u)) & (1u << b))) return;
     /* A cell may be visited repeatedly before the onset repeats. One endpoint
      * nibble cannot identify that occurrence. Refuse before any pattern write;
      * the accepted live edge still auditions through the engine. */

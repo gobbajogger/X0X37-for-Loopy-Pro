@@ -550,7 +550,7 @@ static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
 }
 static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
 {
-    unsigned code, pl, op, status;
+    unsigned code, pl, op = 0u, status = 0u;
     if (c->state == BLEC_OFF) return;
     if (n < 2u || p[1] > n - 2u) return;
     code = p[0]; pl = p[1]; p += 2;
@@ -810,7 +810,8 @@ void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n
 }
 void blec_pair_poll(blec_t *a, blec_t *b, uint32_t now, int want)
 {
-    if (!blec_paired(a) || !blec_paired(b)) { if (!want) blec_stop(a); blec_poll(a, now); return; }
+    /* A stop must see the service time, not a stale one (Disconnect cutoff). */
+    if (!blec_paired(a) || !blec_paired(b)) { a->now_ms = now; if (!want) blec_stop(a); blec_poll(a, now); return; }
     a->now_ms = b->now_ms = now;
     if (!want) {
         if (a->state != BLEC_OFF && a->state != BLEC_STOPPING) blec_stop(a);

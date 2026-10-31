@@ -5,7 +5,8 @@ int original_chicago_decimator_init(original_chicago_decimator *s){if(!s)return 
 int original_chicago_decimator_set(original_chicago_decimator *s,unsigned p,int32_t v){return s&&p<3?miami_decimator_adapter_set(&s->adapter,p+1,v):0;}
 void original_chicago_decimator_reset(original_chicago_decimator *s){if(s)(void)miami_decimator_adapter_reset(&s->adapter);}
 int original_chicago_decimator_bind_events(original_chicago_decimator *s,const original_chicago_drive_event *p,uint32_t n){
- if(!s||(n&&!p))return 0;for(uint32_t i=1;i<n;i++)if(p[i].offset<p[i-1].offset)return 0;
+ if(!s||(n&&!p))return 0;
+ for(uint32_t i=1;i<n;i++)if(p[i].offset<p[i-1].offset)return 0;
  s->queue=(original_chicago_dyn_queue){p,n,0};return 1;
 }
 void original_chicago_decimator_direct_event(original_chicago_decimator *s,unsigned type){if(type==5)original_chicago_decimator_reset(s);}

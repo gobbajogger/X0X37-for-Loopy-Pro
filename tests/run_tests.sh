@@ -90,13 +90,12 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-preset-preserve|smc-reachability|smc-ui|ui-shared-glyph|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
-    chicago-fx-runtime) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -122,7 +121,7 @@ run_one() {             # key name command...: the result goes to $RES/key (and 
     echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
 }
 GLOCK="${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}"
-install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) case "$1" in rec-live|rec-live-smk) return 1 ;; *) return 0 ;; esac ;; *) return 1 ;; esac; }
+install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) case "$1" in rec-live-smk) return 1 ;; *) return 0 ;; esac ;; *) return 1 ;; esac; }
 lk() {                  # name command...: start the command. An install-path test holds the shared gate lock while it runs
     n_="$1"; shift
     if install_path "$n_" && [ "${X0X_GATE_HOLDS_LOCK:-0}" != 1 ] && [ -w "$GLOCK" ] && command -v flock >/dev/null 2>&1; then
@@ -346,6 +345,8 @@ run smc-fx sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Ifirmware/sr
 run smc-mixer-edges sh tests/host/smc_mixer_edges_test.sh
 run smc-action-source python3 tests/host/smc_action_source_test.py
 run smc-fx-caption sh tests/host/smc_fx_caption_test.sh
+run smc-fx-page-port sh tests/host/smc_fx_page_port_test.sh
+run smc-fx-peer-view python3 tests/host/smc_fx_peer_view_test.py
 run smc-fx-preset-preserve python3 tests/host/smc_fx_preset_preserve_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
@@ -370,20 +371,14 @@ run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
 run smc-boot-saved-roles python3 tests/host/test_smc_boot_saved_roles.py
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
-# The one-peer recovery port cannot satisfy two-peer B transport/controller
-# fixtures. Keep those tests intact for the future two-SMC integration.
-if grep -q '^#define BLEC_ONE_PEER_RECOVERY 1' firmware/src/ble/ble_midi_central.h; then
-    run ble-one-peer-command sh tests/host/ble_one_peer_command_retry_test.sh
-    run ble-one-peer-contract python3 tests/host/ble_single_peer_contract_test.py
-    # The two-peer source stays; test it with BLEC_TWO_PEER=1.
-    run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
-    run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
-    not_run ble-controller-heap 'single-peer recovery; B two-link heap assumption removed'
-else
-    run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-    run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
-    run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
-fi
+# Verify the normal firmware configuration, not a test-only -DBLEC_TWO_PEER override.
+# The #700 single-peer command-credit fallback remains exercised explicitly.
+run ble-active-peer-contract python3 tests/host/ble_active_peer_contract_test.py
+run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
+run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
+run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
+run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
@@ -405,6 +400,7 @@ run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
+run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mode-page sh tests/host/smc_mode_page_test.sh
 run smc-mixer-page sh tests/host/smc_mixer_page_test.sh
 run ui-shared-glyph sh tests/host/ui_shared_glyph_test.sh  # shared glyphs across live UI pages
@@ -443,7 +439,7 @@ run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
 run brk-outline-gate python3 -B tests/host/engine_brk_outline_gate_test.py   # engine_brk_outline stores through brk_outline_peak_u8 clamp
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (+ Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert flags)
-run chicago-fx-runtime sh tests/host/run_chicago_fx_runtime.sh   # live tempo, control edits and released insert tails
+# chicago-fx-runtime is retired: it probed the bass303 chi_fx_process insert path that 18481a63 removed.
 run au-compare-align python3 tests/host/test_au_compare_align.py   # lag search law for Chicago/Miami AU compares
 run au-compare-battery python3 tests/host/test_au_compare_battery.py   # preset vs matrix modes + quick/full timing
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
@@ -580,16 +576,17 @@ run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the 
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
 run rec-held-duration sh tests/host/rec_held_duration_test.sh
+run original-stale-release python3 tests/host/test_original_runtime_lost_off.py
 run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh
 run rec-endpoint-storage sh tests/host/rec_endpoint_storage_test.sh
 run rec-nonforward-guard sh tests/host/rec_nonforward_guard_test.sh
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
-if [ "$PIL_SKIP" = 1 ]; then not_run rec-live Pillow; else
-# Full generate-only: needs font + break bank (Pillow-gated above), not tables alone.
-run rec-live sh tests/host/run_rec_live.sh fm1
-fi
+# SMK-37 only (owner 2026-10-30: FM-1 is no longer a target). Full generate-only: needs Pillow.
 if [ "$PIL_SKIP" = 1 ]; then not_run rec-live-smk Pillow; else
 run rec-live-smk sh tests/host/run_rec_live.sh smk37
+fi
+if [ "$PIL_SKIP" = 1 ]; then not_run ext-midi-rec Pillow; else
+run ext-midi-rec-smk sh tests/host/run_ext_midi_rec.sh smk37
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
@@ -599,9 +596,12 @@ run home-pattern-glyph sh tests/host/home_pattern_glyph_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run home-overview Pillow; else run home-overview sh tests/host/home_overview_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix sh tests/host/sound_matrix_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
+run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-presentation Pillow; else run chicago-presentation sh tests/host/chicago_presentation_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-readout Pillow; else run chicago-readout sh tests/host/chicago_readout_test.sh; fi
 run ui-drum-glyph sh tests/host/ui_drum_glyph_test.sh
+run ui-glyph-polish sh tests/host/ui_glyph_polish_test.sh
+run ui-chicago-env-motion sh tests/host/ui_chicago_env_motion_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run matrix-knob-caption Pillow; else run matrix-knob-caption sh tests/host/matrix_knob_caption_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run preset-navigation-noop Pillow; else run preset-navigation-noop sh tests/host/preset_navigation_noop_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-303-entry Pillow; elif [ "$ASAN_SKIP" = 1 ]; then not_run ui-303-entry ASan; else run ui-303-entry sh tests/host/pro_303_entry_crash_test.sh; fi

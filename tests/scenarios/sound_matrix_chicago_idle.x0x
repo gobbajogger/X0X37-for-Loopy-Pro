@@ -1,10 +1,11 @@
 wait 300
 turn ALGO 4
 tap EDIT
-turn SELECT 6
+turn SELECT 5
 spin K1 -1
 wait 1000
-expect page 6
-turn SELECT -3
+expect page 7
+expect sound2.0.29 0
+turn SELECT -4
 expect page 3
 shot chicago_adsr_idle_clean.png

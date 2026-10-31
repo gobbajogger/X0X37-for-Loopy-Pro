@@ -29,15 +29,16 @@ printf 'stub\n' > build/gen/x0x_drum_samples.h
 rm -f build/gen/x0x_drum_tables.h build/gen/x0x_break_bank.h build/host/iso/.gen-done build/host/iso/.gen-fail
 
 # Mask system and user-site Pillow so the nested probe exercises the missing-Pillow path.
+# The outer qualification preflight must not reject this deliberate missing dependency.
 out=$(PYTHONPATH="$T/nopil${PYTHONPATH:+:$PYTHONPATH}" PYTHONUSERBASE="$T/nopil" \
-    X0X_BREAK_BANK="$T/bank" X0X_TEST_JOBS=1 \
+    X0X_STRICT_PREFLIGHT=0 X0X_BREAK_BANK="$T/bank" X0X_TEST_JOBS=1 \
     X0X_TESTS='host-build stereo' sh tests/run_tests.sh 2>&1) || {
     printf '%s\n' "$out" | sed 's/^/       /' >&2
     echo "FAIL: host-build/stereo under samples-only + X0X_BREAK_BANK" >&2
     exit 1
 }
-# A system-wide Pillow is not hidden by PYTHONUSERBASE; then host-build runs.
-if PYTHONUSERBASE="$T/nopil" python3 -c 'import PIL' 2>/dev/null; then
+# Use the same masks as the nested run: PYTHONPATH hides a system-wide Pillow too.
+if PYTHONPATH="$T/nopil${PYTHONPATH:+:$PYTHONPATH}" PYTHONUSERBASE="$T/nopil" python3 -c 'import PIL' 2>/dev/null; then
     want='ok   host-build'
 else
     want='not-run host-build (Pillow)'

@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 # Build Felucca on macOS (see BUILDING.md).
-#   ./build.sh [--release X.Y] [--board fm1|smk37]
-#   BOARD            target board: fm1 (default) or smk37 (M-Vave SMK-37 Pro -> build/x0x-smk37.fwsc)
+#   ./build.sh [--release X.Y] [--board smk37]
+#   BOARD            target board: smk37 (default; SMK-37 Elite/Pro). FM-1 is no longer built (owner 2026-10-30).
 #   MODEL            smk37: pro (default), elite or mke: the model name the keyboard reports
 #   JIELI_TOOLCHAIN  JieLi Linux toolchain (default: ~/.jieli/toolchain)
 #   AC79_SDK         JieLi AC79 SDK checkout (default: ~/fw-AC79_AIoT_SDK)
@@ -19,5 +19,6 @@ PY="${PYTHON:-python3}"
 if [ "$(uname -s)" != Linux ] || [ "$(uname -m)" != x86_64 ]; then
     docker info >/dev/null 2>&1 || { echo "build.sh: Docker is not running"; exit 1; }
 fi
-export BOARD="${BOARD:-fm1}"     # read by tools/build.py (--board overrides it)
+export BOARD="${BOARD:-smk37}"   # read by tools/build.py (--board overrides it)
+case "$BOARD $*" in *fm1*|*FM1*|*fm-1*) echo "build.sh: FM-1 is not a build target; use --board smk37 (MODEL=elite|pro)"; exit 2 ;; esac
 exec "$PY" tools/build.py "$@"

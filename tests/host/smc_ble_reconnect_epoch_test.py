@@ -32,7 +32,10 @@ def function(name):
     return source[match.start():pos]
 
 
-prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix = strip_peek(source[source.index("#define SMC_Q"):source.index("int smc_project_active")])
 helpers = ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot") if "smc_poll_peer" in source else ()
 functions = "\n".join(function(n) for n in helpers + (
     "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link",

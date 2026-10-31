@@ -1,293 +1,227 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* Production UI, independent DSP-law expectations, actual 240px framebuffer. */
+/* Production original Chicago/Miami UI, physical controls and framebuffer.
+ * The pre-original matrix fixture's control/navigation/transition checks are
+ * retained against the shipping macro map; retired bass303 DSP is not linked. */
 #define main simulator_main
 #include "../../host/x0x_host.c"
 #undef main
 #include <assert.h>
 static unsigned checks;
 #define CHECK(x) do { checks++; if (!(x)) { fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x); exit(1); } } while(0)
-static void near(float a,float b) { if(fabsf(a-b)>=0.025f)fprintf(stderr,"near: got %.9g expected %.9g\n",a,b); CHECK(fabsf(a-b)<0.025f); }
+static void near(float a,float b) { CHECK(fabsf(a-b)<0.0001f); }
 static void audio(void) { int32_t out[512]; engine_render(out,256); }
 static int sound_page(void) { for(int p=0;p<pg.n;p++) if(pg.r[p][0].kind==R_BENGINE)return p; return -1; }
-static void fixture(int bank)
+static void fixture(int voice,int bank)
 {
-    ui.held_step=-1;ui.rec=0;ui.overlay=O_NONE;held_keys=held_btn=0;seq.playing=0;
+    engine_bass_wheel_owners(0);held_keys=held_btn=0;ui.btn=ui.keys=ui.btn_used=0;
+    ui.help=ui.rec=0;ui.held_step=-1;seq.playing=0;ui.overlay=O_NONE;
     engine_bass_off(0);engine_bass_off(1);
     for(int i=0;i<600;i++)audio();
     memset(proj.arr.lane,0,sizeof proj.arr.lane);
-    CHECK(engine_bass_select_preset(0,bank,0,&proj.sound)==0);
-    for(int i=0;i<600 && engine_bass_preset_pending(0);i++)audio();
-    CHECK(!engine_bass_preset_pending(0));CHECK(engine_bass_bank(0)==bank);
-    ui.part=PART_303A;set_view(V_PART);*page_of(V_PART)=0;
+    CHECK(engine_bass_select_preset(voice,bank,0,&proj.sound)==0);
+    for(int i=0;i<600 && engine_bass_preset_pending(voice);i++)audio();
+    CHECK(!engine_bass_preset_pending(voice));CHECK(engine_bass_bank(voice)==bank);
+    ui.part=PART_303A+voice;set_view(V_PART);*page_of(V_PART)=0;
     ui.touched=-1;ui.msg_until=0;ui_input_only();build_pages();
 }
 static void knob(int k,int delta)
 { now_ms+=1000;enc_acc[EN_K1+k]=delta;ui_input_only(); }
 static void select_row(int delta)
-{ now_ms++;enc_acc[EN_SELECT]=delta;ui_input_only(); }
+{ now_ms+=1000;enc_acc[EN_SELECT]=delta;ui_input_only(); }
+static void patch(void)
+{ held_btn=1u<<B_HOME;now_ms+=10;ui_input_only();held_btn=0;now_ms+=10;ui_input_only(); }
 static void render(void) { ui.msg_until=0;draw_header();draw_main();draw_knobs(); }
-static void shot(const char *dir,const char *name)
-{ char path[512];render();snprintf(path,sizeof path,"%s/%s.png",dir,name);png_write(path); }
-static void value(int param,int val) { pref_set(PR(R_ENG,T_303,0,param),val); }
-static void touch(int k)
+/* Independent expected macro IDs, not an alias of the production row table. */
+static const int expected[2][7][4]={
+    {{0,1,-1,-1},{2,3,4,-1},{5,6,-1,-1},{7,8,9,10},
+     {11,12,-1,-1},{13,15,14,16},{17,18,19,-1}},
+    {{0,1,2,3},{6,5,7,8},{9,10,12,-1},{11,13,-1,-1},{4,15,14,-1}}
+};
+static unsigned states(int bank,int id)
 {
-    pref_t r=pg.r[cur_page()][k];ui.touched=k;ui.touch_until=now_ms+900;
-    ui.touch_view=ui.view;ui.touch_part=ui.part;ui.touch_page=cur_page();
-    ui.touch_kind=r.kind;ui.touch_a=r.a;ui.touch_b=r.b;ui.touch_c=r.c;
+    if(!bank) { if(id==11 || id==13)return 2;if(id==14 || id==15)return 3;if(id==16)return 10; }
+    else { if(id==0)return 3;if(id==3)return 25;if(id==6 || id==11)return 4;if(id==13)return 8; }
+    return 0;
 }
-static void format(int param,int val,const char *expected)
-{ char n[16],u[8],s[24];pref_value_of(PR(R_ENG,T_303,0,param),val,n,u);put_s(put_s(s,n),u);CHECK(!strcmp(s,expected)); }
-static void mapping(int bank)
+static void mapping(int voice,int bank)
 {
-    static const int expected[2][16]={
-      {BASS303_CUTOFF,BASS303_RESO,BASS303_ENVMOD,BASS303_WAVE,BASS303_ACCENT,BASS303_DRIVE,BASS303_GNAW,BASS303_BITE,
-       BASS303_FATTACK,BASS303_DECAY,BASS303_FSUSTAIN,BASS303_FRELEASE,BASS303_AATTACK,BASS303_ADECAY,BASS303_ASUSTAIN,BASS303_ARELEASE},
-      {W_CARRIER_WAVE,W_CARRIER_LEVEL,W_SUB_LEVEL,W_CARRIER_PITCH,W_XMOD_WAVE,W_XMOD_LEVEL,W_XMOD_TUNE,W_XMOD_DEPTH,
-       W_WOBBLE_SHAPE,W_WOBBLE_DEPTH,W_WOBBLE_RATE,W_CUTOFF,W_ATTACK,W_DECAY,W_SUSTAIN,W_RELEASE}};
-    unsigned seen[NPARAMS_MAX]={0};
-    fixture(bank);CHECK(pg.n==7);CHECK(sound_page()==pg.n-1);
+    unsigned seen[NPARAMS_MAX]={0};int rows=bank?5:7;
+    fixture(voice,bank);CHECK(pg.n==rows+1);CHECK(sound_page()==rows);
     for(int i=0;i<factory_bank(bank)->npresets;i++) {
-        const char *name=factory_preset_name(bank,i);
-        preset_text_t text;preset_text(&text,name,!bank);
+        preset_text_t text;preset_text(&text,factory_preset_name(bank,i),!bank);
         CHECK(text.lines>=1 && text.lines<=2);
-        for(int line=0;line<text.lines;line++) CHECK(tw(text.font,text.line[line])<=54);
+        for(int line=0;line<text.lines;line++)CHECK(tw(text.font,text.line[line])<=54);
     }
-    for(int p=0;p<4;p++)for(int k=0;k<4;k++)CHECK(pg.r[p][k].c==expected[bank][p*4+k]);
+    for(int p=0;p<rows;p++)for(int k=0;k<4;k++) {
+        pref_t r=pg.r[p][k];int id=expected[bank][p][k];
+        CHECK(r.kind==(id<0?R_NONE:R_ENG));
+        if(id>=0)CHECK(r.a==T_303 && r.b==voice && r.c==id);
+    }
+    CHECK(pg.r[rows][1].kind==R_BPRESET && pg.r[rows][2].kind==R_BSTATUS && pg.r[rows][3].kind==R_NONE);
     for(int p=0;p<pg.n;p++) {
         *page_of(V_PART)=p;
         for(int k=0;k<4;k++) {
             pref_t r=pg.r[p][k];const x0x_param_t *d=pref_desc(r);
-            if(r.kind==R_NONE) { sound_t before=proj.sound;knob(k,1);CHECK(!memcmp(&before,&proj.sound,sizeof before));continue; }
-            CHECK(tw(&FONT_T,matrix_name(r))<=54);
+            if(r.kind==R_NONE || r.kind==R_BSTATUS) {
+                sound_t before=proj.sound;int pending=engine_bass_preset_pending(voice);
+                knob(k,1);knob(k,-1);
+                CHECK(!memcmp(&before,&proj.sound,sizeof before));CHECK(engine_bass_preset_pending(voice)==pending);continue;
+            }
+            CHECK(d);CHECK(tw(&FONT_T,matrix_name(r))<=54);
             if(r.kind==R_ENG) {
-                seen[r.c]++;
-                pref_set(r,d->max/2);int before=pref_get(r);knob(k,1);CHECK(pref_get(r)==before+1);
+                seen[r.c]++;unsigned n=states(bank,r.c);
+                /* Begin at a selector boundary to check real detents as well
+                 * as continuous one-byte edits. No mutable expectation helper. */
+                pref_set(r,0);sound_t before=proj.sound;knob(k,1);
+                int want=n?(127+(int)(n-1)/2)/(int)(n-1):1;
+                CHECK(pref_get(r)==want);
+                uint8_t cell[ORIGINAL_SOUND_BYTES];memcpy(cell,before.v[T_303][voice],sizeof cell);
+                uint32_t mask=(uint32_t)cell[22]|(uint32_t)cell[23]<<8|
+                    (uint32_t)cell[24]<<16|(uint32_t)cell[25]<<24;
+                mask|=1u<<r.c;cell[r.c]=(uint8_t)want;
+                for(int byte=0;byte<4;byte++)cell[22+byte]=(uint8_t)(mask>>(byte*8));
+                memcpy(before.v[T_303][voice],cell,sizeof cell);
+                CHECK(!memcmp(&before,&proj.sound,sizeof before));
+                CHECK(original_sound_edit_mask(proj.sound.v[T_303][voice])&(1u<<r.c));
+                knob(k,-1);CHECK(pref_get(r)==0);
+                CHECK(engine_bass_bank(voice)==bank && !engine_bass_preset_pending(voice));
             }
             for(int v=0;v<=d->max;v++) {
                 char n[16],u[8],s[24];pref_value_of(r,v,n,u);put_s(put_s(s,n),u);
-                CHECK(tw(&FONT_T,s)<=54); /* smallest existing face bounds worst case */
+                CHECK(tw(&FONT_T,s)<=54);
             }
         }
     }
-    for(int i=0;i<pg.nmore;i++) {
-        pref_t r=pg.more[i];CHECK(r.kind==R_ENG);seen[r.c]++;
-        const x0x_param_t *d=pref_desc(r);pref_set(r,d->max/2);int before=pref_get(r);
-        open_list_of_pages();int found=-1;
-        for(int j=0;j<ui.list_n;j++) if(!memcmp(&list_rows[j],&r,sizeof r))found=j;
-        CHECK(found>=0);ui.list_sel=found;now_ms+=1000;enc_acc[EN_ALGO]=1;ui_input_only();
-        CHECK(pref_get(r)==before+1);ui.overlay=O_NONE;
-    }
-    for(int i=0;i<engine_nparams(T_303,0);i++) CHECK(seen[i]==(i==(bank?W_PITCH_BEND:CHI_PBEND)?0:1)); /* performance-only physical wheel */
+    CHECK(pg.nmore==0);
+    /* Every patch macro occurs once; both performance inputs stay off pages. */
+    CHECK(engine_nparams(T_303,voice)==(bank?18:22));
+    for(int i=0;i<engine_nparams(T_303,voice);i++)CHECK(seen[i]==(unsigned)(i<(bank?16:20)));
+    sound_t before=proj.sound;
     *page_of(V_PART)=0;select_row(-1);CHECK(cur_page()==pg.n-1);select_row(1);CHECK(cur_page()==0);
     for(int p=1;p<pg.n;p++){select_row(1);CHECK(cur_page()==p);CHECK(cur_page()/4==p/4);}
     select_row(1);CHECK(cur_page()==0);*page_of(V_PART)=pg.n-1;button_tap(B_EDIT);CHECK(cur_page()==0);
     button_tap(B_EDIT);CHECK(cur_page()==1);select_row(-1);CHECK(cur_page()==0);
-    *page_of(V_PART)=sound_page();int n=engine_bass_requested_preset(0);now_ms++;enc_acc[EN_PRESET]=1;ui_input_only();
-    CHECK(engine_bass_requested_preset(0)==n+1);CHECK(engine_bass_preset_pending(0));
-    knob(2,1);CHECK(engine_bass_preset_pending(0)); /* former K7 cancel slot is inert */
-    held_btn=1u<<B_HOME;ui_input_only();held_btn=0;ui_input_only();CHECK(!engine_bass_preset_pending(0));
-    puts(bank?"PASS Miami all controls, blanks, widths and navigation":"PASS Chicago all controls, blanks, widths and navigation");
+    CHECK(!memcmp(&before,&proj.sound,sizeof before));
+    *page_of(V_PART)=sound_page();engine_bass_wheel_owners(1u<<voice);
+    int n=engine_bass_requested_preset(voice);now_ms+=1000;enc_acc[EN_PRESET]=1;ui_input_only();
+    CHECK(engine_bass_requested_preset(voice)==n+1);CHECK(engine_bass_preset_pending(voice));
+    knob(2,1);knob(3,-1);CHECK(engine_bass_preset_pending(voice));
+    patch();CHECK(!engine_bass_preset_pending(voice));engine_bass_wheel_owners(0);
+    CHECK(!memcmp(&before,&proj.sound,sizeof before));
+    printf("PASS %s %c: all controls, blanks, persisted edits, widths and navigation\n",bank?"Miami":"Chicago",'A'+voice);
 }
-static void geometry(const char *dir,int bank)
+static void geometry(void)
 {
-    fixture(bank);
-    for(int row=0;row<4;row++) {
-        char name[40];*page_of(V_PART)=row;ui.touched=-1;render();
-        uint16_t col=swap16(matrix_col());
-        for(int r=0;r<4;r++)for(int k=0;k<4;k++) {
-            int x=7+k*59,y=24+r*50+24;
-            CHECK((fb[y*240+x]==col)==(r==row));
-        }
-        snprintf(name,sizeof name,"%s-row%d",bank?"miami":"chicago",row+1);shot(dir,name);
-    }
-    *page_of(V_PART)=4;shot(dir,bank?"miami-page2":"chicago-page2");
-    *page_of(V_PART)=sound_page();shot(dir,bank?"miami-presets":"chicago-presets");
-}
-/* Independent DSP states prove both stock amp release constants and the
- * Gate-mode recalc on each control block (not merely a renderer self-test). */
-/* The header indicators describe screen banks, not rows or musical divisions. */
-static void page_dots(const char *dir)
-{
-    for (int bank = 0; bank < 2; bank++) {
-        fixture(bank);
-        int rows = pg.n, banks = (rows + 3) / 4;
-        CHECK(banks == 2 && rows == 7);
-        CHECK(7 + tw(&FONT_B, bank ? "MIAMI A" : "CHICAGO A") < 175);
-        for (int page = 0; page < rows; page++) {
-            *page_of(V_PART) = page; ui.msg_until = 0;
-            sound_t before = proj.sound;
-            for (int state = SAVE_SAVED; state <= SAVE_FAILED; state++) {
-                ui.dirty = state == SAVE_UNSAVED; save_wait = state == SAVE_QUEUED;
-                ui.save_failed = state == SAVE_FAILED;
-                draw_header();
-                for (int i = 0; i < banks; i++) {
-                    int x = 232 - (banks - 1 - i) * 10;
-                    CHECK(x - 3 > 194 && x + 3 < 236); /* after REC, before dirty marker */
-                    int night=!bank && page>=4;
-                    CHECK(fb[9 * 240 + x] == swap16(i == page / 4 ? (night?RGB(196,155,69):C_HI) : (night?RGB(16,26,31):C_BLACK)));
-                    CHECK(fb[9 * 240 + x + 2] != swap16(C_BLACK)); /* outlined inactive remains visible */
-                }
-                uint16_t dirty = state == SAVE_SAVED ? (!bank && page>=4?RGB(16,26,31):C_BLACK) : state == SAVE_FAILED ? RGB(255,70,70) : C_AMB;
-                CHECK(fb[3 * 240 + 237] == swap16(dirty));
-                CHECK(cur_page() == page && pg.n == rows);
-                CHECK(!memcmp(&before, &proj.sound, sizeof before));
+    for(int bank=0;bank<2;bank++) {
+        fixture(0,bank);sound_t before=proj.sound;
+        for(int page=0;page<pg.n;page++) {
+            *page_of(V_PART)=page;render();
+            /* The current slab geometry and page dots use the original palette. */
+            for(int r=0;r<4 && page/4*4+r<pg.n;r++) {
+                int y=24+r*50+24;
+                CHECK(fb[y*240+7]==swap16(r==page%4?SOUND_SELECT:SOUND_FACE));
             }
-            ui.dirty = save_wait = ui.save_failed = 0;
-        }
-        for (int screen = 0; screen < banks; screen++) {
-            char name[48]; *page_of(V_PART) = screen ? rows - 1 : 0;
-            snprintf(name, sizeof name, "%s-page-dots-%d", bank ? "miami" : "chicago", screen + 1);
-            shot(dir, name);
-        }
-    }
-    /* Unknown retained identity exposes one safe SOUND row, hence one bank. */
-    fixture(FACTORY_BANK_CHICAGO);
-    sound_t before = proj.sound;
-    memset(proj.sound.bass[0].bytes, 0, sizeof proj.sound.bass[0].bytes);
-    build_pages(); *page_of(V_PART) = 0; ui.dirty = save_wait = ui.save_failed = 0;
-    CHECK(pg.n == 1); draw_header();
-    CHECK(7 + tw(&FONT_B, "CHOOSE ENGINE") < 175);
-    CHECK(fb[9 * 240 + 232] == swap16(C_HI));
-    CHECK(fb[9 * 240 + 222] == swap16(C_BLACK));
-    shot(dir, "unknown-single-page-dot");
-    proj.sound = before; build_pages();
-    puts("PASS screen-bank dots: both banks/engines, partial bank, unknown single bank, dirty marker and bounds");
-}
-
-static void dsp_release(void)
-{
-    bass303_t b;float out[BASS303_CTRL];
-    for(int accent=0;accent<2;accent++) {
-        bass303_init(&b);bass303_set(&b,BASS303_AMPMODE,BASS303_AMP_ENV);
-        bass303_set(&b,BASS303_ARELEASE,0);bass303_note_on(&b,48,accent,0);
-        bass303_render(&b,out,BASS303_CTRL); /* consume note-on jump before note-off */
-        b.amp_y=1; bass303_note_off(&b);bass303_render(&b,out,BASS303_CTRL);
-        near(b.amp_y,expf(-BASS303_CTRL/(BASS303_SR*(accent?.05f:.001f))));
-    }
-    for(int pot=1;pot<=31;pot+=30) {
-        bass303_init(&b);bass303_set(&b,BASS303_AMPMODE,BASS303_AMP_GATE);
-        bass303_set(&b,BASS303_ARELEASE,pot);bass303_note_on(&b,48,0,0);
-        bass303_render(&b,out,BASS303_CTRL);b.fenv_y=.4f;bass303_note_off(&b);
-        ui_adsr_t e={0};e.sustain=.4f;e.release=4000.0f*pot*pot/(127*127);e.release_curve=2;
-        float n=e.release*BASS303_SR/(1000*BASS303_CTRL),base=1-1/n;
-        for(int chunk=1;chunk<=8;chunk++) {
-            bass303_render(&b,out,BASS303_CTRL);
-            float expected=.4f*powf(base,chunk);
-            near(b.fenv_y,expected);near(adsr_release(&e,chunk/(5*n)),expected);
+            for(int state=SAVE_SAVED;state<=SAVE_FAILED;state++) {
+                ui.dirty=state==SAVE_UNSAVED;save_wait=state==SAVE_QUEUED;ui.save_failed=state==SAVE_FAILED;
+                ui.msg_until=0;draw_header();
+                for(int i=0;i<2;i++) {
+                    int x=222+i*10;CHECK(x-3>194 && x+3<236);
+                    CHECK(fb[9*240+x]==swap16(i==page/4?SOUND_AMBER:SOUND_FACE));
+                    CHECK(fb[9*240+x+2]!=swap16(SOUND_FACE)); /* antialiased outline */
+                }
+                if(state!=SAVE_SAVED)CHECK(fb[3*240+237]==swap16(state==SAVE_FAILED?RGB(255,70,70):C_AMB));
+                CHECK(cur_page()==page);CHECK(!memcmp(&before,&proj.sound,sizeof before));
+            }
+            ui.dirty=save_wait=ui.save_failed=0;
         }
     }
+    puts("PASS original matrix row geometry, screen-bank dots, save states and render side effects");
 }
-static void envelopes(const char *dir)
+static void envelopes(void)
 {
-    ui_adsr_t e;
-    fixture(FACTORY_BANK_MIAMI);*page_of(V_PART)=3;
-    value(W_ATTACK,32);value(W_DECAY,60);value(W_SUSTAIN,51);value(W_RELEASE,31);
-    adsr_values(&e);CHECK(!e.curved && !e.gate && e.enabled);
-    near(e.attack,2.0f+1998.0f*32*32/(127*127));near(e.decay,0.1f+2499.9f*60*60/(127*127));
-    near(e.sustain,51.0f/127);near(e.release,(4.75f+2995.25f*31*31/(127*127))*51/127);
-    format(W_ATTACK,32,"129ms");format(W_DECAY,60,"558ms");format(W_RELEASE,31,"183ms");
-    format(W_ATTACK,0,"2.0ms");format(W_DECAY,0,"0.1ms");format(W_RELEASE,0,"4.8ms");
-    format(W_ATTACK,127,"2000ms");format(W_DECAY,127,"2500ms");format(W_RELEASE,127,"3000ms");
-    touch(2);CHECK(adsr_touch_active());shot(dir,"miami-envelope-mid");
-    CHECK(fb[100*240+83]==swap16(matrix_col())); /* linear decay midpoint */
-    uint16_t saved[240*240];memcpy(saved,fb,sizeof saved);now_ms+=500;render();CHECK(!memcmp(saved,fb,sizeof saved));
-    now_ms+=401;CHECK(!adsr_touch_active());shot(dir,"miami-envelope-restored");
-    value(W_ATTACK,0);value(W_DECAY,0);value(W_SUSTAIN,0);value(W_RELEASE,0);touch(0);adsr_values(&e);
-    near(e.attack,2);near(e.decay,.1f);near(e.release,0);shot(dir,"miami-envelope-min");
-    value(W_ATTACK,127);value(W_DECAY,127);value(W_SUSTAIN,127);value(W_RELEASE,127);touch(3);adsr_values(&e);
-    near(e.release,3000);shot(dir,"miami-envelope-max");
-    select_row(-1);CHECK(!adsr_touch_active()); /* no stale row detent */
-    fixture(FACTORY_BANK_CHICAGO);*page_of(V_PART)=3;
-    value(BASS303_AMPMODE,BASS303_AMP_ENV);value(BASS303_AATTACK,32);value(BASS303_ADECAY,64);value(BASS303_ASUSTAIN,51);value(BASS303_ARELEASE,31);
-    adsr_values(&e);CHECK(e.curved && !e.gate && e.enabled);near(e.attack,2000.0f*32*32/(127*127));near(e.decay,1230);
-    near(e.release,1.0f+3999.0f*31*31/(127*127));format(BASS303_ARELEASE,0,"1/50ms");
-    for(int i=0;i<=10;i++){float u=(float)i/10;near(adsr_fall(1,1,.4f,u),.4f+.6f*expf(-5*u));near(adsr_fall(0,1,.4f,u),1-.6f*u);}
-    touch(2);shot(dir,"chicago-envelope-rc");
-    CHECK(fb[118*240+83]==swap16(matrix_col())); /* independent exp(-2.5) midpoint */
-    CHECK(fb[100*240+83]!=swap16(matrix_col()));
-    value(BASS303_AMPMODE,BASS303_AMP_GATE);adsr_values(&e);CHECK(!e.curved && e.gate && e.release_curve==2);
-    near(e.decay,200.0f*powf(10.0f,64.0f/127));near(e.release,4000.0f*31*31/(127*127));
-    format(BASS303_ADECAY,64,"638ms");format(BASS303_ARELEASE,0,"0ms");shot(dir,"chicago-envelope-gate");
-    CHECK(fb[100*240+83]==swap16(matrix_col()));
-    CHECK(fb[148*240+193]==swap16(matrix_col())); /* geometric Gate release, not linear */
-    *page_of(V_PART)=2;touch(1);adsr_values(&e);CHECK(!e.enabled);shot(dir,"chicago-filter-inactive-gate");
-    value(BASS303_AMPMODE,BASS303_AMP_ENV);value(BASS303_FENV,0);adsr_values(&e);CHECK(!e.enabled);
-    shot(dir,"chicago-filter-off");value(BASS303_FENV,1);adsr_values(&e);CHECK(e.enabled && !e.curved);
-    shot(dir,"chicago-filter-active");
-    *page_of(V_PART)=3;value(BASS303_AATTACK,0);value(BASS303_ADECAY,0);value(BASS303_ASUSTAIN,0);value(BASS303_ARELEASE,0);touch(0);
-    shot(dir,"chicago-envelope-min");
-    value(BASS303_AATTACK,127);value(BASS303_ADECAY,127);value(BASS303_ASUSTAIN,127);value(BASS303_ARELEASE,127);touch(3);
-    shot(dir,"chicago-envelope-max");
-    ui.part=PART_303B;build_pages();CHECK(!adsr_touch_active());ui.part=PART_303A;build_pages();
-    /* A held step resolves to a distinct value without mutating the saved sound. */
-    *page_of(V_PART)=3;ui.held_step=0;value(BASS303_AATTACK,51);int lane=motion_alloc(proj.arr.lane,seq.ppat[ui.part],ui.part,T_303,0,BASS303_AATTACK);
-    CHECK(lane>=0);proj.arr.lane[lane].val[0]=61;touch(0);adsr_values(&e);near(e.attack,2000.0f*61*61/(127*127));
-    CHECK(pref_get(pg.r[3][0])==51);CHECK(matrix_value(pg.r[3][0])==61);shot(dir,"chicago-envelope-locked");
-    proj.arr.lane[lane].val[1]=91;ui.held_step=1;adsr_values(&e);near(e.attack,2000.0f*91*91/(127*127));
-    ui.held_step=-1;adsr_values(&e);near(e.attack,2000.0f*51*51/(127*127));
-    for(int i=0;i<NSTEPS;i++)proj.arr.lane[lane].val[i]=71;
-    engine_motion_enable(1);seq_start(&seq);run_ms(40);
-    CHECK(engine_motion_value(lane)==71);CHECK(matrix_value(pg.r[3][0])==71);
-    touch(0);adsr_values(&e);near(e.attack,2000.0f*71*71/(127*127));shot(dir,"chicago-envelope-motion");
-    seq_stop(&seq);run_ms(40);CHECK(pref_get(pg.r[3][0])==51);
-    puts("PASS exact envelope laws, geometry function, modes, timeout and held values");
+    static const int pots[]={0,64,127};
+    fixture(0,0);*page_of(V_PART)=3;CHECK(adsr_inline_page());
+    for(int a=0;a<3;a++)for(int d=0;d<3;d++)for(int s=0;s<3;s++)for(int r=0;r<3;r++) {
+        int v[]={pots[a],pots[d],pots[s],pots[r]};
+        for(int k=0;k<4;k++)pref_set(pg.r[3][k],v[k]);
+        sound_t before=proj.sound;ui_adsr_t e;adsr_values(&e);
+        /* #746: the graph uses the compiled native A/D/S/R (macro scaling included). */
+        float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));
+        double qa=nv[0],qd=nv[1],qr=nv[3];
+        near(e.attack,(float)(13*qa*qa*qa*qa+.001));
+        near(e.decay,(float)(25*qd*qd*qd*qd+.001));near(e.sustain,nv[2]);
+        near(e.release,(float)(25*qr*qr*qr*qr+.002));CHECK(e.curved && e.release_curve==1 && e.enabled==2);
+        for(int i=0;i<=10;i++) {
+            float t=i*.1f;
+            near(adsr_original_level(&e,0,t*e.attack),fminf(1.f,1.3f-1.3f*expf(-t)));
+            near(adsr_original_level(&e,1,t*e.decay),e.sustain+(1-e.sustain)*expf(-t));
+            near(adsr_original_level(&e,3,t*e.release),e.sustain*expf(-t));
+        }
+        int x[5];float durations[3];adsr_layout(&e,13,214,x,durations);
+        CHECK(x[0]==13 && x[4]==227 && x[3]-x[2]==42);
+        CHECK(x[1]-x[0]>=3 && x[2]-x[1]>=3 && x[4]-x[3]>=3);
+        near(durations[0],e.attack*1.466337f);near(durations[1],e.decay*4.6051702f);
+        near(durations[2],e.sustain>.04f?e.release*logf(e.sustain/.04f):0);
+        render();CHECK(!memcmp(&before,&proj.sound,sizeof before));
+    }
+    /* Held locks and playing motion change the graph without rewriting a patch. */
+    pref_t attack=pg.r[3][0];pref_set(attack,51);ui.held_step=0;
+    int lane=motion_alloc(proj.arr.lane,seq.ppat[ui.part],ui.part,T_303,0,7);CHECK(lane>=0);
+    proj.arr.lane[lane].val[0]=61;CHECK(matrix_value(attack)==61);CHECK(pref_get(attack)==51);
+    ui_adsr_t e;adsr_values(&e);float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));float q=nv[0];near(e.attack,13*q*q*q*q+.001f);
+    ui.held_step=-1;for(int i=0;i<NSTEPS;i++)proj.arr.lane[lane].val[i]=71;
+    engine_motion_enable(1);seq_start(&seq);run_ms(40);CHECK(engine_motion_value(lane)==71);
+    CHECK(matrix_value(attack)==71);adsr_values(&e);CHECK(engine_bass_adsr_view(0,nv,&ng));q=nv[0];near(e.attack,13*q*q*q*q+.001f);
+    seq_stop(&seq);run_ms(40);CHECK(pref_get(attack)==51);
+    *page_of(V_PART)=0;CHECK(!adsr_inline_page());fixture(0,1);
+    for(int p=0;p<pg.n;p++){*page_of(V_PART)=p;CHECK(!adsr_inline_page());}
+    puts("PASS original Chicago exponential envelope laws, geometry, locks and motion; Miami has no editable ADSR");
 }
-static void transitions(const char *dir)
+static void transitions(void)
 {
-    fixture(FACTORY_BANK_MIAMI);*page_of(V_PART)=sound_page();
-    knob(0,-1);CHECK(engine_bass_bank(0)==FACTORY_BANK_MIAMI);
-    CHECK(engine_bass_requested_bank(0)==FACTORY_BANK_CHICAGO);
-    CHECK(engine_bass_preset_pending(0));CHECK(pg.r[0][0].c==W_CARRIER_WAVE);
-    shot(dir,"preset-pending-chicago");knob(2,1);CHECK(engine_bass_preset_pending(0));
-    held_btn=1u<<B_HOME;ui_input_only();held_btn=0;ui_input_only();CHECK(!engine_bass_preset_pending(0));
-    CHECK(engine_bass_bank(0)==FACTORY_BANK_MIAMI);shot(dir,"preset-cancelled");
-    knob(0,-1);audio();ui_input_only();
-    CHECK(engine_bass_bank(0)==FACTORY_BANK_CHICAGO);CHECK(cur_page()==sound_page());CHECK(cur_page()==6);
-    CHECK(pg.r[0][0].c==BASS303_CUTOFF);shot(dir,"preset-applied-chicago");
-    int preset=engine_bass_preset_index(0);knob(1,1);audio();ui_input_only();
-    CHECK(engine_bass_preset_index(0)==preset+1);CHECK(cur_page()==sound_page());
-    /* Engine commit must not reinterpret an old amp-control touch on the new bank. */
-    *page_of(V_PART)=3;touch(0);CHECK(adsr_touch_active());
-    CHECK(!engine_bass_select_preset(0,FACTORY_BANK_MIAMI,0,&proj.sound));audio();ui_input_only();
-    CHECK(engine_bass_bank(0)==FACTORY_BANK_MIAMI);CHECK(!adsr_touch_active());
-    *page_of(V_PART)=sound_page();
-    bass_sound_tag_t tag=proj.sound.bass[0];memset(&proj.sound.bass[0],0,sizeof tag);
-    build_pages();CHECK(pg.n==1 && sound_page()==0 && cur_page()==0);
-    CHECK(engine_bass_sound_bank(&proj.sound,0)<0);
-    sound_t before=proj.sound;shot(dir,"unknown-engine-safe-selector");CHECK(!memcmp(&before,&proj.sound,sizeof before));
-    CHECK(pref_get(pg.r[0][0])<0); /* no guessing an active engine from legacy bytes */
-    proj.sound.bass[0]=tag;build_pages();CHECK(cur_page()==sound_page());
-    puts("PASS pending/cancel/apply, engine row identity, stale touch and unknown-engine safety");
+    for(int voice=0;voice<2;voice++)for(int bank=0;bank<2;bank++) {
+        fixture(voice,bank);*page_of(V_PART)=sound_page();
+        sound_t before=proj.sound;engine_bass_wheel_owners(1u<<voice);knob(0,bank?-1:1);
+        CHECK(engine_bass_bank(voice)==bank && engine_bass_requested_bank(voice)==(bank^1));
+        CHECK(engine_bass_preset_pending(voice));CHECK(pg.r[0][0].c==0);
+        CHECK(pg.n==(bank?6:8));CHECK(!memcmp(&before,&proj.sound,sizeof before));
+        knob(2,1);CHECK(engine_bass_preset_pending(voice));patch();
+        CHECK(!engine_bass_preset_pending(voice) && engine_bass_bank(voice)==bank);
+        CHECK(!memcmp(&before,&proj.sound,sizeof before));
+        knob(0,bank?-1:1);engine_bass_wheel_owners(0);
+        for(int i=0;i<600 && engine_bass_preset_pending(voice);i++)audio();
+        ui_input_only();
+        CHECK(engine_bass_bank(voice)==(bank^1));CHECK(cur_page()==sound_page());CHECK(pg.n==(bank?8:6));
+        CHECK(engine_bass_sound_bank(&proj.sound,voice)==(bank^1));
+        int preset=engine_bass_preset_index(voice);knob(1,1);
+        for(int i=0;i<600 && engine_bass_preset_pending(voice);i++)audio();
+        ui_input_only();
+        CHECK(engine_bass_preset_index(voice)==preset+1);CHECK(cur_page()==sound_page());
+        /* Unsupported stored identity must not be repaired by drawing or editing. */
+        memset(proj.sound.v[T_303][voice],0,ORIGINAL_SOUND_BYTES);build_pages();
+        CHECK(engine_bass_sound_bank(&proj.sound,voice)<0);
+        before=proj.sound;render();CHECK(!memcmp(&before,&proj.sound,sizeof before));
+        pref_set(PR(R_ENG,T_303,voice,0),64);CHECK(!memcmp(&before,&proj.sound,sizeof before));
+    }
+    puts("PASS both voices/banks pending/cancel/apply, selector retention and invalid patch side effects");
 }
-static void drums(const char *dir)
+static void drums(void)
 {
     for(int kit=0;kit<2;kit++)for(int voice=0;voice<NDRUM;voice++) {
         ui.part=kit;ui.sel[kit]=voice;set_view(V_PART);ui.touched=-1;
-        int banks = (pg.n + 3) / 4;
-        CHECK(banks >= 1 && 232 - (banks - 1) * 10 - 3 > 194);
-        for (int page = 0; page < pg.n; page++) {
-            *page_of(V_PART) = page; ui.msg_until = 0; draw_header();
-            for (int i = 0; i < banks; i++) {
-                int x = 232 - (banks - 1 - i) * 10;
-                CHECK(fb[9 * 240 + x] == swap16(i == page / 4 ? C_HI : C_BLACK));
-                CHECK(fb[9 * 240 + x + 2] != swap16(C_BLACK));
-            }
-        }
         for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++) {
-            pref_t r=pg.r[p][k];if(r.kind==R_NONE)continue;
-            CHECK(tw(&FONT_T,matrix_name(r))<=54);
+            pref_t r=pg.r[p][k];if(r.kind!=R_NONE)CHECK(tw(&FONT_T,matrix_name(r))<=54);
         }
-        if(voice==1)shot(dir,kit?"808-snare":"909-snare");
+        sound_t before=proj.sound;render();CHECK(!memcmp(&before,&proj.sound,sizeof before));
     }
-    puts("PASS both drum-kit control labels");
+    puts("PASS both drum-kit control labels and render side effects");
 }
-int main(int argc,char **argv)
+int main(void)
 {
-    const char *dir=argc>1?argv[1]:"build/ui-b-evidence";boot();
+    boot();run_ms(50);engine_guard_enable(0);
     CHECK(!strcmp(btn_label(B_EDIT),"PARA"));CHECK(!strcmp(btn_label(B_HOME),"PATCH"));
-    CHECK(!strcmp(btn_label(B_SEL),"SCALE"));CHECK(!strcmp(btn_label(B_SAVE),"BT"));
     CHECK(UI_FIRST_KNOB==5);CHECK(help_fits());
-    CHECK(tw(&FONT_T,"STEP 64 " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT ":ROW")+tw(&FONT_T,"KEYS/MIDI")<222);
-    dsp_release();mapping(0);mapping(1);geometry(dir,0);geometry(dir,1);page_dots(dir);envelopes(dir);transitions(dir);drums(dir);
-    printf("sound matrix B: %u checks PASS\n",checks);return 0;
+    for(int v=0;v<2;v++)for(int bank=0;bank<2;bank++)mapping(v,bank);
+    geometry();envelopes();transitions();drums();
+    printf("sound matrix original: %u checks PASS\n",checks);return 0;
 }

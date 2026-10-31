@@ -33,7 +33,10 @@ def function(text, name):
     return text[match.start():end]
 
 
-prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix = strip_peek(source[source.index("#define SMC_Q"):source.index("int smc_project_active")])
 has_generation = "smc_link_published" in prefix
 harness = r'''
 #include <stdint.h>

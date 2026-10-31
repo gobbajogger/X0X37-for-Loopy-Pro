@@ -88,7 +88,10 @@ def execute(source, jobs, selected, *, fail="", setup="", holds=False):
             p = root / "bin" / name; p.write_text(script); p.chmod(0o755)
         (root / "gate.lock").touch()
         if setup == "perf": (root / "build/host/scratch_defs.h").mkdir()
+        # This scheduler fixture replaces test bodies and omits full-suite dependencies.
+        # Do not inherit the outer suite's production dependency gate into this tree.
         env = dict(os.environ, PATH=str(root / "bin") + os.pathsep + os.environ["PATH"],
+                   X0X_STRICT_PREFLIGHT="0",
                    X0X_TEST_JOBS=str(jobs), X0X_TESTS=selected, X0X_GATE_LOCK=str(root / "gate.lock"),
                    X0X_GATE_HOLDS_LOCK="1" if holds else "0", FAIL_TEST=fail,
                    FAIL_SETUP="1" if setup == "scenario" else "")

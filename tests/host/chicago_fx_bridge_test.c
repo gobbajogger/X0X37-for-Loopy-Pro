@@ -4,7 +4,7 @@
  * insert (clear sends only). */
 #include <stdio.h>
 #include <string.h>
-#include "bass303.h"
+#include "bass_param_ids.h"
 #include "chicago_fx.h"
 
 static int fails;

@@ -171,6 +171,8 @@ typedef struct {
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     volatile uint8_t rec_epoch, rec_dirty, rec_mask, rec_refused; /* accepted audio-side recorder context */
+    volatile uint32_t rec_ev_gen;              /* external REC boundary generation; UI advances only with audio held */
+    volatile uint8_t rec_ext_mask;              /* REC on: every 303 records external MIDI (src<3) on its channel */
     volatile uint8_t rec_hold_mask;             /* finish an onset carried from SEQ into EDIT; no new onsets */
     seq_bass_rec_t rec_bass[NBASS];
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */

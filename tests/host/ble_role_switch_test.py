@@ -19,6 +19,7 @@ with tempfile.TemporaryDirectory(prefix='ble-role-') as directory:
     subprocess.run([os.environ.get('CC', 'cc'), '-std=c99', '-g', '-O1',
                     '-Wall', '-Wextra', '-Werror', '-Wno-unused-function',
                     '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                    '-DBLEC_TWO_PEER=1',  # the pair router and two-link stop are the two-peer source
                     '-I' + str(scratch), '-I' + str(root / 'firmware/hal'),
                     '-I' + str(root / 'firmware/src/ble'),
                     str(Path(__file__).with_suffix('.c')), '-o', str(binary)], check=True)

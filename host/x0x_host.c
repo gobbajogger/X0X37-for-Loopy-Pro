@@ -110,6 +110,8 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 #define MQ 256
 static uint32_t min_q[MQ], mi_w, mi_r;
 int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
+int engine_bass_perf(int v, int which, int live); /* engine.c (X0X_HOST): 0 bend 1 damper 2 mod */
+int engine_bass_keys_held(void);         /* engine.c (X0X_HOST): bit k when 303 k holds a key, not the release tail */
 static FILE *midi_log;
 uint32_t plat_midi_mark(void)
 {
