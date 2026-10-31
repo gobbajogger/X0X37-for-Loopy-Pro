@@ -5031,8 +5031,8 @@ static UI_DRAW void draw_303(int band, int gen)
 static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col, int height, int night);
 static UI_DRAW int adsr_touch_active(void);
-static UI_DRAW int adsr_inline_page(void);
-static UI_DRAW void draw_adsr_inline(int y,int h,int off);
+static UI_DRAW int adsr_row(int page);
+static UI_DRAW void draw_adsr_inline(int page,int active,int y,int h,int off);
 enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
 static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg);
 
@@ -5093,7 +5093,6 @@ static UI_DRAW void draw_part_sound(int band)
     int rows=three?3:4, height=three?66:49, step=three?67:50;
     uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
     if(night) cv_rect(0,0,240,band==2?KNOB_H:BAND_H,SOUND_BASE);
-    int graph=adsr_inline_page();
     for (row=0;row<rows;row++) {
         int p=first+row, y=4+row*step-off, active=p==page;
         uint16_t label=night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY);
@@ -5104,7 +5103,7 @@ static UI_DRAW void draw_part_sound(int band)
                            active?blend(col,C_WHITE,5):SOUND_EDGE,active?dim(col,8):SOUND_SIDE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
         cv_text(8,y,&FONT_T,t,label);
-        if (graph && active) { draw_adsr_inline(y+off,height,off); continue; } /* graph replaces A/D/S/R boxes */
+        if (adsr_row(p)) { draw_adsr_inline(p,active,y+off,height,off); continue; } /* graph replaces A/D/S/R, any row */
         if (active) {
             char knobs[20];matrix_knob_caption(knobs,p);
             text_r(232,y,&FONT_T,knobs,label);
@@ -6597,9 +6596,9 @@ typedef struct {
     int curved,release_curve,gate,enabled;
 } ui_adsr_t;
 
-static void adsr_values(ui_adsr_t *e)
+static void adsr_values(ui_adsr_t *e,int p)
 {
-    int p=cur_page(),i;
+    int i;
     float *time[3]={&e->attack,&e->decay,&e->release};
     e->sustain=(float)matrix_value(pg.r[p][2])/127.0f;
     e->curved=e->release_curve=e->gate=0;e->enabled=1;
@@ -6608,11 +6607,13 @@ static void adsr_values(ui_adsr_t *e)
          * compiled native controls include each macro's scaling; D/R are RC. */
         /* Time constants of original_vca_tick (control_math.c), seconds:
          * A 13a^4+.001 toward 1.3, D 25d^4+.001 toward S, R 25r^4+.002. */
+        /* Native VCA EG controls exactly as the engine compiles them (macro
+         * scaling included); q127 if the runtime view is unavailable. */
         float native[4]={0,0,0,0};unsigned gate=0;
-        (void)engine_bass_adsr_view(bidx(),native,&gate);
-        e->sustain=native[2];e->gate=(int)gate;
+        int nv=engine_bass_adsr_view(bidx(),native,&gate);
+        if(nv){e->sustain=native[2];e->gate=(int)gate;}
         for(i=0;i<3;i++) {
-            float x=native[i==2?3:i]; x*=x; x*=x;
+            float x=nv?native[i==2?3:i]:(float)matrix_value(pg.r[p][i==2?3:i])/127.0f; x*=x; x*=x;
             *time[i]=i==0?13.0f*x+.001f:i==1?25.0f*x+.001f:25.0f*x+.002f;
         }
         e->curved=1; e->release_curve=1; e->enabled=2; /* 2: original exponential laws */
@@ -6649,12 +6650,15 @@ static float adsr_release(const ui_adsr_t *e,float u)
 
 /* The envelope graph lives on the PART page itself, above the envelope row,
  * and follows the live control values. Original Chicago ENVELOPE only. */
-static UI_DRAW int adsr_inline_page(void)
+/* Any row whose four controls are the original A/D/S/R set gets the graph,
+ * active or not. Chicago: ENVELOPE (slots 7..10, one macro set that drives
+ * both VCF and VCA EGs). The original Miami profile has no A/D/S/R row. */
+static UI_DRAW int adsr_row(int p)
 {
-    int p=cur_page();
     return ui.view==V_PART && is_303() && p>=0 && p<pg.n &&
            engine_bass_sound_bank(&proj.sound,bidx())==ORIGINAL_SOUND_CHICAGO &&
-           !strcmp_s(pg.title[p],"ENVELOPE");
+           pg.r[p][0].kind==R_ENG && pg.r[p][0].c==7 && pg.r[p][1].c==8 &&
+           pg.r[p][2].c==9 && pg.r[p][3].c==10;
 }
 /* Level of one original stage at time t (s): attack toward 1.3 clipped at 1,
  * decay toward sustain, release toward zero (original_vca_tick). */
@@ -6682,16 +6686,16 @@ static void adsr_layout(const ui_adsr_t *e,int x0,int width,int xs[5],float dur[
     if(w[1]<3) { w[2]-=3-w[1]; w[1]=3; }
     xs[0]=x0; xs[1]=x0+w[0]; xs[2]=xs[1]+w[1]; xs[3]=xs[2]+hold; xs[4]=x0+width;
 }
-static UI_DRAW void draw_adsr_inline(int y,int h,int off)
+static UI_DRAW void draw_adsr_inline(int p,int active,int y,int h,int off)
 {
     static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
     ui_adsr_t e;
-    int p=cur_page(),k,edited=ui.touched>=0 && ui.touched<4 &&
+    int k,edited=active && ui.touched>=0 && ui.touched<4 &&
         (int32_t)(ui.touch_until-plat_ms())>0?ui.touched:-1;
     int x0=13,y0=y+h-5,top=y+22,xs[5];
-    uint16_t col=matrix_col(),hi=SOUND_INK;
+    uint16_t col=active?matrix_col():SOUND_WHITE,hi=SOUND_INK;   /* inactive: the inactive-row ink */
     float dur[3];
-    adsr_values(&e);
+    adsr_values(&e,p);
     adsr_layout(&e,x0,214,xs,dur);
     int ys=y0-(int)(e.sustain*(y0-top)+0.5f);
     if(edited>=0) { /* the selected or turned stage and its live value */
@@ -6747,6 +6751,26 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
         int xa=xs[edited],xb=xs[edited+1];
         if(xb<=xa) xb=xa+1;
         cv_rect(xa,y0+2-off,xb-xa+1,2,hi);
+    }
+    {   /* playhead: where the live VCA EG is now, on this graph's own time axis */
+        float adsr[4],lv=0; int st=6,px=-1;
+        if(engine_bass_env_view(bidx(),adsr,&lv,&st) && st!=6) {
+            if(lv<0)lv=0; if(lv>1)lv=1;
+            if(st==0) { float t=-e.attack*fm_logf(fm_maxf(1e-6f,(1.3f-lv)/1.3f));
+                px=xs[0]+(int)((xs[1]-xs[0])*fm_minf(1.0f,t/fm_maxf(dur[0],1e-6f))+.5f); }
+            else if(st==1) {
+                float u=lv-e.sustain,full=1.0f-e.sustain;
+                if(u>.01f*full && full>1e-6f) { float t=-e.decay*fm_logf(u/full);
+                    px=xs[1]+(int)((xs[2]-xs[1])*fm_minf(1.0f,t/fm_maxf(dur[1],1e-6f))+.5f); }
+                else px=(xs[2]+xs[3])/2;          /* holding at sustain: mid plateau */
+            } else if(st==3) {
+                float t=e.sustain>1e-6f&&lv>1e-6f?-e.release*fm_logf(lv/e.sustain):dur[2];
+                px=xs[3]+(int)((xs[4]-xs[3])*fm_minf(1.0f,fm_maxf(0.0f,t)/fm_maxf(dur[2],1e-6f))+.5f);
+            } else px=xs[4];
+            int py=y0-(int)(lv*(y0-top)+.5f);
+            cv_rect(px,top-off,1,y0-top,SOUND_DIM);
+            cv_rect(px-1,py-1-off,3,3,hi);
+        }
     }
 }
 
