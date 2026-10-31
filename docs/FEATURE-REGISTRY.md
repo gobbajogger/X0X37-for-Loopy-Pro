@@ -3,6 +3,26 @@
 Every feature ever built for DnBOX/x0x37, where its best copy lives, and what is left to do.
 Base for "behind/ahead": `wip/one-build` @ `cb5423c4` (2026-10-30). Status words: **in wip/one-build**, **done-not-merged**, **in progress**, **planned**, **dropped**.
 
+## F2 recording comparison against build/0.0.23
+
+At `bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2`, the recording behavior from
+`0ea7319ba`, `ac2e726e8`, `d951fc187`, `3ad78ea63` and `8401fc231` is already
+represented, including later stale-event and ambiguous-note-off safeguards.
+No firmware patch is ported by this comparison. See the
+[per-commit evidence and six-row disposition](engineering-delivery/f2-recording-port-audit.md).
+
+| Feature | Source status at the pinned base | Acceptance / next step |
+|---|---|---|
+| F2 row 8: complete per-note sound lock and step marker | Conditional source present; not enabled or ported by this PR | Open: historical recovery, playback/persistence, RAM and real framebuffer BEFORE/AFTER; owner approval before merging the visual change |
+| F2 rows 15-16: navigation locks and source-part gesture ownership | Relevant navigation/captured-owner paths present; no new port | Open: execute targeted press/navigation/release acceptance |
+| F2 row 17: motion/record lifecycle | Five available recording patches already represented; no new port | Open: full lifecycle runtime acceptance; source comparison is not PASS |
+| F2 row 18: internal/external clock ownership | Clock selection/handover paths present; no new port | Open: execute clock ownership/handover/disconnect checks |
+| F2 row 23: distinct 909 and 808 models | SOURCE PRESENT: independent pattern rows, target/part IDs and existing `drum-kit-identity` host selector | UNTESTED here; do not classify the independent models as missing; execute the existing identity and full acceptance checks |
+
+The owner permitted skipping unavailable `a91e1a433`, `24373f293`,
+`494ca491a` and `restore-features`. Host/native builds and RAM measurements
+are NOT_RUN for this documentation-only comparison; all six F2 rows remain open.
+
 ## Rules for updating
 1. Every PR open, merge or close, and every status change, updates the matching row in the same PR or right after it.
 2. A new feature gets a row before work starts. Superseded PRs move to "Other copies"; never delete a row (use **dropped**).
