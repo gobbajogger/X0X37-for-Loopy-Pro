@@ -296,7 +296,7 @@ const uint8_t *plat_slot(int k, int z, uint32_t *nsamples, uint32_t *rate, char 
     uint32_t i, rate_q16;
     if (k < 0 || k >= SMP_USER_SLOTS || z < 0 || z >= usr_nz[k])
         return 0;
-    h = (const smp_user_hdr_t *)smp_user_xip((uint32_t)k);
+    h = smp_hdr(smp_user_xip((uint32_t)k));
     for (i = 0; i < 8u; i++)
         name[i] = h->name[i] >= 32 && h->name[i] < 127 ? h->name[i] : 0;
     name[8] = 0;
