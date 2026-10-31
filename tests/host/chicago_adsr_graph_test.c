@@ -139,7 +139,7 @@ static void set_env(int a, int d, int s, int r)
 enum { ROW_Y = 4 + 3 * 50, ROW_H = 49, GX0 = 13, GW = 214 };
 static void layout(int xs[5], float dur[3], ui_adsr_t *e)
 {
-    adsr_values(e);
+    adsr_values(e, env_page());
     adsr_layout(e, GX0, GW, xs, dur);
 }
 static int curve_y(int x, uint16_t c)  /* topmost curve pixel in a column, or -1 */
@@ -173,7 +173,7 @@ static void render_check(int a, int d, int s, int r)
     for (int x = xs[3] + 1; x <= xs[4]; x++) { int y = curve_y(x, c); if (y >= 0) { if (prev >= 0) CHECK(y >= prev); prev = y; } }
     /* Sustain plateau height tracks S. */
     int ys = y0 - (int)(e.sustain * (float)(y0 - top) + 0.5f);
-    CHECK(fabsf(e.sustain - (float)s / 127.0f) < 1e-6f);
+    CHECK(fabsf(e.sustain - (float)s / 127.0f) < 1e-3f);   /* native 34, 1001-step map */
     for (int x = xs[2] + 2; x < xs[3] - 1; x++) CHECK(fb[(MAIN_Y + ys) * 240 + x] == swap16(c));
 }
 static void shot_env(const char *name, int a, int d, int s, int r)
@@ -186,7 +186,7 @@ int main(void)
     CHECK(engine_bass_sound_bank(&proj.sound, bidx()) == ORIGINAL_SOUND_CHICAGO);
     int p = env_page(); CHECK(p >= 0);
     *page_of(V_PART) = (uint8_t)p; build_pages(); ui_frame();
-    CHECK(adsr_inline_page());
+    CHECK(adsr_row(p));
     static const int v[] = {0, 1, 16, 32, 48, 64, 80, 96, 112, 126, 127};
     enum { NV = sizeof v / sizeof *v };
     for (int i = 0; i < NV; i++) for (int j = 0; j < NV; j += 2)
@@ -210,6 +210,29 @@ int main(void)
     shot_env("sustain-0", 40, 60, 0, 60);
     shot_env("sustain-127", 40, 60, 127, 60);
     shot_env("typical-mid", 34, 51, 73, 22);
+    {   /* inactive row: the graph still replaces the A/D/S/R boxes */
+        set_env(40, 60, 80, 40);
+        *page_of(V_PART) = 0; build_pages(); ui.touched = -1; now_ms += 50; ui_frame();
+        CHECK(adsr_row(p) && cur_page() != p);
+        int lit = 0, xs[5]; float dur[3]; ui_adsr_t e; layout(xs, dur, &e);
+        int top = ROW_Y + 14, y0 = ROW_Y + ROW_H - 5;
+        int ys = y0 - (int)(e.sustain * (float)(y0 - top) + 0.5f);
+        for (int x = xs[2] + 2; x < xs[3] - 1; x++) lit += fb[(MAIN_Y + ys) * 240 + x] == swap16(SOUND_WHITE);
+        CHECK(lit >= xs[3] - xs[2] - 4);
+    }
+    {   /* a note runs a playhead over the active graph */
+        *page_of(V_PART) = (uint8_t)p; build_pages(); ui.touched = -1; now_ms += 50; ui_frame();
+        uint16_t snap[240 * 240]; memcpy(snap, fb, sizeof fb);
+        engine_bass_on_velocity(bidx(), 48, 0, 0, 120);
+        for (int i = 0; i < 3; i++) { int32_t a[512]; engine_render(a, 256); }
+        now_ms += 50; ui_frame();
+        float adsr[4], lv; int st; CHECK(engine_bass_env_view(bidx(), adsr, &lv, &st) && st != 6);
+        int diff = 0;
+        for (int y = ROW_Y; y < ROW_Y + ROW_H; y++) for (int x = 0; x < 240; x++)
+            diff += fb[(MAIN_Y + y) * 240 + x] != snap[(MAIN_Y + y) * 240 + x];
+        CHECK(diff > 0);
+        engine_bass_off(bidx());
+    }
     printf("chicago_adsr_graph: PASS (%u checks)\n", checks);
     return 0;
 }

@@ -76,5 +76,7 @@ void ctl_port_cpu_relax(void);
 void ctl_asm_ctx_switch(void **from_sp, void *const *to_sp);
 u32  ctl_asm_stack_call(u32 (*fn)(u32), u32 arg, void *stack_top);
 u32  ctl_asm_sp(void);
+u32  ctl_asm_guard_call(u32 (*fn)(u32), u32 arg, void *stack_top, void **saved_sp);
+void ctl_asm_unwind(void *saved_sp, u32 rc) __attribute__((noreturn));
 
 #endif

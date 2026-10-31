@@ -495,7 +495,7 @@ static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
     }
     return (float)v->rbuf[q - v->rbase];
 }
-__attribute__((noinline)) static uint32_t rev_next(const brk_voice_t *v, uint32_t q) { return q > v->lo ? q - 1u : v->hi - 1u; }
+static inline uint32_t rev_next(const brk_voice_t *v, uint32_t q) { return q > v->lo ? q - 1u : v->hi - 1u; }
 
 /* start a new voice at sample p of snapshot k (logical bank bk), slice sl, crossfading the current one.
  * have_state: (pred, idx) is the decoder state before nibble p; otherwise it is sought.
