@@ -88,12 +88,12 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
-    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-boot-saved-roles|smc-ble-payload|ble-central-first-notification|ble-dual-peer|ble-one-peer-command|ble-one-peer-contract|ble-command-credit|ble-controller-heap|ble-ctl-fail-return|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-two-page-strip|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -316,6 +316,7 @@ run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firm
 run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_tie_lookahead_test tests/host/seq_random_tie_lookahead_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_random_tie_lookahead_test"   # BAS-03/06 RANDOM TIE gate prediction
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
+run usb-product-names python3 -B tests/host/usb_product_names_test.py  # model-specific USB names, version, bounds, VID/PID, loader
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
@@ -346,6 +347,7 @@ run smc-mixer-edges sh tests/host/smc_mixer_edges_test.sh
 run smc-action-source python3 tests/host/smc_action_source_test.py
 run smc-fx-caption sh tests/host/smc_fx_caption_test.sh
 run smc-fx-page-port sh tests/host/smc_fx_page_port_test.sh
+run smc-fx-two-page-strip sh tests/host/smc_fx_two_page_strip_test.sh
 run smc-fx-peer-view python3 tests/host/smc_fx_peer_view_test.py
 run smc-fx-preset-preserve python3 tests/host/smc_fx_preset_preserve_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
@@ -366,6 +368,7 @@ run usb-sxq-sticky-apc python3 tests/host/usb_sxq_sticky_apc_test.py   # full SX
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
 run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
 run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
+run ble-ctl-fail-return python3 tests/host/ble_ctl_fail_return_test.py   # BT lib reset in a poll returns core 1 (BLE-13)
 run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
@@ -376,8 +379,9 @@ run ble-central-first-notification python3 tests/host/ble_central_first_notifica
 run ble-active-peer-contract python3 tests/host/ble_active_peer_contract_test.py
 run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
 run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
-run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+run ble-single-peer-status sh -c "${CC:-cc} -std=c99 -O1 -g -Wall -Wextra -Werror -o $OUT/ble_single_peer_status_test tests/host/ble_single_peer_status_test.c && $OUT/ble_single_peer_status_test"
+run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
+run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
 run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
@@ -391,6 +395,9 @@ run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-lock sh tests/host/smc_lock_test.sh
 run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
 run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
+run ui-peer-names sh tests/host/ui_peer_names_test.sh   # BT NAME row: joined connected peer names, 700 ms hold, 24 px/s scroll
+run ble-device-setting-flow python3 tests/host/ble_device_setting_flow_test.py   # BLUETOOTH row: independent bit-0 save, BT SAVE PENDING, retry
+run ble-toggle-persistence-gate python3 tests/host/ble_toggle_persistence_gate_test.py
 run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
@@ -476,6 +483,8 @@ run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: th
 run installer python3 tests/install_test.py
 run installer-f02-bind python3 tests/install_f02_loader_bind_test.py   # F02: loader/restart wait accepts only one newly appeared port
 command -v node >/dev/null 2>&1 && run installer-f02-bind-web node web/test_f02_loader_bind.mjs   # F02 web waitFor: same fail-closed newly-appeared rule
+command -v node >/dev/null 2>&1 && run ota-request-guards-web node web/test_ota_request_guards.mjs   # strict read framing, terminal/zero-length reads, bounded receive queue
+command -v node >/dev/null 2>&1 && run installer-six-stage-web node web/test_installer_six_stage_flow.mjs   # six-stage installer projection
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
@@ -597,6 +606,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run home-overview Pillow; else run home-overvie
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-matrix Pillow; else run sound-matrix sh tests/host/sound_matrix_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout sh tests/host/sound_layout_test.sh; fi
 run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
+run perf-wheel-noise sh tests/host/perf_wheel_noise_test.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-presentation Pillow; else run chicago-presentation sh tests/host/chicago_presentation_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run chicago-readout Pillow; else run chicago-readout sh tests/host/chicago_readout_test.sh; fi
 run ui-drum-glyph sh tests/host/ui_drum_glyph_test.sh

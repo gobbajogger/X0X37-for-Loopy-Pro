@@ -19,7 +19,8 @@
 enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
        ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_BOOT_INFO = 39,
        ED_BOOT_BEGIN = 43, ED_BOOT_WRITE, ED_BOOT_READ, ED_BOOT_END, ED_BOOT_ABORT,
-       ED_INSTALL = 48 };
+       ED_INSTALL = 48, ED_CAPTURE = 49 };
+#include "../../../tools/mboot/session_wire.h"
 #include "boot_screen.h"
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
@@ -817,6 +818,16 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     if (cmd >= ED_SMP_BEGIN && cmd <= ED_SMP_ERASE)
         ed_install_dirty();
     switch (cmd) {
+    case ED_CAPTURE: {
+        /* MBOOT read-only session, disabled: production has no qualified
+         * provider. This only reports zero capabilities. It cannot acquire a
+         * lease, read flash, or dispatch a write operation. */
+        uint8_t reply[21];
+        uint32_t qn = ed_unpack_exact(a, na, ed_smp_buf, MB_WIRE_REQUEST_MAX);
+        size_t rn = mb_wire_disabled(ed_smp_buf, qn, reply, sizeof reply);
+        ed_put7(reply, (uint32_t)rn);
+        break;
+    }
     case ED_INSTALL: {
         int start = ed_install_handle(a, na);
         int sent = ed_send();
@@ -1084,7 +1095,7 @@ static int ed_service(void)
     }
     /* Boot writes are longer than the 64-byte stack copy below. A truncated
      * frame would fail the check and must not be stored. */
-    if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) || boot_cmd(p[3])) {
+    if (p[3] == ED_CAPTURE || p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) || boot_cmd(p[3])) {
         ed_handle(p, n);
         ota_frame_done();
         return 0;
