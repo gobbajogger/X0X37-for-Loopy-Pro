@@ -39,7 +39,12 @@ static void open_action(int action)
 {
     set_view(V_GLO);
     open_global();
-    int row = action_row(action);
+    int row = -1;
+    for (int g = 0; g < 6 && row < 0; g++) {          /* GLOBAL sections: find the action row */
+        global_index();
+        global_section(g);
+        row = action_row(action);
+    }
     assert(row >= 0);
     ui.list_sel = (uint8_t)row;
     ui.list_top = (uint8_t)(row > 2 ? row - 2 : 0);

@@ -66,7 +66,7 @@ static void panel_maps(void)
     setup(V_SONG,PART_909);
     CHECK(pg.r[0][1].a==PART_909 && pg.r[0][2].a==PART_808 && pg.r[0][3].a==PART_BRK);
     CHECK(pg.r[1][1].a==PART_303B && pg.r[1][2].a==PART_303A);
-    open_global();int n=0;
+    open_global();global_section(0);int n=0;
     for(int i=0;i<ui.list_n;i++)if(list_rows[i].kind==R_MIDICH)CHECK(list_rows[i].a==expected[n++]);
     CHECK(n==NPARTS);
 }
