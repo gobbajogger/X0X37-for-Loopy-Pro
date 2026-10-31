@@ -57,6 +57,11 @@ typedef struct {
  * All18 macros have explicit voice/outer endpoints in this immutable view. */
 int original_miami_voice_compile(original_miami_voice_controls *out,
  const original_miami_program *program);
+/* Incremental bend/cutoff edit of an initialized corresponding snapshot.
+ * Program must differ only by the named program_set edit. Other edits, an
+ * unready snapshot or a revision gap use full compilation. Failure is atomic. */
+int original_miami_voice_recompile(original_miami_voice_controls *out,
+ const original_miami_program *program,unsigned macro);
 
 typedef struct {
  float phase,unipolar,bipolar,hold;
