@@ -41,7 +41,7 @@ static void check_readout(const char *status,int selected,const char *name)
             expected_row_hint(234-nav,0,SOUND_AMBER);
         } else {
             int end=expected_row_hint(7,0,SOUND_GRAY);
-            cv_text(end+8,0,&FONT_T,UI_CAP_EDIT ": NEXT",SOUND_GRAY);
+            matrix_next_hint(end+8,0,SOUND_GRAY);   /* EDIT caption + page/arrow icon (F1) */
             text_r(234,0,&FONT_T,UI_CAP_HOME ": BACK",SOUND_AMBER);
         }
         for(int y=0;y<11;y++)for(int xx=7;xx<234;xx++)

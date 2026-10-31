@@ -71,7 +71,20 @@ for mode in ['normal','sanitized']:
    obj=d/(u.replace('/','_')+'.o');compile(candidate[u],obj);objects.append(obj)
    if u in changed:
     ref=d/('ref_'+Path(u).name)
-    ref.write_bytes(subprocess.check_output(['git','show',base+':'+u]))
+    source=subprocess.check_output(['git','show',base+':'+u])
+    if u=='experiments/original_synth/chicago_fx2_compact.c':
+     # F1 shares the old Chorus history with restored inserts under arena.
+     # Adapt only the two historical Chorus pointers to the current header;
+     # retain every DSP expression and every PCM/state comparison below.
+     old=b's->history';new=b's->arena.history'
+     count=source.count(old)
+     if count==2:
+      source=source.replace(old,new)
+     elif count!=0 or source.count(new)!=2:
+      raise SystemExit('Unexpected historical compact history accessors')
+     receipt.setdefault('reference_abi_adaptations',{})[u]={
+      'old':'s->history','new':'s->arena.history','replacements':count}
+    ref.write_bytes(source)
     ro=d/('ref_'+obj.name);compile(ref,ro);references.append(ro)
    else:references.append(obj)
   for side,objs in [('candidate',objects),('reference',references)]:
