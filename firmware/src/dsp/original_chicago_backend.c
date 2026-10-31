@@ -276,6 +276,14 @@ int original_chicago_backend_filter_view(const original_chicago_backend *s, floa
     return 1;
 }
 
+int original_chicago_backend_pitch_view(const original_chicago_backend *s, float *current, float *target, int *active)
+{
+    if (!s || s->ready != BACKEND_READY) return 0;
+    *current = s->voice.pitch.current[0]; *target = s->voice.pitch.target[0];
+    *active = s->voice.active != 0;
+    return 1;
+}
+
 int original_chicago_backend_active(const original_chicago_backend *s)
 {
     /* Raw latched keys survive ordinary releases; only an enabled latch
