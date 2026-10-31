@@ -63,6 +63,7 @@ typedef struct {
     uint8_t shape[3], wobble_rate;
     int8_t carrier_pitch, env_percent;
     int16_t xmod_tune;
+    float vca[4];                 /* Chicago native 32..35: VCA EG A, D, S, R as original_vca_tick takes them */
 } ui_original_control_view;
 typedef struct {
     uint8_t cell[ORIGINAL_SOUND_BYTES], preview[22], voice, valid;
@@ -72,7 +73,7 @@ typedef struct {
 
 /* Exactly the macro dependencies of native fields read below. A lock/motion
  * preview is explicit even if its byte equals a rounded factory display byte. */
-#define UI_ORIGINAL_CHICAGO_TEXT_MASK ((1u<<4)|(1u<<11)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<16))
+#define UI_ORIGINAL_CHICAGO_TEXT_MASK ((1u<<4)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10)|(1u<<11)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<16))
 #define UI_ORIGINAL_MIAMI_TEXT_MASK ((1u<<0)|(1u<<3)|(1u<<6)|(1u<<7)|(1u<<11)|(1u<<13))
 static int ui_original_controls_project(ui_original_control_view *out,
     const uint8_t cell[ORIGINAL_SOUND_BYTES], const uint8_t preview[22], uint32_t mask)
@@ -101,6 +102,7 @@ static int ui_original_controls_project(ui_original_control_view *out,
         out->arp_speed = (uint8_t)ui_original_quant(p->macro[16],10);
         if (!original_chicago_program_native(p,26,&x)) return 0;
         out->env_percent = (int8_t)((int)ui_original_quant(x,201)-100);
+        for (unsigned i = 0; i < 4; i++) if (!original_chicago_program_native(p,32+i,&out->vca[i])) return 0;
 #undef CN
     } else {
         original_miami_program *p = &program.miami;
