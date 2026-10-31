@@ -4,6 +4,8 @@
 #include <math.h>
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
+/* exact: its FMA feeds a recursion; fast FMA moved the output by -78 dBFS (docs/perf) */
+#define X0X_EXACT_FMA_HERE 1
 #include "fused_reference.h"
 #define ref_fma original_rne_fmaf
 #else

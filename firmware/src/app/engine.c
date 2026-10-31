@@ -97,6 +97,10 @@ int engine_bass_voice_view(int v, float *level, float *modulation, unsigned *sta
 { return (unsigned)v < NBASS && original_runtime_voice_view(&original_bass[v],level,modulation,state,key_down); }
 int engine_bass_adsr_view(int v, float values[4], unsigned *gate)
 { return (unsigned)v < NBASS && original_runtime_adsr_view(&original_bass[v],values,gate); }
+int engine_bass_motion_view(int v, float *phase, float *bipolar, float *current, float *target, int *active)
+{ return (unsigned)v < NBASS && original_runtime_motion_view(&original_bass[v], phase, bipolar, current, target, active); }
+int engine_bass_env_view(int v, float adsr[4], float *level, int *state)
+{ return (unsigned)v < NBASS && original_runtime_env_view(&original_bass[v], adsr, level, state); }
 static void original_prepare_all(void)
 {
     for (int v = 0; v < NBASS; ++v) (void)original_runtime_prepare(&original_bass[v], seq_tempo(&seq));
