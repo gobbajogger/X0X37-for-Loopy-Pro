@@ -182,7 +182,7 @@ typedef struct {
     uint32_t btn, keys, btn_used;
     uint32_t enc_t[NE];
     uint8_t enc_run[NE];               /* quick detents in a row (acceleration waits for a spin) */
-    char msg[28];
+    char msg[64];                      /* ABOUT long line includes the diagnostic source SHA */
     uint32_t msg_until;
     uint32_t touch_until;
     uint8_t overlay;
@@ -2479,12 +2479,13 @@ X0X_COLD static void run_action(int act, int arg)
 #endif
     case ACT_ABOUT: {
         char full[64], *e;
-        /* The header toast is 27 characters. DEV still uses the long form. A numeric
-         * version that does not fit uses a shorter form. The open-beta words are the
-         * settings-row label, not this line. */
+        /* The long line alone carries the diagnostic SHA. The header uses a smaller
+         * face when necessary. The settings-row label and compact form omit it. */
         e = put_s(full, "DnBOX " X0X_VERSION "  MEM ");
         e = put_s(put_i(e, project_mem_pct()), "%  CPU ");
-        put_s(put_i(e, (int)plat_cpu_pct()), "%");
+        e = put_s(put_i(e, (int)plat_cpu_pct()), "%");
+        if (X0X_GIT_SHA[0])
+            put_s(put_s(e, " g"), X0X_GIT_SHA);
         for (e = full; *e; e++)
             ;
         if ((unsigned)(e - full) < sizeof ui.msg) {
@@ -4894,7 +4895,10 @@ static UI_DRAW void draw_header(void)
                 }
             }
             cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,b,C_BLACK);
-        } else text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
+        } else {   /* #800 NEXT pattern glyph; other messages keep #806's long-text font fallback */
+            const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
+            text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
+        }
         cv_commit(0, 0, 0);
         return;
     }
@@ -5841,6 +5845,8 @@ static UI_DRAW void draw_perf(int band)
                 put_s(q, ": 2ND TIMED OUT");
             text_r(236, 6, &FONT_XS, t, plat_cpu2_gave_up() ? RGB(255, 80, 60) : C_GRAY);
         }
+        if (X0X_GIT_SHA[0])
+            text_r(236, 16, &FONT_XS, "GIT " X0X_GIT_SHA, C_GRAY);
         if (perf.test >= 0) {
             int done = perf.phase == 4;
             q = put_s(t, done ? "PERF TEST DONE" : "PERF TEST ");
@@ -8252,3 +8258,4 @@ void ui_frame(void)
 void ui_input_only(void) { input(); division_pad_input(); }
 int ui_dirty(void) { return ui.dirty != 0; }
 void ui_say(const char *a, const char *b) { say(a, b); }
+

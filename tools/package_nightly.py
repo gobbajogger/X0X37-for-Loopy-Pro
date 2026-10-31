@@ -66,6 +66,28 @@ def _require_allocated_version(version, ledger):
         raise add_ctl.PkgError("firmware version is not allocated")
 
 
+def _app_version(st):
+    """Read the compiled ABOUT version from decrypted app code, never USB identity.
+
+    The raw .fwsc app is encrypted. Scanning transport bytes alone can miss DEV.
+    USB text is checked for stale DEV too, but is not evidence of model/version.
+    """
+    app = bytes(st["area"][0x120:0x120 + add_ctl.CODE_MAX])
+    images = (bytes(st["area"]), bytes(st["flash"]), bytes(st["lg"]))
+    if any("DnBOX DEV".encode(enc) in image
+           for image in images for enc in ("ascii", "utf-16-le", "utf-16-be")):
+        raise add_ctl.PkgError("NIGHTLY image contains DnBOX DEV")
+    found = set()
+    for value in re.findall(rb"DnBOX ([0-9.]+)  MEM ", app):
+        try:
+            found.add(canonical_version(value.decode("ascii")))
+        except ValueError as exc:
+            raise add_ctl.PkgError(str(exc)) from exc
+    if len(found) != 1:
+        raise add_ctl.PkgError("NIGHTLY firmware version is missing or ambiguous in the app ABOUT line")
+    return found.pop()
+
+
 def _package(raw, model, expected_version=None, ledger=None):
     """Strict current NIGHTLY structure, without weakening the legacy composition path."""
     if model not in MODELS:
@@ -77,7 +99,7 @@ def _package(raw, model, expected_version=None, ledger=None):
             expected_version = canonical_version(expected_version)
         except ValueError as exc:
             raise add_ctl.PkgError(str(exc)) from exc
-        if version != expected_version:
+        if version is not None and version != expected_version:
             raise add_ctl.PkgError(
                 f"package model {product!r} does not match firmware version {expected_version}")
     _require_allocated_version(version, ledger)
@@ -135,14 +157,20 @@ def _package(raw, model, expected_version=None, ledger=None):
     expected_map = pm.slotmap_blob(pm.SLOTMAP["smk37"])
     if st["flash"][pm.SLOTMAP_OFF:pm.SLOTMAP_OFF + len(expected_map)] != expected_map:
         raise add_ctl.PkgError("NIGHTLY package has no matching current SMK-37 sample slot map")
+    app_version = _app_version(st)
+    if version is not None and version != app_version:
+        raise add_ctl.PkgError("package identity does not match app firmware version")
+    if expected_version is not None and expected_version != app_version:
+        raise add_ctl.PkgError(f"app firmware version {app_version} does not match {expected_version}")
+    st["firmware_version"] = app_version
     return product, logical, st
 
 
 def inspect(raw, model, expected_sha256, expected_size, expected_version=None, ledger=None):
     """Return byte-derived metadata only after the embedded controller matches its review pin."""
     _pin(expected_sha256, expected_size)
-    product, logical, _ = _package(raw, model, expected_version, ledger)
-    version = _embedded_version(product, model)
+    product, logical, st = _package(raw, model, expected_version, ledger)
+    version = st["firmware_version"]
     ctl = add_ctl.controller_of(logical)
     if ctl is None:
         raise add_ctl.PkgError("NIGHTLY package is missing its bundled Bluetooth controller")
@@ -154,7 +182,7 @@ def inspect(raw, model, expected_sha256, expected_size, expected_version=None, l
         "model": model,
         "product": product,
         "firmware_version": version,
-        "release_display": None if version is None else release_display(version),
+        "release_display": release_display(version),
         "size": len(raw),
         "sha256": sha256(raw),
         "controller_strategy": "bundled",
@@ -198,7 +226,7 @@ def main(argv=None):
     ap.add_argument("--model", choices=MODELS, required=True)
     ap.add_argument("--controller-sha256", required=True)
     ap.add_argument("--controller-size", type=int, required=True)
-    ap.add_argument("--firmware-version", help="require this canonical X.Y.Z machine identity")
+    ap.add_argument("--firmware-version", required=True, help="require this canonical X.Y.Z app version")
     ap.add_argument("--ledger", type=Path, help="open-beta ledger; default releases/openbeta/ledger.json")
     ap.add_argument("--check", action="store_true", help="inspect an already complete package; write no package")
     ap.add_argument("-o", "--out", type=Path)
@@ -232,3 +260,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
+
