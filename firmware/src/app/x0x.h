@@ -19,9 +19,7 @@
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
 #include "factory_banks.h"           /* Chicago / Miami factory metadata */
 
-#ifndef X0X_VERSION                     /* a release build passes its numeric X.Y.Z (tools/build.py --release) */
-#define X0X_VERSION "DEV"
-#endif
+#include "version.h"                    /* shared DEV or numeric firmware version */
 #ifndef X0X_RELEASE_LABEL              /* display only, e.g. 0.1.3_openbeta; not the package identity */
 #define X0X_RELEASE_LABEL ""
 #endif

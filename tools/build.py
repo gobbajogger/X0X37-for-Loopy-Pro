@@ -142,8 +142,16 @@ BOARD_PREFIX = {"fm1": "FM-1_9", "smk37": "SMK-37 Pro_9"}   # identity of a rele
 BOARD_DEFS = {"fm1": [], "smk37": ["-DBOARD_SMK37=1"]}       # the FM-1 build gets no new flag (byte-identical)
 # smk37: the keyboard's model name (MODEL env or --model); one hardware, three names. pro adds no flag
 MODELS = {"pro": "SMK-37 Pro", "elite": "SMK-37 Elite", "mke": "MKE-P37"}
+MODEL = "pro"                       # current USB app name variant, set by --model
 VERSION = None                      # numeric X.Y.Z passed to the firmware as X0X_VERSION
 RELEASE_LABEL = None                # display only, e.g. 0.1.3_openbeta; not part of the package identity
+
+
+def usb_product_define(board, model):
+    """Select the application USB name without changing the update loader identity."""
+    if board == "smk37" and model in ("pro", "elite"):
+        return f"-DX0X_USB_37{model.upper()}=1"
+    return None
 
 
 def toolchain():
@@ -382,6 +390,9 @@ def build_app():
     if original_synth:
         require_original_synth_sources()
     flags = [*CFLAGS, *FPU, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
+    usb_name = usb_product_define(BOARD, MODEL)
+    if usb_name:
+        flags.append(usb_name)  # app only: loader, VID/PID and package identity unchanged
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
     for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE", "X0X_WOBBLE"):
@@ -581,7 +592,7 @@ def release_identity(text):
 
 
 def main():
-    global PRODUCT, VERSION, RELEASE_LABEL, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
+    global PRODUCT, VERSION, RELEASE_LABEL, BOARD, MODEL, APP_SLOT, APP_CODE_MAX, OUT, LDR
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
@@ -602,6 +613,7 @@ def main():
     model = (a.model or (os.environ.get("MODEL") if BOARD == "smk37" else None) or "pro").lower()
     if model not in MODELS or (model != "pro" and BOARD != "smk37"):
         raise SystemExit(f"MODEL={model}: pro, elite or mke, with BOARD=smk37")
+    MODEL = model
     fm1pkg_make.set_board(BOARD)
     APP_SLOT = fm1pkg_make.APP_SLOT
     APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX
