@@ -21,4 +21,21 @@ int16_t miami_fx_low16(int32_t input);
 int miami_fx_input_rne(uint32_t input_bits, unsigned fz, int16_t *out);
 /* Exact signed16 domain, includes -32768. FDIV32767, NOT reciprocal FMUL. */
 uint32_t miami_fx_output_rne(int16_t input);
+/* Same result as miami_fx_cleanup_rne for every input: it returns |x|<=0.5
+ * and NaN unchanged, so only the rest calls the full cleanup. */
+static inline uint32_t miami_fx_cleanup_fast(uint32_t u){
+    uint32_t mag=u&0x7fffffffu;
+    return (mag>0x3f000000u&&mag<=0x7f800000u)?miami_fx_cleanup_rne(u):u;
+}
+/* Same result as fcvtzs(scaled_rne(cleanup_rne(u),fz)) for every input and
+ * either fz (checked for all 2^32 inputs): NaN gives 0; after cleanup |x|<=1,
+ * so x*32767 is in range and the C truncating cast equals FCVTZS; a
+ * subnormal, flushed or not, truncates to 0. */
+static inline int32_t miami_fx_input_fast(uint32_t u){
+    uint32_t mag=u&0x7fffffffu;float f;
+    if(mag>0x7f800000u)return 0;
+    if(mag>0x3f000000u)u=miami_fx_cleanup_rne(u);
+    __builtin_memcpy(&f,&u,4);
+    return (int32_t)(f*32767.0f);
+}
 #endif

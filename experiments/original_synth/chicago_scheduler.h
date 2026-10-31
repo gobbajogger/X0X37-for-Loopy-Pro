@@ -61,6 +61,9 @@ int original_chicago_scheduler_after_events(original_chicago_scheduler *);
  * physical/latched keys and voice/restart activity for the entire span, and
  * keep BPM and both thresholds unchanged through those callbacks. */
 int original_chicago_scheduler_quiet(original_chicago_scheduler *,chicago_arp_clock *mg1_clock,uint32_t frames);
+/* Applies k<=frames leading after_events frames that have no clock edge and
+ * no key reset (no callback, no step), the interior part of _quiet. Returns k. */
+uint32_t original_chicago_scheduler_skip(original_chicago_scheduler *,chicago_arp_clock *mg1_clock,uint32_t frames);
 /* Voice control action0 leaves ownership; action1 performs A818 by voice ID;
  * action2 validates and retains active ownership. Caller handles action2's
  * exact pending full/partial initializers and same-frame render. No global

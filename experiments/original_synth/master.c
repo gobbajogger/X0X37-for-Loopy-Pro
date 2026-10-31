@@ -21,7 +21,7 @@ int original_master_process(original_master *s,float volume,const uint32_t *il,c
  for(uint32_t i=0;i<n;i++) {
   current=current+step;
   uint32_t l=il[i],r=ir[i];
-  ol[i]=miami_fx_cleanup_rne(bits(current*fl(l)));orr[i]=miami_fx_cleanup_rne(bits(current*fl(r)));
+  ol[i]=miami_fx_cleanup_fast(bits(current*fl(l)));orr[i]=miami_fx_cleanup_fast(bits(current*fl(r)));
  }
  s->current=target;return 1;
 }
