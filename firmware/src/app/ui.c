@@ -2832,6 +2832,9 @@ static void turn_ref(pref_t r, int e, int knob)
         e = accel(knob, e, d->max);
     pref_set(r, pref_get(r) + e);
     }
+    if (r.kind == R_ENG)
+        PARAM_TRACE(accel_smc ? PARAM_SMC_KNOB : PARAM_PANEL_KNOB,
+                    r.a, r.b, r.c, pref_get(r));
     motion_touch(r);
 #if X0X_BASS_PRESET_PREVIEW
     if (bass_edit) engine_bass_edit_hold(0);
