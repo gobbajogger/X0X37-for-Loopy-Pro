@@ -4,7 +4,10 @@
 int miami_decimator_adapter_init(miami_decimator_adapter_t *s)
 {
     if (!s) return 0;
-    miami_decimator_adapter_t next = {0};
+    miami_decimator_adapter_t next = {
+        .kernel = {.phase = 0, .step = 0, .pending_step = 0, .held_left = 0, .held_right = 0, .pending = 0},
+        .wet_gain = 0, .frequency_integer = 0, .wet_integer = 0, .bit_integer = 0
+    };
     (void)miami_decimator_seed(&next.kernel,0,0,0,0);
     next.frequency_integer = 64;
     next.wet_integer = 127;
