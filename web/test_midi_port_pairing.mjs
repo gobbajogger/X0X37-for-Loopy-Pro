@@ -18,7 +18,7 @@ let assertions = 0;
 const equal = (actual, expected, label) => { assert.deepEqual(actual, expected, label); assertions++; };
 const scenarios = [
   {label: 'one correctly named device', inputs: [['A', 'SMK-37 Pro']], outputs: [['A', 'SMK-37 Pro']], expected: ['A>A']},
-  {label: 'unique device among unrelated ports', inputs: [['A', 'SMK-37 Pro'], ['X', 'Other Synth']], outputs: [['X', 'Other Synth'], ['A', 'SMK-37 Pro']], expected: ['A>A']},
+  {label: 'unique device among unrelated ports', inputs: [['A', 'SMK-37 Pro'], ['X', 'Other Synth']], outputs: [['X', 'Other Synth'], ['A', 'SMK-37 Pro']], expected: ['A>A', 'X>X']},  // names never gate; the handshake decides
   {label: 'two uniquely named models', inputs: [['A', 'SMK-37 Pro'], ['F', 'FM-1']], outputs: [['F', 'FM-1'], ['A', 'SMK-37 Pro']], expected: ['A>A', 'F>F']},
   {label: 'two identically named outputs', inputs: [['A', 'SMK-37 Pro']], outputs: [['B', 'SMK-37 Pro'], ['A', 'SMK-37 Pro']], expected: []},
   {label: 'two identically named inputs', inputs: [['A', 'SMK-37 Pro'], ['B', 'SMK-37 Pro']], outputs: [['A', 'SMK-37 Pro']], expected: []},
@@ -27,7 +27,9 @@ const scenarios = [
   {label: 'disconnected matching output', inputs: [['A', 'SMK-37 Pro']], outputs: [['A', 'SMK-37 Pro', 'disconnected']], expected: []},
   {label: 'disconnected duplicate output ignored', inputs: [['A', 'SMK-37 Pro']], outputs: [['B', 'SMK-37 Pro', 'disconnected'], ['A', 'SMK-37 Pro']], expected: ['A>A']},
   {label: 'disconnected duplicate input ignored', inputs: [['B', 'SMK-37 Pro', 'disconnected'], ['A', 'SMK-37 Pro']], outputs: [['A', 'SMK-37 Pro']], expected: ['A>A']},
-  {label: 'non-keyboard input never probed', inputs: [['Z', 'Other Synth']], outputs: [['Z', 'Other Synth']], expected: []},
+  {label: 'any uniquely paired port is a candidate', inputs: [['Z', 'Other Synth']], outputs: [['Z', 'Other Synth']], expected: ['Z>Z']},
+  {label: 'renamed DnBOX Pro', inputs: [['A', 'DnBOX 0.0.14 37PRO']], outputs: [['A', 'DnBOX 0.0.14 37PRO']], expected: ['A>A']},
+  {label: 'renamed DnBOX Elite', inputs: [['E', 'DnBOX 0.0.14 37ELITE']], outputs: [['E', 'DnBOX 0.0.14 37ELITE']], expected: ['E>E']},
   {label: 'different names of sole in/out', inputs: [['A', 'SMK-37 Pro In']], outputs: [['A', 'SMK-37 Pro Out']], expected: []},
   {label: 'two identically named OTA devices', inputs: [['A', 'ota-SMK-37 Pro'], ['B', 'ota-SMK-37 Pro']], outputs: [['B', 'ota-SMK-37 Pro'], ['A', 'ota-SMK-37 Pro']], expected: []},
   {label: 'case-only name mismatch', inputs: [['A', 'SMK-37 Pro']], outputs: [['A', 'smk-37 pro']], expected: []},

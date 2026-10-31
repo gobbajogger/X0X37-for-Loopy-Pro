@@ -177,7 +177,7 @@ export class Updater {
     const outs = [...this.access.outputs.values()].filter((p) => p.state !== "disconnected");
     const pairs = [];
     for (const input of ins) {
-      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
+      // No name gate: USB names change between firmwares. Only the handshake identity decides.
       // Names alone do not prove physical identity. Refuse duplicate or
       // mismatched port labels instead of guessing which keyboard receives MIDI.
       if (ins.filter((p) => p.name === input.name).length !== 1) continue;
