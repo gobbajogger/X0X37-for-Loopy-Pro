@@ -52,13 +52,20 @@ static int sample_gains(original_oscillators *s,const original_prepared_oscillat
  const original_osc_controls *c=&prepared->controls;original_oscillators next=*s;float w[4];
  for(unsigned i=0;i<4;i+=2){
   uint32_t old=next.phase[i];next.phase[i]-=c->increment[i];
-  w[i]=prepared_wave(c->shape[i],phase_float(next.phase[i]),c->width[i],prepared->correction[i],prepared->triangle[i]);
-  float a=w[i]*c->xmod,b=(float)c->increment[i+1]*0x1p-31f;float step=clamp(a+b,-1,1)*0x1p31f;
+  /* Zero gain: the shaper output is not heard. The even one still drives XMOD
+   * when xmod != 0. With xmod == 0, a+b == b exactly (b > 0), so it is skipped.
+   * Phases always advance as before. */
+  float b=(float)c->increment[i+1]*0x1p-31f,step;
+  if(gain[i]!=0.0f||c->xmod!=0.0f){
+   w[i]=prepared_wave(c->shape[i],phase_float(next.phase[i]),c->width[i],prepared->correction[i],prepared->triangle[i]);
+   float a=w[i]*c->xmod;step=clamp(a+b,-1,1)*0x1p31f;
+  }else{w[i]=0.0f;step=clamp(b,-1,1)*0x1p31f;}
   next.phase[i+1]-=(uint32_t)phase_step_int(step);
   if(sync&&signed32(next.phase[i])>signed32(old))next.phase[i+1]=0x7fffffffu;
-  w[i+1]=prepared_wave(c->shape[i+1],phase_float(next.phase[i+1]),c->width[i+1],prepared->correction[i+1],prepared->triangle[i+1]);
+  w[i+1]=gain[i+1]!=0.0f?prepared_wave(c->shape[i+1],phase_float(next.phase[i+1]),c->width[i+1],prepared->correction[i+1],prepared->triangle[i+1]):0.0f;
  }
- float mix=w[0]*(gain[0]*.5f);for(unsigned i=1;i<4;i++)mix=mix+w[i]*(gain[i]*.5f);
+ /* A zero-gain term adds a signed zero: it changes no nonzero sum. */
+ float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
  *s=next;*output=mix;return 1;
 }
 int original_oscillator_sample_prepared(original_oscillators *s,const original_prepared_oscillators *prepared,unsigned sync,float *output){
