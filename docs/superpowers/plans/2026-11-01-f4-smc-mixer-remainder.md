@@ -1,5 +1,7 @@
 # F4 SMC/mixer remainder implementation plan
 
+Later owner amendment: [held-FX arrows](2026-11-01-fx-held-arrow.md) supersedes this plan's HOME-remapping, activation-delay and no-new-state assumptions for row 41 only. The original port plan below remains historical context.
+
 **Goal:** Port only uncovered rows 20, 30, 31, 32, 36, 37, 38, 41, 44 and 67 onto #789; deliver one draft PR into build/0.0.23.
 
 **Architecture:** Keep #789's existing popup, independent peer context and descriptor cache. Reuse the source from #688 and #788 for the remaining clock and strip-8 navigation gaps. No new renderer, timer, connection protocol, FX assignment or persistent state.

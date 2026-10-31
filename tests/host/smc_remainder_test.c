@@ -205,6 +205,151 @@ static void retained_contracts(void)
 }
 
 #ifndef F4_CAPTURE_DRIVER
+#include "app/smk_arrows.h"
+
+/* Catches page/SELECT routing stealing the edit chord or rewriting adjacent cells. */
+static void held_fx_arrows(void)
+{
+    setup(V_FX,PART_303B); smc_fx_load_page(0);
+    uint8_t original[sizeof smc.fx_strip.map];
+    memcpy(original,smc.fx_strip.map,sizeof original);
+    screen_state_t keyboard=screen_state();
+    message(0x90,0,127); CHECK(smc.fx_down==1u);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip,0)==SMCFX_REV);
+    uint8_t page=smc_page_now(), bank=smc.knob_bank;
+    tap(0x63); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_DLY);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip,0)==SMCFX_DLY);
+    CHECK(smc_page_now()==page && smc.knob_bank==bank);
+    for(unsigned i=1;i<sizeof original;i++) CHECK(((uint8_t*)smc.fx_strip.map)[i]==original[i]);
+    tap(0x62); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV);
+    tap(0x62); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_SHUF); /* backwards wrap */
+    arw_t arrows={0};
+    CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==0); /* no generated SELECT detent */
+    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV); /* forward wrap */
+    CHECK(arw_frame(&arrows,2,ARW_MENU,now_ms+1000)==0);
+    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV && !arrows.rep); /* one step per press */
+    keyboard_unchanged(keyboard);
+    message(0x80,0,0); CHECK(!smc.fx_down);
+    CHECK(arw_frame(&arrows,0,ARW_SELECT,now_ms)==0);
+    CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==1); /* ordinary arrows restored */
+
+    /* An empty page-two slot owns its original page and stays silent until edited. */
+    setup(V_FX,PART_303B); smc_fx_load_page(1);
+    message(0x90,0,127); CHECK(!smc.fx_down);
+    CHECK(smc.fx_strip.key_bus[0]==0);
+    smc_fx_load_page(0); /* a separate page change cannot redirect the held edit */
+    tap(0x62); CHECK(smc.fx_strip.map[1][0][0]==SMCFX_SHUF);
+    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV && smc.fx_down==1u);
+    message(0x80,0,0); CHECK(!smc.fx_down);
+    setup(V_FX,PART_303B); smc_fx_load_page(1);
+    message(0x90,0,127); tap(0x63);
+    CHECK(smc.fx_strip.map[1][0][0]==SMCFX_REV); message(0x80,0,0);
+
+    /* HOME no longer assigns FX. Multiple held keys consume arrows without editing. */
+    setup(V_FX,PART_303B); held_btn=1u<<B_HOME;
+    message(0x90,0,127); CHECK(smc.fx_down==1u && smc.fx_strip.map[0][0][0]==SMCFX_REV);
+    CHECK(!strcmp(smc_button_caption(24),"SHUF")); /* HOME must not advertise removed CYC remapping. */
+    message(0x80,0,0); held_btn=0;
+    message(0x90,0,127); message(0x90,8,127);
+    memcpy(original,smc.fx_strip.map,sizeof original); page=smc_page_now();
+    tap(0x63); CHECK(!memcmp(original,smc.fx_strip.map,sizeof original));
+    CHECK(smc_page_now()==page);
+    CHECK(smc_ui_active()); /* consuming an ambiguous edit keeps the held-effect screen */
+    arrows=(arw_t){0}; CHECK(arw_frame(&arrows,1,ARW_SELECT,now_ms)==0);
+    CHECK(!memcmp(original,smc.fx_strip.map,sizeof original));
+    message(0x80,8,0); message(0x80,0,0); CHECK(!smc.fx_down);
+
+    /* All main SELECT keys play immediately; a fast mapping chord cannot navigate on release. */
+    for(int note=29;note<=31;note++) {
+        setup(V_FX,PART_303B); message(0x90,note,127);
+        CHECK(smc.fx_down==(1u<<(note-24)));
+        tap(0x63); message(0x80,note,0);
+        CHECK(smc.view==V_FX && !smc.fx_down && !smc.fx_main_wait);
+    }
+    setup(V_FX,PART_303B); message(0x90,29,127); tap(0x63);
+    smc.select_down=0; smc_poll(); /* lost key-up must still clear after tap eligibility was revoked */
+    CHECK(!smc.fx_down && !smc.fx_owned && smc.fx_strip.key_bus[29]==SMCFX_EMPTY);
+    message(0x80,29,0); CHECK(smc.view==V_FX);
+    setup(V_FX,PART_303B); smc_fx_load_page(1); message(0x90,0,127);
+    smc.view=V_HOME; smc_poll(); CHECK(smc.fx_strip.key_bus[0]==SMCFX_EMPTY);
+    smc.view=V_FX; CHECK(!smc_fx_keyboard_arrow(1)); /* old blank key cannot acquire a new context */
+    setup(V_FX,PART_303B); message(0x90,6,127); tap(0x63); message(0x80,6,0);
+    CHECK(smc.view==V_FX && smc.fx_page==0 && !smc.fx_down); /* physical HOME FX owns this chord */
+}
+
+/* Catches an arrow interceptor stealing modal, clip or unrelated keyboard input. */
+static void held_fx_arrow_guards(void)
+{
+    setup(V_FX,PART_303B); message(0x90,0,127);
+    ui.help=1; CHECK(!smc_fx_keyboard_arrow(1)); ui.help=0;
+    ui.overlay=O_LIST; CHECK(!smc_fx_keyboard_arrow(1)); ui.overlay=O_ASK;
+    CHECK(!smc_fx_keyboard_arrow(1)); ui.overlay=O_NONE;
+    clip_grid_mode=1; CHECK(!smc_fx_keyboard_arrow(1)); clip_grid_mode=0;
+    project_busy=1; CHECK(!smc_fx_keyboard_arrow(1)); project_busy=0;
+    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV);
+    message(0x80,0,0); CHECK(!smc_fx_keyboard_arrow(1));
+    setup(V_HOME,PART_303B); message(0x90,0,127);
+    CHECK(!smc_fx_keyboard_arrow(1));
+}
+
+/* Catches requiring a central BLE link for an otherwise valid USB/User hold. */
+static void held_fx_host_arrows(void)
+{
+    setup(V_FX,PART_303B); smc_ble_link(0); smc_poll();
+    proj.set.bt|=PROJ_BT_SMC_USER; smc_poll();
+    CHECK(!smc.up);
+    CHECK(smc_midi_host(0x09u | 0x9fu<<8 | 127u<<24)); smc_poll();
+    CHECK(smc.fx_down==1u);
+    CHECK(smc_midi_host(0x09u | 0x9fu<<8 | 0x63u<<16 | 127u<<24)); smc_poll();
+    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_DLY);
+    arw_t arrows={0}; CHECK(arw_frame(&arrows,1,ARW_SELECT,now_ms)==0);
+    CHECK(smc.fx_strip.map[0][0][0]==SMCFX_REV);
+    CHECK(smc_midi_host(0x08u | 0x8fu<<8)); smc_poll(); CHECK(!smc.fx_down);
+}
+
+#if SMC_PEERS > 1
+/* Catches keyboard arrows guessing a peer, or an SMC editing another peer. */
+static void held_fx_peer_arrows(void)
+{
+    setup(V_FX,PART_303B); smc_ble_link_slot(1,1); smc_poll();
+    smc_slot=1; smc.view=V_FX; smc.part=smc.mixsel=PART_303B; smc_fx_load_page(0);
+    smc_slot=0; message(0x90,0,127);
+    uint8_t down[]={0x90,0,127}, up[]={0x80,0,0};
+    smc_ble_midi_slot(1,down,3); smc_poll();
+    arw_t arrows={0}; CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==0);
+    CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_REV);
+    CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_REV && smc_slot==0);
+    tap(0x63); CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_DLY);
+    CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_REV);
+    message(0x80,0,0);
+    CHECK(arw_frame(&arrows,0,ARW_SELECT,now_ms)==0);
+    CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==0);
+    CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_DLY && smc_slot==0);
+    smc_ble_midi_slot(1,up,3); smc_poll();
+    CHECK(!smc_states[0].fx_down && !smc_states[1].fx_down);
+}
+#endif
+
+/* Catches a missing/wrong topbar effect glyph or a stale glyph after key-up. */
+static void held_fx_header(void)
+{
+    setup(V_FX,PART_303B); message(0x90,0,127); smc_ui_draw_peer();
+    memcpy(before_fb,fb,sizeof fb);
+    cv_begin(240,HDR_H,C_BLACK); ui_pictogram(182,1,UI_G_FX_REVERB,2,C_HI); cv_commit(0,0,0);
+    for(int y=1;y<19;y++) CHECK(!memcmp(before_fb+y*240+182,fb+y*240+182,18*sizeof *fb));
+    tap(0x63); smc_ui_draw_peer();
+    CHECK(changed_rows(0,HDR_H,before_fb,fb)>0); memcpy(before_fb,fb,sizeof fb);
+    cv_begin(240,HDR_H,C_BLACK); ui_pictogram(182,1,UI_G_FX_DELAY,2,C_HI); cv_commit(0,0,0);
+    for(int y=1;y<19;y++) CHECK(!memcmp(before_fb+y*240+182,fb+y*240+182,18*sizeof *fb));
+    message(0x80,0,0); smc_ui_draw_peer();
+    CHECK(changed_rows(0,HDR_H,before_fb,fb)>0);
+    message(0x90,0,127); message(0x90,1,127); message(0x80,1,0);
+    CHECK(smc_ui.action==0 && smc_ui.strip==0); /* remaining glyph, KEY number and footer share a target */
+    CHECK(smc.fx_down==1u);
+    tap(0x63); CHECK(smc.fx_strip.map[0][0][0]==SMCFX_STUT);
+    message(0x80,0,0); CHECK(smc_ui.action==0 && !smc.fx_down);
+}
+
 static void footer_toggle_is(int on)
 {
     smc_ui_draw_peer();
@@ -337,6 +482,32 @@ static void capture_scenes(void)
     setup(V_FX,PART_303B); message(0x90,24,127);
     smc_ui_draw_peer(); shot("glyph-fx-held");
     message(0x80,24,0); smc_ui_draw_peer(); shot("glyph-fx-idle");
+    /* Same production input sequence on af1a3a5e and this candidate. */
+    setup(V_FX,PART_303B); message(0x90,0,127);
+    smc_ui_draw_peer(); shot("fx-arrow-held");
+    tap(0x63); smc_ui_draw_peer(); shot("fx-arrow-right");
+    tap(0x62); smc_ui_draw_peer(); shot("fx-arrow-left");
+    message(0x80,0,0); smc_ui_draw_peer(); shot("fx-arrow-release");
+    message(0x90,0,127); message(0x90,1,127); message(0x80,1,0);
+    smc_ui_draw_peer(); shot("fx-arrow-focus-return"); message(0x80,0,0);
+    setup(V_FX,PART_303B); smc_fx_load_page(1); message(0x90,0,127);
+    smc_ui_draw_peer(); shot("fx-arrow-empty");
+    tap(0x62); smc_ui_draw_peer(); shot("fx-arrow-empty-left");
+    message(0x80,0,0);
+    setup(V_FX,PART_303B); message(0x90,29,127);
+    smc_ui_draw_peer(); shot("fx-arrow-main-quick");
+    tap(0x63); smc_ui_draw_peer(); shot("fx-arrow-main-edit");
+    message(0x80,29,0); smc_ui_draw_peer(); shot("fx-arrow-main-release");
+    /* Exercise each real effect symbol without needing new BEFORE helpers. */
+    for(int fx=0;fx<SMCFX_NFX;fx++) {
+        int note=fx==SMCFX_GATE?2:fx==SMCFX_HP || fx==SMCFX_LP ||
+            fx==SMCFX_GATE8 || fx==SMCFX_GATE16 || fx==SMCFX_TRANCE?4:0;
+        setup(V_FX,PART_303B); smc_fx_load_page(0);
+        smc.fx_strip.map[0][smc_fx_bus((uint8_t)note)][0]=(uint8_t)fx;
+        message(0x90,note,127); smc_ui_draw_peer();
+        char scene[32]; snprintf(scene,sizeof scene,"fx-effect-%d",fx); shot(scene);
+        message(0x80,note,0);
+    }
     setup(V_MIX,PART_909); smc_page_set(1); tap(0x2f); fader(0,0);
     smc_ui_draw_peer(); shot("glyph-drum-bank2");
 }
@@ -348,6 +519,10 @@ int main(void)
     strip8_modes(); clip_stage_and_banks(); clip_stage_drum_contexts(); locked_navigation_and_fx();
     clock_icons(); retained_contracts(); pictogram_rendering();
     pictured_action_states(); composed_header_cues();
+    held_fx_arrows(); held_fx_arrow_guards(); held_fx_host_arrows(); held_fx_header();
+#if SMC_PEERS > 1
+    held_fx_peer_arrows();
+#endif
     printf("smc-remainder: %u checks PASS\n",checks);
     return 0;
 }

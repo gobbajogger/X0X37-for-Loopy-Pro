@@ -2,6 +2,8 @@
 
 Source candidate only. Tests, native builds, static RAM measurements and new framebuffer captures are **NOT_RUN** because the target `AGENTS.md` forbids builds and tests in Codex. The owner's brief assigns those runs to the Orchestrator's box. Keep the PR draft; owner visual approval is required before merge.
 
+The later [row 41 held-FX arrow rule](FX_HELD_ARROW.md) supersedes HOME+button remapping and the main SELECT activation delay. It records the existing arrow conflicts, held-effect top-bar glyph, changed test expectations, additional capture pairs and the written reason for a 4 B per-peer original-page ownership mask. It also supersedes earlier claims of no mutable-state increase for this follow-up; actual Elite/Pro RAM remains NOT_RUN.
+
 The [owner glyph-rule follow-up](UI_GLYPHS.md) uses pre-change pin `97282d7fed8859f337d606d4880cb095b1ce2591` for its additional before/after scenes. It replaces action/navigation prose with compact pictures while keeping exact values and names. Its captures and runtime qualification are also pending; no historical image is presented as new-head evidence.
 
 ## Stack and overlap checked first
@@ -20,7 +22,7 @@ Pinned base: #789 `02c5224d12c7a96c0061fea71f13de04de58741b`.
 | 36 | Bluetooth settings already show `R_BTSTAT` and joined peer names through `plat_ble_peers`, `peer_join`, clipped marquee and `peer_offset`. These names are in settings, not the popup header. | No port. Existing `ui-peer-names` selector remains required. |
 | 37 | R8 HOME/SONG and S8 PART/SEQ/GEN already exist. Ordinary Up/Down already reaches `smc_knob_bank` in clip mode through the final switch. SELECT8 still hardcodes MASTER; clip strip-8 stage routing is absent. | Port #688's SELECT8 MIX cycle and #788's clip strip-8 PREV/NEXT. Do not duplicate the redundant Up/Down early-guard change. Preserve HOME+Up/Down cutoff save/reset and drum/FX precedence. |
 | 38 | First SELECT chooses a drum part; a repeat enters that kit's individual mixer. Repeating the selected sound returns to main MIX. | Retain and regress both kits. |
-| 41 | Own `V_FX` context, four button rows, independent two-page strip mappings, per-button HOME reassignment, held chosen effects and release ownership already exist in `smc_fx_try`/`smcfx_strip`. | No new assignments, defaults, page storage or audio changes. Preserve FX short-tap MASTER routing and hold/release. Full hardware/save acceptance is not claimed. |
+| 41 | Own `V_FX` context, four button rows, independent two-page strip mappings, per-button HOME reassignment, held chosen effects and release ownership already exist in `smc_fx_try`/`smcfx_strip`. | Later owner amendment: held-button + Left/Right replaces HOME+button remapping, main SELECT plays immediately, and the held effect has a top-bar glyph. Defaults, short-tap navigation and release ownership remain; see FX_HELD_ARROW.md. Hardware/save acceptance is not claimed. |
 | 44 | `smc_pattern_delta` accumulates from pending cue; returning to the playing pattern clears `seq.pcue`. | Retain and regress forward/backward queue cancellation. |
 | 67 | `smc_ui_edge_alive` and peer-local held inputs preserve the popup through held actions. Accepted activity refreshes the 1200 ms interval; release starts idle expiry. | Retain and regress held MUTE and release expiry. No synthetic fader touch. |
 
@@ -45,7 +47,7 @@ The pre-port check used GitHub ancestry/commit patches and exact base-source com
 
 ## Regression and visual evidence handoff
 
-New selector: `smc-remainder`, registered in the normal host suite and serialized generation class G. It uses `smc_ui_test.c` with the actual firmware queue, dispatcher, renderer and engine. Cases cover both header paths and clock lifecycle; strip-8 modes and clip stages; independent knob banks; locked PART and MIX routing; drum-bank precedence; existing HOME modifiers and FX hold/release; both kit SELECT transitions; pending cue cancellation; and held-popup expiry. Twelve clip cases cover both kits, MIX/SEQ contexts and all three stage keys, asserting no false action popup or REC/SOLO side effect. Both header paths are also drawn after actual STOP, Start, Continue, external WAIT, accepted tick and timeout, with WAIT checked at both frame blink phases. No existing assertion was changed or removed.
+New selector: `smc-remainder`, registered in the normal host suite and serialized generation class G. It uses `smc_ui_test.c` with the actual firmware queue, dispatcher, renderer and engine. Cases cover both header paths and clock lifecycle; strip-8 modes and clip stages; independent knob banks; locked PART and MIX routing; drum-bank precedence; existing HOME modifiers and FX hold/release; both kit SELECT transitions; pending cue cancellation; and held-popup expiry. Twelve clip cases cover both kits, MIX/SEQ contexts and all three stage keys, asserting no false action popup or REC/SOLO side effect. Both header paths are also drawn after actual STOP, Start, Continue, external WAIT, accepted tick and timeout, with WAIT checked at both frame blink phases. The initial F4 port changed or removed no existing assertion; the later row 41 amendment documents its owner-directed expectation changes in FX_HELD_ARROW.md.
 
 Tests were written before the production port. RED/GREEN is **NOT_RUN**, as required by AGENTS and the owner's conditional instruction. Static inspection does not establish a pass.
 
@@ -58,7 +60,7 @@ X0X_DEV_PADCAL=0 MODEL=elite ./build.sh --board smk37
 X0X_DEV_PADCAL=0 MODEL=pro ./build.sh --board smk37
 ```
 
-Use SDK V1.2.1 and capture separate Elite/Pro logs and link maps before the second build overwrites outputs. Baseline reference requested by the owner: 2352 B free. #789 historically reports 2432 B free for both models; #788 reports a different development configuration at 1920 B and must not be substituted. Candidate free static RAM: **Elite NOT_RUN; Pro NOT_RUN**. Production adds no static state; any measured decline requires a written explanation and review before qualification.
+Use SDK V1.2.1 and capture separate Elite/Pro logs and link maps before the second build overwrites outputs. Baseline reference requested by the owner: 2352 B free. #789 historically reports 2432 B free for both models; #788 reports a different development configuration at 1920 B and must not be substituted. Candidate free static RAM: **Elite NOT_RUN; Pro NOT_RUN**. The later row 41 amendment adds a 4 B per-peer original-page ownership mask for safe held edits; see its written RAM reason in FX_HELD_ARROW.md. Any other measured decline requires an explanation and review before qualification.
 
 Capture base and candidate using `smc_remainder_capture.c`, a separate driver that draws the same production scenes without changing test assertions. The base checkout needs copies of the three new remainder fixture files from the candidate. Set an absolute evidence directory; from each checkout run:
 

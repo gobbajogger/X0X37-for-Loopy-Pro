@@ -2,6 +2,8 @@
 
 Base for this follow-up: PR #800 at `97282d7fed8859f337d606d4880cb095b1ce2591`. The owner requests pictures, glyphs and small animations wherever they convey the same meaning, with real-framebuffer before/after approval. No builds or tests run in Codex.
 
+Later owner amendment: [held-FX arrow mapping](FX_HELD_ARROW.md) adds effect-specific pictures to the top bar and changes the mapping gesture. That amendment supersedes the no-routing-change statement below for row 41, adds 198 B to the constant atlas (666 B total), and documents its 4 B per-peer ownership-state reason. The earlier source review and 468 B figure below describe the original glyph-only follow-up.
+
 ## Design and implementation plan
 
 Reuse the existing play triangle, clock-owned pulse, queued-cue blink, strip geometry and compact pattern/control motifs. Add a shared stateless nine-pixel pictogram atlas for the popup's smaller cells. Its 9x9 glyphs fit inside the existing 22x11 buttons; larger footer glyphs use integer scaling. The atlas is constant data, with no new timer, mutable static state or BSS.
