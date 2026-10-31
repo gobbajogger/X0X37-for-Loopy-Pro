@@ -20,7 +20,10 @@ settings=re.search(r'typedef struct \{\n    uint32_t magic, format;.*?\} setting
 defines=header[header.index('#define PROJ_MAGIC'):header.index('typedef struct {',header.index('#define PROJ_MAGIC'))]
 # Baseline has no automatic device writer; model its absent hook as no action.
 names=['hash_of','get32','put32','save_buf','load_settings','save_obj']
+# #790 split the settings read into read_settings_payload() with a read-failure latch.
+if fn(project,'read_settings_payload'):names.insert(names.index('load_settings'),'read_settings_payload')
 functions='\n'.join(fn(project,n) for n in names)
+if 'read_settings_payload' in names:functions='static uint8_t settings_read_failed;\n'+functions
 defaults=fn(project,'project_settings_defaults')
 if not defaults:
  # Extract the exact prior defaults assignments, without the rest of the project.

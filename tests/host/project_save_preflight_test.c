@@ -103,6 +103,38 @@ static int test_sound_hash_collision(void)
     return 0;
 }
 
+/* Exact-size settings are required; truncated objects cannot partly replace dst. */
+static int test_settings_guards(void)
+{
+    settings_t loaded, before;
+    project_defaults();
+    if (project_validate_for(&proj)) {
+        puts("settings fixture is invalid before ck_x2 mutation");
+        return 1;
+    }
+    proj.set.ck_x2 = 0xFF;
+    if (project_validate_for(&proj) != -1) {
+        puts("invalid ck_x2 accepted");
+        return 1;
+    }
+    project_defaults();
+    if (save_obj(OBJ_SET, &proj.set, sizeof proj.set)) return 1;
+    memset(&loaded, 0xA5, sizeof loaded);
+    before = loaded;
+    --flash_len[OBJ_SET];
+    if (load_settings(&loaded) != -9 || memcmp(&loaded, &before, sizeof loaded)) {
+        puts("short settings object accepted or partially copied");
+        return 1;
+    }
+    ++flash_len[OBJ_SET];
+    if (load_settings(&loaded) || memcmp(&loaded, &proj.set, sizeof loaded)) {
+        puts("exact-size settings object did not load");
+        return 1;
+    }
+    puts("settings guards: short object -9, exact size loads, ck_x2=255 rejected");
+    return 0;
+}
+
 int main(void)
 {
     uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
@@ -158,5 +190,6 @@ int main(void)
         return 1;
     }
     puts("memory-full preflight: no writes; prior project survives reboot");
+    if (test_settings_guards()) return 1;
     return test_sound_hash_collision();
 }
