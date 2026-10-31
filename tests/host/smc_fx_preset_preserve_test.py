@@ -55,13 +55,16 @@ C_HEADER = r'''
 #include <stdio.h>
 #include <string.h>
 #include "app/smc_fx_map.h"
+#include "app/smc_fx_strip.h"
 
-enum { SMC_PEERS = 2, O_NONE = 0, V_FX = 3 };
+enum { SMC_PEERS = 2, O_NONE = 0, V_FX = 3, B_HOME = 6 };
 static struct { int view, overlay; } ui = {V_FX, O_NONE};
 typedef struct {
-    uint8_t fx_down, fx_owned, fx_lp_hold, fx_page, fx_ready;
+    uint8_t home_down, fx_down, fx_owned, fx_lp_hold, fx_page, fx_ready;
+    uint8_t fx_nav_armed, fx_home_used;
     uint8_t fx_effect[SMCFX_N], fx_main_wait, select_down;
     uint32_t fx_main_t0[3];
+    smcfx_strip_t fx_strip;
 } smc_state_t;
 static smc_state_t smc_states[SMC_PEERS];
 static unsigned smc_slot;
@@ -69,6 +72,7 @@ static unsigned smc_slot;
 
 static uint8_t published_down, published_fx[SMCFX_N];
 static uint32_t now;
+static uint8_t smc_fx_tap_nav_once;
 static int home, clip, drum = -1, navigation, last_nav = -1, saves, resets;
 static unsigned checks;
 #define CHECK(pred) do { checks++; if (!(pred)) { \
@@ -77,7 +81,7 @@ static unsigned checks;
 
 static int smk_clip_mode_on(void) { return clip; }
 static int smc_drum_mix(void) { return drum; }
-static int smc_fx_bus(uint8_t note) { return smcfx_bus(note); }
+static int smc_fx_bus(uint8_t note) { return note < 32u ? (note & 7u) : -1; }
 static int smc_fx_bus_now(uint8_t note)
 {
     return ui.view != V_FX || ui.overlay != O_NONE ||
@@ -85,6 +89,7 @@ static int smc_fx_bus_now(uint8_t note)
 }
 static int smc_home_held(void) { return home; }
 static uint32_t plat_ms(void) { return now; }
+static uint32_t plat_buttons(void) { return 0; }
 static void say(const char *left, const char *right) { (void)left; (void)right; }
 static void smc_fx_save_preset(void) { saves++; }
 static void smc_fx_reset_cuts(void) { resets++; }
@@ -136,6 +141,8 @@ int main(void)
             save_assignments(before);
             const uint8_t note = SMCFX_NOTE[bus];
             const uint8_t bit = (uint8_t)(1u << bus);
+            const int page_select_empty =
+                smcfx_strip_get(&smc.fx_strip, pg, bus, SMCFX_SELECT) == SMCFX_EMPTY;
             if (smcfx_is_main(bus)) smc.select_down |= bit;
             CHECK(smc_fx_try(note, 0) == 1);
             CHECK(all_assignments_match(before)); /* an ordinary tap cannot rewrite the preset */
@@ -150,8 +157,8 @@ int main(void)
                 CHECK(last_nav == bus - SMCFX_RVB);
                 smc.select_down &= (uint8_t)~bit;
             } else {
-                CHECK(!!(published_down & bit));
-                CHECK(published_fx[bus] == before[bus]);
+                CHECK(!!(published_down & bit) == !page_select_empty);
+                if (!page_select_empty) CHECK(published_fx[bus] == before[bus]);
                 smc_fx_release_note(note);
             }
             CHECK(!(published_down & bit));
@@ -181,6 +188,38 @@ int main(void)
             if (smcfx_is_main(bus)) smc.select_down &= (uint8_t)~bit;
         }
     }
+
+    /* All four row buttons on both pages are momentary, individually suited,
+     * and the unassigned page-two buttons remain silent. */
+    for (int pg = 0; pg < SMCFX_NPAGE; pg++)
+        for (int bus = 0; bus < SMCFX_N; bus++)
+            for (int button = SMCFX_REC; button <= SMCFX_MUTE; button++) {
+                memset(smc_states, 0, sizeof smc_states);
+                smc_slot = 0; home = clip = 0; drum = -1;
+                ui.view = V_FX; ui.overlay = O_NONE;
+                smc_fx_load_page(pg);
+                uint8_t fx = smcfx_strip_get(&smc.fx_strip, pg, bus, button);
+                uint8_t note = (uint8_t)(button * 8 + bus);
+                uint8_t bit = (uint8_t)(1u << bus);
+                CHECK(smc_fx_try(note, 0) == 1);
+                CHECK(!!(published_down & bit) == (fx != SMCFX_EMPTY));
+                if (fx != SMCFX_EMPTY) CHECK(published_fx[bus] == fx);
+                smc_fx_release_note(note);
+                CHECK(!(published_down & bit));
+            }
+    /* Two simultaneously held buttons on one bus return to the earlier
+     * effect when the later button is released. */
+    memset(smc_states, 0, sizeof smc_states);
+    smc_slot = 0; home = 0; ui.view = V_FX; ui.overlay = O_NONE;
+    smc_fx_load_page(0);
+    CHECK(smc_fx_try(2, 0) == 1); /* 303A REC -> HPF */
+    CHECK(published_fx[SMCFX_303A] == SMCFX_HP);
+    CHECK(smc_fx_try(26, 0) == 1); /* 303A SELECT -> LPF */
+    CHECK(published_fx[SMCFX_303A] == SMCFX_LP);
+    smc_fx_release_note(26);
+    CHECK(published_fx[SMCFX_303A] == SMCFX_HP);
+    smc_fx_release_note(2);
+    CHECK(!(published_down & (1u << SMCFX_303A)));
 
     /* Long main-bus hold must publish the chosen effect, not forced LPF. */
     for (int bus = SMCFX_RVB; bus < SMCFX_N; bus++) {
@@ -249,17 +288,20 @@ int main(void)
     memset(smc_states, 0, sizeof smc_states);
     smc_slot = 0; smc_fx_load_page(0);
     smc_slot = 1; smc_fx_load_page(1);
+    home = 1; CHECK(smc_fx_try(24, 0) == 1); /* fill empty SELECT on page 2 */
+    home = 0;
+    uint8_t peer_one_fx = smc_states[1].fx_effect[0];
     smc_slot = 1; CHECK(smc_fx_try(24, 0) == 1);
-    CHECK(published_fx[0] == SMCFX_PAGE[1][0]); /* peer 1: TIGHT delay */
+    CHECK(published_fx[0] == peer_one_fx);
     smc_slot = 0; CHECK(smc_fx_try(24, 0) == 1);
-    CHECK(published_fx[0] == SMCFX_PAGE[0][0]); /* peer 0 wins: ROOM reverb */
+    CHECK(published_fx[0] == SMCFX_PAGE[0][0]); /* peer 0 wins */
     smc_fx_release_note(24);
     CHECK(published_down & 1u); /* peer 1 is still held */
-    CHECK(published_fx[0] == SMCFX_PAGE[1][0]);
+    CHECK(published_fx[0] == peer_one_fx);
     smc_slot = 1; smc_fx_release_note(24);
     CHECK(!(published_down & 1u));
     CHECK(smc_states[0].fx_effect[0] == SMCFX_PAGE[0][0]);
-    CHECK(smc_states[1].fx_effect[0] == SMCFX_PAGE[1][0]);
+    CHECK(smc_states[1].fx_effect[0] == peer_one_fx);
 
     /* Non-FX context leaves assignments untouched and rejects the gesture. */
     smc_slot = 0; ui.view = 0; save_assignments(before);
