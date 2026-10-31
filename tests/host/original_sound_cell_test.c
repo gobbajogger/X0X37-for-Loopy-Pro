@@ -5,8 +5,9 @@
 #include <string.h>
 
 static unsigned factories, edits, failures, performance_refusals, stale_restores;
-static const unsigned fx_types[7] = {0,4,5,10,18,22,24};
-static const unsigned fx_macro[7] = {0,5,7,4,2,3,1};
+/* 0..6: factory-admitted types; 7..11: archived inserts reachable by edit only. */
+static const unsigned fx_types[12] = {0,4,5,10,18,22,24,3,12,13,15,16};
+static const unsigned fx_macro[12] = {0,5,7,4,2,3,1,6,8,9,10,11};
 static float edited_value(unsigned kind, unsigned parameter, unsigned value)
 {
     if ((kind==ORIGINAL_SOUND_CHICAGO && parameter==4) ||
@@ -51,7 +52,7 @@ static void compare(unsigned kind, unsigned factory)
         float untouched=-1, expected=kind==ORIGINAL_SOUND_MIAMI?mr.macro[parameter]:cr.macro[parameter];
         assert(original_sound_value(cell,parameter,&untouched) && !memcmp(&untouched,&expected,sizeof expected));
         const x0x_param_t *metadata=original_sound_param(kind,parameter);
-        assert(metadata && metadata->max==(kind==ORIGINAL_SOUND_CHICAGO && parameter==17?6:127) && strlen(metadata->name)<=6);
+        assert(metadata && metadata->max==(kind==ORIGINAL_SOUND_CHICAGO && parameter==17?11:127) && strlen(metadata->name)<=6);
         for (unsigned value=0;value<=metadata->max;++value) {
             memcpy(cell,saved,sizeof cell);
             if (parameter >= n-2) {
@@ -148,7 +149,7 @@ static void compare(unsigned kind, unsigned factory)
     assert(!original_sound_valid(cell));
     memcpy(cell,saved,sizeof cell);
     if (kind==ORIGINAL_SOUND_CHICAGO) {
-        for (unsigned value=7;value<256;++value) {
+        for (unsigned value=12;value<256;++value) {
             assert(!original_sound_set(cell,17,value) && !memcmp(cell,saved,sizeof cell));
             cell[17]=(uint8_t)value;
             assert(!original_sound_valid(cell));
@@ -169,9 +170,10 @@ int main(void)
     assert(!original_sound_valid(0) && !original_sound_set(0,0,0) && !original_sound_init(0,0,0));
     assert(!original_sound_count(2) && !original_sound_factories(2) && !original_sound_engine_id(2));
     assert(!original_sound_param(2,0) && !original_sound_name(2,0));
-    assert(!original_sound_fx_name(7));
-    static const char *const fx_names[7]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ"};
-    for(unsigned i=0;i<7;i++)assert(!strcmp(original_sound_fx_name(i),fx_names[i]));
+    assert(!original_sound_fx_name(12));
+    static const char *const fx_names[12]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ",
+        "ENSEMBLE","SHORT DLY","BPM DELAY","HALL","GATE REV"};
+    for(unsigned i=0;i<12;i++)assert(!strcmp(original_sound_fx_name(i),fx_names[i]));
     assert(!original_sound_is_performance(2,16) && !original_sound_is_performance(0,99));
     assert(original_sound_factory_source(2,0)==-1 && original_sound_factory_source(0,55)==-1);
     /* Independently enumerate all original factory routings. The selected bank
@@ -191,7 +193,7 @@ int main(void)
     }
     assert(compact==55 && compact==original_sound_factories(0));
     float refused=-7;
-    assert(!original_sound_control_value(0,17,7,&refused) && refused==-7);
+    assert(!original_sound_control_value(0,17,12,&refused) && refused==-7);
     assert(!original_sound_control_value(2,0,0,&refused) && refused==-7);
     for(unsigned kind=0;kind<2;kind++) {
         unsigned parameter=kind?7:4;
