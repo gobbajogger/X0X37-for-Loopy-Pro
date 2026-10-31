@@ -19,9 +19,7 @@
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
 #include "factory_banks.h"           /* Chicago / Miami factory metadata */
 
-#ifndef X0X_VERSION                     /* a release build passes its numeric X.Y.Z (tools/build.py --release) */
-#define X0X_VERSION "DEV"
-#endif
+#include "version.h"                    /* shared DEV or numeric firmware version */
 #ifndef X0X_RELEASE_LABEL              /* display only, e.g. 0.1.3_openbeta; not the package identity */
 #define X0X_RELEASE_LABEL ""
 #endif
@@ -107,6 +105,9 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
+void project_device_bt_set(int on);     /* live now; saved by project_device_bt_save */
+int project_device_bt_pending(void);
+int project_device_bt_save(void);          /* caller must hold engine and admit safe flash */
 int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
 int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */

@@ -393,11 +393,13 @@ To get the calibration mode again, build with `X0X_DEV_PADCAL=1` (or with no val
 marks the complete calibration mode (CLP-79, orientation page, reopen fix, ok dot).
 
 The build also generates `build/gen/`. It contains the font and the 909's cymbal samples (IMA ADPCM,
-44.1 kHz) and tables (`tools/gen_drum_samples.py`). The default image does not contain the two factory
-break loops. Those loops are 2 bars each, IMA ADPCM at 44.1 kHz, 220,500 B together, and they stay in
-`assets/factory-breaks/` (`tools/export_factory_breaks.sh`). The installer can write that pack, or your
-own loops, into the free tail of the app code. `X0X_FACTORY_BREAKS=1` compiles the factory loops back
-into the image. `X0X_BREAK_BANK=DIR` uses another bank instead (`tools/gen_break_bank.py`).
+44.1 kHz) and tables (`tools/gen_drum_samples.py`). The default app image does not compile in factory
+break loops. The designated CRAMEN, TASTY and HOTPANT stock loops are IMA ADPCM at 44.1 kHz,
+with retained one-bar metadata and a 131,152-byte pack. Their complete lengths and conversion
+provenance are in `assets/factory-breaks/provenance.json`. `tools/export_factory_breaks.sh` exports
+the same stock bytes for the installer. `tools/package_stock_loops.py` or the installer can place
+them in the free app-code tail without recompiling. `X0X_FACTORY_BREAKS=1` explicitly compiles
+these stock bytes into the image. `X0X_BREAK_BANK=DIR` uses another bank instead (`tools/gen_break_bank.py`).
 `tools/import_breaks.py` makes such a folder from BB Gen's samples, in `build/breaks/` (README.md, Breaks).
 The build fails if it links a soft-double routine (a `double` crept in). It also checks the image, RAM
 and pool sizes.
