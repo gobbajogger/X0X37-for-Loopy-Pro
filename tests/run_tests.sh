@@ -318,6 +318,8 @@ run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_t
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run usb-product-names python3 -B tests/host/usb_product_names_test.py  # model-specific USB names, version, bounds, VID/PID, loader
+run nightly-version python3 -B tests/host/test_nightly_version.py
+run nightly-package python3 -B tests/nightly_package_test.py
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run uac-out sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_out_test tests/host/uac_out_test.c -lm && $OUT/uac_out_test"
 run uac-out-irq sh tests/host/uac_out_irq_test.sh   # nested EP4 ingress must see consumed ring slots
@@ -682,3 +684,4 @@ else
 fi
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
 exit $FAIL
+
