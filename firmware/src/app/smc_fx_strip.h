@@ -13,6 +13,7 @@ typedef struct {
     uint8_t held_fx[SMCFX_N][SMCFX_BUTTONS];
     uint8_t order[SMCFX_N][SMCFX_BUTTONS]; /* Latest held key wins on a bus. */
     uint8_t count[SMCFX_N];
+    uint32_t page2; /* One bit per physical key: preserve its original mapping page. */
 } smcfx_strip_t;
 
 static inline int smcfx_button(unsigned note)
@@ -38,6 +39,7 @@ static inline void smcfx_strip_init(smcfx_strip_t *s)
             }
     for (int note = 0; note < 32; note++) s->key_bus[note] = SMCFX_EMPTY;
     for (int bus = 0; bus < SMCFX_N; bus++) s->count[bus] = 0;
+    s->page2 = 0;
 }
 
 static inline uint8_t smcfx_strip_cycle(smcfx_strip_t *s, int page, int bus, int button)
@@ -54,11 +56,14 @@ static inline int smcfx_strip_press(smcfx_strip_t *s, unsigned note, int bus, in
 {
     int button = smcfx_button(note);
     uint8_t fx = smcfx_strip_get(s, page, bus, button);
-    if (button < 0 || (unsigned)bus >= SMCFX_N || fx == SMCFX_EMPTY ||
+    if (button < 0 || (unsigned)bus >= SMCFX_N || (unsigned)page >= SMCFX_STRIP_PAGES ||
         s->key_bus[note] != SMCFX_EMPTY || s->count[bus] >= SMCFX_BUTTONS)
         return 0;
     s->key_bus[note] = (uint8_t)bus;
+    if (page) s->page2 |= (uint32_t)1u << note;
+    else s->page2 &= ~((uint32_t)1u << note);
     s->held_fx[bus][button] = fx; /* Pin the effect selected at key-down. */
+    if (fx == SMCFX_EMPTY) return 0; /* Own blank cells for mapping, but keep them silent. */
     s->order[bus][s->count[bus]++] = (uint8_t)button;
     return 1;
 }
@@ -69,6 +74,7 @@ static inline int smcfx_strip_release(smcfx_strip_t *s, unsigned note)
     if (note >= 32u || s->key_bus[note] >= SMCFX_N) return -1;
     int bus = s->key_bus[note], button = smcfx_button(note);
     s->key_bus[note] = SMCFX_EMPTY;
+    s->page2 &= ~((uint32_t)1u << note);
     for (int i = 0; i < s->count[bus]; i++)
         if (s->order[bus][i] == button) {
             for (int j = i + 1; j < s->count[bus]; j++)
@@ -89,4 +95,5 @@ static inline void smcfx_strip_clear_holds(smcfx_strip_t *s)
 {
     for (int note = 0; note < 32; note++) s->key_bus[note] = SMCFX_EMPTY;
     for (int bus = 0; bus < SMCFX_N; bus++) s->count[bus] = 0;
+    s->page2 = 0;
 }
