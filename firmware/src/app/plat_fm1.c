@@ -64,24 +64,36 @@ uint64_t plat_physical_keys(void)
     return (uint64_t)plat_keys()<<5;
 #endif
 }
-int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
-                    uint32_t epoch,int enabled,int octave,int publish)
+int plat_outer_keys(plat_outer_event_t *events, uint64_t *keys, int *overflow,
+                    uint32_t epoch, int enabled, int octave, int publish)
 {
-    int n=0;
+    int n = 0;
 #if BOARD_SMK37
-    uint32_t flags=irq_save();
-    *keys=fm1_in.keys;*overflow=smk_extq_overflow;
-    if(publish || *overflow)smk_extq_r=smk_extq_w;
-    else while(smk_extq_r!=smk_extq_w && n<31) {
-        events[n].generation=smk_extq[smk_extq_r][0];events[n++].word=smk_extq[smk_extq_r][1];
-        smk_extq_r=(uint8_t)((smk_extq_r+1u)%SMK_EXTQ);
+    uint32_t flags = irq_save();
+    *keys = fm1_in.keys;
+    *overflow = smk_extq_overflow;
+    if (publish || *overflow)
+        smk_extq_r = smk_extq_w;
+    else while (smk_extq_r != smk_extq_w && (unsigned)n < SMK_EXTQ - 1u) {
+        events[n].generation = smk_extq[smk_extq_r][0];
+        events[n++].word = smk_extq[smk_extq_r][1];
+        smk_extq_r = (uint8_t)((smk_extq_r + 1u) % SMK_EXTQ);
     }
-    smk_extq_overflow=0;
-    if(publish){smk_ext_epoch=epoch;smk_ext_enabled=(uint8_t)!!enabled;smk_ext_oct=(int8_t)octave;}
+    smk_extq_overflow = 0;
+    if (publish) {
+        smk_ext_epoch = epoch;
+        smk_ext_enabled = (uint8_t)!!enabled;
+        smk_ext_oct = (int8_t)octave;
+    }
     irq_restore(flags);
 #else
-    (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;
-    *keys=plat_physical_keys();*overflow=0;
+    (void)events;
+    (void)epoch;
+    (void)enabled;
+    (void)octave;
+    (void)publish;
+    *keys = plat_physical_keys();
+    *overflow = 0;
 #endif
     return n;
 }
