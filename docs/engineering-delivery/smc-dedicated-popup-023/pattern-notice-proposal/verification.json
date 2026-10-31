@@ -1,49 +1,40 @@
 {
-  "status": "PROPOSAL; owner visual approval pending",
-  "baseline_head": "a74949ab62096bdc3b0e47db2e7d7cfeae99b484",
-  "production_code_published": false,
+  "base": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "before_implementation": "1ca03fd07ed2f01b00aef522cc931e616015f714",
+  "owner_approval": "Approved without preview; no visual approval wait",
+  "production_code_published": true,
   "candidate_inputs_sha256": {
-    "firmware/src/app/smc_mixer.c": "56b238a4782f2075d5c54616b3947e6ea8ccf3cf93959b817502f42b14ad00d7",
-    "firmware/src/app/ui.c": "1a10ae17c843992a409225eb2218787f2d66ace5461265ca3147d65205023deb",
-    "tests/host/smc_ui_popup_test.c": "e75ae5e167eab7b7057e51a498b23a30bdaa9de8ce7584a77535c2d66d1b6f0f",
+    "firmware/src/app/smc_mixer.c": "71e6d626d6f21730bef1f651564069ef8811794195cd8b51f1aa1a47eedb7c96",
+    "firmware/src/app/ui.c": "6035c8cc9bd17f6f32fcac7421baca1f56e312ac4539dbe4cf9c4720e0bd231c",
+    "tests/host/smc_buttons_test.py": "1b086b94296c9c807dde749e1dd7bceec67677d355a812e99224c78ba99da0f8",
+    "tests/host/smc_link_test.py": "465f1ccea1494ebc34d4e06f7600069577f049717396909e6a9e16ebfe8fab3c",
     "tests/host/smc_production_action_smoke.c": "42a133f66423532a07840f96e6c8f3851960bbfcd8ace191fb94a2ae4264296b",
-    "tests/host/smc_buttons_test.py": "07fba4ba438c6b3820f702147857fd9812fff0f7cf954df4272412fadce35eaf"
+    "tests/host/smc_ui_popup_test.c": "5a437c61bbf45afd96e0ceda49d414a30a34e7558be2a64a16b752aa1c96844e"
   },
   "sdk": "V1.2.1",
   "X0X_DEV_PADCAL": 0,
   "native": {
     "elite": {
       "result": "PASS",
-      "app_bytes": 497804,
+      "app_bytes": 498092,
+      "ram_used": 95872,
       "ram_free": 2432,
       "pool_free": 8536,
-      "log_sha256": "76729cbad66dc903bfd6f6498069cc5e8b1c512b7eb4f68418b2dd6053184744"
+      "log_sha256": "81310e7a4e7ba792b1b5f05c4a9eb38a7cf5623bceffb7448ec95ded06cf4460"
     },
     "pro": {
       "result": "PASS",
-      "app_bytes": 497788,
+      "app_bytes": 498076,
+      "ram_used": 95872,
       "ram_free": 2432,
       "pool_free": 8536,
-      "log_sha256": "703ded193db7abee6945bc76c11889363ece8234f6de2ba7450cab10e90f427a"
+      "log_sha256": "813344cef9ad760b00645bbdc3e2acdb09edaf623512912e903b00a21f586375"
     }
   },
-  "popup_checks": 4938,
-  "action_checks": 420,
-  "action_ubsan": "PASS",
-  "initial_selected_runner": {
-    "pass": 46,
-    "fail": [
-      "smc-buttons"
-    ],
-    "exit": 1
-  },
-  "followup_registered_runner": {
-    "smc-buttons": "PASS",
-    "exit": 0
-  },
-  "latest_selectors": {
+  "smc_selectors": {
     "smc-protocol": "PASS",
     "smc-fader": "PASS",
+    "smc-buttons": "PASS",
     "smc-select-mode": "PASS",
     "smc-fx": "PASS",
     "smc-mixer-edges": "PASS",
@@ -87,24 +78,28 @@
     "smc-feedback": "PASS",
     "smc-record-feedback": "PASS",
     "smc-part-select": "PASS",
-    "smc-clip-visibility": "PASS",
-    "smc-buttons": "PASS"
+    "smc-clip-visibility": "PASS"
   },
   "selected_pass": 47,
   "selected_fail": 0,
   "selected_not_run": 0,
-  "review": {
-    "reviewers": 4,
-    "findings": [],
-    "visual": "PASS",
-    "candidate_diff_sha256": "518ade50f07d9c2d0052d93e24d50488e3abdd2487415382a2b88237f4372992"
-  },
+  "popup_checks": 4958,
+  "notice_ms": 1000,
+  "connected_bounds": "UBSan bounds O0 and O2 PASS22 cases covering default1/optional2 peers and all role/up masks",
+  "source_diff_sha256": "00870aba9f654afccd78785223d0126066f1959a83e1cc731e241ef34050c21b",
   "framebuffer_sha256": {
     "before-pattern-from-keyboard.png": "1d07018350b94d1216be3486ed3d72cd82e7bb011236dd7439e4e2075df087c3",
-    "after-pattern-from-keyboard.png": "ecad804f711942256fc9244555ec7f8e78150140d1b3d33aa1935950e9241457",
+    "after-pattern-from-keyboard.png": "75be4273a032640dd500471d7df25d3ae06103a3b4ca6b6656d93520b8e0e871",
     "before-pattern-over-popup.png": "1d07018350b94d1216be3486ed3d72cd82e7bb011236dd7439e4e2075df087c3",
-    "after-pattern-over-popup.png": "d0bb1cff8d6d992918c827041e17576b0b049dc2c43f39d2aac54a4ae54471d3"
+    "after-pattern-over-popup.png": "55e103bdeedb70922b7d1d2c90d6075eacf2acf8e33be79b652d9c338a30247a"
   },
+  "runner_log_sha256": "7850d881cbd48599533c6451e7cfb957cfb62f378c80a182f995501332473ab0",
   "full_repository_suite": "NOT_RUN",
-  "hardware": "NOT_RUN"
+  "hardware": "NOT_RUN",
+  "review": {
+    "reviewers": 5,
+    "findings": [],
+    "source_diff_sha256": "00870aba9f654afccd78785223d0126066f1959a83e1cc731e241ef34050c21b",
+    "visual": "PASS; below-header and dismissal pixels verified unchanged"
+  }
 }

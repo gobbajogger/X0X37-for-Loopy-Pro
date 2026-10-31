@@ -130,47 +130,91 @@ static void test_transport_without_popup(void)
     }
 }
 
-static void pattern_footer(const char *number,const char *status)
+static void pattern_notice(const char *value)
 {
+    char expected[24];put_s(put_s(expected,"NEXT: PAT "),value);
+    CHECK(!strcmp(ui.msg,expected));
     ui_frame();memcpy(active_fb,fb,sizeof fb);
-    /* Independently specified expected pixels in the existing action readout. */
-    cv_begin(240,KNOB_H,C_BLACK);cv_rect(0,0,240,1,C_LINE);
-    text_c(120,4,&FONT_S,"909 PATTERN",C_WHITE);
-    text_c(120,22,&FONT_M,number,C_HI);
-    text_c(120,49,&FONT_XS,status,C_HI);cv_commit(3,0,KNOB_Y);
-    CHECK(!memcmp(active_fb+KNOB_Y*240,fb+KNOB_Y*240,KNOB_H*240*sizeof *fb));
+    cv_begin(240,HDR_H,C_BLACK);
+    night_panel(0,0,240,HDR_H,0);
+    box(0,0,240,HDR_H-1,part_col());
+    char arrow[16];put_s(put_s(arrow,"> "),value);
+    int x=(240-tw(&FONT_B,"NEXT")-6-12-6-tw(&FONT_B,arrow))/2;
+    x=cv_text(x,vc(&FONT_B,0,HDR_H-1),&FONT_B,"NEXT",C_BLACK)+6;
+    frame(x,1,12,17,C_BLACK);
+    /* Hand-derived from the stored fixtures below, independently of HOME's
+     * projection and glyph renderer. Each instrument occupies a distinct row. */
+    if(!strcmp(value,"5")) {
+        cv_rect(x+2,2,1,3,C_BLACK);cv_rect(x+9,2,1,3,C_BLACK); /* 909: steps 0,63 */
+        cv_rect(x+4,5,1,3,C_BLACK); /* 808: step 16 of 64 */
+        cv_rect(x+7,8,1,3,C_BLACK); /* BREAK: step 10 */
+        cv_rect(x+5,11,1,3,C_BLACK); /* 303 B: step 6 */
+        cv_rect(x+9,14,1,3,C_BLACK); /* 303 A: step 14 */
+    } else if(!strcmp(value,"6")) {
+        cv_rect(x+4,8,1,3,C_BLACK); /* BREAK: step 4 */
+    }
+    cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,arrow,C_BLACK);
+    cv_commit(0,0,0);
+    CHECK(!memcmp(active_fb,fb,HDR_H*240*sizeof *fb));
+    CHECK(ui.msg_until==now_ms+1000);
 }
 
-static void test_pattern_popup(void)
+static void test_pattern_notice(void)
 {
-    for(int route=0;route<5;route++) for(int locked=0;locked<2;locked++) {
+    for(int route=0;route<5;route++) for(int locked=0;locked<2;locked++)
+    for(int open=0;open<2;open++) {
         transport_setup(route,locked);screen_state_t keyboard=screen_state();
+        memset(proj.arr.lane,0,sizeof proj.arr.lane);
+        for(int pat=4;pat<=5;pat++) {
+            memset(&proj.pat[pat],0,sizeof proj.pat[pat]);
+            for(int p=0;p<NKIT;p++) proj.pat[pat].drum[p].len=64;
+            for(int p=0;p<NBASS;p++) proj.pat[pat].bass[p].len=16;
+        }
+        sm_set(proj.pat[4].drum[0].hit[0],0);
+        sm_set(proj.pat[4].drum[0].hit[0],63);
+        sm_set(proj.pat[4].drum[1].hit[0],16);
+        proj.pat[4].brk.steps=1u<<10;
+        proj.pat[4].bass[1].step[6].flags=G_NOTE;
+        proj.pat[4].bass[1].step[6].velocity=120;
+        proj.pat[4].bass[0].step[14].flags=G_NOTE;
+        proj.pat[4].bass[0].step[14].velocity=100;
+        proj.pat[5].brk.steps=1u<<4;
+        if(open) smc_fader(0,0); /* Establish the same existing popup for every input route. */
+        CHECK(smc_ui_active()==open);
+        ui_frame();memcpy(before_fb,fb,sizeof fb);
+        uint8_t popup[sizeof smc_ui];memcpy(popup,&smc_ui,sizeof popup);
         unsigned forces=clip_forces;
         transport_event(route,0x5c,1);
         CHECK(seq_cue_of(&seq,PART_909)==4 && seq_cue_of(&seq,PART_808)==-1);
-        CHECK(smc_ui_active() && smc_ui.kind==3 && smc_ui.action==0x5c);
-        CHECK(clip_forces==forces); /* Pattern input must not dismiss the overlay. */
-        pattern_footer("P5","CUED");keyboard_unchanged(keyboard);
-        if(!route && !locked) { ui_frame();shot("after-pattern-cue"); }
+        CHECK(smc_ui_active()==open);CHECK(!memcmp(popup,&smc_ui,sizeof popup));
+        CHECK(clip_forces==forces);pattern_notice("5");keyboard_unchanged(keyboard);
+        CHECK(!memcmp(before_fb+HDR_H*240,active_fb+HDR_H*240,(240-HDR_H)*240*sizeof *fb));
         transport_event(route,0x5c,0);
         transport_event(route,0x5c,1);CHECK(seq_cue_of(&seq,PART_909)==5);
-        pattern_footer("P6","CUED");transport_event(route,0x5c,0);
+        pattern_notice("6");transport_event(route,0x5c,0);
         transport_event(route,0x5b,1);CHECK(seq_cue_of(&seq,PART_909)==4);
-        pattern_footer("P5","CUED");transport_event(route,0x5b,0);
+        pattern_notice("5");transport_event(route,0x5b,0);
         transport_event(route,0x5b,1);CHECK(seq_cue_of(&seq,PART_909)==-1);
-        pattern_footer("P4","CURRENT");transport_event(route,0x5b,0);
+        pattern_notice("--");transport_event(route,0x5b,0);
         seq.ppat[PART_909]=0;transport_event(route,0x5b,1);
-        CHECK(seq_cue_of(&seq,PART_909)==-1);pattern_footer("P1","CURRENT");
+        CHECK(seq_cue_of(&seq,PART_909)==-1);pattern_notice("--");
         transport_event(route,0x5b,0);keyboard_unchanged(keyboard);
         CHECK(!seq.playing && !seq.req_start && !seq.req_stop);
-        now_ms+=1200;CHECK(!smc_ui_active());
+        /* Keep an existing popup alive while its notification alone expires. */
+        now_ms+=999;
+        if(open) smc_ui.until=now_ms+SMC_UI_MS;
+        ui_frame();CHECK(!memcmp(active_fb,fb,HDR_H*240*sizeof *fb));
+        now_ms++;
+        ui_frame();CHECK(smc_ui_active()==open);
+        CHECK(memcmp(active_fb,fb,HDR_H*240*sizeof *fb)); /* expired toast is gone */
+        keyboard_unchanged(keyboard);
     }
 }
 
 int main(void)
 {
     test_transport_without_popup();
-    test_pattern_popup();
+    test_pattern_notice();
     test_locked_bank_recapture();
     test_help_musical_buttons();
     test_locked_bass_identity();

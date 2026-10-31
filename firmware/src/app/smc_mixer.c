@@ -325,7 +325,13 @@ void smc_ble_link_slot(unsigned slot, int up)
 }
 void smc_ble_link(int up) { smc_ble_link_slot(0, up); }
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
-int smc_connected(void) { return (smc_states[0].up || smc_states[1].up) && smc_ble_role_get(); }
+int smc_connected(void)
+{
+    if (!smc_ble_role_get()) return 0;
+    for (unsigned i = 0; i < SMC_PEERS; i++)
+        if (smc_states[i].up) return 1;
+    return 0;
+}
 
 /* USB or peripheral BLE through the existing MIDI ring: only the explicitly enabled
  * User preset, channel 16. The separate ring has one audio-ISR producer; the BLE
@@ -1121,13 +1127,7 @@ static void smc_ui_draw_peer(void)
     } else if (smc_ui.kind == 3) {
         int note = smc_ui.action;
         int bus = smc_fx_bus_now((uint8_t)note);
-        if (note == 0x5B || note == 0x5C) {
-            int part = smc.locked ? smc.lock_part : smc.part;
-            int cue = seq_cue_of(&seq, part);
-            put_s(put_s(name, part_s(part)), " PATTERN");
-            put_i(put_s(num, "P"), (cue >= 0 ? cue : seq.ppat[part]) + 1);
-            status = cue >= 0 ? "CUED" : "CURRENT";
-        } else if (bus >= 0) {
+        if (bus >= 0) {
             smc_fx_publish();
             put_s(name, SMCFX_BUS_NAME[bus]);
             uint8_t fx = smcfx_strip_live_fx(&smc.fx_strip, bus);
@@ -1773,6 +1773,12 @@ static void smc_button_apply(uint8_t note, int mmc)
                                      note == 0x5B ? -1 : 1, NPAT);
         if (next == -1) seq.pcue[part] = 0xFFu; /* cancel instead of retriggering the playing pattern */
         else if (next >= 0) seq_cue_part(&seq, part, next);
+        char number[12];
+        int cue = seq_cue_of(&seq, part);
+        if (cue >= 0) put_i(number, cue + 1);
+        else put_s(number, "--");
+        ui_say("NEXT: PAT ", number);
+        ui.msg_until = plat_ms() + 1000u;
         break;
     }
     case 0x5D: seq_stop(&seq); break;
@@ -1838,7 +1844,7 @@ static void smc_button(uint8_t note, int mmc)
     uint32_t until = ui.msg_until;
     int kit = smc_drum_mix();
     int action = !smc_lock_blocks(note) && smc_fx_bus_now(note) < 0 &&
-        (note == 0x5Bu || note == 0x5Cu || note == 0x5Fu ||
+        (note == 0x5Fu ||
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);

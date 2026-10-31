@@ -27,6 +27,10 @@ order_helpers += re.search(r'^static int part_at\(.*', ui_source, re.M)[0] + '\n
 order_helpers += re.search(r'^static int part_is_303\(.*', ui_source, re.M)[0] + '\n'
 for helper in ('part_position', 'part_neighbor'):
     order_helpers += re.search(r'^static int '+helper+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M|re.S)[0] + '\n'
+# Cue notifications use the production text writers too.
+ui_source = (root / 'firmware/src/app/ui.c').read_text()
+for name in ('put_s', 'put_i'):
+    helpers.append(re.search(r'^static char \*'+name+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M | re.S)[0])
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -35,7 +39,8 @@ harness = r'''
 #include "smc_fx_harness_stubs.h"
 #define NKIT 2
 enum { NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
-static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
+static struct { int part, overlay, view, song_sel, help, sel[2]; uint32_t msg_until; } ui;
+static uint32_t plat_ms(void) { return 1000u; }
 static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages,lock_mixsel; uint8_t lock_sel[2],mixer_page[40][5]; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
 static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
@@ -66,7 +71,8 @@ static void smc_record_toggle(void) {}
 #define smc_select_drum(k,t) ((void)(k),(void)(t),build_pages())
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
-static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
+static char notice[32];
+static void ui_say(const char *a,const char *b) { strcpy(notice,a);if(b)strcat(notice,b);ui.msg_until=plat_ms()+1300u; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }
@@ -107,6 +113,11 @@ int main(void) {
     ui.overlay=O_ASK; tap=-1; smc_button(5,0); assert(tap==B_SEL);
     tap=-1; smc_button(6,0); assert(tap==B_HOME);
     ui.overlay=O_NONE; ui.help=1; smc_button(6,0); assert(!ui.help);
+    smc.part=0; seq.ppat[0]=3; seq.pcue[0]=0xff;
+    smc_button(0x5c,0); assert(seq_cue_of(&seq,0)==4 && !strcmp(notice,"NEXT: PAT 5"));
+    assert(ui.msg_until==plat_ms()+1000u);
+    smc_button(0x5b,0); assert(seq_cue_of(&seq,0)==-1 && !strcmp(notice,"NEXT: PAT --"));
+    assert(ui.msg_until==plat_ms()+1000u);
     return 0;
 }
 '''

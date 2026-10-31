@@ -6,7 +6,7 @@ Normal SMC navigation leaves keyboard view/part/mixer selection/pages unchanged.
 Explicit dialog answers and Help dismissal retain their keyboard-owned actions.
 
 [Transport correction and fresh proof](TRANSPORT.md): PLAY and MMC Play/Stop open
-no popup; Rewind/Forward show the cued pattern in the existing action popup.
+no popup; Rewind/Forward show the cued pattern glyph, arrow and number in the existing top notification bar for 1000 ms.
 
 Outside keyboard clip stages, note5 opens the SMC main-parts mixer (MIX page0);
 in a clip stage it is the SMC GLOBAL/BACK shortcut. Note6 is HOME/SONG and dismisses
@@ -16,16 +16,16 @@ SMC BANK/PAGE controls still retarget within that context, and unlock keeps its 
 
 | Model | Static RAM used | Free RAM | Base free | Pool free | App bytes |
 |---|---:|---:|---:|---:|---:|
-| Elite | 95872 B | 2432 B | 2352 B | 8536 B | 497868 B |
-| Pro | 95872 B | 2432 B | 2352 B | 8536 B | 497852 B |
+| Elite | 95872 B | 2432 B | 2352 B | 8536 B | 498092 B |
+| Pro | 95872 B | 2432 B | 2352 B | 8536 B | 498076 B |
 
 Both native builds PASS, SDK V1.2.1, `X0X_DEV_PADCAL=0`. The bounded descriptor
 cache and captured context cost 64 B versus the pre-audit PR head (2496 B free),
 while retaining 80 B more free RAM than 0.0.23. Firmware binaries are not included.
 
 SMC/mixer validation: **47 PASS / 0 FAIL / 0 selected NOT_RUN**, including all
-nine previously failing selectors and 4183 popup checks. [Results](TESTS.md).
-The PLAY/MMC no-popup and Rewind/Forward cue-popup regressions pass.
+nine previously failing selectors and 4958 popup checks. [Results](TESTS.md).
+The PLAY/MMC no-popup and Rewind/Forward cue-notice regressions pass.
 Full host suite and device validation NOT_RUN. This remains DRAFT.
 
 [Before/after contact sheet](framebuffer/before-after.png); each individual PNG in
@@ -34,7 +34,7 @@ Full host suite and device validation NOT_RUN. This remains DRAFT.
 `controlled-dismiss.png` are byte-identical with no musical edit. The 1-16 header
 and orange markers in the edited example come from length 16→17 and unsaved state,
 not a keyboard-header change. Grid values omit units consistently; the large
-readout retains units. Visual approval is required before merge.
+readout retains units. The owner approved the pattern notification without preview; no visual approval wait remains.
 
 Provenance: restored guard/modal/HOME fragments from base `bb190749` already in
 branch ancestry; retained existing encoder-bank behavior. `git cherry` checked

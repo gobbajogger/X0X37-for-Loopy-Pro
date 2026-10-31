@@ -4823,6 +4823,8 @@ static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uin
 }
 #define sound_slab night_panel
 
+static void pat_glyph_row(int32_t x, int32_t y, const uint8_t strength[8], uint16_t c, int current);
+
 static UI_DRAW void draw_header(void)
 {
 #if BOARD_SMK37
@@ -4837,7 +4839,24 @@ static UI_DRAW void draw_header(void)
     night_panel(0,0,240,HDR_H,0);
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
         box(0, 0, 240, HDR_H - 1, part_col());
-        text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
+        if (!memcmp(ui.msg, "NEXT: PAT ", 10)) {
+            int pattern=0, n=10;
+            while (n<(int)sizeof ui.msg-1 && ui.msg[n]>='0' && ui.msg[n]<='9' && pattern<=NPAT)
+                pattern=pattern*10+ui.msg[n++]-'0';
+            put_s(put_s(b, "> "), ui.msg+10);
+            x=(240-tw(&FONT_B,"NEXT")-6-12-6-tw(&FONT_B,b))/2;
+            x=cv_text(x,vc(&FONT_B,0,HDR_H-1),&FONT_B,"NEXT",C_BLACK)+6;
+            frame(x,1,12,17,C_BLACK);
+            if (!ui.msg[n] && pattern>0 && pattern<=NPAT) {
+                for (int pos=0;pos<NPARTS;pos++) {
+                    uint8_t strength[8];
+                    home_pattern_strength8(&proj.pat[pattern-1],proj.arr.lane,pattern-1,part_at(pos),
+                                           proj.set.accent_q7,T_VEL,strength);
+                    pat_glyph_row(x+2,2+pos*3,strength,C_BLACK,0);
+                }
+            }
+            cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,b,C_BLACK);
+        } else text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
         cv_commit(0, 0, 0);
         return;
     }
@@ -8179,8 +8198,13 @@ void ui_frame(void)
         *h = (uint8_t)(*h - (*h >> 3) - (*h ? 1 : 0));
     }
 #if BOARD_SMK37
-    if (smc_ui_active())
+    if (smc_ui_active()) {
         smc_ui_draw();
+        /* Pattern cues use the existing header toast above a retained popup. */
+        if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 &&
+            !memcmp(ui.msg, "NEXT: PAT ", 10))
+            draw_header();
+    }
     else
 #endif
     {

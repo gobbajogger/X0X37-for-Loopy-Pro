@@ -67,11 +67,11 @@ int main(void)
     smc_slot=0;smc_release(16);CHECK(!smc_hold_any(smc.held));
     smc_slot=1;CHECK(smc_hold_any(smc.held));smc_release(16);CHECK(!smc_hold_any(smc.held));
     smc_slot=0;smc_button(0x5d,0);smc_button(0x5d,0);CHECK(lock_down_count==1);smc_release(0x5d);CHECK(lock_up_count==1);
-    /* PLAY owns transport only; REW/FWD retain their existing action cards. */
+    /* Transport and pattern cue inputs never create an action card. */
     for(int mmc=0;mmc<2;mmc++) {
         smc_ui_cancel();smc_button(0x5e,mmc);CHECK(!smc_ui_active());smc_release(0x5e);
-        smc_button(0x5b,mmc);CHECK(smc_ui_active());CHECK(smc_ui.kind==3);CHECK(smc_ui.action==0x5b);smc_release(0x5b);
-        smc_button(0x5c,mmc);CHECK(smc_ui_active());CHECK(smc_ui.kind==3);CHECK(smc_ui.action==0x5c);smc_release(0x5c);
+        smc_button(0x5b,mmc);CHECK(!smc_ui_active());smc_release(0x5b);
+        smc_button(0x5c,mmc);CHECK(!smc_ui_active());smc_release(0x5c);
     }
     /* Exercise the real FX navigation release branch as well as ordinary input. */
     fx_bus=0;now=100;smc_button(5,0);CHECK(smc.fx_nav_armed&1u);

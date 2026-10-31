@@ -5,9 +5,11 @@ test inputs recorded in `verification.json`. All nine reported failures are
 resolved. The runner's unselected package footer is outside these selectors.
 Full repository host suite and physical hardware checks remain NOT_RUN.
 
-The firmware is unchanged from `ee89337b`: PLAY and MMC Play/Stop open no popup;
-Rewind/Forward reuse the existing kind-3 popup with the cued pattern. Popup
-integration passes 4183 checks. No keyboard navigation writes or new UI added.
+PLAY and MMC Play/Stop open no popup. RW/FF show NEXT, the reused HOME pattern
+glyph, arrow and number in the existing 1000 ms header toast; existing popups stay
+in place. Popup integration passes 4958 checks. smc_connected is bounded by
+SMC_PEERS; 22 link cases pass UBSan/bounds in default one-peer and optional
+two-peer builds. No keyboard navigation writes, new renderer or persistent state.
 
 The fixes repair stale test fixtures and expectations:
 
@@ -27,11 +29,9 @@ Clip coverage: 4860 checks through three queues, five keyboard clip/fallback
 modes and visible/menu/help/confirmation states. UI 8196, lock 900 and SELECT
 5303 checks pass. All fourteen existing UI production mutations are rejected.
 
-Elite/Pro native build evidence is reused for identical firmware, tools,
-configuration and dependencies: SDK V1.2.1, X0X_DEV_PADCAL=0, 2432 B free RAM
-and 8536 B pool free each. Firmware source SHA-256:
-`8edbb7fc6e1b6233898b93542ff11f020b360c7ea511d49173941a87ef054ae2`.
-No binaries, flashing, protected-path edits or hardware claims.
+Fresh Elite/Pro native builds PASS: SDK V1.2.1, X0X_DEV_PADCAL=0, 2432 B free RAM
+and 8536 B pool free each. Source/test hashes are recorded in verification.json.
+No firmware binaries, flashing, protected-path edits or hardware claims.
 
 | Selector | Result |
 |---|---|
