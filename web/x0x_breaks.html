@@ -386,14 +386,18 @@ async function connect() {
   if (!navigator.requestMIDIAccess) throw new Error("USB MIDI is unavailable here. Use Chrome or Edge over HTTPS or localhost.");
   const access = await navigator.requestMIDIAccess({ sysex: true }); midi = access;
   const inputs = [...access.inputs.values()].filter((p) => p.state !== "disconnected"), outputs = [...access.outputs.values()].filter((p) => p.state !== "disconnected");
-  const pairs = inputs.filter((input) => /x0x|felucca|smk|elite|mke-p37|fm-1/i.test(input.name || "") &&
+  // No name gate (USB names change between firmwares): pair in/out ports, then only a unit that answers the slot handshake counts.
+  const pairs = inputs.filter((input) =>
     inputs.filter((p) => p.name === input.name).length === 1 && outputs.filter((p) => p.name === input.name).length === 1);
-  if (pairs.length !== 1) throw new Error("Connect one keyboard with an unambiguous MIDI input/output pair, then try again.");
-  const input = pairs[0], output = outputs.find((p) => p.name === input.name);
-  await input.open(); await output.open();
-  const next = new Link(input, output, access);
-  try { await next.retry(1, [], 1000); return next; }
-  catch (e) { next.close(); throw e; }
+  const found = [];
+  for (const input of pairs) {
+    const output = outputs.find((p) => p.name === input.name);
+    try { await input.open(); await output.open(); } catch (_) { continue; }
+    const next = new Link(input, output, access);
+    try { await next.retry(1, [], 1000); found.push(next); } catch (_) { next.close(); }
+  }
+  if (found.length !== 1) { found.forEach((l) => l.close()); throw new Error("Connect one keyboard with an unambiguous MIDI input/output pair, then try again."); }
+  return found[0];
 }
 
 function unpack7(a) {
