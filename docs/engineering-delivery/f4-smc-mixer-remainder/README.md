@@ -2,6 +2,8 @@
 
 Source candidate only. Tests, native builds, static RAM measurements and new framebuffer captures are **NOT_RUN** because the target `AGENTS.md` forbids builds and tests in Codex. The owner's brief assigns those runs to the Orchestrator's box. Keep the PR draft; owner visual approval is required before merge.
 
+The [owner glyph-rule follow-up](UI_GLYPHS.md) uses pre-change pin `97282d7fed8859f337d606d4880cb095b1ce2591` for its additional before/after scenes. It replaces action/navigation prose with compact pictures while keeping exact values and names. Its captures and runtime qualification are also pending; no historical image is presented as new-head evidence.
+
 ## Stack and overlap checked first
 
 Pinned base: #789 `02c5224d12c7a96c0061fea71f13de04de58741b`.

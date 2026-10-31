@@ -973,6 +973,28 @@ static const char *smc_button_caption(int note)
     return view == V_HOME ? "HOME" : view == V_MIX ? "MIX" : view == V_PART ? "PART" : "FX";
 }
 
+/* Keep routing captions authoritative; only their unambiguous pictures replace ink. */
+static int smc_button_symbol(int note)
+{
+    const char *s=smc_button_caption(note);
+    if (!s[0] || s[0]=='-' || s[0]=='X') return UI_G_NONE;
+    if (smc_fx_bus_now((uint8_t)note)>=0 && strcmp_s(s,"CYC")) return UI_G_NONE;
+    if (!s[1]) return s[0]=='R'?UI_G_RECORD:s[0]=='M'?UI_G_MUTE:s[0]=='S'?UI_G_SOLO:UI_G_NONE;
+    if (!strcmp_s(s,"NEXT")) return UI_G_NEXT;
+    if (!strcmp_s(s,"PREV") || !strcmp_s(s,"BACK")) return UI_G_PREV;
+    if (!strcmp_s(s,"HOME")) return UI_G_HOME;
+    if (!strcmp_s(s,"MIX") || !strcmp_s(s,"MST")) return UI_G_MIX;
+    if (!strcmp_s(s,"SEQ")) return UI_G_PATTERN;
+    if (!strcmp_s(s,"SONG")) return UI_G_SONG;
+    if (!strcmp_s(s,"PART")) return UI_G_SOUND;
+    if (!strcmp_s(s,"GLOB")) return UI_G_GLOBE;
+    if (!strcmp_s(s,"LIST")) return UI_G_LIST;
+    if (!strcmp_s(s,"SEL")) return UI_G_SELECT;
+    if (!strcmp_s(s,"OK")) return UI_G_CHECK;
+    if (!strcmp_s(s,"CYC")) return UI_G_CYCLE;
+    return UI_G_NONE;
+}
+
 /* The encoder and fader use the same bounded native value rendering. Keeping
  * one outline avoids duplicating formatting and width trimming in every grid. */
 static UI_DRAW void smc_ui_strip_value(pref_t r, int x, int y, uint16_t color)
@@ -1066,10 +1088,19 @@ static UI_DRAW void smc_ui_grid(void)
             const char *caption = smc_button_caption(note);
             if (caption[0] == 'X' || caption[0] == '-') c = C_DIM;
             cv_rect(x + 8, y, 22, 11, C_LINE);
-            const felucca_font_t *font = tw(&FONT_T, caption) <= 20 ? &FONT_T : &FONT_XS;
-            const capm_t *cap = caps(font);
-            int text_y = y + 1 + (9 - (cap->bot - cap->top + 1)) / 2 - cap->top;
-            text_c(x + 19, text_y, font, caption, c);
+            int symbol=smc_button_symbol(note);
+            if (symbol) {
+                ui_pictogram(x+14,y+1,symbol,1,c);
+                if (symbol==UI_G_RECORD || symbol==UI_G_MUTE || symbol==UI_G_SOLO) {
+                    cv_rect(x+26,y+4,3,3,c);
+                    if (!smc_led(note)) cv_rect(x+27,y+5,1,1,C_BLACK);
+                }
+            } else {
+                const felucca_font_t *font = tw(&FONT_T, caption) <= 20 ? &FONT_T : &FONT_XS;
+                const capm_t *cap = caps(font);
+                int text_y = y + 1 + (9 - (cap->bot - cap->top + 1)) / 2 - cap->top;
+                text_c(x + 19, text_y, font, caption, c);
+            }
         }
         smc_ui_strip_value(f, x + 15, 122, fc);
     }
@@ -1078,7 +1109,8 @@ static UI_DRAW void smc_ui_grid(void)
 static void smc_ui_draw_peer(void)
 {
     char name[24], num[32], unit[12], tag[80];
-    const char *status = "ACTIVE";
+    const char *status = 0;
+    int status_symbol=UI_G_CHECK, value_symbol=UI_G_NONE, action_state=-1, target_number=0;
     pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) : smc_target(smc_ui.strip);
     int kit = smc_drum_mix();
     cv_begin(240, HDR_H, C_BLACK);
@@ -1086,25 +1118,24 @@ static void smc_ui_draw_peer(void)
         static const char *const main_bank[] = {"CUT+FX", "PAN+FX", "RVB+FX", "DLY+FX"};
         static const char *const drum_bank[] = {"PAN", "REVERB", "DELAY"};
         smc_context_t context = smc_context();
-        char *end = put_s(tag, smc.locked ? "LOCK " : "");
+        char *end = put_s(tag, "");
         if (kit >= 0) {
             end = put_i(put_s(put_s(end, PART_N[kit]), " B"),
                         (smc.locked ? smc.lock_bank / 8 : smc.sel[kit] / 8) + 1);
             put_s(put_s(end, " "), drum_bank[smc.knob_bank % 3u]);
         } else if (context.view == V_HOME || (context.view == V_MIX && smc_page_now() == 0)) {
-            put_s(put_s(end, "KNOBS "), main_bank[smc.knob_bank % 4u]);
+            put_s(end, main_bank[smc.knob_bank % 4u]);
         } else {
             int count = smc_page_count();
             int page = count ? (smc_page_now() + smc.knob_bank * 2u) % count : 0;
             char page_name[12];
             smc_page_name(page, page_name);
-            end = put_s(end, "KNOBS ");
             if (context.view == V_PART || context.view == V_SEQ || context.view == V_GEN)
                 end = put_s(put_s(end, part_s(context.part)), " ");
             end = put_i(put_s(end, "P"), page + 1);
             put_s(put_s(end, " "), page_name);
         }
-        while (tw(&FONT_XS, tag) > 165) {
+        while (tw(&FONT_XS, tag) > (smc.locked?167:180)) {
             /* Keep complete words beside the physical-control indicator. */
             char *space = tag;
             for (char *at = tag; *at; at++)
@@ -1113,9 +1144,18 @@ static void smc_ui_draw_peer(void)
             *space = 0;
         }
     }
-    cv_text(5, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
-    put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "KNOB " : "FADER "), smc_ui.strip + 1);
-    text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
+    if (smc.locked) ui_pictogram(5,5,UI_G_LOCK,1,C_HI);
+    ui_pictogram(smc.locked?18:5,5,UI_G_KNOB,1,C_GRAY);
+    cv_text(smc.locked?31:18, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
+    int control=smc_ui.kind==3?UI_G_KEY:smc_ui.kind==1 || smc_ui.kind==2?UI_G_KNOB:UI_G_FADER;
+    if (smc_ui.kind==3 && smc_ui.action>=0x5D) {
+        control=smc_ui.action==0x5F?UI_G_RECORD:smc_ui.action==0x5E?UI_G_PLAY:UI_G_STOP;
+        ui_pictogram(221,5,control,1,C_HI);
+    } else {
+        ui_pictogram(209,5,control,1,C_HI);
+        put_i(tag, smc_ui.strip+1);
+        text_r(235,vc(&FONT_S,0,HDR_H),&FONT_S,tag,C_HI);
+    }
     cv_commit(0, 0, 0);
     cv_begin(240, 2 * BAND_H, C_BLACK);
     cv_band(0, 2 * BAND_H);
@@ -1138,42 +1178,61 @@ static void smc_ui_draw_peer(void)
                                     bus, smcfx_button((uint8_t)note));
             if (fx == SMCFX_EMPTY) put_s(num, "--");
             else put_s(num, SMCFX_LONG[fx]);
-            status = (smc.fx_down & (uint8_t)(1u << bus)) ? "HOLD" : SMCFX_PAGE_NAME[smc.fx_page];
+            status = SMCFX_PAGE_NAME[smc.fx_page];
+            status_symbol=(smc.fx_down & (uint8_t)(1u<<bus))?UI_G_HOLD:UI_G_PATTERN;
         } else {
-            const char *action = note >= 0x5D ? "TRANSPORT" : note < 8 ? "RECORD" : note < 16 ? "SOLO" : "MUTE";
             if (note < 24) {
                 if (kit < 0 && smc_ui.strip == 7) r = PR(R_ENG, T_FX, 0, FX_VOLUME);
                 smc_ui_label(r, name);
                 if (note >= 16) {
                     char *end = name;
                     while (*end && *end != ' ') end++;
-                    put_s(end, " MUTE");
+                    *end=0; /* The picture carries MUTE; retain its destination name. */
                 }
-            } else put_s(name, "TRANSPORT");
-            put_s(put_s(put_s(num, action), " "), note >= 0x5D ?
-                  (note == 0x5F ? ui.rec ? "REC ON" : "REC OFF" : seq.playing ? "PLAYING" : "STOPPED") :
-                  (note < 8 ? ui.rec : smc_led(note)) ? "ON" : "OFF");
+            } else name[0]=0;
+            value_symbol=note>=0x5D?(note==0x5F?UI_G_RECORD:seq.playing?UI_G_PLAY:UI_G_STOP):
+                note<8?UI_G_RECORD:note<16?UI_G_SOLO:UI_G_MUTE;
+            action_state=note>=0x5D?(note==0x5F?ui.rec:seq.playing):note<8?ui.rec:smc_led(note);
+            num[0]=0;
+            status_symbol=UI_G_NONE; /* Result is shown by the positional toggle. */
         }
         unit[0] = 0;
     } else if (smc_ui.kind == 1 && r.kind == R_NONE) {
         smc_ui_label(smc_page_target(smc_ui.strip), name);
-        put_i(put_s(num, "ON FADER "), smc_fader_of(smc_page_target(smc_ui.strip)));
-        unit[0] = 0; status = "USE FADER";
+        target_number=smc_fader_of(smc_page_target(smc_ui.strip));
+        put_i(num,target_number);
+        value_symbol=status_symbol=UI_G_FADER;
+        unit[0] = 0;
     } else {
         smc_ui_label(r, name);
         pref_value_of(r, pref_get(r), num, unit);
         if (smc_ui.kind == 0 && !(smc.picked & (1u << smc_ui.strip)))
-            status = smc.last[smc_ui.strip] < smc_scaled(r) ? "PICKUP: MOVE UP TO TARGET" : "PICKUP: MOVE DOWN TO TARGET";
+            status_symbol=smc.last[smc_ui.strip]<smc_scaled(r)?UI_G_UP:UI_G_DOWN;
     }
     text_c(120, 4, tw(&FONT_S, name) > 232 ? &FONT_XS : &FONT_S, caps_of(name), C_WHITE);
-    { const felucca_font_t *font = &FONT_M;
+    if (action_state>=0) {
+        ui_pictogram(96,23,value_symbol,2,C_HI);
+        ui_state_toggle(126,28,action_state,C_HI);
+    } else { const felucca_font_t *font = &FONT_M;
       int uw = unit[0] ? tw(&FONT_XS, unit) + 2 : 0;
       if (tw(font, num) + uw > 228) font = &FONT_B;
-      int x = 120 - (tw(font, num) + uw) / 2;
+      int gw=value_symbol?22:0;
+      int x = 120 - (tw(font, num) + uw + gw) / 2;
+      if (value_symbol) {ui_pictogram(x,24,value_symbol,2,C_HI);x+=gw;}
       x = cv_text(x, 22, font, num, C_HI);
       if (unit[0]) cv_text(x + 2, base_y(font, 22, &FONT_XS), &FONT_XS, unit, C_GRAY);
     }
-    text_c(120, 49, &FONT_XS, status, C_HI);
+    if (status) {
+        int x=120-(12+tw(&FONT_XS,status))/2;
+        ui_pictogram(x,49,status_symbol,1,C_HI);
+        cv_text(x+12,49,&FONT_XS,status,C_HI);
+    } else if (status_symbol==UI_G_UP || status_symbol==UI_G_DOWN) {
+        ui_pictogram(108,49,status_symbol,1,C_HI);
+        ui_pictogram(123,49,UI_G_TARGET,1,C_WHITE);
+    } else if (status_symbol) {
+        ui_pictogram(target_number?108:116,49,status_symbol,1,C_HI);
+        if (target_number) {put_i(tag,target_number);cv_text(121,49,&FONT_XS,tag,C_HI);}
+    }
     cv_commit(3, 0, KNOB_Y);
 }
 void smc_ui_draw(void)

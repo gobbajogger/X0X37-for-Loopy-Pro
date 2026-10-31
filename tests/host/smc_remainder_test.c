@@ -204,6 +204,88 @@ static void retained_contracts(void)
     now_ms+=2; CHECK(!smc_ui_active());
 }
 
+#ifndef F4_CAPTURE_DRIVER
+static void footer_toggle_is(int on)
+{
+    smc_ui_draw_peer();
+    CHECK((fb[(KNOB_Y+32)*240+129]!=0)==!on);
+    CHECK((fb[(KNOB_Y+32)*240+140]!=0)==!!on);
+}
+static void pictured_action_states(void)
+{
+    setup(V_HOME,PART_303B);
+    tap(0); CHECK(ui.rec); footer_toggle_is(1);
+    tap(0); CHECK(!ui.rec); footer_toggle_is(0);
+    tap(16); CHECK(part_muted(PART_909)); footer_toggle_is(1);
+    tap(16); CHECK(!part_muted(PART_909)); footer_toggle_is(0);
+    message(0x90,8,127); CHECK(smc.solo); footer_toggle_is(1);
+    message(0x80,8,0); CHECK(!smc.solo); footer_toggle_is(0);
+    tap(0x5e); render_audio(1); CHECK(seq.playing); footer_toggle_is(1);
+    tap(0x5e); render_audio(1); CHECK(!seq.playing); footer_toggle_is(0);
+    setup(V_FX,PART_303B); message(0x90,24,127); smc_ui_draw_peer();
+    CHECK(smc.fx_down&1u); memcpy(before_fb,fb,sizeof fb);
+    message(0x80,24,0); smc_ui_draw_peer(); CHECK(!(smc.fx_down&1u));
+    CHECK(changed_rows(KNOB_Y+49,KNOB_Y+58,before_fb,fb)>0);
+    setup(V_MIX,PART_909); smc_page_set(1); tap(0x2f);
+    CHECK(smc_button_symbol(23)==UI_G_NONE && !strcmp(smc_button_caption(23),"--"));
+}
+static void composed_header_cues(void)
+{
+    setup(V_SEQ,PART_303B);
+    seq.bpm=120; seq.ext=0; seq.ppat[PART_303B]=63;
+    proj.pat[63].bass[PART_303B-PART_303A].len=64;
+    ui.spage=3; seq.chain_a=seq.chain_b=0; seq.pcue[PART_303B]=0xff;
+    ui.msg_until=0; ui.frame=16; draw_header(); memcpy(before_fb,fb,sizeof fb);
+    seq.chain_b=1; draw_header();
+    for(int y=0;y<HDR_H;y++)
+        CHECK(!memcmp(before_fb+y*240+191,fb+y*240+191,22*sizeof *fb));
+    seq.pcue[PART_303B]=62; draw_header(); memcpy(active_fb,fb,sizeof fb);
+    ui.spage=0; seq.chain_b=0; draw_header();
+    CHECK(!memcmp(active_fb,fb,HDR_H*240*sizeof *fb)); /* Pending cue owns annotation space. */
+    for(int y=0;y<HDR_H;y++)
+        CHECK(!memcmp(before_fb+y*240+191,fb+y*240+191,22*sizeof *fb));
+}
+/* Catches oversized cell glyphs, colour-only state and cue/tempo collisions. */
+static void pictogram_rendering(void)
+{
+    setup(V_HOME,PART_303B);
+    for(int g=UI_G_NONE+1;g<UI_G_COUNT;g++) {
+        cv_begin(240,HDR_H,C_BLACK); ui_pictogram(20,4,g,1,C_WHITE); cv_commit(0,0,0);
+        unsigned ink=0;
+        for(int y=0;y<HDR_H;y++) for(int x=0;x<240;x++) {
+            if(x>=20 && x<29 && y>=4 && y<13) ink+=fb[y*240+x]!=0;
+            else CHECK(!fb[y*240+x]);
+        }
+        CHECK(ink>0);
+    }
+    cv_begin(240,HDR_H,C_BLACK); ui_state_toggle(30,4,0,C_WHITE); cv_commit(0,0,0);
+    CHECK(fb[8*240+33]!=0 && fb[8*240+44]==0);
+    memcpy(before_fb,fb,sizeof fb);
+    cv_begin(240,HDR_H,C_BLACK); ui_state_toggle(30,4,1,C_WHITE); cv_commit(0,0,0);
+    CHECK(fb[8*240+33]==0 && fb[8*240+44]!=0);
+    CHECK(memcmp(before_fb,fb,sizeof fb));
+    clip_grid_mode=1;
+    CHECK(smc_button_symbol(7)==UI_G_NEXT && smc_button_symbol(15)==UI_G_PREV);
+    CHECK(smc_button_symbol(31)==UI_G_NEXT);
+    clip_grid_mode=0;
+    CHECK(smc_button_symbol(0)==UI_G_RECORD && smc_button_symbol(8)==UI_G_SOLO);
+    CHECK(smc_button_symbol(16)==UI_G_MUTE && smc_button_symbol(31)==UI_G_MIX);
+    smc_page_set(0);
+    for(int p=1;p<=NPAT;p++) {
+        cv_begin(240,HDR_H,C_BLACK);
+        int end=ui_position_badge(UI_G_PATTERN,p,NPAT,C_WHITE,C_GRAY);
+        cv_commit(0,0,0); CHECK(end<=185);
+        for(int y=0;y<HDR_H;y++) for(int x=185;x<240;x++) CHECK(!fb[y*240+x]);
+    }
+    cv_begin(240,HDR_H,C_BLACK);
+    CHECK(ui_position_badge(UI_G_SONG,192,0,C_AMB,C_GRAY)<=185);
+    cv_commit(0,0,0);
+    screen_state_t keyboard=screen_state();
+    fader(0,0); smc_ui_draw_peer(); keyboard_unchanged(keyboard);
+    CHECK(smc_same(smc_target(0),PR(R_ENG,T_MIX,PART_909,MX_LEVEL)));
+}
+#endif
+
 /* Dedicated capture driver calls this on BOTH pins, separately from assertions. */
 static void capture_scenes(void)
 {
@@ -227,6 +309,36 @@ static void capture_scenes(void)
     tap(0x61); smc_ui_draw_peer(); shot("clip-knob-bank");
     setup(V_HOME,PART_303B); tap(31); fader(0,0);
     smc_ui_draw_peer(); shot("select8-mix");
+    setup(V_HOME,PART_303B); seq.ppat[PART_909]=63; seq.pcue[PART_909]=62;
+    ui.msg_until=0; ui.frame=16; draw_header(); shot("glyph-pattern-cue");
+    ui.frame=0; draw_header(); shot("glyph-pattern-cue-dim");
+    seq.song_on=1; seq.song_pos=191; seq.playing=1;
+    draw_header(); shot("glyph-song-position");
+    setup(V_SEQ,PART_303B); seq.bpm=120; seq.ext=0; seq.ppat[PART_303B]=63;
+    proj.pat[63].bass[PART_303B-PART_303A].len=64;
+    ui.spage=3; seq.chain_a=seq.chain_b=0; seq.pcue[PART_303B]=0xff;
+    ui.msg_until=0; draw_header(); shot("glyph-pattern-range");
+    seq.chain_b=1; draw_header(); shot("glyph-pattern-chain");
+    setup(V_HOME,PART_303B); pref_set(smc_target(0),100); fader(0,0);
+    smc_ui_draw_peer(); shot("glyph-main-mixer"); shot("glyph-pickup-up");
+    fader(0,127); smc_ui_draw_peer(); shot("glyph-acquired");
+    smc.picked=0; pref_set(smc_target(0),0); smc_ui_begin(0,0);
+    smc_ui_draw_peer(); shot("glyph-pickup-down");
+    tap(0x5d); smc_ui_draw_peer(); shot("glyph-locked-mixer");
+    tap(0x61); smc_ui_draw_peer(); shot("glyph-knob-bank");
+    setup(V_HOME,PART_303B); tap(0); smc_ui_draw_peer(); shot("glyph-record-on");
+    tap(0); smc_ui_draw_peer(); shot("glyph-record-off");
+    tap(16); smc_ui_draw_peer(); shot("glyph-mute-on");
+    tap(16); smc_ui_draw_peer(); shot("glyph-mute-off");
+    message(0x90,8,127); smc_ui_draw_peer(); shot("glyph-solo-held");
+    message(0x80,8,0); smc_ui_draw_peer(); shot("glyph-solo-release");
+    tap(0x5e); render_audio(1); smc_ui_draw_peer(); shot("glyph-play");
+    tap(0x5e); render_audio(1); smc_ui_draw_peer(); shot("glyph-stop");
+    setup(V_FX,PART_303B); message(0x90,24,127);
+    smc_ui_draw_peer(); shot("glyph-fx-held");
+    message(0x80,24,0); smc_ui_draw_peer(); shot("glyph-fx-idle");
+    setup(V_MIX,PART_909); smc_page_set(1); tap(0x2f); fader(0,0);
+    smc_ui_draw_peer(); shot("glyph-drum-bank2");
 }
 
 #ifndef F4_CAPTURE_DRIVER
@@ -234,7 +346,8 @@ int main(void)
 {
     CHECK(X0X_ORIGINAL_SYNTH==1 && PROJ_SND_REV==13);
     strip8_modes(); clip_stage_and_banks(); clip_stage_drum_contexts(); locked_navigation_and_fx();
-    clock_icons(); retained_contracts();
+    clock_icons(); retained_contracts(); pictogram_rendering();
+    pictured_action_states(); composed_header_cues();
     printf("smc-remainder: %u checks PASS\n",checks);
     return 0;
 }
