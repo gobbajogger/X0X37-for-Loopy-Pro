@@ -55,6 +55,16 @@ typedef struct {
     uint32_t data_len, crc, rsv2[2];
     smp_zone_t zone[16];
 } smp_user_hdr_t;                                   /* 32 + 16 x 28 = 480 B, data at +512 */
+_Static_assert((SMP_USER_OFF(0) & 3u) == 0, "sample header alignment");
+static inline const smp_user_hdr_t *smp_hdr(const uint8_t *p)
+{
+#if X0X_DEBUG || defined(X0X_HOST)
+    /* Debug assertion without a freestanding libc assert dependency. */
+    if ((uintptr_t)p & 3u)
+        __builtin_trap();
+#endif
+    return __builtin_assume_aligned(p, 4);
+}
 static uint8_t usr_nz[SMP_USER_SLOTS];
 
 #ifndef SMP_USER_XIP                                /* host: a RAM image of the slots */
@@ -71,7 +81,7 @@ static const uint8_t *smp_user_xip(uint32_t k) { return SMP_USER_XIP(k); }
  * (mid-rewrite abort past 0x1000) would still set usr_nz. */
 static void smp_user_scan(uint32_t k)
 {
-    const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(k);
+    const smp_user_hdr_t *h = smp_hdr(smp_user_xip(k));
     uint32_t i;
     usr_nz[k] = 0;
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
