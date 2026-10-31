@@ -6,8 +6,10 @@ expect clksrc 0
 expect setbyte27 8
 expect setbyte38 0
 tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
 turn ALGO 2
-tap HOME
+tap GLO
 expect clksrc 2
 wait 6000
 expect storeset23 13
@@ -30,8 +32,10 @@ expect setbyte38 11
 expect setbyte39 18
 expect clkext 0
 tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
 turn ALGO -1
-tap HOME
+tap GLO
 expect clksrc 0
 tap SAVE
 wait 100
