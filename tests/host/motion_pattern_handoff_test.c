@@ -81,6 +81,60 @@ static int check_order(int old_first, int use_tick)
     fprintf(stdout,"BF024 order=%s tick=%d: %d passed, %d failed\n", old_first?"old-first":"new-first",use_tick,passed,errors);
     return errors;
 }
+static int restores;
+static void restore_value(void *ctx, int t, int v, int i)
+{
+    /* Separate callback exercises the engine's exact-base restore route. */
+    restores++;
+    write_value(ctx, t, v, i, read_base(ctx, t, v, i));
+}
+
+/* N6: a destination without a lane must sound the current knob base,
+ * including with the exact-base callback used by the firmware engine. */
+static int check_unautomated_pattern(int exact_restore)
+{
+    static lane_t lanes[NLANE];
+    static motion_t m;
+    synth_t s = {{11, 35}, {0, 0}, {11, 35}};
+    int errors = 0, passed = 0;
+    memset(lanes, 0, sizeof lanes);
+    motion_init(&m, lanes);
+    restores = 0;
+    m.ctx = &s;
+    m.base = read_base;
+    m.apply = write_value;
+    if (exact_restore) m.restore = restore_value;
+    int old = motion_alloc(lanes, 0, 0, 7, 3, 2);
+    int other = motion_alloc(lanes, 0, 1, 8, 2, 0);
+    CHECK(old >= 0 && other >= 0, "N6 lanes allocated");
+    if (old < 0 || other < 0) return errors;
+    lanes[old].val[0] = 94;
+    lanes[other].val[0] = 71;
+    motion_step(&m, 0, 0, 0, 1, 16);
+    motion_step(&m, 1, 0, 0, 1, 16);
+    CHECK(s.p[0] == 94, "N6 outgoing pattern lock sounds");
+    s.base[0] = 19; /* Restore the current base, not the value at lane onset. */
+    motion_step(&m, 0, 2, 0, 1, 16);
+    CHECK(s.p[0] == 19, "N6 no-lane destination restores current knob base");
+    CHECK(restores == exact_restore, "N6 exact-base callback is used when supplied");
+    CHECK(motion_value(&m, old) == -1, "N6 departing runtime retires");
+    CHECK(s.p[1] == 71, "N6 other part keeps its automation");
+    for (int step = 1; step < 16; step++) {
+        motion_tick(&m, 80);
+        motion_step(&m, 0, 2, step, (step + 1) % 16, 16);
+        CHECK(s.p[0] == 19, "N6 old lock never returns in unautomated pattern");
+    }
+    motion_step(&m, 0, 0, 0, 1, 16);
+    CHECK(s.p[0] == 94, "N6 original pattern lock plays on return");
+    s.base[0] = 45;
+    motion_step(&m, 0, 2, 0, 1, 16);
+    CHECK(s.p[0] == 45, "N6 second departure restores latest knob base");
+    CHECK(s.p[1] == 71, "N6 independent part remains unchanged");
+    fprintf(stdout, "N6 exact_restore=%d: %d passed, %d failed\n",
+            exact_restore, passed, errors);
+    return errors;
+}
+
 int main(void)
 {
     int failures=0;
@@ -88,5 +142,7 @@ int main(void)
     failures += check_order(0,1);
     failures += check_order(1,0);
     failures += check_order(1,1);
+    failures += check_unautomated_pattern(0);
+    failures += check_unautomated_pattern(1);
     return failures ? 1 : 0;
 }
