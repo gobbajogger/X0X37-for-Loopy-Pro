@@ -1,5 +1,29 @@
 # Offline sequencer candidate
 
+F6b source extension (2026-11-01): Note groups add rectangle/checklist selection,
+raw-cell copy/cut/paste/delete, group move/transpose and onset velocity Set.
+Previews use one Undo transaction and reject collisions or changed revisions.
+Root/scale and step snap apply only to new-note entry; the other synth can be
+shown as a labelled read-only ghost. The touch keyboard is local entry with no
+audio. Mobile Editor/Sound views cancel gestures before switching.
+
+The Community library browser supports contributor-labelled **local drafts**,
+bounded catalog imports, same-origin payloads and SHA-256 checks. The bundled
+catalog is empty. It does not yet represent full device songs or chains.
+Project file opens only representable revision-13 musical data, retaining original
+opaque bytes for export. Unsupported BREAK intent, sound/engine changes and RNG
+exports fail explicitly. Keep the original project and sample backup.
+
+Device read/write stays disabled: the active firmware lacks owner-bound
+revisioned editor transactions. See [SYNC.md](SYNC.md). TouchOSC performance
+companion source and its box-only packer are under [touchosc/](touchosc/README.md);
+no generated layout or TouchOSC runtime acceptance is claimed.
+
+**All F6b test execution, browsers/screenshots, target builds and RAM measurements
+are NOT_RUN/NOT_MEASURED here by owner instruction.** The Orchestrator owns the
+exact-head checks in [F6B-HANDOFF.md](F6B-HANDOFF.md). This source PR is not full
+acceptance of rows 90–105/119 and must remain open pending required proof.
+
 GPL-3.0-only. Dedicated page: `index.html`. Serve this directory from HTTPS or localhost with ES modules and workers enabled. Browser editing requires an exclusive origin-wide Web Lock for safe local draft writes; when unavailable, saves fail closed and the draft stays exportable. No shared website route, installer link, deployment or device adapter is included. This source-only fork of website PR #93 repairs exact-grid MIDI releases and stale file reads, prevents silent multi-tab overwrites, and adds bounded Redo. Only revision-13 firmware project files are supported elsewhere: this editor handles local draft JSON, not device project files or backups.
 
 The page edits a local32-pattern draft: separate Synth1/Synth2,64 stored synth/drum steps,16 BREAK gates/slices, source-backed sound drafts and engine bindings. Drag note bodies/edges with bounded edge auto-pan, use the Start-step inspector as a keyboard/touch alternative, edit the velocity lane, use keyboard actions, switch patterns directly, and export/open local JSON. Legacy velocity0 is preserved on note moves and shown as effective100. Complex tie-cell metadata rejects direct edits without flattening. Native browser panning and custom early pinch cancellation were exercised in Chromium phone emulation; real phone hardware remains untested. Zoom is horizontal; pitch navigation scrolls vertically. Dense-note selection has a separate Notes inspector.
