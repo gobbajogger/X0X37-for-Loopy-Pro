@@ -546,6 +546,18 @@ int original_miami_backend_render_stereo(original_miami_backend *s, original_mia
     return original_miami_backend_render_events(s, w, left, right, frames, NULL, 0);
 }
 
+int original_miami_backend_motion_view(const original_miami_backend *s, float *phase, float *bipolar,
+    float *current, float *target, int *active)
+{
+    unsigned i, k = 0;
+    if (!s || s->ready != BACKEND_READY) return 0;
+    for (i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; i++) if (s->voices[i].active) { k = i; break; }
+    *phase = s->voices[k].mg[0].phase; *bipolar = s->voices[k].mg[0].bipolar;
+    *current = s->voices[k].pitch.current[0]; *target = s->voices[k].pitch.target[0];
+    *active = s->voices[k].active != 0;
+    return 1;
+}
+
 int original_miami_backend_active(const original_miami_backend *s)
 {
     if (!original_miami_backend_status(s)) return 1;

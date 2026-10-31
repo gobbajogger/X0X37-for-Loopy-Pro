@@ -7007,12 +7007,13 @@ static UI_DRAW int orig_strip_slot(pref_t r)
  * follows drive_amount_glyph (the old knob-strip families), scaled to the cell. */
 #define OG_W 26
 #define OG_H 18
+static float og_shift;                           /* live LFO: the wave scrolls by this much of t */
 static UI_DRAW void og_wave(int gx,int gy,float (*f)(float,float),float q,uint16_t col)
 {   /* f returns -1..1 (up positive) over t 0..1 */
     int py=0;
     cv_rect(gx,gy+OG_H,OG_W,1,C_LINE);
     for(int i=0;i<OG_W;i++) {
-        float v=f((float)i/(OG_W-1),q);
+        float v=f((float)i/(OG_W-1)+og_shift,q);
         if(v>1)v=1; if(v<-1)v=-1;
         int yy=gy+OG_H/2-(int)(v*6.0f+(v<0?-.5f:.5f));
         if(i) cv_line(gx+i-1,py,gx+i,yy,col);
@@ -7034,6 +7035,11 @@ static UI_DRAW int og_states(pref_t r,int val,int *idx)
     for(int v=0;v<=127;v++){pref_value_of(r,v,a,u);if(strcmp_s(a,prev)){n++;put_s(prev,a);}if(v==val)*idx=n-1;}
     return n;
 }
+/* Chicago ENV glyph: the knee column for a filter position z (0..1). The knee
+ * travels gx+2..gx+OG_W-1-ENV_FALL (19 of 26 px), so a full EG is clear to see. */
+#define ENV_FALL 4
+static int env_knee_x(int gx,float z)
+{ z=z<0?0:z>1?1:z; return gx+2+(int)(z*(OG_W-3-ENV_FALL)+.5f); }
 static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
 {
     const x0x_param_t *d=pref_desc(r);
@@ -7054,30 +7060,44 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
         cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
         if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
-    } else if(chi && c==4) {                     /* ENV: the lowpass peak the filter EG sweeps */
-        /* Horizontal schematic of cutoff + native filter EG * signed depth.
-         * A dim target tick marks full EG; reserved travel preserves either sign. */
+    } else if(chi && c==4) {                     /* ENV: the lowpass knee the filter EG sweeps */
+        /* chicago_voice.c mp4_prepare: z = cutoff + vcf.level * env_depth. The knee
+         * and its resonance bump move LEFT/RIGHT only: x = live CUTOFF + EG x ENV.
+         * The bump height is the live PEAK and never follows the EG. A dim tick
+         * marks where a full EG takes the knee. */
         pref_t cr=PR(R_ENG,T_303,r.b,2),pr=PR(R_ENG,T_303,r.b,3);
         const x0x_param_t *dc=pref_desc(cr),*dp=pref_desc(pr);
         float cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0,pq=dp&&dp->max?(float)matrix_value(pr)/dp->max:0;
-        float depth=0,eg=0;
-        (void)engine_bass_filter_view(r.b,&eg,&depth); /* exact compiled bipolar law; pot64 is zero */
-        if(eg<0)eg=0; if(eg>1)eg=1;
-        /* Schematic, not clipped filter Hz: cutoff reserves origin columns 10..14;
-         * either depth sign has 7px travel. Knee stays in 3..21 at cutoff extremes. */
-        float origin=10.0f+cq*4.0f;
-        int pivot=gx+(int)(origin+eg*depth*7.0f+.5f);
-        int tgt=gx+(int)(origin+depth*7.0f+.5f),peak=top+2-(int)(pq*5+.5f);
+        float depth=2*q-1,eg=0,dd; if(engine_bass_filter_view(r.b,&eg,&dd)) depth=dd;
+        if(eg<0)eg=0; if(eg>1)eg=1; if(pq<0)pq=0; if(pq>1)pq=1;
+        int pivot=env_knee_x(gx,cq+eg*depth),tgt=env_knee_x(gx,cq+depth),pass=top+3;
+        int peak=pass-1-(int)(pq*5+.5f);         /* fixed by PEAK: 1..6 px above the passband */
         int energy=(int)(eg*(depth<0?-depth:depth)*6.0f+.5f);
         col=depth<0?blend(C_LINE,col,16-energy):blend(col,C_WHITE,energy);
         cv_rect(gx,bot,OG_W,1,C_LINE);
         if(tgt!=pivot) cv_rect(tgt,bot-3,1,3,C_LINE);
-        cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
-        cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
-        if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
+        if(pivot-2>gx) cv_line(gx,pass,pivot-2,pass,col);
+        cv_line(pivot-2,pass,pivot,peak,col);
+        cv_line(pivot,peak,pivot+ENV_FALL,bot,col);
+        if(pivot+ENV_FALL<right) cv_line(pivot+ENV_FALL,bot,right,bot,col);
     } else if(c==(chi?1:4)) {                    /* GLIDE: sloped pitch line, slope widens */
-        int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2;
-        cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col);
+        /* Live: a dot rides the slope as the oscillator pitch glides to the new
+         * note (current -> target from the engine); the travelled part is lit. */
+        static float from[NBASS],to[NBASS]; static uint8_t seen[NBASS];
+        int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2,b=r.b<NBASS?r.b:0,on=0;
+        float ph,bi,cu=0,tg=0,f=1;
+        if(engine_bass_motion_view(b,&ph,&bi,&cu,&tg,&on)) {
+            if(!seen[b] || tg!=to[b]) { from[b]=seen[b]?cu:tg; to[b]=tg; seen[b]=1; }
+            if(to[b]!=from[b]) f=(cu-from[b])/(to[b]-from[b]);
+        }
+        if(f<0)f=0; if(f>1)f=1;
+        int dx=x0+(int)(f*w+.5f),dy=bot-1-(int)(f*(bot-1-top)+.5f);
+        if(f>=1) { cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col); }
+        else {
+            cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,dx,dy,col);
+            cv_line(dx,dy,x0+w,top,C_LINE);cv_line(x0+w,top,right,top,C_LINE);
+            cv_rect(dx-1,dy-1,3,3,C_WHITE);
+        }
     } else if(chi && c==5) og_wave(gx,gy,og_bite,q,col);       /* BITE: soft clip */
     else if(chi && c==6) og_wave(gx,gy,og_gnaw,q,col);         /* GNAW: fold */
     else if(!chi && c==10) og_wave(gx,gy,og_crush,q,col);      /* CRUSH: bit/rate crush */
@@ -7108,9 +7128,16 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_rect(px,top-2,1,2,C_LINE);cv_rect(gx+1,bot,OG_W-2,1,C_LINE);
         cv_line(px,py,px+(int)(fm_sinf(ang)*12),py-(int)(fm_cosf(ang)*14),col);
     } else if(!chi && c==8) og_wave(gx,gy,og_fm,q,col);        /* XMOD DEPTH: FM wave */
-    else if(!chi && c==12) og_wave(gx,gy,og_lfo_amp,q,col);    /* WOBBLE depth: LFO amp */
-    else if(!chi && c==13) og_wave(gx,gy,og_lfo_rate,q,col);   /* RATE: LFO frequency */
-    else if(!chi && c==15) {                     /* STEREO: L/R spread */
+    else if(!chi && (c==12 || c==13)) {          /* WOBBLE depth / RATE: the live MG1 scrolls the wave */
+        float ph=0,bi=0,cu,tg; int on=0; float cyc=c==12?2.0f:1.0f+4.0f*q;
+        if(!engine_bass_motion_view(r.b,&ph,&bi,&cu,&tg,&on) || ph<-1 || ph>1) ph=-1;
+        og_shift=((ph+1)*.5f)/cyc;               /* one MG cycle = one drawn cycle */
+        og_wave(gx,gy,c==12?og_lfo_amp:og_lfo_rate,q,col);
+        {   float v=(c==12?og_lfo_amp:og_lfo_rate)(1.0f+og_shift,q); if(v>1)v=1; if(v<-1)v=-1;
+            int yy=gy+OG_H/2-(int)(v*6.0f+(v<0?-.5f:.5f)); /* og_wave scale */
+            cv_rect(right-1,yy-1,2,3,on?C_WHITE:col); }   /* "now": the wobble's present value */
+        og_shift=0;
+    } else if(!chi && c==15) {                     /* STEREO: L/R spread */
         int s=1+(int)(q*10+.5f),cx=gx+12;
         cv_rect(cx,top,1,OG_H-3,C_LINE);
         cv_rect(cx-s-1,mid-4,2,9,col);cv_rect(cx+s,mid-4,2,9,col);
@@ -7377,12 +7404,13 @@ static uint32_t knobs_sig(void)
         const uint8_t *cell=proj.sound.v[T_303][bidx()];
         for (unsigned byte=0; byte<ORIGINAL_SOUND_BYTES; byte++) MIXIN(cell[byte]);
         MIXIN(engine_bass_status(bidx()));
-        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN((int)(eg*dd*7.0f+.5f)); }
+        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN(env_knee_x(0,eg*dd*(eg>0))); } /* ENV glyph motion: one step per knee pixel */
         { float a=0,m=0;unsigned s=6,key=0;
           if(engine_bass_voice_view(bidx(),&a,&m,&s,&key)) {
               MIXIN((int)(a*32.0f)); MIXIN((int)(m*24.0f)); MIXIN(s); MIXIN(key);
           }
         }
+        { float ph=0,bi=0,cu=0,tg=0; int on=0; if(engine_bass_motion_view(bidx(),&ph,&bi,&cu,&tg,&on)) { MIXIN((int)(ph*64.0f)); MIXIN((int)((tg-cu)*16.0f)); } } /* wobble / glide motion */
         MIXIN(engine_bass_preset_pending(bidx()));
         MIXIN(engine_bass_requested_bank(bidx())); MIXIN(engine_bass_requested_preset(bidx()));
     }

@@ -52,5 +52,8 @@ int original_runtime_filter_view(const original_runtime_part *, float *eg, float
 int original_runtime_voice_view(const original_runtime_part *, float *level, float *modulation,
     unsigned *state, unsigned *key_down);
 int original_runtime_adsr_view(const original_runtime_part *, float values[4], unsigned *gate);
+/* UI motion view: Chicago or Miami. phase/bipolar are the Miami MG1 (0 for Chicago). */
+int original_runtime_motion_view(const original_runtime_part *, float *phase, float *bipolar,
+    float *current, float *target, int *active);
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
