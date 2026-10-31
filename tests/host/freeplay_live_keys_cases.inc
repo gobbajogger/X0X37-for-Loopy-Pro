@@ -3,7 +3,6 @@
  * give a note-on on every synth engine, at every octave, also while a settings
  * list or HELP is open on the synth page. Driven through the production
  * smk__key_event -> smk_extq/plat_outer_keys -> ui live route -> engine. */
-extern unsigned engine_live_key_probe(int voice,int field);
 static unsigned checks;
 #define T(c) do{checks++;if(!(c)){fprintf(stderr,"FAIL %d %s\n",__LINE__,#c);exit(1);}}while(0)
 #define TK(c,p,o,b) do{checks++;if(!(c)){fprintf(stderr,"FAIL %d %s (key %u oct %d bank %d)\n",__LINE__,#c,(unsigned)(p),(int)(o),(int)(b));exit(1);}}while(0)
@@ -24,7 +23,10 @@ static void fresh_keys(int bank)
     T(!engine_bass_select_preset(0,bank,0,&proj.sound));tick(200);
     T(engine_bass_bank(0)==bank);
     ui.part=PART_303A;set_view(V_PART);build_pages();ui.oct=0;
-    audio_block();ui.freeplay[0]=1;scan();scan();T(live_owner==0);T(!live_wait);
+    audio_block();ui.freeplay[0]=1;scan();scan();T(live_owner==0);
+    /* Only the admitted voice acknowledges its cancellation here. An inactive
+     * voice can retain its wait bit after audio has already released its keys. */
+    T(!(live_wait&1u));
 }
 static void set_oct(int o){ui.oct=(int8_t)o;scan();}
 static void every_key(int bank,const char *ctx)
@@ -120,6 +122,26 @@ static void owner_switches(int bank)
     edge(17,0);T(engine_bass_keys_held()&1); /* foreign MIDI source stays held */
     midi3(0x80|ch,65,0);audio_block();T(!(engine_bass_keys_held()&1));
 }
+/* Cancellation acknowledgement belongs to each voice. Exercise the inactive
+ * wait bit that a global !live_wait assertion incorrectly rejected, and prove
+ * both the active voice and the cancelled voice accept fresh physical edges. */
+static void cancelled_voice_reentry(int bank)
+{
+    fresh_keys(bank);enc_acc[EN_ALGO]=-1;scan();T(live_owner==1);
+    edge(20,100);T(engine_live_key_probe(1,2));
+    uint32_t before,after,context;int arp;
+    engine_live_key_state(1,&before,&arp,&context);
+    enc_acc[EN_ALGO]=1;scan();T(live_owner==0);
+    engine_live_key_state(1,&after,&arp,&context);
+    T(after!=before);T(!engine_live_key_probe(1,2));
+    T(!(engine_bass_keys_held()&2));T(live_wait&2u);
+    /* Selecting A must not need a visit to B to acknowledge B's cancellation. */
+    fresh_keys(bank);T(live_wait&2u);
+    edge(17,100);T(engine_live_key_probe(0,2));edge(17,0);
+    enc_acc[EN_ALGO]=-1;scan();T(live_owner==1);T(!(live_wait&2u));
+    edge(20,100);T(engine_live_key_probe(1,2));
+    edge(20,0);T(!engine_live_key_probe(1,2));
+}
 int main(int argc,char **argv)
 {
     (void)argc;(void)argv;boot();tick(300);
@@ -128,6 +150,7 @@ int main(int argc,char **argv)
         edge_keys_intermittent(bank);
         settings_do_not_swallow(bank);
         owner_switches(bank);
+        cancelled_voice_reentry(bank);
     }
     T(!irq_depth);
     printf("PASS %u checks: 37 keys x 6 octaves x {Chicago, Miami} x {EDIT, SEQ, list, HELP}, edge keys x50\n",checks);

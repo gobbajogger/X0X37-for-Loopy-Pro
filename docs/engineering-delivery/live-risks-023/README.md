@@ -56,6 +56,24 @@ were corrected and re-reviewed. The producer then strengthened the recovered
 object rewrite assertion, blocked damaged SAVE gestures without a banner, and
 extended the test cases. Reviewers performed no builds, tests or edits.
 
+The original independent QA later ran the exact `94a7a609` candidate and
+[reported](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/810#issuecomment-6548391398)
+`project-stage` PASS (25,843 checks), `synth-bus-mute` PASS (144 checks), and
+`storage-warning` PASS (15 checks), including ASan+UBSan. Free Play failed to
+compile because its serial-injection helper lacked a visible declaration;
+supplying that declaration in scratch exposed the global `!live_wait` failure.
+These are that reviewer's recorded results, not producer-run checks.
+
+The follow-up declares the host-only helpers under the same guard as their
+definitions and checks readiness only for the admitted synth. The UI acknowledges
+each synth's cancellation when that synth becomes owner; an inactive wait bit
+does not imply a sounding note. An added physical-input regression proves the
+inactive synth was released, the active synth accepts a new key, and returning
+to the cancelled synth clears its wait and accepts a fresh key. It never clears
+the cancellation state from the fixture. The same `independent_qa` reviewer
+(`6adafbbf54088191a86715d49e7dc6b0`) owns the affected test re-check. Its new
+acceptance is pending; the earlier failed Free Play run is not a pass.
+
 Run on the Orchestrator's box at the PR's verified full head SHA:
 
 ```sh
