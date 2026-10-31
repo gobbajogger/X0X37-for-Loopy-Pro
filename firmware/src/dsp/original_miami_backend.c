@@ -456,14 +456,23 @@ static int render_event_free_block(original_miami_backend *s,
         /* Inside a span no control tick and no voice change: the per-frame
          * scheduler/counter work does not touch the rendered state, so the
          * voices render the whole span (voice-major, the same sum order). */
-        for (uint32_t j = 1; j < span; ++j) {
-            if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+        /* Frames with no clock edge or key reset only move the clocks and
+         * the gate (scheduler_skip); the others run the scheduler. */
+        uint32_t rest = span - 1;
+        unsigned skippable = s->voice_owner.bpm == s->scheduler.clock_input->bpm;
+        while (rest) {
+            uint32_t k = skippable ? original_chicago_scheduler_skip(&s->scheduler, &s->clock1, rest) : 0;
+            if (!k) {
+                if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
+                k = 1;
+            }
             for (unsigned id = 0; id < s->allocator.capacity; ++id) {
                 original_miami_selected_voice *v = &s->voices[id];
-                if (v->active && v->vca.state != 6) v->counter += 690;
+                if (v->active && v->vca.state != 6) v->counter += 690u * k;
             }
-            s->global.counter += 690;
-            ++s->note_context.helper_entries;
+            s->global.counter += (int32_t)(690u * k);
+            s->note_context.helper_entries += k;
+            rest -= k;
         }
         if (!render_span(s, left + offset, right + offset, span)) return 0;
         offset += span;

@@ -110,6 +110,8 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  * returns2 with action2 and untouched outputs when restart resolution is
  * required; otherwise returns1. It returns0 for invalid call preconditions. */
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right);
+/* render_frame for n>=1 frames, bit patterns out; caller proves no control tick is due inside. */
+int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n);
 /* Internal serial block owner: admit stable resources once, then preserve
  * every original control tick. No external edits or restored-state writes
  * may interleave admitted calls. Checked public entries remain unchanged. */
