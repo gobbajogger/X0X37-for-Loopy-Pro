@@ -21,6 +21,7 @@
 #define FELUCCA_UAC 0
 #endif
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+#include "app/engine.h"       /* x0x.c includes USB before the engine; never import it in the loader */
 extern void smk_apc_host_seen(void);
 extern void smk_apc_host_lost(void);
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
@@ -132,6 +133,9 @@ static struct {
     uint16_t e0_left;
     uint32_t resets, setups, rx_pkts, tx_pkts, sof_seen, timeouts, no_sof;
     uint32_t suspends, max_gap, retries, frame_stalls;
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    volatile uint32_t ota_refused; /* completed live OTA/UBOOT requests dropped, never deferred */
+#endif
     uint16_t frame, frame_same;  /* last SOF frame number and how long it has not moved (x 10 ms) */
     uint8_t detached;            /* usb_detach() was called: no retry */
     volatile uint8_t suspended;  /* bus idle > 3 ms (unplugged or host asleep): the UI hides "USB" */
@@ -839,6 +843,34 @@ stall:
 }
 
 /* SysEx assembly: only short commands matter here */
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+static int usb_update_pending_midi(void)
+{
+    uint32_t r = mi_r, w = mi_w, n;
+    /* ep1_rx can queue a live event before the update key in the same packet,
+     * while the audio owner has not yet set seq/engine state. TIMER5 owns the
+     * producer: inspect accepted, undrained intent without consuming it. */
+    for (n = 0; n < MQ && r != w; n++, r++) {
+        uint32_t p = midi_in_q[r % MQ], cin = p & 0xFu, st = (p >> 8) & 0xFFu;
+        if ((cin == 0xFu && (st == 0xFAu || st == 0xFBu)) ||
+            (cin == 9u && ((p >> 24) & 0x7Fu)))
+            return 1;
+    }
+    return 0;
+}
+#endif
+
+static int usb_update_admit(void)
+{
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    if (seq.playing || seq.req_start || seq.req_cont || engine_project_notes() || usb_update_pending_midi()) {
+        usb.ota_refused++;
+        return 0;
+    }
+#endif
+    return 1;
+}
+
 static void sysex_byte(uint8_t b)
 {
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
@@ -896,12 +928,16 @@ static void sysex_byte(uint8_t b)
         }
         for (i = 0; ok && i < 6u; i++)
             ok = usb.sysex[i] == UBOOT_KEY[i];
-        if (ok)
-            usb.uboot_req = 1;
+        if (ok) {
+            if (usb_update_admit())
+                usb.uboot_req = 1;
+        }
 #if FELUCCA_OTA
         else if (usb.sx_len == 6u && usb.sysex[1] == 0x22 && usb.sysex[2] == 0x24 && usb.sysex[3] == 0x35 &&
-                 usb.sysex[4] == 0x7F)
-            usb.ota_req = 1;
+                 usb.sysex[4] == 0x7F) {
+            if (usb_update_admit())
+                usb.ota_req = 1;
+        }
         else if (sx_collect && sx_pos) {
             sx_frame_len = sx_pos;
             RING_PUBLISH();
