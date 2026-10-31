@@ -6,7 +6,7 @@
 #define CHICAGO_PRESENTATION_NO_MAIN
 #include "chicago_presentation_test.c"
 static void wheels(int pitch,int mod)
-{fm1_in.frames+=400;fm1_in.wheel[0]=pitch;fm1_in.wheel[1]=mod;smk_wheels();audio();}
+{fm1_in.frames+=400;fm1_in.wheel[0]=pitch;fm1_in.wheel[1]=mod;fm1_in.wheel_mod_seq++;smk_wheels();audio();}
 static void steps(int n) {for(int i=0;i<n*40;i++)audio();}
 static int plane(int v,int param)
 {int part=engine_motion_part(T_303,v);return motion_find(proj.arr.lane,seq.ppat[part],part,T_303,v,param);}
@@ -26,6 +26,18 @@ int main(void)
     CHECK(engine_bass_perf(0,2,1)==-1);                  /* the wheel never took the cutoff */
     CHECK(engine_bass_perf(0,0,1)==64);                  /* bend stayed centred */
     CHECK(plane(0,mod)<0);CHECK(plane(0,bend)<0);        /* nothing recorded */
+    /* B4: isolated high samples must not accumulate into a new rest point.
+     * #766 limits each range update, but does not forget prior outliers.
+     * Return to the same physical rest between spikes, with REC still on. */
+    for(int i=0;i<40;i++) {
+        wheels(550,645);
+        for(int j=0;j<3;j++)wheels(550,615);
+        if(engine_bass_perf(0,2,1)!=-1 || plane(0,mod)>=0)
+            fprintf(stderr,"B4 unexpected wheel write: spike=%d live_mod=%d lane=%d\n",
+                    i+1,engine_bass_perf(0,2,1),plane(0,mod));
+        CHECK(engine_bass_perf(0,2,1)==-1);
+        CHECK(plane(0,mod)<0);
+    }
     ui.rec=0;play(0);steps(2);
     /* a real move still writes */
     wheels(550,485);CHECK(engine_bass_perf(0,2,1)>64);

@@ -50,7 +50,7 @@ void smc_ui_clip_show(int n, const char *name, const char *value)
 #endif
 
 /* Compile the real native wheel function, substituting only ADC readings. */
-static struct { uint32_t frames; int32_t wheel[2]; } fm1_in;
+static struct { uint32_t frames; int32_t wheel[2]; uint16_t wheel_mod_seq; } fm1_in;
 static int clamp(int value,int lo,int hi) { return value < lo ? lo : value > hi ? hi : value; }
 #include "break_smk_wheels.inc"
 #include "adaptive_native_brk_service.h"

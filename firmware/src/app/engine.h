@@ -20,6 +20,7 @@
 #include "../dsp/x0x_param.h"
 #include "../seq/sequencer.h"
 #include "../seq/motion.h"
+#include "param_trace.h"
 
 enum { T_909, T_808, T_303, T_BRK, T_FX, T_MIX, T_MST, NTARGETS };
 #define T_PROB NTARGETS                /* a lane's pseudo-target: a step's chance, 5..100 % (not in sound_t);
