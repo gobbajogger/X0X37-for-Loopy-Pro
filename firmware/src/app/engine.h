@@ -88,6 +88,8 @@ int engine_bass_voice_view(int voice, float *level, float *modulation, unsigned 
 int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
 /* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */
 float engine_bd909_hz(float tau, float depth, float pitch, float t_ms);
+/* UI: live MG1 phase/output (Miami) and osc pitch glide (both); 0 when not available */
+int engine_bass_motion_view(int voice, float *phase, float *bipolar, float *current, float *target, int *active);
 int engine_bass_requested_bank(int voice);
 int engine_bass_requested_preset(int voice);
 /* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */

@@ -121,6 +121,10 @@ int original_miami_backend_render_events(original_miami_backend *, original_miam
  * clocks, global MG and effect state must still receive every audio frame.
  * Failed owners are never reported idle. */
 int original_miami_backend_status(const original_miami_backend *);
+/* UI: first sounding voice's MG1 (wobble) phase -1..1 and bipolar output, and
+ * its oscillator-1 pitch (current, glide target, semitones). Voice 0 when idle. */
+int original_miami_backend_motion_view(const original_miami_backend *, float *phase, float *bipolar,
+    float *current, float *target, int *active);
 int original_miami_backend_active(const original_miami_backend *);
 int original_miami_backend_voice_active(const original_miami_backend *);
 int original_miami_backend_idle(const original_miami_backend *);
