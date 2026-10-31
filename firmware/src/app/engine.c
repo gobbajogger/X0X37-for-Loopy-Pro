@@ -1604,6 +1604,10 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
 __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
 {
+    /* Synth mute gates only this bus's dry/send gains. MIDI, allocator, ARP,
+     * envelopes and insert histories keep advancing, so unmute needs no note. */
+    if ((p == PART_303A || p == PART_303B) && seq_part_muted(&seq, p))
+        g = 0.0f;
     if (solo && !(solo & (1u << p)))
         g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);

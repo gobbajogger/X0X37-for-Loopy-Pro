@@ -288,5 +288,8 @@ void engine_live_key_state(int voice,uint32_t *generation,int *arp,uint32_t *con
 void engine_live_key_cancel(int voice);
 int engine_live_key(int voice,uint32_t generation,int token,int pitch,int velocity,int accent,int slide);
 
-#ifdef X0X_HOST
+#if defined(X0X_HOST) && defined(X0X_LIVE_KEY_TEST)
+/* Host fixture controls; not part of the firmware API. Match engine.c guards. */
+void engine_live_key_force_serial(int voice,uint32_t generation,uint32_t context);
+unsigned engine_live_key_probe(int voice,int field);
 #endif
