@@ -84,3 +84,9 @@ Ten historical requirement groups and three #41 acceptance subitems are separate
 
 Backup branches: ~50 `backup/*-20261030` single-commit patch dumps (ux_*, smc_*, chord_*, clip_*, integration_*). Not reviewed per patch yet; search them before calling any feature missing.
 Size-only refactors (#379-#611 "Size:"/"Share" PRs) are merged in nightly and not listed one by one.
+
+## LIVE-A live safety (base build/0.0.23)
+
+| Feature | Status | Best copy | Test proof | Hardware-verified | Next action | Owner |
+|---|---|---|---|---|---|---|
+| L1 USB legacy update refusal, L11 prompt BREAK mute, L12 measurement only | in progress; draft source, NOT_RUN | [chat/live-a-safety-023](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/chat/live-a-safety-023), base bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2; one draft PR into build/0.0.23 | Regression tests and measurement tooling authored; no Codex builds/tests/measurements | no | Orchestrator: full host suite, Elite/Pro X0X_DEV_PADCAL=0, RAM and before/after LU/peak on exact head; review implementation limits in docs/live-a.md | Orchestrator |
