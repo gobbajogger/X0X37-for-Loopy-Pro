@@ -284,6 +284,7 @@ static void presentation(const char *dir)
             ui.touched=-1;ui.msg_until=0;draw_header();draw_main();draw_knobs();
             CHECK(!memcmp(&before,&proj.sound,sizeof before));CHECK(ui.dirty==dirty && save_wait==sw);
             for(int k=0;k<4;k++) {
+                if(orig_strip_slot(pg.r[arp][k]))continue; /* #746 knob-strip glyph: ui-glyph-polish */
                 uint16_t ink=!on && k?SOUND_DIM:SOUND_INK;
                 CHECK(fb[(24+50+45)*240+12+k*59]==swap16(q[k]?ink:SOUND_SELECT_SIDE));
                 CHECK(fb[(24+50+45)*240+53+k*59]==swap16(q[k]==127?ink:SOUND_SELECT_SIDE));
