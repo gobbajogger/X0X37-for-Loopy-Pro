@@ -204,6 +204,10 @@ typedef struct {
     uint8_t song_sel;                  /* the SONG screen's bar */
 } ui_t;
 static ui_t ui X0X_POOL;
+/* External sound edits refresh descriptors without navigating the keyboard. */
+static uint8_t original_external_pages, original_external_sound;
+static void original_external_edit(int voice);
+static void original_external_accept(void);
 /* SMC is a presentation layer; its implementation follows this file in the unity build. */
 void smc_ui_cancel(void);
 int smc_ui_active(void);
@@ -264,6 +268,7 @@ static int32_t enc(int role)
 {
     int32_t v = plat_enc(role);
     if (v) {
+        original_external_accept();
 #if BOARD_SMK37
         smc_ui_cancel();
 #endif
@@ -635,7 +640,7 @@ static void ui_restore_base(int target, int voice, int parameter)
     engine_set(target,voice,parameter,proj.sound.v[target][voice][parameter]);
 }
 
-X0X_COLD static void pref_set(pref_t r, int v)
+X0X_COLD static void pref_set_impl(pref_t r, int v, int rebuild)
 {
 #if X0X_BASS_PRESET_PREVIEW
     /* Freeze the active bank before reading its descriptor. The audio boundary
@@ -662,7 +667,9 @@ X0X_COLD static void pref_set(pref_t r, int v)
                 rc == -5 ? "UNSUPPORTED SOUND" : "INVALID PRESET",0);
             return;
         }
-        mark_dirty(); build_pages(); return;
+        if (!rebuild) original_external_edit(r.b);
+        else original_external_accept();
+        mark_dirty(); if (rebuild) build_pages(); return;
     }
     mark_dirty();
     switch (r.kind) {
@@ -808,6 +815,8 @@ X0X_COLD static void pref_set(pref_t r, int v)
     if (bass_edit) engine_bass_edit_hold(0);
 #endif
 }
+static void pref_set(pref_t r, int v) { pref_set_impl(r, v, 1); }
+
 
 /* a name in capitals (the engines' own are mixed case): two at a time */
 static const char *caps_of(const char *n)
@@ -1171,34 +1180,45 @@ typedef struct {
     int nmore;
 } pages_t;
 static pages_t pg X0X_POOL;
+typedef struct { pref_t r[4]; char title[12]; int page, n; } page_query_t;
+static page_query_t *page_query;
+static pages_t *page_output = &pg;
 static uint8_t pg_grp;                 /* the group pages added now belong to */
 static void more(pref_t r)
 {
-    if (r.kind != R_NONE && pg.nmore < MAXMORE)
-        pg.more[pg.nmore++] = r;
+    if (!page_query && r.kind != R_NONE && page_output->nmore < MAXMORE)
+        page_output->more[page_output->nmore++] = r;
 }
 
 static void title(int i, const char *s)
 {
     int k = 0;
     while (s[k] && k < 11) {
-        pg.title[i][k] = s[k];
+        page_output->title[i][k] = s[k];
         k++;
     }
-    pg.title[i][k] = 0;
+    page_output->title[i][k] = 0;
 }
 
 static void add_page(const char *t, pref_t a, pref_t b, pref_t c, pref_t d)
 {
-    if (pg.n >= MAXPAGES)
-        return;
-    pg.r[pg.n][0] = a;
-    pg.r[pg.n][1] = b;
-    pg.r[pg.n][2] = c;
-    pg.r[pg.n][3] = d;
-    title(pg.n, t);
-    pg.group[pg.n] = pg_grp;
-    pg.n++;
+    if (page_query) {
+        if (page_query->n == page_query->page) {
+            page_query->r[0]=a; page_query->r[1]=b;
+            page_query->r[2]=c; page_query->r[3]=d;
+            unsigned i=0;for(;t[i] && i<11;i++)page_query->title[i]=t[i];
+            page_query->title[i]=0;
+        }
+        page_query->n++;return;
+    }
+    if (page_output->n >= MAXPAGES) return;
+    page_output->r[page_output->n][0] = a;
+    page_output->r[page_output->n][1] = b;
+    page_output->r[page_output->n][2] = c;
+    page_output->r[page_output->n][3] = d;
+    title(page_output->n, t);
+    page_output->group[page_output->n] = pg_grp;
+    page_output->n++;
 }
 
 static int name_is(const x0x_param_t *d, const char *n)
@@ -1278,20 +1298,15 @@ static uint8_t *page_of(int view)
  * NONE retains its all-zero record. This runs only during UI page construction. */
 X0X_COLD __attribute__((noinline)) static void add_page_refs(const char *t, const pref_t *refs, int axis, uint8_t value)
 {
-    int i;
-    if (pg.n >= MAXPAGES)
-        return;
-    for (i = 0; i < 4; i++) {
-        pref_t r = refs[i];
-        if (r.kind != R_NONE) {
-            if (axis == 1) r.a = value;
-            if (axis == 2) r.b = value;
+    pref_t row[4];
+    for(int i=0;i<4;i++) {
+        row[i]=refs[i];
+        if(row[i].kind!=R_NONE) {
+            if(axis==1)row[i].a=value;
+            if(axis==2)row[i].b=value;
         }
-        pg.r[pg.n][i] = r;
     }
-    title(pg.n, t);
-    pg.group[pg.n] = pg_grp;
-    pg.n++;
+    add_page(t,row[0],row[1],row[2],row[3]);
 }
 
 X0X_COLD __attribute__((noinline)) static void more_refs(const pref_t *refs, unsigned n, int axis, uint8_t value)
@@ -1305,17 +1320,17 @@ X0X_COLD __attribute__((noinline)) static void more_refs(const pref_t *refs, uns
     }
 }
 
-static void build_pages(void)
+/* Pure navigation inputs: emit existing descriptors without keyboard clamping. */
+static void describe_pages(pages_t *out, page_query_t *query, int view, int p, int mixsel, const uint8_t *selection)
 {
-    int p = ui.part, b = bidx();
-#if X0X_BASS_PRESET_PREVIEW
-    int oldpage=*page_of(ui.view);
-    int keep_sound=ui.view==V_PART && is_303() && oldpage<pg.n &&
-        pg.r[oldpage][0].kind==R_BENGINE && pg.r[oldpage][0].b==b;
-#endif
-    pg.n = pg.nmore = 0;
+    int b = p - PART_303A;
+    pages_t *saved = page_output;
+    page_query_t *saved_query = page_query;
+    uint8_t saved_group = pg_grp;
+    page_output = out; page_query=query;
+    if(query)query->n=0;else out->n = out->nmore = 0;
     pg_grp = GR_NONE;
-    switch (ui.view) {
+    switch (view) {
     case V_HOME:                                       /* the pattern: how the parts run through it */
     case V_GLO:
         do { static const pref_t refs[4] = {PR(R_TEMPO, 0, 0, 0), PR(R_SWING, 0, 0, 0), PR(R_ENG, T_MST, 0, MST_DJF), PR(R_ENG, T_MST, 0, MST_PUMP)};
@@ -1323,10 +1338,10 @@ static void build_pages(void)
         break;
     case V_SEQ:                                        /* the part's steps: how its pattern runs */
         pg_grp = GR_PAT;
-        if (is_drum())
+        if ((p < NKIT))
             do { static const pref_t refs[4] = {PR(R_DLEN, 0, 0, 0), PR(R_DRATE, 0, 0, 0), NONE, NONE};
             add_page_refs("SEQUENCE", refs, 1, p); } while (0);   /* (the swing: HOME's, all parts') */
-        else if (is_303())
+        else if ((p == PART_303A || p == PART_303B))
         {
             do { static const pref_t refs[4] = {PR(R_BLEN, 0, 0, 0), PR(R_BRATE, 0, 0, 0), PR(R_BDIR, 0, 0, 0), PR(R_BTRANS, 0, 0, 0)};
             add_page_refs("SEQUENCE", refs, 1, b); } while (0);
@@ -1344,9 +1359,9 @@ static void build_pages(void)
         }
         break;
     case V_PART:                                       /* the part's sound */
-        if (is_drum()) {
+        if ((p < NKIT)) {
             int t = p == PART_909 ? T_909 : T_808;
-            add_track_pages(t, ui.sel[p]);
+            add_track_pages(t, selection[p]);
             pg_grp = GR_KIT;
             if (p == PART_909)                         /* (the kit's gain: the mixer's level does it) */
                 do { static const pref_t refs[4] = {PR(R_ENG, T_909, NDRUM, 1), NONE, NONE, NONE};
@@ -1354,10 +1369,9 @@ static void build_pages(void)
             else
                 do { static const pref_t refs[4] = {PR(R_ENG, T_808, NDRUM, 1), NONE, NONE, NONE};
             add_page_refs("KIT", refs, 0, 0); } while (0);
-        } else if (is_303()) {
+        } else if ((p == PART_303A || p == PART_303B)) {
             pg_grp = GR_SOUND;
             int kind = engine_bass_bank(b), chicago = kind == ORIGINAL_SOUND_CHICAGO;
-            original_page_bank = (uint8_t)kind;
             const int8_t (*rows)[4] = chicago ? ui_original_chicago_rows : ui_original_miami_rows;
             const char *const *titles = chicago ? ui_original_chicago_titles : ui_original_miami_titles;
             int count = chicago ? UI_ORIGINAL_CHICAGO_PAGES : UI_ORIGINAL_MIAMI_PAGES;
@@ -1393,9 +1407,9 @@ static void build_pages(void)
         break;
     case V_MIX:                                        /* a channel picked with a black key, its four knobs */
         do { static const pref_t refs[4] = {PR(R_ENG, T_MIX, 0, MX_LEVEL), PR(R_ENG, T_MIX, 0, MX_PAN), PR(R_ENG, T_MIX, 0, MX_REV), PR(R_ENG, T_MIX, 0, MX_DLY)};
-            add_page_refs("PARTS", refs, 2, ui.mixsel); } while (0);
+            add_page_refs("PARTS", refs, 2, mixsel); } while (0);
         for (p = 0; p < NKIT; p++) {                    /* each drum machine's tracks: LEVEL, PAN, REV, DLY */
-            int t = p ? T_808 : T_909, v = ui.sel[p];
+            int t = p ? T_808 : T_909, v = selection[p];
             add_page(p ? "808 MIX" : "909 MIX", find_ref(t, v, "Level"), find_ref(t, v, "Pan"), find_ref(t, v, "Rev"),
                      find_ref(t, v, "Dly"));
         }
@@ -1419,17 +1433,54 @@ static void build_pages(void)
         break;
     default: break;
     }
-    if (pg.n == 0)
+    if ((query ? query->n : out->n) == 0)
         do { static const pref_t refs[4] = {NONE, NONE, NONE, NONE};
             add_page_refs("", refs, 0, 0); } while (0);
-#if X0X_BASS_PRESET_PREVIEW
-    if(keep_sound) *page_of(ui.view)=(uint8_t)(pg.n-1);
-#endif
-    if (*page_of(ui.view) >= pg.n)
-        *page_of(ui.view) = 0;
+    page_output = saved; page_query=saved_query;
+    pg_grp = saved_group;
 }
 
-static int cur_page(void) { return *page_of(ui.view); }
+static void build_pages(void)
+{
+#if X0X_BASS_PRESET_PREVIEW
+    int b=bidx(), oldpage=*page_of(ui.view);
+    int preserve=ui.view==V_PART && is_303() && (original_external_pages & (1u<<b));
+    int keep_sound=ui.view==V_PART && is_303() && oldpage<pg.n &&
+        pg.r[oldpage][0].kind==R_BENGINE && pg.r[oldpage][0].b==b;
+#endif
+    describe_pages(&pg, 0, ui.view, ui.part, ui.mixsel, ui.sel);
+    if (ui.view == V_PART && is_303()) original_page_bank = (uint8_t)engine_bass_bank(bidx());
+#if X0X_BASS_PRESET_PREVIEW
+    if(!preserve && keep_sound) *page_of(ui.view)=(uint8_t)(pg.n-1);
+#endif
+    if (
+#if X0X_BASS_PRESET_PREVIEW
+        !preserve &&
+#endif
+        *page_of(ui.view) >= pg.n) *page_of(ui.view) = 0;
+}
+
+static int cur_page(void)
+{
+    int page=*page_of(ui.view);
+    if(ui.view==V_PART && is_303() &&
+       (original_external_sound & (1u<<bidx())))return pg.n-1;
+    return page<pg.n?page:pg.n-1;
+}
+static void original_external_edit(int voice)
+{
+    unsigned bit=1u<<(unsigned)voice;
+    if(ui.view!=V_PART || !is_303() || bidx()!=voice)return;
+    if(!(original_external_pages & bit) && pg.r[cur_page()][0].kind==R_BENGINE)
+        original_external_sound|=(uint8_t)bit;
+    original_external_pages|=(uint8_t)bit;
+}
+static void original_external_accept(void)
+{
+    if(ui.view==V_PART && is_303() && (original_external_pages & (1u<<bidx())))
+        *page_of(ui.view)=(uint8_t)cur_page(); /* a physical keyboard edit accepts the new layout */
+    original_external_pages=original_external_sound=0;
+}
 
 /* MIX's page of a drum machine's tracks: which machine (0 / 1), -1 = not one */
 static int drum_mix_page(void)
@@ -2475,6 +2526,7 @@ static int32_t accel(int role, int32_t s, int range)
 
 static void set_view(int v)
 {
+    original_external_accept();
     /* A step held on SEQ may carry its p-lock gesture to EDIT's sound knobs.
      * Return to SEQ after key-up so lock_release still uses those knob refs. */
     if (ui.view == V_PART && v == V_SEQ && (ui.held_step >= 0 || ui.hold_step >= 0)) {
@@ -2807,7 +2859,7 @@ static void turn_ref(pref_t r, int e, int knob)
     int bass_edit = r.kind == R_ENG && r.a == T_303;
     if (bass_edit) engine_bass_edit_hold(1);
 #endif
-    if (!original_ref_current(r)) {
+    if (!accel_smc && !original_ref_current(r)) {
         if (bass_edit) engine_bass_edit_hold(0);
         return;
     }
@@ -2819,7 +2871,7 @@ static void turn_ref(pref_t r, int e, int knob)
         return;
     }
     int switched=original_switch_turn(r,pref_get(r),e,1);
-    if(switched>=0)pref_set(r,switched);
+    if(switched>=0)pref_set_impl(r,switched,!accel_smc);
     else
     {
     if (d->names || d->max < 24
@@ -2830,7 +2882,7 @@ static void turn_ref(pref_t r, int e, int knob)
         e = e > 0 ? 1 : -1;                          /* a switch: one detent, one position */
     else
         e = accel(knob, e, d->max);
-    pref_set(r, pref_get(r) + e);
+    pref_set_impl(r, pref_get(r) + e,!accel_smc);
     }
     motion_touch(r);
 #if X0X_BASS_PRESET_PREVIEW
@@ -4027,14 +4079,15 @@ static int live_central_event(int key,int down)
 
 X0X_COLD static void input_body(void)
 {
+    uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
+    if(btn!=ui.btn || keys!=ui.keys)original_external_accept();
 #if X0X_BASS_PRESET_PREVIEW
     static int observed_bank[NBASS]={-1,-1};
     for(int v=0;v<NBASS;v++) if(observed_bank[v]!=engine_bass_bank(v)) {
         observed_bank[v]=engine_bass_bank(v);build_pages();
-        if (ui.view == V_PART && ui.overlay == O_LIST && is_303() && v == bidx()) open_list_of_pages();
+        if (!(original_external_pages & (1u<<v)) && ui.view == V_PART && ui.overlay == O_LIST && is_303() && v == bidx()) open_list_of_pages();
     }
 #endif
-    uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     uint8_t revision = project_revision;
     int e;
     if (project_busy) {
@@ -7842,6 +7895,7 @@ X0X_COLD void ui_init(void)
     smc_ui_cancel();
 #endif
     int i;
+    original_external_pages=original_external_sound=0;
     memset(&ui, 0, sizeof ui);
     (void)plat_division_pad(0);
     original_controls.valid = 0;

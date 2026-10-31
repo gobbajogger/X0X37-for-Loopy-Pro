@@ -415,7 +415,7 @@ static void test_lost_edge_release(void)
         int select = edge == 1, pause = edge == 2;
         unsigned note = pause ? 0x5Du : select ? 24u : 0x5Eu;
         press(note); /* settle into ordinary selected/playing request state */
-        if (select) CHECK(ui.part == PART_909); /* ordinary SELECT outside FX chooses its source */
+        if (select) CHECK(smc.part == PART_909); /* ordinary SELECT outside FX chooses its source */
         else if (!pause) { seq.req_start = 0; seq.playing = 1; }
         message(0x90, note, 127); /* leave held */
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);

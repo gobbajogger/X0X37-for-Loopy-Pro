@@ -12,7 +12,7 @@
 
 typedef struct {
     uint8_t held[16];
-    uint8_t locked, lock_view, lock_part, lock_page, knob_bank;
+    uint8_t locked, lock_view, lock_part, lock_page, knob_bank, view, part, page;
 } smc_state_t;
 static smc_state_t smc_states[SMC_PEERS];
 static uint8_t smc_slot;
@@ -20,15 +20,12 @@ static uint8_t smc_slot;
 static struct {
     uint8_t view,part,mixsel,sel[2],overlay,help,list_sel,list_top,spage,pbank;
 } ui;
-static unsigned project_revision = 13;
 static uint32_t clock_ms;
 static uint32_t blit_hash[4] = {1,2,3,4};
-static int busy,clip;
-static int smk_clip_mode_on(void) { return clip; }
+static int busy;
 static uint32_t plat_ms(void) { return clock_ms; }
 static int ui_project_busy(void) { return busy; }
-static int cur_page(void) { return ui.view & 3; }
-static int smc_page_now(void) { return smc.locked ? smc.lock_page : cur_page(); }
+static int smc_page_now(void) { return smc.locked ? smc.lock_page : smc.page; }
 
 #include "smc_fx_ui_extract.inc"
 
@@ -41,7 +38,7 @@ static void reset_all(void)
     memset(smc_states,0,sizeof smc_states);
     memset(&ui,0,sizeof ui);
     memset(smc_ui_raw,0,sizeof smc_ui_raw);
-    smc_slot=0; clock_ms=0; busy=clip=0;
+    smc_slot=0; clock_ms=0; busy=0;
 }
 int main(void)
 {
@@ -82,7 +79,9 @@ int main(void)
     CHECK(smc_ui_active() == 0); /* original peer changed bank */
     reset_all(); smc_slot=1; smc_ui_begin(1,1);smc_slot=0;
     ui.view=1;
-    CHECK(smc_ui_active() == 0); /* global view navigation cancels */
+    CHECK(smc_ui_active() == 1); /* keyboard navigation leaves SMC context untouched */
+    smc_states[1].view=1;
+    CHECK(smc_ui_active() == 0); /* originating SMC navigation cancels */
     reset_all(); smc_slot=1;smc_ui_begin(1,1);smc_slot=0;
     ui.overlay=O_ASK;
     CHECK(smc_ui_active() == 0); /* question owns screen */

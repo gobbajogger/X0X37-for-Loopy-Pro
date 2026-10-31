@@ -1,9 +1,0 @@
-/tmp/smc-queue-k_0ergd_/test.c:205:5: error: unknown type name ‘smcfx_strip_t’
-  205 |     smcfx_strip_t fx_strip; /* Independent two-page physical button mappings and hold ownership. */
-      |     ^~~~~~~~~~~~~
-Traceback (most recent call last):
-  File "/workspace/work/smc-popup/source/tests/host/smc_queue_test.py", line 225, in <module>
-    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
-  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror', '-I/workspace/work/smc-popup/source/firmware/src', '-I/workspace/work/smc-popup/source/tests/host', '/tmp/smc-queue-k_0ergd_/test.c', '-o', '/tmp/smc-queue-k_0ergd_/test']' returned non-zero exit status 1.

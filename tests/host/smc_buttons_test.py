@@ -30,7 +30,7 @@ harness = r'''
 #define NKIT 2
 enum { NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
-static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
+static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
 static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
 static struct { int n; const char *title[MAXPAGES]; } pg;
@@ -44,6 +44,7 @@ static __attribute__((unused)) void smc_peek_locked_page(void) { peek_locked++; 
 static __attribute__((unused)) void smc_ui_off(void) {}
 static void smc_knob_bank(int d) { knob_bank+=d; }
 static int smc_page_now(void) { return page; }
+static int smc_page_count(void) { return pg.n; }
 static void smc_page_set(int p) { page=(uint8_t)p; }
 static void button_tap(int b) { tap=b; }
 static int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
@@ -52,7 +53,7 @@ static int is_drum(void) { return 0; }
 static int is_303(void) { return 1; }
 static void build_pages(void) {}
 #define song() (&song_data)
-static void smc_select_part(int p) { ui.part=p; }
+static void smc_select_part(int p) { smc.part=p; }
 static void smc_record_toggle(void) {}
 #define engine_smc_solo(s) ((void)(s))
 #define smc_solo_press(s,t,m) ((void)(s),(void)(t),(void)(m))
@@ -80,29 +81,29 @@ int main(void) {
     const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,0}};
     pg.n=4;
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
-        last_view=last_page=fx=-1; ui.view=0;
+        last_view=last_page=fx=-1; smc.view=0;
         int note=row*8+strip; tap=-1; smc_button(note,0);
         if(note==5 || note==6 || note==14) {
-            assert(tap==(note==5?B_SEL:note==6?B_HOME:B_GLO)); continue;
+            assert(tap==-1 && last_view==(note==14?V_GLO:V_HOME)); continue;
         }
         if(row==2) assert(fx==strip-5 && last_view==-1);
         else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
     }
     for(int note=0x60;note<=0x63;note++) {
         int d=(note&1)?1:-1;
-        ui.overlay=O_NONE; ui.view=V_PART; page=1; knob_bank=0; smc_button(note,0);
+        ui.overlay=O_NONE; smc.view=V_PART; page=1; knob_bank=0; smc_button(note,0);
         if(note<0x62) assert(knob_bank==d && page==1);
         else assert(knob_bank==0 && page==1+d);
         ui.overlay=O_LIST; moved=edited=0; knob_bank=0; smc_button(note,0);
-        assert(note<0x62 ? moved==d && edited==0 : moved==0 && edited==d);
-        assert(knob_bank==0);
+        assert(moved==0 && edited==0);
+        assert(knob_bank==(note<0x62?d:0));
     }
     return 0;
 }
 '''
 with tempfile.TemporaryDirectory() as tmp:
     c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
-    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',
+    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable',
                     '-I'+str(root/'firmware'/'src'), '-I'+str(root/'tests'/'host'),
                     str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)

@@ -1,9 +1,0 @@
-/tmp/smc-link-dhc3xuc5/test.c:205:5: error: unknown type name ‘smcfx_strip_t’
-  205 |     smcfx_strip_t fx_strip; /* Independent two-page physical button mappings and hold ownership. */
-      |     ^~~~~~~~~~~~~
-Traceback (most recent call last):
-  File "/workspace/work/smc-popup/source/tests/host/smc_link_test.py", line 188, in <module>
-    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-O2", "-g",
-  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['cc', '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror', '-DLINK_GENERATION', '-I/workspace/work/smc-popup/source/firmware/src', '-I/workspace/work/smc-popup/source/tests/host', '/tmp/smc-link-dhc3xuc5/test.c', '-o', '/tmp/smc-link-dhc3xuc5/test']' returned non-zero exit status 1.

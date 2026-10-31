@@ -1,5 +1,0 @@
-PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup
-PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking
-PASS align: drum Tune/Decay ranks; B TONE / OSC mapping and SOUND identity
-PASS physical layout: all eight knob/fader positions, three physical rows and no phantom fourth row
-FAIL tests/host/smc_ui_test.c:524: fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)
