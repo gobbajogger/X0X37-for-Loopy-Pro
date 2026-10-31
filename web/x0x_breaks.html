@@ -454,7 +454,9 @@ async function readAll() {
 
 // write one slot image (the 512-byte header area + data), or null: erase it. As Send does.
 async function writeImage(k, img, onPart) {
-  await writeSlotImage(link, k, img, onPart && ((done, total) => onPart(done)));
+  // Current firmware accepts the full archived area; retain reserved bytes too.
+  // The install helper's default remains the legacy structured header.
+  await writeSlotImage(link, k, img, onPart && ((done, total) => onPart(done)), SLOT_HDR_AREA);
 }
 
 async function run(fn) {
