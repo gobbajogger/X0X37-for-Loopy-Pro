@@ -73,6 +73,12 @@ static void smc_peek_restore_cursors(void)
     }
 }
 static void smc_peek_locked_page(void);
+/* Owner rule (0.0.22 bug): the SMC must never drive the keyboard's view,
+ * page or menu. Its feedback is its own pop-up overlay (smc_ui_draw_peer).
+ * The #737 mapped-page peek switched ui.view/page; it is off by default. */
+#ifndef SMC_PAGE_PEEK
+#define SMC_PAGE_PEEK 0
+#endif
 static void smc_ui_off(void); /* locked PAGE calls this before its definition */
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
@@ -1257,7 +1263,7 @@ static void smc_peek_begin(int n)
 
 static void smc_peek_locked_page(void)
 {
-    if (!smc.locked) return;
+    if (!SMC_PAGE_PEEK || !smc.locked) return;
     smc_peek_page(smc.lock_view, smc.lock_page,
         smc.lock_view == V_MIX && !smc.lock_page && smc.lock_part < NPARTS
             ? smc.lock_part : ui.mixsel, smc.lock_part);
@@ -1298,7 +1304,7 @@ static void smc_show(int n, int knob, pref_t r)
         (smc_same(r, smc_home_target(n)) ||
          (knob && (smc.locked ? smc.lock_view == V_HOME :
                    smc_peek->on ? smc_peek->saved_view == V_HOME : ui.view == V_HOME))))
-        smc_peek_begin(n);            /* before the overlay: its context is the peek page */
+        if (SMC_PAGE_PEEK) smc_peek_begin(n); /* off: overlay only, keyboard page kept */
     smc_ui_begin(n, knob);
 }
 

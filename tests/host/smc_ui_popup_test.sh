@@ -1,6 +1,7 @@
 #!/bin/sh
 # SMC-07 mapped-page peek beside the SMC control overlay. No device I/O.
-# Optional CC, SAN_FLAGS, SMC_UI_OUT and SMC_UI_SOURCE_FILE support independent replay.
+# The legacy #737 page-peek contract is kept behind -DSMC_PAGE_PEEK=1
+# (default 0: SMC shows only its own pop-up). Optional CC, SAN_FLAGS, SMC_UI_OUT and SMC_UI_SOURCE_FILE support independent replay.
 set -eu
 cd "$(dirname "$0")/../.."
 OUT=${SMC_UI_OUT:-build/host/smc-ui-popup}
@@ -20,6 +21,6 @@ SOURCE=${SMC_UI_SOURCE_FILE:-$PWD/firmware/src/app/smc_mixer.c}
 # shellcheck disable=SC2086
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
     -DX0X_HOST $POSIX_DEFS $DARWIN ${X0X_HOST_DEFS:-} ${SAN_FLAGS:-} \
-    -DSMC_SOURCE_FILE=\"$SOURCE\" -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
+    -DSMC_PAGE_PEEK=1 -DSMC_SOURCE_FILE=\"$SOURCE\" -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     tests/host/smc_ui_popup_test.c $ORIGINAL_FLAGS $U -lm -o "$OUT/test"
 "$OUT/test"
