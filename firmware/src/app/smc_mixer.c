@@ -931,9 +931,17 @@ static int smc_nav_key(int note)
     return note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
            note == 6 ? B_HOME : note == 14 ? B_GLO : -1;
 }
+static int smc_clip_stage_key(int note)
+{
+    return !smc.locked && ui.overlay == O_NONE && smk_clip_mode_on() &&
+           (note == 7 || note == 15 || note == 31);
+}
 static const char *smc_button_caption(int note)
 {
     int kit = smc_drum_mix(), strip = note & 7, row = note >> 3;
+    /* #688/#788: the clip grid's eighth strip steps the clip stage. */
+    if (smc_clip_stage_key(note))
+        return row == 1 ? "PREV" : "NEXT";
     if (kit >= 0 && smc_drum_track(kit, strip) < 0) return "--";
     if (smc_lock_blocks((uint8_t)note)) return "X";
     /* On the FX view each of the four physical buttons has its own
@@ -966,7 +974,7 @@ static const char *smc_button_caption(int note)
     if (key == B_HOME) return smc.view==V_HOME?"SONG":"HOME";
     if (strip == 7 && row == 0) return smc.view == V_HOME ? "SONG" : "HOME";
     if (strip == 7 && row == 1) return smc.view == V_PART ? "SEQ" : smc.view == V_SEQ && part_is_303(smc.part) ? "GEN" : "PART";
-    if (strip == 7 && row == 3) return "MST";
+    if (strip == 7 && row == 3) return "MIX";
     int view = SMC_VIEW[row][strip - NPARTS];
     return view == V_HOME ? "HOME" : view == V_MIX ? "MIX" : view == V_PART ? "PART" : "FX";
 }
@@ -1051,7 +1059,7 @@ static UI_DRAW void smc_ui_grid(void)
             cv_rect(x + 3, target, 2, 115 - target, travel);
             cv_rect(x + 1, target, 6, 4, fc);
             /* A fine white marker is physical position until pickup is acquired. */
-            if (!(smc.picked & (1u << n)))
+            if (!(smc.picked & (1u << n)) && seq.metro_view <= 16u)
                 cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
         }
         int fx_view = kit < 0 && smc.view == V_FX && ui.overlay == O_NONE;
@@ -1666,6 +1674,10 @@ static void smc_button_apply(uint8_t note, int mmc)
         ui_say("SMC TARGETS LOCKED", 0);
         return;
     }
+    if (smc_clip_stage_key(note)) {
+        smk_ck_smc_nav(note == 15u ? 0x60u : 0x61u);
+        return;                         /* #688/#788: separate clip stage and knob banks */
+    }
     if (ui.overlay == O_NONE && !smk_clip_mode_on() && !smc_home_held() &&
         (note == 0x60u || note == 0x61u)) {
         smc_knob_bank(note == 0x60u ? -1 : 1);
@@ -1752,8 +1764,18 @@ static void smc_button_apply(uint8_t note, int mmc)
                 smc_view(smc.view == V_HOME ? V_SONG : V_HOME, -1);
             else if (strip == 7 && row == 1)
                 smc_view(smc.view == V_PART ? V_SEQ : smc.view == V_SEQ && part_is_303(smc.part) ? V_GEN : V_PART, -1);
-            else if (strip == 7 && row == 3)
-                smc_view(V_MIX, 3);
+            else if (strip == 7 && row == 3) {
+                /* #688's MIX cycle, using #789's independent browsing context.
+                 * PAGE keys may recapture; this mode action keeps lock targets. */
+                smc_context_t context = {V_MIX, smc.part,
+                    smc.mixer_page[V_MIX][0], smc.mixsel, {0}};
+                memcpy(context.sel, smc.sel, sizeof context.sel);
+                smc_query(&context, -1);
+                int count = smc_page_cache.count;
+                smc.mixer_page[V_MIX][0] = smc.view == V_MIX && count ?
+                    (uint8_t)((context.page + 1u) % count) : 0;
+                smc_view(V_MIX, -1);
+            }
             else
                 smc_view(SMC_VIEW[row][which], SMC_PAGE[row][which]);
         }
@@ -1843,7 +1865,7 @@ static void smc_button(uint8_t note, int mmc)
     char saved[sizeof ui.msg];
     uint32_t until = ui.msg_until;
     int kit = smc_drum_mix();
-    int action = !smc_lock_blocks(note) && smc_fx_bus_now(note) < 0 &&
+    int action = !smc_clip_stage_key(note) && !smc_lock_blocks(note) && smc_fx_bus_now(note) < 0 &&
         (note == 0x5Fu ||
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
@@ -2229,7 +2251,7 @@ static int smc_led(int note)
      * needs native owner verification for the captured preset. */
     if (note == 0x5D) {
         int beat = smc_beat_lit(); /* keep phase current even while locked */
-        return smc.locked || beat;
+        return smc.locked || (seq.metro_view ? seq.metro_view <= 16u : beat);
     }
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;
