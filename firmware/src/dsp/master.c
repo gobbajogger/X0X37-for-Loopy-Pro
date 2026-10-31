@@ -308,7 +308,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             s = s + (wet - s) * m->mix;
         }
         if (mode) {
-            float g = djf_gsmooth(m, k), a1 = m->a1;
+            float g = m->g != m->g_t ? djf_gsmooth(m, k) : m->g, a1 = m->a1;
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
@@ -350,7 +350,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             sr = sr + (wet - sr) * m->mix;
         }
         if (mode) {
-            float g = djf_gsmooth(m, k), a1 = m->a1;
+            float g = m->g != m->g_t ? djf_gsmooth(m, k) : m->g, a1 = m->a1;
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
             sr = djf_tick(sr, &m->ic1r, &m->ic2r, mode, g, a1, k);
         }
