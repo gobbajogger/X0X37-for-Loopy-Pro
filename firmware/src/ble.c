@@ -609,6 +609,25 @@ const char *plat_ble_name(void)
     names[n] = 0;
     return names;
 }
+/* Snapshot under the same interrupt guard as the host union; no live pointer escapes. */
+void plat_ble_peers(plat_ble_peers_t *out)
+{
+    uint32_t f = irq_save();
+    memset(out, 0, sizeof *out);
+    out->state = plat_ble_state();
+    out->central = ble_central_role && smc_ble_role_get();
+    if (out->central && !ble_role_changing && ble_want && ble_boot_on && ble_up && ble_host_on &&
+        !ble_dead && out->state == PLAT_BLE_CONNECTED) {
+        const blec_t *peers[] = { &ble_r.host.c, &ble_r.host.c2 };
+        for (unsigned i=0;i<sizeof peers/sizeof peers[0] && i<PLAT_BLE_PEER_CAP;i++) if (blec_connected(peers[i])) {
+            const char *src = peers[i]->link_name[0] ? (const char *)peers[i]->link_name : "SMC-Mixer";
+            char *dst = out->name[out->count++];
+            unsigned n=0; while(n<PLAT_BLE_PEER_NAME_MAX && src[n]) { dst[n]=src[n]; n++; }
+            dst[n]=0;
+        }
+    }
+    irq_restore(f);
+}
 int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len)
 {
     if (slot >= 2u) return 0; /* Both per-peer SMC feedback channels are valid. */
