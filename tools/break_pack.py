@@ -38,6 +38,7 @@ static const x0x_break_t X0X_BREAKS[1] = {{0, 0, 0, 0}};
 
 
 def write_empty_header(path):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(EMPTY_HEADER)
 
 
