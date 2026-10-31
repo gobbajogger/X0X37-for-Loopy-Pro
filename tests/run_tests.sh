@@ -335,6 +335,7 @@ run freeplay-latency sh tests/host/freeplay_latency_test.sh
 run pads-in-settings sh tests/host/pads_in_settings_test.sh
 run boot-screen sh tests/host/boot_screen_test.sh
 run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
+run ui-page-wrap python3 tests/host/ui_page_wrap_test.py
 run project-protocol sh tests/host/run_project_protocol.sh
 run project-save-preflight sh tests/host/run_project_save_preflight.sh   # BF-021 memory-full + FNV32 sound collision
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
