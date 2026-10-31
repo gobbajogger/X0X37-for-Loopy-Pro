@@ -3,6 +3,12 @@
   "source_commit": "5bff28caba24568cd5070acb99aaf37729cd8323",
   "label": "DEV / HARDWARE TEST — DEVICE NOT TESTED",
   "packages": {
+    "elite": {
+      "sha256": "b9a2370557e73ea9373a642f0e67d776e9e0d0dd84813f76fa532fb967c07dcf",
+      "size": 651457,
+      "crc32": "C1FC30BC",
+      "file": "b9a2370557e73ea9373a642f0e67d776e9e0d0dd84813f76fa532fb967c07dcf/x0x37-elite-dev.fwsc"
+    },
     "pro": {
       "sha256": "965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b",
       "size": 651457,

@@ -1,5 +1,5 @@
-# DEV package for validated source 5bff28ca (wip/one-build)
+# DEV packages for validated source 5bff28ca (wip/one-build)
 
-Immutable digest-addressed Pro bundled DEV package for nightly publish (0.0.10).
-Blank build CRC32 F1C92F3A; page serves bundled digest 965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b (CRC32 727F27DD).
-Controller `956e3e21…`. Elite to follow. Label: DEV / HARDWARE TEST — DEVICE NOT TESTED.
+Immutable digest-addressed Elite/Pro bundled DEV packages for nightly publish (0.0.10).
+Elite bundled `b9a23705…` (CRC32 C1FC30BC); Pro bundled `965ca2a0…` (CRC32 727F27DD, blank F1C92F3A).
+Controller `956e3e21…`. Label: DEV / HARDWARE TEST — DEVICE NOT TESTED.
