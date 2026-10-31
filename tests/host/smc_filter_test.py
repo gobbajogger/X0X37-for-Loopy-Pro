@@ -33,7 +33,7 @@ typedef struct { int kind, a, b, c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 static struct { int rec, part, view, overlay, help, sel[2]; } ui;
 static struct { int rec_part, solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages,lock_mixsel; uint8_t lock_sel[2],mixer_page[40][5]; uint8_t lock_page_kit[1]; uint16_t drum_solo[2]; uint8_t fx_down; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
-static struct { int playing; } seq;
+static struct { int playing; uint8_t metro_view; } seq; /* F4 clock phase */
 static int volume, filter;
 static int pref_get(pref_t r) { return r.a == T_MST ? filter : volume; }
 static int part_muted(int p) { (void)p; return 0; }
