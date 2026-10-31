@@ -162,13 +162,12 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  else n.awaiting_restart=1;
  *s=n;return 1;
 }
+int original_chicago_voice_kernel(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
+ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,float *left,float *right);
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right){
  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
  if(!s->active){*left=0;*right=0;return 1;}
- float mix,filtered;if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,1,&mix))return 0;
- float ng=advance(&s->noise_gain);unsigned choose=(s->noise&0x40000000u)==0;s->noise=(s->noise+s->noise)^(choose?8393u:0);float input=ng*(choose?.5f:-.5f)+mix;input=c->vco_gain*input;
- if(!original_chicago_mp4_sample(&s->filter,input,&filtered))return 0;
- return original_voice_gain_stereo(&s->gain,filtered,left,right);
+ return original_chicago_voice_kernel(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right);
 }
 int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
  if(!left||!right||left==right||!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;
