@@ -301,6 +301,20 @@ void plat_stalls_enable(int on) { (void)on; }
 #include "../firmware/src/app/smc_fx_map_tables.c"    /* one SMC FX map table for engine + smc_mixer */
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
+
+#if X0X_PARAM_TRACE
+void x0x_param_trace(int source, int target, int voice, int parameter, int value)
+{
+    static const char *const names[] = {
+        "wheel-pitch", "wheel-mod", "panel-knob", "smc-knob", "smc-pickup",
+        "motion", "motion-restore", "preset", "midi"
+    };
+    if ((unsigned)target >= NTARGETS || (unsigned)voice >= NVOICES_MAX ||
+        (unsigned)source >= sizeof names / sizeof names[0]) return;
+    fprintf(stderr, "param-write ms=%u source=%s target=%d voice=%d param=%d value=%d\n",
+            plat_ms(), names[source], target, voice, parameter, value);
+}
+#endif
 #if BOARD_SMK37
 /* Native SMC fixtures provide clip input substitutes; real keybed/pad reset is hardware-only. */
 int smk_project_active(void) { extern uint8_t smk_ck_flash_busy(void); return smk_ck_flash_busy(); }
