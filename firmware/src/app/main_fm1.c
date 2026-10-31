@@ -1098,7 +1098,7 @@ static void smk_arrows(void)
         return;
     if (route == ARW_MENU) {
         if (ui_menu_arrow(d))
-            arw_rearm(&arw, now);                 /* a held > that entered a GLOBAL section does not edit it */
+            arw_rearm(&arw, now);                 /* a held > or < that changed the GLOBAL section does not edit it */
     } else {
         uint32_t l = fm1__lock();
         fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
