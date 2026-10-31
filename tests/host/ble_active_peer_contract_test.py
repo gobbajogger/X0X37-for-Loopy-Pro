@@ -36,8 +36,8 @@ assert actual == expected, sorted(
 assert actual["config_btctler_le_hw_nums"] == "2"
 assert actual["config_btctler_le_acl_total_nums"] == "3"
 assert actual["config_btctler_le_master_multilink"] == "1"
-assert "#define BLEC_TWO_PEER 1" in header
-assert "#if !BLEC_TWO_PEER" in header, "keep explicit one-peer fallback for #700"
+assert "#define BLEC_TWO_PEER 0" in header, "one SMC peer is the firmware default (owner 2026-10-31)"
+assert "#if !BLEC_TWO_PEER" in header, "keep the two-peer code behind the flag"
 assert "void blec_pair_bind(blec_t *a, blec_t *b)" in central
 assert "void blec_pair_rx(blec_t *a, blec_t *b" in central
 assert "blec_pair_bind(&ble_r.host.c, &ble_r.host.c2);" in app
@@ -45,4 +45,4 @@ assert "blec_pair_poll(a, b, fm1_ms, want);" in app
 assert re.search(r"if\s*\(slot\s*>=\s*2u\)\s*return\s+0;", app)
 assert "blec_midi_send(slot ? &ble_r.host.c2 : &ble_r.host.c, msg, len)" in app
 assert "ble_central_link_notify_slot(1, want && blec_connected(b));" in app
-print("two-peer firmware defaults / locked controller / second-slot feedback: PASS")
+print("one-peer default, two-peer code kept firmware defaults / locked controller / second-slot feedback: PASS")
