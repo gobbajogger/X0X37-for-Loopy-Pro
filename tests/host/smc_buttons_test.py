@@ -12,10 +12,15 @@ f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M
 f = f.replace('smc_button_apply(', 'smc_button(', 1)
 helpers = [re.search(r'^static const (?:uint8_t|int8_t) '+name+r'\[4\]\[3\] = \{.*?^\};', s, re.M | re.S)[0]
            for name in ('SMC_VIEW', 'SMC_PAGE')]
-for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key'):
+for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key', 'smc_clip_stage_key'):
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
     if match:
         helpers.append(match[0])
+# The strip-8 MIX cycle asks the shared page-count cache (#789); the count is
+# owned by smc-ui tests, so a one-page stub keeps this mapping harness focused.
+if 'smc_query(&context' in f:
+    helpers.append('static struct { uint8_t count; } smc_page_cache = {1};\n'
+                   'static void *smc_query(const void *context, int page) { (void)context; (void)page; return 0; }')
 # Resolve production drum context helpers with the same explicit context type.
 context_helpers = re.search(r'typedef struct \{\n    uint8_t view, part, page, mixsel, sel\[NKIT\];\n\} smc_context_t;', s)[0] + '\n'
 for name in ('smc_page_part', 'smc_drum_mix_context', 'smc_context'):
@@ -90,7 +95,8 @@ int main(void) {
     /* R6 opens own MIX, R7 HOME, S7 GLOBAL; R8 toggles HOME/SONG,
      * S8 PART/SEQ, SELECT6/7 effects and SELECT8 MASTER. */
     const int views[4][3]={{-1,-1,V_HOME},{V_MIX,-1,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
-    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,3}};
+    /* F4: strip-8 MIX cycles the stored mixer page and opens V_MIX with page -1. */
+    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,-1}};
     pg.n=4;
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
         last_view=last_page=fx=-1; smc.view=0;
