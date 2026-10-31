@@ -61,6 +61,7 @@ static void build_pages(void) {
     for(int n=0;n<4;n++) pg.r[0][n]=PR(R_ENG,kit ? T_808 : T_909,ui.sel[kit],n);
 }
 #define smc_select_drum(k,t) (ui.sel[k]=(t),build_pages())
+#define smc_capture_bank(d) ((void)(d))
 '''
 harness += order_helpers + '\n'.join(functions)
 harness += r'''

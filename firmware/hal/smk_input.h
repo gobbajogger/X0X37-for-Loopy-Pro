@@ -465,10 +465,10 @@ static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or rele
         if (!vel) smk_div_held &= (uint16_t)~owned;
         return; /* release belongs to the press-time role */
     }
-    if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad]) {
+    if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad]) {
         smk_div_held |= owned;
-        if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u);
-        return; /* physical rate hit never creates note/keybed velocity */
+        smk_div_pending = (uint8_t)(pad + 1u);
+        return; /* Free Play pads (rate, wobble shape, empty) never create note/keybed velocity */
     }
 #endif
     int32_t n0 = smk_pad_piano ? SMK_PIANO_NOTE[pad] : (int32_t)SMK_WHITE_NOTE[SMK_WHITE_OF_PAD(pad)];

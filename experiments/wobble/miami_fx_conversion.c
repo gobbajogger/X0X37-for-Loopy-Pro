@@ -85,23 +85,4 @@ int miami_fx_input_rne(uint32_t u, unsigned fz, int16_t *out) {
     (void)miami_fx_scaled_rne(miami_fx_cleanup_rne(u),fz,&scaled);
     *out=miami_fx_low16(miami_fx_fcvtzs(scaled)); return 1;
 }
-uint32_t miami_fx_output_rne(int16_t input) {
-    uint32_t magnitude=input<0?(uint32_t)(-(int32_t)input):(uint32_t)input;
-    if (!magnitude) return 0;
-    unsigned top=31u-(unsigned)__builtin_clz(magnitude);
-    uint32_t significand=magnitude<<(23u-top);
-    /* Exact RNE division by 2^15-1. With the numerator normalized to
-     * 24 bits, the result is A + round(A/32767). Splitting A at bit15
-     * leaves a remainder below 32767+512; its half-denominator test
-     * also covers the single possible quotient carry. The denominator
-     * is odd, so no halfway case exists. No reciprocal approximation. */
-    uint32_t quotient=significand>>15;
-    uint32_t remainder=(significand&32767u)+quotient;
-    significand+=quotient+(remainder>16383u);
-    uint32_t exponent=top+112u;
-    if (significand==0x01000000u) {
-        significand>>=1;
-        ++exponent;
-    }
-    return (input<0?0x80000000u:0u)|(exponent<<23)|(significand&0x007fffffu);
-}
+uint32_t miami_fx_output_rne(int16_t input) { return miami_fx_output_rne_inline(input); }
