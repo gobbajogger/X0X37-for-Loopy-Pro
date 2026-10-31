@@ -153,6 +153,11 @@ static void selector_cases(void)
             if (i+1==cases[c].n) CHECK(pref_get(r)==(direction>0?127:0));
         }
     }
+    {   /* Free Play shape pads 9-12 write these control values (ui.c division_pad_input). */
+        static const int values[4]={0,42,85,127}; static const char *const names[4]={"TRI","DOWN","UP","SQR"};
+        choose(0,1,0); screen(V_PART,PART_303A,0); pref_t r=PR(R_ENG,T_303,0,11);
+        for (unsigned i=0;i<4;i++) { char t[24]; pref_set(r,values[i]); block(); text_of(r,t); CHECK(!strcmp(t,names[i])); }
+    }
     for (unsigned kind=0;kind<2;kind++) {
         choose(0,kind,0); screen(V_PART,PART_303A,1); pref_t r=PR(R_ENG,T_303,0,kind?7:4);
         for (unsigned q=63;q<=65;q++) {
