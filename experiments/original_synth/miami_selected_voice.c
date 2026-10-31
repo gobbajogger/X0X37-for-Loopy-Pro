@@ -59,6 +59,8 @@ int original_miami_voice_compile(original_miami_voice_controls *out,const origin
  c.gain.curve=0;c.gain.ms20=1;c.gain.filter_gain=1;
  c.cutoff=native(p,24);c.resonance=native(p,25);c.env_depth=bipolar(native(p,26));c.noise=native(p,23);
  c.pw_intensity=native(p,21);c.pw_width=native(p,22);
+ for(unsigned i=0;i<4;i++)
+  if(!original_pw_width(c.shape[i],c.pw_intensity,0,c.pw_width,0,0,&c.wave_width[i]))return 0;
  if(!original_xmod_coefficient(native(p,39),0,&c.xmod))return 0;
  c.vco_gain=ref_fma(native(p,102),3,1);
  c.patch_slave=bipolar(native(p,80));c.patch_cutoff=bipolar(native(p,81));c.patch_gain=bipolar(native(p,87));
@@ -139,7 +141,7 @@ static int preparation_tail(original_miami_selected_voice *s,const original_miam
  if(!original_miami_pitch_prepare(&s->pitch,&pc,t->pitch,44100,D,oc.increment))return 0;
  for(unsigned i=0;i<4;i++){
   oc.shape[i]=c->shape[i];
-  if(!original_pw_width(oc.shape[i],c->pw_intensity,0,c->pw_width,0,0,&oc.width[i]))return 0;
+  oc.width[i]=c->wave_width[i];
  }
  oc.xmod=c->xmod;
  if(!s->prepared.ready||memcmp(&s->prepared.controls,&oc,sizeof oc)){
