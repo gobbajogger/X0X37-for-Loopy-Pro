@@ -376,8 +376,9 @@ run ble-central-first-notification python3 tests/host/ble_central_first_notifica
 run ble-active-peer-contract python3 tests/host/ble_active_peer_contract_test.py
 run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
 run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
-run ble-dual-peer sh tests/host/ble_dual_peer_test.sh
-run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+run ble-single-peer-status sh -c "${CC:-cc} -std=c99 -O1 -g -Wall -Wextra -Werror -o $OUT/ble_single_peer_status_test tests/host/ble_single_peer_status_test.c && $OUT/ble_single_peer_status_test"
+run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
+run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
 run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
@@ -391,6 +392,9 @@ run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-lock sh tests/host/smc_lock_test.sh
 run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
 run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
+run ui-peer-names sh tests/host/ui_peer_names_test.sh   # BT NAME row: joined connected peer names, 700 ms hold, 24 px/s scroll
+run ble-device-setting-flow python3 tests/host/ble_device_setting_flow_test.py   # BLUETOOTH row: independent bit-0 save, BT SAVE PENDING, retry
+run ble-toggle-persistence-gate python3 tests/host/ble_toggle_persistence_gate_test.py
 run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh

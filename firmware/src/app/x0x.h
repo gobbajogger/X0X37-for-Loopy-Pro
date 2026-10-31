@@ -107,6 +107,9 @@ extern project_t proj;
 extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
+void project_device_bt_set(int on);     /* live now; saved by project_device_bt_save */
+int project_device_bt_pending(void);
+int project_device_bt_save(void);          /* caller must hold engine and admit safe flash */
 int project_storage_unsupported(void); /* stored format retained; explicit validated adoption required */
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
 int project_save(void);                  /* 0 = verified; -7 = memory full; -9 = unsupported data retained (nothing written) */

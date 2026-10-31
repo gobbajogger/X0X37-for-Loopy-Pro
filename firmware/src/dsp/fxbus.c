@@ -208,7 +208,7 @@ __attribute__((noinline)) static int32_t sat12_store(int16_t *cell, float v)
 }
 
 /* Distortion sample — one body; stereo process_st calls this for L and R. */
-__attribute__((noinline)) static float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
+static inline __attribute__((always_inline)) float dist_one(const d9_shape_t *sh, float x, float k, float *crush)
 {
     return d9_shape(sh, x * k, crush) * 0.7f;
 }
@@ -427,7 +427,7 @@ __attribute__((noinline)) static float fx_comp_gr(float over, float slope)
 }
 
 /* One glue sample: update det/env, return linear gain (mono + stereo). */
-__attribute__((noinline)) static float fx_comp_gain(float mag, float thr, float slope, float drel,
+static inline __attribute__((always_inline)) float fx_comp_gain(float mag, float thr, float slope, float drel,
                                                     float atk, float rel, float makeup,
                                                     float *det, float *env)
 {
@@ -502,8 +502,9 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    for (int i = 0; i < n; ++i) {
-        out_l[i] *= vol;
-        out_r[i] *= vol;
-    }
+    if (vol != 1.0f)                                  /* x * 1 == x: unity skips the pass */
+        for (int i = 0; i < n; ++i) {
+            out_l[i] *= vol;
+            out_r[i] *= vol;
+        }
 }
