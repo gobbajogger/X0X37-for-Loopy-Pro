@@ -21,6 +21,9 @@ int miami_decimator_stage_step(miami_decimator_component_t *s, uint32_t step);
  * is outside this component. Stereo input is by value, output is exactly2samples.
  * s and out must not overlap. Both are caller-owned; no allocation/global state.
  * Failure leaves state and output untouched. A seed is required before processing. */
+/* miami_decimator_frame for frames first..first+n-1, in place. */
+int miami_decimator_block(miami_decimator_component_t *s, uint32_t first,
+                          int16_t *left, int16_t *right, uint32_t n, int32_t wet);
 int miami_decimator_frame(miami_decimator_component_t *s, uint64_t local_index,
                           int16_t left, int16_t right, int32_t wet, int16_t out[2]);
 /* Exact event-free zero-input invocation starting at local index0. Returns0
