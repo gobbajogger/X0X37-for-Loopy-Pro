@@ -938,6 +938,7 @@ static int mot_base(void *x, int t, int v, int i)
 static void mot_apply(void *x, int t, int v, int i, int val)
 {
     (void)x;
+    PARAM_TRACE(PARAM_MOTION, t, v, i, val);
     if (original_motion_performance(t, v, i)) { perf_apply(v, i, val, 0); return; }
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
@@ -951,6 +952,8 @@ static void mot_apply(void *x, int t, int v, int i, int val)
 }
 static void mot_restore(void *x, int t, int v, int i)
 {
+    /* -1 means restore the exact base, which need not be a rounded pot. */
+    PARAM_TRACE(PARAM_MOTION_RESTORE, t, v, i, -1);
     if (original_motion_performance(t, v, i)) { perf_apply(v, i, mot_base(x, t, v, i), 0); return; }
     if (t < NTARGETS) apply_base(t, v, i);
     else mot_apply(x, t, v, i, mot_base(x, t, v, i));
@@ -1389,15 +1392,19 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
                 if (held) src_held[src] |= (uint16_t)(1u << k);
                 else src_held[src] &= (uint16_t)~(1u << k);
             } else if (ty == 0xb0 && d1 == 1) {
+                PARAM_TRACE(PARAM_MIDI, T_303, k, mod_param(k), d2);
                 mod_apply(k, d2);                      /* mod wheel CC1: cutoff / wobble depth */
                 ext_touch[k] |= 2u;
             } else if (ty == 0xb0 && d1 == 64) {
                 /* damper: sustain pedal CC64 (no wheel mapping) */
+                PARAM_TRACE(PARAM_MIDI, T_303, k,
+                            (int)original_sound_count(original_bass[k].kind) - 1, d2);
                 perf_apply(k, (int)original_sound_count(original_bass[k].kind) - 1, d2, 1);
             } else if (ty == 0xe0) {
                 unsigned bend = (unsigned)d1 | (unsigned)d2 << 7;
                 float value = bend < 8192 ? (float)bend / 16384.0f : 0.5f + (float)(bend - 8192) / 16382.0f;
                 unsigned parameter = original_sound_count(original_bass[k].kind) - 2;
+                PARAM_TRACE(PARAM_MIDI, T_303, k, (int)parameter, (int)(bend >> 7));
                 perf_ctl[k][0] = (uint8_t)(bend >> 7);
                 ext_touch[k] |= 1u;
                 (void)original_runtime_param(&original_bass[k], parameter, value);
