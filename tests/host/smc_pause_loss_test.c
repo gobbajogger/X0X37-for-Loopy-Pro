@@ -19,20 +19,22 @@ int plat_ble_smc_send(const uint8_t *m, uint8_t n)
 
 static void send_note(int host, unsigned note, unsigned status, unsigned velocity)
 {
-    if (!host) message(status, note, velocity);
-    else {
-        CHECK(smc_midi_host((status == 0x80 ? 8u : 9u) |
+    if (host) {
+        unsigned locked=smc.locked, down=smc.lock_down;
+        CHECK(!smc_midi_host((status == 0x80 ? 8u : 9u) |
             (status | 15u) << 8 | note << 16 | velocity << 24));
-        smc_poll();
+        smc_poll(); CHECK(smc.locked==locked && smc.lock_down==down);
     }
+    message(status, note, velocity);
 }
 static void queue_lost_release(int host, unsigned note, unsigned status)
 {
     if (host) {
         for (unsigned i = 0; i < SMC_Q; i++)
-            CHECK(smc_midi_host(11u | 0xBFu << 8 | 16u << 16));
-        CHECK(smc_midi_host((status == 0x80 ? 8u : 9u) | (status | 15u) << 8 | note << 16));
-    } else {
+            CHECK(!smc_midi_host(11u | 0xBFu << 8 | 16u << 16));
+        CHECK(!smc_midi_host((status == 0x80 ? 8u : 9u) | (status | 15u) << 8 | note << 16));
+    }
+    {
         const uint8_t filler[3] = {0xB0, 16, 0};
         const uint8_t release[3] = {(uint8_t)status, (uint8_t)note, 0};
         for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
@@ -80,15 +82,15 @@ static void independent_release_loss(void)
         setup(V_SEQ, PART_808); proj.set.bt |= PROJ_BT_SMC_USER;
         send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked);
         /* Publication rollover is ordinary modulo arithmetic, not a stale loss. */
-        smc_pause_release_lost[host] = smc_pause_release_seen[host] = UINT32_MAX;
+        smc_pause_release_lost[0] = smc_pause_release_seen[0] = UINT32_MAX;
         queue_lost_release(host, 0x5D, status);
         CHECK(smc.locked && !smc.lock_down);
-        CHECK(!smc_pause_release_lost[host] && !smc_pause_release_seen[host]);
+        CHECK(!smc_pause_release_lost[0] && !smc_pause_release_seen[0]);
         send_note(host, 0x5D, 0x90, 127); CHECK(smc.locked);
         now_ms += 900; smc_poll(); CHECK(!smc.locked);
         send_note(host, 0x5D, status, 0);
     }
-    puts("PASS independent Pause release ownership: BLE/host, NoteOff/zero, unrelated Solo/Select/Play losses, actual Pause loss and epoch wrap");
+    puts("PASS independent Pause release ownership: DAW with/without retired-host noise, NoteOff/zero, unrelated Solo/Select/Play losses, actual Pause loss and epoch wrap");
 }
 int main(void)
 {

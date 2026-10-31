@@ -65,7 +65,7 @@ static void smc_show(int n, int knob, pref_t r) { (void)n; (void)knob; (void)r; 
 #include "smc_turn.inc"
 
 static int fails, route;
-static const char *const ROUTES[] = {"BLE DAW", "BLE USER", "host USER"};
+static const char *const ROUTES[] = {"BLE DAW", "BLE DAW legacy bit", "BLE DAW plus retired host noise"};
 static void check(const char *label, int ok)
 {
     printf("%s %s page %u: %s\n", ok ? "PASS" : "FAIL", ROUTES[route], ck.pg & 3u, label);
@@ -73,12 +73,13 @@ static void check(const char *label, int ok)
 }
 static void turn(int n, uint8_t value)
 {
-    uint8_t msg[3] = {route == 2 ? 0xBFu : 0xB0u, (uint8_t)(16 + n), value};
+    uint8_t msg[3] = {0xB0u, (uint8_t)(16 + n), value};
     if (route == 2) {
-        if (!smc_midi_host(0x0Bu | (uint32_t)msg[0] << 8 | (uint32_t)msg[1] << 16 | (uint32_t)msg[2] << 24))
-            check("host accepts the encoder message", 0);
-    } else
-        smc_ble_midi(msg, sizeof msg);
+        uint8_t before=smc_host_w;
+        check("retired host leaves encoder message unconsumed", !smc_midi_host(0x0Bu | 0xBFu << 8 | (uint32_t)msg[1] << 16 | (uint32_t)msg[2] << 24));
+        check("retired host cannot enqueue", smc_host_w==before);
+    }
+    smc_ble_midi(msg, sizeof msg);
     smc_poll();
 }
 static void covered(uint8_t overlay, uint8_t help)

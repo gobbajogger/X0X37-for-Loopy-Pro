@@ -88,7 +88,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t n, int allow)
     record(m, n);
     return 0;
 }
-static void smc_guarded_button(uint8_t note, int mmc, int allow)
+static __attribute__((unused)) void smc_guarded_button(uint8_t note, int mmc, int allow)
 {
     assert(mmc && allow);
     record(&note, 1);
@@ -229,7 +229,7 @@ with tempfile.TemporaryDirectory(prefix="smc-queue-") as tmp:
                     str(c), "-o", str(executable)], check=True)
     failures = []
     cases = 0
-    for route, src in ((0, 0), (1, 0), (2, 0), (2, 1), (3, 0), (3, 1), (4, 0), (4, 1)):
+    for route, src in ((0, 0),):  # User host/MMC routes 1..4 retired (DAW only)
         for start in (0, 240, 255):
             for reset in (0, 1):
                 if route == 4 and reset: continue

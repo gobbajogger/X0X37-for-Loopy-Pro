@@ -55,8 +55,12 @@ static void prepare(int view, int part, int strip, int target)
 }
 static void sample(int strip, int value, int user)
 {
-    if (user) message(0xB0, 40 + strip, value);
-    else fader(strip, value);
+    if (user) {
+        unsigned before=writes, picked=smc.picked;
+        message(0xBF, 40 + strip, value); /* retired User channel cannot acquire/write */
+        CHECK(writes==before && smc.picked==picked);
+    }
+    fader(strip, value); /* DAW mapping is invariant with legacy bit set */
 }
 static void crossing_matrix(void)
 {
@@ -86,7 +90,7 @@ static void crossing_matrix(void)
         int next = down ? 1 : 126;
         sample(strip, next, user); CHECK(writes == 1 && pref_get(r) == next);
     }
-    puts("PASS 192 crossings: DAW/User, main/both drum kits, eight strips, both directions, fine/coarse extrema; movement UI and writes checked separately");
+    puts("PASS 192 crossings: DAW with/without legacy bit and inert User traffic, main/both drum kits, eight strips, both directions, fine/coarse extrema; movement UI and writes checked separately");
 }
 static void routing_epochs(void)
 {

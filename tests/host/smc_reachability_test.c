@@ -34,7 +34,7 @@ int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
 #include "ble/ble_midi_central.c"
 static blec_t receiver;
 static int route;
-static int user_route(void) { return route==1 || route==2 || route==4; }
+/* All scenario controls are DAW. Legacy bit/noise variants must not change mapping. */
 static int hci_send(uint8_t t,const uint8_t *p,uint16_t n,void *ctx)
 { (void)t;(void)p;(void)n;(void)ctx;return 0; }
 static void hci_midi(const uint8_t *p,uint8_t n,void *ctx)
@@ -61,17 +61,12 @@ static void smc_input(const uint8_t *m,unsigned n)
 static void message(int st, int a, int b) {
     uint8_t msg[3] = {st,a,b};
     now_ms += 100;
-    if(user_route() && (st & 0xF0)==0xE0) { msg[0]=0xBF; msg[1]=40+(st&7); }
-    if(user_route() && (st & 0xF0)==0xB0) msg[0]=0xBF;
-    if(user_route() && (st==0x90 || st==0x80)) {
-        if(st==0x80) return;            /* stock MMC buttons have no release */
-        int cmd; for(cmd=1;cmd<=43 && smc_mmc_note(cmd)!=a;cmd++);
-        assert(cmd<=43);
-        if(route==2) smc_mmc_host(cmd,0);
-        else { uint8_t mmc[6]={0xF0,0x7F,0x7F,6,cmd,0xF7}; smc_input(mmc,6); }
-    } else if(route==2)
-        assert(smc_midi_host(0x0B | (uint32_t)msg[0]<<8 | (uint32_t)msg[1]<<16 | (uint32_t)msg[2]<<24));
-    else smc_input(msg,3);
+    if(route==2) {
+        unsigned before=smc_host_w;
+        assert(!smc_midi_host(0x0B | 0xBFu<<8 | (uint32_t)msg[1]<<16 | (uint32_t)msg[2]<<24));
+        assert(smc_host_w==before);
+    }
+    smc_input(msg,3);
     smc_poll(); smc_frame();
 }
 static void press(int note) { message(0x90,note,127); message(0x80,note,0); }
@@ -345,7 +340,7 @@ static void nav_strip_lamps(void) {
 /* Help is only a card: faders and knobs keep working, and the card stays up. */
 static void help_keeps_controls(void) {
     pref_t r;
-    int user = !!(proj.set.bt & PROJ_BT_SMC_USER), after;
+    int after; /* retired bit never changes DAW format */
     uint8_t at, msg[3];
     smc_view(V_HOME, 0);
     r = smc_target(0);
@@ -355,8 +350,7 @@ static void help_keeps_controls(void) {
     at = smc_scaled(r);
     ui.help = 1;
     assert(smc_same(smc_target(0), r));
-    if (user) { msg[0] = 0xBF; msg[1] = 40; msg[2] = 0; }
-    else { msg[0] = 0xE0; msg[1] = 0; msg[2] = 0; }
+    msg[0] = 0xE0; msg[1] = 0; msg[2] = 0;
     smc_ble_midi(msg, 3); smc_poll();
     msg[2] = at;
     smc_ble_midi(msg, 3); smc_poll();
@@ -366,8 +360,7 @@ static void help_keeps_controls(void) {
     assert(ui.help && pref_get(r) != 64);
     r = smc_knob_target(0);
     after = pref_get(r);
-    if (user) { msg[0] = 0xBF; msg[1] = 16; msg[2] = 1; }
-    else { msg[0] = 0xB0; msg[1] = 16; msg[2] = 1; }
+    msg[0] = 0xB0; msg[1] = 16; msg[2] = 1;
     smc_ble_midi(msg, 3); smc_poll();
     assert(ui.help && pref_get(r) != after);
     msg[0] = 0x90; msg[1] = 6; msg[2] = 127; /* R7 closes help; inject before HCI routes are armed */
@@ -379,7 +372,7 @@ static void scenario(void) {
     static const int expected_strip[5] = {0,1,4,3,2};
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
     memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
-    boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | ((route==1 || route==2 || route==4)?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
     knob_accel_isolated();
     knob_quick_spin_slower();
     record_lamp_follows_part();
@@ -411,8 +404,7 @@ static void scenario(void) {
         smc_view(V_FX,0);
         message(0x90,24+expected_strip[part],127);
         assert(ui.part == part && ui.view == V_FX && (smc.fx_down & (1u << part)));
-        if(user_route()) message(0x90,24+expected_strip[part],127);
-        else message(0x80,24+expected_strip[part],0);
+        message(0x80,24+expected_strip[part],0);
         assert(ui.part == part && ui.view == V_FX && !(smc.fx_down & (1u << part)));
         smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {
@@ -542,7 +534,7 @@ int main(void) {
     /* Rejection observability without rewriting input presets or dispatch rules. */
     const uint8_t m[3]={0xE0,0,100};
     proj.set.bt=PROJ_BT_SMC_CENTRAL|PROJ_BT_SMC_USER;
-    smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==4);
+    smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==0); /* DAW remains admitted with legacy bit */
     smc_ble_link(0);smc_poll();smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==2);
     smc_ble_link(1);smc_poll();proj.set.bt=0;
     smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==3);
