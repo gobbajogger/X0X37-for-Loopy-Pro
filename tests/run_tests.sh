@@ -350,6 +350,7 @@ run smc-fx-peer-view python3 tests/host/smc_fx_peer_view_test.py
 run smc-fx-preset-preserve python3 tests/host/smc_fx_preset_preserve_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
+run smc-ble-frame-length python3 tests/host/smc_ble_frame_length_test.py
 run engine-cq-rec-overflow python3 tests/host/engine_cq_rec_overflow_test.py   # atomic REC word retains critical priority
 run engine-cq-isr-preemption python3 tests/host/engine_cq_isr_preemption_test.py   # source-masked critical publication survives consumer ISR
 run engine-cq-boff-overflow python3 tests/host/engine_cq_boff_overflow_test.py   # full CQ must keep C_BOFF (displace param)
