@@ -73,7 +73,7 @@ static unsigned smc_slot;
 static uint8_t published_down, published_fx[SMCFX_N];
 static uint32_t now;
 static uint8_t smc_fx_tap_nav_once;
-static int home, clip, drum = -1, navigation, last_nav = -1, saves, resets;
+static int home, clip, drum = -1, navigation, last_nav = -1, saves, resets, shows;
 static unsigned checks;
 #define CHECK(pred) do { checks++; if (!(pred)) { \
     fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #pred); return 1; \
@@ -93,7 +93,7 @@ static uint32_t plat_buttons(void) { return 0; }
 static void say(const char *left, const char *right) { (void)left; (void)right; }
 static void smc_fx_save_preset(void) { saves++; }
 static void smc_fx_reset_cuts(void) { resets++; }
-static void smc_fx_show(uint8_t note) { (void)note; }
+static void smc_fx_show(uint8_t note) { (void)note; shows++; }
 static void smc_fx_main_nav(int which) { navigation++; last_nav = which; }
 static void engine_smc_busfx(uint8_t down, const uint8_t fx[SMCFX_N])
 {
@@ -207,6 +207,22 @@ int main(void)
                 smc_fx_release_note(note);
                 CHECK(!(published_down & bit));
             }
+    /* A page-two blank does not trigger FX or replace the popup while
+     * another active FX is still held on that same bus. */
+    memset(smc_states, 0, sizeof smc_states);
+    smc_slot = 0; home = 0; ui.view = V_FX; ui.overlay = O_NONE;
+    smc_fx_load_page(1);
+    CHECK(smc_fx_try(2, 0) == 1); /* 303A REC page 2 -> G8 */
+    CHECK(published_fx[SMCFX_303A] == SMCFX_GATE8);
+    int before_blank = shows;
+    CHECK(smc_fx_try(26, 0) == 1); /* 303A SELECT page 2 = -- */
+    CHECK(shows == before_blank);
+    CHECK(published_fx[SMCFX_303A] == SMCFX_GATE8);
+    smc_fx_release_note(26);
+    CHECK(published_down & (1u << SMCFX_303A));
+    smc_fx_release_note(2);
+    CHECK(!(published_down & (1u << SMCFX_303A)));
+
     /* Two simultaneously held buttons on one bus return to the earlier
      * effect when the later button is released. */
     memset(smc_states, 0, sizeof smc_states);
