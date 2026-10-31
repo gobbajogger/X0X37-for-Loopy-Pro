@@ -5,7 +5,9 @@ Standalone reproducer: python3 tests/host/test_original_runtime_lost_off.py
 """
 from pathlib import Path
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -140,11 +142,18 @@ def run_one(compiler, flags):
         subprocess.run([str(binary)], check=True, env=os.environ.copy())
 
 if __name__ == '__main__':
+    ran = 0
     for compiler, flags in [
         ('gcc', []), ('clang', []),
         ('gcc', ['-fsanitize=undefined', '-fno-sanitize-recover=all']),
         ('clang', ['-fsanitize=undefined', '-fno-sanitize-recover=all']),
         ('clang', ['-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                    '-fno-omit-frame-pointer'])]:
+        if shutil.which(compiler) is None:
+            print(compiler, ' '.join(flags), 'skipped (not installed)', flush=True)
+            continue
         print(compiler, ' '.join(flags), flush=True)
         run_one(compiler, flags)
+        ran += 1
+    if not ran:
+        sys.exit('no C compiler found (need gcc or clang)')
