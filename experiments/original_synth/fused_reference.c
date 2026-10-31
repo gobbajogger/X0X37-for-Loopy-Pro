@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
+#define ORIGINAL_FUSED_REFERENCE_IMPL 1
 #include "fused_reference.h"
 #include "binary32_math.h"
 #include <stddef.h>
