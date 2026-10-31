@@ -315,7 +315,10 @@ static void host_arrows(void)
         return;
     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
     if (route == ARW_MENU)
-        ui_menu_arrow(d);
+    {
+        if (ui_menu_arrow(d))
+            arw_rearm(&host_arw, arrows_held);       /* as main_fm1.c: entry consumes the held arrow */
+    }
     else
         enc_acc[EN_SELECT] += d;
 }
