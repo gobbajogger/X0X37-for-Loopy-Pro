@@ -349,10 +349,16 @@ static void test_guard_reset(void)
     setup(V_HOME, PART_303A); ui.overlay = O_ASK;
     CHECK(!smc_lock_toggle()); ui.overlay = O_NONE;
     perf.test = 0; CHECK(!smc_lock_toggle()); perf.test = PT_IDLE;
-    CHECK(ui_project_begin() == 0); CHECK(!smc_lock_toggle()); ui_project_end(0);
+    audio_block(); CHECK(!engine_project_notes());
+    CHECK(ui_project_begin() == 0); CHECK(ui_project_busy());
+    CHECK(!smc_lock_toggle()); ui_project_end(0);
     CHECK(smc_lock_toggle());
-    smc_project_reset(); navigate(V_SEQ, PART_909);
-    CHECK(smc_drum_mix() == PART_909); /* reset removes old home context */
+    smc_project_reset(); CHECK(!smc.locked && smc.view == V_HOME);
+    pref_t reset_target = smc_target(0);
+    navigate(V_SEQ, PART_909);
+    CHECK(smc_same(reset_target, smc_target(0))); /* keyboard remains independent */
+    message(0x90, 24, 127); message(0x80, 24, 0); /* explicit SMC drum navigation */
+    CHECK(smc_drum_mix() == PART_909);
     CHECK(smc_target(0).a == T_909);
     puts("PASS guards/reset: confirmation and project ownership reject capture; project reset releases context");
 }

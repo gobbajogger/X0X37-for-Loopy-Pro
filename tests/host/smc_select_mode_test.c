@@ -96,7 +96,13 @@ static void check_fx_and_release(void)
     }
     setup(V_FX, PART_303A);
     message(0x90, 27, 127);
-    CHECK(smc.fx_effect[SMCFX_303B] == SMCFX_LP); /* ROOM defaults: 303B SELECT is low-pass */
+    /* The four independent rows use the suited page cells. On ROOM,
+     * 303B has REC=HPF, SOLO=LPF, MUTE=delay and SELECT=reverb. */
+    CHECK(smc.fx_effect[SMCFX_303B] == SMCFX_REV);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip, SMCFX_303B) == SMCFX_REV);
+    message(0x80, 27, 0);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip, SMCFX_303B) == SMCFX_EMPTY);
+    CHECK(!(smc.fx_down & (1u << SMCFX_303B)));
 }
 static void check_main_taps(void)
 {

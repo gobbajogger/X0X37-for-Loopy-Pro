@@ -47,6 +47,6 @@ Fresh scoped run: **13 PASS / 0 FAIL / 0 selected NOT_RUN**:
 The runner's unselected package-test footer is separate from these selectors;
 Elite/Pro native packages were built independently as described above.
 The expanded popup test separately passes all 4183 checks.
-The earlier 47-selector audit in [TESTS.md](TESTS.md) belongs to the starting head;
-its nine failures are unresolved. The full host suite and hardware checks remain
+The earlier audit belonged to the starting head;
+its nine failures are now resolved; see the fresh 47-selector run in TESTS.md. The full host suite and hardware checks remain
 NOT_RUN. PR #789 remains a draft.

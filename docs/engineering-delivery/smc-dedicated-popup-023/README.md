@@ -23,10 +23,10 @@ Both native builds PASS, SDK V1.2.1, `X0X_DEV_PADCAL=0`. The bounded descriptor
 cache and captured context cost 64 B versus the pre-audit PR head (2496 B free),
 while retaining 80 B more free RAM than 0.0.23. Firmware binaries are not included.
 
-Earlier audit at `02c5224d`: SMC/mixer aggregate: **38 PASS / 9 FAIL / 0 selected NOT_RUN**, 47 selectors.
-[Results and remaining failures](TESTS.md). Popup 3718 checks, engine 21, core audit 25,
-held-step/song contracts 12, mixer pages 485, peer context 30 and fourteen mutation
-checks PASS. Full host suite and device validation NOT_RUN. This remains DRAFT.
+SMC/mixer validation: **47 PASS / 0 FAIL / 0 selected NOT_RUN**, including all
+nine previously failing selectors and 4183 popup checks. [Results](TESTS.md).
+The PLAY/MMC no-popup and Rewind/Forward cue-popup regressions pass.
+Full host suite and device validation NOT_RUN. This remains DRAFT.
 
 [Before/after contact sheet](framebuffer/before-after.png); each individual PNG in
 [framebuffer/](framebuffer/) is an actual 240x240 host framebuffer dump. The three
