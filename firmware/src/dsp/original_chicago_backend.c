@@ -276,6 +276,23 @@ int original_chicago_backend_filter_view(const original_chicago_backend *s, floa
     return 1;
 }
 
+int original_chicago_backend_env_view(const original_chicago_backend *s, float adsr[4], float *level, int *state)
+{
+    if (!s || s->ready != BACKEND_READY) return 0;
+    for (unsigned i = 0; i < 4; i++) adsr[i] = s->controls.vca[i];
+    *level = s->voice.active ? s->voice.vca.level : 0.0f;
+    *state = s->voice.active ? s->voice.vca.state : 6;
+    return 1;
+}
+
+int original_chicago_backend_pitch_view(const original_chicago_backend *s, float *current, float *target, int *active)
+{
+    if (!s || s->ready != BACKEND_READY) return 0;
+    *current = s->voice.pitch.current[0]; *target = s->voice.pitch.target[0];
+    *active = s->voice.active != 0;
+    return 1;
+}
+
 int original_chicago_backend_active(const original_chicago_backend *s)
 {
     /* Raw latched keys survive ordinary releases; only an enabled latch
@@ -476,9 +493,42 @@ int original_chicago_backend_render(original_chicago_backend *s,
         /* No event can edit controls or borrowed resources inside this call.
          * Admit the serial block once; retain sample-position clock, VCA and
          * MG ticks, including selector-driven notes and restart continuations. */
-        if (!original_chicago_voice_owner_render_block(&s->voice_owner, &s->scheduler,
-                w->core_left, w->core_right, frames) ||
-            healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
+        /* Frames with no clock edge, no global MG tick and no voice control
+         * tick run only counters and the voice render: apply the counters
+         * and render the whole span at once. Every other frame takes the
+         * original per-frame path. Same order, same values. */
+        original_chicago_voice_owner *o = &s->voice_owner;
+        original_chicago_voice *v = o->voices;
+        uint32_t i = 0;
+        while (i < frames) {
+            uint32_t n = 0;
+            if (o->status && s->note_context.status && o->bpm == s->scheduler.clock_input->bpm && o->count == 1 && !v->awaiting_restart && s->global_stage.status &&
+                s->global_input.sample_rate_integer == 44100 &&
+                s->global_input.sample_rate == 44100 && s->global_input.tempo_sync2 == 1) {
+                n = frames - i;
+                uint32_t q = original_chicago_global_mg_quiet_frames(&s->global, &s->global_input);
+                if (q < n) n = q;
+                unsigned ticking = v->active && v->vca.state != 6;
+                if (ticking) {
+                    q = v->counter < 44100u ? (44099u - v->counter) / 690u : 0;
+                    if (q < n) n = q;
+                }
+                if (n) n = original_chicago_scheduler_skip(&s->scheduler, &s->clock1, n);
+                if (n) {
+                    if (ticking) v->counter += 690u * n;
+                    s->global.counter += (int32_t)(690u * n);
+                    s->global_stage.helper_entries += n;
+                    if (!original_chicago_voice_render_span(v, o->controls,
+                            w->core_left + i, w->core_right + i, n)) return fault(s);
+                    i += n;
+                    continue;
+                }
+            }
+            if (!original_chicago_voice_owner_render_block(o, &s->scheduler,
+                    w->core_left + i, w->core_right + i, 1)) return fault(s);
+            ++i;
+        }
+        if (healthy(s) != ORIGINAL_CHICAGO_BACKEND_OK) return fault(s);
         s->events.next_frame = frames;
         return end_admitted(s, left, right, 0);
     }

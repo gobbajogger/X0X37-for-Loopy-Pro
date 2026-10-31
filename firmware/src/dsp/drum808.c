@@ -200,7 +200,7 @@ static int32_t floor_mul(float a, float b)
     return r;
 }
 
-__attribute__((noinline)) static float clampf(float x, float lo, float hi) { return x < lo ? lo : (x > hi ? hi : x); }
+static inline __attribute__((always_inline)) float clampf(float x, float lo, float hi) { return x < lo ? lo : (x > hi ? hi : x); }
 
 /* ======================================================================= */
 /* primitives                                                              */
@@ -213,7 +213,7 @@ __attribute__((noinline)) static void rng_seed(d8_rng_t *r, uint32_t s)
     r->s3 = 1821928721u ^ s; if (r->s3 < 16u) r->s3 = 1821928721u;
 }
 
-__attribute__((noinline)) static float rng_frand2(d8_rng_t *r)
+static inline __attribute__((always_inline)) float rng_frand2(d8_rng_t *r)
 {
     fm_bits_t u;
     r->s1 = ((r->s1 & 0xFFFFFFFEu) << 12) ^ (((r->s1 << 13) ^ r->s1) >> 19);
@@ -236,7 +236,7 @@ D8_TICK float shaper(float *st, float gate)
     return v;
 }
 
-__attribute__((noinline)) static float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
+static inline __attribute__((always_inline)) float opamp_clip(float v, float rail, float irail) { return rail * fm_tanhf(v * irail); }
 
 /* BridgedT::set: constant-peak bandpass, clamps as 8W8 */
 __attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
@@ -254,7 +254,7 @@ __attribute__((noinline)) static void bp_set(d8_bp_t *f, float hz, float q)
     f->e2 = -2.0f * alpha * inv;
 }
 
-__attribute__((noinline)) static float bp_run(d8_bp_t *f, float x)
+static inline __attribute__((always_inline)) float bp_run(d8_bp_t *f, float x)
 {
     float bx = f->b0 * x;
     float y = bx + f->z1;
@@ -263,7 +263,7 @@ __attribute__((noinline)) static float bp_run(d8_bp_t *f, float x)
     return y;
 }
 
-__attribute__((noinline)) static float bq_run(d8_bq_t *f, float x)
+static inline __attribute__((always_inline)) float bq_run(d8_bq_t *f, float x)
 {
     float y = f->n0 * x + f->z1;
     f->z1 = (f->n1 * x + (y + y + f->z2)) - f->e1 * y;
@@ -331,7 +331,7 @@ static const float k_cy_bp1[7] = {-7.319914168e-01f, 7.136070782e-01f, 7.3199141
                                   -1.388193671e+00f, -1.157075547e-01f, 5.065353624e-01f};
 static const float k_cy_bp2[7] = {-5.120760045e-01f, 4.815941287e-01f, 5.120760045e-01f, -4.815941287e-01f,
                                   -1.055101523e+00f, -5.886905868e-01f, 6.606506222e-01f};
-__attribute__((noinline)) static float bq3_run(d8_bq3_t *f, const float *c, float x)
+static inline __attribute__((always_inline)) float bq3_run(d8_bq3_t *f, const float *c, float x)
 {
     float y = c[0] * x + f->z[0];
     f->z[0] = c[1] * x - c[4] * y + f->z[1];
@@ -366,7 +366,7 @@ static void env_arm(d8_env_t *e)
     }
 }
 
-__attribute__((noinline)) static float env_step(d8_env_t *e)
+static inline __attribute__((always_inline)) float env_step(d8_env_t *e)
 {
     if (e->done)
         return e->level;
@@ -833,7 +833,7 @@ __attribute__((noinline)) static void bank_ratio(d8_bank_t *b, float r)
 }
 
 /* the two-sample polyBLEP edge correction, on fixed-point phases */
-__attribute__((noinline)) static float blep_fix(uint32_t t, uint32_t dt)
+static inline __attribute__((always_inline)) float blep_fix(uint32_t t, uint32_t dt)
 {
     float x;
     uint32_t r;
@@ -891,7 +891,7 @@ static inline float menv_tick(d8_menv_t *e)
 }
 
 #define DIODE_VON 0.5899f
-__attribute__((noinline)) static float knee_gate(float e)            /* the swing VCA's diode, knee 1.2 */
+static inline __attribute__((always_inline)) float knee_gate(float e)            /* the swing VCA's diode, knee 1.2 */
 {
     float over = e - DIODE_VON;
     if (over <= 0.0f)

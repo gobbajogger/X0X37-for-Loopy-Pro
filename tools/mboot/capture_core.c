@@ -158,6 +158,8 @@ int mb_capture_revalidate(struct mb_capture *c,const struct mb_capture_binding *
         return fail(c,MB_CAPTURE_DIGEST_MISMATCH);
     c->state=MB_CAPTURE_REVALIDATED_HELD;return MB_CAPTURE_OK;
 }
+int mb_capture_lease_current(struct mb_capture *c,const struct mb_capture_binding *b,uint64_t now)
+{ return live(c,b,now); }
 int mb_capture_evidence_current(struct mb_capture *c,const struct mb_capture_binding *b,uint64_t now)
 {
     int rc=live(c,b,now);if(rc)return rc;

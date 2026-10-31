@@ -2,11 +2,13 @@
 wait 300
 expect clksrc 0
 tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
 shot 01_glo_clock_source.png
 turn ALGO 2
 expect clksrc 2
 shot 02_glo_external.png
-tap HOME
+tap GLO
 wait 100
 expect clkext 1
 # EXTERNAL: PLAY with no clock waits; the play arrow and the PLAY light blink, the top line says so
@@ -88,8 +90,10 @@ expect playing 0
 expect transport_out 0
 # INTERNAL: Start, Clock and Stop in are ignored; PLAY runs on the internal clock with clock out
 tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
 turn ALGO -1
-tap HOME
+tap GLO
 expect clksrc 1
 midi FA 00 00
 wait 100

@@ -184,6 +184,8 @@ typedef struct {
     uint32_t touch_until;
     uint8_t overlay;
     uint8_t list_sel, list_top, list_n;
+    int8_t glo_section; /* -1: section index; local navigation, never project state */
+    uint8_t glo_index, glo_sel[6], glo_top[6];
     uint8_t ask_act;
     uint8_t ask_overlay;
     uint16_t ask_arg;
@@ -367,10 +369,12 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLICE, R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP, R_BENGINE, R_BPRESET, R_BSTATUS, R_SECTION };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
+
+static const char *const GLOBAL_SECTIONS[6] = {"MIDI + CLOCK", "BLUETOOTH", "AUDIO", "KEYS + SCREEN", "PROJECT", "SYSTEM"};
 static ui_original_control_cache original_controls X0X_POOL;
 static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
@@ -741,10 +745,11 @@ X0X_COLD static void pref_set(pref_t r, int v)
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_CLK_MASK) | (uint8_t)v << 1 | PROJ_BT_CLK_IN);
         break;
     case R_BT:
-        proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
+        project_device_bt_set(v > 0);
         plat_ble_set(v > 0);
         if (plat_ble_state() == PLAT_BLE_RESTART)
             say("RESTART TO TURN ON", 0);             /* the controller starts only at power-on */
+        else if (project_device_bt_pending()) say("BT SAVE PENDING", 0);
         break;
     case R_SMC_ROLE:
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));
@@ -834,6 +839,7 @@ static int in_pattern(pref_t r)
 /* a knob's label: mixer refs name their part */
 static const char *pref_name(pref_t r)
 {
+    if(r.kind==R_SECTION)return GLOBAL_SECTIONS[r.a<6?r.a:0];
     static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN", "909 CUT"},
                                                          {"808", "808 RV", "808 DL", "808 PAN", "808 CUT"},
                                                          {"303 A", "A REV", "A DLY", "A PAN", "A CUT"},
@@ -1530,55 +1536,59 @@ static void open_list_of_pages(void)
     ui.overlay = ui.list_n ? O_LIST : O_NONE;
 }
 
+static void global_index(void)
+{
+    ui.glo_section=-1;ui.list_n=0;
+    for(int g=0;g<6;g++) {
+#if !BOARD_SMK37
+        if(g==1)continue;
+#endif
+        list_add(PR(R_SECTION,g,0,0));
+    }
+    put_s(list_title,"GLOBAL");ui.list_sel=ui.glo_index<ui.list_n?ui.glo_index:0;ui.list_top=0;ui.overlay=O_LIST;
+}
+static void global_section(int g)
+{
+    if(g<0||g>=6)return;
+    ui.glo_index=ui.list_sel;ui.glo_section=(int8_t)g;ui.list_n=0;
+    switch(g) {
+    case 0:
+        list_add(PR(R_CLKSRC,0,0,0));list_add(PR(R_CLKOUT,0,0,0));list_add(PR(R_NOTEOUT,0,0,0));
+        for(int p=0;p<NPARTS;p++)list_add(PR(R_MIDICH,part_at(p),0,0));
+#if BOARD_SMK37
+        list_add(PR(R_CKCH,0,0,0));
+#endif
+        break;
+    case 1:
+#if BOARD_SMK37
+        list_add(PR(R_BT,0,0,0));list_add(PR(R_SMC_ROLE,0,0,0));list_add(PR(R_SMC_MAP,0,0,0));
+        list_add(PR(R_BTSTAT,0,0,0));list_add(PR(R_BTNAME,0,0,0));
+#endif
+        break;
+    case 2:list_add(PR(R_OUTLOUD,0,0,0));list_add(PR(R_USBFULL,0,0,0));break;
+    case 3:list_add(PR(R_KEYLED,0,0,0));list_add(PR(R_KEYSOUND,0,0,0));list_add(PR(R_PALETTE,0,0,0));break;
+    case 4:
+        list_add(PR(R_ACT,ACT_SAVE,0,0));list_add(PR(R_ACT,ACT_LOAD,0,0));list_add(PR(R_AUTOSAVE,0,0,0));
+        list_add(PR(R_ACT,ACT_CLEAR_PAT,0,0));list_add(PR(R_ACT,ACT_RESET,0,0));break;
+    case 5:
+        list_add(PR(R_ACT,ACT_PERF,0,0));list_add(PR(R_ACT,ACT_ABOUT,0,0));list_add(PR(R_BATT,0,0,0));
+#if BOARD_SMK37 && X0X_DEV_PADCAL
+        {extern uint8_t smk_clip_mode_on(void);if(!smk_clip_mode_on())list_add(PR(R_ACT,ACT_PADCAL,0,0));}
+#endif
+        break;
+    }
+    put_s(list_title,GLOBAL_SECTIONS[g]);ui.list_sel=ui.glo_sel[g]<ui.list_n?ui.glo_sel[g]:0;
+    ui.list_top=ui.glo_top[g]<=ui.list_sel?ui.glo_top[g]:0;ui.overlay=O_LIST;
+}
+static void global_back(void)
+{
+    int g=ui.glo_section;
+    if(g>=0&&g<6){ui.glo_sel[g]=ui.list_sel;ui.glo_top[g]=ui.list_top;}
+    global_index();
+}
 static void open_global(void)
 {
-    ui.list_n = 0;
-    list_rows[ui.list_n++] = PR(R_HDR, GR_MIDI, 0, 0);
-    list_add(PR(R_CLKSRC, 0, 0, 0));
-    list_add(PR(R_CLKOUT, 0, 0, 0));
-    list_add(PR(R_NOTEOUT, 0, 0, 0));
-    for (int p = 0; p < NPARTS; p++)
-        list_add(PR(R_MIDICH, part_at(p), 0, 0));
-#if BOARD_SMK37
-    list_add(PR(R_CKCH, 0, 0, 0));
-#endif
-    list_rows[ui.list_n++] = PR(R_HDR, GR_AUDIO, 0, 0);
-    list_add(PR(R_OUTLOUD, 0, 0, 0));
-    list_add(PR(R_USBFULL, 0, 0, 0));
-    list_rows[ui.list_n++] = PR(R_HDR, GR_KEYS, 0, 0);
-    list_add(PR(R_KEYLED, 0, 0, 0));
-    list_add(PR(R_KEYSOUND, 0, 0, 0));
-    list_add(PR(R_PALETTE, 0, 0, 0));
-    list_rows[ui.list_n++] = PR(R_HDR, GR_PROJECT, 0, 0);
-    list_add(PR(R_ACT, ACT_SAVE, 0, 0));
-    list_add(PR(R_ACT, ACT_LOAD, 0, 0));
-    list_add(PR(R_AUTOSAVE, 0, 0, 0));
-    list_add(PR(R_ACT, ACT_CLEAR_PAT, 0, 0));
-    list_add(PR(R_ACT, ACT_RESET, 0, 0));
-    list_rows[ui.list_n++] = PR(R_HDR, GR_SYSTEM, 0, 0);
-    list_add(PR(R_ACT, ACT_PERF, 0, 0));
-    list_add(PR(R_ACT, ACT_ABOUT, 0, 0));
-    list_add(PR(R_BATT, 0, 0, 0));
-#if BOARD_SMK37
-#if X0X_DEV_PADCAL
-    {
-        extern uint8_t smk_clip_mode_on(void);
-        if (!smk_clip_mode_on())                  /* the pad calibration (main_fm1.c, CLP-79), not in clip mode */
-            list_add(PR(R_ACT, ACT_PADCAL, 0, 0));
-    }
-#endif
-    list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
-    list_add(PR(R_BT, 0, 0, 0));
-    list_add(PR(R_SMC_ROLE, 0, 0, 0));
-    list_add(PR(R_SMC_MAP, 0, 0, 0));
-    list_add(PR(R_BTSTAT, 0, 0, 0));
-    list_add(PR(R_BTNAME, 0, 0, 0));
-#endif
-    put_s(list_title, "GLOBAL");
-    ui.list_sel = ui.list_top = 0;
-    while (list_skip(ui.list_sel))
-        ui.list_sel++;
-    ui.overlay = O_LIST;
+    memset(ui.glo_sel,0,sizeof ui.glo_sel);memset(ui.glo_top,0,sizeof ui.glo_top);ui.glo_index=0;global_index();
 }
 
 /* ================================================================ questions === */
@@ -3411,10 +3421,7 @@ static void key_event(int k, int down)
         return;
     }
     if (w >= 0 && drum_mix_page() >= 0) {            /* the SMK pads keep editing this visible kit's steps */
-        if (ui.overlay == O_NONE && !ui.help)
-            drum_step(drum_mix_page(), w, down);
-        else if (!down && ui.hold_step >= 0 && (ui.hold_step & 15) == w)
-            ui.hold_step = -1;
+        drum_step(drum_mix_page(), w, down);          /* also under a settings list or HELP (O_ASK left above) */
         return;
     }
     if (ui.view == V_HOME && bl >= 0) {
@@ -3512,6 +3519,7 @@ static void list_move(int d)
 static void list_enter(void)
 {
     pref_t r = list_rows[ui.list_sel];
+    if (r.kind == R_SECTION) {global_section(r.a);return;}
     if (r.kind != R_ACT)
         return;
     if (r.a == ACT_CLEAR_PAT)
@@ -3533,23 +3541,28 @@ static int ui_menu_open(void) { return ui.overlay == O_LIST && !perf_testing(); 
  * submenu, "<" goes back. This lane has no submenu rows. */
 static int list_sub_arrow(pref_t r, int d)
 {
-    (void)r;
-    (void)d;
-    return 0;
+    if(r.kind!=R_SECTION)return 0;
+    if(d>0)global_section(r.a);
+    return 1;
 }
 /* "<" (d = -1) or ">" (d = +1) in a menu: the value of the selected row one step down or up, as ALGORITHM
  * does (turn_ref). The value stops at its ends. An action row and a section header do nothing. The knob
  * acceleration does not start: the presses and the repeats are 60 ms or more apart (accel). */
-static void ui_menu_arrow(int d)
+static int ui_menu_arrow(int d)
 {
 #if BOARD_SMK37
     smc_ui_cancel();
 #endif
     pref_t r = list_rows[ui.list_sel];
+    if (d < 0 && ui.view == V_GLO && ui.glo_section >= 0) {
+        global_back();                                /* "<" leaves a settings section, as HOME */
+        return 1;                                     /* the held "<" must not edit the section index */
+    }
     if (list_sub_arrow(r, d))
-        return;
+        return d > 0;                                 /* the caller consumes this held category-entry arrow */
     turn_ref(r, d, EN_ALGO);
     ui.act_t = plat_ms();                             /* (the autosave waits for quiet) */
+    return 0;
 }
 #endif
 
@@ -3645,6 +3658,7 @@ X0X_COLD static void button_tap(int b)
         say(ui.rec ? "RECORD ON: KEYS + KNOBS" : "RECORD OFF", 0);
         break;
     case B_HOME:                                      /* the pattern; again: the song (a list: back) */
+        if(ui.view==V_GLO && ui.overlay==O_LIST && ui.glo_section>=0) {global_back();break;}
         if (ui.overlay != O_NONE || ui.view == V_GLO)
             close_overlay();
 #if X0X_BASS_PRESET_PREVIEW
@@ -3777,7 +3791,9 @@ static int division_pad_owner(void)
 {
 #if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
     extern uint8_t smk_clip_mode_on(void);
-    if (project_busy || perf_testing() || ui.rec || ui.help || ui.overlay != O_NONE ||
+    /* A settings list or HELP on the synth page does not take the pads: they keep
+     * the rates they show. Only a question (O_ASK) waits for an answer. */
+    if (project_busy || perf_testing() || ui.rec || ui.overlay == O_ASK ||
         (ui.btn & ((1u << B_HOME) | (1u << B_SAVE))) ||
         (ui.view != V_SEQ && ui.view != V_PART) || !is_303() ||
         !ui.freeplay[bidx()] || engine_bass_bank(bidx()) != ORIGINAL_SOUND_MIAMI ||
@@ -3838,9 +3854,11 @@ static unsigned live_token(unsigned physical)
 int ui_live_key_owner(void)
 {
 #if BOARD_SMK37 || defined(X0X_HOST)
-    if(project_busy || perf_testing() || ui.rec || ui.help || ui.overlay!=O_NONE ||
+    /* Synth pages keep the keybed: a settings list or HELP on top of SEQ/EDIT
+     * does not take the piano keys. Only a question (O_ASK) waits for an answer. */
+    if(project_busy || perf_testing() || ui.rec || ui.overlay==O_ASK ||
        (ui.btn&((1u<<B_HOME)|(1u<<B_SAVE))) || (ui.view!=V_SEQ && ui.view!=V_PART) ||
-       !is_303() || !ui.freeplay[bidx()])return 0;
+       !is_303() || (!ui.freeplay[bidx()] && ui.view!=V_PART))return 0; /* EDIT plays (kbd_on): all 37 keys */
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
     if(smk_clip_mode_on() || smc_ui_active())return 0;
@@ -4771,21 +4789,16 @@ static UI_DRAW void draw_header(void)
             }
         }
 #endif
-        int32_t w = tw(&FONT_B, part_label) + 12;
-        box(0, 1, w, 17, part_col());
-        cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, part_label, C_BLACK);
-        x = w + 6;
-        if (ui.view == V_GEN)
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "TB-3PO", C_HI) + 6;
-        else if (ui.view == V_SEQ)
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, !kbd_on() ? "SEQ" : ui.rec ? "SEQ KEYS" : "FREE PLAY",
-                        kbd_on() ? C_AMB : C_HI) + 6;
-        else if (ui.view == V_PART && is_303())
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "SOUND", C_HI) + 6;
-        else if (kbd_on())                            /* REC: KEYS (written); FREE PLAY: said so */
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, ui.rec ? "KEYS" : "FREE PLAY", C_AMB) + 6;
+        const char *mode = ui.view==V_GEN?"TB-3PO":ui.view==V_SEQ?(!kbd_on()?"SEQ":ui.rec?"SEQ KEYS":"FREE PLAY"):
+                           ui.view==V_PART&&is_303()?"SOUND":kbd_on()?(ui.rec?"KEYS":"FREE PLAY"):"";
+        const felucca_font_t *pf=&FONT_B,*mf=&FONT_S;
+        if(tw(pf,part_label)+18+tw(mf,mode)>128)pf=mf=&FONT_XS;
+        int32_t w = tw(pf, part_label) + 12;
+        box(0,1,w,17,part_col());cv_text(6,vc(pf,1,17),pf,part_label,C_BLACK);
+        x=w+6;
+        if(mode[0])x=cv_text(x,vc(mf,1,17),mf,mode,kbd_on()&&ui.view!=V_GEN&&!(ui.view==V_PART&&is_303())?C_AMB:C_HI)+6;
     } else {
-        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, VIEW_N[ui.view], C_HI) + 6;
+        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, ui.view==V_GLO?list_title:VIEW_N[ui.view], C_HI) + 6;
         if (drum_mix_page() >= 0)                     /* MIX: 909 / MIX: 808 (whose tracks these are) */
             x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
                         PART_COL[drum_mix_page()]) + 6;
@@ -5019,8 +5032,8 @@ static UI_DRAW void draw_303(int band, int gen)
 static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col, int height, int night);
 static UI_DRAW int adsr_touch_active(void);
-static UI_DRAW int adsr_inline_page(void);
-static UI_DRAW void draw_adsr_inline(int y,int h,int off);
+static UI_DRAW int adsr_row(int page);
+static UI_DRAW void draw_adsr_inline(int page,int active,int y,int h,int off);
 enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
 static UI_DRAW void matrix_glyph(int x,int y,int glyph,uint16_t c,uint16_t bg);
 
@@ -5081,7 +5094,6 @@ static UI_DRAW void draw_part_sound(int band)
     int rows=three?3:4, height=three?66:49, step=three?67:50;
     uint16_t col=matrix_col(), gray=night?SOUND_GRAY:C_GRAY, hint=night?SOUND_AMBER:C_HI;
     if(night) cv_rect(0,0,240,band==2?KNOB_H:BAND_H,SOUND_BASE);
-    int graph=adsr_inline_page();
     for (row=0;row<rows;row++) {
         int p=first+row, y=4+row*step-off, active=p==page;
         uint16_t label=night?(active?SOUND_INK:SOUND_GRAY):(active?C_BLACK:C_GRAY);
@@ -5092,7 +5104,7 @@ static UI_DRAW void draw_part_sound(int band)
                            active?blend(col,C_WHITE,5):SOUND_EDGE,active?dim(col,8):SOUND_SIDE);
         put_s(put_s(put_i(t,row+1),"  "),matrix_group(p));
         cv_text(8,y,&FONT_T,t,label);
-        if (graph && active) { draw_adsr_inline(y+off,height,off); continue; } /* graph replaces A/D/S/R boxes */
+        if (adsr_row(p)) { draw_adsr_inline(p,active,y+off,height,off); continue; } /* graph replaces A/D/S/R, any row */
         if (active) {
             char knobs[20];matrix_knob_caption(knobs,p);
             text_r(232,y,&FONT_T,knobs,label);
@@ -5810,6 +5822,15 @@ static UI_DRAW void draw_readout(void)
     }
 }
 
+static const char *action_key_cue(void)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if(smk_clip_mode_on())return ""; /* Physical SCALE is masked; SMC dispatch stays available. */
+#endif
+    return UI_CAP_SEL;
+}
+
 /* Open-beta display to the left of the action arrow. Empty on an unversioned build.
  * The name and the arrow stay put; a label that would touch either one is not drawn. */
 static int release_label_box(const char *label, int selected, int32_t *x, int32_t *w)
@@ -5819,12 +5840,46 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
         return 0;
     name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT DnBOX");
     lw = tw(&FONT_XS, label);
-    lx = 204 - lw;
-    if (lx < 8 + name_w + 4 || lx + lw > 206)
+    lx = 226 - tw(&FONT_XS, action_key_cue()) - 8 - lw;
+    if (lx < 8 + name_w + 4 || lx + lw > 226 - tw(&FONT_XS, action_key_cue()) - 8)
         return 0;
     *x = lx;
     *w = lw;
     return 1;
+}
+
+/* BT NAME row (restored from 0e58b960): the connected peers joined with ", ",
+ * held 700 ms at each end and moved at 24 px/s when wider than the row. */
+#define PEER_TEXT_CAP (PLAT_BLE_PEER_CAP*(PLAT_BLE_PEER_NAME_MAX+2u)-1u)
+static struct { char text[PEER_TEXT_CAP]; unsigned count; int state, central, active, travel; uint32_t start; } peer_scroll;
+static void peer_join(char out[PEER_TEXT_CAP], const plat_ble_peers_t *peers)
+{
+    unsigned k=0,count=peers->count<PLAT_BLE_PEER_CAP?peers->count:PLAT_BLE_PEER_CAP;
+    for(unsigned i=0;i<count;i++) {
+        if(i){out[k++]=',';out[k++]=' ';}
+        unsigned n=0;while(n<PLAT_BLE_PEER_NAME_MAX && peers->name[i][n]) {
+            unsigned char ch=(unsigned char)peers->name[i][n++];out[k++]=(char)(ch>=32&&ch<=126?ch:'?');
+        }
+    }
+    if(!k)out[k++]='-';
+    out[k]=0;
+}
+static int peer_offset(const char *text,const plat_ble_peers_t *peers,int travel,uint32_t now)
+{
+    if(!peer_scroll.active || strcmp_s(text,peer_scroll.text) || peers->count!=peer_scroll.count ||
+       peers->state!=peer_scroll.state || peers->central!=peer_scroll.central || travel!=peer_scroll.travel) {
+        put_s(peer_scroll.text,text);peer_scroll.count=peers->count;peer_scroll.state=peers->state;
+        peer_scroll.central=peers->central;peer_scroll.travel=travel;peer_scroll.start=now;peer_scroll.active=1;
+    }
+    if(travel<=0)return 0;
+    uint32_t move=((uint32_t)travel*1000u+23u)/24u, phase=(now-peer_scroll.start)%(2u*(700u+move));
+    if(phase<700u)return 0;
+    phase-=700u;
+    if(phase<move)return (int)(phase*24u/1000u);
+    phase-=move;
+    if(phase<700u)return travel;
+    phase-=700u;
+    return travel-(int)(phase*24u/1000u);
 }
 
 /* a list over the main area: six rows of 24 px */
@@ -5850,6 +5905,9 @@ static UI_DRAW void draw_list(int band)
         surface_panel(3,y+1,229,21,sel,sel?dim(part_col(),6):SOUND_FACE,
                       sel?part_col():SOUND_EDGE,SOUND_SIDE);
         cv_text(8, vc(sel ? &FONT_B : &FONT_S, y + 1, 18), sel ? &FONT_B : &FONT_S, caps_of(pref_name(r)), sel ? C_WHITE : C_GRAY);
+        if (r.kind == R_SECTION) {                     /* a GLOBAL category: its chevron */
+            cv_line(221,y+8,225,y+11,sel?C_AMB:C_DIM);cv_line(225,y+11,221,y+14,sel?C_AMB:C_DIM);continue;
+        }
         if (r.kind == R_ACT) {                         /* an action: the return arrow */
             uint16_t ac = sel ? C_WHITE : C_DIM;
             if (r.a == ACT_ABOUT) {
@@ -5857,11 +5915,15 @@ static UI_DRAW void draw_list(int band)
                 if (release_label_box(X0X_RELEASE_LABEL, sel, &lx, &lw))
                     cv_text(lx, vc(&FONT_XS, y + 1, 18), &FONT_XS, X0X_RELEASE_LABEL, sel ? C_WHITE : C_HI);
             }
-            cv_rect(212, y + 12, 12, 2, ac);
-            cv_rect(222, y + 6, 2, 7, ac);
-            cv_line(212, y + 13, 216, y + 9, ac);
-            cv_line(212, y + 13, 216, y + 17, ac);
+            text_r(226,vc(&FONT_XS,y+1,18),&FONT_XS,action_key_cue(),ac);
             continue;
+        }
+        if(r.kind==R_BTNAME) {                       /* connected peers: one line, scrolls when long */
+            plat_ble_peers_t peers;char shown[PEER_TEXT_CAP];const felucca_font_t *nf=sel?&FONT_B:&FONT_S;
+            plat_ble_peers(&peers);peer_join(shown,&peers);
+            int left=8+tw(nf,"NAME")+8, width=226-left, travel=tw(nf,shown)-width;
+            int offset=peer_offset(shown,&peers,travel,plat_ms());
+            cv_text_clip(left-offset,vc(nf,y+1,18),nf,shown,sel?C_WHITE:C_HI,left,226);continue;
         }
         pref_value(r, num, unit);
         if (r.kind == R_BPRESET) {
@@ -5990,7 +6052,7 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
         *b = UI_CAP_HOME ": NO";
     } else if (ui.overlay == O_LIST) {
         *a = UI_CAP_SELECT ": MOVE";
-        *b = UI_CAP_ALGO ": CHANGE";
+        *b = ui.view==V_GLO&&ui.glo_section<0?">: ENTER":UI_CAP_ALGO ": CHANGE";
         *c = UI_CAP_HOME ": BACK";
     } else if (ui.view == V_HOME) {
 #if BOARD_SMK37
@@ -6535,9 +6597,9 @@ typedef struct {
     int curved,release_curve,gate,enabled;
 } ui_adsr_t;
 
-static void adsr_values(ui_adsr_t *e)
+static void adsr_values(ui_adsr_t *e,int p)
 {
-    int p=cur_page(),i;
+    int i;
     float *time[3]={&e->attack,&e->decay,&e->release};
     e->sustain=(float)matrix_value(pg.r[p][2])/127.0f;
     e->curved=e->release_curve=e->gate=0;e->enabled=1;
@@ -6546,11 +6608,13 @@ static void adsr_values(ui_adsr_t *e)
          * compiled native controls include each macro's scaling; D/R are RC. */
         /* Time constants of original_vca_tick (control_math.c), seconds:
          * A 13a^4+.001 toward 1.3, D 25d^4+.001 toward S, R 25r^4+.002. */
+        /* Native VCA EG controls exactly as the engine compiles them (macro
+         * scaling included); q127 if the runtime view is unavailable. */
         float native[4]={0,0,0,0};unsigned gate=0;
-        (void)engine_bass_adsr_view(bidx(),native,&gate);
-        e->sustain=native[2];e->gate=(int)gate;
+        int nv=engine_bass_adsr_view(bidx(),native,&gate);
+        if(nv){e->sustain=native[2];e->gate=(int)gate;}
         for(i=0;i<3;i++) {
-            float x=native[i==2?3:i]; x*=x; x*=x;
+            float x=nv?native[i==2?3:i]:(float)matrix_value(pg.r[p][i==2?3:i])/127.0f; x*=x; x*=x;
             *time[i]=i==0?13.0f*x+.001f:i==1?25.0f*x+.001f:25.0f*x+.002f;
         }
         e->curved=1; e->release_curve=1; e->enabled=2; /* 2: original exponential laws */
@@ -6587,12 +6651,15 @@ static float adsr_release(const ui_adsr_t *e,float u)
 
 /* The envelope graph lives on the PART page itself, above the envelope row,
  * and follows the live control values. Original Chicago ENVELOPE only. */
-static UI_DRAW int adsr_inline_page(void)
+/* Any row whose four controls are the original A/D/S/R set gets the graph,
+ * active or not. Chicago: ENVELOPE (slots 7..10, one macro set that drives
+ * both VCF and VCA EGs). The original Miami profile has no A/D/S/R row. */
+static UI_DRAW int adsr_row(int p)
 {
-    int p=cur_page();
     return ui.view==V_PART && is_303() && p>=0 && p<pg.n &&
            engine_bass_sound_bank(&proj.sound,bidx())==ORIGINAL_SOUND_CHICAGO &&
-           !strcmp_s(pg.title[p],"ENVELOPE");
+           pg.r[p][0].kind==R_ENG && pg.r[p][0].c==7 && pg.r[p][1].c==8 &&
+           pg.r[p][2].c==9 && pg.r[p][3].c==10;
 }
 /* Level of one original stage at time t (s): attack toward 1.3 clipped at 1,
  * decay toward sustain, release toward zero (original_vca_tick). */
@@ -6620,16 +6687,16 @@ static void adsr_layout(const ui_adsr_t *e,int x0,int width,int xs[5],float dur[
     if(w[1]<3) { w[2]-=3-w[1]; w[1]=3; }
     xs[0]=x0; xs[1]=x0+w[0]; xs[2]=xs[1]+w[1]; xs[3]=xs[2]+hold; xs[4]=x0+width;
 }
-static UI_DRAW void draw_adsr_inline(int y,int h,int off)
+static UI_DRAW void draw_adsr_inline(int p,int active,int y,int h,int off)
 {
     static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
     ui_adsr_t e;
-    int p=cur_page(),k,edited=ui.touched>=0 && ui.touched<4 &&
+    int k,edited=active && ui.touched>=0 && ui.touched<4 &&
         (int32_t)(ui.touch_until-plat_ms())>0?ui.touched:-1;
     int x0=13,y0=y+h-5,top=y+22,xs[5];
-    uint16_t col=matrix_col(),hi=SOUND_INK;
+    uint16_t col=active?matrix_col():SOUND_WHITE,hi=SOUND_INK;   /* inactive: the inactive-row ink */
     float dur[3];
-    adsr_values(&e);
+    adsr_values(&e,p);
     adsr_layout(&e,x0,214,xs,dur);
     int ys=y0-(int)(e.sustain*(y0-top)+0.5f);
     if(edited>=0) { /* the selected or turned stage and its live value */
@@ -6685,6 +6752,26 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
         int xa=xs[edited],xb=xs[edited+1];
         if(xb<=xa) xb=xa+1;
         cv_rect(xa,y0+2-off,xb-xa+1,2,hi);
+    }
+    {   /* playhead: where the live VCA EG is now, on this graph's own time axis */
+        float adsr[4],lv=0; int st=6,px=-1;
+        if(engine_bass_env_view(bidx(),adsr,&lv,&st) && st!=6) {
+            if(lv<0)lv=0; if(lv>1)lv=1;
+            if(st==0) { float t=-e.attack*fm_logf(fm_maxf(1e-6f,(1.3f-lv)/1.3f));
+                px=xs[0]+(int)((xs[1]-xs[0])*fm_minf(1.0f,t/fm_maxf(dur[0],1e-6f))+.5f); }
+            else if(st==1) {
+                float u=lv-e.sustain,full=1.0f-e.sustain;
+                if(u>.01f*full && full>1e-6f) { float t=-e.decay*fm_logf(u/full);
+                    px=xs[1]+(int)((xs[2]-xs[1])*fm_minf(1.0f,t/fm_maxf(dur[1],1e-6f))+.5f); }
+                else px=(xs[2]+xs[3])/2;          /* holding at sustain: mid plateau */
+            } else if(st==3) {
+                float t=e.sustain>1e-6f&&lv>1e-6f?-e.release*fm_logf(lv/e.sustain):dur[2];
+                px=xs[3]+(int)((xs[4]-xs[3])*fm_minf(1.0f,fm_maxf(0.0f,t)/fm_maxf(dur[2],1e-6f))+.5f);
+            } else px=xs[4];
+            int py=y0-(int)(lv*(y0-top)+.5f);
+            cv_rect(px,top-off,1,y0-top,SOUND_DIM);
+            cv_rect(px-1,py-1-off,3,3,hi);
+        }
     }
 }
 
@@ -6945,12 +7032,13 @@ static UI_DRAW int orig_strip_slot(pref_t r)
  * follows drive_amount_glyph (the old knob-strip families), scaled to the cell. */
 #define OG_W 26
 #define OG_H 18
+static float og_shift;                           /* live LFO: the wave scrolls by this much of t */
 static UI_DRAW void og_wave(int gx,int gy,float (*f)(float,float),float q,uint16_t col)
 {   /* f returns -1..1 (up positive) over t 0..1 */
     int py=0;
     cv_rect(gx,gy+OG_H,OG_W,1,C_LINE);
     for(int i=0;i<OG_W;i++) {
-        float v=f((float)i/(OG_W-1),q);
+        float v=f((float)i/(OG_W-1)+og_shift,q);
         if(v>1)v=1; if(v<-1)v=-1;
         int yy=gy+OG_H/2-(int)(v*6.0f+(v<0?-.5f:.5f));
         if(i) cv_line(gx+i-1,py,gx+i,yy,col);
@@ -6972,6 +7060,12 @@ static UI_DRAW int og_states(pref_t r,int val,int *idx)
     for(int v=0;v<=127;v++){pref_value_of(r,v,a,u);if(strcmp_s(a,prev)){n++;put_s(prev,a);}if(v==val)*idx=n-1;}
     return n;
 }
+/* Chicago ENV glyph: the knee column for a filter position z (0..1). The knee
+ * travels gx+2..gx+OG_W-1-ENV_FALL (19 of 26 px), so a full EG is clear to see. */
+#define ENV_FALL 4
+static int env_knee_x(int gx,float z)
+{ z=(z+.5f)*.5f; /* bipolar: cutoff+EG*ENV spans -0.5..1.5, CUTOFF 50% sits mid-cell */
+  z=z<0?0:z>1?1:z; return gx+2+(int)(z*(OG_W-3-ENV_FALL)+.5f); }
 static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
 {
     const x0x_param_t *d=pref_desc(r);
@@ -6992,30 +7086,44 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
         cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
         if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
-    } else if(chi && c==4) {                     /* ENV: the lowpass peak the filter EG sweeps */
-        /* Horizontal schematic of cutoff + native filter EG * signed depth.
-         * A dim target tick marks full EG; reserved travel preserves either sign. */
+    } else if(chi && c==4) {                     /* ENV: the lowpass knee the filter EG sweeps */
+        /* chicago_voice.c mp4_prepare: z = cutoff + vcf.level * env_depth. The knee
+         * and its resonance bump move LEFT/RIGHT only: x = live CUTOFF + EG x ENV.
+         * The bump height is the live PEAK and never follows the EG. A dim tick
+         * marks where a full EG takes the knee. */
         pref_t cr=PR(R_ENG,T_303,r.b,2),pr=PR(R_ENG,T_303,r.b,3);
         const x0x_param_t *dc=pref_desc(cr),*dp=pref_desc(pr);
         float cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0,pq=dp&&dp->max?(float)matrix_value(pr)/dp->max:0;
-        float depth=0,eg=0;
-        (void)engine_bass_filter_view(r.b,&eg,&depth); /* exact compiled bipolar law; pot64 is zero */
-        if(eg<0)eg=0; if(eg>1)eg=1;
-        /* Schematic, not clipped filter Hz: cutoff reserves origin columns 10..14;
-         * either depth sign has 7px travel. Knee stays in 3..21 at cutoff extremes. */
-        float origin=10.0f+cq*4.0f;
-        int pivot=gx+(int)(origin+eg*depth*7.0f+.5f);
-        int tgt=gx+(int)(origin+depth*7.0f+.5f),peak=top+2-(int)(pq*5+.5f);
+        float depth=2*q-1,eg=0,dd; if(engine_bass_filter_view(r.b,&eg,&dd)) depth=dd;
+        if(eg<0)eg=0; if(eg>1)eg=1; if(pq<0)pq=0; if(pq>1)pq=1;
+        int pivot=env_knee_x(gx,cq+eg*depth),tgt=env_knee_x(gx,cq+depth),pass=top+3;
+        int peak=pass-1-(int)(pq*5+.5f);         /* fixed by PEAK: 1..6 px above the passband */
         int energy=(int)(eg*(depth<0?-depth:depth)*6.0f+.5f);
         col=depth<0?blend(C_LINE,col,16-energy):blend(col,C_WHITE,energy);
         cv_rect(gx,bot,OG_W,1,C_LINE);
         if(tgt!=pivot) cv_rect(tgt,bot-3,1,3,C_LINE);
-        cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
-        cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
-        if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
+        if(pivot-2>gx) cv_line(gx,pass,pivot-2,pass,col);
+        cv_line(pivot-2,pass,pivot,peak,col);
+        cv_line(pivot,peak,pivot+ENV_FALL,bot,col);
+        if(pivot+ENV_FALL<right) cv_line(pivot+ENV_FALL,bot,right,bot,col);
     } else if(c==(chi?1:4)) {                    /* GLIDE: sloped pitch line, slope widens */
-        int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2;
-        cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col);
+        /* Live: a dot rides the slope as the oscillator pitch glides to the new
+         * note (current -> target from the engine); the travelled part is lit. */
+        static float from[NBASS],to[NBASS]; static uint8_t seen[NBASS];
+        int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2,b=r.b<NBASS?r.b:0,on=0;
+        float ph,bi,cu=0,tg=0,f=1;
+        if(engine_bass_motion_view(b,&ph,&bi,&cu,&tg,&on)) {
+            if(!seen[b] || tg!=to[b]) { from[b]=seen[b]?cu:tg; to[b]=tg; seen[b]=1; }
+            if(to[b]!=from[b]) f=(cu-from[b])/(to[b]-from[b]);
+        }
+        if(f<0)f=0; if(f>1)f=1;
+        int dx=x0+(int)(f*w+.5f),dy=bot-1-(int)(f*(bot-1-top)+.5f);
+        if(f>=1) { cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col); }
+        else {
+            cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,dx,dy,col);
+            cv_line(dx,dy,x0+w,top,C_LINE);cv_line(x0+w,top,right,top,C_LINE);
+            cv_rect(dx-1,dy-1,3,3,C_WHITE);
+        }
     } else if(chi && c==5) og_wave(gx,gy,og_bite,q,col);       /* BITE: soft clip */
     else if(chi && c==6) og_wave(gx,gy,og_gnaw,q,col);         /* GNAW: fold */
     else if(!chi && c==10) og_wave(gx,gy,og_crush,q,col);      /* CRUSH: bit/rate crush */
@@ -7046,9 +7154,16 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
         cv_rect(px,top-2,1,2,C_LINE);cv_rect(gx+1,bot,OG_W-2,1,C_LINE);
         cv_line(px,py,px+(int)(fm_sinf(ang)*12),py-(int)(fm_cosf(ang)*14),col);
     } else if(!chi && c==8) og_wave(gx,gy,og_fm,q,col);        /* XMOD DEPTH: FM wave */
-    else if(!chi && c==12) og_wave(gx,gy,og_lfo_amp,q,col);    /* WOBBLE depth: LFO amp */
-    else if(!chi && c==13) og_wave(gx,gy,og_lfo_rate,q,col);   /* RATE: LFO frequency */
-    else if(!chi && c==15) {                     /* STEREO: L/R spread */
+    else if(!chi && (c==12 || c==13)) {          /* WOBBLE depth / RATE: the live MG1 scrolls the wave */
+        float ph=0,bi=0,cu,tg; int on=0; float cyc=c==12?2.0f:1.0f+4.0f*q;
+        if(!engine_bass_motion_view(r.b,&ph,&bi,&cu,&tg,&on) || ph<-1 || ph>1) ph=-1;
+        og_shift=((ph+1)*.5f)/cyc;               /* one MG cycle = one drawn cycle */
+        og_wave(gx,gy,c==12?og_lfo_amp:og_lfo_rate,q,col);
+        {   float v=(c==12?og_lfo_amp:og_lfo_rate)(1.0f+og_shift,q); if(v>1)v=1; if(v<-1)v=-1;
+            int yy=gy+OG_H/2-(int)(v*6.0f+(v<0?-.5f:.5f)); /* og_wave scale */
+            cv_rect(right-1,yy-1,2,3,on?C_WHITE:col); }   /* "now": the wobble's present value */
+        og_shift=0;
+    } else if(!chi && c==15) {                     /* STEREO: L/R spread */
         int s=1+(int)(q*10+.5f),cx=gx+12;
         cv_rect(cx,top,1,OG_H-3,C_LINE);
         cv_rect(cx-s-1,mid-4,2,9,col);cv_rect(cx+s,mid-4,2,9,col);
@@ -7315,12 +7430,13 @@ static uint32_t knobs_sig(void)
         const uint8_t *cell=proj.sound.v[T_303][bidx()];
         for (unsigned byte=0; byte<ORIGINAL_SOUND_BYTES; byte++) MIXIN(cell[byte]);
         MIXIN(engine_bass_status(bidx()));
-        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN((int)(eg*dd*7.0f+.5f)); }
+        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN(env_knee_x(0,eg*dd*(eg>0))); } /* ENV glyph motion: one step per knee pixel */
         { float a=0,m=0;unsigned s=6,key=0;
           if(engine_bass_voice_view(bidx(),&a,&m,&s,&key)) {
               MIXIN((int)(a*32.0f)); MIXIN((int)(m*24.0f)); MIXIN(s); MIXIN(key);
           }
         }
+        { float ph=0,bi=0,cu=0,tg=0; int on=0; if(engine_bass_motion_view(bidx(),&ph,&bi,&cu,&tg,&on)) { MIXIN((int)(ph*64.0f)); MIXIN((int)((tg-cu)*16.0f)); } } /* wobble / glide motion */
         MIXIN(engine_bass_preset_pending(bidx()));
         MIXIN(engine_bass_requested_bank(bidx())); MIXIN(engine_bass_requested_preset(bidx()));
     }
@@ -7823,6 +7939,28 @@ X0X_COLD int ui_project_reset(void)
     return 0;
 }
 
+/* Device Bluetooth intent bypasses project autosave (restored from 0e58b960).
+ * No erase during notes, transport, capture or staged flash use. Reject busy
+ * audio before acquiring a hold; recheck after the hold for a queued Start.
+ * A failed write retries after 1 s. Reset/load must not drop this request. */
+static void device_bt_save(void)
+{
+    int rc;
+    static uint32_t retry_at;
+    if (!project_device_bt_pending() || project_busy || perf_testing() ||
+        (retry_at && (int32_t)(plat_ms() - retry_at) < 0)) return;
+#ifndef X0X_HOST
+    { extern int store_stage_held(void); if (store_stage_held()) return; }
+#endif
+    if (ui_boot_flash_busy()) return;
+    engine_project_hold(1);
+    if (ui_boot_flash_busy()) { engine_project_hold(0); return; }
+    rc = project_device_bt_save();
+    engine_project_hold(0);
+    retry_at = rc ? plat_ms() + 1000u : 0;
+    say(rc ? "BT SAVE FAILED: RETRYING" : "BLUETOOTH SAVED", 0);
+}
+
 /* AUTOSAVE: changes are saved by themselves while the pattern is stopped and nothing has been touched
  * for AUTOSAVE_QUIET ms, at most every AUTOSAVE_GAP ms. Stopped only: a flash erase silences the
  * audio. Only the objects that changed are written (project.c), usually one or two sectors. */
@@ -7913,7 +8051,12 @@ void ui_frame(void)
         else do_undo(direction);
     }
 #endif
+    if(ui.overlay!=O_LIST || ui.help) peer_scroll.active=0;
+    else { int visible=0;for(unsigned row=ui.list_top;row<ui.list_n && row<ui.list_top+6u;row++)
+        if(list_rows[row].kind==R_BTNAME)visible=1;
+        if(!visible)peer_scroll.active=0; }
     undo_tick();
+    device_bt_save();
     autosave();
     if (!project_busy)
         perf_test_tick();
