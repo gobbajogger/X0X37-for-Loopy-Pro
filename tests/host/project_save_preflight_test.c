@@ -141,7 +141,6 @@ int main(void)
     uint32_t rng = 1;
     int i;
 
-    if (test_settings_guards()) return 1;
     project_defaults();
     proj.set.palette = 1;
     proj.sound.v[T_303][0][0] = 42;
@@ -191,5 +190,6 @@ int main(void)
         return 1;
     }
     puts("memory-full preflight: no writes; prior project survives reboot");
+    if (test_settings_guards()) return 1;
     return test_sound_hash_collision();
 }
