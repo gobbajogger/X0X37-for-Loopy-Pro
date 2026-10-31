@@ -39,10 +39,12 @@ assert t[5].strip().split()[2] == "USB" and t[1].strip().startswith("-1.000 s")
 assert f.parse(reply(5, [(0xFFFFFFFB, 2 << 24)], vel, ch)) and "-0.010 s" in f.text(f.parse(reply(5, [(0xFFFFFFFB, 2 << 24)], vel, ch)))[1]
 assert f.colour_name(0xFF00FF) == "magenta" and f.colour_name(0x0000FF) == "blue"
 assert f.colour_name(0x000019) == "dim blue" and f.colour_name(0) == "off" and f.colour_name(0xFFFFFF) == "white"
-full = [(3000 + i, 0 << 24 | 0x90 << 16 | (i % 40) << 8 | 1) for i in range(64)]   # a full ring: 64 entries
+full = [(3000 + i, 0 << 24 | 0x90 << 16 | (i % 40) << 8 | 1) for i in range(32)]   # a full ring: 32 entries (SMK_INLOG_N)
 pf = f.parse(reply(4000, full, vel, ch))
-assert pf and pf[1] == full and f.text(pf, pal)[0].startswith("INLOG: 64 entries")
+assert pf and pf[1] == full and f.text(pf, pal)[0].startswith("INLOG: 32 entries")
 assert len(reply(4000, full, vel, ch)) + 5 + 1 <= 732   # + header and F7: it fits ed_out (editor.c)
+old = [(3000 + i, 0 << 24 | 0x90 << 16 | (i % 40) << 8 | 1) for i in range(64)]   # an old 64-entry firmware reply still decodes
+assert f.parse(reply(4000, old, vel, ch))[1] == old
 assert f.parse([2] + w5(1)) is None                   # a short reply
 assert f.text(None)[0].startswith("INLOG: no reply")
 
