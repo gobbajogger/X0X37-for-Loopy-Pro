@@ -8,7 +8,7 @@
 #pragma once
 #include <stdint.h>
 
-#define SMK_INLOG_N 64u       /* at most 127: INLOG sends the count as one 7-bit byte */
+#define SMK_INLOG_N 32u       /* at most 127: INLOG sends the count as one 7-bit byte */
 #define SMK_INLOG_CELLS 40u     /* the clip cells that INLOG returns (SMK_APC40_CLIP_COUNT) */
 enum { SMK_INLOG_USB = 0, SMK_INLOG_BLE = 1, SMK_INLOG_EDGE = 2, SMK_INLOG_NOCELL = 3, SMK_INLOG_SMC = 4 };
 /* SMK_INLOG_EDGE: d2 = the link state, bit 0 the link is up, bit 1 notify is on. */

@@ -42,7 +42,7 @@ static void smk_inlog_reply(uint32_t arg);   /* main_fm1.c */
 static uint32_t ed_reboot_at;                /* fm1_ms + 1 when a restart was asked for (0: none) */
 #define ED_READ_MAX 224u                     /* X0X: SMP_READ's bytes a frame (the break page draws the slots) */
 
-static uint8_t ed_out[732];                  /* ED_INLOG with 64 entries: 732 B (tests/diag_size_test.py) */
+static uint8_t ed_out[732];                  /* ED_INLOG 32 entries: 412 B; ED_DIAG and others need more (tests/diag_size_test.py) */
 static uint32_t ed_n;
 
 static void ed_begin(uint32_t cmd)

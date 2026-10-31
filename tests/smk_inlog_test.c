@@ -14,8 +14,8 @@ int main(void)
     static smk_inlog_t g;
     uint32_t w[SMK_INLOG_N * 2u], i, c;
 
-    /* the size: 64 entries (2026-10-16, before 16). The count goes in one 7-bit byte. */
-    assert(SMK_INLOG_N == 64u && SMK_INLOG_N <= 127u && sizeof g.w == 64u * 8u);
+    /* the size: 32 entries (2026-10-31 RAM trim; 64 from 2026-10-16, before 16). The count goes in one 7-bit byte. */
+    assert(SMK_INLOG_N == 32u && SMK_INLOG_N <= 127u && sizeof g.w == 32u * 8u);
     printf("PASS ring size %u entries\n", SMK_INLOG_N);
 
     /* encoding: src<<24 | status<<16 | d1<<8 | d2 */
