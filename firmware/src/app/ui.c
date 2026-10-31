@@ -3421,10 +3421,7 @@ static void key_event(int k, int down)
         return;
     }
     if (w >= 0 && drum_mix_page() >= 0) {            /* the SMK pads keep editing this visible kit's steps */
-        if (ui.overlay == O_NONE && !ui.help)
-            drum_step(drum_mix_page(), w, down);
-        else if (!down && ui.hold_step >= 0 && (ui.hold_step & 15) == w)
-            ui.hold_step = -1;
+        drum_step(drum_mix_page(), w, down);          /* also under a settings list or HELP (O_ASK left above) */
         return;
     }
     if (ui.view == V_HOME && bl >= 0) {
@@ -3794,7 +3791,9 @@ static int division_pad_owner(void)
 {
 #if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
     extern uint8_t smk_clip_mode_on(void);
-    if (project_busy || perf_testing() || ui.rec || ui.help || ui.overlay != O_NONE ||
+    /* A settings list or HELP on the synth page does not take the pads: they keep
+     * the rates they show. Only a question (O_ASK) waits for an answer. */
+    if (project_busy || perf_testing() || ui.rec || ui.overlay == O_ASK ||
         (ui.btn & ((1u << B_HOME) | (1u << B_SAVE))) ||
         (ui.view != V_SEQ && ui.view != V_PART) || !is_303() ||
         !ui.freeplay[bidx()] || engine_bass_bank(bidx()) != ORIGINAL_SOUND_MIAMI ||
