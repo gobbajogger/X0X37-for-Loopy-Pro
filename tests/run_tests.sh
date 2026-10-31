@@ -326,6 +326,7 @@ run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tes
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
+run motion-pattern-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/motion_pattern_handoff_test tests/host/motion_pattern_handoff_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_handoff_test"   # N6: restore base before incoming pattern locks
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
