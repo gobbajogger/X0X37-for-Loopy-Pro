@@ -41,9 +41,13 @@ the regression; `main_fm1.c` has no diff. No code from draft #788 is imported.
 
 ## Evidence status and Orchestrator handoff
 
-All builds, host tests, framebuffer captures and hardware checks are **NOT_RUN**
+All builds, host tests and hardware checks are **NOT_RUN**
 by the producer, as explicitly required by the owner. Source inspection and
 `git diff --check` are not runtime qualification. This draft is not merge-ready.
+
+The owner explicitly requires no previews or visual-approval wait for this
+change. Source delivery is complete without screenshots; the Orchestrator
+verifies the candidate on the box.
 
 Independent read-only Superpowers reviews (`storage_review`, `keys_mute_review`)
 identified damaged/absent classification loss, two stale PAT0 test expectations,
@@ -74,22 +78,6 @@ it does not prove radio, ADC or matching-model hardware behavior.
 Host `storedump`/`storeload` files keep their legacy single-generation format;
 loading one clears unrelated previous in-memory copies. The real NOR fixture,
 not those dumps, is the A/B persistence evidence source.
-
-## Required framebuffer before/after PNGs: PENDING
-
-No PNG from an older executable or a substitute painter is offered as candidate
-proof. `tests/host/storage_warning_capture.sh OUTPUT` builds a capture-only
-fixture that boots the production loader on a damaged stream, paints HOME,
-SEQ and SOUND, and writes three real 240x240 framebuffer PNGs. No assertion
-suite is run by that entry point. The Orchestrator owns its execution.
-
-For the base capture, materialize the exact base in a separate directory and
-copy only `storage_warning_capture.sh` and `storage_warning_capture_cases.inc`
-from this candidate into its `tests/host/` directory. Run the capture script
-in each tree with separate output directories. Preserve the original PNGs and
-record both source pins and SHA-256 hashes. Attach those PNGs to this draft
-before visual approval. Proposed presentation: existing red failure chip with
-`!` on HOME/SEQ, existing red dot on SOUND; no long warning text.
 
 Full host suite and matching Elite/Pro SDK V1.2.1 qualification remain with the
 Orchestrator before any integration. No main/.github writes, FM-1 operations,
