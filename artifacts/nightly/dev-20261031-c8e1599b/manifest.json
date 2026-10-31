@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_commit": "c8e1599b3011e4074b7d21687d628d0115814abc",
+  "label": "DEV / HARDWARE TEST — DEVICE NOT TESTED",
+  "packages": {
+    "elite": {
+      "sha256": "395cc75fd50a66b2b72ada97ab19bd84982cd5cf9038fe73564e53a46502e2fa",
+      "size": 651457,
+      "crc32": "C0F6CCF5",
+      "file": "395cc75fd50a66b2b72ada97ab19bd84982cd5cf9038fe73564e53a46502e2fa/x0x37-elite-dev.fwsc"
+    },
+    "pro": {
+      "sha256": "c89cd42438bf149cb51a03a6ed70cd7c4c087e0459ce674ee9488af49e790f98",
+      "size": 651457,
+      "crc32": "2EA4C854",
+      "file": "c89cd42438bf149cb51a03a6ed70cd7c4c087e0459ce674ee9488af49e790f98/x0x37-pro-dev.fwsc"
+    }
+  },
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+}
