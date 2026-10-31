@@ -210,7 +210,9 @@ int main(void)
     setup();
     set_view(V_MIX);
     build_pages();
-    *page_of(V_MIX) = 0;
+    pref_t page_fader[3];
+    for (int p = 0; p < 3; p++) { *page_of(V_MIX) = (uint8_t)p; build_pages(); page_fader[p] = smc_target(0); }
+    *page_of(V_MIX) = 0; build_pages();
     assert(smc_lock_toggle());
     assert(smc.locked && smc.lock_pages >= 3);
     pref_t locked_fader = smc_target(0);
@@ -221,7 +223,8 @@ int main(void)
     press(0x63);                   /* SMC PAGE NEXT while locked */
     assert(smc.locked && smc.lock_page == 1);
     assert_peek(V_MIX, 1, original_mix);
-    assert(smc_same(smc_target(0), locked_fader));
+    (void)locked_fader;            /* lock retargets within its own page */
+    assert(smc_same(smc_target(0), page_fader[1]));
     uint32_t first_page_until = smc_peek->until;
     press(0x63);                   /* second page extends the same peek */
     assert(smc.locked && smc.lock_page == 2);
@@ -232,7 +235,7 @@ int main(void)
     assert(smc.locked && smc.lock_page == 2);
     assert(!smc_peek->on && ui.view == V_SONG);
     assert(ui.part == original_part && ui.mixsel == original_mix && ui.prev_view == original_prev);
-    assert(smc_same(smc_target(0), locked_fader));
+    assert(smc_same(smc_target(0), page_fader[2]));
     smc_lock_toggle();
 
     /* Guards: help, ASK, clip, perf — no peek; header may still update where allowed. */

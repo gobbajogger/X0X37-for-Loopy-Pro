@@ -63,10 +63,12 @@ static void lcd_fill(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint16_t c)
             fb[j * 240u + i] = sc;
 }
 static uint32_t blits;
+static uint64_t blit_px;                 /* pixels sent: a frame's SPI time (tests) */
 static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *px)
 {
     uint32_t i, j;
     blits++;
+    blit_px += (uint64_t)w * h;
     for (j = 0; j < h; j++)
         for (i = 0; i < w; i++)
             if (x + i < 240u && y + j < 240u)
@@ -463,6 +465,8 @@ static uint64_t ins_total, ins_frames, ins_block_max;
 /* the engine's stage timing (eng_prof, in plat_cycles() units: here nanoseconds), summed per block
  * while playing; printed with X0X_PROFILE=1 in the environment */
 static uint64_t prof_tot[ENG_PROF_N];
+/* worst blocks while playing (wall ns), with the stage split, for X0X_PROFILE */
+static double blk_worst_ns[8]; static uint32_t blk_worst_ms[8]; static uint32_t blk_worst_pr[8][ENG_PROF_N]; static uint64_t blk_count;
 static uint64_t instr_now(void)
 {
 #ifdef __APPLE__
@@ -514,8 +518,19 @@ static void run_ms(uint32_t ms)
             di = instr_now() - i0;
             dt = now_ns() - t0;
             if (seq.playing) {                           /* the cost that matters: while it plays */
+                int w, j;
                 for (k = 0; k < ENG_PROF_N; k++)
                     prof_tot[k] += (uint32_t)(eng_prof[k] - pr0[k]);
+                blk_count++;
+                for (w = 0; w < 8 && blk_worst_ns[w] >= dt; w++) {}
+                if (w < 8) {
+                    for (j = 7; j > w; j--) {
+                        blk_worst_ns[j] = blk_worst_ns[j - 1]; blk_worst_ms[j] = blk_worst_ms[j - 1];
+                        memcpy(blk_worst_pr[j], blk_worst_pr[j - 1], sizeof blk_worst_pr[j]);
+                    }
+                    blk_worst_ns[w] = dt; blk_worst_ms[w] = now_ms;
+                    for (k = 0; k < ENG_PROF_N; k++) blk_worst_pr[w][k] = (uint32_t)(eng_prof[k] - pr0[k]);
+                }
                 ins_total += di;
                 ins_frames += 256;
                 if (di > ins_block_max)
@@ -527,6 +542,11 @@ static void run_ms(uint32_t ms)
             if (cpu_pct > cpu_peak)
                 cpu_peak = cpu_pct;
             engine_load(load_force >= 0 ? (uint32_t)load_force : cpu_pct, 256);
+            {   /* X0X_RAW=FILE: the engine's 24-bit output words, for exact A/B checks */
+                static FILE *raw; static int raw_init;
+                if (!raw_init) { const char *f = getenv("X0X_RAW"); raw_init = 1; raw = f ? fopen(f, "wb") : NULL; }
+                if (raw) fwrite(blk, 4, 512, raw);
+            }
             for (k = 0; k < 256; k++) {
                 float l = (float)blk[2 * k] / 8388608.0f, r = (float)blk[2 * k + 1] / 8388608.0f;
                 int16_t s[2];
@@ -1170,6 +1190,13 @@ int main(int argc, char **argv)
         for (k = 0; k < ENG_PROF_N; k++)
             printf(" %s %.1f%% (%.1f)", N[k], tot ? 100.0 * (double)prof_tot[k] / (double)tot : 0.0,
                    ins_frames ? (double)prof_tot[k] / (double)ins_frames : 0.0);
+        printf("\n");
+        printf("worst blocks (us; deadline %.0f us per 256 frames) of %llu:", 256.0 * 1e6 / 44100.0, (unsigned long long)blk_count);
+        for (k = 0; k < 8 && blk_worst_ns[k] > 0; k++) {
+            int q;
+            printf("\n  %.1f at %u ms:", blk_worst_ns[k] / 1000.0, blk_worst_ms[k]);
+            for (q = 0; q < ENG_PROF_N; q++) printf(" %s %.1f", N[q], blk_worst_pr[k][q] / 1000.0);
+        }
         printf("\n");
     }
     if (ins_frames && ins_total)

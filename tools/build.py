@@ -135,6 +135,7 @@ ORIGINAL_SYNTH_O2_UNITS = {
     "chicago_global_stage", "chicago_modulation",
     "miami_decimator_component", "miami_decimator_adapter", "miami_fx_conversion",
     "original_chicago_backend", "original_miami_backend", "original_runtime",
+    "fused_reference", "chicago_selector", "miami_geometry",
     "chicago_scheduler", "chicago_voice_owner", "chicago_packed", "lossless_table", "chicago_arp_control", "chicago_note_context", "control_math",
 }
 ORIGINAL_SYNTH_FLAGS = ["-fno-fast-math", "-ffp-contract=off", "-DNDEBUG",

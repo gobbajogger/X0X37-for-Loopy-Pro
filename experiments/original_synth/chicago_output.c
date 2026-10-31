@@ -40,7 +40,7 @@ void original_chicago_drive_wrapper_reset(original_chicago_drive_wrapper *s){
  s->transitioning=0;s->switch_current=s->switch_pending;s->wet_target=s->switch_current?32767:0;s->wet_accumulator=s->wet_target*32768;
  original_chicago_drive_reset(&s->drive);
 }
-static void drive_invocation(original_chicago_drive_wrapper *s,int16_t *left,int16_t *right,uint32_t n){
+static void drive_invocation_from(original_chicago_drive_wrapper *s,const int16_t *in_left,const int16_t *in_right,int16_t *left,int16_t *right,uint32_t n){
  uint32_t local=0;
  while(local<n){
   while(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<=local){
@@ -49,9 +49,10 @@ static void drive_invocation(original_chicago_drive_wrapper *s,int16_t *left,int
   }
   uint32_t end=n;
   if(s->queue.cursor<s->queue.count&&s->queue.events[s->queue.cursor].offset<end)end=s->queue.events[s->queue.cursor].offset;
-  (void)original_chicago_drive_process(&s->drive,left+local,right+local,left+local,right+local,end-local);local=end;
+  (void)original_chicago_drive_process(&s->drive,in_left+local,in_right+local,left+local,right+local,end-local);local=end;
  }
 }
+static void drive_invocation(original_chicago_drive_wrapper *s,int16_t *left,int16_t *right,uint32_t n){drive_invocation_from(s,left,right,left,right,n);}
 int original_chicago_drive_wrapper_process(original_chicago_drive_wrapper *s,int16_t *left,int16_t *right,int16_t *wet_left,int16_t *wet_right,uint32_t n,uint32_t capacity){
  if(!s||n>capacity||capacity>4096||(n&&(!left||!right||left==right||!wet_left||!wet_right||wet_left==wet_right)))return 0;
  if(s->switch_dirty){s->switch_current=s->switch_pending;s->wet_target=s->switch_current?32767:0;s->switch_dirty=0;}
@@ -61,8 +62,12 @@ int original_chicago_drive_wrapper_process(original_chicago_drive_wrapper *s,int
   (void)original_chicago_drive_set(&s->drive,2,s->edit1);(void)original_chicago_drive_set(&s->drive,3,s->edit2);
   (void)original_chicago_drive_activity(&s->drive,1);
  }
- for(uint32_t i=0;i<n;i++){wet_left[i]=left[i];wet_right[i]=right[i];}
  uint32_t offset=0;
+ if(!s->transitioning&&s->selected&&n){
+  /* The whole block is one chunk: the drive reads the dry input and
+   * writes wet directly, the same as copying dry to wet first. */
+  drive_invocation_from(s,left,right,wet_left,wet_right,n);offset=n;
+ }else for(uint32_t i=0;i<n;i++){wet_left[i]=left[i];wet_right[i]=right[i];}
  while(offset<n){
   uint32_t chunk=n-offset;
   if(s->transitioning){
@@ -151,6 +156,5 @@ int original_chicago_output_process(original_chicago_output *s,original_chicago_
   if(slot==0){if(!original_chicago_drive_wrapper_process(&s->fx1,w->left,w->right,w->wet_left,w->wet_right,n,w->capacity))return 0;}
   else fx2->process(fx2->context,w->left,w->right,n);
  }
- for(uint32_t i=0;i<n;i++){ol[i]=miami_fx_output_rne(w->left[i]);orr[i]=miami_fx_output_rne(w->right[i]);}
- return original_master_process(&s->master,volume,ol,orr,ol,orr,n);
+ return original_master_process_i16(&s->master,volume,w->left,w->right,ol,orr,n);
 }

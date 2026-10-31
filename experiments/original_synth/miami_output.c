@@ -81,6 +81,5 @@ int original_miami_output_process(original_miami_output *s,const original_miami_
  effect_context effect={&s->fx.decimator,events,ne};
  (void)original_fixed_fx_process(&s->fx.fx1,w->dryL,w->dryR,w->scratchL,w->scratchR,w->dryL,w->dryR,n,decimate,&effect);
  original_miami_fx_bypass_process(&s->fx.fx2,w,n);
- for(uint32_t i=0;i<n;i++){ol[i]=miami_fx_output_rne((int16_t)w->dryL[i]);orr[i]=miami_fx_output_rne((int16_t)w->dryR[i]);}
- return original_master_process(&s->master,volume*volume,ol,orr,ol,orr,n);
+ return original_master_process_i32(&s->master,volume*volume,w->dryL,w->dryR,ol,orr,n);
 }
