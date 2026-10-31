@@ -12,6 +12,7 @@ harness = r'''
 #include <assert.h>
 #include <stdint.h>
 #include "app/smc_protocol.h"
+#include "app/param_trace.h"   /* smc_fader traces pickups (B4); off in this build */
 enum { R_NONE, R_ACT, R_HDR, R_ENG };
 typedef struct { uint8_t kind; } pref_t;
 typedef struct { int max; } x0x_param_t;
