@@ -63,10 +63,12 @@ static void lcd_fill(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint16_t c)
             fb[j * 240u + i] = sc;
 }
 static uint32_t blits;
+static uint64_t blit_px;                 /* pixels sent: a frame's SPI time (tests) */
 static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *px)
 {
     uint32_t i, j;
     blits++;
+    blit_px += (uint64_t)w * h;
     for (j = 0; j < h; j++)
         for (i = 0; i < w; i++)
             if (x + i < 240u && y + j < 240u)
