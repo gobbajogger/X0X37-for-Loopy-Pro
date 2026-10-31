@@ -4,6 +4,10 @@
 #include "tb3po.h"
 #include "../x0x_cold.h"              /* X0X_COLD: boot/UI cue/chain — not advance/fire/clock/MIDI */
 
+#ifndef SEQ_CHAIN_STORE_HOOK
+#define SEQ_CHAIN_STORE_HOOK(s) ((void)0)
+#endif
+
 #define NEVER 0xFFFFFFFFu
 #define RANDOM_PASS_STEPS 0x7Fu
 #define RANDOM_SWING_ODD  0x80u
@@ -398,9 +402,11 @@ static uint32_t bar_end(seq_t *s, int start)
                 s->pcue[t] = 0xFF;
                 cued = 1;
             }
-        if (!cued && !start && s->chain_a != s->chain_b) {
-            int a = s->chain_a < s->chain_b ? s->chain_a : s->chain_b;
-            int b = s->chain_a < s->chain_b ? s->chain_b : s->chain_a, c = s->ppat[TRK_DRUM];
+        uint16_t chain = s->chain;                    /* one snapshot of the published pair */
+        int ca = chain & 0xFFu, cb = chain >> 8;
+        if (!cued && !start && ca != cb) {
+            int a = ca < cb ? ca : cb;
+            int b = ca < cb ? cb : ca, c = s->ppat[TRK_DRUM];
             c = (c < a || c >= b) ? a : c + 1;
             for (t = 0; t < NTRACKS; t++)
                 next[t] = (uint8_t)c;
@@ -1090,8 +1096,8 @@ X0X_COLD void seq_chain(seq_t *s, int a, int b)
      * chain otherwise selects a non-existent pattern at the next bar. */
     if (a < 0 || a >= NPAT || b < 0 || b >= NPAT)
         return;
-    s->chain_a = (uint8_t)a;
-    s->chain_b = (uint8_t)b;
+    s->chain = (uint16_t)((uint16_t)a | (uint16_t)b << 8);
+    SEQ_CHAIN_STORE_HOOK(s); /* host test: interrupt at the publication boundary */
 }
 
 

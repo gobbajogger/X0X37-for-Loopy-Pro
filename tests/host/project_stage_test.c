@@ -12,6 +12,7 @@
 static uint8_t nor[0x100000], protected_flash[sizeof nor], before_flash[sizeof nor];
 static unsigned checks, failures, erases, programs, saves;
 static const char *test_name;
+static int settings_read_failure = -1; /* byte address; -2 fails every settings read */
 static int cut_before_object = -1;
 
 static void expect(int ok, const char *what, int line)
@@ -34,6 +35,10 @@ static int project_range(uint32_t off, uint32_t n)
 }
 static int st_read(uint32_t off, void *dst, uint32_t n)
 {
+    if ((settings_read_failure == -2 && off >= 0x9D000u && off < 0x9F000u) ||
+        (settings_read_failure >= 0 && off <= (uint32_t)settings_read_failure &&
+         (uint32_t)settings_read_failure - off < n))
+        return -1;
     if (off > sizeof nor || n > sizeof nor - off)
         return -1;
     memcpy(dst, nor + off, n);
@@ -139,6 +144,7 @@ static void fixture(const char *name)
 {
     uint32_t i, k;
     test_name = name;
+    settings_read_failure = -1;
     memset(nor, 0xFF, sizeof nor);
     /* Distinct retained data, including bytes beyond each sample's used data. */
     for (i = 0; i < sizeof nor; i++)
@@ -173,6 +179,7 @@ static void fixture(const char *name)
     memset(stored_known, 0, sizeof stored_known);
     memset(stored_hash, 0, sizeof stored_hash);
     project_incompatible = 0; /* a new simulated boot, not an accepted old project */
+    settings_read_failed = settings_load_failed = device_bt_pending = 0;
     memset(&proj, 0, sizeof proj);
     proj.set.bt = PROJ_DEVICE_BT | PROJ_BT_CLK_IN;
     project_defaults();
@@ -581,6 +588,136 @@ static void test_capacity_rejection(void)
 }
 
 
+/* A read error must never turn stored settings into first-boot defaults.
+ * Real A/B NOR, project load/save and the independent Bluetooth flush share
+ * this test; removing either write guard destroys the saved payload. */
+static void test_settings_read_retry(void)
+{
+    for (int fault = 0; fault < 4; ++fault) {
+        fixture("settings I/O failure retains bytes until controlled retry");
+        REQUIRE(project_save() == 0);
+        proj.set.palette = 4;
+        proj.set.ck_x2 = 17;
+        REQUIRE(project_save() == 0);
+        settings_t original = proj.set, loaded, sentinel;
+        st_hdr_t h;
+        int cur = st_current(OBJ_SET, &h);
+        REQUIRE(cur >= 0);
+        project_device_bt_set(!(original.bt & 1u));
+        uint8_t requested_bt = proj.set.bt;
+        const int address[] = {-2, (int)st_sector(OBJ_SET, 0),
+            (int)st_sector(OBJ_SET, 1),
+            (int)(st_sector(OBJ_SET, (uint32_t)cur) + ST_PAYLOAD_OFF)};
+        snapshot();
+        settings_read_failure = address[fault];
+        memset(&loaded, 0xA5, sizeof loaded);
+        sentinel = loaded;
+        CHECK(load_settings(&loaded) == -2);
+        CHECK(!memcmp(&loaded, &sentinel, sizeof loaded));
+        CHECK(project_device_bt_save() == -2);
+        CHECK(project_device_bt_pending());
+        CHECK(project_load() < 0);
+        CHECK(project_save() == -8);
+        check_no_writes();
+        /* Only this explicit test action restores I/O. The queued flush must
+         * re-read the saved object, patch bit 0 and retain every other byte. */
+        settings_read_failure = -1;
+        CHECK(project_device_bt_save() == 0);
+        CHECK(!project_device_bt_pending());
+        CHECK(project_save() == -8); /* live fallback defaults still need a validated LOAD */
+        original.bt = (uint8_t)((original.bt & ~1u) | (requested_bt & 1u));
+        CHECK(load_settings(&loaded) == 0);
+        CHECK(!memcmp(&loaded, &original, sizeof loaded));
+        CHECK(project_load() == 0);
+        CHECK(!memcmp(&proj.set, &original, sizeof original));
+        CHECK(project_save() == 0);
+        check_protected_flash();
+    }
+    fixture("confirmed empty settings allow first-boot Bluetooth save");
+    CHECK(project_load() < 0);
+    project_device_bt_set(!(proj.set.bt & 1u));
+    CHECK(project_device_bt_save() == 0);
+    CHECK(!project_device_bt_pending());
+    settings_t loaded;
+    CHECK(load_settings(&loaded) == 0);
+    CHECK((loaded.bt & 1u) == (proj.set.bt & 1u));
+}
+
+static void test_settings_damaged_and_busy(void)
+{
+    for (int damage = 0; damage < 2; ++damage) {
+        fixture("readable damaged settings cannot authorize defaults writes");
+        REQUIRE(project_save() == 0);
+        proj.set.palette = 4;
+        REQUIRE(project_save() == 0); /* both A/B payloads must exist */
+        for (unsigned copy = 0; copy < 2; ++copy) {
+            uint32_t base = st_sector(OBJ_SET, copy);
+            if (damage) nor[base + ST_PAYLOAD_OFF] ^= 1u;
+            else memset(nor + base, 0, sizeof(st_hdr_t));
+        }
+        project_device_bt_set(!(proj.set.bt & 1u));
+        snapshot();
+        settings_t loaded;
+        /* Integration #790+#810: readable damage is -3 (not retryable I/O -2)
+         * and is held as damaged storage (#810), so writes refuse with -9. */
+        CHECK(load_settings(&loaded) == -3);
+        CHECK(project_device_bt_save() == -3);
+        CHECK(project_device_bt_pending());
+        CHECK(project_load() == -3);
+        CHECK(project_storage_unsupported() == 2);
+        CHECK(project_save() == -9);
+        CHECK(project_device_bt_save() == -9);
+        CHECK(project_device_bt_pending());
+        check_no_writes();
+        /* Permanent damage needs explicit validated adoption, not a retry
+         * that silently replaces the damaged bytes with boot defaults. */
+        project_reset_stage();
+        REQUIRE(project_validate_stage() == 0);
+        project_commit_stage();
+        CHECK(project_save() == 0);
+    }
+    fixture("busy settings read retains pending intent until unlock");
+    REQUIRE(project_save() == 0);
+    settings_t original = proj.set, loaded;
+    project_device_bt_set(!(original.bt & 1u));
+    original.bt ^= 1u;
+    uint32_t cap;
+    REQUIRE(store_stage_lock(&cap) != 0);
+    snapshot();
+    CHECK(load_settings(&loaded) == -8);
+    CHECK(project_device_bt_save() == -8);
+    CHECK(project_device_bt_pending());
+    CHECK(project_save() == -8);
+    check_no_writes();
+    store_stage_unlock();
+    CHECK(project_device_bt_save() == 0);
+    CHECK(!project_device_bt_pending());
+    CHECK(load_settings(&loaded) == 0);
+    CHECK(!memcmp(&loaded, &original, sizeof loaded));
+    CHECK(project_save() == 0);
+}
+
+static void test_settings_survive_sound_read_failure(void)
+{
+    fixture("sound read failure cannot overwrite successfully read settings");
+    proj.set.palette = 4;
+    REQUIRE(project_save() == 0);
+    settings_t original = proj.set;
+    snapshot();
+    /* The current sound copy is readable; failure to inspect the other
+     * header must not lead to persisting a whole-project fallback. */
+    settings_read_failure = (int)st_sector(OBJ_SOUND, 1);
+    CHECK(project_load() < 0);
+    CHECK(project_save() == -8);
+    settings_read_failure = -1;
+    CHECK(project_load_stage() == 0);
+    CHECK(project_save() == -8); /* staging alone does not adopt the project */
+    check_no_writes();
+    CHECK(project_load() == 0);
+    CHECK(!memcmp(&proj.set, &original, sizeof original));
+    CHECK(project_save() == 0);
+}
+
 /* A complete older stream must survive a cut after PAT0 commits, before PAT1.
  * Removing fallback or the damaged-data save latch breaks these assertions. */
 static void test_interobject_power_cut(void)
@@ -673,6 +810,9 @@ int main(void)
     test_storage_rejection();
     test_capacity_rejection();
     test_old_revision_rejection();
+    test_settings_read_retry();
+    test_settings_damaged_and_busy();
+    test_settings_survive_sound_read_failure();
     test_interobject_power_cut();
     test_damaged_single_object();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);

@@ -77,9 +77,12 @@ int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 on
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
+/* Bytes loaded; -1 = confirmed empty, -2 = read failure (retry), -3 = damaged
+ * committed data (validated adoption only), -8 = busy.
+ * Only -1 permits first-boot defaults to be persisted. */
 /* OR into obj to read its older valid A/B copy without modifying flash. */
 #define PLAT_STORE_PREVIOUS 0x80000000u
-int plat_store_load(uint32_t obj, void *dst, uint32_t max);   /* bytes; -1 absent, -2 damaged */
+int plat_store_load(uint32_t obj, void *dst, uint32_t max);
 int plat_store_save(uint32_t obj, const void *src, uint32_t len);   /* 0 = ok */
 #define PLAT_STORE_MAX 3840u           /* bytes per object */
 enum { OBJ_SET, OBJ_SOUND, OBJ_PAT0, OBJ_PAT1, OBJ_PANEL, OBJ_SONG, OBJ_MOTION, OBJ_NOBJ };
