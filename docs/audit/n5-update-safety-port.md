@@ -39,3 +39,67 @@ Registered tests:
 The new strict test compiles suppress existing `-Wtype-limits` in
 `FL_PROTECTED` and `-Wsign-compare` in the included baseline OTA fixture only.
 No existing check, assertion or compiler flag is removed or weakened.
+
+## Verification
+
+Source PR: [#795](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/795).
+Independent Compound Engineering correctness, standards, testing, security,
+adversarial and reliability reviews found no actionable code findings.
+
+Both native builds completed with `X0X_DEV_PADCAL=0`, JieLi clang 4.0.1 and all
+three packaging-input hashes matching SDK V1.2.1. Elite and Pro each use
+95952 of 98304 B static RAM: **2352 B free**, unchanged from the base. Each has
+8536 B pool free. Package identities are `SMK-37 Elite_900` and `SMK-37 Pro_900`.
+No generated package or SDK/toolchain input is committed.
+
+The two registered refusal tests and unchanged `smk-flash` pass. The new real
+store/OTA tests also pass ASan/UBSan. TDD observed the original immutable-range
+and OTA-admission failures; the map-only port then exposed the owner's forbidden
+erase attempts before the storage hunk was ported. Normal SMK OTA, storage and
+flash-map preprocessed output matches the base modulo whitespace.
+
+The full host suite completed with exit 1: **316 PASS, 33 FAIL, 2 NOT_RUN**.
+This PR is not qualified for merge. `original-build` and `editor-ota-dispatch`
+also fail on an untouched archive of the exact base. Other failures remain
+unresolved; none is treated as a pass. Keep every existing check intact.
+No hardware test, device write, release or merge is claimed.
+
+The two NOT_RUN comparisons are `drum909` and `drum808`: the pinned upstream
+commits return 404 and current upstream archives no longer contain the required
+`er99_engine.c` / `sc808_engine.cpp`. No replacement reference was invented.
+
+Failed checks:
+
+- `original-release-integration`
+- `original-release-ui`
+- `original-build`
+- `ui-theme`
+- `editor-ota-dispatch`
+- `smc-select-mode`
+- `smc-action-source`
+- `smc-fx-preset-preserve`
+- `smc-queue`
+- `smc-solo-overflow`
+- `engine-808-scratch-alias`
+- `smc-link`
+- `smc-reconnect-epoch`
+- `smc-boot-saved-roles`
+- `ble-midi-receive`
+- `ble-capture-replay`
+- `smc-lock`
+- `smc-multi-peer`
+- `ui-peer-names`
+- `ble-device-setting-flow`
+- `ble-toggle-persistence-gate`
+- `smc-ui`
+- `smc-clip-visibility`
+- `ble-role-switch`
+- `builtin-break-output`
+- `break-pack-web`
+- `breaks-web`
+- `breaks-page`
+- `install-slots-web`
+- `sound-matrix`
+- `chicago-presentation`
+- `ui-glyph-polish`
+- `scenario-plock`
