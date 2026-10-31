@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shlex
 import shutil
 import statistics
@@ -61,6 +62,45 @@ def build(source, out, args):
     return cc, flags
 
 
+def annotate_unused_reference_helpers(source):
+    """Preserve -Werror while compiling old pinned references with known dead helpers.
+
+    Only a definition-only identifier receives a compiler metadata annotation.
+    The reference archive bytes and annotation hashes are retained explicitly;
+    no warning category is disabled and no function body is changed.
+    """
+    helpers = (
+        ('experiments/original_synth/chicago_voice.c', 'advance', 'static float advance('),
+        ('firmware/src/dsp/original_miami_backend.c', 'render_prevalidated_frame',
+         'static int render_prevalidated_frame('),
+    )
+    records = []
+    for relative, name, declaration in helpers:
+        path = source / relative
+        if not path.exists():
+            continue
+        text = path.read_text()
+        # Any other identifier use, including a function-address use, refuses
+        # this compatibility annotation. Used donor helpers compile normally.
+        if len(re.findall(r'\b' + re.escape(name) + r'\b', text)) != 1:
+            continue
+        if text.count(declaration) != 1:
+            continue
+        original = path.read_bytes()
+        # Keep the exact archived source alongside the compiled reference.
+        archive = path.with_name(path.name + '.reference-original')
+        archive.write_bytes(original)
+        replacement = declaration.replace(name + '(', '__attribute__((unused)) ' + name + '(')
+        compiled = text.replace(declaration, replacement, 1)
+        path.write_text(compiled)
+        records.append({'path': relative, 'helper': name,
+                        'reason': 'definition-only legacy static helper; body unchanged',
+                        'archived_sha256': hashlib.sha256(original).hexdigest(),
+                        'compiled_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                        'archived_copy': str(archive.relative_to(source))})
+    (source / 'REFERENCE-BUILD-ANNOTATIONS.json').write_text(json.dumps(records, indent=2) + '\n')
+
+
 def export_reference(ref, out):
     sha = subprocess.check_output(['git', 'rev-parse', '--verify', ref+'^{commit}'], cwd=ROOT, text=True).strip()
     out.mkdir()
@@ -94,6 +134,7 @@ def export_reference(ref, out):
         (out/path).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT/path, out/path)
     verify(out)
+    annotate_unused_reference_helpers(out)
     return sha
 
 
@@ -148,7 +189,9 @@ def main():
         build(out/'reference-source', out/'reference', args)
         result = {'reference': ref, 'metric': 'Clang instrumented edges per 256-frame idle block',
                   'not_cpu_instructions': True, 'blocks': 1024, 'warmup_blocks': 64,
-                  'bpm': 217.5, 'compiler': subprocess.check_output([*cc, '--version'], text=True)}
+                  'bpm': 217.5, 'compiler': subprocess.check_output([*cc, '--version'], text=True),
+                  'reference_build_annotations': json.loads(
+                      (out/'reference-source/REFERENCE-BUILD-ANNOTATIONS.json').read_text())}
         for side in ('reference', 'candidate'):
             output = subprocess.check_output([str(out/side/'runner'), 'idle-count'], text=True)
             (out/side/'idle-count.txt').write_text(output)
@@ -168,7 +211,9 @@ def main():
     build(out/'reference-source', out/'reference', args)
     result = {'reference': ref, 'manifest_sha256': hashlib.sha256((ROOT/MANIFEST).read_bytes()).hexdigest(),
               'platform': platform.platform(), 'compiler': subprocess.check_output([*cc, '--version'], text=True),
-              'sanitize': args.sanitize, 'native_fma': args.native_fma, 'profile': args.profile}
+              'sanitize': args.sanitize, 'native_fma': args.native_fma, 'profile': args.profile,
+              'reference_build_annotations': json.loads(
+                  (out/'reference-source/REFERENCE-BUILD-ANNOTATIONS.json').read_text())}
     subprocess.run([str(out/'reference/runner'), 'proof', str(out/'reference/trace.bin')], check=True)
     subprocess.run([str(out/'reference/runner'), 'idle-proof', str(out/'reference/idle-trace.bin')], check=True)
     subprocess.run([str(out/'reference/runner'), 'idle-range-proof', str(out/'reference/idle-range-trace.bin')], check=True)
