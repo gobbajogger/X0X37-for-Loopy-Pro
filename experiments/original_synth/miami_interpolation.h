@@ -9,6 +9,10 @@
  * complete software FMA. No coefficient values or approximations are stored.
  * Adjacent nonlinear table entries normally satisfy these exponent guards. */
 static inline float original_miami_interpolate_rne(float difference,float fraction,float base){
+#if defined(X0X_FAST_FMA)
+ /* Device: a multiply, then an add (no 64-bit integer work per sample). */
+ float p=difference*fraction;return p+base;
+#endif
  uint32_t a=original_math_bits(base),d=original_math_bits(difference),f=original_math_bits(fraction);
  unsigned ea=a>>23,ed=(d>>23)&255u,ef=f>>23;
  if(ea<2||ea>=255||!(d>>31)||!ed||ed+1>=ea||ef>=127)
