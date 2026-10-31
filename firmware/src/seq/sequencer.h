@@ -130,13 +130,22 @@ typedef struct {
     uint8_t own_note;  /* pitch of that press */
 } seq_bass_rec_t;
 
+/* Main loop while playing: cue via pcue[], chain via seq_chain(), and song_start.
+ * Performance restore must be stopped before replacing pat, ppat[], pcue[], mute,
+ * song_on or bpm as a group. Individual live tempo/mute controls remain supported;
+ * this does not permit a multi-field runtime restore during ISR playback. */
 typedef struct {
     pattern_t *pat;                   /* NPAT patterns (the project's) */
     song_t *song;                     /* the project's song (may be 0) */
     volatile uint8_t playing;         /* 1 = running */
     volatile uint8_t ppat[NTRACKS];   /* the pattern each part plays */
     volatile uint8_t pcue[NTRACKS];   /* each part's cued pattern (0xFF = none) */
-    volatile uint8_t chain_a, chain_b;/* chain range (whole patterns); a == b = no chain */
+    union {
+        volatile uint16_t chain;      /* publish a | b << 8 with one aligned store */
+        struct {                     /* little-endian read aliases for the main-loop UI */
+            volatile uint8_t chain_a, chain_b;
+        };
+    };                               /* a == b = no chain; write only via seq_chain() */
     volatile uint8_t song_on;         /* 1 = the song decides the patterns, bar by bar */
     volatile uint8_t song_rec;        /* with song_on: write the live state into the song */
     volatile uint16_t song_pos;       /* bar playing */

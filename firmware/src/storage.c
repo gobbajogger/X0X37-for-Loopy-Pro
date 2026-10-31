@@ -136,7 +136,7 @@ int store_stage_held(void) { return st_stage_hold; }
 static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record valid: 0 */
 {
     if (st_read(st_sector(obj, copy), h, sizeof *h))
-        return -1;
+        return -2;
     if (h->magic != ST_MAGIC || h->type != obj || h->len > ST_PAYLOAD_MAX ||
         h->hcrc != st_crc32(h, sizeof *h - 4u))
         return -1;
@@ -145,7 +145,9 @@ static int st_head(uint32_t obj, uint32_t copy, st_hdr_t *h)   /* commit record 
 
 static int st_body(uint32_t obj, uint32_t copy, const st_hdr_t *h)   /* payload -> st_buf, CRC ok: 0 */
 {
-    if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF, st_buf, h->len) || st_crc32(st_buf, h->len) != h->crc)
+    if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF, st_buf, h->len))
+        return -2;
+    if (st_crc32(st_buf, h->len) != h->crc)
         return -1;
     return 0;
 }
@@ -156,21 +158,35 @@ static int st_body(uint32_t obj, uint32_t copy, const st_hdr_t *h)   /* payload 
 static int st_current(uint32_t obj, st_hdr_t *h)
 {
     st_hdr_t a, b;
-    int va = st_head(obj, 0, &a) == 0, vb = st_head(obj, 1, &b) == 0;
+    int ra = st_head(obj, 0, &a), rb = st_head(obj, 1, &b), rc;
+    int va = ra == 0, vb = rb == 0;
+    /* An unread copy may be newer: do not mistake I/O failure for CRC damage
+     * and silently adopt older settings that a later toggle would overwrite. */
+    if (ra == -2 || rb == -2) return -2;
     if (vb && (!va || b.seq > a.seq)) {
-        if (st_body(obj, 1, &b) == 0) {
+        rc = st_body(obj, 1, &b);
+        if (rc == -2) return rc;
+        if (rc == 0) {
             *h = b;
             return 1;
         }
         vb = 0;
     }
-    if (va && st_body(obj, 0, &a) == 0) {
-        *h = a;
-        return 0;
+    if (va) {
+        rc = st_body(obj, 0, &a);
+        if (rc == -2) return rc;
+        if (rc == 0) {
+            *h = a;
+            return 0;
+        }
     }
-    if (vb && st_body(obj, 1, &b) == 0) {
-        *h = b;
-        return 1;
+    if (vb) {
+        rc = st_body(obj, 1, &b);
+        if (rc == -2) return rc;
+        if (rc == 0) {
+            *h = b;
+            return 1;
+        }
     }
     return -1;
 }
@@ -218,16 +234,40 @@ static int st_pick(uint32_t obj, uint32_t *seq)
     return -1;
 }
 
-/* load object into dst (up to max bytes); returns the length, or -1 */
+/* Length, -1 only for confirmed erased headers, -2 unreadable (I/O), -3 readable
+ * but damaged committed data, -8 busy. Integration of #790 and #810: I/O and busy
+ * are retryable (#790); damaged needs validated staged adoption (#810). */
 static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
     st_hdr_t h;
+    int previous = (obj & PLAT_STORE_PREVIOUS) != 0, cur;   /* #810 */
+    obj &= ~PLAT_STORE_PREVIOUS;
+    if (obj >= OBJ_NOBJ) return -1;
     if (!ST_MAINTENANCE_ADMIT())
-        return -1;
+        return -8;
     if (st_stage_hold)                            /* do not wipe a boot record being built */
+        return -8;
+    cur = st_current(obj, &h);
+    if (cur == -2) return -2;
+    if (cur < 0) {
+        st_hdr_t a, b;
+        if (st_read(st_sector(obj, 0), &a, sizeof a) ||
+            st_read(st_sector(obj, 1), &b, sizeof b)) return -2;
+        const uint8_t *pa = (const uint8_t *)&a, *pb = (const uint8_t *)&b;
+        for (uint32_t i = 0; i < sizeof a; ++i)
+            if (pa[i] != 0xFFu || pb[i] != 0xFFu) return -3;   /* readable, committed, damaged */
         return -1;
-    if (st_current(obj, &h) < 0)
-        return -1;
+    }
+    if (previous) {   /* #810: the older valid A/B copy, read-only */
+        st_hdr_t older;
+        int r = st_head(obj, (uint32_t)(1 - cur), &older);
+        if (r == -2) return -2;
+        if (r || older.seq >= h.seq) return -1;
+        r = st_body(obj, (uint32_t)(1 - cur), &older);
+        if (r == -2) return -2;
+        if (r) return -1;
+        h = older;
+    }
     if (h.len > max)
         h.len = max;
     __builtin_memcpy(dst, st_buf, h.len);

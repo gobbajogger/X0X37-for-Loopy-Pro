@@ -240,6 +240,8 @@ X0X_COLD static void project_input_sync(void)
 enum { SAVE_SAVED, SAVE_UNSAVED, SAVE_QUEUED, SAVE_FAILED };
 static int save_state(void)
 {
+    if (project_storage_unsupported() == 2)
+        return SAVE_FAILED;
     if (save_wait)
         return SAVE_QUEUED;
     if (ui.save_failed)
@@ -2060,7 +2062,8 @@ X0X_COLD int ui_project_save(void)
         return UI_PROJECT_BUSY;
     save_wait = 0;
     rc = project_save();
-    say(rc == -9 ? "NEWER DATA: NOT SAVED" : rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
+    if (project_storage_unsupported() != 2)
+        say(rc == -9 ? "NEWER DATA: NOT SAVED" : rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
     ui.save_failed = rc != 0;
     if (!rc)
         ui.dirty = 0;
@@ -2072,6 +2075,11 @@ static void save_project(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
 #endif
+    if (project_storage_unsupported() == 2) {
+        save_wait = 0;
+        ui.save_failed = 1;
+        return; /* keep the warning glyph; only validated adoption unlocks */
+    }
     if (project_busy) {
         say("PROJECT TRANSFER BUSY", 0);
         return;
@@ -3890,7 +3898,7 @@ int ui_live_key_owner(void)
 }
 static void ui_live_cancel_voice(int b)
 {
-    if((unsigned)b>=NBASS || (!live_keys[b].n && live_owner!=b))return;
+    if((unsigned)b>=NBASS || (!live_keys[b].n && !(live_intent&(1u<<b))))return;
     int arp;engine_live_key_state(b,&live_wait_generation[b],&arp,0);
     engine_live_key_cancel(b);live_wait|=(uint8_t)(1u<<b);live_intent&=(uint8_t)~(1u<<b);
     uint64_t held=plat_physical_keys();
@@ -3962,21 +3970,12 @@ static void live_boundary(int entry)
     int pitch_changed=ui.oct!=live_octave,overflow=0,n;
     uint64_t physical;
     if(changed) {
-        if(live_owner>=0) {
-            if(owner==live_owner && context!=live_context) {
-                memset(&live_keys[live_owner],0,sizeof live_keys[live_owner]);
-                live_intent&=(uint8_t)~(1u<<live_owner);
-                kbd_held_note[live_owner]=kbd_held_key[live_owner]=kbd_arp_n[live_owner]=0;
-            } else ui_live_cancel_voice(live_owner);
-        }
+        /* Revoke the old physical keys before discarding their inventory.
+         * A changed serial is not proof that their Note Off was consumed. */
+        if(live_owner>=0) ui_live_cancel_voice(live_owner);
         live_owner=(int8_t)owner;live_context=context;live_arp=(int8_t)arp;
     }
-    if(gate_changed && owner>=0) {
-        /* Keep real held inventory through foreign gate activity, but revoke
-         * its audio intent. Observation alone never replays it or authorizes off. */
-        live_intent&=(uint8_t)~(1u<<owner);
-        for(unsigned p=0;p<37;p++)if(live_keys[owner].down[p])live_keys[owner].down[p]=1;
-    }
+    if(gate_changed && owner>=0 && !changed) ui_live_cancel_voice(owner);
     live_generation=generation;
     if(changed || pitch_changed || gate_changed) {
         live_epoch++;if(!live_epoch)live_epoch=1;
@@ -4835,7 +4834,8 @@ static UI_DRAW void draw_header(void)
                         PART_COL[drum_mix_page()]) + 6;
     }
     if (ss != SAVE_SAVED) {               /* use the gap before pattern/clock, never cover cue or step range */
-        const char *label = ss == SAVE_QUEUED ? queued_save_label() : ss == SAVE_FAILED ? "SAVE FAILED" : "UNSAVED";
+        const char *label = project_storage_unsupported() == 2 ? "!" :
+            ss == SAVE_QUEUED ? queued_save_label() : ss == SAVE_FAILED ? "SAVE FAILED" : "UNSAVED";
         int32_t w = tw(&FONT_XS, label) + 10;
         uint16_t c = ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB;
         if (x + w <= 130) {
@@ -7872,7 +7872,7 @@ X0X_COLD void ui_init(void)
     undo_start();                                   /* the project as loaded is where undo stops */
     if (project_storage_unsupported()) {
         ui.save_failed = 1;
-        say("NEWER DATA: LOAD BLOCKED", 0);
+        if (project_storage_unsupported() != 2) say("NEWER DATA: LOAD BLOCKED", 0);
     }
 }
 
@@ -8002,7 +8002,7 @@ static void autosave(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
 #endif
-    if (project_busy || ui_boot_flash_busy())
+    if (project_busy || ui_boot_flash_busy() || project_storage_unsupported())
         return;
     if (save_wait && !seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop && !ui.rec && !perf_save_busy()) {
 #if BOARD_SMK37
