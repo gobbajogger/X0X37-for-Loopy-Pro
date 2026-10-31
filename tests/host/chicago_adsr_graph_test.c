@@ -134,6 +134,9 @@ static void set_env(int a, int d, int s, int r)
 {
     int p = env_page(), v[4] = {a, d, s, r};
     for (int k = 0; k < 4; k++) pref_set(pg.r[p][k], v[k]);
+    /* The graph shows the engine's compiled VCA controls; edits reach them at
+     * the next audio block, as on the device. Let two blocks run. */
+    run_ms(12);
 }
 /* Panel geometry from draw_part_sound: four 49 px rows on a 50 px step. */
 enum { ROW_Y = 4 + 3 * 50, ROW_H = 49, GX0 = 13, GW = 214 };
@@ -144,7 +147,7 @@ static void layout(int xs[5], float dur[3], ui_adsr_t *e)
 }
 static int curve_y(int x, uint16_t c)  /* topmost curve pixel in a column, or -1 */
 {
-    for (int y = ROW_Y + 14; y <= ROW_Y + ROW_H - 5; y++)
+    for (int y = ROW_Y + 22; y <= ROW_Y + ROW_H - 5; y++)
         if (fb[(MAIN_Y + y) * 240 + x] == swap16(c)) return y;
     return -1;
 }
@@ -155,7 +158,7 @@ static void render_check(int a, int d, int s, int r)
     ui.touched = -1; now_ms += 50; ui_frame();
     layout(xs, dur, &e);
     uint16_t c = matrix_col();
-    int top = ROW_Y + 14, y0 = ROW_Y + ROW_H - 5;
+    int top = ROW_Y + 22, y0 = ROW_Y + ROW_H - 5; /* K5-K8 readouts reserve the upper 8 px. */
     /* Layout: ordered, every timed stage visible, fixed right edge. */
     CHECK(xs[0] == GX0 && xs[4] == GX0 + GW);
     for (int k = 0; k < 4; k++) CHECK(xs[k + 1] > xs[k]);
@@ -215,7 +218,7 @@ int main(void)
         *page_of(V_PART) = 0; build_pages(); ui.touched = -1; now_ms += 50; ui_frame();
         CHECK(adsr_row(p) && cur_page() != p);
         int lit = 0, xs[5]; float dur[3]; ui_adsr_t e; layout(xs, dur, &e);
-        int top = ROW_Y + 14, y0 = ROW_Y + ROW_H - 5;
+        int top = ROW_Y + 22, y0 = ROW_Y + ROW_H - 5;
         int ys = y0 - (int)(e.sustain * (float)(y0 - top) + 0.5f);
         for (int x = xs[2] + 2; x < xs[3] - 1; x++) lit += fb[(MAIN_Y + ys) * 240 + x] == swap16(SOUND_WHITE);
         CHECK(lit >= xs[3] - xs[2] - 4);
