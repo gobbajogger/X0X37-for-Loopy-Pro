@@ -72,6 +72,28 @@ static void settings_do_not_swallow(int bank)
     open_list_of_pages();scan();every_key(bank,"edit-nofreeplay-list");ui.overlay=O_NONE;
     ui.freeplay[0]=1;scan();
 }
+/* B3: scan() above deliberately settles two input/render cycles. Check the
+ * first cycle separately so a queued key cannot acquire an extra audio block
+ * of delay while the all-keys coverage still passes. This observes the real
+ * engine gate/identity, not a modeled DAC timestamp or envelope attack. */
+static void first_render_edges(int bank)
+{
+    static const int views[2]={V_PART,V_SEQ};
+    for(unsigned v=0;v<2;v++) {
+        set_view(views[v]);build_pages();scan();
+        T(ui_live_key_owner()==1);
+        for(unsigned p=0;p<37;p++) {
+            TK(!engine_live_key_probe(0,2),p,0,bank);
+            physical(p,100);ui_input_only();audio_block();
+            TK(engine_live_key_probe(0,2)==1,p,0,bank);
+            TK(engine_live_key_probe(0,1)==36+p,p,0,bank);
+            TK(engine_live_key_probe(0,0)==live_token(p),p,0,bank);
+            physical(p,0);ui_input_only();audio_block();
+            TK(!engine_live_key_probe(0,2),p,0,bank);
+            TK(!engine_live_key_probe(0,0),p,0,bank);
+        }
+    }
+}
 int main(int argc,char **argv)
 {
     (void)argc;(void)argv;boot();tick(300);
@@ -79,8 +101,9 @@ int main(int argc,char **argv)
         fresh_keys(bank);every_key(bank,"edit");
         edge_keys_intermittent(bank);
         settings_do_not_swallow(bank);
+        first_render_edges(bank);
     }
     T(!irq_depth);
-    printf("PASS %u checks: 37 keys x 6 octaves x {Chicago, Miami} x {EDIT, SEQ, list, HELP}, edge keys x50\n",checks);
+    printf("PASS %u checks: 37 keys x 6 octaves x {Chicago, Miami} x {EDIT, SEQ, list, HELP}, edge keys x50; on/off in first render\n",checks);
     return 0;
 }
