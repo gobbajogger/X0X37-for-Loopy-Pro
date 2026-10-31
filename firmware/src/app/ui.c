@@ -6608,9 +6608,14 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
     }
     cv_line(xs[2],ys-off,xs[3],ys-off,edited==2?hi:col);
     for(k=0;k<4;k++) {
-        char label[8]; char *end=put_i(put_s(label,"K"),UI_FIRST_KNOB+k);
-        put_s(end,k==0?" A":k==1?" D":k==2?" S":" R");
-        text_c(31+k*59,y+8-off,&FONT_T,label,SOUND_GRAY);
+        /* Keep A/D/S/R percentage visible at rest as well as during K5-K8
+         * turns. Same quantisation as the native Chicago value readout. */
+        char label[20];
+        char *end=put_i(put_s(label,"K"),UI_FIRST_KNOB+k);
+        end=put_s(end,k==0?" A ":k==1?" D ":k==2?" S ":" R ");
+        end=put_i(end,(matrix_value(pg.r[p][k])*100+63)/127);
+        put_s(end,"%");
+        text_c(31+k*59,y+8-off,&FONT_T,label,edited==k?hi:SOUND_GRAY);
     }
     {   /* Native state1 contains both decay and sustain. Classify within 1% of S.
          * Cursor level is always the live EG; the horizontal axis names stages. */
