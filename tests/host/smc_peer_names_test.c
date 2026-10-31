@@ -35,6 +35,9 @@ int main(void)
     setup(V_GLO,PART_909);
     names("SMC Left","SMC Right"); CHECK(!strcmp(plat_ble_name(),"SMC Left, SMC Right"));
     render_names(1,"names-two-selected"); render_names(0,"names-two-unselected");
+    names("SMC-Left-Panel","SMC-Right-Panel");
+    render_names(1,"names-long-two-selected");
+    render_names(0,"names-long-two-unselected");
     names("SMC-Mixer","SMC-Mixer"); CHECK(!strcmp(plat_ble_name(),"SMC-Mixer, SMC-Mixer"));
     render_names(1,"names-identical");
     names("",NULL); CHECK(!strcmp(plat_ble_name(),"SMC-Mixer"));
