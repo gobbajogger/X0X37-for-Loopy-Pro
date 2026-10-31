@@ -3,14 +3,16 @@
 #include <string.h>
 
 static const char *const original_sound_fx_names[ORIGINAL_CHICAGO_FX_CHOICES] = {
-    "OFF", "CHO/FLG", "PHASER", "RING MOD", "COMPRESSOR", "DECIMATOR", "EQ"
+    "OFF", "CHO/FLG", "PHASER", "RING MOD", "COMPRESSOR", "DECIMATOR", "EQ",
+    /* Archived Chicago inserts, appended so saved choices 0..6 keep their meaning. */
+    "ENSEM", "SH DLY", "BPM DL", "HALL", "GT REV"
 };
 static const x0x_param_t original_sound_chicago_params[22] = {
     {"Wave",127,0,0},{"Glide",127,0,0},{"Cutoff",127,0,0},{"Peak",127,0,0},
     {"EnvAmt",127,0,0},{"Bite",127,0,0},{"Gnaw",127,0,0},{"Attack",127,0,0},
     {"Decay",127,0,0},{"Sust",127,0,0},{"Rel",127,0,0},{"AmpMod",127,0,0},
     {"Level",127,0,0},{"ArpOn",127,0,0},{"ArpMod",127,0,0},{"ArpRng",127,0,0},
-    {"ArpSpd",127,0,0},{"FxType",6,0,original_sound_fx_names},{"FxEd1",127,0,0},{"FxEd2",127,0,0},
+    {"ArpSpd",127,0,0},{"FxType",ORIGINAL_CHICAGO_FX_CHOICES - 1u,0,original_sound_fx_names},{"FxEd1",127,0,0},{"FxEd2",127,0,0},
     {"PBend",127,0,0},{"Damper",127,0,0}
 };
 
@@ -20,8 +22,8 @@ static const uint8_t original_sound_chicago_factories[ORIGINAL_CHICAGO_FACTORIES
     0,1,2,3,4,5,6,11,12,13,14,15,17,18,19,21,22,29,30,31,32,34,35,36,37,38,39,40,
     41,42,43,46,47,49,52,53,54,55,57,58,59,60,62,63,67,69,70,71,72,73,74,76,78,79,80
 };
-static const uint8_t original_sound_fx_types[ORIGINAL_CHICAGO_FX_CHOICES] = {0,4,5,10,18,22,24};
-static const uint8_t original_sound_fx_macros[ORIGINAL_CHICAGO_FX_CHOICES] = {0,5,7,4,2,3,1};
+static const uint8_t original_sound_fx_types[ORIGINAL_CHICAGO_FX_CHOICES] = {0,4,5,10,18,22,24,3,12,13,15,16};
+static const uint8_t original_sound_fx_macros[ORIGINAL_CHICAGO_FX_CHOICES] = {0,5,7,4,2,3,1,6,8,9,10,11};
 static const x0x_param_t original_sound_miami_params[18] = {
     {"CrWave",127,0,0},{"CrLvl",127,0,0},{"Sub",127,0,0},{"CrPit",127,0,0},
     {"Glide",127,0,0},{"XmLvl",127,0,0},{"XmWave",127,0,0},{"XmTune",127,0,0},

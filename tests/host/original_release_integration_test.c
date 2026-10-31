@@ -65,13 +65,13 @@ static void cold(void)
 
 static void compact_audio(void)
 {
-    static const unsigned macro[7] = {0,5,7,4,2,3,1};
+    static const unsigned macro[12] = {0,5,7,4,2,3,1,6,8,9,10,11};
     /* A fresh graph for each part isolates its audible output. The other part
-     * receives no note. All seven choices pass through the real DSP/mixer. */
+     * receives no note. All twelve choices (seven original, five archived inserts) pass through the real DSP/mixer. */
     for(unsigned kind=0;kind<2;++kind) {
       if(kind==ORIGINAL_SOUND_CHICAGO) {select_chicago(0,0); select_chicago(1,0);}
       else {select_miami(0,0); select_miami(1,0);}
-      for (unsigned voice=0;voice<2;++voice) for (unsigned choice=0;choice<(kind?1u:7u);++choice) {
+      for (unsigned voice=0;voice<2;++voice) for (unsigned choice=0;choice<(kind?1u:12u);++choice) {
         cold();
         engine_guard_enable(0);
         if(kind==ORIGINAL_SOUND_CHICAGO) {
@@ -79,7 +79,7 @@ static void compact_audio(void)
             block(256);
             CHECK(engine_original_value_bits((int)voice,17)==float_bits((float)macro[choice]/11.0f));
             uint32_t valid=engine_original_value_bits((int)voice,17);
-            engine_set(T_303,(int)voice,17,7); engine_set(T_303,(int)voice,17,127); block(256);
+            engine_set(T_303,(int)voice,17,12); engine_set(T_303,(int)voice,17,127); block(256);
             CHECK(engine_bass_status((int)voice)==1 && engine_original_value_bits((int)voice,17)==valid);
         }
         midi(0,0x92u+voice,60,100);
@@ -116,7 +116,8 @@ static void compact_audio(void)
 
 static void compact_ui(const char *directory)
 {
-    static const char *const names[7]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ"};
+    static const char *const names[12]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ",
+        "ENSEM","SH DLY","BPM DL","HALL","GT REV"};
     pref_t effect=PR(R_ENG,T_303,1,17), preset=PR(R_BPRESET,0,1,0);
     select_chicago(1,0);
     ui.view=V_PART; ui.part=PART_303B; ui.overlay=0; ui.help=0;
@@ -125,8 +126,8 @@ static void compact_ui(const char *directory)
     int page=-1;
     for(int p=0;p<pg.n;++p)
         if(pg.r[p][0].kind==R_ENG && pg.r[p][0].c==17) page=p;
-    CHECK(page==6 && pref_desc(effect)->max==6 && pref_desc(preset)->max==54);
-    for(unsigned i=0;i<7;++i) {
+    CHECK(page==6 && pref_desc(effect)->max==11 && pref_desc(preset)->max==54);
+    for(unsigned i=0;i<12;++i) {
         pref_set(effect,(int)i); block(256);
         char num[32],unit[16]; pref_value_of(effect,pref_get(effect),num,unit);
         CHECK(!strcmp(num,names[i]) && !*unit);
@@ -152,7 +153,7 @@ static void compact_project(void)
     engine_project_hold(1);
     project_capture_stage();
     CHECK(project_validate_stage()==0 && project_stage.set.snd_rev==13 && PROJ_STREAM==13);
-    project_stage.sound.v[T_303][1][17]=7;
+    project_stage.sound.v[T_303][1][17]=12;
     CHECK(project_validate_stage()!=0);
     project_capture_stage(); project_stage.sound.v[T_303][1][28]=1;
     CHECK(project_validate_stage()!=0);
@@ -161,9 +162,9 @@ static void compact_project(void)
     project_capture_stage();
     int lane=motion_alloc(project_stage.arr.lane,0,PART_303B,T_303,1,17);
     CHECK(lane>=0);
-    project_stage.arr.lane[lane].val[0]=7;
+    project_stage.arr.lane[lane].val[0]=12;
     CHECK(project_validate_stage()!=0);
-    project_stage.arr.lane[lane].val[0]=6;
+    project_stage.arr.lane[lane].val[0]=11;
     CHECK(project_validate_stage()==0);
     CHECK(project_save()==0 && project_load_stage()==0);
     CHECK(!memcmp(&proj.sound,&project_stage.sound,sizeof proj.sound));
@@ -327,6 +328,6 @@ int main(int argc, char **argv)
     engine_live_key_state(0, &next_generation, &arp, &context);
     CHECK(next_generation != generation);
     CHECK(engine_bass_status(0) == 1 && engine_bass_status(1) == 1);
-    printf("PASS compact firmware integration: %u checks;55 Chicago/30 Miami factories in each independent part; seven Chicago FX and Miami audibly rendered on each part; two simultaneous Chicago owners; named UI, schema2/revision13/project roundtrip; MIDI/all-key releases, source/channel retirement, physical tokens, exact base/motion restore, sustain/bend/Stop, guarded output; audio hash%016llx\n",checks,(unsigned long long)audio_hash);
+    printf("PASS compact firmware integration: %u checks;55 Chicago/30 Miami factories in each independent part; twelve Chicago FX and Miami audibly rendered on each part; two simultaneous Chicago owners; named UI, schema2/revision13/project roundtrip; MIDI/all-key releases, source/channel retirement, physical tokens, exact base/motion restore, sustain/bend/Stop, guarded output; audio hash%016llx\n",checks,(unsigned long long)audio_hash);
     return 0;
 }

@@ -68,8 +68,11 @@ release HOME
 expect tempo 130
 # GLO > RESET PROJECT (+17 selectable rows from CLOCK SOURCE), then confirm.
 tap GLO
-turn SELECT 17
-expect listsel 21
+# GLOBAL > PROJECT (section 3) > RESET PROJECT (row 4)
+turn SELECT 3
+tap SEL
+turn SELECT 4
+expect listsel 4
 tap SEL
 expect overlay 2
 tap SEL
