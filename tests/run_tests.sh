@@ -333,6 +333,8 @@ run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/s
 run motion-pattern-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/motion_pattern_handoff_test tests/host/motion_pattern_handoff_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_handoff_test"   # N6: restore base before incoming pattern locks
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run original-release-integration sh tests/host/original_release_integration_test.sh build/ui-theme/original-integration
+run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_fx2_inserts
+run original-sound-cell sh tests/host/original_sound_cell_test.sh build/original-sound-cell
 run original-release-ui sh tests/host/original_release_ui_test.sh build/ui-theme/original-ui
 run original-build python3 tests/host/test_original_build_composition.py
 run freeplay-rate-pads python3 tests/host/test_freeplay_rate_pad_port.py

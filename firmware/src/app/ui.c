@@ -5082,6 +5082,18 @@ static UI_DRAW int matrix_row_hint(int x,int y,uint16_t c)
     return x+14+tw(&FONT_T,"ROW");
 }
 
+/* Physical EDIT caption plus a page and forward arrow, within the old hint. */
+static UI_DRAW int matrix_next_hint(int x,int y,uint16_t c)
+{
+    x=cv_text(x,y,&FONT_T,UI_CAP_EDIT,c)+4;
+    cv_line(x,y,x+8,y,c);cv_line(x+8,y,x+8,y+10,c);
+    cv_line(x+8,y+10,x,y+10,c);cv_line(x,y+10,x,y,c);
+    cv_line(x+2,y+3,x+6,y+3,c);cv_line(x+2,y+6,x+6,y+6,c);
+    cv_line(x+12,y+5,x+22,y+5,c);
+    cv_line(x+18,y+1,x+22,y+5,c);cv_line(x+22,y+5,x+18,y+9,c);
+    return x+23;
+}
+
 static UI_DRAW int matrix_touch_matches(pref_t r, int i)
 {
     return ui.touched == i && ui.touch_view == ui.view &&
@@ -5197,7 +5209,7 @@ static UI_DRAW void draw_part_sound(int band)
 #endif
     {
         int x=matrix_row_hint(7,208-off,gray);
-        cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT ": NEXT",gray);
+        matrix_next_hint(x+8,208-off,gray);
     }
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE) {
@@ -7070,6 +7082,71 @@ static UI_DRAW int orig_strip_slot(pref_t r)
  * follows drive_amount_glyph (the old knob-strip families), scaled to the cell. */
 #define OG_W 26
 #define OG_H 18
+
+/* Qualitative effect identities in the existing 26x19 box. The short name
+ * beside each picture remains authoritative; these are not measured DSP plots. */
+static UI_DRAW void orig_fx_glyph(int type,int gx,int gy,uint16_t col)
+{
+    int right=gx+OG_W-1,bot=gy+OG_H,mid=gy+OG_H/2;
+    switch(type) {
+    case 0: /* bypass */
+        cv_line(gx,mid,right,mid,col);cv_line(gx+10,gy+2,gx+15,bot-2,col);break;
+    case 1: case 7: { /* chorus pair / ensemble trio */
+        int n=type==7?3:2;
+        for(int row=0;row<n;row++) {
+            int y=gy+(n==3?3+row*5:5+row*7),py=y;
+            for(int k=1;k<=4;k++) {
+                int x=gx+k*6,yy=y+(k&1?2:-2);
+                cv_line(gx+(k-1)*6,py,x,yy,col);py=yy;
+            }
+        }
+        break;
+    }
+    case 2: /* phaser notches */
+        cv_line(gx,gy+5,gx+3,gy+5,col);
+        for(int i=0;i<2;i++) {
+            int x=gx+3+i*10;
+            cv_line(x,gy+5,x+4,bot-2,col);cv_line(x+4,bot-2,x+8,gy+5,col);
+            cv_line(x+8,gy+5,i?right:x+10,gy+5,col);
+        }
+        break;
+    case 3: /* ring modulation: alternating lobes under an amplitude envelope */
+        for(int i=0;i<6;i++) {
+            int x=gx+i*4,h=i<3?2+i*2:12-i*2;
+            cv_line(x,mid,x+2,mid+(i&1?h:-h),col);
+            cv_line(x+2,mid+(i&1?h:-h),x+4,mid,col);
+        }
+        break;
+    case 4: /* compressor knee */
+        cv_line(gx,bot,gx+11,gy+7,col);cv_line(gx+11,gy+7,right,gy+3,col);break;
+    case 5: /* decimator steps */
+        for(int i=0;i<4;i++) {
+            int x=gx+i*6,y=gy+15-i*4;
+            cv_line(x,y,x+6,y,col);if(i<3)cv_line(x+6,y,x+6,y-4,col);
+        }
+        break;
+    case 6: /* EQ peak */
+        cv_line(gx,mid,gx+6,mid,col);cv_line(gx+6,mid,gx+12,gy+2,col);
+        cv_line(gx+12,gy+2,gx+18,mid,col);cv_line(gx+18,mid,right,mid,col);break;
+    case 8: /* short delay taps */
+        for(int i=0;i<3;i++)cv_rect(gx+i*9,bot-12+i*4,2,12-i*4,col);
+        cv_line(gx,bot,right,bot,col);break;
+    case 9: /* BPM delay: clock plus taps */
+        cv_line(gx,gy+3,gx+8,gy+3,col);cv_line(gx+8,gy+3,gx+8,gy+11,col);
+        cv_line(gx+8,gy+11,gx,gy+11,col);cv_line(gx,gy+11,gx,gy+3,col);
+        cv_line(gx+4,gy+5,gx+4,gy+7,col);cv_line(gx+4,gy+7,gx+6,gy+7,col);
+        for(int i=0;i<3;i++)cv_rect(gx+12+i*6,bot-12+i*4,1,12-i*4,col);
+        cv_line(gx,bot,right,bot,col);break;
+    case 10: /* hall: room walls and diffuse reflections */
+        cv_line(gx,bot,gx,gy+2,col);cv_line(gx,gy+2,right,gy+2,col);cv_line(right,gy+2,right,bot,col);
+        for(int i=0;i<5;i++)cv_rect(gx+3+i*4,gy+5+i,1,10-i*2,col);
+        break;
+    case 11: /* reverb cut off at a gate */
+        for(int i=0;i<4;i++)cv_rect(gx+i*5,gy+3+i*2,2,12-i*2,col);
+        cv_rect(gx+20,gy+1,2,17,col);cv_line(gx+22,bot,right,bot,col);break;
+    default: break;
+    }
+}
 static float og_shift;                           /* live LFO: the wave scrolls by this much of t */
 static UI_DRAW void og_wave(int gx,int gy,float (*f)(float,float),float q,uint16_t col)
 {   /* f returns -1..1 (up positive) over t 0..1 */
@@ -7180,9 +7257,8 @@ static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col
     } else if(chi && c==15) {                    /* RANGE: octave stairs */
         int idx,n=og_states(r,val,&idx),sw=OG_W/(n?n:1);
         for(int k=0;k<n;k++){int h=3+k*(OG_H-3)/(n>1?n-1:1);cv_rect(gx+k*sw,bot-h+1,sw-2,h,k<=idx?col:C_LINE);}
-    } else if(chi && c==17) {                    /* FX TYPE: one pip per type */
-        int idx,n=og_states(r,val,&idx),step=OG_W/(n?n:1),pw=step>1?step-1:1;
-        for(int k=0;k<n;k++) cv_rect(gx+k*step,mid-4,pw,9,k==idx?col:C_LINE);
+    } else if(chi && c==17) {                    /* FX TYPE: recognizable effect picture */
+        orig_fx_glyph(val,gx,gy,col);
     } else if(!chi && c==2) {                    /* SUB: osc square + sub-octave square */
         int a=1+(int)(q*6+.5f);
         for(int i=0;i<4;i++){int xx=gx+i*6;cv_line(xx,top,xx+3,top,C_LINE);cv_line(xx+3,top,xx+3,top+4,C_LINE);cv_line(xx+3,top+4,xx+6,top+4,C_LINE);cv_line(xx+6,top+4,xx+6,top,C_LINE);}
