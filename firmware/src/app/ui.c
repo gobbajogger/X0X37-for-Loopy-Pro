@@ -4787,21 +4787,16 @@ static UI_DRAW void draw_header(void)
             }
         }
 #endif
-        int32_t w = tw(&FONT_B, part_label) + 12;
-        box(0, 1, w, 17, part_col());
-        cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, part_label, C_BLACK);
-        x = w + 6;
-        if (ui.view == V_GEN)
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "TB-3PO", C_HI) + 6;
-        else if (ui.view == V_SEQ)
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, !kbd_on() ? "SEQ" : ui.rec ? "SEQ KEYS" : "FREE PLAY",
-                        kbd_on() ? C_AMB : C_HI) + 6;
-        else if (ui.view == V_PART && is_303())
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, "SOUND", C_HI) + 6;
-        else if (kbd_on())                            /* REC: KEYS (written); FREE PLAY: said so */
-            x = cv_text(x, vc(&FONT_S, 1, 17), &FONT_S, ui.rec ? "KEYS" : "FREE PLAY", C_AMB) + 6;
+        const char *mode = ui.view==V_GEN?"TB-3PO":ui.view==V_SEQ?(!kbd_on()?"SEQ":ui.rec?"SEQ KEYS":"FREE PLAY"):
+                           ui.view==V_PART&&is_303()?"SOUND":kbd_on()?(ui.rec?"KEYS":"FREE PLAY"):"";
+        const felucca_font_t *pf=&FONT_B,*mf=&FONT_S;
+        if(tw(pf,part_label)+18+tw(mf,mode)>128)pf=mf=&FONT_XS;
+        int32_t w = tw(pf, part_label) + 12;
+        box(0,1,w,17,part_col());cv_text(6,vc(pf,1,17),pf,part_label,C_BLACK);
+        x=w+6;
+        if(mode[0])x=cv_text(x,vc(mf,1,17),mf,mode,kbd_on()&&ui.view!=V_GEN&&!(ui.view==V_PART&&is_303())?C_AMB:C_HI)+6;
     } else {
-        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, VIEW_N[ui.view], C_HI) + 6;
+        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, ui.view==V_GLO?list_title:VIEW_N[ui.view], C_HI) + 6;
         if (drum_mix_page() >= 0)                     /* MIX: 909 / MIX: 808 (whose tracks these are) */
             x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
                         PART_COL[drum_mix_page()]) + 6;
@@ -5826,6 +5821,15 @@ static UI_DRAW void draw_readout(void)
     }
 }
 
+static const char *action_key_cue(void)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if(smk_clip_mode_on())return ""; /* Physical SCALE is masked; SMC dispatch stays available. */
+#endif
+    return UI_CAP_SEL;
+}
+
 /* Open-beta display to the left of the action arrow. Empty on an unversioned build.
  * The name and the arrow stay put; a label that would touch either one is not drawn. */
 static int release_label_box(const char *label, int selected, int32_t *x, int32_t *w)
@@ -5835,8 +5839,8 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
         return 0;
     name_w = tw(selected ? &FONT_B : &FONT_S, "ABOUT DnBOX");
     lw = tw(&FONT_XS, label);
-    lx = 204 - lw;
-    if (lx < 8 + name_w + 4 || lx + lw > 206)
+    lx = 226 - tw(&FONT_XS, action_key_cue()) - 8 - lw;
+    if (lx < 8 + name_w + 4 || lx + lw > 226 - tw(&FONT_XS, action_key_cue()) - 8)
         return 0;
     *x = lx;
     *w = lw;
@@ -5876,10 +5880,7 @@ static UI_DRAW void draw_list(int band)
                 if (release_label_box(X0X_RELEASE_LABEL, sel, &lx, &lw))
                     cv_text(lx, vc(&FONT_XS, y + 1, 18), &FONT_XS, X0X_RELEASE_LABEL, sel ? C_WHITE : C_HI);
             }
-            cv_rect(212, y + 12, 12, 2, ac);
-            cv_rect(222, y + 6, 2, 7, ac);
-            cv_line(212, y + 13, 216, y + 9, ac);
-            cv_line(212, y + 13, 216, y + 17, ac);
+            text_r(226,vc(&FONT_XS,y+1,18),&FONT_XS,action_key_cue(),ac);
             continue;
         }
         pref_value(r, num, unit);
