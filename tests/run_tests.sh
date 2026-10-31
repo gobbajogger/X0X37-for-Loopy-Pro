@@ -443,6 +443,7 @@ run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
 run brk-outline-gate python3 -B tests/host/engine_brk_outline_gate_test.py   # engine_brk_outline stores through brk_outline_peak_u8 clamp
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (+ Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert flags)
+run chicago-fx2-inserts sh tests/host/chicago_fx2_inserts_test.sh build/chicago_fx2_inserts   # archived Chicago inserts on the compact FX2 owner (shared arena, tempo, reset)
 # chicago-fx-runtime is retired: it probed the bass303 chi_fx_process insert path that 18481a63 removed.
 run au-compare-align python3 tests/host/test_au_compare_align.py   # lag search law for Chicago/Miami AU compares
 run au-compare-battery python3 tests/host/test_au_compare_battery.py   # preset vs matrix modes + quick/full timing
