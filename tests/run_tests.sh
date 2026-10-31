@@ -378,7 +378,7 @@ run ble-smc-outbound-slots python3 tests/host/ble_smc_outbound_slot_test.py
 run ble-one-peer-command env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=0" sh tests/host/ble_one_peer_command_retry_test.sh
 run ble-single-peer-status sh -c "${CC:-cc} -std=c99 -O1 -g -Wall -Wextra -Werror -o $OUT/ble_single_peer_status_test tests/host/ble_single_peer_status_test.c && $OUT/ble_single_peer_status_test"
 run ble-dual-peer env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_dual_peer_test.sh
-run ble-command-credit sh tests/host/ble_command_credit_event_test.sh
+run ble-command-credit env SAN_FLAGS="${SAN_FLAGS:-} -DBLEC_TWO_PEER=1" sh tests/host/ble_command_credit_event_test.sh
 run ble-controller-heap python3 tests/host/ble_controller_heap_test.py
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
