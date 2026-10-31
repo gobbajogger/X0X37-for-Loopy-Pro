@@ -69,3 +69,7 @@ python3 tools/render_glyph_polish.py --before /absolute/scratch/before \
 ```
 
 The harness is added by this PR: copy its two test files into the unchanged BEFORE checkout for the first command. Both runs use the production SMK-37 UI and `engine_render`; only hardware interfaces use the existing host fixture substitutes. No FM-1 target is built or tested.
+
+## Chicago ADSR idle-readout follow-up
+
+The earlier Chicago ADSR screenshots and GIFs above were rendered at commit `628ad5189e0859723dc66c4fb33187d28b680fcf`, **before** persistent A/D/S/R percentages were added. They are valid original framebuffer evidence for that old revision, not visual acceptance evidence for the follow-up fix. Regenerate the real framebuffer BEFORE and AFTER phases and re-inspect the pixel results before using this gallery for owner approval. The new regression tests assert the RGB565 label pixels for all four idle values, each K5–K8 touch and each expired touch timeout; this documentation makes no new test or build PASS claim.

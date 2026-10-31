@@ -90,6 +90,48 @@ static void test_adsr_motion(void){
  drain_ms(6000);CHECK(engine_bass_voice_view(1,&a,&m,&state,&key));CHECK(state==6);CHECK(adsr_frame()==idle);
  puts("PASS inline ADSR actual attack, held sustain, release, silent cursor");
 }
+/* Actual RGB565 pixels from draw_adsr_inline, compared against four
+ * independently specified labels using the same production glyph rasteriser.
+ * Header pixels are included so the touch readout cannot hide a stage value. */
+static void adsr_expected_header_and_labels(int highlighted)
+{
+ const char *const labels[4]={"K5 A 63%","K6 D 31%","K7 S 63%","K8 R 31%"};
+ const char *const touched[4]={"ATTACK 63%","DECAY 31%","SUSTAIN 63%","RELEASE 31%"};
+ uint16_t actual[240*22];
+ memcpy(actual,cv_px,sizeof actual);
+ cv_begin(240,KNOB_H,C_BLACK);
+ if(highlighted>=0)text_r(232,0,&FONT_T,touched[highlighted],SOUND_INK);
+ for(int k=0;k<4;k++)text_c(31+k*59,8,&FONT_T,labels[k],
+                               k==highlighted?SOUND_INK:SOUND_GRAY);
+ CHECK(!memcmp(actual,cv_px,sizeof actual));
+}
+static void test_adsr_idle_values_and_touch(void)
+{
+ chicago();pref_set(PR(R_ENG,T_303,1,11),0);
+ const int values[4]={80,40,80,40};
+ for(int k=0;k<4;k++)pref_set(PR(R_ENG,T_303,1,7+k),values[k]);
+ drain_ms(30);
+ int p=0;
+ for(;p<pg.n;p++)if(!strcmp(pg.title[p],"ENVELOPE"))break;
+ CHECK(p<pg.n);
+ *page_of(V_PART)=(uint8_t)p;build_pages();
+ for(int k=0;k<4;k++) {
+  CHECK(pg.r[p][k].kind==R_ENG && pg.r[p][k].c==7+k);
+ }
+ ui.touched=-1;ui.touch_until=0;
+ cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+ adsr_expected_header_and_labels(-1); /* All four native percentages at idle. */
+ for(int k=0;k<4;k++) {
+  ui.touched=(int8_t)k;ui.touch_until=plat_ms()+900u;
+  cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+  adsr_expected_header_and_labels(k); /* K5, K6, K7, K8 highlighted. */
+  now_ms+=901;
+  cv_begin(240,KNOB_H,C_BLACK);draw_adsr_inline(0,49,0);
+  adsr_expected_header_and_labels(-1); /* All four return after timeout. */
+ }
+ ui.touched=-1;ui.touch_until=0;
+ puts("PASS ADSR four idle percentages, K5-K8 touch, every timeout: real RGB565 pixels");
+}
 static void test_values_and_bounds(void){
  for(int part=PART_303A;part<=PART_303B;part++){
   setup(V_PART,part);for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++){
@@ -115,4 +157,4 @@ static void test_readout_bounds(void){
  for(int y=0;y<KNOB_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=34 && x<=61);
  puts("PASS wide drum number/unit stays clear of glyph and divider");
 }
-int main(void){test_readout_bounds();test_env();test_synth_motion(PART_303A);test_synth_motion(PART_303B);test_adsr_motion();test_synth_level_meter();test_values_and_bounds();printf("GLYPH POLISH PASS %u assertions\n",checks);return 0;}
+int main(void){test_readout_bounds();test_env();test_synth_motion(PART_303A);test_synth_motion(PART_303B);test_adsr_motion();test_adsr_idle_values_and_touch();test_synth_level_meter();test_values_and_bounds();printf("GLYPH POLISH PASS %u assertions\n",checks);return 0;}
