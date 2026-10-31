@@ -3855,9 +3855,11 @@ static unsigned live_token(unsigned physical)
 int ui_live_key_owner(void)
 {
 #if BOARD_SMK37 || defined(X0X_HOST)
-    if(project_busy || perf_testing() || ui.rec || ui.help || ui.overlay!=O_NONE ||
+    /* Synth pages keep the keybed: a settings list or HELP on top of SEQ/EDIT
+     * does not take the piano keys. Only a question (O_ASK) waits for an answer. */
+    if(project_busy || perf_testing() || ui.rec || ui.overlay==O_ASK ||
        (ui.btn&((1u<<B_HOME)|(1u<<B_SAVE))) || (ui.view!=V_SEQ && ui.view!=V_PART) ||
-       !is_303() || !ui.freeplay[bidx()])return 0;
+       !is_303() || (!ui.freeplay[bidx()] && ui.view!=V_PART))return 0; /* EDIT plays (kbd_on): all 37 keys */
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
     if(smk_clip_mode_on() || smc_ui_active())return 0;
