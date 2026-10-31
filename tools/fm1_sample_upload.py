@@ -50,36 +50,44 @@ class Link:
         except ImportError:
             sys.exit("needs mido: pip install mido python-rtmidi")
         self.mido = mido
-        outs = [n for n in mido.get_output_names() if "Felucca" in n or "X0X" in n]
-        ins = [n for n in mido.get_input_names() if "Felucca" in n or "X0X" in n]
-        if not outs or not ins:
-            sys.exit("no MIDI port named Felucca: connect the FM-1 (running Felucca) by USB")
-        # Never use the first input and first output independently. Even their
-        # shared display name is NOT a hardware-unique physical identity; this
-        # guard only prevents already-visible ambiguity and crossed MIDI ports.
-        if len(outs) != 1 or len(ins) != 1 or outs[0] != ins[0]:
-            sys.exit("ambiguous Felucca/X0X MIDI input/output ports: disconnect other "
-                     "keyboards and use one exact input/output name; no sample write was started")
-        self.o = mido.open_output(outs[0])
-        try:
-            self.i = mido.open_input(ins[0])
-        except BaseException:
-            self.o.close()
-            raise
-        try:
+        # Port names never gate discovery (USB names change, e.g. "DnBOX <ver> 37PRO"). Every in/out pair with
+        # one shared name is probed; only a unit that answers the slot query counts, and exactly one must answer.
+        # A shared display name is NOT a hardware-unique identity; it only pairs the input with its output.
+        ins_all, outs_all = mido.get_input_names(), mido.get_output_names()
+        pairs = [n for n in dict.fromkeys(ins_all) if ins_all.count(n) == 1 and outs_all.count(n) == 1]
+        found = []
+        for name in pairs:
+            try:
+                o = mido.open_output(name)
+            except BaseException:
+                continue
+            try:
+                i = mido.open_input(name)
+            except BaseException:
+                o.close()
+                continue
+            self.o, self.i = o, i
+            answered = False
             for _ in range(3):  # the first frame after opening may be lost
                 try:
                     self.req(1, [], 1.0)
+                    answered = True
                     break
-                except TimeoutError:
+                except (TimeoutError, OSError, ValueError):
                     continue
+            if answered:
+                found.append((o, i))
             else:
-                sys.exit("selected sample MIDI device did not answer the initial query; "
-                         "refusing erase/restore/write")
-        except BaseException:
-            self.i.close()
-            self.o.close()
-            raise
+                i.close()
+                o.close()
+        if len(found) != 1:
+            for o, i in found:
+                i.close()
+                o.close()
+            sys.exit("no MIDI device answered the sample query: connect the keyboard by USB" if not found else
+                     "more than one MIDI device answered the sample query: disconnect other keyboards; "
+                     "no sample write was started")
+        self.o, self.i = found[0]
 
     def req(self, cmd, args, timeout=3.0):
         # RtMidi endpoint names and an SMP_INFO response cannot authenticate a

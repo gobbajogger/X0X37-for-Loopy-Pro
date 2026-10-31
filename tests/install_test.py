@@ -253,7 +253,7 @@ def errors():
     p = pkgfile("ok.fwsc", raw)
 
     rc, out, err = cli([p, "--yes"], FakeSMK(image, name="IAC Driver Bus 1"))
-    ok(rc == 3 and "not found" in err and "IAC Driver" in err, "no SMK-37 Pro port -> exit 3, lists the MIDI inputs")
+    ok(rc == 0, "a unit on a port named 'IAC Driver Bus 1' is found: the handshake model decides, not the port name")
     dev = FakeSMK(image)
     rc, out, err = cli([p, "--yes", "--port", "Felucca"], dev)
     ok(rc == 3 and dev.upgrades == 0, "--port that matches nothing -> exit 3")
@@ -281,6 +281,15 @@ def errors():
     dev = FakeSMK(image, identity="ota-FM-1_900", name="Felucca Update")
     rc, out, err = cli([p, "--yes", "--no-slots"], dev)
     ok(rc == 6 and dev.upgrades == 0, "SMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent")
+    # USB names never decide: a renamed Pro/Elite is found, and identity comes only from the handshake model
+    for name, ident in (("DnBOX 0.0.14 37PRO", "SMK-37 Pro_900"), ("DnBOX 0.0.14 37ELITE", "SMK-37 Elite_900"),
+                        ("Any Name", "SMK-37 Pro_900")):
+        dev = FakeSMK(image, identity=ident, name=name)
+        rc, out, err = cli([p, "--yes"], dev)
+        ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2, f"install: {ident} named {name!r} is discovered and updated")
+    dev = FakeSMK(image, identity="FM-1_900", name="DnBOX 0.0.14 37PRO")
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == 6 and dev.upgrades == 0, "a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)")
 
     class Stuck(FakeSMK):          # the loader never shows up
         def boot(self, identity, name):
@@ -330,8 +339,8 @@ if __name__ == "__main__":
        and not I.same_keyboard("FM-1_015", "SMK-37 Pro_900") and not I.same_keyboard("SMK-37 Elite_016", "FM-1_900")
        and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
        "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
-    ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
-                                         "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
-       "port names: every SMK model and every port firmware probed")
+    ok(not hasattr(I, "PORT_RE"), "port names never gate discovery (no PORT_RE)")
+    for f, gate in (("web/fm1ota.js", "test(input.name"), ("web/x0x_breaks.html", "test(input.name")):
+        ok(gate not in (ROOT / f).read_text(), f"{f}: no USB-name discovery gate")
     print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
     sys.exit(1 if failed else 0)
