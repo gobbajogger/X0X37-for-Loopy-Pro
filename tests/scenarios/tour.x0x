@@ -95,15 +95,18 @@ tap HOME
 tap GLO
 shot t17_global.png
 # GLO > RESET PROJECT (+17 selectable rows from CLOCK SOURCE); inspect and cancel its confirmation.
-turn SELECT 17
-expect listsel 21
+# GLOBAL > PROJECT (section 3) > RESET PROJECT (row 4)
+turn SELECT 3
+tap SEL
+turn SELECT 4
+expect listsel 4
 shot t18_global_reset.png
 tap SEL
 expect overlay 2
 shot t19_ask.png
 tap HOME
 expect overlay 1
-expect listsel 21
+expect listsel 4
 wait 300
 shot t20_cancelled.png
 tap GLO
