@@ -26,3 +26,6 @@ typedef struct {
     uint8_t def;                      /* power-on value */
     const char *const *names;         /* switch: max+1 labels (<= 5 chars), else 0 */
 } x0x_param_t;
+
+/* the physical unit of a pot's engine value, for UI readouts (x0x_param_si) */
+enum { X0X_U_NONE, X0X_U_PCT, X0X_U_GAIN, X0X_U_HZ, X0X_U_MS, X0X_U_S, X0X_U_ST, X0X_U_RATIO };

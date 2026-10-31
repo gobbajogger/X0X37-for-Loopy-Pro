@@ -1,0 +1,70 @@
+{
+  "before_commit": "e5a75c7c8e7f1b21baa1476b5fbf635b29017480",
+  "before_tree": "6c97c31d83c34688ab52af008a10016ac479a277",
+  "reference_mockups_commit": "51b2180e3eecd57b7e3a40900aca6ad7519c2223",
+  "format": "actual SMK-37 240x240 RGB565 firmware framebuffer, exported losslessly as RGB PNG",
+  "source_files_sha256": {
+    "firmware/src/app/ui.c": "e6285548bcf1ff36c4beb71413c5c588741a9165e27e827406b6737756701eee",
+    "firmware/src/app/engine.c": "112b2594022e3ba9c6cee0aaee6b90f45e7e6c89a5bc17949fcd9b4d098f1003",
+    "firmware/src/app/engine.h": "546e2890cdbbc683d72720ab737513648fc67f1ca9dd46d6f77f8302eb75ef34",
+    "firmware/src/app/original_runtime.c": "140478f85fbc893888b474fb8b09efadb77e6bd7e98f60c21f405c4d996fadb2",
+    "firmware/src/app/original_runtime.h": "7e8b9f78449b42aafc267ecd55405d735dcdfd2a4514591720ad3a72fd1157df",
+    "tests/host/ui_glyph_polish_render.c": "77f6485f0a906dd92849801a0138a18c3d7f651ed6fea5ad0e9bd13939bb2cd1",
+    "tests/host/ui_glyph_polish_render.sh": "c1fb37f5170a78c00dacb7d86d81c1ae62744f4b6d632a9828f81f17b199eb62"
+  },
+  "frame_ms": [
+    0,
+    8,
+    16,
+    24,
+    40,
+    60,
+    90,
+    120,
+    160,
+    220,
+    300,
+    420,
+    580,
+    800,
+    1100,
+    1500,
+    2000,
+    2600
+  ],
+  "pot_values": [
+    0,
+    32,
+    64,
+    96,
+    127
+  ],
+  "representative_percent_labels": [
+    0,
+    25,
+    50,
+    75,
+    100
+  ],
+  "note_on_requested_ms": 0,
+  "bass_note_off_requested_ms": 500,
+  "chicago_vca_mode": "ENV (control11=0), ARP off",
+  "engine_execution": "production engine_render via run_ms scheduler; no synthetic envelope or frame interpolation",
+  "native_glyph_pixels": "unaltered; crops and nearest-neighbour enlargement only",
+  "mono_mask": "Rec.709 luma >=128/255, sampled90ms after hit; explicitly labelled separate readability masks",
+  "gif_playback": "actual timestamp deltas, min20ms per source frame;160ms idle and300ms end dwell; source timestamps labelled",
+  "groups": 47,
+  "frames_per_phase": 1987,
+  "raw_frames_and_binaries": "scratch only; excluded from commits",
+  "single_setting_examples": {
+    "families": [
+      "chicago-level",
+      "chicago-bite",
+      "miami-level",
+      "miami-wobble"
+    ],
+    "pot": 100,
+    "nominal_percent_label": 75,
+    "actual_percent_approx": 79
+  }
+}

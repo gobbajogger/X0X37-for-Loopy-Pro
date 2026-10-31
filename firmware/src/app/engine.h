@@ -78,6 +78,16 @@ int engine_bass_preset_edited(int voice);
 /* 1 ready, -1 original Chicago FX storage has not been admitted, -2 DSP fault.
  * This is not an idle flag; ready original owners render every audio frame. */
 int engine_bass_status(int voice);
+/* Chicago only, UI: live filter EG level 0..1 and env depth; 0 when not available */
+int engine_bass_filter_view(int voice, float *eg, float *depth);
+/* Chicago native compiled envelope controls (including macro scaling). */
+int engine_bass_adsr_view(int voice, float values[4], unsigned *gate);
+/* UI-only snapshot of the real amplitude EG and first modulator. */
+int engine_bass_voice_view(int voice, float *level, float *modulation, unsigned *state, unsigned *key_down);
+/* drums, UI: ms since the track's last hit, its live amp envelope 0..1; 0 when silent */
+int engine_drum_view(int kit, int voice, uint32_t *age_ms, float *env);
+/* UI: the 909 kick's pitch t ms after a hit for these engine values (drum909_bd_hz) */
+float engine_bd909_hz(float tau, float depth, float pitch, float t_ms);
 int engine_bass_requested_bank(int voice);
 int engine_bass_requested_preset(int voice);
 /* 0 applied; 1 next audio boundary; 2 held/release tail; 3 wheel; 4 sound locks; 5 old input; 6 publication. */
@@ -196,6 +206,8 @@ void engine_project_flush(void);                /* held only: end old output not
 int engine_nvoices(int target);
 int engine_nparams(int target, int voice);
 const x0x_param_t *engine_param(int target, int voice, int i);
+/* a pot's engine value and its X0X_U_* unit, for the UI readout */
+int engine_param_si(int target, int voice, int i, int pot, float *val);
 const char *engine_voice_name(int target, int voice);
 #if X0X_DEV_WOBBLE || X0X_ORIGINAL_SYNTH
 int engine_bass_is_wobble(int voice); /* live WBL1 backend on 303 A/B voice */

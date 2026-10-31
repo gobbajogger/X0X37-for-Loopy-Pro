@@ -26,6 +26,9 @@ static void check_caption(const char *caption,const char *name)
     for(int y=1;y<5;y++)cv_rect(8,y,224,1,blend(SOUND_SELECT,C_WHITE,5-y));
     cv_rect(9,1,58,1,SOUND_SELECT_EDGE);
     cv_text(8,0,&FONT_T,title,label);text_r(232,0,&FONT_T,caption,label);
+    /* Chicago ENVELOPE row: the ADSR graph draws its K5-K8 A/D/S/R values at
+     * rest (#746); ui-glyph-polish checks those pixels. */
+    if(!(engine_bass_bank(bidx())==ORIGINAL_SOUND_CHICAGO && page==3))
     for(int y=0;y<11;y++)for(int x=8;x<232;x++)if(fb[(top+y)*240+x]!=cv_px[y*240+x]) {
         fprintf(stderr,"caption %s mismatch page%d top%d x%d y%d got%04x want%04x\n",name,page,top,x,y,fb[(top+y)*240+x],cv_px[y*240+x]);CHECK(0);
     }

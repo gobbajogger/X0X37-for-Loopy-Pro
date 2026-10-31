@@ -145,9 +145,11 @@ static void envelopes(void)
         int v[]={pots[a],pots[d],pots[s],pots[r]};
         for(int k=0;k<4;k++)pref_set(pg.r[3][k],v[k]);
         sound_t before=proj.sound;ui_adsr_t e;adsr_values(&e);
-        double qa=v[0]/127.,qd=v[1]/127.,qr=v[3]/127.;
+        /* #746: the graph uses the compiled native A/D/S/R (macro scaling included). */
+        float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));
+        double qa=nv[0],qd=nv[1],qr=nv[3];
         near(e.attack,(float)(13*qa*qa*qa*qa+.001));
-        near(e.decay,(float)(25*qd*qd*qd*qd+.001));near(e.sustain,v[2]/127.f);
+        near(e.decay,(float)(25*qd*qd*qd*qd+.001));near(e.sustain,nv[2]);
         near(e.release,(float)(25*qr*qr*qr*qr+.002));CHECK(e.curved && e.release_curve==1 && e.enabled==2);
         for(int i=0;i<=10;i++) {
             float t=i*.1f;
@@ -166,10 +168,10 @@ static void envelopes(void)
     pref_t attack=pg.r[3][0];pref_set(attack,51);ui.held_step=0;
     int lane=motion_alloc(proj.arr.lane,seq.ppat[ui.part],ui.part,T_303,0,7);CHECK(lane>=0);
     proj.arr.lane[lane].val[0]=61;CHECK(matrix_value(attack)==61);CHECK(pref_get(attack)==51);
-    ui_adsr_t e;adsr_values(&e);float q=61/127.f;near(e.attack,13*q*q*q*q+.001f);
+    ui_adsr_t e;adsr_values(&e);float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));float q=nv[0];near(e.attack,13*q*q*q*q+.001f);
     ui.held_step=-1;for(int i=0;i<NSTEPS;i++)proj.arr.lane[lane].val[i]=71;
     engine_motion_enable(1);seq_start(&seq);run_ms(40);CHECK(engine_motion_value(lane)==71);
-    CHECK(matrix_value(attack)==71);adsr_values(&e);q=71/127.f;near(e.attack,13*q*q*q*q+.001f);
+    CHECK(matrix_value(attack)==71);adsr_values(&e);CHECK(engine_bass_adsr_view(0,nv,&ng));q=nv[0];near(e.attack,13*q*q*q*q+.001f);
     seq_stop(&seq);run_ms(40);CHECK(pref_get(attack)==51);
     *page_of(V_PART)=0;CHECK(!adsr_inline_page());fixture(0,1);
     for(int p=0;p<pg.n;p++){*page_of(V_PART)=p;CHECK(!adsr_inline_page());}

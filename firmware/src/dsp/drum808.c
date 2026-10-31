@@ -1508,6 +1508,36 @@ __attribute__((noinline)) static int track_sound(const drum808_t *d, int t)
 
 int drum808_nparams(int track) { return track >= 0 && track <= D8_KIT ? d8_nspec[track] : 0; }
 
+/* UI readout: a pot's engine value and unit (X0X_U_*). Tune is semitones
+ * (lane_hz adds it to the MIDI note; TUM is a pitch ratio); Level is a gain;
+ * tom ring time is seconds; BD/SD X1/X2 reach the voice as pot/127. Other
+ * decays and Drive have no confirmed unit and stay unitless. */
+X0X_COLD int drum808_param_si(int track, int i, int pot, float *val)
+{
+    static const uint8_t snd[D8_NUM] = {D8S_BD, D8S_SD, D8S_LT, D8S_MT, D8S_HT, D8S_RS, D8S_CP, D8S_CB, D8S_CY, D8S_OH, D8S_CH};
+    if (track < 0 || track >= D8_NUM || i < 0 || i >= d8_nspec[track])
+        return X0X_U_NONE;
+    d8_pmap_t m = d8_pmap_at(track, i);
+    if (m.kind != K_POT)
+        return X0X_U_NONE;
+    int s = snd[track];
+    float v = pot_value(s, m.slot, pot);
+    *val = v;
+    switch (m.slot) {
+    case D8P_LEVEL: return X0X_U_GAIN;
+    case D8P_TUNE: return d8_kspec(s, m.slot)->exp ? X0X_U_RATIO : X0X_U_ST;
+    case D8P_REV: case D8P_DLY: *val = v * 100.0f; return X0X_U_PCT;
+    case D8P_DECAY: return track == D8_LT || track == D8_MT || track == D8_HT ? X0X_U_S : X0X_U_NONE;
+    case D8P_X1: case D8P_X2:
+        if (s == D8S_SD && m.slot == D8P_X2)
+            *val = 100.0f * (pot <= 64 ? (float)pot * (1.0f / 128.0f) : 0.5f + (float)(pot - 64) * (0.5f / 63.0f));
+        else
+            *val = (float)pot * (100.0f / 127.0f);
+        return s == D8S_BD || s == D8S_SD ? X0X_U_PCT : X0X_U_NONE;
+    default: return X0X_U_NONE;
+    }
+}
+
 /* UI / MIDI pot metadata — not the 808 audio render (X0X_COLD) */
 X0X_COLD const x0x_param_t *drum808_param(int track, int i)
 {
@@ -1667,6 +1697,7 @@ void drum808_trigger(drum808_t *d, int track, float vel)
     }
     d->lane[lane].hit = vgain;
     d->lane[lane].pk = 0.0f;
+    d->lane[lane].now = 0.0f;
     d->lane[lane].qn = 0;
     d->lane[lane].cg = 1.0f;
     d->lane[lane].cstep = 0.0f;
@@ -1781,9 +1812,12 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
     d8_lane_t *ln = &d->lane[l];
     float pk = ln->pk;
     int32_t qn = ln->qn;
+    float now = 0.0f;
     int i;
     for (i = 0; i < m; i++) {
         float a = buf[i] < 0.0f ? -buf[i] : buf[i];
+        if (a > now)
+            now = a;
         if (a > pk)
             pk = a;
         if (a > pk * D8_TAIL_K)
@@ -1793,12 +1827,35 @@ __attribute__((noinline)) static void lane_tail(drum808_t *d, int l, const float
     }
     ln->pk = pk;
     ln->qn = qn;
+    ln->now = now;
     if (qn > D8_TAIL_N && pk > D8_TAIL_FLOOR)       /* (a metal voice opens late: it has to have sounded) */
         voice_stop(d, l);
 }
 #endif
 
 __attribute__((noinline)) static int lane_on(const drum808_t *d, int l) { return d->lane[l].cg > 0.0f && voice_active(d, l); }
+
+X0X_COLD float drum808_env(const drum808_t *d, int track)
+{
+#if D8_TAIL_DB
+    int l;
+    if (track < 0 || track >= D8_NUM) return 0.0f;
+    switch (track) {
+    case D8_LT: case D8_MT: case D8_HT: l = L_T0 + (track - D8_LT); break;
+    case D8_RS: l = track_sound(d, track) == D8S_CL ? L_CL : L_RS; break;
+    case D8_CP: l = track_sound(d, track) == D8S_MA ? L_MA : L_CP; break;
+    case D8_CB: l = L_CB; break;
+    case D8_CY: l = L_CY; break;
+    case D8_OH: l = L_OH; break;
+    case D8_CH: l = L_CH; break;
+    default: l = track; break;
+    }
+    if (!voice_active(d, l) || !(d->lane[l].pk > 0.0f)) return 0.0f;
+    return d->lane[l].now / d->lane[l].pk;
+#else
+    (void)d; (void)track; return -1.0f;
+#endif
+}
 
 int drum808_active(const drum808_t *d)
 {

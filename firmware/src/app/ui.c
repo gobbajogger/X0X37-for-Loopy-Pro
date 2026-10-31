@@ -966,7 +966,7 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
     }
     if (kind == ORIGINAL_SOUND_CHICAGO) {
         static const char *const speed[] = {"1/2","1/4D","1/2T","1/4","1/8D","1/4T","1/8","1/8T","1/16","1/32"};
-        if (id == 4) { put_i(num,v->env_percent); put_s(unit,"%"); return 1; }
+        if (id == 4) { put_i(v->env_percent>0?put_s(num,"+"):num,v->env_percent); put_s(unit,"%"); return 1; }
         if (id == 11) { put_s(num,v->amp_gate ? "GATE" : "ENV"); return 1; }
         if (id == 13) { put_s(num,v->arp_on ? "ON" : "OFF"); return 1; }
         if (id == 14) { put_s(num,v->arp_mode == 1 ? "DOWN" : v->arp_mode == 2 ? "UP" : "UP/DN"); return 1; }
@@ -983,7 +983,7 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
         if (id == 0 || id == 6) { put_s(num,shape[v->shape[id == 0 ? 0 : 1]]); return 1; }
         if (id == 11) { put_s(num,wobble[v->shape[2]]); return 1; }
         if (id == 13) { put_s(num,rate[v->wobble_rate]); return 1; }
-        if (id == 3) { put_i(v->carrier_pitch > 0 ? put_s(num,"+") : num,v->carrier_pitch); return 1; }
+        if (id == 3) { put_i(v->carrier_pitch > 0 ? put_s(num,"+") : num,v->carrier_pitch); put_s(unit,"st"); return 1; }
         if (id == 7) {
             int amount = v->xmod_tune; char *q = num;
             if (amount < 0) { q = put_s(q,"-"); amount = -amount; }
@@ -993,6 +993,40 @@ static int original_value_text(pref_t r, int value, char *num, char *unit)
         }
     }
     put_i(num,(value*100+63)/127); put_s(unit,"%"); return 1;
+}
+
+/* signed number with one decimal below 10 (|x|), else whole */
+static char *put_d1(char *q, float x, int sign)
+{
+    int t = (int)(x * 10.0f + (x < 0 ? -0.5f : 0.5f));
+    if (t < 0) { *q++ = '-'; t = -t; } else if (sign && t > 0) *q++ = '+';
+    if (t < 100) { q = put_i(q, t / 10); *q++ = '.'; *q++ = (char)('0' + t % 10); *q = 0; return q; }
+    return put_i(q, (t + 5) / 10);
+}
+/* an engine value in its unit (X0X_U_*), short enough for a 60 px cell */
+static void unit_value(int u, float x, char *num, char *unit)
+{
+    switch (u) {
+    case X0X_U_PCT: put_i(num, (int)(x + 0.5f)); put_s(unit, "%"); return;
+    case X0X_U_GAIN:
+        if (x <= 0.0f) { put_s(num, "OFF"); return; }
+        put_d1(num, 6.0206f * fm_log2f(x), 1); put_s(unit, "dB"); return;
+    case X0X_U_HZ:
+        if (x < 999.5f) { put_i(num, (int)(x + 0.5f)); put_s(unit, "Hz"); }
+        else { put_d1(num, x / 1000.0f, 0); put_s(unit, "kHz"); }
+        return;
+    case X0X_U_MS:
+        if (x < 999.5f) { put_i(num, (int)(x + 0.5f)); put_s(unit, "ms"); }
+        else { put_d1(num, x / 1000.0f, 0); put_s(unit, "s"); }
+        return;
+    case X0X_U_S:
+        if (x < 0.9995f) { put_i(num, (int)(x * 1000.0f + 0.5f)); put_s(unit, "ms"); }
+        else { put_d1(num, x, 0); put_s(unit, "s"); }
+        return;
+    case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+    case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+    default: return;
+    }
 }
 
 /* the value, as a number and a unit ("-6" "dB"); a switch gives its name and no unit */
@@ -1011,6 +1045,8 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     if (d->names) {
         /* Retained or incompatible sound data must not become a pointer lookup. */
         put_s(num, v >= 0 && v <= d->max ? d->names[v] : "INVALID");
+        if (r.kind == R_ENG && r.a == T_BRK && r.c == 1 && v >= 0 && v <= d->max)
+            put_s(unit, "st");                           /* breaks.c: semi = Pitch - 12 */
         return;
     }
     if (r.kind == R_TAPE) {
@@ -1067,6 +1103,8 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
             put_s(unit, "%");
             return;
         }
+        { float x = 0.0f; int u = engine_param_si(r.a, r.b, r.c, v, &x);
+          if (u != X0X_U_NONE) { unit_value(u, x, num, unit); return; } }
         put_i(num, v);
         return;
     case R_DLEN:
@@ -5441,9 +5479,16 @@ static UI_DRAW void draw_drum_mix(int band, int k)
         if (f)                                        /* the level, dim; a hit lights it up to the level */
             rbox(x + 7, 16 + fh - f - o, 5, f, 2, muted ? C_DIM : dim(col, sel ? 6 : 4));
         {
-            int hf = f * eng_hit[k][v] / 255;
-            if (hf > 1 && !muted)
-                rbox(x + 7, 16 + fh - hf - o, 5, hf, 2, sel ? C_WHITE : col);
+            uint32_t age=0; float envelope=0;
+            int live=engine_drum_view(k,v,&age,&envelope);
+            int hf=live?(int)((float)f*envelope+.5f):0;
+            /* Existing MIX travel and level remain; real voice EG lights separate
+             * 6px segments. This is the track LEVEL control, not a new PART slot. */
+            for(int sy=0;sy<fh;sy+=8) {
+                uint16_t ink=sy<hf && !muted?(sel?C_WHITE:col):
+                    sy<f?(muted?C_DIM:dim(col,sel?6:4)):C_LINE;
+                cv_rect(x+7,16+fh-sy-6-o,5,6,ink);
+            }
         }
         rbox(x + 3, 123 - o, 13, 3, 1, C_LINE);          /* the pan, a mark from the middle */
         rbox(x + 3 + (pa * 10) / 127, 121 - o, 3, 7, 1, sel ? C_WHITE : C_GRAY);
@@ -6348,6 +6393,40 @@ static UI_DRAW void draw_preset_name(int voice,int cx,int y,int height,uint16_t 
 }
 #endif
 
+static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col);
+static UI_DRAW int orig_strip_slot(pref_t r);
+static UI_DRAW int drum_strip_role(pref_t r);
+static UI_DRAW void drum_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col);
+/* glyph-strip readout: "%" stays in the caps FONT_T run; a letter unit (st, ms,
+ * Hz) is drawn lowercase in FONT_XS grey after it, as cell_value does */
+static UI_DRAW void strip_value(int cx, int y, char *num, const char *unit, uint16_t ink)
+{
+    if (!unit[0] || unit[0] == '%') { char *q = num; while (*q) q++; put_s(q, unit); text_c(cx, y, &FONT_T, num, ink); return; }
+    int w = tw(&FONT_T, num) + tw(&FONT_XS, unit) + 1;
+    int x = cv_text(cx - w / 2, y, &FONT_T, num, ink);
+    cv_text(x + 1, base_y(&FONT_T, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
+}
+/* drum cells: the readout must sit in x+30..x+57 (glyph left, divider right);
+ * a wider one ("1.2kHz") narrows its number to FONT_XS instead of clipping */
+static UI_DRAW void strip_value_fit(int x, int y, char *num, const char *unit, uint16_t ink)
+{
+    const felucca_font_t *f = &FONT_T;
+    int wu = unit[0] && unit[0] != '%' ? tw(&FONT_XS, unit) + 1 : unit[0] ? tw(&FONT_T, unit) : 0;
+    if (tw(f, num) + wu > 27) f = &FONT_XS;
+    if (tw(f, num) + wu > 27 && unit[0]) {
+        /* Retain full precision/unit when a horizontal pair cannot fit. The
+         * two short lines stay within the original readout's right-hand lane. */
+        text_c(x+44,y-5,f,num,ink);
+        text_c(x+44,y+6,&FONT_XS,unit,C_GRAY);
+        return;
+    }
+    if (unit[0] == '%') { char *q = num; while (*q) q++; put_s(q, unit); wu = 0; }
+    int w = tw(f, num) + wu, l = x + 44 - w / 2;
+    if (l < x + 30) l = x + 30;
+    if (l + w > x + 57) l = x + 57 - w;
+    int e = cv_text(l, f == &FONT_T ? y : base_y(&FONT_T, y, &FONT_XS), f, num, ink);
+    if (wu) cv_text(e + 1, base_y(&FONT_T, y, &FONT_XS), &FONT_XS, unit, C_GRAY);
+}
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int active, uint16_t col, int height, int night)
 {
     const x0x_param_t *d=pref_desc(r);
@@ -6408,10 +6487,21 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
     }
 #endif
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
+    if(!shape && !unused && val>=0 && (orig_strip_slot(r) || drum_strip_role(r))) {
+        /* Reuse the knob-strip control_glyph families (0e58b960/5f58a199) in the
+         * wave-glyph layout: glyph left, original readout right, no extra bar.
+         * 909/808 controls draw their own live glyph in the same box. */
+        int drum=drum_strip_role(r)!=0;
+        if(drum) drum_strip_glyph(r,val,x+3,y+22,ink);
+        else orig_strip_glyph(r,val,x+3,y+22,ink);   /* 26x19 box: x+3..x+28 */
+        pref_value_of(r,val,num,unit);
+        if(drum) strip_value_fit(x,y+28,num,unit,ink);
+        else strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */
+    } else
     if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
-        pref_value_of(r,val,num,unit); { char *q=num; while(*q) q++; put_s(q,unit); } /* original readout text */
-        text_c(cx+17,y+28,&FONT_T,num,ink);
+        pref_value_of(r,val,num,unit);           /* original readout text */
+        strip_value(cx+17,y+28,num,unit,ink);
     } else {
         pref_value_of(r,val,num,unit);
         if(unused) {put_s(num,"--");unit[0]=0;}
@@ -6453,11 +6543,14 @@ static void adsr_values(ui_adsr_t *e)
     e->curved=e->release_curve=e->gate=0;e->enabled=1;
     if(engine_bass_sound_bank(&proj.sound,bidx())==ORIGINAL_SOUND_CHICAGO) {
         /* Original Chicago ENVELOPE slots 7..10 (A, D, S, R): stage-normalised
-         * q127 controls; D/R are RC (five tau). No legacy millisecond law. */
+         * compiled native controls include each macro's scaling; D/R are RC. */
         /* Time constants of original_vca_tick (control_math.c), seconds:
          * A 13a^4+.001 toward 1.3, D 25d^4+.001 toward S, R 25r^4+.002. */
+        float native[4]={0,0,0,0};unsigned gate=0;
+        (void)engine_bass_adsr_view(bidx(),native,&gate);
+        e->sustain=native[2];e->gate=(int)gate;
         for(i=0;i<3;i++) {
-            float x=(float)matrix_value(pg.r[p][i==2?3:i])/127.0f; x*=x; x*=x;
+            float x=native[i==2?3:i]; x*=x; x*=x;
             *time[i]=i==0?13.0f*x+.001f:i==1?25.0f*x+.001f:25.0f*x+.002f;
         }
         e->curved=1; e->release_curve=1; e->enabled=2; /* 2: original exponential laws */
@@ -6533,7 +6626,7 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
     ui_adsr_t e;
     int p=cur_page(),k,edited=ui.touched>=0 && ui.touched<4 &&
         (int32_t)(ui.touch_until-plat_ms())>0?ui.touched:-1;
-    int x0=13,y0=y+h-5,top=y+14,xs[5];
+    int x0=13,y0=y+h-5,top=y+22,xs[5];
     uint16_t col=matrix_col(),hi=SOUND_INK;
     float dur[3];
     adsr_values(&e);
@@ -6561,6 +6654,33 @@ static UI_DRAW void draw_adsr_inline(int y,int h,int off)
         }
     }
     cv_line(xs[2],ys-off,xs[3],ys-off,edited==2?hi:col);
+    for(k=0;k<4;k++) {
+        /* Keep A/D/S/R percentage visible at rest as well as during K5-K8
+         * turns. Same quantisation as the native Chicago value readout. */
+        char label[20];
+        char *end=put_i(put_s(label,"K"),UI_FIRST_KNOB+k);
+        end=put_s(end,k==0?" A ":k==1?" D ":k==2?" S ":" R ");
+        end=put_i(end,(matrix_value(pg.r[p][k])*100+63)/127);
+        put_s(end,"%");
+        text_c(31+k*59,y+8-off,&FONT_T,label,edited==k?hi:SOUND_GRAY);
+    }
+    {   /* Native state1 contains both decay and sustain. Classify within 1% of S.
+         * Cursor level is always the live EG; the horizontal axis names stages. */
+        float level=0,mod=0; unsigned state=6,held=0;
+        if(engine_bass_voice_view(bidx(),&level,&mod,&state,&held) && state!=6) {
+            if(level<0)level=0; if(level>1)level=1;
+            int stage=state==0?0:state==3?3:((e.gate && held) ||
+                (level-e.sustain<=.01f && e.sustain-level<=.01f))?2:1;
+            /* A stage/level gauge, separate from the preview's time curve:
+             * Gate mode or release during attack can differ from the schematic.
+             * Dotted vertical rail names the stage; the crossbar is actual level. */
+            int x=(xs[stage]+xs[stage+1])/2;
+            for(int yy=top;yy<=y0;yy+=3) cv_rect(x,yy-off,1,1,SOUND_DIM);
+            int yy=y0-(int)(level*(y0-top)+.5f)-off;
+            cv_rect(x-2,yy,5,1,hi);
+            cv_rect(x,yy-1,1,3,hi);
+        }
+    }
     if(edited>=0) { /* underline the highlighted segment */
         int xa=xs[edited],xb=xs[edited+1];
         if(xb<=xa) xb=xa+1;
@@ -6809,6 +6929,383 @@ static UI_DRAW int control_glyph(pref_t r,int val,int cx,uint16_t col)
     return 1;
 }
 
+/* Original Chicago/Miami controls without a PART glyph reuse the existing
+ * knob-strip families: tone-lowpass, DJF filter peak, drive, bipolar, pips
+ * and the neutral value scale. Strip coordinates (y 28..50); caller offsets. */
+static UI_DRAW int orig_strip_slot(pref_t r)
+{
+    if(r.kind!=R_ENG || r.a!=T_303) return 0;
+    int b=engine_bass_sound_bank(&proj.sound,r.b);
+    if(b==ORIGINAL_SOUND_CHICAGO) return r.c>=1 && (r.c<=6 || r.c==11 || r.c==12 || r.c==15 || r.c==17);
+    if(b==ORIGINAL_SOUND_MIAMI) return r.c>=1 && r.c<=15 && r.c!=6 && r.c!=11;
+    return 0;
+}
+/* Original-control glyphs, 26x19 at (gx,gy). Each one pictures what the control
+ * does and moves with the value. CUTOFF/PEAK follow filter_glyph and BITE
+ * follows drive_amount_glyph (the old knob-strip families), scaled to the cell. */
+#define OG_W 26
+#define OG_H 18
+static UI_DRAW void og_wave(int gx,int gy,float (*f)(float,float),float q,uint16_t col)
+{   /* f returns -1..1 (up positive) over t 0..1 */
+    int py=0;
+    cv_rect(gx,gy+OG_H,OG_W,1,C_LINE);
+    for(int i=0;i<OG_W;i++) {
+        float v=f((float)i/(OG_W-1),q);
+        if(v>1)v=1; if(v<-1)v=-1;
+        int yy=gy+OG_H/2-(int)(v*6.0f+(v<0?-.5f:.5f));
+        if(i) cv_line(gx+i-1,py,gx+i,yy,col);
+        py=yy;
+    }
+}
+static float og_sin(float t,float k){return fm_sinf(6.2831853f*t*k);}
+static float og_lfo_amp(float t,float q){return (.1f+.9f*q)*fm_sinf(6.2831853f*t*2.0f);}
+static float og_lfo_rate(float t,float q){return fm_sinf(6.2831853f*t*(1.0f+4.0f*q));}
+static float og_bite(float t,float q){float g=.3f+6.0f*q;return fm_tanhf(g*og_sin(t,1.5f))/fm_tanhf(g);}
+static float og_gnaw(float t,float q){float v=og_sin(t,1.5f)*(1.0f+3.0f*q);
+    while(v>1||v<-1) v=v>1?2-v:-2-v; return v;}             /* wavefolder */
+static float og_crush(float t,float q){int n=12-(int)(q*10+.5f);float v=og_sin((float)((int)(t*(26-q*20))) /(26-q*20),1.5f);
+    return (float)(int)(v*n+(v<0?-.5f:.5f))/(float)n;}       /* sample-rate + bit reduction */
+static float og_fm(float t,float q){return fm_sinf(6.2831853f*(1.5f*t)+q*1.6f*fm_sinf(6.2831853f*1.5f*t));}
+static UI_DRAW int og_states(pref_t r,int val,int *idx)
+{   /* number of distinct readouts and the index of val among them */
+    char a[16],u[8],prev[16]="";int n=0;*idx=0;
+    for(int v=0;v<=127;v++){pref_value_of(r,v,a,u);if(strcmp_s(a,prev)){n++;put_s(prev,a);}if(v==val)*idx=n-1;}
+    return n;
+}
+static UI_DRAW void orig_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
+{
+    const x0x_param_t *d=pref_desc(r);
+    float q=d && d->max?(float)val/(float)d->max:0;
+    int chi=engine_bass_sound_bank(&proj.sound,r.b)==ORIGINAL_SOUND_CHICAGO,c=r.c;
+    int level_role=c==(chi?12:14) || (!chi && (c==1 || c==5));
+    int top=gy+3,bot=gy+OG_H,mid=gy+OG_H/2,right=gx+OG_W-1;
+    if(q<0)q=0; if(q>1)q=1;
+    float amp=0,mod=0; unsigned state=6,held=0;
+    int sounding=engine_bass_voice_view(r.b,&amp,&mod,&state,&held) && state!=6;
+    if(amp<0)amp=0; if(amp>1)amp=1;
+    if(c==(chi?2:9) || (chi && c==3)) {          /* CUTOFF / PEAK: lowpass response */
+        float cq=q,pq=0;
+        if(chi && c==3){pref_t cr=PR(R_ENG,T_303,r.b,2);const x0x_param_t *dc=pref_desc(cr);
+            cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0;pq=q;}
+        int pivot=gx+4+(int)(cq*14+.5f),peak=top+2-(int)(pq*5+.5f);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
+        cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
+        if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
+    } else if(chi && c==4) {                     /* ENV: the lowpass peak the filter EG sweeps */
+        /* Horizontal schematic of cutoff + native filter EG * signed depth.
+         * A dim target tick marks full EG; reserved travel preserves either sign. */
+        pref_t cr=PR(R_ENG,T_303,r.b,2),pr=PR(R_ENG,T_303,r.b,3);
+        const x0x_param_t *dc=pref_desc(cr),*dp=pref_desc(pr);
+        float cq=dc&&dc->max?(float)matrix_value(cr)/dc->max:0,pq=dp&&dp->max?(float)matrix_value(pr)/dp->max:0;
+        float depth=0,eg=0;
+        (void)engine_bass_filter_view(r.b,&eg,&depth); /* exact compiled bipolar law; pot64 is zero */
+        if(eg<0)eg=0; if(eg>1)eg=1;
+        /* Schematic, not clipped filter Hz: cutoff reserves origin columns 10..14;
+         * either depth sign has 7px travel. Knee stays in 3..21 at cutoff extremes. */
+        float origin=10.0f+cq*4.0f;
+        int pivot=gx+(int)(origin+eg*depth*7.0f+.5f);
+        int tgt=gx+(int)(origin+depth*7.0f+.5f),peak=top+2-(int)(pq*5+.5f);
+        int energy=(int)(eg*(depth<0?-depth:depth)*6.0f+.5f);
+        col=depth<0?blend(C_LINE,col,16-energy):blend(col,C_WHITE,energy);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        if(tgt!=pivot) cv_rect(tgt,bot-3,1,3,C_LINE);
+        cv_line(gx,top+2,pivot-3,top+2,col);cv_line(pivot-3,top+2,pivot,peak,col);
+        cv_line(pivot,peak,pivot+6>right?right:pivot+6,bot,col);
+        if(pivot+6<right) cv_line(pivot+6,bot,right,bot,col);
+    } else if(c==(chi?1:4)) {                    /* GLIDE: sloped pitch line, slope widens */
+        int w=1+(int)(q*18+.5f),x0=gx+(OG_W-1-w)/2;
+        cv_line(gx,bot-1,x0,bot-1,col);cv_line(x0,bot-1,x0+w,top,col);cv_line(x0+w,top,right,top,col);
+    } else if(chi && c==5) og_wave(gx,gy,og_bite,q,col);       /* BITE: soft clip */
+    else if(chi && c==6) og_wave(gx,gy,og_gnaw,q,col);         /* GNAW: fold */
+    else if(!chi && c==10) og_wave(gx,gy,og_crush,q,col);      /* CRUSH: bit/rate crush */
+    else if(chi && c==11) {                      /* ENV/GATE toggle */
+        int idx; og_states(r,val,&idx);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        if(idx){cv_line(gx+2,bot,gx+2,top,col);cv_line(gx+2,top,gx+22,top,col);cv_line(gx+22,top,gx+22,bot,col);}
+        else{cv_line(gx+1,bot,gx+5,top,col);cv_line(gx+5,top,gx+10,mid,col);cv_line(gx+10,mid,gx+18,mid,col);cv_line(gx+18,mid,gx+24,bot,col);}
+    } else if(level_role) {                     /* LEVEL / OUTPUT: live segmented meter */
+        int ceiling=(int)(q*6.0f+.5f),lit=sounding?(int)(q*amp*6.0f+.5f):0;
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        for(int i=0;i<6;i++) {
+            uint16_t ink=i<lit?C_WHITE:i<ceiling?(sounding?blend(C_LINE,col,6):col):C_LINE;
+            cv_rect(gx+i*4,bot-3-i*2,3,2,ink);
+        }
+    } else if(chi && c==15) {                    /* RANGE: octave stairs */
+        int idx,n=og_states(r,val,&idx),sw=OG_W/(n?n:1);
+        for(int k=0;k<n;k++){int h=3+k*(OG_H-3)/(n>1?n-1:1);cv_rect(gx+k*sw,bot-h+1,sw-2,h,k<=idx?col:C_LINE);}
+    } else if(chi && c==17) {                    /* FX TYPE: one pip per type */
+        int idx,n=og_states(r,val,&idx),step=OG_W/(n?n:1),pw=step>1?step-1:1;
+        for(int k=0;k<n;k++) cv_rect(gx+k*step,mid-4,pw,9,k==idx?col:C_LINE);
+    } else if(!chi && c==2) {                    /* SUB: osc square + sub-octave square */
+        int a=1+(int)(q*6+.5f);
+        for(int i=0;i<4;i++){int xx=gx+i*6;cv_line(xx,top,xx+3,top,C_LINE);cv_line(xx+3,top,xx+3,top+4,C_LINE);cv_line(xx+3,top+4,xx+6,top+4,C_LINE);cv_line(xx+6,top+4,xx+6,top,C_LINE);}
+        for(int i=0;i<2;i++){int xx=gx+i*12;cv_line(xx,bot-a,xx+6,bot-a,col);cv_line(xx+6,bot-a,xx+6,bot,col);cv_line(xx+6,bot,xx+12,bot,col);if(xx+12<right)cv_line(xx+12,bot,xx+12,bot-a,col);}
+    } else if(!chi && (c==3 || c==7)) {          /* PITCH / TUNE: centre needle */
+        float ang=(q*2-1)*1.05f; int px=gx+12,py=bot;
+        cv_rect(px,top-2,1,2,C_LINE);cv_rect(gx+1,bot,OG_W-2,1,C_LINE);
+        cv_line(px,py,px+(int)(fm_sinf(ang)*12),py-(int)(fm_cosf(ang)*14),col);
+    } else if(!chi && c==8) og_wave(gx,gy,og_fm,q,col);        /* XMOD DEPTH: FM wave */
+    else if(!chi && c==12) og_wave(gx,gy,og_lfo_amp,q,col);    /* WOBBLE depth: LFO amp */
+    else if(!chi && c==13) og_wave(gx,gy,og_lfo_rate,q,col);   /* RATE: LFO frequency */
+    else if(!chi && c==15) {                     /* STEREO: L/R spread */
+        int s=1+(int)(q*10+.5f),cx=gx+12;
+        cv_rect(cx,top,1,OG_H-3,C_LINE);
+        cv_rect(cx-s-1,mid-4,2,9,col);cv_rect(cx+s,mid-4,2,9,col);
+    } else {                                     /* last resort: 7-bar scale */
+        for(int j=0;j<7;j++){int h=3+j*2;cv_rect(gx+j*4,bot-h,2,h,q && j*127/6<=q*127?col:C_LINE);}
+    }
+    if(sounding && !(chi && c==4) && !level_role) {
+        /* Three sparse level pips follow actual VCA; a separate modulator cursor
+         * follows the native MG, never wall-clock phase. */
+        int n=(int)(amp*3.0f+.5f);
+        for(int i=0;i<n;i++) cv_rect(gx+2+i*4,bot-1,2,1,C_WHITE);
+        if(!chi && (c==8 || c==12 || c==13)) {
+            if(mod<0)mod=0; if(mod>1)mod=1;
+            cv_rect(gx+1+(int)(mod*23.0f+.5f),gy+1,1,2,C_WHITE);
+        }
+    }
+}
+
+/* ---- 909 / 808 part-page glyphs --------------------------------------------
+ * Each one pictures what the control does in the engine, follows the value
+ * with the engine's own scaling, and moves with the voice on every hit:
+ * drum_live() reads the track's real amplitude envelope (909: the voice EG;
+ * 808: the lane's output over its hit peak) and the ms since the hit. Same
+ * 26x19 cell as orig_strip_glyph; the caller draws the readout right of it. */
+enum { DG_NONE, DG_DECAY, DG_NTAIL, DG_TUNE, DG_BDSWEEP, DG_ATTACK, DG_LPF, DG_SHELLS, DG_SNAPPY, DG_SOUND, DG_ACCENT, DG_LEVEL };
+static UI_DRAW int drum_strip_role(pref_t r)
+{
+    if(r.kind!=R_ENG || (r.a!=T_909 && r.a!=T_808)) return DG_NONE;
+    const x0x_param_t *d=pref_desc(r);
+    int k9=r.a==T_909;
+    if(!d) return DG_NONE;
+    if((ui.view==V_MIX || ui.view==V_PART) && r.b<NDRUM && name_is(d,"Level")) return DG_LEVEL;
+    if(ui.view!=V_PART) return DG_NONE;
+    if(r.b==NDRUM) return name_is(d,"Accent")||name_is(d,"Veloc")?DG_ACCENT:DG_NONE;
+    if(k9 && r.b==0 /* BD */ && (name_is(d,"Tune")||name_is(d,"P.Dpth")||name_is(d,"Pitch"))) return DG_BDSWEEP;
+    if(name_is(d,"Decay")||name_is(d,"Tail")) return DG_DECAY;
+    if(name_is(d,"Tune")) return DG_TUNE;
+    if(name_is(d,"Attack")) return DG_ATTACK;
+    if(name_is(d,"Snappy")) return DG_SNAPPY;
+    if(name_is(d,"Sound") && d->names) return DG_SOUND;
+    if(name_is(d,"Tone")) return k9?(r.b==1 /* SD */?DG_NTAIL:DG_NONE):r.b==0?DG_LPF:r.b==1?DG_SHELLS:DG_NONE;   /* tracks 0 BD, 1 SD in both kits */
+    return DG_NONE;
+}
+/* the track's live state; the kit cells follow the newest hit of the kit */
+static UI_DRAW int drum_live(pref_t r,uint32_t *age,float *env)
+{
+    int kit=r.a==T_808;
+    *age=0xffffffffu; *env=0;
+    if(r.b!=NDRUM) return engine_drum_view(kit,r.b,age,env);
+    int any=0;
+    for(int k=0;k<NDRUM;k++){uint32_t a;float e;if(engine_drum_view(kit,k,&a,&e)&&a<*age){*age=a;*env=e;any=1;}}
+    return any;
+}
+static UI_DRAW float dg_si(pref_t r,int c,int pot){float x=0;(void)engine_param_si(r.a,r.b,c,pot,&x);return x;}
+/* where the value sits in its range on the engine's own axis: log for Hz/ms/ratio */
+static UI_DRAW float dg_pos(pref_t r,int val)
+{
+    const x0x_param_t *d=pref_desc(r);
+    float x=0; int u=engine_param_si(r.a,r.b,r.c,val,&x);
+    if(u==X0X_U_HZ||u==X0X_U_MS||u==X0X_U_S||u==X0X_U_RATIO){
+        float lo=dg_si(r,r.c,0),hi=dg_si(r,r.c,d->max);
+        if(lo>0 && hi>lo && x>0){float p=fm_log2f(x/lo)/fm_log2f(hi/lo);return p<0?0:p>1?1:p;}
+    }
+    return d && d->max?(float)val/d->max:0;
+}
+static UI_DRAW int dg_rnd(int i){uint32_t h=(uint32_t)i*2654435761u;h^=h>>13;return (int)(h%100u);}
+/* an amplitude tail: full at the hit, -60 dB at xe px; live, the part already
+ * played goes dim and a playhead stands at the voice's real level */
+static UI_DRAW void dg_tail(int gx,int gy,int xe,int live,float e,int noisy,uint32_t seed,uint16_t col)
+{   /* idle: the tail outline, -60 dB at xe. Live: a ghost of that outline, and the
+     * part still to play, filled, slid to the left edge: it is e high and
+     * (1 - log2(e)/-9.966) x xe long, so it shrinks both ways as the voice decays */
+    int bot=gy+OG_H,H=OG_H-2;
+    if(xe<2)xe=2; if(xe>OG_W-1)xe=OG_W-1;
+    float sh=0;
+    if(live){ if(e<0.001f)e=0.001f; sh=(float)xe*fm_log2f(e)/-9.966f; }
+    cv_rect(gx,bot,OG_W,1,C_LINE);
+    int h0=-1;
+    for(int x=0;x<=xe;x++){
+        float a=fm_exp2f(-9.966f*(float)x/(float)xe);
+        int h=(int)(a*H+.5f);
+        if(noisy) h=h*(40+dg_rnd(x*7+(int)seed))/140;
+        if(h<1)h=1;
+        uint16_t c=live?C_LINE:col;
+        if(noisy && !live) cv_rect(gx+x,bot-h,1,h,c);
+        else { cv_rect(gx+x,bot-h,1,1,c); if(h0>h+1) cv_rect(gx+x-1,bot-h0,1,h0-h,c); }
+        h0=h;
+    }
+    if(!live) return;
+    for(int x=0;(float)x<=(float)xe-sh;x++){
+        float a=fm_exp2f(-9.966f*((float)x+sh)/(float)xe);
+        int h=(int)(a*H+.5f);
+        if(noisy) h=h*(40+dg_rnd((x+(int)sh)*7+(int)seed))/140;
+        if(h>0) {
+            cv_rect(gx+x,bot-h,1,1,col);
+            if(x==0 || (noisy && x%5==0)) cv_rect(gx+x,bot-h,1,h,x?col:C_WHITE);
+        }
+    }
+}
+static UI_DRAW int dg_tail_px(float ms){if(ms<0)ms=0;if(ms>4000)ms=4000;return 2+(int)(23.0f*fm_sqrtf(ms/4000.0f)+.5f);}
+#define DG_BACK_MS 300u
+static UI_DRAW void drum_strip_glyph(pref_t r,int val,int gx,int gy,uint16_t col)
+{
+    const x0x_param_t *d=pref_desc(r);
+    float q=d && d->max?(float)val/(float)d->max:0,e=0;
+    uint32_t age=0xffffffffu;
+    int live=drum_live(r,&age,&e),role=drum_strip_role(r);
+    int top=gy+1,bot=gy+OG_H,mid=gy+OG_H/2,right=gx+OG_W-1;
+    /* after the voice ends, the idle glyph comes back over DG_BACK_MS (ink fades in,
+     * the wave regrows) instead of snapping from the last live frame */
+    static uint32_t dg_last[2][NDRUM+1];
+    uint32_t tnow=plat_ms(); float back=1.0f; int ki=r.a==T_808,vi=r.b>NDRUM?NDRUM:r.b;
+    if(live) dg_last[ki][vi]=tnow|1u;
+    else if(dg_last[ki][vi] && tnow-dg_last[ki][vi]<DG_BACK_MS){
+        back=(float)(tnow-dg_last[ki][vi])/(float)DG_BACK_MS;
+        if(role==DG_DECAY||role==DG_NTAIL||role==DG_BDSWEEP) col=blend(C_LINE,col,(int)(16.0f*back));   /* their live end is dim */
+    }
+    if(q<0)q=0; if(q>1)q=1;
+    switch(role){
+    case DG_DECAY: {                             /* DECAY / TAIL: the tail, as long as the real time */
+        float x=0; int u=engine_param_si(r.a,r.b,r.c,val,&x),xe;
+        if(u==X0X_U_MS) xe=dg_tail_px(x);
+        else if(u==X0X_U_S) xe=dg_tail_px(x*1000.0f);
+        else xe=2+(int)(q*23+.5f);               /* 808 decays: no confirmed time (pot/127 to the circuit) */
+        dg_tail(gx,gy,xe,live,e,0,0,col);
+    } break;
+    case DG_NTAIL: {                             /* 909 SD TONE: the snare noise's decay (noise_decay ms: 24 ms hold + 0.7 x) */
+        float x=dg_si(r,r.c,val);
+        dg_tail(gx,gy,dg_tail_px(24.0f+0.7f*x),live,e,1,live?age/40u:0,col);
+    } break;
+    case DG_TUNE: {                              /* TUNE: a wave whose cycles follow the real pitch; rings on a hit */
+        /* 808 TUNE and the 909 cymbal TUNE are bipolar semitones (pot 64 = 0 st):
+         * a centre mark shows 0, the tick moves both ways and 2 cycles = no shift.
+         * Pitch occupies rows1..5; the wave stays in rows8..16, with a clear
+         * two-row gutter even at maximum live amplitude. Baseline remains18. */
+        float p=dg_pos(r,val),cyc=1.0f+p*2.0f,amp=live?(1.0f+3.0f*e):(1.0f+3.0f*back),ph=0;
+        int wave_mid=gy+12,py=wave_mid; char n0[16],u0[8];
+        pref_value_of(r,0,n0,u0);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        if(n0[0]=='-') cv_rect(gx+OG_W/2,bot-3,1,3,C_GRAY);
+        cv_rect(gx+(int)(p*(OG_W-1)+.5f),bot-1,1,2,col);
+        /* A pitch contour is schematic on non-kick voices; only BD909 claims
+         * the measured Hz/time law. It descends toward the tuned floor. */
+        cv_line(gx,top,gx+8,top+3,col);
+        cv_line(gx+8,top+3,right,top+4,col);
+        if(live) {int x=(int)((1.0f-e)*24.0f+.5f);cv_rect(gx+x,top+3,1,2,C_WHITE);}
+        for(int i=0;i<OG_W;i++){
+            int yy=wave_mid-(int)(amp*fm_sinf(6.2831853f*((float)i*cyc/(OG_W-1)+ph))+(.5f));
+            if(i) cv_line(gx+i-1,py,gx+i,yy,col);
+            py=yy;
+        }
+    } break;
+    case DG_BDSWEEP: {                           /* 909 BD TUNE / P.DPTH / PITCH: the kick's pitch drop */
+        /* drum909_bd_hz: the formula the kick plays (49 Hz base x pitch, 16 ms hold,
+         * then a drop with time constant TUNE ms, deeper with P.DPTH). Axis: 0..100 ms,
+         * 40..400 Hz log. Live: a dot rides the curve at the real time since the hit. */
+        int c0=0,c4=4,c5=5;
+        float tau=dg_si(r,c0,r.c==c0?val:matrix_value(PR(R_ENG,T_909,0,c0)));
+        float m=.01f*dg_si(r,c4,r.c==c4?val:matrix_value(PR(R_ENG,T_909,0,c4))); /* readout percent -> engine 0..1 */
+        float pm=dg_si(r,c5,r.c==c5?val:matrix_value(PR(R_ENG,T_909,0,c5)));
+        int py=0,H=OG_H-2;
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        for(int i=0;i<OG_W;i++){
+            float hz=engine_bd909_hz(tau,m,pm,(float)i*100.0f/(OG_W-1));
+            float y=fm_log2f(hz/40.0f)/3.32f; if(y<0)y=0; if(y>1)y=1;
+            int yy=bot-1-(int)(y*H+.5f);
+            int played=live && (float)i*100.0f/(OG_W-1)<(float)age;
+            if(i) cv_line(gx+i-1,py,gx+i,yy,played?C_LINE:col);
+            py=yy;
+        }
+        if(live && age<100u){
+            int i=(int)((float)age*(OG_W-1)/100.0f+.5f);
+            if(i<1)i=1; if(i>OG_W-2)i=OG_W-2; /* 3px marker stays in the cell */
+            float y=fm_log2f(engine_bd909_hz(tau,m,pm,(float)age)/40.0f)/3.32f; if(y<0)y=0; if(y>1)y=1;
+            int yy=bot-1-(int)(y*H+.5f);
+            cv_rect(gx+i-1,yy-1,3,3,C_WHITE);
+        }
+    } break;
+    case DG_ATTACK: {                            /* ATTACK: the click spike in front of the body */
+        int h=2+(int)(q*(OG_H-3)+.5f),flash=live && age<30u;
+        float body=live?e:back;
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        cv_rect(gx+2,bot-h,2,h,flash?C_WHITE:col);
+        for(int x=5;x<OG_W;x++){
+            int bh=(int)(body*7.0f*fm_exp2f(-(float)(x-5)/6.0f)+.5f);
+            if(bh>0) cv_rect(gx+x,bot-bh,1,1,col);
+        }
+    } break;
+    case DG_LPF: {                               /* 808 BD TONE: its lowpass (300 Hz x 20^(pot/127), bd_trigger) */
+        float hz=300.0f*fm_exp2f(q*4.3219f),p=fm_log2f(hz/100.0f)/fm_log2f(100.0f);
+        int knee=gx+(int)(p*(OG_W-1)+.5f),lvl=top+3;
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        if(live) for(int x=0;x<OG_W;x+=2){   /* the hit's spectrum under the curve, fading with it */
+            int lim=gx+x<=knee?bot-lvl:(bot-lvl)-(gx+x-knee)*2;
+            /* highs die first (a decaying lowpassed hit): bin x falls as e^(1+2x/W) */
+            float tilt=fm_exp2f(fm_log2f(e<0.001f?0.001f:e)*(1.0f+2.0f*(float)x/(float)OG_W));
+            int h=(int)((float)lim*tilt*(70+dg_rnd(x+(int)(age/80u))/3)/103.0f);
+            if(h>0) cv_rect(gx+x,bot-h,1,h,blend(C_LINE,col,7));
+        }
+        cv_line(gx,lvl,knee,lvl,col);
+        int x2=knee+(bot-lvl)/2; if(x2>right)x2=right;
+        cv_line(knee,lvl,x2,lvl+(x2-knee)*2,col);
+        if(x2<right) cv_line(x2,bot,right,bot,col);
+    } break;
+    case DG_SHELLS: {                            /* 808 SD TONE: the two shell resonators' mix (sd_trigger mix1/mix2) */
+        int tp=val;
+        float t=(tp<=64?(float)tp/128.0f:0.5f+(float)(tp-64)*(0.5f/63.0f))*1.5708f;
+        float g1=fm_cosf(t),g2=fm_sinf(t),k=live?(0.3f+0.7f*e):(0.3f+0.7f*back);
+        int x1=gx+7,x2=gx+17,H=OG_H-3;      /* 173 Hz and 336 Hz: one octave apart */
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        for(int s=0;s<2;s++){
+            int xc=s?x2:x1,h=(int)((s?g2:g1)*H*k+.5f);
+            cv_line(xc-4,bot,xc,bot-h,col);cv_line(xc,bot-h,xc+4,bot,col);
+        }
+    } break;
+    case DG_SNAPPY: {                            /* SNAPPY: the noise burst; louder with the amount, fades on a hit */
+        float k=live?e:back;
+        uint32_t s=live?age/40u:0;
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        for(int x=0;x<OG_W;x+=2){
+            float env=fm_exp2f(-(float)x/9.0f);
+            int h=(int)(q*k*env*(OG_H-2)*(35+dg_rnd(x*3+(int)s))/135.0f+.5f);
+            if(h>0) cv_rect(gx+x,bot-h,1,h,col); else cv_rect(gx+x,bot-1,1,1,C_LINE);
+        }
+    } break;
+    case DG_SOUND: {                             /* SOUND switch: one pip per position, the hit lights it */
+        int n=d->max+1,w=(OG_W-2)/n;
+        for(int k=0;k<n;k++){
+            int x=gx+1+k*w,h=9;
+            if(k==val){ if(live) h+=(int)(e*4+.5f); cv_rect(x,mid+4-h,w-3,h,col); }
+            else rbox(x,mid-5,w-3,9,1,C_LINE);
+        }
+    } break;
+    case DG_LEVEL: {                            /* value is ceiling, real envelope pulses segments */
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        int ceiling=(int)(q*6.0f+.5f),lit=live?(int)(q*e*6.0f+.5f):0;
+        for(int i=0;i<6;i++) {
+            int h=3+i*2;
+            cv_rect(gx+i*4,bot-h,3,2,i<lit?C_WHITE:i<ceiling?col:C_LINE);
+        }
+    } break;
+    case DG_ACCENT: {                            /* ACCENT: a plain hit next to an accented one, the gap is the depth */
+        float k=live?(0.6f+0.4f*e):0.6f;           /* a hit in the kit pulses the bars up */
+        int H=OG_H-2,hn=(int)(H*(1.0f-0.7f*q)*k+.5f),ha=(int)(H*k+.5f);
+        cv_rect(gx,bot,OG_W,1,C_LINE);
+        for(int j=0;j<2;j++){
+            int x=gx+3+j*13,h=j?ha:hn;if(h<1)h=1;
+            cv_line(x-3,bot,x,bot-h,col);cv_line(x,bot-h,x+4,bot,col);
+            if(live)cv_rect(x,bot-h,1,2,C_WHITE);
+        }
+        cv_line(gx+7,top,gx+9,top+2,col);cv_line(gx+9,top+2,gx+7,top+4,col);   /* ">" accent marks */
+        cv_line(gx+19,top,gx+21,top+2,col);cv_line(gx+21,top+2,gx+19,top+4,col);
+    } break;
+    default: break;
+    }
+}
+
 static uint32_t knobs_sig(void)
 {
     uint32_t h = 2166136261u, i;
@@ -6818,6 +7315,12 @@ static uint32_t knobs_sig(void)
         const uint8_t *cell=proj.sound.v[T_303][bidx()];
         for (unsigned byte=0; byte<ORIGINAL_SOUND_BYTES; byte++) MIXIN(cell[byte]);
         MIXIN(engine_bass_status(bidx()));
+        { float eg=0,dd=0; if(engine_bass_filter_view(bidx(),&eg,&dd)) MIXIN((int)(eg*dd*7.0f+.5f)); }
+        { float a=0,m=0;unsigned s=6,key=0;
+          if(engine_bass_voice_view(bidx(),&a,&m,&s,&key)) {
+              MIXIN((int)(a*32.0f)); MIXIN((int)(m*24.0f)); MIXIN(s); MIXIN(key);
+          }
+        }
         MIXIN(engine_bass_preset_pending(bidx()));
         MIXIN(engine_bass_requested_bank(bidx())); MIXIN(engine_bass_requested_preset(bidx()));
     }
@@ -6846,6 +7349,10 @@ static uint32_t knobs_sig(void)
         pref_t r = pg.r[pgi][i];
         MIXIN(r.kind | r.a << 8 | r.b << 16 | (uint32_t)r.c << 24);
         MIXIN(pref_get(r));
+        if(r.kind==R_ENG && (r.a==T_909 || r.a==T_808)) {
+            uint32_t age=0;float e=0;int live=drum_live(r,&age,&e);
+            MIXIN(live);if(live){MIXIN((int)(e*32.0f));MIXIN(age/40u);}
+        }
         if(r.kind==R_TEMPO) MIXIN(tempo_glyph_view);
         if(r.kind==R_TAPE && pref_get(r)>=16) MIXIN(tape_glyph_phase);
         if(r.kind==R_BRKSLOT) MIXIN(engine_brk_nslots());
@@ -7015,7 +7522,9 @@ static UI_DRAW void draw_knobs(void)
             if (mv >= 0)
                 val = mv;
         }
-        if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
+        if(drum_strip_role(r)==DG_LEVEL) {
+            drum_strip_glyph(r,val,cx-13,28,col);
+        } else if(perform_glyph(r,val,cx,col) || control_glyph(r,val,cx,col)) {
             /* Its existing value/motion/lock path is retained below. */
         } else if (d->names && d->max < 12) {           /* a switch: positions as pips */
             int n = d->max + 1, k, pw = n > 6 ? 3 : 6, gap = 2, w0 = n * (pw + gap) - gap;

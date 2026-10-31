@@ -44,5 +44,13 @@ int original_runtime_all_off(original_runtime_part *);
 /* Source/voice ownership excludes residual insert output; selector fades that output separately. */
 int original_runtime_owned(const original_runtime_part *);
 int original_runtime_active(const original_runtime_part *);
+/* Chicago only: live filter EG level and env depth for the ENV glyph. */
+int original_runtime_filter_view(const original_runtime_part *, float *eg, float *depth);
+/* UI observation only: loudest active native lane, ties use lowest lane ID.
+ * State is original_vca.state (0 attack, 1 decay/sustain, 3 release, 6 silent).
+ * Plain reads may span one audio update; no queue, locks or DSP state changes. */
+int original_runtime_voice_view(const original_runtime_part *, float *level, float *modulation,
+    unsigned *state, unsigned *key_down);
+int original_runtime_adsr_view(const original_runtime_part *, float values[4], unsigned *gate);
 int original_runtime_render(original_runtime_part *, original_runtime_workspace *,
     float *left, float *right, unsigned frames);
