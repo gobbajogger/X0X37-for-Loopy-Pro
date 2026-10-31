@@ -182,6 +182,7 @@ static void blec_fail(blec_t *c)
     } else {
         c->state = BLEC_FAILED;
         c->waiting = 0;
+        c->deadline = c->now_ms + 1000u; /* rejoin backoff (one peer) / idle retry (pair) */
     }
 }
 static void blec_scan_again(blec_t *c, uint32_t now)
@@ -811,7 +812,19 @@ void blec_pair_rx(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n
 void blec_pair_poll(blec_t *a, blec_t *b, uint32_t now, int want)
 {
     /* A stop must see the service time, not a stale one (Disconnect cutoff). */
-    if (!blec_paired(a) || !blec_paired(b)) { a->now_ms = now; if (!want) blec_stop(a); blec_poll(a, now); return; }
+    if (!blec_paired(a) || !blec_paired(b)) {
+        a->now_ms = now; if (!want) blec_stop(a); blec_poll(a, now);
+#ifdef BLEC_ONE_PEER_RECOVERY
+        /* One peer: a failed scan/connect/discovery is not final. Rejoin at the
+         * deadline, so STATUS goes back to READY/CONNECTED, not stuck FAILED. */
+        if (want && a->state == BLEC_FAILED && !a->linked && !a->waiting &&
+            !(a->disconnect_flags & D_STOP) && (int32_t)(now - a->deadline) >= 0) {
+            blec_join(a, now);
+            a->deadline = now + 10000u;
+        }
+#endif
+        return;
+    }
     a->now_ms = b->now_ms = now;
     if (!want) {
         if (a->state != BLEC_OFF && a->state != BLEC_STOPPING) blec_stop(a);
