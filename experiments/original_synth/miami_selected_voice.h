@@ -39,6 +39,10 @@ typedef struct {
  original_miami_pitch_controls pitch;
  original_voice_gain_controls gain;
  float cutoff,resonance,env_depth,noise,pw_intensity,pw_width,xmod,vco_gain;
+ /* Source/MI/MW are zero in this selected profile: widths change only with
+  * the program. Compile once instead of repeating four checked conversions
+  * at every voice start and 690 Hz control tick. */
+ float wave_width[4];
  float patch_slave,patch_cutoff,patch_gain;
  float mg_base[2],mg_times[2];
  float bend_normalized;
