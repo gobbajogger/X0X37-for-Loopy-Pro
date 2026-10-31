@@ -125,3 +125,25 @@ Size-only refactors (#379-#611 "Size:"/"Share" PRs) are merged in nightly and no
 | Feature | Status | Best copy | Test proof | Hardware-verified | Next action | Owner |
 |---|---|---|---|---|---|---|
 | L1 USB legacy update refusal, L11 prompt BREAK mute, L12 measurement only | in progress; draft source, NOT_RUN | [chat/live-a-safety-023](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/chat/live-a-safety-023), base bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2; one draft PR into build/0.0.23 | Regression tests and measurement tooling authored; no Codex builds/tests/measurements | no | Orchestrator: full host suite, Elite/Pro X0X_DEV_PADCAL=0, RAM and before/after LU/peak on exact head; review implementation limits in docs/live-a.md | Orchestrator |
+## F7 exact-input proof repair (source only)
+| Feature | Status | Best source | Test / QA evidence | Remaining acceptance |
+| --- | --- | --- | --- | --- |
+| F7 rows 114/115: truthful host receipts for final source inputs | Source proposed on `chat/f7-truthful-input-checks`, based on `build/0.0.23@bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2` | `tools/remaining_feature_proof.py`; regression cases in `tests/host/remaining_feature_proof_test.py`, already registered as `remaining-feature-proof-selftest` | NOT_RUN in Codex by owner instruction. No host/native/package/device PASS claimed. | Orchestrator runs the registered selftest and full host suite on the exact PR head. Source-only review does not establish independent execution or full F7 acceptance. |
+| F7 row 108: retain #687 handle-zero regression via #782 | Already in base; no duplicate port | #782 `842cba0c1db87986165b1cddb617cbb717a806d0` is an ancestor of the base; identical `ble_zero_conn_test.c` blob `61cb75498210e037870fec5431cdbd9abc7f0f37` | Registered `ble-zero-conn` builds both peer configurations; current-head execution NOT_RUN here | Orchestrator reruns BLE regressions. No firmware change is required for this port. |
+The proof repair rejects tracked edits outside the declared input list, including
+staged edits and changes made by a successful check.
+An index using assume-unchanged or skip-worktree flags is rejected because those
+flags can hide tracked edits from Git's normal comparison. The helper hashes relative
+launchers and relative PATH entries from the same repository directory used to
+execute checks, and rechecks tool identity before writing HOST_CHECKED.
+This is a bounded F7 source repair, not completion of the whole brief. The
+read-only pad snapshot already exists; the requested diagnostic screen and real
+240x240 framebuffer BEFORE/AFTER evidence remain pending. Joint-load and daily-use
+acceptance, both SDK V1.2.1 Elite/Pro builds with X0X_DEV_PADCAL=0, measured RAM,
+matching-controller package qualification, existing-installer delivery, final
+independent review and request/review completeness remain pending with their
+existing owners. The brief's 2352 B RAM figure is a baseline, not a new measurement.
+M-VAVE research already exists in `docs/remaining-features-20261030.md`; it is not
+firmware adoption or device proof. Keep production separate from NIGHTLY.
+Rows 73 and 120 remain excluded; row 119 belongs to F6. No bootloader, device,
+publication, integration or merge action is part of this source PR.
