@@ -1349,6 +1349,8 @@ static void smc_fader(int n, uint8_t v)
     nv = (v * d->max + 63) / 127;
     if (crossed || nv != pref_get(r)) {
         pref_set(r, nv);
+        if (r.kind == R_ENG)
+            PARAM_TRACE(PARAM_SMC_PICKUP, r.a, r.b, r.c, pref_get(r));
         motion_touch(r);
         smc.value[n] = smc_scaled(r);
         smc.pending |= bit;
