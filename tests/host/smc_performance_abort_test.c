@@ -174,7 +174,9 @@ static void start_abort_same_poll(void)
     for (ui.list_sel = 0; ui.list_sel < ui.list_n; ui.list_sel++)
         if (list_rows[ui.list_sel].kind == R_ACT && list_rows[ui.list_sel].a == ACT_PERF_TEST) break;
     assert(ui.list_sel < ui.list_n);
-    note(5);                           /* start through the production SMC menu action */
+    note(5);smc_poll();                 /* SMC cannot activate keyboard menu actions */
+    assert(!perf_testing() && ui.overlay==O_LIST);
+    button_tap(B_SEL);                  /* keyboard starts; SMC aborts in same queued poll */
     note(0x5D);
     edits();
     smc_poll();

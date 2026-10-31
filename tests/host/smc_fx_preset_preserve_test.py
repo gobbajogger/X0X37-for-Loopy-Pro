@@ -81,7 +81,7 @@ static unsigned checks;
 
 static int smk_clip_mode_on(void) { return clip; }
 static int smc_drum_mix(void) { return drum; }
-static int smc_fx_bus(uint8_t note) { return note < 32u ? (note & 7u) : -1; }
+static int smc_fx_bus(uint8_t note) { return note < 32u ? (int)(note & 7u) : -1; }
 static int smc_fx_bus_now(uint8_t note)
 {
     return ui.view != V_FX || ui.overlay != O_NONE ||
