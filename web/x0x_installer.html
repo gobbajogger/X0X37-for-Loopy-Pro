@@ -1235,6 +1235,7 @@ async function run(img, product, opts = {}) {
   renderConnectionAction(); refreshJourney();
   $("ctlclear").disabled = true;
   $("go").disabled = $("stockgo").disabled = true;
+  $("bar").value = 0; // A retry must not inherit a previous installation's 100%.
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
@@ -1537,3 +1538,4 @@ refreshJourney();
 </script>
 </body>
 </html>
+
