@@ -203,4 +203,67 @@ The normal -Wall build is warning-free for both candidate models.
 RAM .data+.bss: 95952 / 98304; free 2352 B before and after for both models.
 Pool: 335528 / 344064; free 8536 B before and after for both models.
 Q3.6 owner tracking is PENDING: correct PERF lifetime hooks require the excluded ui.c. No partial guard is claimed.
-Full-suite result is pending; baseline comparisons are separate from native build proof.
+Full-suite result: FAIL (runner exit status 1); baseline comparisons are separate from native build proof.
+
+Additional scoped evidence:
+- All eight native invocation jobs returned exit status 0 with X0X_DEV_PADCAL=0 (caller launch receipts).
+- Independent source review: no retained actionable findings.
+- Independent native evidence review: accepted the limited log/hash/symbol claims; no device/publication acceptance.
+- All three initializer-only Elite DSP objects are byte-identical before/after.
+- Three new tests pass: 285 read replies, header alignment/trap, diagnostic word-count boundaries.
+- Existing project-protocol, sample begin/cancel, storage-scratch and perf-scratch checks pass.
+- Full host sweep exited 1. No zero-failure or zero-skip qualification is claimed.
+
+Final host qualification (negative):
+The final runner report contains 312 ok, 32 FAIL, 2 not-run and one skipped package group.
+Native packages appeared during the multi-phase sweep, changing conditional numeric result IDs.
+The early install-slots-web result was consequently overwritten in numeric aggregation.
+A separate rerun on the restored exact source fails with spawnSync python3 EPERM;
+the unchanged base reproduces that same environment failure. Treat aggregate counts
+as reported, not a complete qualification receipt. No checks or expected values were weakened.
+Every named FAIL retained in the final report was also executed and failed on the unchanged base.
+The two not-run reference tests need ../schwung-9W9 and ../schwung-8W8 sources.
+The full runner skipped its SDK package group because AC79_SDK was unset in that invocation.
+Separate tests/smk_pkg_test.py checks of the actual Pro and Elite packages PASS.
+Separate mocked ota_test.c checks compiled for Pro and Elite PASS with the verified V1.2.1 inputs.
+No physical device, flash, install, release, upload of binaries or publication occurred.
+
+Named failures reproduced at unchanged base:
+ble-capture-replay
+ble-device-setting-flow
+ble-midi-receive
+ble-role-switch
+ble-toggle-persistence-gate
+break-pack-web
+breaks-page
+breaks-web
+builtin-break-output
+chicago-presentation
+editor-ota-dispatch
+engine-808-scratch-alias
+install-slots-web
+original-build
+original-release-integration
+original-release-ui
+scenario-plock
+smc-action-source
+smc-boot-saved-roles
+smc-clip-visibility
+smc-fx-preset-preserve
+smc-link
+smc-lock
+smc-multi-peer
+smc-queue
+smc-reconnect-epoch
+smc-select-mode
+smc-solo-overflow
+smc-ui
+sound-matrix
+ui-glyph-polish
+ui-peer-names
+ui-theme
+
+Q3.6 remains PENDING under the explicit ui.c exclusion. The optional scope question
+was not answered during this run; no exception or approval was inferred.
+PR is not merge-ready. Native budgets/warnings pass; the requested complete green
+host suite and full debug scratch ownership guard have not been delivered.
