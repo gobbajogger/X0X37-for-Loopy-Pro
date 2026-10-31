@@ -5,6 +5,12 @@ Base for "behind/ahead": `wip/one-build` @ `cb5423c4` (2026-10-30). Status words
 
 ## F2 recording comparison against build/0.0.23
 
+N6 pattern-change knob bases: existing restore-before-apply source is covered by
+the new registered `motion-pattern-handoff` regression. Both selected motion
+tests pass; no firmware hunk is ported from the identical `e6c1cd1c` / `03b696f9`
+patches. See [N6 comparison and limits](engineering-delivery/n6-pattern-base-comparison.md).
+This host result does not close the original six F2 acceptance rows.
+
 At `bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2`, the recording behavior from
 `0ea7319ba`, `ac2e726e8`, `d951fc187`, `3ad78ea63` and `8401fc231` is already
 represented, including later stale-event and ambiguous-note-off safeguards.
