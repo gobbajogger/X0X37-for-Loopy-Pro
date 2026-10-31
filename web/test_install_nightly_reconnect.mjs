@@ -22,7 +22,7 @@ assert.match(run, /if \(writing\) return;/);
 assert.match(html, /if \(writing \|\| ctlNeedsResolution \|\| \$\("go"\)\.disabled \|\|\s*!hasVerifiedNightlySelection/);
 let passed = 0;
 for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
-  for (const mode of ["normal", "resume", "resume-cancel", "missing", "failure", "denied", "pending", "pending-stale", "revoked"]) {
+  for (const mode of ["normal", "resume", "resume-cancel", "missing", "failure", "discovery-failure", "denied", "denied-retry", "pending", "pending-stale", "revoked"]) {
     let grant;
     let approvalActive = mode !== "revoked";
     const permission = new Promise(resolve => { grant = resolve; });
@@ -30,16 +30,19 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       messages: [], midiCalls: 0, otaPrompts: 0 };
     const ui = Object.fromEntries(["go", "stockgo", "stockconfirm", "conn", "bar"]
       .map(id => [id, { disabled: false, checked: true, textContent: "", value: 0 }]));
+    ui.bar.value = 100; // A previous completed attempt must not survive a retry.
     let ctx;
     const mock = {
       $: id => ui[id] || (ui[id] = {}),
       midiAccess: async () => {
         state.midiCalls++;
-        if (mode === "denied") throw Object.assign(Error("denied"), { code: "denied" });
+        if (mode === "denied" || (mode === "denied-retry" && state.midiCalls === 1))
+          throw Object.assign(Error("denied"), { code: "denied" });
         return mode.startsWith("pending") ? permission : {};
       },
       Updater: class {
         async find(predicate) {
+          if (mode === "discovery-failure") throw Error("MIDI connection reset");
           if (state.writes > 0) {
             if (!ctx.isWriting()) state.lockHeld = false;
             state.postScan++;
@@ -53,9 +56,10 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
         }
         async resume() { state.writes++; return true; }
       },
-      installKeepingSlots: async () => {
+      installKeepingSlots: async (_up, _img, _product, _board, hooks) => {
         state.writes++;
         if (mode === "failure") throw Object.assign(Error("test write failure"), { code: "lost" });
+        hooks.step("done");
         return { move: null };
       },
       sameKeyboard: () => true, confirmNightlyModel: () => true, t: key => key,
@@ -80,35 +84,58 @@ globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writi
     const first = ctx.start(new Uint8Array([1]), model, { selectionGuard: () => approvalActive });
     if (mode.startsWith("pending")) {
       assert.equal(ctx.isWriting(), true, "permission request left write unlocked");
+      assert.equal(ui.bar.value, 0, "pending MIDI permission retained prior 100% progress");
       assert.equal(ui.stockgo.disabled, true, "second install button was enabled");
       await ctx.manualScan();
       const second = ctx.start(new Uint8Array([1]), model, { foreign: true });
       if (mode === "pending-stale") approvalActive = false;
       grant({});
       await Promise.all([first, second]);
-    } else await first;
+    } else {
+      await first;
+      if (mode === "denied-retry") {
+        assert.equal(ui.bar.value, 0, "denied permission retained prior 100% progress");
+        assert.equal(ctx.isWriting(), false, "denial prevented retry without reloading");
+        assert.equal(state.writes, 0, "permission denial started a write");
+        assert.equal(state.messages.at(-1), "denied");
+        assert.equal(ui.go.disabled, false, "denial left eligible catalog retry disabled");
+        await ctx.start(new Uint8Array([1]), model, { selectionGuard: () => approvalActive });
+        assert.equal(state.midiCalls, 3, "expected denied permission, retry permission and post-write discovery");
+      }
+    }
     assert.equal(ctx.isWriting(), false, model + " " + mode + ": leaked write lock");
     assert.equal(state.otaPrompts, ["resume", "resume-cancel"].includes(mode) ? 1 : 0,
       model + " " + mode + ": unexpected recovery confirmation");
     if (mode === "denied") {
+      assert.equal(ui.bar.value, 0, "permission denial retained prior 100% progress");
       assert.equal(state.writes, 0, "permission refused after write started");
       assert.equal(state.messages.at(-1), "denied");
       assert.equal(ui.go.disabled, false, "permission denial retry blocked");
       assert.equal(state.postScan, 0);
     } else if (mode === "resume-cancel") {
+      assert.equal(ui.bar.value, 0, "cancelled recovery retained prior 100% progress");
       assert.equal(state.writes, 0, "cancelled loader recovery performed a write");
       assert.equal(state.postScan, 0, "cancelled loader recovery rescanned after a write");
       assert.equal(state.messages.at(-1), "otabackup", "missing actionable recovery refusal");
       assert.equal(ui.go.disabled, false, "rejected loader recovery left retry disabled");
     } else if (mode === "revoked" || mode === "pending-stale") {
+      assert.equal(ui.bar.value, 0, "stale selection retained prior 100% progress");
       assert.equal(state.writes, 0, "stale/revoked selection wrote firmware");
       assert.equal(state.postScan, 0, "stale selection started post-write scan");
       assert.equal(state.messages.at(-1), "selectionstale");
       assert.equal(ui.go.disabled, mode === "revoked");
     } else if (mode === "failure") {
+      assert.equal(ui.bar.value, 0, "write failure retained prior 100% progress");
       assert.equal(state.postScan, 0, "failed write masked by rescan");
       assert.equal(state.messages.at(-1), "lost");
+    } else if (mode === "discovery-failure") {
+      assert.equal(ui.bar.value, 0, "discovery failure retained prior 100% progress");
+      assert.equal(state.writes, 0, "discovery reset started a write");
+      assert.equal(state.postScan, 0, "discovery reset masked by rescan");
+      assert.equal(state.messages.at(-1), "error");
+      assert.equal(ui.go.disabled, false, "discovery reset left retry disabled");
     } else {
+      assert.equal(ui.bar.value, 100, "completed transfer lost completed progress");
       assert.equal(state.writes, 1, "duplicate or missing write");
       assert.ok(state.postScan > 0, "no post-write rescan");
       assert.equal(state.lockHeld, true, "post-write rescan not under lock");
@@ -175,3 +202,4 @@ globalThis.runRestoreTest=run;`).runInContext(ctx);
   }
 }
 console.log("PASS " + restorePassed + "/10 sample-restore disposition scenarios (Elite/Pro)");
+
