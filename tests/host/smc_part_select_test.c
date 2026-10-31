@@ -1,5 +1,5 @@
-/* Exercise the production SMC part-selection function with a held 303 step.
- * The old part/page must still own the temporary sound when cleanup runs. */
+/* Exercise production SMC navigation while a keyboard 303 step is held.
+ * SMC must leave the keyboard part, page and temporary sound untouched. */
 #include <stdint.h>
 #include <stdio.h>
 
@@ -10,21 +10,11 @@ static struct {
 } ui;
 static int page_part, cancel_count, cancel_part, cancel_page;
 static int old_saved = 64, old_sounding = 92;
-static int is_303(void) { return ui.part == PART_303A || ui.part == PART_303B; }
-static void bass_step_cancel(void)
-{
-    if (ui.held_step < 0)
-        return;
-    cancel_count++;
-    cancel_part = ui.part;
-    cancel_page = page_part;
-    if (ui.part == PART_303A && page_part == PART_303A)
-        old_sounding = old_saved;      /* lock_release restores the selected page's sound */
-    ui.held_step = -1;
-}
-#define drum_step_cancel() ((void)0) /* no drum gesture in this 303-focused fixture */
-static void set_view(int v) { ui.view = (uint8_t)v; }
-static void build_pages(void) { page_part = ui.part; }
+static struct { uint8_t part,mixsel,view,picked,pending,knob_i; } smc;
+static int popup_count;
+static void smc_ui_begin(int strip,int kind) { (void)strip;(void)kind;popup_count++; }
+static int part_is_303(int part) { return part == PART_303A || part == PART_303B; }
+#include "smc_rearm.inc"
 #include "smc_select_part.inc"
 
 static int fails;
@@ -36,25 +26,30 @@ int main(void)
     ui.view = V_PART;
     ui.held_step = 0;
     page_part = PART_303A;
+    smc.view = V_PART; smc.part = PART_303A; smc.picked = 0xff;
     smc_select_part(PART_303B);
-    CHECK(cancel_count == 1 && cancel_part == PART_303A && cancel_page == PART_303A,
-          "held step cancels while its original part and page still own it");
-    CHECK(old_sounding == old_saved, "temporary 303 lock sound restores on SMC part select");
-    CHECK(ui.part == PART_303B && ui.mixsel == PART_303B && page_part == PART_303B && ui.held_step == -1,
-          "SMC navigation still selects and rebuilds the destination part");
+    CHECK(cancel_count == 0 && cancel_part == 0 && cancel_page == 0,
+          "SMC navigation never cancels the keyboard held step");
+    CHECK(old_sounding == 92 && old_saved == 64, "keyboard temporary 303 sound remains held");
+    CHECK(ui.part == PART_303A && ui.mixsel == PART_303A && page_part == PART_303A && ui.held_step == 0,
+          "keyboard part, selection, page and held step remain unchanged");
+    CHECK(smc.part == PART_303B && smc.mixsel == PART_303B && popup_count == 1 && smc.pending == 0xff && !smc.picked,
+          "SMC selects its own destination and refreshes its popup");
 
     ui.held_step = 1;
     smc_select_part(PART_303B);
-    CHECK(cancel_count == 1 && ui.held_step == 1, "selecting the same part leaves its held step active");
+    CHECK(cancel_count == 0 && ui.held_step == 1, "selecting the same part leaves its held step active");
 
     ui.part = PART_303A;
     ui.view = V_GEN;
     ui.held_step = 2;
     page_part = PART_303A;
+    smc.view = V_GEN;
     smc_select_part(PART_909);
-    CHECK(cancel_count == 2 && cancel_part == PART_303A && cancel_page == PART_303A,
-          "GEN to drum selection cancels before changing owner");
-    CHECK(ui.view == V_PART && ui.part == PART_909, "GEN navigation still opens the part view");
+    CHECK(cancel_count == 0 && ui.held_step == 2 && page_part == PART_303A && old_sounding == 92,
+          "GEN to drum SMC navigation preserves keyboard held sound and owner");
+    CHECK(ui.view == V_GEN && ui.part == PART_303A, "keyboard GEN view remains unchanged");
+    CHECK(smc.view == V_PART && smc.part == PART_909 && smc.mixsel == PART_909, "SMC GEN to drum opens its own part view");
     puts(fails ? "smc_part_select: failed" : "smc_part_select: ok");
     return fails != 0;
 }
