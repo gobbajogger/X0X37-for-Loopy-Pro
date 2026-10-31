@@ -48,8 +48,10 @@ load 95
 tap PLAY
 # GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
 tap GLO
-turn SELECT 18
-expect listsel 23
+# GLOBAL > SYSTEM (section 4) > PERFORMANCE (row 0)
+turn SELECT 4
+tap SEL
+expect listsel 0
 tap SEL
 expect view 7
 tap SEL

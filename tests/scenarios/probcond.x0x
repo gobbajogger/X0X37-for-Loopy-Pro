@@ -28,9 +28,11 @@ expect laneval7.0.0.12 255
 expect hit0.0.0 1
 expect hit0.0.8 1
 tap GLO
+# GLOBAL opens its sections; SEL enters MIDI + CLOCK (CLOCK SOURCE is row 0)
+tap SEL
 turn SELECT 2
 turn ALGO 1
-tap HOME
+tap GLO
 tap EDIT
 expect noteons 0
 tap PLAY

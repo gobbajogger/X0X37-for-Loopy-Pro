@@ -33,7 +33,7 @@ assert "ui.overlay == O_NONE" in own, own
 assert "ui.overlay == O_LIST" in body(ui, "static int ui_menu_open(void)")
 sa = body(main, "static void smk_arrows(void)")
 assert "arw_route((uint32_t)ui_menu_open(), clip_grid_mode" in sa, sa
-assert re.search(r"if \(route == ARW_MENU\) \{\s*ui_menu_arrow\(d\);", sa), sa
+assert re.search(r"if \(route == ARW_MENU\) \{\s*if \(ui_menu_arrow\(d\)\)\s*arw_rearm\(&arw, now\);", sa), sa
 assert "return home ? ARW_NONE : menu ? ARW_MENU : clip ? ARW_NONE : ARW_SELECT;" in arw
 # the clip keys: the arrow presses are masked when they do not own the controls
 ck = body(main, "CK_FN static void ck_controls(void)")
