@@ -83,6 +83,10 @@ static void test_drum_lock(void)
         for (unsigned i = 0; i < sizeof live / sizeof *live; i++) {
             message(0x90, live[i], 127); message(0x80, live[i], 0);
             CHECK(smc.locked);
+            /* Deliberate BANK presses retarget the captured drum bank. REC /
+             * SELECT now restores the keyboard selection to that locked kit. */
+            if (live[i] == 0x2E || live[i] == 0x2F)
+                f[0] = find_ref(kit ? T_808 : T_909, live[i] == 0x2F ? 8 : 0, "Level");
             CHECK(smc_same(f[0], smc_target(0)));
         }
         CHECK(smc_lock_toggle());

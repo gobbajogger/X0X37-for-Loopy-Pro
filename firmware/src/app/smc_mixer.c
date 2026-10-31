@@ -900,6 +900,9 @@ static int smc_nav_key(int note)
 static const char *smc_button_caption(int note)
 {
     int kit = smc_drum_mix(), strip = note & 7, row = note >> 3;
+    /* Source #688: in the clip grid the eighth strip steps the clip stage. */
+    if (smk_clip_mode_on() && ui.overlay == O_NONE && !smc.locked && strip == 7 && row != 2 && row < 4)
+        return row == 1 ? "PREV" : "NEXT";
     if (kit >= 0 && smc_drum_track(kit, strip) < 0) return "--";
     if (smc_lock_blocks((uint8_t)note)) return "X";
     /* On the FX view each of the four physical buttons has its own
@@ -1011,7 +1014,8 @@ static UI_DRAW void smc_ui_grid(void)
             cv_rect(x + 3, target, 2, 115 - target, travel);
             cv_rect(x + 1, target, 6, 4, fc);
             /* A fine white marker is physical position until pickup is acquired. */
-            if (!(smc.picked & (1u << n)))
+            /* Source #688: it blinks with the sample-clock beat (metro_view) while running. */
+            if (!(smc.picked & (1u << n)) && (!seq.metro_view || seq.metro_view <= 16u))
                 cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
         }
         int fx_view = kit < 0 && ui.view == V_FX && ui.overlay == O_NONE;
@@ -1448,6 +1452,24 @@ static void smc_knob_bank(int delta)
     smc_ui_cancel();
 }
 
+/* Source #688: Unmute adopts the physical fader once, when the SMC fader
+ * on that level has been seen, so the first move after Unmute needs no pickup. */
+static void smc_unmute_level(pref_t level)
+{
+    for (int n = 0; n < 8; n++) {
+        uint8_t bit = (uint8_t)(1u << n);
+        if (!(smc.input_seen & bit) || !smc_same(level, smc_target(n))) continue;
+        const x0x_param_t *d = pref_desc(level);
+        if (!d || !d->max) continue;
+        pref_set(level, (smc.last[n] * d->max + 63) / 127);
+        motion_touch(level);
+        smc.target[n] = level;
+        smc.value[n] = smc_scaled(level);
+        smc.picked |= bit;
+        smc.pending |= bit;
+    }
+}
+
 static void smc_toggle_fx(int which)
 {
     int param = which == 0 ? FX_RV_LEVEL : which == 1 ? FX_DL_LEVEL : FX_VOLUME;
@@ -1456,8 +1478,10 @@ static void smc_toggle_fx(int which)
     if (v) {
         smc.fx_restore[which] = (uint8_t)v;
         pref_set(r, 0);
-    } else
+    } else {
         pref_set(r, smc.fx_restore[which] ? smc.fx_restore[which] : 100);
+        smc_unmute_level(r);
+    }
 }
 
 static void smc_record_toggle(void)
@@ -1492,6 +1516,13 @@ static void smc_select_drum(int kit, int track)
     if (ui.sel[kit] != track) drum_step_cancel();
     ui.sel[kit] = (uint8_t)track;
     smc_select_part(kit);               /* the SMK pads and recording now share the visible drum's selection */
+    if (smc.locked && smc_drum_mix() == kit) {
+        /* Source #688: Rec/Select aligns the keyboard with the captured kit.
+         * smc_page_set() would move the locked page, so set the shown page. */
+        smc_peek_cancel();
+        set_view(smc.lock_view); build_pages();
+        if (smc.lock_page < pg.n) { *page_of(ui.view) = smc.lock_page; build_pages(); }
+    }
 }
 
 static int smc_bank(uint8_t note)
@@ -1797,7 +1828,14 @@ static void smc_button_apply(uint8_t note, int mmc)
         ui_say("SMC TARGETS LOCKED", 0);
         return;
     }
-    if (ui.overlay == O_NONE && !smk_clip_mode_on() && !smc_home_held() &&
+    if (!smc.locked && ui.overlay == O_NONE && smk_clip_mode_on() &&
+        (note == 7u || note == 15u || note == 31u)) {
+        smk_ck_smc_nav(note == 15u ? 0x60u : 0x61u);
+        return;                         /* source #688: eighth strip owns clip stage navigation too */
+    }
+    /* Source #688: Up/Down are encoder banks only, in the clip grid too
+     * (the eighth strip steps the clip stage there). */
+    if (ui.overlay == O_NONE && !smc_home_held() &&
         (note == 0x60u || note == 0x61u)) {
         smc_knob_bank(note == 0x60u ? -1 : 1);
         return;
@@ -1825,6 +1863,8 @@ static void smc_button_apply(uint8_t note, int mmc)
                 break;
             case 2:
                 mute_track(kit, track);
+                if (!track_muted(kit, track))
+                    smc_unmute_level(find_ref(kit ? T_808 : T_909, track, "Level"));
                 break;
             default:
                 /* A different sound still selects it. Press its SELECT again
@@ -1864,9 +1904,10 @@ static void smc_button_apply(uint8_t note, int mmc)
             } else if (row == 1) {      /* SOLO */
                 smc_solo_press(strip, part + 1, mmc);
                 say((smc.solo & (1u << part)) ? "SOLO" : "UNSOLO", PART_N[part]);
-            } else if (row == 2)       /* MUTE */
+            } else if (row == 2) {     /* MUTE */
                 mute_part(part);
-            else {                     /* SELECT */
+                if (!part_muted(part)) smc_unmute_level(PR(R_ENG, T_MIX, part, MX_LEVEL));
+            } else {                   /* SELECT */
                 int repeat_drum = part < NKIT && ui.part == part && ui.overlay == O_NONE;
                 smc_select_part(part);
                 smc_view(repeat_drum ? V_MIX : V_PART, repeat_drum ? part + 1 : -1);
@@ -2357,7 +2398,7 @@ static int smc_led(int note)
      * needs native owner verification for the captured preset. */
     if (note == 0x5D) {
         int beat = smc_beat_lit(); /* keep phase current even while locked */
-        return smc.locked || beat;
+        return smc.locked || (seq.metro_view ? seq.metro_view <= 16u : beat);
     }
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;

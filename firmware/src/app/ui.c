@@ -4790,7 +4790,9 @@ static UI_DRAW void draw_header(void)
                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
             }
         }
-        if(seq.playing) play_icon(175,4,C_HI);
+        { uint8_t phase = seq.metro_view; /* same audio-owned phase as the tempo header */
+          play_icon(175, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
+        }
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
         cv_commit(0,0,0);
@@ -4887,8 +4889,9 @@ static UI_DRAW void draw_header(void)
         put_i(b, shown);
     }
     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
+    { uint8_t phase = seq.metro_view;  /* source #688: audio-owned beat phase, neutral in STOP/WAIT */
+      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
+    }
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
