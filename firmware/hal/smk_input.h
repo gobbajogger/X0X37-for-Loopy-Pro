@@ -150,6 +150,7 @@ static volatile struct {
     uint16_t fad_acc[4];         /* faders: 0..1023 IIR */
     uint8_t fader[4];            /* 0..127 */
     uint16_t wheel[2], pedal, batt;   /* raw 0..1023 (mux C addresses 4, 5, 6, 7) */
+    uint16_t wheel_mod_seq;          /* accepted mod ADC publications, not foreground polls */
     uint16_t fad_raw[4];         /* (debug: the last raw fader readings) */
     uint16_t fad_hist[4][2];     /* the two readings before: a median of 3 drops a lone spike */
     uint32_t adc_ok, adc_miss;   /* (debug: conversions read / not finished within a tick) */
@@ -536,6 +537,13 @@ static void smk__pad(uint32_t p, uint32_t raw)
     }
 }
 
+static void smk__wheel(uint32_t wheel, uint32_t raw)
+{
+    fm1_in.wheel[wheel] = (uint16_t)(fm1_in.wheel[wheel] +
+        ((int32_t)raw - fm1_in.wheel[wheel]) / 4);
+    if (wheel == 1u) fm1_in.wheel_mod_seq++;
+}
+
 static void smk__analog(uint32_t slot, uint32_t raw)
 {
     uint32_t a = smk__slot_addr(slot), ch = slot % 3u;
@@ -558,7 +566,7 @@ static void smk__analog(uint32_t slot, uint32_t raw)
         if (v > fm1_in.fader[f] + 1u || v + 1u < fm1_in.fader[f] || (v != fm1_in.fader[f] && (v == 0u || v == 127u)))
             fm1_in.fader[f] = (uint8_t)v;                    /* +-1 dead band, the ends reachable */
     } else if (a < 6u) {
-        fm1_in.wheel[a - 4u] = (uint16_t)(fm1_in.wheel[a - 4u] + ((int32_t)raw - fm1_in.wheel[a - 4u]) / 4);
+        smk__wheel(a - 4u, raw);
     } else if (a == 6u) {
         fm1_in.pedal = (uint16_t)raw;
     } else {
