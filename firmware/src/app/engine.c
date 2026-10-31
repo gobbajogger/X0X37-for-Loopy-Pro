@@ -1594,7 +1594,12 @@ volatile uint32_t eng_dbg_wait, eng_dbg_nsub;  /* 24 MHz ticks waiting for core 
 
 /* the mix of one stretch between two events: dry left and right, the reverb and delay sends;
  * t0..tr the 808's scratch, kbuf the break's, mono the 909's kit send */
-static float dry_l[256], dry_r[256], rev[256], dly[256], t0[256], t1[256], t2[256], tr[256], kbuf[256], mono[256];
+static float dry_l[256], dry_r[256], rev[256], dly[256], t1[256], t2[256], kbuf[256], mono[256];
+/* The 808's L/R scratch is the stretch's own out_l/out_r window (saves 2 KiB).
+ * Lifetime: core 2 writes it while core 1 only touches dry_l..mono; core 1
+ * reads it after plat_cpu2_wait and before the 303s overwrite that window;
+ * fxbus_process_st then writes the final mix there. A failed core 2 is held. */
+static float *t0, *tr;
 
 /* a glide applied in place to a buffer that started at zero: buf * c is 0 + buf * c exactly, so this
  * is add_glide(zeros, buf) to the bit (the same steps of c) */
@@ -1730,13 +1735,15 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
 {
     float *bb[NBASS] = {out_l, out_r};
     int b;
-    float *left808 = t0 + offset, *right808 = tr + offset;
+    float *left808, *right808;
     uint32_t solo = smc_solo_state;
     uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9 |
                    (offset << 20), i, pt;
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
+    t0 = out_l; tr = out_r;                           /* before the second core reads them */
+    left808 = t0 + offset; right808 = tr + offset;
     bfx_snapshot();                                   /* before the second core reads the holds */
     uint8_t brk_event_mark = brk_midi_count;
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
