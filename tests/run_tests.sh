@@ -494,6 +494,8 @@ command -v node >/dev/null 2>&1 && run ota-request-guards-web node web/test_ota_
 command -v node >/dev/null 2>&1 && run installer-six-stage-web node web/test_installer_six_stage_flow.mjs   # six-stage installer projection
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
+run smk-update-protection sh -c "$CC -O2 -Wall -Wextra -Werror -Wno-unused-function -Wno-type-limits -DBOARD_SMK37=1 -DX0X_SMC_VENDOR_TEST=1 -Ifirmware/hal -o $OUT/smk_update_protection_test tests/host/smk_update_protection_test.c && $OUT/smk_update_protection_test"
+run smk-vendor-update-gate sh -c "for m in 0 1; do for d in 0 1; do $CC -O2 -Wall -Wextra -Werror -Wno-sign-compare -Wno-unused-function -DBOARD_SMK37=1 -DT_MODEL=\$m -DT_DEFAULT_GATE=\$d -o $OUT/smk_vendor_update_gate_test\$m-\$d tests/host/smk_vendor_update_gate_test.c && $OUT/smk_vendor_update_gate_test\$m-\$d || exit 1; done; done"
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
 run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
