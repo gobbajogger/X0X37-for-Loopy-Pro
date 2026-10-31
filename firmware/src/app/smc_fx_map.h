@@ -29,7 +29,7 @@ enum { SMCFX_N = 8 };
 enum { SMCFX_NFX = 10 };
 enum { SMCFX_SUIT_MAX = 8 };
 enum { SMCFX_SRC_N = 5 };
-#define SMCFX_NPAGE 3
+#define SMCFX_NPAGE 2
 
 /* Tables live in smc_fx_map_tables.c (one copy for engine.o + x0x/smc_mixer). */
 extern const uint8_t SMCFX_PART[SMCFX_SRC_N];
