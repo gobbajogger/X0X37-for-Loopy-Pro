@@ -992,14 +992,12 @@ static void smk_wheels(void)
         mlo = m < MOD_LO ? m : MOD_LO;
         mhi = m > MOD_HI ? m : MOD_HI;
     }
-    if (p < plo)
-        plo = p;
-    if (p > phi)
-        phi = p;
-    if (m < mlo)
-        mlo = m;
-    if (m > mhi)
-        mhi = m;
+    /* The range grows one count a call: an ADC spike (a pad or mux edge) cannot widen it at
+     * once and move the rest point out of the dead zone. A real sweep holds and still reaches it. */
+    plo -= p < plo;
+    phi += p > phi;
+    mlo -= m < mlo;
+    mhi += m > mhi;
     d = p - pc;
     if (d > -DEAD && d < DEAD) {
         bend = 0;
@@ -1015,6 +1013,12 @@ static void smk_wheels(void)
     }
     mw = mhi - m <= DEAD ? 0 : (mhi - m - DEAD) * 127 / (mhi - mlo - DEAD > 1 ? mhi - mlo - DEAD : 1);
     mw = clamp(mw, 0, 127);
+    /* Hysteresis: a one-step change is ADC jitter, not a move (rest and the ends always pass).
+     * Without it a resting wheel wrote cutoff / wobble depth and REC lanes by itself. */
+    if (mw && mw != 127 && mw - mw_now < 2 && mw_now - mw < 2)
+        mw = mw_now;
+    if (bend && bend != 63 && bend != -63 && bend - bend_now < 2 && bend_now - bend < 2)
+        bend = bend_now;
     /* Only physical wheel changes own sound writes. Keep each gesture's target until
      * release, so changing the visible part neither restores nor retargets a held wheel.
      * In particular, a stationary wheel must not overwrite a knob or sequencer lock. */
