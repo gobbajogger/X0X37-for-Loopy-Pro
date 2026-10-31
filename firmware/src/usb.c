@@ -180,12 +180,26 @@ static int midi_pkt_is_rt_transport(uint32_t pkt)
     return st == 0xFAu || st == 0xFBu || st == 0xFCu;
 }
 
+/* MID-15 link-end marker: only source cable bits, no MIDI event payload. */
+static int midi_pkt_is_link_end(uint32_t pkt)
+{
+    return !(pkt & ~0x30u);
+}
+
 static int midi_pkt_is_keep(uint32_t pkt)
 {
-    return midi_pkt_is_note_off(pkt) || midi_pkt_is_rt_transport(pkt);
+    return midi_pkt_is_note_off(pkt) || midi_pkt_is_rt_transport(pkt) || midi_pkt_is_link_end(pkt);
+}
+
+/* Mackie faders and wheels use CIN 0xE. Bends may displace CCs, but remain
+ * disposable when a Note Off or transport event needs a full ring slot. */
+static int midi_pkt_is_pitch_bend(uint32_t pkt)
+{
+    return (pkt & 0xFu) == 0xEu;
 }
 
 /* When a MIDI ring is full, displace a CC first, then any non-keep.
+ * Pitch Bend coalesces its newest cable/channel value or replaces a CC.
  * Append the protected event after retained events: replacing a CC in place
  * could send Note Off before its queued Note On, or reverse Start/Stop.
  * TIMER5 owns ingress and drains egress; exclude it while moving live slots.
@@ -203,6 +217,28 @@ static int midi_ring_put_note_off(uint32_t *q, volatile uint32_t *w, volatile ui
         RING_PUBLISH();
         *w = ww + 1u;
         accepted = 1;
+        goto done;
+    }
+    if (midi_pkt_is_pitch_bend(pkt)) {
+        /* Update the newest matching bend, so an older queued value cannot
+         * follow it. The input ring shares cables as well as channels. */
+        for (i = ww; i != rr;) {
+            uint32_t p = q[(--i) % MQ];
+            if (midi_pkt_is_pitch_bend(p) && !((p ^ pkt) & 0xFF0u)) {
+                q[i % MQ] = pkt;
+                RING_PUBLISH();
+                accepted = 1;
+                goto done;
+            }
+        }
+        for (i = rr; i != ww; i++) {
+            if ((q[i % MQ] & 0xFu) == 0xBu) {
+                q[i % MQ] = pkt;
+                RING_PUBLISH();
+                accepted = 1;
+                goto done;
+            }
+        }
         goto done;
     }
     if (!midi_pkt_is_keep(pkt))
@@ -229,7 +265,8 @@ done:
     return accepted;
 }
 
-/* Enqueue into midi_in_q. When full, CC floods may drop; never drop Note Off or Start/Continue/Stop. */
+/* Enqueue into midi_in_q. CC floods may drop; preserve releases/transport and
+ * link ends, and retain Pitch Bend under a CC flood. */
 static int midi_in_put(uint32_t pkt)
 {
     return midi_ring_put_note_off(midi_in_q, &mi_w, &mi_r, pkt);
@@ -239,7 +276,7 @@ static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 {
     if (!usb.config)
         return;
-    /* Outbound mirror of midi_in_put: a full MQ must not strand a Note Off on USB/DAW. */
+    /* Outbound mirror: do not strand a release or fader bend under a CC flood. */
     (void)midi_ring_put_note_off(midi_out_q, &mo_w, &mo_r, pkt);
 }
 void midi_send_note(uint32_t note, uint32_t vel)
@@ -855,6 +892,15 @@ static void sysex_byte(uint8_t b)
     }
     if (!usb.sx_on)
         return;
+    /* A non-real-time status implicitly ends a broken SysEx without dispatch.
+     * F0 above starts a new message; F7 below completes the current one. */
+    if (b >= 0x80u && b < 0xF8u && b != 0xF0u && b != 0xF7u) {
+        usb.sx_on = 0;
+#if FELUCCA_OTA
+        sx_collect = 0;
+#endif
+        return;
+    }
 #if FELUCCA_OTA
     if (sx_collect && b != 0xF0 && b != 0xF7) {
         if (sx_pos < sizeof sx_frame)

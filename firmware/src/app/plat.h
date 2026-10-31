@@ -47,6 +47,11 @@ int plat_division_pad(unsigned owner);
 /* Outer physical events retain their publication epoch and strike pitch.
  * Snapshot/cutoff includes the complete physical bitmap under an IRQ guard. */
 typedef struct { uint32_t generation, word; } plat_outer_event_t;
+#define PLAT_OUTER_PACK(key, vel, pitch) \
+    ((uint32_t)(key) | ((uint32_t)(vel) << 7) | ((uint32_t)(pitch) << 14))
+#define PLAT_OUTER_KEY(word) ((uint32_t)(word) & 127u)
+#define PLAT_OUTER_VEL(word) (((uint32_t)(word) >> 7) & 127u)
+#define PLAT_OUTER_PITCH(word) ((uint32_t)(word) >> 14)
 #if defined(X0X_HOST) && !defined(X0X_LIVE_KEY_TEST)
 static inline uint64_t plat_physical_keys(void) { return (uint64_t)plat_keys()<<5; }
 static inline int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
