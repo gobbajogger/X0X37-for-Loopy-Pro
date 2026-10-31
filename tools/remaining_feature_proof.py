@@ -48,11 +48,30 @@ def check_commit(root, previous=None):
     tree = command('git', 'rev-parse', 'HEAD^{tree}', cwd=root)
     if previous and (head != previous['head'] or tree != previous['tree']):
         raise ValueError('Source HEAD/tree changed')
+    # These index flags can hide worktree edits from diff. A complete-source
+    # receipt must not accept an index that suppresses its cleanliness check.
+    entries = command('git', 'ls-files', '-v', '-z', cwd=root).split('\x00')
+    if any(e and (e[0] == 'S' or e[0].islower()) for e in entries):
+        raise ValueError('Hidden tracked source index flags')
+    if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--'], cwd=root,
+                      check=False).returncode != 0:
+        raise ValueError('Dirty tracked source outside the pinned HEAD')
     return head, tree
 
 
-def toolchain_snapshot(checks=()):
+def toolchain_snapshot(checks=(), root=None):
     """Pin the compiler, host tools and every check executable (including Node)."""
+    root = Path.cwd() if root is None else Path(root)
+    # subprocess.run uses cwd=root. Resolve relative executables and PATH entries
+    # there too, so the receipt hashes the binary actually selected by the check.
+    search_path = os.pathsep.join(str((root / p).resolve())
+                                 for p in os.get_exec_path())
+
+    def find(name):
+        if os.path.dirname(name):
+            name = str(root / name)
+        return shutil.which(name, path=search_path)
+
     names = {'compiler': (shlex.split(os.environ.get('CC', 'cc')) or ['cc'])[0],
              'python3': 'python3', 'shell': 'sh'}
     # Include the actual launcher for each declared check. Without this, a
@@ -61,14 +80,14 @@ def toolchain_snapshot(checks=()):
     tools = {}
     for check in checks:
         exe = check['argv'][0]
-        found = shutil.which(exe)
+        found = find(exe)
         if not found:
             tools['check:' + exe] = {'path': None, 'sha256': None}
             continue
         binary = Path(found).resolve(strict=True)
         tools['check:' + exe] = {'path': str(binary), 'sha256': digest(binary.read_bytes())}
     for role, name in names.items():
-        found = shutil.which(name)
+        found = find(name)
         if not found:
             raise ValueError(f'Missing tool: {name}')
         binary = Path(found).resolve(strict=True)
@@ -104,7 +123,7 @@ def run_checks(root, plan, output):
     (output / 'receipt.json').unlink(missing_ok=True)
     validate_plan(plan)
     head, tree = check_commit(root)
-    toolchain = toolchain_snapshot(plan['checks'])
+    toolchain = toolchain_snapshot(plan['checks'], root)
     inputs = source_snapshot(root, plan['inputs'])
     results = []
     failure = False
@@ -128,6 +147,8 @@ def run_checks(root, plan, output):
         new_head, new_tree = check_commit(root)
         if new_head != head or new_tree != tree or source_snapshot(root, plan['inputs']) != inputs:
             failure = True
+        if toolchain_snapshot(plan['checks'], root) != toolchain:
+            failure = True
     except (ValueError, subprocess.CalledProcessError):
         failure = True
     receipt = {'schema': 1, 'repo': 'gobbajogger/X0X37-for-Loopy-Pro',
@@ -145,7 +166,7 @@ def verify(root, output):
     if receipt['repo'] != 'gobbajogger/X0X37-for-Loopy-Pro':
         raise ValueError('Unexpected repository')
     check_commit(root, receipt)
-    if toolchain_snapshot(receipt['checks']) != receipt['toolchain']:
+    if toolchain_snapshot(receipt['checks'], root) != receipt['toolchain']:
         raise ValueError('Host compiler/runtime/environment changed')
     if source_snapshot(root, [a['path'] for a in receipt['inputs']]) != receipt['inputs']:
         raise ValueError('Checked inputs changed')
@@ -193,3 +214,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
