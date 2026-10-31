@@ -36,6 +36,12 @@ static int smc_lock_button(int down){if(down)lock_down_count++;else lock_up_coun
 static int smc_drum_mix(void){return -1;}
 static int smc_drum_track(int kit,int strip){(void)kit;(void)strip;return -1;}
 static int smc_lock_blocks(uint8_t note){(void)note;return 0;}
+/* Dedicated production UI/engine fixtures cover clip precedence and held-FX
+ * editing/focus. This extraction fixture keeps those contexts inactive. */
+static int smc_clip_stage_key(uint8_t note){(void)note;return 0;}
+static int smc_fx_arrow(int d){(void)d;return 0;}
+static int smc_fx_header_note(void){return -1;}
+static void smc_fx_show(uint8_t note){(void)note;}
 static void smc_fx_release_note(uint8_t note){(void)note;fx_release_count++;}
 static int smc_fx_bus_now(uint8_t note){(void)note;return fx_bus;}
 static void smc_fx_clear(void){}

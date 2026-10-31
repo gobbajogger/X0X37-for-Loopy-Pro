@@ -308,7 +308,7 @@ static void held_fx_host_arrows(void)
 }
 
 #if SMC_PEERS > 1
-/* Catches keyboard arrows guessing a peer, or an SMC editing another peer. */
+/* Several held FX keys consume both arrow routes, including across peers. */
 static void held_fx_peer_arrows(void)
 {
     setup(V_FX,PART_303B); smc_ble_link_slot(1,1); smc_poll();
@@ -319,14 +319,22 @@ static void held_fx_peer_arrows(void)
     arw_t arrows={0}; CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==0);
     CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_REV);
     CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_REV && smc_slot==0);
-    tap(0x63); CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_DLY);
+    tap(0x63); CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_REV);
     CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_REV);
+    CHECK(smc_ui_active());
     message(0x80,0,0);
+    tap(0x63); /* A controller cannot edit another peer's sole held key. */
+    CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_REV);
+    CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_REV && smc_slot==0);
     CHECK(arw_frame(&arrows,0,ARW_SELECT,now_ms)==0);
     CHECK(arw_frame(&arrows,2,ARW_SELECT,now_ms)==0);
     CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_DLY && smc_slot==0);
     smc_ble_midi_slot(1,up,3); smc_poll();
     CHECK(!smc_states[0].fx_down && !smc_states[1].fx_down);
+    message(0x90,0,127); tap(0x63);
+    CHECK(smc_states[0].fx_strip.map[0][0][0]==SMCFX_DLY);
+    CHECK(smc_states[1].fx_strip.map[0][0][0]==SMCFX_DLY); /* earlier peer-one edit retained */
+    message(0x80,0,0);
 }
 #endif
 
@@ -365,8 +373,8 @@ static void pictured_action_states(void)
     tap(16); CHECK(!part_muted(PART_909)); footer_toggle_is(0);
     message(0x90,8,127); CHECK(smc.solo); footer_toggle_is(1);
     message(0x80,8,0); CHECK(!smc.solo); footer_toggle_is(0);
-    tap(0x5e); render_audio(1); CHECK(seq.playing); footer_toggle_is(1);
-    tap(0x5e); render_audio(1); CHECK(!seq.playing); footer_toggle_is(0);
+    tap(0x5e); render_audio(1); CHECK(seq.playing && !smc_ui_active());
+    tap(0x5e); render_audio(1); CHECK(!seq.playing && !smc_ui_active());
     setup(V_FX,PART_303B); message(0x90,24,127); smc_ui_draw_peer();
     CHECK(smc.fx_down&1u); memcpy(before_fb,fb,sizeof fb);
     message(0x80,24,0); smc_ui_draw_peer(); CHECK(!(smc.fx_down&1u));
@@ -477,8 +485,8 @@ static void capture_scenes(void)
     tap(16); smc_ui_draw_peer(); shot("glyph-mute-off");
     message(0x90,8,127); smc_ui_draw_peer(); shot("glyph-solo-held");
     message(0x80,8,0); smc_ui_draw_peer(); shot("glyph-solo-release");
-    tap(0x5e); render_audio(1); smc_ui_draw_peer(); shot("glyph-play");
-    tap(0x5e); render_audio(1); smc_ui_draw_peer(); shot("glyph-stop");
+    tap(0x5e); render_audio(1); ui_frame(); shot("glyph-play");
+    tap(0x5e); render_audio(1); ui_frame(); shot("glyph-stop");
     setup(V_FX,PART_303B); message(0x90,24,127);
     smc_ui_draw_peer(); shot("glyph-fx-held");
     message(0x80,24,0); smc_ui_draw_peer(); shot("glyph-fx-idle");

@@ -1,5 +1,7 @@
 # Owner glyph rule follow-up
 
+Current transport rule comes from [the latest #789 rebase](REBASE_789.md): PLAY has no popup, RW/FF use the top notification bar, and the earlier F4 PLAY popup presentation below is historical. FX-strip quick taps remain unchanged.
+
 Base for this follow-up: PR #800 at `97282d7fed8859f337d606d4880cb095b1ce2591`. The owner requests pictures, glyphs and small animations wherever they convey the same meaning, with real-framebuffer before/after approval in the original brief. The later owner instruction on 2026-11-01 removes previews and any visual-approval wait; the Orchestrator verifies on the box. No builds or tests run in Codex.
 
 Later owner amendment: [held-FX arrow mapping](FX_HELD_ARROW.md) adds effect-specific pictures to the top bar and changes the mapping gesture. That amendment supersedes the no-routing-change statement below for row 41, adds 198 B to the constant atlas (666 B total), and documents its 4 B per-peer ownership-state reason. The earlier source review and 468 B figure below describe the original glyph-only follow-up.

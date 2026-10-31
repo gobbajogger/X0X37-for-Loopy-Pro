@@ -1,14 +1,16 @@
 # F4 SMC/mixer remainder
 
+Current integration: rebased onto #789 `b860e160f888a3f12abb852f70ede6f3198a3d81` (transport inherited unchanged from `bff24bbd`). PLAY opens no popup; RW/FF use #789's 1000 ms pattern-glyph notification bar. Several held FX buttons consume arrows without edits across either route; FX-strip quick taps stay unchanged pending the owner's decision. See [rebase handoff](REBASE_789.md).
+
 Source candidate only. Tests, native builds, static RAM measurements and new framebuffer captures are **NOT_RUN** because the target `AGENTS.md` forbids builds and tests in Codex. The owner's brief assigns those runs to the Orchestrator's box. The owner's 2026-11-01 instruction removes previews and any visual-approval wait for this change. Finish source delivery; the Orchestrator verifies the exact head on the box. Draft status reflects pending box qualification only.
 
 The later [row 41 held-FX arrow rule](FX_HELD_ARROW.md) supersedes HOME+button remapping and the main SELECT activation delay. It records the existing arrow conflicts, held-effect top-bar glyph, changed test expectations, additional capture pairs and the written reason for a 4 B per-peer original-page ownership mask. It also supersedes earlier claims of no mutable-state increase for this follow-up; actual Elite/Pro RAM remains NOT_RUN.
 
 The [owner glyph-rule follow-up](UI_GLYPHS.md) uses pre-change pin `97282d7fed8859f337d606d4880cb095b1ce2591` for its additional before/after scenes. It replaces action/navigation prose with compact pictures while keeping exact values and names. Its captures and runtime qualification are also pending; no historical image is presented as new-head evidence.
 
-## Stack and overlap checked first
+## Original stack and overlap audit
 
-Pinned base: #789 `02c5224d12c7a96c0061fea71f13de04de58741b`.
+Original audit base: #789 `02c5224d12c7a96c0061fea71f13de04de58741b`.
 #788 is open at `5b5974b667eaaacb904ef69391877f6779021543`; #789 is also open and explicitly excludes #788. GitHub comparison reports divergence at `bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2`. Therefore #788 is not inherited by #789.
 
 #788 covers clip-stage navigation, encoder-bank handling, locked-kit keyboard focus, fader unmute/pickup feedback and clock visuals. #789 covers the independent existing SMC popup, explicit peer context/cache, lock guards, unlock page retention, modal answers, Help/HOME controls, captured-bank routing and readable strip labels. This candidate ports only uncovered F4 changes and preserves #789's keyboard independence.

@@ -1653,43 +1653,40 @@ static int smc_fx_held_note(void)
     return held;
 }
 
-/* Consume the chord before page/HOME navigation, also when ambiguous. */
-static int smc_fx_arrow(int d)
-{
-    int note = smc_fx_held_note();
-    if (note == -1) return 0;
-    if (d) {
-        smc.fx_nav_armed = smc.fx_main_wait = 0;
-        smc.fx_home_used = 1;
-        if (note >= 0) smc_fx_step_note((uint8_t)note, d);
-    }
-    return 1;
-}
-
-/* A keyboard arrow can target one held key across all eligible SMC peers. */
-static int smc_fx_keyboard_arrow(int d)
+/* One global physical target; several holds consume either arrow route.
+ * A controller never edits a different peer's sole held key. */
+static int smc_fx_arrow_owner(int d, int keyboard)
 {
     uint8_t saved = smc_slot, owner = 0;
-    int count = 0;
+    int count = 0, target = -1;
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {
         int note = smc_fx_held_note();
         if (note == -1) continue;
         owner = smc_slot;
+        target = note;
         count += note == -2 ? 2 : 1;
     }
-    if (count == 1) {
-        smc_slot = owner;
-        smc_fx_arrow(d);
-    } else if (count && d) {
+    if (!count || (count == 1 && !keyboard && owner != saved)) {
+        smc_slot = saved;
+        return 0;
+    }
+    if (d) {
         for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++)
             if (smc_fx_held_note() != -1) {
                 smc.fx_nav_armed = smc.fx_main_wait = 0;
                 smc.fx_home_used = 1;
             }
+        if (count == 1) {
+            smc_slot = owner;
+            smc_fx_step_note((uint8_t)target, d);
+        }
     }
     smc_slot = saved;
-    return count != 0;
+    return 1;
 }
+
+static int smc_fx_arrow(int d) { return smc_fx_arrow_owner(d, 0); }
+static int smc_fx_keyboard_arrow(int d) { return smc_fx_arrow_owner(d, 1); }
 
 /* main_fm1.c includes smk_arrows.h after this unity unit. Standalone arrow
  * policy tests omit this optional hook and keep the pure route/repeat logic. */
@@ -2009,7 +2006,7 @@ static void smc_button(uint8_t note, int mmc)
         (note < 24u && (kit >= 0 ? smc_drum_track(kit, note & 7u) >= 0 :
             (((note & 7u) < NPARTS && note != 14u) || note >= 16u))));
     memcpy(saved, ui.msg, sizeof saved);
-    int fx_arrow = (note == 0x62 || note == 0x63) && smc_fx_held_note() != -1;
+    int fx_arrow = (note == 0x62 || note == 0x63) && smc_fx_arrow(0);
     if (!fx_arrow) {                   /* Ambiguous FX edits also keep the held screen. */
         if (smc.locked && (note == 0x62 || note == 0x63) &&
             ui.overlay == O_NONE && !smk_clip_mode_on() && !smc_home_held())

@@ -1,6 +1,6 @@
 # Row 41: hold one FX button and use arrows
 
-Latest owner instruction, 2026-11-01: no previews and no visual-approval wait for this change. Source delivery proceeds; the Orchestrator verifies the exact PR head on the box.
+Latest owner instruction, 2026-11-01: no previews and no visual-approval wait for this change. Source delivery proceeds; the Orchestrator verifies the exact PR head on the box. The later [#789 rebase](REBASE_789.md) keeps existing FX quick taps unchanged pending the owner's decision.
 
 Owner change, based on PR #800 at `af1a3a5e6ab9d4442977ed283072ded3a034ddee`: hold one of the four FX buttons on a strip and press `<` or `>` on the SMC or keyboard. Left steps backward and Right forward through that bus's existing suited effects, with wrap. Only that physical button's mapping changes. The held effect updates live; key-up ends it. HOME+FX-button no longer remaps.
 
@@ -17,7 +17,7 @@ The arrows were **not free** in this state:
 | Keyboard `<`/`>` generates a SELECT detent; an open menu edits a row and repeats. | An optional `arw_frame` interceptor consumes a fresh edge before a detent or repeat is generated. The existing keyboard source call site is unchanged; no main_fm1.c edit. |
 | Modal/menu/help, project transfer, performance test, clip mode, physical keyboard HOME, or arrows assigned by hardware calibration. | Existing input ownership remains. FX interception requires an eligible physical-key owner on its FX view with no modal overlay/help/project/performance/clip context. Existing routing/masking handles HOME/calibration before the hook. |
 
-One eligible held key selects the target. If several keys are held, arrows are consumed without any mapping or navigation change. SMC checks its own peer; keyboard checks all eligible peers. Releasing down to one key allows subsequent arrow presses to edit that remaining key. Original bus and page ownership are preserved, including empty cells. Central BLE, USB and peripheral BLE User inputs share the existing ownership path; a central BLE link is not required. Empty cells remain silent; Right assigns the first suited effect and Left the last.
+One eligible held key selects the target. If several keys are held, arrows are consumed without any mapping or navigation change. Both arrow routes count all eligible held keys across peers. With one target, an SMC arrow edits only its own peer; a keyboard arrow can edit the unique held key. Releasing down to one key allows subsequent arrow presses to edit that remaining key. Original bus and page ownership are preserved, including empty cells. Central BLE, USB and peripheral BLE User inputs share the existing ownership path; a central BLE link is not required. Empty cells remain silent; Right assigns the first suited effect and Left the last.
 
 ## Visual design and source review
 
