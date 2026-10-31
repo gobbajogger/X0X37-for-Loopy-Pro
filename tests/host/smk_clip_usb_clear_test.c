@@ -26,6 +26,8 @@ static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #include "src/usb.c"
+seq_t seq;                          /* usb.c (LIVE-A update guard) sees the real seq_t through app/engine.h */
+int engine_project_notes(void) { return 0; }   /* no live notes in this fixture */
 #undef BOARD_SMK37                 /* main_fm1.c: leave out the INLOG reply (it needs editor.c), as in smk_clip_dark_test */
 static volatile uint32_t fm1_ms;
 static void lcd_sync(void) {}

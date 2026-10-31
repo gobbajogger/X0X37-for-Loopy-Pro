@@ -230,7 +230,7 @@ static void test_unmute_and_splits(void)
     block();
     CHECK(peak(0, 256) == 0.0f, "unmute preserves next-step probability rejection");
     probability_skip = 0;
-    s_brk(0, 2, 0, 33075.0f, 1);
+    s_brk(0, 4, 0, 33075.0f, 1); /* ALEN 3 = 24 ticks: steps 0,4,8,12 trigger a slice */
     block();
     CHECK(peak(132, 256) > 0.1f, "unmute opens on the next accepted enabled BREAK step");
     seq.mute |= 1u << MUTE_BRK;
@@ -271,7 +271,7 @@ static void test_queue_backlog(void)
         seq.mute &= ~(1u << MUTE_BRK);
         for (int k = 0; k < 8; ++k) block();
         CHECK(cq_w == cq_r && peak(0, 256) == 0.0f, "old CQ backlog cannot replay mute/unmute state");
-        s_brk(0, 2, 0, 33075.0f, 1);
+        s_brk(0, 4, 0, 33075.0f, 1); /* ALEN 3 = 24 ticks: steps 0,4,8,12 trigger a slice */
         block();
         CHECK(peak(132, 256) > 0.1f, "normal next-step unmute after CQ backlog clears");
     }
