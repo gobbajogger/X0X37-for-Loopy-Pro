@@ -79,46 +79,34 @@ static void scenario(const char *name, uint8_t st, uint8_t a, uint8_t b,
 }
 int main(void)
 {
-    /* Admission and ring fullness are distinct: return 1 can mean dropped. */
-    scenario("solo-off-room", 0x8F, 8, 0, 1, 0, 0, 1, 1, 0);
-    scenario("solo-off-last-free", 0x8F, 8, 0, 1, 31, 0, 1, 32, 0);
-    scenario("solo-off-full", 0x8F, 8, 0, 1, 32, 0, 1, 32, 1);
-    scenario("solo-vel0-full", 0x9F, 8, 0, 1, 32, 0, 1, 32, 1);
-    scenario("solo-on-full", 0x9F, 8, 127, 1, 32, 0, 1, 32, 0);
-    scenario("home-off-full", 0x8F, 6, 0, 1, 32, 0, 1, 32, 1);
-    scenario("home-vel0-full", 0x9F, 6, 0, 1, 32, 0, 1, 32, 1);
-    scenario("home-on-full", 0x9F, 6, 127, 1, 32, 0, 1, 32, 0);
-    /* Every held SMC button needs a key-up, not just Solo. A dropped key-up
-     * must advance the shared generation so poll clears its retained press. */
-    scenario("non-solo-off-full", 0x8F, 7, 0, 1, 32, 0, 1, 32, 1);
-    scenario("non-solo-boundary-full", 0x8F, 16, 0, 1, 32, 0, 1, 32, 1);
-    scenario("select-off-full", 0x8F, 24, 0, 1, 32, 0, 1, 32, 1);
-    scenario("solo-end-full", 0x8F, 15, 0, 1, 32, 0, 1, 32, 1);
-    scenario("user-cc-full", 0xBF, 40, 127, 1, 32, 0, 1, 32, 0);
+    /* Retired User admission stays zero at every ring boundary; no release or cursor publication. */
+    scenario("solo-off-room", 0x8F, 8, 0, 1, 0, 0, 0, 0, 0);
+    scenario("solo-off-last-free", 0x8F, 8, 0, 1, 31, 0, 0, 31, 0);
+    scenario("solo-off-full", 0x8F, 8, 0, 1, 32, 0, 0, 32, 0);
+    scenario("solo-vel0-full", 0x9F, 8, 0, 1, 32, 0, 0, 32, 0);
+    scenario("solo-on-full", 0x9F, 8, 127, 1, 32, 0, 0, 32, 0);
+    scenario("home-off-full", 0x8F, 6, 0, 1, 32, 0, 0, 32, 0);
+    scenario("home-vel0-full", 0x9F, 6, 0, 1, 32, 0, 0, 32, 0);
+    scenario("home-on-full", 0x9F, 6, 127, 1, 32, 0, 0, 32, 0);
+    scenario("non-solo-off-full", 0x8F, 7, 0, 1, 32, 0, 0, 32, 0);
+    scenario("non-solo-boundary-full", 0x8F, 16, 0, 1, 32, 0, 0, 32, 0);
+    scenario("solo-end-full", 0x8F, 15, 0, 1, 32, 0, 0, 32, 0);
+    scenario("user-cc-full", 0xBF, 40, 127, 1, 32, 0, 0, 32, 0);
     scenario("malformed-solo-note-full", 0x8F, 0x88, 0, 1, 32, 0, 0, 32, 0);
     scenario("malformed-solo-velocity-full", 0x8F, 8, 0x80, 1, 32, 0, 0, 32, 0);
     scenario("non-user-channel-full", 0x80, 8, 0, 1, 32, 0, 0, 32, 0);
     scenario("disabled-user-full", 0x8F, 8, 0, 0, 32, 0, 0, 32, 0);
     scenario("invalid-status-full", 0xAF, 8, 0, 1, 32, 0, 0, 32, 0);
-    scenario("full-after-wrap", 0x8F, 8, 0, 1, 0, 224, 1, 0, 1);
-    scenario("last-free-wrap", 0x8F, 8, 0, 1, 255, 224, 1, 0, 0);
+    scenario("full-after-wrap", 0x8F, 8, 0, 1, 0, 224, 0, 0, 0);
+    scenario("last-free-wrap", 0x8F, 8, 0, 1, 255, 224, 0, 255, 0);
     printf("SMC overflow/user-data7 source-exact: %u cases, %u failures\n", cases, failed);
     return failed ? 1 : 0;
 }
 '''
 
 
-def spill_block(text):
-    """Production overflow mailbox for continuous controls."""
-    return text[text.index('/* SMC spill begin'):text.index('/* SMC spill end */')]
-
-
 def main():
-    src = (HOST + function(PROTOCOL.read_text(), 'smc_host_accept') + '\n'
-           + function(PROTOCOL.read_text(), 'smc_relative') + '\n'
-           + spill_block(SOURCE.read_text()) + '\n'
-           + function(SOURCE.read_text(), 'smc_is_solo_release') + '\n'
-           + function(SOURCE.read_text(), 'smc_midi_host') + '\n' + CASES)
+    src = (HOST + function(SOURCE.read_text(), 'smc_midi_host') + '\n' + CASES)
     with tempfile.TemporaryDirectory(prefix='smc-host-overflow-') as tmp:
         cfile = Path(tmp, 'regression.c')
         executable = Path(tmp, 'regression')

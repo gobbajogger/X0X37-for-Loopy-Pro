@@ -183,7 +183,7 @@ static void start_abort_same_poll(void)
 }
 int main(void)
 {
-    for (route = 0; route < ROUTES; route++) {
+    for (route = 0; route < USER_DIRECT; route++) { /* User routes retired: DAW only */
         for (int phase = 0; phase < 3; phase++) {
             abort_scenario(phase, 0x5D);
             abort_scenario(phase, 0x5E);

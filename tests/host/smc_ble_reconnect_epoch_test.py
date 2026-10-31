@@ -44,6 +44,7 @@ functions = "\n".join(function(n) for n in helpers + (
 harness = r'''
 #include <stdint.h>
 #include <stdio.h>
+int ui_pad_diag_active(void) { return 0; } /* independent nonmodal regression */
 #include <stdlib.h>
 #include <string.h>
 #include "smc_fx_harness_stubs.h"
@@ -67,9 +68,6 @@ static int ui_project_busy(void) { return busy; }
 static void engine_smc_solo(int mask) { (void)mask; }
 static void engine_smc_solo_targets(uint8_t p,uint16_t a,uint16_t b) { (void)a; (void)b; engine_smc_solo(p); }
 static void ui_say(const char *s, int unused) { (void)s; (void)unused; }
-static void smc_guarded_button(uint8_t n, int mmc, int allow)
-{ (void)n; (void)mmc; (void)allow; mmc_count++; }
-static uint8_t smc_mmc_note(uint8_t n) { return n; }
 static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 {
     if (!allow || len != 3u || nobs >= 64u) abort();
@@ -97,9 +95,7 @@ static void send_ble(uint8_t marker)
 static void send_host(uint8_t marker)
 {
     uint8_t w = smc_host_w;
-    smc_host_q[w % SMC_Q][0] = 0x9Fu;
-    smc_host_q[w % SMC_Q][1] = marker;
-    smc_host_q[w % SMC_Q][2] = 127u;
+    (void)marker; /* retired User backlog has no payload storage */
     smc_host_w = (uint8_t)(w + 1u);
 }
 static int check(const uint8_t *expected, size_t n, unsigned test)
@@ -160,10 +156,10 @@ int main(int argc, char **argv)
         smc_ble_link(0); smc_ble_link(1); smc_ble_link(0);
         smc_ble_link(1); send_ble(9); send_ble(10); smc_poll();
         want[nw++] = 9; want[nw++] = 10; break;
-    case 9: /* A Bluetooth epoch reset keeps unrelated USB controls; old Solo cannot replay. */
+    case 9: /* Retired SMC User backlog is discarded; ordinary USB routing is separate. */
         smc_ble_link(1); smc_poll(); send_ble(7); send_host(40);
         smc_ble_link(0); smc_ble_link(1); send_ble(9); smc_poll();
-        want[nw++] = 9; want[nw++] = 40; break;
+        want[nw++] = 9; break;
     case 10: /* Project busy drains prior and current inputs. */
         smc_ble_link(1); smc_poll(); send_ble(7);
         smc_ble_link(0); smc_ble_link(1); busy=1; smc_poll(); busy=0;

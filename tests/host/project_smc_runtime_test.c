@@ -62,7 +62,7 @@ static void pending_edits(void)
     note(0x5F);                                      /* REC */
     note(16);                                        /* mute */
     knob();
-    assert(smc_midi_host(0x0100BF0Bu | 16u << 16));   /* host User knob */
+    assert(!smc_midi_host(0x0100BF0Bu | 16u << 16));  /* retired host route stays unconsumed */
     smc_mmc_host(6, 0);                              /* MMC RECORD */
     smc_mmc_host(2, 1);                              /* MMC PLAY */
 }
@@ -92,7 +92,7 @@ int main(void)
     assert(smc.up && smc.fresh && smc.pending == 0xFF);
     for (int i = 0; i < 128; i++) assert(!smc.known[i]);
     assert((proj.set.bt & (PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)) ==
-           (PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER));
+           PROJ_BT_SMC_CENTRAL); /* reset normalizes retired bit, preserves role */
     render();
 
     set_view(V_HOME);

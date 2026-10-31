@@ -384,6 +384,7 @@ static int read_project(project_t *pr)
     if (!rc) {
         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
             set.snd_rev != PROJ_SND_REV || set.stereo != PROJ_STEREO) goto unsupported;
+        set.bt &= (uint8_t)~PROJ_BT_SMC_USER;   /* canonical DAW; stored hash still names original bytes */
         pr->set = set;
         device_bt = set.bt;                       /* retain saved Bluetooth role on partial-load fallback */
     } else {
@@ -570,7 +571,7 @@ void project_commit_stage(void)
 {
     /* Device roles belong to this keyboard; loading music must not change its
      * Bluetooth connection or opt-in control surface mode. */
-    project_stage.set.bt = (uint8_t)((project_stage.set.bt & ~PROJ_DEVICE_BT) | (proj.set.bt & PROJ_DEVICE_BT));
+    project_stage.set.bt = (uint8_t)(((project_stage.set.bt & ~PROJ_DEVICE_BT) | (proj.set.bt & PROJ_DEVICE_BT)) & ~PROJ_BT_SMC_USER);
     __builtin_memcpy(&proj, &project_stage, sizeof proj);
     project_incompatible = 0; /* explicitly validated import/reset is the recovery boundary */
     (void)measure_project(&proj, &packed_len);
@@ -624,6 +625,7 @@ void project_apply_io(void)
 static void capture_settings(settings_t *set)
 {
     int p;
+    set->bt &= (uint8_t)~PROJ_BT_SMC_USER; /* ordinary save/export only; no forced migration write */
     for (p = 0; p < 5; p++)
         set->midi_ch[p] = (uint8_t)(seq.ch[p] == SEQ_CH_OFF ? 17 : seq.ch[p] + 1);
     set->bpm_x10 = (uint16_t)(seq.bpm * 10.0f + 0.5f);

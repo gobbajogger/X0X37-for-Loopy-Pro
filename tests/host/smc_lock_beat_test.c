@@ -7,20 +7,22 @@
 static void pause_edge(int host, int down)
 {
     if (host) {
-        CHECK(smc_midi_host((down ? 9u : 8u) | (down ? 0x9Fu : 0x8Fu) << 8 |
+        unsigned locked=smc.locked, held=smc.lock_down;
+        CHECK(!smc_midi_host((down ? 9u : 8u) | (down ? 0x9Fu : 0x8Fu) << 8 |
                            0x5Du << 16 | (down ? 127u << 24 : 0)));
-        smc_poll();
-    } else message(down ? 0x90 : 0x80, 0x5D, down ? 127 : 0);
+        CHECK(smc.locked==locked && smc.lock_down==held); /* hook itself is inert; normal poll may advance hold timer */
+    }
+    message(down ? 0x90 : 0x80, 0x5D, down ? 127 : 0);
 }
 static void hold_ms(unsigned ms) { now_ms += ms; smc_poll(); }
 static void lost_release(int host, unsigned note)
 {
     for (unsigned n = 0; n < SMC_Q; n++) {
-        if (host) CHECK(smc_midi_host(11u | 0xBFu << 8 | 16u << 16));
-        else { const uint8_t m[3] = {0xB0, 16, 0}; smc_ble_midi(m, 3); }
+        if (host) CHECK(!smc_midi_host(11u | 0xBFu << 8 | 16u << 16));
+        { const uint8_t m[3] = {0xB0, 16, 0}; smc_ble_midi(m, 3); }
     }
-    if (host) CHECK(smc_midi_host(8u | 0x8Fu << 8 | note << 16));
-    else { const uint8_t m[3] = {0x80, (uint8_t)note, 0}; smc_ble_midi(m, 3); }
+    if (host) CHECK(!smc_midi_host(8u | 0x8Fu << 8 | note << 16));
+    { const uint8_t m[3] = {0x80, (uint8_t)note, 0}; smc_ble_midi(m, 3); }
 }
 static void gesture(void)
 {
@@ -70,7 +72,7 @@ static void gesture(void)
         pause_edge(0, 0); pause_edge(0, 1); pause_edge(0, 0); pause_edge(0, 1);
         smc_project_reset(); hold_ms(1000); CHECK(!smc.locked && !smc.lock_down);
     }
-    puts("PASS 900 ms gesture: BLE/host, same press, repeat, 899 ms cancel, threshold, wrap, loss, reconnect, guards, reset, no transport");
+    puts("PASS 900 ms gesture: DAW with/without retired-host noise, same press, repeat, 899 ms cancel, threshold, wrap, loss, reconnect, guards, reset, no transport");
 }
 static void clock_off(void *ctx, int part) { (void)ctx; (void)part; }
 static const seq_sink_t clock_sink = {.bass_off = clock_off};

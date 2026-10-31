@@ -59,8 +59,8 @@
 #define PROJ_BT_CLK_MASK 6u
 #define PROJ_BT_CLK_IN 8u
 #define PROJ_BT_SMC_CENTRAL 16u  /* connect to an SMC-Mixer instead of advertising at next boot */
-#define PROJ_BT_SMC_USER 32u     /* SMC's editable User preset, rather than factory DAW mode */
-#define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)
+#define PROJ_BT_SMC_USER 32u     /* legacy reserved bit: accepted on import, never an active profile */
+#define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL)
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
 #define PROJ_A74_CLK_OFF 38u
 
