@@ -504,7 +504,7 @@ pickup: ;
     {
         const int notes[]={7,13,14,15,29,30,31};
         const int views[]={V_HOME,V_MIX,V_GLO,V_PART,V_FX,V_FX,V_MIX};
-        const int pages[]={0,0,0,0,0,1,3};
+        const int pages[]={0,0,0,0,0,1,0}; /* F4: strip-8 MIX enters page 0, then cycles */
         int kv=ui.view,kp=ui.part,km=ui.mixsel,ks0=ui.sel[0],ks1=ui.sel[1],kpage=cur_page();
         for(unsigned i=0;i<sizeof notes/sizeof *notes;i++) {
             smc_select_part(PART_303A); smc_view(V_PART,0); smc_view(V_MIX,0); smc_view(V_GLO,0); smc_view(V_SONG,0);
