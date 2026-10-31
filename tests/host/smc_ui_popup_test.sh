@@ -1,5 +1,5 @@
 #!/bin/sh
-# SMC-07 mapped-page peek beside the SMC control overlay. No device I/O.
+# Existing SMC overlay with independent navigation. No device I/O.
 # Optional CC, SAN_FLAGS, SMC_UI_OUT and SMC_UI_SOURCE_FILE support independent replay.
 set -eu
 cd "$(dirname "$0")/../.."
