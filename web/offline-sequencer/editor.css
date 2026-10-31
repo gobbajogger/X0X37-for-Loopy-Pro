@@ -5,3 +5,40 @@
 
 #viewport[data-tool=pan] .note{touch-action:pan-x pan-y}.note:before{content:"";position:absolute;left:50%;top:50%;width:100%;min-width:44px;height:44px;transform:translate(-50%,-50%)}.note .edge:before{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
 .workspace{align-items:start}#sound{max-height:calc(100dvh - 240px);overflow:auto}@media(max-width:850px){#sound{max-height:none;overflow:visible}}
+
+/* F6b: explicit touch modes and reachable phone controls. */
+main{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));padding-bottom:max(18px,env(safe-area-inset-bottom))}
+.view-switch,.musical-grid{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.view-switch{position:sticky;top:0;z-index:8;background:#0c1115;padding:8px 0}
+.musical-grid label{display:flex;gap:6px;align-items:center;font-size:12px}
+.musical-grid input[type=checkbox],.note-checklist input{min-height:24px;width:24px;accent-color:#92e8ca}
+#viewport[data-tool=group]{touch-action:none}
+#viewport[data-tool=group] .note{touch-action:none}
+.selection-box{position:absolute;pointer-events:none;border:2px solid #edce91;background:#edce9122;z-index:6}
+.ghost-note{position:absolute;pointer-events:none;border:1px dashed #c3a5ef;background:#c3a5ef22;border-radius:4px;z-index:0}
+.pitch-key.out-of-scale{color:#72858c}
+#touch-keyboard{border:1px solid #40515a;border-radius:8px;padding:12px;margin-bottom:12px}
+#keyboard-keys{display:grid;grid-template-columns:repeat(12,minmax(44px,1fr));gap:4px;overflow:auto;padding:8px 2px}
+#keyboard-keys button{padding:10px 2px;min-height:60px}
+#keyboard-keys button.black{background:#0c151e;color:#b7c9cd}
+.note-checklist{max-height:35dvh;overflow:auto;display:grid;gap:4px;margin:10px 0}
+.note-checklist label{display:flex;align-items:center;gap:10px;min-height:44px;border-bottom:1px solid #35434b}
+.group-count{color:#edce91}
+.workspace[data-view=sound]{grid-template-columns:minmax(0,1fr)}
+.workspace[data-view=sound] .music{display:none}
+.workspace[data-view=sound] #sound{max-height:none;margin:0}
+@media(max-width:850px){
+ .view-switch{flex-wrap:nowrap;overflow-x:auto;scroll-padding:8px}
+ .view-switch button{flex-shrink:0;font-size:12px}
+ .toolbar{display:block}.toolbar>.actions{flex-wrap:nowrap;overflow-x:auto;padding:4px 0;max-width:100%}
+ .toolbar button{flex-shrink:0}
+ .workspace:not([data-view=sound]) #sound{display:none}
+ #viewport{height:clamp(200px,42dvh,440px)}
+ header .actions{width:100%}#draft-state{flex-basis:100%}
+ .musical-grid{gap:6px}.musical-grid label{font-size:11px}
+}
+@media(max-height:500px) and (orientation:landscape){
+ header{margin-bottom:6px}.brand{font-size:16px}.context{margin-bottom:4px}
+ h1{font-size:19px;margin-top:6px}.view-switch{margin:4px 0;padding:4px 0}
+ #viewport{height:240px}.workspace[data-view=sound] #sound{max-height:none}
+}
