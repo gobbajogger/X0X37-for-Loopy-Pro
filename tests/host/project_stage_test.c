@@ -12,6 +12,7 @@
 static uint8_t nor[0x100000], protected_flash[sizeof nor], before_flash[sizeof nor];
 static unsigned checks, failures, erases, programs, saves;
 static const char *test_name;
+static int cut_before_object = -1;
 
 static void expect(int ok, const char *what, int line)
 {
@@ -64,12 +65,13 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 {
-    REQUIRE(obj < OBJ_NOBJ && obj != OBJ_PANEL);
+    REQUIRE((obj & 0x7FFFFFFFu) < OBJ_NOBJ && (obj & 0x7FFFFFFFu) != OBJ_PANEL);
     return st_load(obj, dst, max);
 }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 {
     REQUIRE(obj < OBJ_NOBJ && obj != OBJ_PANEL);
+    if ((int)obj == cut_before_object) return -1;
     saves++;
     return st_save(obj, src, len);
 }
@@ -167,6 +169,7 @@ static void fixture(const char *name)
     }
     memcpy(protected_flash, nor, sizeof nor);
     erases = programs = saves = 0;
+    cut_before_object = -1;
     memset(stored_known, 0, sizeof stored_known);
     memset(stored_hash, 0, sizeof stored_hash);
     project_incompatible = 0; /* a new simulated boot, not an accepted old project */
@@ -453,7 +456,10 @@ static void test_storage_rejection(void)
         seq.bpm = 231.0f;
         packed_len = 4321u;
         snapshot();
-        CHECK(project_load_stage() < 0);
+        if (objects[k] == OBJ_PAT0) {
+            CHECK(project_load_stage() == 0);
+            CHECK(project_stage.pat[NPAT - 1].bass[1].step[63].note != 19);
+        } else CHECK(project_load_stage() < 0);
         check_live_unchanged();
     }
     fixture("corrupt stream payload leaves live project and samples intact");
@@ -466,7 +472,8 @@ static void test_storage_rejection(void)
         REQUIRE(st_save(OBJ_PAT0, payload, (uint32_t)n) == 0);
     }
     snapshot();
-    CHECK(project_load_stage() < 0);
+    CHECK(project_load_stage() == 0); /* intact older A/B copy */
+    CHECK(!memcmp(project_stage.pat, proj.pat, sizeof proj.pat));
     check_live_unchanged();
     fixture("empty storage leaves live project intact");
     musical_fixture();
@@ -574,6 +581,89 @@ static void test_capacity_rejection(void)
 }
 
 
+/* A complete older stream must survive a cut after PAT0 commits, before PAT1.
+ * Removing fallback or the damaged-data save latch breaks these assertions. */
+static void test_interobject_power_cut(void)
+{
+    fixture("power cut between stream objects 1 and 2");
+    musical_fixture();
+    for (unsigned k = 0; k < NPAT; ++k) {
+        for (unsigned b = 0; b < NKIT; ++b)
+            for (unsigned v = 0; v < NDRUM; ++v)
+                for (unsigned i = 0; i < NSW; ++i)
+                    proj.pat[k].drum[b].hit[v][i] = next_random();
+        for (unsigned b = 0; b < NBASS; ++b)
+            for (unsigned i = 0; i < NSTEPS; ++i)
+                proj.pat[k].bass[b].step[i] =
+                    (bstep_t){next_random()%128u, G_NOTE, next_random()%128u};
+        REQUIRE(measure_project(&proj, &packed_len) == 0);
+        if (packed_len > 3u * (PLAT_STORE_MAX - 4u) - (STREAM_HDR - 4u)) break;
+    }
+    proj.pat[0].bass[0].step[0] = (bstep_t){48, G_NOTE, 110};
+    REQUIRE(project_save() == 0);
+    REQUIRE(packed_len > 3u * (PLAT_STORE_MAX - 4u) - (STREAM_HDR - 4u));
+    /* Leave genuinely different A/B history; recovery must choose per object,
+     * rather than blindly taking the older copy of every object. */
+    proj.pat[0].bass[0].step[0] = (bstep_t){60, G_NOTE, 100};
+    REQUIRE(project_save() == 0);
+    memcpy(&saved_project, &proj, sizeof proj);
+    proj.pat[0].bass[0].step[0].note = 72;
+    proj.pat[7].bass[0].step[0] = (bstep_t){67, G_NOTE, 90};
+    cut_before_object = OBJ_PAT1;
+    REQUIRE(project_save() == -3);
+    cut_before_object = -1;
+    memset(stored_known, 0, sizeof stored_known); /* cold-boot cache */
+    snapshot();
+    CHECK(project_load() == 0);
+    CHECK(!memcmp(&proj, &saved_project, sizeof proj));
+    CHECK(!project_storage_unsupported());
+    check_no_writes();
+    /* Saving recovered data must not skip the differing newest object due
+     * to a hash cached from the selected older copy. */
+    uint32_t torn_seq, repaired_seq;
+    REQUIRE(st_pick(OBJ_PAT0, &torn_seq) >= 0);
+    CHECK(project_save() == 0);
+    REQUIRE(st_pick(OBJ_PAT0, &repaired_seq) >= 0);
+    CHECK(repaired_seq == torn_seq + 1u);
+    memset(stored_known, 0, sizeof stored_known);
+    CHECK(project_load() == 0);
+    CHECK(!memcmp(&proj, &saved_project, sizeof proj));
+    /* Destroy both copies of a required segment: defaults must never erase
+     * the remaining good A/B bytes, even after edits or project_defaults(). */
+    memset(nor + st_sector(OBJ_PAT1, 0), 0, 2u * ST_SECTOR);
+    memset(stored_known, 0, sizeof stored_known);
+    CHECK(project_load() < 0);
+    CHECK(project_storage_unsupported());
+    snapshot();
+    project_defaults();
+    proj.pat[0].bass[0].step[0] = (bstep_t){55, G_NOTE, 100};
+    CHECK(project_save() == -9);
+    check_no_writes();
+    /* Only explicit validated adoption authorizes replacing damaged storage. */
+    project_reset_stage();
+    REQUIRE(project_validate_stage() == 0);
+    project_commit_stage();
+    CHECK(project_save() == 0);
+    CHECK(!project_storage_unsupported());
+}
+
+static void test_damaged_single_object(void)
+{
+    const unsigned objects[] = {OBJ_SET, OBJ_SOUND};
+    for (unsigned i=0;i<2;i++) {
+        fixture("damaged settings/sound alone is not an erased first boot");
+        unsigned obj=objects[i];
+        if(obj==OBJ_SET) REQUIRE(save_obj(obj,&proj.set,sizeof proj.set)==0);
+        else REQUIRE(save_obj(obj,&proj.sound,sizeof proj.sound)==0);
+        memset(nor+st_sector(obj,0),0,2u*ST_SECTOR);
+        CHECK(project_load()<0);CHECK(project_storage_unsupported()==2);
+        snapshot();project_defaults();CHECK(project_save()==-9);check_no_writes();
+    }
+    fixture("truly erased first boot can save defaults");
+    CHECK(project_load()<0);CHECK(!project_storage_unsupported());
+    CHECK(project_save()==0);
+}
+
 int main(void)
 {
     test_defaults();
@@ -583,6 +673,8 @@ int main(void)
     test_storage_rejection();
     test_capacity_rejection();
     test_old_revision_rejection();
+    test_interobject_power_cut();
+    test_damaged_single_object();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }

@@ -162,23 +162,31 @@ int plat_midi_pulse(uint8_t ch, uint8_t note, uint8_t velocity)
 
 /* flash: one buffer per object, kept across a simulated reboot */
 static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
+static uint8_t store_previous[OBJ_NOBJ][PLAT_STORE_MAX];
+static int store_previous_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static uint32_t store_writes;
 static int store_fail;
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 {
-    int n = store_len[obj];
-    if (obj >= OBJ_NOBJ || n < 0)
+    int previous = (obj & PLAT_STORE_PREVIOUS) != 0;
+    obj &= ~PLAT_STORE_PREVIOUS;
+    if (obj >= OBJ_NOBJ) return -1;
+    int n = previous ? store_previous_len[obj] : store_len[obj];
+    if (n < 0)
         return -1;
     if ((uint32_t)n > max)
         n = (int)max;
-    memcpy(dst, store[obj], (size_t)n);
+    memcpy(dst, previous ? store_previous[obj] : store[obj], (size_t)n);
     return n;
 }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 {
     if (store_fail || obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
         return -1;
+    store_previous_len[obj] = store_len[obj];
+    if (store_len[obj] >= 0)
+        memcpy(store_previous[obj], store[obj], (size_t)store_len[obj]);
     memcpy(store[obj], src, len);
     store_len[obj] = (int)len;
     store_writes++;
@@ -1137,6 +1145,9 @@ int main(int argc, char **argv)
                     return 1;
                 }
                 store_len[o] = n;
+                /* Legacy dump files contain one generation only. Do not let
+                 * the previous in-memory session supply unrelated A/B data. */
+                if (ld) store_previous_len[o] = -1;
             }
             fclose(f);
             if (ld) {                                    /* boot on it */
