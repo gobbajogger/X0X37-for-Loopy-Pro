@@ -130,7 +130,7 @@ ORIGINAL_SYNTH_BACKENDS = [
 ORIGINAL_SYNTH_O2_UNITS = {
     "oscillator_motion", "miami_selected_voice", "miami_ms20", "miami_output", "miami_fx_chain",
     "miami_pitch", "voice_gain", "program_envelope", "fixed_fx", "master",
-    "chicago_voice", "chicago_drive", "chicago_dynamics", "chicago_fx2_compact", "chicago_fx2_wrapper",
+    "chicago_voice", "chicago_mp4", "chicago_drive", "chicago_dynamics", "chicago_fx2_compact", "chicago_fx2_wrapper",
     "chicago_smallfx", "chicago_output", "chicago_engine_output", "chicago_full_mg", "chicago_global_mg",
     "chicago_global_stage", "chicago_modulation",
     "miami_decimator_component", "miami_decimator_adapter", "miami_fx_conversion",
