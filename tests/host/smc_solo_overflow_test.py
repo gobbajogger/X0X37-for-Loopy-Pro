@@ -96,7 +96,7 @@ static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow)
  else if(type==0x80u||(type==0x90u&&!vel)) smc_release(note);
  return 0;
 }
-static void smc_guarded_button(uint8_t note,int mmc,int allow)
+static __attribute__((unused)) void smc_guarded_button(uint8_t note,int mmc,int allow)
 {(void)note;(void)mmc;(void)allow;}
 '''
 case=r'''
@@ -168,45 +168,33 @@ static void queued_press(int route)
 }
 int main(void)
 {
+ /* DAW only: the retired User host route (0) and cross-route refill are gone. */
  int cases=0;
- for(int r=0;r<2;r++){
-  for(int z=0;z<2;z++)for(int full=0;full<2;full++){one(r,z,full,1);cases++;}
-  no_false_release(r);cases++;queued_press(r);cases++;
- }
- prepare();press(0);saturate(0);
- assert(!smc_midi_host(packet(0x8f,0x88,0)));
- assert(!smc_midi_host(packet(0x8f,8,0x80)));
- smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
- prepare();press(0);saturate(0);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- assert(!smc_midi_host(packet(0x8f,8,0)));smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
- prepare();press(1);saturate(1);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- emit(1,0x8f,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
- prepare();press(0);saturate(0);saturate(1);
- emit(0,0x80,8,0);emit(1,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
+ for(int z=0;z<2;z++)for(int full=0;full<2;full++){one(1,z,full,1);cases++;}
+ no_false_release(1);cases++;queued_press(1);cases++;
  prepare();press(1);saturate(1);emit(1,0x80,8,0);smc_ble_link(0);smc_poll();
  assert(!smc.solo_target[0]&&!output_solo);cases++;
- prepare();press(0);saturate(0);emit(0,0x80,8,0);is_busy=1;
- smc_poll();is_busy=0;smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
- prepare();press(0);
- smc_host_solo_release_lost=UINT32_MAX;smc_host_solo_release_seen=UINT32_MAX;
- saturate(0);emit(0,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
- /* Mid-poll ISR refill: host self, BLE self, and BLE-during-host must
-  * defer Solo-loss ACK until the press drains on the next poll. */
- delayed_overflow_release(0,0); cases++;
  delayed_overflow_release(1,0); cases++;
- delayed_overflow_release(1,1); cases++;
- /* HOME note 6 key-up on a full host/BLE ring must clear home_down. */
- for(int r=0;r<2;r++){
-  prepare(); smc.home_down=1; saturate(r);
-  uint32_t before=r==0?smc_host_solo_release_lost:smc_ble_solo_release_lost;
-  emit(r,0x80,6,0); smc_poll();
-  if(smc.home_down || (r==0?smc_host_solo_release_lost:smc_ble_solo_release_lost)==before){
-   fprintf(stderr,"FAIL HOME release overflow route=%d home_down=%u\n",r,(unsigned)smc.home_down);
+ {
+  prepare(); smc.home_down=1; saturate(1);
+  uint32_t before=smc_ble_solo_release_lost;
+  emit(1,0x80,6,0); smc_poll();
+  if(smc.home_down || smc_ble_solo_release_lost==before){
+   fprintf(stderr,"FAIL HOME release overflow home_down=%u\n",(unsigned)smc.home_down);
    exit(1);
   }
   cases++;
  }
- assert(cases==24);printf("SMC combined source-window Solo overflow: %d/24 PASS\n",cases);
+ /* Retired hosted hook: never admits, never publishes a release loss. */
+ prepare();
+ {
+  uint32_t lost=smc_host_solo_release_lost;
+  for(unsigned st=0x80;st<0xF0;st+=0x10)for(unsigned ch=0;ch<16;ch++)
+   assert(!smc_midi_host(packet((uint8_t)(st|ch),8,0)));
+  assert(smc_host_solo_release_lost==lost);
+  cases++;
+ }
+ assert(cases==10);printf("SMC combined source-window Solo overflow (DAW only): %d/10 PASS\n",cases);
  return 0;
 }
 '''

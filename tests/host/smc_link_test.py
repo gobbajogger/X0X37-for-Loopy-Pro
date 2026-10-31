@@ -42,6 +42,7 @@ harness = r'''
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+int ui_pad_diag_active(void) { return 0; } /* independent nonmodal regression */
 #include <string.h>
 #include "app/smc_protocol.h"
 #include "smc_fx_harness_stubs.h"
@@ -86,8 +87,6 @@ static uint8_t smc_message(const uint8_t *m, uint8_t n, int allow)
     memcpy(observed[dispatched++], m, 3);
     return 0;
 }
-static void smc_guarded_button(uint8_t n, int mmc, int allow)
-{ (void)n; (void)mmc; (void)allow; abort(); }
 ''' + function(source, "smc_mmc_drain_stop") + "\n" + function(source, "smc_spill_apply") + "\n" + ((function(source, "smc_poll_peer") + "\n") if "smc_poll_peer" in source else "") + function(source, "smc_poll") + r'''
 
 static int check_input(int up)

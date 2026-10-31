@@ -306,15 +306,19 @@ static void test_physical_pause_input_and_output(void)
     CHECK(!smc.locked);
     proj.set.bt |= PROJ_BT_SMC_USER;
     CHECK(!smc_midi_host(9u | 0x90u << 8 | 0x5Du << 16 | 127u << 24));
-    CHECK(smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24)); smc_poll();
-    CHECK(smc.locked);
-    CHECK(smc_midi_host(8u | 0x8Fu << 8 | 0x5Du << 16)); smc_poll();
-    CHECK(smc.locked && !smc.lock_down);
+    CHECK(!smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24)); smc_poll();
+    CHECK(!smc.locked && !smc.lock_down);
+    CHECK(!smc_midi_host(8u | 0x8Fu << 8 | 0x5Du << 16)); smc_poll();
+    CHECK(!smc.locked && !smc.lock_down);
+    message(0x90, 0x5D, 127); message(0x80, 0x5D, 0);
+    CHECK(smc.locked && !smc.lock_down); /* ordinary DAW capture remains */
 
     /* The old User-preset MMC command has no captured press/release evidence. */
     const uint8_t stop[6] = {0xF0, 0x7F, 0x7F, 6, 34, 0xF7};
+    unsigned start_before=seq.req_start, stop_before=seq.req_stop;
     smc_ble_midi(stop, sizeof stop); smc_poll();
-    CHECK(seq.req_stop && !seq.req_start); CHECK(smc.locked);
+    CHECK(seq.req_start==start_before && seq.req_stop==stop_before); CHECK(smc.locked);
+    seq.req_start=0; seq.req_stop=1; /* establish original Play-toggle premise via fixture, not retired MMC */
     message(0x90, 0x5E, 127); CHECK(seq.req_start);
     message(0x80, 0x5E, 0); CHECK(seq.req_start);
     message(0x90, 0x5E, 127); CHECK(seq.req_stop);
@@ -337,7 +341,7 @@ static void test_physical_pause_input_and_output(void)
     reset_output(); seq.ext_now += smc.beat_period / 2u; smc_frame();
     CHECK(send_count == 1 && sent[0][0] == 0x90 && sent[0][1] == 0x5D && sent[0][2] == 0);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, MMC stop, Play toggle, lock persistence and LED route");
+    puts("PASS captured Pause dispatch: duplicate/release edges, no navigation/overlay, channel isolation, retired MMC inert, Play toggle, lock persistence and LED route");
 }
 static void test_guard_reset(void)
 {
@@ -417,9 +421,11 @@ static void test_lost_edge_release(void)
         CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
         if (host) {
             proj.set.bt |= PROJ_BT_SMC_USER;
-            for (unsigned i = 0; i < SMC_Q; i++) CHECK(smc_midi_host(0x0Bu | 0xBFu << 8 | 16u << 16));
-            CHECK(smc_midi_host((noteoff ? 0x08u : 0x09u) | (noteoff ? 0x8Fu : 0x9Fu) << 8 | note << 16));
-        } else {
+            for (unsigned i = 0; i < SMC_Q; i++) CHECK(!smc_midi_host(0x0Bu | 0xBFu << 8 | 16u << 16));
+            CHECK(!smc_midi_host((noteoff ? 0x08u : 0x09u) | (noteoff ? 0x8Fu : 0x9Fu) << 8 | note << 16));
+            CHECK(pause ? smc.lock_down != 0 : select ? smc.select_down != 0 : smc.play_down != 0);
+        }
+        {
             uint8_t filler[3] = {0xB0, 16, 0}, release[3] = {noteoff ? 0x80 : 0x90, (uint8_t)note, 0};
             for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
             smc_ble_midi(release, 3);
@@ -431,7 +437,7 @@ static void test_lost_edge_release(void)
         else if (select) { press(note); CHECK(cur_page() == 0); }
         else { seq.req_stop = 0; seq.playing = 1; press(note); CHECK(seq.req_stop); }
     }
-    puts("PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE and host queues");
+    puts("PASS dropped release recovery: Pause, Play and SELECT rearm after full BLE queues, with/without inert retired-host traffic");
 }
 
 static void test_dropped_pause_press(void)
@@ -441,9 +447,11 @@ static void test_dropped_pause_press(void)
         uint8_t filler[3] = {0xB0, 16, 0}, down[3] = {0x90, 0x5D, 127};
         if (host) {
             proj.set.bt |= PROJ_BT_SMC_USER;
-            for (unsigned i = 0; i < SMC_Q; i++) CHECK(smc_midi_host(0x0Bu | 0xBFu << 8 | 16u << 16));
-            CHECK(smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24));
-        } else {
+            for (unsigned i = 0; i < SMC_Q; i++) CHECK(!smc_midi_host(0x0Bu | 0xBFu << 8 | 16u << 16));
+            CHECK(!smc_midi_host(9u | 0x9Fu << 8 | 0x5Du << 16 | 127u << 24));
+            CHECK(!smc.locked && !smc.lock_down);
+        }
+        {
             for (unsigned i = 0; i < SMC_Q; i++) smc_ble_midi(filler, 3);
             smc_ble_midi(down, 3);
         }
