@@ -16,6 +16,9 @@ typedef struct {
     original_runtime_backend dsp;
     uint8_t keys[ORIGINAL_INPUT_COUNT][128];
     uint8_t stale[ORIGINAL_INPUT_KEYS][128]; /* offs still owed by cut external presses */
+    uint8_t stale_ttl[ORIGINAL_INPUT_KEYS][128]; /* 256-frame ticks since a canceled pitch is retriggered */
+    uint32_t stale_pending[ORIGINAL_INPUT_KEYS][4]; /* first ambiguous off, one bit per pitch */
+    uint16_t stale_tick_frames, stale_timers;
     uint8_t kind;
     int8_t status;
 } original_runtime_part;

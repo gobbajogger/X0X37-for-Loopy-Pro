@@ -576,6 +576,7 @@ run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the 
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
 run rec-held-duration sh tests/host/rec_held_duration_test.sh
+run original-stale-release python3 tests/host/test_original_runtime_lost_off.py
 run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh
 run rec-endpoint-storage sh tests/host/rec_endpoint_storage_test.sh
 run rec-nonforward-guard sh tests/host/rec_nonforward_guard_test.sh
