@@ -571,8 +571,14 @@ int plat_ble_state(void)
     if (ble_central_role) {
         if (blec_connected(&ble_r.host.c) || blec_connected(&ble_r.host.c2)) return PLAT_BLE_CONNECTED;
         if (!ble_up || ble_r.host.c.state == BLEC_STARTING) return PLAT_BLE_STARTING;
+#if BLEC_TWO_PEER
         if (ble_r.host.c.state == BLEC_FAILED &&
             (ble_r.host.c2.state == BLEC_FAILED || ble_r.host.c2.state == BLEC_OFF)) return PLAT_BLE_FAILED;
+#else
+        /* One peer: a failed attempt rejoins in 1 s (blec_pair_poll); show it as
+         * searching, not FAILED. A dead controller is ble_dead above. */
+        if (ble_r.host.c.state == BLEC_FAILED) return PLAT_BLE_READY;
+#endif
         return blec_connected(&ble_r.host.c) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
     }
     if (!ble_up || ble_r.host.h.state == BLEH_STARTING || ble_r.host.h.state == BLEH_IDLE)
