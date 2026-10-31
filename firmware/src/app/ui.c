@@ -12,6 +12,7 @@
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
+#include "ui_pictograms.h"
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -182,7 +183,7 @@ typedef struct {
     uint32_t btn, keys, btn_used;
     uint32_t enc_t[NE];
     uint8_t enc_run[NE];               /* quick detents in a row (acceleration waits for a spin) */
-    char msg[28];
+    char msg[64];                      /* ABOUT long line includes the diagnostic source SHA */
     uint32_t msg_until;
     uint32_t touch_until;
     uint8_t overlay;
@@ -2480,12 +2481,13 @@ X0X_COLD static void run_action(int act, int arg)
 #endif
     case ACT_ABOUT: {
         char full[64], *e;
-        /* The header toast is 27 characters. DEV still uses the long form. A numeric
-         * version that does not fit uses a shorter form. The open-beta words are the
-         * settings-row label, not this line. */
+        /* The long line alone carries the diagnostic SHA. The header uses a smaller
+         * face when necessary. The settings-row label and compact form omit it. */
         e = put_s(full, "DnBOX " X0X_VERSION "  MEM ");
         e = put_s(put_i(e, project_mem_pct()), "%  CPU ");
-        put_s(put_i(e, (int)plat_cpu_pct()), "%");
+        e = put_s(put_i(e, (int)plat_cpu_pct()), "%");
+        if (X0X_GIT_SHA[0])
+            put_s(put_s(e, " g"), X0X_GIT_SHA);
         for (e = full; *e; e++)
             ;
         if ((unsigned)(e - full) < sizeof ui.msg) {
@@ -4791,6 +4793,43 @@ static int steps_len(void)
 #else
 #define UI_DRAW
 #endif
+/* Horizontal runs keep the small-cell atlas cheap to paint at either scale. */
+static UI_DRAW void ui_pictogram(int x,int y,int glyph,int scale,uint16_t ink)
+{
+    if ((unsigned)glyph>=UI_G_COUNT || scale<1 || scale>3) return;
+    for (int row=0;row<9;row++) {
+        uint16_t bits=UI_PICTOGRAM[glyph][row];
+        for (int col=0;col<9;) {
+            if (!(bits & (1u<<(8-col)))) { col++; continue; }
+            int start=col;
+            do { col++; } while (col<9 && (bits & (1u<<(8-col))));
+            cv_rect(x+start*scale,y+row*scale,(col-start)*scale,scale,ink);
+        }
+    }
+}
+static UI_DRAW void ui_state_toggle(int x,int y,int on,uint16_t ink)
+{
+    rframe(x,y,18,9,2,ink);
+    cv_rect(x+(on?12:2),y+2,4,5,ink);
+}
+/* Complete sequence identity stays clear of tempo/transport at the right. */
+static UI_DRAW int ui_position_badge(int glyph,int position,int queued,uint16_t ink,uint16_t cue_ink)
+{
+    char number[12],next[12];
+    put_i(number,position); put_i(next,queued);
+    const felucca_font_t *font=&FONT_S;
+    int width=12+tw(font,number)+(queued?15+tw(font,next):0);
+    if (width>53) font=&FONT_T;
+    width=12+tw(font,number)+(queued?15+tw(font,next):0);
+    if (width>53) font=&FONT_XS;
+    ui_pictogram(132,5,glyph,1,ink);
+    int x=cv_text(144,vc(font,1,17),font,number,ink);
+    if (queued) {
+        ui_pictogram(x+3,5,UI_G_NEXT,1,cue_ink);
+        x=cv_text(x+15,vc(font,1,17),font,next,cue_ink);
+    }
+    return x;
+}
 /* Shallow bevel stays entirely inside the existing rectangle. Four-pixel
  * chamfers, inset dark lower edge, restrained local highlight: no tall teeth,
  * extra buffer, animation, layout change or mutable render state. */
@@ -4872,13 +4911,6 @@ static UI_DRAW void header_pattern_cue(int x,int part)
     uint16_t ink=seq.playing && (eng_step[TRK_DRUM]&1)?C_WHITE:C_AMB;
     nav_arrow(x,6,1,ink);header_pattern_badge(x+8,part,cue,0,C_GRAY);
 }
-static UI_DRAW void header_transport(int x,int compact)
-{
-    if(seq.playing) {
-        if(!seq_clock_waiting(&seq) || (ui.frame&32u))
-            play_icon(x,4,compact?C_HI:(eng_step[TRK_DRUM]&3)==0?C_WHITE:C_HI);
-    } else cv_rect(x,6,8,8,C_DIM);
-}
 
 static UI_DRAW void draw_header(void)
 {
@@ -4894,7 +4926,27 @@ static UI_DRAW void draw_header(void)
     night_panel(0,0,240,HDR_H,0);
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
         box(0, 0, 240, HDR_H - 1, part_col());
-        text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
+        if (!memcmp(ui.msg, "NEXT: PAT ", 10)) {
+            int pattern=0, n=10;
+            while (n<(int)sizeof ui.msg-1 && ui.msg[n]>='0' && ui.msg[n]<='9' && pattern<=NPAT)
+                pattern=pattern*10+ui.msg[n++]-'0';
+            put_s(put_s(b, "> "), ui.msg+10);
+            x=(240-tw(&FONT_B,"NEXT")-6-12-6-tw(&FONT_B,b))/2;
+            x=cv_text(x,vc(&FONT_B,0,HDR_H-1),&FONT_B,"NEXT",C_BLACK)+6;
+            frame(x,1,12,17,C_BLACK);
+            if (!ui.msg[n] && pattern>0 && pattern<=NPAT) {
+                for (int pos=0;pos<NPARTS;pos++) {
+                    uint8_t strength[8];
+                    home_pattern_strength8(&proj.pat[pattern-1],proj.arr.lane,pattern-1,part_at(pos),
+                                           proj.set.accent_q7,T_VEL,strength);
+                    pat_glyph_row(x+2,2+pos*3,strength,C_BLACK,0);
+                }
+            }
+            cv_text(x+18,vc(&FONT_B,0,HDR_H-1),&FONT_B,b,C_BLACK);
+        } else {   /* #800 NEXT pattern glyph; other messages keep #806's long-text font fallback */
+            const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
+            text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
+        }
         cv_commit(0, 0, 0);
         return;
     }
@@ -4925,8 +4977,10 @@ static UI_DRAW void draw_header(void)
                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
             }
         }
-        if(!division_pad_owner()) header_pattern_cue(132,ui.part);
-        header_transport(175,1);
+        if(!division_pad_owner()) header_pattern_cue(132,ui.part);   /* #807 cue picture */
+        { uint8_t phase = seq.metro_view; /* #688/#788: audio-owned beat phase */
+          play_icon(175, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
+        }
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
         cv_commit(0,0,0);
@@ -4990,19 +5044,14 @@ static UI_DRAW void draw_header(void)
 #endif
     {   /* the pattern of the part on screen (else the 909's), its cue; in SONG mode the bar */
         int part = part_view() ? ui.part : PART_909, cue = seq_cue_of(&seq, part);
-        if (seq.song_on) {
-            b[0] = 'S';
-            put_i(b + 1, (seq.playing ? seq.song_pos : ui.song_sel) + 1);
-            x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, seq.song_rec ? RGB(255, 90, 80) : C_AMB);
-        } else {
-            header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);
-            x=154;
-        }
-        if (cue >= 0 && cue != seq.ppat[part] && !seq.song_on) {
-            header_pattern_cue(156,part);
-        } else if (seq.chain_a != seq.chain_b && !seq.song_on) {
-            frame(x+4,6,8,6,C_AMB);frame(x+10,9,8,6,C_AMB);
-        } else if (steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */
+        int pending=cue>=0 && cue!=seq.ppat[part] && !seq.song_on;
+        x=ui_position_badge(seq.song_on?UI_G_SONG:UI_G_PATTERN,
+            (seq.song_on?(seq.playing?seq.song_pos:ui.song_sel):seq.ppat[part])+1,
+            pending?cue+1:0,seq.song_on?(seq.song_rec?RGB(255,90,80):C_AMB):C_WHITE,
+            (ui.frame & 16u)?C_WHITE:C_GRAY);
+        if (!pending && seq.chain_a != seq.chain_b && !seq.song_on) {
+            cv_text(x + 3, vc(&FONT_XS, 1, 17), &FONT_XS, "CHN", C_AMB);
+        } else if (!pending && steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */
             put_i(put_s(put_i(b, ui.spage * 16 + 1), "-"), ui.spage * 16 + 16);
             cv_text(x + 4, vc(&FONT_XS, 1, 17), &FONT_XS, b, C_GRAY);
         }
@@ -5020,7 +5069,9 @@ static UI_DRAW void draw_header(void)
         put_i(b, shown);
     }
     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
-    header_transport(217,0);
+    { uint8_t phase = seq.metro_view; /* neutral in STOP/WAIT; no track playhead */
+      play_icon(217, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
+    }
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
@@ -5860,6 +5911,8 @@ static UI_DRAW void draw_perf(int band)
                 put_s(q, ": 2ND TIMED OUT");
             text_r(236, 6, &FONT_XS, t, plat_cpu2_gave_up() ? RGB(255, 80, 60) : C_GRAY);
         }
+        if (X0X_GIT_SHA[0])
+            text_r(236, 16, &FONT_XS, "GIT " X0X_GIT_SHA, C_GRAY);
         if (perf.test >= 0) {
             int done = perf.phase == 4;
             q = put_s(t, done ? "PERF TEST DONE" : "PERF TEST ");
@@ -8335,8 +8388,13 @@ void ui_frame(void)
         *h = (uint8_t)(*h - (*h >> 3) - (*h ? 1 : 0));
     }
 #if BOARD_SMK37
-    if (smc_ui_active())
+    if (smc_ui_active()) {
         smc_ui_draw();
+        /* Pattern cues use the existing header toast above a retained popup. */
+        if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 &&
+            !memcmp(ui.msg, "NEXT: PAT ", 10))
+            draw_header();
+    }
     else
 #endif
     {
@@ -8351,3 +8409,4 @@ void ui_frame(void)
 void ui_input_only(void) { input(); division_pad_input(); }
 int ui_dirty(void) { return ui.dirty != 0; }
 void ui_say(const char *a, const char *b) { say(a, b); }
+

@@ -81,8 +81,8 @@ static void check_fx_and_release(void)
         if (strip < 5) { CHECK(smc.fx_down == (1u << (strip==2?4:strip==4?2:strip)));
             for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == strip);
         }
-        else { CHECK(!smc.fx_down); CHECK(smc.fx_main_wait == (1u << (strip - 5)));
-            check_main_navigation_leds(); /* pending hold retains its navigation indication */
+        else { CHECK(smc.fx_down == (1u << strip)); CHECK(smc.fx_main_wait == (1u << (strip - 5)));
+            check_main_navigation_leds(); /* owner: quick taps also play the assigned effect immediately */
         }
         now_ms += 200; smc_poll(); CHECK(smc.fx_down == (1u << (strip==2?4:strip==4?2:strip)));
         if (strip < NPARTS) check_select_led(strip, 1);
@@ -96,7 +96,13 @@ static void check_fx_and_release(void)
     }
     setup(V_FX, PART_303A);
     message(0x90, 27, 127);
-    CHECK(smc.fx_effect[SMCFX_303B] == SMCFX_LP); /* ROOM defaults: 303B SELECT is low-pass */
+    /* The four independent rows use the suited page cells. On ROOM,
+     * 303B has REC=HPF, SOLO=LPF, MUTE=delay and SELECT=reverb. */
+    CHECK(smc.fx_effect[SMCFX_303B] == SMCFX_REV);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip, SMCFX_303B) == SMCFX_REV);
+    message(0x80, 27, 0);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip, SMCFX_303B) == SMCFX_EMPTY);
+    CHECK(!(smc.fx_down & (1u << SMCFX_303B)));
 }
 static void check_main_taps(void)
 {

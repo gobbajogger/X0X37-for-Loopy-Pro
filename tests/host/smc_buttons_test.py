@@ -12,10 +12,15 @@ f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M
 f = f.replace('smc_button_apply(', 'smc_button(', 1)
 helpers = [re.search(r'^static const (?:uint8_t|int8_t) '+name+r'\[4\]\[3\] = \{.*?^\};', s, re.M | re.S)[0]
            for name in ('SMC_VIEW', 'SMC_PAGE')]
-for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key'):
+for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key', 'smc_clip_stage_key'):
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
     if match:
         helpers.append(match[0])
+# The strip-8 MIX cycle asks the shared page-count cache (#789); the count is
+# owned by smc-ui tests, so a one-page stub keeps this mapping harness focused.
+if 'smc_query(&context' in f:
+    helpers.append('static struct { uint8_t count; } smc_page_cache = {1};\n'
+                   'static void *smc_query(const void *context, int page) { (void)context; (void)page; return 0; }')
 # Resolve production drum context helpers with the same explicit context type.
 context_helpers = re.search(r'typedef struct \{\n    uint8_t view, part, page, mixsel, sel\[NKIT\];\n\} smc_context_t;', s)[0] + '\n'
 for name in ('smc_page_part', 'smc_drum_mix_context', 'smc_context'):
@@ -27,6 +32,10 @@ order_helpers += re.search(r'^static int part_at\(.*', ui_source, re.M)[0] + '\n
 order_helpers += re.search(r'^static int part_is_303\(.*', ui_source, re.M)[0] + '\n'
 for helper in ('part_position', 'part_neighbor'):
     order_helpers += re.search(r'^static int '+helper+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M|re.S)[0] + '\n'
+# Cue notifications use the production text writers too.
+ui_source = (root / 'firmware/src/app/ui.c').read_text()
+for name in ('put_s', 'put_i'):
+    helpers.append(re.search(r'^static char \*'+name+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M | re.S)[0])
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -35,7 +44,8 @@ harness = r'''
 #include "smc_fx_harness_stubs.h"
 #define NKIT 2
 enum { NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
-static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
+static struct { int part, overlay, view, song_sel, help, sel[2]; uint32_t msg_until; } ui;
+static uint32_t plat_ms(void) { return 1000u; }
 static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages,lock_mixsel; uint8_t lock_sel[2],mixer_page[40][5]; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
 static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
@@ -66,7 +76,8 @@ static void smc_record_toggle(void) {}
 #define smc_select_drum(k,t) ((void)(k),(void)(t),build_pages())
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
-static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
+static char notice[32];
+static void ui_say(const char *a,const char *b) { strcpy(notice,a);if(b)strcat(notice,b);ui.msg_until=plat_ms()+1300u; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }
@@ -84,7 +95,8 @@ int main(void) {
     /* R6 opens own MIX, R7 HOME, S7 GLOBAL; R8 toggles HOME/SONG,
      * S8 PART/SEQ, SELECT6/7 effects and SELECT8 MASTER. */
     const int views[4][3]={{-1,-1,V_HOME},{V_MIX,-1,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
-    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,3}};
+    /* F4: strip-8 MIX cycles the stored mixer page and opens V_MIX with page -1. */
+    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,-1}};
     pg.n=4;
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
         last_view=last_page=fx=-1; smc.view=0;
@@ -107,6 +119,11 @@ int main(void) {
     ui.overlay=O_ASK; tap=-1; smc_button(5,0); assert(tap==B_SEL);
     tap=-1; smc_button(6,0); assert(tap==B_HOME);
     ui.overlay=O_NONE; ui.help=1; smc_button(6,0); assert(!ui.help);
+    smc.part=0; seq.ppat[0]=3; seq.pcue[0]=0xff;
+    smc_button(0x5c,0); assert(seq_cue_of(&seq,0)==4 && !strcmp(notice,"NEXT: PAT 5"));
+    assert(ui.msg_until==plat_ms()+1000u);
+    smc_button(0x5b,0); assert(seq_cue_of(&seq,0)==-1 && !strcmp(notice,"NEXT: PAT --"));
+    assert(ui.msg_until==plat_ms()+1000u);
     return 0;
 }
 '''

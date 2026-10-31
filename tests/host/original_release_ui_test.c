@@ -51,6 +51,7 @@ static void projection_one(const uint8_t cell[32],const uint8_t preview[22],uint
         CHECK(original_chicago_voice_compile(&c,&p));
         CHECK(v.arp_on==c.routing.arp_enable && v.arp_mode==c.routing.arp_mode && v.arp_range==c.routing.arp_range);
         CHECK(v.amp_gate==c.routing.vca_eg_mode); CHECK(fabsf(v.env_percent/100.0f-c.env_depth)<=.00501f);
+        for (unsigned i=0;i<4;i++) CHECK(bits(v.vca[i])==bits(c.vca[i]));
     } else {
         original_miami_program p; original_miami_voice_controls c;
         CHECK(original_sound_restore_miami(&p,cell));
@@ -67,7 +68,8 @@ static void projection_one(const uint8_t cell[32],const uint8_t preview[22],uint
 static void projection_cases(void)
 {
     uint8_t cell[32],preview[22]={0};
-    static const unsigned ids[2][6]={{4,11,13,14,15,16},{0,3,6,7,11,13}};
+    static const unsigned chicago_ids[]={4,7,8,9,10,11,13,14,15,16};
+    static const unsigned miami_ids[]={0,3,6,7,11,13};
     for (unsigned kind=0;kind<2;kind++) {
         for (unsigned f=0;f<original_sound_factories(kind);f++) {
             CHECK(original_sound_init(cell,kind,f)); projection_one(cell,preview,0);
@@ -77,9 +79,11 @@ static void projection_cases(void)
             CHECK(tw(&FONT_T,caps_of(name)) <= 224-24-tw(&FONT_B,label)-10);
         }
         CHECK(original_sound_init(cell,kind,0));
-        for (unsigned i=0;i<6;i++) for (unsigned q=0;q<128;q++) {
-            memset(preview,0,sizeof preview); preview[ids[kind][i]]=(uint8_t)q;
-            projection_one(cell,preview,1u<<ids[kind][i]);
+        const unsigned *ids=kind?miami_ids:chicago_ids;
+        unsigned count=kind?sizeof miami_ids/sizeof miami_ids[0]:sizeof chicago_ids/sizeof chicago_ids[0];
+        for (unsigned i=0;i<count;i++) for (unsigned q=0;q<128;q++) {
+            memset(preview,0,sizeof preview); preview[ids[i]]=(uint8_t)q;
+            projection_one(cell,preview,1u<<ids[i]);
         }
         uint32_t relevant=kind?UI_ORIGINAL_MIAMI_TEXT_MASK:UI_ORIGINAL_CHICAGO_TEXT_MASK;
         ui_original_control_view base,changed; memset(preview,0,sizeof preview);
@@ -102,7 +106,7 @@ static void projection_cases(void)
     preview[4]=cell[4]; CHECK(ui_original_controls_update(&cache,1,cell,preview,1u<<4)); CHECK(cache.preview_mask==(1u<<4));
     CHECK(!ui_original_controls_project(&cache.view,cell,preview,1u<<22));
     cell[28]=0; CHECK(!ui_original_controls_update(&cache,1,cell,preview,0) && !cache.valid);
-    /* Native ADSR controls added vca[4]: retain the size guard for that view. */
+    /* Native VCA envelope readout adds four floats and two alignment bytes. */
     CHECK(sizeof(ui_original_control_cache)==92 && sizeof(ui_original_control_view)==32);
 }
 static void pages_and_edits(void)

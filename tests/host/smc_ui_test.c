@@ -84,8 +84,7 @@ static screen_state_t screen_state(void)
 }
 static void unchanged(screen_state_t before)
 {
-    /* Approved #737: a fader/knob move may peek its real page until the
-     * peek expires; the restore is checked after expire(). */
+    /* Controller popup activity must preserve the complete keyboard state. */
     screen_state_t after = screen_state();
     if (memcmp(&before, &after, sizeof before)) {
         const uint8_t *a = (const uint8_t *)&before, *b = (const uint8_t *)&after;
@@ -249,7 +248,14 @@ static void test_clip(void)
     knob(0, 1); CHECK(fields[CK_PAGE_FIELDS[0][0]] == 0); CHECK(smc_ui_active());
     ui_frame(); unchanged(before); shot("07-clip-field");
     expire(); unchanged(before);
-    puts("PASS clip: grid/waiting framebuffer restores; actual extracted CK turn shows full field UI");
+    puts("PASS clip: grid/waiting framebuffer restores; keyboard clip fields stay unchanged under independent SMC popup");
+}
+static void audio_block(void)
+{
+    /* UI owner changes publish cancellation to the real audio task. A project
+     * transfer remains busy until that task has acknowledged the old keys. */
+    int32_t block[512];
+    engine_render(block, 256);
 }
 static void test_actions_and_reset(void)
 {
@@ -275,7 +281,11 @@ static void test_actions_and_reset(void)
     setup(V_PART, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui_init(); CHECK(!smc_ui_active());
     fader(0, 1); CHECK(smc_ui_active());
-    CHECK(ui_project_begin() == 0); CHECK(!smc_ui_active());
+    input(); /* The popup revokes the keyboard's live-key owner. */
+    CHECK(engine_project_notes());
+    CHECK(ui_project_begin() == UI_PROJECT_BUSY); CHECK(!ui_project_busy());
+    audio_block(); CHECK(!engine_project_notes());
+    CHECK(ui_project_begin() == 0); CHECK(ui_project_busy()); CHECK(!smc_ui_active());
     fader(0, 0); CHECK(!smc_ui_active()); ui_project_end(0);
     fader(0, 2); CHECK(smc_ui_active()); smc_project_reset(); CHECK(!smc_ui_active());
     puts("PASS actions/reset: mute+Solo, inactive strips, init/project lock/reset");

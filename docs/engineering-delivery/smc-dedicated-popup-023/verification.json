@@ -1,120 +1,105 @@
 {
   "base": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
-  "before_audit": "3f7baf16826bb0216576f8787f8ce763c4bc2fae",
+  "before_implementation": "1ca03fd07ed2f01b00aef522cc931e616015f714",
+  "owner_approval": "Approved without preview; no visual approval wait",
+  "production_code_published": true,
+  "candidate_inputs_sha256": {
+    "firmware/src/app/smc_mixer.c": "71e6d626d6f21730bef1f651564069ef8811794195cd8b51f1aa1a47eedb7c96",
+    "firmware/src/app/ui.c": "6035c8cc9bd17f6f32fcac7421baca1f56e312ac4539dbe4cf9c4720e0bd231c",
+    "tests/host/smc_buttons_test.py": "1b086b94296c9c807dde749e1dd7bceec67677d355a812e99224c78ba99da0f8",
+    "tests/host/smc_link_test.py": "465f1ccea1494ebc34d4e06f7600069577f049717396909e6a9e16ebfe8fab3c",
+    "tests/host/smc_production_action_smoke.c": "42a133f66423532a07840f96e6c8f3851960bbfcd8ace191fb94a2ae4264296b",
+    "tests/host/smc_ui_popup_test.c": "5a437c61bbf45afd96e0ceda49d414a30a34e7558be2a64a16b752aa1c96844e"
+  },
   "sdk": "V1.2.1",
   "X0X_DEV_PADCAL": 0,
   "native": {
     "elite": {
       "result": "PASS",
+      "app_bytes": 498092,
       "ram_used": 95872,
       "ram_free": 2432,
       "pool_free": 8536,
-      "app_bytes": 497692
+      "log_sha256": "81310e7a4e7ba792b1b5f05c4a9eb38a7cf5623bceffb7448ec95ded06cf4460"
     },
     "pro": {
       "result": "PASS",
+      "app_bytes": 498076,
       "ram_used": 95872,
       "ram_free": 2432,
       "pool_free": 8536,
-      "app_bytes": 497676
+      "log_sha256": "813344cef9ad760b00645bbdc3e2acdb09edaf623512912e903b00a21f586375"
     }
   },
   "smc_selectors": {
-    "smc-ui-negative": "PASS",
-    "smc-interaction-negative": "PASS",
-    "smc-ui-popup": "PASS",
-    "smc-mode-page": "PASS",
-    "smc-lock-beat": "PASS",
-    "smc-popup-engine": "PASS",
-    "smc-fx-preset-preserve": "FAIL",
-    "smc-part-select": "PASS",
-    "smc-sender-isolation": "PASS",
-    "smc-record-feedback": "PASS",
-    "smc-filter": "PASS",
-    "smc-reachability": "PASS",
-    "smc-fader": "PASS",
-    "smc-mapping": "PASS",
-    "smc-link": "PASS",
-    "smc-queue": "PASS",
-    "smc-select-mode": "FAIL",
-    "smc-ui-bounds": "PASS",
     "smc-protocol": "PASS",
-    "smc-drum-mutes": "PASS",
-    "smc-lock": "FAIL",
-    "smc-audit-core": "PASS",
-    "smc-fx-caption": "PASS",
-    "smc-multi-peer-negative": "PASS",
-    "smc-host-data7": "PASS",
-    "smc-fx": "PASS",
-    "smc-pause-loss": "PASS",
-    "smc-mixer-edges": "PASS",
-    "smc-pickup-acceptance": "PASS",
-    "smc-clip-visibility": "FAIL",
-    "smc-fx-peer-view": "PASS",
-    "smc-reconnect-epoch": "PASS",
-    "smc-drum-rs": "PASS",
-    "smc-fx-two-page-strip": "PASS",
+    "smc-fader": "PASS",
     "smc-buttons": "PASS",
-    "smc-solo-overflow": "FAIL",
-    "smc-mixer-page": "PASS",
-    "smc-audit-contract": "PASS",
-    "smc-multi-peer": "FAIL",
-    "smc-host-overflow-data7": "PASS",
-    "smc-feedback": "PASS",
-    "smc-boot-saved-roles": "FAIL",
+    "smc-select-mode": "PASS",
+    "smc-fx": "PASS",
+    "smc-mixer-edges": "PASS",
+    "smc-action-source": "PASS",
+    "smc-fx-caption": "PASS",
     "smc-fx-page-port": "PASS",
+    "smc-fx-two-page-strip": "PASS",
+    "smc-fx-peer-view": "PASS",
+    "smc-fx-preset-preserve": "PASS",
+    "smc-queue": "PASS",
+    "smc-solo-overflow": "PASS",
+    "smc-host-data7": "PASS",
+    "smc-host-overflow-data7": "PASS",
+    "smc-sender-isolation": "PASS",
+    "smc-ble-payload": "PASS",
+    "smc-link": "PASS",
+    "smc-reconnect-epoch": "PASS",
+    "smc-boot-saved-roles": "PASS",
+    "smc-reachability": "PASS",
+    "smc-pickup-acceptance": "PASS",
+    "smc-lock": "PASS",
+    "smc-lock-beat": "PASS",
+    "smc-multi-peer": "PASS",
+    "smc-multi-peer-negative": "PASS",
+    "smc-pause-loss": "PASS",
+    "smc-interaction-negative": "PASS",
+    "smc-ui": "PASS",
+    "smc-ui-popup": "PASS",
+    "smc-popup-engine": "PASS",
+    "smc-audit-core": "PASS",
+    "smc-audit-contract": "PASS",
+    "smc-mode-page": "PASS",
+    "smc-mixer-page": "PASS",
+    "smc-ui-bounds": "PASS",
+    "smc-ui-negative": "PASS",
+    "smc-mapping": "PASS",
+    "smc-drum-mutes": "PASS",
+    "smc-drum-rs": "PASS",
     "smc-performance-abort": "PASS",
-    "smc-action-source": "FAIL",
-    "smc-ui": "FAIL",
-    "smc-ble-payload": "PASS"
+    "smc-filter": "PASS",
+    "smc-feedback": "PASS",
+    "smc-record-feedback": "PASS",
+    "smc-part-select": "PASS",
+    "smc-clip-visibility": "PASS"
   },
-  "timing_host_cpu": {
-    "before": {
-      "popup_ms_median": 0.24272018,
-      "popup_ms_range": [
-        0.227503097,
-        0.374162285
-      ],
-      "idle_ms_median": 0.1425449438,
-      "idle_ms_range": [
-        0.1228027973,
-        0.1879230128
-      ]
-    },
-    "after": {
-      "popup_ms_median": 0.237881512,
-      "popup_ms_range": [
-        0.235448503,
-        0.24232265
-      ],
-      "idle_ms_median": 0.1260703672,
-      "idle_ms_range": [
-        0.1255793342,
-        0.1313311013
-      ]
-    }
+  "selected_pass": 47,
+  "selected_fail": 0,
+  "selected_not_run": 0,
+  "popup_checks": 4958,
+  "notice_ms": 1000,
+  "connected_bounds": "UBSan bounds O0 and O2 PASS22 cases covering default1/optional2 peers and all role/up masks",
+  "source_diff_sha256": "00870aba9f654afccd78785223d0126066f1959a83e1cc731e241ef34050c21b",
+  "framebuffer_sha256": {
+    "before-pattern-from-keyboard.png": "1d07018350b94d1216be3486ed3d72cd82e7bb011236dd7439e4e2075df087c3",
+    "after-pattern-from-keyboard.png": "75be4273a032640dd500471d7df25d3ae06103a3b4ca6b6656d93520b8e0e871",
+    "before-pattern-over-popup.png": "1d07018350b94d1216be3486ed3d72cd82e7bb011236dd7439e4e2075df087c3",
+    "after-pattern-over-popup.png": "55e103bdeedb70922b7d1d2c90d6075eacf2acf8e33be79b652d9c338a30247a"
   },
-  "descriptor_passes": {
-    "before_cold": 230,
-    "after_cold": 3,
-    "before_warm_1000": 230000,
-    "after_warm_1000": 0
-  },
-  "controlled_framebuffer_restored_exactly": true,
-  "sha256": {
-    "firmware/src/app/smc_mixer.c": "bb33e78e4ca1d849dcf254ca82f700605f6b5c6f870f072a5b160a27374c720c",
-    "firmware/src/app/ui.c": "60d62a077b4aac1fa2f31b02ab16c9bd1a0a18c5954cced9110ff323b2c49db4",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-dismiss-keyboard.png": "59e121ff909e89b377287c1dcf91ae98f3fa30d2e0533307df9ca65d6c239924",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-fader-popup.png": "80398eda7811dacc417635061fad8c5569756adf23d4378e56afe78803102387",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-knob-popup.png": "d9ef90cc07863b926c07c67339dc92d491de05618041863d7376528430516c3b",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-mute-popup.png": "6ca46772a4bfa331d4bf12b6b6bea5042ac286f91f87dde37086f8b758b299d8",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/base-keyboard-with-smc-peek-header.png": "4edff396e880a4636077cf179cec90e20459a1f49b5225f376d33c6a7e4cf539",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-after.png": "c8305e709bd1d3e0cfe78f9d7de34d858e48c4bf86528e6f7bb6dbb10bdd7ac8",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-audit-fader-popup.png": "18873e2b9d17af3ceb8598710677832b8bf81dfd2d8ac4fd289fd17ea809b795",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-audit-knob-popup.png": "a3d2210634ad2f7d39751184b1d24213925e80d34d65018662249f1e105653e6",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-audit-mute-popup.png": "ce0d118d986065fca44bfa934b13cc1d5801ebb27dc843cf27c489f045a25d5c",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-keyboard.png": "459000fa01de23e25ea5183432b60cb75a5c9dca9fb1900e1ffb7426790860ec",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/controlled-before.png": "16c9166f0988be1466ec4b0b973de6addacd06a782d4e1c2b6efdb47ceb020eb",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/controlled-dismiss.png": "16c9166f0988be1466ec4b0b973de6addacd06a782d4e1c2b6efdb47ceb020eb"
+  "runner_log_sha256": "7850d881cbd48599533c6451e7cfb957cfb62f378c80a182f995501332473ab0",
+  "full_repository_suite": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "review": {
+    "reviewers": 5,
+    "findings": [],
+    "source_diff_sha256": "00870aba9f654afccd78785223d0126066f1959a83e1cc731e241ef34050c21b",
+    "visual": "PASS; below-header and dismissal pixels verified unchanged"
   }
 }
