@@ -80,7 +80,6 @@ static void vcf_tick(original_vca *s,const float c[4],uint32_t D){
  s->level=e;
 }
 static void stage(original_ramp *r,float target,float reciprocal){r->target=target;r->delta=(target-r->current)*reciprocal;}
-static float advance(original_ramp *r){float next=r->current+r->delta;if((r->delta>0)!=(r->target>next))next=r->target;r->current=next;return next;}
 /* Chicago uses raw voice10 in MP4 tracking, including selector-generated>127.
  * Preserve native arithmetic instead of imposing the older helper's MIDI bound.
  * The accepted immutable packed reader and sample recurrence stay unchanged. */
