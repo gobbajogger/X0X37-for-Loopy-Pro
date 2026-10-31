@@ -1,0 +1,10 @@
+{
+  "sha": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "verified_blobs": 4788,
+  "expected_blobs": 4788,
+  "mismatches": [],
+  "missing": [],
+  "excluded_extract": [
+    ".github/"
+  ]
+}
