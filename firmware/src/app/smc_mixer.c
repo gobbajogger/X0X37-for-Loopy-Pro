@@ -28,6 +28,7 @@ static uint8_t smc_slot;
 static void smc_ui_begin(int n, int kind);
 static void smc_ui_off(void);
 extern uint8_t smk_clip_mode_on(void);
+extern int smk_ck_smc_nav(uint8_t note);   /* main_fm1.c: clip-stage PREV/NEXT (#688/#788) */
 typedef struct {
     uint8_t n, b[6];
 } smc_event_t;
