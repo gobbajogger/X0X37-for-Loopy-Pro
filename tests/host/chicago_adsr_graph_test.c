@@ -134,6 +134,9 @@ static void set_env(int a, int d, int s, int r)
 {
     int p = env_page(), v[4] = {a, d, s, r};
     for (int k = 0; k < 4; k++) pref_set(pg.r[p][k], v[k]);
+    /* The graph shows the engine's compiled VCA controls; edits reach them at
+     * the next audio block, as on the device. Let two blocks run. */
+    run_ms(12);
 }
 /* Panel geometry from draw_part_sound: four 49 px rows on a 50 px step. */
 enum { ROW_Y = 4 + 3 * 50, ROW_H = 49, GX0 = 13, GW = 214 };
