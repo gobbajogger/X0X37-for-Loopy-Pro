@@ -41,9 +41,9 @@ static void check_caption(const char *caption,const char *name)
         cv_text(7,0,&FONT_T,UI_CAP_HOME ": CANCEL",gray);expected_row_hint(234-nav,0,hint);
     } else {
         const char *right=sound?UI_CAP_HOME ": BACK":range;
-        int x=expected_row_hint(7,0,gray),next_end=expected_edit_next(x+8,0,gray);   /* F5 */
+        int x=expected_row_hint(7,0,gray),next_end=matrix_next_hint(x+8,0,gray);   /* #798 F1 next hint */
         CHECK(next_end+8+tw(&FONT_T,right)<=234);
-        if(sound) expected_home_back(0,hint); else text_r(234,0,&FONT_T,right,hint);
+        if(sound) expected_home_back(0,hint); else text_r(234,0,&FONT_T,right,hint);   /* #807 F5 */
     }
     for(int y=0;y<11;y++)for(int x=7;x<234;x++)CHECK(fb[(228+y)*240+x]==cv_px[y*240+x]);
 }

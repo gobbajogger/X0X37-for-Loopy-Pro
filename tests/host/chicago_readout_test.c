@@ -41,8 +41,8 @@ static void check_readout(const char *status,int selected,const char *name)
             expected_row_hint(234-nav,0,SOUND_AMBER);
         } else {
             int end=expected_row_hint(7,0,SOUND_GRAY);
-            expected_edit_next(end+8,0,SOUND_GRAY);   /* F5: EDIT + page picture */
-            expected_home_back(0,SOUND_AMBER);       /* F5: HOME + back arrow */
+            matrix_next_hint(end+8,0,SOUND_GRAY);   /* #798 F1 next hint */
+            expected_home_back(0,SOUND_AMBER);       /* #807 F5: HOME + back arrow */
         }
         for(int y=0;y<11;y++)for(int xx=7;xx<234;xx++)
             CHECK(fb[(228+y)*240+xx]==cv_px[y*240+xx]);

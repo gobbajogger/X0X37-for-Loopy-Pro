@@ -188,6 +188,36 @@ static void locks_and_undo(void)
     CHECK(!undo_wait && engine_bass_bank(0)==0 && !memcmp(saved,proj.sound.v[T_303][0],32));
     do_undo(1); settle(); CHECK(!undo_wait && engine_bass_bank(0)==1 && proj.sound.v[T_303][0][30]==29);
 }
+/* Semantic FX pictures keep identity, fit their existing cell and cannot edit
+ * the sound. The bypass line reaches both edges; generic selector pips do not. */
+static void fx_picture_cases(void)
+{
+    uint32_t pictures[ORIGINAL_CHICAGO_FX_CHOICES]; uint8_t saved[32];
+    choose(1,ORIGINAL_SOUND_CHICAGO,0);
+    memcpy(saved,proj.sound.v[T_303][1],sizeof saved);
+    int dirty=ui.dirty;
+    for(unsigned fx=0;fx<ORIGINAL_CHICAGO_FX_CHOICES;++fx) {
+        cv_begin(240,KNOB_H,C_BLACK);
+        orig_strip_glyph(PR(R_ENG,T_303,1,ORIGINAL_CHICAGO_FX_TYPE),(int)fx,10,10,C_HI);
+        uint32_t hash=2166136261u; unsigned ink=0;
+        for(int y=0;y<KNOB_H;++y) for(int x=0;x<240;++x) {
+            uint16_t pixel=cv_px[y*240+x];
+            if(pixel!=swap16(C_BLACK)) {CHECK(x>=10 && x<36 && y>=10 && y<=28);++ink;}
+            hash=(hash^pixel)*16777619u;
+        }
+        CHECK(ink); pictures[fx]=hash;
+        for(unsigned prior=0;prior<fx;++prior) CHECK(hash!=pictures[prior]);
+        if(fx==0) CHECK(cv_px[19*240+35]==swap16(C_HI));
+    }
+    CHECK(!memcmp(saved,proj.sound.v[T_303][1],sizeof saved) && ui.dirty==dirty);
+    cv_begin(240,KNOB_H,C_BLACK);
+    int end=matrix_next_hint(10,8,C_HI); unsigned ink=0;
+    CHECK(end>10 && end<=100);
+    for(int y=0;y<KNOB_H;++y) for(int x=0;x<240;++x)
+        if(cv_px[y*240+x]!=swap16(C_BLACK)) {CHECK(x>=10 && x<end && y>=8 && y<=18);++ink;}
+    CHECK(ink);
+}
+
 static void image_cases(void)
 {
     capture("home",V_HOME,PART_909,0); capture("mix-parts",V_MIX,PART_909,0); capture("mix-master",V_MIX,PART_909,3);
@@ -202,12 +232,23 @@ static void image_cases(void)
     }
     choose(1,0,0);
     static const felucca_font_t *const expected[]={&FONT_B,&FONT_B,&FONT_B,&FONT_XS,&FONT_T,&FONT_T,&FONT_B};
-    for (unsigned fx=0;fx<7;fx++) {
+    for (unsigned fx=0;fx<ORIGINAL_CHICAGO_FX_CHOICES;fx++) {
         pref_set(PR(R_ENG,T_303,1,17),(int)fx); block(); char name[64],value[24],unit[8];
         screen(V_PART,PART_303B,6); pref_value(PR(R_ENG,T_303,1,17),value,unit);
         CHECK(!strcmp(value,original_sound_fx_name(fx)) && !unit[0]);
-        const felucca_font_t *font=original_value_font(value,unit,54); CHECK(font==expected[fx] && tw(font,value)<=54);
+        const felucca_font_t *font=original_value_font(value,unit,54);
+        CHECK(tw(font,value)<=54);
+        if(fx<7) CHECK(font==expected[fx]); /* retain all original font checks */
         snprintf(name,sizeof name,"chicago-fx%u",fx); shot(name);
+    }
+    for(unsigned f=55;f<original_sound_factories(ORIGINAL_SOUND_CHICAGO);++f) {
+        char name[64]; choose(1,ORIGINAL_SOUND_CHICAGO,f);
+        screen(V_PART,PART_303B,7);
+        const char *preset=original_sound_name(ORIGINAL_SOUND_CHICAGO,f);
+        CHECK(preset && !strcmp(matrix_preset_name(1),preset));
+        snprintf(name,sizeof name,"chicago-restored-preset%u",f); shot(name);
+        ui.touched=1; ui.touch_until=now_ms+900; draw_main();
+        snprintf(name,sizeof name,"chicago-restored-readout%u",f); shot(name);
     }
     static const unsigned q[]={0,64,127};
     for (unsigned kind=0;kind<2;kind++) {
@@ -376,7 +417,7 @@ static void picture_rule_cases(void)
 int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases(); picture_rule_cases();
+    pages_and_edits(); selector_cases(); locks_and_undo(); fx_picture_cases(); image_cases(); restored_wave_cases(); picture_rule_cases();
     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
     return 0;
