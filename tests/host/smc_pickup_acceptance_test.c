@@ -31,7 +31,14 @@ static void status_is(const char *status)
     ui_frame();
     memcpy(active_fb, fb, sizeof fb);
     cv_begin(240, KNOB_H, C_BLACK);
-    text_c(120, 49, &FONT_XS, status, C_HI);
+    /* F4 (#800) shows the pickup direction and ACTIVE as pictograms, not prose. */
+    if (status[0] == 'P') {
+        ui_pictogram(108, 49, strstr(status, " UP ") ? UI_G_UP : UI_G_DOWN, 1, C_HI);
+        ui_pictogram(123, 49, UI_G_TARGET, 1, C_WHITE);
+    } else {
+        CHECK(!strcmp(status, "ACTIVE"));
+        ui_pictogram(116, 49, UI_G_CHECK, 1, C_HI);
+    }
     cv_commit(3, 0, KNOB_Y);
     CHECK(!memcmp(active_fb + (KNOB_Y + 49) * 240,
                   fb + (KNOB_Y + 49) * 240, 240 * 10 * sizeof *fb));
