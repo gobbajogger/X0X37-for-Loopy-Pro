@@ -52,8 +52,14 @@ function response(addr, data, fl = 0) {
 
 function parseRequest(pkt) {
   if (pkt[0] !== 0xF0 || pkt[pkt.length - 1] !== 0xF7) return null;
-  const u = unpack7(pkt.slice(1, -1));
-  if (u.length !== 15 || u[0] !== 0 || u[1] !== 0x59 || u[2] !== 0x30) return null;
+  const wire = pkt.slice(1, -1);
+  if (wire.some((b) => b & 0x80)) return null;       // SysEx data must be seven-bit
+  const u = unpack7(wire);
+  // ota_read sends an eight-byte body: flags, address32, requested length24.
+  if (u.length !== 15 || u[0] !== 0 || u[1] !== 0x59 || u[2] !== 0x30 ||
+      u[3] !== 8 || u[4] !== 0 || u[5] !== 0) return null;
+  // Reject extra packed padding bits (non-canonical frames).
+  if (pack7(u).some((b, i) => b !== wire[i])) return null;
   let s = 0;
   for (let i = 6; i < 14; i++) s += u[i];
   if ((~s & 0xFF) !== u[14]) return null;
@@ -82,8 +88,19 @@ function parseIdentity(pkt) {
 class Link {
   constructor(input, output) {
     this.input = input; this.output = output; this.q = []; this.waiter = null;
+    this.rxBytes = 0; this.rxError = null;
     this.onMessage = (ev) => {
-      if (ev.data[0] !== 0xF0) return;
+      if (this.rxError || ev.data[0] !== 0xF0) return;
+      // Bound both frame count and bytes; overflow poisons this connection.
+      // Never continue an OTA exchange with dropped or stale responses.
+      // Receive bound per link: RX_FRAMES = 64, RX_BYTES = 65536 queued before the reader consumes them.
+      if (this.q.length >= 64 || ev.data.length > 65536 - this.rxBytes) {
+        this.rxError = Object.assign(new Error("MIDI receive overflow. Reconnect before retrying the update."), { code: "overflow", detail: "" });
+        this.q.length = 0; this.rxBytes = 0;
+        if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
+        return;
+      }
+      this.rxBytes += ev.data.length;
       this.q.push(Array.from(ev.data));
       if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
@@ -109,15 +126,19 @@ class Link {
   send(bytes) {
     try { this.output.send(bytes); return true; } catch (_) { return false; }
   }
-  drain() { this.q.length = 0; }
+  drain() { this.q.length = 0; this.rxBytes = 0; }
   async read(ms) {
+    if (this.rxError) throw this.rxError;
     if (!this.q.length) {
       let tm;
       await Promise.race([new Promise((r) => { this.waiter = r; }), new Promise((r) => { tm = setTimeout(r, ms); })]);
       clearTimeout(tm);
       this.waiter = null;
     }
-    return this.q.shift() || null;
+    if (this.rxError) throw this.rxError;
+    const pkt = this.q.shift();
+    if (pkt) this.rxBytes -= pkt.length;
+    return pkt || null;
   }
   close() {
     if (this.useEvents) this.input.removeEventListener("midimessage", this.onMessage);
@@ -250,11 +271,17 @@ export class Updater {
       if (!r) continue;
       last = Date.now();
       if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
-        link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]));
+        // Terminal app (0xE0000000) and loader (0xF0000000) reads ask for exactly the
+        // eight-byte "success\0" reply (ota_read(addr, b, 8) in firmware/src/ota.c and the loader).
+        if (r.len !== 8) throw fail("badreq", `bad finish request ${r.addr.toString(16)}+${r.len}`);
+        if (!link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]))) {
+          return { served, finished: false, lost: true };
+        }
         if (r.addr === finishAddr) return { served, finished: true };
         continue;
       }
-      if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
+      // A zero-length ordinary read is never valid: it would stall progress silently.
+      if (r.len === 0 || r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
       await sleep(10);
       if (!link.send(response(r.addr, Array.from(image.subarray(r.addr, r.addr + r.len)), r.fl))) {
         return { served, finished: false, lost: true };
@@ -332,3 +359,6 @@ export class Updater {
     return (await this.write(ota, image, onStep || (() => {}))).finished;
   }
 }
+
+// Test-only handle for the bounded receive queue (web/test_ota_request_guards.mjs).
+export const __test_Link = Link;
