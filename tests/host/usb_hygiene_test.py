@@ -26,6 +26,10 @@ if mode == "sysex":
     # sx_busy belongs to the transmit path, which this receive harness never uses.
     ota_state = ota_state.replace("sx_ready, sx_collect, sx_busy", "sx_ready, sx_collect")
     production = state + "\n#if FELUCCA_OTA\n" + ota_state + "#endif\n"
+    if "static int usb_update_admit(" in source:
+        # LIVE-A update guard: transport/note admission is tested by usb-live-update;
+        # this parser harness keeps the idle-device answer (admit).
+        production += "static int usb_update_admit(void) { return 1; }\n"
     production += function("static void sysex_byte(uint8_t b)")
     production += function("static void ep1_rx(void)")
     production += "#if FELUCCA_OTA\n" + function("static int ota_frame_get(")
