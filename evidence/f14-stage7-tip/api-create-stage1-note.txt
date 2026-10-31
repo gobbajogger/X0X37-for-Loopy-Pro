@@ -1,0 +1,7 @@
+Stage-7 CreateAgent Stage 1: CURSOR_API_KEY was unset in this pod (attempts 1/2 = NO_CURSOR_API_KEY).
+Coordinator launched owner-visible Stage 1 (desktop):
+  id: bc-f979be14-29d8-5231-a301-abfdbb808eba
+  url: https://cursor.com/agents/bc-f979be14-29d8-5231-a301-abfdbb808eba
+  name: Post tip Stage 1 audit
+  startingRef expected: cursor/f14-tip-stage7-237f + SUCCESSOR-STAGE1.txt
+Do not relaunch Stage 1. Do not use Task as Stage 1.

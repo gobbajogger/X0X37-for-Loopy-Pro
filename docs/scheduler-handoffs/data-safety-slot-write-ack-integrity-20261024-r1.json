@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "data-safety-slot-ack-integrity-20261024-r1",
+  "run_date_utc": "2026-10-24",
+  "role": "LoopyX0X37 Data Safety",
+  "outcome": "DELIVERED_SOURCE_CHECKED_QA_PENDING",
+  "candidate": "first-nightly-pr103",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-slot-write-ack-20261024-1411",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "producer_role": "Sole Safe Merge",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "head_sha": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+    "root_tree_sha": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+    "firmware_subtree_sha": "b3179883a83e9878b65a8a52385aa0210e866f05",
+    "code_blob_sha": "d63774e7f2775c5359d3b24e549a900f8c75c685",
+    "notes": "Exact write_slot function window byte-for-byte matched source from current integration HEAD."
+  },
+  "changes": [
+    "tools/x0x_slots.py: check slot identity, response length and exact write offset before accepting BEGIN, ERASE, WRITE or END ACK.",
+    "tests/x0x_slots_ack_integrity_test.py: 16 mock MIDI ACK positive/negative scenarios including wrong slot, short/extra ACKs, replayed/wrong offset, stopping before further flash writes and real device error statuses.",
+    "tests/run_tests.sh: register slot-ack-integrity in serial installer/data safety category."
+  ],
+  "findings": {
+    "summary": "Host write_slot accepted success replies from wrong slot/offset and ignored truncated or extra ACK bytes; reply parser could throw IndexError. Since Link.req correlates only command type, such malformed/stale responses must not certify a potentially destructive next write.",
+    "expected_behavior": "Malformed/unmatched ACK raises SlotError and halts subsequent sample-slot writes; correct ACK and legitimate device error status preserve existing behavior.",
+    "hardware_observation": "UNKNOWN",
+    "actual_device_data_loss": "NOT OBSERVED"
+  },
+  "source_evidence": {
+    "tested_scope": "SOURCE-FUNCTION WINDOW ONLY, old PR71 surrounding module; function matched exact first-NIGHTLY PR103 Git blob",
+    "source_blob_after": "a055dee0da48c9f5c5f9f8a46fd367bb8e2c5223",
+    "test_blob": "76f7cae63d0f9611c054bf33654eb2894307a0ad",
+    "runner_blob": "ac43b5f5ba918b6ce62234f828929a27d7b47016",
+    "premanifest_commit": "ca3cf0ae5db677f8435a3fed591593c2caaf8b5f",
+    "premanifest_root_tree_sha": "7b1057c132c2aff0813652b6ca46f25423d98873",
+    "compiled_firmware_subtree_sha": "b3179883a83e9878b65a8a52385aa0210e866f05",
+    "compiler_input_change": false,
+    "full_root_QA": "NOT RUN"
+  },
+  "checks": [
+    {
+      "command": "python3 -B slot_ack_integrity_test.py before > before.log 2>&1",
+      "exit": 1,
+      "expected": true,
+      "result": "FAIL BEFORE as expected; 16 tests attempted, 7 assertions failed, 4 uncaught error cases",
+      "log_sha256": "f87d5c60d8fa89f3b6812656136de858270369005b63ac2452805b0fc679c3f4"
+    },
+    {
+      "command": "python3 -B slot_ack_integrity_test.py after > after.log 2>&1",
+      "exit": 0,
+      "result": "PASS 16/16 scoped cases",
+      "log_sha256": "1cd30b52c00e2cb2671f6ed5a019bc37f423955cca6c5f345c728f7a72de0689"
+    },
+    {
+      "command": "python3 -O -B slot_ack_integrity_test.py after > optimized.log 2>&1",
+      "exit": 0,
+      "result": "PASS 16/16 scoped cases under optimized Python",
+      "log_sha256": "1cd30b52c00e2cb2671f6ed5a019bc37f423955cca6c5f345c728f7a72de0689"
+    },
+    {
+      "command": "python3 -B -m py_compile after/tools/x0x_slots.py slot_ack_integrity_test.py",
+      "exit": 0,
+      "result": "PASS syntax"
+    },
+    {
+      "command": "git hash-object slot_ack_integrity_test.py",
+      "exit": 0,
+      "result": "PASS local test blob 76f7cae63d0f9611c054bf33654eb2894307a0ad matches exact remote file"
+    }
+  ],
+  "not_executed": [
+    "Full current repository tests/run_tests.sh",
+    "Firmware Elite/Pro/controller target build",
+    "Actual USB MIDI exchange, physical backup/restore/OTA",
+    "Independent reviewer full-root QA",
+    "NIGHTLY license/hosting/HTTP qualification"
+  ],
+  "next_handoffs": [
+    {
+      "owner": "Independent QA",
+      "action": "Reproduce new serial ACK negative regression against exact current combined branch/source, exercise readback/restore/OTA interruption and wrong-model/CRC before candidate acceptance.",
+      "status": "PENDING"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "After independent review, integrate into first NIGHTLY candidate while preserving all other Data Safety, SMC, clock and 303 guards; verify new full-root and compiled subtree.",
+      "status": "PENDING"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY current exact source without waiting for QA or integration; establish compiler-input equivalence before reusing existing model bytes.",
+      "status": "ALLOWED_NOT_VERIFIED"
+    }
+  ],
+  "gates": {
+    "source_producer": "PASS SCOPED",
+    "independent_qa": "PENDING",
+    "target_build": "PENDING / POSSIBLE COMPILER-INPUT REUSE",
+    "public_nightly": "NO-GO",
+    "device": "NOT TESTED",
+    "production": "NOT APPROVED"
+  }
+}

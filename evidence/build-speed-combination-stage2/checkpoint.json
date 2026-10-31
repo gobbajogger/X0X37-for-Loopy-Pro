@@ -1,0 +1,175 @@
+{
+  "workflow": "build-speed-combination-20261021",
+  "stage": 2,
+  "state": "complete_checked_non_cache_execution",
+  "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "final_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "lane": "/Users/mac/Documents/x0x37/build_speed_combination",
+  "applied": [
+    {
+      "source": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+      "local": "cee0b2c",
+      "acceptance": "db72964fd1bc82481a4c869912c8258165687ca8"
+    },
+    {
+      "source": "05405ff56ced13ca5534ccd8861599c9872b61e1",
+      "local": "0de6c9b",
+      "conflict": "Preserved newer installer-ctl/rec-live/copy/song/ui declarations and earlier host-build position; deleted only retired optional browser block."
+    },
+    {
+      "source": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
+      "local": "df2ae79",
+      "acceptance": "remove_browser_emu_evidence/repair1-stage3/result.json"
+    },
+    {
+      "source": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+      "acceptance": "fed51d6233bf4d91a0ff73de06fe46d62414d71b",
+      "identity": "runner-identity.json",
+      "deduplication": "Scoped three-way patch applied; all four final source files match accepted candidate exactly."
+    },
+    {
+      "source": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+      "acceptance": "a3409ca4482497b8b6625dc2672d53e242c4d7a1",
+      "identity": "controller-quickcheck-identity.json",
+      "source_application": "Scoped three-way nine-file patch; exact accepted source hashes match."
+    },
+    {
+      "source": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+      "acceptance_evidence": "96302a7196640ac1cb13dea3a9d3c0a6411edce9",
+      "scope": "Scoped six-file native implementation and checked package/walker repair patch. Removed retired optional compiler/backend/environment capture, dedicated test and worker forwarding; declared-input requirement clarified. Added literal dev-validate fixture registration.",
+      "checks": "registered-native-fixtures.log, native-cleanup.json/log, native-worker.log and retired-reference-scan.json",
+      "limits": "Host13 input+15 DEV scratch tests, real pinned worker1 fixture PASS; accepted unchanged package/walker/guard evidence reused. No target artifact equality or end-to-end speed claim."
+    }
+  ],
+  "source_hashes": {
+    "BUILDING.md": "281ff6e840f5dce7d5e9cfa331640b038da6a87cdd2f0188d71356115c56ced9",
+    "LICENSING.md": "ee98f4ba5a379114ffd8cfa72c8893d390a4eb746bedde5ddba2e707d289b1fa",
+    "README.md": "01eceefd799e3c2cbdb38d6dc5cf09f9d04fe0ca9e7bc8b66ccb83492bcf68ff",
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "docs/MANUAL.md": "ec6f408c9eda336cd1ad8886523aef9faa6cdfa5b004203d68950391a5084c93",
+    "docs/NEW.md": "dea22979aafa6770d1f4580efe659be1bb319d2e969b9362eb3b5d84dca5282a",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de",
+    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+    "docs/manual.html": "cc9ce5a9236370d59c9b6806d55b7e1796351905d2a14539760e60144c9f5367",
+    "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
+    "host/x0x_host.c": "350a9b93302512c5bbde56a0a14fd07a18066e64e9492113ea59b12350d2c321",
+    "tests/host/emu_slots_test.mjs": null,
+    "tests/host/emu_test.mjs": null,
+    "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
+    "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
+    "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/test_ctl_compile.py": "ed705a2e6bf4e9851e86269da80b7786240ea352563be50faeb0f5a473a9a3d0",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+    "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f",
+    "tests/host/test_validation_inputs.py": "8a5da8b34e39a81bffe828e35eb7e660172e71c1d4639b5c50464743923ca4fa",
+    "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
+    "tests/run_tests.sh": "ba03f9ad79b7178b68d89952c284ae295b4df9e1368f0dc52db63aa86859f7bf",
+    "tools/dev_validate.py": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+    "tools/gate.sh": "c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/make_pages.py": "f0a59fb5bf75e01cfe76a55ff28a332058fecef83940b15fa12f081f2e223bcd",
+    "tools/publish_pages.sh": "13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "tools/validation_inputs.py": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+    "web/emu/build.sh": null,
+    "web/emu/index.html": null,
+    "web/emu/worklet.js": null,
+    "web/emu/x0x_web.c": null
+  },
+  "baseline_generator_asset_firmware_inputs": {
+    "count": 87,
+    "match": true,
+    "record": "../build_speed_consumer_audit/evidence/cache-consumer-audit/original-linux.json",
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "outputs": {
+      "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44"
+    }
+  },
+  "pending": {},
+  "remaining": [
+    "Asset reuse and remaining cache consumer routing withheld after independent FAIL; saved classic repair handoff is the next decision input.",
+    "No new target artifact equality or whole-build timing was measured; any such decision needs the exact combined source/configuration/dependency scope in classic LoopyX0X37."
+  ],
+  "checks_now": "initial-checks.json",
+  "test_plan": [
+    {
+      "check": "Combined source/guard identities",
+      "risk": "Old-base patch could erase newer declarations, firmware or installer/package guards.",
+      "reuse": "Initial host matches accepted source. Firmware unchanged and native preprocessing equivalent. Recheck final source."
+    },
+    {
+      "check": "Runner admission + Quickcheck selection fixtures, jobs1/8 gen-order",
+      "risk": "Class result variable, lazy preparation and literal parsing could conflict with new fixtures.",
+      "reuse": "Runner standalone matching evidence; rerun only combined mapping/selection behavior invalidated by registration edits."
+    },
+    {
+      "check": "Cache caller wall times and generated SHA256; actual host/drum/clip probes",
+      "risk": "Caller dispatch or output policy could change generated bytes, references, custom bank or source overrides.",
+      "reuse": "Existing immutable-image original generator timings and headers. Newly changed caller paths need measured outcomes."
+    },
+    {
+      "check": "Native runtime/package/dependency capture and worker forwarding fixtures",
+      "risk": "Removal of unused compiler settings could weaken active native identity or intersect package repair.",
+      "reuse": "Incoming accepted provenance evidence; recheck affected cleanup behavior only."
+    }
+  ],
+  "limits": [
+    "Partial implementation checkpoint; not a completed candidate and not ready for Test successor.",
+    "No numeric whole-build speed claim; no target/controller build repeated.",
+    "No device write, publication, external push, release/full gate or competing firmware integration."
+  ],
+  "resume": "Bounded accepted non-cache execution is complete. Return result to existing coordinator. Future decisions start in classic LoopyX0X37; no automatic Codex successor.",
+  "combined_registration": {
+    "quickcheck-plan": "test_quickcheck_plan.py",
+    "ctl-compile": "test_ctl_compile.py",
+    "host-setup": "test_host_setup.py",
+    "runner-admission": "test_runner_admission.py",
+    "dev-validate": "test_dev_validate.py DevelopmentValidation"
+  },
+  "registration_checks": "controller-quickcheck-identity.json",
+  "current_routing": {
+    "source": "Current workspace AGENTS, task routing, workflow17/18 and coordinator notice relaying owner01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+    "supersedes": "Original per-stage Codex launch plan in saved handoff and earlier checkpoint",
+    "execution": "Keep authorized necessary edits and affected checks in this existing isolated combination task; no automatic Codex Test/Validate successors. Independent review helpers remain required by this explicit combination assignment.",
+    "handoff": "Return compact execution evidence to coordinator; save classic LoopyX0X37 prompt if a new decision/task remains. Do not substitute general/Work/cloud chat."
+  },
+  "excluded_cache": {
+    "state": "excluded_failed_input",
+    "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+    "independent_review": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+    "proof": "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin-earlier.log",
+    "proof_sha256": "b293c585bbc04286149817024ec9e866f484c21f33a55c6c3a3fa1118dd4ee19",
+    "reason": "$ORIGIN RUNPATH dependency identity loses dlopen symlink alias directory; an earlier alias dependency can change original output while cache returns stale hit.",
+    "exclusion_checks": "PASS no asset_cache.py or test_asset_cache.py added; tools/build.py and both drum909 consumers exactly match1165396; all host-builder and clip-display generation command lines match1165396. Accepted generate-only/extraction changes remain.",
+    "no_accepted_cache_speedup": true,
+    "deferred": [
+      "Repair aliased loader origin identity or conservatively disable unsupported reuse; require stale-hit negative proof and affected independent checks.",
+      "Only then measure remaining individual host/drum/font caller paths and route where supported measured gain exists."
+    ],
+    "handoff": "classic-cache-repair-handoff.txt",
+    "independent_evidence": "cb71961c9645b8231c0b8272d257db74ee9370a4",
+    "authoritative_classic_prompt": "../asset_selector_stage3/evidence/asset-selector-stage3/repair-handoff.txt"
+  },
+  "owned_check_failure_disposition": "Initial cleanup evidence script omitted root sys.path and could not import its fixture; corrected only the evidence harness and reran to PASS. Initial log retained; real worker fixture PASS was reused.",
+  "foreign_rollout_preserved": [
+    "AGENTS.md",
+    "docs/SKILLS.md",
+    ".agents/skills/x0x37-*"
+  ],
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "final_test": "independent-test/result.json",
+  "final_investigation": "independent-investigation/result.json",
+  "final_result": "final-result.json",
+  "superseded_registration": "Initial classS/lock workaround is superseded by signal-fixture-repair.json: fixture child reset works under outer async caller; all accepted scheduler functions restored."
+}

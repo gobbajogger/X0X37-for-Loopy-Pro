@@ -1,0 +1,19 @@
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   smc-queue
+  ok   smc-link
+  ok   smc-reachability
+  ok   smc-ui
+  ok   smc-ui-negative
+  ok   smc-mapping
+  ok   smc-drum-mutes
+  ok   smc-drum-rs
+  ok   smc-performance-abort
+  ok   smc-filter
+  ok   smc-feedback
+  ok   smc-record-feedback
+  ok   smc-part-select
+  ok   smc-clip-visibility
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed

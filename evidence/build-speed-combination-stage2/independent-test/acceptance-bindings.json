@@ -1,0 +1,62 @@
+{
+  "build_time_python_repair": {
+    "path": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/final-result.json",
+    "commit": "96302a7196640ac1cb13dea3a9d3c0a6411edce9",
+    "sha256": "0f98429868e3dfdc79528f68ab69f1491e4da1ea176c50c1505e68b0987cee1e"
+  },
+  "runner_speed_stage4": {
+    "path": "/Users/mac/Documents/x0x37/runner_speed_stage4/evidence/runner-speed-stage4/result.json",
+    "commit": "fed51d6233bf4d91a0ff73de06fe46d62414d71b",
+    "sha256": "d6cb3a768c4b00a416886b648785fadfe55707304107bc8dea6a8d6ae3ca3df2"
+  },
+  "build_work_cleanup_stage4": {
+    "path": "/Users/mac/Documents/x0x37/build_work_cleanup_stage4/evidence/build-work-cleanup-stage4/result.json",
+    "commit": "a3409ca4482497b8b6625dc2672d53e242c4d7a1",
+    "sha256": "1574fa68906482846256c6995b58f3067ffc9424127667dc0d7b05cda693545a"
+  },
+  "host_setup_stage4": {
+    "path": "/Users/mac/Documents/x0x37/host_setup_stage4/evidence/host-setup-stage4/result.json",
+    "commit": "db72964fd1bc82481a4c869912c8258165687ca8",
+    "sha256": "97e28ad05a6f76346df0c6cd51bec66b61d576ddbd37a72313e1e17526fb7c24"
+  },
+  "combined_artifacts": {
+    "evidence/build-speed-combination-stage2/cache-exclusion.json": "c0daff5646d8b6a71d31cff4dc72e5885a8ef923a5b29a0e1d2aab6f0bc5d007",
+    "evidence/build-speed-combination-stage2/check-initial.py": "ade6c171af4aba323768f88b10c0fd78026d59922c7f5e4656fa5eb88f335d2f",
+    "evidence/build-speed-combination-stage2/check-native-cleanup.py": "303e301bfc0d5bcd10c55ba1cfa627abdbc3ad2ffdc608b1159f216362dd1d05",
+    "evidence/build-speed-combination-stage2/checkpoint.json": "400c3785d4f016c0ecdf6fd62e4b6ba816f04a014883a442d9f19f7f06fb45a3",
+    "evidence/build-speed-combination-stage2/classic-cache-repair-handoff.txt": "49260f3a2204483b1be32ac91e5699beab78438c97e77ec70f59bbdbf35703c2",
+    "evidence/build-speed-combination-stage2/controller-quickcheck-identity.json": "3e92d2a871a33b48f0c3912c7a762fb365223ab56549ac14ccc81989d09a4a30",
+    "evidence/build-speed-combination-stage2/initial-checks.json": "56743ce09207d2ca156d0e86f9b57389dbb59e866b8c3ee08ae5967e0c8b1867",
+    "evidence/build-speed-combination-stage2/initial-checks.log": "ee8b44d89fa33d7596e94c629c0aa75e83a84103d0caa0d2dc42aa61c145c965",
+    "evidence/build-speed-combination-stage2/native-cleanup-initial.log": "6b9caa966f29a18327df98a25940570bebbe5899af075a06a655b598d9624c5a",
+    "evidence/build-speed-combination-stage2/native-cleanup.json": "c45f39169243f1fe39c4bd101c41bd606da0a9712caebf04bfea5ce235c9e797",
+    "evidence/build-speed-combination-stage2/native-cleanup.log": "c45f39169243f1fe39c4bd101c41bd606da0a9712caebf04bfea5ce235c9e797",
+    "evidence/build-speed-combination-stage2/native-worker.log": "43eb12ea523e3e99adafa98f83b48d85dda320b144a9457fd7ab72dd35f8a57e",
+    "evidence/build-speed-combination-stage2/registered-ctl-final.log": "2020c1fbea88396864015daad083e6457b5a8ce6cae3c2bc441fb0e4569f9496",
+    "evidence/build-speed-combination-stage2/registered-ctl-initial.log": "f4a686e60136cddcc17b186f3b97d9943f35dd5695e3cb76deb2bff1ff53100b",
+    "evidence/build-speed-combination-stage2/registered-dev-validate.log": "4a647e52266ec3110db8c353ce19a634f5a8ff3053e78736eaa19ffc74b6c51e",
+    "evidence/build-speed-combination-stage2/registered-fixtures.log": "b6d392b707f080362ccbdb549d429150bb6cb48ede0172b2b920de94c4126cb0",
+    "evidence/build-speed-combination-stage2/registered-host-setup.log": "b1adf8a53aa0a7fb8fb64c9e378d76b02cbc1a5cf502adfb3071120d850cfc00",
+    "evidence/build-speed-combination-stage2/registered-native-fixtures.log": "197343b73b3df8068c317735abb6d573a2e6305d82b0692d80f4d87f9fc359aa",
+    "evidence/build-speed-combination-stage2/registered-quickcheck-plan.log": "7f9e8a6abe996cd7dc52619bec44c2c48caf63b66d65d18c09d96b7b5634bb07",
+    "evidence/build-speed-combination-stage2/registered-runner-admission.log": "507db12ce67ec71062a44c034c19810dd4319540ef951dcdc54a310a96517551",
+    "evidence/build-speed-combination-stage2/registered-validation-inputs.log": "6229b63ac6e97ec61d42cb635a39a8e0fc23a68f33924cbe9bc6a622b3ad8636",
+    "evidence/build-speed-combination-stage2/registration-classification.json": "c9138fbdaff67b7471426c17be610c9b16e0c865dcd3706d1c8bc000f60e0a5e",
+    "evidence/build-speed-combination-stage2/retired-reference-scan.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "evidence/build-speed-combination-stage2/runner-identity.json": "2559e3a356c061c11bebdda1c8314fd5a8096bddc74506311de51f2f10e5ee1a"
+  },
+  "native_prior_verified_evidence_files": 35,
+  "harness_failure_disposition": "First evidence binding attempt iterated all on-disk root evidence and found concurrently created final-identity.log absent from candidate. Corrected verifier scope to candidate-tracked evidence paths; accepted production source was not implicated. No behavior suite rerun.",
+  "final_same_tree_acceptance": {
+    "candidate": "c0d2ab2f3248ce86a1e6421be926ce5297768272",
+    "previous_candidate": "e0ec9b763f79bd1e44a2294a1815866f3dad06ed",
+    "tree": "f5bd7b999fea184e8377dcb2d80f2465954fc1a4",
+    "result": "PASS identical tree; no behavior checks rerun."
+  },
+  "final_affected_source_acceptance": {
+    "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+    "tree": "de94ec06bb3b411850104dade643492d22e4606c",
+    "evidence": "affected-verification.json; verify-affected.log",
+    "result": "PASS exact two-file fixture/registration delta and matching saved affected run; unaffected acceptance evidence reused."
+  }
+}

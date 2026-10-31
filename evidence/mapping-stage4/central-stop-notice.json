@@ -1,0 +1,22 @@
+{
+  "source_chat": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
+  "defect": "CENTRAL-STOP-01",
+  "result": "SOURCE REPAIR REQUIRED",
+  "evidence_commit": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+  "evidence": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/checks.json",
+  "evidence_sha256": "a9c861d93c940c2c90c42cd6dee43f66fa264427e35bccbd8078ec52f3d76b6a",
+  "finding": "Refused no-handle Cancel changes the host to OFF and discards a later successful connection handle. The production service also reports OFF after refused Scan Disable or failed Scan Disable Command Complete status.",
+  "reproduced_candidates": [
+    "f080d1a5f31073dde600238f780acf37c12b2738",
+    "05eff604cb3f136db71727a2aeeea785cab73b99",
+    "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d"
+  ],
+  "controls": "Accepted controls pass. Public deadline, receive, signaling, abort and DIAG sanitizer checks pass.",
+  "repair_owner": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+  "repair_startup_turn": "01a15aa8-2baf-7ee1-9472-5e197af2ee39",
+  "startup_source": "The recorded stage3 owner verified actual startup.",
+  "mapping_result": "VALIDATION PASS",
+  "stage5_status": "PENDING CENTRAL VALIDATION",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED"
+}

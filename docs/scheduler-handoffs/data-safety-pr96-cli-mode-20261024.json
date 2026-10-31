@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "2026-10-24-r2-cli-mode",
+  "role": "Data Safety",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+  "consumed_pr96_head": "82009d16feb6008e3c0391cd3a236fd1c031e910",
+  "root_before": "ac12fb4f3b73d4980be05ee45d19982d59221371",
+  "consumed_qa_comment": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96#issuecomment-6368649888",
+  "findings": {
+    "previous": "two 100755-to-100644 CLI mode regressions",
+    "resolution": "restore executable modes only",
+    "new_test_blob": "ee53bd389f18c874108b66fea0bff73c50380fea",
+    "source_content_unchanged": true,
+    "compiled_firmware_tree_changed": false
+  },
+  "modes": [
+    {
+      "path": "tools/x0x_slots.py",
+      "mode_before": "100644",
+      "mode_after": "100755",
+      "blob": "9cef869cbbf5e49d5e3280edd06abd11cdee07fa"
+    },
+    {
+      "path": "tools/fm1_install.py",
+      "mode_before": "100644",
+      "mode_after": "100755",
+      "blob": "e42c7b9387f118fd3389e1764e8157c0b8ee81e2"
+    }
+  ],
+  "tests": [
+    {
+      "command": "X0X_TEST_REPO_ROOT=mode_fixture python3 -m unittest x0x_cli_executable_mode_test -v",
+      "before_exit": 1,
+      "after_exit": 0,
+      "passed": "2/2",
+      "scope": "synthetic modes only"
+    },
+    {
+      "command": "python3 -m py_compile x0x_cli_executable_mode_test.py",
+      "exit": 0
+    }
+  ],
+  "log": {
+    "git_blob": "3fc5b6ecabbbaf20a43be2888eb644dbd454ab93",
+    "sha256": "120caa4ccbac8f0c6932e2b69ea7993c1be71a6db3c90d76911c10a1e2e9aaff"
+  },
+  "status": "SOURCE_REVIEW_READY_QA_PENDING",
+  "models": {
+    "elite": "DEVICE_NOT_TESTED",
+    "pro": "DEVICE_NOT_TESTED"
+  },
+  "next": {
+    "owner": "Independent QA",
+    "action": "Complete exact root mode check and source/OTA backup combined negatives; then Safe Merge",
+    "publisher": "No public-installable qualification"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "candidate": "7983a0a6768f008b06696a0b3fdfb6d74a9092b4",
+  "ancestry_exit_codes": {
+    "de8f2d6": 0,
+    "649c5bc": 0,
+    "1a46162": 0,
+    "36dda01": 0,
+    "455f0e1": 0,
+    "bfea1ba": 0,
+    "a3680ca": 0,
+    "c789d80": 0,
+    "879cb57": 0,
+    "2c06079": 0,
+    "175f3f3": 0,
+    "53ed908": 0,
+    "f4966e8": 0,
+    "ea9d678": 0,
+    "53d5654": 0,
+    "ed494755": 128,
+    "44c0f12": 1
+  },
+  "evidence_sha256": {
+    "smc_receive_repair_20261020/cloud-transition.txt": "0d3b214f7857fda93f1ce10e4c647b8c7765436a5b3e0fcaf4912c2289ea7b76",
+    "smc_receive_repair_20261020/checkpoint.patch": "9126caddce044caffb3bc2cfbdbdcde1364b4ba24a11298e2e50b3f5ff320e8b",
+    "fm1_reference_stage2_20261020/build/fm1-reference-stage2/checkpoint.json": "20b5ce55ed8de2ab3783a7136aae8ea4aea09ebc5989f8499ef662b08f07b7ab",
+    "fm1_reference_stage2_20261020/build/fm1-reference-stage2/checkpoint.patch": "65c173210f594ca0e84757bb3f6cc16dc88265d241f6d344deb4c2a72ba8f1a0",
+    "cloud_setup_20261020/HANDOFF.txt": "9cbe923fe123822bc222c370571df610a4d41bf2a66a8b0caf8364bebfc2f03b"
+  },
+  "status": "INCOMPLETE; local development stopped for owner cloud-only instruction",
+  "remote_push": false,
+  "cloud_successor": null,
+  "excluded_ancestry_full_hash_check": {
+    "ed494755eff5dbdaafd85f5cf6ea753599e6afcb": true,
+    "44c0f124512d9a9499a39ba03cf41cd79ff75f9a": true
+  }
+}

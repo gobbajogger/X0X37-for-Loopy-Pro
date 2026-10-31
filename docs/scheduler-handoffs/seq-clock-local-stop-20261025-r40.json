@@ -1,0 +1,46 @@
+{
+  "schema": "x0x37-sequencer-r40-source-producer-v1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 90,
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "parent_source_commit": "e92755d1b7baa5edf4748f6aecf55a376142d7c1",
+  "parent_root_tree": "43a7342c7ad95a18b06aff3375c3dee8dc5ccf4c",
+  "parent_pr86": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+  "changed_test_path": "tests/host/seq_clock_disconnect_handoff_test.c",
+  "tested_test_blob": "d48bca2ebba07f618d5673481f29a85de30ea5d8",
+  "prior_test_blob": "564ee50567201575dd866c64bf8cd1afc8d96a32",
+  "compiled_sequencer_blob_unchanged": "0a239d1faba079bec6c85efbbf31883af0a59ce8",
+  "compiled_fw_subtree_prior": "82e9514a6f025737985485f7d9c6a8bb96f1253b",
+  "effect_expected": "After an outgoing USB/BLE link drops with a clock tick queued, local STOP still stops playback, releases sounding 303 MIDI notes exactly once, and the other MIDI input can restart without early steps.",
+  "design": "Add a native regression at the real sequencer+pattern+TB3PO C boundary; no production source changes.",
+  "scenarios": "Local STOP during pending old-link F8, source disconnect, replacement source F8 before the same audio advance; USB-to-BLE and BLE-to-USB; audio 1/64/1024-frame partitions; stale old-source Start rejected; new-source Start/Stop and NoteOff pairing.",
+  "verified": {
+    "production_linked_positive": "6/6 compiler/profile runs: 2520/2520 checks each",
+    "new_mutant_negative": "6/6 expected failures: 2502/2520; local Stop loss detected across six new scenarios",
+    "prior_R39_test_on_same_mutant": "2/2 GCC+Clang plain runs passed 2262/2262, demonstrating previously untested risk",
+    "adjacent_native": "8/8 GCC+Clang plain source-linked clock/owner/uptime/NoteOff regressions passed",
+    "profiles": [
+      "gcc-plain",
+      "gcc-ubsan",
+      "gcc-asan+ubsan",
+      "clang-plain",
+      "clang-ubsan",
+      "clang-asan+ubsan"
+    ],
+    "local_execution_elapsed_seconds": 18.446,
+    "raw_producer_manifest_sha256": "36e9a096d433c596cb52a67f45c005b53dd70d92640a81c7ca88a7a2f45fc2d1",
+    "raw_replay_log_sha256": "b494175603b64d7abc4d7299b1e1ab316de10b9aee98be48ffb69f38a7ec0b28"
+  },
+  "limits": [
+    "Producer-scoped native host testing only; not independent complete-root QA",
+    "No Elite/Pro development target build or controller closure acceptance here",
+    "No device, backup/restore/OTA or installer test",
+    "ASan leak detection disabled",
+    "No merged or published package"
+  ],
+  "next": {
+    "independent_QA": "At this exact PR90 head (and parent PR86), perform independent current-root sequencer/clock/gesture/NoteOff negative and interaction review.",
+    "hourly_build": "Confirm unchanged COMPLETE compiler/controller closure against any previously built exact artifacts before reusing; no R40 firmware source change.",
+    "safe_merge": "Only designated integrator may reconcile stacked PR86/PR90 after exact automated and independent required gates and current action approval."
+  }
+}

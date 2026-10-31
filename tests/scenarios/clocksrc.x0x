@@ -1,0 +1,205 @@
+# GLO > MIDI > CLOCK SOURCE (a74; a75 saves it in the bt byte): AUTO (the default), INTERNAL, EXTERNAL. The row is the first row of MIDI.
+wait 300
+expect clksrc 0
+tap GLO
+shot 01_glo_clock_source.png
+turn ALGO 2
+expect clksrc 2
+shot 02_glo_external.png
+tap HOME
+wait 100
+expect clkext 1
+# EXTERNAL: PLAY with no clock waits; the play arrow and the PLAY light blink, the top line says so
+tapkey b0
+tapkey w0
+tapkey w4
+tapkey w8
+tapkey w12
+tap PLAY
+wait 700
+expect playing 1
+expect waiting 1
+expect msgwait 1
+shot 03_waiting_for_clock.png
+leds
+expect clocks_out 0
+expect transport_out 0
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+expect waiting 0
+expect playing 1
+expect clocks_out 0
+expect transport_out 0
+shot 04_following.png
+# the clock stops: X0X pauses and waits; the tempo keeps the measured one (about 139 BPM)
+wait 700
+expect playing 1
+expect waiting 1
+expect tempo >130
+tap PLAY
+wait 100
+expect playing 0
+expect transport_out 0
+# INTERNAL: Start, Clock and Stop in are ignored; PLAY runs on the internal clock with clock out
+tap GLO
+turn ALGO -1
+tap HOME
+expect clksrc 1
+midi FA 00 00
+wait 100
+expect playing 0
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+expect clkext 0
+tap PLAY
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi F8 00 00
+wait 18
+midi FC 00 00
+wait 1000
+expect playing 1
+expect clkext 0
+expect clocks_out >60
+expect transport_out 1
+shot 05_internal.png
+tap PLAY
+wait 100
+expect playing 0
+expect transport_out 2
+# saved after power-off (autosave)
+wait 6000
+reboot
+wait 300
+expect clksrc 1
+# a75: settings bt (payload byte 31) bits 1-2 hold the value, bit 3 marks it; a value of 3 loads AUTO
+expect storeset31 10
+storepoke 0 31 0E
+reboot
+wait 300
+expect clksrc 0
+storepoke 0 31 0C
+reboot
+wait 300
+expect clksrc 2
+storepoke 0 31 08
+reboot
+wait 300
+expect clksrc 0
+# older saves (a74 byte 38, a73, clip keys): tests/scenarios/clkmove.x0x
+# a project saved by X0X 0.10: AUTO
+storeload tests/fixtures/v1_store.bin
+wait 100
+expect clksrc 0

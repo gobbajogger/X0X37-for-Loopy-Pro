@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "framing": "faithful-303 factory banks (Chicago Acid / Miami Wobble); not an upgrade brand; WBL1 != Miami factory bank",
+  "license_note": "Owner-paid personal-use packs. Private/dev factory path. Owner strips before public redistribution. No strip automation.",
+  "user_import_allowed": true,
+  "factory_by_default": true,
+  "chicago_count": 81,
+  "miami_count": 30,
+  "sources": {
+    "chicago_factory2": "/Library/Application Support/KORG/Gadget/Plug-Ins/ChicagoLibrary.bundle/Contents/Resources/Factory2.prog",
+    "chicago_nks": "/Library/Application Support/KORG/Gadget/Plug-Ins/ChicagoLibrary.bundle/Contents/Resources/NKS/Presets",
+    "miami_nks": "/Library/Application Support/KORG/Gadget/Plug-Ins/MiamiLibrary.bundle/Contents/Resources/NKS/Presets",
+    "chicago_au": "/Library/Audio/Plug-Ins/Components/Chicago.component 3.1.6",
+    "miami_au": "/Library/Audio/Plug-Ins/Components/Miami.component 3.1.6"
+  },
+  "preferred_tip": "6cf9be8ce6ceec6c85bd01d5f8167c2826cdaf7d"
+}

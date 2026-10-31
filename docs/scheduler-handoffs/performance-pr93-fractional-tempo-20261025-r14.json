@@ -1,0 +1,74 @@
+{
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "compiled_firmware_tree_unchanged": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "device": "UNKNOWN",
+  "negative_exits": {
+    "existing_output_dir": 2,
+    "invalid_compiler": 2,
+    "wrong_git_source": 1
+  },
+  "new_fw_compilation": "NOT_RUN_OR_CLAIMED",
+  "next": [
+    {
+      "action": "compile exact ee863f compiler input, pinned Elite/Pro DEV and matching controller, verify true model/budget/CRC/hash, without waiting for independent QA",
+      "owner": "Hourly Build"
+    },
+    {
+      "action": "independently test full current PR93 root and exact source, negative fractional/tempo/phase/NoteOff boundaries, review",
+      "owner": "Independent QA"
+    },
+    {
+      "action": "only after reviewed source and native budget acceptance, consider optional normal PR integration",
+      "owner": "sole firmware Safe Merge"
+    }
+  ],
+  "normal_pcm_sha256": "6571ba5138d39714c6d2ce96f13f6e7f6bd65831cf453db58f91faf669e909ef",
+  "public_download": "NOT_AUTHORIZED_BY_THIS_SCOPE",
+  "qa": "INDEPENDENT_REVIEW_PENDING",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revision": "performance-pr93-fractional-tempo-source-host-r14-20261025",
+  "role": "Performance Engineering",
+  "scope": "source-exact host fractional reverse rate and live tempo change, original vs fast, no new compiled input",
+  "source_parent_head": "6db88ba43fe0f142f192711142af7726981940d0",
+  "source_parent_root": "6560229dc37ee65bc83483bde453507638a45fc0",
+  "test_script_git_blob": "c9dd6008b8593d19b7ca0e0e2b6f825819849974",
+  "tests": {
+    "fractional_R14_clang": {
+      "command": "python3 -B tests/host/run_breaks_reverse_fractional_tempo.py --source-root . --output-dir /mnt/data/perf_r14_investigation/fractional_R14_clang --compiler clang",
+      "exit": 0,
+      "profiles": {
+        "clang": {
+          "cases": 70,
+          "pcm": "6571ba5138d39714c6d2ce96f13f6e7f6bd65831cf453db58f91faf669e909ef"
+        }
+      },
+      "result_sha256": "315d298784ff2cfd2673a7360dcc6ca840ff7c2c8514dc55b5198e859b122b30"
+    },
+    "fractional_R14_gcc": {
+      "command": "python3 -B tests/host/run_breaks_reverse_fractional_tempo.py --source-root . --output-dir /mnt/data/perf_r14_investigation/fractional_R14_gcc --compiler gcc",
+      "exit": 0,
+      "profiles": {
+        "gcc": {
+          "cases": 70,
+          "pcm": "6571ba5138d39714c6d2ce96f13f6e7f6bd65831cf453db58f91faf669e909ef"
+        }
+      },
+      "result_sha256": "be90edb3b35ae93cb0b6271d8b98615bcf9eaaa3211c80231f3e92cc7ec3dbd4"
+    },
+    "fractional_R14_san": {
+      "command": "python3 -B tests/host/run_breaks_reverse_fractional_tempo.py --source-root . --output-dir /mnt/data/perf_r14_investigation/fractional_R14_san --sanitizer",
+      "exit": 0,
+      "profiles": {
+        "clang": {
+          "cases": 70,
+          "pcm": "6571ba5138d39714c6d2ce96f13f6e7f6bd65831cf453db58f91faf669e909ef"
+        },
+        "gcc": {
+          "cases": 70,
+          "pcm": "6571ba5138d39714c6d2ce96f13f6e7f6bd65831cf453db58f91faf669e909ef"
+        }
+      },
+      "result_sha256": "e508778d0f34f20431b62b9541cabcf397ece0c53f96f9eae7189e381d9eae6d"
+    }
+  }
+}
