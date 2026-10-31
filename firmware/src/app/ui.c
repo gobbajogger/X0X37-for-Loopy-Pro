@@ -431,9 +431,9 @@ static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (pla
 #define BT_N ONOFF_N                                           /* same OFF/ON labels */
 static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
 static const char *const SMC_ROLE_N[] = {"DEVICE", "SMC HOST"};
-static const char *const SMC_MAP_N[] = {"DAW", "USER"};
+static const char *const SMC_MAP_N[] = {"DAW"}; /* reserved legacy preference identity */
 static const x0x_param_t SMC_ROLE_P = {"BT ROLE", 1, 0, SMC_ROLE_N};
-static const x0x_param_t SMC_MAP_P = {"SMC PRESET", 1, 0, SMC_MAP_N};
+static const x0x_param_t SMC_MAP_P = {"SMC PRESET", 0, 0, SMC_MAP_N};
 static const x0x_param_t CKCH_P = {"CLIP KEYS CH", 13, 0, 0};  /* clip mode keybed channel 2-15 (0 = 2) */
 static const char *const CLKSRC_N[] = {"AUTO", "INTERNAL", "EXTERNAL"};   /* SEQ_CLK_* order */
 static const x0x_param_t CLKSRC_P = {"CLOCK SOURCE", 2, 0, CLKSRC_N};
@@ -451,7 +451,7 @@ static int pref_read_only(pref_t r)
     if (r.kind == R_BSTATUS) return 1;
     if (r.kind == R_ENG && r.a == T_303 && original_sound_is_performance(
         (unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c)) return 1;
-    return r.kind == R_BATT || r.kind == R_BTSTAT || r.kind == R_BTNAME;
+    return r.kind == R_BATT || r.kind == R_BTSTAT || r.kind == R_BTNAME || r.kind == R_SMC_MAP;
 }
 
 /* the song's bar k exists from here on: a new bar repeats the one before (the first: what plays) */
@@ -610,7 +610,7 @@ static int pref_get(pref_t r)
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
     case R_SMC_ROLE: return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
-    case R_SMC_MAP: return !!(proj.set.bt & PROJ_BT_SMC_USER);
+    case R_SMC_MAP: return 0; /* DAW only, including stale internal references */
     case R_CKCH: return proj.set.ck_ch - 2;
     case R_CLKSRC: return PROJ_CLK_SRC(proj.set.bt);
     case R_BTSTAT: return plat_ble_state();
@@ -751,9 +751,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         say(v ? "BLUETOOTH HOST" : "BLUETOOTH DEVICE", 0);
         break;
     case R_SMC_MAP:
-        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_USER) | (v ? PROJ_BT_SMC_USER : 0u));
-        say(v ? "USER: CH16 + MMC" : "DAW: MACKIE MODE", 0);
-        break;
+        return;                                       /* DAW only: a stale setter writes nothing */
     case R_FREEPLAY:
         if (v && ui.part == PART_303A + r.a)
             bass_step_cancel();                       /* the held step must not become a held keyboard note */
@@ -1570,7 +1568,6 @@ static void open_global(void)
     list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
     list_add(PR(R_BT, 0, 0, 0));
     list_add(PR(R_SMC_ROLE, 0, 0, 0));
-    list_add(PR(R_SMC_MAP, 0, 0, 0));
     list_add(PR(R_BTSTAT, 0, 0, 0));
     list_add(PR(R_BTNAME, 0, 0, 0));
 #endif
