@@ -201,12 +201,23 @@ static void image_cases(void)
     }
     choose(1,0,0);
     static const felucca_font_t *const expected[]={&FONT_B,&FONT_B,&FONT_B,&FONT_XS,&FONT_T,&FONT_T,&FONT_B};
-    for (unsigned fx=0;fx<7;fx++) {
+    for (unsigned fx=0;fx<ORIGINAL_CHICAGO_FX_CHOICES;fx++) {
         pref_set(PR(R_ENG,T_303,1,17),(int)fx); block(); char name[64],value[24],unit[8];
         screen(V_PART,PART_303B,6); pref_value(PR(R_ENG,T_303,1,17),value,unit);
         CHECK(!strcmp(value,original_sound_fx_name(fx)) && !unit[0]);
-        const felucca_font_t *font=original_value_font(value,unit,54); CHECK(font==expected[fx] && tw(font,value)<=54);
+        const felucca_font_t *font=original_value_font(value,unit,54);
+        CHECK(tw(font,value)<=54);
+        if(fx<7) CHECK(font==expected[fx]); /* retain all original font checks */
         snprintf(name,sizeof name,"chicago-fx%u",fx); shot(name);
+    }
+    for(unsigned f=55;f<original_sound_factories(ORIGINAL_SOUND_CHICAGO);++f) {
+        char name[64]; choose(1,ORIGINAL_SOUND_CHICAGO,f);
+        screen(V_PART,PART_303B,7);
+        const char *preset=original_sound_name(ORIGINAL_SOUND_CHICAGO,f);
+        CHECK(preset && !strcmp(matrix_preset_name(1),preset));
+        snprintf(name,sizeof name,"chicago-restored-preset%u",f); shot(name);
+        ui.touched=1; ui.touch_until=now_ms+900; draw_main();
+        snprintf(name,sizeof name,"chicago-restored-readout%u",f); shot(name);
     }
     static const unsigned q[]={0,64,127};
     for (unsigned kind=0;kind<2;kind++) {
