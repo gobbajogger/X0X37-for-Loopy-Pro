@@ -467,13 +467,14 @@ static int smc_page_now(void)
     return page >= 0 && page < pg.n ? page : 0;
 }
 
+static void smc_capture_bank(int drums);
 static void smc_page_set(int page)
 {
     /* A keyboard-only view switch may shrink pg.n to one or zero; it must
      * never limit the independent locked mixer page or its navigation. */
     int count = smc.locked ? smc.lock_pages : pg.n;
     if (page < 0 || page >= count) return;
-    if (smc.locked) smc.lock_page = (uint8_t)page;
+    if (smc.locked) { smc.lock_page = (uint8_t)page; smc_capture_bank(1); }
     else {
         /* Mixer-side navigation changes the shared page only while unlocked. */
         *page_of(ui.view) = (uint8_t)page;
@@ -1406,6 +1407,30 @@ static void smc_view(int v, int page)
         smc_page_set(page);
 }
 
+/* Restored from codex/mixer-ux 6c84db92 smc_capture_bank(): a deliberate bank
+ * press while locked rebinds destinations in the LOCKED context (view, part,
+ * page, drum bank), never the keyboard's live page. Faders stay captured
+ * unless drums is set (BANK 1-8 / 9-16 on a locked drum mix). */
+static void smc_capture_bank(int drums)
+{
+    ui_t saved = ui;
+    uint8_t peek = smc_peek->on;
+    ui.view = smc.lock_view; ui.part = smc.lock_part; ui.overlay = O_NONE;
+    if (smc.lock_kit) ui.sel[smc.lock_kit - 1u] = smc.lock_bank;
+    build_pages();
+    if (smc.lock_page < pg.n) *page_of(ui.view) = smc.lock_page;
+    smc.locked = 0; smc_peek->on = 0;
+    for (int i = 0; i < 8; i++) {
+        if (drums) smc.lock_fader[i] = smc_target(i);
+        smc.lock_knob[i] = smc_bind(smc_knob_target(i));
+    }
+    smc.locked = 1; smc_peek->on = peek;
+    ui = saved; build_pages();
+    smc.lock_song_revision = song_structure_revision; smc.lock_song_len = song()->len;
+    if (drums) smc.picked = 0;
+    smc.pending = 0xFFu; smc.knob_i = 0;
+}
+
 /* Use the proven mixer-UX encoder banks without modifying the keyboard page. */
 static void smc_knob_bank(int delta)
 {
@@ -1419,6 +1444,7 @@ static void smc_knob_bank(int delta)
     if (count < 1) count = 1;
     smc.knob_bank = (uint8_t)((smc.knob_bank + count + delta) % count);
     smc.knob_i = 0;
+    if (smc.locked) smc_capture_bank(1); /* locked SMC is its own surface: retarget in its context */
     smc_ui_cancel();
 }
 
@@ -1474,6 +1500,10 @@ static int smc_bank(uint8_t note)
         !smk_clip_mode_on() && smc_drum_mix() >= 0) {
         int kit = smc_drum_mix();
         smc_select_drum(kit, note == 0x2E ? 0 : 8);
+        if (smc.locked && smc.lock_kit == kit + 1) {
+            smc.lock_bank = (uint8_t)(ui.sel[kit] / 8u * 8u);
+            smc_capture_bank(1);        /* drum bank: the locked kit's 1-8 / 9-16 strips */
+        }
         return 1;
     }
     return 0;

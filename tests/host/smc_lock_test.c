@@ -386,7 +386,11 @@ static void test_select_and_play(void)
         /* Locked: the repeat SELECT returns the SMC's own captured page to the
          * main mixer; the keyboard page stays where it was. */
         press(24 + other); CHECK(smc_page_now() == 0); CHECK(cur_page() == kit + 1);
-        CHECK(smc_same(frozen, smc_target(0))); CHECK(smc_same(knob_target, smc_knob_target(0)));
+        /* Lock only stops following the keyboard: the SMC's own page change
+         * retargets to its main mixer strips. */
+        CHECK(!smc_same(frozen, smc_target(0))); CHECK(smc_same(smc_home_target(0), smc_target(0)));
+        CHECK(!smc_same(knob_target, smc_knob_target(0)));
+        CHECK(smc_same(PR(R_ENG, T_MIX, part_at(0), smc.knob_bank ? MX_PAN : MX_CUT), smc_knob_target(0)) || smc.knob_bank > 1);
         CHECK(ui.rec == rec); CHECK(!seq.req_start && !seq.req_stop);
         CHECK(smc_lock_toggle());
     }
@@ -470,12 +474,62 @@ static void test_plain_unlock(void)
     CHECK(smc_lock_button(1)); CHECK(smc.locked); CHECK(!smc_lock_button(0)); /* a new press while following locks at once */
     puts("PASS plain unlock: key-up after 900 ms or lock_tick; early key-up stays locked");
 }
+
+/* Locked SMC is its own surface: BANK arrows (0x60/0x61) cycle knob banks and
+ * BANK 1-8/9-16 (0x2E/0x2F) move strips in the LOCKED context, never the
+ * keyboard's live page. Restores codex/mixer-ux 6c84db92 smc_capture_bank. */
+static void test_lock_knob_banks(void)
+{
+    static const char *const names[] = {"Pan", "Rev", "Dly"};
+    for (int kit = 0; kit < NKIT; kit++) {
+        setup(V_SEQ, kit); ui.sel[kit] = 0; build_pages(); smc.knob_bank = 0;
+        pref_t f[8];
+        for (int i = 0; i < 8; i++) f[i] = smc_target(i);
+        CHECK(smc_lock_toggle());
+        navigate(V_HOME, PART_303A);    /* keyboard leaves; SMC stays on its lock page */
+        for (int b = 1; b <= 3; b++) {
+            press(0x61);
+            CHECK(smc.knob_bank == b % 3);
+            for (int i = 0; i < 8; i++) {
+                CHECK(smc_same(smc_knob_target(i), find_ref(kit ? T_808 : T_909, i, names[b % 3])));
+                CHECK(smc_same(smc_target(i), f[i]));
+            }
+        }
+        press(0x60); CHECK(smc.knob_bank == 2);
+        CHECK(smc_same(smc_knob_target(0), find_ref(kit ? T_808 : T_909, 0, "Dly")));
+        press(0x2F);                    /* drum strips 9-16 inside the locked kit */
+        CHECK(smc.locked && smc.lock_bank == 8);
+        CHECK(smc_same(smc_target(0), find_ref(kit ? T_808 : T_909, 8, "Level")));
+        CHECK(smc_same(smc_knob_target(0), find_ref(kit ? T_808 : T_909, 8, "Dly")));
+        press(0x2E); CHECK(smc.lock_bank == 0);
+        CHECK(smc_same(smc_target(0), f[0]));
+        CHECK(smc_lock_toggle()); CHECK(!smc.locked);
+    }
+    /* HOME lock: Cut/Pan/Rev/Dly knob banks retarget, faders stay levels. */
+    setup(V_HOME, PART_303A); smc.knob_bank = 0; build_pages();
+    pref_t f0 = smc_target(0);
+    static const uint8_t params[] = {MX_CUT, MX_PAN, MX_REV, MX_DLY};
+    CHECK(smc_lock_toggle());
+    navigate(V_PART, PART_808);
+    for (int b = 1; b <= 4; b++) {
+        press(0x61); CHECK(smc.knob_bank == b % 4);
+        CHECK(smc_same(smc_knob_target(0), PR(R_ENG, T_MIX, part_at(0), params[b % 4])));
+        CHECK(smc_same(smc_target(0), f0));
+    }
+    CHECK(smc_lock_toggle());
+    /* Unlocked: unchanged, bank follows the live page. */
+    setup(V_HOME, PART_303A); smc.knob_bank = 0; build_pages();
+    press(0x61);
+    CHECK(smc_same(smc_knob_target(0), PR(R_ENG, T_MIX, part_at(0), MX_PAN)));
+    smc.knob_bank = 0;
+    puts("PASS lock knob banks: BANK arrows and drum 1-8/9-16 retarget in the locked context");
+}
 int main(void)
 {
     test_plain_unlock();
     test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
     test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
-    test_physical_pause_input_and_output(); test_guard_reset();
+    test_physical_pause_input_and_output(); test_lock_knob_banks(); test_guard_reset();
     printf("smc_lock: PASS (%u checks; captured Pause input route; physical LED identity unverified)\n", checks);
     return 0;
 }
