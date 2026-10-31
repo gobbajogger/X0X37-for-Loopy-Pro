@@ -1905,14 +1905,21 @@ void engine_render(int32_t *out_lr, uint32_t n)
         master_process_st(&mst, out_l, out_r, (int)n, vol);
         PROF_ADD(6, pt);
     }
-    for (i = 0; i < n; i++) {
-        float l = out_l[i], r = out_r[i];            /* (out_scale: NORMAL 2^22, Felucca's; LOUD 2^23) */
-        l = l > out_lim ? out_lim : l < -out_lim ? -out_lim : l;
-        r = r > out_lim ? out_lim : r < -out_lim ? -out_lim : r;
-        out_lr[2u * i] = (int32_t)(l * out_scale);
-        out_lr[2u * i + 1u] = (int32_t)(r * out_scale);
-        if (i & 1u)
-            eng_scope[eng_scope_w++ & (SCOPE_N - 1u)] = (int16_t)((out_l[i] + out_r[i]) * 16383.5f);
+    {   /* globals in registers: the stores below cannot reload them per sample */
+        const float lim = out_lim, scale = out_scale;
+        for (i = 0; i < n; i++) {
+            float l = out_l[i], r = out_r[i];        /* (out_scale: NORMAL 2^22, Felucca's; LOUD 2^23) */
+            l = l > lim ? lim : l < -lim ? -lim : l;
+            r = r > lim ? lim : r < -lim ? -lim : r;
+            out_lr[2u * i] = (int32_t)(l * scale);
+            out_lr[2u * i + 1u] = (int32_t)(r * scale);
+        }
+    }
+    {
+        uint32_t w = eng_scope_w;
+        for (i = 1; i < n; i += 2u)
+            eng_scope[w++ & (SCOPE_N - 1u)] = (int16_t)((out_l[i] + out_r[i]) * 16383.5f);
+        eng_scope_w = w;
     }
     for (p = 0; p < NPARTS; p++) {                      /* meters: peak hold, ~300 ms decay at the UI */
         uint32_t q = (uint32_t)(fm_minf(part_peak[p], 1.0f) * 32767.0f);
