@@ -1656,6 +1656,13 @@ static int smc_fx_try(uint8_t note, int mmc)
         smc_fx_show(note);
         return 1; /* reassignment never plays FX */
     }
+    /* An empty page slot is inert, including when another button on the
+     * same bus is held. SELECT on the three main buses is the exception:
+     * its pre-existing short-tap navigation must still work. */
+    if (!(button == SMCFX_SELECT && smcfx_is_main(bus)) &&
+        smcfx_strip_get(&smc.fx_strip, smc.fx_page, bus, button) == SMCFX_EMPTY &&
+        smc.fx_strip.key_bus[note] == SMCFX_EMPTY)
+        return 1;
     uint8_t bit = (uint8_t)(1u << bus);
     if (button == SMCFX_SELECT && !mmc) smc.fx_owned |= bit;
     if (button == SMCFX_SELECT && smcfx_is_main(bus)) {
