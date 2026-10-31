@@ -111,6 +111,7 @@ static int project_save(void) { save_calls++; return 0; }
 static void say(const char *s, uint32_t t) { (void)s; (void)t; }
 static void save_project(void) { save_wait = 0u; project_save(); }
 #define BOARD_SMK37 1
+int project_storage_unsupported(void) { return 0; }   /* #810 autosave guard: supported storage here */
 #include "autosave.inc"
 #undef BOARD_SMK37
 

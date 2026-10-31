@@ -240,12 +240,15 @@ static int st_pick(uint32_t obj, uint32_t *seq)
     return -1;
 }
 
-/* Length, -1 only for confirmed erased headers, -2 damaged/unreadable, -8 busy.
- * Keep this classification when integrating #810's previous-copy selection. */
+/* Length, -1 only for confirmed erased headers, -2 unreadable (I/O), -3 readable
+ * but damaged committed data, -8 busy. Integration of #790 and #810: I/O and busy
+ * are retryable (#790); damaged needs validated staged adoption (#810). */
 static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
     st_hdr_t h;
-    int cur;
+    int previous = (obj & PLAT_STORE_PREVIOUS) != 0, cur;   /* #810 */
+    obj &= ~PLAT_STORE_PREVIOUS;
+    if (obj >= OBJ_NOBJ) return -1;
     if (!ST_MAINTENANCE_ADMIT())
         return -8;
     if (st_stage_hold)                            /* do not wipe a boot record being built */
@@ -258,8 +261,18 @@ static int st_load(uint32_t obj, void *dst, uint32_t max)
             st_read(st_sector(obj, 1), &b, sizeof b)) return -2;
         const uint8_t *pa = (const uint8_t *)&a, *pb = (const uint8_t *)&b;
         for (uint32_t i = 0; i < sizeof a; ++i)
-            if (pa[i] != 0xFFu || pb[i] != 0xFFu) return -2;
+            if (pa[i] != 0xFFu || pb[i] != 0xFFu) return -3;   /* readable, committed, damaged */
         return -1;
+    }
+    if (previous) {   /* #810: the older valid A/B copy, read-only */
+        st_hdr_t older;
+        int r = st_head(obj, (uint32_t)(1 - cur), &older);
+        if (r == -2) return -2;
+        if (r || older.seq >= h.seq) return -1;
+        r = st_body(obj, (uint32_t)(1 - cur), &older);
+        if (r == -2) return -2;
+        if (r) return -1;
+        h = older;
     }
     if (h.len > max)
         h.len = max;
