@@ -1425,7 +1425,7 @@ $("find").onclick = () => run("Finding USB MIDI ports…", async () => {
   }
   $("ports").hidden = false;
   if (!inputs.length || !outputs.length) throw new Error("No MIDI input/output pair was found. Connect the keyboard by USB, then find ports again.");
-  const known = inputs.filter((i) => /x0x|smk-37|mke-p37|fm-1|felucca/i.test(i.name) && outputs.some((o) => o.name === i.name));
+  const known = inputs.filter((i) => inputs.filter((p) => p.name === i.name).length === 1 && outputs.filter((o) => o.name === i.name).length === 1);   // no name gate; connectSelected checks the protocol
   if (inputs.length === 1 && outputs.length === 1 || known.length === 1) {
     const input = known.length === 1 ? known[0] : inputs[0], output = outputs.find((o) => o.name === input.name) || outputs[0];
     $("midi-input").value = input.id; $("midi-output").value = output.id; await connectSelected();
