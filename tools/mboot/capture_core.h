@@ -66,6 +66,9 @@ int mb_capture_revalidate(struct mb_capture *ctx, const struct mb_capture_bindin
                           const struct mb_capture_digests *target, uint64_t now);
 /* Eligibility is an instantaneous read-only check, never a writer token. Actual
  * device-side atomic lease transfer to a writer is absent and not authorized. */
+/* Validate a held read-only lease in any active phase; no writer authority. */
+int mb_capture_lease_current(struct mb_capture *ctx,
+                             const struct mb_capture_binding *binding, uint64_t now);
 int mb_capture_evidence_current(struct mb_capture *ctx,
                                 const struct mb_capture_binding *binding, uint64_t now);
 void mb_capture_invalidate(struct mb_capture *ctx);
