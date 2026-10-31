@@ -18,7 +18,7 @@ import re, sys
 sys.path.insert(0, "web")
 from make_site import strip_module
 page = open("web/x0x_breaks.html", encoding="utf-8").read()
-lib = strip_module(open("web/x0x_breaks.js", encoding="utf-8").read())
+lib = "\\n".join(strip_module(open("web/" + f, encoding="utf-8").read()) for f in ("x0x_breaks.js", "device_session.js"))
 print(re.search(r'<script type="module">(.*)</script>', page.replace("/*LIB*/", lib), re.S).group(1))
 `]).toString();
 
@@ -125,10 +125,11 @@ const blobs = [];
 URL.createObjectURL = (b) => { blobs.push(b); return "blob:test"; };
 URL.revokeObjectURL = () => {};
 Object.defineProperty(globalThis, "navigator", { configurable: true, value: {
+  locks: {request: async (_name, _opts, fn) => fn({})},
   requestMIDIAccess: async () => {
-    const input = { name: "X0X FM-1", state: "connected", open: async () => {}, onmidimessage: null };
+    const input = { id: "i", name: "X0X FM-1", state: "connected", open: async () => {}, onmidimessage: null };
     const output = {
-      name: "X0X FM-1", open: async () => {},
+      id: "o", state: "connected", name: "X0X FM-1", open: async () => {},
       send(d) {
         const r = device.handle(d[4], d.slice(5, d.length - 1));
         if (r) setTimeout(() => input.onmidimessage({ data: new Uint8Array([0xF0, 0x7D, 0x46, 0x4C, d[4], ...r, 0xF7]) }), 0);
@@ -184,7 +185,7 @@ device.load(1, other);
 await $("connect").onclick();
 await idle();
 $("archive").onchange({ target: { files: [{ name: "b.x0xslots", arrayBuffer: async () => arch.buffer }], value: "" } });
-check(await idle(/Restored|differ|fit|damaged/), `Restore: "${$("status").textContent}"`);
+check(await idle(/Complete restore|PARTIAL|differ|fit|damaged/), `Restore: "${$("status").textContent}"`);
 const im0 = device.image(0);
 check(im0 && im0.length === img1.length && im0.every((v, i) => v === img1[i]) && device.image(1) === null,
   "Restore: slot 1 equals the backup, slot 2 erased");

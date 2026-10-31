@@ -32,7 +32,7 @@ static void ready(blec_t *c)
 {
     static const uint8_t addr[6] = {0};
     blec_init(c, send_h4, midi, 0, addr);
-    c->state = BLEC_CONNECTED; c->step = 14; c->conn = 0x50;
+    c->state = BLEC_CONNECTED; c->step = 14; c->conn = 0x50;c->linked=1;
     c->midi_handle = 114; c->cccd_handle = 115;
     c->acl_total = c->credits = 5;
     sent = messages = busy = replies = cmd_n = 0; now = 100;
@@ -154,7 +154,14 @@ int main(int argc, char **argv)
     assert(!sent && c.rx_reason == BLEC_RX_FRAGMENT && !c.rx_need); notification(&c);
     /* The queue survives no credits and a busy transport; feedback waits. */
     ready(&c); c.credits = 0;
-    for (unsigned id = 1; id <= 4; id++) request(&c, (uint8_t)id);
+    /* Two-peer contract: each LE Connection Update holds the HCI command credit
+     * until its Command Status returns it. */
+    for (unsigned id = 1; id <= 4; id++) {
+        const uint8_t status[] = {0x0f, 4, 0, 1, 0x13, 0x20};
+        request(&c, (uint8_t)id);
+        assert(sent == id && last_type == 1);
+        blec_rx(&c, 4, status, sizeof status, now);
+    }
     assert(sent == 4 && last_type == 1); notification(&c);
     const uint8_t feedback[] = {0x90, 60, 127}; assert(blec_midi_send(&c, feedback, 3));
     unsigned held = sent;
@@ -176,22 +183,29 @@ int main(int argc, char **argv)
     done(&c, 0x50, 1); blec_poll(&c, now);
     assert(sent == 3 && c.att_waiting && last[6] == 4 && last[8] == 0x10);
     /* Duplicate in-range requests each get an update command and an acceptance. */
-    ready(&c); request(&c, 7); request(&c, 7); assert(sent == 4); reply(0x13, 7, 0, 0);
+    ready(&c); request(&c, 7);
+    { const uint8_t status[] = {0x0f, 4, 0, 1, 0x13, 0x20}; blec_rx(&c, 4, status, sizeof status, now); }
+    request(&c, 7); assert(sent == 4); reply(0x13, 7, 0, 0);
     /* Queue overflow and stalled credits abort the link, with an error. */
     ready(&c); c.credits = 0;
-    for (unsigned id = 1; id <= 5; id++) request(&c, (uint8_t)id);
+    for (unsigned id = 1; id <= 5; id++) {
+        const uint8_t status[] = {0x0f, 4, 0, 1, 0x13, 0x20};
+        request(&c, (uint8_t)id);
+        blec_rx(&c, 4, status, sizeof status, now);
+    }
+    blec_poll(&c, now); /* Disconnect waits for the returned command credit. */
     assert(c.state == BLEC_DISCONNECTING && c.errors == 1 && last_type == 1 && last[0] == 6);
     ready(&c); c.credits = 0; now = 0xfffffff0u; request(&c, 1);
     blec_poll(&c, now + 2999u); assert(blec_connected(&c));
     blec_poll(&c, now + 3000u); assert(c.state == BLEC_DISCONNECTING && c.errors == 1);
     /* Stop/start and disconnect cannot carry a reply or a fragment to the next link. */
     ready(&c); c.credits = 0; request(&c, 1); blec_stop(&c);
-    blec_start(&c, now); c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50; c.credits = 5;
+    blec_start(&c, now); c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50;c.linked=1; c.credits = 5;
     unsigned before = sent; blec_poll(&c, now); assert(sent == before);
     ready(&c); c.credits = 0; request(&c, 1);
     const uint8_t down[] = {5, 4, 0, 0x50, 0, 0x13};
     blec_rx(&c, 4, down, sizeof down, now);
-    c.state = BLEC_CONNECTED; c.step = 14; c.waiting = 0; c.conn = 0x51;
+    c.state = BLEC_CONNECTED; c.step = 14; c.waiting = 0; c.conn = 0x51;c.linked=1;
     before = sent; blec_poll(&c, now); assert(sent == before);
     /* Pairing is refused once. The link stays up and a later control still arrives. */
     ready(&c);

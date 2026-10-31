@@ -78,6 +78,7 @@ void plat_midi_out(uint32_t pkt)
     (void)pkt;
     REQUIRE(0);                         /* project storage must not send MIDI */
 }
+int plat_midi_passed(uint32_t mark) { (void)mark; return 1; }
 
 static project_t before_project, saved_project;
 static seq_t before_seq;
@@ -168,6 +169,7 @@ static void fixture(const char *name)
     erases = programs = saves = 0;
     memset(stored_known, 0, sizeof stored_known);
     memset(stored_hash, 0, sizeof stored_hash);
+    project_incompatible = 0; /* a new simulated boot, not an accepted old project */
     memset(&proj, 0, sizeof proj);
     proj.set.bt = PROJ_DEVICE_BT | PROJ_BT_CLK_IN;
     project_defaults();
@@ -246,6 +248,7 @@ static void musical_fixture(void)
     proj.set.palette = 4;
     proj.set.ck_ch = 15;
     proj.sound.v[T_303][1][0] = 1;
+    engine_bass_sound_refresh(&proj.sound, 1); /* changed macro also updates its revision-13 identity */
     for (p = 0; p < NPAT; p++) {
         proj.pat[p].drum[1].len = NSTEPS;
         sm_set(proj.pat[p].drum[1].hit[10], (int)((p * 7u) % NSTEPS));
@@ -356,7 +359,7 @@ typedef struct { size_t offset; unsigned bytes; uint32_t value; } invalid_t;
 static void test_semantic_rejection(void)
 {
     static const invalid_t invalid[] = {
-        BAD8(set.palette, 5), BAD8(set.keyled, 3), BAD8(set.clk_out, 2), BAD8(set.notes_out, 2),
+        BAD8(set.palette, 6), BAD8(set.keyled, 3), BAD8(set.clk_out, 2), BAD8(set.notes_out, 2),
         BAD16(set.bpm_x10, 199), BAD16(set.bpm_x10, 2751), BAD8(set.accent_q7, 128),
         BAD8(set.keysound, 2), BAD8(set.autosave_off, 2), BAD8(set.out_loud, 2), BAD8(set.usb_full, 2),
         BAD8(set.bt, 0), BAD8(set.bt, 0xC8), BAD8(set.bt, 14), BAD8(set.ck_ch, 1),
@@ -368,7 +371,7 @@ static void test_semantic_rejection(void)
         BAD8(pat[31].bass[1].gen.scale, TB3PO_NSCALES), BAD8(pat[31].bass[1].step[63].flags, 3),
         BAD8(pat[31].bass[1].step[63].flags, 16), BAD8(pat[31].bass[1].step[63].note, 128),
         BAD8(pat[31].bass[1].step[63].velocity, 128), BAD8(pat[31].brk.set[BRK_PHRASE], 255),
-        BAD8(pat[31].brk.slice[15], 9), BAD16(arr.song.len, NSONG + 1),
+        BAD8(pat[31].brk.slice[15], 33), BAD8(pat[31].brk.slice_mode, 16), BAD16(arr.song.len, NSONG + 1),
         BAD8(arr.song.bar[NSONG - 1].pat[PART_BRK], NPAT),
         BAD8(arr.lane[NLANE - 1].used, 2), BAD8(arr.lane[NLANE - 1].pat, NPAT),
         BAD8(arr.lane[NLANE - 1].part, NPARTS), BAD8(arr.lane[NLANE - 1].t, T_VEL + 1),
@@ -389,7 +392,8 @@ static void test_semantic_rejection(void)
         for (b = 0; b < invalid[k].bytes; b++)
             ((uint8_t *)&project_stage)[invalid[k].offset + b] = (uint8_t)(invalid[k].value >> (b * 8u));
         project_file_header(h);       /* correct CRC: this must be semantic rejection */
-        if (project_file_validate(h) != -1) {
+        int invalid_rc = project_file_validate(h);
+        if (invalid_rc != -1 && invalid_rc != -9) {
             fprintf(stderr, "unsafe case %u (offset %zu) was accepted\n", k, invalid[k].offset);
             CHECK(0);
         }
@@ -471,126 +475,39 @@ static void test_storage_rejection(void)
     check_live_unchanged();
 }
 
-/* Encode the actual pre-stream format, with valid current sound/settings so
- * these cases isolate legacy arrangement completeness rather than migrations. */
-static void store_legacy_project(int arrangement)
+/* Revision 13 is the sole accepted on-device format. Old, CRC-valid
+ * objects must be rejected without touching live playback or sample slots. */
+static void test_old_revision_rejection(void)
 {
-    uint8_t payload[PLAT_STORE_MAX], raw[ARR1_LEN];
-    pattern1_t old;
-    unsigned h, p, k, v, i;
-    REQUIRE(save_obj(OBJ_SET, &proj.set, sizeof proj.set) == 0);
-    REQUIRE(save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0);
-    for (h = 0; h < 2; h++) {
-        put32(payload, PROJ_FORMAT);
-        for (p = 0; p < 8; p++) {
-            const pattern_t *pat = &proj.pat[h * 8 + p];
-            memset(&old, 0, sizeof old);
-            for (k = 0; k < NKIT; k++) {
-                for (v = 0; v < NDRUM; v++)
-                    old.drum[k].hit[v] = pat->drum[k].hit[v][0];
-                old.drum[k].accent = pat->drum[k].accent[0];
-                old.drum[k].len = pat->drum[k].len;
-                old.drum[k].rate = pat->drum[k].rate;
-            }
-            for (k = 0; k < NBASS; k++) {
-                for (i = 0; i < NSTEPS1; i++) {
-                    old.bass[k].step[i].note = pat->bass[k].step[i].note;
-                    old.bass[k].step[i].flags = pat->bass[k].step[i].flags;
-                }
-                old.bass[k].len = pat->bass[k].len;
-                old.bass[k].rate = pat->bass[k].rate;
-                old.bass[k].dir = pat->bass[k].dir;
-                old.bass[k].transpose = pat->bass[k].transpose;
-                old.bass[k].gen = pat->bass[k].gen;
-            }
-            old.brk.steps = pat->brk.steps;
-            memcpy(old.brk.set, pat->brk.set, sizeof old.brk.set);
-            old.brk.slot_a = pat->brk.slot_a;
-            old.brk.slot_b = pat->brk.slot_b;
-            old.swing = pat->swing;
-            memcpy(payload + 4 + p * sizeof old, &old, sizeof old);
-        }
-        REQUIRE(st_save(h ? OBJ_PAT1 : OBJ_PAT0, payload, 4u + 8u * sizeof old) == 0);
-    }
-    if (!arrangement)
-        return;
-    memcpy(raw, &proj.arr.song, sizeof(song_t));
-    for (k = 0; k < NLANE; k++) {
-        lane1_t old_lane;
-        const lane_t *l = &proj.arr.lane[k];
-        memset(&old_lane, 0, sizeof old_lane);
-        old_lane.used = l->used;
-        old_lane.gen = l->gen;
-        old_lane.pat = l->pat;
-        old_lane.part = l->part;
-        old_lane.t = l->t;
-        old_lane.v = l->v;
-        old_lane.i = l->i;
-        memcpy(old_lane.val, l->val, NSTEPS1);
-        memcpy(raw + sizeof(song_t) + k * sizeof old_lane, &old_lane, sizeof old_lane);
-    }
-    REQUIRE(save_obj(OBJ_SONG, raw, ARR1_A) == 0);
-    REQUIRE(save_obj(OBJ_MOTION, raw + ARR1_A, ARR1_LEN - ARR1_A) == 0);
-}
-
-static void test_legacy_arrangement(void)
-{
-    static const uint32_t objects[] = {OBJ_SONG, OBJ_MOTION};
+    static const uint8_t old_revisions[] = {1u, 2u, 3u, 6u, 10u, 11u, 12u};
     uint8_t payload[PLAT_STORE_MAX];
-    unsigned k, fault;
-    fixture("legacy arrangement widens without changing live data or samples");
-    proj.arr.song.len = 1;
-    proj.arr.song.bar[0].pat[PART_303B] = 15;
-    proj.arr.lane[NLANE - 1].used = 1;
-    proj.arr.lane[NLANE - 1].pat = 15;
-    proj.arr.lane[NLANE - 1].part = PART_303B;
-    proj.arr.lane[NLANE - 1].t = T_303;
-    proj.arr.lane[NLANE - 1].v = 1;
-    proj.arr.lane[NLANE - 1].i = 0;
-    memset(proj.arr.lane[NLANE - 1].val, MOT_NONE, NSTEPS);
-    proj.arr.lane[NLANE - 1].val[NSTEPS1 - 1] = 53;
-    store_legacy_project(1);
-    snapshot();
-    CHECK(project_load_stage() == 0);
-    CHECK(project_stage.arr.song.len == 1);
-    CHECK(project_stage.arr.song.bar[0].pat[PART_303B] == 15);
-    CHECK(project_stage.arr.lane[NLANE - 1].val[NSTEPS1 - 1] == 53);
-    for (k = NSTEPS1; k < NSTEPS; k++)
-        CHECK(project_stage.arr.lane[NLANE - 1].val[k] == MOT_NONE);
-    check_live_unchanged();
-
-    fixture("pre-arrangement projects retain compatibility when both objects unavailable");
-    store_legacy_project(0);
-    snapshot();
-    CHECK(project_load_stage() == 0);
-    CHECK(project_stage.arr.song.len == 0);
-    for (k = 0; k < NLANE; k++)
-        CHECK(!project_stage.arr.lane[k].used);
-    check_live_unchanged();
-
-    for (k = 0; k < sizeof objects / sizeof objects[0]; k++)
-        for (fault = 0; fault < 3; fault++) {
-            int n;
-            fixture("incomplete or malformed legacy arrangement refuses staged load");
-            store_legacy_project(1);
-            n = st_load(objects[k], payload, sizeof payload);
-            REQUIRE(n > 4);
-            if (fault == 0) {
-                /* Simulate one unavailable object; both A/B copies are absent. */
-                REQUIRE(st_erase(st_sector(objects[k], 0)) == 0);
-                REQUIRE(st_erase(st_sector(objects[k], 1)) == 0);
-            } else {
-                if (fault == 2)
-                    put32(payload, PROJ_FORMAT + 1u);
-                REQUIRE(st_save(objects[k], payload, (uint32_t)n - (fault == 1)) == 0);
-            }
-            musical_fixture();
-            seq.bpm = 231.0f;
-            packed_len = 4321u;
-            snapshot();
-            CHECK(project_load_stage() < 0);
-            check_live_unchanged();
-        }
+    unsigned k;
+    for (k = 0; k < sizeof old_revisions / sizeof old_revisions[0]; k++) {
+        int n;
+        fixture("old sound revisions cannot stage into revision 13");
+        musical_fixture();
+        REQUIRE(project_save() == 0);
+        n = st_load(OBJ_SET, payload, sizeof payload);
+        REQUIRE(n == (int)(4u + sizeof(settings_t)));
+        payload[4u + offsetof(settings_t, snd_rev)] = old_revisions[k];
+        REQUIRE(st_save(OBJ_SET, payload, (uint32_t)n) == 0);
+        snapshot();
+        CHECK(project_load_stage() == -9);
+        check_live_unchanged();
+    }
+    for (k = 0; k < sizeof old_revisions / sizeof old_revisions[0]; k++) {
+        int n;
+        fixture("old stream revisions cannot stage into revision 13");
+        musical_fixture();
+        REQUIRE(project_save() == 0);
+        n = st_load(OBJ_PAT0, payload, sizeof payload);
+        REQUIRE(n > (int)STREAM_HDR);
+        put32(payload, old_revisions[k]);
+        REQUIRE(st_save(OBJ_PAT0, payload, (uint32_t)n) == 0);
+        snapshot();
+        CHECK(project_load_stage() == -9);
+        check_live_unchanged();
+    }
 }
 
 static uint32_t random_state = 0x1C0369E7u;
@@ -657,96 +574,15 @@ static void test_capacity_rejection(void)
 }
 
 
-/* BF-020: stored pre-BD-send pan motion must follow the sound pan's two-byte
- * migration. Stream arrangement loads after sound; both must be in memory
- * before the migration rewrites any motion-lane target indices. */
-static void test_legacy_bd_pan_motion(void)
-{
-    static const struct {uint8_t rev, pan_909, pan_808;} cases[] = {
-        {2, 8, 7}, /* no BD sends on either 909 or 808 */
-        {3, 10, 7}, /* 909 already migrated; 808 not yet migrated */
-        {4, 10, 9}, /* both already migrated: do not migrate twice */
-    };
-    for (size_t c = 0; c < sizeof cases / sizeof cases[0]; c++) {
-        const uint8_t pan909 = cases[c].pan_909, pan808 = cases[c].pan_808;
-        lane_t *lane;
-        fixture("legacy BD PAN motion migration");
-        proj.set.snd_rev = cases[c].rev;
-        proj.set.stereo = PROJ_STEREO;
-        proj.sound.v[T_909][0][pan909] = 31;
-        proj.sound.v[T_808][0][pan808] = 87;
-        lane = &proj.arr.lane[0];
-        lane->used = 1; lane->pat = 3; lane->part = PART_909;
-        lane->t = T_909; lane->v = 0; lane->i = pan909;
-        memset(lane->val, MOT_NONE, NSTEPS); lane->val[2] = 31;
-        lane = &proj.arr.lane[1];
-        lane->used = 1; lane->pat = 4; lane->part = PART_808;
-        lane->t = T_808; lane->v = 0; lane->i = pan808;
-        memset(lane->val, MOT_NONE, NSTEPS); lane->val[4] = 87;
-        lane = &proj.arr.lane[2];
-        lane->used = 1; lane->pat = 3; lane->part = PART_909;
-        lane->t = T_909; lane->v = 1; lane->i = 2; /* unaffected different voice */
-        memset(lane->val, MOT_NONE, NSTEPS); lane->val[2] = 33;
-        REQUIRE(project_save() == 0);
-        snapshot();
-        CHECK(project_load_stage() == 0);
-        CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
-        CHECK(project_stage.arr.lane[0].i == 10);
-        CHECK(project_stage.arr.lane[1].i == 9);
-        CHECK(project_stage.arr.lane[2].i == 2);
-        CHECK(project_stage.arr.lane[0].val[2] == 31);
-        CHECK(project_stage.arr.lane[1].val[4] == 87);
-        CHECK(project_stage.arr.lane[2].val[2] == 33);
-        CHECK(project_stage.sound.v[T_909][0][10] == 31);
-        CHECK(project_stage.sound.v[T_808][0][9] == 87);
-        check_live_unchanged(); /* stage migration never mutates active playback or flash */
-    }
-}
-
-/* A revision-1 project may contain a valid master high-pass cutoff above 120.
- * The compact FILTER macro only represents 0..120 on the HP side; migration
- * must never manufacture a value outside its 0..127 parameter range. */
-static void test_legacy_master_hp_migration(void)
-{
-    static const unsigned cutoff[] = {0, 1, 7, 8, 32, 60, 119, 120, 121, 123, 124, 125, 126, 127};
-    unsigned mode, k;
-    for (mode = 0; mode < 4u; mode++) {
-        for (k = 0; k < sizeof cutoff / sizeof cutoff[0]; k++) {
-            unsigned c = cutoff[k], expected;
-            if (mode == 0u)
-                expected = 64u;
-            else if (mode == 3u)
-                expected = 69u + (c > 120u ? 120u : c) * 58u / 120u;
-            else
-                expected = c < 8u ? 0u : (c - 8u) * 59u / 119u;
-            fixture("legacy master filter valid after sound-revision migration");
-            proj.set.snd_rev = 1;       /* the one-knob FILTER did not exist */
-            proj.sound.v[T_MST][0][MST_MODE] = (uint8_t)mode;
-            proj.sound.v[T_MST][0][MST_CUTOFF] = (uint8_t)c;
-            REQUIRE(project_save() == 0);
-            snapshot();
-            CHECK(project_load_stage() == 0);
-            CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
-            CHECK(project_stage.sound.v[T_MST][0][MST_MODE] == mode);
-            CHECK(project_stage.sound.v[T_MST][0][MST_CUTOFF] == c);
-            CHECK(project_stage.sound.v[T_MST][0][MST_DJF] <= 127u);
-            CHECK(project_stage.sound.v[T_MST][0][MST_DJF] == expected);
-            check_live_unchanged();
-        }
-    }
-}
-
 int main(void)
 {
     test_defaults();
-    test_legacy_bd_pan_motion();
     test_save_export_load();
     test_file_rejection();
     test_semantic_rejection();
     test_storage_rejection();
-    test_legacy_master_hp_migration();
     test_capacity_rejection();
-    test_legacy_arrangement();
+    test_old_revision_rejection();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }

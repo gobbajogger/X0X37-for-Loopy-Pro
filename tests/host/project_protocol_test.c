@@ -14,11 +14,18 @@ static uint8_t flash_image[0x100000];
 #define SMP_USER_XIP(k) (flash_image + SMP_USER_OFF(k))
 #include "../../firmware/src/app/slots.c"
 project_t proj, project_stage;
+/* Drive the real editor's revision-13 export preflight without a DSP/storage link. */
+static int host_storage_unsupported, host_sound_invalid, host_preset_pending;
+int project_storage_unsupported(void) { return host_storage_unsupported; }
+int engine_bass_sound_validate(const sound_t *sound) { (void)sound; return host_sound_invalid; }
+int engine_bass_preset_pending(int voice) { (void)voice; return host_preset_pending; }
 static uint32_t fm1_ms, fm1_crash[2];
 static struct { uint32_t failed, pending; } bootguard;
-static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action;
+static struct { unsigned ota_req, uboot_req; } usb;
+static int flash_ok = 1, flash_writes, flash_erases, held, adopts, aborts, validation, action, wire_fail, stage_held, headers;
 static uint8_t frame[640], reply[800];
 static uint32_t frame_n, reply_n;
+static void (*wire_after_send)(void);
 static void fm1_irq_off(void) {}
 static void fm1_irq_on(void) {}
 static void fm1_wdt_feed(void) {}
@@ -47,7 +54,7 @@ static uint8_t *fm1_xip_ptr(uint32_t off)
     assert(off < sizeof flash_image);
     return flash_image + off;
 }
-static int store_stage_held(void) { return 0; }
+static int store_stage_held(void) { return stage_held; }
 static uint8_t *store_stage_lock(uint32_t *cap)
 {
     static uint8_t buf[64];
@@ -69,6 +76,7 @@ void engine_brk_loops(void) {}
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes) { (void)base; (void)nbytes; }
 void ui_say(const char *a, const char *b) { (void)a; (void)b; }
 int ui_boot_flash_busy(void) { return 0; }
+int ui_project_busy(void) { return held; }
 int ui_project_begin(void) { if (held) return UI_PROJECT_BUSY; held = 1; return 0; }
 void ui_project_end(int apply)
 {
@@ -80,11 +88,13 @@ int ui_project_save(void) { return action; }
 int ui_project_load(void) { return action; }
 int ui_project_reset(void) { return action; }
 void project_capture_stage(void) { memcpy(&project_stage, &proj, sizeof proj); }
-void project_file_header(uint8_t *h) { memset(h, 0x55, PROJECT_FILE_HDR); }
+void project_file_header(uint8_t *h) { headers++; memset(h, 0x55, PROJECT_FILE_HDR); }
 int project_file_validate(const uint8_t *h) { (void)h; return validation; }
 static int ota_wire_send(const uint8_t *p, uint32_t n)
 {
-    assert(n <= sizeof reply); memcpy(reply, p, n); reply_n = n; return 0;
+    assert(n <= sizeof reply); memcpy(reply, p, n); reply_n = n;
+    if (wire_after_send) wire_after_send();
+    return wire_fail;
 }
 static int ota_frame_get(const uint8_t **p, uint32_t *n)
 {
@@ -140,9 +150,15 @@ int main(void)
     uint32_t i, n;
     for (i = 0; i < sizeof data; i++) data[i] = (uint8_t)(i * 37 + 91);
     memset(&proj, 0x42, sizeof proj);
-    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == 1 && ed_u21(reply + 8) == sizeof data && !reply[11]);
+    op(64, 0, 0, 0); assert(reply_n == 13 && reply[7] == (X0X_BASS_TAGGED_SOUND ? 2 : 1) && ed_u21(reply + 8) == sizeof data && !reply[11]);
     u21(a, sizeof data - 1); op(67, a, 3, 1); assert(!held);
     held = 1; u21(a, sizeof data); op(67, a, 3, 2); held = 0;
+    host_storage_unsupported = 1; op(65, 0, 0, 2); assert(!held);
+    host_storage_unsupported = 0;
+    host_sound_invalid = 1; op(65, 0, 0, 2); assert(!held);
+    host_sound_invalid = 0;
+    host_preset_pending = 1; op(65, 0, 0, 2); assert(!held);
+    host_preset_pending = 0;
     op(65, 0, 0, 0); assert(ed_project.mode == 1 && held);
     u21(a, 20); a[3] = 100; a[4] = 0; op(66, a, 5, 0);
     assert(ed_u21(reply + 7) == 20 && ed_unpack_exact(reply + 10, reply_n - 11, decoded, sizeof decoded) == 100);
@@ -164,7 +180,9 @@ int main(void)
     validation = -4; op(69, confirm, 2, 4); assert(!adopts && held);
     validation = -7; op(74, 0, 0, 6);
     validation = -1; op(74, 0, 0, 5);
+    int headers_before_validate = headers;
     validation = 0; op(74, 0, 0, 0); assert(!adopts && held && !ed_project_samples_locked());
+    assert(headers == headers_before_validate + 1); /* migrated bytes need a new CRC header */
     op(69, confirm, 2, 0); assert(adopts == 1 && !held && !ed_project.mode);
     assert(!memcmp(&proj, data + PROJECT_FILE_HDR, sizeof proj));
     assert(!flash_writes && !flash_erases);

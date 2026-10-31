@@ -16,7 +16,7 @@ mutants = {
     'fx-button-navigates': ('if (smc_fx_try(note, mmc))\n        return;', 'if (0 && smc_fx_try(note, mmc))\n        return;'),
     'lock-redirect-fader': ('if (smc.locked) return smc.lock_fader[n];', 'if (smc.locked) return smc_home_target(n);'),
     'lock-redirect-knob': ('r = smc.lock_knob[n];', 'r = NONE;'),
-    'select-led-fx-only': ('if (row == 3 && ui.view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())', 'if (row == 3)'),
+    'select-led-fx-only': ('if (row == 3 && view == V_FX && ui.overlay == O_NONE && !smk_clip_mode_on())', 'if (row == 3)'),
 }
 selected = sys.argv[1:] or list(mutants)
 if any(name not in mutants for name in selected):

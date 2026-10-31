@@ -1,0 +1,71 @@
+{
+  "inputs": [
+    "firmware/src/seq/pattern.h",
+    "firmware/src/seq/sequencer.h",
+    "firmware/src/seq/motion.h",
+    "firmware/src/dsp/drum808.h",
+    "firmware/src/dsp/drum909.h",
+    "firmware/src/dsp/drum909_dsp.h",
+    "firmware/src/dsp/x0x_param.h",
+    "firmware/src/dsp/fastmath.h",
+    "firmware/src/app/engine.h",
+    "tools/gen_drum_samples.py",
+    "tests/host/drum_kit_identity_test.c",
+    "tests/host/drum_kit_identity_test.sh",
+    "tools/remaining_feature_proof.py",
+    "tools/sampleio.py",
+    "assets/909/hh.wav",
+    "assets/909/ride.wav",
+    "assets/909/crash.wav",
+    "tests/host/remaining_feature_proof_test.py",
+    "docs/remaining-feature-host-plan.json",
+    "firmware/src/app/home_pattern_glyph.h",
+    "firmware/src/app/ui.c",
+    "tests/host/home_pattern_glyph_test.c",
+    "tests/host/home_pattern_glyph_test.sh",
+    "tests/host/home_overview_test.c",
+    "tests/run_tests.sh",
+    "docs/notes/remaining-home-overview-evidence.md",
+    "web/x0x_installer.html",
+    "web/x0x_projects.html",
+    "web/x0x_projects.js",
+    "web/test_installer_project_handoff.mjs"
+  ],
+  "checks": [
+    {
+      "name": "drum-kit-identity",
+      "argv": [
+        "sh",
+        "tests/host/drum_kit_identity_test.sh"
+      ]
+    },
+    {
+      "name": "feature-proof-selftest",
+      "argv": [
+        "python3",
+        "tests/host/remaining_feature_proof_test.py"
+      ]
+    },
+    {
+      "name": "home-pattern-glyph",
+      "argv": [
+        "sh",
+        "tests/host/home_pattern_glyph_test.sh"
+      ]
+    },
+    {
+      "name": "home-overview",
+      "argv": [
+        "sh",
+        "tests/host/home_overview_test.sh"
+      ]
+    },
+    {
+      "name": "installer-project-handoff",
+      "argv": [
+        "node",
+        "web/test_installer_project_handoff.mjs"
+      ]
+    }
+  ]
+}

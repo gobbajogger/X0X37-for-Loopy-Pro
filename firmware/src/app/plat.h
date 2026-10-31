@@ -38,6 +38,25 @@ enum { EN_SELECT, EN_ALGO, EN_PRESET, EN_K1, EN_K2, EN_K3, EN_K4, NE };
 uint32_t plat_ms(void);
 uint32_t plat_buttons(void);           /* held: bit B_* */
 uint32_t plat_keys(void);              /* held: bit k = key k (0 = F3) */
+/* Physical pad division input, from 6ae0928. Host/non-Miami builds keep no-op. */
+#if defined(X0X_HOST) || !BOARD_SMK37 || !X0X_ORIGINAL_SYNTH || !X0X_DEV_WOBBLE
+static inline int plat_division_pad(unsigned owner) { (void)owner; return -1; }
+#else
+int plat_division_pad(unsigned owner);
+#endif
+/* Outer physical events retain their publication epoch and strike pitch.
+ * Snapshot/cutoff includes the complete physical bitmap under an IRQ guard. */
+typedef struct { uint32_t generation, word; } plat_outer_event_t;
+#if defined(X0X_HOST) && !defined(X0X_LIVE_KEY_TEST)
+static inline uint64_t plat_physical_keys(void) { return (uint64_t)plat_keys()<<5; }
+static inline int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                                  uint32_t epoch,int enabled,int octave,int publish)
+{ (void)events;(void)epoch;(void)enabled;(void)octave;(void)publish;*keys=plat_physical_keys();*overflow=0;return 0; }
+#else
+uint64_t plat_physical_keys(void);
+int plat_outer_keys(plat_outer_event_t *events,uint64_t *keys,int *overflow,
+                    uint32_t epoch,int enabled,int octave,int publish);
+#endif
 uint8_t plat_key_velocity(int key);    /* last strike, 1..127; 100 without velocity sensing */
 int32_t plat_enc(int role);            /* detents since the last call, + = clockwise; EN_* */
 uint32_t plat_master(void);            /* MASTER pot, 0..4096 gain Q12 */
@@ -54,6 +73,7 @@ int plat_midi_pending(void);          /* non-consuming shared USB/BLE/TRS input 
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
 #define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 #define PLAT_MIDI_LINK_END(src) ((uint32_t)(src) << 4)   /* CIN 0, no message: the link of input src ended (MID-15, BLE-16) */
+int plat_midi_pulse(uint8_t channel, uint8_t note, uint8_t velocity); /* CPU0 only: atomic matched pair or drop both */
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
@@ -94,6 +114,7 @@ const char *plat_ble_name(void);
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len);
 
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;

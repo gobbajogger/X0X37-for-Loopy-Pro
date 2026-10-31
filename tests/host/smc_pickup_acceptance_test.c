@@ -24,11 +24,24 @@ void pickup_engine_set(int t, int v, int i, int val)
     written_t = t; written_voice = v; written_param = i; written_value = val;
     engine_set(t, v, i, val);
 }
+static unsigned peek_pickup_hints;
 static void status_is(const char *status)
 {
     CHECK(smc_ui_active());
     ui_frame();
     memcpy(active_fb, fb, sizeof fb);
+    if (smc_peek->on) {
+        /* Approved #737 peek: the status is the second header line, drawn
+         * over the real page. Compare that line only. */
+        cv_begin(240, HDR_H, C_BLACK);
+        text_c(120, vc(&FONT_T, 10, 10), &FONT_T, status,
+               status[0] == 'P' ? C_HI : C_GRAY);
+        cv_commit(0, 0, 0);
+        CHECK(!memcmp(active_fb + 10 * 240, fb + 10 * 240,
+                      240 * (HDR_H - 10) * sizeof *fb));
+        if (status[0] == 'P') peek_pickup_hints++;
+        return;
+    }
     cv_begin(240, KNOB_H, C_BLACK);
     text_c(120, 49, &FONT_XS, status, C_HI);
     cv_commit(3, 0, KNOB_Y);
@@ -234,13 +247,31 @@ static void stateful_sequences(void)
     }
     printf("PASS %u stateful input events: target edits, parked away/back plus edits while away, kit/bank/part, lock/unlock, reconnect, duplicates and feedback timing\n", packets);
 }
+static void mute_takeover(void)
+{
+    /* A muted level takes over on the first movement, like the keyboard. */
+    for (int drum = 0; drum < 2; drum++) {
+        prepare(drum ? V_SEQ : V_HOME, drum ? PART_909 : PART_303A, 0, 64);
+        pref_t r = smc_target(0);
+        mute_part(drum ? PART_909 : r.b); smc_frame(); CHECK(volume_muted(r));
+        writes = 0; fader(0, 0); CHECK(!writes || pref_get(r) == 0);
+        fader(0, 10); CHECK((smc.picked & 1) && pref_get(r) == 10 && writes);
+    }
+    /* Unmuted control still waits for pickup. */
+    prepare(V_HOME, PART_303A, 0, 64); writes = 0;
+    fader(0, 0); fader(0, 10); CHECK(!writes && !(smc.picked & 1));
+    puts("PASS muted levels take over at once; unmuted levels still wait for pickup");
+}
 int main(int argc, char **argv)
 {
     if (argc > 1 && !strcmp(argv[1], "stateful")) stateful_sequences();
     else if (argc > 1 && !strcmp(argv[1], "ramps")) monotonic_ramps();
     else if (argc > 1 && !strcmp(argv[1], "motion")) motion_acquisition();
     else if (argc > 1 && !strcmp(argv[1], "epochs")) routing_epochs();
-    else { crossing_matrix(); routing_epochs(); motion_acquisition(); monotonic_ramps(); stateful_sequences(); }
+    else if (argc > 1 && !strcmp(argv[1], "mute")) mute_takeover();
+    else { crossing_matrix(); mute_takeover(); routing_epochs(); motion_acquisition(); monotonic_ramps(); stateful_sequences(); }
     printf("smc_pickup_acceptance: PASS (%u assertions)\n", checks);
+    CHECK(peek_pickup_hints > 0); /* hint drawn on the #737 peek page */
+    printf("PASS pickup hint on peek page (%u checks)\n", peek_pickup_hints);
     return 0;
 }

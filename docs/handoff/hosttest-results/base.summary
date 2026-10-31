@@ -1,0 +1,1 @@
+label=base base=cb5423c4aad7d9fc0c3e0a532c2aac080f3cfd21 head=none clean=n/a rc=1 pass=429 fail=154 notrun=6 first_fail=  FAIL bass-tagged-storage (see build/host/bass-tagged-storage.log)

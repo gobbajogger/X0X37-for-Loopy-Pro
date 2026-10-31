@@ -11,6 +11,12 @@ uint8_t smk_clip_mode_on(void) { return 0; }
 int smk_ck_smc_turn(int n, int delta) { (void)n; (void)delta; return 0; }
 int smk_ck_smc_nav(uint8_t note) { (void)note; return 0; }
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"

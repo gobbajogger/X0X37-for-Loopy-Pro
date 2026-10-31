@@ -15,8 +15,8 @@ expect sound5.2.3 94
 # a drum voice's PAN: the 909's kick, knob 2 of MIX's 909 MIX page (the black keys pick the track)
 tap LFO
 expect part 0
-turn SELECT -9
-turn SELECT 1
+# MIX pages wrap (PARTS, 909 MIX, 808 MIX, MASTER, WAVE); the second LFO tap opens 909 MIX
+expect page 1
 tapkey b0
 turn K2 -24
 wait 1200

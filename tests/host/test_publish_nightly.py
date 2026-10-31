@@ -101,6 +101,14 @@ def refused(message, fn):
 
 def main():
     tmp = Path(tempfile.mkdtemp(prefix="nightly-publish-"))
+    # Isolated test fixture: supply a default Git identity for the temporary
+    # local repositories, not a custom author for a project commit.
+    default_git = tmp / "fixture-gitconfig"
+    default_git.write_text("[user]\n name = DnBOX Fixture Default\n email = fixture@example.invalid\n")
+    os.environ["GIT_CONFIG_GLOBAL"] = str(default_git)
+    os.environ["GIT_CONFIG_NOSYSTEM"] = "1"
+    for key in ("GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"):
+        os.environ.pop(key, None)
     repo = tmp / "repo"
     repo.mkdir()
     subprocess.check_call(["git", "init", "-q", "-b", "main"], cwd=repo)
@@ -163,76 +171,41 @@ def main():
         repo, failed_path, pro_record, elite_fwsc, pro_fwsc, failed_out, push=False))
     require(not failed_out.exists(), "failed record was published")
 
+    # DnBOX rules retire the legacy Git publisher: generated sites contain .fwsc.
+    # Both explicit and environment-selected push paths must fail before Git I/O.
     bare = tmp / "bare.git"
-    subprocess.check_call(["git", "init", "-q", "--bare", "-b", "nightly-pages", str(bare)])
-    pushed = tmp / "pushed"
-    publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, pushed,
-                          remote=str(bare), push=True)
-    published = git(bare, "rev-parse", "nightly-pages")
-    clone = tmp / "clone"
-    subprocess.check_call(["git", "clone", "-q", "-b", "nightly-pages", str(bare), str(clone)])
-    require((clone / "install" / "index.html").is_file(), "pushed installer")
-    require("ctl.img" not in [path.name for path in (clone / "firmware").iterdir()], "controller image was hosted")
-    first_handoff = json.loads((pushed / "handoff.json").read_text())
-    require(first_handoff["live_deploy"] is False, "first handoff claimed a live deploy")
-    require(first_handoff["pages_repository"] == "gobbajogger/x0x37-for-Loopy-Pro_nightly", "pages repo")
-    require(first_handoff["pages_ref"] == "gh-pages", "pages ref")
-    require("PUBLISHED LIVE" not in (pushed / "handoff.json").read_text(), "published-live claim")
-    (repo / "second.txt").write_text("second candidate\n")
-    subprocess.check_call(["git", "-C", str(repo), "add", "second.txt"])
-    subprocess.check_call(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t",
-                           "commit", "-qm", "second"])
-    elite_again = write_record(repo, "elite", elite_fwsc, tmp / "elite-again")
-    pro_again = write_record(repo, "pro", pro_fwsc, tmp / "pro-again")
-    pushed_again = tmp / "pushed-again"
-    publish_valid_nightly(repo, elite_again, pro_again, elite_fwsc, pro_fwsc, pushed_again,
-                          remote=str(bare), push=True)
-    again = git(bare, "rev-parse", "nightly-pages")
-    require(again != published, "second handoff did not move the branch")
-    require(git(bare, "rev-parse", "nightly-pages^") == published, "second handoff is not a child of the first")
-    subprocess.check_call(["git", "-C", str(bare), "merge-base", "--is-ancestor", published, again])
-    again_catalog = json.loads((pushed_again / "versions.json").read_text())
-    again_names = {item["version"] for item in again_catalog["versions"]}
-    require(catalog["latest"] in again_names, "first candidate was dropped: " + str(again_names))
-    require(again_catalog["latest"] in again_names and again_catalog["latest"] != catalog["latest"],
-            "second candidate missing")
-    again_handoff = json.loads((pushed_again / "handoff.json").read_text())
-    require(again_handoff["live_deploy"] is False, "second handoff claimed a live deploy")
-    require("gh-pages" not in git(bare, "show-ref"), "separate repo gained a gh-pages ref")
-    blocked = tmp / "blocked"
-    refused("gh-pages", lambda: publish_valid_nightly(
-        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, blocked,
-        remote=str(bare), push=True, branch="gh-pages"))
-    require(git(bare, "rev-parse", "nightly-pages") == again, "refused push moved the nightly branch")
-    require(not blocked.exists(), "refused branch wrote a page")
-    for branch in ("main", "master", "nightly"):
-        refused(branch, lambda branch=branch: publish_valid_nightly(
-            repo, elite_record, pro_record, elite_fwsc, pro_fwsc, tmp / ("out-" + branch),
-            remote=str(bare), push=True, branch=branch))
-    require(publish_nightly._destination("refs/heads/nightly-pages") == "nightly-pages",
-            "qualified nightly-pages ref")
-    calls = []
-    real_run = publish_nightly.subprocess.run
+    subprocess.check_call(["git", "init", "-q", "--bare", str(bare)])
+    def reject_push(label, **options):
+        target = tmp / ("rejected-" + label)
+        refused("DnBOX legacy Git push disabled", lambda: publish_valid_nightly(
+            repo, elite_record, pro_record, elite_fwsc, pro_fwsc, target,
+            push=True, **options))
+        require(not target.exists(), "rejected push created output: " + label)
 
-    def spy(args, *a, **k):
-        argv = list(args)
-        calls.append(argv)
-        if "push" in argv:
-            raise AssertionError("git push reached: " + " ".join(map(str, argv)))
-        return real_run(args, *a, **k)
-
-    publish_nightly.subprocess.run = spy
+    reject_push("default-branch", remote=str(bare))
+    reject_push("local-branch", remote=str(bare), branch="chat/scoped-test")
+    reject_push("other-repo", remote="https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git",
+                branch="chat/scoped-test")
+    reject_push("canonical-remote", remote="https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git",
+                branch="chat/scoped-test")
+    reject_push("protected", remote=str(bare), branch="nightly")
+    os.environ["X0X_NIGHTLY_REMOTE"] = str(bare)
     try:
-        for branch in ("refs/heads/main", "refs/heads/gh-pages", "refs/heads/master", "refs/heads/nightly"):
-            out = tmp / ("qualified-" + branch.replace("/", "-"))
-            refused(branch.rsplit("/", 1)[-1], lambda branch=branch, out=out: publish_valid_nightly(
-                repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
-                remote=str(bare), push=True, branch=branch))
-            require(not out.exists(), "qualified ref wrote a page: " + branch)
+        reject_push("environment", branch="chat/scoped-test")
     finally:
-        publish_nightly.subprocess.run = real_run
-    require(not any("push" in cmd for cmd in calls), "qualified ref reached git push: " + repr(calls))
-    require(git(bare, "rev-parse", "nightly-pages") == again, "qualified ref moved the nightly branch")
+        os.environ.pop("X0X_NIGHTLY_REMOTE", None)
+    require(subprocess.run(["git", "--git-dir", str(bare), "show-ref"],
+                           capture_output=True).returncode == 1,
+            "rejected nightly push wrote a Git ref")
+
+    cli_push = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "publish_nightly.py"),
+         "--repo", str(repo), "--elite-record", str(elite_record), "--elite-fwsc", str(elite_fwsc),
+         "--pro-record", str(pro_record), "--pro-fwsc", str(pro_fwsc), "--out", str(tmp / "rejected-cli"),
+         "--remote", str(bare), "--push"],
+        capture_output=True, text=True)
+    require(cli_push.returncode == 2 and "DnBOX legacy Git push disabled" in cli_push.stderr
+            and not (tmp / "rejected-cli").exists(), "CLI allowed legacy Git push")
 
     previous = json.loads((page / "versions.json").read_text())
     older = json.loads(json.dumps(previous["versions"][0]))

@@ -1,43 +1,45 @@
-# 8 SLICES wrap: TRS (src 2) must share USB/Bluetooth note ownership.
+# Break MIDI wrap (always on, slice = (note - 12) mod 8): TRS (src 2) shares USB/Bluetooth note ownership.
 # Foreign Note Off must not kill another input's hold (midiowner / BF-004).
 # engine_init / reboot must clear wrap refcounts so Note Off cannot stick.
 wait 300
 expect midiheld 0
 
-brkwrap 1
-
-# Cross-source: USB hold survives a non-owner TRS Note Off.
+# Cross-source: USB hold survives a non-owner TRS Note Off on an alias of the same slice.
 midi 93 08 64 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 00 00 2
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 08 00 0
 wait 20
 expect midiheld 0
 
-# TRS overlap within slice (note 0 and 8 → slice 0).
+# TRS overlap within slice (notes 0 and 8 are slice 4).
 midi 93 00 64 2
 midi 93 08 64 2
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 00 00 2
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 08 00 2
 wait 20
 expect midiheld 0
 
-# TRS hold must clear when 8 SLICES toggles off (reconcile sees TRS src_held).
+# TRS hold must clear when the break channel changes (reconcile retires every source).
 midi 93 00 64 2
 wait 20
-expect midiheld 0x100
-brkwrap 0
+expect midiheld 0x1000
+partch 4 5
+midi 94 7F 00 0
 wait 20
 expect midiheld 0
+partch 4 4
+midi 93 7F 00 0
+wait 20
 
-# Legacy TRS Note Off must not clear a USB-held slice.
+# TRS Note Off must not clear a USB-held slice on the same note.
 midi 93 24 64 0
 wait 20
 expect midiheld 0x100
@@ -49,17 +51,15 @@ wait 20
 expect midiheld 0
 
 # Reboot / engine_init: stale wrap bits must not keep a slice after Note Off.
-brkwrap 1
 midi 93 00 64 0
 midi 93 08 64 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 reboot
 wait 50
-brkwrap 1
 midi 93 00 64 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 00 00 0
 wait 20
 expect midiheld 0

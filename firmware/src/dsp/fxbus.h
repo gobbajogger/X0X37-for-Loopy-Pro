@@ -40,6 +40,7 @@ struct fxbus {
     d9_biquad_t rv_hp;
     int16_t comb[FX_RV_COMB_TOTAL];
     volatile uint8_t muted;          /* uses alignment padding: reverb/delay/master output gates, not pots */
+    uint8_t dl_signal; /* input/wet activity from this block, UI-only observer */
     float ap[FX_RV_AP_TOTAL];
     int32_t cpos[4], apos[2];
     float cdmp[4];
@@ -75,5 +76,6 @@ void fxbus_process_st(fxbus_t *f, const float *dry_l, const float *dry_r, const 
                       float *out_l, float *out_r, int n);
 int fxbus_nparams(void);
 const x0x_param_t *fxbus_param(int i);
+int fxbus_param_si(int i, int pot, float *val);
 void fxbus_set(fxbus_t *f, int i, int value);
 int fxbus_get(const fxbus_t *f, int i);

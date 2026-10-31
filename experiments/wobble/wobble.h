@@ -15,7 +15,7 @@ enum wobble_parameter {
     W_PARAMETER_COUNT
 };
 typedef struct {
-    float sample_rate, p[W_PARAMETER_COUNT];
+    float sample_rate, tempo_bpm, p[W_PARAMETER_COUNT];
     float carrier_phase, mod_phase, sub_phase, lfo_phase;
     float hz, target_hz, glide_step, lfo_step;
     float envelope, velocity, attack_step, decay_step, release_step, sustain_level;
@@ -28,6 +28,9 @@ typedef struct {
 void wobble_init(wobble_t *s, float sample_rate);
 /* Reset restores fresh DSP state, preserving current parameter values. */
 void wobble_reset(wobble_t *s);
+/* Effective sequencer tempo, 20..300 BPM. Invalid input keeps the last tempo.
+ * Defaults to 120 BPM; changes preserve phase, gates and all preset controls. */
+int wobble_set_tempo(wobble_t *s, float bpm);
 /* Public normalized controls; nonfinite values are rejected; values clamp 0..1. */
 int wobble_set(wobble_t *s, unsigned parameter, float value);
 void wobble_note_on(wobble_t *s, uint8_t note, uint8_t velocity);

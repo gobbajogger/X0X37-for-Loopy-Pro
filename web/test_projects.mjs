@@ -587,3 +587,15 @@ test("current stream-3 firmware refuses endpoint stream-6 data before any sample
   assert.equal(keyboard.projectCalls(OP.COMMIT).length, 0); assert.equal(keyboard.sampleWrites().length, 0);
   assert.deepEqual(keyboard.project, old); assert.equal(keyboard.mode, 0);
 });
+
+// Layout is unchanged; the stream discriminator makes old firmware reject counts.
+test("adaptive BREAK stream 8/9 project schemas keep exact bytes and CRC checks", () => {
+  for (const stream of [8, 9]) {
+    const b = new Uint8Array(36452), v = new DataView(b.buffer);
+    v.setUint32(0,0x50583058,true);v.setUint32(4,1,true);v.setUint32(8,b.length-32,true);
+    v.setUint32(16,1,true);v.setUint32(20,stream,true);v.setUint32(24,11,true);
+    v.setUint32(12,crc32(b.subarray(32)),true);
+    assert.equal(parseProject(b).patternVersion,stream);
+    b[100] ^= 1; assert.throws(() => parseProject(b), /CRC/);
+  }
+});

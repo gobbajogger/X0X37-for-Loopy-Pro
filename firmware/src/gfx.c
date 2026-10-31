@@ -28,8 +28,9 @@ static int32_t cv_oy;            /* y offset for graph drawing */
 static int32_t cv_y0, cv_y1;     /* X0X: the rows drawing may touch (cv_band) */
 
 #define RGB(r, g, b) ((uint16_t)((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3)))
-#define C_BLACK 0x0000u
-#define C_WHITE 0xFFFFu              /* accent only: what is being touched / where we are */
+#include "ui_theme.h"
+#define C_BLACK UI_N_BASE
+#define C_WHITE UI_N_WHITE           /* what is being touched / where we are */
 /* The screen's five steps, darkest to brightest, plus white; picked as THEME in GLOBAL. */
 typedef struct {
     const char *name;
@@ -38,13 +39,14 @@ typedef struct {
 /* X0X: the first three steps are neutral greys in every theme (structure: rules, empty cells,
  * labels); only the two brightest carry the theme's hue (values, highlights). Colour on the
  * screen then means something: a part, a value, an alarm. */
-#define NEUTRALS RGB(34, 34, 40), RGB(74, 74, 82), RGB(150, 150, 158)
+#define NEUTRALS RGB(40,56,61), RGB(128,146,148), RGB(156,170,168)
 static const palette_t PALETTES[] = {
     {"GREEN", {NEUTRALS, RGB(80, 220, 120), RGB(150, 255, 175)}},
     {"AMBER", {NEUTRALS, RGB(232, 136, 30), RGB(255, 184, 70)}},
     {"CYAN", {NEUTRALS, RGB(60, 180, 235), RGB(150, 225, 255)}},
     {"RED", {NEUTRALS, RGB(232, 76, 60), RGB(255, 132, 112)}},
     {"MONO", {NEUTRALS, RGB(196, 196, 202), RGB(236, 236, 240)}},
+    {"LIGHT", {RGB(180,193,180), RGB(80,97,77), RGB(64,81,62), RGB(130,84,14), RGB(36,91,43)}},
 };
 #define NPALETTES (sizeof(PALETTES) / sizeof(PALETTES[0]))
 static uint16_t pal[5];
@@ -57,6 +59,7 @@ static uint16_t pal[5];
 static void palette_set(uint32_t i)
 {
     uint32_t k;
+    ui_theme_light = i % NPALETTES == 5u;
     for (k = 0; k < 5u; k++)
         pal[k] = PALETTES[i % NPALETTES].c[k];
 }
@@ -232,4 +235,25 @@ static void draw_text_box(uint32_t x, uint32_t y, uint32_t w, const felucca_font
     cv_text(tx, 0, f, s, c);
     cv_blit(x, y);
     lcd_sync();                     /* one-shots (boot, crash, UBOOT, update) finish here */
+}
+
+/* One static frame, using the existing validated still-picture record. */
+#include "app/boot_screen.h"
+static void draw_boot_screen(const uint8_t *pay)
+{
+    char title[13], subtitle[22];
+    int custom = pay && pay[0] == BOOT_KIND_CUSTOM;
+    int picture = custom && (pay[1] & BOOT_F_PIC);
+    boot_lines(pay,title,subtitle);
+    for (int band=0; band<2; ++band) {
+        cv_begin(240,120,C_BLACK);
+        if (picture) for (unsigned y=0; y<BOOT_PIC_H; ++y)
+            for (unsigned x=0; x<BOOT_PIC_W; ++x)
+                if (boot_pix(pay+BOOT_PAY_FIXED,x,y)) cv_pset((int)x,(int)y+20-band*120,C_HI);
+        cv_blit(0,(uint32_t)band*120u);
+    }
+    /* B supports lowercase; M deliberately contains capitals/numbers only. */
+    draw_text_box(0,picture?137:96,240,&FONT_B,title,C_HI,1);
+    draw_text_box(0,picture?164:134,240,&FONT_S,subtitle,C_GRAY,1);
+    if (!custom) draw_text_box(0,154,240,&FONT_S,"BREAK",C_DIM,1);
 }

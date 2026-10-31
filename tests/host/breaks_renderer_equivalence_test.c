@@ -40,7 +40,7 @@ static int one(uint32_t n, int mode, FILE *out){
  brk_loop_t a={.adpcm=adpcm,.nsamples=n,.rate=44100,.bars=1};
  brk_loop_t alt={.adpcm=adpcm2,.nsamples=n2,.rate=22050,.bars=2};
  breaks_init(b);breaks_set_loop(b,0,&a);breaks_set_loop(b,1,&alt);
- if(!b->bank[0].valid||!b->bank[1].valid||b->bank[0].n!=n) {fprintf(stderr,"BAD_BANK n=%u\n",n);return 1;}
+ if(!breaks_bank(b,0)->valid||!breaks_bank(b,1)->valid||breaks_bank(b,0)->n!=n) {fprintf(stderr,"BAD_BANK n=%u\n",n);return 1;}
  breaks_set(b,BRK_COMPLEX,0);
  breaks_set(b,BRK_ROLL,0);
  breaks_set(b,BRK_BCHANCE,0);

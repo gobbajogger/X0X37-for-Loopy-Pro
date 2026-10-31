@@ -366,7 +366,7 @@ static void check_tables(void)
         };
         for (int t = 0; t < X0X_EXP_COUNT; ++t)
             for (int p = 0; p < 128; ++p) {
-                const float a = x0x_pot_exp[t][p], b = ref_pot_value(ek[t], p);
+                const float a = x0x_pot_exp_value((unsigned)t, (unsigned)p), b = ref_pot_value(ek[t], p);
                 const double r = fabs((double)a - (double)b) / fabs((double)b);
                 if (r > worst) worst = r;
                 if (a != b) ne++;

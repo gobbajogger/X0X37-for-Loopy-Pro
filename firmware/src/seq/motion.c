@@ -22,10 +22,16 @@ __attribute__((noinline)) static void put(motion_t *m, const lane_t *l, lane_rt_
     }
 }
 
+static void restore_base(motion_t *m, const lane_t *l)
+{
+    if (m->restore) m->restore(m->ctx, l->t, l->v, l->i);
+    else m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+}
+
 __attribute__((noinline)) static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
 {
     if (r->applied != MOT_NONE)
-        m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+        restore_base(m, l);
     r->applied = MOT_NONE;
     r->ramp = 0;
 }
@@ -103,7 +109,8 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             continue;
         }
         v = l->val[step];
-        put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
+        if (v == MOT_NONE && m->restore) to_base(m, l, r);
+        else put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
         nv = l->val[next];
         r->ramp = (uint8_t)(v != MOT_NONE && nv != MOT_NONE && nv != v);
         r->from = (uint8_t)v;
@@ -196,8 +203,7 @@ X0X_COLD void motion_clear(motion_t *m, int k)
              * applied strike in seq.drum_vel; skipping this leaves that override
              * sticky after the lane is gone (and after Stop), so later hits keep
              * the deleted velocity instead of the accent fallback. */
-            m->apply(m->ctx, m->lane[k].t, m->lane[k].v, m->lane[k].i,
-                     m->base(m->ctx, m->lane[k].t, m->lane[k].v, m->lane[k].i));
+            restore_base(m, &m->lane[k]);
             m->rt[k].applied = MOT_NONE;
             m->rt[k].ramp = 0;
         }

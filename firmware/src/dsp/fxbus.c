@@ -57,6 +57,25 @@ const x0x_param_t *fxbus_param(int i)
     return i >= 0 && i < FX_NPARAMS ? &fx_p[i].ui : 0;
 }
 
+/* UI readout: a pot's engine value and unit (X0X_U_*). RvDec is a feedback
+ * coefficient and Drive a gain curve: no confirmed unit. */
+X0X_COLD int fxbus_param_si(int i, int pot, float *val)
+{
+    if (i < 0 || i >= FX_NPARAMS)
+        return X0X_U_NONE;
+    const fx_pspec_t *s = &fx_p[i];
+    if (s->curve == CV_SW)
+        return X0X_U_NONE;
+    float v = s->curve == CV_EXP ? x0x_pot_exp_value(s->exp, pot) : s->lo + (s->hi - s->lo) * (float)pot / 127.0f;
+    *val = v;
+    switch (i) {
+    case FX_VOLUME: case FX_RV_LEVEL: case FX_DL_LEVEL: return X0X_U_GAIN;
+    case FX_COMP: case FX_RV_TONE: case FX_DL_TONE: case FX_DL_WEAR: case FX_DL_FDBK: *val = v * 100.0f; return X0X_U_PCT;
+    case FX_RV_HPF: case FX_DL_HPF: return X0X_U_HZ;
+    default: return X0X_U_NONE;
+    }
+}
+
 int fxbus_get(const fxbus_t *f, int i)
 {
     return i >= 0 && i < FX_NPARAMS ? f->pots[i] : 0;
@@ -291,6 +310,7 @@ __attribute__((noinline)) static float dl_tap(const int16_t *buf, int32_t len, f
  * line holds both, so PING needs twice the time to fit (a 2 s line: 1 s); past that it plays centred. */
 static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int n)
 {
+    f->dl_signal = 0;
     const float target = f->dl_time_ms * 0.001f * D9_SR;
     const int32_t len = f->dlen;
     const int tape = f->dl_type == 1;
@@ -325,6 +345,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     const int ping = out_r && f->dl_ping && 2.0f * fm_maxf(f->dcur, target) + 4.0f < flen;
     const float lvl = f->muted & 2u ? 0.0f : f->dl_level;
     int32_t quiet = f->dl_quiet;
+    unsigned signal = 0;
     int32_t w = f->w;
     float dcur = f->dcur, lp = f->lp;
 
@@ -363,6 +384,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
         }
         const float y = dl_tap(buf, len, flen, w, d);
         const float y2 = ping ? dl_tap(buf, len, flen, w, 2.0f * d) : y;
+        signal |= in[i] != 0.0f || y != 0.0f || (out_r && y2 != 0.0f);
         lp += (y2 * fdbk - lp) * tc;
         if (fm_fabsf(lp) < 1e-20f) lp = 0.0f;
         float write = lp;
@@ -388,6 +410,7 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     f->dcur = dcur;
     f->lp = lp;
     f->dl_quiet = quiet;
+    f->dl_signal = (uint8_t)signal;
 }
 
 /* Soft-knee glue gain reduction — one body for mono + stereo (same pattern as

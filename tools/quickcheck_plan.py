@@ -16,10 +16,9 @@ FAST = set('fastmath sequencer encoder uac trs undo lz motion smk-flash smk-stor
 TEST_ROUTES = [
     ('firmware/src/dsp/drum909', 'drum909 drum909-adpcm drum-pan'),
     ('firmware/src/dsp/drum808', 'drum808 drum-pan'),
-    ('firmware/src/dsp/bass303', 'bass303 bass303_lite'),
     ('firmware/src/dsp/breaks', 'breaks'),
     ('firmware/src/dsp/', 'master stereo fastmath'),
-    ('firmware/src/seq/', 'sequencer motion loop-bars rec-live'),
+    ('firmware/src/seq/', 'sequencer motion loop-bars rec-live-smk'),
     ('firmware/src/storage', 'smk-storage'),
     ('firmware/hal/fm1_flash_map.h', 'smk-flash smk-storage'),
     ('firmware/src/ble', 'ble smk-clip-ble-clear smk-clip-ble-notify diag-size'),
@@ -108,7 +107,7 @@ def select(root, changed, target):
             continue
         for m in re.finditer(r'(?:^|[\s;&|])run "?([A-Za-z0-9_.-]+)"?\s+(.*)', line):
             cmds.setdefault(m[1], m[2])
-    for name in ('drum909', 'drum808', 'bass303', 'breaks'):
+    for name in ('drum909', 'drum808', 'breaks'):
         if (root / ('tests/host/run_' + name + '.sh')).exists():
             cmds[name] = 'sh tests/host/run_' + name + '.sh'
     scen = {'scenario-' + p.stem for p in (root / 'tests/scenarios').glob('*.x0x')}

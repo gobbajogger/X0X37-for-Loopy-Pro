@@ -17,7 +17,7 @@ static void name_bounds(void)
             CHECK(text.lines>=1 && text.lines<=2);
             for(int line=0;line<text.lines;line++)CHECK(tw(text.font,text.line[line])<=54);
             put_s(put_s(joined,text.line[0]),text.line[1]);flatten(actual,joined);flatten(expected,name);
-            CHECK(!strcmp(actual,expected)); /* all 111 factory names are complete, not clipped */
+            CHECK(!strcmp(actual,expected)); /* all shipping factory names are complete, not clipped */
             CHECK(!strstr(joined,".."));
             if(!tall && text.lines==2)CHECK(text.font==&FONT_T);
         }
@@ -31,46 +31,56 @@ static void name_bounds(void)
     preset_text(&text,NULL,1);CHECK(!strcmp(text.line[0],"UNKNOWN"));
     preset_text(&text,"",0);CHECK(!strcmp(text.line[0],"UNKNOWN"));
 }
-static void acid_pixels(int selected)
+static void factory_name_pixels(int selected)
 {
-    fixture(0,0);*page_of(V_PART)=selected?6:5;
+    fixture(0,0);int sound_page=row(R_BENGINE,0);
+    CHECK(sound_page==7);*page_of(V_PART)=selected?sound_page:sound_page-1;
     sound_t before=proj.sound;unsigned writes=store_writes;
     shot(out,selected?"accepted-chicago-sound":"unselected-preset-name");
     CHECK(!memcmp(&before,&proj.sound,sizeof before) && store_writes==writes);
-    /* Independently prescribed approved two-line name at native 240 px. */
+    /* The current four-row matrix uses the compact one-line 48px factory name.
+     * SOUND is row 4 of the current bank, starting at canvas y=154.
+     * Its name is in the real knob-strip blit, below screen y=158. */
     uint16_t bg=selected?RGB(37,59,45):RGB(16,26,31),ink=selected?RGB(224,235,214):RGB(222,231,223);
-    cv_begin(240,66,bg);text_c(92,28,&FONT_B,"ACID",ink);text_c(92,44,&FONT_B,"LAB 1",ink);
-    for(int y=27;y<61;y++)for(int x=65;x<119;x++)CHECK(fb[(158+y)*240+x]==cv_px[y*240+x]);
-    CHECK(fb[170*240+181]==swap16(bg)); /* right-half STATUS has no fourth-cell divider */
+    CHECK(!matrix_three_rows());
+    CHECK(!strcmp(matrix_preset_name(0),"Bite Bass"));
+    CHECK(tw(&FONT_XS,"BITE BASS")==48);
+    cv_begin(240,49,bg);text_c(92,26,&FONT_XS,"BITE BASS",ink);
+    for(int y=25;y<43;y++)for(int x=64;x<122;x++)
+        CHECK(fb[(MAIN_Y+154+y)*240+x]==cv_px[y*240+x]);
+    CHECK(fb[(MAIN_Y+154+43)*240+181]==swap16(bg)); /* right-half STATUS has no fourth-cell divider */
 }
 static void physical_and_history(int voice)
 {
-    fixture(voice,0);*page_of(V_PART)=5;
+    fixture(voice,0);int envelope_page=row(R_ENG,10);
+    CHECK(envelope_page==3);*page_of(V_PART)=envelope_page;
     CHECK(UI_FIRST_KNOB+3==8); /* panel.c's physical K8 is logical EN_K4 */
-    CHECK(pg.r[5][3].kind==R_ENG && pg.r[5][3].c==CHI_DAMPER && pg.r[5][3].b==voice);
-    CHECK(pg.r[5][1].c==CHI_FX_EDIT1); /* old K6 no longer owns DAMPER */
-    pref_set(pg.r[5][3],63);pref_set(pg.r[5][1],20);audio();
+    /* Native runtime damper is outside patch editing. The current K8 patch
+     * control is envelope RELEASE (10); K6 is the separate DECAY (8). */
+    CHECK(pg.r[envelope_page][3].kind==R_ENG && pg.r[envelope_page][3].c==10 && pg.r[envelope_page][3].b==voice);
+    CHECK(pg.r[envelope_page][1].c==8);
+    pref_set(pg.r[envelope_page][3],63);pref_set(pg.r[envelope_page][1],20);audio();
     now_ms+=1000;enc_acc[EN_K2]=1;ui_input_only();
-    CHECK(pref_get(pg.r[5][1])==21 && pref_get(pg.r[5][3])==63);
+    CHECK(pref_get(pg.r[envelope_page][1])==21 && pref_get(pg.r[envelope_page][3])==63);
     undo_start();sound_t before=proj.sound;
     now_ms+=1000;enc_acc[EN_K4]=1;ui_input_only();audio();sound_t after=proj.sound;
-    CHECK(pref_get(pg.r[5][3])==64 && pref_get(pg.r[5][1])==21);
+    CHECK(pref_get(pg.r[envelope_page][3])==64 && pref_get(pg.r[envelope_page][1])==21);
     CHECK(!memcmp(before.v[T_303][voice^1],after.v[T_303][voice^1],NPARAMS_MAX));
-    for(int i=0;i<engine_nparams(T_303,voice);i++)if(i!=CHI_DAMPER)
+    for(int i=0;i<engine_nparams(T_303,voice);i++)if(i!=10)
         CHECK(before.v[T_303][voice][i]==after.v[T_303][voice][i]);
     do_undo(0);CHECK(!undo_wait && !memcmp(&before,&proj.sound,sizeof before));
     do_undo(1);CHECK(!undo_wait && !memcmp(&after,&proj.sound,sizeof after));
-    *page_of(V_PART)=6;int page=cur_page(),dirty=ui.dirty;unsigned writes=store_writes;
+    *page_of(V_PART)=row(R_BENGINE,0);int page=cur_page(),dirty=ui.dirty;unsigned writes=store_writes;
     for(int k=2;k<4;k++) {now_ms+=1000;enc_acc[EN_K1+k]=1;ui_input_only();}
     CHECK(!memcmp(&after,&proj.sound,sizeof after) && page==cur_page() && dirty==ui.dirty && writes==store_writes);
-    fixture(voice,1);CHECK(pg.n==7); /* Miami's output layout is deliberately unchanged. */
-    CHECK(!strcmp(pg.title[5],"OUTPUT") && pg.r[5][0].c==W_OUTPUT &&
-          pg.r[5][1].c==W_STEREO && pg.r[5][2].c==W_BASS_SPLIT && pg.r[5][3].c==W_DAMPER);
+    fixture(voice,1);CHECK(pg.n==6);
+    CHECK(!strcmp(pg.title[4],"OUTPUT") && pg.r[4][0].c==4 &&
+          pg.r[4][1].c==15 && pg.r[4][2].c==14 && pg.r[4][3].kind==R_NONE);
 }
 static void identities(int voice,int bank)
 {
-    fixture(voice,bank);*page_of(V_PART)=6;
-    CHECK(!strcmp(pg.title[6],"SOUND"));
+    fixture(voice,bank);*page_of(V_PART)=row(R_BENGINE,0);
+    CHECK(!strcmp(pg.title[cur_page()],"SOUND"));
     CHECK(!strcmp(matrix_preset_name(voice),factory_preset_name(bank,0)));
     engine_bass_wheel_owners(1u<<voice);
     CHECK(!engine_bass_select_preset(voice,bank,9,&proj.sound));
@@ -81,25 +91,27 @@ static void identities(int voice,int bank)
     CHECK(!memcmp(&before,&proj.sound,sizeof before));CHECK(!strcmp(matrix_preset_name(voice),factory_preset_name(bank,0)));
     engine_bass_wheel_owners(0);
     unstable=1;CHECK(!strcmp(matrix_preset_name(voice),"UPDATING"));shot(out,"publication-name-updating");unstable=0;
-    /* A known-engine user sound must never borrow factory preset 1's name. */
-    proj.sound.bass[voice].bytes[8]=proj.sound.bass[voice].bytes[9]=0xff;
-    proj.sound.bass[voice].bytes[10]=BASS_SOUND_EDITED;
+    /* Original edited cells retain their immutable factory source identity;
+     * the edit mask and tag must remain coherent after an actual UI edit. */
+    pref_t cutoff=PR(R_ENG,T_303,voice,bank?9:ORIGINAL_CHICAGO_CUTOFF);
+    int value=pref_get(cutoff);pref_set(cutoff,value?value-1:1);audio();
     CHECK(!engine_bass_sound_validate(&proj.sound));
-    engine_bass_edit_hold(1);engine_bass_base_restore(1u<<voice);engine_bass_edit_hold(0);audio();
-    CHECK(engine_bass_preset_index(voice)<0 && !strcmp(matrix_preset_name(voice),"USER"));
-    shot(out,"user-preset-name");
+    CHECK(engine_bass_preset_edited(voice) && engine_bass_preset_index(voice)==0);
+    CHECK(!strcmp(matrix_preset_name(voice),factory_preset_name(bank,0)));
+    shot(out,"edited-preset-name");
+    int known_pages=pg.n;
     bass_sound_tag_t known=proj.sound.bass[voice];
     memset(proj.sound.bass[voice].bytes,0,sizeof proj.sound.bass[voice].bytes);build_pages();
-    CHECK(pg.n==1 && !strcmp(matrix_preset_name(voice),"UNKNOWN"));shot(out,"unknown-preset-name");
+    CHECK(pg.n==known_pages && !strcmp(matrix_preset_name(voice),"UNKNOWN"));shot(out,"unknown-preset-name");
     proj.sound.bass[voice]=known;build_pages();
 }
 /* Combined Save/SOUND boundary: a pending sound and a queued explicit save
  * are separate requests. PATCH cancels only SOUND; neither cuts the MIDI note. */
 static void save_with_pending_sound(int cancel)
 {
-    fixture(0,0);*page_of(V_PART)=6;
+    fixture(0,0);*page_of(V_PART)=row(R_BENGINE,0);
     CHECK(!project_save());
-    pref_set(PR(R_ENG,T_303,0,BASS303_CUTOFF),pref_get(PR(R_ENG,T_303,0,BASS303_CUTOFF))+1);
+    pref_set(PR(R_ENG,T_303,0,ORIGINAL_CHICAGO_CUTOFF),pref_get(PR(R_ENG,T_303,0,ORIGINAL_CHICAGO_CUTOFF))+1);
     audio();
     min_q[mi_w++%MQ]=9u|((0x90u|seq.ch[TRK_BASS0])<<8)|(48u<<16)|(100u<<24);
     audio();CHECK(engine_project_notes() && (engine_midi_held()&1));
@@ -129,7 +141,7 @@ static void save_with_pending_sound(int cancel)
 int main(int argc,char **argv)
 {
     CHECK(argc==2);out=argv[1];boot();run_ms(50);engine_guard_enable(0);
-    name_bounds();acid_pixels(1);acid_pixels(0);
+    name_bounds();factory_name_pixels(1);factory_name_pixels(0);
     for(int v=0;v<2;v++) {physical_and_history(v);for(int bank=0;bank<2;bank++)identities(v,bank);}
     save_with_pending_sound(0);save_with_pending_sound(1);
     printf("PASS %u accepted SOUND layout/name/physical mapping/history checks; no device claim\n",checks);

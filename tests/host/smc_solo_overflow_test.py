@@ -14,9 +14,14 @@ def extract(name):
  while depth:
   depth += (s[i]=='{')-(s[i]=='}'); i+=1
  return s[m.start():i]
-prefix=s[s.index('#define SMC_Q'):s.index('int smc_project_active')]
-funcs=['smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press','smc_project_drop','smc_project_reset','smc_ble_midi','smc_ble_link','smc_ble_role_get','smc_connected','smc_midi_host','smc_mmc_host','smc_release','smc_mmc_drain_stop']
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix=strip_peek(s[s.index('#define SMC_Q'):s.index('int smc_project_active')])
+funcs=['smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press','smc_project_drop','smc_project_reset','smc_ble_midi','smc_ble_link','smc_ble_role_get','smc_connected','smc_midi_host','smc_mmc_host','smc_release','smc_mmc_drain_stop','smc_spill_apply']
 # Include the MMC STOP FIFO-boundary helper so the regression covers the full current poll path.
+if 'smc_poll_peer' in s:
+ funcs = ['smc_solo_union', 'smc_peer_drop', 'smc_ble_midi_slot', 'smc_ble_link_slot'] + funcs
 body='\n'.join(extract(n) for n in funcs)
 hdr=r'''
 #include <assert.h>
@@ -25,6 +30,7 @@ hdr=r'''
 #include <stdlib.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#include "app/smc_mixer_edges.h"
 #include "smc_fx_harness_stubs.h"
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
@@ -35,8 +41,12 @@ hdr=r'''
 #define O_NONE 0
 #define O_ASK 1
 typedef struct { uint8_t kind,a,b,c; } pref_t;
+static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow);
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0u; }
 static int is_busy, is_testing, clear_calls, output_solo;
 static int refill_armed, refill_route, refill_cross, refill_calls;
 static int perf_testing(void) { return is_testing; }
@@ -100,6 +110,7 @@ static void prepare(void)
  smc_qr=smc_qw=smc_host_r=smc_host_w=0;
  smc_mmc_r[0]=smc_mmc_w[0]=smc_mmc_r[1]=smc_mmc_w[1]=0;
  refill_armed=refill_route=refill_cross=refill_calls=0;
+ smc_ble_link(1); smc_poll();
 }
 static void emit(int route,uint8_t st,uint8_t note,uint8_t vel)
 {
@@ -167,9 +178,9 @@ int main(void)
  assert(!smc_midi_host(packet(0x8f,8,0x80)));
  smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
  prepare();press(0);saturate(0);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- assert(!smc_midi_host(packet(0x8f,8,0)));smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ assert(!smc_midi_host(packet(0x8f,8,0)));smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(1);saturate(1);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- emit(1,0x8f,8,0);smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ emit(1,0x8f,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(0);saturate(0);saturate(1);
  emit(0,0x80,8,0);emit(1,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(1);saturate(1);emit(1,0x80,8,0);smc_ble_link(0);smc_poll();
@@ -199,7 +210,7 @@ int main(void)
  return 0;
 }
 '''
-code=hdr+prefix+body+'\n'+stubs+extract('smc_poll')+'\n'+case
+code=hdr+prefix+body+'\n'+stubs+(extract('smc_poll_peer') + '\n' if 'smc_poll_peer' in s else '') + extract('smc_poll')+'\n'+case
 with tempfile.TemporaryDirectory(prefix='smc-r10-combined-') as t:
  f=Path(t)/'test.c';exe=Path(t)/'test';f.write_text(code)
  command=[os.environ.get('CC','gcc'),'-std=c99','-O1','-g','-Wall','-Wextra','-Werror',*shlex.split(os.environ.get('SAN_FLAGS','')),'-I'+str(ROOT/'firmware/src'),'-I'+str(ROOT/'tests/host'),str(f),'-o',str(exe)]

@@ -45,6 +45,12 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
     if (msg[0] == 0x90) wire_led[msg[1]] = msg[2];
     return 1;
 }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #include SMC_MIXER_SOURCE
 
 #define SMK_KEY_F3 5
@@ -438,7 +444,11 @@ static void held_edit_context(void)
     int base = pref_get(r), old_pattern = seq.ppat[PART_909];
     CHECK(observed_909 && drum909_get(observed_909, r.b, r.c) == base);
     sm_set(pat_of(PART_909)->drum[PART_909].hit[0], 3);
+    /* 0a2eae49: steps are held on SEQ; the held step carries to EDIT's sound knobs. */
+    smc_view(V_SEQ, 0);
     pad(3, 1);
+    smc_view(V_PART, 0);
+    CHECK(ui.view == V_PART && pg.r[cur_page()][0].c == r.c);
     enc_acc[EN_K1] = 1;
     now_ms += 20;
     input();

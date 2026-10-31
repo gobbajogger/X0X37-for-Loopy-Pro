@@ -18,6 +18,12 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
     if (msg[0] == 0x90) wire_led[msg[1]] = msg[2];
     return 1;
 }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_MIXER_SOURCE
 #define SMC_MIXER_SOURCE "app/smc_mixer.c"
 #endif
@@ -101,6 +107,69 @@ static void record_note(const char *label, int key)
     record_feedback(label);
 }
 
+static void record_render(void)
+{
+    int32_t block[512];
+    engine_render(block, 256);
+}
+
+static void external_drum_onset(int voice)
+{
+    int note = GM_DRUM[0][voice];
+    for (int down = 1; down >= 0; down--) {
+        uint8_t status = (uint8_t)((down ? 0x90 : 0x80) | seq.ch[PART_909]);
+        min_q[mi_w++ % MQ] = (uint32_t)(status >> 4) | (uint32_t)status << 8 |
+                             (uint32_t)note << 16 | (uint32_t)(down ? 90 : 0) << 24;
+        record_render();
+    }
+}
+
+static unsigned recorded_drum_hits(int voice)
+{
+    unsigned hits = 0;
+    for (int step = 0; step < NSTEPS; step++)
+        hits += sm_get(proj.pat[seq.ppat[PART_909]].drum[0].hit[voice], step);
+    return hits;
+}
+
+/* Omitting the SMC boundary admits the queued old onset; omitting immediate
+ * recorder eligibility drops the fresh onset before the next input pass. */
+static void record_boundary(const char *label, int rec_button)
+{
+    assert(!ui.rec);
+    panel_select(PART_909);
+    smc_press(rec_button);
+    assert(ui.rec);
+    seq.req_start = 1;
+    record_render();
+    panel_input();
+    assert(seq.playing);
+    memset(proj.pat[seq.ppat[PART_909]].drum[0].hit, 0,
+           sizeof proj.pat[0].drum[0].hit);
+
+    external_drum_onset(2);             /* queued, but not drained into the pattern */
+    assert(recorded_drum_hits(2) == 0);
+    smc_press(rec_button);
+    assert(!ui.rec);
+    external_drum_onset(4);             /* must not enter either recording session */
+    smc_press(rec_button);
+    assert(ui.rec);
+    external_drum_onset(3);             /* before any panel input republishes REC */
+    ext_rec_drain();
+
+    unsigned old = recorded_drum_hits(2), fresh = recorded_drum_hits(3);
+    unsigned off = recorded_drum_hits(4);
+    int pass = old == 0 && fresh == 1 && off == 0;
+    printf("%s REC boundary: %s old=%u fresh=%u off=%u\n",
+           pass ? "PASS" : "FAIL", label, old, fresh, off);
+    if (!pass) failures++;
+    record_feedback(label);
+    smc_press(rec_button);
+    assert(!ui.rec);
+    seq.req_stop = 1;
+    record_render();
+}
+
 int main(void)
 {
     boot();
@@ -135,6 +204,9 @@ int main(void)
     panel_button(B_REC);
     assert(!ui.rec);
     record_feedback("panel REC off");
+
+    record_boundary("SMC global REC", 0x5F);
+    record_boundary("SMC strip REC", display_position[PART_909]);
 
     printf("%s: %u real pattern writes, %u emitted Record projections, %u failures\n",
            failures ? "FAIL" : "PASS", writes, projections, failures);

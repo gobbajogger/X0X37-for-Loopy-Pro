@@ -54,6 +54,7 @@ typedef struct {
     uint8_t last[MOT_PARTS];          /* its last step */
     int (*base)(void *ctx, int t, int v, int i);
     void (*apply)(void *ctx, int t, int v, int i, int val);
+    void (*restore)(void *ctx, int t, int v, int i); /* optional exact base, beyond the UI integer grid */
     void *ctx;
 } motion_t;
 

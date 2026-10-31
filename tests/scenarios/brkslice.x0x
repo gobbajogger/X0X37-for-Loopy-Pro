@@ -1,11 +1,11 @@
-# Break MIDI. Default: notes 36-43 on channel 4 (status 0x93) are slices 1-8.
-# 8 SLICES (brkwrap 1): slice = note mod 8, every note, same channel.
-# A note on the break channel must not also open a 303. midiheld bit 0 is the 303A gate.
+# Break MIDI (adaptive slices, docs/usage/adaptive-break-slices.md): every note on the
+# break channel (default 4, status 0x93) wraps around C0 = MIDI 12: slice = (note - 12) mod A count.
+# The default A count is 8. A note on the break channel must not also open a 303. midiheld bit 0 is the 303A gate.
 wait 300
 expect midiheld 0
 expect noteons 0
 
-# note 36 (C2 in this firmware's names) holds slice 0. Note 12 (C0) and note 44 do not.
+# notes 36, 12 and 44 are all slice 0 at 8 slices. Releasing one leaves the others holding it.
 midi 93 24 64 0
 wait 20
 expect midiheld 0x100
@@ -31,8 +31,10 @@ wait 20
 expect midiheld 0
 midi 93 30 64 0
 wait 20
-expect midiheld 0
+expect midiheld 0x1000
 midi 83 30 00 0
+wait 20
+expect midiheld 0
 partch 2 2
 
 # 303A on its own channel still plays. A drum-channel note 36 is not a break slice.
@@ -45,52 +47,24 @@ expect midiheld 0
 midi 99 24 64 0
 wait 20
 expect midiheld 0
+midi 89 24 00 0
 
-# 8 slices: note 0 and note 8 are slice 0. Releasing one leaves the other holding it.
-brkwrap 1
+# notes 0 and 8 are slice 4 ((0 - 12) mod 8 and (8 - 12) mod 8). Releasing one leaves the other holding it.
 midi 93 00 64 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 93 08 64 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 00 00 0
 wait 20
-expect midiheld 0x100
+expect midiheld 0x1000
 midi 83 08 00 0
 wait 20
 expect midiheld 0
 
-# note 12 (C0) and note 36 are slice 4 (12 % 8 and 36 % 8). Neither opens the 303.
-midi 93 0C 64 0
-wait 20
-expect midiheld 0x1000
-midi 83 0C 00 0
-wait 20
-expect midiheld 0
-midi 93 24 64 0
-wait 20
-expect midiheld 0x1000
-midi 83 24 00 0
-wait 20
-expect midiheld 0
-midi 93 2C 64 0
-wait 20
-expect midiheld 0x1000
-midi 83 2C 00 0
-wait 20
-expect midiheld 0
-
-# Back to the default map.
-brkwrap 0
-midi 93 00 64 0
-wait 20
-expect midiheld 0
-midi 83 00 00 0
-midi 93 24 64 0
-wait 20
-expect midiheld 0x100
-midi 83 24 00 0
+# a note off for a note that is not held changes nothing
+midi 83 25 00 0
 wait 20
 expect midiheld 0
 expect noteons 0

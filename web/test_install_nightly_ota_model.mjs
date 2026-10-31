@@ -8,7 +8,7 @@ import { sameKeyboard } from "./fm1ota.js";
 
 const path = process.argv[2] || new URL("./fm1ota.js", import.meta.url);
 const text = readFileSync(path, "utf8");
-const i = text.indexOf("  async install(image, product, onStep) {");
+const i = text.indexOf("  async install(image, product, onStep, { beforeUpgrade } = {}) {");
 const j = text.indexOf("\n  // step 2 with the loader", i);
 assert.ok(i >= 0 && j > i, "Updater.install source anchors absent");
 const method = text.slice(i, j).trim();
@@ -28,7 +28,7 @@ async function simulate(spec) {
   const dev = (m) => ({
     id: { model: m, text: m + "_900" },
     name: m,
-    link: { send() { state.upgradeCalls++; }, close() { state.closed++; } },
+    link: { send() { state.upgradeCalls++; return true; }, close() { state.closed++; } },
   });
   let loaderSearch = true;
   const updater = {

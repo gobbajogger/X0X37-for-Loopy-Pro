@@ -33,7 +33,10 @@ def function(text, name):
     return text[match.start():end]
 
 
-prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix = strip_peek(source[source.index("#define SMC_Q"):source.index("int smc_project_active")])
 has_generation = "smc_link_published" in prefix
 harness = r'''
 #include <stdint.h>
@@ -42,6 +45,11 @@ harness = r'''
 #include <string.h>
 #include "app/smc_protocol.h"
 #include "smc_fx_harness_stubs.h"
+/* smc_poll_peer re-arms the SMC caption timer of its own peer after a lost
+ * release. The caption itself is exercised by smc_ui_test.c. */
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0; }
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -55,19 +63,20 @@ static uint8_t observed[3][3];
 static int perf_testing(void);
 static int ui_project_busy(void);
 static void engine_smc_solo(int n) { solo = (unsigned)n; }
+static void engine_smc_solo_targets(uint8_t p,uint16_t a,uint16_t b) { (void)a; (void)b; engine_smc_solo(p); }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; }
 #define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 ''' + prefix + "\n" + "\n".join(function(source, name) for name in
-    ("smc_project_active", "smc_solo_clear") if "smc_solo_clear" in source) + "\n" + "\n".join(function(source, name) for name in (
+    (name for name in ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot", "smc_project_active", "smc_solo_clear") if re.search(r"\b" + name + r"\(", source))) + "\n" + "\n".join(function(source, name) for name in (
     "smc_project_drop", "smc_project_reset", "smc_ble_midi", "smc_ble_link")) + r'''
-static uint8_t ble_central_link_seen;
-''' + function(transport, "ble_central_link_notify") + r'''
+static uint8_t ble_central_link_seen[2];
+''' + function(transport, "ble_central_link_notify_slot") + r'''
 
 static void interrupt(int site)
 {
     if (interrupt_at != site) return;
     interrupt_at = 0;
-    ble_central_link_notify(interrupt_up);
+    ble_central_link_notify_slot(0, interrupt_up);
 }
 static int perf_testing(void) { interrupt(1); return 0; }
 static int ui_project_busy(void) { interrupt(2); return locked; }
@@ -79,7 +88,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t n, int allow)
 }
 static void smc_guarded_button(uint8_t n, int mmc, int allow)
 { (void)n; (void)mmc; (void)allow; abort(); }
-''' + function(source, "smc_mmc_drain_stop") + "\n" + function(source, "smc_poll") + r'''
+''' + function(source, "smc_mmc_drain_stop") + "\n" + function(source, "smc_spill_apply") + "\n" + ((function(source, "smc_poll_peer") + "\n") if "smc_poll_peer" in source else "") + function(source, "smc_poll") + r'''
 
 static int check_input(int up)
 {
@@ -87,7 +96,7 @@ static int check_input(int up)
         {0xE0, 0, 100}, {0xB0, 16, 1}, {0x90, 0x18, 127}
     };
     /* The transport already reported this state. It does not retransmit it. */
-    ble_central_link_notify(up);
+    ble_central_link_notify_slot(0, up);
     for (unsigned i = 0; i < 3; i++) smc_ble_midi(controls[i], 3);
     smc_poll();
     if (smc.up != up || dispatched != (up ? 3u : 0u) ||
@@ -108,14 +117,14 @@ int main(int argc, char **argv)
     if (mode <= 1) {
         /* A newer reconnect/disconnect arrives after the old state was read. */
         int up = mode == 0;
-        ble_central_link_notify(up); smc_poll();
-        ble_central_link_notify(!up);
+        ble_central_link_notify_slot(0, up); smc_poll();
+        ble_central_link_notify_slot(0, !up);
         interrupt_at = site; interrupt_up = up;
         smc_poll(); smc_poll();
         if (interrupt_at) return 3;
         return check_input(up);
     }
-    ble_central_link_notify(1); smc_poll();
+    ble_central_link_notify_slot(0, 1); smc_poll();
     smc.picked = 0x55; smc.seen = 0xAA; smc.known[5] = 1;
     if (mode == 2) {
         /* Unchanged connection must not reset pickup or republish notices. */
@@ -125,34 +134,34 @@ int main(int argc, char **argv)
             !smc.known[5]) return 4;
     } else if (mode == 3) {
         /* Coalesced down/up remains a new link even if the final state is up. */
-        ble_central_link_notify(0); ble_central_link_notify(1); smc_poll();
+        ble_central_link_notify_slot(0, 0); ble_central_link_notify_slot(0, 1); smc_poll();
         if (smc.picked || smc.seen || smc.known[5]) return 5;
     } else if (mode == 4) {
         /* A project lock/reset must leave a newer link publication available. */
         locked = 1;
-        ble_central_link_notify(0); smc_poll(); smc_project_reset();
-        ble_central_link_notify(1); smc_poll();
+        ble_central_link_notify_slot(0, 0); smc_poll(); smc_project_reset();
+        ble_central_link_notify_slot(0, 1); smc_poll();
         locked = 0; smc_poll();
     } else if (mode == 5) {
         smc.solo = 1; solo = 1;
-        ble_central_link_notify(0); smc_poll();
+        ble_central_link_notify_slot(0, 0); smc_poll();
         if (smc.solo || solo || smc.picked || smc.seen) return 6;
         return check_input(0);
     } else if (mode == 6) {
 #ifdef LINK_GENERATION
         /* Zero is a valid disconnected publication after unsigned wrap. */
         smc_link_published = smc_link_seen = UINT32_MAX;
-        ble_central_link_notify(0); smc_poll();
+        ble_central_link_notify_slot(0, 0); smc_poll();
         if (smc_link_published != 0 || smc.up) return 7;
-        ble_central_link_notify(1); smc_poll();
+        ble_central_link_notify_slot(0, 1); smc_poll();
 #else
         return 77;
 #endif
     } else if (mode == 7) {
 #ifdef LINK_GENERATION
-        ble_central_link_notify(0); smc_poll();
+        ble_central_link_notify_slot(0, 0); smc_poll();
         smc_link_published = smc_link_seen = UINT32_MAX - 1u;
-        ble_central_link_notify(1); smc_poll();
+        ble_central_link_notify_slot(0, 1); smc_poll();
         if (smc_link_published != 1u || !smc.up) return 8;
 #else
         return 77;

@@ -11,7 +11,7 @@ static int deadline_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
     return send_h4(t, p, n, ctx);
 }
 static struct {
-    struct { blec_t c; } host;
+    struct { blec_t c,c2; } host;
     struct { unsigned state, polls, c2h; } mb;
     uint8_t fr[128];
 } ble_r;
@@ -24,6 +24,7 @@ static void ble_record(void) { assert(0); }
 static void ble_fail(void) { assert(0); }
 static void ble_guard_ok(void *p) { (void)p; }
 static void ble_central_link_notify(int up) { assert(!up); }
+static void ble_central_link_notify_slot(unsigned slot,int up) { (void)slot; ble_central_link_notify(up); }
 static int xb_frame_get(void *q, uint8_t *t, uint8_t *p, unsigned n)
 { (void)q; (void)t; (void)p; (void)n; return 0; }
 static unsigned xb_ring_used(void *q) { (void)q; return 0; }
@@ -86,12 +87,16 @@ static void cutoff(unsigned overflow, uint32_t start, int offset, unsigned servi
 }
 static void cancel_cutoff(uint32_t start, int offset, unsigned enhanced)
 {
-    blec_t c; setup(&c, start); c.conn = 0; c.state = BLEC_CONNECTING;
+    blec_t c; setup(&c, start); c.conn = 0; c.linked = 0; c.state = BLEC_CONNECTING;
     c.step = 8; c.waiting = 0;
     blec_stop(&c);
     uint32_t deadline = c.deadline;
     assert(c.state == BLEC_STOPPING && c.waiting && c.cmd_op == 0x200e);
     /* Count only Disconnect submissions after the accepted Cancel. */
+    /* The controller completes Cancel first; that event returns the command
+     * credit the per-link flow control (b26fb36e) needs for Disconnect. */
+    const uint8_t cancel_done[] = {0x0e, 4, 1, 0x0e, 0x20, 0};
+    blec_rx(&c, 4, cancel_done, sizeof cancel_done, deadline - 1u);
     sent = 0;
     const uint8_t event[] = {0x3e, 0x13, enhanced ? 0x0a : 1, 0, 0x50,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

@@ -12,6 +12,8 @@ static struct { uint32_t mode, recovery, at; } ed_project;
 static struct { unsigned ota_req, uboot_req; } usb;
 static struct { unsigned pending; } bootguard;
 static uint32_t fm1_ms, ed_reboot_at;
+static uint8_t ed_install_pending;
+static void ed_install_forget(void) { ed_install_pending = 0; }
 static int seq, flash_ok;
 static unsigned dispatches, ownership_errors, ota_polls, platform_errors;
 static uint8_t dispatched[1024];

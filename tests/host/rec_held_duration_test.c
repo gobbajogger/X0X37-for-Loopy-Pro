@@ -8,6 +8,7 @@
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
 #undef main
+#include <unistd.h> /* POSIX unlink used by the temporary replay capture. */
 #if BOARD_SMK37
 static uint8_t test_clip_mode, test_clip_busy;
 uint8_t smk_clip_mode_on(void) { return test_clip_mode; }

@@ -43,6 +43,8 @@ static uint8_t perf_testing(void) { return 0; }
 static int ui_project_busy(void) { return 0; }
 static void button_tap(int button) { (void)button; }
 static void engine_smc_solo(uint8_t solo) { (void)solo; }
+static void engine_smc_solo_targets(uint8_t solo,uint16_t a,uint16_t b)
+{ (void)a; (void)b; engine_smc_solo(solo); }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
 static void smc_release(uint8_t note) { (void)note; }
 static void smc_fader(int n, uint8_t value) { (void)n; (void)value; }
@@ -56,6 +58,8 @@ static void turn_ref(pref_t r, int delta, int enc)
     page_value += delta;
 }
 static uint32_t plat_ms(void) { return 1234u; }
+#define SMC_UI_MS 1200u /* smc_poll_peer refreshes the temporary screen owner. */
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
 static void smc_show(int n, int knob, pref_t r) { (void)n; (void)knob; (void)r; notices++; }
 #include "smc_input.inc"
 #include "smc_turn.inc"

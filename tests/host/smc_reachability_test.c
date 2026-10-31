@@ -21,6 +21,12 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) {
         led_vel[msg[1]] = msg[2];
     return 1;
 }
+#ifndef SMC_SLOT_SEND_IMPLEMENTED
+/* Existing one-peer fixtures record peer zero. Dual-peer tests override this. */
+int plat_ble_smc_send_slot(unsigned slot, const uint8_t *m, uint8_t n)
+{ return slot == 0 ? plat_ble_smc_send(m, n) : 1; }
+#endif
+
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -34,7 +40,7 @@ static int hci_send(uint8_t t,const uint8_t *p,uint16_t n,void *ctx)
 static void hci_midi(const uint8_t *p,uint8_t n,void *ctx)
 { (void)ctx;smc_ble_midi(p,n); }
 static void receive_ready(void)
-{ receiver.conn=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
+{ receiver.conn=1;receiver.linked=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
 static void hci_input(const uint8_t *m,unsigned n,unsigned tail)
 {
     uint8_t b[32]={1,0,0,0,0,0,4,0,0x1b,6,0,0x80,0x81};
@@ -72,8 +78,9 @@ static void press(int note) { message(0x90,note,127); message(0x80,note,0); }
 static void turn(int n, int delta) { message(0xB0,16+n,delta>0?delta:64-delta); }
 static void fader(int n, int v) { message(0xE0+n,0,v); }
 static void view(int v) {
-    for(int i=0;ui.view!=v && i<8;i++) press(0x61);
-    assert(ui.view==v);
+    /* 0x60/0x61 select mixer banks, while SELECT owns view navigation. */
+    smc_view(v, 0);
+    assert(ui.view == v);
 }
 static void edit(pref_t r, int n) {
     const x0x_param_t *d=pref_desc(r); assert(d && d->max);
@@ -114,10 +121,10 @@ static void knob_accel_isolated(void) {
     assert(ui.enc_run[EN_K1] == panel_run);
 }
 /* Panel curve stays x8. SMC quick spins use a shorter curve. Same translation unit. */
-static int accel_at(int smc, uint32_t gap, int s, int range, uint8_t run)
+static int accel_at(int is_smc, uint32_t gap, int s, int range, uint8_t run)
 {
     int got;
-    accel_smc = (uint8_t)smc;
+    accel_smc = (uint8_t)is_smc;
     ui.enc_t[EN_K1] = now_ms;
     ui.enc_run[EN_K1] = run;
     now_ms += gap;
@@ -298,16 +305,16 @@ static void record_lamp_follows_part(void) {
     smc.rec_part = 0;
     smc_frame();
     assert(led_vel[0] == 127);
-    assert(led_vel[2] == 0);
+    assert(led_vel[4] == 0);
     ui.part = 2;                       /* panel SELECT / part change; no SMC Record press */
     for (int i = 0; i < 128; i++) smc.known[i] = 0;
     smc_frame();
     assert(led_vel[0] == 0);
-    assert(led_vel[2] == 127);
+    assert(led_vel[4] == 127);
     ui.rec = 0;
     for (int i = 0; i < 128; i++) smc.known[i] = 0;
     smc_frame();
-    assert(led_vel[2] == 0);
+    assert(led_vel[4] == 0);
 }
 /* Nav lamps on strips 6–8 must follow their own shortcut, not one shared page formula. */
 static void nav_strip_lamps(void) {
@@ -369,6 +376,7 @@ static void help_keeps_controls(void) {
     assert(!ui.help);
 }
 static void scenario(void) {
+    static const int expected_strip[5] = {0,1,4,3,2};
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
     memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
     boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
@@ -396,21 +404,22 @@ static void scenario(void) {
     for(int part=0;part<NPARTS;part++) {
         smc_select_part((part + 1) % NPARTS);
         smc_view(V_HOME,0);
-        press(24 + part);
+        press(24 + expected_strip[part]);
         assert(ui.part == part && ui.view == V_PART && !smc.fx_down);
         /* The same actual input is an assigned effect only in FX context.
          * DAW Note buttons own press/release; stock User MMC has toggle-only edges. */
         smc_view(V_FX,0);
-        message(0x90,24+part,127);
+        message(0x90,24+expected_strip[part],127);
         assert(ui.part == part && ui.view == V_FX && (smc.fx_down & (1u << part)));
-        if(user_route()) message(0x90,24+part,127);
-        else message(0x80,24+part,0);
+        if(user_route()) message(0x90,24+expected_strip[part],127);
+        else message(0x80,24+expected_strip[part],0);
         assert(ui.part == part && ui.view == V_FX && !(smc.fx_down & (1u << part)));
         smc_view(V_PART, 0);
         for(int p=0;p<pg.n;p++) {
-            assert(cur_page()==p);
-            for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE) edit(r,n); }
-            for(int n=4;n<8;n++) assert(smc_knob_target(n).kind==R_NONE);
+            assert(smc_page_now()==p);
+            for(int n=0;n<4;n++) { pref_t r=smc_knob_target(n); if(r.kind!=R_NONE && !pref_read_only(r)) edit(r,n); } /* the 303 STATUS row is read-only */
+            for(int n=4;n<8;n++) assert(smc_knob_target(n).kind==R_NONE ||
+                !smc_same(smc_knob_target(n),smc_target(n)));
             if(p+1<pg.n) press(0x63);
         }
         /* Open deep list and reach every non-header row by SMC Up/Down. */
@@ -442,8 +451,8 @@ static void scenario(void) {
         }
         press(0x2F); assert(ui.sel[kit]==NDRUM-1);
         view(V_MIX);
-        while(cur_page()>kit+1) press(0x62);
-        while(cur_page()<kit+1) press(0x63);
+        while(smc_page_now()>kit+1) press(0x62);
+        while(smc_page_now()<kit+1) press(0x63);
         press(0x2E); assert(ui.sel[kit]==0);
         for(int t=0;t<NDRUM;t++) {
             if(t==8) press(0x2F);
@@ -538,7 +547,12 @@ int main(void) {
     smc_ble_link(1);smc_poll();proj.set.bt=0;
     smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==3);
     unsigned drops=(smc_rx_diag()>>8)&255;
+    /* Faders and encoders are held in the overflow mailbox, never dropped. */
     for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(m,3);
+    assert(((smc_rx_diag()>>8)&255)==drops);smc_poll();
+    /* Other messages are still counted when the ring is full. */
+    const uint8_t note[3]={0x90,0x70,127};
+    for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(note,3);
     assert(((smc_rx_diag()>>8)&255)==((drops+1)&255));smc_poll();
     return 0;
 }

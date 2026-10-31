@@ -36,8 +36,9 @@ HOST = r'''
 #define PROJ_BT_SMC_USER 32u
 #define SMC_Q 32u
 static volatile uint8_t smc_host_w, smc_host_r;
-static volatile uint32_t smc_host_solo_release_lost;
-static volatile uint32_t smc_pause_release_lost[2];
+static struct { volatile uint32_t release_lost[4]; } smc_inputs[2];
+#define smc_host_solo_release_lost smc_inputs[0].release_lost[1]
+#define smc_pause_release_lost (smc_inputs[0].release_lost + 2)
 static uint8_t smc_host_q[SMC_Q][3];
 static struct { struct { uint8_t bt; } set; } proj;
 '''
@@ -87,8 +88,11 @@ int main(void)
     scenario("home-off-full", 0x8F, 6, 0, 1, 32, 0, 1, 32, 1);
     scenario("home-vel0-full", 0x9F, 6, 0, 1, 32, 0, 1, 32, 1);
     scenario("home-on-full", 0x9F, 6, 127, 1, 32, 0, 1, 32, 0);
-    scenario("non-solo-off-full", 0x8F, 7, 0, 1, 32, 0, 1, 32, 0);
-    scenario("non-solo-boundary-full", 0x8F, 16, 0, 1, 32, 0, 1, 32, 0);
+    /* Every held SMC button needs a key-up, not just Solo. A dropped key-up
+     * must advance the shared generation so poll clears its retained press. */
+    scenario("non-solo-off-full", 0x8F, 7, 0, 1, 32, 0, 1, 32, 1);
+    scenario("non-solo-boundary-full", 0x8F, 16, 0, 1, 32, 0, 1, 32, 1);
+    scenario("select-off-full", 0x8F, 24, 0, 1, 32, 0, 1, 32, 1);
     scenario("solo-end-full", 0x8F, 15, 0, 1, 32, 0, 1, 32, 1);
     scenario("user-cc-full", 0xBF, 40, 127, 1, 32, 0, 1, 32, 0);
     scenario("malformed-solo-note-full", 0x8F, 0x88, 0, 1, 32, 0, 0, 32, 0);
@@ -104,8 +108,15 @@ int main(void)
 '''
 
 
+def spill_block(text):
+    """Production overflow mailbox for continuous controls."""
+    return text[text.index('/* SMC spill begin'):text.index('/* SMC spill end */')]
+
+
 def main():
     src = (HOST + function(PROTOCOL.read_text(), 'smc_host_accept') + '\n'
+           + function(PROTOCOL.read_text(), 'smc_relative') + '\n'
+           + spill_block(SOURCE.read_text()) + '\n'
            + function(SOURCE.read_text(), 'smc_is_solo_release') + '\n'
            + function(SOURCE.read_text(), 'smc_midi_host') + '\n' + CASES)
     with tempfile.TemporaryDirectory(prefix='smc-host-overflow-') as tmp:

@@ -10,6 +10,9 @@
 #include <string.h>
 #include <math.h>
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
+#define FM1_IRQ_TIMER5 63u
+static uint32_t fm1_irq_mask_save(unsigned n) { (void)n; return 0; }
+static void fm1_irq_mask_restore(unsigned n, uint32_t s) { (void)n; (void)s; }
 #define FELUCCA_UAC 1
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 #include "usb.c"

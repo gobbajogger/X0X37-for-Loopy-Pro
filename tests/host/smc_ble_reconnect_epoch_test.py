@@ -32,17 +32,26 @@ def function(name):
     return source[match.start():pos]
 
 
-prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
-functions = "\n".join(function(n) for n in (
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from smc_peek_stub import strip as strip_peek
+prefix = strip_peek(source[source.index("#define SMC_Q"):source.index("int smc_project_active")])
+helpers = ("smc_solo_union", "smc_peer_drop", "smc_ble_midi_slot", "smc_ble_link_slot") if "smc_poll_peer" in source else ()
+functions = "\n".join(function(n) for n in helpers + (
     "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link",
-    "smc_mmc_drain_stop", "smc_poll"
-))
+    "smc_mmc_drain_stop", "smc_spill_apply",
+) + (("smc_poll_peer",) if helpers else ()) + ("smc_poll",))
 harness = r'''
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "smc_fx_harness_stubs.h"
+/* smc_poll_peer re-arms the SMC caption timer of its own peer after a lost
+ * release. The caption itself is exercised by smc_ui_test.c. */
+#define SMC_UI_MS 1200u
+static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static uint32_t plat_ms(void) { return 0; }
 #define X0X_COLD
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
@@ -56,6 +65,7 @@ static int busy;
 static int perf_testing(void) { return 0; }
 static int ui_project_busy(void) { return busy; }
 static void engine_smc_solo(int mask) { (void)mask; }
+static void engine_smc_solo_targets(uint8_t p,uint16_t a,uint16_t b) { (void)a; (void)b; engine_smc_solo(p); }
 static void ui_say(const char *s, int unused) { (void)s; (void)unused; }
 static void smc_guarded_button(uint8_t n, int mmc, int allow)
 { (void)n; (void)mmc; (void)allow; mmc_count++; }
@@ -66,7 +76,7 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     observed[nobs++] = m[1];
     return 0;
 }
-''' + prefix + "\n" + functions + r'''
+''' + (lambda t: t[t.index('static inline int smc_relative'):t.index('}', t.index('static inline int smc_relative')) + 1])((ROOT / 'firmware/src/app/smc_protocol.h').read_text()) + "\n" + prefix + "\n" + functions + r'''
 static void reset_state(unsigned start)
 {
     memset(&smc, 0, sizeof smc);
@@ -150,10 +160,10 @@ int main(int argc, char **argv)
         smc_ble_link(0); smc_ble_link(1); smc_ble_link(0);
         smc_ble_link(1); send_ble(9); send_ble(10); smc_poll();
         want[nw++] = 9; want[nw++] = 10; break;
-    case 9: /* A Bluetooth epoch reset must not purge independent USB MIDI. */
-        smc_ble_link(1); smc_poll(); send_ble(7); send_host(11);
+    case 9: /* A Bluetooth epoch reset keeps unrelated USB controls; old Solo cannot replay. */
+        smc_ble_link(1); smc_poll(); send_ble(7); send_host(40);
         smc_ble_link(0); smc_ble_link(1); send_ble(9); smc_poll();
-        want[nw++] = 9; want[nw++] = 11; break;
+        want[nw++] = 9; want[nw++] = 40; break;
     case 10: /* Project busy drains prior and current inputs. */
         smc_ble_link(1); smc_poll(); send_ble(7);
         smc_ble_link(0); smc_ble_link(1); busy=1; smc_poll(); busy=0;
