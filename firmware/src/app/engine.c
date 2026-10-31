@@ -1807,7 +1807,16 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         /* A part that was silent when Solo excluded it must not leak a new
          * note through the 10 ms mix glide-out: start its glides at zero. */
         int solo_out = solo_parts && !(solo_parts & (1u << p)) && original_quiet_samples[b] >= 512u;
-        for (i = 0; i < n; ++i) {
+        if (!fade && original_switch_gain[b] == 512u) {
+            /* Settled gain 1.0: x * 1.0f == x for every float, so only the
+             * quiet count runs (the same per-sample result). */
+            uint32_t q = original_quiet_samples[b];
+            for (i = 0; i < n; ++i) {
+                if (fm_fabsf(bb[b][i]) > 1.0f/65536.0f || fm_fabsf(bb[1-b][i]) > 1.0f/65536.0f) q = 0;
+                else if (q < 512u) ++q;
+            }
+            original_quiet_samples[b] = q;
+        } else for (i = 0; i < n; ++i) {
             if (fade) { if (original_switch_gain[b]) --original_switch_gain[b]; }
             else if (original_switch_gain[b] < 512u) ++original_switch_gain[b];
             float gain = (float)original_switch_gain[b] * (1.0f/512.0f);

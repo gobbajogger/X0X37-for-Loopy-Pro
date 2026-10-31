@@ -3824,6 +3824,18 @@ static const char *division_pad_label(void)
         "PADS: RATE 1/12", "PADS: RATE 1/24"};
     return labels[division_pad_index()];
 }
+/* Free Play bottom row: pads 9-12 pick the wobble SHAPE (control 11: TRI, DOWN,
+ * UP, SQR); pads 13-16 are empty: dark, and a press does nothing. */
+enum { DIVISION_SHAPE_PADS = 4 };
+static int division_shape_index(void)
+{
+#if BOARD_SMK37 && X0X_DEV_WOBBLE && X0X_ORIGINAL_SYNTH
+    int v = pref_get(PR(R_ENG, T_303, bidx(), ORIGINAL_MIAMI_WOBBLE_SHAPE));
+    return v < 0 ? 0 : v > 127 ? 3 : (v * 3 + 63) / 127;
+#else
+    return 0;
+#endif
+}
 static void division_pad_input(void)
 {
     int owner = division_pad_owner();
@@ -3833,7 +3845,12 @@ static void division_pad_input(void)
         pref_set(PR(R_ENG, T_303, owner - 1, ORIGINAL_MIAMI_WOBBLE_RATE), (pad * 127 + 3) / 7);
         mark_dirty(); ui.act_t = plat_ms();
         say("WOBBLE ", division_pad_label() + 11);
-    }
+    } else if (owner && pad >= 8 && pad < 8 + DIVISION_SHAPE_PADS) {
+        static const char *const shape[DIVISION_SHAPE_PADS] = {"SHAPE TRI","SHAPE DOWN","SHAPE UP","SHAPE SQR"};
+        pref_set(PR(R_ENG, T_303, owner - 1, ORIGINAL_MIAMI_WOBBLE_SHAPE), ((pad - 8) * 127 + 1) / 3);
+        mark_dirty(); ui.act_t = plat_ms();
+        say("WOBBLE ", shape[pad - 8]);
+    }   /* pads 13-16: empty, nothing */
 #else
     (void)pad;
 #endif
@@ -4298,12 +4315,14 @@ static void cv_commit(int region, uint32_t x, uint32_t y)
 #define MAIN_ROWS (2 * BAND_H)
 #define MAIN_COLB (240 / 8)
 static uint32_t main_rowh[MAIN_ROWS], main_colh[MAIN_COLB];
-static void cv_commit_rect(int region, uint32_t x, uint32_t y)
+static uint32_t knob_rowh[KNOB_H], knob_colh[MAIN_COLB];
+/* rows: the strip's height; last_rowh/last_colh: its hashes as last sent */
+static void cv_commit_rows(int region, uint32_t x, uint32_t y, uint32_t rows, uint32_t *last_rowh, uint32_t *last_colh)
 {
-    uint32_t rowh[MAIN_ROWS], colh[MAIN_COLB], r, c, r0 = MAIN_ROWS, r1 = 0, c0 = MAIN_COLB, c1 = 0, w, h, k;
+    uint32_t rowh[MAIN_ROWS], colh[MAIN_COLB], r, c, r0 = rows, r1 = 0, c0 = MAIN_COLB, c1 = 0, w, h, k;
     for (c = 0; c < MAIN_COLB; c++)
         colh[c] = 2166136261u;
-    for (r = 0; r < MAIN_ROWS; r++) {
+    for (r = 0; r < rows; r++) {
         const uint16_t *q = cv_px + r * 240u;
         uint32_t hr = 2166136261u;
         for (c = 0; c < MAIN_COLB; c++) {
@@ -4319,29 +4338,29 @@ static void cv_commit_rect(int region, uint32_t x, uint32_t y)
     }
     if (!blit_hash[region]) {                         /* after a reset: all of it */
         r0 = c0 = 0;
-        r1 = MAIN_ROWS - 1;
+        r1 = rows - 1;
         c1 = MAIN_COLB - 1;
     } else {
-        for (r = 0; r < MAIN_ROWS; r++)
-            if (rowh[r] != main_rowh[r]) {
-                if (r0 == MAIN_ROWS)
+        for (r = 0; r < rows; r++)
+            if (rowh[r] != last_rowh[r]) {
+                if (r0 == rows)
                     r0 = r;
                 r1 = r;
             }
         for (c = 0; c < MAIN_COLB; c++)
-            if (colh[c] != main_colh[c]) {
+            if (colh[c] != last_colh[c]) {
                 if (c0 == MAIN_COLB)
                     c0 = c;
                 c1 = c;
             }
-        if (r0 == MAIN_ROWS || c0 == MAIN_COLB)
+        if (r0 == rows || c0 == MAIN_COLB)
             return;                                     /* nothing changed */
     }
     blit_hash[region] = 1;
-    for (r = 0; r < MAIN_ROWS; r++)
-        main_rowh[r] = rowh[r];
+    for (r = 0; r < rows; r++)
+        last_rowh[r] = rowh[r];
     for (c = 0; c < MAIN_COLB; c++)
-        main_colh[c] = colh[c];
+        last_colh[c] = colh[c];
     w = (c1 - c0 + 1u) * 8u;
     h = r1 - r0 + 1u;
     for (r = 0; r < h; r++) {                         /* pack: the destination never passes the source */
@@ -4351,6 +4370,18 @@ static void cv_commit_rect(int region, uint32_t x, uint32_t y)
             dst[k] = src[k];
     }
     lcd_blit(x + c0 * 8u, y + r0, w, h, cv_px);
+}
+static void cv_commit_rect(int region, uint32_t x, uint32_t y)
+{
+    cv_commit_rows(region, x, y, MAIN_ROWS, main_rowh, main_colh);
+}
+/* The knob strip (82 rows, 39 KB) took 26 ms of SPI at the SMK-37's 12 MHz whenever any pixel
+ * of it moved, and its live glyphs (ADSR playhead, wobble, glide, ENV knee, voice meters) move
+ * every frame while a synth plays. The main loop polls the keys only between frames, so in
+ * Free Play each key waited behind that transfer. Send only the changed rectangle, as above. */
+static void cv_commit_knobs(int region)
+{
+    cv_commit_rows(region, 0, KNOB_Y, KNOB_H, knob_rowh, knob_colh);
 }
 
 static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
@@ -7562,7 +7593,7 @@ static UI_DRAW void draw_knobs(void)
         /* Continuation of the same 4x4 matrix, not a duplicate knob row. */
         cv_begin(240, KNOB_H, C_BLACK);
         if (ui.overlay==O_NONE && !ui.help) draw_part_sound(2);
-        cv_commit(3, 0, KNOB_Y);
+        cv_commit_knobs(3);
         last_sig = 0;
         return;
     }
@@ -7610,7 +7641,7 @@ static UI_DRAW void draw_knobs(void)
             text_c(cx, vc(&FONT_XS, 13, 10), &FONT_XS, SN[i], C_GRAY);
             text_c(cx, vc(&FONT_M, 30, 34), &FONT_M, v, C_WHITE);
         }
-        cv_commit(3, 0, KNOB_Y);
+        cv_commit_knobs(3);
         return;
     }
     for (i = 0; i < 4; i++) {
@@ -7659,7 +7690,7 @@ static UI_DRAW void draw_knobs(void)
         cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
                    vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
     }
-    cv_commit(3, 0, KNOB_Y);
+    cv_commit_knobs(3);
 }
 
 /* ===================================================================== LEDs === */
@@ -7794,8 +7825,8 @@ static void leds(void)
     if (division_pad_owner()) {
         k = d = 0; /* no fake keybed notes from physical pad LEDs */
         if (proj.set.keyled) {
-            for (i = 0; i < 8; i++) d |= 1u << WHITE_KEY[i];
-            k = 1u << WHITE_KEY[division_pad_index()];
+            for (i = 0; i < 8 + DIVISION_SHAPE_PADS; i++) d |= 1u << WHITE_KEY[i];
+            k = 1u << WHITE_KEY[division_pad_index()] | 1u << WHITE_KEY[8 + division_shape_index()];
         }
     }
     plat_keys_dim(d & ~k);

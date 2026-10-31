@@ -68,8 +68,10 @@ int main(void)
     now_ms += SMC_PEEK_MS + 1; smc_poll();
     CHECK(!smc_peek->on && cur_page() == 3);
     CHECK(smc_drum_mix() == PART_808 && !smc_led(24) && smc_led(25));
-    CHECK(smc_same(held_fader, smc_target(0)));
-    CHECK(smc_same(held_knob, smc_knob_target(0)));
+    /* Lock only stops following the keyboard: the SMC's own PAGE+ retargets
+     * faders and knobs to its locked page (808 MIX), then holds them there. */
+    CHECK(!smc_same(held_fader, smc_target(0)) && smc_target(0).a == T_808);
+    held_fader = smc_target(0); held_knob = smc_knob_target(0);
     /* A keyboard-only view change to PART/FX/GEN cannot replace the
      * locked MIX page's count, kit map, SELECT LED, or captured targets. */
     const int other_views[] = {V_PART, V_FX, V_GEN};
@@ -80,8 +82,7 @@ int main(void)
         CHECK(smc_drum_mix() == PART_808 && smc_led(25) && !smc_led(24));
         smc_page_set(3);
         CHECK(smc_page_now() == 3 && smc_led(31));
-        CHECK(smc_same(held_fader, smc_target(0)));
-        CHECK(smc_same(held_knob, smc_knob_target(0)));
+        CHECK(!smc_same(held_fader, smc_target(0))); /* SMC's own page 4 */
         smc_page_set(2);
         CHECK(smc_page_now() == 2 && smc_led(25));
         /* Even an empty live page table must not strand the locked mixer. */
