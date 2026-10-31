@@ -319,7 +319,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             limit_env(m, a);
             d = m->la[m->la_pos];
             m->la[m->la_pos] = s;
-            m->la_pos = (m->la_pos + 1) % MST_LA;
+            m->la_pos = (m->la_pos + 1) & (MST_LA - 1);   /* MST_LA: a power of two */
             s = soft_ceiling(d * m->gain);
         } else {
             s = clamp_pm1(s);
@@ -370,7 +370,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
             dr = m->la_r[m->la_pos];
             m->la[m->la_pos] = s;
             m->la_r[m->la_pos] = sr;
-            m->la_pos = (m->la_pos + 1) % MST_LA;
+            m->la_pos = (m->la_pos + 1) & (MST_LA - 1);   /* MST_LA: a power of two */
             s = soft_ceiling(d * m->gain);
             sr = soft_ceiling(dr * m->gain);
         } else {

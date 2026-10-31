@@ -126,7 +126,8 @@ ORIGINAL_SYNTH_BACKENDS = [
     "firmware/src/app/original_sound.c",
 ]
 ORIGINAL_SYNTH_FLAGS = ["-fno-fast-math", "-ffp-contract=off", "-DNDEBUG",
-                        "-DORIGINAL_USE_SOFT_FMA", "-DMIAMI_FX_NO_HOST_FENV"]
+                        "-DORIGINAL_USE_SOFT_FMA", "-DMIAMI_FX_NO_HOST_FENV",
+                        "-DX0X_FAST_FMA"]   # device: mul+add for the soft FMA (docs/perf/engine-load-20261031.md)
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
 # SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
