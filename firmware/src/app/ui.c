@@ -275,7 +275,8 @@ enum { PT_IDLE = -1, PT_DONE = 3 };
 static struct {
     uint32_t t_ms, ticks, cyc, frames, prof[ENG_PROF_N], st[3];
     uint16_t mhz10;                    /* the CPU clock x 10; 0 = not known (no cycle counter) */
-    uint8_t load, peak, stalls_on, have;
+    uint16_t load, peak;
+    uint8_t stalls_on, have;
     uint16_t stage[ENG_PROF_N];        /* each stage's share of the CPU, x 10 (%) */
     uint16_t cps;                      /* the render's cycles per sample (cycle counter only) */
     uint8_t stall[3];                  /* fetch / read / write stall cycles, % */
@@ -283,7 +284,7 @@ static struct {
                                         * phase: 0 stop, 1 settle, 2 measure, 3 put back, 4 done */
     uint32_t test_t0;
     uint16_t res_load[3], res_cps[3];  /* per scenario: the render's share x 10, cycles per sample */
-    uint8_t res_peak[3];
+    uint16_t res_peak[3];
     pattern_t *pat;                    /* what the test changes, to put back */
     uint8_t ppat[NPARTS], song_on, ca, cb;
     uint32_t mute;
@@ -2056,6 +2057,10 @@ static const char *const PT_N[3] = {"FACTORY LOOP", "ALL FIVE", "WORST CASE"};
 static pattern_t perf_bench[3];
 #endif
 
+/* PERF values are percentages, not bytes; protect the 16-bit display range. */
+static uint16_t ui_perf_percent(uint32_t value)
+{ return (uint16_t)(value>65535u?65535u:value); }
+
 static void perf_window(int force)
 {
     uint32_t now = plat_ms(), t = plat_ticks24(), c = plat_cycles(), f = eng_prof_frames, st[3];
@@ -2075,8 +2080,8 @@ static void perf_window(int force)
             perf.stage[k] = (uint16_t)((float)d * 1000.0f / ((float)df * ups) + 0.5f);
         }
         perf.cps = plat_cycles_cpu() ? (uint16_t)(sum / df) : 0;
-        perf.load = (uint8_t)plat_cpu_pct();
-        perf.peak = (uint8_t)plat_cpu_peak_pct();
+        perf.load = ui_perf_percent(plat_cpu_pct());
+        perf.peak = ui_perf_percent(plat_cpu_peak_pct());
         if (plat_stalls(st) == 0 && dc)
             for (k = 0; k < 3; k++)
                 perf.stall[k] = (uint8_t)((float)(st[k] - perf.st[k]) * 100.0f / (float)dc + 0.5f);
@@ -4981,6 +4986,8 @@ static UI_DRAW void draw_303(int band, int gen)
 static int strcmp_s(const char *a, const char *b);
 static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int touched, uint16_t col, int height, int night);
 static UI_DRAW int adsr_touch_active(void);
+static UI_DRAW void draw_adsr_touch_main(int band);
+static UI_DRAW void draw_adsr_touch_knobs(void);
 static UI_DRAW int adsr_inline_page(void);
 static UI_DRAW void draw_adsr_inline(int y,int h,int off);
 enum { GL_NONE, GL_POWER, GL_DOWN, GL_UP, GL_BOTH, GL_CLOCK, GL_PEDAL };
@@ -5783,13 +5790,42 @@ static int release_label_box(const char *label, int selected, int32_t *x, int32_
 }
 
 /* a list over the main area: six rows of 24 px */
+/* Fit each connected device name independently; never sacrifice the second
+ * slot to an overlong first name. Draw using native font measurements. */
+static UI_DRAW void bt_peer_text(char out[64], int room)
+{
+    char peers[2][21] = {{0}};
+    unsigned count = plat_ble_peer_names(peers);
+    if (count > 2u) count = 2u;
+    if (!count) {
+        put_s(out, plat_ble_name()[0] ? plat_ble_name() : "-");
+        return;
+    }
+    int sep = count == 2u ? tw(&FONT_T, ", ") : 0;
+    int share = count == 2u ? (room - sep) / 2 : room;
+    char *q = out;
+    for (unsigned p = 0; p < count; ++p) {
+        if (p) q = put_s(q, ", ");
+        peers[p][20] = 0;
+        unsigned n = 0;
+        while (n < 20u && peers[p][n]) n++;
+        if (tw(&FONT_T, peers[p]) > share) {
+            while (n && tw(&FONT_T, peers[p]) + tw(&FONT_T, "..") > share)
+                peers[p][--n] = 0;
+            q = put_s(q, peers[p]);
+            if (share >= tw(&FONT_T, "..")) q = put_s(q, "..");
+        } else q = put_s(q, peers[p]);
+    }
+    *q = 0;
+}
+
 static UI_DRAW void draw_list(int band)
 {
     int i;
     for (i = 0; i < 3; i++) {
         int row = ui.list_top + band * 3 + i, y = i * 23, sel = row == ui.list_sel;
         pref_t r;
-        char num[36], unit[8];
+        char num[64], unit[8];
         const x0x_param_t *d;
         if (row >= ui.list_n)
             break;
@@ -5830,6 +5866,12 @@ static UI_DRAW void draw_list(int band)
                 int room = 226-8-tw(sel ? &FONT_B : &FONT_S,caps_of(pref_name(r)))-8-
                            (unit[0] ? tw(&FONT_XS,unit)+2 : 0);
                 if (tw(nf,num) > room) nf = tw(&FONT_XS,num) <= room ? &FONT_XS : &FONT_T;
+            }
+            if (r.kind == R_BTNAME) {
+                int room = 226 - 8 - tw(sel ? &FONT_B : &FONT_S, "NAME") - 8;
+                bt_peer_text(num, room);
+                if (tw(nf, num) > room)
+                    nf = tw(&FONT_XS, num) <= room ? &FONT_XS : &FONT_T;
             }
             int32_t ny = vc(nf, y + 1, 18), ux = 226 - tw(&FONT_XS, unit);
             cv_text(ux, base_y(nf, ny, &FONT_XS), &FONT_XS, unit, C_GRAY);
@@ -6082,6 +6124,8 @@ static UI_DRAW void draw_main(void)
             draw_song(band);
         else if (ui.view == V_PERF)
             draw_perf(band);
+        else if (envelope && ui.view == V_PART && is_303())
+            draw_adsr_touch_main(band);
         else if (ui.view == V_PART && (is_drum() || is_303()))
             draw_part_sound(band);
         else if (is_drum())
@@ -6108,6 +6152,16 @@ static void cell_value(int cx, int y, const char *num, const char *unit, uint16_
 }
 
 #include "ui_waveform.h"
+
+/* The change-keyed original macro cache yields 29 native waveform pixels.
+ * Draw the existing value cell, never evaluate synthesis in the frame loop. */
+static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_control_view *v,
+    unsigned slot,uint16_t ink,uint16_t face)
+{
+    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));
+    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)
+        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);
+}
 
 /* A shape cue, not a sampled oscilloscope. Chicago Wave continuously crossfades
  * saw and square; Miami's carrier, modulator and LFO are discrete choices. */
@@ -6242,7 +6296,8 @@ static UI_DRAW int adsr_touch_active(void)
     if (ui.view != V_PART || !is_303() || i < 0 || i > 3 ||
         (int32_t)(ui.touch_until - plat_ms()) <= 0 ||
         (strcmp_s(pg.title[page], "AMP ADSR") &&
-         strcmp_s(pg.title[page], "FILTER ADSR"))) return 0;
+         strcmp_s(pg.title[page], "FILTER ADSR") &&
+         strcmp_s(pg.title[page], "ENVELOPE"))) return 0;
     r = pg.r[page][i];
     return matrix_touch_matches(r, i);
 }
@@ -6407,6 +6462,22 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         return;
     }
 #endif
+    int original_slot=-1;
+    const ui_original_control_view *original_view=0;
+    if(r.kind==R_ENG && r.a==T_303) {
+        int kind=engine_bass_sound_bank(&proj.sound,r.b);
+        if(r.c==0) original_slot=0;
+        else if(kind==ORIGINAL_SOUND_MIAMI)
+            original_slot=r.c==6?1:r.c==11?2:-1;
+        if(original_slot>=0) original_view=original_text_view(r,val);
+    }
+    if(original_view && original_slot>=0) {
+        draw_original_wave(cx-10,y+25,original_view,(unsigned)original_slot,ink,
+            night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        pref_value_of(r,val,num,unit);
+        put_s(put_s(value,num),unit);
+        text_c(cx+17,y+28,&FONT_T,value,ink);
+    } else {
     if(r.kind==R_ENG && val>=0 && val<=d->max) shape=wave_shape(r,val,&mix);
     if(shape) {
         draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
@@ -6430,6 +6501,7 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
             cv_rect(x+8,y+bar_y,42,1,night?(active?SOUND_SELECT_SIDE:SOUND_LINE):(active?dim(col,3):C_LINE));
             if(val>0 && d->max) cv_rect(x+8,y+bar_y,1+41*(val>d->max?d->max:val)/d->max,1,ink);
         }
+    }
     }
     lv=lock_of(r,lock_step());
     if(lv>=0 || (lock_step()<0 && has_motion(r)))
@@ -6526,6 +6598,54 @@ static void adsr_layout(const ui_adsr_t *e,int x0,int width,int xs[5],float dur[
     w[1]+=span-used;                                       /* rounding remainder */
     if(w[1]<3) { w[2]-=3-w[1]; w[1]=3; }
     xs[0]=x0; xs[1]=x0+w[0]; xs[2]=xs[1]+w[1]; xs[3]=xs[2]+hold; xs[4]=x0+width;
+}
+/* Temporary touched-stage overlay. This depicts control amounts and stage
+ * ownership; the original exponential inline graph remains unchanged idle. */
+static UI_DRAW void draw_adsr_touch_main(int band)
+{
+    static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
+    int off=band*BAND_H,amount[4],x[5],ys,selected=ui.touched,p=cur_page();
+    uint16_t col=matrix_col(),hi=C_WHITE;
+    char num[16],unit[8],title[48];
+    for(int i=0;i<4;i++)amount[i]=matrix_value(pg.r[p][i]);
+    int total=amount[0]+amount[1]+64+amount[3];
+    x[0]=13;x[4]=227;
+    x[1]=13+(214*amount[0]+total/2)/total;
+    x[2]=13+(214*(amount[0]+amount[1])+total/2)/total;
+    x[3]=13+(214*(amount[0]+amount[1]+64)+total/2)/total;
+    ys=100-(56*amount[2]+63)/127;
+    cv_text(8,7-off,&FONT_S,"ENVELOPE",col);
+    pref_value_of(pg.r[p][selected],amount[selected],num,unit);
+    put_s(put_s(put_s(put_s(title,names[selected])," "),num),unit);
+    cv_text(8,25-off,&FONT_B,title,col);
+    cv_rect(13,100-off,215,1,SOUND_SELECT_SIDE);
+    cv_line(x[0],100-off,x[1],44-off,selected==0?hi:col);
+    cv_line(x[1],44-off,x[2],ys-off,selected==1?hi:col);
+    cv_line(x[2],ys-off,x[3],ys-off,selected==2?hi:col);
+    cv_line(x[3],ys-off,x[4],100-off,selected==3?hi:col);
+    cv_text(13,109-off,&FONT_T,"SCHEMATIC / CONTROL AMOUNTS (%)",C_GRAY);
+    if(lock_step()>=0) {
+        put_i(put_s(title,"P-LOCK STEP "),lock_step()+1);
+        cv_text(13,124-off,&FONT_T,title,C_AMB);
+    }
+}
+static UI_DRAW void draw_adsr_touch_knobs(void)
+{
+    static const char *const names[4]={"ATTACK","DECAY","SUSTAIN","RELEASE"};
+    int p=cur_page();
+    cv_rect(0,0,240,KNOB_H,SOUND_BASE);
+    for(int k=0;k<4;k++) {
+        int x=3+k*60,active=k==ui.touched;
+        uint16_t col=matrix_col(),ink=active?SOUND_INK:C_HI;
+        char num[16],unit[8],t[24];
+        night_panel(x,9,54,59,active);
+        text_c(x+27,19,&FONT_T,names[k],active?C_WHITE:SOUND_GRAY);
+        pref_value_of(pg.r[p][k],matrix_value(pg.r[p][k]),num,unit);
+        put_s(put_s(t,num),unit);
+        const felucca_font_t *f=tw(&FONT_B,t)<=48?&FONT_B:&FONT_XS;
+        text_c(x+27,39,f,t,ink);
+        cv_rect(x+5,59,44,2,active?col:C_LINE);
+    }
 }
 static UI_DRAW void draw_adsr_inline(int y,int h,int off)
 {
@@ -6938,7 +7058,10 @@ static UI_DRAW void draw_knobs(void)
     if (ui.view == V_PART && (is_drum() || is_303())) {
         /* Continuation of the same 4x4 matrix, not a duplicate knob row. */
         cv_begin(240, KNOB_H, C_BLACK);
-        if (ui.overlay==O_NONE && !ui.help) draw_part_sound(2);
+        if (ui.overlay==O_NONE && !ui.help) {
+            if (adsr_touch_active()) draw_adsr_touch_knobs();
+            else draw_part_sound(2);
+        }
         cv_commit(3, 0, KNOB_Y);
         last_sig = 0;
         return;
