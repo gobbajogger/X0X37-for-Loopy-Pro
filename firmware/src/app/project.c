@@ -46,6 +46,9 @@ static uint32_t packed_len;             /* the last save's (or load's) packed st
  * zeros there: the defaults. */
 static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
                      CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
+_Static_assert(__builtin_offsetof(settings_t, ck_x2) - __builtin_offsetof(settings_t, ck_ch) == 11,
+               "clock settings must remain twelve adjacent bytes");
+_Static_assert(sizeof CK_MAX == 12, "clock settings bounds must cover twelve fields");
 typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
 
 static void project_settings_defaults(settings_t *s, uint8_t device_bt)
@@ -129,21 +132,16 @@ static int save_buf(uint32_t obj, uint32_t n)
     return rc;
 }
 
-/* the settings may have grown since they were saved: a shorter payload of this format loads into
- * the front of dst, and the rest keeps what dst held (zeros: the new settings' defaults) */
+/* Exact size only; an older settings object is unsupported (-9). */
 static int load_settings(settings_t *dst)
 {
     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
     if (n < 0) return -1;
     if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT ||
         io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV) return -9;
-    if (n < 20 || (uint32_t)n > sizeof *dst + 4u || io_buf[0] != (uint8_t)PROJ_FORMAT || io_buf[1] || io_buf[2] || io_buf[3])
-        return -1;
-    __builtin_memcpy(dst, io_buf + 4u, (uint32_t)n - 4u);
-    if ((uint32_t)n == sizeof *dst + 4u) {           /* exactly what a save of these settings writes */
-        stored_known[OBJ_SET] = 1;
-        stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
-    }
+    __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
+    stored_known[OBJ_SET] = 1;
+    stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
     return 0;
 }
 

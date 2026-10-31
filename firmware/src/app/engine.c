@@ -1110,7 +1110,8 @@ static void brk_note_set(int src, int note, int on)
     else
         brk_down[src][note >> 3] &= (uint8_t)~m;
 }
-/* The applied snapshot, not the requested count, owns the held MIDI identity. */
+/* Held MIDI notes map through bank 0's current live slice count.
+ * TODO(F3 row 24): review held-note identity for the second slicer. */
 static int brk_note_slice(int note)
 {
     int count = breaks_count(&brk, 0);
@@ -1237,8 +1238,6 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     if (src < 0 || src >= MIDI_NSRC) return; /* source 3 is internal keyboard ownership only */
     if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
         seq_clk_drop(&seq, (uint32_t)src);      /* MID-15: another input can get the clock at once */
-        if (src < 0 || src >= MIDI_NSRC)
-            return;
         v = src_held[src];
         for (k = 0; k < NBASS; ++k) {
             (void)original_runtime_release_source(&original_bass[k], (unsigned)src);
@@ -2158,7 +2157,7 @@ X0X_COLD void engine_brk_loops(void)
         } else {
             const brk_loop_t *builtin = brk_builtin(slot < nb ? slot : 0);
             if (builtin) L[w] = *builtin;
-            else L[w] = (brk_loop_t){0};
+            else __builtin_memset(&L[w], 0, sizeof L[w]);
         }
         L[w].slices = (uint8_t)brk_slice_count(bp, (unsigned)w);
         breaks_set_loop(&brk, w, &L[w]);
