@@ -1,0 +1,22 @@
+{
+  "review": "ce-code-review",
+  "status": "completed diagnostic review; B2 not ready",
+  "reviewers": [
+    "correctness",
+    "testing",
+    "maintainability",
+    "project-standards",
+    "adversarial"
+  ],
+  "independent_validator": true,
+  "resolved_findings": [
+    "Assert every burst reaches the synth consumers",
+    "Provide portable instrumentation for the registered Mac host test",
+    "Include sequencer release work in synth CPU accounting"
+  ],
+  "followup": "Correctness and testing reviewers independently confirmed fixes against current source and smoke evidence",
+  "simplification": "Three-persona review; stream PCM hash fixed",
+  "cross_provider_review": "NOT_RUN: unavailable",
+  "hardware_acceptance": "NOT_RUN",
+  "apple_toolchain_execution": "NOT_RUN"
+}

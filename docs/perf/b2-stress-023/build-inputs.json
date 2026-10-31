@@ -1,0 +1,51 @@
+{
+  "base_commit": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "base_tree": "e340d89d180879b8d8a2fea07c56800a2feaac5c",
+  "configuration": {
+    "sdk": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "X0X_DEV_PADCAL": 0,
+    "board": "smk37"
+  },
+  "models": {
+    "elite": {
+      "result": "PASS",
+      "image_bytes": 499004,
+      "static_ram_used": 95952,
+      "static_ram_free": 2352,
+      "pool_free": 8536,
+      "log_sha256": "2ce39bf1eec167eccdc759ab44835dc4f877575452e411e53724e10acecdec5a",
+      "evidence": "actual native compile/link/package; no device operation"
+    },
+    "pro": {
+      "result": "PASS",
+      "image_bytes": 498988,
+      "static_ram_used": 95952,
+      "static_ram_free": 2352,
+      "pool_free": 8536,
+      "log_sha256": "3ff374e48f811c818b9e59f81a0c69721dd1820a03aadbabd6178acf8211ed7c",
+      "evidence": "actual native compile/link/package; no device operation"
+    }
+  },
+  "sdk_inputs": {
+    "uboot.boot": {
+      "bytes": 14536,
+      "sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+    },
+    "cfg_tool.bin": {
+      "bytes": 383,
+      "sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b"
+    },
+    "cfg/eq_cfg_hw.bin": {
+      "bytes": 655,
+      "sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    }
+  },
+  "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+  "target": {
+    "result": "NOT_RUN",
+    "probe": "tools/fm1_install.py --info on connected Mac",
+    "observed": "MIDI inputs: (none)",
+    "hardware_dropouts": null,
+    "installed_identity": null
+  }
+}

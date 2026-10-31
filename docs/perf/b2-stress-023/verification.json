@@ -1,0 +1,28 @@
+{
+  "selected_host_suite": {
+    "command": "X0X_TEST_JOBS=1 X0X_STRESS_BLOCKS=64 sh tests/run_tests.sh audio-stress runner-admission",
+    "selectors": [
+      "audio-stress",
+      "runner-admission"
+    ],
+    "result": "PASS",
+    "full_suite": false,
+    "runner_note": "Pro package tests unconditionally noted skipped; separate native Pro build passed"
+  },
+  "sanitizers": {
+    "ASan_UBSan": "PASS",
+    "blocks_each": 64,
+    "cases": 3,
+    "negative_control": "PASS"
+  },
+  "controlled_measurements": {
+    "runs": 18,
+    "blocks_each": 1024,
+    "workload_coverage": "PASS",
+    "PCM_identical": true,
+    "peak_limits": "FAIL"
+  },
+  "product_native_input_diff": "empty",
+  "target": "NOT_RUN",
+  "visual_mockups": "N/A"
+}
