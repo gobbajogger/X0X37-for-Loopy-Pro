@@ -1,13 +1,17 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Two-peer HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
 #pragma once
-/* The controller and locked settings reserve two LE connections. Preserve an
- * explicit one-peer mode for isolated #700 retry/handle-zero host tests only. */
+/* Firmware default: ONE SMC peer (owner 2026-10-31). With two peers the pair
+ * scheduler opened scan/create for slot B while slot A was still DISCOVERING;
+ * the controller then reset (DIAG: mailbox FAILED err RESET) and STATUS showed
+ * FAILED with one SMC connected. The two-peer code stays: build with
+ * -DBLEC_TWO_PEER=1 (smc_mixer.c then uses SMC_PEERS 2). The controller
+ * config (le_hw_nums 2) is unchanged. */
 #ifndef BLEC_TWO_PEER
-#define BLEC_TWO_PEER 1
+#define BLEC_TWO_PEER 0
 #endif
 #if !BLEC_TWO_PEER
-#define BLEC_ONE_PEER_RECOVERY 1 /* compile-time fallback, not firmware default */
+#define BLEC_ONE_PEER_RECOVERY 1 /* single peer: a FAILED link rejoins (blec_pair_poll) */
 #endif
 #include <stdint.h>
 
