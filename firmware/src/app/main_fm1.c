@@ -49,6 +49,9 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
             uac_tap(o + 2u * k, REND_FRAMES);       /* the USB audio input: the same master output */
 #endif
             engine_volume(o + 2u * k, REND_FRAMES);     /* USB AUDIO FULL: the MASTER knob after the tap */
+#if FELUCCA_UAC
+            uac_out_mix(o + 2u * k, REND_FRAMES);   /* USB audio from the host, after the tap and MASTER */
+#endif
         }
     }
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;

@@ -82,6 +82,9 @@ FM1_INLINE void fm1_usb_ep0_buf(void *p) { FM1_USB_EP0_ADR = (uint32_t)(uintptr_
 #define FM1_USB_EP4_CNT (*(volatile uint32_t *)0x11834u)
 #define FM1_USB_EP4_TADR (*(volatile uint32_t *)0x11838u)
 FM1_INLINE void fm1_usb_ep4_txbuf(void *p) { FM1_USB_EP4_TADR = (uint32_t)(uintptr_t)p; }
+/* EP4 OUT (the USB audio output, isochronous): its DMA address (SDK usb_set_dma_raddr, ep 4); the
+ * count is the SIE's RXCOUNT, as for EP1..3 */
+FM1_INLINE void fm1_usb_ep4_rxbuf(void *p) { FM1_USB_EP4_RADR = (uint32_t)(uintptr_t)p; }
 FM1_INLINE void fm1_usb_ep4_send(void *p, uint32_t n)
 {
     __asm__ volatile("csync" ::: "memory");

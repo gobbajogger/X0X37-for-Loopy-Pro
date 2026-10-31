@@ -318,6 +318,8 @@ run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/enc
 run bass-midi-pending-native python3 tests/host/bass_midi_pending_native_test.py
 run usb-product-names python3 -B tests/host/usb_product_names_test.py  # model-specific USB names, version, bounds, VID/PID, loader
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
+run uac-out sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_out_test tests/host/uac_out_test.c -lm && $OUT/uac_out_test"
+run usb-audio-descriptors env CC="$CC" python3 -B tests/host/usb_audio_descriptors_test.py  # UAC1 in+out, iOS rules
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
 run undo-capacity sh tests/host/run_undo_capacity.sh

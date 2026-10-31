@@ -822,6 +822,11 @@ Record it in any audio app, or monitor it live through one. The FM-1 keeps its U
 with the computer's clock, so live monitoring doesn't drift or drop out. The first moment after an
 app opens the input can click while the FM-1 settles.
 
+It is also an audio output (two channels, 44.1 kHz): an iPhone, iPad or computer can play through
+it. What the host plays comes out of the headphones and line out, added on top of the DnBOX
+engines; the host's own volume sets its level (the MASTER knob does not). The host's audio is not
+sent back to the USB input, so recording the input while playing through the output does not loop.
+
 ---
 
 ## 17. Troubleshooting
