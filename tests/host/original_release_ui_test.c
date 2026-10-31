@@ -187,6 +187,36 @@ static void locks_and_undo(void)
     CHECK(!undo_wait && engine_bass_bank(0)==0 && !memcmp(saved,proj.sound.v[T_303][0],32));
     do_undo(1); settle(); CHECK(!undo_wait && engine_bass_bank(0)==1 && proj.sound.v[T_303][0][30]==29);
 }
+/* Semantic FX pictures keep identity, fit their existing cell and cannot edit
+ * the sound. The bypass line reaches both edges; generic selector pips do not. */
+static void fx_picture_cases(void)
+{
+    uint32_t pictures[ORIGINAL_CHICAGO_FX_CHOICES]; uint8_t saved[32];
+    choose(1,ORIGINAL_SOUND_CHICAGO,0);
+    memcpy(saved,proj.sound.v[T_303][1],sizeof saved);
+    int dirty=ui.dirty;
+    for(unsigned fx=0;fx<ORIGINAL_CHICAGO_FX_CHOICES;++fx) {
+        cv_begin(240,KNOB_H,C_BLACK);
+        orig_strip_glyph(PR(R_ENG,T_303,1,ORIGINAL_CHICAGO_FX_TYPE),(int)fx,10,10,C_HI);
+        uint32_t hash=2166136261u; unsigned ink=0;
+        for(int y=0;y<KNOB_H;++y) for(int x=0;x<240;++x) {
+            uint16_t pixel=cv_px[y*240+x];
+            if(pixel!=swap16(C_BLACK)) {CHECK(x>=10 && x<36 && y>=10 && y<=28);++ink;}
+            hash=(hash^pixel)*16777619u;
+        }
+        CHECK(ink); pictures[fx]=hash;
+        for(unsigned prior=0;prior<fx;++prior) CHECK(hash!=pictures[prior]);
+        if(fx==0) CHECK(cv_px[19*240+35]==swap16(C_HI));
+    }
+    CHECK(!memcmp(saved,proj.sound.v[T_303][1],sizeof saved) && ui.dirty==dirty);
+    cv_begin(240,KNOB_H,C_BLACK);
+    int end=matrix_next_hint(10,8,C_HI); unsigned ink=0;
+    CHECK(end>10 && end<=100);
+    for(int y=0;y<KNOB_H;++y) for(int x=0;x<240;++x)
+        if(cv_px[y*240+x]!=swap16(C_BLACK)) {CHECK(x>=10 && x<end && y>=8 && y<=18);++ink;}
+    CHECK(ink);
+}
+
 static void image_cases(void)
 {
     capture("home",V_HOME,PART_909,0); capture("mix-parts",V_MIX,PART_909,0); capture("mix-master",V_MIX,PART_909,3);
@@ -240,7 +270,7 @@ static void image_cases(void)
 int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases();
+    pages_and_edits(); selector_cases(); locks_and_undo(); fx_picture_cases(); image_cases();
     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
     return 0;

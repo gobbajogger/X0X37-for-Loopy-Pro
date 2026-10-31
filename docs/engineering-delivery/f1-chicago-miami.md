@@ -1,5 +1,34 @@
 # F1: Chicago/Miami source candidate
 
+## Owner UI follow-up
+
+The same PR now gives each of the twelve Chicago FX choices a small qualitative
+picture instead of generic selection pips. The existing short effect name remains
+beside it, and actual preset names remain readable. Pictures distinguish chorus
+pair/ensemble trio, short/BPM echoes, phaser, ring, compression, decimator, EQ,
+hall and gated reverb. They reuse the existing 26x19 glyph box and native voice
+activity pips. No new animation clock, audio state or static buffer is introduced.
+
+The synth matrix footer replaces the NEXT word with a page/right-arrow cue while
+retaining the physical EDIT caption. Existing row selection, page range/BACK and
+pending-CANCEL paths remain. The top bar already draws the existing PLAY icon;
+this F1 update does not change unrelated transport screens.
+
+Before implementation, an independent design review checked semantics, bounds
+and scope. The registered `original-release-ui` fixture gains twelve-picture
+uniqueness/bounds, bypass-line, footer-cue bounds and sound-cell immutability
+checks. Existing name, font and screenshot checks are retained. These added
+checks are **NOT_RUN**; no build or test was run in Codex.
+
+For this follow-up's real framebuffer comparison, BEFORE is
+`1b06e3ee364b4bafdcf5ae885b17847007baf39b` and AFTER is the new PR head. Run the
+existing `original_release_ui_test.sh` on the authorized runner at each pin,
+using `build/f1-ui-rule-before` and `build/f1-ui-rule-after`. Attach real 240x240
+`normal-images/chicago-fx0.png` through `chicago-fx11.png`, Chicago/Miami page and
+preset/readout captures from both runs; retain normal/sanitized equality checks.
+Those paths are instructions, **not existing PNGs**. Capture execution and owner
+approval remain pending; keep the PR draft and do not merge.
+
 Source-only draft for rows 1–7, 9, 10, 21 and 106. Base:
 `build/0.0.23@bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2`.
 Branch: `chat/f1-chicago-miami-controls`. B2 was not found among PRs targeting

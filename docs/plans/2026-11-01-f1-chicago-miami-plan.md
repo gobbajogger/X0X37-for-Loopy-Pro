@@ -114,3 +114,27 @@ and registered, independent code review, per-row checklist and explicit evidence
 gaps. Remove scratch work from the PR. Acceptance stage: full host 0 fail/0 skip,
 both native builds and RAM budgets, real framebuffer PNGs, measured per-engine
 idle <=20%, fidelity/click checks, then owner approval before merge.
+
+## Owner UI follow-up (same PR)
+
+Use pictures/glyphs and existing native activity animation wherever meaningful.
+Replace Chicago FX TYPE's generic selection pips with one bounded 26x19 schematic
+per effect: bypass line, chorus pair, phaser notch, ring product, compression knee,
+decimator steps, EQ peak, ensemble trio, short echo, clocked echo, diffuse hall
+and gated tail. Retain the short effect names and real preset names to identify
+sounds. Replace the sound matrix footer's NEXT word with a page/right-arrow cue
+beside its physical EDIT button caption. Existing transport PLAY icon remains.
+Do not add animation timers, pretend DSP telemetry or change audio/control state.
+
+### U4. Apply the owner's picture-first UI rule
+Files: firmware/src/app/ui.c; tests/host/original_release_ui_test.c;
+docs/engineering-delivery/f1-chicago-miami.md.
+Requirements: R3, R4, R7, R8. Dependencies: U2.
+Reuse current line/rectangle glyph vocabulary and native activity pips. Tests in
+the existing registered original-release-ui selector must distinguish all twelve
+FX drawings, enforce their bounds, and confirm rendering leaves sound cells
+unchanged. Test the page-arrow cue's bounds too. Preserve existing name checks,
+all seven original-font checks, and every current screenshot scenario.
+No builds/tests or framebuffer rendering run in Codex. On the authorized runner,
+capture BEFORE at 1b06e3ee364b4bafdcf5ae885b17847007baf39b and AFTER at the final
+head, both as real 240x240 host dumps; owner approves those PNGs before merge.

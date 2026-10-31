@@ -30,3 +30,18 @@ idle CPU remain pending. Owner approval is required before merge.
 Per-row checklists, exact port ledger, external commands and proposed capture
 paths are in [the delivery record](f1-chicago-miami.md). No device, main,
 `.github/` or Actions write is included.
+
+## Owner picture-first UI follow-up
+
+An independent design review checked the bounded FX schematics and page/arrow
+cue before implementation. Four subsequent read-only CE reviews (correctness,
+testing, project standards, adversarial) inspected the follow-up diff against
+`1b06e3ee364b4bafdcf5ae885b17847007baf39b` and returned no actionable findings.
+The adversarial pass used the in-process fallback; no different-provider CLI
+route was installed. Existing FX/preset names and all earlier checks remain.
+
+Added checks cover twelve distinct bounded FX pictures, the bypass line, the
+page-arrow cue bounds and unchanged sound cells. These are NOT_RUN. No builds,
+tests or framebuffer captures ran in Codex. Integrated legibility/recognition
+still requires actual 240x240 BEFORE/AFTER from the authorized runner and owner
+approval; the PR remains draft and not ready for merge.
