@@ -44,7 +44,7 @@ def run():
             def serve(route):
                 uri = urlparse(route.request.url)
                 path = (ROOT / unquote(uri.path).lstrip('/')).resolve()
-                if uri.path in ['/x0x_projects.js', '/x0x_breaks.js']:
+                if uri.path in ['/x0x_projects.js', '/x0x_breaks.js', '/device_session.js']:  # x0x_breaks.js imports ./device_session.js
                     path = ROOT.parent / uri.path.lstrip('/')
                     route.fulfill(body=path.read_bytes(), content_type='text/javascript')
                     return
@@ -65,7 +65,7 @@ def run():
             vp.press('Enter')
             assert len(page.evaluate('dnboxEditor.notes()')) == 2
             # Real marquee selects intersected notes; cancellation commits nothing.
-            page.locator('[data-tool="group"]').click()
+            page.locator('button[data-tool="group"]').click()
             vp.evaluate('(v)=>{v.scrollLeft=0;v.scrollTop=32+(127-60)*28-100}')
             rect, top = vp.bounding_box(), vp.evaluate('(v)=>v.scrollTop')
             x, y = rect['x'] + 54, rect['y'] + 32 + (127-62)*28 - top + 4
@@ -95,11 +95,11 @@ def run():
             page.locator('#redo').click()
             assert [n['velocity'] for n in page.evaluate('dnboxEditor.notes()')] == [79, 79]
             # Leaving Group removes stale group state without changing music.
-            page.locator('[data-tool="group"]').click()
+            page.locator('button[data-tool="group"]').click()
             page.locator('#group-actions').click()
             page.locator('#select-all-notes').click()
             page.locator('#close-dialog').click()
-            page.locator('[data-tool="select"]').click()
+            page.locator('button[data-tool="select"]').click()
             assert 'notes selected' not in page.locator('#inspector').inner_text()
             # Context changes clear the old group; ghosts cannot become edit targets.
             page.locator('[data-part="1"]').click()
@@ -113,7 +113,7 @@ def run():
             page.locator('#keyboard-insert').click()
             assert rev() == revision + 1
             # Group tool ignores the single-note velocity editing gesture.
-            page.locator('[data-tool="group"]').click()
+            page.locator('button[data-tool="group"]').click()
             before, revision = snap(), rev()
             assert page.locator('[data-velocity]').count() == 1
             page.locator('[data-velocity]').first.dispatch_event('pointerdown', {'pointerId': 9, 'clientY': 100})
