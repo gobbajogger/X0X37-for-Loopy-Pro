@@ -28,6 +28,7 @@
  * defaults {5,640,800,920,980}). Our scan samples a key once per 1.6 ms, so fast strikes quantise coarsely. */
 #pragma once
 #include <stdint.h>
+#include "../src/app/plat.h"
 #include "fm1_time.h"
 #include "fm1_gpio.h"
 #include "fm1_cc.h"
@@ -319,7 +320,7 @@ static void smk__extq(uint32_t k, uint32_t vel)
         smk_extq_overflow=1;return;
     }
     smk_extq[w][0]=smk_ext_enabled?smk_ext_epoch:0;
-    smk_extq[w][1]=k|(vel<<7)|((uint32_t)(36+(int)k+12*smk_ext_oct)<<14);
+    smk_extq[w][1] = PLAT_OUTER_PACK(k, vel, 36 + (int)k + 12 * smk_ext_oct);
     smk_extq_w = (uint8_t)((w + 1u) % SMK_EXTQ);
 }
 
@@ -627,16 +628,11 @@ static void fm1_input_scan(void)
 }
 
 /* ------------------------------------------------------- main-loop API --- */
-static inline uint32_t fm1__lock(void)
-{
-    __asm__ volatile("cli" ::: "memory");
-    return 0;
-}
-static inline void fm1__unlock(uint32_t v)
-{
-    (void)v;
-    __asm__ volatile("csync\n\tsti" ::: "memory");
-}
+/* Defined by fm1_flash.h later in the unity build: one IRQ primitive. */
+static inline uint32_t irq_save(void);
+static inline void irq_restore(uint32_t flags);
+#define fm1__lock irq_save
+#define fm1__unlock irq_restore
 
 static int32_t fm1_enc_take(uint32_t e)
 {
