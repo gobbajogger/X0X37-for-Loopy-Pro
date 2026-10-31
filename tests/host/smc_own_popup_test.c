@@ -94,7 +94,7 @@ static void setup(void)
 }
 static void assert_peek(uint8_t view, int page, uint8_t mixsel)
 {
-    assert(smc_peek->on);
+    assert(SMC_PEEK_ON);
     assert(ui.view == view);
     assert(cur_page() == page);
     if (view == V_MIX && page == 0)
@@ -110,7 +110,7 @@ static void advance(uint32_t ms)
 
 static void assert_keyboard(uint8_t view, int page, uint8_t mixsel, uint8_t part)
 {
-    assert(!smc_peek->on);
+    assert(!SMC_PEEK_ON);
     assert(ui.view == view && cur_page() == page);
     assert(ui.mixsel == mixsel && ui.part == part);
 }

@@ -63,9 +63,9 @@ int main(void)
     page_tap(0x63);
     /* Owner rule: locked PAGE+ never drives the keyboard page/menu. */
     CHECK(smc.lock_page == 2 && smc_page_now() == 2);
-    CHECK(!smc_peek->on && cur_page() == 3);
+    CHECK(!SMC_PEEK_ON && cur_page() == 3);
     now_ms += SMC_PEEK_MS + 1; smc_poll();
-    CHECK(!smc_peek->on && cur_page() == 3);
+    CHECK(!SMC_PEEK_ON && cur_page() == 3);
     CHECK(smc_drum_mix() == PART_808 && !smc_led(24) && smc_led(25));
     /* Lock only stops following the keyboard: the SMC's own PAGE+ retargets
      * faders and knobs to its locked page (808 MIX), then holds them there. */
@@ -135,18 +135,18 @@ int main(void)
     CHECK(smc.locked && smc.lock_view == V_MIX && smc.lock_page == 1);
     now_ms += SMC_PEEK_MS + 1; smc_poll();
     *page_of(V_MIX) = 3; build_pages(); smc_peek_cancel();
-    CHECK(cur_page() == 3 && !smc_peek->on);
+    CHECK(cur_page() == 3 && !SMC_PEEK_ON);
     page_tap(0x5D);
     /* Owner rule: no keyboard page change on a locked Pause tap. */
-    CHECK(smc.locked && !smc_peek->on && ui.view == V_MIX && cur_page() == 3);
+    CHECK(smc.locked && !SMC_PEEK_ON && ui.view == V_MIX && cur_page() == 3);
     ui_frame();
     now_ms += SMC_PEEK_MS + 1; smc_poll();
-    CHECK(smc.locked && !smc_peek->on && cur_page() == 3);
+    CHECK(smc.locked && !SMC_PEEK_ON && cur_page() == 3);
     /* Long Pause press still unlocks and shows no peek. */
     page_note(0x90, 0x5D, 127);
     now_ms += 1000; smc_poll();
     page_note(0x80, 0x5D, 0);
-    CHECK(!smc.locked && !smc_peek->on && cur_page() == 3);
+    CHECK(!smc.locked && !SMC_PEEK_ON && cur_page() == 3);
     printf("PASS independent SMC mixer pages, LEDs, two peers and target lock (%u checks)\n",checks);
     return 0;
 }

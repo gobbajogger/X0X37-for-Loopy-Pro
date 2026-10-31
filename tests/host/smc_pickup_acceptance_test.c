@@ -30,7 +30,7 @@ static void status_is(const char *status)
     CHECK(smc_ui_active());
     ui_frame();
     memcpy(active_fb, fb, sizeof fb);
-    if (smc_peek->on) {
+    if (SMC_PEEK_ON) {
         /* Approved #737 peek: the status is the second header line, drawn
          * over the real page. Compare that line only. */
         cv_begin(240, HDR_H, C_BLACK);

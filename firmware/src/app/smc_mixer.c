@@ -25,6 +25,12 @@ extern int plat_ble_smc_send_slot(unsigned slot, const uint8_t *msg, uint8_t len
 #endif
 /* Main-loop context only. Interrupt producers always address their explicit slot. */
 static uint8_t smc_slot;
+/* Owner rule (0.0.22 bug): the SMC must never drive the keyboard's view,
+ * page or menu. Its feedback is its own pop-up overlay (smc_ui_draw_peer).
+ * The #737 mapped-page peek switched ui.view/page; it is off by default. */
+#ifndef SMC_PAGE_PEEK
+#define SMC_PAGE_PEEK 0
+#endif
 /* Temporary mapped-page peek (SMC-07): show the real MIX/FX page of a home
  * strip, then restore. One owner peer. Byte buffer: see smc_ui_raw. */
 #define SMC_PEEK_MS 1200u
@@ -44,6 +50,7 @@ struct smc_peek_state {
     pref_t fader[2][8], knob[2][8];
     uint32_t until;
 };
+#if SMC_PAGE_PEEK
 static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
 static struct smc_peek_state *const smc_peek =
     (struct smc_peek_state *)(void *)smc_peek_raw;
@@ -72,12 +79,15 @@ static void smc_peek_restore_cursors(void)
         ui.page[c->view][c->part_slot] = c->page;
     }
 }
+#define SMC_PEEK_ON (smc_peek->on)
 static void smc_peek_locked_page(void);
-/* Owner rule (0.0.22 bug): the SMC must never drive the keyboard's view,
- * page or menu. Its feedback is its own pop-up overlay (smc_ui_draw_peer).
- * The #737 mapped-page peek switched ui.view/page; it is off by default. */
-#ifndef SMC_PAGE_PEEK
-#define SMC_PAGE_PEEK 0
+#else
+/* Peek off: no peek state in static RAM (156 B); the SMC overlay is the only feedback. */
+#define SMC_PEEK_ON 0
+/* Never dereferenced: every use sits behind SMC_PEEK_ON. */
+static struct smc_peek_state *const smc_peek = 0;
+static void smc_peek_cancel(void) {}
+static void smc_peek_locked_page(void) {}
 #endif
 static void smc_ui_off(void); /* locked PAGE calls this before its definition */
 extern uint8_t smk_clip_mode_on(void);
@@ -540,7 +550,7 @@ static pref_t smc_target(int n)
     if (ui.overlay == O_ASK)
         return NONE;
     if (smc.locked) return smc.lock_fader[n];
-    if (smc_peek->on) return smc_peek->fader[smc_slot][n];
+    if (SMC_PEEK_ON) return smc_peek->fader[smc_slot][n];
     kit = smc_drum_mix();
     if (kit >= 0) {
         track = smc_drum_track(kit, n);
@@ -565,7 +575,7 @@ static pref_t smc_knob_target(int n)
     int kit = smc_drum_mix();
     if (ui.overlay == O_ASK)
         return NONE;
-    if (!smc.locked && smc_peek->on)
+    if (!smc.locked && SMC_PEEK_ON)
         return smc_peek->knob[smc_slot][n];
     if (smc.locked) {
         r = smc.lock_knob[n];
@@ -1148,7 +1158,7 @@ void smc_ui_draw(void)
 {
     uint8_t saved = smc_slot;
     smc_slot = smc_ui.peer < SMC_PEERS ? smc_ui.peer : 0;
-    if (smc_peek->on) {
+    if (SMC_PEEK_ON) {
         char label[24], value[32], unit[12], banner[96], *q;
         pref_t r = smc_ui.kind == 1 ? smc_knob_target(smc_ui.strip) :
                    smc_target(smc_ui.strip);
@@ -1186,6 +1196,7 @@ void smc_ui_draw(void)
 }
 
 
+#if SMC_PAGE_PEEK
 /* Page peek is presentation only. The old keyboard context and both SMC
  * peers' parameter targets survive while live meters and LEDs follow the page. */
 static __attribute__((noinline)) void smc_peek_page(int view, int page, int mix, int part)
@@ -1297,13 +1308,17 @@ static __attribute__((noinline)) void smc_peek_tick(void)
         smc_slot = saved;
     }
 }
+#else
+static void smc_peek_begin(int n) { (void)n; }
+static void smc_peek_tick(void) {}
+#endif
 
 static void smc_show(int n, int knob, pref_t r)
 {
     if ((unsigned)n < 8u && r.kind != R_NONE &&
         (smc_same(r, smc_home_target(n)) ||
          (knob && (smc.locked ? smc.lock_view == V_HOME :
-                   smc_peek->on ? smc_peek->saved_view == V_HOME : ui.view == V_HOME))))
+                   SMC_PEEK_ON ? smc_peek->saved_view == V_HOME : ui.view == V_HOME))))
         if (SMC_PAGE_PEEK) smc_peek_begin(n); /* off: overlay only, keyboard page kept */
     smc_ui_begin(n, knob);
 }
@@ -1420,17 +1435,25 @@ static void smc_view(int v, int page)
 static void smc_capture_bank(int drums)
 {
     ui_t saved = ui;
+#if SMC_PAGE_PEEK
     uint8_t peek = smc_peek->on;
+#endif
     ui.view = smc.lock_view; ui.part = smc.lock_part; ui.overlay = O_NONE;
     if (smc.lock_kit) ui.sel[smc.lock_kit - 1u] = smc.lock_bank;
     build_pages();
     if (smc.lock_page < pg.n) *page_of(ui.view) = smc.lock_page;
-    smc.locked = 0; smc_peek->on = 0;
+    smc.locked = 0;
+#if SMC_PAGE_PEEK
+    smc_peek->on = 0;
+#endif
     for (int i = 0; i < 8; i++) {
         if (drums) smc.lock_fader[i] = smc_target(i);
         smc.lock_knob[i] = smc_bind(smc_knob_target(i));
     }
-    smc.locked = 1; smc_peek->on = peek;
+    smc.locked = 1;
+#if SMC_PAGE_PEEK
+    smc_peek->on = peek;
+#endif
     ui = saved; build_pages();
     smc.lock_song_revision = song_structure_revision; smc.lock_song_len = song()->len;
     if (drums) smc.picked = 0;
