@@ -62,3 +62,38 @@ int miami_decimator_frame(miami_decimator_component_t *s, uint64_t local_index,
     out[1] = mix(s->held_right, right, wet);
     return 1;
 }
+/* miami_decimator_frame for frames [first, first+n) with the state in
+ * locals. floor_q15 is an arithmetic shift right by 15 (GCC defines >> on
+ * negative int as arithmetic); the products fit int32. */
+static inline int16_t mix_fast(int32_t held, int32_t input, int32_t wet, int32_t dry)
+{
+    int32_t value = ((held * wet) >> 15) + ((input * dry) >> 15);
+    if (value < -32767) value = -32767;
+    if (value > 32767) value = 32767;
+    return (int16_t)value;
+}
+int miami_decimator_block(miami_decimator_component_t *s, uint32_t first,
+                          int16_t *left, int16_t *right, uint32_t n, int32_t wet)
+{
+    if (!s || wet < 0 || wet > 32767) return 0;
+    int32_t dry = 32767 - wet;
+    uint32_t phase = s->phase, step = s->step;
+    int32_t hl = s->held_left, hr = s->held_right;
+    for (uint32_t k = 0; k < n; ++k) {
+        if (((first + k) & 63u) == 0 && s->pending) {
+            step = s->pending_step; s->pending = 0;
+        }
+        uint32_t sum = phase + step;
+        phase = sum & 65535u;
+        int32_t l = left[k], r = right[k];
+        if (sum & 65536u) {
+            hl = l == INT16_MIN ? -32767 : l;
+            hr = r == INT16_MIN ? -32767 : r;
+        }
+        left[k] = mix_fast(hl, l, wet, dry);
+        right[k] = mix_fast(hr, r, wet, dry);
+    }
+    s->phase = (uint16_t)phase; s->step = (uint16_t)step;
+    s->held_left = (int16_t)hl; s->held_right = (int16_t)hr;
+    return 1;
+}
