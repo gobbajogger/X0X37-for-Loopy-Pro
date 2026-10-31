@@ -36,7 +36,9 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
 
 static void arrange_defaults(project_t *pr);
 static int project_validate_for(const project_t *pr);
-static uint8_t project_incompatible; /* retain unsupported stored bytes until explicit staged adoption */
+/* 1: unsupported, 2: damaged. Both retain flash until validated staged adoption. */
+static uint8_t project_incompatible;
+static uint8_t stream_previous; /* per-object older-copy selection during recovery */
 static uint8_t device_bt_pending;       /* independent of UI dirty/autosave and project reset/load */
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
@@ -134,7 +136,7 @@ static int save_buf(uint32_t obj, uint32_t n)
 static int load_settings(settings_t *dst)
 {
     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
-    if (n < 0) return -1;
+    if (n < 0) return n;
     if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT ||
         io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV) return -9;
     if (n < 20 || (uint32_t)n > sizeof *dst + 4u || io_buf[0] != (uint8_t)PROJ_FORMAT || io_buf[1] || io_buf[2] || io_buf[3])
@@ -205,7 +207,7 @@ typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
 static int load_sound(sound_t *dst)
 {
     int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
-    if (n < 0) return -1;
+    if (n < 0) return n;
     if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT) return -9;
     __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
     if (engine_bass_sound_validate(dst)) return -9;
@@ -297,6 +299,12 @@ typedef struct {
     uint8_t unsupported; /* a consumed segment must retain its format classification */
 } st_in_t;
 
+static int load_stream_object(int k)
+{
+    return plat_store_load(STREAM_OBJ[k] |
+        ((stream_previous & (1u << k)) ? PLAT_STORE_PREVIOUS : 0u), io_buf, sizeof io_buf);
+}
+
 static int st_get(void *ctx)
 {
     st_in_t *s = ctx;
@@ -305,7 +313,7 @@ static int st_get(void *ctx)
     while (s->pos >= (uint32_t)s->n) {
         if (++s->k >= NSTREAM)
             return -1;
-        s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
+        s->n = load_stream_object(s->k);
         if (s->n < 4)
             return -1;
         uint32_t format = get32(io_buf);
@@ -423,7 +431,8 @@ static int read_project(project_t *pr)
     project_defaults_for(pr, device_bt);
     packed_len = 0;
     settings_t set = pr->set;
-    int bad = 0, rc = load_settings(&set);
+    int bad = 0, present = 0, rc = load_settings(&set);
+    present |= rc != -1;
     if (rc == -9) goto unsupported;
     if (!rc) {
         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
@@ -440,19 +449,40 @@ static int read_project(project_t *pr)
 #endif
     }
     rc = load_sound(&pr->sound);
+    present |= rc != -1;
     if (rc == -9) goto unsupported;
     if (rc) bad = 1;
-    int n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
+    stream_previous = 0;
+    int n = load_stream_object(0);
+    present |= n != -1;
     if (n >= 0 && (n < 4 || !stream_known(get32(io_buf)))) goto unsupported;
     if (n >= 4) {
         rc = load_stream(pr, n, get32(io_buf));
         if (rc == -9) goto unsupported;
+        /* At most 16 A/B combinations, no second stream buffer. A cut can
+         * leave only some newest objects changed (unchanged objects are not
+         * written), so taking all older copies is not sufficient. */
+        for (unsigned mask = 1; rc && mask < (1u << NSTREAM); ++mask) {
+            stream_previous = (uint8_t)mask;
+            n = load_stream_object(0);
+            if (n < (int)STREAM_HDR || !stream_known(get32(io_buf))) continue;
+            rc = load_stream(pr, n, get32(io_buf));
+            if (!rc) rc = project_validate_for(pr);
+        }
+        if (!rc && stream_previous)
+            for (int k = 0; k < NSTREAM; ++k) stored_known[STREAM_OBJ[k]] = 0;
+        stream_previous = 0;
         if (rc) {
             patterns_defaults(pr);
             arrange_defaults(pr);
             bad = 1;
         }
-    } else bad = 1;
+    } else {
+        bad = 1;
+        /* PAT0 may itself be missing while later committed segments remain. */
+        for (int k = 1; k < NSTREAM; ++k)
+            present |= load_stream_object(k) != -1;
+    }
     rc = bad ? -1 : project_validate_for(pr);
     if (!rc) return 0;
     goto failed;
@@ -461,18 +491,21 @@ unsupported:
 failed:
     project_defaults_for(pr, device_bt);
     packed_len = 0;
+    stream_previous = 0;
+    if (rc != -9 && present) project_incompatible = 2;
     return rc;
 }
 
 void project_defaults(void) { project_defaults_for(&proj, proj.set.bt); }
 int project_load(void)
 {
+    project_incompatible = 0;
     int rc = read_project(&proj);
-    project_incompatible = (uint8_t)(rc == -9
+    if (rc == -9
 #if X0X_BASS_TAGGED_SOUND
         || (!rc && engine_bass_sound_validate(&proj.sound))
 #endif
-        );
+        ) project_incompatible = 1;
     return rc;
 }
 int project_storage_unsupported(void) { return project_incompatible; }

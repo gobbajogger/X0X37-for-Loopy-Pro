@@ -222,12 +222,30 @@ static int st_pick(uint32_t obj, uint32_t *seq)
 static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
     st_hdr_t h;
+    int previous = (obj & PLAT_STORE_PREVIOUS) != 0, cur;
+    obj &= ~PLAT_STORE_PREVIOUS;
+    if (obj >= OBJ_NOBJ) return -1;
     if (!ST_MAINTENANCE_ADMIT())
         return -1;
     if (st_stage_hold)                            /* do not wipe a boot record being built */
         return -1;
-    if (st_current(obj, &h) < 0)
+    cur = st_current(obj, &h);
+    if (cur < 0) {
+        /* Erased first boot is different from committed/damaged user data. */
+        st_hdr_t a, b;
+        if (st_read(st_sector(obj, 0), &a, sizeof a) ||
+            st_read(st_sector(obj, 1), &b, sizeof b)) return -2;
+        const uint8_t *pa = (const uint8_t *)&a, *pb = (const uint8_t *)&b;
+        for (uint32_t i = 0; i < sizeof a; ++i)
+            if (pa[i] != 0xFFu || pb[i] != 0xFFu) return -2;
         return -1;
+    }
+    if (previous) {
+        st_hdr_t older;
+        if (st_head(obj, (uint32_t)(1 - cur), &older) || older.seq >= h.seq ||
+            st_body(obj, (uint32_t)(1 - cur), &older)) return -1;
+        h = older;
+    }
     if (h.len > max)
         h.len = max;
     __builtin_memcpy(dst, st_buf, h.len);

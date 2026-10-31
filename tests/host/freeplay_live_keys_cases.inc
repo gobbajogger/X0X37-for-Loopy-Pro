@@ -72,6 +72,54 @@ static void settings_do_not_swallow(int bank)
     open_list_of_pages();scan();every_key(bank,"edit-nofreeplay-list");ui.overlay=O_NONE;
     ui.freeplay[0]=1;scan();
 }
+/* Every owner-loss path must release the old engine key before its physical
+ * key-up. A generation change without release used to abandon this key. */
+static void owner_switches(int bank)
+{
+    for (int path=0;path<20;path++) {
+        fresh_keys(bank);edge(17,100);T(engine_live_key_probe(0,2));
+        uint32_t generation,context;int arp;
+        engine_live_key_state(0,&generation,&arp,&context);
+        switch(path) {
+        case 0: enc_acc[EN_ALGO]=-1; break;
+        case 1: ui.part=PART_909;build_pages();break; /* controller selection */
+        case 2: set_view(V_HOME);break;
+        case 3: set_view(V_GLO);break;
+        case 4: set_view(V_MIX);break;
+        case 5: set_view(V_FX);break;
+        case 6: set_view(V_GEN);break;
+        case 7: set_view(V_SONG);break;
+        case 8: ui.overlay=O_ASK;break;
+        case 9: ui.rec=1;break;
+        case 10: test_clip_mode=1;break;
+        case 11: test_padcal=1;break;
+        case 12: test_smcui=1;break;
+        case 13: held_btn=1u<<B_HOME;break;
+        case 14: held_btn=1u<<B_SAVE;break;
+        case 15: engine_live_key_force_serial(0,generation+1,context);break;
+        case 16: engine_live_key_force_serial(0,generation+1,context+1);break;
+        case 17: project_busy=1;break;
+        case 18: perf.test=0;perf.phase=1;break;
+        case 19: set_view(V_SEQ);ui.freeplay[0]=0;break;
+        }
+        scan();
+        if(path==0) { T(ui.part==PART_303B);T(live_owner==1); }
+        T(!engine_live_key_probe(0,2));
+        T(!(engine_bass_keys_held()&1));
+        edge(17,0);T(!engine_live_key_probe(0,2));
+        test_clip_mode=test_padcal=test_smcui=0;held_btn=0;
+        project_busy=0;perf.test=-1;perf.phase=0;
+    }
+    fresh_keys(bank);edge(17,100);enc_acc[EN_ALGO]=-1;scan();
+    edge(18,100);T(engine_live_key_probe(1,2));
+    edge(17,0);T(engine_live_key_probe(1,2)); /* stale A release cannot end B */
+    edge(18,0);T(!engine_live_key_probe(1,2));
+    fresh_keys(bank);edge(17,100);set_view(V_HOME);scan();
+    int ch=seq.ch[TRK_BASS0];midi3(0x90|ch,65,100);audio_block();
+    T(engine_bass_keys_held()&1);
+    edge(17,0);T(engine_bass_keys_held()&1); /* foreign MIDI source stays held */
+    midi3(0x80|ch,65,0);audio_block();T(!(engine_bass_keys_held()&1));
+}
 int main(int argc,char **argv)
 {
     (void)argc;(void)argv;boot();tick(300);
@@ -79,6 +127,7 @@ int main(int argc,char **argv)
         fresh_keys(bank);every_key(bank,"edit");
         edge_keys_intermittent(bank);
         settings_do_not_swallow(bank);
+        owner_switches(bank);
     }
     T(!irq_depth);
     printf("PASS %u checks: 37 keys x 6 octaves x {Chicago, Miami} x {EDIT, SEQ, list, HELP}, edge keys x50\n",checks);
