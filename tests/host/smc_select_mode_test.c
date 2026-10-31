@@ -21,9 +21,9 @@ static void check_select_led(int strip, int on)
 }
 static void check_main_navigation_leds(void)
 {
-    check_select_led(5, ui.view == V_FX && smc_page_now() == 0);
-    check_select_led(6, ui.view == V_FX && smc_page_now() == 1);
-    check_select_led(7, ui.view == V_MIX && smc_page_now() == 3);
+    check_select_led(5, smc.view == V_FX && smc_page_now() == 0);
+    check_select_led(6, smc.view == V_FX && smc_page_now() == 1);
+    check_select_led(7, smc.view == V_MIX && smc_page_now() == 3);
 }
 static void check_plain_leds(void)
 {
@@ -34,7 +34,11 @@ static void check_plain_leds(void)
         if (views[v] == V_SEQ && part < NKIT) {
             /* Drum SEQ retains sound-bank selection, including the final partial bank. */
             for (int track = 0; track < NDRUM; track++) {
-                ui.sel[part] = (uint8_t)track; build_pages();
+                message(0x90, track < 8 ? 0x2e : 0x2f, 127);
+                message(0x80, track < 8 ? 0x2e : 0x2f, 0);
+                message(0x90, 24 + track % 8, 127);
+                message(0x80, 24 + track % 8, 0);
+                CHECK(ui.sel[part] == 0); /* keyboard selection is independent */
                 for (int strip = 0; strip < 8; strip++) check_select_led(strip, strip == track % 8);
             }
         } else {
@@ -47,49 +51,58 @@ static void check_plain_select(void)
     const int views[] = {V_HOME, V_PART, V_SEQ, V_GEN, V_MIX, V_GLO, V_SONG};
     for (unsigned v = 0; v < sizeof views / sizeof *views; v++) for (int strip = 0; strip < 8; strip++) {
         setup(views[v], strip == PART_BRK ? PART_303A : PART_BRK);
-        if (views[v] == V_GEN) { ui.part = PART_303A; build_pages(); }
-        int rec = ui.rec, was_mix = ui.view == V_MIX, prev_page = smc_page_now();
+        if (views[v] == V_GEN) { smc.part = PART_303A; build_pages(); }
+        screen_state_t keyboard = screen_state();
+        int rec = ui.rec;
         message(0x90, 24 + strip, 127);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
-        if (strip < NPARTS) { CHECK(ui.part == (strip==2?4:strip==4?2:strip)); CHECK(ui.view == V_PART); check_select_led(strip, 1); }
-        else { CHECK(ui.view == (strip == 7 ? V_MIX : V_FX)); /* SELECT 7 opens the mixer on page 0; on the mixer it steps to the next page. */
-               CHECK(smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : was_mix ? (prev_page + 1) % pg.n : 0)); }
-        int view = ui.view, page = cur_page(), part = ui.part;
+        if (strip < NPARTS) { CHECK(smc.part == (strip==2?4:strip==4?2:strip)); CHECK(smc.view == V_PART); check_select_led(strip, 1); }
+        else { CHECK(smc.view == (strip == 7 ? V_MIX : V_FX)); /* SELECT 7 opens the mixer on page 0; on the mixer it steps to the next page. */
+               CHECK(smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3)); }
+        int view = smc.view, page = smc_page_now(), part = smc.part;
         message(0x90, 24 + strip, 127); /* repeat cannot acquire FX after navigation */
         now_ms += 200; smc_poll();
         CHECK(!smc.fx_down && !smc.fx_main_wait);
         message(0x80, 24 + strip, 0);
-        CHECK(ui.view == view && cur_page() == page && ui.part == part);
+        CHECK(smc.view == view && smc_page_now() == page && smc.part == part);
         if (strip < NPARTS) check_select_led(strip, 1);
         else check_main_navigation_leds();
         CHECK(ui.rec == rec && !seq.req_start && !seq.req_stop);
+        CHECK(ui.view == keyboard.view && ui.part == keyboard.part && ui.mixsel == keyboard.mixsel);
+        CHECK(!memcmp(ui.page, keyboard.page, sizeof ui.page));
     }
 }
 static void check_fx_and_release(void)
 {
     for (int strip = 0; strip < 8; strip++) {
         setup(V_FX, PART_303A);
-        int part = ui.part;
+        int part = smc.part;
         message(0x90, 24 + strip, 127);
         if (strip < 5) { CHECK(smc.fx_down == (1u << (strip==2?4:strip==4?2:strip)));
             for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == strip);
         }
-        else { CHECK(!smc.fx_down); CHECK(smc.fx_main_wait == (1u << (strip - 5)));
-            check_main_navigation_leds(); /* pending hold retains its navigation indication */
+        else { CHECK(smc.fx_down == (1u << strip)); CHECK(smc.fx_main_wait == (1u << (strip - 5)));
+            check_main_navigation_leds(); /* owner: quick taps also play the assigned effect immediately */
         }
         now_ms += 200; smc_poll(); CHECK(smc.fx_down == (1u << (strip==2?4:strip==4?2:strip)));
         if (strip < NPARTS) check_select_led(strip, 1);
         else check_main_navigation_leds();
-        CHECK(ui.view == V_FX && ui.part == part);
+        CHECK(smc.view == V_FX && smc.part == part);
         message(0x90, 24 + strip, 0); /* captured preset sends NoteOn zero */
         CHECK(!smc.fx_down && !smc.fx_main_wait);
-        CHECK(ui.view == V_FX && ui.part == part);
+        CHECK(smc.view == V_FX && smc.part == part);
         if (strip < NPARTS) check_select_led(strip, 0);
         else check_main_navigation_leds();
     }
     setup(V_FX, PART_303A);
     message(0x90, 27, 127);
-    CHECK(smc.fx_effect[SMCFX_303B] == SMCFX_LP); /* ROOM defaults: 303B SELECT is low-pass */
+    /* The four independent rows use the suited page cells. On ROOM,
+     * 303B has REC=HPF, SOLO=LPF, MUTE=delay and SELECT=reverb. */
+    CHECK(smc.fx_effect[SMCFX_303B] == SMCFX_REV);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip, SMCFX_303B) == SMCFX_REV);
+    message(0x80, 27, 0);
+    CHECK(smcfx_strip_live_fx(&smc.fx_strip, SMCFX_303B) == SMCFX_EMPTY);
+    CHECK(!(smc.fx_down & (1u << SMCFX_303B)));
 }
 static void check_main_taps(void)
 {
@@ -97,7 +110,7 @@ static void check_main_taps(void)
         setup(V_FX, PART_303A);
         message(0x90, 24 + strip, 127);
         message(0x80, 24 + strip, 0);
-        CHECK(ui.view == (strip == 7 ? V_MIX : V_FX));
+        CHECK(smc.view == (strip == 7 ? V_MIX : V_FX));
         CHECK(smc_page_now() == (strip == 5 ? 0 : strip == 6 ? 1 : 3));
         CHECK(!smc.fx_down && !smc.fx_main_wait);
         check_select_led(5, strip == 5); check_select_led(6, strip == 6); check_select_led(7, strip == 7);
@@ -105,8 +118,8 @@ static void check_main_taps(void)
     setup(V_FX, PART_303A);
     message(0x90, 27, 127); CHECK(smc.fx_down);
     message(0x90, 31, 127); message(0x80, 31, 0);
-    CHECK(ui.view == V_MIX && !smc.fx_down && !smc.fx_main_wait);
-    message(0x80, 27, 0); CHECK(ui.view == V_MIX && !smc.fx_down);
+    CHECK(smc.view == V_MIX && !smc.fx_down && !smc.fx_main_wait);
+    message(0x80, 27, 0); CHECK(smc.view == V_MIX && !smc.fx_down);
 }
 static void check_mode_changes(void)
 {
@@ -115,32 +128,34 @@ static void check_mode_changes(void)
         setup(V_FX, PART_303A);
         message(0x90, 24 + strip, 127);
         if (hold) { now_ms += 200; smc_poll(); }
-        ui.part = views[v] == V_SEQ || views[v] == V_MIX ? PART_909 : PART_303A;
-        set_view(views[v]); build_pages();
-        int part = ui.part, page = cur_page();
+        smc.part = views[v] == V_SEQ || views[v] == V_MIX ? PART_909 : PART_303A;
+        smc_view(views[v], -1);
+        int part = smc.part, page = smc_page_now();
         smc_poll(); CHECK(!smc.fx_down && !smc.fx_main_wait);
         check_main_navigation_leds();
         if (views[v] != V_SEQ && views[v] != V_MIX)
             for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, lane == (part==2?4:part==4?2:part));
         message(0x80, 24 + strip, 0);
         CHECK(!smc.fx_down && !smc.fx_main_wait);
-        CHECK(ui.view == views[v] && ui.part == part && cur_page() == page);
+        CHECK(smc.view == views[v] && smc.part == part && smc_page_now() == page);
         /* A late release after returning to FX must not navigate a main strip. */
-        set_view(V_FX); *page_of(V_FX) = strip == 6 ? 0 : 1; build_pages();
-        int fx_page = cur_page();
+        smc_view(V_FX, strip == 6 ? 0 : 1);
+        int fx_page = smc_page_now();
         message(0x80, 24 + strip, 0);
-        CHECK(ui.view == V_FX && cur_page() == fx_page && !smc.fx_down);
+        CHECK(smc.view == V_FX && smc_page_now() == fx_page && !smc.fx_down);
         for (int lane = 0; lane < NPARTS; lane++) check_select_led(lane, 0);
         check_main_navigation_leds();
     }
     /* Release clears its original FX before a poll can reconcile a new drum bank. */
     setup(V_FX, PART_303A); message(0x90, 27, 127); CHECK(smc.fx_down);
-    ui.part = PART_909; set_view(V_SEQ); build_pages(); smc_release(27);
+    smc.part = PART_909; smc_view(V_SEQ, 0); smc_release(27);
     CHECK(!smc.fx_down && !smc.fx_main_wait);
 }
 int main(void)
 {
-    check_plain_leds(); check_plain_select(); check_fx_and_release(); check_main_taps(); check_mode_changes();
+    check_plain_leds(); check_plain_select();
+    puts("PASS SELECT LEDs and MIDI feedback: independent SMC selection, keyboard navigation unchanged");
+    check_fx_and_release(); check_main_taps(); check_mode_changes();
     printf("PASS SMC SELECT mode ownership: %u production-input checks\n", checks);
     return 0;
 }
