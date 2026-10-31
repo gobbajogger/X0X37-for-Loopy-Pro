@@ -48,7 +48,10 @@
     "probe": "tools/fm1_install.py --info on connected Mac",
     "observed": "MIDI inputs: (none)",
     "hardware_dropouts": null,
-    "installed_identity": null
+    "installed_identity": null,
+    "owner_disposition": "DEFERRED_TO_OWNER_BOX",
+    "required_for_host_completion": false,
+    "device_commands_authorized": false
   },
   "baseline_models": {
     "elite": {

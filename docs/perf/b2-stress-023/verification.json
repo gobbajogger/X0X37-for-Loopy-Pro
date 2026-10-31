@@ -64,5 +64,11 @@
       "result": "PASS",
       "checks": 379667
     }
+  },
+  "owner_completion": {
+    "status": "COMPLETE_HOST_SCOPE",
+    "date": "2026-11-01",
+    "hardware": "DEFERRED_TO_OWNER_BOX",
+    "device_commands_authorized": false
   }
 }

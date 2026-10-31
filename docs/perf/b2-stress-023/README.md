@@ -1,6 +1,6 @@
-# B2 incremental control compilation — peak acceptance pending
+# B2 incremental control compilation — host work complete
 
-**The M4 host stress passes the requested limits; SMK-37 target acceptance remains unverified.** The shared Linux host still records failures, preserved below. This candidate removes redundant audio-path control compilation with byte-identical samples. No installed target identity, target ISR/per-synth timing or hardware dropout count is available. Keep PR #796 draft.
+**Complete for the owner-accepted host scope (2026-11-01).** The M4 host stress passes the requested limits with byte-identical samples. The owner accepted host evidence for this task and deferred hardware timing to a later box check. Device commands are prohibited; no discovery approval is pending. Shared Linux failures remain recorded below. Hardware timing and zero target dropouts are unmeasured, not passed.
 
 ## Retained change
 
@@ -100,12 +100,12 @@ Code grows 624 B per model. RAM and pool reserve do not fall. Build input hashes
 - `perf/engines-20261031` and the named historical result paths were unavailable in authenticated source / connected project searches. Existing base `tests/host/synth_peak_test.*` and `docs/perf/engine-peaks-20261031.md` were reused as references. No old measurements were invented or treated as current target data.
 - Current changes stay in voice/control-owner compilation. F1 compact-FX/factory files and A3 master-glide files are untouched. The shared test-runner registration is additive; no scope is cherry-picked from either PR.
 
-## Review and remaining blocker
+## Review and owner closeout
 
 Superpowers debugging, test-first and verification workflows and Compound Engineering were used. Five independent source-review personas completed; the one test-coverage finding was corrected and independently rechecked. Simplification review found no further changes warranted. Cross-provider review was unavailable. See `review-receipt.json`.
 
-No matching target is available: earlier connected-Mac discovery returned `MIDI inputs: (none)`. Automatic approval review then rejected the shared `tools/fm1_install.py --info` command because its FM-1 name conflicts with the brief. It was not retried or bypassed. The existing read-only discovery approval question remains pending.
+The owner closed this task on 2026-11-01 with host evidence accepted for now. Hardware timing and dropout validation are deferred to the owner's later box check. No device commands or installation are authorized; no device route or discovery approval is required to complete this host scope. See `owner-acceptance.json`.
 
-The next acceptance step requires a connected SMK-37 and an approved profiling route with exact installed source/package identity. Obtain actual per-half ISR and inclusive per-synth maxima, averages, goal/deadline margins, workload duration and underrun counters. Use the same combined workload including starts and live preset/FX transitions, isolate any target hotspot, then rerun before/after. Neither source review, operation-count reduction, host PCM identity nor native builds establish **zero target dropouts / <=6.960 ms whole-half / <=1.740 ms per synth**.
+The hardware record remains **NOT_RUN**: no installed-candidate identity, target ISR/per-synth peaks or target dropout count was measured. A future owner-led box check can record exact candidate identity, workload duration, per-half and per-synth maxima/averages/margins and underrun counters, including live preset/FX transitions. That future check is separate from this completed task. No zero-dropout hardware claim is made.
 
 Visual changes: none; mockup paths N/A. No F1/compact-FX/factory work or A3/master-glide work duplicated. No main/nightly, .github/Actions, FM-1 target, Miami ADSR, bootloader, BTIF, USRTRIM, efuse, key_mac, row 73 or row 120 changes.
