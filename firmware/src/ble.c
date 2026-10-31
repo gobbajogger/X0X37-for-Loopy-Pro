@@ -244,8 +244,12 @@ static void ble_start(void)
     ble_r.ow = ble_r.orr = 0;
     ble_r.sysex_drops = 0;
     ble_c0_ready = 0;
-    if (!ble_boot_on)
+    if (!ble_boot_on) {                         /* not started this boot: no stale READY/FAILED of the
+                                                 * last boot in DIAG (ble_guard keeps that record) */
+        ble_r.mb.state = XB_ST_OFF;
+        ble_r.mb.err = XB_E_NONE;
         return;
+    }
     {
         uint8_t *z = (uint8_t *)mb;
         uint32_t i;
