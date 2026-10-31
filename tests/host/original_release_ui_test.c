@@ -287,13 +287,96 @@ static void restored_wave_cases(void)
     capture("restored-miami-xmod-wave",V_PART,PART_303A,1);
     capture("restored-miami-wobble-wave",V_PART,PART_303A,3);
 }
+static uint32_t picture_pixels(const uint16_t *p,int x,int y,int w,int h)
+{
+    uint32_t sum=2166136261u;
+    for(int row=y;row<y+h;row++)for(int col=x;col<x+w;col++)sum=(sum^p[row*240+col])*16777619u;
+    return sum;
+}
+static void picture_rule_cases(void)
+{
+    screen(V_HOME,PART_909,0); seq.playing=seq.song_on=seq.chain_a=seq.chain_b=0;
+    for(int p=NPAT-2;p<NPAT;p++)pattern_init(&proj.pat[p],1,2);
+    proj.set.accent_q7=127;
+    sm_set(proj.pat[NPAT-1].drum[PART_909].hit[0],0);
+    sm_set(proj.pat[NPAT-1].drum[PART_909].hit[0],8);
+    sm_set(proj.pat[NPAT-2].drum[PART_909].hit[0],2);
+    seq.ppat[PART_909]=NPAT-1; seq.pcue[PART_909]=NPAT-2;
+    project_t *saved=malloc(sizeof proj); CHECK(saved); *saved=proj;
+    seq_t before=seq;
+    for(int theme=0;theme<=5;theme+=5){
+        palette_set(theme); ui.msg_until=0; draw_header();
+        /* Eight columns cover all saved steps: current {0,8} -> 0x11;
+         * queued {2} -> 0x02. Header badges must show content, not assignment. */
+        for(int i=0;i<8;i++)for(int y=8;y<=10;y++){
+            uint16_t current=(0x11u&(1u<<i))?dim(PART_COL[PART_909],16):SOUND_FACE;
+            uint16_t queued=(0x02u&(1u<<i))?dim(PART_COL[PART_909],9):SOUND_FACE;
+            CHECK(fb[y*240+133+i]==swap16(current));
+            CHECK(fb[y*240+165+i]==swap16(queued));
+        }
+        uint32_t idle=picture_pixels(fb,132,0,108,HDR_H);
+        now_ms+=1000; ui.frame+=32; draw_header();
+        CHECK(picture_pixels(fb,132,0,108,HDR_H)==idle);
+        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,156,0,30,HDR_H);
+        seq.pcue[PART_909]=NPAT-1; draw_header();
+        CHECK(picture_pixels(fb,156,0,30,HDR_H)==no_cue);
+        seq.pcue[PART_909]=NPAT-2;
+        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,156,6,6,7);
+        eng_step[TRK_DRUM]=1; draw_header();
+        CHECK(picture_pixels(fb,156,6,6,7)!=step);
+        seq.playing=0;
+    }
+    CHECK(!memcmp(saved,&proj,sizeof proj)); CHECK(!memcmp(&before,&seq,sizeof seq)); free(saved);
+    palette_set(proj.set.palette);
+    /* A stop square and a play triangle are distinct, bounded status pictures. */
+    cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+    for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=10&&x<19&&y>=4&&y<15);
+    seq.playing=1; cv_begin(240,HDR_H,C_BLACK); header_transport(10,0);
+    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped); seq.playing=0;
+    for(int p=PART_303A;p<=PART_303B;p++){
+        screen(V_PART,p,0); uint8_t page=cur_page(),view=ui.view,part=ui.part;
+        cv_begin(240,KNOB_H,C_BLACK); int end=matrix_row_hint(7,50,C_HI);
+        CHECK(end+8+tw(&FONT_T,UI_CAP_EDIT)+4+18<190);
+        for(int y=0;y<KNOB_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=7&&x<end&&y>=50&&y<62);
+        CHECK(page==cur_page()&&view==ui.view&&part==ui.part);
+        /* Exercise the composed footer, including the physical panel caption
+         * when built with X0X_SMK_CAPTIONS=1, not just its row helper. */
+        draw_knobs(); int next_x=end+8+tw(&FONT_T,UI_CAP_EDIT)+4;
+        for(int x=next_x;x<next_x+8;x++)CHECK(fb[(KNOB_Y+70)*240+x]==swap16(SOUND_GRAY));
+        ui.held_step=0;ui.held_step_part=(uint8_t)p;ui.held_step_pat=seq.ppat[p];draw_knobs();
+        char held[48];snprintf(held,sizeof held,"STEP 1 %s: CHANCE %s",UI_CAP_ARROWS,UI_CAP_EDIT);
+        int row_x=7+tw(&FONT_T,held)+4;
+        for(int x=row_x;x<row_x+10;x++)CHECK(fb[(KNOB_Y+74)*240+x]==swap16(C_AMB));
+        ui.held_step=-1;
+        seq.ppat[p]=NPAT-1;seq.pcue[p]=NPAT-2;draw_header();
+        CHECK(fb[9*240+137]==swap16(C_AMB));
+        seq.pcue[p]=0xff;draw_header();CHECK(fb[9*240+137]==swap16(SOUND_FACE));
+        seq.pcue[p]=NPAT-1;draw_header();CHECK(fb[9*240+137]==swap16(SOUND_FACE));
+    }
+    /* Preserve the exact direction text for lists/Help; the strip's existing
+     * pictures distinguish the same four states without duplicate readouts. */
+    screen(V_SEQ,PART_303B,0); int page=-1,slot=-1;
+    for(int p=0;p<pg.n;p++)for(int k=0;k<4;k++)if(pg.r[p][k].kind==R_BDIR){page=p;slot=k;}
+    CHECK(page>=0); *page_of(V_SEQ)=(uint8_t)page; build_pages();
+    uint32_t direction[4];
+    for(int d=0;d<4;d++){
+        pref_t r=pg.r[page][slot]; pref_set(r,d); char value[16],unit[8]; pref_value(r,value,unit);
+        CHECK(!strcmp(value,DIR_N[d])); ui.touched=-1; blit_hash[3]=0; draw_knobs();
+        /* This area used to contain the duplicate FWD/REV/PING/RND value.
+         * Reintroducing that text must fail even if the arrows are unchanged. */
+        for(int y=53;y<64;y++)for(int x=slot*60+12;x<slot*60+48;x++)
+            CHECK(fb[(KNOB_Y+y)*240+x]==swap16(SOUND_FACE));
+        direction[d]=picture_pixels(fb,slot*60+10,KNOB_Y+26,40,24);
+        for(int j=0;j<d;j++)CHECK(direction[d]!=direction[j]);
+    }
+}
 #ifndef ORIGINAL_UI_MAIN
 #define ORIGINAL_UI_MAIN main
 #endif
 int ORIGINAL_UI_MAIN(int argc,char **argv)
 {
     image_dir=argc==2?argv[1]:0; projection_cases(); load_force=0; boot(); settle();
-    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases();
+    pages_and_edits(); selector_cases(); locks_and_undo(); image_cases(); restored_wave_cases(); picture_rule_cases();
     printf("PASS original_release_ui checks=%u captures=%u cache=%zu view=%zu ui=%zu pages=%zu freeplay=%zu\n",
            checks,captures,sizeof original_controls,sizeof original_controls.view,sizeof ui,sizeof pg,sizeof live_keys+sizeof live_outer);
     return 0;

@@ -3,6 +3,10 @@
 This is a bounded source delivery for rows 60 and 63/64/66 test registration.
 It does not close all F5 rows or establish visual, build or hardware acceptance.
 
+Owner picture-first follow-up: [pictures, regressions and capture fixture](PICTURES.md).
+This replaces suitable status/navigation words with existing glyph families on
+the affected screens. Real-framebuffer before/after approval remains pending.
+
 ## Base and plan
 
 Owner-authorized pinned base: PR #789 head

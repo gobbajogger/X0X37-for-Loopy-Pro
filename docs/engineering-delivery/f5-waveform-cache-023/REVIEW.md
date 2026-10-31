@@ -38,3 +38,28 @@ set is not claimed complete.
 Source review complete; **not ready to merge**. Keep the requested PR draft.
 Exact-head host tests, Elite/Pro SDK V1.2.1 builds with `X0X_DEV_PADCAL=0`, RAM
 measurements, real 240x240 BEFORE/AFTER PNGs and owner visual approval are pending.
+
+## Picture-first follow-up source review
+
+Run `f5-pictures-023`, increment from previous #807 head
+`de80f7b67e0a6ec8d97d42b166bb373de4582504`. Six independent `ce-code-review`
+passes covered correctness, project standards, testing, adversarial behavior,
+performance and maintainability. Three simplification passes produced one
+behavior-preserving branch-readability improvement, which was applied. Review
+found no retained actionable source finding. The testing follow-up confirmed
+strengthened composed-footer, sound-header cue and blank direction-value checks
+by source inspection. These are not executed test results.
+
+The added pictures reuse the existing content projection, play triangle and
+direction glyphs. The follow-up adds no persistent state, buffer or timer.
+Header projections are bounded, but CPU timing and Elite/Pro RAM remain
+NOT_MEASURED. The different-provider review route remains unavailable; local
+adversarial review is not represented as cross-model corroboration.
+
+Actionable Findings: none. Coverage limits: physical-caption execution,
+pending-preset back hints, division-pad-owned headers, composed readability and
+frame timing. No builds, tests, compiler probes, mutation tests or actual renders
+ran in Codex. A parent-compatible capture fixture and exact commands are in
+PICTURES.md. Actual before/after PNGs remain NOT_CAPTURED. Verdict: source review
+complete; PR remains draft and not ready to merge pending qualification and owner
+visual approval.

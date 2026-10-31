@@ -4842,6 +4842,50 @@ static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uin
 }
 #define sound_slab night_panel
 
+static void pat_glyph_row(int32_t x,int32_t y,const uint8_t strength[8],uint16_t c,int current);
+/* Shared, bounded pictures for status and the existing physical controls. */
+static UI_DRAW void nav_arrow(int x,int y,int direction,uint16_t ink)
+{
+    int tip=x+(direction>0?5:0),tail=x+(direction>0?0:5),back=tip-direction*3;
+    cv_line(tail,y+3,tip,y+3,ink);
+    cv_line(back,y,tip,y+3,ink);cv_line(tip,y+3,back,y+6,ink);
+}
+static UI_DRAW void row_picture(int x,int y,uint16_t ink)
+{
+    for(int row=0;row<3;row++)cv_rect(x,y+1+row*3,10,row==1?2:1,ink);
+}
+static UI_DRAW void page_picture(int x,int y,uint16_t ink)
+{
+    cv_rect(x,y,8,1,ink);cv_rect(x,y+9,8,1,ink);
+    cv_rect(x,y,1,10,ink);cv_rect(x+7,y,1,10,ink);
+    nav_arrow(x+11,y+1,1,ink);
+}
+static UI_DRAW void header_pattern_badge(int x,int part,int pattern,int current,uint16_t ink)
+{
+    uint8_t strength[8];char number[4];
+    if(part<0 || part>=NPARTS || pattern<0 || pattern>=NPAT)return;
+    frame(x,6,10,7,ink);
+    home_pattern_strength8(&proj.pat[pattern],proj.arr.lane,pattern,part,
+                          proj.set.accent_q7,T_VEL,strength);
+    pat_glyph_row(x+1,8,strength,PART_COL[part],current);
+    put_i(number,pattern+1);cv_text(x+12,vc(&FONT_T,1,17),&FONT_T,number,ink);
+}
+static UI_DRAW void header_pattern_cue(int x,int part)
+{
+    int cue=seq_cue_of(&seq,part);
+    if(seq.song_on || cue<0 || cue==seq.ppat[part])return;
+    /* A live sequencer step may pulse the arrow. Wall time alone never does. */
+    uint16_t ink=seq.playing && (eng_step[TRK_DRUM]&1)?C_WHITE:C_AMB;
+    nav_arrow(x,6,1,ink);header_pattern_badge(x+8,part,cue,0,C_GRAY);
+}
+static UI_DRAW void header_transport(int x,int compact)
+{
+    if(seq.playing) {
+        if(!seq_clock_waiting(&seq) || (ui.frame&32u))
+            play_icon(x,4,compact?C_HI:(eng_step[TRK_DRUM]&3)==0?C_WHITE:C_HI);
+    } else cv_rect(x,6,8,8,C_DIM);
+}
+
 static UI_DRAW void draw_header(void)
 {
 #if BOARD_SMK37
@@ -4887,7 +4931,8 @@ static UI_DRAW void draw_header(void)
                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
             }
         }
-        if(seq.playing) play_icon(175,4,C_HI);
+        if(!division_pad_owner()) header_pattern_cue(132,ui.part);
+        header_transport(175,1);
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
         cv_commit(0,0,0);
@@ -4956,16 +5001,13 @@ static UI_DRAW void draw_header(void)
             put_i(b + 1, (seq.playing ? seq.song_pos : ui.song_sel) + 1);
             x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, seq.song_rec ? RGB(255, 90, 80) : C_AMB);
         } else {
-            b[0] = 'P';
-            put_i(b + 1, seq.ppat[part] + 1);
-            x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, C_WHITE);
+            header_pattern_badge(132,part,seq.ppat[part],1,C_WHITE);
+            x=154;
         }
         if (cue >= 0 && cue != seq.ppat[part] && !seq.song_on) {
-            b[0] = '>';
-            put_i(b + 1, cue + 1);
-            cv_text(x + 2, vc(&FONT_S, 1, 17), &FONT_S, b, (ui.frame & 16u) ? C_WHITE : C_GRAY);
+            header_pattern_cue(156,part);
         } else if (seq.chain_a != seq.chain_b && !seq.song_on) {
-            cv_text(x + 3, vc(&FONT_XS, 1, 17), &FONT_XS, "CHN", C_AMB);
+            frame(x+4,6,8,6,C_AMB);frame(x+10,9,8,6,C_AMB);
         } else if (steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */
             put_i(put_s(put_i(b, ui.spage * 16 + 1), "-"), ui.spage * 16 + 16);
             cv_text(x + 4, vc(&FONT_XS, 1, 17), &FONT_XS, b, C_GRAY);
@@ -4984,8 +5026,7 @@ static UI_DRAW void draw_header(void)
         put_i(b, shown);
     }
     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
-    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
-        play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
+    header_transport(217,0);
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
@@ -5170,8 +5211,8 @@ static UI_DRAW int matrix_row_hint(int x,int y,uint16_t c)
     cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);
     x+=tw(&FONT_T,UI_CAP_ARROWS)+4;
     matrix_glyph(x,y,GL_BOTH,c,C_BLACK);
-    cv_text(x+14,y,&FONT_T,"ROW",c);
-    return x+14+tw(&FONT_T,"ROW");
+    row_picture(x+14,y,c);
+    return x+24;
 }
 
 static UI_DRAW int matrix_touch_matches(pref_t r, int i)
@@ -5279,8 +5320,9 @@ static UI_DRAW void draw_part_sound(int band)
     }
     if(night) sound_slab(0,207-off,240,13,0);
     if (lock_step()>=0) {
-        char t[48];put_s(put_i(put_s(t,"STEP "),lock_step()+1)," " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT ":ROW");
-        cv_text(7,208-off,&FONT_T,t,C_AMB);
+        char t[48];put_s(put_i(put_s(t,"STEP "),lock_step()+1)," " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT);
+        int x=cv_text(7,208-off,&FONT_T,t,C_AMB);
+        row_picture(x+4,208-off,C_AMB);
     } else
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE && engine_bass_preset_pending(bidx()))
@@ -5289,14 +5331,19 @@ static UI_DRAW void draw_part_sound(int band)
 #endif
     {
         int x=matrix_row_hint(7,208-off,gray);
-        cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT ": NEXT",gray);
+        x=cv_text(x+8,208-off,&FONT_T,UI_CAP_EDIT,gray);
+        page_picture(x+4,208-off,gray);
     }
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE) {
         if (lock_step()<0) {
             if(engine_bass_preset_pending(bidx()))
-                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-18-tw(&FONT_T,"ROW"),208-off,hint);
-            else text_r(234,208-off,&FONT_T,UI_CAP_HOME ": BACK",hint);
+                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-28,208-off,hint);
+            else {
+                int x=234-tw(&FONT_T,UI_CAP_HOME)-10;
+                x=cv_text(x,208-off,&FONT_T,UI_CAP_HOME,hint);
+                nav_arrow(x+4,210-off,-1,hint);
+            }
         }
     } else
 #endif
@@ -7801,10 +7848,11 @@ static UI_DRAW void draw_knobs(void)
         }
         if ((r.kind == R_ENG && r.a == T_303) || r.kind == R_BENGINE || r.kind == R_BPRESET || r.kind == R_BSTATUS)
             original_cell_value(cx,vc(&FONT_B,53,13),num,unit,touched ? C_WHITE : C_HI);
-        else
-        /* Barlow number/unit ink is 0.5–1px right of the PUMP card center. */
-        cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
-                   vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
+        /* Existing FWD/REV/PING/RND pictures already show the direction.
+         * Barlow number/unit ink is 0.5–1px right of the PUMP card center. */
+        else if(r.kind!=R_BDIR)
+            cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
+                       vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
     }
     cv_commit_knobs(3);
 }
