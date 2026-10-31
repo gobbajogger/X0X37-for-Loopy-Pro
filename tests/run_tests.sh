@@ -403,6 +403,15 @@ run smc-lock sh tests/host/smc_lock_test.sh
 run smc-lock-beat sh tests/host/smc_lock_beat_test.sh
 run smc-multi-peer sh tests/host/smc_multi_peer_test.sh
 run ui-peer-names sh tests/host/ui_peer_names_test.sh   # BT NAME row: joined connected peer names, 700 ms hold, 24 px/s scroll
+run ble-peer-name-bounds sh tests/host/ble_peer_name_bounds_test.sh
+run irq-state python3 tests/host/irq_state_test.py
+run outer-pack sh tests/host/outer_pack_test.sh
+run usb-sysex-parser python3 tests/host/usb_hygiene_test.py sysex
+run midi-ring-displace python3 tests/host/usb_hygiene_test.py ring
+run midi-ingress-busy python3 tests/host/midi_ingress_busy_test.py
+run midi-mq-pb-overflow python3 tests/host/midi_pb_overflow_test.py in
+run midi-out-mq-pb-overflow python3 tests/host/midi_pb_overflow_test.py out
+run ble-out-pb-overflow python3 tests/host/midi_pb_overflow_test.py ble
 run ble-device-setting-flow python3 tests/host/ble_device_setting_flow_test.py   # BLUETOOTH row: independent bit-0 save, BT SAVE PENDING, retry
 run ble-toggle-persistence-gate python3 tests/host/ble_toggle_persistence_gate_test.py
 run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
