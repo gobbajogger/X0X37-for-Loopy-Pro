@@ -198,15 +198,16 @@ static float gr_of(const master_t *m, float lv)
 
 /* Limiter soft knee over 0.89. Outlined once for mono + L/R stereo (pi32: one
  * body beats two inlined tanh copies inside master_process_st). */
-/* One |s| path for the ±knee (same math as the prior mirrored branches). */
-__attribute__((noinline)) static float soft_ceiling(float s)
+/* The knee itself (tanh) stays outlined once for mono + stereo; the common
+ * case, |s| <= 0.89, is an inline compare (no call per sample). */
+__attribute__((noinline)) static float soft_knee(float s)
 {
-    float a = fm_fabsf(s);
-    if (a > 0.89f) {
-        a = 0.89f + 0.11f * fm_tanhf((a - 0.89f) * 9.0f);
-        return s < 0.0f ? -a : a;
-    }
-    return s;
+    float a = 0.89f + 0.11f * fm_tanhf((fm_fabsf(s) - 0.89f) * 9.0f);
+    return s < 0.0f ? -a : a;
+}
+static inline __attribute__((always_inline)) float soft_ceiling(float s)
+{
+    return fm_fabsf(s) > 0.89f ? soft_knee(s) : s;
 }
 
 
@@ -284,15 +285,15 @@ __attribute__((noinline)) static float djf_gsmooth(master_t *m, float k)
     return g;
 }
 
-/* ±1 clamp — one body for mono + stereo when the limiter is off. */
-__attribute__((noinline)) static float clamp_pm1(float s)
+/* ±1 clamp when the limiter is off (inline: two compares). */
+static inline __attribute__((always_inline)) float clamp_pm1(float s)
 {
     return fm_clampf(s, -1.0f, 1.0f);
 }
 
 void master_process(master_t *m, float *x, int n, float volume)
 {
-    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on;
+    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f;
     float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
     if (comp_on) {                                  /* invariant for this render call */
@@ -303,7 +304,7 @@ void master_process(master_t *m, float *x, int n, float volume)
     }
     for (i = 0; i < n; i++) {
         float s = x[i];
-        if (m->comp_on) {
+        if (comp_on) {
             float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
@@ -318,7 +319,7 @@ void master_process(master_t *m, float *x, int n, float volume)
             s = djf_tick(s, &m->ic1, &m->ic2, mode, g, a1, k);
         }
         s *= volume;
-        if (m->pot[MST_LIMIT]) {
+        if (limit) {
             /* look ahead MST_LA samples: a peak is seen when it enters, the gain eases down over the
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
@@ -369,7 +370,7 @@ static int master_settled_zero(master_t *m, const float *l, const float *r, int 
 void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
 {
     if (master_settled_zero(m, xl, xr, n, volume)) return;
-    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on;
+    int i, mode = m->pot[MST_MODE], comp_on = m->comp_on, limit = m->pot[MST_LIMIT];
     float k = m->k, grmax = 0.0f, vc = m->vol_cur < 0.0f ? volume : m->vol_cur;
     float det_in = 0.0f, att_in = 0.0f, rel_in = 0.0f, pump_in = 0.0f;
     if (comp_on) {                                  /* invariant for this render call */
@@ -380,7 +381,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
     }
     for (i = 0; i < n; i++) {
         float s = xl[i], sr = xr[i];
-        if (m->comp_on) {
+        if (comp_on) {
             float wet;
             /* the level: mean square over ~8 ms, x2 so a sine reads its peak. Read sample by sample
              * (|x|), the reduction chased every cycle of a bass note and grabbed each kick within a
@@ -405,7 +406,7 @@ void master_process_st(master_t *m, float *xl, float *xr, int n, float volume)
         }
         s *= vc;
         sr *= vc;
-        if (m->pot[MST_LIMIT]) {
+        if (limit) {
             /* look ahead MST_LA samples: a peak is seen when it enters, the gain eases down over the
              * MST_LA samples it takes to come out, and is held for them. (It used to halve the
              * distance every sample: a step in the waveform, a click on every limited kick.) */
