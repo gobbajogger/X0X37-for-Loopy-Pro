@@ -687,7 +687,9 @@ export async function backupSlots(link, onPart) {
 }
 
 // erase slot k and write the image (null: erase only); throws on a device error (x0x_slots.write_slot)
-export async function writeSlotImage(link, k, img, onPart) {
+export async function writeSlotImage(link, k, img, onPart, headerLength = SLOT_HDR_LEN) {
+  if (headerLength !== SLOT_HDR_LEN && headerLength !== SLOT_HDR_AREA)
+    throw new Error("Unsupported sample header length.");
   if (!img) {
     if ((await slotReq(link, 14, [k], 30000))[1]) throw new Error(`slot ${k + 1}: erase failed`);
     return;
@@ -700,7 +702,7 @@ export async function writeSlotImage(link, k, img, onPart) {
     if (r[4]) throw new Error(`slot ${k + 1}: write at 0x${adr.toString(16)} failed (${r[4]})`);
     if (onPart) onPart(Math.min(off + 256, data.length), data.length);
   }
-  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, headerLength))], 5000);
   if (e[1]) throw new Error(`slot ${k + 1}: the keyboard refused the header (${e[1]})`);
 }
 
