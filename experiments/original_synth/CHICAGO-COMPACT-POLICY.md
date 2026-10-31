@@ -1,7 +1,15 @@
 # Chicago compact cold-selection policy
 
 LX-REQ-032 explicitly selects seven original FX2 algorithms: Bypass 0, Chorus 4,
-Phaser 5, Ring 10, Master Compressor 18, Decimator 22 and Peaking EQ 24. This policy
+Phaser 5, Ring 10, Master Compressor 18, Decimator 22 and Peaking EQ 24.
+
+The compact owner also admits the five archived Chicago inserts on the
+remaining FxType values: Ensemble 3, Short Delay 12, BPM Delay 13, Hall 15 and
+Gate Reverb 16 (`chicago_fx2_inserts.h`). These are the earlier firmware insert
+algorithms (chicago_ens/sdly/bpmdly/hall/gaterev.h), not original-binary ports.
+They run mono on the L+R sum inside the same 4096 B Chorus arena, so they add
+no per-part history RAM. BPM Delay follows the wrapper tempo. Factory admission
+is unchanged (55 factories); the inserts are reachable through the FxType edit. This policy
 discards the previous selected algorithm and its tail when the pending type is
 committed. It preserves the original selected processor's arithmetic, precision,
 control range, constructor defaults, ordinary reset behavior and local invocation

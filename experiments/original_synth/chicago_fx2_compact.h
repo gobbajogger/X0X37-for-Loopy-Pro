@@ -5,9 +5,10 @@
 #include "chicago_modulation.h"
 #include "chicago_dynamics.h"
 #include "chicago_smallfx.h"
+#include "chicago_fx2_inserts.h"
 
 enum {
-    ORIGINAL_CHICAGO_FX2_COMPACT_TYPES = 7,
+    ORIGINAL_CHICAGO_FX2_COMPACT_TYPES = 12,
     ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES = 2048
 };
 
@@ -26,8 +27,17 @@ typedef union {
  * The original all 30/shared-arena owner cannot be obtained from this object. */
 typedef struct {
     original_chicago_fx2_compact_state state;
-    int16_t history[ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES];
+    /* One 4096 B arena per part. Chorus uses it as two 1024-sample rings; the
+     * archived Chicago inserts (Ensemble, Short Delay, BPM Delay, Hall, Gate
+     * Reverb) reuse the same bytes. Only the selected algorithm owns it, so the
+     * five extra inserts add no history RAM. */
+    union {
+        int16_t history[ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES];
+        chi_fx2_insert_arena insert;
+    } arena;
     original_chicago_fx2_kernel kernel;
+    int32_t tempo_times10;
+    uint8_t edit[2];
     original_mod_queue queue;
     uint32_t ready;
     uint8_t selected_type, selected;
@@ -53,4 +63,6 @@ int original_chicago_fx2_compact_events(original_chicago_fx2_compact *,
 /* Original direct callbacks, for the selected object only. Type 5 resets the
  * selected kernel; type 2 also resets Chorus. This is not a cold selection. */
 void original_chicago_fx2_compact_direct_event(original_chicago_fx2_compact *,unsigned type);
+_Static_assert(sizeof(chi_fx2_insert_arena) <= ORIGINAL_CHICAGO_FX2_COMPACT_HISTORY_SAMPLES * 2u,
+    "archived inserts share the Chorus arena");
 #endif
