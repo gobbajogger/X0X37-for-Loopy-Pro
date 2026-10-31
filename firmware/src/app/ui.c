@@ -12,6 +12,7 @@
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
+#include "ui_pictograms.h"
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -4772,6 +4773,43 @@ static int steps_len(void)
 #else
 #define UI_DRAW
 #endif
+/* Horizontal runs keep the small-cell atlas cheap to paint at either scale. */
+static UI_DRAW void ui_pictogram(int x,int y,int glyph,int scale,uint16_t ink)
+{
+    if ((unsigned)glyph>=UI_G_COUNT || scale<1 || scale>3) return;
+    for (int row=0;row<9;row++) {
+        uint16_t bits=UI_PICTOGRAM[glyph][row];
+        for (int col=0;col<9;) {
+            if (!(bits & (1u<<(8-col)))) { col++; continue; }
+            int start=col;
+            do { col++; } while (col<9 && (bits & (1u<<(8-col))));
+            cv_rect(x+start*scale,y+row*scale,(col-start)*scale,scale,ink);
+        }
+    }
+}
+static UI_DRAW void ui_state_toggle(int x,int y,int on,uint16_t ink)
+{
+    rframe(x,y,18,9,2,ink);
+    cv_rect(x+(on?12:2),y+2,4,5,ink);
+}
+/* Complete sequence identity stays clear of tempo/transport at the right. */
+static UI_DRAW int ui_position_badge(int glyph,int position,int queued,uint16_t ink,uint16_t cue_ink)
+{
+    char number[12],next[12];
+    put_i(number,position); put_i(next,queued);
+    const felucca_font_t *font=&FONT_S;
+    int width=12+tw(font,number)+(queued?15+tw(font,next):0);
+    if (width>53) font=&FONT_T;
+    width=12+tw(font,number)+(queued?15+tw(font,next):0);
+    if (width>53) font=&FONT_XS;
+    ui_pictogram(132,5,glyph,1,ink);
+    int x=cv_text(144,vc(font,1,17),font,number,ink);
+    if (queued) {
+        ui_pictogram(x+3,5,UI_G_NEXT,1,cue_ink);
+        x=cv_text(x+15,vc(font,1,17),font,next,cue_ink);
+    }
+    return x;
+}
 /* Shallow bevel stays entirely inside the existing rectangle. Four-pixel
  * chamfers, inset dark lower edge, restrained local highlight: no tall teeth,
  * extra buffer, animation, layout change or mutable render state. */
@@ -4953,22 +4991,14 @@ static UI_DRAW void draw_header(void)
 #endif
     {   /* the pattern of the part on screen (else the 909's), its cue; in SONG mode the bar */
         int part = part_view() ? ui.part : PART_909, cue = seq_cue_of(&seq, part);
-        if (seq.song_on) {
-            b[0] = 'S';
-            put_i(b + 1, (seq.playing ? seq.song_pos : ui.song_sel) + 1);
-            x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, seq.song_rec ? RGB(255, 90, 80) : C_AMB);
-        } else {
-            b[0] = 'P';
-            put_i(b + 1, seq.ppat[part] + 1);
-            x = cv_text(132, vc(&FONT_B, 1, 17), &FONT_B, b, C_WHITE);
-        }
-        if (cue >= 0 && cue != seq.ppat[part] && !seq.song_on) {
-            b[0] = '>';
-            put_i(b + 1, cue + 1);
-            cv_text(x + 2, vc(&FONT_S, 1, 17), &FONT_S, b, (ui.frame & 16u) ? C_WHITE : C_GRAY);
-        } else if (seq.chain_a != seq.chain_b && !seq.song_on) {
+        int pending=cue>=0 && cue!=seq.ppat[part] && !seq.song_on;
+        x=ui_position_badge(seq.song_on?UI_G_SONG:UI_G_PATTERN,
+            (seq.song_on?(seq.playing?seq.song_pos:ui.song_sel):seq.ppat[part])+1,
+            pending?cue+1:0,seq.song_on?(seq.song_rec?RGB(255,90,80):C_AMB):C_WHITE,
+            (ui.frame & 16u)?C_WHITE:C_GRAY);
+        if (!pending && seq.chain_a != seq.chain_b && !seq.song_on) {
             cv_text(x + 3, vc(&FONT_XS, 1, 17), &FONT_XS, "CHN", C_AMB);
-        } else if (steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */
+        } else if (!pending && steps_view() && steps_len() > 16) {   /* the 16 steps the keys show */
             put_i(put_s(put_i(b, ui.spage * 16 + 1), "-"), ui.spage * 16 + 16);
             cv_text(x + 4, vc(&FONT_XS, 1, 17), &FONT_XS, b, C_GRAY);
         }
