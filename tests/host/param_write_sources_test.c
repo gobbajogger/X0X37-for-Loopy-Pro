@@ -32,6 +32,8 @@ int main(int argc, char **argv)
     CHECK(engine_bass_perf(voice, 2, 1) == -1);
     int page = row(R_ENG, parameter), strip = -1;
     CHECK(page >= 0);
+    /* SMC knobs follow the SMC part/view context, not the keyboard one. */
+    smc_select_part(PART_303A + voice); smc_view(V_PART, page);
     *page_of(V_PART) = (uint8_t)page; smc.knob_bank = 0;
     for (int n = 0; n < 4; ++n) if (smc_same(smc_knob_target(n), r)) strip = n;
     CHECK(strip >= 0);
