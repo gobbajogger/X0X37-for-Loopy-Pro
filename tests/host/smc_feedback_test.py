@@ -69,6 +69,12 @@ static int track_muted(int kit,int track) {
 static int smk_clip_mode_on(void) { return clip; }
 #define is_drum() (smc.part < NKIT)
 static int cur_page(void) { return page; }
+typedef struct { uint8_t view,part,page,mixsel,sel[NKIT]; } smc_context_t;
+static smc_context_t smc_context(void) {
+    smc_context_t c={.view=smc.locked?smc.lock_view:smc.view,.part=smc.locked?smc.lock_part:smc.part,
+        .page=page,.mixsel=smc.mixsel};
+    memcpy(c.sel,smc.sel,sizeof c.sel);return c;
+}
 /* MIX pages: 0 part mixer, 1..NKIT the 909 and 808 kit mixers, 3 master.
  * smc_drum_mix reads the kit from the title; FX uses pages 0 and 1 only. */
 static struct { int n; char title[4][16]; } pg = {4, {"MIXER", "909 MIX", "808 MIX", "MASTER"}};
@@ -85,7 +91,7 @@ harness += re.search(r"^static const uint8_t PART_ORDER.*?;", ui_source, re.M)[0
 harness += re.search(r"^static int part_at\(.*", ui_source, re.M)[0] + "\n"
 harness += 'int plat_ble_smc_send_slot(unsigned p,const uint8_t *m,uint8_t n) { assert(p==0); return plat_ble_smc_send(m,n); }\n'
 harness += "\n".join(function(name) for name in (
-    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_beat_lit", "smc_led", "smc_frame_peer", "smc_frame"))
+    "smc_home_target", "smc_drum_mix_context", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_beat_lit", "smc_led", "smc_frame_peer", "smc_frame"))
 harness += r'''
 static const int expected_bus[5]={PART_909,PART_808,PART_BRK,PART_303B,PART_303A};
 static int expected_strip(int part) { for(int n=0;n<5;n++) if(expected_bus[n]==part) return n; abort(); }
@@ -113,7 +119,7 @@ static void navigation(void) {
     }
     for(int overlay=O_NONE;overlay<=O_ASK;overlay++) {
         ui.overlay=overlay;
-        expect("R6 mixer home",5,smc.view==V_HOME);
+        expect("R6 main parts mixer",5,smc.view==V_MIX && page==0);
         expect("R7 momentary back",6,0);
     }
     ui.overlay=O_NONE;

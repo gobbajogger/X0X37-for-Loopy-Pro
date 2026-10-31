@@ -32,7 +32,29 @@ int main(void)
         smc_page_set(1);CHECK(smc_same(held,smc_target(0)));
         smc_slot=1;CHECK(smc_same(peer1,smc_target(0)) && smc_page_now()==2);smc_slot=0;
     }
+    /* Locked BANK arrows still retarget the captured kit. Knob assignment,
+     * relative edits and pickup faders remain live inside that own context. */
+    smc_knob_bank(1);
+    pref_t assignment = smc_knob_target(0);
+    smc_knob_bank(1);
+    CHECK(!smc_same(assignment, smc_knob_target(0)));
+    message(0x90, 0x2F, 127); message(0x80, 0x2F, 0);
+    CHECK(smc_drum_track(PART_909, 0)==8 && smc_page_now()==1);
+    pref_t locked_knob=smc_knob_target(0), locked_fader=smc_target(0);
+    CHECK(locked_fader.b==8 && locked_knob.b==8);
+    const x0x_param_t *kd=pref_desc(locked_knob);
+    pref_set(locked_knob,kd->max/2);
+    int old_knob=pref_get(locked_knob);
+    knob(0,1); CHECK(pref_get(locked_knob)>old_knob);
+    pref_set(locked_fader,64);smc_frame();
+    fader(0,smc_scaled(locked_fader)); fader(0,0);
+    CHECK(pref_get(locked_fader)==0 && (smc.picked&1));
+    int own_bank=smc_drum_track(PART_909,0);
+    ui.part=PART_303B;set_view(V_SEQ);build_pages();
+    CHECK(smc_page_now()==1 && smc_drum_track(PART_909,0)==own_bank);
+    smc_page_set(2); CHECK(smc_page_now()==2);
     CHECK(smc_lock_toggle());
+    CHECK(smc_page_now()==2 && ui.view==V_SEQ && ui.part==PART_303B);
     smc_page_set(1);
     for(int bank=0;bank<2;bank++) {
         smc_select_drum(0,bank*8);

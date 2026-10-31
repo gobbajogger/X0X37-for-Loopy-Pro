@@ -1,63 +1,44 @@
-# Existing SMC popup wiring
+# Existing SMC popup
 
-SMC activity now displays the existing `smc_ui_draw_peer` overlay and lets it
-expire over the keyboard screen. The owner withdrew the proposed new screens;
-this implementation adds no screen or renderer. Base: `build/0.0.23`,
-`bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2` (PR #785). Related: #781; #788 is excluded.
+SMC activity displays the existing `smc_ui_draw_peer` popup and expires over the
+keyboard screen. No new screen or renderer. Each peer owns its routing context.
+Normal SMC navigation leaves keyboard view/part/mixer selection/pages unchanged.
+Explicit dialog answers and Help dismissal retain their keyboard-owned actions.
 
-Each SMC peer owns its routing context. Keyboard descriptor definitions are
-queried through the existing descriptor emitter without touching its page table.
-The old page-peek save/write/restore path and keyboard menu dispatch are removed.
-SMC has no references to `ui.view`, `ui.part`, `ui.mixsel` or keyboard pages.
-Sound-bank changes refresh descriptor data without clamping the remembered
-keyboard page; physical keyboard input later accepts its effective page.
-Shared musical parameters, transport and record arming remain shared. SMC SELECT
-does not retarget notes played on the keyboard; its REC lamps use its own context.
-
-## Native builds
-
-Both real SMK-37 native builds passed using SDK V1.2.1 and `X0X_DEV_PADCAL=0`.
+Outside keyboard clip stages, note5 opens the SMC main-parts mixer (MIX page0);
+in a clip stage it is the SMC GLOBAL/BACK shortcut. Note6 is HOME/SONG and dismisses
+Help. Inside a confirmation, note5 accepts and note6 cancels. Panel HOME remains
+an FX modifier. SCALE/CHORD/ARP fields remain keyboard-owned. Lock captures targets;
+SMC BANK/PAGE controls still retarget within that context, and unlock keeps its page.
 
 | Model | Static RAM used | Free RAM | Base free | Pool free | App bytes |
 |---|---:|---:|---:|---:|---:|
-| Elite | 95808 B | 2496 B | 2352 B | 8536 B | 497260 B |
-| Pro | 95808 B | 2496 B | 2352 B | 8536 B | 497260 B |
+| Elite | 95872 B | 2432 B | 2352 B | 8536 B | 497692 B |
+| Pro | 95872 B | 2432 B | 2352 B | 8536 B | 497676 B |
 
-Free RAM increases by 144 B. No firmware binaries are included.
-Toolchain clang SHA-256: `c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f`.
-Build command (with local toolchain/SDK environment configured):
-`X0X_DEV_PADCAL=0 python3 tools/build.py --board smk37 --model elite`
-and the same command with `--model pro`.
+Both native builds PASS, SDK V1.2.1, `X0X_DEV_PADCAL=0`. The bounded descriptor
+cache and captured context cost 64 B versus the previous PR head (2496 B free),
+while retaining 80 B more free RAM than 0.0.23. Firmware binaries are not included.
 
-## Verification
+SMC/mixer aggregate: **38 PASS / 9 FAIL / 0 selected NOT_RUN**, 47 selectors.
+[Results and remaining failures](TESTS.md). Popup 3718 checks, engine 21, core audit 25,
+held-step/song contracts 12, mixer pages 485, peer context 30 and fourteen mutation
+checks PASS. Full host suite and device validation NOT_RUN. This remains DRAFT.
 
-- Production queue/dispatcher/popup regression: PASS, 3723 checks.
-- Deferred engine refresh and stale keyboard pages: PASS, 14 checks.
-- Mixer edges: PASS, 1281 checks. Full selected SMC results: [TESTS.md](TESTS.md).
-- Source audit finds no protected keyboard navigation references or keyboard
-  dispatch calls in `smc_mixer.c`; no transient page save/write/restore remains.
-- Compound Engineering review completed six passes and four validated P1s.
-  Locked drum recapture, Help musical actions, deferred keyboard page clamping,
-  and stale keyboard engine guards each failed before their fix and pass now.
-  Locked engine refs also retain bank identity and release their edit holds.
-- This remains a draft; failing legacy tests are recorded rather than called PASS.
-  Full host suite and hardware/device validation were not performed.
+[Before/after contact sheet](framebuffer/before-after.png); each individual PNG in
+[framebuffer/](framebuffer/) is an actual 240x240 host framebuffer dump. The three
+`before-audit-*` images are from the previous PR head. `controlled-before.png` and
+`controlled-dismiss.png` are byte-identical with no musical edit. The 1-16 header
+and orange markers in the edited example come from length 16→17 and unsaved state,
+not a keyboard-header change. Grid values omit units consistently; the large
+readout retains units. Visual approval is required before merge.
 
-## Real framebuffer captures
+Provenance: restored guard/modal/HOME fragments from base `bb190749` already in
+branch ancestry; retained existing encoder-bank behavior. `git cherry` checked
+base ancestry; no whole commits transplanted because their keyboard-page writes
+would break isolation. No #788 code, FM-1/main_fm1.c, bootloader/row 73, row120,
+BTIF/USRTRIM/efuse/key_mac, Miami ADSR, main, .github/Actions or device writes.
 
-[Before/after contact sheet](framebuffer/before-after.png).
-`before-smc-menu-switch.png` is the actual base framebuffer. The remaining PNGs
-come from the final production renderer and queue/dispatcher host harness:
-`before-keyboard.png`, `after-fader-popup.png`, `after-knob-popup.png`,
-`after-mute-popup.png`, `after-dismiss-keyboard.png`. PNG compression is lossless.
-Musical edits can change displayed parameter values while navigation stays fixed.
-
-Reproduce final captures:
-```sh
-SMC_UI_OUT=build/host/smc-popup sh tests/host/smc_ui_popup_test.sh
-SMC_UI_SHOTS=build/host/smc-popup build/host/smc-popup/test
-sh tests/host/smc_popup_engine_test.sh
-```
-
-No main/nightly merge, `.github`/Actions changes, flashing, FM-1 build or device
-operation. Exact commit author and committer use the owner-requested identity.
+Reproduce: `X0X_DEV_PADCAL=0 python3 tools/build.py --board smk37 --model elite`
+(and `--model pro`), with SDK/toolchain configured. Capture using
+`SMC_UI_SHOTS=<existing-directory> sh tests/host/smc_ui_popup_test.sh`.

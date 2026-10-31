@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 root = Path(__file__).resolve().parents[2]
 source = (Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c').read_text()
-names = ('smc_same', 'smc_home_target', 'smc_page_target', 'smc_target', 'smc_fader_of', 'smc_knob_target', 'smc_bank', 'smc_notice')
+names = ('smc_same', 'smc_home_target', 'smc_page_target_context', 'smc_page_target', 'smc_target_context', 'smc_target', 'smc_fader_of', 'smc_fader_of_context', 'smc_bind_context', 'smc_knob_target_context', 'smc_knob_target', 'smc_bank', 'smc_notice')
 functions = []
-for helper in ('smc_drum_mix', 'smc_drum_track'):
+for helper in ('smc_drum_mix_context', 'smc_drum_mix', 'smc_drum_track'):
     match = re.search(r'^static [^\n]+ '+helper+r'\([^\n]*\)\n\{.*?^\}', source, re.M | re.S)
     if match:
         functions.append(match[0])
@@ -26,7 +26,7 @@ harness = r'''
 #include <stdint.h>
 #include <string.h>
 #include "seq/pattern.h"
-enum { R_NONE, R_ENG, R_HDR, R_ACT, R_SPAT, R_SREP, R_SBAR, T_909, T_808, T_303, T_MIX, T_FX, T_MST,
+enum { R_NONE, R_ENG, R_HDR, R_ACT, R_SPAT, R_SREP, R_SBAR, T_909, T_808, T_303, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BTRANS, T_MIX, T_FX, T_MST,
        MX_LEVEL, MX_PAN, MX_CUT, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, MX_REV, MX_DLY, V_HOME, V_MIX, V_PART, V_SEQ,
        O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
@@ -49,7 +49,14 @@ static struct { uint8_t on; pref_t fader[2][8], knob[2][8]; } smc_peek_stub;
 static struct song_fixture { unsigned len; } song_data;
 static const struct song_fixture *song(void) { return &song_data; }
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
+typedef struct { uint8_t view,part,page,mixsel,sel[2]; } smc_context_t;
+static smc_context_t smc_context(void);
 static int cur_page(void) { return kit>=0 && smc.view==V_MIX?kit+1:0; }
+static smc_context_t smc_context(void) {
+    smc_context_t c={.view=smc.locked?smc.lock_view:smc.view,.part=smc.locked?smc.lock_part:smc.part,
+        .page=cur_page(),.mixsel=smc.mixsel};
+    memcpy(c.sel,smc.sel,sizeof c.sel);return c;
+}
 static int smk_clip_mode_on(void) { return clip; }
 #define is_drum() (smc.part < 2)
 static pref_t find_ref(int t,int track,const char *name) {
@@ -62,7 +69,8 @@ static void build_pages(void) {
     for(int n=0;n<4;n++) pg.r[0][n]=PR(R_ENG,kit ? T_808 : T_909,smc.sel[kit],n);
 }
 #define smc_select_drum(k,t) (smc.sel[k]=(t),build_pages())
-#define smc_capture_bank(d) ((void)(d))
+#define smc_select_part(k) (smc.part=(k),build_pages())
+#define smc_capture_bank() ((void)0)
 '''
 harness += r"""
 static int smc_page_now(void) { return cur_page(); }
@@ -70,8 +78,15 @@ static int smc_page_now(void) { return cur_page(); }
 harness += r"""
 typedef struct { pref_t r[4]; int page,n; } page_query_t;
 static int smc_page_count(void) { return pg.n; }
-static void smc_describe(page_query_t *out) { memcpy(out->r,pg.r[out->page],sizeof out->r); }
-static pref_t smc_bind(pref_t r) { return r; }
+static struct { int count; } smc_page_cache;
+static int in_pattern(pref_t r) { (void)r;return 0; }
+static struct { int ppat[NPARTS]; } seq;
+static page_query_t *smc_query(const smc_context_t *context,int page) {
+    static page_query_t out;
+    (void)context;smc_page_cache.count=pg.n;out.n=pg.n;
+    if(page>=0)memcpy(out.r,pg.r[page],sizeof out.r);
+    return &out;
+}
 static void smc_ui_begin(int n,int k) { (void)n;(void)k; }
 """
 harness += order_helpers + '\n'.join(functions)

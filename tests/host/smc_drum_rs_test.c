@@ -290,12 +290,11 @@ static void banks_and_owners(void)
         CHECK(ui.help && ui.rec && ui.sel[kit] == 0);
         tap(0);
         CHECK(ui.help && !ui.rec && ui.sel[kit] == 0);
-        tap(6);                       /* SMC must not close a keyboard help card. */
-        CHECK(ui.help && ui.rec && ui.sel[kit] == 0); /* R7 remains this drum strip's REC. */
-        ui.help = 0;
+        tap(6);                       /* Explicit R7 closes Help without toggling REC. */
+        CHECK(!ui.help && !ui.rec && ui.sel[kit] == 0);
         ui.overlay = O_ASK;
         tap(0);
-        CHECK(ui.rec && ui.sel[kit] == 0); /* confirmation parks the already-armed recorder */
+        CHECK(!ui.rec && ui.sel[kit] == 0); /* confirmation parks musical actions */
     }
     strip_view = V_MIX;
     context = "303 SEQ retains the main mixer map";

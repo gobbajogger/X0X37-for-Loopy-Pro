@@ -39,6 +39,14 @@ stale:
     CHECK(pref_get(target)>old);
     CHECK(!memcmp(old_page,ui.page,sizeof old_page));
     CHECK(ui.list_sel==list_sel && ui.list_top==list_top && ui.list_n==list_n);
+    /* A model switch invalidates an unlocked cached descriptor without navigation. */
+    setup(V_PART,PART_303A);commit_bank(ORIGINAL_SOUND_CHICAGO);smc_page_set(0);
+    (void)smc_knob_target(0);
+    commit_bank(ORIGINAL_SOUND_MIAMI);
+    target=smc_knob_target(0);
+    CHECK(target.kind==R_ENG && target.c==ui_original_miami_rows[0][0]);
+    CHECK(smc_page_cache.bass[0]==ORIGINAL_SOUND_MIAMI);
+    pref_set(target,20);old=pref_get(target);knob(0,1);CHECK(pref_get(target)>old);
     printf("smc_popup_engine: PASS (%u checks; deferred refresh and stale keyboard pages)\n",checks);
     return 0;
 }

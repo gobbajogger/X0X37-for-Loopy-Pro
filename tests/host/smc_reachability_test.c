@@ -376,11 +376,10 @@ static void help_keeps_controls(void) {
     else { msg[0] = 0xB0; msg[1] = 16; msg[2] = 1; }
     smc_ble_midi(msg, 3); smc_poll();
     assert(ui.help && pref_get(r) != after);
-    msg[0] = 0x90; msg[1] = 6; msg[2] = 127; /* SMC cannot dismiss keyboard help */
+    msg[0] = 0x90; msg[1] = 6; msg[2] = 127; /* R7 explicitly dismisses keyboard help */
     smc_ble_midi(msg, 3); smc_poll();
     msg[2] = 0; smc_ble_midi(msg, 3); smc_poll(); /* release Home so it is not still held */
-    assert(ui.help);
-    ui.help=0;                        /* only the keyboard dismisses its card */
+    assert(!ui.help);
 }
 static void scenario(void) {
     static const int expected_strip[5] = {0,1,4,3,2};
@@ -432,10 +431,13 @@ static void scenario(void) {
         /* Keyboard lists are not SMC navigation state. SMC controls keep
          * their own descriptors and cannot move/edit/confirm the list. */
         set_view(V_PART); ui.part=(uint8_t)part;build_pages();open_list_of_pages();
-        int selected=ui.list_sel,top=ui.list_top;pref_t before=smc_target(0);
-        press(5);press(0x61);press(0x63);press(6);
+        int selected=ui.list_sel,top=ui.list_top;
+        smc_view(V_MIX,0);
+        press(5); assert(smc.view==V_MIX && smc_page_now()==0);
+        int own_bank=smc.knob_bank;
+        press(0x61); assert(smc.view==V_MIX && smc_page_now()==0 && smc.knob_bank!=own_bank);
+        press(0x63); assert(smc.view==V_MIX && smc_page_now()==1);
         assert(ui.overlay==O_LIST && ui.list_sel==selected && ui.list_top==top);
-        assert(smc_same(smc_target(0),before));
         button_tap(B_HOME);assert(ui.overlay==O_NONE);
 
     }
@@ -443,7 +445,7 @@ static void scenario(void) {
     for(int kit=0;kit<2;kit++) {
         smc_select_part(kit); smc_view(V_PART, 0);
         for(int t=0;t<NDRUM;t++) {
-            page_query_t descriptor={.page=0};smc_describe(&descriptor);
+            page_query_t descriptor={.page=0};smc_context_t context=smc_context();smc_describe(&descriptor,&context);
             assert(smc.sel[kit]==t && descriptor.r[0].b==t);
             if(t+1<NDRUM) press(0x2F);
         }
@@ -498,16 +500,32 @@ pickup: ;
     smc_ble_link(0); smc_poll(); assert(!smc.picked && !smc.seen && !smc.solo);
     smc_ble_link(1); smc_poll(); assert(!smc.picked && !smc.seen);
     if(getenv("SMC_PICKUP_ONLY")) return;
+    /* Existing physical shortcuts keep their exact view/page destinations. */
+    {
+        const int notes[]={7,13,14,15,29,30,31};
+        const int views[]={V_HOME,V_MIX,V_GLO,V_PART,V_FX,V_FX,V_MIX};
+        const int pages[]={0,0,0,0,0,1,3};
+        int kv=ui.view,kp=ui.part,km=ui.mixsel,ks0=ui.sel[0],ks1=ui.sel[1],kpage=cur_page();
+        for(unsigned i=0;i<sizeof notes/sizeof *notes;i++) {
+            smc_select_part(PART_303A); smc_view(V_PART,0); smc_view(V_MIX,0); smc_view(V_GLO,0); smc_view(V_SONG,0);
+            press(notes[i]);
+            if(smc.view!=views[i] || smc_page_now()!=pages[i])
+                fprintf(stderr,"shortcut route%d note%d expected%d/%d got%d/%d\n",route,notes[i],views[i],pages[i],smc.view,smc_page_now());
+            assert(smc.view==views[i] && smc_page_now()==pages[i]);
+            assert(ui.view==kv && ui.part==kp && ui.mixsel==km && cur_page()==kpage);
+            assert(ui.sel[0]==ks0 && ui.sel[1]==ks1);
+        }
+    }
     /* View navigation reaches all ordinary views and Global's actions. */
     smc_select_part(PART_303A); smc_view(V_PART, 0);
     view(V_SEQ); view(V_GEN); view(V_FX); view(V_MIX); view(V_SONG); view(V_HOME);
     press(14); assert(smc.view==V_GLO && ui.overlay==O_NONE && smc_ui_active()); press(6); assert(ui.overlay==O_NONE);
-    /* Confirmation guards edits and only the keyboard may cancel/confirm. */
+    /* Confirmation guards edits; SMC SEL/HOME explicitly answer it. */
     ask(ACT_SONG_CLR,0,"TEST",0); old=pref_get(r);
     fader(0,127); turn(0,1); press(24); assert(ui.overlay==O_ASK && pref_get(r)==old);
-    press(6); assert(ui.overlay==O_ASK);
-    press(5); assert(ui.overlay==O_ASK);
-    button_tap(B_HOME);assert(ui.overlay==O_NONE);
+    press(6); assert(ui.overlay==O_NONE);
+    ask(ACT_SONG_CLR,0,"TEST",0);
+    press(5); assert(ui.overlay==O_NONE);
     int saved_test=perf.test, saved_phase=perf.phase;
     perf.test=0; perf.phase=0; old=pref_get(r);
     fader(0,127); turn(0,1); press(24);
@@ -518,15 +536,23 @@ pickup: ;
     assert(ui.part==before_part && ui.view==before_view);
     old=pref_get(smc_knob_target(0)); turn(0,1);
     assert(ui.help && pref_get(smc_knob_target(0))!=old); /* card stays; knob still edits */
-    press(6); assert(ui.help);ui.help=0;
+    press(6); assert(!ui.help);
     /* Clip fields and viewport remain keyboard-owned while SMC edits its
      * own targets and traverses banks/pages. */
-    clip_grid_mode=1;ck.pg=1;memset(fields,0,sizeof fields);
-    pref_t target=smc_target(0);uint8_t page=ck.pg;
-    turn(0,1);press(0x61);press(0x63);press(0x62);press(0x2F);press(5);press(6);
-    assert(ck.pg==page);
-    for(int f=0;f<CK_NE;f++)assert(fields[f]==0);
-    assert(smc_same(smc_target(0),target));
+    clip_grid_mode=1;
+    for(int stage=1;stage<=3;stage++) { /* SCALE, CHORD, ARP */
+        ck.pg=(uint8_t)stage;memset(fields,0,sizeof fields);
+        uint8_t page=ck.pg;
+        int clip_view=ui.view,clip_part=ui.part,clip_mixsel=ui.mixsel,clip_page=cur_page();
+        int clip_sel0=ui.sel[0],clip_sel1=ui.sel[1];
+        for(int n=0;n<8;n++)turn(n,1);
+        press(0x61);press(0x63);press(0x62);press(0x2F);press(5);press(6);
+        assert(ck.pg==page);
+        assert(ui.view==clip_view && ui.part==clip_part && ui.mixsel==clip_mixsel && cur_page()==clip_page);
+        assert(ui.sel[0]==clip_sel0 && ui.sel[1]==clip_sel1);
+        for(int f=0;f<CK_NE;f++)assert(fields[f]==0);
+        assert(smc.view==V_HOME && smc_page_now()==0);
+    }
     puts("PASS: SMC-owned navigation/edits, pickup/frame, keyboard confirmation/help/clip isolation");
 }
 int main(void) {

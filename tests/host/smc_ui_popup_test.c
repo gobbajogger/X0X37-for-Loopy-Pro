@@ -118,10 +118,13 @@ int main(void)
     /* A panel page change must survive popup expiry rather than be restored. */
     fader(0,1);set_view(V_FX);*page_of(V_FX)=1;build_pages();
     saved=screen_state();now_ms+=1300;ui_frame();keyboard_unchanged(saved);
-    /* The controller does not enter, confirm or cancel a keyboard modal. */
+    /* Modal answers remain explicit keyboard-owned actions; ordinary SMC input
+     * leaves the dialog and its remembered navigation alone. */
     ask(ACT_SONG_CLR,0,"TEST",0);saved=screen_state();
-    message(0x90,5,127);message(0x80,5,0);keyboard_unchanged(saved);
-    message(0x90,6,127);message(0x80,6,0);keyboard_unchanged(saved);
+    fader(0,2);knob(0,1);keyboard_unchanged(saved);
+    message(0x90,6,127);message(0x80,6,0);CHECK(ui.overlay==O_NONE);
+    ask(ACT_SONG_CLR,0,"TEST",0);
+    message(0x90,5,127);message(0x80,5,0);CHECK(ui.overlay==O_NONE);
     printf("smc_own_popup: PASS (%u checks, immediate keyboard invariance)\n",checks);
     return 0;
 }

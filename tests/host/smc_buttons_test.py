@@ -16,21 +16,27 @@ for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key')
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
     if match:
         helpers.append(match[0])
+# Resolve production drum context helpers with the same explicit context type.
+context_helpers = re.search(r'typedef struct \{\n    uint8_t view, part, page, mixsel, sel\[NKIT\];\n\} smc_context_t;', s)[0] + '\n'
+for name in ('smc_page_part', 'smc_drum_mix_context', 'smc_context'):
+    context_helpers += re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M|re.S)[0] + '\n'
 ui_source = (root / 'firmware/src/app/ui.c').read_text()
 order_helpers = 'enum { PART_909=0, PART_808=1, PART_303A=2, PART_303B=3, PART_BRK=4 };\n'
 order_helpers += re.search(r'^static const uint8_t PART_ORDER.*?;', ui_source, re.M)[0] + '\n'
 order_helpers += re.search(r'^static int part_at\(.*', ui_source, re.M)[0] + '\n'
+order_helpers += re.search(r'^static int part_is_303\(.*', ui_source, re.M)[0] + '\n'
 for helper in ('part_position', 'part_neighbor'):
     order_helpers += re.search(r'^static int '+helper+r'\([^\n]*\)\n\{.*?^\}', ui_source, re.M|re.S)[0] + '\n'
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 #include "app/smc_mixer_edges.h"
 #include "smc_fx_harness_stubs.h"
 #define NKIT 2
 enum { NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
-static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
+static struct { int solo,locked,lock_kit,lock_bank,lock_part,lock_view,lock_page,lock_pages,lock_mixsel; uint8_t lock_sel[2],mixer_page[40][5]; uint8_t lock_page_kit[MAXPAGES]; uint16_t drum_solo[2]; uint8_t solo_target[8]; uint8_t view,part,mixsel,sel[2],song_sel; } smc;
 static struct { int ppat[NPARTS], pcue[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
 static struct { int n; const char *title[MAXPAGES]; } pg;
@@ -73,18 +79,18 @@ static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own 
 #define seq_start(s) ((s)->playing=1)
 static void list_move(int d) { moved+=d; }
 static void ui_menu_arrow(int d) { edited+=d; }
-'''+ order_helpers + '\n'.join(helpers) + f + r'''
+'''+ order_helpers + context_helpers + '\n'.join(helpers) + f + r'''
 int main(void) {
-    /* Current production map: R5/R6 tap SELECT/HOME, R14 taps GLOBAL; strip 7
-     * toggles HOME/SONG (row 0), PART/SEQ (row 1) and opens the mixer (row 3). */
+    /* R6 opens own MIX, R7 HOME, S7 GLOBAL; R8 toggles HOME/SONG,
+     * S8 PART/SEQ, SELECT6/7 effects and SELECT8 MASTER. */
     const int views[4][3]={{-1,-1,V_HOME},{V_MIX,-1,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
-    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,0}};
+    const int pages[4][3]={{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{0,1,3}};
     pg.n=4;
     for(int row=0;row<4;row++) for(int strip=5;strip<8;strip++) {
         last_view=last_page=fx=-1; smc.view=0;
         int note=row*8+strip; tap=-1; smc_button(note,0);
         if(note==5 || note==6 || note==14) {
-            assert(tap==-1 && last_view==(note==14?V_GLO:V_HOME)); continue;
+            assert(tap==-1 && last_view==(note==14?V_GLO:note==5?V_MIX:V_HOME)); continue;
         }
         if(row==2) assert(fx==strip-5 && last_view==-1);
         else assert(last_view==views[row][strip-5] && last_page==pages[row][strip-5] && fx==-1);
@@ -94,10 +100,13 @@ int main(void) {
         ui.overlay=O_NONE; smc.view=V_PART; page=1; knob_bank=0; smc_button(note,0);
         if(note<0x62) assert(knob_bank==d && page==1);
         else assert(knob_bank==0 && page==1+d);
-        ui.overlay=O_LIST; moved=edited=0; knob_bank=0; smc_button(note,0);
+        ui.overlay=O_LIST; moved=edited=0; knob_bank=0; page=1; smc_button(note,0);
         assert(moved==0 && edited==0);
-        assert(knob_bank==(note<0x62?d:0));
+        assert(note<0x62 ? knob_bank==d && page==1 : knob_bank==0 && page==1+d);
     }
+    ui.overlay=O_ASK; tap=-1; smc_button(5,0); assert(tap==B_SEL);
+    tap=-1; smc_button(6,0); assert(tap==B_HOME);
+    ui.overlay=O_NONE; ui.help=1; smc_button(6,0); assert(!ui.help);
     return 0;
 }
 '''

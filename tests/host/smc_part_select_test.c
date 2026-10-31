@@ -10,9 +10,11 @@ static struct {
 } ui;
 static int page_part, cancel_count, cancel_part, cancel_page;
 static int old_saved = 64, old_sounding = 92;
-static struct { uint8_t part,mixsel,view,picked,pending; } smc;
+static struct { uint8_t part,mixsel,view,picked,pending,knob_i; } smc;
 static int popup_count;
 static void smc_ui_begin(int strip,int kind) { (void)strip;(void)kind;popup_count++; }
+static int part_is_303(int part) { return part == PART_303A || part == PART_303B; }
+#include "smc_rearm.inc"
 #include "smc_select_part.inc"
 
 static int fails;

@@ -1,54 +1,47 @@
 {
   "base": "bb1907494b8d1b52d52ac220dfeb9a0663ea3ee2",
+  "before_audit": "3f7baf16826bb0216576f8787f8ce763c4bc2fae",
   "sdk": "V1.2.1",
   "X0X_DEV_PADCAL": 0,
   "native": {
     "elite": {
       "result": "PASS",
-      "ram_used": 95808,
-      "ram_free": 2496,
+      "ram_used": 95872,
+      "ram_free": 2432,
       "pool_free": 8536,
-      "app_bytes": 497260
+      "app_bytes": 497692
     },
     "pro": {
       "result": "PASS",
-      "ram_used": 95808,
-      "ram_free": 2496,
+      "ram_used": 95872,
+      "ram_free": 2432,
       "pool_free": 8536,
-      "app_bytes": 497260
+      "app_bytes": 497676
     }
   },
-  "sha256": {
-    "firmware/src/app/smc_mixer.c": "c8f1ddc000cd5a8f535be6a239c0fab208359ba68205cd9f0a9a1e730932de05",
-    "firmware/src/app/ui.c": "988e8352c8bc676ab6c02435470521ad0fb94aba010ecbbd1c01d17389f14101",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-dismiss-keyboard.png": "59e121ff909e89b377287c1dcf91ae98f3fa30d2e0533307df9ca65d6c239924",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-fader-popup.png": "18873e2b9d17af3ceb8598710677832b8bf81dfd2d8ac4fd289fd17ea809b795",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-knob-popup.png": "a3d2210634ad2f7d39751184b1d24213925e80d34d65018662249f1e105653e6",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-mute-popup.png": "ce0d118d986065fca44bfa934b13cc1d5801ebb27dc843cf27c489f045a25d5c",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-after.png": "eb9d371d9aef391c0f9831fe3b1dd55fc9b2d13663ce982db8e37c98a89cc9c0",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-keyboard.png": "459000fa01de23e25ea5183432b60cb75a5c9dca9fb1900e1ffb7426790860ec",
-    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-smc-menu-switch.png": "4edff396e880a4636077cf179cec90e20459a1f49b5225f376d33c6a7e4cf539"
-  },
   "smc_selectors": {
-    "smc-ui-negative": "FAIL",
+    "smc-ui-negative": "PASS",
     "smc-interaction-negative": "PASS",
     "smc-ui-popup": "PASS",
-    "smc-lock-beat": "PASS",
     "smc-mode-page": "PASS",
+    "smc-lock-beat": "PASS",
+    "smc-popup-engine": "PASS",
     "smc-fx-preset-preserve": "FAIL",
-    "smc-sender-isolation": "PASS",
-    "smc-mapping": "PASS",
     "smc-part-select": "PASS",
+    "smc-sender-isolation": "PASS",
+    "smc-record-feedback": "PASS",
+    "smc-filter": "PASS",
     "smc-reachability": "PASS",
     "smc-fader": "PASS",
+    "smc-mapping": "PASS",
     "smc-link": "PASS",
     "smc-queue": "PASS",
     "smc-select-mode": "FAIL",
     "smc-ui-bounds": "PASS",
     "smc-protocol": "PASS",
-    "smc-filter": "PASS",
+    "smc-drum-mutes": "PASS",
     "smc-lock": "FAIL",
-    "smc-mixer-page": "PASS",
+    "smc-audit-core": "PASS",
     "smc-fx-caption": "PASS",
     "smc-multi-peer-negative": "PASS",
     "smc-host-data7": "PASS",
@@ -56,29 +49,72 @@
     "smc-pause-loss": "PASS",
     "smc-mixer-edges": "PASS",
     "smc-pickup-acceptance": "PASS",
+    "smc-clip-visibility": "FAIL",
     "smc-fx-peer-view": "PASS",
     "smc-reconnect-epoch": "PASS",
-    "smc-feedback": "PASS",
+    "smc-drum-rs": "PASS",
     "smc-fx-two-page-strip": "PASS",
     "smc-buttons": "PASS",
     "smc-solo-overflow": "FAIL",
+    "smc-mixer-page": "PASS",
+    "smc-audit-contract": "PASS",
     "smc-multi-peer": "FAIL",
     "smc-host-overflow-data7": "PASS",
-    "smc-clip-visibility": "FAIL",
+    "smc-feedback": "PASS",
     "smc-boot-saved-roles": "FAIL",
     "smc-fx-page-port": "PASS",
+    "smc-performance-abort": "PASS",
     "smc-action-source": "FAIL",
     "smc-ui": "FAIL",
-    "smc-ble-payload": "PASS",
-    "smc-drum-mutes": "PASS",
-    "smc-drum-rs": "PASS",
-    "smc-performance-abort": "PASS",
-    "smc-record-feedback": "PASS"
+    "smc-ble-payload": "PASS"
   },
-  "additional": {
-    "popup_checks": 3723,
-    "engine_checks": 14,
-    "asan_ubsan_two_peer": "PASS",
-    "leak_check": "NOT_RUN"
+  "timing_host_cpu": {
+    "before": {
+      "popup_ms_median": 0.24272018,
+      "popup_ms_range": [
+        0.227503097,
+        0.374162285
+      ],
+      "idle_ms_median": 0.1425449438,
+      "idle_ms_range": [
+        0.1228027973,
+        0.1879230128
+      ]
+    },
+    "after": {
+      "popup_ms_median": 0.237881512,
+      "popup_ms_range": [
+        0.235448503,
+        0.24232265
+      ],
+      "idle_ms_median": 0.1260703672,
+      "idle_ms_range": [
+        0.1255793342,
+        0.1313311013
+      ]
+    }
+  },
+  "descriptor_passes": {
+    "before_cold": 230,
+    "after_cold": 3,
+    "before_warm_1000": 230000,
+    "after_warm_1000": 0
+  },
+  "controlled_framebuffer_restored_exactly": true,
+  "sha256": {
+    "firmware/src/app/smc_mixer.c": "bb33e78e4ca1d849dcf254ca82f700605f6b5c6f870f072a5b160a27374c720c",
+    "firmware/src/app/ui.c": "60d62a077b4aac1fa2f31b02ab16c9bd1a0a18c5954cced9110ff323b2c49db4",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-dismiss-keyboard.png": "59e121ff909e89b377287c1dcf91ae98f3fa30d2e0533307df9ca65d6c239924",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-fader-popup.png": "80398eda7811dacc417635061fad8c5569756adf23d4378e56afe78803102387",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-knob-popup.png": "d9ef90cc07863b926c07c67339dc92d491de05618041863d7376528430516c3b",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/after-mute-popup.png": "6ca46772a4bfa331d4bf12b6b6bea5042ac286f91f87dde37086f8b758b299d8",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/base-keyboard-with-smc-peek-header.png": "4edff396e880a4636077cf179cec90e20459a1f49b5225f376d33c6a7e4cf539",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-after.png": "c8305e709bd1d3e0cfe78f9d7de34d858e48c4bf86528e6f7bb6dbb10bdd7ac8",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-audit-fader-popup.png": "18873e2b9d17af3ceb8598710677832b8bf81dfd2d8ac4fd289fd17ea809b795",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-audit-knob-popup.png": "a3d2210634ad2f7d39751184b1d24213925e80d34d65018662249f1e105653e6",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-audit-mute-popup.png": "ce0d118d986065fca44bfa934b13cc1d5801ebb27dc843cf27c489f045a25d5c",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/before-keyboard.png": "459000fa01de23e25ea5183432b60cb75a5c9dca9fb1900e1ffb7426790860ec",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/controlled-before.png": "16c9166f0988be1466ec4b0b973de6addacd06a782d4e1c2b6efdb47ceb020eb",
+    "docs/engineering-delivery/smc-dedicated-popup-023/framebuffer/controlled-dismiss.png": "16c9166f0988be1466ec4b0b973de6addacd06a782d4e1c2b6efdb47ceb020eb"
   }
 }

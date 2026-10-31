@@ -204,7 +204,7 @@ static void test_navigation(void)
     fader(0, 2); CHECK(smc_ui_active()); held_keys = 1; input(); CHECK(!smc_ui_active());
     held_keys = 0; input();
     fader(0, 3); CHECK(smc_ui_active());
-    message(0x90, 0x2F, 127); /* SMC navigation refreshes its overlay only */
+    message(0x90, 0x2E, 127); /* SMC moves left from its independently selected final part */
     CHECK(smc_ui_active());
     puts("PASS navigation: physical buttons, encoder, key and SMC navigation cancel");
 }
@@ -312,8 +312,8 @@ static void test_navigation_replay(void)
     fader(0, 1); CHECK(smc_ui_active());
     setup(V_HOME, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ask(ACT_SONG_CLR, 0, "TEST", 0); smc_poll(); CHECK(!smc_ui_active());
-    message(0x90, 6, 127); CHECK(ui.overlay == O_ASK);
-    button_tap(B_HOME);
+    message(0x90, 6, 127); CHECK(ui.overlay == O_NONE);
+    message(0x80, 6, 0);
     fader(0, 0); CHECK(!smc_ui_active());
     fader(0, 1); CHECK(smc_ui_active());
     puts("PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup");
@@ -520,8 +520,10 @@ static void test_physical_geometry(void)
 static void check_selected(int selected)
 {
     for (int n = 0; n < 8; n++) {
-        CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? C_WHITE : C_BLACK));
-        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(C_BLACK)); /* SELECT stays in the title */
+        CHECK(fb[MAIN_Y * 240 + n * 30 + 2] == swap16(n == selected ? UI_N_SELECT : C_BLACK));
+        int fx_row = smc.view == V_FX && ui.overlay == O_NONE && smc_drum_mix() < 0;
+        CHECK(fb[(MAIN_Y + 98) * 240 + n * 30 + 18] == swap16(fx_row ? C_LINE : C_BLACK));
+        /* FX exposes the physical SELECT row; other modes use the title. */
     }
 }
 static void test_selected_lane(void)
@@ -571,8 +573,8 @@ static void check_drum_titles(int kit, int bank, int names)
             (put_i(number, track + 1), number);
         int selected = smc.sel[kit] == track;
         if (n) cv_rect(n * 30, 0, 1, 13, C_LINE);
-        if (selected) cv_rect(n * 30 + 1, 0, 28, 13, C_WHITE);
-        text_c(n * 30 + 15, 1, &FONT_T, label, selected ? C_BLACK : C_WHITE);
+        if (selected) cv_rect(n * 30 + 1, 0, 28, 13, UI_N_SELECT);
+        text_c(n * 30 + 15, 1, &FONT_T, label, selected ? SOUND_INK : C_WHITE);
         CHECK(tw(&FONT_T, label) <= 27);
     }
     cv_commit_rect(1, 0, MAIN_Y);
@@ -604,14 +606,14 @@ static void test_action_captions_and_knobs(void)
     CHECK(!strcmp(smc_button_caption(7), "SONG"));
     CHECK(!strcmp(smc_button_caption(13), "MIX"));
     CHECK(!strcmp(smc_button_caption(14), "GLOB"));
-    CHECK(!strcmp(smc_button_caption(5), "HOME"));
+    CHECK(!strcmp(smc_button_caption(5), "MIX"));
     CHECK(!strcmp(smc_button_caption(6), "SONG"));
     for (int n = 0; n < 24; n++) CHECK(tw(&FONT_T, smc_button_caption(n)) <= 22);
     screen_state_t keyboard=screen_state();
-    smc_button_apply(5,0);CHECK(ui.overlay==O_NONE && smc.view==V_HOME);
-    CHECK(!strcmp(smc_button_caption(5),"HOME"));
-    smc_button_apply(6,0);CHECK(smc.view==V_SONG);unchanged(keyboard);
-    smc_button_apply(7,0);CHECK(smc.view==V_HOME);unchanged(keyboard);
+    smc_button_apply(5,0);CHECK(ui.overlay==O_NONE && smc.view==V_MIX && smc_page_now()==0);
+    CHECK(!strcmp(smc_button_caption(5),"MIX"));
+    smc_button_apply(6,0);CHECK(smc.view==V_HOME);unchanged(keyboard);
+    smc_button_apply(7,0);CHECK(smc.view==V_SONG);unchanged(keyboard);
     smc_button_apply(15,0);CHECK(smc.view==V_PART);unchanged(keyboard);
     smc_button_apply(13,0);CHECK(smc.view==V_MIX);unchanged(keyboard);
     smc_button_apply(14,0);CHECK(smc.view==V_GLO && ui.overlay==O_NONE);unchanged(keyboard);

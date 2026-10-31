@@ -12,7 +12,7 @@
 
 typedef struct {
     uint8_t held[16];
-    uint8_t locked, lock_view, lock_part, lock_page, knob_bank, view, part, page;
+    uint8_t locked, lock_view, lock_part, lock_page, knob_bank, view, part, page, mixsel, sel[2];
 } smc_state_t;
 static smc_state_t smc_states[SMC_PEERS];
 static uint8_t smc_slot;
@@ -22,10 +22,24 @@ static struct {
 } ui;
 static uint32_t clock_ms;
 static uint32_t blit_hash[4] = {1,2,3,4};
-static int busy;
+static int busy, clip;
+static uint8_t project_revision, bass_bank[2];
+static int smk_clip_mode_on(void) { return clip; }
+static int engine_bass_bank(int voice) { return bass_bank[voice]; }
 static uint32_t plat_ms(void) { return clock_ms; }
 static int ui_project_busy(void) { return busy; }
 static int smc_page_now(void) { return smc.locked ? smc.lock_page : smc.page; }
+typedef struct { uint8_t view, part, page, mixsel, sel[2]; } smc_context_t;
+static smc_context_t smc_context(void)
+{
+    smc_context_t context = {0};
+    context.view = smc.locked ? smc.lock_view : smc.view;
+    context.part = smc.locked ? smc.lock_part : smc.part;
+    context.page = smc_page_now();
+    context.mixsel = smc.mixsel;
+    memcpy(context.sel, smc.sel, sizeof context.sel);
+    return context;
+}
 
 #include "smc_fx_ui_extract.inc"
 
@@ -38,7 +52,8 @@ static void reset_all(void)
     memset(smc_states,0,sizeof smc_states);
     memset(&ui,0,sizeof ui);
     memset(smc_ui_raw,0,sizeof smc_ui_raw);
-    smc_slot=0; clock_ms=0; busy=0;
+    smc_slot=0; clock_ms=0; busy=clip=0;
+    project_revision=bass_bank[0]=bass_bank[1]=0;
 }
 int main(void)
 {
@@ -88,6 +103,18 @@ int main(void)
     reset_all(); smc_slot=1;smc_ui_begin(1,1);smc_slot=0;
     smc_ui.peer=SMC_PEERS;
     CHECK(smc_ui_active() == 0); /* corrupted peer fails closed */
+    /* Every model/UI identity used by the production hash invalidates stale pixels. */
+    for(int changed=0;changed<6;changed++) {
+        reset_all();smc_slot=1;smc_ui_begin(1,1);smc_slot=0;
+        if(changed==0)smc_states[1].mixsel++;
+        if(changed==1)smc_states[1].sel[0]++;
+        if(changed==2)project_revision++;
+        if(changed==3)ui.help=1;
+        if(changed==4)clip=1;
+        if(changed==5)bass_bank[0]=1;
+        CHECK(!smc_ui_active());
+        CHECK(smc_slot==0);
+    }
     printf("PASS: %u exact-source SMC peer UI assertions\n",checks);
     return 0;
 }
