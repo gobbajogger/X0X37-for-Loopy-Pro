@@ -212,7 +212,7 @@ static inline __attribute__((always_inline)) float soft_ceiling(float s)
 
 
 /* Compressor/pump gain advance after ms is updated — one body for mono + stereo. */
-__attribute__((noinline)) static void comp_tick(master_t *m, float *grmax)
+static inline __attribute__((always_inline)) void comp_tick(master_t *m, float *grmax)
 {
     float lv, want, total;
     if (m->cr == 0) {                                /* the static curve, every MST_CR samples */
@@ -241,7 +241,7 @@ __attribute__((noinline)) static void comp_tick(master_t *m, float *grmax)
 }
 
 /* Look-ahead limiter envelope + gain — one body for mono and stereo. */
-__attribute__((noinline)) static void limit_env(master_t *m, float a)
+static inline __attribute__((always_inline)) void limit_env(master_t *m, float a)
 {
     if (a >= m->env) {
         m->env = a;
