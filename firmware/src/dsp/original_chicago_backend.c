@@ -102,8 +102,10 @@ static int initialize(original_chicago_backend *s, unsigned factory,
 
     /* Firmware cold init is destructive only after argument/resource admission.
      * No initialized self-referential graph is copied to another address. */
-    original_chicago_fx2_owner fx = {0};
-    original_chicago_fx2_cold_owner compact = {0};
+    original_chicago_fx2_owner fx = {.context = NULL, .find = NULL, .reset_all = NULL};
+    original_chicago_fx2_cold_owner compact = {
+        .context = NULL, .supports = NULL, .select_cold = NULL, .discard = NULL, .advance_zero = NULL
+    };
     if (cold) compact = *cold;
     else fx = *effects;
     memset(s, 0, sizeof *s);
