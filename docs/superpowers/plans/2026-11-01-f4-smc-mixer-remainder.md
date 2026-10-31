@@ -16,7 +16,7 @@ Later owner amendment: [held-FX arrows](2026-11-01-fx-held-arrow.md) supersedes 
 - One owned branch `chat/f4-smc-mixer-remainder-023`, one draft PR into `build/0.0.23`. Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
 - No main, .github, Actions, main_fm1.c, FM-1 targets, BTIF, USRTRIM, efuse, key_mac, bootloader, USB identity or Miami ADSR changes.
 - AGENTS forbids builds/tests in Codex. Write/register tests first; RED/GREEN execution, framebuffer captures, full suite and SDK V1.2.1 Elite/Pro with X0X_DEV_PADCAL=0 are delegated to the Orchestrator's box. No result may be claimed before execution.
-- Every visual change requires real 240x240 framebuffer BEFORE/AFTER PNGs and owner approval before merge. Keep draft while evidence is pending.
+- Latest owner instruction (2026-11-01): no previews and no visual-approval wait for this change. The Orchestrator verifies on the box; draft status reflects pending box qualification.
 - Preserve every existing test assertion. No new static state or RAM allocation in production; measured static RAM remains NOT_RUN until both model builds.
 
 ## Review focus
@@ -54,4 +54,4 @@ Files: `firmware/src/app/smc_mixer.c`, `firmware/src/app/ui.c`.
 
 On the qualified box, run `X0X_TESTS='smc-remainder smc-ui-popup smc-lock smc-lock-beat smc-select-mode smc-mixer-page smc-mode-page smc-fx-two-page-strip smc-fx-preset-preserve ui-peer-names' sh tests/run_tests.sh`, then the full host suite. Record individual failures; #789's reported 9 failing SMC selectors are historical receipts, not current-head results. Build both models from the same full head with SDK V1.2.1 and X0X_DEV_PADCAL=0; report free static RAM against the exact same-config base and the requested 2352 B reference.
 
-Capture the same production scenes on the base and candidate using the separate capture driver. No drawing, historical screenshot or mockup substitutes for candidate framebuffer evidence.
+The Orchestrator verifies the changed behaviour on the box. The separate capture driver remains available for internal diagnostics; previews, image attachments and owner visual approval are not delivery gates under the latest instruction.

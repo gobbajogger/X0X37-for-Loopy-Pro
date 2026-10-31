@@ -18,4 +18,4 @@ Post-fix SHA-256:
 
 Earlier reuse/quality/efficiency review found no structural changes to make. One redundant zero-phase predicate was simplified to a single volatile phase read before the CE review.
 
-Required qualification remains open: full host suite; SDK V1.2.1 Elite and Pro builds with X0X_DEV_PADCAL=0; per-model free static RAM; actual 240x240 before/after framebuffer PNGs; owner visual approval before merge. The owner's instruction and AGENTS assign execution to the qualified box, so none ran in Codex.
+Required qualification remains open: full host suite; SDK V1.2.1 Elite and Pro builds with X0X_DEV_PADCAL=0; per-model free static RAM; box verification of the changed UI. The owner's later 2026-11-01 instruction removes previews and any visual-approval wait for this change; original review receipts remain historical records. The owner's instruction and AGENTS assign execution to the qualified box, so none ran in Codex.

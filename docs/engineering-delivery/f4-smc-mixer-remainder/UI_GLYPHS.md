@@ -1,6 +1,6 @@
 # Owner glyph rule follow-up
 
-Base for this follow-up: PR #800 at `97282d7fed8859f337d606d4880cb095b1ce2591`. The owner requests pictures, glyphs and small animations wherever they convey the same meaning, with real-framebuffer before/after approval. No builds or tests run in Codex.
+Base for this follow-up: PR #800 at `97282d7fed8859f337d606d4880cb095b1ce2591`. The owner requests pictures, glyphs and small animations wherever they convey the same meaning, with real-framebuffer before/after approval in the original brief. The later owner instruction on 2026-11-01 removes previews and any visual-approval wait; the Orchestrator verifies on the box. No builds or tests run in Codex.
 
 Later owner amendment: [held-FX arrow mapping](FX_HELD_ARROW.md) adds effect-specific pictures to the top bar and changes the mapping gesture. That amendment supersedes the no-routing-change statement below for row 41, adds 198 B to the constant atlas (666 B total), and documents its 4 B per-peer ownership-state reason. The earlier source review and 468 B figure below describe the original glyph-only follow-up.
 
@@ -29,9 +29,9 @@ Independent design review identified and resolved the 11-pixel button-height con
 3. Extend the separate capture driver with every changed state. It uses only existing high-level rendering calls so the same fixture can capture the pre-change base.
 4. Run a static Compound Engineering review, fix supported findings, then publish to the same branch/PR with the required author. Runtime checks and capture execution remain NOT_RUN.
 
-## Required real-framebuffer evidence
+## Optional box framebuffer diagnostics
 
-Use the existing capture-driver command from README.md against this follow-up base and the new head. Add these 240x240 PNG scene pairs under `framebuffer/{before,after}/`:
+For internal box diagnostics, the existing capture-driver command from README.md can compare this follow-up base and the new head. These optional 240x240 PNG scene pairs are defined under `framebuffer/{before,after}/`:
 
 - `glyph-pattern-cue.png`, `glyph-pattern-cue-dim.png`, `glyph-song-position.png`
 - `glyph-pattern-range.png`, `glyph-pattern-chain.png` (pattern 64, steps 49–64, 120 BPM)
@@ -41,10 +41,10 @@ Use the existing capture-driver command from README.md against this follow-up ba
 - `glyph-solo-held.png`, `glyph-solo-release.png`, `glyph-play.png`, `glyph-stop.png`
 - `glyph-fx-held.png`, `glyph-fx-idle.png`, `glyph-drum-bank2.png`
 
-These are planned filenames, not generated images. No framebuffer capture, host test, compiler or model build ran here. The PR remains draft until actual captures are attached, the required qualification passes, and the owner approves the visuals before merge.
+These are planned filenames, not generated images. No framebuffer capture, host test, compiler or model build ran here. No previews, image attachments or owner visual-approval wait are required for this change. The Orchestrator owns the remaining box qualification.
 
 ## Source review
 
-Compound Engineering review `ui-glyph-rule-20261031` completed with five static lenses and no retained code defect. The [receipt](review/ui-glyph-rule/review.json) retains **Not ready** because external qualification and owner approval are still missing. Its two coverage gaps received additional written tests: actual action-card toggle mappings and complete header compositions (range, chain, cue precedence and tempo pixels). The new assertions were not run. No existing assertion changed or was removed.
+Compound Engineering review `ui-glyph-rule-20261031` completed with five static lenses and no retained code defect. The [receipt](review/ui-glyph-rule/review.json) records the historical **Not ready** verdict. External qualification remains pending; the later owner instruction removes its visual-approval wait. Its two coverage gaps received additional written tests: actual action-card toggle mappings and complete header compositions (range, chain, cue precedence and tempo pixels). The new assertions were not run. No existing assertion changed or was removed.
 
 The constant atlas contains 468 bytes of source data. It introduces no mutable static state or new animation timer. Native flash fit, actual placement and Elite/Pro free static RAM remain **NOT_RUN**; inspect both link maps and explain any RAM decrease before qualification.

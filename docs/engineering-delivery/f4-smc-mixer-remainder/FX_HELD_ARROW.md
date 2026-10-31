@@ -1,5 +1,7 @@
 # Row 41: hold one FX button and use arrows
 
+Latest owner instruction, 2026-11-01: no previews and no visual-approval wait for this change. Source delivery proceeds; the Orchestrator verifies the exact PR head on the box.
+
 Owner change, based on PR #800 at `af1a3a5e6ab9d4442977ed283072ded3a034ddee`: hold one of the four FX buttons on a strip and press `<` or `>` on the SMC or keyboard. Left steps backward and Right forward through that bus's existing suited effects, with wrap. Only that physical button's mapping changes. The held effect updates live; key-up ends it. HOME+FX-button no longer remaps.
 
 All assigned FX buttons fire on key-down, including the three main SELECT buttons that previously waited 180 ms. Their short taps retain the existing page navigation on release; an arrow edit cancels that navigation. Other dual-purpose FX buttons retain their short-tap navigation too. No mapping chord repeats while an arrow stays down. MMC toggles have no physical hold and cannot be remapped with arrows.
@@ -40,9 +42,9 @@ The new original-page bitmask adds **4 B per mixer peer** to `smcfx_strip_t` (de
 
 SDK **V1.2.1**, Elite and Pro, **X0X_DEV_PADCAL=0**: **NOT_RUN**. Free static RAM: **Elite NOT_RUN; Pro NOT_RUN**. Compare against the owner reference 2352 B and exact prior candidate maps; explain any decline beyond the documented ownership mask.
 
-## Required real-framebuffer BEFORE/AFTER
+## Optional box framebuffer diagnostics
 
-BEFORE is `af1a3a5e6ab9d4442977ed283072ded3a034ddee`; AFTER is the new PR head. Use the existing README capture command with the candidate fixture/capture driver copied into the BEFORE checkout. Do not run test assertions against the old behaviour. The qualified box must produce real 240x240 host-framebuffer PNG pairs under:
+BEFORE is `af1a3a5e6ab9d4442977ed283072ded3a034ddee`; AFTER is the new PR head. Use the existing README capture command with the candidate fixture/capture driver copied into the BEFORE checkout. Do not run test assertions against the old behaviour. If the Orchestrator needs internal framebuffer diagnostics, the existing driver can produce real 240x240 host-framebuffer PNG pairs under:
 
 `docs/engineering-delivery/f4-smc-mixer-remainder/framebuffer/{before,after}/`
 
@@ -51,4 +53,4 @@ BEFORE is `af1a3a5e6ab9d4442977ed283072ded3a034ddee`; AFTER is the new PR head. 
 - `fx-arrow-main-quick.png`, `fx-arrow-main-edit.png`, `fx-arrow-main-release.png`
 - `fx-effect-0.png` through `fx-effect-9.png` (all ten effect pictures)
 
-These paths are **planned and do not exist yet**. No PNG, host test, framebuffer driver, compiler or model build was executed in Codex. Keep PR #800 draft, attach the actual images, and obtain owner visual approval before merge.
+These paths are **planned and do not exist yet**. No PNG, host test, framebuffer driver, compiler or model build was executed in Codex. No preview, capture attachment or owner visual-approval wait is required. PR #800 remains draft for Orchestrator box qualification; this handoff authorizes no merge.
