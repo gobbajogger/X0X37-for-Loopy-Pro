@@ -88,7 +88,8 @@ class Device {
     }
     if (cmd === 13) {
       const h = unpack7(a.slice(1)), p = parseHeader(h);
-      if (h.length !== HDR_LEN) return [k, 1];
+      // Current ED_SMP_END admits the structured header or the full archived area.
+      if (h.length !== HDR_LEN && h.length !== DATA_OFF) return [k, 1];
       if (!p || p.dataLen > this.sizes[k] - DATA_OFF) return [k, 2];
       if (crc32(this.flash[k].subarray(DATA_OFF, DATA_OFF + p.dataLen)) !== p.crc) return [k, 3];
       this.program(k, 0, h);
@@ -160,7 +161,10 @@ h, d = sio.user_slot("BR1", [([int(4000 * ((i * 7) % 13 - 6)) for i in range(300
                              ([int(3000 * ((i * 5) % 11 - 5)) for i in range(20000)], 37, None, None)], rate=44100)
 sys.stdout.buffer.write(h.ljust(512, bytes([255])) + d)
 `]);
-  return new Uint8Array(out);
+  const image = new Uint8Array(out);
+  // A backup owns all 512 header bytes, including bytes outside smp_user_hdr_t.
+  for (let i = HDR_LEN; i < DATA_OFF; i++) image[i] = (i * 17 + 3) & 255;
+  return image;
 })();
 device = new Device(2, 80 * 1024);
 device.load(0, img1);
@@ -188,7 +192,8 @@ $("archive").onchange({ target: { files: [{ name: "b.x0xslots", arrayBuffer: asy
 check(await idle(/Complete restore|PARTIAL|differ|fit|damaged/), `Restore: "${$("status").textContent}"`);
 const im0 = device.image(0);
 check(im0 && im0.length === img1.length && im0.every((v, i) => v === img1[i]) && device.image(1) === null,
-  "Restore: slot 1 equals the backup, slot 2 erased");
+  "Restore: slot 1 equals all original bytes including reserved header area, slot 2 erased");
+check(/Complete restore/.test($("status").textContent), "Restore reports complete only after full original-byte readback");
 
 // ---- 3. a 3 x 120 KB device: the page follows SMP_INFO ----
 device = new Device(3, 120 * 1024);
