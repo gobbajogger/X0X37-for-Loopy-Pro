@@ -34,15 +34,15 @@ static void check_readout(const char *status,int selected,const char *name)
     for(int y=10;y<44;y++)for(int xx=125;xx<177;xx++)
         CHECK(fb[(top+y)*240+xx]==cv_px[y*240+xx]);
     if(selected) {
-        int pending=engine_bass_preset_pending(v),nav=tw(&FONT_T,UI_CAP_ARROWS)+18+tw(&FONT_T,"ROW");
+        int pending=engine_bass_preset_pending(v),nav=tw(&FONT_T,UI_CAP_ARROWS)+28;   /* F5 row picture */
         cv_begin(240,12,SOUND_FACE);
         if(pending) {
             cv_text(7,0,&FONT_T,UI_CAP_HOME ": CANCEL",SOUND_GRAY);
             expected_row_hint(234-nav,0,SOUND_AMBER);
         } else {
             int end=expected_row_hint(7,0,SOUND_GRAY);
-            matrix_next_hint(end+8,0,SOUND_GRAY);   /* EDIT caption + page/arrow icon (F1) */
-            text_r(234,0,&FONT_T,UI_CAP_HOME ": BACK",SOUND_AMBER);
+            matrix_next_hint(end+8,0,SOUND_GRAY);   /* EDIT + page/arrow icon (#798 F1, kept in integration) */
+            expected_home_back(0,SOUND_AMBER);       /* #807 F5: HOME + back arrow */
         }
         for(int y=0;y<11;y++)for(int xx=7;xx<234;xx++)
             CHECK(fb[(228+y)*240+xx]==cv_px[y*240+xx]);
