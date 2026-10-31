@@ -43,7 +43,7 @@ int main(void)
     static original_chicago_fx2_compact s;
     setvbuf(stdout, 0, _IONBF, 0);
     static const unsigned types[5] = {3, 12, 13, 15, 16};
-    static const char *const names[5] = {"ENSEMBLE", "SHORT DLY", "BPM DELAY", "HALL", "GATE REV"};
+    static const char *const names[5] = {"ENSEM", "SH DLY", "BPM DL", "HALL", "GT REV"};
     assert(sizeof(chi_fx2_insert_arena) <= sizeof s.arena.history);
     assert(sizeof s.arena == 4096u);
     assert(original_chicago_fx2_compact_init(&s));
