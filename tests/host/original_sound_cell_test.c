@@ -172,7 +172,7 @@ int main(void)
     assert(!original_sound_param(2,0) && !original_sound_name(2,0));
     assert(!original_sound_fx_name(12));
     static const char *const fx_names[12]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ",
-        "ENSEMBLE","SHORT DLY","BPM DELAY","HALL","GATE REV"};
+        "ENSEM","SH DLY","BPM DL","HALL","GT REV"};
     for(unsigned i=0;i<12;i++)assert(!strcmp(original_sound_fx_name(i),fx_names[i]));
     assert(!original_sound_is_performance(2,16) && !original_sound_is_performance(0,99));
     assert(original_sound_factory_source(2,0)==-1 && original_sound_factory_source(0,55)==-1);

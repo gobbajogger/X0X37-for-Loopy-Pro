@@ -5,7 +5,7 @@
 static const char *const original_sound_fx_names[ORIGINAL_CHICAGO_FX_CHOICES] = {
     "OFF", "CHO/FLG", "PHASER", "RING MOD", "COMPRESSOR", "DECIMATOR", "EQ",
     /* Archived Chicago inserts, appended so saved choices 0..6 keep their meaning. */
-    "ENSEMBLE", "SHORT DLY", "BPM DELAY", "HALL", "GATE REV"
+    "ENSEM", "SH DLY", "BPM DL", "HALL", "GT REV"
 };
 static const x0x_param_t original_sound_chicago_params[22] = {
     {"Wave",127,0,0},{"Glide",127,0,0},{"Cutoff",127,0,0},{"Peak",127,0,0},

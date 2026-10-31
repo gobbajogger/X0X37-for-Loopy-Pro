@@ -117,7 +117,7 @@ static void compact_audio(void)
 static void compact_ui(const char *directory)
 {
     static const char *const names[12]={"OFF","CHO/FLG","PHASER","RING MOD","COMPRESSOR","DECIMATOR","EQ",
-        "ENSEMBLE","SHORT DLY","BPM DELAY","HALL","GATE REV"};
+        "ENSEM","SH DLY","BPM DL","HALL","GT REV"};
     pref_t effect=PR(R_ENG,T_303,1,17), preset=PR(R_BPRESET,0,1,0);
     select_chicago(1,0);
     ui.view=V_PART; ui.part=PART_303B; ui.overlay=0; ui.help=0;
