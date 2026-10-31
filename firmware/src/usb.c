@@ -1338,6 +1338,11 @@ static __attribute__((noinline)) void uac_out_mix(int32_t *out, uint32_t n)
             }
             f = uo_ring[r & (UO_N - 1u)];
             r++;
+            /* TIMER5 can receive while this block renders. Release each slot
+             * only after its sample is local, so RX sees the space already
+             * consumed instead of falsely overflowing against a stale r. */
+            RING_PUBLISH();
+            uo_r = r;
             h[0] = h[2]; h[2] = h[4]; h[4] = h[6]; h[6] = (float)(int16_t)(f & 0xFFFFu);
             h[1] = h[3]; h[3] = h[5]; h[5] = h[7]; h[7] = (float)(int16_t)(f >> 16);
             uo.pos -= 1.0f;
