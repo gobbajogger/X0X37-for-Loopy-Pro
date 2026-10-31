@@ -41,7 +41,7 @@ assert 'goto unsupported;' in settings_body
 # Preserve the real bitmasks and exact default assignment.
 bt_macros = '\n'.join(unique(r'^#define\s+' + key + r'\s+[^\n]+$', HEADER, key).group(0)
                      for key in ('PROJ_BT_CLK_IN', 'PROJ_BT_SMC_CENTRAL', 'PROJ_BT_SMC_USER', 'PROJ_DEVICE_BT'))
-default_bt = unique(r'^\s*pr->set\.bt\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0)
+default_bt = unique(r'^\s*s->bt\s*=\s*\(uint8_t\)\([^\n]*\);', PROJECT, 'production default Bluetooth assignment').group(0)
 
 c_source = r'''
 #include <assert.h>
@@ -69,6 +69,7 @@ static int load_settings(settings_t *out) {
 }
 static void project_defaults_for(project_t *pr, uint8_t device_bt) {
     memset(pr, 0, sizeof *pr);
+    settings_t *s = &pr->set;
     pr->set.magic=PROJ_MAGIC;
     pr->set.format=PROJ_FORMAT;
     pr->set.snd_rev=PROJ_SND_REV;
