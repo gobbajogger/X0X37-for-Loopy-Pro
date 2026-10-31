@@ -1,0 +1,157 @@
+{
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "compiled_firmware_subtree_unchanged": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "decoded_trace_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+  "evidence": {
+    "normal": {
+      "command": "python3 -B tests/host/run_breaks_live_stress.py --source-root . --output-dir /mnt/data/perf_run11/r15_runner_normal --compiler both",
+      "compiler_configurations": [
+        {
+          "branch": "legacy",
+          "compile_exit": 0,
+          "compile_log_sha256": "7b9c9b8b8b6a3c2d43ba1fbfeead9afcedcdb522faafacaaece358628447c7d8",
+          "compiler": "gcc",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "30a09095e59a0c9d13b68db5916eab8629f0d97ca5f4dc5929481882cad4794a"
+        },
+        {
+          "branch": "fast",
+          "compile_exit": 0,
+          "compile_log_sha256": "033ee9f735e09867e8cbc79bbc1905530d46805ee63dbaf46a07e6ccefcc12aa",
+          "compiler": "gcc",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "78307e58ceb30ceb621d9cf90d5add481450d48aa125d14266216452991e0921"
+        },
+        {
+          "branch": "legacy",
+          "compile_exit": 0,
+          "compile_log_sha256": "194a3c3bf0cef2fd2af6303c978f982295622def65aedf0abfd491172169343c",
+          "compiler": "clang",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "7ce88ced37ca4b3e222d08b6c04d27b08ac619d80d423aed9caa39297d33d89c"
+        },
+        {
+          "branch": "fast",
+          "compile_exit": 0,
+          "compile_log_sha256": "267074a501b163dd36dbc2edd5e38d814e8571e72f1d52d06d26d2e6cbf0c393",
+          "compiler": "clang",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "fec970235432302141a18de853dc3d52500626ff0cab46379ea79abac57e436d"
+        }
+      ],
+      "execution_exit": 0,
+      "manifest_sha256": "da668bb5440be11402b1bbb4a252a14b61b4ae915161285e47df0d34bdc40ff2",
+      "peer_pr28_projection_only": false
+    },
+    "sanitized": {
+      "command": "python3 -B tests/host/run_breaks_live_stress.py --source-root . --output-dir /mnt/data/perf_run11/r15_runner_sanitized --compiler both --sanitizer --peer-fastmath-file sandbox_pr28/firmware/src/dsp/fastmath.h",
+      "compiler_configurations": [
+        {
+          "branch": "legacy",
+          "compile_exit": 0,
+          "compile_log_sha256": "149fdcbaaabd1fb4ee1fd4565b925865a3da55280ec001ecd1e7ee4af5778477",
+          "compiler": "gcc",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "5cf35647bc73b0852f01a6f9a746d113971d2dfa6b56180d0415d44b319f9034"
+        },
+        {
+          "branch": "fast",
+          "compile_exit": 0,
+          "compile_log_sha256": "7786cfcf0cda8149b1ceb51c7af434f5e14eb3aafafff651774944daa8814e64",
+          "compiler": "gcc",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "0b84aadc2efd49b44f8976b25ac74ea57f92daffbd9357dcf5e928124bdfe828"
+        },
+        {
+          "branch": "legacy",
+          "compile_exit": 0,
+          "compile_log_sha256": "6b0e4d970e9426d09f663a130e25ad958febc938311a3bf3250e3d6880587795",
+          "compiler": "clang",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "f321abceef6e821920b66957f172bcdf0935f284bf1e93e9a3a9f2e0b3667d5a"
+        },
+        {
+          "branch": "fast",
+          "compile_exit": 0,
+          "compile_log_sha256": "83fa12fa06aa45ed68904b9c3a11ccd035573a5c5d06d6ae6711a62ee7f28b86",
+          "compiler": "clang",
+          "invalid_argument_exit": 2,
+          "pcm_sha256": "53132ce8dd317793f74ed4eaf86a60b51574b4c538e4afd6205f4415a40cc516",
+          "run_exit": 0,
+          "run_log_sha256": "178f27933306a2bf30f12b2b93000366e94d09b397bdceb942856597a1dcff79"
+        }
+      ],
+      "execution_exit": 0,
+      "manifest_sha256": "0a5ee773ca6241eb196c23d05be625b08e51196d7302a6e0cd61d01f69651103",
+      "peer_pr28_projection_only": true
+    }
+  },
+  "existing_pr28_peer_header_blob": "a5c26c95cad0d91a548a8db073f59777e36d4e86",
+  "files": {
+    "docs/audit/performance-pr93-live-set-stress-20261025.md": {
+      "git_blob": "b7ff1c46780b33f350e2bb964bdde6f3e3987143",
+      "sha256": "8e75ea5f70bf1817dbe65cba1f6c2b156610aceb833e39a1c4a91d4c38f84c03"
+    },
+    "tests/host/breaks_live_stress_test.c": {
+      "git_blob": "1df9b9920f87ba08d05897a9e4684f85c85c90a4",
+      "sha256": "1aad18f13eb302e060a2ebb39a10dc4ce2beadfc766597e243bc6ffdcde96cfe"
+    },
+    "tests/host/run_breaks_live_stress.py": {
+      "git_blob": "2544b21cee7453c40f66e109c1141a7e31188a21",
+      "sha256": "da9ca5d200c48097f63fdd93eaf431fb25311936cc60507db35a1379dbe2b664"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "independent_QA": "NOT_RUN",
+  "negative_exits": {
+    "existing_output_refusal": 2,
+    "missing_sanitizer_peer": 2,
+    "wrong_git_source": 1,
+    "wrong_peer_header": 1
+  },
+  "next": [
+    {
+      "action": "independently test PR93 exact current root and R13/R14/R15 source scope, verify PR28 inherited UB separation and memory/latency negative gates",
+      "owner": "existing Independent QA"
+    },
+    {
+      "action": "check exact native Elite+Pro+controller DEV record for firmware tree ee863f9cba6cbfb4e471d199ae408c7694acbac5 and report/build if absent; no Pages or device dependency",
+      "owner": "existing Hourly Build"
+    },
+    {
+      "action": "consider optional PR93 only after independent QA and native model budget acceptance, never graft into first NIGHTLY",
+      "owner": "sole Safe Merge"
+    }
+  ],
+  "parent_commit": "61740dbbc666396fbbe41df66effcf758c2ae45a",
+  "parent_root": "b42b6f6cd94fb1c642c334abdcfa3b95053dccdb",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revision": "performance-pr93-live-set-stress-source-host-r15-20261025",
+  "role": "Performance Engineering",
+  "sanitizer_on_original_unmodified_source": {
+    "clang_fast_exit": 134,
+    "clang_legacy_exit": 134,
+    "diagnostic": "firmware/src/dsp/fastmath.h:57: left shift of negative value -1",
+    "gcc_fast_exit": 1,
+    "gcc_legacy_exit": 1,
+    "status": "FAIL_expected_known_UB"
+  },
+  "source_compiled_changed": false,
+  "source_original_fastmath_blob": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+  "source_production_breaks_blob": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "target_build": "NOT_RUN"
+}

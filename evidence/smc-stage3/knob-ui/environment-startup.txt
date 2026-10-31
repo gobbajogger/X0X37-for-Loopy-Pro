@@ -1,0 +1,1 @@
+First attempt: Docker socket access denied by sandbox; rerun through required escalation. Second attempt: Git dubious ownership in container before checks ran. Disposition: evidence runner uses process-local git -c safe.directory=<candidate lane>; no global Git configuration or firmware source changes. Test results begin on third attempt.

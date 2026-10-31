@@ -1,0 +1,20 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage4",
+  "source_chat": "01a15a82-82cb-75a1-9aff-9bbc76a3d482",
+  "project": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "checked": "list_projects and list_threads(limit40), including active, idle and notLoaded chats",
+  "same_workflow_stage4_exists": false,
+  "record_had_successor_id": false,
+  "matching_active_workflows": [
+    {
+      "chat": "01a15a82-82cb-75a1-9aff-9bbc76a3d482",
+      "stage": "mapping stage3"
+    },
+    {
+      "chat": "01a15a85-2fb6-7683-a11e-72faeecd3a8e",
+      "stage": "central stage3"
+    }
+  ],
+  "older_stage4_chat": "01a15a13-69cb-7553-ac87-f3309cc52a3c is the prior knobs/diagnostics workflow, not this mapping candidate",
+  "decision": "Create exactly one fresh LOCAL mapping stage4."
+}

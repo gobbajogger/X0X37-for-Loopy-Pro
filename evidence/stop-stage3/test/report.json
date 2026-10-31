@@ -1,0 +1,168 @@
+{
+  "stage": 3,
+  "helper": "independent-test",
+  "result": "PASS",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "lane_base": "40899e1a47ca704b0d3f63bbd0372ed27b7a5e45",
+  "source_repair_required": false,
+  "actionable_findings": [],
+  "identity_review": "identity-review.json",
+  "parent_reuse_record": "../reuse.json",
+  "identity": {
+    "selected_source_inputs": 415,
+    "matching_source_inputs": 415,
+    "helper_inputs": 224,
+    "matching_helper_inputs": 224,
+    "stop_inputs": 6,
+    "matching_stop_inputs": 6,
+    "replay_inputs": 7,
+    "matching_replay_inputs": 7,
+    "recorded_log_hashes": 81,
+    "matching_log_hashes": 81,
+    "elite_artifacts": 3,
+    "matching_elite_artifacts": 3,
+    "host_compiler_matches": true,
+    "candidate_production_diff": ""
+  },
+  "reused_checks": {
+    "record_root": "evidence/stop-stage2",
+    "host_commands": 56,
+    "stop_commands": 14,
+    "saved_probe_commands": 7,
+    "expected_nonzero_commands": 30,
+    "all_recorded_returncodes_match": true,
+    "public_final_log": "evidence/stop-stage2/final-public.log",
+    "diag_log": "evidence/stop-stage2/diag.log",
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ],
+    "sanitizer_errors": false,
+    "new_suite_runs": 0,
+    "reason": "The source, tests, helper inputs, compiler and recorded results match. Rule 9 permits reuse across stages. Independent review found no concrete gap that requires another run."
+  },
+  "public_test_review": {
+    "files": [
+      "tests/host/ble_midi_central_test.c",
+      "tests/host/ble_midi_receive_test.c",
+      "tests/host/ble_midi_signal_test.c",
+      "tests/host/ble_midi_abort_test.c",
+      "tests/host/ble_midi_deadline_test.c",
+      "tests/host/ble_midi_deadline_test.py",
+      "tests/host/ble_midi_stop_test.c",
+      "tests/host/ble_midi_stop_test.py",
+      "tests/host/ble_midi_receive_test.sh",
+      "tests/ble_central_diag_test.py"
+    ],
+    "read_complete": true,
+    "coverage": [
+      "The public startup test completes Reset, scan setup, discovery, CCCD subscription and MIDI delivery.",
+      "The receive tests check fragments, invalid lengths, bounds, rejected headers and lifecycle resets.",
+      "The signaling tests check identifiers, fragmented commands, MTU rejection, bounded reply queues, reply priority and normal MIDI.",
+      "The reconnect tests restore sole-link credits after successful Disconnection Complete and saturate completed-packet counts.",
+      "The abort tests distinguish transport acceptance, command responses and actual disconnection. They retain handles and credits through failure.",
+      "The deadline tests execute the extracted production service. They check cutoff minus 1, exact cutoff, cutoff plus 1 and timer wrap.",
+      "The stop tests use the actual production service with simulated dependencies. They check refused Cancel and Scan Disable retries.",
+      "The stop tests check one accepted control, successful Status without completion, failed Status and Complete, and absent completion.",
+      "The stop tests check repeated stop, direct start, late connection, duplicate connection, wrong handles, successful disconnection and fresh startup.",
+      "The stop tests check pending Create, pending Scan Enable, prior Scan Disable, accepted automatic Cancel and unrelated failed connection events.",
+      "The stop tests retain the original cutoff and reject late Disconnect submissions for both connection event variants and timer wrap.",
+      "The realistic saved Cancel probe uses a full public startup sequence and correctly sized 19-byte and 31-byte event parameters."
+    ],
+    "fixture_limit": "The older deadline fixture uses a short enhanced-event layout. The new public stop fixture and saved realistic Cancel probe use the complete layout. Both execute the repaired race path. This does not leave the required event variants untested."
+  },
+  "negative_controls": {
+    "central_stop_01": "The public cancel, scan, failed-status and edges controls use exact f080d1a5f31073dde600238f780acf37c12b2738 source. All four fail functionally before repair and pass after repair.",
+    "central_abort_01": "The exact 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f source fails the public overflow/timeout and saved independent controls. Repaired source passes.",
+    "central_abort_02": "The exact 05eff604cb3f136db71727a2aeeea785cab73b99 source fails the deadline controls. Repaired public service, direct stop and Cancel controls pass.",
+    "stale_service": "Four retained service probes deliberately use the old caller order. Their expected assertion failures do not indicate current production failure.",
+    "old_caller_mutation": "The repaired helper with the old production caller fails its separate public service mutation control as expected.",
+    "functional_failure_check": "The recorded negative assertions fail before any sanitizer error. The one saved explicit-return control returns 1 as specified.",
+    "full_logs_read": true,
+    "command_sources_read": [
+      "evidence/stop-stage2/run-checks.py",
+      "evidence/stop-stage2/run-stop-checks.py",
+      "evidence/stop-stage2/run-saved-probes.py"
+    ]
+  },
+  "replay_review": {
+    "files_read_complete": [
+      "evidence/stop-stage2/replay-run.py",
+      "evidence/stop-stage2/replay.c",
+      "evidence/stop-stage2/replay.json",
+      "evidence/stop-stage2/replay-inputs.json",
+      "evidence/stop-stage2/replay.log"
+    ],
+    "result": "PASS",
+    "packets": 1268,
+    "decoded": 2616,
+    "feedback": 513,
+    "queue_empty": true,
+    "perf_test": -1,
+    "perf_phase": 0,
+    "help": 0,
+    "overlay": 0,
+    "capture_sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+    "limits": [
+      "The recorded payloads are unchanged. The peer, HCI framing, mailbox, clock and schedule are simulated.",
+      "Three ATT packets above 64 bytes remain excluded. No payload resegmentation occurs.",
+      "The store is synthetic. Target interrupts and physical radio execution remain untested."
+    ],
+    "new_run": false
+  },
+  "build_review": {
+    "result": "RETAINED ELITE DEV PASS",
+    "files_read_complete": [
+      "evidence/stop-stage2/run-build.sh",
+      "evidence/stop-stage2/build-elite.log",
+      "evidence/stop-stage2/environment.json",
+      "evidence/stop-stage2/artifacts.json",
+      "evidence/stop-stage2/stage4-dev-plan.json"
+    ],
+    "artifact_hashes_match": true,
+    "code_margin": 1128,
+    "static_ram_margin": 524,
+    "pool_margin": 8364,
+    "pool_required": 8192,
+    "stage4_validated": false,
+    "new_build": false,
+    "pro_artifact_claimed": false,
+    "toolchain_sdk_image_review": "The parent independently checked the compiler, SDK and image identities in evidence/stop-stage3/reuse.json."
+  },
+  "previous_failure_context": {
+    "read_complete": [
+      "evidence/deadline-stage3/RESULT.txt",
+      "evidence/deadline-stage3/checks.json",
+      "evidence/deadline-stage3/test/report.json",
+      "evidence/deadline-stage3/test/cancel-report.json",
+      "evidence/deadline-stage3/stage2-prompt.txt",
+      "evidence/deadline-stage2/stage3-prompt.txt",
+      "evidence/deadline-stage3/test/cancel-realistic-probe.c",
+      "evidence/deadline-stage3/investigation/service-stop-probe.c",
+      "evidence/deadline-stage3/investigation/event-edge-probe.c"
+    ],
+    "disposition": "The current saved service and realistic Cancel checks cover the prior actionable refusal failures."
+  },
+  "changes": {
+    "production_source": false,
+    "public_tests": false,
+    "target_build": false,
+    "device_write": false,
+    "controller_write": false,
+    "release_build": false,
+    "full_gate": false,
+    "external_push": false
+  },
+  "setup_notes": [
+    "One read-only search used the workspace root instead of the isolated lane. The corrected lane search completed. No check or source changed."
+  ],
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "limits": [
+    "This helper checked public tests, evidence identity and retained results. The separate investigation helper owns independent source and event-order investigation.",
+    "Host simulation and saved target builds do not establish the cause of the physical input failure.",
+    "The stage2 package does not qualify as a stage4 validated install set."
+  ],
+  "next_owner": "The stage3 task agent owns the combined conclusion and successor."
+}

@@ -1,0 +1,18 @@
+The complete candidate requires a source repair for CENTRAL-STOP-01.
+The public regression scope passes.
+
+All 56 required host and control commands produced their expected results.
+The public central, receive, signaling, abort and deadline tests pass with ASan and UBSan.
+The old and extended DIAG tests pass. All 413 selected stage2 inputs match.
+The broken-source controls and the old-caller mutation reproduce their expected functional failures.
+Four stale-service simulations remain expected failures.
+
+The independent Cancel refusal probe confirms CENTRAL-STOP-01.
+If the transport refuses Cancel, blec_stop changes the host to OFF.
+A later successful connection event loses its handle. The host submits no Disconnect.
+Legacy and full-length enhanced events reproduce the failure. The accepted-Cancel controls pass.
+No sanitizer error occurred. The complete report is cancel-report.json.
+No production source changed. A fresh stage2 and stage3 are required before stage4.
+
+Physical result: NOT TESTED.
+Original input failure: UNRESOLVED.

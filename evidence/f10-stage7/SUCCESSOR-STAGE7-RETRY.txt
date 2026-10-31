@@ -1,0 +1,13 @@
+You are a Stage 7 gh-pages write helper for F10 BF-006 (not a new Stage 1). Prefer CreateAgent placement with repo_url https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly. REST may show push:false — trust git write. Mac FF only if cloud fails. No force-push. Do not start Stage 1. Do not flash. Do not touch production main/Pages.
+
+Follow Project store /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/internal/f10-stage7-mac-pages-push.md exactly.
+
+Parent gh-pages tip must be 4f468d16c2a8c67be8817db0637d909b2fd3db85.
+Candidate: artifacts/f10-stage7-publish/candidate-site.tgz
+latest nightly-af494784-dev
+source af4947846df7233c68a6be72c4d0c634052a2752
+Elite 9cba1f3d0bebc2113d59b9bbb3f1ca1a67bb396183be279b74486319ddae8e11
+Pro 5dda4eecd74d96237a3d457a026d7bc04eb3ed570705179ab8e6c15a198fa739
+hardware_tested false
+
+After push, write internal/f10-stage7-mac-pages-result.md and stop. Stage 7 owner bc-c926071e-0ab5-513d-bff4-01cca78cb685 verifies LIVE_PAGE_MATCH and starts Stage 1.

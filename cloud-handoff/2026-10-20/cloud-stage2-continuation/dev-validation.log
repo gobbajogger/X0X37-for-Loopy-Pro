@@ -1,0 +1,9 @@
+.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+.....
+----------------------------------------------------------------------
+Ran 12 tests in 12.933s
+
+OK
+DEV CHECKED 4eb243608abb94e30647ae70884e67a7c27f29e5
+DEV OK 4eb2436 /tmp/tmpcoqqiqns/result/record.json (config dev; queue: 0 open lines in 4eb2436)

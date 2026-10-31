@@ -1,0 +1,87 @@
+{
+  "scope": "Historical tooling/source reference only; no production integration",
+  "files": [
+    {
+      "path": "reference/recovered-local-source-next/source/0241e95a/tools/quickcheck_plan.py",
+      "bytes": 8135,
+      "sha256": "06691374d32cbecc7ae5b327a064feae3206c4f7ecb9ccbe43274aa4e9e24d3b",
+      "git_blob_sha1": "119d66ead2f077b6b8980bf0a5373fd74e12deae",
+      "mode": "100644",
+      "original_sources": [
+        {
+          "commit": "0241e95a4f1b7cd858d83b770b93937e303147bb",
+          "path": "tools/quickcheck_plan.py"
+        }
+      ],
+      "remote_blob_status": "NOT_FOUND",
+      "license": "GPL-3.0-only SPDX retained"
+    },
+    {
+      "path": "reference/recovered-local-source-next/source/0241e95a/tests/host/test_host_key_velocity.py",
+      "bytes": 2275,
+      "sha256": "afc05a1bd7209c88cffc9e76d2d25c667aca0a5e6bbf3663aebdd7f967e1a751",
+      "git_blob_sha1": "3ecb7380027a2d71994a1af33ca401a99d529e43",
+      "mode": "100644",
+      "original_sources": [
+        {
+          "commit": "0241e95a4f1b7cd858d83b770b93937e303147bb",
+          "path": "tests/host/test_host_key_velocity.py"
+        }
+      ],
+      "remote_blob_status": "NOT_FOUND",
+      "license": "GPL-3.0-only SPDX retained"
+    },
+    {
+      "path": "reference/recovered-local-source-next/source/0241e95a/tests/run_tests.sh",
+      "bytes": 55170,
+      "sha256": "ec32068852ddfffa5d01874e5d4570c4b1bb53b925d87299adb03f6089cba731",
+      "git_blob_sha1": "4e9df6c5cdcd49d22fd2575dcf0101634e660d1f",
+      "mode": "100755",
+      "original_sources": [
+        {
+          "commit": "0241e95a4f1b7cd858d83b770b93937e303147bb",
+          "path": "tests/run_tests.sh"
+        }
+      ],
+      "remote_blob_status": "NOT_FOUND",
+      "license": "GPL-3.0-only SPDX retained"
+    },
+    {
+      "path": "reference/recovered-local-source-next/source/0241e95a/tests/host/test_quickcheck_plan.py",
+      "bytes": 10919,
+      "sha256": "eb25523a01cc5c5af294f2049e7a2695df4e549160b901a3224f75693c9c42c9",
+      "git_blob_sha1": "bddc048e5e9419b7dda22451cf43632945bc9cc7",
+      "mode": "100644",
+      "original_sources": [
+        {
+          "commit": "0241e95a4f1b7cd858d83b770b93937e303147bb",
+          "path": "tests/host/test_quickcheck_plan.py"
+        }
+      ],
+      "remote_blob_status": "NOT_FOUND",
+      "license": "GPL-3.0-only SPDX retained"
+    },
+    {
+      "path": "reference/recovered-local-source-next/source/0241e95a/tests/host/test_runner_admission.py",
+      "bytes": 13646,
+      "sha256": "c16d565395eb592257a6cde3ad17413d6e1e65effc8501e5d06d0ee12ee3dd0d",
+      "git_blob_sha1": "379b966c46545151193efebac1e44ab7c8173167",
+      "mode": "100644",
+      "original_sources": [
+        {
+          "commit": "0241e95a4f1b7cd858d83b770b93937e303147bb",
+          "path": "tests/host/test_runner_admission.py"
+        }
+      ],
+      "remote_blob_status": "NOT_FOUND",
+      "license": "GPL-3.0-only SPDX retained"
+    }
+  ],
+  "checks": {
+    "python_ast": "4 PASS",
+    "shell_syntax": "sh -n PASS",
+    "credential_private_reference_text_scan": "PASS",
+    "runtime_tests": "NOT_RUN",
+    "build_device": "NOT_RUN"
+  }
+}
