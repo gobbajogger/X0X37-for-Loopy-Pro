@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "source_commit": "5bff28caba24568cd5070acb99aaf37729cd8323",
+  "label": "DEV / HARDWARE TEST — DEVICE NOT TESTED",
+  "packages": {
+    "pro": {
+      "sha256": "965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b",
+      "size": 651457,
+      "crc32": "727F27DD",
+      "file": "965ca2a0eb9a51e295742e78ca9ffb39f5972405a67f184525e8255ec63cef9b/x0x37-pro-dev.fwsc"
+    }
+  },
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+}
