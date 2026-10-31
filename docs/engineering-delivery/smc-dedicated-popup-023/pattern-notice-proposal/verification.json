@@ -1,0 +1,110 @@
+{
+  "status": "PROPOSAL; owner visual approval pending",
+  "baseline_head": "a74949ab62096bdc3b0e47db2e7d7cfeae99b484",
+  "production_code_published": false,
+  "candidate_inputs_sha256": {
+    "firmware/src/app/smc_mixer.c": "56b238a4782f2075d5c54616b3947e6ea8ccf3cf93959b817502f42b14ad00d7",
+    "firmware/src/app/ui.c": "1a10ae17c843992a409225eb2218787f2d66ace5461265ca3147d65205023deb",
+    "tests/host/smc_ui_popup_test.c": "e75ae5e167eab7b7057e51a498b23a30bdaa9de8ce7584a77535c2d66d1b6f0f",
+    "tests/host/smc_production_action_smoke.c": "42a133f66423532a07840f96e6c8f3851960bbfcd8ace191fb94a2ae4264296b",
+    "tests/host/smc_buttons_test.py": "07fba4ba438c6b3820f702147857fd9812fff0f7cf954df4272412fadce35eaf"
+  },
+  "sdk": "V1.2.1",
+  "X0X_DEV_PADCAL": 0,
+  "native": {
+    "elite": {
+      "result": "PASS",
+      "app_bytes": 497804,
+      "ram_free": 2432,
+      "pool_free": 8536,
+      "log_sha256": "76729cbad66dc903bfd6f6498069cc5e8b1c512b7eb4f68418b2dd6053184744"
+    },
+    "pro": {
+      "result": "PASS",
+      "app_bytes": 497788,
+      "ram_free": 2432,
+      "pool_free": 8536,
+      "log_sha256": "703ded193db7abee6945bc76c11889363ece8234f6de2ba7450cab10e90f427a"
+    }
+  },
+  "popup_checks": 4938,
+  "action_checks": 420,
+  "action_ubsan": "PASS",
+  "initial_selected_runner": {
+    "pass": 46,
+    "fail": [
+      "smc-buttons"
+    ],
+    "exit": 1
+  },
+  "followup_registered_runner": {
+    "smc-buttons": "PASS",
+    "exit": 0
+  },
+  "latest_selectors": {
+    "smc-protocol": "PASS",
+    "smc-fader": "PASS",
+    "smc-select-mode": "PASS",
+    "smc-fx": "PASS",
+    "smc-mixer-edges": "PASS",
+    "smc-action-source": "PASS",
+    "smc-fx-caption": "PASS",
+    "smc-fx-page-port": "PASS",
+    "smc-fx-two-page-strip": "PASS",
+    "smc-fx-peer-view": "PASS",
+    "smc-fx-preset-preserve": "PASS",
+    "smc-queue": "PASS",
+    "smc-solo-overflow": "PASS",
+    "smc-host-data7": "PASS",
+    "smc-host-overflow-data7": "PASS",
+    "smc-sender-isolation": "PASS",
+    "smc-ble-payload": "PASS",
+    "smc-link": "PASS",
+    "smc-reconnect-epoch": "PASS",
+    "smc-boot-saved-roles": "PASS",
+    "smc-reachability": "PASS",
+    "smc-pickup-acceptance": "PASS",
+    "smc-lock": "PASS",
+    "smc-lock-beat": "PASS",
+    "smc-multi-peer": "PASS",
+    "smc-multi-peer-negative": "PASS",
+    "smc-pause-loss": "PASS",
+    "smc-interaction-negative": "PASS",
+    "smc-ui": "PASS",
+    "smc-ui-popup": "PASS",
+    "smc-popup-engine": "PASS",
+    "smc-audit-core": "PASS",
+    "smc-audit-contract": "PASS",
+    "smc-mode-page": "PASS",
+    "smc-mixer-page": "PASS",
+    "smc-ui-bounds": "PASS",
+    "smc-ui-negative": "PASS",
+    "smc-mapping": "PASS",
+    "smc-drum-mutes": "PASS",
+    "smc-drum-rs": "PASS",
+    "smc-performance-abort": "PASS",
+    "smc-filter": "PASS",
+    "smc-feedback": "PASS",
+    "smc-record-feedback": "PASS",
+    "smc-part-select": "PASS",
+    "smc-clip-visibility": "PASS",
+    "smc-buttons": "PASS"
+  },
+  "selected_pass": 47,
+  "selected_fail": 0,
+  "selected_not_run": 0,
+  "review": {
+    "reviewers": 4,
+    "findings": [],
+    "visual": "PASS",
+    "candidate_diff_sha256": "518ade50f07d9c2d0052d93e24d50488e3abdd2487415382a2b88237f4372992"
+  },
+  "framebuffer_sha256": {
+    "before-pattern-from-keyboard.png": "1d07018350b94d1216be3486ed3d72cd82e7bb011236dd7439e4e2075df087c3",
+    "after-pattern-from-keyboard.png": "ecad804f711942256fc9244555ec7f8e78150140d1b3d33aa1935950e9241457",
+    "before-pattern-over-popup.png": "1d07018350b94d1216be3486ed3d72cd82e7bb011236dd7439e4e2075df087c3",
+    "after-pattern-over-popup.png": "d0bb1cff8d6d992918c827041e17576b0b049dc2c43f39d2aac54a4ae54471d3"
+  },
+  "full_repository_suite": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}
