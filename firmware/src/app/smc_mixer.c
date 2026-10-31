@@ -8,6 +8,9 @@
 #include "smc_fx_caption.h"
 
 #define SMC_Q 32u
+/* DAW-only SMC: the User preset is retired. Legacy saved bit 0x20 (PROJ_BT_SMC_USER)
+ * is ignored, so it cannot reactivate CH16/MMC/CC40..47 routing. */
+#define SMC_USER_ON (0u)
 /* Preserve the decoding preset in the spare event-length bits. */
 #define SMC_EVENT_USER 0x40u
 #define SMC_EVENT_LEN_MASK 0x3Fu
@@ -311,7 +314,7 @@ X0X_COLD void smc_project_reset(void)
     memset(smc_states, 0, sizeof smc_states);
     for (smc_slot = 0; smc_slot < SMC_PEERS; smc_slot++) {
         smc.up = smc.fresh = up[smc_slot];
-        smc.preset_user_seen = !!(proj.set.bt & PROJ_BT_SMC_USER);
+        smc.preset_user_seen = SMC_USER_ON;
         smc.pending = 0xFFu;
         smc_fx_load_page(0);
     }
@@ -332,13 +335,13 @@ void smc_ble_midi_slot(unsigned slot, const uint8_t *msg, uint8_t len)
     if ((uint8_t)(w - in->qr) >= SMC_Q) {
         if (len == 3u && (proj.set.bt & PROJ_BT_SMC_CENTRAL) &&
             (in->link_published & 1u) && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
-            (!(msg[0] & 15u) || ((proj.set.bt & PROJ_BT_SMC_USER) && (msg[0] & 15u) == 15u))) {
+            (!(msg[0] & 15u) || (SMC_USER_ON && (msg[0] & 15u) == 15u))) {
             in->release_lost[0]++;
             if (msg[1] == 0x5Du) in->release_lost[2]++;
         }
         in->dropped++; return;
     }
-    in->q[w % SMC_Q].n = (uint8_t)(len | ((proj.set.bt & PROJ_BT_SMC_USER) ? SMC_EVENT_USER : 0u));
+    in->q[w % SMC_Q].n = (uint8_t)(len | (SMC_USER_ON ? SMC_EVENT_USER : 0u));
     for (i = 0; i < len; i++) in->q[w % SMC_Q].b[i] = msg[i];
     __asm__ volatile("" ::: "memory");
     in->qw = (uint8_t)(w + 1u);
@@ -368,13 +371,14 @@ int smc_connected(void) { return (smc_states[0].up || smc_states[1].up) && smc_b
  * central's TIMER5 producer never touches it. A full ring still consumes the message. */
 int smc_midi_host(uint32_t pkt)
 {
+    if (!SMC_USER_ON) return 0; /* retired User hook: ordinary instrument/APC routing keeps the packet */
     uint8_t st = (uint8_t)(pkt >> 8), w = smc_host_w;
     uint8_t a = (uint8_t)(pkt >> 16), b = (uint8_t)(pkt >> 24);
     /* A malformed data byte must never be masked into an SMC button or CC.
      * In particular 0x88 must not turn into held Solo 1 (note 0x08). */
     if ((a | b) & 0x80u)
         return 0;
-    if (!smc_host_accept(st, a, proj.set.bt & PROJ_BT_SMC_USER))
+    if (!smc_host_accept(st, a, SMC_USER_ON))
         return 0;
     {
         uint8_t m[3] = {st, a, b};
@@ -397,7 +401,8 @@ int smc_midi_host(uint32_t pkt)
 void smc_mmc_host(uint8_t cmd, uint8_t src)
 {
     uint8_t w;
-    if (!(proj.set.bt & PROJ_BT_SMC_USER) || src > 1u || cmd < 1u || cmd > 43u)
+    /* Retired User-preset MMC hook; it never queues remote transport actions. */
+    if (!SMC_USER_ON || src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
     if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
@@ -1885,7 +1890,7 @@ static void smc_guarded_button(uint8_t note, int mmc, int allow)
 
 static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 {
-    uint8_t type, ch, a, b, user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    uint8_t type, ch, a, b, user = SMC_USER_ON;
     if (len == 6 && user && m[0] == 0xF0 && m[1] == 0x7F && m[2] == 0x7F &&
         m[3] == 0x06 && m[5] == 0xF7) {
         a = smc_mmc_note(m[4]);
@@ -1934,7 +1939,7 @@ static void smc_mmc_drain_stop(int src, int allow)
         if (smc_mmc_r[src] != cutoff) break;
         __asm__ volatile("" ::: "memory");
         smc_mmc_stop_r[src] = (uint8_t)(r + 1u);
-        if (proj.set.bt & PROJ_BT_SMC_USER)
+        if SMC_USER_ON
             smc_guarded_button(0x5Du, 1, allow);
     }
 }
@@ -2039,7 +2044,7 @@ static void smc_poll_peer(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
-    uint8_t preset_user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    uint8_t preset_user = SMC_USER_ON;
     if (smc.preset_user_seen != preset_user) {
         smc.preset_user_seen = preset_user;
         smc.picked = smc.seen = smc.input_seen = 0;
@@ -2074,7 +2079,7 @@ static void smc_poll_peer(void)
         smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
-        else if (!!(msg.n & SMC_EVENT_USER) != !!(proj.set.bt & PROJ_BT_SMC_USER)) smc_reason = 4;
+        else if (!!(msg.n & SMC_EVENT_USER) != SMC_USER_ON) smc_reason = 4;
         else {
             if (allow && !perf_testing()) smc_dispatched++;
             smc_reason = smc_message(msg.b, (uint8_t)(msg.n & SMC_EVENT_LEN_MASK), allow);
@@ -2102,10 +2107,10 @@ static void smc_poll_peer(void)
                      ((msg[0] & 0xF0u) == 0x90u && msg[1] >= 8u && msg[1] < 16u && msg[2]))
                 continue;
         }
-        if (proj.set.bt & PROJ_BT_SMC_USER)
+        if SMC_USER_ON
             smc_message(msg, sizeof msg, allow);
     }
-    if (proj.set.bt & PROJ_BT_SMC_USER) smc_spill_apply(&smc_host_spill, smc_host_r, allow);
+    if SMC_USER_ON smc_spill_apply(&smc_host_spill, smc_host_r, allow);
     else smc_spill_drop(&smc_host_spill);
     for (int src = 0; src < 2; src++) {
         count = 0;
@@ -2117,7 +2122,7 @@ static void smc_poll_peer(void)
             uint8_t cmd = smc_mmc_q[src][r % 16u];
             __asm__ volatile("" ::: "memory");
             smc_mmc_r[src] = (uint8_t)(r + 1u);
-            if (proj.set.bt & PROJ_BT_SMC_USER)
+            if SMC_USER_ON
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
         /* Later cutoffs stay pending beyond this poll's command budget. */
