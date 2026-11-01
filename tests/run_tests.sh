@@ -376,6 +376,8 @@ run midi-out-mq-noteoff-overflow python3 tests/host/midi_out_mq_noteoff_overflow
 run ble-out-noteoff-overflow python3 tests/host/ble_out_noteoff_overflow_test.py   # full BLE out mirror must keep Note Off (displace CC)
 run ble-out-rt-overflow python3 tests/host/ble_out_rt_overflow_test.py   # full BLE out mirror must keep Start/Continue/Stop (displace CC)
 run usb-sxq-sticky-apc python3 tests/host/usb_sxq_sticky_apc_test.py   # full SXQ must sticky-retry APC inquiry/intro
+run usb-live-update python3 -B tests/host/usb_live_update_test.py   # legacy update keys cannot interrupt live notes/transport
+run live-a-mix-report python3 -B tests/host/live_a_mix_report_test.py   # measurement fixture/provenance contracts, no firmware render
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
 run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
 run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
@@ -463,6 +465,7 @@ run adaptive-break-controls sh tests/host/run_adaptive_break_controls.sh
 run adaptive-break-storage sh tests/host/run_adaptive_break_storage.sh
 run adaptive-break-midi-pair python3 tests/host/run_adaptive_break_midi_pair.py
 run break-performance sh tests/host/run_break_performance.sh
+run engine-brk-mute python3 -B tests/host/engine_brk_mute_test.py   # real BREAK gate, immediate mute and abrupt-cut control
 run brk-loops-seamless python3 -B tests/host/engine_brk_loops_seamless_gate_test.py   # no brk_hold mute; engine_brk_loops flushes deferred bank publish (#354)
 run brk-outline sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -o $OUT/brk_outline_test tests/host/brk_outline_test.c && $OUT/brk_outline_test"   # abs(-32768) outline peaks must not wrap to blank
 run brk-outline-gate python3 -B tests/host/engine_brk_outline_gate_test.py   # engine_brk_outline stores through brk_outline_peak_u8 clamp
