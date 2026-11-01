@@ -13,7 +13,7 @@
 #define RANDOM_SWING_ODD  0x80u
 #define BASS_SLIDE_OVERLAP_Q8 (FS / 50u * 256u) /* 20 ms after the next note-on */
 
-static const uint8_t TICKS_PER_STEP[NRATES] = {6, 4, 3, 8};     /* 24 ppqn: 1/16, 1/16T, 1/32, 1/8T */
+static const uint8_t TICKS_PER_STEP[NRATES] = {6, 4, 3, 8, 12, 24}; /* 24 ppqn: 1/16, 1/16T, 1/32, 1/8T, 1/8, 1/4 */
 /* One GM note map for seq MIDI out and engine MIDI in (was a second copy in engine.c). */
 const uint8_t GM_DRUM[NKIT][NDRUM] = {
     {36, 38, 41, 45, 50, 37, 39, 42, 46, 49, 51},   /* 909: BD SD LT MT HT RS CP CH OH CR RD */
@@ -55,7 +55,7 @@ uint32_t seq_step_q8(const seq_t *s, int rate)
     if (bpm > 300.0f)
         bpm = 300.0f;
     q = (float)FS * 60.0f / bpm;                    /* samples per quarter */
-    return (uint32_t)(q * 256.0f * (float)TICKS_PER_STEP[rate & 3] / 24.0f);
+    return (uint32_t)(q * 256.0f * (float)TICKS_PER_STEP[(unsigned)rate < NRATES ? (unsigned)rate : RATE_16] / 24.0f);
 }
 
 __attribute__((noinline)) static const dpart_t *dpart(const seq_t *s, int k) { return &s->pat[s->ppat[k]].drum[k]; }
@@ -72,7 +72,8 @@ int seq_part_len(const seq_t *s, int t)
 /* noinline: rate lookup shared by swing/advance/fire (else -O2 triples the ternary). */
 __attribute__((noinline)) static int part_rate(const seq_t *s, int t)
 {
-    return (is_drum(t) ? dpart(s, t)->rate : t == TRK_BRK ? RATE_16 : bpart(s, t - TRK_BASS0)->rate) & 3;
+    unsigned rate = is_drum(t) ? dpart(s, t)->rate : t == TRK_BRK ? RATE_16 : bpart(s, t - TRK_BASS0)->rate;
+    return rate < NRATES ? (int)rate : RATE_16;
 }
 
 /* swing offset of a step, Q8: odd 16ths / 32nds come late; triplets are never swung.
