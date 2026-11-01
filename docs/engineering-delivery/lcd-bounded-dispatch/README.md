@@ -15,7 +15,7 @@ The previous native evidence records a pool of 335,736 / 344,064 bytes, with jus
 
 ## Optional hardware trace (disabled by default)
 
-Build a development, non-versioned image using `X0X_LCD_TRACE=1 BOARD=smk37 MODEL=elite ./build.sh` (or `MODEL=pro`). With the flag off, all trace code, counters, and its PERF presentation compile out. When enabled, the second PERF band displays KEY, MIDI, LCD DMA, FRAME interval, TIMER5 and AUDIO callback timings as **P50/P95/worst microseconds**, sampled over the latest 64 measurements, plus LCD pixel bytes per last UI frame. KEY arrival is the TIMER5-observed physical key change; MIDI arrival is the TIMER5-observed ring write counter change. Readouts are approximate under simultaneous events and have diagnostic-mode overhead.
+Build a development, non-versioned image using `X0X_LCD_TRACE=1 BOARD=smk37 MODEL=elite ./build.sh` (or `MODEL=pro`). With the flag off, all trace code, counters, and its PERF presentation compile out. When enabled, the second PERF band displays KEY, MIDI, LCD DMA, FRAME interval, TIMER5 and AUDIO callback timings as **P50/P95/worst microseconds**, sampled over the latest 32 measurements, plus LCD pixel bytes per last UI frame. KEY arrival is the TIMER5-observed physical key change; MIDI arrival is the TIMER5-observed ring write counter change. Readouts are approximate under simultaneous events and have diagnostic-mode overhead.
 
 Do not use these development images for publishing, install or performance qualification. No device was flashed in this task.
 
@@ -47,3 +47,7 @@ The standalone `lcd_bounded_scenarios_test.c` uses the exact old row/column hash
 | Idle: no changed pixels | 0 | 0 | 0 | 0 | 0 | 0 |
 
 True foreground key/MIDI stall for each scenario on `0.0.24.1` versus the candidate remains **NOT_RUN**. Extra per-operation LCD command overhead and input work must be captured on target before claiming the <=2 ms dispatch goal.
+
+### Trace allocation gate
+
+A first opt-in target build failed: 64 historical values per telemetry series allocated 1,584 bytes to the already-tight pool, leaving only 6,744 bytes and failing the mandatory 8,192-byte headroom test. Reduced the opt-in history to **32 x uint32_t values per metric** and moved its 816-byte allocation into `.bss`; the normal production build has `X0X_LCD_TRACE=0` and allocates neither. This is an intentional diagnostic-only change, not an audio or control change. Full SDK re-verification must still confirm the trace-on image fits.

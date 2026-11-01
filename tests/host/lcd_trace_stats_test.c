@@ -10,9 +10,10 @@ static uint32_t fm1_ticks(void) { return tick; }
 int main(void)
 {
     for(uint32_t i=0;i<64;i++)lcd_trace_record(LCD_T_AUDIO,i);
-    assert(lcd_trace_percentile(LCD_T_AUDIO,50)==31u);
-    assert(lcd_trace_percentile(LCD_T_AUDIO,95)==60u);
+    assert(lcd_trace_percentile(LCD_T_AUDIO,50)==47u);
+    assert(lcd_trace_percentile(LCD_T_AUDIO,95)==62u);
     assert(lcd_trace_hist[LCD_T_AUDIO].worst==63u);
+    assert(lcd_trace_hist[LCD_T_AUDIO].total==64u);  /* ring wraps, preserves the latest 32 */
     tick=24u*10u;
     lcd_trace_input_tick(1, 2u, 4u);
     tick=24u*12u;

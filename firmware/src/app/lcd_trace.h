@@ -7,17 +7,16 @@
 
 /* Opt-in bench only: X0X_LCD_TRACE=1. All symbols disappear when disabled. */
 #if X0X_LCD_TRACE
-#define LCD_TRACE_SAMPLES 64u
+#define LCD_TRACE_SAMPLES 32u
 enum { LCD_T_KEY, LCD_T_MIDI, LCD_T_DMA, LCD_T_FRAME, LCD_T_TIMER5, LCD_T_AUDIO, LCD_T_COUNT };
 typedef struct {
     volatile uint32_t samples[LCD_TRACE_SAMPLES];
     volatile uint32_t total, worst;
 } lcd_trace_hist_t;
-#if BOARD_SMK37
-static lcd_trace_hist_t lcd_trace_hist[LCD_T_COUNT] SMK_BIG;
-#else
+/* The opt-in ring needs 816 bytes of .bss (6 x (32 samples + counters)).
+ * Do not allocate it from .pool: the SMK production pool has only 136 B above
+ * the mandatory 8,192-B minimum. 32 samples keep the trace build linkable. */
 static lcd_trace_hist_t lcd_trace_hist[LCD_T_COUNT];
-#endif
 static volatile uint32_t lcd_trace_key_at, lcd_trace_midi_at;
 static volatile uint8_t lcd_trace_key_pending, lcd_trace_midi_pending;
 static volatile uint64_t lcd_trace_seen_keys;
@@ -86,7 +85,7 @@ static void lcd_trace_frame(void)
         lcd_trace_max_frame_bytes = lcd_trace_frame_bytes;
     lcd_trace_frame_bytes = 0u;
 }
-/* Exact nearest-rank P50/P95 of the last 64 completed samples, in microseconds. */
+/* Exact nearest-rank P50/P95 of the last 32 completed samples, in microseconds. */
 static uint32_t lcd_trace_percentile(unsigned kind, unsigned percent)
 {
     const lcd_trace_hist_t *h = &lcd_trace_hist[kind];
