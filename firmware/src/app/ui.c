@@ -4514,12 +4514,16 @@ static void cv_commit_full_with_tiles(int region, uint32_t x, uint32_t y,
  * pay only the same single whole-band hash as 0.0.24.3. */
 static void cv_commit_header(void)
 {
-    uint32_t h = cv_hash();
-    if (blit_hash[0] && h == header_full_hash) return;
-    if (!blit_hash[0] || !cv_tile_valid[0])
+    if (!blit_hash[0] || !cv_tile_valid[0]) {
+        /* Cold full-band transfer already computes all tile hashes. Avoid
+         * hashing the full canvas twice; learn its full hash next frame. */
         cv_commit_full_with_tiles(0, 0, 0, HDR_H, header_tileh);
-    else
-        cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
+        header_full_hash = 0;
+        return;
+    }
+    uint32_t h = cv_hash();
+    if (h == header_full_hash) return;
+    cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
     header_full_hash = h;
 }
 
@@ -4527,12 +4531,16 @@ static void cv_commit_header(void)
  * full hash avoids repeated descriptor-band work in a stable frame. */
 static void cv_commit_popup_knobs(void)
 {
-    uint32_t h = cv_hash();
-    if (blit_hash[3] && h == popup_knob_full_hash) return;
-    if (!blit_hash[3] || !cv_tile_valid[3])
+    if (!blit_hash[3] || !cv_tile_valid[3]) {
+        /* First popup redraw uses the established tile hashes for the whole
+         * strip. Defer its duplicate full-canvas hash until the next frame. */
         cv_commit_full_with_tiles(3, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
-    else
-        cv_commit_knobs(3);
+        popup_knob_full_hash = 0;
+        return;
+    }
+    uint32_t h = cv_hash();
+    if (h == popup_knob_full_hash) return;
+    cv_commit_knobs(3);
     popup_knob_full_hash = h;
 }
 
