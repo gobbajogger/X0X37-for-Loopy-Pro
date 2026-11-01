@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "entry": "0.0.24.1",
+  "firmware_version_in_images": "0.0.24",
+  "source_commit": "3d8131f744b9c740ffa19de5518d1759e6b52142",
+  "source_tree": "85030022e17d816ea18219523321375975b92640",
+  "evidence_commit": "c20943a75d9e680a64e0384458245db4d7999e05",
+  "label": "DEV / HARDWARE TEST — DEVICE NOT TESTED",
+  "owner_acceptance": "2026-11-01: Accepted 0.0.24.1; 33 known failures and 2 not-run tests unchanged from published 0.0.24",
+  "status": "owner-accepted-nightly-dev; hardware-untested",
+  "preserves_previous_entry": "artifacts/nightly/dev-20261101-d8086cc0/manifest.json",
+  "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+  "controller_size": 61552,
+  "controller_crc32": "564a8f55",
+  "package_checks": {
+    "native_elite": "PASS",
+    "native_pro": "PASS",
+    "bundled_controller": "PASS",
+    "nightly_package_check": "PASS",
+    "strict_model": "PASS",
+    "pool_headroom_bytes": {
+      "elite": 8328,
+      "pro": 8328
+    },
+    "host_suite_equal_to_previous": true,
+    "known_host_failures": 33,
+    "known_host_not_run": 2
+  },
+  "packages": {
+    "elite": {
+      "sha256": "13231af941bfbbad7a7669379f9a34388139ec593cd97848bf36dcaf4ed267db",
+      "size": 651570,
+      "crc32": "2016649C",
+      "file": "13231af941bfbbad7a7669379f9a34388139ec593cd97848bf36dcaf4ed267db/x0x37-elite-dev.fwsc",
+      "product": "SMK-37 Elite_900",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984"
+    },
+    "pro": {
+      "sha256": "d98a634542cefe483793f677dcbac07a223b47adb6747c8dd3ddf25dc4190ac2",
+      "size": 651566,
+      "crc32": "F26AF916",
+      "file": "d98a634542cefe483793f677dcbac07a223b47adb6747c8dd3ddf25dc4190ac2/x0x37-pro-dev.fwsc",
+      "product": "SMK-37 Pro_900",
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984"
+    }
+  }
+}
