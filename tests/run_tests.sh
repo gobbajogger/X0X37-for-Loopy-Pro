@@ -340,6 +340,9 @@ run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/
 run project-protocol sh tests/host/run_project_protocol.sh
 run project-save-preflight sh tests/host/run_project_save_preflight.sh   # BF-021 memory-full + FNV32 sound collision
 run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
+run editor-read-area python3 -B tests/host/editor_read_area_test.py
+run sample-header-alignment python3 -B tests/host/sample_header_alignment_test.py
+run editor-diagnostic-count python3 -B tests/host/editor_diagnostic_count_test.py
 run storage-scratch sh tests/host/run_storage_scratch.sh
 run project-stage sh tests/host/run_project_stage.sh
 if [ "$PIL_SKIP" = 1 ]; then not_run project-runtime Pillow; else run project-runtime sh tests/host/project_runtime_test.sh; fi

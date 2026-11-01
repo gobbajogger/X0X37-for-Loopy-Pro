@@ -21,7 +21,9 @@ int miami_decimator_seed(miami_decimator_component_t *s, uint32_t phase,
 {
     if (!s || phase > 65535 || step > 65535 || left < -32767 || left > 32767 ||
         right < -32767 || right > 32767) return 0;
-    miami_decimator_component_t next = {0};
+    miami_decimator_component_t next = {
+        .phase = 0, .step = 0, .pending_step = 0, .held_left = 0, .held_right = 0, .pending = 0
+    };
     next.phase = (uint16_t)phase;
     next.step = next.pending_step = (uint16_t)step;
     next.held_left = (int16_t)left;
