@@ -31,6 +31,7 @@
 #include "fm1_perf.h"
 
 #include "libc.c"
+#include "app/lcd_trace.h"        /* opt-in hardware timing; off in production */
 #include "lcd.c"
 #include "gfx.c"
 

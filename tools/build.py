@@ -414,7 +414,7 @@ def build_app():
         flags.append(usb_name)  # app only: loader, VID/PID and package identity unchanged
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
-    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE", "X0X_WOBBLE"):
+    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL", "X0X_DEV_WOBBLE", "X0X_WOBBLE", "X0X_LCD_TRACE"):
         v = os.environ.get(flag)    # unset: the default in firmware headers / below
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
