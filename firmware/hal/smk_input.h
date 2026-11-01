@@ -158,7 +158,7 @@ static volatile struct {
     uint32_t frames;
 } fm1_in;
 
-/* key events beyond the FM-1's 27 (keybed keys 0..4 and 32..36): key << 8 | velocity (0 = release) */
+/* Ordered physical keybed edges (all 37 keys), independent of pad-note aliases. */
 #define SMK_EXTQ 32u
 static volatile uint32_t smk_extq[SMK_EXTQ][2]; /* generation, physical/velocity/pitch */
 static volatile uint8_t smk_extq_w, smk_extq_r, smk_extq_overflow, smk_ext_enabled;
@@ -338,9 +338,10 @@ static void smk__key_event(uint32_t k, uint32_t vel)     /* vel 0 = release */
             fm1_in.knotes &= ~bit;
         }
         fm1_in.notes = fm1_in.knotes | fm1_in.pnotes;
-    } else {
-        smk__extq(k, vel);
     }
+    /* Central bitmaps alone lose a release/repress between UI scans. Keep
+     * both real edges; the live registry deduplicates its bitmap dispatch. */
+    smk__extq(k, vel);
     if (vel)
         fm1_in.keys |= (uint64_t)1u << k;
     else

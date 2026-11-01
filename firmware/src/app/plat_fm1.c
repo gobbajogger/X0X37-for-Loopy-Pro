@@ -72,7 +72,9 @@ int plat_outer_keys(plat_outer_event_t *events, uint64_t *keys, int *overflow,
     uint32_t flags = irq_save();
     *keys = fm1_in.keys;
     *overflow = smk_extq_overflow;
-    if (publish || *overflow)
+    /* Drain and publish under this same IRQ guard. A separate pre-drain
+     * cannot retain releases arriving just before the new admission epoch. */
+    if (*overflow)
         smk_extq_r = smk_extq_w;
     else while (smk_extq_r != smk_extq_w && (unsigned)n < SMK_EXTQ - 1u) {
         events[n].generation = smk_extq[smk_extq_r][0];

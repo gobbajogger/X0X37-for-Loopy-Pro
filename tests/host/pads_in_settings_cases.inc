@@ -33,6 +33,36 @@ static void same_picture(int cx, const char *page)
 }
 static void tap_pad(int w) { key(WHITE_KEY[w], 1); tick(15); key(WHITE_KEY[w], 0); tick(15); }
 
+static void para_shot(const char *name)
+{
+    const char *dir=getenv("X0X_PADS_SHOTS");char path[1024];
+    if(!dir)return;
+    snprintf(path,sizeof path,"%s/%s.png",dir,name);png_write(path);
+}
+/* PARA still displays the drum step pattern on the physical pads. Editing
+ * those pads must target that kit/voice/page, not audition a hidden action. */
+static void drum_para(int cx)
+{
+    for(int kit=PART_909;kit<=PART_808;kit++) {
+        ui.part=(uint8_t)kit;set_view(V_PART);build_pages();close_all();
+        same_picture(cx,kit==PART_909?"909 PARA":"808 PARA");
+        for(int w=0;w<16;w++) {
+            int st=ui.spage*16+w,voice=ui.sel[kit];
+            dpart_t *d=&pat_of(kit)->drum[kit];
+            int before=sm_get(d->hit[voice],st);
+            uint32_t shown=drum_step_lights(kit);
+            T(((shown>>WHITE_KEY[w])&1u)==(unsigned)before,"PARA pad %d shows its step",w+1);
+            if(kit==PART_909 && cx==CX_NONE && w==0)para_shot("drum-para-before-step");
+            open_cx(cx);tap_pad(w);leave_cx(cx);
+            if(kit==PART_909 && cx==CX_NONE && w==0) {
+                para_shot("drum-para-after-step");
+                printf("PARA interaction kit=%d voice=%d step=%d hit=%d->%d LEDs=%08x\n",kit,voice,st,before,sm_get(d->hit[voice],st),lit_keys);
+            }
+            T(sm_get(d->hit[voice],st)!=before,"kit %d PARA pad %d edits its displayed step with %s",kit,w+1,CXN[cx]);
+            close_all();
+        }
+    }
+}
 static void drum_seq(int cx)
 {
     ui.part = PART_909; set_view(V_SEQ); build_pages(); close_all();
@@ -101,11 +131,89 @@ static void brk_seq(int cx)
         close_all();
     }
 }
+/* The same displayed bit must address its original kit, voice and step page.
+ * Cover all four pages on PARA/GLOBAL/GEN, alternating first/last voice and
+ * closed/list/HELP contexts; compare whole kit structs for collateral edits. */
+static void drum_visible_identity(void)
+{
+    static const int view[] = {V_PART,V_GLO,V_GEN};
+    for(int kit=PART_909;kit<=PART_808;kit++)
+    for(unsigned vi=0;vi<sizeof view/sizeof view[0];vi++)
+    for(int page=0;page<NSTEPS/16;page++) {
+        int voice=(page&1)?NDRUM-1:0,cx=page%CX_N;
+        ui.part=(uint8_t)kit;set_view(view[vi]);
+        pat_of(kit)->drum[kit].len=NSTEPS;
+        ui.sel[kit]=(uint8_t)voice;ui.spage=(uint8_t)page;build_pages();close_all();
+        same_picture(cx,"drum displayed-step identity");
+        for(int w=0;w<16;w++) {
+            dpart_t before[2],expected;
+            for(int k=PART_909;k<=PART_808;k++)before[k]=pat_of(k)->drum[k];
+            int step=page*16+w,hit=sm_get(before[kit].hit[voice],step);
+            T(((lit_keys>>WHITE_KEY[w])&1u)==(unsigned)hit,
+              "kit %d view %d voice %d page %d pad %d actual LED matches displayed step",kit,view[vi],voice,page,w+1);
+            open_cx(cx);tap_pad(w);leave_cx(cx);
+            expected=before[kit];sm_flip(expected.hit[voice],step);
+            T(!memcmp(&expected,&pat_of(kit)->drum[kit],sizeof expected),
+              "kit %d view %d voice %d page %d pad %d edits only displayed step",kit,view[vi],voice,page,w+1);
+            int other=1-kit;
+            T(!memcmp(&before[other],&pat_of(other)->drum[other],sizeof before[other]),
+              "kit %d pad %d leaves other kit unchanged",kit,w+1);
+            close_all();
+        }
+    }
+    ui.spage=0;ui.sel[PART_909]=ui.sel[PART_808]=0;
+}
+/* Higher-priority presentation/gesture owners and no-step views keep their
+ * existing meaning; showing steps behind a modal does not grant new presses. */
+static void drum_capture_negatives(void)
+{
+    for(int kit=PART_909;kit<=PART_808;kit++)
+    for(int context=0;context<9;context++) {
+        ui.part=(uint8_t)kit;set_view(V_PART);ui.spage=0;build_pages();close_all();
+        switch(context) {
+        case 0: ui.overlay=O_ASK;break;
+        case 1: set_view(V_PERF);break;
+        case 2: test_clip_mode=1;break;
+        case 3: set_view(V_HOME);break;
+        case 4: set_view(V_SONG);break;
+        case 5: set_view(V_MIX);*page_of(V_MIX)=0;build_pages();break;
+        case 6: set_view(V_FX);break;
+        case 7: btn(B_HOME,1);break;
+        case 8: btn(B_SAVE,1);break;
+        }
+        for(int w=0;w<16;w++) {
+            /* Force SAVE destinations into confirmation rather than executing
+             * a project copy; this case verifies the gesture takes the press. */
+            if(context==8 && !all_on(ui.pbank*16+w)) {
+                sm_set(proj.pat[ui.pbank*16+w].drum[kit].hit[0],0);
+                ui.overlay=O_NONE;
+            }
+            dpart_t *target=&pat_of(kit)->drum[kit],before=*target;
+            tap_pad(w);
+            T(!memcmp(&before,target,sizeof before),
+              "kit %d context %d pad %d must not edit a drum step",kit,context,w+1);
+        }
+        if(context==7)btn(B_HOME,0);
+        if(context==8)btn(B_SAVE,0);
+        test_clip_mode=0;close_all();
+    }
+    for(int kit=PART_909;kit<=PART_808;kit++) {
+        ui.part=(uint8_t)kit;set_view(V_PART);ui.spage=0;build_pages();close_all();
+        dpart_t *d=&pat_of(kit)->drum[kit];sm_set(d->hit[ui.sel[kit]],0);
+        key(WHITE_KEY[0],1);tick(STEP_TAP_MS+20);
+        T(ui.hold_step==0 && held_drum_step()==0,"PARA held step retains its p-lock target");
+        key(WHITE_KEY[0],0);tick(20);
+        T(sm_get(d->hit[ui.sel[kit]],0) && ui.hold_step<0,"PARA long hold releases without deleting the hit");
+    }
+    ui.spage=0;
+}
+
 int main(void)
 {
     boot(); tick(300);
     seq_stop(&seq); tick(50);
     for (int cx = CX_NONE; cx < CX_N; cx++) {
+        drum_para(cx);
         drum_seq(cx);
         drum_mix(cx);
         brk_seq(cx);
@@ -115,7 +223,9 @@ int main(void)
             bass_play(cx, bank, V_SEQ, 1);
         }
     }
-    printf("%s %u checks: pads x {909 SEQ, drum MIX, BREAK, Chicago/Miami SEQ/EDIT/FREE PLAY} x {closed, settings list, HELP}\n",
+    drum_visible_identity();
+    drum_capture_negatives();
+    printf("%s %u checks: pads x {909/808 PARA/GLOBAL/GEN, SEQ, drum MIX, BREAK, Chicago/Miami SEQ/EDIT/FREE PLAY} x {closed, settings list, HELP}\n",
            fails ? "FAIL" : "PASS", checks);
     return fails != 0;
 }
