@@ -1718,11 +1718,6 @@ static int smc_fx_try(uint8_t note, int mmc)
     if (bus < 0) return 0;
     button = smcfx_button(note);
     uint8_t bit = (uint8_t)(1u << bus);
-    /* HOME+strip edits this peer's assignment, never another SMC's map. */
-    if (!mmc && smc_home_held()) {
-        uint8_t next = smcfx_strip_cycle(&smc.fx_strip, smc.fx_page, bus, button);
-        if (button == SMCFX_SELECT) smc.fx_effect[bus] = next;
-    }
     if (button == SMCFX_SELECT && !mmc) smc.fx_owned |= bit;
     if (button == SMCFX_SELECT && smcfx_is_main(bus) && !mmc) {
         /* FX starts now; 180 ms only distinguishes the old navigation tap. */
