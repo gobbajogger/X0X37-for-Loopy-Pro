@@ -34,8 +34,7 @@ static void x0x_lcd_tile_pack(uint16_t *out, const uint16_t *px, uint32_t stride
 {
     for (uint32_t row = 0; row < h; ++row) {
         const uint16_t *src = px + (y + row) * stride + x;
-        for (uint32_t col = 0; col < w; ++col)
-            out[row * w + col] = src[col];
+        __builtin_memcpy(out + row * w, src, w * sizeof(*src));
     }
 }
 
