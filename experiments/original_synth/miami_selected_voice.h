@@ -84,6 +84,10 @@ typedef struct {
  uint32_t pending_tail_duration;
  int32_t activation[4];
  uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart;
+ /* Transient coefficient memoization: absent from snapshot wire. */
+ original_mg_tempo_cache mg_cache[2];
+ uint32_t seen_controls_revision;
+ uint8_t seen_controls_revision_valid;
 } original_miami_selected_voice;
 typedef struct {
  unsigned note_key,velocity,last_note;
@@ -177,4 +181,6 @@ int original_miami_selected_voice_render_prevalidated(original_miami_selected_vo
  * controller reset and master preservation remain with their matching owner.
  * Constructor phase zeroing is separate; call init for a new value object. */
 int original_miami_selected_voice_core_reset(original_miami_selected_voice *,const original_miami_voice_tables *,unsigned voice_index);
+/* Call on note-on, program replacement and decoded snapshot adoption. */
+void original_miami_selected_voice_invalidate_caches(original_miami_selected_voice *);
 #endif

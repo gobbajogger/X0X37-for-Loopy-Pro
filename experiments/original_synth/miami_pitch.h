@@ -2,7 +2,7 @@
 #ifndef ORIGINAL_MIAMI_PITCH_H
 #define ORIGINAL_MIAMI_PITCH_H
 #include "oscillator_motion.h"
-typedef struct {original_oscillators oscillator;float current[4],target[4];} original_miami_pitch;
+typedef struct {original_oscillators oscillator;float current[4],target[4];original_glide_cache glide_cache;} original_miami_pitch;
 typedef struct {
  float master_tune,unison_coordinate,unison_detune,mod_master_pitch,bend_range,bend;
  int transpose,semitone[4];
