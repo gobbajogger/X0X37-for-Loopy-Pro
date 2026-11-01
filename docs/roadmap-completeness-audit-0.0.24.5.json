@@ -1,9 +1,9 @@
 {
   "schema": "dnbox-api-source-audit-v1",
   "not_authorizing": true,
-  "notice": "Independent GitHub API audit; NOT a passing canonical Python completeness gate report; requires exact tree checkout and full suite.",
-  "candidate_commit": "7dcf1e03bf55b6864f551ddd835ef788f5d2b3b8",
-  "candidate_tree": "5b3c4c2e3f650405b3a8e20e8e49b5b4745bbe93",
+  "notice": "Independent GitHub API audit pinned to a candidate source tree; NOT a passing canonical Python completeness gate. Source proofs #1/#23 reverified for this exact tree. Publisher must rerun on final source and full ROADMAP.",
+  "candidate_commit": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+  "candidate_tree": "f952ab4455723e4a1a68fdb3a8eea22d2da59710",
   "roadmap_ref": "dd97e2204e9878a73243753a4386a0e065aecbc6",
   "roadmap_blob": "c324dcd639f839e0c9f5f002af6f5dc2b1110d65",
   "source_evidence": "docs/roadmap-source-evidence.json",
