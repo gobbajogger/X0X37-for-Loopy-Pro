@@ -280,9 +280,18 @@ static void test_actions_and_reset(void)
     }
     setup(V_PART, PART_303A); fader(0, 0); CHECK(smc_ui_active());
     ui_init(); CHECK(!smc_ui_active());
-    fader(0, 1); CHECK(smc_ui_active());
-    input(); /* The popup revokes the keyboard's live-key owner. */
+    /* ui_init returns to the 909 step grid. Restore a synth keybed owner
+     * before testing the popup's asynchronous live-note cancellation. */
+    ui.part = PART_303A; set_view(V_PART); build_pages();
+    audio_block(); input();
+    CHECK(ui_live_key_owner() == 1 && !engine_project_notes());
+    held_keys = 1u; input(); /* Press a real keyboard note, not an empty keybed. */
     CHECK(engine_project_notes());
+    fader(0, 1); CHECK(smc_ui_active());
+    input(); /* The popup queues cancellation of that held synth note. */
+    CHECK(engine_project_notes());
+    held_keys = 0; input(); /* The physical key no longer blocks the transfer. */
+    CHECK(engine_project_notes()); /* Only the pending audio cancellation can. */
     CHECK(ui_project_begin() == UI_PROJECT_BUSY); CHECK(!ui_project_busy());
     audio_block(); CHECK(!engine_project_notes());
     CHECK(ui_project_begin() == 0); CHECK(ui_project_busy()); CHECK(!smc_ui_active());
