@@ -32,22 +32,22 @@ static void check_selected_mg(void){
  static const float tempos[]={20,20,37,64,96,120,120.125f,240,400};
  static const uint32_t durations[]={1,2,32,63,64};
  original_miami_voice_mg got[2]={{0}},want[2]={{0}};
- original_mg_tempo_cache cache[2]={{0}};
+ original_miami_coefficient_cache cache={0};
  for(unsigned i=0;i<2;i++)got[i].phase=want[i].phase=-1.0f;
  for(unsigned k=0;k<50000;k++){
   unsigned i=(k/3)%2;
   float b=bases[(k/37)%10],times=(float)(1+(k/113)%16);
   float bpm=tempos[(k/197)%9];uint32_t D=durations[(k/47)%5];
   reference_mg(&want[i],b,times,bpm,D);
-  mg_advance(&got[i],&cache[i],b,times,bpm,D);
+  mg_advance(&got[i],&cache,i,b,times,bpm,D);
   equal(got[i].phase,want[i].phase,"selected MG phase",k);
   CHECK(got[i].wrapped==want[i].wrapped);
-  CHECK(cache[i].valid&&cache[i].base_bits==bits_of(b));
-  CHECK(cache[i].times_bits==bits_of(times)&&cache[i].bpm_bits==bits_of(bpm));
-  CHECK(cache[i].duration==D);
-  equal(cache[i].denominator,(44100.0f*b)*times,"MG denominator",k);
+  CHECK((cache.mg_valid_mask&(1u<<i))&&cache.base_bits[i]==bits_of(b));
+  CHECK(cache.times_bits[i]==bits_of(times)&&cache.bpm_bits==bits_of(bpm));
+  CHECK(cache.duration==D);
+  equal(cache.denominator[i],(44100.0f*b)*times,"MG denominator",k);
  }
- CHECK(cache[0].valid&&cache[1].valid);
+ CHECK(cache.mg_valid_mask);
 }
 static void check_full_mg(void){
  static const float tempos[]={20,45,90,125.5f,180,400};
@@ -78,7 +78,7 @@ static void check_glide(void){
   CHECK(original_glide(want,target,port,mod,fs,D));
   CHECK(original_glide_cached(&cache,got,target,port,mod,fs,D));
   for(unsigned j=0;j<4;j++)equal(got[j],want[j],"glide",k);
-  CHECK(cache.valid&&cache.port_bits==bits_of(port)&&cache.mod_bits==bits_of(mod));
+  CHECK(cache.duration!=0&&cache.port_bits==bits_of(port)&&cache.mod_bits==bits_of(mod));
   CHECK(cache.fs_bits==bits_of(fs)&&cache.duration==D);
  }
  original_glide_cache saved=cache;
@@ -91,6 +91,7 @@ static void check_glide(void){
 static void check_pitch(void){
  original_miami_pitch state;
  original_miami_pitch_controls c={0};
+ original_glide_cache cache={0};
  int32_t table[128];
  uint32_t increments[4];
  for(unsigned i=0;i<128;i++)table[i]=(int32_t)(20000+1000*i);
@@ -100,20 +101,24 @@ static void check_pitch(void){
   c.portamento=(k/17)%2?.4f:.6f;c.mod_portamento=(k/23)%2?.15f:-.2f;
   for(unsigned i=0;i<4;i++)state.target[i]=(float)((k/3+i*19)%128);
   CHECK(original_glide(reference,state.target,c.portamento,c.mod_portamento,44100.0f,64));
-  CHECK(original_miami_pitch_prepare(&state,&c,table,44100.0f,64,increments));
+  CHECK(original_miami_pitch_prepare_cached(&state,&c,table,44100.0f,64,increments,&cache));
   for(unsigned i=0;i<4;i++)equal(state.current[i],reference[i],"Miami pitch",k);
  }
- CHECK(state.glide_cache.valid);
+ CHECK(cache.duration!=0);
  CHECK(original_miami_pitch_note(&state,70,60,15,0));
- CHECK(!state.glide_cache.valid);
+ /* The cache belongs to the part owner, not the pitch; the owner
+  * observes cache_witness=0 on the enclosing voice and clears it. */
+ CHECK(cache.duration!=0);
 }
 static void check_invalidation(void){
  original_miami_selected_voice s={0};
- s.mg_cache[0].valid=s.mg_cache[1].valid=s.pitch.glide_cache.valid=1;
- s.seen_controls_revision_valid=1;
+ s.cache_witness=1;
  original_miami_selected_voice_invalidate_caches(&s);
- CHECK(!s.mg_cache[0].valid&&!s.mg_cache[1].valid);
- CHECK(!s.pitch.glide_cache.valid&&!s.seen_controls_revision_valid);
+ CHECK(!s.cache_witness);
+ original_miami_coefficient_cache shared={0};
+ shared.mg_valid_mask=3;shared.glide.duration=63;
+ CHECK(shared.mg_valid_mask==3&&shared.glide.duration==63);
+ /* Decode leaves witness zero; the owner invalidates on next use. */
 }
 static void check_triangle(uint32_t triangle_bits){
  original_osc_controls c={0};

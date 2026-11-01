@@ -2,7 +2,7 @@
 #ifndef ORIGINAL_MIAMI_PITCH_H
 #define ORIGINAL_MIAMI_PITCH_H
 #include "oscillator_motion.h"
-typedef struct {original_oscillators oscillator;float current[4],target[4];original_glide_cache glide_cache;} original_miami_pitch;
+typedef struct {original_oscillators oscillator;float current[4],target[4];} original_miami_pitch;
 typedef struct {
  float master_tune,unison_coordinate,unison_detune,mod_master_pitch,bend_range,bend;
  int transpose,semitone[4];
@@ -20,4 +20,7 @@ int original_miami_pitch_note(original_miami_pitch *s,unsigned note,unsigned las
  * Output increments feed accepted prepared oscillator state, not active engine.
  * Complete controls are immutable during this call; output/state transactional. */
 int original_miami_pitch_prepare(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t duration,uint32_t out[4]);
+
+/* Per-owner coefficient cache for the checked Miami fast path. */
+int original_miami_pitch_prepare_cached(original_miami_pitch *s,const original_miami_pitch_controls *c,const int32_t table[128],float fs,uint32_t D,uint32_t out[4],original_glide_cache *cache);
 #endif

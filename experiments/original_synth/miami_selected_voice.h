@@ -68,6 +68,14 @@ typedef struct {
  uint32_t noise;
  uint8_t wrapped;
 } original_miami_voice_mg;
+/* One shared cache for both selected voices of a Miami part. The common
+ * BPM/duration key and per-MG validity mask avoid duplicate per-voice state.
+ * A zero glide duration means invalid; D is nonzero in every valid tick. */
+typedef struct {
+ uint32_t base_bits[2],times_bits[2],bpm_bits,duration,mg_valid_mask;
+ float denominator[2],delta[2];
+ original_glide_cache glide;
+} original_miami_coefficient_cache;
 typedef struct {
  original_miami_pitch pitch;
  original_voice_gain gain;
@@ -83,11 +91,8 @@ typedef struct {
  uint32_t counter,last_duration,control_updates,wave_preparations;
  uint32_t pending_tail_duration;
  int32_t activation[4];
- uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart;
- /* Transient coefficient memoization: absent from snapshot wire. */
- original_mg_tempo_cache mg_cache[2];
- uint32_t seen_controls_revision;
- uint8_t seen_controls_revision_valid;
+ uint8_t unison_flag,note_key,key_down,damper_deferred,active,ready,awaiting_restart,cache_witness;
+ /* cache_witness occupies the former padding byte and is not serialized. */
 } original_miami_selected_voice;
 typedef struct {
  unsigned note_key,velocity,last_note;
@@ -173,6 +178,7 @@ int original_miami_selected_voice_render_frame(original_miami_selected_voice *,c
  * downstream DSP checks. Event/note APIs remain checked. */
 int original_miami_selected_voice_block_valid(const original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm);
 int original_miami_selected_voice_control_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action);
+int original_miami_selected_voice_control_prevalidated_cached(original_miami_selected_voice *,const original_miami_voice_controls *,const original_miami_voice_tables *,float bpm,unsigned *action,original_miami_coefficient_cache *);
 int original_miami_selected_voice_render_prevalidated(original_miami_selected_voice *,const original_miami_voice_controls *,float *left,float *right);
 /* B0738 owned-state projection. Preserve oscillator phases and the separate
  * normalized velocity source (core42c8), while resetting current raw velocity

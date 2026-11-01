@@ -7,6 +7,15 @@ OUT=build/host/miami-coef-cache
 if [ "$#" -gt 0 ]; then OUT=$1; fi
 mkdir -p "$OUT"
 CC=${CC:-cc}
+case "$(uname -s)" in
+ Darwin) gc_sections="-Wl,-dead_strip" ;;
+ *) gc_sections="-Wl,--gc-sections" ;;
+esac
+"$CC" -std=c99 -O2 -Wall -Wextra -Werror -fno-fast-math \
+ -ffp-contract=off -I. -Iexperiments/original_synth \
+ -Iexperiments/wobble -Ifirmware/src/dsp \
+ tests/host/miami_coef_pool_test.c -o "$OUT/pool-size"
+"$OUT/pool-size"
 for opt in O2 Os; do
  for fma in hard soft; do
   opts=""
@@ -18,7 +27,7 @@ for opt in O2 Os; do
   "$CC" -std=c99 "-$opt" -Wall -Wextra -Werror \
     -Wno-unused-function -Wno-missing-braces \
     -fno-fast-math -ffp-contract=off -frounding-math \
-    -ffunction-sections -fdata-sections -Wl,--gc-sections \
+    -ffunction-sections -fdata-sections "$gc_sections" \
     -Iexperiments/original_synth -Iexperiments/wobble $opts \
     tests/host/miami_coef_cache_test.c \
     experiments/original_synth/oscillator_motion.c \
