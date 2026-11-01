@@ -104,7 +104,7 @@ Last update: 2026-10-19.
 
 ## Master tracker (status, evidence, next step)
 
-Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / verified and agreed by owner / approved, planned for 0.0.25 / approved, mandatory gate for 0.0.25.
+Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / verified and agreed by owner / approved, planned for 0.0.25 / approved, mandatory gate for 0.0.25 / open.
 
 ### Pre-publish checklist
 - [ ] 0.0.25 mandatory gate: every integration PR and every step reports actual measured free pool headroom for Elite AND Pro separately, each at least 8,192 B. If either measurement is missing, stale, NOT_RUN or below 8,192 B, the PR/step is BLOCKED.
@@ -117,7 +117,7 @@ Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status w
 - [ ] Owner approved all visual changes (real framebuffer PNGs).
 - [ ] Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
 
-Counts: done 6, in 0.0.24 112, in progress 15, missing 33 (including 2 approved mockups), waiting on owner 5, verified and agreed by owner 1 (R003), approved/planned for 0.0.25 5 (including 1 alias), approved mandatory 0.0.25 gate 1. Total 178.
+Counts: done 6, in 0.0.24 112, in progress 15, missing 33 (including 2 approved mockups), waiting on owner 5, verified and agreed by owner 1 (R003), approved/planned for 0.0.25 5 (including 1 alias), approved mandatory 0.0.25 gate 1, open 1 (QA1). Total 179.
 
 | Item | Source | Status | Evidence | Next step |
 |---|---|---|---|---|
@@ -293,6 +293,7 @@ Counts: done 6, in 0.0.24 112, in progress 15, missing 33 (including 2 approved 
 | M9 Approved 0.0.25 integration plan, 15:39 UTC+10 on 2026-11-01 | owner approval 2026-11-01 15:39 UTC+10 | approved, planned for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); approval includes the M10 per-model memory gate | Follow the approved 0.0.25 dependency order; one PR per canonical ROADMAP item, no additional work |
 | M10 Mandatory measured free pool headroom at least 8,192 B on both Elite and Pro at every PR and step | owner added gate 2026-11-01 15:39 UTC+10 | approved, mandatory gate for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); every PR/step must report measured Elite pool headroom (B) and measured Pro pool headroom (B), each >= 8,192 B | BLOCKED if any measurement missing, NOT_RUN, stale, or below 8,192 B; no assumed PASS or advancing without evidence |
 | M11 NIGHTLY publishing automatically follows a passing build; agents never install or flash; owner installs via nightly site | owner rule 2026-11-01 15:42 UTC+10 | approved, mandatory NIGHTLY workflow for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); once all relevant checks PASS, publish the passing build to NIGHTLY automatically with no additional owner approval; separate from production/main release | Gate publication on all required checks including M10; no agent hardware install or flash; owner performs any installation himself via nightly site |
+| QA1 Rate-pad composition host test fails on 0.0.24 base (`d8086cc09`); failure also observed in #813 QA, but is not caused by #813 | [#813 QA](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/813), owner QA report 2026-11-01 | open (pre-existing baseline test failure; not a #813 regression) | [PR #813](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/813); base `build/0.0.24` at `d8086cc09203945919c70d3c805f8ca3e6acbe5a` also fails rate-pad composition | Do not fix before the 2026-11-01 18:00 UTC+10 live show; triage afterward without blocking the show with a last-minute repair |
 | FX hold + < > remap per button | chat | in progress | #741 (SELECT only), #740 mockups; docs/FEATURE-REGISTRY.md 41.1–41.2 | Extend to REC/SOLO/MUTE; owner approval |
 | Instant unmute (muted bus keeps running) | chat | in 0.0.24 | #810 commit 94a7a6095; engine.c:1608 | Device listening check |
 | Strict installer model match | chat | done | #806 62cf11e98 (tools/fm1_install.py:285 same_model); nightly PR #114 merged 9bc0ac56 | Port nightly-main-strict.patch to nightly main |
