@@ -4417,6 +4417,9 @@ static void cv_commit(int region, uint32_t x, uint32_t y)
 #define MAIN_COLB (240 / 8)
 static uint32_t main_rowh[MAIN_ROWS], main_colh[MAIN_COLB];
 static uint32_t knob_rowh[KNOB_H], knob_colh[MAIN_COLB];
+/* The clock, cue and popup icons change only part of the header. Keep an
+ * independent dirty-rectangle history for its 20 rows (9600 full bytes). */
+static uint32_t header_rowh[HDR_H], header_colh[MAIN_COLB];
 /* rows: the strip's height; last_rowh/last_colh: its hashes as last sent */
 static void cv_commit_rows(int region, uint32_t x, uint32_t y, uint32_t rows, uint32_t *last_rowh, uint32_t *last_colh)
 {
@@ -4483,6 +4486,13 @@ static void cv_commit_rect(int region, uint32_t x, uint32_t y)
 static void cv_commit_knobs(int region)
 {
     cv_commit_rows(region, 0, KNOB_Y, KNOB_H, knob_rowh, knob_colh);
+}
+
+/* Keep the complete header pixels but send only changed rows and columns.
+ * Reuses the established pixel comparison without touching LCD dispatch. */
+static void cv_commit_header(void)
+{
+    cv_commit_rows(0, 0, 0, HDR_H, header_rowh, header_colh);
 }
 
 static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
@@ -4949,7 +4959,7 @@ static UI_DRAW void draw_header(void)
             const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
             text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
         }
-        cv_commit(0, 0, 0);
+        cv_commit_header();
         return;
     }
     if (!pickup || (int32_t)(ui.msg_until - plat_ms()) <= 0)
@@ -4985,7 +4995,7 @@ static UI_DRAW void draw_header(void)
         }
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
-        cv_commit(0,0,0);
+        cv_commit_header();
         return;
     }
     if (pickup) {                         /* fader pickup hint in the left chip; song/pattern and tempo stay visible */
@@ -5079,7 +5089,7 @@ static UI_DRAW void draw_header(void)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
         dot(237, 3, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
-    cv_commit(0, 0, 0);
+    cv_commit_header();
 }
 
 /* -------------------------------------------------------------- the views --- */

@@ -444,8 +444,11 @@ static smc_context_t smc_context(void)
 static struct {
     smc_context_t context;
     page_query_t query[2];
-    uint8_t valid, peer, revision, bass[2], count, next, overlay, help, clip;
-} smc_page_cache;
+    uint8_t valid, revision, bass[2], count, next, overlay, help, clip;
+} smc_page_caches[SMC_PEERS];
+/* Every mixer keeps its descriptor cache while the frame/LED loop visits
+ * the other peer. Do not share cached page ownership across mixers. */
+#define smc_page_cache smc_page_caches[smc_slot]
 
 static void smc_describe(page_query_t *out, const smc_context_t *context)
 {
@@ -456,14 +459,13 @@ static void smc_describe(page_query_t *out, const smc_context_t *context)
 static page_query_t *smc_query(const smc_context_t *context, int page)
 {
     uint8_t bass[2] = {engine_bass_bank(0), engine_bass_bank(1)};
-    if (!smc_page_cache.valid || smc_page_cache.peer != smc_slot ||
+    if (!smc_page_cache.valid ||
         smc_page_cache.revision != project_revision ||
         smc_page_cache.overlay != ui.overlay || smc_page_cache.help != ui.help ||
         smc_page_cache.clip != smk_clip_mode_on() ||
         memcmp(&smc_page_cache.context, context, sizeof *context) ||
         memcmp(smc_page_cache.bass, bass, sizeof bass)) {
         smc_page_cache.context = *context;
-        smc_page_cache.peer = smc_slot;
         smc_page_cache.revision = project_revision;
         smc_page_cache.overlay = ui.overlay;
         smc_page_cache.help = ui.help;
@@ -981,9 +983,9 @@ static const char *smc_button_caption(int note)
 }
 
 /* Keep routing captions authoritative; only their unambiguous pictures replace ink. */
-static int smc_button_symbol(int note)
+static int smc_button_symbol(int note, const char *s)
 {
-    const char *s=smc_button_caption(note);
+    /* Reuse the button caption already resolved for this grid cell. */
     if (!s[0] || s[0]=='-' || s[0]=='X') return UI_G_NONE;
     if (smc_fx_bus_now((uint8_t)note)>=0 && strcmp_s(s,"CYC")) return UI_G_NONE;
     if (!s[1]) return s[0]=='R'?UI_G_RECORD:s[0]=='M'?UI_G_MUTE:s[0]=='S'?UI_G_SOLO:UI_G_NONE;
@@ -1095,7 +1097,7 @@ static UI_DRAW void smc_ui_grid(void)
             const char *caption = smc_button_caption(note);
             if (caption[0] == 'X' || caption[0] == '-') c = C_DIM;
             cv_rect(x + 8, y, 22, 11, C_LINE);
-            int symbol=smc_button_symbol(note);
+            int symbol=smc_button_symbol(note,caption);
             if (symbol) {
                 ui_pictogram(x+14,y+1,symbol,1,c);
                 if (symbol==UI_G_RECORD || symbol==UI_G_MUTE || symbol==UI_G_SOLO) {
@@ -1195,7 +1197,7 @@ static void smc_ui_draw_peer(void)
         put_i(tag, smc_ui.strip+1);
         text_r(235,vc(&FONT_S,0,HDR_H),&FONT_S,tag,C_HI);
     }
-    cv_commit(0, 0, 0);
+    cv_commit_header();
     cv_begin(240, 2 * BAND_H, C_BLACK);
     cv_band(0, 2 * BAND_H);
     smc_ui_grid();
@@ -1273,7 +1275,7 @@ static void smc_ui_draw_peer(void)
         ui_pictogram(target_number?108:116,49,status_symbol,1,C_HI);
         if (target_number) {put_i(tag,target_number);cv_text(121,49,&FONT_XS,tag,C_HI);}
     }
-    cv_commit(3, 0, KNOB_Y);
+    cv_commit_knobs(3);
 }
 void smc_ui_draw(void)
 {
