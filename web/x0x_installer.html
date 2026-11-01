@@ -1373,7 +1373,9 @@ $("go").addEventListener("click", async () => {
 });
 function confirmNightlyModel(deviceModel, product) {
   const actual = String(deviceModel || "").replace(/^ota-/i, "");
-  if (!sameKeyboard(actual, product.split("_")[0]))
+  // Strict: the package model must equal the model the keyboard reports; FM-1 is never flashed.
+  const packageModel = product.split("_")[0];
+  if (actual.toLowerCase() !== packageModel.toLowerCase() || /^FM-1$/i.test(actual))
     throw Object.assign(new Error(t("model")), { code: "model" });
   return window.confirm(t("nightlymodel") + product + t("nightlymodelReported") + actual + t("nightlymodelEnd"));
 }
