@@ -1,0 +1,117 @@
+{
+  "X0X_DEV_PADCAL": 0,
+  "audio_identity": {
+    "files": 50,
+    "identical": true,
+    "scenarios": 17,
+    "status": "PASS"
+  },
+  "base_source_sha": "c20943a75d9e680a64e0384458245db4d7999e05",
+  "board": "smk37",
+  "change_reason": "The original plock repair runs only inside key_event() on changed physical key transitions (ui.c:4224-4228). The 20-pair renderer benchmark does not reproduce the earlier 0.375% slowdown.",
+  "change_required": false,
+  "firmware": {
+    "elite": {
+      "image_bytes": 511272,
+      "image_sha256": "f498952e1524fd506adc8698d943a799b65e73c093b5096557d22d8af1702c68",
+      "minimum_headroom_bytes": 8192,
+      "padcal": 0,
+      "pool_headroom_bytes": 8328,
+      "pool_total_bytes": 344064,
+      "pool_used_bytes": 335736,
+      "product": "SMK-37 Elite_900",
+      "sdk_version": "AC79NN_SDK_V1.2.1_2023-12-13",
+      "status": "PASS"
+    },
+    "pro": {
+      "image_bytes": 511256,
+      "image_sha256": "b1f97b9bae2aa58102dc92e231249bc8cbe5970a7a956240c05d40043a544488",
+      "minimum_headroom_bytes": 8192,
+      "padcal": 0,
+      "pool_headroom_bytes": 8328,
+      "pool_total_bytes": 344064,
+      "pool_used_bytes": 335736,
+      "product": "SMK-37 Pro_900",
+      "sdk_version": "AC79NN_SDK_V1.2.1_2023-12-13",
+      "status": "PASS"
+    }
+  },
+  "firmware_build_configuration": "development",
+  "fixed_source_sha": "f25347e587d847c3ed734264119281b7f25b8013",
+  "fresh_development_nightly_composition": {
+    "error": "NIGHTLY image contains DnBOX DEV",
+    "explanation": "A development build cannot be used as a release/NIGHTLY image.",
+    "status": "FAIL_EXPECTED"
+  },
+  "hardware_install": "NOT_RUN",
+  "host_suite": {
+    "base": {
+      "FAIL": 33,
+      "NOT_RUN": 0,
+      "PASS": 350
+    },
+    "changed_cases": {
+      "scenario-plock": {
+        "base": "FAIL",
+        "fix": "PASS"
+      }
+    },
+    "fixed": {
+      "FAIL": 32,
+      "NOT_RUN": 0,
+      "PASS": 352
+    },
+    "full_suite_zero_failure_gate": "FAIL_PREEXISTING_FAILURES",
+    "only_in_base": [],
+    "only_in_fix": [
+      "smk-build-package-elite"
+    ],
+    "scenario_plock": "PASS",
+    "status": "PASS_PARITY"
+  },
+  "perf": {
+    "base_median_ns_frame": 132.784326171875,
+    "bootstrap_95_percent_paired_median_delta_ns_frame": [
+      -0.6045898437499915,
+      1.7071289062499915
+    ],
+    "delta_percent": -0.33135705625788603,
+    "fixed_median_ns_frame": 132.3443359375,
+    "frames_per_render": 1024000,
+    "pair_count": 20,
+    "paired_losses_fixed": 10,
+    "paired_median_delta_ns_frame": -0.038818359375,
+    "paired_wins_fixed": 10,
+    "renders_per_pair_variant": 10,
+    "statistical_note": "The bootstrap interval crosses zero: no reliable nonzero slowdown detected.",
+    "status": "PASS_BY_MEDIAN_GATE"
+  },
+  "publication": "NOT_RUN",
+  "pull_request": 817,
+  "release": "NOT_RUN",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "schema": "x0x37-plock-pr817-perf-gates-v1",
+  "sdk_checkout_sha": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_version": "AC79NN_SDK_V1.2.1_2023-12-13",
+  "source_head_reviewed": "53849739f1fc50d619a95cab36f624b2ab0a2cd5",
+  "strict_existing_nightly_package_checks": {
+    "elite": {
+      "bytes": 651570,
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "firmware_version": "0.0.24",
+      "model": "SMK-37 Elite_900",
+      "package_sha256": "aa5831387ade807849b1c13bdec37d0ed00ff52bc002b47237244873bbbf3419",
+      "status": "PASS"
+    },
+    "pro": {
+      "bytes": 651566,
+      "controller_sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "controller_size": 61552,
+      "firmware_version": "0.0.24",
+      "model": "SMK-37 Pro_900",
+      "package_sha256": "556dc5428b2390503c6dacda9b65ffb156bf12960b5a11fea2d3c883ed2cadf1",
+      "status": "PASS"
+    }
+  }
+}

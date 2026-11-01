@@ -1,0 +1,33 @@
+{
+  "base_source_sha": "c20943a75d9e680a64e0384458245db4d7999e05",
+  "fix_source_sha": "f25347e587d847c3ed734264119281b7f25b8013",
+  "runner_python": "3.12.15",
+  "pillow": "13.0.0",
+  "counts": {
+    "base": {
+      "PASS": 350,
+      "FAIL": 33,
+      "NOT_RUN": 0
+    },
+    "fix": {
+      "PASS": 352,
+      "FAIL": 32,
+      "NOT_RUN": 0
+    }
+  },
+  "shared_diffs": {
+    "scenario-plock": {
+      "base": "FAIL",
+      "fix": "PASS"
+    }
+  },
+  "only_in_base": [],
+  "only_in_fix": [
+    "smk-build-package-elite"
+  ],
+  "gate": {
+    "scenario_plock": true,
+    "no_unrelated_changes": true,
+    "no_not_run": true
+  }
+}
