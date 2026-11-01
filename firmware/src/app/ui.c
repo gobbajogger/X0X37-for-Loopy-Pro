@@ -17,6 +17,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "ui_original_controls.h"
+#include "ui_original_wave.h"
 #include "../dsp/bass_param_ids.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX + Crush/Ring/EQ/Cho/Ens/Phaser/SDly/BPM/Hall/GateRev insert */
@@ -388,6 +389,7 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;
 
 static const char *const GLOBAL_SECTIONS[6] = {"MIDI + CLOCK", "BLUETOOTH", "AUDIO", "KEYS + SCREEN", "PROJECT", "SYSTEM"};
 static ui_original_control_cache original_controls X0X_POOL;
+static ui_original_wave_cache original_wave X0X_POOL;   /* engine waveform cue (ca8299b6 / 9e237cce) */
 static uint8_t original_page_bank, original_list_bank;
 static int original_display_value(pref_t r);
 static const ui_original_control_view *original_text_view(pref_t r, int value);
@@ -2715,6 +2717,23 @@ static const ui_original_control_view *original_text_view(pref_t r, int value)
     return ui_original_controls_update(&original_controls,r.b,cell,preview,mask) ? &original_controls.view : 0;
 }
 
+/* The engine waveform of an oscillator control, with the same lock/motion
+ * preview as the text readout. 0 when the slot has no waveform. */
+static const ui_original_wave_cache *original_wave_view(pref_t r, int value)
+{
+    const uint8_t *cell = proj.sound.v[T_303][r.b];
+    unsigned kind = (unsigned)engine_bass_sound_bank(&proj.sound,r.b);
+    uint32_t relevant = kind == ORIGINAL_SOUND_CHICAGO ? UI_ORIGINAL_CHICAGO_WAVE_MASK : UI_ORIGINAL_MIAMI_WAVE_MASK;
+    uint8_t preview[22] = {0}; uint32_t mask = 0;
+    for (unsigned id = 0; id < original_sound_count(kind); id++) if (relevant & (1u<<id)) {
+        pref_t ref = PR(R_ENG,T_303,r.b,id);
+        int q = lock_step() >= 0 ? lock_of(ref,lock_step()) : motion_now(ref);
+        if (q >= 0) { preview[id] = (uint8_t)q; mask |= 1u<<id; }
+    }
+    if ((relevant & (1u<<r.c)) && value != cell[r.c]) { preview[r.c]=(uint8_t)value; mask |= 1u<<r.c; }
+    return ui_original_wave_update(&original_wave,r.b,cell,preview,mask) ? &original_wave : 0;
+}
+
 static void lock_turn(pref_t r, int e, int role)
 {
     int s = lock_step(), part = ui.part, k, cur, nv;
@@ -4864,7 +4883,36 @@ static void night_label_c(int cx,int y,const felucca_font_t *f,const char *s,uin
 }
 #define sound_slab night_panel
 
-static void pat_glyph_row(int32_t x, int32_t y, const uint8_t strength[8], uint16_t c, int current);
+static void pat_glyph_row(int32_t x,int32_t y,const uint8_t strength[8],uint16_t c,int current);
+/* Shared, bounded pictures for status and the existing physical controls. */
+static UI_DRAW void nav_arrow(int x,int y,int direction,uint16_t ink)
+{
+    int tip=x+(direction>0?5:0),tail=x+(direction>0?0:5),back=tip-direction*3;
+    cv_line(tail,y+3,tip,y+3,ink);
+    cv_line(back,y,tip,y+3,ink);cv_line(tip,y+3,back,y+6,ink);
+}
+static UI_DRAW void row_picture(int x,int y,uint16_t ink)
+{
+    for(int row=0;row<3;row++)cv_rect(x,y+1+row*3,10,row==1?2:1,ink);
+}
+static UI_DRAW void header_pattern_badge(int x,int part,int pattern,int current,uint16_t ink)
+{
+    uint8_t strength[8];char number[4];
+    if(part<0 || part>=NPARTS || pattern<0 || pattern>=NPAT)return;
+    frame(x,6,10,7,ink);
+    home_pattern_strength8(&proj.pat[pattern],proj.arr.lane,pattern,part,
+                          proj.set.accent_q7,T_VEL,strength);
+    pat_glyph_row(x+1,8,strength,PART_COL[part],current);
+    put_i(number,pattern+1);cv_text(x+12,vc(&FONT_T,1,17),&FONT_T,number,ink);
+}
+static UI_DRAW void header_pattern_cue(int x,int part)
+{
+    int cue=seq_cue_of(&seq,part);
+    if(seq.song_on || cue<0 || cue==seq.ppat[part])return;
+    /* A live sequencer step may pulse the arrow. Wall time alone never does. */
+    uint16_t ink=seq.playing && (eng_step[TRK_DRUM]&1)?C_WHITE:C_AMB;
+    nav_arrow(x,6,1,ink);header_pattern_badge(x+8,part,cue,0,C_GRAY);
+}
 
 static UI_DRAW void draw_header(void)
 {
@@ -4931,6 +4979,7 @@ static UI_DRAW void draw_header(void)
                 if (i != cur_page() / 4) dot(dx, 9, 1, night?SOUND_FACE:C_BLACK);
             }
         }
+        if(!division_pad_owner()) header_pattern_cue(132,ui.part);   /* #807 cue picture */
         { uint8_t phase = seq.metro_view; /* #688/#788: audio-owned beat phase */
           play_icon(175, 4, !phase ? C_DIM : phase <= 4u ? C_WHITE : C_HI);
         }
@@ -5210,8 +5259,8 @@ static UI_DRAW int matrix_row_hint(int x,int y,uint16_t c)
     cv_text(x,y,&FONT_T,UI_CAP_ARROWS,c);
     x+=tw(&FONT_T,UI_CAP_ARROWS)+4;
     matrix_glyph(x,y,GL_BOTH,c,C_BLACK);
-    cv_text(x+14,y,&FONT_T,"ROW",c);
-    return x+14+tw(&FONT_T,"ROW");
+    row_picture(x+14,y,c);
+    return x+24;
 }
 
 /* Physical EDIT caption plus a page and forward arrow, within the old hint. */
@@ -5331,8 +5380,9 @@ static UI_DRAW void draw_part_sound(int band)
     }
     if(night) sound_slab(0,207-off,240,13,0);
     if (lock_step()>=0) {
-        char t[48];put_s(put_i(put_s(t,"STEP "),lock_step()+1)," " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT ":ROW");
-        cv_text(7,208-off,&FONT_T,t,C_AMB);
+        char t[48];put_s(put_i(put_s(t,"STEP "),lock_step()+1)," " UI_CAP_ARROWS ": CHANCE " UI_CAP_EDIT);
+        int x=cv_text(7,208-off,&FONT_T,t,C_AMB);
+        row_picture(x+4,208-off,C_AMB);
     } else
 #if X0X_BASS_PRESET_PREVIEW
     if (pg.r[page][0].kind==R_BENGINE && engine_bass_preset_pending(bidx()))
@@ -5347,8 +5397,12 @@ static UI_DRAW void draw_part_sound(int band)
     if (pg.r[page][0].kind==R_BENGINE) {
         if (lock_step()<0) {
             if(engine_bass_preset_pending(bidx()))
-                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-18-tw(&FONT_T,"ROW"),208-off,hint);
-            else text_r(234,208-off,&FONT_T,UI_CAP_HOME ": BACK",hint);
+                matrix_row_hint(234-tw(&FONT_T,UI_CAP_ARROWS)-28,208-off,hint);
+            else {
+                int x=234-tw(&FONT_T,UI_CAP_HOME)-10;
+                x=cv_text(x,208-off,&FONT_T,UI_CAP_HOME,hint);
+                nav_arrow(x+4,210-off,-1,hint);
+            }
         }
     } else
 #endif
@@ -6422,6 +6476,21 @@ static UI_DRAW int wave_shape(pref_t r, int v, int *mix)
     *mix = q == 0 ? 0 : 127; return q == 3 ? 3 : 2;          /* TRI, SQR, PUL */
 }
 
+/* Engine waveform cue (restored from ca8299b6): slot 0 is the Chicago
+ * oscillator mix or the Miami carrier, 1 the Miami modulator, 2 the wobble. */
+static int original_wave_slot(unsigned kind,int p)
+{
+    if(p==0)return 0;
+    if(kind==ORIGINAL_SOUND_MIAMI)return p==6?1:p==11?2:-1;
+    return -1;
+}
+static UI_DRAW void draw_original_wave(int cx,int y,const ui_original_wave_cache *v,int slot,uint16_t ink,uint16_t face)
+{
+    cv_rect(cx-14,y+v->zero[slot],UI_ORIGINAL_WAVE_W,1,blend(face,ink,3));
+    for(int i=1;i<UI_ORIGINAL_WAVE_W;i++)
+        cv_line(cx-15+i,y+v->wave[slot][i-1],cx-14+i,y+v->wave[slot][i],ink);
+}
+
 enum { MIAMI_WAVE_HEIGHT=19, MIAMI_WAVE_ZERO=9, MIAMI_WAVE_GAIN=8 };
 /* One affine projection per supported range. The pulse zero is near its low
  * rail, not the midpoint: preserve its +1 / -1/9 relative amplitudes. */
@@ -6743,7 +6812,11 @@ static UI_DRAW void draw_param_widget(pref_t r, int x, int y, int width, int act
         else strip_value(x+45,y+28,num,unit,ink);     /* starts >= x+32: 3 px clear of the glyph */
     } else
     if(shape) {
-        draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE));
+        int slot=original_wave_slot((unsigned)engine_bass_sound_bank(&proj.sound,r.b),r.c);
+        const ui_original_wave_cache *wave=slot>=0?original_wave_view(r,val):0;
+        uint16_t face=night?(active?SOUND_SELECT:SOUND_FACE):(active?col:SOUND_FACE);
+        if(wave) draw_original_wave(cx-10,y+25,wave,slot,ink,face);
+        else draw_wave_glyph(cx-10,y+((shape==2 || shape==3)?25:28),shape,mix,ink,face);
         pref_value_of(r,val,num,unit);           /* original readout text */
         strip_value(cx+17,y+28,num,unit,ink);
     } else {
@@ -7900,10 +7973,11 @@ static UI_DRAW void draw_knobs(void)
         }
         if ((r.kind == R_ENG && r.a == T_303) || r.kind == R_BENGINE || r.kind == R_BPRESET || r.kind == R_BSTATUS)
             original_cell_value(cx,vc(&FONT_B,53,13),num,unit,touched ? C_WHITE : C_HI);
-        else
-        /* Barlow number/unit ink is 0.5–1px right of the PUMP card center. */
-        cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
-                   vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
+        /* Existing FWD/REV/PING/RND pictures already show the direction.
+         * Barlow number/unit ink is 0.5–1px right of the PUMP card center. */
+        else if(r.kind!=R_BDIR)
+            cell_value(cx-(r.kind==R_ENG && r.a==T_MST && r.c==MST_PUMP),
+                       vc(&FONT_B,53,13),num,unit,touched?C_WHITE:C_HI);
     }
     cv_commit_knobs(3);
 }
@@ -8061,6 +8135,7 @@ X0X_COLD void ui_init(void)
     memset(&ui, 0, sizeof ui);
     (void)plat_division_pad(0);
     original_controls.valid = 0;
+    original_wave.valid = 0;
     memset(kbd_held_note, 0, sizeof kbd_held_note);
     memset(kbd_held_key, 0, sizeof kbd_held_key);
     memset(kbd_arp_n, 0, sizeof kbd_arp_n);
