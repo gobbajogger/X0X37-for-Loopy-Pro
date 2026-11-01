@@ -55,6 +55,16 @@ export function parseProject(b, expectedLength = null) {
     patternVersion, soundRevision };
 }
 
+// Historical schemas stay readable for inspection and byte-exact backups. Device
+// imports, including rollback/recovery, accept only the current persistent schema.
+function requireCurrentProject(project, expectedLength = null) {
+  const meta = parseProject(project);
+  if (meta.patternVersion !== 13 || meta.soundRevision !== 13)
+    throw fail("Only revision 13 projects can be loaded. Older projects remain available for inspection and backup.", "version");
+  if (expectedLength !== null) parseProject(project, expectedLength);
+  return meta;
+}
+
 export function validateSlotImage(img, capacity) {
   if (img === null) return null;
   if (!(img instanceof Uint8Array) || !integer(capacity, 512, PROJECT_MAX_FILE) || img.length > capacity)
@@ -333,9 +343,8 @@ export class ProjectDevice {
     return b;
   }
   async stage(project, onProgress = () => {}) {
-    const size=await this.query(), meta=parseProject(project);
-    const legacy=this.projectProtocol===2 && size-project.length===24 && meta.soundRevision===10 && [3,6].includes(meta.patternVersion);
-    if(!legacy)parseProject(project,size);
+    const size = await this.query();
+    requireCurrentProject(project, size);
     this.active = true; this.mode = 2;
     await this.command(PROJECT_OP.IMPORT, u21(project.length));
     for (let off = 0; off < project.length;) {
@@ -350,7 +359,7 @@ export class ProjectDevice {
     if(confirmed!==true || this.projectProtocol!==2 || !Array.isArray(engines) || engines.length!==2 ||
        !integer(engines[0],0,1) || !integer(engines[1],0,1) || engines[0]===1 && engines[1]===1)
       throw fail("Explicit valid engine choices for both bass slots are required.","identity");
-    await this.command(PROJECT_OP.ADOPT_BASS,[...engines,...PROJECT_CONFIRM]);
+    throw fail("Only revision 13 projects can be loaded. Legacy bass adoption is unavailable.", "version");
   }
   async commit() { await this.command(PROJECT_OP.COMMIT, PROJECT_CONFIRM); this.active = false; this.mode = 0; }
   async save() { await this.command(PROJECT_OP.SAVE, [], { timeout: Math.max(10000, this.timeout) }); }
@@ -450,7 +459,8 @@ export async function readProjectSnapshot(device, progress = () => {}) {
 }
 
 export async function prepareProjectImport(device, input, { progress = () => {} } = {}) {
-  const file = await readProjectFile(input, await device.query());
+  const size = await device.query(), file = await readProjectFile(input);
+  requireCurrentProject(file.project, size);
   if (device.mode === 3) {
     if (!file.portable) throw fail("Recovery requires a portable project with its original samples. A project-only file cannot repair partial sample slots.", "recovery");
     const layout = await device.layout();
@@ -459,6 +469,7 @@ export async function prepareProjectImport(device, input, { progress = () => {} 
     return { session: device.link, file, recovery: true, layout, plan: { changes, collisions: [], unchanged: [] }, backupBytes: null };
   }
   const before = await readProjectSnapshot(device, progress);
+  requireCurrentProject(before.project, device.projectLength); // Rollback must also be loadable.
   const plan = await planProjectImport(file, before);
   const backupBytes = await makeProjectFile(before.project, before, { name: "Before project import", portable: true });
   const backup = await readProjectFile(backupBytes, device.projectLength);
@@ -484,9 +495,11 @@ async function verifyImages(device, wanted, progress) {
 export async function applyProjectImport(device, prepared, { confirmed = false, backupSaved = false, progress = () => {} } = {}) {
   if (prepared.session !== device.link) throw fail("The keyboard connection changed. Prepare the import again.", "connection");
   if (confirmed !== true) throw fail("Confirm replacing the live project before importing.", "confirmation");
-  const file = await readProjectFile(prepared.file.bytes, await device.query());
+  const size = await device.query(), file = await readProjectFile(prepared.file.bytes);
+  requireCurrentProject(file.project, size);
   if (prepared.recovery) return applyRecoveryImport(device, file, prepared.layout, progress);
   const backup = await readProjectFile(prepared.backupBytes, device.projectLength);
+  requireCurrentProject(backup.project, device.projectLength);
   if (!backup.portable) throw fail("A complete portable recovery backup is required.", "backup");
   const plan = await planProjectImport(file, prepared.before);
   if (plan.collisions.length && backupSaved !== true) throw fail("Download the verified recovery backup and confirm it is saved before replacing existing samples.", "backup");
