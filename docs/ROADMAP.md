@@ -104,7 +104,7 @@ Last update: 2026-10-19.
 
 ## Master tracker (status, evidence, next step)
 
-Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing / waiting on owner.
+Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / approved, planned for 0.0.25.
 
 ### Pre-publish checklist
 - [ ] Every row below has a status and evidence; no row says "missing" before the registry, branches, PRs and archive were searched.
@@ -115,7 +115,7 @@ Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status w
 - [ ] Owner approved all visual changes (real framebuffer PNGs).
 - [ ] Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
 
-Counts: done 6, in 0.0.24 112, in progress 15, missing 36, waiting on owner 5. Total 174.
+Counts: done 6, in 0.0.24 112, in progress 15, missing 34 (including 2 approved mockups), waiting on owner 5, approved/planned for 0.0.25 3 (including 1 alias). Total 175.
 
 | Item | Source | Status | Evidence | Next step |
 |---|---|---|---|---|
@@ -272,7 +272,7 @@ Counts: done 6, in 0.0.24 112, in progress 15, missing 36, waiting on owner 5. T
 | L3 LOAD wipes UI state | x0x37-results/codex-briefs-live-0.0.24.md | in 0.0.24 | #810 same commit | Device test |
 | L4 PLAY plays SONG only on SONG screen | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | codex-briefs-live-0.0.24.md L4; ui.c (seq.song_on) | Owner picks option a/b |
 | L5 Undo/redo on transport keys | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | codex-briefs L5 | Owner picks new gesture |
-| L6 No global PANIC | x0x37-results/codex-briefs-live-0.0.24.md | missing | no panic gesture in firmware/src/app/ui.c @d8086cc09 | Same as meeting item 1 (HOME long hold) |
+| L6 Global PANIC (legacy audit alias of M1, not separate work) | owner decision 2026-11-01 15:21 UTC+10; supersedes original L6 audit | approved, planned for 0.0.25 (M1 alias) | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); canonical gesture: keyboard FX+SEQ; SMC BANK L+R in DAW only; none in MMC | Implement and test only M1; no HOME-hold or STOP-hold PANIC |
 | L7 Tempo fine nudge / ramp | x0x37-results/codex-briefs-live-0.0.24.md | waiting on owner | ui.c:742 whole-BPM set | Owner: ramp yes/no; then 0.1 BPM nudge |
 | L8 Muted fader jumps to level | x0x37-results/codex-briefs-live-0.0.24.md | done | owner 2026-11-01: keep; smc_mixer.c:1323 pickup skip | None |
 | L9 Fader loses pickup under motion | x0x37-results/codex-briefs-live-0.0.24.md | missing | smc_mixer.c:1293 clears picked | Brief LIVE-C; motion+fader test |
@@ -280,13 +280,14 @@ Counts: done 6, in 0.0.24 112, in progress 15, missing 36, waiting on owner 5. T
 | L11 BREAK mute late by one step | x0x37-results/codex-briefs-live-0.0.24.md | in 0.0.24 | #799 "fix BREAK unmute step" | Device test |
 | L12 Loudness between parts/banks | x0x37-results/codex-briefs-live-0.0.24.md | in progress | #799 adds loudness measurement; trims need owner listen | Owner listening check |
 | L13 Clip grid lost on host drop | x0x37-results/codex-briefs-live-0.0.24.md | missing | ui.c WAITING FOR LOOPY PRO screen | Mockup, owner approval, code |
-| M1 PANIC on long hold of HOME | meeting 2026-11-01 | missing | no panic path in ui.c @d8086cc09; only main_fm1.c clip mode | Brief: hold HOME → all notes off + CC123, transport keeps running |
+| M1 Global PANIC: keyboard FX+SEQ; SMC BANK L+R in DAW mode only; no PANIC in MMC | owner decision 2026-11-01 15:21 UTC+10 (replaces earlier HOME/STOP-hold proposals) | approved, planned for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); all notes off across parts; transport stays running; not implemented in 0.0.24 | 0.0.25 implementation and mode/gesture-conflict host tests; no builder work in #812 |
 | M2 muted fader takes its level on unmute | meeting 2026-11-01 | done | smc_mixer.c:1323 (no pickup at level 0) | None |
 | M3 instant tempo | meeting 2026-11-01 | done | ui.c:742 R_TEMPO sets seq.bpm at once | None |
-| M4 part sound reset: HOME + part button | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
+| M4 Reset the selected part's saved sound with SMC HOME + part SELECT; overlay shows part name (e.g. 909), RESET SOUND, and NO SAVED SOUND when none exists | meeting 2026-11-01; owner thumbs-up 2026-11-01 15:22 UTC+10 | missing (reset-overlay mockup approved and final; implementation pending) | [PR #815](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/815); [fixed item4-after.png](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/5bb2bca2446b04ec643d2ecab20859fd62cf311b/docs/mockups/items-4-6-7-0.0.24/item4-after.png) pushed in 5bb2bca2 | Implement sound-only reset with existing undo; leave mixer level/pan/sends/mute unchanged |
 | M5 (unknown item) | meeting 2026-11-01 | waiting on owner | not recorded | Ask the owner what item 5 is |
-| M6 effect throw + drum fill on SMC FX page | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
+| M6 SMC FX page effect selection/throw and proposed drum fill | meeting 2026-11-01; owner thumbs-up 2026-11-01 15:22 UTC+10 for item 6 effect mockup | missing (effect mockup approved; implementation pending) | [PR #815](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/815); [item6-after-effect.png](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/5bb2bca2446b04ec643d2ecab20859fd62cf311b/docs/mockups/items-4-6-7-0.0.24/item6-after-effect.png); drum-fill mapping in #815 remains a proposal, not separately approved here | Implement approved effect UI after plan; separately confirm drum-fill assignment before treating it as approved |
 | M7 per-part settings toggle | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
+| M8 PLAY while a question is open: answer NO first, then perform the normal PLAY toggle; HOME+PLAY remains redo | owner decision 2026-11-01 15:21 UTC+10 | approved, planned for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); question dismissal must not swallow PLAY or change HOME+PLAY redo | Implement and host-test question priority, single PLAY toggle and unchanged redo; do not change unrelated PLAY/SONG rules |
 | FX hold + < > remap per button | chat | in progress | #741 (SELECT only), #740 mockups; docs/FEATURE-REGISTRY.md 41.1–41.2 | Extend to REC/SOLO/MUTE; owner approval |
 | Instant unmute (muted bus keeps running) | chat | in 0.0.24 | #810 commit 94a7a6095; engine.c:1608 | Device listening check |
 | Strict installer model match | chat | done | #806 62cf11e98 (tools/fm1_install.py:285 same_model); nightly PR #114 merged 9bc0ac56 | Port nightly-main-strict.patch to nightly main |
