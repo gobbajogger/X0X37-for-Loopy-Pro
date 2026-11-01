@@ -589,14 +589,21 @@ void engine_volume(int32_t *out_lr, uint32_t n)
         vol_after = -1.0f;
         return;
     }
-    for (i = 0; i < n; i++) {
-        if (v != vol) {
-            v += (vol - v) * 0.0022651f;
-            if (fm_fabsf(vol - v) < 1e-5f)
-                v = vol;
+    if (v == vol) {
+        for (i = 0; i < n; i++) {
+            out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
+            out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
         }
-        out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
-        out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
+    } else {
+        for (i = 0; i < n; i++) {
+            if (v != vol) {
+                v += (vol - v) * 0.0022651f;
+                if (fm_fabsf(vol - v) < 1e-5f)
+                    v = vol;
+            }
+            out_lr[2u * i] = (int32_t)((float)out_lr[2u * i] * v);
+            out_lr[2u * i + 1u] = (int32_t)((float)out_lr[2u * i + 1u] * v);
+        }
     }
     vol_after = v;
 }
@@ -1746,13 +1753,14 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     left808 = t0 + offset; right808 = tr + offset;
     bfx_snapshot();                                   /* before the second core reads the holds */
     uint8_t brk_event_mark = brk_midi_count;
-    int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
+    /* BRK still runs in the local fallback when no 808 voice needs core 2. */
+    int on2 = drum808_active(&d808) && plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
     {   /* the 909, straight into the mix: L, R and its voices' sends, then scaled in place */
         PROF_T(p9);
         if (!drum909_active(&d909)) {
-            drum909_render(&d909, mono, mono, mono, (int)n);   /* writes nothing; advances the noise */
+            drum909_advance_noise(&d909, (int)n);       /* retain the exact restart noise/history */
             drum909_pan_settle(&d909);                    /* silent: pans move at once, no glide */
         } else {
             drum909_render_st_masked(&d909, dry_l, dry_r, rev, dly, (int)n, smc_audible_drums(solo, PART_909));
@@ -1837,9 +1845,18 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         if (solo_out) for (i = 0; i < GL_N; ++i) mix_glide[p][i].cur = 0.0f;
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
         add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
-        meter(p, bb[b], mix_level[p], n);
-        meter(p, bb[1-b], mix_level[p], n);
-        for (i = 0; i < n; ++i) bb[b][i] = .5f * (bb[b][i] + bb[1-b][i]);
+        {
+            float pk = part_peak[p], g = mix_level[p];
+            for (i = 0; i < n; ++i) {
+                float l = bb[b][i], r = bb[1-b][i];
+                float a = fm_fabsf(l) * g;
+                if (a > pk) pk = a;
+                a = fm_fabsf(r) * g;
+                if (a > pk) pk = a;
+                bb[b][i] = .5f * (l + r);
+            }
+            part_peak[p] = pk;
+        }
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
     }
