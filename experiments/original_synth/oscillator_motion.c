@@ -112,11 +112,11 @@ static int glide_step(original_glide_cache *cache,float current[4],const float t
  float sum=port+mod;if(!original_binary32_isfinite(sum))return 0;
  uint32_t pb=bits(port),mb=bits(mod),fb=bits(fs);
  float a;
- if(cache&&cache->valid&&cache->port_bits==pb&&cache->mod_bits==mb&&cache->fs_bits==fb&&cache->duration==D)
+ if(cache&&cache->duration!=0&&cache->port_bits==pb&&cache->mod_bits==mb&&cache->fs_bits==fb&&cache->duration==D)
   a=cache->a;
  else {
   float t=clamp(sum,0,1);a=t*t;a=ref_fma(a,fl(0x49f42400),fl(0x3a83126f));a=fs*a;a=(float)D/a;a=a*fl(0x4a8ab75d);a=original_binary32_min_one_finite(a);
-  if(cache){cache->port_bits=pb;cache->mod_bits=mb;cache->fs_bits=fb;cache->duration=D;cache->a=a;cache->valid=1;}
+  if(cache){cache->port_bits=pb;cache->mod_bits=mb;cache->fs_bits=fb;cache->duration=D;cache->a=a;}
  }
  float next[4];for(unsigned i=0;i<4;i++)next[i]=ref_fma(target[i]-current[i],a,current[i]);memcpy(current,next,sizeof next);return 1;
 }

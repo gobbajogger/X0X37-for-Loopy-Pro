@@ -29,6 +29,7 @@ typedef struct {
  uint32_t count;
  float bpm;
  int status;
+ original_miami_coefficient_cache coefficient_cache;
 } original_miami_voice_owner;
 /* Bind existing cold/restored resources only; no reset, constructor snapshot,
  * active selector, MIDI mapping or persistence write. Selected canonical note
@@ -48,4 +49,5 @@ int original_miami_voice_owner_control_all(original_miami_voice_owner *);
  * tables, BPM and ready tokens through all prevalidated control/render calls. */
 int original_miami_voice_owner_block_valid(const original_miami_voice_owner *);
 int original_miami_voice_owner_control_prevalidated(original_miami_voice_owner *);
+void original_miami_voice_owner_invalidate_caches(original_miami_voice_owner *);
 #endif

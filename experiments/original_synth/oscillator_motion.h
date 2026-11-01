@@ -36,7 +36,6 @@ typedef struct {
 typedef struct {
  uint32_t port_bits,mod_bits,fs_bits,duration;
  float a;
- uint8_t valid;
 } original_glide_cache;
 /* Native public rate ordinal 0..7. Read waveform from old phase before advance.
  * Explicit input phase avoids guessing original unison initialization order. */
