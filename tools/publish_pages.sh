@@ -30,6 +30,7 @@ elif [ -n "${1:-}" ] && [ "${1#-}" = "$1" ]; then
   shift
 fi
 PRO=""; ELITE=""; MKE=""; FM1=""
+GATE_REPORT=""; GATE_COMMIT=""; GATE_ROADMAP=""; GATE_EVIDENCE=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --shell) SHELL_ONLY=1; shift ;;
@@ -37,9 +38,25 @@ while [ $# -gt 0 ]; do
     --elite) ELITE=${2:?}; shift 2 ;;
     --mke) MKE=${2:?}; shift 2 ;;
     --fm1) FM1=${2:?}; shift 2 ;;
+    --completeness-report) GATE_REPORT=${2:?}; shift 2 ;;
+    --candidate) GATE_COMMIT=${2:?}; shift 2 ;;
+    --roadmap-ref) GATE_ROADMAP=${2:?}; shift 2 ;;
+    --completeness-evidence) GATE_EVIDENCE=${2:?}; shift 2 ;;
     *) echo "unknown arg: $1" >&2; exit 1 ;;
   esac
 done
+
+if [ -z "$GATE_REPORT" ] || [ -z "$GATE_COMMIT" ] || [ -z "$GATE_ROADMAP" ]; then
+  echo "ROADMAP completeness report, candidate and ROADMAP revision required" >&2
+  exit 2
+fi
+if [ -n "$GATE_EVIDENCE" ]; then
+  python3 tools/roadmap_completeness.py --repo . --candidate "$GATE_COMMIT" \
+    --roadmap-ref "$GATE_ROADMAP" --evidence "$GATE_EVIDENCE" --verify-report "$GATE_REPORT"
+else
+  python3 tools/roadmap_completeness.py --repo . --candidate "$GATE_COMMIT" \
+    --roadmap-ref "$GATE_ROADMAP" --verify-report "$GATE_REPORT"
+fi
 
 if [ "$SHELL_ONLY" = 1 ]; then
   ARGS="--shell --out build/pages"

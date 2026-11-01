@@ -23,6 +23,18 @@ import fm1pkg_make as pm
 import package_nightly as nightly
 
 
+def gated_main(argv):
+    """Exercise package checks with an isolated approved source-proof fixture.
+
+    Completeness behavior is checked independently in test_roadmap_completeness;
+    the package fixture here tests binary CRC/controller/model boundaries.
+    """
+    options = ["--candidate", "0" * 40, "--roadmap-ref", "1" * 40,
+               "--completeness-report", "/dev/null"]
+    with patch.object(nightly.roadmap_completeness, "verify_pass", return_value={}):
+        return nightly.main(argv + options)
+
+
 def make_controller(size=4096, **overrides):
     values = dict(magic=add_ctl.HDR_MAGIC, version=2, header=68, firmware=0x20000,
                   size=size, crc=0, abi=2, init=add_ctl.XIP + 128, poll=add_ctl.XIP + 144,
@@ -243,15 +255,15 @@ def main(argv=None):
                        "--controller-size", str(size), "--firmware-version", "0.1.3", "-o", str(out)]
             stdout = io.StringIO()
             with contextlib.redirect_stdout(stdout):
-                assert nightly.main(command) == 0
+                assert gated_main(command) == 0
             assert out.read_bytes() == complete and json.loads(stdout.getvalue()) == receipt
             check = [str(out), "--check", "--model", model, "--controller-sha256", digest,
                      "--controller-size", str(size), "--firmware-version", "0.1.3"]
             with contextlib.redirect_stdout(io.StringIO()):
-                assert nightly.main(check) == 0
+                assert gated_main(check) == 0
             with contextlib.redirect_stderr(io.StringIO()):
                 try:
-                    nightly.main(check[:-2])
+                    gated_main(check[:-2])
                 except SystemExit as exc:
                     assert exc.code == 2, "--firmware-version is mandatory"
                 else:
@@ -261,18 +273,18 @@ def main(argv=None):
                                    ("0.1.3", "DnBOX DEV".encode("utf-16-be"))):
                 out.write_bytes(add_ctl.add(make_package(model, version=version, extra=extra), ctl))
                 with contextlib.redirect_stderr(io.StringIO()):
-                    assert nightly.main(check) == 1
+                    assert gated_main(check) == 1
             out.write_bytes(b"KEEP-EXISTING")
             control.write_bytes(ctl[:-1])
             with contextlib.redirect_stderr(io.StringIO()):
-                assert nightly.main(command) == 1
+                assert gated_main(command) == 1
             assert out.read_bytes() == b"KEEP-EXISTING", "mismatch must refuse before output replacement"
             control.write_bytes(ctl)
             for malformed in ("key-range", "area-range"):
                 pkg.write_bytes(fixtures[model + "-" + malformed + ".fwsc"])
                 stderr = io.StringIO()
                 with contextlib.redirect_stderr(stderr):
-                    assert nightly.main(command) == 1
+                    assert gated_main(command) == 1
                 assert "range" in stderr.getvalue() and out.read_bytes() == b"KEEP-EXISTING"
         print(f"PASS {model}: composition, embedded admission, exact pin, model, CRCs, padding, ABI, output preservation")
     refused(lambda: nightly.inspect(make_package("elite", loader=False), "elite", digest, size), "no Felucca")

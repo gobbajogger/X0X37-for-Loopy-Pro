@@ -15,9 +15,17 @@ sys.path.insert(0, str(ROOT / "tools"))
 os.environ.pop("X0X_NIGHTLY_REMOTE", None)
 
 import dev_validate  # noqa: E402
+import roadmap_completeness  # noqa: E402
 import publish_nightly  # noqa: E402
 import validation_inputs  # noqa: E402
-from publish_nightly import LABEL, NightlyPublishError, publish_valid_nightly  # noqa: E402
+from publish_nightly import LABEL, NightlyPublishError, publish_valid_nightly as _publish_valid_nightly  # noqa: E402
+
+GATE_OPTIONS = {}
+
+
+def publish_valid_nightly(*args, **kwargs):
+    """Exercise the real gate along with the existing package/identity checks."""
+    return _publish_valid_nightly(*args, **{**GATE_OPTIONS, **kwargs})
 
 
 def git(repo, *args):
@@ -113,9 +121,39 @@ def main():
     repo.mkdir()
     subprocess.check_call(["git", "init", "-q", "-b", "main"], cwd=repo)
     (repo / "notes.txt").write_text("fixture\n")
+    (repo / "src").mkdir()
+    (repo / "docs").mkdir()
+    (repo / "src" / "present.c").write_text("int road_present(void) { return 17; }\n")
+    (repo / "docs" / "ROADMAP.md").write_text(
+        "# X0X37 roadmap\n\n## Done\n\n| Area | What | Where |\n"
+        "|---|---|---|\n| Docs | Verified source | #9 |\n\n"
+        "## Master tracker (status, evidence, next step)\n\n"
+        "| Item | Source | Status | Evidence | Next step |\n"
+        "|---|---|---|---|---|\n"
+        "| #1 Source | #9 | in 0.0.24 | source bytes | checked |\n"
+        "| #2 Future | #9 | missing | not yet built | queued |\n")
     subprocess.check_call(["git", "-C", str(repo), "add", "."])
     subprocess.check_call(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t",
                            "commit", "-qm", "fixture"])
+    gate_commit = git(repo, "rev-parse", "HEAD")
+    gate_tree = git(repo, "rev-parse", "HEAD^{tree}")
+    gate_blob = git(repo, "rev-parse", "HEAD:docs/ROADMAP.md")
+    proof = {"origin_commit": gate_commit, "origin_tree": gate_tree,
+             "source_blob": git(repo, "rev-parse", "HEAD:src/present.c"),
+             "source_path": "src/present.c", "kind": "blob",
+             "needle": "int road_present(void) { return 17; }", "pr": "#9"}
+    gate_evidence = tmp / "roadmap-evidence.json"
+    gate_evidence.write_text(json.dumps({
+        "schema": roadmap_completeness.EVIDENCE_SCHEMA,
+        "roadmap_blob": gate_blob, "required_release_rows": [],
+        "proofs": {"#1": [proof], "DONE-001": [proof]}}))
+    gate_report = tmp / "roadmap-report.json"
+    assessed = roadmap_completeness.evaluate(repo, gate_commit, gate_tree,
+                                              gate_commit, gate_blob, gate_evidence)
+    require(assessed["passed"], "fixture ROADMAP gate did not pass")
+    gate_report.write_text(json.dumps(assessed))
+    GATE_OPTIONS.update(completeness_report=gate_report, roadmap_ref=gate_commit,
+                        completeness_evidence=gate_evidence)
     elite_fwsc, pro_fwsc = tmp / "elite.fwsc", tmp / "pro.fwsc"
     make_pkg("SMK-37 Elite_900", elite_fwsc)
     make_pkg("SMK-37 Pro_900", pro_fwsc)
@@ -124,6 +162,17 @@ def main():
     commit = git(repo, "rev-parse", "HEAD")
 
     page = tmp / "page"
+    refused("ROADMAP completeness report", lambda: _publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False))
+    require(not page.exists(), "gate-less preview created output")
+    stale_report = tmp / "stale-report.json"
+    stale = json.loads(gate_report.read_text())
+    stale["candidate_commit"] = "f" * 40
+    stale_report.write_text(json.dumps(stale))
+    refused("stale completeness report", lambda: publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
+        completeness_report=stale_report))
+    require(not page.exists(), "stale gate report created output")
     publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False)
     catalog = json.loads((page / "versions.json").read_text())
     require(catalog["channel"] == "nightly" and catalog["importsReleases"] is False, "nightly catalog flags")
@@ -235,7 +284,9 @@ def main():
     shell = subprocess.run(
         ["sh", str(ROOT / "tools" / "publish_pages.sh"), "--nightly",
          "--repo", str(repo), "--elite-record", str(elite_record), "--elite-fwsc", str(elite_fwsc),
-         "--pro-record", str(pro_record), "--pro-fwsc", str(pro_fwsc), "--out", str(tmp / "shell")],
+         "--pro-record", str(pro_record), "--pro-fwsc", str(pro_fwsc), "--out", str(tmp / "shell"),
+         "--roadmap-ref", gate_commit, "--completeness-report", str(gate_report),
+         "--completeness-evidence", str(gate_evidence)],
         capture_output=True, text=True)
     require(shell.returncode == 0 and (tmp / "shell" / "install" / "index.html").is_file(),
             shell.stdout + shell.stderr)

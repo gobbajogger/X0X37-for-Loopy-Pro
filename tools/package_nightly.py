@@ -22,6 +22,7 @@ import add_ctl
 import fm1_install
 import fm1pkg_make as pm
 import release_alloc
+import roadmap_completeness
 from firmware_build_labels import canonical_version, release_display, version_of_product
 
 MODELS = {"elite": "SMK-37 Elite", "pro": "SMK-37 Pro"}
@@ -228,6 +229,11 @@ def main(argv=None):
     ap.add_argument("--controller-size", type=int, required=True)
     ap.add_argument("--firmware-version", required=True, help="require this canonical X.Y.Z app version")
     ap.add_argument("--ledger", type=Path, help="open-beta ledger; default releases/openbeta/ledger.json")
+    ap.add_argument("--repo", default=".", help="checked out candidate repository")
+    ap.add_argument("--candidate", help="full immutable source commit SHA")
+    ap.add_argument("--roadmap-ref", help="full immutable ROADMAP commit SHA")
+    ap.add_argument("--completeness-report", type=Path, help="candidate- and ROADMAP-bound gate report")
+    ap.add_argument("--completeness-evidence", type=Path, help="test-only evidence-map override")
     ap.add_argument("--check", action="store_true", help="inspect an already complete package; write no package")
     ap.add_argument("-o", "--out", type=Path)
     args = ap.parse_args(argv)
@@ -236,6 +242,12 @@ def main(argv=None):
     if not args.check and (args.controller is None or args.out is None):
         ap.error("composition requires PACKAGE CONTROLLER -o OUTPUT; no Bluetooth-less NIGHTLY output")
     try:
+        if not args.completeness_report or not args.candidate or not args.roadmap_ref:
+            raise roadmap_completeness.GateError(
+                "ROADMAP completeness report, candidate and ROADMAP revision required")
+        roadmap_completeness.verify_pass(
+            args.repo, args.completeness_report, args.candidate, args.roadmap_ref,
+            args.completeness_evidence)
         raw = args.package.read_bytes()
         if args.check:
             receipt = inspect(raw, args.model, args.controller_sha256, args.controller_size,
@@ -253,7 +265,7 @@ def main(argv=None):
                     args.firmware_version, args.ledger)
         print(json.dumps(receipt, indent=2, sort_keys=True))
         return 0
-    except (OSError, add_ctl.PkgError, ValueError, struct.error) as exc:
+    except (OSError, add_ctl.PkgError, ValueError, struct.error, roadmap_completeness.GateError) as exc:
         print(f"package_nightly: {exc}", file=sys.stderr)
         return 1
 
