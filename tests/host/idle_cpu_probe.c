@@ -14,7 +14,10 @@ static void setup_idle(void)
     assert(engine_bass_select_preset(1, FACTORY_BANK_MIAMI, 0, &proj.sound) >= 0);
     /* Adopt the programs before the measured or characterized idle interval. */
     int32_t out[512];
-    engine_render(out, 256);
+    /* Preset adoption takes more than one block; render until both are adopted. */
+    for (int i = 0; i < 400 && (engine_bass_bank(0) != FACTORY_BANK_CHICAGO ||
+                                engine_bass_bank(1) != FACTORY_BANK_MIAMI); ++i)
+        engine_render(out, 256);
     assert(engine_bass_bank(0) == FACTORY_BANK_CHICAGO);
     assert(engine_bass_bank(1) == FACTORY_BANK_MIAMI);
 }
