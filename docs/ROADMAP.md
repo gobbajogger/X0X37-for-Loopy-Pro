@@ -104,7 +104,7 @@ Last update: 2026-10-19.
 
 ## Master tracker (status, evidence, next step)
 
-Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / approved, planned for 0.0.25 / approved, mandatory gate for 0.0.25.
+Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / verified and agreed by owner / approved, planned for 0.0.25 / approved, mandatory gate for 0.0.25.
 
 ### Pre-publish checklist
 - [ ] 0.0.25 mandatory gate: every integration PR and every step reports actual measured free pool headroom for Elite AND Pro separately, each at least 8,192 B. If either measurement is missing, stale, NOT_RUN or below 8,192 B, the PR/step is BLOCKED.
@@ -117,13 +117,13 @@ Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status w
 - [ ] Owner approved all visual changes (real framebuffer PNGs).
 - [ ] Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
 
-Counts: done 6, in 0.0.24 112, in progress 15, missing 34 (including 2 approved mockups), waiting on owner 5, approved/planned for 0.0.25 5 (including 1 alias), approved mandatory 0.0.25 gate 1. Total 178.
+Counts: done 6, in 0.0.24 112, in progress 15, missing 33 (including 2 approved mockups), waiting on owner 5, verified and agreed by owner 1 (R003), approved/planned for 0.0.25 5 (including 1 alias), approved mandatory 0.0.25 gate 1. Total 178.
 
 | Item | Source | Status | Evidence | Next step |
 |---|---|---|---|---|
 | #1 Два полноценных выбираемых движка Chicago и Miami | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:13 — `firmware/src/app/engine.c:original_runtime_*` and `ui.c` selectable Chicago/Miami. Source integrated; builds/audio not qualified. | Device test on 0.0.24 image; owner acceptance |
 | #2 Достоверный звук оригинальных движков | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:14 — `engine.c:original_runtime_render`, original DSP backends. Bit-exact goldens/reference sound NOT_RUN; source does not establish audible pari | Device test on 0.0.24 image; owner acceptance |
-| #3 Полное и правильное управление Chicago и Miami | #699 / feature-check-734 | missing | docs/feature-check-734.md:15 — `original_sound.c` has 22 Chicago/18 Miami parameters; `ui_original_controls.h:ui_original_name` exposes only 20/16 names. Full accessible c | Write brief; build on build/0.0.24 |
+| #3 (R003) Chicago/Miami knob reach, screen parameter names and real/displayed ranges (22 Chicago / 18 Miami), from keyboard and SMC | owner verification and agreement 2026-11-01 15:44 UTC+10; earlier #699 / feature-check-734 audit | verified and agreed by owner | [PR #798](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/798) F1 Chicago/Miami controls; owner verified keyboard/SMC reach, on-screen names and ranges for R003 on 2026-11-01 15:44 UTC+10. Earlier missing 20/16-name concern is superseded by owner decision, not by new tests in this docs edit. | R003 accepted by owner; no additional implementation assigned here; any separate firmware/Elite/Pro/device qualification remains subject to its own gates |
 | #4 Pitch Bend и педаль на своих физических органах | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:16 — `engine.c` original-input ownership and bend/damper path, #693 subset. Test actual physical wheel/pedal to intended engine and values. | Device test on 0.0.24 image; owner acceptance |
 | #5 Все согласованные эффекты без скрытого урезания | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:17 — `original_sound.c` seven admitted Chicago FX choices and `chicago_fx2_compact.h`/`chicago_bpmdly.h`. Sound parity untested. #695@72db66d8ddc | Device test on 0.0.24 image; owner acceptance |
 | #6 Заводские пресеты и удобный выбор звука | #699 / feature-check-734 | in 0.0.24 | docs/feature-check-734.md:18 — `original_sound.c:original_sound_name` and factory selectors, 55 Chicago/30 Miami. Validate labels/preset switch with device audio. | Device test on 0.0.24 image; owner acceptance |
