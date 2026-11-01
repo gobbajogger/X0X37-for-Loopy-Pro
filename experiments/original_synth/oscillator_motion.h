@@ -26,11 +26,24 @@ int original_oscillator_sample_gains(original_oscillators *s,const original_prep
  * Controls immutable for the call; output/state unchanged on invalid input. */
 int original_oscillator_sample(original_oscillators *s,const original_osc_controls *c,unsigned sync,float *output);
 int original_waveform(unsigned shape,float phase,uint32_t increment,float width,float *out);
+/* Caller-owned memoized MG/glide coefficients. Valid bits are never serialized.
+ * Key floats by IEEE-754 bit pattern, not numerical equality (+0 != -0). */
+typedef struct {
+ uint32_t base_bits,times_bits,bpm_bits,fs_bits,duration;
+ float denominator,delta;
+ uint8_t valid;
+} original_mg_tempo_cache;
+typedef struct {
+ uint32_t port_bits,mod_bits,fs_bits,duration;
+ float a;
+} original_glide_cache;
 /* Native public rate ordinal 0..7. Read waveform from old phase before advance.
  * Explicit input phase avoids guessing original unison initialization order. */
 int original_mg_tempo(float *phase,unsigned rate,float bpm,float fs,uint32_t duration,unsigned *wrapped);
+int original_mg_tempo_cached(original_mg_tempo_cache *cache,float *phase,unsigned rate,float bpm,float fs,uint32_t duration,unsigned *wrapped);
 /* Four explicit current/target glide pitches; finite 0..127 (MIDI notes; final oscillator pitch clamps to 120). */
 int original_glide(float current[4],const float target[4],float portamento,float modulation,float fs,uint32_t duration);
+int original_glide_cached(original_glide_cache *cache,float current[4],const float target[4],float portamento,float modulation,float fs,uint32_t duration);
 /* Original signed integer lookup requires verified 128-entry table. */
 int original_pitch_increment(float pitch,const int32_t table[128],uint32_t *out);
 int original_xmod_coefficient(float native_depth,float modulation,float *out);

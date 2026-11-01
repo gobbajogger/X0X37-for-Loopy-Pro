@@ -607,3 +607,5 @@ Resolved open questions (do not use these IDs again):
 - OQ-08: see MID-10.
 - OQ-09: see CLP-21.
 - OQ-10: see CLP-34.
+
+Miami coefficient caching: no behaviour change (bit-identical)
