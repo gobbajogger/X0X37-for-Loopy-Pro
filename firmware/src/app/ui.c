@@ -4421,33 +4421,40 @@ static uint32_t knob_rowh[KNOB_H], knob_colh[MAIN_COLB];
 static void cv_commit_rows(int region, uint32_t x, uint32_t y, uint32_t rows, uint32_t *last_rowh, uint32_t *last_colh)
 {
     uint32_t rowh[MAIN_ROWS], colh[MAIN_COLB], r, c, r0 = rows, r1 = 0, c0 = MAIN_COLB, c1 = 0, w, h, k;
+    for (r = 0; r < rows; r++) {
+        const uint16_t *q = cv_px + r * 240u;
+        uint32_t hr = 2166136261u;
+        for (k = 0; k < 240u; k++)
+            hr = (hr ^ q[k]) * 16777619u;
+        rowh[r] = hr;
+        if (hr != last_rowh[r]) {
+            if (r0 == rows)
+                r0 = r;
+            r1 = r;
+        }
+    }
+    /* Most strips are unchanged. Keep the same row-hash rejection as below,
+     * but avoid calculating every column hash before it. A reset still sends
+     * the full strip and refreshes both hash arrays. */
+    if (blit_hash[region] && r0 == rows)
+        return;
     for (c = 0; c < MAIN_COLB; c++)
         colh[c] = 2166136261u;
     for (r = 0; r < rows; r++) {
         const uint16_t *q = cv_px + r * 240u;
-        uint32_t hr = 2166136261u;
         for (c = 0; c < MAIN_COLB; c++) {
             uint32_t hc = colh[c];
-            for (k = 0; k < 8u; k++) {
-                hr = (hr ^ q[k]) * 16777619u;
+            for (k = 0; k < 8u; k++)
                 hc = (hc ^ q[k]) * 16777619u;
-            }
             colh[c] = hc;
             q += 8;
         }
-        rowh[r] = hr;
     }
     if (!blit_hash[region]) {                         /* after a reset: all of it */
         r0 = c0 = 0;
         r1 = rows - 1;
         c1 = MAIN_COLB - 1;
     } else {
-        for (r = 0; r < rows; r++)
-            if (rowh[r] != last_rowh[r]) {
-                if (r0 == rows)
-                    r0 = r;
-                r1 = r;
-            }
         for (c = 0; c < MAIN_COLB; c++)
             if (colh[c] != last_colh[c]) {
                 if (c0 == MAIN_COLB)
@@ -8386,10 +8393,11 @@ void ui_frame(void)
         perf_window(0);
     for (i = 0; i < NPARTS; i++)
         eng_peak[i] = (uint16_t)(eng_peak[i] - (eng_peak[i] >> 3));
-    for (i = 0; i < NKIT * NDRUM; i++) {              /* the drum tracks' hits fall as the part meters do */
-        volatile uint8_t *h = &eng_hit[i / NDRUM][i % NDRUM];
-        *h = (uint8_t)(*h - (*h >> 3) - (*h ? 1 : 0));
-    }
+    for (uint32_t kit = 0; kit < NKIT; kit++)          /* the drum tracks' hits fall as the part meters do */
+        for (i = 0; i < NDRUM; i++) {
+            volatile uint8_t *h = &eng_hit[kit][i];
+            *h = (uint8_t)(*h - (*h >> 3) - (*h ? 1 : 0));
+        }
 #if BOARD_SMK37
     if (smc_ui_active()) {
         smc_ui_draw();

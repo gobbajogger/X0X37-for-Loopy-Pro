@@ -153,3 +153,6 @@ firmware adoption or device proof. Keep production separate from NIGHTLY.
 Rows 73 and 120 remain excluded; row 119 belongs to F6. No bootloader, device,
 publication, integration or merge action is part of this source PR.
 
+## OPT-C UI frame optimization
+
+C1 row-hash-first early-out and C3 nested drum-hit decay: **in progress; untested source candidate** on `opt/0.0.24-ui-frame`, stacked on #789 `ee89337b36c62002908e6729b02ad87864fb7c52`. The main and knob strips share the current renderer. C2 is omitted pending a complete signature and long-session proof. See [source scope and box acceptance gates](engineering-delivery/opt-c-ui-frame/README.md). No builds/tests ran in Codex; Orchestrator owns identity, gain, full host suite and SDK V1.2.1 Elite/Pro RAM/code qualification.
