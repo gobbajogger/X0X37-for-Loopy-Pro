@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "nightly-0.0.25-rc1-qa-in-progress",
-  "title": "0.0.25-rc1 QA IN PROGRESS",
+  "title": "0.0.25-rc1 — QA IN PROGRESS",
   "version": "0.0.25-rc1",
   "firmware_version": "0.0.25",
   "status": "qa-in-progress",
@@ -56,5 +56,20 @@
   "controller_crc32_header": "564a8f55",
   "immutable_download_urls": null,
   "publication_authorized": false,
-  "note": "Unpublished local build candidate. No URLs, no install, no flash. Independent QA pending."
+  "note": "Exact binaries are on the unmerged PR branch for QA only. Not a final release. The nightly installer remains on 0.0.24. Do not merge, deploy, install or flash.",
+  "warning": "Contains #809 (reported slowdown, measurement pending). #813 has an open AddressSanitizer crash in chicago-fx2-inserts. Not a final release.",
+  "artifacts": {
+    "elite": {
+      "path": "artifacts/nightly/dev-20261101-0.0.25-rc1/8f92210448184dd851039c18f92e96556687117a2ffec048b141cf66020c752c/x0x37-elite-dev.fwsc",
+      "size": 651570,
+      "sha256": "8f92210448184dd851039c18f92e96556687117a2ffec048b141cf66020c752c",
+      "git_blob_sha": "c2d78cd357adea98f3baf8effdbd8022ea35de97"
+    },
+    "pro": {
+      "path": "artifacts/nightly/dev-20261101-0.0.25-rc1/1531b321ed1c113e44db7268442bd67b342bd69614b6fa636f3c55650ffc581f/x0x37-pro-dev.fwsc",
+      "size": 651566,
+      "sha256": "1531b321ed1c113e44db7268442bd67b342bd69614b6fa636f3c55650ffc581f",
+      "git_blob_sha": "77c4c3ae7b098d88872fa7c7350904840c519d9d"
+    }
+  }
 }
