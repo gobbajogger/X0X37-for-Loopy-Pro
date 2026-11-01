@@ -3392,6 +3392,14 @@ static void key_event(int k, int down)
         engine_brk_edit_hold((ui.brk_localkeys & 255u) || ui.brk_pinkeys);
         return;
     }
+    /* EDIT claims live keys, but a step held on SEQ must keep its key-up.
+     * Otherwise the held step survives release and the next knob adds a lane. */
+    if (!down && ui.view == V_PART && is_303() &&
+        ui.held_step >= 0 && KEY_WHITE[k] >= 0 &&
+        (ui.held_step & 15) == KEY_WHITE[k]) {
+        bass_step_key(KEY_WHITE[k], 0);
+        return;
+    }
     if (live_central_event(k,down)) return;
     if (!down) {
         for (int b = 0; b < NBASS; b++) {
@@ -3441,10 +3449,6 @@ static void key_event(int k, int down)
     if (!down && w >= 0 && ui.view == V_PART) {
         if (is_drum() && ui.hold_step >= 0 && (ui.hold_step & 15) == w) {
             drum_step(ui.part, w, 0);
-            return;
-        }
-        if (is_303() && ui.held_step >= 0 && (ui.held_step & 15) == w) {
-            bass_step_key(w, 0);
             return;
         }
     }
