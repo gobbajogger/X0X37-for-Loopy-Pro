@@ -86,7 +86,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 4. Run the formal batch 11 gate on integration 692c935 or its later final hash. After the finished set is installed and the owner reports a device PASS, bring that integration hash into the main tree (x0x37, smk37).
 5. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
 6. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
-7. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01). The build option is in the code (bd254a0, BUILDING.md c3cdb5a).
+7. Production/main release (distinct from NIGHTLY): Merge Integrator builds Pro and Elite packages from a hash with a gate PASS and owner device PASS; production publication retains its separate authorization and installer-hash checks. NIGHTLY is different: passing builds publish automatically after all required checks PASS, with NO additional owner approval. Agents NEVER install or flash firmware; the owner alone installs from the nightly site. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01). The build option is in the code (bd254a0, BUILDING.md c3cdb5a).
 
 ## Open decisions
 
@@ -104,9 +104,11 @@ Last update: 2026-10-19.
 
 ## Master tracker (status, evidence, next step)
 
-Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / approved, planned for 0.0.25.
+Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status words: done / in 0.0.24 / in progress / missing (including approved mockups not implemented) / waiting on owner / approved, planned for 0.0.25 / approved, mandatory gate for 0.0.25.
 
 ### Pre-publish checklist
+- [ ] 0.0.25 mandatory gate: every integration PR and every step reports actual measured free pool headroom for Elite AND Pro separately, each at least 8,192 B. If either measurement is missing, stale, NOT_RUN or below 8,192 B, the PR/step is BLOCKED.
+- [ ] NIGHTLY site: after all applicable checks PASS (including the per-model 8,192 B pool gate), publish the passing build automatically without separate owner approval. No agent installs or flashes; only the owner installs through the nightly site.
 - [ ] Every row below has a status and evidence; no row says "missing" before the registry, branches, PRs and archive were searched.
 - [ ] Full host suite: 0 new non-environment failures.
 - [ ] Elite and Pro build exit 0 (X0X_DEV_PADCAL=0); RAM reported.
@@ -115,7 +117,7 @@ Single list for DnBOX. Base: `build/0.0.24` @ `d8086cc09` (2026-11-01). Status w
 - [ ] Owner approved all visual changes (real framebuffer PNGs).
 - [ ] Author gobbajogger <255244738+gobbajogger@users.noreply.github.com>.
 
-Counts: done 6, in 0.0.24 112, in progress 15, missing 34 (including 2 approved mockups), waiting on owner 5, approved/planned for 0.0.25 3 (including 1 alias). Total 175.
+Counts: done 6, in 0.0.24 112, in progress 15, missing 34 (including 2 approved mockups), waiting on owner 5, approved/planned for 0.0.25 5 (including 1 alias), approved mandatory 0.0.25 gate 1. Total 178.
 
 | Item | Source | Status | Evidence | Next step |
 |---|---|---|---|---|
@@ -288,6 +290,9 @@ Counts: done 6, in 0.0.24 112, in progress 15, missing 34 (including 2 approved 
 | M6 SMC FX page effect selection/throw and proposed drum fill | meeting 2026-11-01; owner thumbs-up 2026-11-01 15:22 UTC+10 for item 6 effect mockup | missing (effect mockup approved; implementation pending) | [PR #815](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/815); [item6-after-effect.png](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/5bb2bca2446b04ec643d2ecab20859fd62cf311b/docs/mockups/items-4-6-7-0.0.24/item6-after-effect.png); drum-fill mapping in #815 remains a proposal, not separately approved here | Implement approved effect UI after plan; separately confirm drum-fill assignment before treating it as approved |
 | M7 per-part settings toggle | meeting 2026-11-01 | missing | mockup only | Owner approves mockup, then code |
 | M8 PLAY while a question is open: answer NO first, then perform the normal PLAY toggle; HOME+PLAY remains redo | owner decision 2026-11-01 15:21 UTC+10 | approved, planned for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); question dismissal must not swallow PLAY or change HOME+PLAY redo | Implement and host-test question priority, single PLAY toggle and unchanged redo; do not change unrelated PLAY/SONG rules |
+| M9 Approved 0.0.25 integration plan, 15:39 UTC+10 on 2026-11-01 | owner approval 2026-11-01 15:39 UTC+10 | approved, planned for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); approval includes the M10 per-model memory gate | Follow the approved 0.0.25 dependency order; one PR per canonical ROADMAP item, no additional work |
+| M10 Mandatory measured free pool headroom at least 8,192 B on both Elite and Pro at every PR and step | owner added gate 2026-11-01 15:39 UTC+10 | approved, mandatory gate for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); every PR/step must report measured Elite pool headroom (B) and measured Pro pool headroom (B), each >= 8,192 B | BLOCKED if any measurement missing, NOT_RUN, stale, or below 8,192 B; no assumed PASS or advancing without evidence |
+| M11 NIGHTLY publishing automatically follows a passing build; agents never install or flash; owner installs via nightly site | owner rule 2026-11-01 15:42 UTC+10 | approved, mandatory NIGHTLY workflow for 0.0.25 | [GPTOrch plan](https://chatgpt.com/dots/7daae92f-0f52-4f8a-82b3-021e51f85c1b~6ad9893f377081a29824a1b76231edd5); [PR #812](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812); once all relevant checks PASS, publish the passing build to NIGHTLY automatically with no additional owner approval; separate from production/main release | Gate publication on all required checks including M10; no agent hardware install or flash; owner performs any installation himself via nightly site |
 | FX hold + < > remap per button | chat | in progress | #741 (SELECT only), #740 mockups; docs/FEATURE-REGISTRY.md 41.1–41.2 | Extend to REC/SOLO/MUTE; owner approval |
 | Instant unmute (muted bus keeps running) | chat | in 0.0.24 | #810 commit 94a7a6095; engine.c:1608 | Device listening check |
 | Strict installer model match | chat | done | #806 62cf11e98 (tools/fm1_install.py:285 same_model); nightly PR #114 merged 9bc0ac56 | Port nightly-main-strict.patch to nightly main |
