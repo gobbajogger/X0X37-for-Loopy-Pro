@@ -30,13 +30,17 @@ static void item4_sound_recall_proposal(void)
     text_c(132,8,&FONT_T,"HOME + SELECT: RESET SOUND",C_WHITE);
     cv_rect(5,27,214,27,RGB(15,41,41));
     ui_pictogram(12,31,UI_G_SOUND,2,mint);
-    text_c(117,28,&FONT_M,"RESET SOUND",C_WHITE);
+    /* Identify the selected part using the actual firmware engine label. */
+    const char *selected_part=part_display(ui.part);
+    CHECK(tw(&FONT_B,selected_part)<155);
+    text_c(117,27,&FONT_B,selected_part,PART_COL[ui.part]);
+    text_c(117,43,&FONT_T,"RESET SOUND",C_WHITE);
     ui_pictogram(196,31,UI_G_CHECK,2,mint);
     cv_rect(6,56,212,1,edge);
     ui_pictogram(10,60,UI_G_RECORD,1,gold);
     cv_text(23,59,&FONT_T,"UNDO HOME+REC",C_GRAY);
     ui_pictogram(121,60,UI_G_FX_EMPTY,1,ghost);
-    cv_text(135,59,&FONT_T,"NO SAVE: NO OP",C_DIM);
+    cv_text(135,59,&FONT_T,"NO SAVED SOUND",C_GRAY);
     cv_blit(8,84);
 }
 

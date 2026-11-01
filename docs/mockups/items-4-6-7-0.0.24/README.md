@@ -32,9 +32,12 @@ level, pan, sends or mute. It must add one undo transaction so existing
 HOME+REC undoes the reset. No accidental navigation from the SELECT
 button on a successful chord. The transient sound/recall/check glyph
 uses the existing HOME screen. The native-font **"HOME + SELECT: RESET SOUND"**
-hint is paired with the HOME/SELECT and sound/check glyphs, while the larger
-**"RESET SOUND"** label makes the action clear at performance distance.
-The footer says **"UNDO HOME+REC"** and **"NO SAVE: NO OP"**: if the part
+hint is paired with the HOME/SELECT and sound/check glyphs. The native
+`part_display(ui.part)` label prominently names the selected part (for this
+capture, the MIAMI sound on the currently selected 303A part) above **"RESET SOUND"**, so the
+performer can tell which sound will be recalled without losing the action
+label.
+The footer says **"UNDO HOME+REC"** and **"NO SAVED SOUND"**: if the part
 has no saved sound, the eventual handler must **do nothing**, without a
 success notice or unintended navigation. Engine sound parameters are the
 only reset target; level, pan, sends and mute remain unchanged. The labels
