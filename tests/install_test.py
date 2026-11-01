@@ -282,11 +282,14 @@ def errors():
     rc, out, err = cli([p, "--yes", "--no-slots"], dev)
     ok(rc == 6 and dev.upgrades == 0, "SMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent")
     # USB names never decide: a renamed Pro/Elite is found, and identity comes only from the handshake model
-    for name, ident in (("DnBOX 0.0.14 37PRO", "SMK-37 Pro_900"), ("DnBOX 0.0.14 37ELITE", "SMK-37 Elite_900"),
-                        ("Any Name", "SMK-37 Pro_900")):
+    for name, ident in (("DnBOX 0.0.14 37PRO", "SMK-37 Pro_900"), ("Any Name", "SMK-37 Pro_900")):
         dev = FakeSMK(image, identity=ident, name=name)
         rc, out, err = cli([p, "--yes"], dev)
         ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2, f"install: {ident} named {name!r} is discovered and updated")
+    # Strict model gate: a Pro package is never written to a keyboard that reports Elite.
+    dev = FakeSMK(image, identity="SMK-37 Elite_900", name="DnBOX 0.0.14 37ELITE")
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == 6 and dev.upgrades == 0, "Pro package on a keyboard reporting SMK-37 Elite -> exit 6, nothing sent")
     dev = FakeSMK(image, identity="FM-1_900", name="DnBOX 0.0.14 37PRO")
     rc, out, err = cli([p, "--yes"], dev)
     ok(rc == 6 and dev.upgrades == 0, "a '37PRO' USB name never overrides the reported model (FM-1 -> exit 6)")

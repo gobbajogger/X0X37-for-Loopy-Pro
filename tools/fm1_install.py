@@ -282,6 +282,13 @@ def same_keyboard(a, b):
     return ma == mb or bool(SMK_FAMILY.fullmatch(ma) and SMK_FAMILY.fullmatch(mb))
 
 
+def same_model(a, b):
+    """flash gate: the package model must equal the model the keyboard reports (case-insensitive,
+    "ota-" ignored). A family match is not enough, and an FM-1 is never flashed."""
+    ma, mb = model_of(a).lower(), model_of(b).lower()
+    return ma == mb and ma != "fm-1"
+
+
 # ------------------------------------------------------------------ MIDI ---
 
 class MidoLink:
@@ -575,7 +582,7 @@ class Updater:
     def install(self, dev, image, product, step=lambda *a: None):
         """running firmware -> loader -> new firmware; dev from find(). A device already in
         update mode only needs the write."""
-        if not same_keyboard(dev.id.text, product):
+        if not same_model(dev.id.text, product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
         ota = dev if dev.id.loader else self.check(dev, image, step)
