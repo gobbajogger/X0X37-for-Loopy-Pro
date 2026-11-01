@@ -4472,6 +4472,8 @@ static void cv_commit(int region, uint32_t x, uint32_t y)
 #define LCD_TILE_ROWS(n) (((n) + X0X_LCD_TILE_H - 1u) / X0X_LCD_TILE_H)
 static uint32_t main_tileh[LCD_TILE_ROWS(MAIN_ROWS) * X0X_LCD_TILE_COLS];
 static uint32_t knob_tileh[LCD_TILE_ROWS(KNOB_ROWS) * X0X_LCD_TILE_COLS];
+static uint32_t header_tileh[LCD_TILE_ROWS(HDR_H) * X0X_LCD_TILE_COLS];
+static uint32_t header_full_hash, popup_knob_full_hash;
 static void cv_commit_rows(int region, uint32_t x, uint32_t y,
                            uint32_t rows, uint32_t *hashes)
 {
@@ -4488,6 +4490,28 @@ static void cv_commit_rect(int region, uint32_t x, uint32_t y)
 static void cv_commit_knobs(int region)
 {
     cv_commit_rows(region, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
+}
+
+/* Keep the header pixels unchanged; reuse the bounded tile commit for the
+ * tiny beat, cue and status changes instead of sending all 9,600 bytes. */
+static void cv_commit_header(void)
+{
+    /* Unchanged frames pay only the old whole-band hash. */
+    uint32_t h = cv_hash();
+    if (blit_hash[0] && h == header_full_hash) return;
+    cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
+    header_full_hash = h;
+}
+
+/* SMC detail values sit in the lower band, which other views also own.
+ * The popup resets its fast hash when opened, so a prior keyboard strip can
+ * never be mistaken for an unchanged SMC screen. */
+static void cv_commit_popup_knobs(void)
+{
+    uint32_t h = cv_hash();
+    if (blit_hash[3] && h == popup_knob_full_hash) return;
+    cv_commit_knobs(3);
+    popup_knob_full_hash = h;
 }
 
 static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
@@ -4954,7 +4978,7 @@ static UI_DRAW void draw_header(void)
             const felucca_font_t *font = tw(&FONT_B, ui.msg) <= 232 ? &FONT_B : &FONT_XS;
             text_c(120, vc(font, 0, HDR_H - 1), font, ui.msg, C_BLACK);
         }
-        cv_commit(0, 0, 0);
+        cv_commit_header();
         return;
     }
     if (!pickup || (int32_t)(ui.msg_until - plat_ms()) <= 0)
@@ -4990,7 +5014,7 @@ static UI_DRAW void draw_header(void)
         }
         if(ui.rec) dot(190,9,3,RGB(255,50,50));
         if(ss!=SAVE_SAVED) dot(237,3,2,ss==SAVE_FAILED?RGB(255,70,70):C_AMB);
-        cv_commit(0,0,0);
+        cv_commit_header();
         return;
     }
     if (pickup) {                         /* fader pickup hint in the left chip; song/pattern and tempo stay visible */
@@ -5084,7 +5108,7 @@ static UI_DRAW void draw_header(void)
         dot(231, 9, 4, RGB(255, 50, 50));
     if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
         dot(237, 3, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
-    cv_commit(0, 0, 0);
+    cv_commit_header();
 }
 
 /* -------------------------------------------------------------- the views --- */
@@ -8185,6 +8209,7 @@ X0X_COLD void ui_init(void)
         blit_hash[i] = 0;
         cv_tile_valid[i] = 0;
     }
+    header_full_hash = popup_knob_full_hash = 0;
     build_pages();
     undo_start();                                   /* the project as loaded is where undo stops */
     if (project_storage_unsupported()) {
