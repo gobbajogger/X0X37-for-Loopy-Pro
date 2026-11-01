@@ -3,7 +3,11 @@
   "roadmap_blob": "c324dcd639f839e0c9f5f002af6f5dc2b1110d65",
   "required_release_rows": [
     "PR-820",
-    "PR-821"
+    "PR-821",
+    "FIX-809-REVERT",
+    "FIX-UI-TILES",
+    "FIX-SMC-ALIGN",
+    "FIX-INSTALLER-BACKUP"
   ],
   "proofs": {
     "#1": [

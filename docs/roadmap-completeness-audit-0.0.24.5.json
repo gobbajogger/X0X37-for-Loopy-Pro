@@ -1,0 +1,2108 @@
+{
+  "schema": "dnbox-api-source-audit-v1",
+  "not_authorizing": true,
+  "notice": "Independent GitHub API audit; NOT a passing canonical Python completeness gate report; requires exact tree checkout and full suite.",
+  "candidate_commit": "7dcf1e03bf55b6864f551ddd835ef788f5d2b3b8",
+  "candidate_tree": "5b3c4c2e3f650405b3a8e20e8e49b5b4745bbe93",
+  "roadmap_ref": "dd97e2204e9878a73243753a4386a0e065aecbc6",
+  "roadmap_blob": "c324dcd639f839e0c9f5f002af6f5dc2b1110d65",
+  "source_evidence": "docs/roadmap-source-evidence.json",
+  "roadmap_rows": 202,
+  "report_rows": 208,
+  "summary": {
+    "PRESENT": 2,
+    "MISSING": 144,
+    "QUEUED": 62
+  },
+  "passed": false,
+  "rows": [
+    {
+      "id": "DONE-001",
+      "row_line": 19,
+      "roadmap_status": "done",
+      "source_reference": "smk37 branch",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-002",
+      "row_line": 20,
+      "roadmap_status": "done",
+      "source_reference": "0fbfe07 ... be6fc1d",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-003",
+      "row_line": 21,
+      "roadmap_status": "done",
+      "source_reference": "4046fe9, 7269951, c24899f",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-004",
+      "row_line": 22,
+      "roadmap_status": "done",
+      "source_reference": "07eb709",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-005",
+      "row_line": 23,
+      "roadmap_status": "done",
+      "source_reference": "39eafa9 ... bd6f9f3",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-006",
+      "row_line": 24,
+      "roadmap_status": "done",
+      "source_reference": "241bd15 ... 936f155",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-007",
+      "row_line": 25,
+      "roadmap_status": "done",
+      "source_reference": "d3f23c5 ... 25c87bf",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-008",
+      "row_line": 26,
+      "roadmap_status": "done",
+      "source_reference": "62fc644 ... 81d5f74",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-009",
+      "row_line": 27,
+      "roadmap_status": "done",
+      "source_reference": "07159b6 ... 7972fbb",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-010",
+      "row_line": 28,
+      "roadmap_status": "done",
+      "source_reference": "2026-10-15",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-011",
+      "row_line": 29,
+      "roadmap_status": "done",
+      "source_reference": "ab44241 (flash_review, ble-stage3)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-012",
+      "row_line": 30,
+      "roadmap_status": "done",
+      "source_reference": "bad7b95, 70a9a5f (flash_review, ble-stage3)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-013",
+      "row_line": 31,
+      "roadmap_status": "done",
+      "source_reference": "f0bcb28 (a52)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-014",
+      "row_line": 32,
+      "roadmap_status": "done",
+      "source_reference": "79eb477 (a59), 4e6ae9b (a60)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-015",
+      "row_line": 33,
+      "roadmap_status": "done",
+      "source_reference": "94285b5 (a67)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-016",
+      "row_line": 34,
+      "roadmap_status": "done",
+      "source_reference": "9984344",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-017",
+      "row_line": 35,
+      "roadmap_status": "done",
+      "source_reference": "355f920",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-018",
+      "row_line": 36,
+      "roadmap_status": "done",
+      "source_reference": "453e9c8, 9a0b2c2",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-019",
+      "row_line": 37,
+      "roadmap_status": "done",
+      "source_reference": "d303e4e (in 89f680e), bd254a0 (integration be9a097)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-020",
+      "row_line": 38,
+      "roadmap_status": "done",
+      "source_reference": "48892fe, 4113ce0 (in the installed build c6bf44a)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "DONE-021",
+      "row_line": 39,
+      "roadmap_status": "done",
+      "source_reference": "7cef9e4, 2012283 (in f9bcc46)",
+      "roadmap_section": "done",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#1",
+      "row_line": 125,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "PRESENT",
+      "reason": "candidate source blob and unique signature match independently pinned origin",
+      "verified_evidence": {
+        "origin_commit": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+        "verified_blob": "8ddeb9d588ece0612b8aedaafe1900d573c7215f",
+        "pr": "#699"
+      }
+    },
+    {
+      "id": "#2",
+      "row_line": 126,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#3",
+      "row_line": 127,
+      "roadmap_status": "verified and agreed by owner",
+      "source_reference": "owner verification and agreement 2026-11-01 15:44 UTC+10; earlier #699 / feature-check-734 audit",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#4",
+      "row_line": 128,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#5",
+      "row_line": 129,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#6",
+      "row_line": 130,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#7",
+      "row_line": 131,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#8",
+      "row_line": 132,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#9",
+      "row_line": 133,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#10",
+      "row_line": 134,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#11",
+      "row_line": 135,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#12",
+      "row_line": 136,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#13",
+      "row_line": 137,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#14",
+      "row_line": 138,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#15",
+      "row_line": 139,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#16",
+      "row_line": 140,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#17",
+      "row_line": 141,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#18",
+      "row_line": 142,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#19",
+      "row_line": 143,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#20",
+      "row_line": 144,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#21",
+      "row_line": 145,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#22",
+      "row_line": 146,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#23",
+      "row_line": 147,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "PRESENT",
+      "reason": "candidate source blob and unique signature match independently pinned origin",
+      "verified_evidence": {
+        "origin_commit": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+        "verified_blob": "b63872df6fc471ec024fad80965cf28d27c3092a",
+        "pr": "#694"
+      }
+    },
+    {
+      "id": "#24",
+      "row_line": 148,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#25",
+      "row_line": 149,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#26",
+      "row_line": 150,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#27",
+      "row_line": 151,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#28",
+      "row_line": 152,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#29",
+      "row_line": 153,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#30",
+      "row_line": 154,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#31",
+      "row_line": 155,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#32",
+      "row_line": 156,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#33",
+      "row_line": 157,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#34",
+      "row_line": 158,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#35",
+      "row_line": 159,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#36",
+      "row_line": 160,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#37",
+      "row_line": 161,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#38",
+      "row_line": 162,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#39",
+      "row_line": 163,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#40",
+      "row_line": 164,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#41",
+      "row_line": 165,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#42",
+      "row_line": 166,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#43",
+      "row_line": 167,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#44",
+      "row_line": 168,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#45",
+      "row_line": 169,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#46",
+      "row_line": 170,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#47",
+      "row_line": 171,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#48",
+      "row_line": 172,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#49",
+      "row_line": 173,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#50",
+      "row_line": 174,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#51",
+      "row_line": 175,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#52",
+      "row_line": 176,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#53",
+      "row_line": 177,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#54",
+      "row_line": 178,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#55",
+      "row_line": 179,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#56",
+      "row_line": 180,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#57",
+      "row_line": 181,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#58",
+      "row_line": 182,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#59",
+      "row_line": 183,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#60",
+      "row_line": 184,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#61",
+      "row_line": 185,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#62",
+      "row_line": 186,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#63",
+      "row_line": 187,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#64",
+      "row_line": 188,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#65",
+      "row_line": 189,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#66",
+      "row_line": 190,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#67",
+      "row_line": 191,
+      "roadmap_status": "in progress",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#68",
+      "row_line": 192,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#69",
+      "row_line": 193,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#70",
+      "row_line": 194,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#71",
+      "row_line": 195,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#72",
+      "row_line": 196,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#73",
+      "row_line": 197,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#74",
+      "row_line": 198,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#75",
+      "row_line": 199,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#76",
+      "row_line": 200,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#77",
+      "row_line": 201,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#78",
+      "row_line": 202,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#79",
+      "row_line": 203,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#80",
+      "row_line": 204,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#81",
+      "row_line": 205,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#82",
+      "row_line": 206,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#83",
+      "row_line": 207,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#84",
+      "row_line": 208,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#85",
+      "row_line": 209,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#86",
+      "row_line": 210,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#87",
+      "row_line": 211,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#88",
+      "row_line": 212,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#89",
+      "row_line": 213,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#90",
+      "row_line": 214,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#91",
+      "row_line": 215,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#92",
+      "row_line": 216,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#93",
+      "row_line": 217,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#94",
+      "row_line": 218,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#95",
+      "row_line": 219,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#96",
+      "row_line": 220,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#97",
+      "row_line": 221,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#98",
+      "row_line": 222,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#99",
+      "row_line": 223,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#100",
+      "row_line": 224,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#101",
+      "row_line": 225,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#102",
+      "row_line": 226,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#103",
+      "row_line": 227,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#104",
+      "row_line": 228,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#105",
+      "row_line": 229,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#106",
+      "row_line": 230,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#107",
+      "row_line": 231,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#108",
+      "row_line": 232,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#109",
+      "row_line": 233,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#110",
+      "row_line": 234,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#111",
+      "row_line": 235,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#112",
+      "row_line": 236,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#113",
+      "row_line": 237,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#114",
+      "row_line": 238,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#115",
+      "row_line": 239,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#116",
+      "row_line": 240,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#117",
+      "row_line": 241,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#118",
+      "row_line": 242,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#119",
+      "row_line": 243,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#120",
+      "row_line": 244,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#121",
+      "row_line": 245,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "#122",
+      "row_line": 246,
+      "roadmap_status": "missing",
+      "source_reference": "#699 / feature-check-734",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L247",
+      "row_line": 247,
+      "roadmap_status": "in progress",
+      "source_reference": "gptorch-archive/recovered-41-request-list.txt",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L248",
+      "row_line": 248,
+      "roadmap_status": "done",
+      "source_reference": "gptorch-archive/delta-0212/note.txt",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L249",
+      "row_line": 249,
+      "roadmap_status": "done",
+      "source_reference": "gptorch-archive/dnbox-122-feature-reconciliation.xlsx",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-790",
+      "row_line": 250,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-791",
+      "row_line": 251,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-792",
+      "row_line": 252,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-793",
+      "row_line": 253,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-794",
+      "row_line": 254,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-795",
+      "row_line": 255,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-796",
+      "row_line": 256,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-797",
+      "row_line": 257,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-799",
+      "row_line": 258,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-801",
+      "row_line": 259,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-802",
+      "row_line": 260,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-804",
+      "row_line": 261,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-805",
+      "row_line": 262,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-806",
+      "row_line": 263,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-808",
+      "row_line": 264,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-811",
+      "row_line": 265,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-810",
+      "row_line": 266,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-798",
+      "row_line": 267,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-800",
+      "row_line": 268,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-803",
+      "row_line": 269,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-789",
+      "row_line": 270,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-807",
+      "row_line": 271,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-809",
+      "row_line": 272,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "integrated.md (verify-024)",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L1",
+      "row_line": 273,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L2",
+      "row_line": 274,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L3",
+      "row_line": 275,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L4",
+      "row_line": 276,
+      "roadmap_status": "waiting on owner",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L5",
+      "row_line": 277,
+      "roadmap_status": "waiting on owner",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L6",
+      "row_line": 278,
+      "roadmap_status": "approved, planned for 0.0.25 (M1 alias)",
+      "source_reference": "owner decision 2026-11-01 15:21 UTC+10; supersedes original L6 audit",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L7",
+      "row_line": 279,
+      "roadmap_status": "waiting on owner",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L8",
+      "row_line": 280,
+      "roadmap_status": "done",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L9",
+      "row_line": 281,
+      "roadmap_status": "missing",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L10",
+      "row_line": 282,
+      "roadmap_status": "waiting on owner",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L11",
+      "row_line": 283,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L12",
+      "row_line": 284,
+      "roadmap_status": "in progress",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "L13",
+      "row_line": 285,
+      "roadmap_status": "missing",
+      "source_reference": "x0x37-results/codex-briefs-live-0.0.24.md",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M1",
+      "row_line": 286,
+      "roadmap_status": "approved, planned for 0.0.25",
+      "source_reference": "owner decision 2026-11-01 15:21 UTC+10 (replaces earlier HOME/STOP-hold proposals)",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M2",
+      "row_line": 287,
+      "roadmap_status": "done",
+      "source_reference": "meeting 2026-11-01",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M3",
+      "row_line": 288,
+      "roadmap_status": "done",
+      "source_reference": "meeting 2026-11-01",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M4",
+      "row_line": 289,
+      "roadmap_status": "missing (reset-overlay mockup approved and final; implementation pending)",
+      "source_reference": "meeting 2026-11-01; owner thumbs-up 2026-11-01 15:22 UTC+10",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M5",
+      "row_line": 290,
+      "roadmap_status": "waiting on owner",
+      "source_reference": "meeting 2026-11-01",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M6",
+      "row_line": 291,
+      "roadmap_status": "missing (effect mockup approved; implementation pending)",
+      "source_reference": "meeting 2026-11-01; owner thumbs-up 2026-11-01 15:22 UTC+10 for item 6 effect mockup",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M7",
+      "row_line": 292,
+      "roadmap_status": "missing",
+      "source_reference": "meeting 2026-11-01",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M8",
+      "row_line": 293,
+      "roadmap_status": "approved, planned for 0.0.25",
+      "source_reference": "owner decision 2026-11-01 15:21 UTC+10",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M9",
+      "row_line": 294,
+      "roadmap_status": "approved, planned for 0.0.25",
+      "source_reference": "owner approval 2026-11-01 15:39 UTC+10; [public rules](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812#issuecomment-6557286905)",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M10",
+      "row_line": 295,
+      "roadmap_status": "approved, mandatory gate for 0.0.25",
+      "source_reference": "owner gate 2026-11-01 15:39 UTC+10; [public rules](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812#issuecomment-6557286905)",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M11",
+      "row_line": 296,
+      "roadmap_status": "approved, mandatory NIGHTLY workflow for 0.0.25",
+      "source_reference": "owner rule 2026-11-01 15:42 UTC+10; [public rules](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812#issuecomment-6557286905)",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "M12",
+      "row_line": 297,
+      "roadmap_status": "implementation pending (NOT delivered; already assigned to its own builder/PR)",
+      "source_reference": "owner-approved [public workflow and gate summary](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/812#issuecomment-6557286905), 2026-11-01; existing dedicated classic builder owns implementation",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "QA1",
+      "row_line": 298,
+      "roadmap_status": "open (pre-existing baseline test failure; not a #813 regression)",
+      "source_reference": "[#813 QA](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/813), owner QA report 2026-11-01",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "QA2",
+      "row_line": 299,
+      "roadmap_status": "open, scheduled after the 2026-11-01 18:00 UTC+10 show",
+      "source_reference": "owner via Orchestrator, 2026-11-01; #813/#814 QA",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L300",
+      "row_line": 300,
+      "roadmap_status": "in progress",
+      "source_reference": "chat",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L301",
+      "row_line": 301,
+      "roadmap_status": "in 0.0.24",
+      "source_reference": "chat",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L302",
+      "row_line": 302,
+      "roadmap_status": "done",
+      "source_reference": "chat",
+      "roadmap_section": "tracker",
+      "result": "MISSING",
+      "reason": "required source not independently pinned; ROADMAP or PR text is not source evidence",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L303",
+      "row_line": 303,
+      "roadmap_status": "in progress",
+      "source_reference": "chat",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L304",
+      "row_line": 304,
+      "roadmap_status": "in progress",
+      "source_reference": "chat",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "UNNUMBERED-L305",
+      "row_line": 305,
+      "roadmap_status": "in progress",
+      "source_reference": "chat",
+      "roadmap_section": "tracker",
+      "result": "QUEUED",
+      "reason": "not yet built or accepted for this release",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-820",
+      "roadmap_section": "release scope",
+      "row_line": null,
+      "roadmap_status": "selected release fix missing from ROADMAP",
+      "source_reference": "",
+      "result": "MISSING",
+      "reason": "selected fix has no canonical ROADMAP row or independently pinned source proof",
+      "verified_evidence": {}
+    },
+    {
+      "id": "PR-821",
+      "roadmap_section": "release scope",
+      "row_line": null,
+      "roadmap_status": "selected release fix missing from ROADMAP",
+      "source_reference": "",
+      "result": "MISSING",
+      "reason": "selected fix has no canonical ROADMAP row or independently pinned source proof",
+      "verified_evidence": {}
+    },
+    {
+      "id": "FIX-809-REVERT",
+      "roadmap_section": "release scope",
+      "row_line": null,
+      "roadmap_status": "selected release fix missing from ROADMAP",
+      "source_reference": "",
+      "result": "MISSING",
+      "reason": "selected fix has no canonical ROADMAP row or independently pinned source proof",
+      "verified_evidence": {}
+    },
+    {
+      "id": "FIX-UI-TILES",
+      "roadmap_section": "release scope",
+      "row_line": null,
+      "roadmap_status": "selected release fix missing from ROADMAP",
+      "source_reference": "",
+      "result": "MISSING",
+      "reason": "selected fix has no canonical ROADMAP row or independently pinned source proof",
+      "verified_evidence": {}
+    },
+    {
+      "id": "FIX-SMC-ALIGN",
+      "roadmap_section": "release scope",
+      "row_line": null,
+      "roadmap_status": "selected release fix missing from ROADMAP",
+      "source_reference": "",
+      "result": "MISSING",
+      "reason": "selected fix has no canonical ROADMAP row or independently pinned source proof",
+      "verified_evidence": {}
+    },
+    {
+      "id": "FIX-INSTALLER-BACKUP",
+      "roadmap_section": "release scope",
+      "row_line": null,
+      "roadmap_status": "selected release fix missing from ROADMAP",
+      "source_reference": "",
+      "result": "MISSING",
+      "reason": "selected fix has no canonical ROADMAP row or independently pinned source proof",
+      "verified_evidence": {}
+    }
+  ]
+}
