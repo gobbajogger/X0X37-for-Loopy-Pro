@@ -7,6 +7,9 @@ OUT=${1:-build/chicago_fx2_inserts}; mkdir -p "$OUT"
 . tests/host/original_build.sh
 EXP=$(printf '%s\n' $ORIGINAL_SOURCES | grep '^experiments/')
 for flags in -O2 '-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all'; do
+    # Linux ASan PIE startup can fail before main under randomized mappings.
+    # Use a fixed-layout executable only for the sanitized host test.
+    case "$(uname -s):$flags" in Linux:*sanitize*) flags="$flags -fno-pie -no-pie" ;; esac
     ${CC:-cc} -std=c99 $flags -Wall -Wextra $ORIGINAL_FLAGS -Ifirmware/src -Ifirmware/src/app \
         tests/host/chicago_fx2_inserts_test.c firmware/src/app/original_sound.c $EXP -lm -o "$OUT/t"
     "$OUT/t"

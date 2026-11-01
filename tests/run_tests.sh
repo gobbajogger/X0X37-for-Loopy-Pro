@@ -657,6 +657,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout 
 run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
 run perf-wheel-noise sh tests/host/perf_wheel_noise_test.sh
 run control-recompile sh tests/host/control_recompile_test.sh
+run chicago-coef-cache sh tests/host/chicago_coef_cache_test.sh
 run audio-stress sh tests/host/audio_stress_test.sh
 run synth-param-jump sh tests/host/synth_param_jump_test.sh
 run param-write-sources sh tests/host/param_write_sources_test.sh
