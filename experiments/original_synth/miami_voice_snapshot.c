@@ -151,6 +151,8 @@ int original_miami_voice_snapshot_decode(original_miami_voice_snapshot *out,cons
  if(!out)return 0;
  original_miami_voice_snapshot n;
  if(!original_state_decode(&schema,&n,bytes,length))return 0;
+ /* The 130 wire words never include transient coefficient caches. */
+ original_miami_selected_voice_invalidate_caches(&n.voice);
  *out=n;
  return 1;
 }
