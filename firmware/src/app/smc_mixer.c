@@ -824,6 +824,7 @@ static void smc_ui_off(void)
     if (!smc_ui.on)
         return;
     smc_ui.on = 0;
+    popup_knob_full_hash = 0;
     for (int i = 0; i < 4; i++) blit_hash[i] = 0;
 #if BOARD_SMK37
     { extern void smk_clip_lcd_force(void); smk_clip_lcd_force(); }
@@ -864,6 +865,7 @@ static void smc_ui_begin(int n, int kind)
         smc_ui_cancel();
         return;                         /* Help keeps its card; confirmation keeps ownership. */
     }
+    if (!smc_ui.on) popup_knob_full_hash = 0;
     smc_ui.on = 1;
     smc_ui.peer = smc_slot;
     smc_ui.strip = (uint8_t)n;
@@ -1275,7 +1277,7 @@ static void smc_ui_draw_peer(void)
         ui_pictogram(target_number?108:116,49,status_symbol,1,C_HI);
         if (target_number) {put_i(tag,target_number);cv_text(121,49,&FONT_XS,tag,C_HI);}
     }
-    cv_commit_knobs(3);
+    cv_commit_popup_knobs();
 }
 void smc_ui_draw(void)
 {

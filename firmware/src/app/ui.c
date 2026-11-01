@@ -4420,6 +4420,7 @@ static uint32_t knob_rowh[KNOB_H], knob_colh[MAIN_COLB];
 /* The clock, cue and popup icons change only part of the header. Keep an
  * independent dirty-rectangle history for its 20 rows (9600 full bytes). */
 static uint32_t header_rowh[HDR_H], header_colh[MAIN_COLB];
+static uint32_t header_full_hash, popup_knob_full_hash;
 /* rows: the strip's height; last_rowh/last_colh: its hashes as last sent */
 static void cv_commit_rows(int region, uint32_t x, uint32_t y, uint32_t rows, uint32_t *last_rowh, uint32_t *last_colh)
 {
@@ -4492,7 +4493,23 @@ static void cv_commit_knobs(int region)
  * Reuses the established pixel comparison without touching LCD dispatch. */
 static void cv_commit_header(void)
 {
+    /* Unchanged frames pay for the same single hash as the old full blit.
+     * Recompute the row/column bounds only when a header pixel changes. */
+    uint32_t h = cv_hash();
+    if (blit_hash[0] && h == header_full_hash) return;
     cv_commit_rows(0, 0, 0, HDR_H, header_rowh, header_colh);
+    header_full_hash = h;
+}
+
+/* SMC detail values sit in the lower band, which other views also own.
+ * The popup resets its fast hash when opened, so a prior keyboard strip can
+ * never be mistaken for an unchanged SMC screen. */
+static void cv_commit_popup_knobs(void)
+{
+    uint32_t h = cv_hash();
+    if (blit_hash[3] && h == popup_knob_full_hash) return;
+    cv_commit_knobs(3);
+    popup_knob_full_hash = h;
 }
 
 static uint16_t blend(uint16_t a, uint16_t b, int t)  /* a..b, t of 16 */
@@ -8169,6 +8186,7 @@ X0X_COLD void ui_init(void)
     palette_set(proj.set.palette);
     for (i = 0; i < 4; i++)
         blit_hash[i] = 0;
+    header_full_hash = popup_knob_full_hash = 0;
     build_pages();
     undo_start();                                   /* the project as loaded is where undo stops */
     if (project_storage_unsupported()) {
