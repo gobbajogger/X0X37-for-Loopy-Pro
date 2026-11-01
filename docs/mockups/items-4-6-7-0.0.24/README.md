@@ -31,8 +31,14 @@ parameters to their project-saved values**. It must not restore mixer
 level, pan, sends or mute. It must add one undo transaction so existing
 HOME+REC undoes the reset. No accidental navigation from the SELECT
 button on a successful chord. The transient sound/recall/check glyph
-uses the existing HOME screen, and its HOME+REC pictogram illustrates
-undo. The glyph changes only the mockup, not firmware behavior.
+uses the existing HOME screen. The native-font **"HOME + SELECT: RESET SOUND"**
+hint is paired with the HOME/SELECT and sound/check glyphs, while the larger
+**"RESET SOUND"** label makes the action clear at performance distance.
+The footer says **"UNDO HOME+REC"** and **"NO SAVE: NO OP"**: if the part
+has no saved sound, the eventual handler must **do nothing**, without a
+success notice or unintended navigation. Engine sound parameters are the
+only reset target; level, pan, sends and mute remain unchanged. The labels
+and glyphs here change only the mockup, not firmware behavior.
 
 ## Item 6: FX-page button priority and proposed fill placement
 
@@ -41,8 +47,13 @@ no full-screen modal screen or new page is added. A momentary FX button
 continues to represent one effect throw.
 
 * When **exactly one FX button is held**, `<` / `>` steps the effect
-  assigned to **that held button**, with the FX pictogram between native
-  previous/next pictograms. This wins over HOME navigation.
+  assigned to **that held button**. In the revised effect screenshot, the
+  highlighted CHICAGO SELECT FX cell is actually assigned REVERB on the
+  pinned factory map (verified in the render harness). The native
+  23-pixel font displays **"REVERB"** large in a **single, full-width
+  82-pixel footer**, beside clear arrow glyphs; the top hint reads
+  **"FX + < >"** beside an FX/held-button pictogram. No extra left
+  grid panel. This wins over HOME navigation.
 * **SMC HOME + `<` / `>` changes the FX page only when no FX button
   is held**. On the FX page SMC HOME (note 6) is itself an FX key,
   so its held effect takes priority. The keyboard HOME modifier is

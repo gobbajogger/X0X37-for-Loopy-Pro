@@ -8,40 +8,36 @@
 #include "../../../tests/host/smc_ui_test.c"
 #undef SMC_UI_MAIN
 
-static void mini_connector(int x,int y,uint16_t c)
-{
-    cv_line(x,y,x+15,y,c);
-    cv_rect(x+3,y-1,2,3,c);
-    cv_rect(x+11,y-1,2,3,c);
-}
 
 static void item4_sound_recall_proposal(void)
 {
     const uint16_t mint=RGB(149,255,185), edge=RGB(49,151,102);
-    const uint16_t gold=RGB(255,190,77);
-    const uint16_t face=RGB(12,31,32);
-    /* Transient native canvas overlay ON the existing HOME view. */
-    cv_begin(224,39,face);
-    cv_rect(0,0,224,39,RGB(8,23,26));
-    cv_rect(0,0,224,1,edge);
-    cv_rect(0,38,224,1,edge);
-    cv_rect(0,0,1,39,edge);
-    cv_rect(223,0,1,39,edge);
-    cv_rect(5,4,33,31,RGB(26,68,58));
-    ui_pictogram(13,10,UI_G_SOUND,2,mint);
-    mini_connector(42,20,edge);
-    ui_pictogram(68,9,UI_G_CYCLE,2,gold);
-    mini_connector(96,20,edge);
-    cv_rect(117,4,34,31,RGB(18,67,48));
-    ui_pictogram(125,10,UI_G_CHECK,2,mint);
-    /* The right-hand glyph chord shows HOME+REC for undo. */
-    cv_rect(157,4,62,31,RGB(19,35,36));
-    ui_pictogram(162,14,UI_G_HOME,1,mint);
-    cv_rect(175,18,5,1,edge);
-    cv_rect(177,16,1,5,edge);
-    ui_pictogram(185,14,UI_G_RECORD,1,gold);
-    ui_pictogram(204,14,UI_G_PREV,1,mint);
-    cv_blit(8,108);
+    const uint16_t gold=RGB(255,190,77), ghost=RGB(112,144,148);
+    /* Review-only transient notice over the real HOME framebuffer.
+     * Glyphs disambiguate the SMC HOME + strip SELECT shortcut from keyboard
+     * HOME + black key (mute). The latter is never shown in this proposal.
+     * Engine-only reset, with mixer state invariant; missing saved sound => no-op.
+     */
+    cv_begin(224,74,RGB(10,25,30));
+    cv_rect(0,0,224,74,RGB(9,23,28));
+    cv_rect(0,0,224,2,edge);
+    cv_rect(0,72,224,2,edge);
+    cv_rect(0,0,2,74,edge);
+    cv_rect(222,0,2,74,edge);
+    cv_rect(5,5,214,19,RGB(21,48,46));
+    ui_pictogram(10,9,UI_G_HOME,1,mint);
+    ui_pictogram(24,9,UI_G_SELECT,1,mint);
+    text_c(132,8,&FONT_T,"HOME + SELECT: RESET SOUND",C_WHITE);
+    cv_rect(5,27,214,27,RGB(15,41,41));
+    ui_pictogram(12,31,UI_G_SOUND,2,mint);
+    text_c(117,28,&FONT_M,"RESET SOUND",C_WHITE);
+    ui_pictogram(196,31,UI_G_CHECK,2,mint);
+    cv_rect(6,56,212,1,edge);
+    ui_pictogram(10,60,UI_G_RECORD,1,gold);
+    cv_text(23,59,&FONT_T,"UNDO HOME+REC",C_GRAY);
+    ui_pictogram(121,60,UI_G_FX_EMPTY,1,ghost);
+    cv_text(135,59,&FONT_T,"NO SAVE: NO OP",C_DIM);
+    cv_blit(8,84);
 }
 
 static void paint_fx_cell(int strip,int row,int glyph,uint16_t ink,int selected)
@@ -56,48 +52,83 @@ static void paint_fx_cell(int strip,int row,int glyph,uint16_t ink,int selected)
     cv_blit(x,y);
 }
 
+
+/* The audio effect's source name is still governed by the production
+ * SMCFX table. This fixture visualizes the REVERB effect on the Chicago
+ * SELECT FX button (index 3, page 0), rather than inventing a value. */
 static void item6_fx_proposal(int fill_active)
 {
     const uint16_t amber=RGB(255,190,77), bright=RGB(145,239,246);
     const uint16_t green=RGB(152,247,160), dim=RGB(45,70,72);
-    /* Item 6 changes only the existing eight-strip mixer window. A dedicated
-       BRK strip REC button (SMC note 2) is proposed as a drum-fill gesture.
-       FX button held on RVB SELECT remains momentary; arrows step its effect. */
     for(int n=0;n<8;n++) {
         int bus=smc_fx_bus_now((uint8_t)(24+n));
         if(bus<0) continue;
         unsigned fx=smcfx_strip_get(&smc.fx_strip,smc.fx_page,bus,SMCFX_SELECT);
         int symbol=smc_fx_symbol(fx);
         if(symbol==UI_G_NONE)symbol=UI_G_FX_EMPTY;
-        paint_fx_cell(n,3,symbol,n==5?bright:C_GRAY,n==5);
+        int highlighted=fill_active ? (n==5) : (n==3);
+        paint_fx_cell(n,3,symbol,highlighted?bright:C_GRAY,highlighted);
     }
-    /* Dedicated fill button has an unambiguous roll/step glyph, never CYC. */
-    paint_fx_cell(2,2,UI_G_FX_STUTTER,fill_active?C_WHITE:amber,1);
-    /* Two compact feedback islands in the existing 82px mixer footer. */
+    /* Verify the highlighted CHICAGO SELECT button really holds REVERB
+     * in the unchanged pinned base, rather than labeling an invented FX. */
+    if(!fill_active) {
+        int held_bus=smc_fx_bus_now(27u);
+        CHECK(held_bus==3);
+        CHECK(smcfx_strip_get(&smc.fx_strip,smc.fx_page,
+                              held_bus,SMCFX_SELECT)==SMCFX_REV);
+        CHECK(tw(&FONT_T,"HOME + SELECT: RESET SOUND")<185);
+        CHECK(tw(&FONT_M,"REVERB")<174);
+    }
+    /* BRK REC (note 2) is the proposed fill button, replacing one FX throw. */
+    paint_fx_cell(2,2,UI_G_FX_STUTTER,fill_active?C_WHITE:amber,fill_active);
+
     cv_begin(240,KNOB_H,C_BLACK);
     cv_rect(0,0,240,1,C_LINE);
-    cv_rect(5,7,108,67,RGB(14,27,32));
-    cv_rect(5,7,108,1,fill_active?C_WHITE:amber);
-    cv_rect(5,73,108,1,RGB(68,76,64));
-    cv_rect(125,7,110,67,RGB(15,32,37));
-    cv_rect(125,7,110,1,bright);
-    cv_rect(125,73,110,1,dim);
-    ui_pictogram(15,15,UI_G_PATTERN,2,amber);
-    ui_pictogram(49,14,UI_G_FX_STUTTER,2,fill_active?C_WHITE:amber);
-    ui_pictogram(84,19,fill_active?UI_G_PLAY:UI_G_HOLD,1,fill_active?green:C_GRAY);
-    for(int k=0;k<8;k++) {
-        int h=(k%3==0?12:k%3==1?7:16);
-        int x=12+k*12;
-        uint16_t c=fill_active && (k==1||k==3||k==5||k==6)?green:(k<5?amber:dim);
-        cv_rect(x,64-h,7,h,c);
-        cv_rect(x,65,7,2,dim);
+    if(!fill_active) {
+        /* One single footer, no confusing mini-grid. Both icon and text
+         * identify the HOLD + arrows instruction while the current effect
+         * name dominates. All primitives belong to the real firmware UI. */
+        cv_rect(5,5,230,72,RGB(13,31,36));
+        cv_rect(5,5,230,1,bright);
+        cv_rect(5,76,230,1,dim);
+        cv_rect(5,5,1,72,dim);
+        cv_rect(234,5,1,72,dim);
+        cv_rect(11,9,51,18,RGB(22,61,64));
+        ui_pictogram(15,10,UI_G_HOLD,1,amber);
+        ui_pictogram(33,10,UI_G_FX_REVERB,1,bright);
+        text_c(146,10,&FONT_B,"FX + < >",C_WHITE);
+        cv_rect(12,30,216,1,dim);
+        ui_pictogram(16,42,UI_G_PREV,2,bright);
+        ui_pictogram(206,42,UI_G_NEXT,2,bright);
+        text_c(120,34,&FONT_M,"REVERB",C_WHITE);
+        cv_rect(83,69,74,2,dim);
+        cv_rect(100,69,40,2,bright);
+    } else {
+        /* The fill screenshot is intentionally unchanged from v1 so the
+         * separate owner's fill-placement proposal stays reviewable. */
+        cv_rect(5,7,108,67,RGB(14,27,32));
+        cv_rect(5,7,108,1,C_WHITE);
+        cv_rect(5,73,108,1,RGB(68,76,64));
+        cv_rect(125,7,110,67,RGB(15,32,37));
+        cv_rect(125,7,110,1,bright);
+        cv_rect(125,73,110,1,dim);
+        ui_pictogram(15,15,UI_G_PATTERN,2,amber);
+        ui_pictogram(49,14,UI_G_FX_STUTTER,2,C_WHITE);
+        ui_pictogram(84,19,UI_G_PLAY,1,green);
+        for(int k=0;k<8;k++) {
+            int h=(k%3==0?12:k%3==1?7:16);
+            int x=12+k*12;
+            uint16_t c=(k==1||k==3||k==5||k==6)?green:(k<5?amber:dim);
+            cv_rect(x,64-h,7,h,c);
+            cv_rect(x,65,7,2,dim);
+        }
+        ui_pictogram(137,25,UI_G_PREV,2,bright);
+        ui_pictogram(166,21,UI_G_FX_REVERB,3,C_GRAY);
+        ui_pictogram(207,25,UI_G_NEXT,2,bright);
+        ui_pictogram(175,54,UI_G_HOLD,1,C_GRAY);
+        cv_rect(157,65,55,2,dim);
+        cv_rect(173,65,24,2,amber);
     }
-    ui_pictogram(137,25,UI_G_PREV,2,bright);
-    ui_pictogram(166,21,UI_G_FX_REVERB,3,fill_active?C_GRAY:C_WHITE);
-    ui_pictogram(207,25,UI_G_NEXT,2,bright);
-    ui_pictogram(175,54,UI_G_HOLD,1,C_GRAY);
-    cv_rect(157,65,55,2,dim);
-    cv_rect(173,65,24,2,fill_active?amber:bright);
     cv_blit(0,KNOB_Y);
 }
 
