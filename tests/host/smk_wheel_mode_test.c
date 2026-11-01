@@ -125,9 +125,15 @@ static void select_part(int part, int smc_path)
     if (smc_path) {
         /* SELECT notes 24..28 are FX holds, not navigation. The SMC's real
          * part selector is still used by REC and the bank/channel route. */
+        /* #789: SMC part selection is its own context and leaves the keyboard
+         * part (which owns the wheels) alone. Select on the SMC, check that,
+         * then select the keyboard part the wheels follow. */
+        uint8_t keyboard = ui.part;
         smc_select_part(part);
         smc_poll(); smc_frame();
-        assert(ui.part == part);
+        assert(smc.part == part && ui.part == keyboard);
+        bass_step_cancel(); drum_step_cancel(); ui.part = (uint8_t)part;
+        build_pages();
     } else {
         bass_step_cancel(); drum_step_cancel(); ui.part = (uint8_t)part;
         build_pages();
