@@ -14,7 +14,7 @@ int main(void)
     assert(lcd_trace_percentile(LCD_T_AUDIO,95)==60u);
     assert(lcd_trace_hist[LCD_T_AUDIO].worst==63u);
     tick=24u*10u;
-    lcd_trace_input_tick(1, 4u);
+    lcd_trace_input_tick(1, 2u, 4u);
     tick=24u*12u;
     lcd_trace_dispatch();
     assert(lcd_trace_percentile(LCD_T_KEY,50)==2u);

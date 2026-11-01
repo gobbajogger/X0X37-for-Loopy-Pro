@@ -141,7 +141,7 @@ void fm1_timer5_irq(void)
         x0x_dbg.nested++;
     fm1_input_tick();
 #if X0X_LCD_TRACE && BOARD_SMK37
-    lcd_trace_input_tick(fm1_in.keys, mi_w);
+    lcd_trace_input_tick(fm1_in.keys, fm1_in.notes, mi_w);
 #endif
 #if X0X_BLE
     fm1_t5w_check(1u, fm1_ms);
