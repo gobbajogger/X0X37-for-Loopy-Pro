@@ -120,6 +120,8 @@ BAS-11. On a Chicago or Miami part, the pitch wheel and external pitch bend on t
 BAS-12. With REC on and the sequencer playing, a bend, mod-wheel or CC1 move (device wheel or external MIDI) records a motion lane for that parameter. The lane plays back with REC off. Damper lanes record and play back the same way. A knob edit of CUTOFF or WOBBLE DEPTH takes the parameter back from the wheel. [USER] [CODE app/engine.c mot_base mot_apply mot_restore, app/main_fm1.c smk_wheels] [TEST host/perf_wheel_motion_test.c] (Added 2026-10-30.)
 BAS-12A. A resting wheel with ADC jitter or a single spike does not move bend, CUTOFF or WOBBLE DEPTH and does not record or hold a motion lane. The pitch-wheel range grows by one count per scan, and a one-step reading change (not rest and not an end) is ignored. Mod-wheel endpoint learning grows by one count only after equal readings on adjacent ADC publications beyond the endpoint, so cached polls, missed observations and isolated high-spike tails cannot confirm an extreme. [USER] [CODE app/main_fm1.c smk_wheels, hal/smk_input.h smk__wheel] [TEST host/perf_wheel_noise_test.c, host/synth_param_jump_test.c] (Added 2026-10-31; B4 extension 2026-11-01, box validation pending.)
 
+BAS-13. Chicago coefficient caching: no behaviour change (bit-identical). [CODE experiments/original_synth/chicago_voice.c] [TEST tests/host/chicago_coef_cache_test.c]
+
 ## 5. TB-3PO
 
 TB3-01. TB-3PO writes 303 lines. Select a 303 and press ARP. [MANUAL §7]

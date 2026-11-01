@@ -65,6 +65,29 @@ typedef struct {
  float tuned_pitch,last_pitch,unison_coordinate;
  original_chicago_voice_mg mg[2];
 } original_chicago_voice_note;
+/* Derived runtime-only coefficients. The Chicago snapshot field schema
+ * deliberately omits these fields; state_codec decode zeroes omitted fields,
+ * clearing all valid flags after restore without changing the wire format. */
+typedef struct {
+ uint32_t attack_bits,decay_bits,release_bits,release_duration;
+ float attack_den,decay_den,release_den,release_ratio;
+ uint8_t attack_valid,decay_valid,release_valid,release_ratio_valid;
+} original_chicago_voice_vcf_coefficients;
+typedef struct {
+ uint32_t base_bits,times_bits,frequency_bits,bpm_bits,duration;
+ float tempo_den,free_f,delta;
+ uint8_t mode,tempo_valid,free_valid,delta_valid;
+} original_chicago_voice_mg_coefficients;
+typedef struct {
+ uint32_t portamento_bits,duration;
+ float alpha;
+ uint8_t valid;
+} original_chicago_voice_glide_coefficients;
+typedef struct {
+ original_chicago_voice_vcf_coefficients vcf;
+ original_chicago_voice_mg_coefficients mg[2];
+ original_chicago_voice_glide_coefficients glide;
+} original_chicago_voice_coefficients;
 typedef struct {
  original_miami_pitch pitch;
  original_voice_gain gain;
@@ -79,6 +102,7 @@ typedef struct {
  float previous_vcf,previous_vca,previous_mg[2],mod_cutoff,mod_gain,mod_slave,filter_postgain;
  uint32_t pending_tail_duration;
  uint8_t pending_tail_kick,awaiting_restart,unison_flag,key_down,damper_deferred,active,ready;
+ original_chicago_voice_coefficients coefficients;
 } original_chicago_voice;
 /* Explicit cold producer input avoids inventing native phase/Analog history.
  * All phase bits/noise/MG/anchor come from caller; filter/EG/gain init is owned
