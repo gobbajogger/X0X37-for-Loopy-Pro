@@ -10,14 +10,18 @@ Generate:
   python3 tools/roadmap_completeness.py --repo . --candidate COMMIT40 \
       --candidate-tree TREE40 --roadmap-ref ROADMAP_COMMIT40 \
       --roadmap-blob ROADMAP_BLOB40 --evidence docs/roadmap-source-evidence.json \
+      --selection-ref ACCEPTED_SELECTION_COMMIT40 --selection-blob SELECTION_BLOB40 \
       --report /tmp/dnbox-completeness.json
 Recheck for package/publication (always recomputes the evidence):
   python3 tools/roadmap_completeness.py --repo . --candidate COMMIT40 \
-      --roadmap-ref ROADMAP_COMMIT40 --verify-report /tmp/dnbox-completeness.json
+      --roadmap-ref ROADMAP_COMMIT40 --selection-ref ACCEPTED_SELECTION_COMMIT40 \
+      --selection-blob SELECTION_BLOB40 --verify-report /tmp/dnbox-completeness.json
 
 All refs are complete immutable object IDs. The publication caller MUST resolve
-its current intended ROADMAP revision independently; replaying an old revision
-can never authorize a newly selected revision.
+its current intended ROADMAP and independently accepted selection pins, never
+copy them from the report/evidence. Replaying old pins cannot authorize a newly
+selected revision. External installer proof additionally needs its separate Git
+repository and a fresh HTTPS live-byte check at generation AND verification.
 """
 import argparse
 import hashlib
@@ -25,10 +29,15 @@ import json
 import re
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
-SCHEMA = "dnbox-roadmap-completeness-v1"
+SCHEMA = "dnbox-roadmap-completeness-v2"
 EVIDENCE_SCHEMA = "dnbox-roadmap-source-evidence-v1"
+SELECTION_SCHEMA = "dnbox-release-selection-v1"
+SELECTION_PATH = "docs/release-selection.json"
+INSTALLER_REPOSITORY = "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+INSTALLER_URL = "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/"
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 REQUIRED = {"done", "in 0.0.24", "verified and agreed by owner"}
 QUEUED_PREFIXES = ("missing", "in progress", "waiting on owner", "approved", "open", "implementation pending")
@@ -92,11 +101,124 @@ def _table(line):
 def _row_id(title):
     if match := re.match(r"#(\d+)(?=\s|$)", title):
         return "#" + match.group(1)
-    if match := re.match(r"PR\s+#(\d+)(?=\s|$)", title):
+    if match := re.match(r"PR(?:\s+#|-)(\d+)(?=\s|$)", title):
         return "PR-" + match.group(1)
+    if match := re.match(r"(FIX-[A-Z0-9]+(?:-[A-Z0-9]+)*)(?=\s|$)", title):
+        return match.group(1)
     if match := re.match(r"(L\d+|M\d+|QA\d+)(?=\s|$)", title):
         return match.group(1)
     return "ROW-" + _digest(title.encode("utf-8"))[:12]
+
+
+def _status(status):
+    """Recognize a complete status token and an optional explicit qualifier."""
+    value = status.lower().strip()
+    for state in REQUIRED:
+        if value == state or value.startswith(state + " (") and value.endswith(")"):
+            return "required"
+    for state in QUEUED_PREFIXES:
+        if value == state or value.startswith(state + " (") and value.endswith(")") or value.startswith(state + ", "):
+            return "queued"
+    return "unknown"
+
+
+def _selection(repo, ref, blob, roadmap_ref, roadmap_blob, rows):
+    """The caller's accepted immutable policy pin is independent of evidence/report.
+
+    This checks identity and completeness, not human approval. The integration or
+    publication owner must resolve the accepted pin independently; a generated
+    report must never supply its own expected policy pin.
+    """
+    ref = _sha(ref, "independent release selection revision")
+    blob = _sha(blob, "independent release selection blob")
+    if _git(repo, "rev-parse", f"{ref}^{{commit}}") != ref or _object(repo, ref, SELECTION_PATH) != blob:
+        raise GateError("release selection pin disagrees with immutable Git object")
+    data = _content(repo, ref, SELECTION_PATH)
+    try:
+        policy = json.loads(data)
+    except ValueError as exc:
+        raise GateError("release selection is not valid JSON") from exc
+    if not isinstance(policy, dict) or policy.get("schema") != SELECTION_SCHEMA:
+        raise GateError("unknown release selection schema")
+    if policy.get("roadmap_ref") != roadmap_ref or policy.get("roadmap_blob") != roadmap_blob:
+        raise GateError("release selection belongs to a different ROADMAP revision")
+    required = policy.get("required_roadmap_rows")
+    if not isinstance(required, list) or any(not isinstance(x, str) for x in required):
+        raise GateError("release selection needs explicit required ROADMAP rows")
+    if len(required) != len(set(required)) or set(required) != {r["id"] for r in rows if _status(r["status"]) == "required"}:
+        raise GateError("release selection omits or changes built/accepted ROADMAP rows")
+    selected = policy.get("selected_fixes")
+    if not isinstance(selected, list):
+        raise GateError("release selection needs selected_fixes")
+    ids = set()
+    known = {r["id"] for r in rows}
+    for entry in selected:
+        if not isinstance(entry, dict) or not isinstance(entry.get("id"), str) or not entry["id"]:
+            raise GateError("invalid selected fix")
+        if entry["id"] in ids:
+            raise GateError("duplicate selected fix ID")
+        ids.add(entry["id"])
+        if not isinstance(entry.get("canonical_id"), str) or not entry["canonical_id"] or entry.get("scope") not in ("firmware", "external"):
+            raise GateError("selected fix needs an explicit canonical ID and source scope")
+        if entry["id"] in known and entry["canonical_id"] != entry["id"]:
+            raise GateError("selected canonical ID conflicts with the ROADMAP row")
+        if entry["scope"] == "external":
+            external = entry.get("external")
+            if not isinstance(external, dict) or external.get("repository") != INSTALLER_REPOSITORY or external.get("live_url") != INSTALLER_URL:
+                raise GateError("external selection must pin the separate NIGHTLY installer")
+    # The immutable ROADMAP is an independent authority, not just a hash label.
+    # A freshly committed reduced manifest cannot remove its explicit selections.
+    declared = set()
+    pattern = r"\*\*((?:PR-\d+|FIX-[A-Z0-9]+(?:-[A-Z0-9]+)*))\s*→\s*(#[0-9]+|PR-\d+|L\d+|M\d+|QA\d+)\*\*"
+    entries = {entry["id"]: entry for entry in selected}
+    for row in rows:
+        for alias, canonical in re.findall(pattern, row["evidence"]):
+            if alias in declared or canonical != row["id"]:
+                raise GateError("duplicate or ambiguous ROADMAP selected alias")
+            declared.add(alias)
+            entry = entries.get(alias)
+            scope = "external" if alias == "FIX-INSTALLER-BACKUP" else "firmware"
+            if entry is None or entry["canonical_id"] != canonical or entry["scope"] != scope:
+                raise GateError("release selection omits or changes a ROADMAP selected alias")
+    return policy, _digest(data)
+
+
+def _verify_external(proof, selection, external_repositories):
+    """Verify independently pinned site source AND freshly read live bytes.
+
+    Missing pins in a proposed selection stay MISSING. Firmware-tree evidence,
+    a caller-written PASS, and a local copy of an alleged download cannot pass.
+    """
+    external = selection["external"]
+    if not isinstance(proof, dict) or proof.get("kind") != "external":
+        raise GateError("external installer needs separate source and live-byte proof")
+    commit = _sha(external.get("commit"), "external installer commit")
+    tree = _sha(external.get("tree"), "external installer tree")
+    blob = _sha(external.get("blob"), "external installer blob")
+    path = _path(external.get("path"))
+    digest = external.get("live_sha256")
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+        raise GateError("external installer needs independently pinned live SHA256")
+    repo = (external_repositories or {}).get(external["repository"])
+    if repo is None:
+        raise GateError("separate installer source repository unavailable")
+    if _git(repo, "rev-parse", f"{commit}^{{tree}}") != tree or _object(repo, commit, path) != blob:
+        raise GateError("external installer source does not match selection pins")
+    source = proof.get("source")
+    if not isinstance(source, dict) or source.get("candidate_path", source.get("source_path")) != path:
+        raise GateError("external installer proof targets a different source path")
+    verified = _verify_source(repo, commit, source)
+    try:
+        with urllib.request.urlopen(external["live_url"], timeout=20) as response:
+            if response.geturl() != external["live_url"]:
+                raise GateError("external installer live URL redirected")
+            live = response.read(8 * 1024 * 1024 + 1)
+    except (OSError, ValueError) as exc:
+        raise GateError(f"external installer live-byte read failed: {exc}") from exc
+    if len(live) > 8 * 1024 * 1024 or _digest(live) != digest:
+        raise GateError("external installer live bytes differ from independent selection")
+    return {"repository": external["repository"], "commit": commit, "tree": tree,
+            "source": verified, "live_url": external["live_url"], "live_sha256": digest}
 
 
 def parse_roadmap(text):
@@ -205,14 +327,25 @@ def _evidence(path):
         raise GateError("unknown source evidence schema")
     if not isinstance(parsed.get("proofs"), dict) or not isinstance(parsed.get("required_release_rows"), list):
         raise GateError("source evidence must contain proofs and required_release_rows")
-    if len(set(parsed["required_release_rows"])) != len(parsed["required_release_rows"]):
-        raise GateError("duplicate selected release rows")
     if any(not isinstance(x, str) or not x for x in parsed["required_release_rows"]):
         raise GateError("invalid selected release row")
+    if len(set(parsed["required_release_rows"])) != len(parsed["required_release_rows"]):
+        raise GateError("duplicate selected release rows")
     return parsed, _digest(data)
 
 
-def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidence):
+def external_repositories(arguments):
+    repositories = {}
+    for item in arguments:
+        repository, separator, path = item.partition("=")
+        if not separator or not path or repository != INSTALLER_REPOSITORY or repository in repositories:
+            raise GateError("invalid or duplicate external source repository")
+        repositories[repository] = path
+    return repositories
+
+
+def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidence,
+             selection_ref=None, selection_blob=None, external_repositories=None):
     repo = Path(repo).resolve()
     candidate = _sha(candidate, "candidate")
     candidate_tree = _sha(candidate_tree, "candidate tree")
@@ -227,10 +360,12 @@ def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidenc
     if _object(repo, roadmap_ref, "docs/ROADMAP.md") != roadmap_blob:
         raise GateError("ROADMAP blob pin disagrees with the revision")
     roadmap = _content(repo, roadmap_ref, "docs/ROADMAP.md").decode("utf-8")
+    rows = parse_roadmap(roadmap)
+    policy, selection_sha = _selection(repo, selection_ref, selection_blob,
+                                       roadmap_ref, roadmap_blob, rows)
     proof_map, map_sha = _evidence(Path(evidence))
     if proof_map.get("roadmap_blob") != roadmap_blob:
         raise GateError("evidence map belongs to a different ROADMAP revision")
-    rows = parse_roadmap(roadmap)
     seen = set()
     duplicates = set()
     for row in rows:
@@ -238,16 +373,19 @@ def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidenc
             duplicates.add(row["id"])
         seen.add(row["id"])
     known = {r["id"] for r in rows}
-    selected = set(proof_map["required_release_rows"])
-    extra_map = set(proof_map["proofs"]) - known
+    selected_entries = {e["id"]: e for e in policy["selected_fixes"]}
+    selected = set(selected_entries)
+    if set(proof_map["required_release_rows"]) != selected:
+        raise GateError("evidence release selection differs from independent immutable selection")
+    extra_map = set(proof_map["proofs"]) - known - selected
     result = []
     for row in rows:
         identity = row["id"]
-        raw_status = row["status"].lower().strip()
-        required = raw_status in REQUIRED or identity in selected
+        state = _status(row["status"])
+        required = state == "required" or identity in selected
         if identity in duplicates:
             category, reason, claims = "MISSING", "duplicate ROADMAP ID; mapping is ambiguous", []
-        elif raw_status not in REQUIRED and not raw_status.startswith(QUEUED_PREFIXES):
+        elif state == "unknown":
             category, reason, claims = "MISSING", f"unrecognized ROADMAP status {row['status']!r}", []
         elif not required:
             category, reason, claims = "QUEUED", "explicitly not yet built/accepted for this release", []
@@ -260,18 +398,38 @@ def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidenc
                 errors = []
                 for n, proof in enumerate(proofs, 1):
                     try:
-                        claims.append(_verify_source(repo, candidate, proof))
+                        entry = selected_entries.get(identity)
+                        claims.append(_verify_external(proof, entry, external_repositories)
+                                      if entry and entry["scope"] == "external"
+                                      else _verify_source(repo, candidate, proof))
                     except GateError as exc:
                         errors.append(f"proof {n}: {exc}")
                 category = "MISSING" if errors else "PRESENT"
                 reason = "; ".join(errors) if errors else "candidate bytes match independently pinned source evidence"
         result.append({**row, "result": category, "reason": reason, "verified_proofs": claims})
     for identity in sorted(selected - known):
+        entry = selected_entries[identity]
+        claims, errors = [], []
+        canonical = entry["canonical_id"]
+        if canonical not in known or canonical in duplicates:
+            errors.append("selected fix has missing or ambiguous canonical ROADMAP row")
+        proofs = proof_map["proofs"].get(identity)
+        if not isinstance(proofs, list) or not proofs:
+            errors.append("selected fix lacks its own independently pinned source proofs")
+        else:
+            for n, proof in enumerate(proofs, 1):
+                try:
+                    claims.append(_verify_external(proof, entry, external_repositories) if entry["scope"] == "external"
+                                  else _verify_source(repo, candidate, proof))
+                except GateError as exc:
+                    errors.append(f"proof {n}: {exc}")
         result.append({"id": identity, "title": identity, "source": "release selection",
-                       "status": "required release fix not listed in ROADMAP", "evidence": "",
-                       "section": "missing release-scope reference", "line": 0,
-                       "result": "MISSING", "reason": "selected fix absent from pinned ROADMAP; sole writer must register it",
-                       "verified_proofs": []})
+                       "status": "required selected release fix", "evidence": "",
+                       "canonical_id": canonical, "scope": entry["scope"],
+                       "section": "selected release fixes", "line": 0,
+                       "result": "MISSING" if errors else "PRESENT",
+                       "reason": "; ".join(errors) if errors else "selected fix independently verified",
+                       "verified_proofs": claims})
     for identity in sorted(extra_map):
         result.append({"id": f"ORPHAN:{identity}", "title": identity, "source": "evidence map",
                        "status": "unresolved source mapping", "evidence": "",
@@ -281,6 +439,8 @@ def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidenc
     count = {name: sum(r["result"] == name for r in result) for name in ("PRESENT", "MISSING", "QUEUED")}
     report = {"schema": SCHEMA, "candidate_commit": candidate, "candidate_tree": candidate_tree,
               "roadmap_ref": roadmap_ref, "roadmap_blob": roadmap_blob,
+              "selection_ref": selection_ref, "selection_blob": selection_blob,
+              "selection_sha256": selection_sha,
               "source_evidence_sha256": map_sha,
               "gate_source_sha256": _digest(Path(__file__).read_bytes()),
               "selected_release_rows": sorted(selected), "total_roadmap_rows": len(rows),
@@ -289,7 +449,8 @@ def evaluate(repo, candidate, candidate_tree, roadmap_ref, roadmap_blob, evidenc
     return report
 
 
-def verify_pass(repo, report_file, candidate, roadmap_ref, evidence=None):
+def verify_pass(repo, report_file, candidate, roadmap_ref, evidence=None,
+                selection_ref=None, selection_blob=None, external_repositories=None):
     """Used by package and publication. No trust in a cached PASS or edited JSON."""
     try:
         prior = json.loads(Path(report_file).read_text(encoding="utf-8"))
@@ -301,9 +462,13 @@ def verify_pass(repo, report_file, candidate, roadmap_ref, evidence=None):
         raise GateError("stale completeness report: candidate commit changed")
     if prior.get("roadmap_ref") != _sha(roadmap_ref, "ROADMAP revision"):
         raise GateError("stale completeness report: ROADMAP revision changed")
+    if (prior.get("selection_ref") != _sha(selection_ref, "independent release selection revision")
+            or prior.get("selection_blob") != _sha(selection_blob, "independent release selection blob")):
+        raise GateError("stale completeness report: independent release selection changed")
     path = evidence if evidence is not None else Path(__file__).resolve().parent.parent / "docs/roadmap-source-evidence.json"
     recalculated = evaluate(repo, candidate, prior.get("candidate_tree"),
-                            roadmap_ref, prior.get("roadmap_blob"), path)
+                            roadmap_ref, prior.get("roadmap_blob"), path,
+                            selection_ref, selection_blob, external_repositories)
     if recalculated != prior:
         raise GateError("stale or altered completeness report: source, evidence, tool or roadmap changed")
     if not recalculated["passed"]:
@@ -318,21 +483,27 @@ def main(argv=None):
     ap.add_argument("--candidate-tree")
     ap.add_argument("--roadmap-ref", required=True)
     ap.add_argument("--roadmap-blob")
+    ap.add_argument("--selection-ref", required=True, help="independently accepted selection commit, never from report/evidence")
+    ap.add_argument("--selection-blob", required=True, help="independently accepted docs/release-selection.json blob")
+    ap.add_argument("--external-repo", action="append", default=[], metavar="REPOSITORY=PATH")
     ap.add_argument("--evidence", type=Path, default=Path(__file__).resolve().parent.parent / "docs/roadmap-source-evidence.json")
     ap.add_argument("--report", type=Path)
     ap.add_argument("--verify-report", type=Path)
     args = ap.parse_args(argv)
     try:
+        external = external_repositories(args.external_repo)
         if bool(args.verify_report) == bool(args.report):
             raise GateError("use exactly one of --report or --verify-report")
         if args.verify_report:
             checked = verify_pass(args.repo, args.verify_report, args.candidate,
-                                  args.roadmap_ref, args.evidence)
+                                  args.roadmap_ref, args.evidence, args.selection_ref,
+                                  args.selection_blob, external)
         else:
             if not args.candidate_tree or not args.roadmap_blob:
                 raise GateError("generation requires explicit --candidate-tree and --roadmap-blob")
             checked = evaluate(args.repo, args.candidate, args.candidate_tree,
-                               args.roadmap_ref, args.roadmap_blob, args.evidence)
+                               args.roadmap_ref, args.roadmap_blob, args.evidence,
+                               args.selection_ref, args.selection_blob, external)
             args.report.parent.mkdir(parents=True, exist_ok=True)
             args.report.write_text(json.dumps(checked, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         s = checked["summary"]

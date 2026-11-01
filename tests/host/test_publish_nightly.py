@@ -148,12 +148,25 @@ def main():
         "roadmap_blob": gate_blob, "required_release_rows": [],
         "proofs": {"#1": [proof], "DONE-001": [proof]}}))
     gate_report = tmp / "roadmap-report.json"
+    roadmap_commit = gate_commit
+    selection_path = repo / roadmap_completeness.SELECTION_PATH
+    selection_path.write_text(json.dumps({
+        "schema": roadmap_completeness.SELECTION_SCHEMA,
+        "roadmap_ref": roadmap_commit, "roadmap_blob": gate_blob,
+        "required_roadmap_rows": ["DONE-001", "#1"], "selected_fixes": []}))
+    git(repo, "add", roadmap_completeness.SELECTION_PATH)
+    git(repo, "commit", "-qm", "independent fixture release selection")
+    selection_ref = gate_commit = git(repo, "rev-parse", "HEAD")
+    selection_blob = git(repo, "rev-parse", "HEAD:"+roadmap_completeness.SELECTION_PATH)
+    gate_tree = git(repo, "rev-parse", "HEAD^{tree}")
     assessed = roadmap_completeness.evaluate(repo, gate_commit, gate_tree,
-                                              gate_commit, gate_blob, gate_evidence)
+                                              roadmap_commit, gate_blob, gate_evidence,
+                                              selection_ref, selection_blob)
     require(assessed["passed"], "fixture ROADMAP gate did not pass")
     gate_report.write_text(json.dumps(assessed))
-    GATE_OPTIONS.update(completeness_report=gate_report, roadmap_ref=gate_commit,
-                        completeness_evidence=gate_evidence)
+    GATE_OPTIONS.update(completeness_report=gate_report, roadmap_ref=roadmap_commit,
+                        completeness_evidence=gate_evidence,
+                        selection_ref=selection_ref, selection_blob=selection_blob)
     elite_fwsc, pro_fwsc = tmp / "elite.fwsc", tmp / "pro.fwsc"
     make_pkg("SMK-37 Elite_900", elite_fwsc)
     make_pkg("SMK-37 Pro_900", pro_fwsc)
@@ -173,6 +186,14 @@ def main():
         repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
         completeness_report=stale_report))
     require(not page.exists(), "stale gate report created output")
+    refused("independent release selection revision", lambda: publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
+        selection_ref=None))
+    require(not page.exists(), "missing independent selection created output")
+    refused("independent release selection changed", lambda: publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
+        selection_blob="0" * 40))
+    require(not page.exists(), "substituted selection created output")
     publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False)
     catalog = json.loads((page / "versions.json").read_text())
     require(catalog["channel"] == "nightly" and catalog["importsReleases"] is False, "nightly catalog flags")
@@ -285,7 +306,8 @@ def main():
         ["sh", str(ROOT / "tools" / "publish_pages.sh"), "--nightly",
          "--repo", str(repo), "--elite-record", str(elite_record), "--elite-fwsc", str(elite_fwsc),
          "--pro-record", str(pro_record), "--pro-fwsc", str(pro_fwsc), "--out", str(tmp / "shell"),
-         "--roadmap-ref", gate_commit, "--completeness-report", str(gate_report),
+         "--roadmap-ref", roadmap_commit, "--completeness-report", str(gate_report),
+         "--selection-ref", selection_ref, "--selection-blob", selection_blob,
          "--completeness-evidence", str(gate_evidence)],
         capture_output=True, text=True)
     require(shell.returncode == 0 and (tmp / "shell" / "install" / "index.html").is_file(),

@@ -56,9 +56,32 @@ class CompletenessTests(unittest.TestCase):
         self.map = self.root / "map.json"
         self.report = self.root / "report.json"
         self.selected = []
+        self.selection_entries = None
         self.proofs = {"#1": [self.proof], "DONE-001": [self.proof]}
+        self.save_selection()
         self.save_evidence()
         self.candidate = self.origin
+
+    def save_selection(self):
+        rows = rc.parse_roadmap(git(self.repo, "show", self.origin+":docs/ROADMAP.md"))
+        policy = {"schema": rc.SELECTION_SCHEMA, "roadmap_ref": self.origin,
+                  "roadmap_blob": self.roadmap_blob,
+                  "required_roadmap_rows": sorted({r["id"] for r in rows
+                                            if r["status"].lower().startswith(("done", "in 0.0.24", "verified and agreed by owner"))}),
+                  "selected_fixes": self.selection_entries if self.selection_entries is not None else
+                  [{"id": x, "canonical_id": x, "scope": "firmware"} for x in self.selected]}
+        (self.repo / rc.SELECTION_PATH).write_text(json.dumps(policy)+"\n")
+        git(self.repo, "add", rc.SELECTION_PATH)
+        if subprocess.run(["git", "-C", str(self.repo), "diff", "--cached", "--quiet"]).returncode:
+            git(self.repo, "commit", "-qm", "independent fixture release selection")
+        self.selection_ref = git(self.repo, "rev-parse", "HEAD")
+        self.selection_blob = git(self.repo, "rev-parse", "HEAD:"+rc.SELECTION_PATH)
+
+    def verify(self, candidate=None, roadmap_ref=None):
+        return rc.verify_pass(self.repo, self.report, candidate or self.candidate,
+                              roadmap_ref or self.origin, self.map,
+                              self.selection_ref, self.selection_blob,
+                              getattr(self, "external_repositories", None))
 
     def save_evidence(self):
         self.map.write_text(json.dumps({"schema": rc.EVIDENCE_SCHEMA,
@@ -68,7 +91,9 @@ class CompletenessTests(unittest.TestCase):
 
     def check(self):
         return rc.evaluate(self.repo, self.candidate, git(self.repo, "rev-parse", self.candidate+"^{tree}"),
-                           self.origin, self.roadmap_blob, self.map)
+                           self.origin, self.roadmap_blob, self.map,
+                           self.selection_ref, self.selection_blob,
+                           getattr(self, "external_repositories", None))
 
     def save_report(self):
         result = self.check()
@@ -86,7 +111,7 @@ class CompletenessTests(unittest.TestCase):
         states = {r["id"]:r["result"] for r in report["rows"]}
         self.assertEqual(states, {"DONE-001":"PRESENT", "#1":"PRESENT", "#2":"QUEUED"})
         self.assertTrue(report["passed"])
-        self.assertEqual(rc.verify_pass(self.repo, self.report, self.candidate, self.origin, self.map), report)
+        self.assertEqual(self.verify(), report)
 
     def test_required_missing_fails(self):
         self.proofs.pop("#1")
@@ -95,7 +120,7 @@ class CompletenessTests(unittest.TestCase):
         self.assertFalse(report["passed"])
         self.assertEqual(report["summary"]["MISSING"], 1)
         with self.assertRaisesRegex(rc.GateError, "FAIL"):
-            rc.verify_pass(self.repo, self.report, self.candidate, self.origin, self.map)
+            self.verify()
 
     def test_unresolved_reference_fails(self):
         self.proofs["#1"][0] = {**self.proof, "source_blob": "0" * 40}
@@ -106,6 +131,7 @@ class CompletenessTests(unittest.TestCase):
 
     def test_missing_required_selected_row_fails_even_if_absent_from_roadmap(self):
         self.selected.append("PR-821")
+        self.save_selection()
         self.save_evidence()
         report = self.save_report()
         self.assertIn("PR-821", [r["id"] for r in report["rows"] if r["result"] == "MISSING"])
@@ -115,10 +141,10 @@ class CompletenessTests(unittest.TestCase):
         old = self.candidate
         self.mutate("src/feature.c", "int feature_present(void) { return 18; }\n")
         with self.assertRaisesRegex(rc.GateError, "stale completeness report: candidate"):
-            rc.verify_pass(self.repo, self.report, self.candidate, self.origin, self.map)
+            self.verify()
         with self.assertRaisesRegex(rc.GateError, "ROADMAP revision"):
-            rc.verify_pass(self.repo, self.report, old, self.candidate, self.map)
-        changed = rc.evaluate(self.repo, self.candidate, git(self.repo,"rev-parse", "HEAD^{tree}"),self.origin,self.roadmap_blob,self.map)
+            self.verify(old, self.candidate)
+        changed = self.check()
         self.assertFalse(changed["passed"])
         self.assertTrue(any("source signature absent" in r["reason"] for r in changed["rows"]))
 
@@ -126,15 +152,15 @@ class CompletenessTests(unittest.TestCase):
         self.save_report()
         self.selected = ["#2"]
         self.save_evidence()
-        with self.assertRaisesRegex(rc.GateError, "stale or altered"):
-            rc.verify_pass(self.repo, self.report, self.candidate, self.origin, self.map)
+        with self.assertRaisesRegex(rc.GateError, "independent immutable selection"):
+            self.verify()
         self.selected = []
         self.save_evidence()
         self.save_report()
         altered = json.loads(self.report.read_text()); altered["summary"]["PRESENT"] = 999
         self.report.write_text(json.dumps(altered))
         with self.assertRaisesRegex(rc.GateError, "stale or altered"):
-            rc.verify_pass(self.repo, self.report, self.candidate, self.origin, self.map)
+            self.verify()
 
     def test_source_equivalence_without_ancestor_sha(self):
         # Cherry-pick/squash equivalent: target commit differs, source blob is identical.
@@ -143,7 +169,7 @@ class CompletenessTests(unittest.TestCase):
         self.assertNotEqual(self.candidate, self.origin)
         self.assertEqual(report["summary"], {"PRESENT":2,"MISSING":0,"QUEUED":1})
         self.assertTrue(report["passed"])
-        self.assertEqual(rc.verify_pass(self.repo,self.report,self.candidate,self.origin,self.map),report)
+        self.assertEqual(self.verify(),report)
 
     def test_ambiguous_source_token_and_duplicate_row_fail(self):
         self.proofs["#1"][0]["needle"] = "feature_present"
@@ -156,6 +182,7 @@ class CompletenessTests(unittest.TestCase):
         self.mutate("docs/ROADMAP.md", table([("#1", "in 0.0.24"),("#1", "done")]))
         self.origin = self.candidate
         self.roadmap_blob = git(self.repo,"rev-parse","HEAD:docs/ROADMAP.md")
+        self.save_selection()
         self.proofs["#1"][0]["needle"] = "int feature_present(void) { return 17; }"
         self.save_evidence()
         report = self.check()
@@ -166,6 +193,7 @@ class CompletenessTests(unittest.TestCase):
         command=[sys.executable,str(ROOT/"tools/roadmap_completeness.py"),"--repo",str(self.repo),
                  "--candidate",self.candidate,"--candidate-tree",self.origin_tree,
                  "--roadmap-ref",self.origin,"--roadmap-blob",self.roadmap_blob,
+                 "--selection-ref",self.selection_ref,"--selection-blob",self.selection_blob,
                  "--evidence",str(self.map),"--report",str(self.report)]
         good = subprocess.run(command,capture_output=True,text=True)
         self.assertEqual(good.returncode,0,good.stderr)
@@ -175,6 +203,7 @@ class CompletenessTests(unittest.TestCase):
         check = subprocess.run([sys.executable,str(ROOT/"tools/roadmap_completeness.py"),
                                 "--repo",str(self.repo),"--candidate",self.candidate,
                                 "--roadmap-ref",self.origin,"--evidence",str(self.map),
+                                "--selection-ref",self.selection_ref,"--selection-blob",self.selection_blob,
                                 "--verify-report",str(self.report)],capture_output=True,text=True)
         self.assertEqual(check.returncode,2,check.stdout+check.stderr)
 

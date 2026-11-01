@@ -232,8 +232,11 @@ def main(argv=None):
     ap.add_argument("--repo", default=".", help="checked out candidate repository")
     ap.add_argument("--candidate", help="full immutable source commit SHA")
     ap.add_argument("--roadmap-ref", help="full immutable ROADMAP commit SHA")
+    ap.add_argument("--selection-ref", help="independently accepted release-selection commit")
+    ap.add_argument("--selection-blob", help="independently accepted release-selection blob")
+    ap.add_argument("--external-repo", action="append", default=[], metavar="REPOSITORY=PATH")
     ap.add_argument("--completeness-report", type=Path, help="candidate- and ROADMAP-bound gate report")
-    ap.add_argument("--completeness-evidence", type=Path, help="test-only evidence-map override")
+    ap.add_argument("--completeness-evidence", type=Path, help="source proofs; cannot change independent release selection")
     ap.add_argument("--check", action="store_true", help="inspect an already complete package; write no package")
     ap.add_argument("-o", "--out", type=Path)
     args = ap.parse_args(argv)
@@ -247,7 +250,8 @@ def main(argv=None):
                 "ROADMAP completeness report, candidate and ROADMAP revision required")
         roadmap_completeness.verify_pass(
             args.repo, args.completeness_report, args.candidate, args.roadmap_ref,
-            args.completeness_evidence)
+            args.completeness_evidence, args.selection_ref, args.selection_blob,
+            roadmap_completeness.external_repositories(args.external_repo))
         raw = args.package.read_bytes()
         if args.check:
             receipt = inspect(raw, args.model, args.controller_sha256, args.controller_size,
