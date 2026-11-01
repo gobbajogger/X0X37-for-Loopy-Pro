@@ -801,7 +801,7 @@ struct smc_ui_state {
  * separate BSS symbols — each split field costs a 6-byte abs load on pi32.
  * Same XIP fit technique as the Stage-2 peek repair; applied to the current
  * temporary full-control screen that replaced mapped-page peek on nightly. */
-static uint8_t smc_ui_raw[sizeof(struct smc_ui_state)] __attribute__((aligned(4)));
+_Alignas(4) static uint8_t smc_ui_raw[sizeof(struct smc_ui_state)];
 #define smc_ui (*((struct smc_ui_state *)(void *)smc_ui_raw))
 
 static uint32_t smc_ui_context(void)
