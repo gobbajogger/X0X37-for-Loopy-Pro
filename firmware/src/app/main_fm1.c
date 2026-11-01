@@ -55,6 +55,9 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
         }
     }
     us = (fm1_ticks() - t0) / FM1_TICKS_PER_US;
+#if X0X_LCD_TRACE
+    lcd_trace_record(LCD_T_AUDIO, us);
+#endif
 #if X0X_DEBUG
     x0x_worst.magic = 0x57525354u;                  /* "WRST" */
     x0x_worst.blocks++;
@@ -123,6 +126,9 @@ static uint8_t usb_due;
 void fm1_timer5_irq(void)
 {
     static uint32_t sub;
+#if X0X_LCD_TRACE
+    uint32_t lcd_t5_started = fm1_ticks();
+#endif
 #if X0X_DEBUG
     uint32_t tt0 = fm1_ticks();
 #endif
@@ -134,6 +140,9 @@ void fm1_timer5_irq(void)
     if (x0x_dbg.in_audio)
         x0x_dbg.nested++;
     fm1_input_tick();
+#if X0X_LCD_TRACE && BOARD_SMK37
+    lcd_trace_input_tick(fm1_in.keys, fm1_in.notes, mi_w);
+#endif
 #if X0X_BLE
     fm1_t5w_check(1u, fm1_ms);
 #endif
@@ -181,6 +190,9 @@ void fm1_timer5_irq(void)
 #if X0X_DEBUG
     if (x0x_dbg.in_audio)
         dbg_tmr += fm1_ticks() - tt0;
+#endif
+#if X0X_LCD_TRACE
+    lcd_trace_record(LCD_T_TIMER5, (fm1_ticks() - lcd_t5_started) / FM1_TICKS_PER_US);
 #endif
 }
 extern void isr_timer5(void);
@@ -2541,12 +2553,19 @@ static void fm1_main(void)
         if (fm1_ms - last_frame >= 16u) {           /* ~60 frames/s at most; input in between */
             last_frame = fm1_ms;
             x0x_dbg.ui_frames++;
+#if X0X_LCD_TRACE
+            lcd_trace_frame();
+            lcd_trace_dispatch();
+#endif
             ui_frame();
 #if BOARD_SMK37
             smk_frame();                            /* faders, wheels, pads */
             smk_ck_poll();                          /* clip mode keybed */
 #endif
         } else {
+#if X0X_LCD_TRACE
+            lcd_trace_dispatch();
+#endif
             ui_input_only();
 #if BOARD_SMK37
             smk_wheels();                           /* (the wheels follow the hand, not the screen) */

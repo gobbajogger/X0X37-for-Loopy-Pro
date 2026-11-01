@@ -345,6 +345,7 @@ run freeplay-live-keys sh tests/host/freeplay_live_keys_test.sh
 run synth-bus-mute sh tests/host/synth_bus_mute_test.sh
 run storage-warning sh tests/host/storage_warning_test.sh
 run freeplay-latency sh tests/host/freeplay_latency_test.sh
+run lcd-bounded-tiles sh tests/host/lcd_bounded_test.sh
 run pads-in-settings sh tests/host/pads_in_settings_test.sh
 run boot-screen sh tests/host/boot_screen_test.sh
 run ui-theme env ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/ui-theme/theme
