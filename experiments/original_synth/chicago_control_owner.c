@@ -6,8 +6,8 @@ int original_chicago_control_owner_bind(original_chicago_control_owner *s,origin
 }
 int original_chicago_control_owner_edit(original_chicago_control_owner *s,unsigned macro,float normalized){
  if(!s||!s->status)return 0;
- original_chicago_program next=*s->program;original_chicago_voice_controls compiled;
- if(!original_chicago_program_set(&next,macro,normalized)||!original_chicago_voice_compile(&compiled,&next))return 0;
+ original_chicago_program next=*s->program;original_chicago_voice_controls compiled=*s->voice;
+ if(!original_chicago_program_set(&next,macro,normalized)||!original_chicago_voice_recompile(&compiled,&next,macro))return 0;
  const original_chicago_routing *r=&compiled.routing;
  if(!original_chicago_fx2_wrapper_supports(&s->output->fx2,r->fx[1][0]))return 0;
  /* Publish before immediate native108 callbacks: they can inspect the newly
