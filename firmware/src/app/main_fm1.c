@@ -974,9 +974,14 @@ static void smk_faders(void)
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
-    static int32_t pc, plo, phi, mlo, mhi, rest;
+    /* ADC endpoints stay in -80..1103, rest reaches at most 201. Narrow the
+     * bounded fields to pay for the ADC-publication history without more RAM. */
+    static int16_t pc, plo, phi, mlo, mhi;
+    static int16_t rest, mod_prev;
+    static uint16_t mod_seen;
     static int8_t bend_part = -1, cut_part = -1;
     static int16_t bend_now, mw_now;
+    uint16_t mod_seq = fm1_in.wheel_mod_seq;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
         return;
@@ -994,13 +999,25 @@ static void smk_wheels(void)
         phi = p + SPAN0;
         mlo = m < MOD_LO ? m : MOD_LO;
         mhi = m > MOD_HI ? m : MOD_HI;
+        mod_prev = (int16_t)m;
+        mod_seen = mod_seq;
     }
     /* The range grows one count a call: an ADC spike (a pad or mux edge) cannot widen it at
      * once and move the rest point out of the dead zone. A real sweep holds and still reaches it. */
     plo -= p < plo;
     phi += p > phi;
-    mlo -= m < mlo;
-    mhi += m > mhi;
+    /* Confirm a stable endpoint on two adjacent ADC publications. Foreground
+     * polls may read the same sample many times; they must not teach a range.
+     * The IIR tail after one raw spike changes on each publication until it is
+     * within three ADC counts of rest. It cannot teach that transient extreme.
+     * A conversion between the snapshot reads defers learning to the next poll. */
+    if (mod_seq != mod_seen && mod_seq == fm1_in.wheel_mod_seq) {
+        int adjacent = (uint16_t)(mod_seq - mod_seen) == 1u;
+        mlo -= adjacent && m < mlo && m == mod_prev;
+        mhi += adjacent && m > mhi && m == mod_prev;
+        mod_prev = (int16_t)m;
+        mod_seen = mod_seq;
+    }
     d = p - pc;
     if (d > -DEAD && d < DEAD) {
         bend = 0;
@@ -1036,6 +1053,8 @@ static void smk_wheels(void)
         } else if (bend_part >= 0) {
             int param = engine_bass_is_wobble(bend_part) ?
                 ORIGINAL_MIAMI_PITCH_BEND : ORIGINAL_CHICAGO_PITCH_BEND;
+            PARAM_TRACE(PARAM_WHEEL_PITCH, T_303, bend_part, param,
+                        bend ? ((bend + 63) * 127 + 63) / 126 : 64);
             if (bend)
                 engine_set(T_303, bend_part, param, ((bend + 63) * 127 + 63) / 126);
             else
@@ -1052,6 +1071,8 @@ static void smk_wheels(void)
         if (cut_part >= 0) {
             /* mw 0 is down (closed / min depth). mw 127 is up (open / max depth). */
             want = mw;
+            PARAM_TRACE(PARAM_WHEEL_MOD, T_303, cut_part,
+                        engine_bass_mod_param(cut_part), (int)want);
             engine_bass_mod(cut_part, (int)want);
             motion_touch(PR(R_ENG, T_303, cut_part, engine_bass_mod_param(cut_part)));
             if (!mw)
