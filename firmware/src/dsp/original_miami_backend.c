@@ -388,20 +388,6 @@ static int render_voice_frame(original_miami_backend *s, uint32_t *left, uint32_
     return 1;
 }
 
-static int render_prevalidated_frame(original_miami_backend *s, uint32_t *left, uint32_t *right)
-{
-    float l = 0.0f, r = 0.0f;
-    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
-        float x, y;
-        if (!completed(s, original_miami_selected_voice_render_prevalidated(&s->voices[id],
-            &s->controls, &x, &y))) return 0;
-        l = l + x;
-        r = r + y;
-    }
-    *left = original_math_bits(l);
-    *right = original_math_bits(r);
-    return 1;
-}
 
 int original_miami_voice_render_add(original_miami_ms20 *f, original_voice_gain *vg, original_oscillators *ph,
     const original_prepared_oscillators *p, float vco_gain, float *L, float *R, uint32_t n);
