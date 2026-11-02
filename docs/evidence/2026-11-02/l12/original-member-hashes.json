@@ -1,0 +1,10 @@
+{
+  "meaning": "Original archive-member SHA256 before sanitization; NOT hashes of delivered sanitized files.",
+  "sha256": {
+    "MATRIX.md": "3d388c0cfc6a20f8568af6db5a7824f09cee8d913638d19ad77244317e3dd83c",
+    "REPORT.md": "f8ddfda1ace1073af932026836a63b2fa14eeb562498f4554ef32e5a100d5180",
+    "results.json": "c5fb1b962a5bfd5e16cf97eb1b71d501a373da11ddb5da7a9353af951bd51308",
+    "summary.csv": "bfe949680945927c35733ee9ef08e7661576c19b473fa418b249e1aaae9a4eb1",
+    "provenance.json": "ee2131920157c9bb314bcb0837df958d9931d8bc0d6d254838ef23a5398c66e0"
+  }
+}

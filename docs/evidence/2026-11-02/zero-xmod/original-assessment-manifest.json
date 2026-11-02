@@ -1,0 +1,9 @@
+{
+  "source": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+  "kernel_git_blob": "f74384b3f5e8850339fe4d42309b36fc10dd6b3b",
+  "execution": "NOT_RUN",
+  "sha256": {
+    "README.md": "b7a6005e42a1161195952f82a79f765f141d7c8fb6d63cea6a01b138aa395a76"
+  },
+  "meaning": "Original assessment stage and original member hash, before sanitization. Arithmetic-only later results are separate; kernel and applicability remain NOT_RUN."
+}

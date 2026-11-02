@@ -1,0 +1,54 @@
+{
+  "source_commit": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "cases": 18,
+  "runs": 36,
+  "all_exit0": true,
+  "all_pcm_equal": true,
+  "observed_frames": 6858432,
+  "sample_rate": 44100,
+  "PCM_format": "interleaved stereo signed32 little-endian engine samples; normalized by8388608 for24-bit full scale",
+  "A_B_equal_pairs": [
+    [
+      0,
+      4,
+      true
+    ],
+    [
+      1,
+      5,
+      true
+    ],
+    [
+      2,
+      6,
+      true
+    ],
+    [
+      3,
+      7,
+      true
+    ],
+    [
+      8,
+      12,
+      true
+    ],
+    [
+      9,
+      13,
+      true
+    ],
+    [
+      10,
+      14,
+      true
+    ],
+    [
+      11,
+      15,
+      true
+    ]
+  ],
+  "qualification": "Historical host evidence only; build inputs, harness source and binary artifacts omitted. Not self-contained reproduction or native/device qualification."
+}
