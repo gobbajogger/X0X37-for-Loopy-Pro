@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_FOR_INDEPENDENT_REVIEW_NOT_GIT_DELIVERED",
+  "proposed_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "proposed_prefix": "docs/evidence/2026-11-02/",
+  "scope": "Documentation and numeric evidence only; no source implementation or new test runs.",
+  "original_artifacts": [
+    {
+      "artifact": "miami-loudness-L12-assessment-20261101.md",
+      "original_sha256": "a738d887d126dbc3db574e17c66ca33de11711f01de9ebabc75dc77a17560984",
+      "bytes": 7454
+    },
+    {
+      "artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "original_sha256": "05f7e8f13d59bdbcf270d02054d9770aa3d39b0b741e9385739144eb8a140b17",
+      "bytes": 13466
+    },
+    {
+      "artifact": "miami-zero-xmod-assessment-20261101.tar.gz",
+      "original_sha256": "cb677d6ac741e25f6e4ba1c352469ec69a93d074f9906e782667dc571b2aaea7",
+      "bytes": 7521
+    },
+    {
+      "artifact": "miami-zero-xmod-phase-results-20261101/results.json",
+      "original_sha256": "3d8b4e6e63e615130c6af504dca2f504e93afcda14d20548592d9aad02176cbb",
+      "bytes": 3368
+    },
+    {
+      "artifact": "ZERO-GROWTH-PROPOSAL-20261102.md",
+      "original_sha256": "3694689f45dd21e9c8201818c9b1434772d739f1d7c55635c8900be47ab2ba2d",
+      "bytes": 10326
+    }
+  ],
+  "files": [
+    {
+      "path": "l12/ASSESSMENT.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/ASSESSMENT.md",
+      "bytes": 7596,
+      "sha256": "1d6def17a7208e83aa89b06a6c4ce31fd3103f7b59f10387fa24c187dfe94534",
+      "git_blob_sha1": "34b5f6056d1f12504a9fbaa08535b3cf8d4dbd4b",
+      "source_artifact": "miami-loudness-L12-assessment-20261101.md",
+      "source_member": null,
+      "original_content_sha256": "a738d887d126dbc3db574e17c66ca33de11711f01de9ebabc75dc77a17560984",
+      "transformation": "Sanitized historical report; source member hash is before sanitization. Execution statuses are historical, not rerun for delivery."
+    },
+    {
+      "path": "l12/MATRIX.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/MATRIX.md",
+      "bytes": 1897,
+      "sha256": "9a9a63d9f80535991c99d5b28af69d13efe9f229a03cb41d846735391a232dfa",
+      "git_blob_sha1": "650e4ec8069f88f35e03d9689e92a5e13c9d95eb",
+      "source_artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "source_member": "MATRIX.md",
+      "original_content_sha256": "3d388c0cfc6a20f8568af6db5a7824f09cee8d913638d19ad77244317e3dd83c",
+      "transformation": "Sanitized historical report; source member hash is before sanitization. Execution statuses are historical, not rerun for delivery."
+    },
+    {
+      "path": "l12/REPORT.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/REPORT.md",
+      "bytes": 5922,
+      "sha256": "562fcf464e04c957be2c3c1065bf0473e18c6138d325695b0edabb4300f01c37",
+      "git_blob_sha1": "61f23e1693783977780829657cb5bb870f924902",
+      "source_artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "source_member": "REPORT.md",
+      "original_content_sha256": "f8ddfda1ace1073af932026836a63b2fa14eeb562498f4554ef32e5a100d5180",
+      "transformation": "Sanitized historical report; source member hash is before sanitization. Execution statuses are historical, not rerun for delivery."
+    },
+    {
+      "path": "l12/results.json",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/results.json",
+      "bytes": 35486,
+      "sha256": "1ea13d441f1df77082464e3e8e1275697f3300203c21e0ef9400af657689e0da",
+      "git_blob_sha1": "1c1b4fb93209feed951ccdd2b2cc2641340336a0",
+      "source_artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "source_member": "results.json",
+      "original_content_sha256": "c5fb1b962a5bfd5e16cf97eb1b71d501a373da11ddb5da7a9353af951bd51308",
+      "transformation": "Removed command arrays containing local executable and PCM paths; retained all metrics, exits, fixture inputs and PCM hashes. No PCM included."
+    },
+    {
+      "path": "l12/summary.csv",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/summary.csv",
+      "bytes": 2097,
+      "sha256": "bfe949680945927c35733ee9ef08e7661576c19b473fa418b249e1aaae9a4eb1",
+      "git_blob_sha1": "7190c684f421d788aac4b0e360c741227e93199e",
+      "source_artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "source_member": "summary.csv",
+      "original_content_sha256": "bfe949680945927c35733ee9ef08e7661576c19b473fa418b249e1aaae9a4eb1",
+      "transformation": "Byte-identical public-safe numeric summary."
+    },
+    {
+      "path": "l12/provenance.json",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/provenance.json",
+      "bytes": 905,
+      "sha256": "13d8ed0abb8e37119acba25236e71643429a5c20aa250a0bc5c45c98052bb1f5",
+      "git_blob_sha1": "282b60207e787da8ad50a2509b5f5dbd3814c18c",
+      "source_artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "source_member": "provenance.json",
+      "original_content_sha256": "ee2131920157c9bb314bcb0837df958d9931d8bc0d6d254838ef23a5398c66e0",
+      "transformation": "Removed private closure receipt and binary metadata; retained public source pin and host execution summary."
+    },
+    {
+      "path": "l12/original-member-hashes.json",
+      "proposed_repo_path": "docs/evidence/2026-11-02/l12/original-member-hashes.json",
+      "bytes": 566,
+      "sha256": "333a47c1246f9385055f769e7f21ff9e52f09dd1074738a60dbd9c08f2df80e6",
+      "git_blob_sha1": "f4b3da5631b9e045214d4aa0aee06b77f49bef99",
+      "source_artifact": "l12-miami-measurement-evidence-20261101.tar.gz",
+      "source_member": "MANIFEST.json",
+      "original_content_sha256": "2a60d77378b35f91fb16ea0670f9795f9e9b3a94b33e92488efc6fa963c3a78a",
+      "transformation": "Allowlisted original document/data member hashes only; omitted source, patch, harness and log entries."
+    },
+    {
+      "path": "zero-xmod/ASSESSMENT.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/zero-xmod/ASSESSMENT.md",
+      "bytes": 6222,
+      "sha256": "82ff24e35c06edd67d1812af221ac9528521640a9f1d99cb7fc7fe9649a96124",
+      "git_blob_sha1": "4262849466be37202b9e230e9992580f5147676c",
+      "source_artifact": "miami-zero-xmod-assessment-20261101.tar.gz",
+      "source_member": "assessment/README.md",
+      "original_content_sha256": "b7a6005e42a1161195952f82a79f765f141d7c8fb6d63cea6a01b138aa395a76",
+      "transformation": "Sanitized historical report; source member hash is before sanitization. Execution statuses are historical, not rerun for delivery."
+    },
+    {
+      "path": "zero-xmod/original-assessment-manifest.json",
+      "proposed_repo_path": "docs/evidence/2026-11-02/zero-xmod/original-assessment-manifest.json",
+      "bytes": 427,
+      "sha256": "bbb9ee2238c5ea4b96b3e7dd6299db18f0aea014f197c37de51212e308d32376",
+      "git_blob_sha1": "102b0047a5b5adb71ee3ef8212e1bee91ee429bd",
+      "source_artifact": "miami-zero-xmod-assessment-20261101.tar.gz",
+      "source_member": "assessment/MANIFEST.json",
+      "original_content_sha256": "de4d892c95a59126685b7f0904722fa44fe27576dce4b88109097f791b5b8e28",
+      "transformation": "Retained public source/kernel pins and original README hash; excluded harness source entries."
+    },
+    {
+      "path": "zero-xmod/arithmetic-results.json",
+      "proposed_repo_path": "docs/evidence/2026-11-02/zero-xmod/arithmetic-results.json",
+      "bytes": 2099,
+      "sha256": "596af4a2e7d9c0e6d91ebd6d21a3f689663ddef862820e8b219bbe6e3f2cf8af",
+      "git_blob_sha1": "ea4caec5b31c61d0481c5ec1085cb21ebcee29d9",
+      "source_artifact": "miami-zero-xmod-phase-results-20261101/results.json",
+      "source_member": null,
+      "original_content_sha256": "3d8b4e6e63e615130c6af504dca2f504e93afcda14d20548592d9aad02176cbb",
+      "transformation": "Sanitized command paths; summarized compiler diagnostics without embedding harness code; removed orchestration-only remote state. All exits/stdout preserved."
+    },
+    {
+      "path": "perf/ZERO-GROWTH-PROPOSAL.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/perf/ZERO-GROWTH-PROPOSAL.md",
+      "bytes": 10348,
+      "sha256": "0142c407c3440fb6ed8d9ed0dd4755b0fa2f7864623a6f381e8575785a1ccc02",
+      "git_blob_sha1": "84ba951dc582d3bd1c3042a899039c1e37173bae",
+      "source_artifact": "ZERO-GROWTH-PROPOSAL-20261102.md",
+      "source_member": null,
+      "original_content_sha256": "3694689f45dd21e9c8201818c9b1434772d739f1d7c55635c8900be47ab2ba2d",
+      "transformation": "Sanitized historical report; source member hash is before sanitization. Execution statuses are historical, not rerun for delivery."
+    },
+    {
+      "path": "README.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/README.md",
+      "bytes": 1693,
+      "sha256": "5ac025c40ca1a85296527bb8c94bc91ad5b2deb0eabae23e97405307b6cce843",
+      "git_blob_sha1": "57d0c6580248a8a4a01930c7c10d88cf3724362c",
+      "source_artifact": null,
+      "source_member": null,
+      "original_content_sha256": null,
+      "transformation": "Generated packet documentation; not an original report."
+    },
+    {
+      "path": "INDEX.md",
+      "proposed_repo_path": "docs/evidence/2026-11-02/INDEX.md",
+      "bytes": 1421,
+      "sha256": "a180cd52a6f8c54c2e2baee9fba5800143da0fc547114814a383287a19c9a251",
+      "git_blob_sha1": "bfe929c63562765e6b6534d2cae622ba2ffa82fb",
+      "source_artifact": null,
+      "source_member": null,
+      "original_content_sha256": null,
+      "transformation": "Generated packet documentation; not an original report."
+    }
+  ],
+  "manifest_self_hash": "Excluded to avoid circularity; exact manifest SHA256/Git blob is reported out of band."
+}

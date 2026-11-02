@@ -1,0 +1,1424 @@
+[
+  {
+    "case": 0,
+    "inputs": [
+      0,
+      0,
+      0,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0503671169281,
+            0.0514620542526
+          ],
+          "rms": [
+            0.0126146875202,
+            0.0124173732628
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "48d68cbe28ceae37",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "f3fc9d08190eb619862f7b6c0e9e056b175229a601b631832aa45852f4b6c7c2"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0503671169281,
+            0.0514620542526
+          ],
+          "rms": [
+            0.0126146875202,
+            0.0124173732628
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.102924227715,
+          "pre_limiter_peak": 0.102924227715,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "48d68cbe28ceae37",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "f3fc9d08190eb619862f7b6c0e9e056b175229a601b631832aa45852f4b6c7c2"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 1,
+    "inputs": [
+      0,
+      0,
+      0,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0812357664108,
+            0.0830018520355
+          ],
+          "rms": [
+            0.0203459166143,
+            0.0200276735746
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1ba5b21e70b7cee0",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "0464912bee3df59bf3e56324927152121b07fd94b7aa672cfcd8c8da15cb5099"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0812357664108,
+            0.0830018520355
+          ],
+          "rms": [
+            0.0203459166143,
+            0.0200276735746
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.166003793478,
+          "pre_limiter_peak": 0.166003793478,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1ba5b21e70b7cee0",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "0464912bee3df59bf3e56324927152121b07fd94b7aa672cfcd8c8da15cb5099"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 2,
+    "inputs": [
+      0,
+      0,
+      1,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.267923593521,
+            0.266048073769
+          ],
+          "rms": [
+            0.0356537800961,
+            0.0356140455422
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "48d68cbe28ceae37",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "b186bd1356b082978a3c6a71fbba52510803e3fe07918b2e54aa8929e02638df"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.267923593521,
+            0.266048073769
+          ],
+          "rms": [
+            0.0356537800961,
+            0.0356140455422
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.535847425461,
+          "pre_limiter_peak": 0.535847425461,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "48d68cbe28ceae37",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "b186bd1356b082978a3c6a71fbba52510803e3fe07918b2e54aa8929e02638df"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 3,
+    "inputs": [
+      0,
+      0,
+      1,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.295204520226,
+            0.292179584503
+          ],
+          "rms": [
+            0.0392686152805,
+            0.0391481094996
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1ba5b21e70b7cee0",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "778d4ed38a717c246e8ccad70672aaddb6226d461ea2feb41213b70781e4a143"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.295204520226,
+            0.292179584503
+          ],
+          "rms": [
+            0.0392686152805,
+            0.0391481094996
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.59040915966,
+          "pre_limiter_peak": 0.59040915966,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1ba5b21e70b7cee0",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "778d4ed38a717c246e8ccad70672aaddb6226d461ea2feb41213b70781e4a143"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 4,
+    "inputs": [
+      0,
+      1,
+      0,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0503671169281,
+            0.0514620542526
+          ],
+          "rms": [
+            0.0126146875202,
+            0.0124173732628
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "796ba02425549929",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "f3fc9d08190eb619862f7b6c0e9e056b175229a601b631832aa45852f4b6c7c2"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0503671169281,
+            0.0514620542526
+          ],
+          "rms": [
+            0.0126146875202,
+            0.0124173732628
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.102924227715,
+          "pre_limiter_peak": 0.102924227715,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "796ba02425549929",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "f3fc9d08190eb619862f7b6c0e9e056b175229a601b631832aa45852f4b6c7c2"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 5,
+    "inputs": [
+      0,
+      1,
+      0,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0812357664108,
+            0.0830018520355
+          ],
+          "rms": [
+            0.0203459166143,
+            0.0200276735746
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "c0e62a7a43fda6a6",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "0464912bee3df59bf3e56324927152121b07fd94b7aa672cfcd8c8da15cb5099"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0812357664108,
+            0.0830018520355
+          ],
+          "rms": [
+            0.0203459166143,
+            0.0200276735746
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.166003793478,
+          "pre_limiter_peak": 0.166003793478,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "c0e62a7a43fda6a6",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "0464912bee3df59bf3e56324927152121b07fd94b7aa672cfcd8c8da15cb5099"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 6,
+    "inputs": [
+      0,
+      1,
+      1,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.267923593521,
+            0.266048073769
+          ],
+          "rms": [
+            0.0356537800961,
+            0.0356140455422
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "796ba02425549929",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "b186bd1356b082978a3c6a71fbba52510803e3fe07918b2e54aa8929e02638df"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.267923593521,
+            0.266048073769
+          ],
+          "rms": [
+            0.0356537800961,
+            0.0356140455422
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.535847425461,
+          "pre_limiter_peak": 0.535847425461,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "796ba02425549929",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "b186bd1356b082978a3c6a71fbba52510803e3fe07918b2e54aa8929e02638df"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 7,
+    "inputs": [
+      0,
+      1,
+      1,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.295204520226,
+            0.292179584503
+          ],
+          "rms": [
+            0.0392686152805,
+            0.0391481094996
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "c0e62a7a43fda6a6",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "778d4ed38a717c246e8ccad70672aaddb6226d461ea2feb41213b70781e4a143"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 1,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.295204520226,
+            0.292179584503
+          ],
+          "rms": [
+            0.0392686152805,
+            0.0391481094996
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.59040915966,
+          "pre_limiter_peak": 0.59040915966,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "c0e62a7a43fda6a6",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "778d4ed38a717c246e8ccad70672aaddb6226d461ea2feb41213b70781e4a143"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 8,
+    "inputs": [
+      15,
+      0,
+      0,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0337196588516,
+            0.0346366167068
+          ],
+          "rms": [
+            0.0128224525486,
+            0.0128241782822
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "f674d6d86e5f3bc2",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "547b86c2205b45e37e685d821c29c4d34b596c0a76a564824daf425ef0f78105"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0337196588516,
+            0.0346366167068
+          ],
+          "rms": [
+            0.0128224525486,
+            0.0128241782822
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.0692734047771,
+          "pre_limiter_peak": 0.0692734047771,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "f674d6d86e5f3bc2",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "547b86c2205b45e37e685d821c29c4d34b596c0a76a564824daf425ef0f78105"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 9,
+    "inputs": [
+      15,
+      0,
+      0,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0543856620789,
+            0.055864572525
+          ],
+          "rms": [
+            0.0206810212613,
+            0.0206838040005
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "b56305969ea800cd",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "803306b09f6fe88a719c1a9e8f148e47cfa71f3791d07d40574466de28156d7e"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0543856620789,
+            0.055864572525
+          ],
+          "rms": [
+            0.0206810212613,
+            0.0206838040005
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.111729256809,
+          "pre_limiter_peak": 0.111729256809,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "b56305969ea800cd",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "803306b09f6fe88a719c1a9e8f148e47cfa71f3791d07d40574466de28156d7e"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 10,
+    "inputs": [
+      15,
+      0,
+      1,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.250063896179,
+            0.250054836273
+          ],
+          "rms": [
+            0.0353184165025,
+            0.0352518906467
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "f674d6d86e5f3bc2",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "27b1a689d9b0bbe51489f75aea2a21a659a3c08f01b43d5cd7b26c1b6b4de52a"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.250063896179,
+            0.250054836273
+          ],
+          "rms": [
+            0.0353184165025,
+            0.0352518906467
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.500127911568,
+          "pre_limiter_peak": 0.500127911568,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "f674d6d86e5f3bc2",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "27b1a689d9b0bbe51489f75aea2a21a659a3c08f01b43d5cd7b26c1b6b4de52a"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 11,
+    "inputs": [
+      15,
+      0,
+      1,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.257923603058,
+            0.253153324127
+          ],
+          "rms": [
+            0.0388440425064,
+            0.0387470170224
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "b56305969ea800cd",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "68df18eb072e262d585a0dd813d5612ed71c71eb0ca7c6fe9e817e72c5cc414a"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 0,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.257923603058,
+            0.253153324127
+          ],
+          "rms": [
+            0.0388440425064,
+            0.0387470170224
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.515847325325,
+          "pre_limiter_peak": 0.515847325325,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "b56305969ea800cd",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "68df18eb072e262d585a0dd813d5612ed71c71eb0ca7c6fe9e817e72c5cc414a"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 12,
+    "inputs": [
+      15,
+      1,
+      0,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0337196588516,
+            0.0346366167068
+          ],
+          "rms": [
+            0.0128224525486,
+            0.0128241782822
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1c7876beac5b4070",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "547b86c2205b45e37e685d821c29c4d34b596c0a76a564824daf425ef0f78105"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0337196588516,
+            0.0346366167068
+          ],
+          "rms": [
+            0.0128224525486,
+            0.0128241782822
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.0692734047771,
+          "pre_limiter_peak": 0.0692734047771,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1c7876beac5b4070",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "547b86c2205b45e37e685d821c29c4d34b596c0a76a564824daf425ef0f78105"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 13,
+    "inputs": [
+      15,
+      1,
+      0,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0543856620789,
+            0.055864572525
+          ],
+          "rms": [
+            0.0206810212613,
+            0.0206838040005
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "419f2a04f776b787",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "803306b09f6fe88a719c1a9e8f148e47cfa71f3791d07d40574466de28156d7e"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 0,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.0543856620789,
+            0.055864572525
+          ],
+          "rms": [
+            0.0206810212613,
+            0.0206838040005
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.111729256809,
+          "pre_limiter_peak": 0.111729256809,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "419f2a04f776b787",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "803306b09f6fe88a719c1a9e8f148e47cfa71f3791d07d40574466de28156d7e"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 14,
+    "inputs": [
+      15,
+      1,
+      1,
+      100,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.250063896179,
+            0.250054836273
+          ],
+          "rms": [
+            0.0353184165025,
+            0.0352518906467
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1c7876beac5b4070",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "27b1a689d9b0bbe51489f75aea2a21a659a3c08f01b43d5cd7b26c1b6b4de52a"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.250063896179,
+            0.250054836273
+          ],
+          "rms": [
+            0.0353184165025,
+            0.0352518906467
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.500127911568,
+          "pre_limiter_peak": 0.500127911568,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "1c7876beac5b4070",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "27b1a689d9b0bbe51489f75aea2a21a659a3c08f01b43d5cd7b26c1b6b4de52a"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 15,
+    "inputs": [
+      15,
+      1,
+      1,
+      127,
+      0
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.257923603058,
+            0.253153324127
+          ],
+          "rms": [
+            0.0388440425064,
+            0.0387470170224
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "419f2a04f776b787",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "68df18eb072e262d585a0dd813d5612ed71c71eb0ca7c6fe9e817e72c5cc414a"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 15,
+          "slot": 1,
+          "mix": 1,
+          "level": 127,
+          "factory_master": 0,
+          "frames": 381024,
+          "peak": [
+            0.257923603058,
+            0.253153324127
+          ],
+          "rms": [
+            0.0388440425064,
+            0.0387470170224
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.515847325325,
+          "pre_limiter_peak": 0.515847325325,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "419f2a04f776b787",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 15,
+          "fx_volume_pot": 44,
+          "master_pump": 0
+        },
+        "pcm_sha256": "68df18eb072e262d585a0dd813d5612ed71c71eb0ca7c6fe9e817e72c5cc414a"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 16,
+    "inputs": [
+      0,
+      0,
+      0,
+      100,
+      1
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 1,
+          "frames": 381024,
+          "peak": [
+            0.319273471832,
+            0.319766044617
+          ],
+          "rms": [
+            0.0724025054588,
+            0.0712597406754
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "6bf6dc97b54a8fc1",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 21
+        },
+        "pcm_sha256": "9c85cd32a4bdee40b1bbcea3713e0ec14bc4862f81f1f4e15f753cbea2276558"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 0,
+          "level": 100,
+          "factory_master": 1,
+          "frames": 381024,
+          "peak": [
+            0.319273471832,
+            0.319766044617
+          ],
+          "rms": [
+            0.0724025054588,
+            0.0712597406754
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.102924227715,
+          "pre_limiter_peak": 0.639532268047,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "6bf6dc97b54a8fc1",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 21
+        },
+        "pcm_sha256": "9c85cd32a4bdee40b1bbcea3713e0ec14bc4862f81f1f4e15f753cbea2276558"
+      }
+    },
+    "pcm_equal": true
+  },
+  {
+    "case": 17,
+    "inputs": [
+      0,
+      0,
+      1,
+      100,
+      1
+    ],
+    "runs": {
+      "pristine": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 1,
+          "frames": 381024,
+          "peak": [
+            0.401090860367,
+            0.40133190155
+          ],
+          "rms": [
+            0.0574065301811,
+            0.0563819282312
+          ],
+          "clipped24": 0,
+          "observer_frames": 0,
+          "pre_master_peak": 0,
+          "pre_limiter_peak": 0,
+          "limiter_frames": 0,
+          "min_limiter_gain": 1,
+          "nonfinite": 0,
+          "sound_hash": "6bf6dc97b54a8fc1",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 21
+        },
+        "pcm_sha256": "82e4ef9d3bb9e8629ed0d2bd536ef695655e790da58fb42561e06a4546d0bbf5"
+      },
+      "observed": {
+        "exit": 0,
+        "metrics": {
+          "preset": 0,
+          "slot": 0,
+          "mix": 1,
+          "level": 100,
+          "factory_master": 1,
+          "frames": 381024,
+          "peak": [
+            0.401090860367,
+            0.40133190155
+          ],
+          "rms": [
+            0.0574065301811,
+            0.0563819282312
+          ],
+          "clipped24": 0,
+          "observer_frames": 381024,
+          "pre_master_peak": 0.535847425461,
+          "pre_limiter_peak": 2.94586634636,
+          "limiter_frames": 380998,
+          "min_limiter_gain": 0.272003263235,
+          "nonfinite": 0,
+          "sound_hash": "6bf6dc97b54a8fc1",
+          "sound_unchanged": 1,
+          "runtime_bank": 1,
+          "runtime_preset": 0,
+          "fx_volume_pot": 44,
+          "master_pump": 21
+        },
+        "pcm_sha256": "82e4ef9d3bb9e8629ed0d2bd536ef695655e790da58fb42561e06a4546d0bbf5"
+      }
+    },
+    "pcm_equal": true
+  }
+]

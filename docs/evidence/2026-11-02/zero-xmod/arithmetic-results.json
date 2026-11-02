@@ -1,0 +1,63 @@
+{
+  "scope": "Standalone arithmetic correctness only; no runtime kernel or timing benchmark",
+  "compiler": "Debian cc 14.2.0-19",
+  "source_sha256": "eb103096fe845b59dffebee2c846145565fda25e49f48be1dd4a3f0d68518ca8",
+  "results": [
+    {
+      "command": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "phase_step_test.c",
+        "-lm",
+        "-o",
+        "phase-stepO2"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "phase_step_test.c:37:3: warning: misleading indentation [-Wmisleading-indentation]; phase_step_test.c:37:88: note: following statement is not guarded by the if. Source excerpt and local paths omitted; compiler warning retained in summarized form."
+    },
+    {
+      "command": [
+        "phase-stepO2"
+      ],
+      "exit": 0,
+      "stdout": "arithmetic cases=996430; kernel/state/performance NOT_RUN by this program\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cc",
+        "-std=c99",
+        "-Os",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "phase_step_test.c",
+        "-lm",
+        "-o",
+        "phase-stepOs"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "phase_step_test.c:37:3: warning: misleading indentation [-Wmisleading-indentation]; phase_step_test.c:37:88: note: following statement is not guarded by the if. Source excerpt and local paths omitted; compiler warning retained in summarized form."
+    },
+    {
+      "command": [
+        "phase-stepOs"
+      ],
+      "exit": 0,
+      "stdout": "arithmetic cases=996430; kernel/state/performance NOT_RUN by this program\n",
+      "stderr": ""
+    }
+  ],
+  "kernel_PCM_state": "NOT_RUN",
+  "applicability": "NOT_RUN",
+  "performance": "NOT_RUN",
+  "qualification": "Standalone arithmetic correctness only. No candidate kernel, runtime state, PCM, applicability, performance, native or device benefit established. Commands use sanitized basenames and are not executable reproduction instructions."
+}
