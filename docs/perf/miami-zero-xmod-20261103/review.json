@@ -1,0 +1,186 @@
+{
+  "status": "complete",
+  "verdict": "Ready for draft delivery of the six reviewed assessment artifacts",
+  "review_type": "One independent read-only manual artifact review using applicable Compound Engineering and Superpowers principles",
+  "scope": {
+    "repository": "/workspace/X0X37-for-Loopy-Pro",
+    "base": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+    "branch": "chat/miami-zero-xmod-assessment-20261103",
+    "head_sha": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+    "files_changed": 6,
+    "staged_only": true,
+    "working_tree_matches_index": true,
+    "reviewed_file_sha256": {
+      "docs/perf/miami-zero-xmod-20261103/PLAN.md": "065d7dd5722e9e2504cbf72fb252b899202b035ac84dd2b81a71adb62113152b",
+      "docs/perf/miami-zero-xmod-20261103/README.md": "78c2ed8db211b928071a5acbaf929692d38aff979a9eea06f932c4efeb7463b4",
+      "docs/perf/miami-zero-xmod-20261103/commands.txt": "bd510c8eb1a716dee7e0ea8f4463130b64a329d06b892638f5754a0c6f0ee9b8",
+      "docs/perf/miami-zero-xmod-20261103/results.json": "a23bd4159ea66e7ed645f77071fc54871a86fa91b8e281e83321527d1340dfb3",
+      "tests/host/miami_zero_xmod_assessment.c": "35769326dbcbb4377e581bd88496ae73c6fbaa9840df9420660b2236358861ee",
+      "tests/host/run_miami_zero_xmod_assessment.py": "5b9385f04d40215fb7b6a0e0ba786417554693920599f6f22ea4f11904780e07"
+    }
+  },
+  "intent": "Assess zero-XMOD applicability on the exact pinned Miami kernel through the real backend for default factory 0 and factory index 15. Verify the baseline fixture, phase-sign negative mutant, current-gain counters and unchanged PCM without optimizing or measuring timing.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "assessment_artifact_review"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "severity_counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "strengths": [
+    "The original kernel and renamed fixture kernel are independently compiled; stored baseline binary disassembly confirms fixture_dispatch calls both distinct functions.",
+    "The fixture compares return status, oscillator phase, filter and gain state, and stereo samples on every actual backend kernel call.",
+    "Counter placement observes current master/slave gains before their ramps advance; the report distinguishes these operation counts from perceptual audibility.",
+    "The report limits its negative applicability result to the two selected held-note workloads and explicitly preserves the unauthenticated status of the old arithmetic receipt."
+  ],
+  "requirements_completeness": [
+    {
+      "requirement": "Authenticate exact production source pins",
+      "status": "met",
+      "evidence": "Commit tree f952ab4455723e4a1a68fdb3a8eea22d2da59710 and kernel blob f74384b3f5e8850339fe4d42309b36fc10dd6b3b verified locally; production source diff from the pin is empty."
+    },
+    {
+      "requirement": "Baseline versus separately compiled baseline",
+      "status": "met_in_stored_receipt",
+      "evidence": "Both factories record exit 0 and 2304 compared kernel calls; independent symbol and dispatch inspection confirms two separate compiled kernels."
+    },
+    {
+      "requirement": "Phase-sign mutant must fail",
+      "status": "met_in_stored_receipt",
+      "evidence": "Generated mutant differs only by slave subtraction becoming addition. Both stored results record exit 23 and PHASE_MISMATCH at call 1, frames 61."
+    },
+    {
+      "requirement": "Real backend default/15 counters and unchanged PCM",
+      "status": "met",
+      "evidence": "Stored counted results report 131072 pair samples and zero zero-XMOD pairs per factory. Independently reread PCM files match baselines byte for byte, including recorded hashes and nonzero-frame counts."
+    },
+    {
+      "requirement": "Reuse 996430-case proof as supplied without false authentication",
+      "status": "met",
+      "evidence": "README and results.json explicitly mark NOT_RERUN and original_receipt_authenticated_here=false."
+    },
+    {
+      "requirement": "Independent review before draft delivery",
+      "status": "met_by_this_report",
+      "evidence": "This review covers exactly the six staged SHA256 identities listed above."
+    },
+    {
+      "requirement": "Push, draft PR, remote readback and existing-producer handoff",
+      "status": "pending_parent_delivery",
+      "evidence": "Intentionally outside this review assignment; no GitHub write or producer contact was performed."
+    }
+  ],
+  "verification": {
+    "staged_diff_check": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "python_syntax": {
+      "status": "PASS",
+      "method": "ast.parse of the staged runner; runner not executed"
+    },
+    "source_pins": {
+      "status": "PASS",
+      "source_tree": "f952ab4455723e4a1a68fdb3a8eea22d2da59710",
+      "kernel_blob": "f74384b3f5e8850339fe4d42309b36fc10dd6b3b",
+      "production_diff_bytes": 0
+    },
+    "compiler_input_hashes": {
+      "status": "PASS",
+      "entries": 179,
+      "mismatches": 0
+    },
+    "stored_evidence_consistency": {
+      "status": "PASS",
+      "results_match_tmp": true,
+      "raw_stdout_matches_results": true,
+      "commands_match_tmp": true,
+      "generated_baseline_matches_source": true,
+      "generated_mutant_matches_single_sign_change": true,
+      "generated_counted_matches_observational_callback": true
+    },
+    "command_review": {
+      "status": "PASS",
+      "commands": 66,
+      "compilations": 56,
+      "profile_executions": 6,
+      "description": "Inspected retained command/source correspondence and compiled symbols; no command replay. No timing, hardware or network commands appear."
+    },
+    "pcm": {
+      "0": {
+        "bytes": 262144,
+        "sha256": "64fd6099abc260f6f857cfc2daa815b8ddf514e8c93777e486c9b37190dc11ad",
+        "counted_equals_baseline": true,
+        "nonzero_frames": 32757
+      },
+      "15": {
+        "bytes": 262144,
+        "sha256": "4cac17b6b13ccfe5c8733a614e95c4c361e24420533b6faf4bd4c9514fd0b727",
+        "counted_equals_baseline": true,
+        "nonzero_frames": 32728
+      }
+    },
+    "artifact_secrets": {
+      "status": "NO_SUSPECT_CONTENT_FOUND",
+      "method": "Manual review of all six staged text files plus private-key, GitHub-token, AWS-access-key and credential-URL pattern checks. No product binaries, PCM, private header bytes or credentials are staged."
+    }
+  },
+  "declined_to_judge": [
+    {
+      "behaviour": "PR #814 firmware implementation and qualification",
+      "reason": "Outside the new TEST-artifact review; existing producer and independent_qa/6adafbbf54088191a86715d49e7dc6b0 retain ownership."
+    },
+    {
+      "behaviour": "Live external ownership/ref freshness",
+      "reason": "Parent supplied the current ownership pins and retained responsibility for live delivery; no network action was needed for the staged artifact review."
+    },
+    {
+      "behaviour": "Authentication of the original 996430-case arithmetic receipt",
+      "reason": "Original artifact/command is unavailable; the supplied result is transparently reused."
+    },
+    {
+      "behaviour": "Other presets, notes, macro edits, release envelopes, perceptual audibility or speedup",
+      "reason": "The plan expressly limits this assessment to two selected held-note renders and excludes timing."
+    },
+    {
+      "behaviour": "Full suite, sanitizer suite, native firmware builds and device behaviour",
+      "reason": "Not acceptance criteria for this bounded evidence-only review; not run or claimed passed."
+    },
+    {
+      "behaviour": "GitHub push, draft PR, merge or receiver consumption",
+      "reason": "Delivery belongs to the parent; this review has no publication role."
+    }
+  ],
+  "coverage": {
+    "manual_review": "COMPLETE for the six staged files and their relevant pinned backend/kernel source",
+    "ce_scope_helper": {
+      "status": "EXECUTED",
+      "exit": 0,
+      "origin": "Exact cloud skill script materialized under /tmp and executed",
+      "exec_lines": 214,
+      "uncounted_files": 4,
+      "lite_eligible": false,
+      "declared_packs": null,
+      "note": "Sibling packs resolver was not materialized; both local CE config files are absent."
+    },
+    "full_ce_multi_reviewer_gate": "NOT_RUN. Parent limited this to one independent artifact review; the Superpowers reviewer template also prohibits reviewer subdelegation.",
+    "cross_model_gate": "NOT_RUN. No independent cross-model pass is claimed.",
+    "ce_findings_mechanics_and_validator_batch": "NOT_RUN. This is an explicitly scoped manual review, not a passed full CE pipeline.",
+    "fixture_rerun": "NOT_RUN as instructed; stored genuine execution evidence was inspected.",
+    "arithmetic_rerun": "NOT_RUN as instructed.",
+    "checkout_index_head_mutations": "NONE",
+    "writes": "Only review artifacts and the exact CE scope helper under /tmp.",
+    "remaining_review_blockers": []
+  },
+  "artifact_path": "/tmp/miami-artifact-independent-review/ce-code-review/review.json",
+  "run_id": "miami-assessment-artifact-20261103",
+  "completed_at": "2026-11-03T10:02:00.390069+00:00"
+}
+
