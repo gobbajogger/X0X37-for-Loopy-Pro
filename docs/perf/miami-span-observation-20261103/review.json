@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "review_kind": "single independent read-only manual artifact review",
+  "role": "Senior Code Reviewer",
+  "repository": "/workspace/miami-span-observation",
+  "reviewed_base": "e1c6b02bf6660142af3ae575a3b159cd051a011a",
+  "reviewed_head": "e1c6b02bf6660142af3ae575a3b159cd051a011a",
+  "reviewed_staged_tree": "c3003d0d8922fb2fed0dd46dd8fdfe7191f631b6",
+  "reviewed_files": {
+    "docs/perf/miami-span-observation-20261103/PLAN.md": {
+      "sha256": "3a1dcc8d7fc0c5fb387620d737d9f0214e70a91dfec20f96674ceaf718de319a",
+      "bytes": 2989,
+      "git_blob": "028506d21ac439b33794202f1e8b50a2f991dba2"
+    },
+    "docs/perf/miami-span-observation-20261103/README.md": {
+      "sha256": "17d12303d199a838157e621d517bb050f55220e2f5b86ec9899b58c79643408a",
+      "bytes": 8409,
+      "git_blob": "16261718b168b996ebe6fa1d92af25252a03abc9"
+    },
+    "docs/perf/miami-span-observation-20261103/commands.txt": {
+      "sha256": "b10070a9408a254467cdce7bd4af25b07bb5ce862b68c072991180c0f39a00e4",
+      "bytes": 29172,
+      "git_blob": "fc5726eba19e7e3cd37f17df7a0eb28c11266e2c"
+    },
+    "docs/perf/miami-span-observation-20261103/results.json": {
+      "sha256": "b45887dd55c87e7b56eddab1aeb5b58ebf747e7a399115bf2e8c91dbcc87700f",
+      "bytes": 31466,
+      "git_blob": "281a305868e3420123c3b42ab0ac4752181ac98e"
+    },
+    "docs/perf/miami-span-observation-20261103/verification.json": {
+      "sha256": "b8f60569bd7c40e415201f82859fdbed5451f017da6f2eb02001501ec88a28a5",
+      "bytes": 2298,
+      "git_blob": "10f1972f26261fc654eb573aa246be804e1b18ef"
+    },
+    "tests/host/miami_span_observation.c": {
+      "sha256": "0b3c06429e5535ceb3637d1e0d74857f9097d1914aade7325e020cb1926b6770",
+      "bytes": 7707,
+      "git_blob": "a4b848c01aee3574075028c730c9a2fe4fc7b425"
+    },
+    "tests/host/run_miami_span_observation.py": {
+      "sha256": "71dc89fe63c7a356a4ace735270bc46ea8250bae30c24c7fc7ef6d55b5600f99",
+      "bytes": 8819,
+      "git_blob": "2f922c333def22c3f65f54cffa6f86936d4f4d85"
+    }
+  },
+  "scope": "Released disposable Miami attribution only: new observation fixture, runner and evidence; no production optimization.",
+  "review_budget": {
+    "independent_manual_reviewers": 1,
+    "subagents_spawned": 0,
+    "full_ce_multi_reviewer_review": "NOT_RUN",
+    "cross_model_review": "NOT_RUN"
+  },
+  "verdict": {
+    "status": "READY_FOR_REVIEWED_DRAFT_ARTIFACT_DELIVERY",
+    "findings_count": 0,
+    "statement": "No actionable defect found in the frozen staged artifacts. Draft delivery may preserve the documented missing original stage-3 input reconciliation.",
+    "merge_or_firmware_acceptance": false,
+    "full_task_acceptance": false,
+    "performance_claims_supported": false
+  },
+  "findings": [],
+  "verification_performed": {
+    "read_only_check_script": {
+      "command": "python3 - <<'PY'\nfrom pathlib import Path\nimport ast, hashlib, json, re, shlex, subprocess\nroot=Path('/workspace/miami-span-observation')\nout=Path('/tmp/miami-span-validation')\ndoc=root/'docs/perf/miami-span-observation-20261103'\ndef git(*args):\n    return subprocess.check_output(['git',*args],cwd=root)\ndef sha(data): return hashlib.sha256(data).hexdigest()\nhead=git('rev-parse','HEAD').decode().strip()\nassert head=='e1c6b02bf6660142af3ae575a3b159cd051a011a'\nassert not git('diff','--name-only')\nassert not git('diff','--cached','--check')\nentries={}\nfor record in git('ls-files','--stage','-z').split(b'\\0'):\n    if not record: continue\n    meta,name=record.split(b'\\t',1)\n    mode,oid,stage=meta.split()\n    assert stage==b'0'\n    parts=name.split(b'/')\n    node=entries\n    for part in parts[:-1]: node=node.setdefault(part,{})\n    node[parts[-1]]=(mode,oid)\ndef tree_hash(node):\n    rows=[]\n    for name,value in node.items():\n        if isinstance(value,dict):\n            mode,oid=b'40000',tree_hash(value)\n            sortname=name+b'/'\n        else:\n            mode,oid=value\n            sortname=name\n        rows.append((sortname,mode+b' '+name+b'\\0'+bytes.fromhex(oid.decode())))\n    body=b''.join(row for _,row in sorted(rows))\n    return hashlib.sha1(b'tree '+str(len(body)).encode()+b'\\0'+body).hexdigest().encode()\ntree=tree_hash(entries).decode()\nassert tree=='c3003d0d8922fb2fed0dd46dd8fdfe7191f631b6'\npaths=git('diff','--cached','--name-only','-z').decode().split('\\0')[:-1]\nexpected={'tests/host/miami_span_observation.c','tests/host/run_miami_span_observation.py',*[f'docs/perf/miami-span-observation-20261103/{x}' for x in ['PLAN.md','README.md','results.json','commands.txt','verification.json']]}\nassert set(paths)==expected\nreviewed={}\nfor path in paths:\n    staged=git('show',':'+path)\n    assert staged==(root/path).read_bytes()\n    staged.decode('utf-8')\n    assert b'\\0' not in staged\n    reviewed[path]={'sha256':sha(staged),'bytes':len(staged),'git_blob':git('rev-parse',':'+path).decode().strip()}\npin='8be16486e33f65b31c76710e1d825b6aa701c2c9'\nassert git('rev-parse',pin+'^{tree}').decode().strip()=='f952ab4455723e4a1a68fdb3a8eea22d2da59710'\nblobs={'firmware/src/dsp/original_miami_backend.c':'2efde1794c8454b7af0f9c527f49abd03a28a783','experiments/original_synth/miami_ms20.c':'f74384b3f5e8850339fe4d42309b36fc10dd6b3b'}\nfor path,blob in blobs.items():\n    assert git('rev-parse',pin+':'+path).decode().strip()==blob\n    assert git('hash-object',path).decode().strip()==blob\nassert not git('diff',pin,'--','firmware','experiments','tools/build.py')\nreused=['tests/host/miami_zero_xmod_assessment.c','tests/host/run_miami_zero_xmod_assessment.py','docs/perf/miami-zero-xmod-20261103/results.json']\nfor path in reused:\n    assert git('show',head+':'+path)==(root/path).read_bytes()\nprior=json.loads((root/reused[-1]).read_text())\nprior_verified=0; prior_missing=[]\nfor path,digest in prior['input_sha256'].items():\n    p=Path(path)\n    if p.is_absolute():\n        prior_missing.append({'path':path,'exists':p.exists()})\n    else:\n        assert sha((root/p).read_bytes())==digest,path\n        prior_verified+=1\nassert prior_verified==176 and len(prior_missing)==3 and not any(x['exists'] for x in prior_missing)\nr=json.loads((out/'results.json').read_text())\nv=json.loads((doc/'verification.json').read_text())\nassert (doc/'results.json').read_bytes()==(out/'results.json').read_bytes()\nassert (doc/'commands.txt').read_bytes()==(out/'commands.txt').read_bytes()\nassert json.loads(Path('/tmp/miami-span-validation.stdout').read_text())==r\nassert not Path('/tmp/miami-span-validation.stderr').read_bytes()\nfor path,digest in r['input_sha256'].items():\n    p=Path(path);p=p if p.is_absolute() else root/p\n    assert sha(p.read_bytes())==digest,path\nassert len(r['input_sha256'])==181\npcm={}\nfor factory in (0,15):\n    rows=[json.loads(x) for x in (out/f'p{factory}.stdout.jsonl').read_text().splitlines()]\n    program=r['programs'][str(factory)];o=program['observations']\n    assert len(rows)==3 and rows[0]==rows[1]==program['fixture'] and rows[2]==o\n    data=(out/f'baseline-p{factory}.pcm').read_bytes()\n    assert data==(out/f'observed-p{factory}.pcm').read_bytes() and len(data)==262144\n    assert sha(data)==program['pcm_sha256']==prior['profiles']['baseline'][str(factory)]['pcm_sha256']\n    sh=o['span_length_histogram'];vh=o['active_voice_length_histogram'];eh=o['eligible_voice_length_histogram']\n    assert sum(sh.values())==o['spans']==1152\n    assert sum(int(n)*count for n,count in sh.items())==o['span_frames']==32768\n    assert sum(vh.values())==o['active_voice_calls']==2304\n    assert sum(int(n)*count for n,count in vh.items())==o['active_voice_frames']==65536\n    assert all(vh[k]==2*count for k,count in sh.items())\n    assert sum(eh.values())==o['eligible_voice_calls']==36\n    assert o['eligible_spans']==18==o['spans']//64\n    assert o['voice_calls']==[1152,1152] and o['eligible_voice_ids']==[18,18]\n    assert o['complete_state_blocks_compared']==128 and o['backend_state_bytes_per_block']==3840\n    assert o['call_order_frames_state_match'] and o['eligibility_boundary_checks']==8\n    pcm[str(factory)]={'sha256':sha(data),'bytes':len(data),'spans':o['spans'],'active_voice_calls':o['active_voice_calls'],'eligible_spans':o['eligible_spans'],'eligible_voice_calls':o['eligible_voice_calls'],'eligible_lengths':list(map(int,eh)),'state_images':128,'state_image_bytes':3840}\nreceipt_paths={'miami-span-red2.stderr':Path('/tmp/miami-span-red2.stderr'),'miami-span-validation.stdout':Path('/tmp/miami-span-validation.stdout'),'p0.stdout.jsonl':out/'p0.stdout.jsonl','p15.stdout.jsonl':out/'p15.stdout.jsonl','negative.stderr':out/'negative.stderr'}\nfor name,path in receipt_paths.items(): assert sha(path.read_bytes())==v['raw_receipt_sha256'][name]\nassert r['negative_observation_test']['exit']==31\nassert (out/'negative.stderr').read_text().strip()=='OBSERVATION_MISMATCH observation agrees with actual kernel call'\nassert 'RuntimeError: exit 31:' in Path('/tmp/miami-span-red2.stderr').read_text()\nassert 'OBSERVATION_MISMATCH span/voice counters' in Path('/tmp/miami-span-red2.stderr').read_text()\nassert 'RuntimeError: exit 1:' in Path('/tmp/miami-span-red.stderr').read_text()\nassert '\"original_miami_voice_render_add\" redefined' in Path('/tmp/miami-span-red.stderr').read_text()\nbackend=(root/'firmware/src/dsp/original_miami_backend.c').read_text()\nprefix='#include <stdint.h>\\nextern void span_observe_begin(uint32_t);\\nextern void span_observe_voice(unsigned,uint32_t);\\n'\nspan_marker='    static float accL[64], accR[64];'\nvoice_marker='        if (!v->active) continue;\\n        if (!completed(s, original_miami_voice_render_add('\nassert backend.count(span_marker)==backend.count(voice_marker)==1\nexpected_backend=prefix+backend.replace(span_marker,span_marker+'\\n    span_observe_begin(n);').replace(voice_marker,'        if (!v->active) continue;\\n        span_observe_voice(id, n);\\n        if (!completed(s, original_miami_voice_render_add(')\nassert (out/'observed-backend.c').read_text()==expected_backend\nassert (out/'bad-observation-backend.c').read_text()==expected_backend.replace('span_observe_voice(id, n);','span_observe_voice(id, n + 1);')\nassert Path('/tmp/miami-span-red2/observed-backend.c').read_text()==backend\nast.parse((root/'tests/host/run_miami_span_observation.py').read_text())\nclock_pattern=re.compile(r'\\b(?:clock_gettime|gettimeofday|rdtsc|QueryPerformanceCounter|mach_absolute_time|perf_counter|monotonic|timeit|sleep|nanosleep)\\b')\nassert not clock_pattern.search((root/'tests/host/miami_span_observation.c').read_text())\nassert not clock_pattern.search((root/'tests/host/run_miami_span_observation.py').read_text())\ncommands=(out/'commands.txt').read_text().splitlines()\nassert len(commands)==74\nassert not any(clock_pattern.search(command) for command in commands)\nprint(json.dumps({'status':'PASS','head':head,'staged_tree':tree,'reviewed_files':reviewed,'pins_verified':blobs,'unchanged_pr830_paths':reused,'prior_input_hashes_verified':prior_verified,'prior_generated_inputs_unavailable':prior_missing,'new_input_hashes_verified':len(r['input_sha256']),'raw_receipt_hashes_verified':5,'results_and_commands_byte_identical':True,'stored_command_count':len(commands),'pcm_and_counter_checks':pcm,'generated_backend_edits_only':True,'red2_generated_backend_has_no_hooks':True,'python_ast_parse':'PASS','no_clock_api_matches':'PASS','git_diff_cached_check':'PASS','worktree_matches_index':True,'stored_exits':{'runner':v['runner']['exit'],'program0':r['programs']['0']['exit'],'program15':r['programs']['15']['exit'],'characterization_binary':v['characterization']['exit'],'false_observation':r['negative_observation_test']['exit'],'initial_setup_compile':v['initial_setup_failure']['exit']}},indent=2))\n\nPY",
+      "exit": 0,
+      "result": {
+        "status": "PASS",
+        "head": "e1c6b02bf6660142af3ae575a3b159cd051a011a",
+        "staged_tree": "c3003d0d8922fb2fed0dd46dd8fdfe7191f631b6",
+        "reviewed_files": {
+          "docs/perf/miami-span-observation-20261103/PLAN.md": {
+            "sha256": "3a1dcc8d7fc0c5fb387620d737d9f0214e70a91dfec20f96674ceaf718de319a",
+            "bytes": 2989,
+            "git_blob": "028506d21ac439b33794202f1e8b50a2f991dba2"
+          },
+          "docs/perf/miami-span-observation-20261103/README.md": {
+            "sha256": "17d12303d199a838157e621d517bb050f55220e2f5b86ec9899b58c79643408a",
+            "bytes": 8409,
+            "git_blob": "16261718b168b996ebe6fa1d92af25252a03abc9"
+          },
+          "docs/perf/miami-span-observation-20261103/commands.txt": {
+            "sha256": "b10070a9408a254467cdce7bd4af25b07bb5ce862b68c072991180c0f39a00e4",
+            "bytes": 29172,
+            "git_blob": "fc5726eba19e7e3cd37f17df7a0eb28c11266e2c"
+          },
+          "docs/perf/miami-span-observation-20261103/results.json": {
+            "sha256": "b45887dd55c87e7b56eddab1aeb5b58ebf747e7a399115bf2e8c91dbcc87700f",
+            "bytes": 31466,
+            "git_blob": "281a305868e3420123c3b42ab0ac4752181ac98e"
+          },
+          "docs/perf/miami-span-observation-20261103/verification.json": {
+            "sha256": "b8f60569bd7c40e415201f82859fdbed5451f017da6f2eb02001501ec88a28a5",
+            "bytes": 2298,
+            "git_blob": "10f1972f26261fc654eb573aa246be804e1b18ef"
+          },
+          "tests/host/miami_span_observation.c": {
+            "sha256": "0b3c06429e5535ceb3637d1e0d74857f9097d1914aade7325e020cb1926b6770",
+            "bytes": 7707,
+            "git_blob": "a4b848c01aee3574075028c730c9a2fe4fc7b425"
+          },
+          "tests/host/run_miami_span_observation.py": {
+            "sha256": "71dc89fe63c7a356a4ace735270bc46ea8250bae30c24c7fc7ef6d55b5600f99",
+            "bytes": 8819,
+            "git_blob": "2f922c333def22c3f65f54cffa6f86936d4f4d85"
+          }
+        },
+        "pins_verified": {
+          "firmware/src/dsp/original_miami_backend.c": "2efde1794c8454b7af0f9c527f49abd03a28a783",
+          "experiments/original_synth/miami_ms20.c": "f74384b3f5e8850339fe4d42309b36fc10dd6b3b"
+        },
+        "unchanged_pr830_paths": [
+          "tests/host/miami_zero_xmod_assessment.c",
+          "tests/host/run_miami_zero_xmod_assessment.py",
+          "docs/perf/miami-zero-xmod-20261103/results.json"
+        ],
+        "prior_input_hashes_verified": 176,
+        "prior_generated_inputs_unavailable": [
+          {
+            "path": "/tmp/miami-zero-xmod-20261103/baseline.c",
+            "exists": false
+          },
+          {
+            "path": "/tmp/miami-zero-xmod-20261103/counted.c",
+            "exists": false
+          },
+          {
+            "path": "/tmp/miami-zero-xmod-20261103/mutant.c",
+            "exists": false
+          }
+        ],
+        "new_input_hashes_verified": 181,
+        "raw_receipt_hashes_verified": 5,
+        "results_and_commands_byte_identical": true,
+        "stored_command_count": 74,
+        "pcm_and_counter_checks": {
+          "0": {
+            "sha256": "64fd6099abc260f6f857cfc2daa815b8ddf514e8c93777e486c9b37190dc11ad",
+            "bytes": 262144,
+            "spans": 1152,
+            "active_voice_calls": 2304,
+            "eligible_spans": 18,
+            "eligible_voice_calls": 36,
+            "eligible_lengths": [
+              1,
+              24,
+              37,
+              46,
+              59,
+              63
+            ],
+            "state_images": 128,
+            "state_image_bytes": 3840
+          },
+          "15": {
+            "sha256": "4cac17b6b13ccfe5c8733a614e95c4c361e24420533b6faf4bd4c9514fd0b727",
+            "bytes": 262144,
+            "spans": 1152,
+            "active_voice_calls": 2304,
+            "eligible_spans": 18,
+            "eligible_voice_calls": 36,
+            "eligible_lengths": [
+              1,
+              24,
+              37,
+              46,
+              59,
+              63
+            ],
+            "state_images": 128,
+            "state_image_bytes": 3840
+          }
+        },
+        "generated_backend_edits_only": true,
+        "red2_generated_backend_has_no_hooks": true,
+        "python_ast_parse": "PASS",
+        "no_clock_api_matches": "PASS",
+        "git_diff_cached_check": "PASS",
+        "worktree_matches_index": true,
+        "stored_exits": {
+          "runner": 0,
+          "program0": 0,
+          "program15": 0,
+          "characterization_binary": 31,
+          "false_observation": 31,
+          "initial_setup_compile": 1
+        }
+      }
+    },
+    "reviewer_check_correction": {
+      "first_attempt_exit": 1,
+      "reason": "Reviewer verification initially expected unused hook declarations in the pre-hook red2 backend. Read-only diff showed the red2 generated file is exactly the original backend without a declaration prefix. Corrected only the review check and reran it successfully; reviewed artifacts were untouched.",
+      "failed_assertion": "assert Path('/tmp/miami-span-red2/observed-backend.c').read_text()==prefix+backend",
+      "corrected_assertion": "assert Path('/tmp/miami-span-red2/observed-backend.c').read_text()==backend"
+    },
+    "manual_source_reads": [
+      "AGENTS.md; skills/x0x37-task/SKILL.md; skills/x0x37-task/references/routing.md; .agents/skills/x0x37-writing/SKILL.md",
+      "git diff --cached -- tests/host/miami_span_observation.c tests/host/run_miami_span_observation.py",
+      "nl -ba on both staged source additions, PLAN.md, README.md and verification.json",
+      "Unchanged tests/host/miami_zero_xmod_assessment.c dispatcher and workload",
+      "Pinned backend initialization, render_span, scheduler path, public render chain and backend struct/workspace contract",
+      "Stored commands, raw green JSONL/stdout/stderr, raw red and red2 failure text, generated temporary backend copies and staged result/evidence data"
+    ],
+    "chain_and_state": {
+      "source_hook_location": "Temporary copy only: leaf span after splitting, and active voice after inactive-voice continue, before kernel dispatch.",
+      "unchanged_dispatcher": "New dispatcher compares block/voice/frame trace and pending observation, then calls the unchanged PR830 comparison dispatcher, which calls separately compiled original and fixture kernels and compares return/filter/gain/phase/stereo sample behavior.",
+      "initialization": "Unchanged original init memset clears the same static backend object before each run; initial state/address are asserted equal.",
+      "block_state": "All 128 complete 3840-byte backend state images are compared after each run block. Stored success is corroborated by source control flow; raw state images are not separately retained.",
+      "limits": "Whole-struct byte equality is same-process evidence, including pointer and padding bytes, not portable serialized state. Workspace scratch is external to backend state; complete PCM is compared separately."
+    },
+    "histogram_and_denominator": {
+      "spans": 1152,
+      "active_voice_calls": 2304,
+      "eligible_spans": 18,
+      "eligible_voice_calls": 36,
+      "denominator": "One-based rendered leaf-span ordinal continues across 128 blocks and resets per program/process. Both active voices are included for each eligible span.",
+      "reference": "Span/voice/eligible histograms are checked against the unchanged baseline call trace. That derivation uses voice 0 as the span delimiter within this fixed two-active-voice held-note workload.",
+      "boundaries": [
+        0,
+        1,
+        63,
+        64,
+        65,
+        127,
+        128,
+        "UINT32_MAX"
+      ],
+      "sampling_limit": "Deterministic selection covers lengths 1,24,37,46,59,63 and is not a representative statistical sample."
+    },
+    "stored_commands_and_exits": {
+      "note": "Read and authenticated stored execution proof; no binary, compilation or broad test rerun was performed by this reviewer.",
+      "runner_command": "python3 tests/host/run_miami_span_observation.py --out /tmp/miami-span-validation > /tmp/miami-span-validation.stdout 2> /tmp/miami-span-validation.stderr",
+      "stored_runner_exit": 0,
+      "commands_file": "docs/perf/miami-span-observation-20261103/commands.txt",
+      "commands_sha256": "b10070a9408a254467cdce7bd4af25b07bb5ce862b68c072991180c0f39a00e4",
+      "command_count": 74,
+      "program_commands": [
+        "/tmp/miami-span-validation/span-observation 0 /tmp/miami-span-validation/baseline-p0.pcm /tmp/miami-span-validation/observed-p0.pcm",
+        "/tmp/miami-span-validation/span-observation 15 /tmp/miami-span-validation/baseline-p15.pcm /tmp/miami-span-validation/observed-p15.pcm"
+      ],
+      "program_exits": [
+        0,
+        0
+      ],
+      "pre_hook_characterization_command": "/tmp/miami-span-red2/span-observation 0 /tmp/miami-span-red2/baseline-p0.pcm /tmp/miami-span-red2/observed-p0.pcm",
+      "pre_hook_characterization_binary_exit": 31,
+      "pre_hook_expected_message": "OBSERVATION_MISMATCH span/voice counters",
+      "initial_setup_compile_exit": 1,
+      "initial_setup_note": "Raw compile failure was a duplicate macro rename of the external kernel prototype. Final export selection excludes that prototype.",
+      "false_observation_command": "/tmp/miami-span-validation/bad-observation 0 /tmp/miami-span-validation/negative-baseline.pcm /tmp/miami-span-validation/negative-observed.pcm",
+      "false_observation_exit": 31,
+      "false_observation_expected_message": "OBSERVATION_MISMATCH observation agrees with actual kernel call",
+      "false_observation_source_change": "Only observation argument changes from n to n+1; generated negative source verified byte-for-byte."
+    },
+    "source_safety": {
+      "only_seven_additions": true,
+      "working_files_match_staged_bytes": true,
+      "production_paths_unchanged_vs_pin": true,
+      "shared_ledger_or_existing_source_changes": false,
+      "staged_content": "Seven UTF-8 text additions. No binary, SDK/toolchain payload, credential or unrelated private-source content observed.",
+      "clock_check": "No clock API pattern found in new C/Python sources or retained command list; manual source review found no timing path."
+    },
+    "proposed_future_timing_boundaries": {
+      "source": "docs/perf/miami-span-observation-20261103/README.md:106",
+      "whole_block": "Before the public render_words call, after input preparation, through its return before validation and PCM I/O.",
+      "leaf_span": "After recursive splitting and before accumulator clearing, through output conversion before successful return.",
+      "active_voice_kernel": "Immediately around the real voice-render kernel call for each eligible span/voice; exclude reference/comparison dispatch and telemetry.",
+      "conditions": "Existing owner must obtain and record a separate actual global timing-slot reservation, pin accepted inputs and reconcile stage-3 identity first. Whole-block and nested costs must be reported separately; retain an untimed validation pass. No reservation or benchmark is established by this review."
+    }
+  },
+  "inherited_evidence_not_repeated": {
+    "identity_and_permissions": "Parent verified live gobbajogger/admin.",
+    "policy": "nightly@66073c68dd80d51a7053432c2c161a8b720a1341",
+    "coordination": "4a35a6cdaa0f112db6b3f577542138afd170c20d",
+    "retained_producer": "opt/miami-coef-cache-0.0.24@dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "retained_reviewer": "independent_qa/6adafbbf54088191a86715d49e7dc6b0",
+    "original_stage3_searches": "Parent reports workspace/GitHub-path/Library searches did not recover separately named original fixture; personal context unavailable. Review confirms docs state that limitation and PR830 accessible fixture reuse accurately."
+  },
+  "coverage_limits": [
+    "One manual artifact reviewer only; no full CE review, cross-model gate, or independent rerun of unchanged compiled proof.",
+    "Fixed accessible PR830 held-note workload, factory programs 0 and 15 only; no general event/voice inactivity/preset coverage.",
+    "Prior arithmetic 996430-case receipt and zero-XMOD/mutant results are reused as supplied; three prior generated inputs are absent and not reauthenticated.",
+    "No performance measurement, timing-slot ownership, hardware, firmware integration/build/package/release acceptance.",
+    "No new remote state check; current identity, policy, ownership and target branch absence are inherited from parent."
+  ],
+  "declined_behaviors": [
+    {
+      "behavior": "Compile or rerun frozen validation/broad host or sanitizer suites",
+      "reason": "Unchanged stored proof authenticated; task explicitly requests evidence reuse and forbids broad reruns."
+    },
+    {
+      "behavior": "Spawn reviewers or run full CE/cross-model machinery",
+      "reason": "Single independent manual artifact-review budget is explicit."
+    },
+    {
+      "behavior": "Benchmark, introduce clocks, or reserve a timing slot",
+      "reason": "No actual separately recorded global slot reservation; scope is timer-free observation."
+    },
+    {
+      "behavior": "Edit checkout/index/HEAD, stage, commit, move branches, write remote state or clean processes",
+      "reason": "Review grant is read-only; no such mutation is needed."
+    },
+    {
+      "behavior": "Hardware, Safari, Actions, SDK/native builds, publishing, source optimization or shared-ledger writes",
+      "reason": "Outside disposable artifact review and retained owner boundaries."
+    }
+  ],
+  "remaining_blockers": [
+    {
+      "action": "Claim literal reuse of the separately named original stage-3 fixture or full original task acceptance",
+      "target": "Unidentified original stage-3 fixture bytes",
+      "status": "PENDING_INPUT_RECONCILIATION",
+      "denied": false,
+      "outcome_uncertain": false,
+      "reason": "Original fixture identity and bytes remain unrecovered; accessible unchanged PR830 fixture is explicitly identified as the comparison baseline.",
+      "completed": "Draft-scoped source, evidence, PCM/hash/counter and manual artifact review are complete.",
+      "next_owner": "Parent or existing analyst",
+      "next_action": "Reconcile the missing original input identity before any claim of literal original-stage3 reuse, full acceptance, or future benchmark."
+    }
+  ],
+  "final_mutation_record": "Only /tmp/miami-span-independent-review/review.json is written by this reviewer."
+}

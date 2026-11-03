@@ -1,0 +1,61 @@
+{
+  "runner": {
+    "command": "python3 tests/host/run_miami_span_observation.py --out /tmp/miami-span-validation > /tmp/miami-span-validation.stdout 2> /tmp/miami-span-validation.stderr",
+    "exit": 0
+  },
+  "characterization": {
+    "binary": "/tmp/miami-span-red2/span-observation",
+    "exit": 31,
+    "expected_failure": "OBSERVATION_MISMATCH span/voice counters",
+    "factory": 0,
+    "before_observation_hooks": true,
+    "baseline_call_order_state_comparisons_passed": true
+  },
+  "initial_setup_failure": {
+    "exit": 1,
+    "reason": "Duplicate original_miami_voice_render_add macro rename from external prototype; corrected backend export selection before characterization."
+  },
+  "false_observation_negative": {
+    "exit": 31,
+    "expected_failure": "OBSERVATION_MISMATCH observation agrees with actual kernel call"
+  },
+  "python_syntax": {
+    "status": "PASS",
+    "method": "ast.parse"
+  },
+  "prior_stage3_identity": {
+    "state": "NOT_RECOVERED",
+    "searches": [
+      "supplied workspace files",
+      "pinned GitHub paths and Miami branch names",
+      "Library Miami/stage3/stage-3/span-observation searches"
+    ],
+    "personal_context": "unavailable for this conversation",
+    "accessible_unchanged_fixture": "PR830@e1c6b02bf6660142af3ae575a3b159cd051a011a"
+  },
+  "not_run": [
+    "benchmark/timing (no actual global slot reserved)",
+    "full host suite",
+    "sanitizer suite",
+    "native firmware builds",
+    "hardware",
+    "Safari",
+    "Actions",
+    "full CE multi-reviewer/cross-model gates"
+  ],
+  "retained_owners": {
+    "producer": "opt/miami-coef-cache-0.0.24@dcc9833f24b20ec2baf47beb131f937e32d95e11",
+    "reviewer": "independent_qa/6adafbbf54088191a86715d49e7dc6b0",
+    "request_ids": [
+      "LX-REQ-023",
+      "LX-REQ-016"
+    ]
+  },
+  "raw_receipt_sha256": {
+    "miami-span-red2.stderr": "382aabda7d8ceb4f747e9521e10a2b13491e3bdca627f66d4ab2750e344940a4",
+    "miami-span-validation.stdout": "b45887dd55c87e7b56eddab1aeb5b58ebf747e7a399115bf2e8c91dbcc87700f",
+    "p0.stdout.jsonl": "0108c6dee28484257cc6c3004530934220b577a1e5991c427645dbf56f70f4bc",
+    "p15.stdout.jsonl": "24c7bea36d91025ff54d6b0bd254078f8463c3626a66590374031a45c7f89183",
+    "negative.stderr": "7f7f08d771dffbb80a98ecd7d35d038cc7192115ae5fd51d472c18889a3d52b1"
+  }
+}
