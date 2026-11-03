@@ -91,6 +91,8 @@ int original_miami_backend_load_factory(original_miami_backend *s, unsigned fact
         !original_miami_voice_compile(&controls, &program)) return 0;
     s->program = program;
     s->controls = controls;
+    /* A factory load can reuse the revision of a different program. */
+    original_miami_voice_owner_invalidate_caches(&s->voice_owner);
     s->global_input.waveform1 = controls.mg_shape[0];
     s->global_input.waveform2 = controls.mg_shape[1];
     if (!completed(s, original_miami_output_apply(&s->output, &s->program, 10))) return 0;

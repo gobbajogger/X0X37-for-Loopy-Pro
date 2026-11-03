@@ -44,6 +44,7 @@ static int action(original_miami_voice_owner *s,unsigned id,unsigned result){
 }
 static void note(void *p,unsigned id,const original_voice_record *r,unsigned full,unsigned mask,int32_t anchor){
  original_miami_voice_owner *s=p;if(!s->status)return;if(id>=s->count||!mask||mask>15){s->status=0;return;}
+ original_miami_selected_voice_invalidate_caches(s->voices+id);
  unsigned kind=original_miami_selected_voice_request_kind(s->voices+id,full);
  if(kind==ORIGINAL_MIAMI_REQUEST_STAGE){original_chicago_allocator_stage_pending(s->pending+id,r,mask,s->voices[id].vca.state);s->status=original_miami_selected_voice_stage_raw(s->voices+id);return;}
  original_miami_voice_note n;if(!kind||!inputs(s,id,r,full,mask,anchor,&n)){s->status=0;return;}
@@ -55,13 +56,24 @@ static const original_allocator_callbacks callbacks={enabled,vca,state,note};
 const original_allocator_callbacks *original_miami_voice_owner_callbacks(void){return &callbacks;}
 int original_miami_voice_owner_bind(original_miami_voice_owner *s,original_miami_selected_voice *v,original_miami_pending_note *p,original_miami_extra_sources *e,unsigned count,original_miami_allocator *a,const original_miami_voice_controls *c,const original_miami_voice_tables *t,const original_miami_note_producers *producer,float bpm){
  if(!s||!v||!p||!e||!count||!a||count!=a->storage_voices||!c||!t||!producer||!producer->tune||!producer->full_mg||!producer->full_helper_seed||!producer->helper_exit||!original_binary32_isfinite(bpm)||bpm<20||bpm>400)return 0;
- *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1};return 1;
+ *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{0}};return 1;
+}
+void original_miami_voice_owner_invalidate_caches(original_miami_voice_owner *s){
+ if(!s)return;
+ s->coefficient_cache.mg_valid_mask=0;
+ s->coefficient_cache.glide.duration=0;
+ for(unsigned i=0;i<s->count;i++)original_miami_selected_voice_invalidate_caches(s->voices+i);
 }
 static int control_all(original_miami_voice_owner *s,unsigned prevalidated){
  if(!s||!s->status||s->allocator->capacity>s->count)return 0;
  for(unsigned i=0;i<s->allocator->capacity;i++){
   unsigned result;
-  int ok=prevalidated?original_miami_selected_voice_control_prevalidated(s->voices+i,s->controls,s->tables,s->bpm,&result):original_miami_selected_voice_control(s->voices+i,s->controls,s->tables,s->bpm,&result);
+  if(!s->voices[i].cache_witness){
+   s->coefficient_cache.mg_valid_mask=0;
+   s->coefficient_cache.glide.duration=0;
+   s->voices[i].cache_witness=1;
+  }
+  int ok=prevalidated?original_miami_selected_voice_control_prevalidated_cached(s->voices+i,s->controls,s->tables,s->bpm,&result,&s->coefficient_cache):original_miami_selected_voice_control(s->voices+i,s->controls,s->tables,s->bpm,&result);
   if(!ok||!action(s,i,result)){s->status=0;return 0;}
  }
  s->status=s->producers.helper_exit(s->producers.context);return s->status;

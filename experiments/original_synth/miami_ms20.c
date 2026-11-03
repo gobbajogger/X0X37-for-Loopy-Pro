@@ -89,8 +89,16 @@ int original_miami_ms20_sample(original_miami_ms20 *s,float osc,float gain,float
 #include "voice_gain.h"
 #include "oscillator_motion.h"
 static inline float k_saw(float p,float correction){return p-clamp((p*correction)*128.0f,-1,1);}
-static inline float k_wave(unsigned shape,float p,float width,float correction,float triangle){
- if(shape==0){float t=2.0f*(.5f-original_binary32_abs(p));float t2=t*t,t3=t*t2;return t+triangle*t3;}
+static inline float k_wave(unsigned shape,float p,float width,float correction,float triangle,uint8_t zero_triangle){
+ if(shape==0){
+  float t=2.0f*(.5f-original_binary32_abs(p));
+  /* p is a finite phase in [-1,1], so t and t3=t*(t*t) are finite.
+   * The only zero t is +0 (exact 0.5f-0.5f). With either signed
+   * triangle zero, t+triangle*t3 is bitwise t+0.0f, including t=+0.
+   * Retain an addition: returning t would not generally preserve -0. */
+  if(zero_triangle)return t+0.0f;
+  float t2=t*t,t3=t*t2;return t+triangle*t3;
+ }
  float value=k_saw(p,correction);
  if(shape>=2){float q=p+(width+width);if(q>1)q=q-2;value=value-k_saw(q,correction);}
  return value;
@@ -103,6 +111,9 @@ int original_miami_voice_render_add(original_miami_ms20 *f,original_voice_gain *
  const original_prepared_oscillators *p,float vco_gain,float *L,float *R,uint32_t n){
  if(!f->prepared||!p->ready||!original_binary32_isfinite(vco_gain))return 0;
  const original_osc_controls *c=&p->controls;
+ uint8_t zero_triangle[4];
+ for(unsigned i=0;i<4;i++)
+  zero_triangle[i]=(uint8_t)(c->shape[i]==0&&(original_math_bits(p->triangle[i])&0x7fffffffu)==0);
  original_ramp og[4],st[2];memcpy(og,vg->oscillator,sizeof og);memcpy(st,vg->stereo,sizeof st);
  uint32_t phase[4];memcpy(phase,ph->phase,sizeof phase);
  original_ramp ra=f->a,rr=f->resonance,rn=f->noise_gain;
@@ -117,11 +128,11 @@ int original_miami_voice_render_add(original_miami_ms20 *f,original_voice_gain *
    float b=i?b3:b1;int32_t step_i;
    phase[i]-=c->increment[i];
    if(gain[i]!=0.0f||xmod!=0.0f){
-    w[i]=k_wave(c->shape[i],k_phase(phase[i]),c->width[i],p->correction[i],p->triangle[i]);
+    w[i]=k_wave(c->shape[i],k_phase(phase[i]),c->width[i],p->correction[i],p->triangle[i],zero_triangle[i]);
     float a=w[i]*xmod;float step=clamp(a+b,-1,1)*0x1p31f;step_i=step>=0x1p31f?INT32_MAX:(int32_t)step;
    }else{w[i]=0.0f;step_i=i?pstep3:pstep1;}
    phase[i+1]-=(uint32_t)step_i;
-   w[i+1]=gain[i+1]!=0.0f?k_wave(c->shape[i+1],k_phase(phase[i+1]),c->width[i+1],p->correction[i+1],p->triangle[i+1]):0.0f;
+   w[i+1]=gain[i+1]!=0.0f?k_wave(c->shape[i+1],k_phase(phase[i+1]),c->width[i+1],p->correction[i+1],p->triangle[i+1],zero_triangle[i+1]):0.0f;
   }
   float mix=gain[0]!=0.0f?w[0]*(gain[0]*.5f):0.0f;for(unsigned i=1;i<4;i++)if(gain[i]!=0.0f)mix=mix+w[i]*(gain[i]*.5f);
   for(unsigned i=0;i<4;i++)(void)k_gain_advance(&og[i]);

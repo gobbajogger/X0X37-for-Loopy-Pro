@@ -436,6 +436,7 @@ run smc-multi-peer-negative python3 tests/host/smc_multi_peer_negative_test.py
 run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
 run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh
 run miami-table-interpolation sh tests/host/run_miami_table_interpolation.sh
+run miami-coef-cache sh tests/host/run_miami_coef_cache.sh
 run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 projects load as the Chicago default, no crash, no save
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
@@ -657,6 +658,7 @@ if [ "$PIL_SKIP" = 1 ]; then not_run sound-layout Pillow; else run sound-layout 
 run perf-wheel-motion sh tests/host/perf_wheel_motion_test.sh
 run perf-wheel-noise sh tests/host/perf_wheel_noise_test.sh
 run control-recompile sh tests/host/control_recompile_test.sh
+run chicago-coef-cache sh tests/host/chicago_coef_cache_test.sh
 run audio-stress sh tests/host/audio_stress_test.sh
 run synth-param-jump sh tests/host/synth_param_jump_test.sh
 run param-write-sources sh tests/host/param_write_sources_test.sh
