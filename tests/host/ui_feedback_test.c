@@ -87,7 +87,9 @@ static void readout_does_not_cover_help(void)
 
     memset(&ui, 0, sizeof ui);
     boot();
-    ui.view = V_PART;
+    set_view(V_SEQ); /* SEQ uses the transient readout; PART has dedicated sound controls. */
+    held_btn = 1u << B_SAVE; /* Keep help held while LCD transfers service input. */
+    ui.btn = held_btn;
     ui.help = B_SAVE + 1;
     ui.touched = -1;
     help_only = main_hash();
@@ -97,6 +99,8 @@ static void readout_does_not_cover_help(void)
     help_with_pending_readout = main_hash();
     assert(help_with_pending_readout == help_only);
 
+    held_btn = 0;
+    ui.btn = 0;
     ui.help = 0;
     ui.touched = -1;
     normal = main_hash();
