@@ -1,0 +1,62 @@
+{
+  "source_commit": "8be16486e33f65b31c76710e1d825b6aa701c2c9",
+  "source_blobs": {
+    "tests/host/audio_stress_test.sh": "17c0233fbbe0f0e635857f8b47e85f9c7cc8ab45",
+    "tools/audio_stress_report.py": "fa8b0b9c962a015d096fdf59c9d1ee331641608f",
+    "tests/host/host_failure_summary.py": "f4f90bb96b14688e0e49e919dbd6b6ad826f5de2",
+    "tests/run_tests.sh": "1c5c733e1574e7c83bddc2fceb4be9e2bfe54150"
+  },
+  "wrapper_command": "python3 tools/audio_stress_report.py --csv \"$OUT/$workload/blocks.csv\" --pcm \"$OUT/$workload/audio.s32\" --out \"$OUT/$workload/report.json\"",
+  "cases": [
+    {
+      "case": "within",
+      "synthetic": true,
+      "require_host_limits": false,
+      "reporter_exit": 0,
+      "summary_status": {
+        "audio-stress": "ok"
+      },
+      "timing_pass": true,
+      "target_acceptance": "NOT_RUN"
+    },
+    {
+      "case": "within",
+      "synthetic": true,
+      "require_host_limits": true,
+      "reporter_exit": 0,
+      "summary_status": {
+        "audio-stress": "ok"
+      },
+      "timing_pass": true,
+      "target_acceptance": "NOT_RUN"
+    },
+    {
+      "case": "miami_over",
+      "synthetic": true,
+      "require_host_limits": false,
+      "reporter_exit": 0,
+      "summary_status": {
+        "audio-stress": "ok"
+      },
+      "timing_pass": false,
+      "target_acceptance": "NOT_RUN"
+    },
+    {
+      "case": "miami_over",
+      "synthetic": true,
+      "require_host_limits": true,
+      "reporter_exit": 1,
+      "summary_status": {
+        "audio-stress": "FAIL"
+      },
+      "timing_pass": false,
+      "target_acceptance": "NOT_RUN"
+    }
+  ],
+  "assertions": "PASS",
+  "actual_wrapper_executed": false,
+  "full_suite": "NOT_RUN",
+  "benchmark": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "conclusion": "Functional suite status does not establish timing acceptance."
+}
