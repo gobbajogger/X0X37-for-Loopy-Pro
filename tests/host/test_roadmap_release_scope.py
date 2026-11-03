@@ -257,6 +257,24 @@ class ReleaseScopeTests(unittest.TestCase):
         with patch.object(rc.urllib.request, "urlopen", side_effect=lambda url, timeout: response(live)):
             self.assertTrue(self.verify()["passed"])
 
+        # A fresh selection pin cannot bind different served code to this source.
+        different_live = b"<p>A different installer without the verified backup path.</p>\n"
+        external["live_sha256"] = hashlib.sha256(different_live).hexdigest()
+        prior_selection = self.selection_ref
+        candidate = self.candidate
+        self.save_selection()
+        self.assertNotEqual(self.selection_ref, prior_selection)
+        self.assertEqual(self.candidate, candidate)
+        with patch.object(rc.urllib.request, "urlopen",
+                          side_effect=lambda url, timeout: response(different_live)):
+            assessed = self.save_report()
+            installer = next(row for row in assessed["rows"] if row["id"] == self.selected[0])
+            self.assertEqual(installer["result"], "MISSING")
+            self.assertIn("live bytes differ from pinned source", installer["reason"])
+            self.assertFalse(assessed["passed"])
+            with self.assertRaisesRegex(rc.GateError, "completeness FAIL: 1 missing"):
+                self.verify()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

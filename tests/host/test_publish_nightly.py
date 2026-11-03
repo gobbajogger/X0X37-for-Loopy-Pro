@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """A nightly installer page is published only for two passing development builds."""
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -9,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -105,6 +107,76 @@ def refused(message, fn):
         require(message in str(error), f"expected {message!r} in {error}")
         return
     raise SystemExit("invalid nightly was published")
+
+
+def check_external_source_binding(tmp, repo, candidate, roadmap_commit, roadmap_blob,
+                                  gate_evidence, elite_record, pro_record, elite_fwsc, pro_fwsc):
+    """Different served code must fail before any local publisher output write."""
+    rc = roadmap_completeness
+    external_repo = tmp / "external-source"
+    (external_repo / "install").mkdir(parents=True)
+    git(external_repo, "init", "-q", "-b", "fixture")
+    source = b"<p>Back up all loop slots before updating.</p>\n"
+    (external_repo / "install/index.html").write_bytes(source)
+    git(external_repo, "add", ".")
+    git(external_repo, "commit", "-qm", "independent installer fixture")
+    external_commit = git(external_repo, "rev-parse", "HEAD")
+    external_tree = git(external_repo, "rev-parse", "HEAD^{tree}")
+    external_blob = git(external_repo, "rev-parse", "HEAD:install/index.html")
+    external = {"repository": rc.INSTALLER_REPOSITORY, "live_url": rc.INSTALLER_URL,
+                "commit": external_commit, "tree": external_tree, "blob": external_blob,
+                "path": "install/index.html", "live_sha256": hashlib.sha256(source).hexdigest()}
+    policy = json.loads((repo / rc.SELECTION_PATH).read_text())
+    policy["selected_fixes"] = [{"id": "FIX-INSTALLER-BACKUP", "canonical_id": "#1",
+                                 "scope": "external", "external": external}]
+    evidence = json.loads(gate_evidence.read_text())
+    evidence["required_release_rows"] = ["FIX-INSTALLER-BACKUP"]
+    evidence["proofs"]["FIX-INSTALLER-BACKUP"] = [{"kind": "external", "source": {
+        "origin_commit": external_commit, "origin_tree": external_tree,
+        "source_blob": external_blob, "source_path": "install/index.html", "kind": "blob",
+        "needle": "Back up all loop slots before updating."}}]
+    external_evidence = tmp / "external-evidence.json"
+    external_evidence.write_text(json.dumps(evidence))
+    external_report = tmp / "external-report.json"
+    output = tmp / "external-preview"
+
+    def response(body):
+        stream = io.BytesIO(body)
+        stream.geturl = lambda: rc.INSTALLER_URL
+        return stream
+
+    for body, should_pass in ((source, True), (b"<p>Different installer code.</p>\n", False)):
+        external["live_sha256"] = hashlib.sha256(body).hexdigest()
+        (repo / rc.SELECTION_PATH).write_text(json.dumps(policy))
+        git(repo, "add", rc.SELECTION_PATH)
+        git(repo, "commit", "-qm", "fresh independent installer selection fixture")
+        options = {"completeness_report": external_report, "roadmap_ref": roadmap_commit,
+                   "completeness_evidence": external_evidence,
+                   "selection_ref": git(repo, "rev-parse", "HEAD"),
+                   "selection_blob": git(repo, "rev-parse", "HEAD:"+rc.SELECTION_PATH),
+                   "external_repositories": {rc.INSTALLER_REPOSITORY: external_repo}}
+        with patch.object(rc.urllib.request, "urlopen", side_effect=lambda url, timeout: response(body)):
+            assessed = rc.evaluate(repo, candidate, git(repo, "rev-parse", candidate+"^{tree}"),
+                                   roadmap_commit, roadmap_blob, external_evidence,
+                                   options["selection_ref"], options["selection_blob"],
+                                   options["external_repositories"])
+            external_report.write_text(json.dumps(assessed))
+            if should_pass:
+                _publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc,
+                                       output, push=False, **options)
+                require((output / "install/index.html").is_file(), "equal source/live preview refused")
+                continue
+            before = {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()}
+            absent_parent = tmp / "external-refused-parent"
+            # Guard the first publisher filesystem mutation, while the real gate runs.
+            with patch.object(Path, "mkdir", side_effect=AssertionError("rejected external proof attempted output write")):
+                for target in (absent_parent / "page", output):
+                    refused("completeness FAIL: 1 missing", lambda: _publish_valid_nightly(
+                        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, target,
+                        push=False, **options))
+            require(not absent_parent.exists(), "rejected external proof created output parent")
+            require(before == {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()},
+                    "rejected external proof changed existing preview")
 
 
 def main():
@@ -312,6 +384,8 @@ def main():
         capture_output=True, text=True)
     require(shell.returncode == 0 and (tmp / "shell" / "install" / "index.html").is_file(),
             shell.stdout + shell.stderr)
+    check_external_source_binding(tmp, repo, commit, roadmap_commit, gate_blob, gate_evidence,
+                                  elite_record, pro_record, elite_fwsc, pro_fwsc)
     shutil.rmtree(tmp)
     print("PASS nightly publish")
 

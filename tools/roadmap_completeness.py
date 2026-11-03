@@ -217,6 +217,8 @@ def _verify_external(proof, selection, external_repositories):
         raise GateError(f"external installer live-byte read failed: {exc}") from exc
     if len(live) > 8 * 1024 * 1024 or _digest(live) != digest:
         raise GateError("external installer live bytes differ from independent selection")
+    if live != _content(repo, commit, path):
+        raise GateError("external installer live bytes differ from pinned source")
     return {"repository": external["repository"], "commit": commit, "tree": tree,
             "source": verified, "live_url": external["live_url"], "live_sha256": digest}
 
