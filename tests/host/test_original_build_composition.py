@@ -146,9 +146,9 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertNotIn("shape_pad_owner(", ui)
 
     def test_rate_pad_port_preserves_574f_press_ownership_and_native_eight_rates(self):
-        # The physical Free Play route was ported from 574f/6ae. No shape-pad
-        # functionality belongs to this lane. Verify press-time ownership and
-        # the eight original Miami divisions, not the retired WBL1 backend.
+        # The 574f/6ae rate-pad port now also owns the four shape and four empty
+        # pads from #773. Preserve press-time ownership across all physical pads
+        # while the rate handler keeps the eight original Miami divisions.
         ui = (ROOT / "firmware/src/app/ui.c").read_text()
         hal = (ROOT / "firmware/hal/smk_input.h").read_text()
         plat = (ROOT / "firmware/src/app/plat_fm1.c").read_text()
@@ -164,8 +164,9 @@ class OriginalBuildCompositionTests(unittest.TestCase):
         self.assertIn("ORIGINAL_MIAMI_WOBBLE_RATE", ui)
         self.assertIn("smk_div_held & owned", hal)
         self.assertIn("if (!vel) smk_div_held &= (uint16_t)~owned", hal)
-        self.assertIn("if (vel && pad < 8u && smk_div_owner && !smk_pad_note[pad])", hal)
-        self.assertIn("if (pad < 8u) smk_div_pending = (uint8_t)(pad + 1u)", hal)
+        self.assertIn("if (vel && pad < SMK_NPAD && smk_div_owner && !smk_pad_note[pad])", hal)
+        self.assertRegex(hal, r"smk_div_held \|= owned;\s*"
+                              r"smk_div_pending = \(uint8_t\)\(pad \+ 1u\);")
         self.assertIn("smk_div_pending = 0;", hal)
         self.assertIn("smk_div_owner = (uint8_t)owner;", hal)
         self.assertRegex(plat, r"(?s)uint32_t flags = irq_save\(\);"
