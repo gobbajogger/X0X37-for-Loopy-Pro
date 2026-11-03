@@ -1,0 +1,38 @@
+{
+  "schema": "dnbox-roadmap-source-evidence-v1",
+  "roadmap_blob": "4bfb141f569058b1407d5d4684e5f8ada3eb4067",
+  "required_release_rows": [
+    "PR-820",
+    "PR-821",
+    "FIX-809-REVERT",
+    "FIX-UI-TILES",
+    "FIX-SMC-ALIGN",
+    "FIX-INSTALLER-BACKUP"
+  ],
+  "proofs": {
+    "#1": [
+      {
+        "origin_commit": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+        "origin_tree": "916ea65587238ea8b16859462ffacbee846652cf",
+        "source_blob": "8ddeb9d588ece0612b8aedaafe1900d573c7215f",
+        "source_path": "firmware/src/app/engine.c",
+        "candidate_path": "firmware/src/app/engine.c",
+        "kind": "blob",
+        "needle": "static original_runtime_part original_bass[NBASS] POOL;",
+        "pr": "#699"
+      }
+    ],
+    "#23": [
+      {
+        "origin_commit": "d8086cc09203945919c70d3c805f8ca3e6acbe5a",
+        "origin_tree": "916ea65587238ea8b16859462ffacbee846652cf",
+        "source_blob": "b63872df6fc471ec024fad80965cf28d27c3092a",
+        "source_path": "firmware/src/app/engine.h",
+        "candidate_path": "firmware/src/app/engine.h",
+        "kind": "blob",
+        "needle": "enum { T_909, T_808, T_303, T_BRK, T_FX, T_MIX, T_MST, NTARGETS };",
+        "pr": "#694"
+      }
+    ]
+  }
+}

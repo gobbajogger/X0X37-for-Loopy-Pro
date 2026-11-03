@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dev_validate  # noqa: E402
 import make_pages  # noqa: E402
 import release_alloc  # noqa: E402
+import roadmap_completeness  # noqa: E402
 from firmware_build_labels import canonical_version, release_display, version_of_product  # noqa: E402
 from make_site import product_of  # noqa: E402
 
@@ -534,7 +535,9 @@ def _handoff_record():
 
 def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
                           elite_ctl=None, pro_ctl=None, remote=None, push=False,
-                          branch=BRANCH, merge=None, ledger=None):
+                          branch=BRANCH, merge=None, ledger=None,
+                          completeness_report=None, roadmap_ref=None, completeness_evidence=None,
+                          selection_ref=None, selection_blob=None, external_repositories=None):
     """Record a validated local nightly preview, never push firmware to Git.
 
     DnBOX RULES 3, 8 and 1m retire the legacy --push entry point because page
@@ -548,6 +551,14 @@ def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, 
     try:
         commit, verified = _verify_records(
             repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl, ledger)
+        if completeness_report is None or roadmap_ref is None:
+            raise NightlyPublishError("ROADMAP completeness report and revision required")
+        try:
+            roadmap_completeness.verify_pass(
+                repo, completeness_report, commit, roadmap_ref, completeness_evidence,
+                selection_ref, selection_blob, external_repositories)
+        except roadmap_completeness.GateError as exc:
+            raise NightlyPublishError(f"ROADMAP completeness: {exc}") from exc
         version, catalog, copies = _catalog(commit, verified, merges)
         prior = _prior_tree(merges)
         out = Path(out)
@@ -596,6 +607,12 @@ def main(argv=None):
     parser.add_argument("--pro-fwsc", required=True, type=Path)
     parser.add_argument("--pro-ctl", type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--completeness-report", type=Path)
+    parser.add_argument("--roadmap-ref")
+    parser.add_argument("--selection-ref", help="independently accepted release-selection commit")
+    parser.add_argument("--selection-blob", help="independently accepted release-selection blob")
+    parser.add_argument("--external-repo", action="append", default=[], metavar="REPOSITORY=PATH")
+    parser.add_argument("--completeness-evidence", type=Path, help="source proofs; cannot change independent release selection")
     parser.add_argument("--merge", type=Path, help="previous nightly page whose valid packages to keep")
     parser.add_argument("--remote", help="legacy parameter: Git network delivery is disabled")
     parser.add_argument("--branch", default=BRANCH)
@@ -605,8 +622,12 @@ def main(argv=None):
         publish_valid_nightly(
             args.repo, args.elite_record, args.pro_record, args.elite_fwsc, args.pro_fwsc, args.out,
             elite_ctl=args.elite_ctl, pro_ctl=args.pro_ctl, remote=args.remote, push=args.push,
-            branch=args.branch, merge=args.merge)
-    except NightlyPublishError as error:
+            branch=args.branch, merge=args.merge,
+            completeness_report=args.completeness_report, roadmap_ref=args.roadmap_ref,
+            completeness_evidence=args.completeness_evidence,
+            selection_ref=args.selection_ref, selection_blob=args.selection_blob,
+            external_repositories=roadmap_completeness.external_repositories(args.external_repo))
+    except (NightlyPublishError, roadmap_completeness.GateError) as error:
         print("nightly not published: " + str(error), file=sys.stderr)
         return 2
     return 0

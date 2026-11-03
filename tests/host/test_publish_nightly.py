@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """A nightly installer page is published only for two passing development builds."""
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -9,15 +10,24 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 os.environ.pop("X0X_NIGHTLY_REMOTE", None)
 
 import dev_validate  # noqa: E402
+import roadmap_completeness  # noqa: E402
 import publish_nightly  # noqa: E402
 import validation_inputs  # noqa: E402
-from publish_nightly import LABEL, NightlyPublishError, publish_valid_nightly  # noqa: E402
+from publish_nightly import LABEL, NightlyPublishError, publish_valid_nightly as _publish_valid_nightly  # noqa: E402
+
+GATE_OPTIONS = {}
+
+
+def publish_valid_nightly(*args, **kwargs):
+    """Exercise the real gate along with the existing package/identity checks."""
+    return _publish_valid_nightly(*args, **{**GATE_OPTIONS, **kwargs})
 
 
 def git(repo, *args):
@@ -99,6 +109,76 @@ def refused(message, fn):
     raise SystemExit("invalid nightly was published")
 
 
+def check_external_source_binding(tmp, repo, candidate, roadmap_commit, roadmap_blob,
+                                  gate_evidence, elite_record, pro_record, elite_fwsc, pro_fwsc):
+    """Different served code must fail before any local publisher output write."""
+    rc = roadmap_completeness
+    external_repo = tmp / "external-source"
+    (external_repo / "install").mkdir(parents=True)
+    git(external_repo, "init", "-q", "-b", "fixture")
+    source = b"<p>Back up all loop slots before updating.</p>\n"
+    (external_repo / "install/index.html").write_bytes(source)
+    git(external_repo, "add", ".")
+    git(external_repo, "commit", "-qm", "independent installer fixture")
+    external_commit = git(external_repo, "rev-parse", "HEAD")
+    external_tree = git(external_repo, "rev-parse", "HEAD^{tree}")
+    external_blob = git(external_repo, "rev-parse", "HEAD:install/index.html")
+    external = {"repository": rc.INSTALLER_REPOSITORY, "live_url": rc.INSTALLER_URL,
+                "commit": external_commit, "tree": external_tree, "blob": external_blob,
+                "path": "install/index.html", "live_sha256": hashlib.sha256(source).hexdigest()}
+    policy = json.loads((repo / rc.SELECTION_PATH).read_text())
+    policy["selected_fixes"] = [{"id": "FIX-INSTALLER-BACKUP", "canonical_id": "#1",
+                                 "scope": "external", "external": external}]
+    evidence = json.loads(gate_evidence.read_text())
+    evidence["required_release_rows"] = ["FIX-INSTALLER-BACKUP"]
+    evidence["proofs"]["FIX-INSTALLER-BACKUP"] = [{"kind": "external", "source": {
+        "origin_commit": external_commit, "origin_tree": external_tree,
+        "source_blob": external_blob, "source_path": "install/index.html", "kind": "blob",
+        "needle": "Back up all loop slots before updating."}}]
+    external_evidence = tmp / "external-evidence.json"
+    external_evidence.write_text(json.dumps(evidence))
+    external_report = tmp / "external-report.json"
+    output = tmp / "external-preview"
+
+    def response(body):
+        stream = io.BytesIO(body)
+        stream.geturl = lambda: rc.INSTALLER_URL
+        return stream
+
+    for body, should_pass in ((source, True), (b"<p>Different installer code.</p>\n", False)):
+        external["live_sha256"] = hashlib.sha256(body).hexdigest()
+        (repo / rc.SELECTION_PATH).write_text(json.dumps(policy))
+        git(repo, "add", rc.SELECTION_PATH)
+        git(repo, "commit", "-qm", "fresh independent installer selection fixture")
+        options = {"completeness_report": external_report, "roadmap_ref": roadmap_commit,
+                   "completeness_evidence": external_evidence,
+                   "selection_ref": git(repo, "rev-parse", "HEAD"),
+                   "selection_blob": git(repo, "rev-parse", "HEAD:"+rc.SELECTION_PATH),
+                   "external_repositories": {rc.INSTALLER_REPOSITORY: external_repo}}
+        with patch.object(rc.urllib.request, "urlopen", side_effect=lambda url, timeout: response(body)):
+            assessed = rc.evaluate(repo, candidate, git(repo, "rev-parse", candidate+"^{tree}"),
+                                   roadmap_commit, roadmap_blob, external_evidence,
+                                   options["selection_ref"], options["selection_blob"],
+                                   options["external_repositories"])
+            external_report.write_text(json.dumps(assessed))
+            if should_pass:
+                _publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc,
+                                       output, push=False, **options)
+                require((output / "install/index.html").is_file(), "equal source/live preview refused")
+                continue
+            before = {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()}
+            absent_parent = tmp / "external-refused-parent"
+            # Guard the first publisher filesystem mutation, while the real gate runs.
+            with patch.object(Path, "mkdir", side_effect=AssertionError("rejected external proof attempted output write")):
+                for target in (absent_parent / "page", output):
+                    refused("completeness FAIL: 1 missing", lambda: _publish_valid_nightly(
+                        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, target,
+                        push=False, **options))
+            require(not absent_parent.exists(), "rejected external proof created output parent")
+            require(before == {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()},
+                    "rejected external proof changed existing preview")
+
+
 def main():
     tmp = Path(tempfile.mkdtemp(prefix="nightly-publish-"))
     # Isolated test fixture: supply a default Git identity for the temporary
@@ -113,9 +193,52 @@ def main():
     repo.mkdir()
     subprocess.check_call(["git", "init", "-q", "-b", "main"], cwd=repo)
     (repo / "notes.txt").write_text("fixture\n")
+    (repo / "src").mkdir()
+    (repo / "docs").mkdir()
+    (repo / "src" / "present.c").write_text("int road_present(void) { return 17; }\n")
+    (repo / "docs" / "ROADMAP.md").write_text(
+        "# X0X37 roadmap\n\n## Done\n\n| Area | What | Where |\n"
+        "|---|---|---|\n| Docs | Verified source | #9 |\n\n"
+        "## Master tracker (status, evidence, next step)\n\n"
+        "| Item | Source | Status | Evidence | Next step |\n"
+        "|---|---|---|---|---|\n"
+        "| #1 Source | #9 | in 0.0.24 | source bytes | checked |\n"
+        "| #2 Future | #9 | missing | not yet built | queued |\n")
     subprocess.check_call(["git", "-C", str(repo), "add", "."])
     subprocess.check_call(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t",
                            "commit", "-qm", "fixture"])
+    gate_commit = git(repo, "rev-parse", "HEAD")
+    gate_tree = git(repo, "rev-parse", "HEAD^{tree}")
+    gate_blob = git(repo, "rev-parse", "HEAD:docs/ROADMAP.md")
+    proof = {"origin_commit": gate_commit, "origin_tree": gate_tree,
+             "source_blob": git(repo, "rev-parse", "HEAD:src/present.c"),
+             "source_path": "src/present.c", "kind": "blob",
+             "needle": "int road_present(void) { return 17; }", "pr": "#9"}
+    gate_evidence = tmp / "roadmap-evidence.json"
+    gate_evidence.write_text(json.dumps({
+        "schema": roadmap_completeness.EVIDENCE_SCHEMA,
+        "roadmap_blob": gate_blob, "required_release_rows": [],
+        "proofs": {"#1": [proof], "DONE-001": [proof]}}))
+    gate_report = tmp / "roadmap-report.json"
+    roadmap_commit = gate_commit
+    selection_path = repo / roadmap_completeness.SELECTION_PATH
+    selection_path.write_text(json.dumps({
+        "schema": roadmap_completeness.SELECTION_SCHEMA,
+        "roadmap_ref": roadmap_commit, "roadmap_blob": gate_blob,
+        "required_roadmap_rows": ["DONE-001", "#1"], "selected_fixes": []}))
+    git(repo, "add", roadmap_completeness.SELECTION_PATH)
+    git(repo, "commit", "-qm", "independent fixture release selection")
+    selection_ref = gate_commit = git(repo, "rev-parse", "HEAD")
+    selection_blob = git(repo, "rev-parse", "HEAD:"+roadmap_completeness.SELECTION_PATH)
+    gate_tree = git(repo, "rev-parse", "HEAD^{tree}")
+    assessed = roadmap_completeness.evaluate(repo, gate_commit, gate_tree,
+                                              roadmap_commit, gate_blob, gate_evidence,
+                                              selection_ref, selection_blob)
+    require(assessed["passed"], "fixture ROADMAP gate did not pass")
+    gate_report.write_text(json.dumps(assessed))
+    GATE_OPTIONS.update(completeness_report=gate_report, roadmap_ref=roadmap_commit,
+                        completeness_evidence=gate_evidence,
+                        selection_ref=selection_ref, selection_blob=selection_blob)
     elite_fwsc, pro_fwsc = tmp / "elite.fwsc", tmp / "pro.fwsc"
     make_pkg("SMK-37 Elite_900", elite_fwsc)
     make_pkg("SMK-37 Pro_900", pro_fwsc)
@@ -124,6 +247,25 @@ def main():
     commit = git(repo, "rev-parse", "HEAD")
 
     page = tmp / "page"
+    refused("ROADMAP completeness report", lambda: _publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False))
+    require(not page.exists(), "gate-less preview created output")
+    stale_report = tmp / "stale-report.json"
+    stale = json.loads(gate_report.read_text())
+    stale["candidate_commit"] = "f" * 40
+    stale_report.write_text(json.dumps(stale))
+    refused("stale completeness report", lambda: publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
+        completeness_report=stale_report))
+    require(not page.exists(), "stale gate report created output")
+    refused("independent release selection revision", lambda: publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
+        selection_ref=None))
+    require(not page.exists(), "missing independent selection created output")
+    refused("independent release selection changed", lambda: publish_valid_nightly(
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False,
+        selection_blob="0" * 40))
+    require(not page.exists(), "substituted selection created output")
     publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, page, push=False)
     catalog = json.loads((page / "versions.json").read_text())
     require(catalog["channel"] == "nightly" and catalog["importsReleases"] is False, "nightly catalog flags")
@@ -235,10 +377,15 @@ def main():
     shell = subprocess.run(
         ["sh", str(ROOT / "tools" / "publish_pages.sh"), "--nightly",
          "--repo", str(repo), "--elite-record", str(elite_record), "--elite-fwsc", str(elite_fwsc),
-         "--pro-record", str(pro_record), "--pro-fwsc", str(pro_fwsc), "--out", str(tmp / "shell")],
+         "--pro-record", str(pro_record), "--pro-fwsc", str(pro_fwsc), "--out", str(tmp / "shell"),
+         "--roadmap-ref", roadmap_commit, "--completeness-report", str(gate_report),
+         "--selection-ref", selection_ref, "--selection-blob", selection_blob,
+         "--completeness-evidence", str(gate_evidence)],
         capture_output=True, text=True)
     require(shell.returncode == 0 and (tmp / "shell" / "install" / "index.html").is_file(),
             shell.stdout + shell.stderr)
+    check_external_source_binding(tmp, repo, commit, roadmap_commit, gate_blob, gate_evidence,
+                                  elite_record, pro_record, elite_fwsc, pro_fwsc)
     shutil.rmtree(tmp)
     print("PASS nightly publish")
 

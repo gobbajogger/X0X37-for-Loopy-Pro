@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -16,8 +17,16 @@ import validation_inputs  # noqa: E402
 from firmware_build_labels import inspect_package, version_of_product  # noqa: E402
 from fm1pkg_make import ufw  # noqa: E402
 from publish_nightly import (LABEL, NightlyPublishError, _embedded_version, _model_entry_ok,  # noqa: E402
-                             _version_ok, publish_valid_nightly)
+                             _version_ok, publish_valid_nightly as _publish_valid_nightly)
 from release_alloc import ReleaseError, bind_file, empty_ledger  # noqa: E402
+
+
+def publish_valid_nightly(*args, **kwargs):
+    """Keep release-number fixtures focused on identity; gate has its own actual-Git tests."""
+    kwargs.setdefault("completeness_report", Path(__file__))
+    kwargs.setdefault("roadmap_ref", "0" * 40)
+    with patch("publish_nightly.roadmap_completeness.verify_pass", return_value={}):
+        return _publish_valid_nightly(*args, **kwargs)
 
 
 def git(repo, *args):
