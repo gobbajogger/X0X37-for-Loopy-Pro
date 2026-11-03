@@ -1,23 +1,52 @@
 # Project context and execution
 
-Use the owner's current rules for the **LoopyX0X37** project.
+Use fresh ChatGPT Work threads for distinct **LoopyX0X37** tasks. Continue the
+same task in its assigned thread and lane through the authorized checks and
+delivery. A new logical stage does not require another thread. Preserve an active
+owner; use an explicit scoped handoff before another worker takes its files.
 
-## Where work runs
+## Execution and checks
 
-- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
-- The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
-- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
-- If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
-- Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
-- `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
-- Merge bar: a full cloud pass (the full host suite plus the Elite and Pro builds, 0 fail and 0 skip), or the box result `Box host-suite check: PASS` plus a PR comment that the firmware builds pass.
-- The Mac is only for hardware installs and device checks.
-- Install only when all queued features are ready. Before the install, back up the loop slots. After the install, read back and compare the per-slot CRC, and check the slots.
+Use the Work task's actual native or headless tools for authorized repository
+inspection, edits, synthetic tests, host tests, builds and artifact verification.
+Verify the needed capabilities before assigning work. A task title, saved prompt
+or enabled job does not prove a worker started or a check ran. Coordination and
+handoff reports do not require another owner reply before authorized work continues.
 
-## Handoffs
+Run the applicable synthetic checks before asking the owner to test hardware.
+The owner performs hardware checks when synthetic testing is smooth. Agents do
+not access, probe, install, flash or recover a device under this routing rule.
+Required firmware proof and the documentation-only exception remain in
+[AGENTS.md](../../../AGENTS.md); required failed, skipped or unrun checks do not pass.
 
-Give each new classic thread a compact handoff from the ChatGPT Orchestrator: project, lane, exact base revision on GitHub, requested operations, relevant skill paths, evidence and the result needed. Return the result and evidence to the ChatGPT Orchestrator for QA and merge-readiness. A saved prompt is not a started thread.
+Do not use or control the owner's Safari. Use an authorized isolated agent
+browser or headless checks when a synthetic test needs a browser. A missing
+browser capability blocks only the dependent check; it does not authorize use
+of the owner's browser or device.
 
-For code work, select the explicit tstack mode in [x0x37-workflow](../../x0x37-workflow/SKILL.md), then apply firmware proof where relevant. Device installation stays separate and needs current action-specific owner permission. Keep data safeguards, sole firmware integration ownership and existing action permissions.
+Rule 1m remains: no Git over the network in chats. Use the GitHub plugin or
+GitHub API to retrieve source, and SDK V1.2.1 from the project files for applicable
+firmware builds. Never change `.github/` or add or edit GitHub Actions.
+`x0x37-capability-first` is a ChatGPT plugin, not a repository script.
 
-This replaces the earlier routing that sent execution to Codex or Work.
+## Handoffs and delivery
+
+Give a distinct Work task a compact handoff: project, owned paths, isolated lane,
+exact source revision, requested operations, current authority, relevant skill
+paths, completed proof, remaining checks and acceptance condition. Verify the
+newest GitHub head before resuming from a chat that fails to load. Read the actual
+result through a supported reader; a sent pointer is not receiver consumption.
+
+For code work, select the explicit tstack mode in
+[x0x37-workflow](../../x0x37-workflow/SKILL.md). Use the maintained development
+workflow for continuation and proof, while preserving the actual target's
+integration destination and current action-specific authority. Reading `nightly`
+does not retarget a PR or authorize a merge. Preserve one writer per scope,
+independent review, required checks, licensing and data safeguards. Keep source
+delivery, review, build, integration, publication and hardware acceptance separate.
+
+This supersedes the classic-only execution and fresh-classic-thread-per-stage
+routing introduced in PR #720, including its Work test/build prohibition and
+fixed model choices. Older handoffs remain historical evidence. Automation
+settings, private rules and security, review, merge, publication and device
+permissions retain their separate owners and action-specific safeguards.
