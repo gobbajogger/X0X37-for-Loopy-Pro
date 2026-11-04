@@ -54,6 +54,27 @@ _Static_assert(__builtin_offsetof(settings_t, ck_x2) - __builtin_offsetof(settin
                "clock settings must remain twelve adjacent bytes");
 _Static_assert(sizeof CK_MAX == 12, "clock settings bounds must cover twelve fields");
 typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
+/* The settings object has two sizes (x0x.h PROJ_SET_TAIL): the 40-byte settings_t while every part is ON,
+ * and settings_t plus the part OFF tail. Both must fit the object buffer. */
+_Static_assert(4u + sizeof(settings_t) == 44u, "an all-ON settings object is the older 44-byte payload");
+_Static_assert(4u + sizeof(settings_t) + PROJ_SET_TAIL == 48u, "a part OFF settings object is 48 bytes");
+_Static_assert(4u + sizeof(settings_t) + PROJ_SET_TAIL <= PLAT_STORE_MAX, "the long settings object fits");
+
+/* The OFF mask is not in settings_t (the .x0x file and project_t keep their layout): one per project_t
+ * the settings are loaded into, the live project and the stage. */
+static uint8_t part_off_live, part_off_staged;
+static uint8_t *part_off_of(const project_t *pr) { return pr == &project_stage ? &part_off_staged : &part_off_live; }
+
+/* the settings payload sizes this build loads (format word included), and the tail's rules: mask 0-31,
+ * reserved bytes zero. 0 = acceptable. */
+static int settings_len_ok(uint32_t n)
+{
+    return n == 4u + sizeof(settings_t) || n == 4u + sizeof(settings_t) + PROJ_SET_TAIL;
+}
+static int settings_tail_bad(const uint8_t *t)
+{
+    return t[0] > PROJ_PART_OFF_ALL || t[1] || t[2] || t[3];
+}
 
 static void project_settings_defaults(settings_t *s, uint8_t device_bt)
 {
@@ -78,6 +99,7 @@ static void project_defaults_for(project_t *pr, uint8_t device_bt)
 {
     int i;
     __builtin_memset(pr, 0, sizeof *pr);
+    *part_off_of(pr) = 0;                     /* defaults: every part ON */
     project_settings_defaults(&pr->set, device_bt);
     engine_sound_defaults(&pr->sound);
     arrange_defaults(pr);
@@ -146,14 +168,16 @@ static int read_settings_payload(void)
     return n;
 }
 
-/* Exact size only; an older settings object is unsupported (-9). */
-static int load_settings(settings_t *dst)
+/* Exact sizes only (settings_t, or settings_t and the part OFF tail); anything else is unsupported (-9). */
+static int load_settings(settings_t *dst, uint8_t *part_off)
 {
     int n = read_settings_payload();
     if (n < 0) return n;
-    if ((uint32_t)n != sizeof *dst + 4u || get32(io_buf) != PROJ_FORMAT ||
+    if (!settings_len_ok((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
         io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV) return -9;
+    if ((uint32_t)n > 4u + sizeof *dst && settings_tail_bad(io_buf + 4u + sizeof *dst)) return -9;
     __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
+    *part_off = (uint32_t)n > 4u + sizeof *dst ? io_buf[4u + sizeof *dst] : 0u;   /* 40 bytes: all ON */
     stored_known[OBJ_SET] = 1;
     stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
     return 0;
@@ -166,6 +190,21 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
     put32(io_buf, PROJ_FORMAT);
     __builtin_memcpy(io_buf + 4u, src, len);
     return save_buf(obj, len + 4u);
+}
+
+/* every part ON: the older 40-byte settings exactly; any part OFF: the tail follows */
+static int save_settings(const settings_t *set, uint8_t part_off)
+{
+    uint32_t n = 4u + sizeof *set;
+    put32(io_buf, PROJ_FORMAT);
+    __builtin_memcpy(io_buf + 4u, set, sizeof *set);
+    part_off &= PROJ_PART_OFF_ALL;
+    if (part_off) {
+        io_buf[n] = part_off;
+        io_buf[n + 1u] = io_buf[n + 2u] = io_buf[n + 3u] = 0;
+        n += PROJ_SET_TAIL;
+    }
+    return save_buf(OBJ_SET, n);
 }
 
 /* Device intent is live immediately. Persistence changes only bit 0 in the saved
@@ -195,8 +234,9 @@ int project_device_bt_save(void)
     } else {
         /* Do not normalize or migrate a payload as a side effect of a toggle:
          * only the exact layout load_settings accepts is patched. */
-        if ((uint32_t)n != sizeof(settings_t) + 4u || get32(io_buf) != PROJ_FORMAT ||
-            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV)
+        if (!settings_len_ok((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
+            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||
+            ((uint32_t)n > 4u + sizeof(settings_t) && settings_tail_bad(io_buf + 4u + sizeof(settings_t))))
             return -9;
         io_buf[4u + __builtin_offsetof(settings_t, bt)] =
             (uint8_t)((io_buf[4u + __builtin_offsetof(settings_t, bt)] & ~1u) | (proj.set.bt & 1u));
@@ -442,9 +482,10 @@ static int read_project(project_t *pr)
     project_defaults_for(pr, device_bt);
     packed_len = 0;
     settings_t set = pr->set;
+    uint8_t part_off = 0;
     /* #790 + #810: -2/-8 are retryable read failures (block saves with -8);
      * any other non-erased failure is damaged/committed data (#810, -9). */
-    int bad = 0, present = 0, transient = 0, rc = load_settings(&set);
+    int bad = 0, present = 0, transient = 0, rc = load_settings(&set, &part_off);
     present |= rc != -1;
     transient |= rc == -2 || rc == -8;
     int settings_present = rc == 0;
@@ -457,6 +498,7 @@ static int read_project(project_t *pr)
         if (set.magic != PROJ_MAGIC || set.format != PROJ_FORMAT ||
             set.snd_rev != PROJ_SND_REV || set.stereo != PROJ_STEREO) goto unsupported;
         pr->set = set;
+        *part_off_of(pr) = part_off;
         device_bt = set.bt;                       /* retain saved Bluetooth role on partial-load fallback */
     } else {
         bad = 1;
@@ -679,6 +721,7 @@ void project_commit_stage(void)
      * Bluetooth connection or opt-in control surface mode. */
     project_stage.set.bt = (uint8_t)((project_stage.set.bt & ~PROJ_DEVICE_BT) | (proj.set.bt & PROJ_DEVICE_BT));
     __builtin_memcpy(&proj, &project_stage, sizeof proj);
+    part_off_live = part_off_staged;
     project_incompatible = 0; /* explicitly validated import/reset is the recovery boundary */
     settings_load_failed = 0;
     settings_read_failed = 0;
@@ -710,6 +753,7 @@ int project_file_validate(const uint8_t *h)
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
+    part_off_staged = 0;                    /* the file has no part ON/OFF: an imported project plays every part */
 #if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(&project_stage, get32(h+20));
 #endif
@@ -726,20 +770,17 @@ void project_apply_io(void)
         int v = proj.set.midi_ch[p];
         seq.ch[p] = (uint8_t)(!v ? SEQ_CH_DEFAULT[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
     }
-    seq.part_off = (uint8_t)(PROJ_PART_OFF_IS(proj.set.rsv_bright) ? proj.set.rsv_bright & 31u : 0u);
+    seq.part_off = (uint8_t)(part_off_live & PROJ_PART_OFF_ALL);
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
 }
 
-static void capture_settings(settings_t *set)
+static void capture_settings(settings_t *set, uint8_t *part_off)
 {
     int p;
     for (p = 0; p < 5; p++)
         set->midi_ch[p] = (uint8_t)(seq.ch[p] == SEQ_CH_OFF ? 17 : seq.ch[p] + 1);
-    if (seq.part_off & 31u)                          /* all ON keeps any older byte as it was */
-        set->rsv_bright = (uint8_t)(PROJ_PART_OFF_TAG | (seq.part_off & 31u));
-    else if (PROJ_PART_OFF_IS(set->rsv_bright))
-        set->rsv_bright = 0;
+    *part_off = (uint8_t)(seq.part_off & PROJ_PART_OFF_ALL);
     set->bpm_x10 = (uint16_t)(seq.bpm * 10.0f + 0.5f);
     set->accent_q7 = seq.accent_q7;
     set->clk_out = seq.send_clock;
@@ -751,7 +792,7 @@ static void capture_settings(settings_t *set)
 void project_capture_stage(void)
 {
     __builtin_memcpy(&project_stage, &proj, sizeof proj);
-    capture_settings(&project_stage.set);
+    capture_settings(&project_stage.set, &part_off_staged);
 }
 
 /* 0 = saved and verified; -7 = the patterns, song and motion do not fit (nothing was written) */
@@ -771,10 +812,10 @@ int project_save(void)
     if (store_stage_held())                          /* boot upload is using the store buffer */
         return -8;
 #endif
-    capture_settings(&proj.set);
+    capture_settings(&proj.set, &part_off_live);
     if (measure_project(&proj, &packed_len))
         return -7;
-    if (save_obj(OBJ_SET, &proj.set, sizeof proj.set))
+    if (save_settings(&proj.set, part_off_live))
         return -1;
     if (save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound))
         return -2;

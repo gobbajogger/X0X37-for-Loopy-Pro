@@ -35,6 +35,22 @@ MUTANTS = {
     'mute_reads_as_off': (S_H, '#define SEQ_PART_OFF(s, t) (((s)->part_off >> (t)) & 1u)',
                           '#define SEQ_PART_OFF(s, t) ((((s)->part_off >> (t)) & 1u) | ((t) >= 2 && ((s)->mute >> (MUTE_BASS0 + (t) - 2) & 1u)))',
                           'independent_of_mute_solo'),
+    # storage (a-variant): the settings object's two sizes and the tail's validation
+    'store_always_long': (P_C, '    part_off &= PROJ_PART_OFF_ALL;\n    if (part_off) {',
+                          '    part_off &= PROJ_PART_OFF_ALL;\n    if (1) {', 'store_all_on_is_legacy_40'),
+    'store_ignore_reserved': (P_C, 'return t[0] > PROJ_PART_OFF_ALL || t[1] || t[2] || t[3];',
+                              'return t[0] > PROJ_PART_OFF_ALL;', 'store_rejects_reserved'),
+    'store_accept_gt31': (P_C, 'return t[0] > PROJ_PART_OFF_ALL || t[1] || t[2] || t[3];',
+                          'return t[1] || t[2] || t[3];', 'store_rejects_mask_gt31'),
+    'store_reject_40': (P_C, 'return n == 4u + sizeof(settings_t) || n == 4u + sizeof(settings_t) + PROJ_SET_TAIL;',
+                        'return n == 4u + sizeof(settings_t) + PROJ_SET_TAIL;', 'store_40_loads_all_on'),
+    'store_drop_mask_on_load': (P_C, "*part_off = (uint32_t)n > 4u + sizeof *dst ? io_buf[4u + sizeof *dst] : 0u;",
+                                '*part_off = 0;', 'store_roundtrip_all_masks'),
+    'store_bt_toggle_strict': (P_C, '        if (!settings_len_ok((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||\n            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||',
+                               '        if ((uint32_t)n != 4u + sizeof(settings_t) || get32(io_buf) != PROJ_FORMAT ||\n            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||',
+                               'store_bt_toggle_keeps_tail'),
+    'store_import_keeps_mask': (P_C, '    part_off_staged = 0;                    /* the file has no part ON/OFF',
+                                '    /* mutant */                    /* the file has no part ON/OFF', 'file_import_all_on'),
 }
 if sys.argv[1] == 'list':
     for n, m in MUTANTS.items(): print(n, m[3])
