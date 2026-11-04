@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 """Exercise real generator output admission, including buffered close failures."""
+import base64
+import hashlib
+import json
 import os
 from pathlib import Path
+import re
 import shlex
+import struct
 import subprocess
+import sys
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools"))
+import break_pack as bp
 
 
 class BuiltinBreakOutput(unittest.TestCase):
@@ -63,9 +71,71 @@ class BuiltinBreakOutput(unittest.TestCase):
         self.assertIn("#define X0X_NBREAKS 2", header)
         for name in ["909 GR", "909 FL"]:
             self.assertIn('"' + name + '"', header)
-            self.assertIn(name, (ROOT / "web/factory_break_pack.js").read_text().splitlines()[1])
         self.assertEqual(len([line for line in (directory / "pack.txt").read_text().splitlines()
                              if line and not line.startswith("#")]), 2)
+        self.assertEqual([loop["name"] for loop in bp.loops_from_export(directory)],
+                         ["909 GR", "909 FL"])
+
+    def website_pack(self):
+        # Decode only the generated string-literal expression; never execute JS.
+        text = (ROOT / "web/factory_break_pack.js").read_text()
+        text = re.sub(r"(?m)^//[^\n]*\n", "", text).strip()
+        match = re.fullmatch(
+            r'export const FACTORY_BREAK_PACK = Uint8Array.from\(atob\(\s*'
+            r'((?:"[A-Za-z0-9+/=]+"\s*\+\s*)*"[A-Za-z0-9+/=]+")'
+            r'\s*\), \(c\) => c.charCodeAt\(0\)\);', text)
+        self.assertIsNotNone(match, "expected generated FACTORY_BREAK_PACK literals")
+        return base64.b64decode("".join(re.findall(r'"([A-Za-z0-9+/=]+)"',
+                                                  match.group(1))), validate=True)
+
+    def test_website_factory_pack_matches_designated_export(self):
+        # The website bank is the designated stock export, not the 909 generator.
+        stock = ROOT / "assets/factory-breaks"
+        pack = self.website_pack()
+        parsed = bp.parse_pack(pack)
+        self.assertIsNotNone(parsed)
+        rate, loops = parsed
+        self.assertEqual(rate, 44100)
+        self.assertEqual([loop["name"] for loop in loops], ["CRAMEN", "TASTY", "HOTPANT"])
+        self.assertEqual(loops, bp.loops_from_export(stock))
+        self.assertEqual(pack, (stock / "factory-break-pack.bin").read_bytes())
+        provenance = json.loads((stock / "provenance.json").read_text())
+        bank = provenance["bank"]
+        self.assertEqual(len(loops), bank["count"])
+        self.assertEqual(rate, bank["rate_hz"])
+        self.assertEqual(len(pack), bank["bytes"])
+        self.assertEqual(hashlib.sha256(pack).hexdigest(), bank["sha256"])
+        self.assertEqual(f"{struct.unpack_from('<I', pack, 16)[0]:08x}",
+                         bank["crc32_body_hex"])
+        self.assertEqual(len(loops), len(provenance["loops"]))
+        for loop, source in zip(loops, provenance["loops"]):
+            with self.subTest(name=loop["name"]):
+                self.assertEqual(loop["name"], source["name"])
+                self.assertEqual(loop["nsamples"], source["prepared_frames"])
+                self.assertEqual(loop["bars"], source["bars"])
+                self.assertEqual(len(loop["adpcm"]), source["adpcm_bytes"])
+                self.assertEqual(hashlib.sha256(loop["adpcm"]).hexdigest(),
+                                 source["adpcm_sha256"])
+
+    def test_website_pack_rejects_invalid_data(self):
+        pack = self.website_pack()
+        self.assertIsNotNone(bp.parse_pack(pack), "positive control must parse")
+        corrupt = bytearray(pack)
+        corrupt[-1] ^= 1
+        invalid = {
+            "bad magic": b"!" + pack[1:],
+            "unsupported version": pack[:8] + b"\x02\x00" + pack[10:],
+            "zero loops": pack[:10] + b"\x00\x00" + pack[12:],
+            "invalid rate": pack[:12] + b"\x00" * 4 + pack[16:],
+            "truncated header": pack[:19],
+            "truncated loop metadata": pack[:39],
+            "truncated payload": pack[:-1],
+            "checksum corruption": corrupt,
+            "trailing data": pack + b"\x00",
+        }
+        for reason, data in invalid.items():
+            with self.subTest(reason=reason):
+                self.assertIsNone(bp.parse_pack(data), reason)
 
     def test_missing_header_parent(self):
         self.assert_failure(self.invoke(self.root / "missing" / "bank.h"))
