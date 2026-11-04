@@ -1,0 +1,15 @@
+{
+  "label": "baseline-selected",
+  "head": "c32c54ac8ec68aaca53adccf7af66f155590f2dc",
+  "tree": "ac490f7fae9198748aa54bd914d42f99d45444f9",
+  "command": [
+    "sh",
+    "tests/run_tests.sh"
+  ],
+  "environment": {
+    "X0X_TEST_JOBS": "1",
+    "X0X_TESTS": "original-release-ui ui-theme sound-matrix ui-glyph-polish ui-shared-glyph ui-chicago-env-motion ui-drum-mix-material chicago-adsr-graph ui-page-wrap ui-settings-sections"
+  },
+  "exit": 1,
+  "elapsed_seconds": 68.38
+}

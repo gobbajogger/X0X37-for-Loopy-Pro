@@ -340,7 +340,7 @@ static uint32_t picture_pixels(const uint16_t *p,int x,int y,int w,int h)
 }
 static void picture_rule_cases(void)
 {
-    screen(V_HOME,PART_909,0); seq.playing=seq.song_on=seq.chain_a=seq.chain_b=0;
+    screen(V_PART,PART_909,0); seq.playing=seq.song_on=seq.chain_a=seq.chain_b=0;
     for(int p=NPAT-2;p<NPAT;p++)pattern_init(&proj.pat[p],1,2);
     proj.set.accent_q7=127;
     sm_set(proj.pat[NPAT-1].drum[PART_909].hit[0],0);
@@ -350,34 +350,66 @@ static void picture_rule_cases(void)
     project_t *saved=malloc(sizeof proj); CHECK(saved); *saved=proj;
     seq_t before=seq;
     for(int theme=0;theme<=5;theme+=5){
-        palette_set(theme); ui.msg_until=0; draw_header();
+        palette_set(theme); ui.msg_until=0;
+        /* #800 owns the normal header position badge; #807's content painter
+         * remains in the Part header cue and HOME/NEXT pictures. */
+        cv_begin(240,HDR_H,SOUND_FACE);
+        header_pattern_badge(132,PART_909,NPAT-1,1,C_WHITE);
         /* Eight columns cover all saved steps: current {0,8} -> 0x11;
-         * queued {2} -> 0x02. Header badges must show content, not assignment. */
+         * queued {2} -> 0x02. Badges must show content, not assignment. */
         for(int i=0;i<8;i++)for(int y=8;y<=10;y++){
             uint16_t current=(0x11u&(1u<<i))?dim(PART_COL[PART_909],16):SOUND_FACE;
+            CHECK(cv_px[y*240+133+i]==swap16(current));
+        }
+        cv_begin(240,HDR_H,SOUND_FACE);
+        header_pattern_badge(132,PART_909,NPAT-2,0,C_GRAY);
+        for(int i=0;i<8;i++)for(int y=8;y<=10;y++){
             uint16_t queued=(0x02u&(1u<<i))?dim(PART_COL[PART_909],9):SOUND_FACE;
-            CHECK(fb[y*240+133+i]==swap16(current));
-            CHECK(fb[y*240+165+i]==swap16(queued));
+            CHECK(cv_px[y*240+133+i]==swap16(queued));
+        }
+        draw_header();
+        for(int i=0;i<8;i++)for(int y=8;y<=10;y++){
+            uint16_t queued=(0x02u&(1u<<i))?dim(PART_COL[PART_909],9):SOUND_FACE;
+            CHECK(fb[y*240+141+i]==swap16(queued));
         }
         uint32_t idle=picture_pixels(fb,132,0,108,HDR_H);
         now_ms+=1000; ui.frame+=32; draw_header();
         CHECK(picture_pixels(fb,132,0,108,HDR_H)==idle);
-        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,156,0,30,HDR_H);
+        seq.pcue[PART_909]=0xff; draw_header(); uint32_t no_cue=picture_pixels(fb,132,0,42,HDR_H);
         seq.pcue[PART_909]=NPAT-1; draw_header();
-        CHECK(picture_pixels(fb,156,0,30,HDR_H)==no_cue);
+        CHECK(picture_pixels(fb,132,0,42,HDR_H)==no_cue);
         seq.pcue[PART_909]=NPAT-2;
-        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,156,6,6,7);
+        seq.playing=1; eng_step[TRK_DRUM]=0; draw_header(); uint32_t step=picture_pixels(fb,132,6,6,7);
         eng_step[TRK_DRUM]=1; draw_header();
-        CHECK(picture_pixels(fb,156,6,6,7)!=step);
+        CHECK(picture_pixels(fb,132,6,6,7)!=step);
         seq.playing=0;
     }
     CHECK(!memcmp(saved,&proj,sizeof proj)); CHECK(!memcmp(&before,&seq,sizeof seq)); free(saved);
     palette_set(proj.set.palette);
-    /* A stop square and a play triangle are distinct, bounded status pictures. */
-    cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+    /* #788/#800 replaced #807's transport square/blink with a bounded
+     * triangle coloured by the audio-owned phase: STOP/WAIT stay neutral. */
+    cv_begin(240,HDR_H,C_BLACK); play_icon(10,4,C_DIM);
+    uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+    CHECK(cv_px[9*240+11]==swap16(C_DIM));
     for(int y=0;y<HDR_H;y++)for(int x=0;x<240;x++)if(cv_px[y*240+x]!=swap16(C_BLACK))CHECK(x>=10&&x<19&&y>=4&&y<15);
-    seq.playing=1; cv_begin(240,HDR_H,C_BLACK); header_transport(10,0);
-    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped); seq.playing=0;
+    cv_begin(240,HDR_H,C_BLACK); play_icon(10,4,C_WHITE);
+    CHECK(picture_pixels(cv_px,10,4,9,11)!=stopped);
+    seq_t status_before=seq;
+    static const uint8_t phases[]={0,0,1,4,5,32};
+    for(int part_header=0;part_header<2;part_header++){
+        screen(part_header?V_PART:V_HOME,PART_303A,0);
+        for(unsigned state=0;state<sizeof phases;state++){
+            seq.playing=state!=0; seq.clk_cur=state==1?SEQ_CLK_EXT:SEQ_CLK_INT;
+            seq.ext_since=FS; seq.metro_view=phases[state];
+            CHECK(!!seq_clock_waiting(&seq)==(state==1));
+            uint16_t ink=state<2?C_DIM:state<4?C_WHITE:C_HI;
+            for(unsigned frame=0;frame<=32;frame+=32){
+                ui.frame=frame; eng_step[TRK_DRUM]=(uint8_t)(frame?3:0); draw_header();
+                CHECK(fb[9*240+(part_header?176:218)]==swap16(ink));
+            }
+        }
+    }
+    seq=status_before;
     for(int p=PART_303A;p<=PART_303B;p++){
         screen(V_PART,p,0); uint8_t page=cur_page(),view=ui.view,part=ui.part;
         cv_begin(240,KNOB_H,C_BLACK); int end=matrix_row_hint(7,50,C_HI);

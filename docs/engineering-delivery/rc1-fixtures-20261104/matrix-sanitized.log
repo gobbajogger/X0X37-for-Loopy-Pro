@@ -1,0 +1,9 @@
+# Runtime excerpt; inherited compiler warnings omitted.
+PASS Chicago A: all controls, blanks, persisted edits, widths and navigation
+PASS Miami A: all controls, blanks, persisted edits, widths and navigation
+PASS Chicago B: all controls, blanks, persisted edits, widths and navigation
+PASS Miami B: all controls, blanks, persisted edits, widths and navigation
+PASS original matrix row geometry, screen-bank dots, save states and render side effects
+PASS original Chicago exponential envelope laws, geometry, locks and motion; Miami has no editable ADSR
+PASS both voices/banks pending/cancel/apply, selector retention and invalid patch side effects
+PASS both drum-kit control labels and render side effects

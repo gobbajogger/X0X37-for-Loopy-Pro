@@ -1,0 +1,7 @@
+cue found True
+track-step-phase compile_exit 0
+track-step-phase run_exit 1 FAIL line 408: fb[9*240+(part_header?176:218)]==swap16(ink)
+wait-blink compile_exit 0
+wait-blink run_exit 1 FAIL line 377: picture_pixels(fb,132,0,108,HDR_H)==idle
+wrong-cue-content compile_exit 0
+wrong-cue-content run_exit 1 FAIL line 373: fb[y*240+141+i]==swap16(queued)

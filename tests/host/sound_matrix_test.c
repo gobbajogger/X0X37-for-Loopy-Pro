@@ -140,11 +140,11 @@ static void geometry(void)
 static void envelopes(void)
 {
     static const int pots[]={0,64,127};
-    fixture(0,0);*page_of(V_PART)=3;CHECK(adsr_inline_page());
+    fixture(0,0);*page_of(V_PART)=3;CHECK(adsr_row(cur_page()));
     for(int a=0;a<3;a++)for(int d=0;d<3;d++)for(int s=0;s<3;s++)for(int r=0;r<3;r++) {
         int v[]={pots[a],pots[d],pots[s],pots[r]};
         for(int k=0;k<4;k++)pref_set(pg.r[3][k],v[k]);
-        sound_t before=proj.sound;ui_adsr_t e;adsr_values(&e);
+        sound_t before=proj.sound;ui_adsr_t e;adsr_values(&e,3);
         /* #746: the graph uses the compiled native A/D/S/R (macro scaling included). */
         float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));
         double qa=nv[0],qd=nv[1],qr=nv[3];
@@ -168,13 +168,14 @@ static void envelopes(void)
     pref_t attack=pg.r[3][0];pref_set(attack,51);ui.held_step=0;
     int lane=motion_alloc(proj.arr.lane,seq.ppat[ui.part],ui.part,T_303,0,7);CHECK(lane>=0);
     proj.arr.lane[lane].val[0]=61;CHECK(matrix_value(attack)==61);CHECK(pref_get(attack)==51);
-    ui_adsr_t e;adsr_values(&e);float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));float q=nv[0];near(e.attack,13*q*q*q*q+.001f);
+    ui_adsr_t e;adsr_values(&e,3);float nv[4];unsigned ng;CHECK(engine_bass_adsr_view(0,nv,&ng));float q=nv[0];near(e.attack,13*q*q*q*q+.001f);
     ui.held_step=-1;for(int i=0;i<NSTEPS;i++)proj.arr.lane[lane].val[i]=71;
     engine_motion_enable(1);seq_start(&seq);run_ms(40);CHECK(engine_motion_value(lane)==71);
-    CHECK(matrix_value(attack)==71);adsr_values(&e);CHECK(engine_bass_adsr_view(0,nv,&ng));q=nv[0];near(e.attack,13*q*q*q*q+.001f);
+    CHECK(matrix_value(attack)==71);adsr_values(&e,3);CHECK(engine_bass_adsr_view(0,nv,&ng));q=nv[0];near(e.attack,13*q*q*q*q+.001f);
     seq_stop(&seq);run_ms(40);CHECK(pref_get(attack)==51);
-    *page_of(V_PART)=0;CHECK(!adsr_inline_page());fixture(0,1);
-    for(int p=0;p<pg.n;p++){*page_of(V_PART)=p;CHECK(!adsr_inline_page());}
+    /* The envelope row remains recognised while another row is selected. */
+    *page_of(V_PART)=0;CHECK(!adsr_row(cur_page()));CHECK(adsr_row(3));fixture(0,1);
+    for(int p=0;p<pg.n;p++){*page_of(V_PART)=p;CHECK(!adsr_row(cur_page()));}
     puts("PASS original Chicago exponential envelope laws, geometry, locks and motion; Miami has no editable ADSR");
 }
 static void transitions(void)

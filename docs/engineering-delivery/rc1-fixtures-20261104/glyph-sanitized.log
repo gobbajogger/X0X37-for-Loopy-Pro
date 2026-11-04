@@ -1,0 +1,10 @@
+# Runtime excerpt; inherited compiler warnings omitted.
+PASS wide drum number/unit stays clear of glyph and divider
+PASS ENV signed magnitude, exact centre, constant peak, extremes, decay return, bounds
+PASS synth 2 direct glyph and framebuffer cache updates; idle stable
+PASS synth 3 direct glyph and framebuffer cache updates; idle stable
+PASS read-only telemetry leaves complete native DSP, program, owners, queues unchanged
+PASS inline ADSR actual attack, held sustain, release, silent cursor
+PASS ADSR four idle percentages, K5-K8 touch, every timeout: real RGB565 pixels
+PASS original LEVEL/OUTPUT is a live segmented amplitude meter
+PASS all original-control glyph native bounds at five representative values

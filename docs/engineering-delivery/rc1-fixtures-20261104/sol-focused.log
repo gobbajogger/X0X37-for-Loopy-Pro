@@ -1,0 +1,6 @@
+  ok   original-release-ui
+  ok   ui-theme
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   sound-matrix
+  ok   ui-glyph-polish
+all tests passed
