@@ -47,7 +47,7 @@ static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow);
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
 #define SMC_UI_MS 1200u
-static struct { uint8_t on, peer; uint32_t until; } smc_ui;
+static struct { uint8_t on, peer, kind, action; uint32_t until; } smc_ui;
 static uint32_t plat_ms(void) { return 0u; }
 static int is_busy, is_testing, clear_calls, output_solo;
 static int refill_armed, refill_route, refill_cross, refill_calls;
@@ -62,6 +62,10 @@ static void ui_say(const char *a,const char *b){(void)a;(void)b;}
  * substitutes all FX side effects. Full SELECT/mode ownership is exercised by
  * smc_select_mode_test.c through the production dispatch. */
 static int smc_fx_bus_now(uint8_t note) { (void)note; return -1; }
+static int smc_fx_header_note(void)
+{ assert(!"Solo queue fixture unexpectedly queried FX presentation"); return -1; }
+static void smc_fx_show(uint8_t note)
+{ (void)note; assert(!"Solo queue fixture unexpectedly opened FX presentation"); }
 static uint8_t smc_fx_tap_nav_once;
 static void smc_button_apply(uint8_t note,int mmc)
 { (void)note; (void)mmc; assert(!"Solo queue fixture unexpectedly replayed FX navigation"); }
