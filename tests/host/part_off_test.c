@@ -461,6 +461,66 @@ static void t_store(void)
     project_device_bt_set(bt & 1u);
     CHECK(project_device_bt_save() == 0 && !memcmp(keep, store[OBJ_SET], (size_t)(SET_N + 4)));
     end();
+    begin("store_stale_iobuf_44_all_on");
+    {   /* a 44-byte object: the bytes after it in io_buf are stale, never the mask (load_settings zeroes them) */
+        CHECK(save_reload(0) == 0 && store_len[OBJ_SET] == SET_N);
+        set_off(0x1Fu);
+        io_buf[SET_N] = 0x05u; io_buf[SET_N + 1] = io_buf[SET_N + 2] = io_buf[SET_N + 3] = 0;
+        CHECK(project_load() == 0);
+        project_apply_io();
+        CHECK(live_mask() == 0 && !project_storage_unsupported());
+    }
+    end();
+    begin("store_fresh_device_all_on");
+    {   /* no settings object (fresh device): a stale tail in io_buf must not become the mask */
+        set_off(0x05u);
+        io_buf[SET_N] = 0x05u; io_buf[SET_N + 1] = io_buf[SET_N + 2] = io_buf[SET_N + 3] = 0;
+        int lens[OBJ_NOBJ];
+        for (int o = 0; o < OBJ_NOBJ; o++) { lens[o] = store_len[o]; store_len[o] = -1; }   /* nothing stored */
+        (void)project_load();
+        project_apply_io();
+        CHECK(live_mask() == 0 && !project_storage_unsupported());
+        for (int o = 0; o < OBJ_NOBJ; o++) store_len[o] = lens[o];                           /* back */
+        CHECK(project_load() == 0 && !project_storage_unsupported());
+        project_apply_io();
+    }
+    end();
+    begin("store_bt_save_refuses_bad_tail");
+    {   /* a stored long object whose tail the validator refuses: the BT save writes nothing (-9) */
+        static const struct { int at; uint8_t v; } bt_bad[] = {{0, 0x20u}, {0, 0xFFu}, {1, 1u}, {3, 0x80u}};
+        for (unsigned i = 0; i < sizeof bt_bad / sizeof bt_bad[0]; i++) {
+            CHECK(save_reload(0x01u) == 0 && store_len[OBJ_SET] == SET_N + 4);
+            store[OBJ_SET][SET_N + bt_bad[i].at] = bt_bad[i].v;      /* changed after a good boot */
+            memcpy(keep, store[OBJ_SET], (size_t)(SET_N + 4));
+            uint8_t b0 = proj.set.bt;
+            uint32_t w = store_writes;
+            project_device_bt_set(!(b0 & 1u));
+            CHECK(project_device_bt_save() == -9 && store_writes == w && project_device_bt_pending());
+            CHECK(store_len[OBJ_SET] == SET_N + 4 && !memcmp(keep, store[OBJ_SET], (size_t)(SET_N + 4)));
+            store[OBJ_SET][SET_N + bt_bad[i].at] = bt_bad[i].at ? 0u : 0x01u;   /* repaired */
+            project_device_bt_set(b0 & 1u);
+            CHECK(project_device_bt_save() == 0 && !project_device_bt_pending());
+        }
+    }
+    end();
+    begin("store_bt_save_no_settings_pins_defaults");
+    {   /* documented limitation (project_device_bt_save): with no settings object the BT save writes the
+         * 44-byte defaults plus the BT bit; a live OFF mask, like a live MIDI channel, waits for a project save */
+        settings_t d;
+        set_off(0x05u);
+        store_len[OBJ_SET] = -1;
+        uint8_t b0 = proj.set.bt;
+        project_device_bt_set(!(b0 & 1u));
+        CHECK(project_device_bt_save() == 0);
+        project_settings_defaults(&d, (uint8_t)(proj.set.bt & 1u));
+        CHECK(store_len[OBJ_SET] == SET_N && !memcmp(store[OBJ_SET] + 4, &d, sizeof d));
+        CHECK(live_mask() == 0x05u);                 /* the live mask is untouched */
+        CHECK(project_save() == 0 && store_len[OBJ_SET] == SET_N + 4 && store[OBJ_SET][SET_N] == 0x05u);
+        project_device_bt_set(b0 & 1u);
+        CHECK(project_device_bt_save() == 0);
+        CHECK(save_reload(0) == 0);
+    }
+    end();
     begin("file_import_all_on");
     {   /* the .x0x file keeps its size and has no part ON/OFF: an import plays every part */
         uint8_t h[PROJECT_FILE_HDR];

@@ -220,7 +220,10 @@ int project_device_bt_save(void)
     n = read_settings_payload();
     if (n < -1) return n;                /* pending stays set: UI retries after I/O recovers */
     if (n == -1) {
-        settings_t defaults;                /* no settings object yet: write the defaults with this bit */
+        /* No settings object yet: write the defaults with this bit. Like every other live setting
+         * (MIDI channels, tempo, ...), a live part OFF mask is not written here: the 44-byte defaults
+         * (all ON) go out and the mask waits for the next project save (part_off_test pins this). */
+        settings_t defaults;
         project_settings_defaults(&defaults, proj.set.bt & 1u);
         rc = save_obj(OBJ_SET, &defaults, sizeof defaults);
     } else {

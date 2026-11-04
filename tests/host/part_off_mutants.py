@@ -52,6 +52,15 @@ MUTANTS = {
                                'store_bt_toggle_keeps_tail'),
     'store_import_keeps_mask': (P_C, '    part_off_staged = 0;                    /* the file has no part ON/OFF',
                                 '    /* mutant */                    /* the file has no part ON/OFF', 'file_import_all_on'),
+    # QA D: the tail used as the mask when the load failed (fresh device), or a stale tail after 44 bytes
+    'store_mask_from_failed_load': (P_C, "uint8_t part_off = rc ? 0u : io_buf[4u + sizeof set];",
+                                    "uint8_t part_off = io_buf[4u + sizeof set]; *part_off_of(pr) = part_off;",
+                                    'store_fresh_device_all_on'),
+    'store_stale_tail_44': (P_C, '    if ((uint32_t)n == 4u + sizeof *dst)\n        __builtin_memset(io_buf + 4u + sizeof *dst, 0, PROJ_SET_TAIL);\n    else if',
+                            '    if ((uint32_t)n == 4u + sizeof *dst)\n        ;\n    else if', 'store_stale_iobuf_44_all_on'),
+    # QA E: the BT save patches a long object whose tail the validator refuses
+    'store_bt_save_accepts_bad_tail': (P_C, ' ||\n            ((uint32_t)n > 4u + sizeof(settings_t) && PROJ_SET_TAIL_BAD(io_buf + 4u + sizeof(settings_t))))\n            return -9;',
+                                       ')\n            return -9;', 'store_bt_save_refuses_bad_tail'),
 }
 if sys.argv[1] == 'list':
     for n, m in MUTANTS.items(): print(n, m[3])
