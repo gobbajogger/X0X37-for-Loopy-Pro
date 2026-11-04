@@ -1,9 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* M7a: per-part ON/OFF (909, 808, Chicago = 303A, Miami = 303B, BREAK), the whole app on the host.
- * Storage: settings_t.rsv_bright (offset 17). 0xA0 | mask (bits 7-5 = 101) holds the OFF mask, bit p =
- * PART_p (engine.h order 909, 808, 303A, 303B, BRK). Any other value (0, legacy brightness 1-8) = all ON.
- * The test drives only the stored byte and project_apply_io / project_capture_stage, so the same source
- * builds on the untouched base (red) and on the implementation (green).
+ * Storage (x0x.h PROJ_SET_TAIL): the settings object is the older 40-byte settings_t while every part is ON;
+ * with any part OFF, the OFF mask (bit p = PART_p, engine.h order 909, 808, 303A, 303B, BRK) and three zero
+ * reserved bytes follow it. settings_t.rsv_bright is unused again (opaque, kept).
+ * The helpers below drive the stored mask and project_apply_io / project_capture_stage. Without
+ * PROJ_SET_TAIL (base 4b240bd, and cf9a283's settings_t.rsv_bright 0xA0|mask) they use that older byte, so
+ * the same source builds on the base, on cf9a283 (red for the storage cases) and here (green).
  * Build: tests/host/run_part_off.sh. Output: "  PASS|FAIL|NOT_RUN <case>". */
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
@@ -24,9 +26,19 @@ static void btn(int b, int down) { if (down) held_btn |= 1u << b; else held_btn 
 static void play(int on) { if (!!seq.playing != !!on) { btn(B_PLAY, 1); btn(B_PLAY, 0); } run_ms(20); }
 static void midi3(int s, int a, int b) { min_q[mi_w++ % MQ] = (uint32_t)s >> 4 | (uint32_t)s << 8 | (uint32_t)a << 16 | (uint32_t)b << 24; }
 
+#ifdef PROJ_SET_TAIL
+static void set_off(unsigned m) { part_off_live = (uint8_t)(m & 31u); project_apply_io(); }
+static void set_byte(uint8_t v) { proj.set.rsv_bright = v; part_off_live = 0; project_apply_io(); }
+static uint8_t captured(void) { project_capture_stage(); return part_off_staged; }
+#else
 static void set_off(unsigned m) { proj.set.rsv_bright = (uint8_t)(0xA0u | (m & 31u)); project_apply_io(); }
 static void set_byte(uint8_t v) { proj.set.rsv_bright = v; project_apply_io(); }
-static uint8_t captured(void) { project_capture_stage(); return project_stage.set.rsv_bright; }
+static uint8_t captured(void)
+{
+    project_capture_stage();
+    return (project_stage.set.rsv_bright & 0xE0u) == 0xA0u ? project_stage.set.rsv_bright & 31u : 0u;
+}
+#endif
 
 /* MIDI out: note-ons per channel, through the host's midi_log */
 static int ons[16];
@@ -71,6 +83,7 @@ static void t_struct(void)
     CHECK(sizeof(settings_t) == 40u);
     CHECK(offsetof(settings_t, rsv_bright) == 17u);
     CHECK(PROJ_FORMAT == 1u);
+    CHECK(PROJECT_FILE_SIZE == 36452u);
     end();
 }
 static void t_legacy(void)
@@ -79,7 +92,8 @@ static void t_legacy(void)
     begin("legacy_all_on_and_byte_preserved");
     for (unsigned i = 0; i < sizeof legacy; i++) {
         set_byte(legacy[i]);
-        CHECK(captured() == legacy[i]);               /* an all-ON save leaves a legacy byte as it was */
+        CHECK(captured() == 0);                       /* an older byte (brightness 1-8, anything) is all ON */
+        CHECK(project_stage.set.rsv_bright == legacy[i]);   /* and is saved as it was */
         for (int k = 0; k < NKIT; k++) { eng_hit[k][0] = 0; engine_drum(k, 0, 1.0f); }
         audio();
         for (int k = 0; k < NKIT; k++) CHECK(eng_hit[k][0] != 0);
@@ -92,11 +106,10 @@ static void t_roundtrip(void)
     begin("roundtrip_each_mask");
     for (unsigned m = 0; m < 32; m++) {
         set_off(m);
-        proj.set.rsv_bright = 0;                       /* the runtime state, not the stale byte, is saved */
         uint8_t c = captured();
-        CHECK(c == (m ? (uint8_t)(0xA0u | m) : 0u));
-        proj.set.rsv_bright = c; project_apply_io();
-        CHECK(captured() == c);
+        CHECK(c == m);
+        set_off(0); set_off(c);
+        CHECK(captured() == m);
     }
     set_byte(0);
     end();
@@ -176,6 +189,20 @@ static void t_independent(void)
     CHECK(snd > 0 && ons[ch] == 0);
     CHECK(captured() == 0);
     seq.mute = 0;
+    /* muted AND OFF: silent (MIDI and voice); back ON with the mute kept, the mute alone governs again: MIDI
+     * silent, the voice runs behind the bus mute; unmuted, the same notes as the control */
+    seq.mute = seq_part_mask(PART_303A);
+    set_off(1u << PART_303A);
+    snd = sounding_run(0);
+    CHECK(snd == 0 && ons[ch] == 0);
+    CHECK(seq.mute == seq_part_mask(PART_303A) && captured() == (1u << PART_303A));
+    set_byte(0);
+    CHECK(seq.mute == seq_part_mask(PART_303A) && captured() == 0);
+    snd = sounding_run(0);
+    CHECK(snd > 0 && ons[ch] == 0);
+    seq.mute = 0;
+    snd = sounding_run(0);
+    CHECK(snd > 0 && ons[ch] == on_ons);
     /* ON while another part is soloed (SMC solo): the sequencer still plays it; OFF is not taken from solo */
     engine_smc_solo((uint8_t)(1u << PART_909));
     snd = sounding_run(0);
@@ -184,9 +211,9 @@ static void t_independent(void)
     /* OFF mask survives mute edits, and the saved byte ignores the mutes */
     set_off(0x15u);
     seq.mute = seq_part_mask(PART_808) | seq_part_mask(PART_303B);
-    CHECK(captured() == 0xB5u);
+    CHECK(captured() == 0x15u);
     seq.mute = 0;
-    CHECK(captured() == 0xB5u);
+    CHECK(captured() == 0x15u);
     set_byte(0);
     end();
 }
@@ -248,16 +275,20 @@ static void t_release(void)
 static void t_seq_bass_release(void)
 {
     for (int b = 0; b < NBASS; b++) {
-        int p = PART_303A + b, ch = seq.ch[p];
+        int p = PART_303A + b;
         begin(b ? "seq_bass_tie_released_after_off_miami" : "seq_bass_tie_released_after_off_chicago");
+        uint8_t midi_ch0 = proj.set.midi_ch[p];
+        proj.set.midi_ch[p] = (uint8_t)(3 + b);          /* an enabled MIDI channel (2 + b): the MIDI checks run */
         set_byte(0); seq.mute = 0; clear_pattern();
+        int ch = seq.ch[p];
+        CHECK(ch == 2 + b && ch != SEQ_CH_OFF);
         bpart_t *bp = &proj.pat[seq.ppat[TRK_BASS0 + b]].bass[b];
         bp->step[0].flags = G_NOTE;
         for (int s = 1; s < NSTEPS; s++) bp->step[s].flags = G_TIE;
         seq.send_notes = 1; log_start();
         play(1); run_ms(400);
         CHECK(seq.t[TRK_BASS0 + b].sounding);          /* control: the TIE holds the note */
-        CHECK(ch == SEQ_CH_OFF || seq.bass_out_valid[b]);
+        CHECK(seq.bass_out_valid[b]);
         set_off(1u << p);
         run_ms(300);                                     /* > 2 steps at 120 BPM */
         int still = seq.t[TRK_BASS0 + b].sounding != 0, out = seq.bass_out_valid[b] != 0;
@@ -275,7 +306,8 @@ static void t_seq_bass_release(void)
             fclose(midi_log); midi_log = 0;
         }
         play(0); run_ms(50);
-        CHECK(ch == SEQ_CH_OFF || (on > 0 && off >= on));
+        CHECK(on > 0 && off >= on);
+        proj.set.midi_ch[p] = midi_ch0;
         set_byte(0); end();
     }
 }
@@ -349,6 +381,102 @@ static void t_live(void)
     }
     set_byte(0);
 }
+/* Storage (in-process, the host flash emulation): the settings object's two sizes, the round trip of every
+ * mask, the tail's validation, the Bluetooth toggle's patch and the .x0x file. The cross-firmware cases
+ * (base 4b240bd reading these bytes) are tests/host/part_off_store.c via run_part_off.sh. */
+#define SET_N (4 + (int)sizeof(settings_t))
+#ifdef SEQ_PART_OFF
+static unsigned live_mask(void) { return seq.part_off; }
+#else
+static unsigned live_mask(void) { return 0; }        /* the base: no part ON/OFF */
+#endif
+static int save_reload(unsigned m)
+{
+    set_off(m);
+    if (project_save()) return -100;
+    set_off(m ^ 31u);                                 /* the runtime differs until the load */
+    int rc = project_load();
+    project_apply_io();
+    return rc;
+}
+static void t_store(void)
+{
+    static uint8_t keep[PLAT_STORE_MAX], prefix[PLAT_STORE_MAX];
+    begin("store_all_on_is_legacy_40");
+    CHECK(save_reload(0) == 0);
+    CHECK(store_len[OBJ_SET] == SET_N && live_mask() == 0);
+    CHECK(get32(store[OBJ_SET]) == PROJ_FORMAT && !memcmp(store[OBJ_SET] + 4, &proj.set, sizeof proj.set));
+    memcpy(prefix, store[OBJ_SET], (size_t)SET_N);
+    end();
+    begin("store_off_long_form");
+    CHECK(save_reload(0x05u) == 0);
+    CHECK(store_len[OBJ_SET] == SET_N + 4);
+    CHECK(!memcmp(store[OBJ_SET], prefix, (size_t)SET_N));      /* the same 40 bytes, then the tail */
+    CHECK(store[OBJ_SET][SET_N] == 0x05u && !store[OBJ_SET][SET_N + 1] && !store[OBJ_SET][SET_N + 2] &&
+          !store[OBJ_SET][SET_N + 3]);
+    CHECK(live_mask() == 0x05u && !project_storage_unsupported());
+    end();
+    begin("store_roundtrip_all_masks");
+    for (unsigned m = 0; m < 32; m++) {
+        int rc = save_reload(m);
+        CHECK(rc == 0 && live_mask() == m && store_len[OBJ_SET] == (m ? SET_N + 4 : SET_N));
+        if (rc || live_mask() != m) printf("    mask 0x%02x: rc %d loaded 0x%02x len %d\n", m, rc, live_mask(), store_len[OBJ_SET]);
+    }
+    end();
+    begin("store_40_loads_all_on");
+    CHECK(save_reload(0) == 0);
+    set_off(0x1Fu);
+    CHECK(project_load() == 0);
+    project_apply_io();
+    CHECK(live_mask() == 0 && !project_storage_unsupported());
+    end();
+    /* a long object the validator refuses: unsupported, and not one byte rewritten by a save */
+    static const struct { const char *name; int at; uint8_t v; } bad[] = {
+        {"store_rejects_mask_gt31", 0, 0x20u}, {"store_rejects_mask_gt31", 0, 0xFFu},
+        {"store_rejects_reserved", 1, 1u}, {"store_rejects_reserved", 2, 0x80u}, {"store_rejects_reserved", 3, 1u},
+    };
+    for (unsigned i = 0; i < sizeof bad / sizeof bad[0]; i++) {
+        if (!i || strcmp(bad[i].name, bad[i - 1].name)) begin(bad[i].name);
+        CHECK(save_reload(0x01u) == 0);
+        store_len[OBJ_SET] = SET_N + 4;
+        store[OBJ_SET][SET_N + bad[i].at] = bad[i].v;
+        memcpy(keep, store[OBJ_SET], (size_t)(SET_N + 4));
+        CHECK(project_load() == -9 && project_storage_unsupported());
+        uint32_t w = store_writes;
+        CHECK(project_save() == -9 && store_writes == w);
+        CHECK(store_len[OBJ_SET] == SET_N + 4 && !memcmp(keep, store[OBJ_SET], (size_t)(SET_N + 4)));
+        store[OBJ_SET][SET_N + bad[i].at] = bad[i].at ? 0u : 0x01u;    /* repaired: loads again */
+        CHECK(project_load() == 0 && !project_storage_unsupported());
+        project_apply_io();
+        if (i + 1 == sizeof bad / sizeof bad[0] || strcmp(bad[i].name, bad[i + 1].name)) end();
+    }
+    begin("store_bt_toggle_keeps_tail");
+    CHECK(save_reload(0x05u) == 0);
+    memcpy(keep, store[OBJ_SET], (size_t)(SET_N + 4));
+    uint8_t bt = proj.set.bt;
+    project_device_bt_set(!(bt & 1u));
+    CHECK(project_device_bt_save() == 0);
+    CHECK(store_len[OBJ_SET] == SET_N + 4 && !memcmp(keep + SET_N, store[OBJ_SET] + SET_N, 4));
+    CHECK((store[OBJ_SET][4 + offsetof(settings_t, bt)] & 1u) == (uint8_t)!(bt & 1u));
+    project_device_bt_set(bt & 1u);
+    CHECK(project_device_bt_save() == 0 && !memcmp(keep, store[OBJ_SET], (size_t)(SET_N + 4)));
+    end();
+    begin("file_import_all_on");
+    {   /* the .x0x file keeps its size and has no part ON/OFF: an import plays every part */
+        uint8_t h[PROJECT_FILE_HDR];
+        set_off(0x05u);
+        project_capture_stage();
+        project_file_header(h);
+        CHECK(get32(h + 8) == sizeof(project_t) && PROJECT_FILE_SIZE == 36452u);
+        CHECK(project_file_validate(h) == 0);
+        project_commit_stage();
+        project_apply_io();
+        CHECK(live_mask() == 0);
+    }
+    end();
+    set_byte(0);
+}
+
 /* all ON: audio + MIDI CRC of a fixed pattern run, compared with the untouched base's */
 static uint32_t render_crc(void)
 {
@@ -396,6 +524,7 @@ int main(void)
     t_live();
     t_midi_in();
     t_seq_gate();
+    t_store();
     printf("part_off: %s (%d failing cases)\n", fails ? "FAIL" : "ok", fails);
     return fails != 0;
 }
