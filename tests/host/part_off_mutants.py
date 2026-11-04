@@ -50,8 +50,17 @@ MUTANTS = {
     'store_bt_toggle_strict': (P_C, '        if (!PROJ_SET_LEN_OK((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||\n            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||',
                                '        if ((uint32_t)n != 4u + sizeof(settings_t) || get32(io_buf) != PROJ_FORMAT ||\n            io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||',
                                'store_bt_toggle_keeps_tail'),
-    'store_import_keeps_mask': (P_C, '    part_off_staged = 0;                    /* the file has no part ON/OFF',
-                                '    /* mutant */                    /* the file has no part ON/OFF', 'file_import_all_on'),
+    # the .x0x header word 28 (part OFF mask across export/import)
+    'file_header_drops_mask': (P_C, '    put32(h + 28, PROJ_FILE_OFF_WORD(part_off_staged & PROJ_PART_OFF_ALL));',
+                               '    put32(h + 28, 0);', 'file_roundtrip_all_masks'),
+    'file_import_drops_mask': (P_C, '    part_off_staged = (uint8_t)(get32(h + 28) & PROJ_PART_OFF_ALL);',
+                               '    part_off_staged = 0;', 'file_roundtrip_all_masks'),
+    'file_accepts_any_word28': (P_C, '|| !PROJ_FILE_OFF_OK(get32(h + 28)))', '|| 0)', 'file_rejects_bad_word28'),
+    'file_tag_ignored': (X_H, '(((w) & 0xFFFFFF00u) == PROJ_FILE_OFF_TAG &&', '(((w) & 0xFF00u) == 0u &&', 'file_rejects_bad_word28'),
+    'file_tag_mask_zero': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))', '((w) & 0xFFu) <= PROJ_PART_OFF_ALL))', 'file_rejects_bad_word28'),
+    'file_accept_gt31': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))', '((w) & 0xFFu) - 1u < 0xFFu))', 'file_rejects_bad_word28'),
+    'file_all_on_tagged': (X_H, '#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | (uint32_t)(m) : 0u)',
+                           '#define PROJ_FILE_OFF_WORD(m) (PROJ_FILE_OFF_TAG | (uint32_t)(m))', 'file_all_on_is_older_header'),
     # QA D: the tail used as the mask when the load failed (fresh device), or a stale tail after 44 bytes
     # (the literal D, dropping the rc guard at read_project, is equivalent: every failed load ends at
     # failed: -> project_defaults_for, which clears the mask; this removes that guard instead)

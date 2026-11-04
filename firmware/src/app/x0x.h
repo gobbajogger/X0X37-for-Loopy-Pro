@@ -132,6 +132,12 @@ int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capa
 void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
+/* .x0x header word 28 (was always 0, and older firmware and the web tool refuse any other value): 0 while
+ * every part is ON (byte for byte the older file); with any part OFF the tag in bytes 30-31 and the OFF mask
+ * (1-31) in byte 28, byte 29 zero. Not covered by the payload CRC (word 12), so it is validated exactly. */
+#define PROJ_FILE_OFF_TAG 0x4F460000u
+#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | (uint32_t)(m) : 0u)
+#define PROJ_FILE_OFF_OK(w) ((w) == 0u || (((w) & 0xFFFFFF00u) == PROJ_FILE_OFF_TAG && ((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 

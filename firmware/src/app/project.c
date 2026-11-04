@@ -734,7 +734,7 @@ void project_file_header(uint8_t *h)
     put32(h + 16, PROJ_FORMAT);
     put32(h + 20, PROJ_STREAM);
     put32(h + 24, PROJ_SND_REV);
-    put32(h + 28, 0);
+    put32(h + 28, PROJ_FILE_OFF_WORD(part_off_staged & PROJ_PART_OFF_ALL));   /* 0: all ON, the older file */
 }
 
 
@@ -743,12 +743,12 @@ int project_file_validate(const uint8_t *h)
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
         get32(h + 16) != PROJ_FORMAT ||
         get32(h + 20) != PROJ_STREAM ||
-        get32(h + 24) != PROJ_SND_REV || get32(h + 28))
+        get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
     if(!stream_layout_ok(&project_stage,get32(h+20)))return -9;
-    part_off_staged = 0;                    /* the file has no part ON/OFF: an imported project plays every part */
+    part_off_staged = (uint8_t)(get32(h + 28) & PROJ_PART_OFF_ALL);   /* header word 28: the OFF mask, 0 all ON */
 #if !X0X_ORIGINAL_SYNTH
     migrate_break_counts(&project_stage, get32(h+20));
 #endif

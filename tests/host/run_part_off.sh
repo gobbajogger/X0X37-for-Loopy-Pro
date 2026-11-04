@@ -74,13 +74,13 @@ if [ -z "${PART_OFF_BASE_REF:-}" ]; then
     echo "  NOT_RUN store_cross_firmware (PART_OFF_BASE_REF not set)"
 else
     S=$(pwd)/$OUT/store; rm -rf "$S"; mkdir -p "$S"
-    build_store() { root=$1; bin=$2
-        [ "$root" = . ] || cp tests/host/part_off_store.c "$root/tests/host/part_off_store.c"
+    build_store() { root=$1; bin=$2; src=${3:-part_off_store}
+        [ "$root" = . ] || cp tests/host/$src.c "$root/tests/host/$src.c"
         ( cd "$root" && . tests/host/original_build.sh &&
           # shellcheck disable=SC2086
           ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -w -DX0X_HOST -D_POSIX_C_SOURCE=200809L ${SAN_FLAGS:-} \
             -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen \
-            tests/host/part_off_store.c $ORIGINAL_FLAGS $ORIGINAL_SOURCES -lm -o "$bin" ); }
+            tests/host/$src.c $ORIGINAL_FLAGS $ORIGINAL_SOURCES -lm -o "$bin" ); }
     build_store "$OUT/base" "$S/old"
     build_store . "$S/new"
     sha() { if [ -f "$1" ]; then sha256sum "$1" | cut -c1-64; else echo missing; fi; }
@@ -138,6 +138,37 @@ else
     done
     verdict roundtrip_new_old_new_all_masks $ok1
     verdict roundtrip_old_new_old_all_masks $ok2
+    # 5. .x0x files across firmware (tests/host/part_off_file.c): header word 28 carries the OFF mask
+    build_store "$OUT/base" "$S/fold" part_off_file
+    build_store . "$S/fnew" part_off_file
+    "$S/fnew" export 0 "$S/f0.x0x" >/dev/null || true; "$S/fold" export 0 "$S/fo0.x0x" >/dev/null || true
+    echo "    all ON file: new $(sha "$S/f0.x0x") old $(sha "$S/fo0.x0x")"
+    if cmp -s "$S/f0.x0x" "$S/fo0.x0x"; then verdict all_on_file_identical_to_old_fw 1; else verdict all_on_file_identical_to_old_fw 0; fi
+    "$S/fnew" import "$S/fo0.x0x" "$S/fo0.new.x0x" >"$S/fo0.new.txt" || true
+    ok=0
+    [ "$(kv "$S/fo0.new.txt" import.rc)" = 0 ] && [ "$(kv "$S/fo0.new.txt" import.mask)" = 0 ] &&
+        [ "$(kv "$S/fo0.new.txt" import.user_project)" = 1 ] && cmp -s "$S/fo0.x0x" "$S/fo0.new.x0x" && ok=1
+    verdict new_fw_imports_old_file_all_on $ok
+    ok1=1; ok2=1; m=0
+    while [ $m -lt 32 ]; do
+        "$S/fnew" export $m "$S/f$m.x0x" >/dev/null || true
+        "$S/fnew" import "$S/f$m.x0x" "$S/f$m.n.x0x" >"$S/f$m.n.txt" || true
+        "$S/fold" import "$S/f$m.x0x" "$S/f$m.o.x0x" >"$S/f$m.o.txt" || true
+        { [ "$(kv "$S/f$m.n.txt" import.rc)" = 0 ] && [ "$(kv "$S/f$m.n.txt" import.mask)" = $m ] &&
+          [ "$(kv "$S/f$m.n.txt" import.user_project)" = 1 ] && cmp -s "$S/f$m.x0x" "$S/f$m.n.x0x"; } ||
+            { ok1=0; echo "    file new->new mask $m: $(tr '\n' ' ' < "$S/f$m.n.txt")"; }
+        if [ $m = 0 ]; then
+            { [ "$(kv "$S/f$m.o.txt" import.rc)" = 0 ] && [ "$(kv "$S/f$m.o.txt" import.user_project)" = 1 ]; } || ok2=0
+        else
+            [ $m = 1 ] || [ $m = 5 ] || [ $m = 31 ] && echo "    file mask $m: old import rc=$(kv "$S/f$m.o.txt" import.rc) writes=$(kv "$S/f$m.o.txt" import.writes) live_replaced=$(kv "$S/f$m.o.txt" import.user_project) sha $(sha "$S/f$m.x0x")"
+            { [ "$(kv "$S/f$m.o.txt" import.rc)" = -1 ] && [ "$(kv "$S/f$m.o.txt" import.writes)" = 0 ] &&
+              [ "$(kv "$S/f$m.o.txt" import.user_project)" = 0 ]; } || { ok2=0; echo "    file old mask $m: $(tr '\n' ' ' < "$S/f$m.o.txt")"; }
+        fi
+        m=$((m + 1))
+    done
+    verdict file_roundtrip_new_all_masks $ok1
+    verdict old_fw_refuses_part_off_file $ok2
+    ( cd "$S" && sha256sum ./*.x0x ) > "$S/SHA256SUMS.x0x" 2>/dev/null || true
     ( cd "$S" && sha256sum ./*.bin ) > "$S/SHA256SUMS" 2>/dev/null || true
     echo "part_off_store: $([ $sfail = 0 ] && echo ok || echo FAIL) ($sfail failing cases; dumps and sha256 in $OUT/store)"
     [ $sfail = 0 ] || rc=1
