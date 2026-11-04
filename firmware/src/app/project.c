@@ -726,6 +726,7 @@ void project_apply_io(void)
         int v = proj.set.midi_ch[p];
         seq.ch[p] = (uint8_t)(!v ? SEQ_CH_DEFAULT[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
     }
+    seq.part_off = (uint8_t)(PROJ_PART_OFF_IS(proj.set.rsv_bright) ? proj.set.rsv_bright & 31u : 0u);
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
 }
@@ -735,6 +736,10 @@ static void capture_settings(settings_t *set)
     int p;
     for (p = 0; p < 5; p++)
         set->midi_ch[p] = (uint8_t)(seq.ch[p] == SEQ_CH_OFF ? 17 : seq.ch[p] + 1);
+    if (seq.part_off & 31u)                          /* all ON keeps any older byte as it was */
+        set->rsv_bright = (uint8_t)(PROJ_PART_OFF_TAG | (seq.part_off & 31u));
+    else if (PROJ_PART_OFF_IS(set->rsv_bright))
+        set->rsv_bright = 0;
     set->bpm_x10 = (uint16_t)(seq.bpm * 10.0f + 0.5f);
     set->accent_q7 = seq.accent_q7;
     set->clk_out = seq.send_clock;

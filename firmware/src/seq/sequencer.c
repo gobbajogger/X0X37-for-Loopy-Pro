@@ -195,6 +195,8 @@ __attribute__((noinline)) static void fire_drum(seq_t *s, int k, int p, uint32_t
     int w = p >> 5;
     float accent_vel = (d->accent[w] & bit) ? 1.0f : (float)s->accent_q7 / 127.0f;
     int v;
+    if (SEQ_PART_OFF(s, k))
+        return;
     for (v = 0; v < NDRUM; v++) {
         uint8_t sv;
         float vel;
@@ -275,7 +277,7 @@ __attribute__((noinline)) static void fire_bass(seq_t *s, int b, int p, uint32_t
     int muted = (s->mute & (1u << (MUTE_BASS0 + b))) != 0;
     if (muted) bass_midi_flush(s, b, o);
     /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
-    if (gate == G_REST || (gate == G_TIE && !tr->sounding)) {
+    if (gate == G_REST || (gate == G_TIE && !tr->sounding) || SEQ_PART_OFF(s, TRK_BASS0 + b)) {
         bass_release(s, b, o);
         tr->held_note = 0;
         return;
@@ -499,7 +501,8 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
-                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)));
+                   (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)) &&
+                   !SEQ_PART_OFF(s, TRK_BRK));
     } else
         fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {

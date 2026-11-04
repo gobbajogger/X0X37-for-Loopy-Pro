@@ -698,6 +698,7 @@ X0X_COLD void engine_apply_sound(const sound_t *s)
 
 void engine_drum(int kit, int voice, float vel)
 {
+    if ((unsigned)kit < NKIT && SEQ_PART_OFF(&seq, kit)) return;
     cq_put(C_DRUM, (uint32_t)kit, (uint32_t)voice, (uint32_t)(vel * 4095.0f));
 }
 void engine_bass_on(int part, int note, int accent, int slide)
@@ -706,6 +707,7 @@ void engine_bass_on(int part, int note, int accent, int slide)
 }
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity)
 {
+    if ((unsigned)part < NBASS && SEQ_PART_OFF(&seq, TRK_BASS0 + part)) return;
     if (velocity < 1) velocity = 1;
     if (velocity > 127) velocity = 127;
     cq_put(C_BON, (uint32_t)part, (uint32_t)note,
@@ -726,7 +728,11 @@ void engine_bass_off_note(int part, int note)
     else
         cq_put(C_BOFF, (uint32_t)part, (uint32_t)(note & 127), 1u);
 }
-void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
+void engine_brk_live(int key, int down)
+{
+    if (down && SEQ_PART_OFF(&seq, TRK_BRK)) return;   /* a release always passes */
+    cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0);
+}
 
 /* ------------------------------------------------------- sequencer sink --- */
 /* probability: each part's (and drum track's) chance on the step playing now, set by its T_PROB lane
@@ -820,7 +826,7 @@ static void s_brk(void *x, int s16, int bar, float spb, int en)
     if (en && prob_skip(PART_BRK, 0))
         en = 0;
     (void)x;
-    breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)));   /* unheard: stop decoding */
+    breaks_set_quiet(&brk, bp->steps == 0 || (seq.mute & (1u << MUTE_BRK)) || SEQ_PART_OFF(&seq, TRK_BRK));
     for (i = 0; i < BRK_NSET; i++)       /* follow the playing pattern's settings (12 compares) */
         if (bp->set[i] != brk_applied[i]) {
             brk_applied[i] = bp->set[i];
@@ -1341,8 +1347,10 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
         return;
     }
     if ((ty == 0x90 || ty == 0x80) && seq.ch[TRK_BRK] == ch) {
-        /* The break's channel owns the note. Drums and the 303s do not also play it. */
-        brk_midi_wrap(src, ty == 0x90, d1);
+        /* The break's channel owns the note. Drums and the 303s do not also play it.
+         * OFF: a Note On is swallowed here; a Note Off still releases. */
+        if (!(ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BRK)))
+            brk_midi_wrap(src, ty == 0x90, d1);
         return;
     }
     /* Kit MIDI channel owns the note (GLO remap). Same consume rule as BREAK:
@@ -1353,7 +1361,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             if (seq.ch[k] != ch)
                 continue;
             kit_own = 1;
-            if (ty == 0x90) {                            /* machines on GM drum notes (GM_DRUM) */
+            if (ty == 0x90 && !SEQ_PART_OFF(&seq, k)) {                            /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
                     if (GM_DRUM[k][v] == d1) {
                         s_drum(0, k, v, (float)d2 / 127.0f);
@@ -1366,6 +1374,8 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
     }
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
+            if (ty == 0x90 && SEQ_PART_OFF(&seq, TRK_BASS0 + k))
+                continue;                              /* OFF: swallowed; its Note Off still releases */
             if (ty == 0x90 || ty == 0x80) {
                 unsigned velocity = ty == 0x90 ? d2 : 0;
                 /* External MIDI recording: accepted physical edges, as the pads do. */
