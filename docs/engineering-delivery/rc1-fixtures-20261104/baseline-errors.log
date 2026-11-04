@@ -1,0 +1,26 @@
+release compile; baseline script exit 1; full-log SHA256 9bd79ee2e1f87aad2b44d6e5961c09fabefc5a59afada316617ddd7a99112e96
+tests/host/original_release_ui_test.c:377:34: error: implicit declaration of function ‘header_transport’ [-Wimplicit-function-declaration]
+  377 |     cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+theme compile; baseline script exit 1; full-log SHA256 f8e61d59013305591e1cc48cc63c2de39620c9dce07edea0d5e7bcc433cfeeee
+tests/host/original_release_ui_test.c:377:34: error: implicit declaration of function ‘header_transport’ [-Wimplicit-function-declaration]
+  377 |     cv_begin(240,HDR_H,C_BLACK); header_transport(10,0); uint32_t stopped=picture_pixels(cv_px,10,4,9,11);
+matrix compile; baseline script exit 1; full-log SHA256 8757f110c35e78afb076d6a557e8cbf967c2691e160c6ca8f2429dcdb7e45b67
+tests/host/sound_matrix_test.c:143:43: error: implicit declaration of function ‘adsr_inline_page’ [-Wimplicit-function-declaration]
+  143 |     fixture(0,0);*page_of(V_PART)=3;CHECK(adsr_inline_page());
+tests/host/sound_matrix_test.c:147:47: error: too few arguments to function ‘adsr_values’
+tests/host/../../host/../firmware/src/app/ui.c:6862:13: note: declared here
+tests/host/sound_matrix_test.c:171:17: error: too few arguments to function ‘adsr_values’
+tests/host/../../host/../firmware/src/app/ui.c:6862:13: note: declared here
+tests/host/sound_matrix_test.c:174:37: error: too few arguments to function ‘adsr_values’
+tests/host/../../host/../firmware/src/app/ui.c:6862:13: note: declared here
+glyph compile; baseline script exit 1; full-log SHA256 7d0c7112c3007253a9f8c6580d211a11bf4cf9cafa6cc4fde49017e7b214384a
+tests/host/ui_glyph_polish_test.c:80:63: error: too few arguments to function ‘draw_adsr_inline’
+tests/host/../../host/../firmware/src/app/ui.c:6952:21: note: declared here
+tests/host/ui_glyph_polish_test.c:84:16: error: too few arguments to function ‘adsr_values’
+tests/host/../../host/../firmware/src/app/ui.c:6862:13: note: declared here
+tests/host/ui_glyph_polish_test.c:122:31: error: too few arguments to function ‘draw_adsr_inline’
+tests/host/../../host/../firmware/src/app/ui.c:6952:21: note: declared here
+tests/host/ui_glyph_polish_test.c:126:32: error: too few arguments to function ‘draw_adsr_inline’
+tests/host/../../host/../firmware/src/app/ui.c:6952:21: note: declared here
+tests/host/ui_glyph_polish_test.c:129:32: error: too few arguments to function ‘draw_adsr_inline’
+tests/host/../../host/../firmware/src/app/ui.c:6952:21: note: declared here

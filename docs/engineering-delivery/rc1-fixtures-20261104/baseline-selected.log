@@ -1,0 +1,42 @@
+  FAIL original-release-ui (see build/host/original-release-ui.log)
+  FAIL ui-theme (see build/host/ui-theme.log)
+  ok   ui-shared-glyph
+  ok   ui-drum-mix-material
+  ok   ui-page-wrap
+  ok   chicago-adsr-graph
+  ok   ui-settings-sections
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  FAIL sound-matrix (see build/host/sound-matrix.log)
+       tests/host/../../host/../firmware/src/app/ui.c:1052:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1052 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1053:5: note: here
+        1053 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3277:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3277 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘original_miami_voice_owner_bind’:
+       experiments/original_synth/miami_voice_owner.c:59:5: warning: missing braces around initializer [-Wmissing-braces]
+          59 |  *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{0}};return 1;
+             |     ^
+             |                                                                     {}
+  FAIL ui-glyph-polish (see build/host/ui-glyph-polish.log)
+       tests/host/../../host/../firmware/src/app/ui.c:1052:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+        1052 |     case X0X_U_RATIO: x = 12.0f * fm_log2f(x); /* fall through: semitones */
+             |                       ~~^~~~~~~~~~~~~~~~~~~~~
+       tests/host/../../host/../firmware/src/app/ui.c:1053:5: note: here
+        1053 |     case X0X_U_ST: put_d1(num, x, 1); put_s(unit, "st"); return;
+             |     ^~~~
+       tests/host/../../host/../firmware/src/app/ui.c: At top level:
+       tests/host/../../host/../firmware/src/app/ui.c:3277:38: warning: ‘smk_mute_known’ defined but not used [-Wunused-variable]
+        3277 | static uint8_t smk_mute_intended[4], smk_mute_known, smk_mute_active, smk_mute_edit, smk_mute_bank;
+             |                                      ^~~~~~~~~~~~~~
+       experiments/original_synth/miami_voice_owner.c: In function ‘original_miami_voice_owner_bind’:
+       experiments/original_synth/miami_voice_owner.c:59:5: warning: missing braces around initializer [-Wmissing-braces]
+          59 |  *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{0}};return 1;
+             |     ^
+             |                                                                     {}
+  ok   ui-chicago-env-motion
+TESTS FAILED

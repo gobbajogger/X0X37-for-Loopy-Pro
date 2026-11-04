@@ -1,0 +1,83 @@
+{
+  "checks": [
+    {
+      "name": "original-release-ui",
+      "command": "sh tests/host/original_release_ui_test.sh build/fixture-repair/repaired-original-release-ui",
+      "exit": 0,
+      "checks": 35996,
+      "captures": 97,
+      "modes": [
+        "normal",
+        "address+undefined sanitizer"
+      ],
+      "log_and_png_equality": true
+    },
+    {
+      "name": "ui-theme",
+      "command": "ORIGINAL_UI_TEST_FILE=tests/host/ui_theme_test.c sh tests/host/original_release_ui_test.sh build/fixture-repair/final-ui-theme",
+      "exit": 0,
+      "checks": 14865102,
+      "captures": 259,
+      "modes": [
+        "normal",
+        "address+undefined sanitizer"
+      ],
+      "log_and_png_equality": true
+    },
+    {
+      "name": "sound-matrix",
+      "command": "sh tests/host/sound_matrix_test.sh build/fixture-repair/repaired-final",
+      "exit": 0,
+      "checks": 15161,
+      "sanitizer_command": "SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' sh tests/host/sound_matrix_test.sh build/fixture-repair/sanitized",
+      "sanitizer_exit": 0
+    },
+    {
+      "name": "ui-glyph-polish",
+      "command": "SMC_UI_OUT=build/fixture-repair/glyph sh tests/host/ui_glyph_polish_test.sh",
+      "exit": 0,
+      "assertions": 16828,
+      "sanitizer_command": "SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 SMC_UI_OUT=build/fixture-repair/glyph/sanitize sh tests/host/ui_glyph_polish_test.sh",
+      "sanitizer_exit": 0
+    }
+  ],
+  "negative_controls": [
+    {
+      "name": "track-step-derived phase",
+      "kind": "disposable preprocessed production mutation",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "failure": "release fixture line408 actual header color"
+    },
+    {
+      "name": "neutral-state blink",
+      "kind": "disposable preprocessed production mutation",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "failure": "release fixture line377 stopped header stability"
+    },
+    {
+      "name": "wrong queued pattern content",
+      "kind": "disposable preprocessed production mutation",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "failure": "release fixture line373 actual queued badge pixels"
+    },
+    {
+      "name": "selected-row-only ADSR predicate",
+      "kind": "temporary test-side wrapper of real production predicate",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "failure": "inactive Chicago row assertion"
+    },
+    {
+      "name": "remove cutoff centring",
+      "kind": "temporary fixture-state control",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "failure": "retained distinct ENV shape assertion"
+    }
+  ],
+  "additional_test_assertion_controls": "Wrong row and wrong attack expected-value mutations failed; these are assertion controls, not production mutation coverage.",
+  "evidence_limits": "Isolated fixture checks and runtime excerpts. Full compiler warnings omitted from runtime excerpts; full host result is separate. This is host-only evidence."
+}
