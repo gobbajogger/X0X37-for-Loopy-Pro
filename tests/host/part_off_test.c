@@ -521,19 +521,60 @@ static void t_store(void)
         CHECK(save_reload(0) == 0);
     }
     end();
-    begin("file_import_all_on");
-    {   /* the .x0x file keeps its size and has no part ON/OFF: an import plays every part */
+#ifdef PROJ_FILE_OFF_TAG
+    begin("file_all_on_is_older_header");
+    {   /* every part ON: header word 28 stays 0, the older file byte for byte */
+        uint8_t h[PROJECT_FILE_HDR];
+        set_off(0);
+        project_capture_stage();
+        project_file_header(h);
+        CHECK(get32(h + 8) == sizeof(project_t) && PROJECT_FILE_SIZE == 36452u && get32(h + 28) == 0);
+        CHECK(project_file_validate(h) == 0 && part_off_staged == 0);
+    }
+    end();
+    begin("file_roundtrip_all_masks");
+    for (unsigned m = 0; m < 32; m++) {   /* export (capture, header) -> import (validate, commit) */
+        uint8_t h[PROJECT_FILE_HDR];
+        set_off(m);
+        project_capture_stage();
+        project_file_header(h);
+        CHECK(get32(h + 28) == (m ? (PROJ_FILE_OFF_TAG | m) : 0u));
+        set_off(m ^ 31u);                                 /* the runtime differs until the commit */
+        part_off_staged = (uint8_t)(m ^ 31u);
+        int rc = project_file_validate(h);
+        project_commit_stage();
+        project_apply_io();
+        CHECK(rc == 0 && live_mask() == m);
+        if (rc || live_mask() != m) printf("    mask 0x%02x: rc %d imported 0x%02x\n", m, rc, live_mask());
+    }
+    end();
+    begin("file_rejects_bad_word28");
+    {   /* word 28 is outside the payload CRC: anything but 0 or the tag with a 1-31 mask is refused (-1) */
+        static const uint32_t bad[] = {1u, 5u, 0x1Fu, PROJ_FILE_OFF_TAG, PROJ_FILE_OFF_TAG | 0x20u, PROJ_FILE_OFF_TAG | 0xFFu,
+                                       PROJ_FILE_OFF_TAG | 0x105u, 0x4E460005u, 0xCF460005u, 0x4F460005u | 0x10000000u};
         uint8_t h[PROJECT_FILE_HDR];
         set_off(0x05u);
         project_capture_stage();
         project_file_header(h);
-        CHECK(get32(h + 8) == sizeof(project_t) && PROJECT_FILE_SIZE == 36452u);
-        CHECK(project_file_validate(h) == 0);
-        project_commit_stage();
-        project_apply_io();
-        CHECK(live_mask() == 0);
+        for (unsigned i = 0; i < sizeof bad / sizeof bad[0]; i++) {
+            put32(h + 28, bad[i]);
+            part_off_staged = 0x0Au;
+            CHECK(project_file_validate(h) == -1 && part_off_staged == 0x0Au && live_mask() == 0x05u);
+        }
+        put32(h + 28, PROJ_FILE_OFF_TAG | 0x05u);
+        CHECK(project_file_validate(h) == 0 && part_off_staged == 0x05u);
     }
     end();
+#else
+    begin("file_import_all_on");
+    {   /* the base: the .x0x file has no part ON/OFF */
+        uint8_t h[PROJECT_FILE_HDR];
+        project_capture_stage();
+        project_file_header(h);
+        CHECK(get32(h + 28) == 0 && project_file_validate(h) == 0);
+    }
+    end();
+#endif
     set_byte(0);
 }
 
