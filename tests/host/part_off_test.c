@@ -127,18 +127,157 @@ static void t_validator(void)
     CHECK(project_validate_stage() == 0);
     end();
 }
+/* Part ON/OFF and the mutes/solo are independent: OFF is not a mute, and a mute is not OFF. Chicago (303A)
+ * shows both directions: its internal voice runs behind the bus mute (sequencer.c fire_bass), only OFF stops it. */
+static void clear_pattern(void)
+{
+    for (int k = 0; k < NKIT; k++) memset(proj.pat[seq.ppat[k]].drum[k].hit, 0, sizeof proj.pat[seq.ppat[k]].drum[k].hit);
+    for (int b = 0; b < NBASS; b++) {
+        bpart_t *bp = &proj.pat[seq.ppat[TRK_BASS0 + b]].bass[b];
+        for (int s = 0; s < NSTEPS; s++) { bp->step[s].note = 60; bp->step[s].velocity = 100; bp->step[s].flags = G_REST; }
+    }
+    proj.pat[seq.ppat[TRK_BRK]].brk.steps = 0;
+}
+/* play ~0.6 s; returns how many 10 ms samples had the 303 b's sequencer voice sounding */
+static int sounding_run(int b)
+{
+    int n = 0;
+    seq.send_notes = 1; log_start();
+    play(1);
+    for (int i = 0; i < 60; i++) { run_ms(10); n += seq.t[TRK_BASS0 + b].sounding != 0; }
+    play(0); run_ms(50); log_count();
+    return n;
+}
 static void t_independent(void)
 {
     begin("independent_of_mute_solo");
-    seq.mute = 0; seq.vmute = 0;
-    set_off(0x15u);
+    set_byte(0); seq.mute = 0; seq.vmute = 0; engine_smc_solo(0);
+    clear_pattern();
+    bpart_t *bp = &proj.pat[seq.ppat[TRK_BASS0]].bass[0];
+    for (int s = 0; s < 16; s++) bp->step[s].flags = (s & 1) ? G_REST : G_NOTE;
+    int ch = seq.ch[PART_303A];
+    /* control: ON, unmuted: notes and a sounding voice */
+    int snd = sounding_run(0); int on_ons = ons[ch];
+    CHECK(snd > 0 && on_ons > 0);
+    /* OFF while unmuted and unsoloed: silent (MIDI and voice), and the mutes are not written */
+    set_off(1u << PART_303A);
+    CHECK(seq.mute == 0 && seq.vmute == 0 && !seq_part_muted(&seq, PART_303A));
+    snd = sounding_run(0);
+    CHECK(snd == 0 && ons[ch] == 0);
     CHECK(seq.mute == 0 && seq.vmute == 0);
+    /* back ON: the same notes again (OFF left nothing behind in the mutes) */
+    set_byte(0);
+    snd = sounding_run(0);
+    CHECK(snd > 0 && ons[ch] == on_ons);
+    /* ON while muted: the mute alone governs; MIDI out silent, the voice still runs behind the bus mute, and
+     * the mute is not saved as OFF */
+    seq.mute = seq_part_mask(PART_303A);
+    snd = sounding_run(0);
+    CHECK(snd > 0 && ons[ch] == 0);
+    CHECK(captured() == 0);
+    seq.mute = 0;
+    /* ON while another part is soloed (SMC solo): the sequencer still plays it; OFF is not taken from solo */
+    engine_smc_solo((uint8_t)(1u << PART_909));
+    snd = sounding_run(0);
+    CHECK(snd > 0 && ons[ch] == on_ons && captured() == 0);
+    engine_smc_solo(0);
+    /* OFF mask survives mute edits, and the saved byte ignores the mutes */
+    set_off(0x15u);
     seq.mute = seq_part_mask(PART_808) | seq_part_mask(PART_303B);
     CHECK(captured() == 0xB5u);
     seq.mute = 0;
     CHECK(captured() == 0xB5u);
     set_byte(0);
     end();
+}
+/* held -> part OFF -> release: every release path still ends the note */
+static void t_release(void)
+{
+    begin("brk_pad_release_not_gated");
+    set_byte(0);
+    engine_brk_live(32, 1); audio(); audio();
+    CHECK(engine_brk_held() != 0);
+    set_off(1u << PART_BRK);
+    engine_brk_live(32, 0); audio(); audio();
+    CHECK(engine_brk_held() == 0);
+    set_byte(0); audio(); audio();
+    end();
+
+    begin("midi_note_off_not_gated_break");
+    set_byte(0);
+    if (seq.ch[PART_BRK] == SEQ_CH_OFF) CHECK(!"break has no MIDI channel");
+    else {
+        midi3(0x90 | seq.ch[PART_BRK], 12, 100); audio(); audio();
+        CHECK(engine_brk_held() != 0);
+        set_off(1u << PART_BRK);
+        midi3(0x80 | seq.ch[PART_BRK], 12, 0); audio(); audio();
+        CHECK(engine_brk_held() == 0);
+    }
+    set_byte(0); audio(); audio();
+    end();
+
+    for (int b = 0; b < NBASS; b++) {
+        int p = PART_303A + b;
+        begin(b ? "midi_note_off_not_gated_miami" : "midi_note_off_not_gated_chicago");
+        set_byte(0);
+        midi3(0x90 | seq.ch[p], 50, 100); audio(); audio();
+        CHECK(engine_bass_keys_held() >> b & 1);
+        set_off(1u << p);
+        midi3(0x80 | seq.ch[p], 50, 0); audio(); audio();
+        CHECK(!(engine_bass_keys_held() >> b & 1));
+        set_byte(0); end();
+
+        begin(b ? "bass_off_note_not_gated_miami" : "bass_off_note_not_gated_chicago");
+        engine_bass_on_velocity(b, 48, 0, 0, 100); audio(); audio();
+        CHECK(engine_bass_keys_held() >> b & 1);
+        set_off(1u << p);
+        engine_bass_off_note(b, 48); audio(); audio();
+        CHECK(!(engine_bass_keys_held() >> b & 1));
+        set_byte(0); end();
+
+        begin(b ? "live_303_held_off_release_miami" : "live_303_held_off_release_chicago");
+        engine_bass_on_velocity(b, 52, 0, 0, 100); audio(); audio();
+        CHECK(engine_bass_keys_held() >> b & 1);
+        set_off(1u << p);
+        engine_bass_off(b); audio(); audio();
+        CHECK(!(engine_bass_keys_held() >> b & 1));
+        set_byte(0); end();
+    }
+}
+/* the sequencer 303: a long TIE'd note, the part turned OFF mid-note: released by the next step, MIDI too */
+static void t_seq_bass_release(void)
+{
+    for (int b = 0; b < NBASS; b++) {
+        int p = PART_303A + b, ch = seq.ch[p];
+        begin(b ? "seq_bass_tie_released_after_off_miami" : "seq_bass_tie_released_after_off_chicago");
+        set_byte(0); seq.mute = 0; clear_pattern();
+        bpart_t *bp = &proj.pat[seq.ppat[TRK_BASS0 + b]].bass[b];
+        bp->step[0].flags = G_NOTE;
+        for (int s = 1; s < NSTEPS; s++) bp->step[s].flags = G_TIE;
+        seq.send_notes = 1; log_start();
+        play(1); run_ms(400);
+        CHECK(seq.t[TRK_BASS0 + b].sounding);          /* control: the TIE holds the note */
+        CHECK(ch == SEQ_CH_OFF || seq.bass_out_valid[b]);
+        set_off(1u << p);
+        run_ms(300);                                     /* > 2 steps at 120 BPM */
+        int still = seq.t[TRK_BASS0 + b].sounding != 0, out = seq.bass_out_valid[b] != 0;
+        CHECK(!still);
+        CHECK(!out);
+        /* MIDI: every Note On on the channel has its Note Off before the stop (read before stopping) */
+        int on = 0, off = 0; char line[96]; unsigned ms, st, d1, d2;
+        if (midi_log) {
+            rewind(midi_log);
+            while (fgets(line, sizeof line, midi_log))
+                if (sscanf(line, "%u ms: %X %X %X", &ms, &st, &d1, &d2) == 4 && (int)(st & 15u) == ch) {
+                    if ((st & 0xF0u) == 0x90u && d2) on++;
+                    else if ((st & 0xF0u) == 0x80u || (st & 0xF0u) == 0x90u) off++;
+                }
+            fclose(midi_log); midi_log = 0;
+        }
+        play(0); run_ms(50);
+        CHECK(ch == SEQ_CH_OFF || (on > 0 && off >= on));
+        set_byte(0); end();
+    }
 }
 static void t_seq_gate(void)
 {
@@ -252,6 +391,8 @@ int main(void)
     t_midi_ch();
     t_validator();
     t_independent();
+    t_release();
+    t_seq_bass_release();
     t_live();
     t_midi_in();
     t_seq_gate();

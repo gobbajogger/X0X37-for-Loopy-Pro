@@ -1361,7 +1361,7 @@ __attribute__((noinline)) static void midi_in(uint32_t pkt)
             if (seq.ch[k] != ch)
                 continue;
             kit_own = 1;
-            if (ty == 0x90 && !SEQ_PART_OFF(&seq, k)) {                            /* machines on GM drum notes (GM_DRUM) */
+            if (ty == 0x90 && !SEQ_PART_OFF(&seq, k)) {  /* machines on GM drum notes (GM_DRUM) */
                 for (v = 0; v < NDRUM; v++)
                     if (GM_DRUM[k][v] == d1) {
                         s_drum(0, k, v, (float)d2 / 127.0f);
