@@ -441,7 +441,7 @@ run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
-run part-off sh tests/host/run_part_off.sh   # M7a per-part ON/OFF core
+run part-off env PART_OFF_BASE_REF=4b240bd33a0eb7008b44e12bc270aba4d32b82c1 sh tests/host/run_part_off.sh   # M7a; all-ON bit-exact vs the pre-M7 base
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-remainder sh tests/host/smc_remainder_test.sh
