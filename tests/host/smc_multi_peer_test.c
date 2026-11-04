@@ -137,10 +137,10 @@ static void independent_fx(void)
     smc_ble_link_slot(0,0);smc_poll();CHECK(fx_mask&2);
     peer_msg(1,0x80,25,0);CHECK(!fx_mask);
     smc_ble_link_slot(0,1);smc_poll();
-    /* Assign through the real HOME+SELECT gesture before holding either
-     * strip. A live strip captures its physical assignment on key-down. */
+    /* Remap with an arrow while peer one's SELECT is held; HOME alone
+     * preserves assignments. A live strip captures its assignment on key-down. */
     held_btn=1u<<B_HOME;
-    peer_msg(1,0x90,24,127);peer_msg(1,0x80,24,0);
+    peer_msg(1,0x90,24,127);CHECK(smc_fx_keyboard_arrow(1));peer_msg(1,0x80,24,0);
     held_btn=0;
     CHECK(smc_states[0].fx_effect[0] != smc_states[1].fx_effect[0]);
     peer_msg(0,0x90,24,127);peer_msg(1,0x90,24,127);
