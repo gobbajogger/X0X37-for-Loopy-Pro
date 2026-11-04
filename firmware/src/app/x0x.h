@@ -67,6 +67,10 @@
  * the .x0x file keep their sizes; older firmware refuses the longer object (unsupported) and writes nothing. */
 #define PROJ_SET_TAIL 4u
 #define PROJ_PART_OFF_ALL 31u
+/* the settings payload sizes (format word included) a load accepts, and a tail it refuses (mask > 31 or a
+ * non-zero reserved byte) */
+#define PROJ_SET_LEN_OK(n) ((n) == 4u + sizeof(settings_t) || (n) == 4u + sizeof(settings_t) + PROJ_SET_TAIL)
+#define PROJ_SET_TAIL_BAD(t) ((t)[0] > PROJ_PART_OFF_ALL || (t)[1] || (t)[2] || (t)[3])
 
 typedef struct {
     uint32_t magic, format;

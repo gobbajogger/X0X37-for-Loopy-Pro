@@ -65,17 +65,6 @@ _Static_assert(4u + sizeof(settings_t) + PROJ_SET_TAIL <= PLAT_STORE_MAX, "the l
 static uint8_t part_off_live, part_off_staged;
 static uint8_t *part_off_of(const project_t *pr) { return pr == &project_stage ? &part_off_staged : &part_off_live; }
 
-/* the settings payload sizes this build loads (format word included), and the tail's rules: mask 0-31,
- * reserved bytes zero. 0 = acceptable. */
-static int settings_len_ok(uint32_t n)
-{
-    return n == 4u + sizeof(settings_t) || n == 4u + sizeof(settings_t) + PROJ_SET_TAIL;
-}
-static int settings_tail_bad(const uint8_t *t)
-{
-    return t[0] > PROJ_PART_OFF_ALL || t[1] || t[2] || t[3];
-}
-
 static void project_settings_defaults(settings_t *s, uint8_t device_bt)
 {
     __builtin_memset(s, 0, sizeof *s);
@@ -168,16 +157,19 @@ static int read_settings_payload(void)
     return n;
 }
 
-/* Exact sizes only (settings_t, or settings_t and the part OFF tail); anything else is unsupported (-9). */
-static int load_settings(settings_t *dst, uint8_t *part_off)
+/* Exact sizes only (settings_t, or settings_t and the part OFF tail); anything else is unsupported (-9).
+ * On success io_buf holds the tail after settings_t: the stored one, or zeros (all ON) for 40 bytes. */
+static int load_settings(settings_t *dst)
 {
     int n = read_settings_payload();
     if (n < 0) return n;
-    if (!settings_len_ok((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
+    if (!PROJ_SET_LEN_OK((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
         io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV) return -9;
-    if ((uint32_t)n > 4u + sizeof *dst && settings_tail_bad(io_buf + 4u + sizeof *dst)) return -9;
+    if ((uint32_t)n == 4u + sizeof *dst)
+        __builtin_memset(io_buf + 4u + sizeof *dst, 0, PROJ_SET_TAIL);
+    else if (PROJ_SET_TAIL_BAD(io_buf + 4u + sizeof *dst))
+        return -9;
     __builtin_memcpy(dst, io_buf + 4u, sizeof *dst);
-    *part_off = (uint32_t)n > 4u + sizeof *dst ? io_buf[4u + sizeof *dst] : 0u;   /* 40 bytes: all ON */
     stored_known[OBJ_SET] = 1;
     stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
     return 0;
@@ -234,9 +226,9 @@ int project_device_bt_save(void)
     } else {
         /* Do not normalize or migrate a payload as a side effect of a toggle:
          * only the exact layout load_settings accepts is patched. */
-        if (!settings_len_ok((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
+        if (!PROJ_SET_LEN_OK((uint32_t)n) || get32(io_buf) != PROJ_FORMAT ||
             io_buf[4u + __builtin_offsetof(settings_t, snd_rev)] != PROJ_SND_REV ||
-            ((uint32_t)n > 4u + sizeof(settings_t) && settings_tail_bad(io_buf + 4u + sizeof(settings_t))))
+            ((uint32_t)n > 4u + sizeof(settings_t) && PROJ_SET_TAIL_BAD(io_buf + 4u + sizeof(settings_t))))
             return -9;
         io_buf[4u + __builtin_offsetof(settings_t, bt)] =
             (uint8_t)((io_buf[4u + __builtin_offsetof(settings_t, bt)] & ~1u) | (proj.set.bt & 1u));
@@ -482,10 +474,10 @@ static int read_project(project_t *pr)
     project_defaults_for(pr, device_bt);
     packed_len = 0;
     settings_t set = pr->set;
-    uint8_t part_off = 0;
     /* #790 + #810: -2/-8 are retryable read failures (block saves with -8);
      * any other non-erased failure is damaged/committed data (#810, -9). */
-    int bad = 0, present = 0, transient = 0, rc = load_settings(&set, &part_off);
+    int bad = 0, present = 0, transient = 0, rc = load_settings(&set);
+    uint8_t part_off = rc ? 0u : io_buf[4u + sizeof set];  /* the tail load_settings left (0: all ON) */
     present |= rc != -1;
     transient |= rc == -2 || rc == -8;
     int settings_present = rc == 0;
