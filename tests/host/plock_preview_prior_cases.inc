@@ -1,0 +1,223 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Free Play on the SMK-37: all 37 physical keys (27 central + 10 outer edge keys)
+ * give a note-on on every synth engine, at every octave, also while a settings
+ * list or HELP is open on the synth page. Driven through the production
+ * smk__key_event -> smk_extq/plat_outer_keys -> ui live route -> engine. */
+static unsigned checks;
+#define T(c) do{checks++;if(!(c)){fprintf(stderr,"FAIL %d %s\n",__LINE__,#c);exit(1);}}while(0)
+#define TK(c,p,o,b) do{checks++;if(!(c)){fprintf(stderr,"FAIL %d %s (key %u oct %d bank %d)\n",__LINE__,#c,(unsigned)(p),(int)(o),(int)(b));exit(1);}}while(0)
+static void audio_block(void){int32_t out[512];engine_render(out,256);}
+static void physical(unsigned p,unsigned velocity)
+{
+    smk__key_event(p,velocity);held_keys=fm1_in.notes;
+    for(unsigned k=0;k<NKEYS;k++)key_velocity[k]=fm1_in.key_vel[k+5];
+}
+static void scan(void){ui_input_only();audio_block();ui_input_only();audio_block();}
+static void edge(unsigned p,unsigned velocity){physical(p,velocity);scan();}
+static void fresh_keys(int bank)
+{
+    for(unsigned p=0;p<37;p++)physical(p,0);
+    ui.freeplay[0]=ui.freeplay[1]=0;ui.rec=0;ui.overlay=O_NONE;ui.help=0;
+    test_clip_mode=test_padcal=test_smcui=0;held_btn=ui.btn=0;ui.held_step=-1;
+    seq_stop(&seq);scan();engine_bass_off(0);engine_bass_off(1);tick(200);
+    T(!engine_bass_select_preset(0,bank,0,&proj.sound));tick(200);
+    T(engine_bass_bank(0)==bank);
+    ui.part=PART_303A;set_view(V_PART);build_pages();ui.oct=0;
+    audio_block();ui.freeplay[0]=1;scan();scan();T(live_owner==0);
+    /* Only the admitted voice acknowledges its cancellation here. An inactive
+     * voice can retain its wait bit after audio has already released its keys. */
+    T(!(live_wait&1u));
+}
+static void set_oct(int o){ui.oct=(int8_t)o;scan();}
+static void every_key(int bank,const char *ctx)
+{
+    for(int o=-2;o<=3;o++) {
+        set_oct(o);
+        for(unsigned p=0;p<37;p++) {
+            unsigned pitch=(unsigned)(36+(int)p+12*o);
+            edge(p,64+(p&31));
+            TK(engine_live_key_probe(0,2)==1,p,o,bank);          /* gate on: the note sounds */
+            TK(engine_live_key_probe(0,1)==pitch,p,o,bank);
+            TK(engine_live_key_probe(0,0)==live_token(p),p,o,bank);
+            edge(p,0);
+            TK(!engine_live_key_probe(0,0),p,o,bank);
+        }
+    }
+    set_oct(0);(void)ctx;
+}
+/* Owner report (0.0.13): the lowest/highest keys sometimes do not respond.
+ * Fast taps, taps inside one scan, and taps beside held central keys. */
+static void edge_keys_intermittent(int bank)
+{
+    static const unsigned outer[10]={0,1,2,3,4,32,33,34,35,36};
+    for(int rep=0;rep<50;rep++) for(unsigned i=0;i<10;i++) {
+        unsigned p=outer[i];
+        edge(p,100);TK(engine_live_key_probe(0,2)==1 && engine_live_key_probe(0,1)==36+p,p,0,bank);
+        edge(p,0);TK(!engine_live_key_probe(0,0),p,0,bank);
+        /* held central key, then an edge key on top: the edge key owns the gate */
+        edge(17,90);edge(p,100);TK(engine_live_key_probe(0,1)==36+p,p,0,bank);
+        edge(p,0);TK(engine_live_key_probe(0,2)==1,p,0,bank);edge(17,0);TK(!engine_live_key_probe(0,2),p,0,bank);
+        /* press right after a release of another edge key in the same scan */
+        physical(outer[(i+1)%10],100);physical(outer[(i+1)%10],0);physical(p,100);scan();
+        TK(engine_live_key_probe(0,1)==36+p,p,0,bank);edge(p,0);
+    }
+}
+static void settings_do_not_swallow(int bank)
+{
+    open_list_of_pages();T(ui.overlay==O_LIST);scan();
+    T(ui_live_key_owner()==1);every_key(bank,"list");
+    ui.overlay=O_NONE;ui.help=1;scan();every_key(bank,"help");ui.help=0;
+    set_view(V_SEQ);build_pages();scan();every_key(bank,"seq");
+    set_view(V_PART);build_pages();scan();
+    /* EDIT of a synth plays the keys with FREE PLAY off too (kbd_on): all 37, not only the central 27 */
+    ui.freeplay[0]=0;scan();T(ui_live_key_owner()==1);every_key(bank,"edit-nofreeplay");
+    open_list_of_pages();scan();every_key(bank,"edit-nofreeplay-list");ui.overlay=O_NONE;
+    ui.freeplay[0]=1;scan();
+}
+/* B3: scan() above deliberately settles two input/render cycles. Check the
+ * first cycle separately so a queued key cannot acquire an extra audio block
+ * of delay while the all-keys coverage still passes. This observes the real
+ * engine gate/identity, not a modeled DAC timestamp or envelope attack. */
+static void first_render_edges(int bank)
+{
+    static const int views[2]={V_PART,V_SEQ};
+    for(unsigned v=0;v<2;v++) {
+        set_view(views[v]);build_pages();scan();
+        T(ui_live_key_owner()==1);
+        for(unsigned p=0;p<37;p++) {
+            TK(!engine_live_key_probe(0,2),p,0,bank);
+            physical(p,100);ui_input_only();audio_block();
+            TK(engine_live_key_probe(0,2)==1,p,0,bank);
+            TK(engine_live_key_probe(0,1)==36+p,p,0,bank);
+            TK(engine_live_key_probe(0,0)==live_token(p),p,0,bank);
+            physical(p,0);ui_input_only();audio_block();
+            TK(!engine_live_key_probe(0,2),p,0,bank);
+            TK(!engine_live_key_probe(0,0),p,0,bank);
+        }
+    }
+}
+/* Every owner-loss path must release the old engine key before its physical
+ * key-up. A generation change without release used to abandon this key. */
+static void owner_switches(int bank)
+{
+    for (int path=0;path<20;path++) {
+        if(path==11) continue; /* PADCAL case deliberately NOT_RUN. */
+        fresh_keys(bank);edge(17,100);T(engine_live_key_probe(0,2));
+        uint32_t generation,context;int arp;
+        engine_live_key_state(0,&generation,&arp,&context);
+        switch(path) {
+        case 0: enc_acc[EN_ALGO]=-1; break;
+        case 1: ui.part=PART_909;build_pages();break; /* controller selection */
+        case 2: set_view(V_HOME);break;
+        case 3: set_view(V_GLO);break;
+        case 4: set_view(V_MIX);break;
+        case 5: set_view(V_FX);break;
+        case 6: set_view(V_GEN);break;
+        case 7: set_view(V_SONG);break;
+        case 8: ui.overlay=O_ASK;break;
+        case 9: ui.rec=1;break;
+        case 10: test_clip_mode=1;break;
+
+        case 12: test_smcui=1;break;
+        case 13: held_btn=1u<<B_HOME;break;
+        case 14: held_btn=1u<<B_SAVE;break;
+        case 15: engine_live_key_force_serial(0,generation+1,context);break;
+        case 16: engine_live_key_force_serial(0,generation+1,context+1);break;
+        case 17: project_busy=1;break;
+        case 18: perf.test=0;perf.phase=1;break;
+        case 19: set_view(V_SEQ);ui.freeplay[0]=0;break;
+        }
+        scan();
+        if(path==0) { T(ui.part==PART_303B);T(live_owner==1); }
+        T(!engine_live_key_probe(0,2));
+        T(!(engine_bass_keys_held()&1));
+        edge(17,0);T(!engine_live_key_probe(0,2));
+        test_clip_mode=test_padcal=test_smcui=0;held_btn=0;
+        project_busy=0;perf.test=-1;perf.phase=0;
+    }
+    fresh_keys(bank);edge(17,100);enc_acc[EN_ALGO]=-1;scan();
+    edge(18,100);T(engine_live_key_probe(1,2));
+    edge(17,0);T(engine_live_key_probe(1,2)); /* stale A release cannot end B */
+    edge(18,0);T(!engine_live_key_probe(1,2));
+    fresh_keys(bank);edge(17,100);set_view(V_HOME);scan();
+    int ch=seq.ch[TRK_BASS0];midi3(0x90|ch,65,100);audio_block();
+    T(engine_bass_keys_held()&1);
+    edge(17,0);T(engine_bass_keys_held()&1); /* foreign MIDI source stays held */
+    midi3(0x80|ch,65,0);audio_block();T(!(engine_bass_keys_held()&1));
+}
+/* Cancellation acknowledgement belongs to each voice. Exercise the inactive
+ * wait bit that a global !live_wait assertion incorrectly rejected, and prove
+ * both the active voice and the cancelled voice accept fresh physical edges. */
+static void cancelled_voice_reentry(int bank)
+{
+    fresh_keys(bank);enc_acc[EN_ALGO]=-1;scan();T(live_owner==1);
+    edge(20,100);T(engine_live_key_probe(1,2));
+    uint32_t before,after,context;int arp;
+    engine_live_key_state(1,&before,&arp,&context);
+    enc_acc[EN_ALGO]=1;scan();T(live_owner==0);
+    engine_live_key_state(1,&after,&arp,&context);
+    T(after!=before);T(!engine_live_key_probe(1,2));
+    T(!(engine_bass_keys_held()&2));T(live_wait&2u);
+    /* Selecting A must not need a visit to B to acknowledge B's cancellation. */
+    fresh_keys(bank);T(live_wait&2u);
+    edge(17,100);T(engine_live_key_probe(0,2));edge(17,0);
+    enc_acc[EN_ALGO]=-1;scan();T(live_owner==1);T(!(live_wait&2u));
+    edge(20,100);T(engine_live_key_probe(1,2));
+    edge(20,0);T(!engine_live_key_probe(1,2));
+}
+
+static unsigned diag_fails;
+static void held_step_other_note(int bank,unsigned other)
+{
+    fresh_keys(bank);
+    ui.freeplay[0]=0;set_view(V_SEQ);build_pages();scan();
+    unsigned held=(unsigned)WHITE_KEY[2]+5u;
+    bstep_t *step=&proj.pat[seq.ppat[PART_303A]].bass[0].step[2];
+    step->note=48;step->flags=G_NOTE;
+    edge(held,100);T(ui.held_step==2);T(ui.held_step_part==PART_303A);tick(600);scan();
+    set_view(V_PART);build_pages();scan();T(ui.held_step==2);
+    edge(other,100);T(engine_live_key_probe(0,2));
+    unsigned token=engine_live_key_probe(0,0);
+    fprintf(stderr,"before_step_release bank=%d heldphys=%u otherphys=%u gate=%u token=%u engine_keys=%d original_keys=%u\n",bank,held,other,engine_live_key_probe(0,2),token,engine_bass_keys_held(),engine_live_key_probe(0,3));
+    edge(held,0);
+    fprintf(stderr,"held_step_other_note bank=%d other=%u held=%d gate=%u token=%u before=%u\n",bank,other,ui.held_step,engine_live_key_probe(0,2),engine_live_key_probe(0,0),token);
+    fprintf(stderr,"after_step_release bank=%d engine_keys=%d original_keys=%u\n",bank,engine_bass_keys_held(),engine_live_key_probe(0,3));
+    diag_fails += ui.held_step!=-1;
+    diag_fails += !engine_live_key_probe(0,2) || engine_live_key_probe(0,0)!=token;
+    diag_fails += !(engine_bass_keys_held()&1);
+    edge(other,0);
+    fprintf(stderr,"after_other_release bank=%d held=%d gate=%u token=%u engine_keys=%d original_keys=%u\n",bank,ui.held_step,engine_live_key_probe(0,2),engine_live_key_probe(0,0),engine_bass_keys_held(),engine_live_key_probe(0,3));
+    diag_fails += engine_live_key_probe(0,2)!=0;
+    T(step->flags==G_NOTE);
+}
+static void held_owner_navigation(int bank)
+{
+    fresh_keys(bank);ui.freeplay[0]=0;set_view(V_SEQ);build_pages();scan();
+    unsigned held=(unsigned)WHITE_KEY[2]+5u;
+    bstep_t *a=&proj.pat[seq.ppat[PART_303A]].bass[0].step[2];
+    bstep_t *b=&proj.pat[seq.ppat[PART_303B]].bass[1].step[2];
+    a->note=48;a->flags=G_NOTE;b->note=55;b->flags=G_NOTE;
+    edge(held,100);T(ui.held_step_part==PART_303A);
+    set_view(V_PART);build_pages();scan();
+    ui.part=PART_303B;build_pages();scan();T(ui.held_step==-1);
+    edge(20,100);T(engine_live_key_probe(1,2));
+    unsigned token=engine_live_key_probe(1,0);edge(held,0);
+    T(engine_live_key_probe(1,2));T(engine_live_key_probe(1,0)==token);
+    T(a->flags==G_NOTE);T(b->flags==G_NOTE && b->note==55);
+    edge(20,0);T(!engine_live_key_probe(1,2));
+}
+int main(int argc,char **argv)
+{
+    boot();tick(300);const char *mode=argc>1?argv[1]:"basic";
+    for(int bank=FACTORY_BANK_CHICAGO;bank<=FACTORY_BANK_MIAMI;bank++) {
+        if(!strcmp(mode,"basic")) {
+            fresh_keys(bank);every_key(bank,"edit");edge_keys_intermittent(bank);
+            settings_do_not_swallow(bank);first_render_edges(bank);
+        } else if(!strcmp(mode,"ownership")) {owner_switches(bank);cancelled_voice_reentry(bank);}
+        else if(!strcmp(mode,"central")) held_step_other_note(bank,17);
+        else if(!strcmp(mode,"outer")) held_step_other_note(bank,0);
+        else if(!strcmp(mode,"navigation")) held_owner_navigation(bank);
+        else return 2;
+    }
+    T(!irq_depth);printf("%s %s %u checks diag_fails=%u (PADCAL disabled; calibration case11 NOT_RUN)\n",diag_fails?"FAIL":"PASS",mode,checks,diag_fails);return diag_fails?1:0;
+}
