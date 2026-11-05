@@ -1,3 +1,5 @@
+> **HISTORICAL (reconciliation note).** Standing ownership and rules live in `docs/rules/current-owner-contract.md` and root `AGENTS.md`. Kept as an archive; the text below is not active instruction.
+
 # DnBOX current rules reconciliation — 2026-11-05
 
 Trigger: The owner asked dot to resolve contradictory instructions while Grok owns
