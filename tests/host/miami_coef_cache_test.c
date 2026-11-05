@@ -110,6 +110,8 @@ static void check_pitch(void){
   * observes cache_witness=0 on the enclosing voice and clears it. */
  CHECK(cache.duration!=0);
 }
+/* Helper-only witness coverage. Bound owner, decode/adoption, reset and
+ * factory-replacement coverage lives in miami_coef_owner_lifecycle_test.c. */
 static void check_invalidation(void){
  original_miami_selected_voice s={0};
  s.cache_witness=1;
@@ -118,7 +120,7 @@ static void check_invalidation(void){
  original_miami_coefficient_cache shared={0};
  shared.mg_valid_mask=3;shared.glide.duration=63;
  CHECK(shared.mg_valid_mask==3&&shared.glide.duration==63);
- /* Decode leaves witness zero; the owner invalidates on next use. */
+ /* These values were assigned by this test and are not owner coverage. */
 }
 static void check_triangle(uint32_t triangle_bits){
  original_osc_controls c={0};
