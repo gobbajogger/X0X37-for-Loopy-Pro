@@ -21,6 +21,11 @@ The owner's later 2026-11-03 cloud/Codex and 2026-11-04/05 Grok directions
 supersede classic-only, no-Codex/Work/bot-execution and fixed-orchestrator routing.
 Do not use or transfer this work to the owner's Mac. Platform names do not prove
 build capability, and a workflow mode grants no device access.
+Heavy work (builds, full test runs, large clones) runs on Cursor cloud agents,
+each on its own VM, not on the shared box; the shared box holds only light files.
+Each agent works in its own checkout or scratch. Shared state is GitHub non-main
+branches and tracking issue #832; handoffs go directly between agents. (Relayed
+by the coordinator; owner confirmation pending.)
 
 Use **meaningful stages**, with parallel subagents for disjoint ready work within
 verified capacity. The owner's 2026-11-03 clarification requires new stage threads
