@@ -1,0 +1,4 @@
+chain-longest: ok
+chain-longest mutant: shortest killed (long-holds)
+chain-longest mutant: first-end killed (short-holds)
+chain-longest: ok
