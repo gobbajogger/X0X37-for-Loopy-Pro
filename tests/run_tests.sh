@@ -426,6 +426,7 @@ run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/ma
 run drum-kit-identity sh tests/host/drum_kit_identity_test.sh   # independent 909 and 808 voices
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
 run optimization-equivalence sh tests/host/run_optimization_equivalence.sh
+run bass-preset-descriptor-range sh tests/host/bass_preset_descriptor_range_test.sh
 for t in drum909 drum808 breaks; do
     [ -f "tests/host/run_$t.sh" ] || continue
     if miss=$(optional_ref "$t"); then not_run "$t" "$miss"
