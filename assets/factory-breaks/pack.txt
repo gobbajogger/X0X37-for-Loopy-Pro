@@ -1,3 +1,4 @@
-# file samples bars name — full loops, not a shared prefix
-909GR.adpcm 220500 2 909 GR
-909FL.adpcm 220500 2 909 FL
+# Whole originals; no trimming, FX, downsampling, normalisation or stock audio.
+CRAMEN.adpcm 70589 1 CRAMEN
+TASTY.adpcm 105827 1 TASTY
+HOTPANT.adpcm 85725 1 HOTPANT
