@@ -12,9 +12,9 @@ For firmware integration and packaging qualification, require the full host test
 
 ## Where work runs (owner rules)
 
-- Builds and host tests run in classic ChatGPT Chat threads in the LoopyX0X37 project. Start a NEW classic thread for each stage. Never use ChatGPT Work or Codex for builds or tests.
+- Builds, host tests and coding run in Codex (owner decision 2026-11-06). Start a NEW Codex task or thread for each stage.
 - The ChatGPT Orchestrator only coordinates: plans, handoffs, QA and merge-readiness. It cannot start threads and it never builds.
-- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new classic thread at Extra High with that handoff. Use Pro only for hard builder tasks.
+- A big task goes first to the ChatGPT Orchestrator for a handoff. Then start a new Codex task or thread at Extra High with that handoff. Use Pro only for hard builder tasks.
 - If a long chat fails to load, start a new thread only after you verify the newest head on GitHub.
 - Rule 1m: no git over the network in chats. Use the GitHub plugin or the GitHub API (zipball or tree) to get source, and use SDK V1.2.1 from the project files.
 - `x0x37-capability-first` is a ChatGPT plugin, not a repository script.

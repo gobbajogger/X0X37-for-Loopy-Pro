@@ -1,6 +1,6 @@
 # DnBOX work index — updated 2026-10-29 08:00 PDT
 
-Rules: feature work runs in ChatGPT chats (mode Chat, Extra High), one chat per task. Mac Codex is only for installs and perf/hardware tests, at medium effort (`-c model_reasoning_effort=medium`).
+Rules (owner decision 2026-11-06): feature work, builds and host tests run in Codex, one task or thread per stage. The Mac is only for installs and perf/hardware tests.
 Hard rules for all: never commit or push the 12 private #684 headers or binaries; author genkigenki <3080081+genkigenki@users.noreply.github.com>; never push to main; no migration (rev13 only); only Chicago/Miami engines; never touch the bootloader, BTIF 0xC0000-0xC0FFF, USRTRIM 0xC1000, efuse or key_mac; no fm1_rescue.py or --force.
 NOTE: all wip/* branches on GitHub are single-commit snapshots on parent 5ed2693d with private headers (incl. state_codec_private.h) removed; =1 builds need the headers on the Mac.
 Old WARNING: base e888d046 (from #684 commit 9d1cf9fb) TRACKS experiments/original_synth/state_codec_private.h. Every lane branch below contains it, so none of them is safe to push until that file is removed or verified as not private.
