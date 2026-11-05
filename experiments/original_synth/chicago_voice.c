@@ -123,6 +123,9 @@ static float fourth(float x){float y=x*x;return y*y;}
 static void vcf_tick(original_chicago_voice *v,const float c[4],uint32_t D){
  original_vca *s=&v->vcf;
  original_chicago_voice_vcf_coefficients *cache=&v->coefficients.vcf;
+#ifdef CHICAGO_COEF_CACHE_REFERENCE
+ (void)cache;
+#endif
  float e=s->level;
  if(s->state==0){
   float numerator=(float)D*(1.2999999523162842f-e),den;
