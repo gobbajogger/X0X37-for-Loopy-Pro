@@ -14,6 +14,11 @@ For firmware integration and packaging qualification, require the full host test
 
 Use [task routing](skills/x0x37-task/references/routing.md). Work in the cloud
 through Grok's assigned stages and qualified executors. Do not use the owner's Mac.
+Heavy work (builds, full test runs, large clones) runs on Cursor cloud agents,
+each on its own VM, not on the shared box; the shared box holds only light files.
+Each agent works in its own checkout or scratch. Shared state is GitHub non-main
+branches and tracking issue #832; handoffs go directly between agents. (Relayed
+by the coordinator; owner confirmation pending.)
 Use the GitHub plugin or API for source delivery; no network Git in chats.
 `x0x37-capability-first` is a ChatGPT plugin, not a repository script.
 Never change `.github/` or add/edit GitHub Actions. Keep SDK V1.2.1 and the full
