@@ -61,6 +61,12 @@ MUTANTS = {
     'file_accept_gt31': (X_H, '((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))', '((w) & 0xFFu) - 1u < 0xFFu))', 'file_rejects_bad_word28'),
     'file_all_on_tagged': (X_H, '#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | (uint32_t)(m) : 0u)',
                            '#define PROJ_FILE_OFF_WORD(m) (PROJ_FILE_OFF_TAG | (uint32_t)(m))', 'file_all_on_is_older_header'),
+    # QA X1: the staged mask set before the payload CRC check; QA X3: the header from the live mask
+    'file_staged_before_crc': (P_C, '        get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))\n        return -1;\n',
+                               '        get32(h + 24) != PROJ_SND_REV || !PROJ_FILE_OFF_OK(get32(h + 28)))\n        return -1;\n'
+                               '    part_off_staged = (uint8_t)(get32(h + 28) & PROJ_PART_OFF_ALL);\n', 'file_validate_crc_fail_keeps_staged'),
+    'file_header_from_live': (P_C, 'PROJ_FILE_OFF_WORD(part_off_staged & PROJ_PART_OFF_ALL)', 'PROJ_FILE_OFF_WORD(part_off_live & PROJ_PART_OFF_ALL)',
+                              'file_double_validate_keeps_imported_mask'),
     # QA D: the tail used as the mask when the load failed (fresh device), or a stale tail after 44 bytes
     # (the literal D, dropping the rc guard at read_project, is equivalent: every failed load ends at
     # failed: -> project_defaults_for, which clears the mask; this removes that guard instead)
