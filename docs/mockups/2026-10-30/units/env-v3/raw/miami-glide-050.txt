@@ -1,0 +1,37 @@
+#4 24 59 49
+50%|0|idle|eg 0.000|knee -1
+50%|40|idle|eg 0.000|knee -1
+50%|80|note on|eg 0.000|knee -1
+50%|120|note on|eg 0.000|knee -1
+50%|160|note on|eg 0.000|knee -1
+50%|200|note on|eg 0.000|knee -1
+50%|240|note on|eg 0.000|knee -1
+50%|280|note on|eg 0.000|knee -1
+50%|320|note on|eg 0.000|knee -1
+50%|360|note on|eg 0.000|knee -1
+50%|400|note on|eg 0.000|knee -1
+50%|440|note on|eg 0.000|knee -1
+50%|480|note on|eg 0.000|knee -1
+50%|520|note on|eg 0.000|knee -1
+50%|560|note on|eg 0.000|knee -1
+50%|600|note on|eg 0.000|knee -1
+50%|640|note on|eg 0.000|knee -1
+50%|680|note on|eg 0.000|knee -1
+50%|720|note on|eg 0.000|knee -1
+50%|760|note on|eg 0.000|knee -1
+50%|800|note on|eg 0.000|knee -1
+50%|840|note on|eg 0.000|knee -1
+50%|880|note on|eg 0.000|knee -1
+50%|920|note on|eg 0.000|knee -1
+50%|960|note on|eg 0.000|knee -1
+50%|1000|note on|eg 0.000|knee -1
+50%|1040|note on|eg 0.000|knee -1
+50%|1080|note on|eg 0.000|knee -1
+50%|1120|released|eg 0.000|knee -1
+50%|1160|released|eg 0.000|knee -1
+50%|1200|released|eg 0.000|knee -1
+50%|1240|released|eg 0.000|knee -1
+50%|1280|released|eg 0.000|knee -1
+50%|1320|released|eg 0.000|knee -1
+50%|1360|released|eg 0.000|knee -1
+50%|1400|released|eg 0.000|knee -1

@@ -1,0 +1,37 @@
+#63 174 59 49
+1/6|0|idle|eg 0.000|knee -1
+1/6|40|idle|eg 0.000|knee -1
+1/6|80|note on|eg 0.000|knee -1
+1/6|120|note on|eg 0.000|knee -1
+1/6|160|note on|eg 0.000|knee -1
+1/6|200|note on|eg 0.000|knee -1
+1/6|240|note on|eg 0.000|knee -1
+1/6|280|note on|eg 0.000|knee -1
+1/6|320|note on|eg 0.000|knee -1
+1/6|360|note on|eg 0.000|knee -1
+1/6|400|note on|eg 0.000|knee -1
+1/6|440|note on|eg 0.000|knee -1
+1/6|480|note on|eg 0.000|knee -1
+1/6|520|note on|eg 0.000|knee -1
+1/6|560|note on|eg 0.000|knee -1
+1/6|600|note on|eg 0.000|knee -1
+1/6|640|note on|eg 0.000|knee -1
+1/6|680|note on|eg 0.000|knee -1
+1/6|720|note on|eg 0.000|knee -1
+1/6|760|note on|eg 0.000|knee -1
+1/6|800|note on|eg 0.000|knee -1
+1/6|840|note on|eg 0.000|knee -1
+1/6|880|note on|eg 0.000|knee -1
+1/6|920|note on|eg 0.000|knee -1
+1/6|960|note on|eg 0.000|knee -1
+1/6|1000|note on|eg 0.000|knee -1
+1/6|1040|note on|eg 0.000|knee -1
+1/6|1080|note on|eg 0.000|knee -1
+1/6|1120|released|eg 0.000|knee -1
+1/6|1160|released|eg 0.000|knee -1
+1/6|1200|released|eg 0.000|knee -1
+1/6|1240|released|eg 0.000|knee -1
+1/6|1280|released|eg 0.000|knee -1
+1/6|1320|released|eg 0.000|knee -1
+1/6|1360|released|eg 0.000|knee -1
+1/6|1400|released|eg 0.000|knee -1

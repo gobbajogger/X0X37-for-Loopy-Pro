@@ -1,0 +1,37 @@
+#122 74 59 49
+-50%|0|idle|eg 0.000|knee 9
+-50%|40|idle|eg 0.000|knee 9
+-50%|80|note on|eg 0.932|knee 5
+-50%|120|note on|eg 0.860|knee 5
+-50%|160|note on|eg 0.245|knee 8
+-50%|200|note on|eg 0.932|knee 5
+-50%|240|note on|eg 0.860|knee 5
+-50%|280|note on|eg 0.811|knee 5
+-50%|320|note on|eg 0.940|knee 5
+-50%|360|note on|eg 0.867|knee 5
+-50%|400|note on|eg 0.809|knee 5
+-50%|440|note on|eg 0.937|knee 5
+-50%|480|note on|eg 0.865|knee 5
+-50%|520|note on|eg 0.775|knee 5
+-50%|560|note on|eg 0.935|knee 5
+-50%|600|note on|eg 0.863|knee 5
+-50%|640|released|eg 0.000|knee 9
+-50%|680|released|eg 0.000|knee 9
+-50%|720|released|eg 0.000|knee 9
+-50%|760|released|eg 0.000|knee 9
+-50%|800|released|eg 0.000|knee 9
+-50%|840|released|eg 0.000|knee 9
+-50%|880|released|eg 0.000|knee 9
+-50%|920|released|eg 0.000|knee 9
+-50%|960|released|eg 0.000|knee 9
+-50%|1000|released|eg 0.000|knee 9
+-50%|1040|released|eg 0.000|knee 9
+-50%|1080|released|eg 0.000|knee 9
+-50%|1120|released|eg 0.000|knee 9
+-50%|1160|released|eg 0.000|knee 9
+-50%|1200|released|eg 0.000|knee 9
+-50%|1240|released|eg 0.000|knee 9
+-50%|1280|released|eg 0.000|knee 9
+-50%|1320|released|eg 0.000|knee 9
+-50%|1360|released|eg 0.000|knee 9
+-50%|1400|released|eg 0.000|knee 9
