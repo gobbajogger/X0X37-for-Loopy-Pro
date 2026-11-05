@@ -1,0 +1,2690 @@
+[
+  {
+    "selector": "dsp-host-linkage",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   dsp-host-linkage",
+    "duration": "0 s dsp-host-linkage",
+    "detail_log_sha256": "101502d810c58282aa4106461bbe0a2d8ea7b5436b87916aea1d646f8a5ef918"
+  },
+  {
+    "selector": "fastmath",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   fastmath",
+    "duration": "0 s fastmath",
+    "detail_log_sha256": "55570686ef73f43fe35e77cedb364005290a572013b8c5d7f5f06a2095ea90f4"
+  },
+  {
+    "selector": "fastmath-ubsan",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   fastmath-ubsan",
+    "duration": "0 s fastmath-ubsan",
+    "detail_log_sha256": "55570686ef73f43fe35e77cedb364005290a572013b8c5d7f5f06a2095ea90f4"
+  },
+  {
+    "selector": "home-tie-semantics",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   home-tie-semantics",
+    "duration": "2 s home-tie-semantics",
+    "detail_log_sha256": "636cc7f15a4edb3571ada6ad2e04299f04670adbf63af19dbf698f204a4ff28a"
+  },
+  {
+    "selector": "sequencer",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   sequencer",
+    "duration": "4 s sequencer",
+    "detail_log_sha256": "ec48eafb2ed41691601fcf36d26e70306df8f2103b31755c2212047e102bbf1a"
+  },
+  {
+    "selector": "bass-prob-midi",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   bass-prob-midi",
+    "duration": "1 s bass-prob-midi",
+    "detail_log_sha256": "d29863702f2212647b5e3a6a131c9a5401855c98f3690f25273888f37121f983"
+  },
+  {
+    "selector": "seq-tb3po-bars",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   seq-tb3po-bars",
+    "duration": "1 s seq-tb3po-bars",
+    "detail_log_sha256": "2be660abaf104ea3aa73cc8b434fe3ec19ed3c8f6ae61bb17600ee38b8218c0b"
+  },
+  {
+    "selector": "seq-random-swing",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   seq-random-swing",
+    "duration": "1 s seq-random-swing",
+    "detail_log_sha256": "e19c2844463c843444af95cc67953c39d73f7fa09bf1718f8319974572b35c9a"
+  },
+  {
+    "selector": "seq-random-clock-handoff",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   seq-random-clock-handoff",
+    "duration": "1 s seq-random-clock-handoff",
+    "detail_log_sha256": "d919639193c9cd08d5ca747a4d90a3f40bbd91416e14a7bb7dce28faa521bc88"
+  },
+  {
+    "selector": "seq-long-notes",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   seq-long-notes",
+    "duration": "1 s seq-long-notes",
+    "detail_log_sha256": "52100036d6515a09f40438f6d64c1f1d1d985a6c36ed460b5d615d7b032462c7"
+  },
+  {
+    "selector": "seq-pingpong-resize",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   seq-pingpong-resize",
+    "duration": "0 s seq-pingpong-resize",
+    "detail_log_sha256": "e55fdce58bf62aa2368885bf8bcfa9265b4fe8f5f134e00a37645b08d5b99957"
+  },
+  {
+    "selector": "clk-lock",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   clk-lock",
+    "duration": "2 s clk-lock",
+    "detail_log_sha256": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34"
+  },
+  {
+    "selector": "seq-random-tie-preview",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   seq-random-tie-preview",
+    "duration": "1 s seq-random-tie-preview",
+    "detail_log_sha256": "09b8b0f230ecae6633033f1d91677efd669fe552a5c33338947a6625eaf1968a"
+  },
+  {
+    "selector": "encoder",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   encoder",
+    "duration": "0 s encoder",
+    "detail_log_sha256": "782ad031458770b476dd5aca5a2a51a6054c8cae14f4d66cc25b90c637e1b061"
+  },
+  {
+    "selector": "bass-midi-pending-native",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   bass-midi-pending-native",
+    "duration": "0 s bass-midi-pending-native",
+    "detail_log_sha256": "60958420490a2ead0d660f23df54e2c1e92e4baa03991f8686a98044e16947fe"
+  },
+  {
+    "selector": "uac",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   uac",
+    "duration": "1 s uac",
+    "detail_log_sha256": "e08534704cd353e432aa38dad3b5b6b28f9baa53c3a3c605933d22ca1f925e21"
+  },
+  {
+    "selector": "trs",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   trs",
+    "duration": "0 s trs",
+    "detail_log_sha256": "adb7bd0ea7a0c27b38ba4b0dedb94c5806186e704caf3e5dd7e43ec730284fef"
+  },
+  {
+    "selector": "undo",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   undo",
+    "duration": "1 s undo",
+    "detail_log_sha256": "222d4cf01d17e9e612fc3377fb135fb840ed84d4d1a7c630187accae7de222a9"
+  },
+  {
+    "selector": "undo-capacity",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   undo-capacity",
+    "duration": "1 s undo-capacity",
+    "detail_log_sha256": "a2e88b7e5e998892e06abb79ff75eff4cef991148509e54617a41f5beb856c73"
+  },
+  {
+    "selector": "lz",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   lz",
+    "duration": "1 s lz",
+    "detail_log_sha256": "c1239ab364cd4182d68ca884e953649f49e841c6768ba10582bb133381cb291e"
+  },
+  {
+    "selector": "lz-max-match",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   lz-max-match",
+    "duration": "0 s lz-max-match",
+    "detail_log_sha256": "0ccf6be526fcb4258284a9534deacba43a09d069d3b3f2661b7dfd5b17240cb1"
+  },
+  {
+    "selector": "motion",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   motion",
+    "duration": "0 s motion",
+    "detail_log_sha256": "4d91e54dfc9a91a2628759cd5edde76cc8e11e1d9e9ce2c811cac7fd4827a7bb"
+  },
+  {
+    "selector": "host-build",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   host-build",
+    "duration": "14 s host-build",
+    "detail_log_sha256": "c9971299dca5c0d9484ea93516d232862c522bd2d1f7b02434b953d06f7be11a"
+  },
+  {
+    "selector": "original-release-integration",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   original-release-integration",
+    "duration": "36 s original-release-integration",
+    "detail_log_sha256": "1753d31a0cdf9038e67ee08d9af114f63bd02fa12620bb25c6adceb6f4b586e8"
+  },
+  {
+    "selector": "original-release-ui",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   original-release-ui",
+    "duration": "38 s original-release-ui",
+    "detail_log_sha256": "83e83b496ec3d9924ab0744b47476aafbfc4c595fba1aeb81f0f784f0d332af6"
+  },
+  {
+    "selector": "original-build",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   original-build",
+    "duration": "0 s original-build",
+    "detail_log_sha256": "926146c40d6f1e4c69beb873b0d3e192f8720f59269f322ba3402dea2790c545"
+  },
+  {
+    "selector": "freeplay-rate-pads",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   freeplay-rate-pads",
+    "duration": "1 s freeplay-rate-pads",
+    "detail_log_sha256": "8138f63d98de2f0e3ac1b656dbc20f8358e391cd15280b36ebd543bad435f16d"
+  },
+  {
+    "selector": "boot-screen",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   boot-screen",
+    "duration": "0 s boot-screen",
+    "detail_log_sha256": "d96abf7edbbf8db347c20713230575a78846166b6e6c979a4d736baa22ebace5"
+  },
+  {
+    "selector": "project-protocol",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   project-protocol",
+    "duration": "0 s project-protocol",
+    "detail_log_sha256": "1a9773fc5a168928c7a4fecbd6111a80335e6b6ba03ff75e1fc1d143142b779e"
+  },
+  {
+    "selector": "project-save-preflight",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   project-save-preflight",
+    "duration": "1 s project-save-preflight",
+    "detail_log_sha256": "be3ce649561da2bed36da7759d051b614eea8062f3cbe832e2d7eda13b1a5bf1"
+  },
+  {
+    "selector": "editor-ota-dispatch",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   editor-ota-dispatch",
+    "duration": "0 s editor-ota-dispatch",
+    "detail_log_sha256": "e84444147359ff21eacd0637e2f285835fda0e1220fabe270226fb53c8930d5f"
+  },
+  {
+    "selector": "storage-scratch",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   storage-scratch",
+    "duration": "1 s storage-scratch",
+    "detail_log_sha256": "a0e131a91bae1e227192082e8722fa814a56655397c4bc1ce6f117b491883a48"
+  },
+  {
+    "selector": "project-stage",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   project-stage",
+    "duration": "7 s project-stage",
+    "detail_log_sha256": "9af28f6ca43ced7f6f7721d89f3a9020e31b082622cb21025a6e8d0e109367f8"
+  },
+  {
+    "selector": "project-runtime",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   project-runtime",
+    "duration": "26 s project-runtime",
+    "detail_log_sha256": "d9a185bba122be2c4c546993e9eb2b89c36cc0127f254df569e630aaa0bcb493"
+  },
+  {
+    "selector": "save-note-quiet",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   save-note-quiet",
+    "duration": "13 s save-note-quiet",
+    "detail_log_sha256": "97fc9f6f30ac24a4a548f40c1843e53e5430d990a5f476e521078e31d10537b3"
+  },
+  {
+    "selector": "font-pack",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   font-pack",
+    "duration": "1 s font-pack",
+    "detail_log_sha256": "255f1a313146650e2d39aa29b737ad51a1cad645a438020c0a65c0f1caa81144"
+  },
+  {
+    "selector": "smc-protocol",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-protocol",
+    "duration": "0 s smc-protocol",
+    "detail_log_sha256": "7dd80227d6127e4d93cd62751cc2242f4123ac82ccaa3e744c9a433c6bce773b"
+  },
+  {
+    "selector": "smc-fader",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-fader",
+    "duration": "0 s smc-fader",
+    "detail_log_sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2"
+  },
+  {
+    "selector": "smc-buttons",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-buttons",
+    "duration": "0 s smc-buttons",
+    "detail_log_sha256": "e880287af13ea82c662e0fd18a7d8f35d426801620a6d60e4867a91b3fa9fb23"
+  },
+  {
+    "selector": "smc-fx",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-fx",
+    "duration": "0 s smc-fx",
+    "detail_log_sha256": "64c4964dd0cf9b30e880cfcb9f49cf77ebbebfec687c619e35e8176f17f377d4"
+  },
+  {
+    "selector": "smc-mixer-edges",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-mixer-edges",
+    "duration": "1 s smc-mixer-edges",
+    "detail_log_sha256": "77dd7ed4a534bed68abccd844fa74cc71b6f2c788b01c7b5e7e0755c22f4a3a8"
+  },
+  {
+    "selector": "smc-action-source",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-action-source",
+    "duration": "0 s smc-action-source",
+    "detail_log_sha256": "704b65c9e672e97734fc87d425e467862c82017dbd42b17600585174743c8496"
+  },
+  {
+    "selector": "smc-fx-caption",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-fx-caption",
+    "duration": "0 s smc-fx-caption",
+    "detail_log_sha256": "5c29d4d87a6f61c21a9a7fb305ad7803663788036f5603dbbaf64667cc2c2768"
+  },
+  {
+    "selector": "smc-fx-page-port",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-fx-page-port",
+    "duration": "0 s smc-fx-page-port",
+    "detail_log_sha256": "8cd523c8c15cc6d0e427dc640ffac12f8eb319838a61f4ae13662136b690f988"
+  },
+  {
+    "selector": "smc-fx-peer-view",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-fx-peer-view",
+    "duration": "0 s smc-fx-peer-view",
+    "detail_log_sha256": "5be2ab27197e853c04e775342b53f01660af6fa464013bd3f3c5e741408717d3"
+  },
+  {
+    "selector": "smc-fx-preset-preserve",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-fx-preset-preserve",
+    "duration": "0 s smc-fx-preset-preserve",
+    "detail_log_sha256": "b2a4fdcebbc5ecb19dbbd7c9b4c78f13e174ee5c0cf7cc4618c3536656323972"
+  },
+  {
+    "selector": "smc-queue",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-queue",
+    "duration": "1 s smc-queue",
+    "detail_log_sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb"
+  },
+  {
+    "selector": "smc-solo-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-solo-overflow",
+    "duration": "0 s smc-solo-overflow",
+    "detail_log_sha256": "bbd08779cf1e063343e2cde41f64a671079152257f31894e0a913ba5b0adf062"
+  },
+  {
+    "selector": "engine-cq-rec-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   engine-cq-rec-overflow",
+    "duration": "0 s engine-cq-rec-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "engine-cq-isr-preemption",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   engine-cq-isr-preemption",
+    "duration": "1 s engine-cq-isr-preemption",
+    "detail_log_sha256": "f76bc779cd8eb45530cf3275327a0b8e35b4a723f7db847335c9e7a1d653b1d2"
+  },
+  {
+    "selector": "engine-cq-boff-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   engine-cq-boff-overflow",
+    "duration": "0 s engine-cq-boff-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "engine-cq-brk-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   engine-cq-brk-overflow",
+    "duration": "0 s engine-cq-brk-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "engine-cq-bon-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   engine-cq-bon-overflow",
+    "duration": "0 s engine-cq-bon-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "engine-cq-drum-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   engine-cq-drum-overflow",
+    "duration": "0 s engine-cq-drum-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "midi-mq-noteoff-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   midi-mq-noteoff-overflow",
+    "duration": "0 s midi-mq-noteoff-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "midi-mq-rt-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   midi-mq-rt-overflow",
+    "duration": "0 s midi-mq-rt-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "midi-overflow-order",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   midi-overflow-order",
+    "duration": "0 s midi-overflow-order",
+    "detail_log_sha256": "91458317ae5a7f3be9a3c8146754cd0102e20f25720003a832e762cefa4965b1"
+  },
+  {
+    "selector": "midi-out-mq-noteoff-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   midi-out-mq-noteoff-overflow",
+    "duration": "0 s midi-out-mq-noteoff-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "ble-out-noteoff-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ble-out-noteoff-overflow",
+    "duration": "0 s ble-out-noteoff-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "ble-out-rt-overflow",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ble-out-rt-overflow",
+    "duration": "1 s ble-out-rt-overflow",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "usb-sxq-sticky-apc",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   usb-sxq-sticky-apc",
+    "duration": "0 s usb-sxq-sticky-apc",
+    "detail_log_sha256": "dc51b8c96c2d745df3bd5590d990230a482fd247123599548e0632fdbf97fc22"
+  },
+  {
+    "selector": "smc-host-data7",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-host-data7",
+    "duration": "0 s smc-host-data7",
+    "detail_log_sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f"
+  },
+  {
+    "selector": "smc-host-overflow-data7",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-host-overflow-data7",
+    "duration": "0 s smc-host-overflow-data7",
+    "detail_log_sha256": "0182e71d3051c47473c593acba6ad5fabacb07ca6b3369544b14f019887fbe44"
+  },
+  {
+    "selector": "smc-sender-isolation",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-sender-isolation",
+    "duration": "0 s smc-sender-isolation",
+    "detail_log_sha256": "15fe5ddaad57091be40b1d9d3e98e8ca71d9f668bdddf0e0e30f36a8e108b3e2"
+  },
+  {
+    "selector": "smc-link",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-link",
+    "duration": "0 s smc-link",
+    "detail_log_sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc"
+  },
+  {
+    "selector": "ble-active-peer-contract",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ble-active-peer-contract",
+    "duration": "0 s ble-active-peer-contract",
+    "detail_log_sha256": "a3531c277f87df9d1b0cab494acf80984d52f3e62ba2925a97637923374dfb9a"
+  },
+  {
+    "selector": "ble-smc-outbound-slots",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ble-smc-outbound-slots",
+    "duration": "1 s ble-smc-outbound-slots",
+    "detail_log_sha256": "aae28caf9aa82006e8970e718a6cc7f2060ff81db13ed7d1e812598df9c2fe8d"
+  },
+  {
+    "selector": "ble-midi-receive",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ble-midi-receive",
+    "duration": "5 s ble-midi-receive",
+    "detail_log_sha256": "3450c2bf940bdc93ae74f862c5e01253c29a106b215d069e22bafcba2f7c6a9d"
+  },
+  {
+    "selector": "ble-capture-replay",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ble-capture-replay",
+    "duration": "1 s ble-capture-replay",
+    "detail_log_sha256": "c2a1e9c256f264926f1d12ce33eac0c110fc94609e1961d1ffb128441958852e"
+  },
+  {
+    "selector": "smc-pickup-acceptance",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-pickup-acceptance",
+    "duration": "15 s smc-pickup-acceptance",
+    "detail_log_sha256": "40bf75a0d1e90e51d0ec280d003de3c29c492f5adb38d651f4a715242a17ec0f"
+  },
+  {
+    "selector": "smc-lock",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-lock",
+    "duration": "14 s smc-lock",
+    "detail_log_sha256": "b3bc1f88209154548f1647e9e7469d4716555c71a967092ef2316c8dd54e579b"
+  },
+  {
+    "selector": "smc-lock-beat",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-lock-beat",
+    "duration": "14 s smc-lock-beat",
+    "detail_log_sha256": "7cd845279f6b259e24724c05294b2caae3cf040089c36c2815defce0c901e39c"
+  },
+  {
+    "selector": "smc-multi-peer",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-multi-peer",
+    "duration": "14 s smc-multi-peer",
+    "detail_log_sha256": "8319a22ee674d2b647c0ef4e7aeddfdbb32fd4097f3c7eefffb386f71f6a7c63"
+  },
+  {
+    "selector": "smc-multi-peer-negative",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-multi-peer-negative",
+    "duration": "70 s smc-multi-peer-negative",
+    "detail_log_sha256": "f7bf39dc0a6f68557bf4d93dd83d6f21b9ba6fa6982f9d018f14f349e09ef634"
+  },
+  {
+    "selector": "smc-pause-loss",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-pause-loss",
+    "duration": "15 s smc-pause-loss",
+    "detail_log_sha256": "e0cddf099d575034a3f558260acf53ff213dd7642bf029bff0a73e4cf64218de"
+  },
+  {
+    "selector": "smk-wheel-mode",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smk-wheel-mode",
+    "duration": "16 s smk-wheel-mode",
+    "detail_log_sha256": "87886449a140229812f7bbbc7b98b15a6f426c7970a21aa6cfa63f4398606517"
+  },
+  {
+    "selector": "miami-table-interpolation",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   miami-table-interpolation",
+    "duration": "1 s miami-table-interpolation",
+    "detail_log_sha256": "411184785152cfb9972282f761b90176a00ba1913e7852aa948c675c08955729"
+  },
+  {
+    "selector": "legacy-303-project",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   legacy-303-project",
+    "duration": "13 s legacy-303-project",
+    "detail_log_sha256": "7d33f138365f145e66eebb80b90b6ab2708b9d08839ca9f6915cf07cde23e86f"
+  },
+  {
+    "selector": "smc-interaction-negative",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-interaction-negative",
+    "duration": "130 s smc-interaction-negative",
+    "detail_log_sha256": "d0194f49b0e4d6aa334bbc0d74f248333e81fb59a10c57255a284ef41261c35a"
+  },
+  {
+    "selector": "corner-coverage",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   corner-coverage",
+    "duration": "0 s corner-coverage",
+    "detail_log_sha256": "de38e3c913f23329e8f4b3cad69bec39c6fd4078c30e791c27afe6894d16011e"
+  },
+  {
+    "selector": "smc-ui",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-ui",
+    "duration": "15 s smc-ui",
+    "detail_log_sha256": "7dbcb3f46845056ee09ecbc0ff2356ff357b9c2e6dcea0ca223ff5cbbe5ba3c1"
+  },
+  {
+    "selector": "smc-ui-popup",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-ui-popup",
+    "duration": "14 s smc-ui-popup",
+    "detail_log_sha256": "5e6bf639795210eced0e6ecc0ca2c9bcdcdb65d3aaeb2f45061bf742920da297"
+  },
+  {
+    "selector": "smc-mode-page",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-mode-page",
+    "duration": "15 s smc-mode-page",
+    "detail_log_sha256": "74245f931c34cc6dab8cfd60a7f4498cf54f38898e041a2ead2fb6da7061c029"
+  },
+  {
+    "selector": "smc-mixer-page",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-mixer-page",
+    "duration": "15 s smc-mixer-page",
+    "detail_log_sha256": "50f28756ea5f5418e6d3b0c642f8d0f7bc29f873dcbf92bbd5161be8a7c417b3"
+  },
+  {
+    "selector": "ui-shared-glyph",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ui-shared-glyph",
+    "duration": "14 s ui-shared-glyph",
+    "detail_log_sha256": "b1fe5673c303e29ef1a1a929b5912c9d158d1ca567fa5c3aee903ee9ad54c186"
+  },
+  {
+    "selector": "ui-waveform-truth",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   ui-waveform-truth",
+    "duration": "0 s ui-waveform-truth",
+    "detail_log_sha256": "1a8a905cb406dbdcef3e8d340534105cef79e87534f778ccbe99f61eb57e3c19"
+  },
+  {
+    "selector": "smc-mapping",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   smc-mapping",
+    "duration": "1 s smc-mapping",
+    "detail_log_sha256": "39324d034d08f8f8d801a4772456136f688a06fe764a6fb6df6e94456b7e8c99"
+  },
+  {
+    "selector": "install-slots-web",
+    "status": "PASS",
+    "phase": "before_reconnect",
+    "result_line": "ok   install-slots-web",
+    "duration": "6 s install-slots-web",
+    "detail_log_sha256": "68fe614865dd0c11872475e64d513f1e1813263777e3fdbd9457c5eded33fd0c"
+  },
+  {
+    "selector": "ui-theme",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-theme",
+    "duration": "42 s ui-theme",
+    "detail_log_sha256": "28c6aaef1678692001fac9d134b4e0e8cf23773b947ad08ece7e1eac886da8ca"
+  },
+  {
+    "selector": "smc-select-mode",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-select-mode",
+    "duration": "15 s smc-select-mode",
+    "detail_log_sha256": "1eda166aea05142ed7e63759091d431b88b8561a2e1c3f7ce3747b3e4af99c1c"
+  },
+  {
+    "selector": "smc-ble-payload",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-ble-payload",
+    "duration": "0 s smc-ble-payload",
+    "detail_log_sha256": "c592106abdce62a7c7c6f02383513d5082f093af8103ff835e496a657c9faec5"
+  },
+  {
+    "selector": "smc-reconnect-epoch",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-reconnect-epoch",
+    "duration": "0 s smc-reconnect-epoch",
+    "detail_log_sha256": "e42408e71e10f80ee873f7cd797e0bab257f37089d370ce0c0e5c8fa764f78e4"
+  },
+  {
+    "selector": "smc-boot-saved-roles",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-boot-saved-roles",
+    "duration": "1 s smc-boot-saved-roles",
+    "detail_log_sha256": "feba0c2e097ccf11fc8f60cf01751d66faa51605a614e797824cb36a7a7075f8"
+  },
+  {
+    "selector": "ble-central-first-notification",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-central-first-notification",
+    "duration": "0 s ble-central-first-notification",
+    "detail_log_sha256": "bede9b5e6307b9718efe464c9f0f12121232379197f15ed5e7c9f49f10702a90"
+  },
+  {
+    "selector": "ble-one-peer-command",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-one-peer-command",
+    "duration": "0 s ble-one-peer-command",
+    "detail_log_sha256": "3861b2a0e5052be618bbb98e015c2dfa76435b3c7f35a20f2b8f1874a5d7894d"
+  },
+  {
+    "selector": "ble-dual-peer",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-dual-peer",
+    "duration": "1 s ble-dual-peer",
+    "detail_log_sha256": "bf3321f020f59b49671644f45a21fe83717bbf70d7a575b0dbb2058ec4acd3ed"
+  },
+  {
+    "selector": "ble-command-credit",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-command-credit",
+    "duration": "0 s ble-command-credit",
+    "detail_log_sha256": "5be8c333d10fa91425a6e7ba3d4e3972b012dcc28d17f18dac9868bbbcddaa0b"
+  },
+  {
+    "selector": "ble-controller-heap",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-controller-heap",
+    "duration": "1 s ble-controller-heap",
+    "detail_log_sha256": "952c158daf50c706c9afc5ba627f6342ab7d43d06dd0cd1dc544ca47cc32259c"
+  },
+  {
+    "selector": "ble-acl-start-flags",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-acl-start-flags",
+    "duration": "0 s ble-acl-start-flags",
+    "detail_log_sha256": "6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47"
+  },
+  {
+    "selector": "ble-hci-completed",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-hci-completed",
+    "duration": "1 s ble-hci-completed",
+    "detail_log_sha256": "c08b463af8703fe2815c788d6a2a19890dd7ffa43f064f5db69765959481e0b0"
+  },
+  {
+    "selector": "ble-acl-zero-credit",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-acl-zero-credit",
+    "duration": "0 s ble-acl-zero-credit",
+    "detail_log_sha256": "b97ac9f801858a6730b0c24f58ce77d2097071af36363d211e3b5f7c71fe910f"
+  },
+  {
+    "selector": "ble-link-epoch-reset",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-link-epoch-reset",
+    "duration": "0 s ble-link-epoch-reset",
+    "detail_log_sha256": "6676ebff1d54df92ad612c08b6b1e431d99763aa87b7f082b6d8106f44faefd8"
+  },
+  {
+    "selector": "ble-disconnect-status",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-disconnect-status",
+    "duration": "0 s ble-disconnect-status",
+    "detail_log_sha256": "1375d2c4497e46abf9894c1ae1df4782608d08eba06f07a82ac0cab8e9d179ed"
+  },
+  {
+    "selector": "smc-reachability",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-reachability",
+    "duration": "14 s smc-reachability",
+    "detail_log_sha256": "11f23177256f616ff58b593693670c88c1e0f4c2e4772d3083dd479768b358af"
+  },
+  {
+    "selector": "part-order",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   part-order",
+    "duration": "14 s part-order",
+    "detail_log_sha256": "440cad2fe127a39ab45e1d6692a6ce4367f4372522a4b4eba05d5ed374a90623"
+  },
+  {
+    "selector": "ui-drum-mix-material",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-drum-mix-material",
+    "duration": "14 s ui-drum-mix-material",
+    "detail_log_sha256": "5e18392b501c5da2de3dcc9c3219673b7d928a72582ddd27c53d370830bac1aa"
+  },
+  {
+    "selector": "smc-ui-bounds",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-ui-bounds",
+    "duration": "18 s smc-ui-bounds",
+    "detail_log_sha256": "4ad066a63ab54a9ac5b98074f4e78d4b4f255bfacf78fd399161594aa14f6d3a"
+  },
+  {
+    "selector": "smc-ui-negative",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-ui-negative",
+    "duration": "214 s smc-ui-negative",
+    "detail_log_sha256": "147e0a72efef4caeb6daa2230fce835ebb14cd2068cc9a282cde8c67ff8efda7"
+  },
+  {
+    "selector": "smc-drum-mutes",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-drum-mutes",
+    "duration": "14 s smc-drum-mutes",
+    "detail_log_sha256": "b64bbaa7986d79ef0662f4ebd7ceb534e7a08e41e4349824ef5a3708e98c3708"
+  },
+  {
+    "selector": "smc-drum-rs",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-drum-rs",
+    "duration": "14 s smc-drum-rs",
+    "detail_log_sha256": "cd1a6f7d9771e19c02095abe5aff6a10edafaedd97f1d0e372c7e96299a51660"
+  },
+  {
+    "selector": "smc-performance-abort",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-performance-abort",
+    "duration": "13 s smc-performance-abort",
+    "detail_log_sha256": "3633c954719dfff591f8d5b6f1070b78641df2649292a2323c79f1475378e1ad"
+  },
+  {
+    "selector": "smc-filter",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-filter",
+    "duration": "1 s smc-filter",
+    "detail_log_sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92"
+  },
+  {
+    "selector": "smc-feedback",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-feedback",
+    "duration": "0 s smc-feedback",
+    "detail_log_sha256": "becf8d2e15737202ed3c7e778606779c1269103beba29b8d2b2e97e37c5300f7"
+  },
+  {
+    "selector": "smc-record-feedback",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-record-feedback",
+    "duration": "13 s smc-record-feedback",
+    "detail_log_sha256": "807d3e6cca689387b731c3336dd640c14d696f90bc6c64b1853d449ea7522d1d"
+  },
+  {
+    "selector": "smc-part-select",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-part-select",
+    "duration": "0 s smc-part-select",
+    "detail_log_sha256": "232941838900ea044e95c2e848228751dd188b6c5441145fc0dc70069c338938"
+  },
+  {
+    "selector": "smc-clip-visibility",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smc-clip-visibility",
+    "duration": "0 s smc-clip-visibility",
+    "detail_log_sha256": "1069e67bd4b28e47b02b5a8f7560e276cd956dd8a5e78589cd57cba15724e00d"
+  },
+  {
+    "selector": "drum-pan",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   drum-pan",
+    "duration": "1 s drum-pan",
+    "detail_log_sha256": "2417426f1cdde649695950194b32b9eee4ce25df3727ddb50d19d479a044156d"
+  },
+  {
+    "selector": "stereo",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   stereo",
+    "duration": "0 s stereo",
+    "detail_log_sha256": "ba6a8109e1e5f86157e6ec420b1b1d0baca855c9f87342a2cf6e6a89cad5f575"
+  },
+  {
+    "selector": "master",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   master",
+    "duration": "1 s master",
+    "detail_log_sha256": "b3151c2114d0afd475ce314026032eda0772877d0cb6ebe76ab1a5ad49b7ce4f"
+  },
+  {
+    "selector": "drum-kit-identity",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   drum-kit-identity",
+    "duration": "0 s drum-kit-identity",
+    "detail_log_sha256": "cf7509b1c67f3c8ea6de19bed80da4d738376e64a246dae4a17f65009cf7a510"
+  },
+  {
+    "selector": "drum909-adpcm",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   drum909-adpcm",
+    "duration": "1 s drum909-adpcm",
+    "detail_log_sha256": "0143489d03918c498075a2ffe0e4b01dceba94d14a1096f54e7982b89a072d7a"
+  },
+  {
+    "selector": "optimization-equivalence",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   optimization-equivalence",
+    "duration": "31 s optimization-equivalence",
+    "detail_log_sha256": "f687de62df30c73aeabf947e9f2284ca36cf994f6082da6fe9be6bc9a54fcb87"
+  },
+  {
+    "selector": "drum909",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   drum909",
+    "duration": "7 s drum909",
+    "detail_log_sha256": "95f1a0fca87b316e8ebfcfb2c7a11e4a36f6ae54c1ba7f07da48d46652f5d9d6"
+  },
+  {
+    "selector": "drum808",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   drum808",
+    "duration": "2 s drum808",
+    "detail_log_sha256": "f786066cb55e75e7dde3a6ab072319dfadf73bda18fff1a806f6d7bd6c5e6945"
+  },
+  {
+    "selector": "breaks",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   breaks",
+    "duration": "4 s breaks",
+    "detail_log_sha256": "e50f60dc0a45d5aadc959f2b381a1b6795721a31e0551115e12dc96d0133dca6"
+  },
+  {
+    "selector": "break-suite-registration",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   break-suite-registration",
+    "duration": "0 s break-suite-registration",
+    "detail_log_sha256": "a532c70c777f14de1a3f429cbfc4cc358708088b2bdd862dbd2648900087b523"
+  },
+  {
+    "selector": "adaptive-break-dsp",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   adaptive-break-dsp",
+    "duration": "1 s adaptive-break-dsp",
+    "detail_log_sha256": "74ee2009cc86d5b2047f767d9a65055d067edad3675779277ef6fa5a6f17b085"
+  },
+  {
+    "selector": "adaptive-break-controls",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   adaptive-break-controls",
+    "duration": "14 s adaptive-break-controls",
+    "detail_log_sha256": "e65eef18681c9bcbd158ef51113b44c0dd41241dcbad9ecd7112bc6324d58ce9"
+  },
+  {
+    "selector": "adaptive-break-storage",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   adaptive-break-storage",
+    "duration": "7 s adaptive-break-storage",
+    "detail_log_sha256": "6f9912de195a813ecb7644c95b76b292d35b7cff73dc099ee6e480b2447b85f0"
+  },
+  {
+    "selector": "adaptive-break-midi-pair",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   adaptive-break-midi-pair",
+    "duration": "1 s adaptive-break-midi-pair",
+    "detail_log_sha256": "201239e220d939565fc9004403ab7036d864b85dbe3b9ddbf917847a857360ce"
+  },
+  {
+    "selector": "break-performance",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   break-performance",
+    "duration": "0 s break-performance",
+    "detail_log_sha256": "2e81538a714de5265120aa4e07c8f1a657ef025097fc9ca4928084ea76352358"
+  },
+  {
+    "selector": "brk-loops-seamless",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   brk-loops-seamless",
+    "duration": "0 s brk-loops-seamless",
+    "detail_log_sha256": "809e1c857b916cadb63fa310c9c496f05c403419a307fcfaca5b59dbaa408f1c"
+  },
+  {
+    "selector": "brk-outline",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   brk-outline",
+    "duration": "0 s brk-outline",
+    "detail_log_sha256": "83ca7061256d8c40e75e79c2c1526d1c5c890eb80b95a393840212d5e41e8b8f"
+  },
+  {
+    "selector": "brk-outline-gate",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   brk-outline-gate",
+    "duration": "0 s brk-outline-gate",
+    "detail_log_sha256": "4a16e72a26f68ed5276a9c0870317de9e34fb8cd8caa6defc6c63c8ae23c4d00"
+  },
+  {
+    "selector": "chicago-fx-bridge",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   chicago-fx-bridge",
+    "duration": "0 s chicago-fx-bridge",
+    "detail_log_sha256": "e567c8971065d0bbbe7310785451130a42f41bc6372eeecd7678a0a8c92b0b34"
+  },
+  {
+    "selector": "au-compare-align",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   au-compare-align",
+    "duration": "0 s au-compare-align",
+    "detail_log_sha256": "e90023b28003ab8ebc5491117ef057bd119b822fdf402f8d50bca97d07276a60"
+  },
+  {
+    "selector": "au-compare-battery",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   au-compare-battery",
+    "duration": "0 s au-compare-battery",
+    "detail_log_sha256": "dcd2147edfda2291b456dfb6d9f3021f0fed07760d5a1c8869fc5446f30e28fe"
+  },
+  {
+    "selector": "install-gate-guard",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   install-gate-guard",
+    "duration": "2 s install-gate-guard",
+    "detail_log_sha256": "623ae67e8aa10afe1a1c1428e11dc95097ee3c4bda623bd81095e84c609dc633"
+  },
+  {
+    "selector": "queue-guard",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   queue-guard",
+    "duration": "1 s queue-guard",
+    "detail_log_sha256": "038fcaa7871555f8d8e563b7a0b48d34e6a787a2f00940acf5a629d7ad1eba3f"
+  },
+  {
+    "selector": "install-guards",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   install-guards",
+    "duration": "0 s install-guards",
+    "detail_log_sha256": "7461802d15e33c11b2d69f4284e7ebfbe7edcc37120ebec5c41befa3503843ca"
+  },
+  {
+    "selector": "install-head",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   install-head",
+    "duration": "0 s install-head",
+    "detail_log_sha256": "65bd6ac508bea3dd55c9771a23513950a59779629afde45b0be3c655b5e5acf7"
+  },
+  {
+    "selector": "release-tree",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   release-tree",
+    "duration": "1 s release-tree",
+    "detail_log_sha256": "14bf9b2b9ca2863c84c28ee74bf33fbf1bd96886ad357b570e7c8899aea09c73"
+  },
+  {
+    "selector": "prepush-trim",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   prepush-trim",
+    "duration": "0 s prepush-trim",
+    "detail_log_sha256": "44e52177573c340cdf5a6efda5b18800861f8da25efd93955ac874a9d0f96f62"
+  },
+  {
+    "selector": "prepush-allow",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   prepush-allow",
+    "duration": "0 s prepush-allow",
+    "detail_log_sha256": "5217cc8982879c3186d7f7e51783c8df91fa7506862fdf4fa34ca35af1ddcfbf"
+  },
+  {
+    "selector": "gate-configs",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   gate-configs",
+    "duration": "0 s gate-configs",
+    "detail_log_sha256": "c32cb3544314176313b8f893a980354544803e8720d42ccb138653c157424811"
+  },
+  {
+    "selector": "gate-trap",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   gate-trap",
+    "duration": "16 s gate-trap",
+    "detail_log_sha256": "7da750a1981b67ef3a30c13c26631c597a79a9f4af640919465cc1c8243783b9"
+  },
+  {
+    "selector": "quickcheck-plan",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   quickcheck-plan",
+    "duration": "2 s quickcheck-plan",
+    "detail_log_sha256": "ef40fc1a1f6a1e6a0bc0e668b61edaf68d876758393a90ccb0dd1200b8f754af"
+  },
+  {
+    "selector": "host-failure-summary",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   host-failure-summary",
+    "duration": "0 s host-failure-summary",
+    "detail_log_sha256": "bef3b239e22b57e3c3e880c2bd74ef80a7663756aa42e954f82b0559af522ea0"
+  },
+  {
+    "selector": "ctl-compile",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ctl-compile",
+    "duration": "13 s ctl-compile",
+    "detail_log_sha256": "0cde3be3d0fe5c2e31d20ea485fabebdc0435475495033170c0b4bb841dfdfcc"
+  },
+  {
+    "selector": "host-setup",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   host-setup",
+    "duration": "1 s host-setup",
+    "detail_log_sha256": "cbd111533d8feb26670dd279a4808f63adfa223fc4f65b29564a2cf948503a96"
+  },
+  {
+    "selector": "gen-nonfont-tables",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   gen-nonfont-tables",
+    "duration": "1 s gen-nonfont-tables",
+    "detail_log_sha256": "575e857d2f5b7feb00a68e695e03d1334cbb6e8e0350ed635978e712eee71f93"
+  },
+  {
+    "selector": "stereo-alone-gen",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   stereo-alone-gen",
+    "duration": "7 s stereo-alone-gen",
+    "detail_log_sha256": "99d312de39c2ed6ef60d89d7e8bbfb1aba1ce534346761a5abf1bb7d8e948d65"
+  },
+  {
+    "selector": "runner-admission",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   runner-admission",
+    "duration": "9 s runner-admission",
+    "detail_log_sha256": "af4ea03cdd92130b5d91dcadc34ad06ea99fb32892a96c49fcacbc0d0070ac89"
+  },
+  {
+    "selector": "update-names",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   update-names",
+    "duration": "1 s update-names",
+    "detail_log_sha256": "45d5797e63ca4c76906393fdc01506e9d8641cb68971da8a1930aabeeee70762"
+  },
+  {
+    "selector": "gate-reason",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   gate-reason",
+    "duration": "0 s gate-reason",
+    "detail_log_sha256": "188b408a64f26e077a165fd3c2a5fea6cd582f1b68fe093f3813ad511d79d3ac"
+  },
+  {
+    "selector": "validation-inputs",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   validation-inputs",
+    "duration": "10 s validation-inputs",
+    "detail_log_sha256": "5de0ff05c585949e2e1c728f05e2de15959613dbeb262c6de5c9087d5045d4bf"
+  },
+  {
+    "selector": "stage-handoff",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   stage-handoff",
+    "duration": "0 s stage-handoff",
+    "detail_log_sha256": "ea6b95d1405d713cb926a78bba7b5b1107c1f2e6e414c6210d8cbdb3303714d0"
+  },
+  {
+    "selector": "dev-validate",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   dev-validate",
+    "duration": "15 s dev-validate",
+    "detail_log_sha256": "1a0bc1db1107860f6463101402ecd3761e4920bd22311768c087548648efb91b"
+  },
+  {
+    "selector": "dev-validate-composed",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   dev-validate-composed",
+    "duration": "7 s dev-validate-composed",
+    "detail_log_sha256": "887c898e0d3b8854f32818c8ba78d276ec17dfbda2a6a83e26e3483d07ac7570"
+  },
+  {
+    "selector": "nightly-publish",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   nightly-publish",
+    "duration": "1 s nightly-publish",
+    "detail_log_sha256": "1ef5922bac7f170fd45fe4f620b99db8ba7397b75466ea066a419180abadcc6b"
+  },
+  {
+    "selector": "gen-cache",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   gen-cache",
+    "duration": "0 s gen-cache",
+    "detail_log_sha256": "55b9015eba53ee418f123837cba6ff9d43babb8dcf78cbd3c6eba7e06004cd1b"
+  },
+  {
+    "selector": "smk-update-contract",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-update-contract",
+    "duration": "7 s smk-update-contract",
+    "detail_log_sha256": "de1e8d901617155b6f019a29919f1abd21d9b369f0a874a68950a6ade06a906d"
+  },
+  {
+    "selector": "gen-order",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   gen-order",
+    "duration": "33 s gen-order",
+    "detail_log_sha256": "c279e9522b5bdc8cd394ce8c2752825409c2821a9e334a570d93089054fc150e"
+  },
+  {
+    "selector": "quickcheck-devbug",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   quickcheck-devbug",
+    "duration": "2 s quickcheck-devbug",
+    "detail_log_sha256": "ceef6e361d2dad81cecfdb87c1fc7e3865fcec6e905ec6b93478b4c844caaf2d"
+  },
+  {
+    "selector": "status-lanes",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   status-lanes",
+    "duration": "0 s status-lanes",
+    "detail_log_sha256": "b0ef9a72a936d7692d6204a67f682cc56f2f64160da42c65aad92d2d001cc2d0"
+  },
+  {
+    "selector": "status-isolation",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   status-isolation",
+    "duration": "1 s status-isolation",
+    "detail_log_sha256": "8b7a0b3249731c4dc1292584c2a42d4156d4ab8ceaf7c5fa50fa011060601d6b"
+  },
+  {
+    "selector": "loop-bars",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   loop-bars",
+    "duration": "0 s loop-bars",
+    "detail_log_sha256": "1aceccc601b6d5d39096a830778e0b9af0d4b644e90146945bc558ae746a5acd"
+  },
+  {
+    "selector": "installer",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer",
+    "duration": "4 s installer",
+    "detail_log_sha256": "548849f23539656ff57ea92b07f26269e4ba54117298a44a438d43edeb73c47c"
+  },
+  {
+    "selector": "installer-f02-bind",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-f02-bind",
+    "duration": "0 s installer-f02-bind",
+    "detail_log_sha256": "a5442dec04276e9a606f949d35dead79cdd04caca06cffb1b03ce59e5326f4b2"
+  },
+  {
+    "selector": "installer-f02-bind-web",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-f02-bind-web",
+    "duration": "1 s installer-f02-bind-web",
+    "detail_log_sha256": "82c0428229e2f279f655094adb10f63f420a46620934d41cb42fa9d09e34d2b9"
+  },
+  {
+    "selector": "locked-settings",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   locked-settings",
+    "duration": "0 s locked-settings",
+    "detail_log_sha256": "82f10fc3f906cea581f2c2717f57bc70e6de5e320a72625ede9b4401e1d38589"
+  },
+  {
+    "selector": "smk-flash",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-flash",
+    "duration": "0 s smk-flash",
+    "detail_log_sha256": "0c03e13fa54153ed05ad1fd61ce0273bd981052fe7c6828880f2ad05a0b9068f"
+  },
+  {
+    "selector": "smk-storage",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-storage",
+    "duration": "0 s smk-storage",
+    "detail_log_sha256": "7a64ab0b3132df05a1b95d4054c8d89ef34ada87f036e22d42056d67d2b8d5c0"
+  },
+  {
+    "selector": "smk-apc40-map",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-apc40-map",
+    "duration": "1 s smk-apc40-map",
+    "detail_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "selector": "smk-apc40",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-apc40",
+    "duration": "0 s smk-apc40",
+    "detail_log_sha256": "95b5e844401c4bd42a0b09935309e73cef328271d86117c25a410f63723339d1"
+  },
+  {
+    "selector": "smk-clip-ble-clear",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-ble-clear",
+    "duration": "0 s smk-clip-ble-clear",
+    "detail_log_sha256": "4e2352f42cc2a43ab06e066b7802b41c96a8bfd672174c6099f560234045704d"
+  },
+  {
+    "selector": "smk-clip-keys",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-keys",
+    "duration": "0 s smk-clip-keys",
+    "detail_log_sha256": "4d05c672c4540119f6bf8d544dccc44c896c312e174e91c39177efccea8ca6c0"
+  },
+  {
+    "selector": "smk-chord-recognize",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-chord-recognize",
+    "duration": "0 s smk-chord-recognize",
+    "detail_log_sha256": "61fa6736cc7469c15d445159dbc4c1bcb899a47891f2e58fe92ab1d140f3051a"
+  },
+  {
+    "selector": "smk-clip-chord-display",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-chord-display",
+    "duration": "1 s smk-clip-chord-display",
+    "detail_log_sha256": "49bc05919b53b3bcfbbcb0c6ab4fb9aee4cdf90193520b412842f95bf3f04785"
+  },
+  {
+    "selector": "smk-ck-page-layout",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-ck-page-layout",
+    "duration": "0 s smk-ck-page-layout",
+    "detail_log_sha256": "3024b9a8f91235021cc64a6eeb2e5ebd9ff8fad4a920498c053d65f0f1568506"
+  },
+  {
+    "selector": "smk-arrows",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-arrows",
+    "duration": "0 s smk-arrows",
+    "detail_log_sha256": "69a77e7e7b83031aa59087854e65fa1db0e404a28cbb154a9033e7e164592151"
+  },
+  {
+    "selector": "smk-arrows-owner",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-arrows-owner",
+    "duration": "0 s smk-arrows-owner",
+    "detail_log_sha256": "53ff0f94ed457dcadec856eaaa7f5c7769da2bf9ed46e9727af78af1d13b730d"
+  },
+  {
+    "selector": "apc40-tables",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   apc40-tables",
+    "duration": "0 s apc40-tables",
+    "detail_log_sha256": "8b17ae5399b2c7c3cfe3fdc83b04b4eb6887ec689ce53ba882286c76939fe1dc"
+  },
+  {
+    "selector": "smk-clip-idle",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-idle",
+    "duration": "1 s smk-clip-idle",
+    "detail_log_sha256": "ef3ef0970fc43c9c5af8b0d4a9327740c28a57cbd604e18f514b79ecb74aed41"
+  },
+  {
+    "selector": "smk-clip-idle-pad",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-idle-pad",
+    "duration": "0 s smk-clip-idle-pad",
+    "detail_log_sha256": "eacca7b9c11275de722a7ca5fd563523d77b86ffd9e82733f5f105e0c78f99a3"
+  },
+  {
+    "selector": "apc40-pad-owner",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   apc40-pad-owner",
+    "duration": "0 s apc40-pad-owner",
+    "detail_log_sha256": "5b5e6dda36dcbab76397a54338658066d47ff59e39bda6dfee8576baa33f6218"
+  },
+  {
+    "selector": "smk-padcal",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-padcal",
+    "duration": "0 s smk-padcal",
+    "detail_log_sha256": "54533665f631235a6ea73f9329c177f8c5bf9c8a501a57fc5149f09d54cec7bf"
+  },
+  {
+    "selector": "padcal-view",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   padcal-view",
+    "duration": "0 s padcal-view",
+    "detail_log_sha256": "f637dca5d5059ecad03f1fa9285fcffe3d18a2ded763b7e08db3359e746719ba"
+  },
+  {
+    "selector": "smk-padcal-export",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-padcal-export",
+    "duration": "0 s smk-padcal-export",
+    "detail_log_sha256": "877493ab76fb054567595deaf2775ee2ab81db8ac9ea120e57d509552c706931"
+  },
+  {
+    "selector": "smk-padcal-wiring",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-padcal-wiring",
+    "duration": "0 s smk-padcal-wiring",
+    "detail_log_sha256": "f28f105004a6efbcd3dee6e8714bef8ff584eaf5fbb90707691e0ff939218996"
+  },
+  {
+    "selector": "pad-placement-doc",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   pad-placement-doc",
+    "duration": "0 s pad-placement-doc",
+    "detail_log_sha256": "80e0ca2f56c13dc27b19fd15766668b1d769e76de986f51178e7dd2edfeb0378"
+  },
+  {
+    "selector": "padcal-flag",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   padcal-flag",
+    "duration": "0 s padcal-flag",
+    "detail_log_sha256": "8fc3a3b7af77cb22bca5697b42dd0df320be8a7f742a1abca5406669294573eb"
+  },
+  {
+    "selector": "apc40-lcd565-csv",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   apc40-lcd565-csv",
+    "duration": "0 s apc40-lcd565-csv",
+    "detail_log_sha256": "22bc9ed3e9339881a15983047ce1fda0832ff6e845762aadc06c8086d6df83a1"
+  },
+  {
+    "selector": "apc-palette",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   apc-palette",
+    "duration": "0 s apc-palette",
+    "detail_log_sha256": "8513b55c01dda88792f39549d474c6db30db682aeda1f1cb5a43efe54c0fd5dd"
+  },
+  {
+    "selector": "installer-targets",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-targets",
+    "duration": "1 s installer-targets",
+    "detail_log_sha256": "3bffb1bb3e54fcfa328ad9c5e4309f153ac64ea3dda1fa64ed13dbd63e409537"
+  },
+  {
+    "selector": "diag-size",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   diag-size",
+    "duration": "1 s diag-size",
+    "detail_log_sha256": "0d2ae93d9d2682218bd98a605b699703641853031f849b8b66c102b51649c31f"
+  },
+  {
+    "selector": "smk-inlog",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-inlog",
+    "duration": "0 s smk-inlog",
+    "detail_log_sha256": "20248e7936291ab12379008d1b15e08896b5ffe51cc7b119be9c528379fed4b2"
+  },
+  {
+    "selector": "ble-central-diag",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-central-diag",
+    "duration": "0 s ble-central-diag",
+    "detail_log_sha256": "23e1fda6a358d6abf4bffaa33cc25911565b5858e45ced2e8a1efaf7f250226d"
+  },
+  {
+    "selector": "ble-role-switch",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-role-switch",
+    "duration": "1 s ble-role-switch",
+    "detail_log_sha256": "392653209a2372ed3b8d1b01e2978ca088642f2f3a5aa6f0ab5a9e075b78ed1b"
+  },
+  {
+    "selector": "inlog-tool",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   inlog-tool",
+    "duration": "0 s inlog-tool",
+    "detail_log_sha256": "0680a269b46f8e1a5cd203820833d97b4d70b5ebfcd0ec41859f10acacd359ae"
+  },
+  {
+    "selector": "smk-pad-inputs",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-pad-inputs",
+    "duration": "0 s smk-pad-inputs",
+    "detail_log_sha256": "7f5c6a4c86265bfb9179e814a7d93e8d67eb16cb759260ada07662cfb9fc0f89"
+  },
+  {
+    "selector": "smk-clip-ble-notify",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-ble-notify",
+    "duration": "0 s smk-clip-ble-notify",
+    "detail_log_sha256": "73d23272a62a95c9c73a0d7b0fdee35a07fcba1c87d15c2c155676248c1c2b74"
+  },
+  {
+    "selector": "smk-clip-dark",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-dark",
+    "duration": "1 s smk-clip-dark",
+    "detail_log_sha256": "be5f2285bd9ffad689e0ef311d7756a579073d178e9b716ebe8bd974e619efdf"
+  },
+  {
+    "selector": "smk-clip-usb-clear",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-usb-clear",
+    "duration": "0 s smk-clip-usb-clear",
+    "detail_log_sha256": "d154137c6a9eac18505f14167458774a8557506a46d6bc0fced791340689b0ed"
+  },
+  {
+    "selector": "smk-clip-isolation",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-isolation",
+    "duration": "0 s smk-clip-isolation",
+    "detail_log_sha256": "d5b069b9d5ac8ddf244c45d7a5a56f7b930931438ca524f9e552903e8cc6f920"
+  },
+  {
+    "selector": "smk-clip-knob",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-knob",
+    "duration": "1 s smk-clip-knob",
+    "detail_log_sha256": "e9871a134e82e602958b97e7e639d2a90f4f5a49ae89a3a2e9d3fb2c0df9ecdf"
+  },
+  {
+    "selector": "smk-fader-pickup",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-fader-pickup",
+    "duration": "0 s smk-fader-pickup",
+    "detail_log_sha256": "9a5b9e5479071cd83dc5e3c4eefafeec81026da9da1ae6090fbc1b3659639061"
+  },
+  {
+    "selector": "smk-clip-wait",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-clip-wait",
+    "duration": "0 s smk-clip-wait",
+    "detail_log_sha256": "e04ed6b94a262a5d1c66751c7af6b7df51c69e87ce7c7b098770e2af675a77b7"
+  },
+  {
+    "selector": "smk-apc40-violet",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-apc40-violet",
+    "duration": "0 s smk-apc40-violet",
+    "detail_log_sha256": "fc36b52cb40ef62997a2616043a5bc943624a4667a8b87ab45af92c1dfc35f5f"
+  },
+  {
+    "selector": "smk-package",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-package",
+    "duration": "1 s smk-package",
+    "detail_log_sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+  },
+  {
+    "selector": "smk-ota-entry",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-ota-entry",
+    "duration": "0 s smk-ota-entry",
+    "detail_log_sha256": "f4fadd0e69a20b803a5eb1c6ff684d33c52f74da31bbdf54b5a1ffd58622b67f"
+  },
+  {
+    "selector": "smk-ota-entry-model1",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-ota-entry-model1",
+    "duration": "0 s smk-ota-entry-model1",
+    "detail_log_sha256": "9e86cfe397d00498bdf9d2b2db73b51eeac63a08d679ebe38edf600d2433b354"
+  },
+  {
+    "selector": "smk-ota-entry-model2",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-ota-entry-model2",
+    "duration": "0 s smk-ota-entry-model2",
+    "detail_log_sha256": "220d43db689d146c54062f674411ba357338f50ac9f00a605e0a6d45e78ec4a3"
+  },
+  {
+    "selector": "smk-update-loader",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-update-loader",
+    "duration": "0 s smk-update-loader",
+    "detail_log_sha256": "2899fc59620683944b7b731d93697c2a012a72cbe1f1c67b69741d35782f07be"
+  },
+  {
+    "selector": "smk-build-package",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-build-package",
+    "duration": "1 s smk-build-package",
+    "detail_log_sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+  },
+  {
+    "selector": "smk-build-package-elite",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smk-build-package-elite",
+    "duration": "0 s smk-build-package-elite",
+    "detail_log_sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b"
+  },
+  {
+    "selector": "ble-sysex-bounds",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-sysex-bounds",
+    "duration": "1 s ble-sysex-bounds",
+    "detail_log_sha256": "a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2"
+  },
+  {
+    "selector": "ble",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble",
+    "duration": "0 s ble",
+    "detail_log_sha256": "e1451de0d2f3a62d7a59db0dca219c09513df5a3417c02c8c7f711381033fbd1"
+  },
+  {
+    "selector": "ble-package",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ble-package",
+    "duration": "10 s ble-package",
+    "detail_log_sha256": "f4f4a4502181893d710d210cd5a40b3b9d1ea31c077f2f5650c9d12d7cd8016f"
+  },
+  {
+    "selector": "upload-images",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   upload-images",
+    "duration": "1 s upload-images",
+    "detail_log_sha256": "53885c4238816b9add0dc4334997338d53824868d99c3c2ea8b0714261aa2629"
+  },
+  {
+    "selector": "upload-tools",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   upload-tools",
+    "duration": "1 s upload-tools",
+    "detail_log_sha256": "012fdb7719a8db3cc52533eae16843b5809d3dd33876ee28eb25031c6492b7fa"
+  },
+  {
+    "selector": "builtin-break-output",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   builtin-break-output",
+    "duration": "2 s builtin-break-output",
+    "detail_log_sha256": "ef4bcd9919aef1728126e422d9c991216d89959d6c9bd1c779c36bf8410bbf6f"
+  },
+  {
+    "selector": "break-pack",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   break-pack",
+    "duration": "0 s break-pack",
+    "detail_log_sha256": "91cd5efaf5567172a73f0fd20e37dd21f83b8f262c286dcd732935386578192c"
+  },
+  {
+    "selector": "break-pack-web",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   break-pack-web",
+    "duration": "0 s break-pack-web",
+    "detail_log_sha256": "39db4f771f015883454671e8689a95aef5d466d2cc55de1d08306c5c98a3adc5"
+  },
+  {
+    "selector": "breaks-web",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   breaks-web",
+    "duration": "4 s breaks-web",
+    "detail_log_sha256": "3820099a1604cbc1c4b21d875f6be308eeda5bcaaf0ed20316dbf29bc4799643"
+  },
+  {
+    "selector": "breaks-page",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   breaks-page",
+    "duration": "7 s breaks-page",
+    "detail_log_sha256": "7821c700dfc48fc9a9e092e2c258a9d04c42e0d98c0b41fa8633efec217772b3"
+  },
+  {
+    "selector": "project-adoption-identities",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   project-adoption-identities",
+    "duration": "0 s project-adoption-identities",
+    "detail_log_sha256": "8ba69e37dc7666d8f23ab11238eaa25d93bacd63c753e7ae6a899459b672c8f2"
+  },
+  {
+    "selector": "projects-web",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   projects-web",
+    "duration": "0 s projects-web",
+    "detail_log_sha256": "bc732717f9f8ee89f53793f1cd35b7b8ed013d32641ae04e42ef56b338abfadd"
+  },
+  {
+    "selector": "installer-project-handoff",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-project-handoff",
+    "duration": "0 s installer-project-handoff",
+    "detail_log_sha256": "a0004abb0fbfaae32c936b3b5894625d9d17081a53713ec9c0081f12141353d7"
+  },
+  {
+    "selector": "projects-page",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   projects-page",
+    "duration": "0 s projects-page",
+    "detail_log_sha256": "eae165cfb3ed89cba950fa015bd2b78dd8069a897fa3f3f57478d1e10f2dc7ce"
+  },
+  {
+    "selector": "installer-backup-selection",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-backup-selection",
+    "duration": "0 s installer-backup-selection",
+    "detail_log_sha256": "ebce5d7b86da42456dbd3a5f44151f66b85cf095b6a9cf847b568cb7de61778b"
+  },
+  {
+    "selector": "slot-build-safe",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-build-safe",
+    "duration": "0 s slot-build-safe",
+    "detail_log_sha256": "afc4cf19b78e4502c345ace2be280e006722c4d3503df5d9b17b478eef662236"
+  },
+  {
+    "selector": "wav-import-integrity",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   wav-import-integrity",
+    "duration": "0 s wav-import-integrity",
+    "detail_log_sha256": "8532cc6905b0bf3e9418ffa0e57385e73987d9ba5526f9b63099fea0389d6ba5"
+  },
+  {
+    "selector": "slot-backup",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-backup",
+    "duration": "1 s slot-backup",
+    "detail_log_sha256": "fa2b751e93f6ef1ca82d6960a4b1752667de2c4d79e2c584dbf33bd18d91de10"
+  },
+  {
+    "selector": "slot-begin-cancel",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-begin-cancel",
+    "duration": "0 s slot-begin-cancel",
+    "detail_log_sha256": "7164520f7c18ab21716a303634c8c59391c2ab064c61257a46ec1f175bfebf0c"
+  },
+  {
+    "selector": "smp-begin-cancel",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   smp-begin-cancel",
+    "duration": "0 s smp-begin-cancel",
+    "detail_log_sha256": "2484dafa98669234950593dbe8f73089a4dba857387c2ba5f0b635d8988c1789"
+  },
+  {
+    "selector": "slot-backup-durable",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-backup-durable",
+    "duration": "0 s slot-backup-durable",
+    "detail_log_sha256": "b9499986cea8d62e079107782d19c79bf23696d4308739c3a72757caefc9614c"
+  },
+  {
+    "selector": "slot-archive-zone",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-archive-zone",
+    "duration": "0 s slot-archive-zone",
+    "detail_log_sha256": "8ef22e86f92eae70cba0c41d45e22ee4d041279e9b011bcba35892ffb7307bf0"
+  },
+  {
+    "selector": "slot-verify-order",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-verify-order",
+    "duration": "0 s slot-verify-order",
+    "detail_log_sha256": "2bf9411d25983664e883c761f3ff9891944ee8891e7dbec21d9ffd4487bbe4cf"
+  },
+  {
+    "selector": "slot-read-reply",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-read-reply",
+    "duration": "0 s slot-read-reply",
+    "detail_log_sha256": "851db3075b70c88ebce10f56df1a7cd78e7bd0af4f302b2e463d4e103f66aecb"
+  },
+  {
+    "selector": "slot-ack-integrity",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-ack-integrity",
+    "duration": "0 s slot-ack-integrity",
+    "detail_log_sha256": "98ff0e15b93d4d5950297f99d321be036b5ddbf54c6a49fa87e88c649040d4ec"
+  },
+  {
+    "selector": "slot-echo-7bit",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-echo-7bit",
+    "duration": "0 s slot-echo-7bit",
+    "detail_log_sha256": "5b7938e36b2d44ebc196a87e680953b002a4034b7e6d84b020a5c27f59e33f92"
+  },
+  {
+    "selector": "slot-migration-matching",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-migration-matching",
+    "duration": "0 s slot-migration-matching",
+    "detail_log_sha256": "9e15545bf79dcce2fcae5f62ab567d78fa204a190f5eb4cf4a78c1b2831c5508"
+  },
+  {
+    "selector": "slot-break-menu-migration",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   slot-break-menu-migration",
+    "duration": "0 s slot-break-menu-migration",
+    "detail_log_sha256": "a4be65af8f2e3cca4a05a40efdec935bbe22e03e835f8d85844d4e896b1ea855"
+  },
+  {
+    "selector": "installer-slots",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-slots",
+    "duration": "13 s installer-slots",
+    "detail_log_sha256": "125772249b6fb1bee4769b64627df655906386529d36bee4e372951a3fa13478"
+  },
+  {
+    "selector": "installer-restore-status",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-restore-status",
+    "duration": "0 s installer-restore-status",
+    "detail_log_sha256": "629519a66b4bdebbbef5b416694d999c23f94cccfac54c0eee1ef90114c5d322"
+  },
+  {
+    "selector": "installer-ota-finish-ack",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-ota-finish-ack",
+    "duration": "0 s installer-ota-finish-ack",
+    "detail_log_sha256": "c81d7f5fc7d12d599e149b2cf0bc99311908f9287a914d4e984d46d86d341c69"
+  },
+  {
+    "selector": "installer-backup-snapshot",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-backup-snapshot",
+    "duration": "0 s installer-backup-snapshot",
+    "detail_log_sha256": "15b5b2311eccf1a9e8108d485f6b74f4fd67511ca9397082e6de75b773319cf6"
+  },
+  {
+    "selector": "installer-ctl",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   installer-ctl",
+    "duration": "2 s installer-ctl",
+    "detail_log_sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+  },
+  {
+    "selector": "ctl-read-framing",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ctl-read-framing",
+    "duration": "0 s ctl-read-framing",
+    "detail_log_sha256": "6597900840278c43195f2bd83e02f91f4e5b2cb2f1a91a710e44db34437e5985"
+  },
+  {
+    "selector": "ctl-publish-atomic",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ctl-publish-atomic",
+    "duration": "0 s ctl-publish-atomic",
+    "detail_log_sha256": "aeea3e0a18060a244c732e0a51969651b85d5611bc6b3cab6823713c77670e82"
+  },
+  {
+    "selector": "rec-held-duration",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   rec-held-duration",
+    "duration": "14 s rec-held-duration",
+    "detail_log_sha256": "03b8d6ec12900da3a5d71f7a3d12678768e90e16535e9351fdf8bf3227cb5a8f"
+  },
+  {
+    "selector": "original-stale-release",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   original-stale-release",
+    "duration": "0 s original-stale-release",
+    "detail_log_sha256": "d65ef11ef60b2f259a8a8d6ae31427c2bee288f851462223dcc5df4eccf3f2da"
+  },
+  {
+    "selector": "rec-endpoint-lifecycle",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   rec-endpoint-lifecycle",
+    "duration": "14 s rec-endpoint-lifecycle",
+    "detail_log_sha256": "6be518cdc8309e3b2e138d7787bb273401b5d1cfcfa71139262a99011c61d2f7"
+  },
+  {
+    "selector": "rec-endpoint-storage",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   rec-endpoint-storage",
+    "duration": "8 s rec-endpoint-storage",
+    "detail_log_sha256": "68ada40c08b5932eef50516602d1a2b64f1f0dada1952570ef1982506ba8517b"
+  },
+  {
+    "selector": "rec-nonforward-guard",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   rec-nonforward-guard",
+    "duration": "13 s rec-nonforward-guard",
+    "detail_log_sha256": "9568e3c6589cff46445c63441b497dbc9c8a96d1b14bb64908b45d5af02a184f"
+  },
+  {
+    "selector": "rec-live-smk",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   rec-live-smk",
+    "duration": "15 s rec-live-smk",
+    "detail_log_sha256": "3b7e527cedddcd0c47c08db25853dae9aad402a628e9c992e9a17daed13c421b"
+  },
+  {
+    "selector": "ext-midi-rec-smk",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ext-midi-rec-smk",
+    "duration": "15 s ext-midi-rec-smk",
+    "detail_log_sha256": "6793ac23517ef51d3baf535767a3e40901fd903e6c8d10f9209385523e6b3590"
+  },
+  {
+    "selector": "copy-semantics",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   copy-semantics",
+    "duration": "14 s copy-semantics",
+    "detail_log_sha256": "ab44688c616ce84b8179ab63abb910b80880305f68be2e6903260efd844005f7"
+  },
+  {
+    "selector": "song-actions",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   song-actions",
+    "duration": "14 s song-actions",
+    "detail_log_sha256": "f3cee9bb32f11eee7eebe173c4f1bfc708176b81c8b7d64005ac3f4185ada24d"
+  },
+  {
+    "selector": "ui-feedback",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-feedback",
+    "duration": "12 s ui-feedback",
+    "detail_log_sha256": "73c8484e36e194d50fe24e084da894455df801b05f1ef1c508e234d6a7e5da1a"
+  },
+  {
+    "selector": "remaining-feature-proof-selftest",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   remaining-feature-proof-selftest",
+    "duration": "2 s remaining-feature-proof-selftest",
+    "detail_log_sha256": "7ffda15959781bbeb74d2c9ce9c4733de3476eef648354bb85a78ce6d9366e2e"
+  },
+  {
+    "selector": "home-pattern-glyph",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   home-pattern-glyph",
+    "duration": "0 s home-pattern-glyph",
+    "detail_log_sha256": "7c2f09f20baf792de5c107d8a93da0733e50f2bfd7f1f64382afc72b4affdafe"
+  },
+  {
+    "selector": "home-overview",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   home-overview",
+    "duration": "13 s home-overview",
+    "detail_log_sha256": "e2dc1fbf599966612b1a41fdeb103a2621df07882f094b881b2f71648b766735"
+  },
+  {
+    "selector": "sound-matrix",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   sound-matrix",
+    "duration": "6 s sound-matrix",
+    "detail_log_sha256": "27357771a5584c0f0a6f3cb71a8c7c971ac5c737b38acaa1920ad96d6893efef"
+  },
+  {
+    "selector": "sound-layout",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   sound-layout",
+    "duration": "14 s sound-layout",
+    "detail_log_sha256": "ab3ccd38771f3f5a2cf96705082f7d439a36f00c1ac20ca33098aea1efe95638"
+  },
+  {
+    "selector": "perf-wheel-motion",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   perf-wheel-motion",
+    "duration": "14 s perf-wheel-motion",
+    "detail_log_sha256": "4a284716ee2cfdc7648cafcb17a793901f83e654a41a35cb2e62454f6f12b348"
+  },
+  {
+    "selector": "chicago-presentation",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   chicago-presentation",
+    "duration": "14 s chicago-presentation",
+    "detail_log_sha256": "0ff5d6216099c7d1fd9a9523cd492cf2da73417f12ce98904a66049947f2b206"
+  },
+  {
+    "selector": "chicago-readout",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   chicago-readout",
+    "duration": "14 s chicago-readout",
+    "detail_log_sha256": "fe057bfb78c2cfe7881adcc7cbd6a7b55e40c7273a26eb796170259bd569ba5b"
+  },
+  {
+    "selector": "ui-drum-glyph",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-drum-glyph",
+    "duration": "15 s ui-drum-glyph",
+    "detail_log_sha256": "8ab6dc6c1f883fa7a16555e1297b13c5318499a19a5afe75d6d45e0f0793dd5b"
+  },
+  {
+    "selector": "ui-glyph-polish",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-glyph-polish",
+    "duration": "14 s ui-glyph-polish",
+    "detail_log_sha256": "301bbd19d74d2c6bde207bad62518a1531bd2deba96a219a44d94c74eae3d8e2"
+  },
+  {
+    "selector": "ui-chicago-env-motion",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-chicago-env-motion",
+    "duration": "14 s ui-chicago-env-motion",
+    "detail_log_sha256": "a648526583dd7c69e7f88f8d321b447396051ed811d1b898b78ba43ab737f442"
+  },
+  {
+    "selector": "matrix-knob-caption",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   matrix-knob-caption",
+    "duration": "5 s matrix-knob-caption",
+    "detail_log_sha256": "ec84e9ea8a737b9d114523c10d1b45c31bf97e4a60dfd43cb33f371abe8dac37"
+  },
+  {
+    "selector": "preset-navigation-noop",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   preset-navigation-noop",
+    "duration": "6 s preset-navigation-noop",
+    "detail_log_sha256": "3079ba871aec0e9c66e3b2e4102df4cd640a7e2aa13fa7124e9b26ad8ebf05bb"
+  },
+  {
+    "selector": "ui-303-entry",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   ui-303-entry",
+    "duration": "36 s ui-303-entry",
+    "detail_log_sha256": "019690670626f67ac078bc82545cd77406ea9b4f1d86cba20c7a520196fb598e"
+  },
+  {
+    "selector": "roadmap-evidence-check",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   roadmap-evidence-check",
+    "duration": "0 s roadmap-evidence-check",
+    "detail_log_sha256": "a7f77475928cb85436fa609d819a2e1ca597824bbf196df09ca1b906d964d8a6"
+  },
+  {
+    "selector": "roadmap-evidence-check-selftest",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   roadmap-evidence-check-selftest",
+    "duration": "1 s roadmap-evidence-check-selftest",
+    "detail_log_sha256": "f364ac7c7b1097cb31f32799416d5b9e165c19cb1e5091eed9d49fa836a41160"
+  },
+  {
+    "selector": "scenario-arrows",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-arrows",
+    "duration": "0 s scenario-arrows",
+    "detail_log_sha256": "7b340ad039cf1a84a719a69b1a37158ded236e412937976a9be32ffc79b6078c"
+  },
+  {
+    "selector": "scenario-autosave",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-autosave",
+    "duration": "1 s scenario-autosave",
+    "detail_log_sha256": "c1fbe94fc38a7ed6b5aeabea12daeac1c44732369a2c94ab29b206fcf497a2dc"
+  },
+  {
+    "selector": "scenario-bleclock",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-bleclock",
+    "duration": "0 s scenario-bleclock",
+    "detail_log_sha256": "a908692fd6ea744ff443b8d8c6db89bad13bf9b7ff777407d15db2802e53837b"
+  },
+  {
+    "selector": "scenario-blenotes",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-blenotes",
+    "duration": "0 s scenario-blenotes",
+    "detail_log_sha256": "ca548ed7ba07730afce900acc333b3cd158b63b378335825f71837201718d470"
+  },
+  {
+    "selector": "scenario-brkslice",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-brkslice",
+    "duration": "0 s scenario-brkslice",
+    "detail_log_sha256": "7ab9eef27cc84c22cf497760cc47ac8ce735ffe4990dfb5b07ecac6c7ec0a2fc"
+  },
+  {
+    "selector": "scenario-brkslice_mode_toggle",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-brkslice_mode_toggle",
+    "duration": "0 s scenario-brkslice_mode_toggle",
+    "detail_log_sha256": "7ef1d375b5558775854910345d038946e044ba10599009c77b0129e5273b01b5"
+  },
+  {
+    "selector": "scenario-brkslice_trs_overlap",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-brkslice_trs_overlap",
+    "duration": "0 s scenario-brkslice_trs_overlap",
+    "detail_log_sha256": "cc2a1df9f29893a2363877818b90204f32c94b686fd6330cad97a280122c10f5"
+  },
+  {
+    "selector": "scenario-clip-arrow-menu",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-clip-arrow-menu",
+    "duration": "0 s scenario-clip-arrow-menu",
+    "detail_log_sha256": "49b8ebbc9d5c24456e42c52b0d1fb92903543751fce6245b26f88e702e45c1dc"
+  },
+  {
+    "selector": "scenario-clklock",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-clklock",
+    "duration": "0 s scenario-clklock",
+    "detail_log_sha256": "e4d209eb39ff59d5b33fc31dc2d7e2f53ba27e872e74a6c747fa719e5aee03c2"
+  },
+  {
+    "selector": "scenario-clkmove",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-clkmove",
+    "duration": "0 s scenario-clkmove",
+    "detail_log_sha256": "be46201e55f3c7c4695e7c28c9f21ce363474e86e244ab757a5391a6d3680352"
+  },
+  {
+    "selector": "scenario-clocksrc",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-clocksrc",
+    "duration": "0 s scenario-clocksrc",
+    "detail_log_sha256": "1f3fc093869fb1816b13d80e8e387093da25ccf5c86fbaaa54673e0f5d51359c"
+  },
+  {
+    "selector": "scenario-drum_bass_ch_consume",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-drum_bass_ch_consume",
+    "duration": "0 s scenario-drum_bass_ch_consume",
+    "detail_log_sha256": "d928c9716f87ec8bb2034ce7cf558291aae5f2d29046666c63008c9fbe2d59db"
+  },
+  {
+    "selector": "scenario-edit_midi_rec_guard",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-edit_midi_rec_guard",
+    "duration": "0 s scenario-edit_midi_rec_guard",
+    "detail_log_sha256": "f81425c33c2fb294c78725e8a0bfe86bd0b1189dd7defe938caf9f4964ec7cd2"
+  },
+  {
+    "selector": "scenario-edit_oct_no_hidden",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-edit_oct_no_hidden",
+    "duration": "0 s scenario-edit_oct_no_hidden",
+    "detail_log_sha256": "7d91367de8e3a800840825b158b6984e5f6837bedaddbe5d7d1e5ebbe00a749e"
+  },
+  {
+    "selector": "scenario-extclock",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-extclock",
+    "duration": "0 s scenario-extclock",
+    "detail_log_sha256": "11a8c006998d59cbd8437c52ab8514747d9f7515fe31d0afc090131fda02a76d"
+  },
+  {
+    "selector": "scenario-freeplay",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-freeplay",
+    "duration": "0 s scenario-freeplay",
+    "detail_log_sha256": "a1705d7cde4bcc0c298ffa0e272ab09d5ce03c2df93c2a343b1ea10d9e004ece"
+  },
+  {
+    "selector": "scenario-getting_started",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-getting_started",
+    "duration": "1 s scenario-getting_started",
+    "detail_log_sha256": "78fe78bc4b60db39ee9e88176be25f9aa7913df31bcffa88cec461750ed07989"
+  },
+  {
+    "selector": "scenario-groove",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-groove",
+    "duration": "0 s scenario-groove",
+    "detail_log_sha256": "2976b2ed5f9eeaa98ec9089ad1b73c5ed5e120799c54fee3c05f4f9bafe78a8a"
+  },
+  {
+    "selector": "scenario-guard",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-guard",
+    "duration": "0 s scenario-guard",
+    "detail_log_sha256": "6d202a3861785adea3aa1236886ddec1b01b97ab1df6fe82b43e7272f9ac4c1d"
+  },
+  {
+    "selector": "scenario-help",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-help",
+    "duration": "0 s scenario-help",
+    "detail_log_sha256": "2eb12eff143d6c183561258cba15dd817797c7a2b0865d8dcd177681c3a9e93c"
+  },
+  {
+    "selector": "scenario-jam",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-jam",
+    "duration": "1 s scenario-jam",
+    "detail_log_sha256": "cbd7b281fe441a17525e28df4250daaa3205ea6ea3789e16b7402976b1aee949"
+  },
+  {
+    "selector": "scenario-keysound",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-keysound",
+    "duration": "0 s scenario-keysound",
+    "detail_log_sha256": "9d2db91f399908d93994b35c3fc97616877a2db0f543345ab6727979f3e7d7dc"
+  },
+  {
+    "selector": "scenario-knobs",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-knobs",
+    "duration": "0 s scenario-knobs",
+    "detail_log_sha256": "e0500752259add5e3c53e411fe3148a80b5a8d1a77c1df5b5a75beb0f361d15f"
+  },
+  {
+    "selector": "scenario-midiowner",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-midiowner",
+    "duration": "0 s scenario-midiowner",
+    "detail_log_sha256": "0f683ba30ac024e9dab4dce42a3e3581f7032588bdb88d1462eab6af69196dac"
+  },
+  {
+    "selector": "scenario-migrate",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-migrate",
+    "duration": "0 s scenario-migrate",
+    "detail_log_sha256": "9578246d1ca7d508aa8cae4a5af4cb017d6fad7c37595c7ba27792be3f873bf7"
+  },
+  {
+    "selector": "scenario-migrate0102",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-migrate0102",
+    "duration": "0 s scenario-migrate0102",
+    "detail_log_sha256": "9578246d1ca7d508aa8cae4a5af4cb017d6fad7c37595c7ba27792be3f873bf7"
+  },
+  {
+    "selector": "scenario-patterns",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-patterns",
+    "duration": "0 s scenario-patterns",
+    "detail_log_sha256": "158a85508e3140900cfed651b77527c9f046e4dd40c5a55618ba1f1475f1fc43"
+  },
+  {
+    "selector": "scenario-perf",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-perf",
+    "duration": "1 s scenario-perf",
+    "detail_log_sha256": "9951ea53beb139000cb5686473be3dffd60aa38bc766a2671ac4f35cdbb7f46a"
+  },
+  {
+    "selector": "scenario-perfsave",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-perfsave",
+    "duration": "0 s scenario-perfsave",
+    "detail_log_sha256": "9e27c2cc8e5815a27b249e26444839d30903adea4155f743b30eac0fd73a8322"
+  },
+  {
+    "selector": "scenario-plock",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-plock",
+    "duration": "0 s scenario-plock",
+    "detail_log_sha256": "1409859ad834a3dc35a4cafce223d04f6a784d46c4984ebc0e1abdc2a35d44e1"
+  },
+  {
+    "selector": "scenario-prob",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-prob",
+    "duration": "0 s scenario-prob",
+    "detail_log_sha256": "c2092dbda18eaee46b61241486a5570fb25f76a547e0fcc31051daeaa4c2b2f3"
+  },
+  {
+    "selector": "scenario-probcond",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-probcond",
+    "duration": "1 s scenario-probcond",
+    "detail_log_sha256": "02ade42e2efa6995b93e0f61d016211497049fede4b50627b81e626d6b76bb65"
+  },
+  {
+    "selector": "scenario-probreset",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-probreset",
+    "duration": "0 s scenario-probreset",
+    "detail_log_sha256": "26f370ceb71c2281dffa01aad27fa182160445f3456097882b7327cffae4ad91"
+  },
+  {
+    "selector": "scenario-roll_continuation",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-roll_continuation",
+    "duration": "0 s scenario-roll_continuation",
+    "detail_log_sha256": "bb55b10b79e7b11f65f25f4531369887e105eb4009e901d128eb600b560c89f7"
+  },
+  {
+    "selector": "scenario-roll_short_tie",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-roll_short_tie",
+    "duration": "0 s scenario-roll_short_tie",
+    "detail_log_sha256": "947a1077a14cd24506640c916e4ce40844a879f96be96c3e715e0b0e71662aee"
+  },
+  {
+    "selector": "scenario-savefeedback",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-savefeedback",
+    "duration": "0 s scenario-savefeedback",
+    "detail_log_sha256": "48c5e4be95ca3705e0441a849201f4706999642f8b6131e00492539fea6058ff"
+  },
+  {
+    "selector": "scenario-savewait",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-savewait",
+    "duration": "0 s scenario-savewait",
+    "detail_log_sha256": "ae90fb8b069d34709725c438b5558f8f184033cc96e20a28511d47a8f083d6ea"
+  },
+  {
+    "selector": "scenario-showcase",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-showcase",
+    "duration": "1 s scenario-showcase",
+    "detail_log_sha256": "4cbfe94647ceb3f9e5f7aed3cf1ffca68e512b4ef5aebec5e70340c45bb2dd4f"
+  },
+  {
+    "selector": "scenario-slices",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-slices",
+    "duration": "0 s scenario-slices",
+    "detail_log_sha256": "894389df9d5c13ed9bc66efd17973b3d3dbfc5e8fbeda448cdedc8f75a6948d3"
+  },
+  {
+    "selector": "scenario-song",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-song",
+    "duration": "0 s scenario-song",
+    "detail_log_sha256": "d90807078d6796ab9d9f5e49cbb24ccc132b2b90404c1cd08139561177cb4153"
+  },
+  {
+    "selector": "scenario-song_live_mute_save",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-song_live_mute_save",
+    "duration": "0 s scenario-song_live_mute_save",
+    "detail_log_sha256": "7c4b3773fd67ae5fc272182018181c0c676e8029471599719f9d2cee092fb209"
+  },
+  {
+    "selector": "scenario-songrep",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-songrep",
+    "duration": "0 s scenario-songrep",
+    "detail_log_sha256": "86410789fae96bbf8cc6b2e9f39486224c4df5b4eb8d311b2ab8c0a183c5207f"
+  },
+  {
+    "selector": "scenario-sound_matrix_chicago",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-sound_matrix_chicago",
+    "duration": "0 s scenario-sound_matrix_chicago",
+    "detail_log_sha256": "b91d03e3f58313705b425166d54dbbea6b18544b01779e4bb7d63588352e3d37"
+  },
+  {
+    "selector": "scenario-sound_matrix_chicago_idle",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-sound_matrix_chicago_idle",
+    "duration": "0 s scenario-sound_matrix_chicago_idle",
+    "detail_log_sha256": "36da65873d1c46a25338d8e938266eeaf744388f2d57e9135eed60c421fa15cc"
+  },
+  {
+    "selector": "scenario-sound_matrix_drum",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-sound_matrix_drum",
+    "duration": "0 s scenario-sound_matrix_drum",
+    "detail_log_sha256": "db6a0037e4ddfe1d1145a0570b504a3f2647805942a4b38dc10fc9c4439e1171"
+  },
+  {
+    "selector": "scenario-sound_matrix_lock",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-sound_matrix_lock",
+    "duration": "0 s scenario-sound_matrix_lock",
+    "detail_log_sha256": "c83d97177279443025be28750bde3150cd0763fbea68c022a04b309086e3f396"
+  },
+  {
+    "selector": "scenario-sound_matrix_miami",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-sound_matrix_miami",
+    "duration": "1 s scenario-sound_matrix_miami",
+    "detail_log_sha256": "7fa01785d5455ca755dafaf9cc7a8a52a9ae9ddef52ed9df402e2fa229f70691"
+  },
+  {
+    "selector": "scenario-sound_page_split",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-sound_page_split",
+    "duration": "0 s scenario-sound_page_split",
+    "detail_log_sha256": "a0a8c2ab3ec93ed699c0dc6fc088ed5943d0b1d7bdb7e2e86327a82600653ad3"
+  },
+  {
+    "selector": "scenario-step303",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-step303",
+    "duration": "0 s scenario-step303",
+    "detail_log_sha256": "3a2f6c6bea22541868adc7b67cac969df14ae1cbdac19c17286b46774bf87765"
+  },
+  {
+    "selector": "scenario-steps64",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-steps64",
+    "duration": "0 s scenario-steps64",
+    "detail_log_sha256": "e9dbc30c37e2a5fd6725becd8ff4006c0b07851f55a40c5c2c502e217a1793f2"
+  },
+  {
+    "selector": "scenario-stereo",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-stereo",
+    "duration": "0 s scenario-stereo",
+    "detail_log_sha256": "8994f2db618d8ab938cdda8efdefcb57769766dc1e94b1ecc2353a431134f3e4"
+  },
+  {
+    "selector": "scenario-tb3po",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-tb3po",
+    "duration": "0 s scenario-tb3po",
+    "detail_log_sha256": "53b94a4992d4194efbc18f09f6e8f596fa161d92d654f91434f9ad2c9732964d"
+  },
+  {
+    "selector": "scenario-tour",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-tour",
+    "duration": "0 s scenario-tour",
+    "detail_log_sha256": "5dfd5bef6cbb2f0d7a71e3ca74b27aa843c1d931683926f499f05feac35924fb"
+  },
+  {
+    "selector": "scenario-trackmute",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-trackmute",
+    "duration": "0 s scenario-trackmute",
+    "detail_log_sha256": "f981efd6392ce96d27f4d5623180c3f8b186fc6b1c3da77f5c26538c5b8865e4"
+  },
+  {
+    "selector": "scenario-undo",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-undo",
+    "duration": "0 s scenario-undo",
+    "detail_log_sha256": "a1e5b954d3146062df72f7fc3ef58d8986920c1563e853497af2f1bc040a6652"
+  },
+  {
+    "selector": "scenario-upload",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-upload",
+    "duration": "1 s scenario-upload",
+    "detail_log_sha256": "980cd0b5027e170f26c09337a7d53aaf4e90f0f4a17e3e886181822117842221"
+  },
+  {
+    "selector": "scenario-upload44",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-upload44",
+    "duration": "0 s scenario-upload44",
+    "detail_log_sha256": "49da11557eedf57f05a8c06a8d81b02229f678f285bd52f67be624a68183dd03"
+  },
+  {
+    "selector": "scenario-usbnotes",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   scenario-usbnotes",
+    "duration": "0 s scenario-usbnotes",
+    "detail_log_sha256": "d949c71de3b3c576d404ff31e5b091a8fc7f83edeea5acb241214916e8ae8bd6"
+  },
+  {
+    "selector": "perf-scratch",
+    "status": "PASS",
+    "phase": "resumed",
+    "result_line": "ok   perf-scratch",
+    "duration": "15 s perf-scratch",
+    "detail_log_sha256": "4e8e1cc1114aa5a30c68c211a478ebd815ba43079177ae1db0f2b4293ed615b2"
+  }
+]
