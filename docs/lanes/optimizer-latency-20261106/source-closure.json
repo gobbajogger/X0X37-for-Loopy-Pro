@@ -3,5 +3,13 @@
   "git_tree": "00370c8cf385577395f616e9df3cbc45a0d23041",
   "source_manifest_sha256": "fc496c458510c07c8a9ce9b60e0bd38e26b8375b9088af3fe0d36b19d7e19dad",
   "paths": 1450,
-  "scope": "All tracked build and host-test sources, tools, scripts, assets and controller files. Final evidence-only additions must not change any existing tracked input."
+  "scope": "All tracked build and host-test sources, tools, scripts, assets and controller files. Final evidence-only additions must not change any existing tracked input.",
+  "independent_qa": {
+    "tested_head": "072c1bdfe626c2436600b9900d0c238458cdab42",
+    "tested_tree": "f31d6aad6e7e61215ed094b44ce2325366d3bd52",
+    "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+    "preexisting_base_blobs_verified": 4935,
+    "method": "Recompute the Git blob identity of every pre-existing tracked base file in the tested working checkout and compare it with git ls-tree -r at the base.",
+    "result": "PASS; all pre-existing input bytes match; final update is confined to the same five evidence files."
+  }
 }

@@ -128,5 +128,60 @@
       "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
       "expected_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
     }
-  ]
+  ],
+  "independent_qa": {
+    "source_head": "072c1bdfe626c2436600b9900d0c238458cdab42",
+    "source_tree": "f31d6aad6e7e61215ed094b44ce2325366d3bd52",
+    "executor": "Independent successor Codex QA thread, Linux x86_64",
+    "result": "BUILD_ONLY PASS",
+    "date_utc": "2026-11-05",
+    "sdk_tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+    "sdk_files_verified": 11,
+    "toolchain_archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "commands": [
+      "X0X_DEV_PADCAL=1 MODEL=elite bash build.sh --board smk37",
+      "X0X_DEV_PADCAL=1 MODEL=pro bash build.sh --board smk37",
+      "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh"
+    ],
+    "environment": "JIELI_TOOLCHAIN and AC79_SDK point to independently fetched pinned inputs; SDK_LOCAL points to the same SDK; X0X_GEN_CACHE is workspace-local.",
+    "models": {
+      "elite": {
+        "exit_code": 0,
+        "log_sha256": "53e09d4dc302b7258178d203063c6d3602bc1f15253e92afb08522d04db91045",
+        "artifacts_match_producer": true,
+        "app_bytes": 480568,
+        "package_bytes": 651457,
+        "app_ram_used": 95780,
+        "app_ram_budget": 98304,
+        "pool_used": 335464,
+        "pool_budget": 344064
+      },
+      "pro": {
+        "exit_code": 0,
+        "log_sha256": "a60ae2a7aa1c79351cafe83616e5ed195fb11244013d7b45203bc2d683dec560",
+        "artifacts_match_producer": true,
+        "app_bytes": 480568,
+        "package_bytes": 651457,
+        "app_ram_used": 95780,
+        "app_ram_budget": 98304,
+        "pool_used": 335464,
+        "pool_budget": 344064
+      },
+      "controller": {
+        "exit_code": 0,
+        "log_sha256": "1f9380cd3717d48a165c409820b620523835e6a6bcf3becb203de5b6a4dd4e7e",
+        "sha256": "aafb4542336d7ed192d97052b2effa3929cc3740a0e4051ec43b21be26866af7",
+        "bytes": 61088,
+        "image_payload_crc32": "9aa7f77f",
+        "whole_file_crc32": "8738d71f",
+        "ram_used": 26336,
+        "ram_budget": 26368
+      }
+    },
+    "package_integrity": "Elite/Pro product identities, package/OTA/app CRCs and controller header/CRC verified with tools/check_native_build_output.py",
+    "setup_recovery": "Initial Elite attempt stopped at generation because default HOME cache was read-only; reran with workspace-local X0X_GEN_CACHE. No source changes.",
+    "hardware": "NOT_RUN"
+  }
 }

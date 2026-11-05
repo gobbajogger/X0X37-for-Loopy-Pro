@@ -419,5 +419,34 @@
     "variants": "GCC, Clang, GCC UBSan, Clang UBSan, Clang ASan/UBSan: 164 checks and zero failures per configuration.",
     "stdout_sha256": "a639d0cff3e38559be7ad6fe0f8a05733d55b5de4e271702c4db61c3e0449695",
     "detail_sha256": "d65ef11ef60b2f259a8a8d6ae31427c2bee288f851462223dcc5df4eccf3f2da"
+  },
+  "independent_qa": {
+    "executor": "Independent successor Codex QA thread, Linux x86_64",
+    "source_head": "072c1bdfe626c2436600b9900d0c238458cdab42",
+    "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+    "result": "PASS",
+    "command": "X0X_STRICT_PREFLIGHT=1 X0X_TEST_JOBS=8 sh tests/run_tests.sh",
+    "selection": "all; no arguments or X0X_TESTS filter",
+    "exit_code": 0,
+    "counts": {
+      "pass": 336,
+      "fail": 0,
+      "skip": 0,
+      "not_run": 0
+    },
+    "one_clean_unfiltered_invocation": true,
+    "preflight": {
+      "pass": 16,
+      "fail": 0
+    },
+    "stdout_sha256": "0ee8143ea05e923d283f50cb06e7e9fa4d00f9f1cbd58272f9a66cd9283da11d",
+    "detail_log_sha256": {
+      "optimization-equivalence": "3be29980d18374023a9a42ff37b006c3b0a1f2016d32a2c3d0448329ec6088f2",
+      "original-stale-release": "d65ef11ef60b2f259a8a8d6ae31427c2bee288f851462223dcc5df4eccf3f2da",
+      "install-slots-web": "4cce37755a57d696f37d3cb1ead4832b8a6dfccf43703eb96a6d3e1cf27dc824"
+    },
+    "internal_coverage": "All five stale-release plain/sanitizer configurations ran (164 checks, zero failures each); all four GCC/Clang optimized/sanitizer IMA decoder configurations ran.",
+    "environment": "GCC 14.2.0, Debian Clang 19.1.7 with sanitizer runtime, Node 24.19.0, Pillow 12.3.0; references at the original full SHAs recorded above; pinned native Pro app/loader and SDK present.",
+    "setup_recovery": "Aborted an earlier sandboxed invocation after Node spawnSync returned EPERM even for a trivial successful Python child. The same probe passed in the approved unsandboxed execution mode. This result comes entirely from the fresh full unfiltered invocation in that mode; no source or test changes."
   }
 }

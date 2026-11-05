@@ -65,3 +65,27 @@ Final delivery must retain the complete base tree and change only this evidence
 directory. Keep one PR into `wip/one-build`. No protected-ref write, `.github`
 change, firmware/SDK/private-header addition, credential, or device action belongs
 to this recut. Generated binaries stay local and are not delivered.
+
+## Independent successor QA
+
+An independent Codex QA thread tested PR head
+`072c1bdfe626c2436600b9900d0c238458cdab42` against the unchanged pinned base.
+All 4,935 pre-existing tracked base blobs matched the working checkout, and the
+PR delta remained exactly these five evidence files. No recut was needed.
+
+Elite and Pro DEV native builds and the matching controller passed with SDK
+V1.2.1 (all 11 pins verified) and the pinned JieLi compiler. All app, loader,
+package and controller hashes reproduce the producer records. Package model,
+CRC and budget checks passed.
+
+The independent full host run passed **336 PASS, 0 FAIL, 0 SKIP, 0 NOT_RUN in one
+clean unfiltered invocation**, with strict preflight 16/0. All internal Clang
+variants ran. This supersedes the need to rely on the earlier composite coverage
+for QA readiness; the earlier execution history remains recorded above.
+An earlier sandboxed attempt was aborted after a reproduced Node subprocess
+EPERM; the approved execution mode resolved that environment error without
+source or test edits. See the `independent_qa` records in the JSON evidence.
+
+This follow-up changes evidence only. Tested build and host inputs remain
+byte-identical after the evidence update. BUILD_ONLY does not qualify hardware,
+installation, publication or production promotion.

@@ -15,5 +15,20 @@
   "final_delivery_checks": [
     "Verify complete tree delta contains only intended evidence paths.",
     "Verify expected remote lane head before its nonforced update."
-  ]
+  ],
+  "independent_qa": {
+    "reviewer": "Independent successor Codex QA thread",
+    "source_head": "072c1bdfe626c2436600b9900d0c238458cdab42",
+    "base": "48e92b76c2f476cf40771e00a04e1838136bb55d",
+    "findings": [],
+    "checks": [
+      "Live base equals the requested pin; no recut needed.",
+      "Exactly the five intended evidence files differ; all are UTF-8 text, valid JSON where applicable, with no credential-pattern matches.",
+      "Every one of the 4935 pre-existing tracked base blobs matches the tested working checkout.",
+      "Firmware, experiments, tests, tools, host, ble and .github subtree identities match the base.",
+      "Independent Elite/Pro DEV and controller rebuilds reproduce all recorded artifact hashes; package model and CRC checks pass.",
+      "Independent full unfiltered host invocation passes 336/0/0/0; internal Clang variants verified."
+    ],
+    "scope": "BUILD_ONLY evidence PR into wip/one-build; integration owner retains merge authority; no hardware or release qualification."
+  }
 }
