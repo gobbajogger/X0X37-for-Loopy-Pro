@@ -1,0 +1,6 @@
+usage: package_nightly.py [-h] --model {elite,pro} --controller-sha256
+                          CONTROLLER_SHA256 --controller-size CONTROLLER_SIZE
+                          --firmware-version FIRMWARE_VERSION
+                          [--ledger LEDGER] [--check] [-o OUT]
+                          package [controller]
+package_nightly.py: error: unrecognized arguments: --nightly-version 0.0.25

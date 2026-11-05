@@ -1,0 +1,338 @@
+native evidence build of 35b72991 (UNREVIEWED), not release qualification
+Records below are the start time, command, build env, duration and rc captured when each command ran.
+Packaging entries were appended to the live log as they ran. Earlier entries are the same fields from the live runner transcript.
+Inodes: before 10544358 free of 10813440 (3%). After 10522456 free (3%).
+
+===== verify-head =====
+start_utc: 2026-11-05T10:00:21Z
+command: git rev-parse HEAD; git rev-parse HEAD^{tree}; git status --porcelain; stat -c %a tests/run_tests.sh
+result: HEAD 35b729914792d947c675d29cb9bd80ac7d65d704 tree ccb0aa5b0ad2827f4a5176f12c032eba3db23c71 clean mode 644
+duration_s: 0
+rc: 0
+
+===== toolchain-download =====
+start_utc: 2026-11-05T10:00:38Z
+command: curl -fL equivalent, https://pkgman.jieliapp.com/s/linux-toolchain saved then hashed
+env: public URL only
+duration_s: 6
+rc: 0
+observed: http 200 url https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz bytes 26027508 sha256 a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+
+===== sdk-clone =====
+start_utc: 2026-11-05T10:00:38Z
+command: git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+duration_s: 42
+rc: 0
+peeled: d179b4484759423312073f5fbb232501aa491047
+
+===== toolchain-extract =====
+start_utc: 2026-11-05T10:01:16Z
+command: tar extract to /home/ubuntu/.jieli and hash pi32v2/bin/clang
+duration_s: 1
+rc: 0
+clang: version 4.0.1 sha256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+
+===== sdk-verify =====
+start_utc: 2026-11-05T10:02:32Z
+command: git rev-parse HEAD and sha256 of uboot.boot, cfg_tool.bin, cfg/eq_cfg_hw.bin
+env: AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+duration_s: 0
+rc: 0
+pins matched tools/build.py
+
+===== check-locked =====
+start_utc: 2026-11-05T10:02:45Z
+command: python3 tools/check_locked_settings.py
+env: JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CTL_NO_CACHE=1 SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK CTL_NATIVE=1 CC=cc CXX=c++
+duration_s: 0
+rc: 0
+
+===== build-elite =====
+start_utc: 2026-11-05T10:02:50Z
+command: env MODEL=elite JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 ./build.sh --board smk37
+env: MODEL=elite BOARD=smk37 JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CTL_NO_CACHE=1 CTL_NATIVE=1
+duration_s: 6
+rc: 0
+
+===== build-ctl =====
+start_utc: 2026-11-05T10:02:50Z
+command: env SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK CTL_NATIVE=1 CTL_NO_CACHE=1 JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain JIELI_DOCKER=0 sh ble/ctl/build_ctl.sh
+duration_s: 3
+rc: 0
+
+===== build-pro =====
+start_utc: 2026-11-05T10:03:25Z
+command: env MODEL=pro JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 ./build.sh --board smk37
+env: MODEL=pro BOARD=smk37 JIELI_DOCKER=0 X0X_DEV_PADCAL=0
+duration_s: 5
+rc: 0
+
+===== hash-ctl =====
+start_utc: 2026-11-05T10:03:25Z
+command: sha256sum ble/ctl/out/ctl.img
+duration_s: 0
+rc: 0
+
+===== add-ctl-pro =====
+start_utc: 2026-11-05T10:04:28Z
+command: python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+duration_s: 1
+rc: 0
+
+===== add-ctl-elite =====
+start_utc: 2026-11-05T10:04:29Z
+command: python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+duration_s: 0
+rc: 0
+
+===== add-ctl-check =====
+start_utc: 2026-11-05T10:04:29Z
+command: python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+duration_s: 0
+rc: 0
+
+===== hash-outputs =====
+start_utc: 2026-11-05T10:04:29Z
+command: sha256sum of elite.fwsc pro.fwsc both -ble.fwsc and ctl.img
+duration_s: 0
+rc: 0
+
+===== e2e-no-node =====
+start_utc: 2026-11-05T10:07:16Z
+command: env PATH=<node directories removed> sh tests/host/run_part_off_web_e2e.sh
+duration_s: 0
+rc: 0
+
+===== e2e-no-node-badref =====
+start_utc: 2026-11-05T10:07:16Z
+command: env PATH=<node directories removed> PART_OFF_BASE_REF=4b240bd33a0eb7008b44e12bc270aba4d32b82c1 sh tests/host/run_part_off_web_e2e.sh
+duration_s: 0
+rc: 0
+
+===== e2e-with-node =====
+start_utc: 2026-11-05T10:07:16Z
+command: sh tests/host/run_part_off_web_e2e.sh
+env: node v22.23.4 on PATH
+duration_s: 12
+rc: 0
+
+===== e2e-node-badref =====
+start_utc: 2026-11-05T10:07:55Z
+command: env PART_OFF_BASE_REF=4b240bd33a0eb7008b44e12bc270aba4d32b82c1 sh tests/host/run_part_off_web_e2e.sh
+duration_s: 11
+rc: 0
+
+===== suite-e2e-no-node =====
+start_utc: 2026-11-05T10:08:30Z
+command: env PATH=<node directories removed> X0X_TEST_JOBS=1 sh tests/run_tests.sh part-off-web-e2e
+duration_s: 0
+rc: 0
+
+===== github-ref-probe =====
+start_utc: 2026-11-05T10:07:00Z
+command: unauthenticated GET https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/commits/4b240bd33a0eb7008b44e12bc270aba4d32b82c1
+duration_s: 0
+rc: 0
+http: 422 No commit found for SHA
+
+===== host-tests =====
+start_utc: 2026-11-05T10:08:47Z
+command: timeout 20m sh tests/run_tests.sh
+env: JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK JIELI_DOCKER=0 X0X_DEV_PADCAL=0 CTL_NO_CACHE=1 CTL_NATIVE=1 CC=cc CXX=c++
+end_utc: 2026-11-05T10:27:20Z
+duration_s: 1113
+rc: 1
+note: completed with TESTS FAILED before the 20 minute cap
+
+===== package-nightly-flag-probe =====
+start_utc: 2026-11-05T10:30:31Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: python3 tools/package_nightly.py --nightly-version 0.0.25
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=
+  BOARD=
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:30:31Z
+duration_s: 0
+rc: 2
+log: /tmp/x0x-evidence-35b72991/logs/package-nightly-flag-probe.log
+
+===== package-nightly-unknown-flag =====
+start_utc: 2026-11-05T10:30:57Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: python3 tools/package_nightly.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img --model elite --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version 0.0.25 --nightly-version 0.0.25 -o /tmp/x0x-evidence-35b72991/should-not-write.fwsc
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=
+  BOARD=
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:30:57Z
+duration_s: 0
+rc: 2
+log: /tmp/x0x-evidence-35b72991/logs/package-nightly-unknown-flag.log
+
+===== pkg-build-elite =====
+start_utc: 2026-11-05T10:31:13Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: env MODEL=elite X0X_DEV_PADCAL=0 JIELI_DOCKER=0 JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK ./build.sh --board smk37 --nightly-version 0.0.25 --git-sha 35b729914792d947c675d29cb9bd80ac7d65d704
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=elite
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:31:18Z
+duration_s: 5
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/pkg-build-elite.log
+
+===== pkg-build-pro =====
+start_utc: 2026-11-05T10:31:18Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: env MODEL=pro X0X_DEV_PADCAL=0 JIELI_DOCKER=0 JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK ./build.sh --board smk37 --nightly-version 0.0.25 --git-sha 35b729914792d947c675d29cb9bd80ac7d65d704
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:31:24Z
+duration_s: 6
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/pkg-build-pro.log
+
+===== package-elite-create =====
+start_utc: 2026-11-05T10:31:36Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: python3 tools/package_nightly.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img --model elite --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version 0.0.25 -o /tmp/x0x-evidence-35b72991/nightly-packages/x0x-smk37-elite-0.0.25.fwsc
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:31:39Z
+duration_s: 3
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/package-elite-create.log
+
+===== package-pro-create =====
+start_utc: 2026-11-05T10:31:39Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: python3 tools/package_nightly.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img --model pro --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version 0.0.25 -o /tmp/x0x-evidence-35b72991/nightly-packages/x0x-smk37-pro-0.0.25.fwsc
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:31:42Z
+duration_s: 3
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/package-pro-create.log
+
+===== package-elite-check =====
+start_utc: 2026-11-05T10:31:42Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: python3 tools/package_nightly.py /tmp/x0x-evidence-35b72991/nightly-packages/x0x-smk37-elite-0.0.25.fwsc --check --model elite --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version 0.0.25
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:31:42Z
+duration_s: 0
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/package-elite-check.log
+
+===== package-pro-check =====
+start_utc: 2026-11-05T10:31:42Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+command: python3 tools/package_nightly.py /tmp/x0x-evidence-35b72991/nightly-packages/x0x-smk37-pro-0.0.25.fwsc --check --model pro --controller-sha256 a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984 --controller-size 61552 --firmware-version 0.0.25
+env:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  CTL_NATIVE=1
+  MODEL=pro
+  BOARD=smk37
+  CC=cc
+  CXX=c++
+  PYTHON=
+  HOME=/home/ubuntu
+  PART_OFF_BASE_REF=
+end_utc: 2026-11-05T10:31:43Z
+duration_s: 1
+rc: 0
+log: /tmp/x0x-evidence-35b72991/logs/package-pro-check.log
+

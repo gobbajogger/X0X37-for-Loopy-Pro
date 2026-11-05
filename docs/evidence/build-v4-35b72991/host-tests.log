@@ -1,0 +1,50 @@
+host suite: sh tests/run_tests.sh
+start_utc: 2026-11-05T10:08:47Z
+end_utc: 2026-11-05T10:27:20Z (log mtime)
+duration_s: 1113
+rc: 1
+cap: 20 minutes; finished before the cap (not rc 124)
+result line: TESTS FAILED
+ok=375 fail=28 not_run=6 total=409
+
+FAIL names:
+fastmath-ubsan
+original-release-integration
+chicago-fx2-inserts
+original-sound-cell
+original-release-ui
+original-build
+freeplay-rate-pads
+ui-theme
+smc-select-mode
+smc-solo-overflow
+engine-808-scratch-alias
+smc-boot-saved-roles
+smc-multi-peer
+ui-peer-names
+ble-device-setting-flow
+ble-toggle-persistence-gate
+part-off
+smc-ui
+smc-remainder
+smc-ui-bounds
+builtin-break-output
+offline-sequencer-browser
+offline-touchosc-lua
+original-stale-release
+ui-feedback
+sound-matrix
+ui-glyph-polish
+scenario-plock
+
+not-run:
+not-run ble-midi-receive (ASan runtime)
+not-run ble-capture-replay (ASan runtime)
+not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+not-run ble-role-switch (ASan runtime)
+not-run ui-303-entry (ASan)
+
+Frozen 8be16486 names all failed.
+New FAIL names are sanitizer-runtime or the absent part-off base ref.
+Full suite stdout is 639 lines and stays on the build VM.

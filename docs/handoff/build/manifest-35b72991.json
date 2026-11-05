@@ -1,0 +1,188 @@
+{
+  "label": "native evidence build of 35b72991 (UNREVIEWED), not release qualification",
+  "commit": "35b729914792d947c675d29cb9bd80ac7d65d704",
+  "tree": "ccb0aa5b0ad2827f4a5176f12c032eba3db23c71",
+  "branch": "evidence/build-v4-35b72991-20261105",
+  "source_branch": "lane/dev-m7a-v4-24.5-carry-20261105",
+  "toolchain": {
+    "archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "archive_sha256_expected": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "archive_bytes": 26027508,
+    "clang_version": "clang version 4.0.1",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "clang_sha256_expected": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "sdk": {
+    "tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "pins_match_tools_build_py": true
+  },
+  "env": {
+    "JIELI_TOOLCHAIN": "/home/ubuntu/.jieli/toolchain",
+    "AC79_SDK": "/home/ubuntu/fw-AC79_AIoT_SDK",
+    "JIELI_DOCKER": "0",
+    "X0X_DEV_PADCAL": "0",
+    "CTL_NO_CACHE": "1",
+    "SDK_LOCAL": "/home/ubuntu/fw-AC79_AIoT_SDK",
+    "CTL_NATIVE": "1",
+    "CC": "cc",
+    "CXX": "c++"
+  },
+  "outputs": [
+    {
+      "name": "x0x-smk37-elite.fwsc",
+      "size": 651570,
+      "sha256": "be4d608eb98b1408ffaed1e254b0e38f1c154b8c7865ae9a46f8ac184452bf85"
+    },
+    {
+      "name": "x0x-smk37.fwsc",
+      "size": 651566,
+      "sha256": "0773c61a48a7e1c84585a40d3b52f0e8c2cc49759b3c8693b3ac0ed983a67489"
+    },
+    {
+      "name": "x0x-smk37-elite-ble.fwsc",
+      "size": 651570,
+      "sha256": "4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb"
+    },
+    {
+      "name": "x0x-smk37-ble.fwsc",
+      "size": 651566,
+      "sha256": "cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7"
+    },
+    {
+      "name": "ctl.img",
+      "size": 61552,
+      "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984",
+      "matches_8be16486_recorded_hash": true,
+      "ble_tree": "0d4304546a60f22a06271b22b4881f6304ad439c"
+    }
+  ],
+  "headroom": {
+    "app_code_free": {"elite": 38664, "pro": 38680},
+    "ram_used": 97328,
+    "ram_free": 976,
+    "ram_cap": 98304,
+    "pool_used": 335864,
+    "pool_free": 8200,
+    "pool_cap": 344064,
+    "pool_free_floor": 8192,
+    "ble_flash": 61552,
+    "ble_flash_cap": 65536,
+    "ble_ram": 26336,
+    "ble_ram_cap": 26368,
+    "floor_verdicts": {
+      "ram": "PASS",
+      "pool_free": "PASS",
+      "ble_flash": "PASS",
+      "ble_ram": "PASS",
+      "note": "Pool free is 8200, which is 8 bytes above 8192."
+    }
+  },
+  "host_tests": {
+    "ok": 375,
+    "fail": 28,
+    "not_run": 6,
+    "rc": 1,
+    "duration_s": 1113,
+    "cap_s": 1200,
+    "fail_names": [
+      "fastmath-ubsan",
+      "original-release-integration",
+      "chicago-fx2-inserts",
+      "original-sound-cell",
+      "original-release-ui",
+      "original-build",
+      "freeplay-rate-pads",
+      "ui-theme",
+      "smc-select-mode",
+      "smc-solo-overflow",
+      "engine-808-scratch-alias",
+      "smc-boot-saved-roles",
+      "smc-multi-peer",
+      "ui-peer-names",
+      "ble-device-setting-flow",
+      "ble-toggle-persistence-gate",
+      "part-off",
+      "smc-ui",
+      "smc-remainder",
+      "smc-ui-bounds",
+      "builtin-break-output",
+      "offline-sequencer-browser",
+      "offline-touchosc-lua",
+      "original-stale-release",
+      "ui-feedback",
+      "sound-matrix",
+      "ui-glyph-polish",
+      "scenario-plock"
+    ],
+    "new_vs_8be16486": [
+      "ble-device-setting-flow",
+      "ble-toggle-persistence-gate",
+      "chicago-fx2-inserts",
+      "engine-808-scratch-alias",
+      "fastmath-ubsan",
+      "freeplay-rate-pads",
+      "original-release-integration",
+      "original-sound-cell",
+      "original-stale-release",
+      "part-off",
+      "smc-ui-bounds"
+    ],
+    "new_vs_8be16486_cause": "Ten are missing ASan or UBSan compiler-rt at link time. part-off exits 1 because PART_OFF_BASE_REF 4b240bd33a0eb7008b44e12bc270aba4d32b82c1 is not in this clone.",
+    "frozen_8be16486_all_failed": true
+  },
+  "part_off_e2e": {
+    "node_version": "v22.23.4",
+    "node_path": "/exec-daemon/node",
+    "exit_code": 0,
+    "exit_code_node_absent": 0,
+    "prints_not_run_with_exit_0": true,
+    "evidence": "tests/host/run_part_off_web_e2e.sh:8 prints NOT_RUN and exits 0 when node is missing. tests/run_tests.sh:119-120 and :239-241 count that exit 0 as ok. Observed suite line: ok part-off-web-e2e and all tests passed, while the test log contained NOT_RUN. With node, the script exited 0 and printed five PASS lines. PART_OFF_BASE_REF is not read by this script. With node and the unresolvable ref set, exit code was still 0 and the real checks passed. GitHub API returned HTTP 422, No commit found for SHA 4b240bd33a0eb7008b44e12bc270aba4d32b82c1. The sibling tests/host/run_part_off.sh:29-33 exits 1 when PART_OFF_REQUIRE_BASE is set and the ref is missing."
+  },
+  "package_check": {
+    "elite": {
+      "result": "PASS",
+      "build_flag": "--nightly-version 0.0.25",
+      "package_nightly_flag": "--firmware-version 0.0.25",
+      "package_nightly_nightly_version": "NOT accepted: unrecognized arguments: --nightly-version 0.0.25",
+      "ledger": "not demanded; product stayed SMK-37 Elite_900",
+      "size": 651570,
+      "sha256": "22368e6f2ab5e6ab0c086e2fdac7fb9292671f59b8416f3409a5a57cbfad2dee",
+      "check_rc": 0
+    },
+    "pro": {
+      "result": "PASS",
+      "build_flag": "--nightly-version 0.0.25",
+      "package_nightly_flag": "--firmware-version 0.0.25",
+      "package_nightly_nightly_version": "NOT accepted: unrecognized arguments: --nightly-version 0.0.25",
+      "ledger": "not demanded; product stayed SMK-37 Pro_900",
+      "size": 651566,
+      "sha256": "3f352a0e8a48b0b105c98f1da7dfa63abbaa864dde41ca090c1351b3cf99f5e3",
+      "check_rc": 0
+    },
+    "not_run_for_lack_of_ledger_number": []
+  },
+  "not_run": [
+    {
+      "item": "tools/gate.sh",
+      "reason": "Unreviewed evidence build only. Gate was not requested."
+    },
+    {
+      "item": "tools/dev_validate.py",
+      "reason": "Forces X0X_DEV_PADCAL=1 and writes DEV CHECKED. This grant does not include that validation claim. QA already marked the candidate needs changes."
+    },
+    {
+      "item": "tools/publish_nightly.py",
+      "reason": "Requires Elite and Pro DEV CHECKED records, which were not produced. No --push and no --remote."
+    },
+    {
+      "item": "tools/release_alloc.py and releases/openbeta/ledger.json",
+      "reason": "Coordinator: no open-beta ledger allocation. Ledger was not edited."
+    },
+    {
+      "item": "schwung-9W9 and schwung-8W8 host references",
+      "reason": "Trees not present. drum909 and drum808 are not-run."
+    }
+  ],
+  "binaries_committed": false
+}
