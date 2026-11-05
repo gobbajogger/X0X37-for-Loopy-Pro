@@ -32,6 +32,13 @@ static void smc_fx_release_note(uint8_t note){(void)note;fx_release_count++;}
 static int smc_fx_bus_now(uint8_t note){(void)note;return -1;}
 static void smc_fx_clear(void){}
 static void smc_solo_publish(void){}
+/* The smoke checks ordinary event ownership; full UI tests exercise these actions. */
+static int play_answer_question(int home){(void)home;return 0;}
+static int smc_part_reset_gesture(uint8_t note){(void)note;return 0;}
+static void smc_fx_publish(void){}
+static int part_at(int part){return part;}
+static void ask_sound_reset(int part){(void)part;}
+
 static void smc_button_apply(uint8_t note,int mmc){(void)note;(void)mmc;apply_count++;}
 
 /* PRODUCTION_FUNCTIONS_BEGIN */
