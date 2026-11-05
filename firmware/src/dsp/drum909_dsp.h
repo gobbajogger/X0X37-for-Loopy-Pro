@@ -14,8 +14,8 @@
  *  - Sample read position: 9W9 keeps a double; here 32.32 fixed point, which is
  *    exact for every playback rate the pots produce (identical positions).
  *  - tanh: a 1025-point table with linear interpolation (abs error < 6e-6),
- *    generated offline and stored as a lossless IEEE binary32 pack
- *    (x0x_tanh_value); used for the diode rounding and every saturator.
+ *    generated offline as exact binary32 constants in read-only storage;
+ *    used for the diode rounding and every saturator.
  *  - Biquad coefficients: cos(w0) as 1 - 2 sin^2(w0/2), which keeps the
  *    low-frequency filters (20 Hz DC blocker) as accurate as libm's cosf. */
 #pragma once
@@ -214,8 +214,8 @@ D9_ONE float d9_tanh(float u)
     } else {
         const int32_t i = (int32_t)a;
         const float fr = a - (float)i;
-        const float t0 = x0x_tanh_value((unsigned)i);
-        const float t1 = x0x_tanh_value((unsigned)i + 1u);
+        const float t0 = x0x_tanh_raw[(unsigned)i];
+        const float t1 = x0x_tanh_raw[(unsigned)i + 1u];
         t = t0 + (t1 - t0) * fr;
     }
     return u < 0.0f ? -t : t;
