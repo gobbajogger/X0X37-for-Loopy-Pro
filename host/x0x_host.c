@@ -256,7 +256,16 @@ int plat_cpu2_wait(void) { int fail = cpu2_fail_once; cpu2_fail_once = 0; return
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
 static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
+#ifdef X0X_HOST_BLE_STATE
+int plat_ble_state(void) { return X0X_HOST_BLE_STATE; }
+#else
 int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
+#endif
+#ifdef X0X_HOST_BLE_PEERS
+void plat_ble_peers(plat_ble_peers_t *out) { X0X_HOST_BLE_PEERS(out); }
+#else
+void plat_ble_peers(plat_ble_peers_t *out) { memset(out, 0, sizeof *out); out->state = plat_ble_state(); }
+#endif
 const char *plat_ble_name(void) { return ""; }
 void plat_ble_set(int on) { ble_on = on; }
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
@@ -315,7 +324,10 @@ static void host_arrows(void)
         return;
     arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
     if (route == ARW_MENU)
-        ui_menu_arrow(d);
+    {
+        if (ui_menu_arrow(d))
+            arw_rearm(&host_arw, arrows_held);       /* as main_fm1.c: entry consumes the held arrow */
+    }
     else
         enc_acc[EN_SELECT] += d;
 }

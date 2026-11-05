@@ -129,6 +129,21 @@ int original_chicago_scheduler_quiet(original_chicago_scheduler *s,chicago_arp_c
  }
  return 1;
 }
+uint32_t original_chicago_scheduler_skip(original_chicago_scheduler *s,chicago_arp_clock *c1,uint32_t frames){
+ original_chicago_allocator *a=s->allocator;chicago_arp_clock *c2=s->clock;
+ if(!frames||a->mg1_key_reset||a->mg2_key_reset)return 0;
+ float bpm=s->clock_input->bpm,x=c1->accumulator,y=c2->accumulator;
+ uint32_t n=original_chicago_clock_span(&x,bpm,c1->threshold,frames);
+ uint32_t m=original_chicago_clock_span(&y,bpm,c2->threshold,n);
+ if(m<n){x=c1->accumulator;n=original_chicago_clock_span(&x,bpm,c1->threshold,m);}
+ if(!n)return 0;
+ c1->accumulator=x;c2->accumulator=y;c1->key_reset=c2->key_reset=0;
+ if(a->gate_remaining>0){
+  if((uint32_t)a->gate_remaining<=n){a->gate_remaining=0;a->last_note=a->keys->current_note;}
+  else a->gate_remaining-=(int32_t)n;
+ }
+ s->dispatch_result=1;return n;
+}
 int original_chicago_scheduler_voice_action(original_chicago_scheduler *s,unsigned id,unsigned action){
  if(id>=s->allocator->storage_voices||action>2)return 0;
  if(action==0)return 1;

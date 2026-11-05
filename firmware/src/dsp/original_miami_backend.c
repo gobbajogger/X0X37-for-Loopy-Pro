@@ -372,6 +372,7 @@ static int advance_silent_block(original_miami_backend *s, uint32_t frames)
     return 1;
 }
 
+
 static int render_voice_frame(original_miami_backend *s, uint32_t *left, uint32_t *right)
 {
     float l = 0.0f, r = 0.0f;
@@ -402,6 +403,30 @@ static int render_prevalidated_frame(original_miami_backend *s, uint32_t *left, 
     return 1;
 }
 
+int original_miami_voice_render_add(original_miami_ms20 *f, original_voice_gain *vg, original_oscillators *ph,
+    const original_prepared_oscillators *p, float vco_gain, float *L, float *R, uint32_t n);
+static int render_span(original_miami_backend *s, uint32_t *left, uint32_t *right, uint32_t n)
+{
+    while (n > 64) {   /* control spans are at most 64 frames (44100 / 690) */
+        if (!render_span(s, left, right, 64)) return 0;
+        left += 64; right += 64; n -= 64;
+    }
+    static float accL[64], accR[64];
+    for (uint32_t j = 0; j < n; ++j) { accL[j] = 0.0f; accR[j] = 0.0f; }
+    for (unsigned id = 0; id < ORIGINAL_MIAMI_BACKEND_VOICES; ++id) {
+        original_miami_selected_voice *v = &s->voices[id];
+        if (v->awaiting_restart) return completed(s, 0);
+        if (!v->active) continue;
+        if (!completed(s, original_miami_voice_render_add(&v->filter, &v->gain, &v->pitch.oscillator,
+            &v->prepared, s->controls.vco_gain, accL, accR, n))) return 0;
+    }
+    for (uint32_t j = 0; j < n; ++j) {
+        left[j] = original_math_bits(accL[j]);
+        right[j] = original_math_bits(accR[j]);
+    }
+    return 1;
+}
+
 /* No queued events and ARP off means scheduler clock notifications cannot
  * spawn/replace a voice inside these spans. Run the control graph at its
  * genuine 690 Hz boundaries, retaining the original scheduler before each
@@ -428,18 +453,28 @@ static int render_event_free_block(original_miami_backend *s,
             uint32_t n = 1 + (44100u - 1 - (uint32_t)s->global.counter) / 690u;
             if (n < span) span = n;
         }
-        for (uint32_t j = 0; j < span; ++j) {
-            if (j) {
+        /* Inside a span no control tick and no voice change: the per-frame
+         * scheduler/counter work does not touch the rendered state, so the
+         * voices render the whole span (voice-major, the same sum order). */
+        /* Frames with no clock edge or key reset only move the clocks and
+         * the gate (scheduler_skip); the others run the scheduler. */
+        uint32_t rest = span - 1;
+        unsigned skippable = s->voice_owner.bpm == s->scheduler.clock_input->bpm;
+        while (rest) {
+            uint32_t k = skippable ? original_chicago_scheduler_skip(&s->scheduler, &s->clock1, rest) : 0;
+            if (!k) {
                 if (!completed(s, original_chicago_scheduler_after_events(&s->scheduler))) return 0;
-                for (unsigned id = 0; id < s->allocator.capacity; ++id) {
-                    original_miami_selected_voice *v = &s->voices[id];
-                    if (v->active && v->vca.state != 6) v->counter += 690;
-                }
-                s->global.counter += 690;
-                ++s->note_context.helper_entries;
+                k = 1;
             }
-            if (!render_prevalidated_frame(s, left + offset + j, right + offset + j)) return 0;
+            for (unsigned id = 0; id < s->allocator.capacity; ++id) {
+                original_miami_selected_voice *v = &s->voices[id];
+                if (v->active && v->vca.state != 6) v->counter += 690u * k;
+            }
+            s->global.counter += (int32_t)(690u * k);
+            s->note_context.helper_entries += k;
+            rest -= k;
         }
+        if (!render_span(s, left + offset, right + offset, span)) return 0;
         offset += span;
     }
     return 1;
@@ -544,6 +579,18 @@ int original_miami_backend_render_stereo(original_miami_backend *s, original_mia
     float *left, float *right, uint32_t frames)
 {
     return original_miami_backend_render_events(s, w, left, right, frames, NULL, 0);
+}
+
+int original_miami_backend_motion_view(const original_miami_backend *s, float *phase, float *bipolar,
+    float *current, float *target, int *active)
+{
+    unsigned i, k = 0;
+    if (!s || s->ready != BACKEND_READY) return 0;
+    for (i = 0; i < ORIGINAL_MIAMI_BACKEND_VOICES; i++) if (s->voices[i].active) { k = i; break; }
+    *phase = s->voices[k].mg[0].phase; *bipolar = s->voices[k].mg[0].bipolar;
+    *current = s->voices[k].pitch.current[0]; *target = s->voices[k].pitch.target[0];
+    *active = s->voices[k].active != 0;
+    return 1;
 }
 
 int original_miami_backend_active(const original_miami_backend *s)

@@ -68,6 +68,8 @@ def compile_and_run():
 #define V_SEQ 1
 #define V_PART 2
 #define O_NONE 0
+#define O_LIST 1
+#define O_ASK 2
 #define B_HOME 1
 #define B_SAVE 2
 #define R_ENG 1
@@ -159,10 +161,24 @@ int main(void) {
     ui.part=0;assert(division_pad_index()==7); /* previous rate was 1/24 */
     smk__padq(7,0);
 
-    /* UI ownership goes away under overlays, recording, clip/SMC ownership. */
+    /* A settings list or HELP does not take the pads: each rate pad still sets
+     * the rate it shows (owner request: pads work as labelled under settings). */
+    for (int cx=0;cx<2;cx++) {
+        if (cx) ui.help=1; else ui.overlay=O_LIST;
+        assert(division_pad_owner()==1);
+        for (int pad=0;pad<8;pad++) {
+            int edits=rate_edits;
+            division_pad_input();smk__padq((uint32_t)pad,90);division_pad_input();
+            assert(rate_edits==edits+1 && division_pad_index()==pad);
+            assert(strstr(division_pad_label(), names[pad]));
+            smk__padq((uint32_t)pad,0);
+        }
+        ui.help=0;ui.overlay=O_NONE;
+    }
+    assert(note_down==1 && note_up==1);   /* no stray notes from rate pads */
+    /* UI ownership goes away under a question, recording, clip/SMC ownership. */
     ui.rec=1;assert(!division_pad_owner());ui.rec=0;
-    ui.help=1;assert(!division_pad_owner());ui.help=0;
-    ui.overlay=1;assert(!division_pad_owner());ui.overlay=O_NONE;
+    ui.overlay=O_ASK;assert(!division_pad_owner());ui.overlay=O_NONE;
     ui.btn=1u<<B_HOME;assert(!division_pad_owner());ui.btn=0;
     ui.btn=1u<<B_SAVE;assert(!division_pad_owner());ui.btn=0;
     perftest=1;assert(!division_pad_owner());perftest=0;

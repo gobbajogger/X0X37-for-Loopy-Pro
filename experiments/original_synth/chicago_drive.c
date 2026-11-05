@@ -29,15 +29,39 @@ static int16_t channel(original_chicago_drive *s,unsigned channel,int16_t input,
  int32_t y=sub(v,asr(mul(z2,sign),15));s->previous_driven[channel]=driven;s->previous_nonlinear[channel]=y;
  return low16((uint32_t)mul(y,g)>>15);
 }
+static inline __attribute__((always_inline)) int16_t chan_step(int32_t *pd,int32_t *pn,int16_t input,int32_t d,int32_t g,int32_t threshold,int32_t fb){
+ int32_t v=add(add(*pd,input),asr(mul(feedback(*pn),fb),15));
+ int32_t driven=asr(mul(d,input),13);if(v< -32767)v=-32767;if(v>32767)v=32767;
+ int32_t magnitude=v<0?-v:v;int32_t z=sub(magnitude,threshold);if(z<0)z=0;
+ int32_t z2=(int32_t)((uint32_t)mul(z,z)>>15);int32_t sign=v>0?26213:v<0?-26213:0;
+ int32_t y=sub(v,asr(mul(z2,sign),15));*pd=driven;*pn=y;
+ return low16((uint32_t)mul(y,g)>>15);
+}
 int original_chicago_drive_process(original_chicago_drive *s,const int16_t *left,const int16_t *right,int16_t *ol,int16_t *orr,size_t count){
  if(!s)return 0;
  if(!count)return 1;
  if(!left||!right||!ol||!orr||ol==orr)return 0;
- for(size_t i=0;i<count;i++){
-  int32_t k=s->activity?32767:102;s->drive=smooth(s->drive,s->target_drive,k);s->gain=smooth(s->gain,s->target_gain,k);
-  int32_t threshold_target=s->target_drive<19660?19660-s->target_drive:0;s->threshold=smooth(s->threshold,threshold_target,k);
+ int32_t k=s->activity?32767:102,threshold_target=s->target_drive<19660?19660-s->target_drive:0;
+ size_t i=0;
+ for(;i<count;i++){
+  int32_t d0=s->drive,g0=s->gain,t0=s->threshold;
+  s->drive=smooth(d0,s->target_drive,k);s->gain=smooth(g0,s->target_gain,k);s->threshold=smooth(t0,threshold_target,k);
   int32_t d=asr(s->drive,15),g=asr(s->gain,15),threshold=asr(s->threshold,15),fb=asr(mul(d,23919),15);
   int16_t l=left[i],r=right[i];ol[i]=channel(s,0,l,d,g,threshold,fb);orr[i]=channel(s,1,r,d,g,threshold,fb);
+  /* Settled: smooth() returned its input for all three, so every later
+   * sample of this block has the same d, g, threshold and fb. */
+  if(s->drive==d0&&s->gain==g0&&s->threshold==t0){
+   /* State in locals; when both channels share state and input, the
+    * second channel's result is identical, so compute it once. */
+   int32_t pd0=s->previous_driven[0],pn0=s->previous_nonlinear[0],pd1=s->previous_driven[1],pn1=s->previous_nonlinear[1];
+   for(++i;i<count;i++){
+    int16_t l2=left[i],r2=right[i];
+    if(l2==r2&&pd0==pd1&&pn0==pn1){int16_t o=chan_step(&pd0,&pn0,l2,d,g,threshold,fb);pd1=pd0;pn1=pn0;ol[i]=o;orr[i]=o;}
+    else{ol[i]=chan_step(&pd0,&pn0,l2,d,g,threshold,fb);orr[i]=chan_step(&pd1,&pn1,r2,d,g,threshold,fb);}
+   }
+   s->previous_driven[0]=pd0;s->previous_nonlinear[0]=pn0;s->previous_driven[1]=pd1;s->previous_nonlinear[1]=pn1;
+   break;
+  }
  }
  return 1;
 }

@@ -4,8 +4,30 @@
 #include <math.h>
 #include <string.h>
 #ifdef ORIGINAL_USE_SOFT_FMA
+/* exact: its FMA feeds a recursion; fast FMA moved the output by -78 dBFS (docs/perf) */
+#define X0X_EXACT_FMA_HERE 1
 #include "fused_reference.h"
-#define ref_fma original_rne_fmaf
+/* Exact shortcut: when a*b is exact in binary32 (a zero factor, or the two
+ * significands fit in 24 bits and the product is normal), the fused result
+ * is the single rounding of p+c, which is the float add. Else the exact
+ * software FMA. Same bits as original_rne_fmaf for all finite inputs. */
+static inline uint32_t cv_bits(float x){uint32_t u;memcpy(&u,&x,4);return u;}
+static inline float cv_fma(float a,float b,float c){
+ uint32_t ua=cv_bits(a),ub=cv_bits(b),uc=cv_bits(c);
+ uint32_t ea=(ua>>23)&255u,eb=(ub>>23)&255u;
+ if(((uc>>23)&255u)!=255u&&ea!=255u&&eb!=255u){
+  if(!(ua<<1)||!(ub<<1))return a*b+c;
+  if(ea&&eb){
+   uint32_t ma=(ua&0x7fffffu)|0x800000u,mb=(ub&0x7fffffu)|0x800000u;
+   if((24u-(unsigned)__builtin_ctz(ma))+(24u-(unsigned)__builtin_ctz(mb))<=24u){
+    float p=a*b;uint32_t ep=(cv_bits(p)>>23)&255u;
+    if(ep&&ep!=255u)return p+c;
+   }
+  }
+ }
+ return original_rne_fmaf(a,b,c);
+}
+#define ref_fma cv_fma
 #else
 #define ref_fma fmaf
 #endif
@@ -160,13 +182,20 @@ int original_chicago_voice_resume_part(original_chicago_voice *s,const original_
  else n.awaiting_restart=1;
  *s=n;return 1;
 }
+int original_chicago_voice_kernel(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
+ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,float *left,float *right);
 int original_chicago_voice_render_frame(original_chicago_voice *s,const original_chicago_voice_controls *c,float *left,float *right){
  if(!s||!c||!left||!right||left==right||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
  if(!s->active){*left=0;*right=0;return 1;}
- float mix,filtered;if(!original_voice_gain_oscillator(&s->gain,&s->pitch.oscillator,&s->prepared,1,&mix))return 0;
- float ng=advance(&s->noise_gain);unsigned choose=(s->noise&0x40000000u)==0;s->noise=(s->noise+s->noise)^(choose?8393u:0);float input=ng*(choose?.5f:-.5f)+mix;input=c->vco_gain*input;
- if(!original_chicago_mp4_sample(&s->filter,input,&filtered))return 0;
- return original_voice_gain_stereo(&s->gain,filtered,left,right);
+ return original_chicago_voice_kernel(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right);
+}
+int original_chicago_voice_span(original_voice_gain *vg,original_oscillators *ph,const original_prepared_oscillators *p,
+ original_ramp *noise_gain,uint32_t *noise_state,float vco_gain,original_chicago_mp4 *f,uint32_t *left,uint32_t *right,uint32_t n);
+/* n>=1 frames of render_frame with no control tick due inside. */
+int original_chicago_voice_render_span(original_chicago_voice *s,const original_chicago_voice_controls *c,uint32_t *left,uint32_t *right,uint32_t n){
+ if(!s||!c||!left||!right||left==right||!n||s->ready!=VOICE_READY||c->ready!=CONTROL_READY||s->awaiting_restart)return 0;
+ if(!s->active){for(uint32_t i=0;i<n;i++)left[i]=right[i]=0;return 1;}
+ return original_chicago_voice_span(&s->gain,&s->pitch.oscillator,&s->prepared,&s->noise_gain,&s->noise,c->vco_gain,&s->filter,left,right,n);
 }
 int original_chicago_voice_sample(original_chicago_voice *s,const original_chicago_voice_controls *c,const original_chicago_voice_tables *t,float bpm,float *left,float *right,unsigned *action){
  if(!left||!right||left==right||!action||!valid(s,c,t,bpm)||s->awaiting_restart)return 0;

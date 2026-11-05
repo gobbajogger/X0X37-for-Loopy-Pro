@@ -2,6 +2,7 @@
 #include "chicago_output.h"
 #include "miami_fx_conversion.h"
 #include "binary32_classify.h"
+#include "binary32_math.h"
 #include <limits.h>
 #include <math.h>
 #include <string.h>
@@ -142,7 +143,7 @@ int original_chicago_output_process(original_chicago_output *s,original_chicago_
  if(!n)return 1;
  if(!w||!w->left||!w->right||!w->wet_left||!w->wet_right||!il||!ir||!ol||!orr||ol==orr||n>w->capacity||w->capacity>4096||fz>1||!original_binary32_isfinite(volume)||volume<0||volume>1)return 0;
  if(s->enable_slot[1]&&((s->process_slot[1]&&(!fx2||!fx2->process))||(crosses(s->reset_countdown[1],n)&&(!fx2||!fx2->reset))))return 0;
- for(uint32_t i=0;i<n;i++){(void)miami_fx_input_rne(il[i],fz,&w->left[i]);(void)miami_fx_input_rne(ir[i],fz,&w->right[i]);}
+ for(uint32_t i=0;i<n;i++){w->left[i]=(int16_t)miami_fx_input_fast(il[i]);w->right[i]=(int16_t)miami_fx_input_fast(ir[i]);}
  for(unsigned slot=0;slot<2;slot++){
   if(!s->enable_slot[slot])continue;
   if(s->reset_countdown[slot]>0){s->reset_countdown[slot]-=(int32_t)n;if(s->reset_countdown[slot]<=0){s->reset_countdown[slot]=-1;if(slot==0)original_chicago_drive_wrapper_reset(&s->fx1);else fx2->reset(fx2->context);}}
