@@ -569,6 +569,13 @@ __attribute__((noinline)) static void bass_and_brk_stop(seq_t *s, const seq_sink
         o->brk_stop(o->ctx);
 }
 
+/* Global panic: release notes the sequencer owns. Do not stop, rewind or send Stop. */
+void seq_notes_off(seq_t *s, const seq_sink_t *o)
+{
+    /* PANIC_NOTE_OFF */
+    bass_and_brk_stop(s, o);
+}
+
 __attribute__((noinline)) static void seq_send_rt(seq_t *s, const seq_sink_t *o, uint8_t remote, uint8_t st)
 {
     if (!s->ext && s->send_clock && (!s->midi_req || !remote))
