@@ -250,7 +250,10 @@ static void fx_reverb(fxbus_t *f, const float *in, float *out, float *out_r, int
     if (f->rv_quiet >= FX_RV_QUIET) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) {
+                any = 1;
+                break;                      /* one nonzero sample rules out idle */
+            }
         if (!any)
             return;                         /* silent in, silent lines: 0 out */
     }
@@ -325,7 +328,10 @@ static void fx_delay(fxbus_t *f, const float *in, float *out, float *out_r, int 
     if (f->dl_quiet >= len) {
         int any = 0;
         for (int i = 0; i < n; ++i)
-            any |= in[i] != 0.0f;
+            if (in[i] != 0.0f) {
+                any = 1;
+                break;                      /* one nonzero sample rules out idle */
+            }
         if (!any) {
             /* the line is all zeros: nothing to read, but time moves on */
             f->w = (f->w + n) % len;
@@ -491,8 +497,9 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    for (int i = 0; i < n; ++i)
-        out[i] *= vol;
+    if (vol != 1.0f)                                  /* unity needs no output pass, as in stereo */
+        for (int i = 0; i < n; ++i)
+            out[i] *= vol;
 }
 
 /* X0X stereo: 9W9's chain on L and R. The distortion runs on each side; the glue compressor reads
