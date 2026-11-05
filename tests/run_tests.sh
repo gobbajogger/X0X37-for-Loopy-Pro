@@ -94,6 +94,7 @@ test_class() {
     save-note-quiet|original-release-integration|original-release-ui|freeplay-rate-pads|boot-screen|ui-theme) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
     dsp-host-linkage|drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel|smc-fx-caption|smc-fx-page-port|smc-fx-peer-view|smc-fx-preset-preserve|smc-reachability|smc-ui|smc-ui-popup|ui-shared-glyph|ui-glyph-polish|ui-chicago-env-motion|ui-drum-mix-material|smc-mixer-page|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-multi-peer|smc-multi-peer-negative|smc-select-mode|smc-pause-loss|smk-wheel-mode|perf-wheel-motion|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    part-off|part-off-web-e2e) TEST_CLASS=G ;;
     adaptive-break-controls|adaptive-break-storage) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -132,7 +133,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in save-note-quiet) return 0 ;; esac
+    case "$1" in save-note-quiet|part-off|part-off-web-e2e) return 0 ;; esac
     case "$1" in dsp-host-linkage|bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-protocol|project-runtime|project-stage|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
@@ -399,6 +400,10 @@ run legacy-303-project sh tests/host/legacy_303_project_test.sh   # old bass303 
 run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run corner-coverage python3 tests/host/corner_coverage_test.py
 run part-order sh tests/host/part_order_test.sh
+run part-off env PART_OFF_REQUIRE_BASE=1 PART_OFF_BASE_REF=a06e20189141ff5fb8766e2c6152be460f4356c3 sh tests/host/run_part_off.sh
+run part-off-web-e2e sh tests/host/run_part_off_web_e2e.sh
+run part-off-web-e2e-node-gate sh tests/host/run_part_off_web_e2e_node_gate_test.sh
+run part-off-web-e2e-not-run-exit sh tests/host/run_part_off_web_e2e_not_run_exit_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mode-page sh tests/host/smc_mode_page_test.sh
