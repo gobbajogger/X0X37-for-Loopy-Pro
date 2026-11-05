@@ -1,0 +1,383 @@
+{
+  "commit": "43de100c83d845409bb801ecf29238a78f179aed",
+  "tree": "4993a90ae993da7d68ece0d352c88b27244b327e",
+  "branch": "lane/dev-m7a-v4-fix-20261105",
+  "evidence_branch": "evidence/build-43de100c-20261105",
+  "parent": "35b729914792d947c675d29cb9bd80ac7d65d704",
+  "parent_tree": "ccb0aa5b0ad2827f4a5176f12c032eba3db23c71",
+  "parent_diff": "8 test files only; firmware tree 8699e9f0ab39e4d804183eaaf86d8f51d900d404 and ble tree 0d4304546a60f22a06271b22b4881f6304ad439c match v4",
+  "label": "native evidence build of 43de100c (UNREVIEWED), not release qualification",
+  "toolchain": {
+    "archive_sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "archive_sha256_expected": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "archive_size": 26027508,
+    "clang_version": "clang version 4.0.1",
+    "clang_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "sdk": {
+    "tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "uboot_boot_sha256": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+    "cfg_tool_sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+    "eq_cfg_hw_sha256": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+  },
+  "env": {
+    "JIELI_TOOLCHAIN": "/home/ubuntu/.jieli/toolchain",
+    "AC79_SDK": "/home/ubuntu/fw-AC79_AIoT_SDK",
+    "JIELI_DOCKER": "0",
+    "X0X_DEV_PADCAL": "0",
+    "CTL_NO_CACHE": "1",
+    "CTL_NATIVE": "1",
+    "CC": "cc",
+    "CXX": "c++",
+    "node": "v22.23.4",
+    "DNBOX_CHROMIUM_EXECUTABLE": "/usr/bin/google-chrome"
+  },
+  "environment_additions": [
+    {
+      "package": "libclang-rt-18-dev",
+      "version": "1:18.1.3-1ubuntu1"
+    },
+    {
+      "package": "lua5.1",
+      "version": "5.1.5-9build2"
+    },
+    {
+      "package": "libc6-i386",
+      "version": "2.39-0ubuntu8.9"
+    },
+    {
+      "package": "lib32gcc-s1",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "package": "lib32stdc++6",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "package": "playwright",
+      "version": "1.64.1",
+      "note": "pip --user, no browser download"
+    },
+    {
+      "package": "google-chrome-stable",
+      "version": "156.0.8078.47-1",
+      "note": "already installed"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "elite.fwsc",
+      "file": "build/x0x-smk37-elite.fwsc",
+      "size": 651570,
+      "sha256": "be4d608eb98b1408ffaed1e254b0e38f1c154b8c7865ae9a46f8ac184452bf85"
+    },
+    {
+      "name": "pro.fwsc",
+      "file": "build/x0x-smk37.fwsc",
+      "size": 651566,
+      "sha256": "0773c61a48a7e1c84585a40d3b52f0e8c2cc49759b3c8693b3ac0ed983a67489"
+    },
+    {
+      "name": "elite-ble.fwsc",
+      "file": "build/x0x-smk37-elite-ble.fwsc",
+      "size": 651570,
+      "sha256": "4ca8b7b3f3c10ee5ca46639635cca4da7f13f49791a3b8a9d5d5cf59df2c8deb"
+    },
+    {
+      "name": "pro-ble.fwsc",
+      "file": "build/x0x-smk37-ble.fwsc",
+      "size": 651566,
+      "sha256": "cbb090311d0d9f9df92bfcf99c70c9354dc135a340d7438053d1c20a66b7acf7"
+    },
+    {
+      "name": "ctl.img",
+      "file": "ble/ctl/out/ctl.img",
+      "size": 61552,
+      "sha256": "a334208b51f62bc7231ebb76a6de0dfa260033d7f7316e5b92053c540bc1d984"
+    }
+  ],
+  "v4_byte_match": {
+    "baseline_commit": "35b729914792d947c675d29cb9bd80ac7d65d704",
+    "baseline_manifest": "docs/handoff/build/manifest-35b72991.json",
+    "elite_fwsc": true,
+    "pro_fwsc": true,
+    "elite_ble_fwsc": true,
+    "pro_ble_fwsc": true,
+    "ctl_img": true,
+    "pool_free_8200": true,
+    "ram_used_97328": true,
+    "ram_free_976": true,
+    "app_free_elite_38664": true,
+    "app_free_pro_38680": true,
+    "differs": []
+  },
+  "headroom": {
+    "app_free": 38664,
+    "app_free_pro": 38680,
+    "ram_used": 97328,
+    "ram_free": 976,
+    "pool_used": 335864,
+    "pool_free": 8200,
+    "pool_floor_ok": true,
+    "pool_floor": 8192,
+    "pool_margin_bytes": 8,
+    "ble_flash": "61552/65536",
+    "ble_ram": "26336/26368"
+  },
+  "host_tests": {
+    "total_ok": 380,
+    "fail": 15,
+    "not_run": 2,
+    "rc": 1,
+    "duration_s": 1238,
+    "smc_remainder": "ok",
+    "part_off_web_e2e": "ok",
+    "part_off_web_e2e_node_gate": "ok",
+    "part_off": "ok",
+    "fail_list": [
+      "original-release-ui",
+      "original-build",
+      "ui-theme",
+      "smc-select-mode",
+      "smc-solo-overflow",
+      "smc-boot-saved-roles",
+      "smc-multi-peer",
+      "ui-peer-names",
+      "smc-ui",
+      "builtin-break-output",
+      "offline-sequencer-browser",
+      "ui-feedback",
+      "sound-matrix",
+      "ui-glyph-polish",
+      "scenario-plock"
+    ],
+    "env_only_list": [
+      "offline-sequencer-browser"
+    ],
+    "real_list": [
+      "original-release-ui",
+      "original-build",
+      "ui-theme",
+      "smc-select-mode",
+      "smc-solo-overflow",
+      "smc-boot-saved-roles",
+      "smc-multi-peer",
+      "ui-peer-names",
+      "smc-ui",
+      "builtin-break-output",
+      "ui-feedback",
+      "sound-matrix",
+      "ui-glyph-polish",
+      "scenario-plock"
+    ],
+    "fail_details": [
+      {
+        "name": "original-release-ui",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "undeclared header_transport at original_release_ui_test.c:377"
+      },
+      {
+        "name": "original-build",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "AssertionError: expected pad-ownership snippet not in the SMK input header"
+      },
+      {
+        "name": "ui-theme",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "undeclared header_transport through ui_theme_test.c"
+      },
+      {
+        "name": "smc-select-mode",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "FAIL smc_select_mode_test.c:61 smc_page_now()"
+      },
+      {
+        "name": "smc-solo-overflow",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "no member named kind in the combined smc_ui struct"
+      },
+      {
+        "name": "smc-boot-saved-roles",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "ValueError: load_settings snippet not found"
+      },
+      {
+        "name": "smc-multi-peer",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "FAIL smc_multi_peer_test.c:145 fx_effect peers compare equal"
+      },
+      {
+        "name": "ui-peer-names",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "FAIL ui_peer_names_test.c:15 name_row"
+      },
+      {
+        "name": "smc-ui",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "FAIL smc_ui_test.c:285 engine_project_notes()"
+      },
+      {
+        "name": "builtin-break-output",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "AssertionError: '909 GR' not found in the break-pack header"
+      },
+      {
+        "name": "offline-sequencer-browser",
+        "class": "ENV-ONLY",
+        "in_v4": true,
+        "cause": "Chrome FATAL socket path too long for SingletonSocket"
+      },
+      {
+        "name": "ui-feedback",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "assert help_with_pending_readout == help_only failed at ui_feedback_test.c:98; cv_lcd_maybe_input still calls input() from the blit"
+      },
+      {
+        "name": "sound-matrix",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "undeclared adsr_inline_page at sound_matrix_test.c:143"
+      },
+      {
+        "name": "ui-glyph-polish",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "draw_adsr_inline expected 5 arguments, test passes 3"
+      },
+      {
+        "name": "scenario-plock",
+        "class": "REAL",
+        "in_v4": true,
+        "cause": "FAIL expect lanes == 1, got 2"
+      }
+    ],
+    "ok_now_from_v4_fail_list_source": [
+      "smc-remainder",
+      "part-off"
+    ],
+    "ok_now_from_v4_fail_list_env_compiler_rt": [
+      "fastmath-ubsan",
+      "original-release-integration",
+      "chicago-fx2-inserts",
+      "original-sound-cell",
+      "freeplay-rate-pads",
+      "engine-808-scratch-alias",
+      "ble-device-setting-flow",
+      "ble-toggle-persistence-gate",
+      "smc-ui-bounds",
+      "original-stale-release"
+    ],
+    "ok_now_from_v4_fail_list_env_lua": [
+      "offline-touchosc-lua"
+    ],
+    "vs_490e656c": {
+      "baseline": "26 FAIL on evidence/build-490e656c-20261105 docs/evidence/build-490e656c/logs/host_tests.log",
+      "fail_now_not_in_490e": [
+        "ui-feedback"
+      ],
+      "in_490e_ok_now_source": [
+        "part-off"
+      ],
+      "in_490e_ok_now_env": [
+        "fastmath-ubsan",
+        "original-release-integration",
+        "chicago-fx2-inserts",
+        "original-sound-cell",
+        "freeplay-rate-pads",
+        "engine-808-scratch-alias",
+        "ble-device-setting-flow",
+        "ble-toggle-persistence-gate",
+        "smc-ui-bounds",
+        "original-stale-release",
+        "offline-touchosc-lua"
+      ],
+      "not_run_then_ok_now_because_compiler_rt": [
+        "ble-midi-receive",
+        "ble-capture-replay",
+        "ble-role-switch",
+        "ui-303-entry"
+      ]
+    },
+    "vs_8be16486": {
+      "still_fail": [
+        "original-release-ui",
+        "original-build",
+        "ui-theme",
+        "smc-select-mode",
+        "smc-solo-overflow",
+        "smc-boot-saved-roles",
+        "smc-multi-peer",
+        "ui-peer-names",
+        "smc-ui",
+        "builtin-break-output",
+        "offline-sequencer-browser",
+        "ui-feedback",
+        "sound-matrix",
+        "ui-glyph-polish",
+        "scenario-plock"
+      ],
+      "now_ok": [
+        "smc-remainder",
+        "offline-touchosc-lua"
+      ],
+      "new_fail_names": []
+    }
+  },
+  "not_run": [
+    {
+      "item": "tools/gate.sh",
+      "reason": "Unreviewed evidence build only. Gate was not requested."
+    },
+    {
+      "item": "tools/dev_validate.py",
+      "reason": "run forces X0X_DEV_PADCAL=1 and writes DEV CHECKED. This grant does not include that validation claim."
+    },
+    {
+      "item": "tools/publish_nightly.py",
+      "reason": "Not run. No --push and no --remote."
+    },
+    {
+      "item": "tools/release_alloc.py and releases/openbeta/ledger.json",
+      "reason": "No ledger allocation. Ledger was not edited."
+    },
+    {
+      "item": "drum909",
+      "reason": "schwung-9W9 reference tree absent"
+    },
+    {
+      "item": "drum808",
+      "reason": "schwung-8W8 reference tree absent"
+    }
+  ],
+  "package_check": {
+    "dev_image_create": "rc 1: NIGHTLY image contains DnBOX DEV",
+    "package_nightly_nightly_version": "not accepted, exit 2",
+    "ledger_demanded": false,
+    "elite": {
+      "size": 651570,
+      "sha256": "efde47c9da2f51363b3021ca8178dce73f3fb112df3047576cb886e768e2ee0f",
+      "check_rc": 0,
+      "firmware_version": "0.0.25"
+    },
+    "pro": {
+      "size": 651566,
+      "sha256": "5657ec2ef5220837ef490fd97f9c922b9bedd48383f26b58c554e24119e94ac9",
+      "check_rc": 0,
+      "firmware_version": "0.0.25"
+    },
+    "note": "Packaging packages are a second build with --nightly-version 0.0.25 --git-sha 43de100c. They are not the evidence output hashes."
+  },
+  "binaries_committed": false
+}

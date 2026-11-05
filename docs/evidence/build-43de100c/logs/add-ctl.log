@@ -1,0 +1,8 @@
+add_ctl pro:
+build/x0x-smk37-ble.fwsc: with ble/ctl/out/ctl.img
+add_ctl elite:
+build/x0x-smk37-elite-ble.fwsc: with ble/ctl/out/ctl.img
+add_ctl --check:
+ble/ctl/out/ctl.img: ok
+check_locked_settings:
+check_locked_settings: 20 settings ok

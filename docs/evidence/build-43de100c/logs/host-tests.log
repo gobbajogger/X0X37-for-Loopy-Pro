@@ -1,0 +1,48 @@
+label: native evidence build of 43de100c (UNREVIEWED), not release qualification
+command: timeout 2400 sh tests/run_tests.sh
+start_utc: 2026-11-05T10:33:05Z
+duration_s: 1238
+rc: 1
+summary: 380 ok, 15 FAIL, 2 not-run; final line TESTS FAILED
+cap: 40 minutes; timeout did not fire
+note: ok lines omitted. FAIL tails in the full VM log are not copied here.
+---- suite FAIL and not-run lines ----
+  FAIL original-release-ui (see build/host/original-release-ui.log)
+  FAIL original-build (see build/host/original-build.log)
+  FAIL ui-theme (see build/host/ui-theme.log)
+  FAIL smc-select-mode (see build/host/smc-select-mode.log)
+  FAIL smc-solo-overflow (see build/host/smc-solo-overflow.log)
+  FAIL smc-boot-saved-roles (see build/host/smc-boot-saved-roles.log)
+  FAIL smc-multi-peer (see build/host/smc-multi-peer.log)
+  FAIL ui-peer-names (see build/host/ui-peer-names.log)
+  FAIL smc-ui (see build/host/smc-ui.log)
+  not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+  not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+  FAIL builtin-break-output (see build/host/builtin-break-output.log)
+  FAIL offline-sequencer-browser (see build/host/offline-sequencer-browser.log)
+  FAIL ui-feedback (see build/host/ui-feedback.log)
+  FAIL sound-matrix (see build/host/sound-matrix.log)
+  FAIL ui-glyph-polish (see build/host/ui-glyph-polish.log)
+  FAIL scenario-plock (see build/host/scenario-plock.log)
+TESTS FAILED
+---- first cause, one line ----
+original-release-ui REAL in-v4: undeclared header_transport at tests/host/original_release_ui_test.c:377
+original-build REAL in-v4: AssertionError, expected pad-ownership snippet not in the SMK input header
+ui-theme REAL in-v4: same undeclared header_transport through tests/host/ui_theme_test.c
+smc-select-mode REAL in-v4: FAIL tests/host/smc_select_mode_test.c:61 smc_page_now()
+smc-solo-overflow REAL in-v4: no member named kind in the combined smc_ui struct
+smc-boot-saved-roles REAL in-v4: ValueError, source snippet 'int bad = 0, rc = load_settings(&set);' not found
+smc-multi-peer REAL in-v4: FAIL tests/host/smc_multi_peer_test.c:145 fx_effect[0] peers compare equal
+ui-peer-names REAL in-v4: FAIL tests/host/ui_peer_names_test.c:15 name_row
+smc-ui REAL in-v4: FAIL tests/host/smc_ui_test.c:285 engine_project_notes()
+builtin-break-output REAL in-v4: AssertionError '909 GR' not found in the break-pack header
+offline-sequencer-browser ENV-ONLY in-v4: Chrome FATAL socket path too long (SingletonSocket)
+ui-feedback REAL in-v4: assert help_with_pending_readout == help_only failed at ui_feedback_test.c:98
+sound-matrix REAL in-v4: undeclared adsr_inline_page at tests/host/sound_matrix_test.c:143
+ui-glyph-polish REAL in-v4: draw_adsr_inline expected 5 arguments, test passes 3
+scenario-plock REAL in-v4: FAIL expect lanes == 1, got 2
+---- explicit verdicts ----
+smc-remainder: ok (smc-remainder: 205861 checks PASS)
+part-off-web-e2e: ok (part_off_web_e2e: ok (0 failing cases))
+part-off-web-e2e-node-gate: ok (missing node => exit 1)
+part-off: ok (part_off: ok (0 failing cases); PASS all_on_bit_exact_vs_base; crc base 22d26473 here 22d26473)
