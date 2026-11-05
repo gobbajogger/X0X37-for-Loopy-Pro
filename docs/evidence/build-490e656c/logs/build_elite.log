@@ -1,0 +1,45 @@
+label: native evidence build of 490e656c (UNREVIEWED), not release qualification
+command: ./build.sh --board smk37
+start_utc: 2026-11-05T09:49:01Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=elite
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+---- output ----
+check_locked_settings: 20 settings ok
+experiments/original_synth/miami_voice_owner.c:59:69: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+ *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{0}};return 1;
+                                                                    ^
+                                                                    {}
+1 warning generated.
+loader: image 8524 B at 0x1c0a800, bss end 0x1c0f770
+loader: ota.bin 7454 B
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 2316 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 3288 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 4280 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 4374 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 4863 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 3584 B
+font set barlow: 23179 B (approx)
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 packed 4104->3046 B + 19 pot curves -> x0x_drum_tables.h
+break bank: none (factory loops are an optional install)
+  ok    .ram_text: 844 insns, no calls
+  ok    app code area 552672 B, 39016 B free (Bluetooth block at app.bin 0x86ee0)
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 513656 B; RAM .data+.bss 95872 B of 98304; pool 335864 B of 344064
+  ok    register access: hal/ only (src/, loader/ clean)
+app      /agent/repos/X0X37-for-Loopy-Pro/build/smk37-elite/x0x.bin  513656 B
+loader   /agent/repos/X0X37-for-Loopy-Pro/build/smk37-elite/loader/ota.bin  7454 B
+package  /agent/repos/X0X37-for-Loopy-Pro/build/x0x-smk37-elite.fwsc  651570 B, identity SMK-37 Elite_900, board smk37
+---- end ----
+end_utc: 2026-11-05T09:49:07Z
+duration_s: 6
+rc: 0

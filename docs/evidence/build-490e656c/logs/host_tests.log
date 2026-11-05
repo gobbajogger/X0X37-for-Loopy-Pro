@@ -1,0 +1,46 @@
+label: native evidence build of 490e656c (UNREVIEWED), not release qualification
+command: sh tests/run_tests.sh
+start_utc: 2026-11-05T09:52:31Z
+end_utc: 2026-11-05T10:11:06Z
+duration_s: 1115
+rc: 1
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+summary: 358 ok, 26 FAIL, 6 not-run; final line TESTS FAILED
+note: ok lines omitted. This file keeps the header, the FAIL names, and the not-run lines.
+---- FAIL ----
+FAIL fastmath-ubsan (see build/host/fastmath-ubsan.log)
+FAIL original-release-integration (see build/host/original-release-integration.log)
+FAIL chicago-fx2-inserts (see build/host/chicago-fx2-inserts.log)
+FAIL original-sound-cell (see build/host/original-sound-cell.log)
+FAIL original-release-ui (see build/host/original-release-ui.log)
+FAIL original-build (see build/host/original-build.log)
+FAIL freeplay-rate-pads (see build/host/freeplay-rate-pads.log)
+FAIL ui-theme (see build/host/ui-theme.log)
+FAIL smc-select-mode (see build/host/smc-select-mode.log)
+FAIL smc-solo-overflow (see build/host/smc-solo-overflow.log)
+FAIL engine-808-scratch-alias (see build/host/engine-808-scratch-alias.log)
+FAIL smc-boot-saved-roles (see build/host/smc-boot-saved-roles.log)
+FAIL smc-multi-peer (see build/host/smc-multi-peer.log)
+FAIL ui-peer-names (see build/host/ui-peer-names.log)
+FAIL ble-device-setting-flow (see build/host/ble-device-setting-flow.log)
+FAIL ble-toggle-persistence-gate (see build/host/ble-toggle-persistence-gate.log)
+FAIL part-off (see build/host/part-off.log)
+FAIL smc-ui (see build/host/smc-ui.log)
+FAIL smc-ui-bounds (see build/host/smc-ui-bounds.log)
+FAIL builtin-break-output (see build/host/builtin-break-output.log)
+FAIL offline-sequencer-browser (see build/host/offline-sequencer-browser.log)
+FAIL offline-touchosc-lua (see build/host/offline-touchosc-lua.log)
+FAIL original-stale-release (see build/host/original-stale-release.log)
+FAIL sound-matrix (see build/host/sound-matrix.log)
+FAIL ui-glyph-polish (see build/host/ui-glyph-polish.log)
+FAIL scenario-plock (see build/host/scenario-plock.log)
+---- not-run ----
+not-run ble-midi-receive (ASan runtime)
+not-run ble-capture-replay (ASan runtime)
+not-run drum909 (../schwung-9W9/src/dsp/er99_engine.c)
+not-run drum808 (../schwung-8W8/src/dsp/sc808_engine.cpp)
+not-run ble-role-switch (ASan runtime)
+not-run ui-303-entry (ASan)
+---- end ----
+TESTS FAILED
+SCRIPT_EXIT:1

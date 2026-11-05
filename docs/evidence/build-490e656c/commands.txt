@@ -1,0 +1,195 @@
+label: native evidence build of 490e656c (UNREVIEWED), not release qualification
+source_commit: 490e656c01b21c52b5116b109bde8e94be856016
+source_tree: 7cbc23087ca5109159d0c8cce7a216e4fcb63cdd
+--release: not passed. BUILDING.md selects the release configuration with X0X_DEV_PADCAL=0 and ./build.sh --board smk37. A version argument is not required.
+
+===== toolchain_download =====
+command: curl -sS -L --retry 3 --retry-all-errors -D toolchain.headers -o toolchain.tar.xz https://pkgman.jieliapp.com/s/linux-toolchain
+cwd: /home/ubuntu/x0x-scratch-490e656c
+start_utc: 2026-11-05T09:46:40Z
+duration_s: 5
+rc: 0
+http: 302 from https://pkgman.jieliapp.com/s/linux-toolchain then 200 from https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz
+size: 26027508
+sha256: a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+note: matches the recorded 8be16486 archive hash and size. No 401 or 403.
+
+===== toolchain_extract =====
+command: tar -xJ -C $HOME/.jieli -f toolchain.tar.xz && ln -sfn jieli-linux-toolchains-20260730.1 $HOME/.jieli/toolchain
+rc: 0
+clang_version: clang version 4.0.1
+clang_sha256: c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+clang_path: /home/ubuntu/.jieli/toolchain/pi32v2/bin/clang -> ../../common/bin/clang (46784720 bytes)
+
+===== sdk_clone =====
+command: git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+start_utc: 2026-11-05T09:46:40Z
+duration_s: 46
+rc: 0
+HEAD: d179b4484759423312073f5fbb232501aa491047
+pins:
+  cpu/wl82/tools/uboot.boot 4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4
+  cpu/wl82/tools/cfg_tool.bin 276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b
+  cpu/wl82/tools/cfg/eq_cfg_hw.bin 41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d
+
+===== check_locked_settings =====
+command: python3 tools/check_locked_settings.py
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:01Z
+end_utc: 2026-11-05T09:49:01Z
+duration_s: 0
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=<unset>
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== build_elite =====
+command: ./build.sh --board smk37
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:01Z
+end_utc: 2026-11-05T09:49:07Z
+duration_s: 6
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=elite
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== build_pro =====
+command: ./build.sh --board smk37
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:07Z
+end_utc: 2026-11-05T09:49:13Z
+duration_s: 6
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=pro
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== build_ctl =====
+command: sh ble/ctl/build_ctl.sh
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:13Z
+end_utc: 2026-11-05T09:49:15Z
+duration_s: 2
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=1
+  SDK_LOCAL=/home/ubuntu/fw-AC79_AIoT_SDK
+  MODEL=<unset>
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== add_ctl_pro =====
+command: python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:15Z
+end_utc: 2026-11-05T09:49:15Z
+duration_s: 0
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=<unset>
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== add_ctl_elite =====
+command: python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:15Z
+end_utc: 2026-11-05T09:49:16Z
+duration_s: 1
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=<unset>
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== add_ctl_check =====
+command: python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:49:16Z
+end_utc: 2026-11-05T09:49:16Z
+duration_s: 0
+rc: 0
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=<unset>
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+
+===== host_tests =====
+command: sh tests/run_tests.sh
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+start_utc: 2026-11-05T09:52:31Z
+end_utc: 2026-11-05T10:11:06Z
+duration_s: 1115
+rc: 1
+result: TESTS FAILED; 358 ok, 26 FAIL, 6 not-run
+env_at_execution:
+  JIELI_TOOLCHAIN=<unset>
+  AC79_SDK=<unset>
+  JIELI_DOCKER=<unset>
+  X0X_DEV_PADCAL=<unset>
+  CTL_NO_CACHE=<unset>
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=<unset>
+  X0X_TEST_JOBS=<unset, script default 8>
+  X0X_TESTS=<unset>
+  CC=<unset, script default cc>
+note: an earlier launcher exited 127 because /usr/bin/time is not installed. That attempt did not run the suite. This entry is the real run.
+
+===== not_invoked =====
+command: tools/gate.sh
+rc: NOT_RUN
+command: python3 tools/dev_validate.py run --model elite|pro
+rc: NOT_RUN
+reason: run requires --commit, --plan, and --output, and it rebuilds with X0X_DEV_PADCAL=1. It does not check these X0X_DEV_PADCAL=0 packages. No release purpose was used.

@@ -1,0 +1,21 @@
+label: native evidence build of 490e656c (UNREVIEWED), not release qualification
+command: python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-elite-ble.fwsc
+start_utc: 2026-11-05T09:49:15Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=<unset>
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+---- output ----
+build/x0x-smk37-elite-ble.fwsc: with ble/ctl/out/ctl.img
+---- end ----
+end_utc: 2026-11-05T09:49:16Z
+duration_s: 1
+rc: 0

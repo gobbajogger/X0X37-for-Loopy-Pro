@@ -1,0 +1,37 @@
+label: native evidence build of 490e656c (UNREVIEWED), not release qualification
+command: ./build.sh --board smk37
+start_utc: 2026-11-05T09:49:07Z
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+env_at_execution:
+  JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+  AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+  JIELI_DOCKER=0
+  X0X_DEV_PADCAL=0
+  CTL_NO_CACHE=1
+  CTL_NATIVE=<unset>
+  SDK_LOCAL=<unset>
+  MODEL=pro
+  BOARD=<unset>
+  X0X_JOBS=<unset>
+---- output ----
+check_locked_settings: 20 settings ok
+experiments/original_synth/miami_voice_owner.c:59:69: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+ *s=(original_miami_voice_owner){v,p,e,a,c,t,*producer,count,bpm,1,{0}};return 1;
+                                                                    ^
+                                                                    {}
+1 warning generated.
+generate: cached font, drums, and break bank
+loader: image 8520 B at 0x1c0a800, bss end 0x1c0f770
+loader: ota.bin 7450 B
+  ok    .ram_text: 844 insns, no calls
+  ok    app code area 552672 B, 39016 B free (Bluetooth block at app.bin 0x86ee0)
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 513656 B; RAM .data+.bss 95872 B of 98304; pool 335864 B of 344064
+  ok    register access: hal/ only (src/, loader/ clean)
+app      /agent/repos/X0X37-for-Loopy-Pro/build/smk37/x0x.bin  513656 B
+loader   /agent/repos/X0X37-for-Loopy-Pro/build/smk37/loader/ota.bin  7450 B
+package  /agent/repos/X0X37-for-Loopy-Pro/build/x0x-smk37.fwsc  651566 B, identity SMK-37 Pro_900, board smk37
+---- end ----
+end_utc: 2026-11-05T09:49:13Z
+duration_s: 6
+rc: 0
