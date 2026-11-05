@@ -4492,25 +4492,47 @@ static void cv_commit_knobs(int region)
     cv_commit_rows(region, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
 }
 
-/* Keep the header pixels unchanged; reuse the bounded tile commit for the
- * tiny beat, cue and status changes instead of sending all 9,600 bytes. */
+/* Full-band changes need no per-tile pixel packing. Send the same pixels
+ * via 0.0.24.3's <=1,536-byte full-row DMA chunks and initialize the tile
+ * hashes so the very next small change stays a dirty-tile update. */
+static void cv_commit_full_with_tiles(int region, uint32_t x, uint32_t y,
+                                      uint32_t rows, uint32_t *hashes)
+{
+    for (uint32_t row = 0; row < rows; row += X0X_LCD_TILE_H) {
+        uint32_t h = rows - row < X0X_LCD_TILE_H ? rows - row : X0X_LCD_TILE_H;
+        for (uint32_t col = 0; col < X0X_LCD_TILE_COLS; ++col)
+            hashes[(row / X0X_LCD_TILE_H) * X0X_LCD_TILE_COLS + col] =
+                x0x_lcd_tile_hash(cv_px, X0X_LCD_WIDTH,
+                                  col * X0X_LCD_TILE_W, row, h);
+    }
+    blit_hash[region] = 1u;
+    cv_tile_valid[region] = 1u;
+    cv_lcd_full(x, y);
+}
+
+/* Tiny beat, cue and status changes use dirty header tiles. Unchanged frames
+ * pay only the same single whole-band hash as 0.0.24.3. */
 static void cv_commit_header(void)
 {
-    /* Unchanged frames pay only the old whole-band hash. */
     uint32_t h = cv_hash();
     if (blit_hash[0] && h == header_full_hash) return;
-    cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
+    if (!blit_hash[0] || !cv_tile_valid[0])
+        cv_commit_full_with_tiles(0, 0, 0, HDR_H, header_tileh);
+    else
+        cv_commit_rows(0, 0, 0, HDR_H, header_tileh);
     header_full_hash = h;
 }
 
-/* SMC detail values sit in the lower band, which other views also own.
- * The popup resets its fast hash when opened, so a prior keyboard strip can
- * never be mistaken for an unchanged SMC screen. */
+/* SMC details use small dirty tiles after a full redraw; the separate popup
+ * full hash avoids repeated descriptor-band work in a stable frame. */
 static void cv_commit_popup_knobs(void)
 {
     uint32_t h = cv_hash();
     if (blit_hash[3] && h == popup_knob_full_hash) return;
-    cv_commit_knobs(3);
+    if (!blit_hash[3] || !cv_tile_valid[3])
+        cv_commit_full_with_tiles(3, 0, KNOB_Y, KNOB_ROWS, knob_tileh);
+    else
+        cv_commit_knobs(3);
     popup_knob_full_hash = h;
 }
 
