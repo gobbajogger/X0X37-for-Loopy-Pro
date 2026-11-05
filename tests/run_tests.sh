@@ -81,10 +81,10 @@ test_class() {
     installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-build-safe|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
-    rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    rec-live|rec-live-smk|panic-mutants) TEST_CLASS=S ;;   # rec-live reads build/gen; mutants edit sources so they run alone
     save-note-quiet) TEST_CLASS=G ;;
     rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard) TEST_CLASS=G ;;
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|home-overview|part-order|sound-matrix|sound-layout|chicago-presentation|chicago-readout|matrix-knob-caption|preset-navigation-noop|ui-303-entry|host-build|gen-nonfont-tables|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|smc-reachability|smc-ui|smc-ui-bounds|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-lock-beat|smc-select-mode|smc-pause-loss|smk-wheel-mode|miami-mw-wobble|smc-pickup-acceptance|panic-clear|panic-route) TEST_CLASS=G ;;
     bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
@@ -123,7 +123,7 @@ lk() {                  # name command...: start the command. An install-path te
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
     case "$1" in save-note-quiet) return 0 ;; esac
-    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel) return 0 ;; *) return 1 ;; esac
+    case "$1" in bass-presets-map|bass-presets-export|bass-presets-live|bass-legacy-display|bass-tagged-storage|rec-held-duration|rec-endpoint-lifecycle|rec-endpoint-storage|rec-nonforward-guard|drum-pan|stereo|rec-live|rec-live-smk|copy-semantics|song-actions|ui-feedback|ui-303-entry|project-303-stream|project-protocol|project-runtime|project-stage|wave-motion-migrate|project-save-preflight|smp-begin-cancel|panic-clear|panic-route) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -557,6 +557,11 @@ run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py 
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
 run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
+run panic-chord sh tests/host/panic_chord_test.sh
+run panic-notes sh tests/host/panic_notes_test.sh
+run panic-clear sh tests/host/panic_clear_test.sh
+run panic-route sh tests/host/panic_route_test.sh
+run panic-mutants sh tests/host/panic_mutants.sh
 run rec-held-duration sh tests/host/rec_held_duration_test.sh
 run rec-endpoint-lifecycle sh tests/host/rec_endpoint_lifecycle_test.sh
 run rec-endpoint-storage sh tests/host/rec_endpoint_storage_test.sh
