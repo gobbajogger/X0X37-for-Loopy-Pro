@@ -330,6 +330,7 @@ run uac-out-irq sh tests/host/uac_out_irq_test.sh   # nested EP4 ingress must se
 run usb-audio-descriptors env CC="$CC" python3 -B tests/host/usb_audio_descriptors_test.py  # UAC1 in+out, iOS rules
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
+run sound-reset sh tests/host/sound_reset_test.sh
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
