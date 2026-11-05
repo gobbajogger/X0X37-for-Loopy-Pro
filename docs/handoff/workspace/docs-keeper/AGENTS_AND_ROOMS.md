@@ -1,3 +1,5 @@
+> **HISTORICAL (2026-10-16 roster).** Standing ownership and rules live in `docs/rules/current-owner-contract.md` and root `AGENTS.md`. Do not apply these room, thread or Mac rules. Kept as an archive; the text below is not active instruction.
+
 Rule 1 (owner, explicit, 2026-10-31): Don't do stupid work. Only do work that moves the build forward.
 
 Rule 2 (owner, explicit, 2026-10-31): Always start a new Codex/ChatGPT thread for each job. Never reuse old threads.

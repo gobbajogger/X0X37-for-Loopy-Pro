@@ -1,3 +1,5 @@
+> **HISTORICAL (Docs Keeper pending list).** Standing ownership and rules live in `docs/rules/current-owner-contract.md` and root `AGENTS.md`. Do not apply edits to the owner's Mac. Kept as an archive; the text below is not active instruction.
+
 # Pending doc edits (Docs Keeper)
 Written on the box because the Mac link was down. Apply to the Mac files when the link is back.
 
