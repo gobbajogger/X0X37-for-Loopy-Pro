@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* M7a storage across firmware: the whole host app (x0x_host.c flash emulation), built inside a given tree
- * (the base 4b240bd = older firmware, or this one), through project_load, project_save, the UI's
+ * (the base c32c54ac = older firmware, or this one), through project_load, project_save, the UI's
  * save_project and autosave. tests/host/run_part_off.sh compares the dumps (sha256) and prints the cases.
  *   part_off_store write <mask> <out>        a project (bpm 133.0, 303A step 1 note 77), saved with <mask> OFF
  *   part_off_store boot <in> <out>           boot on <in>; then SAVE, then AUTOSAVE (an edit); <out> = the store

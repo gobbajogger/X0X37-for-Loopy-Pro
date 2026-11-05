@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* M7a .x0x files across firmware: the whole host app built inside a given tree (the base 4b240bd = older
+/* M7a .x0x files across firmware: the whole host app built inside a given tree (the base c32c54ac = older
  * firmware, or this one), through the editor's own file steps (editor.c EXPORT BEGIN :271-273: capture the
  * stage, then project_file_header; COMMIT/VALIDATE :316-321: project_file_validate, project_file_header,
  * then the commit). tests/host/run_part_off.sh compares the files (sha256) and prints the cases.

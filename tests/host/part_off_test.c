@@ -4,7 +4,7 @@
  * with any part OFF, the OFF mask (bit p = PART_p, engine.h order 909, 808, 303A, 303B, BRK) and three zero
  * reserved bytes follow it. settings_t.rsv_bright is unused again (opaque, kept).
  * The helpers below drive the stored mask and project_apply_io / project_capture_stage. Without
- * PROJ_SET_TAIL (base 4b240bd, and cf9a283's settings_t.rsv_bright 0xA0|mask) they use that older byte, so
+ * PROJ_SET_TAIL (base c32c54ac, and cf9a283's settings_t.rsv_bright 0xA0|mask) they use that older byte, so
  * the same source builds on the base, on cf9a283 (red for the storage cases) and here (green).
  * Build: tests/host/run_part_off.sh. Output: "  PASS|FAIL|NOT_RUN <case>". */
 #define main x0x_host_main
@@ -383,7 +383,7 @@ static void t_live(void)
 }
 /* Storage (in-process, the host flash emulation): the settings object's two sizes, the round trip of every
  * mask, the tail's validation, the Bluetooth toggle's patch and the .x0x file. The cross-firmware cases
- * (base 4b240bd reading these bytes) are tests/host/part_off_store.c via run_part_off.sh. */
+ * (base c32c54ac reading these bytes) are tests/host/part_off_store.c via run_part_off.sh. */
 #define SET_N (4 + (int)sizeof(settings_t))
 #ifdef SEQ_PART_OFF
 static unsigned live_mask(void) { return seq.part_off; }

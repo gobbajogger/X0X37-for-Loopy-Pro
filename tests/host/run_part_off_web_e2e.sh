@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # M7a end to end firmware -> web: build the whole host app with tests/host/part_off_web_e2e.c, export the .x0x
 # project for every part OFF mask, then run tests/host/part_off_web_e2e.mjs (real web parseProject) on it.
-#   SAN_FLAGS="-fsanitize=address,undefined"  sanitizer build. No node: NOT_RUN (exit 0).
+#   SAN_FLAGS="-fsanitize=address,undefined"  sanitizer build. No node: FAIL (exit 1); D6 forbids false-green NOT_RUN.
 set -eu
 cd "$(dirname "$0")/../.."
-command -v node >/dev/null 2>&1 || { echo "  NOT_RUN part_off_web_e2e (node not found)"; exit 0; }
+command -v node >/dev/null 2>&1 || { echo "  FAIL part_off_web_e2e (node not found)"; exit 1; }
 OUT=${OUT:-build/host/part-off-web-e2e}
 rm -rf "$OUT" && mkdir -p "$OUT/files"
 sh host/build_host.sh --generate-only >/dev/null

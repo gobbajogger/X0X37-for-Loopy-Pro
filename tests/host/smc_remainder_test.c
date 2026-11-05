@@ -385,7 +385,7 @@ static void pictured_action_states(void)
     message(0x80,24,0); smc_ui_draw_peer(); CHECK(!(smc.fx_down&1u));
     CHECK(changed_rows(KNOB_Y+49,KNOB_Y+58,before_fb,fb)>0);
     setup(V_MIX,PART_909); smc_page_set(1); tap(0x2f);
-    CHECK(smc_button_symbol(23)==UI_G_NONE && !strcmp(smc_button_caption(23),"--"));
+    CHECK(smc_button_symbol(23, smc_button_caption(23))==UI_G_NONE && !strcmp(smc_button_caption(23),"--"));
 }
 static void composed_header_cues(void)
 {
@@ -423,11 +423,11 @@ static void pictogram_rendering(void)
     CHECK(fb[8*240+33]==swap16(C_BLACK) && fb[8*240+44]!=swap16(C_BLACK));
     CHECK(memcmp(before_fb,fb,sizeof fb));
     clip_grid_mode=1;
-    CHECK(smc_button_symbol(7)==UI_G_NEXT && smc_button_symbol(15)==UI_G_PREV);
-    CHECK(smc_button_symbol(31)==UI_G_NEXT);
+    CHECK(smc_button_symbol(7, smc_button_caption(7))==UI_G_NEXT && smc_button_symbol(15, smc_button_caption(15))==UI_G_PREV);
+    CHECK(smc_button_symbol(31, smc_button_caption(31))==UI_G_NEXT);
     clip_grid_mode=0;
-    CHECK(smc_button_symbol(0)==UI_G_RECORD && smc_button_symbol(8)==UI_G_SOLO);
-    CHECK(smc_button_symbol(16)==UI_G_MUTE && smc_button_symbol(31)==UI_G_MIX);
+    CHECK(smc_button_symbol(0, smc_button_caption(0))==UI_G_RECORD && smc_button_symbol(8, smc_button_caption(8))==UI_G_SOLO);
+    CHECK(smc_button_symbol(16, smc_button_caption(16))==UI_G_MUTE && smc_button_symbol(31, smc_button_caption(31))==UI_G_MIX);
     smc_page_set(0);
     for(int p=1;p<=NPAT;p++) {
         cv_begin(240,HDR_H,C_BLACK);

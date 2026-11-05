@@ -5,7 +5,7 @@
 #   SAN_FLAGS="-fsanitize=address,undefined"  sanitizer build; STRICT=1 adds -Werror
 #   PART_OFF_MUTANT=1  build with the gates removed (-DPART_OFF_MUTANT): the gating cases must FAIL
 #   PART_OFF_REQUIRE_BASE=1 (tests/run_tests.sh): a base ref that cannot be resolved FAILs (exit 1)
-#   instead of NOT_RUN. 4b240bd is a local root commit, absent from other clones.
+#   instead of NOT_RUN. Base must be a published pre-M7 commit (c32c54ac = RC1 tree).
 #   With the base: the storage across firmware (tests/host/part_off_store.c, older = the base's build)
 #   PART_OFF_MUTANTS=1 each mutant in part_off_mutants.py on a copy of the tree: the case it names must FAIL
 set -eu
@@ -29,7 +29,7 @@ unset PART_OFF_REF_IN || true
 if [ -n "${PART_OFF_REQUIRE_BASE:-}" ] && { [ -z "${PART_OFF_BASE_REF:-}" ] ||
         ! git cat-file -e "$PART_OFF_BASE_REF^{commit}" 2>/dev/null; }; then
     echo "  FAIL all_on_bit_exact_vs_base (PART_OFF_REQUIRE_BASE: base '${PART_OFF_BASE_REF:-}' cannot be resolved" \
-         "in this clone; fetch or create commit 4b240bd33a0e, or set PART_OFF_BASE_REF to it)"
+         "in this clone; fetch c32c54ac8ec68aaca53adccf7af66f155590f2dc, or set PART_OFF_BASE_REF to it)"
     exit 1
 fi
 if [ -n "${PART_OFF_BASE_REF:-}" ] && ! git cat-file -e "$PART_OFF_BASE_REF^{commit}" 2>/dev/null; then
