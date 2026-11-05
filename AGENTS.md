@@ -1,35 +1,15 @@
 # x0x37 project instructions
 
-Read the [active delivery workflow](docs/rules/workflow.md) before work and the
-[writing skill](.agents/skills/x0x37-writing/SKILL.md) for output. Current owner
-instructions and action-specific permissions govern. Older stage handoffs and
-archived plans are evidence, not executable workflow instructions.
+**Current rules:** [RULES.md](RULES.md). Older handoffs, archived plans, and prior AGENTS text are evidence, not executable rules.
 
-Consume the existing request, owner and checkpoint. Complete authorized work and
-applicable proof, report each meaningful result, then continue the next authorized
-action without waiting for routine owner acknowledgment. Preserve one writer per
-shared scope, independent QA and existing integration/publication owners. A
-blocked item must not stop independent ready work. No fresh chat or fixed provider
-is required for each logical stage.
+**Inline protections** (full text in RULES.md):
+- No force-push; no merge to `main` outside the sole integrator/merger/publisher; no publish outside the chain.
+- No secrets, raw captures, `refs-oscuro`, or proprietary SDK/toolchain/DSP bytes in git. Preserve LICENSE/notices. Existing `*_private.h` / #684 synth headers stay.
+- Commit identity `gobbajogger <255244738+gobbajogger@users.noreply.github.com>`; no commit trailers.
+- Cloud only; never operate the owner's Mac or devices. Current Elite recovery and flash remain withdrawn; read-only Pro investigation through the assigned integrator does not grant a write, install, flash, or recovery.
+- Honest PASS/FAIL/NOT_RUN with exact SHAs. D6 for new installable NIGHTLY: 0 FAIL / 0 SKIP / 0 NOT_RUN. Failed/unrun required gates stay out of the flashable picker.
+- Do not edit NIGHTLY catalogs (existing 0.0.24.5 entry untouched).
+- Stuck locks: contact the holder (no timeouts); escalate unreachable holders to coordinator and owner.
+- Do not bypass a denial by switching transport, encoding, or worker; do not bypass required checks/reviews or silently change auto-merge.
 
-Resolve the maintained development `nightly` to its full SHA when reading its
-workflow skills; also apply this actual target checkout's rules. Policy adoption
-is not firmware promotion. Firmware `main` and production behavior retain exact
-matching-model hardware proof and separate production authority. Do not force
-push, change protections or bypass a denied action. A workflow mode does not grant
-device access. Current Elite recovery/flash remains withdrawn; authorized Pro
-investigation is read-only through its assigned integrator.
-
-Use [scoped local proof](docs/rules/local-proof.md). Optional tooling gaps stay
-NOT_RUN for their dependent checks while other work continues. Actual failures
-remain FAIL. Required missing proof prevents the affected claim. GitHub Actions
-and billing status are not substitutes for agent-run tests. Documentation-only
-edits do not need firmware builds. Workflow tooling needs its relevant tests.
-
-For build commands and pins, read [BUILDING.md](BUILDING.md); for distribution,
-read [LICENSING.md](LICENSING.md). Discover prerequisites only for the selected
-action. Never infer a device or release grant from setup instructions.
-
-Classic and Cursor skill entrypoints are adapters to this workflow. Their tool
-examples are subordinate to current capabilities, ownership and permissions.
-See [historical instruction boundaries](docs/rules/workflow-history.md).
+Build pins: [BUILDING.md](BUILDING.md). Licensing: [LICENSING.md](LICENSING.md). History shelf: [docs/rules/workflow-history.md](docs/rules/workflow-history.md).
