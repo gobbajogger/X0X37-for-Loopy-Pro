@@ -1,0 +1,19 @@
+LABEL: dev-padcal, informational
+LABEL2: informational, not pinned, not release qualification
+JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain
+AC79_SDK=/home/ubuntu/fw-AC79_AIoT_SDK
+===== elite start 2026-11-05T11:21:33Z =====
+Preparing worktree (detached HEAD 43de100)
+HEAD is now at 43de100 Fix v4 host gates: remainder captions, node e2e, base ref
+DEV CHECKED /tmp/dv-out-elite/record.json
+RC:0
+DURATION_SEC:13
+===== elite end 2026-11-05T11:21:46Z =====
+===== pro start 2026-11-05T11:21:46Z =====
+Preparing worktree (detached HEAD 43de100)
+HEAD is now at 43de100 Fix v4 host gates: remainder captions, node e2e, base ref
+DEV CHECKED /tmp/dv-out-pro/record.json
+RC:0
+DURATION_SEC:12
+===== pro end 2026-11-05T11:21:58Z =====
+DEV_VALIDATE_SESSION_DONE

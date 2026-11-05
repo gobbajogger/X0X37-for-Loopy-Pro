@@ -1,0 +1,17 @@
+informational, not pinned, not release qualification
+
+URL: https://pkgman.jieliapp.com/s/linux-toolchain
+tools/get_toolchain.sh streams that URL into tar and does not leave an archive to hash.
+The archive was saved first so its digest could be recorded, then extracted with the script's tar -xJ and toolchain symlink.
+tools/get_toolchain.sh was then run as well. It printed:
+JIELI_TOOLCHAIN=/home/ubuntu/.jieli/toolchain (jieli-linux-toolchains-20260730.1)
+
+archive observed sha256: a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+archive expected sha256: a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd
+archive: match
+
+clang path: /home/ubuntu/.jieli/toolchain/pi32v2/bin/clang
+clang observed sha256: c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+clang expected sha256: c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+clang: match
+clang sha256 after tools/get_toolchain.sh: unchanged

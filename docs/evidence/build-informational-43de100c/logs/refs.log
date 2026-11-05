@@ -1,0 +1,29 @@
+informational, not pinned, not release qualification
+Result against unpinned public tips only.
+
+clone: https://github.com/athousanddetails/schwung-9W9.git
+path: /home/ubuntu/refs/schwung-9W9
+HEAD: a9e030d9bad46e3e53aafce92c7104b8e7bba47f
+expected public tip: a9e030d9bad46e3e53aafce92c7104b8e7bba47f
+tip: match
+runner file: src/dsp/er99_engine.c
+on this tip: absent
+present engine file: src/dsp/9w9_engine.c
+git log --all -- src/dsp/er99_engine.c: no commits
+gate pin 10cbe5c: git cat-file -t -> fatal: Not a valid object name 10cbe5c
+longer name 10cbe5c1e1c9e65b0818bb34644ab1a13092082c: git cat-file -t -> fatal: git cat-file: could not get object info
+
+clone: https://github.com/athousanddetails/schwung-8W8.git
+path: /home/ubuntu/refs/schwung-8W8
+HEAD: 1dbef27e13a6c63cb1fc078dd9b4d86172237c51
+expected public tip: 1dbef27e13a6c63cb1fc078dd9b4d86172237c51
+short name 1dbef27: this HEAD
+tip: match
+runner file: src/dsp/sc808_engine.cpp
+on this tip: absent
+present engine file: src/dsp/w8_engine.cpp
+git log --all -- src/dsp/sc808_engine.cpp: no commits
+gate pin 94aa271: git cat-file -t -> fatal: Not a valid object name 94aa271
+longer name 94aa2716d4c2e5851fc7c5dbb4c17adfd133c997: git cat-file -t -> fatal: git cat-file: could not get object info
+
+schwung-303 and schwung-tb3po were not cloned.

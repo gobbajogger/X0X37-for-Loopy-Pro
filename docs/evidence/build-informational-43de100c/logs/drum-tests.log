@@ -1,0 +1,9 @@
+COMMAND: NINEW9_DIR=/home/ubuntu/refs/schwung-9W9 EIGHTW8_DIR=/home/ubuntu/refs/schwung-8W8 X0X_TESTS="drum909 drum808" sh tests/run_tests.sh
+cwd: /agent/repos/X0X37-for-Loopy-Pro
+HEAD: 43de100c83d845409bb801ecf29238a78f179aed
+TREE: 4993a90ae993da7d68ece0d352c88b27244b327e
+  not-run drum909 (/home/ubuntu/refs/schwung-9W9/src/dsp/er99_engine.c)
+  not-run drum808 (/home/ubuntu/refs/schwung-8W8/src/dsp/sc808_engine.cpp)
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
+RUNNER_EXIT:0

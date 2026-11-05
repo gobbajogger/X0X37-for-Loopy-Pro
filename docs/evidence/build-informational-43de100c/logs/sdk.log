@@ -1,0 +1,11 @@
+informational, not pinned, not release qualification
+
+command: git clone --depth 1 --branch AC79NN_SDK_V1.2.1_2023-12-13 https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git /home/ubuntu/fw-AC79_AIoT_SDK
+
+HEAD: d179b4484759423312073f5fbb232501aa491047
+HEAD^{commit}: d179b4484759423312073f5fbb232501aa491047
+expected peel: d179b4484759423312073f5fbb232501aa491047
+peel: match
+
+uboot present: /home/ubuntu/fw-AC79_AIoT_SDK/cpu/wl82/tools/uboot.boot
+No 401 or 403 was returned for this clone.
