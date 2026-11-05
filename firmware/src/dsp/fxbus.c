@@ -472,8 +472,9 @@ void fxbus_process(fxbus_t *f, const float *dry, const float *rev, const float *
         f->comp_env_db = env;
     }
     const float vol = f->muted & 4u ? 0.0f : f->volume;
-    for (int i = 0; i < n; ++i)
-        out[i] *= vol;
+    if (vol != 1.0f)                                  /* unity needs no output pass, as in stereo */
+        for (int i = 0; i < n; ++i)
+            out[i] *= vol;
 }
 
 /* X0X stereo: 9W9's chain on L and R. The distortion runs on each side; the glue compressor reads

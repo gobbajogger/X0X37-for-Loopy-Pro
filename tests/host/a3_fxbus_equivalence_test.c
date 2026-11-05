@@ -35,9 +35,20 @@ int main(void)
             int n = sizes[block % 7];
             float dry[256] = {0}, right[256] = {0}, rev[256] = {0}, dly[256] = {0};
             float l[256], r[256], cl[256], cr[256];
+            /* Unity skips only the final pass: nonunity and mute must still
+             * scale, while all effects keep advancing through each transition. */
+            const float volumes[] = {1.0f, 0.25f, 1.0f, 0.0f, 1.5f};
+            a.volume = b.volume = volumes[(block / 13) % 5];
+            a.muted = b.muted = block % 11 == 0 ? 4u : 0u;
             for (int i = 0; i < 256; ++i) {
                 l[i] = cl[i] = 123.0f; r[i] = cr[i] = -456.0f;
                 if (i & 1) rev[i] = dly[i] = -0.0f;
+                /* Nonzero dry signal also exercises unity after send tails end.
+                 * Include signed zeros and the smallest/largest subnormals. */
+                const uint32_t words[] = {0, 0x80000000u, 1, 0x80000001u,
+                    0x007fffffu, 0x807fffffu, 0x3eaaaaabu, 0xbeaaaaabu};
+                memcpy(&dry[i], &words[i % 8], sizeof dry[i]);
+                right[i] = -dry[i];
             }
             /* Tail finishes before a new attack; scan hits first/middle/last. */
             if (n && (block == 5 || block == 750)) {
