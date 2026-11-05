@@ -133,11 +133,16 @@ void project_commit_stage(void);          /* adopt with the audio engine held */
 #define PROJECT_FILE_HDR 32u
 #define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
 /* .x0x header word 28 (was always 0, and older firmware and the web tool refuse any other value): 0 while
- * every part is ON (byte for byte the older file); with any part OFF the tag in bytes 30-31 and the OFF mask
- * (1-31) in byte 28, byte 29 zero. Not covered by the payload CRC (word 12), so it is validated exactly. */
+ * every part is ON (byte for byte the older file); with any part OFF the tag in bytes 30-31, the OFF mask
+ * (1-31) in byte 28 and in byte 29 its check byte (CRC-8, polynomial 0x17, of the mask; linear, so the XOR
+ * of the per-bit values). Not covered by the payload CRC (word 12): the check byte makes any two valid OFF
+ * words differ in at least 5 bits, so every 1-4 bit error in the word is refused (-1). */
 #define PROJ_FILE_OFF_TAG 0x4F460000u
-#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | (uint32_t)(m) : 0u)
-#define PROJ_FILE_OFF_OK(w) ((w) == 0u || (((w) & 0xFFFFFF00u) == PROJ_FILE_OFF_TAG && ((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL))
+#define PROJ_FILE_OFF_CHK(m) ((((m) & 1u) ? 0x17u : 0u) ^ (((m) & 2u) ? 0x2Eu : 0u) ^ (((m) & 4u) ? 0x5Cu : 0u) ^ \
+                              (((m) & 8u) ? 0xB8u : 0u) ^ (((m) & 16u) ? 0x67u : 0u))
+#define PROJ_FILE_OFF_WORD(m) ((m) ? PROJ_FILE_OFF_TAG | PROJ_FILE_OFF_CHK(m) << 8 | (uint32_t)(m) : 0u)
+#define PROJ_FILE_OFF_OK(w) ((w) == 0u || (((w) & 0xFFFF0000u) == PROJ_FILE_OFF_TAG && ((w) & 0xFFu) - 1u < PROJ_PART_OFF_ALL && \
+                                           ((w) >> 8 & 0xFFu) == PROJ_FILE_OFF_CHK((w) & 0xFFu)))
 void project_file_header(uint8_t *header);
 int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
 
