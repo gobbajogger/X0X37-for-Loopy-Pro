@@ -36,6 +36,9 @@ below still apply). Complete the
 current stage's necessary work and proof together. At its boundary, preserve exact
 inputs, results, owned paths, next owner/action and supported result reader; release
 the old writer before the receiver writes. Verify actual receiver consumption.
+Send each handoff directly to the receiving agent as a priority message carrying
+the exact SHA/tree and the next action; a parent wake is informational only.
+(Relayed by the coordinator; owner confirmation pending.)
 Unavailable thread creation remains a precise blocked handoff, not a fabricated
 launch or permission to duplicate work. Continue independent authorized work.
 Follow the [workflow routing](workflow.md) for the target-specific handoff procedure.
