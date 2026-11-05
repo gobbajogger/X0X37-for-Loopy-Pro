@@ -21,7 +21,7 @@ static lcd_trace_hist_t lcd_trace_hist[LCD_T_COUNT];
 static volatile uint32_t lcd_trace_key_at, lcd_trace_midi_at;
 static volatile uint8_t lcd_trace_key_pending, lcd_trace_midi_pending;
 static volatile uint64_t lcd_trace_seen_keys;
-static volatile uint32_t lcd_trace_seen_midi;
+static volatile uint32_t lcd_trace_seen_notes, lcd_trace_seen_midi;
 static volatile uint32_t lcd_trace_dma_at, lcd_trace_dma_size;
 static volatile uint32_t lcd_trace_frame_at, lcd_trace_frame_bytes, lcd_trace_last_frame_bytes;
 static volatile uint32_t lcd_trace_max_frame_bytes;
@@ -35,13 +35,14 @@ static void lcd_trace_record(unsigned kind, uint32_t microseconds)
     if (microseconds > h->worst) h->worst = microseconds;
     h->total = n + 1u;
 }
-static void lcd_trace_input_tick(uint64_t keys, uint32_t midi_write)
+static void lcd_trace_input_tick(uint64_t keys, uint32_t notes, uint32_t midi_write)
 {
     uint32_t now = fm1_ticks();
-    if (keys != lcd_trace_seen_keys) {
+    if (keys != lcd_trace_seen_keys || notes != lcd_trace_seen_notes) {
         if (!lcd_trace_key_pending) lcd_trace_key_at = now;
         lcd_trace_key_pending = 1u;
         lcd_trace_seen_keys = keys;
+        lcd_trace_seen_notes = notes;
     }
     if (midi_write != lcd_trace_seen_midi) {
         if (!lcd_trace_midi_pending) lcd_trace_midi_at = now;

@@ -34,3 +34,16 @@ Run `sh tests/host/lcd_bounded_test.sh`. The C test exercises the production til
 - Real-device tracing for playhead move, knob turn, SMC popup and idle, with BEFORE/AFTER bytes per frame and worst foreground stall.
 
 The indexed project Library did not expose a complete V1.2.1 archive for this cloud environment at the time of implementation; the mounted V1.2.0 archive is not an approved substitute. All unrun gates remain **NOT_RUN**, not PASS. Do not merge or publish based on these focused tests alone.
+
+## Synthetic transfer comparison
+
+The standalone `lcd_bounded_scenarios_test.c` uses the exact old row/column hash algorithm and the new tile algorithm on four deterministic host pixel arrays. Numbers below are **synthetic transfer bytes**, not a record of physical hardware behavior. The worst blocking interval is the pixel-wire-time **estimate** (12 MHz SPI), excluding commands, ISR preemption, and input work.
+
+| Fixture | Old bytes | New bytes | Old max payload time | New max payload time | Old DMA ops | New DMA ops |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Playhead: two separate moving columns | 8,640 | 3,072 | 5.760 ms | 0.342 ms | 1 | 6 |
+| Knob: three separate changing strips | 11,040 | 3,072 | 7.360 ms | 0.342 ms | 1 | 6 |
+| SMC popup: entire 240x82 band | 39,360 | 39,360 | 26.240 ms | 1.024 ms | 1 | 30 |
+| Idle: no changed pixels | 0 | 0 | 0 | 0 | 0 | 0 |
+
+True foreground key/MIDI stall for each scenario on `0.0.24.1` versus the candidate remains **NOT_RUN**. Extra per-operation LCD command overhead and input work must be captured on target before claiming the <=2 ms dispatch goal.
