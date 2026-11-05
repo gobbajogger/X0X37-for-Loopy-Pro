@@ -1,6 +1,6 @@
 # Stage evidence and existing owners
 
-Apply the current [project workflow](../../../../docs/rules/workflow.md) and target
+Apply the current [project workflow](../../../../RULES.md) and target
 repository rules. A stage is an evidence boundary, not a new-thread requirement.
 Reuse applicable current standing authority; do not require its repetition in
 this run. Preserve the existing sole source, integration and publication owners.
