@@ -29,9 +29,13 @@ sh tests/host/roadmap_evidence_check.sh [tree_root] [evidence_dir]
 
 Defaults: `tree_root=.` and `evidence_dir=<tree_root>/docs/roadmap-evidence`.
 This is a structural report: PRESENT requires valid JSON, required fields,
-existing `code_paths` files, and complete `test_refs` with result `PASS`, `FAIL`,
+in-tree, repo-relative `code_paths` files, and complete `test_refs` with result `PASS`, `FAIL`,
 or `NOT_RUN` and a nonempty source SHA. Pins must agree. It does not check
 test file existence, test registration, candidate SHA, or required-row coverage.
+Required metadata and filename/row-id agreement are checked for UNPROVEN too.
+Malformed UNPROVEN rows retain their classification/count, report their schema
+errors, and cause failure. Absolute paths and paths resolving outside the tree
+(including symlinks) fail in both modes.
 UNPROVEN counts as MISSING but does not itself cause failure. PRESENT with FAIL
 or NOT_RUN is structurally accepted. These legacy behaviors and output are kept
 for existing callers; reporting exit 0 is not final-gate qualification.
