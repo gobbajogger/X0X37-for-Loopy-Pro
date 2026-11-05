@@ -12,6 +12,7 @@
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
 #include "home_pattern_glyph.h" /* HOME complete patterns, per-hit velocity */
+#include "panic_chord.h"
 #include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
@@ -220,12 +221,15 @@ static void mark_dirty(void) { ui.dirty = 1; }
 static uint8_t save_wait;
 static void live_boundary(int entry);
 static uint8_t project_busy, project_revision;
+static x0x_panic_chord_t kbd_panic;
 static uint32_t song_structure_revision; /* runtime identity epoch for frozen song-bar controls */
 int ui_project_busy(void) { return project_busy != 0; }
 X0X_COLD static void project_input_sync(void)
 {
     int i;
     ui.btn = ui.btn_used = plat_buttons();
+    kbd_panic.active = 0;
+    kbd_panic.inhibited = (ui.btn & ((1u << B_FX) | (1u << B_SEQ))) != 0;
     ui.keys = plat_keys();
     for (i = 0; i < NE; i++) {
         (void)plat_enc(i);
@@ -3771,6 +3775,21 @@ X0X_COLD static void button_tap(int b)
     }
 }
 
+static unsigned keyboard_panic(uint32_t btn, uint32_t changed)
+{
+    unsigned held = 0, result;
+    if (!(changed & ((1u << B_FX) | (1u << B_SEQ))))
+        return 0;
+    if (btn & (1u << B_FX))
+        held |= X0X_PANIC_FIRST;
+    if (btn & (1u << B_SEQ))
+        held |= X0X_PANIC_SECOND;
+    result = x0x_panic_chord_update(&kbd_panic, held, X0X_PANIC_KEYBOARD);
+    if (result & X0X_PANIC_FIRE)
+        engine_request_notes_off();
+    return (result & X0X_PANIC_CONSUME) ? 1u : 0u;
+}
+
 /* Physical Free Play rate pads, ported from 6ae0928's division_pad_* route.
  * Original Miami keeps its native macro13/division order. Shape pads untouched. */
 static int division_pad_owner(void)
@@ -4000,6 +4019,7 @@ X0X_COLD static void input_body(void)
     }
 #endif
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
+    unsigned panic_consume;
     uint8_t revision = project_revision;
     int e;
     if (project_busy) {
@@ -4036,6 +4056,7 @@ X0X_COLD static void input_body(void)
     extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
 #endif
     ch = btn ^ ui.btn;
+    panic_consume = keyboard_panic(btn, ch);
 #if BOARD_SMK37
     if (ch || keys != ui.keys)
         smc_ui_cancel();
@@ -4044,6 +4065,18 @@ X0X_COLD static void input_body(void)
         uint32_t m = 1u << i;
         if (!(ch & m))
             continue;
+        /* PANIC_CONSUME */
+        if ((i == B_FX || i == B_SEQ) && panic_consume) {
+            if (btn & m) {
+                any_button = 1;
+                ui.down_t[i] = plat_ms();
+                ui.btn_used |= m;
+            } else
+                ui.btn_used &= ~m;
+            if (revision != project_revision)
+                return;
+            continue;
+        }
 #if BOARD_SMK37
         if ((i == B_PLAY || i == B_REC) &&
             smk_clip_history_button((uint8_t)i, (uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u))) {
