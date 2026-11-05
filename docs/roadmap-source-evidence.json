@@ -1,6 +1,6 @@
 {
   "schema": "dnbox-roadmap-source-evidence-v1",
-  "roadmap_blob": "4bfb141f569058b1407d5d4684e5f8ada3eb4067",
+  "roadmap_blob": "a204a54c989d6f323d619e70f799427603756541",
   "required_release_rows": [
     "PR-820",
     "PR-821",
@@ -32,6 +32,19 @@
         "kind": "blob",
         "needle": "enum { T_909, T_808, T_303, T_BRK, T_FX, T_MIX, T_MST, NTARGETS };",
         "pr": "#694"
+      }
+    ],
+    "ROW-63901cf850f6": [
+      {
+        "origin_commit": "f6621476bc6b2e55d71d4033668650c909feb792",
+        "origin_tree": "2d2f9c0424394d3548fd5db0d5ebfdad5d34687d",
+        "source_blob": "64a60328889429eb37574f1505a229565cb62e08",
+        "source_path": "experiments/original_synth/chicago_voice.c",
+        "candidate_path": "experiments/original_synth/chicago_voice.c",
+        "kind": "blob",
+        "needle": "#ifdef CHICAGO_COEF_CACHE_REFERENCE",
+        "status": "IN-PROGRESS",
+        "note": "Cache lane f6621476 (not in candidate 8be16486; blob differs). Row status is 'in progress' so the gate classes it QUEUED and does not evaluate this proof; it would fail against the candidate. Not PRESENT."
       }
     ]
   }
